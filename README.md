@@ -72,7 +72,7 @@ and MCP listeners.
 The repository currently contains these local development replacements:
 
 ```text
-datly_studio/  -> replace github.com/viant/datly => ../datly
+datly-studio/  -> replace github.com/viant/datly => ../datly
 ui/            -> forge: file:../../forge
 ```
 
@@ -85,14 +85,14 @@ Clone the repositories as siblings:
 
 ```sh
 git clone https://github.com/viant/datly.git
-git clone https://github.com/viant/datly-studio.git datly_studio
+git clone https://github.com/viant/datly-studio.git
 git clone https://github.com/viant/forge.git
 ```
 
 Initialize the Studio catalog and preseeded SQLite reporting database:
 
 ```sh
-cd datly_studio
+cd datly-studio
 GOWORK=off go run ./cmd/studio-migrate \
   -command init-studio \
   -dsn 'file:.data/studio.db?cache=shared'
