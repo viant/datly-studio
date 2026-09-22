@@ -13,10 +13,10 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/viant/bigquery v0.5.3
 	github.com/viant/bindly v0.2.1-0.20260915164201-7cf35da5bd9a
-	github.com/viant/datly v0.39.2-0.20260921145952-eb69793f1aee
+	github.com/viant/datly v0.39.2-0.20260922161233-77a288b0c809
 	github.com/viant/mcp-protocol v0.19.0
 	github.com/viant/scy v0.35.1-0.20260914041206-699e6c909726
-	github.com/viant/sqlx v0.26.1-0.20260921130758-74842ae38a44
+	github.com/viant/sqlx v0.26.1-0.20260921232147-a5cf7fcdaa84
 	github.com/viant/x v0.5.1-0.20260915043005-1bc42b9eef47
 	github.com/viant/xdatly v0.5.4-0.20260921131606-b4cb3806beda
 	go.yaml.in/yaml/v3 v3.0.5
@@ -68,7 +68,7 @@ require (
 	github.com/viant/jsonrpc v0.25.0 // indirect
 	github.com/viant/mcp v0.24.0 // indirect
 	github.com/viant/parsly v0.3.3 // indirect
-	github.com/viant/sqlparser v0.13.1-0.20260920000917-069344a82d25 // indirect
+	github.com/viant/sqlparser v0.13.1-0.20260921232033-929f6f50ccce // indirect
 	github.com/viant/structology v0.10.1-0.20260915165514-89d421971772 // indirect
 	github.com/viant/structql v0.5.4 // indirect
 	github.com/viant/tagly v0.3.1-0.20260914020630-eadee36c3630 // indirect
