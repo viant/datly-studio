@@ -1,0 +1,38 @@
+#package('studio/namespaces/reader')
+
+#import('github.com/viant/scy/auth/jwt')
+#import('studioauth','github.com/viant/datly-studio/studio/auth/reader')
+
+#setting($_ = $input_type('NamespaceQueryInput'))
+#setting($_ = $output_type('NamespaceQueryOutput'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/namespaces', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $mcp('studio.namespaces.read', 'Read governed Datly Studio namespaces'))
+#setting($_ = $sql_dest('namespace', 'sql/namespace.sql'))
+
+#define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
+#define($_ = $Auth<*studioauth.Output>(component/GET:/v1/studio/auth/context).Required())
+#define($_ = $Name<string>(path/name).Required().WithURI('/{name}').WithPredicate(2, 'equal', 'n', 'name'))
+#define($_ = $Query<string>(query/q).Optional().WithPredicate(0, 'contains', 'n', 'name').WithPredicate(0, 'contains', 'n', 'title').WithPredicate(0, 'contains', 'n', 'description'))
+#define($_ = $Status<string>(query/status).Optional().WithPredicate(1, 'equal', 'n', 'status'))
+#define($_ = $Fields<[]string>(query/fields).Optional().QuerySelector('namespace'))
+#define($_ = $OrderBy<string>(query/orderBy).Optional().QuerySelector('namespace'))
+#define($_ = $Limit<int>(query/limit).Optional().QuerySelector('namespace'))
+#define($_ = $Offset<int>(query/offset).Optional().QuerySelector('namespace'))
+#define($_ = $Namespaces<[]*NamespaceRecord>(output/view))
+
+SELECT namespaces.*, type(namespaces, 'NamespaceRecord'),
+       CAST(namespaces.owner_id AS string),
+       CAST(namespaces.name AS string),
+       CAST(namespaces.title AS string),
+       CAST(namespaces.status AS string),
+       set_limit(namespaces, 100),
+       selector_fields(namespaces, true),
+       selector_limit(namespaces, true),
+       selector_offset(namespaces, true),
+       allowed_order_by_columns(namespaces, 'name,title,status,updated_at')
+FROM (
+    ${embed:sql/read.sql}
+) namespaces
+WHERE 1=1

@@ -1,0 +1,12 @@
+HTTP:
+  Address: 127.0.0.1:8082
+MCP:
+  Address: 127.0.0.1:8091
+Authentication:
+  DefaultMode: public
+Studio:
+  Driver: sqlite
+  DSN: file:.data/studio.db?cache=shared
+Admin:
+  Token: datly-studio-local-runtime
+RootDir: .

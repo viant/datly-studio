@@ -1,0 +1,1 @@
+SELECT SessionIdHash AS SessionIdHash FROM `/`

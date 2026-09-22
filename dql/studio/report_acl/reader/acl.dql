@@ -1,0 +1,19 @@
+#package('studio/report_acl/reader')
+
+#import('github.com/viant/scy/auth/jwt')
+#import('studioauthorization','github.com/viant/datly-studio/studio/authorization')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/reports/{reportId}/acl', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $mcp('studio.report_acl.read', 'Read report access policy'))
+#setting($_ = $sql_dest('report_acl', 'sql/read.sql'))
+#define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
+#define($_ = $ReportId<string>(path/reportId).Required().WithPredicate(2, 'equal', 'a', 'report_id').WithPredicate(3, 'handler', 'studioauthorization.ACLRead'))
+#define($_ = $SubjectType<string>(query/subjectType).Optional().WithPredicate(1, 'equal', 'a', 'subject_type'))
+#define($_ = $SubjectId<string>(query/subjectId).Optional().WithPredicate(1, 'equal', 'a', 'subject_id'))
+#define($_ = $Access<[]*ReportACL>(output/view))
+SELECT report_acl.*, type(report_acl, 'ReportACL') FROM (${embed:sql/read.sql}) report_acl
+WHERE 1=1

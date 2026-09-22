@@ -1,0 +1,48 @@
+BaseDir: .
+Endpoint:
+  # Linked Studio control-plane components only. Dynamic readers run separately.
+  Address: 127.0.0.1:8081
+Connector: studio
+Connectors:
+  - Name: studio
+    Driver: sqlite
+    DSN: file:.data/studio.db?cache=shared
+JWTValidator:
+  CertURL: https://idp.viantinc.com/v1/api/oauth2/certs
+GoBootstrap:
+  # Instance startup reflects linked component, predicate, codec, and resource
+  # types only. AST/DQL source discovery remains a transcribe-time concern.
+  EagerComponents: true
+  Packages:
+    - github.com/viant/datly-studio/studio/authorization
+    - github.com/viant/datly-studio/studio/auth/reader
+    - github.com/viant/datly-studio/studio/connectors/reader
+    - github.com/viant/datly-studio/studio/connectors/writer
+    - github.com/viant/datly-studio/studio/namespaces/reader
+    - github.com/viant/datly-studio/studio/namespaces/writer
+    - github.com/viant/datly-studio/studio/report_versions/reader
+    - github.com/viant/datly-studio/studio/report_versions/writer
+    - github.com/viant/datly-studio/studio/report_views/reader
+    - github.com/viant/datly-studio/studio/report_parameters/reader
+    - github.com/viant/datly-studio/studio/report_parameters/writer
+    - github.com/viant/datly-studio/studio/report_cube_configs/reader
+    - github.com/viant/datly-studio/studio/report_cube_configs/writer
+    - github.com/viant/datly-studio/studio/report_mcp_exposures/reader
+    - github.com/viant/datly-studio/studio/report_mcp_exposures/writer
+    - github.com/viant/datly-studio/studio/report_resource_files/reader
+    - github.com/viant/datly-studio/studio/report_resource_files/writer
+    - github.com/viant/datly-studio/studio/report_resource_folders/reader
+    - github.com/viant/datly-studio/studio/report_resource_folders/writer
+    - github.com/viant/datly-studio/studio/report_skill_roots/reader
+    - github.com/viant/datly-studio/studio/report_skill_roots/writer
+    - github.com/viant/datly-studio/studio/runtime_generations/reader
+    - github.com/viant/datly-studio/studio/runtime_generations/writer
+    - github.com/viant/datly-studio/studio/report_warmup_runs/reader
+    - github.com/viant/datly-studio/studio/bff_sessions/reader
+    - github.com/viant/datly-studio/studio/bff_sessions/writer
+    - github.com/viant/datly-studio/studio/report_publications/reader
+    - github.com/viant/datly-studio/studio/report_publications/writer
+    - github.com/viant/datly-studio/studio/report_acl/reader
+    - github.com/viant/datly-studio/studio/report_acl/writer
+    - github.com/viant/datly-studio/studio/reports/reader
+    - github.com/viant/datly-studio/studio/reports/writer

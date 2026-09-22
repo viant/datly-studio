@@ -1,0 +1,2 @@
+SELECT resource_folder."report_id", resource_folder."version_no", resource_folder."folder_id", resource_folder."namespace", resource_folder."root_path", resource_folder."uri_prefix", resource_folder."ordinal", resource_folder."should_delete" FROM  (SELECT f.*, '' AS should_delete FROM report_resource_folders f
+)  resource_folder WHERE 1 = 1

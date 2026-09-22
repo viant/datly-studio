@@ -1,0 +1,34 @@
+#package('studio/report_warmup_runs/reader')
+
+#import('github.com/viant/scy/auth/jwt')
+#import('encoding/json')
+#import('studioauth','github.com/viant/datly-studio/studio/auth/reader')
+#import('studioauthorization','github.com/viant/datly-studio/studio/authorization')
+
+#setting($_ = $input_type('WarmupRunInput'))
+#setting($_ = $output_type('WarmupRunOutput'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/report-warmup-runs', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $mcp('studio.report_warmup_runs.read', 'Read durable cache warmup run evidence'))
+#setting($_ = $sql_dest('warmup_run', 'sql/read.sql'))
+#define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
+#define($_ = $Auth<*studioauth.Output>(component/GET:/v1/studio/auth/context).Required().WithPredicate(3, 'handler', 'studioauthorization.WarmupRead'))
+#define($_ = $ReportID<string>(query/reportId).Optional().WithPredicate(1, 'equal', 'w', 'report_id'))
+#define($_ = $VersionNo<int>(query/versionNo).Optional().WithPredicate(1, 'equal', 'w', 'version_no'))
+#define($_ = $RunID<string>(query/runId).Optional().WithPredicate(1, 'equal', 'w', 'run_id'))
+#define($_ = $Status<string>(query/status).Optional().WithPredicate(1, 'equal', 'w', 'status'))
+#define($_ = $Fields<[]string>(query/fields).Optional().QuerySelector('warmupRun'))
+#define($_ = $OrderBy<string>(query/orderBy).Optional().QuerySelector('warmupRun'))
+#define($_ = $Limit<int>(query/limit).Optional().QuerySelector('warmupRun'))
+#define($_ = $Offset<int>(query/offset).Optional().QuerySelector('warmupRun'))
+#define($_ = $WarmupRuns<[]*WarmupRun>(output/view))
+SELECT warmup_run.*, type(warmup_run, 'WarmupRun'),
+       CAST(warmup_run.target_json AS json.RawMessage),
+       CAST(warmup_run.diagnostics_json AS json.RawMessage),
+       tag(warmup_run.target_json, 'sqlx:"target_json,enc=JSON"'),
+       tag(warmup_run.diagnostics_json, 'sqlx:"diagnostics_json,enc=JSON"'),
+       set_limit(warmup_run, 100), selector_fields(warmup_run, true), selector_limit(warmup_run, true), selector_offset(warmup_run, true),
+       allowed_order_by_columns(warmup_run, 'requested_at,started_at,completed_at,status,duration_ns,entries')
+FROM (${embed:sql/read.sql}) warmup_run
+WHERE 1=1

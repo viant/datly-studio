@@ -1,0 +1,28 @@
+#package('github.com/viant/datly-studio/e2e/testdata/vendorlist')
+
+#setting($_ = $dest('vendor.go'))
+
+#setting($_ = $input_dest('vendor_input.go'))
+#setting($_ = $output_dest('vendor_output.go'))
+
+#setting($_ = $connector('dev'))
+#setting($_ = $route('/v1/api/shape/dev/vendors/', 'GET'))
+
+#define($_ = $VendorName<string>(form/name).Optional().WithPredicate(0, 'contains', 't', 'NAME'))
+#define($_ = $Fields<[]string>(query/fields).Optional().QuerySelector('vendor'))
+#define($_ = $Page<int>(query/page).Optional().QuerySelector('vendor'))
+
+#define($_ = $Data<?>(output/view).Embed())
+
+SELECT vendor.*,
+       products.* EXCEPT VENDOR_ID,
+       dest(vendor, 'vendor.go'),
+       dest(products, 'vendor.go'),
+       type(vendor, 'Vendor'),
+       type(products, 'Products')
+FROM (SELECT * FROM VENDOR t ) vendor
+    JOIN (
+    SELECT * FROM PRODUCT t WHERE 1 = 1
+     ${predicate.Builder().CombineOr($predicate.FilterGroup(0, "AND")).Build("AND")}
+
+    ) products ON products.VENDOR_ID = vendor.ID

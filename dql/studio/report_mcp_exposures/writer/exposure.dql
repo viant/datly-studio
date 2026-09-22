@@ -1,0 +1,33 @@
+#package('studio/report_mcp_exposures/writer')
+
+#import('github.com/viant/scy/auth/jwt')
+#import('github.com/viant/xdatly/response')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/report-mcp-exposures', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('mcp_exposure', 'sql/patch.sql'))
+
+#define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
+#define($_ = $Exposures<[]*ReportMCPExposure>(body/data))
+#define($_ = $Status<response.Status>(output/status).Embed())
+#define($_ = $Violations<?>(transient/status).Output())
+#define($_ = $Data<[]*ReportMCPExposure>(body/).Output())
+
+SELECT exposure.*, type(exposure, 'ReportMCPExposure'),
+       lifecycle_type(exposure, 'ExposureRules'),
+       tag(exposure.report_id, 'sqlx:"report_id,primaryKey" validate:"required"'),
+       tag(exposure.version_no, 'sqlx:"version_no,primaryKey"'),
+       tag(exposure.exposure_id, 'sqlx:"exposure_id,primaryKey" validate:"required"'),
+       tag(exposure.route_id, 'validate:"required"'),
+       tag(exposure.route_method, 'validate:"required"'),
+       tag(exposure.route_path, 'validate:"required"'),
+       tag(exposure.kind, 'validate:"required,choice(tool,resource,resourceTemplate)"'),
+       tag(exposure.name, 'validate:"required"'),
+       CAST(exposure.should_delete AS bool), delete_marker(exposure.should_delete)
+FROM (
+    ${embed:sql/patch.sql}
+) exposure
+WHERE 1=1

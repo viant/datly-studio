@@ -1,0 +1,31 @@
+#package('studio/runtime_generations/writer')
+
+#import('github.com/viant/scy/auth/jwt')
+#import('encoding/json')
+#import('github.com/viant/xdatly/response')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/runtime-generations', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('runtime_generation', 'sql/patch.sql'))
+#define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
+#define($_ = $Generations<[]*RuntimeGeneration>(body/data))
+#define($_ = $Status<response.Status>(output/status).Embed())
+#define($_ = $Violations<?>(transient/status).Output())
+#define($_ = $Data<[]*RuntimeGeneration>(body/).Output())
+SELECT generation.*, type(generation, 'RuntimeGeneration'),
+	   CAST(generation.build_manifest_json AS json.RawMessage),
+	   CAST(generation.diagnostics_json AS json.RawMessage),
+	   tag(generation.build_manifest_json, 'sqlx:"build_manifest_json,enc=JSON"'),
+	   tag(generation.diagnostics_json, 'sqlx:"diagnostics_json,enc=JSON"'),
+       lifecycle_type(generation, 'GenerationRules'),
+       tag(generation.generation_no, 'sqlx:"generation_no,primaryKey"'),
+       tag(generation.source_revision, 'validate:"required"'),
+       tag(generation.status, 'validate:"required,choice(building,active,failed,retired)"'),
+       tag(generation.build_manifest_json, 'validate:"required"'),
+       tag(generation.requested_by, 'validate:"required"'),
+       tag(generation.requested_at, 'validate:"required"')
+FROM (${embed:sql/patch.sql}) generation
+WHERE 1=1

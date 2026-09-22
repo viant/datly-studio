@@ -1,0 +1,33 @@
+#package('studio/authorization_predicates/reader')
+
+#import('github.com/viant/scy/auth/jwt')
+#import('studioauthorization','github.com/viant/datly-studio/studio/authorization')
+
+#setting($_ = $input_type('AuthorizationPredicateQueryInput'))
+#setting($_ = $output_type('AuthorizationPredicateQueryOutput'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/security/authorization-predicates', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $mcp('studio.security.authorization_predicates.read', 'Read governed authorization predicate links'))
+#setting($_ = $sql_dest('authorization_predicate', 'sql/read.sql'))
+
+#define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
+#define($_ = $Name<string>(path/name).Required().WithURI('/{name}').WithPredicate(2, 'equal', 'p', 'name').WithPredicate(3, 'handler', 'studioauthorization.AuthorizationPredicateRead'))
+#define($_ = $Query<string>(query/q).Optional().WithPredicate(0, 'contains', 'p', 'name').WithPredicate(0, 'contains', 'p', 'title').WithPredicate(0, 'contains', 'p', 'package_path').WithPredicate(0, 'contains', 'p', 'type_name'))
+#define($_ = $Status<string>(query/status).Optional().WithPredicate(1, 'equal', 'p', 'status'))
+#define($_ = $Fields<[]string>(query/fields).Optional().QuerySelector('authorization_predicate'))
+#define($_ = $OrderBy<string>(query/orderBy).Optional().QuerySelector('authorization_predicate'))
+#define($_ = $Limit<int>(query/limit).Optional().QuerySelector('authorization_predicate'))
+#define($_ = $Offset<int>(query/offset).Optional().QuerySelector('authorization_predicate'))
+#define($_ = $AuthorizationPredicates<[]*AuthorizationPredicateRecord>(output/view))
+
+SELECT predicates.*, type(predicates, 'AuthorizationPredicateRecord'),
+       CAST(predicates.name AS string), CAST(predicates.title AS string),
+       CAST(predicates.package_path AS string), CAST(predicates.type_name AS string),
+       tag(predicates.sql_scope_json, 'sqlx:"sql_scope_json,enc=JSON"'),
+       CAST(predicates.owner_id AS string), CAST(predicates.status AS string),
+       set_limit(predicates, 100), selector_fields(predicates, true),
+       selector_limit(predicates, true), selector_offset(predicates, true),
+       allowed_order_by_columns(predicates, 'name,title,package_path,type_name,status,updated_at')
+FROM (${embed:sql/read.sql}) predicates
+WHERE 1=1

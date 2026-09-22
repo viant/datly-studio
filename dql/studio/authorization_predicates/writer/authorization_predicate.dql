@@ -1,0 +1,32 @@
+#package('studio/authorization_predicates/writer')
+
+#import('github.com/viant/scy/auth/jwt')
+#import('github.com/viant/xdatly/response')
+
+#setting($_ = $input_type('AuthorizationPredicateMutationInput'))
+#setting($_ = $output_type('AuthorizationPredicateMutationOutput'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/security/authorization-predicates', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('authorization_predicate', 'sql/patch.sql'))
+
+#define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
+#define($_ = $AuthorizationPredicates<[]*AuthorizationPredicateMutationRecord>(body/data))
+#define($_ = $Status<response.Status>(output/status).Embed())
+#define($_ = $Violations<?>(transient/status).Output())
+#define($_ = $Data<[]*AuthorizationPredicateMutationRecord>(body/).Output())
+
+SELECT predicate.*, type(predicate, 'AuthorizationPredicateMutationRecord'),
+       CAST(predicate.name AS string), CAST(predicate.title AS string),
+       CAST(predicate.package_path AS string), CAST(predicate.type_name AS string),
+       tag(predicate.sql_scope_json, 'sqlx:"sql_scope_json,enc=JSON"'),
+       CAST(predicate.owner_id AS string), CAST(predicate.status AS string),
+       tag(predicate.name, 'sqlx:"name,primaryKey" validate:"required,regexp(^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$)"'),
+       tag(predicate.title, 'validate:"required"'),
+       tag(predicate.package_path, 'validate:"required"'),
+       tag(predicate.type_name, 'validate:"required"'),
+       tag(predicate.status, 'validate:"required,choice(active,disabled)"'),
+       CAST(predicate.should_delete AS bool), delete_marker(predicate.should_delete),
+       concurrency_token(predicate.etag)
+FROM (${embed:sql/patch.sql}) predicate
+WHERE 1=1

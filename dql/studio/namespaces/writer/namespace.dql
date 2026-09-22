@@ -1,0 +1,36 @@
+#package('studio/namespaces/writer')
+
+#import('github.com/viant/scy/auth/jwt')
+#import('studioauth','github.com/viant/datly-studio/studio/auth/reader')
+#import('github.com/viant/xdatly/response')
+
+#setting($_ = $input_type('NamespaceMutationInput'))
+#setting($_ = $output_type('NamespaceMutationOutput'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/namespaces', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('namespace', 'sql/namespace.sql'))
+
+#define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
+#define($_ = $Auth<*studioauth.Output>(component/GET:/v1/studio/auth/context).Required())
+#define($_ = $Namespaces<[]*NamespaceMutationRecord>(body/data))
+#define($_ = $Status<response.Status>(output/status).Embed())
+#define($_ = $Violations<?>(transient/status).Output())
+#define($_ = $Data<[]*NamespaceMutationRecord>(body/).Output())
+
+SELECT namespace.*, type(namespace, 'NamespaceMutationRecord'),
+       CAST(namespace.owner_id AS string),
+       CAST(namespace.name AS string),
+       CAST(namespace.title AS string),
+       CAST(namespace.status AS string),
+       tag(namespace.owner_id, 'sqlx:"owner_id,primaryKey" validate:"required"'),
+       tag(namespace.name, 'sqlx:"name,primaryKey" validate:"required,regexp(^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$)"'),
+       tag(namespace.title, 'validate:"required"'),
+       tag(namespace.status, 'validate:"required,choice(active,archived)"'),
+       CAST(namespace.should_delete AS bool),
+       delete_marker(namespace.should_delete),
+       concurrency_token(namespace.etag)
+FROM (
+    ${embed:sql/patch.sql}
+) namespace
+WHERE 1=1

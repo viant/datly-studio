@@ -1,0 +1,5 @@
+pipeline:
+  initialize:
+    action: run
+    request: '@../local/datastore/datastore'
+    tasks: '*'

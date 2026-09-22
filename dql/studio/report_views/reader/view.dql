@@ -1,0 +1,40 @@
+#package('studio/report_views/reader')
+
+#import('github.com/viant/scy/auth/jwt')
+#import('encoding/json')
+#import('studioauthorization','github.com/viant/datly-studio/studio/authorization')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/reports/{reportId}/versions/{versionNo}/views', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $mcp('studio.report_views.read', 'Read compiled report views and fields'))
+#setting($_ = $sql_dest('report_view', 'sql/read.sql'))
+
+#define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
+#define($_ = $ReportId<string>(path/reportId).Required().WithPredicate(2, 'equal', 'v', 'report_id').WithPredicate(3, 'handler', 'studioauthorization.ReportViewRead'))
+#define($_ = $VersionNo<int>(path/versionNo).Required().WithPredicate(2, 'equal', 'v', 'version_no'))
+#define($_ = $Role<string>(query/role).Optional().WithPredicate(1, 'equal', 'v', 'role'))
+#define($_ = $SourceKind<string>(query/sourceKind).Optional().WithPredicate(1, 'equal', 'v', 'source_kind'))
+#define($_ = $Fields<[]string>(query/fields).Optional().QuerySelector('view'))
+#define($_ = $OrderBy<string>(query/orderBy).Optional().QuerySelector('view'))
+#define($_ = $Limit<int>(query/limit).Optional().QuerySelector('view'))
+#define($_ = $Offset<int>(query/offset).Optional().QuerySelector('view'))
+#define($_ = $Views<[]*ReportView>(output/view))
+
+SELECT views.*, fields.*, type(views, 'ReportView'), type(fields, 'ReportField'),
+	   CAST(views.metadata_json AS json.RawMessage),
+	   CAST(fields.metadata_json AS json.RawMessage),
+	   tag(views.metadata_json, 'sqlx:"metadata_json,enc=JSON"'),
+	   tag(fields.metadata_json, 'sqlx:"metadata_json,enc=JSON"')
+FROM (
+    ${embed:sql/read.sql}
+) views
+LEFT JOIN (
+    ${embed:sql/fields.sql}
+) fields
+  ON fields.report_id = views.report_id
+ AND fields.version_no = views.version_no
+ AND fields.view_id = views.view_id
+WHERE 1=1

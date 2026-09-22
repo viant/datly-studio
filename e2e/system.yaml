@@ -1,0 +1,20 @@
+init:
+  mysqlSecrets: ${secrets.$mysqlCredentials}
+
+pipeline:
+  stop:
+    mysql:
+      action: docker:stop
+      names:
+        - datly_studio_mysql
+
+  start:
+    mysql:
+      action: docker:run
+      image: mysql:8.4
+      name: datly_studio_mysql
+      reuse: true
+      ports:
+        43306: 3306
+      env:
+        MYSQL_ROOT_PASSWORD: ${mysqlSecrets.Password}

@@ -1,0 +1,25 @@
+#package('studio/report_skill_roots/writer')
+
+#import('github.com/viant/scy/auth/jwt')
+#import('github.com/viant/xdatly/response')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/report-skill-roots', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('skill_root', 'sql/patch.sql'))
+#define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
+#define($_ = $Skills<[]*ReportSkillRoot>(body/data))
+#define($_ = $Status<response.Status>(output/status).Embed())
+#define($_ = $Violations<?>(transient/status).Output())
+#define($_ = $Data<[]*ReportSkillRoot>(body/).Output())
+SELECT skill_root.*, type(skill_root, 'ReportSkillRoot'),
+       lifecycle_type(skill_root, 'SkillRules'),
+       tag(skill_root.report_id, 'sqlx:"report_id,primaryKey" validate:"required"'),
+       tag(skill_root.version_no, 'sqlx:"version_no,primaryKey"'),
+       tag(skill_root.skill_id, 'sqlx:"skill_id,primaryKey" validate:"required"'),
+       tag(skill_root.folder_id, 'validate:"required"'), tag(skill_root.skill_root, 'validate:"required"'),
+       CAST(skill_root.should_delete AS bool), delete_marker(skill_root.should_delete)
+FROM (${embed:sql/patch.sql}) skill_root
+WHERE 1=1

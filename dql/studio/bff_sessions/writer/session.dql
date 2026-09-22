@@ -1,0 +1,24 @@
+#package('studio/bff_sessions/writer')
+
+#import('github.com/viant/scy/auth/jwt')
+#import('github.com/viant/xdatly/response')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/sessions', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('session', 'sql/patch.sql'))
+#define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
+#define($_ = $Sessions<[]*SessionRevocation>(body/data))
+#define($_ = $Status<response.Status>(output/status).Embed())
+#define($_ = $Violations<?>(transient/status).Output())
+#define($_ = $Data<[]*SessionRevocation>(body/).Output())
+SELECT session.*, type(session, 'SessionRevocation'),
+       CAST(session.session_id_hash AS string), CAST(session.subject_id AS string),
+       lifecycle_type(session, 'SessionRevocationRules'),
+       tag(session.session_id_hash, 'sqlx:"session_id_hash,primaryKey" validate:"required"'),
+       tag(session.subject_id, 'validate:"required"'),
+       tag(session.expires_at_unix, 'validate:"required"')
+FROM (${embed:sql/patch.sql}) session
+WHERE 1=1

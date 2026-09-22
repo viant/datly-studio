@@ -1,0 +1,49 @@
+#package('studio/report_versions/reader')
+
+#import('github.com/viant/scy/auth/jwt')
+#import('encoding/json')
+#import('studioauthorization','github.com/viant/datly-studio/studio/authorization')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/reports/{reportId}/versions', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $mcp('studio.report_versions.read', 'Read immutable Datly Studio report versions'))
+#setting($_ = $sql_dest('report_version', 'sql/read.sql'))
+
+#define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
+#define($_ = $ReportId<string>(path/reportId).Required().WithPredicate(2, 'equal', 'v', 'report_id').WithPredicate(3, 'handler', 'studioauthorization.ReportVersionRead'))
+#define($_ = $VersionNo<int>(path/versionNo).Required().WithURI('/{versionNo}').WithPredicate(2, 'equal', 'v', 'version_no'))
+#define($_ = $State<string>(query/state).Optional().WithPredicate(1, 'equal', 'v', 'state'))
+#define($_ = $AuthoringMode<string>(query/authoringMode).Optional().WithPredicate(1, 'equal', 'v', 'authoring_mode'))
+#define($_ = $CompileStatus<string>(query/compileStatus).Optional().WithPredicate(1, 'equal', 'v', 'compile_status'))
+#define($_ = $CreatedBy<string>(query/createdBy).Optional().WithPredicate(1, 'equal', 'v', 'created_by'))
+#define($_ = $Fields<[]string>(query/fields).Optional().QuerySelector('version'))
+#define($_ = $OrderBy<string>(query/orderBy).Optional().QuerySelector('version'))
+#define($_ = $Limit<int>(query/limit).Optional().QuerySelector('version'))
+#define($_ = $Offset<int>(query/offset).Optional().QuerySelector('version'))
+#define($_ = $Versions<[]*ReportVersion>(output/view))
+
+SELECT report_versions.*, type(report_versions, 'ReportVersion'),
+	   CAST(report_versions.component_spec_json AS json.RawMessage),
+	   CAST(report_versions.dql_export_limits_json AS json.RawMessage),
+	   CAST(report_versions.type_manifest_json AS json.RawMessage),
+	   CAST(report_versions.resource_manifest_json AS json.RawMessage),
+	   CAST(report_versions.component_descriptor_json AS json.RawMessage),
+	   CAST(report_versions.compile_diagnostics_json AS json.RawMessage),
+	   tag(report_versions.component_spec_json, 'sqlx:"component_spec_json,enc=JSON"'),
+	   tag(report_versions.dql_export_limits_json, 'sqlx:"dql_export_limits_json,enc=JSON"'),
+	   tag(report_versions.type_manifest_json, 'sqlx:"type_manifest_json,enc=JSON"'),
+	   tag(report_versions.resource_manifest_json, 'sqlx:"resource_manifest_json,enc=JSON"'),
+	   tag(report_versions.component_descriptor_json, 'sqlx:"component_descriptor_json,enc=JSON"'),
+	   tag(report_versions.compile_diagnostics_json, 'sqlx:"compile_diagnostics_json,enc=JSON"'),
+	   set_limit(report_versions, 100),
+       selector_fields(report_versions, true),
+       selector_limit(report_versions, true),
+       selector_offset(report_versions, true),
+       allowed_order_by_columns(report_versions, 'version_no,state,authoring_mode,compile_status,source_revision,created_by,created_at,validated_at,published_at')
+FROM (
+    ${embed:sql/read.sql}
+) report_versions
+WHERE 1=1

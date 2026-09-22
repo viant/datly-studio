@@ -1,0 +1,5 @@
+SELECT report_version."report_id", report_version."version_no", report_version."state", report_version."authoring_mode", report_version."authored_sql", report_version."authored_dql", report_version."component_spec_json", report_version."spec_format_version", report_version."spec_hash", report_version."generated_dql", report_version."dql_export_limits_json", report_version."type_manifest_json", report_version."resource_manifest_json", report_version."component_descriptor_json", report_version."compile_status", report_version."compile_diagnostics_json", report_version."datly_version", report_version."compiler_version", report_version."source_revision", report_version."notes", report_version."created_by", report_version."created_at", report_version."validated_at", report_version."published_at" FROM  (
+    SELECT v.*
+FROM report_versions v
+
+)  report_version WHERE 1 = 1

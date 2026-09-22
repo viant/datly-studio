@@ -1,0 +1,40 @@
+# Local Studio state and databases
+.data/
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Compiled output
+bin/
+dist/
+build/
+coverage/
+*.out
+*.test
+
+# Frontend dependencies and tooling
+node_modules/
+.vite/
+
+# IDE and operating-system files
+.idea/
+.vscode/
+.DS_Store
+
+# Local environment and secret material
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*~

@@ -1,0 +1,2 @@
+SELECT resource_file."report_id", resource_file."version_no", resource_file."resource_id", resource_file."namespace", resource_file."resource_path", resource_file."media_type", resource_file."content", resource_file."content_size", resource_file."content_sha256", resource_file."is_binary", resource_file."created_at", resource_file."should_delete" FROM  (SELECT f.*, '' AS should_delete FROM report_resource_files f
+)  resource_file WHERE 1 = 1

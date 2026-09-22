@@ -1,0 +1,5 @@
+pipeline:
+  connectors:
+    action: run
+    request: '@../rule/studio/connectors'
+    tasks: '*'

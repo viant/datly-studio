@@ -1,0 +1,24 @@
+init:
+  target:
+    URL: ssh://localhost/
+    credentials: localhost
+  appPath: $WorkingDirectory(..)
+  studioDSN: file:${appPath}/.data/studio.db?cache=shared
+
+pipeline:
+  db:
+    action: exec:run
+    target: $target
+    checkError: true
+    commands:
+      - cd ${appPath}
+      - mkdir -p .data
+      - GOWORK=off go run ./cmd/studio-migrate -command up -dsn '${studioDSN}'
+
+  seed:
+    action: exec:run
+    target: $target
+    checkError: true
+    commands:
+      - cd ${appPath}
+      - GOWORK=off go run ./cmd/studio-migrate -command seed-sample -dsn '${studioDSN}'

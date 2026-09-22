@@ -1,0 +1,27 @@
+#package('studio/report_resource_files/writer')
+
+#import('github.com/viant/scy/auth/jwt')
+#import('github.com/viant/xdatly/response')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/report-resource-files', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('resource_file', 'sql/patch.sql'))
+#define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
+#define($_ = $Files<[]*ReportResourceFile>(body/data))
+#define($_ = $Status<response.Status>(output/status).Embed())
+#define($_ = $Violations<?>(transient/status).Output())
+#define($_ = $Data<[]*ReportResourceFile>(body/).Output())
+SELECT resource_file.*, type(resource_file, 'ReportResourceFile'),
+       lifecycle_type(resource_file, 'FileRules'),
+       tag(resource_file.report_id, 'sqlx:"report_id,primaryKey" validate:"required"'),
+       tag(resource_file.version_no, 'sqlx:"version_no,primaryKey"'),
+       tag(resource_file.resource_id, 'sqlx:"resource_id,primaryKey" validate:"required"'),
+       tag(resource_file.namespace, 'validate:"required"'), tag(resource_file.resource_path, 'validate:"required"'),
+       tag(resource_file.content, 'validate:"required"'), tag(resource_file.content_size, 'validate:"gte=0"'),
+       tag(resource_file.content_sha256, 'validate:"required"'), tag(resource_file.created_at, 'validate:"required"'),
+       CAST(resource_file.should_delete AS bool), delete_marker(resource_file.should_delete)
+FROM (${embed:sql/patch.sql}) resource_file
+WHERE 1=1

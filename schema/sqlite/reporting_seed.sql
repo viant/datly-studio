@@ -1,0 +1,9 @@
+INSERT INTO VENDOR (ID, NAME, ACCOUNT_ID, CREATED, USER_CREATED) VALUES
+    (1, 'Vendor 1', 100, '2026-03-13 00:00:00', 1),
+    (2, 'Vendor 2', 101, '2026-03-13 00:00:00', 2),
+    (3, 'Vendor 3', 100, '2026-03-13 00:00:00', 1);
+
+INSERT INTO PRODUCT (ID, NAME, VENDOR_ID, CREATED, STATUS, USER_CREATED) VALUES
+    (1, 'V1 Product 1', 1, '2026-03-13 00:00:00', 1, 1),
+    (2, 'V1 Product 2', 1, '2026-03-13 00:00:00', 1, 1),
+    (3, 'V2 Product 1', 2, '2026-03-13 00:00:00', 1, 2);

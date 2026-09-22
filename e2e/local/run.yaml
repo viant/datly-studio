@@ -1,0 +1,40 @@
+init:
+  target:
+    URL: ssh://localhost/
+    credentials: localhost
+  appPath: $WorkingDirectory(../..)
+  mysqlCredentials: mysql-e2e
+  dbIP:
+    mysql: 127.0.0.1
+  dbPort:
+    mysql: 43306
+
+pipeline:
+  init:
+    description: start Docker services and initialize E2E datastores
+    system:
+      action: run
+      request: '@system'
+      tasks: start
+    datastore:
+      action: run
+      request: '@datastore/datastore'
+      tasks: '*'
+
+  build:
+    description: build and test the current Studio foundation
+    action: run
+    request: '@build'
+    tasks: '*'
+
+  test:
+    description: run Studio E2E regression cases
+    action: run
+    request: '@regression/regression'
+    tasks: '*'
+
+  destroy:
+    description: stop local E2E services
+    action: run
+    request: '@system'
+    tasks: stop

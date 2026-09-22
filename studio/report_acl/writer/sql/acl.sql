@@ -1,0 +1,2 @@
+SELECT report_acl."report_id", report_acl."subject_type", report_acl."subject_id", report_acl."can_view", report_acl."can_run", report_acl."can_edit", report_acl."can_publish", report_acl."can_use_dql", report_acl."etag", report_acl."should_delete" FROM  (SELECT a.*, '' AS should_delete FROM report_acl a
+)  report_acl WHERE 1 = 1

@@ -1,0 +1,48 @@
+#package('studio/report_versions/writer')
+
+#import('github.com/viant/scy/auth/jwt')
+#import('encoding/json')
+#import('github.com/viant/xdatly/response')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/report-versions', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('report_version', 'sql/patch.sql'))
+
+#define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
+#define($_ = $Versions<[]*ReportVersion>(body/data))
+#define($_ = $Status<response.Status>(output/status).Embed())
+#define($_ = $Violations<?>(transient/status).Output())
+#define($_ = $Data<[]*ReportVersion>(body/).Output())
+
+SELECT report_version.*, type(report_version, 'ReportVersion'),
+	   lifecycle_type(report_version, 'VersionRules'),
+	   CAST(report_version.component_spec_json AS json.RawMessage),
+	   CAST(report_version.dql_export_limits_json AS json.RawMessage),
+	   CAST(report_version.type_manifest_json AS json.RawMessage),
+	   CAST(report_version.resource_manifest_json AS json.RawMessage),
+	   CAST(report_version.component_descriptor_json AS json.RawMessage),
+	   CAST(report_version.compile_diagnostics_json AS json.RawMessage),
+       tag(report_version.report_id, 'sqlx:"report_id,primaryKey" validate:"required"'),
+       tag(report_version.version_no, 'sqlx:"version_no,primaryKey"'),
+       tag(report_version.state, 'validate:"required,choice(draft,validated,published,superseded,failed)"'),
+       tag(report_version.authoring_mode, 'validate:"required,choice(sql,dql,structured)"'),
+	   tag(report_version.component_spec_json, 'sqlx:"component_spec_json,enc=JSON" validate:"required"'),
+	   tag(report_version.dql_export_limits_json, 'sqlx:"dql_export_limits_json,enc=JSON"'),
+       tag(report_version.spec_format_version, 'validate:"required"'),
+       tag(report_version.spec_hash, 'validate:"required"'),
+	   tag(report_version.type_manifest_json, 'sqlx:"type_manifest_json,enc=JSON" validate:"required"'),
+	   tag(report_version.resource_manifest_json, 'sqlx:"resource_manifest_json,enc=JSON"'),
+	   tag(report_version.component_descriptor_json, 'sqlx:"component_descriptor_json,enc=JSON"'),
+       tag(report_version.compile_status, 'validate:"required,choice(pending,valid,invalid,error)"'),
+       tag(report_version.datly_version, 'validate:"required"'),
+       tag(report_version.compiler_version, 'validate:"required"'),
+	   tag(report_version.created_by, 'validate:"required"'),
+	   tag(report_version.compile_diagnostics_json, 'sqlx:"compile_diagnostics_json,enc=JSON"'),
+       concurrency_token(report_version.source_revision)
+FROM (
+    ${embed:sql/patch.sql}
+) report_version
+WHERE 1=1

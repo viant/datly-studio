@@ -1,0 +1,10 @@
+{
+  "mode": "authenticated",
+  "apiBaseURL": "https://studio.example.com",
+  "authentication": {
+    "issuerURL": "https://idp.viantinc.com",
+    "clientID": "datly-studio-web",
+    "audience": "datly-studio",
+    "scopes": ["openid", "profile", "email"]
+  }
+}

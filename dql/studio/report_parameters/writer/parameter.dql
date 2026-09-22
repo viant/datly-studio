@@ -1,0 +1,54 @@
+#package('studio/report_parameters/writer')
+
+#import('github.com/viant/scy/auth/jwt')
+#import('encoding/json')
+#import('github.com/viant/xdatly/response')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/report-parameters', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('report_parameter', 'sql/patch.sql'))
+
+#define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
+#define($_ = $Parameters<[]*ReportParameter>(body/data))
+#define($_ = $Status<response.Status>(output/status).Embed())
+#define($_ = $Violations<?>(transient/status).Output())
+#define($_ = $Data<[]*ReportParameter>(body/).Output())
+
+SELECT parameter.*, predicate.*, type(parameter, 'ReportParameter'),
+	   CAST(parameter.query_selector_json AS json.RawMessage),
+	   CAST(parameter.codec_json AS json.RawMessage),
+	   CAST(parameter.activation_json AS json.RawMessage),
+	   CAST(parameter.metadata_json AS json.RawMessage),
+	   CAST(predicate.args_json AS json.RawMessage),
+	   tag(parameter.query_selector_json, 'sqlx:"query_selector_json,enc=JSON"'),
+	   tag(parameter.codec_json, 'sqlx:"codec_json,enc=JSON"'),
+	   tag(parameter.activation_json, 'sqlx:"activation_json,enc=JSON"'),
+	   tag(parameter.metadata_json, 'sqlx:"metadata_json,enc=JSON"'),
+	   tag(predicate.args_json, 'sqlx:"args_json,enc=JSON"'),
+       lifecycle_type(parameter, 'ParameterRules'), type(predicate, 'ReportPredicate'),
+       tag(parameter.report_id, 'sqlx:"report_id,primaryKey" validate:"required"'),
+       tag(parameter.version_no, 'sqlx:"version_no,primaryKey"'),
+       tag(parameter.parameter_id, 'sqlx:"parameter_id,primaryKey" validate:"required"'),
+       tag(parameter.parameter_identity, 'validate:"required"'),
+       tag(parameter.name, 'validate:"required"'),
+       tag(parameter.source_kind, 'validate:"required"'),
+       tag(predicate.report_id, 'sqlx:"report_id,primaryKey"'),
+       tag(predicate.version_no, 'sqlx:"version_no,primaryKey"'),
+       tag(predicate.parameter_id, 'sqlx:"parameter_id,primaryKey"'),
+       tag(predicate.predicate_index, 'sqlx:"predicate_index,primaryKey"'),
+       tag(predicate.name, 'validate:"required"'),
+       CAST(parameter.should_delete AS bool), delete_marker(parameter.should_delete),
+       CAST(predicate.should_delete AS bool), delete_marker(predicate.should_delete)
+FROM (
+    ${embed:sql/patch.sql}
+) parameter
+LEFT JOIN (
+    ${embed:sql/predicates.sql}
+) predicate
+  ON predicate.report_id = parameter.report_id
+ AND predicate.version_no = parameter.version_no
+ AND predicate.parameter_id = parameter.parameter_id
+WHERE 1=1

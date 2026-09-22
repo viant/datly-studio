@@ -1,0 +1,5 @@
+SELECT r."dimensions_json", r."measures_json", r."filters_json", r."order_by_json", r."input_layout_json", r."report_id", r."version_no", r."compose_max_cubes", r."compose_max_limit", r."compose_timeout_ms", r."cube_enabled", r."cube_mcp_tool_enabled", r."linked_input_type", r."compose_enabled", r."compose_mcp_tool_enabled" FROM (SELECT cube_config."report_id", cube_config."version_no", cube_config."cube_enabled", cube_config."cube_mcp_tool_enabled", cube_config."dimensions_json", cube_config."measures_json", cube_config."filters_json", cube_config."order_by_json", cube_config."input_layout_json", cube_config."linked_input_type", cube_config."compose_enabled", cube_config."compose_mcp_tool_enabled", cube_config."compose_max_cubes", cube_config."compose_max_limit", cube_config."compose_timeout_ms" FROM  (
+    SELECT c.*
+FROM report_cube_configs c
+
+)  cube_config WHERE 1 = 1) r WHERE $criteria.CompositeIn("r", $ConfigKeys)

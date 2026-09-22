@@ -1,0 +1,40 @@
+#package('studio/report_cube_configs/writer')
+
+#import('github.com/viant/scy/auth/jwt')
+#import('encoding/json')
+#import('github.com/viant/xdatly/response')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/report-cube-configs', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('cube_config', 'sql/patch.sql'))
+
+#define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
+#define($_ = $Configs<[]*ReportCubeConfig>(body/data))
+#define($_ = $Status<response.Status>(output/status).Embed())
+#define($_ = $Violations<?>(transient/status).Output())
+#define($_ = $Data<[]*ReportCubeConfig>(body/).Output())
+
+SELECT cube_config.*, type(cube_config, 'ReportCubeConfig'),
+	   CAST(cube_config.dimensions_json AS json.RawMessage),
+	   CAST(cube_config.measures_json AS json.RawMessage),
+	   CAST(cube_config.filters_json AS json.RawMessage),
+	   CAST(cube_config.order_by_json AS json.RawMessage),
+	   CAST(cube_config.input_layout_json AS json.RawMessage),
+	   tag(cube_config.dimensions_json, 'sqlx:"dimensions_json,enc=JSON"'),
+	   tag(cube_config.measures_json, 'sqlx:"measures_json,enc=JSON"'),
+	   tag(cube_config.filters_json, 'sqlx:"filters_json,enc=JSON"'),
+	   tag(cube_config.order_by_json, 'sqlx:"order_by_json,enc=JSON"'),
+	   tag(cube_config.input_layout_json, 'sqlx:"input_layout_json,enc=JSON"'),
+       lifecycle_type(cube_config, 'CubeRules'),
+       tag(cube_config.report_id, 'sqlx:"report_id,primaryKey" validate:"required"'),
+       tag(cube_config.version_no, 'sqlx:"version_no,primaryKey"'),
+       tag(cube_config.compose_max_cubes, 'validate:"gt=0"'),
+       tag(cube_config.compose_max_limit, 'validate:"gt=0"'),
+       tag(cube_config.compose_timeout_ms, 'validate:"gt=0"')
+FROM (
+    ${embed:sql/patch.sql}
+) cube_config
+WHERE 1=1

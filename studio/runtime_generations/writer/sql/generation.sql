@@ -1,0 +1,2 @@
+SELECT generation."generation_no", generation."source_revision", generation."status", generation."report_count", generation."build_manifest_json", generation."diagnostics_json", generation."requested_by", generation."requested_at", generation."activated_at", generation."retired_at" FROM  (SELECT g.* FROM runtime_generations g
+)  generation WHERE 1 = 1

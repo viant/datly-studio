@@ -1,0 +1,55 @@
+init:
+  target:
+    URL: ssh://localhost/
+    credentials: localhost
+  appPath: $WorkingDirectory(..)
+  mysqlCredentials: mysql-e2e
+  dbIP:
+    mysql: 127.0.0.1
+  dbPort:
+    mysql: 43306
+
+pipeline:
+  init:
+    system:
+      action: run
+      description: start Docker services
+      request: '@system'
+      tasks: start
+    database:
+      action: run
+      description: recreate and hydrate databases
+      request: '@database/database'
+      tasks: '*'
+
+  build:
+    action: run
+    description: build Datly 1.0 tooling and Studio
+    request: '@build/build'
+    tasks: '*'
+
+  rule:
+    connectors:
+      action: run
+      description: compile and verify Connector components
+      request: '@rule/studio/connectors'
+      tasks: '*'
+
+  app:
+    database:
+      action: run
+      description: initialize local Studio SQLite database
+      request: '@app'
+      tasks: db
+
+  test:
+    action: run
+    description: run current regression tasks
+    request: '@regression/regression'
+    tasks: '*'
+
+  destroy:
+    action: run
+    description: stop Docker services
+    request: '@system'
+    tasks: stop

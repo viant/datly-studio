@@ -1,0 +1,13 @@
+HTTP:
+  Address: 127.0.0.1:8082
+MCP:
+  Address: 127.0.0.1:8091
+Authentication:
+  DefaultMode: required
+  CertURL: https://idp.viantinc.com/v1/api/oauth2/certs
+Studio:
+  Driver: sqlite
+  DSN: file:.data/studio.db?cache=shared
+Admin:
+  Token: datly-studio-local-runtime
+RootDir: .

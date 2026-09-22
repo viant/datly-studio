@@ -1,0 +1,2 @@
+SELECT publication."report_id", publication."active_version_no", publication."desired_generation", publication."active_generation", publication."publication_status", publication."runtime_revision", publication."spec_hash", publication."published_by", publication."published_at", publication."activated_at", publication."failure_json", publication."desired_version_no" FROM  (SELECT p.* FROM report_publications p
+)  publication WHERE 1 = 1

@@ -1,0 +1,1 @@
+SELECT ReportId AS ReportId, VersionNo AS VersionNo, ExposureId AS ExposureId FROM `/`

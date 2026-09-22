@@ -1,0 +1,2 @@
+SELECT r."report_id", r."version_no", r."skill_id", r."folder_id", r."skill_root", r."ordinal" FROM (SELECT skill_root."report_id", skill_root."version_no", skill_root."skill_id", skill_root."folder_id", skill_root."skill_root", skill_root."ordinal", skill_root."should_delete" FROM  (SELECT s.*, '' AS should_delete FROM report_skill_roots s
+)  skill_root WHERE 1 = 1) r WHERE $criteria.CompositeIn("r", $SkillKeys)

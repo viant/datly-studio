@@ -1,0 +1,5 @@
+SELECT r."query_selector_json", r."codec_json", r."activation_json", r."metadata_json", r."report_id", r."version_no", r."parameter_id", r."parameter_identity", r."name", r."source_kind", r."source_name", r."type_expr", r."required", r."emit_output", r."ordinal" FROM (SELECT parameter."report_id", parameter."version_no", parameter."parameter_id", parameter."parameter_identity", parameter."name", parameter."source_kind", parameter."source_name", parameter."type_expr", parameter."required", parameter."emit_output", parameter."query_selector_json", parameter."codec_json", parameter."activation_json", parameter."metadata_json", parameter."ordinal", parameter."should_delete" FROM  (
+    SELECT p.*, '' AS should_delete
+FROM report_parameters p
+
+)  parameter WHERE 1 = 1) r WHERE $criteria.CompositeIn("r", $ParameterKeys)

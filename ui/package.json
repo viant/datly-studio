@@ -1,0 +1,32 @@
+{
+  "name": "datly-studio-ui",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/embed.jsx",
+    "./extensions": "./src/extensions.js",
+    "./styles.css": "./src/studio.css"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "test": "node --test src/*.test.js && vitest run",
+    "test:contracts": "node --test src/*.test.js",
+    "test:rendered": "vitest run"
+  },
+  "dependencies": {
+    "@blueprintjs/core": "^6.0.0-alpha.1",
+    "forge": "file:../../forge",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
+    "@vitejs/plugin-react": "^4.3.4",
+    "jsdom": "^26.1.0",
+    "vite": "^6.3.5",
+    "vitest": "^4.1.11"
+  }
+}

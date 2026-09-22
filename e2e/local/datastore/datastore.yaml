@@ -1,0 +1,48 @@
+pipeline:
+  studio:
+    create:
+      action: dsunit:init
+      datastore: datly_studio_e2e
+      recreate: true
+      config:
+        driverName: mysql
+        descriptor: '[username]:[password]@tcp(${dbIP.mysql}:${dbPort.mysql})/[dbname]?parseTime=true&multiStatements=true'
+        credentials: $mysqlCredentials
+      admin:
+        datastore: mysql
+        ping: true
+        config:
+          driverName: mysql
+          descriptor: '[username]:[password]@tcp(${dbIP.mysql}:${dbPort.mysql})/[dbname]?parseTime=true&multiStatements=true'
+          credentials: $mysqlCredentials
+      scripts:
+        - URL: ${appPath}/schema/schema.ddl
+
+    prepare:
+      action: dsunit:prepare
+      datastore: datly_studio_e2e
+      URL: ${appPath}/e2e/local/datastore/studio/dictionary
+
+  reporting:
+    create:
+      action: dsunit:init
+      datastore: reporting_e2e
+      recreate: true
+      config:
+        driverName: mysql
+        descriptor: '[username]:[password]@tcp(${dbIP.mysql}:${dbPort.mysql})/[dbname]?parseTime=true&multiStatements=true'
+        credentials: $mysqlCredentials
+      admin:
+        datastore: mysql
+        ping: true
+        config:
+          driverName: mysql
+          descriptor: '[username]:[password]@tcp(${dbIP.mysql}:${dbPort.mysql})/[dbname]?parseTime=true&multiStatements=true'
+          credentials: $mysqlCredentials
+      scripts:
+        - URL: ${appPath}/e2e/local/datastore/reporting/schema.ddl
+
+    prepare:
+      action: dsunit:prepare
+      datastore: reporting_e2e
+      URL: ${appPath}/e2e/local/datastore/reporting/dictionary

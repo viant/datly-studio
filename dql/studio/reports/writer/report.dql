@@ -1,0 +1,37 @@
+#package('studio/reports/writer')
+
+#import('github.com/viant/scy/auth/jwt')
+#import('github.com/viant/xdatly/response')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/reports', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('report', 'sql/report.sql'))
+
+#define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
+#define($_ = $Reports<[]*Report>(body/data))
+#define($_ = $Status<response.Status>(output/status).Embed())
+#define($_ = $Violations<?>(transient/status).Output())
+#define($_ = $Data<[]*Report>(body/).Output())
+
+SELECT report.*, type(report, 'Report'), CAST(report.namespace AS string),
+       tag(report.id, 'sqlx:"id,primaryKey" validate:"required"'),
+       tag(report.namespace, 'validate:"required"'),
+       tag(report.slug, 'validate:"required"'),
+       tag(report.title, 'validate:"required"'),
+       tag(report.owner_id, 'validate:"required"'),
+       tag(report.status, 'validate:"required,choice(draft,active,disabled,archived)"'),
+       tag(report.default_connector_name, 'validate:"required"'),
+       tag(report.component_scope, 'validate:"required"'),
+       tag(report.component_name, 'validate:"required"'),
+       invariant(report.component_scope, 'ComponentIdentity'),
+       invariant(report.component_name, 'ComponentIdentity'),
+       CAST(report.should_delete AS bool),
+       delete_marker(report.should_delete),
+       concurrency_token(report.etag)
+FROM (
+    ${embed:sql/patch.sql}
+) report
+WHERE 1=1

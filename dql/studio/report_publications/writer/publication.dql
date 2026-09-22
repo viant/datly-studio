@@ -1,0 +1,29 @@
+#package('studio/report_publications/writer')
+
+#import('github.com/viant/scy/auth/jwt')
+#import('encoding/json')
+#import('github.com/viant/xdatly/response')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/report-publications', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('publication', 'sql/patch.sql'))
+#define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
+#define($_ = $Publications<[]*ReportPublication>(body/data))
+#define($_ = $Status<response.Status>(output/status).Embed())
+#define($_ = $Violations<?>(transient/status).Output())
+#define($_ = $Data<[]*ReportPublication>(body/).Output())
+SELECT publication.*, type(publication, 'ReportPublication'),
+	   CAST(publication.failure_json AS json.RawMessage),
+	   tag(publication.failure_json, 'sqlx:"failure_json,enc=JSON"'),
+       lifecycle_type(publication, 'PublicationRules'),
+       tag(publication.report_id, 'sqlx:"report_id,primaryKey" validate:"required"'),
+       tag(publication.active_version_no, 'validate:"required"'),
+       tag(publication.desired_generation, 'validate:"required"'),
+       tag(publication.publication_status, 'validate:"required,choice(pending,active,failed,unpublishing)"'),
+       tag(publication.spec_hash, 'validate:"required"'), tag(publication.published_by, 'validate:"required"'),
+       tag(publication.published_at, 'validate:"required"')
+FROM (${embed:sql/patch.sql}) publication
+WHERE 1=1

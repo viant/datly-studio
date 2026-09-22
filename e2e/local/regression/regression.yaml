@@ -1,0 +1,8 @@
+pipeline:
+  foundation:
+    action: exec:run
+    target: $target
+    checkError: true
+    commands:
+      - cd ${appPath}
+      - GOWORK=off go test ./sdk/... ./store/... ./runtime/...

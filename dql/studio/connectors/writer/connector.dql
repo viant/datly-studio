@@ -1,0 +1,35 @@
+#package('studio/connectors/writer')
+
+#import('github.com/viant/scy/auth/jwt')
+#import('encoding/json')
+#import('github.com/viant/xdatly/response')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/connectors', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('connector', 'sql/connector.sql'))
+#setting($_ = $output_exclude('Data.DsnTemplate', 'Data.SecretRef'))
+
+#define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
+#define($_ = $Connectors<[]*Connector>(body/data))
+#define($_ = $Status<response.Status>(output/status).Embed())
+#define($_ = $Violations<?>(transient/status).Output())
+
+SELECT connector.*, type(connector, 'Connector'),
+	   CAST(connector.options_json AS json.RawMessage),
+	   tag(connector.options_json, 'sqlx:"options_json,enc=JSON"'),
+	   tag(connector.name, 'sqlx:"name,primaryKey" validate:"required"'),
+       tag(connector.driver, 'validate:"required,choice(mysql,viant/bigquery,pg,sqlite,viant/aerospike)"'),
+       tag(connector.dsn_template, 'validate:"datly_connector_dsn(Driver,SecretRef)"'),
+       invariant(connector.driver, 'Connection'),
+       invariant(connector.dsn_template, 'Connection'),
+       invariant(connector.secret_ref, 'Connection'),
+       CAST(connector.should_delete AS bool),
+       delete_marker(connector.should_delete),
+       concurrency_token(connector.etag)
+FROM (
+    ${embed:sql/patch.sql}
+) connector
+WHERE 1=1

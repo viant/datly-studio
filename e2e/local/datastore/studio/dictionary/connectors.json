@@ -1,0 +1,17 @@
+[
+  {},
+  {
+    "name": "reporting",
+    "driver": "mysql",
+    "dsn_template": "root:dev@tcp(127.0.0.1:43306)/reporting_e2e?parseTime=true",
+    "description": "Datly Studio E2E reporting database",
+    "owner_id": "e2e",
+    "status": "active",
+    "options_json": "{\"max_idle_conns\":2,\"max_open_conns\":8}",
+    "last_test_status": "passed",
+    "last_tested_at": "2026-09-17 00:00:00",
+    "etag": 1,
+    "created_at": "2026-09-17 00:00:00",
+    "updated_at": "2026-09-17 00:00:00"
+  }
+]

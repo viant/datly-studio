@@ -1,0 +1,13 @@
+pipeline:
+  sdk:
+    action: sdk.set
+    target: $target
+    sdk: go:1.25.5
+
+  test:
+    action: exec:run
+    target: $target
+    checkError: true
+    commands:
+      - cd ${appPath}
+      - GOWORK=off go test ./...
