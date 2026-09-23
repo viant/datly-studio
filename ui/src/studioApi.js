@@ -86,6 +86,9 @@ export class StudioAPI {
     }
     return payload?.result?.[resultKey] ?? [];
   }
+  getResourceAccess(resource) { return this.invoke('access.get', resource); }
+  getResourceAccessContext(resource) { return this.invoke('access.context', resource); }
+  replaceResourceAccess(document) { return this.invoke('access.replace', document); }
   listACL(reportId) { return this.invoke('acl.list', { reportId }).then((result) => result.items ?? []); }
   upsertACL(input) { return this.invoke('acl.upsert', input); }
   deleteACL(reportId, subjectType, subjectId, etag) { return this.invoke('acl.delete', { reportId, subjectType, subjectId, etag }); }

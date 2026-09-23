@@ -46,8 +46,8 @@ func TestServiceUpAndDown(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CurrentVersion() error = %v", err)
 	}
-	if version != 10 {
-		t.Fatalf("CurrentVersion() = %d, want 10", version)
+	if version != 11 {
+		t.Fatalf("CurrentVersion() = %d, want 11", version)
 	}
 
 	if err := service.Up(ctx, db); err != nil {
@@ -96,7 +96,7 @@ INSERT INTO reports(id, owner_id, updated_at) VALUES ('legacy', 'alice', CURRENT
 		t.Fatalf("namespace=%q", namespace)
 	}
 	version, err := service.CurrentVersion(ctx, db)
-	if err != nil || version != 10 {
+	if err != nil || version != 11 {
 		t.Fatalf("version=%d err=%v", version, err)
 	}
 	var count int
@@ -127,7 +127,7 @@ INSERT INTO report_publications(report_id,active_version_no) VALUES('reader',7);
 		t.Fatalf("desired version=%d err=%v", desired, err)
 	}
 	version, err := service.CurrentVersion(ctx, db)
-	if err != nil || version != 10 {
+	if err != nil || version != 11 {
 		t.Fatalf("version=%d err=%v", version, err)
 	}
 	assertTableExists(t, ctx, db, "report_warmup_runs")
@@ -146,7 +146,7 @@ func TestServiceUpAddsDurableBFFSessions(t *testing.T) {
 	}
 	assertTableExists(t, ctx, db, "bff_sessions")
 	version, err := service.CurrentVersion(ctx, db)
-	if err != nil || version != 10 {
+	if err != nil || version != 11 {
 		t.Fatalf("version=%d err=%v", version, err)
 	}
 }
@@ -163,7 +163,7 @@ func TestServiceUpAddsOwnerScopedPublicationEvents(t *testing.T) {
 	}
 	assertTableExists(t, ctx, db, "report_publication_events")
 	version, err := service.CurrentVersion(ctx, db)
-	if err != nil || version != 10 {
+	if err != nil || version != 11 {
 		t.Fatalf("version=%d err=%v", version, err)
 	}
 }
@@ -197,7 +197,7 @@ INSERT INTO report_acl(report_id,subject_type,subject_id,can_view) VALUES ('read
 		t.Fatalf("ACL etag=%d err=%v", etag, err)
 	}
 	version, err := service.CurrentVersion(ctx, db)
-	if err != nil || version != 10 {
+	if err != nil || version != 11 {
 		t.Fatalf("version=%d err=%v", version, err)
 	}
 }

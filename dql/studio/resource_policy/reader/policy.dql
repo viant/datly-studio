@@ -1,0 +1,27 @@
+#package('studio/resource_policy/reader')
+
+#import('encoding/json')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/resource-policies', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('resource_policy', 'sql/read.sql'))
+
+#define($_ = $TenantId<string>(query/tenantId).Required().WithPredicate(0, 'equal', 'h', 'tenant_id'))
+#define($_ = $ResourceKind<string>(query/resourceKind).Required().WithPredicate(0, 'equal', 'h', 'resource_kind'))
+#define($_ = $ResourceId<string>(query/resourceId).Required().WithPredicate(0, 'equal', 'h', 'resource_id'))
+#define($_ = $ResourceVersion<string>(query/resourceVersion).Required().WithPredicate(0, 'equal', 'h', 'resource_version'))
+#define($_ = $Policies<[]*ResourcePolicy>(output/view))
+
+SELECT resource_policy.*, type(resource_policy, 'ResourcePolicy'),
+       CAST(resource_policy.tenant_id AS string), CAST(resource_policy.resource_kind AS string),
+       CAST(resource_policy.resource_id AS string), CAST(resource_policy.resource_version AS string),
+       CAST(resource_policy.actor_id AS string),
+       CAST(resource_policy.policies_json AS json.RawMessage),
+       tag(resource_policy.policies_json, 'sqlx:"policies_json,enc=JSON"')
+FROM (
+    ${embed:sql/read.sql}
+) resource_policy
+WHERE 1=1

@@ -18,6 +18,7 @@ import (
 	"github.com/viant/datly-studio/internal/connectorinit"
 	"github.com/viant/datly-studio/internal/connectorsecret"
 	studiors "github.com/viant/datly-studio/runtime/resources"
+	"github.com/viant/datly-studio/sdk/access"
 	"github.com/viant/datly/application"
 	"github.com/viant/datly/authoring/readerbuilder"
 	"github.com/viant/datly/bootstrap"
@@ -37,11 +38,13 @@ import (
 	"github.com/viant/scy/auth/jwt"
 	"github.com/viant/scy/auth/jwt/verifier"
 	xresponse "github.com/viant/xdatly/response"
+	"strconv"
 )
 
 type verifiedClaimsKey struct{}
 
 type Service struct {
+	resourceAccess    *access.Service
 	config            Config
 	studio            *sql.DB
 	manager           *application.Manager
@@ -81,6 +84,11 @@ func New(ctx context.Context, config Config) (*Service, error) {
 		return nil, err
 	}
 	result := &Service{config: config, studio: studio, manager: manager}
+	if err = result.initResourceAccess(); err != nil {
+		_ = manager.Shutdown(context.Background())
+		_ = studio.Close()
+		return nil, err
+	}
 	result.providerVerifiers = map[string]*verifier.Service{}
 	for name, provider := range config.Authentication.Providers {
 		service := verifier.New(&verifier.Config{CertURL: provider.CertURL})
@@ -91,7 +99,7 @@ func New(ctx context.Context, config Config) (*Service, error) {
 		}
 		result.providerVerifiers[name] = service
 	}
-	if !strings.EqualFold(config.Authentication.DefaultMode, "public") {
+	if config.Access == nil && !strings.EqualFold(config.Authentication.DefaultMode, "public") {
 		result.verifier = verifier.New(&verifier.Config{CertURL: config.Authentication.CertURL})
 		if err = result.verifier.Init(ctx); err != nil {
 			_ = manager.Shutdown(context.Background())
@@ -139,6 +147,10 @@ func (s *Service) compile(ctx context.Context, seed *typecatalog.Catalog, candid
 	resources := loadedResources.Store
 	registrations := make([]*registry.RegisteredComponent, 0, len(definitions))
 	reportByComponent := map[spec.Key]string{}
+	versionByReport := map[string]int{}
+	for _, definition := range definitions {
+		versionByReport[definition.reportID] = definition.versionNo
+	}
 	var opened []*sql.DB
 	defer func() {
 		if err != nil {
@@ -195,14 +207,29 @@ func (s *Service) compile(ctx context.Context, seed *typecatalog.Catalog, candid
 	if err = validateSkillToolReferences(ctx, s.studio, versions, registrations); err != nil {
 		return nil, err
 	}
+	var declaredScopes []ScopeBinding
+	if s.config.Access != nil {
+		declaredScopes = s.config.Access.ScopeBindings
+	}
+	scopeBindings, scopeErr := resolveScopeBindings(declaredScopes, s.config.Access != nil, compiledComponents(registrations), reportByComponent, versionByReport)
+	if scopeErr != nil {
+		err = scopeErr
+		return nil, err
+	}
 	authorizeTarget := func(ctx context.Context, target dexec.ComponentTarget) error {
 		reportID := reportByComponent[target.Component]
 		if reportID == "" {
 			return &xresponse.Error{Code: http.StatusForbidden, Cause: errors.New("published component authorization is unavailable")}
 		}
+		if s.config.Access != nil {
+			return s.authorizeScopedComponent(ctx, access.Resource{Kind: "component", ID: reportID, Version: strconv.Itoa(versionByReport[reportID]), Tenant: s.config.Access.Tenant}, scopeBindings[reportID])
+		}
 		return s.authorizeRun(ctx, reportID)
 	}
 	authorizeResource := func(ctx context.Context, uri string) error {
+		if s.config.Access != nil {
+			return s.authorizeBoundResource(ctx, uri)
+		}
 		reportID := reportForResourceURI(loadedResources.ResourceReports, uri)
 		if reportID == "" {
 			// Component-backed resources are authorized by AuthorizeTool when invoked.
@@ -579,6 +606,9 @@ func validAdminToken(expected, actual string) bool {
 }
 
 func (s *Service) authenticated(next http.Handler) http.Handler {
+	if s.config.Access != nil {
+		return s.resourceCredential(next)
+	}
 	if len(s.config.Authentication.Components) > 0 {
 		return s.componentAuthenticated(next)
 	}

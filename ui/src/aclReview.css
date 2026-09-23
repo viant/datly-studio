@@ -1,0 +1,16 @@
+.acl-review-window { max-width: 1700px; margin-inline: auto; padding: 28px; }
+.acl-review-heading { display: flex; justify-content: space-between; align-items: start; gap: 16px; }
+.acl-review-heading h1 { font-size: 28px; margin: 0 0 8px; letter-spacing: -.025em; }
+.acl-review-heading p, .acl-review-checklist p { color: #475467; line-height: 1.55; max-width: 68ch; }
+.acl-review-controls { display: flex; align-items: end; flex-wrap: wrap; gap: 16px; padding-block: 16px 24px; }
+.acl-review-controls .bp6-form-group { margin-bottom: 0; }
+.acl-review-layout { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 24px; }
+.acl-review-stage { overflow: auto; background: #e8edf3; border: 1px solid #c4cedb; border-radius: 12px; padding: 16px; }
+.acl-review-stage iframe { display: block; border: 0; height: 900px; margin-inline: auto; background: #f4f7fb; }
+.acl-review-checklist h2 { font-size: 18px; margin: 0 0 12px; }
+.acl-review-checklist .bp6-checkbox { margin-block: 16px; line-height: 1.5; }
+.acl-review-frame-content { padding: 20px; }
+.acl-review-synthetic { color: #475467; font-size: 12px; margin: 0 0 12px; }
+.acl-review-window :focus-visible { outline: 2px solid #215db0; outline-offset: 3px; }
+@media (max-width: 950px) { .acl-review-layout { grid-template-columns: minmax(0, 1fr); } .acl-review-checklist { max-width: 640px; } }
+@media (max-width: 480px) { .acl-review-window { padding: 16px; } .acl-review-frame-content { padding: 12px; } .acl-review-heading { flex-direction: column; } }

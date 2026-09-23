@@ -106,6 +106,13 @@ FROM reports GROUP BY owner_id,namespace`); err != nil {
 			return fmt.Errorf("add authorization predicate SQL scope: %w", err)
 		}
 	}
+	if current <= 10 {
+		for _, table := range []string{"resource_policy_heads", "resource_policy_revisions"} {
+			if err := schema.CreateSQLiteTableFromCanonical(ctx, db, table); err != nil {
+				return fmt.Errorf("create %s: %w", table, err)
+			}
+		}
+	}
 	return schema.SetSQLiteVersion(ctx, db, schema.CanonicalVersion)
 }
 

@@ -3,7 +3,11 @@ package host
 import (
 	"bytes"
 	"context"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
 	"database/sql"
+	"encoding/pem"
 	"io"
 	"net/http"
 	"os"
@@ -13,10 +17,17 @@ import (
 	"time"
 
 	"github.com/viant/datly-studio/schema"
+	"github.com/viant/datly-studio/sdk/access"
+	accessstore "github.com/viant/datly-studio/store/sql/access"
 	_ "modernc.org/sqlite"
 )
 
 func TestDynamicHostServesPublishedHTTPAndDedicatedMCP(t *testing.T) {
+	t.Run("legacy", func(t *testing.T) { testDynamicHost(t, false) })
+	t.Run("generic-access", func(t *testing.T) { testDynamicHost(t, true) })
+}
+
+func testDynamicHost(t *testing.T, generic bool) {
 	ctx := context.Background()
 	root := t.TempDir()
 	if err := os.WriteFile(filepath.Join(root, "go.mod"), []byte("module example.com/runtime\n\ngo 1.25.0\n"), 0o600); err != nil {
@@ -76,9 +87,30 @@ JOIN (SELECT id,label FROM labels) labels ON labels.id=records.id`
 	}
 	_ = studio.Close()
 	runtimeConfig := Config{HTTP: Listener{Address: "127.0.0.1:0"}, MCP: Listener{Address: "127.0.0.1:0"}, Authentication: Authentication{DefaultMode: "public"}, Studio: Studio{Driver: "sqlite", DSN: studioDSN}, Admin: Admin{Token: "test-token"}, RootDir: root}
+	if generic {
+		key, e := rsa.GenerateKey(rand.Reader, 2048)
+		if e != nil {
+			t.Fatal(e)
+		}
+		encoded, e := x509.MarshalPKIXPublicKey(&key.PublicKey)
+		if e != nil {
+			t.Fatal(e)
+		}
+		keyFile := filepath.Join(root, "access.pem")
+		if e = os.WriteFile(keyFile, pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: encoded}), 0600); e != nil {
+			t.Fatal(e)
+		}
+		runtimeConfig.Access = &ResourceAccessConfig{Tenant: "*", Issuer: "https://access.example", Audience: "runtime", PublicKeyFile: keyFile}
+	}
 	service, err := New(ctx, runtimeConfig)
 	if err != nil {
 		t.Fatal(err)
+	}
+	if generic {
+		_, err = service.resourceAccess.Store.(*accessstore.Store).Provision(ctx, access.Document{Resource: access.Resource{Kind: "component", ID: "records", Version: "1", Tenant: "*"}, Policies: map[string]access.Policy{"execute": {Mode: "public"}}}, "bootstrap")
+		if err != nil {
+			t.Fatal(err)
+		}
 	}
 	if err = service.Start(ctx); err != nil {
 		t.Fatal(err)
@@ -170,5 +202,26 @@ JOIN (SELECT id,label FROM labels) labels ON labels.id=records.id`
 	restartedResponse.Body.Close()
 	if restartedResponse.StatusCode != http.StatusOK || !strings.Contains(string(restartedPayload), "ready") || !strings.Contains(string(restartedPayload), "primary") {
 		t.Fatalf("restarted status=%d body=%s", restartedResponse.StatusCode, restartedPayload)
+	}
+	if generic {
+		store := service.resourceAccess.Store.(*accessstore.Store)
+		r := access.Resource{Kind: "component", ID: "records", Version: "1", Tenant: "*"}
+		doc, e := store.Get(ctx, r)
+		if e != nil {
+			t.Fatal(e)
+		}
+		doc.Policies["execute"] = access.Policy{Mode: "protected", Rule: &access.Rule{Kind: "role", Value: "reader"}}
+		if _, e = store.Replace(ctx, doc, doc.Revision, "revoke-public"); e != nil {
+			t.Fatal(e)
+		}
+		denied, e := http.Get("http://" + restartedHTTP + "/records?roles=reader&subject=owner")
+		if e != nil {
+			t.Fatal(e)
+		}
+		body, _ := io.ReadAll(denied.Body)
+		denied.Body.Close()
+		if denied.StatusCode != http.StatusForbidden || strings.Contains(string(body), "ready") {
+			t.Fatalf("runtime policy bypass: %d %s", denied.StatusCode, body)
+		}
 	}
 }

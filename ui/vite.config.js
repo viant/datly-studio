@@ -4,6 +4,14 @@ import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      input: {
+        studio: fileURLToPath(new URL('./index.html', import.meta.url)),
+        aclReview: fileURLToPath(new URL('./acl-review.html', import.meta.url)),
+      },
+    },
+  },
   // Studio deliberately consumes the adjacent Forge workspace while developing.
   // package.json keeps the same relationship for an installed application.
   resolve: {

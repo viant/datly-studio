@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/viant/datly-studio/sdk"
+	"github.com/viant/datly-studio/sdk/access"
 )
 
 const PathPrefix = "/v1/studio/sdk/"
@@ -159,6 +160,12 @@ func isLoopback(remote string) bool {
 }
 
 func outputFor(operation string) (any, bool) {
+	if operation == access.OperationContext {
+		return &access.EditorContext{}, true
+	}
+	if operation == access.OperationGet || operation == access.OperationReplace {
+		return &access.Document{}, true
+	}
 	switch operation {
 	case sdk.OperationConnectorCreate, sdk.OperationConnectorGet, sdk.OperationConnectorUpdate, sdk.OperationConnectorActivate, sdk.OperationConnectorDisable:
 		return new(sdk.Connector), true

@@ -7,7 +7,7 @@ import { OverviewWorkspace } from './OverviewWorkspace.jsx';
 import { ReportDialog } from './ReportDialog.jsx';
 import { RuntimeWorkspace } from './RuntimeWorkspace.jsx';
 import { ImportComponentButton, DownloadComponentButton } from './ComponentTransfer.jsx';
-import { SecurityWorkspace } from './SecurityWorkspace.jsx';
+import { SecurityCenter as SecurityWorkspace } from './SecurityCenter.jsx';
 import { overviewFromSettled } from './overviewModel.js';
 
 const ReaderBuilder = lazy(() => import('./ReaderBuilder.jsx').then((module) => ({ default: module.ReaderBuilder })));

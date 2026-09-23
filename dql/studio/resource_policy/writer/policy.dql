@@ -1,0 +1,49 @@
+#package('studio/resource_policy/writer')
+
+#import('encoding/json')
+#import('github.com/viant/xdatly/response')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/resource-policies', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('resource_policy', 'sql/patch.sql'))
+
+#define($_ = $Policies<[]*ResourcePolicyHead>(body/data))
+#define($_ = $Status<response.Status>(output/status).Embed())
+#define($_ = $Violations<?>(transient/status).Output())
+#define($_ = $Data<[]*ResourcePolicyHead>(body/).Output())
+
+SELECT head.*, history.*, type(head, 'ResourcePolicyHead'), type(history, 'ResourcePolicyRevision'),
+       lifecycle_type(head, 'PolicyRules'),
+       CAST(head.tenant_id AS string), CAST(head.resource_kind AS string),
+       CAST(head.resource_id AS string), CAST(head.resource_version AS string),
+       CAST(history.tenant_id AS string), CAST(history.resource_kind AS string),
+       CAST(history.resource_id AS string), CAST(history.resource_version AS string),
+       CAST(history.actor_id AS string),
+       CAST(history.policies_json AS json.RawMessage),
+       tag(history.policies_json, 'sqlx:"policies_json,enc=JSON" validate:"required"'),
+       tag(head.tenant_id, 'sqlx:"tenant_id,primaryKey" validate:"required"'),
+       tag(head.resource_kind, 'sqlx:"resource_kind,primaryKey" validate:"required"'),
+       tag(head.resource_id, 'sqlx:"resource_id,primaryKey" validate:"required"'),
+       tag(head.resource_version, 'sqlx:"resource_version,primaryKey" validate:"required"'),
+       tag(history.tenant_id, 'sqlx:"tenant_id,primaryKey"'),
+       tag(history.resource_kind, 'sqlx:"resource_kind,primaryKey"'),
+       tag(history.resource_id, 'sqlx:"resource_id,primaryKey"'),
+       tag(history.resource_version, 'sqlx:"resource_version,primaryKey"'),
+       tag(history.revision, 'sqlx:"revision,primaryKey"'),
+       tag(history.actor_id, 'validate:"required"'),
+       tag(history.occurred_at, 'validate:"required"'),
+       concurrency_token(head.revision)
+FROM (
+    ${embed:sql/patch.sql}
+) head
+LEFT JOIN (
+    ${embed:sql/history.sql}
+) history
+  ON history.tenant_id = head.tenant_id
+ AND history.resource_kind = head.resource_kind
+ AND history.resource_id = head.resource_id
+ AND history.resource_version = head.resource_version
+WHERE 1=1

@@ -16,9 +16,9 @@ require (
 	github.com/viant/datly v0.39.2-0.20260922161233-77a288b0c809
 	github.com/viant/mcp-protocol v0.19.0
 	github.com/viant/scy v0.35.1-0.20260914041206-699e6c909726
-	github.com/viant/sqlx v0.26.1-0.20260921232147-a5cf7fcdaa84
+	github.com/viant/sqlx v0.26.1-0.20260923154147-5784c3b061f0
 	github.com/viant/x v0.5.1-0.20260915043005-1bc42b9eef47
-	github.com/viant/xdatly v0.5.4-0.20260921131606-b4cb3806beda
+	github.com/viant/xdatly v1.0.0
 	go.yaml.in/yaml/v3 v3.0.5
 	golang.org/x/mod v0.37.0
 )

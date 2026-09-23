@@ -22,14 +22,18 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	jwtlib "github.com/golang-jwt/jwt/v5"
 	_ "github.com/lib/pq"
 	_ "github.com/viant/bigquery"
 	"github.com/viant/datly-studio/internal/bffauth"
 	"github.com/viant/datly-studio/runtime/preview"
 	"github.com/viant/datly-studio/sdk"
+	"github.com/viant/datly-studio/sdk/access"
+	accessoauth "github.com/viant/datly-studio/sdk/access/oauth"
 	"github.com/viant/datly-studio/sdk/connectivity"
 	"github.com/viant/datly-studio/sdk/httptransport"
 	sqltransport "github.com/viant/datly-studio/sdk/transport/sql"
+	accessstore "github.com/viant/datly-studio/store/sql/access"
 	"github.com/viant/datly-studio/store/sql/migrate"
 	"github.com/viant/datly-studio/studio/authorization"
 	"github.com/viant/datly-studio/studio/host"
@@ -55,6 +59,9 @@ func main() {
 	dynamicMCPURL := flag.String("dynamic-mcp-url", "http://127.0.0.1:8091", "dynamic Datly MCP target")
 	dynamicAdminToken := flag.String("dynamic-admin-token", os.Getenv("STUDIO_RUNTIME_ADMIN_TOKEN"), "dynamic runtime reload token")
 	allowedOrigin := flag.String("allowed-origin", os.Getenv("STUDIO_ALLOWED_ORIGIN"), "exact Studio browser origin")
+	accessIssuer := flag.String("access-issuer", "", "dedicated ACL token issuer")
+	accessAudience := flag.String("access-audience", "", "dedicated ACL token audience")
+	accessKey := flag.String("access-public-key", "", "ACL issuer RSA public key PEM")
 	flag.Parse()
 	resolvedMode := strings.ToLower(strings.TrimSpace(*mode))
 	if err := validateGatewayMode(resolvedMode); err != nil {
@@ -107,6 +114,25 @@ func main() {
 		return nil
 	})
 	transport := &sqltransport.Transport{DB: db, Authorizer: authorization.SDKAuthorizer{DB: db}, Predicates: predicates, Probe: connectivity.SQLProbe{}, Catalog: connectivity.SQLCatalog{}, SQLTester: dynamicPreview, Preview: dynamicPreview, ViewTester: dynamicPreview, RelationTester: dynamicPreview, ComposeTester: dynamicPreview, Warmup: dynamicPreview, Validator: dynamicPreview, Activator: activateRuntime, RuntimeProbe: runtimeProbe{url: strings.TrimSuffix(*dynamicHTTPURL, "/") + "/_studio/status", token: adminToken, client: &http.Client{Timeout: 2 * time.Second}}}
+	var sdkTransport sdk.Transport = transport
+	if *accessIssuer != "" || *accessAudience != "" || *accessKey != "" {
+		if resolvedMode != string(httptransport.Authenticated) {
+			log.Fatal("resource ACL requires authenticated Studio mode")
+		}
+		pem, keyErr := os.ReadFile(*accessKey)
+		if keyErr != nil {
+			log.Fatal(keyErr)
+		}
+		key, keyErr := jwtlib.ParseRSAPublicKeyFromPEM(pem)
+		if keyErr != nil {
+			log.Fatal(keyErr)
+		}
+		provider, providerErr := accessoauth.New(accessoauth.Config{Issuer: *accessIssuer, Audience: *accessAudience, Algorithms: []string{"RS256"}, Keyfunc: func(*jwtlib.Token) (any, error) { return key, nil }})
+		if providerErr != nil {
+			log.Fatal(providerErr)
+		}
+		sdkTransport = &access.Transport{Next: transport, Service: &access.Service{Store: &accessstore.Store{DB: db}, Provider: provider}}
+	}
 	mux := http.NewServeMux()
 	gatewayConfig := httptransport.Config{Mode: httptransport.Development, DevelopmentSubject: *subject}
 	if resolvedMode == string(httptransport.Authenticated) {
@@ -161,7 +187,7 @@ func main() {
 			proxy.ServeHTTP(response, request)
 		}))
 	}
-	gateway := httptransport.Gateway{Config: gatewayConfig, Transport: transport}
+	gateway := httptransport.Gateway{Config: gatewayConfig, Transport: sdkTransport}
 	mux.Handle(httptransport.PathPrefix, gateway)
 	log.Printf("Studio SDK development host listening on http://%s", *address)
 	server := &http.Server{
