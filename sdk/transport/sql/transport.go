@@ -123,6 +123,10 @@ func (t *Transport) Invoke(ctx context.Context, operation string, input, output 
 		return err
 	}
 	switch operation {
+	case sdk.OperationVersionLoadDQL, sdk.OperationVersionLoadArchive:
+		return t.loadDQL(ctx, operation, input, output)
+	case sdk.OperationVersionDownload:
+		return t.downloadComponent(ctx, input, output)
 	case sdk.OperationConnectorCreate:
 		return t.createConnector(ctx, input, output)
 	case sdk.OperationConnectorGet:
@@ -312,6 +316,8 @@ func (t *Transport) authorize(ctx context.Context, operation string, input any) 
 	}
 	permission := "view"
 	switch operation {
+	case sdk.OperationVersionLoadDQL, sdk.OperationVersionLoadArchive:
+		permission = "dql"
 	case sdk.OperationConnectorCreate, sdk.OperationConnectorUpdate, sdk.OperationConnectorActivate, sdk.OperationConnectorDisable, sdk.OperationConnectorDelete,
 		sdk.OperationNamespaceCreate, sdk.OperationNamespaceUpdate, sdk.OperationNamespaceDelete,
 		sdk.OperationReportCreate, sdk.OperationReportUpdate, sdk.OperationVersionCreate, sdk.OperationVersionApply, sdk.OperationVersionValidate, sdk.OperationVersionBuilder,
@@ -319,7 +325,7 @@ func (t *Transport) authorize(ctx context.Context, operation string, input any) 
 		permission = "edit"
 	case sdk.OperationPreviewExecute, sdk.OperationVersionTestView, sdk.OperationVersionTestRelation, sdk.OperationVersionTestCompose:
 		permission = "run"
-	case sdk.OperationVersionExportDQL:
+	case sdk.OperationVersionExportDQL, sdk.OperationVersionDownload:
 		permission = "dql"
 	case sdk.OperationACLUpsert, sdk.OperationACLDelete,
 		sdk.OperationAuthorizationPredicateCreate, sdk.OperationAuthorizationPredicateGet, sdk.OperationAuthorizationPredicateList, sdk.OperationAuthorizationPredicateUpdate, sdk.OperationAuthorizationPredicateDelete, sdk.OperationAuthorizationPredicateTypes:

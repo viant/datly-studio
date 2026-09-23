@@ -226,6 +226,9 @@ type WarmupRunPage struct {
 }
 
 type VersionService interface {
+	Download(context.Context, string, int) (*ComponentDownload, error)
+	LoadDQL(context.Context, string, LoadDQLInput) (*DQLLoadResult, error)
+	LoadArchive(context.Context, string, LoadArchiveInput) (*DQLLoadResult, error)
 	Create(context.Context, string, CreateVersionInput) (*ReportVersion, error)
 	Get(context.Context, string, int) (*ReportVersion, error)
 	List(context.Context, string, ListVersionsInput) (*VersionPage, error)

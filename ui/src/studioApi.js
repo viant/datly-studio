@@ -41,6 +41,9 @@ export class StudioAPI {
   updateReport(reportId, input) { return this.invoke('reports.update', { id: reportId, input }); }
   listVersions(reportId, input = {}) { return this.invoke('versions.list', { reportId, input }); }
   createVersion(reportId, input) { return this.invoke('versions.create', { reportId, input }); }
+  loadDQL(reportId, input) { return this.invoke('versions.load_dql', { reportId, input }); }
+  loadArchive(reportId, input) { return this.invoke('versions.load_archive', { reportId, input }); }
+  downloadComponent(reportId, versionNo) { return this.invoke('versions.download', { reportId, versionNo }); }
   inspectVersion(reportId, versionNo) { return this.invoke('versions.inspect', { reportId, versionNo }); }
   validateVersion(reportId, versionNo) { return this.invoke('versions.validate', { reportId, versionNo }); }
   publishReader(reportId, versionNo, expectedSourceRevision, reason = '') { return this.invoke('publications.publish', { reportId, versionNo, input: { expectedSourceRevision, reason } }); }

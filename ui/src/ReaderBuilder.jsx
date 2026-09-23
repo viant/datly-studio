@@ -3,6 +3,7 @@ import { Alert, Button, ButtonGroup, Callout, Card, Code, Divider, InputGroup, M
 import { LazyEditor as Editor } from './LazyEditor.jsx';
 import { ReaderParameterDialog } from './ReaderParameterDialog.jsx';
 import { ReaderPredicateDialog } from './ReaderPredicateDialog.jsx';
+import { DownloadComponentButton } from './ComponentTransfer.jsx';
 import { ReaderSubviewDialog } from './ReaderSubviewDialog.jsx';
 import { ReaderRemoveViewDialog } from './ReaderRemoveViewDialog.jsx';
 import { ReaderAnalyticsDialog } from './ReaderAnalyticsDialog.jsx';
@@ -211,6 +212,7 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
 
   return <main className="studio-workspace studio-builder-workspace">
     <div className="studio-builder-header">
+      {version&&<DownloadComponentButton api={api} report={report} versionNo={version.versionNo} disabled={!canUseDQL}/>}
       <div><Button minimal icon="arrow-left" onClick={requestBack}>Components</Button><h1 ref={headingRef} tabIndex={-1} className="studio-page-heading">{report?.title ?? 'Reader Builder'}</h1>
         <p className="studio-page-description">Versioned Datly reader graph for {report?.defaultConnectorName}.</p></div>
       {version && <div className="studio-builder-header-actions"><div className="studio-builder-status" aria-label="Component revision status"><Tag minimal>{report?.namespace ?? 'general'}</Tag><Tag minimal>{version.state==='published'?'Published':'Draft'} v{version.versionNo}</Tag><Tag minimal>rev {version.sourceRevision}</Tag><Tag intent={version.compileStatus === 'valid' ? 'success' : version.compileStatus === 'invalid' ? 'danger' : 'warning'} minimal>{version.compileStatus}</Tag></div><Button icon="edit" disabled={!canEdit} onClick={()=>setExposureDialogOpen(true)}>Edit component</Button></div>}

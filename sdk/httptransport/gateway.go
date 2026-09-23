@@ -93,7 +93,11 @@ func (g Gateway) ServeHTTP(response http.ResponseWriter, request *http.Request) 
 		writeError(response, http.StatusUnauthorized, &sdk.Error{Code: sdk.ErrorUnauthorized, Message: "Studio authentication is required", Cause: err})
 		return
 	}
-	body, err := io.ReadAll(http.MaxBytesReader(response, request.Body, 1<<20))
+	limit := int64(1 << 20)
+	if operation == sdk.OperationVersionLoadDQL || operation == sdk.OperationVersionLoadArchive {
+		limit = 24 << 20
+	}
+	body, err := io.ReadAll(http.MaxBytesReader(response, request.Body, limit))
 	if err != nil {
 		writeError(response, http.StatusRequestEntityTooLarge, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "Studio SDK request is too large"})
 		return
@@ -164,6 +168,10 @@ func outputFor(operation string) (any, bool) {
 		return new(sdk.ConnectorTestResult), true
 	case sdk.OperationConnectorSchemas:
 		return new(sdk.SchemaCatalog), true
+	case sdk.OperationVersionLoadDQL, sdk.OperationVersionLoadArchive:
+		return new(sdk.DQLLoadResult), true
+	case sdk.OperationVersionDownload:
+		return new(sdk.ComponentDownload), true
 	case sdk.OperationConnectorTables:
 		return new(sdk.TableCatalog), true
 	case sdk.OperationConnectorTable:
