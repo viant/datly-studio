@@ -235,8 +235,9 @@ func (p runtimeProbe) ProbeRuntime(ctx context.Context) (*sdk.RuntimeHost, error
 		return nil, fmt.Errorf("dynamic runtime status returned %s", response.Status)
 	}
 	var payload struct {
-		Status   string `json:"status"`
-		Revision int64  `json:"revision"`
+		AuthenticationMode string `json:"authenticationMode"`
+		Status             string `json:"status"`
+		Revision           int64  `json:"revision"`
 	}
 	if err = json.NewDecoder(io.LimitReader(response.Body, 4096)).Decode(&payload); err != nil {
 		return nil, err
@@ -244,7 +245,7 @@ func (p runtimeProbe) ProbeRuntime(ctx context.Context) (*sdk.RuntimeHost, error
 	if payload.Status != "ready" {
 		return nil, fmt.Errorf("dynamic runtime is not ready")
 	}
-	return &sdk.RuntimeHost{Status: payload.Status, Revision: payload.Revision, CheckedAt: time.Now().UTC()}, nil
+	return &sdk.RuntimeHost{AuthenticationMode: payload.AuthenticationMode, Status: payload.Status, Revision: payload.Revision, CheckedAt: time.Now().UTC()}, nil
 }
 
 func ensureSchema(ctx context.Context, db *sql.DB) error {

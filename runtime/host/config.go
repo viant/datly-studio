@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
 	"net"
+	"net/url"
 	"os"
 	"strings"
 
@@ -16,8 +17,25 @@ type Listener struct {
 	Address string `yaml:"Address"`
 }
 type Authentication struct {
-	DefaultMode string `yaml:"DefaultMode"`
-	CertURL     string `yaml:"CertURL"`
+	PublicMCPURL string                             `yaml:"PublicMCPURL"`
+	Providers    map[string]OAuthProvider           `yaml:"Providers"`
+	Components   map[string]ComponentAuthentication `yaml:"Components"`
+	DefaultMode  string                             `yaml:"DefaultMode"`
+	CertURL      string                             `yaml:"CertURL"`
+}
+
+type OAuthProvider struct {
+	CertURL  string `yaml:"CertURL"`
+	Issuer   string `yaml:"Issuer"`
+	Audience string `yaml:"Audience"`
+}
+
+// ComponentAuthentication is a deployment-owned policy keyed by Studio report ID.
+// Provider selects runtime credentials independently of Studio's author identity.
+type ComponentAuthentication struct {
+	Provider string   `yaml:"Provider"`
+	Public   bool     `yaml:"Public"`
+	Scopes   []string `yaml:"Scopes"`
 }
 type Studio struct {
 	Driver string `yaml:"Driver"`
@@ -54,6 +72,37 @@ func Load(path string) (*Config, error) {
 func (c *Config) Validate() error {
 	if c == nil {
 		return fmt.Errorf("dynamic Datly host config is required")
+	}
+	for name, provider := range c.Authentication.Providers {
+		if strings.ContainsAny(name, "/\\?#%\" \t\r\n") {
+			return fmt.Errorf("invalid provider name %q", name)
+		}
+		if strings.TrimSpace(name) == "" || provider.CertURL == "" || provider.Issuer == "" || provider.Audience == "" {
+			return fmt.Errorf("runtime provider %q requires CertURL, Issuer and Audience", name)
+		}
+	}
+	if base := c.Authentication.PublicMCPURL; base != "" {
+		u, err := url.Parse(base)
+		if err != nil || u.Host == "" || u.User != nil || u.RawQuery != "" || u.Fragment != "" || u.Path != "" && u.Path != "/" {
+			return fmt.Errorf("PublicMCPURL must be an absolute origin")
+		}
+		if u.Scheme != "https" && !(u.Scheme == "http" && (u.Hostname() == "localhost" || net.ParseIP(u.Hostname()).IsLoopback())) {
+			return fmt.Errorf("PublicMCPURL requires HTTPS or loopback HTTP")
+		}
+	}
+	for id, policy := range c.Authentication.Components {
+		if id == "" {
+			return fmt.Errorf("component authentication requires report ID")
+		}
+		if policy.Public {
+			if policy.Provider != "" || len(policy.Scopes) > 0 {
+				return fmt.Errorf("public component %s cannot require a provider or scopes", id)
+			}
+			continue
+		}
+		if _, ok := c.Authentication.Providers[policy.Provider]; !ok {
+			return fmt.Errorf("component %s has unknown runtime provider %q", id, policy.Provider)
+		}
 	}
 	if err := validAddress("HTTP", c.HTTP.Address); err != nil {
 		return err

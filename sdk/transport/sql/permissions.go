@@ -8,7 +8,8 @@ import (
 	"github.com/viant/datly-studio/sdk"
 )
 
-func (t *Transport) reportCapabilities(ctx context.Context, reportID string) (sdk.ReportCapabilities, error) {
+func (t *Transport) reportCapabilities(ctx context.Context, reportID string) (caps sdk.ReportCapabilities, err error) {
+	defer func() { caps.CanManageACL = err == nil && caps.CanPublish && t.aclAvailable(ctx) }()
 	principal, ok := sdk.PrincipalFromContext(ctx)
 	if !ok {
 		return sdk.ReportCapabilities{CanView: true, CanRun: true, CanEdit: true, CanPublish: true, CanUseDQL: true}, nil
@@ -24,7 +25,7 @@ func (t *Transport) reportCapabilities(ctx context.Context, reportID string) (sd
 		return sdk.ReportCapabilities{CanView: true, CanRun: true, CanEdit: true, CanPublish: true, CanUseDQL: true}, nil
 	}
 	result := sdk.ReportCapabilities{}
-	err := t.DB.QueryRowContext(ctx, `SELECT can_view,can_run,can_edit,can_publish,can_use_dql FROM report_acl WHERE report_id=? AND subject_type='user' AND subject_id=?`, reportID, principal.Subject).
+	err = t.DB.QueryRowContext(ctx, `SELECT can_view,can_run,can_edit,can_publish,can_use_dql FROM report_acl WHERE report_id=? AND subject_type='user' AND subject_id=?`, reportID, principal.Subject).
 		Scan(&result.CanView, &result.CanRun, &result.CanEdit, &result.CanPublish, &result.CanUseDQL)
 	if errors.Is(err, sql.ErrNoRows) {
 		return result, nil
@@ -33,4 +34,12 @@ func (t *Transport) reportCapabilities(ctx context.Context, reportID string) (sd
 		return sdk.ReportCapabilities{}, internal(err)
 	}
 	return result, nil
+}
+
+func (t *Transport) aclAvailable(ctx context.Context) bool {
+	principal, ok := sdk.PrincipalFromContext(ctx)
+	if !ok || principal.Development {
+		return false
+	}
+	return true
 }

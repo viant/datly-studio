@@ -10,6 +10,9 @@ import (
 )
 
 func (t *Transport) acl(ctx context.Context, operation string, input, output any) error {
+	if !t.aclAvailable(ctx) {
+		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "ACL management requires authenticated Studio access"}
+	}
 	var identity struct {
 		ReportID, SubjectType, SubjectID string
 		ETag                             int64

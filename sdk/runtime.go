@@ -98,9 +98,10 @@ type RuntimeStatus struct {
 }
 
 type RuntimeHost struct {
-	Status    string    `json:"status"`
-	Revision  int64     `json:"revision,omitempty"`
-	CheckedAt time.Time `json:"checkedAt"`
+	AuthenticationMode string    `json:"authenticationMode,omitempty"`
+	Status             string    `json:"status"`
+	Revision           int64     `json:"revision,omitempty"`
+	CheckedAt          time.Time `json:"checkedAt"`
 }
 
 type RuntimeReader struct {

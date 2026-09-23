@@ -42,14 +42,15 @@ import (
 type verifiedClaimsKey struct{}
 
 type Service struct {
-	config    Config
-	studio    *sql.DB
-	manager   *application.Manager
-	servers   []*http.Server
-	listeners []net.Listener
-	verifier  *verifier.Service
-	secrets   connectorsecret.Resolver
-	mu        sync.Mutex
+	config            Config
+	studio            *sql.DB
+	manager           *application.Manager
+	servers           []*http.Server
+	listeners         []net.Listener
+	verifier          *verifier.Service
+	providerVerifiers map[string]*verifier.Service
+	secrets           connectorsecret.Resolver
+	mu                sync.Mutex
 }
 
 func New(ctx context.Context, config Config) (*Service, error) {
@@ -80,6 +81,16 @@ func New(ctx context.Context, config Config) (*Service, error) {
 		return nil, err
 	}
 	result := &Service{config: config, studio: studio, manager: manager}
+	result.providerVerifiers = map[string]*verifier.Service{}
+	for name, provider := range config.Authentication.Providers {
+		service := verifier.New(&verifier.Config{CertURL: provider.CertURL})
+		if err = service.Init(ctx); err != nil {
+			_ = manager.Shutdown(context.Background())
+			_ = studio.Close()
+			return nil, fmt.Errorf("runtime provider %s: %w", name, err)
+		}
+		result.providerVerifiers[name] = service
+	}
 	if !strings.EqualFold(config.Authentication.DefaultMode, "public") {
 		result.verifier = verifier.New(&verifier.Config{CertURL: config.Authentication.CertURL})
 		if err = result.verifier.Init(ctx); err != nil {
@@ -495,7 +506,7 @@ func (s *Service) Start(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	mcpHTTP.Handler = s.authenticated(mcpHTTP.Handler)
+	mcpHTTP.Handler = s.oauthDiscovery(mcpHTTP.Handler)
 	mcpHTTP.ReadHeaderTimeout = 5 * time.Second
 	mcpHTTP.ReadTimeout = 30 * time.Second
 	mcpHTTP.WriteTimeout = 60 * time.Second
@@ -557,9 +568,10 @@ func (s *Service) statusHTTP(response http.ResponseWriter, request *http.Request
 	}
 	response.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(response).Encode(struct {
-		Status   string `json:"status"`
-		Revision int64  `json:"revision"`
-	}{Status: "ready", Revision: int64(s.manager.Revision())})
+		AuthenticationMode string `json:"authenticationMode"`
+		Status             string `json:"status"`
+		Revision           int64  `json:"revision"`
+	}{AuthenticationMode: s.config.Authentication.DefaultMode, Status: "ready", Revision: int64(s.manager.Revision())})
 }
 
 func validAdminToken(expected, actual string) bool {
@@ -567,6 +579,9 @@ func validAdminToken(expected, actual string) bool {
 }
 
 func (s *Service) authenticated(next http.Handler) http.Handler {
+	if len(s.config.Authentication.Components) > 0 {
+		return s.componentAuthenticated(next)
+	}
 	if strings.EqualFold(s.config.Authentication.DefaultMode, "public") {
 		return next
 	}
@@ -587,6 +602,20 @@ func (s *Service) authenticated(next http.Handler) http.Handler {
 }
 
 func (s *Service) authorizeRun(ctx context.Context, reportID string) error {
+	if policy, ok := s.config.Authentication.Components[reportID]; ok {
+		if policy.Public {
+			return nil
+		}
+		identities, _ := ctx.Value(providerIdentitiesKey{}).(map[string]*jwt.Claims)
+		claims := identities[policy.Provider]
+		if claims == nil {
+			return &xresponse.Error{Code: http.StatusUnauthorized, Cause: errors.New("component runtime identity provider is required")}
+		}
+		if !hasScopes(claims, policy.Scopes) {
+			return &xresponse.Error{Code: http.StatusForbidden, Cause: errors.New("component runtime scopes are required")}
+		}
+		return nil
+	}
 	if strings.EqualFold(s.config.Authentication.DefaultMode, "public") {
 		return nil
 	}

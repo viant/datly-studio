@@ -119,11 +119,12 @@ type ReaderInspection struct {
 }
 
 type ReportCapabilities struct {
-	CanView    bool `json:"canView"`
-	CanRun     bool `json:"canRun"`
-	CanEdit    bool `json:"canEdit"`
-	CanPublish bool `json:"canPublish"`
-	CanUseDQL  bool `json:"canUseDql"`
+	CanManageACL bool `json:"canManageAcl"`
+	CanView      bool `json:"canView"`
+	CanRun       bool `json:"canRun"`
+	CanEdit      bool `json:"canEdit"`
+	CanPublish   bool `json:"canPublish"`
+	CanUseDQL    bool `json:"canUseDql"`
 }
 
 type ReaderBuilderCommand struct {
