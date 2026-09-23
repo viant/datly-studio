@@ -16,6 +16,11 @@ records immutable policy revisions and atomically advances a revision pointer.
 `Provision` is a deployment-only operation for initial policies; clients cannot
 call it. SDK operations are `access.get`, `access.replace`, and `access.context`.
 
+Policy reads and writes execute the generated `studio/resource_policy` components.
+They are hosted in-process behind these authorized SDK operations and deliberately
+excluded from the default standalone `GoBootstrap.Packages` endpoint. The writer
+owns head CAS and history insertion in one Datly-managed transaction.
+
 The Studio Security workspace includes Permissions and Authorization predicates.
 Permissions edits an explicitly selected resource policy using the shared
 `ResourceAccessEditor`, exported from the UI embedding API. Current choices come

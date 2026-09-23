@@ -2,6 +2,7 @@ package datly_studio_test
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/viant/datly/standalone/config"
@@ -23,5 +24,17 @@ func TestDatlyConfigDeclaresJWTVerifier(t *testing.T) {
 	}
 	if loaded.GoBootstrap == nil || !loaded.GoBootstrap.EagerComponents {
 		t.Fatal("expected eager static component bootstrap for imported authorization types")
+	}
+}
+
+func TestInternalResourcePolicyComponentsAreNotPubliclyBootstrapped(t *testing.T) {
+	loaded, err := (config.Loader{}).Load(context.Background(), "datly.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, pkg := range loaded.GoBootstrap.Packages {
+		if strings.HasPrefix(pkg, "github.com/viant/datly-studio/studio/resource_policy/") {
+			t.Fatalf("internal policy data component exposed through standalone bootstrap: %s", pkg)
+		}
 	}
 }

@@ -32,8 +32,6 @@ import (
 	_ "github.com/viant/datly-studio/studio/report_warmup_runs/reader"
 	_ "github.com/viant/datly-studio/studio/reports/reader"
 	_ "github.com/viant/datly-studio/studio/reports/writer"
-	_ "github.com/viant/datly-studio/studio/resource_policy/reader"
-	_ "github.com/viant/datly-studio/studio/resource_policy/writer"
 	_ "github.com/viant/datly-studio/studio/runtime_generations/reader"
 	_ "github.com/viant/datly-studio/studio/runtime_generations/writer"
 )
