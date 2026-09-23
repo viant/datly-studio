@@ -1716,7 +1716,12 @@ func (t *Transport) runReaderBuilder(ctx context.Context, reportID string, versi
 		copy.Path = dynamicComponentScope(report.OwnerID, report.ID) + "/reader"
 		operation.Package = &copy
 	}
+	types, err := t.Predicates.RuntimeTypes()
+	if err != nil {
+		return nil, err
+	}
 	service := readerbuilder.New(readerbuilder.Config{
+		Types:               types,
 		Scope:               report.ComponentScope,
 		Name:                report.ComponentName,
 		AvailableConnectors: connectors,

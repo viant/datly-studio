@@ -4,6 +4,8 @@ package predicatecatalog
 
 import (
 	"fmt"
+	"github.com/viant/datly/typecatalog"
+	x "github.com/viant/x"
 	"reflect"
 	"sort"
 	"strings"
@@ -21,10 +23,21 @@ type Descriptor struct {
 	TypeName string
 }
 
-type Catalog struct{ entries map[string]Descriptor }
+type Catalog struct {
+	entries map[string]Descriptor
+	types   *typecatalog.Catalog
+}
+
+// RuntimeTypes returns detached package authority retaining executable Go types.
+func (c *Catalog) RuntimeTypes() (*typecatalog.Catalog, error) {
+	if c == nil {
+		return typecatalog.NewCatalog(), nil
+	}
+	return c.types.Clone()
+}
 
 func New(packages ...Package) (*Catalog, error) {
-	result := &Catalog{entries: map[string]Descriptor{}}
+	result := &Catalog{entries: map[string]Descriptor{}, types: typecatalog.NewCatalog()}
 	for _, pkg := range packages {
 		path := strings.TrimSpace(pkg.Path)
 		if path == "" {
@@ -43,6 +56,9 @@ func New(packages ...Package) (*Catalog, error) {
 				return nil, fmt.Errorf("duplicate predicate link %s.%s", path, typ.Name())
 			}
 			result.entries[key] = Descriptor{Alias: alias, Package: path, TypeName: typ.Name()}
+			if err := result.types.Register(typecatalog.TypeOriginPackage, x.NewType(typ, x.WithPkgPath(path))); err != nil {
+				return nil, err
+			}
 		}
 	}
 	return result, nil

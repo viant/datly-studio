@@ -2,6 +2,7 @@ package host
 
 import (
 	"fmt"
+	"github.com/viant/datly-studio/studio/predicatecatalog"
 	"net"
 	"os"
 	"strings"
@@ -26,12 +27,13 @@ type Admin struct {
 	Token string `yaml:"Token"`
 }
 type Config struct {
-	HTTP           Listener       `yaml:"HTTP"`
-	MCP            Listener       `yaml:"MCP"`
-	Authentication Authentication `yaml:"Authentication"`
-	Studio         Studio         `yaml:"Studio"`
-	Admin          Admin          `yaml:"Admin"`
-	RootDir        string         `yaml:"RootDir"`
+	PredicatePackages []predicatecatalog.Package `yaml:"-"`
+	HTTP              Listener                   `yaml:"HTTP"`
+	MCP               Listener                   `yaml:"MCP"`
+	Authentication    Authentication             `yaml:"Authentication"`
+	Studio            Studio                     `yaml:"Studio"`
+	Admin             Admin                      `yaml:"Admin"`
+	RootDir           string                     `yaml:"RootDir"`
 }
 
 func Load(path string) (*Config, error) {

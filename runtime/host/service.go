@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	studiohost "github.com/viant/datly-studio/studio/host"
 	"net"
 	"net/http"
 	"path"
@@ -63,7 +64,17 @@ func New(ctx context.Context, config Config) (*Service, error) {
 		studio.Close()
 		return nil, err
 	}
-	manager, err := application.New(typecatalog.NewCatalog())
+	predicates, err := (studiohost.Config{PredicatePackages: config.PredicatePackages}).PredicateCatalog()
+	if err != nil {
+		studio.Close()
+		return nil, err
+	}
+	types, err := predicates.RuntimeTypes()
+	if err != nil {
+		studio.Close()
+		return nil, err
+	}
+	manager, err := application.New(types)
 	if err != nil {
 		studio.Close()
 		return nil, err
@@ -137,7 +148,7 @@ func (s *Service) compile(ctx context.Context, seed *typecatalog.Catalog, candid
 		}
 		opened = append(opened, sources.opened...)
 		contractResources := loadedResources.ByVersion[studiors.Version{ReportID: definition.reportID, VersionNo: definition.versionNo}]
-		contract, compileErr := transcribe.NewCompiler().RuntimeContracts(ctx, s.config.RootDir, &transcribe.Source{Scope: definition.scope, Name: definition.name, Text: definition.dql, Connector: definition.connector, Resources: contractResources, ColumnRefiner: column.New(sources.connections)})
+		contract, compileErr := transcribe.NewCompiler().RuntimeContracts(ctx, s.config.RootDir, &transcribe.Source{Types: types, Scope: definition.scope, Name: definition.name, Text: definition.dql, Connector: definition.connector, Resources: contractResources, ColumnRefiner: column.New(sources.connections)})
 		if compileErr != nil {
 			err = fmt.Errorf("compile dynamic report %s: %w", definition.reportID, compileErr)
 			return nil, err

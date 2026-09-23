@@ -81,6 +81,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	dynamicPreview.Types, err = predicates.RuntimeTypes()
+	if err != nil {
+		log.Fatal(err)
+	}
 	activateRuntime := sqltransport.RuntimeActivatorFunc(func(ctx context.Context, generation int64) error {
 		payload, err := json.Marshal(map[string]int64{"generation": generation})
 		if err != nil {

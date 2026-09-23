@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/viant/datly/typecatalog"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -39,6 +40,7 @@ import (
 // Dynamic executes dynamic reader versions using Datly's runtime-contract
 // materialization. It is an SDK preview executor, not a SQL escape hatch.
 type Dynamic struct {
+	Types    *typecatalog.Catalog
 	StudioDB *sql.DB
 	RootDir  string
 	Secrets  connectorsecret.Resolver
@@ -57,7 +59,7 @@ func (d Dynamic) Validate(ctx context.Context, reportID string, versionNo int) e
 		return err
 	}
 	defer sources.Close()
-	contract, err := transcribe.NewCompiler().RuntimeContracts(ctx, d.RootDir, &transcribe.Source{
+	contract, err := transcribe.NewCompiler().RuntimeContracts(ctx, d.RootDir, &transcribe.Source{Types: d.Types,
 		Scope: definition.Scope, Name: definition.Name, Text: definition.DQL, Connector: definition.Connector,
 		Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections),
 	})
@@ -235,7 +237,7 @@ func (d Dynamic) TestCompose(ctx context.Context, reportID string, versionNo int
 		return nil, err
 	}
 	defer sources.Close()
-	contract, err := transcribe.NewCompiler().RuntimeContracts(ctx, d.RootDir, &transcribe.Source{
+	contract, err := transcribe.NewCompiler().RuntimeContracts(ctx, d.RootDir, &transcribe.Source{Types: d.Types,
 		Scope: definition.Scope, Name: definition.Name, Text: definition.DQL, Connector: definition.Connector,
 		Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections),
 	})
@@ -339,7 +341,7 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 		return nil, err
 	}
 	defer sources.Close()
-	contract, err := transcribe.NewCompiler().RuntimeContracts(ctx, d.RootDir, &transcribe.Source{Scope: definition.Scope, Name: definition.Name, Text: definition.DQL, Connector: definition.Connector, Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections)})
+	contract, err := transcribe.NewCompiler().RuntimeContracts(ctx, d.RootDir, &transcribe.Source{Types: d.Types, Scope: definition.Scope, Name: definition.Name, Text: definition.DQL, Connector: definition.Connector, Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections)})
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "compile dynamic reader: " + err.Error(), Cause: err}
 	}
@@ -420,7 +422,7 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 		return nil, err
 	}
 	defer sources.Close()
-	contract, err := transcribe.NewCompiler().RuntimeContracts(ctx, d.RootDir, &transcribe.Source{
+	contract, err := transcribe.NewCompiler().RuntimeContracts(ctx, d.RootDir, &transcribe.Source{Types: d.Types,
 		Scope: definition.Scope, Name: definition.Name, Text: dql, Connector: definition.Connector,
 		Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections),
 	})
