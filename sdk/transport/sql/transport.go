@@ -1052,6 +1052,9 @@ func (t *Transport) listVersions(ctx context.Context, input, output any) error {
 	if err := decode(input, &in); err != nil {
 		return invalid(err)
 	}
+	if strings.TrimSpace(in.ReportID) == "" {
+		return invalid(errors.New("reportId is required"))
+	}
 	limit := in.Input.Limit
 	if limit <= 0 {
 		limit = 50
@@ -1059,57 +1062,32 @@ func (t *Transport) listVersions(ctx context.Context, input, output any) error {
 	if limit > 500 {
 		limit = 500
 	}
-	query := versionSelectSQL + ` WHERE report_id=?`
-	args := []any{in.ReportID}
-	if in.Input.State != "" {
-		query += ` AND state=?`
-		args = append(args, in.Input.State)
-	}
-	if in.Input.AuthoringMode != "" {
-		query += ` AND authoring_mode=?`
-		args = append(args, in.Input.AuthoringMode)
-	}
-	if in.Input.CompileStatus != "" {
-		query += ` AND compile_status=?`
-		args = append(args, in.Input.CompileStatus)
-	}
-	if in.Input.CreatedBy != "" {
-		query += ` AND created_by=?`
-		args = append(args, in.Input.CreatedBy)
-	}
-	query += ` ORDER BY version_no DESC LIMIT ? OFFSET ?`
-	args = append(args, limit, maxZero(in.Input.Offset))
-	rows, err := t.DB.QueryContext(ctx, query, args...)
+	items, err := t.readVersionCatalog(ctx, versionCatalogRequest{ReportID: in.ReportID,
+		State: in.Input.State, AuthoringMode: in.Input.AuthoringMode,
+		CompileStatus: in.Input.CompileStatus, CreatedBy: in.Input.CreatedBy,
+		Limit: limit, Offset: maxZero(in.Input.Offset)})
 	if err != nil {
 		return internal(err)
 	}
-	defer rows.Close()
-	page := &sdk.VersionPage{Limit: limit, Offset: maxZero(in.Input.Offset)}
-	for rows.Next() {
-		value, err := scanVersion(rows)
-		if err != nil {
-			return internal(err)
-		}
-		page.Items = append(page.Items, value)
-	}
-	if err := rows.Err(); err != nil {
-		return internal(err)
-	}
+	page := &sdk.VersionPage{Items: items, Limit: limit, Offset: maxZero(in.Input.Offset)}
 	return assign(output, page)
 }
 
-const versionSelectSQL = `SELECT report_id, version_no, state, authoring_mode, authored_sql, authored_dql,
- component_spec_json, spec_format_version, spec_hash, generated_dql, dql_export_limits_json,
- type_manifest_json, resource_manifest_json, component_descriptor_json, compile_status,
- compile_diagnostics_json, datly_version, compiler_version, source_revision, notes, created_by,
- created_at, validated_at, published_at FROM report_versions`
-
 func (t *Transport) getVersionValue(ctx context.Context, reportID string, versionNo int) (*sdk.ReportVersion, error) {
-	value, err := scanVersion(t.DB.QueryRowContext(ctx, versionSelectSQL+` WHERE report_id=? AND version_no=?`, reportID, versionNo))
-	if err != nil {
-		return nil, mapReadError(err, "report version", fmt.Sprintf("%s/%d", reportID, versionNo))
+	if reportID == "" || versionNo <= 0 {
+		return nil, mapReadError(sql.ErrNoRows, "report version", fmt.Sprintf("%s/%d", reportID, versionNo))
 	}
-	return value, nil
+	items, err := t.readVersionCatalog(ctx, versionCatalogRequest{ReportID: reportID, VersionNo: versionNo, Limit: 2})
+	if err != nil {
+		return nil, internal(err)
+	}
+	if len(items) == 0 {
+		return nil, mapReadError(sql.ErrNoRows, "report version", fmt.Sprintf("%s/%d", reportID, versionNo))
+	}
+	if len(items) != 1 {
+		return nil, internal(errors.New("version catalog returned ambiguous rows"))
+	}
+	return items[0], nil
 }
 
 type versionEditRequest struct {
@@ -1189,28 +1167,6 @@ func (t *Transport) applyVersionEdit(ctx context.Context, input, output any) err
 		return err
 	}
 	return assign(output, &sdk.EditResult{Version: updated})
-}
-
-func scanVersion(scanner interface{ Scan(...any) error }) (*sdk.ReportVersion, error) {
-	var value sdk.ReportVersion
-	var authoredSQL, authoredDQL, spec, limits, types, resources, descriptor, diagnostics, generated, notes sql.NullString
-	if err := scanner.Scan(&value.ReportID, &value.VersionNo, &value.State, &value.AuthoringMode, &authoredSQL, &authoredDQL,
-		&spec, &value.SpecFormatVersion, &value.SpecHash, &generated, &limits, &types, &resources, &descriptor,
-		&value.CompileStatus, &diagnostics, &value.DatlyVersion, &value.CompilerVersion, &value.SourceRevision,
-		&notes, &value.CreatedBy, &value.CreatedAt, &value.ValidatedAt, &value.PublishedAt); err != nil {
-		return nil, err
-	}
-	value.AuthoredSQL = rawJSONOrString(authoredSQL)
-	value.AuthoredDQL = rawJSONOrString(authoredDQL)
-	value.GeneratedDQL = rawJSONOrString(generated)
-	value.Notes = notes.String
-	value.ComponentSpec = rawJSON(spec)
-	value.DQLExportLimits = rawJSON(limits)
-	value.TypeManifest = rawJSON(types)
-	value.ResourceManifest = rawJSON(resources)
-	value.ComponentDescriptor = rawJSON(descriptor)
-	value.CompileDiagnostics = rawJSON(diagnostics)
-	return &value, nil
 }
 
 func (t *Transport) validateVersion(ctx context.Context, input, output any) error {
@@ -1736,20 +1692,6 @@ func readerDiagnostics(diagnostics []*transcribe.Diagnostic) []sdk.Diagnostic {
 func hashVersion(reportID string, versionNo int, mode, authoredSQL, authoredDQL string, spec []byte) string {
 	sum := sha256.Sum256([]byte(fmt.Sprintf("%s:%d:%s:%s:%s:%s", reportID, versionNo, mode, authoredSQL, authoredDQL, spec)))
 	return fmt.Sprintf("%x", sum[:])
-}
-
-func rawJSON(value sql.NullString) json.RawMessage {
-	if !value.Valid || strings.TrimSpace(value.String) == "" {
-		return nil
-	}
-	return json.RawMessage(value.String)
-}
-
-func rawJSONOrString(value sql.NullString) string {
-	if !value.Valid {
-		return ""
-	}
-	return value.String
 }
 
 func maxZero(value int) int {
