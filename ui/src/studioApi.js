@@ -3,6 +3,8 @@
 // SQL, DQL, Datly component, or storage knowledge.
 import { postV1StudioSdkAclList, postV1StudioSdkReportsGet, postV1StudioSdkReportsList } from './generated/studioClient.gen.js';
 
+const nativeErrorCode = { 400: 'invalid_argument', 401: 'unauthorized', 403: 'forbidden', 404: 'not_found', 409: 'conflict', 422: 'invalid_argument', 502: 'unavailable', 503: 'unavailable' };
+
 export class StudioAPI {
   constructor(config, options = {}) {
     this.config = config;
@@ -103,7 +105,7 @@ export class StudioAPI {
       const requestId = response?.headers?.get?.('X-Request-ID') || '';
       const baseMessage = error?.message || `Studio SDK operation ${operation} failed (${response?.status ?? 'network'})`;
       const failure = new Error(requestId ? `${baseMessage} · request ${requestId}` : baseMessage);
-      failure.code = error?.code || '';
+      failure.code = error?.code || nativeErrorCode[response?.status] || 'internal';
       failure.status = response?.status;
       failure.field = error?.field || '';
       failure.violations = error?.violations ?? [];

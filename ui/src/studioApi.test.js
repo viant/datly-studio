@@ -84,7 +84,7 @@ test('component identity updates stay behind report SDK operations', async () =>
 
 test('generated report get preserves not-found status and request id', async () => {
   const api=new StudioAPI({mode:'authenticated',apiBaseURL:'https://studio.example.com'}, {fetcher:async()=>response({message:'report not found'},404,'get-request-1')});
-  await assert.rejects(()=>api.getReport('missing'),(error)=>error.status===404&&error.requestId==='get-request-1'&&error.message.includes('report not found'));
+  await assert.rejects(()=>api.getReport('missing'),(error)=>error.status===404&&error.code==='not_found'&&error.requestId==='get-request-1'&&error.message.includes('report not found'));
 });
 
 test('named connector SDK operation delegates to the stable transport operation', async () => {
