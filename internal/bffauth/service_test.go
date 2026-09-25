@@ -92,6 +92,7 @@ func TestProxyExpandsSessionToBearerAndStripsControlHeaders(t *testing.T) {
 	mux.Handle("/v1/studio/sdk/connectors.list", preservingProxy)
 	mux.Handle("/v1/studio/sdk/namespaces.list", preservingProxy)
 	mux.Handle("/v1/studio/sdk/namespaces.get", preservingProxy)
+	mux.Handle("/v1/studio/sdk/publications.get", preservingProxy)
 	mux.Handle("/v1/studio/sdk/reports.get", preservingProxy)
 	mux.Handle("/v1/studio/sdk/reports.list", preservingProxy)
 	mux.ServeHTTP(aclResponse, aclRequest)
@@ -141,6 +142,13 @@ func TestProxyExpandsSessionToBearerAndStripsControlHeaders(t *testing.T) {
 	mux.ServeHTTP(namespaceGetResponse, namespaceGet)
 	if namespaceGetResponse.Code != http.StatusNoContent || path != "/v1/studio/sdk/namespaces.get" || calls != 8 {
 		t.Fatalf("native namespace-get proxy status=%d path=%q calls=%d", namespaceGetResponse.Code, path, calls)
+	}
+	publicationGet := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/publications.get", strings.NewReader(`{"reportId":"r1"}`))
+	publicationGet.AddCookie(&http.Cookie{Name: DefaultCookieName, Value: id})
+	publicationResponse := httptest.NewRecorder()
+	mux.ServeHTTP(publicationResponse, publicationGet)
+	if publicationResponse.Code != http.StatusNoContent || path != "/v1/studio/sdk/publications.get" || authorization != "Bearer jwt-token" || calls != 9 {
+		t.Fatalf("native publication-get proxy status=%d path=%q auth=%q calls=%d", publicationResponse.Code, path, authorization, calls)
 	}
 }
 

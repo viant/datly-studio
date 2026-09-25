@@ -163,6 +163,52 @@
           "offset"
         ]
       },
+      "Wire_49feff8d08df046f25f5c6fbb141c3c4b50c39af0dea56aec129e11334a944e0": {
+        "type": "object",
+        "properties": {
+          "activeGeneration": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "activeVersionNo": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "desiredGeneration": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "desiredVersionNo": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "reportId": {
+            "type": "string"
+          },
+          "runtimeRevision": {
+            "type": "string"
+          },
+          "specHash": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "reportId",
+          "activeVersionNo",
+          "desiredGeneration",
+          "status"
+        ]
+      },
       "Wire_7be315ac587bc72247d0b72942b7067d644f15c0e04a4011f74ffec56d000203": {
         "type": "object",
         "properties": {
@@ -786,6 +832,47 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Wire_fcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/publications.get": {
+      "post": {
+        "summary": "publication",
+        "operationId": "POST:/v1/studio/sdk/publications.get",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reportId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "reportId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Wire_49feff8d08df046f25f5c6fbb141c3c4b50c39af0dea56aec129e11334a944e0"
                 }
               }
             }

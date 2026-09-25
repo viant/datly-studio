@@ -39,6 +39,18 @@ export type Wire38Fcb57C86Eb44D564D0165Fe128Aec29A7664C7Bb39427502B08Df9Aa42649a
     offset: number;
 };
 
+export type Wire49Feff8D08Df046F25F5C6Fbb141C3C4B50C39Af0Dea56Aec129E11334A944E0 = {
+    activeGeneration?: number | null;
+    activeVersionNo: number;
+    desiredGeneration: number;
+    desiredVersionNo?: number | null;
+    publishedAt?: string | null;
+    reportId: string;
+    runtimeRevision?: string;
+    specHash?: string;
+    status: string;
+};
+
 export type Wire7Be315Ac587Bc72247D0B72942B7067D644F15C0E04A4011F74Ffec56D000203 = {
     createdAt: string;
     description?: string;
@@ -232,6 +244,24 @@ export type PostV1StudioSdkNamespacesListResponses = {
 };
 
 export type PostV1StudioSdkNamespacesListResponse = PostV1StudioSdkNamespacesListResponses[keyof PostV1StudioSdkNamespacesListResponses];
+
+export type PostV1StudioSdkPublicationsGetData = {
+    body: {
+        reportId: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/publications.get';
+};
+
+export type PostV1StudioSdkPublicationsGetResponses = {
+    /**
+     * Success response
+     */
+    200: Wire49Feff8D08Df046F25F5C6Fbb141C3C4B50C39Af0Dea56Aec129E11334A944E0;
+};
+
+export type PostV1StudioSdkPublicationsGetResponse = PostV1StudioSdkPublicationsGetResponses[keyof PostV1StudioSdkPublicationsGetResponses];
 
 export type PostV1StudioSdkReportsGetData = {
     body: {

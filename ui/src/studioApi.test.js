@@ -250,17 +250,24 @@ test('governed namespaces use dedicated Studio SDK operations', async () => {
 
 test('publication lifecycle stays behind Studio SDK operations', async () => {
   const calls=[];
-  const api=new StudioAPI({mode:'development',apiBaseURL:'http://127.0.0.1:8080',development:{subject:'dev-user'}},{fetcher:async(url,init)=>{calls.push({url,body:init.body});return response({status:'active'});}});
+  const api=new StudioAPI({mode:'development',apiBaseURL:'http://127.0.0.1:8080',development:{subject:'dev-user'}},{fetcher:async(url,init)=>{calls.push(url instanceof Request ? {url:url.url,body:await url.text(),subject:url.headers.get('X-Studio-Development-Subject')} : {url,body:init.body});return response({status:'active'});}});
   await api.getPublication('reader');
   await api.unpublishReader('reader',3,'retire reader');
   await api.rollbackReader('reader',1,4,'restore reader');
   await api.getRuntimeStatus();
   assert.equal(calls[0].url,'http://127.0.0.1:8080/v1/studio/sdk/publications.get');
+  assert.equal(calls[0].body,'{"reportId":"reader"}');
+  assert.equal(calls[0].subject,'dev-user');
   assert.equal(calls[1].url,'http://127.0.0.1:8080/v1/studio/sdk/publications.unpublish');
   assert.equal(calls[1].body,'{"reportId":"reader","input":{"expectedActiveGeneration":3,"reason":"retire reader"}}');
   assert.equal(calls[2].url,'http://127.0.0.1:8080/v1/studio/sdk/publications.rollback');
   assert.equal(calls[2].body,'{"reportId":"reader","versionNo":1,"input":{"expectedSourceRevision":4,"reason":"restore reader"}}');
   assert.equal(calls[3].url,'http://127.0.0.1:8080/v1/studio/sdk/runtime.status');
+});
+
+test('generated publication get preserves not-found evidence', async () => {
+  const api=new StudioAPI({mode:'authenticated',apiBaseURL:'https://studio.example.com'}, {fetcher:async()=>response({message:'publication not found'},404,'publication-request-1')});
+  await assert.rejects(()=>api.getPublication('missing'),(error)=>error.status===404&&error.code==='not_found'&&error.requestId==='publication-request-1');
 });
 
 test('publication event history stays behind the owner-scoped SDK operation', async () => {

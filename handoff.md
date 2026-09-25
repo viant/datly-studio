@@ -570,6 +570,9 @@ local test target; do not silently replace it with Docker/MySQL.
   The namespace catalog now uses a typed Datly authorization predicate and a
   native `namespaces.list` SDK route with page-shaped HTTP/MCP/OpenAPI output.
   `namespaces.get` now uses the same typed scope for one direct DTO or 404.
+  `publications.get` now has a native direct-response reader with typed view
+  scope, HTTP/MCP/OpenAPI parity, BFF forwarding and generated Go/JS clients;
+  SQLite tests cover owner, delegated viewer, denial and revocation.
   Version get/list SDK responses now redact structural DQL unless the subject
   has `canUseDql`; the source-bearing static version reader requires that
   permission until a native metadata-plus-redaction contract is authored.

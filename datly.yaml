@@ -44,6 +44,7 @@ GoBootstrap:
     - github.com/viant/datly-studio/studio/bff_sessions/reader
     - github.com/viant/datly-studio/studio/bff_sessions/writer
     - github.com/viant/datly-studio/studio/report_publications/reader
+    - github.com/viant/datly-studio/studio/report_publications/get
     - github.com/viant/datly-studio/studio/report_publications/writer
     - github.com/viant/datly-studio/studio/report_acl/reader
     - github.com/viant/datly-studio/studio/report_acl/writer

@@ -1,7 +1,7 @@
 // StudioAPI is deliberately a client-side counterpart of sdk.Transport: every
 // UI interaction names an SDK operation and sends an SDK DTO. It has no direct
 // SQL, DQL, Datly component, or storage knowledge.
-import { postV1StudioSdkAclList, postV1StudioSdkConnectorsGet, postV1StudioSdkConnectorsList, postV1StudioSdkNamespacesGet, postV1StudioSdkNamespacesList, postV1StudioSdkReportsGet, postV1StudioSdkReportsList } from './generated/studioClient.gen.js';
+import { postV1StudioSdkAclList, postV1StudioSdkConnectorsGet, postV1StudioSdkConnectorsList, postV1StudioSdkNamespacesGet, postV1StudioSdkNamespacesList, postV1StudioSdkPublicationsGet, postV1StudioSdkReportsGet, postV1StudioSdkReportsList } from './generated/studioClient.gen.js';
 
 const nativeErrorCode = { 400: 'invalid_argument', 401: 'unauthorized', 403: 'forbidden', 404: 'not_found', 409: 'conflict', 422: 'invalid_argument', 502: 'unavailable', 503: 'unavailable' };
 
@@ -51,7 +51,7 @@ export class StudioAPI {
   inspectVersion(reportId, versionNo) { return this.invoke('versions.inspect', { reportId, versionNo }); }
   validateVersion(reportId, versionNo, expectedSourceRevision) { return this.invoke('versions.validate', { reportId, versionNo, expectedSourceRevision }); }
   publishReader(reportId, versionNo, expectedSourceRevision, reason = '') { return this.invoke('publications.publish', { reportId, versionNo, input: { expectedSourceRevision, reason } }); }
-  getPublication(reportId) { return this.invoke('publications.get', { reportId }); }
+  getPublication(reportId) { return this.nativeRequest(postV1StudioSdkPublicationsGet, 'publications.get', { reportId }); }
   listPublicationEvents(reportId, input = {}) { return this.invoke('publications.events.list', { reportId, input }); }
   unpublishReader(reportId, expectedActiveGeneration, reason = '') { return this.invoke('publications.unpublish', { reportId, input: { expectedActiveGeneration, reason } }); }
   rollbackReader(reportId, versionNo, expectedSourceRevision, reason = '') { return this.invoke('publications.rollback', { reportId, versionNo, input: { expectedSourceRevision, reason } }); }
