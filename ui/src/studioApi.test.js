@@ -9,12 +9,13 @@ function response(payload, status = 200, requestId = '') {
 test('development API carries an explicit local subject only', async () => {
   let request;
   const api = new StudioAPI({ mode: 'development', apiBaseURL: 'http://127.0.0.1:8080', development: { subject: 'dev-user' } }, {
-    fetcher: async (url, init) => { request = { url, init }; return response({ items: [] }); },
+    fetcher: async (value) => { request = value; return response({ items: [], limit: 50, offset: 0 }); },
   });
   await api.listReports({ status: 'draft' });
   assert.equal(request.url, 'http://127.0.0.1:8080/v1/studio/sdk/reports.list');
-  assert.equal(request.init.headers['X-Studio-Development-Subject'], 'dev-user');
-  assert.equal(request.init.headers.Authorization, undefined);
+  assert.equal(request.headers.get('X-Studio-Development-Subject'), 'dev-user');
+  assert.equal(request.headers.get('Authorization'), null);
+  assert.equal(await request.text(), '{"status":"draft"}');
 });
 
 test('authenticated API carries only the HttpOnly BFF session cookie', async () => {

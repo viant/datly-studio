@@ -550,8 +550,10 @@ local test target; do not silently replace it with Docker/MySQL.
   host with its session bearer; development mode retains the ACL gate.
   Owner-only policy and HTTP/OpenAPI/MCP behavior have focused SQLite tests.
   A route-scoped Datly OpenAPI export now generates Go and browser clients;
-  the browser's ACL-list call uses the generated client. The remaining SDK
-  operations still use the generic dispatcher.
+  the browser's ACL-list and Component-list calls use the generated client.
+  The native `reports.list` reader now supplies the SDK page shape and keeps
+  the verified-auth predicate; its HTTP, OpenAPI, MCP, and scoped SQLite tests
+  pass. The remaining SDK operations still use the generic dispatcher.
   See `docs/sdk-native-endpoints.md` for the remaining broader SDK migration.
   Focused
   Datly embedded-view SQL and rendered UI wrapped-query regressions pass.

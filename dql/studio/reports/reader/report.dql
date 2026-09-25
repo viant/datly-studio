@@ -7,32 +7,42 @@
 #setting($_ = $input_type('Input'))
 #setting($_ = $output_type('Output'))
 #setting($_ = $case_format('lc'))
-#setting($_ = $route('/v1/studio/reports', 'GET'))
+#setting($_ = $route('/v1/studio/sdk/reports.list', 'POST'))
 #setting($_ = $connector('studio'))
-#setting($_ = $mcp('studio.reports.read', 'Read Datly Studio reports'))
+#setting($_ = $mcp('studio.sdk.reports.list', 'List authorized Datly Studio components'))
 #setting($_ = $sql_dest('report', 'sql/report.sql'))
 
 #define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
 #define($_ = $Auth<*studioauth.Output>(component/GET:/v1/studio/auth/context).Required().WithPredicate(3, 'handler', 'catalogpredicate.ReportCatalogRead'))
-#define($_ = $Id<string>(path/id).Required().WithURI('/{id}').WithPredicate(2, 'equal', 'r', 'id'))
-#define($_ = $Query<string>(query/q).Optional().WithPredicate(0, 'contains', 'r', 'slug').WithPredicate(0, 'contains', 'r', 'title').WithPredicate(0, 'contains', 'r', 'description'))
-#define($_ = $Namespace<string>(query/namespace).Optional().WithPredicate(1, 'equal', 'r', 'namespace'))
-#define($_ = $Status<string>(query/status).Optional().WithPredicate(1, 'equal', 'r', 'status'))
-#define($_ = $OwnerId<string>(query/owner).Optional().WithPredicate(1, 'equal', 'r', 'owner_id'))
-#define($_ = $ConnectorName<string>(query/connector).Optional().WithPredicate(1, 'equal', 'r', 'default_connector_name'))
-#define($_ = $Fields<[]string>(query/fields).Optional().QuerySelector('report'))
-#define($_ = $OrderBy<string>(query/orderBy).Optional().QuerySelector('report'))
-#define($_ = $Limit<int>(query/limit).Optional().QuerySelector('report'))
-#define($_ = $Offset<int>(query/offset).Optional().QuerySelector('report'))
-#define($_ = $Reports<[]*Report>(output/view))
+#define($_ = $Query<string>(body/query).WithTag('json:"query"').Optional().WithPredicate(0, 'contains', 'r', 'namespace').WithPredicate(0, 'contains', 'r', 'slug').WithPredicate(0, 'contains', 'r', 'title').WithPredicate(0, 'contains', 'r', 'description'))
+#define($_ = $Namespace<string>(body/namespace).WithTag('json:"namespace"').Optional().WithPredicate(1, 'equal', 'r', 'namespace'))
+#define($_ = $Status<string>(body/status).WithTag('json:"status"').Optional().WithPredicate(1, 'equal', 'r', 'status'))
+#define($_ = $OwnerId<string>(body/ownerId).WithTag('json:"ownerId"').Optional().WithPredicate(1, 'equal', 'r', 'owner_id'))
+#define($_ = $ConnectorName<string>(body/connectorName).WithTag('json:"connectorName"').Optional().WithPredicate(1, 'equal', 'r', 'default_connector_name'))
+#define($_ = $Fields<[]string>(body/fields).WithTag('json:"fields"').Optional())
+#define($_ = $OrderBy<string>(body/orderBy).WithTag('json:"orderBy"').Optional())
+#define($_ = $Limit<int>(body/limit).WithTag('json:"limit"').Optional().QuerySelector('report'))
+#define($_ = $Offset<int>(body/offset).WithTag('json:"offset"').Optional().QuerySelector('report'))
+#define($_ = $Items<[]*Report>(output/view))
+#define($_ = $PageLimit<int>(output/body).WithTag('json:"limit"'))
+#define($_ = $PageOffset<int>(output/body).WithTag('json:"offset"'))
 
-SELECT reports.*, type(reports, 'Report'), CAST(reports.namespace AS string),
-       set_limit(reports, 100),
-       selector_fields(reports, true),
+SELECT reports.*, type(reports, 'Report'),
+       CAST(reports.id AS string), CAST(reports.namespace AS string),
+       CAST(reports.slug AS string), CAST(reports.title AS string),
+       CAST(reports.description AS *string), CAST(reports.owner_id AS string),
+       CAST(reports.owner_package AS string), CAST(reports.status AS string),
+       CAST(reports.default_connector_name AS string),
+       CAST(reports.component_scope AS string), CAST(reports.component_name AS string),
+       CAST(reports.current_draft_version AS *int), CAST(reports.etag AS int64),
+       CAST(reports.created_at AS time.Time), CAST(reports.updated_at AS time.Time),
+       tag(reports.description, 'json:"description,omitempty"'),
+       tag(reports.current_draft_version, 'json:"currentDraftVersion,omitempty"'),
+       set_limit(reports, 500),
        selector_limit(reports, true),
-       selector_offset(reports, true),
-       allowed_order_by_columns(reports, 'namespace,slug,title,status,owner_id,default_connector_name,current_draft_version,updated_at')
+       selector_offset(reports, true)
 FROM (
     ${embed:sql/read.sql}
 ) reports
 WHERE 1=1
+ORDER BY reports.updated_at DESC, reports.id ASC

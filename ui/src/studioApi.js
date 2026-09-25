@@ -1,7 +1,7 @@
 // StudioAPI is deliberately a client-side counterpart of sdk.Transport: every
 // UI interaction names an SDK operation and sends an SDK DTO. It has no direct
 // SQL, DQL, Datly component, or storage knowledge.
-import { postV1StudioSdkAclList } from './generated/studioClient.gen.js';
+import { postV1StudioSdkAclList, postV1StudioSdkReportsList } from './generated/studioClient.gen.js';
 
 export class StudioAPI {
   constructor(config, options = {}) {
@@ -37,7 +37,7 @@ export class StudioAPI {
     return payload;
   }
 
-  listReports(input = {}) { return this.invoke('reports.list', input); }
+  listReports(input = {}) { return this.nativeRequest(postV1StudioSdkReportsList, 'reports.list', input); }
   getReport(reportId) { return this.invoke('reports.get', { id: reportId }); }
   createReport(input) { return this.invoke('reports.create', input); }
   updateReport(reportId, input) { return this.invoke('reports.update', { id: reportId, input }); }
@@ -91,17 +91,17 @@ export class StudioAPI {
   getResourceAccess(resource) { return this.invoke('access.get', resource); }
   getResourceAccessContext(resource) { return this.invoke('access.context', resource); }
   replaceResourceAccess(document) { return this.invoke('access.replace', document); }
-  async listACL(reportId) {
+  async nativeRequest(call, operation, body) {
     const headers = { Accept: 'application/json' };
     if (this.config.mode === 'development') headers['X-Studio-Development-Subject'] = this.config.development.subject;
-    const { data, error, response } = await postV1StudioSdkAclList({
-      body: { reportId }, baseUrl: this.config.apiBaseURL, fetch: this.fetcher,
+    const { data, error, response } = await call({
+      body, baseUrl: this.config.apiBaseURL, fetch: this.fetcher,
       credentials: this.config.mode === 'authenticated' ? 'include' : 'same-origin', headers,
     });
     if (error) {
       if (response?.status === 401) this.onUnauthorized?.();
       const requestId = response?.headers?.get?.('X-Request-ID') || '';
-      const baseMessage = error?.message || `Studio SDK operation acl.list failed (${response?.status ?? 'network'})`;
+      const baseMessage = error?.message || `Studio SDK operation ${operation} failed (${response?.status ?? 'network'})`;
       const failure = new Error(requestId ? `${baseMessage} · request ${requestId}` : baseMessage);
       failure.code = error?.code || '';
       failure.status = response?.status;
@@ -110,8 +110,9 @@ export class StudioAPI {
       failure.requestId = requestId;
       throw failure;
     }
-    return data?.items ?? [];
+    return data;
   }
+  async listACL(reportId) { return (await this.nativeRequest(postV1StudioSdkAclList, 'acl.list', { reportId }))?.items ?? []; }
   upsertACL(input) { return this.invoke('acl.upsert', input); }
   deleteACL(reportId, subjectType, subjectId, etag) { return this.invoke('acl.delete', { reportId, subjectType, subjectId, etag }); }
   getResources(reportId, versionNo) { return this.invoke('resources.get', { reportId, versionNo }); }

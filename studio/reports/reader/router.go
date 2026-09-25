@@ -10,8 +10,7 @@ func init() {}
 
 // Component is the generated component scaffold for report.
 type ReportComponent struct {
-	Contract1 xdatly.Component[Input, Output] "component:\"report,path=/v1/studio/reports,method=GET,connector=studio,view=report\" routeName:\"report\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.reports.read\\\",\\\"description\\\":\\\"Read Datly Studio reports\\\"}]\" caseFormat:\"lc\""
-	Contract2 xdatly.Component[Input, Output] "component:\"report,path=/v1/studio/reports/{id},method=GET,connector=studio,view=report\" routeName:\"report\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.reports.readById\\\",\\\"description\\\":\\\"Read Datly Studio reports\\\"}]\" caseFormat:\"lc\""
+	Contract xdatly.Component[Input, Output] "component:\"report,path=/v1/studio/sdk/reports.list,method=POST,connector=studio,view=report\" routeName:\"report\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.sdk.reports.list\\\",\\\"description\\\":\\\"List authorized Datly Studio components\\\"}]\" caseFormat:\"lc\""
 }
 
 // ReportDatlyType keeps the public component type linked for blank-import discovery.

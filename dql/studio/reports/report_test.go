@@ -14,7 +14,7 @@ import (
 	"github.com/viant/datly/transcribe/column"
 )
 
-func TestReportReaderCompilesEmbeddedSQLAndExpandsByIdRoute(t *testing.T) {
+func TestReportReaderCompilesEmbeddedSQLAndNativeSDKRoute(t *testing.T) {
 	compiled := compileReport(t, context.Background(), "reader", nil)
 	if compiled.Component == nil || compiled.Component.RootView == nil {
 		t.Fatal("report reader component/root view was not compiled")
@@ -32,10 +32,10 @@ func TestReportReaderCompilesEmbeddedSQLAndExpandsByIdRoute(t *testing.T) {
 			}
 		}
 	}
-	if !routes["GET /v1/studio/reports"] || !routes["GET /v1/studio/reports/{id}"] {
+	if len(routes) != 1 || !routes["POST /v1/studio/sdk/reports.list"] {
 		t.Fatalf("report routes = %#v", routes)
 	}
-	if !tools["studio.reports.read"] || !tools["studio.reports.readById"] {
+	if len(tools) != 1 || !tools["studio.sdk.reports.list"] {
 		t.Fatalf("report MCP tools = %#v", tools)
 	}
 	if source := compiled.Component.RootView.Source; source == nil || len(source.Embeds) != 1 || source.Embeds[0].Path != "sql/read.sql" {

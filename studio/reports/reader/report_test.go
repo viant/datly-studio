@@ -1,22 +1,29 @@
 package reader
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"reflect"
-	"strings"
 	"testing"
 
 	requestprovider "github.com/viant/bindly/provider/request"
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/datatest"
 	"github.com/viant/datly/bootstrap"
+	gateway "github.com/viant/datly/gateway/http"
+	"github.com/viant/datly/gateway/openapi"
+	"github.com/viant/datly/gateway/openapi/openapi3"
 	"github.com/viant/datly/mcp"
 	druntime "github.com/viant/datly/runtime"
 	"github.com/viant/datly/runtime/registry"
+	"github.com/viant/datly/spec"
 	dsql "github.com/viant/datly/sql"
 	dtag "github.com/viant/datly/tag"
+	"github.com/viant/mcp-protocol/authorization"
+	"github.com/viant/mcp-protocol/schema"
 )
 
 func TestReportReaderMinimumContract(t *testing.T) {
@@ -48,7 +55,7 @@ func TestReportReaderMinimumContract(t *testing.T) {
 	}
 
 	holder := reflect.TypeOf(ReportComponent{})
-	field, ok := holder.FieldByName("Contract1")
+	field, ok := holder.FieldByName("Contract")
 	if !ok {
 		t.Fatal("missing report reader component holder")
 	}
@@ -86,85 +93,178 @@ func TestReportReaderMinimumContract(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if names := mcpService.Catalog().ToolNames(); !reflect.DeepEqual(names, []string{"studio.reports.read", "studio.reports.readById"}) {
+	if names := mcpService.Catalog().ToolNames(); !reflect.DeepEqual(names, []string{"studio.sdk.reports.list"}) {
 		t.Fatalf("public report MCP tools=%v", names)
 	}
 
-	invokeAs := func(subject, path string) (*Output, error) {
-		request := httptest.NewRequest("GET", path, nil)
-		request.Header.Set("Authorization", jwt.Bearer(t, subject))
-		routePath := "/v1/studio/reports"
-		var pathParams map[string]string
-		if request.URL.Path != routePath {
-			routePath += "/{id}"
-			pathParams = map[string]string{"id": strings.TrimPrefix(request.URL.Path, "/v1/studio/reports/")}
+	invokeAs := func(subject string, input map[string]any) (*Output, error) {
+		payload, marshalErr := json.Marshal(input)
+		if marshalErr != nil {
+			t.Fatal(marshalErr)
 		}
-		scope, scopeErr := requestprovider.New(request, requestprovider.WithPathParams(pathParams))
+		request := httptest.NewRequest("POST", "/v1/studio/sdk/reports.list", bytes.NewReader(payload))
+		request.Header.Set("Content-Type", "application/json")
+		request.Header.Set("Authorization", jwt.Bearer(t, subject))
+		scope, scopeErr := requestprovider.New(request)
 		if scopeErr != nil {
 			t.Fatal(scopeErr)
 		}
 		defer scope.Close()
-		actual, invokeErr := runtime.ExecuteRoute(ctx, "GET", routePath, scope)
+		actual, invokeErr := runtime.ExecuteRoute(ctx, "POST", "/v1/studio/sdk/reports.list", scope)
 		if invokeErr != nil {
 			return nil, invokeErr
 		}
 		return actual.(*Output), nil
 	}
-	invoke := func(path string) (*Output, error) { return invokeAs("viewer", path) }
+	invoke := func(input map[string]any) (*Output, error) { return invokeAs("viewer", input) }
 	slugs := func(output *Output) []string {
 		if output == nil {
 			return nil
 		}
-		result := make([]string, 0, len(output.Reports))
-		for _, report := range output.Reports {
-			if report != nil && report.Slug != nil {
-				result = append(result, *report.Slug)
+		result := make([]string, 0, len(output.Items))
+		for _, report := range output.Items {
+			if report != nil {
+				result = append(result, report.Slug)
 			}
 		}
 		return result
 	}
 
 	for _, test := range []struct {
-		name string
-		path string
-		want []string
+		name  string
+		input map[string]any
+		want  []string
 	}{
-		{"all predicates absent", "/v1/studio/reports?orderBy=slug", []string{"alpha", "beta", "gamma"}},
-		{"by id", "/v1/studio/reports/r-beta", []string{"beta"}},
-		{"by id missing", "/v1/studio/reports/missing", []string{}},
-		{"search OR group", "/v1/studio/reports?q=analytics&orderBy=slug", []string{"alpha", "beta", "gamma"}},
-		{"status predicate", "/v1/studio/reports?status=active", []string{"alpha"}},
-		{"owner predicate", "/v1/studio/reports?owner=owner-a&orderBy=slug", []string{"alpha", "gamma"}},
-		{"connector predicate", "/v1/studio/reports?connector=archive", []string{"beta"}},
-		{"combined groups", "/v1/studio/reports?q=analytics&owner=owner-a&status=draft", []string{"gamma"}},
-		{"explicit empty activates predicate", "/v1/studio/reports?status=", []string{}},
-		{"pagination", "/v1/studio/reports?orderBy=slug&limit=1&offset=1", []string{"beta"}},
-		{"descending order", "/v1/studio/reports?orderBy=" + url.QueryEscape("slug DESC"), []string{"gamma", "beta", "alpha"}},
+		{"all predicates absent", map[string]any{}, []string{"gamma", "beta", "alpha"}},
+		{"search OR group", map[string]any{"query": "analytics"}, []string{"gamma", "beta", "alpha"}},
+		{"namespace search", map[string]any{"query": "general"}, []string{"gamma", "beta", "alpha"}},
+		{"status predicate", map[string]any{"status": "active"}, []string{"alpha"}},
+		{"owner predicate", map[string]any{"ownerId": "owner-a"}, []string{"gamma", "alpha"}},
+		{"connector predicate", map[string]any{"connectorName": "archive"}, []string{"beta"}},
+		{"combined groups", map[string]any{"query": "analytics", "ownerId": "owner-a", "status": "draft"}, []string{"gamma"}},
+		{"explicit empty filter is absent", map[string]any{"status": ""}, []string{"gamma", "beta", "alpha"}},
+		{"pagination", map[string]any{"limit": 1, "offset": 1}, []string{"beta"}},
+		{"ignored legacy selectors", map[string]any{"fields": []string{"slug"}, "orderBy": "slug DESC"}, []string{"gamma", "beta", "alpha"}},
 	} {
 		t.Run(test.name, func(t *testing.T) {
-			output, err := invoke(test.path)
+			output, err := invoke(test.input)
 			if err != nil {
 				t.Fatal(err)
 			}
 			if actual := slugs(output); !reflect.DeepEqual(actual, test.want) {
-				t.Fatalf("%s slugs=%v want=%v", test.path, actual, test.want)
+				t.Fatalf("input=%v slugs=%v want=%v", test.input, actual, test.want)
 			}
 		})
 	}
 
-	t.Run("field projection", func(t *testing.T) {
-		output, err := invoke("/v1/studio/reports?fields=slug&fields=status&orderBy=slug&limit=1")
+	t.Run("SDK page and package shape", func(t *testing.T) {
+		output, err := invoke(map[string]any{"limit": 1, "offset": 1})
 		if err != nil {
 			t.Fatal(err)
 		}
-		if len(output.Reports) != 1 || output.Reports[0].Slug == nil || output.Reports[0].Status == nil || output.Reports[0].Title != nil {
-			t.Fatalf("projected report=%+v", output.Reports)
+		if output.PageLimit != 1 || output.PageOffset != 1 || len(output.Items) != 1 ||
+			output.Items[0].OwnerPackage != "ownerb" || output.Items[0].Title == "" {
+			t.Fatalf("SDK report page=%+v", output)
 		}
 	})
-
-	t.Run("disallowed order", func(t *testing.T) {
-		if _, err := invoke("/v1/studio/reports?orderBy=deleted_at"); err == nil {
-			t.Fatal("disallowed order column was accepted")
+	t.Run("SDK default and capped limit", func(t *testing.T) {
+		for _, test := range []struct {
+			input map[string]any
+			want  int
+		}{{map[string]any{}, 50}, {map[string]any{"limit": 999}, 500}} {
+			output, err := invoke(test.input)
+			if err != nil || output.PageLimit != test.want {
+				t.Fatalf("input=%v page=%+v err=%v", test.input, output, err)
+			}
+		}
+	})
+	t.Run("SDK HTTP OpenAPI and MCP share the report contract", func(t *testing.T) {
+		handler := gateway.NewHandler(runtime, nil, "test")
+		request := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/reports.list", bytes.NewBufferString(`{"limit":1,"offset":1}`))
+		request.Header.Set("Content-Type", "application/json")
+		request.Header.Set("Authorization", jwt.Bearer(t, "viewer"))
+		response := httptest.NewRecorder()
+		handler.ServeHTTP(response, request)
+		if response.Code != http.StatusOK {
+			t.Fatalf("HTTP status=%d body=%s", response.Code, response.Body.String())
+		}
+		var wire struct {
+			Items []struct {
+				Slug         string `json:"slug"`
+				OwnerPackage string `json:"ownerPackage"`
+			} `json:"items"`
+			Limit  int `json:"limit"`
+			Offset int `json:"offset"`
+		}
+		if err := json.Unmarshal(response.Body.Bytes(), &wire); err != nil || wire.Limit != 1 || wire.Offset != 1 ||
+			len(wire.Items) != 1 || wire.Items[0].Slug != "beta" || wire.Items[0].OwnerPackage != "ownerb" {
+			t.Fatalf("HTTP page=%+v err=%v body=%s", wire, err, response.Body.String())
+		}
+		missingAuth := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/reports.list", bytes.NewBufferString(`{}`))
+		missingAuth.Header.Set("Content-Type", "application/json")
+		missingResponse := httptest.NewRecorder()
+		handler.ServeHTTP(missingResponse, missingAuth)
+		if missingResponse.Code != http.StatusUnauthorized {
+			t.Fatalf("missing JWT status=%d body=%s", missingResponse.Code, missingResponse.Body.String())
+		}
+		invalid := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/reports.list", bytes.NewBufferString(`{"limit":"invalid"}`))
+		invalid.Header.Set("Content-Type", "application/json")
+		invalid.Header.Set("Authorization", jwt.Bearer(t, "viewer"))
+		invalidResponse := httptest.NewRecorder()
+		handler.ServeHTTP(invalidResponse, invalid)
+		if invalidResponse.Code < http.StatusBadRequest || invalidResponse.Code >= http.StatusInternalServerError {
+			t.Fatalf("invalid page limit status=%d body=%s", invalidResponse.Code, invalidResponse.Body.String())
+		}
+		document, err := (openapi.Generator{}).Generate(ctx, openapi.Request{
+			Info:       openapi3.Info{Title: "Studio SDK", Version: "1"},
+			Components: []*registry.RegisteredComponent{authEntry, entry},
+			Routes:     []spec.RouteRef{{Method: http.MethodPost, Path: "/v1/studio/sdk/reports.list"}},
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		operation := document.Paths["/v1/studio/sdk/reports.list"].Post
+		if operation == nil || operation.RequestBody == nil || operation.Responses == nil || operation.Security == nil {
+			t.Fatalf("generated OpenAPI report operation=%+v", operation)
+		}
+		openAPIWire, err := json.Marshal(operation.RequestBody)
+		if err != nil || bytes.Contains(openAPIWire, []byte(`"subject"`)) || bytes.Contains(openAPIWire, []byte(`"scoped"`)) {
+			t.Fatalf("OpenAPI exposes trusted report scope: %s err=%v", openAPIWire, err)
+		}
+		plan, ok := mcpService.Catalog().Tool("studio.sdk.reports.list")
+		if !ok {
+			t.Fatal("report SDK MCP plan is missing")
+		}
+		for _, argument := range plan.Arguments() {
+			if argument.PublicName() == "subject" || argument.PublicName() == "scoped" || argument.PublicName() == "Auth" || argument.PublicName() == "Jwt" {
+				t.Fatalf("MCP exposes trusted report scope: %+v", argument)
+			}
+		}
+		tool, ok := mcpService.Registry().ToolRegistry.Get("studio.sdk.reports.list")
+		if !ok {
+			t.Fatal("report SDK MCP tool is missing")
+		}
+		callContext := context.WithValue(ctx, authorization.TokenKey, &authorization.Token{Token: jwt.Bearer(t, "viewer")})
+		result, rpcErr := tool.Handler(callContext, &schema.CallToolRequest{Method: schema.MethodToolsCall,
+			Params: schema.CallToolRequestParams{Name: "studio.sdk.reports.list", Arguments: map[string]any{"limit": 1, "offset": 1}}})
+		if rpcErr != nil || result == nil || result.IsError != nil && *result.IsError {
+			t.Fatalf("MCP page=%+v err=%v", result, rpcErr)
+		}
+		body, err := json.Marshal(result.StructuredContent)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var mcpWire map[string]any
+		if err = json.Unmarshal(body, &mcpWire); err != nil || mcpWire["limit"] != float64(1) || mcpWire["offset"] != float64(1) {
+			t.Fatalf("MCP page=%s err=%v", body, err)
+		}
+		mcpItems, ok := mcpWire["items"].([]any)
+		if !ok || len(mcpItems) != 1 {
+			t.Fatalf("MCP items=%s", body)
+		}
+		mcpReport, ok := mcpItems[0].(map[string]any)
+		if !ok || mcpReport["slug"] != "beta" || mcpReport["ownerPackage"] != "ownerb" {
+			t.Fatalf("MCP report=%s", body)
 		}
 	})
 
@@ -180,19 +280,19 @@ func TestReportReaderMinimumContract(t *testing.T) {
 		if subject, scoped := (Input{}).ReportCatalogScope(); subject != "" || !scoped {
 			t.Fatalf("missing trusted auth scope=%q scoped=%v", subject, scoped)
 		}
-		output, err := invokeAs("owner-a", "/v1/studio/reports?orderBy=slug")
-		if err != nil || !reflect.DeepEqual(slugs(output), []string{"alpha", "gamma"}) {
+		output, err := invokeAs("owner-a", map[string]any{})
+		if err != nil || !reflect.DeepEqual(slugs(output), []string{"gamma", "alpha"}) {
 			t.Fatalf("owner-a reports=%v err=%v", slugs(output), err)
 		}
-		output, err = invokeAs("owner-b", "/v1/studio/reports?orderBy=slug")
+		output, err = invokeAs("owner-b", map[string]any{})
 		if err != nil || !reflect.DeepEqual(slugs(output), []string{"beta"}) {
 			t.Fatalf("owner-b reports=%v err=%v", slugs(output), err)
 		}
 		if _, err = db.ExecContext(ctx, "DELETE FROM report_acl WHERE report_id = ? AND subject_id = ?", "r-beta", "viewer"); err != nil {
 			t.Fatal(err)
 		}
-		output, err = invoke("/v1/studio/reports?orderBy=slug")
-		if err != nil || !reflect.DeepEqual(slugs(output), []string{"alpha", "gamma"}) {
+		output, err = invoke(map[string]any{})
+		if err != nil || !reflect.DeepEqual(slugs(output), []string{"gamma", "alpha"}) {
 			t.Fatalf("revoked viewer reports=%v err=%v", slugs(output), err)
 		}
 	})

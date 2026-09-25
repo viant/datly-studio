@@ -15,8 +15,12 @@ import (
 	"reflect"
 
 	"github.com/viant/bindly/resource"
+	authreader "github.com/viant/datly-studio/studio/auth/reader"
 	"github.com/viant/datly-studio/studio/host"
+	"github.com/viant/datly-studio/studio/predicatecatalog"
 	acl "github.com/viant/datly-studio/studio/report_acl/reader"
+	catalogpredicate "github.com/viant/datly-studio/studio/reports/catalogpredicate"
+	reports "github.com/viant/datly-studio/studio/reports/reader"
 	"github.com/viant/datly/bootstrap"
 	"github.com/viant/datly/gateway/openapi"
 	"github.com/viant/datly/gateway/openapi/openapi3"
@@ -24,8 +28,10 @@ import (
 	"github.com/viant/datly/runtime/registry"
 	"github.com/viant/datly/spec"
 	"github.com/viant/datly/tag"
+	"github.com/viant/datly/typecatalog"
 	"github.com/viant/scy"
 	"github.com/viant/scy/auth/jwt/verifier"
+	xcodec "github.com/viant/xdatly/codec"
 )
 
 func main() {
@@ -38,26 +44,20 @@ func main() {
 }
 
 func run(ctx context.Context, output string) error {
-	holder := reflect.TypeFor[acl.AclComponent]()
-	field, ok := holder.FieldByName("Contract")
-	if !ok {
-		return fmt.Errorf("ACL component contract is missing")
-	}
-	metadata, present, err := tag.ParseComponent(field.Tag)
-	if err != nil || !present {
-		return fmt.Errorf("parse ACL component metadata: %w", err)
-	}
-	component, err := (&bootstrap.RouteSource{HolderType: holder.Name(), FieldName: field.Name,
-		PackageName: "reader", PackagePath: holder.PkgPath(), Tag: metadata}).Resolve(
-		reflect.TypeFor[acl.Input](), reflect.TypeFor[acl.Output]())
-	if err != nil {
-		return err
-	}
 	resources := resource.New()
-	if err = resources.Register(acl.AclDatlyResourceNamespace, acl.AclDatlyResources); err != nil {
+	if err := resources.Register(acl.AclDatlyResourceNamespace, acl.AclDatlyResources); err != nil {
 		return err
 	}
-	predicates, err := (host.Config{}).PredicateCatalog()
+	if err := resources.Register(authreader.ContextDatlyResourceNamespace, authreader.ContextDatlyResources); err != nil {
+		return err
+	}
+	if err := resources.Register(reports.ReportDatlyResourceNamespace, reports.ReportDatlyResources); err != nil {
+		return err
+	}
+	predicates, err := (host.Config{PredicatePackages: []predicatecatalog.Package{{
+		Alias: "catalogpredicate", Path: "github.com/viant/datly-studio/studio/reports/catalogpredicate",
+		Types: []reflect.Type{reflect.TypeFor[catalogpredicate.ReportCatalogRead]()},
+	}}}).PredicateCatalog()
 	if err != nil {
 		return err
 	}
@@ -82,18 +82,28 @@ func run(ctx context.Context, output string) error {
 	if err != nil {
 		return err
 	}
-	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Component: component,
-		InputType: reflect.TypeFor[acl.Input](), OutputType: reflect.TypeFor[acl.Output](),
-		Resources: resources, Types: types, CodecFactory: codec})
+	auth, err := compile(reflect.TypeFor[authreader.ContextComponent](), reflect.TypeFor[authreader.Input](),
+		reflect.TypeFor[authreader.Output](), resources, types, codec)
 	if err != nil {
 		return err
 	}
-	registered := &registry.RegisteredComponent{Component: artifact.Component, Input: artifact.Input,
-		Output: artifact.Output, OutputType: reflect.TypeFor[acl.Output]()}
+	aclList, err := compile(reflect.TypeFor[acl.AclComponent](), reflect.TypeFor[acl.Input](),
+		reflect.TypeFor[acl.Output](), resources, types, codec)
+	if err != nil {
+		return err
+	}
+	reportList, err := compile(reflect.TypeFor[reports.ReportComponent](), reflect.TypeFor[reports.Input](),
+		reflect.TypeFor[reports.Output](), resources, types, codec)
+	if err != nil {
+		return err
+	}
 	document, err := (openapi.Generator{}).Generate(ctx, openapi.Request{
 		Info:       openapi3.Info{Title: "Datly Studio SDK", Version: "1.0.0"},
-		Components: []*registry.RegisteredComponent{registered},
-		Routes:     []spec.RouteRef{{Method: "POST", Path: "/v1/studio/sdk/acl.list"}},
+		Components: []*registry.RegisteredComponent{auth, aclList, reportList},
+		Routes: []spec.RouteRef{
+			{Method: "POST", Path: "/v1/studio/sdk/acl.list"},
+			{Method: "POST", Path: "/v1/studio/sdk/reports.list"},
+		},
 	})
 	if err != nil {
 		return err
@@ -107,4 +117,28 @@ func run(ctx context.Context, output string) error {
 		return err
 	}
 	return os.WriteFile(output, data, 0o644)
+}
+
+func compile(holder, inputType, outputType reflect.Type, resources *resource.Store,
+	types *typecatalog.Catalog, codec xcodec.Factory) (*registry.RegisteredComponent, error) {
+	field, ok := holder.FieldByName("Contract")
+	if !ok {
+		return nil, fmt.Errorf("component %s contract is missing", holder)
+	}
+	metadata, present, err := tag.ParseComponent(field.Tag)
+	if err != nil || !present {
+		return nil, fmt.Errorf("parse %s metadata: %w", holder, err)
+	}
+	component, err := (&bootstrap.RouteSource{HolderType: holder.Name(), FieldName: field.Name,
+		PackageName: "reader", PackagePath: holder.PkgPath(), Tag: metadata}).Resolve(inputType, outputType)
+	if err != nil {
+		return nil, err
+	}
+	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Component: component,
+		InputType: inputType, OutputType: outputType, Resources: resources, Types: types, CodecFactory: codec})
+	if err != nil {
+		return nil, err
+	}
+	return &registry.RegisteredComponent{Component: artifact.Component, Input: artifact.Input,
+		Output: artifact.Output, OutputType: outputType}, nil
 }

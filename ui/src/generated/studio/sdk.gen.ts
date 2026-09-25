@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { PostV1StudioSdkAclListData, PostV1StudioSdkAclListResponses } from './types.gen';
+import type { PostV1StudioSdkAclListData, PostV1StudioSdkAclListResponses, PostV1StudioSdkReportsListData, PostV1StudioSdkReportsListResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -28,5 +28,18 @@ export const postV1StudioSdkAclList = <ThrowOnError extends boolean = false>(opt
     headers: {
         'Content-Type': 'application/json',
         ...options.headers
+    }
+});
+
+/**
+ * report
+ */
+export const postV1StudioSdkReportsList = <ThrowOnError extends boolean = false>(options?: Options<PostV1StudioSdkReportsListData, ThrowOnError>): RequestResult<PostV1StudioSdkReportsListResponses, unknown, ThrowOnError> => (options?.client ?? client).post<PostV1StudioSdkReportsListResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/reports.list',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
     }
 });

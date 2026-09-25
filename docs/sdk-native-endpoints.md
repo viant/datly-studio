@@ -24,8 +24,8 @@ HTTP/MCP tools.
 
 `cmd/studio-api/main.go` mounts `sdk/httptransport.Gateway` at
 `/v1/studio/sdk/`; the gateway dispatches to `sdk.Transport.Invoke` for the
-remaining operations. In authenticated mode, an exact `acl.list` mount
-forwards to the static Datly component instead.
+remaining operations. In authenticated mode, exact `acl.list` and
+`reports.list` mounts forward to their static Datly components instead.
 The SQL transport now calls many transcribed components, but that does not
 make those SDK HTTP routes Datly components. Most UI calls in
 `ui/src/studioApi.js` still target the generic dispatcher. The Studio SDK declares
@@ -41,14 +41,14 @@ expose server-only components directly: its input includes caller-bindable
 these from the verified principal. A public replacement must bind principal
 scope from the authenticated context and fail closed. Merely adding `$mcp`
 to this internal DQL would permit a caller to request an unscoped read.
-The separate public `studio/reports/reader` now binds its required
+The public `studio/reports/reader` binds its required
 `Auth` component output into the typed `ReportCatalogRead` predicate,
 with no caller-settable `subject` or `scoped` field. Its SQL retains only
 the deleted-row condition and declared filter groups. SQLite tests cover
 owner scope, ACL grants and revocation, and its inline MCP declaration
-compiles to the two expected tools. This is a security/contract prerequisite,
-not yet a replacement for `sdk/reports.list`: SDK path, POST body and page
-shape still differ.
+compiles to `studio.sdk.reports.list`. The native POST body and page output
+match the SDK's filters, default and capped limits, ordering, ignored legacy
+field/order selectors, derived owner package, and authorization scope.
 
 ## Migration rule
 
@@ -72,13 +72,11 @@ For each SDK operation:
    transport compatibility during migration, but do not call the migration
    complete while any UI-used operation still runs through the dispatcher.
 
-The first security-sensitive candidate is `reports.list`: its current SDK
-wrapper invokes the transcribed `store_catalog` reader with a verified
-principal and scoped predicate. The public component must preserve that
-behavior without exposing `subject` or `scoped` to the caller. The existing
-public `studio/reports/reader` DQL is not automatically an SDK replacement:
-its route and output shape differ from `reports.list`, so contract and
-authorization parity need a real test before switching.
+The first security-sensitive reader migrated is `reports.list`. Its generic
+SDK wrapper still invokes the transcribed `store_catalog` reader with a verified
+principal and scoped predicate. The public component keeps that behavior
+without exposing `subject` or `scoped` to the caller. The private
+`store_catalog` remains available for server-owned operations.
 
 The `acl.list` candidate is in progress in the working tree. Its generated
 Datly component now uses `POST /v1/studio/sdk/acl.list`, includes the ACL
@@ -96,7 +94,7 @@ delegated editor, and viewer cases are covered on both paths. The browser's
 `listACL` call now uses the generated client from this native OpenAPI document.
 `scripts/generate-studio-sdk.sh` reproducibly exports the Datly route
 contract and generates Go and browser clients. The document currently covers
-`acl.list`; expanding it to every public SDK route remains migration work.
+`acl.list` and `reports.list`; expanding it to every public SDK route remains migration work.
 The generator scopes its input to native SDK routes because broad static
 control-plane OpenAPI includes unrelated routes with unresolved dynamic
 status schema fields.

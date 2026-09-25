@@ -88,11 +88,19 @@ func TestProxyExpandsSessionToBearerAndStripsControlHeaders(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.Handle("/v1/studio/sdk/", http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusTeapot) }))
 	mux.Handle("/v1/studio/sdk/acl.list", preservingProxy)
+	mux.Handle("/v1/studio/sdk/reports.list", preservingProxy)
 	mux.ServeHTTP(aclResponse, aclRequest)
 	if aclResponse.Code != http.StatusNoContent || path != "/v1/studio/sdk/acl.list" ||
 		authorization != "Bearer jwt-token" || cookie != "" || developmentSubject != "" || calls != 2 {
 		t.Fatalf("native ACL proxy status=%d path=%q auth=%q cookie=%q dev=%q calls=%d",
 			aclResponse.Code, path, authorization, cookie, developmentSubject, calls)
+	}
+	reportRequest := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/reports.list", strings.NewReader(`{"limit":1}`))
+	reportRequest.AddCookie(&http.Cookie{Name: DefaultCookieName, Value: id})
+	reportResponse := httptest.NewRecorder()
+	mux.ServeHTTP(reportResponse, reportRequest)
+	if reportResponse.Code != http.StatusNoContent || path != "/v1/studio/sdk/reports.list" || calls != 3 {
+		t.Fatalf("native report proxy status=%d path=%q calls=%d", reportResponse.Code, path, calls)
 	}
 }
 

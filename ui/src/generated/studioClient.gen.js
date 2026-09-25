@@ -796,6 +796,16 @@ var postV1StudioSdkAclList = (options) => (options.client ?? client).post({
     ...options.headers
   }
 });
+var postV1StudioSdkReportsList = (options) => (options?.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/reports.list",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options?.headers
+  }
+});
 export {
-  postV1StudioSdkAclList
+  postV1StudioSdkAclList,
+  postV1StudioSdkReportsList
 };

@@ -265,11 +265,13 @@ func main() {
 		if parseErr != nil {
 			log.Fatal(parseErr)
 		}
-		nativeACL, proxyErr := sessions.Proxy(staticTarget, "/")
+		nativeSDK, proxyErr := sessions.Proxy(staticTarget, "/")
 		if proxyErr != nil {
 			log.Fatal(proxyErr)
 		}
-		mux.Handle("/v1/studio/sdk/acl.list", nativeACL)
+		for _, path := range []string{"/v1/studio/sdk/acl.list", "/v1/studio/sdk/reports.list"} {
+			mux.Handle(path, nativeSDK)
+		}
 		if loginOAuth != nil {
 			login, loginErr := bffauth.NewLogin(bffauth.LoginConfig{OAuth: *loginOAuth, CookieKey: key, Secure: true}, sessions)
 			if loginErr != nil {

@@ -50,6 +50,42 @@
           "etag"
         ]
       },
+      "Wire_38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Wire_bba07f0bad61cd85885417e1c20c5cff98c1ebf3abb205fd71b51c6069ea161c"
+                },
+                {
+                  "type": "object",
+                  "nullable": true,
+                  "enum": [
+                    null
+                  ]
+                }
+              ]
+            },
+            "nullable": true
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "offset": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "items",
+          "limit",
+          "offset"
+        ]
+      },
       "Wire_95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c": {
         "type": "object",
         "properties": {
@@ -74,6 +110,77 @@
         },
         "required": [
           "items"
+        ]
+      },
+      "Wire_bba07f0bad61cd85885417e1c20c5cff98c1ebf3abb205fd71b51c6069ea161c": {
+        "type": "object",
+        "properties": {
+          "componentName": {
+            "type": "string"
+          },
+          "componentScope": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "currentDraftVersion": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "defaultConnectorName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "etag": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "ownerId": {
+            "type": "string"
+          },
+          "ownerPackage": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "namespace",
+          "slug",
+          "title",
+          "ownerId",
+          "ownerPackage",
+          "status",
+          "defaultConnectorName",
+          "componentScope",
+          "componentName",
+          "etag",
+          "createdAt",
+          "updatedAt"
         ]
       }
     },
@@ -135,6 +242,73 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Wire_95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/reports.list": {
+      "post": {
+        "summary": "report",
+        "operationId": "POST:/v1/studio/sdk/reports.list",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "connectorName": {
+                    "type": "string"
+                  },
+                  "fields": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "nullable": true
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "namespace": {
+                    "type": "string"
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "orderBy": {
+                    "type": "string"
+                  },
+                  "ownerId": {
+                    "type": "string"
+                  },
+                  "query": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Wire_38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a"
                 }
               }
             }
