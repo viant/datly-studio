@@ -116,6 +116,16 @@ preserve both that source boundary and the generic SDK's redacted metadata
 response for `canView`-only users. Routing the existing source reader to the
 SDK path is therefore not a valid migration shortcut.
 
+The global publish predicate used by authorization-predicate and runtime
+control readers now matches the SDK's live-report rule: current report owners
+and subjects with a publish grant on a non-deleted report qualify. A stale
+grant on a deleted report does not. SQLite tests cover all three cases.
+`authorization_predicates.get/list` still need a native output contract for
+`linked`, which the SDK derives from its configured predicate package catalog,
+and for the decoded SQL alias/columns metadata. Exposing the older reader's
+raw `sql_scope_json` field would not match the SDK DTO; do not route it to
+those SDK paths without that server-owned projection.
+
 `reports.get` has a dedicated native reader at the SDK POST path. It requires
 body `id`, binds the same trusted auth context and typed catalog predicate,
 returns the report DTO directly, derives `ownerPackage` server-side, and

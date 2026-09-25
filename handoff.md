@@ -579,6 +579,11 @@ local test target; do not silently replace it with Docker/MySQL.
   enforce current ownership; transfer, delegated publisher denial, filters,
   paging and invalid input have SQLite coverage. The older control-plane
   event reader remains outside the static host exposure set.
+  The shared global publish predicate now includes live report ownership and
+  rejects grants attached only to deleted reports, matching the SDK authorizer.
+  Native authorization-predicate catalog routes remain pending because their
+  SDK `linked` flag comes from configured predicate packages, not the SQL row;
+  the public DTO must also decode SQL alias/columns metadata safely.
   Version get/list SDK responses now redact structural DQL unless the subject
   has `canUseDql`; the source-bearing static version reader requires that
   permission until a native metadata-plus-redaction contract is authored.

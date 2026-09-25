@@ -333,10 +333,14 @@ func globalCriteria(ctx context.Context, input any, permission string) (*xpredic
 		return nil, err
 	}
 	return &xpredicate.Criteria{Expression: `EXISTS (
-SELECT 1 FROM report_acl studio_auth_acl
-WHERE studio_auth_acl.subject_type = 'user'
-  AND studio_auth_acl.subject_id = ?
-  AND studio_auth_acl.` + permission + ` = TRUE)`, Placeholders: []any{subject}}, nil
+SELECT 1 FROM reports studio_auth_global
+WHERE studio_auth_global.deleted_at IS NULL
+  AND (studio_auth_global.owner_id = ? OR EXISTS (
+    SELECT 1 FROM report_acl studio_auth_acl
+    WHERE studio_auth_acl.report_id = studio_auth_global.id
+      AND studio_auth_acl.subject_type = 'user'
+      AND studio_auth_acl.subject_id = ?
+      AND studio_auth_acl.` + permission + ` = TRUE)))`, Placeholders: []any{subject, subject}}, nil
 }
 
 func requireOwnedRows(input any, principal, collection string) error {
