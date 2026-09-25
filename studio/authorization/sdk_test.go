@@ -31,10 +31,24 @@ func TestSDKAuthorizerEnforcesOwnerAndACL(t *testing.T) {
 	if _, err = db.Exec(`INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_run,can_edit,can_use_dql) VALUES ('shared','user','alice',TRUE,TRUE,TRUE,FALSE)`); err != nil {
 		t.Fatal(err)
 	}
-	authorizer := SDKAuthorizer{DB: db}
+	authorizer, err := NewSDKAuthorizer(db)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if authorizer.ReportCapabilities == nil {
+		t.Fatal("production authorizer did not retain its generated capability reader")
+	}
+	defer func() {
+		if closeErr := authorizer.Close(context.Background()); closeErr != nil {
+			t.Error(closeErr)
+		}
+	}()
 	alice := sdk.WithPrincipal(ctx, sdk.Principal{Subject: "alice"})
 	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{ReportID: "shared", Permission: "edit"}); err != nil {
 		t.Fatal(err)
+	}
+	if err = (SDKAuthorizer{DB: db}).Authorize(alice, sqltransport.AuthorizationRequest{ReportID: "shared", Permission: "edit"}); err != nil {
+		t.Fatalf("short-lived compatibility reader: %v", err)
 	}
 	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{ReportID: "shared", Permission: "run"}); err != nil {
 		t.Fatal(err)

@@ -172,7 +172,18 @@ func main() {
 		}
 		return nil
 	})
-	transport := &sqltransport.Transport{DB: db, Authorizer: authorization.SDKAuthorizer{DB: db}, Predicates: predicates, Probe: connectivity.SQLProbe{}, Catalog: connectivity.SQLCatalog{}, SQLTester: dynamicPreview, Preview: dynamicPreview, ViewTester: dynamicPreview, RelationTester: dynamicPreview, ComposeTester: dynamicPreview, Warmup: dynamicPreview, Validator: dynamicPreview, Activator: activateRuntime, RuntimeProbe: runtimeProbe{url: strings.TrimSuffix(*dynamicHTTPURL, "/") + "/_studio/status", token: adminToken, client: &http.Client{Timeout: 2 * time.Second}}}
+	authorizer, err := authorization.NewSDKAuthorizer(db)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func() {
+		closeCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := authorizer.Close(closeCtx); err != nil {
+			log.Printf("Studio authorizer reader close: %v", err)
+		}
+	}()
+	transport := &sqltransport.Transport{DB: db, Authorizer: authorizer, Predicates: predicates, Probe: connectivity.SQLProbe{}, Catalog: connectivity.SQLCatalog{}, SQLTester: dynamicPreview, Preview: dynamicPreview, ViewTester: dynamicPreview, RelationTester: dynamicPreview, ComposeTester: dynamicPreview, Warmup: dynamicPreview, Validator: dynamicPreview, Activator: activateRuntime, RuntimeProbe: runtimeProbe{url: strings.TrimSuffix(*dynamicHTTPURL, "/") + "/_studio/status", token: adminToken, client: &http.Client{Timeout: 2 * time.Second}}}
 	defer func() {
 		closeCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()

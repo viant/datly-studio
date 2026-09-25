@@ -11,8 +11,28 @@ import (
 )
 
 // SDKAuthorizer applies Studio ownership and report ACL rules to the public
-// SDK transport. It is the production companion to Datly predicate handlers.
-type SDKAuthorizer struct{ DB *sql.DB }
+// SDK transport. Construct it with NewSDKAuthorizer for a reusable reader.
+type SDKAuthorizer struct {
+	DB                 *sql.DB
+	ReportCapabilities *reportcapability.Reader
+}
+
+// NewSDKAuthorizer prepares the generated report-capability reader once for
+// the lifetime of a serving host. The caller owns Close.
+func NewSDKAuthorizer(db *sql.DB) (*SDKAuthorizer, error) {
+	reader, err := reportcapability.New(db)
+	if err != nil {
+		return nil, err
+	}
+	return &SDKAuthorizer{DB: db, ReportCapabilities: reader}, nil
+}
+
+func (a *SDKAuthorizer) Close(ctx context.Context) error {
+	if a == nil || a.ReportCapabilities == nil {
+		return nil
+	}
+	return a.ReportCapabilities.Close(ctx)
+}
 
 func (a SDKAuthorizer) Authorize(ctx context.Context, request sqltransport.AuthorizationRequest) error {
 	principal, ok := sdk.PrincipalFromContext(ctx)
@@ -50,12 +70,21 @@ AND acl.subject_type='user' AND acl.subject_id=? AND acl.` + column + `=TRUE)))`
 }
 
 func (a SDKAuthorizer) report(ctx context.Context, subject, id, permission string) error {
-	reader, err := reportcapability.New(a.DB)
-	if err != nil {
-		return denied()
+	reader := a.ReportCapabilities
+	owned := false
+	if reader == nil {
+		var err error
+		reader, err = reportcapability.New(a.DB)
+		if err != nil {
+			return denied()
+		}
+		owned = true
 	}
 	row, readErr := reader.Read(ctx, id, subject)
-	closeErr := reader.Close(context.Background())
+	var closeErr error
+	if owned {
+		closeErr = reader.Close(context.Background())
+	}
 	if readErr != nil || closeErr != nil || row == nil {
 		return denied()
 	}
