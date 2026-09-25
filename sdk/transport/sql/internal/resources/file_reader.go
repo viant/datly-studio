@@ -1,4 +1,4 @@
-package sqltransport
+package resources
 
 import (
 	"context"
@@ -15,10 +15,10 @@ import (
 	dsql "github.com/viant/datly/sql"
 )
 
-func (t *Transport) readResourceFileByID(ctx context.Context, tx *sql.Tx, reportID string, versionNo int, resourceID string) (*stored.SnapshotFile, error) {
+func ReadFileByID(ctx context.Context, db *sql.DB, tx *sql.Tx, reportID string, versionNo int, resourceID string) (*stored.SnapshotFile, error) {
 	input := &stored.Input{ReportId: reportID, VersionNo: versionNo, ResourceId: resourceID,
 		Has: &stored.InputHas{ReportId: true, VersionNo: true, ResourceId: true}}
-	rows, err := t.readResourceFiles(ctx, tx, input)
+	rows, err := readResourceFiles(ctx, db, tx, input)
 	if err != nil {
 		return nil, err
 	}
@@ -31,10 +31,10 @@ func (t *Transport) readResourceFileByID(ctx context.Context, tx *sql.Tx, report
 	return rows[0], nil
 }
 
-func (t *Transport) readResourceFilesByPath(ctx context.Context, tx *sql.Tx, reportID string, versionNo int, namespace, resourcePath string) ([]*stored.SnapshotFile, error) {
+func ReadFilesByPath(ctx context.Context, db *sql.DB, tx *sql.Tx, reportID string, versionNo int, namespace, resourcePath string) ([]*stored.SnapshotFile, error) {
 	input := &stored.Input{ReportId: reportID, VersionNo: versionNo, Namespace: namespace, ResourcePath: resourcePath,
 		Has: &stored.InputHas{ReportId: true, VersionNo: true, Namespace: true, ResourcePath: true}}
-	rows, err := t.readResourceFiles(ctx, tx, input)
+	rows, err := readResourceFiles(ctx, db, tx, input)
 	if err != nil {
 		return nil, err
 	}
@@ -46,13 +46,13 @@ func (t *Transport) readResourceFilesByPath(ctx context.Context, tx *sql.Tx, rep
 	return rows, nil
 }
 
-func (t *Transport) readResourceFiles(ctx context.Context, tx *sql.Tx, input *stored.Input) ([]*stored.SnapshotFile, error) {
+func readResourceFiles(ctx context.Context, db *sql.DB, tx *sql.Tx, input *stored.Input) ([]*stored.SnapshotFile, error) {
 	resources := resource.New()
 	if err := resources.Register(stored.FileDatlyResourceNamespace, stored.FileDatlyResources); err != nil {
 		return nil, err
 	}
-	connector := &dsql.SQLComponent{DB: t.DB, Tx: tx}
-	if err := connector.RegisterConnector("studio", t.DB); err != nil {
+	connector := &dsql.SQLComponent{DB: db, Tx: tx}
+	if err := connector.RegisterConnector("studio", db); err != nil {
 		return nil, err
 	}
 	registration, target, err := readercomponent.Compile(reflect.TypeOf(stored.FileComponent{}), "store_snapshot",

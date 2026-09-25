@@ -1,4 +1,4 @@
-package sqltransport
+package publications
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 
 	"github.com/viant/bindly/locator"
 	"github.com/viant/bindly/resource"
-	stored "github.com/viant/datly-studio/studio/report_publications/store_insert"
+	stored "github.com/viant/datly-studio/studio/report_publications/store_repoint"
 	"github.com/viant/datly/bootstrap"
 	dexec "github.com/viant/datly/exec"
 	druntime "github.com/viant/datly/runtime"
@@ -21,29 +21,29 @@ import (
 	dtag "github.com/viant/datly/tag"
 )
 
-func (t *Transport) writePublicationInsert(ctx context.Context, tx *sql.Tx, row *stored.StoredPublication) error {
+func WriteRepoint(ctx context.Context, db *sql.DB, tx *sql.Tx, excludeReportID string, generation int64, rows []*stored.StoredPublication) error {
 	resources := resource.New()
 	if err := resources.Register(stored.PublicationDatlyResourceNamespace, stored.PublicationDatlyResources); err != nil {
 		return err
 	}
-	connector := &dsql.SQLComponent{DB: t.DB}
-	if err := connector.RegisterConnector("studio", t.DB); err != nil {
+	connector := &dsql.SQLComponent{DB: db, Tx: tx}
+	if err := connector.RegisterConnector("studio", db); err != nil {
 		return err
 	}
 	holder := reflect.TypeOf(stored.PublicationComponent{})
 	contract, ok := holder.FieldByName("Contract")
 	if !ok {
-		return fmt.Errorf("publication insert writer has no component contract")
+		return fmt.Errorf("publication repoint writer has no component contract")
 	}
 	metadata, present, err := dtag.ParseComponent(contract.Tag)
 	if err != nil {
 		return err
 	}
 	if !present {
-		return fmt.Errorf("publication insert writer has no component metadata")
+		return fmt.Errorf("publication repoint writer has no component metadata")
 	}
 	component, err := (&bootstrap.RouteSource{HolderType: holder.Name(), FieldName: contract.Name,
-		PackageName: "store_insert", PackagePath: holder.PkgPath(), Tag: metadata,
+		PackageName: "store_repoint", PackagePath: holder.PkgPath(), Tag: metadata,
 		InputType: "Input", OutputType: "Output"}).Resolve(reflect.TypeOf(stored.Input{}), reflect.TypeOf(stored.Output{}))
 	if err != nil {
 		return err
@@ -61,13 +61,13 @@ func (t *Transport) writePublicationInsert(ctx context.Context, tx *sql.Tx, row 
 		}
 		providers = append(providers, views)
 	}
-	handler, err := writerhandler.New(component, reflect.TypeOf(stored.Input{}), reflect.TypeOf(stored.Output{}), "post")
+	handler, err := writerhandler.New(component, reflect.TypeOf(stored.Input{}), reflect.TypeOf(stored.Output{}), "patch")
 	if err != nil {
 		return err
 	}
 	registration := &registry.RegisteredComponent{Component: artifact.Component, Input: artifact.Input,
 		Output: artifact.Output, OutputType: reflect.TypeOf(stored.Output{}), Handler: handler,
-		Providers: providers, DataSource: dml.Source{DB: t.DB, Tx: tx}}
+		Providers: providers, DataSource: dml.Source{DB: db, Tx: tx}}
 	registration.Capabilities.Connector = connector
 	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{registration}, druntime.WithResources(resources))
 	if err != nil {
@@ -79,13 +79,15 @@ func (t *Transport) writePublicationInsert(ctx context.Context, tx *sql.Tx, row 
 		target.Route = spec.RouteRef{Method: component.Routes[0].Method, Path: component.Routes[0].Path}
 	}
 	input := &stored.Input{}
-	input.SetPublications([]*stored.StoredPublication{row})
+	input.SetExcludeReportId(excludeReportID)
+	input.SetGeneration(generation)
+	input.SetPublications(rows)
 	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: target, Input: input})
 	if err != nil {
 		return err
 	}
 	if _, ok := value.(*stored.Output); !ok {
-		return fmt.Errorf("publication insert writer returned %T", value)
+		return fmt.Errorf("publication repoint writer returned %T", value)
 	}
 	return nil
 }

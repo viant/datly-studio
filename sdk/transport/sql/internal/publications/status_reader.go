@@ -1,4 +1,4 @@
-package sqltransport
+package publications
 
 import (
 	"context"
@@ -16,13 +16,13 @@ import (
 	dsql "github.com/viant/datly/sql"
 )
 
-func (t *Transport) readPublicationRow(ctx context.Context, tx *sql.Tx, reportID string) (*stored.StoredPublication, error) {
+func ReadRow(ctx context.Context, db *sql.DB, tx *sql.Tx, reportID string) (*stored.StoredPublication, error) {
 	resources := resource.New()
 	if err := resources.Register(stored.PublicationDatlyResourceNamespace, stored.PublicationDatlyResources); err != nil {
 		return nil, err
 	}
-	connector := &dsql.SQLComponent{DB: t.DB, Tx: tx}
-	if err := connector.RegisterConnector("studio", t.DB); err != nil {
+	connector := &dsql.SQLComponent{DB: db, Tx: tx}
+	if err := connector.RegisterConnector("studio", db); err != nil {
 		return nil, err
 	}
 	registration, target, err := readercomponent.Compile(reflect.TypeOf(stored.PublicationComponent{}), "store_status",
@@ -53,8 +53,8 @@ func (t *Transport) readPublicationRow(ctx context.Context, tx *sql.Tx, reportID
 	return output.Publications[0], nil
 }
 
-func (t *Transport) readPublicationStatus(ctx context.Context, reportID string) (*sdk.Publication, error) {
-	row, err := t.readPublicationRow(ctx, nil, reportID)
+func ReadStatus(ctx context.Context, db *sql.DB, reportID string) (*sdk.Publication, error) {
+	row, err := ReadRow(ctx, db, nil, reportID)
 	if err != nil {
 		return nil, err
 	}

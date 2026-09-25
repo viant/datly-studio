@@ -1,4 +1,4 @@
-package sqltransport
+package publications
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 
 	"github.com/viant/bindly/locator"
 	"github.com/viant/bindly/resource"
-	stored "github.com/viant/datly-studio/studio/report_publications/store_stage"
+	stored "github.com/viant/datly-studio/studio/report_publications/store_delete"
 	"github.com/viant/datly/bootstrap"
 	dexec "github.com/viant/datly/exec"
 	druntime "github.com/viant/datly/runtime"
@@ -21,29 +21,29 @@ import (
 	dtag "github.com/viant/datly/tag"
 )
 
-func (t *Transport) writePublicationStage(ctx context.Context, tx *sql.Tx, operation string, nextGeneration int64, row *stored.StoredPublication) error {
+func WriteDelete(ctx context.Context, db *sql.DB, tx *sql.Tx, row *stored.StoredPublication) error {
 	resources := resource.New()
 	if err := resources.Register(stored.PublicationDatlyResourceNamespace, stored.PublicationDatlyResources); err != nil {
 		return err
 	}
-	connector := &dsql.SQLComponent{DB: t.DB, Tx: tx}
-	if err := connector.RegisterConnector("studio", t.DB); err != nil {
+	connector := &dsql.SQLComponent{DB: db, Tx: tx}
+	if err := connector.RegisterConnector("studio", db); err != nil {
 		return err
 	}
 	holder := reflect.TypeOf(stored.PublicationComponent{})
 	contract, ok := holder.FieldByName("Contract")
 	if !ok {
-		return fmt.Errorf("publication stage writer has no component contract")
+		return fmt.Errorf("publication delete writer has no component contract")
 	}
 	metadata, present, err := dtag.ParseComponent(contract.Tag)
 	if err != nil {
 		return err
 	}
 	if !present {
-		return fmt.Errorf("publication stage writer has no component metadata")
+		return fmt.Errorf("publication delete writer has no component metadata")
 	}
 	component, err := (&bootstrap.RouteSource{HolderType: holder.Name(), FieldName: contract.Name,
-		PackageName: "store_stage", PackagePath: holder.PkgPath(), Tag: metadata,
+		PackageName: "store_delete", PackagePath: holder.PkgPath(), Tag: metadata,
 		InputType: "Input", OutputType: "Output"}).Resolve(reflect.TypeOf(stored.Input{}), reflect.TypeOf(stored.Output{}))
 	if err != nil {
 		return err
@@ -67,7 +67,7 @@ func (t *Transport) writePublicationStage(ctx context.Context, tx *sql.Tx, opera
 	}
 	registration := &registry.RegisteredComponent{Component: artifact.Component, Input: artifact.Input,
 		Output: artifact.Output, OutputType: reflect.TypeOf(stored.Output{}), Handler: handler,
-		Providers: providers, DataSource: dml.Source{DB: t.DB, Tx: tx}}
+		Providers: providers, DataSource: dml.Source{DB: db, Tx: tx}}
 	registration.Capabilities.Connector = connector
 	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{registration}, druntime.WithResources(resources))
 	if err != nil {
@@ -79,15 +79,13 @@ func (t *Transport) writePublicationStage(ctx context.Context, tx *sql.Tx, opera
 		target.Route = spec.RouteRef{Method: component.Routes[0].Method, Path: component.Routes[0].Path}
 	}
 	input := &stored.Input{}
-	input.SetNextGeneration(nextGeneration)
-	input.SetOperation(operation)
 	input.SetPublications([]*stored.StoredPublication{row})
 	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: target, Input: input})
 	if err != nil {
 		return err
 	}
 	if _, ok := value.(*stored.Output); !ok {
-		return fmt.Errorf("publication stage writer returned %T", value)
+		return fmt.Errorf("publication delete writer returned %T", value)
 	}
 	return nil
 }

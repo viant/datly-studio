@@ -1,4 +1,4 @@
-package sqltransport
+package resources
 
 import (
 	"context"
@@ -15,13 +15,13 @@ import (
 	dsql "github.com/viant/datly/sql"
 )
 
-func (t *Transport) namespaceHasResources(ctx context.Context, tx *sql.Tx, reportID, namespace string) (bool, error) {
+func NamespaceHasResources(ctx context.Context, db *sql.DB, tx *sql.Tx, reportID, namespace string) (bool, error) {
 	resources := resource.New()
 	if err := resources.Register(stored.UsageDatlyResourceNamespace, stored.UsageDatlyResources); err != nil {
 		return false, err
 	}
-	connector := &dsql.SQLComponent{DB: t.DB, Tx: tx}
-	if err := connector.RegisterConnector("studio", t.DB); err != nil {
+	connector := &dsql.SQLComponent{DB: db, Tx: tx}
+	if err := connector.RegisterConnector("studio", db); err != nil {
 		return false, err
 	}
 	registration, target, err := readercomponent.Compile(reflect.TypeOf(stored.UsageComponent{}), "store_presence",

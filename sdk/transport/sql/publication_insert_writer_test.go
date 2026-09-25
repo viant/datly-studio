@@ -10,6 +10,7 @@ import (
 
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
+	publicationstore "github.com/viant/datly-studio/sdk/transport/sql/internal/publications"
 	stored "github.com/viant/datly-studio/studio/report_publications/store_insert"
 	_ "modernc.org/sqlite"
 )
@@ -56,7 +57,7 @@ func TestPublicationInsertWriterJoinsGenerationTransaction(t *testing.T) {
 		t.Fatal(err)
 	}
 	versionNo := version.VersionNo
-	err = transport.writePublicationInsert(owner, tx, &stored.StoredPublication{
+	err = publicationstore.WriteInsert(owner, transport.DB, tx, &stored.StoredPublication{
 		ReportId: report.ID, ActiveVersionNo: versionNo, DesiredVersionNo: &versionNo,
 		DesiredGeneration: 1, PublicationStatus: "pending", RuntimeRevision: &revision,
 		SpecHash: version.SpecHash, PublishedBy: "owner", PublishedAt: now,
@@ -79,7 +80,7 @@ func TestPublicationInsertWriterJoinsGenerationTransaction(t *testing.T) {
 	if err := tx.Rollback(); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := transport.readPublicationStatus(owner, report.ID); !errors.Is(err, sql.ErrNoRows) {
+	if _, err := publicationstore.ReadStatus(owner, transport.DB, report.ID); !errors.Is(err, sql.ErrNoRows) {
 		t.Fatalf("rolled-back publication error=%v", err)
 	}
 	next, err := transport.nextGenerationNo(owner, nil)

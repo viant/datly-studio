@@ -10,6 +10,7 @@ import (
 
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
+	publicationstore "github.com/viant/datly-studio/sdk/transport/sql/internal/publications"
 	activated "github.com/viant/datly-studio/studio/report_publications/store_activate"
 	repoint "github.com/viant/datly-studio/studio/report_publications/store_repoint"
 	publicationstage "github.com/viant/datly-studio/studio/report_publications/store_stage"
@@ -79,24 +80,24 @@ func TestOtherActivePublicationsRepointAndRollbackTogether(t *testing.T) {
 		t.Fatal(err)
 	}
 	expected := int64(2)
-	if err := transport.writePublicationActivation(owner, tx, 1, 2, &activated.StoredPublication{ReportId: "current",
+	if err := publicationstore.WriteActivation(owner, transport.DB, tx, 1, 2, &activated.StoredPublication{ReportId: "current",
 		DesiredGeneration: &expected, ActivatedAt: &now,
 		Has: &activated.StoredPublicationHas{ReportId: true, DesiredGeneration: true, ActivatedAt: true}}); err != nil {
 		t.Fatal(err)
 	}
-	others, err := transport.readOtherActivePublications(owner, tx, "current")
+	others, err := publicationstore.ReadOtherActive(owner, transport.DB, tx, "current")
 	if err != nil || len(others) != 1 || others[0].ReportId != "other" {
 		t.Fatalf("other active rows=%+v err=%v", others, err)
 	}
 	old := others[0].ActiveGeneration
-	if err := transport.writePublicationRepoint(owner, tx, "current", 2, []*repoint.StoredPublication{{
+	if err := publicationstore.WriteRepoint(owner, transport.DB, tx, "current", 2, []*repoint.StoredPublication{{
 		ReportId: "other", ActiveGeneration: old,
 		Has: &repoint.StoredPublicationHas{ReportId: true, ActiveGeneration: true}}}); err != nil {
 		t.Fatal(err)
 	}
 	stale := int64(1)
 	var conflict *xhandler.Conflict
-	if err := transport.writePublicationRepoint(owner, tx, "current", 3, []*repoint.StoredPublication{{
+	if err := publicationstore.WriteRepoint(owner, transport.DB, tx, "current", 3, []*repoint.StoredPublication{{
 		ReportId: "other", ActiveGeneration: &stale,
 		Has: &repoint.StoredPublicationHas{ReportId: true, ActiveGeneration: true}}}); !errors.As(err, &conflict) {
 		t.Fatalf("stale active generation error=%v", err)
@@ -179,7 +180,7 @@ func TestOtherActivePublicationsRepointAndRollbackTogether(t *testing.T) {
 		t.Fatal(err)
 	}
 	expectedStage := int64(2)
-	if err := transport.writePublicationStage(owner, stageTx, "unpublish", 3, &publicationstage.StoredPublication{
+	if err := publicationstore.WriteStage(owner, transport.DB, stageTx, "unpublish", 3, &publicationstage.StoredPublication{
 		ReportId: "current", DesiredGeneration: &expectedStage, PublicationStatus: "unpublishing",
 		Has: &publicationstage.StoredPublicationHas{ReportId: true, DesiredVersionNo: true,
 			DesiredGeneration: true, PublicationStatus: true, FailureJson: true},

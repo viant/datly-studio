@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/viant/datly-studio/sdk"
+	resourcestore "github.com/viant/datly-studio/sdk/transport/sql/internal/resources"
 	filestore "github.com/viant/datly-studio/studio/report_resource_files/store_write"
 	folderstore "github.com/viant/datly-studio/studio/report_resource_folders/store_write"
 	skillstore "github.com/viant/datly-studio/studio/report_skill_roots/store_write"
@@ -102,8 +103,8 @@ func (t *Transport) resourceSnapshot(ctx context.Context, reportID string, versi
 		return err
 	}
 	result.Version = version
-	if err := t.readResourceSnapshot(ctx, reportID, versionNo, result); err != nil {
-		return err
+	if err := resourcestore.ReadSnapshot(ctx, t.DB, reportID, versionNo, result); err != nil {
+		return internal(err)
 	}
 	return assign(output, result)
 }
@@ -114,7 +115,7 @@ func (t *Transport) upsertResourceFile(ctx context.Context, tx *sql.Tx, value *s
 	}
 	var oldNamespace string
 	if value.ResourceID != "" {
-		previous, err := t.readResourceFileByID(ctx, tx, value.ReportID, value.VersionNo, value.ResourceID)
+		previous, err := resourcestore.ReadFileByID(ctx, t.DB, tx, value.ReportID, value.VersionNo, value.ResourceID)
 		if err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return internal(err)
 		}
@@ -145,7 +146,7 @@ func (t *Transport) upsertResourceFile(ctx context.Context, tx *sql.Tx, value *s
 	sum := sha256.Sum256(content)
 	value.ContentSize, value.ContentSHA256 = int64(len(content)), hex.EncodeToString(sum[:])
 	now := t.now()
-	err := t.writeResourceFile(ctx, tx, &filestore.StoredFile{ReportId: value.ReportID,
+	err := resourcestore.WriteFile(ctx, t.DB, tx, &filestore.StoredFile{ReportId: value.ReportID,
 		VersionNo: value.VersionNo, ResourceId: value.ResourceID, Namespace: value.Namespace,
 		ResourcePath: value.ResourcePath, MediaType: namespaceOptionalDescription(value.MediaType),
 		Content: content, ContentSize: value.ContentSize, ContentSha256: value.ContentSHA256,
@@ -164,14 +165,14 @@ func (t *Transport) upsertResourceFile(ctx context.Context, tx *sql.Tx, value *s
 }
 
 func (t *Transport) deleteResourceFile(ctx context.Context, tx *sql.Tx, reportID string, versionNo int, resourceID string) error {
-	previous, err := t.readResourceFileByID(ctx, tx, reportID, versionNo, resourceID)
+	previous, err := resourcestore.ReadFileByID(ctx, t.DB, tx, reportID, versionNo, resourceID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return &sdk.Error{Code: sdk.ErrorNotFound, Message: "resource file was not found"}
 		}
 		return internal(err)
 	}
-	err = t.writeResourceFile(ctx, tx, &filestore.StoredFile{ReportId: reportID,
+	err = resourcestore.WriteFile(ctx, t.DB, tx, &filestore.StoredFile{ReportId: reportID,
 		VersionNo: versionNo, ResourceId: resourceID, ShouldDelete: true,
 		Has: &filestore.StoredFileHas{ReportId: true, VersionNo: true, ResourceId: true, ShouldDelete: true}})
 	if err != nil {
@@ -190,7 +191,7 @@ func (t *Transport) upsertResourceFolder(ctx context.Context, tx *sql.Tx, value 
 	}
 	var oldNamespace string
 	if value.FolderID != "" {
-		previous, err := t.readResourceFolderByID(ctx, tx, value.ReportID, value.VersionNo, value.FolderID)
+		previous, err := resourcestore.ReadFolderByID(ctx, t.DB, tx, value.ReportID, value.VersionNo, value.FolderID)
 		if err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return internal(err)
 		}
@@ -211,7 +212,7 @@ func (t *Transport) upsertResourceFolder(ctx context.Context, tx *sql.Tx, value 
 		}
 		value.FolderID = id
 	}
-	err := t.writeResourceFolder(ctx, tx, &folderstore.StoredFolder{ReportId: value.ReportID,
+	err := resourcestore.WriteFolder(ctx, t.DB, tx, &folderstore.StoredFolder{ReportId: value.ReportID,
 		VersionNo: value.VersionNo, FolderId: value.FolderID, Namespace: value.Namespace,
 		RootPath: value.RootPath, UriPrefix: value.URIPrefix, Ordinal: value.Ordinal,
 		Has: &folderstore.StoredFolderHas{ReportId: true, VersionNo: true, FolderId: true,
@@ -226,14 +227,14 @@ func (t *Transport) upsertResourceFolder(ctx context.Context, tx *sql.Tx, value 
 }
 
 func (t *Transport) deleteResourceFolder(ctx context.Context, tx *sql.Tx, reportID string, versionNo int, folderID string) error {
-	previous, err := t.readResourceFolderByID(ctx, tx, reportID, versionNo, folderID)
+	previous, err := resourcestore.ReadFolderByID(ctx, t.DB, tx, reportID, versionNo, folderID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return &sdk.Error{Code: sdk.ErrorNotFound, Message: "resource folder was not found"}
 		}
 		return internal(err)
 	}
-	err = t.writeResourceFolder(ctx, tx, &folderstore.StoredFolder{ReportId: reportID,
+	err = resourcestore.WriteFolder(ctx, t.DB, tx, &folderstore.StoredFolder{ReportId: reportID,
 		VersionNo: versionNo, FolderId: folderID, ShouldDelete: true,
 		Has: &folderstore.StoredFolderHas{ReportId: true, VersionNo: true, FolderId: true, ShouldDelete: true}})
 	if err != nil {
@@ -247,14 +248,14 @@ func (t *Transport) deleteResourceFolder(ctx context.Context, tx *sql.Tx, report
 }
 
 func (t *Transport) releaseNamespaceIfUnused(ctx context.Context, tx *sql.Tx, reportID, namespace string) error {
-	used, err := t.namespaceHasResources(ctx, tx, reportID, namespace)
+	used, err := resourcestore.NamespaceHasResources(ctx, t.DB, tx, reportID, namespace)
 	if err != nil {
 		return internal(err)
 	}
 	if used {
 		return nil
 	}
-	err = t.writeNamespaceClaim(ctx, tx, "release", &claimstore.StoredClaim{Namespace: namespace, ReportId: reportID,
+	err = resourcestore.WriteNamespaceClaim(ctx, t.DB, tx, "release", &claimstore.StoredClaim{Namespace: namespace, ReportId: reportID,
 		ShouldDelete: true, Has: &claimstore.StoredClaimHas{Namespace: true, ReportId: true, ShouldDelete: true}})
 	if err != nil {
 		var conflict *xhandler.Conflict
@@ -276,7 +277,7 @@ func (t *Transport) upsertSkillRoot(ctx context.Context, tx *sql.Tx, value *sdk.
 	if value.SkillRoot != "." && (!fs.ValidPath(value.SkillRoot) || strings.Contains(value.SkillRoot, "\\")) {
 		return invalid(errors.New("skillRoot must be a relative resource path"))
 	}
-	folder, err := t.readResourceFolderByID(ctx, tx, value.ReportID, value.VersionNo, value.FolderID)
+	folder, err := resourcestore.ReadFolderByID(ctx, t.DB, tx, value.ReportID, value.VersionNo, value.FolderID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return &sdk.Error{Code: sdk.ErrorNotFound, Message: "skill folder was not found"}
 	}
@@ -284,7 +285,7 @@ func (t *Transport) upsertSkillRoot(ctx context.Context, tx *sql.Tx, value *sdk.
 		return internal(err)
 	}
 	skillFile := path.Join(folder.RootPath, value.SkillRoot, "SKILL.md")
-	files, err := t.readResourceFilesByPath(ctx, tx, value.ReportID, value.VersionNo, folder.Namespace, skillFile)
+	files, err := resourcestore.ReadFilesByPath(ctx, t.DB, tx, value.ReportID, value.VersionNo, folder.Namespace, skillFile)
 	if err != nil {
 		return internal(err)
 	}
@@ -298,7 +299,7 @@ func (t *Transport) upsertSkillRoot(ctx context.Context, tx *sql.Tx, value *sdk.
 		}
 		value.SkillID = id
 	}
-	err = t.writeSkillRoot(ctx, tx, &skillstore.StoredSkill{ReportId: value.ReportID,
+	err = resourcestore.WriteSkill(ctx, t.DB, tx, &skillstore.StoredSkill{ReportId: value.ReportID,
 		VersionNo: value.VersionNo, SkillId: value.SkillID, FolderId: value.FolderID,
 		SkillRoot: value.SkillRoot, Ordinal: value.Ordinal,
 		Has: &skillstore.StoredSkillHas{ReportId: true, VersionNo: true, SkillId: true,
@@ -310,13 +311,13 @@ func (t *Transport) upsertSkillRoot(ctx context.Context, tx *sql.Tx, value *sdk.
 }
 
 func (t *Transport) deleteSkillRoot(ctx context.Context, tx *sql.Tx, reportID string, versionNo int, skillID string) error {
-	if _, err := t.readSkillRootByID(ctx, tx, reportID, versionNo, skillID); err != nil {
+	if _, err := resourcestore.ReadSkillByID(ctx, t.DB, tx, reportID, versionNo, skillID); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return &sdk.Error{Code: sdk.ErrorNotFound, Message: "skill root was not found"}
 		}
 		return internal(err)
 	}
-	err := t.writeSkillRoot(ctx, tx, &skillstore.StoredSkill{ReportId: reportID,
+	err := resourcestore.WriteSkill(ctx, t.DB, tx, &skillstore.StoredSkill{ReportId: reportID,
 		VersionNo: versionNo, SkillId: skillID, ShouldDelete: true,
 		Has: &skillstore.StoredSkillHas{ReportId: true, VersionNo: true, SkillId: true, ShouldDelete: true}})
 	if err != nil {
@@ -353,7 +354,7 @@ func (t *Transport) validateResourceNamespace(ctx context.Context, tx *sql.Tx, r
 	if !strings.HasPrefix(namespace, ownerPackage+".") {
 		return invalid(fmt.Errorf("resource namespace must use the owner prefix %s.", ownerPackage))
 	}
-	foreign, err := t.readForeignResourceNamespaceUsage(ctx, tx, namespace, reportID)
+	foreign, err := resourcestore.ReadForeignNamespaceUsage(ctx, t.DB, tx, namespace, reportID)
 	if err != nil {
 		return internal(err)
 	}
@@ -365,7 +366,7 @@ func (t *Transport) validateResourceNamespace(ctx context.Context, tx *sql.Tx, r
 		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "verified principal is required to claim a resource namespace"}
 	}
 	now := t.now()
-	err = t.writeNamespaceClaim(ctx, tx, "acquire", &claimstore.StoredClaim{Namespace: namespace,
+	err = resourcestore.WriteNamespaceClaim(ctx, t.DB, tx, "acquire", &claimstore.StoredClaim{Namespace: namespace,
 		ReportId: reportID, CreatedAt: now, CreatedBy: principal.Subject,
 		UpdatedAt: now, UpdatedBy: principal.Subject,
 		Has: &claimstore.StoredClaimHas{Namespace: true, ReportId: true,

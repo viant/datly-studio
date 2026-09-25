@@ -16,6 +16,7 @@ import (
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/readercomponent"
 	"github.com/viant/datly-studio/sdk"
+	publicationstore "github.com/viant/datly-studio/sdk/transport/sql/internal/publications"
 	insert "github.com/viant/datly-studio/studio/report_publication_events/store_insert"
 	list "github.com/viant/datly-studio/studio/report_publication_events/store_list"
 	owner "github.com/viant/datly-studio/studio/report_publication_events/store_owner"
@@ -214,7 +215,7 @@ func (t *Transport) appendPublicationEventNative(ctx context.Context, tx *sql.Tx
 			Operation: true, VersionNo: true, GenerationNo: true, Status: true,
 			RequestedBy: true, Reason: true, FailureCode: true, FailureMessage: true,
 			OccurredAt: true}}
-	return t.writePublicationEvent(ctx, tx, row)
+	return publicationstore.WriteEvent(ctx, t.DB, tx, row)
 }
 
 func optionalPublicationText(value string) *string {

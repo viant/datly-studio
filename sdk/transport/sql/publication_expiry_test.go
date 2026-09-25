@@ -11,6 +11,7 @@ import (
 
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
+	publicationstore "github.com/viant/datly-studio/sdk/transport/sql/internal/publications"
 	publicationrecover "github.com/viant/datly-studio/studio/report_publications/store_recover"
 	xhandler "github.com/viant/xdatly/handler"
 	_ "modernc.org/sqlite"
@@ -115,7 +116,7 @@ func TestExpiredStageRecoveryUsesMatchedDatlyComponents(t *testing.T) {
 		Has: &publicationrecover.StoredPublicationHas{ReportId: true, DesiredGeneration: true,
 			PublicationStatus: true, FailureJson: true}}
 	var staleConflict *xhandler.Conflict
-	if err := transport.writePublicationRecovery(ctx, tx, "fail", staleRow); !errors.As(err, &staleConflict) {
+	if err := publicationstore.WriteRecovery(ctx, transport.DB, tx, "fail", staleRow); !errors.As(err, &staleConflict) {
 		t.Fatalf("stale publication status error=%v", err)
 	}
 	if err := transport.ensureNoStagedGeneration(ctx, tx, now); err != nil {

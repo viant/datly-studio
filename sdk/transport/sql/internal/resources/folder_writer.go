@@ -1,4 +1,4 @@
-package sqltransport
+package resources
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 
 	"github.com/viant/bindly/locator"
 	"github.com/viant/bindly/resource"
-	stored "github.com/viant/datly-studio/studio/report_publications/store_recover"
+	stored "github.com/viant/datly-studio/studio/report_resource_folders/store_write"
 	"github.com/viant/datly/bootstrap"
 	dexec "github.com/viant/datly/exec"
 	druntime "github.com/viant/datly/runtime"
@@ -21,47 +21,29 @@ import (
 	dtag "github.com/viant/datly/tag"
 )
 
-func (t *Transport) writePublicationRecovery(ctx context.Context, tx *sql.Tx, operation string, row *stored.StoredPublication) error {
-	input := &stored.Input{}
-	input.SetOperation(operation)
-	input.SetPublications([]*stored.StoredPublication{row})
-	return t.invokePublicationRecovery(ctx, tx, input)
-}
-
-func (t *Transport) writePublicationCompensation(ctx context.Context, tx *sql.Tx, operation string, stagedGeneration int64, restoreStatus string, row *stored.StoredPublication) error {
-	input := &stored.Input{}
-	input.SetOperation(operation)
-	input.SetStagedGeneration(stagedGeneration)
-	if restoreStatus != "" {
-		input.SetRestoreStatus(restoreStatus)
-	}
-	input.SetPublications([]*stored.StoredPublication{row})
-	return t.invokePublicationRecovery(ctx, tx, input)
-}
-
-func (t *Transport) invokePublicationRecovery(ctx context.Context, tx *sql.Tx, input *stored.Input) error {
+func WriteFolder(ctx context.Context, db *sql.DB, tx *sql.Tx, row *stored.StoredFolder) error {
 	resources := resource.New()
-	if err := resources.Register(stored.PublicationDatlyResourceNamespace, stored.PublicationDatlyResources); err != nil {
+	if err := resources.Register(stored.FolderDatlyResourceNamespace, stored.FolderDatlyResources); err != nil {
 		return err
 	}
-	connector := &dsql.SQLComponent{DB: t.DB, Tx: tx}
-	if err := connector.RegisterConnector("studio", t.DB); err != nil {
+	connector := &dsql.SQLComponent{DB: db, Tx: tx}
+	if err := connector.RegisterConnector("studio", db); err != nil {
 		return err
 	}
-	holder := reflect.TypeOf(stored.PublicationComponent{})
+	holder := reflect.TypeOf(stored.FolderComponent{})
 	contract, ok := holder.FieldByName("Contract")
 	if !ok {
-		return fmt.Errorf("publication recovery writer has no component contract")
+		return fmt.Errorf("resource folder writer has no component contract")
 	}
 	metadata, present, err := dtag.ParseComponent(contract.Tag)
 	if err != nil {
 		return err
 	}
 	if !present {
-		return fmt.Errorf("publication recovery writer has no component metadata")
+		return fmt.Errorf("resource folder writer has no component metadata")
 	}
 	component, err := (&bootstrap.RouteSource{HolderType: holder.Name(), FieldName: contract.Name,
-		PackageName: "store_recover", PackagePath: holder.PkgPath(), Tag: metadata,
+		PackageName: "store_write", PackagePath: holder.PkgPath(), Tag: metadata,
 		InputType: "Input", OutputType: "Output"}).Resolve(reflect.TypeOf(stored.Input{}), reflect.TypeOf(stored.Output{}))
 	if err != nil {
 		return err
@@ -85,7 +67,7 @@ func (t *Transport) invokePublicationRecovery(ctx context.Context, tx *sql.Tx, i
 	}
 	registration := &registry.RegisteredComponent{Component: artifact.Component, Input: artifact.Input,
 		Output: artifact.Output, OutputType: reflect.TypeOf(stored.Output{}), Handler: handler,
-		Providers: providers, DataSource: dml.Source{DB: t.DB, Tx: tx}}
+		Providers: providers, DataSource: dml.Source{DB: db, Tx: tx}}
 	registration.Capabilities.Connector = connector
 	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{registration}, druntime.WithResources(resources))
 	if err != nil {
@@ -96,12 +78,14 @@ func (t *Transport) invokePublicationRecovery(ctx context.Context, tx *sql.Tx, i
 	if len(component.Routes) > 0 && component.Routes[0] != nil {
 		target.Route = spec.RouteRef{Method: component.Routes[0].Method, Path: component.Routes[0].Path}
 	}
+	input := &stored.Input{}
+	input.SetFolders([]*stored.StoredFolder{row})
 	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: target, Input: input})
 	if err != nil {
 		return err
 	}
 	if _, ok := value.(*stored.Output); !ok {
-		return fmt.Errorf("publication recovery writer returned %T", value)
+		return fmt.Errorf("resource folder writer returned %T", value)
 	}
 	return nil
 }

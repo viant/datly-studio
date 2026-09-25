@@ -1,4 +1,4 @@
-package sqltransport
+package resources
 
 import (
 	"context"
@@ -15,13 +15,13 @@ import (
 	dsql "github.com/viant/datly/sql"
 )
 
-func (t *Transport) readResourceFolderByID(ctx context.Context, tx *sql.Tx, reportID string, versionNo int, folderID string) (*stored.SnapshotFolder, error) {
+func ReadFolderByID(ctx context.Context, db *sql.DB, tx *sql.Tx, reportID string, versionNo int, folderID string) (*stored.SnapshotFolder, error) {
 	resources := resource.New()
 	if err := resources.Register(stored.FolderDatlyResourceNamespace, stored.FolderDatlyResources); err != nil {
 		return nil, err
 	}
-	connector := &dsql.SQLComponent{DB: t.DB, Tx: tx}
-	if err := connector.RegisterConnector("studio", t.DB); err != nil {
+	connector := &dsql.SQLComponent{DB: db, Tx: tx}
+	if err := connector.RegisterConnector("studio", db); err != nil {
 		return nil, err
 	}
 	registration, target, err := readercomponent.Compile(reflect.TypeOf(stored.FolderComponent{}), "store_snapshot",

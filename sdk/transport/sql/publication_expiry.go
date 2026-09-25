@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/viant/datly-studio/sdk"
+	publicationstore "github.com/viant/datly-studio/sdk/transport/sql/internal/publications"
 	publicationrecover "github.com/viant/datly-studio/studio/report_publications/store_recover"
 	generationstate "github.com/viant/datly-studio/studio/runtime_generations/store_state"
 	xhandler "github.com/viant/xdatly/handler"
@@ -54,7 +55,7 @@ func (t *Transport) ensureNoStagedGeneration(ctx context.Context, tx *sql.Tx, no
 }
 
 func (t *Transport) recoverExpiredPublications(ctx context.Context, tx *sql.Tx, generation int64, diagnostics string) error {
-	staged, err := t.readStagedPublications(ctx, tx, generation)
+	staged, err := publicationstore.ReadStaged(ctx, t.DB, tx, generation)
 	if err != nil {
 		return internal(err)
 	}
@@ -62,7 +63,7 @@ func (t *Transport) recoverExpiredPublications(ctx context.Context, tx *sql.Tx, 
 		if candidate.PublicationStatus != "pending" && candidate.PublicationStatus != "unpublishing" {
 			continue
 		}
-		current, err := t.readPublicationRow(ctx, tx, candidate.ReportId)
+		current, err := publicationstore.ReadRow(ctx, t.DB, tx, candidate.ReportId)
 		if err != nil {
 			return internal(err)
 		}
@@ -98,7 +99,7 @@ func (t *Transport) recoverExpiredPublications(ctx context.Context, tx *sql.Tx, 
 			row.Has.RuntimeRevision = true
 			row.Has.SpecHash = true
 		}
-		if err := t.writePublicationRecovery(ctx, tx, operation, row); err != nil {
+		if err := publicationstore.WriteRecovery(ctx, t.DB, tx, operation, row); err != nil {
 			var conflict *xhandler.Conflict
 			if errors.As(err, &conflict) {
 				return &sdk.Error{Code: sdk.ErrorConflict, Message: "staged publication changed before recovery"}

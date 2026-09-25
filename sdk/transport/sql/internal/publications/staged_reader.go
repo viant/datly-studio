@@ -1,4 +1,4 @@
-package sqltransport
+package publications
 
 import (
 	"context"
@@ -15,13 +15,13 @@ import (
 	dsql "github.com/viant/datly/sql"
 )
 
-func (t *Transport) readStagedPublications(ctx context.Context, tx *sql.Tx, generation int64) ([]*stored.StagedPublication, error) {
+func ReadStaged(ctx context.Context, db *sql.DB, tx *sql.Tx, generation int64) ([]*stored.StagedPublication, error) {
 	resources := resource.New()
 	if err := resources.Register(stored.PublicationDatlyResourceNamespace, stored.PublicationDatlyResources); err != nil {
 		return nil, err
 	}
-	connector := &dsql.SQLComponent{DB: t.DB, Tx: tx}
-	if err := connector.RegisterConnector("studio", t.DB); err != nil {
+	connector := &dsql.SQLComponent{DB: db, Tx: tx}
+	if err := connector.RegisterConnector("studio", db); err != nil {
 		return nil, err
 	}
 	registration, target, err := readercomponent.Compile(reflect.TypeOf(stored.PublicationComponent{}), "store_staged",

@@ -1,4 +1,4 @@
-package sqltransport
+package resources
 
 import (
 	"context"
@@ -21,13 +21,13 @@ import (
 	dtag "github.com/viant/datly/tag"
 )
 
-func (t *Transport) writeNamespaceClaim(ctx context.Context, tx *sql.Tx, operation string, row *stored.StoredClaim) error {
+func WriteNamespaceClaim(ctx context.Context, db *sql.DB, tx *sql.Tx, operation string, row *stored.StoredClaim) error {
 	resources := resource.New()
 	if err := resources.Register(stored.ClaimDatlyResourceNamespace, stored.ClaimDatlyResources); err != nil {
 		return err
 	}
-	connector := &dsql.SQLComponent{DB: t.DB, Tx: tx}
-	if err := connector.RegisterConnector("studio", t.DB); err != nil {
+	connector := &dsql.SQLComponent{DB: db, Tx: tx}
+	if err := connector.RegisterConnector("studio", db); err != nil {
 		return err
 	}
 	holder := reflect.TypeOf(stored.ClaimComponent{})
@@ -67,7 +67,7 @@ func (t *Transport) writeNamespaceClaim(ctx context.Context, tx *sql.Tx, operati
 	}
 	registration := &registry.RegisteredComponent{Component: artifact.Component, Input: artifact.Input,
 		Output: artifact.Output, OutputType: reflect.TypeOf(stored.Output{}), Handler: handler,
-		Providers: providers, DataSource: dml.Source{DB: t.DB, Tx: tx}}
+		Providers: providers, DataSource: dml.Source{DB: db, Tx: tx}}
 	registration.Capabilities.Connector = connector
 	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{registration}, druntime.WithResources(resources))
 	if err != nil {

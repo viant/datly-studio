@@ -10,6 +10,7 @@ import (
 
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
+	publicationstore "github.com/viant/datly-studio/sdk/transport/sql/internal/publications"
 	publicationdelete "github.com/viant/datly-studio/studio/report_publications/store_delete"
 	publicationrecover "github.com/viant/datly-studio/studio/report_publications/store_recover"
 	stored "github.com/viant/datly-studio/studio/report_publications/store_stage"
@@ -81,7 +82,7 @@ func TestPublicationRestageWriterMatchesGenerationAndRollsBack(t *testing.T) {
 		Has: &stored.StoredPublicationHas{ReportId: true, DesiredVersionNo: true,
 			DesiredGeneration: true, PublicationStatus: true, RuntimeRevision: true,
 			SpecHash: true, PublishedBy: true, PublishedAt: true, FailureJson: true}}
-	if err := transport.writePublicationStage(owner, tx, "publish", 2, row); err != nil {
+	if err := publicationstore.WriteStage(owner, transport.DB, tx, "publish", 2, row); err != nil {
 		t.Fatal(err)
 	}
 	snapshot, found, err := transport.publicationSnapshot(owner, tx, report.ID)
@@ -97,7 +98,7 @@ func TestPublicationRestageWriterMatchesGenerationAndRollsBack(t *testing.T) {
 	stale := *row
 	stale.DesiredGeneration = &staleExpected
 	var conflict *xhandler.Conflict
-	if err := transport.writePublicationStage(owner, tx, "publish", 3, &stale); !errors.As(err, &conflict) {
+	if err := publicationstore.WriteStage(owner, transport.DB, tx, "publish", 3, &stale); !errors.As(err, &conflict) {
 		t.Fatalf("stale restage error=%v", err)
 	}
 	restoreGeneration := int64(1)
@@ -114,10 +115,10 @@ func TestPublicationRestageWriterMatchesGenerationAndRollsBack(t *testing.T) {
 			DesiredVersionNo: true, DesiredGeneration: true, ActiveGeneration: true,
 			PublicationStatus: true, RuntimeRevision: true, SpecHash: true,
 			PublishedBy: true, PublishedAt: true, ActivatedAt: true, FailureJson: true}}
-	if err := transport.writePublicationCompensation(owner, tx, "compensate_restore", 3, "active", restoreRow); !errors.As(err, &conflict) {
+	if err := publicationstore.WriteCompensation(owner, transport.DB, tx, "compensate_restore", 3, "active", restoreRow); !errors.As(err, &conflict) {
 		t.Fatalf("stale compensation generation error=%v", err)
 	}
-	if err := transport.writePublicationCompensation(owner, tx, "compensate_restore", 2, "active", restoreRow); err != nil {
+	if err := publicationstore.WriteCompensation(owner, transport.DB, tx, "compensate_restore", 2, "active", restoreRow); err != nil {
 		t.Fatalf("matched compensation: %v", err)
 	}
 	snapshot, found, err = transport.publicationSnapshot(owner, tx, report.ID)
@@ -145,7 +146,7 @@ func TestPublicationRestageWriterMatchesGenerationAndRollsBack(t *testing.T) {
 		t.Fatal(err)
 	}
 	expected = 1
-	if err := transport.writePublicationStage(owner, unpublishTx, "unpublish", 2, &stored.StoredPublication{
+	if err := publicationstore.WriteStage(owner, transport.DB, unpublishTx, "unpublish", 2, &stored.StoredPublication{
 		ReportId: report.ID, DesiredGeneration: &expected, PublicationStatus: "unpublishing",
 		Has: &stored.StoredPublicationHas{ReportId: true, DesiredVersionNo: true,
 			DesiredGeneration: true, PublicationStatus: true, FailureJson: true},
@@ -165,10 +166,10 @@ func TestPublicationRestageWriterMatchesGenerationAndRollsBack(t *testing.T) {
 			Has: &publicationdelete.StoredPublicationHas{ReportId: true, DesiredGeneration: true, ShouldDelete: true}}
 	}
 	var deleteConflict *xhandler.Conflict
-	if err := transport.writePublicationDelete(owner, unpublishTx, deleteRow(&staleGeneration)); !errors.As(err, &deleteConflict) {
+	if err := publicationstore.WriteDelete(owner, transport.DB, unpublishTx, deleteRow(&staleGeneration)); !errors.As(err, &deleteConflict) {
 		t.Fatalf("stale unpublish delete error=%v", err)
 	}
-	if err := transport.writePublicationDelete(owner, unpublishTx, deleteRow(&desiredGeneration)); err != nil {
+	if err := publicationstore.WriteDelete(owner, transport.DB, unpublishTx, deleteRow(&desiredGeneration)); err != nil {
 		t.Fatalf("matched unpublish delete: %v", err)
 	}
 	var remaining int

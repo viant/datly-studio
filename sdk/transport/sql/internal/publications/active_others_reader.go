@@ -1,4 +1,4 @@
-package sqltransport
+package publications
 
 import (
 	"context"
@@ -17,13 +17,13 @@ import (
 	dsql "github.com/viant/datly/sql"
 )
 
-func (t *Transport) readOtherActivePublications(ctx context.Context, tx *sql.Tx, excludeReportID string) ([]*stored.ActivePublication, error) {
+func ReadOtherActive(ctx context.Context, db *sql.DB, tx *sql.Tx, excludeReportID string) ([]*stored.ActivePublication, error) {
 	resources := resource.New()
 	if err := resources.Register(stored.PublicationDatlyResourceNamespace, stored.PublicationDatlyResources); err != nil {
 		return nil, err
 	}
-	connector := &dsql.SQLComponent{DB: t.DB, Tx: tx}
-	if err := connector.RegisterConnector("studio", t.DB); err != nil {
+	connector := &dsql.SQLComponent{DB: db, Tx: tx}
+	if err := connector.RegisterConnector("studio", db); err != nil {
 		return nil, err
 	}
 	catalog, err := predicatecatalog.New(predicatecatalog.Package{Path: "github.com/viant/datly-studio/studio/report_publications/otheractivepredicate",

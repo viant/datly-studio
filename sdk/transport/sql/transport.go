@@ -19,6 +19,7 @@ import (
 
 	"github.com/viant/datly-studio/internal/reportcapability"
 	"github.com/viant/datly-studio/sdk"
+	publicationstore "github.com/viant/datly-studio/sdk/transport/sql/internal/publications"
 	connectorconfig "github.com/viant/datly-studio/studio/connectors/store_config"
 	connectorinsert "github.com/viant/datly-studio/studio/connectors/store_insert"
 	connectorstatus "github.com/viant/datly-studio/studio/connectors/store_status"
@@ -1888,7 +1889,7 @@ func (t *Transport) stagePublication(ctx context.Context, in publishRequest, ver
 	}
 	if !hasPrevious {
 		versionNo := in.VersionNo
-		err = t.writePublicationInsert(ctx, tx, &publicationinsert.StoredPublication{
+		err = publicationstore.WriteInsert(ctx, t.DB, tx, &publicationinsert.StoredPublication{
 			ReportId: in.ReportID, ActiveVersionNo: versionNo, DesiredVersionNo: &versionNo,
 			DesiredGeneration: generation, PublicationStatus: "pending", RuntimeRevision: &runtimeRevision,
 			SpecHash: version.SpecHash, PublishedBy: in.Input.RequestedBy, PublishedAt: now,
@@ -1903,7 +1904,7 @@ func (t *Transport) stagePublication(ctx context.Context, in publishRequest, ver
 	} else {
 		expected := previous.desiredGeneration
 		versionNo := in.VersionNo
-		err = t.writePublicationStage(ctx, tx, "publish", generation, &publicationstage.StoredPublication{
+		err = publicationstore.WriteStage(ctx, t.DB, tx, "publish", generation, &publicationstage.StoredPublication{
 			ReportId: in.ReportID, DesiredVersionNo: &versionNo, DesiredGeneration: &expected,
 			PublicationStatus: "pending", RuntimeRevision: &runtimeRevision,
 			SpecHash: version.SpecHash, PublishedBy: in.Input.RequestedBy, PublishedAt: &now,
@@ -1937,7 +1938,7 @@ func (t *Transport) activatePublication(ctx context.Context, reportID string, ve
 		return err
 	}
 	expected := generation
-	err = t.writePublicationActivation(ctx, activated, versionNo, generation, &publicationactivate.StoredPublication{
+	err = publicationstore.WriteActivation(ctx, t.DB, activated, versionNo, generation, &publicationactivate.StoredPublication{
 		ReportId: reportID, DesiredGeneration: &expected, ActivatedAt: &now,
 		Has: &publicationactivate.StoredPublicationHas{ReportId: true,
 			DesiredGeneration: true, ActivatedAt: true},
@@ -1993,7 +1994,7 @@ type publicationState struct {
 
 func (t *Transport) publicationSnapshot(ctx context.Context, tx *sql.Tx, reportID string) (publicationState, bool, error) {
 	var value publicationState
-	row, err := t.readPublicationRow(ctx, tx, reportID)
+	row, err := publicationstore.ReadRow(ctx, t.DB, tx, reportID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return value, false, nil
 	}
@@ -2035,7 +2036,7 @@ func (t *Transport) restoreFailedPublication(ctx context.Context, reportID strin
 	}}); err != nil {
 		return fmt.Errorf("fail staged generation: %w", err)
 	}
-	current, err := t.readPublicationRow(ctx, tx, reportID)
+	current, err := publicationstore.ReadRow(ctx, t.DB, tx, reportID)
 	if err != nil {
 		return fmt.Errorf("read staged publication: %w", err)
 	}
@@ -2074,7 +2075,7 @@ func (t *Transport) restoreFailedPublication(ctx context.Context, reportID strin
 		row.Has.SpecHash, row.Has.PublishedBy = true, true
 		row.Has.PublishedAt, row.Has.ActivatedAt = true, true
 	}
-	if err := t.writePublicationCompensation(ctx, tx, operation, generation, restoreStatus, row); err != nil {
+	if err := publicationstore.WriteCompensation(ctx, t.DB, tx, operation, generation, restoreStatus, row); err != nil {
 		return fmt.Errorf("restore publication %q: %w", reportID, err)
 	}
 	return tx.Commit()
@@ -2169,7 +2170,7 @@ func (t *Transport) unpublish(ctx context.Context, input, output any) (returnErr
 		return classify(err, "runtime generation", fmt.Sprint(generation))
 	}
 	expected := previous.desiredGeneration
-	err = t.writePublicationStage(ctx, tx, "unpublish", generation, &publicationstage.StoredPublication{
+	err = publicationstore.WriteStage(ctx, t.DB, tx, "unpublish", generation, &publicationstage.StoredPublication{
 		ReportId: in.ReportID, DesiredGeneration: &expected, PublicationStatus: "unpublishing",
 		Has: &publicationstage.StoredPublicationHas{ReportId: true, DesiredVersionNo: true,
 			DesiredGeneration: true, PublicationStatus: true, FailureJson: true},
@@ -2207,7 +2208,7 @@ func (t *Transport) activateUnpublish(ctx context.Context, reportID string, gene
 	}
 	defer func() { _ = tx.Rollback() }()
 	expected := generation
-	err = t.writePublicationDelete(ctx, tx, &publicationdelete.StoredPublication{
+	err = publicationstore.WriteDelete(ctx, t.DB, tx, &publicationdelete.StoredPublication{
 		ReportId: reportID, DesiredGeneration: &expected, ShouldDelete: true,
 		Has: &publicationdelete.StoredPublicationHas{ReportId: true, DesiredGeneration: true, ShouldDelete: true},
 	})
@@ -2247,7 +2248,7 @@ func (t *Transport) getPublication(ctx context.Context, reportID string, output 
 	if reportID == "" {
 		return mapReadError(sql.ErrNoRows, "publication", reportID)
 	}
-	value, err := t.readPublicationStatus(ctx, reportID)
+	value, err := publicationstore.ReadStatus(ctx, t.DB, reportID)
 	if err != nil {
 		return mapReadError(err, "publication", reportID)
 	}

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/viant/datly-studio/sdk"
+	publicationstore "github.com/viant/datly-studio/sdk/transport/sql/internal/publications"
 	publicationrepoint "github.com/viant/datly-studio/studio/report_publications/store_repoint"
 	reportconfig "github.com/viant/datly-studio/studio/reports/store_config"
 	generationstate "github.com/viant/datly-studio/studio/runtime_generations/store_state"
@@ -14,7 +15,7 @@ import (
 )
 
 func (t *Transport) repointActivePublications(ctx context.Context, tx *sql.Tx, excludeReportID string, generation int64) (int, error) {
-	others, err := t.readOtherActivePublications(ctx, tx, excludeReportID)
+	others, err := publicationstore.ReadOtherActive(ctx, t.DB, tx, excludeReportID)
 	if err != nil {
 		return 0, internal(err)
 	}
@@ -27,7 +28,7 @@ func (t *Transport) repointActivePublications(ctx context.Context, tx *sql.Tx, e
 			ActiveGeneration: other.ActiveGeneration,
 			Has:              &publicationrepoint.StoredPublicationHas{ReportId: true, ActiveGeneration: true}})
 	}
-	if err = t.writePublicationRepoint(ctx, tx, excludeReportID, generation, rows); err != nil {
+	if err = publicationstore.WriteRepoint(ctx, t.DB, tx, excludeReportID, generation, rows); err != nil {
 		var conflict *xhandler.Conflict
 		if errors.As(err, &conflict) {
 			return 0, &sdk.Error{Code: sdk.ErrorConflict, Message: "other active publication changed before activation"}

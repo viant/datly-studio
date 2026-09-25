@@ -10,6 +10,7 @@ import (
 
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
+	resourcestore "github.com/viant/datly-studio/sdk/transport/sql/internal/resources"
 	_ "modernc.org/sqlite"
 )
 
@@ -63,7 +64,7 @@ func TestResourceSnapshotReaderIsUnboundedAndOrdered(t *testing.T) {
 		t.Fatal(err)
 	}
 	result := &sdk.ResourceSnapshot{}
-	if err := (&Transport{DB: db}).readResourceSnapshot(ctx, "r1", 2, result); err != nil {
+	if err := resourcestore.ReadSnapshot(ctx, db, "r1", 2, result); err != nil {
 		t.Fatal(err)
 	}
 	if len(result.Files) != count || len(result.Folders) != 2 || len(result.Skills) != 2 {

@@ -10,6 +10,7 @@ import (
 
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
+	publicationstore "github.com/viant/datly-studio/sdk/transport/sql/internal/publications"
 	_ "modernc.org/sqlite"
 )
 
@@ -50,7 +51,7 @@ func TestPublicationStatusReaderPreservesNullableFields(t *testing.T) {
 		VALUES(?,?,1,'pending',?,'owner',?)`, report.ID, version.VersionNo, version.SpecHash, now); err != nil {
 		t.Fatal(err)
 	}
-	value, err := transport.readPublicationStatus(owner, report.ID)
+	value, err := publicationstore.ReadStatus(owner, transport.DB, report.ID)
 	if err != nil || value.ReportID != report.ID || value.ActiveVersionNo != 1 ||
 		value.DesiredVersionNo != nil || value.ActiveGeneration != nil || value.RuntimeRevision != "" ||
 		value.Status != "pending" || value.PublishedAt == nil || value.SpecHash != version.SpecHash {
@@ -71,7 +72,7 @@ func TestPublicationStatusReaderPreservesNullableFields(t *testing.T) {
 	if err := tx.Rollback(); err != nil {
 		t.Fatal(err)
 	}
-	value, err = transport.readPublicationStatus(owner, report.ID)
+	value, err = publicationstore.ReadStatus(owner, transport.DB, report.ID)
 	if err != nil || value.Status != "pending" {
 		t.Fatalf("rolled-back publication=%+v err=%v", value, err)
 	}
