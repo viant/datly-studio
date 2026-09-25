@@ -630,6 +630,11 @@ func TestTransportDerivesReportIdentityAndOwnerFromPrincipal(t *testing.T) {
 	if report.ID == "" || report.Namespace != "general" || report.OwnerID != "owner-a" || report.OwnerPackage == "" || !strings.Contains(report.ComponentScope, "/dynamic/"+report.OwnerPackage+"/"+report.ID) || report.ComponentName != "reader" {
 		t.Fatalf("report=%+v", report)
 	}
+	_, err = client.Reports().Create(principal, input)
+	var duplicate *sdk.Error
+	if !errors.As(err, &duplicate) || duplicate.Code != sdk.ErrorConflict {
+		t.Fatalf("duplicate report slug error=%v", err)
+	}
 	namespace := "inventory.forecasting"
 	if _, err = client.Namespaces().Create(principal, sdk.CreateNamespaceInput{Name: namespace, Title: "Inventory Forecasting"}); err != nil {
 		t.Fatal(err)

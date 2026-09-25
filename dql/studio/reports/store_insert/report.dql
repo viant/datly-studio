@@ -1,0 +1,22 @@
+#package('studio/reports/store_insert')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/report-store/insert', 'POST'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('report', 'sql/read.sql'))
+
+#define($_ = $Reports<[]*StoredReport>(body/data))
+
+SELECT report.*, type(report, 'StoredReport'),
+       CAST(report.id AS string), CAST(report.namespace AS string),
+       CAST(report.slug AS string), CAST(report.title AS string),
+       CAST(report.description AS *string), CAST(report.owner_id AS string),
+       CAST(report.status AS string), CAST(report.default_connector_name AS string),
+       CAST(report.component_scope AS string), CAST(report.component_name AS string),
+       CAST(report.etag AS int64), CAST(report.created_at AS time.Time),
+       CAST(report.updated_at AS time.Time),
+       tag(report.id, 'sqlx:"id,primaryKey"'),
+       lifecycle_type(report, 'ReportInsertRules')
+FROM (${embed:sql/read.sql}) report

@@ -21,6 +21,7 @@ import (
 	connectorinsert "github.com/viant/datly-studio/studio/connectors/store_insert"
 	connectorstatus "github.com/viant/datly-studio/studio/connectors/store_status"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
+	reportinsert "github.com/viant/datly-studio/studio/reports/store_insert"
 	"github.com/viant/datly/authoring/readerbuilder"
 	datlyreport "github.com/viant/datly/report"
 	"github.com/viant/datly/spec"
@@ -715,7 +716,16 @@ func (t *Transport) createReport(ctx context.Context, input, output any) error {
 	if err = t.ensureReportNamespace(ctx, in.OwnerID, in.Namespace, now); err != nil {
 		return err
 	}
-	_, err = t.DB.ExecContext(ctx, `INSERT INTO reports(id,namespace,slug,title,description,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES(?,?,?,?,?,?,'draft',?,?,?,1,?,?)`, in.ID, in.Namespace, in.Slug, in.Title, nullable(in.Description), in.OwnerID, in.DefaultConnectorName, in.ComponentScope, in.ComponentName, now, now)
+	err = t.writeReportInsert(ctx, &reportinsert.StoredReport{
+		Id: in.ID, Namespace: in.Namespace, Slug: in.Slug, Title: in.Title,
+		Description: namespaceOptionalDescription(in.Description), OwnerId: in.OwnerID,
+		Status: "draft", DefaultConnectorName: in.DefaultConnectorName,
+		ComponentScope: in.ComponentScope, ComponentName: in.ComponentName,
+		Etag: 1, CreatedAt: now, UpdatedAt: now,
+		Has: &reportinsert.StoredReportHas{Id: true, Namespace: true, Slug: true, Title: true,
+			Description: true, OwnerId: true, Status: true, DefaultConnectorName: true,
+			ComponentScope: true, ComponentName: true, Etag: true, CreatedAt: true, UpdatedAt: true},
+	})
 	if err != nil {
 		return classify(err, "report", in.ID)
 	}
