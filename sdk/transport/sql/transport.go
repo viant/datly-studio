@@ -25,6 +25,7 @@ import (
 	"github.com/viant/datly-studio/studio/predicatecatalog"
 	publicationactivate "github.com/viant/datly-studio/studio/report_publications/store_activate"
 	publicationinsert "github.com/viant/datly-studio/studio/report_publications/store_insert"
+	publicationrepoint "github.com/viant/datly-studio/studio/report_publications/store_repoint"
 	publicationstage "github.com/viant/datly-studio/studio/report_publications/store_stage"
 	versionedit "github.com/viant/datly-studio/studio/report_versions/store_edit"
 	versioninsert "github.com/viant/datly-studio/studio/report_versions/store_insert"
@@ -1932,7 +1933,6 @@ func (t *Transport) activatePublication(ctx context.Context, reportID string, ve
 		return internal(err)
 	}
 	defer func() { _ = activated.Rollback() }()
-	var reportCount int
 	expected := generation
 	err = t.writePublicationActivation(ctx, activated, versionNo, generation, &publicationactivate.StoredPublication{
 		ReportId: reportID, DesiredGeneration: &expected, ActivatedAt: &now,
@@ -1946,12 +1946,27 @@ func (t *Transport) activatePublication(ctx context.Context, reportID string, ve
 		}
 		return internal(err)
 	}
-	if _, err = activated.ExecContext(ctx, `UPDATE report_publications SET active_generation=? WHERE report_id<>? AND publication_status='active'`, generation, reportID); err != nil {
+	others, err := t.readOtherActivePublications(ctx, activated, reportID)
+	if err != nil {
 		return internal(err)
 	}
-	if err = activated.QueryRowContext(ctx, `SELECT COUNT(1) FROM report_publications WHERE publication_status='active'`).Scan(&reportCount); err != nil {
-		return internal(err)
+	if len(others) > 0 {
+		rows := make([]*publicationrepoint.StoredPublication, 0, len(others))
+		for _, other := range others {
+			previousGeneration := other.ActiveGeneration
+			rows = append(rows, &publicationrepoint.StoredPublication{ReportId: other.ReportId,
+				ActiveGeneration: previousGeneration,
+				Has:              &publicationrepoint.StoredPublicationHas{ReportId: true, ActiveGeneration: true}})
+		}
+		if err = t.writePublicationRepoint(ctx, activated, reportID, generation, rows); err != nil {
+			var conflict *xhandler.Conflict
+			if errors.As(err, &conflict) {
+				return &sdk.Error{Code: sdk.ErrorConflict, Message: "other active publication changed before activation"}
+			}
+			return internal(err)
+		}
 	}
+	reportCount := len(others) + 1
 	if _, err = activated.ExecContext(ctx, `UPDATE runtime_generations SET status='active',report_count=?,activated_at=? WHERE generation_no=? AND status='building'`, reportCount, now, generation); err != nil {
 		return internal(err)
 	}

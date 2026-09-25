@@ -1,0 +1,22 @@
+#package('studio/report_publications/store_repoint')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/publication-store/repoint', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('publication', 'sql/read.sql'))
+
+#define($_ = $ExcludeReportId<string>(query/excludeReportId).Required())
+#define($_ = $Generation<int64>(query/generation).Required())
+#define($_ = $Publications<[]*StoredPublication>(body/data))
+
+SELECT publication.*, type(publication, 'StoredPublication'),
+       CAST(publication.report_id AS string),
+       CAST(publication.desired_generation AS *int64),
+       CAST(publication.active_generation AS *int64),
+       CAST(publication.publication_status AS string),
+       tag(publication.report_id, 'sqlx:"report_id,primaryKey"'),
+       lifecycle_type(publication, 'PublicationRepointRules'),
+       concurrency_token(publication.active_generation)
+FROM (${embed:sql/read.sql}) publication

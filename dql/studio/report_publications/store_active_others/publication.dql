@@ -1,0 +1,22 @@
+#package('studio/report_publications/store_active_others')
+
+#import('otheractivepredicate','github.com/viant/datly-studio/studio/report_publications/otheractivepredicate')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/publication-store/active-others', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('publication', 'sql/read.sql'))
+
+#define($_ = $ExcludeReportId<string>(query/excludeReportId).Required().WithPredicate(3, 'handler', 'otheractivepredicate.OtherActive'))
+#define($_ = $Publications<[]*ActivePublication>(output/view))
+
+SELECT publication.*, type(publication, 'ActivePublication'),
+       CAST(publication.report_id AS string),
+       CAST(publication.desired_generation AS int64),
+       CAST(publication.active_generation AS *int64),
+       CAST(publication.publication_status AS string),
+       set_limit(publication, 0)
+FROM (${embed:sql/read.sql}) publication
+WHERE 1=1
