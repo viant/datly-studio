@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/viant/datly-studio/internal/connectoraccess"
+	"github.com/viant/datly-studio/internal/globalaccess"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/reportcapability"
 	"github.com/viant/datly-studio/sdk"
@@ -20,6 +21,7 @@ type SDKAuthorizer struct {
 	ReportCapabilities *reportcapability.Reader
 	NamespaceAccess    *namespaceaccess.Reader
 	ConnectorAccess    *connectoraccess.Reader
+	GlobalAccess       *globalaccess.Reader
 }
 
 // NewSDKAuthorizer prepares the generated report-capability reader once for
@@ -39,14 +41,21 @@ func NewSDKAuthorizer(db *sql.DB) (*SDKAuthorizer, error) {
 		_ = errors.Join(reader.Close(context.Background()), namespaceReader.Close(context.Background()))
 		return nil, err
 	}
-	return &SDKAuthorizer{DB: db, ReportCapabilities: reader, NamespaceAccess: namespaceReader, ConnectorAccess: connectorReader}, nil
+	globalReader, err := globalaccess.New(db)
+	if err != nil {
+		_ = errors.Join(reader.Close(context.Background()), namespaceReader.Close(context.Background()), connectorReader.Close(context.Background()))
+		return nil, err
+	}
+	return &SDKAuthorizer{DB: db, ReportCapabilities: reader, NamespaceAccess: namespaceReader,
+		ConnectorAccess: connectorReader, GlobalAccess: globalReader}, nil
 }
 
 func (a *SDKAuthorizer) Close(ctx context.Context) error {
 	if a == nil {
 		return nil
 	}
-	return errors.Join(a.ReportCapabilities.Close(ctx), a.NamespaceAccess.Close(ctx), a.ConnectorAccess.Close(ctx))
+	return errors.Join(a.ReportCapabilities.Close(ctx), a.NamespaceAccess.Close(ctx),
+		a.ConnectorAccess.Close(ctx), a.GlobalAccess.Close(ctx))
 }
 
 func (a SDKAuthorizer) Authorize(ctx context.Context, request sqltransport.AuthorizationRequest) error {
@@ -164,13 +173,22 @@ func (a SDKAuthorizer) connector(ctx context.Context, subject, name, permission 
 }
 
 func (a SDKAuthorizer) global(ctx context.Context, subject string) error {
-	return a.allow(ctx, `SELECT EXISTS(SELECT 1 FROM reports WHERE owner_id=? AND deleted_at IS NULL)
-OR EXISTS(SELECT 1 FROM report_acl WHERE subject_type='user' AND subject_id=? AND can_publish=TRUE)`, subject, subject)
-}
-
-func (a SDKAuthorizer) allow(ctx context.Context, query string, args ...any) error {
-	var allowed bool
-	if err := a.DB.QueryRowContext(ctx, query, args...).Scan(&allowed); err != nil || !allowed {
+	reader := a.GlobalAccess
+	owned := false
+	if reader == nil {
+		var err error
+		reader, err = globalaccess.New(a.DB)
+		if err != nil {
+			return denied()
+		}
+		owned = true
+	}
+	allowed, readErr := reader.Allowed(ctx, subject)
+	var closeErr error
+	if owned {
+		closeErr = reader.Close(context.Background())
+	}
+	if readErr != nil || closeErr != nil || !allowed {
 		return denied()
 	}
 	return nil
