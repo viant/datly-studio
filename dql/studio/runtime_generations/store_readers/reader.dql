@@ -1,0 +1,60 @@
+#package('studio/runtime_generations/store_readers')
+
+#import('runtimecatalogpredicate','github.com/viant/datly-studio/studio/runtime_generations/catalogpredicate')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/runtime-generation-store/readers', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('reader', 'sql/read.sql'))
+#setting($_ = $sql_dest('exposure', 'sql/exposures.sql'))
+#setting($_ = $sql_dest('folder', 'sql/folders.sql'))
+#setting($_ = $sql_dest('skill', 'sql/skills.sql'))
+
+#define($_ = $Generation<int64>(query/generation).Required())
+#define($_ = $Subject<string>(query/subject).Required())
+#define($_ = $Scoped<bool>(query/scoped).Required().WithPredicate(3, 'handler', 'runtimecatalogpredicate.ReaderScope'))
+#define($_ = $Readers<[]*PublishedReader>(output/view))
+
+SELECT reader.*, exposure.*, folder.*, skill.*,
+       type(reader, 'PublishedReader'), type(exposure, 'PublishedExposure'),
+       type(folder, 'PublishedFolder'), type(skill, 'PublishedSkill'),
+       CAST(reader.report_id AS string), CAST(reader.title AS string),
+       CAST(reader.namespace AS string), CAST(reader.owner_id AS string),
+       CAST(reader.default_connector_name AS string),
+       CAST(reader.component_name AS string), CAST(reader.version_no AS int),
+       CAST(reader.publication_status AS string),
+       CAST(reader.runtime_revision AS *string),
+       CAST(reader.activated_at AS *time.Time),
+       CAST(exposure.report_id AS string), CAST(exposure.version_no AS int),
+       CAST(exposure.exposure_id AS string), CAST(exposure.kind AS string),
+       CAST(exposure.name AS string), CAST(exposure.route_method AS string),
+       CAST(exposure.route_path AS string), CAST(exposure.description AS *string),
+       CAST(exposure.mime_type AS *string), CAST(exposure.enabled AS bool),
+       CAST(folder.report_id AS string), CAST(folder.version_no AS int),
+       CAST(folder.folder_id AS string), CAST(folder.namespace AS string),
+       CAST(folder.root_path AS string), CAST(folder.uri_prefix AS string),
+       CAST(skill.report_id AS string), CAST(skill.version_no AS int),
+       CAST(skill.skill_id AS string), CAST(skill.skill_root AS string),
+       CAST(skill.uri_prefix AS string),
+       tag(reader.report_id, 'sqlx:"report_id,primaryKey"'),
+       tag(exposure.report_id, 'sqlx:"report_id,primaryKey"'),
+       tag(exposure.version_no, 'sqlx:"version_no,primaryKey"'),
+       tag(exposure.exposure_id, 'sqlx:"exposure_id,primaryKey"'),
+       tag(folder.report_id, 'sqlx:"report_id,primaryKey"'),
+       tag(folder.version_no, 'sqlx:"version_no,primaryKey"'),
+       tag(folder.folder_id, 'sqlx:"folder_id,primaryKey"'),
+       tag(skill.report_id, 'sqlx:"report_id,primaryKey"'),
+       tag(skill.version_no, 'sqlx:"version_no,primaryKey"'),
+       tag(skill.skill_id, 'sqlx:"skill_id,primaryKey"'),
+       set_limit(reader, 0)
+FROM (${embed:sql/read.sql}) reader
+LEFT JOIN (${embed:sql/exposures.sql}) exposure
+  ON exposure.report_id = reader.report_id AND exposure.version_no = reader.version_no
+LEFT JOIN (${embed:sql/folders.sql}) folder
+  ON folder.report_id = reader.report_id AND folder.version_no = reader.version_no
+LEFT JOIN (${embed:sql/skills.sql}) skill
+  ON skill.report_id = reader.report_id AND skill.version_no = reader.version_no
+WHERE 1=1
+ORDER BY reader.namespace, reader.title, reader.report_id

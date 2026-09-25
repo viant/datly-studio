@@ -2193,86 +2193,13 @@ func (t *Transport) runtimeStatus(ctx context.Context, output any) error {
 }
 
 func (t *Transport) runtimeReaders(ctx context.Context, generation int64) ([]sdk.RuntimeReader, error) {
-	query := `SELECT r.id,r.title,r.namespace,r.owner_id,r.default_connector_name,r.component_name,p.active_version_no,p.publication_status,p.runtime_revision,p.activated_at
-FROM report_publications p JOIN reports r ON r.id=p.report_id
-WHERE p.active_generation=? AND p.publication_status='active' AND r.deleted_at IS NULL`
-	args := []any{generation}
-	principal, scoped := sdk.PrincipalFromContext(ctx)
-	if scoped {
-		query += ` AND (r.owner_id=? OR EXISTS(SELECT 1 FROM report_acl acl WHERE acl.report_id=r.id AND acl.subject_type='user' AND acl.subject_id=? AND acl.can_publish=TRUE))`
-		args = append(args, principal.Subject, principal.Subject)
-	}
-	query += ` ORDER BY r.namespace,r.title,r.id`
-	rows, err := t.DB.QueryContext(ctx, query, args...)
+	result, err := t.readRuntimeReaderCatalog(ctx, generation)
 	if err != nil {
 		return nil, err
 	}
-	var result []sdk.RuntimeReader
-	for rows.Next() {
-		var item sdk.RuntimeReader
-		var ownerID string
-		var revision sql.NullString
-		var activated sql.NullTime
-		if err = rows.Scan(&item.ReportID, &item.Title, &item.Namespace, &ownerID, &item.ConnectorName, &item.ComponentName, &item.VersionNo, &item.Status, &revision, &activated); err != nil {
-			rows.Close()
-			return nil, err
-		}
-		item.OwnerPackage = sdk.OwnerPackageSegment(ownerID)
-		if revision.Valid {
-			item.RuntimeRevision = revision.String
-		}
-		if activated.Valid {
-			at := activated.Time
-			item.ActivatedAt = &at
-		}
-		result = append(result, item)
-	}
-	if err = rows.Err(); err != nil {
-		rows.Close()
-		return nil, err
-	}
-	rows.Close()
 	if len(result) == 0 {
 		return result, nil
 	}
-	index := make(map[string]int, len(result))
-	for i := range result {
-		index[result[i].ReportID] = i
-	}
-	exposureQuery := `SELECT e.report_id,e.kind,e.name,e.route_method,e.route_path,e.description,e.mime_type,e.enabled
-FROM report_mcp_exposures e
-JOIN report_publications p ON p.report_id=e.report_id AND p.active_version_no=e.version_no
-JOIN reports r ON r.id=e.report_id
-WHERE p.active_generation=? AND p.publication_status='active' AND r.deleted_at IS NULL`
-	exposureArgs := []any{generation}
-	if scoped {
-		exposureQuery += ` AND (r.owner_id=? OR EXISTS(SELECT 1 FROM report_acl acl WHERE acl.report_id=r.id AND acl.subject_type='user' AND acl.subject_id=? AND acl.can_publish=TRUE))`
-		exposureArgs = append(exposureArgs, principal.Subject, principal.Subject)
-	}
-	exposureQuery += ` ORDER BY e.report_id,e.ordinal,e.exposure_id`
-	exposures, err := t.DB.QueryContext(ctx, exposureQuery, exposureArgs...)
-	if err != nil {
-		return nil, err
-	}
-	for exposures.Next() {
-		var reportID string
-		var item sdk.RuntimeMCPExposure
-		var description, mimeType sql.NullString
-		if err = exposures.Scan(&reportID, &item.Kind, &item.Name, &item.Method, &item.Path, &description, &mimeType, &item.Enabled); err != nil {
-			return nil, err
-		}
-		item.Description = description.String
-		item.MIMEType = mimeType.String
-		if position, ok := index[reportID]; ok {
-			item.Component = result[position].ComponentName
-			result[position].MCPExposures = append(result[position].MCPExposures, item)
-		}
-	}
-	if err = exposures.Err(); err != nil {
-		exposures.Close()
-		return nil, err
-	}
-	exposures.Close()
 	for position := range result {
 		version, loadErr := t.getVersionValue(ctx, result[position].ReportID, result[position].VersionNo)
 		if loadErr != nil {
@@ -2310,66 +2237,7 @@ WHERE p.active_generation=? AND p.publication_status='active' AND r.deleted_at I
 		}
 	}
 
-	resourceQuery := `SELECT f.report_id,f.namespace,f.root_path,f.uri_prefix
-FROM report_resource_folders f
-JOIN report_publications p ON p.report_id=f.report_id AND p.active_version_no=f.version_no
-JOIN reports r ON r.id=f.report_id
-WHERE p.active_generation=? AND p.publication_status='active' AND r.deleted_at IS NULL`
-	resourceArgs := []any{generation}
-	if scoped {
-		resourceQuery += ` AND (r.owner_id=? OR EXISTS(SELECT 1 FROM report_acl acl WHERE acl.report_id=r.id AND acl.subject_type='user' AND acl.subject_id=? AND acl.can_publish=TRUE))`
-		resourceArgs = append(resourceArgs, principal.Subject, principal.Subject)
-	}
-	resourceQuery += ` ORDER BY f.report_id,f.ordinal,f.folder_id`
-	resources, err := t.DB.QueryContext(ctx, resourceQuery, resourceArgs...)
-	if err != nil {
-		return nil, err
-	}
-	for resources.Next() {
-		var reportID string
-		var item sdk.RuntimeMCPResource
-		if err = resources.Scan(&reportID, &item.Namespace, &item.RootPath, &item.URIPrefix); err != nil {
-			resources.Close()
-			return nil, err
-		}
-		if position, ok := index[reportID]; ok {
-			result[position].MCPResources = append(result[position].MCPResources, item)
-		}
-	}
-	if err = resources.Err(); err != nil {
-		resources.Close()
-		return nil, err
-	}
-	resources.Close()
-
-	skillQuery := `SELECT s.report_id,s.skill_id,s.skill_root,f.uri_prefix
-FROM report_skill_roots s
-JOIN report_resource_folders f ON f.report_id=s.report_id AND f.version_no=s.version_no AND f.folder_id=s.folder_id
-JOIN report_publications p ON p.report_id=s.report_id AND p.active_version_no=s.version_no
-JOIN reports r ON r.id=s.report_id
-WHERE p.active_generation=? AND p.publication_status='active' AND r.deleted_at IS NULL`
-	skillArgs := []any{generation}
-	if scoped {
-		skillQuery += ` AND (r.owner_id=? OR EXISTS(SELECT 1 FROM report_acl acl WHERE acl.report_id=r.id AND acl.subject_type='user' AND acl.subject_id=? AND acl.can_publish=TRUE))`
-		skillArgs = append(skillArgs, principal.Subject, principal.Subject)
-	}
-	skillQuery += ` ORDER BY s.report_id,s.ordinal,s.skill_id`
-	skills, err := t.DB.QueryContext(ctx, skillQuery, skillArgs...)
-	if err != nil {
-		return nil, err
-	}
-	defer skills.Close()
-	for skills.Next() {
-		var reportID string
-		var item sdk.RuntimeSkill
-		if err = skills.Scan(&reportID, &item.SkillID, &item.SkillRoot, &item.URIPrefix); err != nil {
-			return nil, err
-		}
-		if position, ok := index[reportID]; ok {
-			result[position].Skills = append(result[position].Skills, item)
-		}
-	}
-	return result, skills.Err()
+	return result, nil
 }
 
 type previewRequest struct {
