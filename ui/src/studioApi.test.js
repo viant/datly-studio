@@ -242,6 +242,7 @@ test('governed namespaces use dedicated Studio SDK operations', async () => {
   assert.equal(calls[0].url,'http://127.0.0.1:8080/v1/studio/sdk/namespaces.list');
   assert.equal(calls[0].body,'{"status":"active"}');
   assert.equal(calls[1].url,'http://127.0.0.1:8080/v1/studio/sdk/namespaces.get');
+  assert.equal(calls[1].body,'{"name":"finance.ops"}');
   assert.equal(calls[2].url,'http://127.0.0.1:8080/v1/studio/sdk/namespaces.create');
   assert.equal(calls[3].body,'{"name":"finance.ops","input":{"title":"Finance","etag":1}}');
   assert.equal(calls[4].url,'http://127.0.0.1:8080/v1/studio/sdk/namespaces.delete');

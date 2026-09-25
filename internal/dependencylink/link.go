@@ -9,6 +9,7 @@ import (
 	_ "github.com/viant/datly-studio/studio/connectors/get"
 	_ "github.com/viant/datly-studio/studio/connectors/writer"
 	_ "github.com/viant/datly-studio/studio/namespaces/reader"
+	_ "github.com/viant/datly-studio/studio/namespaces/get"
 	_ "github.com/viant/datly-studio/studio/namespaces/writer"
 	_ "github.com/viant/datly-studio/studio/report_acl/reader"
 	_ "github.com/viant/datly-studio/studio/report_acl/writer"

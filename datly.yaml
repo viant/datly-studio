@@ -21,6 +21,7 @@ GoBootstrap:
     - github.com/viant/datly-studio/studio/connectors/get
     - github.com/viant/datly-studio/studio/connectors/writer
     - github.com/viant/datly-studio/studio/namespaces/reader
+    - github.com/viant/datly-studio/studio/namespaces/get
     - github.com/viant/datly-studio/studio/namespaces/writer
     - github.com/viant/datly-studio/studio/report_versions/reader
     - github.com/viant/datly-studio/studio/report_versions/writer

@@ -91,6 +91,7 @@ func TestProxyExpandsSessionToBearerAndStripsControlHeaders(t *testing.T) {
 	mux.Handle("/v1/studio/sdk/connectors.get", preservingProxy)
 	mux.Handle("/v1/studio/sdk/connectors.list", preservingProxy)
 	mux.Handle("/v1/studio/sdk/namespaces.list", preservingProxy)
+	mux.Handle("/v1/studio/sdk/namespaces.get", preservingProxy)
 	mux.Handle("/v1/studio/sdk/reports.get", preservingProxy)
 	mux.Handle("/v1/studio/sdk/reports.list", preservingProxy)
 	mux.ServeHTTP(aclResponse, aclRequest)
@@ -133,6 +134,13 @@ func TestProxyExpandsSessionToBearerAndStripsControlHeaders(t *testing.T) {
 	mux.ServeHTTP(namespaceResponse, namespaceRequest)
 	if namespaceResponse.Code != http.StatusNoContent || path != "/v1/studio/sdk/namespaces.list" || calls != 7 {
 		t.Fatalf("native namespace proxy status=%d path=%q calls=%d", namespaceResponse.Code, path, calls)
+	}
+	namespaceGet := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/namespaces.get", strings.NewReader(`{"name":"finance"}`))
+	namespaceGet.AddCookie(&http.Cookie{Name: DefaultCookieName, Value: id})
+	namespaceGetResponse := httptest.NewRecorder()
+	mux.ServeHTTP(namespaceGetResponse, namespaceGet)
+	if namespaceGetResponse.Code != http.StatusNoContent || path != "/v1/studio/sdk/namespaces.get" || calls != 8 {
+		t.Fatalf("native namespace-get proxy status=%d path=%q calls=%d", namespaceGetResponse.Code, path, calls)
 	}
 }
 

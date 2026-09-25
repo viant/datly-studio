@@ -814,6 +814,15 @@ var postV1StudioSdkConnectorsList = (options) => (options?.client ?? client).pos
     ...options?.headers
   }
 });
+var postV1StudioSdkNamespacesGet = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/namespaces.get",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var postV1StudioSdkNamespacesList = (options) => (options?.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/v1/studio/sdk/namespaces.list",
@@ -845,6 +854,7 @@ export {
   postV1StudioSdkAclList,
   postV1StudioSdkConnectorsGet,
   postV1StudioSdkConnectorsList,
+  postV1StudioSdkNamespacesGet,
   postV1StudioSdkNamespacesList,
   postV1StudioSdkReportsGet,
   postV1StudioSdkReportsList

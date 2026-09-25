@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { PostV1StudioSdkAclListData, PostV1StudioSdkAclListResponses, PostV1StudioSdkConnectorsGetData, PostV1StudioSdkConnectorsGetResponses, PostV1StudioSdkConnectorsListData, PostV1StudioSdkConnectorsListResponses, PostV1StudioSdkNamespacesListData, PostV1StudioSdkNamespacesListResponses, PostV1StudioSdkReportsGetData, PostV1StudioSdkReportsGetResponses, PostV1StudioSdkReportsListData, PostV1StudioSdkReportsListResponses } from './types.gen';
+import type { PostV1StudioSdkAclListData, PostV1StudioSdkAclListResponses, PostV1StudioSdkConnectorsGetData, PostV1StudioSdkConnectorsGetResponses, PostV1StudioSdkConnectorsListData, PostV1StudioSdkConnectorsListResponses, PostV1StudioSdkNamespacesGetData, PostV1StudioSdkNamespacesGetResponses, PostV1StudioSdkNamespacesListData, PostV1StudioSdkNamespacesListResponses, PostV1StudioSdkReportsGetData, PostV1StudioSdkReportsGetResponses, PostV1StudioSdkReportsListData, PostV1StudioSdkReportsListResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -54,6 +54,19 @@ export const postV1StudioSdkConnectorsList = <ThrowOnError extends boolean = fal
     headers: {
         'Content-Type': 'application/json',
         ...options?.headers
+    }
+});
+
+/**
+ * namespace
+ */
+export const postV1StudioSdkNamespacesGet = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkNamespacesGetData, ThrowOnError>): RequestResult<PostV1StudioSdkNamespacesGetResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkNamespacesGetResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/namespaces.get',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
     }
 });
 

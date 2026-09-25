@@ -25,7 +25,7 @@ HTTP/MCP tools.
 `cmd/studio-api/main.go` mounts `sdk/httptransport.Gateway` at
 `/v1/studio/sdk/`; the gateway dispatches to `sdk.Transport.Invoke` for the
 remaining operations. In authenticated mode, exact `acl.list`,
-`connectors.get`, `connectors.list`, `namespaces.list`, `reports.get`, and `reports.list` mounts forward to their
+`connectors.get`, `connectors.list`, `namespaces.get`, `namespaces.list`, `reports.get`, and `reports.list` mounts forward to their
 static Datly components instead.
 The SQL transport now calls many transcribed components, but that does not
 make those SDK HTTP routes Datly components. Most UI calls in
@@ -99,6 +99,10 @@ owner or ACL scope. The SDK-shaped POST response applies the same search,
 status, page bounds and default ordering; SQLite tests cover owner/delegated
 access, deleted-report grants, revocation, HTTP, OpenAPI and MCP.
 
+`namespaces.get` uses a dedicated direct-response reader at the SDK POST path.
+It returns a single authorized namespace or 404, with the same typed scope.
+HTTP, MCP, OpenAPI, missing/denied identity and revocation tests cover it.
+
 `reports.get` has a dedicated native reader at the SDK POST path. It requires
 body `id`, binds the same trusted auth context and typed catalog predicate,
 returns the report DTO directly, derives `ownerPackage` server-side, and
@@ -121,7 +125,7 @@ delegated editor, and viewer cases are covered on both paths. The browser's
 `listACL` call now uses the generated client from this native OpenAPI document.
 `scripts/generate-studio-sdk.sh` reproducibly exports the Datly route
 contract and generates Go and browser clients. The document currently covers
-`acl.list`, `connectors.get`, `connectors.list`, `namespaces.list`, `reports.get`, and `reports.list`; expanding it to every public SDK route remains migration work.
+`acl.list`, `connectors.get`, `connectors.list`, `namespaces.get`, `namespaces.list`, `reports.get`, and `reports.list`; expanding it to every public SDK route remains migration work.
 The generator scopes its input to native SDK routes because broad static
 control-plane OpenAPI includes unrelated routes with unresolved dynamic
 status schema fields.

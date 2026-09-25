@@ -1,7 +1,7 @@
 // StudioAPI is deliberately a client-side counterpart of sdk.Transport: every
 // UI interaction names an SDK operation and sends an SDK DTO. It has no direct
 // SQL, DQL, Datly component, or storage knowledge.
-import { postV1StudioSdkAclList, postV1StudioSdkConnectorsGet, postV1StudioSdkConnectorsList, postV1StudioSdkNamespacesList, postV1StudioSdkReportsGet, postV1StudioSdkReportsList } from './generated/studioClient.gen.js';
+import { postV1StudioSdkAclList, postV1StudioSdkConnectorsGet, postV1StudioSdkConnectorsList, postV1StudioSdkNamespacesGet, postV1StudioSdkNamespacesList, postV1StudioSdkReportsGet, postV1StudioSdkReportsList } from './generated/studioClient.gen.js';
 
 const nativeErrorCode = { 400: 'invalid_argument', 401: 'unauthorized', 403: 'forbidden', 404: 'not_found', 409: 'conflict', 422: 'invalid_argument', 502: 'unavailable', 503: 'unavailable' };
 
@@ -146,7 +146,7 @@ export class StudioAPI {
   disableConnector(name, etag) { return this.invoke('connectors.disable', { name, etag }); }
   deleteConnector(name, etag) { return this.invoke('connectors.delete', { name, etag }); }
   listNamespaces(input = {}) { return this.nativeRequest(postV1StudioSdkNamespacesList, 'namespaces.list', input); }
-  getNamespace(name) { return this.invoke('namespaces.get', { name }); }
+  getNamespace(name) { return this.nativeRequest(postV1StudioSdkNamespacesGet, 'namespaces.get', { name }); }
   createNamespace(input) { return this.invoke('namespaces.create', input); }
   updateNamespace(name, input) { return this.invoke('namespaces.update', { name, input }); }
   deleteNamespace(name, etag) { return this.invoke('namespaces.delete', { name, etag }); }

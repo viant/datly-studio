@@ -4,6 +4,17 @@ export type ClientOptions = {
     baseUrl: `${string}://${string}` | (string & {});
 };
 
+export type Wire1F5F473Dc54Ed2F6C617275D578B2307A69146Cb2Ce69Ae058Bffe57F5C226B4 = {
+    createdAt: string;
+    description?: string;
+    etag: number;
+    name: string;
+    ownerId: string;
+    status: string;
+    title: string;
+    updatedAt: string;
+};
+
 export type Wire3260Fb4C4C3Ba7C084402Fa64664F099Dae40719E64A304Feae0D1Fd05Cf8C6c = {
     canEdit: boolean;
     canPublish: boolean;
@@ -182,6 +193,24 @@ export type PostV1StudioSdkConnectorsListResponses = {
 };
 
 export type PostV1StudioSdkConnectorsListResponse = PostV1StudioSdkConnectorsListResponses[keyof PostV1StudioSdkConnectorsListResponses];
+
+export type PostV1StudioSdkNamespacesGetData = {
+    body: {
+        name: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/namespaces.get';
+};
+
+export type PostV1StudioSdkNamespacesGetResponses = {
+    /**
+     * Success response
+     */
+    200: Wire1F5F473Dc54Ed2F6C617275D578B2307A69146Cb2Ce69Ae058Bffe57F5C226B4;
+};
+
+export type PostV1StudioSdkNamespacesGetResponse = PostV1StudioSdkNamespacesGetResponses[keyof PostV1StudioSdkNamespacesGetResponses];
 
 export type PostV1StudioSdkNamespacesListData = {
     body?: {

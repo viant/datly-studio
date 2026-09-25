@@ -17,6 +17,18 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
+// Wire1f5f473dc54ed2f6c617275d578b2307a69146cb2ce69ae058bffe57f5c226b4 defines model for Wire_1f5f473dc54ed2f6c617275d578b2307a69146cb2ce69ae058bffe57f5c226b4.
+type Wire1f5f473dc54ed2f6c617275d578b2307a69146cb2ce69ae058bffe57f5c226b4 struct {
+	CreatedAt   time.Time `json:"createdAt"`
+	Description *string   `json:"description,omitempty"`
+	Etag        int64     `json:"etag"`
+	Name        string    `json:"name"`
+	OwnerId     string    `json:"ownerId"`
+	Status      string    `json:"status"`
+	Title       string    `json:"title"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+}
+
 // Wire3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c defines model for Wire_3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c.
 type Wire3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c struct {
 	CanEdit     bool    `json:"canEdit"`
@@ -202,6 +214,11 @@ type POSTv1studiosdkconnectorsListJSONBody struct {
 	Status  *string   `json:"status,omitempty"`
 }
 
+// POSTv1studiosdknamespacesGetJSONBody defines parameters for POSTv1studiosdknamespacesGet.
+type POSTv1studiosdknamespacesGetJSONBody struct {
+	Name string `json:"name"`
+}
+
 // POSTv1studiosdknamespacesListJSONBody defines parameters for POSTv1studiosdknamespacesList.
 type POSTv1studiosdknamespacesListJSONBody struct {
 	Limit  *int64  `json:"limit,omitempty"`
@@ -236,6 +253,9 @@ type POSTv1studiosdkconnectorsGetJSONRequestBody POSTv1studiosdkconnectorsGetJSO
 
 // POSTv1studiosdkconnectorsListJSONRequestBody defines body for POSTv1studiosdkconnectorsList for application/json ContentType.
 type POSTv1studiosdkconnectorsListJSONRequestBody POSTv1studiosdkconnectorsListJSONBody
+
+// POSTv1studiosdknamespacesGetJSONRequestBody defines body for POSTv1studiosdknamespacesGet for application/json ContentType.
+type POSTv1studiosdknamespacesGetJSONRequestBody POSTv1studiosdknamespacesGetJSONBody
 
 // POSTv1studiosdknamespacesListJSONRequestBody defines body for POSTv1studiosdknamespacesList for application/json ContentType.
 type POSTv1studiosdknamespacesListJSONRequestBody POSTv1studiosdknamespacesListJSONBody
@@ -610,6 +630,20 @@ type ClientInterface interface {
 	// Corresponds with POST /v1/studio/sdk/connectors.list (the `POSTv1studiosdkconnectorsList` operationId).
 	POSTv1studiosdkconnectorsList(ctx context.Context, body POSTv1studiosdkconnectorsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// POSTv1studiosdknamespacesGetWithBody namespace
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /v1/studio/sdk/namespaces.get (the `POSTv1studiosdknamespacesGet` operationId).
+	POSTv1studiosdknamespacesGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespacesGet namespace
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /v1/studio/sdk/namespaces.get (the `POSTv1studiosdknamespacesGet` operationId).
+	POSTv1studiosdknamespacesGet(ctx context.Context, body POSTv1studiosdknamespacesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// POSTv1studiosdknamespacesListWithBody namespace
 	//
 	// Takes any type of body and a specified content type.
@@ -745,6 +779,40 @@ func (c *Client) POSTv1studiosdkconnectorsListWithBody(ctx context.Context, cont
 // Corresponds with POST /v1/studio/sdk/connectors.list (the `POSTv1studiosdkconnectorsList` operationId).
 func (c *Client) POSTv1studiosdkconnectorsList(ctx context.Context, body POSTv1studiosdkconnectorsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPOSTv1studiosdkconnectorsListRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespacesGetWithBody namespace
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /v1/studio/sdk/namespaces.get (the `POSTv1studiosdknamespacesGet` operationId).
+func (c *Client) POSTv1studiosdknamespacesGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespacesGetRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespacesGet namespace
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /v1/studio/sdk/namespaces.get (the `POSTv1studiosdknamespacesGet` operationId).
+func (c *Client) POSTv1studiosdknamespacesGet(ctx context.Context, body POSTv1studiosdknamespacesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespacesGetRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1016,6 +1084,46 @@ func NewPOSTv1studiosdkconnectorsListRequestWithBody(server string, contentType 
 	return req, nil
 }
 
+// NewPOSTv1studiosdknamespacesGetRequest calls the generic POSTv1studiosdknamespacesGet builder with application/json body
+func NewPOSTv1studiosdknamespacesGetRequest(server string, body POSTv1studiosdknamespacesGetJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdknamespacesGetRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdknamespacesGetRequestWithBody constructs an http.Request for the POSTv1studiosdknamespacesGet method, with any body, and a specified content type
+func NewPOSTv1studiosdknamespacesGetRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/namespaces.get")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewPOSTv1studiosdknamespacesListRequest calls the generic POSTv1studiosdknamespacesList builder with application/json body
 func NewPOSTv1studiosdknamespacesListRequest(server string, body POSTv1studiosdknamespacesListJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -1222,6 +1330,20 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with POST /v1/studio/sdk/connectors.list (the `POSTv1studiosdkconnectorsList` operationId).
 	POSTv1studiosdkconnectorsListWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsListResponse, error)
 
+	// POSTv1studiosdknamespacesGetWithBodyWithResponse namespace
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /v1/studio/sdk/namespaces.get (the `POSTv1studiosdknamespacesGet` operationId).
+	POSTv1studiosdknamespacesGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesGetResponse, error)
+
+	// POSTv1studiosdknamespacesGetWithResponse namespace
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /v1/studio/sdk/namespaces.get (the `POSTv1studiosdknamespacesGet` operationId).
+	POSTv1studiosdknamespacesGetWithResponse(ctx context.Context, body POSTv1studiosdknamespacesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesGetResponse, error)
+
 	// POSTv1studiosdknamespacesListWithBodyWithResponse namespace
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -1382,6 +1504,47 @@ func (r POSTv1studiosdkconnectorsListResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r POSTv1studiosdkconnectorsListResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdknamespacesGetResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire1f5f473dc54ed2f6c617275d578b2307a69146cb2ce69ae058bffe57f5c226b4
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdknamespacesGetResponse) GetJSON200() *Wire1f5f473dc54ed2f6c617275d578b2307a69146cb2ce69ae058bffe57f5c226b4 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdknamespacesGetResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdknamespacesGetResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdknamespacesGetResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdknamespacesGetResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -1589,6 +1752,32 @@ func (c *ClientWithResponses) POSTv1studiosdkconnectorsListWithResponse(ctx cont
 	return ParsePOSTv1studiosdkconnectorsListResponse(rsp)
 }
 
+// POSTv1studiosdknamespacesGetWithBodyWithResponse namespace
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /v1/studio/sdk/namespaces.get (the `POSTv1studiosdknamespacesGet` operationId).
+func (c *ClientWithResponses) POSTv1studiosdknamespacesGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesGetResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespacesGetWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespacesGetResponse(rsp)
+}
+
+// POSTv1studiosdknamespacesGetWithResponse namespace
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /v1/studio/sdk/namespaces.get (the `POSTv1studiosdknamespacesGet` operationId).
+func (c *ClientWithResponses) POSTv1studiosdknamespacesGetWithResponse(ctx context.Context, body POSTv1studiosdknamespacesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesGetResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespacesGet(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespacesGetResponse(rsp)
+}
+
 // POSTv1studiosdknamespacesListWithBodyWithResponse namespace
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -1735,6 +1924,32 @@ func ParsePOSTv1studiosdkconnectorsListResponse(rsp *http.Response) (*POSTv1stud
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest Wire33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdknamespacesGetResponse parses an HTTP response from a POSTv1studiosdknamespacesGetWithResponse call
+func ParsePOSTv1studiosdknamespacesGetResponse(rsp *http.Response) (*POSTv1studiosdknamespacesGetResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdknamespacesGetResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire1f5f473dc54ed2f6c617275d578b2307a69146cb2ce69ae058bffe57f5c226b4
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

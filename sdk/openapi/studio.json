@@ -2,6 +2,47 @@
   "openapi": "3.0.1",
   "components": {
     "schemas": {
+      "Wire_1f5f473dc54ed2f6c617275d578b2307a69146cb2ce69ae058bffe57f5c226b4": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string"
+          },
+          "etag": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "ownerId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "ownerId",
+          "name",
+          "title",
+          "status",
+          "etag",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
       "Wire_3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c": {
         "type": "object",
         "properties": {
@@ -656,6 +697,47 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Wire_33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/namespaces.get": {
+      "post": {
+        "summary": "namespace",
+        "operationId": "POST:/v1/studio/sdk/namespaces.get",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Wire_1f5f473dc54ed2f6c617275d578b2307a69146cb2ce69ae058bffe57f5c226b4"
                 }
               }
             }

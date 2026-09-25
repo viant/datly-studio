@@ -248,6 +248,7 @@ func TestEveryStaticDatlyComponentContract(t *testing.T) {
 		{"reports/store_global_access/report.dql", "get"},
 		{"reports/store_catalog/report.dql", "get"},
 		{"namespaces/reader/namespace.dql", "get"}, {"namespaces/writer/namespace.dql", "patch"},
+		{"namespaces/get/namespace.dql", "get"},
 		{"namespaces/store_read/namespace.dql", "get"}, {"namespaces/store_usage/usage.dql", "get"},
 		{"namespaces/store_insert/namespace.dql", "post"}, {"namespaces/store_write/namespace.dql", "patch"},
 		{"namespaces/store_access/namespace.dql", "get"},

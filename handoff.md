@@ -560,6 +560,7 @@ local test target; do not silently replace it with Docker/MySQL.
   now uses the same native contract for a single authorized connector or 404.
   The namespace catalog now uses a typed Datly authorization predicate and a
   native `namespaces.list` SDK route with page-shaped HTTP/MCP/OpenAPI output.
+  `namespaces.get` now uses the same typed scope for one direct DTO or 404.
   The remaining SDK operations still use the generic dispatcher.
   See `docs/sdk-native-endpoints.md` for the remaining broader SDK migration.
   Focused
