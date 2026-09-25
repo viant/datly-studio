@@ -53,7 +53,8 @@ type publicationEventListRequest struct {
 }
 
 // listPublicationEvents exposes only a report's immutable, non-secret audit
-// trail. Authorization is applied before this method by Transport.authorize.
+// trail. It also checks current ownership here because delegated publish
+// permission must not grant access to the owner's event history.
 func (t *Transport) listPublicationEvents(ctx context.Context, input, output any) error {
 	var in publicationEventListRequest
 	if err := decode(input, &in); err != nil {
@@ -80,6 +81,17 @@ func (t *Transport) listPublicationEvents(ctx context.Context, input, output any
 		if status != "succeeded" && status != "failed" {
 			return invalid(errors.New("status must be succeeded or failed"))
 		}
+	}
+	principal, ok := sdk.PrincipalFromContext(ctx)
+	if !ok || strings.TrimSpace(principal.Subject) == "" {
+		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Studio principal is required"}
+	}
+	ownerID, err := t.publicationEventOwner(ctx, in.ReportID)
+	if err != nil {
+		return err
+	}
+	if ownerID != principal.Subject {
+		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "publication event history is owner-only"}
 	}
 	reader, err := t.publicationEventReader()
 	if err != nil {

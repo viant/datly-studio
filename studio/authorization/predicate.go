@@ -225,15 +225,19 @@ func (p *PublicationEdit) Compute(ctx context.Context, _ any) (*xpredicate.Crite
 	return reportCriteria(ctx, p.Input, "publication.report_id", permissionPublish)
 }
 
-// PublicationEventRead scopes the immutable lifecycle audit to the report
-// owner's tenant. Delegated publisher grants never make an owner's event
-// history visible across owner boundaries.
+// PublicationEventRead requires the report's current owner. The audit trail
+// follows the report on transfer; former owners and delegated publishers
+// cannot use historical rows to bypass the present ownership boundary.
 func (p *PublicationEventRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
 	subject, err := subject(ctx, p.Input)
 	if err != nil {
 		return nil, err
 	}
-	return &xpredicate.Criteria{Expression: "event.owner_id = ?", Placeholders: []any{subject}}, nil
+	return &xpredicate.Criteria{Expression: `EXISTS (
+SELECT 1 FROM reports studio_event_report
+WHERE studio_event_report.id = e.report_id
+  AND studio_event_report.owner_id = ?
+  AND studio_event_report.deleted_at IS NULL)`, Placeholders: []any{subject}}, nil
 }
 func (p *ACLRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
 	principal, err := subject(ctx, p.Input)

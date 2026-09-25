@@ -57,6 +57,21 @@ func TestRuntimeAuthorizationRequiresPublishPermission(t *testing.T) {
 	}
 }
 
+func TestPublicationEventReadRequiresCurrentOwner(t *testing.T) {
+	claims := &jwt.Claims{}
+	claims.Subject = "owner"
+	predicate := &PublicationEventRead{InputBinding: InputBinding{Input: &struct{ Jwt *jwt.Claims }{Jwt: claims}}}
+	criteria, err := predicate.Compute(context.Background(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(criteria.Expression, "studio_event_report.owner_id = ?") ||
+		!strings.Contains(criteria.Expression, "studio_event_report.deleted_at IS NULL") ||
+		len(criteria.Placeholders) != 1 || criteria.Placeholders[0] != "owner" {
+		t.Fatalf("criteria = %+v", criteria)
+	}
+}
+
 func TestReportEditRejectsCrossOwnerCreate(t *testing.T) {
 	claims := &jwt.Claims{}
 	claims.Subject = "owner-a"

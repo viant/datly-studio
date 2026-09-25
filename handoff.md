@@ -573,6 +573,11 @@ local test target; do not silently replace it with Docker/MySQL.
   `publications.get` now has a native direct-response reader with typed view
   scope, HTTP/MCP/OpenAPI parity, BFF forwarding and generated Go/JS clients;
   SQLite tests cover owner, delegated viewer, denial and revocation.
+  Publication event history remains on the generic SDK route. Its public
+  reader's predicate alias and current-owner scope were corrected and tested
+  against an ownership transfer; the SDK read now enforces current ownership
+  even when a subject holds delegated publish permission. Native event-history
+  page/request parity remains to be implemented.
   Version get/list SDK responses now redact structural DQL unless the subject
   has `canUseDql`; the source-bearing static version reader requires that
   permission until a native metadata-plus-redaction contract is authored.

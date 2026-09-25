@@ -29,7 +29,7 @@ func StudioAuthorizationTypes(t testing.TB) *typecatalog.Catalog {
 		authorization.ReportResourceFileRead{}, authorization.ReportResourceFileEdit{},
 		authorization.ReportResourceFolderRead{}, authorization.ReportResourceFolderEdit{},
 		authorization.ReportSkillRead{}, authorization.ReportSkillEdit{},
-		authorization.PublicationRead{}, authorization.PublicationEdit{},
+		authorization.PublicationRead{}, authorization.PublicationEdit{}, authorization.PublicationEventRead{},
 		authorization.ACLRead{}, authorization.ACLEdit{},
 		authorization.RuntimeRead{}, authorization.RuntimeEdit{},
 		catalogpredicate.ReportCatalogRead{},

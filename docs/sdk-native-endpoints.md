@@ -129,6 +129,15 @@ access, denial, revocation, missing rows, HTTP, MCP and OpenAPI are covered by
 a preseeded SQLite contract test. The authenticated BFF proxies the exact
 route, and browser `getPublication` uses the generated OpenAPI client.
 
+`publications.events.list` is still on the generic SDK path. Its existing
+public control-plane reader now uses the embedded SQL alias correctly and a
+typed predicate requiring the report's current owner. The generic SDK read
+also checks current ownership after authorization, so a delegated publisher
+or former owner cannot read the lifecycle trail. SQLite route tests verify
+that event history follows a transferred report to its current owner. Its
+nested SDK request/page wire shape still needs native HTTP/MCP/OpenAPI parity
+before the generic route can be replaced.
+
 The `acl.list` reader is implemented. Its generated
 Datly component now uses `POST /v1/studio/sdk/acl.list`, includes the ACL
 `etag`, and declares `studio.sdk.acl.list` as an MCP tool. A focused SQLite

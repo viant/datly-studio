@@ -11,7 +11,7 @@ import (
 )
 
 func TestPublicationEventStoreReads(t *testing.T) {
-	ctx := context.Background()
+	ctx := sdk.WithPrincipal(context.Background(), sdk.Principal{Subject: "alice"})
 	db, err := sql.Open("sqlite", "file:publication_event_store_reads?mode=memory&cache=shared")
 	if err != nil {
 		t.Fatal(err)
@@ -88,7 +88,26 @@ func TestPublicationEventStoreReads(t *testing.T) {
 			t.Fatalf("input=%+v error=%v", input, err)
 		}
 	}
-	if actual, err := transport.publicationEventOwner(ctx, "r1"); err != nil || actual != "alice" {
+	delegated := sdk.WithPrincipal(context.Background(), sdk.Principal{Subject: "bob"})
+	var delegatedPage sdk.PublicationEventPage
+	var forbidden *sdk.Error
+	if err = transport.listPublicationEvents(delegated, publicationEventListRequest{ReportID: "r1"}, &delegatedPage); !errors.As(err, &forbidden) || forbidden.Code != sdk.ErrorForbidden {
+		t.Fatalf("delegated publisher event history=%+v error=%v", delegatedPage, err)
+	}
+	if _, err = db.ExecContext(ctx, `UPDATE reports SET owner_id='carol' WHERE id='r1'`); err != nil {
+		t.Fatal(err)
+	}
+	var formerOwner sdk.PublicationEventPage
+	var denied *sdk.Error
+	if err = transport.listPublicationEvents(ctx, publicationEventListRequest{ReportID: "r1"}, &formerOwner); !errors.As(err, &denied) || denied.Code != sdk.ErrorForbidden {
+		t.Fatalf("former owner event history=%+v error=%v", formerOwner, err)
+	}
+	currentOwner := sdk.WithPrincipal(context.Background(), sdk.Principal{Subject: "carol"})
+	var transferred sdk.PublicationEventPage
+	if err = transport.listPublicationEvents(currentOwner, publicationEventListRequest{ReportID: "r1"}, &transferred); err != nil || len(transferred.Items) != 3 {
+		t.Fatalf("current owner event history=%+v error=%v", transferred, err)
+	}
+	if actual, err := transport.publicationEventOwner(ctx, "r1"); err != nil || actual != "carol" {
 		t.Fatalf("owner=%q error=%v", actual, err)
 	}
 	for _, id := range []string{"missing", "deleted"} {
