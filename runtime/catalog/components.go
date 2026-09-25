@@ -5,9 +5,16 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"strings"
+	"reflect"
 
+	"github.com/viant/bindly/resource"
+	"github.com/viant/datly-studio/internal/readercomponent"
 	"github.com/viant/datly-studio/sdk"
+	stored "github.com/viant/datly-studio/studio/report_publications/store_runtime_catalog"
+	dexec "github.com/viant/datly/exec"
+	druntime "github.com/viant/datly/runtime"
+	"github.com/viant/datly/runtime/registry"
+	dsql "github.com/viant/datly/sql"
 )
 
 type ComponentCatalog struct{ db *sql.DB }
@@ -15,85 +22,94 @@ type ComponentCatalog struct{ db *sql.DB }
 func NewComponentCatalog(db *sql.DB) *ComponentCatalog { return &ComponentCatalog{db: db} }
 
 func (c *ComponentCatalog) LoadPublishedComponents(ctx context.Context) ([]*PublishedReport, error) {
-	rows, err := c.db.QueryContext(ctx, `
-SELECT r.id, r.namespace, r.slug, r.title, r.description, r.owner_id, r.status, r.default_connector_name, r.component_scope, r.component_name, r.current_draft_version, r.etag, r.created_at, r.updated_at,
-       p.active_version_no, p.desired_generation, p.active_generation, p.publication_status, p.runtime_revision, p.published_at,
-       v.state, v.authoring_mode, v.authored_sql, v.authored_dql, v.component_spec_json, v.spec_format_version, v.spec_hash, v.generated_dql, v.dql_export_limits_json, v.type_manifest_json, v.resource_manifest_json, v.component_descriptor_json, v.compile_status, v.compile_diagnostics_json, v.datly_version, v.compiler_version, v.source_revision, v.notes, v.created_by, v.created_at, v.validated_at, v.published_at
-FROM report_publications p
-JOIN reports r ON r.id = p.report_id AND r.deleted_at IS NULL
-JOIN report_versions v ON v.report_id = p.report_id AND v.version_no = p.active_version_no
-WHERE p.publication_status = 'active'
-ORDER BY p.published_at DESC, r.id ASC`)
+	if c == nil || c.db == nil {
+		return nil, fmt.Errorf("published component catalog database is unavailable")
+	}
+	resources := resource.New()
+	if err := resources.Register(stored.PublicationDatlyResourceNamespace, stored.PublicationDatlyResources); err != nil {
+		return nil, err
+	}
+	connector := &dsql.SQLComponent{DB: c.db}
+	if err := connector.RegisterConnector("studio", c.db); err != nil {
+		return nil, err
+	}
+	registration, target, err := readercomponent.Compile(reflect.TypeOf(stored.PublicationComponent{}), "store_runtime_catalog",
+		reflect.TypeOf(stored.Input{}), reflect.TypeOf(stored.Output{}), resources, connector)
+	if err != nil {
+		return nil, err
+	}
+	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{registration}, druntime.WithResources(resources))
+	if err != nil {
+		return nil, err
+	}
+	defer runtime.Shutdown(context.Background())
+	input := &stored.Input{Status: "active", Live: true, Has: &stored.InputHas{Status: true, Live: true}}
+	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: target, Input: input})
 	if err != nil {
 		return nil, fmt.Errorf("load published reports: %w", err)
 	}
-	defer rows.Close()
-	var result []*PublishedReport
-	for rows.Next() {
-		value, err := scanPublishedReport(rows)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, value)
+	output, ok := value.(*stored.Output)
+	if !ok || output == nil {
+		return nil, fmt.Errorf("published component catalog returned %T", value)
 	}
-	if err := rows.Err(); err != nil {
-		return nil, err
+	result := make([]*PublishedReport, 0, len(output.Publications))
+	for _, row := range output.Publications {
+		if row == nil || row.ReportId == "" || !row.ReportLive || row.PublicationStatus != "active" ||
+			row.PublicationActiveVersionNo <= 0 || row.PublicationActiveGeneration == nil || row.VersionSourceRevision <= 0 {
+			return nil, fmt.Errorf("published component catalog returned an invalid row")
+		}
+		result = append(result, publishedFromStored(row))
 	}
 	return result, nil
 }
 
-func scanPublishedReport(scanner interface{ Scan(dest ...any) error }) (*PublishedReport, error) {
-	var report sdk.Report
-	var publication sdk.Publication
-	var version sdk.ReportVersion
-	var description, authoredSQL, authoredDQL, spec, generatedDQL, limits, typeManifest, resourceManifest, descriptor, diagnostics, notes sql.NullString
-	var draft sql.NullInt64
-	var activeGeneration sql.NullInt64
-	var publishedAt, validatedAt, versionPublishedAt sql.NullTime
-	if err := scanner.Scan(
-		&report.ID, &report.Namespace, &report.Slug, &report.Title, &description, &report.OwnerID, &report.Status, &report.DefaultConnectorName, &report.ComponentScope, &report.ComponentName, &draft, &report.ETag, &report.CreatedAt, &report.UpdatedAt,
-		&publication.ActiveVersionNo, &publication.DesiredGeneration, &activeGeneration, &publication.Status, &publication.RuntimeRevision, &publishedAt,
-		&version.State, &version.AuthoringMode, &authoredSQL, &authoredDQL, &spec, &version.SpecFormatVersion, &version.SpecHash, &generatedDQL, &limits, &typeManifest, &resourceManifest, &descriptor, &version.CompileStatus, &diagnostics, &version.DatlyVersion, &version.CompilerVersion, &version.SourceRevision, &notes, &version.CreatedBy, &version.CreatedAt, &validatedAt, &versionPublishedAt,
-	); err != nil {
-		return nil, err
+func publishedFromStored(row *stored.PublishedComponent) *PublishedReport {
+	report := &sdk.Report{ID: row.ReportId, Namespace: row.ReportNamespace, Slug: row.ReportSlug,
+		Title: row.ReportTitle, OwnerID: row.ReportOwnerId, OwnerPackage: sdk.OwnerPackageSegment(row.ReportOwnerId),
+		Status: row.ReportStatus, DefaultConnectorName: row.ReportConnector,
+		ComponentScope: row.ReportComponentScope, ComponentName: row.ReportComponentName,
+		ETag: row.ReportEtag, CreatedAt: row.ReportCreatedAt, UpdatedAt: row.ReportUpdatedAt}
+	if row.ReportDescription != nil {
+		report.Description = *row.ReportDescription
 	}
-	report.Description = description.String
-	report.OwnerPackage = sdk.OwnerPackageSegment(report.OwnerID)
-	if draft.Valid {
-		value := int(draft.Int64)
-		report.CurrentDraftVersion = &value
+	if row.ReportDraftVersion != nil {
+		draft := *row.ReportDraftVersion
+		report.CurrentDraftVersion = &draft
 	}
-	publication.ReportID = report.ID
-	if activeGeneration.Valid {
-		value := activeGeneration.Int64
-		publication.ActiveGeneration = &value
+	active := *row.PublicationActiveGeneration
+	publication := &sdk.Publication{ReportID: row.ReportId, ActiveVersionNo: row.PublicationActiveVersionNo,
+		DesiredGeneration: row.PublicationDesiredGeneration, ActiveGeneration: &active,
+		Status: row.PublicationStatus, PublishedAt: row.PublicationPublishedAt}
+	if row.PublicationRuntimeRevision != nil {
+		publication.RuntimeRevision = *row.PublicationRuntimeRevision
 	}
-	if publishedAt.Valid {
-		value := publishedAt.Time
-		publication.PublishedAt = &value
-	}
-	version.ReportID, version.VersionNo = report.ID, publication.ActiveVersionNo
-	version.AuthoredSQL, version.AuthoredDQL, version.GeneratedDQL, version.Notes = authoredSQL.String, authoredDQL.String, generatedDQL.String, notes.String
-	version.ComponentSpec = catalogJSON(spec)
-	version.DQLExportLimits = catalogJSON(limits)
-	version.TypeManifest = catalogJSON(typeManifest)
-	version.ResourceManifest = catalogJSON(resourceManifest)
-	version.ComponentDescriptor = catalogJSON(descriptor)
-	version.CompileDiagnostics = catalogJSON(diagnostics)
-	if validatedAt.Valid {
-		value := validatedAt.Time
-		version.ValidatedAt = &value
-	}
-	if versionPublishedAt.Valid {
-		value := versionPublishedAt.Time
-		version.PublishedAt = &value
-	}
-	return &PublishedReport{Report: &report, Version: &version, Publication: &publication}, nil
+	version := &sdk.ReportVersion{ReportID: row.ReportId, VersionNo: row.PublicationActiveVersionNo,
+		State: row.VersionState, AuthoringMode: row.VersionAuthoringMode,
+		SpecFormatVersion: row.VersionSpecFormatVersion, SpecHash: row.VersionSpecHash,
+		CompileStatus: row.VersionCompileStatus, DatlyVersion: row.VersionDatlyVersion,
+		CompilerVersion: row.VersionCompilerVersion, SourceRevision: row.VersionSourceRevision,
+		CreatedBy: row.VersionCreatedBy, CreatedAt: row.VersionCreatedAt,
+		ValidatedAt: row.VersionValidatedAt, PublishedAt: row.VersionPublishedAt}
+	version.AuthoredSQL = optionalString(row.VersionAuthoredSql)
+	version.AuthoredDQL = optionalString(row.VersionAuthoredDql)
+	version.GeneratedDQL = optionalString(row.VersionGeneratedDql)
+	version.Notes = optionalString(row.VersionNotes)
+	version.ComponentSpec = cloneJSON(row.VersionComponentSpecJson)
+	version.DQLExportLimits = cloneJSON(row.VersionDqlExportLimitsJson)
+	version.TypeManifest = cloneJSON(row.VersionTypeManifestJson)
+	version.ResourceManifest = cloneJSON(row.VersionResourceManifestJson)
+	version.ComponentDescriptor = cloneJSON(row.VersionComponentDescriptorJson)
+	version.CompileDiagnostics = cloneJSON(row.VersionCompileDiagnosticsJson)
+	return &PublishedReport{Report: report, Version: version, Publication: publication}
 }
 
-func catalogJSON(raw sql.NullString) json.RawMessage {
-	if !raw.Valid || strings.TrimSpace(raw.String) == "" || raw.String == "null" {
-		return nil
+func optionalString(value *string) string {
+	if value == nil {
+		return ""
 	}
-	return json.RawMessage(raw.String)
+	return *value
+}
+
+func cloneJSON(value json.RawMessage) json.RawMessage {
+	return append(json.RawMessage(nil), value...)
 }

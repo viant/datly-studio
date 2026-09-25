@@ -1,0 +1,28 @@
+#package('studio/connectors/store_runtime_catalog')
+
+#import('encoding/json')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/connector-store/runtime-catalog', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('connector', 'sql/read.sql'))
+
+#define($_ = $Status<string>(query/status).Required().WithPredicate(1, 'equal', 'c', 'status'))
+#define($_ = $Live<bool>(query/live).Required().WithPredicate(1, 'equal', 'c', 'is_live'))
+#define($_ = $Connectors<[]*StoredConnector>(output/view))
+
+SELECT connector.*, type(connector, 'StoredConnector'),
+       CAST(connector.name AS string), CAST(connector.driver AS string),
+       CAST(connector.dsn_template AS *string), CAST(connector.secret_ref AS *string),
+       CAST(connector.description AS *string), CAST(connector.owner_id AS string),
+       CAST(connector.status AS string), CAST(connector.options_json AS json.RawMessage),
+       CAST(connector.last_test_status AS *string), CAST(connector.last_test_error_code AS *string),
+       CAST(connector.last_tested_at AS *time.Time), CAST(connector.etag AS int64),
+       CAST(connector.created_at AS time.Time), CAST(connector.updated_at AS time.Time),
+       CAST(connector.is_live AS bool),
+       set_limit(connector, 0)
+FROM (${embed:sql/read.sql}) connector
+WHERE 1=1
+ORDER BY connector.updated_at DESC, connector.name ASC
