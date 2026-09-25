@@ -164,10 +164,20 @@ func TestConnectorReaderMinimumContract(t *testing.T) {
 				t.Fatalf("%s connectors=%v err=%v", check.subject, names(output), err)
 			}
 		}
-		if _, err := db.ExecContext(ctx, "DELETE FROM report_acl WHERE report_id = ? AND subject_id = ?", "r-beta", "viewer"); err != nil {
+		if _, err := db.ExecContext(ctx, "UPDATE reports SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?", "r-beta"); err != nil {
 			t.Fatal(err)
 		}
 		output, err := invoke("/v1/studio/connectors?orderBy=name")
+		if err != nil || !reflect.DeepEqual(names(output), []string{"alpha", "gamma"}) {
+			t.Fatalf("soft-deleted report connectors=%v err=%v", names(output), err)
+		}
+		if _, err := db.ExecContext(ctx, "UPDATE reports SET deleted_at = NULL WHERE id = ?", "r-beta"); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := db.ExecContext(ctx, "DELETE FROM report_acl WHERE report_id = ? AND subject_id = ?", "r-beta", "viewer"); err != nil {
+			t.Fatal(err)
+		}
+		output, err = invoke("/v1/studio/connectors?orderBy=name")
 		if err != nil || !reflect.DeepEqual(names(output), []string{"alpha", "gamma"}) {
 			t.Fatalf("revoked viewer connectors=%v err=%v", names(output), err)
 		}

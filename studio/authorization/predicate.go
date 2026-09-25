@@ -279,6 +279,7 @@ func connectorCriteriaForSubject(subject, nameColumn, ownerColumn, permission st
 SELECT 1 FROM reports studio_auth_report
 JOIN report_acl studio_auth_acl ON studio_auth_acl.report_id = studio_auth_report.id
 WHERE studio_auth_report.default_connector_name = ` + nameColumn + `
+  AND studio_auth_report.deleted_at IS NULL
   AND studio_auth_acl.subject_type = 'user'
   AND studio_auth_acl.subject_id = ?
 	  AND studio_auth_acl.` + permission + ` = TRUE))`, Placeholders: []any{subject, subject}}
