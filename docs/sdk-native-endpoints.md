@@ -25,7 +25,7 @@ HTTP/MCP tools.
 `cmd/studio-api/main.go` mounts `sdk/httptransport.Gateway` at
 `/v1/studio/sdk/`; the gateway dispatches to `sdk.Transport.Invoke` for the
 remaining operations. In authenticated mode, exact `acl.list`,
-`connectors.list`, `reports.get`, and `reports.list` mounts forward to their
+`connectors.get`, `connectors.list`, `reports.get`, and `reports.list` mounts forward to their
 static Datly components instead.
 The SQL transport now calls many transcribed components, but that does not
 make those SDK HTTP routes Datly components. Most UI calls in
@@ -87,6 +87,12 @@ and JSON options retain the SDK wire shape. SQLite tests cover 137-row paging,
 owner/delegated scope, revocation, deleted-report grants, HTTP, OpenAPI and
 MCP redaction.
 
+`connectors.get` has its own native reader at the SDK POST path. It returns
+one direct connector DTO or 404, derives only `dsnConfigured` and
+`secretConfigured` from server-held material, and uses the same typed ACL
+predicate. Tests cover owner and delegated access, missing/denied/revoked
+identities, HTTP/MCP/OpenAPI wire parity, and secret redaction.
+
 `reports.get` has a dedicated native reader at the SDK POST path. It requires
 body `id`, binds the same trusted auth context and typed catalog predicate,
 returns the report DTO directly, derives `ownerPackage` server-side, and
@@ -109,7 +115,7 @@ delegated editor, and viewer cases are covered on both paths. The browser's
 `listACL` call now uses the generated client from this native OpenAPI document.
 `scripts/generate-studio-sdk.sh` reproducibly exports the Datly route
 contract and generates Go and browser clients. The document currently covers
-`acl.list`, `connectors.list`, `reports.get`, and `reports.list`; expanding it to every public SDK route remains migration work.
+`acl.list`, `connectors.get`, `connectors.list`, `reports.get`, and `reports.list`; expanding it to every public SDK route remains migration work.
 The generator scopes its input to native SDK routes because broad static
 control-plane OpenAPI includes unrelated routes with unresolved dynamic
 status schema fields.

@@ -1,0 +1,47 @@
+#package('studio/connectors/get')
+
+#import('github.com/viant/scy/auth/jwt')
+#import('studioauth','github.com/viant/datly-studio/studio/auth/reader')
+#import('studioauthorization','github.com/viant/datly-studio/studio/authorization')
+#import('encoding/json')
+
+#setting($_ = $input_type('ConnectorGetInput'))
+#setting($_ = $output_type('ConnectorGetOutput'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/sdk/connectors.get', 'POST'))
+#setting($_ = $connector('studio'))
+#setting($_ = $mcp('studio.sdk.connectors.get', 'Read one authorized Datly Studio connector'))
+#setting($_ = $sql_dest('connectors', 'sql/read.sql'))
+
+#define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
+#define($_ = $Auth<*studioauth.Output>(component/GET:/v1/studio/auth/context).Required().WithPredicate(3, 'handler', 'studioauthorization.ConnectorRead'))
+#define($_ = $Name<string>(body/name).WithTag('json:"name"').Required().WithPredicate(2, 'equal', 'c', 'name'))
+#define($_ = $Item<*Connector>(output/view).WithTag('json:"-"'))
+#define($_ = $ResponseName<string>(output/body).WithTag('json:"name"'))
+#define($_ = $Driver<string>(output/body).WithTag('json:"driver"'))
+#define($_ = $DsnConfigured<bool>(output/body).WithTag('json:"dsnConfigured"'))
+#define($_ = $SecretConfigured<bool>(output/body).WithTag('json:"secretConfigured"'))
+#define($_ = $Description<string>(output/body).WithTag('json:"description,omitempty"'))
+#define($_ = $OwnerId<string>(output/body).WithTag('json:"ownerId"'))
+#define($_ = $Status<string>(output/body).WithTag('json:"status"'))
+#define($_ = $Options<json.RawMessage>(output/body).WithTag('json:"options,omitempty"'))
+#define($_ = $LastTestStatus<string>(output/body).WithTag('json:"lastTestStatus,omitempty"'))
+#define($_ = $LastTestErrorCode<string>(output/body).WithTag('json:"lastTestErrorCode,omitempty"'))
+#define($_ = $LastTestedAt<*time.Time>(output/body).WithTag('json:"lastTestedAt,omitempty"'))
+#define($_ = $Etag<int64>(output/body).WithTag('json:"etag"'))
+#define($_ = $CreatedAt<time.Time>(output/body).WithTag('json:"createdAt"'))
+#define($_ = $UpdatedAt<time.Time>(output/body).WithTag('json:"updatedAt"'))
+
+SELECT connectors.*, type(connectors, 'Connector'),
+       CAST(connectors.name AS string), CAST(connectors.driver AS string),
+       CAST(connectors.dsn_configured AS bool), CAST(connectors.secret_configured AS bool),
+       CAST(connectors.description AS *string), CAST(connectors.owner_id AS string),
+       CAST(connectors.status AS string), CAST(connectors.options_json AS json.RawMessage),
+       CAST(connectors.last_test_status AS *string), CAST(connectors.last_test_error_code AS *string),
+       CAST(connectors.last_tested_at AS *time.Time), CAST(connectors.etag AS int64),
+       CAST(connectors.created_at AS time.Time), CAST(connectors.updated_at AS time.Time),
+       tag(connectors.options_json, 'sqlx:"options_json,enc=JSON"'),
+       set_limit(connectors, 1)
+FROM (${embed:sql/read.sql}) connectors
+WHERE 1=1
+${predicate.Builder().CombineAnd($predicate.FilterGroup(3, "AND")).Build("AND")}

@@ -88,6 +88,7 @@ func TestProxyExpandsSessionToBearerAndStripsControlHeaders(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.Handle("/v1/studio/sdk/", http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusTeapot) }))
 	mux.Handle("/v1/studio/sdk/acl.list", preservingProxy)
+	mux.Handle("/v1/studio/sdk/connectors.get", preservingProxy)
 	mux.Handle("/v1/studio/sdk/connectors.list", preservingProxy)
 	mux.Handle("/v1/studio/sdk/reports.get", preservingProxy)
 	mux.Handle("/v1/studio/sdk/reports.list", preservingProxy)
@@ -117,6 +118,13 @@ func TestProxyExpandsSessionToBearerAndStripsControlHeaders(t *testing.T) {
 	mux.ServeHTTP(connectorResponse, connectorRequest)
 	if connectorResponse.Code != http.StatusNoContent || path != "/v1/studio/sdk/connectors.list" || calls != 5 {
 		t.Fatalf("native connector proxy status=%d path=%q calls=%d", connectorResponse.Code, path, calls)
+	}
+	connectorGet := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/connectors.get", strings.NewReader(`{"name":"main"}`))
+	connectorGet.AddCookie(&http.Cookie{Name: DefaultCookieName, Value: id})
+	connectorGetResponse := httptest.NewRecorder()
+	mux.ServeHTTP(connectorGetResponse, connectorGet)
+	if connectorGetResponse.Code != http.StatusNoContent || path != "/v1/studio/sdk/connectors.get" || calls != 6 {
+		t.Fatalf("native connector-get proxy status=%d path=%q calls=%d", connectorGetResponse.Code, path, calls)
 	}
 }
 

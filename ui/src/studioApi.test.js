@@ -11,7 +11,8 @@ test('development API carries an explicit local subject only', async () => {
   const api = new StudioAPI({ mode: 'development', apiBaseURL: 'http://127.0.0.1:8080', development: { subject: 'dev-user' } }, {
     fetcher: async (value) => { request = value; return response({ items: [], limit: 50, offset: 0 }); },
   });
-  await api.listReports({ status: 'draft' });
+  const page=await api.listReports({ status: 'draft' });
+  assert.deepEqual(page,{items:[],limit:50,offset:0});
   assert.equal(request.url, 'http://127.0.0.1:8080/v1/studio/sdk/reports.list');
   assert.equal(request.headers.get('X-Studio-Development-Subject'), 'dev-user');
   assert.equal(request.headers.get('Authorization'), null);
@@ -23,7 +24,8 @@ test('authenticated API carries only the HttpOnly BFF session cookie', async () 
   const api = new StudioAPI({ mode: 'authenticated', apiBaseURL: 'https://studio.example.com' }, {
     fetcher: async (value) => { request = value; return response({ items: [], limit: 50, offset: 0 }); },
   });
-  await api.listConnectors();
+  const page=await api.listConnectors();
+  assert.deepEqual(page,{items:[],limit:50,offset:0});
   assert.equal(request.credentials, 'include');
   assert.equal(request.headers.get('Authorization'), null);
   assert.equal(request.headers.get('X-Studio-Development-Subject'), null);
@@ -75,7 +77,8 @@ test('SDK errors preserve the server request correlation id', async () => {
 test('component identity updates stay behind report SDK operations', async () => {
   const calls=[];
   const api=new StudioAPI({mode:'development',apiBaseURL:'http://127.0.0.1:8080',development:{subject:'dev-user'}},{fetcher:async(url,init)=>{calls.push(url instanceof Request ? {url:url.url,body:await url.text()} : {url,body:init.body});return response({id:'vendor',title:'Vendors',etag:3});}});
-  await api.getReport('vendor');
+  const report=await api.getReport('vendor');
+  assert.equal(report.id,'vendor');
   await api.updateReport('vendor',{title:'Vendors',etag:2});
   assert.deepEqual(calls,[
     {url:'http://127.0.0.1:8080/v1/studio/sdk/reports.get',body:'{"id":"vendor"}'},
@@ -100,11 +103,11 @@ test('named connector SDK operation delegates to the stable transport operation'
 
 test('view SQL context reads connector driver through the named SDK operation', async()=>{
   let request;
-  const api=new StudioAPI({mode:'development',apiBaseURL:'http://127.0.0.1:8080',development:{subject:'dev-user'}},{fetcher:async(url,init)=>{request={url,init};return response({name:'warehouse',driver:'mysql'});}});
+  const api=new StudioAPI({mode:'development',apiBaseURL:'http://127.0.0.1:8080',development:{subject:'dev-user'}},{fetcher:async(value)=>{request=value;return response({name:'warehouse',driver:'mysql'});}});
   const connector=await api.getConnector('warehouse');
   assert.equal(connector.driver,'mysql');
   assert.equal(request.url,'http://127.0.0.1:8080/v1/studio/sdk/connectors.get');
-  assert.equal(request.init.body,'{"name":"warehouse"}');
+  assert.equal(await request.text(),'{"name":"warehouse"}');
 });
 
 test('connector update delegates the current optimistic revision through the SDK', async () => {

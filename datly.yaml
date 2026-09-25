@@ -18,6 +18,7 @@ GoBootstrap:
     - github.com/viant/datly-studio/studio/reports/catalogpredicate
     - github.com/viant/datly-studio/studio/auth/reader
     - github.com/viant/datly-studio/studio/connectors/reader
+    - github.com/viant/datly-studio/studio/connectors/get
     - github.com/viant/datly-studio/studio/connectors/writer
     - github.com/viant/datly-studio/studio/namespaces/reader
     - github.com/viant/datly-studio/studio/namespaces/writer

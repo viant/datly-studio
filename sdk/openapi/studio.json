@@ -122,6 +122,67 @@
           "offset"
         ]
       },
+      "Wire_7be315ac587bc72247d0b72942b7067d644f15c0e04a4011f74ffec56d000203": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string"
+          },
+          "driver": {
+            "type": "string"
+          },
+          "dsnConfigured": {
+            "type": "boolean"
+          },
+          "etag": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "lastTestErrorCode": {
+            "type": "string"
+          },
+          "lastTestStatus": {
+            "type": "string"
+          },
+          "lastTestedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "options": {},
+          "ownerId": {
+            "type": "string"
+          },
+          "secretConfigured": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "name",
+          "driver",
+          "dsnConfigured",
+          "secretConfigured",
+          "ownerId",
+          "status",
+          "etag",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
       "Wire_7f614c3079e0f6cdc356ae6e7e44a326c9b77ae75d9bed109251680a65f23b71": {
         "type": "object",
         "properties": {
@@ -412,6 +473,47 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Wire_95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/connectors.get": {
+      "post": {
+        "summary": "connector",
+        "operationId": "POST:/v1/studio/sdk/connectors.get",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Wire_7be315ac587bc72247d0b72942b7067d644f15c0e04a4011f74ffec56d000203"
                 }
               }
             }

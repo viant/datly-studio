@@ -20,6 +20,7 @@ var linkedComponentHolders = []struct {
 	{"github.com/viant/datly-studio/studio/bff_sessions/reader", "SessionComponent"},
 	{"github.com/viant/datly-studio/studio/bff_sessions/writer", "SessionComponent"},
 	{"github.com/viant/datly-studio/studio/connectors/reader", "ConnectorComponent"},
+	{"github.com/viant/datly-studio/studio/connectors/get", "ConnectorComponent"},
 	{"github.com/viant/datly-studio/studio/connectors/writer", "ConnectorComponent"},
 	{"github.com/viant/datly-studio/studio/namespaces/reader", "NamespaceComponent"},
 	{"github.com/viant/datly-studio/studio/namespaces/writer", "NamespaceComponent"},

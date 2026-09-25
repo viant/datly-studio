@@ -28,6 +28,23 @@ export type Wire38Fcb57C86Eb44D564D0165Fe128Aec29A7664C7Bb39427502B08Df9Aa42649a
     offset: number;
 };
 
+export type Wire7Be315Ac587Bc72247D0B72942B7067D644F15C0E04A4011F74Ffec56D000203 = {
+    createdAt: string;
+    description?: string;
+    driver: string;
+    dsnConfigured: boolean;
+    etag: number;
+    lastTestErrorCode?: string;
+    lastTestStatus?: string;
+    lastTestedAt?: string | null;
+    name: string;
+    options?: unknown;
+    ownerId: string;
+    secretConfigured: boolean;
+    status: string;
+    updatedAt: string;
+};
+
 export type Wire7F614C3079E0F6Cdc356Ae6E7E44A326C9B77Ae75D9Bed109251680A65F23B71 = {
     createdAt: string;
     description?: string | null;
@@ -105,6 +122,24 @@ export type PostV1StudioSdkAclListResponses = {
 };
 
 export type PostV1StudioSdkAclListResponse = PostV1StudioSdkAclListResponses[keyof PostV1StudioSdkAclListResponses];
+
+export type PostV1StudioSdkConnectorsGetData = {
+    body: {
+        name: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/connectors.get';
+};
+
+export type PostV1StudioSdkConnectorsGetResponses = {
+    /**
+     * Success response
+     */
+    200: Wire7Be315Ac587Bc72247D0B72942B7067D644F15C0E04A4011F74Ffec56D000203;
+};
+
+export type PostV1StudioSdkConnectorsGetResponse = PostV1StudioSdkConnectorsGetResponses[keyof PostV1StudioSdkConnectorsGetResponses];
 
 export type PostV1StudioSdkConnectorsListData = {
     body?: {

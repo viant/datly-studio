@@ -556,7 +556,8 @@ local test target; do not silently replace it with Docker/MySQL.
   pass. A dedicated native `reports.get` reader now returns a single report
   DTO or 404 under the same typed authorization and generated-client path.
   `connectors.list` now uses a native reader with server-derived configuration
-  flags and no secret material in HTTP/MCP/OpenAPI responses.
+  flags and no secret material in HTTP/MCP/OpenAPI responses. `connectors.get`
+  now uses the same native contract for a single authorized connector or 404.
   The remaining SDK operations still use the generic dispatcher.
   See `docs/sdk-native-endpoints.md` for the remaining broader SDK migration.
   Focused

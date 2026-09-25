@@ -224,6 +224,7 @@ func TestEveryStaticDatlyComponentContract(t *testing.T) {
 	components := []staticComponent{
 		{"auth/reader/context.dql", "get"},
 		{"connectors/reader/connector.dql", "get"}, {"connectors/writer/connector.dql", "patch"},
+		{"connectors/get/connector.dql", "get"},
 		{"connectors/store_active/connector.dql", "get"},
 		{"connectors/store_preview_scoped/connector.dql", "get"},
 		{"connectors/store_catalog/connector.dql", "get"},

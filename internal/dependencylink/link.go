@@ -6,6 +6,7 @@ import (
 	_ "github.com/viant/datly-studio/studio/bff_sessions/reader"
 	_ "github.com/viant/datly-studio/studio/bff_sessions/writer"
 	_ "github.com/viant/datly-studio/studio/connectors/reader"
+	_ "github.com/viant/datly-studio/studio/connectors/get"
 	_ "github.com/viant/datly-studio/studio/connectors/writer"
 	_ "github.com/viant/datly-studio/studio/namespaces/reader"
 	_ "github.com/viant/datly-studio/studio/namespaces/writer"
