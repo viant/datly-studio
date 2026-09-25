@@ -596,6 +596,9 @@ local test target; do not silently replace it with Docker/MySQL.
   The dynamic host now rejects mutation settings and mutating HTTP methods
   before registering a published component. A failed PATCH-route reload left
   the prior GET reader and serving generation intact in a SQLite host test.
+  The Input catalog's nested tabs now have roving keyboard focus and a
+  labelled tab panel; local browser accessibility-tree/Right Arrow checks
+  passed. Spoken screen-reader announcements remain unverified.
   The remaining SDK operations still use the generic dispatcher.
   See `docs/sdk-native-endpoints.md` for the remaining broader SDK migration.
   Focused

@@ -308,6 +308,12 @@ scoped to inspected scenarios rather than treated as blanket Fable approval.
   horizontal page overflow. The graph's clipped view-count badge was removed
   at narrow container widths. Chrome was reset to 100% afterward. This does
   not satisfy the deployed zoom acceptance row or manual screen-reader check.
+- Local accessibility-tree and keyboard inspection of the Vendor Input catalog
+  confirmed a labelled Parameters/Predicates tab group, a panel labelled by
+  the selected tab, and focus moving with Right Arrow to the selected
+  Predicates tab. The previous tabs lacked arrow-key navigation and a labelled
+  tab panel. This checks structure and keyboard behavior; spoken VoiceOver
+  announcements and deployed screen-reader acceptance remain unverified.
 
 ## Completed window reviews
 

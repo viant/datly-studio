@@ -157,6 +157,14 @@ describe('ReaderBuilder graph-first authoring', () => {
     render(<ReaderBuilder api={api} report={{ id: 'vendor', title: 'Vendor Catalog', namespace: 'general', defaultConnectorName: 'main' }} onBack={vi.fn()} />);
     await screen.findByRole('heading', { name: 'Component graph' });
     await user.click(screen.getByRole('button', { name: /Input 205 inputs/ }));
+    const parameterTab = screen.getByRole('tab', { name: /Parameters 205/ });
+    parameterTab.focus();
+    await user.keyboard('{ArrowRight}');
+    const predicateTab = screen.getByRole('tab', { name: /Predicates 205/ });
+    await waitFor(() => expect(document.activeElement).toBe(predicateTab));
+    expect(screen.getByRole('tabpanel', { name: /Predicates 205/ }).id).toBe('reader-input-details-panel');
+    await user.keyboard('{ArrowLeft}');
+    await waitFor(() => expect(document.activeElement).toBe(parameterTab));
     expect(screen.getByText('1–25 of 205')).toBeTruthy();
     expect(screen.getAllByText('Input0').length).toBeGreaterThan(0);
     expect(screen.queryByRole('dialog', { name: /Inputs/ })).toBeNull();
