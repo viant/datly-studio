@@ -561,6 +561,9 @@ local test target; do not silently replace it with Docker/MySQL.
   The namespace catalog now uses a typed Datly authorization predicate and a
   native `namespaces.list` SDK route with page-shaped HTTP/MCP/OpenAPI output.
   `namespaces.get` now uses the same typed scope for one direct DTO or 404.
+  Version get/list SDK responses now redact structural DQL unless the subject
+  has `canUseDql`; the source-bearing static version reader requires that
+  permission until a native metadata-plus-redaction contract is authored.
   The remaining SDK operations still use the generic dispatcher.
   See `docs/sdk-native-endpoints.md` for the remaining broader SDK migration.
   Focused

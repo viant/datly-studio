@@ -1058,11 +1058,15 @@ func (t *Transport) getVersion(ctx context.Context, input, output any) error {
 	if err := decode(input, &in); err != nil {
 		return invalid(err)
 	}
+	capabilities, err := t.reportCapabilities(ctx, in.ReportID)
+	if err != nil {
+		return err
+	}
 	value, err := t.getVersionValue(ctx, in.ReportID, in.VersionNo)
 	if err != nil {
 		return err
 	}
-	return assign(output, value)
+	return assign(output, redactVersionDQL(value, capabilities.CanUseDQL))
 }
 
 type versionListRequest struct {
@@ -1085,12 +1089,19 @@ func (t *Transport) listVersions(ctx context.Context, input, output any) error {
 	if limit > 500 {
 		limit = 500
 	}
+	capabilities, err := t.reportCapabilities(ctx, in.ReportID)
+	if err != nil {
+		return err
+	}
 	items, err := t.readVersionCatalog(ctx, versionCatalogRequest{ReportID: in.ReportID,
 		State: in.Input.State, AuthoringMode: in.Input.AuthoringMode,
 		CompileStatus: in.Input.CompileStatus, CreatedBy: in.Input.CreatedBy,
 		Limit: limit, Offset: maxZero(in.Input.Offset)})
 	if err != nil {
 		return internal(err)
+	}
+	for index, item := range items {
+		items[index] = redactVersionDQL(item, capabilities.CanUseDQL)
 	}
 	page := &sdk.VersionPage{Items: items, Limit: limit, Offset: maxZero(in.Input.Offset)}
 	return assign(output, page)

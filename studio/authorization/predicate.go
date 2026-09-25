@@ -77,6 +77,7 @@ const (
 	permissionView    = "can_view"
 	permissionEdit    = "can_edit"
 	permissionPublish = "can_publish"
+	permissionDQL     = "can_use_dql"
 )
 
 // InputBinding is embedded structurally in every handler so Datly binds the
@@ -173,7 +174,7 @@ func (p *ReportPublish) Compute(ctx context.Context, _ any) (*xpredicate.Criteri
 	return reportCriteria(ctx, p.Input, "report.id", permissionPublish)
 }
 func (p *ReportVersionRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "v.report_id", permissionView)
+	return reportCriteria(ctx, p.Input, "v.report_id", permissionDQL)
 }
 func (p *ReportVersionEdit) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
 	return reportCriteria(ctx, p.Input, "report_version.report_id", permissionEdit)

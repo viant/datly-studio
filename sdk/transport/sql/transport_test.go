@@ -1490,12 +1490,28 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT 1 AS id) rows`
 	if inspection.DQL != "" || inspection.Version.AuthoredDQL != "" || inspection.Capabilities.CanUseDQL || !inspection.Capabilities.CanRun || inspection.Capabilities.CanEdit {
 		t.Fatalf("redacted inspection=%+v version=%+v", inspection, inspection.Version)
 	}
+	visible, err := client.Versions().Get(viewer, report.ID, version.VersionNo)
+	if err != nil || visible == nil || visible.AuthoredDQL != "" || visible.GeneratedDQL != "" {
+		t.Fatalf("viewer version source=%+v err=%v", visible, err)
+	}
+	page, err := client.Versions().List(viewer, report.ID, sdk.ListVersionsInput{})
+	if err != nil || page == nil || len(page.Items) != 1 || page.Items[0].AuthoredDQL != "" || page.Items[0].GeneratedDQL != "" {
+		t.Fatalf("viewer version catalog=%+v err=%v", page, err)
+	}
 	if _, err = db.Exec(`UPDATE report_acl SET can_use_dql=TRUE WHERE report_id=? AND subject_id='viewer'`, report.ID); err != nil {
 		t.Fatal(err)
 	}
 	inspection, err = client.Versions().Inspect(viewer, report.ID, version.VersionNo)
 	if err != nil || inspection.DQL == "" || !inspection.Capabilities.CanUseDQL {
 		t.Fatalf("DQL-enabled inspection=%+v err=%v", inspection, err)
+	}
+	visible, err = client.Versions().Get(viewer, report.ID, version.VersionNo)
+	if err != nil || visible == nil || visible.AuthoredDQL == "" || visible.GeneratedDQL == "" {
+		t.Fatalf("DQL-enabled version=%+v err=%v", visible, err)
+	}
+	page, err = client.Versions().List(viewer, report.ID, sdk.ListVersionsInput{})
+	if err != nil || page == nil || len(page.Items) != 1 || page.Items[0].AuthoredDQL == "" || page.Items[0].GeneratedDQL == "" {
+		t.Fatalf("DQL-enabled version catalog=%+v err=%v", page, err)
 	}
 }
 

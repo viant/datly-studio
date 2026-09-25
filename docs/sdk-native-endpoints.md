@@ -103,6 +103,13 @@ access, deleted-report grants, revocation, HTTP, OpenAPI and MCP.
 It returns a single authorized namespace or 404, with the same typed scope.
 HTTP, MCP, OpenAPI, missing/denied identity and revocation tests cover it.
 
+Before migrating `versions.get` and `versions.list`, the generic SDK now
+redacts authored/generated DQL for subjects without `canUseDql`. The older
+static version reader carries full source, so its typed `ReportVersionRead`
+predicate requires `can_use_dql`. Native version DTOs still need a reader
+contract that can return metadata to viewers while withholding structural
+DQL; exposing the current static reader at SDK paths would widen access.
+
 `reports.get` has a dedicated native reader at the SDK POST path. It requires
 body `id`, binds the same trusted auth context and typed catalog predicate,
 returns the report DTO directly, derives `ownerPackage` server-side, and

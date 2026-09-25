@@ -143,6 +143,10 @@ func TestReportVersionReaderMinimumContract(t *testing.T) {
 		if actual := versions(allowed); !reflect.DeepEqual(actual, []int{1, 2, 3}) {
 			t.Fatalf("ACL subject versions=%v", actual)
 		}
+		viewerOnly, invokeErr := invoke("/v1/studio/reports/r-alpha/versions?orderBy=version_no", "viewer-no-dql")
+		if invokeErr != nil || len(versions(viewerOnly)) != 0 {
+			t.Fatalf("viewer without DQL capability versions=%v err=%v", versions(viewerOnly), invokeErr)
+		}
 	})
 	input := Input{}
 	input.SetState("")
@@ -164,7 +168,8 @@ const reportVersionReaderDataset = `{"tables":[
     {"id":"r-beta","slug":"beta","title":"Beta","owner_id":"owner-b","status":"draft","default_connector_name":"main","component_scope":"reports/beta","component_name":"beta","created_at":"2026-09-17 09:00:00","updated_at":"2026-09-17 09:00:00"}
   ]},
   {"name":"report_acl","rows":[
-    {"report_id":"r-alpha","subject_type":"user","subject_id":"viewer","can_view":true}
+    {"report_id":"r-alpha","subject_type":"user","subject_id":"viewer","can_view":true,"can_edit":true,"can_use_dql":true},
+    {"report_id":"r-alpha","subject_type":"user","subject_id":"viewer-no-dql","can_view":true}
   ]},
   {"name":"report_versions","rows":[
     {"report_id":"r-alpha","version_no":1,"state":"published","authoring_mode":"sql","component_spec_json":{},"spec_format_version":"1","spec_hash":"alpha-1","type_manifest_json":{},"compile_status":"valid","datly_version":"v1","compiler_version":"v1","source_revision":1,"created_by":"alice","created_at":"2026-09-17 10:00:00"},
