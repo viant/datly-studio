@@ -1,4 +1,4 @@
-package store_insert
+package store_activate
 
 import (
 	time "time"
@@ -14,10 +14,10 @@ func (entity *StoredPublication) SetReportId(value string) {
 	}
 	entity.Has.ReportId = true
 }
-func (entity *StoredPublication) GetActiveVersionNo() int {
+func (entity *StoredPublication) GetActiveVersionNo() *int {
 	return entity.ActiveVersionNo
 }
-func (entity *StoredPublication) SetActiveVersionNo(value int) {
+func (entity *StoredPublication) SetActiveVersionNo(value *int) {
 	entity.ActiveVersionNo = value
 	if entity.Has == nil {
 		entity.Has = &StoredPublicationHas{}
@@ -34,10 +34,10 @@ func (entity *StoredPublication) SetDesiredVersionNo(value *int) {
 	}
 	entity.Has.DesiredVersionNo = true
 }
-func (entity *StoredPublication) GetDesiredGeneration() int64 {
+func (entity *StoredPublication) GetDesiredGeneration() *int64 {
 	return entity.DesiredGeneration
 }
-func (entity *StoredPublication) SetDesiredGeneration(value int64) {
+func (entity *StoredPublication) SetDesiredGeneration(value *int64) {
 	entity.DesiredGeneration = value
 	if entity.Has == nil {
 		entity.Has = &StoredPublicationHas{}
@@ -63,46 +63,6 @@ func (entity *StoredPublication) SetPublicationStatus(value string) {
 		entity.Has = &StoredPublicationHas{}
 	}
 	entity.Has.PublicationStatus = true
-}
-func (entity *StoredPublication) GetRuntimeRevision() *string {
-	return entity.RuntimeRevision
-}
-func (entity *StoredPublication) SetRuntimeRevision(value *string) {
-	entity.RuntimeRevision = value
-	if entity.Has == nil {
-		entity.Has = &StoredPublicationHas{}
-	}
-	entity.Has.RuntimeRevision = true
-}
-func (entity *StoredPublication) GetSpecHash() string {
-	return entity.SpecHash
-}
-func (entity *StoredPublication) SetSpecHash(value string) {
-	entity.SpecHash = value
-	if entity.Has == nil {
-		entity.Has = &StoredPublicationHas{}
-	}
-	entity.Has.SpecHash = true
-}
-func (entity *StoredPublication) GetPublishedBy() string {
-	return entity.PublishedBy
-}
-func (entity *StoredPublication) SetPublishedBy(value string) {
-	entity.PublishedBy = value
-	if entity.Has == nil {
-		entity.Has = &StoredPublicationHas{}
-	}
-	entity.Has.PublishedBy = true
-}
-func (entity *StoredPublication) GetPublishedAt() time.Time {
-	return entity.PublishedAt
-}
-func (entity *StoredPublication) SetPublishedAt(value time.Time) {
-	entity.PublishedAt = value
-	if entity.Has == nil {
-		entity.Has = &StoredPublicationHas{}
-	}
-	entity.Has.PublishedAt = true
 }
 func (entity *StoredPublication) GetActivatedAt() *time.Time {
 	return entity.ActivatedAt

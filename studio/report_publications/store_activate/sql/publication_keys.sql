@@ -1,0 +1,1 @@
+SELECT ReportId AS ReportId FROM `/`

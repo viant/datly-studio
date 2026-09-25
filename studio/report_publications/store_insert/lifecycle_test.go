@@ -25,7 +25,7 @@ func TestPublicationInsertRulesRequirePendingExactVersion(t *testing.T) {
 		func(value *StoredPublication) { other := 1; value.DesiredVersionNo = &other },
 		func(value *StoredPublication) { active := int64(7); value.ActiveGeneration = &active },
 		func(value *StoredPublication) { value.PublishedBy = "" },
-		func(value *StoredPublication) { value.FailureJson = []byte(`[]`) },
+		func(value *StoredPublication) { failure := `[]`; value.FailureJson = &failure },
 	} {
 		invalid := *row
 		mutate(&invalid)

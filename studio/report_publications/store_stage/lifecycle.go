@@ -39,7 +39,7 @@ func (hooks *PublicationStageRules) Init(_ context.Context, entity *StoredPublic
 	}
 	if hooks.Input.NextGeneration <= *entity.DesiredGeneration || entity.PublicationStatus != "pending" ||
 		entity.RuntimeRevision == nil || strings.TrimSpace(*entity.RuntimeRevision) == "" ||
-		strings.TrimSpace(entity.PublishedBy) == "" || len(entity.FailureJson) != 0 || strings.TrimSpace(entity.SpecHash) == "" {
+		strings.TrimSpace(entity.PublishedBy) == "" || entity.FailureJson != nil || strings.TrimSpace(entity.SpecHash) == "" {
 		return fmt.Errorf("publication restage requires a newer pending generation without failure evidence")
 	}
 	next := hooks.Input.NextGeneration

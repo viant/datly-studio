@@ -72,6 +72,10 @@ func TestPublicationInsertWriterJoinsGenerationTransaction(t *testing.T) {
 	if err != nil || !found || snapshot.status != "pending" || snapshot.desiredGeneration != 1 {
 		t.Fatalf("staged publication=%+v found=%v err=%v", snapshot, found, err)
 	}
+	var failure sql.NullString
+	if err := tx.QueryRowContext(ctx, `SELECT failure_json FROM report_publications WHERE report_id=?`, report.ID).Scan(&failure); err != nil || failure.Valid {
+		t.Fatalf("new publication failure_json=%v err=%v, want SQL NULL", failure, err)
+	}
 	if err := tx.Rollback(); err != nil {
 		t.Fatal(err)
 	}

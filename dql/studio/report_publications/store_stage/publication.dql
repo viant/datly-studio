@@ -1,7 +1,5 @@
 #package('studio/report_publications/store_stage')
 
-#import('encoding/json')
-
 #setting($_ = $input_type('Input'))
 #setting($_ = $output_type('Output'))
 #setting($_ = $case_format('lc'))
@@ -21,9 +19,9 @@ SELECT publication.*, type(publication, 'StoredPublication'),
        CAST(publication.spec_hash AS string),
        CAST(publication.published_by AS string),
        CAST(publication.published_at AS *time.Time),
-       CAST(publication.failure_json AS json.RawMessage),
+       CAST(publication.failure_json AS *string),
        tag(publication.report_id, 'sqlx:"report_id,primaryKey"'),
-       tag(publication.failure_json, 'sqlx:"failure_json,enc=JSON"'),
+       tag(publication.failure_json, 'sqlx:"failure_json,enc=RAW"'),
        lifecycle_type(publication, 'PublicationStageRules'),
        concurrency_token(publication.desired_generation)
 FROM (${embed:sql/read.sql}) publication

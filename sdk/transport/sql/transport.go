@@ -23,6 +23,7 @@ import (
 	connectorinsert "github.com/viant/datly-studio/studio/connectors/store_insert"
 	connectorstatus "github.com/viant/datly-studio/studio/connectors/store_status"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
+	publicationactivate "github.com/viant/datly-studio/studio/report_publications/store_activate"
 	publicationinsert "github.com/viant/datly-studio/studio/report_publications/store_insert"
 	publicationstage "github.com/viant/datly-studio/studio/report_publications/store_stage"
 	versionedit "github.com/viant/datly-studio/studio/report_versions/store_edit"
@@ -1932,14 +1933,17 @@ func (t *Transport) activatePublication(ctx context.Context, reportID string, ve
 	}
 	defer func() { _ = activated.Rollback() }()
 	var reportCount int
-	var staged int
-	if err = activated.QueryRowContext(ctx, `SELECT COUNT(1) FROM report_publications WHERE report_id=? AND publication_status='pending' AND desired_generation=? AND desired_version_no=?`, reportID, generation, versionNo).Scan(&staged); err != nil {
-		return internal(err)
-	}
-	if staged != 1 {
-		return &sdk.Error{Code: sdk.ErrorConflict, Message: "staged publication changed before activation"}
-	}
-	if _, err = activated.ExecContext(ctx, `UPDATE report_publications SET active_version_no=desired_version_no,active_generation=?,publication_status='active',activated_at=?,failure_json=NULL WHERE report_id=? AND publication_status='pending' AND desired_generation=?`, generation, now, reportID, generation); err != nil {
+	expected := generation
+	err = t.writePublicationActivation(ctx, activated, versionNo, generation, &publicationactivate.StoredPublication{
+		ReportId: reportID, DesiredGeneration: &expected, ActivatedAt: &now,
+		Has: &publicationactivate.StoredPublicationHas{ReportId: true,
+			DesiredGeneration: true, ActivatedAt: true},
+	})
+	if err != nil {
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) {
+			return &sdk.Error{Code: sdk.ErrorConflict, Message: "staged publication changed before activation"}
+		}
 		return internal(err)
 	}
 	if _, err = activated.ExecContext(ctx, `UPDATE report_publications SET active_generation=? WHERE report_id<>? AND publication_status='active'`, generation, reportID); err != nil {

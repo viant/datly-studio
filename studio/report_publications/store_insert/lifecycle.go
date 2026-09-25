@@ -27,7 +27,7 @@ func (hooks *PublicationInsertRules) Init(_ context.Context, entity *StoredPubli
 		entity.DesiredGeneration <= 0 || entity.ActiveGeneration != nil ||
 		entity.PublicationStatus != "pending" || entity.RuntimeRevision == nil ||
 		strings.TrimSpace(*entity.RuntimeRevision) == "" || strings.TrimSpace(entity.PublishedBy) == "" ||
-		entity.PublishedAt.IsZero() || entity.ActivatedAt != nil || len(entity.FailureJson) != 0 {
+		entity.PublishedAt.IsZero() || entity.ActivatedAt != nil || entity.FailureJson != nil {
 		return fmt.Errorf("new publication requires a pending exact-version stage without active generation")
 	}
 	if len(entity.SpecHash) != 64 {

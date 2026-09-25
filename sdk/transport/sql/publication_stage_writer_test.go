@@ -59,6 +59,9 @@ func TestPublicationRestageWriterMatchesGenerationAndRollsBack(t *testing.T) {
 		VALUES(?,?,?,1,1,'active','report:1:1',?,'owner',?,?)`, report.ID, version.VersionNo, version.VersionNo, version.SpecHash, now, now); err != nil {
 		t.Fatal(err)
 	}
+	if _, err := db.ExecContext(ctx, `UPDATE report_publications SET failure_json='[{"code":"previous"}]' WHERE report_id=?`, report.ID); err != nil {
+		t.Fatal(err)
+	}
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -83,6 +86,10 @@ func TestPublicationRestageWriterMatchesGenerationAndRollsBack(t *testing.T) {
 	if err != nil || !found || snapshot.desiredGeneration != 2 || snapshot.status != "pending" ||
 		!snapshot.activeGeneration.Valid || snapshot.activeGeneration.Int64 != 1 || snapshot.activeVersion != 1 {
 		t.Fatalf("staged snapshot=%+v found=%v err=%v", snapshot, found, err)
+	}
+	var failure sql.NullString
+	if err := tx.QueryRowContext(ctx, `SELECT failure_json FROM report_publications WHERE report_id=?`, report.ID).Scan(&failure); err != nil || failure.Valid {
+		t.Fatalf("restaged failure_json=%v err=%v, want SQL NULL", failure, err)
 	}
 	staleExpected := int64(1)
 	stale := *row

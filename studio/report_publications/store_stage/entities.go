@@ -1,7 +1,6 @@
 package store_stage
 
 import (
-	json "encoding/json"
 	time "time"
 )
 
@@ -85,10 +84,10 @@ func (entity *StoredPublication) SetPublishedAt(value *time.Time) {
 	}
 	entity.Has.PublishedAt = true
 }
-func (entity *StoredPublication) GetFailureJson() json.RawMessage {
+func (entity *StoredPublication) GetFailureJson() *string {
 	return entity.FailureJson
 }
-func (entity *StoredPublication) SetFailureJson(value json.RawMessage) {
+func (entity *StoredPublication) SetFailureJson(value *string) {
 	entity.FailureJson = value
 	if entity.Has == nil {
 		entity.Has = &StoredPublicationHas{}

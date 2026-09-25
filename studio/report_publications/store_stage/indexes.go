@@ -391,6 +391,55 @@ func (index PublicationHandlerCurrentPublicationGroupedByPublishedAt) Has(key ti
 	_, ok := index[key]
 	return ok
 }
+func PublicationHandlerCurrentPublicationIndexByFailureJsonKey(value *CurrentPublicationView) (string, bool) {
+	var zero string
+	if value == nil {
+		return zero, false
+	}
+	if value.FailureJson == nil {
+		return zero, false
+	}
+	return *value.FailureJson, true
+}
+
+type PublicationHandlerCurrentPublicationIndexedByFailureJson map[string]*CurrentPublicationView
+
+func (rows PublicationHandlerCurrentPublicationSlice) IndexByFailureJson() (PublicationHandlerCurrentPublicationIndexedByFailureJson, error) {
+	result := make(PublicationHandlerCurrentPublicationIndexedByFailureJson)
+	for _, row := range rows {
+		key, ok := PublicationHandlerCurrentPublicationIndexByFailureJsonKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index PublicationHandlerCurrentPublicationSlice.IndexByFailureJson")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index PublicationHandlerCurrentPublicationIndexedByFailureJson) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type PublicationHandlerCurrentPublicationGroupedByFailureJson map[string][]*CurrentPublicationView
+
+func (rows PublicationHandlerCurrentPublicationSlice) GroupByFailureJson() PublicationHandlerCurrentPublicationGroupedByFailureJson {
+	result := make(PublicationHandlerCurrentPublicationGroupedByFailureJson)
+	for _, row := range rows {
+		key, ok := PublicationHandlerCurrentPublicationIndexByFailureJsonKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index PublicationHandlerCurrentPublicationGroupedByFailureJson) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
 
 type PublicationHandlerReadIndexes struct {
 	CurrentPublication           PublicationHandlerCurrentPublicationSlice
