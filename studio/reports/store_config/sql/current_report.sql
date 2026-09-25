@@ -1,0 +1,5 @@
+SELECT r."id", r."namespace", r."slug", r."title", r."description", r."owner_id", r."status", r."default_connector_name", r."component_scope", r."component_name", r."current_draft_version", r."etag", r."updated_at", r."deleted_at" FROM (SELECT report."id", report."namespace", report."slug", report."title", report."description", report."owner_id", report."status", report."default_connector_name", report."component_scope", report."component_name", report."current_draft_version", report."etag", report."updated_at", report."deleted_at" FROM  (SELECT r.id, r.namespace, r.slug, r.title, r.description, r.owner_id,
+       r.status, r.default_connector_name, r.component_scope, r.component_name,
+       r.current_draft_version, r.etag, r.updated_at, r.deleted_at
+FROM reports r
+)  report) r WHERE $criteria.CompositeIn("r", $ReportKeys)

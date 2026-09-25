@@ -643,6 +643,11 @@ func TestTransportDerivesReportIdentityAndOwnerFromPrincipal(t *testing.T) {
 	if err != nil || updated.Namespace != namespace {
 		t.Fatalf("namespace update=%+v err=%v", updated, err)
 	}
+	_, err = client.Reports().Update(principal, report.ID, sdk.UpdateReportInput{Title: &namespace, ETag: report.ETag})
+	var stale *sdk.Error
+	if !errors.As(err, &stale) || stale.Code != sdk.ErrorConflict {
+		t.Fatalf("stale report update error=%v", err)
+	}
 }
 
 func TestTransportReusesDatlyReaderBuilderForVersionedDQL(t *testing.T) {

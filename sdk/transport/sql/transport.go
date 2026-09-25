@@ -21,6 +21,7 @@ import (
 	connectorinsert "github.com/viant/datly-studio/studio/connectors/store_insert"
 	connectorstatus "github.com/viant/datly-studio/studio/connectors/store_status"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
+	reportconfig "github.com/viant/datly-studio/studio/reports/store_config"
 	reportinsert "github.com/viant/datly-studio/studio/reports/store_insert"
 	"github.com/viant/datly/authoring/readerbuilder"
 	datlyreport "github.com/viant/datly/report"
@@ -901,11 +902,11 @@ func (t *Transport) updateReport(ctx context.Context, input, output any) error {
 			if connector.Status != "active" {
 				return invalid(errors.New("default connector must be active"))
 			}
-			var versioned bool
-			if queryErr := t.DB.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM report_versions WHERE report_id=?)`, in.ID).Scan(&versioned); queryErr != nil {
-				return internal(queryErr)
+			nextVersion, versionErr := t.nextVersionNo(ctx, in.ID)
+			if versionErr != nil {
+				return internal(versionErr)
 			}
-			if versioned {
+			if nextVersion > 1 {
 				return &sdk.Error{Code: sdk.ErrorConflict, Message: "default connector is part of the versioned reader contract; change it through Reader Builder and create a validated version"}
 			}
 			current.DefaultConnectorName = requested
@@ -924,13 +925,24 @@ func (t *Transport) updateReport(ctx context.Context, input, output any) error {
 	if err = t.requireActiveNamespace(ctx, current.OwnerID, current.Namespace); err != nil {
 		return err
 	}
-	res, err := t.DB.ExecContext(ctx, `UPDATE reports SET namespace=?,slug=?,title=?,description=?,status=?,default_connector_name=?,component_scope=?,component_name=?,current_draft_version=?,etag=etag+1,updated_at=? WHERE id=? AND etag=? AND deleted_at IS NULL`, current.Namespace, current.Slug, current.Title, nullable(current.Description), current.Status, current.DefaultConnectorName, current.ComponentScope, current.ComponentName, draft, t.now(), in.ID, in.Input.ETag)
+	now := t.now()
+	etag := in.Input.ETag
+	err = t.writeReportConfig(ctx, &reportconfig.StoredReport{
+		Id: in.ID, Namespace: current.Namespace, Slug: current.Slug, Title: current.Title,
+		Description: namespaceOptionalDescription(current.Description), OwnerId: current.OwnerID,
+		Status: current.Status, DefaultConnectorName: current.DefaultConnectorName,
+		ComponentScope: current.ComponentScope, ComponentName: current.ComponentName,
+		CurrentDraftVersion: draft, Etag: &etag, UpdatedAt: &now,
+		Has: &reportconfig.StoredReportHas{Id: true, Namespace: true, Slug: true, Title: true,
+			Description: true, OwnerId: true, Status: true, DefaultConnectorName: true,
+			ComponentScope: true, ComponentName: true, CurrentDraftVersion: true, Etag: true, UpdatedAt: true},
+	})
 	if err != nil {
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) {
+			return &sdk.Error{Code: sdk.ErrorConflict, Message: "report etag does not match"}
+		}
 		return internal(err)
-	}
-	n, _ := res.RowsAffected()
-	if n == 0 {
-		return &sdk.Error{Code: sdk.ErrorConflict, Message: "report etag does not match"}
 	}
 	return t.getReport(ctx, struct {
 		ID string `json:"id"`
