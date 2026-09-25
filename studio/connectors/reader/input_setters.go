@@ -1,8 +1,8 @@
 package reader
 
 import (
-	jwt "github.com/viant/scy/auth/jwt"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
+	jwt "github.com/viant/scy/auth/jwt"
 )
 
 func (input *Input) SetJwt(value *jwt.Claims) {

@@ -5,12 +5,4 @@ SELECT c.name, c.driver,
        c.created_at, c.updated_at
 FROM connectors c
 WHERE c.deleted_at IS NULL
-  AND (c.owner_id = $Auth.Auth.Subject OR EXISTS (
-      SELECT 1 FROM reports auth_report
-      JOIN report_acl auth_acl ON auth_acl.report_id = auth_report.id
-      WHERE auth_report.default_connector_name = c.name
-        AND auth_acl.subject_type = 'user'
-        AND auth_acl.subject_id = $Auth.Auth.Subject
-        AND auth_acl.can_view = TRUE
-  ))
 ${predicate.Builder().CombineAnd($predicate.FilterGroup(0, "OR"), $predicate.FilterGroup(1, "AND"), $predicate.FilterGroup(2, "AND")).Build("AND")}

@@ -2,6 +2,7 @@
 
 #import('github.com/viant/scy/auth/jwt')
 #import('studioauth','github.com/viant/datly-studio/studio/auth/reader')
+#import('studioauthorization','github.com/viant/datly-studio/studio/authorization')
 #import('encoding/json')
 
 #setting($_ = $input_type('Input'))
@@ -13,7 +14,7 @@
 #setting($_ = $sql_dest('connector', 'sql/connector.sql'))
 
 #define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
-#define($_ = $Auth<*studioauth.Output>(component/GET:/v1/studio/auth/context).Required())
+#define($_ = $Auth<*studioauth.Output>(component/GET:/v1/studio/auth/context).Required().WithPredicate(3, 'handler', 'studioauthorization.ConnectorRead'))
 #define($_ = $Name<string>(path/name).Required().WithURI('/{name}').WithPredicate(2, 'equal', 'c', 'name'))
 #define($_ = $Query<string>(query/q).Optional().WithPredicate(0, 'contains', 'c', 'name').WithPredicate(0, 'contains', 'c', 'description'))
 #define($_ = $Status<string>(query/status).Optional().WithPredicate(1, 'equal', 'c', 'status'))
@@ -38,3 +39,4 @@ FROM (
     ${embed:sql/read.sql}
 ) connectors
 WHERE 1=1
+${predicate.Builder().CombineAnd($predicate.FilterGroup(3, "AND")).Build("AND")}

@@ -113,6 +113,9 @@ func TestConnectorReaderMinimumContract(t *testing.T) {
 		return actual.(*Output), nil
 	}
 	names := func(output *Output) []string {
+		if output == nil {
+			return nil
+		}
 		result := make([]string, 0, len(output.Connectors))
 		for _, connector := range output.Connectors {
 			if connector != nil && connector.Name != nil {
@@ -151,6 +154,24 @@ func TestConnectorReaderMinimumContract(t *testing.T) {
 			}
 		})
 	}
+	t.Run("typed owner and delegated scope revokes immediately", func(t *testing.T) {
+		for _, check := range []struct {
+			subject string
+			want    []string
+		}{{"owner-a", []string{"alpha", "gamma"}}, {"owner-b", []string{"beta"}}, {"viewer", []string{"alpha", "beta", "gamma"}}} {
+			output, err := invoke("/v1/studio/connectors?orderBy=name", jwt.Bearer(t, check.subject))
+			if err != nil || !reflect.DeepEqual(names(output), check.want) {
+				t.Fatalf("%s connectors=%v err=%v", check.subject, names(output), err)
+			}
+		}
+		if _, err := db.ExecContext(ctx, "DELETE FROM report_acl WHERE report_id = ? AND subject_id = ?", "r-beta", "viewer"); err != nil {
+			t.Fatal(err)
+		}
+		output, err := invoke("/v1/studio/connectors?orderBy=name")
+		if err != nil || !reflect.DeepEqual(names(output), []string{"alpha", "gamma"}) {
+			t.Fatalf("revoked viewer connectors=%v err=%v", names(output), err)
+		}
+	})
 
 	t.Run("missing JWT is rejected before protected read", func(t *testing.T) {
 		if _, err := invoke("/v1/studio/connectors", ""); err == nil || response.ErrorStatusCode(err, 500) != 401 {

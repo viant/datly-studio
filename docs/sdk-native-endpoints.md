@@ -78,6 +78,11 @@ principal and scoped predicate. The public component keeps that behavior
 without exposing `subject` or `scoped` to the caller. The private
 `store_catalog` remains available for server-owned operations.
 
+The public connector reader now applies `ConnectorRead` as a typed Datly
+predicate over the compiled connector view. Its embedded query no longer
+contains owner/ACL SQL. Owner, delegated viewer, and revocation tests pass;
+its SDK path and DTO-shaped response have not yet been migrated.
+
 `reports.get` has a dedicated native reader at the SDK POST path. It requires
 body `id`, binds the same trusted auth context and typed catalog predicate,
 returns the report DTO directly, derives `ownerPackage` server-side, and
