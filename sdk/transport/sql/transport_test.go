@@ -590,6 +590,11 @@ func TestTransportRequiresNewProbeAfterConnectionConfigurationChange(t *testing.
 	if err != nil || updated.Status != "draft" || updated.LastTestStatus != "" || updated.LastTestedAt != nil {
 		t.Fatalf("connection update=%+v err=%v", updated, err)
 	}
+	_, err = client.Connectors().Update(owner, updated.Name, sdk.UpdateConnectorInput{Description: &description, ETag: connector.ETag})
+	var sdkErr *sdk.Error
+	if !errors.As(err, &sdkErr) || sdkErr.Code != sdk.ErrorConflict {
+		t.Fatalf("stale connector configuration update error=%v", err)
+	}
 }
 
 func TestTransportDerivesReportIdentityAndOwnerFromPrincipal(t *testing.T) {

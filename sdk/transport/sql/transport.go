@@ -4,7 +4,6 @@
 package sqltransport
 
 import (
-	"bytes"
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
@@ -18,6 +17,7 @@ import (
 	"time"
 
 	"github.com/viant/datly-studio/sdk"
+	connectorconfig "github.com/viant/datly-studio/studio/connectors/store_config"
 	connectorinsert "github.com/viant/datly-studio/studio/connectors/store_insert"
 	connectorstatus "github.com/viant/datly-studio/studio/connectors/store_status"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
@@ -494,17 +494,13 @@ func (t *Transport) updateConnector(ctx context.Context, input, output any) erro
 	if err != nil {
 		return err
 	}
-	connectionChanged := false
 	if in.Input.Driver != nil {
-		connectionChanged = connectionChanged || *in.Input.Driver != current.Driver
 		current.Driver = *in.Input.Driver
 	}
 	if in.Input.DSNTemplate != nil {
-		connectionChanged = connectionChanged || *in.Input.DSNTemplate != current.DSNTemplate
 		current.DSNTemplate = *in.Input.DSNTemplate
 	}
 	if in.Input.SecretRef != nil {
-		connectionChanged = connectionChanged || *in.Input.SecretRef != current.SecretRef
 		current.SecretRef = *in.Input.SecretRef
 	}
 	if in.Input.Description != nil {
@@ -512,21 +508,23 @@ func (t *Transport) updateConnector(ctx context.Context, input, output any) erro
 	}
 	options := current.Options
 	if in.Input.Options != nil {
-		connectionChanged = connectionChanged || !bytes.Equal(*in.Input.Options, options)
 		options = *in.Input.Options
 	}
-	status := current.Status
-	if connectionChanged {
-		status = "draft"
-	}
 	now := t.now()
-	result, err := t.DB.ExecContext(ctx, `UPDATE connectors SET driver=?, dsn_template=?, secret_ref=?, description=?, options_json=?, status=?, last_test_status=CASE WHEN ? THEN NULL ELSE last_test_status END, last_test_error_code=CASE WHEN ? THEN NULL ELSE last_test_error_code END, last_tested_at=CASE WHEN ? THEN NULL ELSE last_tested_at END, etag=etag+1, updated_at=? WHERE name=? AND etag=? AND deleted_at IS NULL`, current.Driver, nullable(current.DSNTemplate), nullable(current.SecretRef), nullable(current.Description), string(options), status, connectionChanged, connectionChanged, connectionChanged, now, in.Name, in.Input.ETag)
+	etag := in.Input.ETag
+	err = t.writeConnectorConfig(ctx, &connectorconfig.StoredConnector{
+		Name: in.Name, Driver: current.Driver, DsnTemplate: namespaceOptionalDescription(current.DSNTemplate),
+		SecretRef: namespaceOptionalDescription(current.SecretRef), Description: namespaceOptionalDescription(current.Description),
+		OptionsJson: options, Etag: &etag, UpdatedAt: &now,
+		Has: &connectorconfig.StoredConnectorHas{Name: true, Driver: true, DsnTemplate: true,
+			SecretRef: true, Description: true, OptionsJson: true, Etag: true, UpdatedAt: true},
+	})
 	if err != nil {
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) {
+			return &sdk.Error{Code: sdk.ErrorConflict, Message: "connector etag does not match"}
+		}
 		return internal(err)
-	}
-	affected, _ := result.RowsAffected()
-	if affected == 0 {
-		return &sdk.Error{Code: sdk.ErrorConflict, Message: "connector etag does not match"}
 	}
 	return t.getConnector(ctx, struct {
 		Name string `json:"name"`
