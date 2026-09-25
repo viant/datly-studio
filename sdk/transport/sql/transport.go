@@ -12,6 +12,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -967,24 +968,6 @@ func (t *Transport) getReportValue(ctx context.Context, id string) (*sdk.Report,
 	return items[0], nil
 }
 
-// connectorReadScope grants access to owned connectors and connectors used by
-// a report for which the principal has view permission.
-func connectorReadScope(ctx context.Context, query string, args []any) (string, []any) {
-	principal, ok := sdk.PrincipalFromContext(ctx)
-	if !ok {
-		return query, args
-	}
-	query += ` AND (owner_id = ? OR EXISTS (
-SELECT 1 FROM reports studio_sdk_report
-JOIN report_acl studio_sdk_acl ON studio_sdk_acl.report_id = studio_sdk_report.id
-WHERE studio_sdk_report.default_connector_name = connectors.name
-  AND studio_sdk_report.deleted_at IS NULL
-  AND studio_sdk_acl.subject_type = 'user'
-  AND studio_sdk_acl.subject_id = ?
-  AND studio_sdk_acl.can_view = TRUE))`
-	return query, append(args, principal.Subject, principal.Subject)
-}
-
 type versionCreateRequest struct {
 	ReportID string                 `json:"reportId"`
 	Input    sdk.CreateVersionInput `json:"input"`
@@ -1683,25 +1666,22 @@ func (t *Transport) runReaderBuilder(ctx context.Context, reportID string, versi
 // current Studio principal. Reader Builder validates authored connector names
 // against this catalog; the report default is not a special second registry.
 func (t *Transport) availableConnectorNames(ctx context.Context) ([]string, error) {
-	query := `SELECT name FROM connectors WHERE deleted_at IS NULL AND status = 'active'`
-	query, args := connectorReadScope(ctx, query, nil)
-	query += ` ORDER BY name`
-	rows, err := t.DB.QueryContext(ctx, query, args...)
-	if err != nil {
-		return nil, internal(err)
-	}
-	defer rows.Close()
 	var result []string
-	for rows.Next() {
-		var name string
-		if err = rows.Scan(&name); err != nil {
+	const pageSize = 500
+	for offset := 0; ; {
+		items, err := t.readConnectorCatalog(ctx, connectorCatalogRequest{Status: "active", Limit: pageSize, Offset: offset})
+		if err != nil {
 			return nil, internal(err)
 		}
-		result = append(result, name)
+		for _, item := range items {
+			result = append(result, item.Name)
+		}
+		if len(items) < pageSize {
+			break
+		}
+		offset += len(items)
 	}
-	if err = rows.Err(); err != nil {
-		return nil, internal(err)
-	}
+	sort.Strings(result)
 	return result, nil
 }
 
