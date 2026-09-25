@@ -59,6 +59,37 @@ func (t *Transport) activateVersionState(ctx context.Context, tx *sql.Tx, report
 	return nil
 }
 
+func (t *Transport) unpublishVersionState(ctx context.Context, tx *sql.Tx, reportID string, activeVersionNo int) error {
+	if activeVersionNo <= 0 {
+		return &sdk.Error{Code: sdk.ErrorConflict, Message: "active version is missing during unpublish"}
+	}
+	const pageSize = 500
+	var published []*sdk.ReportVersion
+	for offset := 0; ; {
+		page, err := t.readVersionCatalogTx(ctx, tx, versionCatalogRequest{ReportID: reportID, State: "published", Limit: pageSize, Offset: offset})
+		if err != nil {
+			return internal(err)
+		}
+		published = append(published, page...)
+		if len(page) < pageSize {
+			break
+		}
+		offset += len(page)
+	}
+	if len(published) == 0 {
+		return nil
+	}
+	rows := make([]*stored.StoredVersion, 0, len(published))
+	for _, version := range published {
+		rows = append(rows, &stored.StoredVersion{ReportId: reportID, VersionNo: version.VersionNo, State: "published",
+			Has: &stored.StoredVersionHas{ReportId: true, VersionNo: true, State: true}})
+	}
+	if err := t.writeVersionState(ctx, tx, "unpublish", activeVersionNo, rows); err != nil {
+		return versionStateWriteError(err)
+	}
+	return nil
+}
+
 func versionStateWriteError(err error) error {
 	var conflict *xhandler.Conflict
 	if errors.As(err, &conflict) {

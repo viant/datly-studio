@@ -12,6 +12,7 @@ import (
 	"github.com/viant/datly-studio/sdk"
 	activated "github.com/viant/datly-studio/studio/report_publications/store_activate"
 	repoint "github.com/viant/datly-studio/studio/report_publications/store_repoint"
+	publicationstage "github.com/viant/datly-studio/studio/report_publications/store_stage"
 	xhandler "github.com/viant/xdatly/handler"
 	_ "modernc.org/sqlite"
 )
@@ -166,5 +167,66 @@ func TestOtherActivePublicationsRepointAndRollbackTogether(t *testing.T) {
 	}
 	if err := db.QueryRowContext(ctx, `SELECT status,retired_at FROM runtime_generations WHERE generation_no=1`).Scan(&oldStatus, &retiredAt); err != nil || oldStatus != "retired" || !retiredAt.Valid {
 		t.Fatalf("old generation status=%q retired=%v err=%v", oldStatus, retiredAt, err)
+	}
+	if err := transport.insertBuildingGeneration(owner, nil, 3, "unpublish:current:3", "owner", now); err != nil {
+		t.Fatal(err)
+	}
+	stageTx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	expectedStage := int64(2)
+	if err := transport.writePublicationStage(owner, stageTx, "unpublish", 3, &publicationstage.StoredPublication{
+		ReportId: "current", DesiredGeneration: &expectedStage, PublicationStatus: "unpublishing",
+		Has: &publicationstage.StoredPublicationHas{ReportId: true, DesiredVersionNo: true,
+			DesiredGeneration: true, PublicationStatus: true, FailureJson: true},
+	}); err != nil {
+		stageTx.Rollback()
+		t.Fatal(err)
+	}
+	if err := stageTx.Commit(); err != nil {
+		t.Fatal(err)
+	}
+	unpublishGeneration := int64(3)
+	unpublishEvent := publicationEventRecord{ReportID: "current", OwnerID: "owner", Operation: "unpublish",
+		VersionNo: &versionNo, GenerationNo: &unpublishGeneration, Status: "succeeded",
+		RequestedBy: "owner", OccurredAt: now}
+	if _, err := db.Exec(`CREATE TRIGGER reject_report_disable BEFORE UPDATE OF status ON reports
+		WHEN OLD.id='current' AND NEW.status='disabled'
+		BEGIN SELECT RAISE(ABORT,'report disable failed'); END`); err != nil {
+		t.Fatal(err)
+	}
+	if err := transport.activateUnpublish(owner, "current", unpublishGeneration, now, unpublishEvent); err == nil {
+		t.Fatal("report disable failure must abort unpublish activation")
+	}
+	staged, found, err := transport.publicationSnapshot(owner, nil, "current")
+	if err != nil || !found || staged.status != "unpublishing" || staged.desiredGeneration != 3 {
+		t.Fatalf("unpublish rollback publication=%+v found=%v err=%v", staged, found, err)
+	}
+	if err := db.QueryRowContext(ctx, `SELECT status FROM runtime_generations WHERE generation_no=3`).Scan(&pendingStatus); err != nil || pendingStatus != "building" {
+		t.Fatalf("unpublish rollback generation=%q err=%v", pendingStatus, err)
+	}
+	if _, err := db.Exec(`DROP TRIGGER reject_report_disable`); err != nil {
+		t.Fatal(err)
+	}
+	if err := transport.activateUnpublish(owner, "current", unpublishGeneration, now, unpublishEvent); err != nil {
+		t.Fatal(err)
+	}
+	if _, found, err := transport.publicationSnapshot(owner, nil, "current"); err != nil || found {
+		t.Fatalf("unpublished current still present=%v err=%v", found, err)
+	}
+	other, found, err = transport.publicationSnapshot(owner, nil, "other")
+	if err != nil || !found || other.status != "active" || other.activeGeneration.Int64 != 3 {
+		t.Fatalf("other after unpublish=%+v found=%v err=%v", other, found, err)
+	}
+	if err := db.QueryRowContext(ctx, `SELECT report_count,status FROM runtime_generations WHERE generation_no=3`).Scan(&reportCount, &newStatus); err != nil || reportCount != 1 || newStatus != "active" {
+		t.Fatalf("unpublish generation count=%d status=%q err=%v", reportCount, newStatus, err)
+	}
+	if err := db.QueryRowContext(ctx, `SELECT status,etag FROM reports WHERE id='current'`).Scan(&currentStatus, &currentETag); err != nil || currentStatus != "disabled" || currentETag != 3 {
+		t.Fatalf("unpublished report status=%q etag=%d err=%v", currentStatus, currentETag, err)
+	}
+	var versionState string
+	if err := db.QueryRowContext(ctx, `SELECT state FROM report_versions WHERE report_id='current' AND version_no=1`).Scan(&versionState); err != nil || versionState != "superseded" {
+		t.Fatalf("unpublished version state=%q err=%v", versionState, err)
 	}
 }

@@ -1,0 +1,21 @@
+#package('studio/report_publications/store_delete')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/publication-store/delete', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('publication', 'sql/read.sql'))
+
+#define($_ = $Publications<[]*StoredPublication>(body/data))
+
+SELECT publication.*, type(publication, 'StoredPublication'),
+       CAST(publication.report_id AS string),
+       CAST(publication.desired_generation AS *int64),
+       CAST(publication.publication_status AS string),
+       CAST(publication.should_delete AS bool),
+       tag(publication.report_id, 'sqlx:"report_id,primaryKey"'),
+       lifecycle_type(publication, 'PublicationDeleteRules'),
+       delete_marker(publication.should_delete),
+       concurrency_token(publication.desired_generation)
+FROM (${embed:sql/read.sql}) publication

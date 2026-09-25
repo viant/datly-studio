@@ -10,6 +10,7 @@ import (
 
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
+	publicationdelete "github.com/viant/datly-studio/studio/report_publications/store_delete"
 	stored "github.com/viant/datly-studio/studio/report_publications/store_stage"
 	xhandler "github.com/viant/xdatly/handler"
 	_ "modernc.org/sqlite"
@@ -131,6 +132,22 @@ func TestPublicationRestageWriterMatchesGenerationAndRollsBack(t *testing.T) {
 	if err := unpublishTx.QueryRowContext(ctx, `SELECT desired_version_no,desired_generation,publication_status,failure_json FROM report_publications WHERE report_id=?`, report.ID).
 		Scan(&desiredVersion, &desiredGeneration, &stageStatus, &failure); err != nil || desiredVersion.Valid || desiredGeneration != 2 || stageStatus != "unpublishing" || failure.Valid {
 		t.Fatalf("unpublish stage version=%v generation=%d status=%q failure=%v err=%v", desiredVersion, desiredGeneration, stageStatus, failure, err)
+	}
+	staleGeneration := int64(1)
+	deleteRow := func(generation *int64) *publicationdelete.StoredPublication {
+		return &publicationdelete.StoredPublication{ReportId: report.ID, DesiredGeneration: generation, ShouldDelete: true,
+			Has: &publicationdelete.StoredPublicationHas{ReportId: true, DesiredGeneration: true, ShouldDelete: true}}
+	}
+	var deleteConflict *xhandler.Conflict
+	if err := transport.writePublicationDelete(owner, unpublishTx, deleteRow(&staleGeneration)); !errors.As(err, &deleteConflict) {
+		t.Fatalf("stale unpublish delete error=%v", err)
+	}
+	if err := transport.writePublicationDelete(owner, unpublishTx, deleteRow(&desiredGeneration)); err != nil {
+		t.Fatalf("matched unpublish delete: %v", err)
+	}
+	var remaining int
+	if err := unpublishTx.QueryRowContext(ctx, `SELECT COUNT(1) FROM report_publications WHERE report_id=?`, report.ID).Scan(&remaining); err != nil || remaining != 0 {
+		t.Fatalf("deleted publication remaining=%d err=%v", remaining, err)
 	}
 	if err := unpublishTx.Rollback(); err != nil {
 		t.Fatal(err)

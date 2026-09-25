@@ -24,15 +24,14 @@ import (
 	connectorstatus "github.com/viant/datly-studio/studio/connectors/store_status"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
 	publicationactivate "github.com/viant/datly-studio/studio/report_publications/store_activate"
+	publicationdelete "github.com/viant/datly-studio/studio/report_publications/store_delete"
 	publicationinsert "github.com/viant/datly-studio/studio/report_publications/store_insert"
-	publicationrepoint "github.com/viant/datly-studio/studio/report_publications/store_repoint"
 	publicationstage "github.com/viant/datly-studio/studio/report_publications/store_stage"
 	versionedit "github.com/viant/datly-studio/studio/report_versions/store_edit"
 	versioninsert "github.com/viant/datly-studio/studio/report_versions/store_insert"
 	versionvalidation "github.com/viant/datly-studio/studio/report_versions/store_validation"
 	reportconfig "github.com/viant/datly-studio/studio/reports/store_config"
 	reportinsert "github.com/viant/datly-studio/studio/reports/store_insert"
-	generationstate "github.com/viant/datly-studio/studio/runtime_generations/store_state"
 	"github.com/viant/datly/authoring/readerbuilder"
 	datlyreport "github.com/viant/datly/report"
 	"github.com/viant/datly/spec"
@@ -1947,87 +1946,18 @@ func (t *Transport) activatePublication(ctx context.Context, reportID string, ve
 		}
 		return internal(err)
 	}
-	others, err := t.readOtherActivePublications(ctx, activated, reportID)
+	reportCount, err := t.repointActivePublications(ctx, activated, reportID, generation)
 	if err != nil {
-		return internal(err)
+		return err
 	}
-	if len(others) > 0 {
-		rows := make([]*publicationrepoint.StoredPublication, 0, len(others))
-		for _, other := range others {
-			previousGeneration := other.ActiveGeneration
-			rows = append(rows, &publicationrepoint.StoredPublication{ReportId: other.ReportId,
-				ActiveGeneration: previousGeneration,
-				Has:              &publicationrepoint.StoredPublicationHas{ReportId: true, ActiveGeneration: true}})
-		}
-		if err = t.writePublicationRepoint(ctx, activated, reportID, generation, rows); err != nil {
-			var conflict *xhandler.Conflict
-			if errors.As(err, &conflict) {
-				return &sdk.Error{Code: sdk.ErrorConflict, Message: "other active publication changed before activation"}
-			}
-			return internal(err)
-		}
-	}
-	reportCount := len(others) + 1
-	err = t.writeGenerationState(ctx, activated, "activate", generation, []*generationstate.StoredGeneration{{
-		GenerationNo: generation, Status: "building", ReportCount: &reportCount, ActivatedAt: &now,
-		Has: &generationstate.StoredGenerationHas{GenerationNo: true, Status: true,
-			ReportCount: true, ActivatedAt: true},
-	}})
-	if err != nil {
-		var conflict *xhandler.Conflict
-		if errors.As(err, &conflict) {
-			return &sdk.Error{Code: sdk.ErrorConflict, Message: "building generation changed before activation"}
-		}
-		return internal(err)
-	}
-	retired, err := t.readOtherActiveGenerations(ctx, activated, generation)
-	if err != nil {
-		return internal(err)
-	}
-	if len(retired) > 0 {
-		rows := make([]*generationstate.StoredGeneration, 0, len(retired))
-		for _, other := range retired {
-			rows = append(rows, &generationstate.StoredGeneration{GenerationNo: other.GenerationNo,
-				Status: "active", RetiredAt: &now,
-				Has: &generationstate.StoredGenerationHas{GenerationNo: true, Status: true, RetiredAt: true}})
-		}
-		if err = t.writeGenerationState(ctx, activated, "retire", generation, rows); err != nil {
-			var conflict *xhandler.Conflict
-			if errors.As(err, &conflict) {
-				return &sdk.Error{Code: sdk.ErrorConflict, Message: "other active generation changed before retirement"}
-			}
-			return internal(err)
-		}
+	if err = t.activateGenerationState(ctx, activated, generation, reportCount+1, now); err != nil {
+		return err
 	}
 	if err = t.activateVersionState(ctx, activated, reportID, versionNo, now); err != nil {
 		return err
 	}
-	reports, err := t.readReportCatalogTx(ctx, activated, reportCatalogRequest{ID: reportID, Limit: 2, Unscoped: true})
-	if err != nil {
-		return internal(err)
-	}
-	if len(reports) != 1 {
-		return &sdk.Error{Code: sdk.ErrorConflict, Message: "report is absent or deleted during activation"}
-	}
-	report := reports[0]
-	etag := report.ETag
-	err = t.writeReportConfig(ctx, activated, &reportconfig.StoredReport{
-		Id: report.ID, Namespace: report.Namespace, Slug: report.Slug, Title: report.Title,
-		Description: namespaceOptionalDescription(report.Description), OwnerId: report.OwnerID,
-		Status: "active", DefaultConnectorName: report.DefaultConnectorName,
-		ComponentScope: report.ComponentScope, ComponentName: report.ComponentName,
-		CurrentDraftVersion: report.CurrentDraftVersion, Etag: &etag, UpdatedAt: &now,
-		Has: &reportconfig.StoredReportHas{Id: true, Namespace: true, Slug: true,
-			Title: true, Description: true, OwnerId: true, Status: true,
-			DefaultConnectorName: true, ComponentScope: true, ComponentName: true,
-			CurrentDraftVersion: true, Etag: true, UpdatedAt: true},
-	})
-	if err != nil {
-		var conflict *xhandler.Conflict
-		if errors.As(err, &conflict) {
-			return &sdk.Error{Code: sdk.ErrorConflict, Message: "report changed before activation"}
-		}
-		return internal(err)
+	if err = t.updateReportStatusTx(ctx, activated, reportID, "active", now); err != nil {
+		return err
 	}
 	if err = t.appendPublicationEventTx(ctx, activated, event); err != nil {
 		return internal(err)
@@ -2224,34 +2154,33 @@ func (t *Transport) activateUnpublish(ctx context.Context, reportID string, gene
 		return internal(err)
 	}
 	defer func() { _ = tx.Rollback() }()
-	var staged int
-	if err = tx.QueryRowContext(ctx, `SELECT COUNT(1) FROM report_publications WHERE report_id=? AND publication_status='unpublishing' AND desired_generation=?`, reportID, generation).Scan(&staged); err != nil {
+	expected := generation
+	err = t.writePublicationDelete(ctx, tx, &publicationdelete.StoredPublication{
+		ReportId: reportID, DesiredGeneration: &expected, ShouldDelete: true,
+		Has: &publicationdelete.StoredPublicationHas{ReportId: true, DesiredGeneration: true, ShouldDelete: true},
+	})
+	if err != nil {
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) {
+			return &sdk.Error{Code: sdk.ErrorConflict, Message: "staged unpublish changed before activation"}
+		}
 		return internal(err)
 	}
-	if staged != 1 {
-		return &sdk.Error{Code: sdk.ErrorConflict, Message: "staged unpublish changed before activation"}
+	reportCount, err := t.repointActivePublications(ctx, tx, reportID, generation)
+	if err != nil {
+		return err
 	}
-	if _, err = tx.ExecContext(ctx, `DELETE FROM report_publications WHERE report_id=?`, reportID); err != nil {
-		return internal(err)
+	if err = t.activateGenerationState(ctx, tx, generation, reportCount, now); err != nil {
+		return err
 	}
-	if _, err = tx.ExecContext(ctx, `UPDATE report_publications SET active_generation=? WHERE publication_status='active'`, generation); err != nil {
-		return internal(err)
+	if event.VersionNo == nil {
+		return &sdk.Error{Code: sdk.ErrorConflict, Message: "active version is missing during unpublish"}
 	}
-	var reportCount int
-	if err = tx.QueryRowContext(ctx, `SELECT COUNT(1) FROM report_publications WHERE publication_status='active'`).Scan(&reportCount); err != nil {
-		return internal(err)
+	if err = t.unpublishVersionState(ctx, tx, reportID, *event.VersionNo); err != nil {
+		return err
 	}
-	if _, err = tx.ExecContext(ctx, `UPDATE runtime_generations SET status='active',report_count=?,activated_at=? WHERE generation_no=? AND status='building'`, reportCount, now, generation); err != nil {
-		return internal(err)
-	}
-	if _, err = tx.ExecContext(ctx, `UPDATE runtime_generations SET status='retired',retired_at=? WHERE status='active' AND generation_no<>?`, now, generation); err != nil {
-		return internal(err)
-	}
-	if _, err = tx.ExecContext(ctx, `UPDATE report_versions SET state='superseded' WHERE report_id=? AND state='published'`, reportID); err != nil {
-		return internal(err)
-	}
-	if _, err = tx.ExecContext(ctx, `UPDATE reports SET status='disabled',updated_at=? WHERE id=?`, now, reportID); err != nil {
-		return internal(err)
+	if err = t.updateReportStatusTx(ctx, tx, reportID, "disabled", now); err != nil {
+		return err
 	}
 	if err = t.appendPublicationEventTx(ctx, tx, event); err != nil {
 		return internal(err)
