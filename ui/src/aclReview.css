@@ -10,6 +10,8 @@
 .acl-review-checklist h2 { font-size: 18px; margin: 0 0 12px; }
 .acl-review-checklist .bp6-checkbox { margin-block: 16px; line-height: 1.5; }
 .acl-review-frame-content { padding: 20px; }
+.acl-review-live { max-width: 1200px; }
+.acl-review-live .studio-resource-access { margin-top: 20px; }
 .acl-review-synthetic { color: #475467; font-size: 12px; margin: 0 0 12px; }
 .acl-review-window :focus-visible { outline: 2px solid #215db0; outline-offset: 3px; }
 @media (max-width: 950px) { .acl-review-layout { grid-template-columns: minmax(0, 1fr); } .acl-review-checklist { max-width: 640px; } }

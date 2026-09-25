@@ -2,7 +2,15 @@ import React, { useMemo, useState } from 'react';
 import { Button, Checkbox, FormGroup, HTMLSelect, Tag } from '@blueprintjs/core';
 import { ResourceAccessEditor } from './ResourceAccessEditor.jsx';
 import { createReviewFixture, reviewScenarios } from './aclReviewFixture.js';
+import { defaultActionsByKind } from './resourceAccessActions.js';
 import './aclReview.css';
+
+export function LiveACLReview({ api, resource }) {
+  return <main className="acl-review-window acl-review-live">
+    <header className="acl-review-heading"><div><h1>Permissions review</h1><p>Current policy for this resource under your authenticated Studio session.</p></div><Tag minimal intent="primary">Live · read-only</Tag></header>
+    <ResourceAccessEditor api={api} resource={resource} actions={defaultActionsByKind[resource.kind]} readOnly/>
+  </main>;
+}
 
 export function ACLReviewFrame({ scenario, kind }) {
   const fixture = useMemo(() => createReviewFixture(scenario, kind), [scenario, kind]);

@@ -2,8 +2,10 @@ import React from 'react';
 import { test, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ACLReviewWindow, ACLReviewFrame } from './ACLReviewWindow.jsx';
+import { ACLReviewWindow, ACLReviewFrame, LiveACLReview } from './ACLReviewWindow.jsx';
 import { createReviewFixture } from './aclReviewFixture.js';
+import { liveACLReviewResource } from './aclReviewURL.js';
+import { StudioAPI } from './studioApi.js';
 
 test('switches viewport and scenario without contacting a live service', async () => {
   const user = userEvent.setup();
@@ -49,4 +51,32 @@ test('synthetic save and conflict never issue HTTP requests', async () => {
     await expect(createReviewFixture('conflict').api.replaceResourceAccess(initial)).rejects.toMatchObject({ code: 'conflict' });
     expect(fetcher).not.toHaveBeenCalled();
   } finally { fetcher.mockRestore(); }
+});
+
+test('live review uses current SDK policy read-only without fixture or writes', async () => {
+	const resource = { kind: 'skill', id: 'deploy', tenant: 'one', version: '2' };
+	const fetcher = vi.fn(async (url) => ({ ok: true, status: 200, json: async () => url.endsWith('access.get')
+		? { resource, revision: 4, policies: { retrieve: { mode: 'public' } } }
+		: { canManage: true, choices: {} } }));
+	const api = new StudioAPI({ mode: 'authenticated', apiBaseURL: 'https://studio.example.com' }, { fetcher });
+	render(<LiveACLReview api={api} resource={resource}/>);
+	expect(await screen.findByText('Policy revision 4')).toBeTruthy();
+	expect(fetcher.mock.calls.map(([url]) => url)).toEqual([
+		'https://studio.example.com/v1/studio/sdk/access.get', 'https://studio.example.com/v1/studio/sdk/access.context',
+	]);
+	for (const [, request] of fetcher.mock.calls) {
+		expect(request.credentials).toBe('include');
+		expect(request.headers.Authorization).toBeUndefined();
+		expect(JSON.parse(request.body)).toEqual(resource);
+	}
+	expect(screen.getByText('Live · read-only')).toBeTruthy();
+	expect(screen.getByLabelText('Access mode').disabled).toBe(true);
+	expect(screen.getByRole('button', { name: 'Review changes' }).disabled).toBe(true);
+	expect(fetcher).toHaveBeenCalledTimes(2);
+});
+
+test('live review URL requires a declared resource contract and exact identity', () => {
+	expect(liveACLReviewResource(new URLSearchParams('mode=live&kind=report&id=ops&tenant=one&version=3'))).toEqual({ kind: 'report', id: 'ops', tenant: 'one', version: '3' });
+	expect(() => liveACLReviewResource(new URLSearchParams('mode=live&kind=other&id=ops&tenant=one&version=3'))).toThrow(/valid resource type/);
+	expect(() => liveACLReviewResource(new URLSearchParams('mode=live&kind=report&id=&tenant=one&version=3'))).toThrow(/valid resource type/);
 });

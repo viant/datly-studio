@@ -3,6 +3,7 @@ import { Button, Callout, FormGroup, HTMLSelect, InputGroup, Tab, Tabs } from '@
 import { SecurityWorkspace } from './SecurityWorkspace.jsx';
 import { ResourceAccessEditor } from './ResourceAccessEditor.jsx';
 import { defaultActionsByKind } from './resourceAccessActions.js';
+import { liveACLReviewURL } from './aclReviewURL.js';
 
 export function SecurityCenter({ api, kinds, actionsByKind, choices }) {
   return <div className="studio-workspace">
@@ -18,9 +19,10 @@ export function PermissionsWorkspace({ api, kinds = Object.keys(defaultActionsBy
   const [draft, setDraft] = useState({ kind: kinds[0], id: '', version: '1', tenant: '' });
   const [resource, setResource] = useState(null);
   const actions = resource ? actionsByKind[resource.kind] : null;
+  const reviewURL = resource && actions ? liveACLReviewURL(resource, import.meta.env.BASE_URL) : null;
   const field = name => ({ value: draft[name], onChange: event => setDraft({ ...draft, [name]: event.target.value }) });
   return <section aria-label="Resource permissions">
-    <div className="studio-page-heading-row"><h1 className="studio-page-heading">Permissions</h1><a className="bp6-button" href={`${import.meta.env.BASE_URL}acl-review.html`} target="_blank" rel="noopener noreferrer">Open ACL UX review</a></div>
+    <div className="studio-page-heading-row"><h1 className="studio-page-heading">Permissions</h1>{reviewURL && <a className="bp6-button" href={reviewURL} target="_blank" rel="noopener noreferrer">Review current permissions</a>}</div>
     <p className="studio-page-description">Manage each resource type with separate rules for its declared actions.</p>
     <form className="studio-form-grid" onSubmit={event => { event.preventDefault(); setResource({ ...draft, id: draft.id.trim(), tenant: draft.tenant.trim(), version: draft.version.trim() }); }}>
       <FormGroup label="Resource type" labelFor="permissions-kind"><HTMLSelect id="permissions-kind" {...field('kind')}>{kinds.map(kind => <option key={kind}>{kind}</option>)}</HTMLSelect></FormGroup>

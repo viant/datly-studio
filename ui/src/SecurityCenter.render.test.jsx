@@ -4,14 +4,20 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SecurityCenter } from './SecurityCenter.jsx';
 
-test('Permissions links to the ACL UX review in a safe new tab', () => {
-  render(<SecurityCenter api={{}}/>);
-
-  const link = screen.getByRole('link', { name: 'Open ACL UX review' });
-  expect(link.getAttribute('href')).toMatch(/(?:^|\/)acl-review\.html$/);
-  expect(link.target).toBe('_blank');
-  expect(link.rel).toContain('noopener');
-  expect(link.rel).toContain('noreferrer');
+test('Permissions opens a live review window only for the loaded resource', async () => {
+	const user = userEvent.setup();
+	render(<SecurityCenter api={{ getResourceAccess: vi.fn().mockResolvedValue({ revision: 1, policies: {} }) }}/>);
+	expect(screen.queryByRole('link', { name: 'Review current permissions' })).toBeNull();
+	await user.type(screen.getByLabelText('Resource ID'), 'operations');
+	await user.type(screen.getByLabelText('Tenant'), 'one');
+	await user.click(screen.getByRole('button', { name: 'Load permissions' }));
+	const link = screen.getByRole('link', { name: 'Review current permissions' });
+	const url = new URL(link.href);
+	expect(url.pathname).toMatch(/\/acl-review\.html$/);
+	expect(Object.fromEntries(url.searchParams)).toEqual({ mode: 'live', kind: 'component', id: 'operations', tenant: 'one', version: '1' });
+	expect(link.target).toBe('_blank');
+	expect(link.rel).toContain('noopener');
+	expect(link.rel).toContain('noreferrer');
 });
 
 test('loads trimmed skill resource values and offers retrieve instead of execute', async () => {
