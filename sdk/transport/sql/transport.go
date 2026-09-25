@@ -19,12 +19,14 @@ import (
 
 	"github.com/viant/datly-studio/sdk"
 	connectorinsert "github.com/viant/datly-studio/studio/connectors/store_insert"
+	connectorstatus "github.com/viant/datly-studio/studio/connectors/store_status"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
 	"github.com/viant/datly/authoring/readerbuilder"
 	datlyreport "github.com/viant/datly/report"
 	"github.com/viant/datly/spec"
 	"github.com/viant/datly/transcribe"
 	"github.com/viant/datly/transcribe/dql"
+	xhandler "github.com/viant/xdatly/handler"
 )
 
 type PreviewExecutor interface {
@@ -539,9 +541,9 @@ func (t *Transport) setConnectorStatus(ctx context.Context, operation string, in
 	if err := decode(input, &in); err != nil {
 		return invalid(err)
 	}
-	status := "active"
+	statusOperation := "activate"
 	if operation == sdk.OperationConnectorDisable {
-		status = "disabled"
+		statusOperation = "disable"
 	} else {
 		current, err := t.getConnectorValue(ctx, in.Name)
 		if err != nil {
@@ -551,13 +553,18 @@ func (t *Transport) setConnectorStatus(ctx context.Context, operation string, in
 			return invalid(errors.New("connector must pass a connectivity test before activation"))
 		}
 	}
-	result, err := t.DB.ExecContext(ctx, `UPDATE connectors SET status=?, etag=etag+1, updated_at=? WHERE name=? AND etag=? AND deleted_at IS NULL`, status, t.now(), in.Name, in.ETag)
+	now, etag := t.now(), in.ETag
+	err := t.writeConnectorStatus(ctx, statusOperation, &connectorstatus.StoredConnector{Name: in.Name, Etag: &etag, UpdatedAt: &now,
+		Has: &connectorstatus.StoredConnectorHas{Name: true, Etag: true, UpdatedAt: true}})
 	if err != nil {
+		if errors.Is(err, connectorstatus.ErrProbeRequired) {
+			return invalid(err)
+		}
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) {
+			return &sdk.Error{Code: sdk.ErrorConflict, Message: "connector etag does not match"}
+		}
 		return internal(err)
-	}
-	affected, _ := result.RowsAffected()
-	if affected == 0 {
-		return &sdk.Error{Code: sdk.ErrorConflict, Message: "connector etag does not match"}
 	}
 	return t.getConnector(ctx, struct {
 		Name string `json:"name"`

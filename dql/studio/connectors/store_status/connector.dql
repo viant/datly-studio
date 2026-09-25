@@ -1,0 +1,21 @@
+#package('studio/connectors/store_status')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/connector-store/status', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('connector', 'sql/read.sql'))
+
+#define($_ = $Operation<string>(query/operation).Required())
+#define($_ = $Connectors<[]*StoredConnector>(body/data))
+
+SELECT connector.*, type(connector, 'StoredConnector'),
+       CAST(connector.name AS string), CAST(connector.status AS string),
+       CAST(connector.etag AS *int64), CAST(connector.updated_at AS *time.Time),
+       CAST(connector.last_test_status AS *string), CAST(connector.deleted_at AS *time.Time),
+       tag(connector.name, 'sqlx:"name,primaryKey"'),
+       lifecycle_type(connector, 'ConnectorStatusRules'),
+       concurrency_token(connector.etag)
+FROM (${embed:sql/read.sql}) connector
+WHERE 1=1
