@@ -467,6 +467,8 @@ failure; code splitting is a performance follow-up.
 As of 2026-09-25, `claude` 2.1.281 is installed, but `claude auth status`
 reports `loggedIn: false` and `authMethod: none`, so a Fable 5.1 review still
 cannot be run from this workspace. Do not substitute Astra approval.
+The product owner has asked to defer Claude/Fable review for now; keep its
+acceptance row pending rather than treating the deferral as approval.
 The remaining reviewer evidence therefore requires that reviewer to be made
 available or run in its authorized environment.
 
