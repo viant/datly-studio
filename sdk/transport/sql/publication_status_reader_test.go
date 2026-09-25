@@ -56,6 +56,25 @@ func TestPublicationStatusReaderPreservesNullableFields(t *testing.T) {
 		value.Status != "pending" || value.PublishedAt == nil || value.SpecHash != version.SpecHash {
 		t.Fatalf("publication=%+v err=%v", value, err)
 	}
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer tx.Rollback()
+	if _, err := tx.ExecContext(ctx, `UPDATE report_publications SET publication_status='unpublishing' WHERE report_id=?`, report.ID); err != nil {
+		t.Fatal(err)
+	}
+	snapshot, found, err := transport.publicationSnapshot(owner, tx, report.ID)
+	if err != nil || !found || snapshot.status != "unpublishing" || snapshot.publishedBy != "owner" || snapshot.activeVersion != 1 {
+		t.Fatalf("transaction publication snapshot=%+v found=%v err=%v", snapshot, found, err)
+	}
+	if err := tx.Rollback(); err != nil {
+		t.Fatal(err)
+	}
+	value, err = transport.readPublicationStatus(owner, report.ID)
+	if err != nil || value.Status != "pending" {
+		t.Fatalf("rolled-back publication=%+v err=%v", value, err)
+	}
 	missing := &sdk.Publication{}
 	err = transport.getPublication(owner, "missing", missing)
 	var sdkErr *sdk.Error

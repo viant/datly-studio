@@ -14,5 +14,7 @@ type StoredPublication struct {
 	PublicationStatus string     `sqlx:"publication_status"`
 	RuntimeRevision   *string    `sqlx:"runtime_revision"`
 	SpecHash          string     `sqlx:"spec_hash"`
+	PublishedBy       string     `sqlx:"published_by"`
 	PublishedAt       *time.Time `sqlx:"published_at"`
+	ActivatedAt       *time.Time `sqlx:"activated_at"`
 }

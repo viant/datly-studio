@@ -16,12 +16,12 @@ import (
 	dsql "github.com/viant/datly/sql"
 )
 
-func (t *Transport) readPublicationStatus(ctx context.Context, reportID string) (*sdk.Publication, error) {
+func (t *Transport) readPublicationRow(ctx context.Context, tx *sql.Tx, reportID string) (*stored.StoredPublication, error) {
 	resources := resource.New()
 	if err := resources.Register(stored.PublicationDatlyResourceNamespace, stored.PublicationDatlyResources); err != nil {
 		return nil, err
 	}
-	connector := &dsql.SQLComponent{DB: t.DB}
+	connector := &dsql.SQLComponent{DB: t.DB, Tx: tx}
 	if err := connector.RegisterConnector("studio", t.DB); err != nil {
 		return nil, err
 	}
@@ -50,7 +50,14 @@ func (t *Transport) readPublicationStatus(ctx context.Context, reportID string) 
 	if len(output.Publications) != 1 || output.Publications[0] == nil || output.Publications[0].ReportId != reportID {
 		return nil, fmt.Errorf("publication status reader returned an ambiguous or mismatched row")
 	}
-	row := output.Publications[0]
+	return output.Publications[0], nil
+}
+
+func (t *Transport) readPublicationStatus(ctx context.Context, reportID string) (*sdk.Publication, error) {
+	row, err := t.readPublicationRow(ctx, nil, reportID)
+	if err != nil {
+		return nil, err
+	}
 	result := &sdk.Publication{ReportID: row.ReportId, ActiveVersionNo: row.ActiveVersionNo,
 		DesiredVersionNo: row.DesiredVersionNo, DesiredGeneration: row.DesiredGeneration,
 		ActiveGeneration: row.ActiveGeneration, Status: row.PublicationStatus,

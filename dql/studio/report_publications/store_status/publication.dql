@@ -19,7 +19,9 @@ SELECT publication.*, type(publication, 'StoredPublication'),
        CAST(publication.publication_status AS string),
        CAST(publication.runtime_revision AS *string),
        CAST(publication.spec_hash AS string),
+       CAST(publication.published_by AS string),
        CAST(publication.published_at AS *time.Time),
+       CAST(publication.activated_at AS *time.Time),
        set_limit(publication, 1)
 FROM (${embed:sql/read.sql}) publication
 WHERE 1=1

@@ -1840,15 +1840,15 @@ func (t *Transport) stagePublication(ctx context.Context, in publishRequest, ver
 	if err = ensureNoStagedGeneration(ctx, tx, now); err != nil {
 		return 0, publicationState{}, false, time.Time{}, err
 	}
-	var generation int64
-	if err := tx.QueryRowContext(ctx, `SELECT COALESCE(MAX(generation_no), 0) + 1 FROM runtime_generations`).Scan(&generation); err != nil {
+	generation, err := t.nextGenerationNo(ctx, tx)
+	if err != nil {
 		return 0, publicationState{}, false, time.Time{}, internal(err)
 	}
 	runtimeRevision := fmt.Sprintf("%s:%d:%d", in.ReportID, in.VersionNo, generation)
 	if _, err := tx.ExecContext(ctx, `INSERT INTO runtime_generations(generation_no, source_revision, status, report_count, build_manifest_json, requested_by, requested_at) VALUES (?, ?, 'building', 0, '{}', ?, ?)`, generation, runtimeRevision, in.Input.RequestedBy, now); err != nil {
 		return 0, publicationState{}, false, time.Time{}, classify(err, "runtime generation", fmt.Sprint(generation))
 	}
-	previous, hasPrevious, err := publicationSnapshot(ctx, tx, in.ReportID)
+	previous, hasPrevious, err := t.publicationSnapshot(ctx, tx, in.ReportID)
 	if err != nil {
 		return 0, publicationState{}, false, time.Time{}, internal(err)
 	}
@@ -1953,18 +1953,32 @@ type publicationState struct {
 	publishedAt, activatedAt          time.Time
 }
 
-func publicationSnapshot(ctx context.Context, tx *sql.Tx, reportID string) (publicationState, bool, error) {
+func (t *Transport) publicationSnapshot(ctx context.Context, tx *sql.Tx, reportID string) (publicationState, bool, error) {
 	var value publicationState
-	var activatedAt sql.NullTime
-	err := tx.QueryRowContext(ctx, `SELECT active_version_no,desired_version_no,desired_generation,active_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at FROM report_publications WHERE report_id=?`, reportID).Scan(&value.activeVersion, &value.desiredVersion, &value.desiredGeneration, &value.activeGeneration, &value.status, &value.runtimeRevision, &value.specHash, &value.publishedBy, &value.publishedAt, &activatedAt)
+	row, err := t.readPublicationRow(ctx, tx, reportID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return value, false, nil
 	}
 	if err != nil {
 		return value, false, err
 	}
-	if activatedAt.Valid {
-		value.activatedAt = activatedAt.Time
+	value.activeVersion = int64(row.ActiveVersionNo)
+	value.desiredGeneration = row.DesiredGeneration
+	if row.DesiredVersionNo != nil {
+		value.desiredVersion = sql.NullInt64{Int64: int64(*row.DesiredVersionNo), Valid: true}
+	}
+	if row.ActiveGeneration != nil {
+		value.activeGeneration = sql.NullInt64{Int64: *row.ActiveGeneration, Valid: true}
+	}
+	value.status, value.specHash, value.publishedBy = row.PublicationStatus, row.SpecHash, row.PublishedBy
+	if row.RuntimeRevision != nil {
+		value.runtimeRevision = *row.RuntimeRevision
+	}
+	if row.PublishedAt != nil {
+		value.publishedAt = *row.PublishedAt
+	}
+	if row.ActivatedAt != nil {
+		value.activatedAt = *row.ActivatedAt
 	}
 	return value, true, nil
 }
@@ -2056,7 +2070,7 @@ func (t *Transport) unpublish(ctx context.Context, input, output any) (returnErr
 		return internal(err)
 	}
 	defer func() { _ = tx.Rollback() }()
-	previous, found, err := publicationSnapshot(ctx, tx, in.ReportID)
+	previous, found, err := t.publicationSnapshot(ctx, tx, in.ReportID)
 	if err != nil {
 		return internal(err)
 	}
@@ -2072,8 +2086,8 @@ func (t *Transport) unpublish(ctx context.Context, input, output any) (returnErr
 	if err = ensureNoStagedGeneration(ctx, tx, now); err != nil {
 		return err
 	}
-	var generation int64
-	if err = tx.QueryRowContext(ctx, `SELECT COALESCE(MAX(generation_no), 0) + 1 FROM runtime_generations`).Scan(&generation); err != nil {
+	generation, err := t.nextGenerationNo(ctx, tx)
+	if err != nil {
 		return internal(err)
 	}
 	revision := fmt.Sprintf("unpublish:%s:%d", in.ReportID, generation)
