@@ -101,6 +101,23 @@ describe('ReaderBuilder graph-first authoring', () => {
     expect(screen.getByRole('heading', { name: /Vendor SQL/ })).toBeTruthy();
   });
 
+  test('uses authored view SQL ahead of a wrapped legacy compiled source', async () => {
+    const user = userEvent.setup();
+    const inspection = readerFixture();
+    inspection.structure.component.rootView.source.sql = 'SELECT * FROM (SELECT * FROM VENDOR t) vendor';
+    inspection.structure.views[0].sql = 'SELECT * FROM VENDOR t\n${predicate.Builder().Build("WHERE")}';
+    const api = {
+      listVersions: vi.fn().mockResolvedValue({ items: [inspection.version] }),
+      inspectVersion: vi.fn().mockResolvedValue(inspection),
+      getTable: vi.fn().mockResolvedValue({ columns: [] }),
+    };
+    render(<ReaderBuilder api={api} report={{ id: 'vendor', title: 'Vendor Catalog', namespace: 'general', defaultConnectorName: 'main' }} onBack={vi.fn()} />);
+    const graph = await screen.findByRole('heading', { name: 'Component graph' });
+    await user.click(graph.closest('.studio-graph-panel').querySelector('.studio-view-select'));
+    await user.click(screen.getByRole('button', { name: 'Open SQL' }));
+    expect((await screen.findByRole('textbox', { name: 'Vendor SQL source' })).value).toBe(inspection.structure.views[0].sql);
+  });
+
   test('enforces a read-only capability projection in the rendered workspace', async () => {
     const user = userEvent.setup();
     const inspection = readerFixture({ canEdit: false, canRun: false, canPublish: false, canUseDql: false });

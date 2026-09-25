@@ -457,8 +457,9 @@ failure; code splitting is a performance follow-up.
 
 ### Immediate next goal
 
-As of 2026-09-20, the local host has no `claude` executable, so a Fable 5.1
-review cannot be run from this workspace. Do not substitute Astra approval.
+As of 2026-09-25, `claude` 2.1.281 is installed, but `claude auth status`
+reports `loggedIn: false` and `authMethod: none`, so a Fable 5.1 review still
+cannot be run from this workspace. Do not substitute Astra approval.
 The remaining reviewer evidence therefore requires that reviewer to be made
 available or run in its authorized environment.
 
@@ -488,8 +489,9 @@ local test target; do not silently replace it with Docker/MySQL.
 - Datly 1.0 repair work is committed as `bc590691` and included by remote v1
   merge `fa412c1f`; Studio pins the resulting pseudo-version.
 - Commit the Studio UI/SDK integration only after reviewing its uncommitted
-  working tree. Studio itself is not a Git repository in this workspace, so
-  establish/confirm its intended Git root before attempting a commit.
+  working tree. The intended Git root is now confirmed as
+  `/Users/awitas/go/src/github.com/viant/datly-studio`; do not absorb
+  concurrent ACL route work into an unrelated commit.
 - Add focused automated tests for the new `ViewOccurrence.SQL` field and the
   Studio `viewSourceSQL` preference, including a wrapped legacy query fixture.
 - Expand rendered UI coverage for the remaining complex command dialogs as new
@@ -541,6 +543,15 @@ local test target; do not silently replace it with Docker/MySQL.
   available, and no authenticated Claude browser tab is open. The production
   matrix contains 23 surface rows; all 23 have local evidence and all 23 retain
   an explicit pending Fable 5.1 verdict rather than a substituted approval.
+- On 2026-09-25 the Claude CLI appeared on the host but remained signed out;
+  this changes availability, not the pending Fable verdict. The native
+  `acl.list` SDK route is under contract review in the working tree. The
+  authenticated BFF now forwards that exact SDK path to the static Datly
+  host with its session bearer; development mode retains the ACL gate.
+  Owner-only policy and HTTP/OpenAPI/MCP behavior have focused SQLite tests.
+  See `docs/sdk-native-endpoints.md` for the remaining broader SDK migration.
+  Focused
+  Datly embedded-view SQL and rendered UI wrapped-query regressions pass.
 
 ## Primary references
 

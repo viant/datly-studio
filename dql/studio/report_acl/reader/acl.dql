@@ -6,14 +6,18 @@
 #setting($_ = $input_type('Input'))
 #setting($_ = $output_type('Output'))
 #setting($_ = $case_format('lc'))
-#setting($_ = $route('/v1/studio/reports/{reportId}/acl', 'GET'))
+#setting($_ = $route('/v1/studio/sdk/acl.list', 'POST'))
 #setting($_ = $connector('studio'))
-#setting($_ = $mcp('studio.report_acl.read', 'Read report access policy'))
+#setting($_ = $mcp('studio.sdk.acl.list', 'List report ACL entries authorized for the current principal'))
 #setting($_ = $sql_dest('report_acl', 'sql/read.sql'))
 #define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
-#define($_ = $ReportId<string>(path/reportId).Required().WithPredicate(2, 'equal', 'a', 'report_id').WithPredicate(3, 'handler', 'studioauthorization.ACLRead'))
-#define($_ = $SubjectType<string>(query/subjectType).Optional().WithPredicate(1, 'equal', 'a', 'subject_type'))
-#define($_ = $SubjectId<string>(query/subjectId).Optional().WithPredicate(1, 'equal', 'a', 'subject_id'))
-#define($_ = $Access<[]*ReportACL>(output/view))
-SELECT report_acl.*, type(report_acl, 'ReportACL') FROM (${embed:sql/read.sql}) report_acl
+#define($_ = $ReportId<string>(body/reportId).WithTag('json:"reportId"').Required().WithPredicate(2, 'equal', 'a', 'report_id').WithPredicate(3, 'handler', 'studioauthorization.ACLRead'))
+#define($_ = $SubjectType<string>(query/subjectType).WithTag('json:"subjectType"').Optional().WithPredicate(1, 'equal', 'a', 'subject_type'))
+#define($_ = $SubjectId<string>(query/subjectId).WithTag('json:"subjectId"').Optional().WithPredicate(1, 'equal', 'a', 'subject_id'))
+#define($_ = $Items<[]*ReportACL>(output/view))
+SELECT report_acl.*, type(report_acl, 'ReportACL'),
+       CAST(report_acl.can_view AS bool), CAST(report_acl.can_run AS bool),
+       CAST(report_acl.can_edit AS bool), CAST(report_acl.can_publish AS bool),
+       CAST(report_acl.can_use_dql AS bool)
+FROM (${embed:sql/read.sql}) report_acl
 WHERE 1=1

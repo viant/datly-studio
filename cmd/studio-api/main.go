@@ -60,6 +60,7 @@ func main() {
 	sessionKey := flag.String("session-key", os.Getenv("STUDIO_SESSION_KEY"), "base64-encoded 32-byte BFF session encryption key")
 	dynamicHTTPURL := flag.String("dynamic-http-url", "http://127.0.0.1:8082", "dynamic Datly HTTP target")
 	dynamicMCPURL := flag.String("dynamic-mcp-url", "http://127.0.0.1:8091", "dynamic Datly MCP target")
+	staticDatlyURL := flag.String("static-datly-url", "http://127.0.0.1:8081", "static Studio Datly component target")
 	extensionBackendURL := flag.String("extension-backend-url", "", "trusted extension backend origin (authenticated mode only)")
 	extensionUpstreamPrefix := flag.String("extension-upstream-prefix", "", "allowlisted extension upstream path prefix, for example /api/widgets")
 	dynamicAdminToken := flag.String("dynamic-admin-token", os.Getenv("STUDIO_RUNTIME_ADMIN_TOKEN"), "dynamic runtime reload token")
@@ -260,6 +261,15 @@ func main() {
 			log.Fatal(sessionErr)
 		}
 		sessions.Register(mux)
+		staticTarget, parseErr := url.Parse(*staticDatlyURL)
+		if parseErr != nil {
+			log.Fatal(parseErr)
+		}
+		nativeACL, proxyErr := sessions.Proxy(staticTarget, "/")
+		if proxyErr != nil {
+			log.Fatal(proxyErr)
+		}
+		mux.Handle("/v1/studio/sdk/acl.list", nativeACL)
 		if loginOAuth != nil {
 			login, loginErr := bffauth.NewLogin(bffauth.LoginConfig{OAuth: *loginOAuth, CookieKey: key, Secure: true}, sessions)
 			if loginErr != nil {

@@ -23,7 +23,9 @@ HTTP/MCP tools.
 ## Current gap
 
 `cmd/studio-api/main.go` mounts `sdk/httptransport.Gateway` at
-`/v1/studio/sdk/`; the gateway dispatches to `sdk.Transport.Invoke`.
+`/v1/studio/sdk/`; the gateway dispatches to `sdk.Transport.Invoke` for the
+remaining operations. In authenticated mode, an exact `acl.list` mount
+forwards to the static Datly component instead.
 The SQL transport now calls many transcribed components, but that does not
 make the SDK HTTP route itself a Datly component. The UI's
 `ui/src/studioApi.js` targets this generic route. The Studio SDK declares
@@ -77,6 +79,21 @@ behavior without exposing `subject` or `scoped` to the caller. The existing
 public `studio/reports/reader` DQL is not automatically an SDK replacement:
 its route and output shape differ from `reports.list`, so contract and
 authorization parity need a real test before switching.
+
+The `acl.list` candidate is in progress in the working tree. Its generated
+Datly component now uses `POST /v1/studio/sdk/acl.list`, includes the ACL
+`etag`, and declares `studio.sdk.acl.list` as an MCP tool. A focused SQLite
+contract test exercises the Datly HTTP route, generated OpenAPI path, MCP
+invocation, owner/editor visibility, denied subjects, and ownership changes.
+In authenticated mode, the BFF now proxies this exact SDK path to the static
+Datly host with the bearer stored in its HttpOnly session. Development mode
+continues to use the generic SDK gateway and keeps ACL management disabled.
+The generated input tags `reportId`, so the native MCP argument and HTTP JSON
+body use the same name. The product owner chose owner-only ACL listing. The
+SDK list path checks report ownership, and the native `ACLRead` predicate
+authorizes through the generated grant reader before returning rows. Owner,
+delegated editor, and viewer cases are covered on both paths. The browser
+call still names `acl.list`; generated OpenAPI clients remain migration work.
 
 AI Studio's private report SDK follows the same endpoint rule within AI
 Studio. This does not move private report code or product names into

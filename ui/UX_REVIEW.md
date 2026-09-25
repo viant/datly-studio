@@ -273,6 +273,9 @@ scoped to inspected scenarios rather than treated as blanket Fable approval.
   Claude CLI was installed. The product owner explicitly authorized Codex Astra
   low as the substitute reviewer; its scoped verdict and remaining scenario
   conditions are recorded above.
+- Rechecked 2026-09-25: `claude` 2.1.281 is installed, but `claude auth status`
+  reports `loggedIn: false` and `authMethod: none`. Fable 5.1 review is still
+  pending; the installed executable does not supply reviewer evidence.
 
 ## Completed window reviews
 

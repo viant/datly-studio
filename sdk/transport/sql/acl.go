@@ -78,7 +78,7 @@ func (t *Transport) acl(ctx context.Context, operation string, input, output any
 }
 
 func (t *Transport) listACL(ctx context.Context, reportID string, output any) error {
-	if _, err := t.getReportValue(ctx, reportID); err != nil {
+	if err := t.requireACLAdmin(ctx, reportID); err != nil {
 		return err
 	}
 	items, err := t.readACLList(ctx, reportID)

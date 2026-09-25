@@ -109,7 +109,10 @@ type ReportSkillEdit struct{ InputBinding }
 type PublicationRead struct{ InputBinding }
 type PublicationEdit struct{ InputBinding }
 type PublicationEventRead struct{ InputBinding }
-type ACLRead struct{ InputBinding }
+type ACLRead struct {
+	InputBinding
+	Connectors connector.Provider `bind:"kind=connector,required"`
+}
 type ACLEdit struct{ InputBinding }
 type RuntimeRead struct{ InputBinding }
 type RuntimeEdit struct{ InputBinding }
@@ -215,7 +218,26 @@ func (p *PublicationEventRead) Compute(ctx context.Context, _ any) (*xpredicate.
 	return &xpredicate.Criteria{Expression: "event.owner_id = ?", Placeholders: []any{subject}}, nil
 }
 func (p *ACLRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "a.report_id", permissionEdit)
+	principal, err := subject(ctx, p.Input)
+	if err != nil {
+		return nil, err
+	}
+	reportID := stringField(indirect(reflect.ValueOf(p.Input)), "ReportId", "ReportID")
+	if strings.TrimSpace(reportID) == "" {
+		return nil, forbidden("report identity is required")
+	}
+	grants, err := readGrants(ctx, p.Connectors, principal, reportID, "owner", false)
+	if err != nil {
+		return nil, err
+	}
+	if len(grants) != 1 {
+		return nil, forbidden("only the report owner can administer access")
+	}
+	return &xpredicate.Criteria{Expression: `EXISTS (
+SELECT 1 FROM reports studio_auth_owner
+WHERE studio_auth_owner.id = a.report_id
+  AND studio_auth_owner.owner_id = ?
+  AND studio_auth_owner.deleted_at IS NULL)`, Placeholders: []any{principal}}, nil
 }
 func (p *ACLEdit) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
 	return reportCriteria(ctx, p.Input, "report_acl.report_id", permissionPublish)

@@ -3,6 +3,7 @@ package sqltransport
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"testing"
 
@@ -35,6 +36,8 @@ VALUES('report','general','report','Report','owner','active','main','example.com
 INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_run,can_edit,can_publish,can_use_dql)
 VALUES('report','user','viewer',TRUE,TRUE,FALSE,FALSE,FALSE);
 INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_run,can_edit,can_publish,can_use_dql)
+VALUES('report','user','editor',TRUE,TRUE,TRUE,FALSE,FALSE);
+INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_run,can_edit,can_publish,can_use_dql)
 VALUES('report','role','analyst',TRUE,TRUE,TRUE,TRUE,TRUE);`)
 	if err != nil {
 		t.Fatal(err)
@@ -47,6 +50,7 @@ VALUES('report','role','analyst',TRUE,TRUE,TRUE,TRUE,TRUE);`)
 	}{
 		{subject: "owner", want: sdk.ReportCapabilities{CanView: true, CanRun: true, CanEdit: true, CanPublish: true, CanUseDQL: true, CanManageACL: true}},
 		{subject: "viewer", want: sdk.ReportCapabilities{CanView: true, CanRun: true}},
+		{subject: "editor", want: sdk.ReportCapabilities{CanView: true, CanRun: true, CanEdit: true}},
 		{subject: "analyst", want: sdk.ReportCapabilities{}},
 	} {
 		principal := sdk.WithPrincipal(ctx, sdk.Principal{Subject: test.subject})
@@ -55,9 +59,26 @@ VALUES('report','role','analyst',TRUE,TRUE,TRUE,TRUE,TRUE);`)
 			t.Fatalf("subject %s capabilities=%+v err=%v want %+v", test.subject, actual, readErr, test.want)
 		}
 	}
+	for _, subject := range []string{"owner", "editor", "viewer"} {
+		result := struct {
+			Items []*sdk.ReportACL `json:"items"`
+		}{}
+		listErr := transport.acl(sdk.WithPrincipal(ctx, sdk.Principal{Subject: subject}), sdk.OperationACLList,
+			map[string]string{"reportId": "report"}, &result)
+		if subject == "owner" {
+			if listErr != nil || len(result.Items) != 3 {
+				t.Fatalf("owner ACL list=%+v err=%v", result, listErr)
+			}
+			continue
+		}
+		var sdkErr *sdk.Error
+		if !errors.As(listErr, &sdkErr) || sdkErr.Code != sdk.ErrorForbidden || len(result.Items) != 0 {
+			t.Fatalf("%s ACL list=%+v err=%v, want forbidden", subject, result, listErr)
+		}
+	}
 	entries, err := transport.readACLList(ctx, "report")
-	if err != nil || len(entries) != 2 || entries[0].SubjectType != "role" || entries[0].SubjectID != "analyst" ||
-		entries[1].SubjectType != "user" || entries[1].SubjectID != "viewer" || entries[1].ETag != 1 {
+	if err != nil || len(entries) != 3 || entries[0].SubjectType != "role" || entries[0].SubjectID != "analyst" ||
+		entries[1].SubjectType != "user" || entries[1].SubjectID != "editor" || entries[2].SubjectID != "viewer" || entries[2].ETag != 1 {
 		t.Fatalf("ACL reader list=%+v err=%v", entries, err)
 	}
 	exact, err := transport.readACLOne(ctx, "report", "user", "viewer")

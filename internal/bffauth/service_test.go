@@ -77,6 +77,23 @@ func TestProxyExpandsSessionToBearerAndStripsControlHeaders(t *testing.T) {
 	if adminResponse.Code != http.StatusNotFound || calls != 1 {
 		t.Fatalf("admin status=%d upstream calls=%d", adminResponse.Code, calls)
 	}
+	preservingProxy, err := service.Proxy(target, "/")
+	if err != nil {
+		t.Fatal(err)
+	}
+	aclRequest := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/acl.list", strings.NewReader(`{"reportId":"r1"}`))
+	aclRequest.AddCookie(&http.Cookie{Name: DefaultCookieName, Value: id})
+	aclRequest.Header.Set("X-Studio-Development-Subject", "attacker")
+	aclResponse := httptest.NewRecorder()
+	mux := http.NewServeMux()
+	mux.Handle("/v1/studio/sdk/", http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusTeapot) }))
+	mux.Handle("/v1/studio/sdk/acl.list", preservingProxy)
+	mux.ServeHTTP(aclResponse, aclRequest)
+	if aclResponse.Code != http.StatusNoContent || path != "/v1/studio/sdk/acl.list" ||
+		authorization != "Bearer jwt-token" || cookie != "" || developmentSubject != "" || calls != 2 {
+		t.Fatalf("native ACL proxy status=%d path=%q auth=%q cookie=%q dev=%q calls=%d",
+			aclResponse.Code, path, authorization, cookie, developmentSubject, calls)
+	}
 }
 
 func TestBFFSessionExchangeAuthenticateAndLogout(t *testing.T) {
