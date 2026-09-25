@@ -2157,22 +2157,18 @@ func (t *Transport) getPublication(ctx context.Context, reportID string, output 
 
 func (t *Transport) runtimeStatus(ctx context.Context, output any) error {
 	var value sdk.RuntimeStatus
-	var activatedAt sql.NullTime
-	var diagnosticsJSON sql.NullString
-	err := t.DB.QueryRowContext(ctx, `SELECT generation_no, status, report_count, activated_at, diagnostics_json FROM runtime_generations WHERE status='active' ORDER BY generation_no DESC LIMIT 1`).Scan(&value.ActiveGeneration, &value.Status, &value.ReportCount, &activatedAt, &diagnosticsJSON)
-	if errors.Is(err, sql.ErrNoRows) {
-		value.Status = "idle"
-		return assign(output, &value)
-	}
+	active, err := t.readActiveGeneration(ctx)
 	if err != nil {
 		return internal(err)
 	}
-	if activatedAt.Valid {
-		at := activatedAt.Time
-		value.ActivatedAt = &at
+	if active == nil {
+		value.Status = "idle"
+		return assign(output, &value)
 	}
-	if diagnosticsJSON.Valid && strings.TrimSpace(diagnosticsJSON.String) != "" {
-		_ = json.Unmarshal([]byte(diagnosticsJSON.String), &value.Diagnostics)
+	value.ActiveGeneration, value.Status, value.ReportCount = active.GenerationNo, active.Status, active.ReportCount
+	value.ActivatedAt = active.ActivatedAt
+	if len(active.DiagnosticsJson) > 0 {
+		_ = json.Unmarshal(active.DiagnosticsJson, &value.Diagnostics)
 	}
 	readers, err := t.runtimeReaders(ctx, value.ActiveGeneration)
 	if err != nil {
