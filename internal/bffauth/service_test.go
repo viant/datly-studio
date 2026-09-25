@@ -93,6 +93,7 @@ func TestProxyExpandsSessionToBearerAndStripsControlHeaders(t *testing.T) {
 	mux.Handle("/v1/studio/sdk/namespaces.list", preservingProxy)
 	mux.Handle("/v1/studio/sdk/namespaces.get", preservingProxy)
 	mux.Handle("/v1/studio/sdk/publications.get", preservingProxy)
+	mux.Handle("/v1/studio/sdk/publications.events.list", preservingProxy)
 	mux.Handle("/v1/studio/sdk/reports.get", preservingProxy)
 	mux.Handle("/v1/studio/sdk/reports.list", preservingProxy)
 	mux.ServeHTTP(aclResponse, aclRequest)
@@ -149,6 +150,13 @@ func TestProxyExpandsSessionToBearerAndStripsControlHeaders(t *testing.T) {
 	mux.ServeHTTP(publicationResponse, publicationGet)
 	if publicationResponse.Code != http.StatusNoContent || path != "/v1/studio/sdk/publications.get" || authorization != "Bearer jwt-token" || calls != 9 {
 		t.Fatalf("native publication-get proxy status=%d path=%q auth=%q calls=%d", publicationResponse.Code, path, authorization, calls)
+	}
+	eventsRequest := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/publications.events.list", strings.NewReader(`{"reportId":"r1","input":{"limit":1}}`))
+	eventsRequest.AddCookie(&http.Cookie{Name: DefaultCookieName, Value: id})
+	eventsResponse := httptest.NewRecorder()
+	mux.ServeHTTP(eventsResponse, eventsRequest)
+	if eventsResponse.Code != http.StatusNoContent || path != "/v1/studio/sdk/publications.events.list" || authorization != "Bearer jwt-token" || calls != 10 {
+		t.Fatalf("native publication-events proxy status=%d path=%q auth=%q calls=%d", eventsResponse.Code, path, authorization, calls)
 	}
 }
 

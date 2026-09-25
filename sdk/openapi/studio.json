@@ -2,6 +2,25 @@
   "openapi": "3.0.1",
   "components": {
     "schemas": {
+      "Input_c8f891bb6cfd81599dce6f4f5d400a21caa864a78f2dabaa10e3173f02ca8db3": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "offset": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "operation": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
       "Wire_1f5f473dc54ed2f6c617275d578b2307a69146cb2ce69ae058bffe57f5c226b4": {
         "type": "object",
         "properties": {
@@ -41,6 +60,64 @@
           "etag",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "Wire_221846f313892219b53265500a015547384983c9f728252d253349f904fb06a9": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string"
+          },
+          "failureCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "failureMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "generationNo": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "operation": {
+            "type": "string"
+          },
+          "ownerId": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "reportId": {
+            "type": "string"
+          },
+          "requestedBy": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "versionNo": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          }
+        },
+        "required": [
+          "eventId",
+          "reportId",
+          "ownerId",
+          "operation",
+          "status",
+          "requestedBy",
+          "occurredAt"
         ]
       },
       "Wire_3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c": {
@@ -358,6 +435,42 @@
         },
         "required": [
           "items"
+        ]
+      },
+      "Wire_b3c67af74df5a4d366c8f3a628801f07d89d1eefd88ebad70d3689f8970629db": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Wire_221846f313892219b53265500a015547384983c9f728252d253349f904fb06a9"
+                },
+                {
+                  "type": "object",
+                  "nullable": true,
+                  "enum": [
+                    null
+                  ]
+                }
+              ]
+            },
+            "nullable": true
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "offset": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "items",
+          "limit",
+          "offset"
         ]
       },
       "Wire_b42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044": {
@@ -832,6 +945,50 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Wire_fcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/publications.events.list": {
+      "post": {
+        "summary": "event",
+        "operationId": "POST:/v1/studio/sdk/publications.events.list",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "$ref": "#/components/schemas/Input_c8f891bb6cfd81599dce6f4f5d400a21caa864a78f2dabaa10e3173f02ca8db3"
+                  },
+                  "reportId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "reportId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Wire_b3c67af74df5a4d366c8f3a628801f07d89d1eefd88ebad70d3689f8970629db"
                 }
               }
             }

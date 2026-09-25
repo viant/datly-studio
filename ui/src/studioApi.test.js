@@ -272,10 +272,11 @@ test('generated publication get preserves not-found evidence', async () => {
 
 test('publication event history stays behind the owner-scoped SDK operation', async () => {
   const calls=[];
-  const api=new StudioAPI({mode:'development',apiBaseURL:'http://127.0.0.1:8080',development:{subject:'owner'}},{fetcher:async(url,init)=>{calls.push({url,body:init.body});return response({items:[],limit:25,offset:0});}});
+  const api=new StudioAPI({mode:'development',apiBaseURL:'http://127.0.0.1:8080',development:{subject:'owner'}},{fetcher:async(url,init)=>{calls.push(url instanceof Request ? {url:url.url,body:await url.text(),subject:url.headers.get('X-Studio-Development-Subject')} : {url,body:init.body});return response({items:[],limit:25,offset:0});}});
   await api.listPublicationEvents('reader',{limit:25,offset:0});
   assert.equal(calls[0].url,'http://127.0.0.1:8080/v1/studio/sdk/publications.events.list');
   assert.equal(calls[0].body,'{"reportId":"reader","input":{"limit":25,"offset":0}}');
+  assert.equal(calls[0].subject,'owner');
 });
 
 test('report permissions use ACL SDK operations', async () => {

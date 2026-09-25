@@ -26,8 +26,8 @@ HTTP/MCP tools.
 `/v1/studio/sdk/`; the gateway dispatches to `sdk.Transport.Invoke` for the
 remaining operations. In authenticated mode, exact `acl.list`,
 `connectors.get`, `connectors.list`, `namespaces.get`, `namespaces.list`,
-`publications.get`, `reports.get`, and `reports.list` mounts forward to their
-static Datly components instead.
+`publications.get`, `publications.events.list`, `reports.get`, and
+`reports.list` mounts forward to their static Datly components instead.
 The SQL transport now calls many transcribed components, but that does not
 make those SDK HTTP routes Datly components. Most UI calls in
 `ui/src/studioApi.js` still target the generic dispatcher. The Studio SDK declares
@@ -129,14 +129,15 @@ access, denial, revocation, missing rows, HTTP, MCP and OpenAPI are covered by
 a preseeded SQLite contract test. The authenticated BFF proxies the exact
 route, and browser `getPublication` uses the generated OpenAPI client.
 
-`publications.events.list` is still on the generic SDK path. Its existing
-public control-plane reader now uses the embedded SQL alias correctly and a
-typed predicate requiring the report's current owner. The generic SDK read
-also checks current ownership after authorization, so a delegated publisher
-or former owner cannot read the lifecycle trail. SQLite route tests verify
-that event history follows a transferred report to its current owner. Its
-nested SDK request/page wire shape still needs native HTTP/MCP/OpenAPI parity
-before the generic route can be replaced.
+`publications.events.list` now has a native Datly reader at the SDK POST path.
+The nested SDK `input` object is a linked, typed body value; `Init` applies the
+same validation and page bounds before its SQL executes. The output is an SDK
+page with stable newest-first ordering. Its typed predicate requires the
+report's current owner, so neither a delegated publisher nor a former owner
+can read the trail. SQLite tests cover transfer, defaults, filters, paging,
+invalid input, HTTP, MCP and OpenAPI. The BFF forwards the exact authenticated
+route, and the browser uses the generated OpenAPI client. The older
+control-plane event reader remains out of the static host package list.
 
 The `acl.list` reader is implemented. Its generated
 Datly component now uses `POST /v1/studio/sdk/acl.list`, includes the ACL
@@ -155,7 +156,8 @@ delegated editor, and viewer cases are covered on both paths. The browser's
 `scripts/generate-studio-sdk.sh` reproducibly exports the Datly route
 contract and generates Go and browser clients. The document currently covers
 `acl.list`, `connectors.get`, `connectors.list`, `namespaces.get`,
-`namespaces.list`, `publications.get`, `reports.get`, and `reports.list`;
+`namespaces.list`, `publications.get`, `publications.events.list`, `reports.get`,
+and `reports.list`;
 expanding it to every public SDK route remains migration work.
 The generator scopes its input to native SDK routes because broad static
 control-plane OpenAPI includes unrelated routes with unresolved dynamic

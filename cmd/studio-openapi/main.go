@@ -23,6 +23,7 @@ import (
 	namespaces "github.com/viant/datly-studio/studio/namespaces/reader"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
 	acl "github.com/viant/datly-studio/studio/report_acl/reader"
+	publicationevents "github.com/viant/datly-studio/studio/report_publication_events/list"
 	publicationget "github.com/viant/datly-studio/studio/report_publications/get"
 	catalogpredicate "github.com/viant/datly-studio/studio/reports/catalogpredicate"
 	reportget "github.com/viant/datly-studio/studio/reports/get"
@@ -76,6 +77,9 @@ func run(ctx context.Context, output string) error {
 		return err
 	}
 	if err := resources.Register(publicationget.PublicationDatlyResourceNamespace, publicationget.PublicationDatlyResources); err != nil {
+		return err
+	}
+	if err := resources.Register(publicationevents.EventDatlyResourceNamespace, publicationevents.EventDatlyResources); err != nil {
 		return err
 	}
 	predicates, err := (host.Config{PredicatePackages: []predicatecatalog.Package{{
@@ -151,9 +155,14 @@ func run(ctx context.Context, output string) error {
 	if err != nil {
 		return err
 	}
+	publicationHistory, err := compile(reflect.TypeFor[publicationevents.EventComponent](), reflect.TypeFor[publicationevents.PublicationEventsListInput](),
+		reflect.TypeFor[publicationevents.PublicationEventsListOutput](), resources, types, codec)
+	if err != nil {
+		return err
+	}
 	document, err := (openapi.Generator{}).Generate(ctx, openapi.Request{
 		Info:       openapi3.Info{Title: "Datly Studio SDK", Version: "1.0.0"},
-		Components: []*registry.RegisteredComponent{auth, aclList, connectorList, connectorOne, namespaceList, namespaceOne, reportList, reportOne, publicationOne},
+		Components: []*registry.RegisteredComponent{auth, aclList, connectorList, connectorOne, namespaceList, namespaceOne, reportList, reportOne, publicationOne, publicationHistory},
 		Routes: []spec.RouteRef{
 			{Method: "POST", Path: "/v1/studio/sdk/acl.list"},
 			{Method: "POST", Path: "/v1/studio/sdk/connectors.get"},
@@ -163,6 +172,7 @@ func run(ctx context.Context, output string) error {
 			{Method: "POST", Path: "/v1/studio/sdk/reports.get"},
 			{Method: "POST", Path: "/v1/studio/sdk/reports.list"},
 			{Method: "POST", Path: "/v1/studio/sdk/publications.get"},
+			{Method: "POST", Path: "/v1/studio/sdk/publications.events.list"},
 		},
 	})
 	if err != nil {

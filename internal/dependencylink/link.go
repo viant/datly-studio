@@ -19,6 +19,8 @@ import (
 	_ "github.com/viant/datly-studio/studio/report_mcp_exposures/writer"
 	_ "github.com/viant/datly-studio/studio/report_parameters/reader"
 	_ "github.com/viant/datly-studio/studio/report_parameters/writer"
+	_ "github.com/viant/datly-studio/studio/report_publication_events/list"
+	_ "github.com/viant/datly-studio/studio/report_publication_events/listoptions"
 	_ "github.com/viant/datly-studio/studio/report_publication_events/reader"
 	_ "github.com/viant/datly-studio/studio/report_publications/get"
 	_ "github.com/viant/datly-studio/studio/report_publications/reader"

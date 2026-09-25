@@ -288,6 +288,7 @@ func TestEveryStaticDatlyComponentContract(t *testing.T) {
 		{"report_warmup_runs/store_expired/warmup_run.dql", "get"},
 		{"report_warmup_runs/store_write/warmup_run.dql", "patch"},
 		{"report_publication_events/reader/event.dql", "get"},
+		{"report_publication_events/list/event.dql", "get"},
 		{"report_publication_events/store_list/event.dql", "get"},
 		{"report_publication_events/store_owner/report.dql", "get"},
 		{"report_publication_events/store_insert/event.dql", "post"},

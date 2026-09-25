@@ -4,6 +4,13 @@ export type ClientOptions = {
     baseUrl: `${string}://${string}` | (string & {});
 };
 
+export type InputC8F891Bb6Cfd81599Dce6F4F5D400A21Caa864A78F2Dabaa10E3173F02Ca8Db3 = {
+    limit?: number;
+    offset?: number;
+    operation?: string;
+    status?: string;
+};
+
 export type Wire1F5F473Dc54Ed2F6C617275D578B2307A69146Cb2Ce69Ae058Bffe57F5C226B4 = {
     createdAt: string;
     description?: string;
@@ -13,6 +20,21 @@ export type Wire1F5F473Dc54Ed2F6C617275D578B2307A69146Cb2Ce69Ae058Bffe57F5C226B4
     status: string;
     title: string;
     updatedAt: string;
+};
+
+export type Wire221846F313892219B53265500A015547384983C9F728252D253349F904Fb06A9 = {
+    eventId: string;
+    failureCode?: string | null;
+    failureMessage?: string | null;
+    generationNo?: number | null;
+    occurredAt: string;
+    operation: string;
+    ownerId: string;
+    reason?: string | null;
+    reportId: string;
+    requestedBy: string;
+    status: string;
+    versionNo?: number | null;
 };
 
 export type Wire3260Fb4C4C3Ba7C084402Fa64664F099Dae40719E64A304Feae0D1Fd05Cf8C6c = {
@@ -87,6 +109,12 @@ export type Wire7F614C3079E0F6Cdc356Ae6E7E44A326C9B77Ae75D9Bed109251680A65F23B71
 
 export type Wire95A77E17Aef6A0C48E1829638788A4Dec1654A5C42Fd6549E0C42F7Eea24F35c = {
     items: Array<Wire3260Fb4C4C3Ba7C084402Fa64664F099Dae40719E64A304Feae0D1Fd05Cf8C6c | null> | null;
+};
+
+export type WireB3C67Af74Df5A4D366C8F3A628801F07D89D1Eefd88Ebad70D3689F8970629Db = {
+    items: Array<Wire221846F313892219B53265500A015547384983C9F728252D253349F904Fb06A9 | null> | null;
+    limit: number;
+    offset: number;
 };
 
 export type WireB42A7344Fc0606034Fc05C388A62F83C484228Cb1E9Be8Bf4055Ff09F8F4A044 = {
@@ -244,6 +272,25 @@ export type PostV1StudioSdkNamespacesListResponses = {
 };
 
 export type PostV1StudioSdkNamespacesListResponse = PostV1StudioSdkNamespacesListResponses[keyof PostV1StudioSdkNamespacesListResponses];
+
+export type PostV1StudioSdkPublicationsEventsListData = {
+    body: {
+        input?: InputC8F891Bb6Cfd81599Dce6F4F5D400A21Caa864A78F2Dabaa10E3173F02Ca8Db3;
+        reportId: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/publications.events.list';
+};
+
+export type PostV1StudioSdkPublicationsEventsListResponses = {
+    /**
+     * Success response
+     */
+    200: WireB3C67Af74Df5A4D366C8F3A628801F07D89D1Eefd88Ebad70D3689F8970629Db;
+};
+
+export type PostV1StudioSdkPublicationsEventsListResponse = PostV1StudioSdkPublicationsEventsListResponses[keyof PostV1StudioSdkPublicationsEventsListResponses];
 
 export type PostV1StudioSdkPublicationsGetData = {
     body: {
