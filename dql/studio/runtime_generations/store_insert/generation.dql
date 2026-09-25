@@ -1,0 +1,24 @@
+#package('studio/runtime_generations/store_insert')
+
+#import('encoding/json')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/runtime-generation-store/insert', 'POST'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('generation', 'sql/read.sql'))
+
+#define($_ = $Generations<[]*StoredGeneration>(body/data))
+
+SELECT generation.*, type(generation, 'StoredGeneration'),
+       CAST(generation.generation_no AS int64),
+       CAST(generation.source_revision AS string),
+       CAST(generation.status AS string), CAST(generation.report_count AS int),
+       CAST(generation.build_manifest_json AS json.RawMessage),
+       CAST(generation.requested_by AS string),
+       CAST(generation.requested_at AS time.Time),
+       tag(generation.generation_no, 'sqlx:"generation_no,primaryKey"'),
+       tag(generation.build_manifest_json, 'sqlx:"build_manifest_json,enc=JSON"'),
+       lifecycle_type(generation, 'GenerationInsertRules')
+FROM (${embed:sql/read.sql}) generation

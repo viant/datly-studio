@@ -1845,7 +1845,7 @@ func (t *Transport) stagePublication(ctx context.Context, in publishRequest, ver
 		return 0, publicationState{}, false, time.Time{}, internal(err)
 	}
 	runtimeRevision := fmt.Sprintf("%s:%d:%d", in.ReportID, in.VersionNo, generation)
-	if _, err := tx.ExecContext(ctx, `INSERT INTO runtime_generations(generation_no, source_revision, status, report_count, build_manifest_json, requested_by, requested_at) VALUES (?, ?, 'building', 0, '{}', ?, ?)`, generation, runtimeRevision, in.Input.RequestedBy, now); err != nil {
+	if err := t.insertBuildingGeneration(ctx, tx, generation, runtimeRevision, in.Input.RequestedBy, now); err != nil {
 		return 0, publicationState{}, false, time.Time{}, classify(err, "runtime generation", fmt.Sprint(generation))
 	}
 	previous, hasPrevious, err := t.publicationSnapshot(ctx, tx, in.ReportID)
@@ -2091,7 +2091,7 @@ func (t *Transport) unpublish(ctx context.Context, input, output any) (returnErr
 		return internal(err)
 	}
 	revision := fmt.Sprintf("unpublish:%s:%d", in.ReportID, generation)
-	if _, err = tx.ExecContext(ctx, `INSERT INTO runtime_generations(generation_no,source_revision,status,report_count,build_manifest_json,requested_by,requested_at) VALUES(?,?,'building',0,'{}',?,?)`, generation, revision, in.Input.RequestedBy, now); err != nil {
+	if err = t.insertBuildingGeneration(ctx, tx, generation, revision, in.Input.RequestedBy, now); err != nil {
 		return classify(err, "runtime generation", fmt.Sprint(generation))
 	}
 	if _, err = tx.ExecContext(ctx, `UPDATE report_publications SET desired_version_no=NULL,desired_generation=?,publication_status='unpublishing',failure_json=NULL WHERE report_id=?`, generation, in.ReportID); err != nil {
