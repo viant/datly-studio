@@ -23,6 +23,7 @@ import (
 	connectorinsert "github.com/viant/datly-studio/studio/connectors/store_insert"
 	connectorstatus "github.com/viant/datly-studio/studio/connectors/store_status"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
+	versionedit "github.com/viant/datly-studio/studio/report_versions/store_edit"
 	versioninsert "github.com/viant/datly-studio/studio/report_versions/store_insert"
 	reportconfig "github.com/viant/datly-studio/studio/reports/store_config"
 	reportinsert "github.com/viant/datly-studio/studio/reports/store_insert"
@@ -1162,13 +1163,26 @@ func (t *Transport) applyVersionEdit(ctx context.Context, input, output any) err
 	default:
 		return invalid(fmt.Errorf("unsupported version edit kind %q", in.Command.Kind))
 	}
-	nextRevision := current.SourceRevision + 1
-	if nextRevision <= 1 && current.SourceRevision == 0 {
-		nextRevision = 2
-	}
 	hash := hashVersion(in.ReportID, in.VersionNo, current.AuthoringMode, authoredSQL, authoredDQL, spec)
-	_, err = t.DB.ExecContext(ctx, `UPDATE report_versions SET authored_sql=?, authored_dql=?, component_spec_json=?, spec_hash=?, generated_dql=?, compile_status='pending', compile_diagnostics_json='[]', source_revision=? WHERE report_id=? AND version_no=? AND source_revision=?`, nullable(authoredSQL), nullable(authoredDQL), string(spec), hash, nullable(generatedDQL), nextRevision, in.ReportID, in.VersionNo, current.SourceRevision)
+	expected := current.SourceRevision
+	err = t.writeVersionEdit(ctx, &versionedit.StoredVersion{
+		ReportId: in.ReportID, VersionNo: in.VersionNo,
+		AuthoredSql:       namespaceOptionalDescription(authoredSQL),
+		AuthoredDql:       namespaceOptionalDescription(authoredDQL),
+		ComponentSpecJson: spec, SpecHash: hash,
+		GeneratedDql:  namespaceOptionalDescription(generatedDQL),
+		CompileStatus: "pending", CompileDiagnosticsJson: json.RawMessage(`[]`),
+		SourceRevision: &expected,
+		Has: &versionedit.StoredVersionHas{ReportId: true, VersionNo: true,
+			AuthoredSql: true, AuthoredDql: true, ComponentSpecJson: true,
+			SpecHash: true, GeneratedDql: true, CompileStatus: true,
+			CompileDiagnosticsJson: true, SourceRevision: true},
+	})
 	if err != nil {
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) {
+			return &sdk.Error{Code: sdk.ErrorConflict, Message: "version source revision does not match"}
+		}
 		return internal(err)
 	}
 	updated, err := t.getVersionValue(ctx, in.ReportID, in.VersionNo)
