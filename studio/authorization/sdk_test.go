@@ -84,6 +84,15 @@ func TestSDKAuthorizerEnforcesOwnerAndACL(t *testing.T) {
 	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{ConnectorName: "main", Permission: "edit"}); err != nil {
 		t.Fatal(err)
 	}
+	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{ConnectorName: "main", Permission: "dql"}); err != nil {
+		t.Fatalf("connector ACL DQL after grant: %v", err)
+	}
+	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{ConnectorName: "main", Permission: "publish"}); err == nil {
+		t.Fatal("connector publish without ACL grant unexpectedly allowed")
+	}
+	if err = authorizer.Authorize(bob, sqltransport.AuthorizationRequest{ConnectorName: "main", Permission: "publish"}); err != nil {
+		t.Fatalf("connector owner publish: %v", err)
+	}
 	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{OwnerID: "bob", Permission: "edit"}); err == nil {
 		t.Fatal("cross-owner creation allowed")
 	}
@@ -107,6 +116,15 @@ func TestSDKAuthorizerEnforcesOwnerAndACL(t *testing.T) {
 	}
 	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{NamespaceName: "general", Permission: "view"}); err == nil {
 		t.Fatal("namespace inherited ACL from deleted report")
+	}
+	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{ConnectorName: "main", Permission: "edit"}); err == nil {
+		t.Fatal("connector inherited ACL from deleted report")
+	}
+	if _, err = db.Exec(`UPDATE connectors SET deleted_at=CURRENT_TIMESTAMP WHERE name='main'`); err != nil {
+		t.Fatal(err)
+	}
+	if err = authorizer.Authorize(bob, sqltransport.AuthorizationRequest{ConnectorName: "main", Permission: "view"}); err == nil {
+		t.Fatal("deleted connector owner authorization unexpectedly allowed")
 	}
 	if _, err = db.Exec(`UPDATE namespaces SET deleted_at=CURRENT_TIMESTAMP WHERE owner_id='bob' AND name='general'`); err != nil {
 		t.Fatal(err)

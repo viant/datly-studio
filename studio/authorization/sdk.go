@@ -6,6 +6,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/viant/datly-studio/internal/connectoraccess"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/reportcapability"
 	"github.com/viant/datly-studio/sdk"
@@ -18,6 +19,7 @@ type SDKAuthorizer struct {
 	DB                 *sql.DB
 	ReportCapabilities *reportcapability.Reader
 	NamespaceAccess    *namespaceaccess.Reader
+	ConnectorAccess    *connectoraccess.Reader
 }
 
 // NewSDKAuthorizer prepares the generated report-capability reader once for
@@ -32,14 +34,19 @@ func NewSDKAuthorizer(db *sql.DB) (*SDKAuthorizer, error) {
 		_ = reader.Close(context.Background())
 		return nil, err
 	}
-	return &SDKAuthorizer{DB: db, ReportCapabilities: reader, NamespaceAccess: namespaceReader}, nil
+	connectorReader, err := connectoraccess.New(db)
+	if err != nil {
+		_ = errors.Join(reader.Close(context.Background()), namespaceReader.Close(context.Background()))
+		return nil, err
+	}
+	return &SDKAuthorizer{DB: db, ReportCapabilities: reader, NamespaceAccess: namespaceReader, ConnectorAccess: connectorReader}, nil
 }
 
 func (a *SDKAuthorizer) Close(ctx context.Context) error {
 	if a == nil {
 		return nil
 	}
-	return errors.Join(a.ReportCapabilities.Close(ctx), a.NamespaceAccess.Close(ctx))
+	return errors.Join(a.ReportCapabilities.Close(ctx), a.NamespaceAccess.Close(ctx), a.ConnectorAccess.Close(ctx))
 }
 
 func (a SDKAuthorizer) Authorize(ctx context.Context, request sqltransport.AuthorizationRequest) error {
@@ -135,9 +142,25 @@ func (a SDKAuthorizer) report(ctx context.Context, subject, id, permission strin
 }
 
 func (a SDKAuthorizer) connector(ctx context.Context, subject, name, permission string) error {
-	column := permissionColumn(permission)
-	query := `SELECT EXISTS(SELECT 1 FROM connectors c WHERE c.name=? AND c.deleted_at IS NULL AND (c.owner_id=? OR EXISTS (SELECT 1 FROM reports r JOIN report_acl acl ON acl.report_id=r.id WHERE r.default_connector_name=c.name AND r.deleted_at IS NULL AND acl.subject_type='user' AND acl.subject_id=? AND acl.` + column + `=TRUE)))`
-	return a.allow(ctx, query, name, subject, subject)
+	reader := a.ConnectorAccess
+	owned := false
+	if reader == nil {
+		var err error
+		reader, err = connectoraccess.New(a.DB)
+		if err != nil {
+			return denied()
+		}
+		owned = true
+	}
+	allowed, readErr := reader.Allowed(ctx, subject, name, permission)
+	var closeErr error
+	if owned {
+		closeErr = reader.Close(context.Background())
+	}
+	if readErr != nil || closeErr != nil || !allowed {
+		return denied()
+	}
+	return nil
 }
 
 func (a SDKAuthorizer) global(ctx context.Context, subject string) error {
