@@ -198,7 +198,7 @@ Completed areas:
 - Components catalog (renamed from Reports in all user-facing language);
 - connector CRUD/probe/activation/delete dialog;
 - schema browser with closeable table tabs and transient Datly SQL test;
-- graph-first component builder with left paginated parameter panel;
+- graph-first component builder with Input, Views, and Output catalogs below the graph;
 - predicate builder, relation editor, root/subview flows;
 - cube/cache/MCP/resources/skills/ACL/validation/publication/history windows;
 - nested preview table and JSON mode, including proper expandable embedded
@@ -207,6 +207,13 @@ Completed areas:
 
 Latest view-workspace design (verified live):
 
+- Input and Output are compact selectable graph blocks. Their lower workspace
+  contains searchable, paginated catalogs; selecting a parameter or predicate
+  opens its settings inline rather than in a modal. Small catalogs omit
+  redundant count and range labels.
+- Components with more than 12 views use a compact Views block and a paginated
+  lineage catalog, so 50-view multilevel branches do not expand into an
+  unmanageable graph. Search covers view path and source table.
 - First tab is `Component <title>` with a component icon; view and SQL tabs use
   distinct icons and have individual close buttons.
 - The graph uses simple business names such as `Vendor → Products`; technical

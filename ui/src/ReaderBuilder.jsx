@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Button, ButtonGroup, Callout, Card, Code, Divider, InputGroup, Menu, MenuItem, Popover, PopoverInteractionKind, Spinner, Tag } from '@blueprintjs/core';
 import { LazyEditor as Editor } from './LazyEditor.jsx';
-import { ReaderParameterDialog } from './ReaderParameterDialog.jsx';
-import { ReaderPredicateDialog } from './ReaderPredicateDialog.jsx';
 import { DownloadComponentButton } from './ComponentTransfer.jsx';
 import { ReaderSubviewDialog } from './ReaderSubviewDialog.jsx';
 import { ReaderRemoveViewDialog } from './ReaderRemoveViewDialog.jsx';
@@ -17,6 +15,7 @@ import { ReaderPublicationDialog } from './ReaderPublicationDialog.jsx';
 import { ReaderResourcesDialog } from './ReaderResourcesDialog.jsx';
 import { ReaderACLDialog } from './ReaderACLDialog.jsx';
 import { ReaderConflictDialog } from './ReaderConflictDialog.jsx';
+import { ContractWorkspace } from './ContractWorkspace.jsx';
 
 // ReaderBuilder renders the canonical structure returned by the Studio SDK's
 // Datly reader-builder bridge. It does not parse DQL or invent a browser graph.
@@ -26,8 +25,6 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
   const [version, setVersion] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [parameterDialogOpen, setParameterDialogOpen] = useState(false);
-  const [predicateDialogOpen, setPredicateDialogOpen] = useState(false);
   const [subviewDialogOpen, setSubviewDialogOpen] = useState(false);
   const [removeViewDialogOpen, setRemoveViewDialogOpen] = useState(false);
   const [analyticsDialogOpen, setAnalyticsDialogOpen] = useState(false);
@@ -48,6 +45,7 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
   const [testingView, setTestingView] = useState('');
   const [testingRelation, setTestingRelation] = useState('');
   const [selectedNode, setSelectedNode] = useState(null);
+  const [inputTab, setInputTab] = useState('parameters');
   const [editRelation, setEditRelation] = useState(null);
   const [editFields, setEditFields] = useState(null);
   const [activeTab, setActiveTab] = useState('component');
@@ -181,7 +179,7 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
   const requestBack=()=>{if(dirtyTabs.has(activeTab)){setPendingTabAction({kind:'back'});return;}onBack();};
   const reloadAfterConflict = async () => {
     setConflictReloading(true);
-    setParameterDialogOpen(false); setPredicateDialogOpen(false); setSubviewDialogOpen(false); setRemoveViewDialogOpen(false);
+    setSubviewDialogOpen(false); setRemoveViewDialogOpen(false);
     setEditRelation(null); setEditFields(null); setAnalyticsDialogOpen(false); setCacheDialogOpen(false);
     setExposureDialogOpen(false); setValidationDialogOpen(false); setPublicationDialogOpen(false); setResourcesDialogOpen(false);
     try { await load(); setConflict(null); requestAnimationFrame(()=>headingRef.current?.focus()); }
@@ -218,7 +216,7 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
       {version && <div className="studio-builder-header-actions"><div className="studio-builder-status" aria-label="Component revision status"><Tag minimal>{report?.namespace ?? 'general'}</Tag><Tag minimal>{version.state==='published'?'Published':'Draft'} v{version.versionNo}</Tag><Tag minimal>rev {version.sourceRevision}</Tag><Tag intent={version.compileStatus === 'valid' ? 'success' : version.compileStatus === 'invalid' ? 'danger' : 'warning'} minimal>{version.compileStatus}</Tag></div><Button icon="edit" disabled={!canEdit} onClick={()=>setExposureDialogOpen(true)}>Edit component</Button></div>}
     </div>
     {version && <div className="studio-builder-commandbar" role="toolbar" aria-label="Component authoring commands">
-      <div className="studio-command-group"><span>Author</span><ButtonGroup minimal><Button small icon="add" disabled={!canEdit} onClick={() => setParameterDialogOpen(true)}>Inputs</Button><Button small icon="filter" disabled={!canEdit} onClick={() => setPredicateDialogOpen(true)}>Predicates</Button><Button small icon="heatmap" disabled={!canRun} onClick={() => setAnalyticsDialogOpen(true)}>Composition lab</Button><Button small icon="database" disabled={!canEdit} onClick={() => setCacheDialogOpen(true)}>Cache & warmup</Button></ButtonGroup></div>
+      <div className="studio-command-group"><span>Author</span><ButtonGroup minimal><Button small icon="add" onClick={() => { selectBuilderTab('component'); setInputTab('parameters'); setSelectedNode({type:'input'}); }}>Inputs</Button><Button small icon="filter" onClick={() => { selectBuilderTab('component'); setInputTab('predicates'); setSelectedNode({type:'input'}); }}>Predicates</Button><Button small icon="heatmap" disabled={!canRun} onClick={() => setAnalyticsDialogOpen(true)}>Composition lab</Button><Button small icon="database" disabled={!canEdit} onClick={() => setCacheDialogOpen(true)}>Cache & warmup</Button></ButtonGroup></div>
       <div className="studio-command-group"><span>Govern</span><ButtonGroup minimal><Button small icon="folder-open" disabled={!canEdit} onClick={()=>setResourcesDialogOpen(true)}>Skills & resources</Button>{capabilities.canManageAcl===true&&<Button small icon="lock" disabled={!canPublish} onClick={()=>setACLDialogOpen(true)}>Permissions</Button>}</ButtonGroup></div>
       <div className="studio-command-group studio-command-release"><span>Release</span><ButtonGroup minimal><Button small icon="endorsed" disabled={!canEdit} onClick={()=>setValidationDialogOpen(true)}>Validate</Button><Button small icon="play" disabled={!canRun} loading={previewing&&!previewTarget} onClick={()=>runPreview(null)}>Preview</Button><Button small intent="primary" icon="rocket-slant" disabled={!canPublish || version.compileStatus !== 'valid'} title={!canPublish ? 'Publish permission is required' : version.compileStatus === 'valid' ? 'Publish this validated revision' : 'Validate this exact revision before publishing'} onClick={()=>setPublicationDialogOpen(true)}>Publish</Button><Button small icon="refresh" aria-label="Refresh component" title="Refresh component" onClick={load}/></ButtonGroup></div>
     </div>}
@@ -227,11 +225,11 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
     {!loading && !version && <Card className="studio-card studio-empty" elevation={0}><h2>No reader definition yet</h2><span>Create an initial reader version from this catalog entry before composing views.</span></Card>}
     {!loading && version && <><BuilderTabs componentTitle={report?.title} activeTab={activeTab} viewTabs={viewTabs} canUseDQL={canUseDQL} onSelect={selectBuilderTab} onClose={closeViewTab}/><div className="studio-builder-grid" role="tabpanel" id={workspacePanelId(activeTab)} aria-labelledby={workspaceTabId(activeTab)} tabIndex={0}>
       {activeTab === 'component' ? <>
-        <Card className="studio-card studio-graph-panel" elevation={0}>
+        <Card className={`studio-card studio-graph-panel ${['input','output','views'].includes(selectedNode?.type) ? 'studio-graph-panel-contract' : ''}`} elevation={0}>
           <div className="studio-panel-heading"><div><h2>Component graph</h2><p className="studio-muted">Open a view to inspect its fields. Select a relation to inspect its join.</p></div><Code>{rootView ? `${displayViewName(rootView)} tree` : 'empty'}</Code></div>
-          {rootView && <ComponentGraph root={rootView} selected={selectedNode} canEdit={canEdit} canRun={canRun} onSelect={selectView} onOpen={selectView} onOpenSQL={openSQLTab} onAdd={(node)=>{setSelectedNode(node);setSubviewDialogOpen(true);}} onEdit={selectView} onTest={testSelectedView} onRemove={removeSelectedView} />}
+          {rootView && <ComponentGraph root={rootView} selected={selectedNode} inputCount={inputDeclarationCount(inspection?.structure)} predicateCount={predicateOptionCount(inspection?.structure)} outputCount={collectViewEntries(rootView).reduce((count, entry) => count + (entry.view?.columns?.length ?? 0), 0)} canEdit={canEdit} canRun={canRun} onSelect={selectView} onOpen={selectView} onOpenSQL={openSQLTab} onAdd={(node)=>{setSelectedNode(node);setSubviewDialogOpen(true);}} onEdit={selectView} onTest={testSelectedView} onRemove={removeSelectedView} />}
         </Card>
-        <SelectionWorkspace api={api} selection={selectedNode} root={rootView} connector={report?.defaultConnectorName} functions={inspection?.structure?.functions ?? []} version={version} relationTest={testedRelation} canEdit={canEdit} canRun={canRun} testingView={testingView} testingRelation={testingRelation} onClear={() => setSelectedNode(null)} onOpenSQL={openSQLTab} onAdd={(node) => { setSelectedNode(node); setSubviewDialogOpen(true); }} onEditRelation={setEditRelation} onFields={(node) => setEditFields(node)} onTest={testSelectedView} onRunRelation={testSelectedRelation} onPreviewRelation={(node) => runPreview({type:'relation',label:`${displayNodeName(node.parentName, rootView)} → ${displayViewName(node.child?.view)}`})} onRemove={removeSelectedView}/>
+        {['input','output','views'].includes(selectedNode?.type) ? <ContractWorkspace api={api} selection={selectedNode} structure={inspection?.structure} root={rootView} canEdit={canEdit} activeInputTab={inputTab} onInputTab={setInputTab} onClear={() => setSelectedNode(null)} onApply={applyCommand} onSelectView={(view) => setSelectedNode({type:'view', name:view.namespace || view.name, label:view.name, view})}/> : <SelectionWorkspace api={api} selection={selectedNode} root={rootView} connector={report?.defaultConnectorName} functions={inspection?.structure?.functions ?? []} version={version} relationTest={testedRelation} canEdit={canEdit} canRun={canRun} testingView={testingView} testingRelation={testingRelation} onClear={() => setSelectedNode(null)} onOpenSQL={openSQLTab} onAdd={(node) => { setSelectedNode(node); setSubviewDialogOpen(true); }} onEditRelation={setEditRelation} onFields={(node) => setEditFields(node)} onTest={testSelectedView} onRunRelation={testSelectedRelation} onPreviewRelation={(node) => runPreview({type:'relation',label:`${displayNodeName(node.parentName, rootView)} → ${displayViewName(node.child?.view)}`})} onRemove={removeSelectedView}/>}
       </> : activeView ? <ViewWorkspace mode="sql" view={activeView} viewName={activeViewName} root={rootView} sql={viewSourceSQL(inspection, activeViewName)} canEdit={canEdit} canRun={canRun} onDirtyChange={(dirty)=>setDirtyTabs((current)=>{const next=new Set(current);if(dirty)next.add(activeTab);else next.delete(activeTab);return next;})} onApply={applyCommand} onTest={() => runViewTest(activeViewName)} testing={testingView === activeViewName}/> : null}
       {activeTab === 'advanced' && canUseDQL && <Card className="studio-card studio-advanced-panel" elevation={0}><div className="studio-panel-heading"><div><h2>Advanced component source</h2><p className="studio-muted">Component DQL is structural. View SQL opens in a dedicated SQL tab.</p></div><Button small minimal icon={showRawDQL ? 'eye-off' : 'eye-open'} onClick={() => setShowRawDQL((current) => !current)}>{showRawDQL ? 'Hide raw DQL' : 'Show raw DQL'}</Button></div>{showRawDQL ? <pre className="studio-dql-source">{source || 'No DQL source is defined.'}</pre> : <><div className="studio-dql-resource-list">{collectViewEntries(rootView).map((entry) => <Button key={entry.view.name} minimal icon="code" onClick={() => openSQLTab({ type: 'view', name: entry.view.name, label: entry.view.name, view: entry.view })}>{`embed:sql/${viewResourcePath(entry.view, rootView)}`}</Button>)}</div><Divider/><h3>Diagnostics</h3>{diagnostics.length === 0 ? <div className="studio-diagnostic-ok">Datly inspection completed without diagnostics.</div> : diagnostics.map((item, index) => <Callout key={`${item.code}-${index}`} intent={item.severity === 'error' ? 'danger' : 'warning'} title={item.code || item.severity}>{item.message}</Callout>)}</>}</Card>}
       {preview && <Card className="studio-card studio-preview-panel" elevation={0}>
@@ -245,8 +243,6 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
         <ResultPreview data={testedView.data}/>
       </Card>}
     </div></>}
-    <ReaderParameterDialog isOpen={parameterDialogOpen} structure={inspection?.structure} onClose={() => setParameterDialogOpen(false)} onApply={applyCommand} />
-    <ReaderPredicateDialog api={api} isOpen={predicateDialogOpen} structure={inspection?.structure} onClose={() => setPredicateDialogOpen(false)} onApply={applyCommand} />
     <ReaderSubviewDialog isOpen={subviewDialogOpen} structure={inspection?.structure} initialParent={selectedNode?.type==='view'?selectedNode.name:''} onClose={() => setSubviewDialogOpen(false)} onApply={applyCommand} />
     <ReaderRemoveViewDialog isOpen={removeViewDialogOpen} structure={inspection?.structure} initialView={selectedNode?.type==='view'?selectedNode.name:''} onClose={() => setRemoveViewDialogOpen(false)} onApply={applyCommand} />
     <ReaderRelationDialog isOpen={Boolean(editRelation)} node={editRelation} structure={inspection?.structure} onClose={()=>setEditRelation(null)} onApply={async(operation)=>{await applyCommand(operation);setSelectedNode(null);}}/>
@@ -355,7 +351,7 @@ function SelectionWorkspace({ api, selection, root, connector, functions, versio
   </>;
 }
 
-function ComponentGraph({root,selected,canEdit,canRun,onSelect,onOpen,onOpenSQL,onAdd,onEdit,onTest,onRemove}) {
+function ComponentGraph({root,selected,inputCount,predicateCount,outputCount,canEdit,canRun,onSelect,onOpen,onOpenSQL,onAdd,onEdit,onTest,onRemove}) {
   const entries = useMemo(() => collectViewEntries(root), [root]);
   const [query, setQuery] = useState('');
   const [collapsed, setCollapsed] = useState(() => new Set());
@@ -364,9 +360,9 @@ function ComponentGraph({root,selected,canEdit,canRun,onSelect,onOpen,onOpenSQL,
   const matches = normalized ? entries.filter((entry) => `${entry.lineage.join(' / ')} ${entry.view?.name || ''} ${entry.view?.source?.table || ''}`.toLowerCase().includes(normalized)) : [];
   const branchNames = entries.filter((entry) => (entry.view?.relations ?? []).length > 0).map((entry) => entry.view.namespace || entry.view.name);
   return <div className="studio-graph-browser">
-    <div className="studio-graph-controls"><InputGroup leftIcon="search" aria-label="Find graph view" placeholder="Find a view, path, or table" value={query} onChange={(event) => setQuery(event.target.value)} rightElement={query ? <Button minimal icon="cross" aria-label="Clear graph search" onClick={() => setQuery('')}/> : undefined}/><Tag minimal>{entries.length} {entries.length === 1 ? 'view' : 'views'}</Tag><ButtonGroup minimal><Button small icon="collapse-all" disabled={branchNames.length === 0} onClick={() => setCollapsed(new Set(branchNames))}>Collapse</Button><Button small icon="expand-all" disabled={collapsed.size === 0} onClick={() => setCollapsed(new Set())}>Expand</Button></ButtonGroup></div>
+    <div className="studio-graph-controls"><InputGroup leftIcon="search" aria-label="Find graph view" placeholder="Find a view, path, or table" value={query} onChange={(event) => setQuery(event.target.value)} rightElement={query ? <Button minimal icon="cross" aria-label="Clear graph search" onClick={() => setQuery('')}/> : undefined}/><Tag minimal>{entries.length} {entries.length === 1 ? 'view' : 'views'}</Tag>{entries.length > 12 ? <Button small icon="properties" onClick={() => onSelect({type:'views'})}>Browse views</Button> : <ButtonGroup minimal><Button small icon="collapse-all" disabled={branchNames.length === 0} onClick={() => setCollapsed(new Set(branchNames))}>Collapse</Button><Button small icon="expand-all" disabled={collapsed.size === 0} onClick={() => setCollapsed(new Set())}>Expand</Button></ButtonGroup>}</div>
     {normalized && <div className="studio-graph-matches" aria-live="polite"><span>{matches.length} {matches.length === 1 ? 'match' : 'matches'}</span>{matches.slice(0, 8).map((entry) => <button type="button" key={entry.view.name} onClick={() => onOpen({type:'view',name:entry.view.namespace||entry.view.name,label:entry.view.name,view:entry.view})}>{entry.lineage.join(' / ')}</button>)}{matches.length > 8 && <span>+{matches.length - 8} more</span>}</div>}
-    <div className="studio-component-graph"><ViewBlock view={root} root selected={selected} canEdit={canEdit} canRun={canRun} query={normalized} collapsed={collapsed} onCollapse={(name) => setCollapsed((current) => { const next = new Set(current); if (next.has(name)) next.delete(name); else next.add(name); return next; })} onSelect={onSelect} onOpen={onOpen} onOpenSQL={onOpenSQL} onAdd={onAdd} onEdit={onEdit} onTest={onTest} onRemove={onRemove}/></div>
+    <div className="studio-contract-graph"><button type="button" className={`studio-contract-node ${selected?.type === 'input' ? 'selected' : ''}`} aria-pressed={selected?.type === 'input'} onClick={() => onSelect({type:'input'})}><strong>Input</strong><small>{inputCount} inputs · {predicateCount} predicates</small></button><div className="studio-component-graph">{entries.length > 12 ? <button type="button" className={`studio-contract-node studio-views-node ${selected?.type === 'views' ? 'selected' : ''}`} aria-pressed={selected?.type === 'views'} onClick={() => onSelect({type:'views'})}><strong>Views</strong><small>{entries.length} views · root {displayViewName(root)}</small></button> : <ViewBlock view={root} root selected={selected} canEdit={canEdit} canRun={canRun} query={normalized} collapsed={collapsed} onCollapse={(name) => setCollapsed((current) => { const next = new Set(current); if (next.has(name)) next.delete(name); else next.add(name); return next; })} onSelect={onSelect} onOpen={onOpen} onOpenSQL={onOpenSQL} onAdd={onAdd} onEdit={onEdit} onTest={onTest} onRemove={onRemove}/>}</div><button type="button" className={`studio-contract-node ${selected?.type === 'output' ? 'selected' : ''}`} aria-pressed={selected?.type === 'output'} onClick={() => onSelect({type:'output'})}><strong>Output</strong><small>{outputCount} columns · {entries.length} views</small></button></div>
   </div>;
 }
 function ViewBlock({view,root=false,relationKind='',selected,canEdit,canRun,query='',collapsed,onCollapse,onSelect,onOpen,onOpenSQL,onAdd,onEdit,onTest,onRemove}) {
@@ -456,5 +452,5 @@ function formatDuration(value) {
   if (nanoseconds < 1e6) return `${Math.round(nanoseconds / 1e3)}µs`;
   return `${(nanoseconds / 1e6).toFixed(1)}ms`;
 }
-function inputDeclarationCount(structure){return (structure?.declarations??[]).filter((item)=>item?.parameter&&!['output','component'].includes(String(item.parameter.source?.kind||'').toLowerCase())).length;}
+function inputDeclarationCount(structure){return (structure?.declarations??[]).filter((item)=>item?.parameter&&!['output','component','view'].includes(String(item.parameter.source?.kind||'').toLowerCase())).length;}
 function predicateOptionCount(structure){return (structure?.declarations??[]).reduce((count,item)=>count+(item?.predicates?.length??0),0);}

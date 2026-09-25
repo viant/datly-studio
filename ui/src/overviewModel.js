@@ -2,7 +2,7 @@ export function overviewIssues(input = {}) {
   const { reports = [], connectors = [], runtime = null, errors = {} } = input || {};
   const issues = [];
   if (!runtime || runtime.host?.status !== 'ready') {
-    issues.push({ key: 'runtime-host', intent: 'danger', title: 'Dynamic runtime is unavailable', detail: 'Published generation records do not prove that HTTP and MCP listeners are serving.', section: 'runtime' });
+    issues.push({ key: 'runtime-host', intent: 'danger', title: 'Live runtime could not be verified', detail: 'The live HTTP and MCP host did not pass a runtime check. A published generation record alone does not prove it is serving.', section: 'runtime' });
   }
   if (errors.connectors) {
     issues.push({ key: 'connector-catalog', intent: 'warning', title: 'Connector readiness is unavailable', detail: errors.connectors, section: 'connectors' });
@@ -26,7 +26,7 @@ export function environmentChecks(input = {}) {
   return [
     { key: 'connectors', label: 'Connectors', value: errors.connectors || `${testedConnectors.length}/${activeConnectors.length} active connectors tested`, ready: !errors.connectors && activeConnectors.length > 0 && testedConnectors.length === activeConnectors.length, section: 'connectors' },
     { key: 'namespaces', label: 'Namespaces', value: errors.namespaces || `${namespaces.length} governed`, ready: !errors.namespaces && namespaces.length > 0, section: 'namespaces' },
-    { key: 'runtime', label: 'Dynamic runtime', value: errors.runtime || (runtime?.host?.status === 'ready' ? `Ready · revision ${runtime.host.revision}` : runtime?.host?.status || 'Unknown'), ready: !errors.runtime && runtime?.host?.status === 'ready', section: 'runtime' },
+    { key: 'runtime', label: 'Live runtime', value: errors.runtime || (runtime?.host?.status === 'ready' ? `Ready · revision ${runtime.host.revision}` : runtime?.host?.status === 'unavailable' ? 'Check failed' : 'Not checked'), ready: !errors.runtime && runtime?.host?.status === 'ready', section: 'runtime' },
   ];
 }
 

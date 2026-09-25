@@ -4,6 +4,22 @@
 > notes. They are not independent UX approval and must not be used to green-light
 > any Studio surface. Record future approval only from the requested reviewer.
 
+### Reader Builder contract navigation — local review, 2026-09-25
+
+- Input and Output graph blocks open full-width catalogs below the graph.
+  Parameter and predicate rows switch that lower panel to an inline settings
+  form; the builder no longer opens their catalog dialogs.
+- A large view graph becomes a compact Views block with a searchable,
+  25-row-per-page lineage catalog. Render tests cover 205 inputs/predicates and
+  a 51-view, five-branch, ten-level fixture.
+- Local browser inspection checked the populated Vendor catalog at desktop and
+  a 700px viewport. A narrow-layout ordering regression was corrected so the
+  graph precedes its detail panel. This is local evidence, not independent
+  reviewer approval or the pending deployed 200% zoom check.
+- Runtime status now says “Live runtime check failed” when its host probe fails
+  or returns no result. The published generation record remains distinct from
+  a verified serving HTTP/MCP host.
+
 ## GPT-5.6 light findings — Runtime and Skills, 2026-09-20
 
 This was a critique, not approval. It identified stale MCP refresh behavior,

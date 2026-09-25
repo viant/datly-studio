@@ -11,6 +11,8 @@ test('overview derives actionable readiness without invented metrics', () => {
   };
   assert.deepEqual(overviewIssues(state).map((item) => item.key), ['runtime-host', 'connector:main', 'drafts']);
   assert.deepEqual(environmentChecks(state).map((item) => item.ready), [false, true, false]);
+  assert.equal(overviewIssues(state)[0].title, 'Live runtime could not be verified');
+  assert.equal(environmentChecks(state)[2].value, 'Check failed');
 });
 
 test('overview readiness is clean when the scoped environment is ready', () => {
