@@ -1,0 +1,20 @@
+#package('studio/reports/store_draft_pointer')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/report-store/draft-pointer', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('report', 'sql/read.sql'))
+
+#define($_ = $Reports<[]*DraftPointer>(body/data))
+
+SELECT report.*, type(report, 'DraftPointer'),
+       CAST(report.id AS string), CAST(report.current_draft_version AS *int),
+       CAST(report.etag AS *int64), CAST(report.updated_at AS *time.Time),
+       tag(report.id, 'sqlx:"id,primaryKey"'),
+       lifecycle_type(report, 'DraftPointerRules'),
+       concurrency_token(report.etag),
+       set_limit(report, 0)
+FROM (${embed:sql/read.sql}) report
+WHERE 1=1

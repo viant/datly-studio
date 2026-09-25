@@ -4,13 +4,23 @@ import (
 	"bytes"
 	"context"
 	"crypto/sha256"
-	"encoding/hex"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"sort"
 	"strings"
-	"unicode/utf8"
+	"time"
 
 	"github.com/viant/datly-studio/sdk"
+	imported "github.com/viant/datly-studio/studio/report_versions/store_import"
+	pointer "github.com/viant/datly-studio/studio/reports/store_draft_pointer"
+	xhandler "github.com/viant/xdatly/handler"
+)
+
+const (
+	importSpecFormatVersion = "studio.v1"
+	importDatlyVersion      = "v1"
+	importCompilerVersion   = "studio.v1"
 )
 
 func (t *Transport) loadDQL(ctx context.Context, operation string, input, output any) error {
@@ -62,52 +72,102 @@ func (t *Transport) loadDQL(ctx context.Context, operation string, input, output
 	if !ok {
 		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Studio principal is required"}
 	}
-	tx, err := t.DB.BeginTx(ctx, nil)
-	if err != nil {
-		return internal(err)
-	}
-	defer tx.Rollback()
-	var next int
-	if err = tx.QueryRowContext(ctx, `SELECT COALESCE(MAX(version_no),0)+1 FROM report_versions WHERE report_id=?`, report.ID).Scan(&next); err != nil {
-		return internal(err)
-	}
-	source := string(bundle.Files[entry])
-	now := t.now()
 	files := make([]string, 0, len(bundle.Files))
 	for name := range bundle.Files {
 		files = append(files, name)
 	}
 	sort.Strings(files)
-	bundleHash := sha256.New()
-	for _, name := range files {
-		fmt.Fprintf(bundleHash, "%d:%s:%d:", len(name), name, len(bundle.Files[name]))
-		bundleHash.Write(bundle.Files[name])
-	}
-	hash := hashVersion(report.ID, next, "dql", "", source, []byte(fmt.Sprintf(`{"bundleSha256":"%x"}`, bundleHash.Sum(nil))))
-	_, err = tx.ExecContext(ctx, `INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,notes,created_by,created_at) VALUES(?,?,'draft','dql',?,?,'{}','studio.v1',?,'{}','pending','v1','studio.v1',1,?,?,?)`, report.ID, next, source, source, hash, nullable(request.Input.Notes), principal.Subject, now)
+	next, err := t.nextVersionNo(ctx, report.ID)
 	if err != nil {
-		return classify(err, "report version", report.ID)
+		return internal(err)
 	}
-	reportDigest := sha256.Sum256([]byte(report.ID))
-	namespace := fmt.Sprintf("%s.imports.%x", report.OwnerPackage, reportDigest[:8])
+	// The import transaction spans the version, its resource files and the
+	// report draft pointer. Both Datly writers join it and only this method
+	// commits, so a failed file insert or a stale report etag rolls back all.
+	tx, err := t.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return internal(err)
+	}
+	defer tx.Rollback()
+	now := t.now()
+	source := string(bundle.Files[entry])
+	version := importedVersionRow(report.ID, next, source, importSpecHash(report.ID, next, source, bundle, files), request.Input.Notes, principal.Subject, now)
+	namespace := importNamespace(report)
 	for _, name := range files {
-		content := bundle.Files[name]
-		digest := sha256.Sum256(content)
-		id := sha256.Sum256([]byte(name))
-		_, err = tx.ExecContext(ctx, `INSERT INTO report_resource_files(report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at) VALUES(?,?,?,?,?,?,?,?,?,?)`, report.ID, next, hex.EncodeToString(id[:]), namespace, name, content, len(content), hex.EncodeToString(digest[:]), !utf8.Valid(content), now)
-		if err != nil {
-			return internal(err)
-		}
+		version.File = append(version.File, importedResourceFileRow(namespace, name, bundle.Files[name], now))
 	}
-	if _, err = tx.ExecContext(ctx, `UPDATE reports SET current_draft_version=?,etag=etag+1,updated_at=? WHERE id=?`, next, now, report.ID); err != nil {
+	version.Has.File = len(version.File) > 0
+	if err = t.writeImportedVersion(ctx, tx, version); err != nil {
+		return classify(err, "report version", fmt.Sprintf("%s/%d", report.ID, next))
+	}
+	if err = t.writeDraftPointer(ctx, tx, draftPointerRow(report, next, now)); err != nil {
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) {
+			return &sdk.Error{Code: sdk.ErrorConflict, Message: fmt.Sprintf("report %q was modified concurrently", report.ID), Cause: err}
+		}
 		return internal(err)
 	}
 	if err = tx.Commit(); err != nil {
 		return internal(err)
 	}
-	version, err := t.getVersionValue(ctx, report.ID, next)
+	value, err := t.getVersionValue(ctx, report.ID, next)
 	if err != nil {
 		return err
 	}
-	return assign(output, &sdk.DQLLoadResult{Version: version, EntryDQL: entry, Entries: bundle.Entries, Files: files})
+	return assign(output, &sdk.DQLLoadResult{Version: value, EntryDQL: entry, Entries: bundle.Entries, Files: files})
+}
+
+// importSpecHash binds the version hash to the whole bundle, not only the
+// entry document, so two imports with different dependencies never collide on
+// the (report_id, spec_hash) uniqueness rule.
+func importSpecHash(reportID string, versionNo int, source string, bundle *sdk.DQLBundle, files []string) string {
+	bundleHash := sha256.New()
+	for _, name := range files {
+		fmt.Fprintf(bundleHash, "%d:%s:%d:", len(name), name, len(bundle.Files[name]))
+		bundleHash.Write(bundle.Files[name])
+	}
+	return hashVersion(reportID, versionNo, "dql", "", source, []byte(fmt.Sprintf(`{"bundleSha256":"%x"}`, bundleHash.Sum(nil))))
+}
+
+func importNamespace(report *sdk.Report) string {
+	digest := sha256.Sum256([]byte(report.ID))
+	return fmt.Sprintf("%s.imports.%x", report.OwnerPackage, digest[:8])
+}
+
+func importedVersionRow(reportID string, versionNo int, source, specHash, notes, createdBy string, createdAt time.Time) *imported.ImportedVersion {
+	authored, generated := source, source
+	row := &imported.ImportedVersion{ReportId: reportID, VersionNo: versionNo, State: "draft", AuthoringMode: "dql",
+		AuthoredDql: &authored, GeneratedDql: &generated, ComponentSpecJson: json.RawMessage(`{}`),
+		SpecFormatVersion: importSpecFormatVersion, SpecHash: specHash, TypeManifestJson: json.RawMessage(`{}`),
+		CompileStatus: "pending", DatlyVersion: importDatlyVersion, CompilerVersion: importCompilerVersion,
+		SourceRevision: 1, Notes: importNotes(notes), CreatedBy: createdBy, CreatedAt: createdAt,
+		Has: &imported.ImportedVersionHas{ReportId: true, VersionNo: true, State: true, AuthoringMode: true,
+			AuthoredDql: true, GeneratedDql: true, ComponentSpecJson: true, SpecFormatVersion: true, SpecHash: true,
+			TypeManifestJson: true, CompileStatus: true, DatlyVersion: true, CompilerVersion: true,
+			SourceRevision: true, Notes: true, CreatedBy: true, CreatedAt: true}}
+	return row
+}
+
+// importNotes keeps the caller's note text verbatim and stores NULL for blank
+// input, matching the nullable column semantics of every other version write.
+func importNotes(notes string) *string {
+	if strings.TrimSpace(notes) == "" {
+		return nil
+	}
+	return &notes
+}
+
+// importedResourceFileRow carries the caller-owned file facts. The writer's
+// lifecycle hook derives the resource identity and content digests and links
+// the file to its version.
+func importedResourceFileRow(namespace, path string, content []byte, createdAt time.Time) *imported.ImportedResourceFile {
+	return &imported.ImportedResourceFile{Namespace: namespace, ResourcePath: path, Content: content, CreatedAt: createdAt,
+		Has: &imported.ImportedResourceFileHas{Namespace: true, ResourcePath: true, Content: true, CreatedAt: true}}
+}
+
+func draftPointerRow(report *sdk.Report, versionNo int, updatedAt time.Time) *pointer.DraftPointer {
+	etag := report.ETag
+	draft := versionNo
+	return &pointer.DraftPointer{Id: report.ID, CurrentDraftVersion: &draft, Etag: &etag, UpdatedAt: &updatedAt,
+		Has: &pointer.DraftPointerHas{Id: true, CurrentDraftVersion: true, Etag: true, UpdatedAt: true}}
 }
