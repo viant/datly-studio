@@ -261,14 +261,29 @@ test('publication event history stays behind the owner-scoped SDK operation', as
 
 test('report permissions use ACL SDK operations', async () => {
   const calls=[];
-  const api=new StudioAPI({mode:'development',apiBaseURL:'http://127.0.0.1:8080',development:{subject:'owner'}},{fetcher:async(url,init)=>{calls.push({url,body:init.body});return response({items:[]});}});
+  const api=new StudioAPI({mode:'development',apiBaseURL:'http://127.0.0.1:8080',development:{subject:'owner'}},{fetcher:async(url,init)=>{calls.push(url instanceof Request ? {url:url.url,body:await url.text(),subject:url.headers.get('X-Studio-Development-Subject')} : {url,body:init.body});return response({items:[]});}});
   await api.listACL('reader');
   await api.upsertACL({reportId:'reader',subjectType:'user',subjectId:'viewer',canView:true});
   await api.deleteACL('reader','user','viewer',2);
   assert.equal(calls[0].url,'http://127.0.0.1:8080/v1/studio/sdk/acl.list');
+  assert.equal(calls[0].body,'{"reportId":"reader"}');
+  assert.equal(calls[0].subject,'owner');
   assert.equal(calls[1].url,'http://127.0.0.1:8080/v1/studio/sdk/acl.upsert');
   assert.equal(calls[2].body,'{"reportId":"reader","subjectType":"user","subjectId":"viewer","etag":2}');
   assert.equal(calls[2].url,'http://127.0.0.1:8080/v1/studio/sdk/acl.delete');
+});
+
+test('generated ACL client uses the BFF session and preserves denial evidence', async () => {
+  let sent;
+  const api=new StudioAPI({mode:'authenticated',apiBaseURL:'https://studio.example.com'}, {fetcher:async(request)=>{
+    sent=request;
+    return response({code:'forbidden',message:'only the report owner can administer access'},403,'acl-request-1');
+  }});
+  await assert.rejects(()=>api.listACL('reader'),(error)=>error.status===403&&error.code==='forbidden'&&error.requestId==='acl-request-1');
+  assert.equal(sent.url,'https://studio.example.com/v1/studio/sdk/acl.list');
+  assert.equal(sent.credentials,'include');
+  assert.equal(sent.headers.get('Authorization'),null);
+  assert.equal(await sent.text(),'{"reportId":"reader"}');
 });
 
 test('authenticated preview executes the exact draft version through the SDK', async () => {

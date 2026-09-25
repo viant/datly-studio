@@ -27,8 +27,8 @@ HTTP/MCP tools.
 remaining operations. In authenticated mode, an exact `acl.list` mount
 forwards to the static Datly component instead.
 The SQL transport now calls many transcribed components, but that does not
-make the SDK HTTP route itself a Datly component. The UI's
-`ui/src/studioApi.js` targets this generic route. The Studio SDK declares
+make those SDK HTTP routes Datly components. Most UI calls in
+`ui/src/studioApi.js` still target the generic dispatcher. The Studio SDK declares
 62 `sdk.Operation*` operations (including the separately declared
 `versions.download`) plus the three `access.*` operations.
 The DQL tree has public readers with `$mcp` declarations, but they do not
@@ -92,8 +92,14 @@ The generated input tags `reportId`, so the native MCP argument and HTTP JSON
 body use the same name. The product owner chose owner-only ACL listing. The
 SDK list path checks report ownership, and the native `ACLRead` predicate
 authorizes through the generated grant reader before returning rows. Owner,
-delegated editor, and viewer cases are covered on both paths. The browser
-call still names `acl.list`; generated OpenAPI clients remain migration work.
+delegated editor, and viewer cases are covered on both paths. The browser's
+`listACL` call now uses the generated client from this native OpenAPI document.
+`scripts/generate-studio-sdk.sh` reproducibly exports the Datly route
+contract and generates Go and browser clients. The document currently covers
+`acl.list`; expanding it to every public SDK route remains migration work.
+The generator scopes its input to native SDK routes because broad static
+control-plane OpenAPI includes unrelated routes with unresolved dynamic
+status schema fields.
 
 AI Studio's private report SDK follows the same endpoint rule within AI
 Studio. This does not move private report code or product names into

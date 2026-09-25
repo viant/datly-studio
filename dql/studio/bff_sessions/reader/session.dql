@@ -14,6 +14,7 @@
 #define($_ = $Auth<*studioauth.Output>(component/GET:/v1/studio/auth/context).Required().WithPredicate(3, 'handler', 'studioauthorization.SessionRead'))
 #define($_ = $Sessions<[]*SessionMetadata>(output/view))
 SELECT session.*, type(session, 'SessionMetadata'),
+       CAST(session.session_id_hash AS string), CAST(session.subject_id AS string),
        set_limit(session, 100)
 FROM (${embed:sql/read.sql}) session
 WHERE 1=1

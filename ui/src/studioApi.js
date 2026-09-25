@@ -1,6 +1,8 @@
 // StudioAPI is deliberately a client-side counterpart of sdk.Transport: every
 // UI interaction names an SDK operation and sends an SDK DTO. It has no direct
 // SQL, DQL, Datly component, or storage knowledge.
+import { postV1StudioSdkAclList } from './generated/studioClient.gen.js';
+
 export class StudioAPI {
   constructor(config, options = {}) {
     this.config = config;
@@ -89,7 +91,27 @@ export class StudioAPI {
   getResourceAccess(resource) { return this.invoke('access.get', resource); }
   getResourceAccessContext(resource) { return this.invoke('access.context', resource); }
   replaceResourceAccess(document) { return this.invoke('access.replace', document); }
-  listACL(reportId) { return this.invoke('acl.list', { reportId }).then((result) => result.items ?? []); }
+  async listACL(reportId) {
+    const headers = { Accept: 'application/json' };
+    if (this.config.mode === 'development') headers['X-Studio-Development-Subject'] = this.config.development.subject;
+    const { data, error, response } = await postV1StudioSdkAclList({
+      body: { reportId }, baseUrl: this.config.apiBaseURL, fetch: this.fetcher,
+      credentials: this.config.mode === 'authenticated' ? 'include' : 'same-origin', headers,
+    });
+    if (error) {
+      if (response?.status === 401) this.onUnauthorized?.();
+      const requestId = response?.headers?.get?.('X-Request-ID') || '';
+      const baseMessage = error?.message || `Studio SDK operation acl.list failed (${response?.status ?? 'network'})`;
+      const failure = new Error(requestId ? `${baseMessage} · request ${requestId}` : baseMessage);
+      failure.code = error?.code || '';
+      failure.status = response?.status;
+      failure.field = error?.field || '';
+      failure.violations = error?.violations ?? [];
+      failure.requestId = requestId;
+      throw failure;
+    }
+    return data?.items ?? [];
+  }
   upsertACL(input) { return this.invoke('acl.upsert', input); }
   deleteACL(reportId, subjectType, subjectId, etag) { return this.invoke('acl.delete', { reportId, subjectType, subjectId, etag }); }
   getResources(reportId, versionNo) { return this.invoke('resources.get', { reportId, versionNo }); }

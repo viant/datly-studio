@@ -18,10 +18,10 @@
 #define($_ = $VersionNo<int>(query/versionNo).Optional().WithPredicate(1, 'equal', 'w', 'version_no'))
 #define($_ = $RunID<string>(query/runId).Optional().WithPredicate(1, 'equal', 'w', 'run_id'))
 #define($_ = $Status<string>(query/status).Optional().WithPredicate(1, 'equal', 'w', 'status'))
-#define($_ = $Fields<[]string>(query/fields).Optional().QuerySelector('warmupRun'))
-#define($_ = $OrderBy<string>(query/orderBy).Optional().QuerySelector('warmupRun'))
-#define($_ = $Limit<int>(query/limit).Optional().QuerySelector('warmupRun'))
-#define($_ = $Offset<int>(query/offset).Optional().QuerySelector('warmupRun'))
+#define($_ = $Fields<[]string>(query/fields).Optional().QuerySelector('warmup_run'))
+#define($_ = $OrderBy<string>(query/orderBy).Optional().QuerySelector('warmup_run'))
+#define($_ = $Limit<int>(query/limit).Optional().QuerySelector('warmup_run'))
+#define($_ = $Offset<int>(query/offset).Optional().QuerySelector('warmup_run'))
 #define($_ = $WarmupRuns<[]*WarmupRun>(output/view))
 SELECT warmup_run.*, type(warmup_run, 'WarmupRun'),
        CAST(warmup_run.target_json AS json.RawMessage),

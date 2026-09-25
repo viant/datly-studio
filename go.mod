@@ -15,6 +15,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/lib/pq v1.10.6
 	github.com/mattn/go-sqlite3 v1.14.16
+	github.com/oapi-codegen/runtime v1.7.0
 	github.com/viant/bigquery v0.5.3
 	github.com/viant/bindly v0.2.1-0.20260915164201-7cf35da5bd9a
 	github.com/viant/datly v1.0.1-0.20260924050758-f968896067ed
@@ -35,6 +36,7 @@ require (
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
 	cloud.google.com/go/compute/metadata v0.9.0 // indirect
 	github.com/aerospike/aerospike-client-go v4.5.2+incompatible // indirect
+	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect

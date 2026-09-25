@@ -549,6 +549,9 @@ local test target; do not silently replace it with Docker/MySQL.
   authenticated BFF now forwards that exact SDK path to the static Datly
   host with its session bearer; development mode retains the ACL gate.
   Owner-only policy and HTTP/OpenAPI/MCP behavior have focused SQLite tests.
+  A route-scoped Datly OpenAPI export now generates Go and browser clients;
+  the browser's ACL-list call uses the generated client. The remaining SDK
+  operations still use the generic dispatcher.
   See `docs/sdk-native-endpoints.md` for the remaining broader SDK migration.
   Focused
   Datly embedded-view SQL and rendered UI wrapped-query regressions pass.
