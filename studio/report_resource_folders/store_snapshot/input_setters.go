@@ -21,3 +21,14 @@ func (input *Input) SetVersionNo(value int) {
 	}
 	input.Has.VersionNo = true
 }
+
+func (input *Input) SetFolderId(value string) {
+	if input == nil {
+		return
+	}
+	input.FolderId = value
+	if input.Has == nil {
+		input.Has = &InputHas{}
+	}
+	input.Has.FolderId = true
+}

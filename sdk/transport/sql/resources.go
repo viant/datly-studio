@@ -14,6 +14,7 @@ import (
 
 	"github.com/viant/datly-studio/sdk"
 	filestore "github.com/viant/datly-studio/studio/report_resource_files/store_write"
+	folderstore "github.com/viant/datly-studio/studio/report_resource_folders/store_write"
 	versiontouch "github.com/viant/datly-studio/studio/report_versions/store_touch"
 	"github.com/viant/datly/spec"
 	xhandler "github.com/viant/xdatly/handler"
@@ -183,25 +184,33 @@ func (t *Transport) upsertResourceFolder(ctx context.Context, tx *sql.Tx, value 
 		}
 		value.FolderID = id
 	}
-	updated, err := tx.ExecContext(ctx, `UPDATE report_resource_folders SET namespace=?,root_path=?,uri_prefix=?,ordinal=? WHERE report_id=? AND version_no=? AND folder_id=?`, value.Namespace, value.RootPath, value.URIPrefix, value.Ordinal, value.ReportID, value.VersionNo, value.FolderID)
+	err := t.writeResourceFolder(ctx, tx, &folderstore.StoredFolder{ReportId: value.ReportID,
+		VersionNo: value.VersionNo, FolderId: value.FolderID, Namespace: value.Namespace,
+		RootPath: value.RootPath, UriPrefix: value.URIPrefix, Ordinal: value.Ordinal,
+		Has: &folderstore.StoredFolderHas{ReportId: true, VersionNo: true, FolderId: true,
+			Namespace: true, RootPath: true, UriPrefix: true, Ordinal: true, ShouldDelete: true}})
 	if err != nil {
 		return classify(err, "resource folder", value.FolderID)
-	}
-	if count, _ := updated.RowsAffected(); count == 0 {
-		if _, err = tx.ExecContext(ctx, `INSERT INTO report_resource_folders(report_id,version_no,folder_id,namespace,root_path,uri_prefix,ordinal) VALUES(?,?,?,?,?,?,?)`, value.ReportID, value.VersionNo, value.FolderID, value.Namespace, value.RootPath, value.URIPrefix, value.Ordinal); err != nil {
-			return classify(err, "resource folder", value.FolderID)
-		}
 	}
 	return nil
 }
 
 func (t *Transport) deleteResourceFolder(ctx context.Context, tx *sql.Tx, reportID string, versionNo int, folderID string) error {
-	result, err := tx.ExecContext(ctx, `DELETE FROM report_resource_folders WHERE report_id=? AND version_no=? AND folder_id=?`, reportID, versionNo, folderID)
-	if err != nil {
-		return classify(err, "resource folder", folderID)
+	if _, err := t.readResourceFolderByID(ctx, tx, reportID, versionNo, folderID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return &sdk.Error{Code: sdk.ErrorNotFound, Message: "resource folder was not found"}
+		}
+		return internal(err)
 	}
-	if count, _ := result.RowsAffected(); count == 0 {
-		return &sdk.Error{Code: sdk.ErrorNotFound, Message: "resource folder was not found"}
+	err := t.writeResourceFolder(ctx, tx, &folderstore.StoredFolder{ReportId: reportID,
+		VersionNo: versionNo, FolderId: folderID, ShouldDelete: true,
+		Has: &folderstore.StoredFolderHas{ReportId: true, VersionNo: true, FolderId: true, ShouldDelete: true}})
+	if err != nil {
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) {
+			return &sdk.Error{Code: sdk.ErrorNotFound, Message: "resource folder was not found"}
+		}
+		return classify(err, "resource folder", folderID)
 	}
 	return nil
 }

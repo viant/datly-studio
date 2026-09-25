@@ -9,6 +9,7 @@
 
 #define($_ = $ReportId<string>(query/reportId).Required().WithPredicate(0, 'equal', 'f', 'report_id'))
 #define($_ = $VersionNo<int>(query/versionNo).Required().WithPredicate(0, 'equal', 'f', 'version_no'))
+#define($_ = $FolderId<string>(query/folderId).Optional().WithPredicate(0, 'equal', 'f', 'folder_id'))
 #define($_ = $Folders<[]*SnapshotFolder>(output/view))
 
 SELECT folder.*, type(folder, 'SnapshotFolder'),

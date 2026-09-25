@@ -1,0 +1,26 @@
+#package('studio/report_resource_folders/store_write')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/resource-folder-store/write', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('folder', 'sql/read.sql'))
+
+#define($_ = $Folders<[]*StoredFolder>(body/data))
+
+SELECT folder.*, type(folder, 'StoredFolder'),
+       CAST(folder.report_id AS string),
+       CAST(folder.version_no AS int),
+       CAST(folder.folder_id AS string),
+       CAST(folder.namespace AS string),
+       CAST(folder.root_path AS string),
+       CAST(folder.uri_prefix AS string),
+       CAST(folder.ordinal AS int),
+       CAST(folder.should_delete AS bool),
+       tag(folder.report_id, 'sqlx:"report_id,primaryKey"'),
+       tag(folder.version_no, 'sqlx:"version_no,primaryKey"'),
+       tag(folder.folder_id, 'sqlx:"folder_id,primaryKey"'),
+       lifecycle_type(folder, 'FolderStoreRules'),
+       delete_marker(folder.should_delete)
+FROM (${embed:sql/read.sql}) folder

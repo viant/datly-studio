@@ -954,6 +954,14 @@ SELECT 1`})
 	if len(folder.Folders) != 1 {
 		t.Fatalf("folder snapshot=%+v", folder)
 	}
+	folder, err = client.Resources().UpsertFolder(principal, sdk.ResourceFolder{ReportID: report.ID,
+		VersionNo: version.VersionNo, FolderID: folder.Folders[0].FolderID,
+		Namespace: report.OwnerPackage + ".docs", RootPath: "guide",
+		URIPrefix: "skill://owner-guide/", Ordinal: 1,
+		ExpectedSourceRevision: folder.Version.SourceRevision})
+	if err != nil || len(folder.Folders) != 1 || folder.Folders[0].Ordinal != 1 {
+		t.Fatalf("updated folder=%+v err=%v", folder, err)
+	}
 	snapshot, err := client.Resources().UpsertSkill(principal, sdk.SkillRoot{ReportID: report.ID, VersionNo: version.VersionNo, FolderID: folder.Folders[0].FolderID, SkillRoot: ".", ExpectedSourceRevision: folder.Version.SourceRevision})
 	if err != nil {
 		t.Fatal(err)
@@ -1041,6 +1049,12 @@ SELECT 1`})
 	afterFolderDelete, err := client.Resources().DeleteFolderWithRevision(principal, sdk.ResourceDeleteInput{ReportID: report.ID, VersionNo: version.VersionNo, FolderID: folder.Folders[0].FolderID, ExpectedSourceRevision: afterSkillDelete.Version.SourceRevision})
 	if err != nil || len(afterFolderDelete.Folders) != 0 || afterFolderDelete.Version.SourceRevision != afterSkillDelete.Version.SourceRevision+1 {
 		t.Fatalf("folder delete snapshot=%+v err=%v", afterFolderDelete, err)
+	}
+	_, err = client.Resources().DeleteFolderWithRevision(principal, sdk.ResourceDeleteInput{ReportID: report.ID,
+		VersionNo: version.VersionNo, FolderID: "missing-folder", ExpectedSourceRevision: afterFolderDelete.Version.SourceRevision})
+	var absentFolder *sdk.Error
+	if !errors.As(err, &absentFolder) || absentFolder.Code != sdk.ErrorNotFound {
+		t.Fatalf("missing folder delete error=%v", err)
 	}
 	afterFileDelete, err := client.Resources().DeleteFileWithRevision(principal, sdk.ResourceDeleteInput{ReportID: report.ID, VersionNo: version.VersionNo, ResourceID: file.Files[0].ResourceID, ExpectedSourceRevision: afterFolderDelete.Version.SourceRevision})
 	if err != nil || len(afterFileDelete.Files) != 1 || afterFileDelete.Version.SourceRevision != afterFolderDelete.Version.SourceRevision+1 {

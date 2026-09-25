@@ -1,0 +1,29 @@
+package store_write
+
+import (
+	embed "embed"
+	xdatly "github.com/viant/xdatly"
+	reflect "reflect"
+)
+
+func init() {}
+
+// Component is the generated component scaffold for folder.
+type FolderComponent struct {
+	Contract xdatly.Component[Input, Output] "component:\"folder,path=/_studio/resource-folder-store/write,method=PATCH,connector=studio,view=folder\" routeName:\"folder\" mutation:\"patch\" caseFormat:\"lc\""
+}
+
+// FolderDatlyType keeps the public component type linked for blank-import discovery.
+func FolderDatlyType() reflect.Type { return reflect.TypeOf((*FolderComponent)(nil)).Elem() }
+
+// Datly anchors this package's public component contract.
+var FolderDatly = new(FolderComponent)
+var FolderDatlyLinkedType = FolderDatlyType()
+
+func (FolderComponent) EmbedFS() *embed.FS {
+	return &FolderDatlyResources
+}
+
+func (FolderComponent) EmbedNamespace() string {
+	return FolderDatlyResourceNamespace
+}
