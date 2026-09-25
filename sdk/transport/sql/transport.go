@@ -1844,7 +1844,7 @@ func (t *Transport) stagePublication(ctx context.Context, in publishRequest, ver
 	}
 	defer func() { _ = tx.Rollback() }()
 	now := t.now()
-	if err = ensureNoStagedGeneration(ctx, tx, now); err != nil {
+	if err = t.ensureNoStagedGeneration(ctx, tx, now); err != nil {
 		return 0, publicationState{}, false, time.Time{}, err
 	}
 	generation, err := t.nextGenerationNo(ctx, tx)
@@ -1902,33 +1902,6 @@ func (t *Transport) stagePublication(ctx context.Context, in publishRequest, ver
 }
 
 const stagedGenerationLease = 5 * time.Minute
-
-func ensureNoStagedGeneration(ctx context.Context, tx *sql.Tx, now time.Time) error {
-	cutoff := now.Add(-stagedGenerationLease)
-	failure, _ := json.Marshal([]sdk.Diagnostic{{Severity: "error", Code: "staged_generation_expired", Message: "staged runtime generation expired before activation"}})
-	if _, err := tx.ExecContext(ctx, `UPDATE report_publications
-SET publication_status=CASE WHEN active_generation IS NULL THEN 'failed' ELSE 'active' END,
-    desired_version_no=CASE WHEN active_generation IS NULL THEN desired_version_no ELSE active_version_no END,
-    desired_generation=CASE WHEN active_generation IS NULL THEN desired_generation ELSE active_generation END,
-    runtime_revision=CASE WHEN active_generation IS NULL THEN runtime_revision ELSE (SELECT source_revision FROM runtime_generations WHERE generation_no=active_generation) END,
-    spec_hash=CASE WHEN active_generation IS NULL THEN spec_hash ELSE (SELECT spec_hash FROM report_versions WHERE report_id=report_publications.report_id AND version_no=active_version_no) END,
-    failure_json=?
-WHERE publication_status IN ('pending','unpublishing')
-  AND desired_generation IN (SELECT generation_no FROM runtime_generations WHERE status='building' AND requested_at<?)`, string(failure), cutoff); err != nil {
-		return internal(err)
-	}
-	if _, err := tx.ExecContext(ctx, `UPDATE runtime_generations SET status='failed',diagnostics_json=?,retired_at=? WHERE status='building' AND requested_at<?`, string(failure), now, cutoff); err != nil {
-		return internal(err)
-	}
-	var count int
-	if err := tx.QueryRowContext(ctx, `SELECT COUNT(1) FROM runtime_generations WHERE status='building'`).Scan(&count); err != nil {
-		return internal(err)
-	}
-	if count > 0 {
-		return &sdk.Error{Code: sdk.ErrorConflict, Message: "another runtime generation is already building"}
-	}
-	return nil
-}
 
 func (t *Transport) activatePublication(ctx context.Context, reportID string, versionNo int, generation int64, now time.Time, event publicationEventRecord) error {
 	activated, err := t.DB.BeginTx(ctx, nil)
@@ -2129,7 +2102,7 @@ func (t *Transport) unpublish(ctx context.Context, input, output any) (returnErr
 	activeVersion := int(previous.activeVersion)
 	event.VersionNo = &activeVersion
 	now := t.now()
-	if err = ensureNoStagedGeneration(ctx, tx, now); err != nil {
+	if err = t.ensureNoStagedGeneration(ctx, tx, now); err != nil {
 		return err
 	}
 	generation, err := t.nextGenerationNo(ctx, tx)

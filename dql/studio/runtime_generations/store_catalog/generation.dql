@@ -1,0 +1,21 @@
+#package('studio/runtime_generations/store_catalog')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/runtime-generation-store/catalog', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('generation', 'sql/read.sql'))
+
+#define($_ = $GenerationNo<int64>(query/generationNo).Optional().WithPredicate(1, 'equal', 'g', 'generation_no'))
+#define($_ = $Status<string>(query/status).Optional().WithPredicate(1, 'equal', 'g', 'status'))
+#define($_ = $Generations<[]*CatalogGeneration>(output/view))
+
+SELECT generation.*, type(generation, 'CatalogGeneration'),
+       CAST(generation.generation_no AS int64),
+       CAST(generation.status AS string),
+       CAST(generation.source_revision AS string),
+       CAST(generation.requested_at AS time.Time),
+       set_limit(generation, 0)
+FROM (${embed:sql/read.sql}) generation
+WHERE 1=1
