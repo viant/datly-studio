@@ -2,6 +2,7 @@
 
 #import('github.com/viant/scy/auth/jwt')
 #import('studioauth','github.com/viant/datly-studio/studio/auth/reader')
+#import('catalogpredicate','github.com/viant/datly-studio/studio/reports/catalogpredicate')
 
 #setting($_ = $input_type('Input'))
 #setting($_ = $output_type('Output'))
@@ -12,7 +13,7 @@
 #setting($_ = $sql_dest('report', 'sql/report.sql'))
 
 #define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
-#define($_ = $Auth<*studioauth.Output>(component/GET:/v1/studio/auth/context).Required())
+#define($_ = $Auth<*studioauth.Output>(component/GET:/v1/studio/auth/context).Required().WithPredicate(3, 'handler', 'catalogpredicate.ReportCatalogRead'))
 #define($_ = $Id<string>(path/id).Required().WithURI('/{id}').WithPredicate(2, 'equal', 'r', 'id'))
 #define($_ = $Query<string>(query/q).Optional().WithPredicate(0, 'contains', 'r', 'slug').WithPredicate(0, 'contains', 'r', 'title').WithPredicate(0, 'contains', 'r', 'description'))
 #define($_ = $Namespace<string>(query/namespace).Optional().WithPredicate(1, 'equal', 'r', 'namespace'))

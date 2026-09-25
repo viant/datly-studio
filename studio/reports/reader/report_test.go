@@ -12,6 +12,7 @@ import (
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/datatest"
 	"github.com/viant/datly/bootstrap"
+	"github.com/viant/datly/mcp"
 	druntime "github.com/viant/datly/runtime"
 	"github.com/viant/datly/runtime/registry"
 	dsql "github.com/viant/datly/sql"
@@ -81,10 +82,17 @@ func TestReportReaderMinimumContract(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { _ = runtime.Shutdown(ctx) })
+	mcpService, err := mcp.New(mcp.Config{Components: []*registry.RegisteredComponent{authEntry, entry}, Invoker: runtime, Resources: resources})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if names := mcpService.Catalog().ToolNames(); !reflect.DeepEqual(names, []string{"studio.reports.read", "studio.reports.readById"}) {
+		t.Fatalf("public report MCP tools=%v", names)
+	}
 
-	invoke := func(path string) (*Output, error) {
+	invokeAs := func(subject, path string) (*Output, error) {
 		request := httptest.NewRequest("GET", path, nil)
-		request.Header.Set("Authorization", jwt.Bearer(t, "viewer"))
+		request.Header.Set("Authorization", jwt.Bearer(t, subject))
 		routePath := "/v1/studio/reports"
 		var pathParams map[string]string
 		if request.URL.Path != routePath {
@@ -102,7 +110,11 @@ func TestReportReaderMinimumContract(t *testing.T) {
 		}
 		return actual.(*Output), nil
 	}
+	invoke := func(path string) (*Output, error) { return invokeAs("viewer", path) }
 	slugs := func(output *Output) []string {
+		if output == nil {
+			return nil
+		}
 		result := make([]string, 0, len(output.Reports))
 		for _, report := range output.Reports {
 			if report != nil && report.Slug != nil {
@@ -161,6 +173,27 @@ func TestReportReaderMinimumContract(t *testing.T) {
 		input.SetStatus("")
 		if input.Has == nil || !input.Has.Status || input.Has.Query || input.Has.ConnectorName {
 			t.Fatalf("predicate presence=%+v", input.Has)
+		}
+	})
+
+	t.Run("verified principal scopes public report catalog", func(t *testing.T) {
+		if subject, scoped := (Input{}).ReportCatalogScope(); subject != "" || !scoped {
+			t.Fatalf("missing trusted auth scope=%q scoped=%v", subject, scoped)
+		}
+		output, err := invokeAs("owner-a", "/v1/studio/reports?orderBy=slug")
+		if err != nil || !reflect.DeepEqual(slugs(output), []string{"alpha", "gamma"}) {
+			t.Fatalf("owner-a reports=%v err=%v", slugs(output), err)
+		}
+		output, err = invokeAs("owner-b", "/v1/studio/reports?orderBy=slug")
+		if err != nil || !reflect.DeepEqual(slugs(output), []string{"beta"}) {
+			t.Fatalf("owner-b reports=%v err=%v", slugs(output), err)
+		}
+		if _, err = db.ExecContext(ctx, "DELETE FROM report_acl WHERE report_id = ? AND subject_id = ?", "r-beta", "viewer"); err != nil {
+			t.Fatal(err)
+		}
+		output, err = invoke("/v1/studio/reports?orderBy=slug")
+		if err != nil || !reflect.DeepEqual(slugs(output), []string{"alpha", "gamma"}) {
+			t.Fatalf("revoked viewer reports=%v err=%v", slugs(output), err)
 		}
 	})
 }

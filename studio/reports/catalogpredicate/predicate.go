@@ -5,6 +5,7 @@ package catalogpredicate
 import (
 	"context"
 	"errors"
+	"reflect"
 	"strings"
 
 	xpredicate "github.com/viant/xdatly/predicate"
@@ -14,6 +15,14 @@ import (
 type ReportCatalogRead struct {
 	Input any `bind:"kind=input,required"`
 }
+
+// LinkedTypes keeps the predicate visible to Datly's selected-package
+// runtime type scan without a registry or prefix-based discovery.
+type LinkedTypes struct{ ReportCatalogRead ReportCatalogRead }
+
+func CatalogPredicateDatlyType() reflect.Type { return reflect.TypeFor[LinkedTypes]() }
+
+var CatalogPredicateDatlyLinkedType = CatalogPredicateDatlyType()
 
 // Compute scopes the server-owned SDK reader to reports the verified
 // principal owns or may view. Only the SDK wrapper sets the bound scope;

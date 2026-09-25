@@ -6,6 +6,7 @@ import (
 
 	authreader "github.com/viant/datly-studio/studio/auth/reader"
 	"github.com/viant/datly-studio/studio/authorization"
+	"github.com/viant/datly-studio/studio/reports/catalogpredicate"
 	"github.com/viant/datly/typecatalog"
 	"github.com/viant/scy/auth/jwt"
 	"github.com/viant/x"
@@ -31,6 +32,7 @@ func StudioAuthorizationTypes(t testing.TB) *typecatalog.Catalog {
 		authorization.PublicationRead{}, authorization.PublicationEdit{},
 		authorization.ACLRead{}, authorization.ACLEdit{},
 		authorization.RuntimeRead{}, authorization.RuntimeEdit{},
+		catalogpredicate.ReportCatalogRead{},
 	}
 	for _, value := range types {
 		if err := catalog.Register(typecatalog.TypeOriginPackage, x.NewType(reflect.TypeOf(value))); err != nil {

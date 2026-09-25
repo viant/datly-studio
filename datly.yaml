@@ -15,6 +15,7 @@ GoBootstrap:
   EagerComponents: true
   Packages:
     - github.com/viant/datly-studio/studio/authorization
+    - github.com/viant/datly-studio/studio/reports/catalogpredicate
     - github.com/viant/datly-studio/studio/auth/reader
     - github.com/viant/datly-studio/studio/connectors/reader
     - github.com/viant/datly-studio/studio/connectors/writer

@@ -86,8 +86,13 @@ func TestDatlyConfigurationSelectsEveryLinkedComponentPackage(t *testing.T) {
 	}
 	authorizationPackage := "github.com/viant/datly-studio/studio/authorization"
 	wantPackages = append(wantPackages, authorizationPackage)
+	predicatePackage := "github.com/viant/datly-studio/studio/reports/catalogpredicate"
+	wantPackages = append(wantPackages, predicatePackage)
 	if _, ok, resolveErr := reflected.Types.Resolve("package", authorizationPackage+".ConnectorRead"); resolveErr != nil || !ok {
 		t.Errorf("configured authorization package does not expose ConnectorRead: found=%t err=%v", ok, resolveErr)
+	}
+	if _, ok, resolveErr := reflected.Types.Resolve("package", predicatePackage+".ReportCatalogRead"); resolveErr != nil || !ok {
+		t.Errorf("configured catalog predicate package does not expose ReportCatalogRead: found=%t err=%v", ok, resolveErr)
 	}
 	if _, ok, resolveErr := reflected.Types.Resolve("package", "github.com/viant/datly-studio/studio/auth/reader.Output"); resolveErr != nil || !ok {
 		t.Errorf("configured auth package does not expose Output: found=%t err=%v", ok, resolveErr)

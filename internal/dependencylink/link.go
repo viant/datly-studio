@@ -30,6 +30,7 @@ import (
 	_ "github.com/viant/datly-studio/studio/report_versions/writer"
 	_ "github.com/viant/datly-studio/studio/report_views/reader"
 	_ "github.com/viant/datly-studio/studio/report_warmup_runs/reader"
+	_ "github.com/viant/datly-studio/studio/reports/catalogpredicate"
 	_ "github.com/viant/datly-studio/studio/reports/reader"
 	_ "github.com/viant/datly-studio/studio/reports/writer"
 	_ "github.com/viant/datly-studio/studio/runtime_generations/reader"
