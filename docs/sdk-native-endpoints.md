@@ -109,6 +109,11 @@ static version reader carries full source, so its typed `ReportVersionRead`
 predicate requires `can_use_dql`. Native version DTOs still need a reader
 contract that can return metadata to viewers while withholding structural
 DQL; exposing the current static reader at SDK paths would widen access.
+The static reader's list and direct-version routes now have focused tests for
+viewer denial and revocation of `can_use_dql`. A native SDK replacement must
+preserve both that source boundary and the generic SDK's redacted metadata
+response for `canView`-only users. Routing the existing source reader to the
+SDK path is therefore not a valid migration shortcut.
 
 `reports.get` has a dedicated native reader at the SDK POST path. It requires
 body `id`, binds the same trusted auth context and typed catalog predicate,

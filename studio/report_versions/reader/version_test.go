@@ -147,6 +147,17 @@ func TestReportVersionReaderMinimumContract(t *testing.T) {
 		if invokeErr != nil || len(versions(viewerOnly)) != 0 {
 			t.Fatalf("viewer without DQL capability versions=%v err=%v", versions(viewerOnly), invokeErr)
 		}
+		viewerDirect, invokeErr := invoke("/v1/studio/reports/r-alpha/versions/2", "viewer-no-dql")
+		if invokeErr != nil || len(versions(viewerDirect)) != 0 {
+			t.Fatalf("viewer without DQL capability direct version=%v err=%v", versions(viewerDirect), invokeErr)
+		}
+		if _, err := db.ExecContext(ctx, `UPDATE report_acl SET can_use_dql = FALSE WHERE report_id = 'r-alpha' AND subject_id = 'viewer'`); err != nil {
+			t.Fatal(err)
+		}
+		revoked, invokeErr := invoke("/v1/studio/reports/r-alpha/versions?orderBy=version_no", "viewer")
+		if invokeErr != nil || len(versions(revoked)) != 0 {
+			t.Fatalf("revoked DQL capability versions=%v err=%v", versions(revoked), invokeErr)
+		}
 	})
 	input := Input{}
 	input.SetState("")
