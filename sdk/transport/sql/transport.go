@@ -1455,17 +1455,10 @@ func (t *Transport) validateMCPToolNames(ctx context.Context, reportID string, s
 	if len(names) == 0 {
 		return nil
 	}
-	rows, err := t.DB.QueryContext(ctx, `SELECT v.generated_dql, v.authored_dql
-FROM reports r
-JOIN report_versions v ON v.report_id=r.id
-LEFT JOIN report_publications p ON p.report_id=r.id
-WHERE r.id<>? AND r.deleted_at IS NULL
-  AND (v.version_no=(SELECT MAX(v2.version_no) FROM report_versions v2 WHERE v2.report_id=r.id)
-    OR v.version_no=p.active_version_no)`, reportID)
+	sources, err := t.readMCPNameSources(ctx, reportID)
 	if err != nil {
 		return internal(err)
 	}
-	defer rows.Close()
 	requested := map[string]bool{}
 	for _, name := range names {
 		key := strings.ToLower(name)
@@ -1474,14 +1467,10 @@ WHERE r.id<>? AND r.deleted_at IS NULL
 		}
 		requested[key] = true
 	}
-	for rows.Next() {
-		var generated, authored sql.NullString
-		if err = rows.Scan(&generated, &authored); err != nil {
-			return internal(err)
-		}
-		source := generated.String
+	for _, row := range sources {
+		source := versionOptionalString(row.GeneratedDql)
 		if strings.TrimSpace(source) == "" {
-			source = authored.String
+			source = versionOptionalString(row.AuthoredDql)
 		}
 		prepared := dql.PrepareSource(source)
 		if prepared == nil || prepared.Directives == nil || prepared.Directives.MCP == nil {
@@ -1497,9 +1486,6 @@ WHERE r.id<>? AND r.deleted_at IS NULL
 				return &sdk.Error{Code: sdk.ErrorConflict, Message: fmt.Sprintf("MCP tool name %q is already used by another reader", candidate)}
 			}
 		}
-	}
-	if err = rows.Err(); err != nil {
-		return internal(err)
 	}
 	return nil
 }
