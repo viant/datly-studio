@@ -21,3 +21,14 @@ func (input *Input) SetVersionNo(value int) {
 	}
 	input.Has.VersionNo = true
 }
+
+func (input *Input) SetResourceId(value string) {
+	if input == nil {
+		return
+	}
+	input.ResourceId = value
+	if input.Has == nil {
+		input.Has = &InputHas{}
+	}
+	input.Has.ResourceId = true
+}

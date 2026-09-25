@@ -1,0 +1,30 @@
+#package('studio/report_resource_files/store_write')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/resource-file-store/write', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('file', 'sql/read.sql'))
+
+#define($_ = $Files<[]*StoredFile>(body/data))
+
+SELECT file.*, type(file, 'StoredFile'),
+       CAST(file.report_id AS string),
+       CAST(file.version_no AS int),
+       CAST(file.resource_id AS string),
+       CAST(file.namespace AS string),
+       CAST(file.resource_path AS string),
+       CAST(file.media_type AS *string),
+       CAST(file.content AS []byte),
+       CAST(file.content_size AS int64),
+       CAST(file.content_sha256 AS string),
+       CAST(file.is_binary AS bool),
+       CAST(file.created_at AS time.Time),
+       CAST(file.should_delete AS bool),
+       tag(file.report_id, 'sqlx:"report_id,primaryKey"'),
+       tag(file.version_no, 'sqlx:"version_no,primaryKey"'),
+       tag(file.resource_id, 'sqlx:"resource_id,primaryKey"'),
+       lifecycle_type(file, 'FileStoreRules'),
+       delete_marker(file.should_delete)
+FROM (${embed:sql/read.sql}) file

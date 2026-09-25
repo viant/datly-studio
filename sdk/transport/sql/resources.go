@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/viant/datly-studio/sdk"
+	filestore "github.com/viant/datly-studio/studio/report_resource_files/store_write"
 	versiontouch "github.com/viant/datly-studio/studio/report_versions/store_touch"
 	"github.com/viant/datly/spec"
 	xhandler "github.com/viant/xdatly/handler"
@@ -130,25 +131,37 @@ func (t *Transport) upsertResourceFile(ctx context.Context, tx *sql.Tx, value *s
 	sum := sha256.Sum256(content)
 	value.ContentSize, value.ContentSHA256 = int64(len(content)), hex.EncodeToString(sum[:])
 	now := t.now()
-	updated, err := tx.ExecContext(ctx, `UPDATE report_resource_files SET namespace=?,resource_path=?,media_type=?,content=?,content_size=?,content_sha256=?,is_binary=? WHERE report_id=? AND version_no=? AND resource_id=?`, value.Namespace, value.ResourcePath, nullable(value.MediaType), content, value.ContentSize, value.ContentSHA256, value.IsBinary, value.ReportID, value.VersionNo, value.ResourceID)
+	err := t.writeResourceFile(ctx, tx, &filestore.StoredFile{ReportId: value.ReportID,
+		VersionNo: value.VersionNo, ResourceId: value.ResourceID, Namespace: value.Namespace,
+		ResourcePath: value.ResourcePath, MediaType: namespaceOptionalDescription(value.MediaType),
+		Content: content, ContentSize: value.ContentSize, ContentSha256: value.ContentSHA256,
+		IsBinary: value.IsBinary, CreatedAt: now,
+		Has: &filestore.StoredFileHas{ReportId: true, VersionNo: true, ResourceId: true,
+			Namespace: true, ResourcePath: true, MediaType: true, Content: true,
+			ContentSize: true, ContentSha256: true, IsBinary: true, CreatedAt: true,
+			ShouldDelete: true}})
 	if err != nil {
 		return classify(err, "resource file", value.ResourceID)
-	}
-	if count, _ := updated.RowsAffected(); count == 0 {
-		if _, err = tx.ExecContext(ctx, `INSERT INTO report_resource_files(report_id,version_no,resource_id,namespace,resource_path,media_type,content,content_size,content_sha256,is_binary,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)`, value.ReportID, value.VersionNo, value.ResourceID, value.Namespace, value.ResourcePath, nullable(value.MediaType), content, value.ContentSize, value.ContentSHA256, value.IsBinary, now); err != nil {
-			return classify(err, "resource file", value.ResourceID)
-		}
 	}
 	return nil
 }
 
 func (t *Transport) deleteResourceFile(ctx context.Context, tx *sql.Tx, reportID string, versionNo int, resourceID string) error {
-	result, err := tx.ExecContext(ctx, `DELETE FROM report_resource_files WHERE report_id=? AND version_no=? AND resource_id=?`, reportID, versionNo, resourceID)
-	if err != nil {
+	if _, err := t.readResourceFileByID(ctx, tx, reportID, versionNo, resourceID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return &sdk.Error{Code: sdk.ErrorNotFound, Message: "resource file was not found"}
+		}
 		return internal(err)
 	}
-	if count, _ := result.RowsAffected(); count == 0 {
-		return &sdk.Error{Code: sdk.ErrorNotFound, Message: "resource file was not found"}
+	err := t.writeResourceFile(ctx, tx, &filestore.StoredFile{ReportId: reportID,
+		VersionNo: versionNo, ResourceId: resourceID, ShouldDelete: true,
+		Has: &filestore.StoredFileHas{ReportId: true, VersionNo: true, ResourceId: true, ShouldDelete: true}})
+	if err != nil {
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) {
+			return &sdk.Error{Code: sdk.ErrorNotFound, Message: "resource file was not found"}
+		}
+		return internal(err)
 	}
 	return nil
 }

@@ -9,6 +9,7 @@
 
 #define($_ = $ReportId<string>(query/reportId).Required().WithPredicate(0, 'equal', 'f', 'report_id'))
 #define($_ = $VersionNo<int>(query/versionNo).Required().WithPredicate(0, 'equal', 'f', 'version_no'))
+#define($_ = $ResourceId<string>(query/resourceId).Optional().WithPredicate(0, 'equal', 'f', 'resource_id'))
 #define($_ = $Files<[]*SnapshotFile>(output/view))
 
 SELECT file.*, type(file, 'SnapshotFile'),

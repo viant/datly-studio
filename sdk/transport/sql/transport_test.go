@@ -932,6 +932,21 @@ SELECT 1`})
 		touchedState != "draft" || touchedCompile != "pending" || touchedDiagnostics != "[]" || touchedValidation.Valid {
 		t.Fatalf("touched version state=%q compile=%q diagnostics=%q validated=%v err=%v", touchedState, touchedCompile, touchedDiagnostics, touchedValidation, err)
 	}
+	var originalCreated time.Time
+	if err := db.QueryRow(`SELECT created_at FROM report_resource_files WHERE report_id=? AND version_no=? AND resource_id=?`, report.ID, version.VersionNo, file.Files[0].ResourceID).Scan(&originalCreated); err != nil {
+		t.Fatal(err)
+	}
+	file, err = client.Resources().UpsertFile(principal, sdk.ResourceFile{ReportID: report.ID, VersionNo: version.VersionNo,
+		ResourceID: file.Files[0].ResourceID, Namespace: report.OwnerPackage + ".docs",
+		ResourcePath: "guide/SKILL.md", Content: file.Files[0].Content,
+		ExpectedSourceRevision: file.Version.SourceRevision})
+	if err != nil || file.Version.SourceRevision != version.SourceRevision+2 {
+		t.Fatalf("updated file=%+v err=%v", file, err)
+	}
+	var preservedCreated time.Time
+	if err := db.QueryRow(`SELECT created_at FROM report_resource_files WHERE report_id=? AND version_no=? AND resource_id=?`, report.ID, version.VersionNo, file.Files[0].ResourceID).Scan(&preservedCreated); err != nil || !preservedCreated.Equal(originalCreated) {
+		t.Fatalf("file created_at changed original=%v updated=%v err=%v", originalCreated, preservedCreated, err)
+	}
 	folder, err := client.Resources().UpsertFolder(principal, sdk.ResourceFolder{ReportID: report.ID, VersionNo: version.VersionNo, Namespace: report.OwnerPackage + ".docs", RootPath: "guide", URIPrefix: "skill://owner-guide/", ExpectedSourceRevision: file.Version.SourceRevision})
 	if err != nil {
 		t.Fatal(err)
@@ -1030,6 +1045,16 @@ SELECT 1`})
 	afterFileDelete, err := client.Resources().DeleteFileWithRevision(principal, sdk.ResourceDeleteInput{ReportID: report.ID, VersionNo: version.VersionNo, ResourceID: file.Files[0].ResourceID, ExpectedSourceRevision: afterFolderDelete.Version.SourceRevision})
 	if err != nil || len(afterFileDelete.Files) != 1 || afterFileDelete.Version.SourceRevision != afterFolderDelete.Version.SourceRevision+1 {
 		t.Fatalf("file delete snapshot=%+v err=%v", afterFileDelete, err)
+	}
+	_, err = client.Resources().DeleteFileWithRevision(principal, sdk.ResourceDeleteInput{ReportID: report.ID,
+		VersionNo: version.VersionNo, ResourceID: "missing-file", ExpectedSourceRevision: afterFileDelete.Version.SourceRevision})
+	var absentFile *sdk.Error
+	if !errors.As(err, &absentFile) || absentFile.Code != sdk.ErrorNotFound {
+		t.Fatalf("missing file delete error=%v", err)
+	}
+	unchanged, err := client.Resources().Get(principal, report.ID, version.VersionNo)
+	if err != nil || unchanged.Version.SourceRevision != afterFileDelete.Version.SourceRevision {
+		t.Fatalf("missing delete changed version=%+v err=%v", unchanged, err)
 	}
 	if _, err := db.Exec(`UPDATE report_versions SET state='published' WHERE report_id=? AND version_no=?`, report.ID, version.VersionNo); err != nil {
 		t.Fatal(err)
