@@ -14,26 +14,18 @@ func (t *Transport) reportCapabilities(ctx context.Context, reportID string) (ca
 	if !ok {
 		return sdk.ReportCapabilities{CanView: true, CanRun: true, CanEdit: true, CanPublish: true, CanUseDQL: true}, nil
 	}
-	var owner string
-	if err := t.DB.QueryRowContext(ctx, `SELECT owner_id FROM reports WHERE id=? AND deleted_at IS NULL`, reportID).Scan(&owner); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+	row, readErr := t.readReportCapability(ctx, reportID, principal.Subject)
+	if readErr != nil {
+		if errors.Is(readErr, sql.ErrNoRows) {
 			return sdk.ReportCapabilities{}, &sdk.Error{Code: sdk.ErrorNotFound, Message: "report not found"}
 		}
-		return sdk.ReportCapabilities{}, internal(err)
+		return sdk.ReportCapabilities{}, internal(readErr)
 	}
-	if owner == principal.Subject {
+	if row.OwnerId == principal.Subject {
 		return sdk.ReportCapabilities{CanView: true, CanRun: true, CanEdit: true, CanPublish: true, CanUseDQL: true}, nil
 	}
-	result := sdk.ReportCapabilities{}
-	err = t.DB.QueryRowContext(ctx, `SELECT can_view,can_run,can_edit,can_publish,can_use_dql FROM report_acl WHERE report_id=? AND subject_type='user' AND subject_id=?`, reportID, principal.Subject).
-		Scan(&result.CanView, &result.CanRun, &result.CanEdit, &result.CanPublish, &result.CanUseDQL)
-	if errors.Is(err, sql.ErrNoRows) {
-		return result, nil
-	}
-	if err != nil {
-		return sdk.ReportCapabilities{}, internal(err)
-	}
-	return result, nil
+	return sdk.ReportCapabilities{CanView: row.CanView, CanRun: row.CanRun, CanEdit: row.CanEdit,
+		CanPublish: row.CanPublish, CanUseDQL: row.CanUseDql}, nil
 }
 
 func (t *Transport) aclAvailable(ctx context.Context) bool {

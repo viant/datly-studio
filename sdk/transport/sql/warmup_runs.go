@@ -4,15 +4,24 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
-	"database/sql"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"reflect"
 	"strings"
 	"time"
 
+	"github.com/viant/bindly/resource"
+	"github.com/viant/datly-studio/internal/readercomponent"
 	"github.com/viant/datly-studio/sdk"
+	storedreader "github.com/viant/datly-studio/studio/report_warmup_runs/store_read"
+	storedwriter "github.com/viant/datly-studio/studio/report_warmup_runs/store_write"
+	dexec "github.com/viant/datly/exec"
+	druntime "github.com/viant/datly/runtime"
+	"github.com/viant/datly/runtime/registry"
+	dsql "github.com/viant/datly/sql"
+	xhandler "github.com/viant/xdatly/handler"
 )
 
 const warmupRunTimeout = 5 * time.Minute
@@ -28,15 +37,34 @@ type warmupRunListRequest struct {
 	Input     sdk.ListWarmupRunsInput `json:"input"`
 }
 
+func warmupOptionalString(value string) *string {
+	if value == "" {
+		return nil
+	}
+	return &value
+}
+
+func warmupOptionalJSON(value []byte) *json.RawMessage {
+	if len(value) == 0 || string(value) == "null" || string(value) == "[]" {
+		return nil
+	}
+	message := json.RawMessage(value)
+	return &message
+}
+
+func warmupActor(ctx context.Context) sdk.Principal {
+	if principal, ok := sdk.PrincipalFromContext(ctx); ok {
+		return principal
+	}
+	return sdk.SystemPrincipal()
+}
+
 func (t *Transport) startWarmupRun(ctx context.Context, in versionIdentityRequest, output any) error {
 	version, err := t.getVersionValue(ctx, in.ReportID, in.VersionNo)
 	if err != nil {
 		return err
 	}
-	requestedBy := "system"
-	if principal, ok := sdk.PrincipalFromContext(ctx); ok && strings.TrimSpace(principal.Subject) != "" {
-		requestedBy = principal.Subject
-	}
+	requestedBy := warmupActor(ctx).Subject
 	planKey := warmupPlanKey(version)
 	activeKey := fmt.Sprintf("%s:%d:%s", in.ReportID, in.VersionNo, planKey)
 	now := t.now()
@@ -45,40 +73,62 @@ func (t *Transport) startWarmupRun(ctx context.Context, in versionIdentityReques
 	if err = t.recoverExpiredWarmupRuns(ctx, now); err != nil {
 		return err
 	}
-	var existingID string
-	err = t.DB.QueryRowContext(ctx, `SELECT run_id FROM report_warmup_runs WHERE active_key=?`, activeKey).Scan(&existingID)
-	if err == nil {
-		run, readErr := t.readWarmupRun(ctx, `WHERE report_id=? AND run_id=?`, in.ReportID, existingID)
-		if readErr != nil {
-			return readErr
-		}
-		return assign(output, run)
-	}
-	if !errors.Is(err, sql.ErrNoRows) {
+	active, err := t.readWarmupRows(ctx, &storedreader.Input{ReportId: in.ReportID, ActiveKey: activeKey, PageLimit: 2})
+	if err != nil {
 		return internal(err)
+	}
+	if len(active) > 1 {
+		return internal(errors.New("warmup active-key reader returned multiple rows"))
+	}
+	if len(active) == 1 {
+		if active[0].ReportID != in.ReportID {
+			return internal(errors.New("warmup active-key reader returned a mismatched report"))
+		}
+		return assign(output, active[0])
 	}
 	runID, err := generatedWarmupRunID()
 	if err != nil {
 		return internal(err)
 	}
-	if _, err = t.DB.ExecContext(ctx, `INSERT INTO report_warmup_runs(run_id,report_id,version_no,source_revision,spec_hash,plan_key,active_key,status,requested_by,target_json,requested_at) VALUES(?,?,?,?,?,?,?,'accepted',?,'{}',?)`, runID, in.ReportID, in.VersionNo, version.SourceRevision, version.SpecHash, planKey, activeKey, requestedBy, now); err != nil {
+	if err = t.writeWarmupRun(ctx, &storedwriter.StoredWarmupRun{RunId: runID, ReportId: in.ReportID,
+		VersionNo: in.VersionNo, SourceRevision: version.SourceRevision, SpecHash: version.SpecHash,
+		PlanKey: planKey, ActiveKey: &activeKey, Status: "accepted", RequestedBy: requestedBy,
+		TargetJson: json.RawMessage(`{}`), RequestedAt: now, CreatedAt: &now, CreatedBy: &requestedBy,
+		UpdatedAt: &now, UpdatedBy: &requestedBy,
+		Has: &storedwriter.StoredWarmupRunHas{RunId: true, ReportId: true, VersionNo: true,
+			SourceRevision: true, SpecHash: true, PlanKey: true, ActiveKey: true,
+			Status: true, RequestedBy: true, TargetJson: true, RequestedAt: true,
+			CreatedAt: true, CreatedBy: true, UpdatedAt: true, UpdatedBy: true}}); err != nil {
 		return classify(err, "warmup run", runID)
 	}
-	run, err := t.readWarmupRun(ctx, `WHERE report_id=? AND run_id=?`, in.ReportID, runID)
+	run, err := t.readWarmupRun(ctx, in.ReportID, runID)
 	if err != nil {
 		return err
+	}
+	if run.UpdatedAt == nil {
+		return internal(errors.New("warmup run has no updated_at token"))
 	}
 	jobCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), warmupRunTimeout)
 	go func() {
 		defer cancel()
-		t.executeWarmupRun(jobCtx, runID, in.ReportID, in.VersionNo)
+		t.executeWarmupRun(jobCtx, runID, in.ReportID, in.VersionNo, *run.UpdatedAt)
 	}()
 	return assign(output, run)
 }
 
-func (t *Transport) executeWarmupRun(ctx context.Context, runID, reportID string, versionNo int) {
+func (t *Transport) executeWarmupRun(ctx context.Context, runID, reportID string, versionNo int, expectedUpdatedAt time.Time) {
 	started := t.now()
-	_, _ = t.DB.ExecContext(context.WithoutCancel(ctx), `UPDATE report_warmup_runs SET status='running',started_at=? WHERE run_id=? AND status='accepted'`, started, runID)
+	actor := warmupActor(ctx).Subject
+	if err := t.writeWarmupRun(context.WithoutCancel(ctx), &storedwriter.StoredWarmupRun{
+		RunId: runID, Status: "running", UpdatedAt: &expectedUpdatedAt, UpdatedBy: &actor, StartedAt: &started,
+		Has: &storedwriter.StoredWarmupRunHas{RunId: true, Status: true, UpdatedAt: true,
+			UpdatedBy: true, StartedAt: true}}); err != nil {
+		return
+	}
+	startedRun, err := t.readWarmupRun(context.WithoutCancel(ctx), reportID, runID)
+	if err != nil || startedRun.UpdatedAt == nil {
+		return
+	}
 	result, runErr := t.Warmup.Warmup(ctx, reportID, versionNo)
 	completed := t.now()
 	status := "completed"
@@ -95,7 +145,18 @@ func (t *Transport) executeWarmupRun(ctx context.Context, runID, reportID string
 	}
 	targetJSON, _ := json.Marshal(result.Target)
 	diagnosticsJSON, _ := json.Marshal(diagnostics)
-	_, _ = t.DB.ExecContext(context.WithoutCancel(ctx), `UPDATE report_warmup_runs SET status=?,active_key=NULL,cache_name=?,cache_provider=?,connector_name=?,index_column=?,planned_cases=?,completed_cases=?,max_cases=?,row_limit=?,entries=?,duration_ns=?,target_json=?,diagnostics_json=?,completed_at=? WHERE run_id=?`, status, nullable(result.Target.CacheName), nullable(result.Target.CacheProvider), nullable(result.Target.ConnectorName), nullable(result.Target.IndexColumn), result.PlannedCases, result.CompletedCases, result.MaxCases, result.RowLimit, result.Entries, int64(result.Duration), string(targetJSON), nullableJSON(diagnosticsJSON), completed, runID)
+	_ = t.writeWarmupRun(context.WithoutCancel(ctx), &storedwriter.StoredWarmupRun{
+		RunId: runID, Status: status, UpdatedAt: startedRun.UpdatedAt, UpdatedBy: &actor,
+		CacheName: warmupOptionalString(result.Target.CacheName), CacheProvider: warmupOptionalString(result.Target.CacheProvider),
+		ConnectorName: warmupOptionalString(result.Target.ConnectorName), IndexColumn: warmupOptionalString(result.Target.IndexColumn),
+		PlannedCases: result.PlannedCases, CompletedCases: result.CompletedCases, MaxCases: result.MaxCases,
+		RowLimit: result.RowLimit, Entries: result.Entries, DurationNs: int64(result.Duration),
+		TargetJson: json.RawMessage(targetJSON), DiagnosticsJson: warmupOptionalJSON(diagnosticsJSON), CompletedAt: &completed,
+		Has: &storedwriter.StoredWarmupRunHas{RunId: true, Status: true, ActiveKey: true,
+			UpdatedAt: true, UpdatedBy: true,
+			CacheName: true, CacheProvider: true, ConnectorName: true, IndexColumn: true,
+			PlannedCases: true, CompletedCases: true, MaxCases: true, RowLimit: true,
+			Entries: true, DurationNs: true, TargetJson: true, DiagnosticsJson: true, CompletedAt: true}})
 }
 
 func warmupDiagnostic(err error) sdk.Diagnostic {
@@ -122,7 +183,7 @@ func (t *Transport) getWarmupRun(ctx context.Context, input, output any) error {
 	if strings.TrimSpace(in.ReportID) == "" || strings.TrimSpace(in.RunID) == "" {
 		return invalid(errors.New("reportId and runId are required"))
 	}
-	run, err := t.readWarmupRun(ctx, `WHERE report_id=? AND run_id=?`, in.ReportID, in.RunID)
+	run, err := t.readWarmupRun(ctx, in.ReportID, in.RunID)
 	if err != nil {
 		return err
 	}
@@ -147,80 +208,119 @@ func (t *Transport) listWarmupRuns(ctx context.Context, input, output any) error
 	if limit > 100 {
 		limit = 100
 	}
-	rows, err := t.DB.QueryContext(ctx, warmupRunSelect+` WHERE report_id=? AND version_no=? ORDER BY requested_at DESC,run_id DESC LIMIT ? OFFSET ?`, in.ReportID, in.VersionNo, limit, in.Input.Offset)
+	runs, err := t.readWarmupRows(ctx, &storedreader.Input{ReportId: in.ReportID, VersionNo: in.VersionNo, PageLimit: limit, PageOffset: in.Input.Offset})
 	if err != nil {
 		return internal(err)
 	}
-	defer rows.Close()
-	page := &sdk.WarmupRunPage{Limit: limit, Offset: in.Input.Offset}
-	for rows.Next() {
-		run, scanErr := scanWarmupRun(rows)
-		if scanErr != nil {
-			return internal(scanErr)
-		}
-		page.Items = append(page.Items, run)
-	}
-	if err = rows.Err(); err != nil {
-		return internal(err)
-	}
+	page := &sdk.WarmupRunPage{Items: runs, Limit: limit, Offset: in.Input.Offset}
 	return assign(output, page)
 }
 
 func (t *Transport) recoverExpiredWarmupRuns(ctx context.Context, now time.Time) error {
-	diagnostics, _ := json.Marshal([]sdk.Diagnostic{{Severity: "error", Code: "warmup_expired", Message: "cache warmup did not reach a terminal state before the server-owned timeout"}})
-	_, err := t.DB.ExecContext(ctx, `UPDATE report_warmup_runs SET status='failed',active_key=NULL,diagnostics_json=?,completed_at=? WHERE status IN ('accepted','running') AND requested_at<?`, string(diagnostics), now, now.Add(-warmupRunTimeout))
+	systemCtx, err := sdk.WithSystemIdentity(ctx, t.SystemCredentialProvider)
 	if err != nil {
 		return internal(err)
 	}
-	return nil
+	diagnostics, _ := json.Marshal([]sdk.Diagnostic{{Severity: "error", Code: "warmup_expired", Message: "cache warmup did not reach a terminal state before the server-owned timeout"}})
+	diagnosticsPayload := json.RawMessage(diagnostics)
+	actor := sdk.SystemPrincipal().Subject
+	for {
+		rows, err := t.expiredWarmupRuns(systemCtx, now.Add(-warmupRunTimeout), 100)
+		if err != nil {
+			return internal(err)
+		}
+		if len(rows) == 0 {
+			return nil
+		}
+		changed := 0
+		for _, row := range rows {
+			err := t.writeWarmupRun(systemCtx, &storedwriter.StoredWarmupRun{RunId: row.RunId, Status: "failed",
+				UpdatedAt: row.UpdatedAt, UpdatedBy: &actor, DiagnosticsJson: &diagnosticsPayload,
+				CompletedAt: &now,
+				Has: &storedwriter.StoredWarmupRunHas{RunId: true, Status: true, ActiveKey: true,
+					UpdatedAt: true, UpdatedBy: true, DiagnosticsJson: true, CompletedAt: true}})
+			if err == nil {
+				changed++
+				continue
+			}
+			var conflict *xhandler.Conflict
+			if errors.As(err, &conflict) {
+				continue // another worker changed the row after the expired read
+			}
+			return internal(err)
+		}
+		if changed == 0 {
+			return nil // a concurrent worker owns the remaining transitions
+		}
+	}
 }
 
-const warmupRunSelect = `SELECT run_id,report_id,version_no,source_revision,spec_hash,plan_key,status,requested_by,requested_at,started_at,completed_at,planned_cases,completed_cases,max_cases,row_limit,entries,duration_ns,target_json,diagnostics_json FROM report_warmup_runs`
-
-func (t *Transport) readWarmupRun(ctx context.Context, where string, args ...any) (*sdk.WarmupRun, error) {
-	run, err := scanWarmupRun(t.DB.QueryRowContext(ctx, warmupRunSelect+` `+where, args...))
-	if errors.Is(err, sql.ErrNoRows) {
-		return nil, &sdk.Error{Code: sdk.ErrorNotFound, Message: "warmup run not found"}
-	}
+func (t *Transport) readWarmupRun(ctx context.Context, reportID, runID string) (*sdk.WarmupRun, error) {
+	runs, err := t.readWarmupRows(ctx, &storedreader.Input{ReportId: reportID, RunId: runID, PageLimit: 2})
 	if err != nil {
 		return nil, internal(err)
 	}
-	return run, nil
+	if len(runs) == 0 {
+		return nil, &sdk.Error{Code: sdk.ErrorNotFound, Message: "warmup run not found"}
+	}
+	if len(runs) != 1 || runs[0].ReportID != reportID || runs[0].RunID != runID {
+		return nil, internal(errors.New("warmup run reader returned an ambiguous or mismatched row"))
+	}
+	return runs[0], nil
 }
 
-func scanWarmupRun(scanner interface{ Scan(...any) error }) (*sdk.WarmupRun, error) {
-	var run sdk.WarmupRun
-	var started, completed sql.NullTime
-	var targetJSON, diagnosticsJSON sql.NullString
-	var duration int64
-	var maxCases, rowLimit sql.NullInt64
-	if err := scanner.Scan(&run.RunID, &run.ReportID, &run.VersionNo, &run.SourceRevision, &run.SpecHash, &run.PlanKey, &run.Status, &run.RequestedBy, &run.RequestedAt, &started, &completed, &run.PlannedCases, &run.CompletedCases, &maxCases, &rowLimit, &run.Entries, &duration, &targetJSON, &diagnosticsJSON); err != nil {
+func (t *Transport) readWarmupRows(ctx context.Context, input *storedreader.Input) (runs []*sdk.WarmupRun, err error) {
+	resources := resource.New()
+	if err := resources.Register(storedreader.WarmupRunDatlyResourceNamespace, storedreader.WarmupRunDatlyResources); err != nil {
 		return nil, err
 	}
-	run.Duration = time.Duration(duration)
-	if maxCases.Valid {
-		value := int(maxCases.Int64)
-		run.MaxCases = &value
+	connector := &dsql.SQLComponent{DB: t.DB}
+	if err := connector.RegisterConnector("studio", t.DB); err != nil {
+		return nil, err
 	}
-	if rowLimit.Valid {
-		value := int(rowLimit.Int64)
-		run.RowLimit = &value
+	registration, target, err := readercomponent.Compile(reflect.TypeOf(storedreader.WarmupRunComponent{}), "store_read",
+		reflect.TypeOf(storedreader.Input{}), reflect.TypeOf(storedreader.Output{}), resources, connector)
+	if err != nil {
+		return nil, err
 	}
-	if started.Valid {
-		value := started.Time
-		run.StartedAt = &value
+	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{registration}, druntime.WithResources(resources))
+	if err != nil {
+		return nil, err
 	}
-	if completed.Valid {
-		value := completed.Time
-		run.CompletedAt = &value
+	defer func() { err = errors.Join(err, runtime.Shutdown(context.Background())) }()
+	input.Has = &storedreader.InputHas{ReportId: true, RunId: true, ActiveKey: true, VersionNo: true, PageLimit: true, PageOffset: true}
+	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: target, Input: input})
+	if err != nil {
+		return nil, err
 	}
-	if targetJSON.Valid {
-		_ = json.Unmarshal([]byte(targetJSON.String), &run.Target)
+	output, ok := value.(*storedreader.Output)
+	if !ok {
+		return nil, fmt.Errorf("warmup run reader returned %T", value)
 	}
-	if diagnosticsJSON.Valid {
-		_ = json.Unmarshal([]byte(diagnosticsJSON.String), &run.Diagnostics)
+	if len(output.WarmupRuns) > input.PageLimit {
+		return nil, fmt.Errorf("warmup run reader exceeded page limit")
 	}
-	return &run, nil
+	runs = make([]*sdk.WarmupRun, 0, len(output.WarmupRuns))
+	for _, row := range output.WarmupRuns {
+		if row == nil || input.ReportId != "" && row.ReportId != input.ReportId || input.RunId != "" && row.RunId != input.RunId || input.VersionNo != 0 && row.VersionNo != input.VersionNo {
+			return nil, fmt.Errorf("warmup run reader returned a mismatched row")
+		}
+		run := &sdk.WarmupRun{RunID: row.RunId, ReportID: row.ReportId, VersionNo: row.VersionNo,
+			SourceRevision: row.SourceRevision, SpecHash: row.SpecHash, PlanKey: row.PlanKey,
+			Status: row.Status, RequestedBy: row.RequestedBy, RequestedAt: row.RequestedAt,
+			CreatedAt: row.CreatedAt, CreatedBy: row.CreatedBy, UpdatedAt: row.UpdatedAt, UpdatedBy: row.UpdatedBy,
+			StartedAt: row.StartedAt, CompletedAt: row.CompletedAt, PlannedCases: row.PlannedCases,
+			CompletedCases: row.CompletedCases, MaxCases: row.MaxCases, RowLimit: row.RowLimit,
+			Entries: row.Entries, Duration: time.Duration(row.DurationNs)}
+		if len(row.TargetJson) != 0 {
+			_ = json.Unmarshal(row.TargetJson, &run.Target)
+		}
+		if len(row.DiagnosticsJson) != 0 {
+			_ = json.Unmarshal(row.DiagnosticsJson, &run.Diagnostics)
+		}
+		runs = append(runs, run)
+	}
+	return runs, nil
 }
 
 func generatedWarmupRunID() (string, error) {
@@ -235,11 +335,4 @@ func warmupPlanKey(version *sdk.ReportVersion) string {
 	value := fmt.Sprintf("%s:%d:%d:%s", version.ReportID, version.VersionNo, version.SourceRevision, version.SpecHash)
 	digest := sha256.Sum256([]byte(value))
 	return hex.EncodeToString(digest[:])
-}
-
-func nullableJSON(value []byte) any {
-	if len(value) == 0 || string(value) == "null" || string(value) == "[]" {
-		return nil
-	}
-	return string(value)
 }

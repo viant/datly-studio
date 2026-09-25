@@ -201,6 +201,10 @@ type WarmupRun struct {
 	Status         string        `json:"status"`
 	RequestedBy    string        `json:"requestedBy"`
 	RequestedAt    time.Time     `json:"requestedAt"`
+	CreatedAt      *time.Time    `json:"createdAt,omitempty"`
+	CreatedBy      *string       `json:"createdBy,omitempty"`
+	UpdatedAt      *time.Time    `json:"updatedAt,omitempty"`
+	UpdatedBy      *string       `json:"updatedBy,omitempty"`
 	StartedAt      *time.Time    `json:"startedAt,omitempty"`
 	CompletedAt    *time.Time    `json:"completedAt,omitempty"`
 	PlannedCases   int           `json:"plannedCases"`

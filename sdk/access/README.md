@@ -26,6 +26,9 @@ Permissions edits an explicitly selected resource policy using the shared
 `ResourceAccessEditor`, exported from the UI embedding API. Current choices come
 from verified identity claims. Configure `Service.Directory` for broader trusted
 provider catalogs. The editor never supplies authoritative identity facts.
+Its structural pre-save review shows changed actions and the current policy
+revision, not an effective authorization decision. The server rechecks
+`manageAccess` and the Datly policy-head CAS when saving.
 
 Configure `studio-api` in authenticated mode with `-access-issuer`,
 `-access-audience` and `-access-public-key` (RSA PEM). Its BFF credential must satisfy
@@ -34,10 +37,21 @@ issuer configuration does not automatically exchange tokens. Policy management i
 not enabled through Studio's development-identity header.
 
 The OAuth provider accepts signed access tokens with standard `iss`, `aud`, `sub`,
-`exp`, optional `nbf`/`iat`, plus `tenant`, `roles`, `exposures`, and
-`allowedEntities: [{"type":"project","id":"101"}]`. Only asymmetric algorithms
-explicitly allowed in configuration are accepted. Keys/JWKS resolution is an
-injected deployment responsibility. Claims are refreshed on each request.
+`exp`, optional `nbf`/`iat`, plus `tenant`, `roles`, `exposures`, and the canonical
+grouped claim `"allowedEntities":{"project":[101,102],"organization":["north"]}`.
+The public Go fact is `access.Facts.EntityGroups` (`access.EntityGroups`, a map
+from type to `[]access.EntityID`); `IDsForType("project")` exposes its checked
+typed IDs. JSON string IDs stay strings. Positive JSON integer IDs up to
+`18446744073709551615` are converted exactly to decimal strings; zero,
+negative, fractional, exponent and larger JSON numbers are rejected. An absent
+type or empty list grants no entity access. Duplicate type keys, duplicate IDs,
+null lists and malformed types deny the claim. Signed legacy flat arrays
+`[{"type":"project","id":"101"}]` and flat Go `Facts.Entities` remain an
+explicit compatibility path; serialization emits the grouped map, and any
+populated flat and grouped views must agree or evaluation denies. Only asymmetric
+algorithms explicitly allowed in configuration are accepted. Keys/JWKS
+resolution is an injected deployment responsibility. Claims are refreshed on
+each request.
 
 ## Current integration boundary
 
@@ -63,9 +77,10 @@ Access:
 ```
 
 Resource bindings are deployment-owned and use the longest matching URI prefix.
-Missing policies or bindings deny. Component entity scopes now bind through a
-deployment-owned `Access.ScopeBindings` declaration and a required DQL `scope`
-input. See [typed scope configuration](../../runtime/host/AUTHENTICATION.md).
+Missing policies or bindings deny. Component entity scopes bind through a
+required native `component` input for the server-owned access context, with a
+`param` input deriving typed IDs for SQL predicates. No separate scope-binding
+registry is required. See [access-context binding](../../runtime/host/AUTHENTICATION.md).
 HTTP and MCP tests exercise real SQLite queries, identity isolation and rejected
 override attempts. Bounded decisions on non-component resource reads still deny.
 Publication dependency checks and separate discovery/description action hooks

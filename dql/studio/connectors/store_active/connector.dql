@@ -1,0 +1,22 @@
+#package('studio/connectors/store_active')
+
+#import('encoding/json')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/connector-store/active', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('connector', 'sql/read.sql'))
+
+#define($_ = $Connectors<[]*StoredConnector>(output/view))
+
+SELECT connector.*, type(connector, 'StoredConnector'),
+       CAST(connector.name AS string),
+       CAST(connector.driver AS string),
+       CAST(connector.secret_ref AS string),
+       CAST(connector.options_json AS json.RawMessage),
+       tag(connector.options_json, 'sqlx:"options_json,enc=JSON"'),
+       set_limit(connector, 0)
+FROM (${embed:sql/read.sql}) connector
+WHERE 1=1

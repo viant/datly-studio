@@ -79,28 +79,41 @@ func (s *Service) load(ctx context.Context, resource Resource, action string) (D
 // Authorize evaluates current policy for execution. Callers must apply any
 // returned entity scope before releasing data.
 func (s *Service) Authorize(ctx context.Context, request Request) (Decision, error) {
+	decision, _, err := s.AuthorizeWithFacts(ctx, request)
+	return decision, err
+}
+
+// AuthorizeWithFacts returns the verified facts used for this exact decision.
+// A downstream component can bind the narrowed decision together with its
+// principal roles/exposures without resolving a second, potentially different
+// identity snapshot. Facts are never accepted from the request payload.
+func (s *Service) AuthorizeWithFacts(ctx context.Context, request Request) (Decision, Facts, error) {
 	if s.Store == nil {
-		return Decision{}, ErrDenied
+		return Decision{}, Facts{}, ErrDenied
 	}
 	doc, err := s.Store.Get(ctx, request.Resource)
 	if err != nil || doc.Resource != request.Resource || doc.Revision < 1 {
-		return Decision{}, ErrDenied
+		return Decision{}, Facts{}, ErrDenied
 	}
 	p, ok := doc.Policies[request.Action]
 	if !ok {
-		return Decision{}, ErrDenied
+		return Decision{}, Facts{}, ErrDenied
 	}
 	var facts Facts
 	if p.Mode != "public" || request.Resource.Tenant != "*" {
 		if s.Provider == nil {
-			return Decision{}, ErrDenied
+			return Decision{}, Facts{}, ErrDenied
 		}
 		facts, err = s.Provider.Resolve(ctx)
 		if err != nil {
-			return Decision{}, ErrDenied
+			return Decision{}, Facts{}, ErrDenied
 		}
 	}
-	return s.evaluate(ctx, request, doc, facts)
+	decision, err := s.evaluate(ctx, request, doc, facts)
+	if err != nil {
+		return Decision{}, Facts{}, err
+	}
+	return decision, facts, nil
 }
 
 func (s *Service) Get(ctx context.Context, resource Resource) (Document, error) {

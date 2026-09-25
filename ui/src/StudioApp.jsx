@@ -39,7 +39,7 @@ const noExtensions = [];
 
 // StudioApp is intentionally only a Forge composition. Its data boundary is
 // StudioAPI, which maps one-for-one to the public Studio SDK operation names.
-export function StudioApp({ api, mode, subject, extensions = noExtensions }) {
+export function StudioApp({ api, mode, subject, brand = 'Datly Studio', extensions = noExtensions }) {
   const [section, setSection] = useState('overview');
   const [reports, setReports] = useState([]);
   const [connectors, setConnectors] = useState([]);
@@ -193,7 +193,7 @@ export function StudioApp({ api, mode, subject, extensions = noExtensions }) {
   ].filter((item) => item.label.toLowerCase().includes(navigationQuery.toLowerCase()) || item.childNodes?.some((child) => child.label.toLowerCase().includes(navigationQuery.toLowerCase())));
   return <ForgeThemeProvider><ForgeThemeBoundary windowKey="datly-studio">
     <div className="studio-app">
-    <Navbar className="studio-navbar"><Navbar.Group align="left"><Navbar.Heading>Datly Studio</Navbar.Heading><Navbar.Divider/>
+    <Navbar className="studio-navbar"><Navbar.Group align="left"><Navbar.Heading>{brand}</Navbar.Heading><Navbar.Divider/>
       <Button icon="menu" minimal title="Toggle navigation" onClick={() => setNavigationOpen((open) => !open)} />
     </Navbar.Group><Navbar.Group align="right"><Tag minimal intent={mode === 'development' ? 'warning' : 'success'}>{mode === 'development' ? 'Development user' : subject || 'Authenticated user'}</Tag></Navbar.Group></Navbar>
     <div className="studio-app-body">

@@ -53,7 +53,11 @@ func (s *Service) EditorContext(ctx context.Context, r Resource) (EditorContext,
 		result.Choices.Exposures = append(result.Choices.Exposures, Choice{ID: exposure, Label: exposure})
 	}
 	types := map[string]bool{}
-	for _, entity := range facts.Entities {
+	flat, err := facts.FlatEntities()
+	if err != nil {
+		return EditorContext{}, ErrDenied
+	}
+	for _, entity := range flat {
 		e := entity
 		result.Choices.Entities = append(result.Choices.Entities, Choice{Entity: &e, Label: e.Type + ": " + e.ID})
 		if !types[e.Type] {

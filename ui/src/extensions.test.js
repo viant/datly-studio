@@ -14,4 +14,5 @@ test('third-party Studio workspace ids are unique and canonical', () => {
   const sdk = createStudioSDK().register(extension);
   assert.throws(() => sdk.register(extension), /Duplicate Studio extension/);
   assert.throws(() => defineStudioExtension({ id: 'Invalid name', label: 'Bad', render: () => null }), /canonical/);
+  assert.throws(() => defineStudioExtension({ id: 'reports', label: 'Reports', render: () => null }), /reserved/);
 });

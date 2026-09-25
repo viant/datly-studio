@@ -3,7 +3,7 @@ import { afterEach, describe, expect, test, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-vi.mock('./StudioApp.jsx',()=>({StudioApp:({api,subject})=><div><span>Ready as {subject}</span><button onClick={()=>api.listReports().catch(()=>{})}>Trigger expired API</button></div>}));
+vi.mock('./StudioApp.jsx',()=>({StudioApp:({api,subject,brand})=><div><span>Ready as {subject}</span><span>Brand {brand}</span><button onClick={()=>api.listReports().catch(()=>{})}>Trigger expired API</button></div>}));
 
 import { StudioShell } from './StudioShell.jsx';
 
@@ -13,6 +13,11 @@ const response=(payload,status=200)=>({ok:status>=200&&status<300,status,headers
 afterEach(()=>vi.unstubAllGlobals());
 
 describe('StudioShell authentication boundary',()=>{
+  test('passes optional host branding through the public embedding seam',async()=>{
+    vi.stubGlobal('fetch',vi.fn().mockResolvedValue(response({authenticated:true,subject:'owner'})));
+    render(<StudioShell config={{...config,brand:'Acme Portal'}}/>);
+    expect(await screen.findByText('Brand Acme Portal')).toBeTruthy();
+  });
   test('shows an intentional loading state while restoring the HttpOnly session',async()=>{
     vi.stubGlobal('fetch',vi.fn(()=>new Promise(()=>{})));
     render(<StudioShell config={config}/>);

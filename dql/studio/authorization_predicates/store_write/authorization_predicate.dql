@@ -1,0 +1,25 @@
+#package('studio/authorization_predicates/store_write')
+
+#import('github.com/viant/xdatly/response')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/authorization-predicate-store', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('authorization_predicate', 'sql/patch.sql'))
+
+#define($_ = $AuthorizationPredicates<[]*StoredAuthorizationPredicate>(body/data))
+#define($_ = $Status<response.Status>(output/status).Embed())
+#define($_ = $Violations<?>(transient/status).Output())
+
+SELECT predicate.*, type(predicate, 'StoredAuthorizationPredicate'),
+       lifecycle_type(predicate, 'PredicateStoreRules'),
+       CAST(predicate.name AS string), CAST(predicate.title AS string),
+       CAST(predicate.package_path AS string), CAST(predicate.type_name AS string),
+       tag(predicate.sql_scope_json, 'sqlx:"sql_scope_json"'),
+       CAST(predicate.owner_id AS string), CAST(predicate.status AS string),
+       tag(predicate.name, 'sqlx:"name,primaryKey" validate:"required"'),
+       concurrency_token(predicate.etag)
+FROM (${embed:sql/patch.sql}) predicate
+WHERE 1=1

@@ -1,0 +1,17 @@
+#package('studio/bff_sessions/store_expired')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/bff-session-store/expired', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('session', 'sql/read.sql'))
+
+#define($_ = $ExpiresBefore<int64>(query/expiresBefore).Required())
+#define($_ = $Sessions<[]*ExpiredSession>(output/view))
+
+SELECT session.*, type(session, 'ExpiredSession'),
+       CAST(session.session_id_hash AS string),
+       set_limit(session, 256)
+FROM (${embed:sql/read.sql}) session
+WHERE 1=1

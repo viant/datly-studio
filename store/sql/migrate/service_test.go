@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/viant/datly-studio/schema"
 	_ "modernc.org/sqlite"
 )
 
@@ -46,8 +47,8 @@ func TestServiceUpAndDown(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CurrentVersion() error = %v", err)
 	}
-	if version != 11 {
-		t.Fatalf("CurrentVersion() = %d, want 11", version)
+	if version != schema.CanonicalVersion {
+		t.Fatalf("CurrentVersion() = %d, want %d", version, schema.CanonicalVersion)
 	}
 
 	if err := service.Up(ctx, db); err != nil {
@@ -96,7 +97,7 @@ INSERT INTO reports(id, owner_id, updated_at) VALUES ('legacy', 'alice', CURRENT
 		t.Fatalf("namespace=%q", namespace)
 	}
 	version, err := service.CurrentVersion(ctx, db)
-	if err != nil || version != 11 {
+	if err != nil || version != schema.CanonicalVersion {
 		t.Fatalf("version=%d err=%v", version, err)
 	}
 	var count int
@@ -127,7 +128,7 @@ INSERT INTO report_publications(report_id,active_version_no) VALUES('reader',7);
 		t.Fatalf("desired version=%d err=%v", desired, err)
 	}
 	version, err := service.CurrentVersion(ctx, db)
-	if err != nil || version != 11 {
+	if err != nil || version != schema.CanonicalVersion {
 		t.Fatalf("version=%d err=%v", version, err)
 	}
 	assertTableExists(t, ctx, db, "report_warmup_runs")
@@ -146,7 +147,7 @@ func TestServiceUpAddsDurableBFFSessions(t *testing.T) {
 	}
 	assertTableExists(t, ctx, db, "bff_sessions")
 	version, err := service.CurrentVersion(ctx, db)
-	if err != nil || version != 11 {
+	if err != nil || version != schema.CanonicalVersion {
 		t.Fatalf("version=%d err=%v", version, err)
 	}
 }
@@ -163,7 +164,7 @@ func TestServiceUpAddsOwnerScopedPublicationEvents(t *testing.T) {
 	}
 	assertTableExists(t, ctx, db, "report_publication_events")
 	version, err := service.CurrentVersion(ctx, db)
-	if err != nil || version != 11 {
+	if err != nil || version != schema.CanonicalVersion {
 		t.Fatalf("version=%d err=%v", version, err)
 	}
 }
@@ -197,8 +198,47 @@ INSERT INTO report_acl(report_id,subject_type,subject_id,can_view) VALUES ('read
 		t.Fatalf("ACL etag=%d err=%v", etag, err)
 	}
 	version, err := service.CurrentVersion(ctx, db)
-	if err != nil || version != 11 {
+	if err != nil || version != schema.CanonicalVersion {
 		t.Fatalf("version=%d err=%v", version, err)
+	}
+}
+
+func TestServiceUpBackfillsWarmupAuditAndToken(t *testing.T) {
+	ctx := context.Background()
+	db := openTestDB(t)
+	if _, err := db.ExecContext(ctx, `
+CREATE TABLE schema_version(version INTEGER NOT NULL);
+INSERT INTO schema_version(version) VALUES (11);
+CREATE TABLE report_warmup_runs (
+  run_id TEXT PRIMARY KEY, status TEXT NOT NULL, requested_at DATETIME NOT NULL,
+  requested_by TEXT NOT NULL, started_at DATETIME, completed_at DATETIME
+);
+INSERT INTO report_warmup_runs(run_id,status,requested_at,requested_by)
+  VALUES('accepted','accepted','2026-09-24 10:00:00','alice');
+INSERT INTO report_warmup_runs(run_id,status,requested_at,requested_by,started_at,completed_at)
+  VALUES('completed','completed','2026-09-24 10:00:00','bob',
+    '2026-09-24 10:01:00','2026-09-24 10:02:00');`); err != nil {
+		t.Fatal(err)
+	}
+	service, _ := New()
+	if err := service.Up(ctx, db); err != nil {
+		t.Fatal(err)
+	}
+	for _, test := range []struct {
+		id, createdBy, updatedBy, updatedAt string
+	}{
+		{"accepted", "alice", "alice", "2026-09-24 10:00:00"},
+		{"completed", "bob", "system:migration", "2026-09-24 10:02:00"},
+	} {
+		var createdAt, updatedAt, createdBy, updatedBy string
+		if err := db.QueryRowContext(ctx, `SELECT created_at,updated_at,created_by,updated_by
+			FROM report_warmup_runs WHERE run_id=?`, test.id).Scan(&createdAt, &updatedAt, &createdBy, &updatedBy); err != nil {
+			t.Fatal(err)
+		}
+		if createdAt != "2026-09-24 10:00:00" || updatedAt != test.updatedAt ||
+			createdBy != test.createdBy || updatedBy != test.updatedBy {
+			t.Fatalf("%s audit created=%q/%q updated=%q/%q", test.id, createdAt, createdBy, updatedAt, updatedBy)
+		}
 	}
 }
 

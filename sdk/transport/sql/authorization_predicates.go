@@ -5,9 +5,11 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"math"
 	"strings"
 
 	"github.com/viant/datly-studio/sdk"
+	storedwriter "github.com/viant/datly-studio/studio/authorization_predicates/store_write"
 )
 
 func (t *Transport) createAuthorizationPredicate(ctx context.Context, input, output any) error {
@@ -24,11 +26,30 @@ func (t *Transport) createAuthorizationPredicate(ctx context.Context, input, out
 		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Studio principal is required"}
 	}
 	now := t.now()
+	initialETag := 1
 	scopeJSON, err := authorizationPredicateScopeJSON(in.Alias, in.Columns)
 	if err != nil {
 		return invalid(err)
 	}
-	if _, err := t.DB.ExecContext(ctx, `INSERT INTO authorization_predicates(name,title,description,package_path,type_name,sql_scope_json,owner_id,status,etag,created_at,updated_at) VALUES(?,?,?,?,?,?,?,'active',1,?,?)`, in.Name, in.Title, nullable(in.Description), in.PackagePath, in.TypeName, nullable(scopeJSON), principal.Subject, now, now); err != nil {
+	if _, err := t.authorizationPredicateValue(ctx, in.Name); err == nil {
+		return &sdk.Error{Code: sdk.ErrorConflict, Message: "authorization predicate already exists"}
+	} else {
+		var sdkErr *sdk.Error
+		if !errors.As(err, &sdkErr) || sdkErr.Code != sdk.ErrorNotFound {
+			return err
+		}
+	}
+	row := &storedwriter.StoredAuthorizationPredicate{Name: in.Name, Title: in.Title,
+		Description: predicateOptionalString(in.Description), PackagePath: in.PackagePath, TypeName: in.TypeName,
+		SqlScopeJson: predicateOptionalString(scopeJSON), OwnerId: principal.Subject, Status: "active",
+		Etag: &initialETag, CreatedAt: &now, UpdatedAt: &now,
+		Has: &storedwriter.StoredAuthorizationPredicateHas{Name: true, Title: true, Description: true,
+			PackagePath: true, TypeName: true, SqlScopeJson: true, OwnerId: true, Status: true,
+			Etag: true, CreatedAt: true, UpdatedAt: true}}
+	if err := t.writeAuthorizationPredicate(ctx, "post", row); err != nil {
+		if _, readErr := t.authorizationPredicateValue(ctx, in.Name); readErr == nil {
+			return &sdk.Error{Code: sdk.ErrorConflict, Message: "authorization predicate already exists", Cause: err}
+		}
 		return classify(err, "authorization predicate", in.Name)
 	}
 	return t.getAuthorizationPredicate(ctx, struct {
@@ -65,34 +86,17 @@ func (t *Transport) listAuthorizationPredicates(ctx context.Context, input, outp
 	if in.Offset < 0 {
 		in.Offset = 0
 	}
-	query := `SELECT name,title,description,package_path,type_name,sql_scope_json,owner_id,status,etag,created_at,updated_at FROM authorization_predicates WHERE deleted_at IS NULL`
-	args := []any{}
-	if value := strings.TrimSpace(in.Query); value != "" {
-		like := "%" + strings.ToLower(value) + "%"
-		query += ` AND (LOWER(name) LIKE ? OR LOWER(title) LIKE ? OR LOWER(description) LIKE ? OR LOWER(package_path) LIKE ? OR LOWER(type_name) LIKE ?)`
-		args = append(args, like, like, like, like, like)
-	}
-	if in.Status != "" {
-		query += ` AND status=?`
-		args = append(args, in.Status)
-	}
-	query += ` ORDER BY updated_at DESC,name ASC LIMIT ? OFFSET ?`
-	args = append(args, limit, in.Offset)
-	rows, err := t.DB.QueryContext(ctx, query, args...)
+	rows, err := t.readAuthorizationPredicateRows(ctx, "", false, in.Query, in.Status, limit, in.Offset)
 	if err != nil {
 		return internal(err)
 	}
-	defer rows.Close()
 	page := &sdk.AuthorizationPredicatePage{Limit: limit, Offset: in.Offset}
-	for rows.Next() {
-		value, scanErr := t.scanAuthorizationPredicate(rows)
-		if scanErr != nil {
-			return internal(scanErr)
+	for _, row := range rows {
+		value, conversionErr := t.authorizationPredicateFromRow(row)
+		if conversionErr != nil {
+			return internal(conversionErr)
 		}
 		page.Items = append(page.Items, value)
-	}
-	if err = rows.Err(); err != nil {
-		return internal(err)
 	}
 	return assign(output, page)
 }
@@ -108,9 +112,15 @@ func (t *Transport) updateAuthorizationPredicate(ctx context.Context, input, out
 	if in.Input.ETag <= 0 {
 		return invalid(errors.New("etag is required"))
 	}
+	if in.Input.ETag > math.MaxInt {
+		return invalid(errors.New("etag is out of range"))
+	}
 	current, err := t.authorizationPredicateValue(ctx, in.Name)
 	if err != nil {
 		return err
+	}
+	if current.ETag != in.Input.ETag {
+		return predicateETagConflict()
 	}
 	if in.Input.Title != nil {
 		current.Title = strings.TrimSpace(*in.Input.Title)
@@ -140,12 +150,15 @@ func (t *Transport) updateAuthorizationPredicate(ctx context.Context, input, out
 	if err != nil {
 		return invalid(err)
 	}
-	result, err := t.DB.ExecContext(ctx, `UPDATE authorization_predicates SET title=?,description=?,package_path=?,type_name=?,sql_scope_json=?,status=?,etag=etag+1,updated_at=? WHERE name=? AND etag=? AND deleted_at IS NULL`, current.Title, nullable(current.Description), current.PackagePath, current.TypeName, nullable(scopeJSON), current.Status, t.now(), current.Name, in.Input.ETag)
-	if err != nil {
-		return classify(err, "authorization predicate", in.Name)
-	}
-	if affected, _ := result.RowsAffected(); affected == 0 {
-		return &sdk.Error{Code: sdk.ErrorConflict, Message: "authorization predicate etag does not match"}
+	etag, now := int(in.Input.ETag), t.now()
+	row := &storedwriter.StoredAuthorizationPredicate{Name: current.Name, Title: current.Title,
+		Description: predicateOptionalString(current.Description), PackagePath: current.PackagePath,
+		TypeName: current.TypeName, SqlScopeJson: predicateOptionalString(scopeJSON), Status: current.Status,
+		Etag: &etag, UpdatedAt: &now,
+		Has: &storedwriter.StoredAuthorizationPredicateHas{Name: true, Title: true, Description: true,
+			PackagePath: true, TypeName: true, SqlScopeJson: true, Status: true, Etag: true, UpdatedAt: true}}
+	if err := t.writeAuthorizationPredicate(ctx, "put", row); err != nil {
+		return t.classifyPredicateUpdateError(ctx, in.Name, in.Input.ETag, err)
 	}
 	return t.getAuthorizationPredicate(ctx, struct {
 		Name string `json:"name"`
@@ -160,39 +173,68 @@ func (t *Transport) deleteAuthorizationPredicate(ctx context.Context, input any)
 	if err := decode(input, &in); err != nil {
 		return invalid(err)
 	}
-	result, err := t.DB.ExecContext(ctx, `UPDATE authorization_predicates SET status='disabled',deleted_at=?,updated_at=?,etag=etag+1 WHERE name=? AND etag=? AND deleted_at IS NULL`, t.now(), t.now(), in.Name, in.ETag)
-	if err != nil {
-		return internal(err)
+	if in.ETag > math.MaxInt {
+		return predicateETagConflict()
 	}
-	if affected, _ := result.RowsAffected(); affected == 0 {
-		return &sdk.Error{Code: sdk.ErrorConflict, Message: "authorization predicate etag does not match"}
+	current, err := t.authorizationPredicateValue(ctx, in.Name)
+	if err != nil {
+		var sdkErr *sdk.Error
+		if errors.As(err, &sdkErr) && sdkErr.Code == sdk.ErrorNotFound {
+			return predicateETagConflict()
+		}
+		return err
+	}
+	if current.ETag != in.ETag {
+		return predicateETagConflict()
+	}
+	etag, now := int(in.ETag), t.now()
+	row := &storedwriter.StoredAuthorizationPredicate{Name: in.Name, Status: "disabled", DeletedAt: &now, UpdatedAt: &now, Etag: &etag,
+		Has: &storedwriter.StoredAuthorizationPredicateHas{Name: true, Status: true, DeletedAt: true, UpdatedAt: true, Etag: true}}
+	if err := t.writeAuthorizationPredicate(ctx, "put", row); err != nil {
+		return t.classifyPredicateUpdateError(ctx, in.Name, in.ETag, err)
 	}
 	return nil
 }
 
+func predicateOptionalString(value string) *string {
+	if value == "" {
+		return nil
+	}
+	return &value
+}
+
+func predicateETagConflict() error {
+	return &sdk.Error{Code: sdk.ErrorConflict, Message: "authorization predicate etag does not match"}
+}
+
+func (t *Transport) classifyPredicateUpdateError(ctx context.Context, name string, expected int64, writeErr error) error {
+	current, readErr := t.authorizationPredicateValue(ctx, name)
+	if readErr == nil && current.ETag != expected {
+		return predicateETagConflict()
+	}
+	var sdkErr *sdk.Error
+	if errors.As(readErr, &sdkErr) && sdkErr.Code == sdk.ErrorNotFound {
+		return predicateETagConflict()
+	}
+	return classify(writeErr, "authorization predicate", name)
+}
+
 func (t *Transport) authorizationPredicateValue(ctx context.Context, name string) (*sdk.AuthorizationPredicate, error) {
-	value, err := t.scanAuthorizationPredicate(t.DB.QueryRowContext(ctx, `SELECT name,title,description,package_path,type_name,sql_scope_json,owner_id,status,etag,created_at,updated_at FROM authorization_predicates WHERE name=? AND deleted_at IS NULL`, name))
+	rows, err := t.readAuthorizationPredicateRows(ctx, name, true, "", "", 1, 0)
 	if err != nil {
 		return nil, mapReadError(err, "authorization predicate", name)
 	}
+	if len(rows) == 0 {
+		return nil, mapReadError(sql.ErrNoRows, "authorization predicate", name)
+	}
+	if len(rows) != 1 || rows[0] == nil || rows[0].Name != name {
+		return nil, internal(errors.New("authorization predicate reader returned an ambiguous identity"))
+	}
+	value, err := t.authorizationPredicateFromRow(rows[0])
+	if err != nil {
+		return nil, internal(err)
+	}
 	return value, nil
-}
-func (t *Transport) scanAuthorizationPredicate(scanner interface{ Scan(...any) error }) (*sdk.AuthorizationPredicate, error) {
-	var value sdk.AuthorizationPredicate
-	var description, scopeJSON sql.NullString
-	if err := scanner.Scan(&value.Name, &value.Title, &description, &value.PackagePath, &value.TypeName, &scopeJSON, &value.OwnerID, &value.Status, &value.ETag, &value.CreatedAt, &value.UpdatedAt); err != nil {
-		return nil, err
-	}
-	value.Description = description.String
-	if scopeJSON.Valid && strings.TrimSpace(scopeJSON.String) != "" {
-		var metadata sdk.AuthorizationPredicateSQLMetadata
-		if err := json.Unmarshal([]byte(scopeJSON.String), &metadata); err != nil {
-			return nil, err
-		}
-		value.Alias, value.Columns = metadata.Alias, metadata.Columns
-	}
-	value.Linked = t.Predicates.Contains(value.PackagePath, value.TypeName)
-	return &value, nil
 }
 
 func authorizationPredicateScopeJSON(alias string, columns []string) (string, error) {

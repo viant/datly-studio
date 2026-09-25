@@ -1,0 +1,22 @@
+#package('studio/namespaces/store_insert')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/namespace-store/insert', 'POST'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('namespace', 'sql/read.sql'))
+
+#define($_ = $Namespaces<[]*StoredNamespace>(body/data))
+
+SELECT namespace.*, type(namespace, 'StoredNamespace'),
+       CAST(namespace.owner_id AS string), CAST(namespace.name AS string),
+       CAST(namespace.title AS string), CAST(namespace.description AS *string),
+       CAST(namespace.status AS string), CAST(namespace.etag AS *int64),
+       CAST(namespace.created_at AS *time.Time), CAST(namespace.updated_at AS *time.Time),
+       CAST(namespace.deleted_at AS *time.Time),
+       tag(namespace.owner_id, 'sqlx:"owner_id,primaryKey"'),
+       tag(namespace.name, 'sqlx:"name,primaryKey"'),
+       lifecycle_type(namespace, 'NamespaceInsertRules')
+FROM (${embed:sql/read.sql}) namespace
+WHERE 1=1

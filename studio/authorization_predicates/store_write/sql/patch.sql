@@ -1,0 +1,4 @@
+SELECT predicate."name", predicate."title", predicate."description", predicate."package_path", predicate."type_name", predicate."sql_scope_json", predicate."owner_id", predicate."status", predicate."etag", predicate."created_at", predicate."updated_at", predicate."deleted_at" FROM  (SELECT p.*
+FROM authorization_predicates p
+WHERE p.deleted_at IS NULL
+)  predicate WHERE 1 = 1

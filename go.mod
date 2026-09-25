@@ -2,6 +2,10 @@ module github.com/viant/datly-studio
 
 replace github.com/viant/datly => ../datly
 
+replace github.com/viant/xdatly => ../xdatly
+
+replace github.com/viant/sqlx => ../sqlx
+
 go 1.25.8
 
 require modernc.org/sqlite v1.45.0
@@ -13,14 +17,17 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/viant/bigquery v0.5.3
 	github.com/viant/bindly v0.2.1-0.20260915164201-7cf35da5bd9a
-	github.com/viant/datly v0.39.2-0.20260922161233-77a288b0c809
+	github.com/viant/datly v1.0.1-0.20260924050758-f968896067ed
+	github.com/viant/jsonrpc v0.25.0
+	github.com/viant/mcp v0.24.0
 	github.com/viant/mcp-protocol v0.19.0
 	github.com/viant/scy v0.35.1-0.20260914041206-699e6c909726
-	github.com/viant/sqlx v0.26.1-0.20260923154147-5784c3b061f0
+	github.com/viant/sqlx v0.26.1-0.20260925010754-62fc9f049795
 	github.com/viant/x v0.5.1-0.20260915043005-1bc42b9eef47
-	github.com/viant/xdatly v1.0.0
+	github.com/viant/xdatly v1.0.1-0.20260925011738-7249dcd4bf03
 	go.yaml.in/yaml/v3 v3.0.5
 	golang.org/x/mod v0.37.0
+	golang.org/x/oauth2 v0.36.0
 )
 
 require (
@@ -65,8 +72,6 @@ require (
 	github.com/viant/gosh v0.2.1 // indirect
 	github.com/viant/govalidator v0.3.4-0.20260913213120-027a9dd54d73 // indirect
 	github.com/viant/igo v0.2.0 // indirect
-	github.com/viant/jsonrpc v0.25.0 // indirect
-	github.com/viant/mcp v0.24.0 // indirect
 	github.com/viant/parsly v0.3.3 // indirect
 	github.com/viant/sqlparser v0.13.1-0.20260921232033-929f6f50ccce // indirect
 	github.com/viant/structology v0.10.1-0.20260915165514-89d421971772 // indirect
@@ -97,7 +102,6 @@ require (
 	golang.org/x/crypto v0.53.0 // indirect
 	golang.org/x/exp v0.0.0-20251023183803-a4bb9ffd2546 // indirect
 	golang.org/x/net v0.56.0 // indirect
-	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/text v0.38.0 // indirect

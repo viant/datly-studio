@@ -1,0 +1,23 @@
+#package('studio/connectors/store_preview_scoped')
+
+#import('encoding/json')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/preview-connectors/scoped', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('connector', 'sql/read.sql'))
+
+#define($_ = $Subject<string>(query/subject).Required())
+#define($_ = $Connectors<[]*PreviewConnector>(output/view))
+
+SELECT connector.*, type(connector, 'PreviewConnector'),
+       CAST(connector.name AS string),
+       CAST(connector.driver AS string),
+       CAST(connector.secret_ref AS string),
+       CAST(connector.options_json AS json.RawMessage),
+       tag(connector.options_json, 'sqlx:"options_json,enc=JSON"'),
+       set_limit(connector, 0)
+FROM (${embed:sql/read.sql}) connector
+WHERE 1=1

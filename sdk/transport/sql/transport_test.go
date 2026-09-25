@@ -19,7 +19,7 @@ import (
 )
 
 func TestTransportUsesCanonicalConnectorAndReportTables(t *testing.T) {
-	ctx := context.Background()
+	ctx := sdk.WithPrincipal(context.Background(), sdk.Principal{Subject: "alice"})
 	db, err := sql.Open("sqlite", fmt.Sprintf("file:%s?mode=memory&cache=shared", t.Name()))
 	if err != nil {
 		t.Fatal(err)
@@ -340,6 +340,10 @@ INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_d
 	if err != nil || first.Status != "accepted" || first.RunID == "" {
 		t.Fatalf("first=%+v err=%v", first, err)
 	}
+	if first.CreatedAt == nil || first.UpdatedAt == nil || first.CreatedBy == nil || *first.CreatedBy != "owner" ||
+		first.UpdatedBy == nil || *first.UpdatedBy != "owner" {
+		t.Fatalf("warmup creation audit=%+v", first)
+	}
 	duplicate, err := client.Versions().Warmup(ctx, "reader", 1)
 	if err != nil || duplicate.RunID != first.RunID {
 		t.Fatalf("duplicate=%+v err=%v", duplicate, err)
@@ -356,6 +360,9 @@ INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_d
 	}
 	if err != nil || completed == nil || completed.Status != "completed" || completed.PlannedCases != 4 || completed.CompletedCases != 4 || completed.Entries != 7 || completed.Target.CacheName != "reader-cache" {
 		t.Fatalf("completed=%+v err=%v", completed, err)
+	}
+	if completed.UpdatedAt == nil || !completed.UpdatedAt.After(*first.UpdatedAt) || completed.UpdatedBy == nil || *completed.UpdatedBy != "owner" {
+		t.Fatalf("warmup completion audit=%+v", completed)
 	}
 	page, err := client.Versions().ListWarmupRuns(ctx, "reader", 1, sdk.ListWarmupRunsInput{Limit: 10})
 	if err != nil || len(page.Items) != 1 || page.Items[0].RunID != first.RunID {

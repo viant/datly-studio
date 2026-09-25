@@ -7,6 +7,7 @@ export { StudioShell } from './StudioShell.jsx';
 export { createStudioSDK, defineStudioExtension } from './extensions.js';
 export { ResourceAccessEditor } from './ResourceAccessEditor.jsx';
 export { PermissionsWorkspace } from './SecurityCenter.jsx';
+export { defaultActionsByKind } from './resourceAccessActions.js';
 
 export function mountStudio(element, { config, sdk, extensions } = {}) {
   if (!element) throw new TypeError('mountStudio requires a DOM element');

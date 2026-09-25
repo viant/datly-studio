@@ -13,7 +13,8 @@
     "build": "vite build",
     "test": "node --test src/*.test.js && vitest run",
     "test:contracts": "node --test src/*.test.js",
-    "test:rendered": "vitest run"
+    "test:rendered": "vitest run",
+    "test:acl-review-visual": "node scripts/acl-review-visual-smoke.mjs"
   },
   "dependencies": {
     "@blueprintjs/core": "^6.0.0-alpha.1",

@@ -113,6 +113,29 @@ FROM reports GROUP BY owner_id,namespace`); err != nil {
 			}
 		}
 	}
+	if current >= 5 && current <= 11 {
+		exists, err := sqliteTableExists(ctx, db, "report_warmup_runs")
+		if err != nil {
+			return err
+		}
+		if !exists {
+			if err := schema.CreateSQLiteTableFromCanonical(ctx, db, "report_warmup_runs"); err != nil {
+				return fmt.Errorf("create missing warmup runs: %w", err)
+			}
+		} else {
+			for _, column := range []string{"created_at", "created_by", "updated_at", "updated_by"} {
+				if err := schema.AddSQLiteColumnFromCanonical(ctx, db, "report_warmup_runs", column); err != nil {
+					return fmt.Errorf("add warmup %s: %w", column, err)
+				}
+			}
+			if _, err := db.ExecContext(ctx, `UPDATE report_warmup_runs SET
+				created_at=COALESCE(created_at,requested_at), created_by=COALESCE(created_by,requested_by),
+				updated_at=COALESCE(updated_at,completed_at,started_at,requested_at),
+				updated_by=COALESCE(updated_by,CASE WHEN status='accepted' THEN requested_by ELSE 'system:migration' END)`); err != nil {
+				return fmt.Errorf("backfill warmup audit columns: %w", err)
+			}
+		}
+	}
 	return schema.SetSQLiteVersion(ctx, db, schema.CanonicalVersion)
 }
 
@@ -157,5 +180,7 @@ func (s *Service) Migrations() []Migration {
 		{Version: 8, Name: "report_acl_row_concurrency"},
 		{Version: 9, Name: "authorization_predicate_catalog"},
 		{Version: 10, Name: "authorization_predicate_sql_scope"},
+		{Version: 11, Name: "resource_policy_revisions"},
+		{Version: 12, Name: "warmup_audit_and_updated_at_concurrency"},
 	}
 }

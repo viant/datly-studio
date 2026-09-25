@@ -20,16 +20,19 @@ export function validateConfig(value) {
   if (!value || typeof value !== 'object') throw new Error('Studio UI configuration is required');
   const mode = requiredString(value.mode, 'mode');
   const apiBaseURL = requiredString(value.apiBaseURL, 'apiBaseURL').replace(/\/$/, '');
+  const brand = value.brand == null ? {} : { brand: requiredString(value.brand, 'brand') };
+  if (brand.brand && (brand.brand.length > 80 || /[\u0000-\u001f\u007f]/.test(brand.brand))) throw new Error('Studio UI brand must be short plain text');
   if (mode === development) {
     if (!localURL(apiBaseURL)) throw new Error('development apiBaseURL must use localhost or a loopback address');
     const subject = requiredString(value.development?.subject, 'development.subject');
-    return { mode, apiBaseURL, development: { subject } };
+    return { mode, apiBaseURL, ...brand, development: { subject } };
   }
   if (mode === authenticated) {
     const authentication = value.authentication;
     return {
       mode,
       apiBaseURL,
+      ...brand,
       authentication: {
         mode: authentication?.mode == null ? 'bff' : requiredString(authentication.mode, 'authentication.mode'),
         mePath: authentication?.mePath || '/v1/studio/auth/me',

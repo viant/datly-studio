@@ -170,7 +170,7 @@ func TestBFFSessionNeverOutlivesVerifiedJWT(t *testing.T) {
 
 func TestBFFRequiresConfiguredIssuerAndAudience(t *testing.T) {
 	claims := &jwt.Claims{RegisteredClaims: jwtv5.RegisteredClaims{
-		Subject: "owner", Issuer: "https://issuer.example", Audience: jwtv5.ClaimStrings{"studio", "another"},
+		Subject: "owner", Issuer: "https://issuer.example", Audience: jwtv5.ClaimStrings{"studio", "another"}, ExpiresAt: jwtv5.NewNumericDate(time.Now().Add(time.Hour)),
 	}}
 	service, err := New(Config{Issuer: "https://issuer.example", Audience: "studio"}, claimsVerifier{claims: claims})
 	if err != nil {
@@ -192,6 +192,15 @@ func TestBFFRequiresConfiguredIssuerAndAudience(t *testing.T) {
 				t.Fatal("mismatched token binding was accepted")
 			}
 		})
+	}
+	withoutExpiry := *claims
+	withoutExpiry.ExpiresAt = nil
+	missingExpiry, err := New(Config{Issuer: "https://issuer.example", Audience: "studio"}, claimsVerifier{claims: &withoutExpiry})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, _, _, err := missingExpiry.Exchange(context.Background(), "signed-token"); err == nil {
+		t.Fatal("bound access token without expiry created a session")
 	}
 }
 

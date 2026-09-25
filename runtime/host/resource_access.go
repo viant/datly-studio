@@ -3,15 +3,20 @@ package host
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 
 	jwtlib "github.com/golang-jwt/jwt/v5"
+	"github.com/viant/datly-studio/runtime/accesscontext"
 	"github.com/viant/datly-studio/sdk/access"
 	"github.com/viant/datly-studio/sdk/access/oauth"
 	accessstore "github.com/viant/datly-studio/store/sql/access"
+	"github.com/viant/datly/runtime/registry"
+	"github.com/viant/datly/spec"
 	xresponse "github.com/viant/xdatly/response"
 )
 
@@ -50,13 +55,14 @@ func (s *Service) authorizeResourcePolicy(ctx context.Context, r access.Resource
 	return nil
 }
 
-// authorizeScopedComponent authorizes execution of one published component and,
-// for an entity-bounded decision, binds the caller's authorized IDs into the
-// component's deployment-declared typed scope input. HTTP and MCP share this
-// path. It fails closed: a bounded decision without a binding, an unbounded
-// decision on a scoped component, an entity dimension other than the bound
-// one, or an ID that does not convert canonically all deny before execution.
-func (s *Service) authorizeScopedComponent(ctx context.Context, r access.Resource, binding *resolvedScopeBinding) error {
+// authorizeComponentExecution authorizes execution of one published component.
+// HTTP and MCP share this path. An entity-bounded decision is enforceable only
+// when the component binds its own access-context component natively (see
+// runtime/accesscontext); a bounded decision on a component that does not is
+// denied before execution rather than released unscoped. The bound context
+// component then re-evaluates the same narrowed decision when the consuming
+// component binds its input, so the scope that reaches SQL is never broader.
+func (s *Service) authorizeComponentExecution(ctx context.Context, r access.Resource, bindsAccessContext bool) error {
 	if s.resourceAccess == nil {
 		return &xresponse.Error{Code: http.StatusForbidden, Cause: access.ErrDenied}
 	}
@@ -64,19 +70,61 @@ func (s *Service) authorizeScopedComponent(ctx context.Context, r access.Resourc
 	if err != nil {
 		return &xresponse.Error{Code: http.StatusForbidden, Cause: access.ErrDenied}
 	}
-	if !d.Bounded {
-		if binding != nil {
-			return &xresponse.Error{Code: http.StatusForbidden, Cause: errors.New("scoped component requires an entity-bounded policy decision")}
-		}
-		return nil
-	}
-	if binding == nil {
-		return &xresponse.Error{Code: http.StatusForbidden, Cause: errors.New("typed runtime scope binding is required")}
-	}
-	if err = binding.bind(ctx, d); err != nil {
-		return &xresponse.Error{Code: http.StatusForbidden, Cause: errors.New("authorized scope cannot be bound to the component input")}
+	if d.Bounded && !bindsAccessContext {
+		return &xresponse.Error{Code: http.StatusForbidden, Cause: errors.New("entity-bounded policy requires the component to bind its access context")}
 	}
 	return nil
+}
+
+// accessContexts registers one server-owned access-context component per
+// published component that declares the dependency, at that component's
+// concrete route. A component may bind only its own context, and binding one
+// requires generic resource access to be configured.
+func (s *Service) accessContexts(registrations []*registry.RegisteredComponent, reportByComponent map[spec.Key]string, versionByReport map[string]int) ([]*registry.RegisteredComponent, map[string]bool, error) {
+	binds := map[string]bool{}
+	seen := map[accesscontext.Dependency]bool{}
+	var contexts []*registry.RegisteredComponent
+	for _, registered := range registrations {
+		if registered == nil || registered.Component == nil {
+			continue
+		}
+		reportID := reportByComponent[registered.Component.Key]
+		dependencies, err := accesscontext.DependsOn(registered.Component)
+		if err != nil {
+			return nil, nil, fmt.Errorf("report %s: %w", reportID, err)
+		}
+		for _, dependency := range dependencies {
+			if dependency.ComponentID != reportID {
+				return nil, nil, fmt.Errorf("report %s binds the access context of %q; a component may bind only its own", reportID, dependency.ComponentID)
+			}
+			if s.config.Access == nil || s.resourceAccess == nil {
+				return nil, nil, fmt.Errorf("report %s binds an access context, which requires generic resource access configuration", reportID)
+			}
+			if seen[dependency] {
+				continue
+			}
+			seen[dependency] = true
+			binds[reportID] = true
+			resource := access.Resource{Kind: "component", ID: reportID, Version: strconv.Itoa(versionByReport[reportID]), Tenant: s.config.Access.Tenant}
+			service := s.resourceAccess
+			registration, err := accesscontext.Register(dependency, func(ctx context.Context) (access.Facts, access.Decision, error) {
+				facts, err := service.Provider.Resolve(ctx)
+				if err != nil {
+					return access.Facts{}, access.Decision{}, err
+				}
+				decision, err := service.Authorize(ctx, access.Request{Resource: resource, Action: "execute"})
+				if err != nil {
+					return access.Facts{}, access.Decision{}, err
+				}
+				return facts, decision, nil
+			})
+			if err != nil {
+				return nil, nil, err
+			}
+			contexts = append(contexts, registration)
+		}
+	}
+	return contexts, binds, nil
 }
 
 func (s *Service) authorizeBoundResource(ctx context.Context, uri string) error {

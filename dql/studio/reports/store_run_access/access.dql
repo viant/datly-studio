@@ -1,0 +1,18 @@
+#package('studio/reports/store_run_access')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/report-run-access', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('access', 'sql/read.sql'))
+
+#define($_ = $ReportId<string>(query/reportId).Required())
+#define($_ = $Subject<string>(query/subject).Required())
+#define($_ = $Allowed<[]*RunAccess>(output/view))
+
+SELECT access.*, type(access, 'RunAccess'),
+       CAST(access.report_id AS string),
+       set_limit(access, 1)
+FROM (${embed:sql/read.sql}) access
+WHERE 1=1

@@ -11,7 +11,7 @@ Datly Studio is the governed control plane for creating and operating database-b
 Studio must let users:
 
 - register, test, activate, and retire database connectors
-- create a report/component from SQL, DQL, or structured edits
+- create a Datly component from SQL, DQL, or structured edits
 - inspect views, relations, parameters, predicates, selectors, and fields
 - validate drafts with source-linked diagnostics
 - preview a draft without changing the published runtime
@@ -24,7 +24,7 @@ Studio must let users:
 - audit ownership, permissions, publication, and rollback
 - manage the experience through a UI built with `github.com/viant/forge`
 
-The term **report** is the Studio product object. Every executable report version compiles to one Datly 1.0 `spec.Component`. Report/cube settings are optional component facets, not a separate execution engine.
+The legacy catalog names `reports` and `report_versions` identify versioned Datly components, not presentation reports. Every executable component version compiles to one Datly 1.0 `spec.Component`. Cube settings are optional component facets, not a separate execution engine.
 
 Runtime listeners are deliberately separate: the Studio SDK/BFF uses 8080,
 linked Studio control-plane Datly components use 8081, dynamic reader HTTP uses
@@ -54,7 +54,7 @@ Studio must not implement parallel reader, relation, binder, predicate, or SQL-b
 
 Studio owns:
 
-- report identity and lifecycle
+- component identity and lifecycle
 - connector metadata and secret references
 - drafts, immutable versions, review, publication, and rollback
 - ACLs and ownership
@@ -95,7 +95,7 @@ The current repository is a useful product prototype but is coupled to pre-1.0 D
 The original prototype modeled:
 
 - connectors and connector validation
-- reports/components and versions
+- components and versions (stored under legacy `reports` catalog names)
 - draft validation and preview
 - publication records
 - optimistic concurrency through `etag`
@@ -197,6 +197,20 @@ publication, and runtime lifecycle operations are backed by
 generation and publication row atomically. Preview is routed through an
 injected Datly execution adapter, so the SQL transport does not reimplement a
 query engine. Forge must never bypass the SDK.
+The SDK's report capability projection (owner plus direct-user ACL flags) also
+uses an in-process, server-only Datly v1 reader. Public components do not
+expose its subject input; the SDK supplies the verified principal itself.
+Legacy report ACL list and identity reads use separate private Datly v1
+components with exact report/subject inputs. SDK ACL create, update, and
+delete invoke a private Datly v1 writer; versioned updates and deletes check
+the ETag in the actual SQL mutation, not only in an earlier read.
+The preview adapter resolves an exact report version and its connector through
+a server-only generated Datly v1 reader. The Studio API reuses that reader's
+compiled runtime; preview compilation and execution continue through Datly's
+normal runtime-contract path. Active connector discovery uses separate
+server-only Datly readers for public mode and verified-principal mode; the
+principal reader preserves owner or direct-user `can_view` visibility. None of
+these readers is registered on public routes.
 
 Generated component tests use `internal/datatest`. Its `HydrationPhase` consumes
 ordered JSON tables, preserves JSON numeric authority, validates table and

@@ -1,0 +1,20 @@
+#package('studio/bff_sessions/store_read')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/bff-session-store', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('session', 'sql/read.sql'))
+
+#define($_ = $SessionIdHash<string>(query/sessionIdHash).Required().WithPredicate(0, 'equal', 's', 'session_id_hash'))
+#define($_ = $Sessions<[]*StoredSession>(output/view))
+
+SELECT session.*, type(session, 'StoredSession'),
+       CAST(session.session_id_hash AS string),
+       CAST(session.subject_id AS string),
+       CAST(session.payload_ciphertext AS []byte),
+       CAST(session.expires_at_unix AS int64),
+       set_limit(session, 1)
+FROM (${embed:sql/read.sql}) session
+WHERE 1=1

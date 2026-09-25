@@ -14,11 +14,14 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -57,14 +60,33 @@ func main() {
 	sessionKey := flag.String("session-key", os.Getenv("STUDIO_SESSION_KEY"), "base64-encoded 32-byte BFF session encryption key")
 	dynamicHTTPURL := flag.String("dynamic-http-url", "http://127.0.0.1:8082", "dynamic Datly HTTP target")
 	dynamicMCPURL := flag.String("dynamic-mcp-url", "http://127.0.0.1:8091", "dynamic Datly MCP target")
+	extensionBackendURL := flag.String("extension-backend-url", "", "trusted extension backend origin (authenticated mode only)")
+	extensionUpstreamPrefix := flag.String("extension-upstream-prefix", "", "allowlisted extension upstream path prefix, for example /api/widgets")
 	dynamicAdminToken := flag.String("dynamic-admin-token", os.Getenv("STUDIO_RUNTIME_ADMIN_TOKEN"), "dynamic runtime reload token")
 	allowedOrigin := flag.String("allowed-origin", os.Getenv("STUDIO_ALLOWED_ORIGIN"), "exact Studio browser origin")
+	staticRoot := flag.String("static-root", "", "optional absolute directory of public built UI assets served on the Studio BFF origin")
+	sessionPruneInterval := flag.Duration("session-prune-interval", time.Minute, "how often to prune bounded batches of expired BFF sessions; 0 disables background cleanup")
+	loginAuthURL := flag.String("login-auth-url", "", "optional OAuth authorization endpoint for the BFF login route")
+	loginTokenURL := flag.String("login-token-url", "", "OAuth token endpoint paired with -login-auth-url")
+	loginClientID := flag.String("login-client-id", "", "registered OAuth client ID for BFF login")
+	loginClientSecretFile := flag.String("login-client-secret-file", "", "optional file containing OAuth client secret; omit for a public PKCE client")
+	loginRedirectURL := flag.String("login-redirect-url", "", "exact public callback URL ending in /v1/studio/auth/callback")
+	loginScopes := flag.String("login-scopes", "openid,profile,email", "comma-separated OAuth scopes for BFF login, including openid")
 	accessIssuer := flag.String("access-issuer", "", "dedicated ACL token issuer")
 	accessAudience := flag.String("access-audience", "", "dedicated ACL token audience")
 	accessKey := flag.String("access-public-key", "", "ACL issuer RSA public key PEM")
 	flag.Parse()
+	if *sessionPruneInterval < 0 {
+		log.Fatal("-session-prune-interval must not be negative")
+	}
+	lifecycleCtx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 	resolvedMode := strings.ToLower(strings.TrimSpace(*mode))
 	if err := validateGatewayMode(resolvedMode); err != nil {
+		log.Fatal(err)
+	}
+	extensionConfig, err := resolveExtensionProxyConfig(resolvedMode, *extensionBackendURL, *extensionUpstreamPrefix)
+	if err != nil {
 		log.Fatal(err)
 	}
 	adminToken, err := resolveRuntimeAdminToken(resolvedMode, *dynamicAdminToken)
@@ -72,6 +94,21 @@ func main() {
 		log.Fatal(err)
 	}
 	origin, err := resolveAllowedOrigin(resolvedMode, *allowedOrigin)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var loginSecret string
+	if *loginClientSecretFile != "" {
+		secretBytes, readErr := os.ReadFile(*loginClientSecretFile)
+		if readErr != nil {
+			log.Fatal(readErr)
+		}
+		loginSecret = strings.TrimSpace(string(secretBytes))
+		if loginSecret == "" {
+			log.Fatal("-login-client-secret-file is empty")
+		}
+	}
+	loginOAuth, err := resolveLoginConfig(resolvedMode, origin, *loginAuthURL, *loginTokenURL, *loginClientID, loginSecret, *loginRedirectURL, *loginScopes)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -83,7 +120,29 @@ func main() {
 	if err = ensureSchema(context.Background(), db); err != nil {
 		log.Fatal(err)
 	}
-	dynamicPreview := preview.Dynamic{StudioDB: db, RootDir: "."}
+	definitionReader, err := preview.NewDefinitionReader(db)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func() {
+		closeCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := definitionReader.Close(closeCtx); err != nil {
+			log.Printf("Studio preview definition reader close: %v", err)
+		}
+	}()
+	connectorReader, err := preview.NewConnectorReader(db)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func() {
+		closeCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := connectorReader.Close(closeCtx); err != nil {
+			log.Printf("Studio preview connector reader close: %v", err)
+		}
+	}()
+	dynamicPreview := preview.Dynamic{StudioDB: db, RootDir: ".", Definitions: definitionReader, Connectors: connectorReader}
 	predicates, err := (host.Config{}).PredicateCatalog()
 	if err != nil {
 		log.Fatal(err)
@@ -114,6 +173,13 @@ func main() {
 		return nil
 	})
 	transport := &sqltransport.Transport{DB: db, Authorizer: authorization.SDKAuthorizer{DB: db}, Predicates: predicates, Probe: connectivity.SQLProbe{}, Catalog: connectivity.SQLCatalog{}, SQLTester: dynamicPreview, Preview: dynamicPreview, ViewTester: dynamicPreview, RelationTester: dynamicPreview, ComposeTester: dynamicPreview, Warmup: dynamicPreview, Validator: dynamicPreview, Activator: activateRuntime, RuntimeProbe: runtimeProbe{url: strings.TrimSuffix(*dynamicHTTPURL, "/") + "/_studio/status", token: adminToken, client: &http.Client{Timeout: 2 * time.Second}}}
+	defer func() {
+		closeCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := transport.Close(closeCtx); err != nil {
+			log.Printf("Studio predicate reader close: %v", err)
+		}
+	}()
 	var sdkTransport sdk.Transport = transport
 	if *accessIssuer != "" || *accessAudience != "" || *accessKey != "" {
 		if resolvedMode != string(httptransport.Authenticated) {
@@ -134,7 +200,26 @@ func main() {
 		sdkTransport = &access.Transport{Next: transport, Service: &access.Service{Store: &accessstore.Store{DB: db}, Provider: provider}}
 	}
 	mux := http.NewServeMux()
+	if *staticRoot != "" {
+		assets, assetErr := newStaticAssets(*staticRoot)
+		if assetErr != nil {
+			log.Fatal(assetErr)
+		}
+		defer assets.Close()
+		mux.Handle("/", assets)
+	}
+	var extensionProxy http.Handler
 	gatewayConfig := httptransport.Config{Mode: httptransport.Development, DevelopmentSubject: *subject}
+	if resolvedMode == string(httptransport.Development) {
+		devJWT, jwtErr := httptransport.NewDevelopmentJWT("studio-development", "studio-sdk")
+		if jwtErr != nil {
+			log.Fatal(jwtErr)
+		}
+		gatewayConfig.DevelopmentCredential = devJWT.Credential
+		transport.SystemCredentialProvider = func(ctx context.Context) (sdk.VerifiedCredential, error) {
+			return devJWT.Credential(ctx, sdk.SystemPrincipal().Subject)
+		}
+	}
 	if resolvedMode == string(httptransport.Authenticated) {
 		issuer, audience, key, authConfigErr := resolveAuthenticatedConfig(*jwtCertURL, *jwtIssuer, *jwtAudience, *sessionKey)
 		if authConfigErr != nil {
@@ -148,11 +233,29 @@ func main() {
 		if sessionErr != nil {
 			log.Fatal(sessionErr)
 		}
+		defer func() {
+			closeCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+			if err := sessionStore.Close(closeCtx); err != nil {
+				log.Printf("Studio BFF session runtime close: %v", err)
+			}
+		}()
+		if *sessionPruneInterval > 0 {
+			prunerDone := startSessionPruner(lifecycleCtx, sessionStore, *sessionPruneInterval)
+			defer func() { stop(); <-prunerDone }()
+		}
 		sessions, sessionErr := bffauth.New(bffauth.Config{CookieName: *cookieName, Secure: true, Issuer: issuer, Audience: audience, Store: sessionStore}, jwtVerifier)
 		if sessionErr != nil {
 			log.Fatal(sessionErr)
 		}
 		sessions.Register(mux)
+		if loginOAuth != nil {
+			login, loginErr := bffauth.NewLogin(bffauth.LoginConfig{OAuth: *loginOAuth, CookieKey: key, Secure: true}, sessions)
+			if loginErr != nil {
+				log.Fatal(loginErr)
+			}
+			login.Register(mux)
+		}
 		for _, proxyConfig := range []struct{ mount, target string }{{"/v1/studio/runtime/", *dynamicHTTPURL}, {"/v1/studio/mcp/", *dynamicMCPURL}} {
 			target, parseErr := url.Parse(proxyConfig.target)
 			if parseErr != nil {
@@ -163,6 +266,13 @@ func main() {
 				log.Fatal(proxyErr)
 			}
 			mux.Handle(proxyConfig.mount, proxy)
+		}
+		if extensionConfig != nil {
+			var proxyErr error
+			extensionProxy, proxyErr = newExtensionProxy(sessions, extensionConfig)
+			if proxyErr != nil {
+				log.Fatal(proxyErr)
+			}
 		}
 		gatewayConfig = httptransport.Config{Mode: httptransport.Authenticated, Authenticator: sessions}
 	} else {
@@ -191,11 +301,17 @@ func main() {
 	mux.Handle(httptransport.PathPrefix, gateway)
 	log.Printf("Studio SDK development host listening on http://%s", *address)
 	server := &http.Server{
-		Addr: *address, Handler: requestIDs(cors(origin, resolvedMode == string(httptransport.Authenticated), noStore(mux))),
+		Addr: *address, Handler: requestIDs(cors(origin, resolvedMode == string(httptransport.Authenticated), noStore(routeExtensionProxy(mux, extensionProxy)))),
 		ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 30 * time.Second,
 		WriteTimeout: 60 * time.Second, IdleTimeout: 2 * time.Minute,
 	}
-	log.Fatal(server.ListenAndServe())
+	listener, err := net.Listen("tcp", *address)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := serveUntilStopped(lifecycleCtx, server, listener); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func mcpProxyError(response http.ResponseWriter, request *http.Request, err error) {

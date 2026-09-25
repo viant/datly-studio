@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/viant/datly-studio/sdk"
+	scyjwt "github.com/viant/scy/auth/jwt"
 )
 
 type transportFunc func(context.Context, string, any, any) error
@@ -26,16 +27,27 @@ func request(t *testing.T, gateway Gateway, operation string) *httptest.Response
 }
 
 func TestDevelopmentGatewayUsesOnlyConfiguredLoopbackIdentity(t *testing.T) {
+	devJWT, err := NewDevelopmentJWT("studio-development", "studio-sdk")
+	if err != nil {
+		t.Fatal(err)
+	}
 	transport := transportFunc(func(ctx context.Context, operation string, input, output any) error {
 		principal, ok := sdk.PrincipalFromContext(ctx)
 		if !ok || principal.Subject != "dev-user" || !principal.Development {
 			t.Fatalf("principal=%+v ok=%v", principal, ok)
 		}
+		credential, ok := sdk.VerifiedCredentialFromContext(ctx)
+		claims, claimsOK := credential.Claims.(*scyjwt.Claims)
+		if !ok || !claimsOK || claims.Subject != principal.Subject ||
+			len(credential.Bearer) < len("Bearer ") || credential.Bearer[:len("Bearer ")] != "Bearer " {
+			t.Fatalf("signed development credential missing: ok=%v claims=%+v", ok, claims)
+		}
 		page := output.(*sdk.ReportPage)
 		page.Items = []*sdk.Report{{ID: "report-1", Title: "Revenue"}}
 		return nil
 	})
-	gateway := Gateway{Config: Config{Mode: Development, DevelopmentSubject: "dev-user"}, Transport: transport}
+	gateway := Gateway{Config: Config{Mode: Development, DevelopmentSubject: "dev-user",
+		DevelopmentCredential: devJWT.Credential}, Transport: transport}
 	req := httptest.NewRequest(http.MethodPost, PathPrefix+sdk.OperationReportList, nil)
 	req.RemoteAddr = "127.0.0.1:8100"
 	req.Header.Set("X-Studio-Development-Subject", "dev-user")

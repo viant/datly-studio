@@ -1,0 +1,24 @@
+#package('studio/reports/store_capabilities')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/report-capabilities', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('capability', 'sql/read.sql'))
+
+#define($_ = $ReportId<string>(query/reportId).Required())
+#define($_ = $Subject<string>(query/subject).Required())
+#define($_ = $Capabilities<[]*ReportCapability>(output/view))
+
+SELECT capability.*, type(capability, 'ReportCapability'),
+       CAST(capability.report_id AS string),
+       CAST(capability.owner_id AS string),
+       CAST(capability.can_view AS bool),
+       CAST(capability.can_run AS bool),
+       CAST(capability.can_edit AS bool),
+       CAST(capability.can_publish AS bool),
+       CAST(capability.can_use_dql AS bool),
+       set_limit(capability, 1)
+FROM (${embed:sql/read.sql}) capability
+WHERE 1=1

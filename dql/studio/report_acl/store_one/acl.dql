@@ -1,0 +1,24 @@
+#package('studio/report_acl/store_one')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/report-acl-store/one', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('acl', 'sql/read.sql'))
+
+#define($_ = $ReportId<string>(query/reportId).Required())
+#define($_ = $SubjectType<string>(query/subjectType).Required())
+#define($_ = $SubjectId<string>(query/subjectId).Required())
+#define($_ = $Access<[]*StoredACL>(output/view))
+
+SELECT acl.*, type(acl, 'StoredACL'),
+       CAST(acl.report_id AS string),
+       CAST(acl.subject_type AS string),
+       CAST(acl.subject_id AS string),
+       CAST(acl.can_view AS bool), CAST(acl.can_run AS bool),
+       CAST(acl.can_edit AS bool), CAST(acl.can_publish AS bool),
+       CAST(acl.can_use_dql AS bool), CAST(acl.etag AS int64),
+       set_limit(acl, 1)
+FROM (${embed:sql/read.sql}) acl
+WHERE 1=1

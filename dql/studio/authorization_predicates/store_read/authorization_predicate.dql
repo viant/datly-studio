@@ -1,0 +1,27 @@
+#package('studio/authorization_predicates/store_read')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/authorization-predicate-store', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('authorization_predicate', 'sql/read.sql'))
+
+#define($_ = $Name<string>(query/name).Optional().WithPredicate(0, 'equal', 'p', 'name'))
+#define($_ = $SearchPattern<string>(query/searchPattern).Optional())
+#define($_ = $Status<string>(query/status).Optional())
+#define($_ = $OrderBy<string>(query/orderBy).Optional().QuerySelector('authorization_predicate'))
+#define($_ = $Limit<int>(query/limit).Optional().QuerySelector('authorization_predicate'))
+#define($_ = $Offset<int>(query/offset).Optional().QuerySelector('authorization_predicate'))
+#define($_ = $AuthorizationPredicates<[]*StoredAuthorizationPredicate>(output/view))
+
+SELECT predicate.*, type(predicate, 'StoredAuthorizationPredicate'),
+       CAST(predicate.name AS string), CAST(predicate.title AS string),
+       CAST(predicate.package_path AS string), CAST(predicate.type_name AS string),
+       CAST(predicate.owner_id AS string), CAST(predicate.status AS string),
+       CAST(predicate.etag AS int64),
+       set_limit(predicate, 500), selector_limit(predicate, true),
+       selector_offset(predicate, true),
+       allowed_order_by_columns(predicate, 'updated_at,name')
+FROM (${embed:sql/read.sql}) predicate
+WHERE 1=1

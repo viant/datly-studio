@@ -1,0 +1,24 @@
+#package('studio/report_acl/store_write')
+
+#import('github.com/viant/xdatly/response')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/report-acl-store', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('acl', 'sql/patch.sql'))
+
+#define($_ = $Access<[]*StoredACL>(body/data))
+#define($_ = $Status<response.Status>(output/status).Embed())
+#define($_ = $Violations<?>(transient/status).Output())
+
+SELECT acl.*, type(acl, 'StoredACL'),
+       lifecycle_type(acl, 'ACLStoreRules'),
+       tag(acl.report_id, 'sqlx:"report_id,primaryKey" validate:"required"'),
+       tag(acl.subject_type, 'sqlx:"subject_type,primaryKey" validate:"required"'),
+       tag(acl.subject_id, 'sqlx:"subject_id,primaryKey" validate:"required"'),
+       CAST(acl.should_delete AS bool), delete_marker(acl.should_delete),
+       concurrency_token(acl.etag)
+FROM (${embed:sql/patch.sql}) acl
+WHERE 1=1

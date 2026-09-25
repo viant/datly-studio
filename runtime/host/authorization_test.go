@@ -29,7 +29,12 @@ INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_run) VALUE
 	if err != nil {
 		t.Fatal(err)
 	}
-	service := &Service{studio: db, config: Config{Authentication: Authentication{DefaultMode: "required"}}}
+	store, err := newRunAccessStore(db)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer store.Close(context.Background())
+	service := &Service{studio: db, runAccessStore: store, config: Config{Authentication: Authentication{DefaultMode: "required"}}}
 	for _, subject := range []string{"owner", "runner"} {
 		claims := &jwt.Claims{}
 		claims.Subject = subject
@@ -43,6 +48,22 @@ INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_run) VALUE
 	ctx := context.WithValue(context.Background(), verifiedClaimsKey{}, claims)
 	if err = service.authorizeRun(ctx, "reader"); err == nil {
 		t.Fatal("view-only subject was allowed to execute the reader")
+	}
+	for _, subject := range []string{"runner", "viewer"} {
+		if _, err = db.Exec(`UPDATE report_acl SET subject_type='role' WHERE report_id='reader' AND subject_id=?`, subject); err != nil {
+			t.Fatal(err)
+		}
+	}
+	claims.Subject = "runner"
+	if err = service.authorizeRun(ctx, "reader"); err == nil {
+		t.Fatal("role ACL row was treated as a direct user grant")
+	}
+	claims.Subject = "owner"
+	if _, err = db.Exec(`UPDATE reports SET deleted_at=CURRENT_TIMESTAMP WHERE id='reader'`); err != nil {
+		t.Fatal(err)
+	}
+	if err = service.authorizeRun(ctx, "reader"); err == nil {
+		t.Fatal("deleted report remained executable by its owner")
 	}
 	if err = service.authorizeRun(context.Background(), "reader"); err == nil {
 		t.Fatal("missing verified claims were allowed")
@@ -86,7 +107,12 @@ INSERT INTO report_publications(report_id,active_version_no,desired_version_no,d
 	if err != nil {
 		t.Fatal(err)
 	}
-	service := &Service{studio: db}
+	store, err := newPublishedDefinitionStore(db)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer store.Close(ctx)
+	service := &Service{studio: db, definitionStore: store}
 	assertVersion := func(candidate *int64, want int) {
 		t.Helper()
 		items, queryErr := service.definitions(ctx, candidate)

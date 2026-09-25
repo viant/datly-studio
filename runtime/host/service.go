@@ -7,18 +7,20 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	studiohost "github.com/viant/datly-studio/studio/host"
 	"net"
 	"net/http"
 	"path"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/viant/datly-studio/internal/connectorinit"
 	"github.com/viant/datly-studio/internal/connectorsecret"
+	"github.com/viant/datly-studio/runtime/accesscontext"
 	studiors "github.com/viant/datly-studio/runtime/resources"
 	"github.com/viant/datly-studio/sdk/access"
+	studiohost "github.com/viant/datly-studio/studio/host"
 	"github.com/viant/datly/application"
 	"github.com/viant/datly/authoring/readerbuilder"
 	"github.com/viant/datly/bootstrap"
@@ -38,7 +40,6 @@ import (
 	"github.com/viant/scy/auth/jwt"
 	"github.com/viant/scy/auth/jwt/verifier"
 	xresponse "github.com/viant/xdatly/response"
-	"strconv"
 )
 
 type verifiedClaimsKey struct{}
@@ -47,6 +48,9 @@ type Service struct {
 	resourceAccess    *access.Service
 	config            Config
 	studio            *sql.DB
+	connectorStore    *activeConnectorStore
+	definitionStore   *publishedDefinitionStore
+	runAccessStore    *runAccessStore
 	manager           *application.Manager
 	servers           []*http.Server
 	listeners         []net.Listener
@@ -78,13 +82,33 @@ func New(ctx context.Context, config Config) (*Service, error) {
 		studio.Close()
 		return nil, err
 	}
+	// Published DQL names the access-context output through its import path.
+	if err = accesscontext.RegisterTypes(types); err != nil {
+		studio.Close()
+		return nil, err
+	}
 	manager, err := application.New(types)
 	if err != nil {
 		studio.Close()
 		return nil, err
 	}
-	result := &Service{config: config, studio: studio, manager: manager}
+	definitionStore, err := newPublishedDefinitionStore(studio)
+	if err != nil {
+		_ = manager.Shutdown(context.Background())
+		_ = studio.Close()
+		return nil, fmt.Errorf("runtime definition store: %w", err)
+	}
+	runAccessStore, err := newRunAccessStore(studio)
+	if err != nil {
+		_ = definitionStore.Close(context.Background())
+		_ = manager.Shutdown(context.Background())
+		_ = studio.Close()
+		return nil, fmt.Errorf("runtime run access store: %w", err)
+	}
+	result := &Service{config: config, studio: studio, manager: manager, connectorStore: &activeConnectorStore{db: studio}, definitionStore: definitionStore, runAccessStore: runAccessStore}
 	if err = result.initResourceAccess(); err != nil {
+		_ = runAccessStore.Close(context.Background())
+		_ = definitionStore.Close(context.Background())
 		_ = manager.Shutdown(context.Background())
 		_ = studio.Close()
 		return nil, err
@@ -93,6 +117,8 @@ func New(ctx context.Context, config Config) (*Service, error) {
 	for name, provider := range config.Authentication.Providers {
 		service := verifier.New(&verifier.Config{CertURL: provider.CertURL})
 		if err = service.Init(ctx); err != nil {
+			_ = runAccessStore.Close(context.Background())
+			_ = definitionStore.Close(context.Background())
 			_ = manager.Shutdown(context.Background())
 			_ = studio.Close()
 			return nil, fmt.Errorf("runtime provider %s: %w", name, err)
@@ -102,6 +128,8 @@ func New(ctx context.Context, config Config) (*Service, error) {
 	if config.Access == nil && !strings.EqualFold(config.Authentication.DefaultMode, "public") {
 		result.verifier = verifier.New(&verifier.Config{CertURL: config.Authentication.CertURL})
 		if err = result.verifier.Init(ctx); err != nil {
+			_ = runAccessStore.Close(context.Background())
+			_ = definitionStore.Close(context.Background())
 			_ = manager.Shutdown(context.Background())
 			_ = studio.Close()
 			return nil, err
@@ -180,7 +208,7 @@ func (s *Service) compile(ctx context.Context, seed *typecatalog.Catalog, candid
 			err = mergeErr
 			return nil, err
 		}
-		compilation, buildErr := report.NewProjectCompiler(report.ProjectConfig{Types: contract.Types}).CompileArtifacts([]bootstrap.ArtifactInput{{Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources}})
+		compilation, buildErr := report.NewProjectCompiler(report.ProjectConfig{Types: contract.Types}).CompileArtifacts([]bootstrap.ArtifactInput{{Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources, CodecFactory: accesscontext.Codecs()}})
 		if buildErr != nil {
 			err = buildErr
 			return nil, err
@@ -207,22 +235,22 @@ func (s *Service) compile(ctx context.Context, seed *typecatalog.Catalog, candid
 	if err = validateSkillToolReferences(ctx, s.studio, versions, registrations); err != nil {
 		return nil, err
 	}
-	var declaredScopes []ScopeBinding
-	if s.config.Access != nil {
-		declaredScopes = s.config.Access.ScopeBindings
-	}
-	scopeBindings, scopeErr := resolveScopeBindings(declaredScopes, s.config.Access != nil, compiledComponents(registrations), reportByComponent, versionByReport)
-	if scopeErr != nil {
-		err = scopeErr
+	// Published components bind their access context as an ordinary Datly
+	// component dependency; the context component is server-owned and
+	// registered in the same generation at that component's concrete route.
+	accessContexts, bindsAccessContext, contextErr := s.accessContexts(registrations, reportByComponent, versionByReport)
+	if contextErr != nil {
+		err = contextErr
 		return nil, err
 	}
+	registrations = append(registrations, accessContexts...)
 	authorizeTarget := func(ctx context.Context, target dexec.ComponentTarget) error {
 		reportID := reportByComponent[target.Component]
 		if reportID == "" {
 			return &xresponse.Error{Code: http.StatusForbidden, Cause: errors.New("published component authorization is unavailable")}
 		}
 		if s.config.Access != nil {
-			return s.authorizeScopedComponent(ctx, access.Resource{Kind: "component", ID: reportID, Version: strconv.Itoa(versionByReport[reportID]), Tenant: s.config.Access.Tenant}, scopeBindings[reportID])
+			return s.authorizeComponentExecution(ctx, access.Resource{Kind: "component", ID: reportID, Version: strconv.Itoa(versionByReport[reportID]), Tenant: s.config.Access.Tenant}, bindsAccessContext[reportID])
 		}
 		return s.authorizeRun(ctx, reportID)
 	}
@@ -247,8 +275,21 @@ func (s *Service) compile(ctx context.Context, seed *typecatalog.Catalog, candid
 		Types:      types,
 		Resources:  resources,
 		HTTP:       httpConfig,
-		MCP:        mcp.Config{Folders: loadedResources.Folders, AuthorizeTool: authorizeTarget, AuthorizeResource: authorizeResource},
-		Version:    fmt.Sprintf("dynamic-%d-%d", s.manager.Revision()+1, len(registrations)),
+		MCP: mcp.Config{Folders: loadedResources.Folders, AuthorizeTool: authorizeTarget, AuthorizeResource: authorizeResource,
+			ToolMetadata: func(_ context.Context, target dexec.ComponentTarget) (map[string]interface{}, error) {
+				reportID := reportByComponent[target.Component]
+				version := versionByReport[reportID]
+				if reportID == "" || version < 1 {
+					return nil, fmt.Errorf("published MCP component has no exact source version")
+				}
+				identity := mcp.ToolSourceIdentity{ReportID: reportID, Version: version}
+				if s.config.Access != nil {
+					identity.Tenant = s.config.Access.Tenant
+				}
+				return map[string]interface{}{mcp.ToolSourceMetaKey: identity}, nil
+			},
+		},
+		Version: fmt.Sprintf("dynamic-%d-%d", s.manager.Revision()+1, len(registrations)),
 		Shutdown: func(context.Context) error {
 			var result error
 			for _, db := range opened {
@@ -281,58 +322,48 @@ func validateSkillToolReferences(ctx context.Context, db *sql.DB, versions []stu
 			}
 		}
 	}
+	store, err := newSkillValidationStore(db)
+	if err != nil {
+		return err
+	}
+	defer store.Close(context.Background())
 	for _, version := range versions {
-		rows, err := db.QueryContext(ctx, `SELECT s.skill_id,s.skill_root,f.namespace,f.root_path FROM report_skill_roots s JOIN report_resource_folders f ON f.report_id=s.report_id AND f.version_no=s.version_no AND f.folder_id=s.folder_id WHERE s.report_id=? AND s.version_no=?`, version.ReportID, version.VersionNo)
+		skills, err := store.Skills(ctx, version.ReportID, version.VersionNo)
 		if err != nil {
 			return err
 		}
-		for rows.Next() {
-			var skillID, root, namespace, folder string
-			if err = rows.Scan(&skillID, &root, &namespace, &folder); err != nil {
-				rows.Close()
-				return err
-			}
+		for _, skill := range skills {
+			skillID, root, namespace, folder := skill.SkillId, skill.SkillRoot, skill.Namespace, skill.RootPath
 			if root == "" || root == "." {
 				root = "."
 			}
 			resourcePath := path.Join(folder, root, "SKILL.md")
-			var content []byte
-			if err = db.QueryRowContext(ctx, `SELECT content FROM report_resource_files WHERE report_id=? AND version_no=? AND namespace=? AND resource_path=?`, version.ReportID, version.VersionNo, namespace, resourcePath).Scan(&content); err != nil {
-				rows.Close()
+			content, err := store.Content(ctx, version.ReportID, version.VersionNo, namespace, resourcePath)
+			if err != nil {
 				return fmt.Errorf("skill %s content: %w", skillID, err)
 			}
 			frontmatter, parseErr := skillformat.Frontmatter(content)
 			if parseErr != nil {
-				rows.Close()
 				return fmt.Errorf("skill %s frontmatter: %w", skillID, parseErr)
 			}
 			items, parseErr := declaredSkillTools(frontmatter)
 			if parseErr != nil {
-				rows.Close()
 				return fmt.Errorf("skill %s: %w", skillID, parseErr)
 			}
 			seen := map[string]bool{}
 			for _, name := range items {
 				if strings.TrimSpace(name) == "" {
-					rows.Close()
 					return fmt.Errorf("skill %s has an invalid tool reference", skillID)
 				}
 				if seen[name] {
-					rows.Close()
 					return fmt.Errorf("skill %s repeats tool %q", skillID, name)
 				}
 				seen[name] = true
 				if !known[name] {
-					rows.Close()
 					return fmt.Errorf("skill %s references MCP tool %q absent from this generation", skillID, name)
 				}
 			}
 		}
-		if err = rows.Err(); err != nil {
-			rows.Close()
-			return err
-		}
-		rows.Close()
 	}
 	return nil
 }
@@ -366,11 +397,6 @@ type definition struct {
 	versionNo                                                     int
 }
 
-type connectorDefinition struct {
-	name, driver, dsn, secretRef string
-	options                      json.RawMessage
-}
-
 type runtimeSources struct {
 	sql         *dsql.SQLComponent
 	connections column.Connections
@@ -387,23 +413,7 @@ func (s *runtimeSources) Close() {
 }
 
 func (s *Service) activeConnectors(ctx context.Context) (map[string]connectorDefinition, error) {
-	rows, err := s.studio.QueryContext(ctx, `SELECT name,driver,dsn_template,secret_ref,options_json FROM connectors WHERE deleted_at IS NULL AND status='active'`)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	result := map[string]connectorDefinition{}
-	for rows.Next() {
-		var item connectorDefinition
-		var secretRef, options sql.NullString
-		if err = rows.Scan(&item.name, &item.driver, &item.dsn, &secretRef, &options); err != nil {
-			return nil, err
-		}
-		item.secretRef = secretRef.String
-		item.options = json.RawMessage(options.String)
-		result[item.name] = item
-	}
-	return result, rows.Err()
+	return s.connectorStore.Read(ctx)
 }
 
 func openRuntimeSources(ctx context.Context, definition definition, active map[string]connectorDefinition, resolver connectorsecret.Resolver) (*runtimeSources, error) {
@@ -470,44 +480,7 @@ func openRuntimeSources(ctx context.Context, definition definition, active map[s
 }
 
 func (s *Service) definitions(ctx context.Context, candidate *int64) ([]definition, error) {
-	versionExpr := "p.active_version_no"
-	where := `p.active_generation IS NOT NULL AND p.publication_status IN ('active','pending','unpublishing')`
-	args := []any{}
-	if candidate != nil {
-		versionExpr = `CASE WHEN p.publication_status='pending' AND p.desired_generation=? AND p.desired_version_no IS NOT NULL THEN p.desired_version_no ELSE p.active_version_no END`
-		args = append(args, *candidate)
-		where = `(p.publication_status='pending' AND p.desired_generation=? AND p.desired_version_no IS NOT NULL)
- OR (p.active_generation IS NOT NULL AND NOT (p.publication_status='unpublishing' AND p.desired_generation=?))`
-		args = append(args, *candidate, *candidate)
-	}
-	query := fmt.Sprintf(`SELECT r.id,v.version_no,r.component_scope,r.component_name,r.default_connector_name,c.driver,c.dsn_template,c.secret_ref,v.generated_dql,v.authored_dql
-FROM report_publications p JOIN reports r ON r.id=p.report_id
-JOIN report_versions v ON v.report_id=p.report_id AND v.version_no=%s
-JOIN connectors c ON c.name=r.default_connector_name
-WHERE (%s) AND r.deleted_at IS NULL AND c.deleted_at IS NULL`, versionExpr, where)
-	rows, err := s.studio.QueryContext(ctx, query, args...)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var result []definition
-	for rows.Next() {
-		var item definition
-		var generated, authored, secretRef sql.NullString
-		if err = rows.Scan(&item.reportID, &item.versionNo, &item.scope, &item.name, &item.connector, &item.driver, &item.dsn, &secretRef, &generated, &authored); err != nil {
-			return nil, err
-		}
-		item.secretRef = secretRef.String
-		item.dql = generated.String
-		if strings.TrimSpace(item.dql) == "" {
-			item.dql = authored.String
-		}
-		if strings.TrimSpace(item.dql) == "" {
-			return nil, fmt.Errorf("published report %s has no DQL", item.reportID)
-		}
-		result = append(result, item)
-	}
-	return result, rows.Err()
+	return s.definitionStore.Definitions(ctx, candidate)
 }
 
 func mergeTypes(target, source *typecatalog.Catalog) error {
@@ -653,11 +626,7 @@ func (s *Service) authorizeRun(ctx context.Context, reportID string) error {
 	if claims == nil || strings.TrimSpace(claims.Subject) == "" {
 		return &xresponse.Error{Code: http.StatusUnauthorized, Cause: errors.New("verified JWT subject is required")}
 	}
-	var allowed bool
-	err := s.studio.QueryRowContext(ctx, `SELECT EXISTS(
-SELECT 1 FROM reports r WHERE r.id=? AND r.deleted_at IS NULL AND (
-r.owner_id=? OR EXISTS(SELECT 1 FROM report_acl acl WHERE acl.report_id=r.id
-AND acl.subject_type='user' AND acl.subject_id=? AND acl.can_run=TRUE)))`, reportID, claims.Subject, claims.Subject).Scan(&allowed)
+	allowed, err := s.runAccessStore.Allowed(ctx, reportID, claims.Subject)
 	if err != nil {
 		return err
 	}
@@ -703,6 +672,15 @@ func (s *Service) Close(ctx context.Context) error {
 	close(errorsByServer)
 	for err := range errorsByServer {
 		result = errors.Join(result, err)
+	}
+	if s.connectorStore != nil {
+		result = errors.Join(result, s.connectorStore.Close(ctx))
+	}
+	if s.definitionStore != nil {
+		result = errors.Join(result, s.definitionStore.Close(ctx))
+	}
+	if s.runAccessStore != nil {
+		result = errors.Join(result, s.runAccessStore.Close(ctx))
 	}
 	result = errors.Join(result, s.studio.Close())
 	return result

@@ -15,7 +15,7 @@ The first product is intentionally read-only:
 - configure selectors, derived outputs, cubes, cube composition, caches, and
   warmup;
 - preview and publish a complete reader generation;
-- never generate PATCH/POST/PUT writers for a dynamic report;
+- never generate PATCH/POST/PUT writers for a dynamic reader component;
 - never let the browser execute SQL or connect directly to a database.
 
 The UI uses Viant Forge for windows, data sources, forms, editors, tables,
@@ -47,7 +47,7 @@ returns candidate DQL, canonical structure, and source-linked diagnostics. A
 failed edit leaves the prior version unchanged.
 
 `report_views`, `report_fields`, `report_parameters`, `report_predicates`, and
-`report_cube_configs` are queryable projections of a report version. They do not
+`report_cube_configs` are queryable projections of a Datly component version. They do not
 become a second executable model. `report_versions.authored_dql`, resources,
 component snapshot, type manifest, source revision, and digest remain the
 version authority.
@@ -63,7 +63,7 @@ version authority.
 | Input | A typed parameter bound from query, path, header, constant, resource, or component |
 | Predicate | A parameterized filter attached to an input and expanded in one or more views |
 | Selector | Controlled projection/filter/order/page/limit/offset behavior for a named view |
-| Cube | Report-derived grouped reader with declared dimensions, measures, and filters |
+| Cube | Component-derived grouped reader with declared dimensions, measures, and filters |
 | Composition | A bounded query over several authorized cube frames |
 | Cache | A named native SQLX read cache selected for a prepared view |
 | Warmup | Bounded server-side population of declared cache cases |

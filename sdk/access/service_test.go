@@ -49,3 +49,46 @@ func TestPolicyAdministration(t *testing.T) {
 		t.Fatal("stale revision accepted")
 	}
 }
+
+func TestAuthorizeWithFactsReturnsDecisionSnapshot(t *testing.T) {
+	resource := Resource{Kind: "dataSource", ID: "operations", Version: "1", Tenant: "one"}
+	policy := Policy{Mode: "protected", Rule: &Rule{Kind: "role", Value: "analyst"}, EntityType: "project"}
+	facts := Facts{Subject: "alice", Tenant: "one", Issuer: "issuer", Roles: []string{"analyst"}, Exposures: []string{"reports"}, EntityGroups: EntityGroups{"project": {"101", "102"}}, ValidUntil: time.Now().Add(time.Hour)}
+	service := &Service{Store: &testStore{doc: Document{Resource: resource, Revision: 1, Policies: map[string]Policy{"execute": policy}}}, Provider: testProvider{facts}}
+	decision, used, err := service.AuthorizeWithFacts(context.Background(), Request{Resource: resource, Action: "execute"})
+	if err != nil || !decision.Bounded || len(decision.Entities) != 2 || used.Subject != "alice" || len(used.Roles) != 1 || used.Roles[0] != "analyst" {
+		t.Fatalf("decision and verified facts diverged: %+v %+v %v", decision, used, err)
+	}
+	service.Provider = testProvider{Facts{Subject: "bob", Tenant: "one", Issuer: "issuer", Roles: []string{"guest"}, ValidUntil: time.Now().Add(time.Hour)}}
+	decision, used, err = service.AuthorizeWithFacts(context.Background(), Request{Resource: resource, Action: "execute"})
+	if err == nil || decision.Bounded || used.Subject != "" {
+		t.Fatalf("denied request exposed facts: %+v %+v %v", decision, used, err)
+	}
+}
+
+func TestReportPreviewAndExecutionStayIndependentAcrossRoleExposureAndEntities(t *testing.T) {
+	resource := Resource{Kind: "report", ID: "operations", Version: "3", Tenant: "one"}
+	preview := Policy{Mode: "protected", EntityType: "project", Rule: &Rule{Kind: "all", Rules: []Rule{
+		{Kind: "role", Value: "reviewer"}, {Kind: "exposure", Value: "analytics"},
+	}}}
+	execute := Policy{Mode: "protected", Rule: &Rule{Kind: "role", Value: "runner"}}
+	facts := Facts{Subject: "alice", Tenant: "one", Issuer: "issuer", Roles: []string{"reviewer"}, Exposures: []string{"analytics"},
+		EntityGroups: EntityGroups{"project": {"101", "102"}}, ValidUntil: time.Now().Add(time.Hour)}
+	service := &Service{Store: &testStore{doc: Document{Resource: resource, Revision: 1, Policies: map[string]Policy{"preview": preview, "execute": execute}}}, Provider: testProvider{facts}}
+	decision, err := service.Authorize(context.Background(), Request{Resource: resource, Action: "preview"})
+	if err != nil || !decision.Bounded || len(decision.Entities) != 2 {
+		t.Fatalf("report preview scope=%+v err=%v", decision, err)
+	}
+	if _, err := service.Authorize(context.Background(), Request{Resource: resource, Action: "execute"}); err == nil {
+		t.Fatal("preview permission incorrectly granted execution")
+	}
+	facts.Roles = []string{"runner"}
+	service.Provider = testProvider{facts}
+	if _, err := service.Authorize(context.Background(), Request{Resource: resource, Action: "preview"}); err == nil {
+		t.Fatal("execution role incorrectly granted preview")
+	}
+	decision, err = service.Authorize(context.Background(), Request{Resource: resource, Action: "execute"})
+	if err != nil || decision.Bounded {
+		t.Fatalf("runner execution=%+v err=%v", decision, err)
+	}
+}

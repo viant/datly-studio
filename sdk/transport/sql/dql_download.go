@@ -6,11 +6,19 @@ import (
 	"context"
 	"fmt"
 	"io/fs"
+	"reflect"
 	"sort"
 	"strings"
 
+	"github.com/viant/bindly/resource"
+	"github.com/viant/datly-studio/internal/readercomponent"
 	"github.com/viant/datly-studio/sdk"
+	stored "github.com/viant/datly-studio/studio/report_resource_files/store_download"
 	"github.com/viant/datly/authoring/readerbuilder"
+	dexec "github.com/viant/datly/exec"
+	druntime "github.com/viant/datly/runtime"
+	"github.com/viant/datly/runtime/registry"
+	dsql "github.com/viant/datly/sql"
 )
 
 func (t *Transport) downloadComponent(ctx context.Context, input, output any) error {
@@ -30,17 +38,15 @@ func (t *Transport) downloadComponent(ctx context.Context, input, output any) er
 		return invalid(fmt.Errorf("component has no DQL source"))
 	}
 	files := map[string][]byte{}
-	rows, err := t.DB.QueryContext(ctx, `SELECT resource_path,content FROM report_resource_files WHERE report_id=? AND version_no=?`, identity.ReportID, identity.VersionNo)
+	rows, err := t.downloadResourceFiles(ctx, identity.ReportID, identity.VersionNo)
 	if err != nil {
 		return internal(err)
 	}
-	defer rows.Close()
-	for rows.Next() {
-		var name string
-		var content []byte
-		if err = rows.Scan(&name, &content); err != nil {
-			return internal(err)
+	for _, row := range rows {
+		if row == nil || row.ReportId != identity.ReportID || row.VersionNo != identity.VersionNo {
+			return internal(fmt.Errorf("download resource reader returned a mismatched row"))
 		}
+		name, content := row.ResourcePath, row.Content
 		if !fs.ValidPath(name) || name == "." || strings.ContainsAny(name, "\\:\x00") {
 			return invalid(fmt.Errorf("unsafe resource path %q", name))
 		}
@@ -49,10 +55,6 @@ func (t *Transport) downloadComponent(ctx context.Context, input, output any) er
 		}
 		files[name] = content
 	}
-	if err = rows.Err(); err != nil {
-		return internal(err)
-	}
-	rows.Close()
 	source, err = delegateSQL(ctx, source, files)
 	if err != nil {
 		return invalid(err)
@@ -82,6 +84,38 @@ func (t *Transport) downloadComponent(ctx context.Context, input, output any) er
 		return internal(err)
 	}
 	return assign(output, &sdk.ComponentDownload{Filename: fmt.Sprintf("component-v%d.zip", identity.VersionNo), MediaType: "application/zip", Archive: buffer.Bytes(), EntryDQL: entry, Files: names})
+}
+
+func (t *Transport) downloadResourceFiles(ctx context.Context, reportID string, versionNo int) ([]*stored.DownloadResourceFile, error) {
+	resources := resource.New()
+	if err := resources.Register(stored.FileDatlyResourceNamespace, stored.FileDatlyResources); err != nil {
+		return nil, err
+	}
+	connector := &dsql.SQLComponent{DB: t.DB}
+	if err := connector.RegisterConnector("studio", t.DB); err != nil {
+		return nil, err
+	}
+	registration, target, err := readercomponent.Compile(reflect.TypeOf(stored.FileComponent{}), "store_download",
+		reflect.TypeOf(stored.Input{}), reflect.TypeOf(stored.Output{}), resources, connector)
+	if err != nil {
+		return nil, err
+	}
+	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{registration}, druntime.WithResources(resources))
+	if err != nil {
+		return nil, err
+	}
+	defer runtime.Shutdown(context.Background())
+	input := &stored.Input{ReportId: reportID, VersionNo: versionNo,
+		Has: &stored.InputHas{ReportId: true, VersionNo: true}}
+	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: target, Input: input})
+	if err != nil {
+		return nil, err
+	}
+	output, ok := value.(*stored.Output)
+	if !ok {
+		return nil, fmt.Errorf("download resource reader returned %T", value)
+	}
+	return output.Files, nil
 }
 
 // Datly supplies source spans so Studio never parses SQL to find view boundaries.

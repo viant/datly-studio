@@ -5,7 +5,6 @@ import (
 	"net"
 	"net/url"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/viant/datly-studio/sdk/access"
@@ -65,53 +64,6 @@ type ResourceAccessConfig struct {
 	Audience         string                     `yaml:"Audience"`
 	PublicKeyFile    string                     `yaml:"PublicKeyFile"`
 	ResourceBindings map[string]access.Resource `yaml:"ResourceBindings"`
-	// ScopeBindings declare which published component versions receive the
-	// caller's authorized entity IDs through a server-owned typed input.
-	ScopeBindings []ScopeBinding `yaml:"ScopeBindings"`
-}
-
-// ScopeBinding is a deployment-owned declaration that one published component
-// version consumes an entity-bounded policy decision natively: the authorized
-// entity IDs of EntityType are converted to the compiled Go type of the
-// component input Parameter, which the DQL must declare as
-// `$Parameter<[]T>(scope/EntityType).Required()`. Without a matching
-// declaration a bounded decision denies; with one, an unbounded decision denies
-// because the component cannot run without its scope. Clients cannot supply or
-// override the bound value through any transport input.
-type ScopeBinding struct {
-	Component  string `yaml:"Component"` // Studio report ID
-	Version    string `yaml:"Version"`   // published version number, as in access.Resource.Version
-	EntityType string `yaml:"EntityType"`
-	Parameter  string `yaml:"Parameter"` // component input parameter name
-}
-
-func (b ScopeBinding) validate() error {
-	for name, value := range map[string]string{"Component": b.Component, "Version": b.Version, "EntityType": b.EntityType, "Parameter": b.Parameter} {
-		if strings.TrimSpace(value) == "" || value != strings.TrimSpace(value) {
-			return fmt.Errorf("scope binding for component %q requires a trimmed non-empty %s", b.Component, name)
-		}
-	}
-	if len(b.Version) == 0 || b.Version[0] < '1' || b.Version[0] > '9' {
-		return fmt.Errorf("scope binding for component %q has non-numeric version %q", b.Component, b.Version)
-	}
-	for _, digit := range b.Version[1:] {
-		if digit < '0' || digit > '9' {
-			return fmt.Errorf("scope binding for component %q has non-numeric version %q", b.Component, b.Version)
-		}
-	}
-	if _, err := strconv.Atoi(b.Version); err != nil {
-		return fmt.Errorf("scope binding for component %q has non-numeric version %q", b.Component, b.Version)
-	}
-	for index, r := range b.Parameter {
-		letter := r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z'
-		if !(letter || r == '_' || index > 0 && r >= '0' && r <= '9') {
-			return fmt.Errorf("scope binding for component %q has invalid parameter name %q", b.Component, b.Parameter)
-		}
-	}
-	if strings.ContainsAny(b.EntityType, " \t\r\n/\\") {
-		return fmt.Errorf("scope binding for component %q has invalid entity type %q", b.Component, b.EntityType)
-	}
-	return nil
 }
 
 func Load(path string) (*Config, error) {
@@ -199,17 +151,6 @@ func (c *Config) Validate() error {
 			if prefix == "" || !strings.HasSuffix(prefix, "/") || r.Kind == "" || r.ID == "" || r.Version == "" || r.Tenant != c.Access.Tenant {
 				return fmt.Errorf("invalid resource access binding %q", prefix)
 			}
-		}
-		declared := map[string]bool{}
-		for _, binding := range c.Access.ScopeBindings {
-			if err := binding.validate(); err != nil {
-				return err
-			}
-			key := binding.Component + "@" + binding.Version
-			if declared[key] {
-				return fmt.Errorf("duplicate scope binding for component %q version %s", binding.Component, binding.Version)
-			}
-			declared[key] = true
 		}
 	}
 	if c.Access == nil && !strings.EqualFold(c.Authentication.DefaultMode, "public") && strings.TrimSpace(c.Authentication.CertURL) == "" {

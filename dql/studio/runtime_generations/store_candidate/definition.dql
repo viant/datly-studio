@@ -1,0 +1,25 @@
+#package('studio/runtime_generations/store_candidate')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/runtime-definitions/candidate', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('definition', 'sql/read.sql'))
+
+#define($_ = $CandidateGeneration<int64>(query/candidateGeneration).Required())
+#define($_ = $Definitions<[]*PublishedDefinition>(output/view))
+
+SELECT definition.*, type(definition, 'PublishedDefinition'),
+       CAST(definition.report_id AS string),
+       CAST(definition.version_no AS int),
+       CAST(definition.component_scope AS string),
+       CAST(definition.component_name AS string),
+       CAST(definition.default_connector_name AS string),
+       CAST(definition.driver AS string),
+       CAST(definition.secret_ref AS string),
+       CAST(definition.generated_dql AS string),
+       CAST(definition.authored_dql AS string),
+       set_limit(definition, 0)
+FROM (${embed:sql/read.sql}) definition
+WHERE 1=1

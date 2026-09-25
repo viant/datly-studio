@@ -24,8 +24,21 @@ Open **Security → Permissions → Open ACL UX review**, or visit
 It uses the same `ResourceAccessEditor` as live permission management, inside a
 real iframe viewport (1200, 768 or 390 pixels).
 
-Choose component or skill and inspect editable, read-only, denied, unavailable,
+Choose component, skill or report and inspect editable, read-only, denied, unavailable,
 loading, empty and revision-conflict states. In the conflict state, edit and save
 to trigger recovery. Reset restores the fixture. All identities and resources are
 synthetic; saves stay in memory and issue no API requests. Checklist selections
 are temporary reviewer notes, not persisted approvals or automated test results.
+The report scenario shows separate `preview` and `execute` rules. Embedding
+applications can add other resource kinds by passing both `kinds` and an
+explicit `actionsByKind` map to `PermissionsWorkspace`; unknown kinds never
+inherit component actions implicitly.
+The production editor requires **Review changes** before Save. The dialog
+shows only changed actions, current/proposed rules and the exact policy
+revision; it does not claim to calculate a caller's effective access. A
+revision conflict retains the unsaved draft for explicit reload.
+Run `npm run test:acl-review-visual` to verify the report policy frame at a
+390 px viewport. Set `ACL_REVIEW_SCREENSHOT=/absolute/path.png` to retain its
+test-only screenshot.
+Set `ACL_REVIEW_DIALOG_SCREENSHOT=/absolute/path.png` to capture the
+pre-save policy-change dialog in the same browser smoke test.

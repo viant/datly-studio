@@ -31,13 +31,17 @@ const (
 	scopeTestTenant   = "one"
 )
 
-// scopedTasksDQL declares a deployment-bound scope parameter. Only the trusted
-// "scope" provider can populate ProjectIDs; no transport kind serves it.
+// scopedTasksDQL binds the server-owned access-context component natively and
+// derives the SQL-bound project IDs from its typed output. Component-kind and
+// param-kind inputs are runtime-protected: no query, body, header or MCP
+// argument can supply or override them.
 const scopedTasksDQL = `#package('example.com/runtime/scoped')
+#import('studioaccess','github.com/viant/datly-studio/runtime/accesscontext')
 #setting($_ = $connector('source'))
 #setting($_ = $route('/tasks','GET'))
 #setting($_ = $mcp('tasks.list','List tasks'))
-#define($_ = $ProjectIDs<[]int>(scope/project).Required().WithPredicate(0,'in','t','project_id'))
+#define($_ = $Auth<*studioaccess.Output>(component/GET:/_studio/access/context/tasks/project).Required())
+#define($_ = $ProjectIDs<[]string,[]int>(param/Auth.Scope.IDs).WithCodec('EntityIDs').Required().WithPredicate(0,'in','t','project_id'))
 #define($_ = $Tasks<[]*Task>(output/view))
 SELECT tasks.*, type(tasks,'Task')
 FROM (SELECT t.id, t.project_id, t.name FROM tasks t ${predicate.Builder().CombineAnd($predicate.FilterGroup(0, "AND")).Build("WHERE")} ORDER BY t.id) tasks`
@@ -61,8 +65,34 @@ type scopedHost struct {
 
 // newScopedHost publishes the supplied reports against a SQLite source with four
 // tasks in four projects and starts real HTTP and MCP listeners. Policies are
-// provisioned per report before Start.
-func newScopedHost(t *testing.T, bindings []ScopeBinding, reports map[string]string, policies map[string]access.Policy) (*scopedHost, error) {
+// provisioned per report before Start. No scope configuration exists: a
+// component's DQL alone declares whether it binds its access context.
+// narrowingDecisions is an injected trusted decision provider that keeps only
+// the listed IDs of the local decision, like a remote policy service would.
+type narrowingDecisions struct {
+	keep  map[string]bool
+	calls int
+}
+
+func (d *narrowingDecisions) Evaluate(_ context.Context, _ access.Request, _ access.Document, facts access.Facts) (access.Decision, error) {
+	d.calls++
+	flat, err := facts.FlatEntities()
+	if err != nil {
+		return access.Decision{}, err
+	}
+	decision := access.Decision{Bounded: true}
+	for _, entity := range flat {
+		if d.keep[entity.ID] {
+			decision.Entities = append(decision.Entities, entity)
+		}
+	}
+	if len(decision.Entities) == 0 {
+		return access.Decision{}, access.ErrDenied
+	}
+	return decision, nil
+}
+
+func newScopedHost(t *testing.T, reports map[string]string, policies map[string]access.Policy, decisions ...access.DecisionProvider) (*scopedHost, error) {
 	t.Helper()
 	ctx := context.Background()
 	root := t.TempDir()
@@ -123,7 +153,10 @@ INSERT INTO tasks VALUES(1,101,'alpha-101'),(2,102,'beta-102'),(3,103,'gamma-103
 		HTTP: Listener{Address: "127.0.0.1:0"}, MCP: Listener{Address: "127.0.0.1:0"},
 		Authentication: Authentication{DefaultMode: "public"},
 		Studio:         Studio{Driver: "sqlite", DSN: studioDSN}, Admin: Admin{Token: "test-token"}, RootDir: root,
-		Access: &ResourceAccessConfig{Tenant: scopeTestTenant, Issuer: scopeTestIssuer, Audience: scopeTestAudience, PublicKeyFile: keyFile, ScopeBindings: bindings},
+		Access: &ResourceAccessConfig{Tenant: scopeTestTenant, Issuer: scopeTestIssuer, Audience: scopeTestAudience, PublicKeyFile: keyFile},
+	}
+	if len(decisions) > 0 {
+		config.DecisionProvider = decisions[0]
 	}
 	service, err := New(ctx, config)
 	if err != nil {
@@ -156,6 +189,21 @@ func (h *scopedHost) token(t *testing.T, subject string, entities []access.Entit
 	claims := jwtlib.MapClaims{
 		"iss": scopeTestIssuer, "aud": scopeTestAudience, "sub": subject,
 		"exp": now.Add(5 * time.Minute).Unix(), "iat": now.Add(-5 * time.Second).Unix(),
+		"tenant": scopeTestTenant, "roles": []string{"reader"}, "allowedEntities": entities,
+	}
+	signed, err := jwtlib.NewWithClaims(jwtlib.SigningMethodRS256, claims).SignedString(h.key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return signed
+}
+
+func (h *scopedHost) expiredToken(t *testing.T, subject string, entities []access.Entity) string {
+	t.Helper()
+	now := time.Now()
+	claims := jwtlib.MapClaims{
+		"iss": scopeTestIssuer, "aud": scopeTestAudience, "sub": subject,
+		"exp": now.Add(-time.Minute).Unix(), "iat": now.Add(-2 * time.Minute).Unix(),
 		"tenant": scopeTestTenant, "roles": []string{"reader"}, "allowedEntities": entities,
 	}
 	signed, err := jwtlib.NewWithClaims(jwtlib.SigningMethodRS256, claims).SignedString(h.key)
@@ -248,7 +296,6 @@ func TestScopedComponentBindsAuthorizedEntitiesIntoCompiledQuery(t *testing.T) {
 	reader := &access.Rule{Kind: "role", Value: "reader"}
 	scoped := access.Policy{Mode: "protected", Rule: reader, EntityType: "project"}
 	host, err := newScopedHost(t,
-		[]ScopeBinding{{Component: "tasks", Version: "1", EntityType: "project", Parameter: "ProjectIDs"}},
 		map[string]string{"tasks": scopedTasksDQL, "records": unscopedRecordsDQL},
 		map[string]access.Policy{"tasks": scoped, "records": scoped},
 	)
@@ -274,8 +321,8 @@ func TestScopedComponentBindsAuthorizedEntitiesIntoCompiledQuery(t *testing.T) {
 		assertRows(t, body, []string{"gamma-103"}, []string{"alpha-101", "beta-102", "delta-104"})
 	})
 	t.Run("HTTP query and header inputs cannot widen scope", func(t *testing.T) {
-		malicious := "/tasks?ProjectIDs=104&projectIds=104&project=104&scope=104&ProjectIDs=103&_criteria=1%3D1"
-		status, body := host.get(t, malicious, alice, map[string]string{"ProjectIDs": "104", "project": "104", "scope": "104", "X-Scope": "104"})
+		malicious := "/tasks?ProjectIDs=104&projectIds=104&Auth.Scope.IDs=104&Auth=%7B%22scope%22%3A%7B%22ids%22%3A%5B%22104%22%5D%7D%7D&scope=104&ProjectIDs=103&_criteria=1%3D1"
+		status, body := host.get(t, malicious, alice, map[string]string{"ProjectIDs": "104", "Auth": `{"scope":{"ids":["104"]}}`, "X-Scope": "104"})
 		if status != http.StatusOK {
 			t.Fatalf("status=%d body=%s", status, body)
 		}
@@ -294,8 +341,38 @@ func TestScopedComponentBindsAuthorizedEntitiesIntoCompiledQuery(t *testing.T) {
 		assertRows(t, body, []string{"gamma-103"}, []string{"alpha-101", "beta-102", "delta-104"})
 	})
 	t.Run("MCP arguments cannot widen scope", func(t *testing.T) {
-		_, body := host.callTool(t, alice, "tasks.list", map[string]any{"ProjectIDs": []int{104, 103}, "projectIds": []int{104}, "project": 104, "scope": map[string]any{"project": []int{104}}})
+		_, body := host.callTool(t, alice, "tasks.list", map[string]any{"ProjectIDs": []string{"104", "103"}, "projectIds": []int{104}, "Auth": map[string]any{"scope": map[string]any{"ids": []string{"104"}}, "context": map[string]any{"roles": []string{"admin"}, "allowedEntities": map[string]any{"project": []string{"104"}}}}, "scope": map[string]any{"project": []int{104}}})
 		assertRows(t, body, nil, []string{"gamma-103", "delta-104"})
+	})
+	t.Run("expired credential denies", func(t *testing.T) {
+		expired := host.expiredToken(t, "alice", []access.Entity{{Type: "project", ID: "101"}})
+		status, body := host.get(t, "/tasks", expired, nil)
+		if status != http.StatusForbidden {
+			t.Fatalf("status=%d body=%s", status, body)
+		}
+		assertRows(t, body, nil, all)
+		_, body = host.callTool(t, expired, "tasks.list", nil)
+		assertRows(t, body, nil, all)
+	})
+	t.Run("principal without allowed IDs denies", func(t *testing.T) {
+		none := host.token(t, "dave", nil)
+		status, body := host.get(t, "/tasks", none, nil)
+		if status != http.StatusForbidden {
+			t.Fatalf("status=%d body=%s", status, body)
+		}
+		assertRows(t, body, nil, all)
+		empty := host.token(t, "erin", []access.Entity{})
+		status, body = host.get(t, "/tasks", empty, nil)
+		if status != http.StatusForbidden {
+			t.Fatalf("status=%d body=%s", status, body)
+		}
+		assertRows(t, body, nil, all)
+	})
+	t.Run("access context route is not directly executable", func(t *testing.T) {
+		status, body := host.get(t, "/_studio/access/context/tasks/project", alice, nil)
+		if status != http.StatusForbidden || strings.Contains(body, "101") {
+			t.Fatalf("status=%d body=%s", status, body)
+		}
 	})
 	t.Run("missing credential denies before execution", func(t *testing.T) {
 		status, body := host.get(t, "/tasks", "", nil)
@@ -309,9 +386,9 @@ func TestScopedComponentBindsAuthorizedEntitiesIntoCompiledQuery(t *testing.T) {
 		}
 		assertRows(t, body, nil, all)
 	})
-	t.Run("bounded decision without a scope binding denies", func(t *testing.T) {
+	t.Run("bounded decision on a component that does not bind its context denies", func(t *testing.T) {
 		status, body := host.get(t, "/records", alice, nil)
-		if status != http.StatusForbidden || !strings.Contains(body, "typed runtime scope binding is required") {
+		if status != http.StatusForbidden || !strings.Contains(body, "bind its access context") {
 			t.Fatalf("status=%d body=%s", status, body)
 		}
 		assertRows(t, body, nil, all)
@@ -340,7 +417,7 @@ func TestScopedComponentBindsAuthorizedEntitiesIntoCompiledQuery(t *testing.T) {
 	t.Run("unbounded decision on a scoped component denies", func(t *testing.T) {
 		host.replacePolicy(t, "tasks", access.Policy{Mode: "protected", Rule: reader})
 		status, body := host.get(t, "/tasks", alice, nil)
-		if status != http.StatusForbidden || !strings.Contains(body, "entity-bounded") {
+		if status != http.StatusForbidden {
 			t.Fatalf("status=%d body=%s", status, body)
 		}
 		assertRows(t, body, nil, all)
@@ -369,54 +446,62 @@ func TestScopedComponentBindsAuthorizedEntitiesIntoCompiledQuery(t *testing.T) {
 	})
 }
 
-func TestScopedGenerationRejectsUndeclaredOrMismatchedBindings(t *testing.T) {
+// TestScopedComponentHonorsTrustedRemoteNarrowing proves the bound access
+// context carries the local/remote intersection, not the raw facts: alice's
+// facts grant projects 101 and 102, the injected trusted decision keeps only
+// 102, and both the SQL scope and the canonical context see 102 alone.
+func TestScopedComponentHonorsTrustedRemoteNarrowing(t *testing.T) {
 	reader := &access.Rule{Kind: "role", Value: "reader"}
 	scoped := access.Policy{Mode: "protected", Rule: reader, EntityType: "project"}
-	for name, tc := range map[string]struct {
-		bindings []ScopeBinding
-		reports  map[string]string
-		want     string
-	}{
-		"scope parameter without deployment binding": {reports: map[string]string{"tasks": scopedTasksDQL}, want: "without a deployment scope binding"},
-		"binding for a component without scope parameter": {
-			bindings: []ScopeBinding{{Component: "records", Version: "1", EntityType: "project", Parameter: "Records"}},
-			reports:  map[string]string{"records": unscopedRecordsDQL}, want: "has no scope parameter",
-		},
-		"binding names the wrong parameter": {
-			bindings: []ScopeBinding{{Component: "tasks", Version: "1", EntityType: "project", Parameter: "Tasks"}},
-			reports:  map[string]string{"tasks": scopedTasksDQL}, want: "names parameter",
-		},
-		"binding names the wrong entity type": {
-			bindings: []ScopeBinding{{Component: "tasks", Version: "1", EntityType: "account", Parameter: "ProjectIDs"}},
-			reports:  map[string]string{"tasks": scopedTasksDQL}, want: "does not match parameter scope/project",
-		},
-		"binding for a stale version": {
-			bindings: []ScopeBinding{{Component: "tasks", Version: "2", EntityType: "project", Parameter: "ProjectIDs"}},
-			reports:  map[string]string{"tasks": scopedTasksDQL}, want: "without a deployment scope binding",
-		},
-		"optional scope parameter": {
-			bindings: []ScopeBinding{{Component: "tasks", Version: "1", EntityType: "project", Parameter: "ProjectIDs"}},
-			reports:  map[string]string{"tasks": strings.Replace(scopedTasksDQL, ".Required()", ".Optional()", 1)}, want: "must be declared Required()",
-		},
-		"non integer scope type": {
-			bindings: []ScopeBinding{{Component: "tasks", Version: "1", EntityType: "project", Parameter: "ProjectIDs"}},
-			reports:  map[string]string{"tasks": strings.Replace(scopedTasksDQL, "<[]int>", "<[]float64>", 1)}, want: "must be a slice of string or integer",
-		},
-	} {
-		t.Run(name, func(t *testing.T) {
-			policies := map[string]access.Policy{}
-			for reportID := range tc.reports {
-				policies[reportID] = scoped
-			}
-			host, err := newScopedHost(t, tc.bindings, tc.reports, policies)
-			if err == nil {
-				status, body := host.get(t, "/tasks", "", nil)
-				t.Fatalf("generation started with an undefined scope contract (GET /tasks -> %d %s)", status, body)
-			}
-			if !strings.Contains(err.Error(), tc.want) {
-				t.Fatalf("want error containing %q, got %v", tc.want, err)
-			}
-		})
+	decisions := &narrowingDecisions{keep: map[string]bool{"102": true, "103": true}}
+	host, err := newScopedHost(t, map[string]string{"tasks": scopedTasksDQL}, map[string]access.Policy{"tasks": scoped}, decisions)
+	if err != nil {
+		t.Fatal(err)
+	}
+	alice := host.token(t, "alice", []access.Entity{{Type: "project", ID: "101"}, {Type: "project", ID: "102"}})
+	status, body := host.get(t, "/tasks", alice, nil)
+	if status != http.StatusOK {
+		t.Fatalf("status=%d body=%s", status, body)
+	}
+	assertRows(t, body, []string{"beta-102"}, []string{"alpha-101", "gamma-103", "delta-104"})
+	status, body = host.get(t, "/tasks?ProjectIDs=101&Auth.Scope.IDs=101", alice, nil)
+	if status != http.StatusOK {
+		t.Fatalf("status=%d body=%s", status, body)
+	}
+	assertRows(t, body, []string{"beta-102"}, []string{"alpha-101", "gamma-103", "delta-104"})
+	_, body = host.callTool(t, alice, "tasks.list", nil)
+	assertRows(t, body, []string{"beta-102"}, []string{"alpha-101", "gamma-103", "delta-104"})
+	// Forged arguments are either rejected as unknown or ignored; never applied.
+	_, body = host.callTool(t, alice, "tasks.list", map[string]any{"ProjectIDs": []string{"101"}, "Auth": map[string]any{"scope": map[string]any{"ids": []string{"101"}}}})
+	assertRows(t, body, nil, []string{"alpha-101", "gamma-103", "delta-104"})
+	// The execute hook and the bound context component each evaluate the
+	// intersected decision once per request; the remote provider is never
+	// bypassed.
+	if decisions.calls < 3 {
+		t.Fatalf("remote decision provider consulted %d times", decisions.calls)
+	}
+	// A remote decision outside the local facts cannot widen either.
+	decisions.keep = map[string]bool{"104": true}
+	status, body = host.get(t, "/tasks", alice, nil)
+	if status != http.StatusForbidden {
+		t.Fatalf("status=%d body=%s", status, body)
+	}
+	assertRows(t, body, nil, []string{"alpha-101", "beta-102", "gamma-103", "delta-104"})
+}
+
+func TestScopedGenerationRejectsForeignAccessContext(t *testing.T) {
+	// A component may bind only its own access context; naming another
+	// component's context would read that resource's decision.
+	reader := &access.Rule{Kind: "role", Value: "reader"}
+	scoped := access.Policy{Mode: "protected", Rule: reader, EntityType: "project"}
+	foreign := strings.Replace(scopedTasksDQL, "/_studio/access/context/tasks/project", "/_studio/access/context/records/project", 1)
+	host, err := newScopedHost(t, map[string]string{"tasks": foreign, "records": unscopedRecordsDQL}, map[string]access.Policy{"tasks": scoped, "records": scoped})
+	if err == nil {
+		status, body := host.get(t, "/tasks", "", nil)
+		t.Fatalf("generation started binding a foreign access context (GET /tasks -> %d %s)", status, body)
+	}
+	if !strings.Contains(err.Error(), "may bind only its own") {
+		t.Fatalf("want foreign context rejection, got %v", err)
 	}
 }
 
@@ -473,6 +558,6 @@ func TestScopedComponentIsRejectedWithoutGenericAccess(t *testing.T) {
 	})
 	err = service.Start(ctx)
 	if err == nil || !strings.Contains(err.Error(), "requires generic resource access") {
-		t.Fatalf("legacy runtime served a scoped component: %v", err)
+		t.Fatalf("legacy runtime served a component binding an access context: %v", err)
 	}
 }

@@ -58,11 +58,8 @@ func (t *Transport) acl(ctx context.Context, operation string, input, output any
 		if identity.ETag <= 0 || identity.ETag != current.ETag {
 			return aclETagConflict(identity.ETag, current.ETag)
 		}
-		result, err := t.DB.ExecContext(ctx, `DELETE FROM report_acl WHERE report_id=? AND subject_type=? AND subject_id=? AND etag=?`, identity.ReportID, identity.SubjectType, identity.SubjectID, identity.ETag)
+		err = t.writeACL(ctx, "patch", aclWriteRow(*current, true))
 		if err != nil {
-			return internal(err)
-		}
-		if count, _ := result.RowsAffected(); count == 0 {
 			current, found, lookupErr := t.aclValue(ctx, identity.ReportID, identity.SubjectType, identity.SubjectID)
 			if lookupErr != nil {
 				return internal(lookupErr)
@@ -70,7 +67,10 @@ func (t *Transport) acl(ctx context.Context, operation string, input, output any
 			if !found {
 				return &sdk.Error{Code: sdk.ErrorNotFound, Message: "ACL entry was not found"}
 			}
-			return aclETagConflict(identity.ETag, current.ETag)
+			if current.ETag != identity.ETag {
+				return aclETagConflict(identity.ETag, current.ETag)
+			}
+			return internal(err)
 		}
 		return nil
 	}
@@ -81,24 +81,13 @@ func (t *Transport) listACL(ctx context.Context, reportID string, output any) er
 	if _, err := t.getReportValue(ctx, reportID); err != nil {
 		return err
 	}
-	rows, err := t.DB.QueryContext(ctx, `SELECT report_id,subject_type,subject_id,can_view,can_run,can_edit,can_publish,can_use_dql,etag FROM report_acl WHERE report_id=? ORDER BY subject_type,subject_id`, reportID)
+	items, err := t.readACLList(ctx, reportID)
 	if err != nil {
 		return internal(err)
 	}
-	defer rows.Close()
 	result := struct {
 		Items []*sdk.ReportACL `json:"items"`
-	}{}
-	for rows.Next() {
-		item := &sdk.ReportACL{}
-		if err = rows.Scan(&item.ReportID, &item.SubjectType, &item.SubjectID, &item.CanView, &item.CanRun, &item.CanEdit, &item.CanPublish, &item.CanUseDQL, &item.ETag); err != nil {
-			return internal(err)
-		}
-		result.Items = append(result.Items, item)
-	}
-	if err = rows.Err(); err != nil {
-		return internal(err)
-	}
+	}{Items: items}
 	return assign(output, &result)
 }
 
@@ -114,11 +103,8 @@ func (t *Transport) upsertACL(ctx context.Context, value sdk.ReportACL, output a
 		if value.ETag <= 0 || value.ETag != current.ETag {
 			return aclETagConflict(value.ETag, current.ETag)
 		}
-		result, err := t.DB.ExecContext(ctx, `UPDATE report_acl SET can_view=?,can_run=?,can_edit=?,can_publish=?,can_use_dql=?,etag=etag+1 WHERE report_id=? AND subject_type=? AND subject_id=? AND etag=?`, value.CanView, value.CanRun, value.CanEdit, value.CanPublish, value.CanUseDQL, value.ReportID, value.SubjectType, value.SubjectID, value.ETag)
+		err := t.writeACL(ctx, "put", aclWriteRow(value, false))
 		if err != nil {
-			return internal(err)
-		}
-		if affected, _ := result.RowsAffected(); affected == 0 {
 			latest, latestFound, lookupErr := t.aclValue(ctx, value.ReportID, value.SubjectType, value.SubjectID)
 			if lookupErr != nil {
 				return internal(lookupErr)
@@ -126,12 +112,16 @@ func (t *Transport) upsertACL(ctx context.Context, value sdk.ReportACL, output a
 			if !latestFound {
 				return &sdk.Error{Code: sdk.ErrorNotFound, Message: "ACL entry was not found"}
 			}
-			return aclETagConflict(value.ETag, latest.ETag)
+			if latest.ETag != value.ETag {
+				return aclETagConflict(value.ETag, latest.ETag)
+			}
+			return internal(err)
 		}
 		value.ETag++
 		return assign(output, &value)
 	}
-	_, err = t.DB.ExecContext(ctx, `INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_run,can_edit,can_publish,can_use_dql,etag) VALUES (?,?,?,?,?,?,?,?,1)`, value.ReportID, value.SubjectType, value.SubjectID, value.CanView, value.CanRun, value.CanEdit, value.CanPublish, value.CanUseDQL)
+	value.ETag = 0
+	err = t.writeACL(ctx, "post", aclWriteRow(value, false))
 	if err != nil {
 		// A competing create may have committed after the initial lookup. In
 		// that case report the row's current token instead of leaking a driver
@@ -150,9 +140,7 @@ func (t *Transport) upsertACL(ctx context.Context, value sdk.ReportACL, output a
 }
 
 func (t *Transport) aclValue(ctx context.Context, reportID, subjectType, subjectID string) (*sdk.ReportACL, bool, error) {
-	value := &sdk.ReportACL{}
-	err := t.DB.QueryRowContext(ctx, `SELECT report_id,subject_type,subject_id,can_view,can_run,can_edit,can_publish,can_use_dql,etag FROM report_acl WHERE report_id=? AND subject_type=? AND subject_id=?`, reportID, subjectType, subjectID).
-		Scan(&value.ReportID, &value.SubjectType, &value.SubjectID, &value.CanView, &value.CanRun, &value.CanEdit, &value.CanPublish, &value.CanUseDQL, &value.ETag)
+	value, err := t.readACLOne(ctx, reportID, subjectType, subjectID)
 	if errors.Is(err, stdsql.ErrNoRows) {
 		return nil, false, nil
 	}

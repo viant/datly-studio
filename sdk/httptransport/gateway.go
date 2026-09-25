@@ -41,7 +41,10 @@ func (f AuthenticatorFunc) Authenticate(ctx context.Context, request *http.Reque
 type Config struct {
 	Mode               Mode
 	DevelopmentSubject string
-	Authenticator      Authenticator
+	// DevelopmentCredential mints and verifies a short-lived local JWT for
+	// loopback-only development requests. It is never used in authenticated mode.
+	DevelopmentCredential func(context.Context, string) (sdk.VerifiedCredential, error)
+	Authenticator         Authenticator
 }
 
 func (c Config) validate() error {
@@ -132,7 +135,15 @@ func (g Gateway) authenticate(request *http.Request) (context.Context, error) {
 			request.Header.Get("X-Studio-Development-Subject") != g.Config.DevelopmentSubject {
 			return nil, errors.New("invalid development request")
 		}
-		return sdk.WithPrincipal(ctx, sdk.Principal{Subject: g.Config.DevelopmentSubject, Development: true}), nil
+		ctx = sdk.WithPrincipal(ctx, sdk.Principal{Subject: g.Config.DevelopmentSubject, Development: true})
+		if g.Config.DevelopmentCredential != nil {
+			credential, err := g.Config.DevelopmentCredential(ctx, g.Config.DevelopmentSubject)
+			if err != nil {
+				return nil, err
+			}
+			ctx = sdk.WithVerifiedCredential(ctx, credential)
+		}
+		return ctx, nil
 	case Authenticated:
 		if request.Header.Get("X-Studio-Development-Subject") != "" {
 			return nil, errors.New("development identity is disabled")

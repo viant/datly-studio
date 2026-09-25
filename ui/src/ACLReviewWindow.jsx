@@ -28,7 +28,7 @@ export function ACLReviewWindow() {
       <FormGroup label="Viewport" labelFor="review-viewport"><HTMLSelect id="review-viewport" value={viewport} onChange={event => setViewport(event.target.value)}>
         <option value="desktop">Desktop · 1200 px</option><option value="tablet">Tablet · 768 px</option><option value="phone">Phone · 390 px</option>
       </HTMLSelect></FormGroup>
-      <FormGroup label="Resource" labelFor="review-kind"><HTMLSelect id="review-kind" value={kind} onChange={event => setKind(event.target.value)}><option value="component">Component</option><option value="skill">Skill</option></HTMLSelect></FormGroup>
+      <FormGroup label="Resource" labelFor="review-kind"><HTMLSelect id="review-kind" value={kind} onChange={event => setKind(event.target.value)}><option value="component">Component</option><option value="skill">Skill</option><option value="report">Report</option></HTMLSelect></FormGroup>
       <FormGroup label="Scenario" labelFor="review-scenario"><HTMLSelect id="review-scenario" value={scenario} onChange={event => setScenario(event.target.value)}>{Object.entries(reviewScenarios).map(([id, label]) => <option key={id} value={id}>{label}</option>)}</HTMLSelect></FormGroup>
       <Button icon="refresh" onClick={() => setIteration(value => value + 1)}>Reset preview</Button>
     </section>

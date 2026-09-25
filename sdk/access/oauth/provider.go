@@ -2,8 +2,12 @@
 package oauth
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
+	"io"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -22,10 +26,162 @@ type Config struct {
 
 type Claims struct {
 	jwt.RegisteredClaims
+	Tenant    string   `json:"tenant"`
+	Roles     []string `json:"roles"`
+	Exposures []string `json:"exposures"`
+	// EntityGroups is the canonical typed allowedEntities claim.
+	EntityGroups access.EntityGroups `json:"-"`
+	// AllowedEntities accepts legacy flat Go callers. Tokens are serialized in
+	// grouped form; received flat tokens are validated and normalized.
+	AllowedEntities []access.Entity `json:"-"`
+}
+
+type wireClaims struct {
+	jwt.RegisteredClaims
 	Tenant          string          `json:"tenant"`
-	Roles           []string        `json:"roles"`
-	Exposures       []string        `json:"exposures"`
-	AllowedEntities []access.Entity `json:"allowedEntities"`
+	Roles           []string        `json:"roles,omitempty"`
+	Exposures       []string        `json:"exposures,omitempty"`
+	AllowedEntities json.RawMessage `json:"allowedEntities,omitempty"`
+}
+
+func (c Claims) MarshalJSON() ([]byte, error) {
+	if c.EntityGroups != nil && c.AllowedEntities != nil {
+		if _, err := (access.Facts{EntityGroups: c.EntityGroups, Entities: c.AllowedEntities}).FlatEntities(); err != nil {
+			return nil, err
+		}
+	}
+	groups := c.EntityGroups
+	if groups == nil && c.AllowedEntities != nil {
+		groups = groupLegacyForWire(c.AllowedEntities)
+	}
+	var raw json.RawMessage
+	if groups != nil {
+		var err error
+		raw, err = json.Marshal(groups)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return json.Marshal(wireClaims{RegisteredClaims: c.RegisteredClaims, Tenant: c.Tenant, Roles: c.Roles, Exposures: c.Exposures, AllowedEntities: raw})
+}
+
+// Preserve malformed legacy values on the wire so verification can deny them
+// at the trust boundary, instead of silently dropping them during signing.
+func groupLegacyForWire(flat []access.Entity) access.EntityGroups {
+	groups := access.EntityGroups{}
+	for _, entity := range flat {
+		groups[entity.Type] = append(groups[entity.Type], access.EntityID(entity.ID))
+	}
+	return groups
+}
+
+func (c *Claims) UnmarshalJSON(raw []byte) error {
+	// encoding/json otherwise accepts duplicate claim keys with the last value
+	// winning. Duplicate authority claims are ambiguous and always denied.
+	claimDecoder := json.NewDecoder(bytes.NewReader(raw))
+	opening, err := claimDecoder.Token()
+	if err != nil || opening != json.Delim('{') {
+		return access.ErrDenied
+	}
+	seenAuthority := false
+	for claimDecoder.More() {
+		keyToken, err := claimDecoder.Token()
+		if err != nil {
+			return access.ErrDenied
+		}
+		key, ok := keyToken.(string)
+		if !ok {
+			return access.ErrDenied
+		}
+		if strings.EqualFold(key, "allowedEntities") {
+			if seenAuthority || key != "allowedEntities" {
+				return access.ErrDenied
+			}
+			seenAuthority = true
+		}
+		var value json.RawMessage
+		if err := claimDecoder.Decode(&value); err != nil {
+			return access.ErrDenied
+		}
+	}
+	closing, err := claimDecoder.Token()
+	if err != nil || closing != json.Delim('}') {
+		return access.ErrDenied
+	}
+	if _, err := claimDecoder.Token(); err != io.EOF {
+		return access.ErrDenied
+	}
+	var wire wireClaims
+	if err := json.Unmarshal(raw, &wire); err != nil {
+		return err
+	}
+	*c = Claims{RegisteredClaims: wire.RegisteredClaims, Tenant: wire.Tenant, Roles: wire.Roles, Exposures: wire.Exposures}
+	if len(wire.AllowedEntities) == 0 {
+		return nil
+	}
+	var groups access.EntityGroups
+	switch wire.AllowedEntities[0] {
+	case '{':
+		var err error
+		groups, err = access.DecodeEntityGroups(wire.AllowedEntities)
+		if err != nil {
+			return err
+		}
+	case '[':
+		var entries []json.RawMessage
+		if err := json.Unmarshal(wire.AllowedEntities, &entries); err != nil || entries == nil {
+			return access.ErrDenied
+		}
+		flat := make([]access.Entity, 0, len(entries))
+		for _, entry := range entries {
+			dec := json.NewDecoder(bytes.NewReader(entry))
+			opening, err := dec.Token()
+			if err != nil || opening != json.Delim('{') {
+				return access.ErrDenied
+			}
+			seen := map[string]bool{}
+			for dec.More() {
+				keyToken, err := dec.Token()
+				if err != nil {
+					return access.ErrDenied
+				}
+				key, ok := keyToken.(string)
+				if !ok || (key != "type" && key != "id") || seen[key] {
+					return access.ErrDenied
+				}
+				seen[key] = true
+				var value json.RawMessage
+				if err := dec.Decode(&value); err != nil {
+					return access.ErrDenied
+				}
+			}
+			closing, err := dec.Token()
+			if err != nil || closing != json.Delim('}') || !seen["type"] || !seen["id"] {
+				return access.ErrDenied
+			}
+			if _, err := dec.Token(); err != io.EOF {
+				return access.ErrDenied
+			}
+			var entity access.Entity
+			if err := json.Unmarshal(entry, &entity); err != nil {
+				return access.ErrDenied
+			}
+			flat = append(flat, entity)
+		}
+		var err error
+		groups, err = access.GroupEntities(flat)
+		if err != nil {
+			return err
+		}
+	default:
+		return access.ErrDenied
+	}
+	flat, err := access.NormalizeEntityGroups(groups)
+	if err != nil {
+		return err
+	}
+	c.EntityGroups, c.AllowedEntities = groups, flat
+	return nil
 }
 
 type Provider struct{ config Config }
@@ -69,10 +225,9 @@ func (p *Provider) Resolve(ctx context.Context) (access.Facts, error) {
 	if err != nil || claims.Subject == "" || claims.Tenant == "" || claims.Tenant == "*" || claims.ExpiresAt == nil || !claims.ExpiresAt.After(time.Now()) {
 		return access.Facts{}, access.ErrDenied
 	}
-	for _, e := range claims.AllowedEntities {
-		if e.Type == "" || e.ID == "" {
-			return access.Facts{}, access.ErrDenied
-		}
+	flat, err := access.NormalizeEntityGroups(claims.EntityGroups)
+	if err != nil {
+		return access.Facts{}, access.ErrDenied
 	}
 	for _, values := range [][]string{claims.Roles, claims.Exposures} {
 		for _, v := range values {
@@ -81,5 +236,5 @@ func (p *Provider) Resolve(ctx context.Context) (access.Facts, error) {
 			}
 		}
 	}
-	return access.Facts{Subject: claims.Subject, Tenant: claims.Tenant, Issuer: claims.Issuer, Roles: claims.Roles, Exposures: claims.Exposures, Entities: claims.AllowedEntities, ValidUntil: claims.ExpiresAt.Time}, nil
+	return access.Facts{Subject: claims.Subject, Tenant: claims.Tenant, Issuer: claims.Issuer, Roles: claims.Roles, Exposures: claims.Exposures, EntityGroups: claims.EntityGroups, Entities: flat, ValidUntil: claims.ExpiresAt.Time}, nil
 }

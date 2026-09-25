@@ -14,6 +14,22 @@ reviewer approval remains pending.
 
 Run this review before declaring a Studio Forge UI surface complete.
 
+### Shared ACL report policy review — local check, 2026-09-24
+
+- The generic Permissions workspace and its dedicated review frame now include
+  report resources. `preview` and `execute` are separate declared actions; a
+  custom resource kind requires its own action contract.
+- At 390 px, the report policy frame was inspected after selecting `preview`.
+  A labeled action selector replaces the clipped horizontal action rail. The
+  role/exposure rule, required project scope, and Save state remain visible.
+- The review frame uses in-memory data and issued no Studio API request. This
+  is local layout evidence, not IdP/BFF authorization or production approval.
+- The production editor now opens a pre-save review dialog for changed actions.
+  At 390 px, its current/proposed rule, entity scope, exact policy revision,
+  and Save/Back controls remained readable. Cancel preserved the draft; the
+  conflict path still preserves edits for explicit reload. This is structural
+  policy review, not a client-side effective-access calculation.
+
 ## Menu and workspace
 
 - The current location is apparent and every visible menu item opens a useful SDK-backed surface.

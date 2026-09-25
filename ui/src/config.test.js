@@ -16,4 +16,6 @@ test('authenticated mode exposes only public BFF session routes', () => {
   });
   assert.deepEqual(config.authentication, { mode: 'bff', mePath: '/v1/studio/auth/me', loginPath: '/v1/studio/auth/login' });
   assert.equal(validateConfig({ mode: 'authenticated', apiBaseURL: 'https://studio.example.com' }).authentication.mode, 'bff');
+  assert.equal(validateConfig({ mode: 'authenticated', apiBaseURL: 'https://studio.example.com', brand: 'Acme Portal' }).brand, 'Acme Portal');
+  assert.throws(() => validateConfig({ mode: 'authenticated', apiBaseURL: 'https://studio.example.com', brand: 'bad\nname' }));
 });

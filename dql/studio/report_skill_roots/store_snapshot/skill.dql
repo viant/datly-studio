@@ -1,0 +1,21 @@
+#package('studio/report_skill_roots/store_snapshot')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/resource-snapshot/skills', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('skill', 'sql/read.sql'))
+
+#define($_ = $ReportId<string>(query/reportId).Required().WithPredicate(0, 'equal', 's', 'report_id'))
+#define($_ = $VersionNo<int>(query/versionNo).Required().WithPredicate(0, 'equal', 's', 'version_no'))
+#define($_ = $Skills<[]*SnapshotSkill>(output/view))
+
+SELECT skill.*, type(skill, 'SnapshotSkill'),
+       CAST(skill.report_id AS string), CAST(skill.version_no AS int),
+       CAST(skill.skill_id AS string), CAST(skill.folder_id AS string),
+       CAST(skill.skill_root AS string), CAST(skill.ordinal AS int),
+       set_limit(skill, 0)
+FROM (${embed:sql/read.sql}) skill
+WHERE 1=1
+ORDER BY skill.ordinal, skill.skill_id

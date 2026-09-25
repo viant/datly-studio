@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Callout, FormGroup, HTMLSelect, InputGroup, Spinner, Tag } from '@blueprintjs/core';
+import { Button, Callout, Dialog, DialogBody, DialogFooter, FormGroup, HTMLSelect, InputGroup, Spinner, Tag } from '@blueprintjs/core';
+import { changedPolicies, describePolicy } from './resourceAccessReview.js';
 import './resourceAccess.css';
 
 const publicActions = new Set(['discover', 'describe', 'execute', 'retrieve']);
@@ -17,11 +18,12 @@ export function ResourceAccessEditor({ api, resource, actions, choices = {}, rea
   const [error, setError] = useState(null);
   const [saved, setSaved] = useState(false);
   const [editorContext, setEditorContext] = useState(null);
+  const [reviewOpen, setReviewOpen] = useState(false);
   const sequence = useRef(0);
   const resourceKey = JSON.stringify(resource);
   const load = async () => {
     const ticket = ++sequence.current;
-    setLoading(true); setError(null); setSaved(false);
+    setLoading(true); setError(null); setSaved(false); setReviewOpen(false);
     try {
       const [value, context] = await Promise.all([
         api.getResourceAccess(resource),
@@ -33,24 +35,26 @@ export function ResourceAccessEditor({ api, resource, actions, choices = {}, rea
     finally { if (ticket === sequence.current) setLoading(false); }
   };
   useEffect(() => {
-    setDocument(null); setDraft(null); setAction(actions[0]); setSaving(false); load();
+    setDocument(null); setDraft(null); setAction(actions[0]); setSaving(false); setReviewOpen(false); load();
     return () => { sequence.current++; };
   }, [api, resourceKey]);
   const update = policy => {
     setDraft(current => ({ ...current, policies: { ...current.policies, [action]: policy } }));
     setSaved(false);
   };
+  const changes = changedPolicies(document, draft);
+  const dirty = changes.length > 0;
   const save = async () => {
+    if (!reviewOpen || !dirty || readOnly || editorContext?.canManage === false) return;
     const ticket = sequence.current;
     setSaving(true); setError(null);
     try {
       const result = await api.replaceResourceAccess(draft);
       if (ticket !== sequence.current) return;
-      setDocument(result); setDraft(clone(result)); setSaved(true);
-    } catch (cause) { if (ticket === sequence.current) setError(cause); }
+      setDocument(result); setDraft(clone(result)); setSaved(true); setReviewOpen(false);
+    } catch (cause) { if (ticket === sequence.current) { setError(cause); setReviewOpen(false); } }
     finally { if (ticket === sequence.current) setSaving(false); }
   };
-  const dirty = document && JSON.stringify(document) !== JSON.stringify(draft);
   const policy = draft?.policies?.[action];
   const cannotManage = readOnly || editorContext?.canManage === false;
   const disabled = cannotManage || saving || loading;
@@ -67,6 +71,7 @@ export function ResourceAccessEditor({ api, resource, actions, choices = {}, rea
     </Callout>}
     {loading && <div role="status" className="studio-resource-access-loading"><Spinner size={22}/> Loading permissions…</div>}
     {!loading && draft && <div className="studio-resource-access-layout">
+      <div className="studio-resource-action-picker"><FormGroup label="Permission action" labelFor="resource-access-action"><HTMLSelect id="resource-access-action" fill value={action} disabled={saving} onChange={event => setAction(event.target.value)}>{actions.map(name => <option key={name} value={name}>{name} · {draft.policies[name]?.mode === 'public' ? 'Public' : draft.policies[name] ? 'Protected' : 'Denied'}</option>)}</HTMLSelect></FormGroup></div>
       <nav aria-label="Permission actions">{actions.map(name => <button key={name} type="button" disabled={saving} aria-current={name === action ? 'page' : undefined} onClick={() => setAction(name)}>
         <strong>{name}</strong><span>{draft.policies[name]?.mode === 'public' ? 'Public' : draft.policies[name] ? 'Protected' : 'Denied · no policy'}</span>
       </button>)}</nav>
@@ -98,8 +103,19 @@ export function ResourceAccessEditor({ api, resource, actions, choices = {}, rea
     </div>}
     {document && <footer className="studio-resource-access-footer">
       <span role="status">{cannotManage ? 'You have read-only access.' : saved ? 'Permissions saved.' : dirty ? 'Unsaved permission changes' : 'All changes saved'}</span>
-      <Button intent="primary" icon="floppy-disk" disabled={disabled || !dirty || conflict} loading={saving} onClick={save}>Save permissions</Button>
+      <Button intent="primary" icon="eye-open" disabled={disabled || !dirty || conflict} onClick={() => setReviewOpen(true)}>Review changes</Button>
     </footer>}
+    <Dialog className="studio-resource-review-dialog" isOpen={reviewOpen && dirty} title="Review permission changes" icon="eye-open" onClose={() => !saving && setReviewOpen(false)} canEscapeKeyClose={!saving} canOutsideClickClose={!saving}>
+      <DialogBody>
+        <p>Review {resource.kind} <strong>{resource.id}</strong> at policy revision {document?.revision}. Saving asks the server to compare and replace this exact revision.</p>
+        <div className="studio-resource-review-changes">{changes.map(change => <section key={change.action} aria-label={`${change.action} change`}>
+          <h3>{change.action}</h3><dl><div><dt>Current</dt><dd>{describePolicy(change.before)}</dd></div><div><dt>Proposed</dt><dd>{describePolicy(change.after)}</dd></div></dl>
+        </section>)}</div>
+        <Callout intent="primary">This is a policy-configuration review, not an effective-access decision. The server rechecks your identity and current revision when saving.</Callout>
+        <details className="studio-resource-review-raw"><summary>Exact proposed policy JSON</summary><pre>{JSON.stringify(draft?.policies || {}, null, 2)}</pre></details>
+      </DialogBody>
+      <DialogFooter actions={<><Button disabled={saving} onClick={() => setReviewOpen(false)}>Back to editor</Button><Button intent="primary" icon="floppy-disk" loading={saving} disabled={saving || conflict || cannotManage} onClick={save}>Save permissions</Button></>}/>
+    </Dialog>
   </section>;
 }
 

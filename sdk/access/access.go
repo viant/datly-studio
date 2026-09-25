@@ -25,12 +25,15 @@ type Entity struct {
 // Facts must originate from a verified OAuth/OIDC identity and its configured
 // authorization provider. Exposures are feature entitlements, not publications.
 type Facts struct {
-	Subject    string    `json:"subject"`
-	Tenant     string    `json:"tenant"`
-	Issuer     string    `json:"issuer"`
-	Roles      []string  `json:"roles"`
-	Exposures  []string  `json:"exposures"`
-	Entities   []Entity  `json:"entities"`
+	Subject   string   `json:"subject"`
+	Tenant    string   `json:"tenant"`
+	Issuer    string   `json:"issuer"`
+	Roles     []string `json:"roles"`
+	Exposures []string `json:"exposures"`
+	// EntityGroups is the canonical typed authorization fact.
+	EntityGroups EntityGroups `json:"allowedEntities,omitempty"`
+	// Entities is a compatibility view for existing flat fact providers.
+	Entities   []Entity  `json:"-"`
 	ValidUntil time.Time `json:"validUntil"`
 }
 
@@ -92,6 +95,11 @@ func Evaluate(req Request, policies map[string]Policy, facts Facts, now time.Tim
 			return deny()
 		}
 	case "protected":
+		flat, err := facts.FlatEntities()
+		if err != nil {
+			return deny()
+		}
+		facts.Entities = flat
 		if facts.Subject == "" || facts.Tenant == "" || facts.Issuer == "" || !facts.ValidUntil.After(now) || p.Rule == nil || !valid(*p.Rule, 0) || !matches(*p.Rule, facts) {
 			return deny()
 		}

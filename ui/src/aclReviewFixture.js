@@ -1,3 +1,5 @@
+import { defaultActionsByKind } from './resourceAccessActions.js';
+
 export const reviewScenarios = {
   editable: 'Editable policy',
   readonly: 'Read-only access',
@@ -9,14 +11,16 @@ export const reviewScenarios = {
 };
 
 export function createReviewFixture(scenario = 'editable', kind = 'component') {
+  if (!defaultActionsByKind[kind]) throw new Error(`Unknown review resource kind ${kind}`);
   const resource = { kind, id: 'operations-example', tenant: 'preview-tenant', version: '3' };
-  const consume = kind === 'skill' ? 'retrieve' : 'execute';
+  const consume = { component: 'execute', skill: 'retrieve', report: 'preview' }[kind];
   let document = { resource, revision: 7, policies: scenario === 'empty' ? {} : {
     discover: { mode: 'public' },
     describe: { mode: 'public' },
     [consume]: { mode: 'protected', entityType: 'project', rule: { kind: 'all', rules: [
       { kind: 'role', value: 'analyst' }, { kind: 'exposure', value: 'analytics' },
     ] } },
+    ...(kind === 'report' ? { execute: { mode: 'protected', rule: { kind: 'role', value: 'analyst' } } } : {}),
     viewAccess: { mode: 'protected', rule: { kind: 'role', value: 'access-admin' } },
     manageAccess: { mode: 'protected', rule: { kind: 'role', value: 'access-admin' } },
   } };
@@ -30,7 +34,7 @@ export function createReviewFixture(scenario = 'editable', kind = 'component') {
   };
   return {
     resource,
-    actions: ['discover', 'describe', consume, 'export', 'edit', 'publish', 'viewAccess', 'manageAccess'],
+    actions: defaultActionsByKind[kind],
     api: {
       async getResourceAccess() {
         if (scenario === 'loading') return new Promise(() => {});

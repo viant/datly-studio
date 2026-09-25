@@ -1,0 +1,21 @@
+#package('studio/report_resource_files/store_download')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/report-resource-files-store/download', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('file', 'sql/read.sql'))
+
+#define($_ = $ReportId<string>(query/reportId).Required().WithPredicate(0, 'equal', 'f', 'report_id'))
+#define($_ = $VersionNo<int>(query/versionNo).Required().WithPredicate(0, 'equal', 'f', 'version_no'))
+#define($_ = $Files<[]*DownloadResourceFile>(output/view))
+
+SELECT file.*, type(file, 'DownloadResourceFile'),
+       CAST(file.report_id AS string),
+       CAST(file.version_no AS int),
+       CAST(file.resource_path AS string),
+       CAST(file.content AS []byte),
+       set_limit(file, 0)
+FROM (${embed:sql/read.sql}) file
+WHERE 1=1

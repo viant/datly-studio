@@ -7,12 +7,22 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"reflect"
 	"regexp"
 	"strings"
 	"time"
 	"unicode/utf8"
 
+	"github.com/viant/bindly/resource"
+	"github.com/viant/datly-studio/internal/readercomponent"
 	"github.com/viant/datly-studio/sdk"
+	insert "github.com/viant/datly-studio/studio/report_publication_events/store_insert"
+	list "github.com/viant/datly-studio/studio/report_publication_events/store_list"
+	owner "github.com/viant/datly-studio/studio/report_publication_events/store_owner"
+	dexec "github.com/viant/datly/exec"
+	druntime "github.com/viant/datly/runtime"
+	"github.com/viant/datly/runtime/registry"
+	dsql "github.com/viant/datly/sql"
 )
 
 const publicationEventTextLimit = 1000
@@ -58,96 +68,129 @@ func (t *Transport) listPublicationEvents(ctx context.Context, input, output any
 	if limit > 100 {
 		limit = 100
 	}
-	where := " WHERE report_id=?"
-	args := []any{in.ReportID}
-	if operation := strings.TrimSpace(in.Input.Operation); operation != "" {
+	operation := strings.TrimSpace(in.Input.Operation)
+	if operation != "" {
 		if !validPublicationOperation(operation) {
 			return invalid(errors.New("operation must be publish, rollback, or unpublish"))
 		}
-		where += " AND operation=?"
-		args = append(args, operation)
 	}
-	if status := strings.TrimSpace(in.Input.Status); status != "" {
+	status := strings.TrimSpace(in.Input.Status)
+	if status != "" {
 		if status != "succeeded" && status != "failed" {
 			return invalid(errors.New("status must be succeeded or failed"))
 		}
-		where += " AND status=?"
-		args = append(args, status)
 	}
-	args = append(args, limit, in.Input.Offset)
-	rows, err := t.DB.QueryContext(ctx, publicationEventSelect+where+" ORDER BY occurred_at DESC,event_id DESC LIMIT ? OFFSET ?", args...)
+	reader, err := t.publicationEventReader()
 	if err != nil {
 		return internal(err)
 	}
-	defer rows.Close()
-	page := &sdk.PublicationEventPage{Limit: limit, Offset: in.Input.Offset}
-	for rows.Next() {
-		value, scanErr := scanPublicationEvent(rows)
-		if scanErr != nil {
-			return internal(scanErr)
-		}
-		page.Items = append(page.Items, value)
-	}
-	if err = rows.Err(); err != nil {
+	value, err := reader.runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: reader.list, Input: &list.Input{
+		ReportId: in.ReportID, Operation: operation, Status: status, PageLimit: limit, PageOffset: in.Input.Offset,
+		Has: &list.InputHas{ReportId: true, Operation: true, Status: true, PageLimit: true, PageOffset: true},
+	}})
+	if err != nil {
 		return internal(err)
+	}
+	result, ok := value.(*list.Output)
+	if !ok {
+		return internal(fmt.Errorf("publication event reader returned %T", value))
+	}
+	page := &sdk.PublicationEventPage{Limit: limit, Offset: in.Input.Offset}
+	for _, row := range result.Events {
+		if row == nil || row.ReportId != in.ReportID {
+			return internal(errors.New("publication event reader returned a mismatched report"))
+		}
+		item := &sdk.PublicationEvent{EventID: row.EventId, ReportID: row.ReportId, OwnerID: row.OwnerId,
+			Operation: row.Operation, VersionNo: row.VersionNo, GenerationNo: row.GenerationNo,
+			Status: row.Status, RequestedBy: row.RequestedBy, OccurredAt: row.OccurredAt}
+		if row.Reason != nil {
+			item.Reason = *row.Reason
+		}
+		if row.FailureCode != nil {
+			item.FailureCode = *row.FailureCode
+		}
+		if row.FailureMessage != nil {
+			item.FailureMessage = *row.FailureMessage
+		}
+		page.Items = append(page.Items, item)
 	}
 	return assign(output, page)
 }
 
-const publicationEventSelect = `SELECT event_id,report_id,owner_id,operation,version_no,generation_no,status,requested_by,reason,failure_code,failure_message,occurred_at FROM report_publication_events`
-
-func scanPublicationEvent(scanner interface{ Scan(...any) error }) (*sdk.PublicationEvent, error) {
-	var value sdk.PublicationEvent
-	var version, generation sql.NullInt64
-	var reason, failureCode, failureMessage sql.NullString
-	if err := scanner.Scan(&value.EventID, &value.ReportID, &value.OwnerID, &value.Operation, &version, &generation, &value.Status, &value.RequestedBy, &reason, &failureCode, &failureMessage, &value.OccurredAt); err != nil {
-		return nil, err
-	}
-	if version.Valid {
-		item := int(version.Int64)
-		value.VersionNo = &item
-	}
-	if generation.Valid {
-		item := generation.Int64
-		value.GenerationNo = &item
-	}
-	if reason.Valid {
-		value.Reason = reason.String
-	}
-	if failureCode.Valid {
-		value.FailureCode = failureCode.String
-	}
-	if failureMessage.Valid {
-		value.FailureMessage = failureMessage.String
-	}
-	return &value, nil
-}
-
 func (t *Transport) publicationEventOwner(ctx context.Context, reportID string) (string, error) {
-	var owner string
-	err := t.DB.QueryRowContext(ctx, `SELECT owner_id FROM reports WHERE id=? AND deleted_at IS NULL`, reportID).Scan(&owner)
-	if errors.Is(err, sql.ErrNoRows) {
-		return "", &sdk.Error{Code: sdk.ErrorNotFound, Message: "report not found"}
-	}
+	reader, err := t.publicationEventReader()
 	if err != nil {
 		return "", internal(err)
 	}
-	return owner, nil
+	value, err := reader.runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: reader.owner, Input: &owner.Input{
+		ReportId: reportID, Has: &owner.InputHas{ReportId: true},
+	}})
+	if err != nil {
+		return "", internal(err)
+	}
+	result, ok := value.(*owner.Output)
+	if !ok {
+		return "", internal(fmt.Errorf("publication owner reader returned %T", value))
+	}
+	if len(result.Reports) == 0 {
+		return "", &sdk.Error{Code: sdk.ErrorNotFound, Message: "report not found"}
+	}
+	if len(result.Reports) != 1 || result.Reports[0] == nil || result.Reports[0].Id != reportID {
+		return "", internal(errors.New("publication owner reader returned an ambiguous or mismatched report"))
+	}
+	return result.Reports[0].OwnerId, nil
+}
+
+type publicationEventStoreReader struct {
+	runtime *druntime.Runtime
+	list    dexec.ComponentTarget
+	owner   dexec.ComponentTarget
+}
+
+func (t *Transport) publicationEventReader() (*publicationEventStoreReader, error) {
+	t.publicationReaderMu.Lock()
+	defer t.publicationReaderMu.Unlock()
+	if t.publicationReader != nil {
+		return t.publicationReader, nil
+	}
+	resources := resource.New()
+	if err := resources.Register(list.EventDatlyResourceNamespace, list.EventDatlyResources); err != nil {
+		return nil, err
+	}
+	if err := resources.Register(owner.ReportDatlyResourceNamespace, owner.ReportDatlyResources); err != nil {
+		return nil, err
+	}
+	connector := &dsql.SQLComponent{DB: t.DB}
+	if err := connector.RegisterConnector("studio", t.DB); err != nil {
+		return nil, err
+	}
+	listRegistration, listTarget, err := readercomponent.Compile(reflect.TypeOf(list.EventComponent{}), "store_list",
+		reflect.TypeOf(list.Input{}), reflect.TypeOf(list.Output{}), resources, connector)
+	if err != nil {
+		return nil, err
+	}
+	ownerRegistration, ownerTarget, err := readercomponent.Compile(reflect.TypeOf(owner.ReportComponent{}), "store_owner",
+		reflect.TypeOf(owner.Input{}), reflect.TypeOf(owner.Output{}), resources, connector)
+	if err != nil {
+		return nil, err
+	}
+	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{listRegistration, ownerRegistration}, druntime.WithResources(resources))
+	if err != nil {
+		return nil, err
+	}
+	t.publicationReader = &publicationEventStoreReader{runtime: runtime, list: listTarget, owner: ownerTarget}
+	return t.publicationReader, nil
 }
 
 func (t *Transport) appendPublicationEvent(ctx context.Context, event publicationEventRecord) error {
-	return t.appendPublicationEventDB(ctx, t.DB, event)
+	return t.appendPublicationEventNative(ctx, nil, event)
 }
 
 func (t *Transport) appendPublicationEventTx(ctx context.Context, tx *sql.Tx, event publicationEventRecord) error {
-	return t.appendPublicationEventDB(ctx, tx, event)
+	return t.appendPublicationEventNative(ctx, tx, event)
 }
 
-type publicationEventExecer interface {
-	ExecContext(context.Context, string, ...any) (sql.Result, error)
-}
-
-func (t *Transport) appendPublicationEventDB(ctx context.Context, executor publicationEventExecer, event publicationEventRecord) error {
+func (t *Transport) appendPublicationEventNative(ctx context.Context, tx *sql.Tx, event publicationEventRecord) error {
 	if event.OwnerID == "" || event.ReportID == "" || !validPublicationOperation(event.Operation) || (event.Status != "succeeded" && event.Status != "failed") {
 		return errors.New("invalid publication event")
 	}
@@ -158,10 +201,27 @@ func (t *Transport) appendPublicationEventDB(ctx context.Context, executor publi
 	if event.OccurredAt.IsZero() {
 		event.OccurredAt = t.now()
 	}
-	if _, err = executor.ExecContext(ctx, `INSERT INTO report_publication_events(event_id,report_id,owner_id,operation,version_no,generation_no,status,requested_by,reason,failure_code,failure_message,occurred_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`, eventID, event.ReportID, event.OwnerID, event.Operation, nullableInt(event.VersionNo), nullableInt64(event.GenerationNo), event.Status, event.RequestedBy, nullable(event.Reason), nullable(event.FailureCode), nullable(event.Failure), event.OccurredAt); err != nil {
-		return err
+	requestedBy := sdk.SystemPrincipal().Subject
+	if principal, ok := sdk.PrincipalFromContext(ctx); ok {
+		requestedBy = principal.Subject
 	}
-	return nil
+	row := &insert.StoredEvent{EventId: eventID, ReportId: event.ReportID, OwnerId: event.OwnerID,
+		Operation: event.Operation, VersionNo: event.VersionNo, GenerationNo: event.GenerationNo,
+		Status: event.Status, RequestedBy: requestedBy, Reason: optionalPublicationText(event.Reason),
+		FailureCode: optionalPublicationText(event.FailureCode), FailureMessage: optionalPublicationText(event.Failure),
+		OccurredAt: event.OccurredAt,
+		Has: &insert.StoredEventHas{EventId: true, ReportId: true, OwnerId: true,
+			Operation: true, VersionNo: true, GenerationNo: true, Status: true,
+			RequestedBy: true, Reason: true, FailureCode: true, FailureMessage: true,
+			OccurredAt: true}}
+	return t.writePublicationEvent(ctx, tx, row)
+}
+
+func optionalPublicationText(value string) *string {
+	if value == "" {
+		return nil
+	}
+	return &value
 }
 
 func (t *Transport) recordPublicationFailure(ctx context.Context, event publicationEventRecord, cause error) {
@@ -205,20 +265,6 @@ func boundedPublicationText(value string) string {
 	}
 	runes := []rune(value)
 	return string(runes[:publicationEventTextLimit])
-}
-
-func nullableInt(value *int) any {
-	if value == nil {
-		return nil
-	}
-	return *value
-}
-
-func nullableInt64(value *int64) any {
-	if value == nil {
-		return nil
-	}
-	return *value
 }
 
 func generatedPublicationEventID() (string, error) {

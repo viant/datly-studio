@@ -96,23 +96,32 @@ func (f AuthorizerFunc) Authorize(ctx context.Context, request AuthorizationRequ
 }
 
 type Transport struct {
-	DB             *sql.DB
-	Now            func() time.Time
-	Preview        PreviewExecutor
-	ViewTester     ViewTester
-	RelationTester RelationTester
-	ComposeTester  CubeComposeTester
-	Warmup         WarmupExecutor
-	Validator      VersionValidator
-	Activator      RuntimeActivator
-	RuntimeProbe   RuntimeHostProbe
-	Authorizer     Authorizer
-	Probe          sdk.ConnectorProbe
-	Catalog        sdk.CatalogExplorer
-	SQLTester      sdk.ConnectorSQLTester
-	Predicates     *predicatecatalog.Catalog
-	publicationMu  sync.Mutex
-	warmupMu       sync.Mutex
+	DB                       *sql.DB
+	Now                      func() time.Time
+	Preview                  PreviewExecutor
+	ViewTester               ViewTester
+	RelationTester           RelationTester
+	ComposeTester            CubeComposeTester
+	Warmup                   WarmupExecutor
+	Validator                VersionValidator
+	Activator                RuntimeActivator
+	RuntimeProbe             RuntimeHostProbe
+	Authorizer               Authorizer
+	SystemCredentialProvider sdk.SystemCredentialProvider
+	Probe                    sdk.ConnectorProbe
+	Catalog                  sdk.CatalogExplorer
+	SQLTester                sdk.ConnectorSQLTester
+	Predicates               *predicatecatalog.Catalog
+	predicateReaderMu        sync.Mutex
+	predicateReader          *authorizationPredicateReader
+	capabilityReaderMu       sync.Mutex
+	capabilityReader         *capabilityReader
+	aclReaderMu              sync.Mutex
+	aclReader                *aclStoreReader
+	publicationReaderMu      sync.Mutex
+	publicationReader        *publicationEventStoreReader
+	publicationMu            sync.Mutex
+	warmupMu                 sync.Mutex
 }
 
 func (t *Transport) Invoke(ctx context.Context, operation string, input, output any) error {
@@ -952,7 +961,7 @@ func (t *Transport) ensureReportNamespace(ctx context.Context, ownerID, name str
 	if name != "general" || !errors.As(err, &sdkErr) || sdkErr.Code != sdk.ErrorNotFound {
 		return err
 	}
-	_, insertErr := t.DB.ExecContext(ctx, `INSERT INTO namespaces(owner_id,name,title,description,status,etag,created_at,updated_at) VALUES(?,'general','General','Default namespace','active',1,?,?)`, ownerID, now, now)
+	insertErr := t.insertDefaultNamespace(ctx, ownerID, now)
 	if insertErr != nil {
 		if retryErr := t.requireActiveNamespace(ctx, ownerID, name); retryErr == nil {
 			return nil
@@ -963,8 +972,7 @@ func (t *Transport) ensureReportNamespace(ctx context.Context, ownerID, name str
 }
 
 func (t *Transport) requireActiveNamespace(ctx context.Context, ownerID, name string) error {
-	var status string
-	err := t.DB.QueryRowContext(ctx, `SELECT status FROM namespaces WHERE owner_id=? AND name=? AND deleted_at IS NULL`, ownerID, name).Scan(&status)
+	status, err := t.ownedNamespaceStatus(ctx, ownerID, name)
 	if errors.Is(err, sql.ErrNoRows) {
 		return &sdk.Error{Code: sdk.ErrorNotFound, Message: "namespace not found"}
 	}

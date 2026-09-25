@@ -40,10 +40,12 @@ import (
 // Dynamic executes dynamic reader versions using Datly's runtime-contract
 // materialization. It is an SDK preview executor, not a SQL escape hatch.
 type Dynamic struct {
-	Types    *typecatalog.Catalog
-	StudioDB *sql.DB
-	RootDir  string
-	Secrets  connectorsecret.Resolver
+	Types       *typecatalog.Catalog
+	StudioDB    *sql.DB
+	RootDir     string
+	Secrets     connectorsecret.Resolver
+	Definitions *DefinitionReader
+	Connectors  *ConnectorReader
 }
 
 // Validate materializes the same runtime contract and reader execution used by
@@ -822,23 +824,29 @@ func (d Dynamic) definition(ctx context.Context, reportID string, versionNo int)
 	var result definition
 	result.ReportID, result.VersionNo = reportID, versionNo
 	result.Secrets = d.Secrets
-	var generated, authored, secretRef, options sql.NullString
-	err := d.StudioDB.QueryRowContext(ctx, `SELECT r.component_scope, r.component_name, r.default_connector_name, c.driver, c.dsn_template, c.secret_ref, c.options_json, v.source_revision, v.spec_hash, v.generated_dql, v.authored_dql
-FROM reports r
-JOIN connectors c ON c.name=r.default_connector_name
-JOIN report_versions v ON v.report_id=r.id AND v.version_no=?
-WHERE r.id=? AND r.deleted_at IS NULL AND c.deleted_at IS NULL`, versionNo, reportID).Scan(&result.Scope, &result.Name, &result.Connector, &result.Driver, &result.DSN, &secretRef, &options, &result.SourceRevision, &result.SpecHash, &generated, &authored)
+	reader := d.Definitions
+	if reader == nil {
+		var setupErr error
+		reader, setupErr = NewDefinitionReader(d.StudioDB)
+		if setupErr != nil {
+			return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "initialize reader preview definition", Cause: setupErr}
+		}
+		defer reader.Close(context.Background())
+	}
+	row, err := reader.Get(ctx, reportID, versionNo)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, &sdk.Error{Code: sdk.ErrorNotFound, Message: "reader version not found"}
 	}
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "load reader preview definition", Cause: err}
 	}
-	result.SecretRef = secretRef.String
-	result.Options = json.RawMessage(options.String)
-	result.DQL = generated.String
+	result.Scope, result.Name, result.Connector = row.ComponentScope, row.ComponentName, row.DefaultConnectorName
+	result.Driver, result.DSN, result.SecretRef = row.Driver, *row.DsnTemplate, row.SecretRef
+	result.Options = append(json.RawMessage(nil), row.OptionsJson...)
+	result.SourceRevision, result.SpecHash = row.SourceRevision, row.SpecHash
+	result.DQL = row.GeneratedDql
 	if strings.TrimSpace(result.DQL) == "" {
-		result.DQL = authored.String
+		result.DQL = row.AuthoredDql
 	}
 	result.DSN, err = connectorsecret.Resolve(ctx, d.Secrets, result.DSN, result.SecretRef)
 	if err != nil {
@@ -861,37 +869,23 @@ WHERE r.id=? AND r.deleted_at IS NULL AND c.deleted_at IS NULL`, versionNo, repo
 }
 
 func (d Dynamic) activeConnectors(ctx context.Context) ([]connectorDefinition, error) {
-	query := `SELECT name, driver, dsn_template, secret_ref, options_json FROM connectors WHERE deleted_at IS NULL AND status = 'active'`
-	args := []any{}
-	if principal, ok := sdk.PrincipalFromContext(ctx); ok {
-		query += ` AND (owner_id = ? OR EXISTS (
-SELECT 1 FROM reports studio_preview_report
-JOIN report_acl studio_preview_acl ON studio_preview_acl.report_id = studio_preview_report.id
-WHERE studio_preview_report.default_connector_name = connectors.name
-  AND studio_preview_report.deleted_at IS NULL
-  AND studio_preview_acl.subject_type = 'user'
-  AND studio_preview_acl.subject_id = ?
-  AND studio_preview_acl.can_view = TRUE))`
-		args = append(args, principal.Subject, principal.Subject)
-	}
-	query += ` ORDER BY name`
-	rows, err := d.StudioDB.QueryContext(ctx, query, args...)
-	if err != nil {
-		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "load active Studio connectors", Cause: err}
-	}
-	defer rows.Close()
-	var result []connectorDefinition
-	for rows.Next() {
-		var item connectorDefinition
-		var secretRef, options sql.NullString
-		if err = rows.Scan(&item.Name, &item.Driver, &item.DSN, &secretRef, &options); err != nil {
-			return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "scan active Studio connector", Cause: err}
+	reader := d.Connectors
+	if reader == nil {
+		var err error
+		reader, err = NewConnectorReader(d.StudioDB)
+		if err != nil {
+			return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "initialize active Studio connectors", Cause: err}
 		}
-		item.SecretRef = secretRef.String
-		item.Options = json.RawMessage(options.String)
-		result = append(result, item)
+		defer reader.Close(context.Background())
 	}
-	if err = rows.Err(); err != nil {
+	var result []connectorDefinition
+	var err error
+	if principal, ok := sdk.PrincipalFromContext(ctx); ok {
+		result, err = reader.ListForPrincipal(ctx, principal.Subject)
+	} else {
+		result, err = reader.ListAll(ctx)
+	}
+	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "load active Studio connectors", Cause: err}
 	}
 	return result, nil

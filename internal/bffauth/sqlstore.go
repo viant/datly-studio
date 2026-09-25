@@ -12,17 +12,21 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"sync"
 	"time"
 
 	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/scy/auth/jwt"
 )
 
-// SQLStore is a multi-instance session store backed by the Studio database.
-// Cookie identifiers are hashed and the bearer/claims payload is encrypted.
+// SQLStore is a multi-instance session store backed by server-only Datly v1
+// components against the Studio database. Cookie identifiers are hashed and
+// the bearer/claims payload is encrypted before reaching those components.
 type SQLStore struct {
-	db   *sql.DB
-	aead cipher.AEAD
+	db         *sql.DB
+	aead       cipher.AEAD
+	mu         sync.Mutex
+	components *sessionComponents
 }
 
 type storedPayload struct {
@@ -52,6 +56,10 @@ func NewSQLStore(db *sql.DB, key []byte) (*SQLStore, error) {
 
 func (s *SQLStore) Put(ctx context.Context, id string, value session) error {
 	hash := sessionHash(id)
+	existing, err := s.readDatlySessionRecord(ctx, hash)
+	if err != nil {
+		return err
+	}
 	payload, err := json.Marshal(storedPayload{Principal: value.principal, Token: value.token, Claims: value.claims, ExpiresAt: value.expiresAt})
 	if err != nil {
 		return err
@@ -61,20 +69,18 @@ func (s *SQLStore) Put(ctx context.Context, id string, value session) error {
 		return err
 	}
 	ciphertext := s.aead.Seal(nonce, nonce, payload, []byte(hash))
-	_, err = s.db.ExecContext(ctx, `INSERT INTO bff_sessions(session_id_hash,subject_id,payload_ciphertext,expires_at_unix,created_at)
-VALUES(?,?,?,?,?) ON CONFLICT(session_id_hash) DO UPDATE SET subject_id=excluded.subject_id,payload_ciphertext=excluded.payload_ciphertext,expires_at_unix=excluded.expires_at_unix`, hash, value.principal.Subject, ciphertext, value.expiresAt.Unix(), time.Now().UTC())
-	return err
+	created := time.Now().UTC()
+	if existing != nil && existing.CreatedAt != nil {
+		created = *existing.CreatedAt
+	}
+	return s.writeDatlySession(ctx, hash, value.principal.Subject, ciphertext, value.expiresAt.Unix(), created, false)
 }
 
 func (s *SQLStore) Get(ctx context.Context, id string) (session, bool, error) {
 	hash := sessionHash(id)
-	var ciphertext []byte
-	var expiresUnix int64
-	if err := s.db.QueryRowContext(ctx, `SELECT payload_ciphertext,expires_at_unix FROM bff_sessions WHERE session_id_hash=?`, hash).Scan(&ciphertext, &expiresUnix); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return session{}, false, nil
-		}
-		return session{}, false, err
+	ciphertext, expiresUnix, found, err := s.readDatlySession(ctx, hash)
+	if err != nil || !found {
+		return session{}, found, err
 	}
 	if len(ciphertext) < s.aead.NonceSize() {
 		return session{}, false, errors.New("invalid encrypted BFF session")
@@ -93,13 +99,29 @@ func (s *SQLStore) Get(ctx context.Context, id string) (session, bool, error) {
 }
 
 func (s *SQLStore) Delete(ctx context.Context, id string) error {
-	_, err := s.db.ExecContext(ctx, `DELETE FROM bff_sessions WHERE session_id_hash=?`, sessionHash(id))
-	return err
+	return s.deleteHashedSession(ctx, sessionHash(id))
+}
+
+func (s *SQLStore) deleteHashedSession(ctx context.Context, hash string) error {
+	_, _, found, err := s.readDatlySession(ctx, hash)
+	if err != nil || !found {
+		return err
+	}
+	if err := s.writeDatlySession(ctx, hash, "", nil, 0, time.Time{}, true); err != nil {
+		// Another instance may have deleted it after the first read. The
+		// store contract is idempotent: verify the desired state instead of
+		// interpreting a writer error string.
+		_, _, stillPresent, readErr := s.readDatlySession(ctx, hash)
+		if readErr == nil && !stillPresent {
+			return nil
+		}
+		return err
+	}
+	return nil
 }
 
 func (s *SQLStore) DeleteExpired(ctx context.Context, now time.Time) error {
-	_, err := s.db.ExecContext(ctx, `DELETE FROM bff_sessions WHERE expires_at_unix<=?`, now.Unix())
-	return err
+	return s.deleteExpiredDatly(ctx, now.Unix())
 }
 
 func sessionHash(id string) string {

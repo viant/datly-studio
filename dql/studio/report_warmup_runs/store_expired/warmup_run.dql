@@ -1,0 +1,19 @@
+#package('studio/report_warmup_runs/store_expired')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/report-warmup-run-store/expired', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('warmup_run', 'sql/read.sql'))
+
+#define($_ = $Before<time.Time>(query/before).Required())
+#define($_ = $PageLimit<int>(query/pageLimit).Required())
+#define($_ = $WarmupRuns<[]*ExpiredWarmupRun>(output/view))
+
+SELECT warmup_run.*, type(warmup_run, 'ExpiredWarmupRun'),
+       CAST(warmup_run.run_id AS string), CAST(warmup_run.status AS string),
+       CAST(warmup_run.updated_at AS *time.Time),
+       set_limit(warmup_run, 0)
+FROM (${embed:sql/read.sql}) warmup_run
+WHERE 1=1

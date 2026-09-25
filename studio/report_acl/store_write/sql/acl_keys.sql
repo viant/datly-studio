@@ -1,0 +1,1 @@
+SELECT ReportId AS ReportId, SubjectType AS SubjectType, SubjectId AS SubjectId FROM `/`

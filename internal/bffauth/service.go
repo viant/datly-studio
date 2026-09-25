@@ -161,8 +161,16 @@ func (s *Service) handleSession(response http.ResponseWriter, request *http.Requ
 		writeJSON(response, http.StatusUnauthorized, map[string]string{"message": "token verification failed"})
 		return
 	}
-	http.SetCookie(response, &http.Cookie{Name: s.config.CookieName, Value: id, Path: "/", HttpOnly: true, Secure: s.config.Secure, SameSite: http.SameSiteLaxMode, Expires: expires, MaxAge: int(s.config.TTL.Seconds())})
+	s.setSessionCookie(response, id, expires)
 	writeJSON(response, http.StatusCreated, map[string]any{"authenticated": true, "subject": principal.Subject})
+}
+
+func (s *Service) setSessionCookie(response http.ResponseWriter, id string, expires time.Time) {
+	maxAge := int(expires.Sub(s.now()).Seconds())
+	if maxAge < 1 {
+		maxAge = 1
+	}
+	http.SetCookie(response, &http.Cookie{Name: s.config.CookieName, Value: id, Path: "/", HttpOnly: true, Secure: s.config.Secure, SameSite: http.SameSiteLaxMode, Expires: expires, MaxAge: maxAge})
 }
 
 // Exchange verifies a JWT and pre-seeds an opaque session for server-side OOB
@@ -174,6 +182,9 @@ func (s *Service) Exchange(ctx context.Context, token string) (string, sdk.Princ
 	}
 	if err = validateTokenBinding(claims, s.config.Issuer, s.config.Audience); err != nil {
 		return "", sdk.Principal{}, time.Time{}, err
+	}
+	if (strings.TrimSpace(s.config.Issuer) != "" || strings.TrimSpace(s.config.Audience) != "") && claims.ExpiresAt == nil {
+		return "", sdk.Principal{}, time.Time{}, errors.New("bound BFF access token requires an expiry")
 	}
 	principal, err := principalFromClaims(claims)
 	if err != nil {

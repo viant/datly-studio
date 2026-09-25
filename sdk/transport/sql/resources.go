@@ -95,57 +95,8 @@ func (t *Transport) resourceSnapshot(ctx context.Context, reportID string, versi
 		return err
 	}
 	result.Version = version
-	fileRows, err := t.DB.QueryContext(ctx, `SELECT report_id,version_no,resource_id,namespace,resource_path,media_type,content,content_size,content_sha256,is_binary FROM report_resource_files WHERE report_id=? AND version_no=? ORDER BY namespace,resource_path`, reportID, versionNo)
-	if err != nil {
-		return internal(err)
-	}
-	for fileRows.Next() {
-		var item sdk.ResourceFile
-		var media sql.NullString
-		var content []byte
-		if err = fileRows.Scan(&item.ReportID, &item.VersionNo, &item.ResourceID, &item.Namespace, &item.ResourcePath, &media, &content, &item.ContentSize, &item.ContentSHA256, &item.IsBinary); err != nil {
-			fileRows.Close()
-			return internal(err)
-		}
-		item.MediaType, item.Content = media.String, string(content)
-		result.Files = append(result.Files, &item)
-	}
-	if err = fileRows.Err(); err != nil {
-		fileRows.Close()
-		return internal(err)
-	}
-	fileRows.Close()
-	folderRows, err := t.DB.QueryContext(ctx, `SELECT report_id,version_no,folder_id,namespace,root_path,uri_prefix,ordinal FROM report_resource_folders WHERE report_id=? AND version_no=? ORDER BY ordinal,folder_id`, reportID, versionNo)
-	if err != nil {
-		return internal(err)
-	}
-	for folderRows.Next() {
-		item := &sdk.ResourceFolder{}
-		if err = folderRows.Scan(&item.ReportID, &item.VersionNo, &item.FolderID, &item.Namespace, &item.RootPath, &item.URIPrefix, &item.Ordinal); err != nil {
-			folderRows.Close()
-			return internal(err)
-		}
-		result.Folders = append(result.Folders, item)
-	}
-	if err = folderRows.Err(); err != nil {
-		folderRows.Close()
-		return internal(err)
-	}
-	folderRows.Close()
-	skillRows, err := t.DB.QueryContext(ctx, `SELECT report_id,version_no,skill_id,folder_id,skill_root,ordinal FROM report_skill_roots WHERE report_id=? AND version_no=? ORDER BY ordinal,skill_id`, reportID, versionNo)
-	if err != nil {
-		return internal(err)
-	}
-	defer skillRows.Close()
-	for skillRows.Next() {
-		item := &sdk.SkillRoot{}
-		if err = skillRows.Scan(&item.ReportID, &item.VersionNo, &item.SkillID, &item.FolderID, &item.SkillRoot, &item.Ordinal); err != nil {
-			return internal(err)
-		}
-		result.Skills = append(result.Skills, item)
-	}
-	if err = skillRows.Err(); err != nil {
-		return internal(err)
+	if err := t.readResourceSnapshot(ctx, reportID, versionNo, result); err != nil {
+		return err
 	}
 	return assign(output, result)
 }
