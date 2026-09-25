@@ -27,7 +27,7 @@ func TestPublicationStageRulesMatchPreviousGeneration(t *testing.T) {
 				PublicationStatus: true, RuntimeRevision: true, SpecHash: true,
 				PublishedBy: true, PublishedAt: true, FailureJson: true}}
 	}
-	rules := &PublicationStageRules{Input: &Input{NextGeneration: 5}}
+	rules := &PublicationStageRules{Input: &Input{NextGeneration: 5, Operation: "publish"}}
 	valid := row()
 	if err := rules.Init(context.Background(), valid, state); err != nil || *valid.DesiredGeneration != 5 {
 		t.Fatalf("restaged publication=%+v err=%v", valid, err)
@@ -51,5 +51,39 @@ func TestPublicationStageRulesMatchPreviousGeneration(t *testing.T) {
 	rules.Input.NextGeneration = 4
 	if err := rules.Init(context.Background(), row(), state); err == nil {
 		t.Fatal("non-advancing generation accepted")
+	}
+}
+
+func TestPublicationStageRulesUnpublish(t *testing.T) {
+	previousGeneration := int64(4)
+	previous := &StoredPublication{ReportId: "report", DesiredGeneration: &previousGeneration, PublicationStatus: "active"}
+	state := xhandler.LifecycleContext[StoredPublication, xhandler.NoParent, Output]{
+		EntityState: xhandler.EntityState[StoredPublication, xhandler.NoParent]{Previous: previous}}
+	row := func() *StoredPublication {
+		expected := previousGeneration
+		return &StoredPublication{ReportId: "report", DesiredGeneration: &expected, PublicationStatus: "unpublishing",
+			Has: &StoredPublicationHas{ReportId: true, DesiredVersionNo: true, DesiredGeneration: true,
+				PublicationStatus: true, FailureJson: true}}
+	}
+	rules := &PublicationStageRules{Input: &Input{NextGeneration: 5, Operation: "unpublish"}}
+	valid := row()
+	if err := rules.Init(context.Background(), valid, state); err != nil || *valid.DesiredGeneration != 5 {
+		t.Fatalf("staged unpublish=%+v err=%v", valid, err)
+	}
+	stale := row()
+	*stale.DesiredGeneration--
+	var conflict *xhandler.Conflict
+	if err := rules.Init(context.Background(), stale, state); !errors.As(err, &conflict) {
+		t.Fatalf("stale generation error=%v", err)
+	}
+	version := 1
+	invalid := row()
+	invalid.DesiredVersionNo = &version
+	if err := rules.Init(context.Background(), invalid, state); err == nil {
+		t.Fatal("unpublish stage accepted a desired version")
+	}
+	previous.PublicationStatus = "pending"
+	if err := rules.Init(context.Background(), row(), state); !errors.As(err, &conflict) {
+		t.Fatalf("already staged publication error=%v", err)
 	}
 }

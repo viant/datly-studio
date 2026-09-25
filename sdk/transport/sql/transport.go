@@ -1877,7 +1877,7 @@ func (t *Transport) stagePublication(ctx context.Context, in publishRequest, ver
 	} else {
 		expected := previous.desiredGeneration
 		versionNo := in.VersionNo
-		err = t.writePublicationStage(ctx, tx, generation, &publicationstage.StoredPublication{
+		err = t.writePublicationStage(ctx, tx, "publish", generation, &publicationstage.StoredPublication{
 			ReportId: in.ReportID, DesiredVersionNo: &versionNo, DesiredGeneration: &expected,
 			PublicationStatus: "pending", RuntimeRevision: &runtimeRevision,
 			SpecHash: version.SpecHash, PublishedBy: in.Input.RequestedBy, PublishedAt: &now,
@@ -2188,7 +2188,17 @@ func (t *Transport) unpublish(ctx context.Context, input, output any) (returnErr
 	if err = t.insertBuildingGeneration(ctx, tx, generation, revision, in.Input.RequestedBy, now); err != nil {
 		return classify(err, "runtime generation", fmt.Sprint(generation))
 	}
-	if _, err = tx.ExecContext(ctx, `UPDATE report_publications SET desired_version_no=NULL,desired_generation=?,publication_status='unpublishing',failure_json=NULL WHERE report_id=?`, generation, in.ReportID); err != nil {
+	expected := previous.desiredGeneration
+	err = t.writePublicationStage(ctx, tx, "unpublish", generation, &publicationstage.StoredPublication{
+		ReportId: in.ReportID, DesiredGeneration: &expected, PublicationStatus: "unpublishing",
+		Has: &publicationstage.StoredPublicationHas{ReportId: true, DesiredVersionNo: true,
+			DesiredGeneration: true, PublicationStatus: true, FailureJson: true},
+	})
+	if err != nil {
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) {
+			return &sdk.Error{Code: sdk.ErrorConflict, Message: "publication changed before unpublish staging"}
+		}
 		return internal(err)
 	}
 	if err = tx.Commit(); err != nil {

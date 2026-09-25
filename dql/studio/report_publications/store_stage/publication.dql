@@ -8,6 +8,7 @@
 #setting($_ = $sql_dest('publication', 'sql/read.sql'))
 
 #define($_ = $NextGeneration<int64>(query/nextGeneration).Required())
+#define($_ = $Operation<string>(query/operation).Required())
 #define($_ = $Publications<[]*StoredPublication>(body/data))
 
 SELECT publication.*, type(publication, 'StoredPublication'),

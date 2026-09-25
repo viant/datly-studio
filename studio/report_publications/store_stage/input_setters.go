@@ -11,6 +11,17 @@ func (input *Input) SetNextGeneration(value int64) {
 	input.Has.NextGeneration = true
 }
 
+func (input *Input) SetOperation(value string) {
+	if input == nil {
+		return
+	}
+	input.Operation = value
+	if input.Has == nil {
+		input.Has = &InputHas{}
+	}
+	input.Has.Operation = true
+}
+
 func (input *Input) SetPublications(value []*StoredPublication) {
 	if input == nil {
 		return

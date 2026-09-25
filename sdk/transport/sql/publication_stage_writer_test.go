@@ -79,7 +79,7 @@ func TestPublicationRestageWriterMatchesGenerationAndRollsBack(t *testing.T) {
 		Has: &stored.StoredPublicationHas{ReportId: true, DesiredVersionNo: true,
 			DesiredGeneration: true, PublicationStatus: true, RuntimeRevision: true,
 			SpecHash: true, PublishedBy: true, PublishedAt: true, FailureJson: true}}
-	if err := transport.writePublicationStage(owner, tx, 2, row); err != nil {
+	if err := transport.writePublicationStage(owner, tx, "publish", 2, row); err != nil {
 		t.Fatal(err)
 	}
 	snapshot, found, err := transport.publicationSnapshot(owner, tx, report.ID)
@@ -95,7 +95,7 @@ func TestPublicationRestageWriterMatchesGenerationAndRollsBack(t *testing.T) {
 	stale := *row
 	stale.DesiredGeneration = &staleExpected
 	var conflict *xhandler.Conflict
-	if err := transport.writePublicationStage(owner, tx, 3, &stale); !errors.As(err, &conflict) {
+	if err := transport.writePublicationStage(owner, tx, "publish", 3, &stale); !errors.As(err, &conflict) {
 		t.Fatalf("stale restage error=%v", err)
 	}
 	if err := tx.Rollback(); err != nil {
@@ -108,5 +108,35 @@ func TestPublicationRestageWriterMatchesGenerationAndRollsBack(t *testing.T) {
 	next, err := transport.nextGenerationNo(owner, nil)
 	if err != nil || next != 2 {
 		t.Fatalf("rolled-back generation head=%d err=%v", next, err)
+	}
+	unpublishTx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer unpublishTx.Rollback()
+	if err := transport.insertBuildingGeneration(owner, unpublishTx, 2, "unpublish:report:2", "owner", now); err != nil {
+		t.Fatal(err)
+	}
+	expected = 1
+	if err := transport.writePublicationStage(owner, unpublishTx, "unpublish", 2, &stored.StoredPublication{
+		ReportId: report.ID, DesiredGeneration: &expected, PublicationStatus: "unpublishing",
+		Has: &stored.StoredPublicationHas{ReportId: true, DesiredVersionNo: true,
+			DesiredGeneration: true, PublicationStatus: true, FailureJson: true},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	var desiredVersion sql.NullInt64
+	var desiredGeneration int64
+	var stageStatus string
+	if err := unpublishTx.QueryRowContext(ctx, `SELECT desired_version_no,desired_generation,publication_status,failure_json FROM report_publications WHERE report_id=?`, report.ID).
+		Scan(&desiredVersion, &desiredGeneration, &stageStatus, &failure); err != nil || desiredVersion.Valid || desiredGeneration != 2 || stageStatus != "unpublishing" || failure.Valid {
+		t.Fatalf("unpublish stage version=%v generation=%d status=%q failure=%v err=%v", desiredVersion, desiredGeneration, stageStatus, failure, err)
+	}
+	if err := unpublishTx.Rollback(); err != nil {
+		t.Fatal(err)
+	}
+	snapshot, found, err = transport.publicationSnapshot(owner, nil, report.ID)
+	if err != nil || !found || snapshot.desiredGeneration != 1 || snapshot.status != "active" {
+		t.Fatalf("rolled-back unpublish=%+v found=%v err=%v", snapshot, found, err)
 	}
 }

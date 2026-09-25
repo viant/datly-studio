@@ -21,7 +21,7 @@ import (
 	dtag "github.com/viant/datly/tag"
 )
 
-func (t *Transport) writePublicationStage(ctx context.Context, tx *sql.Tx, nextGeneration int64, row *stored.StoredPublication) error {
+func (t *Transport) writePublicationStage(ctx context.Context, tx *sql.Tx, operation string, nextGeneration int64, row *stored.StoredPublication) error {
 	resources := resource.New()
 	if err := resources.Register(stored.PublicationDatlyResourceNamespace, stored.PublicationDatlyResources); err != nil {
 		return err
@@ -80,6 +80,7 @@ func (t *Transport) writePublicationStage(ctx context.Context, tx *sql.Tx, nextG
 	}
 	input := &stored.Input{}
 	input.SetNextGeneration(nextGeneration)
+	input.SetOperation(operation)
 	input.SetPublications([]*stored.StoredPublication{row})
 	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: target, Input: input})
 	if err != nil {
