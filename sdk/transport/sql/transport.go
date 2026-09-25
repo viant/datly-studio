@@ -25,6 +25,7 @@ import (
 	"github.com/viant/datly-studio/studio/predicatecatalog"
 	versionedit "github.com/viant/datly-studio/studio/report_versions/store_edit"
 	versioninsert "github.com/viant/datly-studio/studio/report_versions/store_insert"
+	versionvalidation "github.com/viant/datly-studio/studio/report_versions/store_validation"
 	reportconfig "github.com/viant/datly-studio/studio/reports/store_config"
 	reportinsert "github.com/viant/datly-studio/studio/reports/store_insert"
 	"github.com/viant/datly/authoring/readerbuilder"
@@ -1229,11 +1230,26 @@ func (t *Transport) validateVersion(ctx context.Context, input, output any) erro
 	if err != nil {
 		return internal(err)
 	}
-	if _, err := t.DB.ExecContext(ctx, `UPDATE report_versions SET compile_status=?, compile_diagnostics_json=?, validated_at=? WHERE report_id=? AND version_no=?`, status, string(diagnosticJSON), t.now(), in.ReportID, in.VersionNo); err != nil {
+	now := t.now()
+	expected := value.SourceRevision
+	err = t.writeVersionValidation(ctx, &versionvalidation.StoredVersion{
+		ReportId: in.ReportID, VersionNo: in.VersionNo, CompileStatus: status,
+		CompileDiagnosticsJson: diagnosticJSON, ValidatedAt: &now,
+		SourceRevision: &expected,
+		Has: &versionvalidation.StoredVersionHas{ReportId: true, VersionNo: true,
+			CompileStatus: true, CompileDiagnosticsJson: true, ValidatedAt: true,
+			SourceRevision: true},
+	})
+	if err != nil {
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) {
+			return &sdk.Error{Code: sdk.ErrorConflict, Message: "version source revision changed during validation"}
+		}
 		return internal(err)
 	}
 	value.CompileStatus = status
-	value.ValidatedAt = ptrTime(t.now())
+	value.CompileDiagnostics = append(json.RawMessage(nil), diagnosticJSON...)
+	value.ValidatedAt = &now
 	result := &sdk.ValidationResult{Valid: valid, Version: value, Diagnostics: diagnostics}
 	return assign(output, result)
 }
