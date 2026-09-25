@@ -599,6 +599,9 @@ local test target; do not silently replace it with Docker/MySQL.
   The Input catalog's nested tabs now have roving keyboard focus and a
   labelled tab panel; local browser accessibility-tree/Right Arrow checks
   passed. Spoken screen-reader announcements remain unverified.
+  A static-host contract test now verifies that each selected DQL MCP tool
+  matches the linked component metadata. The two older, unselected catalog
+  readers remain explicit exceptions rather than being counted as live tools.
   The remaining SDK operations still use the generic dispatcher.
   See `docs/sdk-native-endpoints.md` for the remaining broader SDK migration.
   Focused

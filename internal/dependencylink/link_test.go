@@ -2,13 +2,17 @@ package dependencylink
 
 import (
 	"context"
+	"io/fs"
+	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"sort"
 	"strings"
 	"testing"
 
 	"github.com/viant/datly/bootstrap"
+	"github.com/viant/datly/spec"
 	standaloneconfig "github.com/viant/datly/standalone/config"
 )
 
@@ -112,6 +116,88 @@ func TestDatlyConfigurationSelectsEveryLinkedComponentPackage(t *testing.T) {
 		if gotPackages[index] != wantPackages[index] {
 			t.Fatalf("datly.yaml packages differ\ngot:  %v\nwant: %v", gotPackages, wantPackages)
 		}
+	}
+}
+
+func TestMCPDeclarationsMatchSelectedComponentMetadata(t *testing.T) {
+	configurationPath, err := filepath.Abs(filepath.Join("..", "..", "datly.yaml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	configuration, err := (standaloneconfig.Loader{}).Load(context.Background(), configurationPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	reflected, err := bootstrap.ReflectPackages(configuration.GoBootstrap.Packages)
+	if err != nil {
+		t.Fatal(err)
+	}
+	selected := map[string]bool{}
+	for _, name := range configuration.GoBootstrap.Packages {
+		selected[name] = true
+	}
+	linked := map[string]map[string]bool{}
+	seen := map[string]string{}
+	for _, component := range reflected.Components {
+		for _, exposure := range component.Tag.MCP {
+			if exposure == nil || exposure.Kind != spec.MCPExposureTool {
+				continue
+			}
+			if prior := seen[exposure.Name]; prior != "" && prior != component.PackagePath {
+				t.Errorf("MCP tool %q is declared by both %s and %s", exposure.Name, prior, component.PackagePath)
+			}
+			seen[exposure.Name] = component.PackagePath
+			if linked[component.PackagePath] == nil {
+				linked[component.PackagePath] = map[string]bool{}
+			}
+			linked[component.PackagePath][exposure.Name] = true
+		}
+	}
+	// These old catalog readers are intentionally absent until their SDK wire
+	// shapes and policy projections match the selected native endpoints.
+	unselected := map[string]bool{
+		"github.com/viant/datly-studio/studio/authorization_predicates/reader":  true,
+		"github.com/viant/datly-studio/studio/report_publication_events/reader": true,
+	}
+	packageRE := regexp.MustCompile(`#package\('([^']+)'\)`)
+	mcpRE := regexp.MustCompile(`\$mcp\('([^']+)'`)
+	root := filepath.Join("..", "..", "dql", "studio")
+	err = filepath.WalkDir(root, func(path string, entry fs.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if entry.IsDir() || filepath.Ext(path) != ".dql" {
+			return nil
+		}
+		payload, readErr := os.ReadFile(path)
+		if readErr != nil {
+			return readErr
+		}
+		matches := mcpRE.FindAllStringSubmatch(string(payload), -1)
+		if len(matches) == 0 {
+			return nil
+		}
+		packageMatch := packageRE.FindStringSubmatch(string(payload))
+		if len(packageMatch) != 2 {
+			t.Errorf("MCP source %s lacks #package", path)
+			return nil
+		}
+		packagePath := "github.com/viant/datly-studio/" + packageMatch[1]
+		if !selected[packagePath] {
+			if !unselected[packagePath] {
+				t.Errorf("MCP source %s is absent from datly.yaml", packagePath)
+			}
+			return nil
+		}
+		for _, match := range matches {
+			if !linked[packagePath][match[1]] {
+				t.Errorf("MCP source %s declares %q without matching linked route metadata", packagePath, match[1])
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 

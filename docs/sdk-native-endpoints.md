@@ -36,6 +36,10 @@ make those SDK HTTP routes Datly components. Most UI calls in
 The DQL tree has public readers with `$mcp` declarations, but they do not
 provide complete SDK-operation parity, and a declared MCP directive alone
 does not prove a route is mounted or authorized.
+The static-host inventory test now compares every DQL MCP tool declaration
+with its selected package and linked route metadata. The older
+authorization-predicate and publication-event readers are explicit unselected
+exceptions; their declarations are not treated as serving tools.
 
 The existing `studio/reports/store_catalog` is a concrete reason not to
 expose server-only components directly: its input includes caller-bindable
