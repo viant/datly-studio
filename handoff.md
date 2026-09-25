@@ -593,6 +593,9 @@ local test target; do not silently replace it with Docker/MySQL.
   local viewport scaling is not a substitute. A later actual local Chrome
   200% zoom pass covered Overview and the Vendor graph/Input/Output flow and
   fixed a clipped graph count; it remains local evidence only.
+  The dynamic host now rejects mutation settings and mutating HTTP methods
+  before registering a published component. A failed PATCH-route reload left
+  the prior GET reader and serving generation intact in a SQLite host test.
   The remaining SDK operations still use the generic dispatcher.
   See `docs/sdk-native-endpoints.md` for the remaining broader SDK migration.
   Focused

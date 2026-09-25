@@ -204,6 +204,10 @@ func (s *Service) compile(ctx context.Context, seed *typecatalog.Catalog, candid
 			err = fmt.Errorf("compile dynamic report %s: %w", definition.reportID, compileErr)
 			return nil, err
 		}
+		if contractErr := requireReaderOnlyContract(contract.Component); contractErr != nil {
+			err = fmt.Errorf("compile dynamic report %s: %w", definition.reportID, contractErr)
+			return nil, err
+		}
 		if mergeErr := mergeTypes(types, contract.Types); mergeErr != nil {
 			err = mergeErr
 			return nil, err
@@ -298,6 +302,27 @@ func (s *Service) compile(ctx context.Context, seed *typecatalog.Catalog, candid
 			return result
 		},
 	}, nil
+}
+
+func requireReaderOnlyContract(component *spec.Component) error {
+	if component == nil {
+		return errors.New("dynamic component contract is unavailable")
+	}
+	if component.Settings != nil && strings.TrimSpace(component.Settings.Mutation) != "" {
+		return errors.New("dynamic components support readers only; mutation settings are not allowed")
+	}
+	for _, route := range component.Routes {
+		if route == nil {
+			continue
+		}
+		// POST can carry a typed reader input; PUT/PATCH/DELETE imply a writer.
+		switch strings.ToUpper(strings.TrimSpace(route.Method)) {
+		case http.MethodGet, http.MethodPost, http.MethodHead:
+		default:
+			return fmt.Errorf("dynamic components support readers only; %s %s is not allowed", route.Method, route.Path)
+		}
+	}
+	return nil
 }
 
 // validateSkillToolReferences makes the frontmatter contract authoritative at

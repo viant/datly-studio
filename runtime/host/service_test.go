@@ -133,6 +133,36 @@ JOIN (SELECT id,label FROM labels) labels ON labels.id=records.id`
 	if response.StatusCode != http.StatusOK || !strings.Contains(string(payload), "ready") || !strings.Contains(string(payload), "primary") {
 		t.Fatalf("status=%d body=%s", response.StatusCode, payload)
 	}
+	mutationDQL := strings.Replace(dql, "$route('/records','GET')", "$route('/records','PATCH')", 1)
+	if mutationDQL == dql {
+		t.Fatal("mutation route fixture was not changed")
+	}
+	verificationDB, openErr := sql.Open("sqlite", studioDSN)
+	if openErr != nil {
+		t.Fatal(openErr)
+	}
+	defer verificationDB.Close()
+	if _, err = verificationDB.ExecContext(ctx, `UPDATE report_versions SET generated_dql=?, authored_dql=? WHERE report_id='records' AND version_no=1`, mutationDQL, mutationDQL); err != nil {
+		t.Fatal(err)
+	}
+	if reloadErr := service.Reload(ctx, 0); reloadErr == nil || !strings.Contains(reloadErr.Error(), "dynamic components support readers only") {
+		t.Fatalf("mutation-route reload error=%v", reloadErr)
+	}
+	if service.manager.Revision() != 1 {
+		t.Fatalf("rejected mutation changed serving revision to %d", service.manager.Revision())
+	}
+	stillServing, serveErr := http.Get("http://" + httpAddress + "/records")
+	if serveErr != nil {
+		t.Fatal(serveErr)
+	}
+	stillPayload, _ := io.ReadAll(stillServing.Body)
+	stillServing.Body.Close()
+	if stillServing.StatusCode != http.StatusOK || !strings.Contains(string(stillPayload), "ready") {
+		t.Fatalf("rejected mutation disrupted reader: status=%d body=%s", stillServing.StatusCode, stillPayload)
+	}
+	if _, err = verificationDB.ExecContext(ctx, `UPDATE report_versions SET generated_dql=?, authored_dql=? WHERE report_id='records' AND version_no=1`, dql, dql); err != nil {
+		t.Fatal(err)
+	}
 	mcpResponse, err := http.Get("http://" + mcpAddress + "/mcp")
 	if err != nil {
 		t.Fatal(err)
