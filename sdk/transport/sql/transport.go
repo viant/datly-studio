@@ -32,6 +32,7 @@ import (
 	versionvalidation "github.com/viant/datly-studio/studio/report_versions/store_validation"
 	reportconfig "github.com/viant/datly-studio/studio/reports/store_config"
 	reportinsert "github.com/viant/datly-studio/studio/reports/store_insert"
+	generationstate "github.com/viant/datly-studio/studio/runtime_generations/store_state"
 	"github.com/viant/datly/authoring/readerbuilder"
 	datlyreport "github.com/viant/datly/report"
 	"github.com/viant/datly/spec"
@@ -1967,11 +1968,36 @@ func (t *Transport) activatePublication(ctx context.Context, reportID string, ve
 		}
 	}
 	reportCount := len(others) + 1
-	if _, err = activated.ExecContext(ctx, `UPDATE runtime_generations SET status='active',report_count=?,activated_at=? WHERE generation_no=? AND status='building'`, reportCount, now, generation); err != nil {
+	err = t.writeGenerationState(ctx, activated, "activate", generation, []*generationstate.StoredGeneration{{
+		GenerationNo: generation, Status: "building", ReportCount: &reportCount, ActivatedAt: &now,
+		Has: &generationstate.StoredGenerationHas{GenerationNo: true, Status: true,
+			ReportCount: true, ActivatedAt: true},
+	}})
+	if err != nil {
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) {
+			return &sdk.Error{Code: sdk.ErrorConflict, Message: "building generation changed before activation"}
+		}
 		return internal(err)
 	}
-	if _, err = activated.ExecContext(ctx, `UPDATE runtime_generations SET status='retired',retired_at=? WHERE status='active' AND generation_no<>?`, now, generation); err != nil {
+	retired, err := t.readOtherActiveGenerations(ctx, activated, generation)
+	if err != nil {
 		return internal(err)
+	}
+	if len(retired) > 0 {
+		rows := make([]*generationstate.StoredGeneration, 0, len(retired))
+		for _, other := range retired {
+			rows = append(rows, &generationstate.StoredGeneration{GenerationNo: other.GenerationNo,
+				Status: "active", RetiredAt: &now,
+				Has: &generationstate.StoredGenerationHas{GenerationNo: true, Status: true, RetiredAt: true}})
+		}
+		if err = t.writeGenerationState(ctx, activated, "retire", generation, rows); err != nil {
+			var conflict *xhandler.Conflict
+			if errors.As(err, &conflict) {
+				return &sdk.Error{Code: sdk.ErrorConflict, Message: "other active generation changed before retirement"}
+			}
+			return internal(err)
+		}
 	}
 	if _, err = activated.ExecContext(ctx, `UPDATE report_versions SET state='superseded' WHERE report_id=? AND version_no<>? AND state='published'`, reportID, versionNo); err != nil {
 		return internal(err)

@@ -1,0 +1,1 @@
+SELECT GenerationNo AS GenerationNo FROM `/`

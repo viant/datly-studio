@@ -136,4 +136,12 @@ func TestOtherActivePublicationsRepointAndRollbackTogether(t *testing.T) {
 	if err := db.QueryRowContext(ctx, `SELECT report_count FROM runtime_generations WHERE generation_no=2`).Scan(&reportCount); err != nil || reportCount != 2 {
 		t.Fatalf("active generation report count=%d err=%v", reportCount, err)
 	}
+	var newStatus, oldStatus string
+	var retiredAt sql.NullTime
+	if err := db.QueryRowContext(ctx, `SELECT status FROM runtime_generations WHERE generation_no=2`).Scan(&newStatus); err != nil || newStatus != "active" {
+		t.Fatalf("new generation status=%q err=%v", newStatus, err)
+	}
+	if err := db.QueryRowContext(ctx, `SELECT status,retired_at FROM runtime_generations WHERE generation_no=1`).Scan(&oldStatus, &retiredAt); err != nil || oldStatus != "retired" || !retiredAt.Valid {
+		t.Fatalf("old generation status=%q retired=%v err=%v", oldStatus, retiredAt, err)
+	}
 }
