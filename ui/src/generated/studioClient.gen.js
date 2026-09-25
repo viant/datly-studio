@@ -796,6 +796,15 @@ var postV1StudioSdkAclList = (options) => (options.client ?? client).post({
     ...options.headers
   }
 });
+var postV1StudioSdkReportsGet = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/reports.get",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var postV1StudioSdkReportsList = (options) => (options?.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/v1/studio/sdk/reports.list",
@@ -807,5 +816,6 @@ var postV1StudioSdkReportsList = (options) => (options?.client ?? client).post({
 });
 export {
   postV1StudioSdkAclList,
+  postV1StudioSdkReportsGet,
   postV1StudioSdkReportsList
 };

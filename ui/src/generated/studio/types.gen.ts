@@ -26,6 +26,24 @@ export type Wire95A77E17Aef6A0C48E1829638788A4Dec1654A5C42Fd6549E0C42F7Eea24F35c
     items: Array<Wire3260Fb4C4C3Ba7C084402Fa64664F099Dae40719E64A304Feae0D1Fd05Cf8C6c | null> | null;
 };
 
+export type WireB42A7344Fc0606034Fc05C388A62F83C484228Cb1E9Be8Bf4055Ff09F8F4A044 = {
+    componentName: string;
+    componentScope: string;
+    createdAt: string;
+    currentDraftVersion?: number | null;
+    defaultConnectorName: string;
+    description?: string;
+    etag: number;
+    id: string;
+    namespace: string;
+    ownerId: string;
+    ownerPackage: string;
+    slug: string;
+    status: string;
+    title: string;
+    updatedAt: string;
+};
+
 export type WireBba07F0Bad61Cd85885417E1C20C5Cff98C1Ebf3Abb205Fd71B51C6069Ea161c = {
     componentName: string;
     componentScope: string;
@@ -64,6 +82,24 @@ export type PostV1StudioSdkAclListResponses = {
 };
 
 export type PostV1StudioSdkAclListResponse = PostV1StudioSdkAclListResponses[keyof PostV1StudioSdkAclListResponses];
+
+export type PostV1StudioSdkReportsGetData = {
+    body: {
+        id: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/reports.get';
+};
+
+export type PostV1StudioSdkReportsGetResponses = {
+    /**
+     * Success response
+     */
+    200: WireB42A7344Fc0606034Fc05C388A62F83C484228Cb1E9Be8Bf4055Ff09F8F4A044;
+};
+
+export type PostV1StudioSdkReportsGetResponse = PostV1StudioSdkReportsGetResponses[keyof PostV1StudioSdkReportsGetResponses];
 
 export type PostV1StudioSdkReportsListData = {
     body?: {

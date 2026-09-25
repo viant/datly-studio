@@ -1,7 +1,7 @@
 // StudioAPI is deliberately a client-side counterpart of sdk.Transport: every
 // UI interaction names an SDK operation and sends an SDK DTO. It has no direct
 // SQL, DQL, Datly component, or storage knowledge.
-import { postV1StudioSdkAclList, postV1StudioSdkReportsList } from './generated/studioClient.gen.js';
+import { postV1StudioSdkAclList, postV1StudioSdkReportsGet, postV1StudioSdkReportsList } from './generated/studioClient.gen.js';
 
 export class StudioAPI {
   constructor(config, options = {}) {
@@ -38,7 +38,7 @@ export class StudioAPI {
   }
 
   listReports(input = {}) { return this.nativeRequest(postV1StudioSdkReportsList, 'reports.list', input); }
-  getReport(reportId) { return this.invoke('reports.get', { id: reportId }); }
+  getReport(reportId) { return this.nativeRequest(postV1StudioSdkReportsGet, 'reports.get', { id: reportId }); }
   createReport(input) { return this.invoke('reports.create', input); }
   updateReport(reportId, input) { return this.invoke('reports.update', { id: reportId, input }); }
   listVersions(reportId, input = {}) { return this.invoke('versions.list', { reportId, input }); }

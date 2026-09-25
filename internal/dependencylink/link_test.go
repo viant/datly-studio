@@ -46,6 +46,7 @@ var linkedComponentHolders = []struct {
 	{"github.com/viant/datly-studio/studio/report_acl/reader", "AclComponent"},
 	{"github.com/viant/datly-studio/studio/report_acl/writer", "AclComponent"},
 	{"github.com/viant/datly-studio/studio/reports/reader", "ReportComponent"},
+	{"github.com/viant/datly-studio/studio/reports/get", "ReportComponent"},
 	{"github.com/viant/datly-studio/studio/reports/writer", "ReportComponent"},
 }
 

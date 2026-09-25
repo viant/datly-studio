@@ -40,7 +40,7 @@ describe('Runtime catalogs', () => {
     render(<RuntimeWorkspace api={{listMCPSkills:vi.fn().mockResolvedValue([{uri:'skill://alice-guide/SKILL.md',frontmatter:{name:'alice-guide',description:'Use vendors','allowed-tools':'alice.vendor.read'}}]),listMCPTools:vi.fn().mockResolvedValue([{name:'alice.vendor.read'}])}} mode="skills" status={status} loading={false} error="" onRefresh={vi.fn()} onOpenComponent={onOpen} />);
     expect(screen.getByRole('heading', { name: 'Skills & Resources' })).toBeTruthy();
     expect(await screen.findByText('alice-guide')).toBeTruthy();
-    expect(screen.getByText('alice.vendor.read')).toBeTruthy();
+    expect(screen.getByRole('button',{name:'Open MCP tool alice.vendor.read component'})).toBeTruthy();
     await user.click(screen.getByRole('button',{name:'Open MCP tool alice.vendor.read component'}));
     expect(onOpen).toHaveBeenCalledWith(expect.objectContaining({id:'vendor',versionNo:2}));
     onOpen.mockClear();

@@ -24,8 +24,8 @@ HTTP/MCP tools.
 
 `cmd/studio-api/main.go` mounts `sdk/httptransport.Gateway` at
 `/v1/studio/sdk/`; the gateway dispatches to `sdk.Transport.Invoke` for the
-remaining operations. In authenticated mode, exact `acl.list` and
-`reports.list` mounts forward to their static Datly components instead.
+remaining operations. In authenticated mode, exact `acl.list`, `reports.get`,
+and `reports.list` mounts forward to their static Datly components instead.
 The SQL transport now calls many transcribed components, but that does not
 make those SDK HTTP routes Datly components. Most UI calls in
 `ui/src/studioApi.js` still target the generic dispatcher. The Studio SDK declares
@@ -78,7 +78,13 @@ principal and scoped predicate. The public component keeps that behavior
 without exposing `subject` or `scoped` to the caller. The private
 `store_catalog` remains available for server-owned operations.
 
-The `acl.list` candidate is in progress in the working tree. Its generated
+`reports.get` has a dedicated native reader at the SDK POST path. It requires
+body `id`, binds the same trusted auth context and typed catalog predicate,
+returns the report DTO directly, derives `ownerPackage` server-side, and
+returns 404 for missing or inaccessible reports. SQLite contract tests cover
+HTTP, OpenAPI, MCP, owner, delegated viewer, denial and revocation.
+
+The `acl.list` reader is implemented. Its generated
 Datly component now uses `POST /v1/studio/sdk/acl.list`, includes the ACL
 `etag`, and declares `studio.sdk.acl.list` as an MCP tool. A focused SQLite
 contract test exercises the Datly HTTP route, generated OpenAPI path, MCP
@@ -94,7 +100,7 @@ delegated editor, and viewer cases are covered on both paths. The browser's
 `listACL` call now uses the generated client from this native OpenAPI document.
 `scripts/generate-studio-sdk.sh` reproducibly exports the Datly route
 contract and generates Go and browser clients. The document currently covers
-`acl.list` and `reports.list`; expanding it to every public SDK route remains migration work.
+`acl.list`, `reports.get`, and `reports.list`; expanding it to every public SDK route remains migration work.
 The generator scopes its input to native SDK routes because broad static
 control-plane OpenAPI includes unrelated routes with unresolved dynamic
 status schema fields.

@@ -58,6 +58,25 @@ type Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c_Items_
 	union json.RawMessage
 }
 
+// WireB42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044 defines model for Wire_b42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044.
+type WireB42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044 struct {
+	ComponentName        string    `json:"componentName"`
+	ComponentScope       string    `json:"componentScope"`
+	CreatedAt            time.Time `json:"createdAt"`
+	CurrentDraftVersion  *int64    `json:"currentDraftVersion,omitempty"`
+	DefaultConnectorName string    `json:"defaultConnectorName"`
+	Description          *string   `json:"description,omitempty"`
+	Etag                 int64     `json:"etag"`
+	Id                   string    `json:"id"`
+	Namespace            string    `json:"namespace"`
+	OwnerId              string    `json:"ownerId"`
+	OwnerPackage         string    `json:"ownerPackage"`
+	Slug                 string    `json:"slug"`
+	Status               string    `json:"status"`
+	Title                string    `json:"title"`
+	UpdatedAt            time.Time `json:"updatedAt"`
+}
+
 // WireBba07f0bad61cd85885417e1c20c5cff98c1ebf3abb205fd71b51c6069ea161c defines model for Wire_bba07f0bad61cd85885417e1c20c5cff98c1ebf3abb205fd71b51c6069ea161c.
 type WireBba07f0bad61cd85885417e1c20c5cff98c1ebf3abb205fd71b51c6069ea161c struct {
 	ComponentName        string    `json:"componentName"`
@@ -88,6 +107,11 @@ type POSTv1studiosdkaclListParams struct {
 	SubjectId   *string `form:"subjectId,omitempty" json:"subjectId,omitempty"`
 }
 
+// POSTv1studiosdkreportsGetJSONBody defines parameters for POSTv1studiosdkreportsGet.
+type POSTv1studiosdkreportsGetJSONBody struct {
+	Id string `json:"id"`
+}
+
 // POSTv1studiosdkreportsListJSONBody defines parameters for POSTv1studiosdkreportsList.
 type POSTv1studiosdkreportsListJSONBody struct {
 	ConnectorName *string   `json:"connectorName,omitempty"`
@@ -103,6 +127,9 @@ type POSTv1studiosdkreportsListJSONBody struct {
 
 // POSTv1studiosdkaclListJSONRequestBody defines body for POSTv1studiosdkaclList for application/json ContentType.
 type POSTv1studiosdkaclListJSONRequestBody POSTv1studiosdkaclListJSONBody
+
+// POSTv1studiosdkreportsGetJSONRequestBody defines body for POSTv1studiosdkreportsGet for application/json ContentType.
+type POSTv1studiosdkreportsGetJSONRequestBody POSTv1studiosdkreportsGetJSONBody
 
 // POSTv1studiosdkreportsListJSONRequestBody defines body for POSTv1studiosdkreportsList for application/json ContentType.
 type POSTv1studiosdkreportsListJSONRequestBody POSTv1studiosdkreportsListJSONBody
@@ -319,6 +346,20 @@ type ClientInterface interface {
 	// Corresponds with POST /v1/studio/sdk/acl.list (the `POSTv1studiosdkaclList` operationId).
 	POSTv1studiosdkaclList(ctx context.Context, params *POSTv1studiosdkaclListParams, body POSTv1studiosdkaclListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// POSTv1studiosdkreportsGetWithBody report
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /v1/studio/sdk/reports.get (the `POSTv1studiosdkreportsGet` operationId).
+	POSTv1studiosdkreportsGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkreportsGet report
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /v1/studio/sdk/reports.get (the `POSTv1studiosdkreportsGet` operationId).
+	POSTv1studiosdkreportsGet(ctx context.Context, body POSTv1studiosdkreportsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// POSTv1studiosdkreportsListWithBody report
 	//
 	// Takes any type of body and a specified content type.
@@ -358,6 +399,40 @@ func (c *Client) POSTv1studiosdkaclListWithBody(ctx context.Context, params *POS
 // Corresponds with POST /v1/studio/sdk/acl.list (the `POSTv1studiosdkaclList` operationId).
 func (c *Client) POSTv1studiosdkaclList(ctx context.Context, params *POSTv1studiosdkaclListParams, body POSTv1studiosdkaclListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPOSTv1studiosdkaclListRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkreportsGetWithBody report
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /v1/studio/sdk/reports.get (the `POSTv1studiosdkreportsGet` operationId).
+func (c *Client) POSTv1studiosdkreportsGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkreportsGetRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkreportsGet report
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /v1/studio/sdk/reports.get (the `POSTv1studiosdkreportsGet` operationId).
+func (c *Client) POSTv1studiosdkreportsGet(ctx context.Context, body POSTv1studiosdkreportsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkreportsGetRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -481,6 +556,46 @@ func NewPOSTv1studiosdkaclListRequestWithBody(server string, params *POSTv1studi
 	return req, nil
 }
 
+// NewPOSTv1studiosdkreportsGetRequest calls the generic POSTv1studiosdkreportsGet builder with application/json body
+func NewPOSTv1studiosdkreportsGetRequest(server string, body POSTv1studiosdkreportsGetJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkreportsGetRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkreportsGetRequestWithBody constructs an http.Request for the POSTv1studiosdkreportsGet method, with any body, and a specified content type
+func NewPOSTv1studiosdkreportsGetRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/reports.get")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewPOSTv1studiosdkreportsListRequest calls the generic POSTv1studiosdkreportsList builder with application/json body
 func NewPOSTv1studiosdkreportsListRequest(server string, body POSTv1studiosdkreportsListJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -579,6 +694,20 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with POST /v1/studio/sdk/acl.list (the `POSTv1studiosdkaclList` operationId).
 	POSTv1studiosdkaclListWithResponse(ctx context.Context, params *POSTv1studiosdkaclListParams, body POSTv1studiosdkaclListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclListResponse, error)
 
+	// POSTv1studiosdkreportsGetWithBodyWithResponse report
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /v1/studio/sdk/reports.get (the `POSTv1studiosdkreportsGet` operationId).
+	POSTv1studiosdkreportsGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkreportsGetResponse, error)
+
+	// POSTv1studiosdkreportsGetWithResponse report
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /v1/studio/sdk/reports.get (the `POSTv1studiosdkreportsGet` operationId).
+	POSTv1studiosdkreportsGetWithResponse(ctx context.Context, body POSTv1studiosdkreportsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkreportsGetResponse, error)
+
 	// POSTv1studiosdkreportsListWithBodyWithResponse report
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -629,6 +758,47 @@ func (r POSTv1studiosdkaclListResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r POSTv1studiosdkaclListResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkreportsGetResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireB42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkreportsGetResponse) GetJSON200() *WireB42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkreportsGetResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkreportsGetResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkreportsGetResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkreportsGetResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -702,6 +872,32 @@ func (c *ClientWithResponses) POSTv1studiosdkaclListWithResponse(ctx context.Con
 	return ParsePOSTv1studiosdkaclListResponse(rsp)
 }
 
+// POSTv1studiosdkreportsGetWithBodyWithResponse report
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /v1/studio/sdk/reports.get (the `POSTv1studiosdkreportsGet` operationId).
+func (c *ClientWithResponses) POSTv1studiosdkreportsGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkreportsGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkreportsGetWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkreportsGetResponse(rsp)
+}
+
+// POSTv1studiosdkreportsGetWithResponse report
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /v1/studio/sdk/reports.get (the `POSTv1studiosdkreportsGet` operationId).
+func (c *ClientWithResponses) POSTv1studiosdkreportsGetWithResponse(ctx context.Context, body POSTv1studiosdkreportsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkreportsGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkreportsGet(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkreportsGetResponse(rsp)
+}
+
 // POSTv1studiosdkreportsListWithBodyWithResponse report
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -744,6 +940,32 @@ func ParsePOSTv1studiosdkaclListResponse(rsp *http.Response) (*POSTv1studiosdkac
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkreportsGetResponse parses an HTTP response from a POSTv1studiosdkreportsGetWithResponse call
+func ParsePOSTv1studiosdkreportsGetResponse(rsp *http.Response) (*POSTv1studiosdkreportsGetResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkreportsGetResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireB42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

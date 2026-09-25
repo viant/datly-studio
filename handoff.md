@@ -553,7 +553,9 @@ local test target; do not silently replace it with Docker/MySQL.
   the browser's ACL-list and Component-list calls use the generated client.
   The native `reports.list` reader now supplies the SDK page shape and keeps
   the verified-auth predicate; its HTTP, OpenAPI, MCP, and scoped SQLite tests
-  pass. The remaining SDK operations still use the generic dispatcher.
+  pass. A dedicated native `reports.get` reader now returns a single report
+  DTO or 404 under the same typed authorization and generated-client path.
+  The remaining SDK operations still use the generic dispatcher.
   See `docs/sdk-native-endpoints.md` for the remaining broader SDK migration.
   Focused
   Datly embedded-view SQL and rendered UI wrapped-query regressions pass.

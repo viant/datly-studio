@@ -73,13 +73,18 @@ test('SDK errors preserve the server request correlation id', async () => {
 
 test('component identity updates stay behind report SDK operations', async () => {
   const calls=[];
-  const api=new StudioAPI({mode:'development',apiBaseURL:'http://127.0.0.1:8080',development:{subject:'dev-user'}},{fetcher:async(url,init)=>{calls.push({url,body:init.body});return response({id:'vendor',title:'Vendors',etag:3});}});
+  const api=new StudioAPI({mode:'development',apiBaseURL:'http://127.0.0.1:8080',development:{subject:'dev-user'}},{fetcher:async(url,init)=>{calls.push(url instanceof Request ? {url:url.url,body:await url.text()} : {url,body:init.body});return response({id:'vendor',title:'Vendors',etag:3});}});
   await api.getReport('vendor');
   await api.updateReport('vendor',{title:'Vendors',etag:2});
   assert.deepEqual(calls,[
     {url:'http://127.0.0.1:8080/v1/studio/sdk/reports.get',body:'{"id":"vendor"}'},
     {url:'http://127.0.0.1:8080/v1/studio/sdk/reports.update',body:'{"id":"vendor","input":{"title":"Vendors","etag":2}}'},
   ]);
+});
+
+test('generated report get preserves not-found status and request id', async () => {
+  const api=new StudioAPI({mode:'authenticated',apiBaseURL:'https://studio.example.com'}, {fetcher:async()=>response({message:'report not found'},404,'get-request-1')});
+  await assert.rejects(()=>api.getReport('missing'),(error)=>error.status===404&&error.requestId==='get-request-1'&&error.message.includes('report not found'));
 });
 
 test('named connector SDK operation delegates to the stable transport operation', async () => {

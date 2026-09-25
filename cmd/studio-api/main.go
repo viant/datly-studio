@@ -269,7 +269,7 @@ func main() {
 		if proxyErr != nil {
 			log.Fatal(proxyErr)
 		}
-		for _, path := range []string{"/v1/studio/sdk/acl.list", "/v1/studio/sdk/reports.list"} {
+		for _, path := range []string{"/v1/studio/sdk/acl.list", "/v1/studio/sdk/reports.get", "/v1/studio/sdk/reports.list"} {
 			mux.Handle(path, nativeSDK)
 		}
 		if loginOAuth != nil {

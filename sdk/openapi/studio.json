@@ -112,6 +112,76 @@
           "items"
         ]
       },
+      "Wire_b42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044": {
+        "type": "object",
+        "properties": {
+          "componentName": {
+            "type": "string"
+          },
+          "componentScope": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "currentDraftVersion": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "defaultConnectorName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "etag": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "ownerId": {
+            "type": "string"
+          },
+          "ownerPackage": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "namespace",
+          "slug",
+          "title",
+          "ownerId",
+          "ownerPackage",
+          "status",
+          "defaultConnectorName",
+          "componentScope",
+          "componentName",
+          "etag",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
       "Wire_bba07f0bad61cd85885417e1c20c5cff98c1ebf3abb205fd71b51c6069ea161c": {
         "type": "object",
         "properties": {
@@ -242,6 +312,47 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Wire_95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/reports.get": {
+      "post": {
+        "summary": "report",
+        "operationId": "POST:/v1/studio/sdk/reports.get",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Wire_b42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044"
                 }
               }
             }
