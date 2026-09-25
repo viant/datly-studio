@@ -33,10 +33,17 @@ func (hooks *PublicationRecoverRules) Init(_ context.Context, entity *StoredPubl
 	}
 	previous := state.Previous
 	if previous == nil || previous.ReportId != entity.ReportId || previous.DesiredGeneration == nil ||
-		*previous.DesiredGeneration != *entity.DesiredGeneration ||
 		previous.PublicationStatus != entity.PublicationStatus ||
 		(previous.PublicationStatus != "pending" && previous.PublicationStatus != "unpublishing") {
 		return &xhandler.Conflict{Entity: "report_publication", Field: "publication_status", Reason: "staged publication changed before recovery"}
+	}
+	compensation := hooks.Input.Operation == "compensate_restore" || hooks.Input.Operation == "compensate_initial"
+	if compensation {
+		if hooks.Input.StagedGeneration <= 0 || *previous.DesiredGeneration != hooks.Input.StagedGeneration {
+			return &xhandler.Conflict{Entity: "report_publication", Field: "desired_generation", Reason: "staged generation changed before compensation"}
+		}
+	} else if *previous.DesiredGeneration != *entity.DesiredGeneration {
+		return &xhandler.Conflict{Entity: "report_publication", Field: "desired_generation", Reason: "staged generation changed before recovery"}
 	}
 	switch hooks.Input.Operation {
 	case "restore_active":
@@ -56,6 +63,25 @@ func (hooks *PublicationRecoverRules) Init(_ context.Context, entity *StoredPubl
 			entity.Has.RuntimeRevision || entity.Has.SpecHash {
 			return fmt.Errorf("failed publication recovery requires no prior active generation")
 		}
+		entity.SetPublicationStatus("failed")
+	case "compensate_restore":
+		if hooks.Input.RestoreStatus != "active" && hooks.Input.RestoreStatus != "failed" ||
+			entity.ActiveVersionNo <= 0 || entity.DesiredGeneration == nil || *entity.DesiredGeneration <= 0 ||
+			strings.TrimSpace(entity.SpecHash) == "" || strings.TrimSpace(entity.PublishedBy) == "" ||
+			entity.PublishedAt == nil || entity.PublishedAt.IsZero() ||
+			!entity.Has.ActiveVersionNo || !entity.Has.DesiredVersionNo || !entity.Has.DesiredGeneration ||
+			!entity.Has.ActiveGeneration || !entity.Has.RuntimeRevision || !entity.Has.SpecHash ||
+			!entity.Has.PublishedBy || !entity.Has.PublishedAt || !entity.Has.ActivatedAt {
+			return fmt.Errorf("publication compensation requires a complete previous snapshot")
+		}
+		entity.SetPublicationStatus(hooks.Input.RestoreStatus)
+	case "compensate_initial":
+		if previous.ActiveGeneration != nil || entity.ActiveGeneration != nil || entity.Has.ActiveVersionNo ||
+			entity.Has.DesiredVersionNo || entity.Has.RuntimeRevision || entity.Has.SpecHash ||
+			entity.Has.PublishedBy || entity.Has.PublishedAt || entity.Has.ActivatedAt {
+			return fmt.Errorf("initial publication compensation requires no previous active publication")
+		}
+		entity.SetActiveGeneration(nil)
 		entity.SetPublicationStatus("failed")
 	default:
 		return fmt.Errorf("unsupported publication recovery operation %q", hooks.Input.Operation)

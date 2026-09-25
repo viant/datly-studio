@@ -6,6 +6,7 @@ import (
 	xshape "github.com/viant/x/shape"
 	xhandler "github.com/viant/xdatly/handler"
 	reflect "reflect"
+	time "time"
 )
 
 type PublicationHandlerCurrentPublicationSlice []*CurrentPublicationView
@@ -390,6 +391,150 @@ func (index PublicationHandlerCurrentPublicationGroupedBySpecHash) Has(key strin
 	_, ok := index[key]
 	return ok
 }
+func PublicationHandlerCurrentPublicationIndexByPublishedByKey(value *CurrentPublicationView) (string, bool) {
+	var zero string
+	if value == nil {
+		return zero, false
+	}
+	return value.PublishedBy, true
+}
+
+type PublicationHandlerCurrentPublicationIndexedByPublishedBy map[string]*CurrentPublicationView
+
+func (rows PublicationHandlerCurrentPublicationSlice) IndexByPublishedBy() (PublicationHandlerCurrentPublicationIndexedByPublishedBy, error) {
+	result := make(PublicationHandlerCurrentPublicationIndexedByPublishedBy)
+	for _, row := range rows {
+		key, ok := PublicationHandlerCurrentPublicationIndexByPublishedByKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index PublicationHandlerCurrentPublicationSlice.IndexByPublishedBy")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index PublicationHandlerCurrentPublicationIndexedByPublishedBy) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type PublicationHandlerCurrentPublicationGroupedByPublishedBy map[string][]*CurrentPublicationView
+
+func (rows PublicationHandlerCurrentPublicationSlice) GroupByPublishedBy() PublicationHandlerCurrentPublicationGroupedByPublishedBy {
+	result := make(PublicationHandlerCurrentPublicationGroupedByPublishedBy)
+	for _, row := range rows {
+		key, ok := PublicationHandlerCurrentPublicationIndexByPublishedByKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index PublicationHandlerCurrentPublicationGroupedByPublishedBy) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+func PublicationHandlerCurrentPublicationIndexByPublishedAtKey(value *CurrentPublicationView) (time.Time, bool) {
+	var zero time.Time
+	if value == nil {
+		return zero, false
+	}
+	if value.PublishedAt == nil {
+		return zero, false
+	}
+	return *value.PublishedAt, true
+}
+
+type PublicationHandlerCurrentPublicationIndexedByPublishedAt map[time.Time]*CurrentPublicationView
+
+func (rows PublicationHandlerCurrentPublicationSlice) IndexByPublishedAt() (PublicationHandlerCurrentPublicationIndexedByPublishedAt, error) {
+	result := make(PublicationHandlerCurrentPublicationIndexedByPublishedAt)
+	for _, row := range rows {
+		key, ok := PublicationHandlerCurrentPublicationIndexByPublishedAtKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index PublicationHandlerCurrentPublicationSlice.IndexByPublishedAt")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index PublicationHandlerCurrentPublicationIndexedByPublishedAt) Has(key time.Time) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type PublicationHandlerCurrentPublicationGroupedByPublishedAt map[time.Time][]*CurrentPublicationView
+
+func (rows PublicationHandlerCurrentPublicationSlice) GroupByPublishedAt() PublicationHandlerCurrentPublicationGroupedByPublishedAt {
+	result := make(PublicationHandlerCurrentPublicationGroupedByPublishedAt)
+	for _, row := range rows {
+		key, ok := PublicationHandlerCurrentPublicationIndexByPublishedAtKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index PublicationHandlerCurrentPublicationGroupedByPublishedAt) Has(key time.Time) bool {
+	_, ok := index[key]
+	return ok
+}
+func PublicationHandlerCurrentPublicationIndexByActivatedAtKey(value *CurrentPublicationView) (time.Time, bool) {
+	var zero time.Time
+	if value == nil {
+		return zero, false
+	}
+	if value.ActivatedAt == nil {
+		return zero, false
+	}
+	return *value.ActivatedAt, true
+}
+
+type PublicationHandlerCurrentPublicationIndexedByActivatedAt map[time.Time]*CurrentPublicationView
+
+func (rows PublicationHandlerCurrentPublicationSlice) IndexByActivatedAt() (PublicationHandlerCurrentPublicationIndexedByActivatedAt, error) {
+	result := make(PublicationHandlerCurrentPublicationIndexedByActivatedAt)
+	for _, row := range rows {
+		key, ok := PublicationHandlerCurrentPublicationIndexByActivatedAtKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index PublicationHandlerCurrentPublicationSlice.IndexByActivatedAt")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index PublicationHandlerCurrentPublicationIndexedByActivatedAt) Has(key time.Time) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type PublicationHandlerCurrentPublicationGroupedByActivatedAt map[time.Time][]*CurrentPublicationView
+
+func (rows PublicationHandlerCurrentPublicationSlice) GroupByActivatedAt() PublicationHandlerCurrentPublicationGroupedByActivatedAt {
+	result := make(PublicationHandlerCurrentPublicationGroupedByActivatedAt)
+	for _, row := range rows {
+		key, ok := PublicationHandlerCurrentPublicationIndexByActivatedAtKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index PublicationHandlerCurrentPublicationGroupedByActivatedAt) Has(key time.Time) bool {
+	_, ok := index[key]
+	return ok
+}
 func PublicationHandlerCurrentPublicationIndexByFailureJsonKey(value *CurrentPublicationView) (string, bool) {
 	var zero string
 	if value == nil {
@@ -531,6 +676,15 @@ func BuildPublicationHandlerReadIndexes(ctx context.Context, input *Input) (*Pub
 			}
 			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("SpecHash") {
 				return nil, fmt.Errorf("application index field was not loaded: CurrentPublication.SpecHash")
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("PublishedBy") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentPublication.PublishedBy")
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("PublishedAt") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentPublication.PublishedAt")
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("ActivatedAt") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentPublication.ActivatedAt")
 			}
 			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("FailureJson") {
 				return nil, fmt.Errorf("application index field was not loaded: CurrentPublication.FailureJson")

@@ -22,6 +22,24 @@ import (
 )
 
 func (t *Transport) writePublicationRecovery(ctx context.Context, tx *sql.Tx, operation string, row *stored.StoredPublication) error {
+	input := &stored.Input{}
+	input.SetOperation(operation)
+	input.SetPublications([]*stored.StoredPublication{row})
+	return t.invokePublicationRecovery(ctx, tx, input)
+}
+
+func (t *Transport) writePublicationCompensation(ctx context.Context, tx *sql.Tx, operation string, stagedGeneration int64, restoreStatus string, row *stored.StoredPublication) error {
+	input := &stored.Input{}
+	input.SetOperation(operation)
+	input.SetStagedGeneration(stagedGeneration)
+	if restoreStatus != "" {
+		input.SetRestoreStatus(restoreStatus)
+	}
+	input.SetPublications([]*stored.StoredPublication{row})
+	return t.invokePublicationRecovery(ctx, tx, input)
+}
+
+func (t *Transport) invokePublicationRecovery(ctx context.Context, tx *sql.Tx, input *stored.Input) error {
 	resources := resource.New()
 	if err := resources.Register(stored.PublicationDatlyResourceNamespace, stored.PublicationDatlyResources); err != nil {
 		return err
@@ -78,9 +96,6 @@ func (t *Transport) writePublicationRecovery(ctx context.Context, tx *sql.Tx, op
 	if len(component.Routes) > 0 && component.Routes[0] != nil {
 		target.Route = spec.RouteRef{Method: component.Routes[0].Method, Path: component.Routes[0].Path}
 	}
-	input := &stored.Input{}
-	input.SetOperation(operation)
-	input.SetPublications([]*stored.StoredPublication{row})
 	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: target, Input: input})
 	if err != nil {
 		return err

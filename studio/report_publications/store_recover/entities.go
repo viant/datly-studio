@@ -1,5 +1,9 @@
 package store_recover
 
+import (
+	time "time"
+)
+
 func (entity *StoredPublication) GetReportId() string {
 	return entity.ReportId
 }
@@ -79,6 +83,36 @@ func (entity *StoredPublication) SetSpecHash(value string) {
 		entity.Has = &StoredPublicationHas{}
 	}
 	entity.Has.SpecHash = true
+}
+func (entity *StoredPublication) GetPublishedBy() string {
+	return entity.PublishedBy
+}
+func (entity *StoredPublication) SetPublishedBy(value string) {
+	entity.PublishedBy = value
+	if entity.Has == nil {
+		entity.Has = &StoredPublicationHas{}
+	}
+	entity.Has.PublishedBy = true
+}
+func (entity *StoredPublication) GetPublishedAt() *time.Time {
+	return entity.PublishedAt
+}
+func (entity *StoredPublication) SetPublishedAt(value *time.Time) {
+	entity.PublishedAt = value
+	if entity.Has == nil {
+		entity.Has = &StoredPublicationHas{}
+	}
+	entity.Has.PublishedAt = true
+}
+func (entity *StoredPublication) GetActivatedAt() *time.Time {
+	return entity.ActivatedAt
+}
+func (entity *StoredPublication) SetActivatedAt(value *time.Time) {
+	entity.ActivatedAt = value
+	if entity.Has == nil {
+		entity.Has = &StoredPublicationHas{}
+	}
+	entity.Has.ActivatedAt = true
 }
 func (entity *StoredPublication) GetFailureJson() *string {
 	return entity.FailureJson

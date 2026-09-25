@@ -11,6 +11,7 @@ import (
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
 	publicationdelete "github.com/viant/datly-studio/studio/report_publications/store_delete"
+	publicationrecover "github.com/viant/datly-studio/studio/report_publications/store_recover"
 	stored "github.com/viant/datly-studio/studio/report_publications/store_stage"
 	xhandler "github.com/viant/xdatly/handler"
 	_ "modernc.org/sqlite"
@@ -98,6 +99,31 @@ func TestPublicationRestageWriterMatchesGenerationAndRollsBack(t *testing.T) {
 	var conflict *xhandler.Conflict
 	if err := transport.writePublicationStage(owner, tx, "publish", 3, &stale); !errors.As(err, &conflict) {
 		t.Fatalf("stale restage error=%v", err)
+	}
+	restoreGeneration := int64(1)
+	restoreVersion := version.VersionNo
+	restoreRevision := "report:1:1"
+	diagnostics := `[{"code":"reload_failed"}]`
+	restoreRow := &publicationrecover.StoredPublication{ReportId: report.ID,
+		ActiveVersionNo: version.VersionNo, DesiredVersionNo: &restoreVersion,
+		DesiredGeneration: &restoreGeneration, ActiveGeneration: &restoreGeneration,
+		PublicationStatus: "pending", RuntimeRevision: &restoreRevision,
+		SpecHash: version.SpecHash, PublishedBy: "owner", PublishedAt: &now,
+		ActivatedAt: &now, FailureJson: &diagnostics,
+		Has: &publicationrecover.StoredPublicationHas{ReportId: true, ActiveVersionNo: true,
+			DesiredVersionNo: true, DesiredGeneration: true, ActiveGeneration: true,
+			PublicationStatus: true, RuntimeRevision: true, SpecHash: true,
+			PublishedBy: true, PublishedAt: true, ActivatedAt: true, FailureJson: true}}
+	if err := transport.writePublicationCompensation(owner, tx, "compensate_restore", 3, "active", restoreRow); !errors.As(err, &conflict) {
+		t.Fatalf("stale compensation generation error=%v", err)
+	}
+	if err := transport.writePublicationCompensation(owner, tx, "compensate_restore", 2, "active", restoreRow); err != nil {
+		t.Fatalf("matched compensation: %v", err)
+	}
+	snapshot, found, err = transport.publicationSnapshot(owner, tx, report.ID)
+	if err != nil || !found || snapshot.status != "active" || snapshot.desiredGeneration != 1 ||
+		!snapshot.activeGeneration.Valid || snapshot.activeGeneration.Int64 != 1 || snapshot.specHash != version.SpecHash {
+		t.Fatalf("compensated snapshot=%+v found=%v err=%v", snapshot, found, err)
 	}
 	if err := tx.Rollback(); err != nil {
 		t.Fatal(err)

@@ -11,6 +11,28 @@ func (input *Input) SetOperation(value string) {
 	input.Has.Operation = true
 }
 
+func (input *Input) SetStagedGeneration(value int64) {
+	if input == nil {
+		return
+	}
+	input.StagedGeneration = value
+	if input.Has == nil {
+		input.Has = &InputHas{}
+	}
+	input.Has.StagedGeneration = true
+}
+
+func (input *Input) SetRestoreStatus(value string) {
+	if input == nil {
+		return
+	}
+	input.RestoreStatus = value
+	if input.Has == nil {
+		input.Has = &InputHas{}
+	}
+	input.Has.RestoreStatus = true
+}
+
 func (input *Input) SetPublications(value []*StoredPublication) {
 	if input == nil {
 		return

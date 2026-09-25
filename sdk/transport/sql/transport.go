@@ -26,6 +26,7 @@ import (
 	publicationactivate "github.com/viant/datly-studio/studio/report_publications/store_activate"
 	publicationdelete "github.com/viant/datly-studio/studio/report_publications/store_delete"
 	publicationinsert "github.com/viant/datly-studio/studio/report_publications/store_insert"
+	publicationrecover "github.com/viant/datly-studio/studio/report_publications/store_recover"
 	publicationstage "github.com/viant/datly-studio/studio/report_publications/store_stage"
 	versionedit "github.com/viant/datly-studio/studio/report_versions/store_edit"
 	versioninsert "github.com/viant/datly-studio/studio/report_versions/store_insert"
@@ -1997,29 +1998,47 @@ func (t *Transport) restoreFailedPublication(ctx context.Context, reportID strin
 	}}); err != nil {
 		return fmt.Errorf("fail staged generation: %w", err)
 	}
-	var result sql.Result
+	current, err := t.readPublicationRow(ctx, tx, reportID)
+	if err != nil {
+		return fmt.Errorf("read staged publication: %w", err)
+	}
+	if current.DesiredGeneration != generation ||
+		(current.PublicationStatus != "pending" && current.PublicationStatus != "unpublishing") {
+		return &sdk.Error{Code: sdk.ErrorConflict, Message: "staged publication changed before compensation"}
+	}
+	expected := generation
+	row := &publicationrecover.StoredPublication{ReportId: reportID, DesiredGeneration: &expected,
+		PublicationStatus: current.PublicationStatus, FailureJson: &diagnostics,
+		Has: &publicationrecover.StoredPublicationHas{ReportId: true, DesiredGeneration: true,
+			PublicationStatus: true, FailureJson: true}}
+	operation, restoreStatus := "compensate_initial", ""
 	if hasPrevious {
-		active := any(nil)
+		operation, restoreStatus = "compensate_restore", previous.status
+		row.ActiveVersionNo = int(previous.activeVersion)
+		row.DesiredGeneration = &previous.desiredGeneration
+		row.SpecHash, row.PublishedBy = previous.specHash, previous.publishedBy
+		row.RuntimeRevision = &previous.runtimeRevision
 		if previous.activeGeneration.Valid {
-			active = previous.activeGeneration.Int64
+			active := previous.activeGeneration.Int64
+			row.ActiveGeneration = &active
 		}
-		desired := any(nil)
 		if previous.desiredVersion.Valid {
-			desired = previous.desiredVersion.Int64
+			desired := int(previous.desiredVersion.Int64)
+			row.DesiredVersionNo = &desired
 		}
-		result, err = tx.ExecContext(ctx, `UPDATE report_publications SET active_version_no=?,desired_version_no=?,desired_generation=?,active_generation=?,publication_status=?,runtime_revision=?,spec_hash=?,published_by=?,published_at=?,activated_at=?,failure_json=? WHERE report_id=?`, previous.activeVersion, desired, previous.desiredGeneration, active, previous.status, previous.runtimeRevision, previous.specHash, previous.publishedBy, previous.publishedAt, nullableTime(previous.activatedAt), diagnostics, reportID)
-	} else {
-		result, err = tx.ExecContext(ctx, `UPDATE report_publications SET publication_status='failed',active_generation=NULL,failure_json=? WHERE report_id=?`, diagnostics, reportID)
+		if !previous.publishedAt.IsZero() {
+			row.PublishedAt = &previous.publishedAt
+		}
+		if !previous.activatedAt.IsZero() {
+			row.ActivatedAt = &previous.activatedAt
+		}
+		row.Has.ActiveVersionNo, row.Has.DesiredVersionNo = true, true
+		row.Has.ActiveGeneration, row.Has.RuntimeRevision = true, true
+		row.Has.SpecHash, row.Has.PublishedBy = true, true
+		row.Has.PublishedAt, row.Has.ActivatedAt = true, true
 	}
-	if err != nil {
-		return err
-	}
-	matched, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
-	if matched != 1 {
-		return fmt.Errorf("restore publication %q matched %d rows", reportID, matched)
+	if err := t.writePublicationCompensation(ctx, tx, operation, generation, restoreStatus, row); err != nil {
+		return fmt.Errorf("restore publication %q: %w", reportID, err)
 	}
 	return tx.Commit()
 }
@@ -2038,13 +2057,6 @@ func (t *Transport) compensateActivationFailure(ctx context.Context, reportID st
 		combined = errors.Join(combined, fmt.Errorf("restore failed publication: %w", restoreErr))
 	}
 	return &sdk.Error{Code: sdk.ErrorUnavailable, Message: "runtime activation persistence failed: " + combined.Error(), Cause: combined}
-}
-
-func nullableTime(value time.Time) any {
-	if value.IsZero() {
-		return nil
-	}
-	return value
 }
 
 type unpublishRequest struct {
