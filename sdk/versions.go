@@ -241,7 +241,7 @@ type VersionService interface {
 	Get(context.Context, string, int) (*ReportVersion, error)
 	List(context.Context, string, ListVersionsInput) (*VersionPage, error)
 	Apply(context.Context, string, int, EditCommand) (*EditResult, error)
-	Validate(context.Context, string, int) (*ValidationResult, error)
+	Validate(context.Context, string, int, ...int64) (*ValidationResult, error)
 	Descriptor(context.Context, string, int) (*ComponentDescriptor, error)
 	ExportDQL(context.Context, string, int) (*DQLExport, error)
 	Inspect(context.Context, string, int) (*ReaderInspection, error)
@@ -281,8 +281,17 @@ func (c versionClient) Apply(ctx context.Context, id string, v int, cmd EditComm
 		Command EditCommand `json:"command"`
 	}{versionIdentity{id, v}, cmd})
 }
-func (c versionClient) Validate(ctx context.Context, id string, v int) (*ValidationResult, error) {
-	return invoke[ValidationResult](ctx, c.transport, OperationVersionValidate, versionIdentity{id, v})
+
+// Validate requires the caller's exact source revision. The variadic argument
+// preserves source compatibility with older callers, which fail closed when omitted.
+func (c versionClient) Validate(ctx context.Context, id string, v int, expectedRevision ...int64) (*ValidationResult, error) {
+	if len(expectedRevision) != 1 || expectedRevision[0] <= 0 {
+		return nil, &Error{Code: ErrorInvalidArgument, Message: "expectedSourceRevision must be positive for validation"}
+	}
+	return invoke[ValidationResult](ctx, c.transport, OperationVersionValidate, struct {
+		versionIdentity
+		ExpectedSourceRevision int64 `json:"expectedSourceRevision"`
+	}{versionIdentity{id, v}, expectedRevision[0]})
 }
 func (c versionClient) Descriptor(ctx context.Context, id string, v int) (*ComponentDescriptor, error) {
 	return invoke[ComponentDescriptor](ctx, c.transport, OperationVersionDescriptor, versionIdentity{id, v})

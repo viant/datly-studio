@@ -148,13 +148,13 @@ test('reader inspection and command methods retain version identity and revision
     fetcher: async (url, init) => { calls.push({ url, body: init.body }); return response({}); },
   });
   await api.inspectVersion('vendor-catalog', 1);
-  await api.validateVersion('vendor-catalog', 1);
+  await api.validateVersion('vendor-catalog', 1, 2);
   await api.publishReader('vendor-catalog', 1, 2, 'release reader');
   await api.applyReaderCommand('vendor-catalog', 1, { expectedSourceRevision: 2, operation: { type: 'inspect' } });
   assert.equal(calls[0].url, 'http://127.0.0.1:8080/v1/studio/sdk/versions.inspect');
   assert.equal(calls[0].body, '{"reportId":"vendor-catalog","versionNo":1}');
   assert.equal(calls[1].url, 'http://127.0.0.1:8080/v1/studio/sdk/versions.validate');
-  assert.equal(calls[1].body, '{"reportId":"vendor-catalog","versionNo":1}');
+  assert.equal(calls[1].body, '{"reportId":"vendor-catalog","versionNo":1,"expectedSourceRevision":2}');
   assert.equal(calls[2].url, 'http://127.0.0.1:8080/v1/studio/sdk/publications.publish');
   assert.equal(calls[2].body, '{"reportId":"vendor-catalog","versionNo":1,"input":{"expectedSourceRevision":2,"reason":"release reader"}}');
   assert.equal(calls[3].url, 'http://127.0.0.1:8080/v1/studio/sdk/versions.builder');
@@ -240,12 +240,12 @@ test('publication lifecycle stays behind Studio SDK operations', async () => {
   const calls=[];
   const api=new StudioAPI({mode:'development',apiBaseURL:'http://127.0.0.1:8080',development:{subject:'dev-user'}},{fetcher:async(url,init)=>{calls.push({url,body:init.body});return response({status:'active'});}});
   await api.getPublication('reader');
-  await api.unpublishReader('reader','retire reader');
+  await api.unpublishReader('reader',3,'retire reader');
   await api.rollbackReader('reader',1,4,'restore reader');
   await api.getRuntimeStatus();
   assert.equal(calls[0].url,'http://127.0.0.1:8080/v1/studio/sdk/publications.get');
   assert.equal(calls[1].url,'http://127.0.0.1:8080/v1/studio/sdk/publications.unpublish');
-  assert.equal(calls[1].body,'{"reportId":"reader","input":{"reason":"retire reader"}}');
+  assert.equal(calls[1].body,'{"reportId":"reader","input":{"expectedActiveGeneration":3,"reason":"retire reader"}}');
   assert.equal(calls[2].url,'http://127.0.0.1:8080/v1/studio/sdk/publications.rollback');
   assert.equal(calls[2].body,'{"reportId":"reader","versionNo":1,"input":{"expectedSourceRevision":4,"reason":"restore reader"}}');
   assert.equal(calls[3].url,'http://127.0.0.1:8080/v1/studio/sdk/runtime.status');

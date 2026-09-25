@@ -987,6 +987,11 @@ type versionIdentityRequest struct {
 	VersionNo int    `json:"versionNo"`
 }
 
+type versionValidationRequest struct {
+	versionIdentityRequest
+	ExpectedSourceRevision int64 `json:"expectedSourceRevision"`
+}
+
 func (t *Transport) createVersion(ctx context.Context, input, output any) error {
 	var in versionCreateRequest
 	if err := decode(input, &in); err != nil {
@@ -1203,13 +1208,19 @@ func (t *Transport) applyVersionEdit(ctx context.Context, input, output any) err
 }
 
 func (t *Transport) validateVersion(ctx context.Context, input, output any) error {
-	var in versionIdentityRequest
+	var in versionValidationRequest
 	if err := decode(input, &in); err != nil {
 		return invalid(err)
+	}
+	if in.ExpectedSourceRevision <= 0 {
+		return invalid(errors.New("expectedSourceRevision must be positive for validation"))
 	}
 	value, err := t.getVersionValue(ctx, in.ReportID, in.VersionNo)
 	if err != nil {
 		return err
+	}
+	if value.SourceRevision != in.ExpectedSourceRevision {
+		return &sdk.Error{Code: sdk.ErrorConflict, Message: "version source revision does not match", ExpectedSourceRevision: in.ExpectedSourceRevision, CurrentSourceRevision: value.SourceRevision}
 	}
 	valid := strings.TrimSpace(value.AuthoredDQL) != "" || strings.TrimSpace(value.AuthoredSQL) != ""
 	var diagnostics []sdk.Diagnostic
@@ -1240,7 +1251,7 @@ func (t *Transport) validateVersion(ctx context.Context, input, output any) erro
 		return internal(err)
 	}
 	now := t.now()
-	expected := value.SourceRevision
+	expected := in.ExpectedSourceRevision
 	err = t.writeVersionValidation(ctx, &versionvalidation.StoredVersion{
 		ReportId: in.ReportID, VersionNo: in.VersionNo, CompileStatus: status,
 		CompileDiagnosticsJson: diagnosticJSON, ValidatedAt: &now,
@@ -1792,6 +1803,9 @@ func (t *Transport) publish(ctx context.Context, input, output any, operation st
 	if strings.TrimSpace(in.ReportID) == "" || in.VersionNo <= 0 {
 		return invalid(errors.New("reportId and versionNo are required"))
 	}
+	if in.Input.ExpectedSourceRevision <= 0 {
+		return invalid(errors.New("expectedSourceRevision must be positive for publication"))
+	}
 	if principal, ok := sdk.PrincipalFromContext(ctx); ok {
 		if in.Input.RequestedBy != "" && in.Input.RequestedBy != principal.Subject {
 			return &sdk.Error{Code: sdk.ErrorForbidden, Message: "publisher must match the Studio principal"}
@@ -1816,8 +1830,8 @@ func (t *Transport) publish(ctx context.Context, input, output any, operation st
 			t.recordPublicationFailure(ctx, event, returnErr)
 		}
 	}()
-	if in.Input.ExpectedSourceRevision > 0 && in.Input.ExpectedSourceRevision != version.SourceRevision {
-		return &sdk.Error{Code: sdk.ErrorConflict, Message: "version source revision does not match"}
+	if in.Input.ExpectedSourceRevision != version.SourceRevision {
+		return &sdk.Error{Code: sdk.ErrorConflict, Message: "version source revision does not match", ExpectedSourceRevision: in.Input.ExpectedSourceRevision, CurrentSourceRevision: version.SourceRevision}
 	}
 	if version.CompileStatus != "valid" {
 		return &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "version must validate before publication"}
@@ -1838,7 +1852,7 @@ func (t *Transport) publish(ctx context.Context, input, output any, operation st
 	}
 	event.Status = "succeeded"
 	event.OccurredAt = now
-	if err = t.activatePublication(ctx, in.ReportID, in.VersionNo, generation, now, event); err != nil {
+	if err = t.activatePublication(ctx, in.ReportID, in.VersionNo, in.Input.ExpectedSourceRevision, generation, now, event); err != nil {
 		return t.compensateActivationFailure(ctx, in.ReportID, generation, previous, hasPrevious, err)
 	}
 	return t.getPublication(ctx, in.ReportID, output)
@@ -1851,6 +1865,9 @@ func (t *Transport) stagePublication(ctx context.Context, in publishRequest, ver
 	}
 	defer func() { _ = tx.Rollback() }()
 	now := t.now()
+	if err = t.requirePublicationVersion(ctx, tx, in.ReportID, in.VersionNo, in.Input.ExpectedSourceRevision); err != nil {
+		return 0, publicationState{}, false, time.Time{}, err
+	}
 	if err = t.ensureNoStagedGeneration(ctx, tx, now); err != nil {
 		return 0, publicationState{}, false, time.Time{}, err
 	}
@@ -1910,12 +1927,15 @@ func (t *Transport) stagePublication(ctx context.Context, in publishRequest, ver
 
 const stagedGenerationLease = 5 * time.Minute
 
-func (t *Transport) activatePublication(ctx context.Context, reportID string, versionNo int, generation int64, now time.Time, event publicationEventRecord) error {
+func (t *Transport) activatePublication(ctx context.Context, reportID string, versionNo int, expectedRevision, generation int64, now time.Time, event publicationEventRecord) error {
 	activated, err := t.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return internal(err)
 	}
 	defer func() { _ = activated.Rollback() }()
+	if err = t.requirePublicationVersion(ctx, activated, reportID, versionNo, expectedRevision); err != nil {
+		return err
+	}
 	expected := generation
 	err = t.writePublicationActivation(ctx, activated, versionNo, generation, &publicationactivate.StoredPublication{
 		ReportId: reportID, DesiredGeneration: &expected, ActivatedAt: &now,
@@ -1947,6 +1967,17 @@ func (t *Transport) activatePublication(ctx context.Context, reportID string, ve
 	}
 	if err = activated.Commit(); err != nil {
 		return internal(err)
+	}
+	return nil
+}
+
+func (t *Transport) requirePublicationVersion(ctx context.Context, tx *sql.Tx, reportID string, versionNo int, expectedRevision int64) error {
+	versions, err := t.readVersionCatalogTx(ctx, tx, versionCatalogRequest{ReportID: reportID, VersionNo: versionNo, Limit: 1})
+	if err != nil {
+		return internal(err)
+	}
+	if len(versions) != 1 || versions[0].SourceRevision != expectedRevision || versions[0].CompileStatus != "valid" {
+		return &sdk.Error{Code: sdk.ErrorConflict, Message: "validated version changed during publication"}
 	}
 	return nil
 }
@@ -2080,6 +2111,9 @@ func (t *Transport) unpublish(ctx context.Context, input, output any) (returnErr
 	if strings.TrimSpace(in.ReportID) == "" {
 		return invalid(errors.New("reportId is required"))
 	}
+	if in.Input.ExpectedActiveGeneration <= 0 {
+		return invalid(errors.New("expectedActiveGeneration must be positive for unpublish"))
+	}
 	if principal, ok := sdk.PrincipalFromContext(ctx); ok {
 		if in.Input.RequestedBy != "" && in.Input.RequestedBy != principal.Subject {
 			return &sdk.Error{Code: sdk.ErrorForbidden, Message: "publisher must match the Studio principal"}
@@ -2116,6 +2150,9 @@ func (t *Transport) unpublish(ctx context.Context, input, output any) (returnErr
 	}
 	if !previous.activeGeneration.Valid || previous.status != "active" {
 		return &sdk.Error{Code: sdk.ErrorConflict, Message: "publication is not active"}
+	}
+	if previous.activeGeneration.Int64 != in.Input.ExpectedActiveGeneration {
+		return &sdk.Error{Code: sdk.ErrorConflict, Message: "active publication generation does not match"}
 	}
 	activeVersion := int(previous.activeVersion)
 	event.VersionNo = &activeVersion

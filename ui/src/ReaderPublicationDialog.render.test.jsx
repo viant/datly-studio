@@ -74,4 +74,21 @@ describe('publication contract comparison', () => {
     expect(screen.queryByText('Runtime generation active')).toBeNull();
     expect(api.getRuntimeStatus).toHaveBeenCalledOnce();
   });
+
+  test('unpublish pins the generation shown when the dialog opened', async () => {
+    const user = userEvent.setup();
+    const onUnpublish = vi.fn().mockResolvedValue({status:'unpublished'});
+    const api = {
+      getPublication: vi.fn().mockResolvedValue({activeVersionNo:1,activeGeneration:9,desiredGeneration:9,status:'active'}),
+      listVersions: vi.fn().mockResolvedValue({items:[]}),
+      listPublicationEvents: vi.fn().mockResolvedValue({items:[]}),
+      getRuntimeStatus: vi.fn().mockResolvedValue({status:'active',activeGeneration:9,reportCount:1}),
+    };
+    render(<ReaderPublicationDialog isOpen api={api} report={{id:'vendor'}} version={{versionNo:1,sourceRevision:4,compileStatus:'valid'}} inspection={{structure:{}}} onClose={vi.fn()} onPublish={vi.fn()} onUnpublish={onUnpublish} onRollback={vi.fn()}/>);
+    await screen.findByText('v1 · generation 9');
+    await user.click(screen.getByRole('button',{name:'Review unpublish'}));
+    await user.type(screen.getByPlaceholderText('Describe this release operation'),'retire reader');
+    await user.click(screen.getByRole('button',{name:'Confirm unpublish'}));
+    expect(onUnpublish).toHaveBeenCalledWith(9,'retire reader');
+  });
 });

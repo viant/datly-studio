@@ -131,7 +131,7 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
   };
   const validateDraft = async () => {
     if (!inspection?.version) throw new Error('Reader inspection is unavailable.');
-    const result = await api.validateVersion(report.id, inspection.version.versionNo);
+    const result = await api.validateVersion(report.id, inspection.version.versionNo, inspection.version.sourceRevision);
     setVersion(result.version);
     setInspection((current) => current ? { ...current, version: result.version } : current);
     return result;
@@ -144,9 +144,9 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
     await load();
     return result;
   };
-  const unpublishDraft = async (reason) => {
+  const unpublishDraft = async (expectedActiveGeneration, reason) => {
     if (!report) throw new Error('Reader report is unavailable.');
-    const result = await api.unpublishReader(report.id, reason);
+    const result = await api.unpublishReader(report.id, expectedActiveGeneration, reason);
     await load();
     return result;
   };

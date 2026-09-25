@@ -39,6 +39,21 @@ function readerFixture(capabilities = { canEdit: true, canRun: true, canPublish:
 }
 
 describe('ReaderBuilder graph-first authoring', () => {
+  test('validates the inspected source revision', async () => {
+    const user = userEvent.setup();
+    const inspection = readerFixture();
+    const api = {
+      listVersions: vi.fn().mockResolvedValue({items:[inspection.version]}),
+      inspectVersion: vi.fn().mockResolvedValue(inspection),
+      validateVersion: vi.fn().mockResolvedValue({valid:true,version:{...inspection.version,compileStatus:'valid'}}),
+    };
+    render(<ReaderBuilder api={api} report={{id:'vendor',title:'Vendor Catalog',namespace:'general',defaultConnectorName:'main'}} onBack={vi.fn()}/>);
+    await screen.findByRole('heading',{name:'Component graph'});
+    await user.click(screen.getByRole('button',{name:'Validate'}));
+    await user.click(screen.getByRole('button',{name:'Validate revision'}));
+    expect(api.validateVersion).toHaveBeenCalledWith('vendor',inspection.version.versionNo,inspection.version.sourceRevision);
+  });
+
   test('selects a view inline, opens SQL explicitly, and guards unsaved navigation', async () => {
     const user = userEvent.setup();
     const inspection = readerFixture();

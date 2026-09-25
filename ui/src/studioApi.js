@@ -45,11 +45,11 @@ export class StudioAPI {
   loadArchive(reportId, input) { return this.invoke('versions.load_archive', { reportId, input }); }
   downloadComponent(reportId, versionNo) { return this.invoke('versions.download', { reportId, versionNo }); }
   inspectVersion(reportId, versionNo) { return this.invoke('versions.inspect', { reportId, versionNo }); }
-  validateVersion(reportId, versionNo) { return this.invoke('versions.validate', { reportId, versionNo }); }
+  validateVersion(reportId, versionNo, expectedSourceRevision) { return this.invoke('versions.validate', { reportId, versionNo, expectedSourceRevision }); }
   publishReader(reportId, versionNo, expectedSourceRevision, reason = '') { return this.invoke('publications.publish', { reportId, versionNo, input: { expectedSourceRevision, reason } }); }
   getPublication(reportId) { return this.invoke('publications.get', { reportId }); }
   listPublicationEvents(reportId, input = {}) { return this.invoke('publications.events.list', { reportId, input }); }
-  unpublishReader(reportId, reason = '') { return this.invoke('publications.unpublish', { reportId, input: { reason } }); }
+  unpublishReader(reportId, expectedActiveGeneration, reason = '') { return this.invoke('publications.unpublish', { reportId, input: { expectedActiveGeneration, reason } }); }
   rollbackReader(reportId, versionNo, expectedSourceRevision, reason = '') { return this.invoke('publications.rollback', { reportId, versionNo, input: { expectedSourceRevision, reason } }); }
   getRuntimeStatus() { return this.invoke('runtime.status'); }
   async listMCPTools() {

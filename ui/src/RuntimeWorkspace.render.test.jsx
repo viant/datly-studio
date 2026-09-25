@@ -60,6 +60,7 @@ describe('Runtime catalogs', () => {
     await user.click(screen.getByRole('button',{name:'Assign'}));
     expect(api.upsertResourceFile).toHaveBeenCalledWith(expect.objectContaining({content:expect.stringContaining('allowed-tools: "alice.vendor.read extra.tool"')}));
     expect(api.publishReader).toHaveBeenCalledWith('vendor',2,5,expect.stringContaining('Update allowed MCP tools'));
+    expect(api.validateVersion).toHaveBeenCalledWith('vendor',2,5);
   });
 
   test('deletes the selected skill declaration and document from the toolbar',async()=>{
@@ -75,5 +76,6 @@ describe('Runtime catalogs', () => {
     expect(api.deleteSkillRoot).toHaveBeenCalledWith('vendor',2,'guide',4);
     expect(api.deleteResourceFile).toHaveBeenCalledWith('vendor',2,'file',5);
     expect(api.publishReader).toHaveBeenCalledWith('vendor',2,6,expect.stringContaining('Remove skill'));
+    expect(api.validateVersion).toHaveBeenCalledWith('vendor',2,6);
   });
 });

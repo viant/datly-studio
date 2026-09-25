@@ -97,7 +97,7 @@ function SkillsCatalog({ api, skills, tools: liveTools, readers, storageSkills, 
     return {snapshot,root,file};
   };
   const publish=async(next,reason)=>{
-    const validation=await api.validateVersion(owner.reader.reportId,owner.reader.versionNo);
+    const validation=await api.validateVersion(owner.reader.reportId,owner.reader.versionNo,next.version.sourceRevision);
     if(!validation?.valid)throw new Error(validation?.diagnostics?.[0]?.message||'Skill publication validation failed.');
     await api.publishReader(owner.reader.reportId,owner.reader.versionNo,next.version.sourceRevision,reason);
     await onRefresh?.();

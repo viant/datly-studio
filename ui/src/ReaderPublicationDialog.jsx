@@ -52,7 +52,7 @@ export function ReaderPublicationDialog({ isOpen, api, report, version, inspecti
   };
   const unpublish = async () => {
     setPublishing(true); setError('');
-    try { const outcome = await onUnpublish(reason.trim()); setResult(outcome); setPublication(outcome); setRuntime(await api.getRuntimeStatus()); await refreshEvents(); }
+    try { const outcome = await onUnpublish(publication?.activeGeneration, reason.trim()); setResult(outcome); setPublication(outcome); setRuntime(await api.getRuntimeStatus()); await refreshEvents(); }
     catch (cause) { setError(cause.message); }
     finally { setPublishing(false); setPendingAction(''); }
   };

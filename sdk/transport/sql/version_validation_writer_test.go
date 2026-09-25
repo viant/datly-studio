@@ -65,7 +65,7 @@ func TestValidationCannotMarkEditedSourceValid(t *testing.T) {
 	defer cancel()
 	result := make(chan error, 1)
 	go func() {
-		_, validationErr := client.Versions().Validate(runCtx, report.ID, version.VersionNo)
+		_, validationErr := client.Versions().Validate(runCtx, report.ID, version.VersionNo, version.SourceRevision)
 		result <- validationErr
 	}()
 	select {

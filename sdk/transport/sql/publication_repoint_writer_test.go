@@ -56,6 +56,9 @@ func TestOtherActivePublicationsRepointAndRollbackTogether(t *testing.T) {
 		if versionErr != nil {
 			t.Fatal(versionErr)
 		}
+		if _, validateErr := client.Versions().Validate(owner, report.ID, version.VersionNo, version.SourceRevision); validateErr != nil {
+			t.Fatal(validateErr)
+		}
 		status, desired := "active", int64(1)
 		if id == "current" {
 			status, desired = "pending", 2
@@ -128,7 +131,7 @@ func TestOtherActivePublicationsRepointAndRollbackTogether(t *testing.T) {
 		BEGIN SELECT RAISE(ABORT,'report activation failed'); END`); err != nil {
 		t.Fatal(err)
 	}
-	if err := transport.activatePublication(owner, "current", versionNo, generation, now, event); err == nil {
+	if err := transport.activatePublication(owner, "current", versionNo, 1, generation, now, event); err == nil {
 		t.Fatal("report activation failure must abort the transaction")
 	}
 	var pendingStatus string
@@ -141,7 +144,7 @@ func TestOtherActivePublicationsRepointAndRollbackTogether(t *testing.T) {
 	if _, err := db.Exec(`DROP TRIGGER reject_report_activation`); err != nil {
 		t.Fatal(err)
 	}
-	if err := transport.activatePublication(owner, "current", versionNo, generation, now, event); err != nil {
+	if err := transport.activatePublication(owner, "current", versionNo, 1, generation, now, event); err != nil {
 		t.Fatal(err)
 	}
 	var currentStatus string

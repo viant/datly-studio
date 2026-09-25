@@ -80,23 +80,43 @@ func TestTransportUsesCanonicalConnectorAndReportTables(t *testing.T) {
 	if err != nil || edit.Version.GeneratedDQL != "SELECT 2" || edit.Version.SourceRevision != 2 {
 		t.Fatalf("edit = %+v, %v", edit, err)
 	}
+	assertRevisionError := func(err error, code sdk.ErrorCode) {
+		t.Helper()
+		var sdkErr *sdk.Error
+		if !errors.As(err, &sdkErr) || sdkErr.Code != code {
+			t.Fatalf("revision error=%v, want %s", err, code)
+		}
+	}
+	_, err = client.Versions().Validate(ctx, report.ID, 1)
+	assertRevisionError(err, sdk.ErrorInvalidArgument)
+	_, err = client.Versions().Validate(ctx, report.ID, 1, 0)
+	assertRevisionError(err, sdk.ErrorInvalidArgument)
+	_, err = client.Versions().Validate(ctx, report.ID, 1, version.SourceRevision)
+	assertRevisionError(err, sdk.ErrorConflict)
+	var ignored sdk.ValidationResult
+	err = transport.Invoke(ctx, sdk.OperationVersionValidate, versionIdentityRequest{ReportID: report.ID, VersionNo: 1}, &ignored)
+	assertRevisionError(err, sdk.ErrorInvalidArgument)
+	beforeValidation, err := client.Versions().Get(ctx, report.ID, 1)
+	if err != nil || beforeValidation.CompileStatus != "pending" {
+		t.Fatalf("invalid validation changed version=%+v err=%v", beforeValidation, err)
+	}
 
-	validation, err := client.Versions().Validate(ctx, report.ID, 1)
+	validation, err := client.Versions().Validate(ctx, report.ID, 1, edit.Version.SourceRevision)
 	if err != nil || !validation.Valid || validation.Version.CompileStatus != "valid" {
 		t.Fatalf("validation = %+v, %v", validation, err)
 	}
 	transport.Validator = validationStub{err: errors.New("required connector is unavailable")}
-	failedValidation, err := client.Versions().Validate(ctx, report.ID, 1)
+	failedValidation, err := client.Versions().Validate(ctx, report.ID, 1, edit.Version.SourceRevision)
 	if err != nil || failedValidation.Valid || failedValidation.Version.CompileStatus != "invalid" || len(failedValidation.Diagnostics) != 1 || failedValidation.Diagnostics[0].Code != "runtime_contract" {
 		t.Fatalf("failed validation = %+v, %v", failedValidation, err)
 	}
 	transport.Validator = validationStub{err: fmt.Errorf("compile: %w", &transcribe.CompileError{Diagnostics: []*transcribe.Diagnostic{{Code: "DQL-TYPE", Severity: transcribe.SeverityError, Message: "unknown linked type", Hint: "Import the package that owns the type.", Span: transcribe.Span{Start: transcribe.Position{Line: 12, Char: 7}}}}})}
-	structuredValidation, err := client.Versions().Validate(ctx, report.ID, 1)
+	structuredValidation, err := client.Versions().Validate(ctx, report.ID, 1, edit.Version.SourceRevision)
 	if err != nil || structuredValidation.Valid || len(structuredValidation.Diagnostics) != 1 || structuredValidation.Diagnostics[0].Code != "DQL-TYPE" || structuredValidation.Diagnostics[0].Hint == "" || structuredValidation.Diagnostics[0].Line != 12 || structuredValidation.Diagnostics[0].Column != 7 {
 		t.Fatalf("structured validation = %+v, %v", structuredValidation, err)
 	}
 	transport.Validator = nil
-	validation, err = client.Versions().Validate(ctx, report.ID, 1)
+	validation, err = client.Versions().Validate(ctx, report.ID, 1, edit.Version.SourceRevision)
 	if err != nil || !validation.Valid {
 		t.Fatalf("revalidation = %+v, %v", validation, err)
 	}
@@ -115,7 +135,14 @@ func TestTransportUsesCanonicalConnectorAndReportTables(t *testing.T) {
 
 	var activatedGeneration int64
 	transport.Activator = RuntimeActivatorFunc(func(_ context.Context, generation int64) error { activatedGeneration = generation; return nil })
-	publication, err := client.Publications().Publish(ctx, report.ID, 1, sdk.PublishInput{RequestedBy: "alice", Reason: "initial reader release"})
+	_, err = client.Publications().Publish(ctx, report.ID, 1, sdk.PublishInput{RequestedBy: "alice"})
+	assertRevisionError(err, sdk.ErrorInvalidArgument)
+	_, err = client.Publications().Publish(ctx, report.ID, 1, sdk.PublishInput{RequestedBy: "alice", ExpectedSourceRevision: version.SourceRevision})
+	assertRevisionError(err, sdk.ErrorConflict)
+	if activatedGeneration != 0 {
+		t.Fatalf("rejected publish activated generation %d", activatedGeneration)
+	}
+	publication, err := client.Publications().Publish(ctx, report.ID, 1, sdk.PublishInput{RequestedBy: "alice", Reason: "initial reader release", ExpectedSourceRevision: edit.Version.SourceRevision})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -196,7 +223,32 @@ func TestTransportUsesCanonicalConnectorAndReportTables(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err = client.Versions().Validate(ctx, report.ID, versionTwo.VersionNo); err != nil {
+	if _, err = client.Versions().Validate(ctx, report.ID, versionTwo.VersionNo, versionTwo.SourceRevision); err != nil {
+		t.Fatal(err)
+	}
+	transport.Activator = RuntimeActivatorFunc(func(reloadCtx context.Context, generation int64) error {
+		if generation == *publication.ActiveGeneration {
+			return nil
+		}
+		_, editErr := client.Versions().Apply(reloadCtx, report.ID, versionTwo.VersionNo, sdk.EditCommand{
+			Kind: "set_dql", ExpectedSourceRevision: versionTwo.SourceRevision,
+			Payload: json.RawMessage(`{"authoredDql":"SELECT 4"}`),
+		})
+		return editErr
+	})
+	_, err = client.Publications().Rollback(ctx, report.ID, versionTwo.VersionNo, sdk.PublishInput{RequestedBy: "alice", ExpectedSourceRevision: versionTwo.SourceRevision})
+	if err == nil {
+		t.Fatal("source edited during reload was activated")
+	}
+	stillActive, readErr := client.Publications().Get(ctx, report.ID)
+	if readErr != nil || stillActive.Status != "active" || stillActive.ActiveGeneration == nil || *stillActive.ActiveGeneration != *publication.ActiveGeneration {
+		t.Fatalf("reload edit changed active publication=%+v err=%v", stillActive, readErr)
+	}
+	versionTwo, err = client.Versions().Get(ctx, report.ID, versionTwo.VersionNo)
+	if err != nil || versionTwo.SourceRevision != 2 || versionTwo.CompileStatus != "pending" {
+		t.Fatalf("reload edit version=%+v err=%v", versionTwo, err)
+	}
+	if _, err = client.Versions().Validate(ctx, report.ID, versionTwo.VersionNo, versionTwo.SourceRevision); err != nil {
 		t.Fatal(err)
 	}
 	transport.Activator = RuntimeActivatorFunc(func(_ context.Context, generation int64) error {
@@ -212,7 +264,11 @@ func TestTransportUsesCanonicalConnectorAndReportTables(t *testing.T) {
 		activatedGeneration = generation
 		return nil
 	})
-	if _, err = client.Publications().Rollback(ctx, report.ID, versionTwo.VersionNo, sdk.PublishInput{RequestedBy: "alice", Reason: "restore selected release"}); err != nil {
+	_, err = client.Publications().Rollback(ctx, report.ID, versionTwo.VersionNo, sdk.PublishInput{RequestedBy: "alice"})
+	assertRevisionError(err, sdk.ErrorInvalidArgument)
+	_, err = client.Publications().Rollback(ctx, report.ID, versionTwo.VersionNo, sdk.PublishInput{RequestedBy: "alice", ExpectedSourceRevision: versionTwo.SourceRevision + 1})
+	assertRevisionError(err, sdk.ErrorConflict)
+	if _, err = client.Publications().Rollback(ctx, report.ID, versionTwo.VersionNo, sdk.PublishInput{RequestedBy: "alice", Reason: "restore selected release", ExpectedSourceRevision: versionTwo.SourceRevision}); err != nil {
 		t.Fatal(err)
 	}
 	var versionOneState, versionTwoState string
@@ -234,16 +290,33 @@ func TestTransportUsesCanonicalConnectorAndReportTables(t *testing.T) {
 		activatedGeneration = generation
 		return nil
 	})
-	unpublished, err := client.Publications().Unpublish(ctx, report.ID, sdk.UnpublishInput{RequestedBy: "alice", Reason: "retire reader"})
+	_, err = client.Publications().Unpublish(ctx, report.ID, sdk.UnpublishInput{RequestedBy: "alice"})
+	assertRevisionError(err, sdk.ErrorInvalidArgument)
+	_, err = client.Publications().Unpublish(ctx, report.ID, sdk.UnpublishInput{RequestedBy: "alice", ExpectedActiveGeneration: *publication.ActiveGeneration})
+	assertRevisionError(err, sdk.ErrorConflict)
+	activeBeforeUnpublish, err := client.Publications().Get(ctx, report.ID)
+	if err != nil || activeBeforeUnpublish.Status != "active" || activeBeforeUnpublish.ActiveGeneration == nil || *activeBeforeUnpublish.ActiveGeneration != activatedGeneration {
+		t.Fatalf("rejected unpublish changed publication=%+v err=%v", activeBeforeUnpublish, err)
+	}
+	unpublished, err := client.Publications().Unpublish(ctx, report.ID, sdk.UnpublishInput{RequestedBy: "alice", Reason: "retire reader", ExpectedActiveGeneration: activatedGeneration})
 	if err != nil || unpublished.Status != "unpublished" {
 		t.Fatalf("unpublish = %+v, %v", unpublished, err)
 	}
 	transport.Activator = RuntimeActivatorFunc(func(context.Context, int64) error { return errors.New("reload failed password=topsecret") })
-	if _, err = client.Publications().Publish(ctx, report.ID, 1, sdk.PublishInput{RequestedBy: "alice", Reason: "password=also-secret"}); err == nil || !strings.Contains(err.Error(), "reload failed") {
+	if _, err = client.Publications().Publish(ctx, report.ID, 1, sdk.PublishInput{RequestedBy: "alice", Reason: "password=also-secret", ExpectedSourceRevision: edit.Version.SourceRevision}); err == nil || !strings.Contains(err.Error(), "reload failed") {
 		t.Fatalf("failed publication error=%v", err)
 	}
 	failedEvents, err := client.Publications().ListEvents(ctx, report.ID, sdk.ListPublicationEventsInput{Status: "failed"})
-	if err != nil || len(failedEvents.Items) != 1 || failedEvents.Items[0].Operation != "publish" || failedEvents.Items[0].RequestedBy != "alice" || failedEvents.Items[0].GenerationNo == nil || strings.Contains(failedEvents.Items[0].FailureMessage, "topsecret") || strings.Contains(failedEvents.Items[0].Reason, "also-secret") {
+	if err != nil {
+		t.Fatal(err)
+	}
+	var reloadFailure *sdk.PublicationEvent
+	for _, item := range failedEvents.Items {
+		if item.GenerationNo != nil && item.Operation == "publish" {
+			reloadFailure = item
+		}
+	}
+	if reloadFailure == nil || reloadFailure.RequestedBy != "alice" || strings.Contains(reloadFailure.FailureMessage, "topsecret") || strings.Contains(reloadFailure.Reason, "also-secret") {
 		t.Fatalf("failed publication events=%+v err=%v", failedEvents, err)
 	}
 	for _, assertion := range []struct {
@@ -488,11 +561,11 @@ FROM (SELECT 1 AS account_id, SUM(2) AS total GROUP BY 1) spend`
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err = client.Versions().Validate(ctx, report.ID, version.VersionNo); err != nil {
+	if _, err = client.Versions().Validate(ctx, report.ID, version.VersionNo, version.SourceRevision); err != nil {
 		t.Fatal(err)
 	}
 	transport.Activator = RuntimeActivatorFunc(func(context.Context, int64) error { return nil })
-	publication, err := client.Publications().Publish(ctx, report.ID, version.VersionNo, sdk.PublishInput{RequestedBy: "owner"})
+	publication, err := client.Publications().Publish(ctx, report.ID, version.VersionNo, sdk.PublishInput{RequestedBy: "owner", ExpectedSourceRevision: version.SourceRevision})
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -40,11 +40,15 @@ type ExecutionEvidence struct {
 type PublishInput struct {
 	RequestedBy            string `json:"requestedBy"`
 	Reason                 string `json:"reason,omitempty"`
-	ExpectedSourceRevision int64  `json:"expectedSourceRevision,omitempty"`
+	ExpectedSourceRevision int64  `json:"expectedSourceRevision"`
 }
+
+// UnpublishInput pins the active publication returned by Get. A later
+// publication or runtime generation repoint makes that generation stale.
 type UnpublishInput struct {
-	RequestedBy string `json:"requestedBy"`
-	Reason      string `json:"reason,omitempty"`
+	RequestedBy              string `json:"requestedBy"`
+	Reason                   string `json:"reason,omitempty"`
+	ExpectedActiveGeneration int64  `json:"expectedActiveGeneration"`
 }
 type Publication struct {
 	ReportID          string     `json:"reportId"`
