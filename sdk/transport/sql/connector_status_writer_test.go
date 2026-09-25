@@ -67,3 +67,53 @@ func TestConnectorStatusWriterUsesMatchedEtagAndCurrentProbe(t *testing.T) {
 		t.Fatalf("deleted connector status error=%v, want conflict", err)
 	}
 }
+
+func TestConnectorProbeRejectsStaleConfiguration(t *testing.T) {
+	ctx := sdk.WithPrincipal(context.Background(), sdk.Principal{Subject: "owner"})
+	db, err := sql.Open("sqlite", "file:"+filepath.Join(t.TempDir(), "studio.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	if err := schema.ApplySQLite(ctx, db, "studio"); err != nil {
+		t.Fatal(err)
+	}
+	transport := &Transport{DB: db, Authorizer: allowAuthorizer{}}
+	client, err := sdk.NewClient(transport)
+	if err != nil {
+		t.Fatal(err)
+	}
+	created, err := client.Connectors().Create(ctx, sdk.CreateConnectorInput{Name: "source", Driver: "sqlite"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	transport.Probe = sdk.ConnectorProbeFunc(func(ctx context.Context, current *sdk.Connector) (*sdk.ConnectorTestResult, error) {
+		dsn := "file:changed.db"
+		if _, err := client.Connectors().Update(ctx, current.Name, sdk.UpdateConnectorInput{DSNTemplate: &dsn, ETag: current.ETag}); err != nil {
+			return nil, err
+		}
+		return &sdk.ConnectorTestResult{Status: "passed"}, nil
+	})
+	_, err = client.Connectors().Test(ctx, created.Name)
+	var sdkErr *sdk.Error
+	if !errors.As(err, &sdkErr) || sdkErr.Code != sdk.ErrorConflict {
+		t.Fatalf("probe of superseded configuration error=%v, want conflict", err)
+	}
+	current, err := client.Connectors().Get(ctx, created.Name)
+	if err != nil || current.ETag != created.ETag+1 || current.LastTestStatus != "" || current.Status != "draft" {
+		t.Fatalf("stale probe changed connector=%+v err=%v", current, err)
+	}
+	transport.Probe = sdk.ConnectorProbeFunc(func(context.Context, *sdk.Connector) (*sdk.ConnectorTestResult, error) {
+		return &sdk.ConnectorTestResult{Status: "passed"}, nil
+	})
+	if result, err := client.Connectors().Test(ctx, created.Name); err != nil || result.Status != "passed" {
+		t.Fatalf("current probe=%+v err=%v", result, err)
+	}
+	current, err = client.Connectors().Get(ctx, created.Name)
+	if err != nil || current.LastTestStatus != "passed" || current.ETag != created.ETag+1 {
+		t.Fatalf("current probe persistence=%+v err=%v", current, err)
+	}
+	if active, err := client.Connectors().Activate(ctx, created.Name, current.ETag); err != nil || active.Status != "active" {
+		t.Fatalf("activation after current probe=%+v err=%v", active, err)
+	}
+}

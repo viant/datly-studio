@@ -586,13 +586,15 @@ func (t *Transport) deleteConnector(ctx context.Context, input any) error {
 	if used > 0 {
 		return &sdk.Error{Code: sdk.ErrorConflict, Message: "connector is referenced by a report"}
 	}
-	result, err := t.DB.ExecContext(ctx, `UPDATE connectors SET status='deleted', deleted_at=?, updated_at=?, etag=etag+1 WHERE name=? AND etag=? AND deleted_at IS NULL`, t.now(), t.now(), in.Name, in.ETag)
+	now, etag := t.now(), in.ETag
+	err = t.writeConnectorStatus(ctx, "delete", &connectorstatus.StoredConnector{Name: in.Name, Etag: &etag, UpdatedAt: &now, DeletedAt: &now,
+		Has: &connectorstatus.StoredConnectorHas{Name: true, Etag: true, UpdatedAt: true, DeletedAt: true}})
 	if err != nil {
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) {
+			return &sdk.Error{Code: sdk.ErrorNotFound, Message: "connector not found"}
+		}
 		return internal(err)
-	}
-	affected, _ := result.RowsAffected()
-	if affected == 0 {
-		return &sdk.Error{Code: sdk.ErrorNotFound, Message: "connector not found"}
 	}
 	return nil
 }
@@ -627,8 +629,17 @@ func (t *Transport) testConnector(ctx context.Context, input, output any) error 
 	} else if result.Status == "" {
 		result.Status = "passed"
 	}
-	_, err = t.DB.ExecContext(ctx, `UPDATE connectors SET last_test_status=?,last_test_error_code=?,last_tested_at=?,updated_at=? WHERE name=? AND deleted_at IS NULL`, result.Status, nullable(result.ErrorCode), result.TestedAt, t.now(), value.Name)
+	now, etag := t.now(), value.ETag
+	status, code, testedAt := result.Status, namespaceOptionalDescription(result.ErrorCode), result.TestedAt
+	err = t.writeConnectorStatus(ctx, "probe", &connectorstatus.StoredConnector{Name: value.Name, Etag: &etag, UpdatedAt: &now,
+		LastTestStatus: &status, LastTestErrorCode: code, LastTestedAt: &testedAt,
+		Has: &connectorstatus.StoredConnectorHas{Name: true, Etag: true, UpdatedAt: true,
+			LastTestStatus: true, LastTestErrorCode: true, LastTestedAt: true}})
 	if err != nil {
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) {
+			return &sdk.Error{Code: sdk.ErrorConflict, Message: "connector changed during connectivity test"}
+		}
 		return internal(err)
 	}
 	if probeErr != nil {

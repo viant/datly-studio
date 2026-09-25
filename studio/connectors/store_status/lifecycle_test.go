@@ -34,6 +34,20 @@ func TestConnectorStatusRulesRequireCurrentEtagAndPassedProbe(t *testing.T) {
 	if err := disable.Init(context.Background(), disabled, state); err != nil || disabled.Status != "disabled" || *disabled.Etag != etag+1 {
 		t.Fatalf("disabled row=%+v err=%v", disabled, err)
 	}
+	deleting := row()
+	deleting.DeletedAt = &now
+	if err := (&ConnectorStatusRules{Input: &Input{Operation: "delete"}}).Init(context.Background(), deleting, state); err != nil ||
+		deleting.Status != "deleted" || *deleting.Etag != etag+1 || !deleting.Has.DeletedAt {
+		t.Fatalf("deleted row=%+v err=%v", deleting, err)
+	}
+	probing := row()
+	probing.LastTestStatus = &passed
+	probing.LastTestedAt = &now
+	probing.Has.LastTestStatus, probing.Has.LastTestErrorCode, probing.Has.LastTestedAt = true, true, true
+	if err := (&ConnectorStatusRules{Input: &Input{Operation: "probe"}}).Init(context.Background(), probing, state); err != nil ||
+		*probing.Etag != etag || probing.Has.Status {
+		t.Fatalf("probe row=%+v err=%v", probing, err)
+	}
 	stale := row()
 	*stale.Etag--
 	var conflict *xhandler.Conflict

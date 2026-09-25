@@ -13,7 +13,9 @@
 SELECT connector.*, type(connector, 'StoredConnector'),
        CAST(connector.name AS string), CAST(connector.status AS string),
        CAST(connector.etag AS *int64), CAST(connector.updated_at AS *time.Time),
-       CAST(connector.last_test_status AS *string), CAST(connector.deleted_at AS *time.Time),
+       CAST(connector.last_test_status AS *string),
+       CAST(connector.last_test_error_code AS *string), CAST(connector.last_tested_at AS *time.Time),
+       CAST(connector.deleted_at AS *time.Time),
        tag(connector.name, 'sqlx:"name,primaryKey"'),
        lifecycle_type(connector, 'ConnectorStatusRules'),
        concurrency_token(connector.etag)

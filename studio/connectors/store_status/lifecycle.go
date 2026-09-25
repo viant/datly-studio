@@ -43,6 +43,21 @@ func (hooks *ConnectorStatusRules) Init(_ context.Context, entity *StoredConnect
 		entity.SetStatus("active")
 	case "disable":
 		entity.SetStatus("disabled")
+	case "delete":
+		if entity.DeletedAt == nil {
+			return fmt.Errorf("connector deletion timestamp is required")
+		}
+		entity.SetStatus("deleted")
+		entity.SetDeletedAt(entity.DeletedAt)
+	case "probe":
+		if entity.LastTestStatus == nil || (*entity.LastTestStatus != "passed" && *entity.LastTestStatus != "failed") ||
+			entity.LastTestedAt == nil || entity.Has == nil || !entity.Has.LastTestStatus ||
+			!entity.Has.LastTestErrorCode || !entity.Has.LastTestedAt {
+			return fmt.Errorf("connector probe requires status, error code and tested timestamp")
+		}
+		// Keep the public etag unchanged while matching the version read before
+		// the probe. A configuration edit during the probe must reject this write.
+		return nil
 	default:
 		return fmt.Errorf("unsupported connector status operation %q", hooks.Input.Operation)
 	}

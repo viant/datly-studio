@@ -54,6 +54,26 @@ func (entity *StoredConnector) SetLastTestStatus(value *string) {
 	}
 	entity.Has.LastTestStatus = true
 }
+func (entity *StoredConnector) GetLastTestErrorCode() *string {
+	return entity.LastTestErrorCode
+}
+func (entity *StoredConnector) SetLastTestErrorCode(value *string) {
+	entity.LastTestErrorCode = value
+	if entity.Has == nil {
+		entity.Has = &StoredConnectorHas{}
+	}
+	entity.Has.LastTestErrorCode = true
+}
+func (entity *StoredConnector) GetLastTestedAt() *time.Time {
+	return entity.LastTestedAt
+}
+func (entity *StoredConnector) SetLastTestedAt(value *time.Time) {
+	entity.LastTestedAt = value
+	if entity.Has == nil {
+		entity.Has = &StoredConnectorHas{}
+	}
+	entity.Has.LastTestedAt = true
+}
 func (entity *StoredConnector) GetDeletedAt() *time.Time {
 	return entity.DeletedAt
 }

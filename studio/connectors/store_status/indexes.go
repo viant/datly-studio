@@ -250,6 +250,104 @@ func (index ConnectorHandlerCurrentConnectorGroupedByLastTestStatus) Has(key str
 	_, ok := index[key]
 	return ok
 }
+func ConnectorHandlerCurrentConnectorIndexByLastTestErrorCodeKey(value *CurrentConnectorView) (string, bool) {
+	var zero string
+	if value == nil {
+		return zero, false
+	}
+	if value.LastTestErrorCode == nil {
+		return zero, false
+	}
+	return *value.LastTestErrorCode, true
+}
+
+type ConnectorHandlerCurrentConnectorIndexedByLastTestErrorCode map[string]*CurrentConnectorView
+
+func (rows ConnectorHandlerCurrentConnectorSlice) IndexByLastTestErrorCode() (ConnectorHandlerCurrentConnectorIndexedByLastTestErrorCode, error) {
+	result := make(ConnectorHandlerCurrentConnectorIndexedByLastTestErrorCode)
+	for _, row := range rows {
+		key, ok := ConnectorHandlerCurrentConnectorIndexByLastTestErrorCodeKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index ConnectorHandlerCurrentConnectorSlice.IndexByLastTestErrorCode")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index ConnectorHandlerCurrentConnectorIndexedByLastTestErrorCode) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type ConnectorHandlerCurrentConnectorGroupedByLastTestErrorCode map[string][]*CurrentConnectorView
+
+func (rows ConnectorHandlerCurrentConnectorSlice) GroupByLastTestErrorCode() ConnectorHandlerCurrentConnectorGroupedByLastTestErrorCode {
+	result := make(ConnectorHandlerCurrentConnectorGroupedByLastTestErrorCode)
+	for _, row := range rows {
+		key, ok := ConnectorHandlerCurrentConnectorIndexByLastTestErrorCodeKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index ConnectorHandlerCurrentConnectorGroupedByLastTestErrorCode) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+func ConnectorHandlerCurrentConnectorIndexByLastTestedAtKey(value *CurrentConnectorView) (time.Time, bool) {
+	var zero time.Time
+	if value == nil {
+		return zero, false
+	}
+	if value.LastTestedAt == nil {
+		return zero, false
+	}
+	return *value.LastTestedAt, true
+}
+
+type ConnectorHandlerCurrentConnectorIndexedByLastTestedAt map[time.Time]*CurrentConnectorView
+
+func (rows ConnectorHandlerCurrentConnectorSlice) IndexByLastTestedAt() (ConnectorHandlerCurrentConnectorIndexedByLastTestedAt, error) {
+	result := make(ConnectorHandlerCurrentConnectorIndexedByLastTestedAt)
+	for _, row := range rows {
+		key, ok := ConnectorHandlerCurrentConnectorIndexByLastTestedAtKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index ConnectorHandlerCurrentConnectorSlice.IndexByLastTestedAt")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index ConnectorHandlerCurrentConnectorIndexedByLastTestedAt) Has(key time.Time) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type ConnectorHandlerCurrentConnectorGroupedByLastTestedAt map[time.Time][]*CurrentConnectorView
+
+func (rows ConnectorHandlerCurrentConnectorSlice) GroupByLastTestedAt() ConnectorHandlerCurrentConnectorGroupedByLastTestedAt {
+	result := make(ConnectorHandlerCurrentConnectorGroupedByLastTestedAt)
+	for _, row := range rows {
+		key, ok := ConnectorHandlerCurrentConnectorIndexByLastTestedAtKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index ConnectorHandlerCurrentConnectorGroupedByLastTestedAt) Has(key time.Time) bool {
+	_, ok := index[key]
+	return ok
+}
 func ConnectorHandlerCurrentConnectorIndexByDeletedAtKey(value *CurrentConnectorView) (time.Time, bool) {
 	var zero time.Time
 	if value == nil {
@@ -382,6 +480,12 @@ func BuildConnectorHandlerReadIndexes(ctx context.Context, input *Input) (*Conne
 			}
 			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("LastTestStatus") {
 				return nil, fmt.Errorf("application index field was not loaded: CurrentConnector.LastTestStatus")
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("LastTestErrorCode") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentConnector.LastTestErrorCode")
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("LastTestedAt") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentConnector.LastTestedAt")
 			}
 			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("DeletedAt") {
 				return nil, fmt.Errorf("application index field was not loaded: CurrentConnector.DeletedAt")
