@@ -47,6 +47,19 @@ func (hooks *GenerationStateRules) Init(_ context.Context, entity *StoredGenerat
 		}
 		entity.SetStatus("retired")
 		entity.SetRetiredAt(entity.RetiredAt)
+	case "fail":
+		if entity.GenerationNo != hooks.Input.TargetGeneration || previous.Status != "building" ||
+			entity.DiagnosticsJson == nil || *entity.DiagnosticsJson == "" || !entity.Has.DiagnosticsJson {
+			return fmt.Errorf("failure requires building target and diagnostics")
+		}
+		if entity.Has.RetiredAt && (entity.RetiredAt == nil || entity.RetiredAt.IsZero()) {
+			return fmt.Errorf("failure retirement timestamp must be nonzero")
+		}
+		entity.SetStatus("failed")
+		entity.SetDiagnosticsJson(entity.DiagnosticsJson)
+		if entity.Has.RetiredAt {
+			entity.SetRetiredAt(entity.RetiredAt)
+		}
 	default:
 		return fmt.Errorf("unsupported generation state operation %q", hooks.Input.Operation)
 	}

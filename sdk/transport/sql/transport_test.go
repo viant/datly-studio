@@ -266,6 +266,16 @@ func TestTransportUsesCanonicalConnectorAndReportTables(t *testing.T) {
 	if err = db.QueryRow(`SELECT publication_status FROM report_publications WHERE report_id=?`, report.ID).Scan(&publicationStatus); err != nil || publicationStatus != "failed" {
 		t.Fatalf("restored publication status=%q err=%v", publicationStatus, err)
 	}
+	var failedGeneration int64
+	if err = db.QueryRow(`SELECT generation_no FROM runtime_generations ORDER BY generation_no DESC LIMIT 1`).Scan(&failedGeneration); err != nil {
+		t.Fatal(err)
+	}
+	if err = transport.restoreFailedPublication(ctx, report.ID, failedGeneration, publicationState{}, false, errors.New("retry")); err == nil {
+		t.Fatal("already failed generation accepted a second restore")
+	}
+	if err = db.QueryRow(`SELECT publication_status FROM report_publications WHERE report_id=?`, report.ID).Scan(&publicationStatus); err != nil || publicationStatus != "failed" {
+		t.Fatalf("second restore changed publication status=%q err=%v", publicationStatus, err)
+	}
 	transport.Preview = previewStub{}
 	preview, err := client.Preview().Execute(ctx, report.ID, 1, sdk.PreviewInput{Input: json.RawMessage(`{"limit":5}`), Limit: 5})
 	if err != nil || string(preview.Data) != `{"rows":[{"value":2}]}` {

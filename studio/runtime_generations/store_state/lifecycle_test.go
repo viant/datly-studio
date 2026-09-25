@@ -35,3 +35,23 @@ func TestGenerationStateRulesActivateAndRetireWithStatusToken(t *testing.T) {
 		t.Fatalf("retired row=%+v err=%v", older, err)
 	}
 }
+
+func TestGenerationStateRulesFailBuildingGeneration(t *testing.T) {
+	now := time.Now().UTC()
+	diagnostics := `[{"code":"expired"}]`
+	state := xhandler.LifecycleContext[StoredGeneration, xhandler.NoParent, Output]{
+		EntityState: xhandler.EntityState[StoredGeneration, xhandler.NoParent]{Previous: &StoredGeneration{GenerationNo: 2, Status: "building"}}}
+	rules := &GenerationStateRules{Input: &Input{Operation: "fail", TargetGeneration: 2}}
+	row := &StoredGeneration{GenerationNo: 2, Status: "building", DiagnosticsJson: &diagnostics, RetiredAt: &now,
+		Has: &StoredGenerationHas{GenerationNo: true, Status: true, DiagnosticsJson: true, RetiredAt: true}}
+	if err := rules.Init(context.Background(), row, state); err != nil || row.Status != "failed" {
+		t.Fatalf("failed generation=%+v err=%v", row, err)
+	}
+	stale := &StoredGeneration{GenerationNo: 2, Status: "building", DiagnosticsJson: &diagnostics,
+		Has: &StoredGenerationHas{GenerationNo: true, Status: true, DiagnosticsJson: true}}
+	state.Previous = &StoredGeneration{GenerationNo: 2, Status: "failed"}
+	var conflict *xhandler.Conflict
+	if err := rules.Init(context.Background(), stale, state); !errors.As(err, &conflict) {
+		t.Fatalf("stale generation error=%v", err)
+	}
+}

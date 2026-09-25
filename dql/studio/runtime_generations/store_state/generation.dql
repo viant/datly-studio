@@ -17,7 +17,9 @@ SELECT generation.*, type(generation, 'StoredGeneration'),
        CAST(generation.report_count AS *int),
        CAST(generation.activated_at AS *time.Time),
        CAST(generation.retired_at AS *time.Time),
+       CAST(generation.diagnostics_json AS *string),
        tag(generation.generation_no, 'sqlx:"generation_no,primaryKey"'),
+       tag(generation.diagnostics_json, 'sqlx:"diagnostics_json,enc=RAW"'),
        lifecycle_type(generation, 'GenerationStateRules'),
        concurrency_token(generation.status)
 FROM (${embed:sql/read.sql}) generation

@@ -250,6 +250,55 @@ func (index GenerationHandlerCurrentGenerationGroupedByRetiredAt) Has(key time.T
 	_, ok := index[key]
 	return ok
 }
+func GenerationHandlerCurrentGenerationIndexByDiagnosticsJsonKey(value *CurrentGenerationView) (string, bool) {
+	var zero string
+	if value == nil {
+		return zero, false
+	}
+	if value.DiagnosticsJson == nil {
+		return zero, false
+	}
+	return *value.DiagnosticsJson, true
+}
+
+type GenerationHandlerCurrentGenerationIndexedByDiagnosticsJson map[string]*CurrentGenerationView
+
+func (rows GenerationHandlerCurrentGenerationSlice) IndexByDiagnosticsJson() (GenerationHandlerCurrentGenerationIndexedByDiagnosticsJson, error) {
+	result := make(GenerationHandlerCurrentGenerationIndexedByDiagnosticsJson)
+	for _, row := range rows {
+		key, ok := GenerationHandlerCurrentGenerationIndexByDiagnosticsJsonKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index GenerationHandlerCurrentGenerationSlice.IndexByDiagnosticsJson")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index GenerationHandlerCurrentGenerationIndexedByDiagnosticsJson) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type GenerationHandlerCurrentGenerationGroupedByDiagnosticsJson map[string][]*CurrentGenerationView
+
+func (rows GenerationHandlerCurrentGenerationSlice) GroupByDiagnosticsJson() GenerationHandlerCurrentGenerationGroupedByDiagnosticsJson {
+	result := make(GenerationHandlerCurrentGenerationGroupedByDiagnosticsJson)
+	for _, row := range rows {
+		key, ok := GenerationHandlerCurrentGenerationIndexByDiagnosticsJsonKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index GenerationHandlerCurrentGenerationGroupedByDiagnosticsJson) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
 
 type GenerationHandlerReadIndexes struct {
 	CurrentGeneration               GenerationHandlerCurrentGenerationSlice
@@ -333,6 +382,9 @@ func BuildGenerationHandlerReadIndexes(ctx context.Context, input *Input) (*Gene
 			}
 			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("RetiredAt") {
 				return nil, fmt.Errorf("application index field was not loaded: CurrentGeneration.RetiredAt")
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("DiagnosticsJson") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentGeneration.DiagnosticsJson")
 			}
 		}
 		cloned, err := (xshape.Runtime{}).CloneValue(rows, xshape.CloneOptions{})

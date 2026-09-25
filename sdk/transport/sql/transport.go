@@ -32,6 +32,7 @@ import (
 	versionvalidation "github.com/viant/datly-studio/studio/report_versions/store_validation"
 	reportconfig "github.com/viant/datly-studio/studio/reports/store_config"
 	reportinsert "github.com/viant/datly-studio/studio/reports/store_insert"
+	generationstate "github.com/viant/datly-studio/studio/runtime_generations/store_state"
 	"github.com/viant/datly/authoring/readerbuilder"
 	datlyreport "github.com/viant/datly/report"
 	"github.com/viant/datly/spec"
@@ -1823,7 +1824,9 @@ func (t *Transport) publish(ctx context.Context, input, output any, operation st
 	}
 	event.GenerationNo = &generation
 	if err = t.Activator.Reload(ctx, generation); err != nil {
-		t.restoreFailedPublication(ctx, in.ReportID, generation, previous, hasPrevious, err)
+		if restoreErr := t.restoreFailedPublication(context.WithoutCancel(ctx), in.ReportID, generation, previous, hasPrevious, err); restoreErr != nil {
+			err = errors.Join(err, fmt.Errorf("restore failed publication: %w", restoreErr))
+		}
 		return &sdk.Error{Code: sdk.ErrorUnavailable, Message: "dynamic runtime reload failed: " + err.Error(), Cause: err}
 	}
 	event.Status = "succeeded"
@@ -2007,14 +2010,21 @@ func (t *Transport) publicationSnapshot(ctx context.Context, tx *sql.Tx, reportI
 	return value, true, nil
 }
 
-func (t *Transport) restoreFailedPublication(ctx context.Context, reportID string, generation int64, previous publicationState, hasPrevious bool, cause error) {
+func (t *Transport) restoreFailedPublication(ctx context.Context, reportID string, generation int64, previous publicationState, hasPrevious bool, cause error) error {
 	tx, err := t.DB.BeginTx(ctx, nil)
 	if err != nil {
-		return
+		return err
 	}
 	defer func() { _ = tx.Rollback() }()
 	failure, _ := json.Marshal([]sdk.Diagnostic{{Severity: "error", Code: "runtime_reload", Message: cause.Error()}})
-	_, _ = tx.ExecContext(ctx, `UPDATE runtime_generations SET status='failed',diagnostics_json=? WHERE generation_no=?`, string(failure), generation)
+	diagnostics := string(failure)
+	if err := t.writeGenerationState(ctx, tx, "fail", generation, []*generationstate.StoredGeneration{{
+		GenerationNo: generation, Status: "building", DiagnosticsJson: &diagnostics,
+		Has: &generationstate.StoredGenerationHas{GenerationNo: true, Status: true, DiagnosticsJson: true},
+	}}); err != nil {
+		return fmt.Errorf("fail staged generation: %w", err)
+	}
+	var result sql.Result
 	if hasPrevious {
 		active := any(nil)
 		if previous.activeGeneration.Valid {
@@ -2024,11 +2034,21 @@ func (t *Transport) restoreFailedPublication(ctx context.Context, reportID strin
 		if previous.desiredVersion.Valid {
 			desired = previous.desiredVersion.Int64
 		}
-		_, _ = tx.ExecContext(ctx, `UPDATE report_publications SET active_version_no=?,desired_version_no=?,desired_generation=?,active_generation=?,publication_status=?,runtime_revision=?,spec_hash=?,published_by=?,published_at=?,activated_at=?,failure_json=? WHERE report_id=?`, previous.activeVersion, desired, previous.desiredGeneration, active, previous.status, previous.runtimeRevision, previous.specHash, previous.publishedBy, previous.publishedAt, nullableTime(previous.activatedAt), string(failure), reportID)
+		result, err = tx.ExecContext(ctx, `UPDATE report_publications SET active_version_no=?,desired_version_no=?,desired_generation=?,active_generation=?,publication_status=?,runtime_revision=?,spec_hash=?,published_by=?,published_at=?,activated_at=?,failure_json=? WHERE report_id=?`, previous.activeVersion, desired, previous.desiredGeneration, active, previous.status, previous.runtimeRevision, previous.specHash, previous.publishedBy, previous.publishedAt, nullableTime(previous.activatedAt), diagnostics, reportID)
 	} else {
-		_, _ = tx.ExecContext(ctx, `UPDATE report_publications SET publication_status='failed',active_generation=NULL,failure_json=? WHERE report_id=?`, string(failure), reportID)
+		result, err = tx.ExecContext(ctx, `UPDATE report_publications SET publication_status='failed',active_generation=NULL,failure_json=? WHERE report_id=?`, diagnostics, reportID)
 	}
-	_ = tx.Commit()
+	if err != nil {
+		return err
+	}
+	matched, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if matched != 1 {
+		return fmt.Errorf("restore publication %q matched %d rows", reportID, matched)
+	}
+	return tx.Commit()
 }
 
 func (t *Transport) compensateActivationFailure(ctx context.Context, reportID string, generation int64, previous publicationState, hasPrevious bool, cause error) error {
@@ -2041,7 +2061,9 @@ func (t *Transport) compensateActivationFailure(ctx context.Context, reportID st
 	if rollbackErr != nil {
 		combined = errors.Join(cause, fmt.Errorf("runtime compensation failed: %w", rollbackErr))
 	}
-	t.restoreFailedPublication(context.WithoutCancel(ctx), reportID, generation, previous, hasPrevious, combined)
+	if restoreErr := t.restoreFailedPublication(context.WithoutCancel(ctx), reportID, generation, previous, hasPrevious, combined); restoreErr != nil {
+		combined = errors.Join(combined, fmt.Errorf("restore failed publication: %w", restoreErr))
+	}
 	return &sdk.Error{Code: sdk.ErrorUnavailable, Message: "runtime activation persistence failed: " + combined.Error(), Cause: combined}
 }
 
@@ -2136,7 +2158,9 @@ func (t *Transport) unpublish(ctx context.Context, input, output any) (returnErr
 	}
 	event.GenerationNo = &generation
 	if err = t.Activator.Reload(ctx, generation); err != nil {
-		t.restoreFailedPublication(ctx, in.ReportID, generation, previous, true, err)
+		if restoreErr := t.restoreFailedPublication(context.WithoutCancel(ctx), in.ReportID, generation, previous, true, err); restoreErr != nil {
+			err = errors.Join(err, fmt.Errorf("restore failed publication: %w", restoreErr))
+		}
 		return &sdk.Error{Code: sdk.ErrorUnavailable, Message: "dynamic runtime reload failed: " + err.Error(), Cause: err}
 	}
 	event.Status = "succeeded"

@@ -54,3 +54,13 @@ func (entity *StoredGeneration) SetRetiredAt(value *time.Time) {
 	}
 	entity.Has.RetiredAt = true
 }
+func (entity *StoredGeneration) GetDiagnosticsJson() *string {
+	return entity.DiagnosticsJson
+}
+func (entity *StoredGeneration) SetDiagnosticsJson(value *string) {
+	entity.DiagnosticsJson = value
+	if entity.Has == nil {
+		entity.Has = &StoredGenerationHas{}
+	}
+	entity.Has.DiagnosticsJson = true
+}
