@@ -1,0 +1,29 @@
+#package('studio/authorization_grants/store_read')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/authorization-grant-store/read', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('grant', 'sql/read.sql'))
+
+#define($_ = $SubjectId<string>(query/subjectId).Required().WithPredicate(1, 'equal', 'g', 'subject_id'))
+#define($_ = $SubjectType<string>(query/subjectType).Required().WithPredicate(1, 'equal', 'g', 'subject_type'))
+#define($_ = $ReportId<string>(query/reportId).Optional().WithPredicate(1, 'equal', 'g', 'report_id'))
+#define($_ = $GrantSource<string>(query/grantSource).Optional().WithPredicate(1, 'equal', 'g', 'grant_source'))
+#define($_ = $CanPublish<bool>(query/canPublish).Optional().WithPredicate(1, 'equal', 'g', 'can_publish'))
+#define($_ = $IsLive<bool>(query/isLive).Required().WithPredicate(1, 'equal', 'g', 'is_live'))
+#define($_ = $Grants<[]*Grant>(output/view))
+
+SELECT grant.*, type(grant, 'Grant'),
+       CAST(grant.report_id AS string),
+       CAST(grant.subject_id AS string),
+       CAST(grant.subject_type AS string),
+       CAST(grant.grant_source AS string),
+       CAST(grant.can_view AS bool),
+       CAST(grant.can_edit AS bool),
+       CAST(grant.can_publish AS bool),
+       CAST(grant.is_live AS bool),
+       set_limit(grant, 2)
+FROM (${embed:sql/read.sql}) grant
+WHERE 1=1

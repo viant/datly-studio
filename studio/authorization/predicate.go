@@ -4,7 +4,6 @@ package authorization
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"reflect"
 	"strings"
@@ -368,31 +367,27 @@ func AuthorizeReport(ctx context.Context, provider connector.Provider, claims *j
 	if permission != permissionView && permission != permissionEdit && permission != permissionPublish {
 		return forbidden("authorization permission is invalid")
 	}
-	db, err := provider.Connector(ctx, "studio")
+	grants, err := readGrants(ctx, provider, principal, reportID, "", false)
 	if err != nil {
 		return err
 	}
-	var allowed bool
-	query := `SELECT EXISTS (
-SELECT 1 FROM reports studio_auth_owner
-WHERE studio_auth_owner.id = ? AND studio_auth_owner.owner_id = ?
-UNION ALL
-SELECT 1 FROM report_acl studio_auth_acl
-WHERE studio_auth_acl.report_id = ?
-  AND studio_auth_acl.subject_type = 'user'
-  AND studio_auth_acl.subject_id = ?
-  AND studio_auth_acl.` + permission + ` = TRUE
-)`
-	if err := db.QueryRowContext(ctx, query, reportID, principal, reportID, principal).Scan(&allowed); err != nil {
-		if err == sql.ErrNoRows {
-			return forbidden("report authorization is required")
+	for _, grant := range grants {
+		switch permission {
+		case permissionView:
+			if grant.CanView {
+				return nil
+			}
+		case permissionEdit:
+			if grant.CanEdit {
+				return nil
+			}
+		case permissionPublish:
+			if grant.CanPublish {
+				return nil
+			}
 		}
-		return err
 	}
-	if !allowed {
-		return forbidden("report authorization is required")
-	}
-	return nil
+	return forbidden("report authorization is required")
 }
 
 // AuthorizeGlobal requires a publisher permission for lifecycle operations that
@@ -408,15 +403,11 @@ func AuthorizeGlobal(ctx context.Context, provider connector.Provider, claims *j
 	if permission != permissionPublish {
 		return forbidden("authorization permission is invalid")
 	}
-	db, err := provider.Connector(ctx, "studio")
+	grants, err := readGrants(ctx, provider, principal, "", "acl", true)
 	if err != nil {
 		return err
 	}
-	var allowed bool
-	if err := db.QueryRowContext(ctx, `SELECT EXISTS (SELECT 1 FROM report_acl WHERE subject_type='user' AND subject_id=? AND can_publish=TRUE)`, principal).Scan(&allowed); err != nil {
-		return err
-	}
-	if !allowed {
+	if len(grants) == 0 {
 		return forbidden("publisher authorization is required")
 	}
 	return nil
