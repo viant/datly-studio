@@ -3,8 +3,10 @@ package authorization
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"strings"
 
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/reportcapability"
 	"github.com/viant/datly-studio/sdk"
 	sqltransport "github.com/viant/datly-studio/sdk/transport/sql"
@@ -15,6 +17,7 @@ import (
 type SDKAuthorizer struct {
 	DB                 *sql.DB
 	ReportCapabilities *reportcapability.Reader
+	NamespaceAccess    *namespaceaccess.Reader
 }
 
 // NewSDKAuthorizer prepares the generated report-capability reader once for
@@ -24,14 +27,19 @@ func NewSDKAuthorizer(db *sql.DB) (*SDKAuthorizer, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &SDKAuthorizer{DB: db, ReportCapabilities: reader}, nil
+	namespaceReader, err := namespaceaccess.New(db)
+	if err != nil {
+		_ = reader.Close(context.Background())
+		return nil, err
+	}
+	return &SDKAuthorizer{DB: db, ReportCapabilities: reader, NamespaceAccess: namespaceReader}, nil
 }
 
 func (a *SDKAuthorizer) Close(ctx context.Context) error {
-	if a == nil || a.ReportCapabilities == nil {
+	if a == nil {
 		return nil
 	}
-	return a.ReportCapabilities.Close(ctx)
+	return errors.Join(a.ReportCapabilities.Close(ctx), a.NamespaceAccess.Close(ctx))
 }
 
 func (a SDKAuthorizer) Authorize(ctx context.Context, request sqltransport.AuthorizationRequest) error {
@@ -58,15 +66,25 @@ func (a SDKAuthorizer) Authorize(ctx context.Context, request sqltransport.Autho
 }
 
 func (a SDKAuthorizer) namespace(ctx context.Context, subject, name, permission string) error {
-	column := permissionColumn(permission)
-	if permission == "edit" || permission == "publish" {
-		return a.allow(ctx, `SELECT EXISTS(SELECT 1 FROM namespaces WHERE owner_id=? AND name=? AND deleted_at IS NULL)`, subject, name)
+	reader := a.NamespaceAccess
+	owned := false
+	if reader == nil {
+		var err error
+		reader, err = namespaceaccess.New(a.DB)
+		if err != nil {
+			return denied()
+		}
+		owned = true
 	}
-	query := `SELECT EXISTS(SELECT 1 FROM namespaces n WHERE n.name=? AND n.deleted_at IS NULL AND (n.owner_id=? OR EXISTS (
-SELECT 1 FROM reports r JOIN report_acl acl ON acl.report_id=r.id
-WHERE r.owner_id=n.owner_id AND r.namespace=n.name AND r.deleted_at IS NULL
-AND acl.subject_type='user' AND acl.subject_id=? AND acl.` + column + `=TRUE)))`
-	return a.allow(ctx, query, name, subject, subject)
+	allowed, readErr := reader.Allowed(ctx, subject, name, permission)
+	var closeErr error
+	if owned {
+		closeErr = reader.Close(context.Background())
+	}
+	if readErr != nil || closeErr != nil || !allowed {
+		return denied()
+	}
+	return nil
 }
 
 func (a SDKAuthorizer) report(ctx context.Context, subject, id, permission string) error {

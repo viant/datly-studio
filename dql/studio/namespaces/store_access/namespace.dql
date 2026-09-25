@@ -1,0 +1,21 @@
+#package('studio/namespaces/store_access')
+
+#import('namespaceaccess','github.com/viant/datly-studio/studio/namespaces/accesspredicate')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/namespace-store/access', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('namespace', 'sql/read.sql'))
+
+#define($_ = $Name<string>(query/name).Required())
+#define($_ = $Subject<string>(query/subject).Required())
+#define($_ = $Permission<string>(query/permission).Required().WithPredicate(3, 'handler', 'namespaceaccess.NamespaceAccess'))
+#define($_ = $Namespaces<[]*StoredNamespace>(output/view))
+
+SELECT namespace.*, type(namespace, 'StoredNamespace'),
+       CAST(namespace.owner_id AS string), CAST(namespace.name AS string),
+       set_limit(namespace, 1)
+FROM (${embed:sql/read.sql}) namespace
+WHERE 1=1

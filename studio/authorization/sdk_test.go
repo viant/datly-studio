@@ -25,6 +25,9 @@ func TestSDKAuthorizerEnforcesOwnerAndACL(t *testing.T) {
 	if _, err = db.Exec(`INSERT INTO connectors(name,driver,owner_id,status,options_json,etag,created_at,updated_at) VALUES ('main','sqlite','bob','active','{}',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`); err != nil {
 		t.Fatal(err)
 	}
+	if _, err = db.Exec(`INSERT INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at) VALUES ('bob','general','General','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`); err != nil {
+		t.Fatal(err)
+	}
 	if _, err = db.Exec(`INSERT INTO reports(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES ('shared','shared','Shared','bob','active','main','reports','shared',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`); err != nil {
 		t.Fatal(err)
 	}
@@ -44,6 +47,7 @@ func TestSDKAuthorizerEnforcesOwnerAndACL(t *testing.T) {
 		}
 	}()
 	alice := sdk.WithPrincipal(ctx, sdk.Principal{Subject: "alice"})
+	bob := sdk.WithPrincipal(ctx, sdk.Principal{Subject: "bob"})
 	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{ReportID: "shared", Permission: "edit"}); err != nil {
 		t.Fatal(err)
 	}
@@ -52,6 +56,18 @@ func TestSDKAuthorizerEnforcesOwnerAndACL(t *testing.T) {
 	}
 	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{ReportID: "shared", Permission: "run"}); err != nil {
 		t.Fatal(err)
+	}
+	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{NamespaceName: "general", Permission: "view"}); err != nil {
+		t.Fatalf("namespace ACL view: %v", err)
+	}
+	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{NamespaceName: "general", Permission: "run"}); err != nil {
+		t.Fatalf("namespace ACL run: %v", err)
+	}
+	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{NamespaceName: "general", Permission: "edit"}); err == nil {
+		t.Fatal("namespace ACL edit bypassed owner-only rule")
+	}
+	if err = authorizer.Authorize(bob, sqltransport.AuthorizationRequest{NamespaceName: "general", Permission: "edit"}); err != nil {
+		t.Fatalf("namespace owner edit: %v", err)
 	}
 	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{ReportID: "shared", Permission: "dql"}); err == nil {
 		t.Fatal("DQL access without can_use_dql unexpectedly allowed")
@@ -62,6 +78,9 @@ func TestSDKAuthorizerEnforcesOwnerAndACL(t *testing.T) {
 	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{ReportID: "shared", Permission: "dql"}); err != nil {
 		t.Fatal(err)
 	}
+	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{NamespaceName: "general", Permission: "dql"}); err != nil {
+		t.Fatalf("namespace ACL DQL after grant: %v", err)
+	}
 	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{ConnectorName: "main", Permission: "edit"}); err != nil {
 		t.Fatal(err)
 	}
@@ -71,7 +90,6 @@ func TestSDKAuthorizerEnforcesOwnerAndACL(t *testing.T) {
 	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{ReportID: "missing", Permission: "view"}); err == nil {
 		t.Fatal("missing report allowed")
 	}
-	bob := sdk.WithPrincipal(ctx, sdk.Principal{Subject: "bob"})
 	if err = authorizer.Authorize(bob, sqltransport.AuthorizationRequest{Permission: "publish"}); err != nil {
 		t.Fatalf("owner global publish authorization: %v", err)
 	}
@@ -86,5 +104,14 @@ func TestSDKAuthorizerEnforcesOwnerAndACL(t *testing.T) {
 	}
 	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{ReportID: "shared", Permission: "edit"}); err == nil {
 		t.Fatal("deleted report ACL authorization unexpectedly allowed")
+	}
+	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{NamespaceName: "general", Permission: "view"}); err == nil {
+		t.Fatal("namespace inherited ACL from deleted report")
+	}
+	if _, err = db.Exec(`UPDATE namespaces SET deleted_at=CURRENT_TIMESTAMP WHERE owner_id='bob' AND name='general'`); err != nil {
+		t.Fatal(err)
+	}
+	if err = authorizer.Authorize(bob, sqltransport.AuthorizationRequest{NamespaceName: "general", Permission: "edit"}); err == nil {
+		t.Fatal("deleted namespace owner authorization unexpectedly allowed")
 	}
 }
