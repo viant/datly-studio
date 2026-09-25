@@ -67,7 +67,7 @@ export function ReaderPredicateDialog({ api, isOpen, structure, initialRowId = '
 
   if (!isOpen) return null;
   const content = <form onSubmit={submit}><DialogBody className="studio-connector-dialog-body">
-      <p className="studio-dialog-lead">Search, page, edit, and remove typed predicates. Large readers remain a catalog rather than one oversized form.</p>
+      {!embedded && <p className="studio-dialog-lead">Search, page, edit, and remove typed predicates. Large readers remain a catalog rather than one oversized form.</p>}
       {error && <Callout intent="danger" role="alert">{error}</Callout>}
       {!formOnly && <><div className="studio-predicate-summary"><Tag minimal intent="primary">{rows.length} predicates</Tag><Tag minimal>{rows.filter((row) => row.kind === 'handler').length} handlers</Tag><Tag minimal icon="lock">{rows.filter((row) => row.predicate?.group === 99).length} authorization</Tag><Tag minimal>{rows.filter((row) => row.family === 'include').length} include</Tag><Tag minimal>{rows.filter((row) => row.family === 'exclude').length} exclude</Tag></div>
       <div className="studio-predicate-mode" role="tablist" aria-label="Predicate workspace"><Button type="button" small active={mode==='catalog'} role="tab" aria-selected={mode==='catalog'} onClick={()=>setMode('catalog')}>All predicates</Button><Button type="button" small active={mode==='groups'} role="tab" aria-selected={mode==='groups'} onClick={()=>setMode('groups')}>Groups</Button></div>

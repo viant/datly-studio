@@ -56,7 +56,7 @@ export function ReaderParameterDialog({ isOpen, structure, initialName = '', ini
   if (!isOpen) return null;
   const content = <form onSubmit={submit} autoComplete="off">
       <DialogBody className="studio-connector-dialog-body">
-        <p className="studio-dialog-lead">Manage typed request bindings and trusted constants. Request values remain bound parameters; constants never become browser-authored SQL interpolation.</p>
+        {!embedded && <p className="studio-dialog-lead">Manage typed request bindings and trusted constants. Request values remain bound parameters; constants never become browser-authored SQL interpolation.</p>}
         {error && <Callout intent="danger" role="alert">{error}</Callout>}
         {!formOnly && <div className="studio-input-mode" role="tablist" aria-label="Input contract workspace"><Button type="button" small active={mode==='request'} role="tab" aria-selected={mode==='request'} onClick={()=>{setMode('request');beginAdd('request');}}>Request inputs <Tag minimal>{requestInputs.length}</Tag></Button><Button type="button" small active={mode==='constant'} role="tab" aria-selected={mode==='constant'} onClick={()=>{setMode('constant');beginAdd('constant');}}>Trusted constants <Tag minimal>{constants.length}</Tag></Button></div>}
         {mode==='constant'&&<Callout compact intent="primary" title="Deployment-owned values">Authored defaults remain in DQL. A selected server instance file may override them, including with zero, false, or an empty string. Invocation input can never supply these values.</Callout>}
