@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/viant/datly-studio/sdk"
+	connectorinsert "github.com/viant/datly-studio/studio/connectors/store_insert"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
 	"github.com/viant/datly/authoring/readerbuilder"
 	datlyreport "github.com/viant/datly/report"
@@ -410,7 +411,15 @@ func (t *Transport) createConnector(ctx context.Context, input, output any) erro
 	if options == "" {
 		options = "{}"
 	}
-	_, err := t.DB.ExecContext(ctx, `INSERT INTO connectors(name, driver, dsn_template, secret_ref, description, owner_id, status, options_json, etag, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 'draft', ?, 1, ?, ?)`, in.Name, in.Driver, nullable(in.DSNTemplate), nullable(in.SecretRef), nullable(in.Description), in.OwnerID, options, now, now)
+	err := t.writeConnectorInsertRow(ctx, &connectorinsert.StoredConnector{
+		Name: in.Name, Driver: in.Driver, DsnTemplate: namespaceOptionalDescription(in.DSNTemplate),
+		SecretRef: namespaceOptionalDescription(in.SecretRef), Description: namespaceOptionalDescription(in.Description),
+		OwnerId: in.OwnerID, Status: "draft", OptionsJson: json.RawMessage(options), Etag: 1,
+		CreatedAt: now, UpdatedAt: now,
+		Has: &connectorinsert.StoredConnectorHas{Name: true, Driver: true, DsnTemplate: true,
+			SecretRef: true, Description: true, OwnerId: true, Status: true, OptionsJson: true,
+			Etag: true, CreatedAt: true, UpdatedAt: true},
+	})
 	if err != nil {
 		return classify(err, "connector", in.Name)
 	}
