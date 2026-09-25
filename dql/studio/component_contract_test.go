@@ -141,6 +141,7 @@ func TestServerOnlyStoreComponentsRemainInProcessOnly(t *testing.T) {
 		"github.com/viant/datly-studio/studio/report_publication_events/store_list",
 		"github.com/viant/datly-studio/studio/report_publication_events/store_owner",
 		"github.com/viant/datly-studio/studio/report_publication_events/store_insert",
+		"github.com/viant/datly-studio/studio/report_publications/store_status",
 		"github.com/viant/datly-studio/studio/report_warmup_runs/store_read",
 		"github.com/viant/datly-studio/studio/report_warmup_runs/store_expired",
 		"github.com/viant/datly-studio/studio/report_warmup_runs/store_write",
@@ -252,6 +253,7 @@ func TestEveryStaticDatlyComponentContract(t *testing.T) {
 		{"report_publication_events/store_list/event.dql", "get"},
 		{"report_publication_events/store_owner/report.dql", "get"},
 		{"report_publication_events/store_insert/event.dql", "post"},
+		{"report_publications/store_status/publication.dql", "get"},
 		{"bff_sessions/reader/session.dql", "get"}, {"bff_sessions/writer/session.dql", "patch"},
 		{"bff_sessions/store_read/session.dql", "get"},
 		{"authorization_predicates/store_read/authorization_predicate.dql", "get"},
@@ -269,7 +271,7 @@ func TestEveryStaticDatlyComponentContract(t *testing.T) {
 	for _, item := range components {
 		item := item
 		t.Run(strings.TrimSuffix(item.path, ".dql"), func(t *testing.T) {
-			serverOnly := strings.HasPrefix(item.path, "bff_sessions/store_") || strings.HasPrefix(item.path, "authorization_predicates/store_") || strings.HasPrefix(item.path, "connectors/store_") || strings.HasPrefix(item.path, "namespaces/store_") || strings.HasPrefix(item.path, "report_skill_roots/store_") || strings.HasPrefix(item.path, "report_resource_files/store_") || strings.HasPrefix(item.path, "report_resource_folders/store_") || strings.HasPrefix(item.path, "report_publication_events/store_") || strings.HasPrefix(item.path, "report_warmup_runs/store_") || strings.HasPrefix(item.path, "runtime_generations/store_") || strings.HasPrefix(item.path, "reports/store_") || strings.HasPrefix(item.path, "report_versions/store_") || strings.HasPrefix(item.path, "report_acl/store_")
+			serverOnly := strings.HasPrefix(item.path, "bff_sessions/store_") || strings.HasPrefix(item.path, "authorization_predicates/store_") || strings.HasPrefix(item.path, "connectors/store_") || strings.HasPrefix(item.path, "namespaces/store_") || strings.HasPrefix(item.path, "report_skill_roots/store_") || strings.HasPrefix(item.path, "report_resource_files/store_") || strings.HasPrefix(item.path, "report_resource_folders/store_") || strings.HasPrefix(item.path, "report_publication_events/store_") || strings.HasPrefix(item.path, "report_publications/store_") || strings.HasPrefix(item.path, "report_warmup_runs/store_") || strings.HasPrefix(item.path, "runtime_generations/store_") || strings.HasPrefix(item.path, "reports/store_") || strings.HasPrefix(item.path, "report_versions/store_") || strings.HasPrefix(item.path, "report_acl/store_")
 			directory := filepath.Dir(item.path)
 			payload, err := os.ReadFile(item.path)
 			if err != nil {

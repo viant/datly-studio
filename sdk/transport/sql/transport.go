@@ -2145,34 +2145,14 @@ func (t *Transport) activateUnpublish(ctx context.Context, reportID string, gene
 }
 
 func (t *Transport) getPublication(ctx context.Context, reportID string, output any) error {
-	value, err := scanPublication(t.DB.QueryRowContext(ctx, `SELECT report_id, active_version_no, desired_version_no, desired_generation, active_generation, publication_status, runtime_revision, spec_hash, published_at FROM report_publications WHERE report_id=?`, reportID))
+	if reportID == "" {
+		return mapReadError(sql.ErrNoRows, "publication", reportID)
+	}
+	value, err := t.readPublicationStatus(ctx, reportID)
 	if err != nil {
 		return mapReadError(err, "publication", reportID)
 	}
 	return assign(output, value)
-}
-
-func scanPublication(scanner interface{ Scan(...any) error }) (*sdk.Publication, error) {
-	var value sdk.Publication
-	var activeGeneration sql.NullInt64
-	var desiredVersion sql.NullInt64
-	var publishedAt sql.NullTime
-	if err := scanner.Scan(&value.ReportID, &value.ActiveVersionNo, &desiredVersion, &value.DesiredGeneration, &activeGeneration, &value.Status, &value.RuntimeRevision, &value.SpecHash, &publishedAt); err != nil {
-		return nil, err
-	}
-	if activeGeneration.Valid {
-		generation := activeGeneration.Int64
-		value.ActiveGeneration = &generation
-	}
-	if desiredVersion.Valid {
-		version := int(desiredVersion.Int64)
-		value.DesiredVersionNo = &version
-	}
-	if publishedAt.Valid {
-		published := publishedAt.Time
-		value.PublishedAt = &published
-	}
-	return &value, nil
 }
 
 func (t *Transport) runtimeStatus(ctx context.Context, output any) error {
