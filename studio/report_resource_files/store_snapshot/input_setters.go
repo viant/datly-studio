@@ -32,3 +32,25 @@ func (input *Input) SetResourceId(value string) {
 	}
 	input.Has.ResourceId = true
 }
+
+func (input *Input) SetNamespace(value string) {
+	if input == nil {
+		return
+	}
+	input.Namespace = value
+	if input.Has == nil {
+		input.Has = &InputHas{}
+	}
+	input.Has.Namespace = true
+}
+
+func (input *Input) SetResourcePath(value string) {
+	if input == nil {
+		return
+	}
+	input.ResourcePath = value
+	if input.Has == nil {
+		input.Has = &InputHas{}
+	}
+	input.Has.ResourcePath = true
+}

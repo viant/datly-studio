@@ -1,0 +1,25 @@
+#package('studio/report_skill_roots/store_write')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/skill-root-store/write', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('skill', 'sql/read.sql'))
+
+#define($_ = $Skills<[]*StoredSkill>(body/data))
+
+SELECT skill.*, type(skill, 'StoredSkill'),
+       CAST(skill.report_id AS string),
+       CAST(skill.version_no AS int),
+       CAST(skill.skill_id AS string),
+       CAST(skill.folder_id AS string),
+       CAST(skill.skill_root AS string),
+       CAST(skill.ordinal AS int),
+       CAST(skill.should_delete AS bool),
+       tag(skill.report_id, 'sqlx:"report_id,primaryKey"'),
+       tag(skill.version_no, 'sqlx:"version_no,primaryKey"'),
+       tag(skill.skill_id, 'sqlx:"skill_id,primaryKey"'),
+       lifecycle_type(skill, 'SkillStoreRules'),
+       delete_marker(skill.should_delete)
+FROM (${embed:sql/read.sql}) skill

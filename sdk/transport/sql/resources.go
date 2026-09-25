@@ -15,6 +15,7 @@ import (
 	"github.com/viant/datly-studio/sdk"
 	filestore "github.com/viant/datly-studio/studio/report_resource_files/store_write"
 	folderstore "github.com/viant/datly-studio/studio/report_resource_folders/store_write"
+	skillstore "github.com/viant/datly-studio/studio/report_skill_roots/store_write"
 	versiontouch "github.com/viant/datly-studio/studio/report_versions/store_touch"
 	"github.com/viant/datly/spec"
 	xhandler "github.com/viant/xdatly/handler"
@@ -225,17 +226,19 @@ func (t *Transport) upsertSkillRoot(ctx context.Context, tx *sql.Tx, value *sdk.
 	if value.SkillRoot != "." && (!fs.ValidPath(value.SkillRoot) || strings.Contains(value.SkillRoot, "\\")) {
 		return invalid(errors.New("skillRoot must be a relative resource path"))
 	}
-	var namespace, folderRoot string
-	err := tx.QueryRowContext(ctx, `SELECT namespace,root_path FROM report_resource_folders WHERE report_id=? AND version_no=? AND folder_id=?`, value.ReportID, value.VersionNo, value.FolderID).Scan(&namespace, &folderRoot)
+	folder, err := t.readResourceFolderByID(ctx, tx, value.ReportID, value.VersionNo, value.FolderID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return &sdk.Error{Code: sdk.ErrorNotFound, Message: "skill folder was not found"}
 	}
 	if err != nil {
 		return internal(err)
 	}
-	skillFile := path.Join(folderRoot, value.SkillRoot, "SKILL.md")
-	var count int
-	if err = tx.QueryRowContext(ctx, `SELECT COUNT(1) FROM report_resource_files WHERE report_id=? AND version_no=? AND namespace=? AND resource_path=?`, value.ReportID, value.VersionNo, namespace, skillFile).Scan(&count); err != nil || count != 1 {
+	skillFile := path.Join(folder.RootPath, value.SkillRoot, "SKILL.md")
+	files, err := t.readResourceFilesByPath(ctx, tx, value.ReportID, value.VersionNo, folder.Namespace, skillFile)
+	if err != nil {
+		return internal(err)
+	}
+	if len(files) != 1 {
 		return invalid(errors.New("skill root requires a SKILL.md resource within its folder"))
 	}
 	if value.SkillID == "" {
@@ -245,25 +248,33 @@ func (t *Transport) upsertSkillRoot(ctx context.Context, tx *sql.Tx, value *sdk.
 		}
 		value.SkillID = id
 	}
-	updated, err := tx.ExecContext(ctx, `UPDATE report_skill_roots SET folder_id=?,skill_root=?,ordinal=? WHERE report_id=? AND version_no=? AND skill_id=?`, value.FolderID, value.SkillRoot, value.Ordinal, value.ReportID, value.VersionNo, value.SkillID)
+	err = t.writeSkillRoot(ctx, tx, &skillstore.StoredSkill{ReportId: value.ReportID,
+		VersionNo: value.VersionNo, SkillId: value.SkillID, FolderId: value.FolderID,
+		SkillRoot: value.SkillRoot, Ordinal: value.Ordinal,
+		Has: &skillstore.StoredSkillHas{ReportId: true, VersionNo: true, SkillId: true,
+			FolderId: true, SkillRoot: true, Ordinal: true, ShouldDelete: true}})
 	if err != nil {
 		return classify(err, "skill root", value.SkillID)
-	}
-	if count, _ := updated.RowsAffected(); count == 0 {
-		if _, err = tx.ExecContext(ctx, `INSERT INTO report_skill_roots(report_id,version_no,skill_id,folder_id,skill_root,ordinal) VALUES(?,?,?,?,?,?)`, value.ReportID, value.VersionNo, value.SkillID, value.FolderID, value.SkillRoot, value.Ordinal); err != nil {
-			return classify(err, "skill root", value.SkillID)
-		}
 	}
 	return nil
 }
 
 func (t *Transport) deleteSkillRoot(ctx context.Context, tx *sql.Tx, reportID string, versionNo int, skillID string) error {
-	result, err := tx.ExecContext(ctx, `DELETE FROM report_skill_roots WHERE report_id=? AND version_no=? AND skill_id=?`, reportID, versionNo, skillID)
-	if err != nil {
+	if _, err := t.readSkillRootByID(ctx, tx, reportID, versionNo, skillID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return &sdk.Error{Code: sdk.ErrorNotFound, Message: "skill root was not found"}
+		}
 		return internal(err)
 	}
-	if count, _ := result.RowsAffected(); count == 0 {
-		return &sdk.Error{Code: sdk.ErrorNotFound, Message: "skill root was not found"}
+	err := t.writeSkillRoot(ctx, tx, &skillstore.StoredSkill{ReportId: reportID,
+		VersionNo: versionNo, SkillId: skillID, ShouldDelete: true,
+		Has: &skillstore.StoredSkillHas{ReportId: true, VersionNo: true, SkillId: true, ShouldDelete: true}})
+	if err != nil {
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) {
+			return &sdk.Error{Code: sdk.ErrorNotFound, Message: "skill root was not found"}
+		}
+		return internal(err)
 	}
 	return nil
 }

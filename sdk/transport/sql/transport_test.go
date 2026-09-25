@@ -962,12 +962,33 @@ SELECT 1`})
 	if err != nil || len(folder.Folders) != 1 || folder.Folders[0].Ordinal != 1 {
 		t.Fatalf("updated folder=%+v err=%v", folder, err)
 	}
+	_, err = client.Resources().UpsertSkill(principal, sdk.SkillRoot{ReportID: report.ID,
+		VersionNo: version.VersionNo, FolderID: "missing-folder", SkillRoot: ".",
+		ExpectedSourceRevision: folder.Version.SourceRevision})
+	var missingFolder *sdk.Error
+	if !errors.As(err, &missingFolder) || missingFolder.Code != sdk.ErrorNotFound {
+		t.Fatalf("skill with missing folder error=%v", err)
+	}
+	_, err = client.Resources().UpsertSkill(principal, sdk.SkillRoot{ReportID: report.ID,
+		VersionNo: version.VersionNo, FolderID: folder.Folders[0].FolderID,
+		SkillRoot: "missing", ExpectedSourceRevision: folder.Version.SourceRevision})
+	var missingManifest *sdk.Error
+	if !errors.As(err, &missingManifest) || missingManifest.Code != sdk.ErrorInvalidArgument {
+		t.Fatalf("skill without SKILL.md error=%v", err)
+	}
 	snapshot, err := client.Resources().UpsertSkill(principal, sdk.SkillRoot{ReportID: report.ID, VersionNo: version.VersionNo, FolderID: folder.Folders[0].FolderID, SkillRoot: ".", ExpectedSourceRevision: folder.Version.SourceRevision})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(snapshot.Skills) != 1 || snapshot.Skills[0].SkillRoot != "." || snapshot.Version.CompileStatus != "pending" {
 		t.Fatalf("skill snapshot=%+v", snapshot)
+	}
+	snapshot, err = client.Resources().UpsertSkill(principal, sdk.SkillRoot{ReportID: report.ID,
+		VersionNo: version.VersionNo, SkillID: snapshot.Skills[0].SkillID,
+		FolderID: folder.Folders[0].FolderID, SkillRoot: ".", Ordinal: 1,
+		ExpectedSourceRevision: snapshot.Version.SourceRevision})
+	if err != nil || len(snapshot.Skills) != 1 || snapshot.Skills[0].Ordinal != 1 {
+		t.Fatalf("updated skill=%+v err=%v", snapshot, err)
 	}
 
 	staleRevision := file.Version.SourceRevision
@@ -1045,6 +1066,12 @@ SELECT 1`})
 	afterSkillDelete, err := client.Resources().DeleteSkillWithRevision(principal, sdk.ResourceDeleteInput{ReportID: report.ID, VersionNo: version.VersionNo, SkillID: snapshot.Skills[0].SkillID, ExpectedSourceRevision: afterRace.Version.SourceRevision})
 	if err != nil || len(afterSkillDelete.Skills) != 0 || afterSkillDelete.Version.SourceRevision != afterRace.Version.SourceRevision+1 {
 		t.Fatalf("skill delete snapshot=%+v err=%v", afterSkillDelete, err)
+	}
+	_, err = client.Resources().DeleteSkillWithRevision(principal, sdk.ResourceDeleteInput{ReportID: report.ID,
+		VersionNo: version.VersionNo, SkillID: "missing-skill", ExpectedSourceRevision: afterSkillDelete.Version.SourceRevision})
+	var absentSkill *sdk.Error
+	if !errors.As(err, &absentSkill) || absentSkill.Code != sdk.ErrorNotFound {
+		t.Fatalf("missing skill delete error=%v", err)
 	}
 	afterFolderDelete, err := client.Resources().DeleteFolderWithRevision(principal, sdk.ResourceDeleteInput{ReportID: report.ID, VersionNo: version.VersionNo, FolderID: folder.Folders[0].FolderID, ExpectedSourceRevision: afterSkillDelete.Version.SourceRevision})
 	if err != nil || len(afterFolderDelete.Folders) != 0 || afterFolderDelete.Version.SourceRevision != afterSkillDelete.Version.SourceRevision+1 {

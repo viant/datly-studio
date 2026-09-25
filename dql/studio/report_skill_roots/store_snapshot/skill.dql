@@ -9,6 +9,7 @@
 
 #define($_ = $ReportId<string>(query/reportId).Required().WithPredicate(0, 'equal', 's', 'report_id'))
 #define($_ = $VersionNo<int>(query/versionNo).Required().WithPredicate(0, 'equal', 's', 'version_no'))
+#define($_ = $SkillId<string>(query/skillId).Optional().WithPredicate(0, 'equal', 's', 'skill_id'))
 #define($_ = $Skills<[]*SnapshotSkill>(output/view))
 
 SELECT skill.*, type(skill, 'SnapshotSkill'),

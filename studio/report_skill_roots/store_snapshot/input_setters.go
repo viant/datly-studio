@@ -21,3 +21,14 @@ func (input *Input) SetVersionNo(value int) {
 	}
 	input.Has.VersionNo = true
 }
+
+func (input *Input) SetSkillId(value string) {
+	if input == nil {
+		return
+	}
+	input.SkillId = value
+	if input.Has == nil {
+		input.Has = &InputHas{}
+	}
+	input.Has.SkillId = true
+}
