@@ -585,7 +585,9 @@ local test target; do not silently replace it with Docker/MySQL.
   No deployed Studio browser tab, deployed URL, or test-identity configuration
   was available during the 2026-09-25 local audit. Actual deployed IdP,
   screen-reader, and 200% Chrome zoom acceptance evidence remains pending;
-  local viewport scaling is not a substitute.
+  local viewport scaling is not a substitute. A later actual local Chrome
+  200% zoom pass covered Overview and the Vendor graph/Input/Output flow and
+  fixed a clipped graph count; it remains local evidence only.
   The remaining SDK operations still use the generic dispatcher.
   See `docs/sdk-native-endpoints.md` for the remaining broader SDK migration.
   Focused

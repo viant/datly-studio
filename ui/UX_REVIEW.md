@@ -297,12 +297,17 @@ scoped to inspected scenarios rather than treated as blanket Fable approval.
   pending; the installed executable does not supply reviewer evidence.
 - Rechecked 2026-09-25: no deployed Studio tab or deployed sign-in URL was
   available in the browser inventory or repository configuration. Local Studio
-  was reachable on the preseeded SQLite fixture, but an attempted actual Chrome
-  zoom check was interrupted when the active browser session changed. The
-  earlier 640px viewport simulation remains local layout evidence only;
-  deployed login, restoration, expiry/re-login, denied-user operation,
-  manual screen-reader announcements, and actual 200% browser zoom are still
-  pending.
+  was reachable on the preseeded SQLite fixture. The earlier 640px viewport
+  simulation remains local layout evidence only. Deployed login, restoration,
+  expiry/re-login, denied-user operation, manual screen-reader announcements,
+  and deployed 200% browser zoom remain pending.
+- A later local Chrome check reached actual 200% page zoom: Chrome showed
+  `Zoom: 200%`, while device pixel ratio rose from 2 to 4 and CSS viewport
+  width fell from 1728px to 864px. Overview and the Vendor component graph,
+  Input catalog, inline input form, and Output catalog remained usable without
+  horizontal page overflow. The graph's clipped view-count badge was removed
+  at narrow container widths. Chrome was reset to 100% afterward. This does
+  not satisfy the deployed zoom acceptance row or manual screen-reader check.
 
 ## Completed window reviews
 
