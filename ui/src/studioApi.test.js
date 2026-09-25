@@ -21,12 +21,13 @@ test('development API carries an explicit local subject only', async () => {
 test('authenticated API carries only the HttpOnly BFF session cookie', async () => {
   let request;
   const api = new StudioAPI({ mode: 'authenticated', apiBaseURL: 'https://studio.example.com' }, {
-    fetcher: async (_, init) => { request = init; return response({ items: [] }); },
+    fetcher: async (value) => { request = value; return response({ items: [], limit: 50, offset: 0 }); },
   });
   await api.listConnectors();
   assert.equal(request.credentials, 'include');
-  assert.equal(request.headers.Authorization, undefined);
-  assert.equal(request.headers['X-Studio-Development-Subject'], undefined);
+  assert.equal(request.headers.get('Authorization'), null);
+  assert.equal(request.headers.get('X-Studio-Development-Subject'), null);
+  assert.equal(await request.text(), '{}');
 });
 
 test('authenticated API notifies the shell when its opaque session expires', async () => {

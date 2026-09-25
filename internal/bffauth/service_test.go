@@ -88,6 +88,7 @@ func TestProxyExpandsSessionToBearerAndStripsControlHeaders(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.Handle("/v1/studio/sdk/", http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusTeapot) }))
 	mux.Handle("/v1/studio/sdk/acl.list", preservingProxy)
+	mux.Handle("/v1/studio/sdk/connectors.list", preservingProxy)
 	mux.Handle("/v1/studio/sdk/reports.get", preservingProxy)
 	mux.Handle("/v1/studio/sdk/reports.list", preservingProxy)
 	mux.ServeHTTP(aclResponse, aclRequest)
@@ -109,6 +110,13 @@ func TestProxyExpandsSessionToBearerAndStripsControlHeaders(t *testing.T) {
 	mux.ServeHTTP(getResponse, getRequest)
 	if getResponse.Code != http.StatusNoContent || path != "/v1/studio/sdk/reports.get" || calls != 4 {
 		t.Fatalf("native report-get proxy status=%d path=%q calls=%d", getResponse.Code, path, calls)
+	}
+	connectorRequest := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/connectors.list", strings.NewReader(`{"limit":1}`))
+	connectorRequest.AddCookie(&http.Cookie{Name: DefaultCookieName, Value: id})
+	connectorResponse := httptest.NewRecorder()
+	mux.ServeHTTP(connectorResponse, connectorRequest)
+	if connectorResponse.Code != http.StatusNoContent || path != "/v1/studio/sdk/connectors.list" || calls != 5 {
+		t.Fatalf("native connector proxy status=%d path=%q calls=%d", connectorResponse.Code, path, calls)
 	}
 }
 

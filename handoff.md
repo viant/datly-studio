@@ -555,6 +555,8 @@ local test target; do not silently replace it with Docker/MySQL.
   the verified-auth predicate; its HTTP, OpenAPI, MCP, and scoped SQLite tests
   pass. A dedicated native `reports.get` reader now returns a single report
   DTO or 404 under the same typed authorization and generated-client path.
+  `connectors.list` now uses a native reader with server-derived configuration
+  flags and no secret material in HTTP/MCP/OpenAPI responses.
   The remaining SDK operations still use the generic dispatcher.
   See `docs/sdk-native-endpoints.md` for the remaining broader SDK migration.
   Focused

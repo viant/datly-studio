@@ -27,17 +27,6 @@ func (input *Input) SetAuth(value *studioauth.Output) {
 	input.Has.Auth = true
 }
 
-func (input *Input) SetName(value string) {
-	if input == nil {
-		return
-	}
-	input.Name = value
-	if input.Has == nil {
-		input.Has = &InputHas{}
-	}
-	input.Has.Name = true
-}
-
 func (input *Input) SetQuery(value string) {
 	if input == nil {
 		return

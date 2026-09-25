@@ -16,10 +16,33 @@ export type Wire3260Fb4C4C3Ba7C084402Fa64664F099Dae40719E64A304Feae0D1Fd05Cf8C6c
     subjectType: string | null;
 };
 
+export type Wire33E5247Ebc5C8C7A90566F8Ad084B60E92D39E02E7318B8D44D82392A4711B58 = {
+    items: Array<Wire7F614C3079E0F6Cdc356Ae6E7E44A326C9B77Ae75D9Bed109251680A65F23B71 | null> | null;
+    limit: number;
+    offset: number;
+};
+
 export type Wire38Fcb57C86Eb44D564D0165Fe128Aec29A7664C7Bb39427502B08Df9Aa42649a = {
     items: Array<WireBba07F0Bad61Cd85885417E1C20C5Cff98C1Ebf3Abb205Fd71B51C6069Ea161c | null> | null;
     limit: number;
     offset: number;
+};
+
+export type Wire7F614C3079E0F6Cdc356Ae6E7E44A326C9B77Ae75D9Bed109251680A65F23B71 = {
+    createdAt: string;
+    description?: string | null;
+    driver: string;
+    dsnConfigured: boolean;
+    etag: number;
+    lastTestErrorCode?: string | null;
+    lastTestStatus?: string | null;
+    lastTestedAt?: string | null;
+    name: string;
+    options?: unknown;
+    ownerId: string;
+    secretConfigured: boolean;
+    status: string;
+    updatedAt: string;
 };
 
 export type Wire95A77E17Aef6A0C48E1829638788A4Dec1654A5C42Fd6549E0C42F7Eea24F35c = {
@@ -82,6 +105,31 @@ export type PostV1StudioSdkAclListResponses = {
 };
 
 export type PostV1StudioSdkAclListResponse = PostV1StudioSdkAclListResponses[keyof PostV1StudioSdkAclListResponses];
+
+export type PostV1StudioSdkConnectorsListData = {
+    body?: {
+        driver?: string;
+        fields?: Array<string> | null;
+        limit?: number;
+        offset?: number;
+        orderBy?: string;
+        ownerId?: string;
+        query?: string;
+        status?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/connectors.list';
+};
+
+export type PostV1StudioSdkConnectorsListResponses = {
+    /**
+     * Success response
+     */
+    200: Wire33E5247Ebc5C8C7A90566F8Ad084B60E92D39E02E7318B8D44D82392A4711B58;
+};
+
+export type PostV1StudioSdkConnectorsListResponse = PostV1StudioSdkConnectorsListResponses[keyof PostV1StudioSdkConnectorsListResponses];
 
 export type PostV1StudioSdkReportsGetData = {
     body: {

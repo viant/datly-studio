@@ -16,6 +16,7 @@ import (
 
 	"github.com/viant/bindly/resource"
 	authreader "github.com/viant/datly-studio/studio/auth/reader"
+	connectors "github.com/viant/datly-studio/studio/connectors/reader"
 	"github.com/viant/datly-studio/studio/host"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
 	acl "github.com/viant/datly-studio/studio/report_acl/reader"
@@ -47,6 +48,9 @@ func main() {
 func run(ctx context.Context, output string) error {
 	resources := resource.New()
 	if err := resources.Register(acl.AclDatlyResourceNamespace, acl.AclDatlyResources); err != nil {
+		return err
+	}
+	if err := resources.Register(connectors.ConnectorDatlyResourceNamespace, connectors.ConnectorDatlyResources); err != nil {
 		return err
 	}
 	if err := resources.Register(authreader.ContextDatlyResourceNamespace, authreader.ContextDatlyResources); err != nil {
@@ -96,6 +100,11 @@ func run(ctx context.Context, output string) error {
 	if err != nil {
 		return err
 	}
+	connectorList, err := compile(reflect.TypeFor[connectors.ConnectorComponent](), reflect.TypeFor[connectors.Input](),
+		reflect.TypeFor[connectors.Output](), resources, types, codec)
+	if err != nil {
+		return err
+	}
 	reportList, err := compile(reflect.TypeFor[reports.ReportComponent](), reflect.TypeFor[reports.Input](),
 		reflect.TypeFor[reports.Output](), resources, types, codec)
 	if err != nil {
@@ -108,9 +117,10 @@ func run(ctx context.Context, output string) error {
 	}
 	document, err := (openapi.Generator{}).Generate(ctx, openapi.Request{
 		Info:       openapi3.Info{Title: "Datly Studio SDK", Version: "1.0.0"},
-		Components: []*registry.RegisteredComponent{auth, aclList, reportList, reportOne},
+		Components: []*registry.RegisteredComponent{auth, aclList, connectorList, reportList, reportOne},
 		Routes: []spec.RouteRef{
 			{Method: "POST", Path: "/v1/studio/sdk/acl.list"},
+			{Method: "POST", Path: "/v1/studio/sdk/connectors.list"},
 			{Method: "POST", Path: "/v1/studio/sdk/reports.get"},
 			{Method: "POST", Path: "/v1/studio/sdk/reports.list"},
 		},

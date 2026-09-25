@@ -50,6 +50,42 @@
           "etag"
         ]
       },
+      "Wire_33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Wire_7f614c3079e0f6cdc356ae6e7e44a326c9b77ae75d9bed109251680a65f23b71"
+                },
+                {
+                  "type": "object",
+                  "nullable": true,
+                  "enum": [
+                    null
+                  ]
+                }
+              ]
+            },
+            "nullable": true
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "offset": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "items",
+          "limit",
+          "offset"
+        ]
+      },
       "Wire_38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a": {
         "type": "object",
         "properties": {
@@ -84,6 +120,70 @@
           "items",
           "limit",
           "offset"
+        ]
+      },
+      "Wire_7f614c3079e0f6cdc356ae6e7e44a326c9b77ae75d9bed109251680a65f23b71": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "driver": {
+            "type": "string"
+          },
+          "dsnConfigured": {
+            "type": "boolean"
+          },
+          "etag": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "lastTestErrorCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastTestStatus": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastTestedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "options": {},
+          "ownerId": {
+            "type": "string"
+          },
+          "secretConfigured": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "name",
+          "driver",
+          "dsnConfigured",
+          "secretConfigured",
+          "ownerId",
+          "status",
+          "etag",
+          "createdAt",
+          "updatedAt"
         ]
       },
       "Wire_95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c": {
@@ -312,6 +412,70 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Wire_95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/connectors.list": {
+      "post": {
+        "summary": "connector",
+        "operationId": "POST:/v1/studio/sdk/connectors.list",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "driver": {
+                    "type": "string"
+                  },
+                  "fields": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "nullable": true
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "orderBy": {
+                    "type": "string"
+                  },
+                  "ownerId": {
+                    "type": "string"
+                  },
+                  "query": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Wire_33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58"
                 }
               }
             }

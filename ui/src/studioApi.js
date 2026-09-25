@@ -1,7 +1,7 @@
 // StudioAPI is deliberately a client-side counterpart of sdk.Transport: every
 // UI interaction names an SDK operation and sends an SDK DTO. It has no direct
 // SQL, DQL, Datly component, or storage knowledge.
-import { postV1StudioSdkAclList, postV1StudioSdkReportsGet, postV1StudioSdkReportsList } from './generated/studioClient.gen.js';
+import { postV1StudioSdkAclList, postV1StudioSdkConnectorsList, postV1StudioSdkReportsGet, postV1StudioSdkReportsList } from './generated/studioClient.gen.js';
 
 const nativeErrorCode = { 400: 'invalid_argument', 401: 'unauthorized', 403: 'forbidden', 404: 'not_found', 409: 'conflict', 422: 'invalid_argument', 502: 'unavailable', 503: 'unavailable' };
 
@@ -132,7 +132,7 @@ export class StudioAPI {
   getWarmupRun(reportId, runId) { return this.invoke('versions.warmup_get', { reportId, runId }); }
   listWarmupRuns(reportId, versionNo, input = {}) { return this.invoke('versions.warmup_list', { reportId, versionNo, input }); }
   previewReader(reportId, versionNo, input = {}, limit = 50) { return this.invoke('preview.execute', { reportId, versionNo, input: { input, limit } }); }
-  listConnectors(input = {}) { return this.invoke('connectors.list', input); }
+  listConnectors(input = {}) { return this.nativeRequest(postV1StudioSdkConnectorsList, 'connectors.list', input); }
   getConnector(name) { return this.invoke('connectors.get', { name }); }
   createConnector(input) { return this.invoke('connectors.create', input); }
   updateConnector(name, input) { return this.invoke('connectors.update', { name, input }); }

@@ -181,8 +181,8 @@ func TestReflectionBootstrapDiscoversComponentsAndOrdinaryTypes(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(discovered.Components) != 2 {
-		t.Fatalf("expected two connector routes, got %d", len(discovered.Components))
+	if len(discovered.Components) != 1 {
+		t.Fatalf("expected one native connector reader route, got %d", len(discovered.Components))
 	}
 	if _, ok, err := discovered.Types.Resolve("package", "github.com/viant/datly-studio/studio/authorization.ConnectorRead"); err != nil || !ok {
 		t.Fatalf("ConnectorRead reflection discovery: found=%v err=%v", ok, err)

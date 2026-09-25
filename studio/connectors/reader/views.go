@@ -7,17 +7,18 @@ import (
 
 // Connector is generated canonical view metadata for connector.
 type Connector struct {
+	Name              string          `sqlx:"name"`
+	Driver            string          `sqlx:"driver"`
+	DsnConfigured     bool            `sqlx:"dsn_configured"`
 	SecretConfigured  bool            `sqlx:"secret_configured"`
-	OptionsJson       json.RawMessage `sqlx:"options_json,enc=JSON"`
-	Name              *string         `sqlx:"name"`
-	Driver            *string         `sqlx:"driver"`
-	Description       *string         `sqlx:"description"`
-	OwnerId           *string         `sqlx:"owner_id"`
-	Status            *string         `sqlx:"status"`
-	LastTestStatus    *string         `sqlx:"last_test_status"`
-	LastTestErrorCode *string         `sqlx:"last_test_error_code"`
-	LastTestedAt      *time.Time      `sqlx:"last_tested_at"`
-	Etag              *int            `sqlx:"etag"`
-	CreatedAt         *time.Time      `sqlx:"created_at"`
-	UpdatedAt         *time.Time      `sqlx:"updated_at"`
+	Description       *string         `json:"description,omitempty" sqlx:"description"`
+	OwnerId           string          `sqlx:"owner_id"`
+	Status            string          `sqlx:"status"`
+	OptionsJson       json.RawMessage `json:"options,omitempty" sqlx:"options_json,enc=JSON"`
+	LastTestStatus    *string         `json:"lastTestStatus,omitempty" sqlx:"last_test_status"`
+	LastTestErrorCode *string         `json:"lastTestErrorCode,omitempty" sqlx:"last_test_error_code"`
+	LastTestedAt      *time.Time      `json:"lastTestedAt,omitempty" sqlx:"last_tested_at"`
+	Etag              int64           `sqlx:"etag"`
+	CreatedAt         time.Time       `sqlx:"created_at"`
+	UpdatedAt         time.Time       `sqlx:"updated_at"`
 }

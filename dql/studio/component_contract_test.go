@@ -198,7 +198,7 @@ func TestGeneratedJSONColumnsRetainJSONEncoding(t *testing.T) {
 		}
 		text := string(payload)
 		for _, field := range fields {
-			pattern := regexp.MustCompile(regexp.QuoteMeta(field) + `\s+json\.RawMessage\s+` + "`sqlx:\"")
+			pattern := regexp.MustCompile(regexp.QuoteMeta(field) + `\s+json\.RawMessage\s+` + "`")
 			location := pattern.FindStringIndex(text)
 			if location == nil {
 				t.Fatalf("%s is missing JSON raw field %s", relative, field)
@@ -209,7 +209,7 @@ func TestGeneratedJSONColumnsRetainJSONEncoding(t *testing.T) {
 			if lineEnd >= 0 {
 				line = line[:lineEnd]
 			}
-			if !strings.Contains(line, "enc=JSON") {
+			if !strings.Contains(line, "sqlx:\"") || !strings.Contains(line, "enc=JSON") {
 				t.Fatalf("%s field %s is missing enc=JSON: %s", relative, field, line)
 			}
 		}
