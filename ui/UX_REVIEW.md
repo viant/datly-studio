@@ -276,6 +276,14 @@ scoped to inspected scenarios rather than treated as blanket Fable approval.
 - Rechecked 2026-09-25: `claude` 2.1.281 is installed, but `claude auth status`
   reports `loggedIn: false` and `authMethod: none`. Fable 5.1 review is still
   pending; the installed executable does not supply reviewer evidence.
+- Rechecked 2026-09-25: no deployed Studio tab or deployed sign-in URL was
+  available in the browser inventory or repository configuration. Local Studio
+  was reachable on the preseeded SQLite fixture, but an attempted actual Chrome
+  zoom check was interrupted when the active browser session changed. The
+  earlier 640px viewport simulation remains local layout evidence only;
+  deployed login, restoration, expiry/re-login, denied-user operation,
+  manual screen-reader announcements, and actual 200% browser zoom are still
+  pending.
 
 ## Completed window reviews
 

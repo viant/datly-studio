@@ -564,6 +564,10 @@ local test target; do not silently replace it with Docker/MySQL.
   Version get/list SDK responses now redact structural DQL unless the subject
   has `canUseDql`; the source-bearing static version reader requires that
   permission until a native metadata-plus-redaction contract is authored.
+  No deployed Studio browser tab, deployed URL, or test-identity configuration
+  was available during the 2026-09-25 local audit. Actual deployed IdP,
+  screen-reader, and 200% Chrome zoom acceptance evidence remains pending;
+  local viewport scaling is not a substitute.
   The remaining SDK operations still use the generic dispatcher.
   See `docs/sdk-native-endpoints.md` for the remaining broader SDK migration.
   Focused
