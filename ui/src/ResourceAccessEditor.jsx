@@ -31,6 +31,7 @@ export function ResourceAccessEditor({ api, resource, actions, choices = {}, rea
       ]);
       if (ticket !== sequence.current) return;
       setDocument(value); setDraft(clone(value)); setEditorContext(context);
+      if (readOnly) setAction(actions.find(name => value?.policies?.[name]) || actions[0]);
     } catch (cause) { if (ticket === sequence.current) setError(cause); }
     finally { if (ticket === sequence.current) setLoading(false); }
   };
@@ -103,7 +104,7 @@ export function ResourceAccessEditor({ api, resource, actions, choices = {}, rea
     </div>}
     {document && <footer className="studio-resource-access-footer">
       <span role="status">{cannotManage ? 'You have read-only access.' : saved ? 'Permissions saved.' : dirty ? 'Unsaved permission changes' : 'All changes saved'}</span>
-      <Button intent="primary" icon="eye-open" disabled={disabled || !dirty || conflict} onClick={() => setReviewOpen(true)}>Review changes</Button>
+      {!cannotManage && <Button intent="primary" icon="eye-open" disabled={disabled || !dirty || conflict} onClick={() => setReviewOpen(true)}>Review changes</Button>}
     </footer>}
     <Dialog className="studio-resource-review-dialog" isOpen={reviewOpen && dirty} title="Review permission changes" icon="eye-open" onClose={() => !saving && setReviewOpen(false)} canEscapeKeyClose={!saving} canOutsideClickClose={!saving}>
       <DialogBody>

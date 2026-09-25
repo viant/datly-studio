@@ -22,7 +22,7 @@ test('switches viewport and scenario without contacting a live service', async (
 test('read-only scenario uses the actual editor and disables policy changes', async () => {
   render(<ACLReviewFrame scenario="readonly" kind="skill"/>);
   await screen.findByText('You have read-only access.');
-  expect(screen.getByRole('button', { name: 'Review changes' }).disabled).toBe(true);
+  expect(screen.queryByRole('button', { name: 'Review changes' })).toBeNull();
   expect(screen.getByLabelText('Access mode').disabled).toBe(true);
 });
 
@@ -71,7 +71,8 @@ test('live review uses current SDK policy read-only without fixture or writes', 
 	}
 	expect(screen.getByText('Live · read-only')).toBeTruthy();
 	expect(screen.getByLabelText('Access mode').disabled).toBe(true);
-	expect(screen.getByRole('button', { name: 'Review changes' }).disabled).toBe(true);
+	expect(screen.getByLabelText('Permission action').value).toBe('retrieve');
+	expect(screen.queryByRole('button', { name: 'Review changes' })).toBeNull();
 	expect(fetcher).toHaveBeenCalledTimes(2);
 });
 

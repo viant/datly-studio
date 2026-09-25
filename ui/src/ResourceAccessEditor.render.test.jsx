@@ -14,7 +14,7 @@ test('loads provider choices and respects server read-only capability', async ()
   render(<ResourceAccessEditor api={api} resource={resource} actions={['retrieve']}/>);
   await screen.findByText('You have read-only access.');
   expect(screen.getByRole('option', { name: 'Provider reader' })).toBeTruthy();
-  expect(screen.getByRole('button', { name: 'Review changes' }).disabled).toBe(true);
+  expect(screen.queryByRole('button', { name: 'Review changes' })).toBeNull();
   expect(screen.getByLabelText('Access mode').disabled).toBe(true);
 });
 test('edits a provider role and preserves edits on revision conflict', async () => {
