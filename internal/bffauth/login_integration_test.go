@@ -1,10 +1,12 @@
 package bffauth
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
+	"database/sql"
 	"encoding/base64"
 	"encoding/json"
 	"math/big"
@@ -12,13 +14,20 @@ import (
 	"net/http/cookiejar"
 	"net/http/httptest"
 	"net/url"
+	"path/filepath"
 	"sync"
 	"testing"
 	"time"
 
 	jwtv5 "github.com/golang-jwt/jwt/v5"
+	"github.com/viant/datly-studio/sdk/access"
+	accessoauth "github.com/viant/datly-studio/sdk/access/oauth"
+	"github.com/viant/datly-studio/sdk/httptransport"
+	accessstore "github.com/viant/datly-studio/store/sql/access"
+	"github.com/viant/datly-studio/store/sql/migrate"
 	"github.com/viant/scy/auth/jwt/verifier"
 	"golang.org/x/oauth2"
+	_ "modernc.org/sqlite"
 )
 
 func TestOAuthLoginWithSignedJWTAndJWKS(t *testing.T) {
@@ -32,6 +41,7 @@ func TestOAuthLoginWithSignedJWTAndJWKS(t *testing.T) {
 	issueIssuer := issuer
 	issueAudience := audience
 	issueKey := privateKey
+	issueSubject := "alice"
 	provider := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/jwks":
@@ -71,13 +81,14 @@ func TestOAuthLoginWithSignedJWTAndJWKS(t *testing.T) {
 			selectedIssuer := issueIssuer
 			selectedAudience := issueAudience
 			selectedKey := issueKey
+			selectedSubject := issueSubject
 			lock.Unlock()
 			sum := sha256.Sum256([]byte(verifierValue))
 			if !found || base64.RawURLEncoding.EncodeToString(sum[:]) != challenge {
 				http.Error(w, "PKCE mismatch or replay", http.StatusBadRequest)
 				return
 			}
-			claims := jwtv5.RegisteredClaims{Issuer: selectedIssuer, Audience: jwtv5.ClaimStrings{selectedAudience}, Subject: "alice", ExpiresAt: jwtv5.NewNumericDate(time.Now().Add(time.Hour))}
+			claims := accessoauth.Claims{RegisteredClaims: jwtv5.RegisteredClaims{Issuer: selectedIssuer, Audience: jwtv5.ClaimStrings{selectedAudience}, Subject: selectedSubject, ExpiresAt: jwtv5.NewNumericDate(time.Now().Add(time.Hour))}, Tenant: "one", Roles: []string{"reviewer"}}
 			token := jwtv5.NewWithClaims(jwtv5.SigningMethodRS256, claims)
 			token.Header["kid"] = keyID
 			signed, err := token.SignedString(selectedKey)
@@ -112,6 +123,34 @@ func TestOAuthLoginWithSignedJWTAndJWKS(t *testing.T) {
 	}
 	sessions.Register(mux)
 	login.Register(mux)
+	db, err := sql.Open("sqlite", filepath.Join(t.TempDir(), "policies.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	migrations, err := migrate.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := migrations.Up(context.Background(), db); err != nil {
+		t.Fatal(err)
+	}
+	policyStore := &accessstore.Store{DB: db}
+	defer policyStore.Close(context.Background())
+	resource := access.Resource{Kind: "report", ID: "operations", Tenant: "one", Version: "3"}
+	view := access.Policy{Mode: "protected", Rule: &access.Rule{Kind: "subject", Value: "alice"}}
+	manage := access.Policy{Mode: "protected", Rule: &access.Rule{Kind: "role", Value: "access-admin"}}
+	if _, err := policyStore.Provision(context.Background(), access.Document{Resource: resource, Policies: map[string]access.Policy{
+		"viewAccess": view, "manageAccess": manage, "preview": {Mode: "protected", Rule: &access.Rule{Kind: "role", Value: "reviewer"}},
+	}}, "bootstrap"); err != nil {
+		t.Fatal(err)
+	}
+	accessProvider, err := accessoauth.New(accessoauth.Config{Issuer: issuer, Audience: audience, Algorithms: []string{"RS256"}, Keyfunc: func(*jwtv5.Token) (any, error) { return &privateKey.PublicKey, nil }})
+	if err != nil {
+		t.Fatal(err)
+	}
+	mux.Handle("POST "+httptransport.PathPrefix, httptransport.Gateway{Config: httptransport.Config{Mode: httptransport.Authenticated, Authenticator: sessions},
+		Transport: &access.Transport{Service: &access.Service{Store: policyStore, Provider: accessProvider}}})
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) { _, _ = w.Write([]byte("Studio")) })
 	newBrowser := func() *http.Client {
 		jar, err := cookiejar.New(nil)
@@ -140,6 +179,89 @@ func TestOAuthLoginWithSignedJWTAndJWKS(t *testing.T) {
 	}
 	if err := json.NewDecoder(me.Body).Decode(&identity); err != nil || me.StatusCode != http.StatusOK || !identity.Authenticated || identity.Subject != "alice" {
 		t.Fatalf("verified BFF identity=%+v status=%d err=%v", identity, me.StatusCode, err)
+	}
+	callAccess := func(client *http.Client, operation string, body any, forgedBearer string) (*http.Response, error) {
+		payload, err := json.Marshal(body)
+		if err != nil {
+			return nil, err
+		}
+		request, err := http.NewRequest(http.MethodPost, studio.URL+httptransport.PathPrefix+operation, bytes.NewReader(payload))
+		if err != nil {
+			return nil, err
+		}
+		request.Header.Set("Content-Type", "application/json")
+		if forgedBearer != "" {
+			request.Header.Set("Authorization", "Bearer "+forgedBearer)
+		}
+		return client.Do(request)
+	}
+	for _, operation := range []string{access.OperationGet, access.OperationContext} {
+		answer, err := callAccess(browser, operation, resource, "browser-forgery")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if answer.StatusCode != http.StatusOK {
+			answer.Body.Close()
+			t.Fatalf("verified BFF %s status=%d", operation, answer.StatusCode)
+		}
+		if operation == access.OperationGet {
+			var policy access.Document
+			if err := json.NewDecoder(answer.Body).Decode(&policy); err != nil || policy.Resource != resource || policy.Revision != 1 {
+				t.Fatalf("verified policy=%+v err=%v", policy, err)
+			}
+		} else {
+			var context access.EditorContext
+			if err := json.NewDecoder(answer.Body).Decode(&context); err != nil || context.CanManage || context.Source != "verified-principal" || len(context.Choices.Roles) != 1 || context.Choices.Roles[0].ID != "reviewer" {
+				t.Fatalf("verified editor context=%+v err=%v", context, err)
+			}
+		}
+		answer.Body.Close()
+	}
+	writeAttempt := access.Document{Resource: resource, Revision: 1, Policies: map[string]access.Policy{
+		"viewAccess": view, "manageAccess": manage, "preview": {Mode: "public"},
+	}}
+	blockedWrite, err := callAccess(browser, access.OperationReplace, writeAttempt, "browser-forgery")
+	if err != nil {
+		t.Fatal(err)
+	}
+	blockedWrite.Body.Close()
+	if blockedWrite.StatusCode != http.StatusForbidden {
+		t.Fatalf("read-only BFF policy replacement status=%d", blockedWrite.StatusCode)
+	}
+	unchanged, err := policyStore.Get(context.Background(), resource)
+	if err != nil || unchanged.Revision != 1 || unchanged.Policies["preview"].Mode != "protected" {
+		t.Fatalf("read-only BFF changed policy=%+v err=%v", unchanged, err)
+	}
+	unauthenticated := newBrowser()
+	denied, err := callAccess(unauthenticated, access.OperationGet, resource, "browser-forgery")
+	if err != nil {
+		t.Fatal(err)
+	}
+	denied.Body.Close()
+	if denied.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("bearer without BFF cookie status=%d", denied.StatusCode)
+	}
+	lock.Lock()
+	issueSubject = "bob"
+	lock.Unlock()
+	bobBrowser := newBrowser()
+	bobLogin, err := bobBrowser.Get(studio.URL + loginPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	bobLogin.Body.Close()
+	if bobLogin.StatusCode != http.StatusOK {
+		t.Fatalf("bob login status=%d", bobLogin.StatusCode)
+	}
+	for _, operation := range []string{access.OperationGet, access.OperationContext} {
+		answer, err := callAccess(bobBrowser, operation, resource, "")
+		if err != nil {
+			t.Fatal(err)
+		}
+		answer.Body.Close()
+		if answer.StatusCode != http.StatusForbidden {
+			t.Fatalf("other signed principal %s status=%d", operation, answer.StatusCode)
+		}
 	}
 	otherKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
