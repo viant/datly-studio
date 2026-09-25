@@ -13,7 +13,9 @@ import (
 	"strings"
 
 	"github.com/viant/datly-studio/sdk"
+	versiontouch "github.com/viant/datly-studio/studio/report_versions/store_touch"
 	"github.com/viant/datly/spec"
+	xhandler "github.com/viant/xdatly/handler"
 )
 
 func (t *Transport) resources(ctx context.Context, operation string, input, output any) error {
@@ -291,6 +293,9 @@ func (t *Transport) mutateResources(ctx context.Context, reportID string, versio
 	if strings.TrimSpace(reportID) == "" || versionNo <= 0 {
 		return invalid(errors.New("reportId and versionNo are required"))
 	}
+	if expectedRevision <= 0 {
+		return invalid(errors.New("expectedSourceRevision is required for resource mutations"))
+	}
 	tx, err := t.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return internal(err)
@@ -300,26 +305,28 @@ func (t *Transport) mutateResources(ctx context.Context, reportID string, versio
 			_ = tx.Rollback()
 		}
 	}()
-	query := `UPDATE report_versions SET source_revision=source_revision+1,compile_status='pending',compile_diagnostics_json='[]',validated_at=NULL WHERE report_id=? AND version_no=?`
-	args := []any{reportID, versionNo}
-	if expectedRevision > 0 {
-		query += ` AND source_revision=?`
-		args = append(args, expectedRevision)
-	}
-	result, err := tx.ExecContext(ctx, query, args...)
-	if err != nil {
-		return internal(err)
-	}
-	if count, _ := result.RowsAffected(); count != 1 {
-		var current int64
-		scanErr := tx.QueryRowContext(ctx, `SELECT source_revision FROM report_versions WHERE report_id=? AND version_no=?`, reportID, versionNo).Scan(&current)
-		if errors.Is(scanErr, sql.ErrNoRows) {
+	value := &versiontouch.StoredVersion{ReportId: reportID, VersionNo: versionNo, SourceRevision: &expectedRevision,
+		Has: &versiontouch.StoredVersionHas{ReportId: true, VersionNo: true, SourceRevision: true}}
+	if writeErr := t.writeVersionTouch(ctx, tx, value); writeErr != nil {
+		var conflict *xhandler.Conflict
+		if !errors.As(writeErr, &conflict) {
+			return internal(writeErr)
+		}
+		versions, readErr := t.readVersionCatalogTx(ctx, tx, versionCatalogRequest{ReportID: reportID, VersionNo: versionNo, Limit: 2})
+		if readErr != nil {
+			return internal(readErr)
+		}
+		if len(versions) == 0 {
 			return &sdk.Error{Code: sdk.ErrorNotFound, Message: "reader version was not found"}
 		}
-		if scanErr != nil {
-			return internal(scanErr)
+		if len(versions) != 1 {
+			return internal(errors.New("version catalog returned ambiguous rows"))
 		}
-		return &sdk.Error{Code: sdk.ErrorConflict, Message: "version source revision does not match", ExpectedSourceRevision: expectedRevision, CurrentSourceRevision: current}
+		message := "version source revision does not match"
+		if versions[0].SourceRevision == expectedRevision {
+			message = "published version cannot be mutated"
+		}
+		return &sdk.Error{Code: sdk.ErrorConflict, Message: message, ExpectedSourceRevision: expectedRevision, CurrentSourceRevision: versions[0].SourceRevision}
 	}
 	if err = mutation(tx); err != nil {
 		return err

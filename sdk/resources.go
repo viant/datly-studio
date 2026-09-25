@@ -47,8 +47,8 @@ type SkillRoot struct {
 	ExpectedSourceRevision int64  `json:"expectedSourceRevision,omitempty"`
 }
 
-// ResourceDeleteInput identifies a versioned resource mutation. A zero
-// ExpectedSourceRevision preserves the legacy unconditional-write contract.
+// ResourceDeleteInput identifies a versioned resource mutation. Mutations
+// require the exact ExpectedSourceRevision of the target report version.
 type ResourceDeleteInput struct {
 	ReportID               string `json:"reportId"`
 	VersionNo              int    `json:"versionNo"`
@@ -68,12 +68,15 @@ type ResourceSnapshot struct {
 type ResourceService interface {
 	Get(context.Context, string, int) (*ResourceSnapshot, error)
 	UpsertFile(context.Context, ResourceFile) (*ResourceSnapshot, error)
+	// Deprecated: use DeleteFileWithRevision; resource mutations require an exact revision.
 	DeleteFile(context.Context, string, int, string) (*ResourceSnapshot, error)
 	DeleteFileWithRevision(context.Context, ResourceDeleteInput) (*ResourceSnapshot, error)
 	UpsertFolder(context.Context, ResourceFolder) (*ResourceSnapshot, error)
+	// Deprecated: use DeleteFolderWithRevision; resource mutations require an exact revision.
 	DeleteFolder(context.Context, string, int, string) (*ResourceSnapshot, error)
 	DeleteFolderWithRevision(context.Context, ResourceDeleteInput) (*ResourceSnapshot, error)
 	UpsertSkill(context.Context, SkillRoot) (*ResourceSnapshot, error)
+	// Deprecated: use DeleteSkillWithRevision; resource mutations require an exact revision.
 	DeleteSkill(context.Context, string, int, string) (*ResourceSnapshot, error)
 	DeleteSkillWithRevision(context.Context, ResourceDeleteInput) (*ResourceSnapshot, error)
 }

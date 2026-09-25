@@ -909,12 +909,28 @@ SELECT 1`})
 	if err != nil {
 		t.Fatal(err)
 	}
-	file, err := client.Resources().UpsertFile(principal, sdk.ResourceFile{ReportID: report.ID, VersionNo: version.VersionNo, Namespace: report.OwnerPackage + ".docs", ResourcePath: "guide/SKILL.md", Content: "---\nname: guide\ndescription: Test guide\n---\nUse the guide."})
+	_, err = client.Resources().UpsertFile(principal, sdk.ResourceFile{ReportID: report.ID, VersionNo: version.VersionNo,
+		Namespace: report.OwnerPackage + ".docs", ResourcePath: "guide/SKILL.md", Content: "missing revision"})
+	var missingRevision *sdk.Error
+	if !errors.As(err, &missingRevision) || missingRevision.Code != sdk.ErrorInvalidArgument {
+		t.Fatalf("resource mutation without revision error=%v", err)
+	}
+	if _, err := db.Exec(`UPDATE report_versions SET state='validated',compile_status='valid',validated_at=CURRENT_TIMESTAMP WHERE report_id=? AND version_no=?`, report.ID, version.VersionNo); err != nil {
+		t.Fatal(err)
+	}
+	file, err := client.Resources().UpsertFile(principal, sdk.ResourceFile{ReportID: report.ID, VersionNo: version.VersionNo, Namespace: report.OwnerPackage + ".docs", ResourcePath: "guide/SKILL.md", Content: "---\nname: guide\ndescription: Test guide\n---\nUse the guide.", ExpectedSourceRevision: version.SourceRevision})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(file.Files) != 1 || file.Files[0].ContentSHA256 == "" || file.Version.SourceRevision != version.SourceRevision+1 {
 		t.Fatalf("file snapshot=%+v", file)
+	}
+	var touchedState, touchedCompile, touchedDiagnostics string
+	var touchedValidation sql.NullTime
+	if err := db.QueryRow(`SELECT state,compile_status,compile_diagnostics_json,validated_at FROM report_versions WHERE report_id=? AND version_no=?`, report.ID, version.VersionNo).
+		Scan(&touchedState, &touchedCompile, &touchedDiagnostics, &touchedValidation); err != nil ||
+		touchedState != "draft" || touchedCompile != "pending" || touchedDiagnostics != "[]" || touchedValidation.Valid {
+		t.Fatalf("touched version state=%q compile=%q diagnostics=%q validated=%v err=%v", touchedState, touchedCompile, touchedDiagnostics, touchedValidation, err)
 	}
 	folder, err := client.Resources().UpsertFolder(principal, sdk.ResourceFolder{ReportID: report.ID, VersionNo: version.VersionNo, Namespace: report.OwnerPackage + ".docs", RootPath: "guide", URIPrefix: "skill://owner-guide/", ExpectedSourceRevision: file.Version.SourceRevision})
 	if err != nil {
@@ -1014,6 +1030,16 @@ SELECT 1`})
 	afterFileDelete, err := client.Resources().DeleteFileWithRevision(principal, sdk.ResourceDeleteInput{ReportID: report.ID, VersionNo: version.VersionNo, ResourceID: file.Files[0].ResourceID, ExpectedSourceRevision: afterFolderDelete.Version.SourceRevision})
 	if err != nil || len(afterFileDelete.Files) != 1 || afterFileDelete.Version.SourceRevision != afterFolderDelete.Version.SourceRevision+1 {
 		t.Fatalf("file delete snapshot=%+v err=%v", afterFileDelete, err)
+	}
+	if _, err := db.Exec(`UPDATE report_versions SET state='published' WHERE report_id=? AND version_no=?`, report.ID, version.VersionNo); err != nil {
+		t.Fatal(err)
+	}
+	_, err = client.Resources().UpsertFile(principal, sdk.ResourceFile{ReportID: report.ID, VersionNo: version.VersionNo,
+		Namespace: report.OwnerPackage + ".docs", ResourcePath: "guide/late.md", Content: "late",
+		ExpectedSourceRevision: afterFileDelete.Version.SourceRevision})
+	var immutable *sdk.Error
+	if !errors.As(err, &immutable) || immutable.Code != sdk.ErrorConflict {
+		t.Fatalf("published version resource mutation error=%v", err)
 	}
 }
 

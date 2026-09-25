@@ -1,0 +1,27 @@
+#package('studio/report_versions/store_touch')
+
+#import('encoding/json')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/report-version-store/touch', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('version', 'sql/read.sql'))
+
+#define($_ = $Versions<[]*StoredVersion>(body/data))
+
+SELECT version.*, type(version, 'StoredVersion'),
+       CAST(version.report_id AS string),
+       CAST(version.version_no AS int),
+       CAST(version.state AS string),
+       CAST(version.compile_status AS string),
+       CAST(version.compile_diagnostics_json AS json.RawMessage),
+       CAST(version.validated_at AS *time.Time),
+       CAST(version.source_revision AS *int64),
+       tag(version.report_id, 'sqlx:"report_id,primaryKey"'),
+       tag(version.version_no, 'sqlx:"version_no,primaryKey"'),
+       tag(version.compile_diagnostics_json, 'sqlx:"compile_diagnostics_json,enc=JSON"'),
+       lifecycle_type(version, 'VersionTouchRules'),
+       concurrency_token(version.source_revision)
+FROM (${embed:sql/read.sql}) version
