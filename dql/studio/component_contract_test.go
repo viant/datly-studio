@@ -31,6 +31,7 @@ func TestGeneratedPackagesMatchCanonicalInventory(t *testing.T) {
 		"bff_sessions":              true,
 		"authorization_predicates":  true,
 		"resource_policy":           true,
+		"resource_namespaces":       true,
 	}
 	legacy := map[string]bool{"report_filters": true, "components": true, "component_versions": true}
 	support := map[string]bool{"authorization": true, "host": true, "predicatecatalog": true}
@@ -143,6 +144,7 @@ func TestServerOnlyStoreComponentsRemainInProcessOnly(t *testing.T) {
 		"github.com/viant/datly-studio/studio/namespaces/store_write",
 		"github.com/viant/datly-studio/studio/namespaces/store_access",
 		"github.com/viant/datly-studio/studio/report_resource_files/store_snapshot",
+		"github.com/viant/datly-studio/studio/resource_namespaces/store_usage",
 		"github.com/viant/datly-studio/studio/report_resource_folders/store_snapshot",
 		"github.com/viant/datly-studio/studio/report_skill_roots/store_snapshot",
 		"github.com/viant/datly-studio/studio/report_publication_events/store_list",
@@ -251,6 +253,7 @@ func TestEveryStaticDatlyComponentContract(t *testing.T) {
 		{"report_resource_files/reader/file.dql", "get"}, {"report_resource_files/writer/file.dql", "patch"},
 		{"report_resource_files/store_skill_content/file.dql", "get"},
 		{"report_resource_files/store_download/file.dql", "get"}, {"report_resource_files/store_snapshot/file.dql", "get"},
+		{"resource_namespaces/store_usage/usage.dql", "get"},
 		{"report_resource_folders/reader/folder.dql", "get"}, {"report_resource_folders/writer/folder.dql", "patch"},
 		{"report_resource_folders/store_snapshot/folder.dql", "get"},
 		{"report_skill_roots/reader/skill.dql", "get"}, {"report_skill_roots/writer/skill.dql", "patch"},
@@ -295,7 +298,7 @@ func TestEveryStaticDatlyComponentContract(t *testing.T) {
 	for _, item := range components {
 		item := item
 		t.Run(strings.TrimSuffix(item.path, ".dql"), func(t *testing.T) {
-			serverOnly := strings.HasPrefix(item.path, "bff_sessions/store_") || strings.HasPrefix(item.path, "authorization_predicates/store_") || strings.HasPrefix(item.path, "connectors/store_") || strings.HasPrefix(item.path, "namespaces/store_") || strings.HasPrefix(item.path, "report_skill_roots/store_") || strings.HasPrefix(item.path, "report_resource_files/store_") || strings.HasPrefix(item.path, "report_resource_folders/store_") || strings.HasPrefix(item.path, "report_publication_events/store_") || strings.HasPrefix(item.path, "report_publications/store_") || strings.HasPrefix(item.path, "report_warmup_runs/store_") || strings.HasPrefix(item.path, "runtime_generations/store_") || strings.HasPrefix(item.path, "reports/store_") || strings.HasPrefix(item.path, "report_versions/store_") || strings.HasPrefix(item.path, "report_acl/store_")
+			serverOnly := strings.HasPrefix(item.path, "bff_sessions/store_") || strings.HasPrefix(item.path, "authorization_predicates/store_") || strings.HasPrefix(item.path, "connectors/store_") || strings.HasPrefix(item.path, "namespaces/store_") || strings.HasPrefix(item.path, "resource_namespaces/store_") || strings.HasPrefix(item.path, "report_skill_roots/store_") || strings.HasPrefix(item.path, "report_resource_files/store_") || strings.HasPrefix(item.path, "report_resource_folders/store_") || strings.HasPrefix(item.path, "report_publication_events/store_") || strings.HasPrefix(item.path, "report_publications/store_") || strings.HasPrefix(item.path, "report_warmup_runs/store_") || strings.HasPrefix(item.path, "runtime_generations/store_") || strings.HasPrefix(item.path, "reports/store_") || strings.HasPrefix(item.path, "report_versions/store_") || strings.HasPrefix(item.path, "report_acl/store_")
 			directory := filepath.Dir(item.path)
 			payload, err := os.ReadFile(item.path)
 			if err != nil {

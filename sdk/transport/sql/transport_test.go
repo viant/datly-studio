@@ -947,6 +947,44 @@ SELECT 1`})
 	if err := db.QueryRow(`SELECT created_at FROM report_resource_files WHERE report_id=? AND version_no=? AND resource_id=?`, report.ID, version.VersionNo, file.Files[0].ResourceID).Scan(&preservedCreated); err != nil || !preservedCreated.Equal(originalCreated) {
 		t.Fatalf("file created_at changed original=%v updated=%v err=%v", originalCreated, preservedCreated, err)
 	}
+	_, err = client.Resources().UpsertFile(principal, sdk.ResourceFile{ReportID: report.ID,
+		VersionNo: version.VersionNo, Namespace: "foreign.docs", ResourcePath: "other.txt",
+		Content: "other", ExpectedSourceRevision: file.Version.SourceRevision})
+	var wrongOwner *sdk.Error
+	if !errors.As(err, &wrongOwner) || wrongOwner.Code != sdk.ErrorInvalidArgument {
+		t.Fatalf("foreign owner namespace error=%v", err)
+	}
+	otherReport, err := client.Reports().Create(principal, sdk.CreateReportInput{Slug: "other-resources", Title: "Other resources", DefaultConnectorName: connector.Name})
+	if err != nil {
+		t.Fatal(err)
+	}
+	otherVersion, err := client.Versions().Create(principal, otherReport.ID, sdk.CreateVersionInput{AuthoringMode: "dql", CreatedBy: "owner", AuthoredDQL: "SELECT 1"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = client.Resources().UpsertFile(principal, sdk.ResourceFile{ReportID: otherReport.ID,
+		VersionNo: otherVersion.VersionNo, Namespace: report.OwnerPackage + ".docs",
+		ResourcePath: "other.txt", Content: "other", ExpectedSourceRevision: otherVersion.SourceRevision})
+	var namespaceConflict *sdk.Error
+	if !errors.As(err, &namespaceConflict) || namespaceConflict.Code != sdk.ErrorConflict {
+		t.Fatalf("shared resource namespace error=%v", err)
+	}
+	otherAfter, err := client.Versions().Get(principal, otherReport.ID, otherVersion.VersionNo)
+	if err != nil || otherAfter.SourceRevision != otherVersion.SourceRevision {
+		t.Fatalf("namespace conflict changed version=%+v err=%v", otherAfter, err)
+	}
+	otherFolder, err := client.Resources().UpsertFolder(principal, sdk.ResourceFolder{ReportID: otherReport.ID,
+		VersionNo: otherVersion.VersionNo, Namespace: report.OwnerPackage + ".folder-only",
+		RootPath: "guide", URIPrefix: "skill://other-guide/", ExpectedSourceRevision: otherVersion.SourceRevision})
+	if err != nil || len(otherFolder.Folders) != 1 {
+		t.Fatalf("other report folder=%+v err=%v", otherFolder, err)
+	}
+	_, err = client.Resources().UpsertFile(principal, sdk.ResourceFile{ReportID: report.ID,
+		VersionNo: version.VersionNo, Namespace: report.OwnerPackage + ".folder-only",
+		ResourcePath: "guide/other.txt", Content: "other", ExpectedSourceRevision: file.Version.SourceRevision})
+	if !errors.As(err, &namespaceConflict) || namespaceConflict.Code != sdk.ErrorConflict {
+		t.Fatalf("folder-owned resource namespace error=%v", err)
+	}
 	folder, err := client.Resources().UpsertFolder(principal, sdk.ResourceFolder{ReportID: report.ID, VersionNo: version.VersionNo, Namespace: report.OwnerPackage + ".docs", RootPath: "guide", URIPrefix: "skill://owner-guide/", ExpectedSourceRevision: file.Version.SourceRevision})
 	if err != nil {
 		t.Fatal(err)

@@ -287,36 +287,27 @@ func (t *Transport) requireResourceVersion(ctx context.Context, reportID string,
 	return err
 }
 
-type resourceQueryer interface {
-	QueryRowContext(context.Context, string, ...any) *sql.Row
-}
-
-func (t *Transport) validateResourceNamespace(ctx context.Context, db resourceQueryer, reportID, namespace string) error {
-	var ownerID string
-	err := db.QueryRowContext(ctx, `SELECT owner_id FROM reports WHERE id=?`, reportID).Scan(&ownerID)
-	if errors.Is(err, sql.ErrNoRows) {
-		return &sdk.Error{Code: sdk.ErrorNotFound, Message: "report was not found"}
-	}
+func (t *Transport) validateResourceNamespace(ctx context.Context, tx *sql.Tx, reportID, namespace string) error {
+	reports, err := t.readReportCatalogTx(ctx, tx, reportCatalogRequest{ID: reportID, Limit: 2, Unscoped: true})
 	if err != nil {
 		return internal(err)
 	}
-	ownerPackage := sdk.OwnerPackageSegment(ownerID)
+	if len(reports) == 0 {
+		return &sdk.Error{Code: sdk.ErrorNotFound, Message: "report was not found"}
+	}
+	if len(reports) != 1 {
+		return internal(errors.New("report catalog returned ambiguous rows"))
+	}
+	ownerPackage := sdk.OwnerPackageSegment(reports[0].OwnerID)
 	namespace = strings.TrimSpace(namespace)
 	if !strings.HasPrefix(namespace, ownerPackage+".") {
 		return invalid(fmt.Errorf("resource namespace must use the owner prefix %s.", ownerPackage))
 	}
-	var foreign int
-	err = db.QueryRowContext(ctx, `SELECT COUNT(1) FROM report_resource_files WHERE namespace=? AND report_id<>?`, namespace, reportID).Scan(&foreign)
+	foreign, err := t.readForeignResourceNamespaceUsage(ctx, tx, namespace, reportID)
 	if err != nil {
 		return internal(err)
 	}
-	if foreign > 0 {
-		return &sdk.Error{Code: sdk.ErrorConflict, Message: "resource namespace is already owned by another reader"}
-	}
-	if err = db.QueryRowContext(ctx, `SELECT COUNT(1) FROM report_resource_folders WHERE namespace=? AND report_id<>?`, namespace, reportID).Scan(&foreign); err != nil {
-		return internal(err)
-	}
-	if foreign > 0 {
+	if len(foreign) > 0 {
 		return &sdk.Error{Code: sdk.ErrorConflict, Message: "resource namespace is already owned by another reader"}
 	}
 	return nil

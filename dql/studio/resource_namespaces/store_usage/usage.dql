@@ -1,0 +1,19 @@
+#package('studio/resource_namespaces/store_usage')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/resource-namespace-store/usage', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('usage', 'sql/read.sql'))
+
+#define($_ = $Namespace<string>(query/namespace).Required().WithPredicate(0, 'equal', 'u', 'namespace'))
+#define($_ = $ExcludeReportId<string>(query/excludeReportId).Required().WithPredicate(0, 'not_equal', 'u', 'report_id'))
+#define($_ = $Usages<[]*NamespaceUsage>(output/view))
+
+SELECT usage.*, type(usage, 'NamespaceUsage'),
+       CAST(usage.report_id AS string),
+       CAST(usage.namespace AS string),
+       set_limit(usage, 2)
+FROM (${embed:sql/read.sql}) usage
+WHERE 1=1
