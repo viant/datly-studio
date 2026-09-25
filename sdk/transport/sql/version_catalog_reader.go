@@ -2,6 +2,7 @@ package sqltransport
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"reflect"
@@ -24,11 +25,15 @@ type versionCatalogRequest struct {
 }
 
 func (t *Transport) readVersionCatalog(ctx context.Context, request versionCatalogRequest) ([]*sdk.ReportVersion, error) {
+	return t.readVersionCatalogTx(ctx, nil, request)
+}
+
+func (t *Transport) readVersionCatalogTx(ctx context.Context, tx *sql.Tx, request versionCatalogRequest) ([]*sdk.ReportVersion, error) {
 	resources := resource.New()
 	if err := resources.Register(stored.VersionDatlyResourceNamespace, stored.VersionDatlyResources); err != nil {
 		return nil, err
 	}
-	connector := &dsql.SQLComponent{DB: t.DB}
+	connector := &dsql.SQLComponent{DB: t.DB, Tx: tx}
 	if err := connector.RegisterConnector("studio", t.DB); err != nil {
 		return nil, err
 	}

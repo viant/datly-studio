@@ -1999,11 +1999,8 @@ func (t *Transport) activatePublication(ctx context.Context, reportID string, ve
 			return internal(err)
 		}
 	}
-	if _, err = activated.ExecContext(ctx, `UPDATE report_versions SET state='superseded' WHERE report_id=? AND version_no<>? AND state='published'`, reportID, versionNo); err != nil {
-		return internal(err)
-	}
-	if _, err = activated.ExecContext(ctx, `UPDATE report_versions SET state='published',published_at=? WHERE report_id=? AND version_no=?`, now, reportID, versionNo); err != nil {
-		return internal(err)
+	if err = t.activateVersionState(ctx, activated, reportID, versionNo, now); err != nil {
+		return err
 	}
 	if _, err = activated.ExecContext(ctx, `UPDATE reports SET status='active',updated_at=? WHERE id=?`, now, reportID); err != nil {
 		return internal(err)

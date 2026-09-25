@@ -1,0 +1,22 @@
+#package('studio/report_versions/store_state')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/report-version-store/state', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('version', 'sql/read.sql'))
+
+#define($_ = $Operation<string>(query/operation).Required())
+#define($_ = $TargetVersionNo<int>(query/targetVersionNo).Required())
+#define($_ = $Versions<[]*StoredVersion>(body/data))
+
+SELECT version.*, type(version, 'StoredVersion'),
+       CAST(version.report_id AS string), CAST(version.version_no AS int),
+       CAST(version.state AS string),
+       CAST(version.published_at AS *time.Time),
+       tag(version.report_id, 'sqlx:"report_id,primaryKey"'),
+       tag(version.version_no, 'sqlx:"version_no,primaryKey"'),
+       lifecycle_type(version, 'VersionStateRules'),
+       concurrency_token(version.state)
+FROM (${embed:sql/read.sql}) version
