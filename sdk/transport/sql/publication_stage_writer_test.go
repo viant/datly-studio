@@ -1,0 +1,105 @@
+package sqltransport
+
+import (
+	"context"
+	"database/sql"
+	"errors"
+	"path/filepath"
+	"testing"
+	"time"
+
+	"github.com/viant/datly-studio/schema"
+	"github.com/viant/datly-studio/sdk"
+	stored "github.com/viant/datly-studio/studio/report_publications/store_stage"
+	xhandler "github.com/viant/xdatly/handler"
+	_ "modernc.org/sqlite"
+)
+
+func TestPublicationRestageWriterMatchesGenerationAndRollsBack(t *testing.T) {
+	ctx := context.Background()
+	db, err := sql.Open("sqlite", "file:"+filepath.Join(t.TempDir(), "studio.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	if err := schema.ApplySQLite(ctx, db, "studio"); err != nil {
+		t.Fatal(err)
+	}
+	transport := &Transport{DB: db, Authorizer: allowAuthorizer{}}
+	client, err := sdk.NewClient(transport)
+	if err != nil {
+		t.Fatal(err)
+	}
+	owner := sdk.WithPrincipal(ctx, sdk.Principal{Subject: "owner"})
+	connector, err := client.Connectors().Create(owner, sdk.CreateConnectorInput{Name: "main", Driver: "sqlite"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.Exec(`UPDATE connectors SET status='active' WHERE name=?`, connector.Name); err != nil {
+		t.Fatal(err)
+	}
+	report, err := client.Reports().Create(owner, sdk.CreateReportInput{Slug: "restage", Title: "Restage", DefaultConnectorName: connector.Name})
+	if err != nil {
+		t.Fatal(err)
+	}
+	version, err := client.Versions().Create(owner, report.ID, sdk.CreateVersionInput{AuthoringMode: "dql", AuthoredDQL: "SELECT 1"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	now := time.Now().UTC()
+	if err := transport.insertBuildingGeneration(owner, nil, 1, "report:1:1", "owner", now); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.Exec(`UPDATE runtime_generations SET status='active',activated_at=? WHERE generation_no=1`, now); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.ExecContext(ctx, `INSERT INTO report_publications
+		(report_id,active_version_no,desired_version_no,desired_generation,active_generation,publication_status,
+		 runtime_revision,spec_hash,published_by,published_at,activated_at)
+		VALUES(?,?,?,1,1,'active','report:1:1',?,'owner',?,?)`, report.ID, version.VersionNo, version.VersionNo, version.SpecHash, now, now); err != nil {
+		t.Fatal(err)
+	}
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer tx.Rollback()
+	if err := transport.insertBuildingGeneration(owner, tx, 2, "report:1:2", "owner", now); err != nil {
+		t.Fatal(err)
+	}
+	expected := int64(1)
+	versionNo := version.VersionNo
+	revision := "report:1:2"
+	row := &stored.StoredPublication{ReportId: report.ID, DesiredVersionNo: &versionNo,
+		DesiredGeneration: &expected, PublicationStatus: "pending", RuntimeRevision: &revision,
+		SpecHash: version.SpecHash, PublishedBy: "owner", PublishedAt: &now,
+		Has: &stored.StoredPublicationHas{ReportId: true, DesiredVersionNo: true,
+			DesiredGeneration: true, PublicationStatus: true, RuntimeRevision: true,
+			SpecHash: true, PublishedBy: true, PublishedAt: true, FailureJson: true}}
+	if err := transport.writePublicationStage(owner, tx, 2, row); err != nil {
+		t.Fatal(err)
+	}
+	snapshot, found, err := transport.publicationSnapshot(owner, tx, report.ID)
+	if err != nil || !found || snapshot.desiredGeneration != 2 || snapshot.status != "pending" ||
+		!snapshot.activeGeneration.Valid || snapshot.activeGeneration.Int64 != 1 || snapshot.activeVersion != 1 {
+		t.Fatalf("staged snapshot=%+v found=%v err=%v", snapshot, found, err)
+	}
+	staleExpected := int64(1)
+	stale := *row
+	stale.DesiredGeneration = &staleExpected
+	var conflict *xhandler.Conflict
+	if err := transport.writePublicationStage(owner, tx, 3, &stale); !errors.As(err, &conflict) {
+		t.Fatalf("stale restage error=%v", err)
+	}
+	if err := tx.Rollback(); err != nil {
+		t.Fatal(err)
+	}
+	snapshot, found, err = transport.publicationSnapshot(owner, nil, report.ID)
+	if err != nil || !found || snapshot.desiredGeneration != 1 || snapshot.status != "active" {
+		t.Fatalf("rolled-back snapshot=%+v found=%v err=%v", snapshot, found, err)
+	}
+	next, err := transport.nextGenerationNo(owner, nil)
+	if err != nil || next != 2 {
+		t.Fatalf("rolled-back generation head=%d err=%v", next, err)
+	}
+}

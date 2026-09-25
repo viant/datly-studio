@@ -24,6 +24,7 @@ import (
 	connectorstatus "github.com/viant/datly-studio/studio/connectors/store_status"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
 	publicationinsert "github.com/viant/datly-studio/studio/report_publications/store_insert"
+	publicationstage "github.com/viant/datly-studio/studio/report_publications/store_stage"
 	versionedit "github.com/viant/datly-studio/studio/report_versions/store_edit"
 	versioninsert "github.com/viant/datly-studio/studio/report_versions/store_insert"
 	versionvalidation "github.com/viant/datly-studio/studio/report_versions/store_validation"
@@ -1870,8 +1871,24 @@ func (t *Transport) stagePublication(ctx context.Context, in publishRequest, ver
 		if err != nil {
 			return 0, publicationState{}, false, time.Time{}, classify(err, "publication", in.ReportID)
 		}
-	} else if _, err := tx.ExecContext(ctx, `UPDATE report_publications SET desired_version_no=?, desired_generation=?, publication_status='pending', runtime_revision=?, spec_hash=?, published_by=?, published_at=?, failure_json=NULL WHERE report_id=?`, in.VersionNo, generation, runtimeRevision, version.SpecHash, in.Input.RequestedBy, now, in.ReportID); err != nil {
-		return 0, publicationState{}, false, time.Time{}, internal(err)
+	} else {
+		expected := previous.desiredGeneration
+		versionNo := in.VersionNo
+		err = t.writePublicationStage(ctx, tx, generation, &publicationstage.StoredPublication{
+			ReportId: in.ReportID, DesiredVersionNo: &versionNo, DesiredGeneration: &expected,
+			PublicationStatus: "pending", RuntimeRevision: &runtimeRevision,
+			SpecHash: version.SpecHash, PublishedBy: in.Input.RequestedBy, PublishedAt: &now,
+			Has: &publicationstage.StoredPublicationHas{ReportId: true, DesiredVersionNo: true,
+				DesiredGeneration: true, PublicationStatus: true, RuntimeRevision: true,
+				SpecHash: true, PublishedBy: true, PublishedAt: true, FailureJson: true},
+		})
+		if err != nil {
+			var conflict *xhandler.Conflict
+			if errors.As(err, &conflict) {
+				return 0, publicationState{}, false, time.Time{}, &sdk.Error{Code: sdk.ErrorConflict, Message: "publication generation changed before restaging"}
+			}
+			return 0, publicationState{}, false, time.Time{}, internal(err)
+		}
 	}
 	if err := tx.Commit(); err != nil {
 		return 0, publicationState{}, false, time.Time{}, internal(err)
