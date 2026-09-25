@@ -805,45 +805,13 @@ func (t *Transport) listReports(ctx context.Context, input, output any) error {
 	if limit > 500 {
 		limit = 500
 	}
-	q := `SELECT id,namespace,slug,title,description,owner_id,status,default_connector_name,component_scope,component_name,current_draft_version,etag,created_at,updated_at FROM reports WHERE deleted_at IS NULL`
-	args := []any{}
-	if in.Query != "" {
-		like := "%" + strings.ToLower(in.Query) + "%"
-		q += ` AND (LOWER(namespace) LIKE ? OR LOWER(slug) LIKE ? OR LOWER(title) LIKE ? OR LOWER(description) LIKE ?)`
-		args = append(args, like, like, like, like)
-	}
-	if in.Namespace != "" {
-		q += ` AND namespace=?`
-		args = append(args, in.Namespace)
-	}
-	if in.Status != "" {
-		q += ` AND status=?`
-		args = append(args, in.Status)
-	}
-	if in.OwnerID != "" {
-		q += ` AND owner_id=?`
-		args = append(args, in.OwnerID)
-	}
-	if in.ConnectorName != "" {
-		q += ` AND default_connector_name=?`
-		args = append(args, in.ConnectorName)
-	}
-	q, args = reportReadScope(ctx, q, args)
-	q += ` ORDER BY updated_at DESC,id ASC LIMIT ? OFFSET ?`
-	args = append(args, limit, in.Offset)
-	rows, err := t.DB.QueryContext(ctx, q, args...)
+	items, err := t.readReportCatalog(ctx, reportCatalogRequest{Query: in.Query, Namespace: in.Namespace,
+		Status: in.Status, OwnerID: in.OwnerID, ConnectorName: in.ConnectorName,
+		Limit: limit, Offset: in.Offset})
 	if err != nil {
 		return internal(err)
 	}
-	defer rows.Close()
-	page := &sdk.ReportPage{Limit: limit, Offset: in.Offset}
-	for rows.Next() {
-		v, err := scanReport(rows)
-		if err != nil {
-			return internal(err)
-		}
-		page.Items = append(page.Items, v)
-	}
+	page := &sdk.ReportPage{Items: items, Limit: limit, Offset: in.Offset}
 	return assign(output, page)
 }
 
@@ -982,30 +950,20 @@ func (t *Transport) requireActiveNamespace(ctx context.Context, ownerID, name st
 	return nil
 }
 func (t *Transport) getReportValue(ctx context.Context, id string) (*sdk.Report, error) {
-	query := `SELECT id,namespace,slug,title,description,owner_id,status,default_connector_name,component_scope,component_name,current_draft_version,etag,created_at,updated_at FROM reports WHERE id=? AND deleted_at IS NULL`
-	query, args := reportReadScope(ctx, query, []any{id})
-	value, err := scanReport(t.DB.QueryRowContext(ctx, query, args...))
+	if id == "" {
+		return nil, mapReadError(sql.ErrNoRows, "report", id)
+	}
+	items, err := t.readReportCatalog(ctx, reportCatalogRequest{ID: id, Limit: 2})
 	if err != nil {
-		return nil, mapReadError(err, "report", id)
+		return nil, internal(err)
 	}
-	return value, nil
-}
-
-// reportReadScope mirrors the Datly reader authorization predicate for SDK
-// catalog reads. A trusted in-process caller may omit a principal; every
-// HTTP gateway request must carry one after authentication.
-func reportReadScope(ctx context.Context, query string, args []any) (string, []any) {
-	principal, ok := sdk.PrincipalFromContext(ctx)
-	if !ok {
-		return query, args
+	if len(items) == 0 {
+		return nil, mapReadError(sql.ErrNoRows, "report", id)
 	}
-	query += ` AND (owner_id = ? OR EXISTS (
-SELECT 1 FROM report_acl studio_sdk_acl
-WHERE studio_sdk_acl.report_id = reports.id
-  AND studio_sdk_acl.subject_type = 'user'
-  AND studio_sdk_acl.subject_id = ?
-  AND studio_sdk_acl.can_view = TRUE))`
-	return query, append(args, principal.Subject, principal.Subject)
+	if len(items) != 1 {
+		return nil, internal(errors.New("report catalog returned ambiguous rows"))
+	}
+	return items[0], nil
 }
 
 // connectorReadScope grants access to owned connectors and connectors used by
@@ -1024,21 +982,6 @@ WHERE studio_sdk_report.default_connector_name = connectors.name
   AND studio_sdk_acl.subject_id = ?
   AND studio_sdk_acl.can_view = TRUE))`
 	return query, append(args, principal.Subject, principal.Subject)
-}
-func scanReport(scanner interface{ Scan(...any) error }) (*sdk.Report, error) {
-	var r sdk.Report
-	var desc sql.NullString
-	var draft sql.NullInt64
-	if err := scanner.Scan(&r.ID, &r.Namespace, &r.Slug, &r.Title, &desc, &r.OwnerID, &r.Status, &r.DefaultConnectorName, &r.ComponentScope, &r.ComponentName, &draft, &r.ETag, &r.CreatedAt, &r.UpdatedAt); err != nil {
-		return nil, err
-	}
-	r.Description = desc.String
-	r.OwnerPackage = sdk.OwnerPackageSegment(r.OwnerID)
-	if draft.Valid {
-		v := int(draft.Int64)
-		r.CurrentDraftVersion = &v
-	}
-	return &r, nil
 }
 
 type versionCreateRequest struct {

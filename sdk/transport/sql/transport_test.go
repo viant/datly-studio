@@ -826,6 +826,18 @@ func TestTransportScopesCatalogReadsToPrincipalOwnerOrACL(t *testing.T) {
 	if got := reportIDs(reports.Items); fmt.Sprint(got) != "[alice-report shared-report]" {
 		t.Fatalf("reports=%v", got)
 	}
+	filtered, err := client.Reports().List(scoped, sdk.ListReportsInput{Query: "SHARED", OwnerID: "bob", ConnectorName: "shared-db", Limit: 1})
+	if err != nil || fmt.Sprint(reportIDs(filtered.Items)) != "[shared-report]" {
+		t.Fatalf("filtered report page=%+v err=%v", filtered, err)
+	}
+	second, err := client.Reports().List(scoped, sdk.ListReportsInput{Limit: 1, Offset: 1})
+	if err != nil || fmt.Sprint(reportIDs(second.Items)) != "[shared-report]" {
+		t.Fatalf("second report page=%+v err=%v", second, err)
+	}
+	all, err := client.Reports().List(ctx, sdk.ListReportsInput{Limit: 10})
+	if err != nil || len(all.Items) != 3 {
+		t.Fatalf("trusted in-process catalog=%+v err=%v", all, err)
+	}
 	connectors, err := client.Connectors().List(scoped, sdk.ListConnectorsInput{Limit: 10})
 	if err != nil {
 		t.Fatal(err)
