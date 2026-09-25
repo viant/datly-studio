@@ -2,6 +2,7 @@ package sdk
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -52,5 +53,11 @@ func TestWithSystemIdentitySeparatesTrustedClaimsFromSignedBearer(t *testing.T) 
 	}
 	if _, err := WithSystemIdentity(context.Background(), wrong); err == nil {
 		t.Fatal("wrong service JWT subject accepted")
+	}
+	providerFailure := errors.New("provider unavailable")
+	if _, err := WithSystemIdentity(userCtx, func(context.Context) (VerifiedCredential, error) {
+		return VerifiedCredential{}, providerFailure
+	}); !errors.Is(err, providerFailure) {
+		t.Fatalf("configured provider failure must not fall back to in-process identity: %v", err)
 	}
 }
