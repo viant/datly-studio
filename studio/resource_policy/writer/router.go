@@ -1,11 +1,9 @@
 package writer
 
 import (
-	"embed"
-
-	"reflect"
-
+	embed "embed"
 	xdatly "github.com/viant/xdatly"
+	reflect "reflect"
 )
 
 func init() {}

@@ -138,7 +138,12 @@ FROM reports GROUP BY owner_id,namespace`); err != nil {
 			}
 		}
 	}
-	return migrateResourceNamespaceClaims(ctx, db)
+	if current <= 12 {
+		if err := migrateResourceNamespaceClaims(ctx, db); err != nil {
+			return err
+		}
+	}
+	return migrateResourcePolicyAudit(ctx, db)
 }
 
 func migrateResourceNamespaceClaims(ctx context.Context, db *sql.DB) error {
@@ -184,6 +189,81 @@ func migrateResourceNamespaceClaims(ctx context.Context, db *sql.DB) error {
 		if err != nil {
 			return fmt.Errorf("backfill resource namespace claims: %w", err)
 		}
+	}
+	if _, err := tx.ExecContext(ctx, `DELETE FROM schema_version`); err != nil {
+		return err
+	}
+	if _, err := tx.ExecContext(ctx, `INSERT INTO schema_version(version) VALUES (?)`, 13); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+func migrateResourcePolicyAudit(ctx context.Context, db *sql.DB) error {
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	for _, table := range []string{"resource_policy_heads", "resource_policy_revisions"} {
+		exists, err := sqliteTableExists(ctx, tx, table)
+		if err != nil {
+			return err
+		}
+		if !exists {
+			if err := schema.CreateSQLiteTableFromCanonical(ctx, tx, table); err != nil {
+				return fmt.Errorf("create missing %s: %w", table, err)
+			}
+		}
+	}
+	var orphan string
+	err = tx.QueryRowContext(ctx, `SELECT h.resource_id FROM resource_policy_heads h
+		WHERE NOT EXISTS (SELECT 1 FROM resource_policy_revisions r
+		WHERE r.tenant_id=h.tenant_id AND r.resource_kind=h.resource_kind AND r.resource_id=h.resource_id
+		AND r.resource_version=h.resource_version) LIMIT 1`).Scan(&orphan)
+	if err == nil {
+		return fmt.Errorf("resource policy head %q has no audit history", orphan)
+	}
+	if !errors.Is(err, sql.ErrNoRows) {
+		return err
+	}
+	for _, table := range []string{"resource_policy_heads", "resource_policy_revisions"} {
+		for _, column := range []string{"created_at", "created_by", "updated_at", "updated_by"} {
+			var count int
+			if err := tx.QueryRowContext(ctx, `SELECT COUNT(1) FROM pragma_table_info(?) WHERE name=?`, table, column).Scan(&count); err != nil {
+				return err
+			}
+			if count != 0 {
+				continue
+			}
+			if err := schema.AddSQLiteColumnFromCanonical(ctx, tx, table, column); err != nil {
+				return fmt.Errorf("add %s.%s: %w", table, column, err)
+			}
+		}
+	}
+	if _, err := tx.ExecContext(ctx, `UPDATE resource_policy_revisions SET
+		created_at=COALESCE(created_at,occurred_at),created_by=COALESCE(created_by,actor_id),
+		updated_at=COALESCE(updated_at,occurred_at),updated_by=COALESCE(updated_by,actor_id)`); err != nil {
+		return fmt.Errorf("backfill resource policy revision audit: %w", err)
+	}
+	if _, err := tx.ExecContext(ctx, `UPDATE resource_policy_heads SET
+		created_at=COALESCE(created_at,(SELECT r.occurred_at FROM resource_policy_revisions r WHERE
+			r.tenant_id=resource_policy_heads.tenant_id AND r.resource_kind=resource_policy_heads.resource_kind
+			AND r.resource_id=resource_policy_heads.resource_id AND r.resource_version=resource_policy_heads.resource_version
+			ORDER BY r.revision ASC LIMIT 1)),
+		created_by=COALESCE(created_by,(SELECT r.actor_id FROM resource_policy_revisions r WHERE
+			r.tenant_id=resource_policy_heads.tenant_id AND r.resource_kind=resource_policy_heads.resource_kind
+			AND r.resource_id=resource_policy_heads.resource_id AND r.resource_version=resource_policy_heads.resource_version
+			ORDER BY r.revision ASC LIMIT 1)),
+		updated_at=COALESCE(updated_at,(SELECT r.occurred_at FROM resource_policy_revisions r WHERE
+			r.tenant_id=resource_policy_heads.tenant_id AND r.resource_kind=resource_policy_heads.resource_kind
+			AND r.resource_id=resource_policy_heads.resource_id AND r.resource_version=resource_policy_heads.resource_version
+			ORDER BY r.revision DESC LIMIT 1)),
+		updated_by=COALESCE(updated_by,(SELECT r.actor_id FROM resource_policy_revisions r WHERE
+			r.tenant_id=resource_policy_heads.tenant_id AND r.resource_kind=resource_policy_heads.resource_kind
+			AND r.resource_id=resource_policy_heads.resource_id AND r.resource_version=resource_policy_heads.resource_version
+			ORDER BY r.revision DESC LIMIT 1))`); err != nil {
+		return fmt.Errorf("backfill resource policy head audit: %w", err)
 	}
 	if _, err := tx.ExecContext(ctx, `DELETE FROM schema_version`); err != nil {
 		return err
@@ -240,5 +320,6 @@ func (s *Service) Migrations() []Migration {
 		{Version: 11, Name: "resource_policy_revisions"},
 		{Version: 12, Name: "warmup_audit_and_updated_at_concurrency"},
 		{Version: 13, Name: "resource_namespace_claims"},
+		{Version: 14, Name: "resource_policy_audit"},
 	}
 }

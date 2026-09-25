@@ -140,6 +140,71 @@ func TestServiceUpBackfillsResourceNamespaceClaims(t *testing.T) {
 	}
 }
 
+func TestServiceUpBackfillsResourcePolicyAudit(t *testing.T) {
+	for _, test := range []struct {
+		name   string
+		orphan bool
+	}{{name: "history drives creation and last update"}, {name: "orphan head rolls back", orphan: true}} {
+		t.Run(test.name, func(t *testing.T) {
+			ctx := context.Background()
+			db := openTestDB(t)
+			if err := schema.ApplySQLite(ctx, db, "studio"); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := db.ExecContext(ctx, `INSERT INTO resource_policy_heads(tenant_id,resource_kind,resource_id,resource_version,revision)
+				VALUES('one','report','r1','1',2)`); err != nil {
+				t.Fatal(err)
+			}
+			if !test.orphan {
+				for _, statement := range []string{
+					`INSERT INTO resource_policy_revisions(tenant_id,resource_kind,resource_id,resource_version,revision,policies_json,actor_id,occurred_at)
+					 VALUES('one','report','r1','1',1,'{}','creator','2026-09-01 10:00:00')`,
+					`INSERT INTO resource_policy_revisions(tenant_id,resource_kind,resource_id,resource_version,revision,policies_json,actor_id,occurred_at)
+					 VALUES('one','report','r1','1',2,'{}','editor','2026-09-02 11:00:00')`,
+				} {
+					if _, err := db.ExecContext(ctx, statement); err != nil {
+						t.Fatal(err)
+					}
+				}
+			}
+			for _, table := range []string{"resource_policy_heads", "resource_policy_revisions"} {
+				for _, column := range []string{"created_at", "created_by", "updated_at", "updated_by"} {
+					if _, err := db.ExecContext(ctx, "ALTER TABLE "+table+" DROP COLUMN "+column); err != nil {
+						t.Fatal(err)
+					}
+				}
+			}
+			if err := schema.SetSQLiteVersion(ctx, db, 13); err != nil {
+				t.Fatal(err)
+			}
+			service, _ := New()
+			err := service.Up(ctx, db)
+			if test.orphan {
+				if err == nil {
+					t.Fatal("orphan policy head migration succeeded")
+				}
+				version, versionErr := service.CurrentVersion(ctx, db)
+				if versionErr != nil || version != 13 {
+					t.Fatalf("failed audit migration version=%d err=%v", version, versionErr)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			var createdAt, createdBy, updatedAt, updatedBy string
+			if err := db.QueryRowContext(ctx, `SELECT created_at,created_by,updated_at,updated_by FROM resource_policy_heads WHERE resource_id='r1'`).
+				Scan(&createdAt, &createdBy, &updatedAt, &updatedBy); err != nil || createdAt != "2026-09-01 10:00:00" || createdBy != "creator" || updatedAt != "2026-09-02 11:00:00" || updatedBy != "editor" {
+				t.Fatalf("head audit=%q/%q %q/%q err=%v", createdAt, createdBy, updatedAt, updatedBy, err)
+			}
+			if err := db.QueryRowContext(ctx, `SELECT created_at,created_by,updated_at,updated_by FROM resource_policy_revisions WHERE resource_id='r1' AND revision=2`).
+				Scan(&createdAt, &createdBy, &updatedAt, &updatedBy); err != nil || createdAt != "2026-09-02 11:00:00" || createdBy != "editor" || updatedAt != createdAt || updatedBy != "editor" {
+				t.Fatalf("revision audit=%q/%q %q/%q err=%v", createdAt, createdBy, updatedAt, updatedBy, err)
+			}
+		})
+	}
+}
+
 func TestServiceUpAddsNamespaceFromCanonicalDDL(t *testing.T) {
 	ctx := context.Background()
 	db := openTestDB(t)

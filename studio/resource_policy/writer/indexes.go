@@ -195,6 +195,202 @@ func (index PolicyHandlerCurrentPolicyGroupedByResourceVersion) Has(key string) 
 	_, ok := index[key]
 	return ok
 }
+func PolicyHandlerCurrentPolicyIndexByCreatedAtKey(value *CurrentPolicyView) (time.Time, bool) {
+	var zero time.Time
+	if value == nil {
+		return zero, false
+	}
+	if value.CreatedAt == nil {
+		return zero, false
+	}
+	return *value.CreatedAt, true
+}
+
+type PolicyHandlerCurrentPolicyIndexedByCreatedAt map[time.Time]*CurrentPolicyView
+
+func (rows PolicyHandlerCurrentPolicySlice) IndexByCreatedAt() (PolicyHandlerCurrentPolicyIndexedByCreatedAt, error) {
+	result := make(PolicyHandlerCurrentPolicyIndexedByCreatedAt)
+	for _, row := range rows {
+		key, ok := PolicyHandlerCurrentPolicyIndexByCreatedAtKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index PolicyHandlerCurrentPolicySlice.IndexByCreatedAt")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index PolicyHandlerCurrentPolicyIndexedByCreatedAt) Has(key time.Time) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type PolicyHandlerCurrentPolicyGroupedByCreatedAt map[time.Time][]*CurrentPolicyView
+
+func (rows PolicyHandlerCurrentPolicySlice) GroupByCreatedAt() PolicyHandlerCurrentPolicyGroupedByCreatedAt {
+	result := make(PolicyHandlerCurrentPolicyGroupedByCreatedAt)
+	for _, row := range rows {
+		key, ok := PolicyHandlerCurrentPolicyIndexByCreatedAtKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index PolicyHandlerCurrentPolicyGroupedByCreatedAt) Has(key time.Time) bool {
+	_, ok := index[key]
+	return ok
+}
+func PolicyHandlerCurrentPolicyIndexByCreatedByKey(value *CurrentPolicyView) (string, bool) {
+	var zero string
+	if value == nil {
+		return zero, false
+	}
+	if value.CreatedBy == nil {
+		return zero, false
+	}
+	return *value.CreatedBy, true
+}
+
+type PolicyHandlerCurrentPolicyIndexedByCreatedBy map[string]*CurrentPolicyView
+
+func (rows PolicyHandlerCurrentPolicySlice) IndexByCreatedBy() (PolicyHandlerCurrentPolicyIndexedByCreatedBy, error) {
+	result := make(PolicyHandlerCurrentPolicyIndexedByCreatedBy)
+	for _, row := range rows {
+		key, ok := PolicyHandlerCurrentPolicyIndexByCreatedByKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index PolicyHandlerCurrentPolicySlice.IndexByCreatedBy")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index PolicyHandlerCurrentPolicyIndexedByCreatedBy) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type PolicyHandlerCurrentPolicyGroupedByCreatedBy map[string][]*CurrentPolicyView
+
+func (rows PolicyHandlerCurrentPolicySlice) GroupByCreatedBy() PolicyHandlerCurrentPolicyGroupedByCreatedBy {
+	result := make(PolicyHandlerCurrentPolicyGroupedByCreatedBy)
+	for _, row := range rows {
+		key, ok := PolicyHandlerCurrentPolicyIndexByCreatedByKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index PolicyHandlerCurrentPolicyGroupedByCreatedBy) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+func PolicyHandlerCurrentPolicyIndexByUpdatedAtKey(value *CurrentPolicyView) (time.Time, bool) {
+	var zero time.Time
+	if value == nil {
+		return zero, false
+	}
+	if value.UpdatedAt == nil {
+		return zero, false
+	}
+	return *value.UpdatedAt, true
+}
+
+type PolicyHandlerCurrentPolicyIndexedByUpdatedAt map[time.Time]*CurrentPolicyView
+
+func (rows PolicyHandlerCurrentPolicySlice) IndexByUpdatedAt() (PolicyHandlerCurrentPolicyIndexedByUpdatedAt, error) {
+	result := make(PolicyHandlerCurrentPolicyIndexedByUpdatedAt)
+	for _, row := range rows {
+		key, ok := PolicyHandlerCurrentPolicyIndexByUpdatedAtKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index PolicyHandlerCurrentPolicySlice.IndexByUpdatedAt")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index PolicyHandlerCurrentPolicyIndexedByUpdatedAt) Has(key time.Time) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type PolicyHandlerCurrentPolicyGroupedByUpdatedAt map[time.Time][]*CurrentPolicyView
+
+func (rows PolicyHandlerCurrentPolicySlice) GroupByUpdatedAt() PolicyHandlerCurrentPolicyGroupedByUpdatedAt {
+	result := make(PolicyHandlerCurrentPolicyGroupedByUpdatedAt)
+	for _, row := range rows {
+		key, ok := PolicyHandlerCurrentPolicyIndexByUpdatedAtKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index PolicyHandlerCurrentPolicyGroupedByUpdatedAt) Has(key time.Time) bool {
+	_, ok := index[key]
+	return ok
+}
+func PolicyHandlerCurrentPolicyIndexByUpdatedByKey(value *CurrentPolicyView) (string, bool) {
+	var zero string
+	if value == nil {
+		return zero, false
+	}
+	if value.UpdatedBy == nil {
+		return zero, false
+	}
+	return *value.UpdatedBy, true
+}
+
+type PolicyHandlerCurrentPolicyIndexedByUpdatedBy map[string]*CurrentPolicyView
+
+func (rows PolicyHandlerCurrentPolicySlice) IndexByUpdatedBy() (PolicyHandlerCurrentPolicyIndexedByUpdatedBy, error) {
+	result := make(PolicyHandlerCurrentPolicyIndexedByUpdatedBy)
+	for _, row := range rows {
+		key, ok := PolicyHandlerCurrentPolicyIndexByUpdatedByKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index PolicyHandlerCurrentPolicySlice.IndexByUpdatedBy")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index PolicyHandlerCurrentPolicyIndexedByUpdatedBy) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type PolicyHandlerCurrentPolicyGroupedByUpdatedBy map[string][]*CurrentPolicyView
+
+func (rows PolicyHandlerCurrentPolicySlice) GroupByUpdatedBy() PolicyHandlerCurrentPolicyGroupedByUpdatedBy {
+	result := make(PolicyHandlerCurrentPolicyGroupedByUpdatedBy)
+	for _, row := range rows {
+		key, ok := PolicyHandlerCurrentPolicyIndexByUpdatedByKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index PolicyHandlerCurrentPolicyGroupedByUpdatedBy) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
 func PolicyHandlerCurrentPolicyIndexByRevisionKey(value *CurrentPolicyView) (int, bool) {
 	var zero int
 	if value == nil {
@@ -531,6 +727,202 @@ func (index PolicyHandlerCurrentHistoryGroupedByActorId) Has(key string) bool {
 	_, ok := index[key]
 	return ok
 }
+func PolicyHandlerCurrentHistoryIndexByCreatedAtKey(value *CurrentHistoryView) (time.Time, bool) {
+	var zero time.Time
+	if value == nil {
+		return zero, false
+	}
+	if value.CreatedAt == nil {
+		return zero, false
+	}
+	return *value.CreatedAt, true
+}
+
+type PolicyHandlerCurrentHistoryIndexedByCreatedAt map[time.Time]*CurrentHistoryView
+
+func (rows PolicyHandlerCurrentHistorySlice) IndexByCreatedAt() (PolicyHandlerCurrentHistoryIndexedByCreatedAt, error) {
+	result := make(PolicyHandlerCurrentHistoryIndexedByCreatedAt)
+	for _, row := range rows {
+		key, ok := PolicyHandlerCurrentHistoryIndexByCreatedAtKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index PolicyHandlerCurrentHistorySlice.IndexByCreatedAt")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index PolicyHandlerCurrentHistoryIndexedByCreatedAt) Has(key time.Time) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type PolicyHandlerCurrentHistoryGroupedByCreatedAt map[time.Time][]*CurrentHistoryView
+
+func (rows PolicyHandlerCurrentHistorySlice) GroupByCreatedAt() PolicyHandlerCurrentHistoryGroupedByCreatedAt {
+	result := make(PolicyHandlerCurrentHistoryGroupedByCreatedAt)
+	for _, row := range rows {
+		key, ok := PolicyHandlerCurrentHistoryIndexByCreatedAtKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index PolicyHandlerCurrentHistoryGroupedByCreatedAt) Has(key time.Time) bool {
+	_, ok := index[key]
+	return ok
+}
+func PolicyHandlerCurrentHistoryIndexByCreatedByKey(value *CurrentHistoryView) (string, bool) {
+	var zero string
+	if value == nil {
+		return zero, false
+	}
+	if value.CreatedBy == nil {
+		return zero, false
+	}
+	return *value.CreatedBy, true
+}
+
+type PolicyHandlerCurrentHistoryIndexedByCreatedBy map[string]*CurrentHistoryView
+
+func (rows PolicyHandlerCurrentHistorySlice) IndexByCreatedBy() (PolicyHandlerCurrentHistoryIndexedByCreatedBy, error) {
+	result := make(PolicyHandlerCurrentHistoryIndexedByCreatedBy)
+	for _, row := range rows {
+		key, ok := PolicyHandlerCurrentHistoryIndexByCreatedByKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index PolicyHandlerCurrentHistorySlice.IndexByCreatedBy")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index PolicyHandlerCurrentHistoryIndexedByCreatedBy) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type PolicyHandlerCurrentHistoryGroupedByCreatedBy map[string][]*CurrentHistoryView
+
+func (rows PolicyHandlerCurrentHistorySlice) GroupByCreatedBy() PolicyHandlerCurrentHistoryGroupedByCreatedBy {
+	result := make(PolicyHandlerCurrentHistoryGroupedByCreatedBy)
+	for _, row := range rows {
+		key, ok := PolicyHandlerCurrentHistoryIndexByCreatedByKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index PolicyHandlerCurrentHistoryGroupedByCreatedBy) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+func PolicyHandlerCurrentHistoryIndexByUpdatedAtKey(value *CurrentHistoryView) (time.Time, bool) {
+	var zero time.Time
+	if value == nil {
+		return zero, false
+	}
+	if value.UpdatedAt == nil {
+		return zero, false
+	}
+	return *value.UpdatedAt, true
+}
+
+type PolicyHandlerCurrentHistoryIndexedByUpdatedAt map[time.Time]*CurrentHistoryView
+
+func (rows PolicyHandlerCurrentHistorySlice) IndexByUpdatedAt() (PolicyHandlerCurrentHistoryIndexedByUpdatedAt, error) {
+	result := make(PolicyHandlerCurrentHistoryIndexedByUpdatedAt)
+	for _, row := range rows {
+		key, ok := PolicyHandlerCurrentHistoryIndexByUpdatedAtKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index PolicyHandlerCurrentHistorySlice.IndexByUpdatedAt")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index PolicyHandlerCurrentHistoryIndexedByUpdatedAt) Has(key time.Time) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type PolicyHandlerCurrentHistoryGroupedByUpdatedAt map[time.Time][]*CurrentHistoryView
+
+func (rows PolicyHandlerCurrentHistorySlice) GroupByUpdatedAt() PolicyHandlerCurrentHistoryGroupedByUpdatedAt {
+	result := make(PolicyHandlerCurrentHistoryGroupedByUpdatedAt)
+	for _, row := range rows {
+		key, ok := PolicyHandlerCurrentHistoryIndexByUpdatedAtKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index PolicyHandlerCurrentHistoryGroupedByUpdatedAt) Has(key time.Time) bool {
+	_, ok := index[key]
+	return ok
+}
+func PolicyHandlerCurrentHistoryIndexByUpdatedByKey(value *CurrentHistoryView) (string, bool) {
+	var zero string
+	if value == nil {
+		return zero, false
+	}
+	if value.UpdatedBy == nil {
+		return zero, false
+	}
+	return *value.UpdatedBy, true
+}
+
+type PolicyHandlerCurrentHistoryIndexedByUpdatedBy map[string]*CurrentHistoryView
+
+func (rows PolicyHandlerCurrentHistorySlice) IndexByUpdatedBy() (PolicyHandlerCurrentHistoryIndexedByUpdatedBy, error) {
+	result := make(PolicyHandlerCurrentHistoryIndexedByUpdatedBy)
+	for _, row := range rows {
+		key, ok := PolicyHandlerCurrentHistoryIndexByUpdatedByKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index PolicyHandlerCurrentHistorySlice.IndexByUpdatedBy")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index PolicyHandlerCurrentHistoryIndexedByUpdatedBy) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type PolicyHandlerCurrentHistoryGroupedByUpdatedBy map[string][]*CurrentHistoryView
+
+func (rows PolicyHandlerCurrentHistorySlice) GroupByUpdatedBy() PolicyHandlerCurrentHistoryGroupedByUpdatedBy {
+	result := make(PolicyHandlerCurrentHistoryGroupedByUpdatedBy)
+	for _, row := range rows {
+		key, ok := PolicyHandlerCurrentHistoryIndexByUpdatedByKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index PolicyHandlerCurrentHistoryGroupedByUpdatedBy) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
 func PolicyHandlerCurrentHistoryIndexByRevisionKey(value *CurrentHistoryView) (int, bool) {
 	var zero int
 	if value == nil {
@@ -826,6 +1218,18 @@ func BuildPolicyHandlerReadIndexes(ctx context.Context, input *Input) (*PolicyHa
 			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("ResourceVersion") {
 				return nil, fmt.Errorf("application index field was not loaded: CurrentPolicy.ResourceVersion")
 			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("CreatedAt") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentPolicy.CreatedAt")
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("CreatedBy") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentPolicy.CreatedBy")
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("UpdatedAt") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentPolicy.UpdatedAt")
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("UpdatedBy") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentPolicy.UpdatedBy")
+			}
 			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("Revision") {
 				return nil, fmt.Errorf("application index field was not loaded: CurrentPolicy.Revision")
 			}
@@ -909,6 +1313,18 @@ func BuildPolicyHandlerReadIndexes(ctx context.Context, input *Input) (*PolicyHa
 			}
 			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("ActorId") {
 				return nil, fmt.Errorf("application index field was not loaded: CurrentHistory.ActorId")
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("CreatedAt") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentHistory.CreatedAt")
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("CreatedBy") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentHistory.CreatedBy")
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("UpdatedAt") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentHistory.UpdatedAt")
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("UpdatedBy") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentHistory.UpdatedBy")
 			}
 			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("PoliciesJson") {
 				return nil, fmt.Errorf("application index field was not loaded: CurrentHistory.PoliciesJson")

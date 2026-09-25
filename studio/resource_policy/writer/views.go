@@ -11,6 +11,10 @@ type ResourcePolicyHead struct {
 	ResourceKind    string                    `sqlx:"resource_kind,primaryKey" validate:"required"`
 	ResourceId      string                    `sqlx:"resource_id,primaryKey" validate:"required"`
 	ResourceVersion string                    `sqlx:"resource_version,primaryKey" validate:"required"`
+	CreatedAt       *time.Time                `sqlx:"created_at"`
+	CreatedBy       *string                   `sqlx:"created_by"`
+	UpdatedAt       *time.Time                `sqlx:"updated_at"`
+	UpdatedBy       *string                   `sqlx:"updated_by"`
 	Revision        *int                      `writer:"concurrency" sqlx:"revision"`
 	History         []*ResourcePolicyRevision `view:"history,type=ResourcePolicyRevision,table=resource_policy_revisions" on:"TenantId:head.tenant_id=TenantId:history.tenant_id,ResourceKind:head.resource_kind=ResourceKind:history.resource_kind,ResourceId:head.resource_id=ResourceId:history.resource_id,ResourceVersion:head.resource_version=ResourceVersion:history.resource_version" json:"history" sql:"uri=studio_resource_policy_writer_policy:sql/history.sql"`
 	Has             *ResourcePolicyHeadHas    `setMarker:"true" format:"-" sqlx:"-" diff:"-" json:"-" typeName:"ResourcePolicyHeadHas"`
@@ -21,6 +25,10 @@ type ResourcePolicyHeadHas struct {
 	ResourceKind    bool
 	ResourceId      bool
 	ResourceVersion bool
+	CreatedAt       bool
+	CreatedBy       bool
+	UpdatedAt       bool
+	UpdatedBy       bool
 	Revision        bool
 	History         bool
 }
@@ -32,6 +40,10 @@ type ResourcePolicyRevision struct {
 	ResourceId      string                     `sqlx:"resource_id,primaryKey"`
 	ResourceVersion string                     `sqlx:"resource_version,primaryKey"`
 	ActorId         string                     `validate:"required" sqlx:"actor_id"`
+	CreatedAt       *time.Time                 `sqlx:"created_at"`
+	CreatedBy       *string                    `sqlx:"created_by"`
+	UpdatedAt       *time.Time                 `sqlx:"updated_at"`
+	UpdatedBy       *string                    `sqlx:"updated_by"`
 	PoliciesJson    json.RawMessage            `sqlx:"policies_json,enc=JSON" validate:"required"`
 	Revision        *int                       `sqlx:"revision,primaryKey"`
 	OccurredAt      *time.Time                 `validate:"required" sqlx:"occurred_at"`
@@ -44,6 +56,10 @@ type ResourcePolicyRevisionHas struct {
 	ResourceId      bool
 	ResourceVersion bool
 	ActorId         bool
+	CreatedAt       bool
+	CreatedBy       bool
+	UpdatedAt       bool
+	UpdatedBy       bool
 	PoliciesJson    bool
 	Revision        bool
 	OccurredAt      bool
@@ -51,11 +67,15 @@ type ResourcePolicyRevisionHas struct {
 
 // CurrentPolicyView is generated canonical view metadata for policy.
 type CurrentPolicyView struct {
-	TenantId        string `sqlx:"tenant_id,primaryKey" validate:"required"`
-	ResourceKind    string `sqlx:"resource_kind,primaryKey" validate:"required"`
-	ResourceId      string `sqlx:"resource_id,primaryKey" validate:"required"`
-	ResourceVersion string `sqlx:"resource_version,primaryKey" validate:"required"`
-	Revision        *int   `sqlx:"revision"`
+	TenantId        string     `sqlx:"tenant_id,primaryKey" validate:"required"`
+	ResourceKind    string     `sqlx:"resource_kind,primaryKey" validate:"required"`
+	ResourceId      string     `sqlx:"resource_id,primaryKey" validate:"required"`
+	ResourceVersion string     `sqlx:"resource_version,primaryKey" validate:"required"`
+	CreatedAt       *time.Time `sqlx:"created_at"`
+	CreatedBy       *string    `sqlx:"created_by"`
+	UpdatedAt       *time.Time `sqlx:"updated_at"`
+	UpdatedBy       *string    `sqlx:"updated_by"`
+	Revision        *int       `sqlx:"revision"`
 }
 
 // CurrentHistoryView is generated canonical view metadata for policy.
@@ -65,6 +85,10 @@ type CurrentHistoryView struct {
 	ResourceId      string          `sqlx:"resource_id,primaryKey"`
 	ResourceVersion string          `sqlx:"resource_version,primaryKey"`
 	ActorId         string          `validate:"required" sqlx:"actor_id"`
+	CreatedAt       *time.Time      `sqlx:"created_at"`
+	CreatedBy       *string         `sqlx:"created_by"`
+	UpdatedAt       *time.Time      `sqlx:"updated_at"`
+	UpdatedBy       *string         `sqlx:"updated_by"`
 	PoliciesJson    json.RawMessage `sqlx:"policies_json,enc=JSON" validate:"required"`
 	Revision        *int            `sqlx:"revision,primaryKey"`
 	OccurredAt      *time.Time      `validate:"required" sqlx:"occurred_at"`

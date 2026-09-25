@@ -22,7 +22,7 @@ require (
 	github.com/viant/mcp v0.24.0
 	github.com/viant/mcp-protocol v0.19.0
 	github.com/viant/scy v0.35.1-0.20260914041206-699e6c909726
-	github.com/viant/sqlx v0.26.1-0.20260925010754-62fc9f049795
+	github.com/viant/sqlx v0.26.1-0.20260925094526-0a1e6ab72989
 	github.com/viant/x v0.5.1-0.20260915043005-1bc42b9eef47
 	github.com/viant/xdatly v1.0.1-0.20260925011738-7249dcd4bf03
 	go.yaml.in/yaml/v3 v3.0.5

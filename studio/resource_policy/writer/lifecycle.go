@@ -82,6 +82,31 @@ func (hooks *PolicyRules) Init(_ context.Context, head *ResourcePolicyHead, _ xh
 			revision := next
 			row.Revision, row.Has.Revision = &revision, true
 		}
+		if row.OccurredAt != nil && !row.OccurredAt.IsZero() && strings.TrimSpace(row.ActorId) != "" {
+			occurred, actor := *row.OccurredAt, row.ActorId
+			row.SetCreatedAt(&occurred)
+			row.SetCreatedBy(&actor)
+			row.SetUpdatedAt(&occurred)
+			row.SetUpdatedBy(&actor)
+		}
+	}
+	if len(head.History) == 1 && head.History[0] != nil && head.History[0].OccurredAt != nil &&
+		!head.History[0].OccurredAt.IsZero() && strings.TrimSpace(head.History[0].ActorId) != "" {
+		row := head.History[0]
+		occurred, actor := *row.OccurredAt, row.ActorId
+		head.SetUpdatedAt(&occurred)
+		head.SetUpdatedBy(&actor)
+		if current := hooks.current(head); current != nil {
+			if current.CreatedAt == nil || current.CreatedAt.IsZero() || current.CreatedBy == nil || strings.TrimSpace(*current.CreatedBy) == "" {
+				return invalid("resource policy existing audit fields are incomplete")
+			}
+			created, creator := *current.CreatedAt, *current.CreatedBy
+			head.SetCreatedAt(&created)
+			head.SetCreatedBy(&creator)
+		} else {
+			head.SetCreatedAt(&occurred)
+			head.SetCreatedBy(&actor)
+		}
 	}
 	return nil
 }
@@ -127,6 +152,12 @@ func (hooks *PolicyRules) Validate(_ context.Context, head *ResourcePolicyHead, 
 	}
 	if row.OccurredAt == nil || row.OccurredAt.IsZero() {
 		return invalid("resource policy occurrence time is required")
+	}
+	if head.CreatedAt == nil || head.CreatedAt.IsZero() || head.CreatedBy == nil || strings.TrimSpace(*head.CreatedBy) == "" ||
+		head.UpdatedAt == nil || head.UpdatedAt.IsZero() || head.UpdatedBy == nil || strings.TrimSpace(*head.UpdatedBy) == "" ||
+		row.CreatedAt == nil || row.CreatedAt.IsZero() || row.CreatedBy == nil || strings.TrimSpace(*row.CreatedBy) == "" ||
+		row.UpdatedAt == nil || row.UpdatedAt.IsZero() || row.UpdatedBy == nil || strings.TrimSpace(*row.UpdatedBy) == "" {
+		return invalid("resource policy audit fields are required")
 	}
 	trimmed := bytes.TrimSpace(row.PoliciesJson)
 	if len(trimmed) == 0 || trimmed[0] != '{' || !json.Valid(trimmed) {

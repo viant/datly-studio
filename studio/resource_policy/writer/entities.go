@@ -45,6 +45,46 @@ func (entity *ResourcePolicyHead) SetResourceVersion(value string) {
 	}
 	entity.Has.ResourceVersion = true
 }
+func (entity *ResourcePolicyHead) GetCreatedAt() *time.Time {
+	return entity.CreatedAt
+}
+func (entity *ResourcePolicyHead) SetCreatedAt(value *time.Time) {
+	entity.CreatedAt = value
+	if entity.Has == nil {
+		entity.Has = &ResourcePolicyHeadHas{}
+	}
+	entity.Has.CreatedAt = true
+}
+func (entity *ResourcePolicyHead) GetCreatedBy() *string {
+	return entity.CreatedBy
+}
+func (entity *ResourcePolicyHead) SetCreatedBy(value *string) {
+	entity.CreatedBy = value
+	if entity.Has == nil {
+		entity.Has = &ResourcePolicyHeadHas{}
+	}
+	entity.Has.CreatedBy = true
+}
+func (entity *ResourcePolicyHead) GetUpdatedAt() *time.Time {
+	return entity.UpdatedAt
+}
+func (entity *ResourcePolicyHead) SetUpdatedAt(value *time.Time) {
+	entity.UpdatedAt = value
+	if entity.Has == nil {
+		entity.Has = &ResourcePolicyHeadHas{}
+	}
+	entity.Has.UpdatedAt = true
+}
+func (entity *ResourcePolicyHead) GetUpdatedBy() *string {
+	return entity.UpdatedBy
+}
+func (entity *ResourcePolicyHead) SetUpdatedBy(value *string) {
+	entity.UpdatedBy = value
+	if entity.Has == nil {
+		entity.Has = &ResourcePolicyHeadHas{}
+	}
+	entity.Has.UpdatedBy = true
+}
 func (entity *ResourcePolicyHead) GetRevision() *int {
 	return entity.Revision
 }
@@ -114,6 +154,46 @@ func (entity *ResourcePolicyRevision) SetActorId(value string) {
 		entity.Has = &ResourcePolicyRevisionHas{}
 	}
 	entity.Has.ActorId = true
+}
+func (entity *ResourcePolicyRevision) GetCreatedAt() *time.Time {
+	return entity.CreatedAt
+}
+func (entity *ResourcePolicyRevision) SetCreatedAt(value *time.Time) {
+	entity.CreatedAt = value
+	if entity.Has == nil {
+		entity.Has = &ResourcePolicyRevisionHas{}
+	}
+	entity.Has.CreatedAt = true
+}
+func (entity *ResourcePolicyRevision) GetCreatedBy() *string {
+	return entity.CreatedBy
+}
+func (entity *ResourcePolicyRevision) SetCreatedBy(value *string) {
+	entity.CreatedBy = value
+	if entity.Has == nil {
+		entity.Has = &ResourcePolicyRevisionHas{}
+	}
+	entity.Has.CreatedBy = true
+}
+func (entity *ResourcePolicyRevision) GetUpdatedAt() *time.Time {
+	return entity.UpdatedAt
+}
+func (entity *ResourcePolicyRevision) SetUpdatedAt(value *time.Time) {
+	entity.UpdatedAt = value
+	if entity.Has == nil {
+		entity.Has = &ResourcePolicyRevisionHas{}
+	}
+	entity.Has.UpdatedAt = true
+}
+func (entity *ResourcePolicyRevision) GetUpdatedBy() *string {
+	return entity.UpdatedBy
+}
+func (entity *ResourcePolicyRevision) SetUpdatedBy(value *string) {
+	entity.UpdatedBy = value
+	if entity.Has == nil {
+		entity.Has = &ResourcePolicyRevisionHas{}
+	}
+	entity.Has.UpdatedBy = true
 }
 func (entity *ResourcePolicyRevision) GetPoliciesJson() json.RawMessage {
 	return entity.PoliciesJson

@@ -20,7 +20,7 @@ var (
 	sqliteTableName        = regexp.MustCompile(`(?i)CREATE\s+TABLE\s+([A-Za-z_][A-Za-z0-9_]*)`)
 )
 
-const CanonicalVersion = 13
+const CanonicalVersion = 14
 
 // ApplySQLite applies one embedded SQLite schema or fixture script.
 func ApplySQLite(ctx context.Context, db *sql.DB, name string) error {
@@ -79,7 +79,9 @@ func SetSQLiteVersion(ctx context.Context, db *sql.DB, version int) error {
 // AddSQLiteColumnFromCanonical adds one column using its definition from the
 // authoritative schema.ddl. Upgrade code names only the table and column; it
 // does not duplicate domain DDL.
-func AddSQLiteColumnFromCanonical(ctx context.Context, db *sql.DB, table, column string) error {
+func AddSQLiteColumnFromCanonical(ctx context.Context, executor interface {
+	ExecContext(context.Context, string, ...any) (sql.Result, error)
+}, table, column string) error {
 	if !validSchemaIdentifier(table) || !validSchemaIdentifier(column) {
 		return fmt.Errorf("invalid canonical column target %s.%s", table, column)
 	}
@@ -91,7 +93,7 @@ func AddSQLiteColumnFromCanonical(ctx context.Context, db *sql.DB, table, column
 	if err != nil {
 		return err
 	}
-	_, err = db.ExecContext(ctx, "ALTER TABLE "+table+" ADD COLUMN "+definition)
+	_, err = executor.ExecContext(ctx, "ALTER TABLE "+table+" ADD COLUMN "+definition)
 	return err
 }
 

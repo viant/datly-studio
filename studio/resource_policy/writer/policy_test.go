@@ -145,6 +145,10 @@ func TestResourcePolicyWriterActivationContract(t *testing.T) {
 		}
 		datatest.AssertRows(t, ctx, owner, "SELECT revision FROM resource_policy_heads", nil, datatest.Row{"revision": 1})
 		datatest.AssertRows(t, ctx, owner, "SELECT revision,actor_id FROM resource_policy_revisions ORDER BY revision", nil, datatest.Row{"revision": 1, "actor_id": "bootstrap"})
+		datatest.AssertRows(t, ctx, owner, "SELECT created_by,updated_by,created_at=updated_at AS same_time FROM resource_policy_heads", nil,
+			datatest.Row{"created_by": "bootstrap", "updated_by": "bootstrap", "same_time": 1})
+		datatest.AssertRows(t, ctx, owner, "SELECT created_by,updated_by,created_at=occurred_at AS same_time FROM resource_policy_revisions", nil,
+			datatest.Row{"created_by": "bootstrap", "updated_by": "bootstrap", "same_time": 1})
 	})
 	t.Run("bootstrap cannot overwrite", func(t *testing.T) {
 		_, err := invoke(`{"data":[{` + key + `,"revision":0,"history":[` + history(1, "bootstrap", `{"execute":{"mode":"public"}}`) + `]}]}`)
@@ -163,6 +167,10 @@ func TestResourcePolicyWriterActivationContract(t *testing.T) {
 		}
 		datatest.AssertRows(t, ctx, owner, "SELECT revision FROM resource_policy_heads", nil, datatest.Row{"revision": 2})
 		datatest.AssertRows(t, ctx, owner, "SELECT revision,actor_id FROM resource_policy_revisions ORDER BY revision", nil, datatest.Row{"revision": 1, "actor_id": "bootstrap"}, datatest.Row{"revision": 2, "actor_id": "publisher"})
+		datatest.AssertRows(t, ctx, owner, "SELECT created_by,updated_by FROM resource_policy_heads", nil,
+			datatest.Row{"created_by": "bootstrap", "updated_by": "publisher"})
+		datatest.AssertRows(t, ctx, owner, "SELECT created_by,updated_by,created_at=occurred_at AS same_time FROM resource_policy_revisions WHERE revision=2", nil,
+			datatest.Row{"created_by": "publisher", "updated_by": "publisher", "same_time": 1})
 	})
 	t.Run("stale expected revision conflicts without orphan history", func(t *testing.T) {
 		_, err := invoke(`{"data":[{` + key + `,"revision":1,"history":[` + history(2, "stale", `{"execute":{"mode":"public"}}`) + `]}]}`)
@@ -218,7 +226,7 @@ func TestResourcePolicyWriterActivationContract(t *testing.T) {
 		// The writer's relation binding owns the child join keys: a history
 		// row cannot be attached to a different resource than the head it
 		// activates, whatever the caller supplied.
-		_, err := invoke(`{"data":[{` + key + `,"revision":2,"history":[{"tenantId":"two","resourceKind":"skill","resourceId":"other","resourceVersion":"9","revision":3,"actorId":"publisher","policiesJson":{"execute":{"mode":"public"}},"occurredAt":"2026-09-23T10:00:00Z"}]}]}`)
+		_, err := invoke(`{"data":[{` + key + `,"revision":2,"createdBy":"mallory","updatedBy":"mallory","history":[{"tenantId":"two","resourceKind":"skill","resourceId":"other","resourceVersion":"9","revision":3,"actorId":"publisher","createdBy":"mallory","updatedBy":"mallory","policiesJson":{"execute":{"mode":"public"}},"occurredAt":"2026-09-23T10:00:00Z"}]}]}`)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -226,5 +234,9 @@ func TestResourcePolicyWriterActivationContract(t *testing.T) {
 		datatest.AssertRows(t, ctx, owner, "SELECT tenant_id,resource_kind,resource_id,resource_version,revision FROM resource_policy_revisions WHERE revision=3", nil,
 			datatest.Row{"tenant_id": "one", "resource_kind": "component", "resource_id": "shared", "resource_version": "1", "revision": 3})
 		datatest.AssertRows(t, ctx, owner, "SELECT COUNT(*) AS n FROM resource_policy_revisions WHERE tenant_id<>'one' OR resource_kind<>'component' OR resource_id<>'shared' OR resource_version<>'1'", nil, datatest.Row{"n": 0})
+		datatest.AssertRows(t, ctx, owner, "SELECT created_by,updated_by FROM resource_policy_heads", nil,
+			datatest.Row{"created_by": "bootstrap", "updated_by": "publisher"})
+		datatest.AssertRows(t, ctx, owner, "SELECT created_by,updated_by FROM resource_policy_revisions WHERE revision=3", nil,
+			datatest.Row{"created_by": "publisher", "updated_by": "publisher"})
 	})
 }
