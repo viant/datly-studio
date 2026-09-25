@@ -23,6 +23,7 @@ import (
 	connectorinsert "github.com/viant/datly-studio/studio/connectors/store_insert"
 	connectorstatus "github.com/viant/datly-studio/studio/connectors/store_status"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
+	versioninsert "github.com/viant/datly-studio/studio/report_versions/store_insert"
 	reportconfig "github.com/viant/datly-studio/studio/reports/store_config"
 	reportinsert "github.com/viant/datly-studio/studio/reports/store_insert"
 	"github.com/viant/datly/authoring/readerbuilder"
@@ -1003,8 +1004,8 @@ func (t *Transport) createVersion(ctx context.Context, input, output any) error 
 	if mode != "sql" && mode != "dql" && mode != "structured" {
 		return invalid(errors.New("authoringMode must be sql, dql, or structured"))
 	}
-	var next int
-	if err := t.DB.QueryRowContext(ctx, `SELECT COALESCE(MAX(version_no), 0) + 1 FROM report_versions WHERE report_id=?`, in.ReportID).Scan(&next); err != nil {
+	next, err := t.nextVersionNo(ctx, in.ReportID)
+	if err != nil {
 		return internal(err)
 	}
 	spec := in.Input.ComponentSpec
@@ -1017,13 +1018,21 @@ func (t *Transport) createVersion(ctx context.Context, input, output any) error 
 	}
 	specHash := hashVersion(in.ReportID, next, mode, in.Input.AuthoredSQL, in.Input.AuthoredDQL, spec)
 	now := t.now()
-	_, err := t.DB.ExecContext(ctx, `
-INSERT INTO report_versions(report_id, version_no, state, authoring_mode, authored_sql, authored_dql,
- component_spec_json, spec_format_version, spec_hash, generated_dql, type_manifest_json,
- compile_status, datly_version, compiler_version, source_revision, notes, created_by, created_at)
-VALUES (?, ?, 'draft', ?, ?, ?, ?, 'studio.v1', ?, ?, '{}', 'pending', 'v1', 'studio.v1', 1, ?, ?, ?)`,
-		in.ReportID, next, mode, nullable(in.Input.AuthoredSQL), nullable(in.Input.AuthoredDQL), string(spec), specHash,
-		nullable(generated), nullable(in.Input.Notes), in.Input.CreatedBy, now)
+	err = t.writeVersionInsert(ctx, &versioninsert.StoredVersion{
+		ReportId: in.ReportID, VersionNo: next, State: "draft", AuthoringMode: mode,
+		AuthoredSql:       namespaceOptionalDescription(in.Input.AuthoredSQL),
+		AuthoredDql:       namespaceOptionalDescription(in.Input.AuthoredDQL),
+		ComponentSpecJson: spec, SpecFormatVersion: "studio.v1", SpecHash: specHash,
+		GeneratedDql: namespaceOptionalDescription(generated), TypeManifestJson: json.RawMessage(`{}`),
+		CompileStatus: "pending", DatlyVersion: "v1", CompilerVersion: "studio.v1",
+		SourceRevision: 1, Notes: namespaceOptionalDescription(in.Input.Notes),
+		CreatedBy: in.Input.CreatedBy, CreatedAt: now,
+		Has: &versioninsert.StoredVersionHas{ReportId: true, VersionNo: true, State: true,
+			AuthoringMode: true, AuthoredSql: true, AuthoredDql: true, ComponentSpecJson: true,
+			SpecFormatVersion: true, SpecHash: true, GeneratedDql: true, TypeManifestJson: true,
+			CompileStatus: true, DatlyVersion: true, CompilerVersion: true, SourceRevision: true,
+			Notes: true, CreatedBy: true, CreatedAt: true},
+	})
 	if err != nil {
 		return classify(err, "report version", fmt.Sprintf("%s/%d", in.ReportID, next))
 	}

@@ -1,0 +1,31 @@
+#package('studio/report_versions/store_insert')
+
+#import('encoding/json')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/report-version-store/insert', 'POST'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('version', 'sql/read.sql'))
+
+#define($_ = $Versions<[]*StoredVersion>(body/data))
+
+SELECT version.*, type(version, 'StoredVersion'),
+       CAST(version.report_id AS string), CAST(version.version_no AS int),
+       CAST(version.state AS string), CAST(version.authoring_mode AS string),
+       CAST(version.authored_sql AS *string), CAST(version.authored_dql AS *string),
+       CAST(version.component_spec_json AS json.RawMessage),
+       CAST(version.spec_format_version AS string), CAST(version.spec_hash AS string),
+       CAST(version.generated_dql AS *string),
+       CAST(version.type_manifest_json AS json.RawMessage),
+       CAST(version.compile_status AS string), CAST(version.datly_version AS string),
+       CAST(version.compiler_version AS string), CAST(version.source_revision AS int64),
+       CAST(version.notes AS *string), CAST(version.created_by AS string),
+       CAST(version.created_at AS time.Time),
+       tag(version.report_id, 'sqlx:"report_id,primaryKey"'),
+       tag(version.version_no, 'sqlx:"version_no,primaryKey"'),
+       tag(version.component_spec_json, 'sqlx:"component_spec_json,enc=JSON"'),
+       tag(version.type_manifest_json, 'sqlx:"type_manifest_json,enc=JSON"'),
+       lifecycle_type(version, 'VersionInsertRules')
+FROM (${embed:sql/read.sql}) version
