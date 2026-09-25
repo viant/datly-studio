@@ -19,6 +19,9 @@
 - Runtime status now says “Live runtime check failed” when its host probe fails
   or returns no result. The published generation record remains distinct from
   a verified serving HTTP/MCP host.
+- Publish review now labels the generation record separately and warns when
+  the live host check fails. Activation reloads an existing REST/MCP host; it
+  cannot open listeners that have not been started by the deployment.
 
 ## GPT-5.6 light findings — Runtime and Skills, 2026-09-20
 

@@ -499,8 +499,8 @@ local test target; do not silently replace it with Docker/MySQL.
   working tree. The intended Git root is now confirmed as
   `/Users/awitas/go/src/github.com/viant/datly-studio`; do not absorb
   concurrent ACL route work into an unrelated commit.
-- Add focused automated tests for the new `ViewOccurrence.SQL` field and the
-  Studio `viewSourceSQL` preference, including a wrapped legacy query fixture.
+- Focused `ViewOccurrence.SQL` and Studio `viewSourceSQL` regressions, including
+  a wrapped legacy query fixture, are implemented and passed on 2026-09-25.
 - Expand rendered UI coverage for the remaining complex command dialogs as new
   regressions are found. Catalog search/empty/conflict, component-create failure
   preservation, Schema Browser actions/errors, stale-conflict recovery, inline
@@ -579,6 +579,11 @@ local test target; do not silently replace it with Docker/MySQL.
   See `docs/sdk-native-endpoints.md` for the remaining broader SDK migration.
   Focused
   Datly embedded-view SQL and rendered UI wrapped-query regressions pass.
+  The local dynamic host was restarted on 2026-09-25 with the preseeded SQLite
+  configuration; its HTTP and MCP listeners answered on 8082 and 8091, its
+  status endpoint returned ready, and MCP tools/list returned published tools.
+  Publication reloads this existing host; it does not launch either listener.
+  This local proof does not satisfy the pending deployed IdP or 200% zoom rows.
 
 ## Primary references
 

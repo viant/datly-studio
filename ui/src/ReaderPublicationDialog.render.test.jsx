@@ -75,6 +75,19 @@ describe('publication contract comparison', () => {
     expect(api.getRuntimeStatus).toHaveBeenCalledOnce();
   });
 
+  test('distinguishes a publication record from a stopped live host', async () => {
+    const api = {
+      getPublication: vi.fn().mockResolvedValue(null),
+      listVersions: vi.fn().mockResolvedValue({ items: [] }),
+      listPublicationEvents: vi.fn().mockResolvedValue({ items: [] }),
+      getRuntimeStatus: vi.fn().mockResolvedValue({ status: 'active', activeGeneration: 9, reportCount: 1, host: { status: 'unavailable' } }),
+    };
+    render(<ReaderPublicationDialog isOpen api={api} report={{id:'vendor'}} version={{versionNo:2,sourceRevision:5,compileStatus:'valid'}} inspection={{structure:{}}} onClose={vi.fn()} onPublish={vi.fn()} onUnpublish={vi.fn()} onRollback={vi.fn()}/>);
+    expect(await screen.findByText('Generation record')).toBeTruthy();
+    expect(screen.getByText('Live runtime check failed')).toBeTruthy();
+    expect(screen.getByText(/Publishing reloads their routes and tools; it does not start the host process/)).toBeTruthy();
+  });
+
   test('unpublish pins the generation shown when the dialog opened', async () => {
     const user = userEvent.setup();
     const onUnpublish = vi.fn().mockResolvedValue({status:'unpublished'});
