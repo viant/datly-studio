@@ -23,6 +23,7 @@ import (
 	connectorinsert "github.com/viant/datly-studio/studio/connectors/store_insert"
 	connectorstatus "github.com/viant/datly-studio/studio/connectors/store_status"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
+	publicationinsert "github.com/viant/datly-studio/studio/report_publications/store_insert"
 	versionedit "github.com/viant/datly-studio/studio/report_versions/store_edit"
 	versioninsert "github.com/viant/datly-studio/studio/report_versions/store_insert"
 	versionvalidation "github.com/viant/datly-studio/studio/report_versions/store_validation"
@@ -1856,8 +1857,18 @@ func (t *Transport) stagePublication(ctx context.Context, in publishRequest, ver
 		return 0, publicationState{}, false, time.Time{}, &sdk.Error{Code: sdk.ErrorConflict, Message: "another publication transition is already staged"}
 	}
 	if !hasPrevious {
-		if _, err := tx.ExecContext(ctx, `INSERT INTO report_publications(report_id, active_version_no, desired_version_no, desired_generation, active_generation, publication_status, runtime_revision, spec_hash, published_by, published_at) VALUES (?, ?, ?, ?, NULL, 'pending', ?, ?, ?, ?)`, in.ReportID, in.VersionNo, in.VersionNo, generation, runtimeRevision, version.SpecHash, in.Input.RequestedBy, now); err != nil {
-			return 0, publicationState{}, false, time.Time{}, internal(err)
+		versionNo := in.VersionNo
+		err = t.writePublicationInsert(ctx, tx, &publicationinsert.StoredPublication{
+			ReportId: in.ReportID, ActiveVersionNo: versionNo, DesiredVersionNo: &versionNo,
+			DesiredGeneration: generation, PublicationStatus: "pending", RuntimeRevision: &runtimeRevision,
+			SpecHash: version.SpecHash, PublishedBy: in.Input.RequestedBy, PublishedAt: now,
+			Has: &publicationinsert.StoredPublicationHas{ReportId: true, ActiveVersionNo: true,
+				DesiredVersionNo: true, DesiredGeneration: true, ActiveGeneration: true,
+				PublicationStatus: true, RuntimeRevision: true, SpecHash: true,
+				PublishedBy: true, PublishedAt: true, ActivatedAt: true, FailureJson: true},
+		})
+		if err != nil {
+			return 0, publicationState{}, false, time.Time{}, classify(err, "publication", in.ReportID)
 		}
 	} else if _, err := tx.ExecContext(ctx, `UPDATE report_publications SET desired_version_no=?, desired_generation=?, publication_status='pending', runtime_revision=?, spec_hash=?, published_by=?, published_at=?, failure_json=NULL WHERE report_id=?`, in.VersionNo, generation, runtimeRevision, version.SpecHash, in.Input.RequestedBy, now, in.ReportID); err != nil {
 		return 0, publicationState{}, false, time.Time{}, internal(err)
