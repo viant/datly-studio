@@ -724,6 +724,10 @@ SELECT records.* FROM (SELECT 1 AS id) records`})
 	if err != nil || !result.Applied || result.Inspection.Version.SourceRevision != version.SourceRevision+1 || !strings.Contains(result.Inspection.DQL, "$Limit<int>") {
 		t.Fatalf("result=%+v err=%v", result, err)
 	}
+	afterField, err := client.Reports().Get(principal, report.ID)
+	if err != nil || afterField.ETag != updatedReport.ETag {
+		t.Fatalf("same-connector Reader Builder edit changed report etag: %+v err=%v", afterField, err)
+	}
 	operation, err = json.Marshal(readerbuilder.Operation{Type: readerbuilder.OperationAddView, View: &readerbuilder.ViewMutation{
 		Name: "totals", Kind: "derived", Parent: "records", SQL: "SELECT COUNT(*) AS count FROM ($View.Records.NonWindowSQL) parent",
 	}})

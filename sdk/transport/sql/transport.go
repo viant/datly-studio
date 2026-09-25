@@ -900,7 +900,7 @@ func (t *Transport) updateReport(ctx context.Context, input, output any) error {
 	}
 	now := t.now()
 	etag := in.Input.ETag
-	err = t.writeReportConfig(ctx, &reportconfig.StoredReport{
+	err = t.writeReportConfig(ctx, nil, &reportconfig.StoredReport{
 		Id: in.ID, Namespace: current.Namespace, Slug: current.Slug, Title: current.Title,
 		Description: namespaceOptionalDescription(current.Description), OwnerId: current.OwnerID,
 		Status: current.Status, DefaultConnectorName: current.DefaultConnectorName,
@@ -1166,7 +1166,7 @@ func (t *Transport) applyVersionEdit(ctx context.Context, input, output any) err
 	}
 	hash := hashVersion(in.ReportID, in.VersionNo, current.AuthoringMode, authoredSQL, authoredDQL, spec)
 	expected := current.SourceRevision
-	err = t.writeVersionEdit(ctx, &versionedit.StoredVersion{
+	err = t.writeVersionEdit(ctx, nil, &versionedit.StoredVersion{
 		ReportId: in.ReportID, VersionNo: in.VersionNo,
 		AuthoredSql:       namespaceOptionalDescription(authoredSQL),
 		AuthoredDql:       namespaceOptionalDescription(authoredDQL),
@@ -1349,51 +1349,85 @@ func (t *Transport) applyReaderBuilder(ctx context.Context, input, output any) e
 	if response.Structure != nil && response.Structure.Component != nil && response.Structure.Component.Settings != nil {
 		connector = strings.TrimSpace(response.Structure.Component.Settings.DefaultConnector)
 	}
-	editedVersion, err := t.persistReaderBuilderDQL(ctx, in.ReportID, version, response.DQL, connector)
+	editedVersion, err := t.persistReaderBuilderDQL(ctx, in.ReportID, version, response.DQL, connector,
+		operation.Type == readerbuilder.OperationSetPackage)
 	if err != nil {
 		return err
 	}
 	inspection.Version = editedVersion
-	if operation.Type == readerbuilder.OperationSetPackage {
-		report, reportErr := t.getReportValue(ctx, in.ReportID)
-		if reportErr != nil {
-			return reportErr
-		}
-		desiredScope := dynamicComponentScope(report.OwnerID, report.ID)
-		if _, reportErr = t.DB.ExecContext(ctx, `UPDATE reports SET component_scope=?,component_name='reader',etag=etag+1,updated_at=? WHERE id=? AND deleted_at IS NULL`, desiredScope, t.now(), report.ID); reportErr != nil {
-			return internal(reportErr)
-		}
-	}
 	return assign(output, &sdk.ReaderBuilderResult{Applied: true, Inspection: inspection})
 }
 
-func (t *Transport) persistReaderBuilderDQL(ctx context.Context, reportID string, current *sdk.ReportVersion, dql, connector string) (*sdk.ReportVersion, error) {
+func (t *Transport) persistReaderBuilderDQL(ctx context.Context, reportID string, current *sdk.ReportVersion, dql, connector string, setPackage bool) (*sdk.ReportVersion, error) {
 	if current == nil || strings.TrimSpace(dql) == "" {
 		return nil, invalid(errors.New("reader builder DQL is required"))
-	}
-	nextRevision := current.SourceRevision + 1
-	if nextRevision <= 1 && current.SourceRevision == 0 {
-		nextRevision = 2
 	}
 	spec := current.ComponentSpec
 	if len(spec) == 0 {
 		spec = json.RawMessage(`{}`)
 	}
 	hash := hashVersion(reportID, current.VersionNo, current.AuthoringMode, current.AuthoredSQL, dql, spec)
+	var report *sdk.Report
+	var err error
+	if connector != "" || setPackage {
+		report, err = t.getReportValue(ctx, reportID)
+		if err != nil {
+			return nil, err
+		}
+	}
 	tx, err := t.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, internal(err)
 	}
 	defer tx.Rollback()
-	result, err := tx.ExecContext(ctx, `UPDATE report_versions SET authored_dql=?, component_spec_json=?, spec_hash=?, generated_dql=?, compile_status='pending', compile_diagnostics_json='[]', source_revision=? WHERE report_id=? AND version_no=? AND source_revision=?`, nullable(dql), string(spec), hash, nullable(dql), nextRevision, reportID, current.VersionNo, current.SourceRevision)
+	expected := current.SourceRevision
+	err = t.writeVersionEdit(ctx, tx, &versionedit.StoredVersion{
+		ReportId: reportID, VersionNo: current.VersionNo,
+		AuthoredSql: namespaceOptionalDescription(current.AuthoredSQL),
+		AuthoredDql: namespaceOptionalDescription(dql), ComponentSpecJson: spec,
+		SpecHash: hash, GeneratedDql: namespaceOptionalDescription(dql),
+		CompileStatus: "pending", CompileDiagnosticsJson: json.RawMessage(`[]`),
+		SourceRevision: &expected,
+		Has: &versionedit.StoredVersionHas{ReportId: true, VersionNo: true,
+			AuthoredSql: true, AuthoredDql: true, ComponentSpecJson: true,
+			SpecHash: true, GeneratedDql: true, CompileStatus: true,
+			CompileDiagnosticsJson: true, SourceRevision: true},
+	})
 	if err != nil {
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) {
+			return nil, &sdk.Error{Code: sdk.ErrorConflict, Message: "version source revision does not match"}
+		}
 		return nil, internal(err)
 	}
-	if affected, _ := result.RowsAffected(); affected != 1 {
-		return nil, &sdk.Error{Code: sdk.ErrorConflict, Message: "version source revision does not match"}
-	}
-	if connector != "" {
-		if _, err = tx.ExecContext(ctx, `UPDATE reports SET default_connector_name=?,etag=etag+CASE WHEN default_connector_name<>? THEN 1 ELSE 0 END,updated_at=? WHERE id=? AND deleted_at IS NULL`, connector, connector, t.now(), reportID); err != nil {
+	if report != nil && (setPackage || connector != "" && connector != report.DefaultConnectorName) {
+		etag := report.ETag
+		now := t.now()
+		defaultConnector := report.DefaultConnectorName
+		if connector != "" {
+			defaultConnector = connector
+		}
+		componentScope, componentName := report.ComponentScope, report.ComponentName
+		if setPackage {
+			componentScope = dynamicComponentScope(report.OwnerID, report.ID)
+			componentName = "reader"
+		}
+		err = t.writeReportConfig(ctx, tx, &reportconfig.StoredReport{
+			Id: report.ID, Namespace: report.Namespace, Slug: report.Slug, Title: report.Title,
+			Description: namespaceOptionalDescription(report.Description), OwnerId: report.OwnerID,
+			Status: report.Status, DefaultConnectorName: defaultConnector,
+			ComponentScope: componentScope, ComponentName: componentName,
+			CurrentDraftVersion: report.CurrentDraftVersion, Etag: &etag, UpdatedAt: &now,
+			Has: &reportconfig.StoredReportHas{Id: true, Namespace: true, Slug: true,
+				Title: true, Description: true, OwnerId: true, Status: true,
+				DefaultConnectorName: true, ComponentScope: true, ComponentName: true,
+				CurrentDraftVersion: true, Etag: true, UpdatedAt: true},
+		})
+		if err != nil {
+			var conflict *xhandler.Conflict
+			if errors.As(err, &conflict) {
+				return nil, &sdk.Error{Code: sdk.ErrorConflict, Message: "report etag does not match"}
+			}
 			return nil, internal(err)
 		}
 	}

@@ -2,6 +2,7 @@ package sqltransport
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"reflect"
 
@@ -20,7 +21,7 @@ import (
 	dtag "github.com/viant/datly/tag"
 )
 
-func (t *Transport) writeReportConfig(ctx context.Context, row *stored.StoredReport) error {
+func (t *Transport) writeReportConfig(ctx context.Context, tx *sql.Tx, row *stored.StoredReport) error {
 	resources := resource.New()
 	if err := resources.Register(stored.ReportDatlyResourceNamespace, stored.ReportDatlyResources); err != nil {
 		return err
@@ -66,7 +67,7 @@ func (t *Transport) writeReportConfig(ctx context.Context, row *stored.StoredRep
 	}
 	registration := &registry.RegisteredComponent{Component: artifact.Component, Input: artifact.Input,
 		Output: artifact.Output, OutputType: reflect.TypeOf(stored.Output{}), Handler: handler,
-		Providers: providers, DataSource: dml.Source{DB: t.DB}}
+		Providers: providers, DataSource: dml.Source{DB: t.DB, Tx: tx}}
 	registration.Capabilities.Connector = connector
 	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{registration}, druntime.WithResources(resources))
 	if err != nil {

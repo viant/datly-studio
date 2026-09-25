@@ -56,7 +56,7 @@ func TestVersionEditWriterRejectsStaleSourceRevision(t *testing.T) {
 		Has: &stored.StoredVersionHas{ReportId: true, VersionNo: true,
 			AuthoredSql: true, AuthoredDql: true, ComponentSpecJson: true, SpecHash: true,
 			GeneratedDql: true, CompileStatus: true, CompileDiagnosticsJson: true, SourceRevision: true}}
-	if err := transport.writeVersionEdit(owner, row); err != nil {
+	if err := transport.writeVersionEdit(owner, nil, row); err != nil {
 		t.Fatal(err)
 	}
 	current, err := transport.getVersionValue(owner, report.ID, version.VersionNo)
@@ -67,7 +67,7 @@ func TestVersionEditWriterRejectsStaleSourceRevision(t *testing.T) {
 	stale := *row
 	stale.SourceRevision = &staleExpected
 	var conflict *xhandler.Conflict
-	if err := transport.writeVersionEdit(owner, &stale); !errors.As(err, &conflict) {
+	if err := transport.writeVersionEdit(owner, nil, &stale); !errors.As(err, &conflict) {
 		t.Fatalf("stale writer error=%v", err)
 	}
 	current, err = transport.getVersionValue(owner, report.ID, version.VersionNo)
