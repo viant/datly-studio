@@ -74,6 +74,8 @@ type VersionPage struct {
 	Limit  int              `json:"limit"`
 	Offset int              `json:"offset"`
 }
+
+// EditCommand requires the positive ExpectedSourceRevision of the version being edited.
 type EditCommand struct {
 	Kind                   string          `json:"kind"`
 	ExpectedSourceRevision int64           `json:"expectedSourceRevision"`
@@ -127,6 +129,7 @@ type ReportCapabilities struct {
 	CanUseDQL    bool `json:"canUseDql"`
 }
 
+// ReaderBuilderCommand requires the positive ExpectedSourceRevision of the version being edited.
 type ReaderBuilderCommand struct {
 	ExpectedSourceRevision int64           `json:"expectedSourceRevision"`
 	Operation              json.RawMessage `json:"operation"`

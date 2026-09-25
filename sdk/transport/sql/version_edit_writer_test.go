@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/viant/datly-studio/schema"
@@ -81,5 +82,18 @@ func TestVersionEditWriterRejectsStaleSourceRevision(t *testing.T) {
 	var sdkErr *sdk.Error
 	if !errors.As(err, &sdkErr) || sdkErr.Code != sdk.ErrorConflict {
 		t.Fatalf("stale SDK edit error=%v", err)
+	}
+	for _, revision := range []int64{0, -1} {
+		_, err = client.Versions().Apply(owner, report.ID, version.VersionNo, sdk.EditCommand{
+			Kind: "set_dql", ExpectedSourceRevision: revision,
+			Payload: json.RawMessage(`{"authoredDql":"SELECT 3"}`),
+		})
+		if !errors.As(err, &sdkErr) || sdkErr.Code != sdk.ErrorInvalidArgument || !strings.Contains(sdkErr.Message, "expectedSourceRevision") {
+			t.Fatalf("revision %d SDK edit error=%v", revision, err)
+		}
+	}
+	current, err = client.Versions().Get(owner, report.ID, version.VersionNo)
+	if err != nil || current.SourceRevision != 2 || current.AuthoredDQL != updatedDQL {
+		t.Fatalf("rejected edits changed version=%+v err=%v", current, err)
 	}
 }

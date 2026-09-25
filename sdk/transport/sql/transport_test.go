@@ -719,9 +719,33 @@ SELECT records.* FROM (SELECT 1 AS id) records`})
 		t.Fatalf("available connectors=%v", initialStructure.AvailableConnectors)
 	}
 	packageOperation, _ := json.Marshal(readerbuilder.Operation{Type: readerbuilder.OperationSetPackage, Package: &readerbuilder.PackageMutation{Path: "browser.supplied/is/ignored"}})
+	for _, revision := range []int64{0, -1} {
+		_, err = client.Versions().ApplyReaderCommand(principal, report.ID, version.VersionNo, sdk.ReaderBuilderCommand{ExpectedSourceRevision: revision, Operation: packageOperation})
+		var sdkErr *sdk.Error
+		if !errors.As(err, &sdkErr) || sdkErr.Code != sdk.ErrorInvalidArgument || !strings.Contains(sdkErr.Message, "expectedSourceRevision") {
+			t.Fatalf("revision %d reader builder error=%v", revision, err)
+		}
+	}
+	unchangedVersion, err := client.Versions().Get(principal, report.ID, version.VersionNo)
+	if err != nil || unchangedVersion.SourceRevision != version.SourceRevision || unchangedVersion.AuthoredDQL != version.AuthoredDQL {
+		t.Fatalf("rejected reader builder commands changed version=%+v err=%v", unchangedVersion, err)
+	}
+	unchangedReport, err := client.Reports().Get(principal, report.ID)
+	if err != nil || unchangedReport.ETag != report.ETag {
+		t.Fatalf("rejected reader builder commands changed report=%+v err=%v", unchangedReport, err)
+	}
 	packageResult, err := client.Versions().ApplyReaderCommand(principal, report.ID, version.VersionNo, sdk.ReaderBuilderCommand{ExpectedSourceRevision: version.SourceRevision, Operation: packageOperation})
 	if err != nil || !packageResult.Applied || !strings.Contains(packageResult.Inspection.DQL, `#package("`+report.ComponentScope+`/reader")`) {
 		t.Fatalf("package result=%+v err=%v", packageResult, err)
+	}
+	_, err = client.Versions().ApplyReaderCommand(principal, report.ID, version.VersionNo, sdk.ReaderBuilderCommand{ExpectedSourceRevision: version.SourceRevision, Operation: packageOperation})
+	var staleRevision *sdk.Error
+	if !errors.As(err, &staleRevision) || staleRevision.Code != sdk.ErrorConflict {
+		t.Fatalf("stale reader builder error=%v", err)
+	}
+	unchangedVersion, err = client.Versions().Get(principal, report.ID, version.VersionNo)
+	if err != nil || unchangedVersion.SourceRevision != packageResult.Inspection.Version.SourceRevision {
+		t.Fatalf("stale reader builder changed version=%+v err=%v", unchangedVersion, err)
 	}
 	version = packageResult.Inspection.Version
 	connectorOperation, _ := json.Marshal(readerbuilder.Operation{Type: readerbuilder.OperationSetSetting, Setting: &readerbuilder.SettingMutation{Name: "connector", Args: []string{"'lookup'"}}})

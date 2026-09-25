@@ -1118,11 +1118,14 @@ func (t *Transport) applyVersionEdit(ctx context.Context, input, output any) err
 	if err := decode(input, &in); err != nil {
 		return invalid(err)
 	}
+	if in.Command.ExpectedSourceRevision <= 0 {
+		return invalid(errors.New("expectedSourceRevision must be positive for version edits"))
+	}
 	current, err := t.getVersionValue(ctx, in.ReportID, in.VersionNo)
 	if err != nil {
 		return err
 	}
-	if in.Command.ExpectedSourceRevision > 0 && in.Command.ExpectedSourceRevision != current.SourceRevision {
+	if in.Command.ExpectedSourceRevision != current.SourceRevision {
 		return &sdk.Error{Code: sdk.ErrorConflict, Message: "version source revision does not match"}
 	}
 	if len(in.Command.Payload) == 0 {
@@ -1322,6 +1325,9 @@ func (t *Transport) applyReaderBuilder(ctx context.Context, input, output any) e
 	if err := decode(input, &in); err != nil {
 		return invalid(err)
 	}
+	if in.Command.ExpectedSourceRevision <= 0 {
+		return invalid(errors.New("expectedSourceRevision must be positive for reader builder commands"))
+	}
 	if len(in.Command.Operation) == 0 {
 		return invalid(errors.New("reader builder operation is required"))
 	}
@@ -1329,7 +1335,7 @@ func (t *Transport) applyReaderBuilder(ctx context.Context, input, output any) e
 	if err != nil {
 		return err
 	}
-	if in.Command.ExpectedSourceRevision > 0 && in.Command.ExpectedSourceRevision != version.SourceRevision {
+	if in.Command.ExpectedSourceRevision != version.SourceRevision {
 		return &sdk.Error{Code: sdk.ErrorConflict, Message: "version source revision does not match"}
 	}
 	var operation readerbuilder.Operation
