@@ -27,7 +27,8 @@ HTTP/MCP tools.
 The SQL transport now calls many transcribed components, but that does not
 make the SDK HTTP route itself a Datly component. The UI's
 `ui/src/studioApi.js` targets this generic route. The Studio SDK declares
-61 `sdk.Operation*` operations plus the three `access.*` operations.
+62 `sdk.Operation*` operations (including the separately declared
+`versions.download`) plus the three `access.*` operations.
 The DQL tree has public readers with `$mcp` declarations, but they do not
 provide complete SDK-operation parity, and a declared MCP directive alone
 does not prove a route is mounted or authorized.
