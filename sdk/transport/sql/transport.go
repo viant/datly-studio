@@ -2002,7 +2002,31 @@ func (t *Transport) activatePublication(ctx context.Context, reportID string, ve
 	if err = t.activateVersionState(ctx, activated, reportID, versionNo, now); err != nil {
 		return err
 	}
-	if _, err = activated.ExecContext(ctx, `UPDATE reports SET status='active',updated_at=? WHERE id=?`, now, reportID); err != nil {
+	reports, err := t.readReportCatalogTx(ctx, activated, reportCatalogRequest{ID: reportID, Limit: 2, Unscoped: true})
+	if err != nil {
+		return internal(err)
+	}
+	if len(reports) != 1 {
+		return &sdk.Error{Code: sdk.ErrorConflict, Message: "report is absent or deleted during activation"}
+	}
+	report := reports[0]
+	etag := report.ETag
+	err = t.writeReportConfig(ctx, activated, &reportconfig.StoredReport{
+		Id: report.ID, Namespace: report.Namespace, Slug: report.Slug, Title: report.Title,
+		Description: namespaceOptionalDescription(report.Description), OwnerId: report.OwnerID,
+		Status: "active", DefaultConnectorName: report.DefaultConnectorName,
+		ComponentScope: report.ComponentScope, ComponentName: report.ComponentName,
+		CurrentDraftVersion: report.CurrentDraftVersion, Etag: &etag, UpdatedAt: &now,
+		Has: &reportconfig.StoredReportHas{Id: true, Namespace: true, Slug: true,
+			Title: true, Description: true, OwnerId: true, Status: true,
+			DefaultConnectorName: true, ComponentScope: true, ComponentName: true,
+			CurrentDraftVersion: true, Etag: true, UpdatedAt: true},
+	})
+	if err != nil {
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) {
+			return &sdk.Error{Code: sdk.ErrorConflict, Message: "report changed before activation"}
+		}
 		return internal(err)
 	}
 	if err = t.appendPublicationEventTx(ctx, activated, event); err != nil {

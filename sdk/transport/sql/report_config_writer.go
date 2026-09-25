@@ -26,7 +26,7 @@ func (t *Transport) writeReportConfig(ctx context.Context, tx *sql.Tx, row *stor
 	if err := resources.Register(stored.ReportDatlyResourceNamespace, stored.ReportDatlyResources); err != nil {
 		return err
 	}
-	connector := &dsql.SQLComponent{DB: t.DB}
+	connector := &dsql.SQLComponent{DB: t.DB, Tx: tx}
 	if err := connector.RegisterConnector("studio", t.DB); err != nil {
 		return err
 	}

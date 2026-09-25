@@ -2,6 +2,7 @@ package sqltransport
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"reflect"
 
@@ -20,14 +21,21 @@ import (
 type reportCatalogRequest struct {
 	ID, Query, Namespace, Status, OwnerID, ConnectorName string
 	Limit, Offset                                        int
+	// Unscoped is only for server-owned mutations already authorized by the
+	// SDK operation; public get/list requests always keep principal scope.
+	Unscoped bool
 }
 
 func (t *Transport) readReportCatalog(ctx context.Context, request reportCatalogRequest) ([]*sdk.Report, error) {
+	return t.readReportCatalogTx(ctx, nil, request)
+}
+
+func (t *Transport) readReportCatalogTx(ctx context.Context, tx *sql.Tx, request reportCatalogRequest) ([]*sdk.Report, error) {
 	resources := resource.New()
 	if err := resources.Register(stored.ReportDatlyResourceNamespace, stored.ReportDatlyResources); err != nil {
 		return nil, err
 	}
-	connector := &dsql.SQLComponent{DB: t.DB}
+	connector := &dsql.SQLComponent{DB: t.DB, Tx: tx}
 	if err := connector.RegisterConnector("studio", t.DB); err != nil {
 		return nil, err
 	}
@@ -51,6 +59,9 @@ func (t *Transport) readReportCatalog(ctx context.Context, request reportCatalog
 	}
 	defer runtime.Shutdown(context.Background())
 	principal, scoped := sdk.PrincipalFromContext(ctx)
+	if request.Unscoped {
+		scoped = false
+	}
 	input := &stored.Input{Id: request.ID, Query: request.Query, Namespace: request.Namespace,
 		Status: request.Status, OwnerId: request.OwnerID, ConnectorName: request.ConnectorName,
 		Subject: principal.Subject, Scoped: scoped, Limit: request.Limit, Offset: request.Offset,

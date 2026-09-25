@@ -122,8 +122,31 @@ func TestOtherActivePublicationsRepointAndRollbackTogether(t *testing.T) {
 	event := publicationEventRecord{ReportID: "current", OwnerID: "owner", Operation: "publish",
 		VersionNo: &versionNo, GenerationNo: &generation, Status: "succeeded",
 		RequestedBy: "owner", OccurredAt: now}
+	if _, err := db.Exec(`CREATE TRIGGER reject_report_activation BEFORE UPDATE OF status ON reports
+		WHEN OLD.id='current' AND NEW.status='active'
+		BEGIN SELECT RAISE(ABORT,'report activation failed'); END`); err != nil {
+		t.Fatal(err)
+	}
+	if err := transport.activatePublication(owner, "current", versionNo, generation, now, event); err == nil {
+		t.Fatal("report activation failure must abort the transaction")
+	}
+	var pendingStatus string
+	if err := db.QueryRowContext(ctx, `SELECT status FROM runtime_generations WHERE generation_no=2`).Scan(&pendingStatus); err != nil || pendingStatus != "building" {
+		t.Fatalf("generation after rollback=%q err=%v", pendingStatus, err)
+	}
+	if err := db.QueryRowContext(ctx, `SELECT publication_status FROM report_publications WHERE report_id='current'`).Scan(&pendingStatus); err != nil || pendingStatus != "pending" {
+		t.Fatalf("publication after rollback=%q err=%v", pendingStatus, err)
+	}
+	if _, err := db.Exec(`DROP TRIGGER reject_report_activation`); err != nil {
+		t.Fatal(err)
+	}
 	if err := transport.activatePublication(owner, "current", versionNo, generation, now, event); err != nil {
 		t.Fatal(err)
+	}
+	var currentStatus string
+	var currentETag int64
+	if err := db.QueryRowContext(ctx, `SELECT status,etag FROM reports WHERE id='current'`).Scan(&currentStatus, &currentETag); err != nil || currentStatus != "active" || currentETag != 2 {
+		t.Fatalf("activated report status=%q etag=%d err=%v", currentStatus, currentETag, err)
 	}
 	for _, id := range []string{"current", "other"} {
 		snapshot, found, readErr := transport.publicationSnapshot(owner, nil, id)

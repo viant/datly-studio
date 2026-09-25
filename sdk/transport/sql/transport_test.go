@@ -108,6 +108,10 @@ func TestTransportUsesCanonicalConnectorAndReportTables(t *testing.T) {
 	if err != nil || string(descriptor.Component) != `{"views":[]}` {
 		t.Fatalf("descriptor = %+v, %v", descriptor, err)
 	}
+	beforePublish, err := client.Reports().Get(ctx, report.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	var activatedGeneration int64
 	transport.Activator = RuntimeActivatorFunc(func(_ context.Context, generation int64) error { activatedGeneration = generation; return nil })
@@ -117,6 +121,10 @@ func TestTransportUsesCanonicalConnectorAndReportTables(t *testing.T) {
 	}
 	if publication.ReportID != report.ID || publication.ActiveVersionNo != 1 || publication.Status != "active" || publication.ActiveGeneration == nil {
 		t.Fatalf("publication = %+v", publication)
+	}
+	afterPublish, err := client.Reports().Get(ctx, report.ID)
+	if err != nil || afterPublish.Status != "active" || afterPublish.ETag != beforePublish.ETag+1 {
+		t.Fatalf("report after publish = %+v, before = %+v, err = %v", afterPublish, beforePublish, err)
 	}
 	if activatedGeneration != *publication.ActiveGeneration {
 		t.Fatalf("activated generation=%d publication=%+v", activatedGeneration, publication)
