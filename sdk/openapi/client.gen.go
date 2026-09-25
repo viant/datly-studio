@@ -147,6 +147,33 @@ type WireBba07f0bad61cd85885417e1c20c5cff98c1ebf3abb205fd71b51c6069ea161c struct
 	UpdatedAt            time.Time `json:"updatedAt"`
 }
 
+// WireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231 defines model for Wire_ddb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231.
+type WireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231 struct {
+	CreatedAt   time.Time `json:"createdAt"`
+	Description *string   `json:"description,omitempty"`
+	Etag        int64     `json:"etag"`
+	Name        string    `json:"name"`
+	OwnerId     string    `json:"ownerId"`
+	Status      string    `json:"status"`
+	Title       string    `json:"title"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+}
+
+// WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c defines model for Wire_fcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c.
+type WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c struct {
+	Items  *[]WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_Item `json:"items"`
+	Limit  int64                                                                              `json:"limit"`
+	Offset int64                                                                              `json:"offset"`
+}
+
+// WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801cItems1 defines model for WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c.Items.1.
+type WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801cItems1 = map[string]interface{}
+
+// WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_Item defines model for Wire_fcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c.items.Item.
+type WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_Item struct {
+	union json.RawMessage
+}
+
 // POSTv1studiosdkaclListJSONBody defines parameters for POSTv1studiosdkaclList.
 type POSTv1studiosdkaclListJSONBody struct {
 	ReportId string `json:"reportId"`
@@ -175,6 +202,14 @@ type POSTv1studiosdkconnectorsListJSONBody struct {
 	Status  *string   `json:"status,omitempty"`
 }
 
+// POSTv1studiosdknamespacesListJSONBody defines parameters for POSTv1studiosdknamespacesList.
+type POSTv1studiosdknamespacesListJSONBody struct {
+	Limit  *int64  `json:"limit,omitempty"`
+	Offset *int64  `json:"offset,omitempty"`
+	Query  *string `json:"query,omitempty"`
+	Status *string `json:"status,omitempty"`
+}
+
 // POSTv1studiosdkreportsGetJSONBody defines parameters for POSTv1studiosdkreportsGet.
 type POSTv1studiosdkreportsGetJSONBody struct {
 	Id string `json:"id"`
@@ -201,6 +236,9 @@ type POSTv1studiosdkconnectorsGetJSONRequestBody POSTv1studiosdkconnectorsGetJSO
 
 // POSTv1studiosdkconnectorsListJSONRequestBody defines body for POSTv1studiosdkconnectorsList for application/json ContentType.
 type POSTv1studiosdkconnectorsListJSONRequestBody POSTv1studiosdkconnectorsListJSONBody
+
+// POSTv1studiosdknamespacesListJSONRequestBody defines body for POSTv1studiosdknamespacesList for application/json ContentType.
+type POSTv1studiosdknamespacesListJSONRequestBody POSTv1studiosdknamespacesListJSONBody
 
 // POSTv1studiosdkreportsGetJSONRequestBody defines body for POSTv1studiosdkreportsGet for application/json ContentType.
 type POSTv1studiosdkreportsGetJSONRequestBody POSTv1studiosdkreportsGetJSONBody
@@ -394,6 +432,68 @@ func (t *Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c_It
 	return err
 }
 
+// AsWireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231 returns the union data inside the WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_Item as a WireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231
+func (t WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_Item) AsWireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231() (WireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231, error) {
+	var body WireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231 overwrites any union data inside the WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_Item as the provided WireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231
+func (t *WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_Item) FromWireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231(v WireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231 performs a merge with any union data inside the WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_Item, using the provided WireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231
+func (t *WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_Item) MergeWireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231(v WireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801cItems1 returns the union data inside the WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_Item as a WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801cItems1
+func (t WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_Item) AsWireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801cItems1() (WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801cItems1, error) {
+	var body WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801cItems1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801cItems1 overwrites any union data inside the WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_Item as the provided WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801cItems1
+func (t *WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_Item) FromWireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801cItems1(v WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801cItems1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801cItems1 performs a merge with any union data inside the WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_Item, using the provided WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801cItems1
+func (t *WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_Item) MergeWireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801cItems1(v WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801cItems1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // RequestEditorFn is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
 
@@ -509,6 +609,20 @@ type ClientInterface interface {
 	//
 	// Corresponds with POST /v1/studio/sdk/connectors.list (the `POSTv1studiosdkconnectorsList` operationId).
 	POSTv1studiosdkconnectorsList(ctx context.Context, body POSTv1studiosdkconnectorsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespacesListWithBody namespace
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /v1/studio/sdk/namespaces.list (the `POSTv1studiosdknamespacesList` operationId).
+	POSTv1studiosdknamespacesListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespacesList namespace
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /v1/studio/sdk/namespaces.list (the `POSTv1studiosdknamespacesList` operationId).
+	POSTv1studiosdknamespacesList(ctx context.Context, body POSTv1studiosdknamespacesListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkreportsGetWithBody report
 	//
@@ -631,6 +745,40 @@ func (c *Client) POSTv1studiosdkconnectorsListWithBody(ctx context.Context, cont
 // Corresponds with POST /v1/studio/sdk/connectors.list (the `POSTv1studiosdkconnectorsList` operationId).
 func (c *Client) POSTv1studiosdkconnectorsList(ctx context.Context, body POSTv1studiosdkconnectorsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPOSTv1studiosdkconnectorsListRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespacesListWithBody namespace
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /v1/studio/sdk/namespaces.list (the `POSTv1studiosdknamespacesList` operationId).
+func (c *Client) POSTv1studiosdknamespacesListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespacesListRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespacesList namespace
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /v1/studio/sdk/namespaces.list (the `POSTv1studiosdknamespacesList` operationId).
+func (c *Client) POSTv1studiosdknamespacesList(ctx context.Context, body POSTv1studiosdknamespacesListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespacesListRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -868,6 +1016,46 @@ func NewPOSTv1studiosdkconnectorsListRequestWithBody(server string, contentType 
 	return req, nil
 }
 
+// NewPOSTv1studiosdknamespacesListRequest calls the generic POSTv1studiosdknamespacesList builder with application/json body
+func NewPOSTv1studiosdknamespacesListRequest(server string, body POSTv1studiosdknamespacesListJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdknamespacesListRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdknamespacesListRequestWithBody constructs an http.Request for the POSTv1studiosdknamespacesList method, with any body, and a specified content type
+func NewPOSTv1studiosdknamespacesListRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/namespaces.list")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewPOSTv1studiosdkreportsGetRequest calls the generic POSTv1studiosdkreportsGet builder with application/json body
 func NewPOSTv1studiosdkreportsGetRequest(server string, body POSTv1studiosdkreportsGetJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -1034,6 +1222,20 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with POST /v1/studio/sdk/connectors.list (the `POSTv1studiosdkconnectorsList` operationId).
 	POSTv1studiosdkconnectorsListWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsListResponse, error)
 
+	// POSTv1studiosdknamespacesListWithBodyWithResponse namespace
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /v1/studio/sdk/namespaces.list (the `POSTv1studiosdknamespacesList` operationId).
+	POSTv1studiosdknamespacesListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesListResponse, error)
+
+	// POSTv1studiosdknamespacesListWithResponse namespace
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /v1/studio/sdk/namespaces.list (the `POSTv1studiosdknamespacesList` operationId).
+	POSTv1studiosdknamespacesListWithResponse(ctx context.Context, body POSTv1studiosdknamespacesListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesListResponse, error)
+
 	// POSTv1studiosdkreportsGetWithBodyWithResponse report
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -1180,6 +1382,47 @@ func (r POSTv1studiosdkconnectorsListResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r POSTv1studiosdkconnectorsListResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdknamespacesListResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdknamespacesListResponse) GetJSON200() *WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdknamespacesListResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdknamespacesListResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdknamespacesListResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdknamespacesListResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -1346,6 +1589,32 @@ func (c *ClientWithResponses) POSTv1studiosdkconnectorsListWithResponse(ctx cont
 	return ParsePOSTv1studiosdkconnectorsListResponse(rsp)
 }
 
+// POSTv1studiosdknamespacesListWithBodyWithResponse namespace
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /v1/studio/sdk/namespaces.list (the `POSTv1studiosdknamespacesList` operationId).
+func (c *ClientWithResponses) POSTv1studiosdknamespacesListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesListResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespacesListWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespacesListResponse(rsp)
+}
+
+// POSTv1studiosdknamespacesListWithResponse namespace
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /v1/studio/sdk/namespaces.list (the `POSTv1studiosdknamespacesList` operationId).
+func (c *ClientWithResponses) POSTv1studiosdknamespacesListWithResponse(ctx context.Context, body POSTv1studiosdknamespacesListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesListResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespacesList(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespacesListResponse(rsp)
+}
+
 // POSTv1studiosdkreportsGetWithBodyWithResponse report
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -1466,6 +1735,32 @@ func ParsePOSTv1studiosdkconnectorsListResponse(rsp *http.Response) (*POSTv1stud
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest Wire33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdknamespacesListResponse parses an HTTP response from a POSTv1studiosdknamespacesListWithResponse call
+func ParsePOSTv1studiosdknamespacesListResponse(rsp *http.Response) (*POSTv1studiosdknamespacesListResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdknamespacesListResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

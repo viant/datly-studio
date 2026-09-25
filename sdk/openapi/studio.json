@@ -413,6 +413,84 @@
           "createdAt",
           "updatedAt"
         ]
+      },
+      "Wire_ddb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "etag": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "ownerId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "ownerId",
+          "name",
+          "title",
+          "status",
+          "etag",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "Wire_fcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Wire_ddb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231"
+                },
+                {
+                  "type": "object",
+                  "nullable": true,
+                  "enum": [
+                    null
+                  ]
+                }
+              ]
+            },
+            "nullable": true
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "offset": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "items",
+          "limit",
+          "offset"
+        ]
       }
     },
     "securitySchemes": {
@@ -578,6 +656,54 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Wire_33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/namespaces.list": {
+      "post": {
+        "summary": "namespace",
+        "operationId": "POST:/v1/studio/sdk/namespaces.list",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "query": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Wire_fcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c"
                 }
               }
             }

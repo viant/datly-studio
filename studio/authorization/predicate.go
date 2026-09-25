@@ -20,6 +20,7 @@ type LinkedTypes struct {
 	Claims                     jwt.Claims
 	ConnectorRead              ConnectorRead
 	ConnectorEdit              ConnectorEdit
+	NamespaceRead              NamespaceRead
 	AuthorizationPredicateRead AuthorizationPredicateRead
 	AuthorizationPredicateEdit AuthorizationPredicateEdit
 	ReportRead                 ReportRead
@@ -62,7 +63,7 @@ var StudioAuthorizationDatlyLinkedType = StudioAuthorizationDatlyType()
 // discovers the handlers by scanning this package; retaining their runtime
 // type descriptors lets that scan resolve DQL names in a linked executable.
 var DatlyPredicateHandlerTypes = []reflect.Type{
-	reflect.TypeFor[ConnectorRead](), reflect.TypeFor[ConnectorEdit](), reflect.TypeFor[ReportRead](), reflect.TypeFor[ReportEdit](), reflect.TypeFor[ReportPublish](),
+	reflect.TypeFor[ConnectorRead](), reflect.TypeFor[ConnectorEdit](), reflect.TypeFor[NamespaceRead](), reflect.TypeFor[ReportRead](), reflect.TypeFor[ReportEdit](), reflect.TypeFor[ReportPublish](),
 	reflect.TypeFor[AuthorizationPredicateRead](), reflect.TypeFor[AuthorizationPredicateEdit](),
 	reflect.TypeFor[ReportVersionRead](), reflect.TypeFor[ReportVersionEdit](), reflect.TypeFor[ReportViewRead](), reflect.TypeFor[ReportParameterRead](), reflect.TypeFor[ReportParameterEdit](),
 	reflect.TypeFor[ReportCubeRead](), reflect.TypeFor[ReportCubeEdit](), reflect.TypeFor[ReportMCPRead](), reflect.TypeFor[ReportMCPEdit](),
@@ -86,6 +87,7 @@ type InputBinding struct {
 
 type ConnectorRead struct{ InputBinding }
 type ConnectorEdit struct{ InputBinding }
+type NamespaceRead struct{ InputBinding }
 type AuthorizationPredicateRead struct{ InputBinding }
 type AuthorizationPredicateEdit struct{ InputBinding }
 type ReportRead struct{ InputBinding }
@@ -132,6 +134,21 @@ func (p *ConnectorEdit) Compute(ctx context.Context, _ any) (*xpredicate.Criteri
 		return nil, err
 	}
 	return connectorCriteriaForSubject(principal, "connector.name", "connector.owner_id", permissionEdit), nil
+}
+func (p *NamespaceRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
+	principal, err := subject(ctx, p.Input)
+	if err != nil {
+		return nil, err
+	}
+	return &xpredicate.Criteria{Expression: `(namespaces.owner_id = ? OR EXISTS (
+SELECT 1 FROM reports studio_auth_report
+JOIN report_acl studio_auth_acl ON studio_auth_acl.report_id = studio_auth_report.id
+WHERE studio_auth_report.owner_id = namespaces.owner_id
+  AND studio_auth_report.namespace = namespaces.name
+  AND studio_auth_report.deleted_at IS NULL
+  AND studio_auth_acl.subject_type = 'user'
+  AND studio_auth_acl.subject_id = ?
+  AND studio_auth_acl.can_view = TRUE))`, Placeholders: []any{principal, principal}}, nil
 }
 func (p *AuthorizationPredicateRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
 	return globalCriteria(ctx, p.Input, permissionPublish)

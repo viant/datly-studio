@@ -1,19 +1,16 @@
 package reader
 
 import (
-	"embed"
-
-	"reflect"
-
+	embed "embed"
 	xdatly "github.com/viant/xdatly"
+	reflect "reflect"
 )
 
 func init() {}
 
 // Component is the generated component scaffold for namespace.
 type NamespaceComponent struct {
-	Contract1 xdatly.Component[NamespaceQueryInput, NamespaceQueryOutput] "component:\"namespace,path=/v1/studio/namespaces,method=GET,connector=studio,view=namespace\" routeName:\"namespace\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.namespaces.read\\\",\\\"description\\\":\\\"Read governed Datly Studio namespaces\\\"}]\" caseFormat:\"lc\""
-	Contract2 xdatly.Component[NamespaceQueryInput, NamespaceQueryOutput] "component:\"namespace,path=/v1/studio/namespaces/{name},method=GET,connector=studio,view=namespace\" routeName:\"namespace\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.namespaces.readByName\\\",\\\"description\\\":\\\"Read governed Datly Studio namespaces\\\"}]\" caseFormat:\"lc\""
+	Contract xdatly.Component[NamespaceQueryInput, NamespaceQueryOutput] "component:\"namespace,path=/v1/studio/sdk/namespaces.list,method=POST,connector=studio,view=namespace\" routeName:\"namespace\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.sdk.namespaces.list\\\",\\\"description\\\":\\\"List authorized Datly Studio namespaces\\\"}]\" caseFormat:\"lc\""
 }
 
 // NamespaceDatlyType keeps the public component type linked for blank-import discovery.

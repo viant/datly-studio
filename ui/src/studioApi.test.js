@@ -233,13 +233,14 @@ test('resources and skills use versioned Studio SDK operations', async () => {
 
 test('governed namespaces use dedicated Studio SDK operations', async () => {
   const calls=[];
-  const api=new StudioAPI({mode:'development',apiBaseURL:'http://127.0.0.1:8080',development:{subject:'owner'}},{fetcher:async(url,init)=>{calls.push({url,body:init.body});return response({items:[]});}});
+  const api=new StudioAPI({mode:'development',apiBaseURL:'http://127.0.0.1:8080',development:{subject:'owner'}},{fetcher:async(url,init)=>{calls.push(url instanceof Request ? {url:url.url,body:await url.text()} : {url,body:init.body});return response({items:[],limit:50,offset:0});}});
   await api.listNamespaces({status:'active'});
   await api.getNamespace('finance.ops');
   await api.createNamespace({name:'finance.ops',title:'Finance Operations'});
   await api.updateNamespace('finance.ops',{title:'Finance',etag:1});
   await api.deleteNamespace('finance.ops',2);
   assert.equal(calls[0].url,'http://127.0.0.1:8080/v1/studio/sdk/namespaces.list');
+  assert.equal(calls[0].body,'{"status":"active"}');
   assert.equal(calls[1].url,'http://127.0.0.1:8080/v1/studio/sdk/namespaces.get');
   assert.equal(calls[2].url,'http://127.0.0.1:8080/v1/studio/sdk/namespaces.create');
   assert.equal(calls[3].body,'{"name":"finance.ops","input":{"title":"Finance","etag":1}}');

@@ -19,6 +19,7 @@ import (
 	connectorget "github.com/viant/datly-studio/studio/connectors/get"
 	connectors "github.com/viant/datly-studio/studio/connectors/reader"
 	"github.com/viant/datly-studio/studio/host"
+	namespaces "github.com/viant/datly-studio/studio/namespaces/reader"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
 	acl "github.com/viant/datly-studio/studio/report_acl/reader"
 	catalogpredicate "github.com/viant/datly-studio/studio/reports/catalogpredicate"
@@ -55,6 +56,9 @@ func run(ctx context.Context, output string) error {
 		return err
 	}
 	if err := resources.Register(connectorget.ConnectorDatlyResourceNamespace, connectorget.ConnectorDatlyResources); err != nil {
+		return err
+	}
+	if err := resources.Register(namespaces.NamespaceDatlyResourceNamespace, namespaces.NamespaceDatlyResources); err != nil {
 		return err
 	}
 	if err := resources.Register(authreader.ContextDatlyResourceNamespace, authreader.ContextDatlyResources); err != nil {
@@ -114,6 +118,11 @@ func run(ctx context.Context, output string) error {
 	if err != nil {
 		return err
 	}
+	namespaceList, err := compile(reflect.TypeFor[namespaces.NamespaceComponent](), reflect.TypeFor[namespaces.NamespaceQueryInput](),
+		reflect.TypeFor[namespaces.NamespaceQueryOutput](), resources, types, codec)
+	if err != nil {
+		return err
+	}
 	reportList, err := compile(reflect.TypeFor[reports.ReportComponent](), reflect.TypeFor[reports.Input](),
 		reflect.TypeFor[reports.Output](), resources, types, codec)
 	if err != nil {
@@ -126,11 +135,12 @@ func run(ctx context.Context, output string) error {
 	}
 	document, err := (openapi.Generator{}).Generate(ctx, openapi.Request{
 		Info:       openapi3.Info{Title: "Datly Studio SDK", Version: "1.0.0"},
-		Components: []*registry.RegisteredComponent{auth, aclList, connectorList, connectorOne, reportList, reportOne},
+		Components: []*registry.RegisteredComponent{auth, aclList, connectorList, connectorOne, namespaceList, reportList, reportOne},
 		Routes: []spec.RouteRef{
 			{Method: "POST", Path: "/v1/studio/sdk/acl.list"},
 			{Method: "POST", Path: "/v1/studio/sdk/connectors.get"},
 			{Method: "POST", Path: "/v1/studio/sdk/connectors.list"},
+			{Method: "POST", Path: "/v1/studio/sdk/namespaces.list"},
 			{Method: "POST", Path: "/v1/studio/sdk/reports.get"},
 			{Method: "POST", Path: "/v1/studio/sdk/reports.list"},
 		},

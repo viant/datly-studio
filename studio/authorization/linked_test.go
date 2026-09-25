@@ -8,7 +8,7 @@ import (
 
 func TestPredicateHandlersAreLinkedForDatlyPackageScanning(t *testing.T) {
 	for _, name := range []string{
-		"ConnectorRead", "ConnectorEdit", "ReportRead", "ReportEdit", "ReportPublish",
+		"ConnectorRead", "ConnectorEdit", "NamespaceRead", "ReportRead", "ReportEdit", "ReportPublish",
 		"ReportVersionRead", "ReportVersionEdit", "ReportViewRead", "ReportParameterRead",
 		"ReportParameterEdit", "ReportCubeRead", "ReportCubeEdit", "ReportMCPRead",
 		"ReportMCPEdit", "ReportResourceFileRead", "ReportResourceFileEdit", "ReportResourceFolderRead",

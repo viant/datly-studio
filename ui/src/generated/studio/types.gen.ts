@@ -102,6 +102,23 @@ export type WireBba07F0Bad61Cd85885417E1C20C5Cff98C1Ebf3Abb205Fd71B51C6069Ea161c
     updatedAt: string;
 };
 
+export type WireDdb0758361D7645100D4271Bb6Abcc08E955D5Bf64Bce42081793C40D1A24231 = {
+    createdAt: string;
+    description?: string | null;
+    etag: number;
+    name: string;
+    ownerId: string;
+    status: string;
+    title: string;
+    updatedAt: string;
+};
+
+export type WireFcb2B68Ea97735A078Bf238Fa93Fc316117Bac1Af3B4B77C1A5F30Eb2753801c = {
+    items: Array<WireDdb0758361D7645100D4271Bb6Abcc08E955D5Bf64Bce42081793C40D1A24231 | null> | null;
+    limit: number;
+    offset: number;
+};
+
 export type PostV1StudioSdkAclListData = {
     body: {
         reportId: string;
@@ -165,6 +182,27 @@ export type PostV1StudioSdkConnectorsListResponses = {
 };
 
 export type PostV1StudioSdkConnectorsListResponse = PostV1StudioSdkConnectorsListResponses[keyof PostV1StudioSdkConnectorsListResponses];
+
+export type PostV1StudioSdkNamespacesListData = {
+    body?: {
+        limit?: number;
+        offset?: number;
+        query?: string;
+        status?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/namespaces.list';
+};
+
+export type PostV1StudioSdkNamespacesListResponses = {
+    /**
+     * Success response
+     */
+    200: WireFcb2B68Ea97735A078Bf238Fa93Fc316117Bac1Af3B4B77C1A5F30Eb2753801c;
+};
+
+export type PostV1StudioSdkNamespacesListResponse = PostV1StudioSdkNamespacesListResponses[keyof PostV1StudioSdkNamespacesListResponses];
 
 export type PostV1StudioSdkReportsGetData = {
     body: {

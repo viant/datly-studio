@@ -27,17 +27,6 @@ func (input *NamespaceQueryInput) SetAuth(value *studioauth.Output) {
 	input.Has.Auth = true
 }
 
-func (input *NamespaceQueryInput) SetName(value string) {
-	if input == nil {
-		return
-	}
-	input.Name = value
-	if input.Has == nil {
-		input.Has = &NamespaceQueryInputHas{}
-	}
-	input.Has.Name = true
-}
-
 func (input *NamespaceQueryInput) SetQuery(value string) {
 	if input == nil {
 		return
@@ -58,28 +47,6 @@ func (input *NamespaceQueryInput) SetStatus(value string) {
 		input.Has = &NamespaceQueryInputHas{}
 	}
 	input.Has.Status = true
-}
-
-func (input *NamespaceQueryInput) SetFields(value []string) {
-	if input == nil {
-		return
-	}
-	input.Fields = value
-	if input.Has == nil {
-		input.Has = &NamespaceQueryInputHas{}
-	}
-	input.Has.Fields = true
-}
-
-func (input *NamespaceQueryInput) SetOrderBy(value string) {
-	if input == nil {
-		return
-	}
-	input.OrderBy = value
-	if input.Has == nil {
-		input.Has = &NamespaceQueryInputHas{}
-	}
-	input.Has.OrderBy = true
 }
 
 func (input *NamespaceQueryInput) SetLimit(value int) {
