@@ -1022,6 +1022,11 @@ SELECT 1`})
 	if len(file.Files) != 1 || file.Files[0].ContentSHA256 == "" || file.Version.SourceRevision != version.SourceRevision+1 {
 		t.Fatalf("file snapshot=%+v", file)
 	}
+	var claimReport, claimCreator, claimUpdater string
+	if err := db.QueryRow(`SELECT report_id,created_by,updated_by FROM resource_namespace_claims WHERE namespace=?`, report.OwnerPackage+".docs").
+		Scan(&claimReport, &claimCreator, &claimUpdater); err != nil || claimReport != report.ID || claimCreator != "owner" || claimUpdater != "owner" {
+		t.Fatalf("namespace claim report=%q actor=%q/%q err=%v", claimReport, claimCreator, claimUpdater, err)
+	}
 	var touchedState, touchedCompile, touchedDiagnostics string
 	var touchedValidation sql.NullTime
 	if err := db.QueryRow(`SELECT state,compile_status,compile_diagnostics_json,validated_at FROM report_versions WHERE report_id=? AND version_no=?`, report.ID, version.VersionNo).
@@ -1066,9 +1071,27 @@ SELECT 1`})
 	if !errors.As(err, &namespaceConflict) || namespaceConflict.Code != sdk.ErrorConflict {
 		t.Fatalf("shared resource namespace error=%v", err)
 	}
+	if err := db.QueryRow(`SELECT report_id FROM resource_namespace_claims WHERE namespace=?`, report.OwnerPackage+".docs").Scan(&claimReport); err != nil || claimReport != report.ID {
+		t.Fatalf("foreign claim changed owner=%q err=%v", claimReport, err)
+	}
 	otherAfter, err := client.Versions().Get(principal, otherReport.ID, otherVersion.VersionNo)
 	if err != nil || otherAfter.SourceRevision != otherVersion.SourceRevision {
 		t.Fatalf("namespace conflict changed version=%+v err=%v", otherAfter, err)
+	}
+	reservedNamespace := report.OwnerPackage + ".reserved"
+	if _, err := db.Exec(`INSERT INTO resource_namespace_claims(namespace,report_id,created_at,created_by,updated_at,updated_by) VALUES(?,?,?,?,?,?)`,
+		reservedNamespace, otherReport.ID, time.Now(), "owner", time.Now(), "owner"); err != nil {
+		t.Fatal(err)
+	}
+	_, err = client.Resources().UpsertFile(principal, sdk.ResourceFile{ReportID: report.ID,
+		VersionNo: version.VersionNo, Namespace: reservedNamespace, ResourcePath: "reserved.txt",
+		Content: "reserved", ExpectedSourceRevision: file.Version.SourceRevision})
+	if !errors.As(err, &namespaceConflict) || namespaceConflict.Code != sdk.ErrorConflict {
+		t.Fatalf("claim-only resource namespace error=%v", err)
+	}
+	ownerAfterClaimConflict, err := client.Versions().Get(principal, report.ID, version.VersionNo)
+	if err != nil || ownerAfterClaimConflict.SourceRevision != file.Version.SourceRevision {
+		t.Fatalf("claim-only conflict changed version=%+v err=%v", ownerAfterClaimConflict, err)
 	}
 	otherFolder, err := client.Resources().UpsertFolder(principal, sdk.ResourceFolder{ReportID: otherReport.ID,
 		VersionNo: otherVersion.VersionNo, Namespace: report.OwnerPackage + ".folder-only",
@@ -1081,6 +1104,16 @@ SELECT 1`})
 		ResourcePath: "guide/other.txt", Content: "other", ExpectedSourceRevision: file.Version.SourceRevision})
 	if !errors.As(err, &namespaceConflict) || namespaceConflict.Code != sdk.ErrorConflict {
 		t.Fatalf("folder-owned resource namespace error=%v", err)
+	}
+	otherFolderDeleted, err := client.Resources().DeleteFolderWithRevision(principal, sdk.ResourceDeleteInput{
+		ReportID: otherReport.ID, VersionNo: otherVersion.VersionNo,
+		FolderID: otherFolder.Folders[0].FolderID, ExpectedSourceRevision: otherFolder.Version.SourceRevision})
+	if err != nil || len(otherFolderDeleted.Folders) != 0 {
+		t.Fatalf("last folder delete=%+v err=%v", otherFolderDeleted, err)
+	}
+	var releasedClaims int
+	if err := db.QueryRow(`SELECT COUNT(*) FROM resource_namespace_claims WHERE namespace=?`, report.OwnerPackage+".folder-only").Scan(&releasedClaims); err != nil || releasedClaims != 0 {
+		t.Fatalf("last folder should release namespace claim count=%d err=%v", releasedClaims, err)
 	}
 	folder, err := client.Resources().UpsertFolder(principal, sdk.ResourceFolder{ReportID: report.ID, VersionNo: version.VersionNo, Namespace: report.OwnerPackage + ".docs", RootPath: "guide", URIPrefix: "skill://owner-guide/", ExpectedSourceRevision: file.Version.SourceRevision})
 	if err != nil {
@@ -1222,6 +1255,9 @@ SELECT 1`})
 	if err != nil || len(afterFileDelete.Files) != 1 || afterFileDelete.Version.SourceRevision != afterFolderDelete.Version.SourceRevision+1 {
 		t.Fatalf("file delete snapshot=%+v err=%v", afterFileDelete, err)
 	}
+	if err := db.QueryRow(`SELECT COUNT(*) FROM resource_namespace_claims WHERE namespace=?`, report.OwnerPackage+".docs").Scan(&releasedClaims); err != nil || releasedClaims != 1 {
+		t.Fatalf("namespace claim should remain while another file exists count=%d err=%v", releasedClaims, err)
+	}
 	_, err = client.Resources().DeleteFileWithRevision(principal, sdk.ResourceDeleteInput{ReportID: report.ID,
 		VersionNo: version.VersionNo, ResourceID: "missing-file", ExpectedSourceRevision: afterFileDelete.Version.SourceRevision})
 	var absentFile *sdk.Error
@@ -1232,12 +1268,21 @@ SELECT 1`})
 	if err != nil || unchanged.Version.SourceRevision != afterFileDelete.Version.SourceRevision {
 		t.Fatalf("missing delete changed version=%+v err=%v", unchanged, err)
 	}
+	lastFileDeleted, err := client.Resources().DeleteFileWithRevision(principal, sdk.ResourceDeleteInput{
+		ReportID: report.ID, VersionNo: version.VersionNo,
+		ResourceID: afterFileDelete.Files[0].ResourceID, ExpectedSourceRevision: afterFileDelete.Version.SourceRevision})
+	if err != nil || len(lastFileDeleted.Files) != 0 {
+		t.Fatalf("last file delete=%+v err=%v", lastFileDeleted, err)
+	}
+	if err := db.QueryRow(`SELECT COUNT(*) FROM resource_namespace_claims WHERE namespace=?`, report.OwnerPackage+".docs").Scan(&releasedClaims); err != nil || releasedClaims != 0 {
+		t.Fatalf("last file should release namespace claim count=%d err=%v", releasedClaims, err)
+	}
 	if _, err := db.Exec(`UPDATE report_versions SET state='published' WHERE report_id=? AND version_no=?`, report.ID, version.VersionNo); err != nil {
 		t.Fatal(err)
 	}
 	_, err = client.Resources().UpsertFile(principal, sdk.ResourceFile{ReportID: report.ID, VersionNo: version.VersionNo,
 		Namespace: report.OwnerPackage + ".docs", ResourcePath: "guide/late.md", Content: "late",
-		ExpectedSourceRevision: afterFileDelete.Version.SourceRevision})
+		ExpectedSourceRevision: lastFileDeleted.Version.SourceRevision})
 	var immutable *sdk.Error
 	if !errors.As(err, &immutable) || immutable.Code != sdk.ErrorConflict {
 		t.Fatalf("published version resource mutation error=%v", err)

@@ -3,7 +3,9 @@ package migrate
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/viant/datly-studio/schema"
 )
@@ -136,10 +138,65 @@ FROM reports GROUP BY owner_id,namespace`); err != nil {
 			}
 		}
 	}
-	return schema.SetSQLiteVersion(ctx, db, schema.CanonicalVersion)
+	return migrateResourceNamespaceClaims(ctx, db)
 }
 
-func sqliteTableExists(ctx context.Context, db *sql.DB, table string) (bool, error) {
+func migrateResourceNamespaceClaims(ctx context.Context, db *sql.DB) error {
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	var sources []string
+	for _, table := range []string{"report_resource_files", "report_resource_folders"} {
+		exists, err := sqliteTableExists(ctx, tx, table)
+		if err != nil {
+			return err
+		}
+		if exists {
+			sources = append(sources, "SELECT namespace,report_id FROM "+table)
+		}
+	}
+	union := strings.Join(sources, " UNION ALL ")
+	if union != "" {
+		var conflict string
+		err := tx.QueryRowContext(ctx, `SELECT namespace FROM (`+union+`) usage GROUP BY namespace HAVING COUNT(DISTINCT report_id)>1 LIMIT 1`).Scan(&conflict)
+		if err == nil {
+			return fmt.Errorf("resource namespace %q is owned by multiple reports", conflict)
+		}
+		if !errors.Is(err, sql.ErrNoRows) {
+			return err
+		}
+	}
+	exists, err := sqliteTableExists(ctx, tx, "resource_namespace_claims")
+	if err != nil {
+		return err
+	}
+	if !exists {
+		if err := schema.CreateSQLiteTableFromCanonical(ctx, tx, "resource_namespace_claims"); err != nil {
+			return fmt.Errorf("create resource namespace claims: %w", err)
+		}
+	}
+	if union != "" {
+		_, err := tx.ExecContext(ctx, `INSERT INTO resource_namespace_claims(namespace,report_id,created_at,created_by,updated_at,updated_by)
+			SELECT DISTINCT namespace,report_id,CURRENT_TIMESTAMP,'system:migration',CURRENT_TIMESTAMP,'system:migration'
+			FROM (`+union+`) usage`)
+		if err != nil {
+			return fmt.Errorf("backfill resource namespace claims: %w", err)
+		}
+	}
+	if _, err := tx.ExecContext(ctx, `DELETE FROM schema_version`); err != nil {
+		return err
+	}
+	if _, err := tx.ExecContext(ctx, `INSERT INTO schema_version(version) VALUES (?)`, schema.CanonicalVersion); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+func sqliteTableExists(ctx context.Context, db interface {
+	QueryRowContext(context.Context, string, ...any) *sql.Row
+}, table string) (bool, error) {
 	var count int
 	if err := db.QueryRowContext(ctx, `SELECT COUNT(1) FROM sqlite_master WHERE type='table' AND name=?`, table).Scan(&count); err != nil {
 		return false, err
@@ -182,5 +239,6 @@ func (s *Service) Migrations() []Migration {
 		{Version: 10, Name: "authorization_predicate_sql_scope"},
 		{Version: 11, Name: "resource_policy_revisions"},
 		{Version: 12, Name: "warmup_audit_and_updated_at_concurrency"},
+		{Version: 13, Name: "resource_namespace_claims"},
 	}
 }

@@ -41,6 +41,7 @@ func TestServiceUpAndDown(t *testing.T) {
 	assertTableExists(t, ctx, db, "report_publications")
 	assertTableExists(t, ctx, db, "report_publication_events")
 	assertTableExists(t, ctx, db, "report_acl")
+	assertTableExists(t, ctx, db, "resource_namespace_claims")
 	assertReportsConnectorFK(t, ctx, db)
 
 	version, err := service.CurrentVersion(ctx, db)
@@ -68,6 +69,74 @@ func TestServiceUpAndDown(t *testing.T) {
 	}
 	if version != 0 {
 		t.Fatalf("CurrentVersion() after down = %d, want 0", version)
+	}
+}
+
+func TestServiceUpBackfillsResourceNamespaceClaims(t *testing.T) {
+	for _, test := range []struct {
+		name     string
+		conflict bool
+	}{{name: "one owner across file and folder"}, {name: "conflicting reports fail before table creation", conflict: true}} {
+		t.Run(test.name, func(t *testing.T) {
+			ctx := context.Background()
+			db := openTestDB(t)
+			if err := schema.ApplySQLite(ctx, db, "studio"); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := db.ExecContext(ctx, `DROP TABLE resource_namespace_claims`); err != nil {
+				t.Fatal(err)
+			}
+			if err := schema.SetSQLiteVersion(ctx, db, 12); err != nil {
+				t.Fatal(err)
+			}
+			for _, statement := range []string{
+				`INSERT INTO connectors(name,driver,owner_id,status,etag,created_at,updated_at) VALUES('main','sqlite','owner','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
+				`INSERT INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at) VALUES('owner','general','General','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
+				`INSERT INTO reports(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('r1','r1','R1','owner','draft','main','reports','r1',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
+				`INSERT INTO report_versions(report_id,version_no,state,authoring_mode,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('r1',1,'draft','dql','{}','1','hash-r1','{}','pending','v1','v1',1,'owner',CURRENT_TIMESTAMP)`,
+				`INSERT INTO report_resource_files(report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at) VALUES('r1',1,'file-1','owner.docs','guide/SKILL.md','x',1,'digest',FALSE,CURRENT_TIMESTAMP)`,
+				`INSERT INTO report_resource_folders(report_id,version_no,folder_id,namespace,root_path,uri_prefix) VALUES('r1',1,'folder-1','owner.docs','guide','skill://owner-guide/')`,
+			} {
+				if _, err := db.ExecContext(ctx, statement); err != nil {
+					t.Fatal(err)
+				}
+			}
+			if test.conflict {
+				for _, statement := range []string{
+					`INSERT INTO reports(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('r2','r2','R2','owner','draft','main','reports','r2',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
+					`INSERT INTO report_versions(report_id,version_no,state,authoring_mode,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('r2',1,'draft','dql','{}','1','hash-r2','{}','pending','v1','v1',1,'owner',CURRENT_TIMESTAMP)`,
+					`INSERT INTO report_resource_files(report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at) VALUES('r2',1,'file-2','owner.docs','other.txt','y',1,'digest',FALSE,CURRENT_TIMESTAMP)`,
+				} {
+					if _, err := db.ExecContext(ctx, statement); err != nil {
+						t.Fatal(err)
+					}
+				}
+			}
+			service, _ := New()
+			err := service.Up(ctx, db)
+			if test.conflict {
+				if err == nil {
+					t.Fatal("conflicting namespace migration succeeded")
+				}
+				version, versionErr := service.CurrentVersion(ctx, db)
+				if versionErr != nil || version != 12 {
+					t.Fatalf("failed migration version=%d err=%v", version, versionErr)
+				}
+				assertTableMissing(t, ctx, db, "resource_namespace_claims")
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			var reportID, createdBy, updatedBy string
+			if err := db.QueryRowContext(ctx, `SELECT report_id,created_by,updated_by FROM resource_namespace_claims WHERE namespace='owner.docs'`).Scan(&reportID, &createdBy, &updatedBy); err != nil || reportID != "r1" || createdBy != "system:migration" || updatedBy != "system:migration" {
+				t.Fatalf("claim backfill report=%q actor=%q/%q err=%v", reportID, createdBy, updatedBy, err)
+			}
+			version, err := service.CurrentVersion(ctx, db)
+			if err != nil || version != schema.CanonicalVersion {
+				t.Fatalf("backfilled migration version=%d err=%v", version, err)
+			}
+		})
 	}
 }
 

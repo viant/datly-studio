@@ -17,7 +17,9 @@ import (
 	folderstore "github.com/viant/datly-studio/studio/report_resource_folders/store_write"
 	skillstore "github.com/viant/datly-studio/studio/report_skill_roots/store_write"
 	versiontouch "github.com/viant/datly-studio/studio/report_versions/store_touch"
+	claimstore "github.com/viant/datly-studio/studio/resource_namespace_claims/store_write"
 	"github.com/viant/datly/spec"
+	"github.com/viant/sqlx/io/errx"
 	xhandler "github.com/viant/xdatly/handler"
 )
 
@@ -110,6 +112,16 @@ func (t *Transport) upsertResourceFile(ctx context.Context, tx *sql.Tx, value *s
 	if value == nil || strings.TrimSpace(value.ReportID) == "" || value.VersionNo <= 0 || strings.TrimSpace(value.Namespace) == "" || strings.TrimSpace(value.ResourcePath) == "" {
 		return invalid(errors.New("reportId, versionNo, namespace, and resourcePath are required"))
 	}
+	var oldNamespace string
+	if value.ResourceID != "" {
+		previous, err := t.readResourceFileByID(ctx, tx, value.ReportID, value.VersionNo, value.ResourceID)
+		if err != nil && !errors.Is(err, sql.ErrNoRows) {
+			return internal(err)
+		}
+		if previous != nil {
+			oldNamespace = previous.Namespace
+		}
+	}
 	if err := t.validateResourceNamespace(ctx, tx, value.ReportID, value.Namespace); err != nil {
 		return err
 	}
@@ -145,17 +157,21 @@ func (t *Transport) upsertResourceFile(ctx context.Context, tx *sql.Tx, value *s
 	if err != nil {
 		return classify(err, "resource file", value.ResourceID)
 	}
+	if oldNamespace != "" && oldNamespace != value.Namespace {
+		return t.releaseNamespaceIfUnused(ctx, tx, value.ReportID, oldNamespace)
+	}
 	return nil
 }
 
 func (t *Transport) deleteResourceFile(ctx context.Context, tx *sql.Tx, reportID string, versionNo int, resourceID string) error {
-	if _, err := t.readResourceFileByID(ctx, tx, reportID, versionNo, resourceID); err != nil {
+	previous, err := t.readResourceFileByID(ctx, tx, reportID, versionNo, resourceID)
+	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return &sdk.Error{Code: sdk.ErrorNotFound, Message: "resource file was not found"}
 		}
 		return internal(err)
 	}
-	err := t.writeResourceFile(ctx, tx, &filestore.StoredFile{ReportId: reportID,
+	err = t.writeResourceFile(ctx, tx, &filestore.StoredFile{ReportId: reportID,
 		VersionNo: versionNo, ResourceId: resourceID, ShouldDelete: true,
 		Has: &filestore.StoredFileHas{ReportId: true, VersionNo: true, ResourceId: true, ShouldDelete: true}})
 	if err != nil {
@@ -165,12 +181,22 @@ func (t *Transport) deleteResourceFile(ctx context.Context, tx *sql.Tx, reportID
 		}
 		return internal(err)
 	}
-	return nil
+	return t.releaseNamespaceIfUnused(ctx, tx, reportID, previous.Namespace)
 }
 
 func (t *Transport) upsertResourceFolder(ctx context.Context, tx *sql.Tx, value *sdk.ResourceFolder) error {
 	if value == nil || strings.TrimSpace(value.ReportID) == "" || value.VersionNo <= 0 || strings.TrimSpace(value.Namespace) == "" || strings.TrimSpace(value.URIPrefix) == "" {
 		return invalid(errors.New("reportId, versionNo, namespace, and uriPrefix are required"))
+	}
+	var oldNamespace string
+	if value.FolderID != "" {
+		previous, err := t.readResourceFolderByID(ctx, tx, value.ReportID, value.VersionNo, value.FolderID)
+		if err != nil && !errors.Is(err, sql.ErrNoRows) {
+			return internal(err)
+		}
+		if previous != nil {
+			oldNamespace = previous.Namespace
+		}
 	}
 	if err := t.validateResourceNamespace(ctx, tx, value.ReportID, value.Namespace); err != nil {
 		return err
@@ -193,17 +219,21 @@ func (t *Transport) upsertResourceFolder(ctx context.Context, tx *sql.Tx, value 
 	if err != nil {
 		return classify(err, "resource folder", value.FolderID)
 	}
+	if oldNamespace != "" && oldNamespace != value.Namespace {
+		return t.releaseNamespaceIfUnused(ctx, tx, value.ReportID, oldNamespace)
+	}
 	return nil
 }
 
 func (t *Transport) deleteResourceFolder(ctx context.Context, tx *sql.Tx, reportID string, versionNo int, folderID string) error {
-	if _, err := t.readResourceFolderByID(ctx, tx, reportID, versionNo, folderID); err != nil {
+	previous, err := t.readResourceFolderByID(ctx, tx, reportID, versionNo, folderID)
+	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return &sdk.Error{Code: sdk.ErrorNotFound, Message: "resource folder was not found"}
 		}
 		return internal(err)
 	}
-	err := t.writeResourceFolder(ctx, tx, &folderstore.StoredFolder{ReportId: reportID,
+	err = t.writeResourceFolder(ctx, tx, &folderstore.StoredFolder{ReportId: reportID,
 		VersionNo: versionNo, FolderId: folderID, ShouldDelete: true,
 		Has: &folderstore.StoredFolderHas{ReportId: true, VersionNo: true, FolderId: true, ShouldDelete: true}})
 	if err != nil {
@@ -212,6 +242,26 @@ func (t *Transport) deleteResourceFolder(ctx context.Context, tx *sql.Tx, report
 			return &sdk.Error{Code: sdk.ErrorNotFound, Message: "resource folder was not found"}
 		}
 		return classify(err, "resource folder", folderID)
+	}
+	return t.releaseNamespaceIfUnused(ctx, tx, reportID, previous.Namespace)
+}
+
+func (t *Transport) releaseNamespaceIfUnused(ctx context.Context, tx *sql.Tx, reportID, namespace string) error {
+	used, err := t.namespaceHasResources(ctx, tx, reportID, namespace)
+	if err != nil {
+		return internal(err)
+	}
+	if used {
+		return nil
+	}
+	err = t.writeNamespaceClaim(ctx, tx, "release", &claimstore.StoredClaim{Namespace: namespace, ReportId: reportID,
+		ShouldDelete: true, Has: &claimstore.StoredClaimHas{Namespace: true, ReportId: true, ShouldDelete: true}})
+	if err != nil {
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) {
+			return &sdk.Error{Code: sdk.ErrorConflict, Message: "resource namespace claim changed during release", Cause: err}
+		}
+		return internal(err)
 	}
 	return nil
 }
@@ -309,6 +359,24 @@ func (t *Transport) validateResourceNamespace(ctx context.Context, tx *sql.Tx, r
 	}
 	if len(foreign) > 0 {
 		return &sdk.Error{Code: sdk.ErrorConflict, Message: "resource namespace is already owned by another reader"}
+	}
+	principal, ok := sdk.PrincipalFromContext(ctx)
+	if !ok {
+		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "verified principal is required to claim a resource namespace"}
+	}
+	now := t.now()
+	err = t.writeNamespaceClaim(ctx, tx, "acquire", &claimstore.StoredClaim{Namespace: namespace,
+		ReportId: reportID, CreatedAt: now, CreatedBy: principal.Subject,
+		UpdatedAt: now, UpdatedBy: principal.Subject,
+		Has: &claimstore.StoredClaimHas{Namespace: true, ReportId: true,
+			CreatedAt: true, CreatedBy: true, UpdatedAt: true, UpdatedBy: true,
+			ShouldDelete: true}})
+	if err != nil {
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) || errors.Is(err, errx.ErrDuplicateKey) {
+			return &sdk.Error{Code: sdk.ErrorConflict, Message: "resource namespace is already owned by another reader", Cause: err}
+		}
+		return internal(err)
 	}
 	return nil
 }

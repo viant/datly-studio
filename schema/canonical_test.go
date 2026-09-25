@@ -39,6 +39,7 @@ func TestCanonicalStudioSchemaInventory(t *testing.T) {
 		"report_mcp_exposures":      {"route_id", "route_path", "kind"},
 		"report_resource_files":     {"resource_path", "content_sha256"},
 		"report_resource_folders":   {"folder_id", "root_path", "uri_prefix"},
+		"resource_namespace_claims": {"namespace", "report_id", "created_at", "created_by", "updated_at", "updated_by"},
 		"report_skill_roots":        {"skill_id", "folder_id", "skill_root"},
 		"runtime_generations":       {"generation_no", "build_manifest_json", "source_revision"},
 		"bff_sessions":              {"session_id_hash", "subject_id", "payload_ciphertext", "expires_at_unix"},

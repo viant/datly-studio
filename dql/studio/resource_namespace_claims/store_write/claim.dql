@@ -1,0 +1,25 @@
+#package('studio/resource_namespace_claims/store_write')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/resource-namespace-claim-store/write', 'PATCH'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('claim', 'sql/read.sql'))
+
+#define($_ = $Operation<string>(query/operation).Required())
+#define($_ = $Claims<[]*StoredClaim>(body/data))
+
+SELECT claim.*, type(claim, 'StoredClaim'),
+       CAST(claim.namespace AS string),
+       CAST(claim.report_id AS string),
+       CAST(claim.created_at AS time.Time),
+       CAST(claim.created_by AS string),
+       CAST(claim.updated_at AS time.Time),
+       CAST(claim.updated_by AS string),
+       CAST(claim.should_delete AS bool),
+       tag(claim.namespace, 'sqlx:"namespace,primaryKey"'),
+       lifecycle_type(claim, 'NamespaceClaimRules'),
+       concurrency_token(claim.report_id),
+       delete_marker(claim.should_delete)
+FROM (${embed:sql/read.sql}) claim

@@ -350,6 +350,18 @@ CREATE TABLE report_resource_folders (
         REFERENCES report_versions(report_id, version_no) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE resource_namespace_claims (
+    namespace       VARCHAR(200) NOT NULL,
+    report_id       VARCHAR(64) NOT NULL,
+    created_at      DATETIME(6) NOT NULL,
+    created_by      VARCHAR(128) NOT NULL,
+    updated_at      DATETIME(6) NOT NULL,
+    updated_by      VARCHAR(128) NOT NULL,
+    PRIMARY KEY (namespace),
+    CONSTRAINT fk_resource_namespace_claims_report
+        FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE report_skill_roots (
     report_id               VARCHAR(64) NOT NULL,
     version_no              INT NOT NULL,
