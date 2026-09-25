@@ -572,8 +572,8 @@ func (t *Transport) deleteConnector(ctx context.Context, input any) error {
 	if err := decode(input, &in); err != nil {
 		return invalid(err)
 	}
-	var used int
-	if err := t.DB.QueryRowContext(ctx, `SELECT COUNT(1) FROM reports WHERE default_connector_name=? AND deleted_at IS NULL`, in.Name).Scan(&used); err != nil {
+	used, err := t.connectorUsage(ctx, in.Name)
+	if err != nil {
 		return internal(err)
 	}
 	if used > 0 {
