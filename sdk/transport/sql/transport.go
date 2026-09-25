@@ -426,15 +426,11 @@ func (t *Transport) getConnector(ctx context.Context, input, output any) error {
 	if err := decode(input, &in); err != nil {
 		return invalid(err)
 	}
-	query := `SELECT name, driver, dsn_template, secret_ref, description, owner_id, status, options_json, last_test_status, last_test_error_code, last_tested_at, etag, created_at, updated_at FROM connectors WHERE name = ? AND deleted_at IS NULL`
-	args := []any{in.Name}
-	query, args = connectorReadScope(ctx, query, args)
-	row := t.DB.QueryRowContext(ctx, query, args...)
-	value, err := scanConnector(row)
+	value, err := t.getConnectorValue(ctx, in.Name)
 	if err != nil {
-		return mapReadError(err, "connector", in.Name)
+		return err
 	}
-	return assign(output, value)
+	return assign(output, &value.Connector)
 }
 
 type connectorList struct {
@@ -457,44 +453,12 @@ func (t *Transport) listConnectors(ctx context.Context, input, output any) error
 	if in.Offset < 0 {
 		in.Offset = 0
 	}
-	query := `SELECT name, driver, dsn_template, secret_ref, description, owner_id, status, options_json, last_test_status, last_test_error_code, last_tested_at, etag, created_at, updated_at FROM connectors WHERE deleted_at IS NULL`
-	args := []any{}
-	if q := strings.TrimSpace(in.Query); q != "" {
-		like := "%" + strings.ToLower(q) + "%"
-		query += ` AND (LOWER(name) LIKE ? OR LOWER(description) LIKE ? OR LOWER(driver) LIKE ? OR LOWER(owner_id) LIKE ?)`
-		args = append(args, like, like, like, like)
-	}
-	if in.Status != "" {
-		query += ` AND status = ?`
-		args = append(args, in.Status)
-	}
-	if in.OwnerID != "" {
-		query += ` AND owner_id = ?`
-		args = append(args, in.OwnerID)
-	}
-	if in.Driver != "" {
-		query += ` AND driver = ?`
-		args = append(args, in.Driver)
-	}
-	query, args = connectorReadScope(ctx, query, args)
-	query += ` ORDER BY updated_at DESC, name ASC LIMIT ? OFFSET ?`
-	args = append(args, limit, in.Offset)
-	rows, err := t.DB.QueryContext(ctx, query, args...)
+	items, err := t.readConnectorCatalog(ctx, connectorCatalogRequest{Query: in.Query, Status: in.Status,
+		OwnerID: in.OwnerID, Driver: in.Driver, Limit: limit, Offset: in.Offset})
 	if err != nil {
 		return internal(err)
 	}
-	defer rows.Close()
-	page := &sdk.ConnectorPage{Limit: limit, Offset: in.Offset}
-	for rows.Next() {
-		value, err := scanConnector(rows)
-		if err != nil {
-			return internal(err)
-		}
-		page.Items = append(page.Items, value)
-	}
-	if err := rows.Err(); err != nil {
-		return internal(err)
-	}
+	page := &sdk.ConnectorPage{Items: items, Limit: limit, Offset: in.Offset}
 	return assign(output, page)
 }
 
@@ -660,34 +624,20 @@ func (t *Transport) testConnector(ctx context.Context, input, output any) error 
 type connectorValue struct{ sdk.Connector }
 
 func (t *Transport) getConnectorValue(ctx context.Context, name string) (*connectorValue, error) {
-	var out sdk.Connector
-	query := `SELECT name, driver, dsn_template, secret_ref, description, owner_id, status, options_json, last_test_status, last_test_error_code, last_tested_at, etag, created_at, updated_at FROM connectors WHERE name=? AND deleted_at IS NULL`
-	query, args := connectorReadScope(ctx, query, []any{name})
-	_, err := scanConnector(t.DB.QueryRowContext(ctx, query, args...), &out)
+	if name == "" {
+		return nil, mapReadError(sql.ErrNoRows, "connector", name)
+	}
+	items, err := t.readConnectorCatalog(ctx, connectorCatalogRequest{Name: name, Limit: 2})
 	if err != nil {
-		return nil, mapReadError(err, "connector", name)
+		return nil, internal(err)
 	}
-	return &connectorValue{out}, nil
-}
-func scanConnector(scanner interface{ Scan(...any) error }, outputs ...*sdk.Connector) (*sdk.Connector, error) {
-	var c sdk.Connector
-	var dsn, secret, desc, options, test, code sql.NullString
-	var tested sql.NullTime
-	if err := scanner.Scan(&c.Name, &c.Driver, &dsn, &secret, &desc, &c.OwnerID, &c.Status, &options, &test, &code, &tested, &c.ETag, &c.CreatedAt, &c.UpdatedAt); err != nil {
-		return nil, err
+	if len(items) == 0 {
+		return nil, mapReadError(sql.ErrNoRows, "connector", name)
 	}
-	c.DSNTemplate, c.DSNConfigured, c.SecretRef, c.SecretConfigured, c.Description, c.LastTestStatus, c.LastTestErrorCode = dsn.String, strings.TrimSpace(dsn.String) != "", secret.String, strings.TrimSpace(secret.String) != "", desc.String, test.String, code.String
-	if options.Valid {
-		c.Options = json.RawMessage(options.String)
+	if len(items) != 1 {
+		return nil, internal(errors.New("connector catalog returned ambiguous rows"))
 	}
-	if tested.Valid {
-		value := tested.Time
-		c.LastTestedAt = &value
-	}
-	if len(outputs) > 0 {
-		*outputs[0] = c
-	}
-	return &c, nil
+	return &connectorValue{*items[0]}, nil
 }
 
 type reportCreate struct{ ID, Namespace, Slug, Title, Description, OwnerID, DefaultConnectorName, ComponentScope, ComponentName string }

@@ -1,0 +1,34 @@
+#package('studio/connectors/store_catalog')
+
+#import('encoding/json')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/connector-store/catalog', 'GET'))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('connector', 'sql/read.sql'))
+
+#define($_ = $Name<string>(query/name).Required())
+#define($_ = $Query<string>(query/q).Required())
+#define($_ = $Status<string>(query/status).Required())
+#define($_ = $OwnerId<string>(query/ownerId).Required())
+#define($_ = $Driver<string>(query/driver).Required())
+#define($_ = $Subject<string>(query/subject).Required())
+#define($_ = $Scoped<bool>(query/scoped).Required())
+#define($_ = $PageLimit<int>(query/pageLimit).Required())
+#define($_ = $PageOffset<int>(query/pageOffset).Required())
+#define($_ = $Connectors<[]*StoredConnector>(output/view))
+
+SELECT connector.*, type(connector, 'StoredConnector'),
+       CAST(connector.name AS string), CAST(connector.driver AS string),
+       CAST(connector.dsn_template AS *string), CAST(connector.secret_ref AS *string),
+       CAST(connector.description AS *string), CAST(connector.owner_id AS string),
+       CAST(connector.status AS string), CAST(connector.options_json AS json.RawMessage),
+       CAST(connector.last_test_status AS *string), CAST(connector.last_test_error_code AS *string),
+       CAST(connector.last_tested_at AS *time.Time), CAST(connector.etag AS int64),
+       CAST(connector.created_at AS time.Time), CAST(connector.updated_at AS time.Time),
+       set_limit(connector, 0)
+FROM (${embed:sql/read.sql}) connector
+WHERE 1=1
+ORDER BY connector.updated_at DESC, connector.name ASC
