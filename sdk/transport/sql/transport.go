@@ -16,6 +16,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/viant/datly-studio/internal/reportcapability"
 	"github.com/viant/datly-studio/sdk"
 	connectorconfig "github.com/viant/datly-studio/studio/connectors/store_config"
 	connectorinsert "github.com/viant/datly-studio/studio/connectors/store_insert"
@@ -120,7 +121,7 @@ type Transport struct {
 	predicateReaderMu        sync.Mutex
 	predicateReader          *authorizationPredicateReader
 	capabilityReaderMu       sync.Mutex
-	capabilityReader         *capabilityReader
+	capabilityReader         *reportcapability.Reader
 	aclReaderMu              sync.Mutex
 	aclReader                *aclStoreReader
 	publicationReaderMu      sync.Mutex

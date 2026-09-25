@@ -64,4 +64,13 @@ func TestSDKAuthorizerEnforcesOwnerAndACL(t *testing.T) {
 	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{Permission: "publish"}); err == nil {
 		t.Fatal("viewer global publish authorization unexpectedly allowed")
 	}
+	if _, err = db.Exec(`UPDATE reports SET deleted_at=CURRENT_TIMESTAMP WHERE id='shared'`); err != nil {
+		t.Fatal(err)
+	}
+	if err = authorizer.Authorize(bob, sqltransport.AuthorizationRequest{ReportID: "shared", Permission: "view"}); err == nil {
+		t.Fatal("deleted report owner authorization unexpectedly allowed")
+	}
+	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{ReportID: "shared", Permission: "edit"}); err == nil {
+		t.Fatal("deleted report ACL authorization unexpectedly allowed")
+	}
 }

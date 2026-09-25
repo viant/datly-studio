@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"strings"
 
+	"github.com/viant/datly-studio/internal/reportcapability"
 	"github.com/viant/datly-studio/sdk"
 	sqltransport "github.com/viant/datly-studio/sdk/transport/sql"
 )
@@ -49,9 +50,41 @@ AND acl.subject_type='user' AND acl.subject_id=? AND acl.` + column + `=TRUE)))`
 }
 
 func (a SDKAuthorizer) report(ctx context.Context, subject, id, permission string) error {
-	column := permissionColumn(permission)
-	query := `SELECT EXISTS(SELECT 1 FROM reports r WHERE r.id=? AND r.deleted_at IS NULL AND (r.owner_id=? OR EXISTS (SELECT 1 FROM report_acl acl WHERE acl.report_id=r.id AND acl.subject_type='user' AND acl.subject_id=? AND acl.` + column + `=TRUE)))`
-	return a.allow(ctx, query, id, subject, subject)
+	reader, err := reportcapability.New(a.DB)
+	if err != nil {
+		return denied()
+	}
+	row, readErr := reader.Read(ctx, id, subject)
+	closeErr := reader.Close(context.Background())
+	if readErr != nil || closeErr != nil || row == nil {
+		return denied()
+	}
+	if row.OwnerId == subject {
+		return nil
+	}
+	switch permissionColumn(permission) {
+	case "can_run":
+		if row.CanRun {
+			return nil
+		}
+	case permissionEdit:
+		if row.CanEdit {
+			return nil
+		}
+	case permissionPublish:
+		if row.CanPublish {
+			return nil
+		}
+	case "can_use_dql":
+		if row.CanUseDql {
+			return nil
+		}
+	default:
+		if row.CanView {
+			return nil
+		}
+	}
+	return denied()
 }
 
 func (a SDKAuthorizer) connector(ctx context.Context, subject, name, permission string) error {
@@ -68,9 +101,13 @@ OR EXISTS(SELECT 1 FROM report_acl WHERE subject_type='user' AND subject_id=? AN
 func (a SDKAuthorizer) allow(ctx context.Context, query string, args ...any) error {
 	var allowed bool
 	if err := a.DB.QueryRowContext(ctx, query, args...).Scan(&allowed); err != nil || !allowed {
-		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Studio authorization denied"}
+		return denied()
 	}
 	return nil
+}
+
+func denied() error {
+	return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Studio authorization denied"}
 }
 
 func permissionColumn(permission string) string {

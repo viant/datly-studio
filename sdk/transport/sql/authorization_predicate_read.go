@@ -128,7 +128,7 @@ func (t *Transport) Close(ctx context.Context) error {
 	t.predicateReaderMu.Unlock()
 	t.capabilityReaderMu.Lock()
 	if t.capabilityReader != nil {
-		result = errors.Join(result, t.capabilityReader.runtime.Shutdown(ctx))
+		result = errors.Join(result, t.capabilityReader.Close(ctx))
 		t.capabilityReader = nil
 	}
 	t.capabilityReaderMu.Unlock()
