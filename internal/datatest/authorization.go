@@ -23,7 +23,7 @@ func StudioAuthorizationTypes(t testing.TB) *typecatalog.Catalog {
 		authreader.AuthContext{}, authreader.Output{},
 		authorization.ConnectorRead{}, authorization.ConnectorEdit{}, authorization.NamespaceRead{},
 		authorization.ReportRead{}, authorization.ReportEdit{}, authorization.ReportPublish{},
-		authorization.ReportVersionRead{}, authorization.ReportVersionEdit{}, authorization.ReportViewRead{},
+		authorization.ReportVersionRead{}, authorization.ReportVersionMetadataRead{}, authorization.ReportVersionEdit{}, authorization.ReportViewRead{},
 		authorization.ReportParameterRead{}, authorization.ReportParameterEdit{},
 		authorization.ReportCubeRead{}, authorization.ReportCubeEdit{},
 		authorization.ReportMCPRead{}, authorization.ReportMCPEdit{},

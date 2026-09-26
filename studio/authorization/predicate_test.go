@@ -29,6 +29,25 @@ func TestReportReadBuildsOwnerAndACLAuthorizationCriteria(t *testing.T) {
 	}
 }
 
+func TestVersionMetadataAndSourceUseDistinctCapabilities(t *testing.T) {
+	claims := &jwt.Claims{}
+	claims.Subject = "viewer"
+	input := &struct{ Jwt *jwt.Claims }{Jwt: claims}
+	metadata, err := (&ReportVersionMetadataRead{InputBinding: InputBinding{Input: input}}).Compute(context.Background(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	source, err := (&ReportVersionRead{InputBinding: InputBinding{Input: input}}).Compute(context.Background(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(metadata.Expression, "can_view") || strings.Contains(metadata.Expression, "can_use_dql") ||
+		!strings.Contains(source.Expression, "can_use_dql") ||
+		!strings.Contains(metadata.Expression, "v.report_id") || len(metadata.Placeholders) != 2 {
+		t.Fatalf("metadata=%+v source=%+v", metadata, source)
+	}
+}
+
 func TestAuthorizationDoesNotUseDisplayClaimsAsIdentity(t *testing.T) {
 	claims := &jwt.Claims{Username: "viewer", Email: "viewer@example.com"}
 	predicate := &ReportRead{InputBinding: InputBinding{Input: &struct{ Jwt *jwt.Claims }{Jwt: claims}}}

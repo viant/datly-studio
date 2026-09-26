@@ -256,7 +256,7 @@ func TestConfiguredComponentsRequireAuthenticationAndAuthorization(t *testing.T)
 }
 
 func TestBlankImportsExposeAuthorizationHandlerTypes(t *testing.T) {
-	for _, name := range []string{"ConnectorRead", "ConnectorEdit", "NamespaceRead", "ReportRead", "ReportEdit", "ReportPublish", "ReportVersionRead", "ReportVersionEdit", "ReportViewRead", "ReportParameterRead", "ReportParameterEdit", "ReportCubeRead", "ReportCubeEdit", "ReportMCPRead", "ReportMCPEdit", "ReportResourceFileRead", "ReportResourceFileEdit", "ReportResourceFolderRead", "ReportResourceFolderEdit", "ReportSkillRead", "ReportSkillEdit", "PublicationRead", "PublicationEdit", "ACLRead", "ACLEdit", "RuntimeRead", "RuntimeEdit"} {
+	for _, name := range []string{"ConnectorRead", "ConnectorEdit", "NamespaceRead", "ReportRead", "ReportEdit", "ReportPublish", "ReportVersionRead", "ReportVersionMetadataRead", "ReportVersionEdit", "ReportViewRead", "ReportParameterRead", "ReportParameterEdit", "ReportCubeRead", "ReportCubeEdit", "ReportMCPRead", "ReportMCPEdit", "ReportResourceFileRead", "ReportResourceFileEdit", "ReportResourceFolderRead", "ReportResourceFolderEdit", "ReportSkillRead", "ReportSkillEdit", "PublicationRead", "PublicationEdit", "ACLRead", "ACLEdit", "RuntimeRead", "RuntimeEdit"} {
 		if bootstrap.LinkedHolder(nil, "github.com/viant/datly-studio/studio/authorization", name) == nil {
 			t.Fatalf("authorization handler %s is absent from runtime typelinks", name)
 		}

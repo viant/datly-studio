@@ -27,6 +27,7 @@ type LinkedTypes struct {
 	ReportEdit                 ReportEdit
 	ReportPublish              ReportPublish
 	ReportVersionRead          ReportVersionRead
+	ReportVersionMetadataRead  ReportVersionMetadataRead
 	ReportVersionEdit          ReportVersionEdit
 	ReportViewRead             ReportViewRead
 	ReportParameterRead        ReportParameterRead
@@ -65,7 +66,7 @@ var StudioAuthorizationDatlyLinkedType = StudioAuthorizationDatlyType()
 var DatlyPredicateHandlerTypes = []reflect.Type{
 	reflect.TypeFor[ConnectorRead](), reflect.TypeFor[ConnectorEdit](), reflect.TypeFor[NamespaceRead](), reflect.TypeFor[ReportRead](), reflect.TypeFor[ReportEdit](), reflect.TypeFor[ReportPublish](),
 	reflect.TypeFor[AuthorizationPredicateRead](), reflect.TypeFor[AuthorizationPredicateEdit](),
-	reflect.TypeFor[ReportVersionRead](), reflect.TypeFor[ReportVersionEdit](), reflect.TypeFor[ReportViewRead](), reflect.TypeFor[ReportParameterRead](), reflect.TypeFor[ReportParameterEdit](),
+	reflect.TypeFor[ReportVersionRead](), reflect.TypeFor[ReportVersionMetadataRead](), reflect.TypeFor[ReportVersionEdit](), reflect.TypeFor[ReportViewRead](), reflect.TypeFor[ReportParameterRead](), reflect.TypeFor[ReportParameterEdit](),
 	reflect.TypeFor[ReportCubeRead](), reflect.TypeFor[ReportCubeEdit](), reflect.TypeFor[ReportMCPRead](), reflect.TypeFor[ReportMCPEdit](),
 	reflect.TypeFor[ReportResourceFileRead](), reflect.TypeFor[ReportResourceFileEdit](), reflect.TypeFor[ReportResourceFolderRead](), reflect.TypeFor[ReportResourceFolderEdit](),
 	reflect.TypeFor[ReportSkillRead](), reflect.TypeFor[ReportSkillEdit](), reflect.TypeFor[PublicationRead](), reflect.TypeFor[PublicationEdit](), reflect.TypeFor[PublicationEventRead](),
@@ -95,6 +96,7 @@ type ReportRead struct{ InputBinding }
 type ReportEdit struct{ InputBinding }
 type ReportPublish struct{ InputBinding }
 type ReportVersionRead struct{ InputBinding }
+type ReportVersionMetadataRead struct{ InputBinding }
 type ReportVersionEdit struct{ InputBinding }
 type ReportViewRead struct{ InputBinding }
 type ReportParameterRead struct{ InputBinding }
@@ -175,6 +177,9 @@ func (p *ReportPublish) Compute(ctx context.Context, _ any) (*xpredicate.Criteri
 }
 func (p *ReportVersionRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
 	return reportCriteria(ctx, p.Input, "v.report_id", permissionDQL)
+}
+func (p *ReportVersionMetadataRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
+	return reportCriteria(ctx, p.Input, "v.report_id", permissionView)
 }
 func (p *ReportVersionEdit) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
 	return reportCriteria(ctx, p.Input, "report_version.report_id", permissionEdit)
