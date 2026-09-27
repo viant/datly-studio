@@ -96,7 +96,7 @@ CREATE TABLE authorization_predicates (
 CREATE INDEX idx_authorization_predicates_status_updated
     ON authorization_predicates(status, updated_at DESC);
 
-CREATE TABLE reports (
+CREATE TABLE components (
     id                      VARCHAR(64) NOT NULL,
     namespace               VARCHAR(200) NOT NULL DEFAULT 'general',
     slug                    VARCHAR(200) NOT NULL,
@@ -124,13 +124,13 @@ CREATE TABLE reports (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE INDEX idx_reports_owner_updated
-    ON reports(owner_id, updated_at DESC);
+    ON components(owner_id, updated_at DESC);
 
 CREATE INDEX idx_reports_owner_namespace_updated
-    ON reports(owner_id, namespace, updated_at DESC);
+    ON components(owner_id, namespace, updated_at DESC);
 
 CREATE INDEX idx_reports_status_updated
-    ON reports(status, updated_at DESC);
+    ON components(status, updated_at DESC);
 
 CREATE TABLE report_versions (
     report_id                   VARCHAR(64) NOT NULL,
@@ -160,7 +160,7 @@ CREATE TABLE report_versions (
     PRIMARY KEY (report_id, version_no),
     UNIQUE KEY uq_report_versions_spec_hash (report_id, spec_hash),
     CONSTRAINT fk_report_versions_report
-        FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE,
+        FOREIGN KEY (report_id) REFERENCES components(id) ON DELETE CASCADE,
     CONSTRAINT chk_report_versions_state
         CHECK (state IN ('draft', 'validated', 'published', 'superseded', 'failed')),
     CONSTRAINT chk_report_versions_authoring_mode
@@ -367,7 +367,7 @@ CREATE TABLE resource_namespace_claims (
     updated_by      VARCHAR(128) NOT NULL,
     PRIMARY KEY (namespace),
     CONSTRAINT fk_resource_namespace_claims_report
-        FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE
+        FOREIGN KEY (report_id) REFERENCES components(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE report_skill_roots (
@@ -446,6 +446,8 @@ CREATE TABLE bff_sessions (
     subject_id              VARCHAR(128) NOT NULL,
     payload_ciphertext      BLOB NOT NULL,
     expires_at_unix         BIGINT NOT NULL,
+    refresh_lease_owner     VARCHAR(64) NOT NULL DEFAULT '',
+    refresh_lease_until_unix BIGINT NOT NULL DEFAULT 0,
     created_at              DATETIME(6) NOT NULL,
     PRIMARY KEY (session_id_hash)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -503,7 +505,7 @@ CREATE TABLE report_publication_events (
     occurred_at             DATETIME(6) NOT NULL,
     PRIMARY KEY (event_id),
     CONSTRAINT fk_report_publication_events_report
-        FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE,
+        FOREIGN KEY (report_id) REFERENCES components(id) ON DELETE CASCADE,
     CONSTRAINT fk_report_publication_events_version
         FOREIGN KEY (report_id, version_no)
         REFERENCES report_versions(report_id, version_no),
@@ -533,5 +535,5 @@ CREATE TABLE report_acl (
     etag                    BIGINT NOT NULL DEFAULT 1,
     PRIMARY KEY (report_id, subject_type, subject_id),
     CONSTRAINT fk_report_acl_report
-        FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE
+        FOREIGN KEY (report_id) REFERENCES components(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -4,7 +4,7 @@ SELECT r.id AS report_id, v.version_no, r.component_scope, r.component_name,
        COALESCE(v.generated_dql, '') AS generated_dql,
        COALESCE(v.authored_dql, '') AS authored_dql
 FROM report_publications p
-JOIN reports r ON r.id = p.report_id
+JOIN components r ON r.id = p.report_id
 JOIN report_versions v ON v.report_id = p.report_id AND v.version_no = p.active_version_no
 JOIN connectors c ON c.name = r.default_connector_name
 WHERE p.active_generation IS NOT NULL

@@ -31,9 +31,7 @@ SELECT namespaces.*, type(namespaces, 'NamespaceRecord'),
        CAST(namespaces.etag AS int64),
        CAST(namespaces.created_at AS time.Time), CAST(namespaces.updated_at AS time.Time),
        tag(namespaces.description, 'json:"description,omitempty"'),
-       set_limit(namespaces, 500),
-       selector_limit(namespaces, true),
-       selector_offset(namespaces, true)
+       set_limit(namespaces, 500)
 FROM (
     ${embed:sql/read.sql}
 ) namespaces

@@ -7,7 +7,7 @@ import (
 
 // VersionGetOutput is the generated output scaffold for version.
 type VersionGetOutput struct {
-	Item                *Version        `parameter:"Item,kind=output,in=view,dataType=*Version" json:"-" view:"version,type=Version,table=report_versions,limit=1" sql:"uri=studio_report_versions_get_version:sql/version.sql"`
+	Item                *Version        `parameter:"Item,kind=output,in=view,dataType=*Version" json:"-" view:"version,type=Version,limit=1" sql:"uri=studio_report_versions_get_version:sql/version.sql"`
 	ResponseReportId    string          `parameter:"ResponseReportId,kind=output,in=body,dataType=string" json:"reportId"`
 	ResponseVersionNo   int             `parameter:"ResponseVersionNo,kind=output,in=body,dataType=int" json:"versionNo"`
 	State               string          `parameter:"State,kind=output,in=body,dataType=string" json:"state"`

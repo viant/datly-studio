@@ -144,7 +144,7 @@ func (p *NamespaceRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteri
 		return nil, err
 	}
 	return &xpredicate.Criteria{Expression: `(namespaces.owner_id = ? OR EXISTS (
-SELECT 1 FROM reports studio_auth_report
+SELECT 1 FROM components studio_auth_report
 JOIN report_acl studio_auth_acl ON studio_auth_acl.report_id = studio_auth_report.id
 WHERE studio_auth_report.owner_id = namespaces.owner_id
   AND studio_auth_report.namespace = namespaces.name
@@ -239,7 +239,7 @@ func (p *PublicationEventRead) Compute(ctx context.Context, _ any) (*xpredicate.
 		return nil, err
 	}
 	return &xpredicate.Criteria{Expression: `EXISTS (
-SELECT 1 FROM reports studio_event_report
+SELECT 1 FROM components studio_event_report
 WHERE studio_event_report.id = e.report_id
   AND studio_event_report.owner_id = ?
   AND studio_event_report.deleted_at IS NULL)`, Placeholders: []any{subject}}, nil
@@ -261,7 +261,7 @@ func (p *ACLRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, err
 		return nil, forbidden("only the report owner can administer access")
 	}
 	return &xpredicate.Criteria{Expression: `EXISTS (
-SELECT 1 FROM reports studio_auth_owner
+SELECT 1 FROM components studio_auth_owner
 WHERE studio_auth_owner.id = a.report_id
   AND studio_auth_owner.owner_id = ?
   AND studio_auth_owner.deleted_at IS NULL)`, Placeholders: []any{principal}}, nil
@@ -303,7 +303,7 @@ func connectorCriteria(ctx context.Context, input any, nameColumn, ownerColumn, 
 
 func connectorCriteriaForSubject(subject, nameColumn, ownerColumn, permission string) *xpredicate.Criteria {
 	return &xpredicate.Criteria{Expression: `(` + ownerColumn + ` = ? OR EXISTS (
-SELECT 1 FROM reports studio_auth_report
+SELECT 1 FROM components studio_auth_report
 JOIN report_acl studio_auth_acl ON studio_auth_acl.report_id = studio_auth_report.id
 WHERE studio_auth_report.default_connector_name = ` + nameColumn + `
   AND studio_auth_report.deleted_at IS NULL
@@ -322,7 +322,7 @@ func reportCriteria(ctx context.Context, input any, reportIDColumn, permission s
 
 func reportCriteriaForSubject(subject, reportIDColumn, permission string) *xpredicate.Criteria {
 	return &xpredicate.Criteria{Expression: `(EXISTS (
-SELECT 1 FROM reports studio_auth_owner
+SELECT 1 FROM components studio_auth_owner
 WHERE studio_auth_owner.id = ` + reportIDColumn + ` AND studio_auth_owner.owner_id = ?
 ) OR EXISTS (
 SELECT 1 FROM report_acl studio_auth_acl
@@ -338,7 +338,7 @@ func globalCriteria(ctx context.Context, input any, permission string) (*xpredic
 		return nil, err
 	}
 	return &xpredicate.Criteria{Expression: `EXISTS (
-SELECT 1 FROM reports studio_auth_global
+SELECT 1 FROM components studio_auth_global
 WHERE studio_auth_global.deleted_at IS NULL
   AND (studio_auth_global.owner_id = ? OR EXISTS (
     SELECT 1 FROM report_acl studio_auth_acl

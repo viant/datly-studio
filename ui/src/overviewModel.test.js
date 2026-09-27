@@ -10,6 +10,7 @@ test('overview derives actionable readiness without invented metrics', () => {
     runtime: { host: { status: 'unavailable' } },
   };
   assert.deepEqual(overviewIssues(state).map((item) => item.key), ['runtime-host', 'connector:main', 'drafts']);
+  assert.equal(overviewIssues(state).find((item) => item.key === 'drafts').section, 'components');
   assert.deepEqual(environmentChecks(state).map((item) => item.ready), [false, true, false]);
   assert.equal(overviewIssues(state)[0].title, 'Live runtime could not be verified');
   assert.equal(environmentChecks(state)[2].value, 'Check failed');

@@ -2,7 +2,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"crypto/rand"
 	"database/sql"
@@ -12,7 +11,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io"
 	"log"
 	"net"
 	"net/http"
@@ -29,6 +27,7 @@ import (
 	_ "github.com/lib/pq"
 	_ "github.com/viant/bigquery"
 	"github.com/viant/datly-studio/internal/bffauth"
+	"github.com/viant/datly-studio/internal/runtimeadmin"
 	"github.com/viant/datly-studio/runtime/preview"
 	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly-studio/sdk/access"
@@ -48,6 +47,76 @@ import (
 	_ "modernc.org/sqlite"
 )
 
+// nativeSDKPaths are exact BFF mounts for generated static Datly SDK routes.
+// Every other SDK operation remains on the generic development/compatibility gateway.
+var nativeSDKPaths = []string{
+	"/v1/studio/sdk/access.context",
+	"/v1/studio/sdk/access.get",
+	"/v1/studio/sdk/access.replace",
+	"/v1/studio/sdk/authorization_predicates.types",
+	"/v1/studio/sdk/authorization_predicates.get",
+	"/v1/studio/sdk/authorization_predicates.create",
+	"/v1/studio/sdk/authorization_predicates.update",
+	"/v1/studio/sdk/authorization_predicates.delete",
+	"/v1/studio/sdk/authorization_predicates.list",
+	"/v1/studio/sdk/acl.list",
+	"/v1/studio/sdk/acl.delete",
+	"/v1/studio/sdk/acl.upsert",
+	"/v1/studio/sdk/connectors.get",
+	"/v1/studio/sdk/connectors.create",
+	"/v1/studio/sdk/connectors.schemas",
+	"/v1/studio/sdk/connectors.tables",
+	"/v1/studio/sdk/connectors.table",
+	"/v1/studio/sdk/connectors.test",
+	"/v1/studio/sdk/connectors.test_sql",
+	"/v1/studio/sdk/preview.execute",
+	"/v1/studio/sdk/versions.validate",
+	"/v1/studio/sdk/versions.test_view",
+	"/v1/studio/sdk/versions.test_relation",
+	"/v1/studio/sdk/versions.test_compose",
+	"/v1/studio/sdk/versions.warmup",
+	"/v1/studio/sdk/connectors.activate",
+	"/v1/studio/sdk/connectors.delete",
+	"/v1/studio/sdk/connectors.disable",
+	"/v1/studio/sdk/connectors.update",
+	"/v1/studio/sdk/connectors.list",
+	"/v1/studio/sdk/namespaces.get",
+	"/v1/studio/sdk/namespaces.create",
+	"/v1/studio/sdk/namespaces.delete",
+	"/v1/studio/sdk/namespaces.update",
+	"/v1/studio/sdk/namespaces.list",
+	"/v1/studio/sdk/publications.get",
+	"/v1/studio/sdk/publications.publish",
+	"/v1/studio/sdk/publications.rollback",
+	"/v1/studio/sdk/publications.unpublish",
+	"/v1/studio/sdk/publications.events.list",
+	"/v1/studio/sdk/runtime.status",
+	"/v1/studio/sdk/components.get",
+	"/v1/studio/sdk/components.create",
+	"/v1/studio/sdk/components.update",
+	"/v1/studio/sdk/components.list",
+	"/v1/studio/sdk/versions.get",
+	"/v1/studio/sdk/versions.create",
+	"/v1/studio/sdk/versions.load_dql",
+	"/v1/studio/sdk/versions.load_archive",
+	"/v1/studio/sdk/versions.inspect",
+	"/v1/studio/sdk/versions.apply",
+	"/v1/studio/sdk/versions.builder",
+	"/v1/studio/sdk/versions.list",
+	"/v1/studio/sdk/versions.export_dql",
+	"/v1/studio/sdk/versions.descriptor",
+	"/v1/studio/sdk/versions.download",
+	"/v1/studio/sdk/versions.warmup_get",
+	"/v1/studio/sdk/versions.warmup_list",
+	"/v1/studio/sdk/resources.get",
+	"/v1/studio/sdk/resources.upsert_file",
+	"/v1/studio/sdk/resources.delete_file",
+	"/v1/studio/sdk/resources.upsert_folder",
+	"/v1/studio/sdk/resources.delete_folder",
+	"/v1/studio/sdk/resources.upsert_skill",
+	"/v1/studio/sdk/resources.delete_skill",
+}
+
 func main() {
 	address := flag.String("address", "127.0.0.1:8080", "SDK HTTP listen address")
 	dsn := flag.String("dsn", "file:.data/studio.db?cache=shared", "Studio SQLite DSN")
@@ -61,6 +130,7 @@ func main() {
 	dynamicHTTPURL := flag.String("dynamic-http-url", "http://127.0.0.1:8082", "dynamic Datly HTTP target")
 	dynamicMCPURL := flag.String("dynamic-mcp-url", "http://127.0.0.1:8091", "dynamic Datly MCP target")
 	staticDatlyURL := flag.String("static-datly-url", "http://127.0.0.1:8081", "static Studio Datly component target")
+	staticMCPURL := flag.String("static-mcp-url", "http://127.0.0.1:8090", "static Studio SDK MCP target")
 	extensionBackendURL := flag.String("extension-backend-url", "", "trusted extension backend origin (authenticated mode only)")
 	extensionUpstreamPrefix := flag.String("extension-upstream-prefix", "", "allowlisted extension upstream path prefix, for example /api/widgets")
 	dynamicAdminToken := flag.String("dynamic-admin-token", os.Getenv("STUDIO_RUNTIME_ADMIN_TOKEN"), "dynamic runtime reload token")
@@ -73,9 +143,11 @@ func main() {
 	loginClientSecretFile := flag.String("login-client-secret-file", "", "optional file containing OAuth client secret; omit for a public PKCE client")
 	loginRedirectURL := flag.String("login-redirect-url", "", "exact public callback URL ending in /v1/studio/auth/callback")
 	loginScopes := flag.String("login-scopes", "openid,profile,email", "comma-separated OAuth scopes for BFF login, including openid")
-	accessIssuer := flag.String("access-issuer", "", "dedicated ACL token issuer")
-	accessAudience := flag.String("access-audience", "", "dedicated ACL token audience")
-	accessKey := flag.String("access-public-key", "", "ACL issuer RSA public key PEM")
+	loginIDToken := flag.Bool("login-id-token", false, "use an auth-only session and return verified OIDC ID tokens to the browser for direct Datly calls")
+	accessIssuer := flag.String("access-issuer", os.Getenv("STUDIO_ACCESS_ISSUER"), "dedicated ACL token issuer")
+	accessAudience := flag.String("access-audience", os.Getenv("STUDIO_ACCESS_AUDIENCE"), "dedicated ACL token audience")
+	accessKey := flag.String("access-public-key", os.Getenv("STUDIO_ACCESS_PUBLIC_KEY_FILE"), "ACL issuer RSA public key PEM file")
+	accessUserInfoURL := flag.String("access-user-info-url", os.Getenv("STUDIO_ACCESS_USER_INFO_URL"), "optional trusted user-info endpoint for ID-token ACL facts")
 	flag.Parse()
 	if *sessionPruneInterval < 0 {
 		log.Fatal("-session-prune-interval must not be negative")
@@ -112,6 +184,12 @@ func main() {
 	loginOAuth, err := resolveLoginConfig(resolvedMode, origin, *loginAuthURL, *loginTokenURL, *loginClientID, loginSecret, *loginRedirectURL, *loginScopes)
 	if err != nil {
 		log.Fatal(err)
+	}
+	if *loginIDToken && loginOAuth == nil {
+		log.Fatal("-login-id-token requires configured OAuth login endpoints")
+	}
+	if *loginIDToken && extensionConfig != nil {
+		log.Fatal("identity-token mode does not support the BFF extension proxy")
 	}
 	db, err := sql.Open("sqlite", *dsn)
 	if err != nil {
@@ -152,27 +230,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	activateRuntime := sqltransport.RuntimeActivatorFunc(func(ctx context.Context, generation int64) error {
-		payload, err := json.Marshal(map[string]int64{"generation": generation})
-		if err != nil {
-			return err
-		}
-		request, err := http.NewRequestWithContext(ctx, http.MethodPost, strings.TrimSuffix(*dynamicHTTPURL, "/")+"/_studio/reload", bytes.NewReader(payload))
-		if err != nil {
-			return err
-		}
-		request.Header.Set("Content-Type", "application/json")
-		request.Header.Set("X-Studio-Runtime-Token", adminToken)
-		response, err := (&http.Client{Timeout: 30 * time.Second}).Do(request)
-		if err != nil {
-			return err
-		}
-		defer response.Body.Close()
-		if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
-			return fmt.Errorf("dynamic runtime reload returned %s", response.Status)
-		}
-		return nil
-	})
+	runtimeAdmin, err := runtimeadmin.New(*dynamicHTTPURL, adminToken, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 	authorizer, err := authorization.NewSDKAuthorizer(db)
 	if err != nil {
 		log.Fatal(err)
@@ -184,7 +245,7 @@ func main() {
 			log.Printf("Studio authorizer reader close: %v", err)
 		}
 	}()
-	transport := &sqltransport.Transport{DB: db, Authorizer: authorizer, Predicates: predicates, Probe: connectivity.SQLProbe{}, Catalog: connectivity.SQLCatalog{}, SQLTester: dynamicPreview, Preview: dynamicPreview, ViewTester: dynamicPreview, RelationTester: dynamicPreview, ComposeTester: dynamicPreview, Warmup: dynamicPreview, Validator: dynamicPreview, Activator: activateRuntime, RuntimeProbe: runtimeProbe{url: strings.TrimSuffix(*dynamicHTTPURL, "/") + "/_studio/status", token: adminToken, client: &http.Client{Timeout: 2 * time.Second}}}
+	transport := &sqltransport.Transport{DB: db, Authorizer: authorizer, Predicates: predicates, Probe: connectivity.SQLProbe{}, Catalog: connectivity.SQLCatalog{}, SQLTester: dynamicPreview, Preview: dynamicPreview, ViewTester: dynamicPreview, RelationTester: dynamicPreview, ComposeTester: dynamicPreview, Warmup: dynamicPreview, Validator: dynamicPreview, Activator: runtimeAdmin, RuntimeProbe: runtimeAdmin}
 	defer func() {
 		closeCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
@@ -193,7 +254,7 @@ func main() {
 		}
 	}()
 	var sdkTransport sdk.Transport = transport
-	if *accessIssuer != "" || *accessAudience != "" || *accessKey != "" {
+	if *accessIssuer != "" || *accessAudience != "" || *accessKey != "" || *accessUserInfoURL != "" {
 		if resolvedMode != string(httptransport.Authenticated) {
 			log.Fatal("resource ACL requires authenticated Studio mode")
 		}
@@ -205,7 +266,14 @@ func main() {
 		if keyErr != nil {
 			log.Fatal(keyErr)
 		}
-		provider, providerErr := accessoauth.New(accessoauth.Config{Issuer: *accessIssuer, Audience: *accessAudience, Algorithms: []string{"RS256"}, Keyfunc: func(*jwtlib.Token) (any, error) { return key, nil }})
+		keyfunc := func(*jwtlib.Token) (any, error) { return key, nil }
+		var provider access.Provider
+		var providerErr error
+		if *accessUserInfoURL != "" {
+			provider, providerErr = accessoauth.NewUserInfo(accessoauth.UserInfoConfig{Issuer: *accessIssuer, Audience: *accessAudience, Algorithms: []string{"RS256"}, Keyfunc: keyfunc, URL: *accessUserInfoURL})
+		} else {
+			provider, providerErr = accessoauth.New(accessoauth.Config{Issuer: *accessIssuer, Audience: *accessAudience, Algorithms: []string{"RS256"}, Keyfunc: keyfunc})
+		}
 		if providerErr != nil {
 			log.Fatal(providerErr)
 		}
@@ -237,6 +305,9 @@ func main() {
 		if authConfigErr != nil {
 			log.Fatal(authConfigErr)
 		}
+		if *loginIDToken && audience != loginOAuth.ClientID {
+			log.Fatal("identity-token login requires -jwt-audience to equal -login-client-id")
+		}
 		jwtVerifier := verifier.New(&verifier.Config{CertURL: strings.TrimSpace(*jwtCertURL)})
 		if err = jwtVerifier.Init(context.Background()); err != nil {
 			log.Fatal(err)
@@ -260,35 +331,51 @@ func main() {
 		if sessionErr != nil {
 			log.Fatal(sessionErr)
 		}
-		sessions.Register(mux)
-		staticTarget, parseErr := url.Parse(*staticDatlyURL)
-		if parseErr != nil {
-			log.Fatal(parseErr)
-		}
-		nativeSDK, proxyErr := sessions.Proxy(staticTarget, "/")
-		if proxyErr != nil {
-			log.Fatal(proxyErr)
-		}
-		for _, path := range []string{"/v1/studio/sdk/acl.list", "/v1/studio/sdk/connectors.get", "/v1/studio/sdk/connectors.list", "/v1/studio/sdk/namespaces.get", "/v1/studio/sdk/namespaces.list", "/v1/studio/sdk/publications.get", "/v1/studio/sdk/publications.events.list", "/v1/studio/sdk/reports.get", "/v1/studio/sdk/reports.list"} {
-			mux.Handle(path, nativeSDK)
-		}
-		if loginOAuth != nil {
-			login, loginErr := bffauth.NewLogin(bffauth.LoginConfig{OAuth: *loginOAuth, CookieKey: key, Secure: true}, sessions)
-			if loginErr != nil {
-				log.Fatal(loginErr)
-			}
-			login.Register(mux)
-		}
-		for _, proxyConfig := range []struct{ mount, target string }{{"/v1/studio/runtime/", *dynamicHTTPURL}, {"/v1/studio/mcp/", *dynamicMCPURL}} {
-			target, parseErr := url.Parse(proxyConfig.target)
+		if !*loginIDToken {
+			sessions.Register(mux)
+			staticTarget, parseErr := url.Parse(*staticDatlyURL)
 			if parseErr != nil {
 				log.Fatal(parseErr)
 			}
-			proxy, proxyErr := sessions.Proxy(target, strings.TrimSuffix(proxyConfig.mount, "/"))
+			nativeSDK, proxyErr := sessions.Proxy(staticTarget, "/")
 			if proxyErr != nil {
 				log.Fatal(proxyErr)
 			}
-			mux.Handle(proxyConfig.mount, proxy)
+			for _, path := range nativeSDKPaths {
+				mux.Handle(path, nativeSDK)
+			}
+		}
+		if loginOAuth != nil {
+			login, loginErr := bffauth.NewLogin(bffauth.LoginConfig{OAuth: *loginOAuth, CookieKey: key, Secure: true, UseIDToken: *loginIDToken, AllowedOrigin: origin}, sessions)
+			if loginErr != nil {
+				log.Fatal(loginErr)
+			}
+			if *loginIDToken {
+				browserAuth, authErr := login.DatlyHTTP()
+				if authErr != nil {
+					log.Fatal(authErr)
+				}
+				for _, route := range []string{"GET /v1/studio/auth/login", "GET /v1/studio/auth/callback", "POST /v1/studio/auth/token", "DELETE /v1/studio/auth/session"} {
+					mux.Handle(route, browserAuth)
+				}
+			} else {
+				if err := login.Register(mux); err != nil {
+					log.Fatal(err)
+				}
+			}
+		}
+		if !*loginIDToken {
+			for _, proxyConfig := range []struct{ mount, target string }{{"/v1/studio/runtime/", *dynamicHTTPURL}, {"/v1/studio/mcp/", *dynamicMCPURL}, {"/v1/studio/sdk-mcp/", *staticMCPURL}} {
+				target, parseErr := url.Parse(proxyConfig.target)
+				if parseErr != nil {
+					log.Fatal(parseErr)
+				}
+				proxy, proxyErr := sessions.Proxy(target, strings.TrimSuffix(proxyConfig.mount, "/"))
+				if proxyErr != nil {
+					log.Fatal(proxyErr)
+				}
+				mux.Handle(proxyConfig.mount, proxy)
+			}
 		}
 		if extensionConfig != nil {
 			var proxyErr error
@@ -320,8 +407,13 @@ func main() {
 			proxy.ServeHTTP(response, request)
 		}))
 	}
-	gateway := httptransport.Gateway{Config: gatewayConfig, Transport: sdkTransport}
-	mux.Handle(httptransport.PathPrefix, gateway)
+	// Authenticated SDK requests have only the selected Datly component routes
+	// mounted above. Keep the generic gateway for explicit local development
+	// until its static-host credential handoff is available.
+	if resolvedMode == string(httptransport.Development) {
+		gateway := httptransport.Gateway{Config: gatewayConfig, Transport: sdkTransport}
+		mux.Handle(httptransport.PathPrefix, gateway)
+	}
 	log.Printf("Studio SDK development host listening on http://%s", *address)
 	server := &http.Server{
 		Addr: *address, Handler: requestIDs(cors(origin, resolvedMode == string(httptransport.Authenticated), noStore(routeExtensionProxy(mux, extensionProxy)))),
@@ -378,39 +470,6 @@ func resolveAuthenticatedConfig(certURL, issuer, audience, encodedKey string) (s
 		return "", "", nil, errors.New("-session-key or STUDIO_SESSION_KEY must be a base64-encoded 32-byte key")
 	}
 	return issuer, audience, key, nil
-}
-
-type runtimeProbe struct {
-	url, token string
-	client     *http.Client
-}
-
-func (p runtimeProbe) ProbeRuntime(ctx context.Context) (*sdk.RuntimeHost, error) {
-	request, err := http.NewRequestWithContext(ctx, http.MethodGet, p.url, nil)
-	if err != nil {
-		return nil, err
-	}
-	request.Header.Set("X-Studio-Runtime-Token", p.token)
-	response, err := p.client.Do(request)
-	if err != nil {
-		return nil, err
-	}
-	defer response.Body.Close()
-	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
-		return nil, fmt.Errorf("dynamic runtime status returned %s", response.Status)
-	}
-	var payload struct {
-		AuthenticationMode string `json:"authenticationMode"`
-		Status             string `json:"status"`
-		Revision           int64  `json:"revision"`
-	}
-	if err = json.NewDecoder(io.LimitReader(response.Body, 4096)).Decode(&payload); err != nil {
-		return nil, err
-	}
-	if payload.Status != "ready" {
-		return nil, fmt.Errorf("dynamic runtime is not ready")
-	}
-	return &sdk.RuntimeHost{AuthenticationMode: payload.AuthenticationMode, Status: payload.Status, Revision: payload.Revision, CheckedAt: time.Now().UTC()}, nil
 }
 
 func ensureSchema(ctx context.Context, db *sql.DB) error {
@@ -474,7 +533,7 @@ func cors(allowedOrigin string, requireUnsafeOrigin bool, next http.Handler) htt
 		if origin == allowedOrigin {
 			w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
-			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Studio-Development-Subject, X-Request-ID, Mcp-Protocol-Version, Mcp-Method, Mcp-Session-Id, Last-Event-ID")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Studio-Development-Subject, X-Request-ID, Mcp-Protocol-Version, Mcp-Method, Mcp-Name, Mcp-Session-Id, Last-Event-ID")
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
 			w.Header().Set("Access-Control-Expose-Headers", "X-Request-ID")
 		}

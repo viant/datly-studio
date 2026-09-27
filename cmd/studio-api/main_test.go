@@ -2,14 +2,45 @@ package main
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"regexp"
+	"sort"
 	"strings"
 	"testing"
 
 	"github.com/viant/datly-studio/sdk/httptransport"
 )
+
+func TestNativeSDKProxyMountsMatchGeneratedOpenAPI(t *testing.T) {
+	payload, err := os.ReadFile("../../sdk/openapi/studio.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var document struct {
+		Paths map[string]json.RawMessage `json:"paths"`
+	}
+	if err = json.Unmarshal(payload, &document); err != nil {
+		t.Fatal(err)
+	}
+	got := append([]string(nil), nativeSDKPaths...)
+	want := make([]string, 0, len(document.Paths))
+	for path := range document.Paths {
+		want = append(want, path)
+	}
+	sort.Strings(got)
+	sort.Strings(want)
+	if len(got) != len(want) {
+		t.Fatalf("native BFF mounts=%v; generated Datly paths=%v", got, want)
+	}
+	for index := range want {
+		if got[index] != want[index] {
+			t.Fatalf("native BFF mounts=%v; generated Datly paths=%v", got, want)
+		}
+	}
+}
 
 func TestAuthenticatedDeploymentRequiresExplicitOriginAndRuntimeToken(t *testing.T) {
 	if err := validateGatewayMode("typo"); err == nil {
@@ -60,15 +91,15 @@ func TestAuthenticatedConfigRequiresTokenBindingAndSessionKey(t *testing.T) {
 func TestCORSUsesExactOriginAndRejectsCrossOriginRequests(t *testing.T) {
 	called := false
 	handler := cors("https://studio.example.com", false, http.HandlerFunc(func(http.ResponseWriter, *http.Request) { called = true }))
-	preflight := httptest.NewRequest(http.MethodOptions, "/v1/studio/sdk/reports.list", nil)
+	preflight := httptest.NewRequest(http.MethodOptions, "/v1/studio/sdk/components.list", nil)
 	preflight.Header.Set("Origin", "https://studio.example.com")
 	response := httptest.NewRecorder()
 	handler.ServeHTTP(response, preflight)
-	if response.Code != http.StatusNoContent || response.Header().Get("Access-Control-Allow-Origin") != "https://studio.example.com" || response.Header().Get("Access-Control-Expose-Headers") != "X-Request-ID" || !strings.Contains(response.Header().Get("Access-Control-Allow-Headers"), "Mcp-Protocol-Version") || !regexp.MustCompile(`(^|,\s*)Origin($|,)`).MatchString(response.Header().Get("Vary")) {
+	if response.Code != http.StatusNoContent || response.Header().Get("Access-Control-Allow-Origin") != "https://studio.example.com" || response.Header().Get("Access-Control-Expose-Headers") != "X-Request-ID" || !strings.Contains(response.Header().Get("Access-Control-Allow-Headers"), "Mcp-Protocol-Version") || !strings.Contains(response.Header().Get("Access-Control-Allow-Headers"), "Mcp-Name") || !regexp.MustCompile(`(^|,\s*)Origin($|,)`).MatchString(response.Header().Get("Vary")) {
 		t.Fatalf("preflight status=%d headers=%v", response.Code, response.Header())
 	}
 
-	blocked := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/reports.list", nil)
+	blocked := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/components.list", nil)
 	blocked.Header.Set("Origin", "https://evil.example")
 	blockedResponse := httptest.NewRecorder()
 	handler.ServeHTTP(blockedResponse, blocked)
@@ -76,7 +107,7 @@ func TestCORSUsesExactOriginAndRejectsCrossOriginRequests(t *testing.T) {
 		t.Fatalf("blocked status=%d called=%v", blockedResponse.Code, called)
 	}
 
-	sameSite := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/reports.list", nil)
+	sameSite := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/components.list", nil)
 	sameSiteResponse := httptest.NewRecorder()
 	handler.ServeHTTP(sameSiteResponse, sameSite)
 	if !called {
@@ -85,7 +116,7 @@ func TestCORSUsesExactOriginAndRejectsCrossOriginRequests(t *testing.T) {
 
 	strict := cors("https://studio.example.com", true, http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
 	strictResponse := httptest.NewRecorder()
-	strict.ServeHTTP(strictResponse, httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/reports.list", nil))
+	strict.ServeHTTP(strictResponse, httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/components.list", nil))
 	if strictResponse.Code != http.StatusForbidden {
 		t.Fatalf("authenticated originless mutation status=%d", strictResponse.Code)
 	}

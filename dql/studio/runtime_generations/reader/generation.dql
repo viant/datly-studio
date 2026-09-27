@@ -26,6 +26,6 @@ SELECT generation.*, type(generation, 'RuntimeGeneration'),
 	   CAST(generation.diagnostics_json AS json.RawMessage),
 	   tag(generation.build_manifest_json, 'sqlx:"build_manifest_json,enc=JSON"'),
 	   tag(generation.diagnostics_json, 'sqlx:"diagnostics_json,enc=JSON"'),
-	   set_limit(generation, 100), selector_fields(generation, true), selector_limit(generation, true), selector_offset(generation, true), allowed_order_by_columns(generation, 'generation_no,status,report_count,requested_at,activated_at,retired_at')
+	   set_limit(generation, 100), allowed_order_by_columns(generation, 'generation_no,status,report_count,requested_at,activated_at,retired_at')
 FROM (${embed:sql/read.sql}) generation
 WHERE 1=1

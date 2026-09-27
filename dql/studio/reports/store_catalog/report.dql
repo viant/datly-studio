@@ -6,6 +6,7 @@
 #setting($_ = $output_type('Output'))
 #setting($_ = $case_format('lc'))
 #setting($_ = $route('/_studio/report-store/catalog', 'GET'))
+#setting($_ = $internal(true))
 #setting($_ = $connector('studio'))
 #setting($_ = $sql_dest('report', 'sql/read.sql'))
 
@@ -29,8 +30,7 @@ SELECT report.*, type(report, 'StoredReport'),
        CAST(report.component_scope AS string), CAST(report.component_name AS string),
        CAST(report.current_draft_version AS *int), CAST(report.etag AS int64),
        CAST(report.created_at AS time.Time), CAST(report.updated_at AS time.Time),
-       set_limit(report, 500), selector_limit(report, true),
-       selector_offset(report, true),
+       set_limit(report, 500),
        allowed_order_by_columns(report, 'updated_at,id')
 FROM (${embed:sql/read.sql}) report
 WHERE 1=1

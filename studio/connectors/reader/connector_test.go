@@ -43,7 +43,7 @@ func TestConnectorListSDKDatlyContract(t *testing.T) {
 			{"owner_id": "owner-a", "name": "general", "title": "General", "status": "active", "etag": 1, "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"},
 			{"owner_id": "owner-b", "name": "general", "title": "General", "status": "active", "etag": 1, "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"},
 		}},
-		datatest.Table{Name: "reports", Rows: []datatest.Row{
+		datatest.Table{Name: "components", Rows: []datatest.Row{
 			{"id": "r-alpha", "slug": "alpha", "title": "Alpha", "owner_id": "owner-a", "status": "active", "default_connector_name": "alpha", "component_scope": "reports", "component_name": "alpha", "created_at": "2026-09-17 10:00:00", "updated_at": "2026-09-17 10:00:00"},
 			{"id": "r-beta", "slug": "beta", "title": "Beta", "owner_id": "owner-b", "status": "active", "default_connector_name": "beta", "component_scope": "reports", "component_name": "beta", "created_at": "2026-09-17 10:00:00", "updated_at": "2026-09-17 10:00:00"},
 			{"id": "r-gamma", "slug": "gamma", "title": "Gamma", "owner_id": "owner-a", "status": "active", "default_connector_name": "gamma", "component_scope": "reports", "component_name": "gamma", "created_at": "2026-09-17 10:00:00", "updated_at": "2026-09-17 10:00:00"},
@@ -254,14 +254,14 @@ func TestConnectorListSDKDatlyContract(t *testing.T) {
 	if bytes.Contains(structured, []byte("private-token")) || bytes.Contains(structured, []byte("dsnTemplate")) {
 		t.Fatalf("MCP connector leaked secret material: %s", structured)
 	}
-	if _, err = db.ExecContext(ctx, "UPDATE reports SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?", "r-beta"); err != nil {
+	if _, err = db.ExecContext(ctx, "UPDATE components SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?", "r-beta"); err != nil {
 		t.Fatal(err)
 	}
 	revoked, err := invokeAs("viewer", map[string]any{})
 	if err != nil || !reflect.DeepEqual(names(revoked), []string{"gamma", "alpha"}) {
 		t.Fatalf("soft-deleted report connectors=%v err=%v", names(revoked), err)
 	}
-	if _, err = db.ExecContext(ctx, "UPDATE reports SET deleted_at = NULL WHERE id = ?", "r-beta"); err != nil {
+	if _, err = db.ExecContext(ctx, "UPDATE components SET deleted_at = NULL WHERE id = ?", "r-beta"); err != nil {
 		t.Fatal(err)
 	}
 	if _, err = db.ExecContext(ctx, "DELETE FROM report_acl WHERE report_id = ? AND subject_id = ?", "r-beta", "viewer"); err != nil {

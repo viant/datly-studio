@@ -2,6 +2,19 @@ BaseDir: .
 Endpoint:
   # Linked Studio control-plane components only. Dynamic readers run separately.
   Address: 127.0.0.1:8081
+CORS:
+  # Direct browser SDK calls use Bearer ID tokens, never cookies.
+  AllowOrigins: [https://studio.example.com]
+  AllowMethods: [GET, POST, OPTIONS]
+  AllowHeaders: [Content-Type, Authorization]
+  AllowCredentials: false
+MCP:
+  # SDK tools are served separately from dynamic reader MCP on 8091.
+  Address: 127.0.0.1:8090
+  Authorization:
+    Global:
+      ProtectedResourceMetadata:
+        Resource: http://127.0.0.1:8090/mcp
 Connector: studio
 Connectors:
   - Name: studio
@@ -9,21 +22,79 @@ Connectors:
     DSN: file:.data/studio.db?cache=shared
 JWTValidator:
   CertURL: https://idp.viantinc.com/v1/api/oauth2/certs
+JWTClaims:
+  Issuer: https://idp.viantinc.com
+  Audience: datly-studio-web
+  RequireSubject: true
 GoBootstrap:
   # Instance startup reflects linked component, predicate, codec, and resource
   # types only. AST/DQL source discovery remains a transcribe-time concern.
   EagerComponents: true
   Packages:
     - github.com/viant/datly-studio/studio/authorization
+    - github.com/viant/datly-studio/studio/authorization_predicates/types
+    - github.com/viant/datly-studio/studio/authorization_predicates/get
+    - github.com/viant/datly-studio/studio/authorization_predicates/create
+    - github.com/viant/datly-studio/studio/authorization_predicates/update
+    - github.com/viant/datly-studio/studio/authorization_predicates/delete
+    - github.com/viant/datly-studio/studio/authorization_predicates/list
+    - github.com/viant/datly-studio/studio/authorization_predicates/store_read
+    - github.com/viant/datly-studio/studio/authorization_predicates/store_insert
+    - github.com/viant/datly-studio/studio/authorization_predicates/store_write
     - github.com/viant/datly-studio/studio/reports/catalogpredicate
     - github.com/viant/datly-studio/studio/auth/reader
     - github.com/viant/datly-studio/studio/connectors/reader
+    - github.com/viant/datly-studio/studio/connectors/create
+    - github.com/viant/datly-studio/studio/connectors/schemas
+    - github.com/viant/datly-studio/studio/connectors/tables
+    - github.com/viant/datly-studio/studio/connectors/table
+    - github.com/viant/datly-studio/studio/connectors/test
+    - github.com/viant/datly-studio/studio/connectors/test_sql
+    - github.com/viant/datly-studio/studio/connectors/accesspredicate
+    - github.com/viant/datly-studio/studio/connectors/activate
+    - github.com/viant/datly-studio/studio/connectors/disable
+    - github.com/viant/datly-studio/studio/connectors/delete
     - github.com/viant/datly-studio/studio/connectors/get
+    - github.com/viant/datly-studio/studio/connectors/store_access
+    - github.com/viant/datly-studio/studio/connectors/store_catalog
+    - github.com/viant/datly-studio/studio/connectors/store_config
+    - github.com/viant/datly-studio/studio/connectors/store_status
+    - github.com/viant/datly-studio/studio/connectors/store_usage
+    - github.com/viant/datly-studio/studio/connectors/update
     - github.com/viant/datly-studio/studio/connectors/writer
     - github.com/viant/datly-studio/studio/namespaces/reader
+    - github.com/viant/datly-studio/studio/namespaces/create
+    - github.com/viant/datly-studio/studio/namespaces/delete
     - github.com/viant/datly-studio/studio/namespaces/get
+    - github.com/viant/datly-studio/studio/namespaces/store_read
+    - github.com/viant/datly-studio/studio/namespaces/store_usage
+    - github.com/viant/datly-studio/studio/namespaces/store_write
+    - github.com/viant/datly-studio/studio/namespaces/update
     - github.com/viant/datly-studio/studio/namespaces/writer
     - github.com/viant/datly-studio/studio/report_versions/reader
+    - github.com/viant/datly-studio/studio/report_versions/create
+    - github.com/viant/datly-studio/studio/report_versions/load_dql
+    - github.com/viant/datly-studio/studio/report_versions/load_archive
+    - github.com/viant/datly-studio/studio/report_versions/inspect
+    - github.com/viant/datly-studio/studio/report_versions/apply
+    - github.com/viant/datly-studio/studio/report_versions/builder
+    - github.com/viant/datly-studio/studio/report_versions/validate
+    - github.com/viant/datly-studio/studio/report_versions/test_view
+    - github.com/viant/datly-studio/studio/report_versions/test_relation
+    - github.com/viant/datly-studio/studio/report_versions/test_compose
+    - github.com/viant/datly-studio/studio/report_versions/warmup
+    - github.com/viant/datly-studio/studio/report_versions/store_head
+    - github.com/viant/datly-studio/studio/report_versions/store_insert
+    - github.com/viant/datly-studio/studio/report_versions/store_import
+    - github.com/viant/datly-studio/studio/report_versions/store_catalog
+    - github.com/viant/datly-studio/studio/report_versions/store_edit
+    - github.com/viant/datly-studio/studio/report_versions/store_touch
+    - github.com/viant/datly-studio/studio/report_versions/store_validation
+    - github.com/viant/datly-studio/studio/report_versions/get
+    - github.com/viant/datly-studio/studio/report_versions/export_dql
+    - github.com/viant/datly-studio/studio/report_versions/descriptor
+    - github.com/viant/datly-studio/studio/report_versions/download
+    - github.com/viant/datly-studio/studio/report_versions/list
     - github.com/viant/datly-studio/studio/report_versions/writer
     - github.com/viant/datly-studio/studio/report_views/reader
     - github.com/viant/datly-studio/studio/report_parameters/reader
@@ -33,22 +104,61 @@ GoBootstrap:
     - github.com/viant/datly-studio/studio/report_mcp_exposures/reader
     - github.com/viant/datly-studio/studio/report_mcp_exposures/writer
     - github.com/viant/datly-studio/studio/report_resource_files/reader
+    - github.com/viant/datly-studio/studio/report_resource_files/store_download
+    - github.com/viant/datly-studio/studio/report_resource_files/store_download_budget
+    - github.com/viant/datly-studio/studio/report_resource_files/store_snapshot
+    - github.com/viant/datly-studio/studio/report_resource_files/store_write
     - github.com/viant/datly-studio/studio/report_resource_files/writer
     - github.com/viant/datly-studio/studio/report_resource_folders/reader
+    - github.com/viant/datly-studio/studio/report_resource_folders/store_snapshot
+    - github.com/viant/datly-studio/studio/report_resource_folders/store_write
     - github.com/viant/datly-studio/studio/report_resource_folders/writer
     - github.com/viant/datly-studio/studio/report_skill_roots/reader
+    - github.com/viant/datly-studio/studio/report_skill_roots/store_snapshot
+    - github.com/viant/datly-studio/studio/report_skill_roots/store_write
     - github.com/viant/datly-studio/studio/report_skill_roots/writer
     - github.com/viant/datly-studio/studio/runtime_generations/reader
     - github.com/viant/datly-studio/studio/runtime_generations/writer
+    - github.com/viant/datly-studio/studio/runtime/status
     - github.com/viant/datly-studio/studio/report_warmup_runs/reader
+    - github.com/viant/datly-studio/studio/report_warmup_runs/get
+    - github.com/viant/datly-studio/studio/report_warmup_runs/list
+    - github.com/viant/datly-studio/studio/report_warmup_runs/store_expired
+    - github.com/viant/datly-studio/studio/report_warmup_runs/store_read
+    - github.com/viant/datly-studio/studio/report_warmup_runs/store_write
     - github.com/viant/datly-studio/studio/bff_sessions/reader
     - github.com/viant/datly-studio/studio/bff_sessions/writer
     - github.com/viant/datly-studio/studio/report_publications/reader
     - github.com/viant/datly-studio/studio/report_publications/get
+    - github.com/viant/datly-studio/studio/report_publications/mutate
     - github.com/viant/datly-studio/studio/report_publications/writer
     - github.com/viant/datly-studio/studio/report_publication_events/list
     - github.com/viant/datly-studio/studio/report_acl/reader
+    - github.com/viant/datly-studio/studio/report_acl/delete
+    - github.com/viant/datly-studio/studio/report_acl/upsert
+    - github.com/viant/datly-studio/studio/report_acl/store_write
     - github.com/viant/datly-studio/studio/report_acl/writer
     - github.com/viant/datly-studio/studio/reports/reader
     - github.com/viant/datly-studio/studio/reports/get
+    - github.com/viant/datly-studio/studio/reports/create
+    - github.com/viant/datly-studio/studio/reports/edit_guard
+    - github.com/viant/datly-studio/studio/reports/store_insert
+    - github.com/viant/datly-studio/studio/reports/store_config
+    - github.com/viant/datly-studio/studio/reports/store_catalog
+    - github.com/viant/datly-studio/studio/reports/store_draft_pointer
+    - github.com/viant/datly-studio/studio/reports/store_capabilities
+    - github.com/viant/datly-studio/studio/reports/store_global_access
+    - github.com/viant/datly-studio/studio/reports/globalpredicate
+    - github.com/viant/datly-studio/studio/reports/update
+    - github.com/viant/datly-studio/studio/reports/publish_guard
+    - github.com/viant/datly-studio/studio/reports/store_run_access
+    - github.com/viant/datly-studio/studio/preview/execute
     - github.com/viant/datly-studio/studio/reports/writer
+    - github.com/viant/datly-studio/studio/resources/get
+    - github.com/viant/datly-studio/studio/resources/mutate
+    - github.com/viant/datly-studio/studio/resource_namespace_claims/store_write
+    - github.com/viant/datly-studio/studio/resource_namespaces/store_presence
+    - github.com/viant/datly-studio/studio/resource_namespaces/store_usage
+    - github.com/viant/datly-studio/studio/resource_policy/reader
+    - github.com/viant/datly-studio/studio/resource_policy/writer
+    - github.com/viant/datly-studio/studio/resource_policy/access

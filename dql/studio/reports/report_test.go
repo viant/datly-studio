@@ -32,10 +32,10 @@ func TestReportReaderCompilesEmbeddedSQLAndNativeSDKRoute(t *testing.T) {
 			}
 		}
 	}
-	if len(routes) != 1 || !routes["POST /v1/studio/sdk/reports.list"] {
+	if len(routes) != 1 || !routes["POST /v1/studio/sdk/components.list"] {
 		t.Fatalf("report routes = %#v", routes)
 	}
-	if len(tools) != 1 || !tools["studio.sdk.reports.list"] {
+	if len(tools) != 1 || !tools["studio.sdk.components.list"] {
 		t.Fatalf("report MCP tools = %#v", tools)
 	}
 	if source := compiled.Component.RootView.Source; source == nil || len(source.Embeds) != 1 || source.Embeds[0].Path != "sql/read.sql" {

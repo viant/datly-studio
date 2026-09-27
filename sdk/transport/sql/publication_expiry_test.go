@@ -38,7 +38,7 @@ func TestExpiredStageRecoveryUsesMatchedDatlyComponents(t *testing.T) {
 	mustExec(`INSERT INTO connectors(name,driver,owner_id,status,etag,created_at,updated_at) VALUES('main','sqlite','owner','active',1,?,?)`, now, now)
 	mustExec(`INSERT INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at) VALUES('owner','general','General','active',1,?,?)`, now, now)
 	for _, id := range []string{"restage", "unpublish", "first"} {
-		mustExec(`INSERT INTO reports(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at)
+		mustExec(`INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at)
 			VALUES(?,'general',?,?, 'owner','active','main','example.com/reader',?,1,?,?)`, id, id, id, id, now, now)
 		mustExec(`INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at,published_at)
 			VALUES(?,1,'published','dql','SELECT 1','{}','1',?,'{}','valid','v1','v1',1,'owner',?,?)`, id, "spec-"+id, now, now)

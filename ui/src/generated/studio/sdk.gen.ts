@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { PostV1StudioSdkAclListData, PostV1StudioSdkAclListResponses, PostV1StudioSdkConnectorsGetData, PostV1StudioSdkConnectorsGetResponses, PostV1StudioSdkConnectorsListData, PostV1StudioSdkConnectorsListResponses, PostV1StudioSdkNamespacesGetData, PostV1StudioSdkNamespacesGetResponses, PostV1StudioSdkNamespacesListData, PostV1StudioSdkNamespacesListResponses, PostV1StudioSdkPublicationsEventsListData, PostV1StudioSdkPublicationsEventsListResponses, PostV1StudioSdkPublicationsGetData, PostV1StudioSdkPublicationsGetResponses, PostV1StudioSdkReportsGetData, PostV1StudioSdkReportsGetResponses, PostV1StudioSdkReportsListData, PostV1StudioSdkReportsListResponses } from './types.gen';
+import type { PostV1StudioSdkAccessContextData, PostV1StudioSdkAccessContextResponses, PostV1StudioSdkAccessGetData, PostV1StudioSdkAccessGetResponses, PostV1StudioSdkAccessReplaceData, PostV1StudioSdkAccessReplaceResponses, PostV1StudioSdkAclDeleteData, PostV1StudioSdkAclDeleteResponses, PostV1StudioSdkAclListData, PostV1StudioSdkAclListResponses, PostV1StudioSdkAclUpsertData, PostV1StudioSdkAclUpsertResponses, PostV1StudioSdkAuthorizationPredicatesCreateData, PostV1StudioSdkAuthorizationPredicatesCreateResponses, PostV1StudioSdkAuthorizationPredicatesDeleteData, PostV1StudioSdkAuthorizationPredicatesDeleteResponses, PostV1StudioSdkAuthorizationPredicatesGetData, PostV1StudioSdkAuthorizationPredicatesGetResponses, PostV1StudioSdkAuthorizationPredicatesListData, PostV1StudioSdkAuthorizationPredicatesListResponses, PostV1StudioSdkAuthorizationPredicatesTypesData, PostV1StudioSdkAuthorizationPredicatesTypesResponses, PostV1StudioSdkAuthorizationPredicatesUpdateData, PostV1StudioSdkAuthorizationPredicatesUpdateResponses, PostV1StudioSdkComponentsCreateData, PostV1StudioSdkComponentsCreateResponses, PostV1StudioSdkComponentsGetData, PostV1StudioSdkComponentsGetResponses, PostV1StudioSdkComponentsListData, PostV1StudioSdkComponentsListResponses, PostV1StudioSdkComponentsUpdateData, PostV1StudioSdkComponentsUpdateResponses, PostV1StudioSdkConnectorsActivateData, PostV1StudioSdkConnectorsActivateResponses, PostV1StudioSdkConnectorsCreateData, PostV1StudioSdkConnectorsCreateResponses, PostV1StudioSdkConnectorsDeleteData, PostV1StudioSdkConnectorsDeleteResponses, PostV1StudioSdkConnectorsDisableData, PostV1StudioSdkConnectorsDisableResponses, PostV1StudioSdkConnectorsGetData, PostV1StudioSdkConnectorsGetResponses, PostV1StudioSdkConnectorsListData, PostV1StudioSdkConnectorsListResponses, PostV1StudioSdkConnectorsSchemasData, PostV1StudioSdkConnectorsSchemasResponses, PostV1StudioSdkConnectorsTableData, PostV1StudioSdkConnectorsTableResponses, PostV1StudioSdkConnectorsTablesData, PostV1StudioSdkConnectorsTablesResponses, PostV1StudioSdkConnectorsTestData, PostV1StudioSdkConnectorsTestResponses, PostV1StudioSdkConnectorsTestSqlData, PostV1StudioSdkConnectorsTestSqlResponses, PostV1StudioSdkConnectorsUpdateData, PostV1StudioSdkConnectorsUpdateResponses, PostV1StudioSdkNamespacesCreateData, PostV1StudioSdkNamespacesCreateResponses, PostV1StudioSdkNamespacesDeleteData, PostV1StudioSdkNamespacesDeleteResponses, PostV1StudioSdkNamespacesGetData, PostV1StudioSdkNamespacesGetResponses, PostV1StudioSdkNamespacesListData, PostV1StudioSdkNamespacesListResponses, PostV1StudioSdkNamespacesUpdateData, PostV1StudioSdkNamespacesUpdateResponses, PostV1StudioSdkPreviewExecuteData, PostV1StudioSdkPreviewExecuteResponses, PostV1StudioSdkPublicationsEventsListData, PostV1StudioSdkPublicationsEventsListResponses, PostV1StudioSdkPublicationsGetData, PostV1StudioSdkPublicationsGetResponses, PostV1StudioSdkPublicationsPublishData, PostV1StudioSdkPublicationsPublishResponses, PostV1StudioSdkPublicationsRollbackData, PostV1StudioSdkPublicationsRollbackResponses, PostV1StudioSdkPublicationsUnpublishData, PostV1StudioSdkPublicationsUnpublishResponses, PostV1StudioSdkResourcesDeleteFileData, PostV1StudioSdkResourcesDeleteFileResponses, PostV1StudioSdkResourcesDeleteFolderData, PostV1StudioSdkResourcesDeleteFolderResponses, PostV1StudioSdkResourcesDeleteSkillData, PostV1StudioSdkResourcesDeleteSkillResponses, PostV1StudioSdkResourcesGetData, PostV1StudioSdkResourcesGetResponses, PostV1StudioSdkResourcesUpsertFileData, PostV1StudioSdkResourcesUpsertFileResponses, PostV1StudioSdkResourcesUpsertFolderData, PostV1StudioSdkResourcesUpsertFolderResponses, PostV1StudioSdkResourcesUpsertSkillData, PostV1StudioSdkResourcesUpsertSkillResponses, PostV1StudioSdkRuntimeStatusData, PostV1StudioSdkRuntimeStatusResponses, PostV1StudioSdkVersionsApplyData, PostV1StudioSdkVersionsApplyResponses, PostV1StudioSdkVersionsBuilderData, PostV1StudioSdkVersionsBuilderResponses, PostV1StudioSdkVersionsCreateData, PostV1StudioSdkVersionsCreateResponses, PostV1StudioSdkVersionsDescriptorData, PostV1StudioSdkVersionsDescriptorResponses, PostV1StudioSdkVersionsDownloadData, PostV1StudioSdkVersionsDownloadResponses, PostV1StudioSdkVersionsExportDqlData, PostV1StudioSdkVersionsExportDqlResponses, PostV1StudioSdkVersionsGetData, PostV1StudioSdkVersionsGetResponses, PostV1StudioSdkVersionsInspectData, PostV1StudioSdkVersionsInspectResponses, PostV1StudioSdkVersionsListData, PostV1StudioSdkVersionsListResponses, PostV1StudioSdkVersionsLoadArchiveData, PostV1StudioSdkVersionsLoadArchiveResponses, PostV1StudioSdkVersionsLoadDqlData, PostV1StudioSdkVersionsLoadDqlResponses, PostV1StudioSdkVersionsTestComposeData, PostV1StudioSdkVersionsTestComposeResponses, PostV1StudioSdkVersionsTestRelationData, PostV1StudioSdkVersionsTestRelationResponses, PostV1StudioSdkVersionsTestViewData, PostV1StudioSdkVersionsTestViewResponses, PostV1StudioSdkVersionsValidateData, PostV1StudioSdkVersionsValidateResponses, PostV1StudioSdkVersionsWarmupData, PostV1StudioSdkVersionsWarmupGetData, PostV1StudioSdkVersionsWarmupGetResponses, PostV1StudioSdkVersionsWarmupListData, PostV1StudioSdkVersionsWarmupListResponses, PostV1StudioSdkVersionsWarmupResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -18,12 +18,207 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
     meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta;
 };
 
+export const postV1StudioSdkAccessContext = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkAccessContextData, ThrowOnError>): RequestResult<PostV1StudioSdkAccessContextResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkAccessContextResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/access.context',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkAccessGet = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkAccessGetData, ThrowOnError>): RequestResult<PostV1StudioSdkAccessGetResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkAccessGetResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/access.get',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkAccessReplace = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkAccessReplaceData, ThrowOnError>): RequestResult<PostV1StudioSdkAccessReplaceResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkAccessReplaceResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/access.replace',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkAclDelete = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkAclDeleteData, ThrowOnError>): RequestResult<PostV1StudioSdkAclDeleteResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkAclDeleteResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/acl.delete',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
 /**
  * acl
  */
 export const postV1StudioSdkAclList = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkAclListData, ThrowOnError>): RequestResult<PostV1StudioSdkAclListResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkAclListResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/v1/studio/sdk/acl.list',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkAclUpsert = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkAclUpsertData, ThrowOnError>): RequestResult<PostV1StudioSdkAclUpsertResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkAclUpsertResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/acl.upsert',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkAuthorizationPredicatesCreate = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkAuthorizationPredicatesCreateData, ThrowOnError>): RequestResult<PostV1StudioSdkAuthorizationPredicatesCreateResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkAuthorizationPredicatesCreateResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/authorization_predicates.create',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkAuthorizationPredicatesDelete = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkAuthorizationPredicatesDeleteData, ThrowOnError>): RequestResult<PostV1StudioSdkAuthorizationPredicatesDeleteResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkAuthorizationPredicatesDeleteResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/authorization_predicates.delete',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkAuthorizationPredicatesGet = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkAuthorizationPredicatesGetData, ThrowOnError>): RequestResult<PostV1StudioSdkAuthorizationPredicatesGetResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkAuthorizationPredicatesGetResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/authorization_predicates.get',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkAuthorizationPredicatesList = <ThrowOnError extends boolean = false>(options?: Options<PostV1StudioSdkAuthorizationPredicatesListData, ThrowOnError>): RequestResult<PostV1StudioSdkAuthorizationPredicatesListResponses, unknown, ThrowOnError> => (options?.client ?? client).post<PostV1StudioSdkAuthorizationPredicatesListResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/authorization_predicates.list',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+    }
+});
+
+export const postV1StudioSdkAuthorizationPredicatesTypes = <ThrowOnError extends boolean = false>(options?: Options<PostV1StudioSdkAuthorizationPredicatesTypesData, ThrowOnError>): RequestResult<PostV1StudioSdkAuthorizationPredicatesTypesResponses, unknown, ThrowOnError> => (options?.client ?? client).post<PostV1StudioSdkAuthorizationPredicatesTypesResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/authorization_predicates.types',
+    ...options
+});
+
+export const postV1StudioSdkAuthorizationPredicatesUpdate = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkAuthorizationPredicatesUpdateData, ThrowOnError>): RequestResult<PostV1StudioSdkAuthorizationPredicatesUpdateResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkAuthorizationPredicatesUpdateResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/authorization_predicates.update',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkComponentsCreate = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkComponentsCreateData, ThrowOnError>): RequestResult<PostV1StudioSdkComponentsCreateResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkComponentsCreateResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/components.create',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * report
+ */
+export const postV1StudioSdkComponentsGet = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkComponentsGetData, ThrowOnError>): RequestResult<PostV1StudioSdkComponentsGetResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkComponentsGetResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/components.get',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * report
+ */
+export const postV1StudioSdkComponentsList = <ThrowOnError extends boolean = false>(options?: Options<PostV1StudioSdkComponentsListData, ThrowOnError>): RequestResult<PostV1StudioSdkComponentsListResponses, unknown, ThrowOnError> => (options?.client ?? client).post<PostV1StudioSdkComponentsListResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/components.list',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+    }
+});
+
+export const postV1StudioSdkComponentsUpdate = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkComponentsUpdateData, ThrowOnError>): RequestResult<PostV1StudioSdkComponentsUpdateResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkComponentsUpdateResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/components.update',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkConnectorsActivate = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkConnectorsActivateData, ThrowOnError>): RequestResult<PostV1StudioSdkConnectorsActivateResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkConnectorsActivateResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/connectors.activate',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * connector
+ */
+export const postV1StudioSdkConnectorsCreate = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkConnectorsCreateData, ThrowOnError>): RequestResult<PostV1StudioSdkConnectorsCreateResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkConnectorsCreateResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/connectors.create',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkConnectorsDelete = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkConnectorsDeleteData, ThrowOnError>): RequestResult<PostV1StudioSdkConnectorsDeleteResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkConnectorsDeleteResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/connectors.delete',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkConnectorsDisable = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkConnectorsDisableData, ThrowOnError>): RequestResult<PostV1StudioSdkConnectorsDisableResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkConnectorsDisableResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/connectors.disable',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -57,6 +252,89 @@ export const postV1StudioSdkConnectorsList = <ThrowOnError extends boolean = fal
     }
 });
 
+export const postV1StudioSdkConnectorsSchemas = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkConnectorsSchemasData, ThrowOnError>): RequestResult<PostV1StudioSdkConnectorsSchemasResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkConnectorsSchemasResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/connectors.schemas',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkConnectorsTable = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkConnectorsTableData, ThrowOnError>): RequestResult<PostV1StudioSdkConnectorsTableResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkConnectorsTableResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/connectors.table',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkConnectorsTables = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkConnectorsTablesData, ThrowOnError>): RequestResult<PostV1StudioSdkConnectorsTablesResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkConnectorsTablesResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/connectors.tables',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkConnectorsTest = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkConnectorsTestData, ThrowOnError>): RequestResult<PostV1StudioSdkConnectorsTestResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkConnectorsTestResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/connectors.test',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkConnectorsTestSql = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkConnectorsTestSqlData, ThrowOnError>): RequestResult<PostV1StudioSdkConnectorsTestSqlResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkConnectorsTestSqlResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/connectors.test_sql',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkConnectorsUpdate = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkConnectorsUpdateData, ThrowOnError>): RequestResult<PostV1StudioSdkConnectorsUpdateResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkConnectorsUpdateResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/connectors.update',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * namespace
+ */
+export const postV1StudioSdkNamespacesCreate = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkNamespacesCreateData, ThrowOnError>): RequestResult<PostV1StudioSdkNamespacesCreateResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkNamespacesCreateResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/namespaces.create',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkNamespacesDelete = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkNamespacesDeleteData, ThrowOnError>): RequestResult<PostV1StudioSdkNamespacesDeleteResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkNamespacesDeleteResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/namespaces.delete',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
 /**
  * namespace
  */
@@ -80,6 +358,26 @@ export const postV1StudioSdkNamespacesList = <ThrowOnError extends boolean = fal
     headers: {
         'Content-Type': 'application/json',
         ...options?.headers
+    }
+});
+
+export const postV1StudioSdkNamespacesUpdate = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkNamespacesUpdateData, ThrowOnError>): RequestResult<PostV1StudioSdkNamespacesUpdateResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkNamespacesUpdateResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/namespaces.update',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkPreviewExecute = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkPreviewExecuteData, ThrowOnError>): RequestResult<PostV1StudioSdkPreviewExecuteResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkPreviewExecuteResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/preview.execute',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
     }
 });
 
@@ -109,12 +407,135 @@ export const postV1StudioSdkPublicationsGet = <ThrowOnError extends boolean = fa
     }
 });
 
-/**
- * report
- */
-export const postV1StudioSdkReportsGet = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkReportsGetData, ThrowOnError>): RequestResult<PostV1StudioSdkReportsGetResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkReportsGetResponses, unknown, ThrowOnError>({
+export const postV1StudioSdkPublicationsPublish = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkPublicationsPublishData, ThrowOnError>): RequestResult<PostV1StudioSdkPublicationsPublishResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkPublicationsPublishResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/v1/studio/sdk/reports.get',
+    url: '/v1/studio/sdk/publications.publish',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkPublicationsRollback = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkPublicationsRollbackData, ThrowOnError>): RequestResult<PostV1StudioSdkPublicationsRollbackResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkPublicationsRollbackResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/publications.rollback',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkPublicationsUnpublish = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkPublicationsUnpublishData, ThrowOnError>): RequestResult<PostV1StudioSdkPublicationsUnpublishResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkPublicationsUnpublishResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/publications.unpublish',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkResourcesDeleteFile = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkResourcesDeleteFileData, ThrowOnError>): RequestResult<PostV1StudioSdkResourcesDeleteFileResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkResourcesDeleteFileResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/resources.delete_file',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkResourcesDeleteFolder = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkResourcesDeleteFolderData, ThrowOnError>): RequestResult<PostV1StudioSdkResourcesDeleteFolderResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkResourcesDeleteFolderResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/resources.delete_folder',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkResourcesDeleteSkill = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkResourcesDeleteSkillData, ThrowOnError>): RequestResult<PostV1StudioSdkResourcesDeleteSkillResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkResourcesDeleteSkillResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/resources.delete_skill',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkResourcesGet = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkResourcesGetData, ThrowOnError>): RequestResult<PostV1StudioSdkResourcesGetResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkResourcesGetResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/resources.get',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkResourcesUpsertFile = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkResourcesUpsertFileData, ThrowOnError>): RequestResult<PostV1StudioSdkResourcesUpsertFileResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkResourcesUpsertFileResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/resources.upsert_file',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkResourcesUpsertFolder = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkResourcesUpsertFolderData, ThrowOnError>): RequestResult<PostV1StudioSdkResourcesUpsertFolderResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkResourcesUpsertFolderResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/resources.upsert_folder',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkResourcesUpsertSkill = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkResourcesUpsertSkillData, ThrowOnError>): RequestResult<PostV1StudioSdkResourcesUpsertSkillResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkResourcesUpsertSkillResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/resources.upsert_skill',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkRuntimeStatus = <ThrowOnError extends boolean = false>(options?: Options<PostV1StudioSdkRuntimeStatusData, ThrowOnError>): RequestResult<PostV1StudioSdkRuntimeStatusResponses, unknown, ThrowOnError> => (options?.client ?? client).post<PostV1StudioSdkRuntimeStatusResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/runtime.status',
+    ...options
+});
+
+export const postV1StudioSdkVersionsApply = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkVersionsApplyData, ThrowOnError>): RequestResult<PostV1StudioSdkVersionsApplyResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkVersionsApplyResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/versions.apply',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkVersionsBuilder = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkVersionsBuilderData, ThrowOnError>): RequestResult<PostV1StudioSdkVersionsBuilderResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkVersionsBuilderResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/versions.builder',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkVersionsCreate = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkVersionsCreateData, ThrowOnError>): RequestResult<PostV1StudioSdkVersionsCreateResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkVersionsCreateResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/versions.create',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -123,14 +544,166 @@ export const postV1StudioSdkReportsGet = <ThrowOnError extends boolean = false>(
 });
 
 /**
- * report
+ * version
  */
-export const postV1StudioSdkReportsList = <ThrowOnError extends boolean = false>(options?: Options<PostV1StudioSdkReportsListData, ThrowOnError>): RequestResult<PostV1StudioSdkReportsListResponses, unknown, ThrowOnError> => (options?.client ?? client).post<PostV1StudioSdkReportsListResponses, unknown, ThrowOnError>({
+export const postV1StudioSdkVersionsDescriptor = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkVersionsDescriptorData, ThrowOnError>): RequestResult<PostV1StudioSdkVersionsDescriptorResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkVersionsDescriptorResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/v1/studio/sdk/reports.list',
+    url: '/v1/studio/sdk/versions.descriptor',
     ...options,
     headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkVersionsDownload = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkVersionsDownloadData, ThrowOnError>): RequestResult<PostV1StudioSdkVersionsDownloadResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkVersionsDownloadResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/versions.download',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * version
+ */
+export const postV1StudioSdkVersionsExportDql = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkVersionsExportDqlData, ThrowOnError>): RequestResult<PostV1StudioSdkVersionsExportDqlResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkVersionsExportDqlResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/versions.export_dql',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * version
+ */
+export const postV1StudioSdkVersionsGet = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkVersionsGetData, ThrowOnError>): RequestResult<PostV1StudioSdkVersionsGetResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkVersionsGetResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/versions.get',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkVersionsInspect = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkVersionsInspectData, ThrowOnError>): RequestResult<PostV1StudioSdkVersionsInspectResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkVersionsInspectResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/versions.inspect',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * version
+ */
+export const postV1StudioSdkVersionsList = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkVersionsListData, ThrowOnError>): RequestResult<PostV1StudioSdkVersionsListResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkVersionsListResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/versions.list',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkVersionsLoadArchive = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkVersionsLoadArchiveData, ThrowOnError>): RequestResult<PostV1StudioSdkVersionsLoadArchiveResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkVersionsLoadArchiveResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/versions.load_archive',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkVersionsLoadDql = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkVersionsLoadDqlData, ThrowOnError>): RequestResult<PostV1StudioSdkVersionsLoadDqlResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkVersionsLoadDqlResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/versions.load_dql',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkVersionsTestCompose = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkVersionsTestComposeData, ThrowOnError>): RequestResult<PostV1StudioSdkVersionsTestComposeResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkVersionsTestComposeResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/versions.test_compose',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkVersionsTestRelation = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkVersionsTestRelationData, ThrowOnError>): RequestResult<PostV1StudioSdkVersionsTestRelationResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkVersionsTestRelationResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/versions.test_relation',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkVersionsTestView = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkVersionsTestViewData, ThrowOnError>): RequestResult<PostV1StudioSdkVersionsTestViewResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkVersionsTestViewResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/versions.test_view',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkVersionsValidate = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkVersionsValidateData, ThrowOnError>): RequestResult<PostV1StudioSdkVersionsValidateResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkVersionsValidateResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/versions.validate',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkVersionsWarmup = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkVersionsWarmupData, ThrowOnError>): RequestResult<PostV1StudioSdkVersionsWarmupResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkVersionsWarmupResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/versions.warmup',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * warmup_run
+ */
+export const postV1StudioSdkVersionsWarmupGet = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkVersionsWarmupGetData, ThrowOnError>): RequestResult<PostV1StudioSdkVersionsWarmupGetResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkVersionsWarmupGetResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/versions.warmup_get',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const postV1StudioSdkVersionsWarmupList = <ThrowOnError extends boolean = false>(options: Options<PostV1StudioSdkVersionsWarmupListData, ThrowOnError>): RequestResult<PostV1StudioSdkVersionsWarmupListResponses, unknown, ThrowOnError> => (options.client ?? client).post<PostV1StudioSdkVersionsWarmupListResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/studio/sdk/versions.warmup_list',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
     }
 });

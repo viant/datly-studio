@@ -27,7 +27,7 @@ func TestLoadBuildsVersionScopedStoreAndSkillFolders(t *testing.T) {
 	if _, err = db.Exec(`INSERT INTO connectors(name,driver,owner_id,status,options_json,etag,created_at,updated_at) VALUES('main','sqlite','owner','active','{}',1,?,?)`, now, now); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = db.Exec(`INSERT INTO reports(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('report','general','report','Report','owner','draft','main','dynamic/owner/report','reader',1,?,?)`, now, now); err != nil {
+	if _, err = db.Exec(`INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('report','general','report','Report','owner','draft','main','dynamic/owner/report','reader',1,?,?)`, now, now); err != nil {
 		t.Fatal(err)
 	}
 	if _, err = db.Exec(`INSERT INTO report_versions(report_id,version_no,state,authoring_mode,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('report',1,'draft','dql','{}','studio.v1','hash','{}','pending','v1','studio',1,'owner',?)`, now); err != nil {
@@ -91,7 +91,7 @@ func (f *snapshotFixture) version(reportID string, versionNo int) {
 	f.t.Helper()
 	now := time.Now().UTC()
 	if versionNo == 1 {
-		f.exec(`INSERT INTO reports(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES(?,'general',?,?,'owner','draft','main',?,'reader',1,?,?)`, reportID, reportID, reportID, "dynamic/owner/"+reportID, now, now)
+		f.exec(`INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES(?,'general',?,?,'owner','draft','main',?,'reader',1,?,?)`, reportID, reportID, reportID, "dynamic/owner/"+reportID, now, now)
 	}
 	f.exec(`INSERT INTO report_versions(report_id,version_no,state,authoring_mode,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES(?,?,'draft','dql','{}','studio.v1',?,'{}','pending','v1','studio',1,'owner',?)`, reportID, versionNo, fmt.Sprintf("hash-%d", versionNo), now)
 }

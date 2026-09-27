@@ -88,10 +88,10 @@ func TestGlobalPredicateMatchesLiveOwnerOrPublishGrant(t *testing.T) {
 	}
 	defer db.Close()
 	for _, statement := range []string{
-		`CREATE TABLE reports (id TEXT PRIMARY KEY, owner_id TEXT NOT NULL, deleted_at TEXT)`,
+		`CREATE TABLE components (id TEXT PRIMARY KEY, owner_id TEXT NOT NULL, deleted_at TEXT)`,
 		`CREATE TABLE report_acl (report_id TEXT, subject_type TEXT, subject_id TEXT, can_publish BOOLEAN)`,
 		`CREATE TABLE authorization_predicates (name TEXT)`,
-		`INSERT INTO reports(id,owner_id) VALUES ('r1','owner')`,
+		`INSERT INTO components(id,owner_id) VALUES ('r1','owner')`,
 		`INSERT INTO report_acl VALUES ('r1','user','delegate',FALSE)`,
 		`INSERT INTO authorization_predicates VALUES ('linked.handler')`,
 	} {
@@ -122,7 +122,7 @@ func TestGlobalPredicateMatchesLiveOwnerOrPublishGrant(t *testing.T) {
 	if visible("delegate") != 1 {
 		t.Fatal("live publish grant was not honored")
 	}
-	if _, err = db.ExecContext(ctx, `UPDATE reports SET deleted_at='2026-09-25' WHERE id='r1'`); err != nil {
+	if _, err = db.ExecContext(ctx, `UPDATE components SET deleted_at='2026-09-25' WHERE id='r1'`); err != nil {
 		t.Fatal(err)
 	}
 	if visible("owner") != 0 || visible("delegate") != 0 {

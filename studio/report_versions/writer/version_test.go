@@ -167,7 +167,7 @@ const reportVersionWriterDataset = `{"tables":[
   {"name":"namespaces","rows":[
     {"owner_id":"owner-a","name":"general","title":"General","status":"active","created_at":"2026-09-17 09:00:00","updated_at":"2026-09-17 09:00:00"}
   ]},
-  {"name":"reports","rows":[
+  {"name":"components","rows":[
     {"id":"r-alpha","slug":"alpha","title":"Alpha","owner_id":"owner-a","status":"active","default_connector_name":"main","component_scope":"reports/alpha","component_name":"alpha","created_at":"2026-09-17 09:00:00","updated_at":"2026-09-17 09:00:00"}
   ]},
   {"name":"report_versions","rows":[

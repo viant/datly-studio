@@ -4,11 +4,806 @@ export type ClientOptions = {
     baseUrl: `${string}://${string}` | (string & {});
 };
 
+export type Input03431463Bb75C805271Cda3D99727948B169A41134E802271C7E8A9391C0Be1b = {
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
+};
+
+export type Input05E809E9F99E43822A03E6818A8De1E9Fd48Cb2F10Be053F77C9Af8D2092E9D9 = {
+    archive?: string | null;
+    entryDql?: string;
+    format?: string;
+    notes?: string;
+};
+
+export type Input1777F5E244F91F0645Bf7Ef39Ca23Fb64C98C7F12533A1F1B43C45261F87381b = {
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
+};
+
+export type Input1962B8F8815D6B22B84F6C89D5Bf29530739F18F1Bed0742Ebc1F67A50636542 = {
+    expectedSourceRevision?: number;
+    kind?: string;
+    payload?: unknown;
+};
+
+export type Input25F0A19704063Df5593Ce82B9757Fd47D5E39B2De5B199Effc95C33A74910Afc = {
+    componentName?: string | null;
+    componentScope?: string | null;
+    currentDraftVersion?: number | null;
+    defaultConnectorName?: string | null;
+    description?: string | null;
+    etag?: number;
+    namespace?: string | null;
+    slug?: string | null;
+    status?: string | null;
+    title?: string | null;
+};
+
+export type Input2D7353179486A6080C97A342425Fc1796B1A0E525Ea43989E78B586465C68Fb6 = {
+    authoringMode?: string;
+    compileStatus?: string;
+    createdBy?: string;
+    fields?: Array<string> | null;
+    limit?: number;
+    offset?: number;
+    orderBy?: string;
+    state?: string;
+};
+
+export type Input2E06143707781A8502Ab8Fc97824Dec99C9E9B2998F2436174C1D8B57C8D9Cdf = {
+    description?: string | null;
+    driver?: string;
+    dsnTemplate?: string | null;
+    name?: string;
+    options?: unknown;
+    ownerId?: string;
+    secretRef?: string | null;
+};
+
+export type Input4B2C38475D83Ff82029Ec4520D07B5Ec88C1409199C252Fc696E28282C52561f = {
+    expectedActiveGeneration?: number;
+    reason?: string;
+    requestedBy?: string;
+};
+
+export type Input4Bdb53063Eafe1E59Ff10E87197E26F6C38D25D8F87Cdf5C0E54E4660Add2556 = {
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
+};
+
+export type Input4C3D58D8E922B5Abbd65732F09A81D45874F0F7555537Fd9607035Bfecb9F26c = {
+    cubes?: Array<unknown> | null;
+    sql?: string;
+};
+
+export type Input56Eaf778Ce1253Fe858Bf578C97Bd7824413C87195Caefb7315Fd578Bae05388 = {
+    policies?: {
+        [key: string]: Input9C49E3D3A20B255Fc0A108Ada8Facd675Dffbe17224Ffa927Ca00313D94B483b;
+    } | null;
+    resource?: Input4Bdb53063Eafe1E59Ff10E87197E26F6C38D25D8F87Cdf5C0E54E4660Add2556;
+    revision?: number;
+};
+
+export type Input57127985D5662Edb0B3D19B39A5C7C1E6Df20A3253Afa119615D9Abc0D06A16b = {
+    input?: unknown;
+    limit?: number;
+};
+
+export type Input5Bcc88D6E28E27666Dfa5B56F82424Fa705C9Bf62E9E02961Ffb251630580697 = {
+    expectedSourceRevision?: number;
+    folderId?: string;
+    namespace?: string;
+    ordinal?: number;
+    reportId?: string;
+    rootPath?: string;
+    uriPrefix?: string;
+    versionNo?: number;
+};
+
+export type Input5Bd26933Fc218220245037434F90Fd734C54041Fd066145B22Ad10Eef2E98Bd9 = {
+    id?: string;
+    type?: string;
+};
+
+export type Input6139A906F15F351C7Eae5D9897Ae3973B6172D1373D49394D6C8C69615914840 = {
+    description?: string | null;
+    etag?: number;
+    status?: string | null;
+    title?: string | null;
+};
+
+export type Input740E3A06Cf4A803929Ce45831699561A96Ab44Bfadc834E17C3B928B2B7Bd4C8 = {
+    entity?: Input5Bd26933Fc218220245037434F90Fd734C54041Fd066145B22Ad10Eef2E98Bd9 | null;
+    kind?: string;
+    rules?: Array<Input740E3A06Cf4A803929Ce45831699561A96Ab44Bfadc834E17C3B928B2B7Bd4C8> | null;
+    value?: string;
+};
+
+export type Input78C96702Ed752E425A13D515Ae18Bac86D71D27030700074199617129869Fe30 = {
+    input?: unknown;
+    limit?: number;
+};
+
+export type Input808907Cf45A0Ab5F46A0Dc123Ed3A6A23958483A2Bfe6Af8Cdcfabaf2B54Af30 = {
+    dql?: string;
+    notes?: string;
+};
+
+export type Input89A37Caef4565Ff5D5Aa4568065F46B182888B77F96C21Fb1Eed777C45878F9e = {
+    expectedSourceRevision?: number;
+    folderId?: string;
+    reportId?: string;
+    resourceId?: string;
+    skillId?: string;
+    versionNo?: number;
+};
+
+export type Input8A771218C929De9Ad6Df8D7F26A11916C0D2C478600A618560Aef8Cdaa883Cf6 = {
+    schema?: string;
+    table?: string;
+};
+
+export type Input8B2294Ec4854C9Dd94236A9123A7D8Fe7Dbf92Cab403Fb011D6C8Bf7D53C5054 = {
+    expectedSourceRevision?: number;
+    operation?: unknown;
+};
+
+export type Input96A025B75D7Ec5Ca504Acf90Ff2915C5535F1449Cf9023D5D424Dce58B581054 = {
+    expectedSourceRevision?: number;
+    folderId?: string;
+    ordinal?: number;
+    reportId?: string;
+    skillId?: string;
+    skillRoot?: string;
+    versionNo?: number;
+};
+
+export type Input9Aad80E5262Dd4Bec1816Caf72B4Dd6364E8940A81D02Db58A19387Fcec5E859 = {
+    description?: string | null;
+    driver?: string | null;
+    dsnTemplate?: string | null;
+    etag?: number;
+    options?: unknown;
+    secretRef?: string | null;
+};
+
+export type Input9C49E3D3A20B255Fc0A108Ada8Facd675Dffbe17224Ffa927Ca00313D94B483b = {
+    entityType?: string;
+    mode?: string;
+    rule?: Input740E3A06Cf4A803929Ce45831699561A96Ab44Bfadc834E17C3B928B2B7Bd4C8 | null;
+};
+
+export type InputA0D3076A206576E1Fb379Faacd83A9E5289796C14E710E1Fe21529Cfb0C35C21 = {
+    authoredDql?: string;
+    authoredSql?: string;
+    authoringMode?: string;
+    componentSpec?: unknown;
+    createdBy?: string;
+    notes?: string;
+};
+
+export type InputAdff4675F499A769Cb093E90Fbca27E902Af83Cc23C5E13071057671Fe8D89F0 = {
+    content?: string;
+    contentSha256?: string;
+    contentSize?: number;
+    expectedSourceRevision?: number;
+    isBinary?: boolean;
+    mediaType?: string;
+    namespace?: string;
+    reportId?: string;
+    resourceId?: string;
+    resourcePath?: string;
+    versionNo?: number;
+};
+
+export type InputB11523Bf8A7Cc12531330E851F7Fb2Dd5C4F01768E8Eaf6D9A50D7D84Ad1250b = {
+    expectedSourceRevision?: number;
+    reason?: string;
+    requestedBy?: string;
+};
+
+export type InputB94652047B45C410057De4A3D589B99411E9B1Ce7012Ae301388C27534A7D71e = {
+    limit?: number;
+    offset?: number;
+};
+
+export type InputB990D293Ef5D3E7E85A2Acebd0Bbccb12B9Ec19Ea303B41252De0B2F2Bbb9E05 = {
+    description?: string | null;
+    name?: string;
+    ownerId?: string;
+    title?: string;
+};
+
+export type InputC4Cc575A74227096D9Bc84A357106F4A2Fb90B472Fc6273F1682Ae88016Fea81 = {
+    alias?: string | null;
+    columns?: Array<string> | null;
+    description?: string | null;
+    etag?: number;
+    packagePath?: string | null;
+    status?: string | null;
+    title?: string | null;
+    typeName?: string | null;
+};
+
 export type InputC8F891Bb6Cfd81599Dce6F4F5D400A21Caa864A78F2Dabaa10E3173F02Ca8Db3 = {
     limit?: number;
     offset?: number;
     operation?: string;
     status?: string;
+};
+
+export type InputCe48D096271799F6074437499F254F457869D225Dfbc7Ea54C0552Fa34341Dd8 = {
+    limit?: number;
+    offset?: number;
+    query?: string;
+    schema?: string;
+};
+
+export type InputCe5005B864956Cbc2469Fc8D71A73Cc80F19Dd86C8340815B1Edae79273B8769 = {
+    expectedSourceRevision?: number;
+    folderId?: string;
+    reportId?: string;
+    resourceId?: string;
+    skillId?: string;
+    versionNo?: number;
+};
+
+export type InputD1B436Abf4Fd54A2Fa997Cbd492E576D712E8C35C087Bfcf2D72D6D2Dffb0F20 = {
+    expectedSourceRevision?: number;
+    folderId?: string;
+    reportId?: string;
+    resourceId?: string;
+    skillId?: string;
+    versionNo?: number;
+};
+
+export type InputD2Fa4C9Bb7Cfdde0500D01F13469E3E914F15Fb6Eb841Dd0Cf0C53094Ae7E08a = {
+    query?: string;
+};
+
+export type InputE14Cc58C4Ee74D7747F498Bcbd7C71A8Cb3028Eda5782588B9C5299Ed0Cf9C37 = {
+    limit?: number;
+    sql?: string;
+};
+
+export type InputEa8Cf0B60E82E17C8F2E6Bc2Ad35Fe0985Cc717838Bb65D7F9B56C81Bd0718Aa = {
+    input?: unknown;
+    limit?: number;
+};
+
+export type InputF063Ff05B2157Fb8F6176Bbd7A336F91805D5C30366F9C24C986423E7Cda8Aa9 = {
+    expectedSourceRevision?: number;
+    reason?: string;
+    requestedBy?: string;
+};
+
+export type Output06244387C0C9169E9E2Dd8C303D1B08D7C46Bddec31314Baa7Fdae523Ab96371 = {
+    completedAt?: string | null;
+    completedCases: number;
+    createdAt?: string | null;
+    createdBy?: string | null;
+    diagnostics?: Array<Output1D9Bf0079B94D75E2B9B7B33Bb81B13886A46428Db871596012139C64Cc1A4D6> | null;
+    duration?: number;
+    entries: number;
+    maxCases?: number | null;
+    planKey: string;
+    plannedCases: number;
+    reportId: string;
+    requestedAt: string;
+    requestedBy: string;
+    rowLimit?: number | null;
+    runId: string;
+    sourceRevision: number;
+    specHash: string;
+    startedAt?: string | null;
+    status: string;
+    target: OutputEf553E0E338A00Cf70D43289Eb53E588Abb65348804F4Defbd8Fd2Ea4E5691Ee;
+    updatedAt?: string | null;
+    updatedBy?: string | null;
+    versionNo: number;
+};
+
+export type Output0637Ace9F2Ee12144Bf4164059B62511D412A3Cb6977Bd14D7B845552Dc5F886 = {
+    entityType?: string;
+    mode: string;
+    rule?: Output88774A96291F40454F5B6Fd8D6A63Fd028F813A387640F7754047De0Aa56F56f | null;
+};
+
+export type Output074Baefd6599537117E4Be3E30019D7Fdfbb35E35777792F4679Dc2222339640 = {
+    canManage: boolean;
+    choices: OutputAd0A4D4D865750761Deb4De5E00F7585Ee52Cb749D5292E61759C6762Cd70937;
+    source: string;
+};
+
+export type Output0C10F58F77A4F9Aace3043619F64Ad2D1Ae24748776E0959650E6Ae2F89669Aa = {
+    authenticationMode?: string;
+    checkedAt: string;
+    revision?: number;
+    status: string;
+};
+
+export type Output1777F5E244F91F0645Bf7Ef39Ca23Fb64C98C7F12533A1F1B43C45261F87381b = {
+    id: string;
+    kind: string;
+    tenant: string;
+    version: string;
+};
+
+export type Output1D9Bf0079B94D75E2B9B7B33Bb81B13886A46428Db871596012139C64Cc1A4D6 = {
+    code: string;
+    column?: number;
+    hint?: string;
+    line?: number;
+    message: string;
+    severity: string;
+};
+
+export type Output30F682Cca64D4E867058090C1B6D72Dc56Ffa4422725723Cef17823A1C40A8Ab = {
+    entity?: Output886F59Ead1925273895E4560B6D0Bef4F24Dfc0D21F26C0F8E470Ef2E8953303 | null;
+    id?: string;
+    label: string;
+};
+
+export type Output41D4Ad36C3B28B318Db3E6C7E43807549A7B58E60E9D950B59F68A95D1C730F7 = {
+    id: string;
+    type: string;
+};
+
+export type Output449A47A8E9Ea6Ae974F687Ac5B55486E7E726Cc8043Ed75E896C8B78C8B99391 = {
+    cacheName?: string;
+    cacheProvider?: string;
+    connectorName?: string;
+    indexColumn?: string;
+    indexParameter?: string;
+    view: string;
+};
+
+export type Output4Cf988A4800A68Fa7Db9D130C60Eed0B35369D4C3Fc9465E70D61B648Bd34B6d = {
+    activatedAt?: string | null;
+    componentName?: string;
+    connectorName: string;
+    mcpExposures?: Array<OutputA6Ddd7942C83Fb7282623Cfc58Da6Bae57F79A4F0284Ea5B91Cf55Fb794Dc186> | null;
+    mcpResources?: Array<Output8035Fb9F56E2Dfdb283039Cb87B71Ab1D5F6Fa189D850D698929Cee1B6B6464d> | null;
+    namespace: string;
+    ownerPackage: string;
+    reportId: string;
+    runtimeRevision?: string;
+    skills?: Array<OutputF2954Ccbc2Dd12Cce598727F4C49Ad7D3D88F3404672F047B6Fb03D041C024Bf> | null;
+    status: string;
+    title: string;
+    versionNo: number;
+};
+
+export type Output4Fd42D5Ac7E58Fb29E7Ad717B49Ad43D1Aa3D0A32C5E034148C82Bc6Baebd5A8 = {
+    code: string;
+    column?: number;
+    hint?: string;
+    line?: number;
+    message: string;
+    severity: string;
+};
+
+export type Output507E807900C5842Eab8B5F391Db762541Ee322624438E9973D9051249F091960 = {
+    entity?: Output69A52344C8Db987F9A8Bafc71528Ff388E9941249Ebf6D6387B1E31293B5A4C5 | null;
+    id?: string;
+    label: string;
+};
+
+export type Output524Acdde45B651C8Bd48C66B53C101Ffac146671A1Ddce5C786A6Ecbd96Dbe58 = {
+    policies: {
+        [key: string]: Output0637Ace9F2Ee12144Bf4164059B62511D412A3Cb6977Bd14D7B845552Dc5F886;
+    } | null;
+    resource: OutputEb4292407D8E3Ba03Eb696194C02197306E42188Fbc3037Dfceabf2605138D24;
+    revision: number;
+};
+
+export type Output586257Ec0A228D28Fb8C1D7B9B6Ceb924795C406B09D9A86111F39A56368B032 = {
+    completedAt?: string | null;
+    completedCases: number;
+    createdAt?: string | null;
+    createdBy?: string | null;
+    diagnostics?: Array<Output9E0F449C95Fcfb4Ee0592Ebadf3E17Adccbdc32Fa89Bf50Ab9Ae8511C2009041> | null;
+    duration?: number;
+    entries: number;
+    maxCases?: number | null;
+    planKey: string;
+    plannedCases: number;
+    reportId: string;
+    requestedAt: string;
+    requestedBy: string;
+    rowLimit?: number | null;
+    runId: string;
+    sourceRevision: number;
+    specHash: string;
+    startedAt?: string | null;
+    status: string;
+    target: Output449A47A8E9Ea6Ae974F687Ac5B55486E7E726Cc8043Ed75E896C8B78C8B99391;
+    updatedAt?: string | null;
+    updatedBy?: string | null;
+    versionNo: number;
+};
+
+export type Output69A52344C8Db987F9A8Bafc71528Ff388E9941249Ebf6D6387B1E31293B5A4C5 = {
+    id: string;
+    type: string;
+};
+
+export type Output73A8618E3Debe1667F7Aafcc74Ab58Dec2Fbd11494Bb2E579Aae6D2B58F205F3 = {
+    createdAt: string;
+    description?: string;
+    driver: string;
+    dsnConfigured: boolean;
+    etag: number;
+    lastTestErrorCode?: string;
+    lastTestStatus?: string;
+    lastTestedAt?: string | null;
+    name: string;
+    options?: unknown;
+    ownerId: string;
+    secretConfigured: boolean;
+    status: string;
+    updatedAt: string;
+};
+
+export type Output7F617Ddc14B6Df274D226551B825C90A4F977A14591Bdfd1Ddc94B5F6066Bce5 = {
+    activeGeneration?: number | null;
+    activeVersionNo: number;
+    desiredGeneration: number;
+    desiredVersionNo?: number | null;
+    publishedAt?: string | null;
+    reportId: string;
+    runtimeRevision?: string;
+    specHash?: string;
+    status: string;
+};
+
+export type Output8035Fb9F56E2Dfdb283039Cb87B71Ab1D5F6Fa189D850D698929Cee1B6B6464d = {
+    namespace: string;
+    rootPath: string;
+    uriPrefix: string;
+};
+
+export type Output886F59Ead1925273895E4560B6D0Bef4F24Dfc0D21F26C0F8E470Ef2E8953303 = {
+    id: string;
+    type: string;
+};
+
+export type Output88774A96291F40454F5B6Fd8D6A63Fd028F813A387640F7754047De0Aa56F56f = {
+    entity?: OutputD929Ed220568496034Afb858Ec6Cc1A2C769D1F65Ec9Ab2A41F7802Fcd8972Ed | null;
+    kind: string;
+    rules?: Array<Output88774A96291F40454F5B6Fd8D6A63Fd028F813A387640F7754047De0Aa56F56f> | null;
+    value?: string;
+};
+
+export type Output9E0F449C95Fcfb4Ee0592Ebadf3E17Adccbdc32Fa89Bf50Ab9Ae8511C2009041 = {
+    code: string;
+    column?: number;
+    hint?: string;
+    line?: number;
+    message: string;
+    severity: string;
+};
+
+export type OutputA2A90743713296048071979D14B3Abdfc10B4Ee77E446Ab9Dbd7F2C07Bbe7266 = {
+    activeGeneration?: number | null;
+    activeVersionNo: number;
+    desiredGeneration: number;
+    desiredVersionNo?: number | null;
+    publishedAt?: string | null;
+    reportId: string;
+    runtimeRevision?: string;
+    specHash?: string;
+    status: string;
+};
+
+export type OutputA53D95D278Cd3E404C5156B458Ea7D7469F50B437F5D0C161D0Afa63D042Db5d = {
+    entity?: OutputF9Bc94E663Aab24458425B5239238901E299Cb511Fb0Bc9E134450B5523464E0 | null;
+    id?: string;
+    label: string;
+};
+
+export type OutputA6Ddd7942C83Fb7282623Cfc58Da6Bae57F79A4F0284Ea5B91Cf55Fb794Dc186 = {
+    component?: string;
+    description?: string;
+    enabled: boolean;
+    kind: string;
+    method: string;
+    mimeType?: string;
+    name: string;
+    path: string;
+};
+
+export type OutputA717Afc38Cbc4D350Bb71Fb00Cf76Bef68Daf27B4650120E47C4D8379356F11f = {
+    activeGeneration?: number | null;
+    activeVersionNo: number;
+    desiredGeneration: number;
+    desiredVersionNo?: number | null;
+    publishedAt?: string | null;
+    reportId: string;
+    runtimeRevision?: string;
+    specHash?: string;
+    status: string;
+};
+
+export type OutputAd0A4D4D865750761Deb4De5E00F7585Ee52Cb749D5292E61759C6762Cd70937 = {
+    entity: Array<Output507E807900C5842Eab8B5F391Db762541Ee322624438E9973D9051249F091960> | null;
+    entityTypes: Array<string> | null;
+    exposure: Array<Output30F682Cca64D4E867058090C1B6D72Dc56Ffa4422725723Cef17823A1C40A8Ab> | null;
+    role: Array<OutputD6856Df5D1A3E32B2C78Cdfb0B08Ded7B01Caf131A4Adcaf9A75E1F4908D82Fa> | null;
+    subject: Array<OutputA53D95D278Cd3E404C5156B458Ea7D7469F50B437F5D0C161D0Afa63D042Db5d> | null;
+};
+
+export type OutputAd75631E8D2823498E11Cfcb0D44Fbcce2C8Be956B896Ed2Be7B2D56Acb36688 = {
+    activatedAt?: string | null;
+    activeGeneration: number;
+    diagnostics?: Array<Output4Fd42D5Ac7E58Fb29E7Ad717B49Ad43D1Aa3D0A32C5E034148C82Bc6Baebd5A8> | null;
+    host?: Output0C10F58F77A4F9Aace3043619F64Ad2D1Ae24748776E0959650E6Ae2F89669Aa | null;
+    readers?: Array<Output4Cf988A4800A68Fa7Db9D130C60Eed0B35369D4C3Fc9465E70D61B648Bd34B6d> | null;
+    reportCount: number;
+    status: string;
+};
+
+export type OutputCb581E4D118Aca03A4618B3F8Abf878A4A1061E382236709523354E8D6Cd9E15 = {
+    entity?: OutputD460423D1502297Ad18Efe6D7F39Cdd389A385Bb2Bd063F8A6587E3880D67F37 | null;
+    kind: string;
+    rules?: Array<OutputCb581E4D118Aca03A4618B3F8Abf878A4A1061E382236709523354E8D6Cd9E15> | null;
+    value?: string;
+};
+
+export type OutputCefb1C30F490C4739276970D2Ffcf3Cd4D81C14B91394668A0812427Fd40A3Ba = {
+    entityType?: string;
+    mode: string;
+    rule?: OutputCb581E4D118Aca03A4618B3F8Abf878A4A1061E382236709523354E8D6Cd9E15 | null;
+};
+
+export type OutputD460423D1502297Ad18Efe6D7F39Cdd389A385Bb2Bd063F8A6587E3880D67F37 = {
+    id: string;
+    type: string;
+};
+
+export type OutputD558223F5D3D6Bca0E300C59F8E624Af838223Bc61F0Cb8C88F09C757834Ddaa = {
+    createdAt: string;
+    description?: string;
+    etag: number;
+    name: string;
+    ownerId: string;
+    status: string;
+    title: string;
+    updatedAt: string;
+};
+
+export type OutputD6856Df5D1A3E32B2C78Cdfb0B08Ded7B01Caf131A4Adcaf9A75E1F4908D82Fa = {
+    entity?: Output41D4Ad36C3B28B318Db3E6C7E43807549A7B58E60E9D950B59F68A95D1C730F7 | null;
+    id?: string;
+    label: string;
+};
+
+export type OutputD929Ed220568496034Afb858Ec6Cc1A2C769D1F65Ec9Ab2A41F7802Fcd8972Ed = {
+    id: string;
+    type: string;
+};
+
+export type OutputD94Fe2C0F68Aadd9D8Fcacadf97221Cae176Cdc5A262134071Dca8Fa5D6E14Ef = {
+    policies: {
+        [key: string]: OutputCefb1C30F490C4739276970D2Ffcf3Cd4D81C14B91394668A0812427Fd40A3Ba;
+    } | null;
+    resource: Output1777F5E244F91F0645Bf7Ef39Ca23Fb64C98C7F12533A1F1B43C45261F87381b;
+    revision: number;
+};
+
+export type OutputEb4292407D8E3Ba03Eb696194C02197306E42188Fbc3037Dfceabf2605138D24 = {
+    id: string;
+    kind: string;
+    tenant: string;
+    version: string;
+};
+
+export type OutputEf553E0E338A00Cf70D43289Eb53E588Abb65348804F4Defbd8Fd2Ea4E5691Ee = {
+    cacheName?: string;
+    cacheProvider?: string;
+    connectorName?: string;
+    indexColumn?: string;
+    indexParameter?: string;
+    view: string;
+};
+
+export type OutputF2954Ccbc2Dd12Cce598727F4C49Ad7D3D88F3404672F047B6Fb03D041C024Bf = {
+    skillId: string;
+    skillRoot: string;
+    uriPrefix: string;
+};
+
+export type OutputF9Bc94E663Aab24458425B5239238901E299Cb511Fb0Bc9E134450B5523464E0 = {
+    id: string;
+    type: string;
+};
+
+export type Wire013Ce40651897A22F1D0C9D5A29A86362333458B72C57Acb30Fa03A2473F08C6 = {
+    canEdit: boolean;
+    canPublish: boolean;
+    canRun: boolean;
+    canUseDql: boolean;
+    canView: boolean;
+    etag: number;
+    reportId: string;
+    subjectId: string;
+    subjectType: string;
+};
+
+export type Wire01A7A742A5Dcd667Da4D143E43944F269Ae6E23B2952948E51D0B2791D2Ed360 = {
+    expectedSourceRevision?: number;
+    folderId: string;
+    namespace: string;
+    ordinal: number;
+    reportId: string;
+    rootPath: string;
+    uriPrefix: string;
+    versionNo: number;
+};
+
+export type Wire0279067683C20563Aa495E8737A819024Ba4Eb59Ced1E2723Cda5Eb5890Cb742 = {
+    authoredDql?: string;
+    authoredSql?: string;
+    authoringMode: string;
+    compileDiagnostics?: unknown;
+    compileStatus: string;
+    compilerVersion: string;
+    componentDescriptor?: unknown;
+    componentSpec?: unknown;
+    createdAt: string;
+    createdBy: string;
+    datlyVersion: string;
+    dqlExportLimits?: unknown;
+    generatedDql?: string;
+    notes?: string;
+    publishedAt?: string | null;
+    reportId: string;
+    resourceManifest?: unknown;
+    sourceRevision: number;
+    specFormatVersion: string;
+    specHash: string;
+    state: string;
+    typeManifest?: unknown;
+    validatedAt?: string | null;
+    versionNo: number;
+};
+
+export type Wire08043516A7D3B5028514Fc2Ffc6B6Fa38Ab832Ff1F255Ae1206871C7D200A5A6 = {
+    authoredDql?: string;
+    authoredSql?: string;
+    authoringMode: string;
+    compileDiagnostics?: unknown;
+    compileStatus: string;
+    compilerVersion: string;
+    componentDescriptor?: unknown;
+    componentSpec?: unknown;
+    createdAt: string;
+    createdBy: string;
+    datlyVersion: string;
+    dqlExportLimits?: unknown;
+    generatedDql?: string;
+    notes?: string;
+    publishedAt?: string | null;
+    reportId: string;
+    resourceManifest?: unknown;
+    sourceRevision: number;
+    specFormatVersion: string;
+    specHash: string;
+    state: string;
+    typeManifest?: unknown;
+    validatedAt?: string | null;
+    versionNo: number;
+};
+
+export type Wire0Efe2807Dd8489Fd6B68A80Fcb3A13Eacf82Bee604Ffd94663Ddcf539A88Cd14 = {
+    entries: Array<string> | null;
+    entryDql: string;
+    files: Array<string> | null;
+    version: Wire8B82F013750Bb50C4A08366119Aaab33D2Ee4C3F59Ab77B868Ec2617Ec5Ef5C8 | null;
+};
+
+export type Wire0F446F07Ec6516F9B6A7F9E3De1D58Abb30Bb3608144Fb80728627765378E04e = {
+    data?: unknown;
+    diagnostics?: Array<Wire385Cb42Fa02Eb6E798Cbc1F7De0Bcdf81Fdec7Bcc883Dc0D6D67A2E6F9974852> | null;
+    duration: number;
+    evidence: WireEcc4D9A82E8B4Cd1E3Ac77D7Fd7943319B31B3E82973C8Afbcf0002138Ddc950;
+    view: string;
+};
+
+export type Wire13Cb2B9Fac8E64E2Df86Cc6097Eb0Eb4E31B922506E64Ca2Fb8D0Bc76Ccdaeec = {
+    files: Array<Wire7880C8E6D5D0Da581C3D5Daf2417D9531Fbe99E425A7546Fc53A4981Cab03A9e | null> | null;
+    folders: Array<Wire474Ce95Df76D3333C947A6Bd85C78Ed4Cfb5130D19Fec59F6B436E1Accd11E9a | null> | null;
+    skills: Array<WireD58Affaab847657F56E4Dc0Eed2B3Bbad9E31Ea2A73778F577Cd287673F772B3 | null> | null;
+    version?: Wire54A6E7E8A3352A79D0D8Aa5227Adf7C3D1830Da9722934796424332F6659Bafe | null;
+};
+
+export type Wire15D90B839A0Fff7F61055596A65A67Fe8590915342E1278E39Ef8Abd4433Ce14 = {
+    data?: unknown;
+    duration: number;
+};
+
+export type Wire187F7F4691Bae62916263844A31B0E52F2Ac7573Ba63A1Dda0Cfffa8610B0947 = {
+    code: string;
+    column?: number;
+    hint?: string;
+    line?: number;
+    message: string;
+    severity: string;
+};
+
+export type Wire1A54346913F36C827B3Cbb210B4E4062C2B4B68E415F006659F4A97F386665Ac = {
+    authoredDql?: string | null;
+    authoredSql?: string | null;
+    authoringMode: string;
+    compileDiagnostics?: unknown;
+    compileStatus: string;
+    compilerVersion: string;
+    componentDescriptor?: unknown;
+    componentSpec?: unknown;
+    createdAt: string;
+    createdBy: string;
+    datlyVersion: string;
+    dqlExportLimits?: unknown;
+    generatedDql?: string | null;
+    notes?: string | null;
+    publishedAt?: string | null;
+    reportId: string;
+    resourceManifest?: unknown;
+    sourceRevision: number;
+    specFormatVersion: string;
+    specHash: string;
+    state: string;
+    typeManifest?: unknown;
+    validatedAt?: string | null;
+    versionNo: number;
+};
+
+export type Wire1Ad149A06Cfe9417562B1C9648E0B52832E72Cfbf4E1Ca313B15480E1Aee3E75 = {
+    content: string;
+    contentSha256: string;
+    contentSize: number;
+    expectedSourceRevision?: number;
+    isBinary: boolean;
+    mediaType?: string;
+    namespace: string;
+    reportId: string;
+    resourceId: string;
+    resourcePath: string;
+    versionNo: number;
+};
+
+export type Wire1E3Fdf8Fcb04453947F7D75766Cc316E3E09D18591Edbeef886727E071Fe5F28 = {
+    authoredDql?: string;
+    authoredSql?: string;
+    authoringMode: string;
+    compileDiagnostics?: unknown;
+    compileStatus: string;
+    compilerVersion: string;
+    componentDescriptor?: unknown;
+    componentSpec?: unknown;
+    createdAt: string;
+    createdBy: string;
+    datlyVersion: string;
+    dqlExportLimits?: unknown;
+    generatedDql?: string;
+    notes?: string;
+    publishedAt?: string | null;
+    reportId: string;
+    resourceManifest?: unknown;
+    sourceRevision: number;
+    specFormatVersion: string;
+    specHash: string;
+    state: string;
+    typeManifest?: unknown;
+    validatedAt?: string | null;
+    versionNo: number;
 };
 
 export type Wire1F5F473Dc54Ed2F6C617275D578B2307A69146Cb2Ce69Ae058Bffe57F5C226B4 = {
@@ -37,6 +832,150 @@ export type Wire221846F313892219B53265500A015547384983C9F728252D253349F904Fb06A9
     versionNo?: number | null;
 };
 
+export type Wire239231A7Ea3Ed59E77B205B0783836Ec39Ca3De2A814Ba109F6Bda877Ba20691 = {
+    authoredDql?: string;
+    authoredSql?: string;
+    authoringMode: string;
+    compileDiagnostics?: unknown;
+    compileStatus: string;
+    compilerVersion: string;
+    componentDescriptor?: unknown;
+    componentSpec?: unknown;
+    createdAt: string;
+    createdBy: string;
+    datlyVersion: string;
+    dqlExportLimits?: unknown;
+    generatedDql?: string;
+    notes?: string;
+    publishedAt?: string | null;
+    reportId: string;
+    resourceManifest?: unknown;
+    sourceRevision: number;
+    specFormatVersion: string;
+    specHash: string;
+    state: string;
+    typeManifest?: unknown;
+    validatedAt?: string | null;
+    versionNo: number;
+};
+
+export type Wire284D529F33778B8025Eaf493C0C081Fa071Dfc15595367Cd050C6Aea84390073 = {
+    autoIncrement: boolean;
+    default?: string | null;
+    name: string;
+    nullable: boolean;
+    primaryKey: boolean;
+    referenceColumn?: string;
+    referenceSchema?: string;
+    referenceTable?: string;
+    type: string;
+    unique: boolean;
+};
+
+export type Wire294568D49A877156B6B68A28C348E5Fea7B701056B2913F0E7Fa40C588Df81C7 = {
+    connector?: string;
+    encodedBytes: number;
+    limit: number;
+    reportId?: string;
+    returnedRows: number;
+    sourceRevision?: number;
+    truncated: boolean;
+    versionNo?: number;
+};
+
+export type Wire29994796C346A67D8D87067E8F62A29284Fc2Af12311Fbab69Bdf45B428E37F7 = {
+    connector?: string;
+    encodedBytes: number;
+    limit: number;
+    reportId?: string;
+    returnedRows: number;
+    sourceRevision?: number;
+    truncated: boolean;
+    versionNo?: number;
+};
+
+export type Wire2Acc97D2Ee9Aa7Bc9E3441531515D0F2360496Ee2Ee879Ab35B383C390B7221e = {
+    catalog?: string;
+    name: string;
+};
+
+export type Wire2Be0684Fe50E4D50E1C7Ed7799C8493F7A6Fbfe50Bcd3Ecfc3B2241E765F60Da = {
+    attachedChildren: number;
+    cardinality: string;
+    childView: string;
+    data?: unknown;
+    diagnostics?: Array<Wire42Ea17Da2B60208Ef30858A88Ede92D622320Dba9D309726A67F3023Fb8Ab9E1> | null;
+    duration: number;
+    evidence: Wire294568D49A877156B6B68A28C348E5Fea7B701056B2913F0E7Fa40C588Df81C7;
+    keys?: Array<Wire6Bdc906E5944153Cacf17027Ff97Fe2E0524311A1C332C218E05C2Fb3A05012d> | null;
+    kind: string;
+    matchedParents: number;
+    parentRows: number;
+    parentView: string;
+    relation: string;
+    unmatchedParents: number;
+};
+
+export type Wire2C9280510E6Ff51Ff291Cf46071183A83553Af0793136E09416Edcc75Cf4Bea9 = {
+    authoredDql?: string;
+    authoredSql?: string;
+    authoringMode: string;
+    compileDiagnostics?: unknown;
+    compileStatus: string;
+    compilerVersion: string;
+    componentDescriptor?: unknown;
+    componentSpec?: unknown;
+    createdAt: string;
+    createdBy: string;
+    datlyVersion: string;
+    dqlExportLimits?: unknown;
+    generatedDql?: string;
+    notes?: string;
+    publishedAt?: string | null;
+    reportId: string;
+    resourceManifest?: unknown;
+    sourceRevision: number;
+    specFormatVersion: string;
+    specHash: string;
+    state: string;
+    typeManifest?: unknown;
+    validatedAt?: string | null;
+    versionNo: number;
+};
+
+export type Wire3100C253C572F716Ab2Eb88F6D83D813Eedfe0B04003220Edb6E98677Fced244 = {
+    canEdit: boolean;
+    canManageAcl: boolean;
+    canPublish: boolean;
+    canRun: boolean;
+    canUseDql: boolean;
+    canView: boolean;
+};
+
+export type Wire3206393A34Ac737Dcd3540640044680Ce7D2Ad47A4B55B4A06E350301E8Df7F7 = {
+    expectedSourceRevision?: number;
+    folderId: string;
+    ordinal: number;
+    reportId: string;
+    skillId: string;
+    skillRoot: string;
+    versionNo: number;
+};
+
+export type Wire320Cbcde9Ba1Cbead9492F244Cbb274A289B1Dc4E0382F1A0342Ad1C73A0C9A1 = {
+    content: string;
+    contentSha256: string;
+    contentSize: number;
+    expectedSourceRevision?: number;
+    isBinary: boolean;
+    mediaType?: string;
+    namespace: string;
+    reportId: string;
+    resourceId: string;
+    resourcePath: string;
+    versionNo: number;
+};
+
 export type Wire3260Fb4C4C3Ba7C084402Fa64664F099Dae40719E64A304Feae0D1Fd05Cf8C6c = {
     canEdit: boolean;
     canPublish: boolean;
@@ -55,10 +994,118 @@ export type Wire33E5247Ebc5C8C7A90566F8Ad084B60E92D39E02E7318B8D44D82392A4711B58
     offset: number;
 };
 
+export type Wire34Bf0E88B3A420C7Ebd2B96F24F5Cb26490558416Af1D276Ad0E58Ea91Aac052 = {
+    items: Array<WireEeef16B9Cbcbd1E6E3C91399A7A3Ea1Ea6F63B90114Ecd6F2B6B393De239190a | null> | null;
+    limit: number;
+    offset: number;
+};
+
+export type Wire385Cb42Fa02Eb6E798Cbc1F7De0Bcdf81Fdec7Bcc883Dc0D6D67A2E6F9974852 = {
+    code: string;
+    column?: number;
+    hint?: string;
+    line?: number;
+    message: string;
+    severity: string;
+};
+
 export type Wire38Fcb57C86Eb44D564D0165Fe128Aec29A7664C7Bb39427502B08Df9Aa42649a = {
     items: Array<WireBba07F0Bad61Cd85885417E1C20C5Cff98C1Ebf3Abb205Fd71B51C6069Ea161c | null> | null;
     limit: number;
     offset: number;
+};
+
+export type Wire3B57D303Fc4270172C8Dc3Dcc384045B957738421Bfa4726D93F6529707Bb684 = {
+    catalog?: string;
+    comment?: string;
+    name: string;
+    schema?: string;
+    type?: string;
+};
+
+export type Wire3C414184025D515E410A57E243B5070Ba45B75F1Bb950Da08536C0Ce5E8Fbde5 = {
+    files: Array<WireBf3995C764F467C660824A6600A7149Dc689D4778F0Ef6B160E197A2Ae0B7016 | null> | null;
+    folders: Array<Wire01A7A742A5Dcd667Da4D143E43944F269Ae6E23B2952948E51D0B2791D2Ed360 | null> | null;
+    skills: Array<WireAacc75C3206Df7826E260289C3B0D5E2D973Fd06F1Bdc6D8B062241Bdce3294a | null> | null;
+    version?: WireF932A6D94Aac7D5320966Eccf3629Df536A5A1Bc23Efddc9Cefb59Aad8Af0675 | null;
+};
+
+export type Wire42Ea17Da2B60208Ef30858A88Ede92D622320Dba9D309726A67F3023Fb8Ab9E1 = {
+    code: string;
+    column?: number;
+    hint?: string;
+    line?: number;
+    message: string;
+    severity: string;
+};
+
+export type Wire43Ef72Ce47082Cf6430E2C08B1E64B40E4098E454104C2118Db17Ce974498D97 = {
+    [key: string]: unknown;
+};
+
+export type Wire443Bbe5C4C72F351C9A66A106Cdb43706C944Ab1D042017Ad7A9092B72D13F21 = {
+    componentName: string;
+    componentScope: string;
+    createdAt: string;
+    currentDraftVersion?: number | null;
+    defaultConnectorName: string;
+    description?: string;
+    etag: number;
+    id: string;
+    namespace: string;
+    ownerId: string;
+    ownerPackage: string;
+    slug: string;
+    status: string;
+    title: string;
+    updatedAt: string;
+};
+
+export type Wire460Cf67195Fceed0E09647Cd2Eec9022848F4Fecb76Be30099431C098E162Bea = {
+    archive: Array<number> | null;
+    entryDql: string;
+    filename: string;
+    files: Array<string> | null;
+    mediaType: string;
+};
+
+export type Wire46F5783921089422Ba86Ef3F21455336F0870921Db6E2Dac69F80E6517B1E68a = {
+    alias?: string;
+    columns?: Array<string> | null;
+    createdAt: string;
+    description?: string;
+    etag: number;
+    linked: boolean;
+    name: string;
+    ownerId: string;
+    packagePath: string;
+    status: string;
+    title: string;
+    typeName: string;
+    updatedAt: string;
+};
+
+export type Wire474Ce95Df76D3333C947A6Bd85C78Ed4Cfb5130D19Fec59F6B436E1Accd11E9a = {
+    expectedSourceRevision?: number;
+    folderId: string;
+    namespace: string;
+    ordinal: number;
+    reportId: string;
+    rootPath: string;
+    uriPrefix: string;
+    versionNo: number;
+};
+
+export type Wire48193E904540171957F9Ef3A3A6Aa0D8618569B96Cf8C2Bd174Eb39C4Cf6443a = {
+    diagnostics?: Array<Wire187F7F4691Bae62916263844A31B0E52F2Ac7573Ba63A1Dda0Cfffa8610B0947> | null;
+    valid: boolean;
+    version: Wire2C9280510E6Ff51Ff291Cf46071183A83553Af0793136E09416Edcc75Cf4Bea9 | null;
+};
+
+export type Wire4865103E82A353748C5Cf4C44Eb18159E252732C3C48350Fe8B3411C3Af62117 = {
+    component: unknown;
+    resources?: unknown;
+    types?: unknown;
 };
 
 export type Wire49Feff8D08Df046F25F5C6Fbb141C3C4B50C39Af0Dea56Aec129E11334A944E0 = {
@@ -71,6 +1118,277 @@ export type Wire49Feff8D08Df046F25F5C6Fbb141C3C4B50C39Af0Dea56Aec129E11334A944E0
     runtimeRevision?: string;
     specHash?: string;
     status: string;
+};
+
+export type Wire4Dce8Cb2Df5Cbfb88D4Ed91E9D3Efb3Bfd51De7Faa0095856Cda22845A38C9Cf = {
+    files: Array<WireBe64A4E788B222824Ca2Bfc9A2295B3Bbec8018E95Bf6A6C02777E55Ddbc83F0 | null> | null;
+    folders: Array<Wire503Eecae2F1D1D659F4E4C2E5E08Bec8Db2F264A5Bdc6C2B084Dc41A3Aadf478 | null> | null;
+    skills: Array<Wire51Bb1F0871Dac81Cba14Ebfac4Fc554D215315E30Cd3B214596B5Da0912A4710 | null> | null;
+    version?: Wire0279067683C20563Aa495E8737A819024Ba4Eb59Ced1E2723Cda5Eb5890Cb742 | null;
+};
+
+export type Wire503Eecae2F1D1D659F4E4C2E5E08Bec8Db2F264A5Bdc6C2B084Dc41A3Aadf478 = {
+    expectedSourceRevision?: number;
+    folderId: string;
+    namespace: string;
+    ordinal: number;
+    reportId: string;
+    rootPath: string;
+    uriPrefix: string;
+    versionNo: number;
+};
+
+export type Wire51Bb1F0871Dac81Cba14Ebfac4Fc554D215315E30Cd3B214596B5Da0912A4710 = {
+    expectedSourceRevision?: number;
+    folderId: string;
+    ordinal: number;
+    reportId: string;
+    skillId: string;
+    skillRoot: string;
+    versionNo: number;
+};
+
+export type Wire54A6E7E8A3352A79D0D8Aa5227Adf7C3D1830Da9722934796424332F6659Bafe = {
+    authoredDql?: string;
+    authoredSql?: string;
+    authoringMode: string;
+    compileDiagnostics?: unknown;
+    compileStatus: string;
+    compilerVersion: string;
+    componentDescriptor?: unknown;
+    componentSpec?: unknown;
+    createdAt: string;
+    createdBy: string;
+    datlyVersion: string;
+    dqlExportLimits?: unknown;
+    generatedDql?: string;
+    notes?: string;
+    publishedAt?: string | null;
+    reportId: string;
+    resourceManifest?: unknown;
+    sourceRevision: number;
+    specFormatVersion: string;
+    specHash: string;
+    state: string;
+    typeManifest?: unknown;
+    validatedAt?: string | null;
+    versionNo: number;
+};
+
+export type Wire59787F7087B974A90942D4D67D870A8382B1189Efe4Cc88Cfba1B0Ada4D89C75 = {
+    authoredDql?: string;
+    authoredSql?: string;
+    authoringMode: string;
+    compileDiagnostics?: unknown;
+    compileStatus: string;
+    compilerVersion: string;
+    componentDescriptor?: unknown;
+    componentSpec?: unknown;
+    createdAt: string;
+    createdBy: string;
+    datlyVersion: string;
+    dqlExportLimits?: unknown;
+    generatedDql?: string;
+    notes?: string;
+    publishedAt?: string | null;
+    reportId: string;
+    resourceManifest?: unknown;
+    sourceRevision: number;
+    specFormatVersion: string;
+    specHash: string;
+    state: string;
+    typeManifest?: unknown;
+    validatedAt?: string | null;
+    versionNo: number;
+};
+
+export type Wire5Dcb9A5385549159028A02B9F90B5F85B74Ea0076B725Bce7E222E5Cfe3Ae71e = {
+    code: string;
+    column?: number;
+    hint?: string;
+    line?: number;
+    message: string;
+    severity: string;
+};
+
+export type Wire60Bda844Ac8065E6E072Cef8Ca0C3A6F4Ee6Ad55108Ee3B860D23Ad284Da68Ac = {
+    expectedSourceRevision?: number;
+    folderId: string;
+    ordinal: number;
+    reportId: string;
+    skillId: string;
+    skillRoot: string;
+    versionNo: number;
+};
+
+export type Wire62B416D7643717Df5349D629A8802521Ee46B9F921D7C05E834E68B645Ecb930 = {
+    authoredDql?: string;
+    authoredSql?: string;
+    authoringMode: string;
+    compileDiagnostics?: unknown;
+    compileStatus: string;
+    compilerVersion: string;
+    componentDescriptor?: unknown;
+    componentSpec?: unknown;
+    createdAt: string;
+    createdBy: string;
+    datlyVersion: string;
+    dqlExportLimits?: unknown;
+    generatedDql?: string;
+    notes?: string;
+    publishedAt?: string | null;
+    reportId: string;
+    resourceManifest?: unknown;
+    sourceRevision: number;
+    specFormatVersion: string;
+    specHash: string;
+    state: string;
+    typeManifest?: unknown;
+    validatedAt?: string | null;
+    versionNo: number;
+};
+
+export type Wire62D79Acead49Ba0D84D3Fe813A8D59B4A26F710C0953Ffa167816798Ed0333F5 = {
+    errorCode?: string;
+    message?: string;
+    name: string;
+    status: string;
+    testedAt: string;
+};
+
+export type Wire65B20B1Db94B9A2B772Bc75Cedde285454A5204Dc72354F579Cf1Fe7Fcc34B2b = {
+    items: Array<Wire3B57D303Fc4270172C8Dc3Dcc384045B957738421Bfa4726D93F6529707Bb684> | null;
+    limit: number;
+    offset: number;
+};
+
+export type Wire686013A325C9Be56A2C1Decb9988B4F5C30A411074C3D70E9552Eecf4Ae1Fd87 = {
+    alias?: string;
+    columns?: Array<string> | null;
+    createdAt: string;
+    description?: string;
+    etag: number;
+    linked: boolean;
+    name: string;
+    ownerId: string;
+    packagePath: string;
+    status: string;
+    title: string;
+    typeName: string;
+    updatedAt: string;
+};
+
+export type Wire6Bdc906E5944153Cacf17027Ff97Fe2E0524311A1C332C218E05C2Fb3A05012d = {
+    childColumn: string;
+    parentColumn: string;
+};
+
+export type Wire6E57275Ee6E6E1B65E583Eed6459Bd78D0642E1645C5D8207588A42C34B4171d = {
+    content: string;
+    contentSha256: string;
+    contentSize: number;
+    expectedSourceRevision?: number;
+    isBinary: boolean;
+    mediaType?: string;
+    namespace: string;
+    reportId: string;
+    resourceId: string;
+    resourcePath: string;
+    versionNo: number;
+};
+
+export type Wire71135F21Ef144Ede226F59F1B64910Efa1147D20E135146157De32743475D7Ad = {
+    capabilities: WireC47Cf46B58E263Ed665Fbdce50F43Ecc62642C4837741Ba43Aaa439C1623D39c;
+    diagnostics?: Array<Wire878Bfd02A12294E26D1A40F1B673A231Fa11C24402268D818F39F80Be43C86F9> | null;
+    dql?: string;
+    structure?: unknown;
+    version: Wire62B416D7643717Df5349D629A8802521Ee46B9F921D7C05E834E68B645Ecb930 | null;
+};
+
+export type Wire71B9C50025Fc3648B345Ae243800Bd532Fec6Cda9E9Aadc6E7A02D452D1D70Ea = {
+    expectedSourceRevision?: number;
+    folderId: string;
+    namespace: string;
+    ordinal: number;
+    reportId: string;
+    rootPath: string;
+    uriPrefix: string;
+    versionNo: number;
+};
+
+export type Wire721Df0D143Ac47Cf20D8D87A4361E4E8915E942Ebced01F43C2B54160Dbdff73 = {
+    files: Array<Wire6E57275Ee6E6E1B65E583Eed6459Bd78D0642E1645C5D8207588A42C34B4171d | null> | null;
+    folders: Array<Wire71B9C50025Fc3648B345Ae243800Bd532Fec6Cda9E9Aadc6E7A02D452D1D70Ea | null> | null;
+    skills: Array<WireCcb72E9Ff740A41F9Ee459D67D34D6D003De93Aa4E74Ce39B240Bc27D65454Ca | null> | null;
+    version?: WireD47F31D6831E78D8D30E9260Afc40Ce9Bef1E3193510447B56Ae7C551502C928 | null;
+};
+
+export type Wire73Cee385316804C80A6A21637351D4B09563A94C50436780D603Be1Be4525E58 = {
+    applied: boolean;
+    inspection: Wire71135F21Ef144Ede226F59F1B64910Efa1147D20E135146157De32743475D7Ad | null;
+};
+
+export type Wire7500B9317030713F187B24A1E5Fdc5A3B126E5Bb2B5Fb59F60D5B9D5Be652A23 = {
+    createdAt: string;
+    description?: string;
+    driver: string;
+    dsnConfigured: boolean;
+    etag: number;
+    lastTestErrorCode?: string;
+    lastTestStatus?: string;
+    lastTestedAt?: string | null;
+    name: string;
+    options?: unknown;
+    ownerId: string;
+    secretConfigured: boolean;
+    status: string;
+    updatedAt: string;
+};
+
+export type Wire77752153Da43Bb0Addc9D671944E117883Dbc02C23B23F9Dead496B805929938 = {
+    expectedSourceRevision?: number;
+    folderId: string;
+    namespace: string;
+    ordinal: number;
+    reportId: string;
+    rootPath: string;
+    uriPrefix: string;
+    versionNo: number;
+};
+
+export type Wire777F17Beb973Ceea33D037Ba165A4751392Efacdd3A1E9425Eb0Da2B7461Ba6e = {
+    createdAt: string;
+    description?: string;
+    driver: string;
+    dsnConfigured: boolean;
+    etag: number;
+    lastTestErrorCode?: string;
+    lastTestStatus?: string;
+    lastTestedAt?: string | null;
+    name: string;
+    options?: unknown;
+    ownerId: string;
+    secretConfigured: boolean;
+    status: string;
+    updatedAt: string;
+};
+
+export type Wire7880C8E6D5D0Da581C3D5Daf2417D9531Fbe99E425A7546Fc53A4981Cab03A9e = {
+    content: string;
+    contentSha256: string;
+    contentSize: number;
+    expectedSourceRevision?: number;
+    isBinary: boolean;
+    mediaType?: string;
+    namespace: string;
+    reportId: string;
+    resourceId: string;
+    resourcePath: string;
+    versionNo: number;
+};
+
+export type Wire7Af96Ca0084D089Bcfb5E8B942B9D90A7900D3C1E884C7D9C370D23294D493F8 = {
+    [key: string]: unknown;
 };
 
 export type Wire7Be315Ac587Bc72247D0B72942B7067D644F15C0E04A4011F74Ffec56D000203 = {
@@ -90,6 +1408,29 @@ export type Wire7Be315Ac587Bc72247D0B72942B7067D644F15C0E04A4011F74Ffec56D000203
     updatedAt: string;
 };
 
+export type Wire7D83E432Dba96D596847D8Df2F770054A4188B355Ed704D691Dff2A9D8F991Ee = {
+    code: string;
+    column?: number;
+    hint?: string;
+    line?: number;
+    message: string;
+    severity: string;
+};
+
+export type Wire7Df6F58C45E1Cbb70C52Ebe80C2E84548De121E53Bb802A546285E9Bdee026B6 = {
+    content: string;
+    contentSha256: string;
+    contentSize: number;
+    expectedSourceRevision?: number;
+    isBinary: boolean;
+    mediaType?: string;
+    namespace: string;
+    reportId: string;
+    resourceId: string;
+    resourcePath: string;
+    versionNo: number;
+};
+
 export type Wire7F614C3079E0F6Cdc356Ae6E7E44A326C9B77Ae75D9Bed109251680A65F23B71 = {
     createdAt: string;
     description?: string | null;
@@ -107,8 +1448,170 @@ export type Wire7F614C3079E0F6Cdc356Ae6E7E44A326C9B77Ae75D9Bed109251680A65F23B71
     updatedAt: string;
 };
 
+export type Wire8147805369C129Ab8A8Ae87482Dbb8Be4C51D1125Dda4427E8Adca5F845D6A7b = {
+    data?: unknown;
+    diagnostics?: Array<WireF9Bfe019Ac3Bc8Cf27B88F9B16D1F9A636D24292970F41843Ad5F4Eba742D99b> | null;
+    duration: number;
+};
+
+export type Wire878Bfd02A12294E26D1A40F1B673A231Fa11C24402268D818F39F80Be43C86F9 = {
+    code: string;
+    column?: number;
+    hint?: string;
+    line?: number;
+    message: string;
+    severity: string;
+};
+
+export type Wire898C903Bc4Eef9B996D8948010Fb2Ca3D9389D10Ce499B1Be1015Bbbba75993c = {
+    files: Array<Wire7Df6F58C45E1Cbb70C52Ebe80C2E84548De121E53Bb802A546285E9Bdee026B6 | null> | null;
+    folders: Array<Wire77752153Da43Bb0Addc9D671944E117883Dbc02C23B23F9Dead496B805929938 | null> | null;
+    skills: Array<Wire60Bda844Ac8065E6E072Cef8Ca0C3A6F4Ee6Ad55108Ee3B860D23Ad284Da68Ac | null> | null;
+    version?: Wire942D4E47E476A9E6Ca17A65Af1901A04D22Fd0D3854182C3Efa5E0F74762105e | null;
+};
+
+export type Wire8A9Cf29086A80Cb7Cabcdebcdf40Aa1D03Da579D5B4D6608Dcb4A7446Bcf710d = {
+    items: Array<Wire2Acc97D2Ee9Aa7Bc9E3441531515D0F2360496Ee2Ee879Ab35B383C390B7221e> | null;
+};
+
+export type Wire8B82F013750Bb50C4A08366119Aaab33D2Ee4C3F59Ab77B868Ec2617Ec5Ef5C8 = {
+    authoredDql?: string;
+    authoredSql?: string;
+    authoringMode: string;
+    compileDiagnostics?: unknown;
+    compileStatus: string;
+    compilerVersion: string;
+    componentDescriptor?: unknown;
+    componentSpec?: unknown;
+    createdAt: string;
+    createdBy: string;
+    datlyVersion: string;
+    dqlExportLimits?: unknown;
+    generatedDql?: string;
+    notes?: string;
+    publishedAt?: string | null;
+    reportId: string;
+    resourceManifest?: unknown;
+    sourceRevision: number;
+    specFormatVersion: string;
+    specHash: string;
+    state: string;
+    typeManifest?: unknown;
+    validatedAt?: string | null;
+    versionNo: number;
+};
+
+export type Wire942D4E47E476A9E6Ca17A65Af1901A04D22Fd0D3854182C3Efa5E0F74762105e = {
+    authoredDql?: string;
+    authoredSql?: string;
+    authoringMode: string;
+    compileDiagnostics?: unknown;
+    compileStatus: string;
+    compilerVersion: string;
+    componentDescriptor?: unknown;
+    componentSpec?: unknown;
+    createdAt: string;
+    createdBy: string;
+    datlyVersion: string;
+    dqlExportLimits?: unknown;
+    generatedDql?: string;
+    notes?: string;
+    publishedAt?: string | null;
+    reportId: string;
+    resourceManifest?: unknown;
+    sourceRevision: number;
+    specFormatVersion: string;
+    specHash: string;
+    state: string;
+    typeManifest?: unknown;
+    validatedAt?: string | null;
+    versionNo: number;
+};
+
 export type Wire95A77E17Aef6A0C48E1829638788A4Dec1654A5C42Fd6549E0C42F7Eea24F35c = {
     items: Array<Wire3260Fb4C4C3Ba7C084402Fa64664F099Dae40719E64A304Feae0D1Fd05Cf8C6c | null> | null;
+};
+
+export type Wire9763Fc0927F951631F9C089E0800033B9772E81B29Bddc85Ae64E2899F0943E3 = {
+    data?: unknown;
+    diagnostics?: Array<WireDdc8F3519E98B687E03E321D69E1Dab9D279D6F41Fcef8B1C25D52A95B4F51Bd> | null;
+    duration: number;
+    evidence: Wire29994796C346A67D8D87067E8F62A29284Fc2Af12311Fbab69Bdf45B428E37F7;
+};
+
+export type Wire98B9826A3A782748Dba5C6E5A250E1E52D78E3E1Dbd2Ab11F2Dc2F9352C62E7a = {
+    componentName: string;
+    componentScope: string;
+    createdAt: string;
+    currentDraftVersion?: number | null;
+    defaultConnectorName: string;
+    description?: string;
+    etag: number;
+    id: string;
+    namespace: string;
+    ownerId: string;
+    ownerPackage: string;
+    slug: string;
+    status: string;
+    title: string;
+    updatedAt: string;
+};
+
+export type Wire9C01Bf707962841Cbc5605469843177E10A3Ba674269Dbc69Bb1103B39Fe0C3d = {
+    alias?: string;
+    columns?: Array<string> | null;
+    createdAt: string;
+    description?: string;
+    etag: number;
+    linked: boolean;
+    name: string;
+    ownerId: string;
+    packagePath: string;
+    status: string;
+    title: string;
+    typeName: string;
+    updatedAt: string;
+};
+
+export type Wire9E9F2A32Ff76Fe5Fcb226A8378824A3898F344E1E2394372932Dcdf203D1D145 = {
+    files: Array<Wire1Ad149A06Cfe9417562B1C9648E0B52832E72Cfbf4E1Ca313B15480E1Aee3E75 | null> | null;
+    folders: Array<WireBedeea2Eea3F372Feb231562Eecdb3Aa32C8017835F81Ac7E8D5978E48330812 | null> | null;
+    skills: Array<Wire3206393A34Ac737Dcd3540640044680Ce7D2Ad47A4B55B4A06E350301E8Df7F7 | null> | null;
+    version?: WireD47A3F0A566536Bf283059Fe5C94Fdc79E8185Ca98Cbe6359316854E6Ae380Ee | null;
+};
+
+export type WireA1D273D5932B1743E789689950989D814Cd8E3A90923654Fe30Afb020Fcc1Ece = {
+    diagnostics?: Array<WireD82Adbb20251Ee59732B96Cc17E12Fda2B7531A5A2Aa9B3011Dd7E9258Ea62A7> | null;
+    version: WireF3E391310Ebbdfcf54A80947Dc8023074733A52A02De8Af4F489Eff13A0C137d | null;
+};
+
+export type WireA6D5A259Bb2993E6552649336F2C093Ccd6Ae12F130F8526F5C136A619D0Cb51 = {
+    createdAt: string;
+    description?: string;
+    etag: number;
+    name: string;
+    ownerId: string;
+    status: string;
+    title: string;
+    updatedAt: string;
+};
+
+export type WireAacc75C3206Df7826E260289C3B0D5E2D973Fd06F1Bdc6D8B062241Bdce3294a = {
+    expectedSourceRevision?: number;
+    folderId: string;
+    ordinal: number;
+    reportId: string;
+    skillId: string;
+    skillRoot: string;
+    versionNo: number;
+};
+
+export type WireAffe7195B4B994E2Bc73C2Eafa9399E8Aa7E19Dc564D21B68F89Ebdea0B9Ea19 = {
+    capabilities: Wire3100C253C572F716Ab2Eb88F6D83D813Eedfe0B04003220Edb6E98677Fced244;
+    diagnostics?: Array<Wire5Dcb9A5385549159028A02B9F90B5F85B74Ea0076B725Bce7E222E5Cfe3Ae71e> | null;
+    dql?: string;
+    structure?: unknown;
+    version: WireC3165Cf4A873913Ce00D191695Cde0C9734357C8A456041Fe80521B5E82Ab089 | null;
 };
 
 export type WireB3C67Af74Df5A4D366C8F3A628801F07D89D1Eefd88Ebad70D3689F8970629Db = {
@@ -135,6 +1638,26 @@ export type WireB42A7344Fc0606034Fc05C388A62F83C484228Cb1E9Be8Bf4055Ff09F8F4A044
     updatedAt: string;
 };
 
+export type WireB617A59F7D447A6394E2Dadab2C5117024021Bcb450D40176D0Fc95B477A9240 = {
+    items: Array<WireD96F9F6E74952B34F1E493521A586F731028Cc293D50A0439Ca0Ba97D376Ca3c | null> | null;
+};
+
+export type WireB6Bb3A3Bc73E240Bf20Da6F0Ceb8512D37Faeca8E28Cca304A69C5E7Ff81Fa51 = {
+    expectedSourceRevision?: number;
+    folderId: string;
+    namespace: string;
+    ordinal: number;
+    reportId: string;
+    rootPath: string;
+    uriPrefix: string;
+    versionNo: number;
+};
+
+export type WireBb9C83695Ae936C7031Ab2428C59Ccda35A4E34Af9E6662A945012782Ac921E1 = {
+    complete: boolean;
+    dql: string;
+};
+
 export type WireBba07F0Bad61Cd85885417E1C20C5Cff98C1Ebf3Abb205Fd71B51C6069Ea161c = {
     componentName: string;
     componentScope: string;
@@ -153,6 +1676,217 @@ export type WireBba07F0Bad61Cd85885417E1C20C5Cff98C1Ebf3Abb205Fd71B51C6069Ea161c
     updatedAt: string;
 };
 
+export type WireBd458392Be482912A616E980Fab94755810F3Ed4347C5351A04930F05Dd4Ce31 = {
+    columns: Array<Wire284D529F33778B8025Eaf493C0C081Fa071Dfc15595367Cd050C6Aea84390073> | null;
+    table: WireCcdd85Ede51B17373Dddff12304F04C5Afd91F3Fe365382C999B601899F69747;
+};
+
+export type WireBe64A4E788B222824Ca2Bfc9A2295B3Bbec8018E95Bf6A6C02777E55Ddbc83F0 = {
+    content: string;
+    contentSha256: string;
+    contentSize: number;
+    expectedSourceRevision?: number;
+    isBinary: boolean;
+    mediaType?: string;
+    namespace: string;
+    reportId: string;
+    resourceId: string;
+    resourcePath: string;
+    versionNo: number;
+};
+
+export type WireBedeea2Eea3F372Feb231562Eecdb3Aa32C8017835F81Ac7E8D5978E48330812 = {
+    expectedSourceRevision?: number;
+    folderId: string;
+    namespace: string;
+    ordinal: number;
+    reportId: string;
+    rootPath: string;
+    uriPrefix: string;
+    versionNo: number;
+};
+
+export type WireBf3995C764F467C660824A6600A7149Dc689D4778F0Ef6B160E197A2Ae0B7016 = {
+    content: string;
+    contentSha256: string;
+    contentSize: number;
+    expectedSourceRevision?: number;
+    isBinary: boolean;
+    mediaType?: string;
+    namespace: string;
+    reportId: string;
+    resourceId: string;
+    resourcePath: string;
+    versionNo: number;
+};
+
+export type WireC3165Cf4A873913Ce00D191695Cde0C9734357C8A456041Fe80521B5E82Ab089 = {
+    authoredDql?: string;
+    authoredSql?: string;
+    authoringMode: string;
+    compileDiagnostics?: unknown;
+    compileStatus: string;
+    compilerVersion: string;
+    componentDescriptor?: unknown;
+    componentSpec?: unknown;
+    createdAt: string;
+    createdBy: string;
+    datlyVersion: string;
+    dqlExportLimits?: unknown;
+    generatedDql?: string;
+    notes?: string;
+    publishedAt?: string | null;
+    reportId: string;
+    resourceManifest?: unknown;
+    sourceRevision: number;
+    specFormatVersion: string;
+    specHash: string;
+    state: string;
+    typeManifest?: unknown;
+    validatedAt?: string | null;
+    versionNo: number;
+};
+
+export type WireC47Cf46B58E263Ed665Fbdce50F43Ecc62642C4837741Ba43Aaa439C1623D39c = {
+    canEdit: boolean;
+    canManageAcl: boolean;
+    canPublish: boolean;
+    canRun: boolean;
+    canUseDql: boolean;
+    canView: boolean;
+};
+
+export type WireC556C6C91D85B6Fe76E559A7132Bc91D46B0C40C216A538C686D074Ec366C766 = {
+    [key: string]: unknown;
+};
+
+export type WireCcb72E9Ff740A41F9Ee459D67D34D6D003De93Aa4E74Ce39B240Bc27D65454Ca = {
+    expectedSourceRevision?: number;
+    folderId: string;
+    ordinal: number;
+    reportId: string;
+    skillId: string;
+    skillRoot: string;
+    versionNo: number;
+};
+
+export type WireCcdd85Ede51B17373Dddff12304F04C5Afd91F3Fe365382C999B601899F69747 = {
+    catalog?: string;
+    comment?: string;
+    name: string;
+    schema?: string;
+    type?: string;
+};
+
+export type WireD1D5B1593453C747C2A4Ede5Bbb420Ceefcd6F25E711131Ddfa36910F076474d = {
+    files: Array<Wire320Cbcde9Ba1Cbead9492F244Cbb274A289B1Dc4E0382F1A0342Ad1C73A0C9A1 | null> | null;
+    folders: Array<WireB6Bb3A3Bc73E240Bf20Da6F0Ceb8512D37Faeca8E28Cca304A69C5E7Ff81Fa51 | null> | null;
+    skills: Array<WireD5Cefe1B3A17Afd7Fef5285814E696De9B1F5Aa8569887156Dc7690Bce5223C2 | null> | null;
+    version?: Wire08043516A7D3B5028514Fc2Ffc6B6Fa38Ab832Ff1F255Ae1206871C7D200A5A6 | null;
+};
+
+export type WireD47A3F0A566536Bf283059Fe5C94Fdc79E8185Ca98Cbe6359316854E6Ae380Ee = {
+    authoredDql?: string;
+    authoredSql?: string;
+    authoringMode: string;
+    compileDiagnostics?: unknown;
+    compileStatus: string;
+    compilerVersion: string;
+    componentDescriptor?: unknown;
+    componentSpec?: unknown;
+    createdAt: string;
+    createdBy: string;
+    datlyVersion: string;
+    dqlExportLimits?: unknown;
+    generatedDql?: string;
+    notes?: string;
+    publishedAt?: string | null;
+    reportId: string;
+    resourceManifest?: unknown;
+    sourceRevision: number;
+    specFormatVersion: string;
+    specHash: string;
+    state: string;
+    typeManifest?: unknown;
+    validatedAt?: string | null;
+    versionNo: number;
+};
+
+export type WireD47F31D6831E78D8D30E9260Afc40Ce9Bef1E3193510447B56Ae7C551502C928 = {
+    authoredDql?: string;
+    authoredSql?: string;
+    authoringMode: string;
+    compileDiagnostics?: unknown;
+    compileStatus: string;
+    compilerVersion: string;
+    componentDescriptor?: unknown;
+    componentSpec?: unknown;
+    createdAt: string;
+    createdBy: string;
+    datlyVersion: string;
+    dqlExportLimits?: unknown;
+    generatedDql?: string;
+    notes?: string;
+    publishedAt?: string | null;
+    reportId: string;
+    resourceManifest?: unknown;
+    sourceRevision: number;
+    specFormatVersion: string;
+    specHash: string;
+    state: string;
+    typeManifest?: unknown;
+    validatedAt?: string | null;
+    versionNo: number;
+};
+
+export type WireD58Affaab847657F56E4Dc0Eed2B3Bbad9E31Ea2A73778F577Cd287673F772B3 = {
+    expectedSourceRevision?: number;
+    folderId: string;
+    ordinal: number;
+    reportId: string;
+    skillId: string;
+    skillRoot: string;
+    versionNo: number;
+};
+
+export type WireD5A1455Bb20Fa801E9C1447278E93F142E3212E863C81795F9D54E05D4B43C78 = {
+    entries: Array<string> | null;
+    entryDql: string;
+    files: Array<string> | null;
+    version: Wire239231A7Ea3Ed59E77B205B0783836Ec39Ca3De2A814Ba109F6Bda877Ba20691 | null;
+};
+
+export type WireD5Cefe1B3A17Afd7Fef5285814E696De9B1F5Aa8569887156Dc7690Bce5223C2 = {
+    expectedSourceRevision?: number;
+    folderId: string;
+    ordinal: number;
+    reportId: string;
+    skillId: string;
+    skillRoot: string;
+    versionNo: number;
+};
+
+export type WireD82Adbb20251Ee59732B96Cc17E12Fda2B7531A5A2Aa9B3011Dd7E9258Ea62A7 = {
+    code: string;
+    column?: number;
+    hint?: string;
+    line?: number;
+    message: string;
+    severity: string;
+};
+
+export type WireD96F9F6E74952B34F1E493521A586F731028Cc293D50A0439Ca0Ba97D376Ca3c = {
+    alias?: string;
+    packagePath: string;
+    typeName: string;
+};
+
+export type WireDda9A7E06F8980Ccc3D0D82Eca41C2Ab29259E1288943F9B5F95B433A84A7179 = {
+    items: Array<Wire1A54346913F36C827B3Cbb210B4E4062C2B4B68E415F006659F4A97F386665Ac | null> | null;
+    limit: number;
+    offset: number;
+};
+
 export type WireDdb0758361D7645100D4271Bb6Abcc08E955D5Bf64Bce42081793C40D1A24231 = {
     createdAt: string;
     description?: string | null;
@@ -164,11 +1898,241 @@ export type WireDdb0758361D7645100D4271Bb6Abcc08E955D5Bf64Bce42081793C40D1A24231
     updatedAt: string;
 };
 
+export type WireDdc8F3519E98B687E03E321D69E1Dab9D279D6F41Fcef8B1C25D52A95B4F51Bd = {
+    code: string;
+    column?: number;
+    hint?: string;
+    line?: number;
+    message: string;
+    severity: string;
+};
+
+export type WireE0B9D64Ac7D2034342D226Cd5A657956619Fb94Bfab0F429F31D295Bbee568Fb = {
+    cacheName?: string;
+    cacheProvider?: string;
+    connectorName?: string;
+    indexColumn?: string;
+    indexParameter?: string;
+    view: string;
+};
+
+export type WireEa1Dce693F0Fba7795Db01C064Fb101C3191020F13E052Ff246A0378Ec74F044 = {
+    [key: string]: unknown;
+};
+
+export type WireEc41Adb937E5F16Ce60477Ecb1B99C973B9578Fe8F638D99357Ce6779C5289F0 = {
+    items: Array<Wire9C01Bf707962841Cbc5605469843177E10A3Ba674269Dbc69Bb1103B39Fe0C3d | null> | null;
+    limit: number;
+    offset: number;
+};
+
+export type WireEcc4D9A82E8B4Cd1E3Ac77D7Fd7943319B31B3E82973C8Afbcf0002138Ddc950 = {
+    connector?: string;
+    encodedBytes: number;
+    limit: number;
+    reportId?: string;
+    returnedRows: number;
+    sourceRevision?: number;
+    truncated: boolean;
+    versionNo?: number;
+};
+
+export type WireEeef16B9Cbcbd1E6E3C91399A7A3Ea1Ea6F63B90114Ecd6F2B6B393De239190a = {
+    completedAt?: string | null;
+    completedCases: number;
+    createdAt?: string | null;
+    createdBy?: string | null;
+    diagnostics?: Array<Wire7D83E432Dba96D596847D8Df2F770054A4188B355Ed704D691Dff2A9D8F991Ee> | null;
+    duration?: number;
+    entries: number;
+    maxCases?: number | null;
+    planKey: string;
+    plannedCases: number;
+    reportId: string;
+    requestedAt: string;
+    requestedBy: string;
+    rowLimit?: number | null;
+    runId: string;
+    sourceRevision: number;
+    specHash: string;
+    startedAt?: string | null;
+    status: string;
+    target: WireE0B9D64Ac7D2034342D226Cd5A657956619Fb94Bfab0F429F31D295Bbee568Fb;
+    updatedAt?: string | null;
+    updatedBy?: string | null;
+    versionNo: number;
+};
+
+export type WireF13C6896F56Ef6Cd633314E17C86Ef09C723B489A575449924C438606E230Bf5 = {
+    createdAt: string;
+    description?: string;
+    driver: string;
+    dsnConfigured: boolean;
+    etag: number;
+    lastTestErrorCode?: string;
+    lastTestStatus?: string;
+    lastTestedAt?: string | null;
+    name: string;
+    options?: unknown;
+    ownerId: string;
+    secretConfigured: boolean;
+    status: string;
+    updatedAt: string;
+};
+
+export type WireF1625788B66Eacf74Ca98501Afd9A4C5D06Df56F548C1B3C679070E519Cabcba = {
+    alias?: string;
+    columns?: Array<string> | null;
+    createdAt: string;
+    description?: string;
+    etag: number;
+    linked: boolean;
+    name: string;
+    ownerId: string;
+    packagePath: string;
+    status: string;
+    title: string;
+    typeName: string;
+    updatedAt: string;
+};
+
+export type WireF3E391310Ebbdfcf54A80947Dc8023074733A52A02De8Af4F489Eff13A0C137d = {
+    authoredDql?: string;
+    authoredSql?: string;
+    authoringMode: string;
+    compileDiagnostics?: unknown;
+    compileStatus: string;
+    compilerVersion: string;
+    componentDescriptor?: unknown;
+    componentSpec?: unknown;
+    createdAt: string;
+    createdBy: string;
+    datlyVersion: string;
+    dqlExportLimits?: unknown;
+    generatedDql?: string;
+    notes?: string;
+    publishedAt?: string | null;
+    reportId: string;
+    resourceManifest?: unknown;
+    sourceRevision: number;
+    specFormatVersion: string;
+    specHash: string;
+    state: string;
+    typeManifest?: unknown;
+    validatedAt?: string | null;
+    versionNo: number;
+};
+
+export type WireF932A6D94Aac7D5320966Eccf3629Df536A5A1Bc23Efddc9Cefb59Aad8Af0675 = {
+    authoredDql?: string;
+    authoredSql?: string;
+    authoringMode: string;
+    compileDiagnostics?: unknown;
+    compileStatus: string;
+    compilerVersion: string;
+    componentDescriptor?: unknown;
+    componentSpec?: unknown;
+    createdAt: string;
+    createdBy: string;
+    datlyVersion: string;
+    dqlExportLimits?: unknown;
+    generatedDql?: string;
+    notes?: string;
+    publishedAt?: string | null;
+    reportId: string;
+    resourceManifest?: unknown;
+    sourceRevision: number;
+    specFormatVersion: string;
+    specHash: string;
+    state: string;
+    typeManifest?: unknown;
+    validatedAt?: string | null;
+    versionNo: number;
+};
+
+export type WireF9Bfe019Ac3Bc8Cf27B88F9B16D1F9A636D24292970F41843Ad5F4Eba742D99b = {
+    code: string;
+    column?: number;
+    hint?: string;
+    line?: number;
+    message: string;
+    severity: string;
+};
+
 export type WireFcb2B68Ea97735A078Bf238Fa93Fc316117Bac1Af3B4B77C1A5F30Eb2753801c = {
     items: Array<WireDdb0758361D7645100D4271Bb6Abcc08E955D5Bf64Bce42081793C40D1A24231 | null> | null;
     limit: number;
     offset: number;
 };
+
+export type PostV1StudioSdkAccessContextData = {
+    body: Input03431463Bb75C805271Cda3D99727948B169A41134E802271C7E8A9391C0Be1b;
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/access.context';
+};
+
+export type PostV1StudioSdkAccessContextResponses = {
+    /**
+     * Success response
+     */
+    200: Output074Baefd6599537117E4Be3E30019D7Fdfbb35E35777792F4679Dc2222339640;
+};
+
+export type PostV1StudioSdkAccessContextResponse = PostV1StudioSdkAccessContextResponses[keyof PostV1StudioSdkAccessContextResponses];
+
+export type PostV1StudioSdkAccessGetData = {
+    body: Input1777F5E244F91F0645Bf7Ef39Ca23Fb64C98C7F12533A1F1B43C45261F87381b;
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/access.get';
+};
+
+export type PostV1StudioSdkAccessGetResponses = {
+    /**
+     * Success response
+     */
+    200: OutputD94Fe2C0F68Aadd9D8Fcacadf97221Cae176Cdc5A262134071Dca8Fa5D6E14Ef;
+};
+
+export type PostV1StudioSdkAccessGetResponse = PostV1StudioSdkAccessGetResponses[keyof PostV1StudioSdkAccessGetResponses];
+
+export type PostV1StudioSdkAccessReplaceData = {
+    body: Input56Eaf778Ce1253Fe858Bf578C97Bd7824413C87195Caefb7315Fd578Bae05388;
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/access.replace';
+};
+
+export type PostV1StudioSdkAccessReplaceResponses = {
+    /**
+     * Success response
+     */
+    200: Output524Acdde45B651C8Bd48C66B53C101Ffac146671A1Ddce5C786A6Ecbd96Dbe58;
+};
+
+export type PostV1StudioSdkAccessReplaceResponse = PostV1StudioSdkAccessReplaceResponses[keyof PostV1StudioSdkAccessReplaceResponses];
+
+export type PostV1StudioSdkAclDeleteData = {
+    body: {
+        etag: number;
+        reportId: string;
+        subjectId: string;
+        subjectType: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/acl.delete';
+};
+
+export type PostV1StudioSdkAclDeleteResponses = {
+    /**
+     * ACL grant deleted
+     */
+    204: void;
+};
+
+export type PostV1StudioSdkAclDeleteResponse = PostV1StudioSdkAclDeleteResponses[keyof PostV1StudioSdkAclDeleteResponses];
 
 export type PostV1StudioSdkAclListData = {
     body: {
@@ -190,6 +2154,311 @@ export type PostV1StudioSdkAclListResponses = {
 };
 
 export type PostV1StudioSdkAclListResponse = PostV1StudioSdkAclListResponses[keyof PostV1StudioSdkAclListResponses];
+
+export type PostV1StudioSdkAclUpsertData = {
+    body: {
+        canEdit?: boolean;
+        canPublish?: boolean;
+        canRun?: boolean;
+        canUseDql?: boolean;
+        canView?: boolean;
+        etag?: number;
+        reportId: string;
+        subjectId: string;
+        subjectType: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/acl.upsert';
+};
+
+export type PostV1StudioSdkAclUpsertResponses = {
+    /**
+     * Success response
+     */
+    200: Wire013Ce40651897A22F1D0C9D5A29A86362333458B72C57Acb30Fa03A2473F08C6;
+};
+
+export type PostV1StudioSdkAclUpsertResponse = PostV1StudioSdkAclUpsertResponses[keyof PostV1StudioSdkAclUpsertResponses];
+
+export type PostV1StudioSdkAuthorizationPredicatesCreateData = {
+    body: {
+        alias?: string;
+        columns?: Array<string> | null;
+        description?: string;
+        name: string;
+        packagePath: string;
+        title: string;
+        typeName: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/authorization_predicates.create';
+};
+
+export type PostV1StudioSdkAuthorizationPredicatesCreateResponses = {
+    /**
+     * Success response
+     */
+    200: Wire686013A325C9Be56A2C1Decb9988B4F5C30A411074C3D70E9552Eecf4Ae1Fd87;
+};
+
+export type PostV1StudioSdkAuthorizationPredicatesCreateResponse = PostV1StudioSdkAuthorizationPredicatesCreateResponses[keyof PostV1StudioSdkAuthorizationPredicatesCreateResponses];
+
+export type PostV1StudioSdkAuthorizationPredicatesDeleteData = {
+    body: {
+        etag: number;
+        name: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/authorization_predicates.delete';
+};
+
+export type PostV1StudioSdkAuthorizationPredicatesDeleteResponses = {
+    /**
+     * Authorization predicate deleted
+     */
+    204: void;
+};
+
+export type PostV1StudioSdkAuthorizationPredicatesDeleteResponse = PostV1StudioSdkAuthorizationPredicatesDeleteResponses[keyof PostV1StudioSdkAuthorizationPredicatesDeleteResponses];
+
+export type PostV1StudioSdkAuthorizationPredicatesGetData = {
+    body: {
+        name: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/authorization_predicates.get';
+};
+
+export type PostV1StudioSdkAuthorizationPredicatesGetResponses = {
+    /**
+     * Success response
+     */
+    200: WireF1625788B66Eacf74Ca98501Afd9A4C5D06Df56F548C1B3C679070E519Cabcba;
+};
+
+export type PostV1StudioSdkAuthorizationPredicatesGetResponse = PostV1StudioSdkAuthorizationPredicatesGetResponses[keyof PostV1StudioSdkAuthorizationPredicatesGetResponses];
+
+export type PostV1StudioSdkAuthorizationPredicatesListData = {
+    body?: {
+        limit?: number;
+        offset?: number;
+        query?: string;
+        status?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/authorization_predicates.list';
+};
+
+export type PostV1StudioSdkAuthorizationPredicatesListResponses = {
+    /**
+     * Success response
+     */
+    200: WireEc41Adb937E5F16Ce60477Ecb1B99C973B9578Fe8F638D99357Ce6779C5289F0;
+};
+
+export type PostV1StudioSdkAuthorizationPredicatesListResponse = PostV1StudioSdkAuthorizationPredicatesListResponses[keyof PostV1StudioSdkAuthorizationPredicatesListResponses];
+
+export type PostV1StudioSdkAuthorizationPredicatesTypesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/authorization_predicates.types';
+};
+
+export type PostV1StudioSdkAuthorizationPredicatesTypesResponses = {
+    /**
+     * Success response
+     */
+    200: WireB617A59F7D447A6394E2Dadab2C5117024021Bcb450D40176D0Fc95B477A9240;
+};
+
+export type PostV1StudioSdkAuthorizationPredicatesTypesResponse = PostV1StudioSdkAuthorizationPredicatesTypesResponses[keyof PostV1StudioSdkAuthorizationPredicatesTypesResponses];
+
+export type PostV1StudioSdkAuthorizationPredicatesUpdateData = {
+    body: {
+        input: InputC4Cc575A74227096D9Bc84A357106F4A2Fb90B472Fc6273F1682Ae88016Fea81;
+        name: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/authorization_predicates.update';
+};
+
+export type PostV1StudioSdkAuthorizationPredicatesUpdateResponses = {
+    /**
+     * Success response
+     */
+    200: Wire46F5783921089422Ba86Ef3F21455336F0870921Db6E2Dac69F80E6517B1E68a;
+};
+
+export type PostV1StudioSdkAuthorizationPredicatesUpdateResponse = PostV1StudioSdkAuthorizationPredicatesUpdateResponses[keyof PostV1StudioSdkAuthorizationPredicatesUpdateResponses];
+
+export type PostV1StudioSdkComponentsCreateData = {
+    body: {
+        componentName?: string;
+        componentScope?: string;
+        defaultConnectorName: string;
+        description?: string;
+        id?: string;
+        namespace?: string;
+        ownerId?: string;
+        slug: string;
+        title: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/components.create';
+};
+
+export type PostV1StudioSdkComponentsCreateResponses = {
+    /**
+     * Success response
+     */
+    200: Wire443Bbe5C4C72F351C9A66A106Cdb43706C944Ab1D042017Ad7A9092B72D13F21;
+};
+
+export type PostV1StudioSdkComponentsCreateResponse = PostV1StudioSdkComponentsCreateResponses[keyof PostV1StudioSdkComponentsCreateResponses];
+
+export type PostV1StudioSdkComponentsGetData = {
+    body: {
+        id: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/components.get';
+};
+
+export type PostV1StudioSdkComponentsGetResponses = {
+    /**
+     * Success response
+     */
+    200: WireB42A7344Fc0606034Fc05C388A62F83C484228Cb1E9Be8Bf4055Ff09F8F4A044;
+};
+
+export type PostV1StudioSdkComponentsGetResponse = PostV1StudioSdkComponentsGetResponses[keyof PostV1StudioSdkComponentsGetResponses];
+
+export type PostV1StudioSdkComponentsListData = {
+    body?: {
+        connectorName?: string;
+        fields?: Array<string> | null;
+        limit?: number;
+        namespace?: string;
+        offset?: number;
+        orderBy?: string;
+        ownerId?: string;
+        query?: string;
+        status?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/components.list';
+};
+
+export type PostV1StudioSdkComponentsListResponses = {
+    /**
+     * Success response
+     */
+    200: Wire38Fcb57C86Eb44D564D0165Fe128Aec29A7664C7Bb39427502B08Df9Aa42649a;
+};
+
+export type PostV1StudioSdkComponentsListResponse = PostV1StudioSdkComponentsListResponses[keyof PostV1StudioSdkComponentsListResponses];
+
+export type PostV1StudioSdkComponentsUpdateData = {
+    body: {
+        id: string;
+        input: Input25F0A19704063Df5593Ce82B9757Fd47D5E39B2De5B199Effc95C33A74910Afc;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/components.update';
+};
+
+export type PostV1StudioSdkComponentsUpdateResponses = {
+    /**
+     * Success response
+     */
+    200: Wire98B9826A3A782748Dba5C6E5A250E1E52D78E3E1Dbd2Ab11F2Dc2F9352C62E7a;
+};
+
+export type PostV1StudioSdkComponentsUpdateResponse = PostV1StudioSdkComponentsUpdateResponses[keyof PostV1StudioSdkComponentsUpdateResponses];
+
+export type PostV1StudioSdkConnectorsActivateData = {
+    body: {
+        etag: number;
+        name: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/connectors.activate';
+};
+
+export type PostV1StudioSdkConnectorsActivateResponses = {
+    /**
+     * Success response
+     */
+    200: Wire7500B9317030713F187B24A1E5Fdc5A3B126E5Bb2B5Fb59F60D5B9D5Be652A23;
+};
+
+export type PostV1StudioSdkConnectorsActivateResponse = PostV1StudioSdkConnectorsActivateResponses[keyof PostV1StudioSdkConnectorsActivateResponses];
+
+export type PostV1StudioSdkConnectorsCreateData = {
+    body: Input2E06143707781A8502Ab8Fc97824Dec99C9E9B2998F2436174C1D8B57C8D9Cdf;
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/connectors.create';
+};
+
+export type PostV1StudioSdkConnectorsCreateResponses = {
+    /**
+     * Success response
+     */
+    200: Output73A8618E3Debe1667F7Aafcc74Ab58Dec2Fbd11494Bb2E579Aae6D2B58F205F3;
+};
+
+export type PostV1StudioSdkConnectorsCreateResponse = PostV1StudioSdkConnectorsCreateResponses[keyof PostV1StudioSdkConnectorsCreateResponses];
+
+export type PostV1StudioSdkConnectorsDeleteData = {
+    body: {
+        etag: number;
+        name: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/connectors.delete';
+};
+
+export type PostV1StudioSdkConnectorsDeleteResponses = {
+    /**
+     * Connector archived
+     */
+    204: void;
+};
+
+export type PostV1StudioSdkConnectorsDeleteResponse = PostV1StudioSdkConnectorsDeleteResponses[keyof PostV1StudioSdkConnectorsDeleteResponses];
+
+export type PostV1StudioSdkConnectorsDisableData = {
+    body: {
+        etag: number;
+        name: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/connectors.disable';
+};
+
+export type PostV1StudioSdkConnectorsDisableResponses = {
+    /**
+     * Success response
+     */
+    200: Wire777F17Beb973Ceea33D037Ba165A4751392Efacdd3A1E9425Eb0Da2B7461Ba6e;
+};
+
+export type PostV1StudioSdkConnectorsDisableResponse = PostV1StudioSdkConnectorsDisableResponses[keyof PostV1StudioSdkConnectorsDisableResponses];
 
 export type PostV1StudioSdkConnectorsGetData = {
     body: {
@@ -234,6 +2503,154 @@ export type PostV1StudioSdkConnectorsListResponses = {
 
 export type PostV1StudioSdkConnectorsListResponse = PostV1StudioSdkConnectorsListResponses[keyof PostV1StudioSdkConnectorsListResponses];
 
+export type PostV1StudioSdkConnectorsSchemasData = {
+    body: {
+        input?: InputD2Fa4C9Bb7Cfdde0500D01F13469E3E914F15Fb6Eb841Dd0Cf0C53094Ae7E08a;
+        name: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/connectors.schemas';
+};
+
+export type PostV1StudioSdkConnectorsSchemasResponses = {
+    /**
+     * Success response
+     */
+    200: Wire8A9Cf29086A80Cb7Cabcdebcdf40Aa1D03Da579D5B4D6608Dcb4A7446Bcf710d;
+};
+
+export type PostV1StudioSdkConnectorsSchemasResponse = PostV1StudioSdkConnectorsSchemasResponses[keyof PostV1StudioSdkConnectorsSchemasResponses];
+
+export type PostV1StudioSdkConnectorsTableData = {
+    body: {
+        input: Input8A771218C929De9Ad6Df8D7F26A11916C0D2C478600A618560Aef8Cdaa883Cf6;
+        name: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/connectors.table';
+};
+
+export type PostV1StudioSdkConnectorsTableResponses = {
+    /**
+     * Success response
+     */
+    200: WireBd458392Be482912A616E980Fab94755810F3Ed4347C5351A04930F05Dd4Ce31;
+};
+
+export type PostV1StudioSdkConnectorsTableResponse = PostV1StudioSdkConnectorsTableResponses[keyof PostV1StudioSdkConnectorsTableResponses];
+
+export type PostV1StudioSdkConnectorsTablesData = {
+    body: {
+        input?: InputCe48D096271799F6074437499F254F457869D225Dfbc7Ea54C0552Fa34341Dd8;
+        name: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/connectors.tables';
+};
+
+export type PostV1StudioSdkConnectorsTablesResponses = {
+    /**
+     * Success response
+     */
+    200: Wire65B20B1Db94B9A2B772Bc75Cedde285454A5204Dc72354F579Cf1Fe7Fcc34B2b;
+};
+
+export type PostV1StudioSdkConnectorsTablesResponse = PostV1StudioSdkConnectorsTablesResponses[keyof PostV1StudioSdkConnectorsTablesResponses];
+
+export type PostV1StudioSdkConnectorsTestData = {
+    body: {
+        name: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/connectors.test';
+};
+
+export type PostV1StudioSdkConnectorsTestResponses = {
+    /**
+     * Success response
+     */
+    200: Wire62D79Acead49Ba0D84D3Fe813A8D59B4A26F710C0953Ffa167816798Ed0333F5;
+};
+
+export type PostV1StudioSdkConnectorsTestResponse = PostV1StudioSdkConnectorsTestResponses[keyof PostV1StudioSdkConnectorsTestResponses];
+
+export type PostV1StudioSdkConnectorsTestSqlData = {
+    body: {
+        input: InputE14Cc58C4Ee74D7747F498Bcbd7C71A8Cb3028Eda5782588B9C5299Ed0Cf9C37;
+        name: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/connectors.test_sql';
+};
+
+export type PostV1StudioSdkConnectorsTestSqlResponses = {
+    /**
+     * Success response
+     */
+    200: Wire15D90B839A0Fff7F61055596A65A67Fe8590915342E1278E39Ef8Abd4433Ce14;
+};
+
+export type PostV1StudioSdkConnectorsTestSqlResponse = PostV1StudioSdkConnectorsTestSqlResponses[keyof PostV1StudioSdkConnectorsTestSqlResponses];
+
+export type PostV1StudioSdkConnectorsUpdateData = {
+    body: {
+        input: Input9Aad80E5262Dd4Bec1816Caf72B4Dd6364E8940A81D02Db58A19387Fcec5E859;
+        name: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/connectors.update';
+};
+
+export type PostV1StudioSdkConnectorsUpdateResponses = {
+    /**
+     * Success response
+     */
+    200: WireF13C6896F56Ef6Cd633314E17C86Ef09C723B489A575449924C438606E230Bf5;
+};
+
+export type PostV1StudioSdkConnectorsUpdateResponse = PostV1StudioSdkConnectorsUpdateResponses[keyof PostV1StudioSdkConnectorsUpdateResponses];
+
+export type PostV1StudioSdkNamespacesCreateData = {
+    body: InputB990D293Ef5D3E7E85A2Acebd0Bbccb12B9Ec19Ea303B41252De0B2F2Bbb9E05;
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/namespaces.create';
+};
+
+export type PostV1StudioSdkNamespacesCreateResponses = {
+    /**
+     * Success response
+     */
+    200: OutputD558223F5D3D6Bca0E300C59F8E624Af838223Bc61F0Cb8C88F09C757834Ddaa;
+};
+
+export type PostV1StudioSdkNamespacesCreateResponse = PostV1StudioSdkNamespacesCreateResponses[keyof PostV1StudioSdkNamespacesCreateResponses];
+
+export type PostV1StudioSdkNamespacesDeleteData = {
+    body: {
+        etag: number;
+        name: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/namespaces.delete';
+};
+
+export type PostV1StudioSdkNamespacesDeleteResponses = {
+    /**
+     * Namespace archived
+     */
+    204: void;
+};
+
+export type PostV1StudioSdkNamespacesDeleteResponse = PostV1StudioSdkNamespacesDeleteResponses[keyof PostV1StudioSdkNamespacesDeleteResponses];
+
 export type PostV1StudioSdkNamespacesGetData = {
     body: {
         name: string;
@@ -273,6 +2690,45 @@ export type PostV1StudioSdkNamespacesListResponses = {
 
 export type PostV1StudioSdkNamespacesListResponse = PostV1StudioSdkNamespacesListResponses[keyof PostV1StudioSdkNamespacesListResponses];
 
+export type PostV1StudioSdkNamespacesUpdateData = {
+    body: {
+        input: Input6139A906F15F351C7Eae5D9897Ae3973B6172D1373D49394D6C8C69615914840;
+        name: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/namespaces.update';
+};
+
+export type PostV1StudioSdkNamespacesUpdateResponses = {
+    /**
+     * Success response
+     */
+    200: WireA6D5A259Bb2993E6552649336F2C093Ccd6Ae12F130F8526F5C136A619D0Cb51;
+};
+
+export type PostV1StudioSdkNamespacesUpdateResponse = PostV1StudioSdkNamespacesUpdateResponses[keyof PostV1StudioSdkNamespacesUpdateResponses];
+
+export type PostV1StudioSdkPreviewExecuteData = {
+    body: {
+        input?: InputEa8Cf0B60E82E17C8F2E6Bc2Ad35Fe0985Cc717838Bb65D7F9B56C81Bd0718Aa;
+        reportId: string;
+        versionNo: number;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/preview.execute';
+};
+
+export type PostV1StudioSdkPreviewExecuteResponses = {
+    /**
+     * Success response
+     */
+    200: Wire9763Fc0927F951631F9C089E0800033B9772E81B29Bddc85Ae64E2899F0943E3;
+};
+
+export type PostV1StudioSdkPreviewExecuteResponse = PostV1StudioSdkPreviewExecuteResponses[keyof PostV1StudioSdkPreviewExecuteResponses];
+
 export type PostV1StudioSdkPublicationsEventsListData = {
     body: {
         input?: InputC8F891Bb6Cfd81599Dce6F4F5D400A21Caa864A78F2Dabaa10E3173F02Ca8Db3;
@@ -310,46 +2766,545 @@ export type PostV1StudioSdkPublicationsGetResponses = {
 
 export type PostV1StudioSdkPublicationsGetResponse = PostV1StudioSdkPublicationsGetResponses[keyof PostV1StudioSdkPublicationsGetResponses];
 
-export type PostV1StudioSdkReportsGetData = {
+export type PostV1StudioSdkPublicationsPublishData = {
     body: {
-        id: string;
+        input: InputF063Ff05B2157Fb8F6176Bbd7A336F91805D5C30366F9C24C986423E7Cda8Aa9;
+        reportId: string;
+        versionNo: number;
     };
     path?: never;
     query?: never;
-    url: '/v1/studio/sdk/reports.get';
+    url: '/v1/studio/sdk/publications.publish';
 };
 
-export type PostV1StudioSdkReportsGetResponses = {
+export type PostV1StudioSdkPublicationsPublishResponses = {
     /**
      * Success response
      */
-    200: WireB42A7344Fc0606034Fc05C388A62F83C484228Cb1E9Be8Bf4055Ff09F8F4A044;
+    200: Output7F617Ddc14B6Df274D226551B825C90A4F977A14591Bdfd1Ddc94B5F6066Bce5;
 };
 
-export type PostV1StudioSdkReportsGetResponse = PostV1StudioSdkReportsGetResponses[keyof PostV1StudioSdkReportsGetResponses];
+export type PostV1StudioSdkPublicationsPublishResponse = PostV1StudioSdkPublicationsPublishResponses[keyof PostV1StudioSdkPublicationsPublishResponses];
 
-export type PostV1StudioSdkReportsListData = {
-    body?: {
-        connectorName?: string;
-        fields?: Array<string> | null;
+export type PostV1StudioSdkPublicationsRollbackData = {
+    body: {
+        input: InputB11523Bf8A7Cc12531330E851F7Fb2Dd5C4F01768E8Eaf6D9A50D7D84Ad1250b;
+        reportId: string;
+        versionNo: number;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/publications.rollback';
+};
+
+export type PostV1StudioSdkPublicationsRollbackResponses = {
+    /**
+     * Success response
+     */
+    200: OutputA717Afc38Cbc4D350Bb71Fb00Cf76Bef68Daf27B4650120E47C4D8379356F11f;
+};
+
+export type PostV1StudioSdkPublicationsRollbackResponse = PostV1StudioSdkPublicationsRollbackResponses[keyof PostV1StudioSdkPublicationsRollbackResponses];
+
+export type PostV1StudioSdkPublicationsUnpublishData = {
+    body: {
+        input: Input4B2C38475D83Ff82029Ec4520D07B5Ec88C1409199C252Fc696E28282C52561f;
+        reportId: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/publications.unpublish';
+};
+
+export type PostV1StudioSdkPublicationsUnpublishResponses = {
+    /**
+     * Success response
+     */
+    200: OutputA2A90743713296048071979D14B3Abdfc10B4Ee77E446Ab9Dbd7F2C07Bbe7266;
+};
+
+export type PostV1StudioSdkPublicationsUnpublishResponse = PostV1StudioSdkPublicationsUnpublishResponses[keyof PostV1StudioSdkPublicationsUnpublishResponses];
+
+export type PostV1StudioSdkResourcesDeleteFileData = {
+    body: InputD1B436Abf4Fd54A2Fa997Cbd492E576D712E8C35C087Bfcf2D72D6D2Dffb0F20;
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/resources.delete_file';
+};
+
+export type PostV1StudioSdkResourcesDeleteFileResponses = {
+    /**
+     * Success response
+     */
+    200: Wire721Df0D143Ac47Cf20D8D87A4361E4E8915E942Ebced01F43C2B54160Dbdff73;
+};
+
+export type PostV1StudioSdkResourcesDeleteFileResponse = PostV1StudioSdkResourcesDeleteFileResponses[keyof PostV1StudioSdkResourcesDeleteFileResponses];
+
+export type PostV1StudioSdkResourcesDeleteFolderData = {
+    body: InputCe5005B864956Cbc2469Fc8D71A73Cc80F19Dd86C8340815B1Edae79273B8769;
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/resources.delete_folder';
+};
+
+export type PostV1StudioSdkResourcesDeleteFolderResponses = {
+    /**
+     * Success response
+     */
+    200: Wire4Dce8Cb2Df5Cbfb88D4Ed91E9D3Efb3Bfd51De7Faa0095856Cda22845A38C9Cf;
+};
+
+export type PostV1StudioSdkResourcesDeleteFolderResponse = PostV1StudioSdkResourcesDeleteFolderResponses[keyof PostV1StudioSdkResourcesDeleteFolderResponses];
+
+export type PostV1StudioSdkResourcesDeleteSkillData = {
+    body: Input89A37Caef4565Ff5D5Aa4568065F46B182888B77F96C21Fb1Eed777C45878F9e;
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/resources.delete_skill';
+};
+
+export type PostV1StudioSdkResourcesDeleteSkillResponses = {
+    /**
+     * Success response
+     */
+    200: Wire898C903Bc4Eef9B996D8948010Fb2Ca3D9389D10Ce499B1Be1015Bbbba75993c;
+};
+
+export type PostV1StudioSdkResourcesDeleteSkillResponse = PostV1StudioSdkResourcesDeleteSkillResponses[keyof PostV1StudioSdkResourcesDeleteSkillResponses];
+
+export type PostV1StudioSdkResourcesGetData = {
+    body: {
+        reportId: string;
+        versionNo: number;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/resources.get';
+};
+
+export type PostV1StudioSdkResourcesGetResponses = {
+    /**
+     * Success response
+     */
+    200: Wire3C414184025D515E410A57E243B5070Ba45B75F1Bb950Da08536C0Ce5E8Fbde5;
+};
+
+export type PostV1StudioSdkResourcesGetResponse = PostV1StudioSdkResourcesGetResponses[keyof PostV1StudioSdkResourcesGetResponses];
+
+export type PostV1StudioSdkResourcesUpsertFileData = {
+    body: InputAdff4675F499A769Cb093E90Fbca27E902Af83Cc23C5E13071057671Fe8D89F0;
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/resources.upsert_file';
+};
+
+export type PostV1StudioSdkResourcesUpsertFileResponses = {
+    /**
+     * Success response
+     */
+    200: Wire13Cb2B9Fac8E64E2Df86Cc6097Eb0Eb4E31B922506E64Ca2Fb8D0Bc76Ccdaeec;
+};
+
+export type PostV1StudioSdkResourcesUpsertFileResponse = PostV1StudioSdkResourcesUpsertFileResponses[keyof PostV1StudioSdkResourcesUpsertFileResponses];
+
+export type PostV1StudioSdkResourcesUpsertFolderData = {
+    body: Input5Bcc88D6E28E27666Dfa5B56F82424Fa705C9Bf62E9E02961Ffb251630580697;
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/resources.upsert_folder';
+};
+
+export type PostV1StudioSdkResourcesUpsertFolderResponses = {
+    /**
+     * Success response
+     */
+    200: WireD1D5B1593453C747C2A4Ede5Bbb420Ceefcd6F25E711131Ddfa36910F076474d;
+};
+
+export type PostV1StudioSdkResourcesUpsertFolderResponse = PostV1StudioSdkResourcesUpsertFolderResponses[keyof PostV1StudioSdkResourcesUpsertFolderResponses];
+
+export type PostV1StudioSdkResourcesUpsertSkillData = {
+    body: Input96A025B75D7Ec5Ca504Acf90Ff2915C5535F1449Cf9023D5D424Dce58B581054;
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/resources.upsert_skill';
+};
+
+export type PostV1StudioSdkResourcesUpsertSkillResponses = {
+    /**
+     * Success response
+     */
+    200: Wire9E9F2A32Ff76Fe5Fcb226A8378824A3898F344E1E2394372932Dcdf203D1D145;
+};
+
+export type PostV1StudioSdkResourcesUpsertSkillResponse = PostV1StudioSdkResourcesUpsertSkillResponses[keyof PostV1StudioSdkResourcesUpsertSkillResponses];
+
+export type PostV1StudioSdkRuntimeStatusData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/runtime.status';
+};
+
+export type PostV1StudioSdkRuntimeStatusResponses = {
+    /**
+     * Success response
+     */
+    200: OutputAd75631E8D2823498E11Cfcb0D44Fbcce2C8Be956B896Ed2Be7B2D56Acb36688;
+};
+
+export type PostV1StudioSdkRuntimeStatusResponse = PostV1StudioSdkRuntimeStatusResponses[keyof PostV1StudioSdkRuntimeStatusResponses];
+
+export type PostV1StudioSdkVersionsApplyData = {
+    body: {
+        command: Input1962B8F8815D6B22B84F6C89D5Bf29530739F18F1Bed0742Ebc1F67A50636542;
+        reportId: string;
+        versionNo: number;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/versions.apply';
+};
+
+export type PostV1StudioSdkVersionsApplyResponses = {
+    /**
+     * Success response
+     */
+    200: WireA1D273D5932B1743E789689950989D814Cd8E3A90923654Fe30Afb020Fcc1Ece;
+};
+
+export type PostV1StudioSdkVersionsApplyResponse = PostV1StudioSdkVersionsApplyResponses[keyof PostV1StudioSdkVersionsApplyResponses];
+
+export type PostV1StudioSdkVersionsBuilderData = {
+    body: {
+        command: Input8B2294Ec4854C9Dd94236A9123A7D8Fe7Dbf92Cab403Fb011D6C8Bf7D53C5054;
+        reportId: string;
+        versionNo: number;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/versions.builder';
+};
+
+export type PostV1StudioSdkVersionsBuilderResponses = {
+    /**
+     * Success response
+     */
+    200: Wire73Cee385316804C80A6A21637351D4B09563A94C50436780D603Be1Be4525E58;
+};
+
+export type PostV1StudioSdkVersionsBuilderResponse = PostV1StudioSdkVersionsBuilderResponses[keyof PostV1StudioSdkVersionsBuilderResponses];
+
+export type PostV1StudioSdkVersionsCreateData = {
+    body: {
+        input: InputA0D3076A206576E1Fb379Faacd83A9E5289796C14E710E1Fe21529Cfb0C35C21;
+        reportId: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/versions.create';
+};
+
+export type PostV1StudioSdkVersionsCreateResponses = {
+    /**
+     * Success response
+     */
+    200: Wire59787F7087B974A90942D4D67D870A8382B1189Efe4Cc88Cfba1B0Ada4D89C75;
+};
+
+export type PostV1StudioSdkVersionsCreateResponse = PostV1StudioSdkVersionsCreateResponses[keyof PostV1StudioSdkVersionsCreateResponses];
+
+export type PostV1StudioSdkVersionsDescriptorData = {
+    body: {
+        reportId: string;
+        versionNo: number;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/versions.descriptor';
+};
+
+export type PostV1StudioSdkVersionsDescriptorResponses = {
+    /**
+     * Success response
+     */
+    200: Wire4865103E82A353748C5Cf4C44Eb18159E252732C3C48350Fe8B3411C3Af62117;
+};
+
+export type PostV1StudioSdkVersionsDescriptorResponse = PostV1StudioSdkVersionsDescriptorResponses[keyof PostV1StudioSdkVersionsDescriptorResponses];
+
+export type PostV1StudioSdkVersionsDownloadData = {
+    body: {
+        reportId: string;
+        versionNo: number;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/versions.download';
+};
+
+export type PostV1StudioSdkVersionsDownloadResponses = {
+    /**
+     * Success response
+     */
+    200: Wire460Cf67195Fceed0E09647Cd2Eec9022848F4Fecb76Be30099431C098E162Bea;
+};
+
+export type PostV1StudioSdkVersionsDownloadResponse = PostV1StudioSdkVersionsDownloadResponses[keyof PostV1StudioSdkVersionsDownloadResponses];
+
+export type PostV1StudioSdkVersionsExportDqlData = {
+    body: {
+        reportId: string;
+        versionNo: number;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/versions.export_dql';
+};
+
+export type PostV1StudioSdkVersionsExportDqlResponses = {
+    /**
+     * Success response
+     */
+    200: WireBb9C83695Ae936C7031Ab2428C59Ccda35A4E34Af9E6662A945012782Ac921E1;
+};
+
+export type PostV1StudioSdkVersionsExportDqlResponse = PostV1StudioSdkVersionsExportDqlResponses[keyof PostV1StudioSdkVersionsExportDqlResponses];
+
+export type PostV1StudioSdkVersionsGetData = {
+    body: {
+        reportId: string;
+        versionNo: number;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/versions.get';
+};
+
+export type PostV1StudioSdkVersionsGetResponses = {
+    /**
+     * Success response
+     */
+    200: Wire1E3Fdf8Fcb04453947F7D75766Cc316E3E09D18591Edbeef886727E071Fe5F28;
+};
+
+export type PostV1StudioSdkVersionsGetResponse = PostV1StudioSdkVersionsGetResponses[keyof PostV1StudioSdkVersionsGetResponses];
+
+export type PostV1StudioSdkVersionsInspectData = {
+    body: {
+        reportId: string;
+        versionNo: number;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/versions.inspect';
+};
+
+export type PostV1StudioSdkVersionsInspectResponses = {
+    /**
+     * Success response
+     */
+    200: WireAffe7195B4B994E2Bc73C2Eafa9399E8Aa7E19Dc564D21B68F89Ebdea0B9Ea19;
+};
+
+export type PostV1StudioSdkVersionsInspectResponse = PostV1StudioSdkVersionsInspectResponses[keyof PostV1StudioSdkVersionsInspectResponses];
+
+export type PostV1StudioSdkVersionsListData = {
+    body: {
+        input?: Input2D7353179486A6080C97A342425Fc1796B1A0E525Ea43989E78B586465C68Fb6;
         limit?: number;
-        namespace?: string;
         offset?: number;
-        orderBy?: string;
-        ownerId?: string;
-        query?: string;
-        status?: string;
+        reportId: string;
     };
     path?: never;
     query?: never;
-    url: '/v1/studio/sdk/reports.list';
+    url: '/v1/studio/sdk/versions.list';
 };
 
-export type PostV1StudioSdkReportsListResponses = {
+export type PostV1StudioSdkVersionsListResponses = {
     /**
      * Success response
      */
-    200: Wire38Fcb57C86Eb44D564D0165Fe128Aec29A7664C7Bb39427502B08Df9Aa42649a;
+    200: WireDda9A7E06F8980Ccc3D0D82Eca41C2Ab29259E1288943F9B5F95B433A84A7179;
 };
 
-export type PostV1StudioSdkReportsListResponse = PostV1StudioSdkReportsListResponses[keyof PostV1StudioSdkReportsListResponses];
+export type PostV1StudioSdkVersionsListResponse = PostV1StudioSdkVersionsListResponses[keyof PostV1StudioSdkVersionsListResponses];
+
+export type PostV1StudioSdkVersionsLoadArchiveData = {
+    body: {
+        input: Input05E809E9F99E43822A03E6818A8De1E9Fd48Cb2F10Be053F77C9Af8D2092E9D9;
+        reportId: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/versions.load_archive';
+};
+
+export type PostV1StudioSdkVersionsLoadArchiveResponses = {
+    /**
+     * Success response
+     */
+    200: Wire0Efe2807Dd8489Fd6B68A80Fcb3A13Eacf82Bee604Ffd94663Ddcf539A88Cd14;
+};
+
+export type PostV1StudioSdkVersionsLoadArchiveResponse = PostV1StudioSdkVersionsLoadArchiveResponses[keyof PostV1StudioSdkVersionsLoadArchiveResponses];
+
+export type PostV1StudioSdkVersionsLoadDqlData = {
+    body: {
+        input: Input808907Cf45A0Ab5F46A0Dc123Ed3A6A23958483A2Bfe6Af8Cdcfabaf2B54Af30;
+        reportId: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/versions.load_dql';
+};
+
+export type PostV1StudioSdkVersionsLoadDqlResponses = {
+    /**
+     * Success response
+     */
+    200: WireD5A1455Bb20Fa801E9C1447278E93F142E3212E863C81795F9D54E05D4B43C78;
+};
+
+export type PostV1StudioSdkVersionsLoadDqlResponse = PostV1StudioSdkVersionsLoadDqlResponses[keyof PostV1StudioSdkVersionsLoadDqlResponses];
+
+export type PostV1StudioSdkVersionsTestComposeData = {
+    body: {
+        input: Input4C3D58D8E922B5Abbd65732F09A81D45874F0F7555537Fd9607035Bfecb9F26c;
+        reportId: string;
+        versionNo: number;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/versions.test_compose';
+};
+
+export type PostV1StudioSdkVersionsTestComposeResponses = {
+    /**
+     * Success response
+     */
+    200: Wire8147805369C129Ab8A8Ae87482Dbb8Be4C51D1125Dda4427E8Adca5F845D6A7b;
+};
+
+export type PostV1StudioSdkVersionsTestComposeResponse = PostV1StudioSdkVersionsTestComposeResponses[keyof PostV1StudioSdkVersionsTestComposeResponses];
+
+export type PostV1StudioSdkVersionsTestRelationData = {
+    body: {
+        input?: Input57127985D5662Edb0B3D19B39A5C7C1E6Df20A3253Afa119615D9Abc0D06A16b;
+        relation: string;
+        reportId: string;
+        versionNo: number;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/versions.test_relation';
+};
+
+export type PostV1StudioSdkVersionsTestRelationResponses = {
+    /**
+     * Success response
+     */
+    200: Wire2Be0684Fe50E4D50E1C7Ed7799C8493F7A6Fbfe50Bcd3Ecfc3B2241E765F60Da;
+};
+
+export type PostV1StudioSdkVersionsTestRelationResponse = PostV1StudioSdkVersionsTestRelationResponses[keyof PostV1StudioSdkVersionsTestRelationResponses];
+
+export type PostV1StudioSdkVersionsTestViewData = {
+    body: {
+        input?: Input78C96702Ed752E425A13D515Ae18Bac86D71D27030700074199617129869Fe30;
+        reportId: string;
+        versionNo: number;
+        view: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/versions.test_view';
+};
+
+export type PostV1StudioSdkVersionsTestViewResponses = {
+    /**
+     * Success response
+     */
+    200: Wire0F446F07Ec6516F9B6A7F9E3De1D58Abb30Bb3608144Fb80728627765378E04e;
+};
+
+export type PostV1StudioSdkVersionsTestViewResponse = PostV1StudioSdkVersionsTestViewResponses[keyof PostV1StudioSdkVersionsTestViewResponses];
+
+export type PostV1StudioSdkVersionsValidateData = {
+    body: {
+        expectedSourceRevision: number;
+        reportId: string;
+        versionNo: number;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/versions.validate';
+};
+
+export type PostV1StudioSdkVersionsValidateResponses = {
+    /**
+     * Success response
+     */
+    200: Wire48193E904540171957F9Ef3A3A6Aa0D8618569B96Cf8C2Bd174Eb39C4Cf6443a;
+};
+
+export type PostV1StudioSdkVersionsValidateResponse = PostV1StudioSdkVersionsValidateResponses[keyof PostV1StudioSdkVersionsValidateResponses];
+
+export type PostV1StudioSdkVersionsWarmupData = {
+    body: {
+        reportId: string;
+        versionNo: number;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/versions.warmup';
+};
+
+export type PostV1StudioSdkVersionsWarmupResponses = {
+    /**
+     * Success response
+     */
+    200: Output06244387C0C9169E9E2Dd8C303D1B08D7C46Bddec31314Baa7Fdae523Ab96371;
+};
+
+export type PostV1StudioSdkVersionsWarmupResponse = PostV1StudioSdkVersionsWarmupResponses[keyof PostV1StudioSdkVersionsWarmupResponses];
+
+export type PostV1StudioSdkVersionsWarmupGetData = {
+    body: {
+        reportId: string;
+        runId: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/versions.warmup_get';
+};
+
+export type PostV1StudioSdkVersionsWarmupGetResponses = {
+    /**
+     * Success response
+     */
+    200: Output586257Ec0A228D28Fb8C1D7B9B6Ceb924795C406B09D9A86111F39A56368B032;
+};
+
+export type PostV1StudioSdkVersionsWarmupGetResponse = PostV1StudioSdkVersionsWarmupGetResponses[keyof PostV1StudioSdkVersionsWarmupGetResponses];
+
+export type PostV1StudioSdkVersionsWarmupListData = {
+    body: {
+        input?: InputB94652047B45C410057De4A3D589B99411E9B1Ce7012Ae301388C27534A7D71e;
+        reportId: string;
+        versionNo: number;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/versions.warmup_list';
+};
+
+export type PostV1StudioSdkVersionsWarmupListResponses = {
+    /**
+     * Success response
+     */
+    200: Wire34Bf0E88B3A420C7Ebd2B96F24F5Cb26490558416Af1D276Ad0E58Ea91Aac052;
+};
+
+export type PostV1StudioSdkVersionsWarmupListResponse = PostV1StudioSdkVersionsWarmupListResponses[keyof PostV1StudioSdkVersionsWarmupListResponses];

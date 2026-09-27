@@ -126,7 +126,7 @@ func insertConnector(ctx context.Context, tx *sql.Tx, name, description string, 
 }
 
 func insertReport(ctx context.Context, tx *sql.Tx, id, slug, title, description, connector, scope, name, status string, draftVersion int, now time.Time) error {
-	_, err := tx.ExecContext(ctx, `INSERT INTO reports(id, slug, title, description, owner_id, status, default_connector_name, component_scope, component_name, current_draft_version, etag, created_at, updated_at) VALUES (?, ?, ?, ?, 'system', ?, ?, ?, ?, ?, 1, ?, ?)`, id, slug, title, description, status, connector, scope, name, draftVersion, now, now)
+	_, err := tx.ExecContext(ctx, `INSERT INTO components(id, slug, title, description, owner_id, status, default_connector_name, component_scope, component_name, current_draft_version, etag, created_at, updated_at) VALUES (?, ?, ?, ?, 'system', ?, ?, ?, ?, ?, 1, ?, ?)`, id, slug, title, description, status, connector, scope, name, draftVersion, now, now)
 	return err
 }
 

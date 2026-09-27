@@ -85,4 +85,38 @@ describe('ReaderResourcesDialog',()=>{
     expect(api.upsertResourceFile).toHaveBeenCalledWith(expect.objectContaining({resourcePath:'skills/skill-1/SKILL.md',expectedSourceRevision:4}));
     expect(api.upsertSkillRoot).toHaveBeenCalledWith(expect.objectContaining({skillRoot:'skill-1',expectedSourceRevision:5}));
   });
+
+  test('reports a saved draft revision when the second skill save fails',async()=>{
+    const user=userEvent.setup();
+    const base={version:{versionNo:3,sourceRevision:4},files:[],folders:[{folderId:'folder',namespace:'alice.docs',rootPath:'skills',uriPrefix:'skill://alice-skills/'}],skills:[]};
+    const withFile={...base,version:{versionNo:3,sourceRevision:5},files:[{resourceId:'file',namespace:'alice.docs',resourcePath:'skills/skill-1/SKILL.md',content:'---\nname: skill-1\nallowed-tools: ""\n---\nGuide'}]};
+    const stale=Object.assign(new Error('skill declaration conflicted'),{code:'conflict'});
+    const api={getResources:vi.fn().mockResolvedValueOnce(base).mockResolvedValueOnce(withFile),listMCPTools:vi.fn().mockResolvedValue([]),upsertResourceFile:vi.fn().mockResolvedValue(withFile),upsertSkillRoot:vi.fn().mockRejectedValue(stale)};
+    const onChanged=vi.fn();
+    render(<ReaderResourcesDialog isOpen api={api} report={{id:'vendor',ownerPackage:'alice',title:'Vendor'}} version={{versionNo:3,sourceRevision:4}} onClose={vi.fn()} onChanged={onChanged}/>);
+    await user.click(await screen.findByRole('button',{name:'New skill'}));
+    await user.click(screen.getByRole('button',{name:'Create skill'}));
+    const alert=await screen.findByRole('alert');
+    expect(alert.textContent).toContain('source revision 5');
+    expect(alert.textContent).toContain('serving reader was not republished');
+    expect(alert.textContent).not.toContain('No resource change was applied');
+    expect(onChanged).toHaveBeenCalledWith(withFile.version);
+    await user.click(screen.getByRole('button',{name:'Reload resources'}));
+    expect(await screen.findByText('Revision 5')).toBeTruthy();
+  });
+
+  test('reports a saved draft revision when the second skill deletion fails',async()=>{
+    const user=userEvent.setup();
+    const base={version:{versionNo:3,sourceRevision:4},files:[{resourceId:'file',namespace:'alice.docs',resourcePath:'skills/SKILL.md',content:'---\nname: guide\n---\nGuide'}],folders:[{folderId:'folder',namespace:'alice.docs',rootPath:'skills',uriPrefix:'skill://alice-skills/'}],skills:[{skillId:'guide',folderId:'folder',skillRoot:'.'}]};
+    const withoutRoot={...base,version:{versionNo:3,sourceRevision:5},skills:[]};
+    const api={getResources:vi.fn().mockResolvedValue(base),listMCPTools:vi.fn().mockResolvedValue([]),deleteSkillRoot:vi.fn().mockResolvedValue(withoutRoot),deleteResourceFile:vi.fn().mockRejectedValue(new Error('file deletion failed'))};
+    const onChanged=vi.fn();
+    render(<ReaderResourcesDialog isOpen api={api} report={{id:'vendor',ownerPackage:'alice',title:'Vendor'}} version={{versionNo:3,sourceRevision:4}} onClose={vi.fn()} onChanged={onChanged}/>);
+    await user.click(await screen.findByRole('button',{name:'Delete skill .'}));
+    await user.click(screen.getByRole('button',{name:'Delete skill'}));
+    const alert=await screen.findByRole('alert');
+    expect(alert.textContent).toContain('source revision 5');
+    expect(alert.textContent).toContain('file deletion failed');
+    expect(onChanged).toHaveBeenCalledWith(withoutRoot.version);
+  });
 });

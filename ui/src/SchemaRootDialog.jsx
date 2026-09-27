@@ -22,7 +22,7 @@ export function SchemaRootDialog({ api, isOpen, connector, table, sql, onClose, 
     setSaving(true); setError('');
     let report;
     try {
-      report = await api.createReport({ title: draft.title.trim(), slug: draft.slug, description: `Reader rooted at ${table?.schema ? `${table.schema}.` : ''}${table?.name}.`, defaultConnectorName: connector });
+      report = await api.createComponent({ title: draft.title.trim(), slug: draft.slug, description: `Reader rooted at ${table?.schema ? `${table.schema}.` : ''}${table?.name}.`, defaultConnectorName: connector });
       const version = await api.createVersion(report.id, { authoringMode: 'dql', notes: `Root view created from ${table?.name}.` });
       const result = await api.applyReaderCommand(report.id, version.versionNo, {
         expectedSourceRevision: version.sourceRevision,

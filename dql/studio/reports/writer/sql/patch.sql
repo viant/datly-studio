@@ -1,2 +1,2 @@
 SELECT r.*, '' AS should_delete
-FROM reports r
+FROM components r

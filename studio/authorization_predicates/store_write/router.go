@@ -10,7 +10,7 @@ func init() {}
 
 // Component is the generated component scaffold for authorization_predicate.
 type AuthorizationPredicateComponent struct {
-	Contract xdatly.Component[Input, Output] "component:\"authorization_predicate,path=/_studio/authorization-predicate-store,method=PATCH,connector=studio,view=authorization_predicate\" routeName:\"authorization_predicate\" mutation:\"patch\" caseFormat:\"lc\""
+	Contract xdatly.Component[Input, Output] "component:\"authorization_predicate,path=/_studio/authorization-predicate-store,method=PATCH,connector=studio,view=authorization_predicate,internal=true\" routeName:\"authorization_predicate\" mutation:\"patch\" caseFormat:\"lc\""
 }
 
 // AuthorizationPredicateDatlyType keeps the public component type linked for blank-import discovery.

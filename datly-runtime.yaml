@@ -1,10 +1,22 @@
 HTTP:
   Address: 127.0.0.1:8082
+  CORS:
+    AllowOrigins: [https://studio.example.com]
+    AllowMethods: [GET, POST, OPTIONS]
+    AllowHeaders: [Content-Type, Authorization]
+    AllowCredentials: false
 MCP:
   Address: 127.0.0.1:8091
+  CORS:
+    AllowOrigins: [https://studio.example.com]
+    AllowMethods: [POST, OPTIONS]
+    AllowHeaders: [Content-Type, Authorization, Mcp-Protocol-Version, Mcp-Method, Mcp-Name, Mcp-Session-Id]
+    AllowCredentials: false
 Authentication:
   DefaultMode: required
   CertURL: https://idp.viantinc.com/v1/api/oauth2/certs
+  Issuer: https://idp.viantinc.com
+  Audience: datly-studio-web
 Studio:
   Driver: sqlite
   DSN: file:.data/studio.db?cache=shared

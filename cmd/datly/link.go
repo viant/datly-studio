@@ -1,0 +1,41 @@
+package main
+
+import (
+	"context"
+	"encoding/json"
+	"flag"
+	"fmt"
+	"io"
+
+	"github.com/viant/datly/project/build"
+)
+
+// runLink is an explicit developer command. Running, building, and
+// transcribing a Studio project never trigger source scans or link edits.
+func runLink(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	if len(args) < 2 || args[0] != "link" || args[1] != "sync" {
+		fmt.Fprintln(stderr, "usage: datly link sync [-dir project] [-link-package internal/dependencylink] [-tags tags] [Go package patterns]")
+		return 2
+	}
+	flags := flag.NewFlagSet("link sync", flag.ContinueOnError)
+	flags.SetOutput(stderr)
+	dir := flags.String("dir", ".", "project module root")
+	linkPackage := flags.String("link-package", build.DefaultLinkPackage, "application link package (internal/<name>)")
+	tags := flags.String("tags", "", "Go build tags")
+	if err := flags.Parse(args[2:]); err != nil {
+		if err == flag.ErrHelp {
+			return 0
+		}
+		return 2
+	}
+	result, err := (build.Service{}).SyncLinks(ctx, build.LinkRequest{Dir: *dir, LinkPackage: *linkPackage, Tags: *tags, Packages: flags.Args()})
+	if err != nil {
+		fmt.Fprintln(stderr, err)
+		return 1
+	}
+	if err := json.NewEncoder(stdout).Encode(result); err != nil {
+		fmt.Fprintln(stderr, err)
+		return 1
+	}
+	return 0
+}

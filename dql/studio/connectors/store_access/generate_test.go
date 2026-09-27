@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/viant/bindly/resource"
+	"github.com/viant/datly-studio/internal/datatest"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly/transcribe"
 	"github.com/viant/datly/transcribe/column"
@@ -42,7 +43,7 @@ func TestGenerateConnectorAccess(t *testing.T) {
 	compiled, err := transcribe.NewCompiler().Compile(ctx, &transcribe.Source{
 		Scope: "github.com/viant/datly-studio/dql/studio/connectors/store_access",
 		Name:  "connector", Path: "connector.dql", Text: string(payload), Connector: "studio",
-		Resources: resources, ColumnRefiner: column.New(column.Connections{"studio": db}),
+		Resources: resources, ColumnRefiner: column.New(column.Connections{"studio": db}), Types: datatest.StudioAuthorizationTypes(t),
 	})
 	if err != nil {
 		t.Fatal(err)

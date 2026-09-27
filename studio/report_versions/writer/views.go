@@ -13,7 +13,7 @@ type ReportVersion struct {
 	ResourceManifestJson json.RawMessage `sqlx:"resource_manifest_json,enc=JSON"`
 	ComponentDescriptorJson json.RawMessage `sqlx:"component_descriptor_json,enc=JSON"`
 	CompileDiagnosticsJson json.RawMessage `sqlx:"compile_diagnostics_json,enc=JSON"`
-	ReportId *string `sqlx:"report_id,primaryKey,refTable=reports,refColumn=id,required=true" validate:"required"`
+	ReportId *string `sqlx:"report_id,primaryKey,refTable=components,refColumn=id,required=true" validate:"required"`
 	VersionNo *int `sqlx:"version_no,primaryKey,required=true"`
 	State *string `validate:"required,choice(draft,validated,published,superseded,failed)" sqlx:"state,required=true"`
 	AuthoringMode *string `validate:"required,choice(sql,dql,structured)" sqlx:"authoring_mode,required=true"`
@@ -69,7 +69,7 @@ type CurrentVersionView struct {
 	ResourceManifestJson json.RawMessage `sqlx:"resource_manifest_json,enc=JSON"`
 	ComponentDescriptorJson json.RawMessage `sqlx:"component_descriptor_json,enc=JSON"`
 	CompileDiagnosticsJson json.RawMessage `sqlx:"compile_diagnostics_json,enc=JSON"`
-	ReportId *string `sqlx:"report_id,primaryKey,refTable=reports,refColumn=id,required=true" validate:"required"`
+	ReportId *string `sqlx:"report_id,primaryKey,refTable=components,refColumn=id,required=true" validate:"required"`
 	VersionNo *int `sqlx:"version_no,primaryKey,required=true"`
 	State *string `validate:"required,choice(draft,validated,published,superseded,failed)" sqlx:"state,required=true"`
 	AuthoringMode *string `validate:"required,choice(sql,dql,structured)" sqlx:"authoring_mode,required=true"`

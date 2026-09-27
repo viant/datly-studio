@@ -3,7 +3,6 @@ package sqltransport
 import (
 	"bytes"
 	"context"
-	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/viant/datly-studio/internal/dqlimport"
 	"github.com/viant/datly-studio/sdk"
 	imported "github.com/viant/datly-studio/studio/report_versions/store_import"
 	pointer "github.com/viant/datly-studio/studio/reports/store_draft_pointer"
@@ -68,6 +68,10 @@ func (t *Transport) loadDQL(ctx context.Context, operation string, input, output
 	if err != nil {
 		return err
 	}
+	capabilities, err := t.reportCapabilities(ctx, report.ID)
+	if err != nil {
+		return err
+	}
 	principal, ok := sdk.PrincipalFromContext(ctx)
 	if !ok {
 		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Studio principal is required"}
@@ -114,24 +118,18 @@ func (t *Transport) loadDQL(ctx context.Context, operation string, input, output
 	if err != nil {
 		return err
 	}
-	return assign(output, &sdk.DQLLoadResult{Version: value, EntryDQL: entry, Entries: bundle.Entries, Files: files})
+	return assign(output, &sdk.DQLLoadResult{Version: redactVersionDQL(value, capabilities.CanUseDQL), EntryDQL: entry, Entries: bundle.Entries, Files: files})
 }
 
 // importSpecHash binds the version hash to the whole bundle, not only the
 // entry document, so two imports with different dependencies never collide on
 // the (report_id, spec_hash) uniqueness rule.
 func importSpecHash(reportID string, versionNo int, source string, bundle *sdk.DQLBundle, files []string) string {
-	bundleHash := sha256.New()
-	for _, name := range files {
-		fmt.Fprintf(bundleHash, "%d:%s:%d:", len(name), name, len(bundle.Files[name]))
-		bundleHash.Write(bundle.Files[name])
-	}
-	return hashVersion(reportID, versionNo, "dql", "", source, []byte(fmt.Sprintf(`{"bundleSha256":"%x"}`, bundleHash.Sum(nil))))
+	return dqlimport.SpecHash(reportID, versionNo, source, bundle, files)
 }
 
-func importNamespace(report *sdk.Report) string {
-	digest := sha256.Sum256([]byte(report.ID))
-	return fmt.Sprintf("%s.imports.%x", report.OwnerPackage, digest[:8])
+func importNamespace(report *sdk.Component) string {
+	return dqlimport.Namespace(report.ID, report.OwnerPackage)
 }
 
 func importedVersionRow(reportID string, versionNo int, source, specHash, notes, createdBy string, createdAt time.Time) *imported.ImportedVersion {
@@ -165,7 +163,7 @@ func importedResourceFileRow(namespace, path string, content []byte, createdAt t
 		Has: &imported.ImportedResourceFileHas{Namespace: true, ResourcePath: true, Content: true, CreatedAt: true}}
 }
 
-func draftPointerRow(report *sdk.Report, versionNo int, updatedAt time.Time) *pointer.DraftPointer {
+func draftPointerRow(report *sdk.Component, versionNo int, updatedAt time.Time) *pointer.DraftPointer {
 	etag := report.ETag
 	draft := versionNo
 	return &pointer.DraftPointer{Id: report.ID, CurrentDraftVersion: &draft, Etag: &etag, UpdatedAt: &updatedAt,

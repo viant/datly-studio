@@ -19,6 +19,6 @@
 #define($_ = $Limit<int>(query/limit).Optional().QuerySelector('file'))
 #define($_ = $Offset<int>(query/offset).Optional().QuerySelector('file'))
 #define($_ = $Files<[]*ReportResourceFile>(output/view))
-SELECT resource_file.*, type(resource_file, 'ReportResourceFile'), set_limit(resource_file, 100), selector_fields(resource_file, true), selector_limit(resource_file, true), selector_offset(resource_file, true), allowed_order_by_columns(resource_file, 'namespace,resource_path,content_size,created_at')
+SELECT resource_file.*, type(resource_file, 'ReportResourceFile'), set_limit(resource_file, 100), allowed_order_by_columns(resource_file, 'namespace,resource_path,content_size,created_at')
 FROM (${embed:sql/read.sql}) resource_file
 WHERE 1=1

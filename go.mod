@@ -1,11 +1,5 @@
 module github.com/viant/datly-studio
 
-replace github.com/viant/datly => ../datly
-
-replace github.com/viant/xdatly => ../xdatly
-
-replace github.com/viant/sqlx => ../sqlx
-
 go 1.25.8
 
 require modernc.org/sqlite v1.45.0
@@ -18,12 +12,12 @@ require (
 	github.com/oapi-codegen/runtime v1.7.0
 	github.com/viant/bigquery v0.5.3
 	github.com/viant/bindly v0.2.1-0.20260915164201-7cf35da5bd9a
-	github.com/viant/datly v1.0.1-0.20260924050758-f968896067ed
+	github.com/viant/datly v1.0.1-0.20260927060432-26d4997542c6
 	github.com/viant/jsonrpc v0.25.0
 	github.com/viant/mcp v0.24.0
 	github.com/viant/mcp-protocol v0.19.0
 	github.com/viant/scy v0.35.1-0.20260914041206-699e6c909726
-	github.com/viant/sqlx v0.26.1-0.20260925094526-0a1e6ab72989
+	github.com/viant/sqlx v0.26.1-0.20260926165155-d53497ee41a1
 	github.com/viant/x v0.5.1-0.20260915043005-1bc42b9eef47
 	github.com/viant/xdatly v1.0.1-0.20260925011738-7249dcd4bf03
 	go.yaml.in/yaml/v3 v3.0.5

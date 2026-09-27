@@ -2,6 +2,7 @@ package predicatecatalog
 
 import (
 	"context"
+	"github.com/viant/datly-studio/studio/predicatecatalog/testdata/extension"
 	"github.com/viant/datly/typecatalog"
 	"github.com/viant/xdatly/predicate"
 	"reflect"
@@ -50,5 +51,20 @@ func TestCatalogLinksExplicitPredicatePackages(t *testing.T) {
 	}
 	if !catalog.Contains("example.com/project/authorization", "testPredicate") || catalog.Contains("example.com/project/authorization", "Missing") {
 		t.Fatalf("catalog=%+v", catalog.Descriptors())
+	}
+}
+
+func TestCatalogDiscoversOnlyLinkedHandlerTypesInAllowedPackage(t *testing.T) {
+	_ = extension.LinkedType
+	const packagePath = "github.com/viant/datly-studio/studio/predicatecatalog/testdata/extension"
+	catalog, err := New(Package{Alias: "extension", Path: packagePath})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !catalog.Contains(packagePath, "ReaderScope") || catalog.Contains(packagePath, "NotAPredicate") {
+		t.Fatalf("linked descriptors=%+v", catalog.Descriptors())
+	}
+	if _, err = New(Package{Path: "example.com/unlinked"}); err == nil {
+		t.Fatal("unlinked package was accepted")
 	}
 }

@@ -41,7 +41,7 @@ func TestReportGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 			"owner_id": "alice", "name": "general", "title": "General", "status": "active",
 			"etag": 1, "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00",
 		}}},
-		datatest.Table{Name: "reports", Rows: []datatest.Row{{
+		datatest.Table{Name: "components", Rows: []datatest.Row{{
 			"id": "r1", "slug": "first", "title": "First", "owner_id": "alice",
 			"status": "active", "default_connector_name": "main", "namespace": "general",
 			"component_scope": "reports/first", "component_name": "first",
@@ -100,11 +100,11 @@ func TestReportGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if names := toolService.Catalog().ToolNames(); !reflect.DeepEqual(names, []string{"studio.sdk.reports.get"}) {
+	if names := toolService.Catalog().ToolNames(); !reflect.DeepEqual(names, []string{"studio.sdk.components.get"}) {
 		t.Fatalf("MCP tools=%v", names)
 	}
 	invoke := func(subject, id string) (*ReportGetOutput, error) {
-		request := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/reports.get", bytes.NewBufferString(`{"id":"`+id+`"}`))
+		request := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/components.get", bytes.NewBufferString(`{"id":"`+id+`"}`))
 		request.Header.Set("Content-Type", "application/json")
 		if subject != "" {
 			request.Header.Set("Authorization", jwt.Bearer(t, subject))
@@ -114,7 +114,7 @@ func TestReportGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 			t.Fatal(scopeErr)
 		}
 		defer scope.Close()
-		value, invokeErr := runtime.ExecuteRoute(ctx, http.MethodPost, "/v1/studio/sdk/reports.get", scope)
+		value, invokeErr := runtime.ExecuteRoute(ctx, http.MethodPost, "/v1/studio/sdk/components.get", scope)
 		if invokeErr != nil {
 			return nil, invokeErr
 		}
@@ -142,7 +142,7 @@ func TestReportGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 		t.Fatal("missing JWT was accepted")
 	}
 	handler := gateway.NewHandler(runtime, nil, "test")
-	request := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/reports.get", bytes.NewBufferString(`{"id":"r1"}`))
+	request := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/components.get", bytes.NewBufferString(`{"id":"r1"}`))
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("Authorization", jwt.Bearer(t, "alice"))
 	response := httptest.NewRecorder()
@@ -160,7 +160,7 @@ func TestReportGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 		id      string
 		status  int
 	}{{"alice", "missing", http.StatusNotFound}, {"charlie", "r1", http.StatusNotFound}, {"", "r1", http.StatusUnauthorized}} {
-		denied := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/reports.get", bytes.NewBufferString(`{"id":"`+check.id+`"}`))
+		denied := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/components.get", bytes.NewBufferString(`{"id":"`+check.id+`"}`))
 		denied.Header.Set("Content-Type", "application/json")
 		if check.subject != "" {
 			denied.Header.Set("Authorization", jwt.Bearer(t, check.subject))
@@ -171,7 +171,7 @@ func TestReportGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 			t.Fatalf("HTTP %s/%s status=%d body=%s", check.subject, check.id, deniedResponse.Code, deniedResponse.Body.String())
 		}
 	}
-	missingID := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/reports.get", bytes.NewBufferString(`{}`))
+	missingID := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/components.get", bytes.NewBufferString(`{}`))
 	missingID.Header.Set("Content-Type", "application/json")
 	missingID.Header.Set("Authorization", jwt.Bearer(t, "alice"))
 	missingIDResponse := httptest.NewRecorder()
@@ -182,21 +182,21 @@ func TestReportGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	document, err := (openapi.Generator{}).Generate(ctx, openapi.Request{
 		Info:       openapi3.Info{Title: "Studio SDK", Version: "1"},
 		Components: []*registry.RegisteredComponent{authEntry, entry},
-		Routes:     []spec.RouteRef{{Method: http.MethodPost, Path: "/v1/studio/sdk/reports.get"}},
+		Routes:     []spec.RouteRef{{Method: http.MethodPost, Path: "/v1/studio/sdk/components.get"}},
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if document.Paths["/v1/studio/sdk/reports.get"].Post == nil {
-		t.Fatal("OpenAPI lacks reports.get POST route")
+	if document.Paths["/v1/studio/sdk/components.get"].Post == nil {
+		t.Fatal("OpenAPI lacks components.get POST route")
 	}
-	tool, ok := toolService.Registry().ToolRegistry.Get("studio.sdk.reports.get")
+	tool, ok := toolService.Registry().ToolRegistry.Get("studio.sdk.components.get")
 	if !ok {
 		t.Fatal("MCP report-get tool is missing")
 	}
 	callContext := context.WithValue(ctx, authorization.TokenKey, &authorization.Token{Token: jwt.Bearer(t, "bob")})
 	result, rpcErr := tool.Handler(callContext, &schema.CallToolRequest{Method: schema.MethodToolsCall,
-		Params: schema.CallToolRequestParams{Name: "studio.sdk.reports.get", Arguments: map[string]any{"id": "r1"}}})
+		Params: schema.CallToolRequestParams{Name: "studio.sdk.components.get", Arguments: map[string]any{"id": "r1"}}})
 	if rpcErr != nil || result == nil || result.IsError != nil && *result.IsError {
 		t.Fatalf("MCP report=%+v err=%v", result, rpcErr)
 	}
@@ -217,7 +217,7 @@ func TestReportGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 		t.Fatalf("revoked reader error=%v, want 404", err)
 	}
 	revokedTool, rpcErr := tool.Handler(callContext, &schema.CallToolRequest{Method: schema.MethodToolsCall,
-		Params: schema.CallToolRequestParams{Name: "studio.sdk.reports.get", Arguments: map[string]any{"id": "r1"}}})
+		Params: schema.CallToolRequestParams{Name: "studio.sdk.components.get", Arguments: map[string]any{"id": "r1"}}})
 	if rpcErr == nil && revokedTool != nil && (revokedTool.IsError == nil || !*revokedTool.IsError) {
 		t.Fatalf("revoked MCP reader returned data: %+v", revokedTool)
 	}

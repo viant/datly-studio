@@ -23,7 +23,7 @@ func TestGeneratedPackagesMatchCanonicalInventory(t *testing.T) {
 	repoRoot := filepath.Clean(filepath.Join("..", ".."))
 	canonical := map[string]bool{
 		"auth":       true,
-		"connectors": true, "namespaces": true, "reports": true, "report_versions": true, "report_views": true,
+		"connectors": true, "namespaces": true, "components": true, "reports": true, "report_versions": true, "report_views": true,
 		"report_parameters": true, "report_cube_configs": true, "report_mcp_exposures": true,
 		"report_resource_files": true, "report_resource_folders": true, "report_skill_roots": true,
 		"runtime_generations": true, "report_warmup_runs": true, "report_publications": true, "report_acl": true,
@@ -35,8 +35,8 @@ func TestGeneratedPackagesMatchCanonicalInventory(t *testing.T) {
 		"resource_namespace_claims": true,
 		"authorization_grants":      true,
 	}
-	legacy := map[string]bool{"report_filters": true, "components": true, "component_versions": true}
-	support := map[string]bool{"authorization": true, "host": true, "predicatecatalog": true}
+	legacy := map[string]bool{"report_filters": true}
+	support := map[string]bool{"authorization": true, "host": true, "predicatecatalog": true, "resources": true, "preview": true, "runtime": true}
 	for root, label := range map[string]string{filepath.Join(repoRoot, "studio"): "generated Go", filepath.Join(repoRoot, "dql", "studio"): "DQL"} {
 		entries, err := os.ReadDir(root)
 		if err != nil {
@@ -94,12 +94,6 @@ func TestServerOnlyStoreComponentsRemainInProcessOnly(t *testing.T) {
 			t.Fatalf("server-only BFF component %s is exposed by the public Datly bootstrap", path)
 		}
 	}
-	if path := "github.com/viant/datly-studio/studio/authorization_predicates/store_read"; strings.Contains(string(configuration), path) {
-		t.Fatalf("server-only predicate component %s is exposed by the public Datly bootstrap", path)
-	}
-	if path := "github.com/viant/datly-studio/studio/authorization_predicates/store_write"; strings.Contains(string(configuration), path) {
-		t.Fatalf("server-only predicate component %s is exposed by the public Datly bootstrap", path)
-	}
 	if path := "github.com/viant/datly-studio/studio/connectors/store_active"; strings.Contains(string(configuration), path) {
 		t.Fatalf("server-only connector component %s is exposed by the public Datly bootstrap", path)
 	}
@@ -114,45 +108,17 @@ func TestServerOnlyStoreComponentsRemainInProcessOnly(t *testing.T) {
 		"github.com/viant/datly-studio/studio/runtime_generations/store_insert",
 		"github.com/viant/datly-studio/studio/runtime_generations/store_state",
 		"github.com/viant/datly-studio/studio/runtime_generations/store_active_others",
-		"github.com/viant/datly-studio/studio/reports/store_run_access",
-		"github.com/viant/datly-studio/studio/reports/store_capabilities",
-		"github.com/viant/datly-studio/studio/reports/store_insert",
-		"github.com/viant/datly-studio/studio/reports/store_config",
-		"github.com/viant/datly-studio/studio/reports/store_global_access",
-		"github.com/viant/datly-studio/studio/reports/store_catalog",
 		"github.com/viant/datly-studio/studio/report_versions/store_preview_definition",
 		"github.com/viant/datly-studio/studio/connectors/store_preview_scoped",
-		"github.com/viant/datly-studio/studio/connectors/store_catalog",
 		"github.com/viant/datly-studio/studio/connectors/store_insert",
-		"github.com/viant/datly-studio/studio/connectors/store_usage",
-		"github.com/viant/datly-studio/studio/connectors/store_status",
-		"github.com/viant/datly-studio/studio/connectors/store_config",
-		"github.com/viant/datly-studio/studio/connectors/store_access",
 		"github.com/viant/datly-studio/studio/connectors/store_runtime_catalog",
-		"github.com/viant/datly-studio/studio/report_versions/store_head",
-		"github.com/viant/datly-studio/studio/report_versions/store_catalog",
-		"github.com/viant/datly-studio/studio/report_versions/store_insert",
-		"github.com/viant/datly-studio/studio/report_versions/store_edit",
-		"github.com/viant/datly-studio/studio/report_versions/store_validation",
 		"github.com/viant/datly-studio/studio/report_versions/store_state",
 		"github.com/viant/datly-studio/studio/report_versions/store_mcp_names",
-		"github.com/viant/datly-studio/studio/report_versions/store_import",
-		"github.com/viant/datly-studio/studio/reports/store_draft_pointer",
 		"github.com/viant/datly-studio/studio/report_acl/store_list",
 		"github.com/viant/datly-studio/studio/report_acl/store_one",
-		"github.com/viant/datly-studio/studio/report_acl/store_write",
-		"github.com/viant/datly-studio/studio/namespaces/store_read",
-		"github.com/viant/datly-studio/studio/namespaces/store_usage",
 		"github.com/viant/datly-studio/studio/namespaces/store_insert",
-		"github.com/viant/datly-studio/studio/namespaces/store_write",
 		"github.com/viant/datly-studio/studio/namespaces/store_access",
-		"github.com/viant/datly-studio/studio/report_resource_files/store_snapshot",
-		"github.com/viant/datly-studio/studio/resource_namespaces/store_usage",
-		"github.com/viant/datly-studio/studio/resource_namespaces/store_presence",
-		"github.com/viant/datly-studio/studio/resource_namespace_claims/store_write",
 		"github.com/viant/datly-studio/studio/authorization_grants/store_read",
-		"github.com/viant/datly-studio/studio/report_resource_folders/store_snapshot",
-		"github.com/viant/datly-studio/studio/report_skill_roots/store_snapshot",
 		"github.com/viant/datly-studio/studio/report_publication_events/store_list",
 		"github.com/viant/datly-studio/studio/report_publication_events/store_owner",
 		"github.com/viant/datly-studio/studio/report_publication_events/store_insert",
@@ -163,12 +129,72 @@ func TestServerOnlyStoreComponentsRemainInProcessOnly(t *testing.T) {
 		"github.com/viant/datly-studio/studio/report_publications/store_active_others",
 		"github.com/viant/datly-studio/studio/report_publications/store_repoint",
 		"github.com/viant/datly-studio/studio/report_publications/store_runtime_catalog",
-		"github.com/viant/datly-studio/studio/report_warmup_runs/store_read",
-		"github.com/viant/datly-studio/studio/report_warmup_runs/store_expired",
-		"github.com/viant/datly-studio/studio/report_warmup_runs/store_write",
 	} {
 		if strings.Contains(string(configuration), path) {
 			t.Fatalf("server-only component %s is exposed by the public Datly bootstrap", path)
+		}
+	}
+}
+
+func TestSelectedPrivateWorkflowChildrenStayInternalOnly(t *testing.T) {
+	configuration, err := os.ReadFile(filepath.Join("..", "..", "datly.yaml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, item := range []struct{ path, router string }{
+		{"studio/report_versions/store_edit", "studio/report_versions/store_edit/router.go"},
+		{"studio/report_versions/store_validation", "studio/report_versions/store_validation/router.go"},
+		{"studio/report_versions/store_catalog", "studio/report_versions/store_catalog/router.go"},
+		{"studio/report_versions/store_touch", "studio/report_versions/store_touch/router.go"},
+		{"studio/report_versions/store_import", "studio/report_versions/store_import/router.go"},
+		{"studio/reports/store_draft_pointer", "studio/reports/store_draft_pointer/router.go"},
+		{"studio/report_acl/store_write", "studio/report_acl/store_write/router.go"},
+		{"studio/reports/edit_guard", "studio/reports/edit_guard/router.go"},
+		{"studio/reports/store_config", "studio/reports/store_config/router.go"},
+		{"studio/report_versions/store_head", "studio/report_versions/store_head/router.go"},
+		{"studio/report_versions/store_insert", "studio/report_versions/store_insert/router.go"},
+		{"studio/reports/store_capabilities", "studio/reports/store_capabilities/router.go"},
+		{"studio/reports/store_global_access", "studio/reports/store_global_access/router.go"},
+		{"studio/reports/store_run_access", "studio/reports/store_run_access/router.go"},
+		{"studio/authorization_predicates/store_read", "studio/authorization_predicates/store_read/router.go"},
+		{"studio/authorization_predicates/store_insert", "studio/authorization_predicates/store_insert/router.go"},
+		{"studio/authorization_predicates/store_write", "studio/authorization_predicates/store_write/router.go"},
+		{"studio/connectors/store_access", "studio/connectors/store_access/router.go"},
+		{"studio/connectors/store_catalog", "studio/connectors/store_catalog/router.go"},
+		{"studio/connectors/store_config", "studio/connectors/store_config/router.go"},
+		{"studio/connectors/store_status", "studio/connectors/store_status/router.go"},
+		{"studio/connectors/store_usage", "studio/connectors/store_usage/router.go"},
+		{"studio/namespaces/store_read", "studio/namespaces/store_read/router.go"},
+		{"studio/namespaces/store_usage", "studio/namespaces/store_usage/router.go"},
+		{"studio/namespaces/store_write", "studio/namespaces/store_write/router.go"},
+		{"studio/reports/store_insert", "studio/reports/store_insert/router.go"},
+		{"studio/reports/store_catalog", "studio/reports/store_catalog/router.go"},
+		{"studio/report_resource_files/store_download", "studio/report_resource_files/store_download/router.go"},
+		{"studio/report_resource_files/store_download_budget", "studio/report_resource_files/store_download_budget/router.go"},
+		{"studio/report_resource_files/store_snapshot", "studio/report_resource_files/store_snapshot/router.go"},
+		{"studio/report_resource_files/store_write", "studio/report_resource_files/store_write/router.go"},
+		{"studio/report_resource_folders/store_snapshot", "studio/report_resource_folders/store_snapshot/router.go"},
+		{"studio/report_resource_folders/store_write", "studio/report_resource_folders/store_write/router.go"},
+		{"studio/report_skill_roots/store_snapshot", "studio/report_skill_roots/store_snapshot/router.go"},
+		{"studio/report_skill_roots/store_write", "studio/report_skill_roots/store_write/router.go"},
+		{"studio/resource_namespace_claims/store_write", "studio/resource_namespace_claims/store_write/router.go"},
+		{"studio/resource_namespaces/store_presence", "studio/resource_namespaces/store_presence/router.go"},
+		{"studio/resource_namespaces/store_usage", "studio/resource_namespaces/store_usage/router.go"},
+		{"studio/reports/publish_guard", "studio/reports/publish_guard/router.go"},
+		{"studio/report_warmup_runs/store_expired", "studio/report_warmup_runs/store_expired/router.go"},
+		{"studio/report_warmup_runs/store_read", "studio/report_warmup_runs/store_read/router.go"},
+		{"studio/report_warmup_runs/store_write", "studio/report_warmup_runs/store_write/router.go"},
+	} {
+		packagePath := "github.com/viant/datly-studio/" + item.path
+		if !strings.Contains(string(configuration), packagePath) {
+			t.Fatalf("native workflow child %s is not selected", packagePath)
+		}
+		metadata, readErr := os.ReadFile(filepath.Join("..", "..", item.router))
+		if readErr != nil {
+			t.Fatal(readErr)
+		}
+		if !strings.Contains(string(metadata), "internal=true") || strings.Contains(string(metadata), ` mcp:"`) {
+			t.Fatalf("selected child %s is not internal-only", packagePath)
 		}
 	}
 }
@@ -254,6 +280,7 @@ func TestEveryStaticDatlyComponentContract(t *testing.T) {
 		{"namespaces/store_access/namespace.dql", "get"},
 		{"reports/reader/report.dql", "get"}, {"reports/writer/report.dql", "patch"},
 		{"reports/get/report.dql", "get"},
+		{"reports/publish_guard/report.dql", "get"},
 		{"report_publications/get/publication.dql", "get"},
 		{"reports/store_run_access/access.dql", "get"},
 		{"reports/store_capabilities/capability.dql", "get"},
@@ -265,7 +292,7 @@ func TestEveryStaticDatlyComponentContract(t *testing.T) {
 		{"report_mcp_exposures/reader/exposure.dql", "get"}, {"report_mcp_exposures/writer/exposure.dql", "patch"},
 		{"report_resource_files/reader/file.dql", "get"}, {"report_resource_files/writer/file.dql", "patch"},
 		{"report_resource_files/store_skill_content/file.dql", "get"},
-		{"report_resource_files/store_download/file.dql", "get"}, {"report_resource_files/store_snapshot/file.dql", "get"},
+		{"report_resource_files/store_download/file.dql", "get"}, {"report_resource_files/store_download_budget/budget.dql", "get"}, {"report_resource_files/store_snapshot/file.dql", "get"},
 		{"resource_namespaces/store_usage/usage.dql", "get"},
 		{"resource_namespaces/store_presence/usage.dql", "get"},
 		{"resource_namespace_claims/store_write/claim.dql", "patch"},
@@ -284,6 +311,7 @@ func TestEveryStaticDatlyComponentContract(t *testing.T) {
 		{"runtime_generations/store_state/generation.dql", "patch"},
 		{"runtime_generations/store_active_others/generation.dql", "get"},
 		{"report_warmup_runs/reader/warmup_run.dql", "get"},
+		{"report_warmup_runs/get/warmup_run.dql", "get"},
 		{"report_warmup_runs/store_read/warmup_run.dql", "get"},
 		{"report_warmup_runs/store_expired/warmup_run.dql", "get"},
 		{"report_warmup_runs/store_write/warmup_run.dql", "patch"},
@@ -302,6 +330,7 @@ func TestEveryStaticDatlyComponentContract(t *testing.T) {
 		{"bff_sessions/reader/session.dql", "get"}, {"bff_sessions/writer/session.dql", "patch"},
 		{"bff_sessions/store_read/session.dql", "get"},
 		{"authorization_predicates/store_read/authorization_predicate.dql", "get"},
+		{"authorization_predicates/store_insert/authorization_predicate.dql", "post"},
 		{"authorization_predicates/store_write/authorization_predicate.dql", "patch"},
 		{"bff_sessions/store_expired/session.dql", "get"}, {"bff_sessions/store_write/session.dql", "patch"},
 		{"report_publications/reader/publication.dql", "get"}, {"report_publications/writer/publication.dql", "patch"},

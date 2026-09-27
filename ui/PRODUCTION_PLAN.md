@@ -4,6 +4,12 @@ Status: active implementation plan
 Audience: Datly, Studio, Forge, and UX reviewers
 Product mode: operate — production SQL authors building Datly reader components
 
+Product boundary: Studio authors MCP tools and Skills from Datly components.
+The `components` table and `components.*` SDK operations are component-record
+contracts, not a presentation-report feature. Presentation reports are
+outside this project. A future UI definition may be a typed, versioned view over the
+compiled component descriptor; it must not duplicate Datly execution logic.
+
 ## Product direction
 
 Datly Studio opens a component on its compiled view graph. The graph is the
@@ -59,14 +65,20 @@ The UI distinguishes DQL ownership:
 
 ## Current verified deficiencies
 
-- Claude/Fable 5.1 external approval remains unavailable; every matrix row is
-  locally evidenced but cannot be marked externally approved yet.
-- The product owner authorized Codex Astra low as the available substitute.
-  Dual-agent Astra review approved the targeted graph/SQL/component/MCP changes
+- The independent GPT-6 Sol UX review resumed after the UI unit suite passed.
+  Its scoped Skills findings were fixed and re-reviewed without remaining P1/P2
+  issues. The later, substantial Output catalog change received a separate
+  post-test GPT-6 Sol review with no remaining scoped P1/P2 issue. A 2026-09-26
+  whole-product local Chrome pass found no confirmed P1/P2 issue in the mocked
+  auth, graph/SQL and wide-column flows. Deployed IdP, denied-user, spoken
+  screen-reader and 200% zoom conditions still prevent production acceptance.
+  A later direct-auth Sign out change received its own post-test GPT-6 Sol
+  review at desktop and 390 px; no scoped P1/P2 issue remained.
+- The historical Codex Astra low review approved targeted graph/SQL/component/MCP changes
   after all reported P1 findings were fixed; untested authentication,
   deployment, failure-recovery, theme/contrast/zoom, and full screen-reader
   scenarios remain conditions rather than inferred approval.
-- The production build keeps the SQL editor in a lazy 687 kB chunk. It is not
+- The production build keeps the SQL editor in a lazy 673 kB chunk. It is not
   initial-load JavaScript, but Vite still reports the chunk-size warning and a
   real deployment profile should decide whether further editor splitting is
   worthwhile.
@@ -87,9 +99,9 @@ The UI distinguishes DQL ownership:
 - Add deterministic representative fixtures for large graphs, 200 predicates,
   and 100 columns.
 - Establish desktop and narrow screenshot routes.
-- Fable 5.1 external review is pending. Record model, date, desktop-web
-  viewport, scenario, findings, fixes, and final verdict in `UX_REVIEW.md`; do
-  not use a fallback reviewer or represent any local review as Fable approval.
+- The separate GPT-6 Sol UX review resumed after the UI unit suite passed.
+  Record model, date, viewport, scenario, findings, fixes, and final verdict
+  in `UX_REVIEW.md`. Historical local reviews do not supply this verdict.
 
 ### Phase 1 — shell and governed catalogs
 
@@ -163,10 +175,11 @@ The UI distinguishes DQL ownership:
 
 Every row requires functional SDK evidence, loading/empty/error/denied/conflict
 states as applicable, desktop and narrow review, keyboard review, rendered tests,
-production build, and a recorded independent reviewer verdict. Fable 5.1 is
-preferred when available. Astra output is not accepted as UX approval.
+production build, and a recorded independent GPT-6 Sol reviewer verdict.
+Historical Astra output does not close the new review gate. The entries below
+retain prior local verdicts; current scoped findings are in `UX_REVIEW.md`.
 
-| Surface | Functional | Responsive/a11y | Independent UX approval |
+| Surface | Functional | Responsive/a11y | Historical local review |
 | --- | --- | --- | --- |
 | Session and application shell | hardened BFF plus encrypted DB-backed shared sessions and issuer/audience binding implemented | security review, full Go suite, and rendered loading/sign-in/error/retry/expiry tests passed | Codex Astra low: **APPROVE WITH CONDITIONS** — deployed IdP return/expiry |
 | Overview | implemented with partial-failure isolation | desktop web locally verified | Codex Astra low: **APPROVE** |

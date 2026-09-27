@@ -9,21 +9,36 @@ import (
 	"database/sql"
 	"encoding/json"
 	"encoding/pem"
+	"fmt"
 	"io"
 	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
 	jwtlib "github.com/golang-jwt/jwt/v5"
+	"github.com/viant/datly-studio/internal/bffauth"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk/access"
 	accessstore "github.com/viant/datly-studio/store/sql/access"
+	"github.com/viant/datly-studio/studio/predicatecatalog/testdata/extension"
 	mcpschema "github.com/viant/mcp-protocol/schema"
+	scyjwt "github.com/viant/scy/auth/jwt"
 	_ "modernc.org/sqlite"
 )
+
+type scopedBFFVerifier struct{}
+
+func (scopedBFFVerifier) VerifyClaims(_ context.Context, _ string) (*scyjwt.Claims, error) {
+	claims := &scyjwt.Claims{}
+	claims.Subject = "alice"
+	return claims, nil
+}
 
 const (
 	scopeTestIssuer   = "https://access.example"
@@ -54,6 +69,16 @@ const unscopedRecordsDQL = `#package('example.com/runtime/records')
 #define($_ = $Records<[]*Record>(output/view))
 SELECT records.*, type(records,'Record')
 FROM (SELECT t.id, t.name FROM tasks t ORDER BY t.id) records`
+
+const linkedExtensionDQL = `#package('example.com/runtime/tasks')
+#import('extension','github.com/viant/datly-studio/studio/predicatecatalog/testdata/extension')
+#setting($_ = $connector('source'))
+#setting($_ = $route('/tasks','GET'))
+#setting($_ = $mcp('tasks.list','List tasks'))
+#define($_ = $Selected<bool>(query/selected).WithTag('json:"selected"').Required().WithPredicate(0,'handler','extension.ReaderScope'))
+#define($_ = $Tasks<[]*Task>(output/view))
+SELECT tasks.*, type(tasks,'Task')
+FROM (SELECT t.id, t.project_id, t.name FROM tasks t ${predicate.Builder().CombineAnd($predicate.FilterGroup(0, "AND")).Build("WHERE")} ORDER BY t.id) tasks`
 
 type scopedHost struct {
 	service  *Service
@@ -93,6 +118,10 @@ func (d *narrowingDecisions) Evaluate(_ context.Context, _ access.Request, _ acc
 }
 
 func newScopedHost(t *testing.T, reports map[string]string, policies map[string]access.Policy, decisions ...access.DecisionProvider) (*scopedHost, error) {
+	return newScopedHostConfigured(t, reports, policies, nil, decisions...)
+}
+
+func newScopedHostConfigured(t *testing.T, reports map[string]string, policies map[string]access.Policy, configure func(*ResourceAccessConfig), decisions ...access.DecisionProvider) (*scopedHost, error) {
 	t.Helper()
 	ctx := context.Background()
 	root := t.TempDir()
@@ -126,7 +155,7 @@ INSERT INTO tasks VALUES(1,101,'alpha-101'),(2,102,'beta-102'),(3,103,'gamma-103
 	}
 	for reportID, dql := range reports {
 		scope := "example.com/runtime/" + reportID
-		if _, err = studio.Exec(`INSERT INTO reports(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES(?,?,?,'owner','active','source',?,?,1,?,?)`, reportID, reportID, reportID, scope, reportID, now, now); err != nil {
+		if _, err = studio.Exec(`INSERT INTO components(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES(?,?,?,'owner','active','source',?,?,1,?,?)`, reportID, reportID, reportID, scope, reportID, now, now); err != nil {
 			t.Fatal(err)
 		}
 		if _, err = studio.Exec(`INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES(?,1,'published','dql',?,?,'{}','studio.v1','hash','{}','valid','v1','studio.v1',1,'owner',?)`, reportID, dql, dql, now); err != nil {
@@ -155,6 +184,9 @@ INSERT INTO tasks VALUES(1,101,'alpha-101'),(2,102,'beta-102'),(3,103,'gamma-103
 		Studio:         Studio{Driver: "sqlite", DSN: studioDSN}, Admin: Admin{Token: "test-token"}, RootDir: root,
 		Access: &ResourceAccessConfig{Tenant: scopeTestTenant, Issuer: scopeTestIssuer, Audience: scopeTestAudience, PublicKeyFile: keyFile},
 	}
+	if configure != nil {
+		configure(config.Access)
+	}
 	if len(decisions) > 0 {
 		config.DecisionProvider = decisions[0]
 	}
@@ -164,7 +196,7 @@ INSERT INTO tasks VALUES(1,101,'alpha-101'),(2,102,'beta-102'),(3,103,'gamma-103
 	}
 	store := service.resourceAccess.Store.(*accessstore.Store)
 	for reportID, policy := range policies {
-		if _, err = store.Provision(ctx, access.Document{Resource: access.Resource{Kind: "component", ID: reportID, Version: "1", Tenant: scopeTestTenant}, Policies: map[string]access.Policy{"execute": policy}}, "bootstrap"); err != nil {
+		if _, err = store.Provision(ctx, access.Document{Resource: access.Resource{Kind: "component", ID: reportID, Version: "1", Tenant: config.Access.Tenant}, Policies: map[string]access.Policy{"execute": policy}}, "bootstrap"); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -262,6 +294,146 @@ func (h *scopedHost) callTool(t *testing.T, token, name string, arguments map[st
 	defer response.Body.Close()
 	body, _ := io.ReadAll(response.Body)
 	return response.StatusCode, string(body)
+}
+
+func TestPublishedReaderRequiresAllowlistedLinkedPredicateBeforeServing(t *testing.T) {
+	_ = extension.LinkedType
+	const extensionPath = "github.com/viant/datly-studio/studio/predicatecatalog/testdata/extension"
+	policy := access.Policy{Mode: "protected", Rule: &access.Rule{Kind: "role", Value: "reader"}}
+	t.Setenv("STUDIO_PREDICATE_PACKAGES", "")
+	if _, err := newScopedHost(t, map[string]string{"tasks": linkedExtensionDQL}, map[string]access.Policy{"tasks": policy}); err == nil || !strings.Contains(err.Error(), "handler predicate type") {
+		t.Fatalf("unlinked published predicate was accepted: %v", err)
+	}
+	t.Setenv("STUDIO_PREDICATE_PACKAGES", extensionPath)
+	host, err := newScopedHost(t, map[string]string{"tasks": linkedExtensionDQL}, map[string]access.Policy{"tasks": policy})
+	if err != nil {
+		t.Fatal(err)
+	}
+	token := host.token(t, "alice", []access.Entity{})
+	status, body := host.get(t, "/tasks?selected=true", token, nil)
+	if status != http.StatusOK {
+		t.Fatalf("linked predicate HTTP status=%d body=%s", status, body)
+	}
+	assertRows(t, body, []string{"alpha-101"}, []string{"beta-102", "gamma-103", "delta-104"})
+	status, body = host.callTool(t, token, "tasks.list", map[string]any{"selected": true})
+	if status != http.StatusOK || strings.Contains(body, `"isError":true`) {
+		t.Fatalf("linked predicate MCP status=%d body=%s", status, body)
+	}
+	assertRows(t, body, []string{"alpha-101"}, []string{"beta-102", "gamma-103", "delta-104"})
+}
+
+func TestPublishedReaderUsesCurrentUserInfoFeaturesOnHTTPAndMCP(t *testing.T) {
+	var allowExport atomic.Bool
+	allowExport.Store(true)
+	var account atomic.Int64
+	account.Store(21)
+	userInfo := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Authorization") == "" {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		features := `[]`
+		if allowExport.Load() {
+			features = `["export"]`
+		}
+		_, _ = fmt.Fprintf(w, `{"status":"ok","info":{"uid":"alice","userId":7,"accountId":%d,"roles":[],"features":%s}}`, account.Load(), features)
+	}))
+	defer userInfo.Close()
+	dql := strings.Replace(unscopedRecordsDQL, "#define($_ = $Records", "#setting($_ = $mcp('records.list','List records'))\n#define($_ = $Records", 1)
+	policy := access.Policy{Mode: "protected", Rule: &access.Rule{Kind: "exposure", Value: "export"}}
+	host, err := newScopedHostConfigured(t, map[string]string{"records": dql}, map[string]access.Policy{"records": policy}, func(config *ResourceAccessConfig) {
+		config.Tenant = "21"
+		config.UserInfoURL = userInfo.URL
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	token, err := jwtlib.NewWithClaims(jwtlib.SigningMethodRS256, jwtlib.MapClaims{
+		"iss": scopeTestIssuer, "aud": scopeTestAudience, "sub": "alice", "user_id": 7, "account_id": 21,
+		"exp": time.Now().Add(59 * time.Minute).Unix(),
+	}).SignedString(host.key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	status, body := host.get(t, "/records", token, nil)
+	if status != http.StatusOK {
+		t.Fatalf("published user-info HTTP status=%d body=%s", status, body)
+	}
+	assertRows(t, body, []string{"alpha-101", "delta-104"}, nil)
+	status, body = host.callTool(t, token, "records.list", nil)
+	if status != http.StatusOK || strings.Contains(body, `"isError":true`) {
+		t.Fatalf("published user-info MCP status=%d body=%s", status, body)
+	}
+	assertRows(t, body, []string{"alpha-101", "delta-104"}, nil)
+	allowExport.Store(false)
+	status, body = host.get(t, "/records", token, nil)
+	if status != http.StatusForbidden {
+		t.Fatalf("removed feature HTTP status=%d body=%s", status, body)
+	}
+	status, body = host.callTool(t, token, "records.list", nil)
+	if status != http.StatusOK || !strings.Contains(body, `"message":"MCP tool authorization denied"`) || strings.Contains(body, "alpha-101") {
+		t.Fatalf("removed feature MCP status=%d body=%s", status, body)
+	}
+	allowExport.Store(true)
+	account.Store(22)
+	status, body = host.get(t, "/records", token, nil)
+	if status != http.StatusForbidden {
+		t.Fatalf("changed account HTTP status=%d body=%s", status, body)
+	}
+}
+
+func TestScopedMCPToolWorksThroughAuthenticatedBFFProxy(t *testing.T) {
+	reader := &access.Rule{Kind: "role", Value: "reader"}
+	policy := access.Policy{Mode: "protected", Rule: reader, EntityType: "project"}
+	host, err := newScopedHost(t, map[string]string{"tasks": scopedTasksDQL}, map[string]access.Policy{"tasks": policy})
+	if err != nil {
+		t.Fatal(err)
+	}
+	token := host.token(t, "alice", []access.Entity{{Type: "project", ID: "101"}})
+	sessions, err := bffauth.New(bffauth.Config{}, scopedBFFVerifier{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	id, _, _, err := sessions.Exchange(context.Background(), token)
+	if err != nil {
+		t.Fatal(err)
+	}
+	target, err := url.Parse("http://" + host.mcpAddr)
+	if err != nil {
+		t.Fatal(err)
+	}
+	proxy, err := sessions.Proxy(target, "/v1/studio/mcp")
+	if err != nil {
+		t.Fatal(err)
+	}
+	payload, err := json.Marshal(map[string]any{"jsonrpc": "2.0", "id": 1, "method": mcpschema.MethodToolsCall,
+		"params": map[string]any{"name": "tasks.list", "arguments": map[string]any{}, "_meta": map[string]any{
+			"io.modelcontextprotocol/protocolVersion":    mcpschema.LatestProtocolVersion,
+			"io.modelcontextprotocol/clientCapabilities": map[string]any{},
+		}},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	request := httptest.NewRequest(http.MethodPost, "/v1/studio/mcp/mcp", bytes.NewReader(payload))
+	request.AddCookie(&http.Cookie{Name: bffauth.DefaultCookieName, Value: id})
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("Accept", "application/json, text/event-stream")
+	request.Header.Set(mcpschema.HeaderProtocolVersion, mcpschema.LatestProtocolVersion)
+	request.Header.Set(mcpschema.HeaderMethod, mcpschema.MethodToolsCall)
+	request.Header.Set("Mcp-Name", "tasks.list")
+	request.Header.Set("Authorization", "Bearer attacker")
+	response := httptest.NewRecorder()
+	proxy.ServeHTTP(response, request)
+	if response.Code != http.StatusOK || strings.Contains(response.Body.String(), `"isError":true`) {
+		t.Fatalf("authenticated MCP status=%d body=%s", response.Code, response.Body.String())
+	}
+	assertRows(t, response.Body.String(), []string{"alpha-101"}, []string{"beta-102", "gamma-103", "delta-104"})
+	denied := httptest.NewRecorder()
+	proxy.ServeHTTP(denied, httptest.NewRequest(http.MethodPost, "/v1/studio/mcp/mcp", bytes.NewReader(payload)))
+	if denied.Code != http.StatusUnauthorized {
+		t.Fatalf("cookie-less MCP status=%d body=%s", denied.Code, denied.Body.String())
+	}
 }
 
 func (h *scopedHost) replacePolicy(t *testing.T, reportID string, policy access.Policy) {
@@ -536,7 +708,7 @@ func TestScopedComponentIsRejectedWithoutGenericAccess(t *testing.T) {
 		args []any
 	}{
 		{`INSERT INTO connectors(name,driver,dsn_template,owner_id,status,options_json,etag,created_at,updated_at) VALUES('source','sqlite',?,'owner','active','{}',1,?,?)`, []any{sourceDSN, now, now}},
-		{`INSERT INTO reports(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('tasks','tasks','Tasks','owner','active','source','example.com/runtime/scoped','tasks',1,?,?)`, []any{now, now}},
+		{`INSERT INTO components(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('tasks','tasks','Tasks','owner','active','source','example.com/runtime/scoped','tasks',1,?,?)`, []any{now, now}},
 		{`INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('tasks',1,'published','dql',?,?,'{}','studio.v1','hash','{}','valid','v1','studio.v1',1,'owner',?)`, []any{scopedTasksDQL, scopedTasksDQL, now}},
 		{`INSERT INTO runtime_generations(generation_no,source_revision,status,report_count,build_manifest_json,requested_by,requested_at,activated_at) VALUES(1,'gen:1','active',1,'{}','owner',?,?)`, []any{now, now}},
 		{`INSERT INTO report_publications(report_id,active_version_no,desired_generation,active_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at) VALUES('tasks',1,1,1,'active','gen:1','hash','owner',?,?)`, []any{now, now}},

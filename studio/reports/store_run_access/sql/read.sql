@@ -1,5 +1,5 @@
-SELECT access."report_id" FROM  (SELECT r.id AS report_id
-FROM reports r
+SELECT access.* FROM  (SELECT r.id AS report_id
+FROM components r
 WHERE r.id = $ReportId
   AND r.deleted_at IS NULL
   AND (r.owner_id = $Subject OR EXISTS (

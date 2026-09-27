@@ -6,6 +6,7 @@
 #setting($_ = $output_type('Output'))
 #setting($_ = $case_format('lc'))
 #setting($_ = $route('/_studio/report-version-store/catalog', 'GET'))
+#setting($_ = $internal(true))
 #setting($_ = $connector('studio'))
 #setting($_ = $sql_dest('version', 'sql/read.sql'))
 
@@ -42,8 +43,7 @@ SELECT version.*, type(version, 'StoredVersion'),
        tag(version.resource_manifest_json, 'sqlx:"resource_manifest_json,enc=JSON"'),
        tag(version.component_descriptor_json, 'sqlx:"component_descriptor_json,enc=JSON"'),
        tag(version.compile_diagnostics_json, 'sqlx:"compile_diagnostics_json,enc=JSON"'),
-       set_limit(version, 500), selector_limit(version, true),
-       selector_offset(version, true), allowed_order_by_columns(version, 'version_no')
+       set_limit(version, 500), allowed_order_by_columns(version, 'version_no')
 FROM (${embed:sql/read.sql}) version
 WHERE 1=1
 ORDER BY version.version_no DESC

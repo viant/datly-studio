@@ -10,7 +10,7 @@ func init() {}
 
 // Component is the generated component scaffold for head.
 type HeadComponent struct {
-	Contract xdatly.Component[Input, Output] "component:\"head,path=/_studio/report-version-store/head,method=GET,connector=studio,view=head\" routeName:\"head\" caseFormat:\"lc\""
+	Contract xdatly.Component[Input, Output] "component:\"head,path=/_studio/report-version-store/head,method=GET,connector=studio,view=head,internal=true\" routeName:\"head\" caseFormat:\"lc\""
 }
 
 // HeadDatlyType keeps the public component type linked for blank-import discovery.

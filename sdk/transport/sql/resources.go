@@ -35,6 +35,22 @@ func (t *Transport) resources(ctx context.Context, operation string, input, outp
 	switch operation {
 	case sdk.OperationResourcesGet:
 		return t.resourceSnapshot(ctx, identity.ReportID, identity.VersionNo, output)
+	case sdk.OperationResourcesUpsertFile, sdk.OperationResourcesDeleteFile,
+		sdk.OperationResourcesUpsertFolder, sdk.OperationResourcesDeleteFolder,
+		sdk.OperationResourcesUpsertSkill, sdk.OperationResourcesDeleteSkill:
+		if err := t.ApplyResourceMutation(ctx, operation, input); err != nil {
+			return err
+		}
+		return t.resourceSnapshot(ctx, identity.ReportID, identity.VersionNo, output)
+	}
+	return invalid(errors.New("unsupported resources operation"))
+}
+
+// ApplyResourceMutation executes the shared version-CAS and Datly-backed
+// resource workflow. Callers must authorize the verified principal first;
+// the public native components do so with the selected edit guard.
+func (t *Transport) ApplyResourceMutation(ctx context.Context, operation string, input any) error {
+	switch operation {
 	case sdk.OperationResourcesUpsertFile:
 		var value sdk.ResourceFile
 		if err := decode(input, &value); err != nil {
@@ -43,7 +59,7 @@ func (t *Transport) resources(ctx context.Context, operation string, input, outp
 		if err := t.mutateResources(ctx, value.ReportID, value.VersionNo, value.ExpectedSourceRevision, func(tx *sql.Tx) error { return t.upsertResourceFile(ctx, tx, &value) }); err != nil {
 			return err
 		}
-		return t.resourceSnapshot(ctx, value.ReportID, value.VersionNo, output)
+		return nil
 	case sdk.OperationResourcesDeleteFile:
 		var in sdk.ResourceDeleteInput
 		if err := decode(input, &in); err != nil {
@@ -52,7 +68,7 @@ func (t *Transport) resources(ctx context.Context, operation string, input, outp
 		if err := t.mutateResources(ctx, in.ReportID, in.VersionNo, in.ExpectedSourceRevision, func(tx *sql.Tx) error { return t.deleteResourceFile(ctx, tx, in.ReportID, in.VersionNo, in.ResourceID) }); err != nil {
 			return err
 		}
-		return t.resourceSnapshot(ctx, in.ReportID, in.VersionNo, output)
+		return nil
 	case sdk.OperationResourcesUpsertFolder:
 		var value sdk.ResourceFolder
 		if err := decode(input, &value); err != nil {
@@ -61,7 +77,7 @@ func (t *Transport) resources(ctx context.Context, operation string, input, outp
 		if err := t.mutateResources(ctx, value.ReportID, value.VersionNo, value.ExpectedSourceRevision, func(tx *sql.Tx) error { return t.upsertResourceFolder(ctx, tx, &value) }); err != nil {
 			return err
 		}
-		return t.resourceSnapshot(ctx, value.ReportID, value.VersionNo, output)
+		return nil
 	case sdk.OperationResourcesDeleteFolder:
 		var in sdk.ResourceDeleteInput
 		if err := decode(input, &in); err != nil {
@@ -70,7 +86,7 @@ func (t *Transport) resources(ctx context.Context, operation string, input, outp
 		if err := t.mutateResources(ctx, in.ReportID, in.VersionNo, in.ExpectedSourceRevision, func(tx *sql.Tx) error { return t.deleteResourceFolder(ctx, tx, in.ReportID, in.VersionNo, in.FolderID) }); err != nil {
 			return err
 		}
-		return t.resourceSnapshot(ctx, in.ReportID, in.VersionNo, output)
+		return nil
 	case sdk.OperationResourcesUpsertSkill:
 		var value sdk.SkillRoot
 		if err := decode(input, &value); err != nil {
@@ -79,7 +95,7 @@ func (t *Transport) resources(ctx context.Context, operation string, input, outp
 		if err := t.mutateResources(ctx, value.ReportID, value.VersionNo, value.ExpectedSourceRevision, func(tx *sql.Tx) error { return t.upsertSkillRoot(ctx, tx, &value) }); err != nil {
 			return err
 		}
-		return t.resourceSnapshot(ctx, value.ReportID, value.VersionNo, output)
+		return nil
 	case sdk.OperationResourcesDeleteSkill:
 		var in sdk.ResourceDeleteInput
 		if err := decode(input, &in); err != nil {
@@ -88,7 +104,7 @@ func (t *Transport) resources(ctx context.Context, operation string, input, outp
 		if err := t.mutateResources(ctx, in.ReportID, in.VersionNo, in.ExpectedSourceRevision, func(tx *sql.Tx) error { return t.deleteSkillRoot(ctx, tx, in.ReportID, in.VersionNo, in.SkillID) }); err != nil {
 			return err
 		}
-		return t.resourceSnapshot(ctx, in.ReportID, in.VersionNo, output)
+		return nil
 	}
 	return invalid(errors.New("unsupported resources operation"))
 }
@@ -115,7 +131,7 @@ func (t *Transport) upsertResourceFile(ctx context.Context, tx *sql.Tx, value *s
 	}
 	var oldNamespace string
 	if value.ResourceID != "" {
-		previous, err := resourcestore.ReadFileByID(ctx, t.DB, tx, value.ReportID, value.VersionNo, value.ResourceID)
+		previous, err := t.resourceFileByID(ctx, tx, value.ReportID, value.VersionNo, value.ResourceID)
 		if err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return internal(err)
 		}
@@ -146,7 +162,7 @@ func (t *Transport) upsertResourceFile(ctx context.Context, tx *sql.Tx, value *s
 	sum := sha256.Sum256(content)
 	value.ContentSize, value.ContentSHA256 = int64(len(content)), hex.EncodeToString(sum[:])
 	now := t.now()
-	err := resourcestore.WriteFile(ctx, t.DB, tx, &filestore.StoredFile{ReportId: value.ReportID,
+	err := t.resourceWriteFile(ctx, tx, &filestore.StoredFile{ReportId: value.ReportID,
 		VersionNo: value.VersionNo, ResourceId: value.ResourceID, Namespace: value.Namespace,
 		ResourcePath: value.ResourcePath, MediaType: namespaceOptionalDescription(value.MediaType),
 		Content: content, ContentSize: value.ContentSize, ContentSha256: value.ContentSHA256,
@@ -165,14 +181,14 @@ func (t *Transport) upsertResourceFile(ctx context.Context, tx *sql.Tx, value *s
 }
 
 func (t *Transport) deleteResourceFile(ctx context.Context, tx *sql.Tx, reportID string, versionNo int, resourceID string) error {
-	previous, err := resourcestore.ReadFileByID(ctx, t.DB, tx, reportID, versionNo, resourceID)
+	previous, err := t.resourceFileByID(ctx, tx, reportID, versionNo, resourceID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return &sdk.Error{Code: sdk.ErrorNotFound, Message: "resource file was not found"}
 		}
 		return internal(err)
 	}
-	err = resourcestore.WriteFile(ctx, t.DB, tx, &filestore.StoredFile{ReportId: reportID,
+	err = t.resourceWriteFile(ctx, tx, &filestore.StoredFile{ReportId: reportID,
 		VersionNo: versionNo, ResourceId: resourceID, ShouldDelete: true,
 		Has: &filestore.StoredFileHas{ReportId: true, VersionNo: true, ResourceId: true, ShouldDelete: true}})
 	if err != nil {
@@ -191,7 +207,7 @@ func (t *Transport) upsertResourceFolder(ctx context.Context, tx *sql.Tx, value 
 	}
 	var oldNamespace string
 	if value.FolderID != "" {
-		previous, err := resourcestore.ReadFolderByID(ctx, t.DB, tx, value.ReportID, value.VersionNo, value.FolderID)
+		previous, err := t.resourceFolderByID(ctx, tx, value.ReportID, value.VersionNo, value.FolderID)
 		if err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return internal(err)
 		}
@@ -212,7 +228,7 @@ func (t *Transport) upsertResourceFolder(ctx context.Context, tx *sql.Tx, value 
 		}
 		value.FolderID = id
 	}
-	err := resourcestore.WriteFolder(ctx, t.DB, tx, &folderstore.StoredFolder{ReportId: value.ReportID,
+	err := t.resourceWriteFolder(ctx, tx, &folderstore.StoredFolder{ReportId: value.ReportID,
 		VersionNo: value.VersionNo, FolderId: value.FolderID, Namespace: value.Namespace,
 		RootPath: value.RootPath, UriPrefix: value.URIPrefix, Ordinal: value.Ordinal,
 		Has: &folderstore.StoredFolderHas{ReportId: true, VersionNo: true, FolderId: true,
@@ -227,14 +243,14 @@ func (t *Transport) upsertResourceFolder(ctx context.Context, tx *sql.Tx, value 
 }
 
 func (t *Transport) deleteResourceFolder(ctx context.Context, tx *sql.Tx, reportID string, versionNo int, folderID string) error {
-	previous, err := resourcestore.ReadFolderByID(ctx, t.DB, tx, reportID, versionNo, folderID)
+	previous, err := t.resourceFolderByID(ctx, tx, reportID, versionNo, folderID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return &sdk.Error{Code: sdk.ErrorNotFound, Message: "resource folder was not found"}
 		}
 		return internal(err)
 	}
-	err = resourcestore.WriteFolder(ctx, t.DB, tx, &folderstore.StoredFolder{ReportId: reportID,
+	err = t.resourceWriteFolder(ctx, tx, &folderstore.StoredFolder{ReportId: reportID,
 		VersionNo: versionNo, FolderId: folderID, ShouldDelete: true,
 		Has: &folderstore.StoredFolderHas{ReportId: true, VersionNo: true, FolderId: true, ShouldDelete: true}})
 	if err != nil {
@@ -248,14 +264,14 @@ func (t *Transport) deleteResourceFolder(ctx context.Context, tx *sql.Tx, report
 }
 
 func (t *Transport) releaseNamespaceIfUnused(ctx context.Context, tx *sql.Tx, reportID, namespace string) error {
-	used, err := resourcestore.NamespaceHasResources(ctx, t.DB, tx, reportID, namespace)
+	used, err := t.resourceNamespaceHasResources(ctx, tx, reportID, namespace)
 	if err != nil {
 		return internal(err)
 	}
 	if used {
 		return nil
 	}
-	err = resourcestore.WriteNamespaceClaim(ctx, t.DB, tx, "release", &claimstore.StoredClaim{Namespace: namespace, ReportId: reportID,
+	err = t.resourceWriteNamespaceClaim(ctx, tx, "release", &claimstore.StoredClaim{Namespace: namespace, ReportId: reportID,
 		ShouldDelete: true, Has: &claimstore.StoredClaimHas{Namespace: true, ReportId: true, ShouldDelete: true}})
 	if err != nil {
 		var conflict *xhandler.Conflict
@@ -277,7 +293,7 @@ func (t *Transport) upsertSkillRoot(ctx context.Context, tx *sql.Tx, value *sdk.
 	if value.SkillRoot != "." && (!fs.ValidPath(value.SkillRoot) || strings.Contains(value.SkillRoot, "\\")) {
 		return invalid(errors.New("skillRoot must be a relative resource path"))
 	}
-	folder, err := resourcestore.ReadFolderByID(ctx, t.DB, tx, value.ReportID, value.VersionNo, value.FolderID)
+	folder, err := t.resourceFolderByID(ctx, tx, value.ReportID, value.VersionNo, value.FolderID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return &sdk.Error{Code: sdk.ErrorNotFound, Message: "skill folder was not found"}
 	}
@@ -285,7 +301,7 @@ func (t *Transport) upsertSkillRoot(ctx context.Context, tx *sql.Tx, value *sdk.
 		return internal(err)
 	}
 	skillFile := path.Join(folder.RootPath, value.SkillRoot, "SKILL.md")
-	files, err := resourcestore.ReadFilesByPath(ctx, t.DB, tx, value.ReportID, value.VersionNo, folder.Namespace, skillFile)
+	files, err := t.resourceFilesByPath(ctx, tx, value.ReportID, value.VersionNo, folder.Namespace, skillFile)
 	if err != nil {
 		return internal(err)
 	}
@@ -299,7 +315,7 @@ func (t *Transport) upsertSkillRoot(ctx context.Context, tx *sql.Tx, value *sdk.
 		}
 		value.SkillID = id
 	}
-	err = resourcestore.WriteSkill(ctx, t.DB, tx, &skillstore.StoredSkill{ReportId: value.ReportID,
+	err = t.resourceWriteSkill(ctx, tx, &skillstore.StoredSkill{ReportId: value.ReportID,
 		VersionNo: value.VersionNo, SkillId: value.SkillID, FolderId: value.FolderID,
 		SkillRoot: value.SkillRoot, Ordinal: value.Ordinal,
 		Has: &skillstore.StoredSkillHas{ReportId: true, VersionNo: true, SkillId: true,
@@ -311,13 +327,13 @@ func (t *Transport) upsertSkillRoot(ctx context.Context, tx *sql.Tx, value *sdk.
 }
 
 func (t *Transport) deleteSkillRoot(ctx context.Context, tx *sql.Tx, reportID string, versionNo int, skillID string) error {
-	if _, err := resourcestore.ReadSkillByID(ctx, t.DB, tx, reportID, versionNo, skillID); err != nil {
+	if _, err := t.resourceSkillByID(ctx, tx, reportID, versionNo, skillID); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return &sdk.Error{Code: sdk.ErrorNotFound, Message: "skill root was not found"}
 		}
 		return internal(err)
 	}
-	err := resourcestore.WriteSkill(ctx, t.DB, tx, &skillstore.StoredSkill{ReportId: reportID,
+	err := t.resourceWriteSkill(ctx, tx, &skillstore.StoredSkill{ReportId: reportID,
 		VersionNo: versionNo, SkillId: skillID, ShouldDelete: true,
 		Has: &skillstore.StoredSkillHas{ReportId: true, VersionNo: true, SkillId: true, ShouldDelete: true}})
 	if err != nil {
@@ -339,7 +355,7 @@ func (t *Transport) requireResourceVersion(ctx context.Context, reportID string,
 }
 
 func (t *Transport) validateResourceNamespace(ctx context.Context, tx *sql.Tx, reportID, namespace string) error {
-	reports, err := t.readReportCatalogTx(ctx, tx, reportCatalogRequest{ID: reportID, Limit: 2, Unscoped: true})
+	reports, err := t.resourceReportCatalog(ctx, tx, reportCatalogRequest{ID: reportID, Limit: 2, Unscoped: true})
 	if err != nil {
 		return internal(err)
 	}
@@ -354,7 +370,7 @@ func (t *Transport) validateResourceNamespace(ctx context.Context, tx *sql.Tx, r
 	if !strings.HasPrefix(namespace, ownerPackage+".") {
 		return invalid(fmt.Errorf("resource namespace must use the owner prefix %s.", ownerPackage))
 	}
-	foreign, err := resourcestore.ReadForeignNamespaceUsage(ctx, t.DB, tx, namespace, reportID)
+	foreign, err := t.resourceForeignNamespaceUsage(ctx, tx, namespace, reportID)
 	if err != nil {
 		return internal(err)
 	}
@@ -366,7 +382,7 @@ func (t *Transport) validateResourceNamespace(ctx context.Context, tx *sql.Tx, r
 		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "verified principal is required to claim a resource namespace"}
 	}
 	now := t.now()
-	err = resourcestore.WriteNamespaceClaim(ctx, t.DB, tx, "acquire", &claimstore.StoredClaim{Namespace: namespace,
+	err = t.resourceWriteNamespaceClaim(ctx, tx, "acquire", &claimstore.StoredClaim{Namespace: namespace,
 		ReportId: reportID, CreatedAt: now, CreatedBy: principal.Subject,
 		UpdatedAt: now, UpdatedBy: principal.Subject,
 		Has: &claimstore.StoredClaimHas{Namespace: true, ReportId: true,
@@ -389,6 +405,9 @@ func (t *Transport) mutateResources(ctx context.Context, reportID string, versio
 	if expectedRevision <= 0 {
 		return invalid(errors.New("expectedSourceRevision is required for resource mutations"))
 	}
+	if t.ComponentInvoker != nil {
+		return t.mutateResourcesInUnit(ctx, reportID, versionNo, expectedRevision, nil, mutation)
+	}
 	tx, err := t.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return internal(err)
@@ -398,14 +417,24 @@ func (t *Transport) mutateResources(ctx context.Context, reportID string, versio
 			_ = tx.Rollback()
 		}
 	}()
+	if err = t.mutateResourcesInUnit(ctx, reportID, versionNo, expectedRevision, tx, mutation); err != nil {
+		return err
+	}
+	if err = tx.Commit(); err != nil {
+		return internal(err)
+	}
+	return nil
+}
+
+func (t *Transport) mutateResourcesInUnit(ctx context.Context, reportID string, versionNo int, expectedRevision int64, tx *sql.Tx, mutation func(*sql.Tx) error) error {
 	value := &versiontouch.StoredVersion{ReportId: reportID, VersionNo: versionNo, SourceRevision: &expectedRevision,
 		Has: &versiontouch.StoredVersionHas{ReportId: true, VersionNo: true, SourceRevision: true}}
-	if writeErr := t.writeVersionTouch(ctx, tx, value); writeErr != nil {
+	if writeErr := t.resourceTouchVersion(ctx, tx, value); writeErr != nil {
 		var conflict *xhandler.Conflict
 		if !errors.As(writeErr, &conflict) {
 			return internal(writeErr)
 		}
-		versions, readErr := t.readVersionCatalogTx(ctx, tx, versionCatalogRequest{ReportID: reportID, VersionNo: versionNo, Limit: 2})
+		versions, readErr := t.resourceVersionCatalog(ctx, tx, versionCatalogRequest{ReportID: reportID, VersionNo: versionNo, Limit: 2})
 		if readErr != nil {
 			return internal(readErr)
 		}
@@ -421,11 +450,8 @@ func (t *Transport) mutateResources(ctx context.Context, reportID string, versio
 		}
 		return &sdk.Error{Code: sdk.ErrorConflict, Message: message, ExpectedSourceRevision: expectedRevision, CurrentSourceRevision: versions[0].SourceRevision}
 	}
-	if err = mutation(tx); err != nil {
+	if err := mutation(tx); err != nil {
 		return err
-	}
-	if err = tx.Commit(); err != nil {
-		return internal(err)
 	}
 	return nil
 }

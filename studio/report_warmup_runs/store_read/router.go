@@ -10,7 +10,7 @@ func init() {}
 
 // Component is the generated component scaffold for warmup_run.
 type WarmupRunComponent struct {
-	Contract xdatly.Component[Input, Output] "component:\"warmup_run,path=/_studio/report-warmup-run-store/read,method=GET,connector=studio,view=warmup_run\" routeName:\"warmup_run\" caseFormat:\"lc\""
+	Contract xdatly.Component[Input, Output] "component:\"warmup_run,path=/_studio/report-warmup-run-store/read,method=GET,connector=studio,view=warmup_run,internal=true\" routeName:\"warmup_run\" caseFormat:\"lc\""
 }
 
 // WarmupRunDatlyType keeps the public component type linked for blank-import discovery.

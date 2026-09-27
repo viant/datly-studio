@@ -40,9 +40,12 @@ import (
 // Dynamic executes dynamic reader versions using Datly's runtime-contract
 // materialization. It is an SDK preview executor, not a SQL escape hatch.
 type Dynamic struct {
-	Types       *typecatalog.Catalog
-	StudioDB    *sql.DB
-	RootDir     string
+	Types    *typecatalog.Catalog
+	StudioDB *sql.DB
+	RootDir  string
+	// ModulePath avoids reading go.mod for transient SQL tests in a deployed
+	// binary whose working directory contains no source checkout.
+	ModulePath  string
 	Secrets     connectorsecret.Resolver
 	Definitions *DefinitionReader
 	Connectors  *ConnectorReader
@@ -61,7 +64,7 @@ func (d Dynamic) Validate(ctx context.Context, reportID string, versionNo int) e
 		return err
 	}
 	defer sources.Close()
-	contract, err := transcribe.NewCompiler().RuntimeContracts(ctx, d.RootDir, &transcribe.Source{Types: d.Types,
+	contract, err := d.runtimeContracts(ctx, &transcribe.Source{Types: d.Types,
 		Scope: definition.Scope, Name: definition.Name, Text: definition.DQL, Connector: definition.Connector,
 		Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections),
 	})
@@ -105,9 +108,13 @@ func (d Dynamic) TestSQL(ctx context.Context, connector *sdk.Connector, request 
 		limit = 200
 	}
 	token := safeViewToken(connector.Name)
-	modulePath, err := previewModulePath(d.RootDir)
-	if err != nil {
-		return nil, &sdk.Error{Code: sdk.ErrorUnavailable, Message: "resolve Studio module for SQL test", Cause: err}
+	modulePath := strings.TrimSpace(d.ModulePath)
+	if modulePath == "" {
+		var err error
+		modulePath, err = previewModulePath(d.RootDir)
+		if err != nil {
+			return nil, &sdk.Error{Code: sdk.ErrorUnavailable, Message: "resolve Studio module for SQL test", Cause: err}
+		}
 	}
 	resolvedDSN, err := connectorsecret.Resolve(ctx, d.Secrets, connector.DSNTemplate, connector.SecretRef)
 	if err != nil {
@@ -146,6 +153,14 @@ func previewModulePath(root string) (string, error) {
 		return "", errors.New("go.mod has no module path")
 	}
 	return modulePath, nil
+}
+
+func (d Dynamic) runtimeContracts(ctx context.Context, source *transcribe.Source) (*transcribe.RuntimeContract, error) {
+	compiler := transcribe.NewCompiler()
+	if module := strings.TrimSpace(d.ModulePath); module != "" {
+		return compiler.RuntimeContractsInModule(ctx, module, source)
+	}
+	return compiler.RuntimeContracts(ctx, d.RootDir, source)
 }
 
 func (d Dynamic) Execute(ctx context.Context, reportID string, versionNo int, request sdk.PreviewInput) (*sdk.PreviewResult, error) {
@@ -239,7 +254,7 @@ func (d Dynamic) TestCompose(ctx context.Context, reportID string, versionNo int
 		return nil, err
 	}
 	defer sources.Close()
-	contract, err := transcribe.NewCompiler().RuntimeContracts(ctx, d.RootDir, &transcribe.Source{Types: d.Types,
+	contract, err := d.runtimeContracts(ctx, &transcribe.Source{Types: d.Types,
 		Scope: definition.Scope, Name: definition.Name, Text: definition.DQL, Connector: definition.Connector,
 		Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections),
 	})
@@ -343,7 +358,7 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 		return nil, err
 	}
 	defer sources.Close()
-	contract, err := transcribe.NewCompiler().RuntimeContracts(ctx, d.RootDir, &transcribe.Source{Types: d.Types, Scope: definition.Scope, Name: definition.Name, Text: definition.DQL, Connector: definition.Connector, Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections)})
+	contract, err := d.runtimeContracts(ctx, &transcribe.Source{Types: d.Types, Scope: definition.Scope, Name: definition.Name, Text: definition.DQL, Connector: definition.Connector, Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections)})
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "compile dynamic reader: " + err.Error(), Cause: err}
 	}
@@ -424,7 +439,7 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 		return nil, err
 	}
 	defer sources.Close()
-	contract, err := transcribe.NewCompiler().RuntimeContracts(ctx, d.RootDir, &transcribe.Source{Types: d.Types,
+	contract, err := d.runtimeContracts(ctx, &transcribe.Source{Types: d.Types,
 		Scope: definition.Scope, Name: definition.Name, Text: dql, Connector: definition.Connector,
 		Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections),
 	})
@@ -841,7 +856,10 @@ func (d Dynamic) definition(ctx context.Context, reportID string, versionNo int)
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "load reader preview definition", Cause: err}
 	}
 	result.Scope, result.Name, result.Connector = row.ComponentScope, row.ComponentName, row.DefaultConnectorName
-	result.Driver, result.DSN, result.SecretRef = row.Driver, *row.DsnTemplate, row.SecretRef
+	result.Driver, result.SecretRef = row.Driver, row.SecretRef
+	if row.DsnTemplate != nil {
+		result.DSN = *row.DsnTemplate
+	}
 	result.Options = append(json.RawMessage(nil), row.OptionsJson...)
 	result.SourceRevision, result.SpecHash = row.SourceRevision, row.SpecHash
 	result.DQL = row.GeneratedDql

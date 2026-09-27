@@ -29,7 +29,7 @@ func TestCanonicalAuditColumnInventory(t *testing.T) {
 	// added table must already be audited or deliberately join the backlog.
 	legacyBacklog := map[string]struct{}{
 		"connectors": {}, "namespaces": {}, "authorization_predicates": {},
-		"reports": {}, "report_versions": {}, "report_views": {},
+		"components": {}, "report_versions": {}, "report_views": {},
 		"report_fields": {}, "report_parameters": {}, "report_predicates": {},
 		"report_cube_configs": {}, "report_mcp_exposures": {},
 		"report_resource_files": {}, "report_resource_folders": {},

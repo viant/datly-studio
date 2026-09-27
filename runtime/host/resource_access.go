@@ -33,7 +33,13 @@ func (s *Service) initResourceAccess() error {
 	if err != nil {
 		return err
 	}
-	provider, err := oauth.New(oauth.Config{Issuer: c.Issuer, Audience: c.Audience, Algorithms: []string{"RS256"}, Keyfunc: func(*jwtlib.Token) (any, error) { return key, nil }})
+	keyfunc := func(*jwtlib.Token) (any, error) { return key, nil }
+	var provider access.Provider
+	if c.UserInfoURL != "" {
+		provider, err = oauth.NewUserInfo(oauth.UserInfoConfig{Issuer: c.Issuer, Audience: c.Audience, Algorithms: []string{"RS256"}, Keyfunc: keyfunc, URL: c.UserInfoURL})
+	} else {
+		provider, err = oauth.New(oauth.Config{Issuer: c.Issuer, Audience: c.Audience, Algorithms: []string{"RS256"}, Keyfunc: keyfunc})
+	}
 	if err != nil {
 		return err
 	}
@@ -108,15 +114,8 @@ func (s *Service) accessContexts(registrations []*registry.RegisteredComponent, 
 			resource := access.Resource{Kind: "component", ID: reportID, Version: strconv.Itoa(versionByReport[reportID]), Tenant: s.config.Access.Tenant}
 			service := s.resourceAccess
 			registration, err := accesscontext.Register(dependency, func(ctx context.Context) (access.Facts, access.Decision, error) {
-				facts, err := service.Provider.Resolve(ctx)
-				if err != nil {
-					return access.Facts{}, access.Decision{}, err
-				}
-				decision, err := service.Authorize(ctx, access.Request{Resource: resource, Action: "execute"})
-				if err != nil {
-					return access.Facts{}, access.Decision{}, err
-				}
-				return facts, decision, nil
+				decision, facts, err := service.AuthorizeWithFacts(ctx, access.Request{Resource: resource, Action: "execute"})
+				return facts, decision, err
 			})
 			if err != nil {
 				return nil, nil, err

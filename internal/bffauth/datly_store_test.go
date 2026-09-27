@@ -1,6 +1,7 @@
 package bffauth
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"fmt"
@@ -12,6 +13,94 @@ import (
 	"github.com/viant/datly-studio/store/sql/migrate"
 	_ "modernc.org/sqlite"
 )
+
+func TestDatlySessionStoreEncryptsIdentityAndRefreshTokens(t *testing.T) {
+	ctx := context.Background()
+	db, err := sql.Open("sqlite", "file:"+t.Name()+"?mode=memory&cache=shared")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	db.SetMaxOpenConns(1)
+	migration, err := migrate.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := migration.Up(ctx, db); err != nil {
+		t.Fatal(err)
+	}
+	store, err := NewSQLStore(db, []byte("0123456789abcdef0123456789abcdef"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer store.Close(ctx)
+	value := session{principal: sdk.Principal{Subject: "owner"}, token: "signed-id-token",
+		refreshToken: "rotating-refresh-token", idTokenExpiresAt: time.Now().Add(time.Hour), expiresAt: time.Now().Add(12 * time.Hour)}
+	if err := store.Put(ctx, "opaque-cookie-value", value); err != nil {
+		t.Fatal(err)
+	}
+	components, err := store.loadComponents()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, found := components.runtime.RouteByMethodPath("POST", "/_studio/bff-session-lease"); found {
+		t.Fatal("refresh lease component became publicly routable")
+	}
+	var hash string
+	var ciphertext []byte
+	if err := db.QueryRowContext(ctx, `SELECT session_id_hash,payload_ciphertext FROM bff_sessions`).Scan(&hash, &ciphertext); err != nil {
+		t.Fatal(err)
+	}
+	if hash != sessionHash("opaque-cookie-value") || bytes.Contains(ciphertext, []byte("signed-id-token")) ||
+		bytes.Contains(ciphertext, []byte("rotating-refresh-token")) || bytes.Contains(ciphertext, []byte("opaque-cookie-value")) {
+		t.Fatal("session ID or token material was stored in plaintext")
+	}
+	got, found, err := store.Get(ctx, "opaque-cookie-value")
+	if err != nil || !found || got.token != value.token || got.refreshToken != value.refreshToken {
+		t.Fatalf("encrypted token round-trip failed: found=%v err=%v", found, err)
+	}
+	now := time.Now().UTC()
+	first, err := store.AcquireRefreshLease(ctx, "opaque-cookie-value", "first-refresh-worker", now, 20*time.Second)
+	if err != nil || !first {
+		t.Fatalf("first refresh lease acquired=%v err=%v", first, err)
+	}
+	second, err := store.AcquireRefreshLease(ctx, "opaque-cookie-value", "second-refresh-worker", now, 20*time.Second)
+	if err != nil || second {
+		t.Fatalf("contending refresh lease acquired=%v err=%v", second, err)
+	}
+	rotated := value
+	rotated.token, rotated.refreshToken = "rotated-id-token", "next-refresh-token"
+	if err := store.CompleteRefreshLease(ctx, "opaque-cookie-value", "second-refresh-worker", now, rotated); err == nil {
+		t.Fatal("non-owner completed refresh")
+	}
+	if err := store.CompleteRefreshLease(ctx, "opaque-cookie-value", "first-refresh-worker", now, rotated); err != nil {
+		t.Fatalf("lease owner could not complete refresh: %v", err)
+	}
+	stored, found, err := store.Get(ctx, "opaque-cookie-value")
+	if err != nil || !found || stored.token != rotated.token || stored.refreshToken != rotated.refreshToken {
+		t.Fatalf("rotated encrypted session found=%v err=%v", found, err)
+	}
+	second, err = store.AcquireRefreshLease(ctx, "opaque-cookie-value", "second-refresh-worker", now, 20*time.Second)
+	if err != nil || !second {
+		t.Fatalf("released refresh lease acquired=%v err=%v", second, err)
+	}
+	third, err := store.AcquireRefreshLease(ctx, "opaque-cookie-value", "third-refresh-worker", now.Add(30*time.Second), 20*time.Second)
+	if err != nil || !third {
+		t.Fatalf("expired refresh lease reclaimed=%v err=%v", third, err)
+	}
+	if err := store.CompleteRefreshLease(ctx, "opaque-cookie-value", "second-refresh-worker", now.Add(30*time.Second), rotated); err == nil {
+		t.Fatal("expired lease owner committed stale refresh")
+	}
+	if err := store.Delete(ctx, "opaque-cookie-value"); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.CompleteRefreshLease(ctx, "opaque-cookie-value", "third-refresh-worker", now.Add(30*time.Second), rotated); err == nil {
+		t.Fatal("in-flight refresh recreated a logged-out session")
+	}
+	if _, found, err := store.Get(ctx, "opaque-cookie-value"); err != nil || found {
+		t.Fatalf("logged-out session remains: found=%v err=%v", found, err)
+	}
+}
 
 func TestDatlySessionStorePrunesExpiredAcrossBatches(t *testing.T) {
 	ctx := context.Background()

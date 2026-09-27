@@ -17,11 +17,11 @@ import (
 
 func TestSDKUsesCanonicalJSONFieldNames(t *testing.T) {
 	payload, err := json.Marshal(struct {
-		Report  Report
-		Version ReportVersion
+		Component Component
+		Version   ReportVersion
 	}{
-		Report:  Report{DefaultConnectorName: "main", ComponentScope: "reports"},
-		Version: ReportVersion{AuthoringMode: "dql", AuthoredDQL: "SELECT 1", SourceRevision: 2},
+		Component: Component{DefaultConnectorName: "main", ComponentScope: "components"},
+		Version:   ReportVersion{AuthoringMode: "dql", AuthoredDQL: "SELECT 1", SourceRevision: 2},
 	})
 	if err != nil {
 		t.Fatal(err)

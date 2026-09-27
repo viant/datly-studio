@@ -1,0 +1,39 @@
+#package('studio/connectors/create')
+
+#import('github.com/viant/scy/auth/jwt')
+#import('encoding/json')
+#import('studioauth','github.com/viant/datly-studio/studio/auth/reader')
+
+#setting($_ = $input_type('ConnectorCreateInput'))
+#setting($_ = $output_type('ConnectorCreateOutput'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/sdk/connectors.create', 'POST'))
+#setting($_ = $connector('studio'))
+#setting($_ = $mcp('studio.sdk.connectors.create', 'Create a Datly Studio connector for the verified owner'))
+#setting($_ = $sql_dest('connector', 'sql/connector.sql'))
+
+#define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
+#define($_ = $Auth<*studioauth.Output>(component/GET:/v1/studio/auth/context).Required())
+#define($_ = $Connector<*ConnectorRecord>(body/).Required().Embed())
+#define($_ = $Data<*ConnectorRecord>(body/).Output().Embed())
+
+SELECT connector.*, type(connector, 'ConnectorRecord'),
+       CAST(connector.name AS string), CAST(connector.driver AS string),
+       CAST(connector.dsn_template AS *string), CAST(connector.secret_ref AS *string),
+       CAST(connector.description AS *string), CAST(connector.owner_id AS string),
+       CAST(connector.status AS string), CAST(connector.options_json AS json.RawMessage),
+       CAST(connector.etag AS int64), CAST(connector.created_at AS time.Time),
+       CAST(connector.updated_at AS time.Time),
+       tag(connector.name, 'sqlx:"name,primaryKey" json:"name"'),
+       tag(connector.driver, 'json:"driver"'),
+       tag(connector.dsn_template, 'json:"dsnTemplate,omitempty"'),
+       tag(connector.secret_ref, 'json:"secretRef,omitempty"'),
+       tag(connector.description, 'json:"description,omitempty"'),
+       tag(connector.owner_id, 'json:"ownerId,omitempty"'),
+       tag(connector.status, 'json:"-"'),
+       tag(connector.options_json, 'sqlx:"options_json,enc=JSON" json:"options,omitempty"'),
+       tag(connector.etag, 'json:"-"'),
+       tag(connector.created_at, 'json:"-"'),
+       tag(connector.updated_at, 'json:"-"')
+FROM (${embed:sql/connector.sql}) connector
+WHERE 1=1

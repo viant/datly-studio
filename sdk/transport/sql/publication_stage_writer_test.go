@@ -41,7 +41,7 @@ func TestPublicationRestageWriterMatchesGenerationAndRollsBack(t *testing.T) {
 	if _, err := db.Exec(`UPDATE connectors SET status='active' WHERE name=?`, connector.Name); err != nil {
 		t.Fatal(err)
 	}
-	report, err := client.Reports().Create(owner, sdk.CreateReportInput{Slug: "restage", Title: "Restage", DefaultConnectorName: connector.Name})
+	report, err := client.Components().Create(owner, sdk.CreateComponentInput{Slug: "restage", Title: "Restage", DefaultConnectorName: connector.Name})
 	if err != nil {
 		t.Fatal(err)
 	}

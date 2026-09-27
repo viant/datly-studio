@@ -37,7 +37,7 @@ func TestSeedSampleCatalog(t *testing.T) {
 	}
 
 	assertCount(t, ctx, db, "SELECT COUNT(1) FROM connectors", 2)
-	assertCount(t, ctx, db, "SELECT COUNT(1) FROM reports", 2)
+	assertCount(t, ctx, db, "SELECT COUNT(1) FROM components", 2)
 	assertCount(t, ctx, db, "SELECT COUNT(1) FROM report_versions", 2)
 	assertCount(t, ctx, db, "SELECT COUNT(1) FROM report_fields", 4)
 	assertCount(t, ctx, db, "SELECT COUNT(1) FROM report_parameters", 2)
@@ -74,7 +74,7 @@ func TestSeedSampleCatalog(t *testing.T) {
 	}
 
 	var publishedStatus string
-	if err := db.QueryRowContext(ctx, "SELECT status FROM reports WHERE id=?", seed.PublishedComponentID).Scan(&publishedStatus); err != nil {
+	if err := db.QueryRowContext(ctx, "SELECT status FROM components WHERE id=?", seed.PublishedComponentID).Scan(&publishedStatus); err != nil {
 		t.Fatalf("load published report status error = %v", err)
 	}
 	if publishedStatus != "active" {

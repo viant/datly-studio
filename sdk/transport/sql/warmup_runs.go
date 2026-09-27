@@ -3,7 +3,6 @@ package sqltransport
 import (
 	"context"
 	"crypto/rand"
-	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -14,6 +13,7 @@ import (
 
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/readercomponent"
+	"github.com/viant/datly-studio/internal/warmupprojection"
 	"github.com/viant/datly-studio/sdk"
 	storedreader "github.com/viant/datly-studio/studio/report_warmup_runs/store_read"
 	storedwriter "github.com/viant/datly-studio/studio/report_warmup_runs/store_write"
@@ -65,7 +65,7 @@ func (t *Transport) startWarmupRun(ctx context.Context, in versionIdentityReques
 		return err
 	}
 	requestedBy := warmupActor(ctx).Subject
-	planKey := warmupPlanKey(version)
+	planKey := warmupprojection.PlanKey(version)
 	activeKey := fmt.Sprintf("%s:%d:%s", in.ReportID, in.VersionNo, planKey)
 	now := t.now()
 	t.warmupMu.Lock()
@@ -157,6 +157,19 @@ func (t *Transport) executeWarmupRun(ctx context.Context, runID, reportID string
 			CacheName: true, CacheProvider: true, ConnectorName: true, IndexColumn: true,
 			PlannedCases: true, CompletedCases: true, MaxCases: true, RowLimit: true,
 			Entries: true, DurationNs: true, TargetJson: true, DiagnosticsJson: true, CompletedAt: true}})
+}
+
+// ExecuteAcceptedWarmupRun advances one previously accepted run using the
+// shared, transcribed Datly warmup store. Native SDK handlers call this only
+// after their own verified publish guard and durable acceptance write.
+func (t *Transport) ExecuteAcceptedWarmupRun(ctx context.Context, runID, reportID string, versionNo int, expectedUpdatedAt time.Time) {
+	t.executeWarmupRun(ctx, runID, reportID, versionNo, expectedUpdatedAt)
+}
+
+// ReadAcceptedWarmupRun resolves the committed update token before a native
+// asynchronous worker starts. The read still uses the generated Datly store.
+func (t *Transport) ReadAcceptedWarmupRun(ctx context.Context, reportID, runID string) (*sdk.WarmupRun, error) {
+	return t.readWarmupRun(ctx, reportID, runID)
 }
 
 func warmupDiagnostic(err error) sdk.Diagnostic {
@@ -300,27 +313,7 @@ func (t *Transport) readWarmupRows(ctx context.Context, input *storedreader.Inpu
 	if len(output.WarmupRuns) > input.PageLimit {
 		return nil, fmt.Errorf("warmup run reader exceeded page limit")
 	}
-	runs = make([]*sdk.WarmupRun, 0, len(output.WarmupRuns))
-	for _, row := range output.WarmupRuns {
-		if row == nil || input.ReportId != "" && row.ReportId != input.ReportId || input.RunId != "" && row.RunId != input.RunId || input.VersionNo != 0 && row.VersionNo != input.VersionNo {
-			return nil, fmt.Errorf("warmup run reader returned a mismatched row")
-		}
-		run := &sdk.WarmupRun{RunID: row.RunId, ReportID: row.ReportId, VersionNo: row.VersionNo,
-			SourceRevision: row.SourceRevision, SpecHash: row.SpecHash, PlanKey: row.PlanKey,
-			Status: row.Status, RequestedBy: row.RequestedBy, RequestedAt: row.RequestedAt,
-			CreatedAt: row.CreatedAt, CreatedBy: row.CreatedBy, UpdatedAt: row.UpdatedAt, UpdatedBy: row.UpdatedBy,
-			StartedAt: row.StartedAt, CompletedAt: row.CompletedAt, PlannedCases: row.PlannedCases,
-			CompletedCases: row.CompletedCases, MaxCases: row.MaxCases, RowLimit: row.RowLimit,
-			Entries: row.Entries, Duration: time.Duration(row.DurationNs)}
-		if len(row.TargetJson) != 0 {
-			_ = json.Unmarshal(row.TargetJson, &run.Target)
-		}
-		if len(row.DiagnosticsJson) != 0 {
-			_ = json.Unmarshal(row.DiagnosticsJson, &run.Diagnostics)
-		}
-		runs = append(runs, run)
-	}
-	return runs, nil
+	return warmupprojection.Runs(input.ReportId, input.RunId, input.VersionNo, output.WarmupRuns)
 }
 
 func generatedWarmupRunID() (string, error) {
@@ -329,10 +322,4 @@ func generatedWarmupRunID() (string, error) {
 		return "", err
 	}
 	return "w" + hex.EncodeToString(value), nil
-}
-
-func warmupPlanKey(version *sdk.ReportVersion) string {
-	value := fmt.Sprintf("%s:%d:%d:%s", version.ReportID, version.VersionNo, version.SourceRevision, version.SpecHash)
-	digest := sha256.Sum256([]byte(value))
-	return hex.EncodeToString(digest[:])
 }

@@ -7,9 +7,9 @@
 #setting($_ = $input_type('ReportGetInput'))
 #setting($_ = $output_type('ReportGetOutput'))
 #setting($_ = $case_format('lc'))
-#setting($_ = $route('/v1/studio/sdk/reports.get', 'POST'))
+#setting($_ = $route('/v1/studio/sdk/components.get', 'POST'))
 #setting($_ = $connector('studio'))
-#setting($_ = $mcp('studio.sdk.reports.get', 'Read one authorized Datly Studio component'))
+#setting($_ = $mcp('studio.sdk.components.get', 'Read one authorized Datly Studio component'))
 #setting($_ = $sql_dest('report', 'sql/report.sql'))
 
 #define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))

@@ -44,7 +44,7 @@ func TestDynamicExecutesVersionedReaderWithRuntimeContracts(t *testing.T) {
 	if _, err = studio.ExecContext(ctx, `INSERT INTO connectors(name,driver,dsn_template,owner_id,status,options_json,etag,created_at,updated_at) VALUES ('vendor','sqlite',?,'owner','active','{}',1,?,?)`, sourceDSN, now, now); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = studio.ExecContext(ctx, `INSERT INTO reports(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES ('vendors','vendors','Vendors','owner','draft','vendor','example.com/app/dynamic/vendors','reader',1,?,?)`, now, now); err != nil {
+	if _, err = studio.ExecContext(ctx, `INSERT INTO components(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES ('vendors','vendors','Vendors','owner','draft','vendor','example.com/app/dynamic/vendors','reader',1,?,?)`, now, now); err != nil {
 		t.Fatal(err)
 	}
 	dql := fmt.Sprintf(`#package('example.com/app/dynamic/vendors')
@@ -99,10 +99,31 @@ JOIN (SELECT ID, VENDOR_ID, STATUS FROM PRODUCT) products ON products.VENDOR_ID=
 	if err != nil {
 		t.Fatal(err)
 	}
+	withoutGoMod, err := (Dynamic{RootDir: t.TempDir(), ModulePath: "example.com/app"}).TestSQL(ctx,
+		&sdk.Connector{Name: "vendor", Driver: "sqlite", DSNTemplate: sourceDSN},
+		sdk.SQLTestInput{SQL: "SELECT ID, NAME FROM VENDOR", Limit: 1})
+	if err != nil || withoutGoMod == nil || len(withoutGoMod.Data) == 0 {
+		t.Fatalf("source-free transient SQL test=%+v err=%v", withoutGoMod, err)
+	}
+	for _, candidate := range []string{
+		"DELETE FROM VENDOR",
+		"SELECT ID FROM VENDOR; DELETE FROM VENDOR",
+		"UPDATE VENDOR SET NAME='changed'",
+	} {
+		if _, testErr := (Dynamic{ModulePath: "example.com/app"}).TestSQL(ctx,
+			&sdk.Connector{Name: "vendor", Driver: "sqlite", DSNTemplate: sourceDSN},
+			sdk.SQLTestInput{SQL: candidate, Limit: 1}); testErr == nil {
+			t.Fatalf("transient SQL accepted a write-capable statement: %q", candidate)
+		}
+	}
+	var vendorCount int
+	if err = source.QueryRowContext(ctx, "SELECT COUNT(*) FROM VENDOR").Scan(&vendorCount); err != nil || vendorCount != 3 {
+		t.Fatalf("transient SQL changed source rows: count=%d err=%v", vendorCount, err)
+	}
 	if !strings.Contains(string(sqlTest.Data), "Northwind") || sqlTest.Duration <= 0 {
 		t.Fatalf("SQL test=%+v", sqlTest)
 	}
-	if _, err = studio.ExecContext(ctx, `INSERT INTO reports(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES ('summary','summary','Summary','owner','draft','vendor','example.com/app/dynamic/summary','reader',1,?,?)`, now, now); err != nil {
+	if _, err = studio.ExecContext(ctx, `INSERT INTO components(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES ('summary','summary','Summary','owner','draft','vendor','example.com/app/dynamic/summary','reader',1,?,?)`, now, now); err != nil {
 		t.Fatal(err)
 	}
 	composeDQL := `#package('example.com/app/dynamic/summary/reader')

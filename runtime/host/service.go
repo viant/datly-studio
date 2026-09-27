@@ -521,9 +521,9 @@ func (s *Service) Start(ctx context.Context) error {
 	routes := http.NewServeMux()
 	routes.HandleFunc("/_studio/reload", s.reloadHTTP)
 	routes.HandleFunc("/_studio/status", s.statusHTTP)
-	routes.Handle("/", s.authenticated(s.manager))
+	routes.Handle("/", browserHTTPCORS(s.config.HTTP.CORS, s.authenticated(s.manager)))
 	httpServer := hardenedHTTPServer(s.config.HTTP.Address, routes)
-	protocol, err := mcpserver.New(mcpserver.Config{Source: s.manager, Implementation: schema.Implementation{Name: "datly-studio-dynamic", Version: "1"}, Transport: mcpserver.TransportConfig{Kind: mcpserver.TransportStreamable, Address: s.config.MCP.Address}})
+	protocol, err := mcpserver.New(mcpserver.Config{Source: s.manager, Implementation: schema.Implementation{Name: "datly-studio-dynamic", Version: "1"}, Transport: mcpserver.TransportConfig{Kind: mcpserver.TransportStreamable, Address: s.config.MCP.Address, CORS: s.config.MCP.CORS}})
 	if err != nil {
 		return err
 	}
@@ -531,7 +531,7 @@ func (s *Service) Start(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	mcpHTTP.Handler = s.oauthDiscovery(mcpHTTP.Handler)
+	mcpHTTP.Handler = browserMCPCORS(s.config.MCP.CORS, s.oauthDiscovery(mcpHTTP.Handler))
 	mcpHTTP.ReadHeaderTimeout = 5 * time.Second
 	mcpHTTP.ReadTimeout = 30 * time.Second
 	mcpHTTP.WriteTimeout = 60 * time.Second
@@ -620,7 +620,7 @@ func (s *Service) authenticated(next http.Handler) http.Handler {
 			return
 		}
 		claims, err := s.verifier.VerifyClaims(request.Context(), parts[1])
-		if err != nil {
+		if err != nil || !matchesDefaultIdentity(claims, s.config.Authentication) {
 			http.Error(response, "unauthorized", http.StatusUnauthorized)
 			return
 		}

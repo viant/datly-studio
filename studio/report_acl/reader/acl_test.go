@@ -42,7 +42,7 @@ func TestACLListSDKDatlyRouteAndMCPContract(t *testing.T) {
 			"owner_id": "bob", "name": "general", "title": "General", "status": "active",
 			"etag": 1, "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00",
 		}}},
-		datatest.Table{Name: "reports", Rows: []datatest.Row{{
+		datatest.Table{Name: "components", Rows: []datatest.Row{{
 			"id": "r1", "slug": "first", "title": "First", "owner_id": "alice",
 			"status": "active", "default_connector_name": "main",
 			"component_scope": "reports/first", "component_name": "first",
@@ -275,7 +275,7 @@ func TestACLListSDKDatlyRouteAndMCPContract(t *testing.T) {
 			t.Fatalf("viewer MCP access=%s err=%v", body, marshalErr)
 		}
 	}
-	if _, err = db.ExecContext(ctx, "UPDATE reports SET owner_id = ? WHERE id = ?", "bob", "r1"); err != nil {
+	if _, err = db.ExecContext(ctx, "UPDATE components SET owner_id = ? WHERE id = ?", "bob", "r1"); err != nil {
 		t.Fatal(err)
 	}
 	assertDenied("alice")

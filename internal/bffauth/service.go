@@ -19,6 +19,7 @@ import (
 )
 
 const DefaultCookieName = "studio_session"
+const maximumBrowserIDTokenTTL = time.Hour
 
 type ClaimsVerifier interface {
 	VerifyClaims(context.Context, string) (*jwt.Claims, error)
@@ -34,10 +35,12 @@ type Config struct {
 }
 
 type session struct {
-	principal sdk.Principal
-	token     string
-	claims    *jwt.Claims
-	expiresAt time.Time
+	principal        sdk.Principal
+	token            string
+	refreshToken     string
+	idTokenExpiresAt time.Time
+	claims           *jwt.Claims
+	expiresAt        time.Time
 }
 
 // SessionStore keeps opaque BFF sessions outside the serving process so a
@@ -108,7 +111,7 @@ func (s *Service) Proxy(target *url.URL, mount string) (http.Handler, error) {
 		}
 		forward := request.Clone(request.Context())
 		forward.Header = make(http.Header)
-		for _, name := range []string{"Accept", "Content-Type", "Mcp-Session-Id", "Mcp-Protocol-Version", "Mcp-Method", "Last-Event-ID", "X-Request-ID"} {
+		for _, name := range []string{"Accept", "Content-Type", "Mcp-Session-Id", "Mcp-Protocol-Version", "Mcp-Method", "Mcp-Name", "Last-Event-ID", "X-Request-ID"} {
 			for _, value := range request.Header.Values(name) {
 				forward.Header.Add(name, value)
 			}
@@ -166,11 +169,15 @@ func (s *Service) handleSession(response http.ResponseWriter, request *http.Requ
 }
 
 func (s *Service) setSessionCookie(response http.ResponseWriter, id string, expires time.Time) {
+	http.SetCookie(response, s.sessionCookie(id, expires))
+}
+
+func (s *Service) sessionCookie(id string, expires time.Time) *http.Cookie {
 	maxAge := int(expires.Sub(s.now()).Seconds())
 	if maxAge < 1 {
 		maxAge = 1
 	}
-	http.SetCookie(response, &http.Cookie{Name: s.config.CookieName, Value: id, Path: "/", HttpOnly: true, Secure: s.config.Secure, SameSite: http.SameSiteLaxMode, Expires: expires, MaxAge: maxAge})
+	return &http.Cookie{Name: s.config.CookieName, Value: id, Path: "/", HttpOnly: true, Secure: s.config.Secure, SameSite: http.SameSiteLaxMode, Expires: expires, MaxAge: maxAge}
 }
 
 // Exchange verifies a JWT and pre-seeds an opaque session for server-side OOB
@@ -210,6 +217,42 @@ func (s *Service) Exchange(ctx context.Context, token string) (string, sdk.Princ
 	return id, principal, expires, nil
 }
 
+// ExchangeIDToken creates an auth-only browser session. The ID token is the
+// credential returned to Studio for direct Datly calls; the refresh token
+// remains encrypted in the server-side session store, whether or not it rotates.
+func (s *Service) ExchangeIDToken(ctx context.Context, idToken, refreshToken string) (string, sdk.Principal, time.Time, error) {
+	if strings.TrimSpace(idToken) == "" || strings.TrimSpace(refreshToken) == "" {
+		return "", sdk.Principal{}, time.Time{}, errors.New("ID and refresh tokens are required")
+	}
+	claims, err := s.verifier.VerifyClaims(ctx, idToken)
+	if err != nil {
+		return "", sdk.Principal{}, time.Time{}, err
+	}
+	if err := validateTokenBinding(claims, s.config.Issuer, s.config.Audience); err != nil {
+		return "", sdk.Principal{}, time.Time{}, err
+	}
+	if claims.ExpiresAt == nil || !s.now().Before(claims.ExpiresAt.Time) {
+		return "", sdk.Principal{}, time.Time{}, errors.New("ID token is expired or missing expiry")
+	}
+	if claims.ExpiresAt.Time.After(s.now().Add(maximumBrowserIDTokenTTL)) {
+		return "", sdk.Principal{}, time.Time{}, errors.New("ID token lifetime exceeds the browser policy")
+	}
+	principal, err := principalFromClaims(claims)
+	if err != nil {
+		return "", sdk.Principal{}, time.Time{}, err
+	}
+	id, err := randomID()
+	if err != nil {
+		return "", sdk.Principal{}, time.Time{}, err
+	}
+	expires := s.now().Add(s.config.TTL)
+	if err := s.store.Put(ctx, id, session{principal: principal, token: idToken, refreshToken: refreshToken,
+		idTokenExpiresAt: claims.ExpiresAt.Time, claims: claims, expiresAt: expires}); err != nil {
+		return "", sdk.Principal{}, time.Time{}, fmt.Errorf("persist browser auth session: %w", err)
+	}
+	return id, principal, expires, nil
+}
+
 func (s *Service) handleLogout(response http.ResponseWriter, request *http.Request) {
 	if cookie, err := request.Cookie(s.config.CookieName); err == nil {
 		_ = s.store.Delete(request.Context(), cookie.Value)
@@ -231,13 +274,20 @@ func (s *Service) sessionForRequest(request *http.Request) (session, error) {
 	if err != nil || strings.TrimSpace(cookie.Value) == "" {
 		return session{}, errors.New("Studio session is required")
 	}
-	current, ok, err := s.store.Get(request.Context(), cookie.Value)
+	return s.sessionForID(request.Context(), cookie.Value)
+}
+
+func (s *Service) sessionForID(ctx context.Context, id string) (session, error) {
+	if strings.TrimSpace(id) == "" {
+		return session{}, errors.New("Studio session is required")
+	}
+	current, ok, err := s.store.Get(ctx, id)
 	if err != nil {
 		return session{}, fmt.Errorf("load Studio session: %w", err)
 	}
 	if !ok || !s.now().Before(current.expiresAt) {
 		if ok {
-			_ = s.store.Delete(request.Context(), cookie.Value)
+			_ = s.store.Delete(ctx, id)
 		}
 		return session{}, errors.New("Studio session is expired")
 	}

@@ -3,11 +3,11 @@ package sqltransport
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"errors"
 	"math"
 	"strings"
 
+	"github.com/viant/datly-studio/internal/predicateprojection"
 	"github.com/viant/datly-studio/sdk"
 	storedwriter "github.com/viant/datly-studio/studio/authorization_predicates/store_write"
 )
@@ -18,7 +18,7 @@ func (t *Transport) createAuthorizationPredicate(ctx context.Context, input, out
 		return invalid(err)
 	}
 	in.Name, in.Title, in.PackagePath, in.TypeName = strings.TrimSpace(in.Name), strings.TrimSpace(in.Title), strings.TrimSpace(in.PackagePath), strings.TrimSpace(in.TypeName)
-	if !validPredicateName(in.Name) || in.Title == "" || !t.Predicates.Contains(in.PackagePath, in.TypeName) {
+	if !predicateprojection.ValidName(in.Name) || in.Title == "" || !t.Predicates.Contains(in.PackagePath, in.TypeName) {
 		return invalid(errors.New("authorization predicate requires a canonical name and configured package/type link"))
 	}
 	principal, ok := sdk.PrincipalFromContext(ctx)
@@ -27,7 +27,7 @@ func (t *Transport) createAuthorizationPredicate(ctx context.Context, input, out
 	}
 	now := t.now()
 	initialETag := 1
-	scopeJSON, err := authorizationPredicateScopeJSON(in.Alias, in.Columns)
+	scopeJSON, err := predicateprojection.ScopeJSON(in.Alias, in.Columns)
 	if err != nil {
 		return invalid(err)
 	}
@@ -146,7 +146,7 @@ func (t *Transport) updateAuthorizationPredicate(ctx context.Context, input, out
 	if current.Title == "" || (current.Status != "active" && current.Status != "disabled") || current.Status == "active" && !t.Predicates.Contains(current.PackagePath, current.TypeName) {
 		return invalid(errors.New("active authorization predicate requires a title and configured package/type link"))
 	}
-	scopeJSON, err := authorizationPredicateScopeJSON(current.Alias, current.Columns)
+	scopeJSON, err := predicateprojection.ScopeJSON(current.Alias, current.Columns)
 	if err != nil {
 		return invalid(err)
 	}
@@ -235,46 +235,6 @@ func (t *Transport) authorizationPredicateValue(ctx context.Context, name string
 		return nil, internal(err)
 	}
 	return value, nil
-}
-
-func authorizationPredicateScopeJSON(alias string, columns []string) (string, error) {
-	alias = strings.TrimSpace(alias)
-	clean := make([]string, 0, len(columns))
-	for _, column := range columns {
-		if column = strings.TrimSpace(column); column != "" {
-			clean = append(clean, column)
-		}
-	}
-	if alias == "" && len(clean) == 0 {
-		return "", nil
-	}
-	payload, err := json.Marshal(sdk.AuthorizationPredicateSQLMetadata{Alias: alias, Columns: clean})
-	if err != nil {
-		return "", err
-	}
-	return string(payload), nil
-}
-
-func validPredicateName(value string) bool {
-	parts := strings.Split(value, ".")
-	if len(parts) < 2 {
-		return false
-	}
-	for _, part := range parts {
-		if part == "" {
-			return false
-		}
-		for index, char := range part {
-			if index == 0 && (char < 'a' || char > 'z') {
-				return false
-			}
-			if char >= 'a' && char <= 'z' || char >= '0' && char <= '9' || char == '_' {
-				continue
-			}
-			return false
-		}
-	}
-	return true
 }
 
 func (t *Transport) authorizationPredicateTypes(output any) error {

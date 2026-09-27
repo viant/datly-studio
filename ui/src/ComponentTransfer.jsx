@@ -21,7 +21,7 @@ export function DownloadComponentButton({ api, report, versionNo, disabled = fal
 
 export function ImportComponentButton({api,onImported}) {
   const [open,setOpen]=useState(false),[reports,setReports]=useState([]),[target,setTarget]=useState(''),[file,setFile]=useState(null),[entry,setEntry]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState('');
-  useEffect(()=>{if(!open)return;let cancelled=false;setError('');setFile(null);setEntry('');setTarget('');api.listReports({limit:500}).then(page=>{if(!cancelled)setReports(page.items??[]);}).catch(cause=>{if(!cancelled)setError(cause.message);});return()=>{cancelled=true;};},[api,open]);
+  useEffect(()=>{if(!open)return;let cancelled=false;setError('');setFile(null);setEntry('');setTarget('');api.listComponents({limit:500}).then(page=>{if(!cancelled)setReports(page.items??[]);}).catch(cause=>{if(!cancelled)setError(cause.message);});return()=>{cancelled=true;};},[api,open]);
   const format=file?.name.toLowerCase().endsWith('.zip')?'zip':/\.(tar\.gz|tgz)$/i.test(file?.name??'')?'tar.gz':file?.name.toLowerCase().endsWith('.tar')?'tar':null;
   const submit=async(event)=>{
     event.preventDefault();if(!file||!target)return;setBusy(true);setError('');

@@ -42,13 +42,13 @@ func TestDevelopmentGatewayUsesOnlyConfiguredLoopbackIdentity(t *testing.T) {
 			len(credential.Bearer) < len("Bearer ") || credential.Bearer[:len("Bearer ")] != "Bearer " {
 			t.Fatalf("signed development credential missing: ok=%v claims=%+v", ok, claims)
 		}
-		page := output.(*sdk.ReportPage)
-		page.Items = []*sdk.Report{{ID: "report-1", Title: "Revenue"}}
+		page := output.(*sdk.ComponentPage)
+		page.Items = []*sdk.Component{{ID: "report-1", Title: "Revenue"}}
 		return nil
 	})
 	gateway := Gateway{Config: Config{Mode: Development, DevelopmentSubject: "dev-user",
 		DevelopmentCredential: devJWT.Credential}, Transport: transport}
-	req := httptest.NewRequest(http.MethodPost, PathPrefix+sdk.OperationReportList, nil)
+	req := httptest.NewRequest(http.MethodPost, PathPrefix+sdk.OperationComponentList, nil)
 	req.RemoteAddr = "127.0.0.1:8100"
 	req.Header.Set("X-Studio-Development-Subject", "dev-user")
 	result := httptest.NewRecorder()
@@ -56,7 +56,7 @@ func TestDevelopmentGatewayUsesOnlyConfiguredLoopbackIdentity(t *testing.T) {
 	if result.Code != http.StatusOK {
 		t.Fatalf("status=%d body=%s", result.Code, result.Body.String())
 	}
-	var page sdk.ReportPage
+	var page sdk.ComponentPage
 	if err := json.NewDecoder(result.Body).Decode(&page); err != nil || len(page.Items) != 1 || page.Items[0].ID != "report-1" {
 		t.Fatalf("page=%+v err=%v", page, err)
 	}
@@ -65,7 +65,7 @@ func TestDevelopmentGatewayUsesOnlyConfiguredLoopbackIdentity(t *testing.T) {
 func TestDevelopmentGatewayRejectsRemoteOrWrongIdentity(t *testing.T) {
 	gateway := Gateway{Config: Config{Mode: Development, DevelopmentSubject: "dev-user"}, Transport: transportFunc(func(context.Context, string, any, any) error { return nil })}
 	for _, remote := range []string{"10.0.0.4:8100", "127.0.0.1:8100"} {
-		req := httptest.NewRequest(http.MethodPost, PathPrefix+sdk.OperationReportList, nil)
+		req := httptest.NewRequest(http.MethodPost, PathPrefix+sdk.OperationComponentList, nil)
 		req.RemoteAddr = remote
 		req.Header.Set("X-Studio-Development-Subject", "wrong-user")
 		result := httptest.NewRecorder()

@@ -64,7 +64,7 @@ func (c *ComponentCatalog) LoadPublishedComponents(ctx context.Context) ([]*Publ
 }
 
 func publishedFromStored(row *stored.PublishedComponent) *PublishedReport {
-	report := &sdk.Report{ID: row.ReportId, Namespace: row.ReportNamespace, Slug: row.ReportSlug,
+	report := &sdk.Component{ID: row.ReportId, Namespace: row.ReportNamespace, Slug: row.ReportSlug,
 		Title: row.ReportTitle, OwnerID: row.ReportOwnerId, OwnerPackage: sdk.OwnerPackageSegment(row.ReportOwnerId),
 		Status: row.ReportStatus, DefaultConnectorName: row.ReportConnector,
 		ComponentScope: row.ReportComponentScope, ComponentName: row.ReportComponentName,

@@ -10,7 +10,7 @@ func init() {}
 
 // Component is the generated component scaffold for connector.
 type ConnectorComponent struct {
-	Contract xdatly.Component[Input, Output] "component:\"connector,path=/_studio/connector-store/config,method=PATCH,connector=studio,view=connector\" routeName:\"connector\" mutation:\"patch\" caseFormat:\"lc\""
+	Contract xdatly.Component[Input, Output] "component:\"connector,path=/_studio/connector-store/config,method=PATCH,connector=studio,view=connector,internal=true\" routeName:\"connector\" mutation:\"patch\" caseFormat:\"lc\""
 }
 
 // ConnectorDatlyType keeps the public component type linked for blank-import discovery.

@@ -31,7 +31,7 @@ func TestVersionCatalogReaderKeepsRevisionAndJSONContract(t *testing.T) {
 		VALUES('owner','general','General','active',1,?,?)`, now, now); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := db.ExecContext(ctx, `INSERT INTO reports(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at)
+	if _, err := db.ExecContext(ctx, `INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at)
 		VALUES('report','general','report','Report','owner','draft','main','reports','reader',1,?,?)`, now, now); err != nil {
 		t.Fatal(err)
 	}

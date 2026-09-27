@@ -40,7 +40,7 @@ func TestNamespaceReaderUsesVerifiedTypedScope(t *testing.T) {
 			{"owner_id": "alice", "name": "general", "title": "General", "status": "active", "etag": 1, "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"},
 			{"owner_id": "bob", "name": "finance", "title": "Finance", "status": "active", "etag": 1, "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"},
 		}},
-		datatest.Table{Name: "reports", Rows: []datatest.Row{{
+		datatest.Table{Name: "components", Rows: []datatest.Row{{
 			"id": "r1", "slug": "finance", "title": "Finance", "owner_id": "bob", "namespace": "finance",
 			"status": "active", "default_connector_name": "main", "component_scope": "reports/finance", "component_name": "finance",
 			"etag": 1, "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00",
@@ -211,14 +211,14 @@ func TestNamespaceReaderUsesVerifiedTypedScope(t *testing.T) {
 	if !ok || mcpNamespace["name"] != "finance" || mcpNamespace["ownerId"] != "bob" {
 		t.Fatalf("MCP namespace=%s", structured)
 	}
-	if _, err = db.ExecContext(ctx, "UPDATE reports SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?", "r1"); err != nil {
+	if _, err = db.ExecContext(ctx, "UPDATE components SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?", "r1"); err != nil {
 		t.Fatal(err)
 	}
 	deleted, err := read("viewer", map[string]any{})
 	if err != nil || len(names(deleted)) != 0 {
 		t.Fatalf("soft-deleted report namespace=%v err=%v", names(deleted), err)
 	}
-	if _, err = db.ExecContext(ctx, "UPDATE reports SET deleted_at = NULL WHERE id = ?", "r1"); err != nil {
+	if _, err = db.ExecContext(ctx, "UPDATE components SET deleted_at = NULL WHERE id = ?", "r1"); err != nil {
 		t.Fatal(err)
 	}
 	if _, err = db.ExecContext(ctx, "DELETE FROM report_acl WHERE report_id = ? AND subject_id = ?", "r1", "viewer"); err != nil {

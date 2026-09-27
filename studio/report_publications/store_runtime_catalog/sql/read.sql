@@ -35,7 +35,7 @@ SELECT publication."report_id", publication."report_namespace", publication."rep
            v.published_at AS version_published_at,
            CASE WHEN r.deleted_at IS NULL THEN TRUE ELSE FALSE END AS report_live
     FROM report_publications p
-    JOIN reports r ON r.id = p.report_id
+    JOIN components r ON r.id = p.report_id
     JOIN report_versions v ON v.report_id = p.report_id AND v.version_no = p.active_version_no
 ) c
 ${predicate.Builder().CombineAnd($predicate.FilterGroup(1, "AND")).Build("WHERE")}

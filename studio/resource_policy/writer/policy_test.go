@@ -3,20 +3,21 @@ package writer
 import (
 	"context"
 	"database/sql"
-	"net/http/httptest"
+	"encoding/json"
 	"reflect"
 	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/viant/bindly/locator"
-	requestprovider "github.com/viant/bindly/provider/request"
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/datatest"
 	"github.com/viant/datly/bootstrap"
+	dexec "github.com/viant/datly/exec"
 	druntime "github.com/viant/datly/runtime"
 	writerhandler "github.com/viant/datly/runtime/handler/writer"
 	"github.com/viant/datly/runtime/registry"
+	"github.com/viant/datly/spec"
 	dsql "github.com/viant/datly/sql"
 	"github.com/viant/datly/sql/dml"
 	viewprovider "github.com/viant/datly/sql/reader/provider"
@@ -109,20 +110,55 @@ func newPolicyWriterRuntime(t *testing.T, db *sql.DB) (*druntime.Runtime, func(s
 	}
 	t.Cleanup(func() { _ = runtime.Shutdown(ctx) })
 	invoke := func(body string) (*Output, error) {
-		request := httptest.NewRequest("PATCH", "/v1/studio/resource-policies", strings.NewReader(body))
-		request.Header.Set("Content-Type", "application/json")
-		scope, scopeErr := requestprovider.New(request)
-		if scopeErr != nil {
-			t.Fatal(scopeErr)
+		var envelope struct {
+			Data []json.RawMessage `json:"data"`
 		}
-		defer scope.Close()
-		actual, invokeErr := runtime.ExecuteRoute(ctx, "PATCH", "/v1/studio/resource-policies", scope)
+		if err := json.Unmarshal([]byte(body), &envelope); err != nil {
+			return nil, err
+		}
+		input := &Input{Has: &InputHas{Policies: true}}
+		for _, raw := range envelope.Data {
+			var head ResourcePolicyHead
+			if err := json.Unmarshal(raw, &head); err != nil {
+				return nil, err
+			}
+			var fields map[string]json.RawMessage
+			if err := json.Unmarshal(raw, &fields); err != nil {
+				return nil, err
+			}
+			head.Has = &ResourcePolicyHeadHas{TenantId: present(fields, "tenantId"), ResourceKind: present(fields, "resourceKind"),
+				ResourceId: present(fields, "resourceId"), ResourceVersion: present(fields, "resourceVersion"),
+				Revision: present(fields, "revision"), History: present(fields, "history"),
+				CreatedBy: present(fields, "createdBy"), UpdatedBy: present(fields, "updatedBy")}
+			var revisions []json.RawMessage
+			if err := json.Unmarshal(fields["history"], &revisions); err == nil {
+				for index, revision := range revisions {
+					var columns map[string]json.RawMessage
+					if err := json.Unmarshal(revision, &columns); err != nil {
+						return nil, err
+					}
+					head.History[index].Has = &ResourcePolicyRevisionHas{TenantId: present(columns, "tenantId"), ResourceKind: present(columns, "resourceKind"),
+						ResourceId: present(columns, "resourceId"), ResourceVersion: present(columns, "resourceVersion"),
+						Revision: present(columns, "revision"), ActorId: present(columns, "actorId"),
+						PoliciesJson: present(columns, "policiesJson"), OccurredAt: present(columns, "occurredAt"),
+						CreatedBy: present(columns, "createdBy"), UpdatedBy: present(columns, "updatedBy")}
+				}
+			}
+			input.Policies = append(input.Policies, &head)
+		}
+		actual, invokeErr := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: dexec.ComponentTarget{
+			Component: component.Key, Route: spec.RouteRef{Method: "PATCH", Path: "/_studio/resource-policy-store/write"}}, Input: input})
 		if invokeErr != nil {
 			return nil, invokeErr
 		}
 		return actual.(*Output), nil
 	}
 	return runtime, invoke
+}
+
+func present(fields map[string]json.RawMessage, name string) bool {
+	_, ok := fields[name]
+	return ok
 }
 
 func TestResourcePolicyWriterActivationContract(t *testing.T) {

@@ -102,7 +102,7 @@ func applyCanonical(ctx context.Context, db *sql.DB) error {
 }
 
 func clearCanonicalSeed(ctx context.Context, db *sql.DB) error {
-	_, err := db.ExecContext(ctx, `DELETE FROM report_acl; DELETE FROM report_publications; DELETE FROM report_mcp_exposures; DELETE FROM report_cube_configs; DELETE FROM report_predicates; DELETE FROM report_parameters; DELETE FROM report_fields; DELETE FROM report_views; DELETE FROM report_versions; DELETE FROM reports; DELETE FROM runtime_generations; DELETE FROM connectors`)
+	_, err := db.ExecContext(ctx, `DELETE FROM report_acl; DELETE FROM report_publications; DELETE FROM report_mcp_exposures; DELETE FROM report_cube_configs; DELETE FROM report_predicates; DELETE FROM report_parameters; DELETE FROM report_fields; DELETE FROM report_views; DELETE FROM report_versions; DELETE FROM components; DELETE FROM runtime_generations; DELETE FROM connectors`)
 	return err
 }
 

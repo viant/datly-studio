@@ -33,7 +33,7 @@ func TestMCPNameReaderSelectsOtherLiveLatestAndActiveRevisions(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, id := range []string{"current", "other", "removed"} {
-		if _, err := db.ExecContext(ctx, `INSERT INTO reports(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at)
+		if _, err := db.ExecContext(ctx, `INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at)
 			VALUES(?,?,?,?,?,'draft','main',?,?,1,?,?)`, id, "general", id, id, "owner", "reports/"+id, "reader", now, now); err != nil {
 			t.Fatal(err)
 		}
@@ -59,7 +59,7 @@ func TestMCPNameReaderSelectsOtherLiveLatestAndActiveRevisions(t *testing.T) {
 		VALUES('other',1,1,'active',?,'owner',?)`, fmt.Sprintf("%064d", 1), now); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := db.ExecContext(ctx, `UPDATE reports SET deleted_at=? WHERE id='removed'`, now); err != nil {
+	if _, err := db.ExecContext(ctx, `UPDATE components SET deleted_at=? WHERE id='removed'`, now); err != nil {
 		t.Fatal(err)
 	}
 	transport := &Transport{DB: db}
@@ -73,7 +73,7 @@ func TestMCPNameReaderSelectsOtherLiveLatestAndActiveRevisions(t *testing.T) {
 		rows[1].ReportId != "other" || rows[1].VersionNo != 3 || rows[1].GeneratedDql == nil || *rows[1].GeneratedDql != "SELECT 3" {
 		t.Fatalf("latest/active candidates=%+v", rows)
 	}
-	if _, err := db.ExecContext(ctx, `UPDATE reports SET deleted_at=? WHERE id='other'`, now); err != nil {
+	if _, err := db.ExecContext(ctx, `UPDATE components SET deleted_at=? WHERE id='other'`, now); err != nil {
 		t.Fatal(err)
 	}
 	rows, err = transport.readMCPNameSources(ctx, "current")

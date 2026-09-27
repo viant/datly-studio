@@ -10,7 +10,7 @@ func init() {}
 
 // Component is the generated component scaffold for claim.
 type ClaimComponent struct {
-	Contract xdatly.Component[Input, Output] "component:\"claim,path=/_studio/resource-namespace-claim-store/write,method=PATCH,connector=studio,view=claim\" routeName:\"claim\" mutation:\"patch\" caseFormat:\"lc\""
+	Contract xdatly.Component[Input, Output] "component:\"claim,path=/_studio/resource-namespace-claim-store/write,method=PATCH,connector=studio,view=claim,internal=true\" routeName:\"claim\" mutation:\"patch\" caseFormat:\"lc\""
 }
 
 // ClaimDatlyType keeps the public component type linked for blank-import discovery.

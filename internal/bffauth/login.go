@@ -17,6 +17,7 @@ import (
 	"net/url"
 	"slices"
 	"strings"
+	"sync"
 	"time"
 
 	"golang.org/x/oauth2"
@@ -25,26 +26,32 @@ import (
 const (
 	loginPath    = "/v1/studio/auth/login"
 	callbackPath = "/v1/studio/auth/callback"
+	tokenPath    = "/v1/studio/auth/token"
 	stateCookie  = "studio_login_state"
 	stateTTL     = 5 * time.Minute
 )
 
 type LoginConfig struct {
-	OAuth     oauth2.Config
-	CookieKey []byte // the deployment's shared 32-byte BFF session key
-	Secure    bool
+	OAuth         oauth2.Config
+	CookieKey     []byte // the deployment's shared 32-byte BFF session key
+	Secure        bool
+	UseIDToken    bool
+	AllowedOrigin string
 }
 
-// Login is an optional authorization-code + S256 PKCE entry point. It only
-// accepts a signed JWT access token through the existing verified BFF session
-// exchange; an ID token or arbitrary userinfo response is never authority.
+// Login owns authorization-code + S256 PKCE and the provider token lifecycle.
+// Identity-token deployments mount DatlyHTTP; Register retains only the
+// explicit legacy BFF access-token flow.
 type Login struct {
-	config   oauth2.Config
-	sessions *Service
-	aead     cipher.AEAD
-	secure   bool
-	now      func() time.Time
-	client   *http.Client
+	config        oauth2.Config
+	sessions      *Service
+	aead          cipher.AEAD
+	secure        bool
+	now           func() time.Time
+	client        *http.Client
+	useIDToken    bool
+	allowedOrigin string
+	refreshMu     sync.Mutex
 }
 
 type loginState struct {
@@ -76,6 +83,9 @@ func NewLogin(config LoginConfig, sessions *Service) (*Login, error) {
 	if err := validateLoginURL(config.OAuth.RedirectURL, "redirect URI"); err != nil {
 		return nil, err
 	}
+	if config.UseIDToken && strings.TrimSpace(config.AllowedOrigin) == "" {
+		return nil, errors.New("browser identity-token flow requires an allowed origin")
+	}
 	key := hmac.New(sha256.New, config.CookieKey)
 	key.Write([]byte("datly-studio/bff-login-state/v1"))
 	block, err := aes.NewCipher(key.Sum(nil))
@@ -87,6 +97,7 @@ func NewLogin(config LoginConfig, sessions *Service) (*Login, error) {
 		return nil, err
 	}
 	return &Login{config: config.OAuth, sessions: sessions, aead: aead, secure: config.Secure,
+		useIDToken: config.UseIDToken, allowedOrigin: strings.TrimRight(config.AllowedOrigin, "/"),
 		now: time.Now, client: &http.Client{Timeout: 10 * time.Second}}, nil
 }
 
@@ -104,9 +115,13 @@ func validateLoginURL(value, name string) error {
 	return fmt.Errorf("BFF login %s must be an absolute HTTPS URL", name)
 }
 
-func (l *Login) Register(mux *http.ServeMux) {
+func (l *Login) Register(mux *http.ServeMux) error {
+	if l.useIDToken {
+		return errors.New("identity-token login must use DatlyHTTP")
+	}
 	mux.HandleFunc("GET "+loginPath, l.handleStart)
 	mux.HandleFunc("GET "+callbackPath, l.handleCallback)
+	return nil
 }
 
 func (l *Login) handleStart(w http.ResponseWriter, r *http.Request) {

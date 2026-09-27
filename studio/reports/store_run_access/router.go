@@ -10,7 +10,7 @@ func init() {}
 
 // Component is the generated component scaffold for access.
 type AccessComponent struct {
-	Contract xdatly.Component[Input, Output] "component:\"access,path=/_studio/report-run-access,method=GET,connector=studio,view=access\" routeName:\"access\" caseFormat:\"lc\""
+	Contract xdatly.Component[Input, Output] "component:\"access,path=/_studio/report-run-access,method=GET,connector=studio,view=access,internal=true\" routeName:\"access\" caseFormat:\"lc\""
 }
 
 // AccessDatlyType keeps the public component type linked for blank-import discovery.

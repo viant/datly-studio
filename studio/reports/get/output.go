@@ -6,7 +6,7 @@ import (
 
 // ReportGetOutput is the generated output scaffold for report.
 type ReportGetOutput struct {
-	Item                 *Report   `parameter:"Item,kind=output,in=view,dataType=*Report" json:"-" view:"report,type=Report,table=reports,limit=1" sql:"uri=studio_reports_get_report:sql/report.sql"`
+	Item                 *Report   `parameter:"Item,kind=output,in=view,dataType=*Report" json:"-" view:"report,type=Report,table=components,limit=1" sql:"uri=studio_reports_get_report:sql/report.sql"`
 	ResponseId           string    `parameter:"ResponseId,kind=output,in=body,dataType=string" json:"id"`
 	Namespace            string    `parameter:"Namespace,kind=output,in=body,dataType=string" json:"namespace"`
 	Slug                 string    `parameter:"Slug,kind=output,in=body,dataType=string" json:"slug"`

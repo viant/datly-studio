@@ -13,14 +13,13 @@ export const reviewScenarios = {
 export function createReviewFixture(scenario = 'editable', kind = 'component') {
   if (!defaultActionsByKind[kind]) throw new Error(`Unknown review resource kind ${kind}`);
   const resource = { kind, id: 'operations-example', tenant: 'preview-tenant', version: '3' };
-  const consume = { component: 'execute', skill: 'retrieve', report: 'preview' }[kind];
+  const consume = { component: 'execute', skill: 'retrieve' }[kind];
   let document = { resource, revision: 7, policies: scenario === 'empty' ? {} : {
     discover: { mode: 'public' },
     describe: { mode: 'public' },
     [consume]: { mode: 'protected', entityType: 'project', rule: { kind: 'all', rules: [
       { kind: 'role', value: 'analyst' }, { kind: 'exposure', value: 'analytics' },
     ] } },
-    ...(kind === 'report' ? { execute: { mode: 'protected', rule: { kind: 'role', value: 'analyst' } } } : {}),
     viewAccess: { mode: 'protected', rule: { kind: 'role', value: 'access-admin' } },
     manageAccess: { mode: 'protected', rule: { kind: 'role', value: 'access-admin' } },
   } };

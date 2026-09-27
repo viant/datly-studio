@@ -2,7 +2,100 @@
 
 > Status: prior Astra-labelled findings are retained only as historical defect
 > notes. They are not independent UX approval and must not be used to green-light
-> any Studio surface. Record future approval only from the requested reviewer.
+> any Studio surface. The independent GPT-6 Sol review resumed after the UI unit
+> suite passed. Its findings and scope are recorded below.
+
+### Independent GPT-6 Sol Sign out review — 2026-09-26
+
+- After the direct-auth Sign out change passed 82 Node and 82 rendered UI
+  tests, a separate GPT-6 Sol reviewer checked it in local Chrome at 1440 and
+  390 px with mocked auth responses. The navbar action was visible and
+  keyboard-operable; failed DELETE 503 kept the signed-in app mounted and
+  showed a `role=alert` error with Try again. A successful DELETE 204 returned
+  to Sign in. Neither viewport had horizontal document overflow.
+- Scoped verdict: no P1/P2 finding. Token revocation was tested with mocked
+  responses; deployed IdP/logout behavior and spoken screen-reader
+  announcements remain unverified. A subsequent unit test also guards against
+  an in-flight token refresh repopulating memory after confirmed sign-out.
+
+### Independent GPT-6 Sol whole-product local pass — 2026-09-26
+
+- After 80 Node and 80 rendered UI tests plus the production build passed, a
+  separate GPT-6 Sol reviewer inspected the current direct-auth shell,
+  component catalog, graph/SQL navigation, and wide Output catalogs in a local
+  Chrome browser at desktop and 390 px. SDK/auth responses were mocked; this
+  was not a deployed identity-provider or data-runtime acceptance test.
+- The first pass raised split-origin login/cookie concerns. On re-review the
+  reviewer withdrew both: authenticated configuration and the browser identity
+  client require the UI and auth broker to share one origin, and the documented
+  static-root deployment serves the callback's `/` return. The static Datly
+  API may remain on a separate origin.
+- No confirmed P1/P2 UX issue remains in the reviewed local states. Sign-in
+  and 503 recovery kept visible controls without document overflow at 1440
+  and 390 px. At 390 px, the component catalog and graph selection worked;
+  the SQL editor loaded with the accessible name “Vendor SQL source”; the
+  60-column Output showed ID first and rows 1–25 of 60 with search narrowing
+  to 1 of 1; the 20-view Output showed rows 1–25 of 100 and a view-20 filter
+  narrowed to 5 of 5. Those reviewed states had no document overflow.
+- Verdict: production UX acceptance remains pending a deployed IdP callback,
+  expiry and denied-user flow, spoken screen-reader checks, and actual deployed
+  200% zoom. Local mocked behavior cannot establish those conditions.
+- The reviewer later attempted a local Chrome 200% zoom check, but the allowed
+  browser controls did not change measured zoom and browser policy blocked the
+  settings page. No 200% zoom verdict was obtained; the 390 px pass is not a
+  substitute. A manual or deployed 200% zoom check is still required.
+
+### Component terminology and ACL boundary — 2026-09-26
+
+- After 75 Node and 78 rendered UI tests and the production build passed, a
+  separate GPT-6 Sol reviewer checked removal of the presentation Report kind
+  from Studio's default ACL controls. No P1/P2 user-facing regression or
+  accessibility issue was found in that scoped review.
+- The reviewer found stale Report/preview assumptions in the visual smoke test
+  and UI README. Both now use Component/execute; the 390/768/1200 px visual
+  smoke, full UI suite, and production build pass. This is not whole-product
+  production acceptance.
+
+### Independent GPT-6 Sol review — 2026-09-25
+
+- After the 57 Node and 78 rendered UI tests passed, a separate GPT-6 Sol
+  reviewer inspected the substantial Output catalog/primary-key change. Its
+  first pass identified false physical-column claims for explicit projections
+  and weak partial-metadata recovery. The fallback now applies only to a
+  compiler-signalled simple `SELECT *` source with no output-altering column
+  contracts; failures identify the source and offer Retry metadata. Rendered
+  tests cover 20 views × 5 fields, 60 columns, explicit projections, and
+  partial-failure recovery. Final scoped re-review found no P1/P2 issue.
+- A live Docker/MySQL fixture confirmed five hierarchy levels, search of the
+  twentieth view, a 100-column aggregate Output catalog and a 60-column wide
+  view with primary key first. This is local browser evidence, not deployed
+  whole-product or assistive-technology acceptance.
+
+- Review was paused when the UI unit gate was specified, then resumed after
+  `npm test` passed 55 Node tests and 73 rendered tests across 23 files. The
+  reviewer inspected the source and rendered test evidence;
+  deployed IdP, spoken screen-reader, and deployed 200% zoom checks were outside
+  that inspection.
+- Initial verdict: production UX approval pending. Two P1 findings identified
+  direct live skill publication from one-click Assign/Remove and unclear recovery
+  when a write succeeded before validation or publication failed. One P2 finding
+  identified ungrouped skill-selection radios.
+- The live Skills catalog now only inspects published contracts and opens the
+  owning component for edits. Direct Assign, Remove, Delete, and publication
+  actions were removed. Radios share a group name. The reviewer confirmed
+  these three catalog findings resolved on a source and rendered-test re-review.
+- The reviewer then found a P1 partial-failure case in the destination resource
+  editor. Saving or deleting a skill uses two ordered SDK writes. If the second
+  fails, the editor now shows the revision saved by the first, updates its local
+  snapshot, and offers reload with explicit draft-recovery guidance. Rendered
+  tests cover both partial save and partial delete. The reviewer found no
+  remaining P1/P2 issue in the scoped Skills flow on final re-review.
+- Final scoped verdict: the reviewed Skills flow is acceptable on source and
+  rendered-test evidence. Whole-product approval and deployed IdP, spoken
+  screen-reader, and deployed 200% zoom checks remain open.
+- After the Skills fixes, `npm test` passed 55 Node and 74 rendered tests. The
+  later native version SDK client addition passed 56 Node and 74 rendered tests;
+  `npm run build` passed. The build retains an editor chunk-size warning.
 
 ### Reader Builder contract navigation — local review, 2026-09-25
 
@@ -71,15 +164,14 @@ Run this review before declaring a Studio Forge UI surface complete.
 
 ## Production-readiness review in progress — 2026-09-20
 
-The following surfaces passed local functional and visual inspection. Fable 5.1
-remained unavailable; the product owner subsequently authorized Codex Astra low
-as the available substitute. Astra approval is recorded explicitly below and is
-scoped to inspected scenarios rather than treated as blanket Fable approval.
+The following surfaces passed local functional and visual inspection. The
+historical Codex Astra low review is recorded explicitly below and is scoped
+to inspected scenarios. The separate GPT-6 Sol review is recorded above.
 
 ### Codex Astra low substitute review — approved targeted changes, 2026-09-20
 
-- The product owner authorized Codex Astra at low reasoning effort when Fable
-  remained unavailable and supplied three explicit requirements to the reviewer:
+- The product owner authorized Codex Astra at low reasoning effort for the
+  historical review and supplied three explicit requirements to the reviewer:
   remove the noisy SQL metadata strip, place global identity/connector/cube/MCP
   controls in Edit component, and expose MCP Catalog plus Skills & Resources as
   visible destinations.
@@ -154,7 +246,7 @@ scoped to inspected scenarios rather than treated as blanket Fable approval.
   previously 1,305px). Navigation uses an overlay drawer and the graph remains
   the first component workspace.
 
-### Governed namespaces — locally verified, Fable pending, 2026-09-20
+### Governed namespaces — locally verified, production acceptance pending, 2026-09-20
 
 - The namespace catalog now delegates query, lifecycle status, limit, and
   offset to the owner-scoped SDK instead of loading an unbounded client list.
@@ -197,7 +289,7 @@ scoped to inspected scenarios rather than treated as blanket Fable approval.
   source-name search, the separate constants tab, and persistence of an authored
   zero through the structured `updateField` operation.
 
-### Predicate catalog — complete compiled Boolean controls locally verified, Fable pending, 2026-09-20
+### Predicate catalog — complete compiled Boolean controls locally verified, production acceptance pending, 2026-09-20
 
 - The 234-occurrence Forecasting fixture renders as a bounded, paginated
   catalog with predicate-family, kind, target-view, and page-size filters.
@@ -237,7 +329,7 @@ scoped to inspected scenarios rather than treated as blanket Fable approval.
   performs source-preserving CAST/tag edits, returns normalized contract
   metadata, preserves unrelated tags, and recompiles the complete candidate.
 
-### Validation diagnostics — locally verified, Fable pending, 2026-09-20
+### Validation diagnostics — locally verified, production acceptance pending, 2026-09-20
 
 - Validation remains bound to the displayed version and source revision and
   materializes the publishable Datly runtime contract without running the
@@ -254,7 +346,7 @@ scoped to inspected scenarios rather than treated as blanket Fable approval.
   actionable hints, permission-gated source navigation, unchanged runtime
   messaging, and retry after the validation service itself fails.
 
-### Permissions — locally verified, Fable pending, 2026-09-20
+### Permissions — locally verified, production acceptance pending, 2026-09-20
 
 - The owner-only editor distinguishes implicit owner authority from delegated
   verified JWT subjects and offers Viewer, Operator, SQL author, Advanced author,
@@ -288,13 +380,9 @@ scoped to inspected scenarios rather than treated as blanket Fable approval.
 
 ### Reviewer access status
 
-- Fable 5.1 remained unavailable: the Claude surface was signed out and no
-  Claude CLI was installed. The product owner explicitly authorized Codex Astra
-  low as the substitute reviewer; its scoped verdict and remaining scenario
-  conditions are recorded above.
-- Rechecked 2026-09-25: `claude` 2.1.281 is installed, but `claude auth status`
-  reports `loggedIn: false` and `authMethod: none`. Fable 5.1 review is still
-  pending; the installed executable does not supply reviewer evidence.
+- Historical Codex Astra low verdicts and their scenario limits are recorded
+  above. The separate GPT-6 Sol review resumed after UI unit suite completion;
+  its findings and remaining acceptance limits are recorded at the top.
 - Rechecked 2026-09-25: no deployed Studio tab or deployed sign-in URL was
   available in the browser inventory or repository configuration. Local Studio
   was reachable on the preseeded SQLite fixture. The earlier 640px viewport
@@ -726,7 +814,7 @@ scoped to inspected scenarios rather than treated as blanket Fable approval.
   from scalar columns defensively. Live Vendor preview no longer renders
   `[object Object]` or a “Nested views” column; expanding a vendor embeds the
   typed Products subtable directly below its parent row.
-### View inspector and column catalog — implemented and locally verified, Fable pending, 2026-09-20
+### View inspector and column catalog — implemented and locally verified, production acceptance pending, 2026-09-20
 
 - Screenshot feedback rejects the prior separate explanatory “View behavior”
   and “Column authoring” cards. They must be removed rather than restyled.
@@ -752,8 +840,8 @@ scoped to inspected scenarios rather than treated as blanket Fable approval.
   metadata instead of reducing the catalog to one internal key.
 - The selected Vendor view test completed through the Studio SDK in 605µs and
   returned all three deterministic fixture rows. UI tests, production build,
-  the full Studio Go suite, and the Impeccable detector passed. Fable 5.1
-  external review remains pending; no Fable approval has been recorded.
+  the full Studio Go suite, and the Impeccable detector passed. The separate
+  production acceptance remains pending beyond the scoped Skills review.
 - Rendered Reader Builder coverage now proves the graph-first interaction: a
   view click activates the inline inspector and merged columns without opening
   a tab; Open SQL is the explicit transition to the per-view SQL resource; and
@@ -809,7 +897,7 @@ scoped to inspected scenarios rather than treated as blanket Fable approval.
   inputs. Stable IDs and `labelFor` bindings now make Maximum cubes, Maximum
   result rows, and Timeout directly addressable by label.
 
-### Runtime workspace — implemented projection, Fable pending, 2026-09-20
+### Runtime workspace — implemented projection, production acceptance pending, 2026-09-20
 
 - The new Runtime window shows the recorded active generation, every deployed
   component/version visible to the operator, connector and runtime revision,
@@ -821,9 +909,9 @@ scoped to inspected scenarios rather than treated as blanket Fable approval.
   and unknown states without exposing the administration token.
 - Live desktop review verified generation 12, three deployed components, and
   dynamic host readiness revision 1. Both seeded HTTP routes executed their
-  nested results. External Fable 5.1 review remains pending.
+  nested results. Production acceptance remains pending beyond the scoped Skills review.
 
-### Overview — implemented and locally verified, Fable pending, 2026-09-20
+### Overview — implemented and locally verified, production acceptance pending, 2026-09-20
 
 - Overview is now the default desktop landing window. It answers three
   operator questions without decorative metrics: whether the dynamic runtime
@@ -835,9 +923,9 @@ scoped to inspected scenarios rather than treated as blanket Fable approval.
 - Live review verified ready generation 12, five recent components, two tested
   connectors, two governed namespaces, and the two actual draft components in
   the attention queue. The initial `null` loading-state crash found in browser
-  review is regression-tested. Fable 5.1 approval remains pending.
+  review is regression-tested. Production acceptance remains pending beyond the scoped Skills review.
 
-### Cache and warmup — durable evidence implemented, Fable pending, 2026-09-20
+### Cache and warmup — durable evidence implemented, production acceptance pending, 2026-09-20
 
 - Cache configuration and warmup execution are visibly separated. Saving a
   cache or plan never implies that a run occurred.
@@ -853,13 +941,13 @@ scoped to inspected scenarios rather than treated as blanket Fable approval.
   sanitized diagnostics. No DSN or credential is stored or returned.
 - Live desktop review verified two completed `vendor-spend` runs. Closing and
   reopening the dialog retains the latest evidence and history; the latest run
-  prepared one authored case/entry in 1.2ms. Fable 5.1 approval remains pending.
+  prepared one authored case/entry in 1.2ms. Production acceptance remains pending beyond the scoped Skills review.
 - Rendered operational coverage restores durable history, blocks malformed or
   duplicate Cartesian dimensions before mutation, and keeps the last successful
   run visible when “Run again” fails. The test exposed and fixed premature
   clearing of prior evidence before server acceptance.
 
-### Exact-version preview and relation evidence — implemented, Fable pending, 2026-09-20
+### Exact-version preview and relation evidence — implemented, production acceptance pending, 2026-09-20
 
 - Preview now always calls the authorization-scoped `preview.execute` SDK
   operation for the exact report/version being edited. Authenticated mode no
@@ -876,7 +964,7 @@ scoped to inspected scenarios rather than treated as blanket Fable approval.
 - The relation test executes the compiled Datly reader and inspects its typed
   assembled output. Live `Vendor → Products` evidence reported 3 parent rows,
   2 matched, 1 unmatched, and 3 children attached for v2 revision 1. It does
-  not run parallel hand-authored SQL. Fable 5.1 approval remains pending.
+  not run parallel hand-authored SQL. Production acceptance remains pending beyond the scoped Skills review.
 
 ### Authenticated BFF boundary — hardened locally, 2026-09-20
 

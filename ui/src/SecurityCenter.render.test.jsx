@@ -43,22 +43,21 @@ test('loads trimmed skill resource values and offers retrieve instead of execute
   expect(screen.queryByRole('button', { name: /execute/ })).toBeNull();
 });
 
-test('report permissions expose preview and execute as separate actions', async () => {
+test('component permissions expose execute without report preview', async () => {
   const user = userEvent.setup();
-  const api = { getResourceAccess: vi.fn().mockResolvedValue({ resource: { kind: 'report', id: 'overview', tenant: 'one', version: '2' }, revision: 3,
-    policies: { preview: { mode: 'protected', rule: { kind: 'role', value: 'reviewer' } }, execute: { mode: 'protected', rule: { kind: 'role', value: 'reader' } } } }) };
+  const api = { getResourceAccess: vi.fn().mockResolvedValue({ resource: { kind: 'component', id: 'overview', tenant: 'one', version: '2' }, revision: 3,
+    policies: { execute: { mode: 'protected', rule: { kind: 'role', value: 'reader' } } } }) };
   render(<SecurityCenter api={api}/>);
-  await user.selectOptions(screen.getByLabelText('Resource type'), 'report');
+  expect(screen.queryByRole('option', { name: 'Report' })).toBeNull();
+  await user.selectOptions(screen.getByLabelText('Resource type'), 'component');
   await user.type(screen.getByLabelText('Resource ID'), 'overview');
   await user.type(screen.getByLabelText('Tenant'), 'one');
   await user.click(screen.getByRole('button', { name: 'Load permissions' }));
   await screen.findByText('Policy revision 3');
-  expect(api.getResourceAccess).toHaveBeenCalledWith({ kind: 'report', id: 'overview', tenant: 'one', version: '1' });
-  expect(screen.getByRole('button', { name: /preview Protected/ })).toBeTruthy();
+  expect(api.getResourceAccess).toHaveBeenCalledWith({ kind: 'component', id: 'overview', tenant: 'one', version: '1' });
+  expect(screen.queryByRole('button', { name: /preview Protected/ })).toBeNull();
   expect(screen.getByRole('button', { name: /execute Protected/ })).toBeTruthy();
   expect(screen.queryByRole('button', { name: /retrieve/ })).toBeNull();
-  await user.click(screen.getByRole('button', { name: /preview Protected/ }));
-  expect(screen.queryByRole('option', { name: 'Public consumption' })).toBeNull();
 });
 
 test('custom resource kinds need an explicit action contract', async () => {

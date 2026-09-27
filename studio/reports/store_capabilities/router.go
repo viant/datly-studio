@@ -10,7 +10,7 @@ func init() {}
 
 // Component is the generated component scaffold for capability.
 type CapabilityComponent struct {
-	Contract xdatly.Component[Input, Output] "component:\"capability,path=/_studio/report-capabilities,method=GET,connector=studio,view=capability\" routeName:\"capability\" caseFormat:\"lc\""
+	Contract xdatly.Component[Input, Output] "component:\"capability,path=/_studio/report-capabilities,method=GET,connector=studio,view=capability,internal=true\" routeName:\"capability\" caseFormat:\"lc\""
 }
 
 // CapabilityDatlyType keeps the public component type linked for blank-import discovery.

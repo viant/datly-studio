@@ -1,0 +1,19 @@
+#package('studio/report_resource_files/store_download_budget')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/report-resource-files-store/download-budget', 'GET'))
+#setting($_ = $internal(true))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('budget', 'sql/budget.sql'))
+
+#define($_ = $ReportId<string>(query/reportId).Required())
+#define($_ = $VersionNo<int>(query/versionNo).Required())
+#define($_ = $Summary<*Budget>(output/view))
+
+SELECT budget.*, type(budget, 'Budget'),
+       CAST(budget.file_count AS int64), CAST(budget.content_bytes AS int64),
+       set_limit(budget, 1)
+FROM (${embed:sql/budget.sql}) budget
+WHERE 1=1

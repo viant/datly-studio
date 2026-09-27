@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"github.com/viant/datly/typecatalog"
 	x "github.com/viant/x"
+	xpredicate "github.com/viant/xdatly/predicate"
+	"github.com/viant/xunsafe"
 	"reflect"
 	"sort"
 	"strings"
@@ -44,7 +46,14 @@ func New(packages ...Package) (*Catalog, error) {
 			return nil, fmt.Errorf("predicate package path is required")
 		}
 		alias := strings.TrimSpace(pkg.Alias)
-		for _, typ := range pkg.Types {
+		types := pkg.Types
+		if types == nil {
+			types = linkedPredicateTypes(path)
+			if len(types) == 0 {
+				return nil, fmt.Errorf("predicate package %s has no linked handler types", path)
+			}
+		}
+		for _, typ := range types {
 			for typ != nil && typ.Kind() == reflect.Pointer {
 				typ = typ.Elem()
 			}
@@ -62,6 +71,27 @@ func New(packages ...Package) (*Catalog, error) {
 		}
 	}
 	return result, nil
+}
+
+// linkedPredicateTypes selects already-linked implementations from one trusted
+// package path. Package discovery/linking remains an explicit AST/build step;
+// this never registers a type or makes source-only declarations executable.
+func linkedPredicateTypes(packagePath string) []reflect.Type {
+	handler := reflect.TypeFor[xpredicate.Handler]()
+	seen := map[reflect.Type]bool{}
+	var result []reflect.Type
+	for _, typ := range xunsafe.PackageTypes(packagePath) {
+		for typ != nil && typ.Kind() == reflect.Pointer {
+			typ = typ.Elem()
+		}
+		if typ == nil || typ.PkgPath() != packagePath || typ.Name() == "" || seen[typ] || !reflect.PointerTo(typ).Implements(handler) {
+			continue
+		}
+		seen[typ] = true
+		result = append(result, typ)
+	}
+	sort.Slice(result, func(i, j int) bool { return result[i].Name() < result[j].Name() })
+	return result
 }
 
 func (c *Catalog) Contains(packagePath, typeName string) bool {

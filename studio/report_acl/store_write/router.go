@@ -10,7 +10,7 @@ func init() {}
 
 // Component is the generated component scaffold for acl.
 type AclComponent struct {
-	Contract xdatly.Component[Input, Output] "component:\"acl,path=/_studio/report-acl-store,method=PATCH,connector=studio,view=acl\" routeName:\"acl\" mutation:\"patch\" caseFormat:\"lc\""
+	Contract xdatly.Component[Input, Output] "component:\"acl,path=/_studio/report-acl-store,method=PATCH,connector=studio,view=acl,internal=true\" routeName:\"acl\" mutation:\"patch\" caseFormat:\"lc\""
 }
 
 // AclDatlyType keeps the public component type linked for blank-import discovery.

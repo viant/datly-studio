@@ -25,9 +25,6 @@
 
 SELECT mcp_exposure.*, type(mcp_exposure, 'ReportMCPExposure'),
        set_limit(mcp_exposure, 100),
-       selector_fields(mcp_exposure, true),
-       selector_limit(mcp_exposure, true),
-       selector_offset(mcp_exposure, true),
        allowed_order_by_columns(mcp_exposure, 'route_id,route_method,route_path,kind,name,enabled,ordinal')
 FROM (
     ${embed:sql/read.sql}

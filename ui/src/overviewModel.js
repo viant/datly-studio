@@ -14,7 +14,7 @@ export function overviewIssues(input = {}) {
   }
   const drafts = reports.filter((report) => report.status === 'draft');
   if (drafts.length > 0) {
-    issues.push({ key: 'drafts', intent: 'primary', title: `${drafts.length} draft ${drafts.length === 1 ? 'component' : 'components'} need review`, detail: drafts.slice(0, 3).map((report) => report.title).join(', '), section: 'reports' });
+    issues.push({ key: 'drafts', intent: 'primary', title: `${drafts.length} draft ${drafts.length === 1 ? 'component' : 'components'} need review`, detail: drafts.slice(0, 3).map((report) => report.title).join(', '), section: 'components' });
   }
   return issues;
 }

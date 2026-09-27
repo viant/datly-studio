@@ -7,9 +7,9 @@
 #setting($_ = $input_type('Input'))
 #setting($_ = $output_type('Output'))
 #setting($_ = $case_format('lc'))
-#setting($_ = $route('/v1/studio/sdk/reports.list', 'POST'))
+#setting($_ = $route('/v1/studio/sdk/components.list', 'POST'))
 #setting($_ = $connector('studio'))
-#setting($_ = $mcp('studio.sdk.reports.list', 'List authorized Datly Studio components'))
+#setting($_ = $mcp('studio.sdk.components.list', 'List authorized Datly Studio components'))
 #setting($_ = $sql_dest('report', 'sql/report.sql'))
 
 #define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
@@ -38,9 +38,7 @@ SELECT reports.*, type(reports, 'Report'),
        CAST(reports.created_at AS time.Time), CAST(reports.updated_at AS time.Time),
        tag(reports.description, 'json:"description,omitempty"'),
        tag(reports.current_draft_version, 'json:"currentDraftVersion,omitempty"'),
-       set_limit(reports, 500),
-       selector_limit(reports, true),
-       selector_offset(reports, true)
+       set_limit(reports, 500)
 FROM (
     ${embed:sql/read.sql}
 ) reports

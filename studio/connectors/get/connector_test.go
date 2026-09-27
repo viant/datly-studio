@@ -42,7 +42,7 @@ func TestConnectorGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 			"owner_id": "alice", "name": "general", "title": "General", "status": "active",
 			"etag": 1, "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00",
 		}}},
-		datatest.Table{Name: "reports", Rows: []datatest.Row{{
+		datatest.Table{Name: "components", Rows: []datatest.Row{{
 			"id": "r1", "slug": "first", "title": "First", "owner_id": "alice",
 			"status": "active", "default_connector_name": "main", "namespace": "general",
 			"component_scope": "reports/first", "component_name": "first",
@@ -207,7 +207,7 @@ func TestConnectorGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	if bytes.Contains(structured, []byte("private-token")) || bytes.Contains(structured, []byte("dsnTemplate")) {
 		t.Fatalf("MCP connector leaked secret material: %s", structured)
 	}
-	if _, err = db.ExecContext(ctx, "UPDATE reports SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?", "r1"); err != nil {
+	if _, err = db.ExecContext(ctx, "UPDATE components SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?", "r1"); err != nil {
 		t.Fatal(err)
 	}
 	_, err = invoke("bob", "main")
@@ -215,7 +215,7 @@ func TestConnectorGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	if !errors.As(err, &notFound) || notFound.Code != http.StatusNotFound {
 		t.Fatalf("soft-deleted grant error=%v, want 404", err)
 	}
-	if _, err = db.ExecContext(ctx, "UPDATE reports SET deleted_at = NULL WHERE id = ?", "r1"); err != nil {
+	if _, err = db.ExecContext(ctx, "UPDATE components SET deleted_at = NULL WHERE id = ?", "r1"); err != nil {
 		t.Fatal(err)
 	}
 	if _, err = db.ExecContext(ctx, "DELETE FROM report_acl WHERE report_id = ? AND subject_id = ?", "r1", "bob"); err != nil {

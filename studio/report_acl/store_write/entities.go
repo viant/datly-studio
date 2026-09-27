@@ -30,16 +30,6 @@ func (entity *StoredACL) SetSubjectId(value *string) {
 	}
 	entity.Has.SubjectId = true
 }
-func (entity *StoredACL) GetShouldDelete() bool {
-	return entity.ShouldDelete
-}
-func (entity *StoredACL) SetShouldDelete(value bool) {
-	entity.ShouldDelete = value
-	if entity.Has == nil {
-		entity.Has = &StoredACLHas{}
-	}
-	entity.Has.ShouldDelete = true
-}
 func (entity *StoredACL) GetEtag() *int {
 	return entity.Etag
 }
@@ -99,4 +89,14 @@ func (entity *StoredACL) SetCanUseDql(value *int) {
 		entity.Has = &StoredACLHas{}
 	}
 	entity.Has.CanUseDql = true
+}
+func (entity *StoredACL) GetShouldDelete() bool {
+	return entity.ShouldDelete
+}
+func (entity *StoredACL) SetShouldDelete(value bool) {
+	entity.ShouldDelete = value
+	if entity.Has == nil {
+		entity.Has = &StoredACLHas{}
+	}
+	entity.Has.ShouldDelete = true
 }

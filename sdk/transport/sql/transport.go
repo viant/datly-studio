@@ -6,7 +6,6 @@ package sqltransport
 import (
 	"context"
 	"crypto/rand"
-	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
 	"encoding/json"
@@ -17,7 +16,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/viant/datly-studio/internal/namespacevalidation"
+	"github.com/viant/datly-studio/internal/readerinspection"
 	"github.com/viant/datly-studio/internal/reportcapability"
+	"github.com/viant/datly-studio/internal/versionidentity"
 	"github.com/viant/datly-studio/sdk"
 	publicationstore "github.com/viant/datly-studio/sdk/transport/sql/internal/publications"
 	connectorconfig "github.com/viant/datly-studio/studio/connectors/store_config"
@@ -36,6 +38,7 @@ import (
 	reportinsert "github.com/viant/datly-studio/studio/reports/store_insert"
 	generationstate "github.com/viant/datly-studio/studio/runtime_generations/store_state"
 	"github.com/viant/datly/authoring/readerbuilder"
+	dexec "github.com/viant/datly/exec"
 	datlyreport "github.com/viant/datly/report"
 	"github.com/viant/datly/spec"
 	"github.com/viant/datly/transcribe"
@@ -113,7 +116,11 @@ func (f AuthorizerFunc) Authorize(ctx context.Context, request AuthorizationRequ
 }
 
 type Transport struct {
-	DB                       *sql.DB
+	DB *sql.DB
+	// ComponentInvoker runs linked reader/writer components in the caller's
+	// Datly database unit. Native mutations must use it instead of opening a
+	// second transaction and compiling a separate child runtime.
+	ComponentInvoker         dexec.ComponentInvoker
 	Now                      func() time.Time
 	Preview                  PreviewExecutor
 	ViewTester               ViewTester
@@ -191,13 +198,13 @@ func (t *Transport) Invoke(ctx context.Context, operation string, input, output 
 		return t.deleteAuthorizationPredicate(ctx, input)
 	case sdk.OperationAuthorizationPredicateTypes:
 		return t.authorizationPredicateTypes(output)
-	case sdk.OperationReportCreate:
+	case sdk.OperationComponentCreate:
 		return t.createReport(ctx, input, output)
-	case sdk.OperationReportGet:
+	case sdk.OperationComponentGet:
 		return t.getReport(ctx, input, output)
-	case sdk.OperationReportList:
+	case sdk.OperationComponentList:
 		return t.listReports(ctx, input, output)
-	case sdk.OperationReportUpdate:
+	case sdk.OperationComponentUpdate:
 		return t.updateReport(ctx, input, output)
 	case sdk.OperationVersionCreate:
 		return t.createVersion(ctx, input, output)
@@ -346,7 +353,7 @@ func (t *Transport) authorize(ctx context.Context, operation string, input any) 
 		permission = "dql"
 	case sdk.OperationConnectorCreate, sdk.OperationConnectorUpdate, sdk.OperationConnectorActivate, sdk.OperationConnectorDisable, sdk.OperationConnectorDelete,
 		sdk.OperationNamespaceCreate, sdk.OperationNamespaceUpdate, sdk.OperationNamespaceDelete,
-		sdk.OperationReportCreate, sdk.OperationReportUpdate, sdk.OperationVersionCreate, sdk.OperationVersionApply, sdk.OperationVersionValidate, sdk.OperationVersionBuilder,
+		sdk.OperationComponentCreate, sdk.OperationComponentUpdate, sdk.OperationVersionCreate, sdk.OperationVersionApply, sdk.OperationVersionValidate, sdk.OperationVersionBuilder,
 		sdk.OperationResourcesUpsertFile, sdk.OperationResourcesDeleteFile, sdk.OperationResourcesUpsertFolder, sdk.OperationResourcesDeleteFolder, sdk.OperationResourcesUpsertSkill, sdk.OperationResourcesDeleteSkill:
 		permission = "edit"
 	case sdk.OperationPreviewExecute, sdk.OperationVersionTestView, sdk.OperationVersionTestRelation, sdk.OperationVersionTestCompose:
@@ -368,10 +375,13 @@ func (t *Transport) authorize(ctx context.Context, operation string, input any) 
 	if strings.HasPrefix(operation, "namespaces.") {
 		namespaceName, connectorName = identity.Name, ""
 	}
+	if operation == sdk.OperationNamespaceCreate {
+		namespaceName = ""
+	}
 	if operation == sdk.OperationConnectorCreate {
 		connectorName = ""
 	}
-	if operation == sdk.OperationReportCreate {
+	if operation == sdk.OperationComponentCreate {
 		reportID = ""
 	}
 	if err := t.Authorizer.Authorize(ctx, AuthorizationRequest{Operation: operation, ReportID: reportID, ConnectorName: connectorName, NamespaceName: namespaceName, OwnerID: identity.OwnerID, Permission: permission}); err != nil {
@@ -632,12 +642,8 @@ func (t *Transport) testConnector(ctx context.Context, input, output any) error 
 	result.Name, result.TestedAt = value.Name, t.now()
 	if probeErr != nil {
 		result.Status = "failed"
-		if result.Message == "" {
-			result.Message = probeErr.Error()
-		}
-		if result.ErrorCode == "" {
-			result.ErrorCode = "connectivity_failed"
-		}
+		// A driver or secret resolver error can contain the connection string.
+		result.Message, result.ErrorCode = "connector connectivity check failed", "connectivity_failed"
 	} else if result.Status == "" {
 		result.Status = "passed"
 	}
@@ -748,18 +754,7 @@ func (t *Transport) createReport(ctx context.Context, input, output any) error {
 }
 
 func validBusinessNamespace(value string) bool {
-	segments := strings.Split(strings.TrimSpace(value), ".")
-	for _, segment := range segments {
-		if segment == "" || len(segment) > 64 || segment[0] < 'a' || segment[0] > 'z' {
-			return false
-		}
-		for _, character := range segment[1:] {
-			if character != '_' && (character < 'a' || character > 'z') && (character < '0' || character > '9') {
-				return false
-			}
-		}
-	}
-	return len(value) <= 200
+	return namespacevalidation.ValidName(value)
 }
 
 func dynamicComponentScope(ownerID, reportID string) string {
@@ -823,7 +818,7 @@ func (t *Transport) listReports(ctx context.Context, input, output any) error {
 	if err != nil {
 		return internal(err)
 	}
-	page := &sdk.ReportPage{Items: items, Limit: limit, Offset: in.Offset}
+	page := &sdk.ComponentPage{Items: items, Limit: limit, Offset: in.Offset}
 	return assign(output, page)
 }
 
@@ -961,7 +956,7 @@ func (t *Transport) requireActiveNamespace(ctx context.Context, ownerID, name st
 	}
 	return nil
 }
-func (t *Transport) getReportValue(ctx context.Context, id string) (*sdk.Report, error) {
+func (t *Transport) getReportValue(ctx context.Context, id string) (*sdk.Component, error) {
 	if id == "" {
 		return nil, mapReadError(sql.ErrNoRows, "report", id)
 	}
@@ -1148,6 +1143,10 @@ func (t *Transport) applyVersionEdit(ctx context.Context, input, output any) err
 	if len(in.Command.Payload) == 0 {
 		return invalid(errors.New("edit payload is required"))
 	}
+	capabilities, err := t.reportCapabilities(ctx, in.ReportID)
+	if err != nil {
+		return err
+	}
 	spec := current.ComponentSpec
 	if len(spec) == 0 {
 		spec = json.RawMessage(`{}`)
@@ -1216,7 +1215,7 @@ func (t *Transport) applyVersionEdit(ctx context.Context, input, output any) err
 	if err != nil {
 		return err
 	}
-	return assign(output, &sdk.EditResult{Version: updated})
+	return assign(output, &sdk.EditResult{Version: redactVersionDQL(updated, capabilities.CanUseDQL)})
 }
 
 func (t *Transport) validateVersion(ctx context.Context, input, output any) error {
@@ -1233,6 +1232,10 @@ func (t *Transport) validateVersion(ctx context.Context, input, output any) erro
 	}
 	if value.SourceRevision != in.ExpectedSourceRevision {
 		return &sdk.Error{Code: sdk.ErrorConflict, Message: "version source revision does not match", ExpectedSourceRevision: in.ExpectedSourceRevision, CurrentSourceRevision: value.SourceRevision}
+	}
+	capabilities, err := t.reportCapabilities(ctx, in.ReportID)
+	if err != nil {
+		return err
 	}
 	valid := strings.TrimSpace(value.AuthoredDQL) != "" || strings.TrimSpace(value.AuthoredSQL) != ""
 	var diagnostics []sdk.Diagnostic
@@ -1282,7 +1285,9 @@ func (t *Transport) validateVersion(ctx context.Context, input, output any) erro
 	value.CompileStatus = status
 	value.CompileDiagnostics = append(json.RawMessage(nil), diagnosticJSON...)
 	value.ValidatedAt = &now
-	result := &sdk.ValidationResult{Valid: valid, Version: value, Diagnostics: diagnostics}
+	result := &sdk.ValidationResult{Valid: valid,
+		Version:     redactVersionDQL(value, capabilities.CanUseDQL),
+		Diagnostics: readerinspection.RedactDiagnostics(diagnostics, capabilities.CanUseDQL)}
 	return assign(output, result)
 }
 
@@ -1389,8 +1394,14 @@ func (t *Transport) applyReaderBuilder(ctx context.Context, input, output any) e
 	if err != nil {
 		return err
 	}
-	inspection.Version = editedVersion
+	inspection.Version = redactVersionDQL(editedVersion, capabilities.CanUseDQL)
 	return assign(output, &sdk.ReaderBuilderResult{Applied: true, Inspection: inspection})
+}
+
+// ApplyReaderBuilder is the trusted native endpoint entrypoint after its
+// verified principal and edit guard have authorized the exact report.
+func (t *Transport) ApplyReaderBuilder(ctx context.Context, input, output any) error {
+	return t.applyReaderBuilder(ctx, input, output)
 }
 
 func (t *Transport) persistReaderBuilderDQL(ctx context.Context, reportID string, current *sdk.ReportVersion, dql, connector string, setPackage bool) (*sdk.ReportVersion, error) {
@@ -1402,7 +1413,7 @@ func (t *Transport) persistReaderBuilderDQL(ctx context.Context, reportID string
 		spec = json.RawMessage(`{}`)
 	}
 	hash := hashVersion(reportID, current.VersionNo, current.AuthoringMode, current.AuthoredSQL, dql, spec)
-	var report *sdk.Report
+	var report *sdk.Component
 	var err error
 	if connector != "" || setPackage {
 		report, err = t.getReportValue(ctx, reportID)
@@ -1410,13 +1421,16 @@ func (t *Transport) persistReaderBuilderDQL(ctx context.Context, reportID string
 			return nil, err
 		}
 	}
-	tx, err := t.DB.BeginTx(ctx, nil)
-	if err != nil {
-		return nil, internal(err)
+	var tx *sql.Tx
+	if t.ComponentInvoker == nil {
+		tx, err = t.DB.BeginTx(ctx, nil)
+		if err != nil {
+			return nil, internal(err)
+		}
+		defer tx.Rollback()
 	}
-	defer tx.Rollback()
 	expected := current.SourceRevision
-	err = t.writeVersionEdit(ctx, tx, &versionedit.StoredVersion{
+	err = t.builderWriteVersionEdit(ctx, tx, &versionedit.StoredVersion{
 		ReportId: reportID, VersionNo: current.VersionNo,
 		AuthoredSql: namespaceOptionalDescription(current.AuthoredSQL),
 		AuthoredDql: namespaceOptionalDescription(dql), ComponentSpecJson: spec,
@@ -1447,7 +1461,7 @@ func (t *Transport) persistReaderBuilderDQL(ctx context.Context, reportID string
 			componentScope = dynamicComponentScope(report.OwnerID, report.ID)
 			componentName = "reader"
 		}
-		err = t.writeReportConfig(ctx, tx, &reportconfig.StoredReport{
+		err = t.builderWriteReportConfig(ctx, tx, &reportconfig.StoredReport{
 			Id: report.ID, Namespace: report.Namespace, Slug: report.Slug, Title: report.Title,
 			Description: namespaceOptionalDescription(report.Description), OwnerId: report.OwnerID,
 			Status: report.Status, DefaultConnectorName: defaultConnector,
@@ -1466,8 +1480,10 @@ func (t *Transport) persistReaderBuilderDQL(ctx context.Context, reportID string
 			return nil, internal(err)
 		}
 	}
-	if err = tx.Commit(); err != nil {
-		return nil, internal(err)
+	if tx != nil {
+		if err = tx.Commit(); err != nil {
+			return nil, internal(err)
+		}
 	}
 	return t.getVersionValue(ctx, reportID, current.VersionNo)
 }
@@ -1748,44 +1764,15 @@ func versionDQL(version *sdk.ReportVersion) string {
 }
 
 func readerInspection(version *sdk.ReportVersion, response *readerbuilder.Response, capabilities sdk.ReportCapabilities) *sdk.ReaderInspection {
-	version = redactVersionDQL(version, capabilities.CanUseDQL)
-	if response == nil {
-		return &sdk.ReaderInspection{Version: version, Capabilities: capabilities}
-	}
-	structure, _ := json.Marshal(response.Structure)
-	result := &sdk.ReaderInspection{
-		Version: version, Structure: structure, Diagnostics: readerDiagnostics(response.Diagnostics), Capabilities: capabilities,
-	}
-	if capabilities.CanUseDQL {
-		result.DQL = response.DQL
-	}
-	return result
+	return readerinspection.Project(version, response, capabilities)
 }
 
 func redactVersionDQL(version *sdk.ReportVersion, allowed bool) *sdk.ReportVersion {
-	if version == nil || allowed {
-		return version
-	}
-	copy := *version
-	copy.AuthoredDQL = ""
-	copy.GeneratedDQL = ""
-	return &copy
-}
-
-func readerDiagnostics(diagnostics []*transcribe.Diagnostic) []sdk.Diagnostic {
-	result := make([]sdk.Diagnostic, 0, len(diagnostics))
-	for _, diagnostic := range diagnostics {
-		if diagnostic == nil {
-			continue
-		}
-		result = append(result, sdk.Diagnostic{Severity: string(diagnostic.Severity), Code: diagnostic.Code, Message: diagnostic.Message, Hint: diagnostic.Hint, Line: diagnostic.Span.Start.Line, Column: diagnostic.Span.Start.Char})
-	}
-	return result
+	return readerinspection.RedactVersion(version, allowed)
 }
 
 func hashVersion(reportID string, versionNo int, mode, authoredSQL, authoredDQL string, spec []byte) string {
-	sum := sha256.Sum256([]byte(fmt.Sprintf("%s:%d:%s:%s:%s:%s", reportID, versionNo, mode, authoredSQL, authoredDQL, spec)))
-	return fmt.Sprintf("%x", sum[:])
+	return versionidentity.Hash(reportID, versionNo, mode, authoredSQL, authoredDQL, spec)
 }
 
 func maxZero(value int) int {

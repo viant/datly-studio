@@ -31,7 +31,7 @@ INSERT INTO connectors(name,driver,owner_id,status,etag,created_at,updated_at)
 VALUES('main','sqlite','owner','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
 INSERT INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at)
 VALUES('owner','general','General','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
-INSERT INTO reports(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at)
+INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at)
 VALUES('report','general','report','Report','owner','active','main','example.com/report','reader',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
 INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_run,can_edit,can_publish,can_use_dql)
 VALUES('report','user','viewer',TRUE,TRUE,FALSE,FALSE,FALSE);
@@ -88,7 +88,7 @@ VALUES('report','role','analyst',TRUE,TRUE,TRUE,TRUE,TRUE);`)
 	if _, err := transport.reportCapabilities(sdk.WithPrincipal(ctx, sdk.Principal{Subject: "owner"}), "missing"); err == nil {
 		t.Fatal("missing report returned capabilities")
 	}
-	if _, err := db.ExecContext(ctx, `UPDATE reports SET deleted_at=CURRENT_TIMESTAMP WHERE id='report'`); err != nil {
+	if _, err := db.ExecContext(ctx, `UPDATE components SET deleted_at=CURRENT_TIMESTAMP WHERE id='report'`); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := transport.reportCapabilities(sdk.WithPrincipal(ctx, sdk.Principal{Subject: "owner"}), "report"); err == nil {

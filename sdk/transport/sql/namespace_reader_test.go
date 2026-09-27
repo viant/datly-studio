@@ -92,7 +92,7 @@ func TestNamespaceStoreReadScopeAndPaging(t *testing.T) {
 	if _, err := db.Exec(`UPDATE connectors SET status='active' WHERE name=?`, connector.Name); err != nil {
 		t.Fatal(err)
 	}
-	report, err := client.Reports().Create(owner, sdk.CreateReportInput{Slug: "alpha", Title: "Alpha", Namespace: "alpha", DefaultConnectorName: connector.Name})
+	report, err := client.Components().Create(owner, sdk.CreateComponentInput{Slug: "alpha", Title: "Alpha", Namespace: "alpha", DefaultConnectorName: connector.Name})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -107,7 +107,7 @@ func TestNamespaceStoreReadScopeAndPaging(t *testing.T) {
 	if err != nil || len(page.Items) != 2 || page.Items[0].Name != "alpha" || page.Items[1].Name != "private" {
 		t.Fatalf("ACL page=%+v err=%v", page, err)
 	}
-	if _, err := db.Exec(`UPDATE reports SET deleted_at=? WHERE id=?`, now, report.ID); err != nil {
+	if _, err := db.Exec(`UPDATE components SET deleted_at=? WHERE id=?`, now, report.ID); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := client.Namespaces().Get(viewer, "alpha"); err == nil {

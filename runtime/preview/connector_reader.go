@@ -111,10 +111,14 @@ func (r *ConnectorReader) ListForPrincipal(ctx context.Context, subject string) 
 }
 
 func previewConnector(name, driver string, dsn *string, secretRef string, options json.RawMessage) (connectorDefinition, error) {
-	if name == "" || driver == "" || dsn == nil {
+	if name == "" || driver == "" || dsn == nil && secretRef == "" {
 		return connectorDefinition{}, fmt.Errorf("preview connector reader returned incomplete connector %q", name)
 	}
-	return connectorDefinition{Name: name, Driver: driver, DSN: *dsn, SecretRef: secretRef,
+	value := ""
+	if dsn != nil {
+		value = *dsn
+	}
+	return connectorDefinition{Name: name, Driver: driver, DSN: value, SecretRef: secretRef,
 		Options: append(json.RawMessage(nil), options...)}, nil
 }
 

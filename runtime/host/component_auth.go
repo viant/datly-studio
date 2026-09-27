@@ -16,6 +16,16 @@ func matchesProvider(claims *jwt.Claims, provider OAuthProvider) bool {
 	return claims.VerifyAudience(provider.Audience, true)
 }
 
+func matchesDefaultIdentity(claims *jwt.Claims, config Authentication) bool {
+	if claims == nil || strings.TrimSpace(claims.Subject) == "" {
+		return false
+	}
+	if config.Issuer != "" && claims.Issuer != config.Issuer {
+		return false
+	}
+	return config.Audience == "" || claims.VerifyAudience(config.Audience, true)
+}
+
 func hasScopes(claims *jwt.Claims, required []string) bool {
 	scopes := map[string]bool{}
 	for _, scope := range strings.Fields(claims.Scope) {
@@ -44,7 +54,7 @@ func (s *Service) componentAuthenticated(next http.Handler) http.Handler {
 				}
 			}
 			if s.verifier != nil {
-				if claims, err := s.verifier.VerifyClaims(ctx, parts[1]); err == nil {
+				if claims, err := s.verifier.VerifyClaims(ctx, parts[1]); err == nil && matchesDefaultIdentity(claims, s.config.Authentication) {
 					ctx = context.WithValue(ctx, verifiedClaimsKey{}, claims)
 				}
 			}

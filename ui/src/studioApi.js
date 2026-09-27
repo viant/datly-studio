@@ -1,7 +1,22 @@
 // StudioAPI is deliberately a client-side counterpart of sdk.Transport: every
 // UI interaction names an SDK operation and sends an SDK DTO. It has no direct
 // SQL, DQL, Datly component, or storage knowledge.
-import { postV1StudioSdkAclList, postV1StudioSdkConnectorsGet, postV1StudioSdkConnectorsList, postV1StudioSdkNamespacesGet, postV1StudioSdkNamespacesList, postV1StudioSdkPublicationsEventsList, postV1StudioSdkPublicationsGet, postV1StudioSdkReportsGet, postV1StudioSdkReportsList } from './generated/studioClient.gen.js';
+import { postV1StudioSdkAclDelete, postV1StudioSdkAclList, postV1StudioSdkAclUpsert, postV1StudioSdkAuthorizationPredicatesTypes, postV1StudioSdkConnectorsActivate, postV1StudioSdkConnectorsCreate, postV1StudioSdkConnectorsDelete, postV1StudioSdkConnectorsDisable, postV1StudioSdkConnectorsGet, postV1StudioSdkConnectorsList, postV1StudioSdkConnectorsUpdate, postV1StudioSdkNamespacesCreate, postV1StudioSdkNamespacesDelete, postV1StudioSdkNamespacesGet, postV1StudioSdkNamespacesList, postV1StudioSdkNamespacesUpdate, postV1StudioSdkPublicationsEventsList, postV1StudioSdkPublicationsGet, postV1StudioSdkComponentsCreate, postV1StudioSdkComponentsGet, postV1StudioSdkComponentsList, postV1StudioSdkComponentsUpdate, postV1StudioSdkResourcesGet, postV1StudioSdkVersionsApply, postV1StudioSdkVersionsCreate, postV1StudioSdkVersionsDescriptor, postV1StudioSdkVersionsDownload, postV1StudioSdkVersionsExportDql, postV1StudioSdkVersionsGet, postV1StudioSdkVersionsInspect, postV1StudioSdkVersionsList, postV1StudioSdkVersionsLoadArchive, postV1StudioSdkVersionsLoadDql, postV1StudioSdkVersionsWarmup, postV1StudioSdkVersionsWarmupGet, postV1StudioSdkVersionsWarmupList } from './generated/studioClient.gen.js';
+import { postV1StudioSdkAuthorizationPredicatesGet, postV1StudioSdkAuthorizationPredicatesList } from './generated/studioClient.gen.js';
+import { postV1StudioSdkAuthorizationPredicatesCreate } from './generated/studioClient.gen.js';
+import { postV1StudioSdkAuthorizationPredicatesUpdate, postV1StudioSdkAuthorizationPredicatesDelete } from './generated/studioClient.gen.js';
+import { postV1StudioSdkConnectorsSchemas, postV1StudioSdkConnectorsTables, postV1StudioSdkConnectorsTable } from './generated/studioClient.gen.js';
+import { postV1StudioSdkConnectorsTest } from './generated/studioClient.gen.js';
+import { postV1StudioSdkConnectorsTestSql } from './generated/studioClient.gen.js';
+import { postV1StudioSdkPreviewExecute } from './generated/studioClient.gen.js';
+import { postV1StudioSdkVersionsValidate } from './generated/studioClient.gen.js';
+import { postV1StudioSdkVersionsTestView, postV1StudioSdkVersionsTestRelation, postV1StudioSdkVersionsTestCompose } from './generated/studioClient.gen.js';
+import { postV1StudioSdkResourcesUpsertFile, postV1StudioSdkResourcesDeleteFile, postV1StudioSdkResourcesUpsertFolder, postV1StudioSdkResourcesDeleteFolder, postV1StudioSdkResourcesUpsertSkill, postV1StudioSdkResourcesDeleteSkill } from './generated/studioClient.gen.js';
+import { postV1StudioSdkVersionsBuilder } from './generated/studioClient.gen.js';
+import { postV1StudioSdkRuntimeStatus } from './generated/studioClient.gen.js';
+import { postV1StudioSdkPublicationsPublish, postV1StudioSdkPublicationsRollback, postV1StudioSdkPublicationsUnpublish } from './generated/studioClient.gen.js';
+import { postV1StudioSdkAccessContext, postV1StudioSdkAccessGet, postV1StudioSdkAccessReplace } from './generated/studioClient.gen.js';
+import { BrowserIdentity } from './browserIdentity.js';
 
 const nativeErrorCode = { 400: 'invalid_argument', 401: 'unauthorized', 403: 'forbidden', 404: 'not_found', 409: 'conflict', 422: 'invalid_argument', 502: 'unavailable', 503: 'unavailable' };
 
@@ -12,6 +27,25 @@ export class StudioAPI {
     // not, so normalize both forms into an ordinary callable function.
     this.fetcher = options.fetcher ?? globalThis.fetch.bind(globalThis);
     this.onUnauthorized = options.onUnauthorized;
+    this.identity = this.config.authentication?.mode === 'identity-token'
+      ? options.identity ?? new BrowserIdentity(config, this.fetcher) : null;
+  }
+
+  async send(value, init) {
+    if (!this.identity) return this.fetcher(value, init);
+    const token = await this.identity.token();
+    const first = new Request(value, init);
+    const retry = first.clone();
+    const headers = new Headers(first.headers);
+    headers.set('Authorization', `Bearer ${token}`);
+    const response = await this.fetcher(new Request(first, { headers, credentials: 'omit' }));
+    if (response.status !== 401) return response;
+    let renewed;
+    try { renewed = await this.identity.token(true); }
+    catch { this.onUnauthorized?.(); return response; }
+    const retryHeaders = new Headers(retry.headers);
+    retryHeaders.set('Authorization', `Bearer ${renewed}`);
+    return this.fetcher(new Request(retry, { headers: retryHeaders, credentials: 'omit' }));
   }
 
   async invoke(operation, input = {}) {
@@ -19,8 +53,8 @@ export class StudioAPI {
     if (this.config.mode === 'development') {
       headers['X-Studio-Development-Subject'] = this.config.development.subject;
     }
-    const response = await this.fetcher(`${this.config.apiBaseURL}/v1/studio/sdk/${encodeURIComponent(operation)}`, {
-      method: 'POST', headers, credentials: this.config.mode === 'authenticated' ? 'include' : 'same-origin', body: JSON.stringify(input),
+    const response = await this.send(`${this.config.apiBaseURL}/v1/studio/sdk/${encodeURIComponent(operation)}`, {
+      method: 'POST', headers, credentials: this.identity ? 'omit' : this.config.mode === 'authenticated' ? 'include' : 'same-origin', body: JSON.stringify(input),
     });
     const payload = response.status === 204 ? null : await response.json();
     if (!response.ok) {
@@ -39,23 +73,26 @@ export class StudioAPI {
     return payload;
   }
 
-  listReports(input = {}) { return this.nativeRequest(postV1StudioSdkReportsList, 'reports.list', input); }
-  getReport(reportId) { return this.nativeRequest(postV1StudioSdkReportsGet, 'reports.get', { id: reportId }); }
-  createReport(input) { return this.invoke('reports.create', input); }
-  updateReport(reportId, input) { return this.invoke('reports.update', { id: reportId, input }); }
-  listVersions(reportId, input = {}) { return this.invoke('versions.list', { reportId, input }); }
-  createVersion(reportId, input) { return this.invoke('versions.create', { reportId, input }); }
-  loadDQL(reportId, input) { return this.invoke('versions.load_dql', { reportId, input }); }
-  loadArchive(reportId, input) { return this.invoke('versions.load_archive', { reportId, input }); }
-  downloadComponent(reportId, versionNo) { return this.invoke('versions.download', { reportId, versionNo }); }
-  inspectVersion(reportId, versionNo) { return this.invoke('versions.inspect', { reportId, versionNo }); }
-  validateVersion(reportId, versionNo, expectedSourceRevision) { return this.invoke('versions.validate', { reportId, versionNo, expectedSourceRevision }); }
-  publishReader(reportId, versionNo, expectedSourceRevision, reason = '') { return this.invoke('publications.publish', { reportId, versionNo, input: { expectedSourceRevision, reason } }); }
+  listComponents(input = {}) { return this.nativeRequest(postV1StudioSdkComponentsList, 'components.list', input); }
+  getComponent(reportId) { return this.nativeRequest(postV1StudioSdkComponentsGet, 'components.get', { id: reportId }); }
+  createComponent(input) { return this.nativeRequest(postV1StudioSdkComponentsCreate, 'components.create', input); }
+  updateComponent(reportId, input) { return this.nativeRequest(postV1StudioSdkComponentsUpdate, 'components.update', { id: reportId, input }); }
+  listVersions(reportId, input = {}) { return this.nativeRequest(postV1StudioSdkVersionsList, 'versions.list', { reportId, input }); }
+  getVersion(reportId, versionNo) { return this.nativeRequest(postV1StudioSdkVersionsGet, 'versions.get', { reportId, versionNo }); }
+  exportDQL(reportId, versionNo) { return this.nativeRequest(postV1StudioSdkVersionsExportDql, 'versions.export_dql', { reportId, versionNo }); }
+  getVersionDescriptor(reportId, versionNo) { return this.nativeRequest(postV1StudioSdkVersionsDescriptor, 'versions.descriptor', { reportId, versionNo }); }
+  createVersion(reportId, input) { return this.nativeRequest(postV1StudioSdkVersionsCreate, 'versions.create', { reportId, input }); }
+  loadDQL(reportId, input) { return this.nativeRequest(postV1StudioSdkVersionsLoadDql, 'versions.load_dql', { reportId, input }); }
+  loadArchive(reportId, input) { return this.nativeRequest(postV1StudioSdkVersionsLoadArchive, 'versions.load_archive', { reportId, input }); }
+  downloadComponent(reportId, versionNo) { return this.nativeRequest(postV1StudioSdkVersionsDownload, 'versions.download', { reportId, versionNo }); }
+  inspectVersion(reportId, versionNo) { return this.nativeRequest(postV1StudioSdkVersionsInspect, 'versions.inspect', { reportId, versionNo }); }
+  validateVersion(reportId, versionNo, expectedSourceRevision) { return this.nativeRequest(postV1StudioSdkVersionsValidate, 'versions.validate', { reportId, versionNo, expectedSourceRevision }); }
+  publishReader(reportId, versionNo, expectedSourceRevision, reason = '') { return this.nativeRequest(postV1StudioSdkPublicationsPublish, 'publications.publish', { reportId, versionNo, input: { expectedSourceRevision, reason } }); }
   getPublication(reportId) { return this.nativeRequest(postV1StudioSdkPublicationsGet, 'publications.get', { reportId }); }
   listPublicationEvents(reportId, input = {}) { return this.nativeRequest(postV1StudioSdkPublicationsEventsList, 'publications.events.list', { reportId, input }); }
-  unpublishReader(reportId, expectedActiveGeneration, reason = '') { return this.invoke('publications.unpublish', { reportId, input: { expectedActiveGeneration, reason } }); }
-  rollbackReader(reportId, versionNo, expectedSourceRevision, reason = '') { return this.invoke('publications.rollback', { reportId, versionNo, input: { expectedSourceRevision, reason } }); }
-  getRuntimeStatus() { return this.invoke('runtime.status'); }
+  unpublishReader(reportId, expectedActiveGeneration, reason = '') { return this.nativeRequest(postV1StudioSdkPublicationsUnpublish, 'publications.unpublish', { reportId, input: { expectedActiveGeneration, reason } }); }
+  rollbackReader(reportId, versionNo, expectedSourceRevision, reason = '') { return this.nativeRequest(postV1StudioSdkPublicationsRollback, 'publications.rollback', { reportId, versionNo, input: { expectedSourceRevision, reason } }); }
+  getRuntimeStatus() { return this.nativeRequest(postV1StudioSdkRuntimeStatus, 'runtime.status', {}); }
   async listMCPTools() {
     return this.mcpRequest('tools/list', 'tools');
   }
@@ -63,10 +100,11 @@ export class StudioAPI {
     return this.mcpRequest('skills/list', 'skills');
   }
   async mcpRequest(method, resultKey) {
-    const response = await this.fetcher(`${this.config.apiBaseURL}/v1/studio/mcp/mcp`, {
+    const mcpURL = this.identity ? `${this.config.mcpBaseURL}/mcp` : `${this.config.apiBaseURL}/v1/studio/mcp/mcp`;
+    const response = await this.send(mcpURL, {
       method: 'POST',
       headers: { Accept: 'application/json', 'Content-Type': 'application/json', 'Mcp-Protocol-Version': '2026-07-28', 'Mcp-Method': method },
-      credentials: this.config.mode === 'authenticated' ? 'include' : 'same-origin',
+      credentials: this.identity ? 'omit' : this.config.mode === 'authenticated' ? 'include' : 'same-origin',
       body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params: { _meta: { 'io.modelcontextprotocol/protocolVersion': '2026-07-28', 'io.modelcontextprotocol/clientCapabilities': {} } } }),
     });
     const body = await response.text();
@@ -90,15 +128,15 @@ export class StudioAPI {
     }
     return payload?.result?.[resultKey] ?? [];
   }
-  getResourceAccess(resource) { return this.invoke('access.get', resource); }
-  getResourceAccessContext(resource) { return this.invoke('access.context', resource); }
-  replaceResourceAccess(document) { return this.invoke('access.replace', document); }
+  getResourceAccess(resource) { return this.nativeRequest(postV1StudioSdkAccessGet, 'access.get', resource); }
+  getResourceAccessContext(resource) { return this.nativeRequest(postV1StudioSdkAccessContext, 'access.context', resource); }
+  replaceResourceAccess(document) { return this.nativeRequest(postV1StudioSdkAccessReplace, 'access.replace', document); }
   async nativeRequest(call, operation, body) {
     const headers = { Accept: 'application/json' };
     if (this.config.mode === 'development') headers['X-Studio-Development-Subject'] = this.config.development.subject;
     const { data, error, response } = await call({
-      body, baseUrl: this.config.apiBaseURL, fetch: this.fetcher,
-      credentials: this.config.mode === 'authenticated' ? 'include' : 'same-origin', headers,
+      body, baseUrl: this.config.apiBaseURL, fetch: this.send.bind(this),
+      credentials: this.identity ? 'omit' : this.config.mode === 'authenticated' ? 'include' : 'same-origin', headers,
       parseAs: 'json',
     });
     if (error) {
@@ -110,49 +148,53 @@ export class StudioAPI {
       failure.status = response?.status;
       failure.field = error?.field || '';
       failure.violations = error?.violations ?? [];
+      failure.expectedEtag = error?.expectedEtag;
+      failure.currentEtag = error?.currentEtag;
       failure.requestId = requestId;
       throw failure;
     }
     return data;
   }
   async listACL(reportId) { return (await this.nativeRequest(postV1StudioSdkAclList, 'acl.list', { reportId }))?.items ?? []; }
-  upsertACL(input) { return this.invoke('acl.upsert', input); }
-  deleteACL(reportId, subjectType, subjectId, etag) { return this.invoke('acl.delete', { reportId, subjectType, subjectId, etag }); }
-  getResources(reportId, versionNo) { return this.invoke('resources.get', { reportId, versionNo }); }
-  upsertResourceFile(input) { return this.invoke('resources.upsert_file', input); }
-  deleteResourceFile(reportId, versionNo, resourceId, expectedSourceRevision) { return this.invoke('resources.delete_file', { reportId, versionNo, resourceId, expectedSourceRevision }); }
-  upsertResourceFolder(input) { return this.invoke('resources.upsert_folder', input); }
-  deleteResourceFolder(reportId, versionNo, folderId, expectedSourceRevision) { return this.invoke('resources.delete_folder', { reportId, versionNo, folderId, expectedSourceRevision }); }
-  upsertSkillRoot(input) { return this.invoke('resources.upsert_skill', input); }
-  deleteSkillRoot(reportId, versionNo, skillId, expectedSourceRevision) { return this.invoke('resources.delete_skill', { reportId, versionNo, skillId, expectedSourceRevision }); }
-  applyReaderCommand(reportId, versionNo, command) { return this.invoke('versions.builder', { reportId, versionNo, command }); }
-  testReaderView(reportId, versionNo, view, input = {}, limit = 50) { return this.invoke('versions.test_view', { reportId, versionNo, view, input: { input, limit } }); }
-  testReaderRelation(reportId, versionNo, relation, input = {}, limit = 50) { return this.invoke('versions.test_relation', { reportId, versionNo, relation, input: { input, limit } }); }
-  testCubeCompose(reportId, versionNo, input) { return this.invoke('versions.test_compose', { reportId, versionNo, input }); }
-  warmupReader(reportId, versionNo) { return this.invoke('versions.warmup', { reportId, versionNo }); }
-  getWarmupRun(reportId, runId) { return this.invoke('versions.warmup_get', { reportId, runId }); }
-  listWarmupRuns(reportId, versionNo, input = {}) { return this.invoke('versions.warmup_list', { reportId, versionNo, input }); }
-  previewReader(reportId, versionNo, input = {}, limit = 50) { return this.invoke('preview.execute', { reportId, versionNo, input: { input, limit } }); }
+  upsertACL(input) { return this.nativeRequest(postV1StudioSdkAclUpsert, 'acl.upsert', input); }
+  async deleteACL(reportId, subjectType, subjectId, etag) { await this.nativeRequest(postV1StudioSdkAclDelete, 'acl.delete', { reportId, subjectType, subjectId, etag }); }
+  getResources(reportId, versionNo) { return this.nativeRequest(postV1StudioSdkResourcesGet, 'resources.get', { reportId, versionNo }); }
+	upsertResourceFile(input) { return this.nativeRequest(postV1StudioSdkResourcesUpsertFile, 'resources.upsert_file', input); }
+	deleteResourceFile(reportId, versionNo, resourceId, expectedSourceRevision) { return this.nativeRequest(postV1StudioSdkResourcesDeleteFile, 'resources.delete_file', { reportId, versionNo, resourceId, expectedSourceRevision }); }
+	upsertResourceFolder(input) { return this.nativeRequest(postV1StudioSdkResourcesUpsertFolder, 'resources.upsert_folder', input); }
+	deleteResourceFolder(reportId, versionNo, folderId, expectedSourceRevision) { return this.nativeRequest(postV1StudioSdkResourcesDeleteFolder, 'resources.delete_folder', { reportId, versionNo, folderId, expectedSourceRevision }); }
+	upsertSkillRoot(input) { return this.nativeRequest(postV1StudioSdkResourcesUpsertSkill, 'resources.upsert_skill', input); }
+	deleteSkillRoot(reportId, versionNo, skillId, expectedSourceRevision) { return this.nativeRequest(postV1StudioSdkResourcesDeleteSkill, 'resources.delete_skill', { reportId, versionNo, skillId, expectedSourceRevision }); }
+	applyReaderCommand(reportId, versionNo, command) { return this.nativeRequest(postV1StudioSdkVersionsBuilder, 'versions.builder', { reportId, versionNo, command }); }
+  applyVersionEdit(reportId, versionNo, command) { return this.nativeRequest(postV1StudioSdkVersionsApply, 'versions.apply', { reportId, versionNo, command }); }
+  testReaderView(reportId, versionNo, view, input = {}, limit = 50) { return this.nativeRequest(postV1StudioSdkVersionsTestView, 'versions.test_view', { reportId, versionNo, view, input: { input, limit } }); }
+  testReaderRelation(reportId, versionNo, relation, input = {}, limit = 50) { return this.nativeRequest(postV1StudioSdkVersionsTestRelation, 'versions.test_relation', { reportId, versionNo, relation, input: { input, limit } }); }
+  testCubeCompose(reportId, versionNo, input) { return this.nativeRequest(postV1StudioSdkVersionsTestCompose, 'versions.test_compose', { reportId, versionNo, input }); }
+  warmupReader(reportId, versionNo) { return this.nativeRequest(postV1StudioSdkVersionsWarmup, 'versions.warmup', { reportId, versionNo }); }
+  getWarmupRun(reportId, runId) { return this.nativeRequest(postV1StudioSdkVersionsWarmupGet, 'versions.warmup_get', { reportId, runId }); }
+  listWarmupRuns(reportId, versionNo, input = {}) { return this.nativeRequest(postV1StudioSdkVersionsWarmupList, 'versions.warmup_list', { reportId, versionNo, input }); }
+  previewReader(reportId, versionNo, input = {}, limit = 50) { return this.nativeRequest(postV1StudioSdkPreviewExecute, 'preview.execute', { reportId, versionNo, input: { input, limit } }); }
   listConnectors(input = {}) { return this.nativeRequest(postV1StudioSdkConnectorsList, 'connectors.list', input); }
   getConnector(name) { return this.nativeRequest(postV1StudioSdkConnectorsGet, 'connectors.get', { name }); }
-  createConnector(input) { return this.invoke('connectors.create', input); }
-  updateConnector(name, input) { return this.invoke('connectors.update', { name, input }); }
-  testConnector(name) { return this.invoke('connectors.test', { name }); }
-  listSchemas(name, input = {}) { return this.invoke('connectors.schemas', { name, input }); }
-  listTables(name, input = {}) { return this.invoke('connectors.tables', { name, input }); }
-  getTable(name, input) { return this.invoke('connectors.table', { name, input }); }
-  testSQL(name, input) { return this.invoke('connectors.test_sql', { name, input }); }
-  activateConnector(name, etag) { return this.invoke('connectors.activate', { name, etag }); }
-  disableConnector(name, etag) { return this.invoke('connectors.disable', { name, etag }); }
-  deleteConnector(name, etag) { return this.invoke('connectors.delete', { name, etag }); }
+  createConnector(input) { return this.nativeRequest(postV1StudioSdkConnectorsCreate, 'connectors.create', input); }
+  updateConnector(name, input) { return this.nativeRequest(postV1StudioSdkConnectorsUpdate, 'connectors.update', { name, input }); }
+  testConnector(name) { return this.nativeRequest(postV1StudioSdkConnectorsTest, 'connectors.test', { name }); }
+  listSchemas(name, input = {}) { return this.nativeRequest(postV1StudioSdkConnectorsSchemas, 'connectors.schemas', { name, input }); }
+  listTables(name, input = {}) { return this.nativeRequest(postV1StudioSdkConnectorsTables, 'connectors.tables', { name, input }); }
+  getTable(name, input) { return this.nativeRequest(postV1StudioSdkConnectorsTable, 'connectors.table', { name, input }); }
+  testSQL(name, input) { return this.nativeRequest(postV1StudioSdkConnectorsTestSql, 'connectors.test_sql', { name, input }); }
+  activateConnector(name, etag) { return this.nativeRequest(postV1StudioSdkConnectorsActivate, 'connectors.activate', { name, etag }); }
+  disableConnector(name, etag) { return this.nativeRequest(postV1StudioSdkConnectorsDisable, 'connectors.disable', { name, etag }); }
+  async deleteConnector(name, etag) { await this.nativeRequest(postV1StudioSdkConnectorsDelete, 'connectors.delete', { name, etag }); }
   listNamespaces(input = {}) { return this.nativeRequest(postV1StudioSdkNamespacesList, 'namespaces.list', input); }
   getNamespace(name) { return this.nativeRequest(postV1StudioSdkNamespacesGet, 'namespaces.get', { name }); }
-  createNamespace(input) { return this.invoke('namespaces.create', input); }
-  updateNamespace(name, input) { return this.invoke('namespaces.update', { name, input }); }
-  deleteNamespace(name, etag) { return this.invoke('namespaces.delete', { name, etag }); }
-  listAuthorizationPredicates(input = {}) { return this.invoke('authorization_predicates.list', input); }
-  listAuthorizationPredicateTypes() { return this.invoke('authorization_predicates.types').then((page) => page?.items ?? []); }
-  createAuthorizationPredicate(input) { return this.invoke('authorization_predicates.create', input); }
-  updateAuthorizationPredicate(name, input) { return this.invoke('authorization_predicates.update', { name, input }); }
-  deleteAuthorizationPredicate(name, etag) { return this.invoke('authorization_predicates.delete', { name, etag }); }
+  createNamespace(input) { return this.nativeRequest(postV1StudioSdkNamespacesCreate, 'namespaces.create', input); }
+  updateNamespace(name, input) { return this.nativeRequest(postV1StudioSdkNamespacesUpdate, 'namespaces.update', { name, input }); }
+  async deleteNamespace(name, etag) { await this.nativeRequest(postV1StudioSdkNamespacesDelete, 'namespaces.delete', { name, etag }); }
+  listAuthorizationPredicates(input = {}) { return this.nativeRequest(postV1StudioSdkAuthorizationPredicatesList, 'authorization_predicates.list', input); }
+  getAuthorizationPredicate(name) { return this.nativeRequest(postV1StudioSdkAuthorizationPredicatesGet, 'authorization_predicates.get', { name }); }
+  async listAuthorizationPredicateTypes() { return (await this.nativeRequest(postV1StudioSdkAuthorizationPredicatesTypes, 'authorization_predicates.types', {}))?.items ?? []; }
+  createAuthorizationPredicate(input) { return this.nativeRequest(postV1StudioSdkAuthorizationPredicatesCreate, 'authorization_predicates.create', input); }
+  updateAuthorizationPredicate(name, input) { return this.nativeRequest(postV1StudioSdkAuthorizationPredicatesUpdate, 'authorization_predicates.update', { name, input }); }
+  async deleteAuthorizationPredicate(name, etag) { await this.nativeRequest(postV1StudioSdkAuthorizationPredicatesDelete, 'authorization_predicates.delete', { name, etag }); }
 }
