@@ -8,7 +8,7 @@ describe('SchemaSubviewDialog', () => {
   test('blocks an incomplete relation before sending a Datly command', async () => {
     const user = userEvent.setup();
     const api = {
-      listReports: vi.fn().mockResolvedValue({ items: [{ id: 'reader', title: 'Vendor Catalog' }] }),
+      listComponents: vi.fn().mockResolvedValue({ items: [{ id: 'reader', title: 'Vendor Catalog' }] }),
       listVersions: vi.fn().mockResolvedValue({ items: [{ versionNo: 2 }] }),
       inspectVersion: vi.fn().mockResolvedValue({
         version: { versionNo: 2, sourceRevision: 7 },

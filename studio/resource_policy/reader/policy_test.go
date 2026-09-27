@@ -2,18 +2,18 @@ package reader
 
 import (
 	"context"
-	"net/http/httptest"
 	"net/url"
 	"reflect"
 	"strings"
 	"testing"
 
-	requestprovider "github.com/viant/bindly/provider/request"
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/datatest"
 	"github.com/viant/datly/bootstrap"
+	dexec "github.com/viant/datly/exec"
 	druntime "github.com/viant/datly/runtime"
 	"github.com/viant/datly/runtime/registry"
+	"github.com/viant/datly/spec"
 	dsql "github.com/viant/datly/sql"
 	dtag "github.com/viant/datly/tag"
 )
@@ -92,13 +92,11 @@ func TestResourcePolicyReaderReadsExactIdentityOnly(t *testing.T) {
 	}
 	t.Cleanup(func() { _ = runtime.Shutdown(ctx) })
 	read := func(values url.Values) (*Output, error) {
-		request := httptest.NewRequest("GET", "/v1/studio/resource-policies?"+values.Encode(), nil)
-		scope, scopeErr := requestprovider.New(request)
-		if scopeErr != nil {
-			t.Fatal(scopeErr)
-		}
-		defer scope.Close()
-		actual, readErr := runtime.ExecuteRoute(ctx, "GET", "/v1/studio/resource-policies", scope)
+		input := &Input{TenantId: values.Get("tenantId"), ResourceKind: values.Get("resourceKind"),
+			ResourceId: values.Get("resourceId"), ResourceVersion: values.Get("resourceVersion"),
+			Has: &InputHas{TenantId: true, ResourceKind: true, ResourceId: true, ResourceVersion: true}}
+		actual, readErr := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: dexec.ComponentTarget{
+			Component: component.Key, Route: spec.RouteRef{Method: "GET", Path: "/_studio/resource-policy-store/read"}}, Input: input})
 		if readErr != nil {
 			return nil, readErr
 		}
@@ -135,7 +133,7 @@ func TestResourcePolicyReaderReadsExactIdentityOnly(t *testing.T) {
 					partial[key] = value
 				}
 			}
-			if output, err := read(partial); err == nil {
+			if output, err := read(partial); err == nil && len(output.Policies) != 0 {
 				t.Fatalf("missing %s widened the read to %d heads", missing, len(output.Policies))
 			}
 		})

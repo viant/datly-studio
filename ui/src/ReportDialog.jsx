@@ -39,7 +39,7 @@ export function ReportDialog({ api, isOpen, onClose, onCreated }) {
     }
     setSaving(true); setError('');
     try {
-      const report = await api.createReport({ title: draft.title.trim(), namespace: draft.namespace, slug: draft.slug, description: draft.description.trim(), defaultConnectorName: draft.defaultConnectorName });
+      const report = await api.createComponent({ title: draft.title.trim(), namespace: draft.namespace, slug: draft.slug, description: draft.description.trim(), defaultConnectorName: draft.defaultConnectorName });
       await onCreated(report);
       onClose();
     } catch (cause) { setError(cause.message); }

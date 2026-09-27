@@ -4,6 +4,7 @@
 #setting($_ = $output_type('Output'))
 #setting($_ = $case_format('lc'))
 #setting($_ = $route('/_studio/report-resource-files-store/download', 'GET'))
+#setting($_ = $internal(true))
 #setting($_ = $connector('studio'))
 #setting($_ = $sql_dest('file', 'sql/read.sql'))
 
@@ -16,6 +17,6 @@ SELECT file.*, type(file, 'DownloadResourceFile'),
        CAST(file.version_no AS int),
        CAST(file.resource_path AS string),
        CAST(file.content AS []byte),
-       set_limit(file, 0)
+       set_limit(file, 2001)
 FROM (${embed:sql/read.sql}) file
 WHERE 1=1

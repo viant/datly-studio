@@ -37,6 +37,9 @@ import (
 // DB is the "studio" connector the generated components declare.
 type Store struct {
 	DB *sql.DB
+	// Invoker keeps native access reads/writes inside the caller's Datly
+	// database unit. Standalone SDK hosts leave it nil and use the local runtime.
+	Invoker dexec.ComponentInvoker
 
 	mu      sync.Mutex
 	runtime *druntime.Runtime
@@ -155,15 +158,11 @@ func (s *Store) Get(ctx context.Context, r acl.Resource) (acl.Document, error) {
 	if r.Tenant == "" || r.Kind == "" || r.ID == "" || r.Version == "" {
 		return acl.Document{}, sql.ErrNoRows
 	}
-	runtime, err := s.components()
-	if err != nil {
-		return acl.Document{}, err
-	}
 	input := &policyreader.Input{
 		TenantId: r.Tenant, ResourceKind: r.Kind, ResourceId: r.ID, ResourceVersion: r.Version,
 		Has: &policyreader.InputHas{TenantId: true, ResourceKind: true, ResourceId: true, ResourceVersion: true},
 	}
-	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: s.read, Input: input})
+	value, err := s.invoke(ctx, false, input)
 	if err != nil {
 		return acl.Document{}, err
 	}
@@ -218,10 +217,6 @@ func (s *Store) activate(ctx context.Context, d acl.Document, expected int64, ac
 	if err != nil {
 		return acl.Document{}, err
 	}
-	runtime, err := s.components()
-	if err != nil {
-		return acl.Document{}, err
-	}
 	token := int(expected)
 	next := token + 1
 	occurred := time.Now().UTC()
@@ -236,7 +231,7 @@ func (s *Store) activate(ctx context.Context, d acl.Document, expected int64, ac
 		Has: &policywriter.ResourcePolicyHeadHas{TenantId: true, ResourceKind: true, ResourceId: true, ResourceVersion: true, Revision: true, History: true},
 	}
 	input := &policywriter.Input{Policies: []*policywriter.ResourcePolicyHead{head}, Has: &policywriter.InputHas{Policies: true}}
-	if _, err = runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: s.write, Input: input}); err != nil {
+	if _, err = s.invoke(ctx, true, input); err != nil {
 		return acl.Document{}, classify(err)
 	}
 	// Return a detached copy: callers cannot mutate committed policy state.
@@ -245,6 +240,27 @@ func (s *Store) activate(ctx context.Context, d acl.Document, expected int64, ac
 		return acl.Document{}, errors.New("decode committed policy")
 	}
 	return committed, nil
+}
+
+func (s *Store) invoke(ctx context.Context, write bool, input any) (any, error) {
+	if s.Invoker != nil {
+		target := dexec.ComponentTarget{Component: spec.Key{Kind: spec.KindComponent, Scope: reflect.TypeFor[policyreader.PolicyComponent]().PkgPath(), Name: "policy"},
+			Route: spec.RouteRef{Method: "GET", Path: "/_studio/resource-policy-store/read"}}
+		if write {
+			target = dexec.ComponentTarget{Component: spec.Key{Kind: spec.KindComponent, Scope: reflect.TypeFor[policywriter.PolicyComponent]().PkgPath(), Name: "policy"},
+				Route: spec.RouteRef{Method: "PATCH", Path: "/_studio/resource-policy-store/write"}}
+		}
+		return s.Invoker.InvokeComponent(ctx, dexec.ComponentRequest{Target: target, Input: input})
+	}
+	runtime, err := s.components()
+	if err != nil {
+		return nil, err
+	}
+	target := s.read
+	if write {
+		target = s.write
+	}
+	return runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: target, Input: input})
 }
 
 // classify maps writer outcomes onto the generic store contract without

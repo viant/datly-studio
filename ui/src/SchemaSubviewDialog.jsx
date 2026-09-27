@@ -16,7 +16,7 @@ export function SchemaSubviewDialog({ api, isOpen, connector, table, sql, onClos
     setReports([]); setReportId(''); setInspection(null); setError(''); setSaving(false);
     setDraft({ name: identifier(table?.name), parent: '', on: '' });
     setLoading(true);
-    api.listReports({ connectorName: connector, limit: 100 }).then((page) => {
+    api.listComponents({ connectorName: connector, limit: 100 }).then((page) => {
       const items=page?.items??[]; setReports(items); setReportId(items[0]?.id??'');
     }).catch((cause)=>setError(cause.message)).finally(()=>setLoading(false));
   }, [api,isOpen,connector,table?.name]);

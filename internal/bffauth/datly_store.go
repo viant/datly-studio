@@ -2,6 +2,7 @@ package bffauth
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"reflect"
 	"time"
@@ -9,11 +10,13 @@ import (
 	"github.com/viant/bindly/locator"
 	"github.com/viant/bindly/resource"
 	expiredreader "github.com/viant/datly-studio/studio/bff_sessions/store_expired"
+	leasewriter "github.com/viant/datly-studio/studio/bff_sessions/store_lease"
 	storedreader "github.com/viant/datly-studio/studio/bff_sessions/store_read"
 	storedwriter "github.com/viant/datly-studio/studio/bff_sessions/store_write"
 	"github.com/viant/datly/bootstrap"
 	dexec "github.com/viant/datly/exec"
 	druntime "github.com/viant/datly/runtime"
+	"github.com/viant/datly/runtime/handler/custom"
 	writerhandler "github.com/viant/datly/runtime/handler/writer"
 	"github.com/viant/datly/runtime/registry"
 	"github.com/viant/datly/spec"
@@ -21,6 +24,8 @@ import (
 	"github.com/viant/datly/sql/dml"
 	viewprovider "github.com/viant/datly/sql/reader/provider"
 	dtag "github.com/viant/datly/tag"
+	sqlite "modernc.org/sqlite"
+	sqlite3 "modernc.org/sqlite/lib"
 )
 
 type sessionComponents struct {
@@ -28,6 +33,7 @@ type sessionComponents struct {
 	read    dexec.ComponentTarget
 	expired dexec.ComponentTarget
 	write   dexec.ComponentTarget
+	lease   dexec.ComponentTarget
 }
 
 // readDatlySession executes the generated, server-only Datly v1 reader. It
@@ -138,11 +144,26 @@ func (s *SQLStore) loadComponents() (*sessionComponents, error) {
 		Output: writerArtifact.Output, OutputType: reflect.TypeOf(storedwriter.Output{}), Handler: handler,
 		Providers: []locator.Provider{views}, DataSource: dml.Source{DB: s.db}}
 	writerRegistration.Capabilities.Connector = connector
-	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{readerRegistration, expiredRegistration, writerRegistration}, druntime.WithResources(resources))
+	leaseComponent, err := sessionComponent(reflect.TypeOf(leasewriter.SessionComponent{}), "store_lease", reflect.TypeOf(leasewriter.Input{}), reflect.TypeOf(leasewriter.Output{}))
 	if err != nil {
 		return nil, err
 	}
-	s.components = &sessionComponents{runtime: runtime, read: sessionTarget(readerComponent), expired: sessionTarget(expiredComponent), write: sessionTarget(writerComponent)}
+	leaseArtifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Component: leaseComponent,
+		InputType: reflect.TypeOf(leasewriter.Input{}), OutputType: reflect.TypeOf(leasewriter.Output{}),
+		Handler: custom.New[leasewriter.Input, leasewriter.Output](leasewriter.NewLease()), HandlerOwnedOutput: true})
+	if err != nil {
+		return nil, err
+	}
+	leaseRegistration, err := leaseArtifact.Registration(registry.RegisteredComponent{})
+	if err != nil {
+		return nil, err
+	}
+	leaseRegistration.Capabilities.Connector = connector
+	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{readerRegistration, expiredRegistration, writerRegistration, leaseRegistration}, druntime.WithResources(resources))
+	if err != nil {
+		return nil, err
+	}
+	s.components = &sessionComponents{runtime: runtime, read: sessionTarget(readerComponent), expired: sessionTarget(expiredComponent), write: sessionTarget(writerComponent), lease: sessionTarget(leaseComponent)}
 	return s.components, nil
 }
 
@@ -189,6 +210,53 @@ func (s *SQLStore) writeDatlyRows(ctx context.Context, rows []*storedwriter.Stor
 	_, err = components.runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: components.write,
 		Input: &storedwriter.Input{Sessions: rows, Has: &storedwriter.InputHas{Sessions: true}}})
 	return err
+}
+
+func (s *SQLStore) leaseOperation(ctx context.Context, input *leasewriter.Input) (bool, error) {
+	deadline := time.NewTimer(2 * time.Second)
+	defer deadline.Stop()
+	for {
+		applied, err := s.leaseOperationOnce(ctx, input)
+		if err == nil || !sqliteLeaseBusy(err) {
+			return applied, err
+		}
+		select {
+		case <-ctx.Done():
+			return false, ctx.Err()
+		case <-deadline.C:
+			return false, err
+		case <-time.After(25 * time.Millisecond):
+		}
+	}
+}
+
+func sqliteLeaseBusy(err error) bool {
+	var sqliteErr *sqlite.Error
+	if !errors.As(err, &sqliteErr) {
+		return false
+	}
+	switch sqliteErr.Code() & 0xff {
+	case sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED:
+		return true
+	default:
+		return false
+	}
+}
+
+func (s *SQLStore) leaseOperationOnce(ctx context.Context, input *leasewriter.Input) (bool, error) {
+	components, err := s.loadComponents()
+	if err != nil {
+		return false, err
+	}
+	value, err := components.runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: components.lease, Input: input})
+	if err != nil {
+		return false, err
+	}
+	output, ok := value.(*leasewriter.Output)
+	if !ok || output == nil {
+		return false, fmt.Errorf("refresh lease writer returned %T", value)
+	}
+	return output.Applied, nil
 }
 
 // deleteExpiredDatly bounds each cleanup request so a large backlog cannot

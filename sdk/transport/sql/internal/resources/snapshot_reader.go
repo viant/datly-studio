@@ -10,6 +10,7 @@ import (
 
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/readercomponent"
+	"github.com/viant/datly-studio/internal/resourcesnapshot"
 	"github.com/viant/datly-studio/sdk"
 	files "github.com/viant/datly-studio/studio/report_resource_files/store_snapshot"
 	folders "github.com/viant/datly-studio/studio/report_resource_folders/store_snapshot"
@@ -81,17 +82,9 @@ func ReadSnapshot(ctx context.Context, db *sql.DB, reportID string, versionNo in
 	if !ok {
 		return fmt.Errorf("resource file reader returned %T", value)
 	}
-	for _, row := range fileOutput.Files {
-		if row == nil || row.ReportId != reportID || row.VersionNo != versionNo {
-			return errors.New("resource file reader returned a mismatched row")
-		}
-		item := &sdk.ResourceFile{ReportID: row.ReportId, VersionNo: row.VersionNo, ResourceID: row.ResourceId,
-			Namespace: row.Namespace, ResourcePath: row.ResourcePath, Content: string(row.Content),
-			ContentSize: row.ContentSize, ContentSHA256: row.ContentSha256, IsBinary: row.IsBinary}
-		if row.MediaType != nil {
-			item.MediaType = *row.MediaType
-		}
-		result.Files = append(result.Files, item)
+	result.Files, err = resourcesnapshot.Files(reportID, versionNo, fileOutput.Files)
+	if err != nil {
+		return err
 	}
 	value, err = reader.runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: reader.folders, Input: &folders.Input{
 		ReportId: reportID, VersionNo: versionNo, Has: &folders.InputHas{ReportId: true, VersionNo: true},
@@ -103,12 +96,9 @@ func ReadSnapshot(ctx context.Context, db *sql.DB, reportID string, versionNo in
 	if !ok {
 		return fmt.Errorf("resource folder reader returned %T", value)
 	}
-	for _, row := range folderOutput.Folders {
-		if row == nil || row.ReportId != reportID || row.VersionNo != versionNo {
-			return errors.New("resource folder reader returned a mismatched row")
-		}
-		result.Folders = append(result.Folders, &sdk.ResourceFolder{ReportID: row.ReportId, VersionNo: row.VersionNo,
-			FolderID: row.FolderId, Namespace: row.Namespace, RootPath: row.RootPath, URIPrefix: row.UriPrefix, Ordinal: row.Ordinal})
+	result.Folders, err = resourcesnapshot.Folders(reportID, versionNo, folderOutput.Folders)
+	if err != nil {
+		return err
 	}
 	value, err = reader.runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: reader.skills, Input: &skills.Input{
 		ReportId: reportID, VersionNo: versionNo, Has: &skills.InputHas{ReportId: true, VersionNo: true},
@@ -120,12 +110,9 @@ func ReadSnapshot(ctx context.Context, db *sql.DB, reportID string, versionNo in
 	if !ok {
 		return fmt.Errorf("skill root reader returned %T", value)
 	}
-	for _, row := range skillOutput.Skills {
-		if row == nil || row.ReportId != reportID || row.VersionNo != versionNo {
-			return errors.New("skill root reader returned a mismatched row")
-		}
-		result.Skills = append(result.Skills, &sdk.SkillRoot{ReportID: row.ReportId, VersionNo: row.VersionNo,
-			SkillID: row.SkillId, FolderID: row.FolderId, SkillRoot: row.SkillRoot, Ordinal: row.Ordinal})
+	result.Skills, err = resourcesnapshot.Skills(reportID, versionNo, skillOutput.Skills)
+	if err != nil {
+		return err
 	}
 	return nil
 }

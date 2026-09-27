@@ -3,7 +3,7 @@ SELECT reader."report_id", reader."title", reader."namespace", reader."owner_id"
        p.active_version_no AS version_no, p.publication_status,
        p.runtime_revision, p.activated_at
 FROM report_publications p
-JOIN reports r ON r.id = p.report_id
+JOIN components r ON r.id = p.report_id
 ${predicate.Builder().CombineAnd(
     $predicate.FilterGroup(3, "AND")
 ).Build("WHERE")}

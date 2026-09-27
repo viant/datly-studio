@@ -96,9 +96,9 @@ export function ReaderExposureDialog({ isOpen, api, structure, version, report, 
     try {
       await onApply(componentSettingsOperation({ connector, cubeEnabled, cubeMCP, composeEnabled, composeMCP, maxCubes: budgets[0], maxLimit: budgets[1], timeoutMs: budgets[2], exposure: { enabled, mcpOnly, name, description, descriptionPath } }));
       if (api && report?.id) {
-        let current = await api.getReport(report.id);
+        let current = await api.getComponent(report.id);
         if (title.trim() !== current.title || componentDescription.trim() !== (current.description || '')) {
-          current = await api.updateReport(report.id, { title: title.trim(), description: componentDescription.trim(), etag: current.etag });
+          current = await api.updateComponent(report.id, { title: title.trim(), description: componentDescription.trim(), etag: current.etag });
         }
         onReportUpdated?.(current);
       }

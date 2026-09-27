@@ -23,7 +23,7 @@ func TestAuthorizeRunRequiresOwnerOrCanRun(t *testing.T) {
 	_, err = db.Exec(`
 INSERT INTO connectors(name,driver,owner_id,status,etag,created_at,updated_at) VALUES('main','sqlite','owner','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
 INSERT INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at) VALUES('owner','general','General','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
-INSERT INTO reports(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('reader','general','reader','Reader','owner','active','main','example.com/reader','reader',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('reader','general','reader','Reader','owner','active','main','example.com/reader','reader',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
 INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_run) VALUES('reader','user','runner',TRUE,TRUE);
 INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_run) VALUES('reader','user','viewer',TRUE,FALSE);`)
 	if err != nil {
@@ -59,7 +59,7 @@ INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_run) VALUE
 		t.Fatal("role ACL row was treated as a direct user grant")
 	}
 	claims.Subject = "owner"
-	if _, err = db.Exec(`UPDATE reports SET deleted_at=CURRENT_TIMESTAMP WHERE id='reader'`); err != nil {
+	if _, err = db.Exec(`UPDATE components SET deleted_at=CURRENT_TIMESTAMP WHERE id='reader'`); err != nil {
 		t.Fatal(err)
 	}
 	if err = service.authorizeRun(ctx, "reader"); err == nil {
@@ -97,7 +97,7 @@ func TestDefinitionsSeparateActiveAndCandidateVersions(t *testing.T) {
 	_, err = db.Exec(`
 INSERT INTO connectors(name,driver,dsn_template,owner_id,status,etag,created_at,updated_at) VALUES('main','sqlite','file:test.db','owner','active',1,?,?);
 INSERT INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at) VALUES('owner','general','General','active',1,?,?);
-INSERT INTO reports(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('reader','general','reader','Reader','owner','active','main','example.com/reader','reader',1,?,?);
+INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('reader','general','reader','Reader','owner','active','main','example.com/reader','reader',1,?,?);
 INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('reader',1,'published','dql','SELECT 1','{}','1','one','{}','valid','v1','v1',1,'owner',?);
 INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('reader',2,'validated','dql','SELECT 2','{}','1','two','{}','valid','v1','v1',2,'owner',?);
 INSERT INTO runtime_generations(generation_no,source_revision,status,report_count,build_manifest_json,requested_by,requested_at,activated_at) VALUES(1,'one','active',1,'{}','owner',?,?);

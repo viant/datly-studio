@@ -5,6 +5,8 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"encoding/json"
+	"errors"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -12,6 +14,7 @@ import (
 	"github.com/viant/datly-studio/runtime/preview"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
+	"github.com/viant/datly/authoring/readerbuilder"
 )
 
 func TestDQLImportPersistsAndExecutesDependencies(t *testing.T) {
@@ -33,7 +36,8 @@ func TestDQLImportPersistsAndExecutesDependencies(t *testing.T) {
 	if _, err = source.Exec(`CREATE TABLE records(id INTEGER PRIMARY KEY,name TEXT); INSERT INTO records VALUES(1,'Imported')`); err != nil {
 		t.Fatal(err)
 	}
-	client, err := sdk.NewClient(&Transport{DB: db, Authorizer: allowAuthorizer{}})
+	transport := &Transport{DB: db, Authorizer: allowAuthorizer{}}
+	client, err := sdk.NewClient(transport)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -44,7 +48,7 @@ func TestDQLImportPersistsAndExecutesDependencies(t *testing.T) {
 	if _, err = db.Exec(`UPDATE connectors SET status='active' WHERE name=?`, connector.Name); err != nil {
 		t.Fatal(err)
 	}
-	report, err := client.Reports().Create(ctx, sdk.CreateReportInput{Slug: "imported", Title: "Imported", DefaultConnectorName: connector.Name})
+	report, err := client.Components().Create(ctx, sdk.CreateComponentInput{Slug: "imported", Title: "Imported", DefaultConnectorName: connector.Name})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -109,7 +113,7 @@ SELECT records.*, type(records,'Record') FROM (${embed:sql/records.dql}) records
 	if len(versions.Items) != 1 {
 		t.Fatal("partial draft persisted")
 	}
-	current, err := client.Reports().Get(ctx, report.ID)
+	current, err := client.Components().Get(ctx, report.ID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -125,6 +129,54 @@ SELECT records.*, type(records,'Record') FROM (${embed:sql/records.dql}) records
 	}
 	if single.Version.VersionNo != 2 || single.Version.AuthoredDQL != "SELECT 1" {
 		t.Fatalf("single=%+v", single)
+	}
+	if _, err = db.Exec(`INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_edit,can_use_dql)
+		VALUES(?,'user','editor',1,1,0)`, report.ID); err != nil {
+		t.Fatal(err)
+	}
+	delegated := sdk.WithPrincipal(context.Background(), sdk.Principal{Subject: "editor"})
+	redacted, err := client.Versions().LoadDQL(delegated, report.ID, sdk.LoadDQLInput{DQL: "SELECT delegated_source"})
+	if err != nil || redacted.Version == nil || redacted.Version.AuthoredDQL != "" || redacted.Version.GeneratedDQL != "" {
+		t.Fatalf("delegated import response=%+v err=%v", redacted, err)
+	}
+	var storedDQL string
+	if err = db.QueryRow(`SELECT authored_dql FROM report_versions WHERE report_id=? AND version_no=?`, report.ID, redacted.Version.VersionNo).Scan(&storedDQL); err != nil || storedDQL != "SELECT delegated_source" {
+		t.Fatalf("delegated import stored DQL=%q err=%v", storedDQL, err)
+	}
+	edited, err := client.Versions().Apply(delegated, report.ID, redacted.Version.VersionNo, sdk.EditCommand{
+		Kind: "set_dql", ExpectedSourceRevision: 1,
+		Payload: json.RawMessage(`{"authoredDql":"SELECT delegated_edit"}`),
+	})
+	if err != nil || edited.Version == nil || edited.Version.SourceRevision != 2 ||
+		edited.Version.AuthoredDQL != "" || edited.Version.GeneratedDQL != "" {
+		t.Fatalf("delegated edit response=%+v err=%v", edited, err)
+	}
+	if err = db.QueryRow(`SELECT authored_dql FROM report_versions WHERE report_id=? AND version_no=?`, report.ID, redacted.Version.VersionNo).Scan(&storedDQL); err != nil || storedDQL != "SELECT delegated_edit" {
+		t.Fatalf("delegated edit stored DQL=%q err=%v", storedDQL, err)
+	}
+	validated, err := client.Versions().Validate(delegated, report.ID, redacted.Version.VersionNo, edited.Version.SourceRevision)
+	if err != nil || validated.Version == nil || !validated.Valid ||
+		validated.Version.AuthoredDQL != "" || validated.Version.GeneratedDQL != "" || len(validated.Version.CompileDiagnostics) != 0 {
+		t.Fatalf("delegated validation response=%+v err=%v", validated, err)
+	}
+	transport.Validator = validationStub{err: errors.New("SELECT delegated_edit failed")}
+	invalid, err := client.Versions().Validate(delegated, report.ID, redacted.Version.VersionNo, edited.Version.SourceRevision)
+	if err != nil || invalid.Valid || invalid.Version == nil || invalid.Version.AuthoredDQL != "" ||
+		len(invalid.Version.CompileDiagnostics) != 0 || len(invalid.Diagnostics) != 1 ||
+		invalid.Diagnostics[0].Code != "runtime_contract" || invalid.Diagnostics[0].Message != "" {
+		t.Fatalf("delegated invalid validation response=%+v err=%v", invalid, err)
+	}
+	transport.Validator = nil
+	operation, err := json.Marshal(readerbuilder.Operation{Type: readerbuilder.OperationAddField,
+		Field: &readerbuilder.Field{Name: "FilterID", Type: "int", SourceKind: "query", SourceName: "filterId"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	built, err := client.Versions().ApplyReaderCommand(delegated, report.ID, loaded.Version.VersionNo,
+		sdk.ReaderBuilderCommand{ExpectedSourceRevision: loaded.Version.SourceRevision, Operation: operation})
+	if err != nil || built.Inspection == nil || built.Inspection.Version == nil || !built.Applied ||
+		built.Inspection.Version.AuthoredDQL != "" || built.Inspection.Version.GeneratedDQL != "" || built.Inspection.DQL != "" {
+		t.Fatalf("delegated builder response=%+v err=%v", built, err)
 	}
 	inline := strings.Replace(dql, "${embed:sql/records.dql}", "SELECT id,name FROM records", 1)
 	inlineVersion, err := client.Versions().LoadDQL(ctx, report.ID, sdk.LoadDQLInput{DQL: inline})

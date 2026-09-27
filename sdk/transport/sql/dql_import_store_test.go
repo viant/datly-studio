@@ -26,7 +26,7 @@ type importFixture struct {
 	db        *sql.DB
 	transport *Transport
 	client    sdk.Client
-	report    *sdk.Report
+	report    *sdk.Component
 	now       time.Time
 	bump      atomic.Bool
 }
@@ -55,7 +55,7 @@ func newImportFixtureDSN(t *testing.T, query string) *importFixture {
 	fixture.db = db
 	fixture.transport = &Transport{DB: db, Authorizer: allowAuthorizer{}, Now: func() time.Time {
 		if fixture.bump.Load() && fixture.report != nil {
-			if _, err := db.Exec(`UPDATE reports SET etag=etag+1 WHERE id=?`, fixture.report.ID); err != nil {
+			if _, err := db.Exec(`UPDATE components SET etag=etag+1 WHERE id=?`, fixture.report.ID); err != nil {
 				t.Error(err)
 			}
 		}
@@ -73,7 +73,7 @@ func newImportFixtureDSN(t *testing.T, query string) *importFixture {
 	if _, err = db.Exec(`UPDATE connectors SET status='active' WHERE name=?`, connector.Name); err != nil {
 		t.Fatal(err)
 	}
-	report, err := client.Reports().Create(fixture.ctx, sdk.CreateReportInput{Slug: "imported", Title: "Imported", DefaultConnectorName: connector.Name})
+	report, err := client.Components().Create(fixture.ctx, sdk.CreateComponentInput{Slug: "imported", Title: "Imported", DefaultConnectorName: connector.Name})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -157,7 +157,7 @@ func TestDQLImportPersistsExactRowsThroughStoreComponents(t *testing.T) {
 	if count != 3 {
 		t.Fatalf("resource rows=%d", count)
 	}
-	current, err := f.client.Reports().Get(f.ctx, f.report.ID)
+	current, err := f.client.Components().Get(f.ctx, f.report.ID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -186,7 +186,7 @@ func TestDQLImportPersistsExactRowsThroughStoreComponents(t *testing.T) {
 	if second.Version.VersionNo != 2 || secondNotes.Valid {
 		t.Fatalf("second import version=%d notes=%v", second.Version.VersionNo, secondNotes)
 	}
-	current, err = f.client.Reports().Get(f.ctx, f.report.ID)
+	current, err = f.client.Components().Get(f.ctx, f.report.ID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -214,7 +214,7 @@ func TestDQLImportRollsBackWhenReportChangesConcurrently(t *testing.T) {
 	if versions != 0 || resources != 0 {
 		t.Fatalf("rolled back import left versions=%d resources=%d", versions, resources)
 	}
-	current, err := f.client.Reports().Get(f.ctx, f.report.ID)
+	current, err := f.client.Components().Get(f.ctx, f.report.ID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -301,7 +301,7 @@ func TestDQLImportWriterDeniesInconsistentInputBeforeWriting(t *testing.T) {
 	if !errors.As(err, &conflict) {
 		t.Fatalf("stale pointer error=%v", err)
 	}
-	if err = f.transport.writeDraftPointer(f.ctx, tx, draftPointerRow(&sdk.Report{ID: "missing", ETag: 1}, 1, f.now)); err == nil || !strings.Contains(err.Error(), "does not exist") {
+	if err = f.transport.writeDraftPointer(f.ctx, tx, draftPointerRow(&sdk.Component{ID: "missing", ETag: 1}, 1, f.now)); err == nil || !strings.Contains(err.Error(), "does not exist") {
 		t.Fatalf("missing report error=%v", err)
 	}
 }
@@ -326,7 +326,7 @@ func TestDQLImportCommitsAndRollsBackUnderSharedCacheDSN(t *testing.T) {
 	if err = f.db.QueryRow(`SELECT COUNT(*) FROM report_versions WHERE report_id=?`, f.report.ID).Scan(&versions); err != nil || versions != 1 {
 		t.Fatalf("versions after rollback=%d err=%v", versions, err)
 	}
-	current, err := f.client.Reports().Get(f.ctx, f.report.ID)
+	current, err := f.client.Components().Get(f.ctx, f.report.ID)
 	if err != nil || current.CurrentDraftVersion == nil || *current.CurrentDraftVersion != 1 || current.ETag != f.report.ETag+1 {
 		t.Fatalf("report after rollback: %+v %v", current, err)
 	}

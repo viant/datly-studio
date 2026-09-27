@@ -28,7 +28,7 @@ SELECT warmup_run.*, type(warmup_run, 'WarmupRun'),
        CAST(warmup_run.diagnostics_json AS json.RawMessage),
        tag(warmup_run.target_json, 'sqlx:"target_json,enc=JSON"'),
        tag(warmup_run.diagnostics_json, 'sqlx:"diagnostics_json,enc=JSON"'),
-       set_limit(warmup_run, 100), selector_fields(warmup_run, true), selector_limit(warmup_run, true), selector_offset(warmup_run, true),
+       set_limit(warmup_run, 100),
        allowed_order_by_columns(warmup_run, 'requested_at,started_at,completed_at,status,duration_ns,entries')
 FROM (${embed:sql/read.sql}) warmup_run
 WHERE 1=1

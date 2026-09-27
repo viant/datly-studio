@@ -41,7 +41,7 @@ func (p *ConnectorAccess) Compute(ctx context.Context, _ any) (*xpredicate.Crite
 		column = "can_use_dql"
 	}
 	return &xpredicate.Criteria{Expression: `c.name = ? AND (c.owner_id = ? OR EXISTS (
-SELECT 1 FROM reports r JOIN report_acl acl ON acl.report_id = r.id
+SELECT 1 FROM components r JOIN report_acl acl ON acl.report_id = r.id
 WHERE r.default_connector_name = c.name AND r.deleted_at IS NULL
   AND acl.subject_type = 'user' AND acl.subject_id = ? AND acl.` + column + ` = TRUE))`,
 		Placeholders: []any{name, subject, subject}}, nil

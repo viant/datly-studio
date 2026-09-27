@@ -1,4 +1,4 @@
-const reservedSections = new Set(['overview', 'connectors', 'schema', 'namespaces', 'security', 'runtime', 'skills', 'reports', 'builder']);
+const reservedSections = new Set(['overview', 'connectors', 'schema', 'namespaces', 'security', 'runtime', 'skills', 'components', 'reports', 'builder']);
 
 function assertExtension(extension) {
   if (!extension || typeof extension !== 'object') throw new TypeError('Studio extension must be an object');

@@ -19,10 +19,10 @@ func TestPublicationEventStoreReads(t *testing.T) {
 	db.SetMaxOpenConns(1)
 	defer db.Close()
 	for _, statement := range []string{
-		`CREATE TABLE reports (id TEXT PRIMARY KEY, owner_id TEXT NOT NULL, deleted_at TEXT)`,
+		`CREATE TABLE components (id TEXT PRIMARY KEY, owner_id TEXT NOT NULL, deleted_at TEXT)`,
 		`CREATE TABLE report_publication_events (event_id TEXT PRIMARY KEY, report_id TEXT, owner_id TEXT, operation TEXT, version_no INTEGER, generation_no INTEGER, status TEXT, requested_by TEXT, reason TEXT, failure_code TEXT, failure_message TEXT, occurred_at TIMESTAMP)`,
-		`INSERT INTO reports(id,owner_id) VALUES ('r1','alice'),('r2','bob')`,
-		`INSERT INTO reports(id,owner_id,deleted_at) VALUES ('deleted','alice','2026-01-01')`,
+		`INSERT INTO components(id,owner_id) VALUES ('r1','alice'),('r2','bob')`,
+		`INSERT INTO components(id,owner_id,deleted_at) VALUES ('deleted','alice','2026-01-01')`,
 		`INSERT INTO report_publication_events VALUES ('e1','r1','alice','publish',NULL,NULL,'succeeded','alice',NULL,NULL,NULL,'2026-01-01T00:00:00Z')`,
 		`INSERT INTO report_publication_events VALUES ('e2','r1','alice','rollback',2,20,'failed','alice','retry','timeout','failed','2026-01-02T00:00:00Z')`,
 		`INSERT INTO report_publication_events VALUES ('e3','r1','alice','publish',3,30,'succeeded','alice','published',NULL,NULL,'2026-01-02T00:00:00Z')`,
@@ -94,7 +94,7 @@ func TestPublicationEventStoreReads(t *testing.T) {
 	if err = transport.listPublicationEvents(delegated, publicationEventListRequest{ReportID: "r1"}, &delegatedPage); !errors.As(err, &forbidden) || forbidden.Code != sdk.ErrorForbidden {
 		t.Fatalf("delegated publisher event history=%+v error=%v", delegatedPage, err)
 	}
-	if _, err = db.ExecContext(ctx, `UPDATE reports SET owner_id='carol' WHERE id='r1'`); err != nil {
+	if _, err = db.ExecContext(ctx, `UPDATE components SET owner_id='carol' WHERE id='r1'`); err != nil {
 		t.Fatal(err)
 	}
 	var formerOwner sdk.PublicationEventPage

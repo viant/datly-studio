@@ -17,12 +17,1016 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
+// Input03431463bb75c805271cda3d99727948b169a41134e802271c7e8a9391c0be1b defines model for Input_03431463bb75c805271cda3d99727948b169a41134e802271c7e8a9391c0be1b.
+type Input03431463bb75c805271cda3d99727948b169a41134e802271c7e8a9391c0be1b struct {
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
+}
+
+// Input05e809e9f99e43822a03e6818a8de1e9fd48cb2f10be053f77c9af8d2092e9d9 defines model for Input_05e809e9f99e43822a03e6818a8de1e9fd48cb2f10be053f77c9af8d2092e9d9.
+type Input05e809e9f99e43822a03e6818a8de1e9fd48cb2f10be053f77c9af8d2092e9d9 struct {
+	Archive  *[]byte `json:"archive,omitempty"`
+	EntryDql *string `json:"entryDql,omitempty"`
+	Format   *string `json:"format,omitempty"`
+	Notes    *string `json:"notes,omitempty"`
+}
+
+// Input1777f5e244f91f0645bf7ef39ca23fb64c98c7f12533a1f1b43c45261f87381b defines model for Input_1777f5e244f91f0645bf7ef39ca23fb64c98c7f12533a1f1b43c45261f87381b.
+type Input1777f5e244f91f0645bf7ef39ca23fb64c98c7f12533a1f1b43c45261f87381b struct {
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
+}
+
+// Input1962b8f8815d6b22b84f6c89d5bf29530739f18f1bed0742ebc1f67a50636542 defines model for Input_1962b8f8815d6b22b84f6c89d5bf29530739f18f1bed0742ebc1f67a50636542.
+type Input1962b8f8815d6b22b84f6c89d5bf29530739f18f1bed0742ebc1f67a50636542 struct {
+	ExpectedSourceRevision *int64      `json:"expectedSourceRevision,omitempty"`
+	Kind                   *string     `json:"kind,omitempty"`
+	Payload                interface{} `json:"payload,omitempty"`
+}
+
+// Input25f0a19704063df5593ce82b9757fd47d5e39b2de5b199effc95c33a74910afc defines model for Input_25f0a19704063df5593ce82b9757fd47d5e39b2de5b199effc95c33a74910afc.
+type Input25f0a19704063df5593ce82b9757fd47d5e39b2de5b199effc95c33a74910afc struct {
+	ComponentName        *string `json:"componentName,omitempty"`
+	ComponentScope       *string `json:"componentScope,omitempty"`
+	CurrentDraftVersion  *int64  `json:"currentDraftVersion,omitempty"`
+	DefaultConnectorName *string `json:"defaultConnectorName,omitempty"`
+	Description          *string `json:"description,omitempty"`
+	Etag                 *int64  `json:"etag,omitempty"`
+	Namespace            *string `json:"namespace,omitempty"`
+	Slug                 *string `json:"slug,omitempty"`
+	Status               *string `json:"status,omitempty"`
+	Title                *string `json:"title,omitempty"`
+}
+
+// Input2d7353179486a6080c97a342425fc1796b1a0e525ea43989e78b586465c68fb6 defines model for Input_2d7353179486a6080c97a342425fc1796b1a0e525ea43989e78b586465c68fb6.
+type Input2d7353179486a6080c97a342425fc1796b1a0e525ea43989e78b586465c68fb6 struct {
+	AuthoringMode *string   `json:"authoringMode,omitempty"`
+	CompileStatus *string   `json:"compileStatus,omitempty"`
+	CreatedBy     *string   `json:"createdBy,omitempty"`
+	Fields        *[]string `json:"fields,omitempty"`
+	Limit         *int64    `json:"limit,omitempty"`
+	Offset        *int64    `json:"offset,omitempty"`
+	OrderBy       *string   `json:"orderBy,omitempty"`
+	State         *string   `json:"state,omitempty"`
+}
+
+// Input2e06143707781a8502ab8fc97824dec99c9e9b2998f2436174c1d8b57c8d9cdf defines model for Input_2e06143707781a8502ab8fc97824dec99c9e9b2998f2436174c1d8b57c8d9cdf.
+type Input2e06143707781a8502ab8fc97824dec99c9e9b2998f2436174c1d8b57c8d9cdf struct {
+	Description *string     `json:"description,omitempty"`
+	Driver      *string     `json:"driver,omitempty"`
+	DsnTemplate *string     `json:"dsnTemplate,omitempty"`
+	Name        *string     `json:"name,omitempty"`
+	Options     interface{} `json:"options,omitempty"`
+	OwnerId     *string     `json:"ownerId,omitempty"`
+	SecretRef   *string     `json:"secretRef,omitempty"`
+}
+
+// Input4b2c38475d83ff82029ec4520d07b5ec88c1409199c252fc696e28282c52561f defines model for Input_4b2c38475d83ff82029ec4520d07b5ec88c1409199c252fc696e28282c52561f.
+type Input4b2c38475d83ff82029ec4520d07b5ec88c1409199c252fc696e28282c52561f struct {
+	ExpectedActiveGeneration *int64  `json:"expectedActiveGeneration,omitempty"`
+	Reason                   *string `json:"reason,omitempty"`
+	RequestedBy              *string `json:"requestedBy,omitempty"`
+}
+
+// Input4bdb53063eafe1e59ff10e87197e26f6c38d25d8f87cdf5c0e54e4660add2556 defines model for Input_4bdb53063eafe1e59ff10e87197e26f6c38d25d8f87cdf5c0e54e4660add2556.
+type Input4bdb53063eafe1e59ff10e87197e26f6c38d25d8f87cdf5c0e54e4660add2556 struct {
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
+}
+
+// Input4c3d58d8e922b5abbd65732f09a81d45874f0f7555537fd9607035bfecb9f26c defines model for Input_4c3d58d8e922b5abbd65732f09a81d45874f0f7555537fd9607035bfecb9f26c.
+type Input4c3d58d8e922b5abbd65732f09a81d45874f0f7555537fd9607035bfecb9f26c struct {
+	Cubes *[]interface{} `json:"cubes,omitempty"`
+	Sql   *string        `json:"sql,omitempty"`
+}
+
+// Input56eaf778ce1253fe858bf578c97bd7824413c87195caefb7315fd578bae05388 defines model for Input_56eaf778ce1253fe858bf578c97bd7824413c87195caefb7315fd578bae05388.
+type Input56eaf778ce1253fe858bf578c97bd7824413c87195caefb7315fd578bae05388 struct {
+	Policies *map[string]Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b `json:"policies,omitempty"`
+	Resource *Input4bdb53063eafe1e59ff10e87197e26f6c38d25d8f87cdf5c0e54e4660add2556            `json:"resource,omitempty"`
+	Revision *int64                                                                            `json:"revision,omitempty"`
+}
+
+// Input57127985d5662edb0b3d19b39a5c7c1e6df20a3253afa119615d9abc0d06a16b defines model for Input_57127985d5662edb0b3d19b39a5c7c1e6df20a3253afa119615d9abc0d06a16b.
+type Input57127985d5662edb0b3d19b39a5c7c1e6df20a3253afa119615d9abc0d06a16b struct {
+	Input interface{} `json:"input,omitempty"`
+	Limit *int64      `json:"limit,omitempty"`
+}
+
+// Input5bcc88d6e28e27666dfa5b56f82424fa705c9bf62e9e02961ffb251630580697 defines model for Input_5bcc88d6e28e27666dfa5b56f82424fa705c9bf62e9e02961ffb251630580697.
+type Input5bcc88d6e28e27666dfa5b56f82424fa705c9bf62e9e02961ffb251630580697 struct {
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	FolderId               *string `json:"folderId,omitempty"`
+	Namespace              *string `json:"namespace,omitempty"`
+	Ordinal                *int64  `json:"ordinal,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	RootPath               *string `json:"rootPath,omitempty"`
+	UriPrefix              *string `json:"uriPrefix,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
+}
+
+// Input5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9 defines model for Input_5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9.
+type Input5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9 struct {
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
+}
+
+// Input6139a906f15f351c7eae5d9897ae3973b6172d1373d49394d6c8c69615914840 defines model for Input_6139a906f15f351c7eae5d9897ae3973b6172d1373d49394d6c8c69615914840.
+type Input6139a906f15f351c7eae5d9897ae3973b6172d1373d49394d6c8c69615914840 struct {
+	Description *string `json:"description,omitempty"`
+	Etag        *int64  `json:"etag,omitempty"`
+	Status      *string `json:"status,omitempty"`
+	Title       *string `json:"title,omitempty"`
+}
+
+// Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8 defines model for Input_740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8.
+type Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8 struct {
+	Entity *Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity `json:"entity,omitempty"`
+	Kind   *string                                                                       `json:"kind,omitempty"`
+	Rules  *[]Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8      `json:"rules,omitempty"`
+	Value  *string                                                                       `json:"value,omitempty"`
+}
+
+// Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1 defines model for Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8.Entity.1.
+type Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1 = map[string]interface{}
+
+// Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity defines model for Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8.Entity.
+type Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity struct {
+	union json.RawMessage
+}
+
+// Input78c96702ed752e425a13d515ae18bac86d71d27030700074199617129869fe30 defines model for Input_78c96702ed752e425a13d515ae18bac86d71d27030700074199617129869fe30.
+type Input78c96702ed752e425a13d515ae18bac86d71d27030700074199617129869fe30 struct {
+	Input interface{} `json:"input,omitempty"`
+	Limit *int64      `json:"limit,omitempty"`
+}
+
+// Input808907cf45a0ab5f46a0dc123ed3a6a23958483a2bfe6af8cdcfabaf2b54af30 defines model for Input_808907cf45a0ab5f46a0dc123ed3a6a23958483a2bfe6af8cdcfabaf2b54af30.
+type Input808907cf45a0ab5f46a0dc123ed3a6a23958483a2bfe6af8cdcfabaf2b54af30 struct {
+	Dql   *string `json:"dql,omitempty"`
+	Notes *string `json:"notes,omitempty"`
+}
+
+// Input89a37caef4565ff5d5aa4568065f46b182888b77f96c21fb1eed777c45878f9e defines model for Input_89a37caef4565ff5d5aa4568065f46b182888b77f96c21fb1eed777c45878f9e.
+type Input89a37caef4565ff5d5aa4568065f46b182888b77f96c21fb1eed777c45878f9e struct {
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	FolderId               *string `json:"folderId,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	ResourceId             *string `json:"resourceId,omitempty"`
+	SkillId                *string `json:"skillId,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
+}
+
+// Input8a771218c929de9ad6df8d7f26a11916c0d2c478600a618560aef8cdaa883cf6 defines model for Input_8a771218c929de9ad6df8d7f26a11916c0d2c478600a618560aef8cdaa883cf6.
+type Input8a771218c929de9ad6df8d7f26a11916c0d2c478600a618560aef8cdaa883cf6 struct {
+	Schema *string `json:"schema,omitempty"`
+	Table  *string `json:"table,omitempty"`
+}
+
+// Input8b2294ec4854c9dd94236a9123a7d8fe7dbf92cab403fb011d6c8bf7d53c5054 defines model for Input_8b2294ec4854c9dd94236a9123a7d8fe7dbf92cab403fb011d6c8bf7d53c5054.
+type Input8b2294ec4854c9dd94236a9123a7d8fe7dbf92cab403fb011d6c8bf7d53c5054 struct {
+	ExpectedSourceRevision *int64      `json:"expectedSourceRevision,omitempty"`
+	Operation              interface{} `json:"operation,omitempty"`
+}
+
+// Input96a025b75d7ec5ca504acf90ff2915c5535f1449cf9023d5d424dce58b581054 defines model for Input_96a025b75d7ec5ca504acf90ff2915c5535f1449cf9023d5d424dce58b581054.
+type Input96a025b75d7ec5ca504acf90ff2915c5535f1449cf9023d5d424dce58b581054 struct {
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	FolderId               *string `json:"folderId,omitempty"`
+	Ordinal                *int64  `json:"ordinal,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	SkillId                *string `json:"skillId,omitempty"`
+	SkillRoot              *string `json:"skillRoot,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
+}
+
+// Input9aad80e5262dd4bec1816caf72b4dd6364e8940a81d02db58a19387fcec5e859 defines model for Input_9aad80e5262dd4bec1816caf72b4dd6364e8940a81d02db58a19387fcec5e859.
+type Input9aad80e5262dd4bec1816caf72b4dd6364e8940a81d02db58a19387fcec5e859 struct {
+	Description *string     `json:"description,omitempty"`
+	Driver      *string     `json:"driver,omitempty"`
+	DsnTemplate *string     `json:"dsnTemplate,omitempty"`
+	Etag        *int64      `json:"etag,omitempty"`
+	Options     interface{} `json:"options,omitempty"`
+	SecretRef   *string     `json:"secretRef,omitempty"`
+}
+
+// Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b defines model for Input_9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b.
+type Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b struct {
+	EntityType *string                                                                     `json:"entityType,omitempty"`
+	Mode       *string                                                                     `json:"mode,omitempty"`
+	Rule       *Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule `json:"rule,omitempty"`
+}
+
+// Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1 defines model for Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b.Rule.1.
+type Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1 = map[string]interface{}
+
+// Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule defines model for Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b.Rule.
+type Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule struct {
+	union json.RawMessage
+}
+
+// InputA0d3076a206576e1fb379faacd83a9e5289796c14e710e1fe21529cfb0c35c21 defines model for Input_a0d3076a206576e1fb379faacd83a9e5289796c14e710e1fe21529cfb0c35c21.
+type InputA0d3076a206576e1fb379faacd83a9e5289796c14e710e1fe21529cfb0c35c21 struct {
+	AuthoredDql   *string     `json:"authoredDql,omitempty"`
+	AuthoredSql   *string     `json:"authoredSql,omitempty"`
+	AuthoringMode *string     `json:"authoringMode,omitempty"`
+	ComponentSpec interface{} `json:"componentSpec,omitempty"`
+	CreatedBy     *string     `json:"createdBy,omitempty"`
+	Notes         *string     `json:"notes,omitempty"`
+}
+
+// InputAdff4675f499a769cb093e90fbca27e902af83cc23c5e13071057671fe8d89f0 defines model for Input_adff4675f499a769cb093e90fbca27e902af83cc23c5e13071057671fe8d89f0.
+type InputAdff4675f499a769cb093e90fbca27e902af83cc23c5e13071057671fe8d89f0 struct {
+	Content                *string `json:"content,omitempty"`
+	ContentSha256          *string `json:"contentSha256,omitempty"`
+	ContentSize            *int64  `json:"contentSize,omitempty"`
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	IsBinary               *bool   `json:"isBinary,omitempty"`
+	MediaType              *string `json:"mediaType,omitempty"`
+	Namespace              *string `json:"namespace,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	ResourceId             *string `json:"resourceId,omitempty"`
+	ResourcePath           *string `json:"resourcePath,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
+}
+
+// InputB11523bf8a7cc12531330e851f7fb2dd5c4f01768e8eaf6d9a50d7d84ad1250b defines model for Input_b11523bf8a7cc12531330e851f7fb2dd5c4f01768e8eaf6d9a50d7d84ad1250b.
+type InputB11523bf8a7cc12531330e851f7fb2dd5c4f01768e8eaf6d9a50d7d84ad1250b struct {
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	Reason                 *string `json:"reason,omitempty"`
+	RequestedBy            *string `json:"requestedBy,omitempty"`
+}
+
+// InputB94652047b45c410057de4a3d589b99411e9b1ce7012ae301388c27534a7d71e defines model for Input_b94652047b45c410057de4a3d589b99411e9b1ce7012ae301388c27534a7d71e.
+type InputB94652047b45c410057de4a3d589b99411e9b1ce7012ae301388c27534a7d71e struct {
+	Limit  *int64 `json:"limit,omitempty"`
+	Offset *int64 `json:"offset,omitempty"`
+}
+
+// InputB990d293ef5d3e7e85a2acebd0bbccb12b9ec19ea303b41252de0b2f2bbb9e05 defines model for Input_b990d293ef5d3e7e85a2acebd0bbccb12b9ec19ea303b41252de0b2f2bbb9e05.
+type InputB990d293ef5d3e7e85a2acebd0bbccb12b9ec19ea303b41252de0b2f2bbb9e05 struct {
+	Description *string `json:"description,omitempty"`
+	Name        *string `json:"name,omitempty"`
+	OwnerId     *string `json:"ownerId,omitempty"`
+	Title       *string `json:"title,omitempty"`
+}
+
+// InputC4cc575a74227096d9bc84a357106f4a2fb90b472fc6273f1682ae88016fea81 defines model for Input_c4cc575a74227096d9bc84a357106f4a2fb90b472fc6273f1682ae88016fea81.
+type InputC4cc575a74227096d9bc84a357106f4a2fb90b472fc6273f1682ae88016fea81 struct {
+	Alias       *string   `json:"alias,omitempty"`
+	Columns     *[]string `json:"columns,omitempty"`
+	Description *string   `json:"description,omitempty"`
+	Etag        *int64    `json:"etag,omitempty"`
+	PackagePath *string   `json:"packagePath,omitempty"`
+	Status      *string   `json:"status,omitempty"`
+	Title       *string   `json:"title,omitempty"`
+	TypeName    *string   `json:"typeName,omitempty"`
+}
+
 // InputC8f891bb6cfd81599dce6f4f5d400a21caa864a78f2dabaa10e3173f02ca8db3 defines model for Input_c8f891bb6cfd81599dce6f4f5d400a21caa864a78f2dabaa10e3173f02ca8db3.
 type InputC8f891bb6cfd81599dce6f4f5d400a21caa864a78f2dabaa10e3173f02ca8db3 struct {
 	Limit     *int64  `json:"limit,omitempty"`
 	Offset    *int64  `json:"offset,omitempty"`
 	Operation *string `json:"operation,omitempty"`
 	Status    *string `json:"status,omitempty"`
+}
+
+// InputCe48d096271799f6074437499f254f457869d225dfbc7ea54c0552fa34341dd8 defines model for Input_ce48d096271799f6074437499f254f457869d225dfbc7ea54c0552fa34341dd8.
+type InputCe48d096271799f6074437499f254f457869d225dfbc7ea54c0552fa34341dd8 struct {
+	Limit  *int64  `json:"limit,omitempty"`
+	Offset *int64  `json:"offset,omitempty"`
+	Query  *string `json:"query,omitempty"`
+	Schema *string `json:"schema,omitempty"`
+}
+
+// InputCe5005b864956cbc2469fc8d71a73cc80f19dd86c8340815b1edae79273b8769 defines model for Input_ce5005b864956cbc2469fc8d71a73cc80f19dd86c8340815b1edae79273b8769.
+type InputCe5005b864956cbc2469fc8d71a73cc80f19dd86c8340815b1edae79273b8769 struct {
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	FolderId               *string `json:"folderId,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	ResourceId             *string `json:"resourceId,omitempty"`
+	SkillId                *string `json:"skillId,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
+}
+
+// InputD1b436abf4fd54a2fa997cbd492e576d712e8c35c087bfcf2d72d6d2dffb0f20 defines model for Input_d1b436abf4fd54a2fa997cbd492e576d712e8c35c087bfcf2d72d6d2dffb0f20.
+type InputD1b436abf4fd54a2fa997cbd492e576d712e8c35c087bfcf2d72d6d2dffb0f20 struct {
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	FolderId               *string `json:"folderId,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	ResourceId             *string `json:"resourceId,omitempty"`
+	SkillId                *string `json:"skillId,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
+}
+
+// InputD2fa4c9bb7cfdde0500d01f13469e3e914f15fb6eb841dd0cf0c53094ae7e08a defines model for Input_d2fa4c9bb7cfdde0500d01f13469e3e914f15fb6eb841dd0cf0c53094ae7e08a.
+type InputD2fa4c9bb7cfdde0500d01f13469e3e914f15fb6eb841dd0cf0c53094ae7e08a struct {
+	Query *string `json:"query,omitempty"`
+}
+
+// InputE14cc58c4ee74d7747f498bcbd7c71a8cb3028eda5782588b9c5299ed0cf9c37 defines model for Input_e14cc58c4ee74d7747f498bcbd7c71a8cb3028eda5782588b9c5299ed0cf9c37.
+type InputE14cc58c4ee74d7747f498bcbd7c71a8cb3028eda5782588b9c5299ed0cf9c37 struct {
+	Limit *int64  `json:"limit,omitempty"`
+	Sql   *string `json:"sql,omitempty"`
+}
+
+// InputEa8cf0b60e82e17c8f2e6bc2ad35fe0985cc717838bb65d7f9b56c81bd0718aa defines model for Input_ea8cf0b60e82e17c8f2e6bc2ad35fe0985cc717838bb65d7f9b56c81bd0718aa.
+type InputEa8cf0b60e82e17c8f2e6bc2ad35fe0985cc717838bb65d7f9b56c81bd0718aa struct {
+	Input interface{} `json:"input,omitempty"`
+	Limit *int64      `json:"limit,omitempty"`
+}
+
+// InputF063ff05b2157fb8f6176bbd7a336f91805d5c30366f9c24c986423e7cda8aa9 defines model for Input_f063ff05b2157fb8f6176bbd7a336f91805d5c30366f9c24c986423e7cda8aa9.
+type InputF063ff05b2157fb8f6176bbd7a336f91805d5c30366f9c24c986423e7cda8aa9 struct {
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	Reason                 *string `json:"reason,omitempty"`
+	RequestedBy            *string `json:"requestedBy,omitempty"`
+}
+
+// Output06244387c0c9169e9e2dd8c303d1b08d7c46bddec31314baa7fdae523ab96371 defines model for Output_06244387c0c9169e9e2dd8c303d1b08d7c46bddec31314baa7fdae523ab96371.
+type Output06244387c0c9169e9e2dd8c303d1b08d7c46bddec31314baa7fdae523ab96371 struct {
+	CompletedAt    *time.Time                                                                `json:"completedAt,omitempty"`
+	CompletedCases int64                                                                     `json:"completedCases"`
+	CreatedAt      *time.Time                                                                `json:"createdAt,omitempty"`
+	CreatedBy      *string                                                                   `json:"createdBy,omitempty"`
+	Diagnostics    *[]Output1d9bf0079b94d75e2b9b7b33bb81b13886a46428db871596012139c64cc1a4d6 `json:"diagnostics,omitempty"`
+	Duration       *int64                                                                    `json:"duration,omitempty"`
+	Entries        int64                                                                     `json:"entries"`
+	MaxCases       *int64                                                                    `json:"maxCases,omitempty"`
+	PlanKey        string                                                                    `json:"planKey"`
+	PlannedCases   int64                                                                     `json:"plannedCases"`
+	ReportId       string                                                                    `json:"reportId"`
+	RequestedAt    time.Time                                                                 `json:"requestedAt"`
+	RequestedBy    string                                                                    `json:"requestedBy"`
+	RowLimit       *int64                                                                    `json:"rowLimit,omitempty"`
+	RunId          string                                                                    `json:"runId"`
+	SourceRevision int64                                                                     `json:"sourceRevision"`
+	SpecHash       string                                                                    `json:"specHash"`
+	StartedAt      *time.Time                                                                `json:"startedAt,omitempty"`
+	Status         string                                                                    `json:"status"`
+	Target         OutputEf553e0e338a00cf70d43289eb53e588abb65348804f4defbd8fd2ea4e5691ee    `json:"target"`
+	UpdatedAt      *time.Time                                                                `json:"updatedAt,omitempty"`
+	UpdatedBy      *string                                                                   `json:"updatedBy,omitempty"`
+	VersionNo      int64                                                                     `json:"versionNo"`
+}
+
+// Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886 defines model for Output_0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886.
+type Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886 struct {
+	EntityType *string                                                                      `json:"entityType,omitempty"`
+	Mode       string                                                                       `json:"mode"`
+	Rule       *Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule `json:"rule,omitempty"`
+}
+
+// Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1 defines model for Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886.Rule.1.
+type Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1 = map[string]interface{}
+
+// Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule defines model for Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886.Rule.
+type Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule struct {
+	union json.RawMessage
+}
+
+// Output074baefd6599537117e4be3e30019d7fdfbb35e35777792f4679dc2222339640 defines model for Output_074baefd6599537117e4be3e30019d7fdfbb35e35777792f4679dc2222339640.
+type Output074baefd6599537117e4be3e30019d7fdfbb35e35777792f4679dc2222339640 struct {
+	CanManage bool                                                                   `json:"canManage"`
+	Choices   OutputAd0a4d4d865750761deb4de5e00f7585ee52cb749d5292e61759c6762cd70937 `json:"choices"`
+	Source    string                                                                 `json:"source"`
+}
+
+// Output0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa defines model for Output_0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa.
+type Output0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa struct {
+	AuthenticationMode *string   `json:"authenticationMode,omitempty"`
+	CheckedAt          time.Time `json:"checkedAt"`
+	Revision           *int64    `json:"revision,omitempty"`
+	Status             string    `json:"status"`
+}
+
+// Output1777f5e244f91f0645bf7ef39ca23fb64c98c7f12533a1f1b43c45261f87381b defines model for Output_1777f5e244f91f0645bf7ef39ca23fb64c98c7f12533a1f1b43c45261f87381b.
+type Output1777f5e244f91f0645bf7ef39ca23fb64c98c7f12533a1f1b43c45261f87381b struct {
+	Id      string `json:"id"`
+	Kind    string `json:"kind"`
+	Tenant  string `json:"tenant"`
+	Version string `json:"version"`
+}
+
+// Output1d9bf0079b94d75e2b9b7b33bb81b13886a46428db871596012139c64cc1a4d6 defines model for Output_1d9bf0079b94d75e2b9b7b33bb81b13886a46428db871596012139c64cc1a4d6.
+type Output1d9bf0079b94d75e2b9b7b33bb81b13886a46428db871596012139c64cc1a4d6 struct {
+	Code     string  `json:"code"`
+	Column   *int64  `json:"column,omitempty"`
+	Hint     *string `json:"hint,omitempty"`
+	Line     *int64  `json:"line,omitempty"`
+	Message  string  `json:"message"`
+	Severity string  `json:"severity"`
+}
+
+// Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab defines model for Output_30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab.
+type Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab struct {
+	Entity *Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity `json:"entity,omitempty"`
+	Id     *string                                                                        `json:"id,omitempty"`
+	Label  string                                                                         `json:"label"`
+}
+
+// Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1 defines model for Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab.Entity.1.
+type Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1 = map[string]interface{}
+
+// Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity defines model for Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab.Entity.
+type Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity struct {
+	union json.RawMessage
+}
+
+// Output41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7 defines model for Output_41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7.
+type Output41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7 struct {
+	Id   string `json:"id"`
+	Type string `json:"type"`
+}
+
+// Output449a47a8e9ea6ae974f687ac5b55486e7e726cc8043ed75e896c8b78c8b99391 defines model for Output_449a47a8e9ea6ae974f687ac5b55486e7e726cc8043ed75e896c8b78c8b99391.
+type Output449a47a8e9ea6ae974f687ac5b55486e7e726cc8043ed75e896c8b78c8b99391 struct {
+	CacheName      *string `json:"cacheName,omitempty"`
+	CacheProvider  *string `json:"cacheProvider,omitempty"`
+	ConnectorName  *string `json:"connectorName,omitempty"`
+	IndexColumn    *string `json:"indexColumn,omitempty"`
+	IndexParameter *string `json:"indexParameter,omitempty"`
+	View           string  `json:"view"`
+}
+
+// Output4cf988a4800a68fa7db9d130c60eed0b35369d4c3fc9465e70d61b648bd34b6d defines model for Output_4cf988a4800a68fa7db9d130c60eed0b35369d4c3fc9465e70d61b648bd34b6d.
+type Output4cf988a4800a68fa7db9d130c60eed0b35369d4c3fc9465e70d61b648bd34b6d struct {
+	ActivatedAt     *time.Time                                                                `json:"activatedAt,omitempty"`
+	ComponentName   *string                                                                   `json:"componentName,omitempty"`
+	ConnectorName   string                                                                    `json:"connectorName"`
+	McpExposures    *[]OutputA6ddd7942c83fb7282623cfc58da6bae57f79a4f0284ea5b91cf55fb794dc186 `json:"mcpExposures,omitempty"`
+	McpResources    *[]Output8035fb9f56e2dfdb283039cb87b71ab1d5f6fa189d850d698929cee1b6b6464d `json:"mcpResources,omitempty"`
+	Namespace       string                                                                    `json:"namespace"`
+	OwnerPackage    string                                                                    `json:"ownerPackage"`
+	ReportId        string                                                                    `json:"reportId"`
+	RuntimeRevision *string                                                                   `json:"runtimeRevision,omitempty"`
+	Skills          *[]OutputF2954ccbc2dd12cce598727f4c49ad7d3d88f3404672f047b6fb03d041c024bf `json:"skills,omitempty"`
+	Status          string                                                                    `json:"status"`
+	Title           string                                                                    `json:"title"`
+	VersionNo       int64                                                                     `json:"versionNo"`
+}
+
+// Output4fd42d5ac7e58fb29e7ad717b49ad43d1aa3d0a32c5e034148c82bc6baebd5a8 defines model for Output_4fd42d5ac7e58fb29e7ad717b49ad43d1aa3d0a32c5e034148c82bc6baebd5a8.
+type Output4fd42d5ac7e58fb29e7ad717b49ad43d1aa3d0a32c5e034148c82bc6baebd5a8 struct {
+	Code     string  `json:"code"`
+	Column   *int64  `json:"column,omitempty"`
+	Hint     *string `json:"hint,omitempty"`
+	Line     *int64  `json:"line,omitempty"`
+	Message  string  `json:"message"`
+	Severity string  `json:"severity"`
+}
+
+// Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960 defines model for Output_507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960.
+type Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960 struct {
+	Entity *Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity `json:"entity,omitempty"`
+	Id     *string                                                                        `json:"id,omitempty"`
+	Label  string                                                                         `json:"label"`
+}
+
+// Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1 defines model for Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960.Entity.1.
+type Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1 = map[string]interface{}
+
+// Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity defines model for Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960.Entity.
+type Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity struct {
+	union json.RawMessage
+}
+
+// Output524acdde45b651c8bd48c66b53c101ffac146671a1ddce5c786a6ecbd96dbe58 defines model for Output_524acdde45b651c8bd48c66b53c101ffac146671a1ddce5c786a6ecbd96dbe58.
+type Output524acdde45b651c8bd48c66b53c101ffac146671a1ddce5c786a6ecbd96dbe58 struct {
+	Policies *map[string]Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886 `json:"policies"`
+	Resource OutputEb4292407d8e3ba03eb696194c02197306e42188fbc3037dfceabf2605138d24             `json:"resource"`
+	Revision int64                                                                              `json:"revision"`
+}
+
+// Output586257ec0a228d28fb8c1d7b9b6ceb924795c406b09d9a86111f39a56368b032 defines model for Output_586257ec0a228d28fb8c1d7b9b6ceb924795c406b09d9a86111f39a56368b032.
+type Output586257ec0a228d28fb8c1d7b9b6ceb924795c406b09d9a86111f39a56368b032 struct {
+	CompletedAt    *time.Time                                                                `json:"completedAt,omitempty"`
+	CompletedCases int64                                                                     `json:"completedCases"`
+	CreatedAt      *time.Time                                                                `json:"createdAt,omitempty"`
+	CreatedBy      *string                                                                   `json:"createdBy,omitempty"`
+	Diagnostics    *[]Output9e0f449c95fcfb4ee0592ebadf3e17adccbdc32fa89bf50ab9ae8511c2009041 `json:"diagnostics,omitempty"`
+	Duration       *int64                                                                    `json:"duration,omitempty"`
+	Entries        int64                                                                     `json:"entries"`
+	MaxCases       *int64                                                                    `json:"maxCases,omitempty"`
+	PlanKey        string                                                                    `json:"planKey"`
+	PlannedCases   int64                                                                     `json:"plannedCases"`
+	ReportId       string                                                                    `json:"reportId"`
+	RequestedAt    time.Time                                                                 `json:"requestedAt"`
+	RequestedBy    string                                                                    `json:"requestedBy"`
+	RowLimit       *int64                                                                    `json:"rowLimit,omitempty"`
+	RunId          string                                                                    `json:"runId"`
+	SourceRevision int64                                                                     `json:"sourceRevision"`
+	SpecHash       string                                                                    `json:"specHash"`
+	StartedAt      *time.Time                                                                `json:"startedAt,omitempty"`
+	Status         string                                                                    `json:"status"`
+	Target         Output449a47a8e9ea6ae974f687ac5b55486e7e726cc8043ed75e896c8b78c8b99391    `json:"target"`
+	UpdatedAt      *time.Time                                                                `json:"updatedAt,omitempty"`
+	UpdatedBy      *string                                                                   `json:"updatedBy,omitempty"`
+	VersionNo      int64                                                                     `json:"versionNo"`
+}
+
+// Output69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5 defines model for Output_69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5.
+type Output69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5 struct {
+	Id   string `json:"id"`
+	Type string `json:"type"`
+}
+
+// Output73a8618e3debe1667f7aafcc74ab58dec2fbd11494bb2e579aae6d2b58f205f3 defines model for Output_73a8618e3debe1667f7aafcc74ab58dec2fbd11494bb2e579aae6d2b58f205f3.
+type Output73a8618e3debe1667f7aafcc74ab58dec2fbd11494bb2e579aae6d2b58f205f3 struct {
+	CreatedAt         time.Time   `json:"createdAt"`
+	Description       *string     `json:"description,omitempty"`
+	Driver            string      `json:"driver"`
+	DsnConfigured     bool        `json:"dsnConfigured"`
+	Etag              int64       `json:"etag"`
+	LastTestErrorCode *string     `json:"lastTestErrorCode,omitempty"`
+	LastTestStatus    *string     `json:"lastTestStatus,omitempty"`
+	LastTestedAt      *time.Time  `json:"lastTestedAt,omitempty"`
+	Name              string      `json:"name"`
+	Options           interface{} `json:"options,omitempty"`
+	OwnerId           string      `json:"ownerId"`
+	SecretConfigured  bool        `json:"secretConfigured"`
+	Status            string      `json:"status"`
+	UpdatedAt         time.Time   `json:"updatedAt"`
+}
+
+// Output7f617ddc14b6df274d226551b825c90a4f977a14591bdfd1ddc94b5f6066bce5 defines model for Output_7f617ddc14b6df274d226551b825c90a4f977a14591bdfd1ddc94b5f6066bce5.
+type Output7f617ddc14b6df274d226551b825c90a4f977a14591bdfd1ddc94b5f6066bce5 struct {
+	ActiveGeneration  *int64     `json:"activeGeneration,omitempty"`
+	ActiveVersionNo   int64      `json:"activeVersionNo"`
+	DesiredGeneration int64      `json:"desiredGeneration"`
+	DesiredVersionNo  *int64     `json:"desiredVersionNo,omitempty"`
+	PublishedAt       *time.Time `json:"publishedAt,omitempty"`
+	ReportId          string     `json:"reportId"`
+	RuntimeRevision   *string    `json:"runtimeRevision,omitempty"`
+	SpecHash          *string    `json:"specHash,omitempty"`
+	Status            string     `json:"status"`
+}
+
+// Output8035fb9f56e2dfdb283039cb87b71ab1d5f6fa189d850d698929cee1b6b6464d defines model for Output_8035fb9f56e2dfdb283039cb87b71ab1d5f6fa189d850d698929cee1b6b6464d.
+type Output8035fb9f56e2dfdb283039cb87b71ab1d5f6fa189d850d698929cee1b6b6464d struct {
+	Namespace string `json:"namespace"`
+	RootPath  string `json:"rootPath"`
+	UriPrefix string `json:"uriPrefix"`
+}
+
+// Output886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303 defines model for Output_886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303.
+type Output886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303 struct {
+	Id   string `json:"id"`
+	Type string `json:"type"`
+}
+
+// Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f defines model for Output_88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f.
+type Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f struct {
+	Entity *Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity `json:"entity,omitempty"`
+	Kind   string                                                                         `json:"kind"`
+	Rules  *[]Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f      `json:"rules,omitempty"`
+	Value  *string                                                                        `json:"value,omitempty"`
+}
+
+// Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1 defines model for Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f.Entity.1.
+type Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1 = map[string]interface{}
+
+// Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity defines model for Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f.Entity.
+type Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity struct {
+	union json.RawMessage
+}
+
+// Output9e0f449c95fcfb4ee0592ebadf3e17adccbdc32fa89bf50ab9ae8511c2009041 defines model for Output_9e0f449c95fcfb4ee0592ebadf3e17adccbdc32fa89bf50ab9ae8511c2009041.
+type Output9e0f449c95fcfb4ee0592ebadf3e17adccbdc32fa89bf50ab9ae8511c2009041 struct {
+	Code     string  `json:"code"`
+	Column   *int64  `json:"column,omitempty"`
+	Hint     *string `json:"hint,omitempty"`
+	Line     *int64  `json:"line,omitempty"`
+	Message  string  `json:"message"`
+	Severity string  `json:"severity"`
+}
+
+// OutputA2a90743713296048071979d14b3abdfc10b4ee77e446ab9dbd7f2c07bbe7266 defines model for Output_a2a90743713296048071979d14b3abdfc10b4ee77e446ab9dbd7f2c07bbe7266.
+type OutputA2a90743713296048071979d14b3abdfc10b4ee77e446ab9dbd7f2c07bbe7266 struct {
+	ActiveGeneration  *int64     `json:"activeGeneration,omitempty"`
+	ActiveVersionNo   int64      `json:"activeVersionNo"`
+	DesiredGeneration int64      `json:"desiredGeneration"`
+	DesiredVersionNo  *int64     `json:"desiredVersionNo,omitempty"`
+	PublishedAt       *time.Time `json:"publishedAt,omitempty"`
+	ReportId          string     `json:"reportId"`
+	RuntimeRevision   *string    `json:"runtimeRevision,omitempty"`
+	SpecHash          *string    `json:"specHash,omitempty"`
+	Status            string     `json:"status"`
+}
+
+// OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d defines model for Output_a53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d.
+type OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d struct {
+	Entity *OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity `json:"entity,omitempty"`
+	Id     *string                                                                        `json:"id,omitempty"`
+	Label  string                                                                         `json:"label"`
+}
+
+// OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1 defines model for OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d.Entity.1.
+type OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1 = map[string]interface{}
+
+// OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity defines model for OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d.Entity.
+type OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity struct {
+	union json.RawMessage
+}
+
+// OutputA6ddd7942c83fb7282623cfc58da6bae57f79a4f0284ea5b91cf55fb794dc186 defines model for Output_a6ddd7942c83fb7282623cfc58da6bae57f79a4f0284ea5b91cf55fb794dc186.
+type OutputA6ddd7942c83fb7282623cfc58da6bae57f79a4f0284ea5b91cf55fb794dc186 struct {
+	Component   *string `json:"component,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Enabled     bool    `json:"enabled"`
+	Kind        string  `json:"kind"`
+	Method      string  `json:"method"`
+	MimeType    *string `json:"mimeType,omitempty"`
+	Name        string  `json:"name"`
+	Path        string  `json:"path"`
+}
+
+// OutputA717afc38cbc4d350bb71fb00cf76bef68daf27b4650120e47c4d8379356f11f defines model for Output_a717afc38cbc4d350bb71fb00cf76bef68daf27b4650120e47c4d8379356f11f.
+type OutputA717afc38cbc4d350bb71fb00cf76bef68daf27b4650120e47c4d8379356f11f struct {
+	ActiveGeneration  *int64     `json:"activeGeneration,omitempty"`
+	ActiveVersionNo   int64      `json:"activeVersionNo"`
+	DesiredGeneration int64      `json:"desiredGeneration"`
+	DesiredVersionNo  *int64     `json:"desiredVersionNo,omitempty"`
+	PublishedAt       *time.Time `json:"publishedAt,omitempty"`
+	ReportId          string     `json:"reportId"`
+	RuntimeRevision   *string    `json:"runtimeRevision,omitempty"`
+	SpecHash          *string    `json:"specHash,omitempty"`
+	Status            string     `json:"status"`
+}
+
+// OutputAd0a4d4d865750761deb4de5e00f7585ee52cb749d5292e61759c6762cd70937 defines model for Output_ad0a4d4d865750761deb4de5e00f7585ee52cb749d5292e61759c6762cd70937.
+type OutputAd0a4d4d865750761deb4de5e00f7585ee52cb749d5292e61759c6762cd70937 struct {
+	Entity      *[]Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960 `json:"entity"`
+	EntityTypes *[]string                                                                 `json:"entityTypes"`
+	Exposure    *[]Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab `json:"exposure"`
+	Role        *[]OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa `json:"role"`
+	Subject     *[]OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d `json:"subject"`
+}
+
+// OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688 defines model for Output_ad75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688.
+type OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688 struct {
+	ActivatedAt      *time.Time                                                                   `json:"activatedAt,omitempty"`
+	ActiveGeneration int64                                                                        `json:"activeGeneration"`
+	Diagnostics      *[]Output4fd42d5ac7e58fb29e7ad717b49ad43d1aa3d0a32c5e034148c82bc6baebd5a8    `json:"diagnostics,omitempty"`
+	Host             *OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688_Host `json:"host,omitempty"`
+	Readers          *[]Output4cf988a4800a68fa7db9d130c60eed0b35369d4c3fc9465e70d61b648bd34b6d    `json:"readers,omitempty"`
+	ReportCount      int64                                                                        `json:"reportCount"`
+	Status           string                                                                       `json:"status"`
+}
+
+// OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688Host1 defines model for OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688.Host.1.
+type OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688Host1 = map[string]interface{}
+
+// OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688_Host defines model for OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688.Host.
+type OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688_Host struct {
+	union json.RawMessage
+}
+
+// OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15 defines model for Output_cb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15.
+type OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15 struct {
+	Entity *OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity `json:"entity,omitempty"`
+	Kind   string                                                                         `json:"kind"`
+	Rules  *[]OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15      `json:"rules,omitempty"`
+	Value  *string                                                                        `json:"value,omitempty"`
+}
+
+// OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1 defines model for OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15.Entity.1.
+type OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1 = map[string]interface{}
+
+// OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity defines model for OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15.Entity.
+type OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity struct {
+	union json.RawMessage
+}
+
+// OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba defines model for Output_cefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba.
+type OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba struct {
+	EntityType *string                                                                      `json:"entityType,omitempty"`
+	Mode       string                                                                       `json:"mode"`
+	Rule       *OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule `json:"rule,omitempty"`
+}
+
+// OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1 defines model for OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba.Rule.1.
+type OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1 = map[string]interface{}
+
+// OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule defines model for OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba.Rule.
+type OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule struct {
+	union json.RawMessage
+}
+
+// OutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37 defines model for Output_d460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37.
+type OutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37 struct {
+	Id   string `json:"id"`
+	Type string `json:"type"`
+}
+
+// OutputD558223f5d3d6bca0e300c59f8e624af838223bc61f0cb8c88f09c757834ddaa defines model for Output_d558223f5d3d6bca0e300c59f8e624af838223bc61f0cb8c88f09c757834ddaa.
+type OutputD558223f5d3d6bca0e300c59f8e624af838223bc61f0cb8c88f09c757834ddaa struct {
+	CreatedAt   time.Time `json:"createdAt"`
+	Description *string   `json:"description,omitempty"`
+	Etag        int64     `json:"etag"`
+	Name        string    `json:"name"`
+	OwnerId     string    `json:"ownerId"`
+	Status      string    `json:"status"`
+	Title       string    `json:"title"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+}
+
+// OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa defines model for Output_d6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa.
+type OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa struct {
+	Entity *OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity `json:"entity,omitempty"`
+	Id     *string                                                                        `json:"id,omitempty"`
+	Label  string                                                                         `json:"label"`
+}
+
+// OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1 defines model for OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa.Entity.1.
+type OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1 = map[string]interface{}
+
+// OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity defines model for OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa.Entity.
+type OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity struct {
+	union json.RawMessage
+}
+
+// OutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed defines model for Output_d929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed.
+type OutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed struct {
+	Id   string `json:"id"`
+	Type string `json:"type"`
+}
+
+// OutputD94fe2c0f68aadd9d8fcacadf97221cae176cdc5a262134071dca8fa5d6e14ef defines model for Output_d94fe2c0f68aadd9d8fcacadf97221cae176cdc5a262134071dca8fa5d6e14ef.
+type OutputD94fe2c0f68aadd9d8fcacadf97221cae176cdc5a262134071dca8fa5d6e14ef struct {
+	Policies *map[string]OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba `json:"policies"`
+	Resource Output1777f5e244f91f0645bf7ef39ca23fb64c98c7f12533a1f1b43c45261f87381b             `json:"resource"`
+	Revision int64                                                                              `json:"revision"`
+}
+
+// OutputEb4292407d8e3ba03eb696194c02197306e42188fbc3037dfceabf2605138d24 defines model for Output_eb4292407d8e3ba03eb696194c02197306e42188fbc3037dfceabf2605138d24.
+type OutputEb4292407d8e3ba03eb696194c02197306e42188fbc3037dfceabf2605138d24 struct {
+	Id      string `json:"id"`
+	Kind    string `json:"kind"`
+	Tenant  string `json:"tenant"`
+	Version string `json:"version"`
+}
+
+// OutputEf553e0e338a00cf70d43289eb53e588abb65348804f4defbd8fd2ea4e5691ee defines model for Output_ef553e0e338a00cf70d43289eb53e588abb65348804f4defbd8fd2ea4e5691ee.
+type OutputEf553e0e338a00cf70d43289eb53e588abb65348804f4defbd8fd2ea4e5691ee struct {
+	CacheName      *string `json:"cacheName,omitempty"`
+	CacheProvider  *string `json:"cacheProvider,omitempty"`
+	ConnectorName  *string `json:"connectorName,omitempty"`
+	IndexColumn    *string `json:"indexColumn,omitempty"`
+	IndexParameter *string `json:"indexParameter,omitempty"`
+	View           string  `json:"view"`
+}
+
+// OutputF2954ccbc2dd12cce598727f4c49ad7d3d88f3404672f047b6fb03d041c024bf defines model for Output_f2954ccbc2dd12cce598727f4c49ad7d3d88f3404672f047b6fb03d041c024bf.
+type OutputF2954ccbc2dd12cce598727f4c49ad7d3d88f3404672f047b6fb03d041c024bf struct {
+	SkillId   string `json:"skillId"`
+	SkillRoot string `json:"skillRoot"`
+	UriPrefix string `json:"uriPrefix"`
+}
+
+// OutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0 defines model for Output_f9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0.
+type OutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0 struct {
+	Id   string `json:"id"`
+	Type string `json:"type"`
+}
+
+// Wire013ce40651897a22f1d0c9d5a29a86362333458b72c57acb30fa03a2473f08c6 defines model for Wire_013ce40651897a22f1d0c9d5a29a86362333458b72c57acb30fa03a2473f08c6.
+type Wire013ce40651897a22f1d0c9d5a29a86362333458b72c57acb30fa03a2473f08c6 struct {
+	CanEdit     bool   `json:"canEdit"`
+	CanPublish  bool   `json:"canPublish"`
+	CanRun      bool   `json:"canRun"`
+	CanUseDql   bool   `json:"canUseDql"`
+	CanView     bool   `json:"canView"`
+	Etag        int64  `json:"etag"`
+	ReportId    string `json:"reportId"`
+	SubjectId   string `json:"subjectId"`
+	SubjectType string `json:"subjectType"`
+}
+
+// Wire01a7a742a5dcd667da4d143e43944f269ae6e23b2952948e51d0b2791d2ed360 defines model for Wire_01a7a742a5dcd667da4d143e43944f269ae6e23b2952948e51d0b2791d2ed360.
+type Wire01a7a742a5dcd667da4d143e43944f269ae6e23b2952948e51d0b2791d2ed360 struct {
+	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
+	FolderId               string `json:"folderId"`
+	Namespace              string `json:"namespace"`
+	Ordinal                int64  `json:"ordinal"`
+	ReportId               string `json:"reportId"`
+	RootPath               string `json:"rootPath"`
+	UriPrefix              string `json:"uriPrefix"`
+	VersionNo              int64  `json:"versionNo"`
+}
+
+// Wire0279067683c20563aa495e8737a819024ba4eb59ced1e2723cda5eb5890cb742 defines model for Wire_0279067683c20563aa495e8737a819024ba4eb59ced1e2723cda5eb5890cb742.
+type Wire0279067683c20563aa495e8737a819024ba4eb59ced1e2723cda5eb5890cb742 struct {
+	AuthoredDql         *string     `json:"authoredDql,omitempty"`
+	AuthoredSql         *string     `json:"authoredSql,omitempty"`
+	AuthoringMode       string      `json:"authoringMode"`
+	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus       string      `json:"compileStatus"`
+	CompilerVersion     string      `json:"compilerVersion"`
+	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
+	CreatedAt           time.Time   `json:"createdAt"`
+	CreatedBy           string      `json:"createdBy"`
+	DatlyVersion        string      `json:"datlyVersion"`
+	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql        *string     `json:"generatedDql,omitempty"`
+	Notes               *string     `json:"notes,omitempty"`
+	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
+	ReportId            string      `json:"reportId"`
+	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision      int64       `json:"sourceRevision"`
+	SpecFormatVersion   string      `json:"specFormatVersion"`
+	SpecHash            string      `json:"specHash"`
+	State               string      `json:"state"`
+	TypeManifest        interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo           int64       `json:"versionNo"`
+}
+
+// Wire08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6 defines model for Wire_08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6.
+type Wire08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6 struct {
+	AuthoredDql         *string     `json:"authoredDql,omitempty"`
+	AuthoredSql         *string     `json:"authoredSql,omitempty"`
+	AuthoringMode       string      `json:"authoringMode"`
+	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus       string      `json:"compileStatus"`
+	CompilerVersion     string      `json:"compilerVersion"`
+	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
+	CreatedAt           time.Time   `json:"createdAt"`
+	CreatedBy           string      `json:"createdBy"`
+	DatlyVersion        string      `json:"datlyVersion"`
+	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql        *string     `json:"generatedDql,omitempty"`
+	Notes               *string     `json:"notes,omitempty"`
+	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
+	ReportId            string      `json:"reportId"`
+	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision      int64       `json:"sourceRevision"`
+	SpecFormatVersion   string      `json:"specFormatVersion"`
+	SpecHash            string      `json:"specHash"`
+	State               string      `json:"state"`
+	TypeManifest        interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo           int64       `json:"versionNo"`
+}
+
+// Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14 defines model for Wire_0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14.
+type Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14 struct {
+	Entries  *[]string                                                                    `json:"entries"`
+	EntryDql string                                                                       `json:"entryDql"`
+	Files    *[]string                                                                    `json:"files"`
+	Version  Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14_Version `json:"version"`
+}
+
+// Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14Version1 defines model for Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14.Version.1.
+type Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14Version1 = map[string]interface{}
+
+// Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14_Version defines model for Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14.Version.
+type Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14_Version struct {
+	union json.RawMessage
+}
+
+// Wire0f446f07ec6516f9b6a7f9e3de1d58abb30bb3608144fb80728627765378e04e defines model for Wire_0f446f07ec6516f9b6a7f9e3de1d58abb30bb3608144fb80728627765378e04e.
+type Wire0f446f07ec6516f9b6a7f9e3de1d58abb30bb3608144fb80728627765378e04e struct {
+	Data        interface{}                                                             `json:"data,omitempty"`
+	Diagnostics *[]Wire385cb42fa02eb6e798cbc1f7de0bcdf81fdec7bcc883dc0d6d67a2e6f9974852 `json:"diagnostics,omitempty"`
+	Duration    int64                                                                   `json:"duration"`
+	Evidence    WireEcc4d9a82e8b4cd1e3ac77d7fd7943319b31b3e82973c8afbcf0002138ddc950    `json:"evidence"`
+	View        string                                                                  `json:"view"`
+}
+
+// Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec defines model for Wire_13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec.
+type Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec struct {
+	Files   *[]Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Files_Item   `json:"files"`
+	Folders *[]Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Folders_Item `json:"folders"`
+	Skills  *[]Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Skills_Item  `json:"skills"`
+	Version *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Version        `json:"version,omitempty"`
+}
+
+// Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFiles1 defines model for Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec.Files.1.
+type Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFiles1 = map[string]interface{}
+
+// Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Files_Item defines model for Wire_13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec.files.Item.
+type Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Files_Item struct {
+	union json.RawMessage
+}
+
+// Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFolders1 defines model for Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec.Folders.1.
+type Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFolders1 = map[string]interface{}
+
+// Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Folders_Item defines model for Wire_13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec.folders.Item.
+type Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Folders_Item struct {
+	union json.RawMessage
+}
+
+// Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecSkills1 defines model for Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec.Skills.1.
+type Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecSkills1 = map[string]interface{}
+
+// Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Skills_Item defines model for Wire_13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec.skills.Item.
+type Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Skills_Item struct {
+	union json.RawMessage
+}
+
+// Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecVersion1 defines model for Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec.Version.1.
+type Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecVersion1 = map[string]interface{}
+
+// Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Version defines model for Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec.Version.
+type Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Version struct {
+	union json.RawMessage
+}
+
+// Wire15d90b839a0fff7f61055596a65a67fe8590915342e1278e39ef8abd4433ce14 defines model for Wire_15d90b839a0fff7f61055596a65a67fe8590915342e1278e39ef8abd4433ce14.
+type Wire15d90b839a0fff7f61055596a65a67fe8590915342e1278e39ef8abd4433ce14 struct {
+	Data     interface{} `json:"data,omitempty"`
+	Duration int64       `json:"duration"`
+}
+
+// Wire187f7f4691bae62916263844a31b0e52f2ac7573ba63a1dda0cfffa8610b0947 defines model for Wire_187f7f4691bae62916263844a31b0e52f2ac7573ba63a1dda0cfffa8610b0947.
+type Wire187f7f4691bae62916263844a31b0e52f2ac7573ba63a1dda0cfffa8610b0947 struct {
+	Code     string  `json:"code"`
+	Column   *int64  `json:"column,omitempty"`
+	Hint     *string `json:"hint,omitempty"`
+	Line     *int64  `json:"line,omitempty"`
+	Message  string  `json:"message"`
+	Severity string  `json:"severity"`
+}
+
+// Wire1a54346913f36c827b3cbb210b4e4062c2b4b68e415f006659f4a97f386665ac defines model for Wire_1a54346913f36c827b3cbb210b4e4062c2b4b68e415f006659f4a97f386665ac.
+type Wire1a54346913f36c827b3cbb210b4e4062c2b4b68e415f006659f4a97f386665ac struct {
+	AuthoredDql         *string     `json:"authoredDql,omitempty"`
+	AuthoredSql         *string     `json:"authoredSql,omitempty"`
+	AuthoringMode       string      `json:"authoringMode"`
+	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus       string      `json:"compileStatus"`
+	CompilerVersion     string      `json:"compilerVersion"`
+	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
+	CreatedAt           time.Time   `json:"createdAt"`
+	CreatedBy           string      `json:"createdBy"`
+	DatlyVersion        string      `json:"datlyVersion"`
+	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql        *string     `json:"generatedDql,omitempty"`
+	Notes               *string     `json:"notes,omitempty"`
+	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
+	ReportId            string      `json:"reportId"`
+	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision      int64       `json:"sourceRevision"`
+	SpecFormatVersion   string      `json:"specFormatVersion"`
+	SpecHash            string      `json:"specHash"`
+	State               string      `json:"state"`
+	TypeManifest        interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo           int64       `json:"versionNo"`
+}
+
+// Wire1ad149a06cfe9417562b1c9648e0b52832e72cfbf4e1ca313b15480e1aee3e75 defines model for Wire_1ad149a06cfe9417562b1c9648e0b52832e72cfbf4e1ca313b15480e1aee3e75.
+type Wire1ad149a06cfe9417562b1c9648e0b52832e72cfbf4e1ca313b15480e1aee3e75 struct {
+	Content                string  `json:"content"`
+	ContentSha256          string  `json:"contentSha256"`
+	ContentSize            int64   `json:"contentSize"`
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	IsBinary               bool    `json:"isBinary"`
+	MediaType              *string `json:"mediaType,omitempty"`
+	Namespace              string  `json:"namespace"`
+	ReportId               string  `json:"reportId"`
+	ResourceId             string  `json:"resourceId"`
+	ResourcePath           string  `json:"resourcePath"`
+	VersionNo              int64   `json:"versionNo"`
+}
+
+// Wire1e3fdf8fcb04453947f7d75766cc316e3e09d18591edbeef886727e071fe5f28 defines model for Wire_1e3fdf8fcb04453947f7d75766cc316e3e09d18591edbeef886727e071fe5f28.
+type Wire1e3fdf8fcb04453947f7d75766cc316e3e09d18591edbeef886727e071fe5f28 struct {
+	AuthoredDql         *string     `json:"authoredDql,omitempty"`
+	AuthoredSql         *string     `json:"authoredSql,omitempty"`
+	AuthoringMode       string      `json:"authoringMode"`
+	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus       string      `json:"compileStatus"`
+	CompilerVersion     string      `json:"compilerVersion"`
+	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
+	CreatedAt           time.Time   `json:"createdAt"`
+	CreatedBy           string      `json:"createdBy"`
+	DatlyVersion        string      `json:"datlyVersion"`
+	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql        *string     `json:"generatedDql,omitempty"`
+	Notes               *string     `json:"notes,omitempty"`
+	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
+	ReportId            string      `json:"reportId"`
+	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision      int64       `json:"sourceRevision"`
+	SpecFormatVersion   string      `json:"specFormatVersion"`
+	SpecHash            string      `json:"specHash"`
+	State               string      `json:"state"`
+	TypeManifest        interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo           int64       `json:"versionNo"`
 }
 
 // Wire1f5f473dc54ed2f6c617275d578b2307a69146cb2ce69ae058bffe57f5c226b4 defines model for Wire_1f5f473dc54ed2f6c617275d578b2307a69146cb2ce69ae058bffe57f5c226b4.
@@ -53,6 +1057,160 @@ type Wire221846f313892219b53265500a015547384983c9f728252d253349f904fb06a9 struct
 	VersionNo      *int64    `json:"versionNo,omitempty"`
 }
 
+// Wire239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691 defines model for Wire_239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691.
+type Wire239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691 struct {
+	AuthoredDql         *string     `json:"authoredDql,omitempty"`
+	AuthoredSql         *string     `json:"authoredSql,omitempty"`
+	AuthoringMode       string      `json:"authoringMode"`
+	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus       string      `json:"compileStatus"`
+	CompilerVersion     string      `json:"compilerVersion"`
+	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
+	CreatedAt           time.Time   `json:"createdAt"`
+	CreatedBy           string      `json:"createdBy"`
+	DatlyVersion        string      `json:"datlyVersion"`
+	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql        *string     `json:"generatedDql,omitempty"`
+	Notes               *string     `json:"notes,omitempty"`
+	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
+	ReportId            string      `json:"reportId"`
+	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision      int64       `json:"sourceRevision"`
+	SpecFormatVersion   string      `json:"specFormatVersion"`
+	SpecHash            string      `json:"specHash"`
+	State               string      `json:"state"`
+	TypeManifest        interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo           int64       `json:"versionNo"`
+}
+
+// Wire284d529f33778b8025eaf493c0c081fa071dfc15595367cd050c6aea84390073 defines model for Wire_284d529f33778b8025eaf493c0c081fa071dfc15595367cd050c6aea84390073.
+type Wire284d529f33778b8025eaf493c0c081fa071dfc15595367cd050c6aea84390073 struct {
+	AutoIncrement   bool    `json:"autoIncrement"`
+	Default         *string `json:"default,omitempty"`
+	Name            string  `json:"name"`
+	Nullable        bool    `json:"nullable"`
+	PrimaryKey      bool    `json:"primaryKey"`
+	ReferenceColumn *string `json:"referenceColumn,omitempty"`
+	ReferenceSchema *string `json:"referenceSchema,omitempty"`
+	ReferenceTable  *string `json:"referenceTable,omitempty"`
+	Type            string  `json:"type"`
+	Unique          bool    `json:"unique"`
+}
+
+// Wire294568d49a877156b6b68a28c348e5fea7b701056b2913f0e7fa40c588df81c7 defines model for Wire_294568d49a877156b6b68a28c348e5fea7b701056b2913f0e7fa40c588df81c7.
+type Wire294568d49a877156b6b68a28c348e5fea7b701056b2913f0e7fa40c588df81c7 struct {
+	Connector      *string `json:"connector,omitempty"`
+	EncodedBytes   int64   `json:"encodedBytes"`
+	Limit          int64   `json:"limit"`
+	ReportId       *string `json:"reportId,omitempty"`
+	ReturnedRows   int64   `json:"returnedRows"`
+	SourceRevision *int64  `json:"sourceRevision,omitempty"`
+	Truncated      bool    `json:"truncated"`
+	VersionNo      *int64  `json:"versionNo,omitempty"`
+}
+
+// Wire29994796c346a67d8d87067e8f62a29284fc2af12311fbab69bdf45b428e37f7 defines model for Wire_29994796c346a67d8d87067e8f62a29284fc2af12311fbab69bdf45b428e37f7.
+type Wire29994796c346a67d8d87067e8f62a29284fc2af12311fbab69bdf45b428e37f7 struct {
+	Connector      *string `json:"connector,omitempty"`
+	EncodedBytes   int64   `json:"encodedBytes"`
+	Limit          int64   `json:"limit"`
+	ReportId       *string `json:"reportId,omitempty"`
+	ReturnedRows   int64   `json:"returnedRows"`
+	SourceRevision *int64  `json:"sourceRevision,omitempty"`
+	Truncated      bool    `json:"truncated"`
+	VersionNo      *int64  `json:"versionNo,omitempty"`
+}
+
+// Wire2acc97d2ee9aa7bc9e3441531515d0f2360496ee2ee879ab35b383c390b7221e defines model for Wire_2acc97d2ee9aa7bc9e3441531515d0f2360496ee2ee879ab35b383c390b7221e.
+type Wire2acc97d2ee9aa7bc9e3441531515d0f2360496ee2ee879ab35b383c390b7221e struct {
+	Catalog *string `json:"catalog,omitempty"`
+	Name    string  `json:"name"`
+}
+
+// Wire2be0684fe50e4d50e1c7ed7799c8493f7a6fbfe50bcd3ecfc3b2241e765f60da defines model for Wire_2be0684fe50e4d50e1c7ed7799c8493f7a6fbfe50bcd3ecfc3b2241e765f60da.
+type Wire2be0684fe50e4d50e1c7ed7799c8493f7a6fbfe50bcd3ecfc3b2241e765f60da struct {
+	AttachedChildren int64                                                                   `json:"attachedChildren"`
+	Cardinality      string                                                                  `json:"cardinality"`
+	ChildView        string                                                                  `json:"childView"`
+	Data             interface{}                                                             `json:"data,omitempty"`
+	Diagnostics      *[]Wire42ea17da2b60208ef30858a88ede92d622320dba9d309726a67f3023fb8ab9e1 `json:"diagnostics,omitempty"`
+	Duration         int64                                                                   `json:"duration"`
+	Evidence         Wire294568d49a877156b6b68a28c348e5fea7b701056b2913f0e7fa40c588df81c7    `json:"evidence"`
+	Keys             *[]Wire6bdc906e5944153cacf17027ff97fe2e0524311a1c332c218e05c2fb3a05012d `json:"keys,omitempty"`
+	Kind             string                                                                  `json:"kind"`
+	MatchedParents   int64                                                                   `json:"matchedParents"`
+	ParentRows       int64                                                                   `json:"parentRows"`
+	ParentView       string                                                                  `json:"parentView"`
+	Relation         string                                                                  `json:"relation"`
+	UnmatchedParents int64                                                                   `json:"unmatchedParents"`
+}
+
+// Wire2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9 defines model for Wire_2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9.
+type Wire2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9 struct {
+	AuthoredDql         *string     `json:"authoredDql,omitempty"`
+	AuthoredSql         *string     `json:"authoredSql,omitempty"`
+	AuthoringMode       string      `json:"authoringMode"`
+	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus       string      `json:"compileStatus"`
+	CompilerVersion     string      `json:"compilerVersion"`
+	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
+	CreatedAt           time.Time   `json:"createdAt"`
+	CreatedBy           string      `json:"createdBy"`
+	DatlyVersion        string      `json:"datlyVersion"`
+	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql        *string     `json:"generatedDql,omitempty"`
+	Notes               *string     `json:"notes,omitempty"`
+	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
+	ReportId            string      `json:"reportId"`
+	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision      int64       `json:"sourceRevision"`
+	SpecFormatVersion   string      `json:"specFormatVersion"`
+	SpecHash            string      `json:"specHash"`
+	State               string      `json:"state"`
+	TypeManifest        interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo           int64       `json:"versionNo"`
+}
+
+// Wire3100c253c572f716ab2eb88f6d83d813eedfe0b04003220edb6e98677fced244 defines model for Wire_3100c253c572f716ab2eb88f6d83d813eedfe0b04003220edb6e98677fced244.
+type Wire3100c253c572f716ab2eb88f6d83d813eedfe0b04003220edb6e98677fced244 struct {
+	CanEdit      bool `json:"canEdit"`
+	CanManageAcl bool `json:"canManageAcl"`
+	CanPublish   bool `json:"canPublish"`
+	CanRun       bool `json:"canRun"`
+	CanUseDql    bool `json:"canUseDql"`
+	CanView      bool `json:"canView"`
+}
+
+// Wire3206393a34ac737dcd3540640044680ce7d2ad47a4b55b4a06e350301e8df7f7 defines model for Wire_3206393a34ac737dcd3540640044680ce7d2ad47a4b55b4a06e350301e8df7f7.
+type Wire3206393a34ac737dcd3540640044680ce7d2ad47a4b55b4a06e350301e8df7f7 struct {
+	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
+	FolderId               string `json:"folderId"`
+	Ordinal                int64  `json:"ordinal"`
+	ReportId               string `json:"reportId"`
+	SkillId                string `json:"skillId"`
+	SkillRoot              string `json:"skillRoot"`
+	VersionNo              int64  `json:"versionNo"`
+}
+
+// Wire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1 defines model for Wire_320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1.
+type Wire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1 struct {
+	Content                string  `json:"content"`
+	ContentSha256          string  `json:"contentSha256"`
+	ContentSize            int64   `json:"contentSize"`
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	IsBinary               bool    `json:"isBinary"`
+	MediaType              *string `json:"mediaType,omitempty"`
+	Namespace              string  `json:"namespace"`
+	ReportId               string  `json:"reportId"`
+	ResourceId             string  `json:"resourceId"`
+	ResourcePath           string  `json:"resourcePath"`
+	VersionNo              int64   `json:"versionNo"`
+}
+
 // Wire3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c defines model for Wire_3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c.
 type Wire3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c struct {
 	CanEdit     bool    `json:"canEdit"`
@@ -81,6 +1239,31 @@ type Wire33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58_Items_
 	union json.RawMessage
 }
 
+// Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052 defines model for Wire_34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052.
+type Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052 struct {
+	Items  *[]Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052_Items_Item `json:"items"`
+	Limit  int64                                                                              `json:"limit"`
+	Offset int64                                                                              `json:"offset"`
+}
+
+// Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052Items1 defines model for Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052.Items.1.
+type Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052Items1 = map[string]interface{}
+
+// Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052_Items_Item defines model for Wire_34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052.items.Item.
+type Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052_Items_Item struct {
+	union json.RawMessage
+}
+
+// Wire385cb42fa02eb6e798cbc1f7de0bcdf81fdec7bcc883dc0d6d67a2e6f9974852 defines model for Wire_385cb42fa02eb6e798cbc1f7de0bcdf81fdec7bcc883dc0d6d67a2e6f9974852.
+type Wire385cb42fa02eb6e798cbc1f7de0bcdf81fdec7bcc883dc0d6d67a2e6f9974852 struct {
+	Code     string  `json:"code"`
+	Column   *int64  `json:"column,omitempty"`
+	Hint     *string `json:"hint,omitempty"`
+	Line     *int64  `json:"line,omitempty"`
+	Message  string  `json:"message"`
+	Severity string  `json:"severity"`
+}
+
 // Wire38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a defines model for Wire_38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a.
 type Wire38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a struct {
 	Items  *[]Wire38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a_Items_Item `json:"items"`
@@ -96,6 +1279,144 @@ type Wire38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a_Items_
 	union json.RawMessage
 }
 
+// Wire3b57d303fc4270172c8dc3dcc384045b957738421bfa4726d93f6529707bb684 defines model for Wire_3b57d303fc4270172c8dc3dcc384045b957738421bfa4726d93f6529707bb684.
+type Wire3b57d303fc4270172c8dc3dcc384045b957738421bfa4726d93f6529707bb684 struct {
+	Catalog *string `json:"catalog,omitempty"`
+	Comment *string `json:"comment,omitempty"`
+	Name    string  `json:"name"`
+	Schema  *string `json:"schema,omitempty"`
+	Type    *string `json:"type,omitempty"`
+}
+
+// Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5 defines model for Wire_3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5.
+type Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5 struct {
+	Files   *[]Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Files_Item   `json:"files"`
+	Folders *[]Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Folders_Item `json:"folders"`
+	Skills  *[]Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Skills_Item  `json:"skills"`
+	Version *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Version        `json:"version,omitempty"`
+}
+
+// Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Files1 defines model for Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5.Files.1.
+type Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Files1 = map[string]interface{}
+
+// Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Files_Item defines model for Wire_3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5.files.Item.
+type Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Files_Item struct {
+	union json.RawMessage
+}
+
+// Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Folders1 defines model for Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5.Folders.1.
+type Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Folders1 = map[string]interface{}
+
+// Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Folders_Item defines model for Wire_3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5.folders.Item.
+type Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Folders_Item struct {
+	union json.RawMessage
+}
+
+// Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Skills1 defines model for Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5.Skills.1.
+type Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Skills1 = map[string]interface{}
+
+// Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Skills_Item defines model for Wire_3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5.skills.Item.
+type Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Skills_Item struct {
+	union json.RawMessage
+}
+
+// Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Version1 defines model for Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5.Version.1.
+type Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Version1 = map[string]interface{}
+
+// Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Version defines model for Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5.Version.
+type Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Version struct {
+	union json.RawMessage
+}
+
+// Wire42ea17da2b60208ef30858a88ede92d622320dba9d309726a67f3023fb8ab9e1 defines model for Wire_42ea17da2b60208ef30858a88ede92d622320dba9d309726a67f3023fb8ab9e1.
+type Wire42ea17da2b60208ef30858a88ede92d622320dba9d309726a67f3023fb8ab9e1 struct {
+	Code     string  `json:"code"`
+	Column   *int64  `json:"column,omitempty"`
+	Hint     *string `json:"hint,omitempty"`
+	Line     *int64  `json:"line,omitempty"`
+	Message  string  `json:"message"`
+	Severity string  `json:"severity"`
+}
+
+// Wire443bbe5c4c72f351c9a66a106cdb43706c944ab1d042017ad7a9092b72d13f21 defines model for Wire_443bbe5c4c72f351c9a66a106cdb43706c944ab1d042017ad7a9092b72d13f21.
+type Wire443bbe5c4c72f351c9a66a106cdb43706c944ab1d042017ad7a9092b72d13f21 struct {
+	ComponentName        string    `json:"componentName"`
+	ComponentScope       string    `json:"componentScope"`
+	CreatedAt            time.Time `json:"createdAt"`
+	CurrentDraftVersion  *int64    `json:"currentDraftVersion,omitempty"`
+	DefaultConnectorName string    `json:"defaultConnectorName"`
+	Description          *string   `json:"description,omitempty"`
+	Etag                 int64     `json:"etag"`
+	Id                   string    `json:"id"`
+	Namespace            string    `json:"namespace"`
+	OwnerId              string    `json:"ownerId"`
+	OwnerPackage         string    `json:"ownerPackage"`
+	Slug                 string    `json:"slug"`
+	Status               string    `json:"status"`
+	Title                string    `json:"title"`
+	UpdatedAt            time.Time `json:"updatedAt"`
+}
+
+// Wire460cf67195fceed0e09647cd2eec9022848f4fecb76be30099431c098e162bea defines model for Wire_460cf67195fceed0e09647cd2eec9022848f4fecb76be30099431c098e162bea.
+type Wire460cf67195fceed0e09647cd2eec9022848f4fecb76be30099431c098e162bea struct {
+	Archive   *[]int    `json:"archive"`
+	EntryDql  string    `json:"entryDql"`
+	Filename  string    `json:"filename"`
+	Files     *[]string `json:"files"`
+	MediaType string    `json:"mediaType"`
+}
+
+// Wire46f5783921089422ba86ef3f21455336f0870921db6e2dac69f80e6517b1e68a defines model for Wire_46f5783921089422ba86ef3f21455336f0870921db6e2dac69f80e6517b1e68a.
+type Wire46f5783921089422ba86ef3f21455336f0870921db6e2dac69f80e6517b1e68a struct {
+	Alias       *string   `json:"alias,omitempty"`
+	Columns     *[]string `json:"columns,omitempty"`
+	CreatedAt   time.Time `json:"createdAt"`
+	Description *string   `json:"description,omitempty"`
+	Etag        int64     `json:"etag"`
+	Linked      bool      `json:"linked"`
+	Name        string    `json:"name"`
+	OwnerId     string    `json:"ownerId"`
+	PackagePath string    `json:"packagePath"`
+	Status      string    `json:"status"`
+	Title       string    `json:"title"`
+	TypeName    string    `json:"typeName"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+}
+
+// Wire474ce95df76d3333c947a6bd85c78ed4cfb5130d19fec59f6b436e1accd11e9a defines model for Wire_474ce95df76d3333c947a6bd85c78ed4cfb5130d19fec59f6b436e1accd11e9a.
+type Wire474ce95df76d3333c947a6bd85c78ed4cfb5130d19fec59f6b436e1accd11e9a struct {
+	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
+	FolderId               string `json:"folderId"`
+	Namespace              string `json:"namespace"`
+	Ordinal                int64  `json:"ordinal"`
+	ReportId               string `json:"reportId"`
+	RootPath               string `json:"rootPath"`
+	UriPrefix              string `json:"uriPrefix"`
+	VersionNo              int64  `json:"versionNo"`
+}
+
+// Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a defines model for Wire_48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a.
+type Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a struct {
+	Diagnostics *[]Wire187f7f4691bae62916263844a31b0e52f2ac7573ba63a1dda0cfffa8610b0947      `json:"diagnostics,omitempty"`
+	Valid       bool                                                                         `json:"valid"`
+	Version     Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a_Version `json:"version"`
+}
+
+// Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443aVersion1 defines model for Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a.Version.1.
+type Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443aVersion1 = map[string]interface{}
+
+// Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a_Version defines model for Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a.Version.
+type Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a_Version struct {
+	union json.RawMessage
+}
+
+// Wire4865103e82a353748c5cf4c44eb18159e252732c3c48350fe8b3411c3af62117 defines model for Wire_4865103e82a353748c5cf4c44eb18159e252732c3c48350fe8b3411c3af62117.
+type Wire4865103e82a353748c5cf4c44eb18159e252732c3c48350fe8b3411c3af62117 struct {
+	Component interface{} `json:"component"`
+	Resources interface{} `json:"resources,omitempty"`
+	Types     interface{} `json:"types,omitempty"`
+}
+
 // Wire49feff8d08df046f25f5c6fbb141c3c4b50c39af0dea56aec129e11334a944e0 defines model for Wire_49feff8d08df046f25f5c6fbb141c3c4b50c39af0dea56aec129e11334a944e0.
 type Wire49feff8d08df046f25f5c6fbb141c3c4b50c39af0dea56aec129e11334a944e0 struct {
 	ActiveGeneration  *int64     `json:"activeGeneration,omitempty"`
@@ -107,6 +1428,374 @@ type Wire49feff8d08df046f25f5c6fbb141c3c4b50c39af0dea56aec129e11334a944e0 struct
 	RuntimeRevision   *string    `json:"runtimeRevision,omitempty"`
 	SpecHash          *string    `json:"specHash,omitempty"`
 	Status            string     `json:"status"`
+}
+
+// Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf defines model for Wire_4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf.
+type Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf struct {
+	Files   *[]Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Files_Item   `json:"files"`
+	Folders *[]Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Folders_Item `json:"folders"`
+	Skills  *[]Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Skills_Item  `json:"skills"`
+	Version *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Version        `json:"version,omitempty"`
+}
+
+// Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFiles1 defines model for Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf.Files.1.
+type Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFiles1 = map[string]interface{}
+
+// Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Files_Item defines model for Wire_4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf.files.Item.
+type Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Files_Item struct {
+	union json.RawMessage
+}
+
+// Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFolders1 defines model for Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf.Folders.1.
+type Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFolders1 = map[string]interface{}
+
+// Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Folders_Item defines model for Wire_4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf.folders.Item.
+type Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Folders_Item struct {
+	union json.RawMessage
+}
+
+// Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfSkills1 defines model for Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf.Skills.1.
+type Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfSkills1 = map[string]interface{}
+
+// Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Skills_Item defines model for Wire_4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf.skills.Item.
+type Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Skills_Item struct {
+	union json.RawMessage
+}
+
+// Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfVersion1 defines model for Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf.Version.1.
+type Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfVersion1 = map[string]interface{}
+
+// Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Version defines model for Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf.Version.
+type Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Version struct {
+	union json.RawMessage
+}
+
+// Wire503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478 defines model for Wire_503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478.
+type Wire503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478 struct {
+	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
+	FolderId               string `json:"folderId"`
+	Namespace              string `json:"namespace"`
+	Ordinal                int64  `json:"ordinal"`
+	ReportId               string `json:"reportId"`
+	RootPath               string `json:"rootPath"`
+	UriPrefix              string `json:"uriPrefix"`
+	VersionNo              int64  `json:"versionNo"`
+}
+
+// Wire51bb1f0871dac81cba14ebfac4fc554d215315e30cd3b214596b5da0912a4710 defines model for Wire_51bb1f0871dac81cba14ebfac4fc554d215315e30cd3b214596b5da0912a4710.
+type Wire51bb1f0871dac81cba14ebfac4fc554d215315e30cd3b214596b5da0912a4710 struct {
+	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
+	FolderId               string `json:"folderId"`
+	Ordinal                int64  `json:"ordinal"`
+	ReportId               string `json:"reportId"`
+	SkillId                string `json:"skillId"`
+	SkillRoot              string `json:"skillRoot"`
+	VersionNo              int64  `json:"versionNo"`
+}
+
+// Wire54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe defines model for Wire_54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe.
+type Wire54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe struct {
+	AuthoredDql         *string     `json:"authoredDql,omitempty"`
+	AuthoredSql         *string     `json:"authoredSql,omitempty"`
+	AuthoringMode       string      `json:"authoringMode"`
+	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus       string      `json:"compileStatus"`
+	CompilerVersion     string      `json:"compilerVersion"`
+	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
+	CreatedAt           time.Time   `json:"createdAt"`
+	CreatedBy           string      `json:"createdBy"`
+	DatlyVersion        string      `json:"datlyVersion"`
+	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql        *string     `json:"generatedDql,omitempty"`
+	Notes               *string     `json:"notes,omitempty"`
+	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
+	ReportId            string      `json:"reportId"`
+	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision      int64       `json:"sourceRevision"`
+	SpecFormatVersion   string      `json:"specFormatVersion"`
+	SpecHash            string      `json:"specHash"`
+	State               string      `json:"state"`
+	TypeManifest        interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo           int64       `json:"versionNo"`
+}
+
+// Wire59787f7087b974a90942d4d67d870a8382b1189efe4cc88cfba1b0ada4d89c75 defines model for Wire_59787f7087b974a90942d4d67d870a8382b1189efe4cc88cfba1b0ada4d89c75.
+type Wire59787f7087b974a90942d4d67d870a8382b1189efe4cc88cfba1b0ada4d89c75 struct {
+	AuthoredDql         *string     `json:"authoredDql,omitempty"`
+	AuthoredSql         *string     `json:"authoredSql,omitempty"`
+	AuthoringMode       string      `json:"authoringMode"`
+	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus       string      `json:"compileStatus"`
+	CompilerVersion     string      `json:"compilerVersion"`
+	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
+	CreatedAt           time.Time   `json:"createdAt"`
+	CreatedBy           string      `json:"createdBy"`
+	DatlyVersion        string      `json:"datlyVersion"`
+	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql        *string     `json:"generatedDql,omitempty"`
+	Notes               *string     `json:"notes,omitempty"`
+	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
+	ReportId            string      `json:"reportId"`
+	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision      int64       `json:"sourceRevision"`
+	SpecFormatVersion   string      `json:"specFormatVersion"`
+	SpecHash            string      `json:"specHash"`
+	State               string      `json:"state"`
+	TypeManifest        interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo           int64       `json:"versionNo"`
+}
+
+// Wire5dcb9a5385549159028a02b9f90b5f85b74ea0076b725bce7e222e5cfe3ae71e defines model for Wire_5dcb9a5385549159028a02b9f90b5f85b74ea0076b725bce7e222e5cfe3ae71e.
+type Wire5dcb9a5385549159028a02b9f90b5f85b74ea0076b725bce7e222e5cfe3ae71e struct {
+	Code     string  `json:"code"`
+	Column   *int64  `json:"column,omitempty"`
+	Hint     *string `json:"hint,omitempty"`
+	Line     *int64  `json:"line,omitempty"`
+	Message  string  `json:"message"`
+	Severity string  `json:"severity"`
+}
+
+// Wire60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac defines model for Wire_60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac.
+type Wire60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac struct {
+	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
+	FolderId               string `json:"folderId"`
+	Ordinal                int64  `json:"ordinal"`
+	ReportId               string `json:"reportId"`
+	SkillId                string `json:"skillId"`
+	SkillRoot              string `json:"skillRoot"`
+	VersionNo              int64  `json:"versionNo"`
+}
+
+// Wire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930 defines model for Wire_62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930.
+type Wire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930 struct {
+	AuthoredDql         *string     `json:"authoredDql,omitempty"`
+	AuthoredSql         *string     `json:"authoredSql,omitempty"`
+	AuthoringMode       string      `json:"authoringMode"`
+	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus       string      `json:"compileStatus"`
+	CompilerVersion     string      `json:"compilerVersion"`
+	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
+	CreatedAt           time.Time   `json:"createdAt"`
+	CreatedBy           string      `json:"createdBy"`
+	DatlyVersion        string      `json:"datlyVersion"`
+	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql        *string     `json:"generatedDql,omitempty"`
+	Notes               *string     `json:"notes,omitempty"`
+	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
+	ReportId            string      `json:"reportId"`
+	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision      int64       `json:"sourceRevision"`
+	SpecFormatVersion   string      `json:"specFormatVersion"`
+	SpecHash            string      `json:"specHash"`
+	State               string      `json:"state"`
+	TypeManifest        interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo           int64       `json:"versionNo"`
+}
+
+// Wire62d79acead49ba0d84d3fe813a8d59b4a26f710c0953ffa167816798ed0333f5 defines model for Wire_62d79acead49ba0d84d3fe813a8d59b4a26f710c0953ffa167816798ed0333f5.
+type Wire62d79acead49ba0d84d3fe813a8d59b4a26f710c0953ffa167816798ed0333f5 struct {
+	ErrorCode *string   `json:"errorCode,omitempty"`
+	Message   *string   `json:"message,omitempty"`
+	Name      string    `json:"name"`
+	Status    string    `json:"status"`
+	TestedAt  time.Time `json:"testedAt"`
+}
+
+// Wire65b20b1db94b9a2b772bc75cedde285454a5204dc72354f579cf1fe7fcc34b2b defines model for Wire_65b20b1db94b9a2b772bc75cedde285454a5204dc72354f579cf1fe7fcc34b2b.
+type Wire65b20b1db94b9a2b772bc75cedde285454a5204dc72354f579cf1fe7fcc34b2b struct {
+	Items  *[]Wire3b57d303fc4270172c8dc3dcc384045b957738421bfa4726d93f6529707bb684 `json:"items"`
+	Limit  int64                                                                   `json:"limit"`
+	Offset int64                                                                   `json:"offset"`
+}
+
+// Wire686013a325c9be56a2c1decb9988b4f5c30a411074c3d70e9552eecf4ae1fd87 defines model for Wire_686013a325c9be56a2c1decb9988b4f5c30a411074c3d70e9552eecf4ae1fd87.
+type Wire686013a325c9be56a2c1decb9988b4f5c30a411074c3d70e9552eecf4ae1fd87 struct {
+	Alias       *string   `json:"alias,omitempty"`
+	Columns     *[]string `json:"columns,omitempty"`
+	CreatedAt   time.Time `json:"createdAt"`
+	Description *string   `json:"description,omitempty"`
+	Etag        int64     `json:"etag"`
+	Linked      bool      `json:"linked"`
+	Name        string    `json:"name"`
+	OwnerId     string    `json:"ownerId"`
+	PackagePath string    `json:"packagePath"`
+	Status      string    `json:"status"`
+	Title       string    `json:"title"`
+	TypeName    string    `json:"typeName"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+}
+
+// Wire6bdc906e5944153cacf17027ff97fe2e0524311a1c332c218e05c2fb3a05012d defines model for Wire_6bdc906e5944153cacf17027ff97fe2e0524311a1c332c218e05c2fb3a05012d.
+type Wire6bdc906e5944153cacf17027ff97fe2e0524311a1c332c218e05c2fb3a05012d struct {
+	ChildColumn  string `json:"childColumn"`
+	ParentColumn string `json:"parentColumn"`
+}
+
+// Wire6e57275ee6e6e1b65e583eed6459bd78d0642e1645c5d8207588a42c34b4171d defines model for Wire_6e57275ee6e6e1b65e583eed6459bd78d0642e1645c5d8207588a42c34b4171d.
+type Wire6e57275ee6e6e1b65e583eed6459bd78d0642e1645c5d8207588a42c34b4171d struct {
+	Content                string  `json:"content"`
+	ContentSha256          string  `json:"contentSha256"`
+	ContentSize            int64   `json:"contentSize"`
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	IsBinary               bool    `json:"isBinary"`
+	MediaType              *string `json:"mediaType,omitempty"`
+	Namespace              string  `json:"namespace"`
+	ReportId               string  `json:"reportId"`
+	ResourceId             string  `json:"resourceId"`
+	ResourcePath           string  `json:"resourcePath"`
+	VersionNo              int64   `json:"versionNo"`
+}
+
+// Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad defines model for Wire_71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad.
+type Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad struct {
+	Capabilities WireC47cf46b58e263ed665fbdce50f43ecc62642c4837741ba43aaa439c1623d39c         `json:"capabilities"`
+	Diagnostics  *[]Wire878bfd02a12294e26d1a40f1b673a231fa11c24402268d818f39f80be43c86f9      `json:"diagnostics,omitempty"`
+	Dql          *string                                                                      `json:"dql,omitempty"`
+	Structure    interface{}                                                                  `json:"structure,omitempty"`
+	Version      Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version `json:"version"`
+}
+
+// Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adVersion1 defines model for Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad.Version.1.
+type Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adVersion1 = map[string]interface{}
+
+// Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version defines model for Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad.Version.
+type Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version struct {
+	union json.RawMessage
+}
+
+// Wire71b9c50025fc3648b345ae243800bd532fec6cda9e9aadc6e7a02d452d1d70ea defines model for Wire_71b9c50025fc3648b345ae243800bd532fec6cda9e9aadc6e7a02d452d1d70ea.
+type Wire71b9c50025fc3648b345ae243800bd532fec6cda9e9aadc6e7a02d452d1d70ea struct {
+	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
+	FolderId               string `json:"folderId"`
+	Namespace              string `json:"namespace"`
+	Ordinal                int64  `json:"ordinal"`
+	ReportId               string `json:"reportId"`
+	RootPath               string `json:"rootPath"`
+	UriPrefix              string `json:"uriPrefix"`
+	VersionNo              int64  `json:"versionNo"`
+}
+
+// Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73 defines model for Wire_721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73.
+type Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73 struct {
+	Files   *[]Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Files_Item   `json:"files"`
+	Folders *[]Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Folders_Item `json:"folders"`
+	Skills  *[]Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Skills_Item  `json:"skills"`
+	Version *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Version        `json:"version,omitempty"`
+}
+
+// Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Files1 defines model for Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73.Files.1.
+type Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Files1 = map[string]interface{}
+
+// Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Files_Item defines model for Wire_721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73.files.Item.
+type Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Files_Item struct {
+	union json.RawMessage
+}
+
+// Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Folders1 defines model for Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73.Folders.1.
+type Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Folders1 = map[string]interface{}
+
+// Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Folders_Item defines model for Wire_721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73.folders.Item.
+type Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Folders_Item struct {
+	union json.RawMessage
+}
+
+// Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Skills1 defines model for Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73.Skills.1.
+type Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Skills1 = map[string]interface{}
+
+// Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Skills_Item defines model for Wire_721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73.skills.Item.
+type Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Skills_Item struct {
+	union json.RawMessage
+}
+
+// Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Version1 defines model for Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73.Version.1.
+type Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Version1 = map[string]interface{}
+
+// Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Version defines model for Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73.Version.
+type Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Version struct {
+	union json.RawMessage
+}
+
+// Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58 defines model for Wire_73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58.
+type Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58 struct {
+	Applied    bool                                                                            `json:"applied"`
+	Inspection Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58_Inspection `json:"inspection"`
+}
+
+// Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58Inspection1 defines model for Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58.Inspection.1.
+type Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58Inspection1 = map[string]interface{}
+
+// Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58_Inspection defines model for Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58.Inspection.
+type Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58_Inspection struct {
+	union json.RawMessage
+}
+
+// Wire7500b9317030713f187b24a1e5fdc5a3b126e5bb2b5fb59f60d5b9d5be652a23 defines model for Wire_7500b9317030713f187b24a1e5fdc5a3b126e5bb2b5fb59f60d5b9d5be652a23.
+type Wire7500b9317030713f187b24a1e5fdc5a3b126e5bb2b5fb59f60d5b9d5be652a23 struct {
+	CreatedAt         time.Time   `json:"createdAt"`
+	Description       *string     `json:"description,omitempty"`
+	Driver            string      `json:"driver"`
+	DsnConfigured     bool        `json:"dsnConfigured"`
+	Etag              int64       `json:"etag"`
+	LastTestErrorCode *string     `json:"lastTestErrorCode,omitempty"`
+	LastTestStatus    *string     `json:"lastTestStatus,omitempty"`
+	LastTestedAt      *time.Time  `json:"lastTestedAt,omitempty"`
+	Name              string      `json:"name"`
+	Options           interface{} `json:"options,omitempty"`
+	OwnerId           string      `json:"ownerId"`
+	SecretConfigured  bool        `json:"secretConfigured"`
+	Status            string      `json:"status"`
+	UpdatedAt         time.Time   `json:"updatedAt"`
+}
+
+// Wire77752153da43bb0addc9d671944e117883dbc02c23b23f9dead496b805929938 defines model for Wire_77752153da43bb0addc9d671944e117883dbc02c23b23f9dead496b805929938.
+type Wire77752153da43bb0addc9d671944e117883dbc02c23b23f9dead496b805929938 struct {
+	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
+	FolderId               string `json:"folderId"`
+	Namespace              string `json:"namespace"`
+	Ordinal                int64  `json:"ordinal"`
+	ReportId               string `json:"reportId"`
+	RootPath               string `json:"rootPath"`
+	UriPrefix              string `json:"uriPrefix"`
+	VersionNo              int64  `json:"versionNo"`
+}
+
+// Wire777f17beb973ceea33d037ba165a4751392efacdd3a1e9425eb0da2b7461ba6e defines model for Wire_777f17beb973ceea33d037ba165a4751392efacdd3a1e9425eb0da2b7461ba6e.
+type Wire777f17beb973ceea33d037ba165a4751392efacdd3a1e9425eb0da2b7461ba6e struct {
+	CreatedAt         time.Time   `json:"createdAt"`
+	Description       *string     `json:"description,omitempty"`
+	Driver            string      `json:"driver"`
+	DsnConfigured     bool        `json:"dsnConfigured"`
+	Etag              int64       `json:"etag"`
+	LastTestErrorCode *string     `json:"lastTestErrorCode,omitempty"`
+	LastTestStatus    *string     `json:"lastTestStatus,omitempty"`
+	LastTestedAt      *time.Time  `json:"lastTestedAt,omitempty"`
+	Name              string      `json:"name"`
+	Options           interface{} `json:"options,omitempty"`
+	OwnerId           string      `json:"ownerId"`
+	SecretConfigured  bool        `json:"secretConfigured"`
+	Status            string      `json:"status"`
+	UpdatedAt         time.Time   `json:"updatedAt"`
+}
+
+// Wire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e defines model for Wire_7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e.
+type Wire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e struct {
+	Content                string  `json:"content"`
+	ContentSha256          string  `json:"contentSha256"`
+	ContentSize            int64   `json:"contentSize"`
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	IsBinary               bool    `json:"isBinary"`
+	MediaType              *string `json:"mediaType,omitempty"`
+	Namespace              string  `json:"namespace"`
+	ReportId               string  `json:"reportId"`
+	ResourceId             string  `json:"resourceId"`
+	ResourcePath           string  `json:"resourcePath"`
+	VersionNo              int64   `json:"versionNo"`
 }
 
 // Wire7be315ac587bc72247d0b72942b7067d644f15c0e04a4011f74ffec56d000203 defines model for Wire_7be315ac587bc72247d0b72942b7067d644f15c0e04a4011f74ffec56d000203.
@@ -127,6 +1816,31 @@ type Wire7be315ac587bc72247d0b72942b7067d644f15c0e04a4011f74ffec56d000203 struct
 	UpdatedAt         time.Time   `json:"updatedAt"`
 }
 
+// Wire7d83e432dba96d596847d8df2f770054a4188b355ed704d691dff2a9d8f991ee defines model for Wire_7d83e432dba96d596847d8df2f770054a4188b355ed704d691dff2a9d8f991ee.
+type Wire7d83e432dba96d596847d8df2f770054a4188b355ed704d691dff2a9d8f991ee struct {
+	Code     string  `json:"code"`
+	Column   *int64  `json:"column,omitempty"`
+	Hint     *string `json:"hint,omitempty"`
+	Line     *int64  `json:"line,omitempty"`
+	Message  string  `json:"message"`
+	Severity string  `json:"severity"`
+}
+
+// Wire7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6 defines model for Wire_7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6.
+type Wire7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6 struct {
+	Content                string  `json:"content"`
+	ContentSha256          string  `json:"contentSha256"`
+	ContentSize            int64   `json:"contentSize"`
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	IsBinary               bool    `json:"isBinary"`
+	MediaType              *string `json:"mediaType,omitempty"`
+	Namespace              string  `json:"namespace"`
+	ReportId               string  `json:"reportId"`
+	ResourceId             string  `json:"resourceId"`
+	ResourcePath           string  `json:"resourcePath"`
+	VersionNo              int64   `json:"versionNo"`
+}
+
 // Wire7f614c3079e0f6cdc356ae6e7e44a326c9b77ae75d9bed109251680a65f23b71 defines model for Wire_7f614c3079e0f6cdc356ae6e7e44a326c9b77ae75d9bed109251680a65f23b71.
 type Wire7f614c3079e0f6cdc356ae6e7e44a326c9b77ae75d9bed109251680a65f23b71 struct {
 	CreatedAt         time.Time   `json:"createdAt"`
@@ -145,6 +1859,124 @@ type Wire7f614c3079e0f6cdc356ae6e7e44a326c9b77ae75d9bed109251680a65f23b71 struct
 	UpdatedAt         time.Time   `json:"updatedAt"`
 }
 
+// Wire8147805369c129ab8a8ae87482dbb8be4c51d1125dda4427e8adca5f845d6a7b defines model for Wire_8147805369c129ab8a8ae87482dbb8be4c51d1125dda4427e8adca5f845d6a7b.
+type Wire8147805369c129ab8a8ae87482dbb8be4c51d1125dda4427e8adca5f845d6a7b struct {
+	Data        interface{}                                                             `json:"data,omitempty"`
+	Diagnostics *[]WireF9bfe019ac3bc8cf27b88f9b16d1f9a636d24292970f41843ad5f4eba742d99b `json:"diagnostics,omitempty"`
+	Duration    int64                                                                   `json:"duration"`
+}
+
+// Wire878bfd02a12294e26d1a40f1b673a231fa11c24402268d818f39f80be43c86f9 defines model for Wire_878bfd02a12294e26d1a40f1b673a231fa11c24402268d818f39f80be43c86f9.
+type Wire878bfd02a12294e26d1a40f1b673a231fa11c24402268d818f39f80be43c86f9 struct {
+	Code     string  `json:"code"`
+	Column   *int64  `json:"column,omitempty"`
+	Hint     *string `json:"hint,omitempty"`
+	Line     *int64  `json:"line,omitempty"`
+	Message  string  `json:"message"`
+	Severity string  `json:"severity"`
+}
+
+// Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c defines model for Wire_898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c.
+type Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c struct {
+	Files   *[]Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Files_Item   `json:"files"`
+	Folders *[]Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Folders_Item `json:"folders"`
+	Skills  *[]Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Skills_Item  `json:"skills"`
+	Version *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Version        `json:"version,omitempty"`
+}
+
+// Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFiles1 defines model for Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c.Files.1.
+type Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFiles1 = map[string]interface{}
+
+// Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Files_Item defines model for Wire_898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c.files.Item.
+type Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Files_Item struct {
+	union json.RawMessage
+}
+
+// Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFolders1 defines model for Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c.Folders.1.
+type Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFolders1 = map[string]interface{}
+
+// Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Folders_Item defines model for Wire_898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c.folders.Item.
+type Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Folders_Item struct {
+	union json.RawMessage
+}
+
+// Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cSkills1 defines model for Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c.Skills.1.
+type Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cSkills1 = map[string]interface{}
+
+// Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Skills_Item defines model for Wire_898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c.skills.Item.
+type Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Skills_Item struct {
+	union json.RawMessage
+}
+
+// Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cVersion1 defines model for Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c.Version.1.
+type Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cVersion1 = map[string]interface{}
+
+// Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Version defines model for Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c.Version.
+type Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Version struct {
+	union json.RawMessage
+}
+
+// Wire8a9cf29086a80cb7cabcdebcdf40aa1d03da579d5b4d6608dcb4a7446bcf710d defines model for Wire_8a9cf29086a80cb7cabcdebcdf40aa1d03da579d5b4d6608dcb4a7446bcf710d.
+type Wire8a9cf29086a80cb7cabcdebcdf40aa1d03da579d5b4d6608dcb4a7446bcf710d struct {
+	Items *[]Wire2acc97d2ee9aa7bc9e3441531515d0f2360496ee2ee879ab35b383c390b7221e `json:"items"`
+}
+
+// Wire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8 defines model for Wire_8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8.
+type Wire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8 struct {
+	AuthoredDql         *string     `json:"authoredDql,omitempty"`
+	AuthoredSql         *string     `json:"authoredSql,omitempty"`
+	AuthoringMode       string      `json:"authoringMode"`
+	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus       string      `json:"compileStatus"`
+	CompilerVersion     string      `json:"compilerVersion"`
+	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
+	CreatedAt           time.Time   `json:"createdAt"`
+	CreatedBy           string      `json:"createdBy"`
+	DatlyVersion        string      `json:"datlyVersion"`
+	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql        *string     `json:"generatedDql,omitempty"`
+	Notes               *string     `json:"notes,omitempty"`
+	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
+	ReportId            string      `json:"reportId"`
+	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision      int64       `json:"sourceRevision"`
+	SpecFormatVersion   string      `json:"specFormatVersion"`
+	SpecHash            string      `json:"specHash"`
+	State               string      `json:"state"`
+	TypeManifest        interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo           int64       `json:"versionNo"`
+}
+
+// Wire942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e defines model for Wire_942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e.
+type Wire942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e struct {
+	AuthoredDql         *string     `json:"authoredDql,omitempty"`
+	AuthoredSql         *string     `json:"authoredSql,omitempty"`
+	AuthoringMode       string      `json:"authoringMode"`
+	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus       string      `json:"compileStatus"`
+	CompilerVersion     string      `json:"compilerVersion"`
+	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
+	CreatedAt           time.Time   `json:"createdAt"`
+	CreatedBy           string      `json:"createdBy"`
+	DatlyVersion        string      `json:"datlyVersion"`
+	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql        *string     `json:"generatedDql,omitempty"`
+	Notes               *string     `json:"notes,omitempty"`
+	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
+	ReportId            string      `json:"reportId"`
+	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision      int64       `json:"sourceRevision"`
+	SpecFormatVersion   string      `json:"specFormatVersion"`
+	SpecHash            string      `json:"specHash"`
+	State               string      `json:"state"`
+	TypeManifest        interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo           int64       `json:"versionNo"`
+}
+
 // Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c defines model for Wire_95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c.
 type Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c struct {
 	Items *[]Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c_Items_Item `json:"items"`
@@ -155,6 +1987,144 @@ type Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35cItems1 
 
 // Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c_Items_Item defines model for Wire_95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c.items.Item.
 type Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c_Items_Item struct {
+	union json.RawMessage
+}
+
+// Wire9763fc0927f951631f9c089e0800033b9772e81b29bddc85ae64e2899f0943e3 defines model for Wire_9763fc0927f951631f9c089e0800033b9772e81b29bddc85ae64e2899f0943e3.
+type Wire9763fc0927f951631f9c089e0800033b9772e81b29bddc85ae64e2899f0943e3 struct {
+	Data        interface{}                                                             `json:"data,omitempty"`
+	Diagnostics *[]WireDdc8f3519e98b687e03e321d69e1dab9d279d6f41fcef8b1c25d52a95b4f51bd `json:"diagnostics,omitempty"`
+	Duration    int64                                                                   `json:"duration"`
+	Evidence    Wire29994796c346a67d8d87067e8f62a29284fc2af12311fbab69bdf45b428e37f7    `json:"evidence"`
+}
+
+// Wire98b9826a3a782748dba5c6e5a250e1e52d78e3e1dbd2ab11f2dc2f9352c62e7a defines model for Wire_98b9826a3a782748dba5c6e5a250e1e52d78e3e1dbd2ab11f2dc2f9352c62e7a.
+type Wire98b9826a3a782748dba5c6e5a250e1e52d78e3e1dbd2ab11f2dc2f9352c62e7a struct {
+	ComponentName        string    `json:"componentName"`
+	ComponentScope       string    `json:"componentScope"`
+	CreatedAt            time.Time `json:"createdAt"`
+	CurrentDraftVersion  *int64    `json:"currentDraftVersion,omitempty"`
+	DefaultConnectorName string    `json:"defaultConnectorName"`
+	Description          *string   `json:"description,omitempty"`
+	Etag                 int64     `json:"etag"`
+	Id                   string    `json:"id"`
+	Namespace            string    `json:"namespace"`
+	OwnerId              string    `json:"ownerId"`
+	OwnerPackage         string    `json:"ownerPackage"`
+	Slug                 string    `json:"slug"`
+	Status               string    `json:"status"`
+	Title                string    `json:"title"`
+	UpdatedAt            time.Time `json:"updatedAt"`
+}
+
+// Wire9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d defines model for Wire_9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d.
+type Wire9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d struct {
+	Alias       *string   `json:"alias,omitempty"`
+	Columns     *[]string `json:"columns,omitempty"`
+	CreatedAt   time.Time `json:"createdAt"`
+	Description *string   `json:"description,omitempty"`
+	Etag        int64     `json:"etag"`
+	Linked      bool      `json:"linked"`
+	Name        string    `json:"name"`
+	OwnerId     string    `json:"ownerId"`
+	PackagePath string    `json:"packagePath"`
+	Status      string    `json:"status"`
+	Title       string    `json:"title"`
+	TypeName    string    `json:"typeName"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+}
+
+// Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145 defines model for Wire_9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145.
+type Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145 struct {
+	Files   *[]Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Files_Item   `json:"files"`
+	Folders *[]Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Folders_Item `json:"folders"`
+	Skills  *[]Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Skills_Item  `json:"skills"`
+	Version *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Version        `json:"version,omitempty"`
+}
+
+// Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Files1 defines model for Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145.Files.1.
+type Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Files1 = map[string]interface{}
+
+// Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Files_Item defines model for Wire_9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145.files.Item.
+type Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Files_Item struct {
+	union json.RawMessage
+}
+
+// Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Folders1 defines model for Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145.Folders.1.
+type Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Folders1 = map[string]interface{}
+
+// Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Folders_Item defines model for Wire_9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145.folders.Item.
+type Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Folders_Item struct {
+	union json.RawMessage
+}
+
+// Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Skills1 defines model for Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145.Skills.1.
+type Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Skills1 = map[string]interface{}
+
+// Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Skills_Item defines model for Wire_9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145.skills.Item.
+type Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Skills_Item struct {
+	union json.RawMessage
+}
+
+// Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Version1 defines model for Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145.Version.1.
+type Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Version1 = map[string]interface{}
+
+// Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Version defines model for Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145.Version.
+type Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Version struct {
+	union json.RawMessage
+}
+
+// WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece defines model for Wire_a1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece.
+type WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece struct {
+	Diagnostics *[]WireD82adbb20251ee59732b96cc17e12fda2b7531a5a2aa9b3011dd7e9258ea62a7      `json:"diagnostics,omitempty"`
+	Version     WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Version `json:"version"`
+}
+
+// WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1eceVersion1 defines model for WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece.Version.1.
+type WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1eceVersion1 = map[string]interface{}
+
+// WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Version defines model for WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece.Version.
+type WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Version struct {
+	union json.RawMessage
+}
+
+// WireA6d5a259bb2993e6552649336f2c093ccd6ae12f130f8526f5c136a619d0cb51 defines model for Wire_a6d5a259bb2993e6552649336f2c093ccd6ae12f130f8526f5c136a619d0cb51.
+type WireA6d5a259bb2993e6552649336f2c093ccd6ae12f130f8526f5c136a619d0cb51 struct {
+	CreatedAt   time.Time `json:"createdAt"`
+	Description *string   `json:"description,omitempty"`
+	Etag        int64     `json:"etag"`
+	Name        string    `json:"name"`
+	OwnerId     string    `json:"ownerId"`
+	Status      string    `json:"status"`
+	Title       string    `json:"title"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+}
+
+// WireAacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a defines model for Wire_aacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a.
+type WireAacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a struct {
+	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
+	FolderId               string `json:"folderId"`
+	Ordinal                int64  `json:"ordinal"`
+	ReportId               string `json:"reportId"`
+	SkillId                string `json:"skillId"`
+	SkillRoot              string `json:"skillRoot"`
+	VersionNo              int64  `json:"versionNo"`
+}
+
+// WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19 defines model for Wire_affe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19.
+type WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19 struct {
+	Capabilities Wire3100c253c572f716ab2eb88f6d83d813eedfe0b04003220edb6e98677fced244         `json:"capabilities"`
+	Diagnostics  *[]Wire5dcb9a5385549159028a02b9f90b5f85b74ea0076b725bce7e222e5cfe3ae71e      `json:"diagnostics,omitempty"`
+	Dql          *string                                                                      `json:"dql,omitempty"`
+	Structure    interface{}                                                                  `json:"structure,omitempty"`
+	Version      WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version `json:"version"`
+}
+
+// WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19Version1 defines model for WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19.Version.1.
+type WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19Version1 = map[string]interface{}
+
+// WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version defines model for WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19.Version.
+type WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version struct {
 	union json.RawMessage
 }
 
@@ -192,6 +2162,37 @@ type WireB42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044 struct
 	UpdatedAt            time.Time `json:"updatedAt"`
 }
 
+// WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240 defines model for Wire_b617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240.
+type WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240 struct {
+	Items *[]WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240_Items_Item `json:"items"`
+}
+
+// WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240Items1 defines model for WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240.Items.1.
+type WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240Items1 = map[string]interface{}
+
+// WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240_Items_Item defines model for Wire_b617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240.items.Item.
+type WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240_Items_Item struct {
+	union json.RawMessage
+}
+
+// WireB6bb3a3bc73e240bf20da6f0ceb8512d37faeca8e28cca304a69c5e7ff81fa51 defines model for Wire_b6bb3a3bc73e240bf20da6f0ceb8512d37faeca8e28cca304a69c5e7ff81fa51.
+type WireB6bb3a3bc73e240bf20da6f0ceb8512d37faeca8e28cca304a69c5e7ff81fa51 struct {
+	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
+	FolderId               string `json:"folderId"`
+	Namespace              string `json:"namespace"`
+	Ordinal                int64  `json:"ordinal"`
+	ReportId               string `json:"reportId"`
+	RootPath               string `json:"rootPath"`
+	UriPrefix              string `json:"uriPrefix"`
+	VersionNo              int64  `json:"versionNo"`
+}
+
+// WireBb9c83695ae936c7031ab2428c59ccda35a4e34af9e6662a945012782ac921e1 defines model for Wire_bb9c83695ae936c7031ab2428c59ccda35a4e34af9e6662a945012782ac921e1.
+type WireBb9c83695ae936c7031ab2428c59ccda35a4e34af9e6662a945012782ac921e1 struct {
+	Complete bool   `json:"complete"`
+	Dql      string `json:"dql"`
+}
+
 // WireBba07f0bad61cd85885417e1c20c5cff98c1ebf3abb205fd71b51c6069ea161c defines model for Wire_bba07f0bad61cd85885417e1c20c5cff98c1ebf3abb205fd71b51c6069ea161c.
 type WireBba07f0bad61cd85885417e1c20c5cff98c1ebf3abb205fd71b51c6069ea161c struct {
 	ComponentName        string    `json:"componentName"`
@@ -211,6 +2212,278 @@ type WireBba07f0bad61cd85885417e1c20c5cff98c1ebf3abb205fd71b51c6069ea161c struct
 	UpdatedAt            time.Time `json:"updatedAt"`
 }
 
+// WireBd458392be482912a616e980fab94755810f3ed4347c5351a04930f05dd4ce31 defines model for Wire_bd458392be482912a616e980fab94755810f3ed4347c5351a04930f05dd4ce31.
+type WireBd458392be482912a616e980fab94755810f3ed4347c5351a04930f05dd4ce31 struct {
+	Columns *[]Wire284d529f33778b8025eaf493c0c081fa071dfc15595367cd050c6aea84390073 `json:"columns"`
+	Table   WireCcdd85ede51b17373dddff12304f04c5afd91f3fe365382c999b601899f69747    `json:"table"`
+}
+
+// WireBe64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0 defines model for Wire_be64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0.
+type WireBe64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0 struct {
+	Content                string  `json:"content"`
+	ContentSha256          string  `json:"contentSha256"`
+	ContentSize            int64   `json:"contentSize"`
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	IsBinary               bool    `json:"isBinary"`
+	MediaType              *string `json:"mediaType,omitempty"`
+	Namespace              string  `json:"namespace"`
+	ReportId               string  `json:"reportId"`
+	ResourceId             string  `json:"resourceId"`
+	ResourcePath           string  `json:"resourcePath"`
+	VersionNo              int64   `json:"versionNo"`
+}
+
+// WireBedeea2eea3f372feb231562eecdb3aa32c8017835f81ac7e8d5978e48330812 defines model for Wire_bedeea2eea3f372feb231562eecdb3aa32c8017835f81ac7e8d5978e48330812.
+type WireBedeea2eea3f372feb231562eecdb3aa32c8017835f81ac7e8d5978e48330812 struct {
+	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
+	FolderId               string `json:"folderId"`
+	Namespace              string `json:"namespace"`
+	Ordinal                int64  `json:"ordinal"`
+	ReportId               string `json:"reportId"`
+	RootPath               string `json:"rootPath"`
+	UriPrefix              string `json:"uriPrefix"`
+	VersionNo              int64  `json:"versionNo"`
+}
+
+// WireBf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016 defines model for Wire_bf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016.
+type WireBf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016 struct {
+	Content                string  `json:"content"`
+	ContentSha256          string  `json:"contentSha256"`
+	ContentSize            int64   `json:"contentSize"`
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	IsBinary               bool    `json:"isBinary"`
+	MediaType              *string `json:"mediaType,omitempty"`
+	Namespace              string  `json:"namespace"`
+	ReportId               string  `json:"reportId"`
+	ResourceId             string  `json:"resourceId"`
+	ResourcePath           string  `json:"resourcePath"`
+	VersionNo              int64   `json:"versionNo"`
+}
+
+// WireC3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089 defines model for Wire_c3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089.
+type WireC3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089 struct {
+	AuthoredDql         *string     `json:"authoredDql,omitempty"`
+	AuthoredSql         *string     `json:"authoredSql,omitempty"`
+	AuthoringMode       string      `json:"authoringMode"`
+	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus       string      `json:"compileStatus"`
+	CompilerVersion     string      `json:"compilerVersion"`
+	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
+	CreatedAt           time.Time   `json:"createdAt"`
+	CreatedBy           string      `json:"createdBy"`
+	DatlyVersion        string      `json:"datlyVersion"`
+	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql        *string     `json:"generatedDql,omitempty"`
+	Notes               *string     `json:"notes,omitempty"`
+	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
+	ReportId            string      `json:"reportId"`
+	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision      int64       `json:"sourceRevision"`
+	SpecFormatVersion   string      `json:"specFormatVersion"`
+	SpecHash            string      `json:"specHash"`
+	State               string      `json:"state"`
+	TypeManifest        interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo           int64       `json:"versionNo"`
+}
+
+// WireC47cf46b58e263ed665fbdce50f43ecc62642c4837741ba43aaa439c1623d39c defines model for Wire_c47cf46b58e263ed665fbdce50f43ecc62642c4837741ba43aaa439c1623d39c.
+type WireC47cf46b58e263ed665fbdce50f43ecc62642c4837741ba43aaa439c1623d39c struct {
+	CanEdit      bool `json:"canEdit"`
+	CanManageAcl bool `json:"canManageAcl"`
+	CanPublish   bool `json:"canPublish"`
+	CanRun       bool `json:"canRun"`
+	CanUseDql    bool `json:"canUseDql"`
+	CanView      bool `json:"canView"`
+}
+
+// WireCcb72e9ff740a41f9ee459d67d34d6d003de93aa4e74ce39b240bc27d65454ca defines model for Wire_ccb72e9ff740a41f9ee459d67d34d6d003de93aa4e74ce39b240bc27d65454ca.
+type WireCcb72e9ff740a41f9ee459d67d34d6d003de93aa4e74ce39b240bc27d65454ca struct {
+	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
+	FolderId               string `json:"folderId"`
+	Ordinal                int64  `json:"ordinal"`
+	ReportId               string `json:"reportId"`
+	SkillId                string `json:"skillId"`
+	SkillRoot              string `json:"skillRoot"`
+	VersionNo              int64  `json:"versionNo"`
+}
+
+// WireCcdd85ede51b17373dddff12304f04c5afd91f3fe365382c999b601899f69747 defines model for Wire_ccdd85ede51b17373dddff12304f04c5afd91f3fe365382c999b601899f69747.
+type WireCcdd85ede51b17373dddff12304f04c5afd91f3fe365382c999b601899f69747 struct {
+	Catalog *string `json:"catalog,omitempty"`
+	Comment *string `json:"comment,omitempty"`
+	Name    string  `json:"name"`
+	Schema  *string `json:"schema,omitempty"`
+	Type    *string `json:"type,omitempty"`
+}
+
+// WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d defines model for Wire_d1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d.
+type WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d struct {
+	Files   *[]WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Files_Item   `json:"files"`
+	Folders *[]WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Folders_Item `json:"folders"`
+	Skills  *[]WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Skills_Item  `json:"skills"`
+	Version *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Version        `json:"version,omitempty"`
+}
+
+// WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFiles1 defines model for WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d.Files.1.
+type WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFiles1 = map[string]interface{}
+
+// WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Files_Item defines model for Wire_d1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d.files.Item.
+type WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Files_Item struct {
+	union json.RawMessage
+}
+
+// WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFolders1 defines model for WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d.Folders.1.
+type WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFolders1 = map[string]interface{}
+
+// WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Folders_Item defines model for Wire_d1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d.folders.Item.
+type WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Folders_Item struct {
+	union json.RawMessage
+}
+
+// WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dSkills1 defines model for WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d.Skills.1.
+type WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dSkills1 = map[string]interface{}
+
+// WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Skills_Item defines model for Wire_d1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d.skills.Item.
+type WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Skills_Item struct {
+	union json.RawMessage
+}
+
+// WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dVersion1 defines model for WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d.Version.1.
+type WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dVersion1 = map[string]interface{}
+
+// WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Version defines model for WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d.Version.
+type WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Version struct {
+	union json.RawMessage
+}
+
+// WireD47a3f0a566536bf283059fe5c94fdc79e8185ca98cbe6359316854e6ae380ee defines model for Wire_d47a3f0a566536bf283059fe5c94fdc79e8185ca98cbe6359316854e6ae380ee.
+type WireD47a3f0a566536bf283059fe5c94fdc79e8185ca98cbe6359316854e6ae380ee struct {
+	AuthoredDql         *string     `json:"authoredDql,omitempty"`
+	AuthoredSql         *string     `json:"authoredSql,omitempty"`
+	AuthoringMode       string      `json:"authoringMode"`
+	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus       string      `json:"compileStatus"`
+	CompilerVersion     string      `json:"compilerVersion"`
+	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
+	CreatedAt           time.Time   `json:"createdAt"`
+	CreatedBy           string      `json:"createdBy"`
+	DatlyVersion        string      `json:"datlyVersion"`
+	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql        *string     `json:"generatedDql,omitempty"`
+	Notes               *string     `json:"notes,omitempty"`
+	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
+	ReportId            string      `json:"reportId"`
+	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision      int64       `json:"sourceRevision"`
+	SpecFormatVersion   string      `json:"specFormatVersion"`
+	SpecHash            string      `json:"specHash"`
+	State               string      `json:"state"`
+	TypeManifest        interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo           int64       `json:"versionNo"`
+}
+
+// WireD47f31d6831e78d8d30e9260afc40ce9bef1e3193510447b56ae7c551502c928 defines model for Wire_d47f31d6831e78d8d30e9260afc40ce9bef1e3193510447b56ae7c551502c928.
+type WireD47f31d6831e78d8d30e9260afc40ce9bef1e3193510447b56ae7c551502c928 struct {
+	AuthoredDql         *string     `json:"authoredDql,omitempty"`
+	AuthoredSql         *string     `json:"authoredSql,omitempty"`
+	AuthoringMode       string      `json:"authoringMode"`
+	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus       string      `json:"compileStatus"`
+	CompilerVersion     string      `json:"compilerVersion"`
+	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
+	CreatedAt           time.Time   `json:"createdAt"`
+	CreatedBy           string      `json:"createdBy"`
+	DatlyVersion        string      `json:"datlyVersion"`
+	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql        *string     `json:"generatedDql,omitempty"`
+	Notes               *string     `json:"notes,omitempty"`
+	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
+	ReportId            string      `json:"reportId"`
+	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision      int64       `json:"sourceRevision"`
+	SpecFormatVersion   string      `json:"specFormatVersion"`
+	SpecHash            string      `json:"specHash"`
+	State               string      `json:"state"`
+	TypeManifest        interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo           int64       `json:"versionNo"`
+}
+
+// WireD58affaab847657f56e4dc0eed2b3bbad9e31ea2a73778f577cd287673f772b3 defines model for Wire_d58affaab847657f56e4dc0eed2b3bbad9e31ea2a73778f577cd287673f772b3.
+type WireD58affaab847657f56e4dc0eed2b3bbad9e31ea2a73778f577cd287673f772b3 struct {
+	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
+	FolderId               string `json:"folderId"`
+	Ordinal                int64  `json:"ordinal"`
+	ReportId               string `json:"reportId"`
+	SkillId                string `json:"skillId"`
+	SkillRoot              string `json:"skillRoot"`
+	VersionNo              int64  `json:"versionNo"`
+}
+
+// WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78 defines model for Wire_d5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78.
+type WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78 struct {
+	Entries  *[]string                                                                    `json:"entries"`
+	EntryDql string                                                                       `json:"entryDql"`
+	Files    *[]string                                                                    `json:"files"`
+	Version  WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78_Version `json:"version"`
+}
+
+// WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78Version1 defines model for WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78.Version.1.
+type WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78Version1 = map[string]interface{}
+
+// WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78_Version defines model for WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78.Version.
+type WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78_Version struct {
+	union json.RawMessage
+}
+
+// WireD5cefe1b3a17afd7fef5285814e696de9b1f5aa8569887156dc7690bce5223c2 defines model for Wire_d5cefe1b3a17afd7fef5285814e696de9b1f5aa8569887156dc7690bce5223c2.
+type WireD5cefe1b3a17afd7fef5285814e696de9b1f5aa8569887156dc7690bce5223c2 struct {
+	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
+	FolderId               string `json:"folderId"`
+	Ordinal                int64  `json:"ordinal"`
+	ReportId               string `json:"reportId"`
+	SkillId                string `json:"skillId"`
+	SkillRoot              string `json:"skillRoot"`
+	VersionNo              int64  `json:"versionNo"`
+}
+
+// WireD82adbb20251ee59732b96cc17e12fda2b7531a5a2aa9b3011dd7e9258ea62a7 defines model for Wire_d82adbb20251ee59732b96cc17e12fda2b7531a5a2aa9b3011dd7e9258ea62a7.
+type WireD82adbb20251ee59732b96cc17e12fda2b7531a5a2aa9b3011dd7e9258ea62a7 struct {
+	Code     string  `json:"code"`
+	Column   *int64  `json:"column,omitempty"`
+	Hint     *string `json:"hint,omitempty"`
+	Line     *int64  `json:"line,omitempty"`
+	Message  string  `json:"message"`
+	Severity string  `json:"severity"`
+}
+
+// WireD96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c defines model for Wire_d96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c.
+type WireD96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c struct {
+	Alias       *string `json:"alias,omitempty"`
+	PackagePath string  `json:"packagePath"`
+	TypeName    string  `json:"typeName"`
+}
+
+// WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179 defines model for Wire_dda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179.
+type WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179 struct {
+	Items  *[]WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179_Items_Item `json:"items"`
+	Limit  int64                                                                              `json:"limit"`
+	Offset int64                                                                              `json:"offset"`
+}
+
+// WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179Items1 defines model for WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179.Items.1.
+type WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179Items1 = map[string]interface{}
+
+// WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179_Items_Item defines model for Wire_dda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179.items.Item.
+type WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179_Items_Item struct {
+	union json.RawMessage
+}
+
 // WireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231 defines model for Wire_ddb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231.
 type WireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231 struct {
 	CreatedAt   time.Time `json:"createdAt"`
@@ -221,6 +2494,181 @@ type WireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231 struct
 	Status      string    `json:"status"`
 	Title       string    `json:"title"`
 	UpdatedAt   time.Time `json:"updatedAt"`
+}
+
+// WireDdc8f3519e98b687e03e321d69e1dab9d279d6f41fcef8b1c25d52a95b4f51bd defines model for Wire_ddc8f3519e98b687e03e321d69e1dab9d279d6f41fcef8b1c25d52a95b4f51bd.
+type WireDdc8f3519e98b687e03e321d69e1dab9d279d6f41fcef8b1c25d52a95b4f51bd struct {
+	Code     string  `json:"code"`
+	Column   *int64  `json:"column,omitempty"`
+	Hint     *string `json:"hint,omitempty"`
+	Line     *int64  `json:"line,omitempty"`
+	Message  string  `json:"message"`
+	Severity string  `json:"severity"`
+}
+
+// WireE0b9d64ac7d2034342d226cd5a657956619fb94bfab0f429f31d295bbee568fb defines model for Wire_e0b9d64ac7d2034342d226cd5a657956619fb94bfab0f429f31d295bbee568fb.
+type WireE0b9d64ac7d2034342d226cd5a657956619fb94bfab0f429f31d295bbee568fb struct {
+	CacheName      *string `json:"cacheName,omitempty"`
+	CacheProvider  *string `json:"cacheProvider,omitempty"`
+	ConnectorName  *string `json:"connectorName,omitempty"`
+	IndexColumn    *string `json:"indexColumn,omitempty"`
+	IndexParameter *string `json:"indexParameter,omitempty"`
+	View           string  `json:"view"`
+}
+
+// WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0 defines model for Wire_ec41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0.
+type WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0 struct {
+	Items  *[]WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0_Items_Item `json:"items"`
+	Limit  int64                                                                              `json:"limit"`
+	Offset int64                                                                              `json:"offset"`
+}
+
+// WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0Items1 defines model for WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0.Items.1.
+type WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0Items1 = map[string]interface{}
+
+// WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0_Items_Item defines model for Wire_ec41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0.items.Item.
+type WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0_Items_Item struct {
+	union json.RawMessage
+}
+
+// WireEcc4d9a82e8b4cd1e3ac77d7fd7943319b31b3e82973c8afbcf0002138ddc950 defines model for Wire_ecc4d9a82e8b4cd1e3ac77d7fd7943319b31b3e82973c8afbcf0002138ddc950.
+type WireEcc4d9a82e8b4cd1e3ac77d7fd7943319b31b3e82973c8afbcf0002138ddc950 struct {
+	Connector      *string `json:"connector,omitempty"`
+	EncodedBytes   int64   `json:"encodedBytes"`
+	Limit          int64   `json:"limit"`
+	ReportId       *string `json:"reportId,omitempty"`
+	ReturnedRows   int64   `json:"returnedRows"`
+	SourceRevision *int64  `json:"sourceRevision,omitempty"`
+	Truncated      bool    `json:"truncated"`
+	VersionNo      *int64  `json:"versionNo,omitempty"`
+}
+
+// WireEeef16b9cbcbd1e6e3c91399a7a3ea1ea6f63b90114ecd6f2b6b393de239190a defines model for Wire_eeef16b9cbcbd1e6e3c91399a7a3ea1ea6f63b90114ecd6f2b6b393de239190a.
+type WireEeef16b9cbcbd1e6e3c91399a7a3ea1ea6f63b90114ecd6f2b6b393de239190a struct {
+	CompletedAt    *time.Time                                                              `json:"completedAt,omitempty"`
+	CompletedCases int64                                                                   `json:"completedCases"`
+	CreatedAt      *time.Time                                                              `json:"createdAt,omitempty"`
+	CreatedBy      *string                                                                 `json:"createdBy,omitempty"`
+	Diagnostics    *[]Wire7d83e432dba96d596847d8df2f770054a4188b355ed704d691dff2a9d8f991ee `json:"diagnostics,omitempty"`
+	Duration       *int64                                                                  `json:"duration,omitempty"`
+	Entries        int64                                                                   `json:"entries"`
+	MaxCases       *int64                                                                  `json:"maxCases,omitempty"`
+	PlanKey        string                                                                  `json:"planKey"`
+	PlannedCases   int64                                                                   `json:"plannedCases"`
+	ReportId       string                                                                  `json:"reportId"`
+	RequestedAt    time.Time                                                               `json:"requestedAt"`
+	RequestedBy    string                                                                  `json:"requestedBy"`
+	RowLimit       *int64                                                                  `json:"rowLimit,omitempty"`
+	RunId          string                                                                  `json:"runId"`
+	SourceRevision int64                                                                   `json:"sourceRevision"`
+	SpecHash       string                                                                  `json:"specHash"`
+	StartedAt      *time.Time                                                              `json:"startedAt,omitempty"`
+	Status         string                                                                  `json:"status"`
+	Target         WireE0b9d64ac7d2034342d226cd5a657956619fb94bfab0f429f31d295bbee568fb    `json:"target"`
+	UpdatedAt      *time.Time                                                              `json:"updatedAt,omitempty"`
+	UpdatedBy      *string                                                                 `json:"updatedBy,omitempty"`
+	VersionNo      int64                                                                   `json:"versionNo"`
+}
+
+// WireF13c6896f56ef6cd633314e17c86ef09c723b489a575449924c438606e230bf5 defines model for Wire_f13c6896f56ef6cd633314e17c86ef09c723b489a575449924c438606e230bf5.
+type WireF13c6896f56ef6cd633314e17c86ef09c723b489a575449924c438606e230bf5 struct {
+	CreatedAt         time.Time   `json:"createdAt"`
+	Description       *string     `json:"description,omitempty"`
+	Driver            string      `json:"driver"`
+	DsnConfigured     bool        `json:"dsnConfigured"`
+	Etag              int64       `json:"etag"`
+	LastTestErrorCode *string     `json:"lastTestErrorCode,omitempty"`
+	LastTestStatus    *string     `json:"lastTestStatus,omitempty"`
+	LastTestedAt      *time.Time  `json:"lastTestedAt,omitempty"`
+	Name              string      `json:"name"`
+	Options           interface{} `json:"options,omitempty"`
+	OwnerId           string      `json:"ownerId"`
+	SecretConfigured  bool        `json:"secretConfigured"`
+	Status            string      `json:"status"`
+	UpdatedAt         time.Time   `json:"updatedAt"`
+}
+
+// WireF1625788b66eacf74ca98501afd9a4c5d06df56f548c1b3c679070e519cabcba defines model for Wire_f1625788b66eacf74ca98501afd9a4c5d06df56f548c1b3c679070e519cabcba.
+type WireF1625788b66eacf74ca98501afd9a4c5d06df56f548c1b3c679070e519cabcba struct {
+	Alias       *string   `json:"alias,omitempty"`
+	Columns     *[]string `json:"columns,omitempty"`
+	CreatedAt   time.Time `json:"createdAt"`
+	Description *string   `json:"description,omitempty"`
+	Etag        int64     `json:"etag"`
+	Linked      bool      `json:"linked"`
+	Name        string    `json:"name"`
+	OwnerId     string    `json:"ownerId"`
+	PackagePath string    `json:"packagePath"`
+	Status      string    `json:"status"`
+	Title       string    `json:"title"`
+	TypeName    string    `json:"typeName"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+}
+
+// WireF3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d defines model for Wire_f3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d.
+type WireF3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d struct {
+	AuthoredDql         *string     `json:"authoredDql,omitempty"`
+	AuthoredSql         *string     `json:"authoredSql,omitempty"`
+	AuthoringMode       string      `json:"authoringMode"`
+	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus       string      `json:"compileStatus"`
+	CompilerVersion     string      `json:"compilerVersion"`
+	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
+	CreatedAt           time.Time   `json:"createdAt"`
+	CreatedBy           string      `json:"createdBy"`
+	DatlyVersion        string      `json:"datlyVersion"`
+	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql        *string     `json:"generatedDql,omitempty"`
+	Notes               *string     `json:"notes,omitempty"`
+	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
+	ReportId            string      `json:"reportId"`
+	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision      int64       `json:"sourceRevision"`
+	SpecFormatVersion   string      `json:"specFormatVersion"`
+	SpecHash            string      `json:"specHash"`
+	State               string      `json:"state"`
+	TypeManifest        interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo           int64       `json:"versionNo"`
+}
+
+// WireF932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675 defines model for Wire_f932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675.
+type WireF932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675 struct {
+	AuthoredDql         *string     `json:"authoredDql,omitempty"`
+	AuthoredSql         *string     `json:"authoredSql,omitempty"`
+	AuthoringMode       string      `json:"authoringMode"`
+	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus       string      `json:"compileStatus"`
+	CompilerVersion     string      `json:"compilerVersion"`
+	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
+	CreatedAt           time.Time   `json:"createdAt"`
+	CreatedBy           string      `json:"createdBy"`
+	DatlyVersion        string      `json:"datlyVersion"`
+	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql        *string     `json:"generatedDql,omitempty"`
+	Notes               *string     `json:"notes,omitempty"`
+	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
+	ReportId            string      `json:"reportId"`
+	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision      int64       `json:"sourceRevision"`
+	SpecFormatVersion   string      `json:"specFormatVersion"`
+	SpecHash            string      `json:"specHash"`
+	State               string      `json:"state"`
+	TypeManifest        interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo           int64       `json:"versionNo"`
+}
+
+// WireF9bfe019ac3bc8cf27b88f9b16d1f9a636d24292970f41843ad5f4eba742d99b defines model for Wire_f9bfe019ac3bc8cf27b88f9b16d1f9a636d24292970f41843ad5f4eba742d99b.
+type WireF9bfe019ac3bc8cf27b88f9b16d1f9a636d24292970f41843ad5f4eba742d99b struct {
+	Code     string  `json:"code"`
+	Column   *int64  `json:"column,omitempty"`
+	Hint     *string `json:"hint,omitempty"`
+	Line     *int64  `json:"line,omitempty"`
+	Message  string  `json:"message"`
+	Severity string  `json:"severity"`
 }
 
 // WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c defines model for Wire_fcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c.
@@ -238,6 +2686,14 @@ type WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_
 	union json.RawMessage
 }
 
+// POSTv1studiosdkaclDeleteJSONBody defines parameters for POSTv1studiosdkaclDelete.
+type POSTv1studiosdkaclDeleteJSONBody struct {
+	Etag        int64  `json:"etag"`
+	ReportId    string `json:"reportId"`
+	SubjectId   string `json:"subjectId"`
+	SubjectType string `json:"subjectType"`
+}
+
 // POSTv1studiosdkaclListJSONBody defines parameters for POSTv1studiosdkaclList.
 type POSTv1studiosdkaclListJSONBody struct {
 	ReportId string `json:"reportId"`
@@ -247,6 +2703,110 @@ type POSTv1studiosdkaclListJSONBody struct {
 type POSTv1studiosdkaclListParams struct {
 	SubjectType *string `form:"subjectType,omitempty" json:"subjectType,omitempty"`
 	SubjectId   *string `form:"subjectId,omitempty" json:"subjectId,omitempty"`
+}
+
+// POSTv1studiosdkaclUpsertJSONBody defines parameters for POSTv1studiosdkaclUpsert.
+type POSTv1studiosdkaclUpsertJSONBody struct {
+	CanEdit     *bool  `json:"canEdit,omitempty"`
+	CanPublish  *bool  `json:"canPublish,omitempty"`
+	CanRun      *bool  `json:"canRun,omitempty"`
+	CanUseDql   *bool  `json:"canUseDql,omitempty"`
+	CanView     *bool  `json:"canView,omitempty"`
+	Etag        *int64 `json:"etag,omitempty"`
+	ReportId    string `json:"reportId"`
+	SubjectId   string `json:"subjectId"`
+	SubjectType string `json:"subjectType"`
+}
+
+// POSTv1studiosdkauthorizationPredicatesCreateJSONBody defines parameters for POSTv1studiosdkauthorizationPredicatesCreate.
+type POSTv1studiosdkauthorizationPredicatesCreateJSONBody struct {
+	Alias       *string   `json:"alias,omitempty"`
+	Columns     *[]string `json:"columns,omitempty"`
+	Description *string   `json:"description,omitempty"`
+	Name        string    `json:"name"`
+	PackagePath string    `json:"packagePath"`
+	Title       string    `json:"title"`
+	TypeName    string    `json:"typeName"`
+}
+
+// POSTv1studiosdkauthorizationPredicatesDeleteJSONBody defines parameters for POSTv1studiosdkauthorizationPredicatesDelete.
+type POSTv1studiosdkauthorizationPredicatesDeleteJSONBody struct {
+	Etag int64  `json:"etag"`
+	Name string `json:"name"`
+}
+
+// POSTv1studiosdkauthorizationPredicatesGetJSONBody defines parameters for POSTv1studiosdkauthorizationPredicatesGet.
+type POSTv1studiosdkauthorizationPredicatesGetJSONBody struct {
+	Name string `json:"name"`
+}
+
+// POSTv1studiosdkauthorizationPredicatesListJSONBody defines parameters for POSTv1studiosdkauthorizationPredicatesList.
+type POSTv1studiosdkauthorizationPredicatesListJSONBody struct {
+	Limit  *int64  `json:"limit,omitempty"`
+	Offset *int64  `json:"offset,omitempty"`
+	Query  *string `json:"query,omitempty"`
+	Status *string `json:"status,omitempty"`
+}
+
+// POSTv1studiosdkauthorizationPredicatesUpdateJSONBody defines parameters for POSTv1studiosdkauthorizationPredicatesUpdate.
+type POSTv1studiosdkauthorizationPredicatesUpdateJSONBody struct {
+	Input InputC4cc575a74227096d9bc84a357106f4a2fb90b472fc6273f1682ae88016fea81 `json:"input"`
+	Name  string                                                                `json:"name"`
+}
+
+// POSTv1studiosdkcomponentsCreateJSONBody defines parameters for POSTv1studiosdkcomponentsCreate.
+type POSTv1studiosdkcomponentsCreateJSONBody struct {
+	ComponentName        *string `json:"componentName,omitempty"`
+	ComponentScope       *string `json:"componentScope,omitempty"`
+	DefaultConnectorName string  `json:"defaultConnectorName"`
+	Description          *string `json:"description,omitempty"`
+	Id                   *string `json:"id,omitempty"`
+	Namespace            *string `json:"namespace,omitempty"`
+	OwnerId              *string `json:"ownerId,omitempty"`
+	Slug                 string  `json:"slug"`
+	Title                string  `json:"title"`
+}
+
+// POSTv1studiosdkcomponentsGetJSONBody defines parameters for POSTv1studiosdkcomponentsGet.
+type POSTv1studiosdkcomponentsGetJSONBody struct {
+	Id string `json:"id"`
+}
+
+// POSTv1studiosdkcomponentsListJSONBody defines parameters for POSTv1studiosdkcomponentsList.
+type POSTv1studiosdkcomponentsListJSONBody struct {
+	ConnectorName *string   `json:"connectorName,omitempty"`
+	Fields        *[]string `json:"fields,omitempty"`
+	Limit         *int64    `json:"limit,omitempty"`
+	Namespace     *string   `json:"namespace,omitempty"`
+	Offset        *int64    `json:"offset,omitempty"`
+	OrderBy       *string   `json:"orderBy,omitempty"`
+	OwnerId       *string   `json:"ownerId,omitempty"`
+	Query         *string   `json:"query,omitempty"`
+	Status        *string   `json:"status,omitempty"`
+}
+
+// POSTv1studiosdkcomponentsUpdateJSONBody defines parameters for POSTv1studiosdkcomponentsUpdate.
+type POSTv1studiosdkcomponentsUpdateJSONBody struct {
+	Id    string                                                                `json:"id"`
+	Input Input25f0a19704063df5593ce82b9757fd47d5e39b2de5b199effc95c33a74910afc `json:"input"`
+}
+
+// POSTv1studiosdkconnectorsActivateJSONBody defines parameters for POSTv1studiosdkconnectorsActivate.
+type POSTv1studiosdkconnectorsActivateJSONBody struct {
+	Etag int64  `json:"etag"`
+	Name string `json:"name"`
+}
+
+// POSTv1studiosdkconnectorsDeleteJSONBody defines parameters for POSTv1studiosdkconnectorsDelete.
+type POSTv1studiosdkconnectorsDeleteJSONBody struct {
+	Etag int64  `json:"etag"`
+	Name string `json:"name"`
+}
+
+// POSTv1studiosdkconnectorsDisableJSONBody defines parameters for POSTv1studiosdkconnectorsDisable.
+type POSTv1studiosdkconnectorsDisableJSONBody struct {
+	Etag int64  `json:"etag"`
+	Name string `json:"name"`
 }
 
 // POSTv1studiosdkconnectorsGetJSONBody defines parameters for POSTv1studiosdkconnectorsGet.
@@ -266,6 +2826,47 @@ type POSTv1studiosdkconnectorsListJSONBody struct {
 	Status  *string   `json:"status,omitempty"`
 }
 
+// POSTv1studiosdkconnectorsSchemasJSONBody defines parameters for POSTv1studiosdkconnectorsSchemas.
+type POSTv1studiosdkconnectorsSchemasJSONBody struct {
+	Input *InputD2fa4c9bb7cfdde0500d01f13469e3e914f15fb6eb841dd0cf0c53094ae7e08a `json:"input,omitempty"`
+	Name  string                                                                 `json:"name"`
+}
+
+// POSTv1studiosdkconnectorsTableJSONBody defines parameters for POSTv1studiosdkconnectorsTable.
+type POSTv1studiosdkconnectorsTableJSONBody struct {
+	Input Input8a771218c929de9ad6df8d7f26a11916c0d2c478600a618560aef8cdaa883cf6 `json:"input"`
+	Name  string                                                                `json:"name"`
+}
+
+// POSTv1studiosdkconnectorsTablesJSONBody defines parameters for POSTv1studiosdkconnectorsTables.
+type POSTv1studiosdkconnectorsTablesJSONBody struct {
+	Input *InputCe48d096271799f6074437499f254f457869d225dfbc7ea54c0552fa34341dd8 `json:"input,omitempty"`
+	Name  string                                                                 `json:"name"`
+}
+
+// POSTv1studiosdkconnectorsTestJSONBody defines parameters for POSTv1studiosdkconnectorsTest.
+type POSTv1studiosdkconnectorsTestJSONBody struct {
+	Name string `json:"name"`
+}
+
+// POSTv1studiosdkconnectorsTestSqlJSONBody defines parameters for POSTv1studiosdkconnectorsTestSql.
+type POSTv1studiosdkconnectorsTestSqlJSONBody struct {
+	Input InputE14cc58c4ee74d7747f498bcbd7c71a8cb3028eda5782588b9c5299ed0cf9c37 `json:"input"`
+	Name  string                                                                `json:"name"`
+}
+
+// POSTv1studiosdkconnectorsUpdateJSONBody defines parameters for POSTv1studiosdkconnectorsUpdate.
+type POSTv1studiosdkconnectorsUpdateJSONBody struct {
+	Input Input9aad80e5262dd4bec1816caf72b4dd6364e8940a81d02db58a19387fcec5e859 `json:"input"`
+	Name  string                                                                `json:"name"`
+}
+
+// POSTv1studiosdknamespacesDeleteJSONBody defines parameters for POSTv1studiosdknamespacesDelete.
+type POSTv1studiosdknamespacesDeleteJSONBody struct {
+	Etag int64  `json:"etag"`
+	Name string `json:"name"`
+}
+
 // POSTv1studiosdknamespacesGetJSONBody defines parameters for POSTv1studiosdknamespacesGet.
 type POSTv1studiosdknamespacesGetJSONBody struct {
 	Name string `json:"name"`
@@ -279,6 +2880,19 @@ type POSTv1studiosdknamespacesListJSONBody struct {
 	Status *string `json:"status,omitempty"`
 }
 
+// POSTv1studiosdknamespacesUpdateJSONBody defines parameters for POSTv1studiosdknamespacesUpdate.
+type POSTv1studiosdknamespacesUpdateJSONBody struct {
+	Input Input6139a906f15f351c7eae5d9897ae3973b6172d1373d49394d6c8c69615914840 `json:"input"`
+	Name  string                                                                `json:"name"`
+}
+
+// POSTv1studiosdkpreviewExecuteJSONBody defines parameters for POSTv1studiosdkpreviewExecute.
+type POSTv1studiosdkpreviewExecuteJSONBody struct {
+	Input     *InputEa8cf0b60e82e17c8f2e6bc2ad35fe0985cc717838bb65d7f9b56c81bd0718aa `json:"input,omitempty"`
+	ReportId  string                                                                 `json:"reportId"`
+	VersionNo int64                                                                  `json:"versionNo"`
+}
+
 // POSTv1studiosdkpublicationsEventsListJSONBody defines parameters for POSTv1studiosdkpublicationsEventsList.
 type POSTv1studiosdkpublicationsEventsListJSONBody struct {
 	Input    *InputC8f891bb6cfd81599dce6f4f5d400a21caa864a78f2dabaa10e3173f02ca8db3 `json:"input,omitempty"`
@@ -290,26 +2904,207 @@ type POSTv1studiosdkpublicationsGetJSONBody struct {
 	ReportId string `json:"reportId"`
 }
 
-// POSTv1studiosdkreportsGetJSONBody defines parameters for POSTv1studiosdkreportsGet.
-type POSTv1studiosdkreportsGetJSONBody struct {
-	Id string `json:"id"`
+// POSTv1studiosdkpublicationsPublishJSONBody defines parameters for POSTv1studiosdkpublicationsPublish.
+type POSTv1studiosdkpublicationsPublishJSONBody struct {
+	Input     InputF063ff05b2157fb8f6176bbd7a336f91805d5c30366f9c24c986423e7cda8aa9 `json:"input"`
+	ReportId  string                                                                `json:"reportId"`
+	VersionNo int64                                                                 `json:"versionNo"`
 }
 
-// POSTv1studiosdkreportsListJSONBody defines parameters for POSTv1studiosdkreportsList.
-type POSTv1studiosdkreportsListJSONBody struct {
-	ConnectorName *string   `json:"connectorName,omitempty"`
-	Fields        *[]string `json:"fields,omitempty"`
-	Limit         *int64    `json:"limit,omitempty"`
-	Namespace     *string   `json:"namespace,omitempty"`
-	Offset        *int64    `json:"offset,omitempty"`
-	OrderBy       *string   `json:"orderBy,omitempty"`
-	OwnerId       *string   `json:"ownerId,omitempty"`
-	Query         *string   `json:"query,omitempty"`
-	Status        *string   `json:"status,omitempty"`
+// POSTv1studiosdkpublicationsRollbackJSONBody defines parameters for POSTv1studiosdkpublicationsRollback.
+type POSTv1studiosdkpublicationsRollbackJSONBody struct {
+	Input     InputB11523bf8a7cc12531330e851f7fb2dd5c4f01768e8eaf6d9a50d7d84ad1250b `json:"input"`
+	ReportId  string                                                                `json:"reportId"`
+	VersionNo int64                                                                 `json:"versionNo"`
 }
+
+// POSTv1studiosdkpublicationsUnpublishJSONBody defines parameters for POSTv1studiosdkpublicationsUnpublish.
+type POSTv1studiosdkpublicationsUnpublishJSONBody struct {
+	Input    Input4b2c38475d83ff82029ec4520d07b5ec88c1409199c252fc696e28282c52561f `json:"input"`
+	ReportId string                                                                `json:"reportId"`
+}
+
+// POSTv1studiosdkresourcesGetJSONBody defines parameters for POSTv1studiosdkresourcesGet.
+type POSTv1studiosdkresourcesGetJSONBody struct {
+	ReportId  string `json:"reportId"`
+	VersionNo int64  `json:"versionNo"`
+}
+
+// POSTv1studiosdkversionsApplyJSONBody defines parameters for POSTv1studiosdkversionsApply.
+type POSTv1studiosdkversionsApplyJSONBody struct {
+	Command   Input1962b8f8815d6b22b84f6c89d5bf29530739f18f1bed0742ebc1f67a50636542 `json:"command"`
+	ReportId  string                                                                `json:"reportId"`
+	VersionNo int64                                                                 `json:"versionNo"`
+}
+
+// POSTv1studiosdkversionsBuilderJSONBody defines parameters for POSTv1studiosdkversionsBuilder.
+type POSTv1studiosdkversionsBuilderJSONBody struct {
+	Command   Input8b2294ec4854c9dd94236a9123a7d8fe7dbf92cab403fb011d6c8bf7d53c5054 `json:"command"`
+	ReportId  string                                                                `json:"reportId"`
+	VersionNo int64                                                                 `json:"versionNo"`
+}
+
+// POSTv1studiosdkversionsCreateJSONBody defines parameters for POSTv1studiosdkversionsCreate.
+type POSTv1studiosdkversionsCreateJSONBody struct {
+	Input    InputA0d3076a206576e1fb379faacd83a9e5289796c14e710e1fe21529cfb0c35c21 `json:"input"`
+	ReportId string                                                                `json:"reportId"`
+}
+
+// POSTv1studiosdkversionsDescriptorJSONBody defines parameters for POSTv1studiosdkversionsDescriptor.
+type POSTv1studiosdkversionsDescriptorJSONBody struct {
+	ReportId  string `json:"reportId"`
+	VersionNo int64  `json:"versionNo"`
+}
+
+// POSTv1studiosdkversionsDownloadJSONBody defines parameters for POSTv1studiosdkversionsDownload.
+type POSTv1studiosdkversionsDownloadJSONBody struct {
+	ReportId  string `json:"reportId"`
+	VersionNo int64  `json:"versionNo"`
+}
+
+// POSTv1studiosdkversionsExportDqlJSONBody defines parameters for POSTv1studiosdkversionsExportDql.
+type POSTv1studiosdkversionsExportDqlJSONBody struct {
+	ReportId  string `json:"reportId"`
+	VersionNo int64  `json:"versionNo"`
+}
+
+// POSTv1studiosdkversionsGetJSONBody defines parameters for POSTv1studiosdkversionsGet.
+type POSTv1studiosdkversionsGetJSONBody struct {
+	ReportId  string `json:"reportId"`
+	VersionNo int64  `json:"versionNo"`
+}
+
+// POSTv1studiosdkversionsInspectJSONBody defines parameters for POSTv1studiosdkversionsInspect.
+type POSTv1studiosdkversionsInspectJSONBody struct {
+	ReportId  string `json:"reportId"`
+	VersionNo int64  `json:"versionNo"`
+}
+
+// POSTv1studiosdkversionsListJSONBody defines parameters for POSTv1studiosdkversionsList.
+type POSTv1studiosdkversionsListJSONBody struct {
+	Input    *Input2d7353179486a6080c97a342425fc1796b1a0e525ea43989e78b586465c68fb6 `json:"input,omitempty"`
+	Limit    *int64                                                                 `json:"limit,omitempty"`
+	Offset   *int64                                                                 `json:"offset,omitempty"`
+	ReportId string                                                                 `json:"reportId"`
+}
+
+// POSTv1studiosdkversionsLoadArchiveJSONBody defines parameters for POSTv1studiosdkversionsLoadArchive.
+type POSTv1studiosdkversionsLoadArchiveJSONBody struct {
+	Input    Input05e809e9f99e43822a03e6818a8de1e9fd48cb2f10be053f77c9af8d2092e9d9 `json:"input"`
+	ReportId string                                                                `json:"reportId"`
+}
+
+// POSTv1studiosdkversionsLoadDqlJSONBody defines parameters for POSTv1studiosdkversionsLoadDql.
+type POSTv1studiosdkversionsLoadDqlJSONBody struct {
+	Input    Input808907cf45a0ab5f46a0dc123ed3a6a23958483a2bfe6af8cdcfabaf2b54af30 `json:"input"`
+	ReportId string                                                                `json:"reportId"`
+}
+
+// POSTv1studiosdkversionsTestComposeJSONBody defines parameters for POSTv1studiosdkversionsTestCompose.
+type POSTv1studiosdkversionsTestComposeJSONBody struct {
+	Input     Input4c3d58d8e922b5abbd65732f09a81d45874f0f7555537fd9607035bfecb9f26c `json:"input"`
+	ReportId  string                                                                `json:"reportId"`
+	VersionNo int64                                                                 `json:"versionNo"`
+}
+
+// POSTv1studiosdkversionsTestRelationJSONBody defines parameters for POSTv1studiosdkversionsTestRelation.
+type POSTv1studiosdkversionsTestRelationJSONBody struct {
+	Input     *Input57127985d5662edb0b3d19b39a5c7c1e6df20a3253afa119615d9abc0d06a16b `json:"input,omitempty"`
+	Relation  string                                                                 `json:"relation"`
+	ReportId  string                                                                 `json:"reportId"`
+	VersionNo int64                                                                  `json:"versionNo"`
+}
+
+// POSTv1studiosdkversionsTestViewJSONBody defines parameters for POSTv1studiosdkversionsTestView.
+type POSTv1studiosdkversionsTestViewJSONBody struct {
+	Input     *Input78c96702ed752e425a13d515ae18bac86d71d27030700074199617129869fe30 `json:"input,omitempty"`
+	ReportId  string                                                                 `json:"reportId"`
+	VersionNo int64                                                                  `json:"versionNo"`
+	View      string                                                                 `json:"view"`
+}
+
+// POSTv1studiosdkversionsValidateJSONBody defines parameters for POSTv1studiosdkversionsValidate.
+type POSTv1studiosdkversionsValidateJSONBody struct {
+	ExpectedSourceRevision int64  `json:"expectedSourceRevision"`
+	ReportId               string `json:"reportId"`
+	VersionNo              int64  `json:"versionNo"`
+}
+
+// POSTv1studiosdkversionsWarmupJSONBody defines parameters for POSTv1studiosdkversionsWarmup.
+type POSTv1studiosdkversionsWarmupJSONBody struct {
+	ReportId  string `json:"reportId"`
+	VersionNo int64  `json:"versionNo"`
+}
+
+// POSTv1studiosdkversionsWarmupGetJSONBody defines parameters for POSTv1studiosdkversionsWarmupGet.
+type POSTv1studiosdkversionsWarmupGetJSONBody struct {
+	ReportId string `json:"reportId"`
+	RunId    string `json:"runId"`
+}
+
+// POSTv1studiosdkversionsWarmupListJSONBody defines parameters for POSTv1studiosdkversionsWarmupList.
+type POSTv1studiosdkversionsWarmupListJSONBody struct {
+	Input     *InputB94652047b45c410057de4a3d589b99411e9b1ce7012ae301388c27534a7d71e `json:"input,omitempty"`
+	ReportId  string                                                                 `json:"reportId"`
+	VersionNo int64                                                                  `json:"versionNo"`
+}
+
+// POSTv1studiosdkaccessContextJSONRequestBody defines body for POSTv1studiosdkaccessContext for application/json ContentType.
+type POSTv1studiosdkaccessContextJSONRequestBody = Input03431463bb75c805271cda3d99727948b169a41134e802271c7e8a9391c0be1b
+
+// POSTv1studiosdkaccessGetJSONRequestBody defines body for POSTv1studiosdkaccessGet for application/json ContentType.
+type POSTv1studiosdkaccessGetJSONRequestBody = Input1777f5e244f91f0645bf7ef39ca23fb64c98c7f12533a1f1b43c45261f87381b
+
+// POSTv1studiosdkaccessReplaceJSONRequestBody defines body for POSTv1studiosdkaccessReplace for application/json ContentType.
+type POSTv1studiosdkaccessReplaceJSONRequestBody = Input56eaf778ce1253fe858bf578c97bd7824413c87195caefb7315fd578bae05388
+
+// POSTv1studiosdkaclDeleteJSONRequestBody defines body for POSTv1studiosdkaclDelete for application/json ContentType.
+type POSTv1studiosdkaclDeleteJSONRequestBody POSTv1studiosdkaclDeleteJSONBody
 
 // POSTv1studiosdkaclListJSONRequestBody defines body for POSTv1studiosdkaclList for application/json ContentType.
 type POSTv1studiosdkaclListJSONRequestBody POSTv1studiosdkaclListJSONBody
+
+// POSTv1studiosdkaclUpsertJSONRequestBody defines body for POSTv1studiosdkaclUpsert for application/json ContentType.
+type POSTv1studiosdkaclUpsertJSONRequestBody POSTv1studiosdkaclUpsertJSONBody
+
+// POSTv1studiosdkauthorizationPredicatesCreateJSONRequestBody defines body for POSTv1studiosdkauthorizationPredicatesCreate for application/json ContentType.
+type POSTv1studiosdkauthorizationPredicatesCreateJSONRequestBody POSTv1studiosdkauthorizationPredicatesCreateJSONBody
+
+// POSTv1studiosdkauthorizationPredicatesDeleteJSONRequestBody defines body for POSTv1studiosdkauthorizationPredicatesDelete for application/json ContentType.
+type POSTv1studiosdkauthorizationPredicatesDeleteJSONRequestBody POSTv1studiosdkauthorizationPredicatesDeleteJSONBody
+
+// POSTv1studiosdkauthorizationPredicatesGetJSONRequestBody defines body for POSTv1studiosdkauthorizationPredicatesGet for application/json ContentType.
+type POSTv1studiosdkauthorizationPredicatesGetJSONRequestBody POSTv1studiosdkauthorizationPredicatesGetJSONBody
+
+// POSTv1studiosdkauthorizationPredicatesListJSONRequestBody defines body for POSTv1studiosdkauthorizationPredicatesList for application/json ContentType.
+type POSTv1studiosdkauthorizationPredicatesListJSONRequestBody POSTv1studiosdkauthorizationPredicatesListJSONBody
+
+// POSTv1studiosdkauthorizationPredicatesUpdateJSONRequestBody defines body for POSTv1studiosdkauthorizationPredicatesUpdate for application/json ContentType.
+type POSTv1studiosdkauthorizationPredicatesUpdateJSONRequestBody POSTv1studiosdkauthorizationPredicatesUpdateJSONBody
+
+// POSTv1studiosdkcomponentsCreateJSONRequestBody defines body for POSTv1studiosdkcomponentsCreate for application/json ContentType.
+type POSTv1studiosdkcomponentsCreateJSONRequestBody POSTv1studiosdkcomponentsCreateJSONBody
+
+// POSTv1studiosdkcomponentsGetJSONRequestBody defines body for POSTv1studiosdkcomponentsGet for application/json ContentType.
+type POSTv1studiosdkcomponentsGetJSONRequestBody POSTv1studiosdkcomponentsGetJSONBody
+
+// POSTv1studiosdkcomponentsListJSONRequestBody defines body for POSTv1studiosdkcomponentsList for application/json ContentType.
+type POSTv1studiosdkcomponentsListJSONRequestBody POSTv1studiosdkcomponentsListJSONBody
+
+// POSTv1studiosdkcomponentsUpdateJSONRequestBody defines body for POSTv1studiosdkcomponentsUpdate for application/json ContentType.
+type POSTv1studiosdkcomponentsUpdateJSONRequestBody POSTv1studiosdkcomponentsUpdateJSONBody
+
+// POSTv1studiosdkconnectorsActivateJSONRequestBody defines body for POSTv1studiosdkconnectorsActivate for application/json ContentType.
+type POSTv1studiosdkconnectorsActivateJSONRequestBody POSTv1studiosdkconnectorsActivateJSONBody
+
+// POSTv1studiosdkconnectorsCreateJSONRequestBody defines body for POSTv1studiosdkconnectorsCreate for application/json ContentType.
+type POSTv1studiosdkconnectorsCreateJSONRequestBody = Input2e06143707781a8502ab8fc97824dec99c9e9b2998f2436174c1d8b57c8d9cdf
+
+// POSTv1studiosdkconnectorsDeleteJSONRequestBody defines body for POSTv1studiosdkconnectorsDelete for application/json ContentType.
+type POSTv1studiosdkconnectorsDeleteJSONRequestBody POSTv1studiosdkconnectorsDeleteJSONBody
+
+// POSTv1studiosdkconnectorsDisableJSONRequestBody defines body for POSTv1studiosdkconnectorsDisable for application/json ContentType.
+type POSTv1studiosdkconnectorsDisableJSONRequestBody POSTv1studiosdkconnectorsDisableJSONBody
 
 // POSTv1studiosdkconnectorsGetJSONRequestBody defines body for POSTv1studiosdkconnectorsGet for application/json ContentType.
 type POSTv1studiosdkconnectorsGetJSONRequestBody POSTv1studiosdkconnectorsGetJSONBody
@@ -317,11 +3112,41 @@ type POSTv1studiosdkconnectorsGetJSONRequestBody POSTv1studiosdkconnectorsGetJSO
 // POSTv1studiosdkconnectorsListJSONRequestBody defines body for POSTv1studiosdkconnectorsList for application/json ContentType.
 type POSTv1studiosdkconnectorsListJSONRequestBody POSTv1studiosdkconnectorsListJSONBody
 
+// POSTv1studiosdkconnectorsSchemasJSONRequestBody defines body for POSTv1studiosdkconnectorsSchemas for application/json ContentType.
+type POSTv1studiosdkconnectorsSchemasJSONRequestBody POSTv1studiosdkconnectorsSchemasJSONBody
+
+// POSTv1studiosdkconnectorsTableJSONRequestBody defines body for POSTv1studiosdkconnectorsTable for application/json ContentType.
+type POSTv1studiosdkconnectorsTableJSONRequestBody POSTv1studiosdkconnectorsTableJSONBody
+
+// POSTv1studiosdkconnectorsTablesJSONRequestBody defines body for POSTv1studiosdkconnectorsTables for application/json ContentType.
+type POSTv1studiosdkconnectorsTablesJSONRequestBody POSTv1studiosdkconnectorsTablesJSONBody
+
+// POSTv1studiosdkconnectorsTestJSONRequestBody defines body for POSTv1studiosdkconnectorsTest for application/json ContentType.
+type POSTv1studiosdkconnectorsTestJSONRequestBody POSTv1studiosdkconnectorsTestJSONBody
+
+// POSTv1studiosdkconnectorsTestSqlJSONRequestBody defines body for POSTv1studiosdkconnectorsTestSql for application/json ContentType.
+type POSTv1studiosdkconnectorsTestSqlJSONRequestBody POSTv1studiosdkconnectorsTestSqlJSONBody
+
+// POSTv1studiosdkconnectorsUpdateJSONRequestBody defines body for POSTv1studiosdkconnectorsUpdate for application/json ContentType.
+type POSTv1studiosdkconnectorsUpdateJSONRequestBody POSTv1studiosdkconnectorsUpdateJSONBody
+
+// POSTv1studiosdknamespacesCreateJSONRequestBody defines body for POSTv1studiosdknamespacesCreate for application/json ContentType.
+type POSTv1studiosdknamespacesCreateJSONRequestBody = InputB990d293ef5d3e7e85a2acebd0bbccb12b9ec19ea303b41252de0b2f2bbb9e05
+
+// POSTv1studiosdknamespacesDeleteJSONRequestBody defines body for POSTv1studiosdknamespacesDelete for application/json ContentType.
+type POSTv1studiosdknamespacesDeleteJSONRequestBody POSTv1studiosdknamespacesDeleteJSONBody
+
 // POSTv1studiosdknamespacesGetJSONRequestBody defines body for POSTv1studiosdknamespacesGet for application/json ContentType.
 type POSTv1studiosdknamespacesGetJSONRequestBody POSTv1studiosdknamespacesGetJSONBody
 
 // POSTv1studiosdknamespacesListJSONRequestBody defines body for POSTv1studiosdknamespacesList for application/json ContentType.
 type POSTv1studiosdknamespacesListJSONRequestBody POSTv1studiosdknamespacesListJSONBody
+
+// POSTv1studiosdknamespacesUpdateJSONRequestBody defines body for POSTv1studiosdknamespacesUpdate for application/json ContentType.
+type POSTv1studiosdknamespacesUpdateJSONRequestBody POSTv1studiosdknamespacesUpdateJSONBody
+
+// POSTv1studiosdkpreviewExecuteJSONRequestBody defines body for POSTv1studiosdkpreviewExecute for application/json ContentType.
+type POSTv1studiosdkpreviewExecuteJSONRequestBody POSTv1studiosdkpreviewExecuteJSONBody
 
 // POSTv1studiosdkpublicationsEventsListJSONRequestBody defines body for POSTv1studiosdkpublicationsEventsList for application/json ContentType.
 type POSTv1studiosdkpublicationsEventsListJSONRequestBody POSTv1studiosdkpublicationsEventsListJSONBody
@@ -329,11 +3154,1081 @@ type POSTv1studiosdkpublicationsEventsListJSONRequestBody POSTv1studiosdkpublica
 // POSTv1studiosdkpublicationsGetJSONRequestBody defines body for POSTv1studiosdkpublicationsGet for application/json ContentType.
 type POSTv1studiosdkpublicationsGetJSONRequestBody POSTv1studiosdkpublicationsGetJSONBody
 
-// POSTv1studiosdkreportsGetJSONRequestBody defines body for POSTv1studiosdkreportsGet for application/json ContentType.
-type POSTv1studiosdkreportsGetJSONRequestBody POSTv1studiosdkreportsGetJSONBody
+// POSTv1studiosdkpublicationsPublishJSONRequestBody defines body for POSTv1studiosdkpublicationsPublish for application/json ContentType.
+type POSTv1studiosdkpublicationsPublishJSONRequestBody POSTv1studiosdkpublicationsPublishJSONBody
 
-// POSTv1studiosdkreportsListJSONRequestBody defines body for POSTv1studiosdkreportsList for application/json ContentType.
-type POSTv1studiosdkreportsListJSONRequestBody POSTv1studiosdkreportsListJSONBody
+// POSTv1studiosdkpublicationsRollbackJSONRequestBody defines body for POSTv1studiosdkpublicationsRollback for application/json ContentType.
+type POSTv1studiosdkpublicationsRollbackJSONRequestBody POSTv1studiosdkpublicationsRollbackJSONBody
+
+// POSTv1studiosdkpublicationsUnpublishJSONRequestBody defines body for POSTv1studiosdkpublicationsUnpublish for application/json ContentType.
+type POSTv1studiosdkpublicationsUnpublishJSONRequestBody POSTv1studiosdkpublicationsUnpublishJSONBody
+
+// POSTv1studiosdkresourcesDeleteFileJSONRequestBody defines body for POSTv1studiosdkresourcesDeleteFile for application/json ContentType.
+type POSTv1studiosdkresourcesDeleteFileJSONRequestBody = InputD1b436abf4fd54a2fa997cbd492e576d712e8c35c087bfcf2d72d6d2dffb0f20
+
+// POSTv1studiosdkresourcesDeleteFolderJSONRequestBody defines body for POSTv1studiosdkresourcesDeleteFolder for application/json ContentType.
+type POSTv1studiosdkresourcesDeleteFolderJSONRequestBody = InputCe5005b864956cbc2469fc8d71a73cc80f19dd86c8340815b1edae79273b8769
+
+// POSTv1studiosdkresourcesDeleteSkillJSONRequestBody defines body for POSTv1studiosdkresourcesDeleteSkill for application/json ContentType.
+type POSTv1studiosdkresourcesDeleteSkillJSONRequestBody = Input89a37caef4565ff5d5aa4568065f46b182888b77f96c21fb1eed777c45878f9e
+
+// POSTv1studiosdkresourcesGetJSONRequestBody defines body for POSTv1studiosdkresourcesGet for application/json ContentType.
+type POSTv1studiosdkresourcesGetJSONRequestBody POSTv1studiosdkresourcesGetJSONBody
+
+// POSTv1studiosdkresourcesUpsertFileJSONRequestBody defines body for POSTv1studiosdkresourcesUpsertFile for application/json ContentType.
+type POSTv1studiosdkresourcesUpsertFileJSONRequestBody = InputAdff4675f499a769cb093e90fbca27e902af83cc23c5e13071057671fe8d89f0
+
+// POSTv1studiosdkresourcesUpsertFolderJSONRequestBody defines body for POSTv1studiosdkresourcesUpsertFolder for application/json ContentType.
+type POSTv1studiosdkresourcesUpsertFolderJSONRequestBody = Input5bcc88d6e28e27666dfa5b56f82424fa705c9bf62e9e02961ffb251630580697
+
+// POSTv1studiosdkresourcesUpsertSkillJSONRequestBody defines body for POSTv1studiosdkresourcesUpsertSkill for application/json ContentType.
+type POSTv1studiosdkresourcesUpsertSkillJSONRequestBody = Input96a025b75d7ec5ca504acf90ff2915c5535f1449cf9023d5d424dce58b581054
+
+// POSTv1studiosdkversionsApplyJSONRequestBody defines body for POSTv1studiosdkversionsApply for application/json ContentType.
+type POSTv1studiosdkversionsApplyJSONRequestBody POSTv1studiosdkversionsApplyJSONBody
+
+// POSTv1studiosdkversionsBuilderJSONRequestBody defines body for POSTv1studiosdkversionsBuilder for application/json ContentType.
+type POSTv1studiosdkversionsBuilderJSONRequestBody POSTv1studiosdkversionsBuilderJSONBody
+
+// POSTv1studiosdkversionsCreateJSONRequestBody defines body for POSTv1studiosdkversionsCreate for application/json ContentType.
+type POSTv1studiosdkversionsCreateJSONRequestBody POSTv1studiosdkversionsCreateJSONBody
+
+// POSTv1studiosdkversionsDescriptorJSONRequestBody defines body for POSTv1studiosdkversionsDescriptor for application/json ContentType.
+type POSTv1studiosdkversionsDescriptorJSONRequestBody POSTv1studiosdkversionsDescriptorJSONBody
+
+// POSTv1studiosdkversionsDownloadJSONRequestBody defines body for POSTv1studiosdkversionsDownload for application/json ContentType.
+type POSTv1studiosdkversionsDownloadJSONRequestBody POSTv1studiosdkversionsDownloadJSONBody
+
+// POSTv1studiosdkversionsExportDqlJSONRequestBody defines body for POSTv1studiosdkversionsExportDql for application/json ContentType.
+type POSTv1studiosdkversionsExportDqlJSONRequestBody POSTv1studiosdkversionsExportDqlJSONBody
+
+// POSTv1studiosdkversionsGetJSONRequestBody defines body for POSTv1studiosdkversionsGet for application/json ContentType.
+type POSTv1studiosdkversionsGetJSONRequestBody POSTv1studiosdkversionsGetJSONBody
+
+// POSTv1studiosdkversionsInspectJSONRequestBody defines body for POSTv1studiosdkversionsInspect for application/json ContentType.
+type POSTv1studiosdkversionsInspectJSONRequestBody POSTv1studiosdkversionsInspectJSONBody
+
+// POSTv1studiosdkversionsListJSONRequestBody defines body for POSTv1studiosdkversionsList for application/json ContentType.
+type POSTv1studiosdkversionsListJSONRequestBody POSTv1studiosdkversionsListJSONBody
+
+// POSTv1studiosdkversionsLoadArchiveJSONRequestBody defines body for POSTv1studiosdkversionsLoadArchive for application/json ContentType.
+type POSTv1studiosdkversionsLoadArchiveJSONRequestBody POSTv1studiosdkversionsLoadArchiveJSONBody
+
+// POSTv1studiosdkversionsLoadDqlJSONRequestBody defines body for POSTv1studiosdkversionsLoadDql for application/json ContentType.
+type POSTv1studiosdkversionsLoadDqlJSONRequestBody POSTv1studiosdkversionsLoadDqlJSONBody
+
+// POSTv1studiosdkversionsTestComposeJSONRequestBody defines body for POSTv1studiosdkversionsTestCompose for application/json ContentType.
+type POSTv1studiosdkversionsTestComposeJSONRequestBody POSTv1studiosdkversionsTestComposeJSONBody
+
+// POSTv1studiosdkversionsTestRelationJSONRequestBody defines body for POSTv1studiosdkversionsTestRelation for application/json ContentType.
+type POSTv1studiosdkversionsTestRelationJSONRequestBody POSTv1studiosdkversionsTestRelationJSONBody
+
+// POSTv1studiosdkversionsTestViewJSONRequestBody defines body for POSTv1studiosdkversionsTestView for application/json ContentType.
+type POSTv1studiosdkversionsTestViewJSONRequestBody POSTv1studiosdkversionsTestViewJSONBody
+
+// POSTv1studiosdkversionsValidateJSONRequestBody defines body for POSTv1studiosdkversionsValidate for application/json ContentType.
+type POSTv1studiosdkversionsValidateJSONRequestBody POSTv1studiosdkversionsValidateJSONBody
+
+// POSTv1studiosdkversionsWarmupJSONRequestBody defines body for POSTv1studiosdkversionsWarmup for application/json ContentType.
+type POSTv1studiosdkversionsWarmupJSONRequestBody POSTv1studiosdkversionsWarmupJSONBody
+
+// POSTv1studiosdkversionsWarmupGetJSONRequestBody defines body for POSTv1studiosdkversionsWarmupGet for application/json ContentType.
+type POSTv1studiosdkversionsWarmupGetJSONRequestBody POSTv1studiosdkversionsWarmupGetJSONBody
+
+// POSTv1studiosdkversionsWarmupListJSONRequestBody defines body for POSTv1studiosdkversionsWarmupList for application/json ContentType.
+type POSTv1studiosdkversionsWarmupListJSONRequestBody POSTv1studiosdkversionsWarmupListJSONBody
+
+// AsInput5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9 returns the union data inside the Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity as a Input5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9
+func (t Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity) AsInput5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9() (Input5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9, error) {
+	var body Input5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInput5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9 overwrites any union data inside the Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity as the provided Input5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9
+func (t *Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity) FromInput5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9(v Input5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInput5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9 performs a merge with any union data inside the Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity, using the provided Input5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9
+func (t *Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity) MergeInput5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9(v Input5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1 returns the union data inside the Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity as a Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1
+func (t Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity) AsInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1() (Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1, error) {
+	var body Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1 overwrites any union data inside the Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity as the provided Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1
+func (t *Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity) FromInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1(v Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1 performs a merge with any union data inside the Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity, using the provided Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1
+func (t *Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity) MergeInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1(v Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8 returns the union data inside the Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule as a Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8
+func (t Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule) AsInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8() (Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8, error) {
+	var body Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8 overwrites any union data inside the Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule as the provided Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8
+func (t *Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule) FromInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8(v Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8 performs a merge with any union data inside the Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule, using the provided Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8
+func (t *Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule) MergeInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8(v Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsInput9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1 returns the union data inside the Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule as a Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1
+func (t Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule) AsInput9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1() (Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1, error) {
+	var body Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInput9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1 overwrites any union data inside the Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule as the provided Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1
+func (t *Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule) FromInput9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1(v Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInput9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1 performs a merge with any union data inside the Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule, using the provided Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1
+func (t *Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule) MergeInput9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1(v Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f returns the union data inside the Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule as a Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f
+func (t Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule) AsOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f() (Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f, error) {
+	var body Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f overwrites any union data inside the Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule as the provided Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f
+func (t *Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule) FromOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f(v Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f performs a merge with any union data inside the Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule, using the provided Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f
+func (t *Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule) MergeOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f(v Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsOutput0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1 returns the union data inside the Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule as a Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1
+func (t Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule) AsOutput0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1() (Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1, error) {
+	var body Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutput0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1 overwrites any union data inside the Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule as the provided Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1
+func (t *Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule) FromOutput0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1(v Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutput0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1 performs a merge with any union data inside the Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule, using the provided Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1
+func (t *Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule) MergeOutput0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1(v Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsOutput886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303 returns the union data inside the Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity as a Output886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303
+func (t Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity) AsOutput886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303() (Output886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303, error) {
+	var body Output886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutput886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303 overwrites any union data inside the Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity as the provided Output886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303
+func (t *Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity) FromOutput886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303(v Output886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutput886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303 performs a merge with any union data inside the Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity, using the provided Output886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303
+func (t *Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity) MergeOutput886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303(v Output886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsOutput30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1 returns the union data inside the Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity as a Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1
+func (t Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity) AsOutput30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1() (Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1, error) {
+	var body Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutput30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1 overwrites any union data inside the Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity as the provided Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1
+func (t *Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity) FromOutput30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1(v Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutput30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1 performs a merge with any union data inside the Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity, using the provided Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1
+func (t *Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity) MergeOutput30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1(v Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsOutput69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5 returns the union data inside the Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity as a Output69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5
+func (t Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity) AsOutput69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5() (Output69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5, error) {
+	var body Output69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutput69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5 overwrites any union data inside the Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity as the provided Output69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5
+func (t *Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity) FromOutput69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5(v Output69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutput69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5 performs a merge with any union data inside the Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity, using the provided Output69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5
+func (t *Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity) MergeOutput69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5(v Output69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsOutput507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1 returns the union data inside the Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity as a Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1
+func (t Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity) AsOutput507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1() (Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1, error) {
+	var body Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutput507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1 overwrites any union data inside the Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity as the provided Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1
+func (t *Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity) FromOutput507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1(v Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutput507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1 performs a merge with any union data inside the Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity, using the provided Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1
+func (t *Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity) MergeOutput507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1(v Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsOutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed returns the union data inside the Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity as a OutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed
+func (t Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity) AsOutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed() (OutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed, error) {
+	var body OutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed overwrites any union data inside the Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity as the provided OutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed
+func (t *Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity) FromOutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed(v OutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed performs a merge with any union data inside the Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity, using the provided OutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed
+func (t *Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity) MergeOutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed(v OutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1 returns the union data inside the Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity as a Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1
+func (t Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity) AsOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1() (Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1, error) {
+	var body Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1 overwrites any union data inside the Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity as the provided Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1
+func (t *Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity) FromOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1(v Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1 performs a merge with any union data inside the Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity, using the provided Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1
+func (t *Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity) MergeOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1(v Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsOutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0 returns the union data inside the OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity as a OutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0
+func (t OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity) AsOutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0() (OutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0, error) {
+	var body OutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0 overwrites any union data inside the OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity as the provided OutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0
+func (t *OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity) FromOutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0(v OutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0 performs a merge with any union data inside the OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity, using the provided OutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0
+func (t *OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity) MergeOutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0(v OutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsOutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1 returns the union data inside the OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity as a OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1
+func (t OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity) AsOutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1() (OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1, error) {
+	var body OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1 overwrites any union data inside the OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity as the provided OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1
+func (t *OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity) FromOutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1(v OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1 performs a merge with any union data inside the OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity, using the provided OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1
+func (t *OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity) MergeOutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1(v OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsOutput0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa returns the union data inside the OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688_Host as a Output0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa
+func (t OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688_Host) AsOutput0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa() (Output0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa, error) {
+	var body Output0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutput0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa overwrites any union data inside the OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688_Host as the provided Output0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa
+func (t *OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688_Host) FromOutput0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa(v Output0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutput0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa performs a merge with any union data inside the OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688_Host, using the provided Output0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa
+func (t *OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688_Host) MergeOutput0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa(v Output0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsOutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688Host1 returns the union data inside the OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688_Host as a OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688Host1
+func (t OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688_Host) AsOutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688Host1() (OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688Host1, error) {
+	var body OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688Host1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688Host1 overwrites any union data inside the OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688_Host as the provided OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688Host1
+func (t *OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688_Host) FromOutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688Host1(v OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688Host1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688Host1 performs a merge with any union data inside the OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688_Host, using the provided OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688Host1
+func (t *OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688_Host) MergeOutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688Host1(v OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688Host1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688_Host) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688_Host) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsOutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37 returns the union data inside the OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity as a OutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37
+func (t OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity) AsOutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37() (OutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37, error) {
+	var body OutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37 overwrites any union data inside the OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity as the provided OutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37
+func (t *OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity) FromOutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37(v OutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37 performs a merge with any union data inside the OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity, using the provided OutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37
+func (t *OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity) MergeOutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37(v OutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1 returns the union data inside the OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity as a OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1
+func (t OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity) AsOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1() (OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1, error) {
+	var body OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1 overwrites any union data inside the OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity as the provided OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1
+func (t *OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity) FromOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1(v OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1 performs a merge with any union data inside the OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity, using the provided OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1
+func (t *OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity) MergeOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1(v OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15 returns the union data inside the OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule as a OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15
+func (t OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule) AsOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15() (OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15, error) {
+	var body OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15 overwrites any union data inside the OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule as the provided OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15
+func (t *OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule) FromOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15(v OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15 performs a merge with any union data inside the OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule, using the provided OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15
+func (t *OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule) MergeOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15(v OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsOutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1 returns the union data inside the OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule as a OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1
+func (t OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule) AsOutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1() (OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1, error) {
+	var body OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1 overwrites any union data inside the OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule as the provided OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1
+func (t *OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule) FromOutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1(v OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1 performs a merge with any union data inside the OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule, using the provided OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1
+func (t *OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule) MergeOutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1(v OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsOutput41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7 returns the union data inside the OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity as a Output41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7
+func (t OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity) AsOutput41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7() (Output41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7, error) {
+	var body Output41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutput41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7 overwrites any union data inside the OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity as the provided Output41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7
+func (t *OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity) FromOutput41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7(v Output41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutput41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7 performs a merge with any union data inside the OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity, using the provided Output41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7
+func (t *OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity) MergeOutput41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7(v Output41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsOutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1 returns the union data inside the OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity as a OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1
+func (t OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity) AsOutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1() (OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1, error) {
+	var body OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1 overwrites any union data inside the OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity as the provided OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1
+func (t *OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity) FromOutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1(v OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1 performs a merge with any union data inside the OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity, using the provided OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1
+func (t *OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity) MergeOutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1(v OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8 returns the union data inside the Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14_Version as a Wire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8
+func (t Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14_Version) AsWire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8() (Wire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8, error) {
+	var body Wire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8 overwrites any union data inside the Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14_Version as the provided Wire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8
+func (t *Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14_Version) FromWire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8(v Wire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8 performs a merge with any union data inside the Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14_Version, using the provided Wire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8
+func (t *Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14_Version) MergeWire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8(v Wire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14Version1 returns the union data inside the Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14_Version as a Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14Version1
+func (t Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14_Version) AsWire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14Version1() (Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14Version1, error) {
+	var body Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14Version1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14Version1 overwrites any union data inside the Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14_Version as the provided Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14Version1
+func (t *Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14_Version) FromWire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14Version1(v Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14Version1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14Version1 performs a merge with any union data inside the Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14_Version, using the provided Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14Version1
+func (t *Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14_Version) MergeWire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14Version1(v Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14Version1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14_Version) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14_Version) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e returns the union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Files_Item as a Wire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e
+func (t Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Files_Item) AsWire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e() (Wire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e, error) {
+	var body Wire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e overwrites any union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Files_Item as the provided Wire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e
+func (t *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Files_Item) FromWire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e(v Wire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e performs a merge with any union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Files_Item, using the provided Wire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e
+func (t *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Files_Item) MergeWire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e(v Wire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFiles1 returns the union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Files_Item as a Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFiles1
+func (t Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Files_Item) AsWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFiles1() (Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFiles1, error) {
+	var body Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFiles1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFiles1 overwrites any union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Files_Item as the provided Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFiles1
+func (t *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Files_Item) FromWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFiles1(v Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFiles1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFiles1 performs a merge with any union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Files_Item, using the provided Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFiles1
+func (t *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Files_Item) MergeWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFiles1(v Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFiles1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Files_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Files_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire474ce95df76d3333c947a6bd85c78ed4cfb5130d19fec59f6b436e1accd11e9a returns the union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Folders_Item as a Wire474ce95df76d3333c947a6bd85c78ed4cfb5130d19fec59f6b436e1accd11e9a
+func (t Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Folders_Item) AsWire474ce95df76d3333c947a6bd85c78ed4cfb5130d19fec59f6b436e1accd11e9a() (Wire474ce95df76d3333c947a6bd85c78ed4cfb5130d19fec59f6b436e1accd11e9a, error) {
+	var body Wire474ce95df76d3333c947a6bd85c78ed4cfb5130d19fec59f6b436e1accd11e9a
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire474ce95df76d3333c947a6bd85c78ed4cfb5130d19fec59f6b436e1accd11e9a overwrites any union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Folders_Item as the provided Wire474ce95df76d3333c947a6bd85c78ed4cfb5130d19fec59f6b436e1accd11e9a
+func (t *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Folders_Item) FromWire474ce95df76d3333c947a6bd85c78ed4cfb5130d19fec59f6b436e1accd11e9a(v Wire474ce95df76d3333c947a6bd85c78ed4cfb5130d19fec59f6b436e1accd11e9a) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire474ce95df76d3333c947a6bd85c78ed4cfb5130d19fec59f6b436e1accd11e9a performs a merge with any union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Folders_Item, using the provided Wire474ce95df76d3333c947a6bd85c78ed4cfb5130d19fec59f6b436e1accd11e9a
+func (t *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Folders_Item) MergeWire474ce95df76d3333c947a6bd85c78ed4cfb5130d19fec59f6b436e1accd11e9a(v Wire474ce95df76d3333c947a6bd85c78ed4cfb5130d19fec59f6b436e1accd11e9a) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFolders1 returns the union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Folders_Item as a Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFolders1
+func (t Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Folders_Item) AsWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFolders1() (Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFolders1, error) {
+	var body Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFolders1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFolders1 overwrites any union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Folders_Item as the provided Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFolders1
+func (t *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Folders_Item) FromWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFolders1(v Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFolders1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFolders1 performs a merge with any union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Folders_Item, using the provided Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFolders1
+func (t *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Folders_Item) MergeWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFolders1(v Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecFolders1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Folders_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Folders_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWireD58affaab847657f56e4dc0eed2b3bbad9e31ea2a73778f577cd287673f772b3 returns the union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Skills_Item as a WireD58affaab847657f56e4dc0eed2b3bbad9e31ea2a73778f577cd287673f772b3
+func (t Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Skills_Item) AsWireD58affaab847657f56e4dc0eed2b3bbad9e31ea2a73778f577cd287673f772b3() (WireD58affaab847657f56e4dc0eed2b3bbad9e31ea2a73778f577cd287673f772b3, error) {
+	var body WireD58affaab847657f56e4dc0eed2b3bbad9e31ea2a73778f577cd287673f772b3
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireD58affaab847657f56e4dc0eed2b3bbad9e31ea2a73778f577cd287673f772b3 overwrites any union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Skills_Item as the provided WireD58affaab847657f56e4dc0eed2b3bbad9e31ea2a73778f577cd287673f772b3
+func (t *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Skills_Item) FromWireD58affaab847657f56e4dc0eed2b3bbad9e31ea2a73778f577cd287673f772b3(v WireD58affaab847657f56e4dc0eed2b3bbad9e31ea2a73778f577cd287673f772b3) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireD58affaab847657f56e4dc0eed2b3bbad9e31ea2a73778f577cd287673f772b3 performs a merge with any union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Skills_Item, using the provided WireD58affaab847657f56e4dc0eed2b3bbad9e31ea2a73778f577cd287673f772b3
+func (t *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Skills_Item) MergeWireD58affaab847657f56e4dc0eed2b3bbad9e31ea2a73778f577cd287673f772b3(v WireD58affaab847657f56e4dc0eed2b3bbad9e31ea2a73778f577cd287673f772b3) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecSkills1 returns the union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Skills_Item as a Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecSkills1
+func (t Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Skills_Item) AsWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecSkills1() (Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecSkills1, error) {
+	var body Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecSkills1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecSkills1 overwrites any union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Skills_Item as the provided Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecSkills1
+func (t *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Skills_Item) FromWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecSkills1(v Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecSkills1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecSkills1 performs a merge with any union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Skills_Item, using the provided Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecSkills1
+func (t *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Skills_Item) MergeWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecSkills1(v Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecSkills1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Skills_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Skills_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe returns the union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Version as a Wire54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe
+func (t Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Version) AsWire54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe() (Wire54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe, error) {
+	var body Wire54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe overwrites any union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Version as the provided Wire54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe
+func (t *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Version) FromWire54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe(v Wire54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe performs a merge with any union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Version, using the provided Wire54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe
+func (t *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Version) MergeWire54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe(v Wire54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecVersion1 returns the union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Version as a Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecVersion1
+func (t Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Version) AsWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecVersion1() (Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecVersion1, error) {
+	var body Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecVersion1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecVersion1 overwrites any union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Version as the provided Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecVersion1
+func (t *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Version) FromWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecVersion1(v Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecVersion1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecVersion1 performs a merge with any union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Version, using the provided Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecVersion1
+func (t *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Version) MergeWire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecVersion1(v Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeecVersion1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Version) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Version) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
 
 // AsWire7f614c3079e0f6cdc356ae6e7e44a326c9b77ae75d9bed109251680a65f23b71 returns the union data inside the Wire33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58_Items_Item as a Wire7f614c3079e0f6cdc356ae6e7e44a326c9b77ae75d9bed109251680a65f23b71
 func (t Wire33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58_Items_Item) AsWire7f614c3079e0f6cdc356ae6e7e44a326c9b77ae75d9bed109251680a65f23b71() (Wire7f614c3079e0f6cdc356ae6e7e44a326c9b77ae75d9bed109251680a65f23b71, error) {
@@ -393,6 +4288,68 @@ func (t Wire33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58_Ite
 }
 
 func (t *Wire33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58_Items_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWireEeef16b9cbcbd1e6e3c91399a7a3ea1ea6f63b90114ecd6f2b6b393de239190a returns the union data inside the Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052_Items_Item as a WireEeef16b9cbcbd1e6e3c91399a7a3ea1ea6f63b90114ecd6f2b6b393de239190a
+func (t Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052_Items_Item) AsWireEeef16b9cbcbd1e6e3c91399a7a3ea1ea6f63b90114ecd6f2b6b393de239190a() (WireEeef16b9cbcbd1e6e3c91399a7a3ea1ea6f63b90114ecd6f2b6b393de239190a, error) {
+	var body WireEeef16b9cbcbd1e6e3c91399a7a3ea1ea6f63b90114ecd6f2b6b393de239190a
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireEeef16b9cbcbd1e6e3c91399a7a3ea1ea6f63b90114ecd6f2b6b393de239190a overwrites any union data inside the Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052_Items_Item as the provided WireEeef16b9cbcbd1e6e3c91399a7a3ea1ea6f63b90114ecd6f2b6b393de239190a
+func (t *Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052_Items_Item) FromWireEeef16b9cbcbd1e6e3c91399a7a3ea1ea6f63b90114ecd6f2b6b393de239190a(v WireEeef16b9cbcbd1e6e3c91399a7a3ea1ea6f63b90114ecd6f2b6b393de239190a) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireEeef16b9cbcbd1e6e3c91399a7a3ea1ea6f63b90114ecd6f2b6b393de239190a performs a merge with any union data inside the Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052_Items_Item, using the provided WireEeef16b9cbcbd1e6e3c91399a7a3ea1ea6f63b90114ecd6f2b6b393de239190a
+func (t *Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052_Items_Item) MergeWireEeef16b9cbcbd1e6e3c91399a7a3ea1ea6f63b90114ecd6f2b6b393de239190a(v WireEeef16b9cbcbd1e6e3c91399a7a3ea1ea6f63b90114ecd6f2b6b393de239190a) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052Items1 returns the union data inside the Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052_Items_Item as a Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052Items1
+func (t Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052_Items_Item) AsWire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052Items1() (Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052Items1, error) {
+	var body Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052Items1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052Items1 overwrites any union data inside the Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052_Items_Item as the provided Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052Items1
+func (t *Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052_Items_Item) FromWire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052Items1(v Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052Items1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052Items1 performs a merge with any union data inside the Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052_Items_Item, using the provided Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052Items1
+func (t *Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052_Items_Item) MergeWire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052Items1(v Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052Items1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052_Items_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052_Items_Item) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -459,6 +4416,1184 @@ func (t *Wire38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a_It
 	return err
 }
 
+// AsWireBf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016 returns the union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Files_Item as a WireBf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016
+func (t Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Files_Item) AsWireBf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016() (WireBf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016, error) {
+	var body WireBf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireBf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016 overwrites any union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Files_Item as the provided WireBf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016
+func (t *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Files_Item) FromWireBf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016(v WireBf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireBf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016 performs a merge with any union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Files_Item, using the provided WireBf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016
+func (t *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Files_Item) MergeWireBf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016(v WireBf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Files1 returns the union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Files_Item as a Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Files1
+func (t Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Files_Item) AsWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Files1() (Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Files1, error) {
+	var body Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Files1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Files1 overwrites any union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Files_Item as the provided Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Files1
+func (t *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Files_Item) FromWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Files1(v Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Files1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Files1 performs a merge with any union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Files_Item, using the provided Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Files1
+func (t *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Files_Item) MergeWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Files1(v Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Files1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Files_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Files_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire01a7a742a5dcd667da4d143e43944f269ae6e23b2952948e51d0b2791d2ed360 returns the union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Folders_Item as a Wire01a7a742a5dcd667da4d143e43944f269ae6e23b2952948e51d0b2791d2ed360
+func (t Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Folders_Item) AsWire01a7a742a5dcd667da4d143e43944f269ae6e23b2952948e51d0b2791d2ed360() (Wire01a7a742a5dcd667da4d143e43944f269ae6e23b2952948e51d0b2791d2ed360, error) {
+	var body Wire01a7a742a5dcd667da4d143e43944f269ae6e23b2952948e51d0b2791d2ed360
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire01a7a742a5dcd667da4d143e43944f269ae6e23b2952948e51d0b2791d2ed360 overwrites any union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Folders_Item as the provided Wire01a7a742a5dcd667da4d143e43944f269ae6e23b2952948e51d0b2791d2ed360
+func (t *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Folders_Item) FromWire01a7a742a5dcd667da4d143e43944f269ae6e23b2952948e51d0b2791d2ed360(v Wire01a7a742a5dcd667da4d143e43944f269ae6e23b2952948e51d0b2791d2ed360) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire01a7a742a5dcd667da4d143e43944f269ae6e23b2952948e51d0b2791d2ed360 performs a merge with any union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Folders_Item, using the provided Wire01a7a742a5dcd667da4d143e43944f269ae6e23b2952948e51d0b2791d2ed360
+func (t *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Folders_Item) MergeWire01a7a742a5dcd667da4d143e43944f269ae6e23b2952948e51d0b2791d2ed360(v Wire01a7a742a5dcd667da4d143e43944f269ae6e23b2952948e51d0b2791d2ed360) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Folders1 returns the union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Folders_Item as a Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Folders1
+func (t Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Folders_Item) AsWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Folders1() (Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Folders1, error) {
+	var body Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Folders1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Folders1 overwrites any union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Folders_Item as the provided Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Folders1
+func (t *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Folders_Item) FromWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Folders1(v Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Folders1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Folders1 performs a merge with any union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Folders_Item, using the provided Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Folders1
+func (t *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Folders_Item) MergeWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Folders1(v Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Folders1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Folders_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Folders_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWireAacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a returns the union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Skills_Item as a WireAacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a
+func (t Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Skills_Item) AsWireAacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a() (WireAacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a, error) {
+	var body WireAacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireAacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a overwrites any union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Skills_Item as the provided WireAacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a
+func (t *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Skills_Item) FromWireAacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a(v WireAacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireAacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a performs a merge with any union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Skills_Item, using the provided WireAacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a
+func (t *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Skills_Item) MergeWireAacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a(v WireAacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Skills1 returns the union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Skills_Item as a Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Skills1
+func (t Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Skills_Item) AsWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Skills1() (Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Skills1, error) {
+	var body Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Skills1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Skills1 overwrites any union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Skills_Item as the provided Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Skills1
+func (t *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Skills_Item) FromWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Skills1(v Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Skills1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Skills1 performs a merge with any union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Skills_Item, using the provided Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Skills1
+func (t *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Skills_Item) MergeWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Skills1(v Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Skills1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Skills_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Skills_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWireF932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675 returns the union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Version as a WireF932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675
+func (t Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Version) AsWireF932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675() (WireF932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675, error) {
+	var body WireF932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireF932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675 overwrites any union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Version as the provided WireF932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675
+func (t *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Version) FromWireF932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675(v WireF932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireF932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675 performs a merge with any union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Version, using the provided WireF932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675
+func (t *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Version) MergeWireF932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675(v WireF932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Version1 returns the union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Version as a Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Version1
+func (t Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Version) AsWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Version1() (Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Version1, error) {
+	var body Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Version1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Version1 overwrites any union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Version as the provided Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Version1
+func (t *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Version) FromWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Version1(v Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Version1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Version1 performs a merge with any union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Version, using the provided Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Version1
+func (t *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Version) MergeWire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Version1(v Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5Version1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Version) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Version) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9 returns the union data inside the Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a_Version as a Wire2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9
+func (t Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a_Version) AsWire2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9() (Wire2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9, error) {
+	var body Wire2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9 overwrites any union data inside the Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a_Version as the provided Wire2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9
+func (t *Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a_Version) FromWire2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9(v Wire2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9 performs a merge with any union data inside the Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a_Version, using the provided Wire2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9
+func (t *Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a_Version) MergeWire2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9(v Wire2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443aVersion1 returns the union data inside the Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a_Version as a Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443aVersion1
+func (t Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a_Version) AsWire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443aVersion1() (Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443aVersion1, error) {
+	var body Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443aVersion1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443aVersion1 overwrites any union data inside the Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a_Version as the provided Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443aVersion1
+func (t *Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a_Version) FromWire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443aVersion1(v Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443aVersion1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443aVersion1 performs a merge with any union data inside the Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a_Version, using the provided Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443aVersion1
+func (t *Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a_Version) MergeWire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443aVersion1(v Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443aVersion1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a_Version) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a_Version) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWireBe64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0 returns the union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Files_Item as a WireBe64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0
+func (t Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Files_Item) AsWireBe64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0() (WireBe64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0, error) {
+	var body WireBe64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireBe64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0 overwrites any union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Files_Item as the provided WireBe64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0
+func (t *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Files_Item) FromWireBe64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0(v WireBe64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireBe64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0 performs a merge with any union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Files_Item, using the provided WireBe64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0
+func (t *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Files_Item) MergeWireBe64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0(v WireBe64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFiles1 returns the union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Files_Item as a Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFiles1
+func (t Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Files_Item) AsWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFiles1() (Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFiles1, error) {
+	var body Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFiles1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFiles1 overwrites any union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Files_Item as the provided Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFiles1
+func (t *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Files_Item) FromWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFiles1(v Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFiles1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFiles1 performs a merge with any union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Files_Item, using the provided Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFiles1
+func (t *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Files_Item) MergeWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFiles1(v Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFiles1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Files_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Files_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478 returns the union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Folders_Item as a Wire503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478
+func (t Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Folders_Item) AsWire503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478() (Wire503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478, error) {
+	var body Wire503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478 overwrites any union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Folders_Item as the provided Wire503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478
+func (t *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Folders_Item) FromWire503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478(v Wire503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478 performs a merge with any union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Folders_Item, using the provided Wire503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478
+func (t *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Folders_Item) MergeWire503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478(v Wire503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFolders1 returns the union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Folders_Item as a Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFolders1
+func (t Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Folders_Item) AsWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFolders1() (Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFolders1, error) {
+	var body Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFolders1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFolders1 overwrites any union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Folders_Item as the provided Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFolders1
+func (t *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Folders_Item) FromWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFolders1(v Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFolders1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFolders1 performs a merge with any union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Folders_Item, using the provided Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFolders1
+func (t *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Folders_Item) MergeWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFolders1(v Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfFolders1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Folders_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Folders_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire51bb1f0871dac81cba14ebfac4fc554d215315e30cd3b214596b5da0912a4710 returns the union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Skills_Item as a Wire51bb1f0871dac81cba14ebfac4fc554d215315e30cd3b214596b5da0912a4710
+func (t Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Skills_Item) AsWire51bb1f0871dac81cba14ebfac4fc554d215315e30cd3b214596b5da0912a4710() (Wire51bb1f0871dac81cba14ebfac4fc554d215315e30cd3b214596b5da0912a4710, error) {
+	var body Wire51bb1f0871dac81cba14ebfac4fc554d215315e30cd3b214596b5da0912a4710
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire51bb1f0871dac81cba14ebfac4fc554d215315e30cd3b214596b5da0912a4710 overwrites any union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Skills_Item as the provided Wire51bb1f0871dac81cba14ebfac4fc554d215315e30cd3b214596b5da0912a4710
+func (t *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Skills_Item) FromWire51bb1f0871dac81cba14ebfac4fc554d215315e30cd3b214596b5da0912a4710(v Wire51bb1f0871dac81cba14ebfac4fc554d215315e30cd3b214596b5da0912a4710) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire51bb1f0871dac81cba14ebfac4fc554d215315e30cd3b214596b5da0912a4710 performs a merge with any union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Skills_Item, using the provided Wire51bb1f0871dac81cba14ebfac4fc554d215315e30cd3b214596b5da0912a4710
+func (t *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Skills_Item) MergeWire51bb1f0871dac81cba14ebfac4fc554d215315e30cd3b214596b5da0912a4710(v Wire51bb1f0871dac81cba14ebfac4fc554d215315e30cd3b214596b5da0912a4710) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfSkills1 returns the union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Skills_Item as a Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfSkills1
+func (t Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Skills_Item) AsWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfSkills1() (Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfSkills1, error) {
+	var body Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfSkills1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfSkills1 overwrites any union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Skills_Item as the provided Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfSkills1
+func (t *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Skills_Item) FromWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfSkills1(v Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfSkills1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfSkills1 performs a merge with any union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Skills_Item, using the provided Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfSkills1
+func (t *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Skills_Item) MergeWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfSkills1(v Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfSkills1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Skills_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Skills_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire0279067683c20563aa495e8737a819024ba4eb59ced1e2723cda5eb5890cb742 returns the union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Version as a Wire0279067683c20563aa495e8737a819024ba4eb59ced1e2723cda5eb5890cb742
+func (t Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Version) AsWire0279067683c20563aa495e8737a819024ba4eb59ced1e2723cda5eb5890cb742() (Wire0279067683c20563aa495e8737a819024ba4eb59ced1e2723cda5eb5890cb742, error) {
+	var body Wire0279067683c20563aa495e8737a819024ba4eb59ced1e2723cda5eb5890cb742
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire0279067683c20563aa495e8737a819024ba4eb59ced1e2723cda5eb5890cb742 overwrites any union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Version as the provided Wire0279067683c20563aa495e8737a819024ba4eb59ced1e2723cda5eb5890cb742
+func (t *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Version) FromWire0279067683c20563aa495e8737a819024ba4eb59ced1e2723cda5eb5890cb742(v Wire0279067683c20563aa495e8737a819024ba4eb59ced1e2723cda5eb5890cb742) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire0279067683c20563aa495e8737a819024ba4eb59ced1e2723cda5eb5890cb742 performs a merge with any union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Version, using the provided Wire0279067683c20563aa495e8737a819024ba4eb59ced1e2723cda5eb5890cb742
+func (t *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Version) MergeWire0279067683c20563aa495e8737a819024ba4eb59ced1e2723cda5eb5890cb742(v Wire0279067683c20563aa495e8737a819024ba4eb59ced1e2723cda5eb5890cb742) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfVersion1 returns the union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Version as a Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfVersion1
+func (t Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Version) AsWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfVersion1() (Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfVersion1, error) {
+	var body Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfVersion1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfVersion1 overwrites any union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Version as the provided Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfVersion1
+func (t *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Version) FromWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfVersion1(v Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfVersion1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfVersion1 performs a merge with any union data inside the Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Version, using the provided Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfVersion1
+func (t *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Version) MergeWire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfVersion1(v Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfVersion1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Version) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Version) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930 returns the union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version as a Wire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930
+func (t Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version) AsWire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930() (Wire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930, error) {
+	var body Wire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930 overwrites any union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version as the provided Wire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930
+func (t *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version) FromWire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930(v Wire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930 performs a merge with any union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version, using the provided Wire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930
+func (t *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version) MergeWire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930(v Wire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adVersion1 returns the union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version as a Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adVersion1
+func (t Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version) AsWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adVersion1() (Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adVersion1, error) {
+	var body Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adVersion1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adVersion1 overwrites any union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version as the provided Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adVersion1
+func (t *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version) FromWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adVersion1(v Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adVersion1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adVersion1 performs a merge with any union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version, using the provided Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adVersion1
+func (t *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version) MergeWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adVersion1(v Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adVersion1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire6e57275ee6e6e1b65e583eed6459bd78d0642e1645c5d8207588a42c34b4171d returns the union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Files_Item as a Wire6e57275ee6e6e1b65e583eed6459bd78d0642e1645c5d8207588a42c34b4171d
+func (t Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Files_Item) AsWire6e57275ee6e6e1b65e583eed6459bd78d0642e1645c5d8207588a42c34b4171d() (Wire6e57275ee6e6e1b65e583eed6459bd78d0642e1645c5d8207588a42c34b4171d, error) {
+	var body Wire6e57275ee6e6e1b65e583eed6459bd78d0642e1645c5d8207588a42c34b4171d
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire6e57275ee6e6e1b65e583eed6459bd78d0642e1645c5d8207588a42c34b4171d overwrites any union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Files_Item as the provided Wire6e57275ee6e6e1b65e583eed6459bd78d0642e1645c5d8207588a42c34b4171d
+func (t *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Files_Item) FromWire6e57275ee6e6e1b65e583eed6459bd78d0642e1645c5d8207588a42c34b4171d(v Wire6e57275ee6e6e1b65e583eed6459bd78d0642e1645c5d8207588a42c34b4171d) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire6e57275ee6e6e1b65e583eed6459bd78d0642e1645c5d8207588a42c34b4171d performs a merge with any union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Files_Item, using the provided Wire6e57275ee6e6e1b65e583eed6459bd78d0642e1645c5d8207588a42c34b4171d
+func (t *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Files_Item) MergeWire6e57275ee6e6e1b65e583eed6459bd78d0642e1645c5d8207588a42c34b4171d(v Wire6e57275ee6e6e1b65e583eed6459bd78d0642e1645c5d8207588a42c34b4171d) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Files1 returns the union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Files_Item as a Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Files1
+func (t Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Files_Item) AsWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Files1() (Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Files1, error) {
+	var body Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Files1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Files1 overwrites any union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Files_Item as the provided Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Files1
+func (t *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Files_Item) FromWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Files1(v Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Files1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Files1 performs a merge with any union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Files_Item, using the provided Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Files1
+func (t *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Files_Item) MergeWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Files1(v Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Files1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Files_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Files_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire71b9c50025fc3648b345ae243800bd532fec6cda9e9aadc6e7a02d452d1d70ea returns the union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Folders_Item as a Wire71b9c50025fc3648b345ae243800bd532fec6cda9e9aadc6e7a02d452d1d70ea
+func (t Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Folders_Item) AsWire71b9c50025fc3648b345ae243800bd532fec6cda9e9aadc6e7a02d452d1d70ea() (Wire71b9c50025fc3648b345ae243800bd532fec6cda9e9aadc6e7a02d452d1d70ea, error) {
+	var body Wire71b9c50025fc3648b345ae243800bd532fec6cda9e9aadc6e7a02d452d1d70ea
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire71b9c50025fc3648b345ae243800bd532fec6cda9e9aadc6e7a02d452d1d70ea overwrites any union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Folders_Item as the provided Wire71b9c50025fc3648b345ae243800bd532fec6cda9e9aadc6e7a02d452d1d70ea
+func (t *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Folders_Item) FromWire71b9c50025fc3648b345ae243800bd532fec6cda9e9aadc6e7a02d452d1d70ea(v Wire71b9c50025fc3648b345ae243800bd532fec6cda9e9aadc6e7a02d452d1d70ea) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire71b9c50025fc3648b345ae243800bd532fec6cda9e9aadc6e7a02d452d1d70ea performs a merge with any union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Folders_Item, using the provided Wire71b9c50025fc3648b345ae243800bd532fec6cda9e9aadc6e7a02d452d1d70ea
+func (t *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Folders_Item) MergeWire71b9c50025fc3648b345ae243800bd532fec6cda9e9aadc6e7a02d452d1d70ea(v Wire71b9c50025fc3648b345ae243800bd532fec6cda9e9aadc6e7a02d452d1d70ea) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Folders1 returns the union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Folders_Item as a Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Folders1
+func (t Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Folders_Item) AsWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Folders1() (Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Folders1, error) {
+	var body Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Folders1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Folders1 overwrites any union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Folders_Item as the provided Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Folders1
+func (t *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Folders_Item) FromWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Folders1(v Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Folders1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Folders1 performs a merge with any union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Folders_Item, using the provided Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Folders1
+func (t *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Folders_Item) MergeWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Folders1(v Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Folders1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Folders_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Folders_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWireCcb72e9ff740a41f9ee459d67d34d6d003de93aa4e74ce39b240bc27d65454ca returns the union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Skills_Item as a WireCcb72e9ff740a41f9ee459d67d34d6d003de93aa4e74ce39b240bc27d65454ca
+func (t Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Skills_Item) AsWireCcb72e9ff740a41f9ee459d67d34d6d003de93aa4e74ce39b240bc27d65454ca() (WireCcb72e9ff740a41f9ee459d67d34d6d003de93aa4e74ce39b240bc27d65454ca, error) {
+	var body WireCcb72e9ff740a41f9ee459d67d34d6d003de93aa4e74ce39b240bc27d65454ca
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireCcb72e9ff740a41f9ee459d67d34d6d003de93aa4e74ce39b240bc27d65454ca overwrites any union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Skills_Item as the provided WireCcb72e9ff740a41f9ee459d67d34d6d003de93aa4e74ce39b240bc27d65454ca
+func (t *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Skills_Item) FromWireCcb72e9ff740a41f9ee459d67d34d6d003de93aa4e74ce39b240bc27d65454ca(v WireCcb72e9ff740a41f9ee459d67d34d6d003de93aa4e74ce39b240bc27d65454ca) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireCcb72e9ff740a41f9ee459d67d34d6d003de93aa4e74ce39b240bc27d65454ca performs a merge with any union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Skills_Item, using the provided WireCcb72e9ff740a41f9ee459d67d34d6d003de93aa4e74ce39b240bc27d65454ca
+func (t *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Skills_Item) MergeWireCcb72e9ff740a41f9ee459d67d34d6d003de93aa4e74ce39b240bc27d65454ca(v WireCcb72e9ff740a41f9ee459d67d34d6d003de93aa4e74ce39b240bc27d65454ca) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Skills1 returns the union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Skills_Item as a Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Skills1
+func (t Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Skills_Item) AsWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Skills1() (Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Skills1, error) {
+	var body Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Skills1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Skills1 overwrites any union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Skills_Item as the provided Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Skills1
+func (t *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Skills_Item) FromWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Skills1(v Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Skills1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Skills1 performs a merge with any union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Skills_Item, using the provided Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Skills1
+func (t *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Skills_Item) MergeWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Skills1(v Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Skills1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Skills_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Skills_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWireD47f31d6831e78d8d30e9260afc40ce9bef1e3193510447b56ae7c551502c928 returns the union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Version as a WireD47f31d6831e78d8d30e9260afc40ce9bef1e3193510447b56ae7c551502c928
+func (t Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Version) AsWireD47f31d6831e78d8d30e9260afc40ce9bef1e3193510447b56ae7c551502c928() (WireD47f31d6831e78d8d30e9260afc40ce9bef1e3193510447b56ae7c551502c928, error) {
+	var body WireD47f31d6831e78d8d30e9260afc40ce9bef1e3193510447b56ae7c551502c928
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireD47f31d6831e78d8d30e9260afc40ce9bef1e3193510447b56ae7c551502c928 overwrites any union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Version as the provided WireD47f31d6831e78d8d30e9260afc40ce9bef1e3193510447b56ae7c551502c928
+func (t *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Version) FromWireD47f31d6831e78d8d30e9260afc40ce9bef1e3193510447b56ae7c551502c928(v WireD47f31d6831e78d8d30e9260afc40ce9bef1e3193510447b56ae7c551502c928) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireD47f31d6831e78d8d30e9260afc40ce9bef1e3193510447b56ae7c551502c928 performs a merge with any union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Version, using the provided WireD47f31d6831e78d8d30e9260afc40ce9bef1e3193510447b56ae7c551502c928
+func (t *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Version) MergeWireD47f31d6831e78d8d30e9260afc40ce9bef1e3193510447b56ae7c551502c928(v WireD47f31d6831e78d8d30e9260afc40ce9bef1e3193510447b56ae7c551502c928) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Version1 returns the union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Version as a Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Version1
+func (t Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Version) AsWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Version1() (Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Version1, error) {
+	var body Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Version1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Version1 overwrites any union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Version as the provided Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Version1
+func (t *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Version) FromWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Version1(v Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Version1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Version1 performs a merge with any union data inside the Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Version, using the provided Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Version1
+func (t *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Version) MergeWire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Version1(v Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73Version1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Version) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Version) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad returns the union data inside the Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58_Inspection as a Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad
+func (t Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58_Inspection) AsWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad() (Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad, error) {
+	var body Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad overwrites any union data inside the Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58_Inspection as the provided Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad
+func (t *Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58_Inspection) FromWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad(v Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad performs a merge with any union data inside the Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58_Inspection, using the provided Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad
+func (t *Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58_Inspection) MergeWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad(v Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58Inspection1 returns the union data inside the Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58_Inspection as a Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58Inspection1
+func (t Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58_Inspection) AsWire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58Inspection1() (Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58Inspection1, error) {
+	var body Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58Inspection1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58Inspection1 overwrites any union data inside the Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58_Inspection as the provided Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58Inspection1
+func (t *Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58_Inspection) FromWire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58Inspection1(v Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58Inspection1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58Inspection1 performs a merge with any union data inside the Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58_Inspection, using the provided Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58Inspection1
+func (t *Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58_Inspection) MergeWire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58Inspection1(v Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58Inspection1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58_Inspection) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58_Inspection) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6 returns the union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Files_Item as a Wire7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6
+func (t Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Files_Item) AsWire7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6() (Wire7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6, error) {
+	var body Wire7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6 overwrites any union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Files_Item as the provided Wire7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6
+func (t *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Files_Item) FromWire7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6(v Wire7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6 performs a merge with any union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Files_Item, using the provided Wire7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6
+func (t *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Files_Item) MergeWire7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6(v Wire7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFiles1 returns the union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Files_Item as a Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFiles1
+func (t Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Files_Item) AsWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFiles1() (Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFiles1, error) {
+	var body Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFiles1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFiles1 overwrites any union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Files_Item as the provided Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFiles1
+func (t *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Files_Item) FromWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFiles1(v Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFiles1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFiles1 performs a merge with any union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Files_Item, using the provided Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFiles1
+func (t *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Files_Item) MergeWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFiles1(v Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFiles1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Files_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Files_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire77752153da43bb0addc9d671944e117883dbc02c23b23f9dead496b805929938 returns the union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Folders_Item as a Wire77752153da43bb0addc9d671944e117883dbc02c23b23f9dead496b805929938
+func (t Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Folders_Item) AsWire77752153da43bb0addc9d671944e117883dbc02c23b23f9dead496b805929938() (Wire77752153da43bb0addc9d671944e117883dbc02c23b23f9dead496b805929938, error) {
+	var body Wire77752153da43bb0addc9d671944e117883dbc02c23b23f9dead496b805929938
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire77752153da43bb0addc9d671944e117883dbc02c23b23f9dead496b805929938 overwrites any union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Folders_Item as the provided Wire77752153da43bb0addc9d671944e117883dbc02c23b23f9dead496b805929938
+func (t *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Folders_Item) FromWire77752153da43bb0addc9d671944e117883dbc02c23b23f9dead496b805929938(v Wire77752153da43bb0addc9d671944e117883dbc02c23b23f9dead496b805929938) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire77752153da43bb0addc9d671944e117883dbc02c23b23f9dead496b805929938 performs a merge with any union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Folders_Item, using the provided Wire77752153da43bb0addc9d671944e117883dbc02c23b23f9dead496b805929938
+func (t *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Folders_Item) MergeWire77752153da43bb0addc9d671944e117883dbc02c23b23f9dead496b805929938(v Wire77752153da43bb0addc9d671944e117883dbc02c23b23f9dead496b805929938) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFolders1 returns the union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Folders_Item as a Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFolders1
+func (t Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Folders_Item) AsWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFolders1() (Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFolders1, error) {
+	var body Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFolders1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFolders1 overwrites any union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Folders_Item as the provided Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFolders1
+func (t *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Folders_Item) FromWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFolders1(v Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFolders1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFolders1 performs a merge with any union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Folders_Item, using the provided Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFolders1
+func (t *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Folders_Item) MergeWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFolders1(v Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cFolders1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Folders_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Folders_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac returns the union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Skills_Item as a Wire60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac
+func (t Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Skills_Item) AsWire60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac() (Wire60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac, error) {
+	var body Wire60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac overwrites any union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Skills_Item as the provided Wire60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac
+func (t *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Skills_Item) FromWire60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac(v Wire60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac performs a merge with any union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Skills_Item, using the provided Wire60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac
+func (t *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Skills_Item) MergeWire60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac(v Wire60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cSkills1 returns the union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Skills_Item as a Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cSkills1
+func (t Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Skills_Item) AsWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cSkills1() (Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cSkills1, error) {
+	var body Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cSkills1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cSkills1 overwrites any union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Skills_Item as the provided Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cSkills1
+func (t *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Skills_Item) FromWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cSkills1(v Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cSkills1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cSkills1 performs a merge with any union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Skills_Item, using the provided Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cSkills1
+func (t *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Skills_Item) MergeWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cSkills1(v Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cSkills1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Skills_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Skills_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e returns the union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Version as a Wire942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e
+func (t Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Version) AsWire942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e() (Wire942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e, error) {
+	var body Wire942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e overwrites any union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Version as the provided Wire942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e
+func (t *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Version) FromWire942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e(v Wire942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e performs a merge with any union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Version, using the provided Wire942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e
+func (t *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Version) MergeWire942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e(v Wire942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cVersion1 returns the union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Version as a Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cVersion1
+func (t Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Version) AsWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cVersion1() (Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cVersion1, error) {
+	var body Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cVersion1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cVersion1 overwrites any union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Version as the provided Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cVersion1
+func (t *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Version) FromWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cVersion1(v Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cVersion1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cVersion1 performs a merge with any union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Version, using the provided Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cVersion1
+func (t *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Version) MergeWire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cVersion1(v Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993cVersion1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Version) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Version) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsWire3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c returns the union data inside the Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c_Items_Item as a Wire3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c
 func (t Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c_Items_Item) AsWire3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c() (Wire3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c, error) {
 	var body Wire3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c
@@ -521,6 +5656,378 @@ func (t *Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c_It
 	return err
 }
 
+// AsWire1ad149a06cfe9417562b1c9648e0b52832e72cfbf4e1ca313b15480e1aee3e75 returns the union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Files_Item as a Wire1ad149a06cfe9417562b1c9648e0b52832e72cfbf4e1ca313b15480e1aee3e75
+func (t Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Files_Item) AsWire1ad149a06cfe9417562b1c9648e0b52832e72cfbf4e1ca313b15480e1aee3e75() (Wire1ad149a06cfe9417562b1c9648e0b52832e72cfbf4e1ca313b15480e1aee3e75, error) {
+	var body Wire1ad149a06cfe9417562b1c9648e0b52832e72cfbf4e1ca313b15480e1aee3e75
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire1ad149a06cfe9417562b1c9648e0b52832e72cfbf4e1ca313b15480e1aee3e75 overwrites any union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Files_Item as the provided Wire1ad149a06cfe9417562b1c9648e0b52832e72cfbf4e1ca313b15480e1aee3e75
+func (t *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Files_Item) FromWire1ad149a06cfe9417562b1c9648e0b52832e72cfbf4e1ca313b15480e1aee3e75(v Wire1ad149a06cfe9417562b1c9648e0b52832e72cfbf4e1ca313b15480e1aee3e75) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire1ad149a06cfe9417562b1c9648e0b52832e72cfbf4e1ca313b15480e1aee3e75 performs a merge with any union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Files_Item, using the provided Wire1ad149a06cfe9417562b1c9648e0b52832e72cfbf4e1ca313b15480e1aee3e75
+func (t *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Files_Item) MergeWire1ad149a06cfe9417562b1c9648e0b52832e72cfbf4e1ca313b15480e1aee3e75(v Wire1ad149a06cfe9417562b1c9648e0b52832e72cfbf4e1ca313b15480e1aee3e75) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Files1 returns the union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Files_Item as a Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Files1
+func (t Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Files_Item) AsWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Files1() (Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Files1, error) {
+	var body Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Files1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Files1 overwrites any union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Files_Item as the provided Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Files1
+func (t *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Files_Item) FromWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Files1(v Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Files1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Files1 performs a merge with any union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Files_Item, using the provided Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Files1
+func (t *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Files_Item) MergeWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Files1(v Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Files1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Files_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Files_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWireBedeea2eea3f372feb231562eecdb3aa32c8017835f81ac7e8d5978e48330812 returns the union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Folders_Item as a WireBedeea2eea3f372feb231562eecdb3aa32c8017835f81ac7e8d5978e48330812
+func (t Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Folders_Item) AsWireBedeea2eea3f372feb231562eecdb3aa32c8017835f81ac7e8d5978e48330812() (WireBedeea2eea3f372feb231562eecdb3aa32c8017835f81ac7e8d5978e48330812, error) {
+	var body WireBedeea2eea3f372feb231562eecdb3aa32c8017835f81ac7e8d5978e48330812
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireBedeea2eea3f372feb231562eecdb3aa32c8017835f81ac7e8d5978e48330812 overwrites any union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Folders_Item as the provided WireBedeea2eea3f372feb231562eecdb3aa32c8017835f81ac7e8d5978e48330812
+func (t *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Folders_Item) FromWireBedeea2eea3f372feb231562eecdb3aa32c8017835f81ac7e8d5978e48330812(v WireBedeea2eea3f372feb231562eecdb3aa32c8017835f81ac7e8d5978e48330812) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireBedeea2eea3f372feb231562eecdb3aa32c8017835f81ac7e8d5978e48330812 performs a merge with any union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Folders_Item, using the provided WireBedeea2eea3f372feb231562eecdb3aa32c8017835f81ac7e8d5978e48330812
+func (t *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Folders_Item) MergeWireBedeea2eea3f372feb231562eecdb3aa32c8017835f81ac7e8d5978e48330812(v WireBedeea2eea3f372feb231562eecdb3aa32c8017835f81ac7e8d5978e48330812) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Folders1 returns the union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Folders_Item as a Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Folders1
+func (t Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Folders_Item) AsWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Folders1() (Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Folders1, error) {
+	var body Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Folders1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Folders1 overwrites any union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Folders_Item as the provided Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Folders1
+func (t *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Folders_Item) FromWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Folders1(v Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Folders1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Folders1 performs a merge with any union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Folders_Item, using the provided Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Folders1
+func (t *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Folders_Item) MergeWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Folders1(v Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Folders1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Folders_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Folders_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire3206393a34ac737dcd3540640044680ce7d2ad47a4b55b4a06e350301e8df7f7 returns the union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Skills_Item as a Wire3206393a34ac737dcd3540640044680ce7d2ad47a4b55b4a06e350301e8df7f7
+func (t Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Skills_Item) AsWire3206393a34ac737dcd3540640044680ce7d2ad47a4b55b4a06e350301e8df7f7() (Wire3206393a34ac737dcd3540640044680ce7d2ad47a4b55b4a06e350301e8df7f7, error) {
+	var body Wire3206393a34ac737dcd3540640044680ce7d2ad47a4b55b4a06e350301e8df7f7
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire3206393a34ac737dcd3540640044680ce7d2ad47a4b55b4a06e350301e8df7f7 overwrites any union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Skills_Item as the provided Wire3206393a34ac737dcd3540640044680ce7d2ad47a4b55b4a06e350301e8df7f7
+func (t *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Skills_Item) FromWire3206393a34ac737dcd3540640044680ce7d2ad47a4b55b4a06e350301e8df7f7(v Wire3206393a34ac737dcd3540640044680ce7d2ad47a4b55b4a06e350301e8df7f7) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire3206393a34ac737dcd3540640044680ce7d2ad47a4b55b4a06e350301e8df7f7 performs a merge with any union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Skills_Item, using the provided Wire3206393a34ac737dcd3540640044680ce7d2ad47a4b55b4a06e350301e8df7f7
+func (t *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Skills_Item) MergeWire3206393a34ac737dcd3540640044680ce7d2ad47a4b55b4a06e350301e8df7f7(v Wire3206393a34ac737dcd3540640044680ce7d2ad47a4b55b4a06e350301e8df7f7) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Skills1 returns the union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Skills_Item as a Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Skills1
+func (t Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Skills_Item) AsWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Skills1() (Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Skills1, error) {
+	var body Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Skills1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Skills1 overwrites any union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Skills_Item as the provided Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Skills1
+func (t *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Skills_Item) FromWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Skills1(v Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Skills1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Skills1 performs a merge with any union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Skills_Item, using the provided Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Skills1
+func (t *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Skills_Item) MergeWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Skills1(v Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Skills1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Skills_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Skills_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWireD47a3f0a566536bf283059fe5c94fdc79e8185ca98cbe6359316854e6ae380ee returns the union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Version as a WireD47a3f0a566536bf283059fe5c94fdc79e8185ca98cbe6359316854e6ae380ee
+func (t Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Version) AsWireD47a3f0a566536bf283059fe5c94fdc79e8185ca98cbe6359316854e6ae380ee() (WireD47a3f0a566536bf283059fe5c94fdc79e8185ca98cbe6359316854e6ae380ee, error) {
+	var body WireD47a3f0a566536bf283059fe5c94fdc79e8185ca98cbe6359316854e6ae380ee
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireD47a3f0a566536bf283059fe5c94fdc79e8185ca98cbe6359316854e6ae380ee overwrites any union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Version as the provided WireD47a3f0a566536bf283059fe5c94fdc79e8185ca98cbe6359316854e6ae380ee
+func (t *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Version) FromWireD47a3f0a566536bf283059fe5c94fdc79e8185ca98cbe6359316854e6ae380ee(v WireD47a3f0a566536bf283059fe5c94fdc79e8185ca98cbe6359316854e6ae380ee) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireD47a3f0a566536bf283059fe5c94fdc79e8185ca98cbe6359316854e6ae380ee performs a merge with any union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Version, using the provided WireD47a3f0a566536bf283059fe5c94fdc79e8185ca98cbe6359316854e6ae380ee
+func (t *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Version) MergeWireD47a3f0a566536bf283059fe5c94fdc79e8185ca98cbe6359316854e6ae380ee(v WireD47a3f0a566536bf283059fe5c94fdc79e8185ca98cbe6359316854e6ae380ee) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Version1 returns the union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Version as a Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Version1
+func (t Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Version) AsWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Version1() (Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Version1, error) {
+	var body Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Version1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Version1 overwrites any union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Version as the provided Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Version1
+func (t *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Version) FromWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Version1(v Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Version1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Version1 performs a merge with any union data inside the Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Version, using the provided Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Version1
+func (t *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Version) MergeWire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Version1(v Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Version1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Version) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Version) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWireF3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d returns the union data inside the WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Version as a WireF3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d
+func (t WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Version) AsWireF3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d() (WireF3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d, error) {
+	var body WireF3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireF3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d overwrites any union data inside the WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Version as the provided WireF3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d
+func (t *WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Version) FromWireF3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d(v WireF3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireF3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d performs a merge with any union data inside the WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Version, using the provided WireF3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d
+func (t *WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Version) MergeWireF3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d(v WireF3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1eceVersion1 returns the union data inside the WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Version as a WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1eceVersion1
+func (t WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Version) AsWireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1eceVersion1() (WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1eceVersion1, error) {
+	var body WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1eceVersion1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1eceVersion1 overwrites any union data inside the WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Version as the provided WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1eceVersion1
+func (t *WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Version) FromWireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1eceVersion1(v WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1eceVersion1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1eceVersion1 performs a merge with any union data inside the WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Version, using the provided WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1eceVersion1
+func (t *WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Version) MergeWireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1eceVersion1(v WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1eceVersion1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Version) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Version) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWireC3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089 returns the union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version as a WireC3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089
+func (t WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version) AsWireC3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089() (WireC3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089, error) {
+	var body WireC3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireC3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089 overwrites any union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version as the provided WireC3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089
+func (t *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version) FromWireC3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089(v WireC3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireC3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089 performs a merge with any union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version, using the provided WireC3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089
+func (t *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version) MergeWireC3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089(v WireC3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19Version1 returns the union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version as a WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19Version1
+func (t WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version) AsWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19Version1() (WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19Version1, error) {
+	var body WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19Version1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19Version1 overwrites any union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version as the provided WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19Version1
+func (t *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version) FromWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19Version1(v WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19Version1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19Version1 performs a merge with any union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version, using the provided WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19Version1
+func (t *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version) MergeWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19Version1(v WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19Version1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsWire221846f313892219b53265500a015547384983c9f728252d253349f904fb06a9 returns the union data inside the WireB3c67af74df5a4d366c8f3a628801f07d89d1eefd88ebad70d3689f8970629db_Items_Item as a Wire221846f313892219b53265500a015547384983c9f728252d253349f904fb06a9
 func (t WireB3c67af74df5a4d366c8f3a628801f07d89d1eefd88ebad70d3689f8970629db_Items_Item) AsWire221846f313892219b53265500a015547384983c9f728252d253349f904fb06a9() (Wire221846f313892219b53265500a015547384983c9f728252d253349f904fb06a9, error) {
 	var body Wire221846f313892219b53265500a015547384983c9f728252d253349f904fb06a9
@@ -579,6 +6086,502 @@ func (t WireB3c67af74df5a4d366c8f3a628801f07d89d1eefd88ebad70d3689f8970629db_Ite
 }
 
 func (t *WireB3c67af74df5a4d366c8f3a628801f07d89d1eefd88ebad70d3689f8970629db_Items_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWireD96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c returns the union data inside the WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240_Items_Item as a WireD96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c
+func (t WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240_Items_Item) AsWireD96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c() (WireD96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c, error) {
+	var body WireD96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireD96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c overwrites any union data inside the WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240_Items_Item as the provided WireD96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c
+func (t *WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240_Items_Item) FromWireD96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c(v WireD96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireD96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c performs a merge with any union data inside the WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240_Items_Item, using the provided WireD96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c
+func (t *WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240_Items_Item) MergeWireD96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c(v WireD96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240Items1 returns the union data inside the WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240_Items_Item as a WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240Items1
+func (t WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240_Items_Item) AsWireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240Items1() (WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240Items1, error) {
+	var body WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240Items1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240Items1 overwrites any union data inside the WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240_Items_Item as the provided WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240Items1
+func (t *WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240_Items_Item) FromWireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240Items1(v WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240Items1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240Items1 performs a merge with any union data inside the WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240_Items_Item, using the provided WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240Items1
+func (t *WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240_Items_Item) MergeWireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240Items1(v WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240Items1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240_Items_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240_Items_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1 returns the union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Files_Item as a Wire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1
+func (t WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Files_Item) AsWire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1() (Wire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1, error) {
+	var body Wire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1 overwrites any union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Files_Item as the provided Wire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1
+func (t *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Files_Item) FromWire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1(v Wire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1 performs a merge with any union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Files_Item, using the provided Wire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1
+func (t *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Files_Item) MergeWire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1(v Wire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFiles1 returns the union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Files_Item as a WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFiles1
+func (t WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Files_Item) AsWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFiles1() (WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFiles1, error) {
+	var body WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFiles1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFiles1 overwrites any union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Files_Item as the provided WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFiles1
+func (t *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Files_Item) FromWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFiles1(v WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFiles1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFiles1 performs a merge with any union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Files_Item, using the provided WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFiles1
+func (t *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Files_Item) MergeWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFiles1(v WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFiles1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Files_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Files_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWireB6bb3a3bc73e240bf20da6f0ceb8512d37faeca8e28cca304a69c5e7ff81fa51 returns the union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Folders_Item as a WireB6bb3a3bc73e240bf20da6f0ceb8512d37faeca8e28cca304a69c5e7ff81fa51
+func (t WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Folders_Item) AsWireB6bb3a3bc73e240bf20da6f0ceb8512d37faeca8e28cca304a69c5e7ff81fa51() (WireB6bb3a3bc73e240bf20da6f0ceb8512d37faeca8e28cca304a69c5e7ff81fa51, error) {
+	var body WireB6bb3a3bc73e240bf20da6f0ceb8512d37faeca8e28cca304a69c5e7ff81fa51
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireB6bb3a3bc73e240bf20da6f0ceb8512d37faeca8e28cca304a69c5e7ff81fa51 overwrites any union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Folders_Item as the provided WireB6bb3a3bc73e240bf20da6f0ceb8512d37faeca8e28cca304a69c5e7ff81fa51
+func (t *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Folders_Item) FromWireB6bb3a3bc73e240bf20da6f0ceb8512d37faeca8e28cca304a69c5e7ff81fa51(v WireB6bb3a3bc73e240bf20da6f0ceb8512d37faeca8e28cca304a69c5e7ff81fa51) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireB6bb3a3bc73e240bf20da6f0ceb8512d37faeca8e28cca304a69c5e7ff81fa51 performs a merge with any union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Folders_Item, using the provided WireB6bb3a3bc73e240bf20da6f0ceb8512d37faeca8e28cca304a69c5e7ff81fa51
+func (t *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Folders_Item) MergeWireB6bb3a3bc73e240bf20da6f0ceb8512d37faeca8e28cca304a69c5e7ff81fa51(v WireB6bb3a3bc73e240bf20da6f0ceb8512d37faeca8e28cca304a69c5e7ff81fa51) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFolders1 returns the union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Folders_Item as a WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFolders1
+func (t WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Folders_Item) AsWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFolders1() (WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFolders1, error) {
+	var body WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFolders1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFolders1 overwrites any union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Folders_Item as the provided WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFolders1
+func (t *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Folders_Item) FromWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFolders1(v WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFolders1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFolders1 performs a merge with any union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Folders_Item, using the provided WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFolders1
+func (t *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Folders_Item) MergeWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFolders1(v WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dFolders1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Folders_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Folders_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWireD5cefe1b3a17afd7fef5285814e696de9b1f5aa8569887156dc7690bce5223c2 returns the union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Skills_Item as a WireD5cefe1b3a17afd7fef5285814e696de9b1f5aa8569887156dc7690bce5223c2
+func (t WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Skills_Item) AsWireD5cefe1b3a17afd7fef5285814e696de9b1f5aa8569887156dc7690bce5223c2() (WireD5cefe1b3a17afd7fef5285814e696de9b1f5aa8569887156dc7690bce5223c2, error) {
+	var body WireD5cefe1b3a17afd7fef5285814e696de9b1f5aa8569887156dc7690bce5223c2
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireD5cefe1b3a17afd7fef5285814e696de9b1f5aa8569887156dc7690bce5223c2 overwrites any union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Skills_Item as the provided WireD5cefe1b3a17afd7fef5285814e696de9b1f5aa8569887156dc7690bce5223c2
+func (t *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Skills_Item) FromWireD5cefe1b3a17afd7fef5285814e696de9b1f5aa8569887156dc7690bce5223c2(v WireD5cefe1b3a17afd7fef5285814e696de9b1f5aa8569887156dc7690bce5223c2) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireD5cefe1b3a17afd7fef5285814e696de9b1f5aa8569887156dc7690bce5223c2 performs a merge with any union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Skills_Item, using the provided WireD5cefe1b3a17afd7fef5285814e696de9b1f5aa8569887156dc7690bce5223c2
+func (t *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Skills_Item) MergeWireD5cefe1b3a17afd7fef5285814e696de9b1f5aa8569887156dc7690bce5223c2(v WireD5cefe1b3a17afd7fef5285814e696de9b1f5aa8569887156dc7690bce5223c2) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dSkills1 returns the union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Skills_Item as a WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dSkills1
+func (t WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Skills_Item) AsWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dSkills1() (WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dSkills1, error) {
+	var body WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dSkills1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dSkills1 overwrites any union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Skills_Item as the provided WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dSkills1
+func (t *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Skills_Item) FromWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dSkills1(v WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dSkills1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dSkills1 performs a merge with any union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Skills_Item, using the provided WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dSkills1
+func (t *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Skills_Item) MergeWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dSkills1(v WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dSkills1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Skills_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Skills_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6 returns the union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Version as a Wire08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6
+func (t WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Version) AsWire08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6() (Wire08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6, error) {
+	var body Wire08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6 overwrites any union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Version as the provided Wire08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6
+func (t *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Version) FromWire08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6(v Wire08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6 performs a merge with any union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Version, using the provided Wire08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6
+func (t *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Version) MergeWire08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6(v Wire08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dVersion1 returns the union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Version as a WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dVersion1
+func (t WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Version) AsWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dVersion1() (WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dVersion1, error) {
+	var body WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dVersion1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dVersion1 overwrites any union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Version as the provided WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dVersion1
+func (t *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Version) FromWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dVersion1(v WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dVersion1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dVersion1 performs a merge with any union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Version, using the provided WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dVersion1
+func (t *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Version) MergeWireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dVersion1(v WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474dVersion1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Version) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Version) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691 returns the union data inside the WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78_Version as a Wire239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691
+func (t WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78_Version) AsWire239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691() (Wire239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691, error) {
+	var body Wire239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691 overwrites any union data inside the WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78_Version as the provided Wire239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691
+func (t *WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78_Version) FromWire239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691(v Wire239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691 performs a merge with any union data inside the WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78_Version, using the provided Wire239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691
+func (t *WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78_Version) MergeWire239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691(v Wire239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78Version1 returns the union data inside the WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78_Version as a WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78Version1
+func (t WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78_Version) AsWireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78Version1() (WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78Version1, error) {
+	var body WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78Version1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78Version1 overwrites any union data inside the WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78_Version as the provided WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78Version1
+func (t *WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78_Version) FromWireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78Version1(v WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78Version1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78Version1 performs a merge with any union data inside the WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78_Version, using the provided WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78Version1
+func (t *WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78_Version) MergeWireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78Version1(v WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78Version1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78_Version) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78_Version) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire1a54346913f36c827b3cbb210b4e4062c2b4b68e415f006659f4a97f386665ac returns the union data inside the WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179_Items_Item as a Wire1a54346913f36c827b3cbb210b4e4062c2b4b68e415f006659f4a97f386665ac
+func (t WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179_Items_Item) AsWire1a54346913f36c827b3cbb210b4e4062c2b4b68e415f006659f4a97f386665ac() (Wire1a54346913f36c827b3cbb210b4e4062c2b4b68e415f006659f4a97f386665ac, error) {
+	var body Wire1a54346913f36c827b3cbb210b4e4062c2b4b68e415f006659f4a97f386665ac
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire1a54346913f36c827b3cbb210b4e4062c2b4b68e415f006659f4a97f386665ac overwrites any union data inside the WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179_Items_Item as the provided Wire1a54346913f36c827b3cbb210b4e4062c2b4b68e415f006659f4a97f386665ac
+func (t *WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179_Items_Item) FromWire1a54346913f36c827b3cbb210b4e4062c2b4b68e415f006659f4a97f386665ac(v Wire1a54346913f36c827b3cbb210b4e4062c2b4b68e415f006659f4a97f386665ac) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire1a54346913f36c827b3cbb210b4e4062c2b4b68e415f006659f4a97f386665ac performs a merge with any union data inside the WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179_Items_Item, using the provided Wire1a54346913f36c827b3cbb210b4e4062c2b4b68e415f006659f4a97f386665ac
+func (t *WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179_Items_Item) MergeWire1a54346913f36c827b3cbb210b4e4062c2b4b68e415f006659f4a97f386665ac(v Wire1a54346913f36c827b3cbb210b4e4062c2b4b68e415f006659f4a97f386665ac) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179Items1 returns the union data inside the WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179_Items_Item as a WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179Items1
+func (t WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179_Items_Item) AsWireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179Items1() (WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179Items1, error) {
+	var body WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179Items1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179Items1 overwrites any union data inside the WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179_Items_Item as the provided WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179Items1
+func (t *WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179_Items_Item) FromWireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179Items1(v WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179Items1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179Items1 performs a merge with any union data inside the WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179_Items_Item, using the provided WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179Items1
+func (t *WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179_Items_Item) MergeWireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179Items1(v WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179Items1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179_Items_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179_Items_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d returns the union data inside the WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0_Items_Item as a Wire9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d
+func (t WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0_Items_Item) AsWire9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d() (Wire9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d, error) {
+	var body Wire9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d overwrites any union data inside the WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0_Items_Item as the provided Wire9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d
+func (t *WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0_Items_Item) FromWire9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d(v Wire9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d performs a merge with any union data inside the WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0_Items_Item, using the provided Wire9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d
+func (t *WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0_Items_Item) MergeWire9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d(v Wire9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0Items1 returns the union data inside the WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0_Items_Item as a WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0Items1
+func (t WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0_Items_Item) AsWireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0Items1() (WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0Items1, error) {
+	var body WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0Items1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0Items1 overwrites any union data inside the WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0_Items_Item as the provided WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0Items1
+func (t *WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0_Items_Item) FromWireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0Items1(v WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0Items1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0Items1 performs a merge with any union data inside the WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0_Items_Item, using the provided WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0Items1
+func (t *WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0_Items_Item) MergeWireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0Items1(v WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0Items1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0_Items_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0_Items_Item) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -719,6 +6722,38 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 // The interface specification for the client above.
 type ClientInterface interface {
 
+	// POSTv1studiosdkaccessContextWithBody performs a POST /v1/studio/sdk/access.context (the `POSTv1studiosdkaccessContext` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkaccessContextWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkaccessContext performs a POST /v1/studio/sdk/access.context (the `POSTv1studiosdkaccessContext` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkaccessContext(ctx context.Context, body POSTv1studiosdkaccessContextJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkaccessGetWithBody performs a POST /v1/studio/sdk/access.get (the `POSTv1studiosdkaccessGet` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkaccessGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkaccessGet performs a POST /v1/studio/sdk/access.get (the `POSTv1studiosdkaccessGet` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkaccessGet(ctx context.Context, body POSTv1studiosdkaccessGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkaccessReplaceWithBody performs a POST /v1/studio/sdk/access.replace (the `POSTv1studiosdkaccessReplace` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkaccessReplaceWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkaccessReplace performs a POST /v1/studio/sdk/access.replace (the `POSTv1studiosdkaccessReplace` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkaccessReplace(ctx context.Context, body POSTv1studiosdkaccessReplaceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkaclDeleteWithBody performs a POST /v1/studio/sdk/acl.delete (the `POSTv1studiosdkaclDelete` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkaclDeleteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkaclDelete performs a POST /v1/studio/sdk/acl.delete (the `POSTv1studiosdkaclDelete` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkaclDelete(ctx context.Context, body POSTv1studiosdkaclDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// POSTv1studiosdkaclListWithBody acl
 	//
 	// Takes any type of body and a specified content type.
@@ -732,6 +6767,139 @@ type ClientInterface interface {
 	//
 	// Corresponds with POST /v1/studio/sdk/acl.list (the `POSTv1studiosdkaclList` operationId).
 	POSTv1studiosdkaclList(ctx context.Context, params *POSTv1studiosdkaclListParams, body POSTv1studiosdkaclListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkaclUpsertWithBody performs a POST /v1/studio/sdk/acl.upsert (the `POSTv1studiosdkaclUpsert` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkaclUpsertWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkaclUpsert performs a POST /v1/studio/sdk/acl.upsert (the `POSTv1studiosdkaclUpsert` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkaclUpsert(ctx context.Context, body POSTv1studiosdkaclUpsertJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkauthorizationPredicatesCreateWithBody performs a POST /v1/studio/sdk/authorization_predicates.create (the `POSTv1studiosdkauthorizationPredicatesCreate` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkauthorizationPredicatesCreateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkauthorizationPredicatesCreate performs a POST /v1/studio/sdk/authorization_predicates.create (the `POSTv1studiosdkauthorizationPredicatesCreate` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkauthorizationPredicatesCreate(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkauthorizationPredicatesDeleteWithBody performs a POST /v1/studio/sdk/authorization_predicates.delete (the `POSTv1studiosdkauthorizationPredicatesDelete` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkauthorizationPredicatesDeleteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkauthorizationPredicatesDelete performs a POST /v1/studio/sdk/authorization_predicates.delete (the `POSTv1studiosdkauthorizationPredicatesDelete` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkauthorizationPredicatesDelete(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkauthorizationPredicatesGetWithBody performs a POST /v1/studio/sdk/authorization_predicates.get (the `POSTv1studiosdkauthorizationPredicatesGet` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkauthorizationPredicatesGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkauthorizationPredicatesGet performs a POST /v1/studio/sdk/authorization_predicates.get (the `POSTv1studiosdkauthorizationPredicatesGet` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkauthorizationPredicatesGet(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkauthorizationPredicatesListWithBody performs a POST /v1/studio/sdk/authorization_predicates.list (the `POSTv1studiosdkauthorizationPredicatesList` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkauthorizationPredicatesListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkauthorizationPredicatesList performs a POST /v1/studio/sdk/authorization_predicates.list (the `POSTv1studiosdkauthorizationPredicatesList` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkauthorizationPredicatesList(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkauthorizationPredicatesTypes performs a POST /v1/studio/sdk/authorization_predicates.types (the `POSTv1studiosdkauthorizationPredicatesTypes` operationId) request.
+	POSTv1studiosdkauthorizationPredicatesTypes(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkauthorizationPredicatesUpdateWithBody performs a POST /v1/studio/sdk/authorization_predicates.update (the `POSTv1studiosdkauthorizationPredicatesUpdate` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkauthorizationPredicatesUpdateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkauthorizationPredicatesUpdate performs a POST /v1/studio/sdk/authorization_predicates.update (the `POSTv1studiosdkauthorizationPredicatesUpdate` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkauthorizationPredicatesUpdate(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkcomponentsCreateWithBody performs a POST /v1/studio/sdk/components.create (the `POSTv1studiosdkcomponentsCreate` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkcomponentsCreateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkcomponentsCreate performs a POST /v1/studio/sdk/components.create (the `POSTv1studiosdkcomponentsCreate` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkcomponentsCreate(ctx context.Context, body POSTv1studiosdkcomponentsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkcomponentsGetWithBody report
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /v1/studio/sdk/components.get (the `POSTv1studiosdkcomponentsGet` operationId).
+	POSTv1studiosdkcomponentsGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkcomponentsGet report
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /v1/studio/sdk/components.get (the `POSTv1studiosdkcomponentsGet` operationId).
+	POSTv1studiosdkcomponentsGet(ctx context.Context, body POSTv1studiosdkcomponentsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkcomponentsListWithBody report
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /v1/studio/sdk/components.list (the `POSTv1studiosdkcomponentsList` operationId).
+	POSTv1studiosdkcomponentsListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkcomponentsList report
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /v1/studio/sdk/components.list (the `POSTv1studiosdkcomponentsList` operationId).
+	POSTv1studiosdkcomponentsList(ctx context.Context, body POSTv1studiosdkcomponentsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkcomponentsUpdateWithBody performs a POST /v1/studio/sdk/components.update (the `POSTv1studiosdkcomponentsUpdate` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkcomponentsUpdateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkcomponentsUpdate performs a POST /v1/studio/sdk/components.update (the `POSTv1studiosdkcomponentsUpdate` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkcomponentsUpdate(ctx context.Context, body POSTv1studiosdkcomponentsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkconnectorsActivateWithBody performs a POST /v1/studio/sdk/connectors.activate (the `POSTv1studiosdkconnectorsActivate` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkconnectorsActivateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkconnectorsActivate performs a POST /v1/studio/sdk/connectors.activate (the `POSTv1studiosdkconnectorsActivate` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkconnectorsActivate(ctx context.Context, body POSTv1studiosdkconnectorsActivateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkconnectorsCreateWithBody connector
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /v1/studio/sdk/connectors.create (the `POSTv1studiosdkconnectorsCreate` operationId).
+	POSTv1studiosdkconnectorsCreateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkconnectorsCreate connector
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /v1/studio/sdk/connectors.create (the `POSTv1studiosdkconnectorsCreate` operationId).
+	POSTv1studiosdkconnectorsCreate(ctx context.Context, body POSTv1studiosdkconnectorsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkconnectorsDeleteWithBody performs a POST /v1/studio/sdk/connectors.delete (the `POSTv1studiosdkconnectorsDelete` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkconnectorsDeleteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkconnectorsDelete performs a POST /v1/studio/sdk/connectors.delete (the `POSTv1studiosdkconnectorsDelete` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkconnectorsDelete(ctx context.Context, body POSTv1studiosdkconnectorsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkconnectorsDisableWithBody performs a POST /v1/studio/sdk/connectors.disable (the `POSTv1studiosdkconnectorsDisable` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkconnectorsDisableWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkconnectorsDisable performs a POST /v1/studio/sdk/connectors.disable (the `POSTv1studiosdkconnectorsDisable` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkconnectorsDisable(ctx context.Context, body POSTv1studiosdkconnectorsDisableJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkconnectorsGetWithBody connector
 	//
@@ -761,6 +6929,76 @@ type ClientInterface interface {
 	// Corresponds with POST /v1/studio/sdk/connectors.list (the `POSTv1studiosdkconnectorsList` operationId).
 	POSTv1studiosdkconnectorsList(ctx context.Context, body POSTv1studiosdkconnectorsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// POSTv1studiosdkconnectorsSchemasWithBody performs a POST /v1/studio/sdk/connectors.schemas (the `POSTv1studiosdkconnectorsSchemas` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkconnectorsSchemasWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkconnectorsSchemas performs a POST /v1/studio/sdk/connectors.schemas (the `POSTv1studiosdkconnectorsSchemas` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkconnectorsSchemas(ctx context.Context, body POSTv1studiosdkconnectorsSchemasJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkconnectorsTableWithBody performs a POST /v1/studio/sdk/connectors.table (the `POSTv1studiosdkconnectorsTable` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkconnectorsTableWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkconnectorsTable performs a POST /v1/studio/sdk/connectors.table (the `POSTv1studiosdkconnectorsTable` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkconnectorsTable(ctx context.Context, body POSTv1studiosdkconnectorsTableJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkconnectorsTablesWithBody performs a POST /v1/studio/sdk/connectors.tables (the `POSTv1studiosdkconnectorsTables` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkconnectorsTablesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkconnectorsTables performs a POST /v1/studio/sdk/connectors.tables (the `POSTv1studiosdkconnectorsTables` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkconnectorsTables(ctx context.Context, body POSTv1studiosdkconnectorsTablesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkconnectorsTestWithBody performs a POST /v1/studio/sdk/connectors.test (the `POSTv1studiosdkconnectorsTest` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkconnectorsTestWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkconnectorsTest performs a POST /v1/studio/sdk/connectors.test (the `POSTv1studiosdkconnectorsTest` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkconnectorsTest(ctx context.Context, body POSTv1studiosdkconnectorsTestJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkconnectorsTestSqlWithBody performs a POST /v1/studio/sdk/connectors.test_sql (the `POSTv1studiosdkconnectorsTestSql` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkconnectorsTestSqlWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkconnectorsTestSql performs a POST /v1/studio/sdk/connectors.test_sql (the `POSTv1studiosdkconnectorsTestSql` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkconnectorsTestSql(ctx context.Context, body POSTv1studiosdkconnectorsTestSqlJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkconnectorsUpdateWithBody performs a POST /v1/studio/sdk/connectors.update (the `POSTv1studiosdkconnectorsUpdate` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkconnectorsUpdateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkconnectorsUpdate performs a POST /v1/studio/sdk/connectors.update (the `POSTv1studiosdkconnectorsUpdate` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkconnectorsUpdate(ctx context.Context, body POSTv1studiosdkconnectorsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespacesCreateWithBody namespace
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /v1/studio/sdk/namespaces.create (the `POSTv1studiosdknamespacesCreate` operationId).
+	POSTv1studiosdknamespacesCreateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespacesCreate namespace
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /v1/studio/sdk/namespaces.create (the `POSTv1studiosdknamespacesCreate` operationId).
+	POSTv1studiosdknamespacesCreate(ctx context.Context, body POSTv1studiosdknamespacesCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespacesDeleteWithBody performs a POST /v1/studio/sdk/namespaces.delete (the `POSTv1studiosdknamespacesDelete` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdknamespacesDeleteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespacesDelete performs a POST /v1/studio/sdk/namespaces.delete (the `POSTv1studiosdknamespacesDelete` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdknamespacesDelete(ctx context.Context, body POSTv1studiosdknamespacesDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// POSTv1studiosdknamespacesGetWithBody namespace
 	//
 	// Takes any type of body and a specified content type.
@@ -788,6 +7026,22 @@ type ClientInterface interface {
 	//
 	// Corresponds with POST /v1/studio/sdk/namespaces.list (the `POSTv1studiosdknamespacesList` operationId).
 	POSTv1studiosdknamespacesList(ctx context.Context, body POSTv1studiosdknamespacesListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespacesUpdateWithBody performs a POST /v1/studio/sdk/namespaces.update (the `POSTv1studiosdknamespacesUpdate` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdknamespacesUpdateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespacesUpdate performs a POST /v1/studio/sdk/namespaces.update (the `POSTv1studiosdknamespacesUpdate` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdknamespacesUpdate(ctx context.Context, body POSTv1studiosdknamespacesUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkpreviewExecuteWithBody performs a POST /v1/studio/sdk/preview.execute (the `POSTv1studiosdkpreviewExecute` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkpreviewExecuteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkpreviewExecute performs a POST /v1/studio/sdk/preview.execute (the `POSTv1studiosdkpreviewExecute` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkpreviewExecute(ctx context.Context, body POSTv1studiosdkpreviewExecuteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkpublicationsEventsListWithBody event
 	//
@@ -817,33 +7071,374 @@ type ClientInterface interface {
 	// Corresponds with POST /v1/studio/sdk/publications.get (the `POSTv1studiosdkpublicationsGet` operationId).
 	POSTv1studiosdkpublicationsGet(ctx context.Context, body POSTv1studiosdkpublicationsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// POSTv1studiosdkreportsGetWithBody report
+	// POSTv1studiosdkpublicationsPublishWithBody performs a POST /v1/studio/sdk/publications.publish (the `POSTv1studiosdkpublicationsPublish` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkpublicationsPublishWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkpublicationsPublish performs a POST /v1/studio/sdk/publications.publish (the `POSTv1studiosdkpublicationsPublish` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkpublicationsPublish(ctx context.Context, body POSTv1studiosdkpublicationsPublishJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkpublicationsRollbackWithBody performs a POST /v1/studio/sdk/publications.rollback (the `POSTv1studiosdkpublicationsRollback` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkpublicationsRollbackWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkpublicationsRollback performs a POST /v1/studio/sdk/publications.rollback (the `POSTv1studiosdkpublicationsRollback` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkpublicationsRollback(ctx context.Context, body POSTv1studiosdkpublicationsRollbackJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkpublicationsUnpublishWithBody performs a POST /v1/studio/sdk/publications.unpublish (the `POSTv1studiosdkpublicationsUnpublish` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkpublicationsUnpublishWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkpublicationsUnpublish performs a POST /v1/studio/sdk/publications.unpublish (the `POSTv1studiosdkpublicationsUnpublish` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkpublicationsUnpublish(ctx context.Context, body POSTv1studiosdkpublicationsUnpublishJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkresourcesDeleteFileWithBody performs a POST /v1/studio/sdk/resources.delete_file (the `POSTv1studiosdkresourcesDeleteFile` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkresourcesDeleteFileWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkresourcesDeleteFile performs a POST /v1/studio/sdk/resources.delete_file (the `POSTv1studiosdkresourcesDeleteFile` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkresourcesDeleteFile(ctx context.Context, body POSTv1studiosdkresourcesDeleteFileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkresourcesDeleteFolderWithBody performs a POST /v1/studio/sdk/resources.delete_folder (the `POSTv1studiosdkresourcesDeleteFolder` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkresourcesDeleteFolderWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkresourcesDeleteFolder performs a POST /v1/studio/sdk/resources.delete_folder (the `POSTv1studiosdkresourcesDeleteFolder` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkresourcesDeleteFolder(ctx context.Context, body POSTv1studiosdkresourcesDeleteFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkresourcesDeleteSkillWithBody performs a POST /v1/studio/sdk/resources.delete_skill (the `POSTv1studiosdkresourcesDeleteSkill` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkresourcesDeleteSkillWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkresourcesDeleteSkill performs a POST /v1/studio/sdk/resources.delete_skill (the `POSTv1studiosdkresourcesDeleteSkill` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkresourcesDeleteSkill(ctx context.Context, body POSTv1studiosdkresourcesDeleteSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkresourcesGetWithBody performs a POST /v1/studio/sdk/resources.get (the `POSTv1studiosdkresourcesGet` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkresourcesGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkresourcesGet performs a POST /v1/studio/sdk/resources.get (the `POSTv1studiosdkresourcesGet` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkresourcesGet(ctx context.Context, body POSTv1studiosdkresourcesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkresourcesUpsertFileWithBody performs a POST /v1/studio/sdk/resources.upsert_file (the `POSTv1studiosdkresourcesUpsertFile` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkresourcesUpsertFileWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkresourcesUpsertFile performs a POST /v1/studio/sdk/resources.upsert_file (the `POSTv1studiosdkresourcesUpsertFile` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkresourcesUpsertFile(ctx context.Context, body POSTv1studiosdkresourcesUpsertFileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkresourcesUpsertFolderWithBody performs a POST /v1/studio/sdk/resources.upsert_folder (the `POSTv1studiosdkresourcesUpsertFolder` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkresourcesUpsertFolderWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkresourcesUpsertFolder performs a POST /v1/studio/sdk/resources.upsert_folder (the `POSTv1studiosdkresourcesUpsertFolder` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkresourcesUpsertFolder(ctx context.Context, body POSTv1studiosdkresourcesUpsertFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkresourcesUpsertSkillWithBody performs a POST /v1/studio/sdk/resources.upsert_skill (the `POSTv1studiosdkresourcesUpsertSkill` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkresourcesUpsertSkillWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkresourcesUpsertSkill performs a POST /v1/studio/sdk/resources.upsert_skill (the `POSTv1studiosdkresourcesUpsertSkill` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkresourcesUpsertSkill(ctx context.Context, body POSTv1studiosdkresourcesUpsertSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkruntimeStatus performs a POST /v1/studio/sdk/runtime.status (the `POSTv1studiosdkruntimeStatus` operationId) request.
+	POSTv1studiosdkruntimeStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsApplyWithBody performs a POST /v1/studio/sdk/versions.apply (the `POSTv1studiosdkversionsApply` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkversionsApplyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsApply performs a POST /v1/studio/sdk/versions.apply (the `POSTv1studiosdkversionsApply` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkversionsApply(ctx context.Context, body POSTv1studiosdkversionsApplyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsBuilderWithBody performs a POST /v1/studio/sdk/versions.builder (the `POSTv1studiosdkversionsBuilder` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkversionsBuilderWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsBuilder performs a POST /v1/studio/sdk/versions.builder (the `POSTv1studiosdkversionsBuilder` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkversionsBuilder(ctx context.Context, body POSTv1studiosdkversionsBuilderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsCreateWithBody performs a POST /v1/studio/sdk/versions.create (the `POSTv1studiosdkversionsCreate` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkversionsCreateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsCreate performs a POST /v1/studio/sdk/versions.create (the `POSTv1studiosdkversionsCreate` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkversionsCreate(ctx context.Context, body POSTv1studiosdkversionsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsDescriptorWithBody version
 	//
 	// Takes any type of body and a specified content type.
 	//
-	// Corresponds with POST /v1/studio/sdk/reports.get (the `POSTv1studiosdkreportsGet` operationId).
-	POSTv1studiosdkreportsGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// Corresponds with POST /v1/studio/sdk/versions.descriptor (the `POSTv1studiosdkversionsDescriptor` operationId).
+	POSTv1studiosdkversionsDescriptorWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// POSTv1studiosdkreportsGet report
+	// POSTv1studiosdkversionsDescriptor version
 	//
 	// Takes a body of the `application/json` content type.
 	//
-	// Corresponds with POST /v1/studio/sdk/reports.get (the `POSTv1studiosdkreportsGet` operationId).
-	POSTv1studiosdkreportsGet(ctx context.Context, body POSTv1studiosdkreportsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// Corresponds with POST /v1/studio/sdk/versions.descriptor (the `POSTv1studiosdkversionsDescriptor` operationId).
+	POSTv1studiosdkversionsDescriptor(ctx context.Context, body POSTv1studiosdkversionsDescriptorJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// POSTv1studiosdkreportsListWithBody report
+	// POSTv1studiosdkversionsDownloadWithBody performs a POST /v1/studio/sdk/versions.download (the `POSTv1studiosdkversionsDownload` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkversionsDownloadWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsDownload performs a POST /v1/studio/sdk/versions.download (the `POSTv1studiosdkversionsDownload` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkversionsDownload(ctx context.Context, body POSTv1studiosdkversionsDownloadJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsExportDqlWithBody version
 	//
 	// Takes any type of body and a specified content type.
 	//
-	// Corresponds with POST /v1/studio/sdk/reports.list (the `POSTv1studiosdkreportsList` operationId).
-	POSTv1studiosdkreportsListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// Corresponds with POST /v1/studio/sdk/versions.export_dql (the `POSTv1studiosdkversionsExportDql` operationId).
+	POSTv1studiosdkversionsExportDqlWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// POSTv1studiosdkreportsList report
+	// POSTv1studiosdkversionsExportDql version
 	//
 	// Takes a body of the `application/json` content type.
 	//
-	// Corresponds with POST /v1/studio/sdk/reports.list (the `POSTv1studiosdkreportsList` operationId).
-	POSTv1studiosdkreportsList(ctx context.Context, body POSTv1studiosdkreportsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// Corresponds with POST /v1/studio/sdk/versions.export_dql (the `POSTv1studiosdkversionsExportDql` operationId).
+	POSTv1studiosdkversionsExportDql(ctx context.Context, body POSTv1studiosdkversionsExportDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsGetWithBody version
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /v1/studio/sdk/versions.get (the `POSTv1studiosdkversionsGet` operationId).
+	POSTv1studiosdkversionsGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsGet version
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /v1/studio/sdk/versions.get (the `POSTv1studiosdkversionsGet` operationId).
+	POSTv1studiosdkversionsGet(ctx context.Context, body POSTv1studiosdkversionsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsInspectWithBody performs a POST /v1/studio/sdk/versions.inspect (the `POSTv1studiosdkversionsInspect` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkversionsInspectWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsInspect performs a POST /v1/studio/sdk/versions.inspect (the `POSTv1studiosdkversionsInspect` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkversionsInspect(ctx context.Context, body POSTv1studiosdkversionsInspectJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsListWithBody version
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /v1/studio/sdk/versions.list (the `POSTv1studiosdkversionsList` operationId).
+	POSTv1studiosdkversionsListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsList version
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /v1/studio/sdk/versions.list (the `POSTv1studiosdkversionsList` operationId).
+	POSTv1studiosdkversionsList(ctx context.Context, body POSTv1studiosdkversionsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsLoadArchiveWithBody performs a POST /v1/studio/sdk/versions.load_archive (the `POSTv1studiosdkversionsLoadArchive` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkversionsLoadArchiveWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsLoadArchive performs a POST /v1/studio/sdk/versions.load_archive (the `POSTv1studiosdkversionsLoadArchive` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkversionsLoadArchive(ctx context.Context, body POSTv1studiosdkversionsLoadArchiveJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsLoadDqlWithBody performs a POST /v1/studio/sdk/versions.load_dql (the `POSTv1studiosdkversionsLoadDql` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkversionsLoadDqlWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsLoadDql performs a POST /v1/studio/sdk/versions.load_dql (the `POSTv1studiosdkversionsLoadDql` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkversionsLoadDql(ctx context.Context, body POSTv1studiosdkversionsLoadDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsTestComposeWithBody performs a POST /v1/studio/sdk/versions.test_compose (the `POSTv1studiosdkversionsTestCompose` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkversionsTestComposeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsTestCompose performs a POST /v1/studio/sdk/versions.test_compose (the `POSTv1studiosdkversionsTestCompose` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkversionsTestCompose(ctx context.Context, body POSTv1studiosdkversionsTestComposeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsTestRelationWithBody performs a POST /v1/studio/sdk/versions.test_relation (the `POSTv1studiosdkversionsTestRelation` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkversionsTestRelationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsTestRelation performs a POST /v1/studio/sdk/versions.test_relation (the `POSTv1studiosdkversionsTestRelation` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkversionsTestRelation(ctx context.Context, body POSTv1studiosdkversionsTestRelationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsTestViewWithBody performs a POST /v1/studio/sdk/versions.test_view (the `POSTv1studiosdkversionsTestView` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkversionsTestViewWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsTestView performs a POST /v1/studio/sdk/versions.test_view (the `POSTv1studiosdkversionsTestView` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkversionsTestView(ctx context.Context, body POSTv1studiosdkversionsTestViewJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsValidateWithBody performs a POST /v1/studio/sdk/versions.validate (the `POSTv1studiosdkversionsValidate` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkversionsValidateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsValidate performs a POST /v1/studio/sdk/versions.validate (the `POSTv1studiosdkversionsValidate` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkversionsValidate(ctx context.Context, body POSTv1studiosdkversionsValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsWarmupWithBody performs a POST /v1/studio/sdk/versions.warmup (the `POSTv1studiosdkversionsWarmup` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkversionsWarmupWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsWarmup performs a POST /v1/studio/sdk/versions.warmup (the `POSTv1studiosdkversionsWarmup` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkversionsWarmup(ctx context.Context, body POSTv1studiosdkversionsWarmupJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsWarmupGetWithBody warmup_run
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /v1/studio/sdk/versions.warmup_get (the `POSTv1studiosdkversionsWarmupGet` operationId).
+	POSTv1studiosdkversionsWarmupGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsWarmupGet warmup_run
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /v1/studio/sdk/versions.warmup_get (the `POSTv1studiosdkversionsWarmupGet` operationId).
+	POSTv1studiosdkversionsWarmupGet(ctx context.Context, body POSTv1studiosdkversionsWarmupGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsWarmupListWithBody performs a POST /v1/studio/sdk/versions.warmup_list (the `POSTv1studiosdkversionsWarmupList` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkversionsWarmupListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsWarmupList performs a POST /v1/studio/sdk/versions.warmup_list (the `POSTv1studiosdkversionsWarmupList` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkversionsWarmupList(ctx context.Context, body POSTv1studiosdkversionsWarmupListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+// POSTv1studiosdkaccessContextWithBody performs a POST /v1/studio/sdk/access.context (the `POSTv1studiosdkaccessContext` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkaccessContextWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkaccessContextRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkaccessContext performs a POST /v1/studio/sdk/access.context (the `POSTv1studiosdkaccessContext` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkaccessContext(ctx context.Context, body POSTv1studiosdkaccessContextJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkaccessContextRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkaccessGetWithBody performs a POST /v1/studio/sdk/access.get (the `POSTv1studiosdkaccessGet` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkaccessGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkaccessGetRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkaccessGet performs a POST /v1/studio/sdk/access.get (the `POSTv1studiosdkaccessGet` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkaccessGet(ctx context.Context, body POSTv1studiosdkaccessGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkaccessGetRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkaccessReplaceWithBody performs a POST /v1/studio/sdk/access.replace (the `POSTv1studiosdkaccessReplace` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkaccessReplaceWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkaccessReplaceRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkaccessReplace performs a POST /v1/studio/sdk/access.replace (the `POSTv1studiosdkaccessReplace` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkaccessReplace(ctx context.Context, body POSTv1studiosdkaccessReplaceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkaccessReplaceRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkaclDeleteWithBody performs a POST /v1/studio/sdk/acl.delete (the `POSTv1studiosdkaclDelete` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkaclDeleteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkaclDeleteRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkaclDelete performs a POST /v1/studio/sdk/acl.delete (the `POSTv1studiosdkaclDelete` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkaclDelete(ctx context.Context, body POSTv1studiosdkaclDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkaclDeleteRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 // POSTv1studiosdkaclListWithBody acl
@@ -870,6 +7465,429 @@ func (c *Client) POSTv1studiosdkaclListWithBody(ctx context.Context, params *POS
 // Corresponds with POST /v1/studio/sdk/acl.list (the `POSTv1studiosdkaclList` operationId).
 func (c *Client) POSTv1studiosdkaclList(ctx context.Context, params *POSTv1studiosdkaclListParams, body POSTv1studiosdkaclListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPOSTv1studiosdkaclListRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkaclUpsertWithBody performs a POST /v1/studio/sdk/acl.upsert (the `POSTv1studiosdkaclUpsert` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkaclUpsertWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkaclUpsertRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkaclUpsert performs a POST /v1/studio/sdk/acl.upsert (the `POSTv1studiosdkaclUpsert` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkaclUpsert(ctx context.Context, body POSTv1studiosdkaclUpsertJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkaclUpsertRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkauthorizationPredicatesCreateWithBody performs a POST /v1/studio/sdk/authorization_predicates.create (the `POSTv1studiosdkauthorizationPredicatesCreate` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkauthorizationPredicatesCreateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkauthorizationPredicatesCreateRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkauthorizationPredicatesCreate performs a POST /v1/studio/sdk/authorization_predicates.create (the `POSTv1studiosdkauthorizationPredicatesCreate` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkauthorizationPredicatesCreate(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkauthorizationPredicatesCreateRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkauthorizationPredicatesDeleteWithBody performs a POST /v1/studio/sdk/authorization_predicates.delete (the `POSTv1studiosdkauthorizationPredicatesDelete` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkauthorizationPredicatesDeleteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkauthorizationPredicatesDeleteRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkauthorizationPredicatesDelete performs a POST /v1/studio/sdk/authorization_predicates.delete (the `POSTv1studiosdkauthorizationPredicatesDelete` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkauthorizationPredicatesDelete(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkauthorizationPredicatesDeleteRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkauthorizationPredicatesGetWithBody performs a POST /v1/studio/sdk/authorization_predicates.get (the `POSTv1studiosdkauthorizationPredicatesGet` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkauthorizationPredicatesGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkauthorizationPredicatesGetRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkauthorizationPredicatesGet performs a POST /v1/studio/sdk/authorization_predicates.get (the `POSTv1studiosdkauthorizationPredicatesGet` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkauthorizationPredicatesGet(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkauthorizationPredicatesGetRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkauthorizationPredicatesListWithBody performs a POST /v1/studio/sdk/authorization_predicates.list (the `POSTv1studiosdkauthorizationPredicatesList` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkauthorizationPredicatesListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkauthorizationPredicatesListRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkauthorizationPredicatesList performs a POST /v1/studio/sdk/authorization_predicates.list (the `POSTv1studiosdkauthorizationPredicatesList` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkauthorizationPredicatesList(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkauthorizationPredicatesListRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkauthorizationPredicatesTypes performs a POST /v1/studio/sdk/authorization_predicates.types (the `POSTv1studiosdkauthorizationPredicatesTypes` operationId) request.
+func (c *Client) POSTv1studiosdkauthorizationPredicatesTypes(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkauthorizationPredicatesTypesRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkauthorizationPredicatesUpdateWithBody performs a POST /v1/studio/sdk/authorization_predicates.update (the `POSTv1studiosdkauthorizationPredicatesUpdate` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkauthorizationPredicatesUpdateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkauthorizationPredicatesUpdateRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkauthorizationPredicatesUpdate performs a POST /v1/studio/sdk/authorization_predicates.update (the `POSTv1studiosdkauthorizationPredicatesUpdate` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkauthorizationPredicatesUpdate(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkauthorizationPredicatesUpdateRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkcomponentsCreateWithBody performs a POST /v1/studio/sdk/components.create (the `POSTv1studiosdkcomponentsCreate` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkcomponentsCreateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkcomponentsCreateRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkcomponentsCreate performs a POST /v1/studio/sdk/components.create (the `POSTv1studiosdkcomponentsCreate` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkcomponentsCreate(ctx context.Context, body POSTv1studiosdkcomponentsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkcomponentsCreateRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkcomponentsGetWithBody report
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /v1/studio/sdk/components.get (the `POSTv1studiosdkcomponentsGet` operationId).
+func (c *Client) POSTv1studiosdkcomponentsGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkcomponentsGetRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkcomponentsGet report
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /v1/studio/sdk/components.get (the `POSTv1studiosdkcomponentsGet` operationId).
+func (c *Client) POSTv1studiosdkcomponentsGet(ctx context.Context, body POSTv1studiosdkcomponentsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkcomponentsGetRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkcomponentsListWithBody report
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /v1/studio/sdk/components.list (the `POSTv1studiosdkcomponentsList` operationId).
+func (c *Client) POSTv1studiosdkcomponentsListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkcomponentsListRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkcomponentsList report
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /v1/studio/sdk/components.list (the `POSTv1studiosdkcomponentsList` operationId).
+func (c *Client) POSTv1studiosdkcomponentsList(ctx context.Context, body POSTv1studiosdkcomponentsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkcomponentsListRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkcomponentsUpdateWithBody performs a POST /v1/studio/sdk/components.update (the `POSTv1studiosdkcomponentsUpdate` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkcomponentsUpdateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkcomponentsUpdateRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkcomponentsUpdate performs a POST /v1/studio/sdk/components.update (the `POSTv1studiosdkcomponentsUpdate` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkcomponentsUpdate(ctx context.Context, body POSTv1studiosdkcomponentsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkcomponentsUpdateRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkconnectorsActivateWithBody performs a POST /v1/studio/sdk/connectors.activate (the `POSTv1studiosdkconnectorsActivate` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkconnectorsActivateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkconnectorsActivateRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkconnectorsActivate performs a POST /v1/studio/sdk/connectors.activate (the `POSTv1studiosdkconnectorsActivate` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkconnectorsActivate(ctx context.Context, body POSTv1studiosdkconnectorsActivateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkconnectorsActivateRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkconnectorsCreateWithBody connector
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /v1/studio/sdk/connectors.create (the `POSTv1studiosdkconnectorsCreate` operationId).
+func (c *Client) POSTv1studiosdkconnectorsCreateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkconnectorsCreateRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkconnectorsCreate connector
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /v1/studio/sdk/connectors.create (the `POSTv1studiosdkconnectorsCreate` operationId).
+func (c *Client) POSTv1studiosdkconnectorsCreate(ctx context.Context, body POSTv1studiosdkconnectorsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkconnectorsCreateRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkconnectorsDeleteWithBody performs a POST /v1/studio/sdk/connectors.delete (the `POSTv1studiosdkconnectorsDelete` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkconnectorsDeleteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkconnectorsDeleteRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkconnectorsDelete performs a POST /v1/studio/sdk/connectors.delete (the `POSTv1studiosdkconnectorsDelete` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkconnectorsDelete(ctx context.Context, body POSTv1studiosdkconnectorsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkconnectorsDeleteRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkconnectorsDisableWithBody performs a POST /v1/studio/sdk/connectors.disable (the `POSTv1studiosdkconnectorsDisable` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkconnectorsDisableWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkconnectorsDisableRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkconnectorsDisable performs a POST /v1/studio/sdk/connectors.disable (the `POSTv1studiosdkconnectorsDisable` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkconnectorsDisable(ctx context.Context, body POSTv1studiosdkconnectorsDisableJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkconnectorsDisableRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -948,6 +7966,236 @@ func (c *Client) POSTv1studiosdkconnectorsList(ctx context.Context, body POSTv1s
 	return c.Client.Do(req)
 }
 
+// POSTv1studiosdkconnectorsSchemasWithBody performs a POST /v1/studio/sdk/connectors.schemas (the `POSTv1studiosdkconnectorsSchemas` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkconnectorsSchemasWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkconnectorsSchemasRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkconnectorsSchemas performs a POST /v1/studio/sdk/connectors.schemas (the `POSTv1studiosdkconnectorsSchemas` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkconnectorsSchemas(ctx context.Context, body POSTv1studiosdkconnectorsSchemasJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkconnectorsSchemasRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkconnectorsTableWithBody performs a POST /v1/studio/sdk/connectors.table (the `POSTv1studiosdkconnectorsTable` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkconnectorsTableWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkconnectorsTableRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkconnectorsTable performs a POST /v1/studio/sdk/connectors.table (the `POSTv1studiosdkconnectorsTable` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkconnectorsTable(ctx context.Context, body POSTv1studiosdkconnectorsTableJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkconnectorsTableRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkconnectorsTablesWithBody performs a POST /v1/studio/sdk/connectors.tables (the `POSTv1studiosdkconnectorsTables` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkconnectorsTablesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkconnectorsTablesRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkconnectorsTables performs a POST /v1/studio/sdk/connectors.tables (the `POSTv1studiosdkconnectorsTables` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkconnectorsTables(ctx context.Context, body POSTv1studiosdkconnectorsTablesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkconnectorsTablesRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkconnectorsTestWithBody performs a POST /v1/studio/sdk/connectors.test (the `POSTv1studiosdkconnectorsTest` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkconnectorsTestWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkconnectorsTestRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkconnectorsTest performs a POST /v1/studio/sdk/connectors.test (the `POSTv1studiosdkconnectorsTest` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkconnectorsTest(ctx context.Context, body POSTv1studiosdkconnectorsTestJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkconnectorsTestRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkconnectorsTestSqlWithBody performs a POST /v1/studio/sdk/connectors.test_sql (the `POSTv1studiosdkconnectorsTestSql` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkconnectorsTestSqlWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkconnectorsTestSqlRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkconnectorsTestSql performs a POST /v1/studio/sdk/connectors.test_sql (the `POSTv1studiosdkconnectorsTestSql` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkconnectorsTestSql(ctx context.Context, body POSTv1studiosdkconnectorsTestSqlJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkconnectorsTestSqlRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkconnectorsUpdateWithBody performs a POST /v1/studio/sdk/connectors.update (the `POSTv1studiosdkconnectorsUpdate` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkconnectorsUpdateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkconnectorsUpdateRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkconnectorsUpdate performs a POST /v1/studio/sdk/connectors.update (the `POSTv1studiosdkconnectorsUpdate` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkconnectorsUpdate(ctx context.Context, body POSTv1studiosdkconnectorsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkconnectorsUpdateRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespacesCreateWithBody namespace
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /v1/studio/sdk/namespaces.create (the `POSTv1studiosdknamespacesCreate` operationId).
+func (c *Client) POSTv1studiosdknamespacesCreateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespacesCreateRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespacesCreate namespace
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /v1/studio/sdk/namespaces.create (the `POSTv1studiosdknamespacesCreate` operationId).
+func (c *Client) POSTv1studiosdknamespacesCreate(ctx context.Context, body POSTv1studiosdknamespacesCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespacesCreateRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespacesDeleteWithBody performs a POST /v1/studio/sdk/namespaces.delete (the `POSTv1studiosdknamespacesDelete` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdknamespacesDeleteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespacesDeleteRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespacesDelete performs a POST /v1/studio/sdk/namespaces.delete (the `POSTv1studiosdknamespacesDelete` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdknamespacesDelete(ctx context.Context, body POSTv1studiosdknamespacesDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespacesDeleteRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 // POSTv1studiosdknamespacesGetWithBody namespace
 //
 // Takes any type of body and a specified content type.
@@ -1006,6 +8254,62 @@ func (c *Client) POSTv1studiosdknamespacesListWithBody(ctx context.Context, cont
 // Corresponds with POST /v1/studio/sdk/namespaces.list (the `POSTv1studiosdknamespacesList` operationId).
 func (c *Client) POSTv1studiosdknamespacesList(ctx context.Context, body POSTv1studiosdknamespacesListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPOSTv1studiosdknamespacesListRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespacesUpdateWithBody performs a POST /v1/studio/sdk/namespaces.update (the `POSTv1studiosdknamespacesUpdate` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdknamespacesUpdateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespacesUpdateRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespacesUpdate performs a POST /v1/studio/sdk/namespaces.update (the `POSTv1studiosdknamespacesUpdate` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdknamespacesUpdate(ctx context.Context, body POSTv1studiosdknamespacesUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespacesUpdateRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkpreviewExecuteWithBody performs a POST /v1/studio/sdk/preview.execute (the `POSTv1studiosdkpreviewExecute` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkpreviewExecuteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkpreviewExecuteRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkpreviewExecute performs a POST /v1/studio/sdk/preview.execute (the `POSTv1studiosdkpreviewExecute` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkpreviewExecute(ctx context.Context, body POSTv1studiosdkpreviewExecuteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkpreviewExecuteRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1084,13 +8388,390 @@ func (c *Client) POSTv1studiosdkpublicationsGet(ctx context.Context, body POSTv1
 	return c.Client.Do(req)
 }
 
-// POSTv1studiosdkreportsGetWithBody report
+// POSTv1studiosdkpublicationsPublishWithBody performs a POST /v1/studio/sdk/publications.publish (the `POSTv1studiosdkpublicationsPublish` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkpublicationsPublishWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkpublicationsPublishRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkpublicationsPublish performs a POST /v1/studio/sdk/publications.publish (the `POSTv1studiosdkpublicationsPublish` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkpublicationsPublish(ctx context.Context, body POSTv1studiosdkpublicationsPublishJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkpublicationsPublishRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkpublicationsRollbackWithBody performs a POST /v1/studio/sdk/publications.rollback (the `POSTv1studiosdkpublicationsRollback` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkpublicationsRollbackWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkpublicationsRollbackRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkpublicationsRollback performs a POST /v1/studio/sdk/publications.rollback (the `POSTv1studiosdkpublicationsRollback` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkpublicationsRollback(ctx context.Context, body POSTv1studiosdkpublicationsRollbackJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkpublicationsRollbackRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkpublicationsUnpublishWithBody performs a POST /v1/studio/sdk/publications.unpublish (the `POSTv1studiosdkpublicationsUnpublish` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkpublicationsUnpublishWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkpublicationsUnpublishRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkpublicationsUnpublish performs a POST /v1/studio/sdk/publications.unpublish (the `POSTv1studiosdkpublicationsUnpublish` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkpublicationsUnpublish(ctx context.Context, body POSTv1studiosdkpublicationsUnpublishJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkpublicationsUnpublishRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkresourcesDeleteFileWithBody performs a POST /v1/studio/sdk/resources.delete_file (the `POSTv1studiosdkresourcesDeleteFile` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkresourcesDeleteFileWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesDeleteFileRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkresourcesDeleteFile performs a POST /v1/studio/sdk/resources.delete_file (the `POSTv1studiosdkresourcesDeleteFile` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkresourcesDeleteFile(ctx context.Context, body POSTv1studiosdkresourcesDeleteFileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesDeleteFileRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkresourcesDeleteFolderWithBody performs a POST /v1/studio/sdk/resources.delete_folder (the `POSTv1studiosdkresourcesDeleteFolder` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkresourcesDeleteFolderWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesDeleteFolderRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkresourcesDeleteFolder performs a POST /v1/studio/sdk/resources.delete_folder (the `POSTv1studiosdkresourcesDeleteFolder` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkresourcesDeleteFolder(ctx context.Context, body POSTv1studiosdkresourcesDeleteFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesDeleteFolderRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkresourcesDeleteSkillWithBody performs a POST /v1/studio/sdk/resources.delete_skill (the `POSTv1studiosdkresourcesDeleteSkill` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkresourcesDeleteSkillWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesDeleteSkillRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkresourcesDeleteSkill performs a POST /v1/studio/sdk/resources.delete_skill (the `POSTv1studiosdkresourcesDeleteSkill` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkresourcesDeleteSkill(ctx context.Context, body POSTv1studiosdkresourcesDeleteSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesDeleteSkillRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkresourcesGetWithBody performs a POST /v1/studio/sdk/resources.get (the `POSTv1studiosdkresourcesGet` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkresourcesGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesGetRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkresourcesGet performs a POST /v1/studio/sdk/resources.get (the `POSTv1studiosdkresourcesGet` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkresourcesGet(ctx context.Context, body POSTv1studiosdkresourcesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesGetRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkresourcesUpsertFileWithBody performs a POST /v1/studio/sdk/resources.upsert_file (the `POSTv1studiosdkresourcesUpsertFile` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkresourcesUpsertFileWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesUpsertFileRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkresourcesUpsertFile performs a POST /v1/studio/sdk/resources.upsert_file (the `POSTv1studiosdkresourcesUpsertFile` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkresourcesUpsertFile(ctx context.Context, body POSTv1studiosdkresourcesUpsertFileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesUpsertFileRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkresourcesUpsertFolderWithBody performs a POST /v1/studio/sdk/resources.upsert_folder (the `POSTv1studiosdkresourcesUpsertFolder` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkresourcesUpsertFolderWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesUpsertFolderRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkresourcesUpsertFolder performs a POST /v1/studio/sdk/resources.upsert_folder (the `POSTv1studiosdkresourcesUpsertFolder` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkresourcesUpsertFolder(ctx context.Context, body POSTv1studiosdkresourcesUpsertFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesUpsertFolderRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkresourcesUpsertSkillWithBody performs a POST /v1/studio/sdk/resources.upsert_skill (the `POSTv1studiosdkresourcesUpsertSkill` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkresourcesUpsertSkillWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesUpsertSkillRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkresourcesUpsertSkill performs a POST /v1/studio/sdk/resources.upsert_skill (the `POSTv1studiosdkresourcesUpsertSkill` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkresourcesUpsertSkill(ctx context.Context, body POSTv1studiosdkresourcesUpsertSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesUpsertSkillRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkruntimeStatus performs a POST /v1/studio/sdk/runtime.status (the `POSTv1studiosdkruntimeStatus` operationId) request.
+func (c *Client) POSTv1studiosdkruntimeStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkruntimeStatusRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsApplyWithBody performs a POST /v1/studio/sdk/versions.apply (the `POSTv1studiosdkversionsApply` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkversionsApplyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsApplyRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsApply performs a POST /v1/studio/sdk/versions.apply (the `POSTv1studiosdkversionsApply` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkversionsApply(ctx context.Context, body POSTv1studiosdkversionsApplyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsApplyRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsBuilderWithBody performs a POST /v1/studio/sdk/versions.builder (the `POSTv1studiosdkversionsBuilder` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkversionsBuilderWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsBuilderRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsBuilder performs a POST /v1/studio/sdk/versions.builder (the `POSTv1studiosdkversionsBuilder` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkversionsBuilder(ctx context.Context, body POSTv1studiosdkversionsBuilderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsBuilderRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsCreateWithBody performs a POST /v1/studio/sdk/versions.create (the `POSTv1studiosdkversionsCreate` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkversionsCreateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsCreateRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsCreate performs a POST /v1/studio/sdk/versions.create (the `POSTv1studiosdkversionsCreate` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkversionsCreate(ctx context.Context, body POSTv1studiosdkversionsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsCreateRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsDescriptorWithBody version
 //
 // Takes any type of body and a specified content type.
 //
-// Corresponds with POST /v1/studio/sdk/reports.get (the `POSTv1studiosdkreportsGet` operationId).
-func (c *Client) POSTv1studiosdkreportsGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkreportsGetRequestWithBody(c.Server, contentType, body)
+// Corresponds with POST /v1/studio/sdk/versions.descriptor (the `POSTv1studiosdkversionsDescriptor` operationId).
+func (c *Client) POSTv1studiosdkversionsDescriptorWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsDescriptorRequestWithBody(c.Server, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1101,13 +8782,13 @@ func (c *Client) POSTv1studiosdkreportsGetWithBody(ctx context.Context, contentT
 	return c.Client.Do(req)
 }
 
-// POSTv1studiosdkreportsGet report
+// POSTv1studiosdkversionsDescriptor version
 //
 // Takes a body of the `application/json` content type.
 //
-// Corresponds with POST /v1/studio/sdk/reports.get (the `POSTv1studiosdkreportsGet` operationId).
-func (c *Client) POSTv1studiosdkreportsGet(ctx context.Context, body POSTv1studiosdkreportsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkreportsGetRequest(c.Server, body)
+// Corresponds with POST /v1/studio/sdk/versions.descriptor (the `POSTv1studiosdkversionsDescriptor` operationId).
+func (c *Client) POSTv1studiosdkversionsDescriptor(ctx context.Context, body POSTv1studiosdkversionsDescriptorJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsDescriptorRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1118,13 +8799,41 @@ func (c *Client) POSTv1studiosdkreportsGet(ctx context.Context, body POSTv1studi
 	return c.Client.Do(req)
 }
 
-// POSTv1studiosdkreportsListWithBody report
+// POSTv1studiosdkversionsDownloadWithBody performs a POST /v1/studio/sdk/versions.download (the `POSTv1studiosdkversionsDownload` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkversionsDownloadWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsDownloadRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsDownload performs a POST /v1/studio/sdk/versions.download (the `POSTv1studiosdkversionsDownload` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkversionsDownload(ctx context.Context, body POSTv1studiosdkversionsDownloadJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsDownloadRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsExportDqlWithBody version
 //
 // Takes any type of body and a specified content type.
 //
-// Corresponds with POST /v1/studio/sdk/reports.list (the `POSTv1studiosdkreportsList` operationId).
-func (c *Client) POSTv1studiosdkreportsListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkreportsListRequestWithBody(c.Server, contentType, body)
+// Corresponds with POST /v1/studio/sdk/versions.export_dql (the `POSTv1studiosdkversionsExportDql` operationId).
+func (c *Client) POSTv1studiosdkversionsExportDqlWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsExportDqlRequestWithBody(c.Server, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1135,13 +8844,13 @@ func (c *Client) POSTv1studiosdkreportsListWithBody(ctx context.Context, content
 	return c.Client.Do(req)
 }
 
-// POSTv1studiosdkreportsList report
+// POSTv1studiosdkversionsExportDql version
 //
 // Takes a body of the `application/json` content type.
 //
-// Corresponds with POST /v1/studio/sdk/reports.list (the `POSTv1studiosdkreportsList` operationId).
-func (c *Client) POSTv1studiosdkreportsList(ctx context.Context, body POSTv1studiosdkreportsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkreportsListRequest(c.Server, body)
+// Corresponds with POST /v1/studio/sdk/versions.export_dql (the `POSTv1studiosdkversionsExportDql` operationId).
+func (c *Client) POSTv1studiosdkversionsExportDql(ctx context.Context, body POSTv1studiosdkversionsExportDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsExportDqlRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1150,6 +8859,520 @@ func (c *Client) POSTv1studiosdkreportsList(ctx context.Context, body POSTv1stud
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsGetWithBody version
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /v1/studio/sdk/versions.get (the `POSTv1studiosdkversionsGet` operationId).
+func (c *Client) POSTv1studiosdkversionsGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsGetRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsGet version
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /v1/studio/sdk/versions.get (the `POSTv1studiosdkversionsGet` operationId).
+func (c *Client) POSTv1studiosdkversionsGet(ctx context.Context, body POSTv1studiosdkversionsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsGetRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsInspectWithBody performs a POST /v1/studio/sdk/versions.inspect (the `POSTv1studiosdkversionsInspect` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkversionsInspectWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsInspectRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsInspect performs a POST /v1/studio/sdk/versions.inspect (the `POSTv1studiosdkversionsInspect` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkversionsInspect(ctx context.Context, body POSTv1studiosdkversionsInspectJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsInspectRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsListWithBody version
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /v1/studio/sdk/versions.list (the `POSTv1studiosdkversionsList` operationId).
+func (c *Client) POSTv1studiosdkversionsListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsListRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsList version
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /v1/studio/sdk/versions.list (the `POSTv1studiosdkversionsList` operationId).
+func (c *Client) POSTv1studiosdkversionsList(ctx context.Context, body POSTv1studiosdkversionsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsListRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsLoadArchiveWithBody performs a POST /v1/studio/sdk/versions.load_archive (the `POSTv1studiosdkversionsLoadArchive` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkversionsLoadArchiveWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsLoadArchiveRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsLoadArchive performs a POST /v1/studio/sdk/versions.load_archive (the `POSTv1studiosdkversionsLoadArchive` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkversionsLoadArchive(ctx context.Context, body POSTv1studiosdkversionsLoadArchiveJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsLoadArchiveRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsLoadDqlWithBody performs a POST /v1/studio/sdk/versions.load_dql (the `POSTv1studiosdkversionsLoadDql` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkversionsLoadDqlWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsLoadDqlRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsLoadDql performs a POST /v1/studio/sdk/versions.load_dql (the `POSTv1studiosdkversionsLoadDql` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkversionsLoadDql(ctx context.Context, body POSTv1studiosdkversionsLoadDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsLoadDqlRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsTestComposeWithBody performs a POST /v1/studio/sdk/versions.test_compose (the `POSTv1studiosdkversionsTestCompose` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkversionsTestComposeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsTestComposeRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsTestCompose performs a POST /v1/studio/sdk/versions.test_compose (the `POSTv1studiosdkversionsTestCompose` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkversionsTestCompose(ctx context.Context, body POSTv1studiosdkversionsTestComposeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsTestComposeRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsTestRelationWithBody performs a POST /v1/studio/sdk/versions.test_relation (the `POSTv1studiosdkversionsTestRelation` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkversionsTestRelationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsTestRelationRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsTestRelation performs a POST /v1/studio/sdk/versions.test_relation (the `POSTv1studiosdkversionsTestRelation` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkversionsTestRelation(ctx context.Context, body POSTv1studiosdkversionsTestRelationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsTestRelationRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsTestViewWithBody performs a POST /v1/studio/sdk/versions.test_view (the `POSTv1studiosdkversionsTestView` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkversionsTestViewWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsTestViewRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsTestView performs a POST /v1/studio/sdk/versions.test_view (the `POSTv1studiosdkversionsTestView` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkversionsTestView(ctx context.Context, body POSTv1studiosdkversionsTestViewJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsTestViewRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsValidateWithBody performs a POST /v1/studio/sdk/versions.validate (the `POSTv1studiosdkversionsValidate` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkversionsValidateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsValidateRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsValidate performs a POST /v1/studio/sdk/versions.validate (the `POSTv1studiosdkversionsValidate` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkversionsValidate(ctx context.Context, body POSTv1studiosdkversionsValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsValidateRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsWarmupWithBody performs a POST /v1/studio/sdk/versions.warmup (the `POSTv1studiosdkversionsWarmup` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkversionsWarmupWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsWarmupRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsWarmup performs a POST /v1/studio/sdk/versions.warmup (the `POSTv1studiosdkversionsWarmup` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkversionsWarmup(ctx context.Context, body POSTv1studiosdkversionsWarmupJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsWarmupRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsWarmupGetWithBody warmup_run
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /v1/studio/sdk/versions.warmup_get (the `POSTv1studiosdkversionsWarmupGet` operationId).
+func (c *Client) POSTv1studiosdkversionsWarmupGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsWarmupGetRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsWarmupGet warmup_run
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /v1/studio/sdk/versions.warmup_get (the `POSTv1studiosdkversionsWarmupGet` operationId).
+func (c *Client) POSTv1studiosdkversionsWarmupGet(ctx context.Context, body POSTv1studiosdkversionsWarmupGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsWarmupGetRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsWarmupListWithBody performs a POST /v1/studio/sdk/versions.warmup_list (the `POSTv1studiosdkversionsWarmupList` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkversionsWarmupListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsWarmupListRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsWarmupList performs a POST /v1/studio/sdk/versions.warmup_list (the `POSTv1studiosdkversionsWarmupList` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkversionsWarmupList(ctx context.Context, body POSTv1studiosdkversionsWarmupListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsWarmupListRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// NewPOSTv1studiosdkaccessContextRequest calls the generic POSTv1studiosdkaccessContext builder with application/json body
+func NewPOSTv1studiosdkaccessContextRequest(server string, body POSTv1studiosdkaccessContextJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkaccessContextRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkaccessContextRequestWithBody constructs an http.Request for the POSTv1studiosdkaccessContext method, with any body, and a specified content type
+func NewPOSTv1studiosdkaccessContextRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/access.context")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkaccessGetRequest calls the generic POSTv1studiosdkaccessGet builder with application/json body
+func NewPOSTv1studiosdkaccessGetRequest(server string, body POSTv1studiosdkaccessGetJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkaccessGetRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkaccessGetRequestWithBody constructs an http.Request for the POSTv1studiosdkaccessGet method, with any body, and a specified content type
+func NewPOSTv1studiosdkaccessGetRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/access.get")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkaccessReplaceRequest calls the generic POSTv1studiosdkaccessReplace builder with application/json body
+func NewPOSTv1studiosdkaccessReplaceRequest(server string, body POSTv1studiosdkaccessReplaceJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkaccessReplaceRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkaccessReplaceRequestWithBody constructs an http.Request for the POSTv1studiosdkaccessReplace method, with any body, and a specified content type
+func NewPOSTv1studiosdkaccessReplaceRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/access.replace")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkaclDeleteRequest calls the generic POSTv1studiosdkaclDelete builder with application/json body
+func NewPOSTv1studiosdkaclDeleteRequest(server string, body POSTv1studiosdkaclDeleteJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkaclDeleteRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkaclDeleteRequestWithBody constructs an http.Request for the POSTv1studiosdkaclDelete method, with any body, and a specified content type
+func NewPOSTv1studiosdkaclDeleteRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/acl.delete")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
 }
 
 // NewPOSTv1studiosdkaclListRequest calls the generic POSTv1studiosdkaclList builder with application/json body
@@ -1231,6 +9454,593 @@ func NewPOSTv1studiosdkaclListRequestWithBody(server string, params *POSTv1studi
 	return req, nil
 }
 
+// NewPOSTv1studiosdkaclUpsertRequest calls the generic POSTv1studiosdkaclUpsert builder with application/json body
+func NewPOSTv1studiosdkaclUpsertRequest(server string, body POSTv1studiosdkaclUpsertJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkaclUpsertRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkaclUpsertRequestWithBody constructs an http.Request for the POSTv1studiosdkaclUpsert method, with any body, and a specified content type
+func NewPOSTv1studiosdkaclUpsertRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/acl.upsert")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkauthorizationPredicatesCreateRequest calls the generic POSTv1studiosdkauthorizationPredicatesCreate builder with application/json body
+func NewPOSTv1studiosdkauthorizationPredicatesCreateRequest(server string, body POSTv1studiosdkauthorizationPredicatesCreateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkauthorizationPredicatesCreateRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkauthorizationPredicatesCreateRequestWithBody constructs an http.Request for the POSTv1studiosdkauthorizationPredicatesCreate method, with any body, and a specified content type
+func NewPOSTv1studiosdkauthorizationPredicatesCreateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/authorization_predicates.create")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkauthorizationPredicatesDeleteRequest calls the generic POSTv1studiosdkauthorizationPredicatesDelete builder with application/json body
+func NewPOSTv1studiosdkauthorizationPredicatesDeleteRequest(server string, body POSTv1studiosdkauthorizationPredicatesDeleteJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkauthorizationPredicatesDeleteRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkauthorizationPredicatesDeleteRequestWithBody constructs an http.Request for the POSTv1studiosdkauthorizationPredicatesDelete method, with any body, and a specified content type
+func NewPOSTv1studiosdkauthorizationPredicatesDeleteRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/authorization_predicates.delete")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkauthorizationPredicatesGetRequest calls the generic POSTv1studiosdkauthorizationPredicatesGet builder with application/json body
+func NewPOSTv1studiosdkauthorizationPredicatesGetRequest(server string, body POSTv1studiosdkauthorizationPredicatesGetJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkauthorizationPredicatesGetRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkauthorizationPredicatesGetRequestWithBody constructs an http.Request for the POSTv1studiosdkauthorizationPredicatesGet method, with any body, and a specified content type
+func NewPOSTv1studiosdkauthorizationPredicatesGetRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/authorization_predicates.get")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkauthorizationPredicatesListRequest calls the generic POSTv1studiosdkauthorizationPredicatesList builder with application/json body
+func NewPOSTv1studiosdkauthorizationPredicatesListRequest(server string, body POSTv1studiosdkauthorizationPredicatesListJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkauthorizationPredicatesListRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkauthorizationPredicatesListRequestWithBody constructs an http.Request for the POSTv1studiosdkauthorizationPredicatesList method, with any body, and a specified content type
+func NewPOSTv1studiosdkauthorizationPredicatesListRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/authorization_predicates.list")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkauthorizationPredicatesTypesRequest constructs an http.Request for the POSTv1studiosdkauthorizationPredicatesTypes method
+func NewPOSTv1studiosdkauthorizationPredicatesTypesRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/authorization_predicates.types")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkauthorizationPredicatesUpdateRequest calls the generic POSTv1studiosdkauthorizationPredicatesUpdate builder with application/json body
+func NewPOSTv1studiosdkauthorizationPredicatesUpdateRequest(server string, body POSTv1studiosdkauthorizationPredicatesUpdateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkauthorizationPredicatesUpdateRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkauthorizationPredicatesUpdateRequestWithBody constructs an http.Request for the POSTv1studiosdkauthorizationPredicatesUpdate method, with any body, and a specified content type
+func NewPOSTv1studiosdkauthorizationPredicatesUpdateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/authorization_predicates.update")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkcomponentsCreateRequest calls the generic POSTv1studiosdkcomponentsCreate builder with application/json body
+func NewPOSTv1studiosdkcomponentsCreateRequest(server string, body POSTv1studiosdkcomponentsCreateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkcomponentsCreateRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkcomponentsCreateRequestWithBody constructs an http.Request for the POSTv1studiosdkcomponentsCreate method, with any body, and a specified content type
+func NewPOSTv1studiosdkcomponentsCreateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/components.create")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkcomponentsGetRequest calls the generic POSTv1studiosdkcomponentsGet builder with application/json body
+func NewPOSTv1studiosdkcomponentsGetRequest(server string, body POSTv1studiosdkcomponentsGetJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkcomponentsGetRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkcomponentsGetRequestWithBody constructs an http.Request for the POSTv1studiosdkcomponentsGet method, with any body, and a specified content type
+func NewPOSTv1studiosdkcomponentsGetRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/components.get")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkcomponentsListRequest calls the generic POSTv1studiosdkcomponentsList builder with application/json body
+func NewPOSTv1studiosdkcomponentsListRequest(server string, body POSTv1studiosdkcomponentsListJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkcomponentsListRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkcomponentsListRequestWithBody constructs an http.Request for the POSTv1studiosdkcomponentsList method, with any body, and a specified content type
+func NewPOSTv1studiosdkcomponentsListRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/components.list")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkcomponentsUpdateRequest calls the generic POSTv1studiosdkcomponentsUpdate builder with application/json body
+func NewPOSTv1studiosdkcomponentsUpdateRequest(server string, body POSTv1studiosdkcomponentsUpdateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkcomponentsUpdateRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkcomponentsUpdateRequestWithBody constructs an http.Request for the POSTv1studiosdkcomponentsUpdate method, with any body, and a specified content type
+func NewPOSTv1studiosdkcomponentsUpdateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/components.update")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkconnectorsActivateRequest calls the generic POSTv1studiosdkconnectorsActivate builder with application/json body
+func NewPOSTv1studiosdkconnectorsActivateRequest(server string, body POSTv1studiosdkconnectorsActivateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkconnectorsActivateRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkconnectorsActivateRequestWithBody constructs an http.Request for the POSTv1studiosdkconnectorsActivate method, with any body, and a specified content type
+func NewPOSTv1studiosdkconnectorsActivateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/connectors.activate")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkconnectorsCreateRequest calls the generic POSTv1studiosdkconnectorsCreate builder with application/json body
+func NewPOSTv1studiosdkconnectorsCreateRequest(server string, body POSTv1studiosdkconnectorsCreateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkconnectorsCreateRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkconnectorsCreateRequestWithBody constructs an http.Request for the POSTv1studiosdkconnectorsCreate method, with any body, and a specified content type
+func NewPOSTv1studiosdkconnectorsCreateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/connectors.create")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkconnectorsDeleteRequest calls the generic POSTv1studiosdkconnectorsDelete builder with application/json body
+func NewPOSTv1studiosdkconnectorsDeleteRequest(server string, body POSTv1studiosdkconnectorsDeleteJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkconnectorsDeleteRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkconnectorsDeleteRequestWithBody constructs an http.Request for the POSTv1studiosdkconnectorsDelete method, with any body, and a specified content type
+func NewPOSTv1studiosdkconnectorsDeleteRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/connectors.delete")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkconnectorsDisableRequest calls the generic POSTv1studiosdkconnectorsDisable builder with application/json body
+func NewPOSTv1studiosdkconnectorsDisableRequest(server string, body POSTv1studiosdkconnectorsDisableJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkconnectorsDisableRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkconnectorsDisableRequestWithBody constructs an http.Request for the POSTv1studiosdkconnectorsDisable method, with any body, and a specified content type
+func NewPOSTv1studiosdkconnectorsDisableRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/connectors.disable")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewPOSTv1studiosdkconnectorsGetRequest calls the generic POSTv1studiosdkconnectorsGet builder with application/json body
 func NewPOSTv1studiosdkconnectorsGetRequest(server string, body POSTv1studiosdkconnectorsGetJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -1292,6 +10102,326 @@ func NewPOSTv1studiosdkconnectorsListRequestWithBody(server string, contentType 
 	}
 
 	operationPath := fmt.Sprintf("/v1/studio/sdk/connectors.list")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkconnectorsSchemasRequest calls the generic POSTv1studiosdkconnectorsSchemas builder with application/json body
+func NewPOSTv1studiosdkconnectorsSchemasRequest(server string, body POSTv1studiosdkconnectorsSchemasJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkconnectorsSchemasRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkconnectorsSchemasRequestWithBody constructs an http.Request for the POSTv1studiosdkconnectorsSchemas method, with any body, and a specified content type
+func NewPOSTv1studiosdkconnectorsSchemasRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/connectors.schemas")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkconnectorsTableRequest calls the generic POSTv1studiosdkconnectorsTable builder with application/json body
+func NewPOSTv1studiosdkconnectorsTableRequest(server string, body POSTv1studiosdkconnectorsTableJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkconnectorsTableRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkconnectorsTableRequestWithBody constructs an http.Request for the POSTv1studiosdkconnectorsTable method, with any body, and a specified content type
+func NewPOSTv1studiosdkconnectorsTableRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/connectors.table")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkconnectorsTablesRequest calls the generic POSTv1studiosdkconnectorsTables builder with application/json body
+func NewPOSTv1studiosdkconnectorsTablesRequest(server string, body POSTv1studiosdkconnectorsTablesJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkconnectorsTablesRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkconnectorsTablesRequestWithBody constructs an http.Request for the POSTv1studiosdkconnectorsTables method, with any body, and a specified content type
+func NewPOSTv1studiosdkconnectorsTablesRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/connectors.tables")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkconnectorsTestRequest calls the generic POSTv1studiosdkconnectorsTest builder with application/json body
+func NewPOSTv1studiosdkconnectorsTestRequest(server string, body POSTv1studiosdkconnectorsTestJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkconnectorsTestRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkconnectorsTestRequestWithBody constructs an http.Request for the POSTv1studiosdkconnectorsTest method, with any body, and a specified content type
+func NewPOSTv1studiosdkconnectorsTestRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/connectors.test")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkconnectorsTestSqlRequest calls the generic POSTv1studiosdkconnectorsTestSql builder with application/json body
+func NewPOSTv1studiosdkconnectorsTestSqlRequest(server string, body POSTv1studiosdkconnectorsTestSqlJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkconnectorsTestSqlRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkconnectorsTestSqlRequestWithBody constructs an http.Request for the POSTv1studiosdkconnectorsTestSql method, with any body, and a specified content type
+func NewPOSTv1studiosdkconnectorsTestSqlRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/connectors.test_sql")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkconnectorsUpdateRequest calls the generic POSTv1studiosdkconnectorsUpdate builder with application/json body
+func NewPOSTv1studiosdkconnectorsUpdateRequest(server string, body POSTv1studiosdkconnectorsUpdateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkconnectorsUpdateRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkconnectorsUpdateRequestWithBody constructs an http.Request for the POSTv1studiosdkconnectorsUpdate method, with any body, and a specified content type
+func NewPOSTv1studiosdkconnectorsUpdateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/connectors.update")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdknamespacesCreateRequest calls the generic POSTv1studiosdknamespacesCreate builder with application/json body
+func NewPOSTv1studiosdknamespacesCreateRequest(server string, body POSTv1studiosdknamespacesCreateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdknamespacesCreateRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdknamespacesCreateRequestWithBody constructs an http.Request for the POSTv1studiosdknamespacesCreate method, with any body, and a specified content type
+func NewPOSTv1studiosdknamespacesCreateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/namespaces.create")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdknamespacesDeleteRequest calls the generic POSTv1studiosdknamespacesDelete builder with application/json body
+func NewPOSTv1studiosdknamespacesDeleteRequest(server string, body POSTv1studiosdknamespacesDeleteJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdknamespacesDeleteRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdknamespacesDeleteRequestWithBody constructs an http.Request for the POSTv1studiosdknamespacesDelete method, with any body, and a specified content type
+func NewPOSTv1studiosdknamespacesDeleteRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/namespaces.delete")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1391,6 +10521,86 @@ func NewPOSTv1studiosdknamespacesListRequestWithBody(server string, contentType 
 	return req, nil
 }
 
+// NewPOSTv1studiosdknamespacesUpdateRequest calls the generic POSTv1studiosdknamespacesUpdate builder with application/json body
+func NewPOSTv1studiosdknamespacesUpdateRequest(server string, body POSTv1studiosdknamespacesUpdateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdknamespacesUpdateRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdknamespacesUpdateRequestWithBody constructs an http.Request for the POSTv1studiosdknamespacesUpdate method, with any body, and a specified content type
+func NewPOSTv1studiosdknamespacesUpdateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/namespaces.update")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkpreviewExecuteRequest calls the generic POSTv1studiosdkpreviewExecute builder with application/json body
+func NewPOSTv1studiosdkpreviewExecuteRequest(server string, body POSTv1studiosdkpreviewExecuteJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkpreviewExecuteRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkpreviewExecuteRequestWithBody constructs an http.Request for the POSTv1studiosdkpreviewExecute method, with any body, and a specified content type
+func NewPOSTv1studiosdkpreviewExecuteRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/preview.execute")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewPOSTv1studiosdkpublicationsEventsListRequest calls the generic POSTv1studiosdkpublicationsEventsList builder with application/json body
 func NewPOSTv1studiosdkpublicationsEventsListRequest(server string, body POSTv1studiosdkpublicationsEventsListJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -1471,19 +10681,19 @@ func NewPOSTv1studiosdkpublicationsGetRequestWithBody(server string, contentType
 	return req, nil
 }
 
-// NewPOSTv1studiosdkreportsGetRequest calls the generic POSTv1studiosdkreportsGet builder with application/json body
-func NewPOSTv1studiosdkreportsGetRequest(server string, body POSTv1studiosdkreportsGetJSONRequestBody) (*http.Request, error) {
+// NewPOSTv1studiosdkpublicationsPublishRequest calls the generic POSTv1studiosdkpublicationsPublish builder with application/json body
+func NewPOSTv1studiosdkpublicationsPublishRequest(server string, body POSTv1studiosdkpublicationsPublishJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkreportsGetRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkpublicationsPublishRequestWithBody(server, "application/json", bodyReader)
 }
 
-// NewPOSTv1studiosdkreportsGetRequestWithBody constructs an http.Request for the POSTv1studiosdkreportsGet method, with any body, and a specified content type
-func NewPOSTv1studiosdkreportsGetRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+// NewPOSTv1studiosdkpublicationsPublishRequestWithBody constructs an http.Request for the POSTv1studiosdkpublicationsPublish method, with any body, and a specified content type
+func NewPOSTv1studiosdkpublicationsPublishRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -1491,7 +10701,7 @@ func NewPOSTv1studiosdkreportsGetRequestWithBody(server string, contentType stri
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/v1/studio/sdk/reports.get")
+	operationPath := fmt.Sprintf("/v1/studio/sdk/publications.publish")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1511,19 +10721,19 @@ func NewPOSTv1studiosdkreportsGetRequestWithBody(server string, contentType stri
 	return req, nil
 }
 
-// NewPOSTv1studiosdkreportsListRequest calls the generic POSTv1studiosdkreportsList builder with application/json body
-func NewPOSTv1studiosdkreportsListRequest(server string, body POSTv1studiosdkreportsListJSONRequestBody) (*http.Request, error) {
+// NewPOSTv1studiosdkpublicationsRollbackRequest calls the generic POSTv1studiosdkpublicationsRollback builder with application/json body
+func NewPOSTv1studiosdkpublicationsRollbackRequest(server string, body POSTv1studiosdkpublicationsRollbackJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkreportsListRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkpublicationsRollbackRequestWithBody(server, "application/json", bodyReader)
 }
 
-// NewPOSTv1studiosdkreportsListRequestWithBody constructs an http.Request for the POSTv1studiosdkreportsList method, with any body, and a specified content type
-func NewPOSTv1studiosdkreportsListRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+// NewPOSTv1studiosdkpublicationsRollbackRequestWithBody constructs an http.Request for the POSTv1studiosdkpublicationsRollback method, with any body, and a specified content type
+func NewPOSTv1studiosdkpublicationsRollbackRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -1531,7 +10741,1074 @@ func NewPOSTv1studiosdkreportsListRequestWithBody(server string, contentType str
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/v1/studio/sdk/reports.list")
+	operationPath := fmt.Sprintf("/v1/studio/sdk/publications.rollback")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkpublicationsUnpublishRequest calls the generic POSTv1studiosdkpublicationsUnpublish builder with application/json body
+func NewPOSTv1studiosdkpublicationsUnpublishRequest(server string, body POSTv1studiosdkpublicationsUnpublishJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkpublicationsUnpublishRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkpublicationsUnpublishRequestWithBody constructs an http.Request for the POSTv1studiosdkpublicationsUnpublish method, with any body, and a specified content type
+func NewPOSTv1studiosdkpublicationsUnpublishRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/publications.unpublish")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkresourcesDeleteFileRequest calls the generic POSTv1studiosdkresourcesDeleteFile builder with application/json body
+func NewPOSTv1studiosdkresourcesDeleteFileRequest(server string, body POSTv1studiosdkresourcesDeleteFileJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkresourcesDeleteFileRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkresourcesDeleteFileRequestWithBody constructs an http.Request for the POSTv1studiosdkresourcesDeleteFile method, with any body, and a specified content type
+func NewPOSTv1studiosdkresourcesDeleteFileRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/resources.delete_file")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkresourcesDeleteFolderRequest calls the generic POSTv1studiosdkresourcesDeleteFolder builder with application/json body
+func NewPOSTv1studiosdkresourcesDeleteFolderRequest(server string, body POSTv1studiosdkresourcesDeleteFolderJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkresourcesDeleteFolderRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkresourcesDeleteFolderRequestWithBody constructs an http.Request for the POSTv1studiosdkresourcesDeleteFolder method, with any body, and a specified content type
+func NewPOSTv1studiosdkresourcesDeleteFolderRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/resources.delete_folder")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkresourcesDeleteSkillRequest calls the generic POSTv1studiosdkresourcesDeleteSkill builder with application/json body
+func NewPOSTv1studiosdkresourcesDeleteSkillRequest(server string, body POSTv1studiosdkresourcesDeleteSkillJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkresourcesDeleteSkillRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkresourcesDeleteSkillRequestWithBody constructs an http.Request for the POSTv1studiosdkresourcesDeleteSkill method, with any body, and a specified content type
+func NewPOSTv1studiosdkresourcesDeleteSkillRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/resources.delete_skill")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkresourcesGetRequest calls the generic POSTv1studiosdkresourcesGet builder with application/json body
+func NewPOSTv1studiosdkresourcesGetRequest(server string, body POSTv1studiosdkresourcesGetJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkresourcesGetRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkresourcesGetRequestWithBody constructs an http.Request for the POSTv1studiosdkresourcesGet method, with any body, and a specified content type
+func NewPOSTv1studiosdkresourcesGetRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/resources.get")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkresourcesUpsertFileRequest calls the generic POSTv1studiosdkresourcesUpsertFile builder with application/json body
+func NewPOSTv1studiosdkresourcesUpsertFileRequest(server string, body POSTv1studiosdkresourcesUpsertFileJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkresourcesUpsertFileRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkresourcesUpsertFileRequestWithBody constructs an http.Request for the POSTv1studiosdkresourcesUpsertFile method, with any body, and a specified content type
+func NewPOSTv1studiosdkresourcesUpsertFileRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/resources.upsert_file")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkresourcesUpsertFolderRequest calls the generic POSTv1studiosdkresourcesUpsertFolder builder with application/json body
+func NewPOSTv1studiosdkresourcesUpsertFolderRequest(server string, body POSTv1studiosdkresourcesUpsertFolderJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkresourcesUpsertFolderRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkresourcesUpsertFolderRequestWithBody constructs an http.Request for the POSTv1studiosdkresourcesUpsertFolder method, with any body, and a specified content type
+func NewPOSTv1studiosdkresourcesUpsertFolderRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/resources.upsert_folder")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkresourcesUpsertSkillRequest calls the generic POSTv1studiosdkresourcesUpsertSkill builder with application/json body
+func NewPOSTv1studiosdkresourcesUpsertSkillRequest(server string, body POSTv1studiosdkresourcesUpsertSkillJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkresourcesUpsertSkillRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkresourcesUpsertSkillRequestWithBody constructs an http.Request for the POSTv1studiosdkresourcesUpsertSkill method, with any body, and a specified content type
+func NewPOSTv1studiosdkresourcesUpsertSkillRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/resources.upsert_skill")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkruntimeStatusRequest constructs an http.Request for the POSTv1studiosdkruntimeStatus method
+func NewPOSTv1studiosdkruntimeStatusRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/runtime.status")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkversionsApplyRequest calls the generic POSTv1studiosdkversionsApply builder with application/json body
+func NewPOSTv1studiosdkversionsApplyRequest(server string, body POSTv1studiosdkversionsApplyJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsApplyRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsApplyRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsApply method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsApplyRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.apply")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkversionsBuilderRequest calls the generic POSTv1studiosdkversionsBuilder builder with application/json body
+func NewPOSTv1studiosdkversionsBuilderRequest(server string, body POSTv1studiosdkversionsBuilderJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsBuilderRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsBuilderRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsBuilder method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsBuilderRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.builder")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkversionsCreateRequest calls the generic POSTv1studiosdkversionsCreate builder with application/json body
+func NewPOSTv1studiosdkversionsCreateRequest(server string, body POSTv1studiosdkversionsCreateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsCreateRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsCreateRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsCreate method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsCreateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.create")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkversionsDescriptorRequest calls the generic POSTv1studiosdkversionsDescriptor builder with application/json body
+func NewPOSTv1studiosdkversionsDescriptorRequest(server string, body POSTv1studiosdkversionsDescriptorJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsDescriptorRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsDescriptorRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsDescriptor method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsDescriptorRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.descriptor")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkversionsDownloadRequest calls the generic POSTv1studiosdkversionsDownload builder with application/json body
+func NewPOSTv1studiosdkversionsDownloadRequest(server string, body POSTv1studiosdkversionsDownloadJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsDownloadRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsDownloadRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsDownload method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsDownloadRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.download")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkversionsExportDqlRequest calls the generic POSTv1studiosdkversionsExportDql builder with application/json body
+func NewPOSTv1studiosdkversionsExportDqlRequest(server string, body POSTv1studiosdkversionsExportDqlJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsExportDqlRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsExportDqlRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsExportDql method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsExportDqlRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.export_dql")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkversionsGetRequest calls the generic POSTv1studiosdkversionsGet builder with application/json body
+func NewPOSTv1studiosdkversionsGetRequest(server string, body POSTv1studiosdkversionsGetJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsGetRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsGetRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsGet method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsGetRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.get")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkversionsInspectRequest calls the generic POSTv1studiosdkversionsInspect builder with application/json body
+func NewPOSTv1studiosdkversionsInspectRequest(server string, body POSTv1studiosdkversionsInspectJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsInspectRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsInspectRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsInspect method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsInspectRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.inspect")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkversionsListRequest calls the generic POSTv1studiosdkversionsList builder with application/json body
+func NewPOSTv1studiosdkversionsListRequest(server string, body POSTv1studiosdkversionsListJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsListRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsListRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsList method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsListRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.list")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkversionsLoadArchiveRequest calls the generic POSTv1studiosdkversionsLoadArchive builder with application/json body
+func NewPOSTv1studiosdkversionsLoadArchiveRequest(server string, body POSTv1studiosdkversionsLoadArchiveJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsLoadArchiveRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsLoadArchiveRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsLoadArchive method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsLoadArchiveRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.load_archive")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkversionsLoadDqlRequest calls the generic POSTv1studiosdkversionsLoadDql builder with application/json body
+func NewPOSTv1studiosdkversionsLoadDqlRequest(server string, body POSTv1studiosdkversionsLoadDqlJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsLoadDqlRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsLoadDqlRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsLoadDql method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsLoadDqlRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.load_dql")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkversionsTestComposeRequest calls the generic POSTv1studiosdkversionsTestCompose builder with application/json body
+func NewPOSTv1studiosdkversionsTestComposeRequest(server string, body POSTv1studiosdkversionsTestComposeJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsTestComposeRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsTestComposeRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsTestCompose method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsTestComposeRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.test_compose")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkversionsTestRelationRequest calls the generic POSTv1studiosdkversionsTestRelation builder with application/json body
+func NewPOSTv1studiosdkversionsTestRelationRequest(server string, body POSTv1studiosdkversionsTestRelationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsTestRelationRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsTestRelationRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsTestRelation method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsTestRelationRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.test_relation")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkversionsTestViewRequest calls the generic POSTv1studiosdkversionsTestView builder with application/json body
+func NewPOSTv1studiosdkversionsTestViewRequest(server string, body POSTv1studiosdkversionsTestViewJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsTestViewRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsTestViewRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsTestView method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsTestViewRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.test_view")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkversionsValidateRequest calls the generic POSTv1studiosdkversionsValidate builder with application/json body
+func NewPOSTv1studiosdkversionsValidateRequest(server string, body POSTv1studiosdkversionsValidateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsValidateRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsValidateRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsValidate method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsValidateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.validate")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkversionsWarmupRequest calls the generic POSTv1studiosdkversionsWarmup builder with application/json body
+func NewPOSTv1studiosdkversionsWarmupRequest(server string, body POSTv1studiosdkversionsWarmupJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsWarmupRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsWarmupRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsWarmup method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsWarmupRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.warmup")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkversionsWarmupGetRequest calls the generic POSTv1studiosdkversionsWarmupGet builder with application/json body
+func NewPOSTv1studiosdkversionsWarmupGetRequest(server string, body POSTv1studiosdkversionsWarmupGetJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsWarmupGetRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsWarmupGetRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsWarmupGet method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsWarmupGetRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.warmup_get")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkversionsWarmupListRequest calls the generic POSTv1studiosdkversionsWarmupList builder with application/json body
+func NewPOSTv1studiosdkversionsWarmupListRequest(server string, body POSTv1studiosdkversionsWarmupListJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsWarmupListRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsWarmupListRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsWarmupList method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsWarmupListRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.warmup_list")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1595,6 +11872,46 @@ func WithBaseURL(baseURL string) ClientOption {
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
 
+	// POSTv1studiosdkaccessContextWithBodyWithResponse performs a POST /v1/studio/sdk/access.context (the `POSTv1studiosdkaccessContext` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkaccessContextWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessContextResponse, error)
+
+	// POSTv1studiosdkaccessContextWithResponse performs a POST /v1/studio/sdk/access.context (the `POSTv1studiosdkaccessContext` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkaccessContextWithResponse(ctx context.Context, body POSTv1studiosdkaccessContextJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessContextResponse, error)
+
+	// POSTv1studiosdkaccessGetWithBodyWithResponse performs a POST /v1/studio/sdk/access.get (the `POSTv1studiosdkaccessGet` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkaccessGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessGetResponse, error)
+
+	// POSTv1studiosdkaccessGetWithResponse performs a POST /v1/studio/sdk/access.get (the `POSTv1studiosdkaccessGet` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkaccessGetWithResponse(ctx context.Context, body POSTv1studiosdkaccessGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessGetResponse, error)
+
+	// POSTv1studiosdkaccessReplaceWithBodyWithResponse performs a POST /v1/studio/sdk/access.replace (the `POSTv1studiosdkaccessReplace` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkaccessReplaceWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessReplaceResponse, error)
+
+	// POSTv1studiosdkaccessReplaceWithResponse performs a POST /v1/studio/sdk/access.replace (the `POSTv1studiosdkaccessReplace` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkaccessReplaceWithResponse(ctx context.Context, body POSTv1studiosdkaccessReplaceJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessReplaceResponse, error)
+
+	// POSTv1studiosdkaclDeleteWithBodyWithResponse performs a POST /v1/studio/sdk/acl.delete (the `POSTv1studiosdkaclDelete` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkaclDeleteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclDeleteResponse, error)
+
+	// POSTv1studiosdkaclDeleteWithResponse performs a POST /v1/studio/sdk/acl.delete (the `POSTv1studiosdkaclDelete` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkaclDeleteWithResponse(ctx context.Context, body POSTv1studiosdkaclDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclDeleteResponse, error)
+
 	// POSTv1studiosdkaclListWithBodyWithResponse acl
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -1608,6 +11925,163 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with POST /v1/studio/sdk/acl.list (the `POSTv1studiosdkaclList` operationId).
 	POSTv1studiosdkaclListWithResponse(ctx context.Context, params *POSTv1studiosdkaclListParams, body POSTv1studiosdkaclListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclListResponse, error)
+
+	// POSTv1studiosdkaclUpsertWithBodyWithResponse performs a POST /v1/studio/sdk/acl.upsert (the `POSTv1studiosdkaclUpsert` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkaclUpsertWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclUpsertResponse, error)
+
+	// POSTv1studiosdkaclUpsertWithResponse performs a POST /v1/studio/sdk/acl.upsert (the `POSTv1studiosdkaclUpsert` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkaclUpsertWithResponse(ctx context.Context, body POSTv1studiosdkaclUpsertJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclUpsertResponse, error)
+
+	// POSTv1studiosdkauthorizationPredicatesCreateWithBodyWithResponse performs a POST /v1/studio/sdk/authorization_predicates.create (the `POSTv1studiosdkauthorizationPredicatesCreate` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkauthorizationPredicatesCreateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesCreateResponse, error)
+
+	// POSTv1studiosdkauthorizationPredicatesCreateWithResponse performs a POST /v1/studio/sdk/authorization_predicates.create (the `POSTv1studiosdkauthorizationPredicatesCreate` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkauthorizationPredicatesCreateWithResponse(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesCreateResponse, error)
+
+	// POSTv1studiosdkauthorizationPredicatesDeleteWithBodyWithResponse performs a POST /v1/studio/sdk/authorization_predicates.delete (the `POSTv1studiosdkauthorizationPredicatesDelete` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkauthorizationPredicatesDeleteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesDeleteResponse, error)
+
+	// POSTv1studiosdkauthorizationPredicatesDeleteWithResponse performs a POST /v1/studio/sdk/authorization_predicates.delete (the `POSTv1studiosdkauthorizationPredicatesDelete` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkauthorizationPredicatesDeleteWithResponse(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesDeleteResponse, error)
+
+	// POSTv1studiosdkauthorizationPredicatesGetWithBodyWithResponse performs a POST /v1/studio/sdk/authorization_predicates.get (the `POSTv1studiosdkauthorizationPredicatesGet` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkauthorizationPredicatesGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesGetResponse, error)
+
+	// POSTv1studiosdkauthorizationPredicatesGetWithResponse performs a POST /v1/studio/sdk/authorization_predicates.get (the `POSTv1studiosdkauthorizationPredicatesGet` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkauthorizationPredicatesGetWithResponse(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesGetResponse, error)
+
+	// POSTv1studiosdkauthorizationPredicatesListWithBodyWithResponse performs a POST /v1/studio/sdk/authorization_predicates.list (the `POSTv1studiosdkauthorizationPredicatesList` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkauthorizationPredicatesListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesListResponse, error)
+
+	// POSTv1studiosdkauthorizationPredicatesListWithResponse performs a POST /v1/studio/sdk/authorization_predicates.list (the `POSTv1studiosdkauthorizationPredicatesList` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkauthorizationPredicatesListWithResponse(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesListResponse, error)
+
+	// POSTv1studiosdkauthorizationPredicatesTypesWithResponse performs a POST /v1/studio/sdk/authorization_predicates.types (the `POSTv1studiosdkauthorizationPredicatesTypes` operationId) request.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkauthorizationPredicatesTypesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesTypesResponse, error)
+
+	// POSTv1studiosdkauthorizationPredicatesUpdateWithBodyWithResponse performs a POST /v1/studio/sdk/authorization_predicates.update (the `POSTv1studiosdkauthorizationPredicatesUpdate` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkauthorizationPredicatesUpdateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesUpdateResponse, error)
+
+	// POSTv1studiosdkauthorizationPredicatesUpdateWithResponse performs a POST /v1/studio/sdk/authorization_predicates.update (the `POSTv1studiosdkauthorizationPredicatesUpdate` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkauthorizationPredicatesUpdateWithResponse(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesUpdateResponse, error)
+
+	// POSTv1studiosdkcomponentsCreateWithBodyWithResponse performs a POST /v1/studio/sdk/components.create (the `POSTv1studiosdkcomponentsCreate` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkcomponentsCreateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsCreateResponse, error)
+
+	// POSTv1studiosdkcomponentsCreateWithResponse performs a POST /v1/studio/sdk/components.create (the `POSTv1studiosdkcomponentsCreate` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkcomponentsCreateWithResponse(ctx context.Context, body POSTv1studiosdkcomponentsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsCreateResponse, error)
+
+	// POSTv1studiosdkcomponentsGetWithBodyWithResponse report
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /v1/studio/sdk/components.get (the `POSTv1studiosdkcomponentsGet` operationId).
+	POSTv1studiosdkcomponentsGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsGetResponse, error)
+
+	// POSTv1studiosdkcomponentsGetWithResponse report
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /v1/studio/sdk/components.get (the `POSTv1studiosdkcomponentsGet` operationId).
+	POSTv1studiosdkcomponentsGetWithResponse(ctx context.Context, body POSTv1studiosdkcomponentsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsGetResponse, error)
+
+	// POSTv1studiosdkcomponentsListWithBodyWithResponse report
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /v1/studio/sdk/components.list (the `POSTv1studiosdkcomponentsList` operationId).
+	POSTv1studiosdkcomponentsListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsListResponse, error)
+
+	// POSTv1studiosdkcomponentsListWithResponse report
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /v1/studio/sdk/components.list (the `POSTv1studiosdkcomponentsList` operationId).
+	POSTv1studiosdkcomponentsListWithResponse(ctx context.Context, body POSTv1studiosdkcomponentsListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsListResponse, error)
+
+	// POSTv1studiosdkcomponentsUpdateWithBodyWithResponse performs a POST /v1/studio/sdk/components.update (the `POSTv1studiosdkcomponentsUpdate` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkcomponentsUpdateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsUpdateResponse, error)
+
+	// POSTv1studiosdkcomponentsUpdateWithResponse performs a POST /v1/studio/sdk/components.update (the `POSTv1studiosdkcomponentsUpdate` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkcomponentsUpdateWithResponse(ctx context.Context, body POSTv1studiosdkcomponentsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsUpdateResponse, error)
+
+	// POSTv1studiosdkconnectorsActivateWithBodyWithResponse performs a POST /v1/studio/sdk/connectors.activate (the `POSTv1studiosdkconnectorsActivate` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkconnectorsActivateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsActivateResponse, error)
+
+	// POSTv1studiosdkconnectorsActivateWithResponse performs a POST /v1/studio/sdk/connectors.activate (the `POSTv1studiosdkconnectorsActivate` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkconnectorsActivateWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsActivateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsActivateResponse, error)
+
+	// POSTv1studiosdkconnectorsCreateWithBodyWithResponse connector
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /v1/studio/sdk/connectors.create (the `POSTv1studiosdkconnectorsCreate` operationId).
+	POSTv1studiosdkconnectorsCreateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsCreateResponse, error)
+
+	// POSTv1studiosdkconnectorsCreateWithResponse connector
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /v1/studio/sdk/connectors.create (the `POSTv1studiosdkconnectorsCreate` operationId).
+	POSTv1studiosdkconnectorsCreateWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsCreateResponse, error)
+
+	// POSTv1studiosdkconnectorsDeleteWithBodyWithResponse performs a POST /v1/studio/sdk/connectors.delete (the `POSTv1studiosdkconnectorsDelete` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkconnectorsDeleteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsDeleteResponse, error)
+
+	// POSTv1studiosdkconnectorsDeleteWithResponse performs a POST /v1/studio/sdk/connectors.delete (the `POSTv1studiosdkconnectorsDelete` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkconnectorsDeleteWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsDeleteResponse, error)
+
+	// POSTv1studiosdkconnectorsDisableWithBodyWithResponse performs a POST /v1/studio/sdk/connectors.disable (the `POSTv1studiosdkconnectorsDisable` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkconnectorsDisableWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsDisableResponse, error)
+
+	// POSTv1studiosdkconnectorsDisableWithResponse performs a POST /v1/studio/sdk/connectors.disable (the `POSTv1studiosdkconnectorsDisable` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkconnectorsDisableWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsDisableJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsDisableResponse, error)
 
 	// POSTv1studiosdkconnectorsGetWithBodyWithResponse connector
 	//
@@ -1637,6 +12111,90 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with POST /v1/studio/sdk/connectors.list (the `POSTv1studiosdkconnectorsList` operationId).
 	POSTv1studiosdkconnectorsListWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsListResponse, error)
 
+	// POSTv1studiosdkconnectorsSchemasWithBodyWithResponse performs a POST /v1/studio/sdk/connectors.schemas (the `POSTv1studiosdkconnectorsSchemas` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkconnectorsSchemasWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsSchemasResponse, error)
+
+	// POSTv1studiosdkconnectorsSchemasWithResponse performs a POST /v1/studio/sdk/connectors.schemas (the `POSTv1studiosdkconnectorsSchemas` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkconnectorsSchemasWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsSchemasJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsSchemasResponse, error)
+
+	// POSTv1studiosdkconnectorsTableWithBodyWithResponse performs a POST /v1/studio/sdk/connectors.table (the `POSTv1studiosdkconnectorsTable` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkconnectorsTableWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsTableResponse, error)
+
+	// POSTv1studiosdkconnectorsTableWithResponse performs a POST /v1/studio/sdk/connectors.table (the `POSTv1studiosdkconnectorsTable` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkconnectorsTableWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsTableJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsTableResponse, error)
+
+	// POSTv1studiosdkconnectorsTablesWithBodyWithResponse performs a POST /v1/studio/sdk/connectors.tables (the `POSTv1studiosdkconnectorsTables` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkconnectorsTablesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsTablesResponse, error)
+
+	// POSTv1studiosdkconnectorsTablesWithResponse performs a POST /v1/studio/sdk/connectors.tables (the `POSTv1studiosdkconnectorsTables` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkconnectorsTablesWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsTablesJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsTablesResponse, error)
+
+	// POSTv1studiosdkconnectorsTestWithBodyWithResponse performs a POST /v1/studio/sdk/connectors.test (the `POSTv1studiosdkconnectorsTest` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkconnectorsTestWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsTestResponse, error)
+
+	// POSTv1studiosdkconnectorsTestWithResponse performs a POST /v1/studio/sdk/connectors.test (the `POSTv1studiosdkconnectorsTest` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkconnectorsTestWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsTestJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsTestResponse, error)
+
+	// POSTv1studiosdkconnectorsTestSqlWithBodyWithResponse performs a POST /v1/studio/sdk/connectors.test_sql (the `POSTv1studiosdkconnectorsTestSql` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkconnectorsTestSqlWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsTestSqlResponse, error)
+
+	// POSTv1studiosdkconnectorsTestSqlWithResponse performs a POST /v1/studio/sdk/connectors.test_sql (the `POSTv1studiosdkconnectorsTestSql` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkconnectorsTestSqlWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsTestSqlJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsTestSqlResponse, error)
+
+	// POSTv1studiosdkconnectorsUpdateWithBodyWithResponse performs a POST /v1/studio/sdk/connectors.update (the `POSTv1studiosdkconnectorsUpdate` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkconnectorsUpdateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsUpdateResponse, error)
+
+	// POSTv1studiosdkconnectorsUpdateWithResponse performs a POST /v1/studio/sdk/connectors.update (the `POSTv1studiosdkconnectorsUpdate` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkconnectorsUpdateWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsUpdateResponse, error)
+
+	// POSTv1studiosdknamespacesCreateWithBodyWithResponse namespace
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /v1/studio/sdk/namespaces.create (the `POSTv1studiosdknamespacesCreate` operationId).
+	POSTv1studiosdknamespacesCreateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesCreateResponse, error)
+
+	// POSTv1studiosdknamespacesCreateWithResponse namespace
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /v1/studio/sdk/namespaces.create (the `POSTv1studiosdknamespacesCreate` operationId).
+	POSTv1studiosdknamespacesCreateWithResponse(ctx context.Context, body POSTv1studiosdknamespacesCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesCreateResponse, error)
+
+	// POSTv1studiosdknamespacesDeleteWithBodyWithResponse performs a POST /v1/studio/sdk/namespaces.delete (the `POSTv1studiosdknamespacesDelete` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespacesDeleteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesDeleteResponse, error)
+
+	// POSTv1studiosdknamespacesDeleteWithResponse performs a POST /v1/studio/sdk/namespaces.delete (the `POSTv1studiosdknamespacesDelete` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespacesDeleteWithResponse(ctx context.Context, body POSTv1studiosdknamespacesDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesDeleteResponse, error)
+
 	// POSTv1studiosdknamespacesGetWithBodyWithResponse namespace
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -1664,6 +12222,26 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with POST /v1/studio/sdk/namespaces.list (the `POSTv1studiosdknamespacesList` operationId).
 	POSTv1studiosdknamespacesListWithResponse(ctx context.Context, body POSTv1studiosdknamespacesListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesListResponse, error)
+
+	// POSTv1studiosdknamespacesUpdateWithBodyWithResponse performs a POST /v1/studio/sdk/namespaces.update (the `POSTv1studiosdknamespacesUpdate` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespacesUpdateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesUpdateResponse, error)
+
+	// POSTv1studiosdknamespacesUpdateWithResponse performs a POST /v1/studio/sdk/namespaces.update (the `POSTv1studiosdknamespacesUpdate` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespacesUpdateWithResponse(ctx context.Context, body POSTv1studiosdknamespacesUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesUpdateResponse, error)
+
+	// POSTv1studiosdkpreviewExecuteWithBodyWithResponse performs a POST /v1/studio/sdk/preview.execute (the `POSTv1studiosdkpreviewExecute` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkpreviewExecuteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpreviewExecuteResponse, error)
+
+	// POSTv1studiosdkpreviewExecuteWithResponse performs a POST /v1/studio/sdk/preview.execute (the `POSTv1studiosdkpreviewExecute` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkpreviewExecuteWithResponse(ctx context.Context, body POSTv1studiosdkpreviewExecuteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpreviewExecuteResponse, error)
 
 	// POSTv1studiosdkpublicationsEventsListWithBodyWithResponse event
 	//
@@ -1693,33 +12271,467 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with POST /v1/studio/sdk/publications.get (the `POSTv1studiosdkpublicationsGet` operationId).
 	POSTv1studiosdkpublicationsGetWithResponse(ctx context.Context, body POSTv1studiosdkpublicationsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsGetResponse, error)
 
-	// POSTv1studiosdkreportsGetWithBodyWithResponse report
+	// POSTv1studiosdkpublicationsPublishWithBodyWithResponse performs a POST /v1/studio/sdk/publications.publish (the `POSTv1studiosdkpublicationsPublish` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkpublicationsPublishWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsPublishResponse, error)
+
+	// POSTv1studiosdkpublicationsPublishWithResponse performs a POST /v1/studio/sdk/publications.publish (the `POSTv1studiosdkpublicationsPublish` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkpublicationsPublishWithResponse(ctx context.Context, body POSTv1studiosdkpublicationsPublishJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsPublishResponse, error)
+
+	// POSTv1studiosdkpublicationsRollbackWithBodyWithResponse performs a POST /v1/studio/sdk/publications.rollback (the `POSTv1studiosdkpublicationsRollback` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkpublicationsRollbackWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsRollbackResponse, error)
+
+	// POSTv1studiosdkpublicationsRollbackWithResponse performs a POST /v1/studio/sdk/publications.rollback (the `POSTv1studiosdkpublicationsRollback` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkpublicationsRollbackWithResponse(ctx context.Context, body POSTv1studiosdkpublicationsRollbackJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsRollbackResponse, error)
+
+	// POSTv1studiosdkpublicationsUnpublishWithBodyWithResponse performs a POST /v1/studio/sdk/publications.unpublish (the `POSTv1studiosdkpublicationsUnpublish` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkpublicationsUnpublishWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsUnpublishResponse, error)
+
+	// POSTv1studiosdkpublicationsUnpublishWithResponse performs a POST /v1/studio/sdk/publications.unpublish (the `POSTv1studiosdkpublicationsUnpublish` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkpublicationsUnpublishWithResponse(ctx context.Context, body POSTv1studiosdkpublicationsUnpublishJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsUnpublishResponse, error)
+
+	// POSTv1studiosdkresourcesDeleteFileWithBodyWithResponse performs a POST /v1/studio/sdk/resources.delete_file (the `POSTv1studiosdkresourcesDeleteFile` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkresourcesDeleteFileWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFileResponse, error)
+
+	// POSTv1studiosdkresourcesDeleteFileWithResponse performs a POST /v1/studio/sdk/resources.delete_file (the `POSTv1studiosdkresourcesDeleteFile` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkresourcesDeleteFileWithResponse(ctx context.Context, body POSTv1studiosdkresourcesDeleteFileJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFileResponse, error)
+
+	// POSTv1studiosdkresourcesDeleteFolderWithBodyWithResponse performs a POST /v1/studio/sdk/resources.delete_folder (the `POSTv1studiosdkresourcesDeleteFolder` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkresourcesDeleteFolderWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFolderResponse, error)
+
+	// POSTv1studiosdkresourcesDeleteFolderWithResponse performs a POST /v1/studio/sdk/resources.delete_folder (the `POSTv1studiosdkresourcesDeleteFolder` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkresourcesDeleteFolderWithResponse(ctx context.Context, body POSTv1studiosdkresourcesDeleteFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFolderResponse, error)
+
+	// POSTv1studiosdkresourcesDeleteSkillWithBodyWithResponse performs a POST /v1/studio/sdk/resources.delete_skill (the `POSTv1studiosdkresourcesDeleteSkill` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkresourcesDeleteSkillWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteSkillResponse, error)
+
+	// POSTv1studiosdkresourcesDeleteSkillWithResponse performs a POST /v1/studio/sdk/resources.delete_skill (the `POSTv1studiosdkresourcesDeleteSkill` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkresourcesDeleteSkillWithResponse(ctx context.Context, body POSTv1studiosdkresourcesDeleteSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteSkillResponse, error)
+
+	// POSTv1studiosdkresourcesGetWithBodyWithResponse performs a POST /v1/studio/sdk/resources.get (the `POSTv1studiosdkresourcesGet` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkresourcesGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesGetResponse, error)
+
+	// POSTv1studiosdkresourcesGetWithResponse performs a POST /v1/studio/sdk/resources.get (the `POSTv1studiosdkresourcesGet` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkresourcesGetWithResponse(ctx context.Context, body POSTv1studiosdkresourcesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesGetResponse, error)
+
+	// POSTv1studiosdkresourcesUpsertFileWithBodyWithResponse performs a POST /v1/studio/sdk/resources.upsert_file (the `POSTv1studiosdkresourcesUpsertFile` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkresourcesUpsertFileWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFileResponse, error)
+
+	// POSTv1studiosdkresourcesUpsertFileWithResponse performs a POST /v1/studio/sdk/resources.upsert_file (the `POSTv1studiosdkresourcesUpsertFile` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkresourcesUpsertFileWithResponse(ctx context.Context, body POSTv1studiosdkresourcesUpsertFileJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFileResponse, error)
+
+	// POSTv1studiosdkresourcesUpsertFolderWithBodyWithResponse performs a POST /v1/studio/sdk/resources.upsert_folder (the `POSTv1studiosdkresourcesUpsertFolder` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkresourcesUpsertFolderWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFolderResponse, error)
+
+	// POSTv1studiosdkresourcesUpsertFolderWithResponse performs a POST /v1/studio/sdk/resources.upsert_folder (the `POSTv1studiosdkresourcesUpsertFolder` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkresourcesUpsertFolderWithResponse(ctx context.Context, body POSTv1studiosdkresourcesUpsertFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFolderResponse, error)
+
+	// POSTv1studiosdkresourcesUpsertSkillWithBodyWithResponse performs a POST /v1/studio/sdk/resources.upsert_skill (the `POSTv1studiosdkresourcesUpsertSkill` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkresourcesUpsertSkillWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertSkillResponse, error)
+
+	// POSTv1studiosdkresourcesUpsertSkillWithResponse performs a POST /v1/studio/sdk/resources.upsert_skill (the `POSTv1studiosdkresourcesUpsertSkill` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkresourcesUpsertSkillWithResponse(ctx context.Context, body POSTv1studiosdkresourcesUpsertSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertSkillResponse, error)
+
+	// POSTv1studiosdkruntimeStatusWithResponse performs a POST /v1/studio/sdk/runtime.status (the `POSTv1studiosdkruntimeStatus` operationId) request.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkruntimeStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*POSTv1studiosdkruntimeStatusResponse, error)
+
+	// POSTv1studiosdkversionsApplyWithBodyWithResponse performs a POST /v1/studio/sdk/versions.apply (the `POSTv1studiosdkversionsApply` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsApplyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsApplyResponse, error)
+
+	// POSTv1studiosdkversionsApplyWithResponse performs a POST /v1/studio/sdk/versions.apply (the `POSTv1studiosdkversionsApply` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsApplyWithResponse(ctx context.Context, body POSTv1studiosdkversionsApplyJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsApplyResponse, error)
+
+	// POSTv1studiosdkversionsBuilderWithBodyWithResponse performs a POST /v1/studio/sdk/versions.builder (the `POSTv1studiosdkversionsBuilder` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsBuilderWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsBuilderResponse, error)
+
+	// POSTv1studiosdkversionsBuilderWithResponse performs a POST /v1/studio/sdk/versions.builder (the `POSTv1studiosdkversionsBuilder` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsBuilderWithResponse(ctx context.Context, body POSTv1studiosdkversionsBuilderJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsBuilderResponse, error)
+
+	// POSTv1studiosdkversionsCreateWithBodyWithResponse performs a POST /v1/studio/sdk/versions.create (the `POSTv1studiosdkversionsCreate` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsCreateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsCreateResponse, error)
+
+	// POSTv1studiosdkversionsCreateWithResponse performs a POST /v1/studio/sdk/versions.create (the `POSTv1studiosdkversionsCreate` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsCreateWithResponse(ctx context.Context, body POSTv1studiosdkversionsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsCreateResponse, error)
+
+	// POSTv1studiosdkversionsDescriptorWithBodyWithResponse version
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
-	// Corresponds with POST /v1/studio/sdk/reports.get (the `POSTv1studiosdkreportsGet` operationId).
-	POSTv1studiosdkreportsGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkreportsGetResponse, error)
+	// Corresponds with POST /v1/studio/sdk/versions.descriptor (the `POSTv1studiosdkversionsDescriptor` operationId).
+	POSTv1studiosdkversionsDescriptorWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDescriptorResponse, error)
 
-	// POSTv1studiosdkreportsGetWithResponse report
+	// POSTv1studiosdkversionsDescriptorWithResponse version
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
-	// Corresponds with POST /v1/studio/sdk/reports.get (the `POSTv1studiosdkreportsGet` operationId).
-	POSTv1studiosdkreportsGetWithResponse(ctx context.Context, body POSTv1studiosdkreportsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkreportsGetResponse, error)
+	// Corresponds with POST /v1/studio/sdk/versions.descriptor (the `POSTv1studiosdkversionsDescriptor` operationId).
+	POSTv1studiosdkversionsDescriptorWithResponse(ctx context.Context, body POSTv1studiosdkversionsDescriptorJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDescriptorResponse, error)
 
-	// POSTv1studiosdkreportsListWithBodyWithResponse report
+	// POSTv1studiosdkversionsDownloadWithBodyWithResponse performs a POST /v1/studio/sdk/versions.download (the `POSTv1studiosdkversionsDownload` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsDownloadWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDownloadResponse, error)
+
+	// POSTv1studiosdkversionsDownloadWithResponse performs a POST /v1/studio/sdk/versions.download (the `POSTv1studiosdkversionsDownload` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsDownloadWithResponse(ctx context.Context, body POSTv1studiosdkversionsDownloadJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDownloadResponse, error)
+
+	// POSTv1studiosdkversionsExportDqlWithBodyWithResponse version
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
-	// Corresponds with POST /v1/studio/sdk/reports.list (the `POSTv1studiosdkreportsList` operationId).
-	POSTv1studiosdkreportsListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkreportsListResponse, error)
+	// Corresponds with POST /v1/studio/sdk/versions.export_dql (the `POSTv1studiosdkversionsExportDql` operationId).
+	POSTv1studiosdkversionsExportDqlWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsExportDqlResponse, error)
 
-	// POSTv1studiosdkreportsListWithResponse report
+	// POSTv1studiosdkversionsExportDqlWithResponse version
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
-	// Corresponds with POST /v1/studio/sdk/reports.list (the `POSTv1studiosdkreportsList` operationId).
-	POSTv1studiosdkreportsListWithResponse(ctx context.Context, body POSTv1studiosdkreportsListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkreportsListResponse, error)
+	// Corresponds with POST /v1/studio/sdk/versions.export_dql (the `POSTv1studiosdkversionsExportDql` operationId).
+	POSTv1studiosdkversionsExportDqlWithResponse(ctx context.Context, body POSTv1studiosdkversionsExportDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsExportDqlResponse, error)
+
+	// POSTv1studiosdkversionsGetWithBodyWithResponse version
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /v1/studio/sdk/versions.get (the `POSTv1studiosdkversionsGet` operationId).
+	POSTv1studiosdkversionsGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsGetResponse, error)
+
+	// POSTv1studiosdkversionsGetWithResponse version
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /v1/studio/sdk/versions.get (the `POSTv1studiosdkversionsGet` operationId).
+	POSTv1studiosdkversionsGetWithResponse(ctx context.Context, body POSTv1studiosdkversionsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsGetResponse, error)
+
+	// POSTv1studiosdkversionsInspectWithBodyWithResponse performs a POST /v1/studio/sdk/versions.inspect (the `POSTv1studiosdkversionsInspect` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsInspectWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsInspectResponse, error)
+
+	// POSTv1studiosdkversionsInspectWithResponse performs a POST /v1/studio/sdk/versions.inspect (the `POSTv1studiosdkversionsInspect` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsInspectWithResponse(ctx context.Context, body POSTv1studiosdkversionsInspectJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsInspectResponse, error)
+
+	// POSTv1studiosdkversionsListWithBodyWithResponse version
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /v1/studio/sdk/versions.list (the `POSTv1studiosdkversionsList` operationId).
+	POSTv1studiosdkversionsListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsListResponse, error)
+
+	// POSTv1studiosdkversionsListWithResponse version
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /v1/studio/sdk/versions.list (the `POSTv1studiosdkversionsList` operationId).
+	POSTv1studiosdkversionsListWithResponse(ctx context.Context, body POSTv1studiosdkversionsListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsListResponse, error)
+
+	// POSTv1studiosdkversionsLoadArchiveWithBodyWithResponse performs a POST /v1/studio/sdk/versions.load_archive (the `POSTv1studiosdkversionsLoadArchive` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsLoadArchiveWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadArchiveResponse, error)
+
+	// POSTv1studiosdkversionsLoadArchiveWithResponse performs a POST /v1/studio/sdk/versions.load_archive (the `POSTv1studiosdkversionsLoadArchive` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsLoadArchiveWithResponse(ctx context.Context, body POSTv1studiosdkversionsLoadArchiveJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadArchiveResponse, error)
+
+	// POSTv1studiosdkversionsLoadDqlWithBodyWithResponse performs a POST /v1/studio/sdk/versions.load_dql (the `POSTv1studiosdkversionsLoadDql` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsLoadDqlWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadDqlResponse, error)
+
+	// POSTv1studiosdkversionsLoadDqlWithResponse performs a POST /v1/studio/sdk/versions.load_dql (the `POSTv1studiosdkversionsLoadDql` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsLoadDqlWithResponse(ctx context.Context, body POSTv1studiosdkversionsLoadDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadDqlResponse, error)
+
+	// POSTv1studiosdkversionsTestComposeWithBodyWithResponse performs a POST /v1/studio/sdk/versions.test_compose (the `POSTv1studiosdkversionsTestCompose` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsTestComposeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestComposeResponse, error)
+
+	// POSTv1studiosdkversionsTestComposeWithResponse performs a POST /v1/studio/sdk/versions.test_compose (the `POSTv1studiosdkversionsTestCompose` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsTestComposeWithResponse(ctx context.Context, body POSTv1studiosdkversionsTestComposeJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestComposeResponse, error)
+
+	// POSTv1studiosdkversionsTestRelationWithBodyWithResponse performs a POST /v1/studio/sdk/versions.test_relation (the `POSTv1studiosdkversionsTestRelation` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsTestRelationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestRelationResponse, error)
+
+	// POSTv1studiosdkversionsTestRelationWithResponse performs a POST /v1/studio/sdk/versions.test_relation (the `POSTv1studiosdkversionsTestRelation` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsTestRelationWithResponse(ctx context.Context, body POSTv1studiosdkversionsTestRelationJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestRelationResponse, error)
+
+	// POSTv1studiosdkversionsTestViewWithBodyWithResponse performs a POST /v1/studio/sdk/versions.test_view (the `POSTv1studiosdkversionsTestView` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsTestViewWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestViewResponse, error)
+
+	// POSTv1studiosdkversionsTestViewWithResponse performs a POST /v1/studio/sdk/versions.test_view (the `POSTv1studiosdkversionsTestView` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsTestViewWithResponse(ctx context.Context, body POSTv1studiosdkversionsTestViewJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestViewResponse, error)
+
+	// POSTv1studiosdkversionsValidateWithBodyWithResponse performs a POST /v1/studio/sdk/versions.validate (the `POSTv1studiosdkversionsValidate` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsValidateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsValidateResponse, error)
+
+	// POSTv1studiosdkversionsValidateWithResponse performs a POST /v1/studio/sdk/versions.validate (the `POSTv1studiosdkversionsValidate` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsValidateWithResponse(ctx context.Context, body POSTv1studiosdkversionsValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsValidateResponse, error)
+
+	// POSTv1studiosdkversionsWarmupWithBodyWithResponse performs a POST /v1/studio/sdk/versions.warmup (the `POSTv1studiosdkversionsWarmup` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsWarmupWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupResponse, error)
+
+	// POSTv1studiosdkversionsWarmupWithResponse performs a POST /v1/studio/sdk/versions.warmup (the `POSTv1studiosdkversionsWarmup` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsWarmupWithResponse(ctx context.Context, body POSTv1studiosdkversionsWarmupJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupResponse, error)
+
+	// POSTv1studiosdkversionsWarmupGetWithBodyWithResponse warmup_run
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /v1/studio/sdk/versions.warmup_get (the `POSTv1studiosdkversionsWarmupGet` operationId).
+	POSTv1studiosdkversionsWarmupGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupGetResponse, error)
+
+	// POSTv1studiosdkversionsWarmupGetWithResponse warmup_run
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /v1/studio/sdk/versions.warmup_get (the `POSTv1studiosdkversionsWarmupGet` operationId).
+	POSTv1studiosdkversionsWarmupGetWithResponse(ctx context.Context, body POSTv1studiosdkversionsWarmupGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupGetResponse, error)
+
+	// POSTv1studiosdkversionsWarmupListWithBodyWithResponse performs a POST /v1/studio/sdk/versions.warmup_list (the `POSTv1studiosdkversionsWarmupList` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsWarmupListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupListResponse, error)
+
+	// POSTv1studiosdkversionsWarmupListWithResponse performs a POST /v1/studio/sdk/versions.warmup_list (the `POSTv1studiosdkversionsWarmupList` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsWarmupListWithResponse(ctx context.Context, body POSTv1studiosdkversionsWarmupListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupListResponse, error)
+}
+
+type POSTv1studiosdkaccessContextResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Output074baefd6599537117e4be3e30019d7fdfbb35e35777792f4679dc2222339640
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkaccessContextResponse) GetJSON200() *Output074baefd6599537117e4be3e30019d7fdfbb35e35777792f4679dc2222339640 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkaccessContextResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkaccessContextResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkaccessContextResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkaccessContextResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkaccessGetResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *OutputD94fe2c0f68aadd9d8fcacadf97221cae176cdc5a262134071dca8fa5d6e14ef
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkaccessGetResponse) GetJSON200() *OutputD94fe2c0f68aadd9d8fcacadf97221cae176cdc5a262134071dca8fa5d6e14ef {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkaccessGetResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkaccessGetResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkaccessGetResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkaccessGetResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkaccessReplaceResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Output524acdde45b651c8bd48c66b53c101ffac146671a1ddce5c786a6ecbd96dbe58
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkaccessReplaceResponse) GetJSON200() *Output524acdde45b651c8bd48c66b53c101ffac146671a1ddce5c786a6ecbd96dbe58 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkaccessReplaceResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkaccessReplaceResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkaccessReplaceResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkaccessReplaceResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkaclDeleteResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkaclDeleteResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkaclDeleteResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkaclDeleteResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkaclDeleteResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
 }
 
 type POSTv1studiosdkaclListResponse struct {
@@ -1757,6 +12769,607 @@ func (r POSTv1studiosdkaclListResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r POSTv1studiosdkaclListResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkaclUpsertResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire013ce40651897a22f1d0c9d5a29a86362333458b72c57acb30fa03a2473f08c6
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkaclUpsertResponse) GetJSON200() *Wire013ce40651897a22f1d0c9d5a29a86362333458b72c57acb30fa03a2473f08c6 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkaclUpsertResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkaclUpsertResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkaclUpsertResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkaclUpsertResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkauthorizationPredicatesCreateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire686013a325c9be56a2c1decb9988b4f5c30a411074c3d70e9552eecf4ae1fd87
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkauthorizationPredicatesCreateResponse) GetJSON200() *Wire686013a325c9be56a2c1decb9988b4f5c30a411074c3d70e9552eecf4ae1fd87 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkauthorizationPredicatesCreateResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkauthorizationPredicatesCreateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkauthorizationPredicatesCreateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkauthorizationPredicatesCreateResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkauthorizationPredicatesDeleteResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkauthorizationPredicatesDeleteResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkauthorizationPredicatesDeleteResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkauthorizationPredicatesDeleteResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkauthorizationPredicatesDeleteResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkauthorizationPredicatesGetResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireF1625788b66eacf74ca98501afd9a4c5d06df56f548c1b3c679070e519cabcba
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkauthorizationPredicatesGetResponse) GetJSON200() *WireF1625788b66eacf74ca98501afd9a4c5d06df56f548c1b3c679070e519cabcba {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkauthorizationPredicatesGetResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkauthorizationPredicatesGetResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkauthorizationPredicatesGetResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkauthorizationPredicatesGetResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkauthorizationPredicatesListResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkauthorizationPredicatesListResponse) GetJSON200() *WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkauthorizationPredicatesListResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkauthorizationPredicatesListResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkauthorizationPredicatesListResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkauthorizationPredicatesListResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkauthorizationPredicatesTypesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkauthorizationPredicatesTypesResponse) GetJSON200() *WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkauthorizationPredicatesTypesResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkauthorizationPredicatesTypesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkauthorizationPredicatesTypesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkauthorizationPredicatesTypesResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkauthorizationPredicatesUpdateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire46f5783921089422ba86ef3f21455336f0870921db6e2dac69f80e6517b1e68a
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkauthorizationPredicatesUpdateResponse) GetJSON200() *Wire46f5783921089422ba86ef3f21455336f0870921db6e2dac69f80e6517b1e68a {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkauthorizationPredicatesUpdateResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkauthorizationPredicatesUpdateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkauthorizationPredicatesUpdateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkauthorizationPredicatesUpdateResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkcomponentsCreateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire443bbe5c4c72f351c9a66a106cdb43706c944ab1d042017ad7a9092b72d13f21
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkcomponentsCreateResponse) GetJSON200() *Wire443bbe5c4c72f351c9a66a106cdb43706c944ab1d042017ad7a9092b72d13f21 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkcomponentsCreateResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkcomponentsCreateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkcomponentsCreateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkcomponentsCreateResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkcomponentsGetResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireB42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkcomponentsGetResponse) GetJSON200() *WireB42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkcomponentsGetResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkcomponentsGetResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkcomponentsGetResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkcomponentsGetResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkcomponentsListResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkcomponentsListResponse) GetJSON200() *Wire38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkcomponentsListResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkcomponentsListResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkcomponentsListResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkcomponentsListResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkcomponentsUpdateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire98b9826a3a782748dba5c6e5a250e1e52d78e3e1dbd2ab11f2dc2f9352c62e7a
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkcomponentsUpdateResponse) GetJSON200() *Wire98b9826a3a782748dba5c6e5a250e1e52d78e3e1dbd2ab11f2dc2f9352c62e7a {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkcomponentsUpdateResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkcomponentsUpdateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkcomponentsUpdateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkcomponentsUpdateResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkconnectorsActivateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire7500b9317030713f187b24a1e5fdc5a3b126e5bb2b5fb59f60d5b9d5be652a23
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkconnectorsActivateResponse) GetJSON200() *Wire7500b9317030713f187b24a1e5fdc5a3b126e5bb2b5fb59f60d5b9d5be652a23 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkconnectorsActivateResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkconnectorsActivateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkconnectorsActivateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkconnectorsActivateResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkconnectorsCreateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Output73a8618e3debe1667f7aafcc74ab58dec2fbd11494bb2e579aae6d2b58f205f3
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkconnectorsCreateResponse) GetJSON200() *Output73a8618e3debe1667f7aafcc74ab58dec2fbd11494bb2e579aae6d2b58f205f3 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkconnectorsCreateResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkconnectorsCreateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkconnectorsCreateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkconnectorsCreateResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkconnectorsDeleteResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkconnectorsDeleteResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkconnectorsDeleteResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkconnectorsDeleteResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkconnectorsDeleteResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkconnectorsDisableResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire777f17beb973ceea33d037ba165a4751392efacdd3a1e9425eb0da2b7461ba6e
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkconnectorsDisableResponse) GetJSON200() *Wire777f17beb973ceea33d037ba165a4751392efacdd3a1e9425eb0da2b7461ba6e {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkconnectorsDisableResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkconnectorsDisableResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkconnectorsDisableResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkconnectorsDisableResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -1845,6 +13458,327 @@ func (r POSTv1studiosdkconnectorsListResponse) ContentType() string {
 	return ""
 }
 
+type POSTv1studiosdkconnectorsSchemasResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire8a9cf29086a80cb7cabcdebcdf40aa1d03da579d5b4d6608dcb4a7446bcf710d
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkconnectorsSchemasResponse) GetJSON200() *Wire8a9cf29086a80cb7cabcdebcdf40aa1d03da579d5b4d6608dcb4a7446bcf710d {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkconnectorsSchemasResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkconnectorsSchemasResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkconnectorsSchemasResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkconnectorsSchemasResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkconnectorsTableResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireBd458392be482912a616e980fab94755810f3ed4347c5351a04930f05dd4ce31
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkconnectorsTableResponse) GetJSON200() *WireBd458392be482912a616e980fab94755810f3ed4347c5351a04930f05dd4ce31 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkconnectorsTableResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkconnectorsTableResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkconnectorsTableResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkconnectorsTableResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkconnectorsTablesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire65b20b1db94b9a2b772bc75cedde285454a5204dc72354f579cf1fe7fcc34b2b
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkconnectorsTablesResponse) GetJSON200() *Wire65b20b1db94b9a2b772bc75cedde285454a5204dc72354f579cf1fe7fcc34b2b {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkconnectorsTablesResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkconnectorsTablesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkconnectorsTablesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkconnectorsTablesResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkconnectorsTestResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire62d79acead49ba0d84d3fe813a8d59b4a26f710c0953ffa167816798ed0333f5
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkconnectorsTestResponse) GetJSON200() *Wire62d79acead49ba0d84d3fe813a8d59b4a26f710c0953ffa167816798ed0333f5 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkconnectorsTestResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkconnectorsTestResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkconnectorsTestResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkconnectorsTestResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkconnectorsTestSqlResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire15d90b839a0fff7f61055596a65a67fe8590915342e1278e39ef8abd4433ce14
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkconnectorsTestSqlResponse) GetJSON200() *Wire15d90b839a0fff7f61055596a65a67fe8590915342e1278e39ef8abd4433ce14 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkconnectorsTestSqlResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkconnectorsTestSqlResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkconnectorsTestSqlResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkconnectorsTestSqlResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkconnectorsUpdateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireF13c6896f56ef6cd633314e17c86ef09c723b489a575449924c438606e230bf5
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkconnectorsUpdateResponse) GetJSON200() *WireF13c6896f56ef6cd633314e17c86ef09c723b489a575449924c438606e230bf5 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkconnectorsUpdateResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkconnectorsUpdateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkconnectorsUpdateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkconnectorsUpdateResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdknamespacesCreateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *OutputD558223f5d3d6bca0e300c59f8e624af838223bc61f0cb8c88f09c757834ddaa
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdknamespacesCreateResponse) GetJSON200() *OutputD558223f5d3d6bca0e300c59f8e624af838223bc61f0cb8c88f09c757834ddaa {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdknamespacesCreateResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdknamespacesCreateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdknamespacesCreateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdknamespacesCreateResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdknamespacesDeleteResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdknamespacesDeleteResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdknamespacesDeleteResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdknamespacesDeleteResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdknamespacesDeleteResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type POSTv1studiosdknamespacesGetResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -1921,6 +13855,88 @@ func (r POSTv1studiosdknamespacesListResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r POSTv1studiosdknamespacesListResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdknamespacesUpdateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireA6d5a259bb2993e6552649336f2c093ccd6ae12f130f8526f5c136a619d0cb51
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdknamespacesUpdateResponse) GetJSON200() *WireA6d5a259bb2993e6552649336f2c093ccd6ae12f130f8526f5c136a619d0cb51 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdknamespacesUpdateResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdknamespacesUpdateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdknamespacesUpdateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdknamespacesUpdateResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkpreviewExecuteResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire9763fc0927f951631f9c089e0800033b9772e81b29bddc85ae64e2899f0943e3
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkpreviewExecuteResponse) GetJSON200() *Wire9763fc0927f951631f9c089e0800033b9772e81b29bddc85ae64e2899f0943e3 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkpreviewExecuteResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkpreviewExecuteResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkpreviewExecuteResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkpreviewExecuteResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -2009,25 +14025,25 @@ func (r POSTv1studiosdkpublicationsGetResponse) ContentType() string {
 	return ""
 }
 
-type POSTv1studiosdkreportsGetResponse struct {
+type POSTv1studiosdkpublicationsPublishResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *WireB42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044
+	JSON200 *Output7f617ddc14b6df274d226551b825c90a4f977a14591bdfd1ddc94b5f6066bce5
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r POSTv1studiosdkreportsGetResponse) GetJSON200() *WireB42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044 {
+func (r POSTv1studiosdkpublicationsPublishResponse) GetJSON200() *Output7f617ddc14b6df274d226551b825c90a4f977a14591bdfd1ddc94b5f6066bce5 {
 	return r.JSON200
 }
 
 // GetBody returns the raw response body bytes
-func (r POSTv1studiosdkreportsGetResponse) GetBody() []byte {
+func (r POSTv1studiosdkpublicationsPublishResponse) GetBody() []byte {
 	return r.Body
 }
 
 // Status returns HTTPResponse.Status
-func (r POSTv1studiosdkreportsGetResponse) Status() string {
+func (r POSTv1studiosdkpublicationsPublishResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -2035,7 +14051,7 @@ func (r POSTv1studiosdkreportsGetResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r POSTv1studiosdkreportsGetResponse) StatusCode() int {
+func (r POSTv1studiosdkpublicationsPublishResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2043,32 +14059,32 @@ func (r POSTv1studiosdkreportsGetResponse) StatusCode() int {
 }
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r POSTv1studiosdkreportsGetResponse) ContentType() string {
+func (r POSTv1studiosdkpublicationsPublishResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
 	return ""
 }
 
-type POSTv1studiosdkreportsListResponse struct {
+type POSTv1studiosdkpublicationsRollbackResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *Wire38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a
+	JSON200 *OutputA717afc38cbc4d350bb71fb00cf76bef68daf27b4650120e47c4d8379356f11f
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r POSTv1studiosdkreportsListResponse) GetJSON200() *Wire38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a {
+func (r POSTv1studiosdkpublicationsRollbackResponse) GetJSON200() *OutputA717afc38cbc4d350bb71fb00cf76bef68daf27b4650120e47c4d8379356f11f {
 	return r.JSON200
 }
 
 // GetBody returns the raw response body bytes
-func (r POSTv1studiosdkreportsListResponse) GetBody() []byte {
+func (r POSTv1studiosdkpublicationsRollbackResponse) GetBody() []byte {
 	return r.Body
 }
 
 // Status returns HTTPResponse.Status
-func (r POSTv1studiosdkreportsListResponse) Status() string {
+func (r POSTv1studiosdkpublicationsRollbackResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -2076,7 +14092,7 @@ func (r POSTv1studiosdkreportsListResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r POSTv1studiosdkreportsListResponse) StatusCode() int {
+func (r POSTv1studiosdkpublicationsRollbackResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2084,11 +14100,1206 @@ func (r POSTv1studiosdkreportsListResponse) StatusCode() int {
 }
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r POSTv1studiosdkreportsListResponse) ContentType() string {
+func (r POSTv1studiosdkpublicationsRollbackResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
 	return ""
+}
+
+type POSTv1studiosdkpublicationsUnpublishResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *OutputA2a90743713296048071979d14b3abdfc10b4ee77e446ab9dbd7f2c07bbe7266
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkpublicationsUnpublishResponse) GetJSON200() *OutputA2a90743713296048071979d14b3abdfc10b4ee77e446ab9dbd7f2c07bbe7266 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkpublicationsUnpublishResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkpublicationsUnpublishResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkpublicationsUnpublishResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkpublicationsUnpublishResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkresourcesDeleteFileResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkresourcesDeleteFileResponse) GetJSON200() *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkresourcesDeleteFileResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkresourcesDeleteFileResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkresourcesDeleteFileResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkresourcesDeleteFileResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkresourcesDeleteFolderResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkresourcesDeleteFolderResponse) GetJSON200() *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkresourcesDeleteFolderResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkresourcesDeleteFolderResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkresourcesDeleteFolderResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkresourcesDeleteFolderResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkresourcesDeleteSkillResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkresourcesDeleteSkillResponse) GetJSON200() *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkresourcesDeleteSkillResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkresourcesDeleteSkillResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkresourcesDeleteSkillResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkresourcesDeleteSkillResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkresourcesGetResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkresourcesGetResponse) GetJSON200() *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkresourcesGetResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkresourcesGetResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkresourcesGetResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkresourcesGetResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkresourcesUpsertFileResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkresourcesUpsertFileResponse) GetJSON200() *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkresourcesUpsertFileResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkresourcesUpsertFileResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkresourcesUpsertFileResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkresourcesUpsertFileResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkresourcesUpsertFolderResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkresourcesUpsertFolderResponse) GetJSON200() *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkresourcesUpsertFolderResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkresourcesUpsertFolderResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkresourcesUpsertFolderResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkresourcesUpsertFolderResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkresourcesUpsertSkillResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkresourcesUpsertSkillResponse) GetJSON200() *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkresourcesUpsertSkillResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkresourcesUpsertSkillResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkresourcesUpsertSkillResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkresourcesUpsertSkillResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkruntimeStatusResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkruntimeStatusResponse) GetJSON200() *OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkruntimeStatusResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkruntimeStatusResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkruntimeStatusResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkruntimeStatusResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkversionsApplyResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsApplyResponse) GetJSON200() *WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsApplyResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsApplyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsApplyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsApplyResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkversionsBuilderResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsBuilderResponse) GetJSON200() *Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsBuilderResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsBuilderResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsBuilderResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsBuilderResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkversionsCreateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire59787f7087b974a90942d4d67d870a8382b1189efe4cc88cfba1b0ada4d89c75
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsCreateResponse) GetJSON200() *Wire59787f7087b974a90942d4d67d870a8382b1189efe4cc88cfba1b0ada4d89c75 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsCreateResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsCreateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsCreateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsCreateResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkversionsDescriptorResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire4865103e82a353748c5cf4c44eb18159e252732c3c48350fe8b3411c3af62117
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsDescriptorResponse) GetJSON200() *Wire4865103e82a353748c5cf4c44eb18159e252732c3c48350fe8b3411c3af62117 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsDescriptorResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsDescriptorResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsDescriptorResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsDescriptorResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkversionsDownloadResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire460cf67195fceed0e09647cd2eec9022848f4fecb76be30099431c098e162bea
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsDownloadResponse) GetJSON200() *Wire460cf67195fceed0e09647cd2eec9022848f4fecb76be30099431c098e162bea {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsDownloadResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsDownloadResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsDownloadResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsDownloadResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkversionsExportDqlResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireBb9c83695ae936c7031ab2428c59ccda35a4e34af9e6662a945012782ac921e1
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsExportDqlResponse) GetJSON200() *WireBb9c83695ae936c7031ab2428c59ccda35a4e34af9e6662a945012782ac921e1 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsExportDqlResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsExportDqlResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsExportDqlResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsExportDqlResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkversionsGetResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire1e3fdf8fcb04453947f7d75766cc316e3e09d18591edbeef886727e071fe5f28
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsGetResponse) GetJSON200() *Wire1e3fdf8fcb04453947f7d75766cc316e3e09d18591edbeef886727e071fe5f28 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsGetResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsGetResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsGetResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsGetResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkversionsInspectResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsInspectResponse) GetJSON200() *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsInspectResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsInspectResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsInspectResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsInspectResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkversionsListResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsListResponse) GetJSON200() *WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsListResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsListResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsListResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsListResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkversionsLoadArchiveResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsLoadArchiveResponse) GetJSON200() *Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsLoadArchiveResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsLoadArchiveResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsLoadArchiveResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsLoadArchiveResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkversionsLoadDqlResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsLoadDqlResponse) GetJSON200() *WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsLoadDqlResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsLoadDqlResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsLoadDqlResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsLoadDqlResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkversionsTestComposeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire8147805369c129ab8a8ae87482dbb8be4c51d1125dda4427e8adca5f845d6a7b
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsTestComposeResponse) GetJSON200() *Wire8147805369c129ab8a8ae87482dbb8be4c51d1125dda4427e8adca5f845d6a7b {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsTestComposeResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsTestComposeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsTestComposeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsTestComposeResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkversionsTestRelationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire2be0684fe50e4d50e1c7ed7799c8493f7a6fbfe50bcd3ecfc3b2241e765f60da
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsTestRelationResponse) GetJSON200() *Wire2be0684fe50e4d50e1c7ed7799c8493f7a6fbfe50bcd3ecfc3b2241e765f60da {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsTestRelationResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsTestRelationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsTestRelationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsTestRelationResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkversionsTestViewResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire0f446f07ec6516f9b6a7f9e3de1d58abb30bb3608144fb80728627765378e04e
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsTestViewResponse) GetJSON200() *Wire0f446f07ec6516f9b6a7f9e3de1d58abb30bb3608144fb80728627765378e04e {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsTestViewResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsTestViewResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsTestViewResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsTestViewResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkversionsValidateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsValidateResponse) GetJSON200() *Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsValidateResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsValidateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsValidateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsValidateResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkversionsWarmupResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Output06244387c0c9169e9e2dd8c303d1b08d7c46bddec31314baa7fdae523ab96371
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsWarmupResponse) GetJSON200() *Output06244387c0c9169e9e2dd8c303d1b08d7c46bddec31314baa7fdae523ab96371 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsWarmupResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsWarmupResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsWarmupResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsWarmupResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkversionsWarmupGetResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Output586257ec0a228d28fb8c1d7b9b6ceb924795c406b09d9a86111f39a56368b032
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsWarmupGetResponse) GetJSON200() *Output586257ec0a228d28fb8c1d7b9b6ceb924795c406b09d9a86111f39a56368b032 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsWarmupGetResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsWarmupGetResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsWarmupGetResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsWarmupGetResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkversionsWarmupListResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsWarmupListResponse) GetJSON200() *Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsWarmupListResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsWarmupListResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsWarmupListResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsWarmupListResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+// POSTv1studiosdkaccessContextWithBodyWithResponse performs a POST /v1/studio/sdk/access.context (the `POSTv1studiosdkaccessContext` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkaccessContextWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessContextResponse, error) {
+	rsp, err := c.POSTv1studiosdkaccessContextWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkaccessContextResponse(rsp)
+}
+
+// POSTv1studiosdkaccessContextWithResponse performs a POST /v1/studio/sdk/access.context (the `POSTv1studiosdkaccessContext` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkaccessContextWithResponse(ctx context.Context, body POSTv1studiosdkaccessContextJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessContextResponse, error) {
+	rsp, err := c.POSTv1studiosdkaccessContext(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkaccessContextResponse(rsp)
+}
+
+// POSTv1studiosdkaccessGetWithBodyWithResponse performs a POST /v1/studio/sdk/access.get (the `POSTv1studiosdkaccessGet` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkaccessGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkaccessGetWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkaccessGetResponse(rsp)
+}
+
+// POSTv1studiosdkaccessGetWithResponse performs a POST /v1/studio/sdk/access.get (the `POSTv1studiosdkaccessGet` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkaccessGetWithResponse(ctx context.Context, body POSTv1studiosdkaccessGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkaccessGet(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkaccessGetResponse(rsp)
+}
+
+// POSTv1studiosdkaccessReplaceWithBodyWithResponse performs a POST /v1/studio/sdk/access.replace (the `POSTv1studiosdkaccessReplace` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkaccessReplaceWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessReplaceResponse, error) {
+	rsp, err := c.POSTv1studiosdkaccessReplaceWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkaccessReplaceResponse(rsp)
+}
+
+// POSTv1studiosdkaccessReplaceWithResponse performs a POST /v1/studio/sdk/access.replace (the `POSTv1studiosdkaccessReplace` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkaccessReplaceWithResponse(ctx context.Context, body POSTv1studiosdkaccessReplaceJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessReplaceResponse, error) {
+	rsp, err := c.POSTv1studiosdkaccessReplace(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkaccessReplaceResponse(rsp)
+}
+
+// POSTv1studiosdkaclDeleteWithBodyWithResponse performs a POST /v1/studio/sdk/acl.delete (the `POSTv1studiosdkaclDelete` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkaclDeleteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclDeleteResponse, error) {
+	rsp, err := c.POSTv1studiosdkaclDeleteWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkaclDeleteResponse(rsp)
+}
+
+// POSTv1studiosdkaclDeleteWithResponse performs a POST /v1/studio/sdk/acl.delete (the `POSTv1studiosdkaclDelete` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkaclDeleteWithResponse(ctx context.Context, body POSTv1studiosdkaclDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclDeleteResponse, error) {
+	rsp, err := c.POSTv1studiosdkaclDelete(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkaclDeleteResponse(rsp)
 }
 
 // POSTv1studiosdkaclListWithBodyWithResponse acl
@@ -2115,6 +15326,337 @@ func (c *ClientWithResponses) POSTv1studiosdkaclListWithResponse(ctx context.Con
 		return nil, err
 	}
 	return ParsePOSTv1studiosdkaclListResponse(rsp)
+}
+
+// POSTv1studiosdkaclUpsertWithBodyWithResponse performs a POST /v1/studio/sdk/acl.upsert (the `POSTv1studiosdkaclUpsert` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkaclUpsertWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclUpsertResponse, error) {
+	rsp, err := c.POSTv1studiosdkaclUpsertWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkaclUpsertResponse(rsp)
+}
+
+// POSTv1studiosdkaclUpsertWithResponse performs a POST /v1/studio/sdk/acl.upsert (the `POSTv1studiosdkaclUpsert` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkaclUpsertWithResponse(ctx context.Context, body POSTv1studiosdkaclUpsertJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclUpsertResponse, error) {
+	rsp, err := c.POSTv1studiosdkaclUpsert(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkaclUpsertResponse(rsp)
+}
+
+// POSTv1studiosdkauthorizationPredicatesCreateWithBodyWithResponse performs a POST /v1/studio/sdk/authorization_predicates.create (the `POSTv1studiosdkauthorizationPredicatesCreate` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkauthorizationPredicatesCreateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesCreateResponse, error) {
+	rsp, err := c.POSTv1studiosdkauthorizationPredicatesCreateWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkauthorizationPredicatesCreateResponse(rsp)
+}
+
+// POSTv1studiosdkauthorizationPredicatesCreateWithResponse performs a POST /v1/studio/sdk/authorization_predicates.create (the `POSTv1studiosdkauthorizationPredicatesCreate` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkauthorizationPredicatesCreateWithResponse(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesCreateResponse, error) {
+	rsp, err := c.POSTv1studiosdkauthorizationPredicatesCreate(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkauthorizationPredicatesCreateResponse(rsp)
+}
+
+// POSTv1studiosdkauthorizationPredicatesDeleteWithBodyWithResponse performs a POST /v1/studio/sdk/authorization_predicates.delete (the `POSTv1studiosdkauthorizationPredicatesDelete` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkauthorizationPredicatesDeleteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesDeleteResponse, error) {
+	rsp, err := c.POSTv1studiosdkauthorizationPredicatesDeleteWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkauthorizationPredicatesDeleteResponse(rsp)
+}
+
+// POSTv1studiosdkauthorizationPredicatesDeleteWithResponse performs a POST /v1/studio/sdk/authorization_predicates.delete (the `POSTv1studiosdkauthorizationPredicatesDelete` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkauthorizationPredicatesDeleteWithResponse(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesDeleteResponse, error) {
+	rsp, err := c.POSTv1studiosdkauthorizationPredicatesDelete(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkauthorizationPredicatesDeleteResponse(rsp)
+}
+
+// POSTv1studiosdkauthorizationPredicatesGetWithBodyWithResponse performs a POST /v1/studio/sdk/authorization_predicates.get (the `POSTv1studiosdkauthorizationPredicatesGet` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkauthorizationPredicatesGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkauthorizationPredicatesGetWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkauthorizationPredicatesGetResponse(rsp)
+}
+
+// POSTv1studiosdkauthorizationPredicatesGetWithResponse performs a POST /v1/studio/sdk/authorization_predicates.get (the `POSTv1studiosdkauthorizationPredicatesGet` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkauthorizationPredicatesGetWithResponse(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkauthorizationPredicatesGet(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkauthorizationPredicatesGetResponse(rsp)
+}
+
+// POSTv1studiosdkauthorizationPredicatesListWithBodyWithResponse performs a POST /v1/studio/sdk/authorization_predicates.list (the `POSTv1studiosdkauthorizationPredicatesList` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkauthorizationPredicatesListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesListResponse, error) {
+	rsp, err := c.POSTv1studiosdkauthorizationPredicatesListWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkauthorizationPredicatesListResponse(rsp)
+}
+
+// POSTv1studiosdkauthorizationPredicatesListWithResponse performs a POST /v1/studio/sdk/authorization_predicates.list (the `POSTv1studiosdkauthorizationPredicatesList` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkauthorizationPredicatesListWithResponse(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesListResponse, error) {
+	rsp, err := c.POSTv1studiosdkauthorizationPredicatesList(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkauthorizationPredicatesListResponse(rsp)
+}
+
+// POSTv1studiosdkauthorizationPredicatesTypesWithResponse performs a POST /v1/studio/sdk/authorization_predicates.types (the `POSTv1studiosdkauthorizationPredicatesTypes` operationId) request.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkauthorizationPredicatesTypesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesTypesResponse, error) {
+	rsp, err := c.POSTv1studiosdkauthorizationPredicatesTypes(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkauthorizationPredicatesTypesResponse(rsp)
+}
+
+// POSTv1studiosdkauthorizationPredicatesUpdateWithBodyWithResponse performs a POST /v1/studio/sdk/authorization_predicates.update (the `POSTv1studiosdkauthorizationPredicatesUpdate` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkauthorizationPredicatesUpdateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesUpdateResponse, error) {
+	rsp, err := c.POSTv1studiosdkauthorizationPredicatesUpdateWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkauthorizationPredicatesUpdateResponse(rsp)
+}
+
+// POSTv1studiosdkauthorizationPredicatesUpdateWithResponse performs a POST /v1/studio/sdk/authorization_predicates.update (the `POSTv1studiosdkauthorizationPredicatesUpdate` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkauthorizationPredicatesUpdateWithResponse(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesUpdateResponse, error) {
+	rsp, err := c.POSTv1studiosdkauthorizationPredicatesUpdate(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkauthorizationPredicatesUpdateResponse(rsp)
+}
+
+// POSTv1studiosdkcomponentsCreateWithBodyWithResponse performs a POST /v1/studio/sdk/components.create (the `POSTv1studiosdkcomponentsCreate` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkcomponentsCreateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsCreateResponse, error) {
+	rsp, err := c.POSTv1studiosdkcomponentsCreateWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkcomponentsCreateResponse(rsp)
+}
+
+// POSTv1studiosdkcomponentsCreateWithResponse performs a POST /v1/studio/sdk/components.create (the `POSTv1studiosdkcomponentsCreate` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkcomponentsCreateWithResponse(ctx context.Context, body POSTv1studiosdkcomponentsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsCreateResponse, error) {
+	rsp, err := c.POSTv1studiosdkcomponentsCreate(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkcomponentsCreateResponse(rsp)
+}
+
+// POSTv1studiosdkcomponentsGetWithBodyWithResponse report
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /v1/studio/sdk/components.get (the `POSTv1studiosdkcomponentsGet` operationId).
+func (c *ClientWithResponses) POSTv1studiosdkcomponentsGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkcomponentsGetWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkcomponentsGetResponse(rsp)
+}
+
+// POSTv1studiosdkcomponentsGetWithResponse report
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /v1/studio/sdk/components.get (the `POSTv1studiosdkcomponentsGet` operationId).
+func (c *ClientWithResponses) POSTv1studiosdkcomponentsGetWithResponse(ctx context.Context, body POSTv1studiosdkcomponentsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkcomponentsGet(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkcomponentsGetResponse(rsp)
+}
+
+// POSTv1studiosdkcomponentsListWithBodyWithResponse report
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /v1/studio/sdk/components.list (the `POSTv1studiosdkcomponentsList` operationId).
+func (c *ClientWithResponses) POSTv1studiosdkcomponentsListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsListResponse, error) {
+	rsp, err := c.POSTv1studiosdkcomponentsListWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkcomponentsListResponse(rsp)
+}
+
+// POSTv1studiosdkcomponentsListWithResponse report
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /v1/studio/sdk/components.list (the `POSTv1studiosdkcomponentsList` operationId).
+func (c *ClientWithResponses) POSTv1studiosdkcomponentsListWithResponse(ctx context.Context, body POSTv1studiosdkcomponentsListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsListResponse, error) {
+	rsp, err := c.POSTv1studiosdkcomponentsList(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkcomponentsListResponse(rsp)
+}
+
+// POSTv1studiosdkcomponentsUpdateWithBodyWithResponse performs a POST /v1/studio/sdk/components.update (the `POSTv1studiosdkcomponentsUpdate` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkcomponentsUpdateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsUpdateResponse, error) {
+	rsp, err := c.POSTv1studiosdkcomponentsUpdateWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkcomponentsUpdateResponse(rsp)
+}
+
+// POSTv1studiosdkcomponentsUpdateWithResponse performs a POST /v1/studio/sdk/components.update (the `POSTv1studiosdkcomponentsUpdate` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkcomponentsUpdateWithResponse(ctx context.Context, body POSTv1studiosdkcomponentsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsUpdateResponse, error) {
+	rsp, err := c.POSTv1studiosdkcomponentsUpdate(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkcomponentsUpdateResponse(rsp)
+}
+
+// POSTv1studiosdkconnectorsActivateWithBodyWithResponse performs a POST /v1/studio/sdk/connectors.activate (the `POSTv1studiosdkconnectorsActivate` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkconnectorsActivateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsActivateResponse, error) {
+	rsp, err := c.POSTv1studiosdkconnectorsActivateWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkconnectorsActivateResponse(rsp)
+}
+
+// POSTv1studiosdkconnectorsActivateWithResponse performs a POST /v1/studio/sdk/connectors.activate (the `POSTv1studiosdkconnectorsActivate` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkconnectorsActivateWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsActivateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsActivateResponse, error) {
+	rsp, err := c.POSTv1studiosdkconnectorsActivate(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkconnectorsActivateResponse(rsp)
+}
+
+// POSTv1studiosdkconnectorsCreateWithBodyWithResponse connector
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /v1/studio/sdk/connectors.create (the `POSTv1studiosdkconnectorsCreate` operationId).
+func (c *ClientWithResponses) POSTv1studiosdkconnectorsCreateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsCreateResponse, error) {
+	rsp, err := c.POSTv1studiosdkconnectorsCreateWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkconnectorsCreateResponse(rsp)
+}
+
+// POSTv1studiosdkconnectorsCreateWithResponse connector
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /v1/studio/sdk/connectors.create (the `POSTv1studiosdkconnectorsCreate` operationId).
+func (c *ClientWithResponses) POSTv1studiosdkconnectorsCreateWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsCreateResponse, error) {
+	rsp, err := c.POSTv1studiosdkconnectorsCreate(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkconnectorsCreateResponse(rsp)
+}
+
+// POSTv1studiosdkconnectorsDeleteWithBodyWithResponse performs a POST /v1/studio/sdk/connectors.delete (the `POSTv1studiosdkconnectorsDelete` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkconnectorsDeleteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsDeleteResponse, error) {
+	rsp, err := c.POSTv1studiosdkconnectorsDeleteWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkconnectorsDeleteResponse(rsp)
+}
+
+// POSTv1studiosdkconnectorsDeleteWithResponse performs a POST /v1/studio/sdk/connectors.delete (the `POSTv1studiosdkconnectorsDelete` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkconnectorsDeleteWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsDeleteResponse, error) {
+	rsp, err := c.POSTv1studiosdkconnectorsDelete(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkconnectorsDeleteResponse(rsp)
+}
+
+// POSTv1studiosdkconnectorsDisableWithBodyWithResponse performs a POST /v1/studio/sdk/connectors.disable (the `POSTv1studiosdkconnectorsDisable` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkconnectorsDisableWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsDisableResponse, error) {
+	rsp, err := c.POSTv1studiosdkconnectorsDisableWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkconnectorsDisableResponse(rsp)
+}
+
+// POSTv1studiosdkconnectorsDisableWithResponse performs a POST /v1/studio/sdk/connectors.disable (the `POSTv1studiosdkconnectorsDisable` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkconnectorsDisableWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsDisableJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsDisableResponse, error) {
+	rsp, err := c.POSTv1studiosdkconnectorsDisable(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkconnectorsDisableResponse(rsp)
 }
 
 // POSTv1studiosdkconnectorsGetWithBodyWithResponse connector
@@ -2169,6 +15711,186 @@ func (c *ClientWithResponses) POSTv1studiosdkconnectorsListWithResponse(ctx cont
 	return ParsePOSTv1studiosdkconnectorsListResponse(rsp)
 }
 
+// POSTv1studiosdkconnectorsSchemasWithBodyWithResponse performs a POST /v1/studio/sdk/connectors.schemas (the `POSTv1studiosdkconnectorsSchemas` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkconnectorsSchemasWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsSchemasResponse, error) {
+	rsp, err := c.POSTv1studiosdkconnectorsSchemasWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkconnectorsSchemasResponse(rsp)
+}
+
+// POSTv1studiosdkconnectorsSchemasWithResponse performs a POST /v1/studio/sdk/connectors.schemas (the `POSTv1studiosdkconnectorsSchemas` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkconnectorsSchemasWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsSchemasJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsSchemasResponse, error) {
+	rsp, err := c.POSTv1studiosdkconnectorsSchemas(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkconnectorsSchemasResponse(rsp)
+}
+
+// POSTv1studiosdkconnectorsTableWithBodyWithResponse performs a POST /v1/studio/sdk/connectors.table (the `POSTv1studiosdkconnectorsTable` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkconnectorsTableWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsTableResponse, error) {
+	rsp, err := c.POSTv1studiosdkconnectorsTableWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkconnectorsTableResponse(rsp)
+}
+
+// POSTv1studiosdkconnectorsTableWithResponse performs a POST /v1/studio/sdk/connectors.table (the `POSTv1studiosdkconnectorsTable` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkconnectorsTableWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsTableJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsTableResponse, error) {
+	rsp, err := c.POSTv1studiosdkconnectorsTable(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkconnectorsTableResponse(rsp)
+}
+
+// POSTv1studiosdkconnectorsTablesWithBodyWithResponse performs a POST /v1/studio/sdk/connectors.tables (the `POSTv1studiosdkconnectorsTables` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkconnectorsTablesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsTablesResponse, error) {
+	rsp, err := c.POSTv1studiosdkconnectorsTablesWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkconnectorsTablesResponse(rsp)
+}
+
+// POSTv1studiosdkconnectorsTablesWithResponse performs a POST /v1/studio/sdk/connectors.tables (the `POSTv1studiosdkconnectorsTables` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkconnectorsTablesWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsTablesJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsTablesResponse, error) {
+	rsp, err := c.POSTv1studiosdkconnectorsTables(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkconnectorsTablesResponse(rsp)
+}
+
+// POSTv1studiosdkconnectorsTestWithBodyWithResponse performs a POST /v1/studio/sdk/connectors.test (the `POSTv1studiosdkconnectorsTest` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkconnectorsTestWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsTestResponse, error) {
+	rsp, err := c.POSTv1studiosdkconnectorsTestWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkconnectorsTestResponse(rsp)
+}
+
+// POSTv1studiosdkconnectorsTestWithResponse performs a POST /v1/studio/sdk/connectors.test (the `POSTv1studiosdkconnectorsTest` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkconnectorsTestWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsTestJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsTestResponse, error) {
+	rsp, err := c.POSTv1studiosdkconnectorsTest(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkconnectorsTestResponse(rsp)
+}
+
+// POSTv1studiosdkconnectorsTestSqlWithBodyWithResponse performs a POST /v1/studio/sdk/connectors.test_sql (the `POSTv1studiosdkconnectorsTestSql` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkconnectorsTestSqlWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsTestSqlResponse, error) {
+	rsp, err := c.POSTv1studiosdkconnectorsTestSqlWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkconnectorsTestSqlResponse(rsp)
+}
+
+// POSTv1studiosdkconnectorsTestSqlWithResponse performs a POST /v1/studio/sdk/connectors.test_sql (the `POSTv1studiosdkconnectorsTestSql` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkconnectorsTestSqlWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsTestSqlJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsTestSqlResponse, error) {
+	rsp, err := c.POSTv1studiosdkconnectorsTestSql(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkconnectorsTestSqlResponse(rsp)
+}
+
+// POSTv1studiosdkconnectorsUpdateWithBodyWithResponse performs a POST /v1/studio/sdk/connectors.update (the `POSTv1studiosdkconnectorsUpdate` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkconnectorsUpdateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsUpdateResponse, error) {
+	rsp, err := c.POSTv1studiosdkconnectorsUpdateWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkconnectorsUpdateResponse(rsp)
+}
+
+// POSTv1studiosdkconnectorsUpdateWithResponse performs a POST /v1/studio/sdk/connectors.update (the `POSTv1studiosdkconnectorsUpdate` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkconnectorsUpdateWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsUpdateResponse, error) {
+	rsp, err := c.POSTv1studiosdkconnectorsUpdate(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkconnectorsUpdateResponse(rsp)
+}
+
+// POSTv1studiosdknamespacesCreateWithBodyWithResponse namespace
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /v1/studio/sdk/namespaces.create (the `POSTv1studiosdknamespacesCreate` operationId).
+func (c *ClientWithResponses) POSTv1studiosdknamespacesCreateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesCreateResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespacesCreateWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespacesCreateResponse(rsp)
+}
+
+// POSTv1studiosdknamespacesCreateWithResponse namespace
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /v1/studio/sdk/namespaces.create (the `POSTv1studiosdknamespacesCreate` operationId).
+func (c *ClientWithResponses) POSTv1studiosdknamespacesCreateWithResponse(ctx context.Context, body POSTv1studiosdknamespacesCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesCreateResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespacesCreate(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespacesCreateResponse(rsp)
+}
+
+// POSTv1studiosdknamespacesDeleteWithBodyWithResponse performs a POST /v1/studio/sdk/namespaces.delete (the `POSTv1studiosdknamespacesDelete` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespacesDeleteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesDeleteResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespacesDeleteWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespacesDeleteResponse(rsp)
+}
+
+// POSTv1studiosdknamespacesDeleteWithResponse performs a POST /v1/studio/sdk/namespaces.delete (the `POSTv1studiosdknamespacesDelete` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespacesDeleteWithResponse(ctx context.Context, body POSTv1studiosdknamespacesDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesDeleteResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespacesDelete(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespacesDeleteResponse(rsp)
+}
+
 // POSTv1studiosdknamespacesGetWithBodyWithResponse namespace
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -2219,6 +15941,50 @@ func (c *ClientWithResponses) POSTv1studiosdknamespacesListWithResponse(ctx cont
 		return nil, err
 	}
 	return ParsePOSTv1studiosdknamespacesListResponse(rsp)
+}
+
+// POSTv1studiosdknamespacesUpdateWithBodyWithResponse performs a POST /v1/studio/sdk/namespaces.update (the `POSTv1studiosdknamespacesUpdate` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespacesUpdateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesUpdateResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespacesUpdateWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespacesUpdateResponse(rsp)
+}
+
+// POSTv1studiosdknamespacesUpdateWithResponse performs a POST /v1/studio/sdk/namespaces.update (the `POSTv1studiosdknamespacesUpdate` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespacesUpdateWithResponse(ctx context.Context, body POSTv1studiosdknamespacesUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesUpdateResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespacesUpdate(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespacesUpdateResponse(rsp)
+}
+
+// POSTv1studiosdkpreviewExecuteWithBodyWithResponse performs a POST /v1/studio/sdk/preview.execute (the `POSTv1studiosdkpreviewExecute` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkpreviewExecuteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpreviewExecuteResponse, error) {
+	rsp, err := c.POSTv1studiosdkpreviewExecuteWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkpreviewExecuteResponse(rsp)
+}
+
+// POSTv1studiosdkpreviewExecuteWithResponse performs a POST /v1/studio/sdk/preview.execute (the `POSTv1studiosdkpreviewExecute` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkpreviewExecuteWithResponse(ctx context.Context, body POSTv1studiosdkpreviewExecuteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpreviewExecuteResponse, error) {
+	rsp, err := c.POSTv1studiosdkpreviewExecute(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkpreviewExecuteResponse(rsp)
 }
 
 // POSTv1studiosdkpublicationsEventsListWithBodyWithResponse event
@@ -2273,56 +16039,745 @@ func (c *ClientWithResponses) POSTv1studiosdkpublicationsGetWithResponse(ctx con
 	return ParsePOSTv1studiosdkpublicationsGetResponse(rsp)
 }
 
-// POSTv1studiosdkreportsGetWithBodyWithResponse report
+// POSTv1studiosdkpublicationsPublishWithBodyWithResponse performs a POST /v1/studio/sdk/publications.publish (the `POSTv1studiosdkpublicationsPublish` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkpublicationsPublishWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsPublishResponse, error) {
+	rsp, err := c.POSTv1studiosdkpublicationsPublishWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkpublicationsPublishResponse(rsp)
+}
+
+// POSTv1studiosdkpublicationsPublishWithResponse performs a POST /v1/studio/sdk/publications.publish (the `POSTv1studiosdkpublicationsPublish` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkpublicationsPublishWithResponse(ctx context.Context, body POSTv1studiosdkpublicationsPublishJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsPublishResponse, error) {
+	rsp, err := c.POSTv1studiosdkpublicationsPublish(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkpublicationsPublishResponse(rsp)
+}
+
+// POSTv1studiosdkpublicationsRollbackWithBodyWithResponse performs a POST /v1/studio/sdk/publications.rollback (the `POSTv1studiosdkpublicationsRollback` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkpublicationsRollbackWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsRollbackResponse, error) {
+	rsp, err := c.POSTv1studiosdkpublicationsRollbackWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkpublicationsRollbackResponse(rsp)
+}
+
+// POSTv1studiosdkpublicationsRollbackWithResponse performs a POST /v1/studio/sdk/publications.rollback (the `POSTv1studiosdkpublicationsRollback` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkpublicationsRollbackWithResponse(ctx context.Context, body POSTv1studiosdkpublicationsRollbackJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsRollbackResponse, error) {
+	rsp, err := c.POSTv1studiosdkpublicationsRollback(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkpublicationsRollbackResponse(rsp)
+}
+
+// POSTv1studiosdkpublicationsUnpublishWithBodyWithResponse performs a POST /v1/studio/sdk/publications.unpublish (the `POSTv1studiosdkpublicationsUnpublish` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkpublicationsUnpublishWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsUnpublishResponse, error) {
+	rsp, err := c.POSTv1studiosdkpublicationsUnpublishWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkpublicationsUnpublishResponse(rsp)
+}
+
+// POSTv1studiosdkpublicationsUnpublishWithResponse performs a POST /v1/studio/sdk/publications.unpublish (the `POSTv1studiosdkpublicationsUnpublish` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkpublicationsUnpublishWithResponse(ctx context.Context, body POSTv1studiosdkpublicationsUnpublishJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsUnpublishResponse, error) {
+	rsp, err := c.POSTv1studiosdkpublicationsUnpublish(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkpublicationsUnpublishResponse(rsp)
+}
+
+// POSTv1studiosdkresourcesDeleteFileWithBodyWithResponse performs a POST /v1/studio/sdk/resources.delete_file (the `POSTv1studiosdkresourcesDeleteFile` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteFileWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFileResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesDeleteFileWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkresourcesDeleteFileResponse(rsp)
+}
+
+// POSTv1studiosdkresourcesDeleteFileWithResponse performs a POST /v1/studio/sdk/resources.delete_file (the `POSTv1studiosdkresourcesDeleteFile` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteFileWithResponse(ctx context.Context, body POSTv1studiosdkresourcesDeleteFileJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFileResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesDeleteFile(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkresourcesDeleteFileResponse(rsp)
+}
+
+// POSTv1studiosdkresourcesDeleteFolderWithBodyWithResponse performs a POST /v1/studio/sdk/resources.delete_folder (the `POSTv1studiosdkresourcesDeleteFolder` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteFolderWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFolderResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesDeleteFolderWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkresourcesDeleteFolderResponse(rsp)
+}
+
+// POSTv1studiosdkresourcesDeleteFolderWithResponse performs a POST /v1/studio/sdk/resources.delete_folder (the `POSTv1studiosdkresourcesDeleteFolder` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteFolderWithResponse(ctx context.Context, body POSTv1studiosdkresourcesDeleteFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFolderResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesDeleteFolder(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkresourcesDeleteFolderResponse(rsp)
+}
+
+// POSTv1studiosdkresourcesDeleteSkillWithBodyWithResponse performs a POST /v1/studio/sdk/resources.delete_skill (the `POSTv1studiosdkresourcesDeleteSkill` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteSkillWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteSkillResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesDeleteSkillWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkresourcesDeleteSkillResponse(rsp)
+}
+
+// POSTv1studiosdkresourcesDeleteSkillWithResponse performs a POST /v1/studio/sdk/resources.delete_skill (the `POSTv1studiosdkresourcesDeleteSkill` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteSkillWithResponse(ctx context.Context, body POSTv1studiosdkresourcesDeleteSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteSkillResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesDeleteSkill(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkresourcesDeleteSkillResponse(rsp)
+}
+
+// POSTv1studiosdkresourcesGetWithBodyWithResponse performs a POST /v1/studio/sdk/resources.get (the `POSTv1studiosdkresourcesGet` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkresourcesGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesGetWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkresourcesGetResponse(rsp)
+}
+
+// POSTv1studiosdkresourcesGetWithResponse performs a POST /v1/studio/sdk/resources.get (the `POSTv1studiosdkresourcesGet` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkresourcesGetWithResponse(ctx context.Context, body POSTv1studiosdkresourcesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesGet(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkresourcesGetResponse(rsp)
+}
+
+// POSTv1studiosdkresourcesUpsertFileWithBodyWithResponse performs a POST /v1/studio/sdk/resources.upsert_file (the `POSTv1studiosdkresourcesUpsertFile` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertFileWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFileResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesUpsertFileWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkresourcesUpsertFileResponse(rsp)
+}
+
+// POSTv1studiosdkresourcesUpsertFileWithResponse performs a POST /v1/studio/sdk/resources.upsert_file (the `POSTv1studiosdkresourcesUpsertFile` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertFileWithResponse(ctx context.Context, body POSTv1studiosdkresourcesUpsertFileJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFileResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesUpsertFile(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkresourcesUpsertFileResponse(rsp)
+}
+
+// POSTv1studiosdkresourcesUpsertFolderWithBodyWithResponse performs a POST /v1/studio/sdk/resources.upsert_folder (the `POSTv1studiosdkresourcesUpsertFolder` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertFolderWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFolderResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesUpsertFolderWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkresourcesUpsertFolderResponse(rsp)
+}
+
+// POSTv1studiosdkresourcesUpsertFolderWithResponse performs a POST /v1/studio/sdk/resources.upsert_folder (the `POSTv1studiosdkresourcesUpsertFolder` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertFolderWithResponse(ctx context.Context, body POSTv1studiosdkresourcesUpsertFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFolderResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesUpsertFolder(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkresourcesUpsertFolderResponse(rsp)
+}
+
+// POSTv1studiosdkresourcesUpsertSkillWithBodyWithResponse performs a POST /v1/studio/sdk/resources.upsert_skill (the `POSTv1studiosdkresourcesUpsertSkill` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertSkillWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertSkillResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesUpsertSkillWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkresourcesUpsertSkillResponse(rsp)
+}
+
+// POSTv1studiosdkresourcesUpsertSkillWithResponse performs a POST /v1/studio/sdk/resources.upsert_skill (the `POSTv1studiosdkresourcesUpsertSkill` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertSkillWithResponse(ctx context.Context, body POSTv1studiosdkresourcesUpsertSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertSkillResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesUpsertSkill(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkresourcesUpsertSkillResponse(rsp)
+}
+
+// POSTv1studiosdkruntimeStatusWithResponse performs a POST /v1/studio/sdk/runtime.status (the `POSTv1studiosdkruntimeStatus` operationId) request.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkruntimeStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*POSTv1studiosdkruntimeStatusResponse, error) {
+	rsp, err := c.POSTv1studiosdkruntimeStatus(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkruntimeStatusResponse(rsp)
+}
+
+// POSTv1studiosdkversionsApplyWithBodyWithResponse performs a POST /v1/studio/sdk/versions.apply (the `POSTv1studiosdkversionsApply` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsApplyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsApplyResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsApplyWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsApplyResponse(rsp)
+}
+
+// POSTv1studiosdkversionsApplyWithResponse performs a POST /v1/studio/sdk/versions.apply (the `POSTv1studiosdkversionsApply` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsApplyWithResponse(ctx context.Context, body POSTv1studiosdkversionsApplyJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsApplyResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsApply(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsApplyResponse(rsp)
+}
+
+// POSTv1studiosdkversionsBuilderWithBodyWithResponse performs a POST /v1/studio/sdk/versions.builder (the `POSTv1studiosdkversionsBuilder` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsBuilderWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsBuilderResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsBuilderWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsBuilderResponse(rsp)
+}
+
+// POSTv1studiosdkversionsBuilderWithResponse performs a POST /v1/studio/sdk/versions.builder (the `POSTv1studiosdkversionsBuilder` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsBuilderWithResponse(ctx context.Context, body POSTv1studiosdkversionsBuilderJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsBuilderResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsBuilder(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsBuilderResponse(rsp)
+}
+
+// POSTv1studiosdkversionsCreateWithBodyWithResponse performs a POST /v1/studio/sdk/versions.create (the `POSTv1studiosdkversionsCreate` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsCreateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsCreateResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsCreateWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsCreateResponse(rsp)
+}
+
+// POSTv1studiosdkversionsCreateWithResponse performs a POST /v1/studio/sdk/versions.create (the `POSTv1studiosdkversionsCreate` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsCreateWithResponse(ctx context.Context, body POSTv1studiosdkversionsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsCreateResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsCreate(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsCreateResponse(rsp)
+}
+
+// POSTv1studiosdkversionsDescriptorWithBodyWithResponse version
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
-// Corresponds with POST /v1/studio/sdk/reports.get (the `POSTv1studiosdkreportsGet` operationId).
-func (c *ClientWithResponses) POSTv1studiosdkreportsGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkreportsGetResponse, error) {
-	rsp, err := c.POSTv1studiosdkreportsGetWithBody(ctx, contentType, body, reqEditors...)
+// Corresponds with POST /v1/studio/sdk/versions.descriptor (the `POSTv1studiosdkversionsDescriptor` operationId).
+func (c *ClientWithResponses) POSTv1studiosdkversionsDescriptorWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDescriptorResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsDescriptorWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParsePOSTv1studiosdkreportsGetResponse(rsp)
+	return ParsePOSTv1studiosdkversionsDescriptorResponse(rsp)
 }
 
-// POSTv1studiosdkreportsGetWithResponse report
+// POSTv1studiosdkversionsDescriptorWithResponse version
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
-// Corresponds with POST /v1/studio/sdk/reports.get (the `POSTv1studiosdkreportsGet` operationId).
-func (c *ClientWithResponses) POSTv1studiosdkreportsGetWithResponse(ctx context.Context, body POSTv1studiosdkreportsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkreportsGetResponse, error) {
-	rsp, err := c.POSTv1studiosdkreportsGet(ctx, body, reqEditors...)
+// Corresponds with POST /v1/studio/sdk/versions.descriptor (the `POSTv1studiosdkversionsDescriptor` operationId).
+func (c *ClientWithResponses) POSTv1studiosdkversionsDescriptorWithResponse(ctx context.Context, body POSTv1studiosdkversionsDescriptorJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDescriptorResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsDescriptor(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParsePOSTv1studiosdkreportsGetResponse(rsp)
+	return ParsePOSTv1studiosdkversionsDescriptorResponse(rsp)
 }
 
-// POSTv1studiosdkreportsListWithBodyWithResponse report
+// POSTv1studiosdkversionsDownloadWithBodyWithResponse performs a POST /v1/studio/sdk/versions.download (the `POSTv1studiosdkversionsDownload` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsDownloadWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDownloadResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsDownloadWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsDownloadResponse(rsp)
+}
+
+// POSTv1studiosdkversionsDownloadWithResponse performs a POST /v1/studio/sdk/versions.download (the `POSTv1studiosdkversionsDownload` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsDownloadWithResponse(ctx context.Context, body POSTv1studiosdkversionsDownloadJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDownloadResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsDownload(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsDownloadResponse(rsp)
+}
+
+// POSTv1studiosdkversionsExportDqlWithBodyWithResponse version
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
-// Corresponds with POST /v1/studio/sdk/reports.list (the `POSTv1studiosdkreportsList` operationId).
-func (c *ClientWithResponses) POSTv1studiosdkreportsListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkreportsListResponse, error) {
-	rsp, err := c.POSTv1studiosdkreportsListWithBody(ctx, contentType, body, reqEditors...)
+// Corresponds with POST /v1/studio/sdk/versions.export_dql (the `POSTv1studiosdkversionsExportDql` operationId).
+func (c *ClientWithResponses) POSTv1studiosdkversionsExportDqlWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsExportDqlResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsExportDqlWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParsePOSTv1studiosdkreportsListResponse(rsp)
+	return ParsePOSTv1studiosdkversionsExportDqlResponse(rsp)
 }
 
-// POSTv1studiosdkreportsListWithResponse report
+// POSTv1studiosdkversionsExportDqlWithResponse version
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
-// Corresponds with POST /v1/studio/sdk/reports.list (the `POSTv1studiosdkreportsList` operationId).
-func (c *ClientWithResponses) POSTv1studiosdkreportsListWithResponse(ctx context.Context, body POSTv1studiosdkreportsListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkreportsListResponse, error) {
-	rsp, err := c.POSTv1studiosdkreportsList(ctx, body, reqEditors...)
+// Corresponds with POST /v1/studio/sdk/versions.export_dql (the `POSTv1studiosdkversionsExportDql` operationId).
+func (c *ClientWithResponses) POSTv1studiosdkversionsExportDqlWithResponse(ctx context.Context, body POSTv1studiosdkversionsExportDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsExportDqlResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsExportDql(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParsePOSTv1studiosdkreportsListResponse(rsp)
+	return ParsePOSTv1studiosdkversionsExportDqlResponse(rsp)
+}
+
+// POSTv1studiosdkversionsGetWithBodyWithResponse version
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /v1/studio/sdk/versions.get (the `POSTv1studiosdkversionsGet` operationId).
+func (c *ClientWithResponses) POSTv1studiosdkversionsGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsGetWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsGetResponse(rsp)
+}
+
+// POSTv1studiosdkversionsGetWithResponse version
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /v1/studio/sdk/versions.get (the `POSTv1studiosdkversionsGet` operationId).
+func (c *ClientWithResponses) POSTv1studiosdkversionsGetWithResponse(ctx context.Context, body POSTv1studiosdkversionsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsGet(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsGetResponse(rsp)
+}
+
+// POSTv1studiosdkversionsInspectWithBodyWithResponse performs a POST /v1/studio/sdk/versions.inspect (the `POSTv1studiosdkversionsInspect` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsInspectWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsInspectResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsInspectWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsInspectResponse(rsp)
+}
+
+// POSTv1studiosdkversionsInspectWithResponse performs a POST /v1/studio/sdk/versions.inspect (the `POSTv1studiosdkversionsInspect` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsInspectWithResponse(ctx context.Context, body POSTv1studiosdkversionsInspectJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsInspectResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsInspect(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsInspectResponse(rsp)
+}
+
+// POSTv1studiosdkversionsListWithBodyWithResponse version
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /v1/studio/sdk/versions.list (the `POSTv1studiosdkversionsList` operationId).
+func (c *ClientWithResponses) POSTv1studiosdkversionsListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsListResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsListWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsListResponse(rsp)
+}
+
+// POSTv1studiosdkversionsListWithResponse version
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /v1/studio/sdk/versions.list (the `POSTv1studiosdkversionsList` operationId).
+func (c *ClientWithResponses) POSTv1studiosdkversionsListWithResponse(ctx context.Context, body POSTv1studiosdkversionsListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsListResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsList(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsListResponse(rsp)
+}
+
+// POSTv1studiosdkversionsLoadArchiveWithBodyWithResponse performs a POST /v1/studio/sdk/versions.load_archive (the `POSTv1studiosdkversionsLoadArchive` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsLoadArchiveWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadArchiveResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsLoadArchiveWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsLoadArchiveResponse(rsp)
+}
+
+// POSTv1studiosdkversionsLoadArchiveWithResponse performs a POST /v1/studio/sdk/versions.load_archive (the `POSTv1studiosdkversionsLoadArchive` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsLoadArchiveWithResponse(ctx context.Context, body POSTv1studiosdkversionsLoadArchiveJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadArchiveResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsLoadArchive(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsLoadArchiveResponse(rsp)
+}
+
+// POSTv1studiosdkversionsLoadDqlWithBodyWithResponse performs a POST /v1/studio/sdk/versions.load_dql (the `POSTv1studiosdkversionsLoadDql` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsLoadDqlWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadDqlResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsLoadDqlWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsLoadDqlResponse(rsp)
+}
+
+// POSTv1studiosdkversionsLoadDqlWithResponse performs a POST /v1/studio/sdk/versions.load_dql (the `POSTv1studiosdkversionsLoadDql` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsLoadDqlWithResponse(ctx context.Context, body POSTv1studiosdkversionsLoadDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadDqlResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsLoadDql(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsLoadDqlResponse(rsp)
+}
+
+// POSTv1studiosdkversionsTestComposeWithBodyWithResponse performs a POST /v1/studio/sdk/versions.test_compose (the `POSTv1studiosdkversionsTestCompose` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsTestComposeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestComposeResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsTestComposeWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsTestComposeResponse(rsp)
+}
+
+// POSTv1studiosdkversionsTestComposeWithResponse performs a POST /v1/studio/sdk/versions.test_compose (the `POSTv1studiosdkversionsTestCompose` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsTestComposeWithResponse(ctx context.Context, body POSTv1studiosdkversionsTestComposeJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestComposeResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsTestCompose(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsTestComposeResponse(rsp)
+}
+
+// POSTv1studiosdkversionsTestRelationWithBodyWithResponse performs a POST /v1/studio/sdk/versions.test_relation (the `POSTv1studiosdkversionsTestRelation` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsTestRelationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestRelationResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsTestRelationWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsTestRelationResponse(rsp)
+}
+
+// POSTv1studiosdkversionsTestRelationWithResponse performs a POST /v1/studio/sdk/versions.test_relation (the `POSTv1studiosdkversionsTestRelation` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsTestRelationWithResponse(ctx context.Context, body POSTv1studiosdkversionsTestRelationJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestRelationResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsTestRelation(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsTestRelationResponse(rsp)
+}
+
+// POSTv1studiosdkversionsTestViewWithBodyWithResponse performs a POST /v1/studio/sdk/versions.test_view (the `POSTv1studiosdkversionsTestView` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsTestViewWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestViewResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsTestViewWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsTestViewResponse(rsp)
+}
+
+// POSTv1studiosdkversionsTestViewWithResponse performs a POST /v1/studio/sdk/versions.test_view (the `POSTv1studiosdkversionsTestView` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsTestViewWithResponse(ctx context.Context, body POSTv1studiosdkversionsTestViewJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestViewResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsTestView(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsTestViewResponse(rsp)
+}
+
+// POSTv1studiosdkversionsValidateWithBodyWithResponse performs a POST /v1/studio/sdk/versions.validate (the `POSTv1studiosdkversionsValidate` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsValidateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsValidateResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsValidateWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsValidateResponse(rsp)
+}
+
+// POSTv1studiosdkversionsValidateWithResponse performs a POST /v1/studio/sdk/versions.validate (the `POSTv1studiosdkversionsValidate` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsValidateWithResponse(ctx context.Context, body POSTv1studiosdkversionsValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsValidateResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsValidate(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsValidateResponse(rsp)
+}
+
+// POSTv1studiosdkversionsWarmupWithBodyWithResponse performs a POST /v1/studio/sdk/versions.warmup (the `POSTv1studiosdkversionsWarmup` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsWarmupWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsWarmupResponse(rsp)
+}
+
+// POSTv1studiosdkversionsWarmupWithResponse performs a POST /v1/studio/sdk/versions.warmup (the `POSTv1studiosdkversionsWarmup` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupWithResponse(ctx context.Context, body POSTv1studiosdkversionsWarmupJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsWarmup(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsWarmupResponse(rsp)
+}
+
+// POSTv1studiosdkversionsWarmupGetWithBodyWithResponse warmup_run
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /v1/studio/sdk/versions.warmup_get (the `POSTv1studiosdkversionsWarmupGet` operationId).
+func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsWarmupGetWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsWarmupGetResponse(rsp)
+}
+
+// POSTv1studiosdkversionsWarmupGetWithResponse warmup_run
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /v1/studio/sdk/versions.warmup_get (the `POSTv1studiosdkversionsWarmupGet` operationId).
+func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupGetWithResponse(ctx context.Context, body POSTv1studiosdkversionsWarmupGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsWarmupGet(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsWarmupGetResponse(rsp)
+}
+
+// POSTv1studiosdkversionsWarmupListWithBodyWithResponse performs a POST /v1/studio/sdk/versions.warmup_list (the `POSTv1studiosdkversionsWarmupList` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupListResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsWarmupListWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsWarmupListResponse(rsp)
+}
+
+// POSTv1studiosdkversionsWarmupListWithResponse performs a POST /v1/studio/sdk/versions.warmup_list (the `POSTv1studiosdkversionsWarmupList` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupListWithResponse(ctx context.Context, body POSTv1studiosdkversionsWarmupListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupListResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsWarmupList(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsWarmupListResponse(rsp)
+}
+
+// ParsePOSTv1studiosdkaccessContextResponse parses an HTTP response from a POSTv1studiosdkaccessContextWithResponse call
+func ParsePOSTv1studiosdkaccessContextResponse(rsp *http.Response) (*POSTv1studiosdkaccessContextResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkaccessContextResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Output074baefd6599537117e4be3e30019d7fdfbb35e35777792f4679dc2222339640
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkaccessGetResponse parses an HTTP response from a POSTv1studiosdkaccessGetWithResponse call
+func ParsePOSTv1studiosdkaccessGetResponse(rsp *http.Response) (*POSTv1studiosdkaccessGetResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkaccessGetResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest OutputD94fe2c0f68aadd9d8fcacadf97221cae176cdc5a262134071dca8fa5d6e14ef
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkaccessReplaceResponse parses an HTTP response from a POSTv1studiosdkaccessReplaceWithResponse call
+func ParsePOSTv1studiosdkaccessReplaceResponse(rsp *http.Response) (*POSTv1studiosdkaccessReplaceResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkaccessReplaceResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Output524acdde45b651c8bd48c66b53c101ffac146671a1ddce5c786a6ecbd96dbe58
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkaclDeleteResponse parses an HTTP response from a POSTv1studiosdkaclDeleteWithResponse call
+func ParsePOSTv1studiosdkaclDeleteResponse(rsp *http.Response) (*POSTv1studiosdkaclDeleteResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkaclDeleteResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
 }
 
 // ParsePOSTv1studiosdkaclListResponse parses an HTTP response from a POSTv1studiosdkaclListWithResponse call
@@ -2341,6 +16796,376 @@ func ParsePOSTv1studiosdkaclListResponse(rsp *http.Response) (*POSTv1studiosdkac
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkaclUpsertResponse parses an HTTP response from a POSTv1studiosdkaclUpsertWithResponse call
+func ParsePOSTv1studiosdkaclUpsertResponse(rsp *http.Response) (*POSTv1studiosdkaclUpsertResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkaclUpsertResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire013ce40651897a22f1d0c9d5a29a86362333458b72c57acb30fa03a2473f08c6
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkauthorizationPredicatesCreateResponse parses an HTTP response from a POSTv1studiosdkauthorizationPredicatesCreateWithResponse call
+func ParsePOSTv1studiosdkauthorizationPredicatesCreateResponse(rsp *http.Response) (*POSTv1studiosdkauthorizationPredicatesCreateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkauthorizationPredicatesCreateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire686013a325c9be56a2c1decb9988b4f5c30a411074c3d70e9552eecf4ae1fd87
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkauthorizationPredicatesDeleteResponse parses an HTTP response from a POSTv1studiosdkauthorizationPredicatesDeleteWithResponse call
+func ParsePOSTv1studiosdkauthorizationPredicatesDeleteResponse(rsp *http.Response) (*POSTv1studiosdkauthorizationPredicatesDeleteResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkauthorizationPredicatesDeleteResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkauthorizationPredicatesGetResponse parses an HTTP response from a POSTv1studiosdkauthorizationPredicatesGetWithResponse call
+func ParsePOSTv1studiosdkauthorizationPredicatesGetResponse(rsp *http.Response) (*POSTv1studiosdkauthorizationPredicatesGetResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkauthorizationPredicatesGetResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireF1625788b66eacf74ca98501afd9a4c5d06df56f548c1b3c679070e519cabcba
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkauthorizationPredicatesListResponse parses an HTTP response from a POSTv1studiosdkauthorizationPredicatesListWithResponse call
+func ParsePOSTv1studiosdkauthorizationPredicatesListResponse(rsp *http.Response) (*POSTv1studiosdkauthorizationPredicatesListResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkauthorizationPredicatesListResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkauthorizationPredicatesTypesResponse parses an HTTP response from a POSTv1studiosdkauthorizationPredicatesTypesWithResponse call
+func ParsePOSTv1studiosdkauthorizationPredicatesTypesResponse(rsp *http.Response) (*POSTv1studiosdkauthorizationPredicatesTypesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkauthorizationPredicatesTypesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkauthorizationPredicatesUpdateResponse parses an HTTP response from a POSTv1studiosdkauthorizationPredicatesUpdateWithResponse call
+func ParsePOSTv1studiosdkauthorizationPredicatesUpdateResponse(rsp *http.Response) (*POSTv1studiosdkauthorizationPredicatesUpdateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkauthorizationPredicatesUpdateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire46f5783921089422ba86ef3f21455336f0870921db6e2dac69f80e6517b1e68a
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkcomponentsCreateResponse parses an HTTP response from a POSTv1studiosdkcomponentsCreateWithResponse call
+func ParsePOSTv1studiosdkcomponentsCreateResponse(rsp *http.Response) (*POSTv1studiosdkcomponentsCreateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkcomponentsCreateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire443bbe5c4c72f351c9a66a106cdb43706c944ab1d042017ad7a9092b72d13f21
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkcomponentsGetResponse parses an HTTP response from a POSTv1studiosdkcomponentsGetWithResponse call
+func ParsePOSTv1studiosdkcomponentsGetResponse(rsp *http.Response) (*POSTv1studiosdkcomponentsGetResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkcomponentsGetResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireB42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkcomponentsListResponse parses an HTTP response from a POSTv1studiosdkcomponentsListWithResponse call
+func ParsePOSTv1studiosdkcomponentsListResponse(rsp *http.Response) (*POSTv1studiosdkcomponentsListResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkcomponentsListResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkcomponentsUpdateResponse parses an HTTP response from a POSTv1studiosdkcomponentsUpdateWithResponse call
+func ParsePOSTv1studiosdkcomponentsUpdateResponse(rsp *http.Response) (*POSTv1studiosdkcomponentsUpdateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkcomponentsUpdateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire98b9826a3a782748dba5c6e5a250e1e52d78e3e1dbd2ab11f2dc2f9352c62e7a
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkconnectorsActivateResponse parses an HTTP response from a POSTv1studiosdkconnectorsActivateWithResponse call
+func ParsePOSTv1studiosdkconnectorsActivateResponse(rsp *http.Response) (*POSTv1studiosdkconnectorsActivateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkconnectorsActivateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire7500b9317030713f187b24a1e5fdc5a3b126e5bb2b5fb59f60d5b9d5be652a23
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkconnectorsCreateResponse parses an HTTP response from a POSTv1studiosdkconnectorsCreateWithResponse call
+func ParsePOSTv1studiosdkconnectorsCreateResponse(rsp *http.Response) (*POSTv1studiosdkconnectorsCreateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkconnectorsCreateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Output73a8618e3debe1667f7aafcc74ab58dec2fbd11494bb2e579aae6d2b58f205f3
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkconnectorsDeleteResponse parses an HTTP response from a POSTv1studiosdkconnectorsDeleteWithResponse call
+func ParsePOSTv1studiosdkconnectorsDeleteResponse(rsp *http.Response) (*POSTv1studiosdkconnectorsDeleteResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkconnectorsDeleteResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkconnectorsDisableResponse parses an HTTP response from a POSTv1studiosdkconnectorsDisableWithResponse call
+func ParsePOSTv1studiosdkconnectorsDisableResponse(rsp *http.Response) (*POSTv1studiosdkconnectorsDisableResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkconnectorsDisableResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire777f17beb973ceea33d037ba165a4751392efacdd3a1e9425eb0da2b7461ba6e
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -2403,6 +17228,204 @@ func ParsePOSTv1studiosdkconnectorsListResponse(rsp *http.Response) (*POSTv1stud
 	return response, nil
 }
 
+// ParsePOSTv1studiosdkconnectorsSchemasResponse parses an HTTP response from a POSTv1studiosdkconnectorsSchemasWithResponse call
+func ParsePOSTv1studiosdkconnectorsSchemasResponse(rsp *http.Response) (*POSTv1studiosdkconnectorsSchemasResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkconnectorsSchemasResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire8a9cf29086a80cb7cabcdebcdf40aa1d03da579d5b4d6608dcb4a7446bcf710d
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkconnectorsTableResponse parses an HTTP response from a POSTv1studiosdkconnectorsTableWithResponse call
+func ParsePOSTv1studiosdkconnectorsTableResponse(rsp *http.Response) (*POSTv1studiosdkconnectorsTableResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkconnectorsTableResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireBd458392be482912a616e980fab94755810f3ed4347c5351a04930f05dd4ce31
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkconnectorsTablesResponse parses an HTTP response from a POSTv1studiosdkconnectorsTablesWithResponse call
+func ParsePOSTv1studiosdkconnectorsTablesResponse(rsp *http.Response) (*POSTv1studiosdkconnectorsTablesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkconnectorsTablesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire65b20b1db94b9a2b772bc75cedde285454a5204dc72354f579cf1fe7fcc34b2b
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkconnectorsTestResponse parses an HTTP response from a POSTv1studiosdkconnectorsTestWithResponse call
+func ParsePOSTv1studiosdkconnectorsTestResponse(rsp *http.Response) (*POSTv1studiosdkconnectorsTestResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkconnectorsTestResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire62d79acead49ba0d84d3fe813a8d59b4a26f710c0953ffa167816798ed0333f5
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkconnectorsTestSqlResponse parses an HTTP response from a POSTv1studiosdkconnectorsTestSqlWithResponse call
+func ParsePOSTv1studiosdkconnectorsTestSqlResponse(rsp *http.Response) (*POSTv1studiosdkconnectorsTestSqlResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkconnectorsTestSqlResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire15d90b839a0fff7f61055596a65a67fe8590915342e1278e39ef8abd4433ce14
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkconnectorsUpdateResponse parses an HTTP response from a POSTv1studiosdkconnectorsUpdateWithResponse call
+func ParsePOSTv1studiosdkconnectorsUpdateResponse(rsp *http.Response) (*POSTv1studiosdkconnectorsUpdateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkconnectorsUpdateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireF13c6896f56ef6cd633314e17c86ef09c723b489a575449924c438606e230bf5
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdknamespacesCreateResponse parses an HTTP response from a POSTv1studiosdknamespacesCreateWithResponse call
+func ParsePOSTv1studiosdknamespacesCreateResponse(rsp *http.Response) (*POSTv1studiosdknamespacesCreateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdknamespacesCreateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest OutputD558223f5d3d6bca0e300c59f8e624af838223bc61f0cb8c88f09c757834ddaa
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdknamespacesDeleteResponse parses an HTTP response from a POSTv1studiosdknamespacesDeleteWithResponse call
+func ParsePOSTv1studiosdknamespacesDeleteResponse(rsp *http.Response) (*POSTv1studiosdknamespacesDeleteResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdknamespacesDeleteResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParsePOSTv1studiosdknamespacesGetResponse parses an HTTP response from a POSTv1studiosdknamespacesGetWithResponse call
 func ParsePOSTv1studiosdknamespacesGetResponse(rsp *http.Response) (*POSTv1studiosdknamespacesGetResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -2445,6 +17468,58 @@ func ParsePOSTv1studiosdknamespacesListResponse(rsp *http.Response) (*POSTv1stud
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdknamespacesUpdateResponse parses an HTTP response from a POSTv1studiosdknamespacesUpdateWithResponse call
+func ParsePOSTv1studiosdknamespacesUpdateResponse(rsp *http.Response) (*POSTv1studiosdknamespacesUpdateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdknamespacesUpdateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireA6d5a259bb2993e6552649336f2c093ccd6ae12f130f8526f5c136a619d0cb51
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkpreviewExecuteResponse parses an HTTP response from a POSTv1studiosdkpreviewExecuteWithResponse call
+func ParsePOSTv1studiosdkpreviewExecuteResponse(rsp *http.Response) (*POSTv1studiosdkpreviewExecuteResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkpreviewExecuteResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire9763fc0927f951631f9c089e0800033b9772e81b29bddc85ae64e2899f0943e3
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -2507,22 +17582,22 @@ func ParsePOSTv1studiosdkpublicationsGetResponse(rsp *http.Response) (*POSTv1stu
 	return response, nil
 }
 
-// ParsePOSTv1studiosdkreportsGetResponse parses an HTTP response from a POSTv1studiosdkreportsGetWithResponse call
-func ParsePOSTv1studiosdkreportsGetResponse(rsp *http.Response) (*POSTv1studiosdkreportsGetResponse, error) {
+// ParsePOSTv1studiosdkpublicationsPublishResponse parses an HTTP response from a POSTv1studiosdkpublicationsPublishWithResponse call
+func ParsePOSTv1studiosdkpublicationsPublishResponse(rsp *http.Response) (*POSTv1studiosdkpublicationsPublishResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &POSTv1studiosdkreportsGetResponse{
+	response := &POSTv1studiosdkpublicationsPublishResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest WireB42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044
+		var dest Output7f617ddc14b6df274d226551b825c90a4f977a14591bdfd1ddc94b5f6066bce5
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -2533,22 +17608,724 @@ func ParsePOSTv1studiosdkreportsGetResponse(rsp *http.Response) (*POSTv1studiosd
 	return response, nil
 }
 
-// ParsePOSTv1studiosdkreportsListResponse parses an HTTP response from a POSTv1studiosdkreportsListWithResponse call
-func ParsePOSTv1studiosdkreportsListResponse(rsp *http.Response) (*POSTv1studiosdkreportsListResponse, error) {
+// ParsePOSTv1studiosdkpublicationsRollbackResponse parses an HTTP response from a POSTv1studiosdkpublicationsRollbackWithResponse call
+func ParsePOSTv1studiosdkpublicationsRollbackResponse(rsp *http.Response) (*POSTv1studiosdkpublicationsRollbackResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &POSTv1studiosdkreportsListResponse{
+	response := &POSTv1studiosdkpublicationsRollbackResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Wire38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a
+		var dest OutputA717afc38cbc4d350bb71fb00cf76bef68daf27b4650120e47c4d8379356f11f
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkpublicationsUnpublishResponse parses an HTTP response from a POSTv1studiosdkpublicationsUnpublishWithResponse call
+func ParsePOSTv1studiosdkpublicationsUnpublishResponse(rsp *http.Response) (*POSTv1studiosdkpublicationsUnpublishResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkpublicationsUnpublishResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest OutputA2a90743713296048071979d14b3abdfc10b4ee77e446ab9dbd7f2c07bbe7266
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkresourcesDeleteFileResponse parses an HTTP response from a POSTv1studiosdkresourcesDeleteFileWithResponse call
+func ParsePOSTv1studiosdkresourcesDeleteFileResponse(rsp *http.Response) (*POSTv1studiosdkresourcesDeleteFileResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkresourcesDeleteFileResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkresourcesDeleteFolderResponse parses an HTTP response from a POSTv1studiosdkresourcesDeleteFolderWithResponse call
+func ParsePOSTv1studiosdkresourcesDeleteFolderResponse(rsp *http.Response) (*POSTv1studiosdkresourcesDeleteFolderResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkresourcesDeleteFolderResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkresourcesDeleteSkillResponse parses an HTTP response from a POSTv1studiosdkresourcesDeleteSkillWithResponse call
+func ParsePOSTv1studiosdkresourcesDeleteSkillResponse(rsp *http.Response) (*POSTv1studiosdkresourcesDeleteSkillResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkresourcesDeleteSkillResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkresourcesGetResponse parses an HTTP response from a POSTv1studiosdkresourcesGetWithResponse call
+func ParsePOSTv1studiosdkresourcesGetResponse(rsp *http.Response) (*POSTv1studiosdkresourcesGetResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkresourcesGetResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkresourcesUpsertFileResponse parses an HTTP response from a POSTv1studiosdkresourcesUpsertFileWithResponse call
+func ParsePOSTv1studiosdkresourcesUpsertFileResponse(rsp *http.Response) (*POSTv1studiosdkresourcesUpsertFileResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkresourcesUpsertFileResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkresourcesUpsertFolderResponse parses an HTTP response from a POSTv1studiosdkresourcesUpsertFolderWithResponse call
+func ParsePOSTv1studiosdkresourcesUpsertFolderResponse(rsp *http.Response) (*POSTv1studiosdkresourcesUpsertFolderResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkresourcesUpsertFolderResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkresourcesUpsertSkillResponse parses an HTTP response from a POSTv1studiosdkresourcesUpsertSkillWithResponse call
+func ParsePOSTv1studiosdkresourcesUpsertSkillResponse(rsp *http.Response) (*POSTv1studiosdkresourcesUpsertSkillResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkresourcesUpsertSkillResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkruntimeStatusResponse parses an HTTP response from a POSTv1studiosdkruntimeStatusWithResponse call
+func ParsePOSTv1studiosdkruntimeStatusResponse(rsp *http.Response) (*POSTv1studiosdkruntimeStatusResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkruntimeStatusResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsApplyResponse parses an HTTP response from a POSTv1studiosdkversionsApplyWithResponse call
+func ParsePOSTv1studiosdkversionsApplyResponse(rsp *http.Response) (*POSTv1studiosdkversionsApplyResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsApplyResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsBuilderResponse parses an HTTP response from a POSTv1studiosdkversionsBuilderWithResponse call
+func ParsePOSTv1studiosdkversionsBuilderResponse(rsp *http.Response) (*POSTv1studiosdkversionsBuilderResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsBuilderResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsCreateResponse parses an HTTP response from a POSTv1studiosdkversionsCreateWithResponse call
+func ParsePOSTv1studiosdkversionsCreateResponse(rsp *http.Response) (*POSTv1studiosdkversionsCreateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsCreateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire59787f7087b974a90942d4d67d870a8382b1189efe4cc88cfba1b0ada4d89c75
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsDescriptorResponse parses an HTTP response from a POSTv1studiosdkversionsDescriptorWithResponse call
+func ParsePOSTv1studiosdkversionsDescriptorResponse(rsp *http.Response) (*POSTv1studiosdkversionsDescriptorResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsDescriptorResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire4865103e82a353748c5cf4c44eb18159e252732c3c48350fe8b3411c3af62117
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsDownloadResponse parses an HTTP response from a POSTv1studiosdkversionsDownloadWithResponse call
+func ParsePOSTv1studiosdkversionsDownloadResponse(rsp *http.Response) (*POSTv1studiosdkversionsDownloadResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsDownloadResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire460cf67195fceed0e09647cd2eec9022848f4fecb76be30099431c098e162bea
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsExportDqlResponse parses an HTTP response from a POSTv1studiosdkversionsExportDqlWithResponse call
+func ParsePOSTv1studiosdkversionsExportDqlResponse(rsp *http.Response) (*POSTv1studiosdkversionsExportDqlResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsExportDqlResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireBb9c83695ae936c7031ab2428c59ccda35a4e34af9e6662a945012782ac921e1
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsGetResponse parses an HTTP response from a POSTv1studiosdkversionsGetWithResponse call
+func ParsePOSTv1studiosdkversionsGetResponse(rsp *http.Response) (*POSTv1studiosdkversionsGetResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsGetResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire1e3fdf8fcb04453947f7d75766cc316e3e09d18591edbeef886727e071fe5f28
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsInspectResponse parses an HTTP response from a POSTv1studiosdkversionsInspectWithResponse call
+func ParsePOSTv1studiosdkversionsInspectResponse(rsp *http.Response) (*POSTv1studiosdkversionsInspectResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsInspectResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsListResponse parses an HTTP response from a POSTv1studiosdkversionsListWithResponse call
+func ParsePOSTv1studiosdkversionsListResponse(rsp *http.Response) (*POSTv1studiosdkversionsListResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsListResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsLoadArchiveResponse parses an HTTP response from a POSTv1studiosdkversionsLoadArchiveWithResponse call
+func ParsePOSTv1studiosdkversionsLoadArchiveResponse(rsp *http.Response) (*POSTv1studiosdkversionsLoadArchiveResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsLoadArchiveResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsLoadDqlResponse parses an HTTP response from a POSTv1studiosdkversionsLoadDqlWithResponse call
+func ParsePOSTv1studiosdkversionsLoadDqlResponse(rsp *http.Response) (*POSTv1studiosdkversionsLoadDqlResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsLoadDqlResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsTestComposeResponse parses an HTTP response from a POSTv1studiosdkversionsTestComposeWithResponse call
+func ParsePOSTv1studiosdkversionsTestComposeResponse(rsp *http.Response) (*POSTv1studiosdkversionsTestComposeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsTestComposeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire8147805369c129ab8a8ae87482dbb8be4c51d1125dda4427e8adca5f845d6a7b
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsTestRelationResponse parses an HTTP response from a POSTv1studiosdkversionsTestRelationWithResponse call
+func ParsePOSTv1studiosdkversionsTestRelationResponse(rsp *http.Response) (*POSTv1studiosdkversionsTestRelationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsTestRelationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire2be0684fe50e4d50e1c7ed7799c8493f7a6fbfe50bcd3ecfc3b2241e765f60da
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsTestViewResponse parses an HTTP response from a POSTv1studiosdkversionsTestViewWithResponse call
+func ParsePOSTv1studiosdkversionsTestViewResponse(rsp *http.Response) (*POSTv1studiosdkversionsTestViewResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsTestViewResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire0f446f07ec6516f9b6a7f9e3de1d58abb30bb3608144fb80728627765378e04e
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsValidateResponse parses an HTTP response from a POSTv1studiosdkversionsValidateWithResponse call
+func ParsePOSTv1studiosdkversionsValidateResponse(rsp *http.Response) (*POSTv1studiosdkversionsValidateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsValidateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsWarmupResponse parses an HTTP response from a POSTv1studiosdkversionsWarmupWithResponse call
+func ParsePOSTv1studiosdkversionsWarmupResponse(rsp *http.Response) (*POSTv1studiosdkversionsWarmupResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsWarmupResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Output06244387c0c9169e9e2dd8c303d1b08d7c46bddec31314baa7fdae523ab96371
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsWarmupGetResponse parses an HTTP response from a POSTv1studiosdkversionsWarmupGetWithResponse call
+func ParsePOSTv1studiosdkversionsWarmupGetResponse(rsp *http.Response) (*POSTv1studiosdkversionsWarmupGetResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsWarmupGetResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Output586257ec0a228d28fb8c1d7b9b6ceb924795c406b09d9a86111f39a56368b032
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsWarmupListResponse parses an HTTP response from a POSTv1studiosdkversionsWarmupListWithResponse call
+func ParsePOSTv1studiosdkversionsWarmupListResponse(rsp *http.Response) (*POSTv1studiosdkversionsWarmupListResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsWarmupListResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

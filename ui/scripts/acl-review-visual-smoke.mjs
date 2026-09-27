@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'vite';
-import { chromium } from '../../../forge/node_modules/playwright/index.mjs';
+import { chromium } from 'playwright';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const server = await createServer({ root, server: { host: '127.0.0.1', port: 0 } });
@@ -12,12 +12,12 @@ try {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   const apiRequests = [];
   page.on('request', (request) => { if (request.url().includes('/v1/studio/')) apiRequests.push(request.url()); });
-  await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/acl-review.html?frame=1&kind=report&scenario=editable`);
+  await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/acl-review.html?frame=1&kind=component&scenario=editable`);
   await page.getByText('Policy revision 7').waitFor();
   const action = page.getByLabel('Permission action', { exact: true });
-  assert.equal(await action.locator('option[value="preview"]').count(), 1);
+  assert.equal(await action.locator('option[value="preview"]').count(), 0);
   assert.equal(await action.locator('option[value="execute"]').count(), 1);
-  await action.selectOption('preview');
+  await action.selectOption('execute');
   assert.equal(await page.getByLabel('Required entity scope').inputValue(), 'project');
   assert.equal(await page.getByRole('button', { name: /retrieve/ }).count(), 0);
   assert.deepEqual(apiRequests, []);
@@ -32,10 +32,10 @@ try {
   assert.deepEqual(apiRequests, []);
   await page.waitForTimeout(400); // Let the Blueprint dialog opening transition finish before visual QA.
   if (process.env.ACL_REVIEW_DIALOG_SCREENSHOT) await page.screenshot({ path: process.env.ACL_REVIEW_DIALOG_SCREENSHOT, fullPage: true });
-  console.log('ACL review ✓ report preview/execute policies and pre-save diff at 390 px, no backend requests');
+  console.log('ACL review ✓ component execute policy and pre-save diff at 390 px, no backend requests');
 
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
-  const resource = { kind: 'report', id: 'operations', tenant: 'one', version: '3' };
+  const resource = { kind: 'component', id: 'operations', tenant: 'one', version: '3' };
   const operations = [];
   await page.route('**/studio-config.json', route => route.fulfill({ status: 200, contentType: 'application/json',
     body: JSON.stringify({ mode: 'authenticated', apiBaseURL: origin }) }));
@@ -44,15 +44,15 @@ try {
     const operation = new URL(request.url()).pathname.split('/').pop();
     operations.push({ operation, body: request.postDataJSON() });
     const payload = operation === 'access.get'
-      ? { resource, revision: 12, policies: { preview: { mode: 'protected', rule: { kind: 'role', value: 'analyst' } } } }
+      ? { resource, revision: 12, policies: { execute: { mode: 'protected', rule: { kind: 'role', value: 'analyst' } } } }
       : operation === 'access.context' ? { canManage: true, choices: { role: [{ id: 'analyst', label: 'Analyst' }] } } : null;
     return route.fulfill({ status: payload ? 200 : 404, contentType: 'application/json', body: JSON.stringify(payload) });
   });
-  await page.goto(`${origin}/acl-review.html?mode=live&kind=report&id=operations&tenant=one&version=3`);
+  await page.goto(`${origin}/acl-review.html?mode=live&kind=component&id=operations&tenant=one&version=3`);
   await page.getByText('Policy revision 12').waitFor();
   assert.equal(await page.getByRole('heading', { name: 'Permissions review' }).count(), 1);
   assert.equal(await page.getByText('Live · read-only').count(), 1);
-  assert.equal(await page.getByLabel('Permission action', { exact: true }).inputValue(), 'preview');
+  assert.equal(await page.getByLabel('Permission action', { exact: true }).inputValue(), 'execute');
   assert.equal(await page.getByRole('button', { name: 'Review changes' }).count(), 0);
   assert.equal(await page.getByText('Synthetic ACL preview').count(), 0);
   assert.deepEqual(operations.map(item => item.operation).sort(), ['access.context', 'access.get']);
@@ -65,7 +65,7 @@ try {
     const extra = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     assert.ok(extra <= 1, `live ACL review overflows the ${width} px viewport by ${extra} px`);
   }
-  console.log('ACL review ✓ live read-only report policy at 390/768/1200 px, exact SDK reads, no horizontal overflow');
+  console.log('ACL review ✓ live read-only component policy at 390/768/1200 px, exact SDK reads, no horizontal overflow');
 } finally {
   await browser?.close();
   await server.close();

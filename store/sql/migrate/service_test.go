@@ -27,7 +27,7 @@ func TestServiceUpAndDown(t *testing.T) {
 
 	assertTableExists(t, ctx, db, "connectors")
 	assertTableExists(t, ctx, db, "namespaces")
-	assertTableExists(t, ctx, db, "reports")
+	assertTableExists(t, ctx, db, "components")
 	assertTableExists(t, ctx, db, "report_versions")
 	assertTableExists(t, ctx, db, "report_fields")
 	assertTableExists(t, ctx, db, "report_parameters")
@@ -42,7 +42,8 @@ func TestServiceUpAndDown(t *testing.T) {
 	assertTableExists(t, ctx, db, "report_publication_events")
 	assertTableExists(t, ctx, db, "report_acl")
 	assertTableExists(t, ctx, db, "resource_namespace_claims")
-	assertReportsConnectorFK(t, ctx, db)
+	assertTableExists(t, ctx, db, "sqlx_sequence_reservations")
+	assertComponentsConnectorFK(t, ctx, db)
 
 	version, err := service.CurrentVersion(ctx, db)
 	if err != nil {
@@ -61,7 +62,8 @@ func TestServiceUpAndDown(t *testing.T) {
 	}
 
 	assertTableMissing(t, ctx, db, "connectors")
-	assertTableMissing(t, ctx, db, "reports")
+	assertTableMissing(t, ctx, db, "components")
+	assertTableMissing(t, ctx, db, "sqlx_sequence_reservations")
 
 	version, err = service.CurrentVersion(ctx, db)
 	if err != nil {
@@ -69,6 +71,70 @@ func TestServiceUpAndDown(t *testing.T) {
 	}
 	if version != 0 {
 		t.Fatalf("CurrentVersion() after down = %d, want 0", version)
+	}
+}
+
+func TestServiceUpRepairsMissingSequenceLedgerAtCurrentVersion(t *testing.T) {
+	ctx := context.Background()
+	db := openTestDB(t)
+	if err := schema.ApplySQLite(ctx, db, "studio"); err != nil {
+		t.Fatal(err)
+	}
+	if err := schema.SetSQLiteVersion(ctx, db, schema.CanonicalVersion); err != nil {
+		t.Fatal(err)
+	}
+	assertTableMissing(t, ctx, db, "sqlx_sequence_reservations")
+	service, err := New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := service.Up(ctx, db); err != nil {
+		t.Fatal(err)
+	}
+	assertTableExists(t, ctx, db, "sqlx_sequence_reservations")
+}
+
+func TestVersion14CatalogRenamePreservesComponentAndVersion(t *testing.T) {
+	ctx := context.Background()
+	db := openTestDB(t)
+	if err := schema.ApplySQLite(ctx, db, "studio"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.ExecContext(ctx, `ALTER TABLE components RENAME TO reports`); err != nil {
+		t.Fatal(err)
+	}
+	for _, statement := range []string{
+		`INSERT INTO connectors(name,driver,owner_id,status,etag,created_at,updated_at) VALUES('main','sqlite','alice','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
+		`INSERT INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at) VALUES('alice','general','General','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
+		`INSERT INTO reports(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('c1','first','First','alice','draft','main','alice','reader',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
+		`INSERT INTO report_versions(report_id,version_no,state,authoring_mode,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('c1',1,'draft','dql','{}','1','hash','{}','pending','v1','v1',1,'alice',CURRENT_TIMESTAMP)`,
+	} {
+		if _, err := db.ExecContext(ctx, statement); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := schema.SetSQLiteVersion(ctx, db, 14); err != nil {
+		t.Fatal(err)
+	}
+	service, _ := New()
+	if err := service.Up(ctx, db); err != nil {
+		t.Fatal(err)
+	}
+	assertTableMissing(t, ctx, db, "reports")
+	assertTableExists(t, ctx, db, "components")
+	var title string
+	if err := db.QueryRowContext(ctx, `SELECT title FROM components WHERE id='c1'`).Scan(&title); err != nil || title != "First" {
+		t.Fatalf("migrated component title=%q err=%v", title, err)
+	}
+	var versions int
+	if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id='c1'`).Scan(&versions); err != nil || versions != 1 {
+		t.Fatalf("migrated version count=%d err=%v", versions, err)
+	}
+	if err := service.Up(ctx, db); err != nil {
+		t.Fatalf("second migration: %v", err)
+	}
+	if version, err := schema.SQLiteVersion(ctx, db); err != nil || version != schema.CanonicalVersion {
+		t.Fatalf("schema version=%d err=%v", version, err)
 	}
 }
 
@@ -92,7 +158,7 @@ func TestServiceUpBackfillsResourceNamespaceClaims(t *testing.T) {
 			for _, statement := range []string{
 				`INSERT INTO connectors(name,driver,owner_id,status,etag,created_at,updated_at) VALUES('main','sqlite','owner','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
 				`INSERT INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at) VALUES('owner','general','General','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
-				`INSERT INTO reports(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('r1','r1','R1','owner','draft','main','reports','r1',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
+				`INSERT INTO components(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('r1','r1','R1','owner','draft','main','reports','r1',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
 				`INSERT INTO report_versions(report_id,version_no,state,authoring_mode,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('r1',1,'draft','dql','{}','1','hash-r1','{}','pending','v1','v1',1,'owner',CURRENT_TIMESTAMP)`,
 				`INSERT INTO report_resource_files(report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at) VALUES('r1',1,'file-1','owner.docs','guide/SKILL.md','x',1,'digest',FALSE,CURRENT_TIMESTAMP)`,
 				`INSERT INTO report_resource_folders(report_id,version_no,folder_id,namespace,root_path,uri_prefix) VALUES('r1',1,'folder-1','owner.docs','guide','skill://owner-guide/')`,
@@ -103,7 +169,7 @@ func TestServiceUpBackfillsResourceNamespaceClaims(t *testing.T) {
 			}
 			if test.conflict {
 				for _, statement := range []string{
-					`INSERT INTO reports(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('r2','r2','R2','owner','draft','main','reports','r2',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
+					`INSERT INTO components(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('r2','r2','R2','owner','draft','main','reports','r2',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
 					`INSERT INTO report_versions(report_id,version_no,state,authoring_mode,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('r2',1,'draft','dql','{}','1','hash-r2','{}','pending','v1','v1',1,'owner',CURRENT_TIMESTAMP)`,
 					`INSERT INTO report_resource_files(report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at) VALUES('r2',1,'file-2','owner.docs','other.txt','y',1,'digest',FALSE,CURRENT_TIMESTAMP)`,
 				} {
@@ -205,7 +271,7 @@ func TestServiceUpBackfillsResourcePolicyAudit(t *testing.T) {
 	}
 }
 
-func TestServiceUpAddsNamespaceFromCanonicalDDL(t *testing.T) {
+func TestServiceUpAddsNamespaceFromLegacyDDL(t *testing.T) {
 	ctx := context.Background()
 	db := openTestDB(t)
 	if _, err := db.ExecContext(ctx, `
@@ -224,7 +290,7 @@ INSERT INTO reports(id, owner_id, updated_at) VALUES ('legacy', 'alice', CURRENT
 		t.Fatal(err)
 	}
 	var namespace string
-	if err := db.QueryRowContext(ctx, `SELECT namespace FROM reports WHERE id='legacy'`).Scan(&namespace); err != nil {
+	if err := db.QueryRowContext(ctx, `SELECT namespace FROM components WHERE id='legacy'`).Scan(&namespace); err != nil {
 		t.Fatal(err)
 	}
 	if namespace != "general" {
@@ -248,6 +314,7 @@ CREATE TABLE report_publications (
   report_id VARCHAR(64) NOT NULL PRIMARY KEY,
   active_version_no INT NOT NULL
 );
+CREATE TABLE reports (id VARCHAR(64) NOT NULL PRIMARY KEY);
 CREATE TABLE schema_version(version INTEGER NOT NULL);
 INSERT INTO schema_version(version) VALUES (3);
 INSERT INTO report_publications(report_id,active_version_no) VALUES('reader',7);`); err != nil {
@@ -272,7 +339,7 @@ INSERT INTO report_publications(report_id,active_version_no) VALUES('reader',7);
 func TestServiceUpAddsDurableBFFSessions(t *testing.T) {
 	ctx := context.Background()
 	db := openTestDB(t)
-	if _, err := db.ExecContext(ctx, `CREATE TABLE schema_version(version INTEGER NOT NULL); INSERT INTO schema_version(version) VALUES (5);`); err != nil {
+	if _, err := db.ExecContext(ctx, `CREATE TABLE reports(id VARCHAR(64) NOT NULL PRIMARY KEY); CREATE TABLE schema_version(version INTEGER NOT NULL); INSERT INTO schema_version(version) VALUES (5);`); err != nil {
 		t.Fatal(err)
 	}
 	service, _ := New()
@@ -289,7 +356,7 @@ func TestServiceUpAddsDurableBFFSessions(t *testing.T) {
 func TestServiceUpAddsOwnerScopedPublicationEvents(t *testing.T) {
 	ctx := context.Background()
 	db := openTestDB(t)
-	if _, err := db.ExecContext(ctx, `CREATE TABLE schema_version(version INTEGER NOT NULL); INSERT INTO schema_version(version) VALUES (6);`); err != nil {
+	if _, err := db.ExecContext(ctx, `CREATE TABLE reports(id VARCHAR(64) NOT NULL PRIMARY KEY); CREATE TABLE schema_version(version INTEGER NOT NULL); INSERT INTO schema_version(version) VALUES (6);`); err != nil {
 		t.Fatal(err)
 	}
 	service, _ := New()
@@ -318,6 +385,7 @@ CREATE TABLE report_acl (
   can_use_dql BOOLEAN NOT NULL DEFAULT FALSE,
   PRIMARY KEY (report_id, subject_type, subject_id)
 );
+CREATE TABLE reports(id VARCHAR(64) NOT NULL PRIMARY KEY);
 CREATE TABLE schema_version(version INTEGER NOT NULL);
 INSERT INTO schema_version(version) VALUES (7);
 INSERT INTO report_acl(report_id,subject_type,subject_id,can_view) VALUES ('reader','user','alice',TRUE);`); err != nil {
@@ -343,6 +411,7 @@ func TestServiceUpBackfillsWarmupAuditAndToken(t *testing.T) {
 	if _, err := db.ExecContext(ctx, `
 CREATE TABLE schema_version(version INTEGER NOT NULL);
 INSERT INTO schema_version(version) VALUES (11);
+CREATE TABLE reports(id VARCHAR(64) NOT NULL PRIMARY KEY);
 CREATE TABLE report_warmup_runs (
   run_id TEXT PRIMARY KEY, status TEXT NOT NULL, requested_at DATETIME NOT NULL,
   requested_by TEXT NOT NULL, started_at DATETIME, completed_at DATETIME
@@ -412,11 +481,11 @@ func assertTableMissing(t *testing.T, ctx context.Context, db *sql.DB, table str
 	}
 }
 
-func assertReportsConnectorFK(t *testing.T, ctx context.Context, db *sql.DB) {
+func assertComponentsConnectorFK(t *testing.T, ctx context.Context, db *sql.DB) {
 	t.Helper()
-	rows, err := db.QueryContext(ctx, "PRAGMA foreign_key_list(reports)")
+	rows, err := db.QueryContext(ctx, "PRAGMA foreign_key_list(components)")
 	if err != nil {
-		t.Fatalf("foreign_key_list(reports) error = %v", err)
+		t.Fatalf("foreign_key_list(components) error = %v", err)
 	}
 	defer rows.Close()
 
@@ -440,10 +509,10 @@ func assertReportsConnectorFK(t *testing.T, ctx context.Context, db *sql.DB) {
 		}
 	}
 	if err := rows.Err(); err != nil {
-		t.Fatalf("iterate foreign_key_list(reports) error = %v", err)
+		t.Fatalf("iterate foreign_key_list(components) error = %v", err)
 	}
 	if !found {
-		t.Fatalf("reports.default_connector_name foreign key to connectors.name not found")
+		t.Fatalf("components.default_connector_name foreign key to connectors.name not found")
 	}
 }
 
@@ -472,7 +541,7 @@ VALUES ('system', 'general', 'General', 'active', 1, CURRENT_TIMESTAMP, CURRENT_
 		t.Fatalf("insert namespace error = %v", err)
 	}
 	if _, err := db.ExecContext(ctx, `
-	INSERT INTO reports(id, slug, title, owner_id, status, default_connector_name, component_scope, component_name, etag, created_at, updated_at)
+	INSERT INTO components(id, slug, title, owner_id, status, default_connector_name, component_scope, component_name, etag, created_at, updated_at)
 VALUES ('r1', 'r1', 'Report 1', 'system', 'draft', 'analytics', 'reports', 'r1', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`); err != nil {
 		t.Fatalf("insert report error = %v", err)
 	}
@@ -482,5 +551,49 @@ INSERT INTO report_publications(report_id, active_version_no, runtime_revision, 
 VALUES ('r1', 99, 'rev-1', 'system', CURRENT_TIMESTAMP)`)
 	if err == nil {
 		t.Fatalf("expected missing version foreign key violation")
+	}
+}
+
+func TestVersion15UpgradeAddsRefreshLeaseWithoutChangingEncryptedSession(t *testing.T) {
+	ctx := context.Background()
+	db := openTestDB(t)
+	_, err := db.ExecContext(ctx, `
+CREATE TABLE schema_version(version INTEGER NOT NULL);
+INSERT INTO schema_version(version) VALUES(15);
+CREATE TABLE bff_sessions (
+  session_id_hash CHAR(64) NOT NULL PRIMARY KEY,
+  subject_id VARCHAR(128) NOT NULL,
+  payload_ciphertext BLOB NOT NULL,
+  expires_at_unix BIGINT NOT NULL,
+  created_at DATETIME NOT NULL
+);
+INSERT INTO bff_sessions(session_id_hash,subject_id,payload_ciphertext,expires_at_unix,created_at)
+VALUES('legacy-session','alice',X'01020304',1900000000,CURRENT_TIMESTAMP);`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	service, err := New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := service.Up(ctx, db); err != nil {
+		t.Fatal(err)
+	}
+	if err := service.Up(ctx, db); err != nil {
+		t.Fatalf("idempotent version 16 upgrade: %v", err)
+	}
+	version, err := schema.SQLiteVersion(ctx, db)
+	if err != nil || version != schema.CanonicalVersion {
+		t.Fatalf("version=%d err=%v", version, err)
+	}
+	var subject, owner string
+	var payload []byte
+	var until int64
+	if err := db.QueryRowContext(ctx, `SELECT subject_id,payload_ciphertext,refresh_lease_owner,refresh_lease_until_unix
+FROM bff_sessions WHERE session_id_hash='legacy-session'`).Scan(&subject, &payload, &owner, &until); err != nil {
+		t.Fatal(err)
+	}
+	if subject != "alice" || fmt.Sprintf("%x", payload) != "01020304" || owner != "" || until != 0 {
+		t.Fatalf("upgraded session changed: subject=%q payload=%x lease=%q until=%d", subject, payload, owner, until)
 	}
 }

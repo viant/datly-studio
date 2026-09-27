@@ -26,8 +26,7 @@ SELECT predicates.*, type(predicates, 'AuthorizationPredicateRecord'),
        CAST(predicates.package_path AS string), CAST(predicates.type_name AS string),
        tag(predicates.sql_scope_json, 'sqlx:"sql_scope_json,enc=JSON"'),
        CAST(predicates.owner_id AS string), CAST(predicates.status AS string),
-       set_limit(predicates, 100), selector_fields(predicates, true),
-       selector_limit(predicates, true), selector_offset(predicates, true),
+       set_limit(predicates, 100),
        allowed_order_by_columns(predicates, 'name,title,package_path,type_name,status,updated_at')
 FROM (${embed:sql/read.sql}) predicates
 WHERE 1=1

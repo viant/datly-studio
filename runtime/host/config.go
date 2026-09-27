@@ -9,13 +9,15 @@ import (
 
 	"github.com/viant/datly-studio/sdk/access"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
+	mcpprotocol "github.com/viant/mcp/server"
 	"go.yaml.in/yaml/v3"
 )
 
 const LocalDevelopmentAdminToken = "datly-studio-local-runtime"
 
 type Listener struct {
-	Address string `yaml:"Address"`
+	Address string            `yaml:"Address"`
+	CORS    *mcpprotocol.Cors `yaml:"CORS,omitempty"`
 }
 type Authentication struct {
 	PublicMCPURL string                             `yaml:"PublicMCPURL"`
@@ -23,6 +25,8 @@ type Authentication struct {
 	Components   map[string]ComponentAuthentication `yaml:"Components"`
 	DefaultMode  string                             `yaml:"DefaultMode"`
 	CertURL      string                             `yaml:"CertURL"`
+	Issuer       string                             `yaml:"Issuer"`
+	Audience     string                             `yaml:"Audience"`
 }
 
 type OAuthProvider struct {
@@ -84,6 +88,9 @@ func Load(path string) (*Config, error) {
 func (c *Config) Validate() error {
 	if c == nil {
 		return fmt.Errorf("dynamic Datly host config is required")
+	}
+	if (strings.TrimSpace(c.Authentication.Issuer) == "") != (strings.TrimSpace(c.Authentication.Audience) == "") {
+		return fmt.Errorf("default runtime identity requires both Issuer and Audience")
 	}
 	for name, provider := range c.Authentication.Providers {
 		if strings.ContainsAny(name, "/\\?#%\" \t\r\n") {

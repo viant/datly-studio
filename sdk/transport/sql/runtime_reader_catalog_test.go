@@ -34,7 +34,7 @@ func TestRuntimeReaderCatalogNestsChildrenAndScopesPrincipal(t *testing.T) {
 			t.Fatal(err)
 		}
 		id := "r-" + owner
-		if _, err := db.ExecContext(ctx, `INSERT INTO reports(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at)
+		if _, err := db.ExecContext(ctx, `INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at)
 			VALUES(?,'general',?,?,?,'active','main',?,'reader',1,?,?)`, id, owner, owner, owner, "reports/"+owner, now, now); err != nil {
 			t.Fatal(err)
 		}

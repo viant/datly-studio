@@ -27,14 +27,25 @@ func TestDatlyConfigDeclaresJWTVerifier(t *testing.T) {
 	}
 }
 
-func TestInternalResourcePolicyComponentsAreNotPubliclyBootstrapped(t *testing.T) {
+func TestResourcePolicyStoreIsLinkedOnlyForNativeAccess(t *testing.T) {
 	loaded, err := (config.Loader{}).Load(context.Background(), "datly.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
+	want := map[string]bool{"reader": false, "writer": false, "access": false}
 	for _, pkg := range loaded.GoBootstrap.Packages {
-		if strings.HasPrefix(pkg, "github.com/viant/datly-studio/studio/resource_policy/") {
-			t.Fatalf("internal policy data component exposed through standalone bootstrap: %s", pkg)
+		const prefix = "github.com/viant/datly-studio/studio/resource_policy/"
+		if strings.HasPrefix(pkg, prefix) {
+			name := strings.TrimPrefix(pkg, prefix)
+			if _, ok := want[name]; !ok {
+				t.Fatalf("unexpected resource policy package in static host: %s", pkg)
+			}
+			want[name] = true
+		}
+	}
+	for name, linked := range want {
+		if !linked {
+			t.Errorf("native access package %s is not linked", name)
 		}
 	}
 }

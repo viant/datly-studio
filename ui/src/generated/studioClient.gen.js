@@ -787,9 +787,176 @@ var createClient = (config = {}) => {
 var client = createClient(createConfig());
 
 // src/generated/studio/sdk.gen.ts
+var postV1StudioSdkAccessContext = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/access.context",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkAccessGet = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/access.get",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkAccessReplace = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/access.replace",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkAclDelete = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/acl.delete",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var postV1StudioSdkAclList = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/v1/studio/sdk/acl.list",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkAclUpsert = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/acl.upsert",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkAuthorizationPredicatesCreate = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/authorization_predicates.create",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkAuthorizationPredicatesDelete = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/authorization_predicates.delete",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkAuthorizationPredicatesGet = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/authorization_predicates.get",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkAuthorizationPredicatesList = (options) => (options?.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/authorization_predicates.list",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options?.headers
+  }
+});
+var postV1StudioSdkAuthorizationPredicatesTypes = (options) => (options?.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/authorization_predicates.types",
+  ...options
+});
+var postV1StudioSdkAuthorizationPredicatesUpdate = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/authorization_predicates.update",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkComponentsCreate = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/components.create",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkComponentsGet = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/components.get",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkComponentsList = (options) => (options?.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/components.list",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options?.headers
+  }
+});
+var postV1StudioSdkComponentsUpdate = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/components.update",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkConnectorsActivate = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/connectors.activate",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkConnectorsCreate = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/connectors.create",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkConnectorsDelete = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/connectors.delete",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkConnectorsDisable = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/connectors.disable",
   ...options,
   headers: {
     "Content-Type": "application/json",
@@ -814,6 +981,78 @@ var postV1StudioSdkConnectorsList = (options) => (options?.client ?? client).pos
     ...options?.headers
   }
 });
+var postV1StudioSdkConnectorsSchemas = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/connectors.schemas",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkConnectorsTable = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/connectors.table",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkConnectorsTables = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/connectors.tables",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkConnectorsTest = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/connectors.test",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkConnectorsTestSql = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/connectors.test_sql",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkConnectorsUpdate = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/connectors.update",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkNamespacesCreate = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/namespaces.create",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkNamespacesDelete = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/namespaces.delete",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var postV1StudioSdkNamespacesGet = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/v1/studio/sdk/namespaces.get",
@@ -830,6 +1069,24 @@ var postV1StudioSdkNamespacesList = (options) => (options?.client ?? client).pos
   headers: {
     "Content-Type": "application/json",
     ...options?.headers
+  }
+});
+var postV1StudioSdkNamespacesUpdate = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/namespaces.update",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkPreviewExecute = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/preview.execute",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
   }
 });
 var postV1StudioSdkPublicationsEventsList = (options) => (options.client ?? client).post({
@@ -850,32 +1107,327 @@ var postV1StudioSdkPublicationsGet = (options) => (options.client ?? client).pos
     ...options.headers
   }
 });
-var postV1StudioSdkReportsGet = (options) => (options.client ?? client).post({
+var postV1StudioSdkPublicationsPublish = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/v1/studio/sdk/reports.get",
+  url: "/v1/studio/sdk/publications.publish",
   ...options,
   headers: {
     "Content-Type": "application/json",
     ...options.headers
   }
 });
-var postV1StudioSdkReportsList = (options) => (options?.client ?? client).post({
+var postV1StudioSdkPublicationsRollback = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/v1/studio/sdk/reports.list",
+  url: "/v1/studio/sdk/publications.rollback",
   ...options,
   headers: {
     "Content-Type": "application/json",
-    ...options?.headers
+    ...options.headers
+  }
+});
+var postV1StudioSdkPublicationsUnpublish = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/publications.unpublish",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkResourcesDeleteFile = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/resources.delete_file",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkResourcesDeleteFolder = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/resources.delete_folder",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkResourcesDeleteSkill = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/resources.delete_skill",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkResourcesGet = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/resources.get",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkResourcesUpsertFile = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/resources.upsert_file",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkResourcesUpsertFolder = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/resources.upsert_folder",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkResourcesUpsertSkill = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/resources.upsert_skill",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkRuntimeStatus = (options) => (options?.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/runtime.status",
+  ...options
+});
+var postV1StudioSdkVersionsApply = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/versions.apply",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkVersionsBuilder = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/versions.builder",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkVersionsCreate = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/versions.create",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkVersionsDescriptor = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/versions.descriptor",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkVersionsDownload = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/versions.download",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkVersionsExportDql = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/versions.export_dql",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkVersionsGet = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/versions.get",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkVersionsInspect = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/versions.inspect",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkVersionsList = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/versions.list",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkVersionsLoadArchive = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/versions.load_archive",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkVersionsLoadDql = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/versions.load_dql",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkVersionsTestCompose = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/versions.test_compose",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkVersionsTestRelation = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/versions.test_relation",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkVersionsTestView = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/versions.test_view",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkVersionsValidate = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/versions.validate",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkVersionsWarmup = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/versions.warmup",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkVersionsWarmupGet = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/versions.warmup_get",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkVersionsWarmupList = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/versions.warmup_list",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
   }
 });
 export {
+  postV1StudioSdkAccessContext,
+  postV1StudioSdkAccessGet,
+  postV1StudioSdkAccessReplace,
+  postV1StudioSdkAclDelete,
   postV1StudioSdkAclList,
+  postV1StudioSdkAclUpsert,
+  postV1StudioSdkAuthorizationPredicatesCreate,
+  postV1StudioSdkAuthorizationPredicatesDelete,
+  postV1StudioSdkAuthorizationPredicatesGet,
+  postV1StudioSdkAuthorizationPredicatesList,
+  postV1StudioSdkAuthorizationPredicatesTypes,
+  postV1StudioSdkAuthorizationPredicatesUpdate,
+  postV1StudioSdkComponentsCreate,
+  postV1StudioSdkComponentsGet,
+  postV1StudioSdkComponentsList,
+  postV1StudioSdkComponentsUpdate,
+  postV1StudioSdkConnectorsActivate,
+  postV1StudioSdkConnectorsCreate,
+  postV1StudioSdkConnectorsDelete,
+  postV1StudioSdkConnectorsDisable,
   postV1StudioSdkConnectorsGet,
   postV1StudioSdkConnectorsList,
+  postV1StudioSdkConnectorsSchemas,
+  postV1StudioSdkConnectorsTable,
+  postV1StudioSdkConnectorsTables,
+  postV1StudioSdkConnectorsTest,
+  postV1StudioSdkConnectorsTestSql,
+  postV1StudioSdkConnectorsUpdate,
+  postV1StudioSdkNamespacesCreate,
+  postV1StudioSdkNamespacesDelete,
   postV1StudioSdkNamespacesGet,
   postV1StudioSdkNamespacesList,
+  postV1StudioSdkNamespacesUpdate,
+  postV1StudioSdkPreviewExecute,
   postV1StudioSdkPublicationsEventsList,
   postV1StudioSdkPublicationsGet,
-  postV1StudioSdkReportsGet,
-  postV1StudioSdkReportsList
+  postV1StudioSdkPublicationsPublish,
+  postV1StudioSdkPublicationsRollback,
+  postV1StudioSdkPublicationsUnpublish,
+  postV1StudioSdkResourcesDeleteFile,
+  postV1StudioSdkResourcesDeleteFolder,
+  postV1StudioSdkResourcesDeleteSkill,
+  postV1StudioSdkResourcesGet,
+  postV1StudioSdkResourcesUpsertFile,
+  postV1StudioSdkResourcesUpsertFolder,
+  postV1StudioSdkResourcesUpsertSkill,
+  postV1StudioSdkRuntimeStatus,
+  postV1StudioSdkVersionsApply,
+  postV1StudioSdkVersionsBuilder,
+  postV1StudioSdkVersionsCreate,
+  postV1StudioSdkVersionsDescriptor,
+  postV1StudioSdkVersionsDownload,
+  postV1StudioSdkVersionsExportDql,
+  postV1StudioSdkVersionsGet,
+  postV1StudioSdkVersionsInspect,
+  postV1StudioSdkVersionsList,
+  postV1StudioSdkVersionsLoadArchive,
+  postV1StudioSdkVersionsLoadDql,
+  postV1StudioSdkVersionsTestCompose,
+  postV1StudioSdkVersionsTestRelation,
+  postV1StudioSdkVersionsTestView,
+  postV1StudioSdkVersionsValidate,
+  postV1StudioSdkVersionsWarmup,
+  postV1StudioSdkVersionsWarmupGet,
+  postV1StudioSdkVersionsWarmupList
 };

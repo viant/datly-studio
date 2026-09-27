@@ -14,6 +14,7 @@ export function ReaderResourcesDialog({ isOpen, initialAction = '', api, report,
   const [skill, setSkill] = useState({ folderId: '', skillRoot: '.' });
   const [pendingDelete, setPendingDelete] = useState(null);
   const [conflict, setConflict] = useState(null);
+  const [partialFailure, setPartialFailure] = useState('');
   const [mcpTools, setMCPTools] = useState([]);
   const [toolToAdd, setToolToAdd] = useState('');
   const [toolsLoading, setToolsLoading] = useState(false);
@@ -32,7 +33,7 @@ export function ReaderResourcesDialog({ isOpen, initialAction = '', api, report,
 
   const load = async () => {
     if (!report || !version) return;
-    setLoading(true); setError(''); setConflict(null);
+    setLoading(true); setError(''); setConflict(null); setPartialFailure('');
     try {
       const next = await api.getResources(report.id, version.versionNo);
       setSnapshot(next);
@@ -56,13 +57,22 @@ export function ReaderResourcesDialog({ isOpen, initialAction = '', api, report,
   useEffect(() => { if (!isOpen) return; return loadMCPTools(); }, [api, isOpen]);
 
   const apply = async (action) => {
-    setSaving(true); setError('');
+    setSaving(true); setError(''); setConflict(null); setPartialFailure('');
+    let intermediate = null;
     try {
-      const next = await action();
+      const next = await action((saved) => { intermediate = saved; });
       setSnapshot(next);
       onChanged?.(next.version);
       if (!skill.folderId && next?.folders?.[0]?.folderId) setSkill((current) => ({ ...current, folderId: next.folders[0].folderId }));
-    } catch (cause) { if(cause?.code==='conflict')setConflict(cause);else setError(cause.message); }
+    } catch (cause) {
+      if (intermediate) {
+        setSnapshot(intermediate);
+        onChanged?.(intermediate.version);
+        setPendingDelete(null);
+        setPartialFailure(`A resource change was saved at source revision ${intermediate.version.sourceRevision}, but the skill operation did not finish: ${cause.message}. The serving reader was not republished. Reload resources to inspect the draft before retrying.`);
+      } else if (cause?.code === 'conflict') setConflict(cause);
+      else setError(cause.message);
+    }
     finally { setSaving(false); }
   };
   const folders = snapshot?.folders ?? [];
@@ -93,13 +103,14 @@ export function ReaderResourcesDialog({ isOpen, initialAction = '', api, report,
   const remove=async()=>{
     if(!pendingDelete)return;
     const target=pendingDelete;
-    await apply(async()=>{
+    await apply(async(markChanged)=>{
       let next;
       if(target.kind==='file')next=await api.deleteResourceFile(report.id,version.versionNo,target.item.resourceId,revision);
       else if(target.kind==='folder')next=await api.deleteResourceFolder(report.id,version.versionNo,target.item.folderId,revision);
       else {
         const associated=skillFileFor(target.item);
         next=await api.deleteSkillRoot(report.id,version.versionNo,target.item.skillId,revision);
+        markChanged(next);
         if(associated?.resourceId)next=await api.deleteResourceFile(report.id,version.versionNo,associated.resourceId,next.version.sourceRevision);
       }
       setPendingDelete(null);
@@ -131,8 +142,9 @@ export function ReaderResourcesDialog({ isOpen, initialAction = '', api, report,
     setSkill({...skill,folderId,skillRoot:root});
     if(parent){const relative=root==='.'?'':`${root}/`;setFile({...file,namespace:parent.namespace,resourcePath:`${parent.rootPath}/${relative}SKILL.md`});}
   };
-  const saveSkill=()=>apply(async()=>{
+  const saveSkill=()=>apply(async(markChanged)=>{
     const withFile=await api.upsertResourceFile({reportId:report.id,versionNo:version.versionNo,expectedSourceRevision:revision,...file});
+    markChanged(withFile);
     return api.upsertSkillRoot({reportId:report.id,versionNo:version.versionNo,expectedSourceRevision:withFile.version.sourceRevision,...skill});
   });
 
@@ -140,6 +152,7 @@ export function ReaderResourcesDialog({ isOpen, initialAction = '', api, report,
     <DialogBody className="studio-connector-dialog-body">
       <div className="studio-validation-revision"><span>Revision {revision ?? '—'}</span><Tag minimal>{files.length} files · {folders.length} folders · {skills.length} skills</Tag></div>
       {error && <Callout intent="danger" role="alert">{error}</Callout>}
+      {partialFailure && <Callout intent="warning" title="Skill change partly saved" role="alert">{partialFailure}<Button small minimal intent="warning" icon="refresh" onClick={load}>Reload resources</Button></Callout>}
       {conflict&&<Callout intent="warning" title="Resources changed elsewhere" role="alert">No resource change was applied. Reload the exact version before reviewing and retrying your edit.<Button small minimal intent="warning" icon="refresh" onClick={load}>Reload resources</Button></Callout>}
       {loading && <div className="studio-muted">Loading versioned resources…</div>}
       {!loading && <>

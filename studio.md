@@ -24,7 +24,20 @@ Studio must let users:
 - audit ownership, permissions, publication, and rollback
 - manage the experience through a UI built with `github.com/viant/forge`
 
-The legacy catalog names `reports` and `report_versions` identify versioned Datly components, not presentation reports. Every executable component version compiles to one Datly 1.0 `spec.Component`. Cube settings are optional component facets, not a separate execution engine.
+The `components` catalog and its version records identify Datly components, not presentation reports. Every executable component version compiles to one Datly 1.0 `spec.Component`. Cube settings are optional component facets, not a separate execution engine.
+
+Datly Studio does not author or expose presentation reports; they are outside
+this project. Its authored outputs are Datly component definitions for
+MCP tools and Skills. HTTP routes remain part of Datly's execution contract,
+not a Studio report-publishing surface. The catalog table and SDK operations
+use `components`; historical `report_*` relation names remain internal storage
+identifiers during the broader schema migration.
+
+An optional future UI definition can describe forms, field layout, and actions
+against a validated component descriptor. It should be a versioned, typed
+artifact with stable references to component inputs and outputs, validated
+before publication and rendered by a UI consumer such as Forge. It must not
+become a second query, authorization, or report execution model.
 
 Runtime listeners are deliberately separate: the Studio SDK/BFF uses 8080,
 linked Studio control-plane Datly components use 8081, dynamic reader HTTP uses
@@ -45,7 +58,7 @@ Datly 1.0 owns:
 - predicates, selectors, codecs, partitions, and caches
 - reader plans and reader execution
 - route execution
-- HTTP, MCP, OpenAPI, and report adapters
+- HTTP, MCP, and OpenAPI adapters used by Datly components
 - atomic application generation publication
 
 Studio must not implement parallel reader, relation, binder, predicate, or SQL-building behavior.
@@ -946,8 +959,8 @@ References:
 Initial windows:
 
 - Connector catalog/editor/test workflow
-- Report catalog
-- Report editor with Overview, SQL/DQL, Views, Parameters, Predicates, Selectors, Cube, MCP, Skills, Preview, Diagnostics, Versions, and Permissions tabs
+- Component catalog (backed by the `components` storage and SDK contract)
+- Component editor with Overview, SQL/DQL, Views, Parameters, Predicates, Selectors, Cube, MCP, Skills, Preview, Diagnostics, Versions, and Permissions tabs
 - View/relation tree editor
 - Generated input preview form and result table/tree
 - Version diff and publish/rollback workflow
@@ -957,8 +970,8 @@ Forge receives SDK DTOs. Raw spec JSON may be shown only in an advanced inspecto
 ### 13.1 Initial Studio shell and identity modes
 
 `ui/` is the application-owned Forge composition. It begins with the live
-Reports and Connectors catalog surfaces and deliberately calls only the public
-SDK operation names (`reports.list`, `connectors.list`) through `StudioAPI`.
+Components and Connectors catalog surfaces and deliberately calls only the public
+SDK operation names (`components.list`, `connectors.list`) through `StudioAPI`.
 The browser does not know about SQL, DQL, generated packages, or the removed
 control implementation.
 
@@ -1017,7 +1030,7 @@ May be required to construct deterministic contracts for DQL-only components wit
 
 #### Component/reader descriptor
 
-Studio needs a supported read-only descriptor containing routes, parameters, predicates, views, relations, columns, selector policies, resolved types, output slots, and MCP/report exposure.
+Studio needs a supported read-only descriptor containing routes, parameters, predicates, views, relations, columns, selector policies, resolved types, output slots, and MCP/Skill exposure.
 
 #### Semantic editor/validator
 

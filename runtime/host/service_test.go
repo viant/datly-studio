@@ -7,27 +7,35 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"database/sql"
+	"encoding/base64"
+	"encoding/json"
 	"encoding/pem"
 	"io"
+	"math/big"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 
+	jwtv5 "github.com/golang-jwt/jwt/v5"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk/access"
 	accessstore "github.com/viant/datly-studio/store/sql/access"
+	mcpschema "github.com/viant/mcp-protocol/schema"
+	mcpprotocol "github.com/viant/mcp/server"
 	_ "modernc.org/sqlite"
 )
 
 func TestDynamicHostServesPublishedHTTPAndDedicatedMCP(t *testing.T) {
-	t.Run("legacy", func(t *testing.T) { testDynamicHost(t, false) })
-	t.Run("generic-access", func(t *testing.T) { testDynamicHost(t, true) })
+	t.Run("legacy", func(t *testing.T) { testDynamicHost(t, false, false) })
+	t.Run("generic-access", func(t *testing.T) { testDynamicHost(t, true, false) })
+	t.Run("identity-token", func(t *testing.T) { testDynamicHost(t, false, true) })
 }
 
-func testDynamicHost(t *testing.T, generic bool) {
+func testDynamicHost(t *testing.T, generic, identityRequired bool) {
 	ctx := context.Background()
 	root := t.TempDir()
 	if err := os.WriteFile(filepath.Join(root, "go.mod"), []byte("module example.com/runtime\n\ngo 1.25.0\n"), 0o600); err != nil {
@@ -66,12 +74,13 @@ func testDynamicHost(t *testing.T, generic bool) {
 	if _, err = studio.Exec(`INSERT INTO connectors(name,driver,dsn_template,owner_id,status,options_json,etag,created_at,updated_at) VALUES('lookup','sqlite',?,'owner','active','{}',1,?,?)`, lookupDSN, now, now); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = studio.Exec(`INSERT INTO reports(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('records','records','Records','owner','active','source','example.com/runtime/read','records',1,?,?)`, now, now); err != nil {
+	if _, err = studio.Exec(`INSERT INTO components(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('records','records','Records','owner','active','source','example.com/runtime/read','records',1,?,?)`, now, now); err != nil {
 		t.Fatal(err)
 	}
 	dql := `#package('example.com/runtime/read')
 #setting($_ = $connector('source'))
 #setting($_ = $route('/records','GET'))
+#setting($_ = $mcp('records.read','Read records'))
 #define($_ = $Records<[]*Record>(output/view))
 SELECT records.*, labels.*, type(records,'Record'), type(labels,'Label'), use_connector(labels,'lookup')
 FROM (SELECT id,name FROM records) records
@@ -87,6 +96,30 @@ JOIN (SELECT id,label FROM labels) labels ON labels.id=records.id`
 	}
 	_ = studio.Close()
 	runtimeConfig := Config{HTTP: Listener{Address: "127.0.0.1:0"}, MCP: Listener{Address: "127.0.0.1:0"}, Authentication: Authentication{DefaultMode: "public"}, Studio: Studio{Driver: "sqlite", DSN: studioDSN}, Admin: Admin{Token: "test-token"}, RootDir: root}
+	noCredentials := false
+	runtimeConfig.MCP.CORS = &mcpprotocol.Cors{AllowOrigins: []string{"https://studio.example.com"},
+		AllowMethods: []string{"POST", "OPTIONS"}, AllowHeaders: []string{"Content-Type", "Authorization", "Mcp-Protocol-Version", "Mcp-Method"},
+		AllowCredentials: &noCredentials}
+	runtimeConfig.HTTP.CORS = &mcpprotocol.Cors{AllowOrigins: []string{"https://studio.example.com"},
+		AllowMethods: []string{"GET", "POST", "OPTIONS"}, AllowHeaders: []string{"Content-Type", "Authorization"},
+		AllowCredentials: &noCredentials}
+	var identityKey *rsa.PrivateKey
+	if identityRequired {
+		identityKey, err = rsa.GenerateKey(rand.Reader, 2048)
+		if err != nil {
+			t.Fatal(err)
+		}
+		keyID := "studio-identity-test"
+		jwks := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			n := base64.RawURLEncoding.EncodeToString(identityKey.PublicKey.N.Bytes())
+			e := base64.RawURLEncoding.EncodeToString(big.NewInt(int64(identityKey.PublicKey.E)).Bytes())
+			_ = json.NewEncoder(w).Encode(map[string]any{"keys": []map[string]string{{"kty": "RSA", "kid": keyID, "use": "sig", "alg": "RS256", "n": n, "e": e}}})
+		}))
+		defer jwks.Close()
+		runtimeConfig.Authentication = Authentication{DefaultMode: "required", CertURL: jwks.URL,
+			Issuer: "https://identity.example", Audience: "studio-web"}
+	}
 	if generic {
 		key, e := rsa.GenerateKey(rand.Reader, 2048)
 		if e != nil {
@@ -123,6 +156,46 @@ JOIN (SELECT id,label FROM labels) labels ON labels.id=records.id`
 	httpAddress, mcpAddress := service.Addresses()
 	if httpAddress == "" || mcpAddress == "" || httpAddress == mcpAddress {
 		t.Fatalf("addresses=%q,%q", httpAddress, mcpAddress)
+	}
+	if identityRequired {
+		verifyPublishedIdentityRuntime(t, httpAddress, mcpAddress, identityKey)
+		return
+	}
+	preflight, err := http.NewRequest(http.MethodOptions, "http://"+mcpAddress+"/mcp", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	preflight.Header.Set("Origin", "https://studio.example.com")
+	preflight.Header.Set("Access-Control-Request-Method", "POST")
+	preflight.Header.Set("Access-Control-Request-Headers", "authorization,mcp-protocol-version,mcp-method")
+	preflightResponse, err := http.DefaultClient.Do(preflight)
+	if err != nil {
+		t.Fatal(err)
+	}
+	preflightResponse.Body.Close()
+	if preflightResponse.StatusCode != http.StatusNoContent || preflightResponse.Header.Get("Access-Control-Allow-Origin") != "https://studio.example.com" ||
+		preflightResponse.Header.Get("Access-Control-Allow-Credentials") == "true" {
+		t.Fatalf("direct MCP preflight status=%d headers=%v", preflightResponse.StatusCode, preflightResponse.Header)
+	}
+	for _, change := range []func(*http.Request){
+		func(r *http.Request) { r.Header.Set("Origin", "https://other.example.com") },
+		func(r *http.Request) { r.Header.Set("Access-Control-Request-Method", "DELETE") },
+		func(r *http.Request) { r.Header.Set("Access-Control-Request-Headers", "x-admin-token") },
+	} {
+		denied, err := http.NewRequest(http.MethodOptions, "http://"+mcpAddress+"/mcp", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		denied.Header = preflight.Header.Clone()
+		change(denied)
+		result, err := http.DefaultClient.Do(denied)
+		if err != nil {
+			t.Fatal(err)
+		}
+		result.Body.Close()
+		if result.StatusCode != http.StatusForbidden || result.Header.Get("Access-Control-Allow-Origin") != "" {
+			t.Fatalf("unsafe MCP preflight status=%d headers=%v", result.StatusCode, result.Header)
+		}
 	}
 	response, err := http.Get("http://" + httpAddress + "/records")
 	if err != nil {
@@ -253,5 +326,119 @@ JOIN (SELECT id,label FROM labels) labels ON labels.id=records.id`
 		if denied.StatusCode != http.StatusForbidden || strings.Contains(string(body), "ready") {
 			t.Fatalf("runtime policy bypass: %d %s", denied.StatusCode, body)
 		}
+	}
+}
+
+func verifyPublishedIdentityRuntime(t *testing.T, httpAddress, mcpAddress string, key *rsa.PrivateKey) {
+	t.Helper()
+	tools, err := json.Marshal(map[string]any{"jsonrpc": "2.0", "id": 1, "method": mcpschema.MethodToolsList,
+		"params": map[string]any{"_meta": map[string]any{"io.modelcontextprotocol/protocolVersion": mcpschema.LatestProtocolVersion,
+			"io.modelcontextprotocol/clientCapabilities": map[string]any{}}}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, candidate := range []struct {
+		name, issuer, audience, subject string
+		authorized                      bool
+	}{
+		{"Studio ID token", "https://identity.example", "studio-web", "owner", true},
+		{"other issuer", "https://other.example", "studio-web", "owner", false},
+		{"other audience", "https://identity.example", "other-client", "owner", false},
+		{"missing subject", "https://identity.example", "studio-web", "", false},
+	} {
+		t.Run(candidate.name, func(t *testing.T) {
+			claims := jwtv5.MapClaims{"iss": candidate.issuer, "aud": candidate.audience, "sub": candidate.subject,
+				"exp": time.Now().Add(time.Hour).Unix()}
+			token := jwtv5.NewWithClaims(jwtv5.SigningMethodRS256, claims)
+			token.Header["kid"] = "studio-identity-test"
+			signed, err := token.SignedString(key)
+			if err != nil {
+				t.Fatal(err)
+			}
+			for _, target := range []struct {
+				name, url, method string
+				body              []byte
+			}{
+				{"HTTP", "http://" + httpAddress + "/records", http.MethodGet, nil},
+				{"MCP", "http://" + mcpAddress + "/mcp", http.MethodPost, tools},
+			} {
+				t.Run(target.name, func(t *testing.T) {
+					request, err := http.NewRequest(target.method, target.url, bytes.NewReader(target.body))
+					if err != nil {
+						t.Fatal(err)
+					}
+					request.Header.Set("Authorization", "Bearer "+signed)
+					request.Header.Set("Origin", "https://studio.example.com")
+					if target.name == "MCP" {
+						request.Header.Set("Content-Type", "application/json")
+						request.Header.Set("Accept", "application/json, text/event-stream")
+						request.Header.Set(mcpschema.HeaderProtocolVersion, mcpschema.LatestProtocolVersion)
+						request.Header.Set(mcpschema.HeaderMethod, mcpschema.MethodToolsList)
+					}
+					response, err := http.DefaultClient.Do(request)
+					if err != nil {
+						t.Fatal(err)
+					}
+					payload, _ := io.ReadAll(response.Body)
+					response.Body.Close()
+					want := http.StatusUnauthorized
+					if candidate.authorized {
+						want = http.StatusOK
+					}
+					if response.StatusCode != want || response.Header.Get("Access-Control-Allow-Origin") != "https://studio.example.com" {
+						t.Fatalf("status=%d want=%d origin=%q body=%s", response.StatusCode, want,
+							response.Header.Get("Access-Control-Allow-Origin"), payload)
+					}
+					if target.name == "MCP" && len(response.Header.Values("Set-Cookie")) != 0 {
+						t.Fatalf("direct MCP response unexpectedly set cookies: %v", response.Header.Values("Set-Cookie"))
+					}
+					if candidate.authorized && target.name == "HTTP" && !strings.Contains(string(payload), "ready") {
+						t.Fatalf("published reader did not execute: %s", payload)
+					}
+					if candidate.authorized && target.name == "MCP" && !strings.Contains(string(payload), "records.read") {
+						t.Fatalf("published reader tool was not listed: %s", payload)
+					}
+				})
+			}
+		})
+	}
+	valid := jwtv5.NewWithClaims(jwtv5.SigningMethodRS256, jwtv5.MapClaims{"iss": "https://identity.example",
+		"aud": "studio-web", "sub": "owner", "exp": time.Now().Add(time.Hour).Unix()})
+	valid.Header["kid"] = "studio-identity-test"
+	signed, err := valid.SignedString(key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	call, err := json.Marshal(map[string]any{"jsonrpc": "2.0", "id": 2, "method": mcpschema.MethodToolsCall,
+		"params": map[string]any{"name": "records.read", "arguments": map[string]any{},
+			"_meta": map[string]any{"io.modelcontextprotocol/protocolVersion": mcpschema.LatestProtocolVersion,
+				"io.modelcontextprotocol/clientCapabilities": map[string]any{}}}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	request, err := http.NewRequest(http.MethodPost, "http://"+mcpAddress+"/mcp", bytes.NewReader(call))
+	if err != nil {
+		t.Fatal(err)
+	}
+	request.Header.Set("Authorization", "Bearer "+signed)
+	request.Header.Set("Origin", "https://studio.example.com")
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("Accept", "application/json, text/event-stream")
+	request.Header.Set(mcpschema.HeaderProtocolVersion, mcpschema.LatestProtocolVersion)
+	request.Header.Set(mcpschema.HeaderMethod, mcpschema.MethodToolsCall)
+	request.Header.Set("Mcp-Name", "records.read")
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	payload, _ := io.ReadAll(response.Body)
+	response.Body.Close()
+	if response.StatusCode != http.StatusOK || response.Header.Get("Access-Control-Allow-Origin") != "https://studio.example.com" ||
+		!strings.Contains(string(payload), "ready") {
+		t.Fatalf("published ID-token MCP call status=%d origin=%q body=%s", response.StatusCode,
+			response.Header.Get("Access-Control-Allow-Origin"), payload)
+	}
+	if len(response.Header.Values("Set-Cookie")) != 0 {
+		t.Fatalf("direct MCP tool unexpectedly set cookies: %v", response.Header.Values("Set-Cookie"))
 	}
 }

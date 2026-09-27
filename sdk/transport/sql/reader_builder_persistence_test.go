@@ -36,7 +36,7 @@ func TestReaderBuilderRollsBackVersionWhenReportWriteFails(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	report, err := client.Reports().Create(owner, sdk.CreateReportInput{Slug: "builder-rollback", Title: "Builder rollback", DefaultConnectorName: "main"})
+	report, err := client.Components().Create(owner, sdk.CreateComponentInput{Slug: "builder-rollback", Title: "Builder rollback", DefaultConnectorName: "main"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -44,7 +44,7 @@ func TestReaderBuilderRollsBackVersionWhenReportWriteFails(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := db.Exec(`CREATE TRIGGER reject_report_update BEFORE UPDATE ON reports BEGIN SELECT RAISE(ABORT,'report write failure'); END`); err != nil {
+	if _, err := db.Exec(`CREATE TRIGGER reject_report_update BEFORE UPDATE ON components BEGIN SELECT RAISE(ABORT,'report write failure'); END`); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := transport.persistReaderBuilderDQL(owner, report.ID, version, "SELECT 2", "lookup", false); err == nil {

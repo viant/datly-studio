@@ -42,9 +42,7 @@ SELECT connectors.*, type(connectors, 'Connector'),
 	   tag(connectors.last_test_status, 'json:"lastTestStatus,omitempty"'),
 	   tag(connectors.last_test_error_code, 'json:"lastTestErrorCode,omitempty"'),
 	   tag(connectors.last_tested_at, 'json:"lastTestedAt,omitempty"'),
-       set_limit(connectors, 500),
-       selector_limit(connectors, true),
-       selector_offset(connectors, true)
+       set_limit(connectors, 500)
 FROM (
     ${embed:sql/read.sql}
 ) connectors

@@ -20,7 +20,7 @@
 #define($_ = $Offset<int>(query/offset).Optional().QuerySelector('event'))
 #define($_ = $Events<[]*PublicationEvent>(output/view))
 SELECT event.*, type(event, 'PublicationEvent'),
-       set_limit(event, 100), selector_fields(event, true), selector_limit(event, true), selector_offset(event, true),
+       set_limit(event, 100),
        allowed_order_by_columns(event, 'occurred_at,operation,status,version_no,generation_no,requested_by')
 FROM (${embed:sql/read.sql}) event
 WHERE 1=1

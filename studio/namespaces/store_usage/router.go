@@ -10,7 +10,7 @@ func init() {}
 
 // Component is the generated component scaffold for usage.
 type UsageComponent struct {
-	Contract xdatly.Component[Input, Output] "component:\"usage,path=/_studio/namespace-store/usage,method=GET,connector=studio,view=usage\" routeName:\"usage\" caseFormat:\"lc\""
+	Contract xdatly.Component[Input, Output] "component:\"usage,path=/_studio/namespace-store/usage,method=GET,connector=studio,view=usage,internal=true\" routeName:\"usage\" caseFormat:\"lc\""
 }
 
 // UsageDatlyType keeps the public component type linked for blank-import discovery.

@@ -44,38 +44,23 @@ describe('Runtime catalogs', () => {
     await user.click(screen.getByRole('button',{name:'Open MCP tool alice.vendor.read component'}));
     expect(onOpen).toHaveBeenCalledWith(expect.objectContaining({id:'vendor',versionNo:2}));
     onOpen.mockClear();
-    await user.click(screen.getByRole('button', { name: 'Edit' }));
+    await user.click(screen.getByRole('button', { name: 'Edit in component' }));
     expect(onOpen).toHaveBeenCalledWith(expect.objectContaining({ id: 'vendor', title: 'Vendor Catalog', ownerPackage:'alice', versionNo:2, openResources: true }));
   });
 
-  test('assigns a published MCP tool from the skill toolbar and republishes',async()=>{
+  test('keeps live skill inventory read-only until the owning component is opened',async()=>{
     const user=userEvent.setup();
-    const snapshot={version:{versionNo:2,sourceRevision:4},files:[{resourceId:'file',namespace:'alice.docs',resourcePath:'guide/SKILL.md',content:'---\nname: alice-guide\ndescription: Guide\nallowed-tools: alice.vendor.read\n---\nGuide'}],folders:[{folderId:'folder',namespace:'alice.docs',rootPath:'guide',uriPrefix:'skill://alice-guide/'}],skills:[{skillId:'guide',folderId:'folder',skillRoot:'.'}]};
-    const next={...snapshot,version:{versionNo:2,sourceRevision:5}};
-    const api={listMCPSkills:vi.fn().mockResolvedValue([{uri:'skill://alice-guide/SKILL.md',frontmatter:{name:'alice-guide',description:'Guide','allowed-tools':'alice.vendor.read'}}]),listMCPTools:vi.fn().mockResolvedValue([{name:'alice.vendor.read'},{name:'extra.tool'}]),getResources:vi.fn().mockResolvedValue(snapshot),upsertResourceFile:vi.fn().mockResolvedValue(next),validateVersion:vi.fn().mockResolvedValue({valid:true}),publishReader:vi.fn().mockResolvedValue({status:'active'})};
-    const onRefresh=vi.fn().mockResolvedValue();
-    render(<RuntimeWorkspace api={api} mode="skills" status={status} loading={false} error="" onRefresh={onRefresh} onOpenComponent={vi.fn()}/>);
+    const api={listMCPSkills:vi.fn().mockResolvedValue([{uri:'skill://alice-guide/SKILL.md',frontmatter:{name:'alice-guide',description:'Guide','allowed-tools':'alice.vendor.read'}}]),listMCPTools:vi.fn().mockResolvedValue([{name:'alice.vendor.read'}]),upsertResourceFile:vi.fn(),deleteSkillRoot:vi.fn(),publishReader:vi.fn()};
+    const onOpen=vi.fn();
+    render(<RuntimeWorkspace api={api} mode="skills" status={status} loading={false} error="" onRefresh={vi.fn()} onOpenComponent={onOpen}/>);
     await screen.findByText('alice-guide');
-    await user.selectOptions(screen.getByLabelText('Assign published MCP tool'),'extra.tool');
-    await user.click(screen.getByRole('button',{name:'Assign'}));
-    expect(api.upsertResourceFile).toHaveBeenCalledWith(expect.objectContaining({content:expect.stringContaining('allowed-tools: "alice.vendor.read extra.tool"')}));
-    expect(api.publishReader).toHaveBeenCalledWith('vendor',2,5,expect.stringContaining('Update allowed MCP tools'));
-    expect(api.validateVersion).toHaveBeenCalledWith('vendor',2,5);
-  });
-
-  test('deletes the selected skill declaration and document from the toolbar',async()=>{
-    const user=userEvent.setup();
-    const snapshot={version:{versionNo:2,sourceRevision:4},files:[{resourceId:'file',namespace:'alice.docs',resourcePath:'guide/SKILL.md',content:'---\nname: alice-guide\ndescription: Guide\nallowed-tools: alice.vendor.read\n---\nGuide'}],folders:[{folderId:'folder',namespace:'alice.docs',rootPath:'guide',uriPrefix:'skill://alice-guide/'}],skills:[{skillId:'guide',folderId:'folder',skillRoot:'.'}]};
-    const withoutRoot={...snapshot,version:{versionNo:2,sourceRevision:5},skills:[]};
-    const empty={...withoutRoot,version:{versionNo:2,sourceRevision:6},files:[]};
-    const api={listMCPSkills:vi.fn().mockResolvedValue([{uri:'skill://alice-guide/SKILL.md',frontmatter:{name:'alice-guide',description:'Guide','allowed-tools':'alice.vendor.read'}}]),listMCPTools:vi.fn().mockResolvedValue([{name:'alice.vendor.read'}]),getResources:vi.fn().mockResolvedValue(snapshot),deleteSkillRoot:vi.fn().mockResolvedValue(withoutRoot),deleteResourceFile:vi.fn().mockResolvedValue(empty),validateVersion:vi.fn().mockResolvedValue({valid:true}),publishReader:vi.fn().mockResolvedValue({status:'active'})};
-    render(<RuntimeWorkspace api={api} mode="skills" status={status} loading={false} error="" onRefresh={vi.fn().mockResolvedValue()} onOpenComponent={vi.fn()}/>);
-    await screen.findByText('alice-guide');
-    await user.click(screen.getByRole('button',{name:'Delete'}));
-    await user.click(await screen.findByRole('button',{name:'Delete skill'}));
-    expect(api.deleteSkillRoot).toHaveBeenCalledWith('vendor',2,'guide',4);
-    expect(api.deleteResourceFile).toHaveBeenCalledWith('vendor',2,'file',5);
-    expect(api.publishReader).toHaveBeenCalledWith('vendor',2,6,expect.stringContaining('Remove skill'));
-    expect(api.validateVersion).toHaveBeenCalledWith('vendor',2,6);
+    expect(screen.getByRole('radio',{name:'Select alice-guide skill'}).getAttribute('name')).toBe('published-skill');
+    expect(screen.queryByRole('button',{name:'Assign'})).toBeNull();
+    expect(screen.queryByRole('button',{name:'Remove alice.vendor.read from skill'})).toBeNull();
+    await user.click(screen.getByRole('button',{name:'Edit in component'}));
+    expect(onOpen).toHaveBeenCalledWith(expect.objectContaining({id:'vendor',openResources:true}));
+    expect(api.upsertResourceFile).not.toHaveBeenCalled();
+    expect(api.deleteSkillRoot).not.toHaveBeenCalled();
+    expect(api.publishReader).not.toHaveBeenCalled();
   });
 });

@@ -94,26 +94,26 @@ func TestProxyExpandsSessionToBearerAndStripsControlHeaders(t *testing.T) {
 	mux.Handle("/v1/studio/sdk/namespaces.get", preservingProxy)
 	mux.Handle("/v1/studio/sdk/publications.get", preservingProxy)
 	mux.Handle("/v1/studio/sdk/publications.events.list", preservingProxy)
-	mux.Handle("/v1/studio/sdk/reports.get", preservingProxy)
-	mux.Handle("/v1/studio/sdk/reports.list", preservingProxy)
+	mux.Handle("/v1/studio/sdk/components.get", preservingProxy)
+	mux.Handle("/v1/studio/sdk/components.list", preservingProxy)
 	mux.ServeHTTP(aclResponse, aclRequest)
 	if aclResponse.Code != http.StatusNoContent || path != "/v1/studio/sdk/acl.list" ||
 		authorization != "Bearer jwt-token" || cookie != "" || developmentSubject != "" || calls != 2 {
 		t.Fatalf("native ACL proxy status=%d path=%q auth=%q cookie=%q dev=%q calls=%d",
 			aclResponse.Code, path, authorization, cookie, developmentSubject, calls)
 	}
-	reportRequest := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/reports.list", strings.NewReader(`{"limit":1}`))
+	reportRequest := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/components.list", strings.NewReader(`{"limit":1}`))
 	reportRequest.AddCookie(&http.Cookie{Name: DefaultCookieName, Value: id})
 	reportResponse := httptest.NewRecorder()
 	mux.ServeHTTP(reportResponse, reportRequest)
-	if reportResponse.Code != http.StatusNoContent || path != "/v1/studio/sdk/reports.list" || calls != 3 {
+	if reportResponse.Code != http.StatusNoContent || path != "/v1/studio/sdk/components.list" || calls != 3 {
 		t.Fatalf("native report proxy status=%d path=%q calls=%d", reportResponse.Code, path, calls)
 	}
-	getRequest := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/reports.get", strings.NewReader(`{"id":"r1"}`))
+	getRequest := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/components.get", strings.NewReader(`{"id":"r1"}`))
 	getRequest.AddCookie(&http.Cookie{Name: DefaultCookieName, Value: id})
 	getResponse := httptest.NewRecorder()
 	mux.ServeHTTP(getResponse, getRequest)
-	if getResponse.Code != http.StatusNoContent || path != "/v1/studio/sdk/reports.get" || calls != 4 {
+	if getResponse.Code != http.StatusNoContent || path != "/v1/studio/sdk/components.get" || calls != 4 {
 		t.Fatalf("native report-get proxy status=%d path=%q calls=%d", getResponse.Code, path, calls)
 	}
 	connectorRequest := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/connectors.list", strings.NewReader(`{"limit":1}`))
@@ -160,6 +160,65 @@ func TestProxyExpandsSessionToBearerAndStripsControlHeaders(t *testing.T) {
 	}
 }
 
+func TestAuthenticatedMCPToolCallPreservesToolRoutingWithoutBrowserBearer(t *testing.T) {
+	var called int
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		called++
+		if r.URL.Path != "/mcp" || r.Header.Get("Mcp-Method") != "tools/call" ||
+			r.Header.Get("Mcp-Name") != "owner.reader.read" ||
+			r.Header.Get("Mcp-Protocol-Version") != "2026-07-28" ||
+			r.Header.Get("Authorization") != "Bearer owner" ||
+			r.Header.Get("Cookie") != "" ||
+			r.Header.Get("X-Studio-Runtime-Token") != "" ||
+			r.Header.Get("X-Studio-Development-Subject") != "" {
+			t.Errorf("upstream path=%q headers=%v", r.URL.Path, r.Header)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"jsonrpc":"2.0","id":1,"result":{"structuredContent":{"rows":[{"id":1}]}}}`))
+	}))
+	defer upstream.Close()
+	target, err := url.Parse(upstream.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	service, err := New(Config{}, verifierStub{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	id, _, _, err := service.Exchange(context.Background(), "owner")
+	if err != nil {
+		t.Fatal(err)
+	}
+	proxy, err := service.Proxy(target, "/v1/studio/mcp")
+	if err != nil {
+		t.Fatal(err)
+	}
+	request := httptest.NewRequest(http.MethodPost, "/v1/studio/mcp/mcp", strings.NewReader(`{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"owner.reader.read","arguments":{}}}`))
+	request.AddCookie(&http.Cookie{Name: DefaultCookieName, Value: id})
+	request.Header.Set("Authorization", "Bearer attacker")
+	request.Header.Set("X-Studio-Runtime-Token", "attacker-admin")
+	request.Header.Set("X-Studio-Development-Subject", "attacker")
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("Mcp-Protocol-Version", "2026-07-28")
+	request.Header.Set("Mcp-Method", "tools/call")
+	request.Header.Set("Mcp-Name", "owner.reader.read")
+	response := httptest.NewRecorder()
+	proxy.ServeHTTP(response, request)
+	if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), `"rows"`) || called != 1 {
+		t.Fatalf("authenticated MCP status=%d body=%s calls=%d", response.Code, response.Body.String(), called)
+	}
+	request = httptest.NewRequest(http.MethodPost, "/v1/studio/mcp/mcp", nil)
+	request.Header.Set("Mcp-Method", "tools/call")
+	request.Header.Set("Mcp-Name", "owner.reader.read")
+	response = httptest.NewRecorder()
+	proxy.ServeHTTP(response, request)
+	if response.Code != http.StatusUnauthorized || called != 1 {
+		t.Fatalf("cookie-less MCP status=%d calls=%d", response.Code, called)
+	}
+}
+
 func TestBFFSessionExchangeAuthenticateAndLogout(t *testing.T) {
 	service, err := New(Config{CookieName: "studio_session"}, verifierStub{})
 	if err != nil {
@@ -179,7 +238,7 @@ func TestBFFSessionExchangeAuthenticateAndLogout(t *testing.T) {
 		t.Fatalf("cookie=%+v", cookie)
 	}
 
-	request := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/reports.list", nil)
+	request := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/components.list", nil)
 	request.AddCookie(cookie)
 	ctx, err := service.Authenticate(context.Background(), request)
 	if err != nil {

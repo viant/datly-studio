@@ -10,7 +10,7 @@ func init() {}
 
 // Component is the generated component scaffold for version.
 type VersionComponent struct {
-	Contract xdatly.Component[Input, Output] "component:\"version,path=/_studio/report-version-store/catalog,method=GET,connector=studio,view=version\" routeName:\"version\" caseFormat:\"lc\""
+	Contract xdatly.Component[Input, Output] "component:\"version,path=/_studio/report-version-store/catalog,method=GET,connector=studio,view=version,internal=true\" routeName:\"version\" caseFormat:\"lc\""
 }
 
 // VersionDatlyType keeps the public component type linked for blank-import discovery.

@@ -6,7 +6,7 @@ import {ImportComponentButton,DownloadComponentButton} from './ComponentTransfer
 
 test('icon-only import creates a draft and opens the imported version',async()=>{
  const user=userEvent.setup();const onImported=vi.fn();
- const api={listReports:vi.fn().mockResolvedValue({items:[{id:'reader',title:'Reader'}]}),loadDQL:vi.fn().mockResolvedValue({version:{versionNo:3}})};
+ const api={listComponents:vi.fn().mockResolvedValue({items:[{id:'reader',title:'Reader'}]}),loadDQL:vi.fn().mockResolvedValue({version:{versionNo:3}})};
  render(<ImportComponentButton api={api} onImported={onImported}/>);
  const button=screen.getByRole('button',{name:'Import component'});expect(button.textContent).toBe('');await user.click(button);
  await screen.findByRole('option',{name:'Reader'});await user.selectOptions(screen.getByLabelText('Component'),'reader');

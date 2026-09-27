@@ -10,6 +10,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/viant/datly-studio/internal/componentarchive"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
 )
@@ -35,7 +36,7 @@ func TestDownloadIncludesMoreThanOneHundredResourceFiles(t *testing.T) {
 	if _, err := db.ExecContext(ctx, `UPDATE connectors SET status='active' WHERE name=?`, connector.Name); err != nil {
 		t.Fatal(err)
 	}
-	report, err := client.Reports().Create(ctx, sdk.CreateReportInput{Slug: "many-files", Title: "Many files", DefaultConnectorName: connector.Name})
+	report, err := client.Components().Create(ctx, sdk.CreateComponentInput{Slug: "many-files", Title: "Many files", DefaultConnectorName: connector.Name})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -114,5 +115,19 @@ func TestDownloadIncludesMoreThanOneHundredResourceFiles(t *testing.T) {
 				t.Fatalf("download error=%v, want %q invalid argument", err, test.want)
 			}
 		})
+	}
+	resourceID := fmt.Sprintf("%064x", 9999)
+	_, err = db.ExecContext(ctx, `INSERT INTO report_resource_files
+ (report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at)
+ VALUES(?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)`, report.ID, loaded.Version.VersionNo,
+		resourceID, "assets", "assets/oversized.bin", make([]byte, componentarchive.MaxResourceBytes+1),
+		componentarchive.MaxResourceBytes+1, resourceID, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = client.Versions().Download(ctx, report.ID, loaded.Version.VersionNo)
+	var sdkErr *sdk.Error
+	if !errors.As(err, &sdkErr) || sdkErr.Code != sdk.ErrorInvalidArgument || !strings.Contains(sdkErr.Message, "resources exceed") {
+		t.Fatalf("oversized download error=%v, want resource budget invalid argument", err)
 	}
 }

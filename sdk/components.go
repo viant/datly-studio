@@ -7,13 +7,13 @@ import (
 )
 
 const (
-	OperationReportCreate = "reports.create"
-	OperationReportGet    = "reports.get"
-	OperationReportList   = "reports.list"
-	OperationReportUpdate = "reports.update"
+	OperationComponentCreate = "components.create"
+	OperationComponentGet    = "components.get"
+	OperationComponentList   = "components.list"
+	OperationComponentUpdate = "components.update"
 )
 
-type Report struct {
+type Component struct {
 	ID                   string    `json:"id"`
 	Namespace            string    `json:"namespace"`
 	Slug                 string    `json:"slug"`
@@ -31,7 +31,7 @@ type Report struct {
 	UpdatedAt            time.Time `json:"updatedAt"`
 }
 
-type CreateReportInput struct {
+type CreateComponentInput struct {
 	// ID, OwnerID, ComponentScope and ComponentName are optional for the public
 	// SDK. The server derives stable values from the verified principal and a
 	// generated report identity when they are not supplied by a trusted caller.
@@ -45,7 +45,7 @@ type CreateReportInput struct {
 	ComponentScope       string `json:"componentScope,omitempty"`
 	ComponentName        string `json:"componentName,omitempty"`
 }
-type UpdateReportInput struct {
+type UpdateComponentInput struct {
 	Namespace            *string `json:"namespace,omitempty"`
 	Slug                 *string `json:"slug,omitempty"`
 	Title                *string `json:"title,omitempty"`
@@ -57,7 +57,7 @@ type UpdateReportInput struct {
 	CurrentDraftVersion  *int    `json:"currentDraftVersion,omitempty"`
 	ETag                 int64   `json:"etag"`
 }
-type ListReportsInput struct {
+type ListComponentsInput struct {
 	Query         string   `json:"query,omitempty"`
 	Namespace     string   `json:"namespace,omitempty"`
 	Status        string   `json:"status,omitempty"`
@@ -68,10 +68,10 @@ type ListReportsInput struct {
 	Limit         int      `json:"limit,omitempty"`
 	Offset        int      `json:"offset,omitempty"`
 }
-type ReportPage struct {
-	Items  []*Report `json:"items"`
-	Limit  int       `json:"limit"`
-	Offset int       `json:"offset"`
+type ComponentPage struct {
+	Items  []*Component `json:"items"`
+	Limit  int          `json:"limit"`
+	Offset int          `json:"offset"`
 }
 
 // OwnerPackageSegment returns a deterministic Go-package-safe form of the
@@ -99,29 +99,29 @@ func OwnerPackageSegment(subject string) string {
 	return value
 }
 
-type ReportService interface {
-	Create(context.Context, CreateReportInput) (*Report, error)
-	Get(context.Context, string) (*Report, error)
-	List(context.Context, ListReportsInput) (*ReportPage, error)
-	Update(context.Context, string, UpdateReportInput) (*Report, error)
+type ComponentService interface {
+	Create(context.Context, CreateComponentInput) (*Component, error)
+	Get(context.Context, string) (*Component, error)
+	List(context.Context, ListComponentsInput) (*ComponentPage, error)
+	Update(context.Context, string, UpdateComponentInput) (*Component, error)
 }
 
-type reportClient struct{ transport Transport }
+type componentClient struct{ transport Transport }
 
-func (c reportClient) Create(ctx context.Context, input CreateReportInput) (*Report, error) {
-	return invoke[Report](ctx, c.transport, OperationReportCreate, input)
+func (c componentClient) Create(ctx context.Context, input CreateComponentInput) (*Component, error) {
+	return invoke[Component](ctx, c.transport, OperationComponentCreate, input)
 }
-func (c reportClient) Get(ctx context.Context, id string) (*Report, error) {
-	return invoke[Report](ctx, c.transport, OperationReportGet, struct {
+func (c componentClient) Get(ctx context.Context, id string) (*Component, error) {
+	return invoke[Component](ctx, c.transport, OperationComponentGet, struct {
 		ID string `json:"id"`
 	}{id})
 }
-func (c reportClient) List(ctx context.Context, input ListReportsInput) (*ReportPage, error) {
-	return invoke[ReportPage](ctx, c.transport, OperationReportList, input)
+func (c componentClient) List(ctx context.Context, input ListComponentsInput) (*ComponentPage, error) {
+	return invoke[ComponentPage](ctx, c.transport, OperationComponentList, input)
 }
-func (c reportClient) Update(ctx context.Context, id string, input UpdateReportInput) (*Report, error) {
-	return invoke[Report](ctx, c.transport, OperationReportUpdate, struct {
-		ID    string            `json:"id"`
-		Input UpdateReportInput `json:"input"`
+func (c componentClient) Update(ctx context.Context, id string, input UpdateComponentInput) (*Component, error) {
+	return invoke[Component](ctx, c.transport, OperationComponentUpdate, struct {
+		ID    string               `json:"id"`
+		Input UpdateComponentInput `json:"input"`
 	}{id, input})
 }

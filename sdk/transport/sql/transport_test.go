@@ -52,7 +52,7 @@ func TestTransportUsesCanonicalConnectorAndReportTables(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	report, err := client.Reports().Create(ctx, sdk.CreateReportInput{
+	report, err := client.Components().Create(ctx, sdk.CreateComponentInput{
 		ID: "r-main", Slug: "main", Title: "Main", OwnerID: "alice",
 		DefaultConnectorName: "main", ComponentScope: "reports", ComponentName: "main",
 	})
@@ -128,7 +128,7 @@ func TestTransportUsesCanonicalConnectorAndReportTables(t *testing.T) {
 	if err != nil || string(descriptor.Component) != `{"views":[]}` {
 		t.Fatalf("descriptor = %+v, %v", descriptor, err)
 	}
-	beforePublish, err := client.Reports().Get(ctx, report.ID)
+	beforePublish, err := client.Components().Get(ctx, report.ID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -149,7 +149,7 @@ func TestTransportUsesCanonicalConnectorAndReportTables(t *testing.T) {
 	if publication.ReportID != report.ID || publication.ActiveVersionNo != 1 || publication.Status != "active" || publication.ActiveGeneration == nil {
 		t.Fatalf("publication = %+v", publication)
 	}
-	afterPublish, err := client.Reports().Get(ctx, report.ID)
+	afterPublish, err := client.Components().Get(ctx, report.ID)
 	if err != nil || afterPublish.Status != "active" || afterPublish.ETag != beforePublish.ETag+1 {
 		t.Fatalf("report after publish = %+v, before = %+v, err = %v", afterPublish, beforePublish, err)
 	}
@@ -191,23 +191,23 @@ func TestTransportUsesCanonicalConnectorAndReportTables(t *testing.T) {
 	if _, err = db.Exec(`UPDATE connectors SET status='active' WHERE name=?`, other.Name); err != nil {
 		t.Fatal(err)
 	}
-	unversioned, err := client.Reports().Create(ctx, sdk.CreateReportInput{Slug: "unversioned", Title: "Unversioned", OwnerID: "alice", DefaultConnectorName: "main"})
+	unversioned, err := client.Components().Create(ctx, sdk.CreateComponentInput{Slug: "unversioned", Title: "Unversioned", OwnerID: "alice", DefaultConnectorName: "main"})
 	if err != nil {
 		t.Fatal(err)
 	}
 	otherName := other.Name
-	unversioned, err = client.Reports().Update(ctx, unversioned.ID, sdk.UpdateReportInput{DefaultConnectorName: &otherName, ETag: unversioned.ETag})
+	unversioned, err = client.Components().Update(ctx, unversioned.ID, sdk.UpdateComponentInput{DefaultConnectorName: &otherName, ETag: unversioned.ETag})
 	if err != nil || unversioned.DefaultConnectorName != other.Name {
 		t.Fatalf("unversioned connector=%q err=%v", unversioned.DefaultConnectorName, err)
 	}
-	if _, err = db.Exec(`UPDATE reports SET deleted_at=CURRENT_TIMESTAMP WHERE id=?`, unversioned.ID); err != nil {
+	if _, err = db.Exec(`UPDATE components SET deleted_at=CURRENT_TIMESTAMP WHERE id=?`, unversioned.ID); err != nil {
 		t.Fatal(err)
 	}
-	currentReport, err := client.Reports().Get(ctx, report.ID)
+	currentReport, err := client.Components().Get(ctx, report.ID)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err = client.Reports().Update(ctx, report.ID, sdk.UpdateReportInput{DefaultConnectorName: &otherName, ETag: currentReport.ETag}); err == nil {
+	if _, err = client.Components().Update(ctx, report.ID, sdk.UpdateComponentInput{DefaultConnectorName: &otherName, ETag: currentReport.ETag}); err == nil {
 		t.Fatal("versioned report connector was repointed")
 	} else {
 		var sdkErr *sdk.Error
@@ -215,7 +215,7 @@ func TestTransportUsesCanonicalConnectorAndReportTables(t *testing.T) {
 			t.Fatalf("connector repoint error=%v", err)
 		}
 	}
-	unchanged, err := client.Reports().Get(ctx, report.ID)
+	unchanged, err := client.Components().Get(ctx, report.ID)
 	if err != nil || unchanged.DefaultConnectorName != "main" {
 		t.Fatalf("report connector=%q err=%v", unchanged.DefaultConnectorName, err)
 	}
@@ -355,7 +355,7 @@ func TestTransportUsesCanonicalConnectorAndReportTables(t *testing.T) {
 		t.Fatalf("preview = %+v, %v", preview, err)
 	}
 
-	page, err := client.Reports().List(ctx, sdk.ListReportsInput{OwnerID: "alice", Limit: 10})
+	page, err := client.Components().List(ctx, sdk.ListComponentsInput{OwnerID: "alice", Limit: 10})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -416,7 +416,7 @@ func TestWarmupRunsPersistAndDeduplicateServerOwnedEvidence(t *testing.T) {
 	_, err = db.Exec(`
 INSERT INTO connectors(name,driver,owner_id,status,etag,created_at,updated_at) VALUES('main','sqlite','owner','active',1,?,?);
 INSERT INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at) VALUES('owner','general','General','active',1,?,?);
-INSERT INTO reports(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('reader','general','reader','Reader','owner','draft','main','example.com/reader','reader',1,?,?);
+INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('reader','general','reader','Reader','owner','draft','main','example.com/reader','reader',1,?,?);
 INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('reader',1,'validated','dql','SELECT 1','{}','1','hash','{}','valid','v1','v1',3,'owner',?);`, now, now, now, now, now, now, now)
 	if err != nil {
 		t.Fatal(err)
@@ -491,7 +491,7 @@ func TestTransportReturnsTypedNotFound(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = client.Reports().Get(context.Background(), "missing")
+	_, err = client.Components().Get(context.Background(), "missing")
 	var sdkErr *sdk.Error
 	if !errors.As(err, &sdkErr) || sdkErr.Code != sdk.ErrorNotFound {
 		t.Fatalf("error = %v, want typed not_found", err)
@@ -544,7 +544,7 @@ func TestRuntimeCatalogProjectsReaderCubeAndComposeComponents(t *testing.T) {
 	if _, err = db.Exec(`UPDATE connectors SET status='active' WHERE name=?`, connector.Name); err != nil {
 		t.Fatal(err)
 	}
-	report, err := client.Reports().Create(ctx, sdk.CreateReportInput{Slug: "spend", Title: "Spend", OwnerID: "owner", DefaultConnectorName: "main"})
+	report, err := client.Components().Create(ctx, sdk.CreateComponentInput{Slug: "spend", Title: "Spend", OwnerID: "owner", DefaultConnectorName: "main"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -707,21 +707,21 @@ func TestTransportDerivesReportIdentityAndOwnerFromPrincipal(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	input := sdk.CreateReportInput{Slug: "vendor-catalog", Title: "Vendor Catalog", DefaultConnectorName: connector.Name}
-	if _, err = client.Reports().Create(principal, input); err == nil {
+	input := sdk.CreateComponentInput{Slug: "vendor-catalog", Title: "Vendor Catalog", DefaultConnectorName: connector.Name}
+	if _, err = client.Components().Create(principal, input); err == nil {
 		t.Fatal("report creation with an inactive connector unexpectedly succeeded")
 	}
 	if _, err = db.Exec(`UPDATE connectors SET status='active' WHERE name='main'`); err != nil {
 		t.Fatal(err)
 	}
-	report, err := client.Reports().Create(principal, input)
+	report, err := client.Components().Create(principal, input)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if report.ID == "" || report.Namespace != "general" || report.OwnerID != "owner-a" || report.OwnerPackage == "" || !strings.Contains(report.ComponentScope, "/dynamic/"+report.OwnerPackage+"/"+report.ID) || report.ComponentName != "reader" {
 		t.Fatalf("report=%+v", report)
 	}
-	_, err = client.Reports().Create(principal, input)
+	_, err = client.Components().Create(principal, input)
 	var duplicate *sdk.Error
 	if !errors.As(err, &duplicate) || duplicate.Code != sdk.ErrorConflict {
 		t.Fatalf("duplicate report slug error=%v", err)
@@ -730,11 +730,11 @@ func TestTransportDerivesReportIdentityAndOwnerFromPrincipal(t *testing.T) {
 	if _, err = client.Namespaces().Create(principal, sdk.CreateNamespaceInput{Name: namespace, Title: "Inventory Forecasting"}); err != nil {
 		t.Fatal(err)
 	}
-	updated, err := client.Reports().Update(principal, report.ID, sdk.UpdateReportInput{Namespace: &namespace, ETag: report.ETag})
+	updated, err := client.Components().Update(principal, report.ID, sdk.UpdateComponentInput{Namespace: &namespace, ETag: report.ETag})
 	if err != nil || updated.Namespace != namespace {
 		t.Fatalf("namespace update=%+v err=%v", updated, err)
 	}
-	_, err = client.Reports().Update(principal, report.ID, sdk.UpdateReportInput{Title: &namespace, ETag: report.ETag})
+	_, err = client.Components().Update(principal, report.ID, sdk.UpdateComponentInput{Title: &namespace, ETag: report.ETag})
 	var stale *sdk.Error
 	if !errors.As(err, &stale) || stale.Code != sdk.ErrorConflict {
 		t.Fatalf("stale report update error=%v", err)
@@ -770,7 +770,7 @@ func TestTransportReusesDatlyReaderBuilderForVersionedDQL(t *testing.T) {
 	if _, err = db.Exec(`UPDATE connectors SET status='active' WHERE name='lookup'`); err != nil {
 		t.Fatal(err)
 	}
-	report, err := client.Reports().Create(principal, sdk.CreateReportInput{Slug: "reader-builder", Title: "Reader Builder", DefaultConnectorName: connector.Name})
+	report, err := client.Components().Create(principal, sdk.CreateComponentInput{Slug: "reader-builder", Title: "Reader Builder", DefaultConnectorName: connector.Name})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -803,7 +803,7 @@ SELECT records.* FROM (SELECT 1 AS id) records`})
 	if err != nil || unchangedVersion.SourceRevision != version.SourceRevision || unchangedVersion.AuthoredDQL != version.AuthoredDQL {
 		t.Fatalf("rejected reader builder commands changed version=%+v err=%v", unchangedVersion, err)
 	}
-	unchangedReport, err := client.Reports().Get(principal, report.ID)
+	unchangedReport, err := client.Components().Get(principal, report.ID)
 	if err != nil || unchangedReport.ETag != report.ETag {
 		t.Fatalf("rejected reader builder commands changed report=%+v err=%v", unchangedReport, err)
 	}
@@ -826,7 +826,7 @@ SELECT records.* FROM (SELECT 1 AS id) records`})
 	if err != nil || !connectorResult.Applied || !strings.Contains(connectorResult.Inspection.DQL, `$connector('lookup')`) {
 		t.Fatalf("connector result=%+v err=%v", connectorResult, err)
 	}
-	updatedReport, err := client.Reports().Get(principal, report.ID)
+	updatedReport, err := client.Components().Get(principal, report.ID)
 	if err != nil || updatedReport.DefaultConnectorName != "lookup" || updatedReport.ETag != report.ETag+2 {
 		t.Fatalf("connector report=%+v err=%v", updatedReport, err)
 	}
@@ -839,7 +839,7 @@ SELECT records.* FROM (SELECT 1 AS id) records`})
 	if err != nil || !result.Applied || result.Inspection.Version.SourceRevision != version.SourceRevision+1 || !strings.Contains(result.Inspection.DQL, "$Limit<int>") {
 		t.Fatalf("result=%+v err=%v", result, err)
 	}
-	afterField, err := client.Reports().Get(principal, report.ID)
+	afterField, err := client.Components().Get(principal, report.ID)
 	if err != nil || afterField.ETag != updatedReport.ETag {
 		t.Fatalf("same-connector Reader Builder edit changed report etag: %+v err=%v", afterField, err)
 	}
@@ -882,7 +882,7 @@ SELECT records.* FROM (SELECT 1 AS id) records`})
 SELECT records.* FROM (SELECT 1 AS id) records`}); err != nil {
 		t.Fatal(err)
 	}
-	second, err := client.Reports().Create(principal, sdk.CreateReportInput{Slug: "reader-builder-two", Title: "Reader Builder Two", DefaultConnectorName: connector.Name})
+	second, err := client.Components().Create(principal, sdk.CreateComponentInput{Slug: "reader-builder-two", Title: "Reader Builder Two", DefaultConnectorName: connector.Name})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -925,12 +925,12 @@ func TestTransportScopesCatalogReadsToPrincipalOwnerOrACL(t *testing.T) {
 	if _, err = db.Exec(`UPDATE connectors SET status='active'`); err != nil {
 		t.Fatal(err)
 	}
-	for _, report := range []sdk.CreateReportInput{
+	for _, report := range []sdk.CreateComponentInput{
 		{ID: "alice-report", Slug: "alice", Title: "Alice", OwnerID: "alice", DefaultConnectorName: "alice-db", ComponentScope: "reports", ComponentName: "alice"},
 		{ID: "shared-report", Slug: "shared", Title: "Shared", OwnerID: "bob", DefaultConnectorName: "shared-db", ComponentScope: "reports", ComponentName: "shared"},
 		{ID: "private-report", Slug: "private", Title: "Private", OwnerID: "bob", DefaultConnectorName: "private-db", ComponentScope: "reports", ComponentName: "private"},
 	} {
-		if _, err = client.Reports().Create(ctx, report); err != nil {
+		if _, err = client.Components().Create(ctx, report); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -938,22 +938,22 @@ func TestTransportScopesCatalogReadsToPrincipalOwnerOrACL(t *testing.T) {
 		t.Fatal(err)
 	}
 	scoped := sdk.WithPrincipal(ctx, sdk.Principal{Subject: "alice"})
-	reports, err := client.Reports().List(scoped, sdk.ListReportsInput{Limit: 10})
+	reports, err := client.Components().List(scoped, sdk.ListComponentsInput{Limit: 10})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if got := reportIDs(reports.Items); fmt.Sprint(got) != "[alice-report shared-report]" {
 		t.Fatalf("reports=%v", got)
 	}
-	filtered, err := client.Reports().List(scoped, sdk.ListReportsInput{Query: "SHARED", OwnerID: "bob", ConnectorName: "shared-db", Limit: 1})
+	filtered, err := client.Components().List(scoped, sdk.ListComponentsInput{Query: "SHARED", OwnerID: "bob", ConnectorName: "shared-db", Limit: 1})
 	if err != nil || fmt.Sprint(reportIDs(filtered.Items)) != "[shared-report]" {
 		t.Fatalf("filtered report page=%+v err=%v", filtered, err)
 	}
-	second, err := client.Reports().List(scoped, sdk.ListReportsInput{Limit: 1, Offset: 1})
+	second, err := client.Components().List(scoped, sdk.ListComponentsInput{Limit: 1, Offset: 1})
 	if err != nil || fmt.Sprint(reportIDs(second.Items)) != "[shared-report]" {
 		t.Fatalf("second report page=%+v err=%v", second, err)
 	}
-	all, err := client.Reports().List(ctx, sdk.ListReportsInput{Limit: 10})
+	all, err := client.Components().List(ctx, sdk.ListComponentsInput{Limit: 10})
 	if err != nil || len(all.Items) != 3 {
 		t.Fatalf("trusted in-process catalog=%+v err=%v", all, err)
 	}
@@ -964,7 +964,7 @@ func TestTransportScopesCatalogReadsToPrincipalOwnerOrACL(t *testing.T) {
 	if got := connectorNames(connectors.Items); fmt.Sprint(got) != "[alice-db shared-db]" {
 		t.Fatalf("connectors=%v", got)
 	}
-	if _, err = client.Reports().Get(scoped, "private-report"); !isNotFound(err) {
+	if _, err = client.Components().Get(scoped, "private-report"); !isNotFound(err) {
 		t.Fatalf("private report error=%v", err)
 	}
 	if _, err = client.Connectors().Get(scoped, "private-db"); !isNotFound(err) {
@@ -996,7 +996,7 @@ func TestTransportStoresVersionedResourcesAndSkillsThroughSDK(t *testing.T) {
 	if _, err = db.Exec(`UPDATE connectors SET status='active' WHERE name='main'`); err != nil {
 		t.Fatal(err)
 	}
-	report, err := client.Reports().Create(principal, sdk.CreateReportInput{Slug: "resources", Title: "Resources", DefaultConnectorName: connector.Name})
+	report, err := client.Components().Create(principal, sdk.CreateComponentInput{Slug: "resources", Title: "Resources", DefaultConnectorName: connector.Name})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1056,7 +1056,7 @@ SELECT 1`})
 	if !errors.As(err, &wrongOwner) || wrongOwner.Code != sdk.ErrorInvalidArgument {
 		t.Fatalf("foreign owner namespace error=%v", err)
 	}
-	otherReport, err := client.Reports().Create(principal, sdk.CreateReportInput{Slug: "other-resources", Title: "Other resources", DefaultConnectorName: connector.Name})
+	otherReport, err := client.Components().Create(principal, sdk.CreateComponentInput{Slug: "other-resources", Title: "Other resources", DefaultConnectorName: connector.Name})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1312,7 +1312,7 @@ func TestTransportAdministersReportACLThroughSDK(t *testing.T) {
 	if _, err = db.Exec(`UPDATE connectors SET status='active' WHERE name='main'`); err != nil {
 		t.Fatal(err)
 	}
-	report, err := client.Reports().Create(owner, sdk.CreateReportInput{Slug: "acl", Title: "ACL", DefaultConnectorName: connector.Name})
+	report, err := client.Components().Create(owner, sdk.CreateComponentInput{Slug: "acl", Title: "ACL", DefaultConnectorName: connector.Name})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1430,7 +1430,7 @@ func TestTransportGovernsNamespacesThroughSDK(t *testing.T) {
 	if err != nil || updated.Description != description || updated.ETag != namespace.ETag+1 {
 		t.Fatalf("updated namespace=%+v err=%v", updated, err)
 	}
-	if _, err = client.Reports().Create(owner, sdk.CreateReportInput{Slug: "ledger", Title: "Ledger", Namespace: namespace.Name, DefaultConnectorName: connector.Name}); err != nil {
+	if _, err = client.Components().Create(owner, sdk.CreateComponentInput{Slug: "ledger", Title: "Ledger", Namespace: namespace.Name, DefaultConnectorName: connector.Name}); err != nil {
 		t.Fatal(err)
 	}
 	if err = client.Namespaces().Delete(owner, namespace.Name, updated.ETag); err == nil || !strings.Contains(err.Error(), "referenced") {
@@ -1467,7 +1467,7 @@ func TestReaderInspectionRedactsAdvancedDQLByCapability(t *testing.T) {
 	if _, err = db.Exec(`UPDATE connectors SET status='active' WHERE name='main'`); err != nil {
 		t.Fatal(err)
 	}
-	report, err := client.Reports().Create(owner, sdk.CreateReportInput{Slug: "secure", Title: "Secure", DefaultConnectorName: connector.Name})
+	report, err := client.Components().Create(owner, sdk.CreateComponentInput{Slug: "secure", Title: "Secure", DefaultConnectorName: connector.Name})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1490,6 +1490,18 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT 1 AS id) rows`
 	if inspection.DQL != "" || inspection.Version.AuthoredDQL != "" || inspection.Capabilities.CanUseDQL || !inspection.Capabilities.CanRun || inspection.Capabilities.CanEdit {
 		t.Fatalf("redacted inspection=%+v version=%+v", inspection, inspection.Version)
 	}
+	if strings.Contains(string(inspection.Structure), "SELECT 1 AS id") {
+		t.Fatalf("viewer inspection structure disclosed source SQL: %s", inspection.Structure)
+	}
+	var summary struct {
+		Status string `json:"status"`
+		Views  []struct {
+			Name string `json:"name"`
+		} `json:"views"`
+	}
+	if err = json.Unmarshal(inspection.Structure, &summary); err != nil || summary.Status == "" || len(summary.Views) != 1 || summary.Views[0].Name != "rows" {
+		t.Fatalf("viewer inspection lost safe view metadata: %+v err=%v", summary, err)
+	}
 	visible, err := client.Versions().Get(viewer, report.ID, version.VersionNo)
 	if err != nil || visible == nil || visible.AuthoredDQL != "" || visible.GeneratedDQL != "" {
 		t.Fatalf("viewer version source=%+v err=%v", visible, err)
@@ -1505,6 +1517,9 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT 1 AS id) rows`
 	if err != nil || inspection.DQL == "" || !inspection.Capabilities.CanUseDQL {
 		t.Fatalf("DQL-enabled inspection=%+v err=%v", inspection, err)
 	}
+	if !strings.Contains(string(inspection.Structure), "SELECT 1 AS id") {
+		t.Fatalf("DQL-enabled inspection lost source-bearing structure: %s", inspection.Structure)
+	}
 	visible, err = client.Versions().Get(viewer, report.ID, version.VersionNo)
 	if err != nil || visible == nil || visible.AuthoredDQL == "" || visible.GeneratedDQL == "" {
 		t.Fatalf("DQL-enabled version=%+v err=%v", visible, err)
@@ -1512,6 +1527,24 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT 1 AS id) rows`
 	page, err = client.Versions().List(viewer, report.ID, sdk.ListVersionsInput{})
 	if err != nil || page == nil || len(page.Items) != 1 || page.Items[0].AuthoredDQL == "" || page.Items[0].GeneratedDQL == "" {
 		t.Fatalf("DQL-enabled version catalog=%+v err=%v", page, err)
+	}
+}
+
+func TestReaderInspectionRedactsDiagnosticSourceText(t *testing.T) {
+	response := &readerbuilder.Response{DQL: "SELECT secret_value",
+		Structure: &readerbuilder.Structure{Status: "incomplete", Views: []readerbuilder.ViewOccurrence{{Name: "safe_view", SQL: "SELECT secret_value"}}},
+		Diagnostics: []*transcribe.Diagnostic{{Code: "bad_sql", Severity: transcribe.SeverityError,
+			Message: "invalid SELECT secret_value", Hint: "rewrite SELECT secret_value"}}}
+	inspection := readerInspection(&sdk.ReportVersion{AuthoredDQL: "SELECT secret_value", GeneratedDQL: "SELECT secret_value"},
+		response, sdk.ReportCapabilities{CanView: true})
+	encoded, err := json.Marshal(inspection)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(encoded), "secret_value") || len(inspection.Diagnostics) != 1 ||
+		inspection.Diagnostics[0].Code != "bad_sql" || inspection.Diagnostics[0].Message != "" || inspection.Diagnostics[0].Hint != "" ||
+		!strings.Contains(string(inspection.Structure), "safe_view") {
+		t.Fatalf("viewer inspection leaked source or lost safe metadata: %s", encoded)
 	}
 }
 
@@ -1529,7 +1562,7 @@ func TestPublicationCompensatesRuntimeWhenActivationPersistenceFails(t *testing.
 	_, err = db.Exec(`
 INSERT INTO connectors(name,driver,owner_id,status,etag,created_at,updated_at) VALUES('main','sqlite','owner','active',1,?,?);
 INSERT INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at) VALUES('owner','general','General','active',1,?,?);
-INSERT INTO reports(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('reader','general','reader','Reader','owner','active','main','example.com/reader','reader',1,?,?);
+INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('reader','general','reader','Reader','owner','active','main','example.com/reader','reader',1,?,?);
 INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at,published_at) VALUES('reader',1,'published','dql','SELECT 1','{}','1','one','{}','valid','v1','v1',1,'owner',?,?);
 INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at,validated_at) VALUES('reader',2,'validated','dql','SELECT 2','{}','1','two','{}','valid','v1','v1',2,'owner',?,?);
 INSERT INTO runtime_generations(generation_no,source_revision,status,report_count,build_manifest_json,requested_by,requested_at,activated_at) VALUES(1,'one','active',1,'{}','owner',?,?);
@@ -1588,7 +1621,7 @@ func TestPublicationRecoversExpiredBuildingGeneration(t *testing.T) {
 	_, err = db.Exec(`
 INSERT INTO connectors(name,driver,owner_id,status,etag,created_at,updated_at) VALUES('main','sqlite','owner','active',1,?,?);
 INSERT INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at) VALUES('owner','general','General','active',1,?,?);
-INSERT INTO reports(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('reader','general','reader','Reader','owner','active','main','example.com/reader','reader',1,?,?);
+INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('reader','general','reader','Reader','owner','active','main','example.com/reader','reader',1,?,?);
 INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at,published_at) VALUES('reader',1,'published','dql','SELECT 1','{}','1','one','{}','valid','v1','v1',1,'owner',?,?);
 INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at,validated_at) VALUES('reader',2,'validated','dql','SELECT 2','{}','1','two','{}','valid','v1','v1',2,'owner',?,?);
 INSERT INTO runtime_generations(generation_no,source_revision,status,report_count,build_manifest_json,requested_by,requested_at,activated_at) VALUES(1,'one','active',1,'{}','owner',?,?);
@@ -1618,7 +1651,7 @@ INSERT INTO report_publications(report_id,active_version_no,desired_version_no,d
 	}
 }
 
-func reportIDs(items []*sdk.Report) []string {
+func reportIDs(items []*sdk.Component) []string {
 	result := make([]string, 0, len(items))
 	for _, item := range items {
 		result = append(result, item.ID)

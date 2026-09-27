@@ -21,15 +21,68 @@ var linkedComponentHolders = []struct {
 	holder      string
 }{
 	{"github.com/viant/datly-studio/studio/auth/reader", "ContextComponent"},
+	{"github.com/viant/datly-studio/studio/authorization_predicates/types", "Component"},
+	{"github.com/viant/datly-studio/studio/authorization_predicates/get", "Component"},
+	{"github.com/viant/datly-studio/studio/authorization_predicates/create", "Component"},
+	{"github.com/viant/datly-studio/studio/authorization_predicates/update", "Component"},
+	{"github.com/viant/datly-studio/studio/authorization_predicates/delete", "Component"},
+	{"github.com/viant/datly-studio/studio/authorization_predicates/list", "Component"},
+	{"github.com/viant/datly-studio/studio/authorization_predicates/store_read", "AuthorizationPredicateComponent"},
+	{"github.com/viant/datly-studio/studio/authorization_predicates/store_insert", "AuthorizationPredicateComponent"},
+	{"github.com/viant/datly-studio/studio/authorization_predicates/store_write", "AuthorizationPredicateComponent"},
 	{"github.com/viant/datly-studio/studio/bff_sessions/reader", "SessionComponent"},
 	{"github.com/viant/datly-studio/studio/bff_sessions/writer", "SessionComponent"},
 	{"github.com/viant/datly-studio/studio/connectors/reader", "ConnectorComponent"},
 	{"github.com/viant/datly-studio/studio/connectors/get", "ConnectorComponent"},
+	{"github.com/viant/datly-studio/studio/connectors/disable", "Component"},
+	{"github.com/viant/datly-studio/studio/connectors/delete", "Component"},
+	{"github.com/viant/datly-studio/studio/connectors/activate", "Component"},
+	{"github.com/viant/datly-studio/studio/connectors/store_access", "ConnectorComponent"},
+	{"github.com/viant/datly-studio/studio/connectors/store_catalog", "ConnectorComponent"},
+	{"github.com/viant/datly-studio/studio/connectors/store_config", "ConnectorComponent"},
+	{"github.com/viant/datly-studio/studio/connectors/store_status", "ConnectorComponent"},
+	{"github.com/viant/datly-studio/studio/connectors/store_usage", "UsageComponent"},
+	{"github.com/viant/datly-studio/studio/connectors/update", "Component"},
+	{"github.com/viant/datly-studio/studio/connectors/create", "ConnectorComponent"},
+	{"github.com/viant/datly-studio/studio/connectors/schemas", "Component"},
+	{"github.com/viant/datly-studio/studio/connectors/tables", "Component"},
+	{"github.com/viant/datly-studio/studio/connectors/table", "Component"},
+	{"github.com/viant/datly-studio/studio/connectors/test", "Component"},
+	{"github.com/viant/datly-studio/studio/connectors/test_sql", "Component"},
 	{"github.com/viant/datly-studio/studio/connectors/writer", "ConnectorComponent"},
 	{"github.com/viant/datly-studio/studio/namespaces/reader", "NamespaceComponent"},
 	{"github.com/viant/datly-studio/studio/namespaces/get", "NamespaceComponent"},
+	{"github.com/viant/datly-studio/studio/namespaces/store_read", "NamespaceComponent"},
+	{"github.com/viant/datly-studio/studio/namespaces/store_usage", "UsageComponent"},
+	{"github.com/viant/datly-studio/studio/namespaces/store_write", "NamespaceComponent"},
+	{"github.com/viant/datly-studio/studio/namespaces/update", "Component"},
+	{"github.com/viant/datly-studio/studio/namespaces/create", "NamespaceComponent"},
+	{"github.com/viant/datly-studio/studio/namespaces/delete", "Component"},
 	{"github.com/viant/datly-studio/studio/namespaces/writer", "NamespaceComponent"},
 	{"github.com/viant/datly-studio/studio/report_versions/reader", "VersionComponent"},
+	{"github.com/viant/datly-studio/studio/report_versions/create", "Component"},
+	{"github.com/viant/datly-studio/studio/report_versions/load_dql", "Component"},
+	{"github.com/viant/datly-studio/studio/report_versions/load_archive", "Component"},
+	{"github.com/viant/datly-studio/studio/report_versions/inspect", "Component"},
+	{"github.com/viant/datly-studio/studio/report_versions/apply", "Component"},
+	{"github.com/viant/datly-studio/studio/report_versions/builder", "Component"},
+	{"github.com/viant/datly-studio/studio/report_versions/validate", "Component"},
+	{"github.com/viant/datly-studio/studio/report_versions/test_view", "Component"},
+	{"github.com/viant/datly-studio/studio/report_versions/test_relation", "Component"},
+	{"github.com/viant/datly-studio/studio/report_versions/test_compose", "Component"},
+	{"github.com/viant/datly-studio/studio/report_versions/warmup", "Component"},
+	{"github.com/viant/datly-studio/studio/report_versions/store_head", "HeadComponent"},
+	{"github.com/viant/datly-studio/studio/report_versions/store_insert", "VersionComponent"},
+	{"github.com/viant/datly-studio/studio/report_versions/store_import", "VersionComponent"},
+	{"github.com/viant/datly-studio/studio/report_versions/store_catalog", "VersionComponent"},
+	{"github.com/viant/datly-studio/studio/report_versions/store_edit", "VersionComponent"},
+	{"github.com/viant/datly-studio/studio/report_versions/store_touch", "VersionComponent"},
+	{"github.com/viant/datly-studio/studio/report_versions/store_validation", "VersionComponent"},
+	{"github.com/viant/datly-studio/studio/report_versions/get", "VersionComponent"},
+	{"github.com/viant/datly-studio/studio/report_versions/export_dql", "VersionComponent"},
+	{"github.com/viant/datly-studio/studio/report_versions/descriptor", "VersionComponent"},
+	{"github.com/viant/datly-studio/studio/report_versions/download", "Component"},
+	{"github.com/viant/datly-studio/studio/report_versions/list", "VersionComponent"},
 	{"github.com/viant/datly-studio/studio/report_versions/writer", "VersionComponent"},
 	{"github.com/viant/datly-studio/studio/report_views/reader", "ViewComponent"},
 	{"github.com/viant/datly-studio/studio/report_parameters/reader", "ParameterComponent"},
@@ -39,29 +92,169 @@ var linkedComponentHolders = []struct {
 	{"github.com/viant/datly-studio/studio/report_mcp_exposures/reader", "ExposureComponent"},
 	{"github.com/viant/datly-studio/studio/report_mcp_exposures/writer", "ExposureComponent"},
 	{"github.com/viant/datly-studio/studio/report_resource_files/reader", "FileComponent"},
+	{"github.com/viant/datly-studio/studio/report_resource_files/store_download", "FileComponent"},
+	{"github.com/viant/datly-studio/studio/report_resource_files/store_download_budget", "BudgetComponent"},
+	{"github.com/viant/datly-studio/studio/report_resource_files/store_snapshot", "FileComponent"},
+	{"github.com/viant/datly-studio/studio/report_resource_files/store_write", "FileComponent"},
 	{"github.com/viant/datly-studio/studio/report_resource_files/writer", "FileComponent"},
 	{"github.com/viant/datly-studio/studio/report_resource_folders/reader", "FolderComponent"},
+	{"github.com/viant/datly-studio/studio/report_resource_folders/store_snapshot", "FolderComponent"},
+	{"github.com/viant/datly-studio/studio/report_resource_folders/store_write", "FolderComponent"},
 	{"github.com/viant/datly-studio/studio/report_resource_folders/writer", "FolderComponent"},
 	{"github.com/viant/datly-studio/studio/report_skill_roots/reader", "SkillComponent"},
+	{"github.com/viant/datly-studio/studio/report_skill_roots/store_snapshot", "SkillComponent"},
+	{"github.com/viant/datly-studio/studio/report_skill_roots/store_write", "SkillComponent"},
 	{"github.com/viant/datly-studio/studio/report_skill_roots/writer", "SkillComponent"},
 	{"github.com/viant/datly-studio/studio/runtime_generations/reader", "GenerationComponent"},
 	{"github.com/viant/datly-studio/studio/runtime_generations/writer", "GenerationComponent"},
+	{"github.com/viant/datly-studio/studio/runtime/status", "Component"},
 	{"github.com/viant/datly-studio/studio/report_warmup_runs/reader", "WarmupRunComponent"},
+	{"github.com/viant/datly-studio/studio/report_warmup_runs/get", "WarmupRunComponent"},
+	{"github.com/viant/datly-studio/studio/report_warmup_runs/list", "Component"},
+	{"github.com/viant/datly-studio/studio/report_warmup_runs/store_expired", "WarmupRunComponent"},
+	{"github.com/viant/datly-studio/studio/report_warmup_runs/store_read", "WarmupRunComponent"},
+	{"github.com/viant/datly-studio/studio/report_warmup_runs/store_write", "WarmupRunComponent"},
 	{"github.com/viant/datly-studio/studio/report_publications/reader", "PublicationComponent"},
 	{"github.com/viant/datly-studio/studio/report_publications/get", "PublicationComponent"},
+	{"github.com/viant/datly-studio/studio/report_publications/mutate", "PublishComponent"},
+	{"github.com/viant/datly-studio/studio/report_publications/mutate", "RollbackComponent"},
+	{"github.com/viant/datly-studio/studio/report_publications/mutate", "UnpublishComponent"},
 	{"github.com/viant/datly-studio/studio/report_publications/writer", "PublicationComponent"},
 	{"github.com/viant/datly-studio/studio/report_publication_events/list", "EventComponent"},
 	{"github.com/viant/datly-studio/studio/report_acl/reader", "AclComponent"},
+	{"github.com/viant/datly-studio/studio/report_acl/delete", "Component"},
+	{"github.com/viant/datly-studio/studio/report_acl/upsert", "Component"},
+	{"github.com/viant/datly-studio/studio/report_acl/store_write", "AclComponent"},
 	{"github.com/viant/datly-studio/studio/report_acl/writer", "AclComponent"},
 	{"github.com/viant/datly-studio/studio/reports/reader", "ReportComponent"},
 	{"github.com/viant/datly-studio/studio/reports/get", "ReportComponent"},
+	{"github.com/viant/datly-studio/studio/reports/create", "Component"},
+	{"github.com/viant/datly-studio/studio/reports/edit_guard", "ReportComponent"},
+	{"github.com/viant/datly-studio/studio/reports/store_insert", "ReportComponent"},
+	{"github.com/viant/datly-studio/studio/reports/store_catalog", "ReportComponent"},
+	{"github.com/viant/datly-studio/studio/reports/store_config", "ReportComponent"},
+	{"github.com/viant/datly-studio/studio/reports/store_draft_pointer", "ReportComponent"},
+	{"github.com/viant/datly-studio/studio/reports/store_global_access", "ReportComponent"},
+	{"github.com/viant/datly-studio/studio/reports/store_capabilities", "CapabilityComponent"},
+	{"github.com/viant/datly-studio/studio/reports/update", "Component"},
+	{"github.com/viant/datly-studio/studio/reports/publish_guard", "ReportComponent"},
+	{"github.com/viant/datly-studio/studio/reports/store_run_access", "AccessComponent"},
+	{"github.com/viant/datly-studio/studio/preview/execute", "Component"},
 	{"github.com/viant/datly-studio/studio/reports/writer", "ReportComponent"},
+	{"github.com/viant/datly-studio/studio/resources/get", "Component"},
+	{"github.com/viant/datly-studio/studio/resources/mutate", "FileUpsertComponent"},
+	{"github.com/viant/datly-studio/studio/resources/mutate", "FileDeleteComponent"},
+	{"github.com/viant/datly-studio/studio/resources/mutate", "FolderUpsertComponent"},
+	{"github.com/viant/datly-studio/studio/resources/mutate", "FolderDeleteComponent"},
+	{"github.com/viant/datly-studio/studio/resources/mutate", "SkillUpsertComponent"},
+	{"github.com/viant/datly-studio/studio/resources/mutate", "SkillDeleteComponent"},
+	{"github.com/viant/datly-studio/studio/resource_namespace_claims/store_write", "ClaimComponent"},
+	{"github.com/viant/datly-studio/studio/resource_namespaces/store_presence", "UsageComponent"},
+	{"github.com/viant/datly-studio/studio/resource_namespaces/store_usage", "UsageComponent"},
+	{"github.com/viant/datly-studio/studio/resource_policy/reader", "PolicyComponent"},
+	{"github.com/viant/datly-studio/studio/resource_policy/writer", "PolicyComponent"},
+	{"github.com/viant/datly-studio/studio/resource_policy/access", "GetComponent"},
+	{"github.com/viant/datly-studio/studio/resource_policy/access", "ContextComponent"},
+	{"github.com/viant/datly-studio/studio/resource_policy/access", "ReplaceComponent"},
 }
 
 func TestBlankImportsExposeLinkedComponents(t *testing.T) {
 	for _, item := range linkedComponentHolders {
 		if holder := bootstrap.LinkedHolder(nil, item.packagePath, item.holder); holder == nil {
 			t.Fatalf("%s.%s is absent from runtime typelinks", item.packagePath, item.holder)
+		}
+	}
+}
+
+func TestDownloadUsesLinkedNativeHandlerAndPrivateResourceReader(t *testing.T) {
+	reflected, err := bootstrap.ReflectPackages([]string{
+		"github.com/viant/datly-studio/studio/report_versions/download",
+		"github.com/viant/datly-studio/studio/report_resource_files/store_download",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var handlerFound, privateReaderFound bool
+	for _, component := range reflected.Components {
+		switch component.PackagePath {
+		case "github.com/viant/datly-studio/studio/report_versions/download":
+			if component.Tag.Internal || component.Tag.Handler != "NewDownload" || component.LinkedHandler == nil {
+				t.Fatalf("native download handler is not linked: %+v", component.Tag)
+			}
+			if handler, handlerErr := component.LinkedHandler(); handlerErr != nil || handler == nil {
+				t.Fatalf("native download handler factory: %v", handlerErr)
+			}
+			handlerFound = true
+		case "github.com/viant/datly-studio/studio/report_resource_files/store_download":
+			if !component.Tag.Internal || len(component.Tag.MCP) != 0 {
+				t.Fatalf("resource child reader must be internal-only: %+v", component.Tag)
+			}
+			privateReaderFound = true
+		}
+	}
+	if !handlerFound || !privateReaderFound {
+		t.Fatalf("linked native download=%t internal resource reader=%t", handlerFound, privateReaderFound)
+	}
+}
+
+func TestNamespaceCreateSelectsBuiltInMutationWriter(t *testing.T) {
+	reflected, err := bootstrap.ReflectPackages([]string{"github.com/viant/datly-studio/studio/namespaces/create"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(reflected.Components) != 1 {
+		t.Fatalf("native namespace create components=%d, want 1", len(reflected.Components))
+	}
+	component := reflected.Components[0]
+	if component.Tag.Handler != "" || component.Tag.Settings.Mutation != "post" || component.Tag.Internal || component.Tag.Path != "/v1/studio/sdk/namespaces.create" {
+		t.Fatalf("native namespace writer metadata=%+v", component.Tag)
+	}
+}
+
+func TestConnectorCreateSelectsBuiltInMutationWriter(t *testing.T) {
+	reflected, err := bootstrap.ReflectPackages([]string{"github.com/viant/datly-studio/studio/connectors/create"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(reflected.Components) != 1 {
+		t.Fatalf("native connector create components=%d, want 1", len(reflected.Components))
+	}
+	component := reflected.Components[0]
+	if component.Tag.Handler != "" || component.Tag.Settings.Mutation != "post" || component.Tag.Internal || component.Tag.Path != "/v1/studio/sdk/connectors.create" {
+		t.Fatalf("native connector writer metadata=%+v", component.Tag)
+	}
+}
+
+func TestResourceSnapshotUsesLinkedNativeHandlerAndPrivateReaders(t *testing.T) {
+	packages := []string{
+		"github.com/viant/datly-studio/studio/resources/get",
+		"github.com/viant/datly-studio/studio/report_resource_files/store_snapshot",
+		"github.com/viant/datly-studio/studio/report_resource_folders/store_snapshot",
+		"github.com/viant/datly-studio/studio/report_skill_roots/store_snapshot",
+	}
+	reflected, err := bootstrap.ReflectPackages(packages)
+	if err != nil {
+		t.Fatal(err)
+	}
+	seen := map[string]bool{}
+	for _, component := range reflected.Components {
+		seen[component.PackagePath] = true
+		if component.PackagePath == packages[0] {
+			if component.Tag.Internal || component.Tag.Handler != "NewResourceSnapshot" || component.LinkedHandler == nil {
+				t.Fatalf("native snapshot handler is not linked: %+v", component.Tag)
+			}
+			if handler, handlerErr := component.LinkedHandler(); handlerErr != nil || handler == nil {
+				t.Fatalf("native snapshot handler factory: %v", handlerErr)
+			}
+			continue
+		}
+		if !component.Tag.Internal || len(component.Tag.MCP) != 0 {
+			t.Fatalf("snapshot child reader must be internal-only: %+v", component.Tag)
+		}
+	}
+	for _, path := range packages {
+		if !seen[path] {
+			t.Fatalf("snapshot package %s is not linked", path)
 		}
 	}
 }
@@ -97,14 +290,32 @@ func TestDatlyConfigurationSelectsEveryLinkedComponentPackage(t *testing.T) {
 	wantPackages = append(wantPackages, authorizationPackage)
 	predicatePackage := "github.com/viant/datly-studio/studio/reports/catalogpredicate"
 	wantPackages = append(wantPackages, predicatePackage)
+	globalPredicatePackage := "github.com/viant/datly-studio/studio/reports/globalpredicate"
+	wantPackages = append(wantPackages, globalPredicatePackage)
+	connectorAccessPackage := "github.com/viant/datly-studio/studio/connectors/accesspredicate"
+	wantPackages = append(wantPackages, connectorAccessPackage)
 	if _, ok, resolveErr := reflected.Types.Resolve("package", authorizationPackage+".ConnectorRead"); resolveErr != nil || !ok {
 		t.Errorf("configured authorization package does not expose ConnectorRead: found=%t err=%v", ok, resolveErr)
 	}
 	if _, ok, resolveErr := reflected.Types.Resolve("package", predicatePackage+".ReportCatalogRead"); resolveErr != nil || !ok {
 		t.Errorf("configured catalog predicate package does not expose ReportCatalogRead: found=%t err=%v", ok, resolveErr)
 	}
+	if _, ok, resolveErr := reflected.Types.Resolve("package", globalPredicatePackage+".GlobalPublish"); resolveErr != nil || !ok {
+		t.Errorf("configured global predicate package does not expose GlobalPublish: found=%t err=%v", ok, resolveErr)
+	}
+	if _, ok, resolveErr := reflected.Types.Resolve("package", connectorAccessPackage+".ConnectorAccess"); resolveErr != nil || !ok {
+		t.Errorf("configured connector access package does not expose ConnectorAccess: found=%t err=%v", ok, resolveErr)
+	}
 	if _, ok, resolveErr := reflected.Types.Resolve("package", "github.com/viant/datly-studio/studio/auth/reader.Output"); resolveErr != nil || !ok {
 		t.Errorf("configured auth package does not expose Output: found=%t err=%v", ok, resolveErr)
+	}
+	uniquePackages := make(map[string]bool, len(wantPackages))
+	for _, path := range wantPackages {
+		uniquePackages[path] = true
+	}
+	wantPackages = wantPackages[:0]
+	for path := range uniquePackages {
+		wantPackages = append(wantPackages, path)
 	}
 	sort.Strings(wantPackages)
 	gotPackages := append([]string(nil), configuration.GoBootstrap.Packages...)
@@ -216,7 +427,16 @@ func TestConfiguredComponentsRequireAuthenticationAndAuthorization(t *testing.T)
 	}
 	checked := map[string]bool{}
 	for _, component := range reflected.Components {
-		if component == nil || component.LinkedInputType == nil || checked[component.PackagePath] {
+		if component == nil || component.LinkedInputType == nil {
+			continue
+		}
+		if component.Tag.Internal {
+			if len(component.Tag.MCP) != 0 {
+				t.Errorf("%s internal component declares MCP exposure", component.PackagePath)
+			}
+			continue
+		}
+		if checked[component.PackagePath] {
 			continue
 		}
 		checked[component.PackagePath] = true
@@ -256,7 +476,7 @@ func TestConfiguredComponentsRequireAuthenticationAndAuthorization(t *testing.T)
 }
 
 func TestBlankImportsExposeAuthorizationHandlerTypes(t *testing.T) {
-	for _, name := range []string{"ConnectorRead", "ConnectorEdit", "NamespaceRead", "ReportRead", "ReportEdit", "ReportPublish", "ReportVersionRead", "ReportVersionMetadataRead", "ReportVersionEdit", "ReportViewRead", "ReportParameterRead", "ReportParameterEdit", "ReportCubeRead", "ReportCubeEdit", "ReportMCPRead", "ReportMCPEdit", "ReportResourceFileRead", "ReportResourceFileEdit", "ReportResourceFolderRead", "ReportResourceFolderEdit", "ReportSkillRead", "ReportSkillEdit", "PublicationRead", "PublicationEdit", "ACLRead", "ACLEdit", "RuntimeRead", "RuntimeEdit"} {
+	for _, name := range []string{"ConnectorRead", "ConnectorEdit", "NamespaceRead", "ReportRead", "ReportEdit", "ReportPublish", "ReportVersionRead", "ReportVersionMetadataRead", "ReportVersionEdit", "ReportViewRead", "ReportParameterRead", "ReportParameterEdit", "ReportCubeRead", "ReportCubeEdit", "ReportMCPRead", "ReportMCPEdit", "ReportResourceFileRead", "ReportResourceFileEdit", "ReportResourceFolderRead", "ReportResourceFolderEdit", "ReportSkillRead", "ReportSkillEdit", "PublicationRead", "PublicationEdit", "ACLRead", "ACLEdit", "RuntimeRead", "RuntimeEdit", "WarmupRead"} {
 		if bootstrap.LinkedHolder(nil, "github.com/viant/datly-studio/studio/authorization", name) == nil {
 			t.Fatalf("authorization handler %s is absent from runtime typelinks", name)
 		}

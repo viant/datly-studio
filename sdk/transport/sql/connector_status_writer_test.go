@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -115,5 +116,12 @@ func TestConnectorProbeRejectsStaleConfiguration(t *testing.T) {
 	}
 	if active, err := client.Connectors().Activate(ctx, created.Name, current.ETag); err != nil || active.Status != "active" {
 		t.Fatalf("activation after current probe=%+v err=%v", active, err)
+	}
+	transport.Probe = sdk.ConnectorProbeFunc(func(context.Context, *sdk.Connector) (*sdk.ConnectorTestResult, error) {
+		return nil, errors.New("secret-dsn-password")
+	})
+	failed, err := client.Connectors().Test(ctx, created.Name)
+	if err != nil || failed.Status != "failed" || failed.ErrorCode != "connectivity_failed" || strings.Contains(failed.Message, "secret-dsn") {
+		t.Fatalf("redacted failed probe=%+v err=%v", failed, err)
 	}
 }

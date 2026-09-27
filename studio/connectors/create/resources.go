@@ -1,0 +1,9 @@
+package create
+
+import "embed"
+
+// DatlyResourceNamespace identifies this package's generated resource filesystem.
+const ConnectorDatlyResourceNamespace = "studio_connectors_create_connector"
+
+//go:embed "sql/connector.sql"
+var ConnectorDatlyResources embed.FS

@@ -212,10 +212,10 @@ func outputFor(operation string) (any, bool) {
 		return nil, true
 	case sdk.OperationNamespaceDelete:
 		return nil, true
-	case sdk.OperationReportCreate, sdk.OperationReportGet, sdk.OperationReportUpdate:
-		return new(sdk.Report), true
-	case sdk.OperationReportList:
-		return new(sdk.ReportPage), true
+	case sdk.OperationComponentCreate, sdk.OperationComponentGet, sdk.OperationComponentUpdate:
+		return new(sdk.Component), true
+	case sdk.OperationComponentList:
+		return new(sdk.ComponentPage), true
 	case sdk.OperationVersionCreate, sdk.OperationVersionGet:
 		return new(sdk.ReportVersion), true
 	case sdk.OperationVersionList:

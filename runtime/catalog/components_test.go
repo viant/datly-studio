@@ -75,7 +75,7 @@ func TestComponentCatalogReadsAllLiveActiveExactVersions(t *testing.T) {
 		if i == 0 {
 			deletedAt = publishedAt
 		}
-		if _, err := db.ExecContext(ctx, `INSERT INTO reports(id,namespace,slug,title,description,owner_id,status,default_connector_name,component_scope,component_name,current_draft_version,etag,created_at,updated_at,deleted_at)
+		if _, err := db.ExecContext(ctx, `INSERT INTO components(id,namespace,slug,title,description,owner_id,status,default_connector_name,component_scope,component_name,current_draft_version,etag,created_at,updated_at,deleted_at)
 			VALUES(?,'general',?,?,?,'owner','active','main','reports',?,2,2,?,?,?)`, id, id, id, "description-"+id, id, base, publishedAt, deletedAt); err != nil {
 			t.Fatal(err)
 		}
@@ -99,7 +99,7 @@ func TestComponentCatalogReadsAllLiveActiveExactVersions(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	if _, err := db.ExecContext(ctx, `UPDATE reports SET description=NULL,current_draft_version=NULL WHERE id='r-136'`); err != nil {
+	if _, err := db.ExecContext(ctx, `UPDATE components SET description=NULL,current_draft_version=NULL WHERE id='r-136'`); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := db.ExecContext(ctx, `UPDATE report_versions SET dql_export_limits_json=NULL,resource_manifest_json=NULL,component_descriptor_json=NULL,compile_diagnostics_json=NULL,notes=NULL WHERE report_id='r-136' AND version_no=2`); err != nil {

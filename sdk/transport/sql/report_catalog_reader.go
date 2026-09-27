@@ -26,11 +26,11 @@ type reportCatalogRequest struct {
 	Unscoped bool
 }
 
-func (t *Transport) readReportCatalog(ctx context.Context, request reportCatalogRequest) ([]*sdk.Report, error) {
+func (t *Transport) readReportCatalog(ctx context.Context, request reportCatalogRequest) ([]*sdk.Component, error) {
 	return t.readReportCatalogTx(ctx, nil, request)
 }
 
-func (t *Transport) readReportCatalogTx(ctx context.Context, tx *sql.Tx, request reportCatalogRequest) ([]*sdk.Report, error) {
+func (t *Transport) readReportCatalogTx(ctx context.Context, tx *sql.Tx, request reportCatalogRequest) ([]*sdk.Component, error) {
 	resources := resource.New()
 	if err := resources.Register(stored.ReportDatlyResourceNamespace, stored.ReportDatlyResources); err != nil {
 		return nil, err
@@ -79,12 +79,12 @@ func (t *Transport) readReportCatalogTx(ctx context.Context, tx *sql.Tx, request
 	if len(output.Reports) > request.Limit {
 		return nil, fmt.Errorf("report catalog exceeded requested limit")
 	}
-	result := make([]*sdk.Report, 0, len(output.Reports))
+	result := make([]*sdk.Component, 0, len(output.Reports))
 	for _, row := range output.Reports {
 		if row == nil || request.ID != "" && row.Id != request.ID {
 			return nil, fmt.Errorf("report catalog returned a mismatched row")
 		}
-		item := &sdk.Report{ID: row.Id, Namespace: row.Namespace, Slug: row.Slug, Title: row.Title,
+		item := &sdk.Component{ID: row.Id, Namespace: row.Namespace, Slug: row.Slug, Title: row.Title,
 			OwnerID: row.OwnerId, OwnerPackage: sdk.OwnerPackageSegment(row.OwnerId), Status: row.Status,
 			DefaultConnectorName: row.DefaultConnectorName, ComponentScope: row.ComponentScope,
 			ComponentName: row.ComponentName, CurrentDraftVersion: row.CurrentDraftVersion,

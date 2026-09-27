@@ -29,7 +29,7 @@ func TestCanonicalStudioSchemaInventory(t *testing.T) {
 		"connectors":                {"name", "dsn_template", "last_test_status"},
 		"namespaces":                {"owner_id", "name", "title", "status", "etag"},
 		"authorization_predicates":  {"name", "package_path", "type_name", "owner_id", "status", "etag"},
-		"reports":                   {"id", "namespace", "default_connector_name", "component_scope", "component_name", "current_draft_version"},
+		"components":                {"id", "namespace", "default_connector_name", "component_scope", "component_name", "current_draft_version"},
 		"report_versions":           {"report_id", "authoring_mode", "authored_sql", "authored_dql", "generated_dql", "spec_hash"},
 		"report_views":              {"report_id", "view_id", "source_kind"},
 		"report_fields":             {"view_id", "field_name", "go_type"},
@@ -75,7 +75,7 @@ func TestCanonicalStudioSchemaInventory(t *testing.T) {
 	}
 
 	for table, removedColumns := range map[string][]string{
-		"reports":         {"mode", "connector_name", "mcp_enabled", "mcp_tool_name", "mcp_description"},
+		"components":      {"mode", "connector_name", "mcp_enabled", "mcp_tool_name", "mcp_description"},
 		"report_versions": {"input_mode", "original_sql", "core_dql", "effective_dql", "generated_sql", "column_overrides_json", "permissions_json", "cube_json"},
 	} {
 		for _, removed := range removedColumns {

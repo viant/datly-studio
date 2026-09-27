@@ -49,7 +49,7 @@ func TestOtherActivePublicationsRepointAndRollbackTogether(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, id := range []string{"current", "other"} {
-		report, createErr := client.Reports().Create(owner, sdk.CreateReportInput{ID: id, Slug: id, Title: id, DefaultConnectorName: connector.Name})
+		report, createErr := client.Components().Create(owner, sdk.CreateComponentInput{ID: id, Slug: id, Title: id, DefaultConnectorName: connector.Name})
 		if createErr != nil {
 			t.Fatal(createErr)
 		}
@@ -127,7 +127,7 @@ func TestOtherActivePublicationsRepointAndRollbackTogether(t *testing.T) {
 	event := publicationEventRecord{ReportID: "current", OwnerID: "owner", Operation: "publish",
 		VersionNo: &versionNo, GenerationNo: &generation, Status: "succeeded",
 		RequestedBy: "owner", OccurredAt: now}
-	if _, err := db.Exec(`CREATE TRIGGER reject_report_activation BEFORE UPDATE OF status ON reports
+	if _, err := db.Exec(`CREATE TRIGGER reject_report_activation BEFORE UPDATE OF status ON components
 		WHEN OLD.id='current' AND NEW.status='active'
 		BEGIN SELECT RAISE(ABORT,'report activation failed'); END`); err != nil {
 		t.Fatal(err)
@@ -150,7 +150,7 @@ func TestOtherActivePublicationsRepointAndRollbackTogether(t *testing.T) {
 	}
 	var currentStatus string
 	var currentETag int64
-	if err := db.QueryRowContext(ctx, `SELECT status,etag FROM reports WHERE id='current'`).Scan(&currentStatus, &currentETag); err != nil || currentStatus != "active" || currentETag != 2 {
+	if err := db.QueryRowContext(ctx, `SELECT status,etag FROM components WHERE id='current'`).Scan(&currentStatus, &currentETag); err != nil || currentStatus != "active" || currentETag != 2 {
 		t.Fatalf("activated report status=%q etag=%d err=%v", currentStatus, currentETag, err)
 	}
 	for _, id := range []string{"current", "other"} {
@@ -195,7 +195,7 @@ func TestOtherActivePublicationsRepointAndRollbackTogether(t *testing.T) {
 	unpublishEvent := publicationEventRecord{ReportID: "current", OwnerID: "owner", Operation: "unpublish",
 		VersionNo: &versionNo, GenerationNo: &unpublishGeneration, Status: "succeeded",
 		RequestedBy: "owner", OccurredAt: now}
-	if _, err := db.Exec(`CREATE TRIGGER reject_report_disable BEFORE UPDATE OF status ON reports
+	if _, err := db.Exec(`CREATE TRIGGER reject_report_disable BEFORE UPDATE OF status ON components
 		WHEN OLD.id='current' AND NEW.status='disabled'
 		BEGIN SELECT RAISE(ABORT,'report disable failed'); END`); err != nil {
 		t.Fatal(err)
@@ -226,7 +226,7 @@ func TestOtherActivePublicationsRepointAndRollbackTogether(t *testing.T) {
 	if err := db.QueryRowContext(ctx, `SELECT report_count,status FROM runtime_generations WHERE generation_no=3`).Scan(&reportCount, &newStatus); err != nil || reportCount != 1 || newStatus != "active" {
 		t.Fatalf("unpublish generation count=%d status=%q err=%v", reportCount, newStatus, err)
 	}
-	if err := db.QueryRowContext(ctx, `SELECT status,etag FROM reports WHERE id='current'`).Scan(&currentStatus, &currentETag); err != nil || currentStatus != "disabled" || currentETag != 3 {
+	if err := db.QueryRowContext(ctx, `SELECT status,etag FROM components WHERE id='current'`).Scan(&currentStatus, &currentETag); err != nil || currentStatus != "disabled" || currentETag != 3 {
 		t.Fatalf("unpublished report status=%q etag=%d err=%v", currentStatus, currentETag, err)
 	}
 	var versionState string

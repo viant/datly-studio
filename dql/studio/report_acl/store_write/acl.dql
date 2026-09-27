@@ -6,6 +6,7 @@
 #setting($_ = $output_type('Output'))
 #setting($_ = $case_format('lc'))
 #setting($_ = $route('/_studio/report-acl-store', 'PATCH'))
+#setting($_ = $internal(true))
 #setting($_ = $connector('studio'))
 #setting($_ = $sql_dest('acl', 'sql/patch.sql'))
 
@@ -14,6 +15,11 @@
 #define($_ = $Violations<?>(transient/status).Output())
 
 SELECT acl.*, type(acl, 'StoredACL'),
+       CAST(acl.report_id AS *string), CAST(acl.subject_type AS *string),
+       CAST(acl.subject_id AS *string), CAST(acl.etag AS *int),
+       CAST(acl.can_view AS *int), CAST(acl.can_run AS *int),
+       CAST(acl.can_edit AS *int), CAST(acl.can_publish AS *int),
+       CAST(acl.can_use_dql AS *int),
        lifecycle_type(acl, 'ACLStoreRules'),
        tag(acl.report_id, 'sqlx:"report_id,primaryKey" validate:"required"'),
        tag(acl.subject_type, 'sqlx:"subject_type,primaryKey" validate:"required"'),

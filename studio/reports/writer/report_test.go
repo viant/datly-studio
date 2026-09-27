@@ -33,7 +33,7 @@ func TestReportWriterMinimumContract(t *testing.T) {
 		datatest.Table{Name: "namespaces", Rows: []datatest.Row{
 			{"owner_id": "owner-a", "name": "general", "title": "General", "status": "active", "etag": 1, "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"},
 		}},
-		datatest.Table{Name: "reports", Rows: []datatest.Row{
+		datatest.Table{Name: "components", Rows: []datatest.Row{
 			{"id": "r-alpha", "slug": "alpha", "title": "Alpha", "description": "before", "owner_id": "owner-a", "status": "active", "default_connector_name": "main", "component_scope": "reports/alpha", "component_name": "alpha", "current_draft_version": 2, "etag": 2, "created_at": "2026-09-17 10:00:00", "updated_at": "2026-09-17 10:00:00"},
 		}},
 	); err != nil {
@@ -104,7 +104,7 @@ func TestReportWriterMinimumContract(t *testing.T) {
 		if output.Status.Status != "ok" || len(output.Data) != 1 || output.Data[0].Description == nil || *output.Data[0].Description != "changed" {
 			t.Fatalf("output=%+v", output)
 		}
-		datatest.AssertRows(t, ctx, db, "SELECT id,slug,title,description,status,current_draft_version,etag FROM reports WHERE id='r-alpha'", nil,
+		datatest.AssertRows(t, ctx, db, "SELECT id,slug,title,description,status,current_draft_version,etag FROM components WHERE id='r-alpha'", nil,
 			datatest.Row{"id": "r-alpha", "slug": "alpha", "title": "Alpha", "description": "changed", "status": "active", "current_draft_version": 2, "etag": 2})
 	})
 
@@ -113,7 +113,7 @@ func TestReportWriterMinimumContract(t *testing.T) {
 		if err == nil || response.ErrorStatusCode(err, 500) != 409 && response.ErrorStatusCode(err, 500) != 422 {
 			t.Fatalf("stale etag error=%v", err)
 		}
-		datatest.AssertRows(t, ctx, db, "SELECT description,etag FROM reports WHERE id='r-alpha'", nil,
+		datatest.AssertRows(t, ctx, db, "SELECT description,etag FROM components WHERE id='r-alpha'", nil,
 			datatest.Row{"description": "changed", "etag": 2})
 	})
 
@@ -121,7 +121,7 @@ func TestReportWriterMinimumContract(t *testing.T) {
 		if _, err := invoke(`{"Data":[{"id":"r-alpha","etag":2,"description":null}]}`); err != nil {
 			t.Fatal(err)
 		}
-		datatest.AssertRows(t, ctx, db, "SELECT description,title,status FROM reports WHERE id='r-alpha'", nil,
+		datatest.AssertRows(t, ctx, db, "SELECT description,title,status FROM components WHERE id='r-alpha'", nil,
 			datatest.Row{"description": nil, "title": "Alpha", "status": "active"})
 	})
 
@@ -133,7 +133,7 @@ func TestReportWriterMinimumContract(t *testing.T) {
 		if len(output.Data) != 1 || output.Data[0].Id == nil || *output.Data[0].Id != "r-beta" {
 			t.Fatalf("insert output=%+v", output)
 		}
-		datatest.AssertRows(t, ctx, db, "SELECT id,slug,owner_id,status,default_connector_name,etag FROM reports WHERE id='r-beta'", nil,
+		datatest.AssertRows(t, ctx, db, "SELECT id,slug,owner_id,status,default_connector_name,etag FROM components WHERE id='r-beta'", nil,
 			datatest.Row{"id": "r-beta", "slug": "beta", "owner_id": "owner-a", "status": "draft", "default_connector_name": "main", "etag": 1})
 	})
 
@@ -152,20 +152,20 @@ func TestReportWriterMinimumContract(t *testing.T) {
 				}
 			})
 		}
-		datatest.AssertRows(t, ctx, db, "SELECT id FROM reports WHERE id IN ('r-invalid','r-missing-connector') ORDER BY id", nil)
+		datatest.AssertRows(t, ctx, db, "SELECT id FROM components WHERE id IN ('r-invalid','r-missing-connector') ORDER BY id", nil)
 	})
 
 	t.Run("false delete marker preserves row", func(t *testing.T) {
 		if _, err := invoke(`{"Data":[{"id":"r-beta","etag":1,"shouldDelete":false}]}`); err != nil {
 			t.Fatal(err)
 		}
-		datatest.AssertRows(t, ctx, db, "SELECT id FROM reports WHERE id='r-beta'", nil, datatest.Row{"id": "r-beta"})
+		datatest.AssertRows(t, ctx, db, "SELECT id FROM components WHERE id='r-beta'", nil, datatest.Row{"id": "r-beta"})
 	})
 
 	t.Run("explicit delete", func(t *testing.T) {
 		if _, err := invoke(`{"Data":[{"id":"r-beta","etag":1,"shouldDelete":true}]}`); err != nil {
 			t.Fatal(err)
 		}
-		datatest.AssertRows(t, ctx, db, "SELECT id FROM reports WHERE id='r-beta'", nil)
+		datatest.AssertRows(t, ctx, db, "SELECT id FROM components WHERE id='r-beta'", nil)
 	})
 }

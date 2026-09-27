@@ -17,7 +17,7 @@ type Client interface {
 	Connectors() ConnectorService
 	Namespaces() NamespaceService
 	AuthorizationPredicates() AuthorizationPredicateService
-	Reports() ReportService
+	Components() ComponentService
 	Versions() VersionService
 	Preview() PreviewService
 	Catalog() CatalogService
@@ -36,10 +36,12 @@ func NewClient(transport Transport) (Client, error) {
 	return &client{transport: transport}, nil
 }
 
-func (c *client) Connectors() ConnectorService     { return connectorClient{c.transport} }
-func (c *client) Namespaces() NamespaceService     { return namespaceClient{c.transport} }
-func (c *client) AuthorizationPredicates() AuthorizationPredicateService { return authorizationPredicateClient{c.transport} }
-func (c *client) Reports() ReportService           { return reportClient{c.transport} }
+func (c *client) Connectors() ConnectorService { return connectorClient{c.transport} }
+func (c *client) Namespaces() NamespaceService { return namespaceClient{c.transport} }
+func (c *client) AuthorizationPredicates() AuthorizationPredicateService {
+	return authorizationPredicateClient{c.transport}
+}
+func (c *client) Components() ComponentService     { return componentClient{c.transport} }
 func (c *client) Versions() VersionService         { return versionClient{c.transport} }
 func (c *client) Preview() PreviewService          { return previewClient{c.transport} }
 func (c *client) Catalog() CatalogService          { return catalogClient{c.transport} }

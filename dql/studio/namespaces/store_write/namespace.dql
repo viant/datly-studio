@@ -4,6 +4,7 @@
 #setting($_ = $output_type('Output'))
 #setting($_ = $case_format('lc'))
 #setting($_ = $route('/_studio/namespace-store/write', 'PATCH'))
+#setting($_ = $internal(true))
 #setting($_ = $connector('studio'))
 #setting($_ = $sql_dest('namespace', 'sql/read.sql'))
 

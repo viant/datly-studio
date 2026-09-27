@@ -1,5 +1,5 @@
-SELECT report."id" FROM  (SELECT r.id
-FROM reports r
+SELECT report.* FROM  (SELECT r.id
+FROM components r
 WHERE r.deleted_at IS NULL
 ${predicate.Builder().CombineAnd(
     $predicate.FilterGroup(3, "AND")

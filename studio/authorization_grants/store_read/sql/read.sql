@@ -5,12 +5,12 @@ FROM (
            'owner' AS grant_source, TRUE AS can_view, TRUE AS can_edit,
            TRUE AS can_publish,
            CASE WHEN r.deleted_at IS NULL THEN TRUE ELSE FALSE END AS is_live
-    FROM reports r
+    FROM components r
     UNION ALL
     SELECT a.report_id, a.subject_id, a.subject_type, 'acl' AS grant_source,
            a.can_view, a.can_edit, a.can_publish,
            CASE WHEN r.deleted_at IS NULL THEN TRUE ELSE FALSE END AS is_live
-    FROM report_acl a JOIN reports r ON r.id = a.report_id
+    FROM report_acl a JOIN components r ON r.id = a.report_id
 ) g
 ${predicate.Builder().CombineAnd($predicate.FilterGroup(1, "AND")).Build("WHERE")}
 )  grant WHERE 1 = 1

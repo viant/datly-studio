@@ -12,7 +12,7 @@ func init() {}
 
 // Component is the generated component scaffold for policy.
 type PolicyComponent struct {
-	Contract xdatly.Component[Input, Output] "component:\"policy,path=/v1/studio/resource-policies,method=GET,connector=studio,view=policy\" routeName:\"policy\" caseFormat:\"lc\""
+	Contract xdatly.Component[Input, Output] "component:\"policy,path=/_studio/resource-policy-store/read,method=GET,connector=studio,view=policy,internal=true\" routeName:\"policy\" caseFormat:\"lc\""
 }
 
 // PolicyDatlyType keeps the public component type linked for blank-import discovery.

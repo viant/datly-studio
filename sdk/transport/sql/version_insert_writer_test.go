@@ -35,7 +35,7 @@ func TestVersionInsertWriterSupportsSQLAndStructuredModes(t *testing.T) {
 	if _, err := db.Exec(`UPDATE connectors SET status='active' WHERE name=?`, connector.Name); err != nil {
 		t.Fatal(err)
 	}
-	report, err := client.Reports().Create(owner, sdk.CreateReportInput{Slug: "modes", Title: "Modes", DefaultConnectorName: connector.Name})
+	report, err := client.Components().Create(owner, sdk.CreateComponentInput{Slug: "modes", Title: "Modes", DefaultConnectorName: connector.Name})
 	if err != nil {
 		t.Fatal(err)
 	}

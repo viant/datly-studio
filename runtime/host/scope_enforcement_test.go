@@ -11,6 +11,8 @@ import (
 	"encoding/pem"
 	"io"
 	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -18,12 +20,22 @@ import (
 	"time"
 
 	jwtlib "github.com/golang-jwt/jwt/v5"
+	"github.com/viant/datly-studio/internal/bffauth"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk/access"
 	accessstore "github.com/viant/datly-studio/store/sql/access"
 	mcpschema "github.com/viant/mcp-protocol/schema"
+	scyjwt "github.com/viant/scy/auth/jwt"
 	_ "modernc.org/sqlite"
 )
+
+type scopedBFFVerifier struct{}
+
+func (scopedBFFVerifier) VerifyClaims(_ context.Context, _ string) (*scyjwt.Claims, error) {
+	claims := &scyjwt.Claims{}
+	claims.Subject = "alice"
+	return claims, nil
+}
 
 const (
 	scopeTestIssuer   = "https://access.example"
@@ -126,7 +138,7 @@ INSERT INTO tasks VALUES(1,101,'alpha-101'),(2,102,'beta-102'),(3,103,'gamma-103
 	}
 	for reportID, dql := range reports {
 		scope := "example.com/runtime/" + reportID
-		if _, err = studio.Exec(`INSERT INTO reports(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES(?,?,?,'owner','active','source',?,?,1,?,?)`, reportID, reportID, reportID, scope, reportID, now, now); err != nil {
+		if _, err = studio.Exec(`INSERT INTO components(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES(?,?,?,'owner','active','source',?,?,1,?,?)`, reportID, reportID, reportID, scope, reportID, now, now); err != nil {
 			t.Fatal(err)
 		}
 		if _, err = studio.Exec(`INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES(?,1,'published','dql',?,?,'{}','studio.v1','hash','{}','valid','v1','studio.v1',1,'owner',?)`, reportID, dql, dql, now); err != nil {
@@ -262,6 +274,60 @@ func (h *scopedHost) callTool(t *testing.T, token, name string, arguments map[st
 	defer response.Body.Close()
 	body, _ := io.ReadAll(response.Body)
 	return response.StatusCode, string(body)
+}
+
+func TestScopedMCPToolWorksThroughAuthenticatedBFFProxy(t *testing.T) {
+	reader := &access.Rule{Kind: "role", Value: "reader"}
+	policy := access.Policy{Mode: "protected", Rule: reader, EntityType: "project"}
+	host, err := newScopedHost(t, map[string]string{"tasks": scopedTasksDQL}, map[string]access.Policy{"tasks": policy})
+	if err != nil {
+		t.Fatal(err)
+	}
+	token := host.token(t, "alice", []access.Entity{{Type: "project", ID: "101"}})
+	sessions, err := bffauth.New(bffauth.Config{}, scopedBFFVerifier{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	id, _, _, err := sessions.Exchange(context.Background(), token)
+	if err != nil {
+		t.Fatal(err)
+	}
+	target, err := url.Parse("http://" + host.mcpAddr)
+	if err != nil {
+		t.Fatal(err)
+	}
+	proxy, err := sessions.Proxy(target, "/v1/studio/mcp")
+	if err != nil {
+		t.Fatal(err)
+	}
+	payload, err := json.Marshal(map[string]any{"jsonrpc": "2.0", "id": 1, "method": mcpschema.MethodToolsCall,
+		"params": map[string]any{"name": "tasks.list", "arguments": map[string]any{}, "_meta": map[string]any{
+			"io.modelcontextprotocol/protocolVersion":    mcpschema.LatestProtocolVersion,
+			"io.modelcontextprotocol/clientCapabilities": map[string]any{},
+		}},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	request := httptest.NewRequest(http.MethodPost, "/v1/studio/mcp/mcp", bytes.NewReader(payload))
+	request.AddCookie(&http.Cookie{Name: bffauth.DefaultCookieName, Value: id})
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("Accept", "application/json, text/event-stream")
+	request.Header.Set(mcpschema.HeaderProtocolVersion, mcpschema.LatestProtocolVersion)
+	request.Header.Set(mcpschema.HeaderMethod, mcpschema.MethodToolsCall)
+	request.Header.Set("Mcp-Name", "tasks.list")
+	request.Header.Set("Authorization", "Bearer attacker")
+	response := httptest.NewRecorder()
+	proxy.ServeHTTP(response, request)
+	if response.Code != http.StatusOK || strings.Contains(response.Body.String(), `"isError":true`) {
+		t.Fatalf("authenticated MCP status=%d body=%s", response.Code, response.Body.String())
+	}
+	assertRows(t, response.Body.String(), []string{"alpha-101"}, []string{"beta-102", "gamma-103", "delta-104"})
+	denied := httptest.NewRecorder()
+	proxy.ServeHTTP(denied, httptest.NewRequest(http.MethodPost, "/v1/studio/mcp/mcp", bytes.NewReader(payload)))
+	if denied.Code != http.StatusUnauthorized {
+		t.Fatalf("cookie-less MCP status=%d body=%s", denied.Code, denied.Body.String())
+	}
 }
 
 func (h *scopedHost) replacePolicy(t *testing.T, reportID string, policy access.Policy) {
@@ -536,7 +602,7 @@ func TestScopedComponentIsRejectedWithoutGenericAccess(t *testing.T) {
 		args []any
 	}{
 		{`INSERT INTO connectors(name,driver,dsn_template,owner_id,status,options_json,etag,created_at,updated_at) VALUES('source','sqlite',?,'owner','active','{}',1,?,?)`, []any{sourceDSN, now, now}},
-		{`INSERT INTO reports(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('tasks','tasks','Tasks','owner','active','source','example.com/runtime/scoped','tasks',1,?,?)`, []any{now, now}},
+		{`INSERT INTO components(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('tasks','tasks','Tasks','owner','active','source','example.com/runtime/scoped','tasks',1,?,?)`, []any{now, now}},
 		{`INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('tasks',1,'published','dql',?,?,'{}','studio.v1','hash','{}','valid','v1','studio.v1',1,'owner',?)`, []any{scopedTasksDQL, scopedTasksDQL, now}},
 		{`INSERT INTO runtime_generations(generation_no,source_revision,status,report_count,build_manifest_json,requested_by,requested_at,activated_at) VALUES(1,'gen:1','active',1,'{}','owner',?,?)`, []any{now, now}},
 		{`INSERT INTO report_publications(report_id,active_version_no,desired_generation,active_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at) VALUES('tasks',1,1,1,'active','gen:1','hash','owner',?,?)`, []any{now, now}},

@@ -18,7 +18,7 @@ describe('ReaderExposureDialog', () => {
     const user = userEvent.setup();
     const onApply = vi.fn().mockResolvedValue({});
     const onClose = vi.fn();
-    const api = { listConnectors: vi.fn().mockResolvedValue({items:[{name:'main',driver:'sqlite'}]}), getReport: vi.fn().mockResolvedValue({id:'vendor',title:'Vendor Catalog',description:'',etag:2}), updateReport: vi.fn() };
+    const api = { listConnectors: vi.fn().mockResolvedValue({items:[{name:'main',driver:'sqlite'}]}), getComponent: vi.fn().mockResolvedValue({id:'vendor',title:'Vendor Catalog',description:'',etag:2}), updateComponent: vi.fn() };
     render(<ReaderExposureDialog
       isOpen api={api} structure={structure} version={{ compileStatus: 'valid' }}
       report={{ id:'vendor',title:'Vendor Catalog',defaultConnectorName:'main',ownerPackage: 'alice' }} onClose={onClose} onApply={onApply}

@@ -9,7 +9,7 @@ describe('ReportDialog', () => {
     const api = {
       listConnectors: vi.fn().mockResolvedValue({ items: [{ name: 'main', driver: 'sqlite' }] }),
       listNamespaces: vi.fn().mockResolvedValue({ items: [] }),
-      createReport: vi.fn(),
+      createComponent: vi.fn(),
     };
     render(<ReportDialog api={api} isOpen onClose={vi.fn()} onCreated={vi.fn()} />);
 
@@ -24,7 +24,7 @@ describe('ReportDialog', () => {
     const api = {
       listConnectors: vi.fn().mockResolvedValue({ items: [{ name: 'main', driver: 'sqlite' }] }),
       listNamespaces: vi.fn().mockResolvedValue({ items: [{ name: 'general', title: 'General', ownerId: 'owner' }] }),
-      createReport: vi.fn().mockRejectedValue(new Error('component identity already exists')),
+      createComponent: vi.fn().mockRejectedValue(new Error('component identity already exists')),
     };
     const onClose = vi.fn();
     const onCreated = vi.fn();

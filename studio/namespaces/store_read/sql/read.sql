@@ -7,7 +7,7 @@ WHERE n.deleted_at IS NULL
   AND ($Query = '' OR LOWER(n.name) LIKE $Query OR LOWER(n.title) LIKE $Query OR LOWER(n.description) LIKE $Query)
   AND ($Status = '' OR n.status = $Status)
   AND ($Scoped = FALSE OR n.owner_id = $Subject OR EXISTS (
-      SELECT 1 FROM reports namespace_report
+      SELECT 1 FROM components namespace_report
       JOIN report_acl namespace_acl ON namespace_acl.report_id = namespace_report.id
       WHERE namespace_report.owner_id = n.owner_id
         AND namespace_report.namespace = n.name

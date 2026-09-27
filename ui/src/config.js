@@ -29,12 +29,28 @@ export function validateConfig(value) {
   }
   if (mode === authenticated) {
     const authentication = value.authentication;
+    const authMode = requiredString(authentication?.mode, 'authentication.mode');
+    if (authMode === 'identity-token') {
+      const authBaseURL = requiredString(authentication.authBaseURL, 'authentication.authBaseURL').replace(/\/$/, '');
+      const mcpBaseURL = requiredString(value.mcpBaseURL, 'mcpBaseURL').replace(/\/$/, '');
+      for (const [name, raw] of [['apiBaseURL', apiBaseURL], ['mcpBaseURL', mcpBaseURL], ['authentication.authBaseURL', authBaseURL]]) {
+        const parsed = new URL(raw);
+        if (parsed.protocol !== 'https:' && !localURL(raw)) throw new Error(`${name} must use HTTPS`);
+      }
+      if (globalThis.location?.origin && new URL(authBaseURL).origin !== globalThis.location.origin) {
+        throw new Error('Studio UI and authentication must use the same origin');
+      }
+      return { mode, apiBaseURL, mcpBaseURL, ...brand,
+        authentication: { mode: 'identity-token', authBaseURL,
+          loginPath: '/v1/studio/auth/login', tokenPath: '/v1/studio/auth/token' } };
+    }
+    if (authMode !== 'bff') throw new Error(`unsupported Studio authentication mode ${authMode}`);
     return {
       mode,
       apiBaseURL,
       ...brand,
       authentication: {
-        mode: authentication?.mode == null ? 'bff' : requiredString(authentication.mode, 'authentication.mode'),
+        mode: authMode,
         mePath: authentication?.mePath || '/v1/studio/auth/me',
         loginPath: authentication?.loginPath || '/v1/studio/auth/login',
       },

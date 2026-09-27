@@ -4,9 +4,11 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/viant/datly-studio/sdk"
 	authreader "github.com/viant/datly-studio/studio/auth/reader"
 	"github.com/viant/datly-studio/studio/authorization"
 	"github.com/viant/datly-studio/studio/report_publication_events/listoptions"
+	versionlistoptions "github.com/viant/datly-studio/studio/report_versions/listoptions"
 	"github.com/viant/datly-studio/studio/reports/catalogpredicate"
 	"github.com/viant/datly/typecatalog"
 	"github.com/viant/scy/auth/jwt"
@@ -33,8 +35,11 @@ func StudioAuthorizationTypes(t testing.TB) *typecatalog.Catalog {
 		authorization.PublicationRead{}, authorization.PublicationEdit{}, authorization.PublicationEventRead{},
 		authorization.ACLRead{}, authorization.ACLEdit{},
 		authorization.RuntimeRead{}, authorization.RuntimeEdit{},
+		authorization.WarmupRead{},
 		catalogpredicate.ReportCatalogRead{},
 		listoptions.Options{},
+		versionlistoptions.Options{},
+		sdk.WarmupRun{}, sdk.WarmupTarget{}, sdk.Diagnostic{},
 	}
 	for _, value := range types {
 		if err := catalog.Register(typecatalog.TypeOriginPackage, x.NewType(reflect.TypeOf(value))); err != nil {

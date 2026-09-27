@@ -11,7 +11,7 @@ import (
 )
 
 // Finalize gives the direct Datly reader the same single-item contract as
-// reports.get. Missing and inaccessible components share the 404 response.
+// components.get. Missing and inaccessible components share the 404 response.
 func (output *ReportGetOutput) Finalize(ctx context.Context) error {
 	input, ok := ctx.Value(reflect.TypeFor[*ReportGetInput]()).(*ReportGetInput)
 	if !ok || input == nil {

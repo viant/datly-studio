@@ -2,7 +2,7 @@ package writer
 
 // ReportACL is generated canonical view metadata for acl.
 type ReportACL struct {
-	ReportId     *string       `sqlx:"report_id,primaryKey,refTable=reports,refColumn=id,required=true" validate:"required"`
+	ReportId     *string       `sqlx:"report_id,primaryKey,refTable=components,refColumn=id,required=true" validate:"required"`
 	SubjectType  *string       `sqlx:"subject_type,primaryKey,required=true" validate:"required"`
 	SubjectId    *string       `sqlx:"subject_id,primaryKey,required=true" validate:"required"`
 	ShouldDelete bool          `sqlx:"-" writer:"delete"`
@@ -30,7 +30,7 @@ type ReportACLHas struct {
 
 // CurrentAclView is generated canonical view metadata for acl.
 type CurrentAclView struct {
-	ReportId    *string `sqlx:"report_id,primaryKey,refTable=reports,refColumn=id,required=true" validate:"required"`
+	ReportId    *string `sqlx:"report_id,primaryKey,refTable=components,refColumn=id,required=true" validate:"required"`
 	SubjectType *string `sqlx:"subject_type,primaryKey,required=true" validate:"required"`
 	SubjectId   *string `sqlx:"subject_id,primaryKey,required=true" validate:"required"`
 	CanView     *int    `sqlx:"can_view,required=true"`

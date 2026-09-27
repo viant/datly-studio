@@ -5,6 +5,7 @@ package globalpredicate
 import (
 	"context"
 	"errors"
+	"reflect"
 	"strings"
 
 	xpredicate "github.com/viant/xdatly/predicate"
@@ -14,6 +15,12 @@ import (
 type GlobalPublish struct {
 	Input any `bind:"kind=input,required"`
 }
+
+// LinkedTypes makes this private predicate visible to the selected-package
+// runtime type scan without registering a public route.
+type LinkedTypes struct{ GlobalPublish GlobalPublish }
+
+var GlobalPredicateDatlyLinkedType = reflect.TypeFor[LinkedTypes]()
 
 func (p *GlobalPublish) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
 	if err := ctx.Err(); err != nil {

@@ -39,9 +39,6 @@ SELECT report_versions.*, type(report_versions, 'ReportVersion'),
 	   tag(report_versions.component_descriptor_json, 'sqlx:"component_descriptor_json,enc=JSON"'),
 	   tag(report_versions.compile_diagnostics_json, 'sqlx:"compile_diagnostics_json,enc=JSON"'),
 	   set_limit(report_versions, 100),
-       selector_fields(report_versions, true),
-       selector_limit(report_versions, true),
-       selector_offset(report_versions, true),
        allowed_order_by_columns(report_versions, 'version_no,state,authoring_mode,compile_status,source_revision,created_by,created_at,validated_at,published_at')
 FROM (
     ${embed:sql/read.sql}

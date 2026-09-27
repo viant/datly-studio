@@ -30,8 +30,8 @@ function readerFixture(capabilities = { canEdit: true, canRun: true, canPublish:
     structure: {
       component: { rootView, routes: [{ path: '/vendors' }] },
       views: [
-        { name: 'vendor', sql: 'SELECT * FROM VENDOR' },
-        { name: 'products', sql: 'SELECT * FROM PRODUCT' },
+        { name: 'vendor', sql: 'SELECT * FROM VENDOR', sourceProjectionAll: true },
+        { name: 'products', sql: 'SELECT * FROM PRODUCT', sourceProjectionAll: true },
       ],
       declarations: [], predicateExpansions: [], functions: [], columnContracts: [],
     },
@@ -212,6 +212,108 @@ describe('ReaderBuilder graph-first authoring', () => {
     expect(screen.getByRole('button', { name: /Open view vendor \/ Branch5 \/ Level42/ })).toBeTruthy();
     await user.click(screen.getByRole('button', { name: /Open view vendor \/ Branch5 \/ Level42/ }));
     expect(await screen.findByRole('heading', { name: 'Level50' })).toBeTruthy();
+  });
+
+  test('loads output columns for a 20-view hierarchy from connector metadata', async () => {
+    const user = userEvent.setup();
+    const inspection = readerFixture();
+    const root = inspection.structure.component.rootView;
+    root.columns = [];
+    root.relations = [];
+    const parents = { 2: 1, 3: 1, 4: 1, 5: 1, 6: 2, 7: 2, 8: 3, 9: 4, 10: 5, 11: 6, 12: 7, 13: 8, 14: 9, 15: 10, 16: 11, 17: 12, 18: 13, 19: 14, 20: 15 };
+    const nodes = { 1: root };
+    for (let index = 2; index <= 20; index += 1) {
+      const name = `view_${String(index).padStart(2, '0')}`;
+      const view = { name, namespace: name, source: { table: `STUDIO_VIEW_${String(index).padStart(2, '0')}` }, columns: [], relations: [] };
+      nodes[parents[index]].relations.push({ name, kind: 'subview', view });
+      nodes[index] = view;
+      inspection.structure.views.push({ name, sql: `SELECT * FROM ${view.source.table}`, sourceProjectionAll: true });
+    }
+    const api = {
+      listVersions: vi.fn().mockResolvedValue({ items: [inspection.version] }),
+      inspectVersion: vi.fn().mockResolvedValue(inspection),
+      getTable: vi.fn().mockResolvedValue({ columns: ['ID', 'PARENT_ID', 'NAME', 'NODE_KIND', 'LEVEL_NO'].map((name) => ({ name, type: 'varchar' })) }),
+    };
+    render(<ReaderBuilder api={api} report={{ id: 'hierarchy', title: 'Hierarchy 20', namespace: 'scale', defaultConnectorName: 'scale_mysql' }} onBack={vi.fn()} />);
+    await screen.findByRole('heading', { name: 'Component graph' });
+    await user.click(screen.getByRole('button', { name: /Output Browse columns/ }));
+    expect(await screen.findByText('1–25 of 100')).toBeTruthy();
+    expect(api.getTable).toHaveBeenCalledTimes(20);
+    await user.type(screen.getByRole('textbox', { name: 'Search output columns' }), 'view_20');
+    expect(screen.getByText('1–5 of 5')).toBeTruthy();
+    expect(screen.getAllByRole('button', { name: /view_20/ })).toHaveLength(5);
+  });
+
+  test('shows 60 physical fields with the primary key first and searchable output', async () => {
+    const user = userEvent.setup();
+    const inspection = readerFixture();
+    const root = inspection.structure.component.rootView;
+    root.namespace = 'wide_60';
+    root.source.table = 'STUDIO_WIDE_60';
+    inspection.structure.views[0] = { name: 'wide_60', sql: 'SELECT * FROM STUDIO_WIDE_60', sourceProjectionAll: true };
+    root.columns = [];
+    root.relations = [];
+    const fields = Array.from({ length: 59 }, (_, index) => ({ name: `FIELD_${String(index + 1).padStart(2, '0')}`, type: 'varchar' }));
+    fields.push({ name: 'ID', type: 'int', primaryKey: true });
+    const api = {
+      listVersions: vi.fn().mockResolvedValue({ items: [inspection.version] }),
+      inspectVersion: vi.fn().mockResolvedValue(inspection),
+      getTable: vi.fn().mockResolvedValue({ columns: fields }),
+    };
+    render(<ReaderBuilder api={api} report={{ id: 'wide', title: 'Wide 60 Fields', namespace: 'scale', defaultConnectorName: 'scale_mysql' }} onBack={vi.fn()} />);
+    await screen.findByRole('heading', { name: 'Component graph' });
+    const graph = screen.getByRole('heading', { name: 'Component graph' });
+    await user.click(graph.closest('.studio-graph-panel').querySelector('.studio-view-select'));
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Columns' }).parentElement.textContent).toContain('60 available'));
+    expect(screen.getByRole('button', { name: /ID ID int field Edit/ })).toBeTruthy();
+    await user.click(screen.getByRole('button', { name: /Output Browse columns/ }));
+    expect(await screen.findByText('1–25 of 60')).toBeTruthy();
+    await user.type(screen.getByRole('textbox', { name: 'Search output columns' }), 'FIELD_59');
+    expect(screen.getByText('1–1 of 1')).toBeTruthy();
+  });
+
+  test('does not present unprojected physical columns as output', async () => {
+    const user = userEvent.setup();
+    const inspection = readerFixture();
+    const root = inspection.structure.component.rootView;
+    root.columns = [{ name: 'ID', source: 'ID', type: { name: 'int' } }];
+    root.relations = [];
+    root.source.table = 'STUDIO_WIDE_60';
+    inspection.structure.views[0] = { name: 'vendor', sql: 'SELECT ID FROM STUDIO_WIDE_60', sourceProjectionAll: false };
+    const api = {
+      listVersions: vi.fn().mockResolvedValue({ items: [inspection.version] }),
+      inspectVersion: vi.fn().mockResolvedValue(inspection),
+      getTable: vi.fn().mockResolvedValue({ columns: [{ name: 'ID', type: 'int', primaryKey: true }, { name: 'FIELD_59', type: 'varchar' }] }),
+    };
+    render(<ReaderBuilder api={api} report={{ id: 'subset', title: 'Subset', namespace: 'scale', defaultConnectorName: 'scale_mysql' }} onBack={vi.fn()} />);
+    await screen.findByRole('heading', { name: 'Component graph' });
+    await user.click(screen.getByRole('button', { name: /Output 1 columns/ }));
+    expect(screen.getByRole('button', { name: /ID ID int vendor View/ })).toBeTruthy();
+    expect(screen.queryByText('FIELD_59')).toBeNull();
+    expect(api.getTable).not.toHaveBeenCalled();
+  });
+
+  test('names an incomplete output source and retries metadata discovery', async () => {
+    const user = userEvent.setup();
+    const inspection = readerFixture();
+    const root = inspection.structure.component.rootView;
+    root.columns = [{ name: 'ID', source: 'ID', type: { name: 'int' } }];
+    root.relations = [];
+    const api = {
+      listVersions: vi.fn().mockResolvedValue({ items: [inspection.version] }),
+      inspectVersion: vi.fn().mockResolvedValue(inspection),
+      getTable: vi.fn().mockRejectedValueOnce(new Error('offline')).mockResolvedValue({ columns: [{ name: 'ID', type: 'int', primaryKey: true }] }),
+    };
+    render(<ReaderBuilder api={api} report={{ id: 'retry', title: 'Retry Reader', namespace: 'scale', defaultConnectorName: 'scale_mysql' }} onBack={vi.fn()} />);
+    await screen.findByRole('heading', { name: 'Component graph' });
+    await user.click(screen.getByRole('button', { name: /Output 1 columns/ }));
+    const warning = await screen.findByRole('alert');
+    expect(warning.textContent).toContain('VENDOR');
+    expect(warning.textContent).toContain('output count is incomplete');
+    expect(screen.getByRole('button', { name: /Output Browse columns/ })).toBeTruthy();
+    await user.click(screen.getByRole('button', { name: 'Retry metadata' }));
+    expect(await screen.findByRole('button', { name: /ID ID int vendor View/ })).toBeTruthy();
+    expect(api.getTable).toHaveBeenCalledTimes(2);
   });
 
   test('restores focus to the component heading after conflict reload', async () => {

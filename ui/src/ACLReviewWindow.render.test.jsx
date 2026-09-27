@@ -26,17 +26,18 @@ test('read-only scenario uses the actual editor and disables policy changes', as
   expect(screen.getByLabelText('Access mode').disabled).toBe(true);
 });
 
-test('report preview scenario shows distinct preview and execute policies', async () => {
+test('component review exposes execute without a report preview action', async () => {
   const user = userEvent.setup();
   render(<ACLReviewWindow/>);
-  await user.selectOptions(screen.getByLabelText('Resource'), 'report');
-  expect(screen.getByTitle('ACL permissions preview').getAttribute('src')).toContain('kind=report');
-  const review = render(<ACLReviewFrame scenario="editable" kind="report"/>);
+  expect(screen.queryByRole('option', { name: 'Report' })).toBeNull();
+  await user.selectOptions(screen.getByLabelText('Resource'), 'component');
+  expect(screen.getByTitle('ACL permissions preview').getAttribute('src')).toContain('kind=component');
+  const review = render(<ACLReviewFrame scenario="editable" kind="component"/>);
   await screen.findByText('Policy revision 7');
-  expect(screen.getByRole('button', { name: /preview Protected/ })).toBeTruthy();
   expect(screen.getByRole('button', { name: /execute Protected/ })).toBeTruthy();
-  await user.selectOptions(screen.getByLabelText('Permission action'), 'preview');
-  expect(screen.getByLabelText('Permission action').value).toBe('preview');
+  expect(screen.queryByRole('button', { name: /preview Protected/ })).toBeNull();
+  await user.selectOptions(screen.getByLabelText('Permission action'), 'execute');
+  expect(screen.getByLabelText('Permission action').value).toBe('execute');
   expect(screen.getByLabelText('Required entity scope').value).toBe('project');
   review.unmount();
 });
@@ -55,18 +56,22 @@ test('synthetic save and conflict never issue HTTP requests', async () => {
 
 test('live review uses current SDK policy read-only without fixture or writes', async () => {
 	const resource = { kind: 'skill', id: 'deploy', tenant: 'one', version: '2' };
-	const fetcher = vi.fn(async (url) => ({ ok: true, status: 200, json: async () => url.endsWith('access.get')
-		? { resource, revision: 4, policies: { retrieve: { mode: 'public' } } }
-		: { canManage: true, choices: {} } }));
+	const sent = [];
+	const fetcher = vi.fn(async (request) => {
+		sent.push({ url: request.url, credentials: request.credentials, authorization: request.headers.get('Authorization'), body: await request.clone().text() });
+		return new Response(JSON.stringify(request.url.endsWith('access.get')
+			? { resource, revision: 4, policies: { retrieve: { mode: 'public' } } }
+			: { canManage: true, choices: {} }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+	});
 	const api = new StudioAPI({ mode: 'authenticated', apiBaseURL: 'https://studio.example.com' }, { fetcher });
 	render(<LiveACLReview api={api} resource={resource}/>);
 	expect(await screen.findByText('Policy revision 4')).toBeTruthy();
-	expect(fetcher.mock.calls.map(([url]) => url)).toEqual([
+	expect(sent.map(({ url }) => url)).toEqual([
 		'https://studio.example.com/v1/studio/sdk/access.get', 'https://studio.example.com/v1/studio/sdk/access.context',
 	]);
-	for (const [, request] of fetcher.mock.calls) {
+	for (const request of sent) {
 		expect(request.credentials).toBe('include');
-		expect(request.headers.Authorization).toBeUndefined();
+		expect(request.authorization).toBeNull();
 		expect(JSON.parse(request.body)).toEqual(resource);
 	}
 	expect(screen.getByText('Live · read-only')).toBeTruthy();
@@ -77,7 +82,8 @@ test('live review uses current SDK policy read-only without fixture or writes', 
 });
 
 test('live review URL requires a declared resource contract and exact identity', () => {
-	expect(liveACLReviewResource(new URLSearchParams('mode=live&kind=report&id=ops&tenant=one&version=3'))).toEqual({ kind: 'report', id: 'ops', tenant: 'one', version: '3' });
+	expect(liveACLReviewResource(new URLSearchParams('mode=live&kind=component&id=ops&tenant=one&version=3'))).toEqual({ kind: 'component', id: 'ops', tenant: 'one', version: '3' });
+	expect(() => liveACLReviewResource(new URLSearchParams('mode=live&kind=report&id=ops&tenant=one&version=3'))).toThrow(/valid resource type/);
 	expect(() => liveACLReviewResource(new URLSearchParams('mode=live&kind=other&id=ops&tenant=one&version=3'))).toThrow(/valid resource type/);
-	expect(() => liveACLReviewResource(new URLSearchParams('mode=live&kind=report&id=&tenant=one&version=3'))).toThrow(/valid resource type/);
+	expect(() => liveACLReviewResource(new URLSearchParams('mode=live&kind=component&id=&tenant=one&version=3'))).toThrow(/valid resource type/);
 });

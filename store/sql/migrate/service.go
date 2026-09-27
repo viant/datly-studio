@@ -31,6 +31,9 @@ func (s *Service) Up(ctx context.Context, db *sql.DB) error {
 	if current > schema.CanonicalVersion {
 		return fmt.Errorf("database schema version %d is newer than supported version %d", current, schema.CanonicalVersion)
 	}
+	if err := schema.EnsureSQLiteSequenceLedger(ctx, db); err != nil {
+		return fmt.Errorf("ensure SQLite sequence ledger: %w", err)
+	}
 	if current == schema.CanonicalVersion {
 		return nil
 	}
@@ -40,11 +43,23 @@ func (s *Service) Up(ctx context.Context, db *sql.DB) error {
 		}
 		return schema.SetSQLiteVersion(ctx, db, schema.CanonicalVersion)
 	}
+	if current == 15 {
+		return migrateRefreshLeases(ctx, db)
+	}
+	if err := ensureComponentCatalog(ctx, db); err != nil {
+		return err
+	}
+	if current == 14 {
+		if err := migrateComponentCatalog(ctx, db); err != nil {
+			return err
+		}
+		return migrateRefreshLeases(ctx, db)
+	}
 	if current == 1 {
-		if err := schema.AddSQLiteColumnFromCanonical(ctx, db, "reports", "namespace"); err != nil {
+		if err := schema.AddSQLiteColumnFromCanonical(ctx, db, "components", "namespace"); err != nil {
 			return fmt.Errorf("add reports namespace: %w", err)
 		}
-		if _, err := db.ExecContext(ctx, `CREATE INDEX IF NOT EXISTS idx_reports_owner_namespace_updated ON reports(owner_id, namespace, updated_at DESC)`); err != nil {
+		if _, err := db.ExecContext(ctx, `CREATE INDEX IF NOT EXISTS idx_reports_owner_namespace_updated ON components(owner_id, namespace, updated_at DESC)`); err != nil {
 			return fmt.Errorf("index reports namespace: %w", err)
 		}
 	}
@@ -54,7 +69,7 @@ func (s *Service) Up(ctx context.Context, db *sql.DB) error {
 		}
 		if _, err := db.ExecContext(ctx, `INSERT INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at)
 SELECT owner_id,namespace,namespace,'active',1,MIN(updated_at),MAX(updated_at)
-FROM reports GROUP BY owner_id,namespace`); err != nil {
+FROM components GROUP BY owner_id,namespace`); err != nil {
 			return fmt.Errorf("backfill namespaces: %w", err)
 		}
 	}
@@ -143,7 +158,120 @@ FROM reports GROUP BY owner_id,namespace`); err != nil {
 			return err
 		}
 	}
-	return migrateResourcePolicyAudit(ctx, db)
+	if err := migrateResourcePolicyAudit(ctx, db); err != nil {
+		return err
+	}
+	if err := migrateComponentCatalog(ctx, db); err != nil {
+		return err
+	}
+	return migrateRefreshLeases(ctx, db)
+}
+
+func migrateComponentCatalog(ctx context.Context, db *sql.DB) error {
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	current, err := sqliteTableExists(ctx, tx, "components")
+	if err != nil {
+		return err
+	}
+	if !current {
+		return fmt.Errorf("version 15 requires the components catalog")
+	}
+	if _, err := tx.ExecContext(ctx, `DELETE FROM schema_version`); err != nil {
+		return err
+	}
+	if _, err := tx.ExecContext(ctx, `INSERT INTO schema_version(version) VALUES (15)`); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+func migrateRefreshLeases(ctx context.Context, db *sql.DB) error {
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	exists, err := sqliteTableExists(ctx, tx, "bff_sessions")
+	if err != nil {
+		return err
+	}
+	if !exists {
+		if err := schema.CreateSQLiteTableFromCanonical(ctx, tx, "bff_sessions"); err != nil {
+			return fmt.Errorf("create missing refresh session table: %w", err)
+		}
+	}
+	for _, column := range []string{"refresh_lease_owner", "refresh_lease_until_unix"} {
+		present, err := sqliteColumnExists(ctx, tx, "bff_sessions", column)
+		if err != nil {
+			return err
+		}
+		if present {
+			continue
+		}
+		if err := schema.AddSQLiteColumnFromCanonical(ctx, tx, "bff_sessions", column); err != nil {
+			return fmt.Errorf("add refresh lease %s: %w", column, err)
+		}
+	}
+	if _, err := tx.ExecContext(ctx, `DELETE FROM schema_version`); err != nil {
+		return err
+	}
+	if _, err := tx.ExecContext(ctx, `INSERT INTO schema_version(version) VALUES (?)`, schema.CanonicalVersion); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+func sqliteColumnExists(ctx context.Context, tx *sql.Tx, table, column string) (bool, error) {
+	if table != "bff_sessions" {
+		return false, fmt.Errorf("unsupported column lookup table %q", table)
+	}
+	rows, err := tx.QueryContext(ctx, `PRAGMA table_info(bff_sessions)`)
+	if err != nil {
+		return false, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var index int
+		var name, kind string
+		var required, primaryKey int
+		var defaultValue sql.NullString
+		if err := rows.Scan(&index, &name, &kind, &required, &defaultValue, &primaryKey); err != nil {
+			return false, err
+		}
+		if name == column {
+			return true, nil
+		}
+	}
+	return false, rows.Err()
+}
+
+func ensureComponentCatalog(ctx context.Context, db *sql.DB) error {
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	legacy, err := sqliteTableExists(ctx, tx, "reports")
+	if err != nil {
+		return err
+	}
+	current, err := sqliteTableExists(ctx, tx, "components")
+	if err != nil {
+		return err
+	}
+	if legacy == current {
+		return fmt.Errorf("catalog migration requires exactly one reports or components table")
+	}
+	if legacy {
+		if _, err := tx.ExecContext(ctx, `ALTER TABLE reports RENAME TO components`); err != nil {
+			return fmt.Errorf("rename report catalog without copying rows: %w", err)
+		}
+	}
+	return tx.Commit()
 }
 
 func migrateResourceNamespaceClaims(ctx context.Context, db *sql.DB) error {
@@ -167,7 +295,7 @@ func migrateResourceNamespaceClaims(ctx context.Context, db *sql.DB) error {
 		var conflict string
 		err := tx.QueryRowContext(ctx, `SELECT namespace FROM (`+union+`) usage GROUP BY namespace HAVING COUNT(DISTINCT report_id)>1 LIMIT 1`).Scan(&conflict)
 		if err == nil {
-			return fmt.Errorf("resource namespace %q is owned by multiple reports", conflict)
+			return fmt.Errorf("resource namespace %q is owned by multiple components", conflict)
 		}
 		if !errors.Is(err, sql.ErrNoRows) {
 			return err
@@ -268,7 +396,7 @@ func migrateResourcePolicyAudit(ctx context.Context, db *sql.DB) error {
 	if _, err := tx.ExecContext(ctx, `DELETE FROM schema_version`); err != nil {
 		return err
 	}
-	if _, err := tx.ExecContext(ctx, `INSERT INTO schema_version(version) VALUES (?)`, schema.CanonicalVersion); err != nil {
+	if _, err := tx.ExecContext(ctx, `INSERT INTO schema_version(version) VALUES (?)`, 14); err != nil {
 		return err
 	}
 	return tx.Commit()
@@ -321,5 +449,7 @@ func (s *Service) Migrations() []Migration {
 		{Version: 12, Name: "warmup_audit_and_updated_at_concurrency"},
 		{Version: 13, Name: "resource_namespace_claims"},
 		{Version: 14, Name: "resource_policy_audit"},
+		{Version: 15, Name: "component_catalog"},
+		{Version: 16, Name: "durable_refresh_lease"},
 	}
 }

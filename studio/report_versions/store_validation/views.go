@@ -7,12 +7,12 @@ import (
 
 // StoredVersion is generated canonical view metadata for version.
 type StoredVersion struct {
-	ReportId               string            `sqlx:"report_id,primaryKey"`
-	VersionNo              int               `sqlx:"version_no,primaryKey"`
-	CompileStatus          string            `sqlx:"compile_status"`
+	ReportId               string            `sqlx:"report_id,primaryKey,refTable=components,refColumn=id,required=true"`
+	VersionNo              int               `sqlx:"version_no,primaryKey,required=true"`
+	CompileStatus          string            `sqlx:"compile_status,required=true"`
 	CompileDiagnosticsJson json.RawMessage   `sqlx:"compile_diagnostics_json,enc=JSON"`
 	ValidatedAt            *time.Time        `sqlx:"validated_at"`
-	SourceRevision         *int64            `writer:"concurrency" sqlx:"source_revision"`
+	SourceRevision         *int64            `writer:"concurrency" sqlx:"source_revision,required=true"`
 	Has                    *StoredVersionHas `setMarker:"true" format:"-" sqlx:"-" diff:"-" json:"-" typeName:"StoredVersionHas"`
 }
 
@@ -27,12 +27,12 @@ type StoredVersionHas struct {
 
 // CurrentVersionView is generated canonical view metadata for version.
 type CurrentVersionView struct {
-	ReportId               string          `sqlx:"report_id,primaryKey"`
-	VersionNo              int             `sqlx:"version_no,primaryKey"`
-	CompileStatus          string          `sqlx:"compile_status"`
+	ReportId               string          `sqlx:"report_id,primaryKey,refTable=components,refColumn=id,required=true"`
+	VersionNo              int             `sqlx:"version_no,primaryKey,required=true"`
+	CompileStatus          string          `sqlx:"compile_status,required=true"`
 	CompileDiagnosticsJson json.RawMessage `sqlx:"compile_diagnostics_json,enc=JSON"`
 	ValidatedAt            *time.Time      `sqlx:"validated_at"`
-	SourceRevision         *int64          `sqlx:"source_revision"`
+	SourceRevision         *int64          `sqlx:"source_revision,required=true"`
 }
 
 type VersionKeysRow struct {

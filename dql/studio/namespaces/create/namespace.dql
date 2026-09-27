@@ -1,0 +1,35 @@
+#package('studio/namespaces/create')
+
+#import('github.com/viant/scy/auth/jwt')
+#import('studioauth','github.com/viant/datly-studio/studio/auth/reader')
+
+#setting($_ = $input_type('NamespaceCreateInput'))
+#setting($_ = $output_type('NamespaceCreateOutput'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/sdk/namespaces.create', 'POST'))
+#setting($_ = $connector('studio'))
+#setting($_ = $mcp('studio.sdk.namespaces.create', 'Create a Datly Studio namespace for the verified owner'))
+#setting($_ = $sql_dest('namespace', 'sql/namespace.sql'))
+
+#define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
+#define($_ = $Auth<*studioauth.Output>(component/GET:/v1/studio/auth/context).Required())
+#define($_ = $Namespace<*NamespaceRecord>(body/).Required().Embed())
+#define($_ = $Data<*NamespaceRecord>(body/).Output().Embed())
+
+SELECT namespace.*, type(namespace, 'NamespaceRecord'),
+       CAST(namespace.owner_id AS string), CAST(namespace.name AS string),
+       CAST(namespace.title AS string), CAST(namespace.description AS *string),
+       CAST(namespace.status AS string), CAST(namespace.etag AS *int64),
+       CAST(namespace.created_at AS *time.Time), CAST(namespace.updated_at AS *time.Time),
+       CAST(namespace.deleted_at AS *time.Time),
+       tag(namespace.owner_id, 'sqlx:"owner_id,primaryKey" json:"ownerId,omitempty"'),
+       tag(namespace.name, 'sqlx:"name,primaryKey" json:"name"'),
+       tag(namespace.title, 'json:"title"'),
+       tag(namespace.description, 'json:"description,omitempty"'),
+       tag(namespace.status, 'json:"-"'),
+       tag(namespace.etag, 'json:"-"'),
+       tag(namespace.created_at, 'json:"-"'),
+       tag(namespace.updated_at, 'json:"-"'),
+       tag(namespace.deleted_at, 'json:"-"')
+FROM (${embed:sql/namespace.sql}) namespace
+WHERE 1=1

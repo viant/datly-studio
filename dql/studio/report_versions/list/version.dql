@@ -1,0 +1,58 @@
+#package('studio/report_versions/list')
+
+#import('github.com/viant/scy/auth/jwt')
+#import('encoding/json')
+#import('listoptions','github.com/viant/datly-studio/studio/report_versions/listoptions')
+#import('studioauth','github.com/viant/datly-studio/studio/auth/reader')
+#import('studioauthorization','github.com/viant/datly-studio/studio/authorization')
+
+#setting($_ = $input_type('VersionListInput'))
+#setting($_ = $output_type('VersionListOutput'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/v1/studio/sdk/versions.list', 'POST'))
+#setting($_ = $connector('studio'))
+#setting($_ = $mcp('studio.sdk.versions.list', 'List authorized Datly Studio versions with capability-scoped source'))
+#setting($_ = $sql_dest('version', 'sql/version.sql'))
+
+#define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
+#define($_ = $Auth<*studioauth.Output>(component/GET:/v1/studio/auth/context).Required().WithPredicate(3, 'handler', 'studioauthorization.ReportVersionMetadataRead'))
+#define($_ = $ReportId<string>(body/reportId).WithTag('json:"reportId"').Required())
+#define($_ = $Input<listoptions.Options>(body/input).WithTag('json:"input"').Optional())
+#define($_ = $Limit<int>(body/limit).WithTag('json:"-"').Optional().QuerySelector('version'))
+#define($_ = $Offset<int>(body/offset).WithTag('json:"-"').Optional().QuerySelector('version'))
+#define($_ = $Items<[]*Version>(output/view))
+#define($_ = $PageLimit<int>(output/body).WithTag('json:"limit"'))
+#define($_ = $PageOffset<int>(output/body).WithTag('json:"offset"'))
+
+SELECT version.*, type(version, 'Version'),
+       CAST(version.report_id AS string), CAST(version.version_no AS int),
+       CAST(version.state AS string), CAST(version.authoring_mode AS string),
+       CAST(version.authored_sql AS *string), CAST(version.authored_dql AS *string),
+       CAST(version.component_spec_json AS json.RawMessage),
+       CAST(version.dql_export_limits_json AS json.RawMessage),
+       CAST(version.type_manifest_json AS json.RawMessage),
+       CAST(version.resource_manifest_json AS json.RawMessage),
+       CAST(version.component_descriptor_json AS json.RawMessage),
+       CAST(version.spec_format_version AS string), CAST(version.spec_hash AS string),
+       CAST(version.generated_dql AS *string), CAST(version.compile_status AS string),
+       CAST(version.compile_diagnostics_json AS json.RawMessage),
+       CAST(version.datly_version AS string), CAST(version.compiler_version AS string),
+       CAST(version.source_revision AS int64), CAST(version.notes AS *string),
+       CAST(version.created_by AS string), CAST(version.created_at AS time.Time),
+       CAST(version.validated_at AS *time.Time), CAST(version.published_at AS *time.Time),
+       tag(version.authored_sql, 'json:"authoredSql,omitempty"'),
+       tag(version.authored_dql, 'json:"authoredDql,omitempty"'),
+       tag(version.component_spec_json, 'sqlx:"component_spec_json,enc=JSON" json:"componentSpec,omitempty"'),
+       tag(version.dql_export_limits_json, 'sqlx:"dql_export_limits_json,enc=JSON" json:"dqlExportLimits,omitempty"'),
+       tag(version.type_manifest_json, 'sqlx:"type_manifest_json,enc=JSON" json:"typeManifest,omitempty"'),
+       tag(version.resource_manifest_json, 'sqlx:"resource_manifest_json,enc=JSON" json:"resourceManifest,omitempty"'),
+       tag(version.component_descriptor_json, 'sqlx:"component_descriptor_json,enc=JSON" json:"componentDescriptor,omitempty"'),
+       tag(version.generated_dql, 'json:"generatedDql,omitempty"'),
+       tag(version.compile_diagnostics_json, 'sqlx:"compile_diagnostics_json,enc=JSON" json:"compileDiagnostics,omitempty"'),
+       tag(version.notes, 'json:"notes,omitempty"'),
+       tag(version.validated_at, 'json:"validatedAt,omitempty"'),
+       tag(version.published_at, 'json:"publishedAt,omitempty"'),
+       set_limit(version, 500)
+FROM (${embed:sql/version.sql}) version
+WHERE 1=1
+ORDER BY version.version_no DESC

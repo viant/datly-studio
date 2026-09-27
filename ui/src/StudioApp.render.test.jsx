@@ -6,7 +6,7 @@ import { StudioApp } from './StudioApp.jsx';
 
 function catalogAPI() {
   return {
-    listReports: vi.fn().mockResolvedValue({ items: [] }),
+    listComponents: vi.fn().mockResolvedValue({ items: [] }),
     listNamespaces: vi.fn().mockResolvedValue({ items: [] }),
     getRuntimeStatus: vi.fn().mockResolvedValue({}),
     listConnectors: vi.fn(async (input = {}) => {
@@ -18,6 +18,15 @@ function catalogAPI() {
 }
 
 describe('Studio connector catalog', () => {
+  test('offers authenticated sign-out and preserves a retry on revocation failure', async () => {
+    const user=userEvent.setup();
+    const onSignOut=vi.fn().mockRejectedValueOnce(new Error('Identity service unavailable')).mockResolvedValueOnce();
+    render(<StudioApp api={catalogAPI()} mode="authenticated" subject="owner" onSignOut={onSignOut}/>);
+    await user.click(screen.getByRole('button',{name:'Sign out'}));
+    expect((await screen.findByRole('alert')).textContent).toContain('Identity service unavailable');
+    await user.click(screen.getByRole('button',{name:'Try again'}));
+    await waitFor(()=>expect(onSignOut).toHaveBeenCalledTimes(2));
+  });
   test('submits server-side search and renders a filter-aware empty state', async () => {
     const user = userEvent.setup();
     const api = catalogAPI();

@@ -26,7 +26,7 @@ func TestResourcePolicyReaderContract(t *testing.T) {
 			t.Fatalf("server-owned policy reader must not be an MCP exposure: %+v", route.MCP)
 		}
 	}
-	if !routes["GET /v1/studio/resource-policies"] || len(routes) != 1 {
+	if !routes["GET /_studio/resource-policy-store/read"] || len(routes) != 1 || !compiled.Component.Routes[0].Internal {
 		t.Fatalf("resource policy routes = %#v", routes)
 	}
 	if source := compiled.Component.RootView.Source; source == nil || len(source.Embeds) != 1 || source.Embeds[0].Path != "sql/read.sql" {

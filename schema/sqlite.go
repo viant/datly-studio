@@ -20,7 +20,18 @@ var (
 	sqliteTableName        = regexp.MustCompile(`(?i)CREATE\s+TABLE\s+([A-Za-z_][A-Za-z0-9_]*)`)
 )
 
-const CanonicalVersion = 14
+const CanonicalVersion = 16
+
+// EnsureSQLiteSequenceLedger installs SQLX's write-intent table before a
+// publication transaction begins. Creating it inside a deferred transaction
+// can fail after earlier catalog reads have established a SQLite snapshot.
+func EnsureSQLiteSequenceLedger(ctx context.Context, db *sql.DB) error {
+	_, err := db.ExecContext(ctx, `CREATE TABLE IF NOT EXISTS sqlx_sequence_reservations (
+		table_name TEXT PRIMARY KEY,
+		value INTEGER NOT NULL CHECK(value >= 0)
+	)`)
+	return err
+}
 
 // ApplySQLite applies one embedded SQLite schema or fixture script.
 func ApplySQLite(ctx context.Context, db *sql.DB, name string) error {
@@ -181,6 +192,9 @@ func DropSQLite(ctx context.Context, db *sql.DB) error {
 		if _, err := db.ExecContext(ctx, `DROP TABLE IF EXISTS `+table); err != nil {
 			return fmt.Errorf("drop %s: %w", table, err)
 		}
+	}
+	if _, err := db.ExecContext(ctx, `DROP TABLE IF EXISTS sqlx_sequence_reservations`); err != nil {
+		return fmt.Errorf("drop SQLX sequence ledger: %w", err)
 	}
 	return SetSQLiteVersion(ctx, db, 0)
 }

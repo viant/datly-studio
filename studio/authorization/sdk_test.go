@@ -28,7 +28,7 @@ func TestSDKAuthorizerEnforcesOwnerAndACL(t *testing.T) {
 	if _, err = db.Exec(`INSERT INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at) VALUES ('bob','general','General','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = db.Exec(`INSERT INTO reports(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES ('shared','shared','Shared','bob','active','main','reports','shared',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`); err != nil {
+	if _, err = db.Exec(`INSERT INTO components(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES ('shared','shared','Shared','bob','active','main','reports','shared',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`); err != nil {
 		t.Fatal(err)
 	}
 	if _, err = db.Exec(`INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_run,can_edit,can_use_dql) VALUES ('shared','user','alice',TRUE,TRUE,TRUE,FALSE)`); err != nil {
@@ -111,7 +111,7 @@ func TestSDKAuthorizerEnforcesOwnerAndACL(t *testing.T) {
 	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{Permission: "publish"}); err != nil {
 		t.Fatalf("ACL global publish authorization: %v", err)
 	}
-	if _, err = db.Exec(`UPDATE reports SET deleted_at=CURRENT_TIMESTAMP WHERE id='shared'`); err != nil {
+	if _, err = db.Exec(`UPDATE components SET deleted_at=CURRENT_TIMESTAMP WHERE id='shared'`); err != nil {
 		t.Fatal(err)
 	}
 	if err = authorizer.Authorize(bob, sqltransport.AuthorizationRequest{Permission: "publish"}); err == nil {

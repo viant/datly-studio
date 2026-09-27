@@ -39,7 +39,7 @@ func TestReportReaderMinimumContract(t *testing.T) {
 			{"owner_id": "owner-a", "name": "general", "title": "General", "status": "active", "etag": 1, "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"},
 			{"owner_id": "owner-b", "name": "general", "title": "General", "status": "active", "etag": 1, "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"},
 		}},
-		datatest.Table{Name: "reports", Rows: []datatest.Row{
+		datatest.Table{Name: "components", Rows: []datatest.Row{
 			{"id": "r-alpha", "slug": "alpha", "title": "Alpha analytics", "description": "Primary", "owner_id": "owner-a", "status": "active", "default_connector_name": "main", "component_scope": "reports/alpha", "component_name": "alpha", "current_draft_version": 2, "etag": 1, "created_at": "2026-09-17 10:00:00", "updated_at": "2026-09-17 10:00:00"},
 			{"id": "r-beta", "slug": "beta", "title": "Beta archive", "description": "Historical analytics", "owner_id": "owner-b", "status": "disabled", "default_connector_name": "archive", "component_scope": "reports/beta", "component_name": "beta", "etag": 2, "created_at": "2026-09-17 11:00:00", "updated_at": "2026-09-17 11:00:00"},
 			{"id": "r-gamma", "slug": "gamma", "title": "Gamma analytics", "owner_id": "owner-a", "status": "draft", "default_connector_name": "main", "component_scope": "reports/gamma", "component_name": "gamma", "current_draft_version": 1, "etag": 3, "created_at": "2026-09-17 12:00:00", "updated_at": "2026-09-17 12:00:00"},
@@ -93,7 +93,7 @@ func TestReportReaderMinimumContract(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if names := mcpService.Catalog().ToolNames(); !reflect.DeepEqual(names, []string{"studio.sdk.reports.list"}) {
+	if names := mcpService.Catalog().ToolNames(); !reflect.DeepEqual(names, []string{"studio.sdk.components.list"}) {
 		t.Fatalf("public report MCP tools=%v", names)
 	}
 
@@ -102,7 +102,7 @@ func TestReportReaderMinimumContract(t *testing.T) {
 		if marshalErr != nil {
 			t.Fatal(marshalErr)
 		}
-		request := httptest.NewRequest("POST", "/v1/studio/sdk/reports.list", bytes.NewReader(payload))
+		request := httptest.NewRequest("POST", "/v1/studio/sdk/components.list", bytes.NewReader(payload))
 		request.Header.Set("Content-Type", "application/json")
 		request.Header.Set("Authorization", jwt.Bearer(t, subject))
 		scope, scopeErr := requestprovider.New(request)
@@ -110,7 +110,7 @@ func TestReportReaderMinimumContract(t *testing.T) {
 			t.Fatal(scopeErr)
 		}
 		defer scope.Close()
-		actual, invokeErr := runtime.ExecuteRoute(ctx, "POST", "/v1/studio/sdk/reports.list", scope)
+		actual, invokeErr := runtime.ExecuteRoute(ctx, "POST", "/v1/studio/sdk/components.list", scope)
 		if invokeErr != nil {
 			return nil, invokeErr
 		}
@@ -180,7 +180,7 @@ func TestReportReaderMinimumContract(t *testing.T) {
 	})
 	t.Run("SDK HTTP OpenAPI and MCP share the report contract", func(t *testing.T) {
 		handler := gateway.NewHandler(runtime, nil, "test")
-		request := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/reports.list", bytes.NewBufferString(`{"limit":1,"offset":1}`))
+		request := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/components.list", bytes.NewBufferString(`{"limit":1,"offset":1}`))
 		request.Header.Set("Content-Type", "application/json")
 		request.Header.Set("Authorization", jwt.Bearer(t, "viewer"))
 		response := httptest.NewRecorder()
@@ -200,14 +200,14 @@ func TestReportReaderMinimumContract(t *testing.T) {
 			len(wire.Items) != 1 || wire.Items[0].Slug != "beta" || wire.Items[0].OwnerPackage != "ownerb" {
 			t.Fatalf("HTTP page=%+v err=%v body=%s", wire, err, response.Body.String())
 		}
-		missingAuth := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/reports.list", bytes.NewBufferString(`{}`))
+		missingAuth := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/components.list", bytes.NewBufferString(`{}`))
 		missingAuth.Header.Set("Content-Type", "application/json")
 		missingResponse := httptest.NewRecorder()
 		handler.ServeHTTP(missingResponse, missingAuth)
 		if missingResponse.Code != http.StatusUnauthorized {
 			t.Fatalf("missing JWT status=%d body=%s", missingResponse.Code, missingResponse.Body.String())
 		}
-		invalid := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/reports.list", bytes.NewBufferString(`{"limit":"invalid"}`))
+		invalid := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/components.list", bytes.NewBufferString(`{"limit":"invalid"}`))
 		invalid.Header.Set("Content-Type", "application/json")
 		invalid.Header.Set("Authorization", jwt.Bearer(t, "viewer"))
 		invalidResponse := httptest.NewRecorder()
@@ -218,12 +218,12 @@ func TestReportReaderMinimumContract(t *testing.T) {
 		document, err := (openapi.Generator{}).Generate(ctx, openapi.Request{
 			Info:       openapi3.Info{Title: "Studio SDK", Version: "1"},
 			Components: []*registry.RegisteredComponent{authEntry, entry},
-			Routes:     []spec.RouteRef{{Method: http.MethodPost, Path: "/v1/studio/sdk/reports.list"}},
+			Routes:     []spec.RouteRef{{Method: http.MethodPost, Path: "/v1/studio/sdk/components.list"}},
 		})
 		if err != nil {
 			t.Fatal(err)
 		}
-		operation := document.Paths["/v1/studio/sdk/reports.list"].Post
+		operation := document.Paths["/v1/studio/sdk/components.list"].Post
 		if operation == nil || operation.RequestBody == nil || operation.Responses == nil || operation.Security == nil {
 			t.Fatalf("generated OpenAPI report operation=%+v", operation)
 		}
@@ -231,7 +231,7 @@ func TestReportReaderMinimumContract(t *testing.T) {
 		if err != nil || bytes.Contains(openAPIWire, []byte(`"subject"`)) || bytes.Contains(openAPIWire, []byte(`"scoped"`)) {
 			t.Fatalf("OpenAPI exposes trusted report scope: %s err=%v", openAPIWire, err)
 		}
-		plan, ok := mcpService.Catalog().Tool("studio.sdk.reports.list")
+		plan, ok := mcpService.Catalog().Tool("studio.sdk.components.list")
 		if !ok {
 			t.Fatal("report SDK MCP plan is missing")
 		}
@@ -240,13 +240,13 @@ func TestReportReaderMinimumContract(t *testing.T) {
 				t.Fatalf("MCP exposes trusted report scope: %+v", argument)
 			}
 		}
-		tool, ok := mcpService.Registry().ToolRegistry.Get("studio.sdk.reports.list")
+		tool, ok := mcpService.Registry().ToolRegistry.Get("studio.sdk.components.list")
 		if !ok {
 			t.Fatal("report SDK MCP tool is missing")
 		}
 		callContext := context.WithValue(ctx, authorization.TokenKey, &authorization.Token{Token: jwt.Bearer(t, "viewer")})
 		result, rpcErr := tool.Handler(callContext, &schema.CallToolRequest{Method: schema.MethodToolsCall,
-			Params: schema.CallToolRequestParams{Name: "studio.sdk.reports.list", Arguments: map[string]any{"limit": 1, "offset": 1}}})
+			Params: schema.CallToolRequestParams{Name: "studio.sdk.components.list", Arguments: map[string]any{"limit": 1, "offset": 1}}})
 		if rpcErr != nil || result == nil || result.IsError != nil && *result.IsError {
 			t.Fatalf("MCP page=%+v err=%v", result, rpcErr)
 		}
