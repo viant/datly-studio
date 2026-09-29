@@ -2483,6 +2483,9 @@ export type PostV1StudioSdkComponentsUpdateData = {
         id: string;
         input: Input25F0A19704063Df5593Ce82B9757Fd47D5E39B2De5B199Effc95C33A74910Afc;
     };
+    headers?: {
+        'X-Studio-Namespace'?: string;
+    };
     path?: never;
     query?: never;
     url: '/v1/studio/sdk/components.update';

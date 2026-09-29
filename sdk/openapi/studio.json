@@ -8772,6 +8772,15 @@
     "/v1/studio/sdk/components.update": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/components.update",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {

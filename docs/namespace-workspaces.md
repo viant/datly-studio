@@ -660,3 +660,12 @@ runtime discovery/execution until its policy is configured. The presence check
 is a private generated Datly reader; query failures deny access. Tests distinguish
 an explicitly configured component from a never-configured one and cover lookup
 failure. No version policy is silently copied or inferred from role claims.
+
+## Native component update selection
+
+The component-update contract now exposes namespace selection over HTTP and MCP
+and uses the existing namespace-aware edit guard. Linked-host tests reject
+same-owner updates from the wrong workspace, inspect unchanged title/revision,
+and verify updates in the selected workspace. This completes that route's
+selection contract; mandatory selection and remaining persistence scopes are
+still separate acceptance work.

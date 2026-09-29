@@ -2899,6 +2899,11 @@ type POSTv1studiosdkcomponentsUpdateJSONBody struct {
 	Input Input25f0a19704063df5593ce82b9757fd47d5e39b2de5b199effc95c33a74910afc `json:"input"`
 }
 
+// POSTv1studiosdkcomponentsUpdateParams defines parameters for POSTv1studiosdkcomponentsUpdate.
+type POSTv1studiosdkcomponentsUpdateParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
 // POSTv1studiosdkconnectorsActivateJSONBody defines parameters for POSTv1studiosdkconnectorsActivate.
 type POSTv1studiosdkconnectorsActivateJSONBody struct {
 	Etag int64  `json:"etag"`
@@ -7136,11 +7141,11 @@ type ClientInterface interface {
 
 	// POSTv1studiosdkcomponentsUpdateWithBody performs a POST /v1/studio/sdk/components.update (the `POSTv1studiosdkcomponentsUpdate` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkcomponentsUpdateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkcomponentsUpdateWithBody(ctx context.Context, params *POSTv1studiosdkcomponentsUpdateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkcomponentsUpdate performs a POST /v1/studio/sdk/components.update (the `POSTv1studiosdkcomponentsUpdate` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkcomponentsUpdate(ctx context.Context, body POSTv1studiosdkcomponentsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkcomponentsUpdate(ctx context.Context, params *POSTv1studiosdkcomponentsUpdateParams, body POSTv1studiosdkcomponentsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkconnectorsActivateWithBody performs a POST /v1/studio/sdk/connectors.activate (the `POSTv1studiosdkconnectorsActivate` operationId) request,
 	// with any type of body and a specified content type.
@@ -8061,8 +8066,8 @@ func (c *Client) POSTv1studiosdkcomponentsList(ctx context.Context, params *POST
 
 // POSTv1studiosdkcomponentsUpdateWithBody performs a POST /v1/studio/sdk/components.update (the `POSTv1studiosdkcomponentsUpdate` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkcomponentsUpdateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkcomponentsUpdateRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkcomponentsUpdateWithBody(ctx context.Context, params *POSTv1studiosdkcomponentsUpdateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkcomponentsUpdateRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8075,8 +8080,8 @@ func (c *Client) POSTv1studiosdkcomponentsUpdateWithBody(ctx context.Context, co
 
 // POSTv1studiosdkcomponentsUpdate performs a POST /v1/studio/sdk/components.update (the `POSTv1studiosdkcomponentsUpdate` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkcomponentsUpdate(ctx context.Context, body POSTv1studiosdkcomponentsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkcomponentsUpdateRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkcomponentsUpdate(ctx context.Context, params *POSTv1studiosdkcomponentsUpdateParams, body POSTv1studiosdkcomponentsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkcomponentsUpdateRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10279,18 +10284,18 @@ func NewPOSTv1studiosdkcomponentsListRequestWithBody(server string, params *POST
 }
 
 // NewPOSTv1studiosdkcomponentsUpdateRequest calls the generic POSTv1studiosdkcomponentsUpdate builder with application/json body
-func NewPOSTv1studiosdkcomponentsUpdateRequest(server string, body POSTv1studiosdkcomponentsUpdateJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkcomponentsUpdateRequest(server string, params *POSTv1studiosdkcomponentsUpdateParams, body POSTv1studiosdkcomponentsUpdateJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkcomponentsUpdateRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkcomponentsUpdateRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkcomponentsUpdateRequestWithBody constructs an http.Request for the POSTv1studiosdkcomponentsUpdate method, with any body, and a specified content type
-func NewPOSTv1studiosdkcomponentsUpdateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkcomponentsUpdateRequestWithBody(server string, params *POSTv1studiosdkcomponentsUpdateParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -10314,6 +10319,21 @@ func NewPOSTv1studiosdkcomponentsUpdateRequestWithBody(server string, contentTyp
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
 
 	return req, nil
 }
@@ -12960,11 +12980,11 @@ type ClientWithResponsesInterface interface {
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkcomponentsUpdateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsUpdateResponse, error)
+	POSTv1studiosdkcomponentsUpdateWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsUpdateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsUpdateResponse, error)
 
 	// POSTv1studiosdkcomponentsUpdateWithResponse performs a POST /v1/studio/sdk/components.update (the `POSTv1studiosdkcomponentsUpdate` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkcomponentsUpdateWithResponse(ctx context.Context, body POSTv1studiosdkcomponentsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsUpdateResponse, error)
+	POSTv1studiosdkcomponentsUpdateWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsUpdateParams, body POSTv1studiosdkcomponentsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsUpdateResponse, error)
 
 	// POSTv1studiosdkconnectorsActivateWithBodyWithResponse performs a POST /v1/studio/sdk/connectors.activate (the `POSTv1studiosdkconnectorsActivate` operationId) request,
 	// with any type of body and a specified content type.
@@ -16539,8 +16559,8 @@ func (c *ClientWithResponses) POSTv1studiosdkcomponentsListWithResponse(ctx cont
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkcomponentsUpdateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsUpdateResponse, error) {
-	rsp, err := c.POSTv1studiosdkcomponentsUpdateWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkcomponentsUpdateWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsUpdateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsUpdateResponse, error) {
+	rsp, err := c.POSTv1studiosdkcomponentsUpdateWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16549,8 +16569,8 @@ func (c *ClientWithResponses) POSTv1studiosdkcomponentsUpdateWithBodyWithRespons
 
 // POSTv1studiosdkcomponentsUpdateWithResponse performs a POST /v1/studio/sdk/components.update (the `POSTv1studiosdkcomponentsUpdate` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkcomponentsUpdateWithResponse(ctx context.Context, body POSTv1studiosdkcomponentsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsUpdateResponse, error) {
-	rsp, err := c.POSTv1studiosdkcomponentsUpdate(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkcomponentsUpdateWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsUpdateParams, body POSTv1studiosdkcomponentsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsUpdateResponse, error) {
+	rsp, err := c.POSTv1studiosdkcomponentsUpdate(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

@@ -721,7 +721,8 @@ SELECT wide.*, type(wide,'Row') FROM (SELECT * FROM STUDIO_WIDE_60) wide`
 		}
 	}
 	var nativeReport struct {
-		ID string `json:"id"`
+		Title string `json:"title"`
+		ID    string `json:"id"`
 	}
 	if err = json.Unmarshal(reportCreated.Body.Bytes(), &nativeReport); err != nil || nativeReport.ID == "" {
 		t.Fatalf("native report identity=%+v err=%v", nativeReport, err)
@@ -1122,8 +1123,22 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if deniedReportUpdate.Code != http.StatusForbidden {
 		t.Fatalf("non-editor report update status=%d body=%s", deniedReportUpdate.Code, deniedReportUpdate.Body.String())
 	}
+	wrongUpdate := request("/v1/studio/sdk/components.update", `{"id":"`+nativeReport.ID+`","input":{"title":"Wrong workspace","etag":1}}`)
+	wrongUpdate.Header.Set("X-Studio-Namespace", wrongNamespaceID)
+	wrongUpdateResponse := httptest.NewRecorder()
+	server.ServeHTTP(wrongUpdateResponse, wrongUpdate)
+	if wrongUpdateResponse.Code != http.StatusForbidden {
+		t.Fatalf("cross-namespace component update status=%d body=%s", wrongUpdateResponse.Code, wrongUpdateResponse.Body.String())
+	}
+	var unchangedTitle string
+	var unchangedETag int
+	if err = store.QueryRowContext(ctx, "SELECT title,etag FROM components WHERE id=?", nativeReport.ID).Scan(&unchangedTitle, &unchangedETag); err != nil || unchangedTitle != nativeReport.Title || unchangedETag != 1 {
+		t.Fatalf("denial changed component: %q/%d err=%v", unchangedTitle, unchangedETag, err)
+	}
 	updatedReport := httptest.NewRecorder()
-	server.ServeHTTP(updatedReport, request("/v1/studio/sdk/components.update", `{"id":"`+nativeReport.ID+`","input":{"title":"Native Updated","etag":1}}`))
+	selectedUpdate := request("/v1/studio/sdk/components.update", `{"id":"`+nativeReport.ID+`","input":{"title":"Native Updated","etag":1}}`)
+	selectedUpdate.Header.Set("X-Studio-Namespace", namespaceaccess.ID("alice", "production.audit"))
+	server.ServeHTTP(updatedReport, selectedUpdate)
 	if updatedReport.Code != http.StatusOK || !strings.Contains(updatedReport.Body.String(), `"title":"Native Updated"`) ||
 		!strings.Contains(updatedReport.Body.String(), `"etag":2`) {
 		t.Fatalf("native report update status=%d body=%s", updatedReport.Code, updatedReport.Body.String())
@@ -1792,8 +1807,15 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM components WHERE slug='mcp-default' AND owner_id='alice' AND namespace='general'`).Scan(&reportCount); err != nil || reportCount != 1 {
 		t.Fatalf("MCP default namespace report count=%d err=%v", reportCount, err)
 	}
+	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.components.update", map[string]any{"namespaceId": wrongNamespaceID, "id": nativeReport.ID, "input": map[string]any{"title": "MCP wrong workspace", "etag": 2}})
+	if status != http.StatusOK || !bytes.Contains(body, []byte(`"isError":true`)) {
+		t.Fatalf("MCP cross-namespace component update status=%d body=%s", status, body)
+	}
+	if err = store.QueryRowContext(ctx, "SELECT title,etag FROM components WHERE id=?", nativeReport.ID).Scan(&unchangedTitle, &unchangedETag); err != nil || unchangedTitle != "Native Updated" || unchangedETag != 2 {
+		t.Fatalf("MCP denial changed component: %q/%d err=%v", unchangedTitle, unchangedETag, err)
+	}
 	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.components.update", map[string]any{
-		"id": nativeReport.ID, "input": map[string]any{"title": "MCP Updated", "etag": 2},
+		"namespaceId": namespaceaccess.ID("alice", "production.audit"), "id": nativeReport.ID, "input": map[string]any{"title": "MCP Updated", "etag": 2},
 	})
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"title":"MCP Updated"`)) {
 		t.Fatalf("static MCP report update status=%d body=%s", status, body)
