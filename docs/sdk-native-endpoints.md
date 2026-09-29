@@ -78,9 +78,11 @@ incoming bearer credential and resolve the same server-owned OAuth provider as
 the policy endpoints. `STUDIO_ACCESS_TENANT` pins the tenant for exact-version
 scoped execution. Partial verifier configuration fails closed. Authorization
 facts must independently match the verified Studio subject; request fields do
-not supply roles, exposures or allowed entities. The user-info adapter currently
-provides roles/features only, so entity-bounded execution still needs a trusted
-entity provider. This wiring does not itself enable scoped UI Preview.
+not supply roles, exposures or allowed entities. A configured user-info
+adapter supplies roles, features, and named permissions on business entity IDs;
+the endpoint must return all three fields. Entity-bounded execution requires
+matching grants, and advertiser IDs do not imply publisher IDs. This wiring
+does not itself enable scoped UI Preview.
 They execute Datly's actual transient view, relation and derived cube-compose
 paths; SQLite signed HTTP/direct/BFF MCP tests cover root rows, attached-child
 evidence and composed data. The Docker wide view also passed native HTTP and
@@ -554,8 +556,9 @@ SDK. The static host reads `STUDIO_RUNTIME_ADMIN_TOKEN` and optional
 either value. If the probe is unconfigured or fails, an active generation is
 reported with an unavailable host rather than as live-ready. `access.context`,
 `access.get`, and `access.replace` are native routes and MCP tools. The static
-host requires `STUDIO_ACCESS_ISSUER`, `STUDIO_ACCESS_AUDIENCE`, and
-`STUDIO_ACCESS_PUBLIC_KEY_FILE` to independently verify the ACL bearer; the
+host requires `STUDIO_ACCESS_ISSUER`, `STUDIO_ACCESS_AUDIENCE`, and either
+`STUDIO_ACCESS_PUBLIC_KEY_FILE` or `STUDIO_ACCESS_CERT_URL` to independently
+verify the ACL bearer; the
 policy reader and writer are private linked children of the same Datly
 transaction. The forwarded session bearer must satisfy both Studio's JWT
 validator and the ACL issuer/audience/key check; the native route never

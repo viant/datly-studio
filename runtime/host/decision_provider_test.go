@@ -73,7 +73,7 @@ func TestNativeResourceAccessUsesInjectedProvider(t *testing.T) {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-		_, _ = w.Write([]byte(`{"status":"ok","info":{"uid":"alice","userId":7,"accountId":21,"roles":["reader"],"features":["export"]}}`))
+		_, _ = w.Write([]byte(`{"status":"ok","info":{"uid":"alice","subject":"alice","userId":7,"accountId":21,"roles":["reader"],"features":["export"],"entityPermissions":[]}}`))
 	}))
 	defer userInfo.Close()
 	config := Config{

@@ -25,11 +25,10 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
-	jwtlib "github.com/golang-jwt/jwt/v5"
 	_ "github.com/lib/pq"
 	accessstore "github.com/viant/authz/datly/store/sql"
-	accessoauth "github.com/viant/authz/oauth"
 	_ "github.com/viant/bigquery"
+	"github.com/viant/datly-studio/internal/accessconfig"
 	"github.com/viant/datly-studio/internal/bffauth"
 	"github.com/viant/datly-studio/internal/runtimeadmin"
 	"github.com/viant/datly-studio/runtime/accesscontext"
@@ -156,6 +155,7 @@ func Run() {
 	accessIssuer := flag.String("access-issuer", os.Getenv("STUDIO_ACCESS_ISSUER"), "dedicated ACL token issuer")
 	accessAudience := flag.String("access-audience", os.Getenv("STUDIO_ACCESS_AUDIENCE"), "dedicated ACL token audience")
 	accessKey := flag.String("access-public-key", os.Getenv("STUDIO_ACCESS_PUBLIC_KEY_FILE"), "ACL issuer RSA public key PEM file")
+	accessCertURL := flag.String("access-cert-url", os.Getenv("STUDIO_ACCESS_CERT_URL"), "ACL issuer JWKS endpoint for rotating keys")
 	accessUserInfoURL := flag.String("access-user-info-url", os.Getenv("STUDIO_ACCESS_USER_INFO_URL"), "optional trusted user-info endpoint for ID-token ACL facts")
 	flag.Parse()
 	if *sessionPruneInterval < 0 {
@@ -268,26 +268,12 @@ func Run() {
 		}
 	}()
 	var sdkTransport sdk.Transport = transport
-	if *accessIssuer != "" || *accessAudience != "" || *accessKey != "" || *accessUserInfoURL != "" {
+	if *accessIssuer != "" || *accessAudience != "" || *accessKey != "" || *accessCertURL != "" || *accessUserInfoURL != "" {
 		if resolvedMode != string(httptransport.Authenticated) {
 			log.Fatal("resource ACL requires authenticated Studio mode")
 		}
-		pem, keyErr := os.ReadFile(*accessKey)
-		if keyErr != nil {
-			log.Fatal(keyErr)
-		}
-		key, keyErr := jwtlib.ParseRSAPublicKeyFromPEM(pem)
-		if keyErr != nil {
-			log.Fatal(keyErr)
-		}
-		keyfunc := func(*jwtlib.Token) (any, error) { return key, nil }
-		var provider authz.Provider
-		var providerErr error
-		if *accessUserInfoURL != "" {
-			provider, providerErr = accessoauth.NewUserInfo(accessoauth.UserInfoConfig{Issuer: *accessIssuer, Audience: *accessAudience, Algorithms: []string{"RS256"}, Keyfunc: keyfunc, URL: *accessUserInfoURL})
-		} else {
-			provider, providerErr = accessoauth.New(accessoauth.Config{Issuer: *accessIssuer, Audience: *accessAudience, Algorithms: []string{"RS256"}, Keyfunc: keyfunc})
-		}
+		provider, providerErr := accessconfig.New(accessconfig.Config{Issuer: *accessIssuer, Audience: *accessAudience,
+			PublicKeyFile: *accessKey, CertURL: *accessCertURL, UserInfoURL: *accessUserInfoURL})
 		if providerErr != nil {
 			log.Fatal(providerErr)
 		}

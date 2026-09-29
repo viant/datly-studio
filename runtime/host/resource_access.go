@@ -6,15 +6,14 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 	"strconv"
 	"strings"
 
-	jwtlib "github.com/golang-jwt/jwt/v5"
-	"github.com/viant/datly-studio/runtime/accesscontext"
 	access "github.com/viant/authz"
-	"github.com/viant/authz/oauth"
 	accessstore "github.com/viant/authz/datly/store/sql"
+	"github.com/viant/authz/oauth"
+	"github.com/viant/datly-studio/internal/accessconfig"
+	"github.com/viant/datly-studio/runtime/accesscontext"
 	"github.com/viant/datly/runtime/registry"
 	"github.com/viant/datly/spec"
 	xresponse "github.com/viant/xdatly/response"
@@ -25,21 +24,8 @@ func (s *Service) initResourceAccess() error {
 	if c == nil {
 		return nil
 	}
-	data, err := os.ReadFile(c.PublicKeyFile)
-	if err != nil {
-		return err
-	}
-	key, err := jwtlib.ParseRSAPublicKeyFromPEM(data)
-	if err != nil {
-		return err
-	}
-	keyfunc := func(*jwtlib.Token) (any, error) { return key, nil }
-	var provider access.Provider
-	if c.UserInfoURL != "" {
-		provider, err = oauth.NewUserInfo(oauth.UserInfoConfig{Issuer: c.Issuer, Audience: c.Audience, Algorithms: []string{"RS256"}, Keyfunc: keyfunc, URL: c.UserInfoURL})
-	} else {
-		provider, err = oauth.New(oauth.Config{Issuer: c.Issuer, Audience: c.Audience, Algorithms: []string{"RS256"}, Keyfunc: keyfunc})
-	}
+	provider, err := accessconfig.New(accessconfig.Config{Issuer: c.Issuer, Audience: c.Audience,
+		PublicKeyFile: c.PublicKeyFile, CertURL: c.CertURL, UserInfoURL: c.UserInfoURL})
 	if err != nil {
 		return err
 	}

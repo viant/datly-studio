@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	jwtlib "github.com/golang-jwt/jwt/v5"
 	access "github.com/viant/authz"
 	accessoauth "github.com/viant/authz/oauth"
 )
@@ -14,25 +13,31 @@ import (
 // FromEnvironment returns nil only when ACL verification is entirely absent.
 // Partial or invalid configuration fails rather than falling back to public mode.
 func FromEnvironment() (access.Provider, error) {
-	issuer := strings.TrimSpace(os.Getenv("STUDIO_ACCESS_ISSUER"))
-	audience := strings.TrimSpace(os.Getenv("STUDIO_ACCESS_AUDIENCE"))
-	keyPath := strings.TrimSpace(os.Getenv("STUDIO_ACCESS_PUBLIC_KEY_FILE"))
-	userInfoURL := strings.TrimSpace(os.Getenv("STUDIO_ACCESS_USER_INFO_URL"))
-	if issuer == "" && audience == "" && keyPath == "" && userInfoURL == "" {
+	return New(Config{Issuer: os.Getenv("STUDIO_ACCESS_ISSUER"), Audience: os.Getenv("STUDIO_ACCESS_AUDIENCE"),
+		PublicKeyFile: os.Getenv("STUDIO_ACCESS_PUBLIC_KEY_FILE"), CertURL: os.Getenv("STUDIO_ACCESS_CERT_URL"), UserInfoURL: os.Getenv("STUDIO_ACCESS_USER_INFO_URL")})
+}
+
+type Config struct {
+	Issuer, Audience, PublicKeyFile, CertURL, UserInfoURL string
+}
+
+// New resolves one server-owned verifier for static, dynamic, and SDK paths.
+func New(config Config) (access.Provider, error) {
+	issuer := strings.TrimSpace(config.Issuer)
+	audience := strings.TrimSpace(config.Audience)
+	keyPath := strings.TrimSpace(config.PublicKeyFile)
+	certURL := strings.TrimSpace(config.CertURL)
+	userInfoURL := strings.TrimSpace(config.UserInfoURL)
+	if issuer == "" && audience == "" && keyPath == "" && certURL == "" && userInfoURL == "" {
 		return nil, nil
 	}
-	if issuer == "" || audience == "" || keyPath == "" {
-		return nil, fmt.Errorf("ACL issuer, audience and public key are required")
+	if issuer == "" || audience == "" {
+		return nil, fmt.Errorf("ACL issuer and audience are required")
 	}
-	pem, err := os.ReadFile(keyPath)
+	keyfunc, err := keyfunc(keyPath, certURL)
 	if err != nil {
-		return nil, fmt.Errorf("ACL public key is unavailable")
+		return nil, err
 	}
-	key, err := jwtlib.ParseRSAPublicKeyFromPEM(pem)
-	if err != nil {
-		return nil, fmt.Errorf("ACL public key is invalid")
-	}
-	keyfunc := func(*jwtlib.Token) (any, error) { return key, nil }
 	if userInfoURL != "" {
 		return accessoauth.NewUserInfo(accessoauth.UserInfoConfig{Issuer: issuer, Audience: audience, Algorithms: []string{"RS256"}, Keyfunc: keyfunc, URL: userInfoURL})
 	}

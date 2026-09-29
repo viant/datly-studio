@@ -336,7 +336,7 @@ func TestPublishedReaderUsesCurrentUserInfoFeaturesOnHTTPAndMCP(t *testing.T) {
 		if allowExport.Load() {
 			features = `["export"]`
 		}
-		_, _ = fmt.Fprintf(w, `{"status":"ok","info":{"uid":"alice","userId":7,"accountId":%d,"roles":[],"features":%s}}`, account.Load(), features)
+		_, _ = fmt.Fprintf(w, `{"status":"ok","info":{"uid":"alice","subject":"alice","userId":7,"accountId":%d,"roles":[],"features":%s,"entityPermissions":[]}}`, account.Load(), features)
 	}))
 	defer userInfo.Close()
 	dql := strings.Replace(unscopedRecordsDQL, "#define($_ = $Records", "#setting($_ = $mcp('records.list','List records'))\n#define($_ = $Records", 1)

@@ -7,12 +7,16 @@ ACLs.
 `Access.UserInfoURL` is an optional deployment-owned user-info endpoint for
 ID-token ACL facts. With it, the runtime verifies the token's configured issuer,
 audience, signature, subject, expiration, user ID, and account ID, then checks
-that the endpoint returns the same user/account identity. User-info roles and
-features become ACL roles and exposures respectively; the signed account ID
-becomes the tenant. `Access.Tenant` must match that account for protected
-resources. No entity grants are inferred, so entity-bounded policies still
-deny without a separate trusted entity source. Without `UserInfoURL`, the
-existing dedicated ACL-token contract remains unchanged.
+that the endpoint returns the same subject, user ID, and account ID. User-info
+`roles`, `features`, and `entityPermissions` become ACL roles, exposures, and
+named permissions on business entity IDs respectively. The endpoint must return
+all three fields, including empty arrays when there are no grants; it must not
+return internal ACL row IDs. The signed account ID becomes the tenant.
+`Access.Tenant` must match that account for protected resources. Entity-bounded
+policies require matching entity grants; advertiser IDs are not publisher IDs.
+Without `UserInfoURL`, the existing dedicated ACL-token contract remains
+unchanged. Configure either `Access.PublicKeyFile` or `Access.CertURL` for the
+trusted issuer; `CertURL` fetches rotating RSA JWKS keys over HTTPS.
 
 The runtime YAML can declare independent JWT identity providers and policies
 keyed by Studio component report ID:

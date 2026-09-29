@@ -2723,7 +2723,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-		_, _ = fmt.Fprintf(w, `{"status":"ok","info":{"uid":"alice","userId":1,"accountId":%d,"roles":["reader"],"features":["export"]}}`, returnedAccount.Load())
+		_, _ = fmt.Fprintf(w, `{"status":"ok","info":{"uid":"alice","subject":"alice","userId":1,"accountId":%d,"roles":["reader"],"features":["export"],"entityPermissions":[]}}`, returnedAccount.Load())
 	}))
 	defer userInfo.Close()
 	directToken, signErr := jwtlib.NewWithClaims(jwtlib.SigningMethodRS256, jwtlib.MapClaims{

@@ -69,6 +69,7 @@ type ResourceAccessConfig struct {
 	Issuer           string                     `yaml:"Issuer"`
 	Audience         string                     `yaml:"Audience"`
 	PublicKeyFile    string                     `yaml:"PublicKeyFile"`
+	CertURL          string                     `yaml:"CertURL,omitempty"`
 	UserInfoURL      string                     `yaml:"UserInfoURL,omitempty"`
 	ResourceBindings map[string]access.Resource `yaml:"ResourceBindings"`
 }
@@ -161,8 +162,8 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("unsupported dynamic authentication mode %q", c.Authentication.DefaultMode)
 	}
 	if c.Access != nil {
-		if c.Access.Tenant == "" || c.Access.Issuer == "" || c.Access.Audience == "" || c.Access.PublicKeyFile == "" {
-			return fmt.Errorf("resource access requires Tenant, Issuer, Audience and PublicKeyFile")
+		if c.Access.Tenant == "" || c.Access.Issuer == "" || c.Access.Audience == "" || (c.Access.PublicKeyFile == "") == (c.Access.CertURL == "") {
+			return fmt.Errorf("resource access requires Tenant, Issuer, Audience and one public key file or CertURL")
 		}
 		for prefix, r := range c.Access.ResourceBindings {
 			if prefix == "" || !strings.HasSuffix(prefix, "/") || r.Kind == "" || r.ID == "" || r.Version == "" || r.Tenant != c.Access.Tenant {

@@ -35,7 +35,8 @@ implementation evidence; none substitutes for these acceptance gates.
 - OpenAPI and generated UI clients include the namespace metadata.
 
 The role verifier uses the existing `STUDIO_ACCESS_ISSUER`,
-`STUDIO_ACCESS_AUDIENCE`, `STUDIO_ACCESS_PUBLIC_KEY_FILE`, and optional
+`STUDIO_ACCESS_AUDIENCE`, either `STUDIO_ACCESS_PUBLIC_KEY_FILE` or
+`STUDIO_ACCESS_CERT_URL` for rotating RSA JWKS keys, and optional
 `STUDIO_ACCESS_USER_INFO_URL` settings. With no role verifier configured, native
 namespace discovery grants owner/public visibility only. Partial or invalid
 configuration fails closed. These native endpoints still require a verified JWT;
