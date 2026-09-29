@@ -2,6 +2,8 @@ package store_write
 
 import (
 	"context"
+	"fmt"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"reflect"
 
 	xhandler "github.com/viant/xdatly/handler"
@@ -18,6 +20,16 @@ func ACLStoreRulesDatlyType() reflect.Type { return reflect.TypeOf((*ACLStoreRul
 var ACLStoreRulesDatlyLinkedType = ACLStoreRulesDatlyType()
 
 func (*ACLStoreRules) Init(_ context.Context, row *StoredACL, state xhandler.LifecycleContext[StoredACL, xhandler.NoParent, Output]) error {
+	if row == nil || row.Has == nil || !row.Has.NamespaceId {
+		return fmt.Errorf("ACL namespace ownership is required")
+	}
+	previousNamespace := ""
+	if state.Previous != nil {
+		previousNamespace = state.Previous.NamespaceId
+	}
+	if err := namespaceaccess.ValidateResourceOwnership(row.NamespaceId, previousNamespace); err != nil {
+		return err
+	}
 	if state.Previous == nil || row.ShouldDelete {
 		return nil
 	}

@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
 	acl "github.com/viant/datly-studio/studio/report_acl/reader"
 	stored "github.com/viant/datly-studio/studio/report_acl/store_write"
@@ -75,20 +76,23 @@ func (*deleteHandler) Exec(ctx context.Context, session xhandler.Session, input 
 	if !found || !ok {
 		return fmt.Errorf("Datly component invoker is unavailable")
 	}
-	if input.NamespaceId != nil {
-		access := &guard.Input{}
-		access.SetJwt(input.Jwt)
-		access.SetAuth(input.Auth)
-		access.SetReportId(input.ReportId)
-		scoped, scopeErr := invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[guard.ReportComponent](), "report", "POST", "/_studio/reports/publish-guard"), Input: access})
-		if scopeErr != nil {
-			return scopeErr
-		}
-		allowed, ok := scoped.(*guard.Output)
-		if !ok || allowed == nil || allowed.Item == nil || allowed.Item.Id != input.ReportId {
-			return publicError(403, "Component is outside the selected namespace")
-		}
+	access := &guard.Input{}
+	access.SetJwt(input.Jwt)
+	access.SetAuth(input.Auth)
+	access.SetReportId(input.ReportId)
+	scoped, scopeErr := invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[guard.ReportComponent](), "report", "POST", "/_studio/reports/publish-guard"), Input: access})
+	if scopeErr != nil {
+		return scopeErr
 	}
+	allowed, ok := scoped.(*guard.Output)
+	if !ok || allowed == nil || allowed.Item == nil || allowed.Item.Id != input.ReportId {
+		return publicError(403, "Component is outside the selected namespace")
+	}
+	if allowed.Item.OwnerId == "" || allowed.Item.Namespace == "" {
+		return fmt.Errorf("ACL component namespace is unavailable")
+	}
+	namespaceID := namespaceaccess.ID(allowed.Item.OwnerId, allowed.Item.Namespace)
+
 	read := &acl.Input{}
 	read.SetJwt(input.Jwt)
 	read.SetReportId(input.ReportId)
@@ -119,6 +123,7 @@ func (*deleteHandler) Exec(ctx context.Context, session xhandler.Session, input 
 	row := &stored.StoredACL{ReportId: &input.ReportId, SubjectType: &input.SubjectType,
 		SubjectId: &input.SubjectId, Etag: &etag, ShouldDelete: true,
 		Has: &stored.StoredACLHas{ReportId: true, SubjectType: true, SubjectId: true, Etag: true, ShouldDelete: true}}
+	row.SetNamespaceId(namespaceID)
 	write := &stored.Input{}
 	write.SetAccess([]*stored.StoredACL{row})
 	if _, err := invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[stored.AclComponent](), "acl", "PATCH", "/_studio/report-acl-store"), Input: write}); err != nil {

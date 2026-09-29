@@ -1342,6 +1342,10 @@ func TestTransportAdministersReportACLThroughSDK(t *testing.T) {
 	if err != nil || !entry.CanView || entry.CanEdit || entry.ETag != 1 {
 		t.Fatalf("ACL entry=%+v err=%v", entry, err)
 	}
+	var aclNamespace string
+	if err = db.QueryRowContext(owner, "SELECT namespace_id FROM report_acl WHERE report_id=? AND subject_id='viewer'", report.ID).Scan(&aclNamespace); err != nil || aclNamespace != namespaceaccess.ID(report.OwnerID, report.Namespace) {
+		t.Fatalf("ACL ownership=%q err=%v", aclNamespace, err)
+	}
 	updated, err := client.ACL().Upsert(owner, sdk.ReportACL{ReportID: report.ID, SubjectType: "user", SubjectID: "viewer", CanView: true, CanRun: true, CanEdit: true, ETag: entry.ETag})
 	if err != nil || !updated.CanEdit || updated.ETag != 2 {
 		t.Fatalf("updated ACL entry=%+v err=%v", updated, err)

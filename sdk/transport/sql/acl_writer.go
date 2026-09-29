@@ -24,6 +24,14 @@ import (
 // writeACL invokes only the private Datly writer. The SDK authorizes the actor
 // and validates the subject and capability invariants before this call.
 func (t *Transport) writeACL(ctx context.Context, operation string, row *stored.StoredACL) error {
+	if row == nil || row.ReportId == nil {
+		return fmt.Errorf("ACL component identity is required")
+	}
+	namespaceID, err := t.resourceWorkspaceID(ctx, nil, *row.ReportId)
+	if err != nil {
+		return err
+	}
+	row.SetNamespaceId(namespaceID)
 	resources := resource.New()
 	if err := resources.Register(stored.AclDatlyResourceNamespace, stored.AclDatlyResources); err != nil {
 		return err

@@ -1078,6 +1078,10 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		!strings.Contains(createdACL.Body.String(), `"canEdit":true`) {
 		t.Fatalf("native ACL creation status=%d body=%s", createdACL.Code, createdACL.Body.String())
 	}
+	var nativeACLNamespace string
+	if err = store.QueryRowContext(ctx, "SELECT namespace_id FROM report_acl WHERE report_id=? AND subject_id='upsert_http'", nativeReport.ID).Scan(&nativeACLNamespace); err != nil || nativeACLNamespace != namespaceaccess.ID("alice", "production.audit") {
+		t.Fatalf("native ACL ownership=%q err=%v", nativeACLNamespace, err)
+	}
 	updatedACL := httptest.NewRecorder()
 	server.ServeHTTP(updatedACL, request("/v1/studio/sdk/acl.upsert", `{"reportId":"`+nativeReport.ID+`","subjectType":"user","subjectId":"upsert_http","canView":true,"canRun":true,"canEdit":true,"etag":1}`))
 	if updatedACL.Code != http.StatusOK || !strings.Contains(updatedACL.Body.String(), `"etag":2`) ||

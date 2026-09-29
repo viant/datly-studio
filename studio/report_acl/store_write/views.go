@@ -2,6 +2,7 @@ package store_write
 
 // StoredACL is generated canonical view metadata for acl.
 type StoredACL struct {
+	NamespaceId  string        `sqlx:"namespace_id"`
 	ReportId     *string       `sqlx:"report_id,primaryKey" validate:"required"`
 	SubjectType  *string       `sqlx:"subject_type,primaryKey" validate:"required"`
 	SubjectId    *string       `sqlx:"subject_id,primaryKey" validate:"required"`
@@ -16,6 +17,7 @@ type StoredACL struct {
 }
 
 type StoredACLHas struct {
+	NamespaceId  bool
 	ReportId     bool
 	SubjectType  bool
 	SubjectId    bool
@@ -30,6 +32,7 @@ type StoredACLHas struct {
 
 // CurrentAclView is generated canonical view metadata for acl.
 type CurrentAclView struct {
+	NamespaceId string  `sqlx:"namespace_id"`
 	ReportId    *string `sqlx:"report_id,primaryKey" validate:"required"`
 	SubjectType *string `sqlx:"subject_type,primaryKey" validate:"required"`
 	SubjectId   *string `sqlx:"subject_id,primaryKey" validate:"required"`

@@ -669,3 +669,13 @@ same-owner updates from the wrong workspace, inspect unchanged title/revision,
 and verify updates in the selected workspace. This completes that route's
 selection contract; mandatory selection and remaining persistence scopes are
 still separate acceptance work.
+
+## Component ACL storage ownership
+
+The private generated ACL writer now persists `namespace_id`. SDK writes derive
+ownership from the stored component; native upsert/delete obtain it from the
+namespace-aware component guard before the owner-only ACL workflow. Caller
+payloads never supply ownership. Lifecycle checks require canonical ownership
+and reject changes to an existing nonempty namespace. Persistence regressions
+inspect native and SDK-created grants, and mutation tests reject missing or moved
+ownership. This covers component ACL records, not generic policy-head ownership.

@@ -10,6 +10,52 @@ import (
 
 type AclHandlerCurrentAclSlice []*CurrentAclView
 
+func AclHandlerCurrentAclIndexByNamespaceIdKey(value *CurrentAclView) (string, bool) {
+	var zero string
+	if value == nil {
+		return zero, false
+	}
+	return value.NamespaceId, true
+}
+
+type AclHandlerCurrentAclIndexedByNamespaceId map[string]*CurrentAclView
+
+func (rows AclHandlerCurrentAclSlice) IndexByNamespaceId() (AclHandlerCurrentAclIndexedByNamespaceId, error) {
+	result := make(AclHandlerCurrentAclIndexedByNamespaceId)
+	for _, row := range rows {
+		key, ok := AclHandlerCurrentAclIndexByNamespaceIdKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index AclHandlerCurrentAclSlice.IndexByNamespaceId")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index AclHandlerCurrentAclIndexedByNamespaceId) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type AclHandlerCurrentAclGroupedByNamespaceId map[string][]*CurrentAclView
+
+func (rows AclHandlerCurrentAclSlice) GroupByNamespaceId() AclHandlerCurrentAclGroupedByNamespaceId {
+	result := make(AclHandlerCurrentAclGroupedByNamespaceId)
+	for _, row := range rows {
+		key, ok := AclHandlerCurrentAclIndexByNamespaceIdKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index AclHandlerCurrentAclGroupedByNamespaceId) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
 func AclHandlerCurrentAclIndexByReportIdKey(value *CurrentAclView) (string, bool) {
 	var zero string
 	if value == nil {
@@ -581,6 +627,9 @@ func BuildAclHandlerReadIndexes(ctx context.Context, input *Input) (*AclHandlerR
 			loaded, err := projection.Fields(ordinal)
 			if err != nil {
 				return nil, err
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("NamespaceId") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentAcl.NamespaceId")
 			}
 			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("ReportId") {
 				return nil, fmt.Errorf("application index field was not loaded: CurrentAcl.ReportId")

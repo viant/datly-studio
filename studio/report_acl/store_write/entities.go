@@ -1,5 +1,15 @@
 package store_write
 
+func (entity *StoredACL) GetNamespaceId() string {
+	return entity.NamespaceId
+}
+func (entity *StoredACL) SetNamespaceId(value string) {
+	entity.NamespaceId = value
+	if entity.Has == nil {
+		entity.Has = &StoredACLHas{}
+	}
+	entity.Has.NamespaceId = true
+}
 func (entity *StoredACL) GetReportId() *string {
 	return entity.ReportId
 }

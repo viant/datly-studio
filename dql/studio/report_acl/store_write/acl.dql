@@ -15,7 +15,7 @@
 #define($_ = $Violations<?>(transient/status).Output())
 
 SELECT acl.*, type(acl, 'StoredACL'),
-       CAST(acl.report_id AS *string), CAST(acl.subject_type AS *string),
+       CAST(acl.namespace_id AS string), CAST(acl.report_id AS *string), CAST(acl.subject_type AS *string),
        CAST(acl.subject_id AS *string), CAST(acl.etag AS *int),
        CAST(acl.can_view AS *int), CAST(acl.can_run AS *int),
        CAST(acl.can_edit AS *int), CAST(acl.can_publish AS *int),
