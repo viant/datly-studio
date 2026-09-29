@@ -9602,6 +9602,15 @@
       "post": {
         "summary": "event",
         "operationId": "POST:/v1/studio/sdk/publications.events.list",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -9646,6 +9655,15 @@
       "post": {
         "summary": "publication",
         "operationId": "POST:/v1/studio/sdk/publications.get",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {

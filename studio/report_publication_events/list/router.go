@@ -13,12 +13,12 @@ type EventComponent struct {
 	Contract xdatly.Component[PublicationEventsListInput, PublicationEventsListOutput] "component:\"event,path=/v1/studio/sdk/publications.events.list,method=POST,connector=studio,view=event\" routeName:\"event\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.sdk.publications.events.list\\\",\\\"description\\\":\\\"List current-owner publication lifecycle events\\\"}]\" caseFormat:\"lc\""
 }
 
-// EventDatlyType keeps the public component type linked for blank-import discovery.
+// EventDatlyType returns the public component type.
 func EventDatlyType() reflect.Type { return reflect.TypeOf((*EventComponent)(nil)).Elem() }
 
-// Datly anchors this package's public component contract.
+// The package-level value keeps this real component type reachable for runtime discovery.
 var EventDatly = new(EventComponent)
-var EventDatlyLinkedType = EventDatlyType()
+var _datlyReachableEventComponent = reflect.TypeFor[EventComponent]()
 
 func (EventComponent) EmbedFS() *embed.FS {
 	return &EventDatlyResources

@@ -13,6 +13,7 @@
 #setting($_ = $mcp('studio.sdk.publications.events.list', 'List current-owner publication lifecycle events'))
 #setting($_ = $sql_dest('event', 'sql/event.sql'))
 
+#define($_ = $NamespaceId<*string>(header/X-Studio-Namespace).Optional().WithTag('json:"namespaceId,omitempty"'))
 #define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
 #define($_ = $Auth<*studioauth.Output>(component/GET:/v1/studio/auth/context).Required().WithPredicate(3, 'handler', 'studioauthorization.PublicationEventRead'))
 #define($_ = $ReportId<string>(body/reportId).WithTag('json:"reportId"').Required())
@@ -22,6 +23,7 @@
 #define($_ = $PageOffset<int>(output/body).WithTag('json:"offset"'))
 
 SELECT event.*, type(event, 'PublicationEvent'),
+       CAST(event.event_id AS string), CAST(event.report_id AS string), CAST(event.owner_id AS string), CAST(event.operation AS string), CAST(event.version_no AS *int), CAST(event.generation_no AS *int64), CAST(event.status AS string), CAST(event.requested_by AS string), CAST(event.reason AS *string), CAST(event.failure_code AS *string), CAST(event.failure_message AS *string), CAST(event.occurred_at AS time.Time),
        CAST(event.event_id AS string), CAST(event.report_id AS string),
        CAST(event.owner_id AS string), CAST(event.operation AS string),
        CAST(event.version_no AS *int), CAST(event.generation_no AS *int64),

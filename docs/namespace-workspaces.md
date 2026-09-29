@@ -588,3 +588,13 @@ and absent rejected additions, and verifies authorized selected-namespace creati
 The ACL reader DQL now explicitly shapes its identity columns, preserving the
 existing nullable Go contract across regeneration. These checks cover component
 ACL endpoints; generic resource policy and remaining route coverage are separate.
+
+## Publication read selection
+
+Native publication-get and publication-event-list contracts now carry namespace
+selection over HTTP and MCP. Publication status keeps its existing resource-view
+permission; event history keeps its current-owner rule. Both add the selected
+workspace boundary. Protocol checks verify same-owner cross-workspace redaction
+and correct-workspace results. Event DQL explicitly shapes the stored identity,
+status and timestamp columns so regeneration preserves the existing output types.
+Selection is still optional, so this is not complete workspace isolation.

@@ -2847,6 +2847,9 @@ export type PostV1StudioSdkPublicationsEventsListData = {
         input?: InputC8F891Bb6Cfd81599Dce6F4F5D400A21Caa864A78F2Dabaa10E3173F02Ca8Db3;
         reportId: string;
     };
+    headers?: {
+        'X-Studio-Namespace'?: string;
+    };
     path?: never;
     query?: never;
     url: '/v1/studio/sdk/publications.events.list';
@@ -2864,6 +2867,9 @@ export type PostV1StudioSdkPublicationsEventsListResponse = PostV1StudioSdkPubli
 export type PostV1StudioSdkPublicationsGetData = {
     body: {
         reportId: string;
+    };
+    headers?: {
+        'X-Studio-Namespace'?: string;
     };
     path?: never;
     query?: never;

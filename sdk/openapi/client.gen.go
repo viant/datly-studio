@@ -3012,9 +3012,19 @@ type POSTv1studiosdkpublicationsEventsListJSONBody struct {
 	ReportId string                                                                 `json:"reportId"`
 }
 
+// POSTv1studiosdkpublicationsEventsListParams defines parameters for POSTv1studiosdkpublicationsEventsList.
+type POSTv1studiosdkpublicationsEventsListParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
 // POSTv1studiosdkpublicationsGetJSONBody defines parameters for POSTv1studiosdkpublicationsGet.
 type POSTv1studiosdkpublicationsGetJSONBody struct {
 	ReportId string `json:"reportId"`
+}
+
+// POSTv1studiosdkpublicationsGetParams defines parameters for POSTv1studiosdkpublicationsGet.
+type POSTv1studiosdkpublicationsGetParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
 // POSTv1studiosdkpublicationsPublishJSONBody defines parameters for POSTv1studiosdkpublicationsPublish.
@@ -7317,28 +7327,28 @@ type ClientInterface interface {
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/studio/sdk/publications.events.list (the `POSTv1studiosdkpublicationsEventsList` operationId).
-	POSTv1studiosdkpublicationsEventsListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkpublicationsEventsListWithBody(ctx context.Context, params *POSTv1studiosdkpublicationsEventsListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkpublicationsEventsList event
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/studio/sdk/publications.events.list (the `POSTv1studiosdkpublicationsEventsList` operationId).
-	POSTv1studiosdkpublicationsEventsList(ctx context.Context, body POSTv1studiosdkpublicationsEventsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkpublicationsEventsList(ctx context.Context, params *POSTv1studiosdkpublicationsEventsListParams, body POSTv1studiosdkpublicationsEventsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkpublicationsGetWithBody publication
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/studio/sdk/publications.get (the `POSTv1studiosdkpublicationsGet` operationId).
-	POSTv1studiosdkpublicationsGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkpublicationsGetWithBody(ctx context.Context, params *POSTv1studiosdkpublicationsGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkpublicationsGet publication
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/studio/sdk/publications.get (the `POSTv1studiosdkpublicationsGet` operationId).
-	POSTv1studiosdkpublicationsGet(ctx context.Context, body POSTv1studiosdkpublicationsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkpublicationsGet(ctx context.Context, params *POSTv1studiosdkpublicationsGetParams, body POSTv1studiosdkpublicationsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkpublicationsPublishWithBody performs a POST /v1/studio/sdk/publications.publish (the `POSTv1studiosdkpublicationsPublish` operationId) request,
 	// with any type of body and a specified content type.
@@ -8622,8 +8632,8 @@ func (c *Client) POSTv1studiosdkpreviewExecute(ctx context.Context, params *POST
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/studio/sdk/publications.events.list (the `POSTv1studiosdkpublicationsEventsList` operationId).
-func (c *Client) POSTv1studiosdkpublicationsEventsListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkpublicationsEventsListRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkpublicationsEventsListWithBody(ctx context.Context, params *POSTv1studiosdkpublicationsEventsListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkpublicationsEventsListRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8639,8 +8649,8 @@ func (c *Client) POSTv1studiosdkpublicationsEventsListWithBody(ctx context.Conte
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/studio/sdk/publications.events.list (the `POSTv1studiosdkpublicationsEventsList` operationId).
-func (c *Client) POSTv1studiosdkpublicationsEventsList(ctx context.Context, body POSTv1studiosdkpublicationsEventsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkpublicationsEventsListRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkpublicationsEventsList(ctx context.Context, params *POSTv1studiosdkpublicationsEventsListParams, body POSTv1studiosdkpublicationsEventsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkpublicationsEventsListRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8656,8 +8666,8 @@ func (c *Client) POSTv1studiosdkpublicationsEventsList(ctx context.Context, body
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/studio/sdk/publications.get (the `POSTv1studiosdkpublicationsGet` operationId).
-func (c *Client) POSTv1studiosdkpublicationsGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkpublicationsGetRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkpublicationsGetWithBody(ctx context.Context, params *POSTv1studiosdkpublicationsGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkpublicationsGetRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8673,8 +8683,8 @@ func (c *Client) POSTv1studiosdkpublicationsGetWithBody(ctx context.Context, con
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/studio/sdk/publications.get (the `POSTv1studiosdkpublicationsGet` operationId).
-func (c *Client) POSTv1studiosdkpublicationsGet(ctx context.Context, body POSTv1studiosdkpublicationsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkpublicationsGetRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkpublicationsGet(ctx context.Context, params *POSTv1studiosdkpublicationsGetParams, body POSTv1studiosdkpublicationsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkpublicationsGetRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -11044,18 +11054,18 @@ func NewPOSTv1studiosdkpreviewExecuteRequestWithBody(server string, params *POST
 }
 
 // NewPOSTv1studiosdkpublicationsEventsListRequest calls the generic POSTv1studiosdkpublicationsEventsList builder with application/json body
-func NewPOSTv1studiosdkpublicationsEventsListRequest(server string, body POSTv1studiosdkpublicationsEventsListJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkpublicationsEventsListRequest(server string, params *POSTv1studiosdkpublicationsEventsListParams, body POSTv1studiosdkpublicationsEventsListJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkpublicationsEventsListRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkpublicationsEventsListRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkpublicationsEventsListRequestWithBody constructs an http.Request for the POSTv1studiosdkpublicationsEventsList method, with any body, and a specified content type
-func NewPOSTv1studiosdkpublicationsEventsListRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkpublicationsEventsListRequestWithBody(server string, params *POSTv1studiosdkpublicationsEventsListParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11080,22 +11090,37 @@ func NewPOSTv1studiosdkpublicationsEventsListRequestWithBody(server string, cont
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkpublicationsGetRequest calls the generic POSTv1studiosdkpublicationsGet builder with application/json body
-func NewPOSTv1studiosdkpublicationsGetRequest(server string, body POSTv1studiosdkpublicationsGetJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkpublicationsGetRequest(server string, params *POSTv1studiosdkpublicationsGetParams, body POSTv1studiosdkpublicationsGetJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkpublicationsGetRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkpublicationsGetRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkpublicationsGetRequestWithBody constructs an http.Request for the POSTv1studiosdkpublicationsGet method, with any body, and a specified content type
-func NewPOSTv1studiosdkpublicationsGetRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkpublicationsGetRequestWithBody(server string, params *POSTv1studiosdkpublicationsGetParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11119,6 +11144,21 @@ func NewPOSTv1studiosdkpublicationsGetRequestWithBody(server string, contentType
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
 
 	return req, nil
 }
@@ -13135,28 +13175,28 @@ type ClientWithResponsesInterface interface {
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/studio/sdk/publications.events.list (the `POSTv1studiosdkpublicationsEventsList` operationId).
-	POSTv1studiosdkpublicationsEventsListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsEventsListResponse, error)
+	POSTv1studiosdkpublicationsEventsListWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkpublicationsEventsListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsEventsListResponse, error)
 
 	// POSTv1studiosdkpublicationsEventsListWithResponse event
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/studio/sdk/publications.events.list (the `POSTv1studiosdkpublicationsEventsList` operationId).
-	POSTv1studiosdkpublicationsEventsListWithResponse(ctx context.Context, body POSTv1studiosdkpublicationsEventsListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsEventsListResponse, error)
+	POSTv1studiosdkpublicationsEventsListWithResponse(ctx context.Context, params *POSTv1studiosdkpublicationsEventsListParams, body POSTv1studiosdkpublicationsEventsListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsEventsListResponse, error)
 
 	// POSTv1studiosdkpublicationsGetWithBodyWithResponse publication
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/studio/sdk/publications.get (the `POSTv1studiosdkpublicationsGet` operationId).
-	POSTv1studiosdkpublicationsGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsGetResponse, error)
+	POSTv1studiosdkpublicationsGetWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkpublicationsGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsGetResponse, error)
 
 	// POSTv1studiosdkpublicationsGetWithResponse publication
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/studio/sdk/publications.get (the `POSTv1studiosdkpublicationsGet` operationId).
-	POSTv1studiosdkpublicationsGetWithResponse(ctx context.Context, body POSTv1studiosdkpublicationsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsGetResponse, error)
+	POSTv1studiosdkpublicationsGetWithResponse(ctx context.Context, params *POSTv1studiosdkpublicationsGetParams, body POSTv1studiosdkpublicationsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsGetResponse, error)
 
 	// POSTv1studiosdkpublicationsPublishWithBodyWithResponse performs a POST /v1/studio/sdk/publications.publish (the `POSTv1studiosdkpublicationsPublish` operationId) request,
 	// with any type of body and a specified content type.
@@ -16942,8 +16982,8 @@ func (c *ClientWithResponses) POSTv1studiosdkpreviewExecuteWithResponse(ctx cont
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/studio/sdk/publications.events.list (the `POSTv1studiosdkpublicationsEventsList` operationId).
-func (c *ClientWithResponses) POSTv1studiosdkpublicationsEventsListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsEventsListResponse, error) {
-	rsp, err := c.POSTv1studiosdkpublicationsEventsListWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkpublicationsEventsListWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkpublicationsEventsListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsEventsListResponse, error) {
+	rsp, err := c.POSTv1studiosdkpublicationsEventsListWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16955,8 +16995,8 @@ func (c *ClientWithResponses) POSTv1studiosdkpublicationsEventsListWithBodyWithR
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/studio/sdk/publications.events.list (the `POSTv1studiosdkpublicationsEventsList` operationId).
-func (c *ClientWithResponses) POSTv1studiosdkpublicationsEventsListWithResponse(ctx context.Context, body POSTv1studiosdkpublicationsEventsListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsEventsListResponse, error) {
-	rsp, err := c.POSTv1studiosdkpublicationsEventsList(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkpublicationsEventsListWithResponse(ctx context.Context, params *POSTv1studiosdkpublicationsEventsListParams, body POSTv1studiosdkpublicationsEventsListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsEventsListResponse, error) {
+	rsp, err := c.POSTv1studiosdkpublicationsEventsList(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16968,8 +17008,8 @@ func (c *ClientWithResponses) POSTv1studiosdkpublicationsEventsListWithResponse(
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/studio/sdk/publications.get (the `POSTv1studiosdkpublicationsGet` operationId).
-func (c *ClientWithResponses) POSTv1studiosdkpublicationsGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsGetResponse, error) {
-	rsp, err := c.POSTv1studiosdkpublicationsGetWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkpublicationsGetWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkpublicationsGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkpublicationsGetWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16981,8 +17021,8 @@ func (c *ClientWithResponses) POSTv1studiosdkpublicationsGetWithBodyWithResponse
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/studio/sdk/publications.get (the `POSTv1studiosdkpublicationsGet` operationId).
-func (c *ClientWithResponses) POSTv1studiosdkpublicationsGetWithResponse(ctx context.Context, body POSTv1studiosdkpublicationsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsGetResponse, error) {
-	rsp, err := c.POSTv1studiosdkpublicationsGet(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkpublicationsGetWithResponse(ctx context.Context, params *POSTv1studiosdkpublicationsGetParams, body POSTv1studiosdkpublicationsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkpublicationsGet(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

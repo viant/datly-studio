@@ -65,31 +65,26 @@ and MCP listeners.
 
 - Go `1.25.8`
 - Node.js and npm compatible with Vite 6
-- A sibling Datly 1.0 checkout at `../datly`
 - A sibling Forge checkout at `../forge` for the UI package
 - SQLite for the self-contained development catalog
 
-The repository currently contains these local development replacements:
+Go builds use the published Datly 1.0 and dependency revisions pinned in
+`go.mod`; no local Datly replacement is required. Generic authorization types and
+Datly policy components come from `github.com/viant/authz` and its `datly` module.
 
-```text
-datly-studio/  -> replace github.com/viant/datly => ../datly
-ui/            -> forge: file:../../forge
-```
-
-They intentionally select the in-development Datly 1.0 and Forge sources. A
-published release must replace them with released module/package versions.
+The UI currently uses `forge: file:../../forge`, so keep a Forge checkout beside
+Studio for frontend development. A Datly checkout is optional for framework work.
 
 ## Quick start
 
 Clone the repositories as siblings:
 
 ```sh
-git clone https://github.com/viant/datly.git
 git clone https://github.com/viant/datly-studio.git
 git clone https://github.com/viant/forge.git
 ```
 
-Initialize the Studio catalog and preseeded SQLite reporting database:
+Initialize the Studio catalog and preseeded SQLite sample database:
 
 ```sh
 cd datly-studio
@@ -157,7 +152,7 @@ Published components may expose a base reader tool and optional variants:
 <mcpToolName>CubeCompose
 ```
 
-MCP tool names are canonical and system-unique. Studio discovers live contracts
+MCP tool names are canonical and currently system-unique. Studio discovers live contracts
 through `tools/list`, including input and output schemas. Skills use the native
 MCP skills capability when advertised and retain `skills/list` and `skills/get`
 tool discovery for hosts without that capability.
@@ -167,6 +162,19 @@ The development MCP endpoint is:
 ```text
 http://127.0.0.1:8091/mcp
 ```
+
+## Namespace workspaces
+
+The current namespace is selected in the UI header and scopes component requests.
+Namespaces are private by default; owners can assign viewer roles or public
+visibility. Resource ACL remains independent of namespace visibility. Connectors
+may be shared globally.
+
+The runtime supports separate namespace MCP listeners and assigned ports through
+`-namespace-mcp`. Namespace support is still being completed: selection is optional
+on some APIs, and full persistence and multi-window isolation are not yet accepted.
+See [implementation status](docs/namespace-workspaces.md) for verified behavior
+and remaining gates. Datly Studio remains independent and reporting-free.
 
 ## Extending Studio
 

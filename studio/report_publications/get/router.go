@@ -13,12 +13,12 @@ type PublicationComponent struct {
 	Contract xdatly.Component[PublicationGetInput, PublicationGetOutput] "component:\"publication,path=/v1/studio/sdk/publications.get,method=POST,connector=studio,view=publication\" routeName:\"publication\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.sdk.publications.get\\\",\\\"description\\\":\\\"Read one authorized Datly Studio publication\\\"}]\" caseFormat:\"lc\""
 }
 
-// PublicationDatlyType keeps the public component type linked for blank-import discovery.
+// PublicationDatlyType returns the public component type.
 func PublicationDatlyType() reflect.Type { return reflect.TypeOf((*PublicationComponent)(nil)).Elem() }
 
-// Datly anchors this package's public component contract.
+// The package-level value keeps this real component type reachable for runtime discovery.
 var PublicationDatly = new(PublicationComponent)
-var PublicationDatlyLinkedType = PublicationDatlyType()
+var _datlyReachablePublicationComponent = reflect.TypeFor[PublicationComponent]()
 
 func (PublicationComponent) EmbedFS() *embed.FS {
 	return &PublicationDatlyResources

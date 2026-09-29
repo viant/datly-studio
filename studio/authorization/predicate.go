@@ -130,9 +130,15 @@ type ReportResourceFolderRead struct{ InputBinding }
 type ReportResourceFolderEdit struct{ InputBinding }
 type ReportSkillRead struct{ InputBinding }
 type ReportSkillEdit struct{ InputBinding }
-type PublicationRead struct{ InputBinding }
+type PublicationRead struct {
+	InputBinding
+	NamespaceSelection
+}
 type PublicationEdit struct{ InputBinding }
-type PublicationEventRead struct{ InputBinding }
+type PublicationEventRead struct {
+	InputBinding
+	NamespaceSelection
+}
 type ACLRead struct {
 	InputBinding
 	NamespaceID   *string            `bind:"kind=header,in=X-Studio-Namespace"`
@@ -241,7 +247,7 @@ func (p *ReportSkillEdit) Compute(ctx context.Context, _ any) (*xpredicate.Crite
 	return reportCriteria(ctx, p.Input, "skill_root.report_id", permissionEdit)
 }
 func (p *PublicationRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "p.report_id", permissionView)
+	return p.NamespaceSelection.report(ctx, p.Input, "p.report_id", permissionView)
 }
 func (p *PublicationEdit) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
 	return reportCriteria(ctx, p.Input, "publication.report_id", permissionPublish)
@@ -255,11 +261,12 @@ func (p *PublicationEventRead) Compute(ctx context.Context, _ any) (*xpredicate.
 	if err != nil {
 		return nil, err
 	}
-	return &xpredicate.Criteria{Expression: `EXISTS (
+	criteria := &xpredicate.Criteria{Expression: `EXISTS (
 SELECT 1 FROM components studio_event_report
 WHERE studio_event_report.id = e.report_id
   AND studio_event_report.owner_id = ?
-  AND studio_event_report.deleted_at IS NULL)`, Placeholders: []any{subject}}, nil
+  AND studio_event_report.deleted_at IS NULL)`, Placeholders: []any{subject}}
+	return p.NamespaceSelection.constrain(ctx, p.Input, criteria, "e.report_id")
 }
 func (p *ACLRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
 	principal, err := subject(ctx, p.Input)

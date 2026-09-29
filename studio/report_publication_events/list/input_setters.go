@@ -6,6 +6,17 @@ import (
 	jwt "github.com/viant/scy/auth/jwt"
 )
 
+func (input *PublicationEventsListInput) SetNamespaceId(value *string) {
+	if input == nil {
+		return
+	}
+	input.NamespaceId = value
+	if input.Has == nil {
+		input.Has = &PublicationEventsListInputHas{}
+	}
+	input.Has.NamespaceId = true
+}
+
 func (input *PublicationEventsListInput) SetJwt(value *jwt.Claims) {
 	if input == nil {
 		return

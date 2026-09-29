@@ -13,6 +13,7 @@ import (
 	requestprovider "github.com/viant/bindly/provider/request"
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/datatest"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly/bootstrap"
 	gateway "github.com/viant/datly/gateway/http"
 	"github.com/viant/datly/gateway/openapi"
@@ -81,6 +82,7 @@ func TestPublicationGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	entry.Capabilities.Connector = connector
 	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{authEntry, entry}, druntime.WithResources(resources))
 	if err != nil {
 		t.Fatal(err)
@@ -128,6 +130,30 @@ func TestPublicationGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 		t.Fatal("missing JWT was accepted")
 	}
 	handler := gateway.NewHandler(runtime, nil, "test")
+	selectedID := namespaceaccess.ID("alice", "general")
+	wrongID := namespaceaccess.ID("alice", "other")
+	if _, err = db.ExecContext(ctx, `UPDATE namespaces SET namespace_id=? WHERE owner_id='alice' AND name='general'`, selectedID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = db.ExecContext(ctx, `INSERT INTO namespaces(namespace_id,owner_id,name,title,status,created_at,updated_at) VALUES(?,'alice','other','Other','active',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, wrongID); err != nil {
+		t.Fatal(err)
+	}
+	for _, selection := range []string{wrongID, selectedID} {
+		scopedRequest := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/publications.get", bytes.NewBufferString(`{"reportId":"r1"}`))
+		scopedRequest.Header.Set("Content-Type", "application/json")
+		scopedRequest.Header.Set("Authorization", jwt.Bearer(t, "alice"))
+		scopedRequest.Header.Set("X-Studio-Namespace", selection)
+		scopedResponse := httptest.NewRecorder()
+		handler.ServeHTTP(scopedResponse, scopedRequest)
+		expectedStatus := 404
+		if selection == selectedID {
+			expectedStatus = http.StatusOK
+		}
+		if scopedResponse.Code != expectedStatus || bytes.Contains(scopedResponse.Body.Bytes(), []byte(`"activeGeneration":7`)) != (selection == selectedID) {
+			t.Fatalf("scoped publications.get status=%d body=%s", scopedResponse.Code, scopedResponse.Body.String())
+		}
+	}
+
 	request := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/publications.get", bytes.NewBufferString(`{"reportId":"r1"}`))
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("Authorization", jwt.Bearer(t, "alice"))
@@ -170,6 +196,15 @@ func TestPublicationGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	tool, ok := tools.Registry().ToolRegistry.Get("studio.sdk.publications.get")
 	if !ok {
 		t.Fatal("MCP publication-get tool is missing")
+	}
+
+	ownerContext := context.WithValue(ctx, authorization.TokenKey, &authorization.Token{Token: jwt.Bearer(t, "alice")})
+	for _, selection := range []string{wrongID, selectedID} {
+		scopedResult, scopedErr := tool.Handler(ownerContext, &schema.CallToolRequest{Method: schema.MethodToolsCall, Params: schema.CallToolRequestParams{Name: "studio.sdk.publications.get", Arguments: map[string]any{"namespaceId": selection, "reportId": "r1"}}})
+		payload, marshalErr := json.Marshal(scopedResult)
+		if scopedErr != nil || marshalErr != nil || bytes.Contains(payload, []byte(`"activeGeneration":7`)) != (selection == selectedID) {
+			t.Fatalf("scoped MCP publications.get: result=%s err=%v", payload, scopedErr)
+		}
 	}
 	callContext := context.WithValue(ctx, authorization.TokenKey, &authorization.Token{Token: jwt.Bearer(t, "bob")})
 	result, rpcErr := tool.Handler(callContext, &schema.CallToolRequest{Method: schema.MethodToolsCall,
