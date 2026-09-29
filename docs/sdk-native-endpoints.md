@@ -44,7 +44,7 @@ explicit policies server-side and rolls back all writes if any stage fails.
 ## Migration history and remaining deployment gaps
 
 The following inventory describes the migration path; it is not a current
-list of missing native routes. `cmd/studio-api/main.go` still mounts
+list of missing native routes. `app/studioapi/run.go` mounts
 `sdk/httptransport.Gateway` at `/v1/studio/sdk/` for its compatibility
 transport. In authenticated mode, exact `acl.delete`, `acl.list`, `acl.upsert`,
 `authorization_predicates.create`, `authorization_predicates.delete`, `authorization_predicates.get`,

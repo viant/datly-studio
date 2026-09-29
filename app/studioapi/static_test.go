@@ -1,4 +1,4 @@
-package main
+package studioapi
 
 import (
 	"net/http"
