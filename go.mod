@@ -87,7 +87,7 @@ require (
 	github.com/viant/afs v1.30.1-0.20260914155934-90e95d483861 // indirect
 	github.com/viant/afsc v1.18.0 // indirect
 	github.com/viant/authz v0.0.0-20260928232107-6a9bf1e79cc5
-	github.com/viant/authz/datly v0.0.0-20260928233336-3a5f4413b310
+	github.com/viant/authz/datly v0.0.0-20260929062241-a082180bc11e
 	github.com/viant/gmetric v0.3.2 // indirect
 	github.com/viant/gosh v0.2.1 // indirect
 	github.com/viant/govalidator v0.3.4-0.20260913213120-027a9dd54d73 // indirect

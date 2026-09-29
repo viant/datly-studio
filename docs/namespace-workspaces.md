@@ -613,15 +613,23 @@ uses the public namespace group API. A new component's empty builder had no DQL
 entry action; Load DQL now opens an import fixed to that component and creates the
 first draft. Targeted rendered tests and both actual UI imports verify the flow.
 
-End-to-end MCP acceptance is still open: with generic authorization configured,
-the new readers have no provisioned policy documents and their MCP catalogs are
-empty even for the verified namespace owner. This contradicts the desired public
-resource behavior when no explicit ACL exists. Listening ports and active
-publication rows alone do not establish working discovery or execution. Resolve
-that policy lifecycle gap, then test both catalogs and calls together.
+The initial check found empty catalogs for new readers without policy documents.
+This is now resolved by artifact-scoped public defaults for discover, describe
+and execute. The defaults apply only to the exact component IDs/versions compiled
+into that artifact and retain namespace and deployment tenant verification.
+Explicit documents remain authoritative, including missing actions and protected
+rules. Unknown resources, database failures and policy administration never
+receive a default. The generic authz store now distinguishes a missing policy
+head from a damaged head whose revision is absent; the latter denies access.
+
+After rebuilding with the published authz integrity fix, independent concurrent
+MCP clients discover and execute Alpha and Beta on their separate ports. Each
+catalog contains only its own tool, returns the expected marker, rejects the
+other namespace's tool, and hides/denies private access without a token. The
+private verification script retains these checks. These use signed synthetic
+owner identities, not a claim of real Viant IDP forecasting grants.
 
 Both exact-version UI previews returned their respective markers (101 and 202)
-after both publications became active. Calls to the named MCP tools on both ports
-return authorization denial, confirming the policy gap affects execution as well
-as discovery. GPT-6 Sol granted scoped approval to the new empty-builder Load DQL
+after both publications became active. The initial named-tool calls were denied as well as discovery; the artifact
+public-default correction now passes both protocol paths. GPT-6 Sol granted scoped approval to the new empty-builder Load DQL
 entry and fixed-resource import flow. It did not approve full MCP acceptance.

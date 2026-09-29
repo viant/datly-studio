@@ -1098,6 +1098,8 @@ github.com/viant/authz v0.0.0-20260928232107-6a9bf1e79cc5 h1:/5r8ce2kcg2eKFdQdxY
 github.com/viant/authz v0.0.0-20260928232107-6a9bf1e79cc5/go.mod h1:iazfsC9LZkGsbZY2o/9Aq3p8eHaD09tWudyRN5vQ9eI=
 github.com/viant/authz/datly v0.0.0-20260928233336-3a5f4413b310 h1:RLhP/LzR/dQSgO8tsLAfW4HfFEimn8/CVh7IyC7pyfk=
 github.com/viant/authz/datly v0.0.0-20260928233336-3a5f4413b310/go.mod h1:QSChRh6VXX+d9TMg1Wf44qoCNq4x1b3R3/qWc6zkvdc=
+github.com/viant/authz/datly v0.0.0-20260929062241-a082180bc11e h1:gU3CjppyJahHIdS/OdOIfFY4j1oc3Q5jGLlTgc6GmGg=
+github.com/viant/authz/datly v0.0.0-20260929062241-a082180bc11e/go.mod h1:QSChRh6VXX+d9TMg1Wf44qoCNq4x1b3R3/qWc6zkvdc=
 github.com/viant/bigquery v0.5.4-0.20260927120042-a47888f8d2cc h1:tMKK7Wn8mjRtJyAHZLbpx1NmGTDU8jy1Q3HQLATBAIY=
 github.com/viant/bigquery v0.5.4-0.20260927120042-a47888f8d2cc/go.mod h1:L5VHC9DEQ1ZlR1yaSbCqnKf6GXz355EGBIbP+wx+wTk=
 github.com/viant/bindly v0.2.1-0.20260915164201-7cf35da5bd9a h1:/3xeUEE2zmYpreibDQ9sXt+CsMiXIhxVkzDeJs1nWKw=

@@ -242,14 +242,15 @@ func (s *Service) compile(ctx context.Context, seed *typecatalog.Catalog, candid
 	// Published components bind their access context as an ordinary Datly
 	// component dependency; the context component is server-owned and
 	// registered in the same generation at that component's concrete route.
-	accessContexts, bindsAccessContext, contextErr := s.accessContexts(registrations, reportByComponent, versionByReport)
+	authorizer := s.publishedAuthorizer(versionByReport)
+	accessContexts, bindsAccessContext, contextErr := authorizer.accessContexts(registrations, reportByComponent, versionByReport)
 	if contextErr != nil {
 		err = contextErr
 		return nil, err
 	}
 	registrations = append(registrations, accessContexts...)
 	authorizeTarget := func(ctx context.Context, target dexec.ComponentTarget) error {
-		if err := s.authorizeNamespace(ctx); err != nil {
+		if err := authorizer.authorizeNamespace(ctx); err != nil {
 			return err
 		}
 		reportID := reportByComponent[target.Component]
@@ -257,11 +258,11 @@ func (s *Service) compile(ctx context.Context, seed *typecatalog.Catalog, candid
 			return &xresponse.Error{Code: http.StatusForbidden, Cause: errors.New("published component authorization is unavailable")}
 		}
 		if s.config.Access != nil {
-			return s.authorizeComponentExecution(ctx, access.Resource{Kind: "component", ID: reportID, Version: strconv.Itoa(versionByReport[reportID]), Tenant: s.config.Access.Tenant}, bindsAccessContext[reportID])
+			return authorizer.authorizeComponentExecution(ctx, access.Resource{Kind: "component", ID: reportID, Version: strconv.Itoa(versionByReport[reportID]), Tenant: s.config.Access.Tenant}, bindsAccessContext[reportID])
 		}
-		return s.authorizeRun(ctx, reportID)
+		return authorizer.authorizeRun(ctx, reportID)
 	}
-	authorizeCatalogTool, authorizeCatalogResource, authorizeResource := s.catalogAuthorizers(reportByComponent, versionByReport, loadedResources.ResourceReports)
+	authorizeCatalogTool, authorizeCatalogResource, authorizeResource := authorizer.catalogAuthorizers(reportByComponent, versionByReport, loadedResources.ResourceReports)
 	httpConfig := gateway.Config{Warmup: &gateway.WarmupConfig{Timeout: 30 * time.Second, Authorize: func(context.Context, *http.Request, dexec.ComponentTarget) error {
 		return errors.New("dynamic warmup administration is available through the Studio SDK")
 	}, Completed: func(gateway.WarmupResult, error) {}}, Authorize: func(ctx context.Context, _ *http.Request, target dexec.ComponentTarget) error {
