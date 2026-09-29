@@ -45,7 +45,7 @@ func TestResourceNamesAreIndependentAcrossSelectedNamespaces(t *testing.T) {
 			t.Fatal(err)
 		}
 		selected := sdk.WithNamespaceSelection(owner, workspace.NamespaceID)
-		component, err := client.Components().Create(selected, sdk.CreateComponentInput{Slug: name + "-reader", Title: name, DefaultConnectorName: connector.Name})
+		component, err := client.Components().Create(selected, sdk.CreateComponentInput{Slug: "reader", Title: name, DefaultConnectorName: connector.Name})
 		if err != nil {
 			t.Fatal(err)
 		}

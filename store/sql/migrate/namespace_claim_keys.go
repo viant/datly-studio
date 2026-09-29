@@ -16,7 +16,7 @@ func migrateNamespaceClaimKeys(ctx context.Context, db *sql.DB) error {
 	if err = rebuildNamespaceClaimKeys(ctx, tx); err != nil {
 		return err
 	}
-	if _, err = tx.ExecContext(ctx, "UPDATE schema_version SET version=?", schema.CanonicalVersion); err != nil {
+	if _, err = tx.ExecContext(ctx, "UPDATE schema_version SET version=?", 19); err != nil {
 		return err
 	}
 	return tx.Commit()

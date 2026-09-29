@@ -25,6 +25,20 @@ type Service struct{}
 func New() (*Service, error) { return &Service{}, nil }
 
 func (s *Service) Up(ctx context.Context, db *sql.DB) error {
+	if err := s.upNamespaceFoundations(ctx, db); err != nil {
+		return err
+	}
+	current, err := schema.SQLiteVersion(ctx, db)
+	if err != nil {
+		return err
+	}
+	if current == 19 {
+		return migrateComponentSlugKeys(ctx, db)
+	}
+	return nil
+}
+
+func (s *Service) upNamespaceFoundations(ctx context.Context, db *sql.DB) error {
 	current, err := schema.SQLiteVersion(ctx, db)
 	if err != nil {
 		return err
@@ -35,7 +49,7 @@ func (s *Service) Up(ctx context.Context, db *sql.DB) error {
 	if err := schema.EnsureSQLiteSequenceLedger(ctx, db); err != nil {
 		return fmt.Errorf("ensure SQLite sequence ledger: %w", err)
 	}
-	if current == schema.CanonicalVersion {
+	if current == schema.CanonicalVersion || current == 19 {
 		return nil
 	}
 	if current == 0 {

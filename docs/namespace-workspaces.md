@@ -726,3 +726,20 @@ the published v1 generations remain unchanged. The original Studio catalog was
 not upgraded. SDK tests separately verify claim release and cross-workspace
 read denial. Live MySQL upgrade acceptance remains unverified; canonical MySQL
 creation uses the composite key.
+
+## Workspace-local component slugs
+
+Canonical schema version 20 scopes component slug uniqueness to workspace ID.
+Component IDs remain independent server-generated identities. The SQLite upgrade
+preserves component IDs/columns and child foreign-key targets while changing the
+old global uniqueness constraint; it restores foreign-key state on its pinned
+connection. Tests create the same reader slug in Alpha and Beta, reject a duplicate
+within one workspace, and verify child ACL preservation/cascade after migration.
+Older namespace foundations finish at version 19 before this separate upgrade.
+
+The isolated UI catalog was upgraded to schema 20 through custom API startup.
+The UI created shared-reader in both Alpha and Beta; persisted IDs and namespace
+IDs are different, and each selected catalog displays only its own component.
+The original Studio catalog remains untouched. The full Go suite and custom API/
+runtime builds pass. Canonical MySQL DDL is updated; live MySQL migration is not
+claimed by the SQLite acceptance check.

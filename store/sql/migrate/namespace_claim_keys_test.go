@@ -26,8 +26,7 @@ func TestNamespaceClaimKeyMigrationPreservesAuditAndAllowsIndependentNames(t *te
 	if _, err := db.ExecContext(ctx, `INSERT INTO resource_namespace_claims VALUES('','owner.docs','a','before','author','after','editor')`); err != nil {
 		t.Fatal(err)
 	}
-	service, _ := New()
-	if err := service.Up(ctx, db); err != nil {
+	if err := migrateNamespaceClaimKeys(ctx, db); err != nil {
 		t.Fatal(err)
 	}
 	var id, createdBy, updatedBy string
@@ -40,7 +39,7 @@ func TestNamespaceClaimKeyMigrationPreservesAuditAndAllowsIndependentNames(t *te
 	if _, err := db.ExecContext(ctx, `INSERT INTO resource_namespace_claims VALUES(?,'owner.docs','b','before','author','after','editor')`, a); err == nil {
 		t.Fatal("duplicate name within one workspace accepted")
 	}
-	if err := service.Up(ctx, db); err != nil {
+	if err := migrateNamespaceClaimKeys(ctx, db); err != nil {
 		t.Fatal(err)
 	}
 	version, err := schema.SQLiteVersion(ctx, db)
@@ -62,8 +61,7 @@ func TestNamespaceClaimKeyMigrationRejectsOrphansAtomically(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	service, _ := New()
-	if err := service.Up(ctx, db); err == nil {
+	if err := migrateNamespaceClaimKeys(ctx, db); err == nil {
 		t.Fatal("orphan claim migrated")
 	}
 	version, err := schema.SQLiteVersion(ctx, db)

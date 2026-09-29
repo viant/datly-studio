@@ -122,7 +122,7 @@ CREATE TABLE components (
     updated_at              DATETIME(6) NOT NULL,
     deleted_at              DATETIME(6) NULL,
     PRIMARY KEY (id),
-    UNIQUE KEY uq_reports_slug (slug),
+    UNIQUE KEY uq_reports_slug (namespace_id, slug),
     UNIQUE KEY uq_reports_component (component_scope, component_name),
     CONSTRAINT fk_reports_connector
         FOREIGN KEY (default_connector_name) REFERENCES connectors(name),

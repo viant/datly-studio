@@ -20,7 +20,7 @@ var (
 	sqliteTableName        = regexp.MustCompile(`(?i)CREATE\s+TABLE\s+([A-Za-z_][A-Za-z0-9_]*)`)
 )
 
-const CanonicalVersion = 19
+const CanonicalVersion = 20
 
 // EnsureSQLiteSequenceLedger installs SQLX's write-intent table before a
 // publication transaction begins. Creating it inside a deferred transaction
@@ -122,25 +122,37 @@ func CreateSQLiteTableFromCanonical(ctx context.Context, executor interface {
 	if !validSchemaIdentifier(table) {
 		return fmt.Errorf("invalid canonical table target %s", table)
 	}
-	payload, err := sqliteFiles.ReadFile("schema.ddl")
+	statement, err := SQLiteTableStatements(table)
 	if err != nil {
 		return err
+	}
+	if _, err = executor.ExecContext(ctx, statement); err != nil {
+		return fmt.Errorf("create canonical table %s: %w", table, err)
+	}
+	return nil
+}
+
+// SQLiteTableStatements returns canonical DDL for transactional table rebuilds.
+func SQLiteTableStatements(table string) (string, error) {
+	if !validSchemaIdentifier(table) {
+		return "", fmt.Errorf("invalid canonical table target %s", table)
+	}
+	payload, err := sqliteFiles.ReadFile("schema.ddl")
+	if err != nil {
+		return "", err
 	}
 	source := string(sqliteStudioDDL(payload))
 	lower := strings.ToLower(source)
 	start := strings.Index(lower, "create table "+strings.ToLower(table)+" (")
 	if start < 0 {
-		return fmt.Errorf("canonical table %s was not found", table)
+		return "", fmt.Errorf("canonical table %s was not found", table)
 	}
 	next := strings.Index(lower[start+1:], "create table ")
 	end := len(source)
 	if next >= 0 {
 		end = start + 1 + next
 	}
-	if _, err = executor.ExecContext(ctx, source[start:end]); err != nil {
-		return fmt.Errorf("create canonical table %s: %w", table, err)
-	}
-	return nil
+	return source[start:end], nil
 }
 
 func canonicalColumnDefinition(ddl, table, column string) (string, error) {

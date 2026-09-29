@@ -2,7 +2,7 @@ package migrate
 
 import (
 	"context"
-	"github.com/viant/datly-studio/schema"
+
 	"testing"
 )
 
@@ -29,7 +29,7 @@ func TestLegacyGenerationOwnershipRequiresCompleteSingleNamespaceReferences(t *t
 		}
 	}
 	var version int
-	if err := db.QueryRowContext(ctx, `SELECT version FROM schema_version`).Scan(&version); err != nil || version != schema.CanonicalVersion {
+	if err := db.QueryRowContext(ctx, `SELECT version FROM schema_version`).Scan(&version); err != nil || version != 19 {
 		t.Fatalf("schema version=%d err=%v", version, err)
 	}
 	if err := migrateLegacyGenerationOwnership(ctx, db); err != nil {

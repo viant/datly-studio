@@ -151,7 +151,7 @@ func migrateNamespaceOwnership(ctx context.Context, db *sql.DB) error {
 	if _, err = tx.ExecContext(ctx, "DELETE FROM schema_version"); err != nil {
 		return err
 	}
-	if _, err = tx.ExecContext(ctx, "INSERT INTO schema_version(version) VALUES (?)", schema.CanonicalVersion); err != nil {
+	if _, err = tx.ExecContext(ctx, "INSERT INTO schema_version(version) VALUES (?)", 19); err != nil {
 		return err
 	}
 	return tx.Commit()
