@@ -18,7 +18,7 @@ full forecasting matrix passed 262 inputs / 135 custom handler types.
 
 Completion is still unproven. Real Viant IDP forecasting permission modeling and
 successful scoped UI preview are open. Mandatory resource selection, remaining
-namespace persistence/query scopes, duplicate resource names and complete
+namespace persistence/query scopes and complete
 multi-window coordination also remain open. Later sections record incremental
 implementation evidence; none substitutes for these acceptance gates.
 
@@ -743,3 +743,18 @@ IDs are different, and each selected catalog displays only its own component.
 The original Studio catalog remains untouched. The full Go suite and custom API/
 runtime builds pass. Canonical MySQL DDL is updated; live MySQL migration is not
 claimed by the SQLite acceptance check.
+
+## Resuming a Studio window
+
+Focus, page restoration and visibility restoration recheck the shared namespace
+selection and renew any open-editor lease. If another window changed selection,
+the resumed window blocks resource requests and preserves its open editor until
+it closes; then it loads the new workspace. Storage failures block requests and
+offer retry. A missing or invalid shared selection keeps the namespace selector
+usable so the user can recover without reloading the application.
+
+Fourteen rendered hook regressions cover these recovery paths; the full UI suite
+passes 135 rendered tests plus contract tests. GPT-6 Sol granted scoped approval
+for recovery and editor preservation. This does not establish complete concurrent
+window coordination: expiring leases and simultaneous editor-open/switch races
+still require broader acceptance.

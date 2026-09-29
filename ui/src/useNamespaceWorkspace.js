@@ -33,7 +33,10 @@ export function useNamespaceWorkspace(api, subject, busy) {
     heartbeat();
     const timer = setInterval(heartbeat, 10000);
     window.addEventListener('beforeunload', heartbeat);
-    return () => { clearInterval(timer); window.removeEventListener('beforeunload', heartbeat); try { localStorage.removeItem(lockKey); } catch {} };
+    window.addEventListener('focus', heartbeat);
+    window.addEventListener('pageshow', heartbeat);
+    document.addEventListener('visibilitychange', heartbeat);
+    return () => { clearInterval(timer); window.removeEventListener('beforeunload', heartbeat); window.removeEventListener('focus', heartbeat); window.removeEventListener('pageshow', heartbeat); document.removeEventListener('visibilitychange', heartbeat); try { localStorage.removeItem(lockKey); } catch {} };
   }, [enabled, lockKey, busy]);
 
   useEffect(() => {
@@ -54,6 +57,7 @@ export function useNamespaceWorkspace(api, subject, busy) {
       if (cancelled) return;
       const current = items.find((item) => item.namespaceId === selected) || (selected ? null : items[0]) || null;
       if (!selected && current) { try { localStorage.setItem(key, current.namespaceId); } catch {} }
+      intendedRef.current = current?.namespaceId || selected || null;
       api.setNamespace(current?.namespaceId || null);
       api.setNamespaceBlocked?.(!current);
       setState({ ready: true, items, current, error: selected && !current ? 'The selected namespace is no longer available. Choose another namespace.' : '' });
@@ -77,8 +81,28 @@ export function useNamespaceWorkspace(api, subject, busy) {
       api.setNamespaceBlocked?.(true);
       load(event.newValue).catch((cause) => !cancelled && setState((previous) => ({ ...previous, ready: false, error: cause.message })));
     };
+    const resumed = () => {
+      if (document.visibilityState === 'hidden') return;
+      let saved;
+      try { saved = localStorage.getItem(key); }
+      catch {
+        api.setNamespaceBlocked?.(true);
+        setState((previous) => ({ ...previous, ready: false, error: 'Namespace synchronization is unavailable. Allow browser storage, then retry namespaces.' }));
+        return;
+      }
+      if (saved === intendedRef.current) return;
+      if (!validID(saved)) {
+        api.setNamespaceBlocked?.(true);
+        setState((previous) => ({ ...previous, ready: true, error: 'The shared namespace selection is unavailable. Close any editor and choose a namespace.' }));
+        return;
+      }
+      changed({ key, newValue: saved });
+    };
     window.addEventListener('storage', changed);
-    return () => { cancelled = true; window.removeEventListener('storage', changed); };
+    window.addEventListener('focus', resumed);
+    window.addEventListener('pageshow', resumed);
+    document.addEventListener('visibilitychange', resumed);
+    return () => { cancelled = true; window.removeEventListener('storage', changed); window.removeEventListener('focus', resumed); window.removeEventListener('pageshow', resumed); document.removeEventListener('visibilitychange', resumed); };
   }, [api, enabled, key]);
 
   const select = async (id) => {
@@ -109,7 +133,7 @@ export function useNamespaceWorkspace(api, subject, busy) {
       intendedRef.current = id;
       api.setNamespace(id);
       api.setNamespaceBlocked?.(false);
-      setState((previous) => ({ ...previous, current, synchronizationError: false, error: '' }));
+      setState((previous) => ({ ...previous, ready: true, current, synchronizationError: false, error: '' }));
     };
     if (globalThis.navigator?.locks) await navigator.locks.request(key, change);
     else change();
@@ -118,8 +142,12 @@ export function useNamespaceWorkspace(api, subject, busy) {
     if (!reloadRef.current) return;
     api.setNamespaceBlocked?.(true);
     setState((previous) => ({ ...previous, ready: false, error: '' }));
-    try { await reloadRef.current(intendedRef.current); }
-    catch (cause) { setState((previous) => ({ ...previous, ready: true, error: cause.message })); }
+    try {
+      const saved = localStorage.getItem(key);
+      if (validID(saved)) intendedRef.current = saved;
+      await reloadRef.current(intendedRef.current);
+    }
+    catch (cause) { setState((previous) => ({ ...previous, ready: false, error: cause.message })); }
   };
   return { ...state, enabled, select, refresh, canRetry: !busy && !state.synchronizationError };
 }
