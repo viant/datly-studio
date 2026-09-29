@@ -34,7 +34,18 @@ func Criteria(ctx context.Context, connectors connector.Provider, subject, alias
 	if provider != nil {
 		facts, err := provider.Resolve(ctx)
 		if err != nil || facts.Subject != subject || facts.Issuer == "" || !facts.ValidUntil.After(time.Now()) {
-			return nil, forbidden("namespace role identity is invalid")
+			// A user-info outage must not hide a namespace from its verified
+			// owner or from authenticated viewers of a public namespace. It
+			// does fail closed for role-based visibility.
+			identity, identityErr := accessconfig.IdentityFromEnvironment()
+			if identityErr != nil || identity == nil {
+				return nil, forbidden("namespace role identity is invalid")
+			}
+			verified, verifyErr := identity.Resolve(ctx)
+			if verifyErr != nil || verified.Subject != subject || verified.Issuer == "" || !verified.ValidUntil.After(time.Now()) {
+				return nil, forbidden("namespace role identity is invalid")
+			}
+			return &xpredicate.Criteria{Expression: strings.ReplaceAll(expression+")", "namespaces.", alias+"."), Placeholders: values}, nil
 		}
 		if len(facts.Roles) > 0 {
 			if connectors == nil {

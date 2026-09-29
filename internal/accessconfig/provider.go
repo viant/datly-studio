@@ -2,6 +2,7 @@
 package accessconfig
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -15,6 +16,34 @@ import (
 func FromEnvironment() (access.Provider, error) {
 	return New(Config{Issuer: os.Getenv("STUDIO_ACCESS_ISSUER"), Audience: os.Getenv("STUDIO_ACCESS_AUDIENCE"),
 		PublicKeyFile: os.Getenv("STUDIO_ACCESS_PUBLIC_KEY_FILE"), CertURL: os.Getenv("STUDIO_ACCESS_CERT_URL"), UserInfoURL: os.Getenv("STUDIO_ACCESS_USER_INFO_URL")})
+}
+
+// IdentityFromEnvironment verifies the same JWT without depending on the
+// optional user-info authority service. Callers may use it only for access
+// based on the verified subject, never to infer roles or entity grants.
+func IdentityFromEnvironment() (access.Provider, error) {
+	config := Config{Issuer: os.Getenv("STUDIO_ACCESS_ISSUER"), Audience: os.Getenv("STUDIO_ACCESS_AUDIENCE"),
+		PublicKeyFile: os.Getenv("STUDIO_ACCESS_PUBLIC_KEY_FILE"), CertURL: os.Getenv("STUDIO_ACCESS_CERT_URL"),
+		UserInfoURL: os.Getenv("STUDIO_ACCESS_USER_INFO_URL")}
+	if config.UserInfoURL == "" {
+		return New(config)
+	}
+	key, err := keyfunc(config.PublicKeyFile, config.CertURL)
+	if err != nil {
+		return nil, err
+	}
+	provider, err := accessoauth.NewUserInfo(accessoauth.UserInfoConfig{Issuer: config.Issuer, Audience: config.Audience,
+		Algorithms: []string{"RS256"}, Keyfunc: key, URL: config.UserInfoURL})
+	if err != nil {
+		return nil, err
+	}
+	return identityOnly{provider}, nil
+}
+
+type identityOnly struct{ provider *accessoauth.UserInfoProvider }
+
+func (i identityOnly) Resolve(ctx context.Context) (access.Facts, error) {
+	return i.provider.ResolveIdentity(ctx)
 }
 
 type Config struct {

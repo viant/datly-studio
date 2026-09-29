@@ -7,6 +7,8 @@ import (
 	"github.com/viant/datly-studio/sdk"
 	sqltransport "github.com/viant/datly-studio/sdk/transport/sql"
 	"github.com/viant/datly-studio/studio/authorization"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"testing"
@@ -91,5 +93,52 @@ func TestNamespaceSDKUsesVerifiedRolesAndOwnerManagement(t *testing.T) {
 
 	if _, err := client.Namespaces().Get(forged, "forecasting"); err == nil {
 		t.Fatal("credential subject mismatch accepted")
+	}
+}
+
+func TestNamespaceOwnerRemainsVisibleWhenUserInfoCannotSupplyRoles(t *testing.T) {
+	ctx := context.Background()
+	db := datatest.OpenSQLite(t, "namespace_owner_userinfo", "studio")
+	fixture := datatest.NewJWTFixture(t)
+	keyPath := filepath.Join(t.TempDir(), "public.pem")
+	if err := os.WriteFile(keyPath, fixture.PublicKeyPEM(t), 0600); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("STUDIO_ACCESS_ISSUER", "https://namespace.test")
+	t.Setenv("STUDIO_ACCESS_AUDIENCE", "studio")
+	t.Setenv("STUDIO_ACCESS_PUBLIC_KEY_FILE", keyPath)
+	roles := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		http.Error(w, "unavailable", http.StatusServiceUnavailable)
+	}))
+	defer roles.Close()
+	t.Setenv("STUDIO_ACCESS_USER_INFO_URL", roles.URL)
+	identity := func(subject string) context.Context {
+		bearer := fixture.BearerWithClaims(t, jwtv5.MapClaims{"sub": subject, "iss": "https://namespace.test", "aud": "studio", "user_id": 7, "account_id": 21, "exp": time.Now().Add(30 * time.Minute).Unix()})
+		return sdk.WithVerifiedCredential(sdk.WithPrincipal(ctx, sdk.Principal{Subject: subject}), sdk.VerifiedCredential{Bearer: bearer})
+	}
+	authorizer, err := authorization.NewSDKAuthorizer(db)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer authorizer.Close(ctx)
+	client, err := sdk.NewClient(&sqltransport.Transport{DB: db, Authorizer: authorizer})
+	if err != nil {
+		t.Fatal(err)
+	}
+	owner := identity("owner")
+	if _, err := client.Namespaces().Create(owner, sdk.CreateNamespaceInput{Name: "forecasting", Title: "Forecasting", AllowedRoles: []string{"forecast_reader"}}); err != nil {
+		t.Fatal(err)
+	}
+	page, err := client.Namespaces().List(owner, sdk.ListNamespacesInput{})
+	if err != nil || len(page.Items) != 1 {
+		t.Fatalf("verified owner lost namespace during user-info outage: %+v err=%v", page, err)
+	}
+	page, err = client.Namespaces().List(identity("stranger"), sdk.ListNamespacesInput{})
+	if err != nil || len(page.Items) != 0 {
+		t.Fatalf("role visibility did not fail closed: %+v err=%v", page, err)
+	}
+	forged := sdk.WithPrincipal(owner, sdk.Principal{Subject: "stranger"})
+	if _, err := client.Namespaces().List(forged, sdk.ListNamespacesInput{}); err == nil {
+		t.Fatal("mismatched verified subject was accepted")
 	}
 }

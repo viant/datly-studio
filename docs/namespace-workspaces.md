@@ -41,6 +41,10 @@ The role verifier uses the existing `STUDIO_ACCESS_ISSUER`,
 namespace discovery grants owner/public visibility only. Partial or invalid
 configuration fails closed. These native endpoints still require a verified JWT;
 public namespace visibility is not an anonymous-authentication mode.
+When the configured user-info service is unavailable or lacks authority fields,
+the ID token is still verified independently for owner/public visibility;
+role-based visibility remains denied. A namespace owner does not lose their
+workspace because optional role lookup failed.
 
 The migration regression test verifies two namespaces for the same owner, private
 initial visibility, child ownership, and repeat migration. These checks establish

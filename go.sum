@@ -1096,6 +1096,8 @@ github.com/viant/assertly v0.9.1-0.20220620174148-bab013f93a60 h1:VFJvCOHKXv4IqX
 github.com/viant/assertly v0.9.1-0.20220620174148-bab013f93a60/go.mod h1:aGifi++jvCrUaklKEKT0BU95igDNaqkvz+49uaYMPRU=
 github.com/viant/authz v0.0.0-20260929174658-aeefa317fadd h1:Az6Dg1faMZ9q6299VbooxLOze3RMrOd4QQtKiOwdCjk=
 github.com/viant/authz v0.0.0-20260929174658-aeefa317fadd/go.mod h1:iazfsC9LZkGsbZY2o/9Aq3p8eHaD09tWudyRN5vQ9eI=
+github.com/viant/authz v0.0.0-20260929185652-d5fd27551d76 h1:5wly3M10b0bhXVSotgP8QJhyzS0fsGAqYj04T9uaIwk=
+github.com/viant/authz v0.0.0-20260929185652-d5fd27551d76/go.mod h1:iazfsC9LZkGsbZY2o/9Aq3p8eHaD09tWudyRN5vQ9eI=
 github.com/viant/authz/datly v0.0.0-20260929062241-a082180bc11e h1:gU3CjppyJahHIdS/OdOIfFY4j1oc3Q5jGLlTgc6GmGg=
 github.com/viant/authz/datly v0.0.0-20260929062241-a082180bc11e/go.mod h1:QSChRh6VXX+d9TMg1Wf44qoCNq4x1b3R3/qWc6zkvdc=
 github.com/viant/bigquery v0.5.4-0.20260927120042-a47888f8d2cc h1:tMKK7Wn8mjRtJyAHZLbpx1NmGTDU8jy1Q3HQLATBAIY=
