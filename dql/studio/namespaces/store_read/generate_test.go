@@ -55,7 +55,7 @@ func TestGenerateNamespaceStores(t *testing.T) {
 		} else if writeErr := os.WriteFile(filepath.Join(destination, "go.mod"), []byte("module github.com/viant/datly-studio\n\ngo 1.25.8\n"), 0o600); writeErr != nil {
 			t.Fatal(writeErr)
 		}
-		if _, generateErr := (transcribe.Generator{Operation: "get", EphemeralOwnership: true}).Generate(ctx,
+		if _, generateErr := (transcribe.Generator{Operation: "get"}).Generate(ctx,
 			transcribe.GenerationRequest{Compiled: compiled, Destination: destination}); generateErr != nil {
 			t.Fatal(generateErr)
 		}

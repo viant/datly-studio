@@ -105,7 +105,7 @@ func runTranscribe(ctx context.Context, args []string, stdout, stderr io.Writer)
 		fmt.Fprintln(stderr, err)
 		return 1
 	}
-	generated, err := (transcribe.Generator{Operation: operation, Language: transcribe.HandlerTarget("go"), EphemeralOwnership: true}).Generate(ctx, transcribe.GenerationRequest{Compiled: compiled, Destination: *directory})
+	generated, err := (transcribe.Generator{Operation: operation, Language: transcribe.HandlerTarget("go")}).Generate(ctx, transcribe.GenerationRequest{Compiled: compiled, Destination: *directory})
 	if err != nil {
 		fmt.Fprintln(stderr, err)
 		return 1

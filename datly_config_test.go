@@ -22,8 +22,8 @@ func TestDatlyConfigDeclaresJWTVerifier(t *testing.T) {
 	if loaded.Endpoint.Address != "127.0.0.1:8081" {
 		t.Fatalf("Datly endpoint = %+v", loaded.Endpoint)
 	}
-	if len(loaded.Connectors) != 2 || loaded.Connectors[0].Driver != "sqlite" || loaded.Connectors[1].Name != "authz" || loaded.Connectors[1].Driver != "sqlite" {
-		t.Fatalf("expected Studio and authz sqlite connectors, got %#v", loaded.Connectors)
+	if len(loaded.Connectors) != 2 || loaded.Connectors[0].Driver != "sqlite" || loaded.Connectors[1].Name != "authz" || loaded.Connectors[1].AliasOf != "studio" {
+		t.Fatalf("expected authz to share the Studio connector, got %#v", loaded.Connectors)
 	}
 	if loaded.GoBootstrap == nil || !loaded.GoBootstrap.EagerComponents {
 		t.Fatal("expected eager static component bootstrap for imported authorization types")

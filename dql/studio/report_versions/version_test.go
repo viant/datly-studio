@@ -68,7 +68,7 @@ func TestReportVersionTranscribesDeclaredPackages(t *testing.T) {
 	module := datatest.NewGeneratedModule(t)
 	for _, component := range []struct{ name, operation string }{{"reader", "get"}, {"writer", "patch"}} {
 		compiled := compileVersion(t, ctx, component.name, column.New(column.Connections{"studio": db}))
-		generated, err := (transcribe.Generator{Operation: component.operation, EphemeralOwnership: true}).Generate(ctx, transcribe.GenerationRequest{Compiled: compiled, Destination: module.Root})
+		generated, err := (transcribe.Generator{Operation: component.operation}).Generate(ctx, transcribe.GenerationRequest{Compiled: compiled, Destination: module.Root})
 		if err != nil {
 			t.Fatalf("generate report-version %s: %v", component.name, err)
 		}

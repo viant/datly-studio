@@ -31,8 +31,11 @@ Version creation, policy copying and provenance must use the existing Datly
 reader/writer components within one managed transaction. A failed clone must
 leave no partial version, policy head, history or resource links. Verify the
 shared transaction across the Studio/authz connector aliases before relying on
-it. The existing browser-side multi-operation clone does not establish this
-atomicity.
+it. Datly now supports explicit `AliasOf: studio`, giving both names one handle
+and transaction identity. Its nested-write regression flushes version, policy
+head and history markers and verifies a later parent failure rolls all three
+back. Studio's native configuration uses this alias. The existing browser-side
+multi-operation clone still does not establish atomicity for the real clone.
 
 ## Acceptance
 

@@ -31,7 +31,7 @@ func TestServerOwnedBFFExpiredReaderCompiles(t *testing.T) {
 		t.Fatal(err)
 	}
 	module := datatest.NewGeneratedModule(t)
-	if _, err := (transcribe.Generator{Operation: "get", EphemeralOwnership: true}).Generate(ctx, transcribe.GenerationRequest{Compiled: compiled, Destination: module.Root}); err != nil {
+	if _, err := (transcribe.Generator{Operation: "get"}).Generate(ctx, transcribe.GenerationRequest{Compiled: compiled, Destination: module.Root}); err != nil {
 		t.Fatal(err)
 	}
 	module.Test(t)

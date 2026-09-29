@@ -80,7 +80,7 @@ func TestReportTranscribesGoShapesToDeclaredPackages(t *testing.T) {
 		{name: "writer", operation: "patch"},
 	} {
 		compiled := compileReport(t, ctx, component.name, column.New(column.Connections{"studio": db}))
-		generated, err := (transcribe.Generator{Operation: component.operation, EphemeralOwnership: true}).Generate(ctx, transcribe.GenerationRequest{Compiled: compiled, Destination: module.Root})
+		generated, err := (transcribe.Generator{Operation: component.operation}).Generate(ctx, transcribe.GenerationRequest{Compiled: compiled, Destination: module.Root})
 		if err != nil {
 			t.Fatalf("generate report %s: %v", component.name, err)
 		}

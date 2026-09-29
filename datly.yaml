@@ -21,8 +21,8 @@ Connectors:
     Driver: sqlite
     DSN: file:.data/studio.db?cache=shared
   - Name: authz
-    Driver: sqlite
-    DSN: file:.data/studio.db?cache=shared
+    # Reused authz writers participate in Studio's managed transaction.
+    AliasOf: studio
 JWTValidator:
   CertURL: https://idp.viantinc.com/v1/api/oauth2/certs
 JWTClaims:

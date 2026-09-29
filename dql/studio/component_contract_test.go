@@ -411,7 +411,7 @@ func TestEveryStaticDatlyComponentContract(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			generated, err := (transcribe.Generator{Operation: item.operation, EphemeralOwnership: true}).Generate(ctx, transcribe.GenerationRequest{Compiled: compiled, Destination: module.Root})
+			generated, err := (transcribe.Generator{Operation: item.operation}).Generate(ctx, transcribe.GenerationRequest{Compiled: compiled, Destination: module.Root})
 			if err != nil {
 				t.Fatal(err)
 			}

@@ -53,7 +53,7 @@ func TestGenerateVersionImportWriter(t *testing.T) {
 	} else if err := os.WriteFile(filepath.Join(destination, "go.mod"), []byte("module github.com/viant/datly-studio\n\ngo 1.25.8\n"), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := (transcribe.Generator{Operation: "post", EphemeralOwnership: true}).Generate(ctx,
+	if _, err := (transcribe.Generator{Operation: "post"}).Generate(ctx,
 		transcribe.GenerationRequest{Compiled: compiled, Destination: destination}); err != nil {
 		t.Fatal(err)
 	}

@@ -1106,6 +1106,8 @@ github.com/viant/bindly v0.2.1-0.20260915164201-7cf35da5bd9a h1:/3xeUEE2zmYpreib
 github.com/viant/bindly v0.2.1-0.20260915164201-7cf35da5bd9a/go.mod h1:09YU4fJL0QlMmtrPZRZVx005W9Lsgp0pREeUzSVgHyo=
 github.com/viant/datly v1.0.1-0.20260928172836-5aad1bdd5494 h1:tK2yFyoY5Du3miRJULTe2k/Ywm83cwCXJFDtysSoWvc=
 github.com/viant/datly v1.0.1-0.20260928172836-5aad1bdd5494/go.mod h1:2s4puWlk09Dd4Q4HECANnRlTFYq7Ohl0mmjc9QdX3bk=
+github.com/viant/datly v1.1.1-0.20260929091529-5741883aeb90 h1:SKpItZtK078tubsiuFKGW7yLDxtoJW5LvKLZj0wYL7Y=
+github.com/viant/datly v1.1.1-0.20260929091529-5741883aeb90/go.mod h1:dF9ENXS41L3mMOa++V+PZHYPF2UA7a7OMWN7coW8xCs=
 github.com/viant/gmetric v0.3.2 h1:zTdW9QrPk2P0i/do9fokxtHesFQCvYqIc5Yktzmyxtg=
 github.com/viant/gmetric v0.3.2/go.mod h1:3WGxSMCL+owUb0HewYXMLxkoen8e8MlX1Vd2C6tJ5qw=
 github.com/viant/godiff v0.4.3-0.20260914060527-9f2005ca82e8 h1:PCgpoW8IwGsYDs805dCXp25vLTWkakpfvIYll0Twir4=
@@ -1130,6 +1132,8 @@ github.com/viant/sqlparser v0.13.1-0.20260921232033-929f6f50ccce h1:f85ObNhCa7ou
 github.com/viant/sqlparser v0.13.1-0.20260921232033-929f6f50ccce/go.mod h1:2QRGiGZYk2/pjhORGG1zLVQ9JO+bXFhqIVi31mkCRPg=
 github.com/viant/sqlx v0.26.1-0.20260927121633-cbe6dd70f752 h1:GLcCB+4GH8Dht6R1dShPLeApHAOF6Dm7qERKUm6ubJk=
 github.com/viant/sqlx v0.26.1-0.20260927121633-cbe6dd70f752/go.mod h1:PF2N+v9OR8EIAkYy2brhAjFX8GJDelZoqzrs5KTTY3k=
+github.com/viant/sqlx v0.26.1-0.20260928224516-716a37c8ca40 h1:2BHkpLLVZSjomvLq/ol9zYCaG/nWoA7wNf4i4+0Ubr8=
+github.com/viant/sqlx v0.26.1-0.20260928224516-716a37c8ca40/go.mod h1:PF2N+v9OR8EIAkYy2brhAjFX8GJDelZoqzrs5KTTY3k=
 github.com/viant/structology v0.10.1-0.20260925145657-42c5a7e1d1d7 h1:QZspu4WMT/zagjFcakoCExFjF+N4VV+p0KuaEpxeykw=
 github.com/viant/structology v0.10.1-0.20260925145657-42c5a7e1d1d7/go.mod h1:sNNuCH9Zt+QUNeV1slf/QKBdOdUIj0AVdhDFR09+8Ig=
 github.com/viant/structql v0.5.4 h1:bMdcOpzU8UMoe5OBcyJVRxLAndvU1oj3ysvPUgBckCI=

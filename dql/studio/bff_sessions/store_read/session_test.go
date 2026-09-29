@@ -44,7 +44,7 @@ func TestServerOwnedBFFSessionReaderCompiles(t *testing.T) {
 		t.Fatalf("session identity predicate count=%d", identities)
 	}
 	module := datatest.NewGeneratedModule(t)
-	if _, err := (transcribe.Generator{Operation: "get", EphemeralOwnership: true}).Generate(ctx, transcribe.GenerationRequest{Compiled: compiled, Destination: module.Root}); err != nil {
+	if _, err := (transcribe.Generator{Operation: "get"}).Generate(ctx, transcribe.GenerationRequest{Compiled: compiled, Destination: module.Root}); err != nil {
 		t.Fatal(err)
 	}
 	module.Test(t)

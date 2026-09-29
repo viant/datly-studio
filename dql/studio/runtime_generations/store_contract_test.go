@@ -39,7 +39,7 @@ func TestServerOwnedDefinitionReadersCompile(t *testing.T) {
 			if name == "store_candidate" && (!strings.Contains(string(body), ".Required()") || len(compiled.Component.Parameters) < 2) {
 				t.Fatal("candidate generation must be a required component input")
 			}
-			if _, err := (transcribe.Generator{Operation: "get", EphemeralOwnership: true}).Generate(ctx,
+			if _, err := (transcribe.Generator{Operation: "get"}).Generate(ctx,
 				transcribe.GenerationRequest{Compiled: compiled, Destination: module.Root}); err != nil {
 				t.Fatal(err)
 			}

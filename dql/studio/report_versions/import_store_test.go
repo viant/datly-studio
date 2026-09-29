@@ -120,7 +120,7 @@ func TestVersionStoreComponentsTranscribeDeclaredPackages(t *testing.T) {
 	module := datatest.NewGeneratedModule(t)
 	for _, component := range []struct{ directory, name, operation string }{{"store_head", "head", "get"}, {"store_import", "version", "post"}} {
 		compiled := compileVersionStore(t, ctx, component.directory, component.name, column.New(column.Connections{"studio": db}))
-		generated, err := (transcribe.Generator{Operation: component.operation, EphemeralOwnership: true}).Generate(ctx, transcribe.GenerationRequest{Compiled: compiled, Destination: module.Root})
+		generated, err := (transcribe.Generator{Operation: component.operation}).Generate(ctx, transcribe.GenerationRequest{Compiled: compiled, Destination: module.Root})
 		if err != nil {
 			t.Fatalf("generate %s: %v", component.directory, err)
 		}
