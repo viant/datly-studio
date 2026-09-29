@@ -2768,6 +2768,11 @@ type WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_
 	union json.RawMessage
 }
 
+// POSTv1studiosdkaccessListParams defines parameters for POSTv1studiosdkaccessList.
+type POSTv1studiosdkaccessListParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
 // POSTv1studiosdkaclDeleteJSONBody defines parameters for POSTv1studiosdkaclDelete.
 type POSTv1studiosdkaclDeleteJSONBody struct {
 	Etag        int64  `json:"etag"`
@@ -7016,11 +7021,11 @@ type ClientInterface interface {
 
 	// POSTv1studiosdkaccessListWithBody performs a POST /v1/studio/sdk/access.list (the `POSTv1studiosdkaccessList` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkaccessListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkaccessListWithBody(ctx context.Context, params *POSTv1studiosdkaccessListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkaccessList performs a POST /v1/studio/sdk/access.list (the `POSTv1studiosdkaccessList` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkaccessList(ctx context.Context, body POSTv1studiosdkaccessListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkaccessList(ctx context.Context, params *POSTv1studiosdkaccessListParams, body POSTv1studiosdkaccessListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkaccessReplaceWithBody performs a POST /v1/studio/sdk/access.replace (the `POSTv1studiosdkaccessReplace` operationId) request,
 	// with any type of body and a specified content type.
@@ -7671,8 +7676,8 @@ func (c *Client) POSTv1studiosdkaccessGet(ctx context.Context, body POSTv1studio
 
 // POSTv1studiosdkaccessListWithBody performs a POST /v1/studio/sdk/access.list (the `POSTv1studiosdkaccessList` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkaccessListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkaccessListRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkaccessListWithBody(ctx context.Context, params *POSTv1studiosdkaccessListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkaccessListRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7685,8 +7690,8 @@ func (c *Client) POSTv1studiosdkaccessListWithBody(ctx context.Context, contentT
 
 // POSTv1studiosdkaccessList performs a POST /v1/studio/sdk/access.list (the `POSTv1studiosdkaccessList` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkaccessList(ctx context.Context, body POSTv1studiosdkaccessListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkaccessListRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkaccessList(ctx context.Context, params *POSTv1studiosdkaccessListParams, body POSTv1studiosdkaccessListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkaccessListRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9608,18 +9613,18 @@ func NewPOSTv1studiosdkaccessGetRequestWithBody(server string, contentType strin
 }
 
 // NewPOSTv1studiosdkaccessListRequest calls the generic POSTv1studiosdkaccessList builder with application/json body
-func NewPOSTv1studiosdkaccessListRequest(server string, body POSTv1studiosdkaccessListJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkaccessListRequest(server string, params *POSTv1studiosdkaccessListParams, body POSTv1studiosdkaccessListJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkaccessListRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkaccessListRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkaccessListRequestWithBody constructs an http.Request for the POSTv1studiosdkaccessList method, with any body, and a specified content type
-func NewPOSTv1studiosdkaccessListRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkaccessListRequestWithBody(server string, params *POSTv1studiosdkaccessListParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -9643,6 +9648,21 @@ func NewPOSTv1studiosdkaccessListRequestWithBody(server string, contentType stri
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
 
 	return req, nil
 }
@@ -12833,11 +12853,11 @@ type ClientWithResponsesInterface interface {
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkaccessListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessListResponse, error)
+	POSTv1studiosdkaccessListWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkaccessListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessListResponse, error)
 
 	// POSTv1studiosdkaccessListWithResponse performs a POST /v1/studio/sdk/access.list (the `POSTv1studiosdkaccessList` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkaccessListWithResponse(ctx context.Context, body POSTv1studiosdkaccessListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessListResponse, error)
+	POSTv1studiosdkaccessListWithResponse(ctx context.Context, params *POSTv1studiosdkaccessListParams, body POSTv1studiosdkaccessListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessListResponse, error)
 
 	// POSTv1studiosdkaccessReplaceWithBodyWithResponse performs a POST /v1/studio/sdk/access.replace (the `POSTv1studiosdkaccessReplace` operationId) request,
 	// with any type of body and a specified content type.
@@ -16250,8 +16270,8 @@ func (c *ClientWithResponses) POSTv1studiosdkaccessGetWithResponse(ctx context.C
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkaccessListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessListResponse, error) {
-	rsp, err := c.POSTv1studiosdkaccessListWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkaccessListWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkaccessListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessListResponse, error) {
+	rsp, err := c.POSTv1studiosdkaccessListWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16260,8 +16280,8 @@ func (c *ClientWithResponses) POSTv1studiosdkaccessListWithBodyWithResponse(ctx 
 
 // POSTv1studiosdkaccessListWithResponse performs a POST /v1/studio/sdk/access.list (the `POSTv1studiosdkaccessList` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkaccessListWithResponse(ctx context.Context, body POSTv1studiosdkaccessListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessListResponse, error) {
-	rsp, err := c.POSTv1studiosdkaccessList(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkaccessListWithResponse(ctx context.Context, params *POSTv1studiosdkaccessListParams, body POSTv1studiosdkaccessListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessListResponse, error) {
+	rsp, err := c.POSTv1studiosdkaccessList(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

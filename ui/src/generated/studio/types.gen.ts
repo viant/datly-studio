@@ -2175,6 +2175,9 @@ export type PostV1StudioSdkAccessGetResponse = PostV1StudioSdkAccessGetResponses
 
 export type PostV1StudioSdkAccessListData = {
     body: Input092De1A1Aa148D7F76A45D866E2Aba4A800Ba8A33379Ccd1537C3E3699762324;
+    headers?: {
+        'X-Studio-Namespace'?: string;
+    };
     path?: never;
     query?: never;
     url: '/v1/studio/sdk/access.list';

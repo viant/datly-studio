@@ -758,3 +758,21 @@ passes 135 rendered tests plus contract tests. GPT-6 Sol granted scoped approval
 for recovery and editor preservation. This does not establish complete concurrent
 window coordination: expiring leases and simultaneous editor-open/switch races
 still require broader acceptance.
+
+## Permission resource discovery scope
+
+Native `access.list` accepts the same optional namespace header/MCP argument as
+component discovery. Its internal candidate reader includes persisted component
+namespace ownership, including the owner component for skills. Candidates from
+another workspace are discarded before component visibility checks, policy
+inspection fallback, grouping or pagination. A policy administration grant cannot
+bypass this workspace boundary. The SQL SDK catalog uses the same independent
+scope filter.
+
+Native HTTP/MCP regression tests use two private namespaces owned by the same
+principal and verify a one-item page contains only the selected component.
+Catalog regressions additionally verify that a policy inspection grant cannot
+reveal either a foreign component or skill or affect pagination. Typed component
+invocation retains namespace selection in the component reader predicate and
+rejects conflicting header/input selection. Generic policy get/context/replace
+routes remain a separate scoping gate; this is discovery coverage only.

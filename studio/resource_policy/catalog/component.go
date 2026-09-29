@@ -11,6 +11,7 @@ type Input struct {
 	Offset int `parameter:"Offset,kind=query,in=offset,dataType=int"`
 }
 type Entry struct {
+	NamespaceID string `sqlx:"namespace_id"`
 	Published   bool   `sqlx:"is_published"`
 	OwnerID     string `sqlx:"owner_id"`
 	ComponentID string `sqlx:"component_id"`

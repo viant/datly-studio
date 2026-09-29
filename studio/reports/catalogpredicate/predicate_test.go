@@ -6,11 +6,25 @@ import (
 )
 
 type scopeInput struct {
-	subject string
-	scoped  bool
+	subject   string
+	scoped    bool
+	namespace *string
 }
 
 func (input scopeInput) ReportCatalogScope() (string, bool) { return input.subject, input.scoped }
+func (input scopeInput) ReportCatalogNamespace() *string    { return input.namespace }
+
+func TestTypedNamespaceSelectionCannotFallBackToUnscopedRead(t *testing.T) {
+	invalid := "invalid"
+	input := scopeInput{subject: "viewer", scoped: true, namespace: &invalid}
+	if _, err := (&ReportCatalogRead{Input: input}).Compute(context.Background(), nil); err == nil {
+		t.Fatal("typed invalid selection fell back to an unscoped read")
+	}
+	other := "other"
+	if _, err := (&ReportCatalogRead{Input: input, NamespaceID: &other}).Compute(context.Background(), nil); err == nil {
+		t.Fatal("conflicting typed and header selections accepted")
+	}
+}
 
 func TestReportCatalogReadRequiresScopedSubject(t *testing.T) {
 	ctx := context.Background()

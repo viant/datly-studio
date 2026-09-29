@@ -8,3 +8,7 @@ func (input ReportGetInput) ReportCatalogScope() (string, bool) {
 	}
 	return input.Auth.Auth.Subject, true
 }
+
+// ReportCatalogNamespace preserves explicit namespace selection during typed
+// component invocation, including MCP calls without an HTTP namespace header.
+func (input ReportGetInput) ReportCatalogNamespace() *string { return input.NamespaceId }

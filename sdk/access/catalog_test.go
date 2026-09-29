@@ -80,4 +80,26 @@ func TestCatalogPublicClassification(t *testing.T) {
 
 type catalogTestProvider struct{ facts Facts }
 
+func TestCatalogWorkspaceScopeCannotBeBypassedByPolicyInspection(t *testing.T) {
+	fixture := &catalogFixture{documents: map[Resource]Document{}}
+	for _, item := range []struct{ kind, id, component string }{
+		{"component", "foreign", "beta"},
+		{"skill", "foreign-skill", "beta"},
+		{"component", "local", "alpha"},
+	} {
+		r := Resource{Kind: item.kind, ID: item.id, Tenant: "one", Version: "1"}
+		fixture.rows = append(fixture.rows, &catalog.Entry{Kind: item.kind, ID: item.id, ComponentID: item.component, PolicyKind: item.kind, PolicyID: item.id, Tenant: "one", Version: "1"})
+		fixture.documents[r] = Document{Resource: r, Revision: 1, Policies: map[string]Policy{"viewAccess": {Mode: "protected", Rule: &Rule{Kind: "subject", Value: "alice"}}}}
+	}
+	service := &Catalog{Service: &Service{Store: fixture, Provider: catalogTestProvider{Facts{Subject: "alice", Tenant: "one", Issuer: "issuer", ValidUntil: time.Now().Add(time.Minute)}}},
+		ResourceScope: func(_ context.Context, row *catalog.Entry) bool { return row.ComponentID == "alpha" }}
+	page, err := service.List(context.Background(), CatalogInput{Limit: 1})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(page.Items) != 1 || page.Items[0].ID != "local" || page.HasMore {
+		t.Fatalf("policy inspection escaped workspace or affected pagination: %+v", page)
+	}
+}
+
 func (p catalogTestProvider) Resolve(context.Context) (Facts, error) { return p.facts, nil }

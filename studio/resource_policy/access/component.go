@@ -9,6 +9,7 @@ import (
 	"github.com/viant/datly-studio/store/sql/accesscatalog"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
 	reports "github.com/viant/datly-studio/studio/reports/get"
+	catalog "github.com/viant/datly-studio/studio/resource_policy/catalog"
 	"github.com/viant/datly/spec"
 	"os"
 	"reflect"
@@ -252,9 +253,10 @@ func publicError(code int, message string) error {
 
 // List exposes only resources whose exact effective policy can be inspected.
 type ListInput struct {
-	Auth  *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
-	Jwt   *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
-	Query acl.CatalogInput   `parameter:"Query,kind=body,in=,dataType=acl.CatalogInput,required=true" anonymous:"true"`
+	NamespaceId *string            `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
+	Auth        *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
+	Jwt         *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
+	Query       acl.CatalogInput   `parameter:"Query,kind=body,in=,dataType=acl.CatalogInput,required=true" anonymous:"true"`
 }
 type ListOutput struct {
 	Response *acl.CatalogPage `parameter:"Response,kind=output,in=body,dataType=*acl.CatalogPage" json:"-"`
@@ -334,11 +336,18 @@ func (*listHandler) Exec(ctx context.Context, session xhandler.Session, input *L
 		read.SetJwt(input.Jwt)
 		read.SetAuth(input.Auth)
 		read.SetId(id)
+		read.SetNamespaceId(input.NamespaceId)
 		value, e := invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: exec.ComponentTarget{Component: spec.Key{Kind: spec.KindComponent, Scope: reflect.TypeFor[reports.ReportComponent]().PkgPath(), Name: "report"}, Route: spec.RouteRef{Method: "POST", Path: "/v1/studio/sdk/components.get"}}, Input: read})
 		item, ok := value.(*reports.ReportGetOutput)
 		allowed := e == nil && ok && item != nil && item.Item != nil && item.Item.Id == id
 		visible[id] = allowed
 		return allowed
+	}
+	if input.NamespaceId != nil {
+		// Keep workspace scope independent from policy administration grants.
+		catalogService.ResourceScope = func(ctx context.Context, row *catalog.Entry) bool {
+			return row.NamespaceID == *input.NamespaceId && catalogService.AuthoringAccess(ctx, row.ComponentID)
+		}
 	}
 	page, err := catalogService.List(requestCtx, input.Query)
 	if err != nil {

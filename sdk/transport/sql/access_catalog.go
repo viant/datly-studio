@@ -7,6 +7,7 @@ import (
 	"github.com/viant/datly-studio/sdk"
 	acl "github.com/viant/datly-studio/sdk/access"
 	store "github.com/viant/datly-studio/store/sql/accesscatalog"
+	catalog "github.com/viant/datly-studio/studio/resource_policy/catalog"
 	"time"
 )
 
@@ -38,6 +39,9 @@ func (t *Transport) listAccessResources(ctx context.Context, input, output any) 
 		visible[id] = allowed
 		return allowed
 	}}
+	if selected, scoped := selectedNamespace(ctx); scoped {
+		service.ResourceScope = func(_ context.Context, row *catalog.Entry) bool { return row.NamespaceID == selected.NamespaceID }
+	}
 	page, err := service.List(ctx, in)
 	if err != nil {
 		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Resource catalog is not permitted", Cause: err}

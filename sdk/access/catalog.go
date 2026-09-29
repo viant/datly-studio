@@ -50,6 +50,9 @@ type Catalog struct {
 	Source          catalogStore
 	Service         *authz.Service
 	AuthoringAccess func(context.Context, string) bool
+	// ResourceScope is an independent workspace boundary. Policy inspection
+	// permission must never bypass it, including for inherited skill policies.
+	ResourceScope func(context.Context, *catalog.Entry) bool
 }
 
 func (s *Catalog) List(ctx context.Context, in CatalogInput) (CatalogPage, error) {
@@ -95,6 +98,9 @@ func (s *Catalog) List(ctx context.Context, in CatalogInput) (CatalogPage, error
 			}
 			if row == nil {
 				return page, fmt.Errorf("nil catalog row")
+			}
+			if s.ResourceScope != nil && !s.ResourceScope(ctx, row) {
+				continue
 			}
 			if in.Kind != "" && row.Kind != in.Kind {
 				continue

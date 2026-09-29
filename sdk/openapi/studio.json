@@ -8056,6 +8056,15 @@
     "/v1/studio/sdk/access.list": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/access.list",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
