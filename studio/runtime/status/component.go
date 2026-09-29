@@ -13,6 +13,7 @@ import (
 	sqltransport "github.com/viant/datly-studio/sdk/transport/sql"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
 	"github.com/viant/datly-studio/studio/authorization"
+	"github.com/viant/datly-studio/studio/host"
 	rhandler "github.com/viant/datly/runtime/handler"
 	"github.com/viant/datly/runtime/handler/custom"
 	"github.com/viant/scy/auth/jwt"
@@ -81,7 +82,11 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	if err != nil || db == nil {
 		return fmt.Errorf("configured Studio database is unavailable")
 	}
-	transport := &sqltransport.Transport{DB: db, Authorizer: &authorization.SDKAuthorizer{DB: db}}
+	predicates, err := (host.Config{}).PredicateCatalog()
+	if err != nil {
+		return err
+	}
+	transport := &sqltransport.Transport{DB: db, Authorizer: &authorization.SDKAuthorizer{DB: db}, Predicates: predicates}
 	defer transport.Close(context.WithoutCancel(ctx))
 	adminToken := os.Getenv("STUDIO_RUNTIME_ADMIN_TOKEN")
 	if adminToken == "" {

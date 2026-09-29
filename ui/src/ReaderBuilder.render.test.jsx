@@ -195,6 +195,32 @@ describe('ReaderBuilder graph-first authoring', () => {
     expect(api.previewReader).not.toHaveBeenCalled();
   });
 
+  test('stays on the published version when an older draft remains', async () => {
+    const user = userEvent.setup();
+    const current = readerFixture();
+    current.version = {...current.version,versionNo:13,state:'draft'};
+    const old = {...current.version,versionNo:12};
+    const outcome = {activeVersionNo:13,activeGeneration:28,status:'active'};
+    let published = false;
+    const api = {
+      listVersions:vi.fn().mockImplementation(async()=>({items:published?[{...current.version,state:'published'},old]:[current.version,old]})),
+      inspectVersion:vi.fn().mockImplementation(async(_,no)=>({...current,version:no===13?{...current.version,state:published?'published':'draft'}:old})),
+      getPublication:vi.fn().mockResolvedValue({activeVersionNo:11,activeGeneration:25,status:'active'}),
+      listPublicationEvents:vi.fn().mockResolvedValue({items:[]}),
+      getRuntimeStatus:vi.fn().mockResolvedValue({status:'active',host:{status:'ready'}}),
+      publishReader:vi.fn().mockImplementation(async()=>{published=true;return outcome;}),
+    };
+    render(<ReaderBuilder api={api} report={{id:'vendor',title:'Vendor Catalog',defaultConnectorName:'main'}} onBack={vi.fn()}/>);
+    await screen.findByRole('heading',{name:'Component graph'});
+    await user.click(screen.getByRole('button',{name:'Release',exact:true}));
+    await waitFor(()=>expect(screen.getByRole('button',{name:'Publish selected version'}).disabled).toBe(false));
+    await user.click(screen.getByRole('button',{name:'Publish selected version'}));
+    await screen.findByText('Published version is now v13 · generation 28.');
+    expect(api.inspectVersion.mock.calls.at(-1)).toEqual(['vendor',13]);
+    expect(screen.getByRole('combobox',{name:'Publish version'}).value).toBe('13');
+    expect(screen.getByText('Published v13')).toBeTruthy();
+  });
+
   test('keeps rollback and unpublish reachable while the current draft is invalid', async () => {
     const user = userEvent.setup();
     const inspection = readerFixture();

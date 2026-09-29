@@ -68,12 +68,13 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
   const [dirtyTabs,setDirtyTabs]=useState(()=>new Set());
   const [pendingTabAction,setPendingTabAction]=useState(null);
 
-  const load = async () => {
+  const load = async (preferredVersionNo = null) => {
     if (!report) return;
     setLoading(true); setError(''); setPreview(null); setCubePreviewOpen(false); setTestedView(null); setTestedRelation(null);
     try {
-      if (report.versionNo) {
-        const selected = await api.inspectVersion(report.id, report.versionNo);
+      const selectedVersionNo = Number.isInteger(preferredVersionNo) && preferredVersionNo > 0 ? preferredVersionNo : report.versionNo;
+      if (selectedVersionNo) {
+        const selected = await api.inspectVersion(report.id, selectedVersionNo);
         setVersion(selected.version);
         setInspection(selected);
         return;
@@ -204,12 +205,12 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
     let result;
     try { result = await api.publishReader(report.id, inspection.version.versionNo, inspection.version.sourceRevision, reason); }
     catch (cause) { if (cause?.code === 'conflict') setConflict(cause); throw cause; }
-    await load();
+    await load(result.activeVersionNo || inspection.version.versionNo);
     return result;
   };
   const promoteVersion = async (selected,reason) => {
     const result=await api.publishReader(report.id,selected.versionNo,selected.sourceRevision,reason);
-    await load(); return result;
+    await load(result.activeVersionNo || selected.versionNo); return result;
   };
   const unpublishDraft = async (expectedActiveGeneration, reason) => {
     if (!report) throw new Error('Component is unavailable.');
@@ -222,7 +223,7 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
     let result;
     try { result = await api.rollbackReader(report.id, historicalVersion.versionNo, historicalVersion.sourceRevision, reason); }
     catch (cause) { if (cause?.code === 'conflict') setConflict(cause); throw cause; }
-    await load();
+    await load(result.activeVersionNo || historicalVersion.versionNo);
     return result;
   };
   const resourceChanged = (updated) => {
