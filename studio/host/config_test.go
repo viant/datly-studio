@@ -4,12 +4,26 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/viant/datly-studio/runtime/accesscontext"
 	"github.com/viant/datly-studio/studio/host"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
 	"github.com/viant/datly-studio/studio/predicatecatalog/testdata/extension"
+	"github.com/viant/datly/typecatalog"
 )
 
 type tenantPredicate struct{}
+
+func TestRuntimeTypesResolveAuthorizationDependenciesAndHostPredicates(t *testing.T) {
+	types, err := (host.Config{PredicatePackages: []predicatecatalog.Package{{Alias: "tenant", Path: "example.com/acme/iam", Types: []reflect.Type{reflect.TypeFor[tenantPredicate]()}}}}).RuntimeTypes()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, name := range []string{accesscontext.ImportPath + ".Output", accesscontext.ImportPath + ".Scope", "example.com/acme/iam.tenantPredicate"} {
+		if _, found, err := types.ResolveRuntimeType(typecatalog.PackageAuthority, name); err != nil || !found {
+			t.Fatalf("runtime dependency %s unavailable: %v", name, err)
+		}
+	}
+}
 
 func TestConfigPredicateCatalogIncludesHostPackages(t *testing.T) {
 	catalog, err := (host.Config{PredicatePackages: []predicatecatalog.Package{{Alias: "tenant", Path: "example.com/acme/iam", Types: []reflect.Type{reflect.TypeFor[tenantPredicate]()}}}}).PredicateCatalog()

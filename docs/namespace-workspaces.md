@@ -818,3 +818,19 @@ Go suite, UI contract suite, 135 rendered UI tests and frontend build passed.
 This establishes the Studio API HTTP boundary. Direct native Datly endpoints,
 the static authoring MCP transport and trusted in-process SDK calls still have
 optional selection contracts; their mandatory-selection coverage remains open.
+
+## Native authoring authorization dependency types
+
+The signed local acceptance session exposed a difference from the development
+SDK: native inspection registered predicate types but omitted the server-owned
+access-context Output/Scope shapes. Scoped forecasting inspection therefore
+returned only authored overrides instead of resolved columns, and execution
+failed during contract materialization.
+
+The host now supplies one runtime type catalog containing linked predicates and
+authorization dependency shapes. Native inspection, builder contract inspection,
+validation and the shared exact-version execution runner use it. The isolated
+authenticated UI resolves all 45 root forecasting fields and offers the three
+UI-authored measures. Its next execution attempt reaches a run-access denial;
+successful scoped UI execution remains unverified. This uses synthetic signed
+identity and a copied test catalog, not real Viant entity grants.

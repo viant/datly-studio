@@ -152,11 +152,7 @@ func (*inspectHandler) Exec(ctx context.Context, session xhandler.Session, input
 	if err != nil {
 		return err
 	}
-	predicates, err := (host.Config{}).PredicateCatalog()
-	if err != nil {
-		return err
-	}
-	types, err := predicates.RuntimeTypes()
+	types, err := (host.Config{}).RuntimeTypes()
 	if err != nil {
 		return err
 	}

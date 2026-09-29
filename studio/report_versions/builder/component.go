@@ -12,6 +12,7 @@ import (
 	"github.com/viant/datly-studio/sdk"
 	sqltransport "github.com/viant/datly-studio/sdk/transport/sql"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
+	"github.com/viant/datly-studio/studio/host"
 	guard "github.com/viant/datly-studio/studio/reports/edit_guard"
 	"github.com/viant/datly/exec"
 	rhandler "github.com/viant/datly/runtime/handler"
@@ -104,7 +105,11 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	if err != nil || db == nil {
 		return fmt.Errorf("configured Studio database is unavailable")
 	}
-	engine := &sqltransport.Transport{DB: db, ComponentInvoker: invoker, ContractInspector: preview.Dynamic{StudioDB: db, ModulePath: "github.com/viant/datly-studio"}}
+	types, err := (host.Config{}).RuntimeTypes()
+	if err != nil {
+		return err
+	}
+	engine := &sqltransport.Transport{DB: db, ComponentInvoker: invoker, ContractInspector: preview.Dynamic{StudioDB: db, ModulePath: "github.com/viant/datly-studio", Types: types}}
 	request := struct {
 		ReportID  string                   `json:"reportId"`
 		VersionNo int                      `json:"versionNo"`

@@ -431,7 +431,7 @@ func main() {
 		gateway := httptransport.Gateway{Config: gatewayConfig, Transport: sdkTransport}
 		mux.Handle(httptransport.PathPrefix, gateway)
 	}
-	log.Printf("Studio SDK development host listening on http://%s", *address)
+	log.Printf("Studio SDK %s host listening on http://%s", resolvedMode, *address)
 	server := &http.Server{
 		Addr: *address, Handler: requestIDs(cors(origin, resolvedMode == string(httptransport.Authenticated), noStore(routeExtensionProxy(mux, extensionProxy)))),
 		ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 30 * time.Second,

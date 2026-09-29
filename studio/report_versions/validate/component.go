@@ -15,6 +15,7 @@ import (
 	"github.com/viant/datly-studio/runtime/preview"
 	"github.com/viant/datly-studio/sdk"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
+	"github.com/viant/datly-studio/studio/host"
 	catalog "github.com/viant/datly-studio/studio/report_versions/store_catalog"
 	stored "github.com/viant/datly-studio/studio/report_versions/store_validation"
 	guard "github.com/viant/datly-studio/studio/reports/edit_guard"
@@ -156,7 +157,11 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 			validationCtx = sdk.WithNamespaceSelection(validationCtx, *input.NamespaceId)
 		}
 		validationCtx = sdk.WithVerifiedCredential(validationCtx, sdk.VerifiedCredential{Claims: input.Jwt})
-		if validateErr := (preview.Dynamic{StudioDB: db, ModulePath: modulePath}).Validate(validationCtx, input.ReportID, input.VersionNo); validateErr != nil {
+		types, err := (host.Config{}).RuntimeTypes()
+		if err != nil {
+			return err
+		}
+		if validateErr := (preview.Dynamic{StudioDB: db, ModulePath: modulePath, Types: types}).Validate(validationCtx, input.ReportID, input.VersionNo); validateErr != nil {
 			valid = false
 			var compileErr *transcribe.CompileError
 			if errors.As(validateErr, &compileErr) && len(compileErr.Diagnostics) > 0 {

@@ -9,8 +9,10 @@ import (
 	"path"
 	"strings"
 
+	"github.com/viant/datly-studio/runtime/accesscontext"
 	"github.com/viant/datly-studio/studio/authorization"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
+	"github.com/viant/datly/typecatalog"
 )
 
 const studioAuthorizationPath = "github.com/viant/datly-studio/studio/authorization"
@@ -20,6 +22,23 @@ const studioAuthorizationPath = "github.com/viant/datly-studio/studio/authorizat
 // Studio's governed authorization-predicate catalog.
 type Config struct {
 	PredicatePackages []predicatecatalog.Package
+}
+
+// RuntimeTypes combines linked predicates with server-owned authorization
+// dependency shapes for native authoring and dynamic readers.
+func (c Config) RuntimeTypes() (*typecatalog.Catalog, error) {
+	predicates, err := c.PredicateCatalog()
+	if err != nil {
+		return nil, err
+	}
+	types, err := predicates.RuntimeTypes()
+	if err != nil {
+		return nil, err
+	}
+	if err = accesscontext.RegisterTypes(types); err != nil {
+		return nil, err
+	}
+	return types, nil
 }
 
 // PredicateCatalog combines Studio's handlers with application handlers and

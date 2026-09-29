@@ -8,13 +8,14 @@ import (
 	"strings"
 	"time"
 
+	access "github.com/viant/authz"
+	accessstore "github.com/viant/authz/datly/store/sql"
 	"github.com/viant/datly-studio/internal/accessconfig"
 	"github.com/viant/datly-studio/internal/publisherguard"
 	"github.com/viant/datly-studio/runtime/preview"
 	"github.com/viant/datly-studio/sdk"
-	access "github.com/viant/authz"
-	accessstore "github.com/viant/authz/datly/store/sql"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
+	"github.com/viant/datly-studio/studio/host"
 	runaccess "github.com/viant/datly-studio/studio/reports/store_run_access"
 	"github.com/viant/datly/exec"
 	rhandler "github.com/viant/datly/runtime/handler"
@@ -78,9 +79,13 @@ func Authorized(ctx context.Context, session xhandler.Session, claims *jwt.Claim
 	if timeout <= 0 {
 		timeout = 30 * time.Second
 	}
+	types, err := (host.Config{}).RuntimeTypes()
+	if err != nil {
+		return nil, preview.Dynamic{}, nil, err
+	}
 	executionCtx, cancel := context.WithTimeout(ctx, timeout)
 	executionCtx = sdk.WithPrincipal(executionCtx, sdk.Principal{Subject: claims.Subject})
-	engine := preview.Dynamic{StudioDB: db, ModulePath: modulePath}
+	engine := preview.Dynamic{StudioDB: db, ModulePath: modulePath, Types: types}
 	aclProvider, err := accessconfig.FromEnvironment()
 	if err != nil {
 		cancel()
