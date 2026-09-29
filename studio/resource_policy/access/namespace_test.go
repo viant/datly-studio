@@ -6,15 +6,21 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
 	"time"
 
 	jwtv5 "github.com/golang-jwt/jwt/v5"
+	"github.com/viant/authz"
+	policyreader "github.com/viant/authz/datly/policy/reader"
+	policystore "github.com/viant/authz/datly/store/sql"
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/datatest"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
 	reports "github.com/viant/datly-studio/studio/reports/get"
+	policycatalog "github.com/viant/datly-studio/studio/resource_policy/catalog"
 	"github.com/viant/datly/bootstrap"
 	gateway "github.com/viant/datly/gateway/http"
 	"github.com/viant/datly/mcp"
@@ -46,15 +52,40 @@ func TestNativePermissionCatalogNamespaceHTTPAndMCP(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	for _, key := range []string{"STUDIO_ACCESS_ISSUER", "STUDIO_ACCESS_AUDIENCE", "STUDIO_ACCESS_PUBLIC_KEY_FILE", "STUDIO_ACCESS_USER_INFO_URL"} {
-		t.Setenv(key, "")
+	store := &policystore.Store{DB: db}
+	t.Cleanup(func() { _ = store.Close(ctx) })
+	for _, name := range []string{"alpha", "beta"} {
+		_, err := store.Provision(ctx, authz.Document{Resource: authz.Resource{Kind: "component", ID: name, Version: "1", Tenant: "tenant"}, Policies: map[string]authz.Policy{
+			"viewAccess":   {Mode: "protected", Rule: &authz.Rule{Kind: "subject", Value: "owner"}},
+			"manageAccess": {Mode: "protected", Rule: &authz.Rule{Kind: "subject", Value: "owner"}},
+		}}, "fixture")
+		if err != nil {
+			t.Fatal(err)
+		}
 	}
+	keyPath := filepath.Join(t.TempDir(), "public.pem")
+	if err := os.WriteFile(keyPath, jwt.PublicKeyPEM(t), 0600); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("STUDIO_ACCESS_ISSUER", "test")
+	t.Setenv("STUDIO_ACCESS_AUDIENCE", "studio")
+	t.Setenv("STUDIO_ACCESS_PUBLIC_KEY_FILE", keyPath)
+	t.Setenv("STUDIO_ACCESS_USER_INFO_URL", "")
 	resources := resource.New()
 	if err := resources.Register(reports.ReportDatlyResourceNamespace, reports.ReportDatlyResources); err != nil {
 		t.Fatal(err)
 	}
+	if err := resources.Register(policycatalog.Namespace, policycatalog.Resources); err != nil {
+		t.Fatal(err)
+	}
+	if err := resources.Register(policyreader.PolicyDatlyResourceNamespace, policyreader.PolicyDatlyResources); err != nil {
+		t.Fatal(err)
+	}
 	connector := &dsql.SQLComponent{DB: db}
 	if err := connector.RegisterConnector("studio", db); err != nil {
+		t.Fatal(err)
+	}
+	if err := connector.RegisterConnector("authz", db); err != nil {
 		t.Fatal(err)
 	}
 	compile := func(holder, input, output reflect.Type, handler rhandler.TypedHandler) *registry.RegisteredComponent {
@@ -90,14 +121,30 @@ func TestNativePermissionCatalogNamespaceHTTPAndMCP(t *testing.T) {
 		t.Fatal(err)
 	}
 	entries := []*registry.RegisteredComponent{datatest.AuthRegistration(t, db, jwt.Factory, resources),
+		compile(reflect.TypeFor[policyreader.PolicyComponent](), reflect.TypeFor[policyreader.Input](), reflect.TypeFor[policyreader.Output](), nil),
+		compile(reflect.TypeFor[policycatalog.Component](), reflect.TypeFor[policycatalog.Input](), reflect.TypeFor[policycatalog.Output](), nil),
 		compile(reflect.TypeFor[reports.ReportComponent](), reflect.TypeFor[reports.ReportGetInput](), reflect.TypeFor[reports.ReportGetOutput](), nil),
 		compile(reflect.TypeFor[ListComponent](), reflect.TypeFor[ListInput](), reflect.TypeFor[ListOutput](), handler)}
+	for _, item := range []struct {
+		holder, input, output reflect.Type
+		factory               func() (rhandler.TypedHandler, error)
+	}{
+		{reflect.TypeFor[GetComponent](), reflect.TypeFor[ResourceInput](), reflect.TypeFor[DocumentOutput](), (GetComponent{}).DatlyHandler("NewGet")},
+		{reflect.TypeFor[ContextComponent](), reflect.TypeFor[ResourceInput](), reflect.TypeFor[ContextOutput](), (ContextComponent{}).DatlyHandler("NewContext")},
+		{reflect.TypeFor[ReplaceComponent](), reflect.TypeFor[ReplaceInput](), reflect.TypeFor[DocumentOutput](), (ReplaceComponent{}).DatlyHandler("NewReplace")},
+	} {
+		handler, err := item.factory()
+		if err != nil {
+			t.Fatal(err)
+		}
+		entries = append(entries, compile(item.holder, item.input, item.output, handler))
+	}
 	runtime, err := druntime.NewRuntime(entries, druntime.WithResources(resources))
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { _ = runtime.Shutdown(ctx) })
-	bearer := jwt.BearerWithClaims(t, jwtv5.MapClaims{"sub": "owner", "iss": "test", "exp": time.Now().Add(time.Hour).Unix()})
+	bearer := jwt.BearerWithClaims(t, jwtv5.MapClaims{"sub": "owner", "iss": "test", "aud": "studio", "tenant": "tenant", "exp": time.Now().Add(time.Hour).Unix()})
 	httpHandler := gateway.NewHandler(runtime, nil, "test")
 	check := func(raw []byte, want string) {
 		var page struct {
@@ -142,4 +189,45 @@ func TestNativePermissionCatalogNamespaceHTTPAndMCP(t *testing.T) {
 		t.Fatal(err)
 	}
 	check(raw, "beta")
+	for _, operation := range []string{"get", "context"} {
+		req := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/access."+operation, bytes.NewBufferString(`{"kind":"component","id":"alpha","version":"1","tenant":"tenant"}`))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", bearer)
+		req.Header.Set("X-Studio-Namespace", namespaceaccess.ID("owner", "alpha"))
+		res := httptest.NewRecorder()
+		httpHandler.ServeHTTP(res, req)
+		if res.Code != 200 {
+			t.Fatalf("local %s HTTP %d: %s", operation, res.Code, res.Body.String())
+		}
+	}
+	for _, operation := range []string{"get", "context", "replace"} {
+		resource := map[string]any{"kind": "component", "id": "beta", "version": "1", "tenant": "tenant"}
+		var body any = resource
+		if operation == "replace" {
+			body = map[string]any{"resource": resource, "revision": 1, "policies": map[string]any{}}
+		}
+		payload, _ := json.Marshal(body)
+		req := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/access."+operation, bytes.NewReader(payload))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", bearer)
+		req.Header.Set("X-Studio-Namespace", namespaceaccess.ID("owner", "alpha"))
+		res := httptest.NewRecorder()
+		httpHandler.ServeHTTP(res, req)
+		if res.Code != 403 {
+			t.Fatalf("foreign %s HTTP %d: %s", operation, res.Code, res.Body.String())
+		}
+		arguments := map[string]any{}
+		for key, value := range body.(map[string]any) {
+			arguments[key] = value
+		}
+		arguments["namespaceId"] = namespaceaccess.ID("owner", "alpha")
+		tool, ok := service.Registry().ToolRegistry.Get("studio.sdk.access." + operation)
+		if !ok {
+			t.Fatal("management MCP tool missing")
+		}
+		result, mcpErr := tool.Handler(callCtx, &schema.CallToolRequest{Method: schema.MethodToolsCall, Params: schema.CallToolRequestParams{Name: "studio.sdk.access." + operation, Arguments: arguments}})
+		if mcpErr == nil && result != nil && (result.IsError == nil || !*result.IsError) {
+			t.Fatalf("foreign %s MCP accepted", operation)
+		}
+	}
 }

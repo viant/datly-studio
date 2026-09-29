@@ -7992,6 +7992,15 @@
     "/v1/studio/sdk/access.context": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/access.context",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -8024,6 +8033,15 @@
     "/v1/studio/sdk/access.get": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/access.get",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -8097,6 +8115,15 @@
     "/v1/studio/sdk/access.replace": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/access.replace",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {

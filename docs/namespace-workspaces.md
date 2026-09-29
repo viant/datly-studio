@@ -774,5 +774,23 @@ principal and verify a one-item page contains only the selected component.
 Catalog regressions additionally verify that a policy inspection grant cannot
 reveal either a foreign component or skill or affect pagination. Typed component
 invocation retains namespace selection in the component reader predicate and
-rejects conflicting header/input selection. Generic policy get/context/replace
-routes remain a separate scoping gate; this is discovery coverage only.
+rejects conflicting header/input selection.
+
+## Policy administration scope
+
+Native policy get/context/replace operations now carry optional namespace
+selection through HTTP and MCP. Before invoking authz policy operations, Studio
+resolves the exact component/skill version from persisted catalog ownership and
+checks its owning component's namespace visibility. Unknown resources, versions,
+invalid selections, and foreign ownership fail closed. Existing policy actions,
+tenant checks, predefined role validation and revision CAS remain independent.
+
+The authenticated SDK access wrapper applies the same check to policy operations
+and catalog discovery; it cannot bypass the inner SQL transport's selected
+workspace by handling these operations directly. Native HTTP/MCP tests reject all
+three management operations against the other namespace even with explicit policy
+grants for the same principal in both workspaces. Native local policy read and
+editor context succeed. SDK tests retain local
+policy reads and reject foreign components/skills before component or policy
+access. Selection is still optional on these routes; mandatory selection across
+resource APIs remains an acceptance gate.

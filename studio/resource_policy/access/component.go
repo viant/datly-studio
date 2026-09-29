@@ -32,13 +32,17 @@ import (
 )
 
 type ResourceInput struct {
-	Jwt      *jwt.Claims    `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
-	Resource authz.Resource `parameter:"Resource,kind=body,in=,dataType=authz.Resource,required=true" anonymous:"true"`
+	NamespaceId *string            `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
+	Auth        *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
+	Jwt         *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
+	Resource    authz.Resource     `parameter:"Resource,kind=body,in=,dataType=authz.Resource,required=true" anonymous:"true"`
 }
 
 type ReplaceInput struct {
-	Jwt      *jwt.Claims    `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
-	Document authz.Document `parameter:"Document,kind=body,in=,dataType=authz.Document,required=true" anonymous:"true"`
+	NamespaceId *string            `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
+	Auth        *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
+	Jwt         *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
+	Document    authz.Document     `parameter:"Document,kind=body,in=,dataType=authz.Document,required=true" anonymous:"true"`
 }
 
 type DocumentOutput struct {
@@ -122,6 +126,9 @@ func (*getHandler) Exec(ctx context.Context, session xhandler.Session, input *Re
 		return err
 	}
 	defer closeStore()
+	if err := checkResourceNamespace(requestCtx, service, input.NamespaceId, input.Resource, input.Auth, input.Jwt); err != nil {
+		return err
+	}
 	value, err := service.Get(requestCtx, input.Resource)
 	if err != nil {
 		return mapError(err)
@@ -139,6 +146,9 @@ func (*contextHandler) Exec(ctx context.Context, session xhandler.Session, input
 		return err
 	}
 	defer closeStore()
+	if err := checkResourceNamespace(requestCtx, service, input.NamespaceId, input.Resource, input.Auth, input.Jwt); err != nil {
+		return err
+	}
 	value, err := service.EditorContext(requestCtx, input.Resource)
 	if err != nil {
 		return mapError(err)
@@ -156,11 +166,39 @@ func (*replaceHandler) Exec(ctx context.Context, session xhandler.Session, input
 		return err
 	}
 	defer closeStore()
+	if err := checkResourceNamespace(requestCtx, service, input.NamespaceId, input.Document.Resource, input.Auth, input.Jwt); err != nil {
+		return err
+	}
 	value, err := service.Replace(requestCtx, input.Document)
 	if err != nil {
 		return mapError(err)
 	}
 	output.Response = &value
+	return nil
+}
+
+func checkResourceNamespace(ctx context.Context, service *authz.Service, namespaceID *string, resource authz.Resource, auth *studioauth.Output, claims *jwt.Claims) error {
+	if namespaceID == nil {
+		return nil
+	}
+	policyStore, ok := service.Store.(*store.Store)
+	if !ok || auth == nil || auth.Auth == nil || claims == nil || auth.Auth.Subject != claims.Subject {
+		return publicError(403, "Resource access is not permitted")
+	}
+	source := &accesscatalog.Store{DB: policyStore.DB, Invoker: policyStore.Invoker}
+	err := acl.CheckNamespaceResource(ctx, namespaceID, resource, source, func(ctx context.Context, id string) bool {
+		read := &reports.ReportGetInput{}
+		read.SetJwt(claims)
+		read.SetAuth(auth)
+		read.SetId(id)
+		read.SetNamespaceId(namespaceID)
+		value, err := policyStore.Invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: exec.ComponentTarget{Component: spec.Key{Kind: spec.KindComponent, Scope: reflect.TypeFor[reports.ReportComponent]().PkgPath(), Name: "report"}, Route: spec.RouteRef{Method: "POST", Path: "/v1/studio/sdk/components.get"}}, Input: read})
+		output, ok := value.(*reports.ReportGetOutput)
+		return err == nil && ok && output != nil && output.Item != nil && output.Item.Id == id
+	})
+	if err != nil {
+		return publicError(403, "Resource access is not permitted")
+	}
 	return nil
 }
 

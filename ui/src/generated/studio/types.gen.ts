@@ -2143,6 +2143,9 @@ export type WireFcb2B68Ea97735A078Bf238Fa93Fc316117Bac1Af3B4B77C1A5F30Eb2753801c
 
 export type PostV1StudioSdkAccessContextData = {
     body: Input97Df4A50A602Fc26F1Ee6311A5F68Da1D96E2143F76Deaf46Ec88C673E7B5125;
+    headers?: {
+        'X-Studio-Namespace'?: string;
+    };
     path?: never;
     query?: never;
     url: '/v1/studio/sdk/access.context';
@@ -2159,6 +2162,9 @@ export type PostV1StudioSdkAccessContextResponse = PostV1StudioSdkAccessContextR
 
 export type PostV1StudioSdkAccessGetData = {
     body: Input61Da40565Eeef7Dc1D2D89123Fe0033E9B0F0809A66731851Fd56301624B0Dc5;
+    headers?: {
+        'X-Studio-Namespace'?: string;
+    };
     path?: never;
     query?: never;
     url: '/v1/studio/sdk/access.get';
@@ -2194,6 +2200,9 @@ export type PostV1StudioSdkAccessListResponse = PostV1StudioSdkAccessListRespons
 
 export type PostV1StudioSdkAccessReplaceData = {
     body: InputD631D9489D8A46Cf61Ef6Ae5A6A27B5E6C1Fe964186472Df97480Ccb0Bd6A17c;
+    headers?: {
+        'X-Studio-Namespace'?: string;
+    };
     path?: never;
     query?: never;
     url: '/v1/studio/sdk/access.replace';

@@ -9,6 +9,7 @@ import (
 	"io"
 
 	"github.com/viant/datly-studio/sdk"
+	resourcecatalog "github.com/viant/datly-studio/studio/resource_policy/catalog"
 )
 
 const OperationList = "access.list"
@@ -63,6 +64,14 @@ func (t *Transport) Invoke(ctx context.Context, operation string, input, output 
 		if catalog == nil {
 			catalog = &Catalog{Service: t.Service}
 		}
+		if id, present := sdk.NamespaceSelectionFromContext(ctx); present {
+			copy := *catalog
+			prior := copy.ResourceScope
+			copy.ResourceScope = func(ctx context.Context, row *resourcecatalog.Entry) bool {
+				return row.NamespaceID == id && (prior == nil || prior(ctx, row)) && t.canViewComponent(ctx, row.ComponentID)
+			}
+			catalog = &copy
+		}
 		value, listErr := catalog.List(ctx, in)
 		if listErr != nil {
 			return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Resource catalog is not permitted", Cause: listErr}
@@ -78,6 +87,9 @@ func (t *Transport) Invoke(ctx context.Context, operation string, input, output 
 		}
 		var resource authz.Resource
 		if err = decode(&resource); err != nil {
+			return err
+		}
+		if err = t.checkNamespace(ctx, resource); err != nil {
 			return err
 		}
 		value, contextErr := t.Service.EditorContext(ctx, resource)
@@ -96,10 +108,16 @@ func (t *Transport) Invoke(ctx context.Context, operation string, input, output 
 		if err = decode(&resource); err != nil {
 			return err
 		}
+		if err = t.checkNamespace(ctx, resource); err != nil {
+			return err
+		}
 		result, err = t.Service.Get(ctx, resource)
 	} else {
 		var doc authz.Document
 		if err = decode(&doc); err != nil {
+			return err
+		}
+		if err = t.checkNamespace(ctx, doc.Resource); err != nil {
 			return err
 		}
 		result, err = t.Service.Replace(ctx, doc)
@@ -112,4 +130,31 @@ func (t *Transport) Invoke(ctx context.Context, operation string, input, output 
 	}
 	*out = result
 	return nil
+}
+
+func (t *Transport) checkNamespace(ctx context.Context, resource authz.Resource) error {
+	id, present := sdk.NamespaceSelectionFromContext(ctx)
+	if !present {
+		return nil
+	}
+	var source catalogStore
+	if t.Catalog != nil {
+		source = t.Catalog.Source
+	}
+	if source == nil {
+		source, _ = t.Service.Store.(catalogStore)
+	}
+	err := CheckNamespaceResource(ctx, &id, resource, source, t.canViewComponent)
+	if err != nil {
+		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Resource access is not permitted", Cause: err}
+	}
+	return nil
+}
+
+func (t *Transport) canViewComponent(ctx context.Context, id string) bool {
+	if t.Next == nil || id == "" {
+		return false
+	}
+	var component sdk.Component
+	return t.Next.Invoke(ctx, sdk.OperationComponentGet, map[string]any{"id": id}, &component) == nil && component.ID == id
 }
