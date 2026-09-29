@@ -20,6 +20,7 @@ import (
 	"github.com/viant/datly-studio/internal/readerinspection"
 	"github.com/viant/datly-studio/internal/reportcapability"
 	"github.com/viant/datly-studio/internal/versionidentity"
+	"github.com/viant/datly-studio/runtime/accesscontext"
 	studiors "github.com/viant/datly-studio/runtime/resources"
 	"github.com/viant/datly-studio/sdk"
 	publicationstore "github.com/viant/datly-studio/sdk/transport/sql/internal/publications"
@@ -1793,6 +1794,9 @@ func (t *Transport) runReaderBuilder(ctx context.Context, reportID string, versi
 	}
 	types, err := t.Predicates.RuntimeTypes()
 	if err != nil {
+		return nil, err
+	}
+	if err = accesscontext.RegisterTypes(types); err != nil {
 		return nil, err
 	}
 	resourceVersion := studiors.Version{ReportID: reportID, VersionNo: version.VersionNo}

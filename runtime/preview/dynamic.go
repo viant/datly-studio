@@ -380,6 +380,11 @@ func (d Dynamic) executeCube(ctx context.Context, reportID string, versionNo int
 	if err != nil {
 		return nil, err
 	}
+	// Preview owns a separately encoded wire result, even when invoked by a
+	// native SDK handler with its own active output frame. Isolate that frame
+	// before capturing the cube's selected output; do not publish it as the
+	// enclosing SDK component's projection.
+	ctx = dexec.CaptureChildOutputSelection(ctx)
 	ctx = dexec.CaptureOutputSelection(ctx)
 	started := time.Now()
 	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: dexec.ComponentTarget{

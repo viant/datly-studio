@@ -249,7 +249,7 @@ func outputFor(operation string) (any, bool) {
 		return new(sdk.Component), true
 	case sdk.OperationComponentList:
 		return new(sdk.ComponentPage), true
-	case sdk.OperationVersionCreate, sdk.OperationVersionGet:
+	case sdk.OperationVersionCreate, sdk.OperationVersionClone, sdk.OperationVersionGet:
 		return new(sdk.ReportVersion), true
 	case sdk.OperationVersionList:
 		return new(sdk.VersionPage), true

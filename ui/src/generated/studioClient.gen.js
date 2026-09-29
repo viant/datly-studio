@@ -1229,6 +1229,15 @@ var postV1StudioSdkVersionsBuilder = (options) => (options.client ?? client).pos
     ...options.headers
   }
 });
+var postV1StudioSdkVersionsClone = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/versions.clone",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var postV1StudioSdkVersionsCreate = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/v1/studio/sdk/versions.create",
@@ -1424,6 +1433,7 @@ export {
   postV1StudioSdkRuntimeStatus,
   postV1StudioSdkVersionsApply,
   postV1StudioSdkVersionsBuilder,
+  postV1StudioSdkVersionsClone,
   postV1StudioSdkVersionsCreate,
   postV1StudioSdkVersionsDescriptor,
   postV1StudioSdkVersionsDownload,

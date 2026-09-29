@@ -109,7 +109,11 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	if err != nil {
 		return err
 	}
-	engine := &sqltransport.Transport{DB: db, ComponentInvoker: invoker, ContractInspector: preview.Dynamic{StudioDB: db, ModulePath: "github.com/viant/datly-studio", Types: types}}
+	predicates, err := (host.Config{}).PredicateCatalog()
+	if err != nil {
+		return err
+	}
+	engine := &sqltransport.Transport{DB: db, ComponentInvoker: invoker, Predicates: predicates, ContractInspector: preview.Dynamic{StudioDB: db, ModulePath: "github.com/viant/datly-studio", Types: types}}
 	request := struct {
 		ReportID  string                   `json:"reportId"`
 		VersionNo int                      `json:"versionNo"`

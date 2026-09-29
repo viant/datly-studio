@@ -84,6 +84,7 @@ var linkedComponentHolders = []struct {
 	{"github.com/viant/datly-studio/studio/namespaces/writer", "NamespaceComponent"},
 	{"github.com/viant/datly-studio/studio/report_versions/reader", "VersionComponent"},
 	{"github.com/viant/datly-studio/studio/report_versions/create", "Component"},
+	{"github.com/viant/datly-studio/studio/report_versions/clone", "Component"},
 	{"github.com/viant/datly-studio/studio/report_versions/load_dql", "Component"},
 	{"github.com/viant/datly-studio/studio/report_versions/load_archive", "Component"},
 	{"github.com/viant/datly-studio/studio/report_versions/inspect", "Component"},
@@ -179,6 +180,7 @@ var linkedComponentHolders = []struct {
 	{"github.com/viant/datly-studio/studio/resource_policy/access", "GetComponent"},
 	{"github.com/viant/datly-studio/studio/resource_policy/access", "ContextComponent"},
 	{"github.com/viant/datly-studio/studio/resource_policy/access", "ReplaceComponent"},
+	{"github.com/viant/datly-studio/studio/resource_policy/catalog", "Component"},
 }
 
 func TestBlankImportsExposeLinkedComponents(t *testing.T) {

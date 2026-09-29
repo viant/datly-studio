@@ -114,15 +114,15 @@ describe('ReaderResourcesDialog',()=>{
     const snapshot = { version: { versionNo: 4, sourceRevision: 7 }, files: [], folders: [], skills: [] };
     const api = {
       getResources: vi.fn().mockResolvedValue(snapshot),
-      getVersion: vi.fn().mockResolvedValue({ authoringMode: 'dql', authoredDql: 'SELECT 1' }),
-      createVersion: vi.fn().mockResolvedValue({ versionNo: 8, sourceRevision: 1 }),
+      getVersion: vi.fn().mockResolvedValue({ sourceRevision: 7, authoringMode: 'dql', authoredDql: 'SELECT 1' }),
+      cloneVersion: vi.fn().mockResolvedValue({ versionNo: 8, sourceRevision: 1 }),
       listMCPTools: vi.fn().mockResolvedValue([]),
     };
     const onDraftCreated = vi.fn();
     render(<ReaderResourcesDialog isOpen api={api} report={{ id: 'vendor', ownerPackage: 'alice', title: 'Vendor' }} version={{ versionNo: 4, sourceRevision: 7, state: 'published' }} onClose={vi.fn()} onDraftCreated={onDraftCreated} />);
     await user.click(await screen.findByRole('button', { name: 'Create editable draft' }));
     await waitFor(() => expect(onDraftCreated).toHaveBeenCalledWith({ versionNo: 8, sourceRevision: 1 }));
-    expect(api.createVersion).toHaveBeenCalledWith('vendor', expect.objectContaining({ authoredDql: 'SELECT 1' }));
+    expect(api.cloneVersion).toHaveBeenCalledWith('vendor', 4, 7);
   });
 
   test('keeps a stale resource write unapplied and reloads the exact revision',async()=>{

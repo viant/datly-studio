@@ -51,6 +51,7 @@ import (
 	publicationmutate "github.com/viant/datly-studio/studio/report_publications/mutate"
 	versionapply "github.com/viant/datly-studio/studio/report_versions/apply"
 	versionbuilder "github.com/viant/datly-studio/studio/report_versions/builder"
+	versionclone "github.com/viant/datly-studio/studio/report_versions/clone"
 	versioncreate "github.com/viant/datly-studio/studio/report_versions/create"
 	versiondescriptor "github.com/viant/datly-studio/studio/report_versions/descriptor"
 	versiondownload "github.com/viant/datly-studio/studio/report_versions/download"
@@ -453,6 +454,14 @@ func run(ctx context.Context, output string) error {
 	if err != nil {
 		return err
 	}
+	versionCloneHandler, err := (versionclone.Component{}).DatlyHandler("NewClone")()
+	if err != nil {
+		return err
+	}
+	versionClone, err := compile(reflect.TypeFor[versionclone.Component](), reflect.TypeFor[versionclone.Input](), reflect.TypeFor[versionclone.Output](), resources, types, codec, versionCloneHandler)
+	if err != nil {
+		return err
+	}
 	versionCreate, err := compile(reflect.TypeFor[versioncreate.Component](), reflect.TypeFor[versioncreate.Input](),
 		reflect.TypeFor[versioncreate.Output](), resources, types, codec, versionCreateHandler)
 	if err != nil {
@@ -688,7 +697,7 @@ func run(ctx context.Context, output string) error {
 	}
 	document, err := (openapi.Generator{}).Generate(ctx, openapi.Request{
 		Info:       openapi3.Info{Title: "Datly Studio SDK", Version: "1.0.0"},
-		Components: []*registry.RegisteredComponent{auth, accessList, accessGet, accessContext, accessReplace, aclList, aclDelete, aclUpsert, predicateTypes, predicateGet, predicateCreate, predicateUpdate, predicateDelete, predicateList, connectorList, connectorOne, connectorCreate, connectorSchemas, connectorTables, connectorTable, connectorTest, connectorTestSQL, previewExecution, connectorActivate, connectorDelete, connectorDisable, connectorUpdate, namespaceList, namespaceOne, namespaceCreate, namespaceDelete, namespaceUpdate, reportList, reportOne, reportCreate, reportUpdate, publicationOne, publicationHistory, publicationPublish, publicationRollback, publicationUnpublish, versionOne, versionCreate, versionLoad, versionArchive, versionInspect, versionApply, versionBuilder, versionValidate, versionTestView, versionTestRelation, versionTestCompose, versionWarmup, versionPage, versionExport, versionDescriptor, versionDownload, resourceSnapshot, resourceUpsertFile, resourceDeleteFile, resourceUpsertFolder, resourceDeleteFolder, resourceUpsertSkill, resourceDeleteSkill, warmupOne, warmupPage, runtimeStatus},
+		Components: []*registry.RegisteredComponent{auth, accessList, accessGet, accessContext, accessReplace, aclList, aclDelete, aclUpsert, predicateTypes, predicateGet, predicateCreate, predicateUpdate, predicateDelete, predicateList, connectorList, connectorOne, connectorCreate, connectorSchemas, connectorTables, connectorTable, connectorTest, connectorTestSQL, previewExecution, connectorActivate, connectorDelete, connectorDisable, connectorUpdate, namespaceList, namespaceOne, namespaceCreate, namespaceDelete, namespaceUpdate, reportList, reportOne, reportCreate, reportUpdate, publicationOne, publicationHistory, publicationPublish, publicationRollback, publicationUnpublish, versionOne, versionCreate, versionClone, versionLoad, versionArchive, versionInspect, versionApply, versionBuilder, versionValidate, versionTestView, versionTestRelation, versionTestCompose, versionWarmup, versionPage, versionExport, versionDescriptor, versionDownload, resourceSnapshot, resourceUpsertFile, resourceDeleteFile, resourceUpsertFolder, resourceDeleteFolder, resourceUpsertSkill, resourceDeleteSkill, warmupOne, warmupPage, runtimeStatus},
 		Routes: []spec.RouteRef{
 			{Method: "POST", Path: "/v1/studio/sdk/access.list"},
 			{Method: "POST", Path: "/v1/studio/sdk/access.context"},
@@ -733,6 +742,7 @@ func run(ctx context.Context, output string) error {
 			{Method: "POST", Path: "/v1/studio/sdk/runtime.status"},
 			{Method: "POST", Path: "/v1/studio/sdk/versions.get"},
 			{Method: "POST", Path: "/v1/studio/sdk/versions.create"},
+			{Method: "POST", Path: "/v1/studio/sdk/versions.clone"},
 			{Method: "POST", Path: "/v1/studio/sdk/versions.load_dql"},
 			{Method: "POST", Path: "/v1/studio/sdk/versions.load_archive"},
 			{Method: "POST", Path: "/v1/studio/sdk/versions.inspect"},

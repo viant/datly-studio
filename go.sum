@@ -1108,6 +1108,8 @@ github.com/viant/datly v1.0.1-0.20260928172836-5aad1bdd5494 h1:tK2yFyoY5Du3miRJU
 github.com/viant/datly v1.0.1-0.20260928172836-5aad1bdd5494/go.mod h1:2s4puWlk09Dd4Q4HECANnRlTFYq7Ohl0mmjc9QdX3bk=
 github.com/viant/datly v1.1.1-0.20260929091529-5741883aeb90 h1:SKpItZtK078tubsiuFKGW7yLDxtoJW5LvKLZj0wYL7Y=
 github.com/viant/datly v1.1.1-0.20260929091529-5741883aeb90/go.mod h1:dF9ENXS41L3mMOa++V+PZHYPF2UA7a7OMWN7coW8xCs=
+github.com/viant/datly v1.1.1-0.20260929105934-6980bd976bc7 h1:7+u1l0yiy7OHFNW1+HwEzT/1+gzq++0WjnRreJNmRa8=
+github.com/viant/datly v1.1.1-0.20260929105934-6980bd976bc7/go.mod h1:dF9ENXS41L3mMOa++V+PZHYPF2UA7a7OMWN7coW8xCs=
 github.com/viant/gmetric v0.3.2 h1:zTdW9QrPk2P0i/do9fokxtHesFQCvYqIc5Yktzmyxtg=
 github.com/viant/gmetric v0.3.2/go.mod h1:3WGxSMCL+owUb0HewYXMLxkoen8e8MlX1Vd2C6tJ5qw=
 github.com/viant/godiff v0.4.3-0.20260914060527-9f2005ca82e8 h1:PCgpoW8IwGsYDs805dCXp25vLTWkakpfvIYll0Twir4=

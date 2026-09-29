@@ -130,9 +130,7 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
         setVersion(next.version); setInspection(next);
       }
     } catch (cause) {
-      setError(cause.partialDraftVersionNo
-        ? `Draft v${cause.partialDraftVersionNo} was created, but copying its resources failed: ${cause.message}`
-        : cause.message);
+      setError(cause.message);
     } finally { setCloningDraft(false); }
   };
   const applyCommand = async (operation) => {

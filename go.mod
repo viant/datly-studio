@@ -12,7 +12,7 @@ require (
 	github.com/oapi-codegen/runtime v1.7.0
 	github.com/viant/bigquery v0.5.4-0.20260927120042-a47888f8d2cc
 	github.com/viant/bindly v0.2.1-0.20260915164201-7cf35da5bd9a
-	github.com/viant/datly v1.1.1-0.20260929091529-5741883aeb90
+	github.com/viant/datly v1.1.1-0.20260929105934-6980bd976bc7
 	github.com/viant/jsonrpc v0.25.0
 	github.com/viant/mcp v0.24.0
 	github.com/viant/mcp-protocol v0.19.0

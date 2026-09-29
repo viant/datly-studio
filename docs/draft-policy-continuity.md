@@ -1,10 +1,10 @@
-# Draft policy continuity: identified gap
+# Draft policy continuity
 
-Creating an editable draft currently copies DQL, column metadata, files, folders
-and skill roots. It does not preserve the source version's explicit access
-policies. A protected published component can therefore produce a valid draft
-that its authorized author cannot preview. Exact-version enforcement correctly
-denies the new version; relaxing it would erase protection.
+The native `versions.clone` operation copies DQL, column metadata, files, folders,
+skill roots and explicit source-version access policies in one managed transaction.
+The previous browser-side clone omitted policies, producing a valid draft that
+its authorized author could not preview. Exact-version enforcement correctly
+denied that draft.
 
 The signed local forecasting acceptance establishes this gap. The component
 run-access reader returns one matching row. The same verified role, feature and
@@ -12,7 +12,7 @@ publisher facts authorize bounded execution of published v11 and deny draft v12.
 The catalog has a v11 policy head and no v12 head. This is separate from the still
 unresolved real Viant publisher-grant source.
 
-## Required implementation
+## Implementation
 
 An explicit server-owned draft clone should preserve source-version policies as
 immutable initial policies for the new version. The client selects only the
@@ -34,8 +34,8 @@ shared transaction across the Studio/authz connector aliases before relying on
 it. Datly now supports explicit `AliasOf: studio`, giving both names one handle
 and transaction identity. Its nested-write regression flushes version, policy
 head and history markers and verifies a later parent failure rolls all three
-back. Studio's native configuration uses this alias. The existing browser-side
-multi-operation clone still does not establish atomicity for the real clone.
+back. Studio's native configuration uses this alias. Both browser entry points
+now invoke the single native clone operation.
 
 ## Acceptance
 
@@ -48,5 +48,30 @@ multi-operation clone still does not establish atomicity for the real clone.
 - UI cloning communicates policy continuity and partial/error outcomes clearly;
   GPT-6 Sol reviews the actual successful preview flow.
 
-This implementation remains outstanding. It is not replaced by test-only policy
-provisioning or by treating an absent target policy as public.
+Native integration tests exercise HTTP, MCP and in-process SDK cloning, revision
+conflicts, namespace denial, bounded role/feature/entity policy evaluation, corrupt
+source heads and injected policy-writer rollback after resource writes. A signed
+synthetic UI identity cloned published forecasting v11 into v13 with the policy
+preserved and validated revision 9.
+
+Full-flow UX approval remains a separate acceptance gate. Revision 9 exposed a
+reader contract issue: selected cube fields were
+rejected because source field projection was disabled. Component settings now
+offer an explicit field-selection toggle; unrelated saves retain the authored
+permission, and the UI states that enabling it also affects the source reader.
+This does not change authentication or entity predicates. Synthetic UI revision
+10 validated and executed the selected cube. A second issue affected native SDK
+preview: an enclosing handler's output frame prevented the preview from publishing
+its own selection. The SQLite regression reproduces the extra unselected fields;
+isolating the separately encoded child frame fixes it and the live UI now shows
+only selected scalar columns.
+
+The repeated-country issue came from cube derivation attaching a composite
+country/region dictionary whenever either dimension was selected. That forced the
+other join key into SQL projection and grouping. Datly commit `6980bd97` includes
+a dictionary only when all its key dimensions are selected, preserving source
+predicates and single-key lookup behavior. Studio pins its published module
+version. The report, SQL and SQL-builder suites pass; a signed synthetic execution
+returns three distinct countries and total avails 133943, matching an independent
+query against the fabricated viant-e2e fixture for publisher 127 on 2026-09-27.
+Real Viant publisher-grant integration remains unverified.

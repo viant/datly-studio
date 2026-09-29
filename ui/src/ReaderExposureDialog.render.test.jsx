@@ -14,6 +14,19 @@ const structure = {
 };
 
 describe('ReaderExposureDialog', () => {
+  test('keeps denied projection until the author explicitly enables it', async () => {
+    const user = userEvent.setup();
+    const onApply = vi.fn().mockResolvedValue({});
+    const scoped = { ...structure, component: { ...structure.component, settings: { report: { enabled: true } }, rootView: { name: 'reader', namespace: 'vendor', selector: { allowFields: false } } }, functions: [{ name: 'selector_fields', args: ['vendor', 'false'], occurrence: 0 }] };
+    const api = { listConnectors: vi.fn().mockResolvedValue({items:[{name:'main',driver:'sqlite'}]}), getComponent: vi.fn().mockResolvedValue({id:'vendor',title:'Vendor Catalog',description:''}) };
+    render(<ReaderExposureDialog isOpen api={api} structure={scoped} report={{id:'vendor',title:'Vendor Catalog',defaultConnectorName:'main',ownerPackage:'alice'}} onClose={vi.fn()} onApply={onApply}/>);
+    expect(screen.getByRole('checkbox',{name:'Allow field selection'}).checked).toBe(false);
+    expect(screen.getByText(/This also permits field selection on the source reader/)).toBeTruthy();
+    await user.click(screen.getByRole('checkbox',{name:'Allow field selection'}));
+    await user.click(screen.getByRole('button',{name:'Save component'}));
+    expect(onApply.mock.calls[0][0].operations.at(-1)).toEqual({type:'updateFunction',function:{name:'selector_fields',args:['vendor','true'],occurrence:0,expectedArgs:['vendor','false']}});
+  });
+
   test('persists cube, composition, and MCP controls in one atomic operation', async () => {
     const user = userEvent.setup();
     const onApply = vi.fn().mockResolvedValue({});

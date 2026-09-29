@@ -141,9 +141,9 @@ describe('ReaderBuilder graph-first authoring', () => {
     const api = {
       listVersions: vi.fn().mockResolvedValue({ items: [inspection.version] }),
       inspectVersion: vi.fn().mockResolvedValue(inspection),
-      getVersion: vi.fn().mockResolvedValue({ authoringMode: 'dql', authoredDql: 'SELECT 1' }),
+      getVersion: vi.fn().mockResolvedValue({ sourceRevision: 7, authoringMode: 'dql', authoredDql: 'SELECT 1' }),
       getResources: vi.fn().mockResolvedValue({ files: [], folders: [], skills: [] }),
-      createVersion: vi.fn().mockResolvedValue({ versionNo: 8, sourceRevision: 1 }),
+      cloneVersion: vi.fn().mockResolvedValue({ versionNo: 8, sourceRevision: 1 }),
     };
     const onReportUpdated = vi.fn();
     render(<ReaderBuilder api={api} report={{ id: 'vendor', title: 'Vendor Catalog', namespace: 'general', defaultConnectorName: 'main' }} onReportUpdated={onReportUpdated} onBack={vi.fn()} />);

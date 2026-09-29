@@ -1,6 +1,8 @@
 package dependencylink
 
 import (
+	_ "github.com/viant/authz/datly/policy/reader"
+	_ "github.com/viant/authz/datly/policy/writer"
 	_ "github.com/viant/datly-studio/internal/bffauth"
 	_ "github.com/viant/datly-studio/runtime/accesscontext"
 	_ "github.com/viant/datly-studio/studio/auth/reader"
@@ -111,6 +113,7 @@ import (
 	_ "github.com/viant/datly-studio/studio/report_skill_roots/writer"
 	_ "github.com/viant/datly-studio/studio/report_versions/apply"
 	_ "github.com/viant/datly-studio/studio/report_versions/builder"
+	_ "github.com/viant/datly-studio/studio/report_versions/clone"
 	_ "github.com/viant/datly-studio/studio/report_versions/create"
 	_ "github.com/viant/datly-studio/studio/report_versions/descriptor"
 	_ "github.com/viant/datly-studio/studio/report_versions/download"
@@ -167,8 +170,6 @@ import (
 	_ "github.com/viant/datly-studio/studio/resource_namespaces/store_usage"
 	_ "github.com/viant/datly-studio/studio/resource_policy/access"
 	_ "github.com/viant/datly-studio/studio/resource_policy/catalog"
-	_ "github.com/viant/authz/datly/policy/reader"
-	_ "github.com/viant/authz/datly/policy/writer"
 	_ "github.com/viant/datly-studio/studio/resources/get"
 	_ "github.com/viant/datly-studio/studio/resources/mutate"
 	_ "github.com/viant/datly-studio/studio/runtime/status"

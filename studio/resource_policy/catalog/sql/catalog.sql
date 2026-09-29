@@ -15,7 +15,7 @@ SELECT h.resource_kind AS kind,h.resource_id AS id,
        COALESCE(c.id,sc.id,'') AS component_id,COALESCE(c.namespace_id,sc.namespace_id,'') AS namespace_id,TRUE AS has_policy,
        r.policies_json AS policy_json,'' AS source_dql
 FROM resource_policy_heads h
-JOIN resource_policy_revisions r ON r.tenant_id=h.tenant_id AND r.resource_kind=h.resource_kind
+LEFT JOIN resource_policy_revisions r ON r.tenant_id=h.tenant_id AND r.resource_kind=h.resource_kind
  AND r.resource_id=h.resource_id AND r.resource_version=h.resource_version AND r.revision=h.revision
 LEFT JOIN components c ON h.resource_kind='component' AND c.id=h.resource_id
 LEFT JOIN report_skill_roots s ON h.resource_kind='skill' AND s.skill_id=h.resource_id AND CAST(s.version_no AS CHAR)=h.resource_version

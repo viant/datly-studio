@@ -651,6 +651,33 @@ export type OutputD558223F5D3D6Bca0E300C59F8E624Af838223Bc61F0Cb8C88F09C757834Dd
     updatedAt: string;
 };
 
+export type OutputD6Ae8Cf116E1Bb372C284270E8317Deb57Df8687Ba83D5701493Ce02Cfb50799 = {
+    authoredDql?: string;
+    authoredSql?: string;
+    authoringMode: string;
+    compileDiagnostics?: unknown;
+    compileStatus: string;
+    compilerVersion: string;
+    componentDescriptor?: unknown;
+    componentSpec?: unknown;
+    createdAt: string;
+    createdBy: string;
+    datlyVersion: string;
+    dqlExportLimits?: unknown;
+    generatedDql?: string;
+    notes?: string;
+    publishedAt?: string | null;
+    reportId: string;
+    resourceManifest?: unknown;
+    sourceRevision: number;
+    specFormatVersion: string;
+    specHash: string;
+    state: string;
+    typeManifest?: unknown;
+    validatedAt?: string | null;
+    versionNo: number;
+};
+
 export type OutputDb16D19662078B5E2Bf34Bb56Caf4E031Ec60811B8Ff0833D9304Fe74Bb3Deb7 = {
     hasMore: boolean;
     items: Array<OutputC59B784Ae161Ba492D1C2D5Bf87D71026270B421Ba502Aedbc820D473Bed79Ac> | null;
@@ -3168,6 +3195,29 @@ export type PostV1StudioSdkVersionsBuilderResponses = {
 };
 
 export type PostV1StudioSdkVersionsBuilderResponse = PostV1StudioSdkVersionsBuilderResponses[keyof PostV1StudioSdkVersionsBuilderResponses];
+
+export type PostV1StudioSdkVersionsCloneData = {
+    body: {
+        expectedSourceRevision: number;
+        reportId: string;
+        versionNo: number;
+    };
+    headers: {
+        'X-Studio-Namespace': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/versions.clone';
+};
+
+export type PostV1StudioSdkVersionsCloneResponses = {
+    /**
+     * Success response
+     */
+    200: OutputD6Ae8Cf116E1Bb372C284270E8317Deb57Df8687Ba83D5701493Ce02Cfb50799;
+};
+
+export type PostV1StudioSdkVersionsCloneResponse = PostV1StudioSdkVersionsCloneResponses[keyof PostV1StudioSdkVersionsCloneResponses];
 
 export type PostV1StudioSdkVersionsCreateData = {
     body: {

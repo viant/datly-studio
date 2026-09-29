@@ -40,7 +40,7 @@ export function exposureSetting({ enabled, name, description, descriptionPath })
   return { name: 'mcp', args };
 }
 
-export function componentSettingsOperation({ connector, cubeEnabled, cubeMCP = true, composeEnabled, composeMCP, maxCubes, maxLimit, timeoutMs, exposure }) {
+export function componentSettingsOperation({ connector, cubeEnabled, cubeMCP = true, composeEnabled, composeMCP, maxCubes, maxLimit, timeoutMs, exposure, projectionChange }) {
   const cubeArgs = cubeMCP ? [] : ["''", "''", "''", "''", "''", "''", "''", 'false'];
   const cube = { type: 'setSetting', setting: cubeEnabled ? { name: 'cube', args: cubeArgs } : { name: 'cube', remove: true } };
   const composition = {
@@ -52,7 +52,21 @@ export function componentSettingsOperation({ connector, cubeEnabled, cubeMCP = t
   const operations = [{ type: 'setSetting', setting: { name: 'connector', args: [quoteDQL(connector)] } }, ...(cubeEnabled ? [cube, composition] : [composition, cube])];
   operations.push({ type: 'setSetting', setting: exposureSetting(exposure) });
   operations.push({ type: 'setSetting', setting: exposure?.enabled && exposure?.mcpOnly ? { name: 'mcpOnly', args: ['true'] } : { name: 'mcpOnly', remove: true } });
+  if (projectionChange) operations.push(projectionChange);
   return { type: 'batch', operations };
+}
+
+export function projectionOperation(structure, enabled) {
+  const view = structure?.component?.rootView;
+  const identity = view?.namespace || view?.name;
+  if (!identity) throw new Error('The component needs a compiled root view to change field selection.');
+  const matching = (structure.functions ?? []).filter((item) => item.name.toLowerCase() === 'selector_fields' && String(item.args?.[0] ?? '').replace(/^['"]|['"]$/g, '') === identity);
+  if (matching.length > 1) throw new Error('Multiple field selection rules exist for this view. Resolve them in DQL before changing this setting.');
+  const existing = matching[0];
+  return { type: existing ? 'updateFunction' : 'addFunction', function: {
+    name: 'selector_fields', args: [identity, String(Boolean(enabled))],
+    ...(existing ? { occurrence: existing.occurrence, expectedArgs: existing.args } : {}),
+  } };
 }
 
 export function validateExposure({ enabled, name, description, descriptionPath, route, ownerPackage }) {

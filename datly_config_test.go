@@ -35,7 +35,7 @@ func TestResourcePolicyStoreIsLinkedOnlyForNativeAccess(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := map[string]bool{"reader": false, "writer": false, "access": false}
+	want := map[string]bool{"reader": false, "writer": false, "access": false, "catalog": false}
 	for _, pkg := range loaded.GoBootstrap.Packages {
 		prefix := "github.com/viant/datly-studio/studio/resource_policy/"
 		if strings.HasPrefix(pkg, "github.com/viant/authz/datly/policy/") {

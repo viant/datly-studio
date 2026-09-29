@@ -1,8 +1,8 @@
 # Native Datly SDK endpoints
 
-Status: all 65 public SDK operations have generated native Datly HTTP/MCP
-routes as of 2026-09-26. The script
-`node scripts/check-native-sdk-coverage.mjs` measures OpenAPI paths (65/65);
+Status: all 67 public SDK operations have generated native Datly HTTP/MCP
+routes as of 2026-09-29. The script
+`node scripts/check-native-sdk-coverage.mjs` measures OpenAPI paths (67/67);
 `TestSelectedStudioStaticComponentsBootstrapTogether` boots the configured
 host and checks one selected native route and one live MCP tool per path,
 with no duplicate or undeclared `studio.sdk.*` tools.
@@ -34,6 +34,12 @@ custom-handler component is for genuine workflows or policy orchestration
 (publication, validation, staged transactions, etc.); it may invoke internal
 transcribed components. The internal `store_*` components are not public
 HTTP/MCP tools.
+
+`versions.clone` is a native workflow component that invokes the existing
+version/resource writers and reused authz policy components in one managed
+transaction. HTTP, MCP and the in-process SDK use the same operation. It binds
+the caller's namespace and verified identity, checks the source revision, copies
+explicit policies server-side and rolls back all writes if any stage fails.
 
 ## Migration history and remaining deployment gaps
 

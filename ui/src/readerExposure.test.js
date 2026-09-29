@@ -6,10 +6,20 @@ import {
   componentSettingsOperation,
   derivedExposureState,
   exposureSetting,
+  projectionOperation,
   suggestExposureName,
   toolExposure,
   validateExposure,
 } from './readerExposure.js';
+
+test('field selection creates or updates only the exact root rule', () => {
+  const source = { component: { rootView: { namespace: 'rows' } }, functions: [{ name: 'selector_fields', args: ['child', 'false'], occurrence: 0 }] };
+  assert.deepEqual(projectionOperation(source, true), {type:'addFunction',function:{name:'selector_fields',args:['rows','true']}});
+  source.functions.push({name:'selector_fields',args:['rows','false'],occurrence:1});
+  assert.deepEqual(projectionOperation(source, true), {type:'updateFunction',function:{name:'selector_fields',args:['rows','true'],occurrence:1,expectedArgs:['rows','false']}});
+  source.functions.push({name:'selector_fields',args:['rows','true'],occurrence:2});
+  assert.throws(()=>projectionOperation(source,false), /Multiple field selection rules/);
+});
 
 const structure = {
   component: {

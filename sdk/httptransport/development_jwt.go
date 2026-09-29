@@ -4,6 +4,8 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"errors"
 	"strings"
 	"time"
@@ -19,6 +21,18 @@ type DevelopmentJWT struct {
 	key      *rsa.PrivateKey
 	issuer   string
 	audience string
+}
+
+// PublicKeyPEM configures a local native SDK host with this gateway's verifier.
+func (p *DevelopmentJWT) PublicKeyPEM() ([]byte, error) {
+	if p == nil || p.key == nil {
+		return nil, errors.New("development signing key is unavailable")
+	}
+	data, err := x509.MarshalPKIXPublicKey(&p.key.PublicKey)
+	if err != nil {
+		return nil, err
+	}
+	return pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: data}), nil
 }
 
 func NewDevelopmentJWT(issuer, audience string) (*DevelopmentJWT, error) {

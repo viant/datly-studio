@@ -2174,6 +2174,92 @@
           "updatedAt"
         ]
       },
+      "Output_d6ae8cf116e1bb372c284270e8317deb57df8687ba83d5701493ce02cfb50799": {
+        "type": "object",
+        "properties": {
+          "authoredDql": {
+            "type": "string"
+          },
+          "authoredSql": {
+            "type": "string"
+          },
+          "authoringMode": {
+            "type": "string"
+          },
+          "compileDiagnostics": {},
+          "compileStatus": {
+            "type": "string"
+          },
+          "compilerVersion": {
+            "type": "string"
+          },
+          "componentDescriptor": {},
+          "componentSpec": {},
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "datlyVersion": {
+            "type": "string"
+          },
+          "dqlExportLimits": {},
+          "generatedDql": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "reportId": {
+            "type": "string"
+          },
+          "resourceManifest": {},
+          "sourceRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "specFormatVersion": {
+            "type": "string"
+          },
+          "specHash": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "typeManifest": {},
+          "validatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "versionNo": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "reportId",
+          "versionNo",
+          "state",
+          "authoringMode",
+          "specFormatVersion",
+          "specHash",
+          "compileStatus",
+          "datlyVersion",
+          "compilerVersion",
+          "sourceRevision",
+          "createdBy",
+          "createdAt"
+        ]
+      },
       "Output_db16d19662078b5e2bf34bb56caf4e031ec60811b8ff0833d9304fe74bb3deb7": {
         "type": "object",
         "properties": {
@@ -10350,6 +10436,66 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Wire_73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/versions.clone": {
+      "post": {
+        "operationId": "POST:/v1/studio/sdk/versions.clone",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedSourceRevision": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "reportId": {
+                    "type": "string"
+                  },
+                  "versionNo": {
+                    "type": "integer",
+                    "format": "int64"
+                  }
+                },
+                "required": [
+                  "reportId",
+                  "versionNo",
+                  "expectedSourceRevision"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Output_d6ae8cf116e1bb372c284270e8317deb57df8687ba83d5701493ce02cfb50799"
                 }
               }
             }

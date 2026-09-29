@@ -63,8 +63,17 @@ func (f *JWTFixture) PublicKeyPEM(t testing.TB) []byte {
 
 // BearerWithClaims signs caller-specified fixture claims.
 func (f *JWTFixture) BearerWithClaims(t testing.TB, claims jwtv5.MapClaims) string {
+	return f.BearerWithClaimsAndKeyID(t, claims, "")
+}
+
+// BearerWithClaimsAndKeyID supports native certificate/JWKS verification tests.
+func (f *JWTFixture) BearerWithClaimsAndKeyID(t testing.TB, claims jwtv5.MapClaims, keyID string) string {
 	t.Helper()
-	encoded, err := jwtv5.NewWithClaims(jwtv5.SigningMethodRS256, claims).SignedString(f.private)
+	token := jwtv5.NewWithClaims(jwtv5.SigningMethodRS256, claims)
+	if keyID != "" {
+		token.Header["kid"] = keyID
+	}
+	encoded, err := token.SignedString(f.private)
 	if err != nil {
 		t.Fatal(err)
 	}

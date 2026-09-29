@@ -52,9 +52,7 @@ export function ReaderResourcesDialog({ isOpen, mode = 'all', initialAction = ''
       const draft = await cloneReaderDraft(api, report.id, version.versionNo);
       onDraftCreated?.(draft);
     } catch (cause) {
-      setError(cause.partialDraftVersionNo
-        ? `Draft v${cause.partialDraftVersionNo} was created, but copying its resources failed: ${cause.message}`
-        : cause.message);
+      setError(cause.message);
     } finally { setCloning(false); }
   };
   const useFolderForNewSkillFile = (current, parent) => parent && !current.resourceId && current.resourcePath === 'guide/SKILL.md'
@@ -207,7 +205,7 @@ export function ReaderResourcesDialog({ isOpen, mode = 'all', initialAction = ''
     <DialogBody className="studio-connector-dialog-body">
       <div className="studio-validation-revision"><span>Revision {revision ?? '—'}</span><Tag minimal>{mode==='resources'?`${files.length} source files`:`${files.length} files · ${folders.length} folders · ${skills.length} skills`}</Tag></div>
       {error && <Callout intent="danger" role="alert">{error}</Callout>}
-      {!editable && <Callout intent="primary">Published v{version.versionNo} is read-only. <Button small intent="primary" icon="duplicate" loading={cloning} onClick={createDraft}>Create editable draft</Button></Callout>}
+      {!editable && <Callout intent="primary">Published v{version.versionNo} is read-only. The draft preserves resources and access rules. <Button small intent="primary" icon="duplicate" loading={cloning} onClick={createDraft}>Create editable draft</Button></Callout>}
       {partialFailure && <Callout intent="warning" title="Skill change partly saved" role="alert">{partialFailure}<Button small minimal intent="warning" icon="refresh" onClick={()=>requestTransition(load)}>Reload resources</Button></Callout>}
       {conflict&&<Callout intent="warning" title="Resources changed elsewhere" role="alert">No resource change was applied. Reload the exact version before reviewing and retrying your edit.<Button small minimal intent="warning" icon="refresh" onClick={()=>requestTransition(load)}>Reload resources</Button></Callout>}
       {loading && <div className="studio-muted">Loading versioned resources…</div>}

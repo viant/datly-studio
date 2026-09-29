@@ -807,6 +807,34 @@ type OutputD558223f5d3d6bca0e300c59f8e624af838223bc61f0cb8c88f09c757834ddaa stru
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
+// OutputD6ae8cf116e1bb372c284270e8317deb57df8687ba83d5701493ce02cfb50799 defines model for Output_d6ae8cf116e1bb372c284270e8317deb57df8687ba83d5701493ce02cfb50799.
+type OutputD6ae8cf116e1bb372c284270e8317deb57df8687ba83d5701493ce02cfb50799 struct {
+	AuthoredDql         *string     `json:"authoredDql,omitempty"`
+	AuthoredSql         *string     `json:"authoredSql,omitempty"`
+	AuthoringMode       string      `json:"authoringMode"`
+	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus       string      `json:"compileStatus"`
+	CompilerVersion     string      `json:"compilerVersion"`
+	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
+	CreatedAt           time.Time   `json:"createdAt"`
+	CreatedBy           string      `json:"createdBy"`
+	DatlyVersion        string      `json:"datlyVersion"`
+	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql        *string     `json:"generatedDql,omitempty"`
+	Notes               *string     `json:"notes,omitempty"`
+	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
+	ReportId            string      `json:"reportId"`
+	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision      int64       `json:"sourceRevision"`
+	SpecFormatVersion   string      `json:"specFormatVersion"`
+	SpecHash            string      `json:"specHash"`
+	State               string      `json:"state"`
+	TypeManifest        interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo           int64       `json:"versionNo"`
+}
+
 // OutputDb16d19662078b5e2bf34bb56caf4e031ec60811b8ff0833d9304fe74bb3deb7 defines model for Output_db16d19662078b5e2bf34bb56caf4e031ec60811b8ff0833d9304fe74bb3deb7.
 type OutputDb16d19662078b5e2bf34bb56caf4e031ec60811b8ff0833d9304fe74bb3deb7 struct {
 	HasMore bool                                                                      `json:"hasMore"`
@@ -3157,6 +3185,18 @@ type POSTv1studiosdkversionsBuilderParams struct {
 	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
+// POSTv1studiosdkversionsCloneJSONBody defines parameters for POSTv1studiosdkversionsClone.
+type POSTv1studiosdkversionsCloneJSONBody struct {
+	ExpectedSourceRevision int64  `json:"expectedSourceRevision"`
+	ReportId               string `json:"reportId"`
+	VersionNo              int64  `json:"versionNo"`
+}
+
+// POSTv1studiosdkversionsCloneParams defines parameters for POSTv1studiosdkversionsClone.
+type POSTv1studiosdkversionsCloneParams struct {
+	XStudioNamespace string `json:"X-Studio-Namespace"`
+}
+
 // POSTv1studiosdkversionsCreateJSONBody defines parameters for POSTv1studiosdkversionsCreate.
 type POSTv1studiosdkversionsCreateJSONBody struct {
 	Input    InputA0d3076a206576e1fb379faacd83a9e5289796c14e710e1fe21529cfb0c35c21 `json:"input"`
@@ -3485,6 +3525,9 @@ type POSTv1studiosdkversionsApplyJSONRequestBody POSTv1studiosdkversionsApplyJSO
 
 // POSTv1studiosdkversionsBuilderJSONRequestBody defines body for POSTv1studiosdkversionsBuilder for application/json ContentType.
 type POSTv1studiosdkversionsBuilderJSONRequestBody POSTv1studiosdkversionsBuilderJSONBody
+
+// POSTv1studiosdkversionsCloneJSONRequestBody defines body for POSTv1studiosdkversionsClone for application/json ContentType.
+type POSTv1studiosdkversionsCloneJSONRequestBody POSTv1studiosdkversionsCloneJSONBody
 
 // POSTv1studiosdkversionsCreateJSONRequestBody defines body for POSTv1studiosdkversionsCreate for application/json ContentType.
 type POSTv1studiosdkversionsCreateJSONRequestBody POSTv1studiosdkversionsCreateJSONBody
@@ -7474,6 +7517,14 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	POSTv1studiosdkversionsBuilder(ctx context.Context, params *POSTv1studiosdkversionsBuilderParams, body POSTv1studiosdkversionsBuilderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// POSTv1studiosdkversionsCloneWithBody performs a POST /v1/studio/sdk/versions.clone (the `POSTv1studiosdkversionsClone` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkversionsCloneWithBody(ctx context.Context, params *POSTv1studiosdkversionsCloneParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsClone performs a POST /v1/studio/sdk/versions.clone (the `POSTv1studiosdkversionsClone` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkversionsClone(ctx context.Context, params *POSTv1studiosdkversionsCloneParams, body POSTv1studiosdkversionsCloneJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// POSTv1studiosdkversionsCreateWithBody performs a POST /v1/studio/sdk/versions.create (the `POSTv1studiosdkversionsCreate` operationId) request,
 	// with any type of body and a specified content type.
 	POSTv1studiosdkversionsCreateWithBody(ctx context.Context, params *POSTv1studiosdkversionsCreateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -9059,6 +9110,34 @@ func (c *Client) POSTv1studiosdkversionsBuilderWithBody(ctx context.Context, par
 // Takes a body of the `application/json` content type.
 func (c *Client) POSTv1studiosdkversionsBuilder(ctx context.Context, params *POSTv1studiosdkversionsBuilderParams, body POSTv1studiosdkversionsBuilderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPOSTv1studiosdkversionsBuilderRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsCloneWithBody performs a POST /v1/studio/sdk/versions.clone (the `POSTv1studiosdkversionsClone` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkversionsCloneWithBody(ctx context.Context, params *POSTv1studiosdkversionsCloneParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsCloneRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsClone performs a POST /v1/studio/sdk/versions.clone (the `POSTv1studiosdkversionsClone` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkversionsClone(ctx context.Context, params *POSTv1studiosdkversionsCloneParams, body POSTv1studiosdkversionsCloneJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsCloneRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -11965,6 +12044,59 @@ func NewPOSTv1studiosdkversionsBuilderRequestWithBody(server string, params *POS
 	return req, nil
 }
 
+// NewPOSTv1studiosdkversionsCloneRequest calls the generic POSTv1studiosdkversionsClone builder with application/json body
+func NewPOSTv1studiosdkversionsCloneRequest(server string, params *POSTv1studiosdkversionsCloneParams, body POSTv1studiosdkversionsCloneJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsCloneRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsCloneRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsClone method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsCloneRequestWithBody(server string, params *POSTv1studiosdkversionsCloneParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.clone")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Studio-Namespace", headerParam0)
+
+	}
+
+	return req, nil
+}
+
 // NewPOSTv1studiosdkversionsCreateRequest calls the generic POSTv1studiosdkversionsCreate builder with application/json body
 func NewPOSTv1studiosdkversionsCreateRequest(server string, params *POSTv1studiosdkversionsCreateParams, body POSTv1studiosdkversionsCreateJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -13422,6 +13554,16 @@ type ClientWithResponsesInterface interface {
 	// POSTv1studiosdkversionsBuilderWithResponse performs a POST /v1/studio/sdk/versions.builder (the `POSTv1studiosdkversionsBuilder` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	POSTv1studiosdkversionsBuilderWithResponse(ctx context.Context, params *POSTv1studiosdkversionsBuilderParams, body POSTv1studiosdkversionsBuilderJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsBuilderResponse, error)
+
+	// POSTv1studiosdkversionsCloneWithBodyWithResponse performs a POST /v1/studio/sdk/versions.clone (the `POSTv1studiosdkversionsClone` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsCloneWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsCloneParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsCloneResponse, error)
+
+	// POSTv1studiosdkversionsCloneWithResponse performs a POST /v1/studio/sdk/versions.clone (the `POSTv1studiosdkversionsClone` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsCloneWithResponse(ctx context.Context, params *POSTv1studiosdkversionsCloneParams, body POSTv1studiosdkversionsCloneJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsCloneResponse, error)
 
 	// POSTv1studiosdkversionsCreateWithBodyWithResponse performs a POST /v1/studio/sdk/versions.create (the `POSTv1studiosdkversionsCreate` operationId) request,
 	// with any type of body and a specified content type.
@@ -15626,6 +15768,47 @@ func (r POSTv1studiosdkversionsBuilderResponse) ContentType() string {
 	return ""
 }
 
+type POSTv1studiosdkversionsCloneResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *OutputD6ae8cf116e1bb372c284270e8317deb57df8687ba83d5701493ce02cfb50799
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsCloneResponse) GetJSON200() *OutputD6ae8cf116e1bb372c284270e8317deb57df8687ba83d5701493ce02cfb50799 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsCloneResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsCloneResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsCloneResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsCloneResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type POSTv1studiosdkversionsCreateResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -17404,6 +17587,28 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsBuilderWithResponse(ctx con
 	return ParsePOSTv1studiosdkversionsBuilderResponse(rsp)
 }
 
+// POSTv1studiosdkversionsCloneWithBodyWithResponse performs a POST /v1/studio/sdk/versions.clone (the `POSTv1studiosdkversionsClone` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsCloneWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsCloneParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsCloneResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsCloneWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsCloneResponse(rsp)
+}
+
+// POSTv1studiosdkversionsCloneWithResponse performs a POST /v1/studio/sdk/versions.clone (the `POSTv1studiosdkversionsClone` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsCloneWithResponse(ctx context.Context, params *POSTv1studiosdkversionsCloneParams, body POSTv1studiosdkversionsCloneJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsCloneResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsClone(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsCloneResponse(rsp)
+}
+
 // POSTv1studiosdkversionsCreateWithBodyWithResponse performs a POST /v1/studio/sdk/versions.create (the `POSTv1studiosdkversionsCreate` operationId) request,
 // with any type of body and a specified content type.
 //
@@ -19026,6 +19231,32 @@ func ParsePOSTv1studiosdkversionsBuilderResponse(rsp *http.Response) (*POSTv1stu
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsCloneResponse parses an HTTP response from a POSTv1studiosdkversionsCloneWithResponse call
+func ParsePOSTv1studiosdkversionsCloneResponse(rsp *http.Response) (*POSTv1studiosdkversionsCloneResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsCloneResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest OutputD6ae8cf116e1bb372c284270e8317deb57df8687ba83d5701493ce02cfb50799
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

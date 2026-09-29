@@ -76,6 +76,7 @@ GoBootstrap:
     - github.com/viant/datly-studio/studio/namespaces/writer
     - github.com/viant/datly-studio/studio/report_versions/reader
     - github.com/viant/datly-studio/studio/report_versions/create
+    - github.com/viant/datly-studio/studio/report_versions/clone
     - github.com/viant/datly-studio/studio/report_versions/load_dql
     - github.com/viant/datly-studio/studio/report_versions/load_archive
     - github.com/viant/datly-studio/studio/report_versions/inspect
@@ -165,3 +166,4 @@ GoBootstrap:
     - github.com/viant/authz/datly/policy/reader
     - github.com/viant/authz/datly/policy/writer
     - github.com/viant/datly-studio/studio/resource_policy/access
+    - github.com/viant/datly-studio/studio/resource_policy/catalog

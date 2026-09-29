@@ -42,6 +42,7 @@ import (
 	"github.com/viant/datly-studio/store/sql/migrate"
 	"github.com/viant/datly-studio/studio/authorization"
 	"github.com/viant/datly-studio/studio/host"
+	versionclone "github.com/viant/datly-studio/studio/report_versions/clone"
 	"github.com/viant/scy/auth/jwt/verifier"
 	_ "github.com/viant/sqlx/metadata/product/bigquery"
 	_ "github.com/viant/sqlx/metadata/product/mysql"
@@ -53,6 +54,7 @@ import (
 // nativeSDKPaths are exact BFF mounts for generated static Datly SDK routes.
 // Every other SDK operation remains on the generic SDK gateway.
 var nativeSDKPaths = []string{
+	"/v1/studio/sdk/versions.clone",
 	"/v1/studio/sdk/access.list",
 	"/v1/studio/sdk/access.context",
 	"/v1/studio/sdk/access.get",
@@ -309,6 +311,16 @@ func main() {
 			log.Fatal(jwtErr)
 		}
 		gatewayConfig.DevelopmentCredential = devJWT.Credential
+		publicKey, keyErr := devJWT.PublicKeyPEM()
+		if keyErr != nil {
+			log.Fatal(keyErr)
+		}
+		cloneHost, cloneErr := versionclone.NewLocalHost(lifecycleCtx, ".", *dsn, publicKey)
+		if cloneErr != nil {
+			log.Fatal(cloneErr)
+		}
+		defer cloneHost.Shutdown(context.Background())
+		sdkTransport = &versionclone.Transport{Next: sdkTransport, Invoker: cloneHost}
 		transport.SystemCredentialProvider = func(ctx context.Context) (sdk.VerifiedCredential, error) {
 			return devJWT.Credential(ctx, sdk.SystemPrincipal().Subject)
 		}

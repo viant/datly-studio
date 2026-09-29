@@ -12,11 +12,12 @@ import (
 	"testing"
 	"time"
 
+	access "github.com/viant/authz"
 	"github.com/viant/datly-studio/internal/connectorsecret"
 	"github.com/viant/datly-studio/runtime/accesscontext"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
-	access "github.com/viant/authz"
+	dexec "github.com/viant/datly/exec"
 	"github.com/viant/datly/spec"
 	"github.com/viant/datly/typecatalog"
 	_ "modernc.org/sqlite"
@@ -196,6 +197,19 @@ FROM (SELECT STATUS AS status, COUNT(*) AS product_count FROM PRODUCT GROUP BY S
 	} else {
 		if !strings.Contains(string(cube.Data), "ProductCount") || cube.Evidence.ReturnedRows != 1 || cube.Evidence.SourceRevision != 1 {
 			t.Fatalf("cube=%+v", cube)
+		}
+		// Native Studio SDK handlers already execute inside a transport output
+		// frame. The separately encoded preview must retain its own projection.
+		outer := dexec.CaptureOutputSelection(ctx)
+		nested, finish := dexec.ScopeOutputSelection(outer)
+		dexec.BeginOutputSelection(nested)
+		dimensionOnly, err := (Dynamic{StudioDB: studio, RootDir: root}).Execute(nested, "summary", 1, sdk.PreviewInput{Cube: true, Input: json.RawMessage(`{"dimensions":{"status":true},"measures":{"product_count":false},"filters":{}}`), Limit: 1})
+		finish(nil, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if strings.Contains(string(dimensionOnly.Data), "ProductCount") || !dimensionOnly.Evidence.Truncated {
+			t.Fatalf("truncated cube must preserve selected fields: %s evidence=%+v", dimensionOnly.Data, dimensionOnly.Evidence)
 		}
 		aggregate, err := (Dynamic{StudioDB: studio, RootDir: root}).Execute(ctx, "summary", 1, sdk.PreviewInput{Cube: true, Input: json.RawMessage(`{"dimensions":{"status":false},"measures":{"product_count":true},"filters":{}}`)})
 		if err != nil {

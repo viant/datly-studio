@@ -8,6 +8,7 @@ import (
 
 const (
 	OperationVersionCreate       = "versions.create"
+	OperationVersionClone        = "versions.clone"
 	OperationVersionGet          = "versions.get"
 	OperationVersionList         = "versions.list"
 	OperationVersionApply        = "versions.apply"
@@ -58,6 +59,11 @@ type CreateVersionInput struct {
 	Notes         string          `json:"notes,omitempty"`
 	CreatedBy     string          `json:"createdBy,omitempty"`
 	ComponentSpec json.RawMessage `json:"componentSpec,omitempty"`
+}
+
+type CloneVersionInput struct {
+	VersionNo              int   `json:"versionNo"`
+	ExpectedSourceRevision int64 `json:"expectedSourceRevision"`
 }
 type ListVersionsInput struct {
 	State         string   `json:"state,omitempty"`
@@ -234,6 +240,7 @@ type WarmupRunPage struct {
 }
 
 type VersionService interface {
+	Clone(context.Context, string, CloneVersionInput) (*ReportVersion, error)
 	Download(context.Context, string, int) (*ComponentDownload, error)
 	LoadDQL(context.Context, string, LoadDQLInput) (*DQLLoadResult, error)
 	LoadArchive(context.Context, string, LoadArchiveInput) (*DQLLoadResult, error)
@@ -252,6 +259,10 @@ type VersionService interface {
 	Warmup(context.Context, string, int) (*WarmupResult, error)
 	WarmupRun(context.Context, string, string) (*WarmupRun, error)
 	ListWarmupRuns(context.Context, string, int, ListWarmupRunsInput) (*WarmupRunPage, error)
+}
+
+func (c versionClient) Clone(ctx context.Context, id string, input CloneVersionInput) (*ReportVersion, error) {
+	return invoke[ReportVersion](ctx, c.transport, OperationVersionClone, map[string]any{"reportId": id, "versionNo": input.VersionNo, "expectedSourceRevision": input.ExpectedSourceRevision})
 }
 
 type versionClient struct{ transport Transport }
