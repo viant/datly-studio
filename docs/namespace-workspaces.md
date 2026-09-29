@@ -831,6 +831,8 @@ The host now supplies one runtime type catalog containing linked predicates and
 authorization dependency shapes. Native inspection, builder contract inspection,
 validation and the shared exact-version execution runner use it. The isolated
 authenticated UI resolves all 45 root forecasting fields and offers the three
-UI-authored measures. Its next execution attempt reaches a run-access denial;
-successful scoped UI execution remains unverified. This uses synthetic signed
+UI-authored measures. Its next execution attempt passes the component run guard
+but fails exact-version authorization because the draft clone lacks its source
+version's policy. See [draft policy continuity](draft-policy-continuity.md).
+Successful scoped UI execution remains unverified. This uses synthetic signed
 identity and a copied test catalog, not real Viant entity grants.

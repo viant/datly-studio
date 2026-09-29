@@ -16,7 +16,7 @@ func PublicError(err error, operation string) error {
 		case sdk.ErrorNotFound:
 			return publisherguard.PublicError(404, operation+" target was not found")
 		case sdk.ErrorForbidden:
-			return publisherguard.PublicError(403, "report run access is required")
+			return publisherguard.PublicError(403, operation+" is not permitted for this version")
 		case sdk.ErrorInvalidArgument:
 			return publisherguard.PublicError(400, operation+" input or reader contract is invalid")
 		case sdk.ErrorConflict:
