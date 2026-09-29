@@ -1,4 +1,4 @@
-SELECT w.run_id, w.report_id, w.version_no, w.source_revision, w.spec_hash,
+SELECT w.namespace_id, w.run_id, w.report_id, w.version_no, w.source_revision, w.spec_hash,
        w.plan_key, w.active_key, w.status, w.requested_by,
        w.cache_name, w.cache_provider, w.connector_name, w.index_column,
        w.planned_cases, w.completed_cases, w.max_cases, w.row_limit,

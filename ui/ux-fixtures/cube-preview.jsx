@@ -1,0 +1,11 @@
+import React from 'react';
+import {createRoot} from 'react-dom/client';
+import '@blueprintjs/core/lib/css/blueprint.css';
+import '../src/studio.css';
+import {ReaderBuilder} from '../src/ReaderBuilder.jsx';
+const version={versionNo:1,sourceRevision:1,state:'draft',compileStatus:'valid'};
+const columns=[...['Country','Region','City','Category','Status','Channel','Period','Language','DeviceType','ProductType','AccountType','Warehouse'].map(name=>({name,groupable:true})),...['ItemCount','TotalAmount','AverageAmount'].map(name=>({name,groupable:false}))];
+const rootView={name:'activity',namespace:'activity',source:{table:'SYNTHETIC_ACTIVITY'},columns,relations:[]};
+const inspection={version,capabilities:{canEdit:true,canRun:true,canPublish:false,canUseDql:true},diagnostics:[],structure:{component:{rootView,settings:{report:{enabled:true}},routes:[{path:'/synthetic'}]},views:[{name:'activity',sql:'SELECT region,COUNT(*) AS item_count FROM synthetic_activity GROUP BY region'}],declarations:[{parameter:{name:'From',typeExpr:'string',source:{kind:'query'}}},{parameter:{name:'To',typeExpr:'string',source:{kind:'query'}}},{parameter:{name:'AccountIDs',typeExpr:'[]int',source:{kind:'query'}}}],functions:[],predicateExpansions:[],columnContracts:[]}};
+const api={listVersions:async()=>({items:[version]}),inspectVersion:async()=>inspection,getResources:async()=>({files:[],folders:[],skills:[]}),getTable:async()=>({columns:[]}),previewReader:async()=>{throw new Error('UX fixture: datastore execution is disabled.');}};
+createRoot(document.getElementById('root')).render(<div style={{padding:16}}><p role="note">UX fixture · synthetic cube contract · no datastore execution or saves</p><ReaderBuilder api={api} report={{id:'ux.cube',title:'Activity cube',defaultConnectorName:'synthetic'}} onBack={()=>{}}/></div>);

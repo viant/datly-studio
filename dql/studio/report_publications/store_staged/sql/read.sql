@@ -1,5 +1,7 @@
 SELECT p.report_id, p.desired_generation, p.publication_status
 FROM report_publications p
+WHERE 1=1
 ${predicate.Builder().CombineAnd(
     $predicate.FilterGroup(1, "AND")
-).Build("WHERE")}
+).Build("AND")}
+AND ($NamespaceId = '' OR EXISTS (SELECT 1 FROM components r JOIN namespaces n ON n.owner_id=r.owner_id AND n.name=r.namespace WHERE r.id=p.report_id AND n.namespace_id=$NamespaceId))

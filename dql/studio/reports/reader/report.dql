@@ -12,6 +12,7 @@
 #setting($_ = $mcp('studio.sdk.components.list', 'List authorized Datly Studio components'))
 #setting($_ = $sql_dest('report', 'sql/report.sql'))
 
+#define($_ = $NamespaceId<*string>(header/X-Studio-Namespace).Optional())
 #define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
 #define($_ = $Auth<*studioauth.Output>(component/GET:/v1/studio/auth/context).Required().WithPredicate(3, 'handler', 'catalogpredicate.ReportCatalogRead'))
 #define($_ = $Query<string>(body/query).WithTag('json:"query"').Optional().WithPredicate(0, 'contains', 'r', 'namespace').WithPredicate(0, 'contains', 'r', 'slug').WithPredicate(0, 'contains', 'r', 'title').WithPredicate(0, 'contains', 'r', 'description'))

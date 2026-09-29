@@ -15,6 +15,7 @@ import (
 	"github.com/viant/bindly/locator"
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/datatest"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/sdk"
 	expired "github.com/viant/datly-studio/studio/report_warmup_runs/store_expired"
 	storedreader "github.com/viant/datly-studio/studio/report_warmup_runs/store_read"
@@ -166,6 +167,9 @@ func TestWarmupListSDKDatlyHTTPMCPAndRecovery(t *testing.T) {
 			t.Fatalf("private warmup component is exposed: %+v", entry.Component.Routes[0])
 		}
 	}
+	for _, entry := range entries {
+		entry.Capabilities.Connector = connector
+	}
 	runtime, err := druntime.NewRuntime(entries, druntime.WithResources(resources))
 	if err != nil {
 		t.Fatal(err)
@@ -188,6 +192,27 @@ func TestWarmupListSDKDatlyHTTPMCPAndRecovery(t *testing.T) {
 		return req
 	}
 	httpHandler := gateway.NewHandler(runtime, nil, "test")
+	// Owning both workspaces must not allow a selected workspace to read the other.
+	selectedID := namespaceaccess.ID("alice", "other")
+	if _, err := db.ExecContext(ctx, `INSERT INTO namespaces(owner_id,name,title,status,namespace_id,created_at,updated_at) VALUES('alice','other','Other','active',?,?,?)`, selectedID, now, now); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.ExecContext(ctx, `UPDATE namespaces SET namespace_id=? WHERE owner_id='alice' AND name='general'`, namespaceaccess.ID("alice", "general")); err != nil {
+		t.Fatal(err)
+	}
+	for _, selection := range []string{selectedID, "invalid"} {
+		deniedRequest := request("alice", "r1", `{}`)
+		deniedRequest.Header.Set("X-Studio-Namespace", selection)
+		denied := httptest.NewRecorder()
+		httpHandler.ServeHTTP(denied, deniedRequest)
+		if denied.Code == http.StatusOK {
+			t.Fatalf("out-of-scope warmup list returned %d: %s", denied.Code, denied.Body.String())
+		}
+	}
+	var unchanged string
+	if err := db.QueryRowContext(ctx, "SELECT status FROM report_warmup_runs WHERE run_id='old-a'").Scan(&unchanged); err != nil || unchanged != "accepted" {
+		t.Fatalf("denial performed expiry recovery: %q %v", unchanged, err)
+	}
 	viewer := httptest.NewRecorder()
 	httpHandler.ServeHTTP(viewer, request("viewer", "r1", `{}`))
 	if viewer.Code != http.StatusNotFound {
@@ -258,6 +283,12 @@ func TestWarmupListSDKDatlyHTTPMCPAndRecovery(t *testing.T) {
 		}
 	}
 	tool, _ := tools.Registry().ToolRegistry.Get("studio.sdk.versions.warmup_list")
+	ownerContext := context.WithValue(ctx, authorization.TokenKey, &authorization.Token{Token: jwt.Bearer(t, "alice")})
+	scopedResult, scopedErr := tool.Handler(ownerContext, &schema.CallToolRequest{Method: schema.MethodToolsCall, Params: schema.CallToolRequestParams{Name: "studio.sdk.versions.warmup_list", Arguments: map[string]any{"reportId": "r1", "versionNo": 1, "namespaceId": selectedID}}})
+	if scopedErr == nil && scopedResult != nil && (scopedResult.IsError == nil || !*scopedResult.IsError) {
+		t.Fatalf("MCP disclosed another workspace's warmup runs: %+v", scopedResult)
+	}
+
 	callContext := context.WithValue(ctx, authorization.TokenKey, &authorization.Token{Token: jwt.Bearer(t, "publisher")})
 	result, rpcErr := tool.Handler(callContext, &schema.CallToolRequest{Method: schema.MethodToolsCall, Params: schema.CallToolRequestParams{Name: "studio.sdk.versions.warmup_list", Arguments: map[string]any{"reportId": "r1", "versionNo": 1, "input": map[string]any{"limit": 1}}}})
 	if rpcErr != nil || result == nil || result.IsError != nil && *result.IsError {

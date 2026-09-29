@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/viant/datly-studio/sdk/access"
+	access "github.com/viant/authz"
 )
 
 type resourceStore struct {

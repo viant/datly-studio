@@ -10,6 +10,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
+	"github.com/viant/authz"
 	"io"
 	"math/big"
 	"net/http"
@@ -21,9 +22,8 @@ import (
 	"time"
 
 	jwtv5 "github.com/golang-jwt/jwt/v5"
+	accessstore "github.com/viant/authz/datly/store/sql"
 	"github.com/viant/datly-studio/schema"
-	"github.com/viant/datly-studio/sdk/access"
-	accessstore "github.com/viant/datly-studio/store/sql/access"
 	mcpschema "github.com/viant/mcp-protocol/schema"
 	mcpprotocol "github.com/viant/mcp/server"
 	_ "modernc.org/sqlite"
@@ -140,7 +140,7 @@ JOIN (SELECT id,label FROM labels) labels ON labels.id=records.id`
 		t.Fatal(err)
 	}
 	if generic {
-		_, err = service.resourceAccess.Store.(*accessstore.Store).Provision(ctx, access.Document{Resource: access.Resource{Kind: "component", ID: "records", Version: "1", Tenant: "*"}, Policies: map[string]access.Policy{"execute": {Mode: "public"}}}, "bootstrap")
+		_, err = service.resourceAccess.Store.(*accessstore.Store).Provision(ctx, authz.Document{Resource: authz.Resource{Kind: "component", ID: "records", Version: "1", Tenant: "*"}, Policies: map[string]authz.Policy{"execute": {Mode: "public"}}}, "bootstrap")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -308,12 +308,12 @@ JOIN (SELECT id,label FROM labels) labels ON labels.id=records.id`
 	}
 	if generic {
 		store := service.resourceAccess.Store.(*accessstore.Store)
-		r := access.Resource{Kind: "component", ID: "records", Version: "1", Tenant: "*"}
+		r := authz.Resource{Kind: "component", ID: "records", Version: "1", Tenant: "*"}
 		doc, e := store.Get(ctx, r)
 		if e != nil {
 			t.Fatal(e)
 		}
-		doc.Policies["execute"] = access.Policy{Mode: "protected", Rule: &access.Rule{Kind: "role", Value: "reader"}}
+		doc.Policies["execute"] = authz.Policy{Mode: "protected", Rule: &authz.Rule{Kind: "role", Value: "reader"}}
 		if _, e = store.Replace(ctx, doc, doc.Revision, "revoke-public"); e != nil {
 			t.Fatal(e)
 		}

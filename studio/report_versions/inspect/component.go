@@ -11,6 +11,7 @@ import (
 
 	"github.com/viant/datly-studio/internal/readerinspection"
 	"github.com/viant/datly-studio/internal/versionprojection"
+	"github.com/viant/datly-studio/runtime/preview"
 	"github.com/viant/datly-studio/sdk"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
 	connectors "github.com/viant/datly-studio/studio/connectors/store_catalog"
@@ -24,17 +25,20 @@ import (
 	rhandler "github.com/viant/datly/runtime/handler"
 	"github.com/viant/datly/runtime/handler/custom"
 	"github.com/viant/datly/spec"
+	"github.com/viant/datly/transcribe"
 	"github.com/viant/scy/auth/jwt"
 	"github.com/viant/xdatly"
+	xconnector "github.com/viant/xdatly/connector"
 	xhandler "github.com/viant/xdatly/handler"
 	xresponse "github.com/viant/xdatly/response"
 )
 
 type Input struct {
-	Jwt       *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
-	Auth      *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
-	ReportId  string             `parameter:"ReportId,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
-	VersionNo int                `parameter:"VersionNo,kind=body,in=versionNo,dataType=int,required=true" json:"versionNo"`
+	NamespaceId *string            `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
+	Jwt         *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
+	Auth        *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
+	ReportId    string             `parameter:"ReportId,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
+	VersionNo   int                `parameter:"VersionNo,kind=body,in=versionNo,dataType=int,required=true" json:"versionNo"`
 }
 
 type Output struct {
@@ -167,6 +171,27 @@ func (*inspectHandler) Exec(ctx context.Context, session xhandler.Session, input
 	}
 	inspected := service.Apply(ctx, readerbuilder.Request{DQL: source,
 		Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
+	if permissions.CanUseDQL && inspected.Structure != nil && inspected.Structure.Component != nil {
+		value, found, lookupErr := session.Binder().Lookup(ctx, rhandler.ConnectorCapabilityKey)
+		if lookupErr != nil {
+			return lookupErr
+		}
+		provider, ok := value.(xconnector.Provider)
+		if !found || !ok {
+			return fmt.Errorf("trusted Studio connector capability is unavailable")
+		}
+		db, dbErr := provider.Connector(ctx, "studio")
+		if dbErr != nil || db == nil {
+			return fmt.Errorf("configured Studio database is unavailable")
+		}
+		resolved, inspectErr := (preview.Dynamic{StudioDB: db, ModulePath: "github.com/viant/datly-studio", Types: types}).InspectContract(ctx, input.ReportId, input.VersionNo)
+		if inspectErr != nil {
+			inspected.Structure.Status = "partial"
+			inspected.Diagnostics = append(inspected.Diagnostics, &transcribe.Diagnostic{Severity: transcribe.SeverityWarning, Code: "column_inspection_unavailable", Message: "Column metadata is unavailable; check the draft source and connector configuration."})
+		} else if resolved != nil {
+			readerinspection.HydrateColumns(inspected.Structure.Component.RootView, resolved.RootView)
+		}
+	}
 	projected := readerinspection.Project(version, &inspected, permissions)
 	*output = Output{Version: projected.Version, DQL: projected.DQL,
 		Structure: projected.Structure, Diagnostics: projected.Diagnostics, Capabilities: projected.Capabilities}

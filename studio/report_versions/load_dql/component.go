@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/viant/datly-studio/internal/dqlimport"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/sdk"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
 	versioncreate "github.com/viant/datly-studio/studio/report_versions/create"
@@ -37,10 +38,11 @@ type Options struct {
 }
 
 type Input struct {
-	Jwt      *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
-	Auth     *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
-	ReportId string             `parameter:"ReportId,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
-	Input    Options            `parameter:"Input,kind=body,in=input,dataType=Options,required=true" json:"input"`
+	NamespaceId *string            `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
+	Jwt         *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
+	Auth        *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
+	ReportId    string             `parameter:"ReportId,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
+	Input       Options            `parameter:"Input,kind=body,in=input,dataType=Options,required=true" json:"input"`
 }
 
 type Output struct {
@@ -199,6 +201,7 @@ func ImportBundle(ctx context.Context, session xhandler.Session, input *Input, o
 			Has: &stored.ImportedResourceFileHas{Namespace: true, ResourcePath: true, Content: true, CreatedAt: true}})
 	}
 	version.Has.File = len(version.File) > 0
+	version.SetNamespaceId(namespaceaccess.ID(report.Item.OwnerId, report.Item.Namespace))
 	write := &stored.Input{}
 	write.SetVersions([]*stored.ImportedVersion{version})
 	value, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[stored.VersionComponent](), "version", "POST", "/_studio/report-version-store/import"), Input: write})

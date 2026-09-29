@@ -9,6 +9,7 @@ import { RuntimeWorkspace } from './RuntimeWorkspace.jsx';
 import { ImportComponentButton, DownloadComponentButton } from './ComponentTransfer.jsx';
 import { SecurityCenter as SecurityWorkspace } from './SecurityCenter.jsx';
 import { overviewFromSettled } from './overviewModel.js';
+import { useNamespaceWorkspace } from './useNamespaceWorkspace.js';
 
 const ReaderBuilder = lazy(() => import('./ReaderBuilder.jsx').then((module) => ({ default: module.ReaderBuilder })));
 const SchemaBrowser = lazy(() => import('./SchemaBrowser.jsx').then((module) => ({ default: module.SchemaBrowser })));
@@ -86,8 +87,18 @@ export function StudioApp({ api, mode, subject, brand = 'Datly Studio', extensio
   const [connectorOffset,setConnectorOffset]=useState(0);
   const [connectorHasNext,setConnectorHasNext]=useState(false);
   const connectorPageSize=25;
+  const namespaceWorkspace = useNamespaceWorkspace(api, subject, section === 'builder' || section === 'security' || extensions.some((item) => item.id === section) || connectorDialogOpen || namespaceDialogOpen || reportDialogOpen || deletingNamespace || deletingConnector);
+  const currentNamespaceId = namespaceWorkspace.current?.namespaceId;
+  useEffect(() => {
+    setReports([]);
+    setRuntime(null);
+    setOverview(null);
+    setReportNamespace('');
+    setReportOffset(0);
+  }, [currentNamespaceId]);
 
   const loadSection = useCallback(() => {
+    if (namespaceWorkspace.enabled && (!namespaceWorkspace.ready || !currentNamespaceId) && !['namespaces', 'connectors', 'schema'].includes(section)) { setLoading(false); return () => {}; }
     if (section === 'builder' || section === 'schema' || section === 'security' || extensions.some((extension) => extension.id === section)) { setLoading(false); return () => {}; }
     let cancelled = false;
     setError(''); setConnectorConflict(false); setNamespaceConflict(false);
@@ -113,7 +124,7 @@ export function StudioApp({ api, mode, subject, brand = 'Datly Studio', extensio
     }).catch((cause) => !cancelled && setError(cause.message))
       .finally(() => !cancelled && setLoading(false));
     return () => { cancelled = true; };
-  }, [api, section, extensions, reportNamespace, reportOffset, reportQuery, reportStatus, namespaceOffset, namespaceQuery, namespaceStatus, connectorOffset, connectorQuery, connectorStatus]);
+  }, [api, section, extensions, reportNamespace, reportOffset, reportQuery, reportStatus, namespaceOffset, namespaceQuery, namespaceStatus, connectorOffset, connectorQuery, connectorStatus, currentNamespaceId, namespaceWorkspace.ready, namespaceWorkspace.enabled]);
   useEffect(loadSection, [loadSection]);
 
   const items = section === 'components' ? reports : section === 'namespaces' ? namespaces : connectors;
@@ -162,14 +173,16 @@ export function StudioApp({ api, mode, subject, brand = 'Datly Studio', extensio
   const onNamespaceSaved = async () => {
     setEditingNamespace(null);
     setSection('namespaces');
+    await namespaceWorkspace.refresh?.();
     await loadSection();
   };
   const deleteNamespace = async () => {
-    if (!pendingNamespaceDelete) return;
+    if (!pendingNamespaceDelete || deletingNamespace) return;
     setDeletingNamespace(true); setError('');
     try {
       await api.deleteNamespace(pendingNamespaceDelete.name, pendingNamespaceDelete.etag);
       setPendingNamespaceDelete(null);
+      await namespaceWorkspace.refresh?.();
       await loadSection();
     } catch (cause) { setPendingNamespaceDelete(null); setNamespaceConflict(cause?.code==='conflict'&&String(cause.message).includes('etag')); setError(cause.message); }
     finally { setDeletingNamespace(false); }
@@ -196,28 +209,32 @@ export function StudioApp({ api, mode, subject, brand = 'Datly Studio', extensio
     { id: 'namespaces', label: 'Namespaces', icon: 'folder-shared', className: 'studio-nav-namespaces', section: 'namespaces', isSelected: section==='namespaces' },
     { id: 'security', label: 'Security', icon: 'shield', className: 'studio-nav-security', section: 'security', isSelected: section==='security' },
     { id: 'runtime', label: 'Runtime', icon: 'pulse', className: 'studio-nav-runtime', section: 'runtime', isSelected: section==='runtime' },
-    { id: 'skills', label: 'Skills & Resources', icon: 'learning', className: 'studio-nav-skills', section: 'skills', isSelected: section==='skills' },
+    { id: 'skills', label: 'Skills', icon: 'learning', className: 'studio-nav-skills', section: 'skills', isSelected: section==='skills' },
     { id: 'components', label: 'Components', icon: 'application', className: 'studio-nav-components', section: 'components', isSelected: section==='components'||section==='builder', childNodes: [
       { id: 'components-catalog', label: 'Catalog', icon: 'th', className: 'studio-nav-components-catalog', section: 'components', isSelected: section==='components' },
     ] }, ...extensionNavigation,
   ].filter((item) => item.label.toLowerCase().includes(navigationQuery.toLowerCase()) || item.childNodes?.some((child) => child.label.toLowerCase().includes(navigationQuery.toLowerCase())));
+  const navigationButton = (node) => <Button className="studio-navigation-label" minimal onClick={(event) => { event.stopPropagation(); navigate(node.section); }}>{node.label}</Button>;
+  const interactiveNavigation = navigation.map((node) => ({ ...node, label: navigationButton(node), childNodes: node.childNodes?.map((child) => ({ ...child, label: navigationButton(child) })) }));
   return <ForgeThemeProvider><ForgeThemeBoundary windowKey="datly-studio">
     <div className="studio-app">
     <Navbar className="studio-navbar"><Navbar.Group align="left"><Navbar.Heading>{brand}</Navbar.Heading><Navbar.Divider/>
       <Button icon="menu" minimal title="Toggle navigation" onClick={() => setNavigationOpen((open) => !open)} />
-    </Navbar.Group><Navbar.Group align="right"><Tag minimal intent={mode === 'development' ? 'warning' : 'success'}>{mode === 'development' ? 'Development user' : subject || 'Authenticated user'}</Tag>{onSignOut && <Button minimal icon="log-out" loading={signingOut} onClick={signOut}>Sign out</Button>}</Navbar.Group></Navbar>
+      {namespaceWorkspace.enabled && <HTMLSelect className="studio-namespace-selector" aria-label="Current namespace" value={currentNamespaceId || ''} disabled={!namespaceWorkspace.ready} onChange={(event) => { namespaceWorkspace.select(event.target.value); setReportNamespace(''); setReportOffset(0); }}><option value="" disabled>{namespaceWorkspace.ready ? 'Choose namespace' : 'Loading namespaces…'}</option>{namespaceWorkspace.items.map((item) => <option key={item.namespaceId} value={item.namespaceId}>{namespaceWorkspace.items.filter((row) => (row.title || row.name) === (item.title || item.name)).length > 1 ? `${item.title || item.name} · ${item.name} · ${item.ownerId}` : item.title || item.name}</option>)}</HTMLSelect>}
+    </Navbar.Group><Navbar.Group align="right"><Tag className="studio-identity-tag" minimal intent={mode === 'development' ? 'warning' : 'success'}>{mode === 'development' ? 'Development user' : subject || 'Authenticated user'}</Tag>{onSignOut && <Button className="studio-signout" title="Sign out" aria-label="Sign out" minimal icon="log-out" loading={signingOut} onClick={signOut}>Sign out</Button>}</Navbar.Group></Navbar>
     {signOutError && <Callout className="studio-signout-error" intent="danger" role="alert" title="Could not sign out">{signOutError}<Button small minimal intent="danger" onClick={signOut}>Try again</Button></Callout>}
+    {namespaceWorkspace.error && <Callout intent="warning" role="alert">{namespaceWorkspace.error}{!namespaceWorkspace.synchronizationError && <Button small minimal icon="refresh" disabled={!namespaceWorkspace.canRetry} onClick={namespaceWorkspace.refresh}>Retry namespaces</Button>}</Callout>}
     <div className="studio-app-body">
     {navigationOpen && <button type="button" className="studio-sidebar-scrim" aria-label="Close navigation" onClick={() => setNavigationOpen(false)}/>}
     {navigationOpen && <aside className="studio-sidebar"><InputGroup leftIcon="search" placeholder="Find Studio resource" value={navigationQuery} onChange={(event) => setNavigationQuery(event.target.value)} />
-      <Tree className="studio-tree" contents={navigation} onNodeClick={(node) => navigate(node.section)} />
+      <Tree className="studio-tree" contents={interactiveNavigation} onNodeClick={(node) => navigate(node.section)} />
     </aside>}
-    {section === 'builder' ? <Suspense fallback={<WorkspaceLoading label="Loading component workspace"/>}><ReaderBuilder api={api} report={builderReport} openResources={openBuilderResources} resourceAction={builderResourceAction} onReportUpdated={setBuilderReport} onBack={() => setSection('components')} /></Suspense> : section === 'schema' ? <Suspense fallback={<WorkspaceLoading label="Loading schema browser"/>}><SchemaBrowser api={api} onOpenBuilder={openBuilder} /></Suspense> : section === 'security' ? <SecurityWorkspace api={api}/> : extensions.some((extension) => extension.id === section) ? extensions.find((extension) => extension.id === section).render({ api, mode, subject, navigate, openComponent: openBuilder }) : section === 'overview' ? <OverviewWorkspace data={overview} loading={loading} error={error} onRefresh={loadSection} onNavigate={navigate} onOpenComponent={openBuilder}/> : ['runtime','skills'].includes(section) ? <RuntimeWorkspace api={api} mode={section} status={runtime} loading={loading} error={error} onRefresh={loadSection} onOpenComponent={openBuilder}/> : <main className="studio-workspace">
+    {namespaceWorkspace.enabled && !currentNamespaceId && !['namespaces', 'connectors', 'schema'].includes(section) ? <main className="studio-main"><Callout title="Choose a namespace">Select an available namespace above, or create one in Namespaces.</Callout></main> : section === 'builder' ? <Suspense fallback={<WorkspaceLoading label="Loading component workspace"/>}><ReaderBuilder api={api} report={builderReport} openResources={openBuilderResources} resourceAction={builderResourceAction} onReportUpdated={setBuilderReport} onResourcesClosed={()=>{setOpenBuilderResources(false);setBuilderResourceAction('');}} onBack={() => setSection('components')} /></Suspense> : section === 'schema' ? <Suspense fallback={<WorkspaceLoading label="Loading schema browser"/>}><SchemaBrowser api={api} onOpenBuilder={openBuilder} /></Suspense> : section === 'security' ? <SecurityWorkspace api={api}/> : extensions.some((extension) => extension.id === section) ? extensions.find((extension) => extension.id === section).render({ api, mode, subject, navigate, openComponent: openBuilder }) : section === 'overview' ? <OverviewWorkspace data={overview} loading={loading} error={error} onRefresh={loadSection} onNavigate={navigate} onOpenComponent={openBuilder}/> : ['runtime','skills'].includes(section) ? <RuntimeWorkspace key={currentNamespaceId || "unscoped"} api={api} mode={section} status={runtime} loading={loading} error={error} onRefresh={loadSection} onOpenComponent={openBuilder}/> : <main className="studio-workspace">
       <div className="studio-page-heading-row"><h1 className="studio-page-heading">{section === 'connectors' ? 'Connectors' : section === 'namespaces' ? 'Namespaces' : 'Components'}</h1>{section==='components'&&<ImportComponentButton api={api} onImported={openBuilder}/>}</div>
       <p className="studio-page-description">{section === 'connectors' ? 'Validate and manage data sources used by Studio readers.' : section === 'namespaces' ? 'Govern production component groups without changing Datly package identity.' : 'Create and manage read-only dynamic Datly components.'}</p>
       {section === 'connectors'&&<form className="studio-page-actions studio-catalog-actions" onSubmit={(event)=>{event.preventDefault();setConnectorOffset(0);setConnectorQuery(connectorSearch.trim());}}><InputGroup leftIcon="search" aria-label="Search connectors" placeholder="Find connector, driver, or owner" value={connectorSearch} onChange={(event)=>setConnectorSearch(event.target.value)} rightElement={connectorSearch?<Button type="button" minimal icon="cross" aria-label="Clear connector search" onClick={()=>{setConnectorSearch('');setConnectorQuery('');setConnectorOffset(0);}}/>:undefined}/><HTMLSelect aria-label="Filter connectors by status" value={connectorStatus} onChange={(event)=>{setConnectorStatus(event.target.value);setConnectorOffset(0);}}><option value="">All states</option><option value="active">Active</option><option value="draft">Draft</option><option value="disabled">Disabled</option></HTMLSelect><ButtonGroup className="studio-catalog-primary-actions"><Button type="submit" icon="search">Search</Button><Button type="button" intent="primary" icon="add" onClick={()=>{setEditingConnector(null);setConnectorDialogOpen(true);}}>New connector</Button></ButtonGroup></form>}
       {section === 'namespaces' && <form className="studio-page-actions studio-catalog-actions studio-namespace-actions" onSubmit={(event)=>{event.preventDefault();setNamespaceOffset(0);setNamespaceQuery(namespaceSearch.trim());}}><InputGroup leftIcon="search" aria-label="Search namespaces" placeholder="Find namespace, title, or description" value={namespaceSearch} onChange={(event)=>setNamespaceSearch(event.target.value)} rightElement={namespaceSearch?<Button type="button" minimal icon="cross" aria-label="Clear namespace search" onClick={()=>{setNamespaceSearch('');setNamespaceQuery('');setNamespaceOffset(0);}}/>:undefined}/><HTMLSelect aria-label="Filter namespaces by status" value={namespaceStatus} onChange={(event)=>{setNamespaceStatus(event.target.value);setNamespaceOffset(0);}}><option value="">All states</option><option value="active">Active</option><option value="archived">Archived</option></HTMLSelect><ButtonGroup className="studio-catalog-primary-actions"><Button type="submit" icon="search">Search</Button><Button type="button" intent="primary" icon="add" onClick={() => { setEditingNamespace(null); setNamespaceDialogOpen(true); }}>New namespace</Button></ButtonGroup></form>}
-      {section === 'components' && <form className="studio-page-actions studio-catalog-actions" onSubmit={(event) => { event.preventDefault(); setReportOffset(0); setReportQuery(reportSearch.trim()); }}><InputGroup leftIcon="search" aria-label="Search components" placeholder="Find title, slug, or description" value={reportSearch} onChange={(event) => setReportSearch(event.target.value)} rightElement={reportSearch ? <Button type="button" minimal icon="cross" aria-label="Clear component search" onClick={() => { setReportSearch(''); setReportQuery(''); setReportOffset(0); }}/> : undefined}/><HTMLSelect aria-label="Filter components by namespace" value={reportNamespace} onChange={(event) => { setReportNamespace(event.target.value); setReportOffset(0); }}><option value="">All namespaces</option>{reportNamespaces.map((namespace) => <option key={namespace} value={namespace}>{namespace}</option>)}</HTMLSelect><HTMLSelect aria-label="Filter components by status" value={reportStatus} onChange={(event) => { setReportStatus(event.target.value); setReportOffset(0); }}><option value="">All states</option><option value="draft">Draft</option><option value="active">Active</option><option value="archived">Archived</option></HTMLSelect><ButtonGroup className="studio-catalog-primary-actions"><Button type="submit" icon="search" title="Search components" aria-label="Search components"/><Button type="button" intent="primary" icon="add" title="New component" aria-label="New component" onClick={() => setReportDialogOpen(true)}/></ButtonGroup></form>}
+      {section === 'components' && <form className="studio-page-actions studio-catalog-actions" onSubmit={(event) => { event.preventDefault(); setReportOffset(0); setReportQuery(reportSearch.trim()); }}><InputGroup leftIcon="search" aria-label="Search components" placeholder="Find title, slug, or description" value={reportSearch} onChange={(event) => setReportSearch(event.target.value)} rightElement={reportSearch ? <Button type="button" minimal icon="cross" aria-label="Clear component search" onClick={() => { setReportSearch(''); setReportQuery(''); setReportOffset(0); }}/> : undefined}/>{!namespaceWorkspace.enabled && <HTMLSelect aria-label="Filter components by namespace" value={reportNamespace} onChange={(event) => { setReportNamespace(event.target.value); setReportOffset(0); }}><option value="">All namespaces</option>{reportNamespaces.map((namespace) => <option key={namespace} value={namespace}>{namespace}</option>)}</HTMLSelect>}<HTMLSelect aria-label="Filter components by status" value={reportStatus} onChange={(event) => { setReportStatus(event.target.value); setReportOffset(0); }}><option value="">All states</option><option value="draft">Draft</option><option value="active">Active</option><option value="archived">Archived</option></HTMLSelect><ButtonGroup className="studio-catalog-primary-actions"><Button type="submit" icon="search" title="Search components" aria-label="Search components"/><Button type="button" intent="primary" icon="add" title="New component" aria-label="New component" onClick={() => setReportDialogOpen(true)}/></ButtonGroup></form>}
       {connectorConflict && <Callout intent="warning" title="Connector changed elsewhere" role="alert" style={{ marginBottom: 16 }}>The connector lifecycle state changed after this catalog was loaded. No change was applied. <Button small intent="warning" minimal icon="refresh" onClick={loadSection}>Refresh catalog</Button></Callout>}
       {namespaceConflict&&<Callout intent="warning" title="Namespace changed elsewhere" role="alert" style={{marginBottom:16}}>No namespace change was applied. Refresh the governed catalog before reviewing and retrying.<Button small intent="warning" minimal icon="refresh" onClick={loadSection}>Refresh catalog</Button></Callout>}
       {error && !connectorConflict&&!namespaceConflict && <Callout intent="danger" title="Studio request failed" role="alert" style={{ marginBottom: 16 }}>{error}<Button small intent="danger" minimal onClick={loadSection}>Retry</Button></Callout>}
@@ -233,8 +250,8 @@ export function StudioApp({ api, mode, subject, brand = 'Datly Studio', extensio
             <Button small icon="trash" intent="danger" disabled={item.status === 'active'} title={item.status === 'active' ? 'Disable connector before deleting' : 'Delete connector'} aria-label={`Delete ${item.name}`} onClick={() => setPendingConnectorDelete(item)} />
           </ButtonGroup></td></>}
           {section === 'namespaces' && <td><ButtonGroup minimal>
-            <Button small icon="edit" title="Edit namespace" aria-label={`Edit ${item.name}`} onClick={() => { setEditingNamespace(item); setNamespaceDialogOpen(true); }}/>
-            <Button small icon="trash" intent="danger" title="Delete namespace" aria-label={`Delete ${item.name}`} onClick={() => setPendingNamespaceDelete(item)}/>
+            <Button small icon={item.canManage === false ? 'eye-open' : 'edit'} title={item.canManage === false ? 'View namespace' : 'Edit namespace'} aria-label={`${item.canManage === false ? 'View' : 'Edit'} ${item.name}`} onClick={() => { setEditingNamespace(item); setNamespaceDialogOpen(true); }}/>
+            {item.canManage !== false && <Button small icon="trash" intent="danger" title="Delete namespace" aria-label={`Delete ${item.name}`} onClick={() => setPendingNamespaceDelete(item)}/>}
           </ButtonGroup></td>}
           {section === 'components' && <td><ButtonGroup minimal><Button small icon="application" title="Open Reader Builder" aria-label="Open Reader Builder" onClick={() => openBuilder(item)} /><DownloadComponentButton api={api} report={item}/></ButtonGroup></td>}
         </tr>)}</tbody>
@@ -244,13 +261,13 @@ export function StudioApp({ api, mode, subject, brand = 'Datly Studio', extensio
       {section==='connectors'&&!loading&&(connectorOffset>0||connectorHasNext)&&<div className="studio-catalog-pagination"><span>Showing {connectorOffset+1}–{connectorOffset+connectors.length}</span><ButtonGroup minimal><Button icon="chevron-left" disabled={connectorOffset===0} onClick={()=>setConnectorOffset(Math.max(0,connectorOffset-connectorPageSize))}>Previous</Button><Button icon="chevron-right" disabled={!connectorHasNext} onClick={()=>setConnectorOffset(connectorOffset+connectorPageSize)}>Next</Button></ButtonGroup></div>}
     </main>}</div></div>
     <ConnectorDialog api={api} connector={editingConnector} isOpen={connectorDialogOpen} onClose={() => { setConnectorDialogOpen(false); setEditingConnector(null); }} onCreated={onConnectorCreated} />
-    <ReportDialog api={api} isOpen={reportDialogOpen} onClose={() => setReportDialogOpen(false)} onCreated={onReportCreated} />
+    <ReportDialog currentNamespace={namespaceWorkspace.current} api={api} isOpen={reportDialogOpen} onClose={() => setReportDialogOpen(false)} onCreated={onReportCreated} />
     <NamespaceDialog api={api} namespace={editingNamespace} isOpen={namespaceDialogOpen} onClose={() => { setNamespaceDialogOpen(false); setEditingNamespace(null); }} onSaved={onNamespaceSaved}/>
     <Alert isOpen={Boolean(pendingConnectorDelete)} intent="danger" icon="trash" confirmButtonText="Delete connector" cancelButtonText="Cancel" loading={deletingConnector} onCancel={() => setPendingConnectorDelete(null)} onConfirm={deleteConnector} canEscapeKeyCancel canOutsideClickCancel>
       <p>Delete <strong>{pendingConnectorDelete?.name}</strong> from the Studio connector catalog?</p>
       <p className="studio-muted">Active connectors must be disabled first. Studio blocks deletion while any component still references this connector.</p>
     </Alert>
-    <Alert isOpen={Boolean(pendingNamespaceDelete)} intent="danger" icon="trash" confirmButtonText="Delete namespace" cancelButtonText="Cancel" loading={deletingNamespace} onCancel={() => setPendingNamespaceDelete(null)} onConfirm={deleteNamespace} canEscapeKeyCancel canOutsideClickCancel>
+    <Alert isOpen={Boolean(pendingNamespaceDelete)} intent="danger" icon="trash" confirmButtonText="Delete namespace" cancelButtonText="Cancel" loading={deletingNamespace} onCancel={() => { if (!deletingNamespace) setPendingNamespaceDelete(null); }} onConfirm={deleteNamespace} canEscapeKeyCancel={!deletingNamespace} canOutsideClickCancel={!deletingNamespace}>
       <p>Delete <strong>{pendingNamespaceDelete?.name}</strong>?</p>
       <p className="studio-muted">Studio blocks deletion while any component still belongs to this namespace.</p>
     </Alert>

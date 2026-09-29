@@ -12,6 +12,7 @@
 #setting($_ = $sql_dest('folder', 'sql/folders.sql'))
 #setting($_ = $sql_dest('skill', 'sql/skills.sql'))
 
+#define($_ = $NamespaceId<string>(query/namespaceId).Optional())
 #define($_ = $Generation<int64>(query/generation).Required())
 #define($_ = $Subject<string>(query/subject).Required())
 #define($_ = $Scoped<bool>(query/scoped).Required().WithPredicate(3, 'handler', 'runtimecatalogpredicate.ReaderScope'))

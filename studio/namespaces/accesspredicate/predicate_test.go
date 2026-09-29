@@ -28,7 +28,7 @@ func TestNamespaceAccessPermissionModes(t *testing.T) {
 			if strings.Contains(criteria.Expression, "report_acl") || len(criteria.Placeholders) != 2 {
 				t.Fatalf("%s criteria=%+v", test.permission, criteria)
 			}
-		} else if !strings.Contains(criteria.Expression, test.column) || len(criteria.Placeholders) != 3 {
+		} else if !strings.Contains(criteria.Expression, "visibility = 'public'") || strings.Contains(criteria.Expression, "report_acl") || len(criteria.Placeholders) != 2 {
 			t.Fatalf("%s criteria=%+v", test.permission, criteria)
 		}
 	}

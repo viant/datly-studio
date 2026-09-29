@@ -3,7 +3,9 @@ package sqltransport
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"strings"
 	"time"
 
@@ -38,12 +40,23 @@ func (t *Transport) createNamespace(ctx context.Context, input, output any) erro
 	if ok && in.OwnerID != principal.Subject {
 		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "cannot create another principal's namespace"}
 	}
+	if err := namespaceaccess.Validate(in.Visibility, in.AllowedRoles, in.MCPPort); err != nil {
+		return invalid(err)
+	}
+	if in.Visibility == "" {
+		in.Visibility = namespaceaccess.Private
+	}
+	roles, _ := json.Marshal(in.AllowedRoles)
+	if in.AllowedRoles == nil {
+		roles = []byte("[]")
+	}
+	rolesJSON := string(roles)
 	now := t.now()
 	etag := int64(1)
-	err := t.insertNamespaceRow(ctx, &insert.StoredNamespace{OwnerId: in.OwnerID, Name: in.Name,
+	err := t.insertNamespaceRow(ctx, &insert.StoredNamespace{NamespaceId: namespaceaccess.ID(in.OwnerID, in.Name), Visibility: in.Visibility, AllowedRolesJson: &rolesJSON, McpEnabled: in.MCPEnabled, McpPort: in.MCPPort, OwnerId: in.OwnerID, Name: in.Name,
 		Title: in.Title, Description: namespaceOptionalDescription(in.Description), Status: "active",
 		Etag: &etag, CreatedAt: &now, UpdatedAt: &now,
-		Has: &insert.StoredNamespaceHas{OwnerId: true, Name: true, Title: true, Description: true,
+		Has: &insert.StoredNamespaceHas{NamespaceId: true, Visibility: true, AllowedRolesJson: true, McpEnabled: true, McpPort: true, OwnerId: true, Name: true, Title: true, Description: true,
 			Status: true, Etag: true, CreatedAt: true, UpdatedAt: true}})
 	if err != nil {
 		return classify(err, "namespace", in.Name)
@@ -59,10 +72,11 @@ func (t *Transport) insertNamespaceRow(ctx context.Context, row *insert.StoredNa
 
 func (t *Transport) insertDefaultNamespace(ctx context.Context, ownerID string, now time.Time) error {
 	etag, description := int64(1), "Default namespace"
-	return t.insertNamespaceRow(ctx, &insert.StoredNamespace{OwnerId: ownerID, Name: "general",
+	rolesJSON := "[]"
+	return t.insertNamespaceRow(ctx, &insert.StoredNamespace{NamespaceId: namespaceaccess.ID(ownerID, "general"), Visibility: namespaceaccess.Private, AllowedRolesJson: &rolesJSON, OwnerId: ownerID, Name: "general",
 		Title: "General", Description: &description, Status: "active",
 		Etag: &etag, CreatedAt: &now, UpdatedAt: &now,
-		Has: &insert.StoredNamespaceHas{OwnerId: true, Name: true, Title: true, Description: true,
+		Has: &insert.StoredNamespaceHas{NamespaceId: true, Visibility: true, AllowedRolesJson: true, OwnerId: true, Name: true, Title: true, Description: true,
 			Status: true, Etag: true, CreatedAt: true, UpdatedAt: true}})
 }
 
@@ -95,7 +109,7 @@ func (t *Transport) listNamespaces(ctx context.Context, input, output any) error
 	if in.Offset < 0 {
 		in.Offset = 0
 	}
-	items, err := t.readNamespaces(ctx, "", in.Query, in.Status, limit, in.Offset)
+	items, err := t.readNamespaces(ctx, "", in.Query, in.Status, "", limit, in.Offset)
 	if err != nil {
 		return internal(err)
 	}
@@ -131,14 +145,34 @@ func (t *Transport) updateNamespace(ctx context.Context, input, output any) erro
 		}
 		current.Status = status
 	}
+	if in.Input.Visibility != nil {
+		current.Visibility = *in.Input.Visibility
+	}
+	if in.Input.AllowedRoles != nil {
+		current.AllowedRoles = *in.Input.AllowedRoles
+	}
+	if in.Input.MCPEnabled != nil {
+		current.MCPEnabled = *in.Input.MCPEnabled
+	}
+	if in.Input.MCPPort != nil {
+		current.MCPPort = in.Input.MCPPort
+	}
+	if err := namespaceaccess.Validate(current.Visibility, current.AllowedRoles, current.MCPPort); err != nil {
+		return invalid(err)
+	}
+	roles, _ := json.Marshal(current.AllowedRoles)
+	if current.AllowedRoles == nil {
+		roles = []byte("[]")
+	}
+	rolesJSON := string(roles)
 	if current.Title == "" {
 		return invalid(errors.New("namespace title is required"))
 	}
 	etag, now := in.Input.ETag, t.now()
-	err = t.writeNamespaceRow(ctx, &stored.StoredNamespace{OwnerId: current.OwnerID, Name: current.Name,
+	err = t.writeNamespaceRow(ctx, &stored.StoredNamespace{NamespaceId: namespaceaccess.ID(current.OwnerID, current.Name), Visibility: current.Visibility, AllowedRolesJson: &rolesJSON, McpEnabled: current.MCPEnabled, McpPort: current.MCPPort, OwnerId: current.OwnerID, Name: current.Name,
 		Title: current.Title, Description: namespaceOptionalDescription(current.Description), Status: current.Status,
 		Etag: &etag, UpdatedAt: &now,
-		Has: &stored.StoredNamespaceHas{OwnerId: true, Name: true, Title: true,
+		Has: &stored.StoredNamespaceHas{NamespaceId: true, Visibility: true, AllowedRolesJson: true, McpEnabled: true, McpPort: true, OwnerId: true, Name: true, Title: true,
 			Description: true, Status: true, Etag: true, UpdatedAt: true}})
 	if err != nil {
 		var conflict *xhandler.Conflict
@@ -191,7 +225,7 @@ func (t *Transport) namespaceValue(ctx context.Context, name string) (*sdk.Names
 	if name == "" {
 		return nil, mapReadError(sql.ErrNoRows, "namespace", name)
 	}
-	items, err := t.readNamespaces(ctx, name, "", "", 1, 0)
+	items, err := t.readNamespaces(ctx, name, "", "", "", 1, 0)
 	if err != nil {
 		return nil, internal(err)
 	}

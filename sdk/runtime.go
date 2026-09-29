@@ -17,6 +17,8 @@ const (
 )
 
 type PreviewInput struct {
+	// Cube invokes the derived typed cube instead of the ordinary reader.
+	Cube  bool            `json:"cube,omitempty"`
 	Input json.RawMessage `json:"input,omitempty"`
 	Limit int             `json:"limit,omitempty"`
 }
@@ -102,6 +104,8 @@ type RuntimeStatus struct {
 }
 
 type RuntimeHost struct {
+	NamespaceID        string    `json:"namespaceId,omitempty"`
+	MCPURL             string    `json:"mcpUrl,omitempty"`
 	AuthenticationMode string    `json:"authenticationMode,omitempty"`
 	Status             string    `json:"status"`
 	Revision           int64     `json:"revision,omitempty"`

@@ -9,3 +9,4 @@ WHERE r.id = $ReportId
       AND acl.subject_id = $Subject
       AND acl.can_run = TRUE
   ))
+${predicate.Builder().CombineAnd($predicate.FilterGroup(3, "AND")).Build("AND")}

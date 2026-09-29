@@ -131,6 +131,9 @@ func (*updateHandler) Exec(ctx context.Context, session xhandler.Session, input 
 		if !namespacevalidation.ValidName(*input.Input.Namespace) {
 			return publicError(400, "namespace must use lowercase letters, numbers, underscores, and optional dot-separated segments")
 		}
+		if *input.Input.Namespace != current.Namespace {
+			return publicError(403, "component namespace ownership cannot change through configuration")
+		}
 		current.Namespace = *input.Input.Namespace
 	}
 	if input.Input.Title != nil {

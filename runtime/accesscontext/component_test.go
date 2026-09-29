@@ -2,13 +2,14 @@ package accesscontext
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"reflect"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/viant/datly-studio/sdk/access"
+	access "github.com/viant/authz"
 	"github.com/viant/datly/spec"
 	xresponse "github.com/viant/xdatly/response"
 )
@@ -132,5 +133,45 @@ func TestDependsOnParsesDeclaredContexts(t *testing.T) {
 				t.Fatalf("got=%+v err=%v", got, err)
 			}
 		})
+	}
+}
+
+func TestContextPermissionLookupIsNarrowed(t *testing.T) {
+	input := facts()
+	input.EntityPermissions = []access.EntityPermission{{Type: "project", ID: "101", Permissions: []string{"read", "edit"}}, {Type: "project", ID: "102", Permissions: []string{"admin", "read"}}, {Type: "account", ID: "7", Permissions: []string{"admin"}}}
+	output, err := Convert(input, access.Decision{Bounded: true, Entities: []access.Entity{{Type: "project", ID: "101"}}}, "project")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(output.Context.EntityPermissions["project"]["read"], []string{"101"}) || len(output.Context.EntityPermissions["project"]["admin"]) != 0 || len(output.Context.EntityPermissions["account"]) != 0 {
+		t.Fatal("permission context widened", output.Context.EntityPermissions)
+	}
+	input.EntityPermissions[0].Permissions[0] = "changed"
+	if output.Context.EntityPermissions["project"]["read"][0] != "101" {
+		t.Fatal("context aliases input")
+	}
+}
+
+func TestPermissionContextWireLookup(t *testing.T) {
+	input := facts()
+	input.EntityPermissions = []access.EntityPermission{{Type: "project", ID: "101", Permissions: []string{"read"}}}
+	output, err := Convert(input, access.Decision{Bounded: true, Entities: []access.Entity{{Type: "project", ID: "101"}}}, "project")
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := json.Marshal(output)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var wire struct {
+		Context struct {
+			EntityPermissions map[string]map[string][]string `json:"entityPermissions"`
+		} `json:"context"`
+	}
+	if err = json.Unmarshal(raw, &wire); err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(wire.Context.EntityPermissions["project"]["read"], []string{"101"}) {
+		t.Fatal("wire context lost lookup", string(raw))
 	}
 }

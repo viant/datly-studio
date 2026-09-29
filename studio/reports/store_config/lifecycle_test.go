@@ -39,6 +39,11 @@ func TestReportConfigRulesMatchEtagAndPreserveOwner(t *testing.T) {
 	if err := rules.Init(context.Background(), otherOwner, state); !errors.As(err, &conflict) {
 		t.Fatalf("owner change error=%v", err)
 	}
+	otherNamespace := row()
+	otherNamespace.Namespace = "other"
+	if err := rules.Init(context.Background(), otherNamespace, state); !errors.As(err, &conflict) {
+		t.Fatalf("namespace change error=%v", err)
+	}
 	previous.DeletedAt = &now
 	if err := rules.Init(context.Background(), row(), state); !errors.As(err, &conflict) {
 		t.Fatalf("deleted report error=%v", err)

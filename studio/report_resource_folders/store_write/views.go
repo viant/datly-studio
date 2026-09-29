@@ -3,6 +3,7 @@ package store_write
 // StoredFolder is generated canonical view metadata for folder.
 type StoredFolder struct {
 	ReportId     string           `sqlx:"report_id,primaryKey"`
+	NamespaceId  string           `sqlx:"namespace_id"`
 	VersionNo    int              `sqlx:"version_no,primaryKey"`
 	FolderId     string           `sqlx:"folder_id,primaryKey"`
 	Namespace    string           `sqlx:"namespace"`
@@ -15,6 +16,7 @@ type StoredFolder struct {
 
 type StoredFolderHas struct {
 	ReportId     bool
+	NamespaceId  bool
 	VersionNo    bool
 	FolderId     bool
 	Namespace    bool
@@ -26,13 +28,14 @@ type StoredFolderHas struct {
 
 // CurrentFolderView is generated canonical view metadata for folder.
 type CurrentFolderView struct {
-	ReportId  string `sqlx:"report_id,primaryKey"`
-	VersionNo int    `sqlx:"version_no,primaryKey"`
-	FolderId  string `sqlx:"folder_id,primaryKey"`
-	Namespace string `sqlx:"namespace"`
-	RootPath  string `sqlx:"root_path"`
-	UriPrefix string `sqlx:"uri_prefix"`
-	Ordinal   int    `sqlx:"ordinal"`
+	ReportId    string `sqlx:"report_id,primaryKey"`
+	NamespaceId string `sqlx:"namespace_id"`
+	VersionNo   int    `sqlx:"version_no,primaryKey"`
+	FolderId    string `sqlx:"folder_id,primaryKey"`
+	Namespace   string `sqlx:"namespace"`
+	RootPath    string `sqlx:"root_path"`
+	UriPrefix   string `sqlx:"uri_prefix"`
+	Ordinal     int    `sqlx:"ordinal"`
 }
 
 type FolderKeysRow struct {

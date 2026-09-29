@@ -17,14 +17,6 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
-// Input03431463bb75c805271cda3d99727948b169a41134e802271c7e8a9391c0be1b defines model for Input_03431463bb75c805271cda3d99727948b169a41134e802271c7e8a9391c0be1b.
-type Input03431463bb75c805271cda3d99727948b169a41134e802271c7e8a9391c0be1b struct {
-	Id      *string `json:"id,omitempty"`
-	Kind    *string `json:"kind,omitempty"`
-	Tenant  *string `json:"tenant,omitempty"`
-	Version *string `json:"version,omitempty"`
-}
-
 // Input05e809e9f99e43822a03e6818a8de1e9fd48cb2f10be053f77c9af8d2092e9d9 defines model for Input_05e809e9f99e43822a03e6818a8de1e9fd48cb2f10be053f77c9af8d2092e9d9.
 type Input05e809e9f99e43822a03e6818a8de1e9fd48cb2f10be053f77c9af8d2092e9d9 struct {
 	Archive  *[]byte `json:"archive,omitempty"`
@@ -33,8 +25,17 @@ type Input05e809e9f99e43822a03e6818a8de1e9fd48cb2f10be053f77c9af8d2092e9d9 struc
 	Notes    *string `json:"notes,omitempty"`
 }
 
-// Input1777f5e244f91f0645bf7ef39ca23fb64c98c7f12533a1f1b43c45261f87381b defines model for Input_1777f5e244f91f0645bf7ef39ca23fb64c98c7f12533a1f1b43c45261f87381b.
-type Input1777f5e244f91f0645bf7ef39ca23fb64c98c7f12533a1f1b43c45261f87381b struct {
+// Input092de1a1aa148d7f76a45d866e2aba4a800ba8a33379ccd1537c3e3699762324 defines model for Input_092de1a1aa148d7f76a45d866e2aba4a800ba8a33379ccd1537c3e3699762324.
+type Input092de1a1aa148d7f76a45d866e2aba4a800ba8a33379ccd1537c3e3699762324 struct {
+	Access *string `json:"access,omitempty"`
+	Kind   *string `json:"kind,omitempty"`
+	Limit  *int64  `json:"limit,omitempty"`
+	Offset *int64  `json:"offset,omitempty"`
+	Query  *string `json:"query,omitempty"`
+}
+
+// Input18be64dee76ccbb1b565145615d071eb94fd5ef5e084ad249271599e217706c8 defines model for Input_18be64dee76ccbb1b565145615d071eb94fd5ef5e084ad249271599e217706c8.
+type Input18be64dee76ccbb1b565145615d071eb94fd5ef5e084ad249271599e217706c8 struct {
 	Id      *string `json:"id,omitempty"`
 	Kind    *string `json:"kind,omitempty"`
 	Tenant  *string `json:"tenant,omitempty"`
@@ -92,25 +93,10 @@ type Input4b2c38475d83ff82029ec4520d07b5ec88c1409199c252fc696e28282c52561f struc
 	RequestedBy              *string `json:"requestedBy,omitempty"`
 }
 
-// Input4bdb53063eafe1e59ff10e87197e26f6c38d25d8f87cdf5c0e54e4660add2556 defines model for Input_4bdb53063eafe1e59ff10e87197e26f6c38d25d8f87cdf5c0e54e4660add2556.
-type Input4bdb53063eafe1e59ff10e87197e26f6c38d25d8f87cdf5c0e54e4660add2556 struct {
-	Id      *string `json:"id,omitempty"`
-	Kind    *string `json:"kind,omitempty"`
-	Tenant  *string `json:"tenant,omitempty"`
-	Version *string `json:"version,omitempty"`
-}
-
 // Input4c3d58d8e922b5abbd65732f09a81d45874f0f7555537fd9607035bfecb9f26c defines model for Input_4c3d58d8e922b5abbd65732f09a81d45874f0f7555537fd9607035bfecb9f26c.
 type Input4c3d58d8e922b5abbd65732f09a81d45874f0f7555537fd9607035bfecb9f26c struct {
 	Cubes *[]interface{} `json:"cubes,omitempty"`
 	Sql   *string        `json:"sql,omitempty"`
-}
-
-// Input56eaf778ce1253fe858bf578c97bd7824413c87195caefb7315fd578bae05388 defines model for Input_56eaf778ce1253fe858bf578c97bd7824413c87195caefb7315fd578bae05388.
-type Input56eaf778ce1253fe858bf578c97bd7824413c87195caefb7315fd578bae05388 struct {
-	Policies *map[string]Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b `json:"policies,omitempty"`
-	Resource *Input4bdb53063eafe1e59ff10e87197e26f6c38d25d8f87cdf5c0e54e4660add2556            `json:"resource,omitempty"`
-	Revision *int64                                                                            `json:"revision,omitempty"`
 }
 
 // Input57127985d5662edb0b3d19b39a5c7c1e6df20a3253afa119615d9abc0d06a16b defines model for Input_57127985d5662edb0b3d19b39a5c7c1e6df20a3253afa119615d9abc0d06a16b.
@@ -131,34 +117,39 @@ type Input5bcc88d6e28e27666dfa5b56f82424fa705c9bf62e9e02961ffb251630580697 struc
 	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
-// Input5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9 defines model for Input_5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9.
-type Input5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9 struct {
-	Id   *string `json:"id,omitempty"`
-	Type *string `json:"type,omitempty"`
+// Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182 defines model for Input_5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182.
+type Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182 struct {
+	EntityType *string                                                                     `json:"entityType,omitempty"`
+	Mode       *string                                                                     `json:"mode,omitempty"`
+	Rule       *Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule `json:"rule,omitempty"`
+}
+
+// Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182Rule1 defines model for Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182.Rule.1.
+type Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182Rule1 = map[string]interface{}
+
+// Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule defines model for Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182.Rule.
+type Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule struct {
+	union json.RawMessage
 }
 
 // Input6139a906f15f351c7eae5d9897ae3973b6172d1373d49394d6c8c69615914840 defines model for Input_6139a906f15f351c7eae5d9897ae3973b6172d1373d49394d6c8c69615914840.
 type Input6139a906f15f351c7eae5d9897ae3973b6172d1373d49394d6c8c69615914840 struct {
-	Description *string `json:"description,omitempty"`
-	Etag        *int64  `json:"etag,omitempty"`
-	Status      *string `json:"status,omitempty"`
-	Title       *string `json:"title,omitempty"`
+	AllowedRoles *[]string `json:"allowedRoles,omitempty"`
+	Description  *string   `json:"description,omitempty"`
+	Etag         *int64    `json:"etag,omitempty"`
+	McpEnabled   *bool     `json:"mcpEnabled,omitempty"`
+	McpPort      *int64    `json:"mcpPort,omitempty"`
+	Status       *string   `json:"status,omitempty"`
+	Title        *string   `json:"title,omitempty"`
+	Visibility   *string   `json:"visibility,omitempty"`
 }
 
-// Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8 defines model for Input_740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8.
-type Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8 struct {
-	Entity *Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity `json:"entity,omitempty"`
-	Kind   *string                                                                       `json:"kind,omitempty"`
-	Rules  *[]Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8      `json:"rules,omitempty"`
-	Value  *string                                                                       `json:"value,omitempty"`
-}
-
-// Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1 defines model for Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8.Entity.1.
-type Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1 = map[string]interface{}
-
-// Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity defines model for Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8.Entity.
-type Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity struct {
-	union json.RawMessage
+// Input61da40565eeef7dc1d2d89123fe0033e9b0f0809a66731851fd56301624b0dc5 defines model for Input_61da40565eeef7dc1d2d89123fe0033e9b0f0809a66731851fd56301624b0dc5.
+type Input61da40565eeef7dc1d2d89123fe0033e9b0f0809a66731851fd56301624b0dc5 struct {
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
 }
 
 // Input78c96702ed752e425a13d515ae18bac86d71d27030700074199617129869fe30 defines model for Input_78c96702ed752e425a13d515ae18bac86d71d27030700074199617129869fe30.
@@ -206,6 +197,14 @@ type Input96a025b75d7ec5ca504acf90ff2915c5535f1449cf9023d5d424dce58b581054 struc
 	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
+// Input97df4a50a602fc26f1ee6311a5f68da1d96e2143f76deaf46ec88c673e7b5125 defines model for Input_97df4a50a602fc26f1ee6311a5f68da1d96e2143f76deaf46ec88c673e7b5125.
+type Input97df4a50a602fc26f1ee6311a5f68da1d96e2143f76deaf46ec88c673e7b5125 struct {
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
+}
+
 // Input9aad80e5262dd4bec1816caf72b4dd6364e8940a81d02db58a19387fcec5e859 defines model for Input_9aad80e5262dd4bec1816caf72b4dd6364e8940a81d02db58a19387fcec5e859.
 type Input9aad80e5262dd4bec1816caf72b4dd6364e8940a81d02db58a19387fcec5e859 struct {
 	Description *string     `json:"description,omitempty"`
@@ -214,21 +213,6 @@ type Input9aad80e5262dd4bec1816caf72b4dd6364e8940a81d02db58a19387fcec5e859 struc
 	Etag        *int64      `json:"etag,omitempty"`
 	Options     interface{} `json:"options,omitempty"`
 	SecretRef   *string     `json:"secretRef,omitempty"`
-}
-
-// Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b defines model for Input_9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b.
-type Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b struct {
-	EntityType *string                                                                     `json:"entityType,omitempty"`
-	Mode       *string                                                                     `json:"mode,omitempty"`
-	Rule       *Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule `json:"rule,omitempty"`
-}
-
-// Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1 defines model for Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b.Rule.1.
-type Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1 = map[string]interface{}
-
-// Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule defines model for Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b.Rule.
-type Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule struct {
-	union json.RawMessage
 }
 
 // InputA0d3076a206576e1fb379faacd83a9e5289796c14e710e1fe21529cfb0c35c21 defines model for Input_a0d3076a206576e1fb379faacd83a9e5289796c14e710e1fe21529cfb0c35c21.
@@ -271,10 +255,14 @@ type InputB94652047b45c410057de4a3d589b99411e9b1ce7012ae301388c27534a7d71e struc
 
 // InputB990d293ef5d3e7e85a2acebd0bbccb12b9ec19ea303b41252de0b2f2bbb9e05 defines model for Input_b990d293ef5d3e7e85a2acebd0bbccb12b9ec19ea303b41252de0b2f2bbb9e05.
 type InputB990d293ef5d3e7e85a2acebd0bbccb12b9ec19ea303b41252de0b2f2bbb9e05 struct {
-	Description *string `json:"description,omitempty"`
-	Name        *string `json:"name,omitempty"`
-	OwnerId     *string `json:"ownerId,omitempty"`
-	Title       *string `json:"title,omitempty"`
+	AllowedRoles *[]string `json:"allowedRoles,omitempty"`
+	Description  *string   `json:"description,omitempty"`
+	McpEnabled   *bool     `json:"mcpEnabled,omitempty"`
+	McpPort      *int64    `json:"mcpPort,omitempty"`
+	Name         *string   `json:"name,omitempty"`
+	OwnerId      *string   `json:"ownerId,omitempty"`
+	Title        *string   `json:"title,omitempty"`
+	Visibility   *string   `json:"visibility,omitempty"`
 }
 
 // InputC4cc575a74227096d9bc84a357106f4a2fb90b472fc6273f1682ae88016fea81 defines model for Input_c4cc575a74227096d9bc84a357106f4a2fb90b472fc6273f1682ae88016fea81.
@@ -330,6 +318,13 @@ type InputD2fa4c9bb7cfdde0500d01f13469e3e914f15fb6eb841dd0cf0c53094ae7e08a struc
 	Query *string `json:"query,omitempty"`
 }
 
+// InputD631d9489d8a46cf61ef6ae5a6a27b5e6c1fe964186472df97480ccb0bd6a17c defines model for Input_d631d9489d8a46cf61ef6ae5a6a27b5e6c1fe964186472df97480ccb0bd6a17c.
+type InputD631d9489d8a46cf61ef6ae5a6a27b5e6c1fe964186472df97480ccb0bd6a17c struct {
+	Policies *map[string]Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182 `json:"policies,omitempty"`
+	Resource *Input18be64dee76ccbb1b565145615d071eb94fd5ef5e084ad249271599e217706c8            `json:"resource,omitempty"`
+	Revision *int64                                                                            `json:"revision,omitempty"`
+}
+
 // InputE14cc58c4ee74d7747f498bcbd7c71a8cb3028eda5782588b9c5299ed0cf9c37 defines model for Input_e14cc58c4ee74d7747f498bcbd7c71a8cb3028eda5782588b9c5299ed0cf9c37.
 type InputE14cc58c4ee74d7747f498bcbd7c71a8cb3028eda5782588b9c5299ed0cf9c37 struct {
 	Limit *int64  `json:"limit,omitempty"`
@@ -338,6 +333,7 @@ type InputE14cc58c4ee74d7747f498bcbd7c71a8cb3028eda5782588b9c5299ed0cf9c37 struc
 
 // InputEa8cf0b60e82e17c8f2e6bc2ad35fe0985cc717838bb65d7f9b56c81bd0718aa defines model for Input_ea8cf0b60e82e17c8f2e6bc2ad35fe0985cc717838bb65d7f9b56c81bd0718aa.
 type InputEa8cf0b60e82e17c8f2e6bc2ad35fe0985cc717838bb65d7f9b56c81bd0718aa struct {
+	Cube  *bool       `json:"cube,omitempty"`
 	Input interface{} `json:"input,omitempty"`
 	Limit *int64      `json:"limit,omitempty"`
 }
@@ -347,6 +343,35 @@ type InputF063ff05b2157fb8f6176bbd7a336f91805d5c30366f9c24c986423e7cda8aa9 struc
 	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
 	Reason                 *string `json:"reason,omitempty"`
 	RequestedBy            *string `json:"requestedBy,omitempty"`
+}
+
+// InputF67c0a976b1eec135c3429edd18e7c91d527c0309b4e4c0e2920d3629cffd80e defines model for Input_f67c0a976b1eec135c3429edd18e7c91d527c0309b4e4c0e2920d3629cffd80e.
+type InputF67c0a976b1eec135c3429edd18e7c91d527c0309b4e4c0e2920d3629cffd80e struct {
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
+}
+
+// InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc defines model for Input_fc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc.
+type InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc struct {
+	Entity *InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc_Entity `json:"entity,omitempty"`
+	Kind   *string                                                                       `json:"kind,omitempty"`
+	Rules  *[]InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc      `json:"rules,omitempty"`
+	Value  *string                                                                       `json:"value,omitempty"`
+}
+
+// InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dcEntity1 defines model for InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc.Entity.1.
+type InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dcEntity1 = map[string]interface{}
+
+// InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc_Entity defines model for InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc.Entity.
+type InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc_Entity struct {
+	union json.RawMessage
+}
+
+// Output056a233e996244d253928b99e6335fa0dfcab4b0aa7e8ffd7a088546a10a6442 defines model for Output_056a233e996244d253928b99e6335fa0dfcab4b0aa7e8ffd7a088546a10a6442.
+type Output056a233e996244d253928b99e6335fa0dfcab4b0aa7e8ffd7a088546a10a6442 struct {
+	Policies *map[string]OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8 `json:"policies"`
+	Resource Output61da40565eeef7dc1d2d89123fe0033e9b0f0809a66731851fd56301624b0dc5             `json:"resource"`
+	Revision int64                                                                              `json:"revision"`
 }
 
 // Output06244387c0c9169e9e2dd8c303d1b08d7c46bddec31314baa7fdae523ab96371 defines model for Output_06244387c0c9169e9e2dd8c303d1b08d7c46bddec31314baa7fdae523ab96371.
@@ -376,42 +401,14 @@ type Output06244387c0c9169e9e2dd8c303d1b08d7c46bddec31314baa7fdae523ab96371 stru
 	VersionNo      int64                                                                     `json:"versionNo"`
 }
 
-// Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886 defines model for Output_0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886.
-type Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886 struct {
-	EntityType *string                                                                      `json:"entityType,omitempty"`
-	Mode       string                                                                       `json:"mode"`
-	Rule       *Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule `json:"rule,omitempty"`
-}
-
-// Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1 defines model for Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886.Rule.1.
-type Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1 = map[string]interface{}
-
-// Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule defines model for Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886.Rule.
-type Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule struct {
-	union json.RawMessage
-}
-
-// Output074baefd6599537117e4be3e30019d7fdfbb35e35777792f4679dc2222339640 defines model for Output_074baefd6599537117e4be3e30019d7fdfbb35e35777792f4679dc2222339640.
-type Output074baefd6599537117e4be3e30019d7fdfbb35e35777792f4679dc2222339640 struct {
-	CanManage bool                                                                   `json:"canManage"`
-	Choices   OutputAd0a4d4d865750761deb4de5e00f7585ee52cb749d5292e61759c6762cd70937 `json:"choices"`
-	Source    string                                                                 `json:"source"`
-}
-
 // Output0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa defines model for Output_0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa.
 type Output0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa struct {
 	AuthenticationMode *string   `json:"authenticationMode,omitempty"`
 	CheckedAt          time.Time `json:"checkedAt"`
+	McpUrl             *string   `json:"mcpUrl,omitempty"`
+	NamespaceId        *string   `json:"namespaceId,omitempty"`
 	Revision           *int64    `json:"revision,omitempty"`
 	Status             string    `json:"status"`
-}
-
-// Output1777f5e244f91f0645bf7ef39ca23fb64c98c7f12533a1f1b43c45261f87381b defines model for Output_1777f5e244f91f0645bf7ef39ca23fb64c98c7f12533a1f1b43c45261f87381b.
-type Output1777f5e244f91f0645bf7ef39ca23fb64c98c7f12533a1f1b43c45261f87381b struct {
-	Id      string `json:"id"`
-	Kind    string `json:"kind"`
-	Tenant  string `json:"tenant"`
-	Version string `json:"version"`
 }
 
 // Output1d9bf0079b94d75e2b9b7b33bb81b13886a46428db871596012139c64cc1a4d6 defines model for Output_1d9bf0079b94d75e2b9b7b33bb81b13886a46428db871596012139c64cc1a4d6.
@@ -424,23 +421,36 @@ type Output1d9bf0079b94d75e2b9b7b33bb81b13886a46428db871596012139c64cc1a4d6 stru
 	Severity string  `json:"severity"`
 }
 
-// Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab defines model for Output_30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab.
-type Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab struct {
-	Entity *Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity `json:"entity,omitempty"`
+// Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260 defines model for Output_20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260.
+type Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260 struct {
+	Entity *Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260_Entity `json:"entity,omitempty"`
 	Id     *string                                                                        `json:"id,omitempty"`
 	Label  string                                                                         `json:"label"`
 }
 
-// Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1 defines model for Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab.Entity.1.
-type Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1 = map[string]interface{}
+// Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260Entity1 defines model for Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260.Entity.1.
+type Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260Entity1 = map[string]interface{}
 
-// Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity defines model for Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab.Entity.
-type Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity struct {
+// Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260_Entity defines model for Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260.Entity.
+type Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260_Entity struct {
 	union json.RawMessage
 }
 
-// Output41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7 defines model for Output_41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7.
-type Output41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7 struct {
+// Output2180387bae10ad30702ff5f50e131002ae984342d3ae82e85f10f7d03794f74c defines model for Output_2180387bae10ad30702ff5f50e131002ae984342d3ae82e85f10f7d03794f74c.
+type Output2180387bae10ad30702ff5f50e131002ae984342d3ae82e85f10f7d03794f74c struct {
+	Id   string `json:"id"`
+	Type string `json:"type"`
+}
+
+// Output2631f895e856b9edb7a880ef06b76a2fcfcf0dc9d13eff46223625680e9a9c89 defines model for Output_2631f895e856b9edb7a880ef06b76a2fcfcf0dc9d13eff46223625680e9a9c89.
+type Output2631f895e856b9edb7a880ef06b76a2fcfcf0dc9d13eff46223625680e9a9c89 struct {
+	Policies *map[string]OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349 `json:"policies"`
+	Resource Output89ec52f68878253d5610456db46a846ae520370ae7d0c82a86f6fa15feeccf84             `json:"resource"`
+	Revision int64                                                                              `json:"revision"`
+}
+
+// Output3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243 defines model for Output_3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243.
+type Output3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243 struct {
 	Id   string `json:"id"`
 	Type string `json:"type"`
 }
@@ -472,6 +482,15 @@ type Output4cf988a4800a68fa7db9d130c60eed0b35369d4c3fc9465e70d61b648bd34b6d stru
 	VersionNo       int64                                                                     `json:"versionNo"`
 }
 
+// Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68 defines model for Output_4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68.
+type Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68 struct {
+	ExplicitAcl bool                                                                   `json:"explicitAcl"`
+	Inherited   bool                                                                   `json:"inherited"`
+	Public      bool                                                                   `json:"public"`
+	Published   bool                                                                   `json:"published"`
+	Resource    Output8d5c08b62d8e11c6b7d0078039d84942d60e13602d2b6b0b25ee4e92d1e8a0bb `json:"resource"`
+}
+
 // Output4fd42d5ac7e58fb29e7ad717b49ad43d1aa3d0a32c5e034148c82bc6baebd5a8 defines model for Output_4fd42d5ac7e58fb29e7ad717b49ad43d1aa3d0a32c5e034148c82bc6baebd5a8.
 type Output4fd42d5ac7e58fb29e7ad717b49ad43d1aa3d0a32c5e034148c82bc6baebd5a8 struct {
 	Code     string  `json:"code"`
@@ -480,28 +499,6 @@ type Output4fd42d5ac7e58fb29e7ad717b49ad43d1aa3d0a32c5e034148c82bc6baebd5a8 stru
 	Line     *int64  `json:"line,omitempty"`
 	Message  string  `json:"message"`
 	Severity string  `json:"severity"`
-}
-
-// Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960 defines model for Output_507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960.
-type Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960 struct {
-	Entity *Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity `json:"entity,omitempty"`
-	Id     *string                                                                        `json:"id,omitempty"`
-	Label  string                                                                         `json:"label"`
-}
-
-// Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1 defines model for Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960.Entity.1.
-type Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1 = map[string]interface{}
-
-// Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity defines model for Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960.Entity.
-type Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity struct {
-	union json.RawMessage
-}
-
-// Output524acdde45b651c8bd48c66b53c101ffac146671a1ddce5c786a6ecbd96dbe58 defines model for Output_524acdde45b651c8bd48c66b53c101ffac146671a1ddce5c786a6ecbd96dbe58.
-type Output524acdde45b651c8bd48c66b53c101ffac146671a1ddce5c786a6ecbd96dbe58 struct {
-	Policies *map[string]Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886 `json:"policies"`
-	Resource OutputEb4292407d8e3ba03eb696194c02197306e42188fbc3037dfceabf2605138d24             `json:"resource"`
-	Revision int64                                                                              `json:"revision"`
 }
 
 // Output586257ec0a228d28fb8c1d7b9b6ceb924795c406b09d9a86111f39a56368b032 defines model for Output_586257ec0a228d28fb8c1d7b9b6ceb924795c406b09d9a86111f39a56368b032.
@@ -531,10 +528,33 @@ type Output586257ec0a228d28fb8c1d7b9b6ceb924795c406b09d9a86111f39a56368b032 stru
 	VersionNo      int64                                                                     `json:"versionNo"`
 }
 
-// Output69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5 defines model for Output_69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5.
-type Output69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5 struct {
+// Output5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2 defines model for Output_5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2.
+type Output5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2 struct {
 	Id   string `json:"id"`
 	Type string `json:"type"`
+}
+
+// Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89 defines model for Output_5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89.
+type Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89 struct {
+	Entity *Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89_Entity `json:"entity,omitempty"`
+	Id     *string                                                                        `json:"id,omitempty"`
+	Label  string                                                                         `json:"label"`
+}
+
+// Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89Entity1 defines model for Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89.Entity.1.
+type Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89Entity1 = map[string]interface{}
+
+// Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89_Entity defines model for Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89.Entity.
+type Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89_Entity struct {
+	union json.RawMessage
+}
+
+// Output61da40565eeef7dc1d2d89123fe0033e9b0f0809a66731851fd56301624b0dc5 defines model for Output_61da40565eeef7dc1d2d89123fe0033e9b0f0809a66731851fd56301624b0dc5.
+type Output61da40565eeef7dc1d2d89123fe0033e9b0f0809a66731851fd56301624b0dc5 struct {
+	Id      string `json:"id"`
+	Kind    string `json:"kind"`
+	Tenant  string `json:"tenant"`
+	Version string `json:"version"`
 }
 
 // Output73a8618e3debe1667f7aafcc74ab58dec2fbd11494bb2e579aae6d2b58f205f3 defines model for Output_73a8618e3debe1667f7aafcc74ab58dec2fbd11494bb2e579aae6d2b58f205f3.
@@ -575,26 +595,48 @@ type Output8035fb9f56e2dfdb283039cb87b71ab1d5f6fa189d850d698929cee1b6b6464d stru
 	UriPrefix string `json:"uriPrefix"`
 }
 
-// Output886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303 defines model for Output_886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303.
-type Output886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303 struct {
+// Output819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f defines model for Output_819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f.
+type Output819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f struct {
 	Id   string `json:"id"`
 	Type string `json:"type"`
 }
 
-// Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f defines model for Output_88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f.
-type Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f struct {
-	Entity *Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity `json:"entity,omitempty"`
+// Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7 defines model for Output_86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7.
+type Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7 struct {
+	Entity *Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7_Entity `json:"entity,omitempty"`
 	Kind   string                                                                         `json:"kind"`
-	Rules  *[]Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f      `json:"rules,omitempty"`
+	Rules  *[]Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7      `json:"rules,omitempty"`
 	Value  *string                                                                        `json:"value,omitempty"`
 }
 
-// Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1 defines model for Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f.Entity.1.
-type Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1 = map[string]interface{}
+// Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7Entity1 defines model for Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7.Entity.1.
+type Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7Entity1 = map[string]interface{}
 
-// Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity defines model for Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f.Entity.
-type Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity struct {
+// Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7_Entity defines model for Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7.Entity.
+type Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7_Entity struct {
 	union json.RawMessage
+}
+
+// Output89ec52f68878253d5610456db46a846ae520370ae7d0c82a86f6fa15feeccf84 defines model for Output_89ec52f68878253d5610456db46a846ae520370ae7d0c82a86f6fa15feeccf84.
+type Output89ec52f68878253d5610456db46a846ae520370ae7d0c82a86f6fa15feeccf84 struct {
+	Id      string `json:"id"`
+	Kind    string `json:"kind"`
+	Tenant  string `json:"tenant"`
+	Version string `json:"version"`
+}
+
+// Output8d5c08b62d8e11c6b7d0078039d84942d60e13602d2b6b0b25ee4e92d1e8a0bb defines model for Output_8d5c08b62d8e11c6b7d0078039d84942d60e13602d2b6b0b25ee4e92d1e8a0bb.
+type Output8d5c08b62d8e11c6b7d0078039d84942d60e13602d2b6b0b25ee4e92d1e8a0bb struct {
+	Id      string `json:"id"`
+	Kind    string `json:"kind"`
+	Tenant  string `json:"tenant"`
+	Version string `json:"version"`
+}
+
+// Output8f9918cf758d7828437221562274ce1aadfefc572741f4475e8f668456c57771 defines model for Output_8f9918cf758d7828437221562274ce1aadfefc572741f4475e8f668456c57771.
+type Output8f9918cf758d7828437221562274ce1aadfefc572741f4475e8f668456c57771 struct {
+	Id   string `json:"id"`
+	Type string `json:"type"`
 }
 
 // Output9e0f449c95fcfb4ee0592ebadf3e17adccbdc32fa89bf50ab9ae8511c2009041 defines model for Output_9e0f449c95fcfb4ee0592ebadf3e17adccbdc32fa89bf50ab9ae8511c2009041.
@@ -620,18 +662,18 @@ type OutputA2a90743713296048071979d14b3abdfc10b4ee77e446ab9dbd7f2c07bbe7266 stru
 	Status            string     `json:"status"`
 }
 
-// OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d defines model for Output_a53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d.
-type OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d struct {
-	Entity *OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity `json:"entity,omitempty"`
+// OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6 defines model for Output_a6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6.
+type OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6 struct {
+	Entity *OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6_Entity `json:"entity,omitempty"`
 	Id     *string                                                                        `json:"id,omitempty"`
 	Label  string                                                                         `json:"label"`
 }
 
-// OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1 defines model for OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d.Entity.1.
-type OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1 = map[string]interface{}
+// OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6Entity1 defines model for OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6.Entity.1.
+type OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6Entity1 = map[string]interface{}
 
-// OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity defines model for OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d.Entity.
-type OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity struct {
+// OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6_Entity defines model for OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6.Entity.
+type OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6_Entity struct {
 	union json.RawMessage
 }
 
@@ -660,15 +702,6 @@ type OutputA717afc38cbc4d350bb71fb00cf76bef68daf27b4650120e47c4d8379356f11f stru
 	Status            string     `json:"status"`
 }
 
-// OutputAd0a4d4d865750761deb4de5e00f7585ee52cb749d5292e61759c6762cd70937 defines model for Output_ad0a4d4d865750761deb4de5e00f7585ee52cb749d5292e61759c6762cd70937.
-type OutputAd0a4d4d865750761deb4de5e00f7585ee52cb749d5292e61759c6762cd70937 struct {
-	Entity      *[]Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960 `json:"entity"`
-	EntityTypes *[]string                                                                 `json:"entityTypes"`
-	Exposure    *[]Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab `json:"exposure"`
-	Role        *[]OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa `json:"role"`
-	Subject     *[]OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d `json:"subject"`
-}
-
 // OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688 defines model for Output_ad75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688.
 type OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688 struct {
 	ActivatedAt      *time.Time                                                                   `json:"activatedAt,omitempty"`
@@ -688,41 +721,78 @@ type OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688_Host
 	union json.RawMessage
 }
 
-// OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15 defines model for Output_cb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15.
-type OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15 struct {
-	Entity *OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity `json:"entity,omitempty"`
-	Kind   string                                                                         `json:"kind"`
-	Rules  *[]OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15      `json:"rules,omitempty"`
-	Value  *string                                                                        `json:"value,omitempty"`
+// OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59 defines model for Output_b54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59.
+type OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59 struct {
+	Entity *OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59_Entity `json:"entity,omitempty"`
+	Id     *string                                                                        `json:"id,omitempty"`
+	Label  string                                                                         `json:"label"`
 }
 
-// OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1 defines model for OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15.Entity.1.
-type OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1 = map[string]interface{}
+// OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59Entity1 defines model for OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59.Entity.1.
+type OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59Entity1 = map[string]interface{}
 
-// OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity defines model for OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15.Entity.
-type OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity struct {
+// OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59_Entity defines model for OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59.Entity.
+type OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59_Entity struct {
 	union json.RawMessage
 }
 
-// OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba defines model for Output_cefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba.
-type OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba struct {
+// OutputBd7a1b00fadef6f5e471ef21cd4fe9df0f1e3f4b9cabd09814c00b321086588a defines model for Output_bd7a1b00fadef6f5e471ef21cd4fe9df0f1e3f4b9cabd09814c00b321086588a.
+type OutputBd7a1b00fadef6f5e471ef21cd4fe9df0f1e3f4b9cabd09814c00b321086588a struct {
+	CanManage bool                                                                   `json:"canManage"`
+	Choices   OutputC97b7b59c0c99ea53e6472f7e79baee9949576f0200174c238c8b514fcc51b69 `json:"choices"`
+	Source    string                                                                 `json:"source"`
+}
+
+// OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349 defines model for Output_c50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349.
+type OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349 struct {
 	EntityType *string                                                                      `json:"entityType,omitempty"`
 	Mode       string                                                                       `json:"mode"`
-	Rule       *OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule `json:"rule,omitempty"`
+	Rule       *OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Rule `json:"rule,omitempty"`
 }
 
-// OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1 defines model for OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba.Rule.1.
-type OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1 = map[string]interface{}
+// OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349Rule1 defines model for OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349.Rule.1.
+type OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349Rule1 = map[string]interface{}
 
-// OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule defines model for OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba.Rule.
-type OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule struct {
+// OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Rule defines model for OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349.Rule.
+type OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Rule struct {
 	union json.RawMessage
 }
 
-// OutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37 defines model for Output_d460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37.
-type OutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37 struct {
+// OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac defines model for Output_c59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac.
+type OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac struct {
+	ExplicitAcl bool                                                                      `json:"explicitAcl"`
+	Id          string                                                                    `json:"id"`
+	Inherited   bool                                                                      `json:"inherited"`
+	Kind        string                                                                    `json:"kind"`
+	Name        string                                                                    `json:"name"`
+	OwnerName   *string                                                                   `json:"ownerName,omitempty"`
+	Public      bool                                                                      `json:"public"`
+	Published   bool                                                                      `json:"published"`
+	Resource    OutputD14887150549e1252499c617aacbd48b5aab3c262cdf2f62fa7fbaf8f1edbaa2    `json:"resource"`
+	Versions    *[]Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68 `json:"versions,omitempty"`
+}
+
+// OutputC97b7b59c0c99ea53e6472f7e79baee9949576f0200174c238c8b514fcc51b69 defines model for Output_c97b7b59c0c99ea53e6472f7e79baee9949576f0200174c238c8b514fcc51b69.
+type OutputC97b7b59c0c99ea53e6472f7e79baee9949576f0200174c238c8b514fcc51b69 struct {
+	Entity      *[]OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59 `json:"entity"`
+	EntityTypes *[]string                                                                 `json:"entityTypes"`
+	Exposure    *[]Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89 `json:"exposure"`
+	Role        *[]OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6 `json:"role"`
+	Subject     *[]Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260 `json:"subject"`
+}
+
+// OutputCa207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b defines model for Output_ca207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b.
+type OutputCa207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b struct {
 	Id   string `json:"id"`
 	Type string `json:"type"`
+}
+
+// OutputD14887150549e1252499c617aacbd48b5aab3c262cdf2f62fa7fbaf8f1edbaa2 defines model for Output_d14887150549e1252499c617aacbd48b5aab3c262cdf2f62fa7fbaf8f1edbaa2.
+type OutputD14887150549e1252499c617aacbd48b5aab3c262cdf2f62fa7fbaf8f1edbaa2 struct {
+	Id      string `json:"id"`
+	Kind    string `json:"kind"`
+	Tenant  string `json:"tenant"`
+	Version string `json:"version"`
 }
 
 // OutputD558223f5d3d6bca0e300c59f8e624af838223bc61f0cb8c88f09c757834ddaa defines model for Output_d558223f5d3d6bca0e300c59f8e624af838223bc61f0cb8c88f09c757834ddaa.
@@ -737,40 +807,25 @@ type OutputD558223f5d3d6bca0e300c59f8e624af838223bc61f0cb8c88f09c757834ddaa stru
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
-// OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa defines model for Output_d6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa.
-type OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa struct {
-	Entity *OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity `json:"entity,omitempty"`
-	Id     *string                                                                        `json:"id,omitempty"`
-	Label  string                                                                         `json:"label"`
+// OutputDb16d19662078b5e2bf34bb56caf4e031ec60811b8ff0833d9304fe74bb3deb7 defines model for Output_db16d19662078b5e2bf34bb56caf4e031ec60811b8ff0833d9304fe74bb3deb7.
+type OutputDb16d19662078b5e2bf34bb56caf4e031ec60811b8ff0833d9304fe74bb3deb7 struct {
+	HasMore bool                                                                      `json:"hasMore"`
+	Items   *[]OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac `json:"items"`
 }
 
-// OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1 defines model for OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa.Entity.1.
-type OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1 = map[string]interface{}
+// OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8 defines model for Output_e8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8.
+type OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8 struct {
+	EntityType *string                                                                      `json:"entityType,omitempty"`
+	Mode       string                                                                       `json:"mode"`
+	Rule       *OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Rule `json:"rule,omitempty"`
+}
 
-// OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity defines model for OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa.Entity.
-type OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity struct {
+// OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8Rule1 defines model for OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8.Rule.1.
+type OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8Rule1 = map[string]interface{}
+
+// OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Rule defines model for OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8.Rule.
+type OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Rule struct {
 	union json.RawMessage
-}
-
-// OutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed defines model for Output_d929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed.
-type OutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
-}
-
-// OutputD94fe2c0f68aadd9d8fcacadf97221cae176cdc5a262134071dca8fa5d6e14ef defines model for Output_d94fe2c0f68aadd9d8fcacadf97221cae176cdc5a262134071dca8fa5d6e14ef.
-type OutputD94fe2c0f68aadd9d8fcacadf97221cae176cdc5a262134071dca8fa5d6e14ef struct {
-	Policies *map[string]OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba `json:"policies"`
-	Resource Output1777f5e244f91f0645bf7ef39ca23fb64c98c7f12533a1f1b43c45261f87381b             `json:"resource"`
-	Revision int64                                                                              `json:"revision"`
-}
-
-// OutputEb4292407d8e3ba03eb696194c02197306e42188fbc3037dfceabf2605138d24 defines model for Output_eb4292407d8e3ba03eb696194c02197306e42188fbc3037dfceabf2605138d24.
-type OutputEb4292407d8e3ba03eb696194c02197306e42188fbc3037dfceabf2605138d24 struct {
-	Id      string `json:"id"`
-	Kind    string `json:"kind"`
-	Tenant  string `json:"tenant"`
-	Version string `json:"version"`
 }
 
 // OutputEf553e0e338a00cf70d43289eb53e588abb65348804f4defbd8fd2ea4e5691ee defines model for Output_ef553e0e338a00cf70d43289eb53e588abb65348804f4defbd8fd2ea4e5691ee.
@@ -790,10 +845,20 @@ type OutputF2954ccbc2dd12cce598727f4c49ad7d3d88f3404672f047b6fb03d041c024bf stru
 	UriPrefix string `json:"uriPrefix"`
 }
 
-// OutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0 defines model for Output_f9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0.
-type OutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0 struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
+// OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69 defines model for Output_f632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69.
+type OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69 struct {
+	Entity *OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69_Entity `json:"entity,omitempty"`
+	Kind   string                                                                         `json:"kind"`
+	Rules  *[]OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69      `json:"rules,omitempty"`
+	Value  *string                                                                        `json:"value,omitempty"`
+}
+
+// OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69Entity1 defines model for OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69.Entity.1.
+type OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69Entity1 = map[string]interface{}
+
+// OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69_Entity defines model for OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69.Entity.
+type OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69_Entity struct {
+	union json.RawMessage
 }
 
 // Wire013ce40651897a22f1d0c9d5a29a86362333458b72c57acb30fa03a2473f08c6 defines model for Wire_013ce40651897a22f1d0c9d5a29a86362333458b72c57acb30fa03a2473f08c6.
@@ -1031,14 +1096,20 @@ type Wire1e3fdf8fcb04453947f7d75766cc316e3e09d18591edbeef886727e071fe5f28 struct
 
 // Wire1f5f473dc54ed2f6c617275d578b2307a69146cb2ce69ae058bffe57f5c226b4 defines model for Wire_1f5f473dc54ed2f6c617275d578b2307a69146cb2ce69ae058bffe57f5c226b4.
 type Wire1f5f473dc54ed2f6c617275d578b2307a69146cb2ce69ae058bffe57f5c226b4 struct {
-	CreatedAt   time.Time `json:"createdAt"`
-	Description *string   `json:"description,omitempty"`
-	Etag        int64     `json:"etag"`
-	Name        string    `json:"name"`
-	OwnerId     string    `json:"ownerId"`
-	Status      string    `json:"status"`
-	Title       string    `json:"title"`
-	UpdatedAt   time.Time `json:"updatedAt"`
+	AllowedRoles *[]string `json:"allowedRoles"`
+	CanManage    bool      `json:"canManage"`
+	CreatedAt    time.Time `json:"createdAt"`
+	Description  *string   `json:"description,omitempty"`
+	Etag         int64     `json:"etag"`
+	McpEnabled   bool      `json:"mcpEnabled"`
+	McpPort      *int64    `json:"mcpPort,omitempty"`
+	Name         string    `json:"name"`
+	NamespaceId  string    `json:"namespaceId"`
+	OwnerId      string    `json:"ownerId"`
+	Status       string    `json:"status"`
+	Title        string    `json:"title"`
+	UpdatedAt    time.Time `json:"updatedAt"`
+	Visibility   string    `json:"visibility"`
 }
 
 // Wire221846f313892219b53265500a015547384983c9f728252d253349f904fb06a9 defines model for Wire_221846f313892219b53265500a015547384983c9f728252d253349f904fb06a9.
@@ -2090,14 +2161,19 @@ type WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Versio
 
 // WireA6d5a259bb2993e6552649336f2c093ccd6ae12f130f8526f5c136a619d0cb51 defines model for Wire_a6d5a259bb2993e6552649336f2c093ccd6ae12f130f8526f5c136a619d0cb51.
 type WireA6d5a259bb2993e6552649336f2c093ccd6ae12f130f8526f5c136a619d0cb51 struct {
-	CreatedAt   time.Time `json:"createdAt"`
-	Description *string   `json:"description,omitempty"`
-	Etag        int64     `json:"etag"`
-	Name        string    `json:"name"`
-	OwnerId     string    `json:"ownerId"`
-	Status      string    `json:"status"`
-	Title       string    `json:"title"`
-	UpdatedAt   time.Time `json:"updatedAt"`
+	AllowedRoles *[]string `json:"allowedRoles"`
+	CreatedAt    time.Time `json:"createdAt"`
+	Description  *string   `json:"description,omitempty"`
+	Etag         int64     `json:"etag"`
+	McpEnabled   bool      `json:"mcpEnabled"`
+	McpPort      *int64    `json:"mcpPort,omitempty"`
+	Name         string    `json:"name"`
+	NamespaceId  string    `json:"namespaceId"`
+	OwnerId      string    `json:"ownerId"`
+	Status       string    `json:"status"`
+	Title        string    `json:"title"`
+	UpdatedAt    time.Time `json:"updatedAt"`
+	Visibility   string    `json:"visibility"`
 }
 
 // WireAacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a defines model for Wire_aacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a.
@@ -2486,14 +2562,20 @@ type WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179_Items_
 
 // WireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231 defines model for Wire_ddb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231.
 type WireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231 struct {
-	CreatedAt   time.Time `json:"createdAt"`
-	Description *string   `json:"description,omitempty"`
-	Etag        int64     `json:"etag"`
-	Name        string    `json:"name"`
-	OwnerId     string    `json:"ownerId"`
-	Status      string    `json:"status"`
-	Title       string    `json:"title"`
-	UpdatedAt   time.Time `json:"updatedAt"`
+	AllowedRoles *[]string `json:"allowedRoles"`
+	CanManage    bool      `json:"canManage"`
+	CreatedAt    time.Time `json:"createdAt"`
+	Description  *string   `json:"description,omitempty"`
+	Etag         int64     `json:"etag"`
+	McpEnabled   bool      `json:"mcpEnabled"`
+	McpPort      *int64    `json:"mcpPort,omitempty"`
+	Name         string    `json:"name"`
+	NamespaceId  string    `json:"namespaceId"`
+	OwnerId      string    `json:"ownerId"`
+	Status       string    `json:"status"`
+	Title        string    `json:"title"`
+	UpdatedAt    time.Time `json:"updatedAt"`
+	Visibility   string    `json:"visibility"`
 }
 
 // WireDdc8f3519e98b687e03e321d69e1dab9d279d6f41fcef8b1c25d52a95b4f51bd defines model for Wire_ddc8f3519e98b687e03e321d69e1dab9d279d6f41fcef8b1c25d52a95b4f51bd.
@@ -2694,6 +2776,11 @@ type POSTv1studiosdkaclDeleteJSONBody struct {
 	SubjectType string `json:"subjectType"`
 }
 
+// POSTv1studiosdkaclDeleteParams defines parameters for POSTv1studiosdkaclDelete.
+type POSTv1studiosdkaclDeleteParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
 // POSTv1studiosdkaclListJSONBody defines parameters for POSTv1studiosdkaclList.
 type POSTv1studiosdkaclListJSONBody struct {
 	ReportId string `json:"reportId"`
@@ -2701,8 +2788,9 @@ type POSTv1studiosdkaclListJSONBody struct {
 
 // POSTv1studiosdkaclListParams defines parameters for POSTv1studiosdkaclList.
 type POSTv1studiosdkaclListParams struct {
-	SubjectType *string `form:"subjectType,omitempty" json:"subjectType,omitempty"`
-	SubjectId   *string `form:"subjectId,omitempty" json:"subjectId,omitempty"`
+	SubjectType      *string `form:"subjectType,omitempty" json:"subjectType,omitempty"`
+	SubjectId        *string `form:"subjectId,omitempty" json:"subjectId,omitempty"`
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
 // POSTv1studiosdkaclUpsertJSONBody defines parameters for POSTv1studiosdkaclUpsert.
@@ -2716,6 +2804,11 @@ type POSTv1studiosdkaclUpsertJSONBody struct {
 	ReportId    string `json:"reportId"`
 	SubjectId   string `json:"subjectId"`
 	SubjectType string `json:"subjectType"`
+}
+
+// POSTv1studiosdkaclUpsertParams defines parameters for POSTv1studiosdkaclUpsert.
+type POSTv1studiosdkaclUpsertParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
 // POSTv1studiosdkauthorizationPredicatesCreateJSONBody defines parameters for POSTv1studiosdkauthorizationPredicatesCreate.
@@ -2767,9 +2860,19 @@ type POSTv1studiosdkcomponentsCreateJSONBody struct {
 	Title                string  `json:"title"`
 }
 
+// POSTv1studiosdkcomponentsCreateParams defines parameters for POSTv1studiosdkcomponentsCreate.
+type POSTv1studiosdkcomponentsCreateParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
 // POSTv1studiosdkcomponentsGetJSONBody defines parameters for POSTv1studiosdkcomponentsGet.
 type POSTv1studiosdkcomponentsGetJSONBody struct {
 	Id string `json:"id"`
+}
+
+// POSTv1studiosdkcomponentsGetParams defines parameters for POSTv1studiosdkcomponentsGet.
+type POSTv1studiosdkcomponentsGetParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
 // POSTv1studiosdkcomponentsListJSONBody defines parameters for POSTv1studiosdkcomponentsList.
@@ -2783,6 +2886,11 @@ type POSTv1studiosdkcomponentsListJSONBody struct {
 	OwnerId       *string   `json:"ownerId,omitempty"`
 	Query         *string   `json:"query,omitempty"`
 	Status        *string   `json:"status,omitempty"`
+}
+
+// POSTv1studiosdkcomponentsListParams defines parameters for POSTv1studiosdkcomponentsList.
+type POSTv1studiosdkcomponentsListParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
 // POSTv1studiosdkcomponentsUpdateJSONBody defines parameters for POSTv1studiosdkcomponentsUpdate.
@@ -2893,6 +3001,11 @@ type POSTv1studiosdkpreviewExecuteJSONBody struct {
 	VersionNo int64                                                                  `json:"versionNo"`
 }
 
+// POSTv1studiosdkpreviewExecuteParams defines parameters for POSTv1studiosdkpreviewExecute.
+type POSTv1studiosdkpreviewExecuteParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
 // POSTv1studiosdkpublicationsEventsListJSONBody defines parameters for POSTv1studiosdkpublicationsEventsList.
 type POSTv1studiosdkpublicationsEventsListJSONBody struct {
 	Input    *InputC8f891bb6cfd81599dce6f4f5d400a21caa864a78f2dabaa10e3173f02ca8db3 `json:"input,omitempty"`
@@ -2911,11 +3024,21 @@ type POSTv1studiosdkpublicationsPublishJSONBody struct {
 	VersionNo int64                                                                 `json:"versionNo"`
 }
 
+// POSTv1studiosdkpublicationsPublishParams defines parameters for POSTv1studiosdkpublicationsPublish.
+type POSTv1studiosdkpublicationsPublishParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
 // POSTv1studiosdkpublicationsRollbackJSONBody defines parameters for POSTv1studiosdkpublicationsRollback.
 type POSTv1studiosdkpublicationsRollbackJSONBody struct {
 	Input     InputB11523bf8a7cc12531330e851f7fb2dd5c4f01768e8eaf6d9a50d7d84ad1250b `json:"input"`
 	ReportId  string                                                                `json:"reportId"`
 	VersionNo int64                                                                 `json:"versionNo"`
+}
+
+// POSTv1studiosdkpublicationsRollbackParams defines parameters for POSTv1studiosdkpublicationsRollback.
+type POSTv1studiosdkpublicationsRollbackParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
 // POSTv1studiosdkpublicationsUnpublishJSONBody defines parameters for POSTv1studiosdkpublicationsUnpublish.
@@ -2924,10 +3047,55 @@ type POSTv1studiosdkpublicationsUnpublishJSONBody struct {
 	ReportId string                                                                `json:"reportId"`
 }
 
+// POSTv1studiosdkpublicationsUnpublishParams defines parameters for POSTv1studiosdkpublicationsUnpublish.
+type POSTv1studiosdkpublicationsUnpublishParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
+// POSTv1studiosdkresourcesDeleteFileParams defines parameters for POSTv1studiosdkresourcesDeleteFile.
+type POSTv1studiosdkresourcesDeleteFileParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
+// POSTv1studiosdkresourcesDeleteFolderParams defines parameters for POSTv1studiosdkresourcesDeleteFolder.
+type POSTv1studiosdkresourcesDeleteFolderParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
+// POSTv1studiosdkresourcesDeleteSkillParams defines parameters for POSTv1studiosdkresourcesDeleteSkill.
+type POSTv1studiosdkresourcesDeleteSkillParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
 // POSTv1studiosdkresourcesGetJSONBody defines parameters for POSTv1studiosdkresourcesGet.
 type POSTv1studiosdkresourcesGetJSONBody struct {
 	ReportId  string `json:"reportId"`
 	VersionNo int64  `json:"versionNo"`
+}
+
+// POSTv1studiosdkresourcesGetParams defines parameters for POSTv1studiosdkresourcesGet.
+type POSTv1studiosdkresourcesGetParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
+// POSTv1studiosdkresourcesUpsertFileParams defines parameters for POSTv1studiosdkresourcesUpsertFile.
+type POSTv1studiosdkresourcesUpsertFileParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
+// POSTv1studiosdkresourcesUpsertFolderParams defines parameters for POSTv1studiosdkresourcesUpsertFolder.
+type POSTv1studiosdkresourcesUpsertFolderParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
+// POSTv1studiosdkresourcesUpsertSkillParams defines parameters for POSTv1studiosdkresourcesUpsertSkill.
+type POSTv1studiosdkresourcesUpsertSkillParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
+// POSTv1studiosdkruntimeStatusParams defines parameters for POSTv1studiosdkruntimeStatus.
+type POSTv1studiosdkruntimeStatusParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
 // POSTv1studiosdkversionsApplyJSONBody defines parameters for POSTv1studiosdkversionsApply.
@@ -2937,11 +3105,21 @@ type POSTv1studiosdkversionsApplyJSONBody struct {
 	VersionNo int64                                                                 `json:"versionNo"`
 }
 
+// POSTv1studiosdkversionsApplyParams defines parameters for POSTv1studiosdkversionsApply.
+type POSTv1studiosdkversionsApplyParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
 // POSTv1studiosdkversionsBuilderJSONBody defines parameters for POSTv1studiosdkversionsBuilder.
 type POSTv1studiosdkversionsBuilderJSONBody struct {
 	Command   Input8b2294ec4854c9dd94236a9123a7d8fe7dbf92cab403fb011d6c8bf7d53c5054 `json:"command"`
 	ReportId  string                                                                `json:"reportId"`
 	VersionNo int64                                                                 `json:"versionNo"`
+}
+
+// POSTv1studiosdkversionsBuilderParams defines parameters for POSTv1studiosdkversionsBuilder.
+type POSTv1studiosdkversionsBuilderParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
 // POSTv1studiosdkversionsCreateJSONBody defines parameters for POSTv1studiosdkversionsCreate.
@@ -2950,10 +3128,20 @@ type POSTv1studiosdkversionsCreateJSONBody struct {
 	ReportId string                                                                `json:"reportId"`
 }
 
+// POSTv1studiosdkversionsCreateParams defines parameters for POSTv1studiosdkversionsCreate.
+type POSTv1studiosdkversionsCreateParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
 // POSTv1studiosdkversionsDescriptorJSONBody defines parameters for POSTv1studiosdkversionsDescriptor.
 type POSTv1studiosdkversionsDescriptorJSONBody struct {
 	ReportId  string `json:"reportId"`
 	VersionNo int64  `json:"versionNo"`
+}
+
+// POSTv1studiosdkversionsDescriptorParams defines parameters for POSTv1studiosdkversionsDescriptor.
+type POSTv1studiosdkversionsDescriptorParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
 // POSTv1studiosdkversionsDownloadJSONBody defines parameters for POSTv1studiosdkversionsDownload.
@@ -2962,10 +3150,20 @@ type POSTv1studiosdkversionsDownloadJSONBody struct {
 	VersionNo int64  `json:"versionNo"`
 }
 
+// POSTv1studiosdkversionsDownloadParams defines parameters for POSTv1studiosdkversionsDownload.
+type POSTv1studiosdkversionsDownloadParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
 // POSTv1studiosdkversionsExportDqlJSONBody defines parameters for POSTv1studiosdkversionsExportDql.
 type POSTv1studiosdkversionsExportDqlJSONBody struct {
 	ReportId  string `json:"reportId"`
 	VersionNo int64  `json:"versionNo"`
+}
+
+// POSTv1studiosdkversionsExportDqlParams defines parameters for POSTv1studiosdkversionsExportDql.
+type POSTv1studiosdkversionsExportDqlParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
 // POSTv1studiosdkversionsGetJSONBody defines parameters for POSTv1studiosdkversionsGet.
@@ -2974,10 +3172,20 @@ type POSTv1studiosdkversionsGetJSONBody struct {
 	VersionNo int64  `json:"versionNo"`
 }
 
+// POSTv1studiosdkversionsGetParams defines parameters for POSTv1studiosdkversionsGet.
+type POSTv1studiosdkversionsGetParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
 // POSTv1studiosdkversionsInspectJSONBody defines parameters for POSTv1studiosdkversionsInspect.
 type POSTv1studiosdkversionsInspectJSONBody struct {
 	ReportId  string `json:"reportId"`
 	VersionNo int64  `json:"versionNo"`
+}
+
+// POSTv1studiosdkversionsInspectParams defines parameters for POSTv1studiosdkversionsInspect.
+type POSTv1studiosdkversionsInspectParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
 // POSTv1studiosdkversionsListJSONBody defines parameters for POSTv1studiosdkversionsList.
@@ -2988,10 +3196,20 @@ type POSTv1studiosdkversionsListJSONBody struct {
 	ReportId string                                                                 `json:"reportId"`
 }
 
+// POSTv1studiosdkversionsListParams defines parameters for POSTv1studiosdkversionsList.
+type POSTv1studiosdkversionsListParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
 // POSTv1studiosdkversionsLoadArchiveJSONBody defines parameters for POSTv1studiosdkversionsLoadArchive.
 type POSTv1studiosdkversionsLoadArchiveJSONBody struct {
 	Input    Input05e809e9f99e43822a03e6818a8de1e9fd48cb2f10be053f77c9af8d2092e9d9 `json:"input"`
 	ReportId string                                                                `json:"reportId"`
+}
+
+// POSTv1studiosdkversionsLoadArchiveParams defines parameters for POSTv1studiosdkversionsLoadArchive.
+type POSTv1studiosdkversionsLoadArchiveParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
 // POSTv1studiosdkversionsLoadDqlJSONBody defines parameters for POSTv1studiosdkversionsLoadDql.
@@ -3000,11 +3218,21 @@ type POSTv1studiosdkversionsLoadDqlJSONBody struct {
 	ReportId string                                                                `json:"reportId"`
 }
 
+// POSTv1studiosdkversionsLoadDqlParams defines parameters for POSTv1studiosdkversionsLoadDql.
+type POSTv1studiosdkversionsLoadDqlParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
 // POSTv1studiosdkversionsTestComposeJSONBody defines parameters for POSTv1studiosdkversionsTestCompose.
 type POSTv1studiosdkversionsTestComposeJSONBody struct {
 	Input     Input4c3d58d8e922b5abbd65732f09a81d45874f0f7555537fd9607035bfecb9f26c `json:"input"`
 	ReportId  string                                                                `json:"reportId"`
 	VersionNo int64                                                                 `json:"versionNo"`
+}
+
+// POSTv1studiosdkversionsTestComposeParams defines parameters for POSTv1studiosdkversionsTestCompose.
+type POSTv1studiosdkversionsTestComposeParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
 // POSTv1studiosdkversionsTestRelationJSONBody defines parameters for POSTv1studiosdkversionsTestRelation.
@@ -3015,12 +3243,22 @@ type POSTv1studiosdkversionsTestRelationJSONBody struct {
 	VersionNo int64                                                                  `json:"versionNo"`
 }
 
+// POSTv1studiosdkversionsTestRelationParams defines parameters for POSTv1studiosdkversionsTestRelation.
+type POSTv1studiosdkversionsTestRelationParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
 // POSTv1studiosdkversionsTestViewJSONBody defines parameters for POSTv1studiosdkversionsTestView.
 type POSTv1studiosdkversionsTestViewJSONBody struct {
 	Input     *Input78c96702ed752e425a13d515ae18bac86d71d27030700074199617129869fe30 `json:"input,omitempty"`
 	ReportId  string                                                                 `json:"reportId"`
 	VersionNo int64                                                                  `json:"versionNo"`
 	View      string                                                                 `json:"view"`
+}
+
+// POSTv1studiosdkversionsTestViewParams defines parameters for POSTv1studiosdkversionsTestView.
+type POSTv1studiosdkversionsTestViewParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
 // POSTv1studiosdkversionsValidateJSONBody defines parameters for POSTv1studiosdkversionsValidate.
@@ -3030,16 +3268,31 @@ type POSTv1studiosdkversionsValidateJSONBody struct {
 	VersionNo              int64  `json:"versionNo"`
 }
 
+// POSTv1studiosdkversionsValidateParams defines parameters for POSTv1studiosdkversionsValidate.
+type POSTv1studiosdkversionsValidateParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
 // POSTv1studiosdkversionsWarmupJSONBody defines parameters for POSTv1studiosdkversionsWarmup.
 type POSTv1studiosdkversionsWarmupJSONBody struct {
 	ReportId  string `json:"reportId"`
 	VersionNo int64  `json:"versionNo"`
 }
 
+// POSTv1studiosdkversionsWarmupParams defines parameters for POSTv1studiosdkversionsWarmup.
+type POSTv1studiosdkversionsWarmupParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
 // POSTv1studiosdkversionsWarmupGetJSONBody defines parameters for POSTv1studiosdkversionsWarmupGet.
 type POSTv1studiosdkversionsWarmupGetJSONBody struct {
 	ReportId string `json:"reportId"`
 	RunId    string `json:"runId"`
+}
+
+// POSTv1studiosdkversionsWarmupGetParams defines parameters for POSTv1studiosdkversionsWarmupGet.
+type POSTv1studiosdkversionsWarmupGetParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
 // POSTv1studiosdkversionsWarmupListJSONBody defines parameters for POSTv1studiosdkversionsWarmupList.
@@ -3049,14 +3302,22 @@ type POSTv1studiosdkversionsWarmupListJSONBody struct {
 	VersionNo int64                                                                  `json:"versionNo"`
 }
 
+// POSTv1studiosdkversionsWarmupListParams defines parameters for POSTv1studiosdkversionsWarmupList.
+type POSTv1studiosdkversionsWarmupListParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
 // POSTv1studiosdkaccessContextJSONRequestBody defines body for POSTv1studiosdkaccessContext for application/json ContentType.
-type POSTv1studiosdkaccessContextJSONRequestBody = Input03431463bb75c805271cda3d99727948b169a41134e802271c7e8a9391c0be1b
+type POSTv1studiosdkaccessContextJSONRequestBody = Input97df4a50a602fc26f1ee6311a5f68da1d96e2143f76deaf46ec88c673e7b5125
 
 // POSTv1studiosdkaccessGetJSONRequestBody defines body for POSTv1studiosdkaccessGet for application/json ContentType.
-type POSTv1studiosdkaccessGetJSONRequestBody = Input1777f5e244f91f0645bf7ef39ca23fb64c98c7f12533a1f1b43c45261f87381b
+type POSTv1studiosdkaccessGetJSONRequestBody = Input61da40565eeef7dc1d2d89123fe0033e9b0f0809a66731851fd56301624b0dc5
+
+// POSTv1studiosdkaccessListJSONRequestBody defines body for POSTv1studiosdkaccessList for application/json ContentType.
+type POSTv1studiosdkaccessListJSONRequestBody = Input092de1a1aa148d7f76a45d866e2aba4a800ba8a33379ccd1537c3e3699762324
 
 // POSTv1studiosdkaccessReplaceJSONRequestBody defines body for POSTv1studiosdkaccessReplace for application/json ContentType.
-type POSTv1studiosdkaccessReplaceJSONRequestBody = Input56eaf778ce1253fe858bf578c97bd7824413c87195caefb7315fd578bae05388
+type POSTv1studiosdkaccessReplaceJSONRequestBody = InputD631d9489d8a46cf61ef6ae5a6a27b5e6c1fe964186472df97480ccb0bd6a17c
 
 // POSTv1studiosdkaclDeleteJSONRequestBody defines body for POSTv1studiosdkaclDelete for application/json ContentType.
 type POSTv1studiosdkaclDeleteJSONRequestBody POSTv1studiosdkaclDeleteJSONBody
@@ -3238,22 +3499,22 @@ type POSTv1studiosdkversionsWarmupGetJSONRequestBody POSTv1studiosdkversionsWarm
 // POSTv1studiosdkversionsWarmupListJSONRequestBody defines body for POSTv1studiosdkversionsWarmupList for application/json ContentType.
 type POSTv1studiosdkversionsWarmupListJSONRequestBody POSTv1studiosdkversionsWarmupListJSONBody
 
-// AsInput5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9 returns the union data inside the Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity as a Input5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9
-func (t Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity) AsInput5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9() (Input5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9, error) {
-	var body Input5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9
+// AsInputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc returns the union data inside the Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule as a InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc
+func (t Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule) AsInputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc() (InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc, error) {
+	var body InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromInput5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9 overwrites any union data inside the Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity as the provided Input5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9
-func (t *Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity) FromInput5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9(v Input5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9) error {
+// FromInputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc overwrites any union data inside the Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule as the provided InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc
+func (t *Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule) FromInputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc(v InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeInput5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9 performs a merge with any union data inside the Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity, using the provided Input5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9
-func (t *Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity) MergeInput5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9(v Input5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9) error {
+// MergeInputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc performs a merge with any union data inside the Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule, using the provided InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc
+func (t *Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule) MergeInputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc(v InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -3264,22 +3525,22 @@ func (t *Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_E
 	return err
 }
 
-// AsInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1 returns the union data inside the Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity as a Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1
-func (t Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity) AsInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1() (Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1, error) {
-	var body Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1
+// AsInput5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182Rule1 returns the union data inside the Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule as a Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182Rule1
+func (t Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule) AsInput5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182Rule1() (Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182Rule1, error) {
+	var body Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182Rule1
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1 overwrites any union data inside the Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity as the provided Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1
-func (t *Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity) FromInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1(v Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1) error {
+// FromInput5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182Rule1 overwrites any union data inside the Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule as the provided Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182Rule1
+func (t *Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule) FromInput5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182Rule1(v Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182Rule1) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1 performs a merge with any union data inside the Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity, using the provided Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1
-func (t *Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity) MergeInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1(v Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8Entity1) error {
+// MergeInput5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182Rule1 performs a merge with any union data inside the Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule, using the provided Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182Rule1
+func (t *Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule) MergeInput5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182Rule1(v Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182Rule1) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -3290,32 +3551,32 @@ func (t *Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_E
 	return err
 }
 
-func (t Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity) MarshalJSON() ([]byte, error) {
+func (t Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
 }
 
-func (t *Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8_Entity) UnmarshalJSON(b []byte) error {
+func (t *Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
 
-// AsInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8 returns the union data inside the Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule as a Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8
-func (t Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule) AsInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8() (Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8, error) {
-	var body Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8
+// AsInputF67c0a976b1eec135c3429edd18e7c91d527c0309b4e4c0e2920d3629cffd80e returns the union data inside the InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc_Entity as a InputF67c0a976b1eec135c3429edd18e7c91d527c0309b4e4c0e2920d3629cffd80e
+func (t InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc_Entity) AsInputF67c0a976b1eec135c3429edd18e7c91d527c0309b4e4c0e2920d3629cffd80e() (InputF67c0a976b1eec135c3429edd18e7c91d527c0309b4e4c0e2920d3629cffd80e, error) {
+	var body InputF67c0a976b1eec135c3429edd18e7c91d527c0309b4e4c0e2920d3629cffd80e
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8 overwrites any union data inside the Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule as the provided Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8
-func (t *Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule) FromInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8(v Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8) error {
+// FromInputF67c0a976b1eec135c3429edd18e7c91d527c0309b4e4c0e2920d3629cffd80e overwrites any union data inside the InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc_Entity as the provided InputF67c0a976b1eec135c3429edd18e7c91d527c0309b4e4c0e2920d3629cffd80e
+func (t *InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc_Entity) FromInputF67c0a976b1eec135c3429edd18e7c91d527c0309b4e4c0e2920d3629cffd80e(v InputF67c0a976b1eec135c3429edd18e7c91d527c0309b4e4c0e2920d3629cffd80e) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8 performs a merge with any union data inside the Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule, using the provided Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8
-func (t *Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule) MergeInput740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8(v Input740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8) error {
+// MergeInputF67c0a976b1eec135c3429edd18e7c91d527c0309b4e4c0e2920d3629cffd80e performs a merge with any union data inside the InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc_Entity, using the provided InputF67c0a976b1eec135c3429edd18e7c91d527c0309b4e4c0e2920d3629cffd80e
+func (t *InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc_Entity) MergeInputF67c0a976b1eec135c3429edd18e7c91d527c0309b4e4c0e2920d3629cffd80e(v InputF67c0a976b1eec135c3429edd18e7c91d527c0309b4e4c0e2920d3629cffd80e) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -3326,22 +3587,22 @@ func (t *Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_R
 	return err
 }
 
-// AsInput9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1 returns the union data inside the Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule as a Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1
-func (t Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule) AsInput9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1() (Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1, error) {
-	var body Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1
+// AsInputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dcEntity1 returns the union data inside the InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc_Entity as a InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dcEntity1
+func (t InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc_Entity) AsInputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dcEntity1() (InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dcEntity1, error) {
+	var body InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dcEntity1
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromInput9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1 overwrites any union data inside the Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule as the provided Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1
-func (t *Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule) FromInput9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1(v Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1) error {
+// FromInputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dcEntity1 overwrites any union data inside the InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc_Entity as the provided InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dcEntity1
+func (t *InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc_Entity) FromInputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dcEntity1(v InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dcEntity1) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeInput9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1 performs a merge with any union data inside the Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule, using the provided Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1
-func (t *Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule) MergeInput9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1(v Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483bRule1) error {
+// MergeInputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dcEntity1 performs a merge with any union data inside the InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc_Entity, using the provided InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dcEntity1
+func (t *InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc_Entity) MergeInputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dcEntity1(v InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dcEntity1) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -3352,32 +3613,32 @@ func (t *Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_R
 	return err
 }
 
-func (t Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule) MarshalJSON() ([]byte, error) {
+func (t InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc_Entity) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
 }
 
-func (t *Input9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b_Rule) UnmarshalJSON(b []byte) error {
+func (t *InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc_Entity) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
 
-// AsOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f returns the union data inside the Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule as a Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f
-func (t Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule) AsOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f() (Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f, error) {
-	var body Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f
+// AsOutput8f9918cf758d7828437221562274ce1aadfefc572741f4475e8f668456c57771 returns the union data inside the Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260_Entity as a Output8f9918cf758d7828437221562274ce1aadfefc572741f4475e8f668456c57771
+func (t Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260_Entity) AsOutput8f9918cf758d7828437221562274ce1aadfefc572741f4475e8f668456c57771() (Output8f9918cf758d7828437221562274ce1aadfefc572741f4475e8f668456c57771, error) {
+	var body Output8f9918cf758d7828437221562274ce1aadfefc572741f4475e8f668456c57771
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f overwrites any union data inside the Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule as the provided Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f
-func (t *Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule) FromOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f(v Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f) error {
+// FromOutput8f9918cf758d7828437221562274ce1aadfefc572741f4475e8f668456c57771 overwrites any union data inside the Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260_Entity as the provided Output8f9918cf758d7828437221562274ce1aadfefc572741f4475e8f668456c57771
+func (t *Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260_Entity) FromOutput8f9918cf758d7828437221562274ce1aadfefc572741f4475e8f668456c57771(v Output8f9918cf758d7828437221562274ce1aadfefc572741f4475e8f668456c57771) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f performs a merge with any union data inside the Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule, using the provided Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f
-func (t *Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule) MergeOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f(v Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f) error {
+// MergeOutput8f9918cf758d7828437221562274ce1aadfefc572741f4475e8f668456c57771 performs a merge with any union data inside the Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260_Entity, using the provided Output8f9918cf758d7828437221562274ce1aadfefc572741f4475e8f668456c57771
+func (t *Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260_Entity) MergeOutput8f9918cf758d7828437221562274ce1aadfefc572741f4475e8f668456c57771(v Output8f9918cf758d7828437221562274ce1aadfefc572741f4475e8f668456c57771) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -3388,22 +3649,22 @@ func (t *Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_
 	return err
 }
 
-// AsOutput0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1 returns the union data inside the Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule as a Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1
-func (t Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule) AsOutput0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1() (Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1, error) {
-	var body Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1
+// AsOutput20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260Entity1 returns the union data inside the Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260_Entity as a Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260Entity1
+func (t Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260_Entity) AsOutput20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260Entity1() (Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260Entity1, error) {
+	var body Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260Entity1
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromOutput0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1 overwrites any union data inside the Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule as the provided Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1
-func (t *Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule) FromOutput0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1(v Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1) error {
+// FromOutput20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260Entity1 overwrites any union data inside the Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260_Entity as the provided Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260Entity1
+func (t *Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260_Entity) FromOutput20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260Entity1(v Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260Entity1) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeOutput0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1 performs a merge with any union data inside the Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule, using the provided Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1
-func (t *Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule) MergeOutput0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1(v Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886Rule1) error {
+// MergeOutput20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260Entity1 performs a merge with any union data inside the Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260_Entity, using the provided Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260Entity1
+func (t *Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260_Entity) MergeOutput20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260Entity1(v Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260Entity1) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -3414,32 +3675,32 @@ func (t *Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_
 	return err
 }
 
-func (t Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule) MarshalJSON() ([]byte, error) {
+func (t Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260_Entity) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
 }
 
-func (t *Output0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886_Rule) UnmarshalJSON(b []byte) error {
+func (t *Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260_Entity) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
 
-// AsOutput886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303 returns the union data inside the Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity as a Output886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303
-func (t Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity) AsOutput886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303() (Output886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303, error) {
-	var body Output886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303
+// AsOutput819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f returns the union data inside the Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89_Entity as a Output819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f
+func (t Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89_Entity) AsOutput819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f() (Output819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f, error) {
+	var body Output819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromOutput886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303 overwrites any union data inside the Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity as the provided Output886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303
-func (t *Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity) FromOutput886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303(v Output886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303) error {
+// FromOutput819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f overwrites any union data inside the Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89_Entity as the provided Output819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f
+func (t *Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89_Entity) FromOutput819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f(v Output819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeOutput886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303 performs a merge with any union data inside the Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity, using the provided Output886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303
-func (t *Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity) MergeOutput886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303(v Output886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303) error {
+// MergeOutput819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f performs a merge with any union data inside the Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89_Entity, using the provided Output819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f
+func (t *Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89_Entity) MergeOutput819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f(v Output819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -3450,22 +3711,22 @@ func (t *Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_
 	return err
 }
 
-// AsOutput30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1 returns the union data inside the Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity as a Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1
-func (t Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity) AsOutput30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1() (Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1, error) {
-	var body Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1
+// AsOutput5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89Entity1 returns the union data inside the Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89_Entity as a Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89Entity1
+func (t Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89_Entity) AsOutput5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89Entity1() (Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89Entity1, error) {
+	var body Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89Entity1
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromOutput30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1 overwrites any union data inside the Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity as the provided Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1
-func (t *Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity) FromOutput30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1(v Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1) error {
+// FromOutput5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89Entity1 overwrites any union data inside the Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89_Entity as the provided Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89Entity1
+func (t *Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89_Entity) FromOutput5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89Entity1(v Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89Entity1) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeOutput30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1 performs a merge with any union data inside the Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity, using the provided Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1
-func (t *Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity) MergeOutput30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1(v Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8abEntity1) error {
+// MergeOutput5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89Entity1 performs a merge with any union data inside the Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89_Entity, using the provided Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89Entity1
+func (t *Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89_Entity) MergeOutput5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89Entity1(v Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89Entity1) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -3476,32 +3737,32 @@ func (t *Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_
 	return err
 }
 
-func (t Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity) MarshalJSON() ([]byte, error) {
+func (t Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89_Entity) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
 }
 
-func (t *Output30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab_Entity) UnmarshalJSON(b []byte) error {
+func (t *Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89_Entity) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
 
-// AsOutput69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5 returns the union data inside the Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity as a Output69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5
-func (t Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity) AsOutput69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5() (Output69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5, error) {
-	var body Output69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5
+// AsOutput5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2 returns the union data inside the Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7_Entity as a Output5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2
+func (t Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7_Entity) AsOutput5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2() (Output5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2, error) {
+	var body Output5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromOutput69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5 overwrites any union data inside the Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity as the provided Output69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5
-func (t *Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity) FromOutput69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5(v Output69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5) error {
+// FromOutput5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2 overwrites any union data inside the Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7_Entity as the provided Output5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2
+func (t *Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7_Entity) FromOutput5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2(v Output5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeOutput69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5 performs a merge with any union data inside the Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity, using the provided Output69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5
-func (t *Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity) MergeOutput69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5(v Output69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5) error {
+// MergeOutput5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2 performs a merge with any union data inside the Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7_Entity, using the provided Output5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2
+func (t *Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7_Entity) MergeOutput5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2(v Output5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -3512,22 +3773,22 @@ func (t *Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_
 	return err
 }
 
-// AsOutput507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1 returns the union data inside the Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity as a Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1
-func (t Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity) AsOutput507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1() (Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1, error) {
-	var body Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1
+// AsOutput86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7Entity1 returns the union data inside the Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7_Entity as a Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7Entity1
+func (t Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7_Entity) AsOutput86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7Entity1() (Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7Entity1, error) {
+	var body Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7Entity1
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromOutput507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1 overwrites any union data inside the Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity as the provided Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1
-func (t *Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity) FromOutput507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1(v Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1) error {
+// FromOutput86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7Entity1 overwrites any union data inside the Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7_Entity as the provided Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7Entity1
+func (t *Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7_Entity) FromOutput86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7Entity1(v Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7Entity1) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeOutput507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1 performs a merge with any union data inside the Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity, using the provided Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1
-func (t *Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity) MergeOutput507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1(v Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960Entity1) error {
+// MergeOutput86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7Entity1 performs a merge with any union data inside the Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7_Entity, using the provided Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7Entity1
+func (t *Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7_Entity) MergeOutput86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7Entity1(v Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7Entity1) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -3538,32 +3799,32 @@ func (t *Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_
 	return err
 }
 
-func (t Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity) MarshalJSON() ([]byte, error) {
+func (t Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7_Entity) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
 }
 
-func (t *Output507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960_Entity) UnmarshalJSON(b []byte) error {
+func (t *Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7_Entity) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
 
-// AsOutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed returns the union data inside the Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity as a OutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed
-func (t Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity) AsOutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed() (OutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed, error) {
-	var body OutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed
+// AsOutputCa207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b returns the union data inside the OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6_Entity as a OutputCa207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b
+func (t OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6_Entity) AsOutputCa207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b() (OutputCa207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b, error) {
+	var body OutputCa207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromOutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed overwrites any union data inside the Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity as the provided OutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed
-func (t *Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity) FromOutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed(v OutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed) error {
+// FromOutputCa207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b overwrites any union data inside the OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6_Entity as the provided OutputCa207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b
+func (t *OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6_Entity) FromOutputCa207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b(v OutputCa207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeOutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed performs a merge with any union data inside the Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity, using the provided OutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed
-func (t *Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity) MergeOutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed(v OutputD929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed) error {
+// MergeOutputCa207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b performs a merge with any union data inside the OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6_Entity, using the provided OutputCa207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b
+func (t *OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6_Entity) MergeOutputCa207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b(v OutputCa207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -3574,22 +3835,22 @@ func (t *Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_
 	return err
 }
 
-// AsOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1 returns the union data inside the Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity as a Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1
-func (t Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity) AsOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1() (Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1, error) {
-	var body Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1
+// AsOutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6Entity1 returns the union data inside the OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6_Entity as a OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6Entity1
+func (t OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6_Entity) AsOutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6Entity1() (OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6Entity1, error) {
+	var body OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6Entity1
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1 overwrites any union data inside the Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity as the provided Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1
-func (t *Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity) FromOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1(v Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1) error {
+// FromOutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6Entity1 overwrites any union data inside the OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6_Entity as the provided OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6Entity1
+func (t *OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6_Entity) FromOutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6Entity1(v OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6Entity1) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1 performs a merge with any union data inside the Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity, using the provided Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1
-func (t *Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity) MergeOutput88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1(v Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56fEntity1) error {
+// MergeOutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6Entity1 performs a merge with any union data inside the OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6_Entity, using the provided OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6Entity1
+func (t *OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6_Entity) MergeOutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6Entity1(v OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6Entity1) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -3600,74 +3861,12 @@ func (t *Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_
 	return err
 }
 
-func (t Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity) MarshalJSON() ([]byte, error) {
+func (t OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6_Entity) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
 }
 
-func (t *Output88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f_Entity) UnmarshalJSON(b []byte) error {
-	err := t.union.UnmarshalJSON(b)
-	return err
-}
-
-// AsOutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0 returns the union data inside the OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity as a OutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0
-func (t OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity) AsOutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0() (OutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0, error) {
-	var body OutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromOutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0 overwrites any union data inside the OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity as the provided OutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0
-func (t *OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity) FromOutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0(v OutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeOutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0 performs a merge with any union data inside the OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity, using the provided OutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0
-func (t *OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity) MergeOutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0(v OutputF9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-// AsOutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1 returns the union data inside the OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity as a OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1
-func (t OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity) AsOutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1() (OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1, error) {
-	var body OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromOutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1 overwrites any union data inside the OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity as the provided OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1
-func (t *OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity) FromOutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1(v OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeOutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1 performs a merge with any union data inside the OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity, using the provided OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1
-func (t *OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity) MergeOutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1(v OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5dEntity1) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-func (t OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity) MarshalJSON() ([]byte, error) {
-	b, err := t.union.MarshalJSON()
-	return b, err
-}
-
-func (t *OutputA53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d_Entity) UnmarshalJSON(b []byte) error {
+func (t *OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6_Entity) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -3734,22 +3933,22 @@ func (t *OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688_
 	return err
 }
 
-// AsOutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37 returns the union data inside the OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity as a OutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37
-func (t OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity) AsOutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37() (OutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37, error) {
-	var body OutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37
+// AsOutput3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243 returns the union data inside the OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59_Entity as a Output3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243
+func (t OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59_Entity) AsOutput3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243() (Output3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243, error) {
+	var body Output3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromOutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37 overwrites any union data inside the OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity as the provided OutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37
-func (t *OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity) FromOutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37(v OutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37) error {
+// FromOutput3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243 overwrites any union data inside the OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59_Entity as the provided Output3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243
+func (t *OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59_Entity) FromOutput3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243(v Output3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeOutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37 performs a merge with any union data inside the OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity, using the provided OutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37
-func (t *OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity) MergeOutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37(v OutputD460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37) error {
+// MergeOutput3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243 performs a merge with any union data inside the OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59_Entity, using the provided Output3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243
+func (t *OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59_Entity) MergeOutput3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243(v Output3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -3760,22 +3959,22 @@ func (t *OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_
 	return err
 }
 
-// AsOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1 returns the union data inside the OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity as a OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1
-func (t OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity) AsOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1() (OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1, error) {
-	var body OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1
+// AsOutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59Entity1 returns the union data inside the OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59_Entity as a OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59Entity1
+func (t OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59_Entity) AsOutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59Entity1() (OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59Entity1, error) {
+	var body OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59Entity1
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1 overwrites any union data inside the OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity as the provided OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1
-func (t *OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity) FromOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1(v OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1) error {
+// FromOutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59Entity1 overwrites any union data inside the OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59_Entity as the provided OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59Entity1
+func (t *OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59_Entity) FromOutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59Entity1(v OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59Entity1) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1 performs a merge with any union data inside the OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity, using the provided OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1
-func (t *OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity) MergeOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1(v OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15Entity1) error {
+// MergeOutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59Entity1 performs a merge with any union data inside the OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59_Entity, using the provided OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59Entity1
+func (t *OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59_Entity) MergeOutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59Entity1(v OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59Entity1) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -3786,32 +3985,32 @@ func (t *OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_
 	return err
 }
 
-func (t OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity) MarshalJSON() ([]byte, error) {
+func (t OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59_Entity) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
 }
 
-func (t *OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15_Entity) UnmarshalJSON(b []byte) error {
+func (t *OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59_Entity) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
 
-// AsOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15 returns the union data inside the OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule as a OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15
-func (t OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule) AsOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15() (OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15, error) {
-	var body OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15
+// AsOutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69 returns the union data inside the OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Rule as a OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69
+func (t OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Rule) AsOutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69() (OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69, error) {
+	var body OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15 overwrites any union data inside the OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule as the provided OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15
-func (t *OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule) FromOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15(v OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15) error {
+// FromOutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69 overwrites any union data inside the OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Rule as the provided OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69
+func (t *OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Rule) FromOutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69(v OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15 performs a merge with any union data inside the OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule, using the provided OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15
-func (t *OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule) MergeOutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15(v OutputCb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15) error {
+// MergeOutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69 performs a merge with any union data inside the OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Rule, using the provided OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69
+func (t *OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Rule) MergeOutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69(v OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -3822,22 +4021,22 @@ func (t *OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_
 	return err
 }
 
-// AsOutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1 returns the union data inside the OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule as a OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1
-func (t OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule) AsOutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1() (OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1, error) {
-	var body OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1
+// AsOutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349Rule1 returns the union data inside the OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Rule as a OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349Rule1
+func (t OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Rule) AsOutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349Rule1() (OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349Rule1, error) {
+	var body OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349Rule1
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromOutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1 overwrites any union data inside the OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule as the provided OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1
-func (t *OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule) FromOutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1(v OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1) error {
+// FromOutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349Rule1 overwrites any union data inside the OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Rule as the provided OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349Rule1
+func (t *OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Rule) FromOutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349Rule1(v OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349Rule1) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeOutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1 performs a merge with any union data inside the OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule, using the provided OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1
-func (t *OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule) MergeOutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1(v OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3baRule1) error {
+// MergeOutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349Rule1 performs a merge with any union data inside the OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Rule, using the provided OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349Rule1
+func (t *OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Rule) MergeOutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349Rule1(v OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349Rule1) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -3848,32 +4047,32 @@ func (t *OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_
 	return err
 }
 
-func (t OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule) MarshalJSON() ([]byte, error) {
+func (t OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Rule) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
 }
 
-func (t *OutputCefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba_Rule) UnmarshalJSON(b []byte) error {
+func (t *OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Rule) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
 
-// AsOutput41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7 returns the union data inside the OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity as a Output41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7
-func (t OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity) AsOutput41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7() (Output41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7, error) {
-	var body Output41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7
+// AsOutput86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7 returns the union data inside the OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Rule as a Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7
+func (t OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Rule) AsOutput86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7() (Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7, error) {
+	var body Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromOutput41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7 overwrites any union data inside the OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity as the provided Output41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7
-func (t *OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity) FromOutput41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7(v Output41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7) error {
+// FromOutput86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7 overwrites any union data inside the OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Rule as the provided Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7
+func (t *OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Rule) FromOutput86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7(v Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeOutput41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7 performs a merge with any union data inside the OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity, using the provided Output41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7
-func (t *OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity) MergeOutput41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7(v Output41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7) error {
+// MergeOutput86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7 performs a merge with any union data inside the OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Rule, using the provided Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7
+func (t *OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Rule) MergeOutput86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7(v Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -3884,22 +4083,22 @@ func (t *OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_
 	return err
 }
 
-// AsOutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1 returns the union data inside the OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity as a OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1
-func (t OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity) AsOutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1() (OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1, error) {
-	var body OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1
+// AsOutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8Rule1 returns the union data inside the OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Rule as a OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8Rule1
+func (t OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Rule) AsOutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8Rule1() (OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8Rule1, error) {
+	var body OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8Rule1
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromOutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1 overwrites any union data inside the OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity as the provided OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1
-func (t *OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity) FromOutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1(v OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1) error {
+// FromOutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8Rule1 overwrites any union data inside the OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Rule as the provided OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8Rule1
+func (t *OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Rule) FromOutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8Rule1(v OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8Rule1) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeOutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1 performs a merge with any union data inside the OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity, using the provided OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1
-func (t *OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity) MergeOutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1(v OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82faEntity1) error {
+// MergeOutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8Rule1 performs a merge with any union data inside the OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Rule, using the provided OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8Rule1
+func (t *OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Rule) MergeOutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8Rule1(v OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8Rule1) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -3910,12 +4109,74 @@ func (t *OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_
 	return err
 }
 
-func (t OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity) MarshalJSON() ([]byte, error) {
+func (t OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Rule) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
 }
 
-func (t *OutputD6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa_Entity) UnmarshalJSON(b []byte) error {
+func (t *OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Rule) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsOutput2180387bae10ad30702ff5f50e131002ae984342d3ae82e85f10f7d03794f74c returns the union data inside the OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69_Entity as a Output2180387bae10ad30702ff5f50e131002ae984342d3ae82e85f10f7d03794f74c
+func (t OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69_Entity) AsOutput2180387bae10ad30702ff5f50e131002ae984342d3ae82e85f10f7d03794f74c() (Output2180387bae10ad30702ff5f50e131002ae984342d3ae82e85f10f7d03794f74c, error) {
+	var body Output2180387bae10ad30702ff5f50e131002ae984342d3ae82e85f10f7d03794f74c
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutput2180387bae10ad30702ff5f50e131002ae984342d3ae82e85f10f7d03794f74c overwrites any union data inside the OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69_Entity as the provided Output2180387bae10ad30702ff5f50e131002ae984342d3ae82e85f10f7d03794f74c
+func (t *OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69_Entity) FromOutput2180387bae10ad30702ff5f50e131002ae984342d3ae82e85f10f7d03794f74c(v Output2180387bae10ad30702ff5f50e131002ae984342d3ae82e85f10f7d03794f74c) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutput2180387bae10ad30702ff5f50e131002ae984342d3ae82e85f10f7d03794f74c performs a merge with any union data inside the OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69_Entity, using the provided Output2180387bae10ad30702ff5f50e131002ae984342d3ae82e85f10f7d03794f74c
+func (t *OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69_Entity) MergeOutput2180387bae10ad30702ff5f50e131002ae984342d3ae82e85f10f7d03794f74c(v Output2180387bae10ad30702ff5f50e131002ae984342d3ae82e85f10f7d03794f74c) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsOutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69Entity1 returns the union data inside the OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69_Entity as a OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69Entity1
+func (t OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69_Entity) AsOutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69Entity1() (OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69Entity1, error) {
+	var body OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69Entity1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69Entity1 overwrites any union data inside the OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69_Entity as the provided OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69Entity1
+func (t *OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69_Entity) FromOutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69Entity1(v OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69Entity1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69Entity1 performs a merge with any union data inside the OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69_Entity, using the provided OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69Entity1
+func (t *OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69_Entity) MergeOutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69Entity1(v OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69Entity1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69_Entity) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69_Entity) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -6738,6 +6999,14 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	POSTv1studiosdkaccessGet(ctx context.Context, body POSTv1studiosdkaccessGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// POSTv1studiosdkaccessListWithBody performs a POST /v1/studio/sdk/access.list (the `POSTv1studiosdkaccessList` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkaccessListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkaccessList performs a POST /v1/studio/sdk/access.list (the `POSTv1studiosdkaccessList` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkaccessList(ctx context.Context, body POSTv1studiosdkaccessListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// POSTv1studiosdkaccessReplaceWithBody performs a POST /v1/studio/sdk/access.replace (the `POSTv1studiosdkaccessReplace` operationId) request,
 	// with any type of body and a specified content type.
 	POSTv1studiosdkaccessReplaceWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -6748,11 +7017,11 @@ type ClientInterface interface {
 
 	// POSTv1studiosdkaclDeleteWithBody performs a POST /v1/studio/sdk/acl.delete (the `POSTv1studiosdkaclDelete` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkaclDeleteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkaclDeleteWithBody(ctx context.Context, params *POSTv1studiosdkaclDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkaclDelete performs a POST /v1/studio/sdk/acl.delete (the `POSTv1studiosdkaclDelete` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkaclDelete(ctx context.Context, body POSTv1studiosdkaclDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkaclDelete(ctx context.Context, params *POSTv1studiosdkaclDeleteParams, body POSTv1studiosdkaclDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkaclListWithBody acl
 	//
@@ -6770,11 +7039,11 @@ type ClientInterface interface {
 
 	// POSTv1studiosdkaclUpsertWithBody performs a POST /v1/studio/sdk/acl.upsert (the `POSTv1studiosdkaclUpsert` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkaclUpsertWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkaclUpsertWithBody(ctx context.Context, params *POSTv1studiosdkaclUpsertParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkaclUpsert performs a POST /v1/studio/sdk/acl.upsert (the `POSTv1studiosdkaclUpsert` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkaclUpsert(ctx context.Context, body POSTv1studiosdkaclUpsertJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkaclUpsert(ctx context.Context, params *POSTv1studiosdkaclUpsertParams, body POSTv1studiosdkaclUpsertJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkauthorizationPredicatesCreateWithBody performs a POST /v1/studio/sdk/authorization_predicates.create (the `POSTv1studiosdkauthorizationPredicatesCreate` operationId) request,
 	// with any type of body and a specified content type.
@@ -6821,39 +7090,39 @@ type ClientInterface interface {
 
 	// POSTv1studiosdkcomponentsCreateWithBody performs a POST /v1/studio/sdk/components.create (the `POSTv1studiosdkcomponentsCreate` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkcomponentsCreateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkcomponentsCreateWithBody(ctx context.Context, params *POSTv1studiosdkcomponentsCreateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkcomponentsCreate performs a POST /v1/studio/sdk/components.create (the `POSTv1studiosdkcomponentsCreate` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkcomponentsCreate(ctx context.Context, body POSTv1studiosdkcomponentsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkcomponentsCreate(ctx context.Context, params *POSTv1studiosdkcomponentsCreateParams, body POSTv1studiosdkcomponentsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkcomponentsGetWithBody report
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/studio/sdk/components.get (the `POSTv1studiosdkcomponentsGet` operationId).
-	POSTv1studiosdkcomponentsGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkcomponentsGetWithBody(ctx context.Context, params *POSTv1studiosdkcomponentsGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkcomponentsGet report
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/studio/sdk/components.get (the `POSTv1studiosdkcomponentsGet` operationId).
-	POSTv1studiosdkcomponentsGet(ctx context.Context, body POSTv1studiosdkcomponentsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkcomponentsGet(ctx context.Context, params *POSTv1studiosdkcomponentsGetParams, body POSTv1studiosdkcomponentsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkcomponentsListWithBody report
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/studio/sdk/components.list (the `POSTv1studiosdkcomponentsList` operationId).
-	POSTv1studiosdkcomponentsListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkcomponentsListWithBody(ctx context.Context, params *POSTv1studiosdkcomponentsListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkcomponentsList report
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/studio/sdk/components.list (the `POSTv1studiosdkcomponentsList` operationId).
-	POSTv1studiosdkcomponentsList(ctx context.Context, body POSTv1studiosdkcomponentsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkcomponentsList(ctx context.Context, params *POSTv1studiosdkcomponentsListParams, body POSTv1studiosdkcomponentsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkcomponentsUpdateWithBody performs a POST /v1/studio/sdk/components.update (the `POSTv1studiosdkcomponentsUpdate` operationId) request,
 	// with any type of body and a specified content type.
@@ -7037,11 +7306,11 @@ type ClientInterface interface {
 
 	// POSTv1studiosdkpreviewExecuteWithBody performs a POST /v1/studio/sdk/preview.execute (the `POSTv1studiosdkpreviewExecute` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkpreviewExecuteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkpreviewExecuteWithBody(ctx context.Context, params *POSTv1studiosdkpreviewExecuteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkpreviewExecute performs a POST /v1/studio/sdk/preview.execute (the `POSTv1studiosdkpreviewExecute` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkpreviewExecute(ctx context.Context, body POSTv1studiosdkpreviewExecuteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkpreviewExecute(ctx context.Context, params *POSTv1studiosdkpreviewExecuteParams, body POSTv1studiosdkpreviewExecuteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkpublicationsEventsListWithBody event
 	//
@@ -7073,260 +7342,260 @@ type ClientInterface interface {
 
 	// POSTv1studiosdkpublicationsPublishWithBody performs a POST /v1/studio/sdk/publications.publish (the `POSTv1studiosdkpublicationsPublish` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkpublicationsPublishWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkpublicationsPublishWithBody(ctx context.Context, params *POSTv1studiosdkpublicationsPublishParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkpublicationsPublish performs a POST /v1/studio/sdk/publications.publish (the `POSTv1studiosdkpublicationsPublish` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkpublicationsPublish(ctx context.Context, body POSTv1studiosdkpublicationsPublishJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkpublicationsPublish(ctx context.Context, params *POSTv1studiosdkpublicationsPublishParams, body POSTv1studiosdkpublicationsPublishJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkpublicationsRollbackWithBody performs a POST /v1/studio/sdk/publications.rollback (the `POSTv1studiosdkpublicationsRollback` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkpublicationsRollbackWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkpublicationsRollbackWithBody(ctx context.Context, params *POSTv1studiosdkpublicationsRollbackParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkpublicationsRollback performs a POST /v1/studio/sdk/publications.rollback (the `POSTv1studiosdkpublicationsRollback` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkpublicationsRollback(ctx context.Context, body POSTv1studiosdkpublicationsRollbackJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkpublicationsRollback(ctx context.Context, params *POSTv1studiosdkpublicationsRollbackParams, body POSTv1studiosdkpublicationsRollbackJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkpublicationsUnpublishWithBody performs a POST /v1/studio/sdk/publications.unpublish (the `POSTv1studiosdkpublicationsUnpublish` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkpublicationsUnpublishWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkpublicationsUnpublishWithBody(ctx context.Context, params *POSTv1studiosdkpublicationsUnpublishParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkpublicationsUnpublish performs a POST /v1/studio/sdk/publications.unpublish (the `POSTv1studiosdkpublicationsUnpublish` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkpublicationsUnpublish(ctx context.Context, body POSTv1studiosdkpublicationsUnpublishJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkpublicationsUnpublish(ctx context.Context, params *POSTv1studiosdkpublicationsUnpublishParams, body POSTv1studiosdkpublicationsUnpublishJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkresourcesDeleteFileWithBody performs a POST /v1/studio/sdk/resources.delete_file (the `POSTv1studiosdkresourcesDeleteFile` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkresourcesDeleteFileWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkresourcesDeleteFileWithBody(ctx context.Context, params *POSTv1studiosdkresourcesDeleteFileParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkresourcesDeleteFile performs a POST /v1/studio/sdk/resources.delete_file (the `POSTv1studiosdkresourcesDeleteFile` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkresourcesDeleteFile(ctx context.Context, body POSTv1studiosdkresourcesDeleteFileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkresourcesDeleteFile(ctx context.Context, params *POSTv1studiosdkresourcesDeleteFileParams, body POSTv1studiosdkresourcesDeleteFileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkresourcesDeleteFolderWithBody performs a POST /v1/studio/sdk/resources.delete_folder (the `POSTv1studiosdkresourcesDeleteFolder` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkresourcesDeleteFolderWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkresourcesDeleteFolderWithBody(ctx context.Context, params *POSTv1studiosdkresourcesDeleteFolderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkresourcesDeleteFolder performs a POST /v1/studio/sdk/resources.delete_folder (the `POSTv1studiosdkresourcesDeleteFolder` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkresourcesDeleteFolder(ctx context.Context, body POSTv1studiosdkresourcesDeleteFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkresourcesDeleteFolder(ctx context.Context, params *POSTv1studiosdkresourcesDeleteFolderParams, body POSTv1studiosdkresourcesDeleteFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkresourcesDeleteSkillWithBody performs a POST /v1/studio/sdk/resources.delete_skill (the `POSTv1studiosdkresourcesDeleteSkill` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkresourcesDeleteSkillWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkresourcesDeleteSkillWithBody(ctx context.Context, params *POSTv1studiosdkresourcesDeleteSkillParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkresourcesDeleteSkill performs a POST /v1/studio/sdk/resources.delete_skill (the `POSTv1studiosdkresourcesDeleteSkill` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkresourcesDeleteSkill(ctx context.Context, body POSTv1studiosdkresourcesDeleteSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkresourcesDeleteSkill(ctx context.Context, params *POSTv1studiosdkresourcesDeleteSkillParams, body POSTv1studiosdkresourcesDeleteSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkresourcesGetWithBody performs a POST /v1/studio/sdk/resources.get (the `POSTv1studiosdkresourcesGet` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkresourcesGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkresourcesGetWithBody(ctx context.Context, params *POSTv1studiosdkresourcesGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkresourcesGet performs a POST /v1/studio/sdk/resources.get (the `POSTv1studiosdkresourcesGet` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkresourcesGet(ctx context.Context, body POSTv1studiosdkresourcesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkresourcesGet(ctx context.Context, params *POSTv1studiosdkresourcesGetParams, body POSTv1studiosdkresourcesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkresourcesUpsertFileWithBody performs a POST /v1/studio/sdk/resources.upsert_file (the `POSTv1studiosdkresourcesUpsertFile` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkresourcesUpsertFileWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkresourcesUpsertFileWithBody(ctx context.Context, params *POSTv1studiosdkresourcesUpsertFileParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkresourcesUpsertFile performs a POST /v1/studio/sdk/resources.upsert_file (the `POSTv1studiosdkresourcesUpsertFile` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkresourcesUpsertFile(ctx context.Context, body POSTv1studiosdkresourcesUpsertFileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkresourcesUpsertFile(ctx context.Context, params *POSTv1studiosdkresourcesUpsertFileParams, body POSTv1studiosdkresourcesUpsertFileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkresourcesUpsertFolderWithBody performs a POST /v1/studio/sdk/resources.upsert_folder (the `POSTv1studiosdkresourcesUpsertFolder` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkresourcesUpsertFolderWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkresourcesUpsertFolderWithBody(ctx context.Context, params *POSTv1studiosdkresourcesUpsertFolderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkresourcesUpsertFolder performs a POST /v1/studio/sdk/resources.upsert_folder (the `POSTv1studiosdkresourcesUpsertFolder` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkresourcesUpsertFolder(ctx context.Context, body POSTv1studiosdkresourcesUpsertFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkresourcesUpsertFolder(ctx context.Context, params *POSTv1studiosdkresourcesUpsertFolderParams, body POSTv1studiosdkresourcesUpsertFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkresourcesUpsertSkillWithBody performs a POST /v1/studio/sdk/resources.upsert_skill (the `POSTv1studiosdkresourcesUpsertSkill` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkresourcesUpsertSkillWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkresourcesUpsertSkillWithBody(ctx context.Context, params *POSTv1studiosdkresourcesUpsertSkillParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkresourcesUpsertSkill performs a POST /v1/studio/sdk/resources.upsert_skill (the `POSTv1studiosdkresourcesUpsertSkill` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkresourcesUpsertSkill(ctx context.Context, body POSTv1studiosdkresourcesUpsertSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkresourcesUpsertSkill(ctx context.Context, params *POSTv1studiosdkresourcesUpsertSkillParams, body POSTv1studiosdkresourcesUpsertSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkruntimeStatus performs a POST /v1/studio/sdk/runtime.status (the `POSTv1studiosdkruntimeStatus` operationId) request.
-	POSTv1studiosdkruntimeStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkruntimeStatus(ctx context.Context, params *POSTv1studiosdkruntimeStatusParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsApplyWithBody performs a POST /v1/studio/sdk/versions.apply (the `POSTv1studiosdkversionsApply` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkversionsApplyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsApplyWithBody(ctx context.Context, params *POSTv1studiosdkversionsApplyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsApply performs a POST /v1/studio/sdk/versions.apply (the `POSTv1studiosdkversionsApply` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkversionsApply(ctx context.Context, body POSTv1studiosdkversionsApplyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsApply(ctx context.Context, params *POSTv1studiosdkversionsApplyParams, body POSTv1studiosdkversionsApplyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsBuilderWithBody performs a POST /v1/studio/sdk/versions.builder (the `POSTv1studiosdkversionsBuilder` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkversionsBuilderWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsBuilderWithBody(ctx context.Context, params *POSTv1studiosdkversionsBuilderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsBuilder performs a POST /v1/studio/sdk/versions.builder (the `POSTv1studiosdkversionsBuilder` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkversionsBuilder(ctx context.Context, body POSTv1studiosdkversionsBuilderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsBuilder(ctx context.Context, params *POSTv1studiosdkversionsBuilderParams, body POSTv1studiosdkversionsBuilderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsCreateWithBody performs a POST /v1/studio/sdk/versions.create (the `POSTv1studiosdkversionsCreate` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkversionsCreateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsCreateWithBody(ctx context.Context, params *POSTv1studiosdkversionsCreateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsCreate performs a POST /v1/studio/sdk/versions.create (the `POSTv1studiosdkversionsCreate` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkversionsCreate(ctx context.Context, body POSTv1studiosdkversionsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsCreate(ctx context.Context, params *POSTv1studiosdkversionsCreateParams, body POSTv1studiosdkversionsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsDescriptorWithBody version
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/studio/sdk/versions.descriptor (the `POSTv1studiosdkversionsDescriptor` operationId).
-	POSTv1studiosdkversionsDescriptorWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsDescriptorWithBody(ctx context.Context, params *POSTv1studiosdkversionsDescriptorParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsDescriptor version
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/studio/sdk/versions.descriptor (the `POSTv1studiosdkversionsDescriptor` operationId).
-	POSTv1studiosdkversionsDescriptor(ctx context.Context, body POSTv1studiosdkversionsDescriptorJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsDescriptor(ctx context.Context, params *POSTv1studiosdkversionsDescriptorParams, body POSTv1studiosdkversionsDescriptorJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsDownloadWithBody performs a POST /v1/studio/sdk/versions.download (the `POSTv1studiosdkversionsDownload` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkversionsDownloadWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsDownloadWithBody(ctx context.Context, params *POSTv1studiosdkversionsDownloadParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsDownload performs a POST /v1/studio/sdk/versions.download (the `POSTv1studiosdkversionsDownload` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkversionsDownload(ctx context.Context, body POSTv1studiosdkversionsDownloadJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsDownload(ctx context.Context, params *POSTv1studiosdkversionsDownloadParams, body POSTv1studiosdkversionsDownloadJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsExportDqlWithBody version
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/studio/sdk/versions.export_dql (the `POSTv1studiosdkversionsExportDql` operationId).
-	POSTv1studiosdkversionsExportDqlWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsExportDqlWithBody(ctx context.Context, params *POSTv1studiosdkversionsExportDqlParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsExportDql version
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/studio/sdk/versions.export_dql (the `POSTv1studiosdkversionsExportDql` operationId).
-	POSTv1studiosdkversionsExportDql(ctx context.Context, body POSTv1studiosdkversionsExportDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsExportDql(ctx context.Context, params *POSTv1studiosdkversionsExportDqlParams, body POSTv1studiosdkversionsExportDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsGetWithBody version
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/studio/sdk/versions.get (the `POSTv1studiosdkversionsGet` operationId).
-	POSTv1studiosdkversionsGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsGetWithBody(ctx context.Context, params *POSTv1studiosdkversionsGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsGet version
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/studio/sdk/versions.get (the `POSTv1studiosdkversionsGet` operationId).
-	POSTv1studiosdkversionsGet(ctx context.Context, body POSTv1studiosdkversionsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsGet(ctx context.Context, params *POSTv1studiosdkversionsGetParams, body POSTv1studiosdkversionsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsInspectWithBody performs a POST /v1/studio/sdk/versions.inspect (the `POSTv1studiosdkversionsInspect` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkversionsInspectWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsInspectWithBody(ctx context.Context, params *POSTv1studiosdkversionsInspectParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsInspect performs a POST /v1/studio/sdk/versions.inspect (the `POSTv1studiosdkversionsInspect` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkversionsInspect(ctx context.Context, body POSTv1studiosdkversionsInspectJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsInspect(ctx context.Context, params *POSTv1studiosdkversionsInspectParams, body POSTv1studiosdkversionsInspectJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsListWithBody version
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/studio/sdk/versions.list (the `POSTv1studiosdkversionsList` operationId).
-	POSTv1studiosdkversionsListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsListWithBody(ctx context.Context, params *POSTv1studiosdkversionsListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsList version
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/studio/sdk/versions.list (the `POSTv1studiosdkversionsList` operationId).
-	POSTv1studiosdkversionsList(ctx context.Context, body POSTv1studiosdkversionsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsList(ctx context.Context, params *POSTv1studiosdkversionsListParams, body POSTv1studiosdkversionsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsLoadArchiveWithBody performs a POST /v1/studio/sdk/versions.load_archive (the `POSTv1studiosdkversionsLoadArchive` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkversionsLoadArchiveWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsLoadArchiveWithBody(ctx context.Context, params *POSTv1studiosdkversionsLoadArchiveParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsLoadArchive performs a POST /v1/studio/sdk/versions.load_archive (the `POSTv1studiosdkversionsLoadArchive` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkversionsLoadArchive(ctx context.Context, body POSTv1studiosdkversionsLoadArchiveJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsLoadArchive(ctx context.Context, params *POSTv1studiosdkversionsLoadArchiveParams, body POSTv1studiosdkversionsLoadArchiveJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsLoadDqlWithBody performs a POST /v1/studio/sdk/versions.load_dql (the `POSTv1studiosdkversionsLoadDql` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkversionsLoadDqlWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsLoadDqlWithBody(ctx context.Context, params *POSTv1studiosdkversionsLoadDqlParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsLoadDql performs a POST /v1/studio/sdk/versions.load_dql (the `POSTv1studiosdkversionsLoadDql` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkversionsLoadDql(ctx context.Context, body POSTv1studiosdkversionsLoadDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsLoadDql(ctx context.Context, params *POSTv1studiosdkversionsLoadDqlParams, body POSTv1studiosdkversionsLoadDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsTestComposeWithBody performs a POST /v1/studio/sdk/versions.test_compose (the `POSTv1studiosdkversionsTestCompose` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkversionsTestComposeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsTestComposeWithBody(ctx context.Context, params *POSTv1studiosdkversionsTestComposeParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsTestCompose performs a POST /v1/studio/sdk/versions.test_compose (the `POSTv1studiosdkversionsTestCompose` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkversionsTestCompose(ctx context.Context, body POSTv1studiosdkversionsTestComposeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsTestCompose(ctx context.Context, params *POSTv1studiosdkversionsTestComposeParams, body POSTv1studiosdkversionsTestComposeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsTestRelationWithBody performs a POST /v1/studio/sdk/versions.test_relation (the `POSTv1studiosdkversionsTestRelation` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkversionsTestRelationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsTestRelationWithBody(ctx context.Context, params *POSTv1studiosdkversionsTestRelationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsTestRelation performs a POST /v1/studio/sdk/versions.test_relation (the `POSTv1studiosdkversionsTestRelation` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkversionsTestRelation(ctx context.Context, body POSTv1studiosdkversionsTestRelationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsTestRelation(ctx context.Context, params *POSTv1studiosdkversionsTestRelationParams, body POSTv1studiosdkversionsTestRelationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsTestViewWithBody performs a POST /v1/studio/sdk/versions.test_view (the `POSTv1studiosdkversionsTestView` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkversionsTestViewWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsTestViewWithBody(ctx context.Context, params *POSTv1studiosdkversionsTestViewParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsTestView performs a POST /v1/studio/sdk/versions.test_view (the `POSTv1studiosdkversionsTestView` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkversionsTestView(ctx context.Context, body POSTv1studiosdkversionsTestViewJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsTestView(ctx context.Context, params *POSTv1studiosdkversionsTestViewParams, body POSTv1studiosdkversionsTestViewJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsValidateWithBody performs a POST /v1/studio/sdk/versions.validate (the `POSTv1studiosdkversionsValidate` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkversionsValidateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsValidateWithBody(ctx context.Context, params *POSTv1studiosdkversionsValidateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsValidate performs a POST /v1/studio/sdk/versions.validate (the `POSTv1studiosdkversionsValidate` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkversionsValidate(ctx context.Context, body POSTv1studiosdkversionsValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsValidate(ctx context.Context, params *POSTv1studiosdkversionsValidateParams, body POSTv1studiosdkversionsValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsWarmupWithBody performs a POST /v1/studio/sdk/versions.warmup (the `POSTv1studiosdkversionsWarmup` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkversionsWarmupWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsWarmupWithBody(ctx context.Context, params *POSTv1studiosdkversionsWarmupParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsWarmup performs a POST /v1/studio/sdk/versions.warmup (the `POSTv1studiosdkversionsWarmup` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkversionsWarmup(ctx context.Context, body POSTv1studiosdkversionsWarmupJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsWarmup(ctx context.Context, params *POSTv1studiosdkversionsWarmupParams, body POSTv1studiosdkversionsWarmupJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsWarmupGetWithBody warmup_run
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/studio/sdk/versions.warmup_get (the `POSTv1studiosdkversionsWarmupGet` operationId).
-	POSTv1studiosdkversionsWarmupGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsWarmupGetWithBody(ctx context.Context, params *POSTv1studiosdkversionsWarmupGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsWarmupGet warmup_run
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/studio/sdk/versions.warmup_get (the `POSTv1studiosdkversionsWarmupGet` operationId).
-	POSTv1studiosdkversionsWarmupGet(ctx context.Context, body POSTv1studiosdkversionsWarmupGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsWarmupGet(ctx context.Context, params *POSTv1studiosdkversionsWarmupGetParams, body POSTv1studiosdkversionsWarmupGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsWarmupListWithBody performs a POST /v1/studio/sdk/versions.warmup_list (the `POSTv1studiosdkversionsWarmupList` operationId) request,
 	// with any type of body and a specified content type.
-	POSTv1studiosdkversionsWarmupListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsWarmupListWithBody(ctx context.Context, params *POSTv1studiosdkversionsWarmupListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsWarmupList performs a POST /v1/studio/sdk/versions.warmup_list (the `POSTv1studiosdkversionsWarmupList` operationId) request.
 	// Takes a body of the `application/json` content type.
-	POSTv1studiosdkversionsWarmupList(ctx context.Context, body POSTv1studiosdkversionsWarmupListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	POSTv1studiosdkversionsWarmupList(ctx context.Context, params *POSTv1studiosdkversionsWarmupListParams, body POSTv1studiosdkversionsWarmupListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 // POSTv1studiosdkaccessContextWithBody performs a POST /v1/studio/sdk/access.context (the `POSTv1studiosdkaccessContext` operationId) request,
@@ -7385,6 +7654,34 @@ func (c *Client) POSTv1studiosdkaccessGet(ctx context.Context, body POSTv1studio
 	return c.Client.Do(req)
 }
 
+// POSTv1studiosdkaccessListWithBody performs a POST /v1/studio/sdk/access.list (the `POSTv1studiosdkaccessList` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkaccessListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkaccessListRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkaccessList performs a POST /v1/studio/sdk/access.list (the `POSTv1studiosdkaccessList` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkaccessList(ctx context.Context, body POSTv1studiosdkaccessListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkaccessListRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 // POSTv1studiosdkaccessReplaceWithBody performs a POST /v1/studio/sdk/access.replace (the `POSTv1studiosdkaccessReplace` operationId) request,
 // with any type of body and a specified content type.
 func (c *Client) POSTv1studiosdkaccessReplaceWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -7415,8 +7712,8 @@ func (c *Client) POSTv1studiosdkaccessReplace(ctx context.Context, body POSTv1st
 
 // POSTv1studiosdkaclDeleteWithBody performs a POST /v1/studio/sdk/acl.delete (the `POSTv1studiosdkaclDelete` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkaclDeleteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkaclDeleteRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkaclDeleteWithBody(ctx context.Context, params *POSTv1studiosdkaclDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkaclDeleteRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7429,8 +7726,8 @@ func (c *Client) POSTv1studiosdkaclDeleteWithBody(ctx context.Context, contentTy
 
 // POSTv1studiosdkaclDelete performs a POST /v1/studio/sdk/acl.delete (the `POSTv1studiosdkaclDelete` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkaclDelete(ctx context.Context, body POSTv1studiosdkaclDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkaclDeleteRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkaclDelete(ctx context.Context, params *POSTv1studiosdkaclDeleteParams, body POSTv1studiosdkaclDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkaclDeleteRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7477,8 +7774,8 @@ func (c *Client) POSTv1studiosdkaclList(ctx context.Context, params *POSTv1studi
 
 // POSTv1studiosdkaclUpsertWithBody performs a POST /v1/studio/sdk/acl.upsert (the `POSTv1studiosdkaclUpsert` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkaclUpsertWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkaclUpsertRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkaclUpsertWithBody(ctx context.Context, params *POSTv1studiosdkaclUpsertParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkaclUpsertRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7491,8 +7788,8 @@ func (c *Client) POSTv1studiosdkaclUpsertWithBody(ctx context.Context, contentTy
 
 // POSTv1studiosdkaclUpsert performs a POST /v1/studio/sdk/acl.upsert (the `POSTv1studiosdkaclUpsert` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkaclUpsert(ctx context.Context, body POSTv1studiosdkaclUpsertJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkaclUpsertRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkaclUpsert(ctx context.Context, params *POSTv1studiosdkaclUpsertParams, body POSTv1studiosdkaclUpsertJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkaclUpsertRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7658,8 +7955,8 @@ func (c *Client) POSTv1studiosdkauthorizationPredicatesUpdate(ctx context.Contex
 
 // POSTv1studiosdkcomponentsCreateWithBody performs a POST /v1/studio/sdk/components.create (the `POSTv1studiosdkcomponentsCreate` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkcomponentsCreateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkcomponentsCreateRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkcomponentsCreateWithBody(ctx context.Context, params *POSTv1studiosdkcomponentsCreateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkcomponentsCreateRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7672,8 +7969,8 @@ func (c *Client) POSTv1studiosdkcomponentsCreateWithBody(ctx context.Context, co
 
 // POSTv1studiosdkcomponentsCreate performs a POST /v1/studio/sdk/components.create (the `POSTv1studiosdkcomponentsCreate` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkcomponentsCreate(ctx context.Context, body POSTv1studiosdkcomponentsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkcomponentsCreateRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkcomponentsCreate(ctx context.Context, params *POSTv1studiosdkcomponentsCreateParams, body POSTv1studiosdkcomponentsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkcomponentsCreateRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7689,8 +7986,8 @@ func (c *Client) POSTv1studiosdkcomponentsCreate(ctx context.Context, body POSTv
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/studio/sdk/components.get (the `POSTv1studiosdkcomponentsGet` operationId).
-func (c *Client) POSTv1studiosdkcomponentsGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkcomponentsGetRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkcomponentsGetWithBody(ctx context.Context, params *POSTv1studiosdkcomponentsGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkcomponentsGetRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7706,8 +8003,8 @@ func (c *Client) POSTv1studiosdkcomponentsGetWithBody(ctx context.Context, conte
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/studio/sdk/components.get (the `POSTv1studiosdkcomponentsGet` operationId).
-func (c *Client) POSTv1studiosdkcomponentsGet(ctx context.Context, body POSTv1studiosdkcomponentsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkcomponentsGetRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkcomponentsGet(ctx context.Context, params *POSTv1studiosdkcomponentsGetParams, body POSTv1studiosdkcomponentsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkcomponentsGetRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7723,8 +8020,8 @@ func (c *Client) POSTv1studiosdkcomponentsGet(ctx context.Context, body POSTv1st
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/studio/sdk/components.list (the `POSTv1studiosdkcomponentsList` operationId).
-func (c *Client) POSTv1studiosdkcomponentsListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkcomponentsListRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkcomponentsListWithBody(ctx context.Context, params *POSTv1studiosdkcomponentsListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkcomponentsListRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7740,8 +8037,8 @@ func (c *Client) POSTv1studiosdkcomponentsListWithBody(ctx context.Context, cont
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/studio/sdk/components.list (the `POSTv1studiosdkcomponentsList` operationId).
-func (c *Client) POSTv1studiosdkcomponentsList(ctx context.Context, body POSTv1studiosdkcomponentsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkcomponentsListRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkcomponentsList(ctx context.Context, params *POSTv1studiosdkcomponentsListParams, body POSTv1studiosdkcomponentsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkcomponentsListRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8294,8 +8591,8 @@ func (c *Client) POSTv1studiosdknamespacesUpdate(ctx context.Context, body POSTv
 
 // POSTv1studiosdkpreviewExecuteWithBody performs a POST /v1/studio/sdk/preview.execute (the `POSTv1studiosdkpreviewExecute` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkpreviewExecuteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkpreviewExecuteRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkpreviewExecuteWithBody(ctx context.Context, params *POSTv1studiosdkpreviewExecuteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkpreviewExecuteRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8308,8 +8605,8 @@ func (c *Client) POSTv1studiosdkpreviewExecuteWithBody(ctx context.Context, cont
 
 // POSTv1studiosdkpreviewExecute performs a POST /v1/studio/sdk/preview.execute (the `POSTv1studiosdkpreviewExecute` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkpreviewExecute(ctx context.Context, body POSTv1studiosdkpreviewExecuteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkpreviewExecuteRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkpreviewExecute(ctx context.Context, params *POSTv1studiosdkpreviewExecuteParams, body POSTv1studiosdkpreviewExecuteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkpreviewExecuteRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8390,8 +8687,8 @@ func (c *Client) POSTv1studiosdkpublicationsGet(ctx context.Context, body POSTv1
 
 // POSTv1studiosdkpublicationsPublishWithBody performs a POST /v1/studio/sdk/publications.publish (the `POSTv1studiosdkpublicationsPublish` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkpublicationsPublishWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkpublicationsPublishRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkpublicationsPublishWithBody(ctx context.Context, params *POSTv1studiosdkpublicationsPublishParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkpublicationsPublishRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8404,8 +8701,8 @@ func (c *Client) POSTv1studiosdkpublicationsPublishWithBody(ctx context.Context,
 
 // POSTv1studiosdkpublicationsPublish performs a POST /v1/studio/sdk/publications.publish (the `POSTv1studiosdkpublicationsPublish` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkpublicationsPublish(ctx context.Context, body POSTv1studiosdkpublicationsPublishJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkpublicationsPublishRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkpublicationsPublish(ctx context.Context, params *POSTv1studiosdkpublicationsPublishParams, body POSTv1studiosdkpublicationsPublishJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkpublicationsPublishRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8418,8 +8715,8 @@ func (c *Client) POSTv1studiosdkpublicationsPublish(ctx context.Context, body PO
 
 // POSTv1studiosdkpublicationsRollbackWithBody performs a POST /v1/studio/sdk/publications.rollback (the `POSTv1studiosdkpublicationsRollback` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkpublicationsRollbackWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkpublicationsRollbackRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkpublicationsRollbackWithBody(ctx context.Context, params *POSTv1studiosdkpublicationsRollbackParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkpublicationsRollbackRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8432,8 +8729,8 @@ func (c *Client) POSTv1studiosdkpublicationsRollbackWithBody(ctx context.Context
 
 // POSTv1studiosdkpublicationsRollback performs a POST /v1/studio/sdk/publications.rollback (the `POSTv1studiosdkpublicationsRollback` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkpublicationsRollback(ctx context.Context, body POSTv1studiosdkpublicationsRollbackJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkpublicationsRollbackRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkpublicationsRollback(ctx context.Context, params *POSTv1studiosdkpublicationsRollbackParams, body POSTv1studiosdkpublicationsRollbackJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkpublicationsRollbackRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8446,8 +8743,8 @@ func (c *Client) POSTv1studiosdkpublicationsRollback(ctx context.Context, body P
 
 // POSTv1studiosdkpublicationsUnpublishWithBody performs a POST /v1/studio/sdk/publications.unpublish (the `POSTv1studiosdkpublicationsUnpublish` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkpublicationsUnpublishWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkpublicationsUnpublishRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkpublicationsUnpublishWithBody(ctx context.Context, params *POSTv1studiosdkpublicationsUnpublishParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkpublicationsUnpublishRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8460,8 +8757,8 @@ func (c *Client) POSTv1studiosdkpublicationsUnpublishWithBody(ctx context.Contex
 
 // POSTv1studiosdkpublicationsUnpublish performs a POST /v1/studio/sdk/publications.unpublish (the `POSTv1studiosdkpublicationsUnpublish` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkpublicationsUnpublish(ctx context.Context, body POSTv1studiosdkpublicationsUnpublishJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkpublicationsUnpublishRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkpublicationsUnpublish(ctx context.Context, params *POSTv1studiosdkpublicationsUnpublishParams, body POSTv1studiosdkpublicationsUnpublishJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkpublicationsUnpublishRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8474,8 +8771,8 @@ func (c *Client) POSTv1studiosdkpublicationsUnpublish(ctx context.Context, body 
 
 // POSTv1studiosdkresourcesDeleteFileWithBody performs a POST /v1/studio/sdk/resources.delete_file (the `POSTv1studiosdkresourcesDeleteFile` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkresourcesDeleteFileWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkresourcesDeleteFileRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkresourcesDeleteFileWithBody(ctx context.Context, params *POSTv1studiosdkresourcesDeleteFileParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesDeleteFileRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8488,8 +8785,8 @@ func (c *Client) POSTv1studiosdkresourcesDeleteFileWithBody(ctx context.Context,
 
 // POSTv1studiosdkresourcesDeleteFile performs a POST /v1/studio/sdk/resources.delete_file (the `POSTv1studiosdkresourcesDeleteFile` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkresourcesDeleteFile(ctx context.Context, body POSTv1studiosdkresourcesDeleteFileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkresourcesDeleteFileRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkresourcesDeleteFile(ctx context.Context, params *POSTv1studiosdkresourcesDeleteFileParams, body POSTv1studiosdkresourcesDeleteFileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesDeleteFileRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8502,8 +8799,8 @@ func (c *Client) POSTv1studiosdkresourcesDeleteFile(ctx context.Context, body PO
 
 // POSTv1studiosdkresourcesDeleteFolderWithBody performs a POST /v1/studio/sdk/resources.delete_folder (the `POSTv1studiosdkresourcesDeleteFolder` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkresourcesDeleteFolderWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkresourcesDeleteFolderRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkresourcesDeleteFolderWithBody(ctx context.Context, params *POSTv1studiosdkresourcesDeleteFolderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesDeleteFolderRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8516,8 +8813,8 @@ func (c *Client) POSTv1studiosdkresourcesDeleteFolderWithBody(ctx context.Contex
 
 // POSTv1studiosdkresourcesDeleteFolder performs a POST /v1/studio/sdk/resources.delete_folder (the `POSTv1studiosdkresourcesDeleteFolder` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkresourcesDeleteFolder(ctx context.Context, body POSTv1studiosdkresourcesDeleteFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkresourcesDeleteFolderRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkresourcesDeleteFolder(ctx context.Context, params *POSTv1studiosdkresourcesDeleteFolderParams, body POSTv1studiosdkresourcesDeleteFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesDeleteFolderRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8530,8 +8827,8 @@ func (c *Client) POSTv1studiosdkresourcesDeleteFolder(ctx context.Context, body 
 
 // POSTv1studiosdkresourcesDeleteSkillWithBody performs a POST /v1/studio/sdk/resources.delete_skill (the `POSTv1studiosdkresourcesDeleteSkill` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkresourcesDeleteSkillWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkresourcesDeleteSkillRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkresourcesDeleteSkillWithBody(ctx context.Context, params *POSTv1studiosdkresourcesDeleteSkillParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesDeleteSkillRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8544,8 +8841,8 @@ func (c *Client) POSTv1studiosdkresourcesDeleteSkillWithBody(ctx context.Context
 
 // POSTv1studiosdkresourcesDeleteSkill performs a POST /v1/studio/sdk/resources.delete_skill (the `POSTv1studiosdkresourcesDeleteSkill` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkresourcesDeleteSkill(ctx context.Context, body POSTv1studiosdkresourcesDeleteSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkresourcesDeleteSkillRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkresourcesDeleteSkill(ctx context.Context, params *POSTv1studiosdkresourcesDeleteSkillParams, body POSTv1studiosdkresourcesDeleteSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesDeleteSkillRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8558,8 +8855,8 @@ func (c *Client) POSTv1studiosdkresourcesDeleteSkill(ctx context.Context, body P
 
 // POSTv1studiosdkresourcesGetWithBody performs a POST /v1/studio/sdk/resources.get (the `POSTv1studiosdkresourcesGet` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkresourcesGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkresourcesGetRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkresourcesGetWithBody(ctx context.Context, params *POSTv1studiosdkresourcesGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesGetRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8572,8 +8869,8 @@ func (c *Client) POSTv1studiosdkresourcesGetWithBody(ctx context.Context, conten
 
 // POSTv1studiosdkresourcesGet performs a POST /v1/studio/sdk/resources.get (the `POSTv1studiosdkresourcesGet` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkresourcesGet(ctx context.Context, body POSTv1studiosdkresourcesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkresourcesGetRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkresourcesGet(ctx context.Context, params *POSTv1studiosdkresourcesGetParams, body POSTv1studiosdkresourcesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesGetRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8586,8 +8883,8 @@ func (c *Client) POSTv1studiosdkresourcesGet(ctx context.Context, body POSTv1stu
 
 // POSTv1studiosdkresourcesUpsertFileWithBody performs a POST /v1/studio/sdk/resources.upsert_file (the `POSTv1studiosdkresourcesUpsertFile` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkresourcesUpsertFileWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkresourcesUpsertFileRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkresourcesUpsertFileWithBody(ctx context.Context, params *POSTv1studiosdkresourcesUpsertFileParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesUpsertFileRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8600,8 +8897,8 @@ func (c *Client) POSTv1studiosdkresourcesUpsertFileWithBody(ctx context.Context,
 
 // POSTv1studiosdkresourcesUpsertFile performs a POST /v1/studio/sdk/resources.upsert_file (the `POSTv1studiosdkresourcesUpsertFile` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkresourcesUpsertFile(ctx context.Context, body POSTv1studiosdkresourcesUpsertFileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkresourcesUpsertFileRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkresourcesUpsertFile(ctx context.Context, params *POSTv1studiosdkresourcesUpsertFileParams, body POSTv1studiosdkresourcesUpsertFileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesUpsertFileRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8614,8 +8911,8 @@ func (c *Client) POSTv1studiosdkresourcesUpsertFile(ctx context.Context, body PO
 
 // POSTv1studiosdkresourcesUpsertFolderWithBody performs a POST /v1/studio/sdk/resources.upsert_folder (the `POSTv1studiosdkresourcesUpsertFolder` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkresourcesUpsertFolderWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkresourcesUpsertFolderRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkresourcesUpsertFolderWithBody(ctx context.Context, params *POSTv1studiosdkresourcesUpsertFolderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesUpsertFolderRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8628,8 +8925,8 @@ func (c *Client) POSTv1studiosdkresourcesUpsertFolderWithBody(ctx context.Contex
 
 // POSTv1studiosdkresourcesUpsertFolder performs a POST /v1/studio/sdk/resources.upsert_folder (the `POSTv1studiosdkresourcesUpsertFolder` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkresourcesUpsertFolder(ctx context.Context, body POSTv1studiosdkresourcesUpsertFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkresourcesUpsertFolderRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkresourcesUpsertFolder(ctx context.Context, params *POSTv1studiosdkresourcesUpsertFolderParams, body POSTv1studiosdkresourcesUpsertFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesUpsertFolderRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8642,8 +8939,8 @@ func (c *Client) POSTv1studiosdkresourcesUpsertFolder(ctx context.Context, body 
 
 // POSTv1studiosdkresourcesUpsertSkillWithBody performs a POST /v1/studio/sdk/resources.upsert_skill (the `POSTv1studiosdkresourcesUpsertSkill` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkresourcesUpsertSkillWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkresourcesUpsertSkillRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkresourcesUpsertSkillWithBody(ctx context.Context, params *POSTv1studiosdkresourcesUpsertSkillParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesUpsertSkillRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8656,8 +8953,8 @@ func (c *Client) POSTv1studiosdkresourcesUpsertSkillWithBody(ctx context.Context
 
 // POSTv1studiosdkresourcesUpsertSkill performs a POST /v1/studio/sdk/resources.upsert_skill (the `POSTv1studiosdkresourcesUpsertSkill` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkresourcesUpsertSkill(ctx context.Context, body POSTv1studiosdkresourcesUpsertSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkresourcesUpsertSkillRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkresourcesUpsertSkill(ctx context.Context, params *POSTv1studiosdkresourcesUpsertSkillParams, body POSTv1studiosdkresourcesUpsertSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkresourcesUpsertSkillRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8669,8 +8966,8 @@ func (c *Client) POSTv1studiosdkresourcesUpsertSkill(ctx context.Context, body P
 }
 
 // POSTv1studiosdkruntimeStatus performs a POST /v1/studio/sdk/runtime.status (the `POSTv1studiosdkruntimeStatus` operationId) request.
-func (c *Client) POSTv1studiosdkruntimeStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkruntimeStatusRequest(c.Server)
+func (c *Client) POSTv1studiosdkruntimeStatus(ctx context.Context, params *POSTv1studiosdkruntimeStatusParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkruntimeStatusRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -8683,8 +8980,8 @@ func (c *Client) POSTv1studiosdkruntimeStatus(ctx context.Context, reqEditors ..
 
 // POSTv1studiosdkversionsApplyWithBody performs a POST /v1/studio/sdk/versions.apply (the `POSTv1studiosdkversionsApply` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkversionsApplyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsApplyRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkversionsApplyWithBody(ctx context.Context, params *POSTv1studiosdkversionsApplyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsApplyRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8697,8 +8994,8 @@ func (c *Client) POSTv1studiosdkversionsApplyWithBody(ctx context.Context, conte
 
 // POSTv1studiosdkversionsApply performs a POST /v1/studio/sdk/versions.apply (the `POSTv1studiosdkversionsApply` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkversionsApply(ctx context.Context, body POSTv1studiosdkversionsApplyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsApplyRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkversionsApply(ctx context.Context, params *POSTv1studiosdkversionsApplyParams, body POSTv1studiosdkversionsApplyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsApplyRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8711,8 +9008,8 @@ func (c *Client) POSTv1studiosdkversionsApply(ctx context.Context, body POSTv1st
 
 // POSTv1studiosdkversionsBuilderWithBody performs a POST /v1/studio/sdk/versions.builder (the `POSTv1studiosdkversionsBuilder` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkversionsBuilderWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsBuilderRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkversionsBuilderWithBody(ctx context.Context, params *POSTv1studiosdkversionsBuilderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsBuilderRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8725,8 +9022,8 @@ func (c *Client) POSTv1studiosdkversionsBuilderWithBody(ctx context.Context, con
 
 // POSTv1studiosdkversionsBuilder performs a POST /v1/studio/sdk/versions.builder (the `POSTv1studiosdkversionsBuilder` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkversionsBuilder(ctx context.Context, body POSTv1studiosdkversionsBuilderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsBuilderRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkversionsBuilder(ctx context.Context, params *POSTv1studiosdkversionsBuilderParams, body POSTv1studiosdkversionsBuilderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsBuilderRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8739,8 +9036,8 @@ func (c *Client) POSTv1studiosdkversionsBuilder(ctx context.Context, body POSTv1
 
 // POSTv1studiosdkversionsCreateWithBody performs a POST /v1/studio/sdk/versions.create (the `POSTv1studiosdkversionsCreate` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkversionsCreateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsCreateRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkversionsCreateWithBody(ctx context.Context, params *POSTv1studiosdkversionsCreateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsCreateRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8753,8 +9050,8 @@ func (c *Client) POSTv1studiosdkversionsCreateWithBody(ctx context.Context, cont
 
 // POSTv1studiosdkversionsCreate performs a POST /v1/studio/sdk/versions.create (the `POSTv1studiosdkversionsCreate` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkversionsCreate(ctx context.Context, body POSTv1studiosdkversionsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsCreateRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkversionsCreate(ctx context.Context, params *POSTv1studiosdkversionsCreateParams, body POSTv1studiosdkversionsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsCreateRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8770,8 +9067,8 @@ func (c *Client) POSTv1studiosdkversionsCreate(ctx context.Context, body POSTv1s
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/studio/sdk/versions.descriptor (the `POSTv1studiosdkversionsDescriptor` operationId).
-func (c *Client) POSTv1studiosdkversionsDescriptorWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsDescriptorRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkversionsDescriptorWithBody(ctx context.Context, params *POSTv1studiosdkversionsDescriptorParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsDescriptorRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8787,8 +9084,8 @@ func (c *Client) POSTv1studiosdkversionsDescriptorWithBody(ctx context.Context, 
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/studio/sdk/versions.descriptor (the `POSTv1studiosdkversionsDescriptor` operationId).
-func (c *Client) POSTv1studiosdkversionsDescriptor(ctx context.Context, body POSTv1studiosdkversionsDescriptorJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsDescriptorRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkversionsDescriptor(ctx context.Context, params *POSTv1studiosdkversionsDescriptorParams, body POSTv1studiosdkversionsDescriptorJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsDescriptorRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8801,8 +9098,8 @@ func (c *Client) POSTv1studiosdkversionsDescriptor(ctx context.Context, body POS
 
 // POSTv1studiosdkversionsDownloadWithBody performs a POST /v1/studio/sdk/versions.download (the `POSTv1studiosdkversionsDownload` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkversionsDownloadWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsDownloadRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkversionsDownloadWithBody(ctx context.Context, params *POSTv1studiosdkversionsDownloadParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsDownloadRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8815,8 +9112,8 @@ func (c *Client) POSTv1studiosdkversionsDownloadWithBody(ctx context.Context, co
 
 // POSTv1studiosdkversionsDownload performs a POST /v1/studio/sdk/versions.download (the `POSTv1studiosdkversionsDownload` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkversionsDownload(ctx context.Context, body POSTv1studiosdkversionsDownloadJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsDownloadRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkversionsDownload(ctx context.Context, params *POSTv1studiosdkversionsDownloadParams, body POSTv1studiosdkversionsDownloadJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsDownloadRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8832,8 +9129,8 @@ func (c *Client) POSTv1studiosdkversionsDownload(ctx context.Context, body POSTv
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/studio/sdk/versions.export_dql (the `POSTv1studiosdkversionsExportDql` operationId).
-func (c *Client) POSTv1studiosdkversionsExportDqlWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsExportDqlRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkversionsExportDqlWithBody(ctx context.Context, params *POSTv1studiosdkversionsExportDqlParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsExportDqlRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8849,8 +9146,8 @@ func (c *Client) POSTv1studiosdkversionsExportDqlWithBody(ctx context.Context, c
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/studio/sdk/versions.export_dql (the `POSTv1studiosdkversionsExportDql` operationId).
-func (c *Client) POSTv1studiosdkversionsExportDql(ctx context.Context, body POSTv1studiosdkversionsExportDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsExportDqlRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkversionsExportDql(ctx context.Context, params *POSTv1studiosdkversionsExportDqlParams, body POSTv1studiosdkversionsExportDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsExportDqlRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8866,8 +9163,8 @@ func (c *Client) POSTv1studiosdkversionsExportDql(ctx context.Context, body POST
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/studio/sdk/versions.get (the `POSTv1studiosdkversionsGet` operationId).
-func (c *Client) POSTv1studiosdkversionsGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsGetRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkversionsGetWithBody(ctx context.Context, params *POSTv1studiosdkversionsGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsGetRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8883,8 +9180,8 @@ func (c *Client) POSTv1studiosdkversionsGetWithBody(ctx context.Context, content
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/studio/sdk/versions.get (the `POSTv1studiosdkversionsGet` operationId).
-func (c *Client) POSTv1studiosdkversionsGet(ctx context.Context, body POSTv1studiosdkversionsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsGetRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkversionsGet(ctx context.Context, params *POSTv1studiosdkversionsGetParams, body POSTv1studiosdkversionsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsGetRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8897,8 +9194,8 @@ func (c *Client) POSTv1studiosdkversionsGet(ctx context.Context, body POSTv1stud
 
 // POSTv1studiosdkversionsInspectWithBody performs a POST /v1/studio/sdk/versions.inspect (the `POSTv1studiosdkversionsInspect` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkversionsInspectWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsInspectRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkversionsInspectWithBody(ctx context.Context, params *POSTv1studiosdkversionsInspectParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsInspectRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8911,8 +9208,8 @@ func (c *Client) POSTv1studiosdkversionsInspectWithBody(ctx context.Context, con
 
 // POSTv1studiosdkversionsInspect performs a POST /v1/studio/sdk/versions.inspect (the `POSTv1studiosdkversionsInspect` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkversionsInspect(ctx context.Context, body POSTv1studiosdkversionsInspectJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsInspectRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkversionsInspect(ctx context.Context, params *POSTv1studiosdkversionsInspectParams, body POSTv1studiosdkversionsInspectJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsInspectRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8928,8 +9225,8 @@ func (c *Client) POSTv1studiosdkversionsInspect(ctx context.Context, body POSTv1
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/studio/sdk/versions.list (the `POSTv1studiosdkversionsList` operationId).
-func (c *Client) POSTv1studiosdkversionsListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsListRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkversionsListWithBody(ctx context.Context, params *POSTv1studiosdkversionsListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsListRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8945,8 +9242,8 @@ func (c *Client) POSTv1studiosdkversionsListWithBody(ctx context.Context, conten
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/studio/sdk/versions.list (the `POSTv1studiosdkversionsList` operationId).
-func (c *Client) POSTv1studiosdkversionsList(ctx context.Context, body POSTv1studiosdkversionsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsListRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkversionsList(ctx context.Context, params *POSTv1studiosdkversionsListParams, body POSTv1studiosdkversionsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsListRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8959,8 +9256,8 @@ func (c *Client) POSTv1studiosdkversionsList(ctx context.Context, body POSTv1stu
 
 // POSTv1studiosdkversionsLoadArchiveWithBody performs a POST /v1/studio/sdk/versions.load_archive (the `POSTv1studiosdkversionsLoadArchive` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkversionsLoadArchiveWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsLoadArchiveRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkversionsLoadArchiveWithBody(ctx context.Context, params *POSTv1studiosdkversionsLoadArchiveParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsLoadArchiveRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8973,8 +9270,8 @@ func (c *Client) POSTv1studiosdkversionsLoadArchiveWithBody(ctx context.Context,
 
 // POSTv1studiosdkversionsLoadArchive performs a POST /v1/studio/sdk/versions.load_archive (the `POSTv1studiosdkversionsLoadArchive` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkversionsLoadArchive(ctx context.Context, body POSTv1studiosdkversionsLoadArchiveJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsLoadArchiveRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkversionsLoadArchive(ctx context.Context, params *POSTv1studiosdkversionsLoadArchiveParams, body POSTv1studiosdkversionsLoadArchiveJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsLoadArchiveRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8987,8 +9284,8 @@ func (c *Client) POSTv1studiosdkversionsLoadArchive(ctx context.Context, body PO
 
 // POSTv1studiosdkversionsLoadDqlWithBody performs a POST /v1/studio/sdk/versions.load_dql (the `POSTv1studiosdkversionsLoadDql` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkversionsLoadDqlWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsLoadDqlRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkversionsLoadDqlWithBody(ctx context.Context, params *POSTv1studiosdkversionsLoadDqlParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsLoadDqlRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9001,8 +9298,8 @@ func (c *Client) POSTv1studiosdkversionsLoadDqlWithBody(ctx context.Context, con
 
 // POSTv1studiosdkversionsLoadDql performs a POST /v1/studio/sdk/versions.load_dql (the `POSTv1studiosdkversionsLoadDql` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkversionsLoadDql(ctx context.Context, body POSTv1studiosdkversionsLoadDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsLoadDqlRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkversionsLoadDql(ctx context.Context, params *POSTv1studiosdkversionsLoadDqlParams, body POSTv1studiosdkversionsLoadDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsLoadDqlRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9015,8 +9312,8 @@ func (c *Client) POSTv1studiosdkversionsLoadDql(ctx context.Context, body POSTv1
 
 // POSTv1studiosdkversionsTestComposeWithBody performs a POST /v1/studio/sdk/versions.test_compose (the `POSTv1studiosdkversionsTestCompose` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkversionsTestComposeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsTestComposeRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkversionsTestComposeWithBody(ctx context.Context, params *POSTv1studiosdkversionsTestComposeParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsTestComposeRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9029,8 +9326,8 @@ func (c *Client) POSTv1studiosdkversionsTestComposeWithBody(ctx context.Context,
 
 // POSTv1studiosdkversionsTestCompose performs a POST /v1/studio/sdk/versions.test_compose (the `POSTv1studiosdkversionsTestCompose` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkversionsTestCompose(ctx context.Context, body POSTv1studiosdkversionsTestComposeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsTestComposeRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkversionsTestCompose(ctx context.Context, params *POSTv1studiosdkversionsTestComposeParams, body POSTv1studiosdkversionsTestComposeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsTestComposeRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9043,8 +9340,8 @@ func (c *Client) POSTv1studiosdkversionsTestCompose(ctx context.Context, body PO
 
 // POSTv1studiosdkversionsTestRelationWithBody performs a POST /v1/studio/sdk/versions.test_relation (the `POSTv1studiosdkversionsTestRelation` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkversionsTestRelationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsTestRelationRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkversionsTestRelationWithBody(ctx context.Context, params *POSTv1studiosdkversionsTestRelationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsTestRelationRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9057,8 +9354,8 @@ func (c *Client) POSTv1studiosdkversionsTestRelationWithBody(ctx context.Context
 
 // POSTv1studiosdkversionsTestRelation performs a POST /v1/studio/sdk/versions.test_relation (the `POSTv1studiosdkversionsTestRelation` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkversionsTestRelation(ctx context.Context, body POSTv1studiosdkversionsTestRelationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsTestRelationRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkversionsTestRelation(ctx context.Context, params *POSTv1studiosdkversionsTestRelationParams, body POSTv1studiosdkversionsTestRelationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsTestRelationRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9071,8 +9368,8 @@ func (c *Client) POSTv1studiosdkversionsTestRelation(ctx context.Context, body P
 
 // POSTv1studiosdkversionsTestViewWithBody performs a POST /v1/studio/sdk/versions.test_view (the `POSTv1studiosdkversionsTestView` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkversionsTestViewWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsTestViewRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkversionsTestViewWithBody(ctx context.Context, params *POSTv1studiosdkversionsTestViewParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsTestViewRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9085,8 +9382,8 @@ func (c *Client) POSTv1studiosdkversionsTestViewWithBody(ctx context.Context, co
 
 // POSTv1studiosdkversionsTestView performs a POST /v1/studio/sdk/versions.test_view (the `POSTv1studiosdkversionsTestView` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkversionsTestView(ctx context.Context, body POSTv1studiosdkversionsTestViewJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsTestViewRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkversionsTestView(ctx context.Context, params *POSTv1studiosdkversionsTestViewParams, body POSTv1studiosdkversionsTestViewJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsTestViewRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9099,8 +9396,8 @@ func (c *Client) POSTv1studiosdkversionsTestView(ctx context.Context, body POSTv
 
 // POSTv1studiosdkversionsValidateWithBody performs a POST /v1/studio/sdk/versions.validate (the `POSTv1studiosdkversionsValidate` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkversionsValidateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsValidateRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkversionsValidateWithBody(ctx context.Context, params *POSTv1studiosdkversionsValidateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsValidateRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9113,8 +9410,8 @@ func (c *Client) POSTv1studiosdkversionsValidateWithBody(ctx context.Context, co
 
 // POSTv1studiosdkversionsValidate performs a POST /v1/studio/sdk/versions.validate (the `POSTv1studiosdkversionsValidate` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkversionsValidate(ctx context.Context, body POSTv1studiosdkversionsValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsValidateRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkversionsValidate(ctx context.Context, params *POSTv1studiosdkversionsValidateParams, body POSTv1studiosdkversionsValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsValidateRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9127,8 +9424,8 @@ func (c *Client) POSTv1studiosdkversionsValidate(ctx context.Context, body POSTv
 
 // POSTv1studiosdkversionsWarmupWithBody performs a POST /v1/studio/sdk/versions.warmup (the `POSTv1studiosdkversionsWarmup` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkversionsWarmupWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsWarmupRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkversionsWarmupWithBody(ctx context.Context, params *POSTv1studiosdkversionsWarmupParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsWarmupRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9141,8 +9438,8 @@ func (c *Client) POSTv1studiosdkversionsWarmupWithBody(ctx context.Context, cont
 
 // POSTv1studiosdkversionsWarmup performs a POST /v1/studio/sdk/versions.warmup (the `POSTv1studiosdkversionsWarmup` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkversionsWarmup(ctx context.Context, body POSTv1studiosdkversionsWarmupJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsWarmupRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkversionsWarmup(ctx context.Context, params *POSTv1studiosdkversionsWarmupParams, body POSTv1studiosdkversionsWarmupJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsWarmupRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9158,8 +9455,8 @@ func (c *Client) POSTv1studiosdkversionsWarmup(ctx context.Context, body POSTv1s
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/studio/sdk/versions.warmup_get (the `POSTv1studiosdkversionsWarmupGet` operationId).
-func (c *Client) POSTv1studiosdkversionsWarmupGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsWarmupGetRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkversionsWarmupGetWithBody(ctx context.Context, params *POSTv1studiosdkversionsWarmupGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsWarmupGetRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9175,8 +9472,8 @@ func (c *Client) POSTv1studiosdkversionsWarmupGetWithBody(ctx context.Context, c
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/studio/sdk/versions.warmup_get (the `POSTv1studiosdkversionsWarmupGet` operationId).
-func (c *Client) POSTv1studiosdkversionsWarmupGet(ctx context.Context, body POSTv1studiosdkversionsWarmupGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsWarmupGetRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkversionsWarmupGet(ctx context.Context, params *POSTv1studiosdkversionsWarmupGetParams, body POSTv1studiosdkversionsWarmupGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsWarmupGetRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9189,8 +9486,8 @@ func (c *Client) POSTv1studiosdkversionsWarmupGet(ctx context.Context, body POST
 
 // POSTv1studiosdkversionsWarmupListWithBody performs a POST /v1/studio/sdk/versions.warmup_list (the `POSTv1studiosdkversionsWarmupList` operationId) request,
 // with any type of body and a specified content type.
-func (c *Client) POSTv1studiosdkversionsWarmupListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsWarmupListRequestWithBody(c.Server, contentType, body)
+func (c *Client) POSTv1studiosdkversionsWarmupListWithBody(ctx context.Context, params *POSTv1studiosdkversionsWarmupListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsWarmupListRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9203,8 +9500,8 @@ func (c *Client) POSTv1studiosdkversionsWarmupListWithBody(ctx context.Context, 
 
 // POSTv1studiosdkversionsWarmupList performs a POST /v1/studio/sdk/versions.warmup_list (the `POSTv1studiosdkversionsWarmupList` operationId) request.
 // Takes a body of the `application/json` content type.
-func (c *Client) POSTv1studiosdkversionsWarmupList(ctx context.Context, body POSTv1studiosdkversionsWarmupListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkversionsWarmupListRequest(c.Server, body)
+func (c *Client) POSTv1studiosdkversionsWarmupList(ctx context.Context, params *POSTv1studiosdkversionsWarmupListParams, body POSTv1studiosdkversionsWarmupListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsWarmupListRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9295,6 +9592,46 @@ func NewPOSTv1studiosdkaccessGetRequestWithBody(server string, contentType strin
 	return req, nil
 }
 
+// NewPOSTv1studiosdkaccessListRequest calls the generic POSTv1studiosdkaccessList builder with application/json body
+func NewPOSTv1studiosdkaccessListRequest(server string, body POSTv1studiosdkaccessListJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkaccessListRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkaccessListRequestWithBody constructs an http.Request for the POSTv1studiosdkaccessList method, with any body, and a specified content type
+func NewPOSTv1studiosdkaccessListRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/access.list")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewPOSTv1studiosdkaccessReplaceRequest calls the generic POSTv1studiosdkaccessReplace builder with application/json body
 func NewPOSTv1studiosdkaccessReplaceRequest(server string, body POSTv1studiosdkaccessReplaceJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -9336,18 +9673,18 @@ func NewPOSTv1studiosdkaccessReplaceRequestWithBody(server string, contentType s
 }
 
 // NewPOSTv1studiosdkaclDeleteRequest calls the generic POSTv1studiosdkaclDelete builder with application/json body
-func NewPOSTv1studiosdkaclDeleteRequest(server string, body POSTv1studiosdkaclDeleteJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkaclDeleteRequest(server string, params *POSTv1studiosdkaclDeleteParams, body POSTv1studiosdkaclDeleteJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkaclDeleteRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkaclDeleteRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkaclDeleteRequestWithBody constructs an http.Request for the POSTv1studiosdkaclDelete method, with any body, and a specified content type
-func NewPOSTv1studiosdkaclDeleteRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkaclDeleteRequestWithBody(server string, params *POSTv1studiosdkaclDeleteParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -9371,6 +9708,21 @@ func NewPOSTv1studiosdkaclDeleteRequestWithBody(server string, contentType strin
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
 
 	return req, nil
 }
@@ -9451,22 +9803,37 @@ func NewPOSTv1studiosdkaclListRequestWithBody(server string, params *POSTv1studi
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkaclUpsertRequest calls the generic POSTv1studiosdkaclUpsert builder with application/json body
-func NewPOSTv1studiosdkaclUpsertRequest(server string, body POSTv1studiosdkaclUpsertJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkaclUpsertRequest(server string, params *POSTv1studiosdkaclUpsertParams, body POSTv1studiosdkaclUpsertJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkaclUpsertRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkaclUpsertRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkaclUpsertRequestWithBody constructs an http.Request for the POSTv1studiosdkaclUpsert method, with any body, and a specified content type
-func NewPOSTv1studiosdkaclUpsertRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkaclUpsertRequestWithBody(server string, params *POSTv1studiosdkaclUpsertParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -9490,6 +9857,21 @@ func NewPOSTv1studiosdkaclUpsertRequestWithBody(server string, contentType strin
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
 
 	return req, nil
 }
@@ -9722,18 +10104,18 @@ func NewPOSTv1studiosdkauthorizationPredicatesUpdateRequestWithBody(server strin
 }
 
 // NewPOSTv1studiosdkcomponentsCreateRequest calls the generic POSTv1studiosdkcomponentsCreate builder with application/json body
-func NewPOSTv1studiosdkcomponentsCreateRequest(server string, body POSTv1studiosdkcomponentsCreateJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkcomponentsCreateRequest(server string, params *POSTv1studiosdkcomponentsCreateParams, body POSTv1studiosdkcomponentsCreateJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkcomponentsCreateRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkcomponentsCreateRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkcomponentsCreateRequestWithBody constructs an http.Request for the POSTv1studiosdkcomponentsCreate method, with any body, and a specified content type
-func NewPOSTv1studiosdkcomponentsCreateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkcomponentsCreateRequestWithBody(server string, params *POSTv1studiosdkcomponentsCreateParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -9758,22 +10140,37 @@ func NewPOSTv1studiosdkcomponentsCreateRequestWithBody(server string, contentTyp
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkcomponentsGetRequest calls the generic POSTv1studiosdkcomponentsGet builder with application/json body
-func NewPOSTv1studiosdkcomponentsGetRequest(server string, body POSTv1studiosdkcomponentsGetJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkcomponentsGetRequest(server string, params *POSTv1studiosdkcomponentsGetParams, body POSTv1studiosdkcomponentsGetJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkcomponentsGetRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkcomponentsGetRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkcomponentsGetRequestWithBody constructs an http.Request for the POSTv1studiosdkcomponentsGet method, with any body, and a specified content type
-func NewPOSTv1studiosdkcomponentsGetRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkcomponentsGetRequestWithBody(server string, params *POSTv1studiosdkcomponentsGetParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -9798,22 +10195,37 @@ func NewPOSTv1studiosdkcomponentsGetRequestWithBody(server string, contentType s
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkcomponentsListRequest calls the generic POSTv1studiosdkcomponentsList builder with application/json body
-func NewPOSTv1studiosdkcomponentsListRequest(server string, body POSTv1studiosdkcomponentsListJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkcomponentsListRequest(server string, params *POSTv1studiosdkcomponentsListParams, body POSTv1studiosdkcomponentsListJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkcomponentsListRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkcomponentsListRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkcomponentsListRequestWithBody constructs an http.Request for the POSTv1studiosdkcomponentsList method, with any body, and a specified content type
-func NewPOSTv1studiosdkcomponentsListRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkcomponentsListRequestWithBody(server string, params *POSTv1studiosdkcomponentsListParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -9837,6 +10249,21 @@ func NewPOSTv1studiosdkcomponentsListRequestWithBody(server string, contentType 
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
 
 	return req, nil
 }
@@ -10562,18 +10989,18 @@ func NewPOSTv1studiosdknamespacesUpdateRequestWithBody(server string, contentTyp
 }
 
 // NewPOSTv1studiosdkpreviewExecuteRequest calls the generic POSTv1studiosdkpreviewExecute builder with application/json body
-func NewPOSTv1studiosdkpreviewExecuteRequest(server string, body POSTv1studiosdkpreviewExecuteJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkpreviewExecuteRequest(server string, params *POSTv1studiosdkpreviewExecuteParams, body POSTv1studiosdkpreviewExecuteJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkpreviewExecuteRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkpreviewExecuteRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkpreviewExecuteRequestWithBody constructs an http.Request for the POSTv1studiosdkpreviewExecute method, with any body, and a specified content type
-func NewPOSTv1studiosdkpreviewExecuteRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkpreviewExecuteRequestWithBody(server string, params *POSTv1studiosdkpreviewExecuteParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -10597,6 +11024,21 @@ func NewPOSTv1studiosdkpreviewExecuteRequestWithBody(server string, contentType 
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
 
 	return req, nil
 }
@@ -10682,18 +11124,18 @@ func NewPOSTv1studiosdkpublicationsGetRequestWithBody(server string, contentType
 }
 
 // NewPOSTv1studiosdkpublicationsPublishRequest calls the generic POSTv1studiosdkpublicationsPublish builder with application/json body
-func NewPOSTv1studiosdkpublicationsPublishRequest(server string, body POSTv1studiosdkpublicationsPublishJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkpublicationsPublishRequest(server string, params *POSTv1studiosdkpublicationsPublishParams, body POSTv1studiosdkpublicationsPublishJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkpublicationsPublishRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkpublicationsPublishRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkpublicationsPublishRequestWithBody constructs an http.Request for the POSTv1studiosdkpublicationsPublish method, with any body, and a specified content type
-func NewPOSTv1studiosdkpublicationsPublishRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkpublicationsPublishRequestWithBody(server string, params *POSTv1studiosdkpublicationsPublishParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -10718,22 +11160,37 @@ func NewPOSTv1studiosdkpublicationsPublishRequestWithBody(server string, content
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkpublicationsRollbackRequest calls the generic POSTv1studiosdkpublicationsRollback builder with application/json body
-func NewPOSTv1studiosdkpublicationsRollbackRequest(server string, body POSTv1studiosdkpublicationsRollbackJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkpublicationsRollbackRequest(server string, params *POSTv1studiosdkpublicationsRollbackParams, body POSTv1studiosdkpublicationsRollbackJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkpublicationsRollbackRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkpublicationsRollbackRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkpublicationsRollbackRequestWithBody constructs an http.Request for the POSTv1studiosdkpublicationsRollback method, with any body, and a specified content type
-func NewPOSTv1studiosdkpublicationsRollbackRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkpublicationsRollbackRequestWithBody(server string, params *POSTv1studiosdkpublicationsRollbackParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -10758,22 +11215,37 @@ func NewPOSTv1studiosdkpublicationsRollbackRequestWithBody(server string, conten
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkpublicationsUnpublishRequest calls the generic POSTv1studiosdkpublicationsUnpublish builder with application/json body
-func NewPOSTv1studiosdkpublicationsUnpublishRequest(server string, body POSTv1studiosdkpublicationsUnpublishJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkpublicationsUnpublishRequest(server string, params *POSTv1studiosdkpublicationsUnpublishParams, body POSTv1studiosdkpublicationsUnpublishJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkpublicationsUnpublishRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkpublicationsUnpublishRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkpublicationsUnpublishRequestWithBody constructs an http.Request for the POSTv1studiosdkpublicationsUnpublish method, with any body, and a specified content type
-func NewPOSTv1studiosdkpublicationsUnpublishRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkpublicationsUnpublishRequestWithBody(server string, params *POSTv1studiosdkpublicationsUnpublishParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -10798,22 +11270,37 @@ func NewPOSTv1studiosdkpublicationsUnpublishRequestWithBody(server string, conte
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkresourcesDeleteFileRequest calls the generic POSTv1studiosdkresourcesDeleteFile builder with application/json body
-func NewPOSTv1studiosdkresourcesDeleteFileRequest(server string, body POSTv1studiosdkresourcesDeleteFileJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkresourcesDeleteFileRequest(server string, params *POSTv1studiosdkresourcesDeleteFileParams, body POSTv1studiosdkresourcesDeleteFileJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkresourcesDeleteFileRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkresourcesDeleteFileRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkresourcesDeleteFileRequestWithBody constructs an http.Request for the POSTv1studiosdkresourcesDeleteFile method, with any body, and a specified content type
-func NewPOSTv1studiosdkresourcesDeleteFileRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkresourcesDeleteFileRequestWithBody(server string, params *POSTv1studiosdkresourcesDeleteFileParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -10838,22 +11325,37 @@ func NewPOSTv1studiosdkresourcesDeleteFileRequestWithBody(server string, content
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkresourcesDeleteFolderRequest calls the generic POSTv1studiosdkresourcesDeleteFolder builder with application/json body
-func NewPOSTv1studiosdkresourcesDeleteFolderRequest(server string, body POSTv1studiosdkresourcesDeleteFolderJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkresourcesDeleteFolderRequest(server string, params *POSTv1studiosdkresourcesDeleteFolderParams, body POSTv1studiosdkresourcesDeleteFolderJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkresourcesDeleteFolderRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkresourcesDeleteFolderRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkresourcesDeleteFolderRequestWithBody constructs an http.Request for the POSTv1studiosdkresourcesDeleteFolder method, with any body, and a specified content type
-func NewPOSTv1studiosdkresourcesDeleteFolderRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkresourcesDeleteFolderRequestWithBody(server string, params *POSTv1studiosdkresourcesDeleteFolderParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -10878,22 +11380,37 @@ func NewPOSTv1studiosdkresourcesDeleteFolderRequestWithBody(server string, conte
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkresourcesDeleteSkillRequest calls the generic POSTv1studiosdkresourcesDeleteSkill builder with application/json body
-func NewPOSTv1studiosdkresourcesDeleteSkillRequest(server string, body POSTv1studiosdkresourcesDeleteSkillJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkresourcesDeleteSkillRequest(server string, params *POSTv1studiosdkresourcesDeleteSkillParams, body POSTv1studiosdkresourcesDeleteSkillJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkresourcesDeleteSkillRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkresourcesDeleteSkillRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkresourcesDeleteSkillRequestWithBody constructs an http.Request for the POSTv1studiosdkresourcesDeleteSkill method, with any body, and a specified content type
-func NewPOSTv1studiosdkresourcesDeleteSkillRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkresourcesDeleteSkillRequestWithBody(server string, params *POSTv1studiosdkresourcesDeleteSkillParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -10918,22 +11435,37 @@ func NewPOSTv1studiosdkresourcesDeleteSkillRequestWithBody(server string, conten
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkresourcesGetRequest calls the generic POSTv1studiosdkresourcesGet builder with application/json body
-func NewPOSTv1studiosdkresourcesGetRequest(server string, body POSTv1studiosdkresourcesGetJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkresourcesGetRequest(server string, params *POSTv1studiosdkresourcesGetParams, body POSTv1studiosdkresourcesGetJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkresourcesGetRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkresourcesGetRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkresourcesGetRequestWithBody constructs an http.Request for the POSTv1studiosdkresourcesGet method, with any body, and a specified content type
-func NewPOSTv1studiosdkresourcesGetRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkresourcesGetRequestWithBody(server string, params *POSTv1studiosdkresourcesGetParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -10958,22 +11490,37 @@ func NewPOSTv1studiosdkresourcesGetRequestWithBody(server string, contentType st
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkresourcesUpsertFileRequest calls the generic POSTv1studiosdkresourcesUpsertFile builder with application/json body
-func NewPOSTv1studiosdkresourcesUpsertFileRequest(server string, body POSTv1studiosdkresourcesUpsertFileJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkresourcesUpsertFileRequest(server string, params *POSTv1studiosdkresourcesUpsertFileParams, body POSTv1studiosdkresourcesUpsertFileJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkresourcesUpsertFileRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkresourcesUpsertFileRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkresourcesUpsertFileRequestWithBody constructs an http.Request for the POSTv1studiosdkresourcesUpsertFile method, with any body, and a specified content type
-func NewPOSTv1studiosdkresourcesUpsertFileRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkresourcesUpsertFileRequestWithBody(server string, params *POSTv1studiosdkresourcesUpsertFileParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -10998,22 +11545,37 @@ func NewPOSTv1studiosdkresourcesUpsertFileRequestWithBody(server string, content
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkresourcesUpsertFolderRequest calls the generic POSTv1studiosdkresourcesUpsertFolder builder with application/json body
-func NewPOSTv1studiosdkresourcesUpsertFolderRequest(server string, body POSTv1studiosdkresourcesUpsertFolderJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkresourcesUpsertFolderRequest(server string, params *POSTv1studiosdkresourcesUpsertFolderParams, body POSTv1studiosdkresourcesUpsertFolderJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkresourcesUpsertFolderRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkresourcesUpsertFolderRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkresourcesUpsertFolderRequestWithBody constructs an http.Request for the POSTv1studiosdkresourcesUpsertFolder method, with any body, and a specified content type
-func NewPOSTv1studiosdkresourcesUpsertFolderRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkresourcesUpsertFolderRequestWithBody(server string, params *POSTv1studiosdkresourcesUpsertFolderParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11038,22 +11600,37 @@ func NewPOSTv1studiosdkresourcesUpsertFolderRequestWithBody(server string, conte
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkresourcesUpsertSkillRequest calls the generic POSTv1studiosdkresourcesUpsertSkill builder with application/json body
-func NewPOSTv1studiosdkresourcesUpsertSkillRequest(server string, body POSTv1studiosdkresourcesUpsertSkillJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkresourcesUpsertSkillRequest(server string, params *POSTv1studiosdkresourcesUpsertSkillParams, body POSTv1studiosdkresourcesUpsertSkillJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkresourcesUpsertSkillRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkresourcesUpsertSkillRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkresourcesUpsertSkillRequestWithBody constructs an http.Request for the POSTv1studiosdkresourcesUpsertSkill method, with any body, and a specified content type
-func NewPOSTv1studiosdkresourcesUpsertSkillRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkresourcesUpsertSkillRequestWithBody(server string, params *POSTv1studiosdkresourcesUpsertSkillParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11078,11 +11655,26 @@ func NewPOSTv1studiosdkresourcesUpsertSkillRequestWithBody(server string, conten
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkruntimeStatusRequest constructs an http.Request for the POSTv1studiosdkruntimeStatus method
-func NewPOSTv1studiosdkruntimeStatusRequest(server string) (*http.Request, error) {
+func NewPOSTv1studiosdkruntimeStatusRequest(server string, params *POSTv1studiosdkruntimeStatusParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11105,22 +11697,37 @@ func NewPOSTv1studiosdkruntimeStatusRequest(server string) (*http.Request, error
 		return nil, err
 	}
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkversionsApplyRequest calls the generic POSTv1studiosdkversionsApply builder with application/json body
-func NewPOSTv1studiosdkversionsApplyRequest(server string, body POSTv1studiosdkversionsApplyJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsApplyRequest(server string, params *POSTv1studiosdkversionsApplyParams, body POSTv1studiosdkversionsApplyJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkversionsApplyRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkversionsApplyRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkversionsApplyRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsApply method, with any body, and a specified content type
-func NewPOSTv1studiosdkversionsApplyRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsApplyRequestWithBody(server string, params *POSTv1studiosdkversionsApplyParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11145,22 +11752,37 @@ func NewPOSTv1studiosdkversionsApplyRequestWithBody(server string, contentType s
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkversionsBuilderRequest calls the generic POSTv1studiosdkversionsBuilder builder with application/json body
-func NewPOSTv1studiosdkversionsBuilderRequest(server string, body POSTv1studiosdkversionsBuilderJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsBuilderRequest(server string, params *POSTv1studiosdkversionsBuilderParams, body POSTv1studiosdkversionsBuilderJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkversionsBuilderRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkversionsBuilderRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkversionsBuilderRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsBuilder method, with any body, and a specified content type
-func NewPOSTv1studiosdkversionsBuilderRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsBuilderRequestWithBody(server string, params *POSTv1studiosdkversionsBuilderParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11185,22 +11807,37 @@ func NewPOSTv1studiosdkversionsBuilderRequestWithBody(server string, contentType
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkversionsCreateRequest calls the generic POSTv1studiosdkversionsCreate builder with application/json body
-func NewPOSTv1studiosdkversionsCreateRequest(server string, body POSTv1studiosdkversionsCreateJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsCreateRequest(server string, params *POSTv1studiosdkversionsCreateParams, body POSTv1studiosdkversionsCreateJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkversionsCreateRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkversionsCreateRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkversionsCreateRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsCreate method, with any body, and a specified content type
-func NewPOSTv1studiosdkversionsCreateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsCreateRequestWithBody(server string, params *POSTv1studiosdkversionsCreateParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11225,22 +11862,37 @@ func NewPOSTv1studiosdkversionsCreateRequestWithBody(server string, contentType 
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkversionsDescriptorRequest calls the generic POSTv1studiosdkversionsDescriptor builder with application/json body
-func NewPOSTv1studiosdkversionsDescriptorRequest(server string, body POSTv1studiosdkversionsDescriptorJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsDescriptorRequest(server string, params *POSTv1studiosdkversionsDescriptorParams, body POSTv1studiosdkversionsDescriptorJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkversionsDescriptorRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkversionsDescriptorRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkversionsDescriptorRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsDescriptor method, with any body, and a specified content type
-func NewPOSTv1studiosdkversionsDescriptorRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsDescriptorRequestWithBody(server string, params *POSTv1studiosdkversionsDescriptorParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11265,22 +11917,37 @@ func NewPOSTv1studiosdkversionsDescriptorRequestWithBody(server string, contentT
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkversionsDownloadRequest calls the generic POSTv1studiosdkversionsDownload builder with application/json body
-func NewPOSTv1studiosdkversionsDownloadRequest(server string, body POSTv1studiosdkversionsDownloadJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsDownloadRequest(server string, params *POSTv1studiosdkversionsDownloadParams, body POSTv1studiosdkversionsDownloadJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkversionsDownloadRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkversionsDownloadRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkversionsDownloadRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsDownload method, with any body, and a specified content type
-func NewPOSTv1studiosdkversionsDownloadRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsDownloadRequestWithBody(server string, params *POSTv1studiosdkversionsDownloadParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11305,22 +11972,37 @@ func NewPOSTv1studiosdkversionsDownloadRequestWithBody(server string, contentTyp
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkversionsExportDqlRequest calls the generic POSTv1studiosdkversionsExportDql builder with application/json body
-func NewPOSTv1studiosdkversionsExportDqlRequest(server string, body POSTv1studiosdkversionsExportDqlJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsExportDqlRequest(server string, params *POSTv1studiosdkversionsExportDqlParams, body POSTv1studiosdkversionsExportDqlJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkversionsExportDqlRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkversionsExportDqlRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkversionsExportDqlRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsExportDql method, with any body, and a specified content type
-func NewPOSTv1studiosdkversionsExportDqlRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsExportDqlRequestWithBody(server string, params *POSTv1studiosdkversionsExportDqlParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11345,22 +12027,37 @@ func NewPOSTv1studiosdkversionsExportDqlRequestWithBody(server string, contentTy
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkversionsGetRequest calls the generic POSTv1studiosdkversionsGet builder with application/json body
-func NewPOSTv1studiosdkversionsGetRequest(server string, body POSTv1studiosdkversionsGetJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsGetRequest(server string, params *POSTv1studiosdkversionsGetParams, body POSTv1studiosdkversionsGetJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkversionsGetRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkversionsGetRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkversionsGetRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsGet method, with any body, and a specified content type
-func NewPOSTv1studiosdkversionsGetRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsGetRequestWithBody(server string, params *POSTv1studiosdkversionsGetParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11385,22 +12082,37 @@ func NewPOSTv1studiosdkversionsGetRequestWithBody(server string, contentType str
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkversionsInspectRequest calls the generic POSTv1studiosdkversionsInspect builder with application/json body
-func NewPOSTv1studiosdkversionsInspectRequest(server string, body POSTv1studiosdkversionsInspectJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsInspectRequest(server string, params *POSTv1studiosdkversionsInspectParams, body POSTv1studiosdkversionsInspectJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkversionsInspectRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkversionsInspectRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkversionsInspectRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsInspect method, with any body, and a specified content type
-func NewPOSTv1studiosdkversionsInspectRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsInspectRequestWithBody(server string, params *POSTv1studiosdkversionsInspectParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11425,22 +12137,37 @@ func NewPOSTv1studiosdkversionsInspectRequestWithBody(server string, contentType
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkversionsListRequest calls the generic POSTv1studiosdkversionsList builder with application/json body
-func NewPOSTv1studiosdkversionsListRequest(server string, body POSTv1studiosdkversionsListJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsListRequest(server string, params *POSTv1studiosdkversionsListParams, body POSTv1studiosdkversionsListJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkversionsListRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkversionsListRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkversionsListRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsList method, with any body, and a specified content type
-func NewPOSTv1studiosdkversionsListRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsListRequestWithBody(server string, params *POSTv1studiosdkversionsListParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11465,22 +12192,37 @@ func NewPOSTv1studiosdkversionsListRequestWithBody(server string, contentType st
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkversionsLoadArchiveRequest calls the generic POSTv1studiosdkversionsLoadArchive builder with application/json body
-func NewPOSTv1studiosdkversionsLoadArchiveRequest(server string, body POSTv1studiosdkversionsLoadArchiveJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsLoadArchiveRequest(server string, params *POSTv1studiosdkversionsLoadArchiveParams, body POSTv1studiosdkversionsLoadArchiveJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkversionsLoadArchiveRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkversionsLoadArchiveRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkversionsLoadArchiveRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsLoadArchive method, with any body, and a specified content type
-func NewPOSTv1studiosdkversionsLoadArchiveRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsLoadArchiveRequestWithBody(server string, params *POSTv1studiosdkversionsLoadArchiveParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11505,22 +12247,37 @@ func NewPOSTv1studiosdkversionsLoadArchiveRequestWithBody(server string, content
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkversionsLoadDqlRequest calls the generic POSTv1studiosdkversionsLoadDql builder with application/json body
-func NewPOSTv1studiosdkversionsLoadDqlRequest(server string, body POSTv1studiosdkversionsLoadDqlJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsLoadDqlRequest(server string, params *POSTv1studiosdkversionsLoadDqlParams, body POSTv1studiosdkversionsLoadDqlJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkversionsLoadDqlRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkversionsLoadDqlRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkversionsLoadDqlRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsLoadDql method, with any body, and a specified content type
-func NewPOSTv1studiosdkversionsLoadDqlRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsLoadDqlRequestWithBody(server string, params *POSTv1studiosdkversionsLoadDqlParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11545,22 +12302,37 @@ func NewPOSTv1studiosdkversionsLoadDqlRequestWithBody(server string, contentType
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkversionsTestComposeRequest calls the generic POSTv1studiosdkversionsTestCompose builder with application/json body
-func NewPOSTv1studiosdkversionsTestComposeRequest(server string, body POSTv1studiosdkversionsTestComposeJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsTestComposeRequest(server string, params *POSTv1studiosdkversionsTestComposeParams, body POSTv1studiosdkversionsTestComposeJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkversionsTestComposeRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkversionsTestComposeRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkversionsTestComposeRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsTestCompose method, with any body, and a specified content type
-func NewPOSTv1studiosdkversionsTestComposeRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsTestComposeRequestWithBody(server string, params *POSTv1studiosdkversionsTestComposeParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11585,22 +12357,37 @@ func NewPOSTv1studiosdkversionsTestComposeRequestWithBody(server string, content
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkversionsTestRelationRequest calls the generic POSTv1studiosdkversionsTestRelation builder with application/json body
-func NewPOSTv1studiosdkversionsTestRelationRequest(server string, body POSTv1studiosdkversionsTestRelationJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsTestRelationRequest(server string, params *POSTv1studiosdkversionsTestRelationParams, body POSTv1studiosdkversionsTestRelationJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkversionsTestRelationRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkversionsTestRelationRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkversionsTestRelationRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsTestRelation method, with any body, and a specified content type
-func NewPOSTv1studiosdkversionsTestRelationRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsTestRelationRequestWithBody(server string, params *POSTv1studiosdkversionsTestRelationParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11625,22 +12412,37 @@ func NewPOSTv1studiosdkversionsTestRelationRequestWithBody(server string, conten
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkversionsTestViewRequest calls the generic POSTv1studiosdkversionsTestView builder with application/json body
-func NewPOSTv1studiosdkversionsTestViewRequest(server string, body POSTv1studiosdkversionsTestViewJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsTestViewRequest(server string, params *POSTv1studiosdkversionsTestViewParams, body POSTv1studiosdkversionsTestViewJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkversionsTestViewRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkversionsTestViewRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkversionsTestViewRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsTestView method, with any body, and a specified content type
-func NewPOSTv1studiosdkversionsTestViewRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsTestViewRequestWithBody(server string, params *POSTv1studiosdkversionsTestViewParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11665,22 +12467,37 @@ func NewPOSTv1studiosdkversionsTestViewRequestWithBody(server string, contentTyp
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkversionsValidateRequest calls the generic POSTv1studiosdkversionsValidate builder with application/json body
-func NewPOSTv1studiosdkversionsValidateRequest(server string, body POSTv1studiosdkversionsValidateJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsValidateRequest(server string, params *POSTv1studiosdkversionsValidateParams, body POSTv1studiosdkversionsValidateJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkversionsValidateRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkversionsValidateRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkversionsValidateRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsValidate method, with any body, and a specified content type
-func NewPOSTv1studiosdkversionsValidateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsValidateRequestWithBody(server string, params *POSTv1studiosdkversionsValidateParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11705,22 +12522,37 @@ func NewPOSTv1studiosdkversionsValidateRequestWithBody(server string, contentTyp
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkversionsWarmupRequest calls the generic POSTv1studiosdkversionsWarmup builder with application/json body
-func NewPOSTv1studiosdkversionsWarmupRequest(server string, body POSTv1studiosdkversionsWarmupJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsWarmupRequest(server string, params *POSTv1studiosdkversionsWarmupParams, body POSTv1studiosdkversionsWarmupJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkversionsWarmupRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkversionsWarmupRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkversionsWarmupRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsWarmup method, with any body, and a specified content type
-func NewPOSTv1studiosdkversionsWarmupRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsWarmupRequestWithBody(server string, params *POSTv1studiosdkversionsWarmupParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11745,22 +12577,37 @@ func NewPOSTv1studiosdkversionsWarmupRequestWithBody(server string, contentType 
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkversionsWarmupGetRequest calls the generic POSTv1studiosdkversionsWarmupGet builder with application/json body
-func NewPOSTv1studiosdkversionsWarmupGetRequest(server string, body POSTv1studiosdkversionsWarmupGetJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsWarmupGetRequest(server string, params *POSTv1studiosdkversionsWarmupGetParams, body POSTv1studiosdkversionsWarmupGetJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkversionsWarmupGetRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkversionsWarmupGetRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkversionsWarmupGetRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsWarmupGet method, with any body, and a specified content type
-func NewPOSTv1studiosdkversionsWarmupGetRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsWarmupGetRequestWithBody(server string, params *POSTv1studiosdkversionsWarmupGetParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11785,22 +12632,37 @@ func NewPOSTv1studiosdkversionsWarmupGetRequestWithBody(server string, contentTy
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPOSTv1studiosdkversionsWarmupListRequest calls the generic POSTv1studiosdkversionsWarmupList builder with application/json body
-func NewPOSTv1studiosdkversionsWarmupListRequest(server string, body POSTv1studiosdkversionsWarmupListJSONRequestBody) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsWarmupListRequest(server string, params *POSTv1studiosdkversionsWarmupListParams, body POSTv1studiosdkversionsWarmupListJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPOSTv1studiosdkversionsWarmupListRequestWithBody(server, "application/json", bodyReader)
+	return NewPOSTv1studiosdkversionsWarmupListRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPOSTv1studiosdkversionsWarmupListRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsWarmupList method, with any body, and a specified content type
-func NewPOSTv1studiosdkversionsWarmupListRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPOSTv1studiosdkversionsWarmupListRequestWithBody(server string, params *POSTv1studiosdkversionsWarmupListParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11824,6 +12686,21 @@ func NewPOSTv1studiosdkversionsWarmupListRequestWithBody(server string, contentT
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
 
 	return req, nil
 }
@@ -11892,6 +12769,16 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	POSTv1studiosdkaccessGetWithResponse(ctx context.Context, body POSTv1studiosdkaccessGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessGetResponse, error)
 
+	// POSTv1studiosdkaccessListWithBodyWithResponse performs a POST /v1/studio/sdk/access.list (the `POSTv1studiosdkaccessList` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkaccessListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessListResponse, error)
+
+	// POSTv1studiosdkaccessListWithResponse performs a POST /v1/studio/sdk/access.list (the `POSTv1studiosdkaccessList` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkaccessListWithResponse(ctx context.Context, body POSTv1studiosdkaccessListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessListResponse, error)
+
 	// POSTv1studiosdkaccessReplaceWithBodyWithResponse performs a POST /v1/studio/sdk/access.replace (the `POSTv1studiosdkaccessReplace` operationId) request,
 	// with any type of body and a specified content type.
 	//
@@ -11906,11 +12793,11 @@ type ClientWithResponsesInterface interface {
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkaclDeleteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclDeleteResponse, error)
+	POSTv1studiosdkaclDeleteWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkaclDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclDeleteResponse, error)
 
 	// POSTv1studiosdkaclDeleteWithResponse performs a POST /v1/studio/sdk/acl.delete (the `POSTv1studiosdkaclDelete` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkaclDeleteWithResponse(ctx context.Context, body POSTv1studiosdkaclDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclDeleteResponse, error)
+	POSTv1studiosdkaclDeleteWithResponse(ctx context.Context, params *POSTv1studiosdkaclDeleteParams, body POSTv1studiosdkaclDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclDeleteResponse, error)
 
 	// POSTv1studiosdkaclListWithBodyWithResponse acl
 	//
@@ -11930,11 +12817,11 @@ type ClientWithResponsesInterface interface {
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkaclUpsertWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclUpsertResponse, error)
+	POSTv1studiosdkaclUpsertWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkaclUpsertParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclUpsertResponse, error)
 
 	// POSTv1studiosdkaclUpsertWithResponse performs a POST /v1/studio/sdk/acl.upsert (the `POSTv1studiosdkaclUpsert` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkaclUpsertWithResponse(ctx context.Context, body POSTv1studiosdkaclUpsertJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclUpsertResponse, error)
+	POSTv1studiosdkaclUpsertWithResponse(ctx context.Context, params *POSTv1studiosdkaclUpsertParams, body POSTv1studiosdkaclUpsertJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclUpsertResponse, error)
 
 	// POSTv1studiosdkauthorizationPredicatesCreateWithBodyWithResponse performs a POST /v1/studio/sdk/authorization_predicates.create (the `POSTv1studiosdkauthorizationPredicatesCreate` operationId) request,
 	// with any type of body and a specified content type.
@@ -11995,39 +12882,39 @@ type ClientWithResponsesInterface interface {
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkcomponentsCreateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsCreateResponse, error)
+	POSTv1studiosdkcomponentsCreateWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsCreateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsCreateResponse, error)
 
 	// POSTv1studiosdkcomponentsCreateWithResponse performs a POST /v1/studio/sdk/components.create (the `POSTv1studiosdkcomponentsCreate` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkcomponentsCreateWithResponse(ctx context.Context, body POSTv1studiosdkcomponentsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsCreateResponse, error)
+	POSTv1studiosdkcomponentsCreateWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsCreateParams, body POSTv1studiosdkcomponentsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsCreateResponse, error)
 
 	// POSTv1studiosdkcomponentsGetWithBodyWithResponse report
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/studio/sdk/components.get (the `POSTv1studiosdkcomponentsGet` operationId).
-	POSTv1studiosdkcomponentsGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsGetResponse, error)
+	POSTv1studiosdkcomponentsGetWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsGetResponse, error)
 
 	// POSTv1studiosdkcomponentsGetWithResponse report
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/studio/sdk/components.get (the `POSTv1studiosdkcomponentsGet` operationId).
-	POSTv1studiosdkcomponentsGetWithResponse(ctx context.Context, body POSTv1studiosdkcomponentsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsGetResponse, error)
+	POSTv1studiosdkcomponentsGetWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsGetParams, body POSTv1studiosdkcomponentsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsGetResponse, error)
 
 	// POSTv1studiosdkcomponentsListWithBodyWithResponse report
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/studio/sdk/components.list (the `POSTv1studiosdkcomponentsList` operationId).
-	POSTv1studiosdkcomponentsListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsListResponse, error)
+	POSTv1studiosdkcomponentsListWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsListResponse, error)
 
 	// POSTv1studiosdkcomponentsListWithResponse report
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/studio/sdk/components.list (the `POSTv1studiosdkcomponentsList` operationId).
-	POSTv1studiosdkcomponentsListWithResponse(ctx context.Context, body POSTv1studiosdkcomponentsListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsListResponse, error)
+	POSTv1studiosdkcomponentsListWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsListParams, body POSTv1studiosdkcomponentsListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsListResponse, error)
 
 	// POSTv1studiosdkcomponentsUpdateWithBodyWithResponse performs a POST /v1/studio/sdk/components.update (the `POSTv1studiosdkcomponentsUpdate` operationId) request,
 	// with any type of body and a specified content type.
@@ -12237,11 +13124,11 @@ type ClientWithResponsesInterface interface {
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkpreviewExecuteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpreviewExecuteResponse, error)
+	POSTv1studiosdkpreviewExecuteWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkpreviewExecuteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpreviewExecuteResponse, error)
 
 	// POSTv1studiosdkpreviewExecuteWithResponse performs a POST /v1/studio/sdk/preview.execute (the `POSTv1studiosdkpreviewExecute` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkpreviewExecuteWithResponse(ctx context.Context, body POSTv1studiosdkpreviewExecuteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpreviewExecuteResponse, error)
+	POSTv1studiosdkpreviewExecuteWithResponse(ctx context.Context, params *POSTv1studiosdkpreviewExecuteParams, body POSTv1studiosdkpreviewExecuteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpreviewExecuteResponse, error)
 
 	// POSTv1studiosdkpublicationsEventsListWithBodyWithResponse event
 	//
@@ -12275,317 +13162,317 @@ type ClientWithResponsesInterface interface {
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkpublicationsPublishWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsPublishResponse, error)
+	POSTv1studiosdkpublicationsPublishWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkpublicationsPublishParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsPublishResponse, error)
 
 	// POSTv1studiosdkpublicationsPublishWithResponse performs a POST /v1/studio/sdk/publications.publish (the `POSTv1studiosdkpublicationsPublish` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkpublicationsPublishWithResponse(ctx context.Context, body POSTv1studiosdkpublicationsPublishJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsPublishResponse, error)
+	POSTv1studiosdkpublicationsPublishWithResponse(ctx context.Context, params *POSTv1studiosdkpublicationsPublishParams, body POSTv1studiosdkpublicationsPublishJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsPublishResponse, error)
 
 	// POSTv1studiosdkpublicationsRollbackWithBodyWithResponse performs a POST /v1/studio/sdk/publications.rollback (the `POSTv1studiosdkpublicationsRollback` operationId) request,
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkpublicationsRollbackWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsRollbackResponse, error)
+	POSTv1studiosdkpublicationsRollbackWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkpublicationsRollbackParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsRollbackResponse, error)
 
 	// POSTv1studiosdkpublicationsRollbackWithResponse performs a POST /v1/studio/sdk/publications.rollback (the `POSTv1studiosdkpublicationsRollback` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkpublicationsRollbackWithResponse(ctx context.Context, body POSTv1studiosdkpublicationsRollbackJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsRollbackResponse, error)
+	POSTv1studiosdkpublicationsRollbackWithResponse(ctx context.Context, params *POSTv1studiosdkpublicationsRollbackParams, body POSTv1studiosdkpublicationsRollbackJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsRollbackResponse, error)
 
 	// POSTv1studiosdkpublicationsUnpublishWithBodyWithResponse performs a POST /v1/studio/sdk/publications.unpublish (the `POSTv1studiosdkpublicationsUnpublish` operationId) request,
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkpublicationsUnpublishWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsUnpublishResponse, error)
+	POSTv1studiosdkpublicationsUnpublishWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkpublicationsUnpublishParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsUnpublishResponse, error)
 
 	// POSTv1studiosdkpublicationsUnpublishWithResponse performs a POST /v1/studio/sdk/publications.unpublish (the `POSTv1studiosdkpublicationsUnpublish` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkpublicationsUnpublishWithResponse(ctx context.Context, body POSTv1studiosdkpublicationsUnpublishJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsUnpublishResponse, error)
+	POSTv1studiosdkpublicationsUnpublishWithResponse(ctx context.Context, params *POSTv1studiosdkpublicationsUnpublishParams, body POSTv1studiosdkpublicationsUnpublishJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsUnpublishResponse, error)
 
 	// POSTv1studiosdkresourcesDeleteFileWithBodyWithResponse performs a POST /v1/studio/sdk/resources.delete_file (the `POSTv1studiosdkresourcesDeleteFile` operationId) request,
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkresourcesDeleteFileWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFileResponse, error)
+	POSTv1studiosdkresourcesDeleteFileWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesDeleteFileParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFileResponse, error)
 
 	// POSTv1studiosdkresourcesDeleteFileWithResponse performs a POST /v1/studio/sdk/resources.delete_file (the `POSTv1studiosdkresourcesDeleteFile` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkresourcesDeleteFileWithResponse(ctx context.Context, body POSTv1studiosdkresourcesDeleteFileJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFileResponse, error)
+	POSTv1studiosdkresourcesDeleteFileWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesDeleteFileParams, body POSTv1studiosdkresourcesDeleteFileJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFileResponse, error)
 
 	// POSTv1studiosdkresourcesDeleteFolderWithBodyWithResponse performs a POST /v1/studio/sdk/resources.delete_folder (the `POSTv1studiosdkresourcesDeleteFolder` operationId) request,
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkresourcesDeleteFolderWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFolderResponse, error)
+	POSTv1studiosdkresourcesDeleteFolderWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesDeleteFolderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFolderResponse, error)
 
 	// POSTv1studiosdkresourcesDeleteFolderWithResponse performs a POST /v1/studio/sdk/resources.delete_folder (the `POSTv1studiosdkresourcesDeleteFolder` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkresourcesDeleteFolderWithResponse(ctx context.Context, body POSTv1studiosdkresourcesDeleteFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFolderResponse, error)
+	POSTv1studiosdkresourcesDeleteFolderWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesDeleteFolderParams, body POSTv1studiosdkresourcesDeleteFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFolderResponse, error)
 
 	// POSTv1studiosdkresourcesDeleteSkillWithBodyWithResponse performs a POST /v1/studio/sdk/resources.delete_skill (the `POSTv1studiosdkresourcesDeleteSkill` operationId) request,
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkresourcesDeleteSkillWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteSkillResponse, error)
+	POSTv1studiosdkresourcesDeleteSkillWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesDeleteSkillParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteSkillResponse, error)
 
 	// POSTv1studiosdkresourcesDeleteSkillWithResponse performs a POST /v1/studio/sdk/resources.delete_skill (the `POSTv1studiosdkresourcesDeleteSkill` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkresourcesDeleteSkillWithResponse(ctx context.Context, body POSTv1studiosdkresourcesDeleteSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteSkillResponse, error)
+	POSTv1studiosdkresourcesDeleteSkillWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesDeleteSkillParams, body POSTv1studiosdkresourcesDeleteSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteSkillResponse, error)
 
 	// POSTv1studiosdkresourcesGetWithBodyWithResponse performs a POST /v1/studio/sdk/resources.get (the `POSTv1studiosdkresourcesGet` operationId) request,
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkresourcesGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesGetResponse, error)
+	POSTv1studiosdkresourcesGetWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesGetResponse, error)
 
 	// POSTv1studiosdkresourcesGetWithResponse performs a POST /v1/studio/sdk/resources.get (the `POSTv1studiosdkresourcesGet` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkresourcesGetWithResponse(ctx context.Context, body POSTv1studiosdkresourcesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesGetResponse, error)
+	POSTv1studiosdkresourcesGetWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesGetParams, body POSTv1studiosdkresourcesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesGetResponse, error)
 
 	// POSTv1studiosdkresourcesUpsertFileWithBodyWithResponse performs a POST /v1/studio/sdk/resources.upsert_file (the `POSTv1studiosdkresourcesUpsertFile` operationId) request,
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkresourcesUpsertFileWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFileResponse, error)
+	POSTv1studiosdkresourcesUpsertFileWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesUpsertFileParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFileResponse, error)
 
 	// POSTv1studiosdkresourcesUpsertFileWithResponse performs a POST /v1/studio/sdk/resources.upsert_file (the `POSTv1studiosdkresourcesUpsertFile` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkresourcesUpsertFileWithResponse(ctx context.Context, body POSTv1studiosdkresourcesUpsertFileJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFileResponse, error)
+	POSTv1studiosdkresourcesUpsertFileWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesUpsertFileParams, body POSTv1studiosdkresourcesUpsertFileJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFileResponse, error)
 
 	// POSTv1studiosdkresourcesUpsertFolderWithBodyWithResponse performs a POST /v1/studio/sdk/resources.upsert_folder (the `POSTv1studiosdkresourcesUpsertFolder` operationId) request,
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkresourcesUpsertFolderWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFolderResponse, error)
+	POSTv1studiosdkresourcesUpsertFolderWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesUpsertFolderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFolderResponse, error)
 
 	// POSTv1studiosdkresourcesUpsertFolderWithResponse performs a POST /v1/studio/sdk/resources.upsert_folder (the `POSTv1studiosdkresourcesUpsertFolder` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkresourcesUpsertFolderWithResponse(ctx context.Context, body POSTv1studiosdkresourcesUpsertFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFolderResponse, error)
+	POSTv1studiosdkresourcesUpsertFolderWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesUpsertFolderParams, body POSTv1studiosdkresourcesUpsertFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFolderResponse, error)
 
 	// POSTv1studiosdkresourcesUpsertSkillWithBodyWithResponse performs a POST /v1/studio/sdk/resources.upsert_skill (the `POSTv1studiosdkresourcesUpsertSkill` operationId) request,
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkresourcesUpsertSkillWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertSkillResponse, error)
+	POSTv1studiosdkresourcesUpsertSkillWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesUpsertSkillParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertSkillResponse, error)
 
 	// POSTv1studiosdkresourcesUpsertSkillWithResponse performs a POST /v1/studio/sdk/resources.upsert_skill (the `POSTv1studiosdkresourcesUpsertSkill` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkresourcesUpsertSkillWithResponse(ctx context.Context, body POSTv1studiosdkresourcesUpsertSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertSkillResponse, error)
+	POSTv1studiosdkresourcesUpsertSkillWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesUpsertSkillParams, body POSTv1studiosdkresourcesUpsertSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertSkillResponse, error)
 
 	// POSTv1studiosdkruntimeStatusWithResponse performs a POST /v1/studio/sdk/runtime.status (the `POSTv1studiosdkruntimeStatus` operationId) request.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkruntimeStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*POSTv1studiosdkruntimeStatusResponse, error)
+	POSTv1studiosdkruntimeStatusWithResponse(ctx context.Context, params *POSTv1studiosdkruntimeStatusParams, reqEditors ...RequestEditorFn) (*POSTv1studiosdkruntimeStatusResponse, error)
 
 	// POSTv1studiosdkversionsApplyWithBodyWithResponse performs a POST /v1/studio/sdk/versions.apply (the `POSTv1studiosdkversionsApply` operationId) request,
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsApplyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsApplyResponse, error)
+	POSTv1studiosdkversionsApplyWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsApplyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsApplyResponse, error)
 
 	// POSTv1studiosdkversionsApplyWithResponse performs a POST /v1/studio/sdk/versions.apply (the `POSTv1studiosdkversionsApply` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsApplyWithResponse(ctx context.Context, body POSTv1studiosdkversionsApplyJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsApplyResponse, error)
+	POSTv1studiosdkversionsApplyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsApplyParams, body POSTv1studiosdkversionsApplyJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsApplyResponse, error)
 
 	// POSTv1studiosdkversionsBuilderWithBodyWithResponse performs a POST /v1/studio/sdk/versions.builder (the `POSTv1studiosdkversionsBuilder` operationId) request,
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsBuilderWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsBuilderResponse, error)
+	POSTv1studiosdkversionsBuilderWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsBuilderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsBuilderResponse, error)
 
 	// POSTv1studiosdkversionsBuilderWithResponse performs a POST /v1/studio/sdk/versions.builder (the `POSTv1studiosdkversionsBuilder` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsBuilderWithResponse(ctx context.Context, body POSTv1studiosdkversionsBuilderJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsBuilderResponse, error)
+	POSTv1studiosdkversionsBuilderWithResponse(ctx context.Context, params *POSTv1studiosdkversionsBuilderParams, body POSTv1studiosdkversionsBuilderJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsBuilderResponse, error)
 
 	// POSTv1studiosdkversionsCreateWithBodyWithResponse performs a POST /v1/studio/sdk/versions.create (the `POSTv1studiosdkversionsCreate` operationId) request,
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsCreateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsCreateResponse, error)
+	POSTv1studiosdkversionsCreateWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsCreateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsCreateResponse, error)
 
 	// POSTv1studiosdkversionsCreateWithResponse performs a POST /v1/studio/sdk/versions.create (the `POSTv1studiosdkversionsCreate` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsCreateWithResponse(ctx context.Context, body POSTv1studiosdkversionsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsCreateResponse, error)
+	POSTv1studiosdkversionsCreateWithResponse(ctx context.Context, params *POSTv1studiosdkversionsCreateParams, body POSTv1studiosdkversionsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsCreateResponse, error)
 
 	// POSTv1studiosdkversionsDescriptorWithBodyWithResponse version
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/studio/sdk/versions.descriptor (the `POSTv1studiosdkversionsDescriptor` operationId).
-	POSTv1studiosdkversionsDescriptorWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDescriptorResponse, error)
+	POSTv1studiosdkversionsDescriptorWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsDescriptorParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDescriptorResponse, error)
 
 	// POSTv1studiosdkversionsDescriptorWithResponse version
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/studio/sdk/versions.descriptor (the `POSTv1studiosdkversionsDescriptor` operationId).
-	POSTv1studiosdkversionsDescriptorWithResponse(ctx context.Context, body POSTv1studiosdkversionsDescriptorJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDescriptorResponse, error)
+	POSTv1studiosdkversionsDescriptorWithResponse(ctx context.Context, params *POSTv1studiosdkversionsDescriptorParams, body POSTv1studiosdkversionsDescriptorJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDescriptorResponse, error)
 
 	// POSTv1studiosdkversionsDownloadWithBodyWithResponse performs a POST /v1/studio/sdk/versions.download (the `POSTv1studiosdkversionsDownload` operationId) request,
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsDownloadWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDownloadResponse, error)
+	POSTv1studiosdkversionsDownloadWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsDownloadParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDownloadResponse, error)
 
 	// POSTv1studiosdkversionsDownloadWithResponse performs a POST /v1/studio/sdk/versions.download (the `POSTv1studiosdkversionsDownload` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsDownloadWithResponse(ctx context.Context, body POSTv1studiosdkversionsDownloadJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDownloadResponse, error)
+	POSTv1studiosdkversionsDownloadWithResponse(ctx context.Context, params *POSTv1studiosdkversionsDownloadParams, body POSTv1studiosdkversionsDownloadJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDownloadResponse, error)
 
 	// POSTv1studiosdkversionsExportDqlWithBodyWithResponse version
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/studio/sdk/versions.export_dql (the `POSTv1studiosdkversionsExportDql` operationId).
-	POSTv1studiosdkversionsExportDqlWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsExportDqlResponse, error)
+	POSTv1studiosdkversionsExportDqlWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsExportDqlParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsExportDqlResponse, error)
 
 	// POSTv1studiosdkversionsExportDqlWithResponse version
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/studio/sdk/versions.export_dql (the `POSTv1studiosdkversionsExportDql` operationId).
-	POSTv1studiosdkversionsExportDqlWithResponse(ctx context.Context, body POSTv1studiosdkversionsExportDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsExportDqlResponse, error)
+	POSTv1studiosdkversionsExportDqlWithResponse(ctx context.Context, params *POSTv1studiosdkversionsExportDqlParams, body POSTv1studiosdkversionsExportDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsExportDqlResponse, error)
 
 	// POSTv1studiosdkversionsGetWithBodyWithResponse version
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/studio/sdk/versions.get (the `POSTv1studiosdkversionsGet` operationId).
-	POSTv1studiosdkversionsGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsGetResponse, error)
+	POSTv1studiosdkversionsGetWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsGetResponse, error)
 
 	// POSTv1studiosdkversionsGetWithResponse version
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/studio/sdk/versions.get (the `POSTv1studiosdkversionsGet` operationId).
-	POSTv1studiosdkversionsGetWithResponse(ctx context.Context, body POSTv1studiosdkversionsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsGetResponse, error)
+	POSTv1studiosdkversionsGetWithResponse(ctx context.Context, params *POSTv1studiosdkversionsGetParams, body POSTv1studiosdkversionsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsGetResponse, error)
 
 	// POSTv1studiosdkversionsInspectWithBodyWithResponse performs a POST /v1/studio/sdk/versions.inspect (the `POSTv1studiosdkversionsInspect` operationId) request,
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsInspectWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsInspectResponse, error)
+	POSTv1studiosdkversionsInspectWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsInspectParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsInspectResponse, error)
 
 	// POSTv1studiosdkversionsInspectWithResponse performs a POST /v1/studio/sdk/versions.inspect (the `POSTv1studiosdkversionsInspect` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsInspectWithResponse(ctx context.Context, body POSTv1studiosdkversionsInspectJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsInspectResponse, error)
+	POSTv1studiosdkversionsInspectWithResponse(ctx context.Context, params *POSTv1studiosdkversionsInspectParams, body POSTv1studiosdkversionsInspectJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsInspectResponse, error)
 
 	// POSTv1studiosdkversionsListWithBodyWithResponse version
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/studio/sdk/versions.list (the `POSTv1studiosdkversionsList` operationId).
-	POSTv1studiosdkversionsListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsListResponse, error)
+	POSTv1studiosdkversionsListWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsListResponse, error)
 
 	// POSTv1studiosdkversionsListWithResponse version
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/studio/sdk/versions.list (the `POSTv1studiosdkversionsList` operationId).
-	POSTv1studiosdkversionsListWithResponse(ctx context.Context, body POSTv1studiosdkversionsListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsListResponse, error)
+	POSTv1studiosdkversionsListWithResponse(ctx context.Context, params *POSTv1studiosdkversionsListParams, body POSTv1studiosdkversionsListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsListResponse, error)
 
 	// POSTv1studiosdkversionsLoadArchiveWithBodyWithResponse performs a POST /v1/studio/sdk/versions.load_archive (the `POSTv1studiosdkversionsLoadArchive` operationId) request,
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsLoadArchiveWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadArchiveResponse, error)
+	POSTv1studiosdkversionsLoadArchiveWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsLoadArchiveParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadArchiveResponse, error)
 
 	// POSTv1studiosdkversionsLoadArchiveWithResponse performs a POST /v1/studio/sdk/versions.load_archive (the `POSTv1studiosdkversionsLoadArchive` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsLoadArchiveWithResponse(ctx context.Context, body POSTv1studiosdkversionsLoadArchiveJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadArchiveResponse, error)
+	POSTv1studiosdkversionsLoadArchiveWithResponse(ctx context.Context, params *POSTv1studiosdkversionsLoadArchiveParams, body POSTv1studiosdkversionsLoadArchiveJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadArchiveResponse, error)
 
 	// POSTv1studiosdkversionsLoadDqlWithBodyWithResponse performs a POST /v1/studio/sdk/versions.load_dql (the `POSTv1studiosdkversionsLoadDql` operationId) request,
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsLoadDqlWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadDqlResponse, error)
+	POSTv1studiosdkversionsLoadDqlWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsLoadDqlParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadDqlResponse, error)
 
 	// POSTv1studiosdkversionsLoadDqlWithResponse performs a POST /v1/studio/sdk/versions.load_dql (the `POSTv1studiosdkversionsLoadDql` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsLoadDqlWithResponse(ctx context.Context, body POSTv1studiosdkversionsLoadDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadDqlResponse, error)
+	POSTv1studiosdkversionsLoadDqlWithResponse(ctx context.Context, params *POSTv1studiosdkversionsLoadDqlParams, body POSTv1studiosdkversionsLoadDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadDqlResponse, error)
 
 	// POSTv1studiosdkversionsTestComposeWithBodyWithResponse performs a POST /v1/studio/sdk/versions.test_compose (the `POSTv1studiosdkversionsTestCompose` operationId) request,
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsTestComposeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestComposeResponse, error)
+	POSTv1studiosdkversionsTestComposeWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsTestComposeParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestComposeResponse, error)
 
 	// POSTv1studiosdkversionsTestComposeWithResponse performs a POST /v1/studio/sdk/versions.test_compose (the `POSTv1studiosdkversionsTestCompose` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsTestComposeWithResponse(ctx context.Context, body POSTv1studiosdkversionsTestComposeJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestComposeResponse, error)
+	POSTv1studiosdkversionsTestComposeWithResponse(ctx context.Context, params *POSTv1studiosdkversionsTestComposeParams, body POSTv1studiosdkversionsTestComposeJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestComposeResponse, error)
 
 	// POSTv1studiosdkversionsTestRelationWithBodyWithResponse performs a POST /v1/studio/sdk/versions.test_relation (the `POSTv1studiosdkversionsTestRelation` operationId) request,
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsTestRelationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestRelationResponse, error)
+	POSTv1studiosdkversionsTestRelationWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsTestRelationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestRelationResponse, error)
 
 	// POSTv1studiosdkversionsTestRelationWithResponse performs a POST /v1/studio/sdk/versions.test_relation (the `POSTv1studiosdkversionsTestRelation` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsTestRelationWithResponse(ctx context.Context, body POSTv1studiosdkversionsTestRelationJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestRelationResponse, error)
+	POSTv1studiosdkversionsTestRelationWithResponse(ctx context.Context, params *POSTv1studiosdkversionsTestRelationParams, body POSTv1studiosdkversionsTestRelationJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestRelationResponse, error)
 
 	// POSTv1studiosdkversionsTestViewWithBodyWithResponse performs a POST /v1/studio/sdk/versions.test_view (the `POSTv1studiosdkversionsTestView` operationId) request,
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsTestViewWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestViewResponse, error)
+	POSTv1studiosdkversionsTestViewWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsTestViewParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestViewResponse, error)
 
 	// POSTv1studiosdkversionsTestViewWithResponse performs a POST /v1/studio/sdk/versions.test_view (the `POSTv1studiosdkversionsTestView` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsTestViewWithResponse(ctx context.Context, body POSTv1studiosdkversionsTestViewJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestViewResponse, error)
+	POSTv1studiosdkversionsTestViewWithResponse(ctx context.Context, params *POSTv1studiosdkversionsTestViewParams, body POSTv1studiosdkversionsTestViewJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestViewResponse, error)
 
 	// POSTv1studiosdkversionsValidateWithBodyWithResponse performs a POST /v1/studio/sdk/versions.validate (the `POSTv1studiosdkversionsValidate` operationId) request,
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsValidateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsValidateResponse, error)
+	POSTv1studiosdkversionsValidateWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsValidateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsValidateResponse, error)
 
 	// POSTv1studiosdkversionsValidateWithResponse performs a POST /v1/studio/sdk/versions.validate (the `POSTv1studiosdkversionsValidate` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsValidateWithResponse(ctx context.Context, body POSTv1studiosdkversionsValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsValidateResponse, error)
+	POSTv1studiosdkversionsValidateWithResponse(ctx context.Context, params *POSTv1studiosdkversionsValidateParams, body POSTv1studiosdkversionsValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsValidateResponse, error)
 
 	// POSTv1studiosdkversionsWarmupWithBodyWithResponse performs a POST /v1/studio/sdk/versions.warmup (the `POSTv1studiosdkversionsWarmup` operationId) request,
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsWarmupWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupResponse, error)
+	POSTv1studiosdkversionsWarmupWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupResponse, error)
 
 	// POSTv1studiosdkversionsWarmupWithResponse performs a POST /v1/studio/sdk/versions.warmup (the `POSTv1studiosdkversionsWarmup` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsWarmupWithResponse(ctx context.Context, body POSTv1studiosdkversionsWarmupJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupResponse, error)
+	POSTv1studiosdkversionsWarmupWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupParams, body POSTv1studiosdkversionsWarmupJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupResponse, error)
 
 	// POSTv1studiosdkversionsWarmupGetWithBodyWithResponse warmup_run
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/studio/sdk/versions.warmup_get (the `POSTv1studiosdkversionsWarmupGet` operationId).
-	POSTv1studiosdkversionsWarmupGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupGetResponse, error)
+	POSTv1studiosdkversionsWarmupGetWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupGetResponse, error)
 
 	// POSTv1studiosdkversionsWarmupGetWithResponse warmup_run
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/studio/sdk/versions.warmup_get (the `POSTv1studiosdkversionsWarmupGet` operationId).
-	POSTv1studiosdkversionsWarmupGetWithResponse(ctx context.Context, body POSTv1studiosdkversionsWarmupGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupGetResponse, error)
+	POSTv1studiosdkversionsWarmupGetWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupGetParams, body POSTv1studiosdkversionsWarmupGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupGetResponse, error)
 
 	// POSTv1studiosdkversionsWarmupListWithBodyWithResponse performs a POST /v1/studio/sdk/versions.warmup_list (the `POSTv1studiosdkversionsWarmupList` operationId) request,
 	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsWarmupListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupListResponse, error)
+	POSTv1studiosdkversionsWarmupListWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupListResponse, error)
 
 	// POSTv1studiosdkversionsWarmupListWithResponse performs a POST /v1/studio/sdk/versions.warmup_list (the `POSTv1studiosdkversionsWarmupList` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkversionsWarmupListWithResponse(ctx context.Context, body POSTv1studiosdkversionsWarmupListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupListResponse, error)
+	POSTv1studiosdkversionsWarmupListWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupListParams, body POSTv1studiosdkversionsWarmupListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupListResponse, error)
 }
 
 type POSTv1studiosdkaccessContextResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *Output074baefd6599537117e4be3e30019d7fdfbb35e35777792f4679dc2222339640
+	JSON200 *OutputBd7a1b00fadef6f5e471ef21cd4fe9df0f1e3f4b9cabd09814c00b321086588a
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r POSTv1studiosdkaccessContextResponse) GetJSON200() *Output074baefd6599537117e4be3e30019d7fdfbb35e35777792f4679dc2222339640 {
+func (r POSTv1studiosdkaccessContextResponse) GetJSON200() *OutputBd7a1b00fadef6f5e471ef21cd4fe9df0f1e3f4b9cabd09814c00b321086588a {
 	return r.JSON200
 }
 
@@ -12622,11 +13509,11 @@ type POSTv1studiosdkaccessGetResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *OutputD94fe2c0f68aadd9d8fcacadf97221cae176cdc5a262134071dca8fa5d6e14ef
+	JSON200 *Output056a233e996244d253928b99e6335fa0dfcab4b0aa7e8ffd7a088546a10a6442
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r POSTv1studiosdkaccessGetResponse) GetJSON200() *OutputD94fe2c0f68aadd9d8fcacadf97221cae176cdc5a262134071dca8fa5d6e14ef {
+func (r POSTv1studiosdkaccessGetResponse) GetJSON200() *Output056a233e996244d253928b99e6335fa0dfcab4b0aa7e8ffd7a088546a10a6442 {
 	return r.JSON200
 }
 
@@ -12659,15 +13546,56 @@ func (r POSTv1studiosdkaccessGetResponse) ContentType() string {
 	return ""
 }
 
+type POSTv1studiosdkaccessListResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *OutputDb16d19662078b5e2bf34bb56caf4e031ec60811b8ff0833d9304fe74bb3deb7
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkaccessListResponse) GetJSON200() *OutputDb16d19662078b5e2bf34bb56caf4e031ec60811b8ff0833d9304fe74bb3deb7 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkaccessListResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkaccessListResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkaccessListResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkaccessListResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type POSTv1studiosdkaccessReplaceResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *Output524acdde45b651c8bd48c66b53c101ffac146671a1ddce5c786a6ecbd96dbe58
+	JSON200 *Output2631f895e856b9edb7a880ef06b76a2fcfcf0dc9d13eff46223625680e9a9c89
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r POSTv1studiosdkaccessReplaceResponse) GetJSON200() *Output524acdde45b651c8bd48c66b53c101ffac146671a1ddce5c786a6ecbd96dbe58 {
+func (r POSTv1studiosdkaccessReplaceResponse) GetJSON200() *Output2631f895e856b9edb7a880ef06b76a2fcfcf0dc9d13eff46223625680e9a9c89 {
 	return r.JSON200
 }
 
@@ -15258,6 +16186,28 @@ func (c *ClientWithResponses) POSTv1studiosdkaccessGetWithResponse(ctx context.C
 	return ParsePOSTv1studiosdkaccessGetResponse(rsp)
 }
 
+// POSTv1studiosdkaccessListWithBodyWithResponse performs a POST /v1/studio/sdk/access.list (the `POSTv1studiosdkaccessList` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkaccessListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessListResponse, error) {
+	rsp, err := c.POSTv1studiosdkaccessListWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkaccessListResponse(rsp)
+}
+
+// POSTv1studiosdkaccessListWithResponse performs a POST /v1/studio/sdk/access.list (the `POSTv1studiosdkaccessList` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkaccessListWithResponse(ctx context.Context, body POSTv1studiosdkaccessListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaccessListResponse, error) {
+	rsp, err := c.POSTv1studiosdkaccessList(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkaccessListResponse(rsp)
+}
+
 // POSTv1studiosdkaccessReplaceWithBodyWithResponse performs a POST /v1/studio/sdk/access.replace (the `POSTv1studiosdkaccessReplace` operationId) request,
 // with any type of body and a specified content type.
 //
@@ -15284,8 +16234,8 @@ func (c *ClientWithResponses) POSTv1studiosdkaccessReplaceWithResponse(ctx conte
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkaclDeleteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclDeleteResponse, error) {
-	rsp, err := c.POSTv1studiosdkaclDeleteWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkaclDeleteWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkaclDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclDeleteResponse, error) {
+	rsp, err := c.POSTv1studiosdkaclDeleteWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15294,8 +16244,8 @@ func (c *ClientWithResponses) POSTv1studiosdkaclDeleteWithBodyWithResponse(ctx c
 
 // POSTv1studiosdkaclDeleteWithResponse performs a POST /v1/studio/sdk/acl.delete (the `POSTv1studiosdkaclDelete` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkaclDeleteWithResponse(ctx context.Context, body POSTv1studiosdkaclDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclDeleteResponse, error) {
-	rsp, err := c.POSTv1studiosdkaclDelete(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkaclDeleteWithResponse(ctx context.Context, params *POSTv1studiosdkaclDeleteParams, body POSTv1studiosdkaclDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclDeleteResponse, error) {
+	rsp, err := c.POSTv1studiosdkaclDelete(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15332,8 +16282,8 @@ func (c *ClientWithResponses) POSTv1studiosdkaclListWithResponse(ctx context.Con
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkaclUpsertWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclUpsertResponse, error) {
-	rsp, err := c.POSTv1studiosdkaclUpsertWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkaclUpsertWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkaclUpsertParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclUpsertResponse, error) {
+	rsp, err := c.POSTv1studiosdkaclUpsertWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15342,8 +16292,8 @@ func (c *ClientWithResponses) POSTv1studiosdkaclUpsertWithBodyWithResponse(ctx c
 
 // POSTv1studiosdkaclUpsertWithResponse performs a POST /v1/studio/sdk/acl.upsert (the `POSTv1studiosdkaclUpsert` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkaclUpsertWithResponse(ctx context.Context, body POSTv1studiosdkaclUpsertJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclUpsertResponse, error) {
-	rsp, err := c.POSTv1studiosdkaclUpsert(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkaclUpsertWithResponse(ctx context.Context, params *POSTv1studiosdkaclUpsertParams, body POSTv1studiosdkaclUpsertJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclUpsertResponse, error) {
+	rsp, err := c.POSTv1studiosdkaclUpsert(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15475,8 +16425,8 @@ func (c *ClientWithResponses) POSTv1studiosdkauthorizationPredicatesUpdateWithRe
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkcomponentsCreateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsCreateResponse, error) {
-	rsp, err := c.POSTv1studiosdkcomponentsCreateWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkcomponentsCreateWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsCreateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsCreateResponse, error) {
+	rsp, err := c.POSTv1studiosdkcomponentsCreateWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15485,8 +16435,8 @@ func (c *ClientWithResponses) POSTv1studiosdkcomponentsCreateWithBodyWithRespons
 
 // POSTv1studiosdkcomponentsCreateWithResponse performs a POST /v1/studio/sdk/components.create (the `POSTv1studiosdkcomponentsCreate` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkcomponentsCreateWithResponse(ctx context.Context, body POSTv1studiosdkcomponentsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsCreateResponse, error) {
-	rsp, err := c.POSTv1studiosdkcomponentsCreate(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkcomponentsCreateWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsCreateParams, body POSTv1studiosdkcomponentsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsCreateResponse, error) {
+	rsp, err := c.POSTv1studiosdkcomponentsCreate(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15498,8 +16448,8 @@ func (c *ClientWithResponses) POSTv1studiosdkcomponentsCreateWithResponse(ctx co
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/studio/sdk/components.get (the `POSTv1studiosdkcomponentsGet` operationId).
-func (c *ClientWithResponses) POSTv1studiosdkcomponentsGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsGetResponse, error) {
-	rsp, err := c.POSTv1studiosdkcomponentsGetWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkcomponentsGetWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkcomponentsGetWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15511,8 +16461,8 @@ func (c *ClientWithResponses) POSTv1studiosdkcomponentsGetWithBodyWithResponse(c
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/studio/sdk/components.get (the `POSTv1studiosdkcomponentsGet` operationId).
-func (c *ClientWithResponses) POSTv1studiosdkcomponentsGetWithResponse(ctx context.Context, body POSTv1studiosdkcomponentsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsGetResponse, error) {
-	rsp, err := c.POSTv1studiosdkcomponentsGet(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkcomponentsGetWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsGetParams, body POSTv1studiosdkcomponentsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkcomponentsGet(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15524,8 +16474,8 @@ func (c *ClientWithResponses) POSTv1studiosdkcomponentsGetWithResponse(ctx conte
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/studio/sdk/components.list (the `POSTv1studiosdkcomponentsList` operationId).
-func (c *ClientWithResponses) POSTv1studiosdkcomponentsListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsListResponse, error) {
-	rsp, err := c.POSTv1studiosdkcomponentsListWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkcomponentsListWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsListResponse, error) {
+	rsp, err := c.POSTv1studiosdkcomponentsListWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15537,8 +16487,8 @@ func (c *ClientWithResponses) POSTv1studiosdkcomponentsListWithBodyWithResponse(
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/studio/sdk/components.list (the `POSTv1studiosdkcomponentsList` operationId).
-func (c *ClientWithResponses) POSTv1studiosdkcomponentsListWithResponse(ctx context.Context, body POSTv1studiosdkcomponentsListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsListResponse, error) {
-	rsp, err := c.POSTv1studiosdkcomponentsList(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkcomponentsListWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsListParams, body POSTv1studiosdkcomponentsListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsListResponse, error) {
+	rsp, err := c.POSTv1studiosdkcomponentsList(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15969,8 +16919,8 @@ func (c *ClientWithResponses) POSTv1studiosdknamespacesUpdateWithResponse(ctx co
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkpreviewExecuteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpreviewExecuteResponse, error) {
-	rsp, err := c.POSTv1studiosdkpreviewExecuteWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkpreviewExecuteWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkpreviewExecuteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpreviewExecuteResponse, error) {
+	rsp, err := c.POSTv1studiosdkpreviewExecuteWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15979,8 +16929,8 @@ func (c *ClientWithResponses) POSTv1studiosdkpreviewExecuteWithBodyWithResponse(
 
 // POSTv1studiosdkpreviewExecuteWithResponse performs a POST /v1/studio/sdk/preview.execute (the `POSTv1studiosdkpreviewExecute` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkpreviewExecuteWithResponse(ctx context.Context, body POSTv1studiosdkpreviewExecuteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpreviewExecuteResponse, error) {
-	rsp, err := c.POSTv1studiosdkpreviewExecute(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkpreviewExecuteWithResponse(ctx context.Context, params *POSTv1studiosdkpreviewExecuteParams, body POSTv1studiosdkpreviewExecuteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpreviewExecuteResponse, error) {
+	rsp, err := c.POSTv1studiosdkpreviewExecute(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16043,8 +16993,8 @@ func (c *ClientWithResponses) POSTv1studiosdkpublicationsGetWithResponse(ctx con
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkpublicationsPublishWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsPublishResponse, error) {
-	rsp, err := c.POSTv1studiosdkpublicationsPublishWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkpublicationsPublishWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkpublicationsPublishParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsPublishResponse, error) {
+	rsp, err := c.POSTv1studiosdkpublicationsPublishWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16053,8 +17003,8 @@ func (c *ClientWithResponses) POSTv1studiosdkpublicationsPublishWithBodyWithResp
 
 // POSTv1studiosdkpublicationsPublishWithResponse performs a POST /v1/studio/sdk/publications.publish (the `POSTv1studiosdkpublicationsPublish` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkpublicationsPublishWithResponse(ctx context.Context, body POSTv1studiosdkpublicationsPublishJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsPublishResponse, error) {
-	rsp, err := c.POSTv1studiosdkpublicationsPublish(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkpublicationsPublishWithResponse(ctx context.Context, params *POSTv1studiosdkpublicationsPublishParams, body POSTv1studiosdkpublicationsPublishJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsPublishResponse, error) {
+	rsp, err := c.POSTv1studiosdkpublicationsPublish(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16065,8 +17015,8 @@ func (c *ClientWithResponses) POSTv1studiosdkpublicationsPublishWithResponse(ctx
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkpublicationsRollbackWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsRollbackResponse, error) {
-	rsp, err := c.POSTv1studiosdkpublicationsRollbackWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkpublicationsRollbackWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkpublicationsRollbackParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsRollbackResponse, error) {
+	rsp, err := c.POSTv1studiosdkpublicationsRollbackWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16075,8 +17025,8 @@ func (c *ClientWithResponses) POSTv1studiosdkpublicationsRollbackWithBodyWithRes
 
 // POSTv1studiosdkpublicationsRollbackWithResponse performs a POST /v1/studio/sdk/publications.rollback (the `POSTv1studiosdkpublicationsRollback` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkpublicationsRollbackWithResponse(ctx context.Context, body POSTv1studiosdkpublicationsRollbackJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsRollbackResponse, error) {
-	rsp, err := c.POSTv1studiosdkpublicationsRollback(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkpublicationsRollbackWithResponse(ctx context.Context, params *POSTv1studiosdkpublicationsRollbackParams, body POSTv1studiosdkpublicationsRollbackJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsRollbackResponse, error) {
+	rsp, err := c.POSTv1studiosdkpublicationsRollback(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16087,8 +17037,8 @@ func (c *ClientWithResponses) POSTv1studiosdkpublicationsRollbackWithResponse(ct
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkpublicationsUnpublishWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsUnpublishResponse, error) {
-	rsp, err := c.POSTv1studiosdkpublicationsUnpublishWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkpublicationsUnpublishWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkpublicationsUnpublishParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsUnpublishResponse, error) {
+	rsp, err := c.POSTv1studiosdkpublicationsUnpublishWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16097,8 +17047,8 @@ func (c *ClientWithResponses) POSTv1studiosdkpublicationsUnpublishWithBodyWithRe
 
 // POSTv1studiosdkpublicationsUnpublishWithResponse performs a POST /v1/studio/sdk/publications.unpublish (the `POSTv1studiosdkpublicationsUnpublish` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkpublicationsUnpublishWithResponse(ctx context.Context, body POSTv1studiosdkpublicationsUnpublishJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsUnpublishResponse, error) {
-	rsp, err := c.POSTv1studiosdkpublicationsUnpublish(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkpublicationsUnpublishWithResponse(ctx context.Context, params *POSTv1studiosdkpublicationsUnpublishParams, body POSTv1studiosdkpublicationsUnpublishJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkpublicationsUnpublishResponse, error) {
+	rsp, err := c.POSTv1studiosdkpublicationsUnpublish(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16109,8 +17059,8 @@ func (c *ClientWithResponses) POSTv1studiosdkpublicationsUnpublishWithResponse(c
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteFileWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFileResponse, error) {
-	rsp, err := c.POSTv1studiosdkresourcesDeleteFileWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteFileWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesDeleteFileParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFileResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesDeleteFileWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16119,8 +17069,8 @@ func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteFileWithBodyWithResp
 
 // POSTv1studiosdkresourcesDeleteFileWithResponse performs a POST /v1/studio/sdk/resources.delete_file (the `POSTv1studiosdkresourcesDeleteFile` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteFileWithResponse(ctx context.Context, body POSTv1studiosdkresourcesDeleteFileJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFileResponse, error) {
-	rsp, err := c.POSTv1studiosdkresourcesDeleteFile(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteFileWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesDeleteFileParams, body POSTv1studiosdkresourcesDeleteFileJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFileResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesDeleteFile(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16131,8 +17081,8 @@ func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteFileWithResponse(ctx
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteFolderWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFolderResponse, error) {
-	rsp, err := c.POSTv1studiosdkresourcesDeleteFolderWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteFolderWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesDeleteFolderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFolderResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesDeleteFolderWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16141,8 +17091,8 @@ func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteFolderWithBodyWithRe
 
 // POSTv1studiosdkresourcesDeleteFolderWithResponse performs a POST /v1/studio/sdk/resources.delete_folder (the `POSTv1studiosdkresourcesDeleteFolder` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteFolderWithResponse(ctx context.Context, body POSTv1studiosdkresourcesDeleteFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFolderResponse, error) {
-	rsp, err := c.POSTv1studiosdkresourcesDeleteFolder(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteFolderWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesDeleteFolderParams, body POSTv1studiosdkresourcesDeleteFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteFolderResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesDeleteFolder(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16153,8 +17103,8 @@ func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteFolderWithResponse(c
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteSkillWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteSkillResponse, error) {
-	rsp, err := c.POSTv1studiosdkresourcesDeleteSkillWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteSkillWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesDeleteSkillParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteSkillResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesDeleteSkillWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16163,8 +17113,8 @@ func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteSkillWithBodyWithRes
 
 // POSTv1studiosdkresourcesDeleteSkillWithResponse performs a POST /v1/studio/sdk/resources.delete_skill (the `POSTv1studiosdkresourcesDeleteSkill` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteSkillWithResponse(ctx context.Context, body POSTv1studiosdkresourcesDeleteSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteSkillResponse, error) {
-	rsp, err := c.POSTv1studiosdkresourcesDeleteSkill(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteSkillWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesDeleteSkillParams, body POSTv1studiosdkresourcesDeleteSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesDeleteSkillResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesDeleteSkill(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16175,8 +17125,8 @@ func (c *ClientWithResponses) POSTv1studiosdkresourcesDeleteSkillWithResponse(ct
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkresourcesGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesGetResponse, error) {
-	rsp, err := c.POSTv1studiosdkresourcesGetWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkresourcesGetWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesGetWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16185,8 +17135,8 @@ func (c *ClientWithResponses) POSTv1studiosdkresourcesGetWithBodyWithResponse(ct
 
 // POSTv1studiosdkresourcesGetWithResponse performs a POST /v1/studio/sdk/resources.get (the `POSTv1studiosdkresourcesGet` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkresourcesGetWithResponse(ctx context.Context, body POSTv1studiosdkresourcesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesGetResponse, error) {
-	rsp, err := c.POSTv1studiosdkresourcesGet(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkresourcesGetWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesGetParams, body POSTv1studiosdkresourcesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesGet(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16197,8 +17147,8 @@ func (c *ClientWithResponses) POSTv1studiosdkresourcesGetWithResponse(ctx contex
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertFileWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFileResponse, error) {
-	rsp, err := c.POSTv1studiosdkresourcesUpsertFileWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertFileWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesUpsertFileParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFileResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesUpsertFileWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16207,8 +17157,8 @@ func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertFileWithBodyWithResp
 
 // POSTv1studiosdkresourcesUpsertFileWithResponse performs a POST /v1/studio/sdk/resources.upsert_file (the `POSTv1studiosdkresourcesUpsertFile` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertFileWithResponse(ctx context.Context, body POSTv1studiosdkresourcesUpsertFileJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFileResponse, error) {
-	rsp, err := c.POSTv1studiosdkresourcesUpsertFile(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertFileWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesUpsertFileParams, body POSTv1studiosdkresourcesUpsertFileJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFileResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesUpsertFile(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16219,8 +17169,8 @@ func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertFileWithResponse(ctx
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertFolderWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFolderResponse, error) {
-	rsp, err := c.POSTv1studiosdkresourcesUpsertFolderWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertFolderWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesUpsertFolderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFolderResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesUpsertFolderWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16229,8 +17179,8 @@ func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertFolderWithBodyWithRe
 
 // POSTv1studiosdkresourcesUpsertFolderWithResponse performs a POST /v1/studio/sdk/resources.upsert_folder (the `POSTv1studiosdkresourcesUpsertFolder` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertFolderWithResponse(ctx context.Context, body POSTv1studiosdkresourcesUpsertFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFolderResponse, error) {
-	rsp, err := c.POSTv1studiosdkresourcesUpsertFolder(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertFolderWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesUpsertFolderParams, body POSTv1studiosdkresourcesUpsertFolderJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertFolderResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesUpsertFolder(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16241,8 +17191,8 @@ func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertFolderWithResponse(c
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertSkillWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertSkillResponse, error) {
-	rsp, err := c.POSTv1studiosdkresourcesUpsertSkillWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertSkillWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesUpsertSkillParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertSkillResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesUpsertSkillWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16251,8 +17201,8 @@ func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertSkillWithBodyWithRes
 
 // POSTv1studiosdkresourcesUpsertSkillWithResponse performs a POST /v1/studio/sdk/resources.upsert_skill (the `POSTv1studiosdkresourcesUpsertSkill` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertSkillWithResponse(ctx context.Context, body POSTv1studiosdkresourcesUpsertSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertSkillResponse, error) {
-	rsp, err := c.POSTv1studiosdkresourcesUpsertSkill(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertSkillWithResponse(ctx context.Context, params *POSTv1studiosdkresourcesUpsertSkillParams, body POSTv1studiosdkresourcesUpsertSkillJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkresourcesUpsertSkillResponse, error) {
+	rsp, err := c.POSTv1studiosdkresourcesUpsertSkill(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16262,8 +17212,8 @@ func (c *ClientWithResponses) POSTv1studiosdkresourcesUpsertSkillWithResponse(ct
 // POSTv1studiosdkruntimeStatusWithResponse performs a POST /v1/studio/sdk/runtime.status (the `POSTv1studiosdkruntimeStatus` operationId) request.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkruntimeStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*POSTv1studiosdkruntimeStatusResponse, error) {
-	rsp, err := c.POSTv1studiosdkruntimeStatus(ctx, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkruntimeStatusWithResponse(ctx context.Context, params *POSTv1studiosdkruntimeStatusParams, reqEditors ...RequestEditorFn) (*POSTv1studiosdkruntimeStatusResponse, error) {
+	rsp, err := c.POSTv1studiosdkruntimeStatus(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16274,8 +17224,8 @@ func (c *ClientWithResponses) POSTv1studiosdkruntimeStatusWithResponse(ctx conte
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsApplyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsApplyResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsApplyWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsApplyWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsApplyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsApplyResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsApplyWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16284,8 +17234,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsApplyWithBodyWithResponse(c
 
 // POSTv1studiosdkversionsApplyWithResponse performs a POST /v1/studio/sdk/versions.apply (the `POSTv1studiosdkversionsApply` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsApplyWithResponse(ctx context.Context, body POSTv1studiosdkversionsApplyJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsApplyResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsApply(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsApplyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsApplyParams, body POSTv1studiosdkversionsApplyJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsApplyResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsApply(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16296,8 +17246,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsApplyWithResponse(ctx conte
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsBuilderWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsBuilderResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsBuilderWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsBuilderWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsBuilderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsBuilderResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsBuilderWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16306,8 +17256,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsBuilderWithBodyWithResponse
 
 // POSTv1studiosdkversionsBuilderWithResponse performs a POST /v1/studio/sdk/versions.builder (the `POSTv1studiosdkversionsBuilder` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsBuilderWithResponse(ctx context.Context, body POSTv1studiosdkversionsBuilderJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsBuilderResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsBuilder(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsBuilderWithResponse(ctx context.Context, params *POSTv1studiosdkversionsBuilderParams, body POSTv1studiosdkversionsBuilderJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsBuilderResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsBuilder(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16318,8 +17268,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsBuilderWithResponse(ctx con
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsCreateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsCreateResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsCreateWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsCreateWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsCreateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsCreateResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsCreateWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16328,8 +17278,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsCreateWithBodyWithResponse(
 
 // POSTv1studiosdkversionsCreateWithResponse performs a POST /v1/studio/sdk/versions.create (the `POSTv1studiosdkversionsCreate` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsCreateWithResponse(ctx context.Context, body POSTv1studiosdkversionsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsCreateResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsCreate(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsCreateWithResponse(ctx context.Context, params *POSTv1studiosdkversionsCreateParams, body POSTv1studiosdkversionsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsCreateResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsCreate(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16341,8 +17291,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsCreateWithResponse(ctx cont
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/studio/sdk/versions.descriptor (the `POSTv1studiosdkversionsDescriptor` operationId).
-func (c *ClientWithResponses) POSTv1studiosdkversionsDescriptorWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDescriptorResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsDescriptorWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsDescriptorWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsDescriptorParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDescriptorResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsDescriptorWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16354,8 +17304,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsDescriptorWithBodyWithRespo
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/studio/sdk/versions.descriptor (the `POSTv1studiosdkversionsDescriptor` operationId).
-func (c *ClientWithResponses) POSTv1studiosdkversionsDescriptorWithResponse(ctx context.Context, body POSTv1studiosdkversionsDescriptorJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDescriptorResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsDescriptor(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsDescriptorWithResponse(ctx context.Context, params *POSTv1studiosdkversionsDescriptorParams, body POSTv1studiosdkversionsDescriptorJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDescriptorResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsDescriptor(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16366,8 +17316,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsDescriptorWithResponse(ctx 
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsDownloadWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDownloadResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsDownloadWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsDownloadWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsDownloadParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDownloadResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsDownloadWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16376,8 +17326,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsDownloadWithBodyWithRespons
 
 // POSTv1studiosdkversionsDownloadWithResponse performs a POST /v1/studio/sdk/versions.download (the `POSTv1studiosdkversionsDownload` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsDownloadWithResponse(ctx context.Context, body POSTv1studiosdkversionsDownloadJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDownloadResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsDownload(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsDownloadWithResponse(ctx context.Context, params *POSTv1studiosdkversionsDownloadParams, body POSTv1studiosdkversionsDownloadJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDownloadResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsDownload(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16389,8 +17339,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsDownloadWithResponse(ctx co
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/studio/sdk/versions.export_dql (the `POSTv1studiosdkversionsExportDql` operationId).
-func (c *ClientWithResponses) POSTv1studiosdkversionsExportDqlWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsExportDqlResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsExportDqlWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsExportDqlWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsExportDqlParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsExportDqlResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsExportDqlWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16402,8 +17352,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsExportDqlWithBodyWithRespon
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/studio/sdk/versions.export_dql (the `POSTv1studiosdkversionsExportDql` operationId).
-func (c *ClientWithResponses) POSTv1studiosdkversionsExportDqlWithResponse(ctx context.Context, body POSTv1studiosdkversionsExportDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsExportDqlResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsExportDql(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsExportDqlWithResponse(ctx context.Context, params *POSTv1studiosdkversionsExportDqlParams, body POSTv1studiosdkversionsExportDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsExportDqlResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsExportDql(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16415,8 +17365,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsExportDqlWithResponse(ctx c
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/studio/sdk/versions.get (the `POSTv1studiosdkversionsGet` operationId).
-func (c *ClientWithResponses) POSTv1studiosdkversionsGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsGetResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsGetWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsGetWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsGetWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16428,8 +17378,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsGetWithBodyWithResponse(ctx
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/studio/sdk/versions.get (the `POSTv1studiosdkversionsGet` operationId).
-func (c *ClientWithResponses) POSTv1studiosdkversionsGetWithResponse(ctx context.Context, body POSTv1studiosdkversionsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsGetResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsGet(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsGetWithResponse(ctx context.Context, params *POSTv1studiosdkversionsGetParams, body POSTv1studiosdkversionsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsGet(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16440,8 +17390,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsGetWithResponse(ctx context
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsInspectWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsInspectResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsInspectWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsInspectWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsInspectParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsInspectResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsInspectWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16450,8 +17400,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsInspectWithBodyWithResponse
 
 // POSTv1studiosdkversionsInspectWithResponse performs a POST /v1/studio/sdk/versions.inspect (the `POSTv1studiosdkversionsInspect` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsInspectWithResponse(ctx context.Context, body POSTv1studiosdkversionsInspectJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsInspectResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsInspect(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsInspectWithResponse(ctx context.Context, params *POSTv1studiosdkversionsInspectParams, body POSTv1studiosdkversionsInspectJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsInspectResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsInspect(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16463,8 +17413,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsInspectWithResponse(ctx con
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/studio/sdk/versions.list (the `POSTv1studiosdkversionsList` operationId).
-func (c *ClientWithResponses) POSTv1studiosdkversionsListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsListResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsListWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsListWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsListResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsListWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16476,8 +17426,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsListWithBodyWithResponse(ct
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/studio/sdk/versions.list (the `POSTv1studiosdkversionsList` operationId).
-func (c *ClientWithResponses) POSTv1studiosdkversionsListWithResponse(ctx context.Context, body POSTv1studiosdkversionsListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsListResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsList(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsListWithResponse(ctx context.Context, params *POSTv1studiosdkversionsListParams, body POSTv1studiosdkversionsListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsListResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsList(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16488,8 +17438,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsListWithResponse(ctx contex
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsLoadArchiveWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadArchiveResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsLoadArchiveWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsLoadArchiveWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsLoadArchiveParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadArchiveResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsLoadArchiveWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16498,8 +17448,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsLoadArchiveWithBodyWithResp
 
 // POSTv1studiosdkversionsLoadArchiveWithResponse performs a POST /v1/studio/sdk/versions.load_archive (the `POSTv1studiosdkversionsLoadArchive` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsLoadArchiveWithResponse(ctx context.Context, body POSTv1studiosdkversionsLoadArchiveJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadArchiveResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsLoadArchive(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsLoadArchiveWithResponse(ctx context.Context, params *POSTv1studiosdkversionsLoadArchiveParams, body POSTv1studiosdkversionsLoadArchiveJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadArchiveResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsLoadArchive(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16510,8 +17460,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsLoadArchiveWithResponse(ctx
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsLoadDqlWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadDqlResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsLoadDqlWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsLoadDqlWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsLoadDqlParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadDqlResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsLoadDqlWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16520,8 +17470,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsLoadDqlWithBodyWithResponse
 
 // POSTv1studiosdkversionsLoadDqlWithResponse performs a POST /v1/studio/sdk/versions.load_dql (the `POSTv1studiosdkversionsLoadDql` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsLoadDqlWithResponse(ctx context.Context, body POSTv1studiosdkversionsLoadDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadDqlResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsLoadDql(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsLoadDqlWithResponse(ctx context.Context, params *POSTv1studiosdkversionsLoadDqlParams, body POSTv1studiosdkversionsLoadDqlJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsLoadDqlResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsLoadDql(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16532,8 +17482,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsLoadDqlWithResponse(ctx con
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsTestComposeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestComposeResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsTestComposeWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsTestComposeWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsTestComposeParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestComposeResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsTestComposeWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16542,8 +17492,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsTestComposeWithBodyWithResp
 
 // POSTv1studiosdkversionsTestComposeWithResponse performs a POST /v1/studio/sdk/versions.test_compose (the `POSTv1studiosdkversionsTestCompose` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsTestComposeWithResponse(ctx context.Context, body POSTv1studiosdkversionsTestComposeJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestComposeResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsTestCompose(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsTestComposeWithResponse(ctx context.Context, params *POSTv1studiosdkversionsTestComposeParams, body POSTv1studiosdkversionsTestComposeJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestComposeResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsTestCompose(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16554,8 +17504,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsTestComposeWithResponse(ctx
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsTestRelationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestRelationResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsTestRelationWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsTestRelationWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsTestRelationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestRelationResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsTestRelationWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16564,8 +17514,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsTestRelationWithBodyWithRes
 
 // POSTv1studiosdkversionsTestRelationWithResponse performs a POST /v1/studio/sdk/versions.test_relation (the `POSTv1studiosdkversionsTestRelation` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsTestRelationWithResponse(ctx context.Context, body POSTv1studiosdkversionsTestRelationJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestRelationResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsTestRelation(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsTestRelationWithResponse(ctx context.Context, params *POSTv1studiosdkversionsTestRelationParams, body POSTv1studiosdkversionsTestRelationJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestRelationResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsTestRelation(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16576,8 +17526,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsTestRelationWithResponse(ct
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsTestViewWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestViewResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsTestViewWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsTestViewWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsTestViewParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestViewResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsTestViewWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16586,8 +17536,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsTestViewWithBodyWithRespons
 
 // POSTv1studiosdkversionsTestViewWithResponse performs a POST /v1/studio/sdk/versions.test_view (the `POSTv1studiosdkversionsTestView` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsTestViewWithResponse(ctx context.Context, body POSTv1studiosdkversionsTestViewJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestViewResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsTestView(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsTestViewWithResponse(ctx context.Context, params *POSTv1studiosdkversionsTestViewParams, body POSTv1studiosdkversionsTestViewJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsTestViewResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsTestView(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16598,8 +17548,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsTestViewWithResponse(ctx co
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsValidateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsValidateResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsValidateWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsValidateWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsValidateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsValidateResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsValidateWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16608,8 +17558,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsValidateWithBodyWithRespons
 
 // POSTv1studiosdkversionsValidateWithResponse performs a POST /v1/studio/sdk/versions.validate (the `POSTv1studiosdkversionsValidate` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsValidateWithResponse(ctx context.Context, body POSTv1studiosdkversionsValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsValidateResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsValidate(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsValidateWithResponse(ctx context.Context, params *POSTv1studiosdkversionsValidateParams, body POSTv1studiosdkversionsValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsValidateResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsValidate(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16620,8 +17570,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsValidateWithResponse(ctx co
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsWarmupWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsWarmupWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16630,8 +17580,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupWithBodyWithResponse(
 
 // POSTv1studiosdkversionsWarmupWithResponse performs a POST /v1/studio/sdk/versions.warmup (the `POSTv1studiosdkversionsWarmup` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupWithResponse(ctx context.Context, body POSTv1studiosdkversionsWarmupJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsWarmup(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupParams, body POSTv1studiosdkversionsWarmupJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsWarmup(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16643,8 +17593,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupWithResponse(ctx cont
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/studio/sdk/versions.warmup_get (the `POSTv1studiosdkversionsWarmupGet` operationId).
-func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupGetResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsWarmupGetWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupGetWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsWarmupGetWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16656,8 +17606,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupGetWithBodyWithRespon
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/studio/sdk/versions.warmup_get (the `POSTv1studiosdkversionsWarmupGet` operationId).
-func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupGetWithResponse(ctx context.Context, body POSTv1studiosdkversionsWarmupGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupGetResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsWarmupGet(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupGetWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupGetParams, body POSTv1studiosdkversionsWarmupGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsWarmupGet(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16668,8 +17618,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupGetWithResponse(ctx c
 // with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupListResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsWarmupListWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupListWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupListResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsWarmupListWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16678,8 +17628,8 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupListWithBodyWithRespo
 
 // POSTv1studiosdkversionsWarmupListWithResponse performs a POST /v1/studio/sdk/versions.warmup_list (the `POSTv1studiosdkversionsWarmupList` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupListWithResponse(ctx context.Context, body POSTv1studiosdkversionsWarmupListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupListResponse, error) {
-	rsp, err := c.POSTv1studiosdkversionsWarmupList(ctx, body, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupListWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupListParams, body POSTv1studiosdkversionsWarmupListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupListResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsWarmupList(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16701,7 +17651,7 @@ func ParsePOSTv1studiosdkaccessContextResponse(rsp *http.Response) (*POSTv1studi
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Output074baefd6599537117e4be3e30019d7fdfbb35e35777792f4679dc2222339640
+		var dest OutputBd7a1b00fadef6f5e471ef21cd4fe9df0f1e3f4b9cabd09814c00b321086588a
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -16727,7 +17677,33 @@ func ParsePOSTv1studiosdkaccessGetResponse(rsp *http.Response) (*POSTv1studiosdk
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest OutputD94fe2c0f68aadd9d8fcacadf97221cae176cdc5a262134071dca8fa5d6e14ef
+		var dest Output056a233e996244d253928b99e6335fa0dfcab4b0aa7e8ffd7a088546a10a6442
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkaccessListResponse parses an HTTP response from a POSTv1studiosdkaccessListWithResponse call
+func ParsePOSTv1studiosdkaccessListResponse(rsp *http.Response) (*POSTv1studiosdkaccessListResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkaccessListResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest OutputDb16d19662078b5e2bf34bb56caf4e031ec60811b8ff0833d9304fe74bb3deb7
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -16753,7 +17729,7 @@ func ParsePOSTv1studiosdkaccessReplaceResponse(rsp *http.Response) (*POSTv1studi
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Output524acdde45b651c8bd48c66b53c101ffac146671a1ddce5c786a6ecbd96dbe58
+		var dest Output2631f895e856b9edb7a880ef06b76a2fcfcf0dc9d13eff46223625680e9a9c89
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

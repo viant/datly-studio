@@ -26,6 +26,16 @@ import (
 // hook owns the import invariants; the caller owns the transaction so the
 // draft pointer update commits or rolls back with the version rows.
 func (t *Transport) writeImportedVersion(ctx context.Context, tx *sql.Tx, row *stored.ImportedVersion) error {
+	namespaceID, err := t.resourceWorkspaceID(ctx, tx, row.ReportId)
+	if err != nil {
+		return err
+	}
+	row.SetNamespaceId(namespaceID)
+	for _, file := range row.File {
+		if file != nil && file.Has != nil && file.Has.NamespaceId && file.NamespaceId != namespaceID {
+			return fmt.Errorf("imported file namespace ownership differs from its component")
+		}
+	}
 	resources := resource.New()
 	if err := resources.Register(stored.VersionDatlyResourceNamespace, stored.VersionDatlyResources); err != nil {
 		return err

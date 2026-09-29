@@ -14,6 +14,16 @@ func (entity *StoredReport) SetId(value string) {
 	}
 	entity.Has.Id = true
 }
+func (entity *StoredReport) GetNamespaceId() string {
+	return entity.NamespaceId
+}
+func (entity *StoredReport) SetNamespaceId(value string) {
+	entity.NamespaceId = value
+	if entity.Has == nil {
+		entity.Has = &StoredReportHas{}
+	}
+	entity.Has.NamespaceId = true
+}
 func (entity *StoredReport) GetNamespace() string {
 	return entity.Namespace
 }

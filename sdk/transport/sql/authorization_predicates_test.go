@@ -17,6 +17,28 @@ import (
 
 type dynamicPredicateFixture struct{}
 
+func TestAuthorizationPredicateNameDoesNotBecomeConnectorScope(t *testing.T) {
+	var got AuthorizationRequest
+	transport := &Transport{Authorizer: AuthorizerFunc(func(_ context.Context, request AuthorizationRequest) error {
+		got = request
+		return nil
+	})}
+	if err := transport.authorize(context.Background(), sdk.OperationAuthorizationPredicateCreate, sdk.CreateAuthorizationPredicateInput{Name: "forecasting.publisher.scope"}); err != nil {
+		t.Fatal(err)
+	}
+	if got.ConnectorName != "" || got.NamespaceName != "" || got.ReportID != "" || got.Permission != "publish" {
+		t.Fatalf("authorization predicate scope=%+v", got)
+	}
+	if err := transport.authorize(context.Background(), sdk.OperationConnectorUpdate, struct {
+		Name string `json:"name"`
+	}{Name: "bq_metrics"}); err != nil {
+		t.Fatal(err)
+	}
+	if got.ConnectorName != "bq_metrics" || got.Permission != "edit" {
+		t.Fatalf("connector scope=%+v", got)
+	}
+}
+
 func TestAuthorizationPredicateStoresDeclaredSQLScopeMetadata(t *testing.T) {
 	db, err := sql.Open("sqlite", fmt.Sprintf("file:%s?mode=memory&cache=shared", t.Name()))
 	if err != nil {

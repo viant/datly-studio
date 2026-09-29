@@ -6,7 +6,7 @@ CORS:
   # Direct browser SDK calls use Bearer ID tokens, never cookies.
   AllowOrigins: [https://studio.example.com]
   AllowMethods: [GET, POST, OPTIONS]
-  AllowHeaders: [Content-Type, Authorization]
+  AllowHeaders: [Content-Type, Authorization, X-Studio-Namespace]
   AllowCredentials: false
 MCP:
   # SDK tools are served separately from dynamic reader MCP on 8091.
@@ -18,6 +18,9 @@ MCP:
 Connector: studio
 Connectors:
   - Name: studio
+    Driver: sqlite
+    DSN: file:.data/studio.db?cache=shared
+  - Name: authz
     Driver: sqlite
     DSN: file:.data/studio.db?cache=shared
 JWTValidator:
@@ -159,6 +162,6 @@ GoBootstrap:
     - github.com/viant/datly-studio/studio/resource_namespace_claims/store_write
     - github.com/viant/datly-studio/studio/resource_namespaces/store_presence
     - github.com/viant/datly-studio/studio/resource_namespaces/store_usage
-    - github.com/viant/datly-studio/studio/resource_policy/reader
-    - github.com/viant/datly-studio/studio/resource_policy/writer
+    - github.com/viant/authz/datly/policy/reader
+    - github.com/viant/authz/datly/policy/writer
     - github.com/viant/datly-studio/studio/resource_policy/access

@@ -12,6 +12,7 @@
 #setting($_ = $mcp('studio.sdk.components.get', 'Read one authorized Datly Studio component'))
 #setting($_ = $sql_dest('report', 'sql/report.sql'))
 
+#define($_ = $NamespaceId<*string>(header/X-Studio-Namespace).Optional())
 #define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
 #define($_ = $Auth<*studioauth.Output>(component/GET:/v1/studio/auth/context).Required().WithPredicate(3, 'handler', 'catalogpredicate.ReportCatalogRead'))
 #define($_ = $Id<string>(body/id).WithTag('json:"id"').Required().WithPredicate(2, 'equal', 'r', 'id'))

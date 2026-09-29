@@ -2,7 +2,9 @@ package create
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"strings"
 	"time"
 
@@ -32,10 +34,23 @@ func (input *NamespaceCreateInput) Init(context.Context) error {
 	if row.Description != nil && *row.Description == "" {
 		row.Description = nil
 	}
+	if err := namespaceaccess.Validate(row.Visibility, row.AllowedRoles, row.McpPort); err != nil {
+		return &xresponse.Error{Code: 400, Cause: err}
+	}
+	if row.Visibility == "" {
+		row.Visibility = namespaceaccess.Private
+	}
+	roles, _ := json.Marshal(row.AllowedRoles)
+	if row.AllowedRoles == nil {
+		roles = []byte("[]")
+	}
+	serialized := string(roles)
+	row.NamespaceId = namespaceaccess.ID(input.Jwt.Subject, row.Name)
+	row.AllowedRolesJson = &serialized
 	now, etag := time.Now().UTC(), int64(1)
 	row.OwnerId, row.Status = input.Jwt.Subject, "active"
 	row.Etag, row.CreatedAt, row.UpdatedAt, row.DeletedAt = &etag, &now, &now, nil
-	row.Has = &NamespaceRecordHas{OwnerId: true, Name: true, Title: true,
+	row.Has = &NamespaceRecordHas{NamespaceId: true, Visibility: true, AllowedRolesJson: true, McpEnabled: true, McpPort: true, OwnerId: true, Name: true, Title: true,
 		Description: true, Status: true, Etag: true, CreatedAt: true, UpdatedAt: true}
 	input.SetNamespace(row)
 	return nil

@@ -56,6 +56,52 @@ func (index SkillHandlerCurrentSkillGroupedByReportId) Has(key string) bool {
 	_, ok := index[key]
 	return ok
 }
+func SkillHandlerCurrentSkillIndexByNamespaceIdKey(value *CurrentSkillView) (string, bool) {
+	var zero string
+	if value == nil {
+		return zero, false
+	}
+	return value.NamespaceId, true
+}
+
+type SkillHandlerCurrentSkillIndexedByNamespaceId map[string]*CurrentSkillView
+
+func (rows SkillHandlerCurrentSkillSlice) IndexByNamespaceId() (SkillHandlerCurrentSkillIndexedByNamespaceId, error) {
+	result := make(SkillHandlerCurrentSkillIndexedByNamespaceId)
+	for _, row := range rows {
+		key, ok := SkillHandlerCurrentSkillIndexByNamespaceIdKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index SkillHandlerCurrentSkillSlice.IndexByNamespaceId")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index SkillHandlerCurrentSkillIndexedByNamespaceId) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type SkillHandlerCurrentSkillGroupedByNamespaceId map[string][]*CurrentSkillView
+
+func (rows SkillHandlerCurrentSkillSlice) GroupByNamespaceId() SkillHandlerCurrentSkillGroupedByNamespaceId {
+	result := make(SkillHandlerCurrentSkillGroupedByNamespaceId)
+	for _, row := range rows {
+		key, ok := SkillHandlerCurrentSkillIndexByNamespaceIdKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index SkillHandlerCurrentSkillGroupedByNamespaceId) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
 func SkillHandlerCurrentSkillIndexByVersionNoKey(value *CurrentSkillView) (int, bool) {
 	var zero int
 	if value == nil {
@@ -410,6 +456,9 @@ func BuildSkillHandlerReadIndexes(ctx context.Context, input *Input) (*SkillHand
 			}
 			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("ReportId") {
 				return nil, fmt.Errorf("application index field was not loaded: CurrentSkill.ReportId")
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("NamespaceId") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentSkill.NamespaceId")
 			}
 			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("VersionNo") {
 				return nil, fmt.Errorf("application index field was not loaded: CurrentSkill.VersionNo")

@@ -6,12 +6,16 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/viant/datly-studio/internal/namespacevisibility"
+	"github.com/viant/xdatly/connector"
+
 	xpredicate "github.com/viant/xdatly/predicate"
 	xresponse "github.com/viant/xdatly/response"
 )
 
 type NamespaceAccess struct {
-	Input any `bind:"kind=input,required"`
+	Input      any                `bind:"kind=input,required"`
+	Connectors connector.Provider `bind:"kind=connector,required"`
 }
 
 func (p *NamespaceAccess) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
@@ -30,21 +34,42 @@ func (p *NamespaceAccess) Compute(ctx context.Context, _ any) (*xpredicate.Crite
 		return nil, forbidden("namespace access identity is required")
 	}
 	permission = strings.TrimSpace(permission)
+	criteria, err := namespacevisibility.Criteria(ctx, p.Connectors, subject, "n")
+	if err != nil {
+		return nil, err
+	}
 	if permission == "edit" || permission == "publish" {
 		return &xpredicate.Criteria{Expression: "n.name = ? AND n.owner_id = ?", Placeholders: []any{name, subject}}, nil
 	}
-	column := "can_view"
 	switch permission {
-	case "run":
-		column = "can_run"
-	case "dql":
-		column = "can_use_dql"
+	case "view", "run", "dql":
+	default:
+		return nil, forbidden("namespace permission is invalid")
 	}
-	return &xpredicate.Criteria{Expression: `n.name = ? AND (n.owner_id = ? OR EXISTS (
-SELECT 1 FROM components r JOIN report_acl acl ON acl.report_id = r.id
-WHERE r.owner_id = n.owner_id AND r.namespace = n.name AND r.deleted_at IS NULL
-  AND acl.subject_type = 'user' AND acl.subject_id = ? AND acl.` + column + ` = TRUE))`,
-		Placeholders: []any{name, subject, subject}}, nil
+	criteria.Expression = "n.name = ? AND " + criteria.Expression
+	criteria.Placeholders = append([]any{name}, criteria.Placeholders...)
+	return criteria, nil
 }
 
 func forbidden(message string) error { return &xresponse.Error{Code: 403, Cause: errors.New(message)} }
+
+// NamespaceDirectory consumes only the private store reader's trusted scope.
+type NamespaceDirectory struct {
+	Input      any                `bind:"kind=input,required"`
+	Connectors connector.Provider `bind:"kind=connector,required"`
+}
+
+func (p *NamespaceDirectory) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	input, ok := p.Input.(interface{ NamespaceDirectoryScope() (string, bool) })
+	if !ok {
+		return nil, forbidden("namespace directory scope is unavailable")
+	}
+	subject, scoped := input.NamespaceDirectoryScope()
+	if !scoped {
+		return &xpredicate.Criteria{Expression: "1=1"}, nil
+	}
+	return namespacevisibility.Criteria(ctx, p.Connectors, subject, "n")
+}

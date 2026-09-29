@@ -13,12 +13,12 @@ type SkillComponent struct {
 	Contract xdatly.Component[Input, Output] "component:\"skill,path=/_studio/skill-root-store/write,method=PATCH,connector=studio,view=skill,internal=true\" routeName:\"skill\" mutation:\"patch\" caseFormat:\"lc\""
 }
 
-// SkillDatlyType keeps the public component type linked for blank-import discovery.
+// SkillDatlyType returns the public component type.
 func SkillDatlyType() reflect.Type { return reflect.TypeOf((*SkillComponent)(nil)).Elem() }
 
-// Datly anchors this package's public component contract.
+// The package-level value keeps this real component type reachable for runtime discovery.
 var SkillDatly = new(SkillComponent)
-var SkillDatlyLinkedType = SkillDatlyType()
+var _datlyReachableSkillComponent = reflect.TypeFor[SkillComponent]()
 
 func (SkillComponent) EmbedFS() *embed.FS {
 	return &SkillDatlyResources

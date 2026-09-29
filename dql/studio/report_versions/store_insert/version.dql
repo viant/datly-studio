@@ -13,7 +13,7 @@
 #define($_ = $Versions<[]*StoredVersion>(body/data))
 
 SELECT version.*, type(version, 'StoredVersion'),
-       CAST(version.report_id AS string), CAST(version.version_no AS int),
+       CAST(version.report_id AS string), CAST(version.namespace_id AS string), CAST(version.version_no AS int),
        CAST(version.state AS string), CAST(version.authoring_mode AS string),
        CAST(version.authored_sql AS *string), CAST(version.authored_dql AS *string),
        CAST(version.component_spec_json AS json.RawMessage),

@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	xhandler "github.com/viant/xdatly/handler"
 	reflect "reflect"
 	"strings"
@@ -29,6 +30,9 @@ func (hooks *VersionInsertRules) Init(_ context.Context, entity *StoredVersion, 
 		entity.SpecFormatVersion != "studio.v1" || entity.DatlyVersion != "v1" ||
 		entity.CompilerVersion != "studio.v1" {
 		return fmt.Errorf("new report version requires draft identity, actor and initial metadata")
+	}
+	if err := namespaceaccess.ValidateResourceOwnership(entity.NamespaceId, ""); err != nil {
+		return err
 	}
 	switch entity.AuthoringMode {
 	case "sql", "dql", "structured":

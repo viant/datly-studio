@@ -56,6 +56,52 @@ func (index FolderHandlerCurrentFolderGroupedByReportId) Has(key string) bool {
 	_, ok := index[key]
 	return ok
 }
+func FolderHandlerCurrentFolderIndexByNamespaceIdKey(value *CurrentFolderView) (string, bool) {
+	var zero string
+	if value == nil {
+		return zero, false
+	}
+	return value.NamespaceId, true
+}
+
+type FolderHandlerCurrentFolderIndexedByNamespaceId map[string]*CurrentFolderView
+
+func (rows FolderHandlerCurrentFolderSlice) IndexByNamespaceId() (FolderHandlerCurrentFolderIndexedByNamespaceId, error) {
+	result := make(FolderHandlerCurrentFolderIndexedByNamespaceId)
+	for _, row := range rows {
+		key, ok := FolderHandlerCurrentFolderIndexByNamespaceIdKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index FolderHandlerCurrentFolderSlice.IndexByNamespaceId")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index FolderHandlerCurrentFolderIndexedByNamespaceId) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type FolderHandlerCurrentFolderGroupedByNamespaceId map[string][]*CurrentFolderView
+
+func (rows FolderHandlerCurrentFolderSlice) GroupByNamespaceId() FolderHandlerCurrentFolderGroupedByNamespaceId {
+	result := make(FolderHandlerCurrentFolderGroupedByNamespaceId)
+	for _, row := range rows {
+		key, ok := FolderHandlerCurrentFolderIndexByNamespaceIdKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index FolderHandlerCurrentFolderGroupedByNamespaceId) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
 func FolderHandlerCurrentFolderIndexByVersionNoKey(value *CurrentFolderView) (int, bool) {
 	var zero int
 	if value == nil {
@@ -456,6 +502,9 @@ func BuildFolderHandlerReadIndexes(ctx context.Context, input *Input) (*FolderHa
 			}
 			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("ReportId") {
 				return nil, fmt.Errorf("application index field was not loaded: CurrentFolder.ReportId")
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("NamespaceId") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentFolder.NamespaceId")
 			}
 			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("VersionNo") {
 				return nil, fmt.Errorf("application index field was not loaded: CurrentFolder.VersionNo")

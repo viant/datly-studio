@@ -13,12 +13,12 @@ type ReportComponent struct {
 	Contract xdatly.Component[Input, Output] "component:\"report,path=/_studio/report-store/insert,method=POST,connector=studio,view=report,internal=true\" routeName:\"report\" mutation:\"post\" caseFormat:\"lc\""
 }
 
-// ReportDatlyType keeps the public component type linked for blank-import discovery.
+// ReportDatlyType returns the public component type.
 func ReportDatlyType() reflect.Type { return reflect.TypeOf((*ReportComponent)(nil)).Elem() }
 
-// Datly anchors this package's public component contract.
+// The package-level value keeps this real component type reachable for runtime discovery.
 var ReportDatly = new(ReportComponent)
-var ReportDatlyLinkedType = ReportDatlyType()
+var _datlyReachableReportComponent = reflect.TypeFor[ReportComponent]()
 
 func (ReportComponent) EmbedFS() *embed.FS {
 	return &ReportDatlyResources

@@ -1,20 +1,12 @@
-SELECT n.owner_id, n.name, n.title, n.description, n.status, n.etag,
+SELECT n.namespace_id, n.visibility, n.allowed_roles_json, n.mcp_enabled, n.mcp_port, n.owner_id, n.name, n.title, n.description, n.status, n.etag,
        n.created_at, n.updated_at
 FROM namespaces n
 WHERE n.deleted_at IS NULL
+ AND ($NamespaceId = '' OR n.namespace_id = $NamespaceId)
   AND ($OwnerId = '' OR n.owner_id = $OwnerId)
   AND ($Name = '' OR n.name = $Name)
   AND ($Query = '' OR LOWER(n.name) LIKE $Query OR LOWER(n.title) LIKE $Query OR LOWER(n.description) LIKE $Query)
   AND ($Status = '' OR n.status = $Status)
-  AND ($Scoped = FALSE OR n.owner_id = $Subject OR EXISTS (
-      SELECT 1 FROM components namespace_report
-      JOIN report_acl namespace_acl ON namespace_acl.report_id = namespace_report.id
-      WHERE namespace_report.owner_id = n.owner_id
-        AND namespace_report.namespace = n.name
-        AND namespace_report.deleted_at IS NULL
-        AND namespace_acl.subject_type = 'user'
-        AND namespace_acl.subject_id = $Subject
-        AND namespace_acl.can_view = TRUE
-  ))
-ORDER BY n.updated_at DESC, n.name ASC
+${predicate.Builder().CombineAnd($predicate.FilterGroup(3, "AND")).Build("AND")}
+ORDER BY n.updated_at DESC, n.name ASC, n.owner_id ASC, n.namespace_id ASC
 LIMIT $PageLimit OFFSET $PageOffset

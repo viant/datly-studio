@@ -1,13 +1,14 @@
 package host
 
 import (
+	"encoding/hex"
 	"fmt"
 	"net"
 	"net/url"
 	"os"
 	"strings"
 
-	"github.com/viant/datly-studio/sdk/access"
+	access "github.com/viant/authz"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
 	mcpprotocol "github.com/viant/mcp/server"
 	"go.yaml.in/yaml/v3"
@@ -50,7 +51,8 @@ type Admin struct {
 	Token string `yaml:"Token"`
 }
 type Config struct {
-	Access *ResourceAccessConfig `yaml:"Access"`
+	NamespaceID string                `yaml:"NamespaceID,omitempty"`
+	Access      *ResourceAccessConfig `yaml:"Access"`
 	// DecisionProvider is supplied by the embedding process, never by YAML.
 	DecisionProvider  access.DecisionProvider    `yaml:"-"`
 	PredicatePackages []predicatecatalog.Package `yaml:"-"`
@@ -87,6 +89,13 @@ func Load(path string) (*Config, error) {
 }
 
 func (c *Config) Validate() error {
+	if c.NamespaceID != "" {
+		decoded, err := hex.DecodeString(c.NamespaceID)
+		if err != nil || len(decoded) != 32 || c.NamespaceID != strings.ToLower(c.NamespaceID) {
+			return fmt.Errorf("NamespaceID must be a canonical namespace identity")
+		}
+	}
+
 	if c == nil {
 		return fmt.Errorf("dynamic Datly host config is required")
 	}

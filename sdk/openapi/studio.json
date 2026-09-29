@@ -2,23 +2,6 @@
   "openapi": "3.0.1",
   "components": {
     "schemas": {
-      "Input_03431463bb75c805271cda3d99727948b169a41134e802271c7e8a9391c0be1b": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "kind": {
-            "type": "string"
-          },
-          "tenant": {
-            "type": "string"
-          },
-          "version": {
-            "type": "string"
-          }
-        }
-      },
       "Input_05e809e9f99e43822a03e6818a8de1e9fd48cb2f10be053f77c9af8d2092e9d9": {
         "type": "object",
         "properties": {
@@ -38,7 +21,29 @@
           }
         }
       },
-      "Input_1777f5e244f91f0645bf7ef39ca23fb64c98c7f12533a1f1b43c45261f87381b": {
+      "Input_092de1a1aa148d7f76a45d866e2aba4a800ba8a33379ccd1537c3e3699762324": {
+        "type": "object",
+        "properties": {
+          "access": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "offset": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "query": {
+            "type": "string"
+          }
+        }
+      },
+      "Input_18be64dee76ccbb1b565145615d071eb94fd5ef5e084ad249271599e217706c8": {
         "type": "object",
         "properties": {
           "id": {
@@ -191,23 +196,6 @@
           }
         }
       },
-      "Input_4bdb53063eafe1e59ff10e87197e26f6c38d25d8f87cdf5c0e54e4660add2556": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "kind": {
-            "type": "string"
-          },
-          "tenant": {
-            "type": "string"
-          },
-          "version": {
-            "type": "string"
-          }
-        }
-      },
       "Input_4c3d58d8e922b5abbd65732f09a81d45874f0f7555537fd9607035bfecb9f26c": {
         "type": "object",
         "properties": {
@@ -218,25 +206,6 @@
           },
           "sql": {
             "type": "string"
-          }
-        }
-      },
-      "Input_56eaf778ce1253fe858bf578c97bd7824413c87195caefb7315fd578bae05388": {
-        "type": "object",
-        "properties": {
-          "policies": {
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/Input_9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b"
-            },
-            "nullable": true
-          },
-          "resource": {
-            "$ref": "#/components/schemas/Input_4bdb53063eafe1e59ff10e87197e26f6c38d25d8f87cdf5c0e54e4660add2556"
-          },
-          "revision": {
-            "type": "integer",
-            "format": "int64"
           }
         }
       },
@@ -282,45 +251,19 @@
           }
         }
       },
-      "Input_5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9": {
+      "Input_5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182": {
         "type": "object",
         "properties": {
-          "id": {
+          "entityType": {
             "type": "string"
           },
-          "type": {
+          "mode": {
             "type": "string"
-          }
-        }
-      },
-      "Input_6139a906f15f351c7eae5d9897ae3973b6172d1373d49394d6c8c69615914840": {
-        "type": "object",
-        "properties": {
-          "description": {
-            "type": "string",
-            "nullable": true
           },
-          "etag": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "title": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "Input_740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8": {
-        "type": "object",
-        "properties": {
-          "entity": {
+          "rule": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/Input_5bd26933fc218220245037434f90fd734c54041fd066145b22ad10eef2e98bd9"
+                "$ref": "#/components/schemas/Input_fc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc"
               },
               {
                 "type": "object",
@@ -330,18 +273,63 @@
                 ]
               }
             ]
+          }
+        }
+      },
+      "Input_6139a906f15f351c7eae5d9897ae3973b6172d1373d49394d6c8c69615914840": {
+        "type": "object",
+        "properties": {
+          "allowedRoles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "etag": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "mcpEnabled": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "mcpPort": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "visibility": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "Input_61da40565eeef7dc1d2d89123fe0033e9b0f0809a66731851fd56301624b0dc5": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
           },
           "kind": {
             "type": "string"
           },
-          "rules": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Input_740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8"
-            },
-            "nullable": true
+          "tenant": {
+            "type": "string"
           },
-          "value": {
+          "version": {
             "type": "string"
           }
         }
@@ -442,6 +430,23 @@
           }
         }
       },
+      "Input_97df4a50a602fc26f1ee6311a5f68da1d96e2143f76deaf46ec88c673e7b5125": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
       "Input_9aad80e5262dd4bec1816caf72b4dd6364e8940a81d02db58a19387fcec5e859": {
         "type": "object",
         "properties": {
@@ -465,31 +470,6 @@
           "secretRef": {
             "type": "string",
             "nullable": true
-          }
-        }
-      },
-      "Input_9c49e3d3a20b255fc0a108ada8facd675dffbe17224ffa927ca00313d94b483b": {
-        "type": "object",
-        "properties": {
-          "entityType": {
-            "type": "string"
-          },
-          "mode": {
-            "type": "string"
-          },
-          "rule": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/Input_740e3a06cf4a803929ce45831699561a96ab44bfadc834e17c3b928b2b7bd4c8"
-              },
-              {
-                "type": "object",
-                "nullable": true,
-                "enum": [
-                  null
-                ]
-              }
-            ]
           }
         }
       },
@@ -586,8 +566,23 @@
       "Input_b990d293ef5d3e7e85a2acebd0bbccb12b9ec19ea303b41252de0b2f2bbb9e05": {
         "type": "object",
         "properties": {
+          "allowedRoles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
           "description": {
             "type": "string",
+            "nullable": true
+          },
+          "mcpEnabled": {
+            "type": "boolean"
+          },
+          "mcpPort": {
+            "type": "integer",
+            "format": "int64",
             "nullable": true
           },
           "name": {
@@ -597,6 +592,9 @@
             "type": "string"
           },
           "title": {
+            "type": "string"
+          },
+          "visibility": {
             "type": "string"
           }
         }
@@ -737,6 +735,25 @@
           }
         }
       },
+      "Input_d631d9489d8a46cf61ef6ae5a6a27b5e6c1fe964186472df97480ccb0bd6a17c": {
+        "type": "object",
+        "properties": {
+          "policies": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Input_5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182"
+            },
+            "nullable": true
+          },
+          "resource": {
+            "$ref": "#/components/schemas/Input_18be64dee76ccbb1b565145615d071eb94fd5ef5e084ad249271599e217706c8"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "Input_e14cc58c4ee74d7747f498bcbd7c71a8cb3028eda5782588b9c5299ed0cf9c37": {
         "type": "object",
         "properties": {
@@ -752,6 +769,9 @@
       "Input_ea8cf0b60e82e17c8f2e6bc2ad35fe0985cc717838bb65d7f9b56c81bd0718aa": {
         "type": "object",
         "properties": {
+          "cube": {
+            "type": "boolean"
+          },
           "input": {},
           "limit": {
             "type": "integer",
@@ -773,6 +793,73 @@
             "type": "string"
           }
         }
+      },
+      "Input_f67c0a976b1eec135c3429edd18e7c91d527c0309b4e4c0e2920d3629cffd80e": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "Input_fc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Input_f67c0a976b1eec135c3429edd18e7c91d527c0309b4e4c0e2920d3629cffd80e"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Input_fc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc"
+            },
+            "nullable": true
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "Output_056a233e996244d253928b99e6335fa0dfcab4b0aa7e8ffd7a088546a10a6442": {
+        "type": "object",
+        "properties": {
+          "policies": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Output_e8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8"
+            },
+            "nullable": true
+          },
+          "resource": {
+            "$ref": "#/components/schemas/Output_61da40565eeef7dc1d2d89123fe0033e9b0f0809a66731851fd56301624b0dc5"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "resource",
+          "revision",
+          "policies"
+        ]
       },
       "Output_06244387c0c9169e9e2dd8c303d1b08d7c46bddec31314baa7fdae523ab96371": {
         "type": "object",
@@ -888,53 +975,6 @@
           "target"
         ]
       },
-      "Output_0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886": {
-        "type": "object",
-        "properties": {
-          "entityType": {
-            "type": "string"
-          },
-          "mode": {
-            "type": "string"
-          },
-          "rule": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/Output_88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f"
-              },
-              {
-                "type": "object",
-                "nullable": true,
-                "enum": [
-                  null
-                ]
-              }
-            ]
-          }
-        },
-        "required": [
-          "mode"
-        ]
-      },
-      "Output_074baefd6599537117e4be3e30019d7fdfbb35e35777792f4679dc2222339640": {
-        "type": "object",
-        "properties": {
-          "canManage": {
-            "type": "boolean"
-          },
-          "choices": {
-            "$ref": "#/components/schemas/Output_ad0a4d4d865750761deb4de5e00f7585ee52cb749d5292e61759c6762cd70937"
-          },
-          "source": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "choices",
-          "canManage",
-          "source"
-        ]
-      },
       "Output_0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa": {
         "type": "object",
         "properties": {
@@ -944,6 +984,12 @@
           "checkedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "mcpUrl": {
+            "type": "string"
+          },
+          "namespaceId": {
+            "type": "string"
           },
           "revision": {
             "type": "integer",
@@ -956,29 +1002,6 @@
         "required": [
           "status",
           "checkedAt"
-        ]
-      },
-      "Output_1777f5e244f91f0645bf7ef39ca23fb64c98c7f12533a1f1b43c45261f87381b": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "kind": {
-            "type": "string"
-          },
-          "tenant": {
-            "type": "string"
-          },
-          "version": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "kind",
-          "id",
-          "version",
-          "tenant"
         ]
       },
       "Output_1d9bf0079b94d75e2b9b7b33bb81b13886a46428db871596012139c64cc1a4d6": {
@@ -1011,13 +1034,13 @@
           "message"
         ]
       },
-      "Output_30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab": {
+      "Output_20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260": {
         "type": "object",
         "properties": {
           "entity": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/Output_886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303"
+                "$ref": "#/components/schemas/Output_8f9918cf758d7828437221562274ce1aadfefc572741f4475e8f668456c57771"
               },
               {
                 "type": "object",
@@ -1039,7 +1062,46 @@
           "label"
         ]
       },
-      "Output_41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7": {
+      "Output_2180387bae10ad30702ff5f50e131002ae984342d3ae82e85f10f7d03794f74c": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ]
+      },
+      "Output_2631f895e856b9edb7a880ef06b76a2fcfcf0dc9d13eff46223625680e9a9c89": {
+        "type": "object",
+        "properties": {
+          "policies": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Output_c50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349"
+            },
+            "nullable": true
+          },
+          "resource": {
+            "$ref": "#/components/schemas/Output_89ec52f68878253d5610456db46a846ae520370ae7d0c82a86f6fa15feeccf84"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "resource",
+          "revision",
+          "policies"
+        ]
+      },
+      "Output_3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243": {
         "type": "object",
         "properties": {
           "id": {
@@ -1148,6 +1210,33 @@
           "status"
         ]
       },
+      "Output_4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68": {
+        "type": "object",
+        "properties": {
+          "explicitAcl": {
+            "type": "boolean"
+          },
+          "inherited": {
+            "type": "boolean"
+          },
+          "public": {
+            "type": "boolean"
+          },
+          "published": {
+            "type": "boolean"
+          },
+          "resource": {
+            "$ref": "#/components/schemas/Output_8d5c08b62d8e11c6b7d0078039d84942d60e13602d2b6b0b25ee4e92d1e8a0bb"
+          }
+        },
+        "required": [
+          "published",
+          "resource",
+          "public",
+          "explicitAcl",
+          "inherited"
+        ]
+      },
       "Output_4fd42d5ac7e58fb29e7ad717b49ad43d1aa3d0a32c5e034148c82bc6baebd5a8": {
         "type": "object",
         "properties": {
@@ -1176,58 +1265,6 @@
           "severity",
           "code",
           "message"
-        ]
-      },
-      "Output_507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960": {
-        "type": "object",
-        "properties": {
-          "entity": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/Output_69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5"
-              },
-              {
-                "type": "object",
-                "nullable": true,
-                "enum": [
-                  null
-                ]
-              }
-            ]
-          },
-          "id": {
-            "type": "string"
-          },
-          "label": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "label"
-        ]
-      },
-      "Output_524acdde45b651c8bd48c66b53c101ffac146671a1ddce5c786a6ecbd96dbe58": {
-        "type": "object",
-        "properties": {
-          "policies": {
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/Output_0637ace9f2ee12144bf4164059b62511d412a3cb6977bd14d7b845552dc5f886"
-            },
-            "nullable": true
-          },
-          "resource": {
-            "$ref": "#/components/schemas/Output_eb4292407d8e3ba03eb696194c02197306e42188fbc3037dfceabf2605138d24"
-          },
-          "revision": {
-            "type": "integer",
-            "format": "int64"
-          }
-        },
-        "required": [
-          "resource",
-          "revision",
-          "policies"
         ]
       },
       "Output_586257ec0a228d28fb8c1d7b9b6ceb924795c406b09d9a86111f39a56368b032": {
@@ -1344,7 +1381,7 @@
           "target"
         ]
       },
-      "Output_69a52344c8db987f9a8bafc71528ff388e9941249ebf6d6387b1e31293b5a4c5": {
+      "Output_5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2": {
         "type": "object",
         "properties": {
           "id": {
@@ -1357,6 +1394,57 @@
         "required": [
           "type",
           "id"
+        ]
+      },
+      "Output_5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Output_819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "label"
+        ]
+      },
+      "Output_61da40565eeef7dc1d2d89123fe0033e9b0f0809a66731851fd56301624b0dc5": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "version",
+          "tenant"
         ]
       },
       "Output_73a8618e3debe1667f7aafcc74ab58dec2fbd11494bb2e579aae6d2b58f205f3": {
@@ -1485,7 +1573,7 @@
           "uriPrefix"
         ]
       },
-      "Output_886f59ead1925273895e4560b6d0bef4f24dfc0d21f26c0f8e470ef2e8953303": {
+      "Output_819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f": {
         "type": "object",
         "properties": {
           "id": {
@@ -1500,13 +1588,13 @@
           "id"
         ]
       },
-      "Output_88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f": {
+      "Output_86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7": {
         "type": "object",
         "properties": {
           "entity": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/Output_d929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed"
+                "$ref": "#/components/schemas/Output_5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2"
               },
               {
                 "type": "object",
@@ -1523,7 +1611,7 @@
           "rules": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Output_88774a96291f40454f5b6fd8d6a63fd028f813a387640f7754047de0aa56f56f"
+              "$ref": "#/components/schemas/Output_86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7"
             },
             "nullable": true
           },
@@ -1533,6 +1621,67 @@
         },
         "required": [
           "kind"
+        ]
+      },
+      "Output_89ec52f68878253d5610456db46a846ae520370ae7d0c82a86f6fa15feeccf84": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "version",
+          "tenant"
+        ]
+      },
+      "Output_8d5c08b62d8e11c6b7d0078039d84942d60e13602d2b6b0b25ee4e92d1e8a0bb": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "version",
+          "tenant"
+        ]
+      },
+      "Output_8f9918cf758d7828437221562274ce1aadfefc572741f4475e8f668456c57771": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
         ]
       },
       "Output_9e0f449c95fcfb4ee0592ebadf3e17adccbdc32fa89bf50ab9ae8511c2009041": {
@@ -1611,13 +1760,13 @@
           "status"
         ]
       },
-      "Output_a53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d": {
+      "Output_a6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6": {
         "type": "object",
         "properties": {
           "entity": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/Output_f9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0"
+                "$ref": "#/components/schemas/Output_ca207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b"
               },
               {
                 "type": "object",
@@ -1721,53 +1870,6 @@
           "status"
         ]
       },
-      "Output_ad0a4d4d865750761deb4de5e00f7585ee52cb749d5292e61759c6762cd70937": {
-        "type": "object",
-        "properties": {
-          "entity": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Output_507e807900c5842eab8b5f391db762541ee322624438e9973d9051249f091960"
-            },
-            "nullable": true
-          },
-          "entityTypes": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "exposure": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Output_30f682cca64d4e867058090c1b6d72dc56ffa4422725723cef17823a1c40a8ab"
-            },
-            "nullable": true
-          },
-          "role": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Output_d6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa"
-            },
-            "nullable": true
-          },
-          "subject": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Output_a53d95d278cd3e404c5156b458ea7d7469f50b437f5d0c161d0afa63d042db5d"
-            },
-            "nullable": true
-          }
-        },
-        "required": [
-          "subject",
-          "role",
-          "exposure",
-          "entity",
-          "entityTypes"
-        ]
-      },
       "Output_ad75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688": {
         "type": "object",
         "properties": {
@@ -1822,13 +1924,13 @@
           "reportCount"
         ]
       },
-      "Output_cb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15": {
+      "Output_b54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59": {
         "type": "object",
         "properties": {
           "entity": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/Output_d460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37"
+                "$ref": "#/components/schemas/Output_3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243"
               },
               {
                 "type": "object",
@@ -1839,25 +1941,37 @@
               }
             ]
           },
-          "kind": {
+          "id": {
             "type": "string"
           },
-          "rules": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Output_cb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15"
-            },
-            "nullable": true
-          },
-          "value": {
+          "label": {
             "type": "string"
           }
         },
         "required": [
-          "kind"
+          "label"
         ]
       },
-      "Output_cefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba": {
+      "Output_bd7a1b00fadef6f5e471ef21cd4fe9df0f1e3f4b9cabd09814c00b321086588a": {
+        "type": "object",
+        "properties": {
+          "canManage": {
+            "type": "boolean"
+          },
+          "choices": {
+            "$ref": "#/components/schemas/Output_c97b7b59c0c99ea53e6472f7e79baee9949576f0200174c238c8b514fcc51b69"
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "choices",
+          "canManage",
+          "source"
+        ]
+      },
+      "Output_c50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349": {
         "type": "object",
         "properties": {
           "entityType": {
@@ -1869,7 +1983,7 @@
           "rule": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/Output_cb581e4d118aca03a4618b3f8abf878a4a1061e382236709523354e8d6cd9e15"
+                "$ref": "#/components/schemas/Output_f632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69"
               },
               {
                 "type": "object",
@@ -1885,7 +1999,103 @@
           "mode"
         ]
       },
-      "Output_d460423d1502297ad18efe6d7f39cdd389a385bb2bd063f8a6587e3880d67f37": {
+      "Output_c59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac": {
+        "type": "object",
+        "properties": {
+          "explicitAcl": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "inherited": {
+            "type": "boolean"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "ownerName": {
+            "type": "string"
+          },
+          "public": {
+            "type": "boolean"
+          },
+          "published": {
+            "type": "boolean"
+          },
+          "resource": {
+            "$ref": "#/components/schemas/Output_d14887150549e1252499c617aacbd48b5aab3c262cdf2f62fa7fbaf8f1edbaa2"
+          },
+          "versions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Output_4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68"
+            },
+            "nullable": true
+          }
+        },
+        "required": [
+          "published",
+          "public",
+          "explicitAcl",
+          "kind",
+          "id",
+          "name",
+          "resource",
+          "inherited"
+        ]
+      },
+      "Output_c97b7b59c0c99ea53e6472f7e79baee9949576f0200174c238c8b514fcc51b69": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Output_b54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59"
+            },
+            "nullable": true
+          },
+          "entityTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "exposure": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Output_5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89"
+            },
+            "nullable": true
+          },
+          "role": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Output_a6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6"
+            },
+            "nullable": true
+          },
+          "subject": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Output_20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260"
+            },
+            "nullable": true
+          }
+        },
+        "required": [
+          "subject",
+          "role",
+          "exposure",
+          "entity",
+          "entityTypes"
+        ]
+      },
+      "Output_ca207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b": {
         "type": "object",
         "properties": {
           "id": {
@@ -1898,6 +2108,29 @@
         "required": [
           "type",
           "id"
+        ]
+      },
+      "Output_d14887150549e1252499c617aacbd48b5aab3c262cdf2f62fa7fbaf8f1edbaa2": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "version",
+          "tenant"
         ]
       },
       "Output_d558223f5d3d6bca0e300c59f8e624af838223bc61f0cb8c88f09c757834ddaa": {
@@ -1941,13 +2174,38 @@
           "updatedAt"
         ]
       },
-      "Output_d6856df5d1a3e32b2c78cdfb0b08ded7b01caf131a4adcaf9a75e1f4908d82fa": {
+      "Output_db16d19662078b5e2bf34bb56caf4e031ec60811b8ff0833d9304fe74bb3deb7": {
         "type": "object",
         "properties": {
-          "entity": {
+          "hasMore": {
+            "type": "boolean"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Output_c59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac"
+            },
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "hasMore"
+        ]
+      },
+      "Output_e8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8": {
+        "type": "object",
+        "properties": {
+          "entityType": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "rule": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/Output_41d4ad36c3b28b318db3e6c7e43807549a7b58e60e9d950b59f68a95d1c730f7"
+                "$ref": "#/components/schemas/Output_86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7"
               },
               {
                 "type": "object",
@@ -1957,78 +2215,10 @@
                 ]
               }
             ]
-          },
-          "id": {
-            "type": "string"
-          },
-          "label": {
-            "type": "string"
           }
         },
         "required": [
-          "label"
-        ]
-      },
-      "Output_d929ed220568496034afb858ec6cc1a2c769d1f65ec9ab2a41f7802fcd8972ed": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "type",
-          "id"
-        ]
-      },
-      "Output_d94fe2c0f68aadd9d8fcacadf97221cae176cdc5a262134071dca8fa5d6e14ef": {
-        "type": "object",
-        "properties": {
-          "policies": {
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/Output_cefb1c30f490c4739276970d2ffcf3cd4d81c14b91394668a0812427fd40a3ba"
-            },
-            "nullable": true
-          },
-          "resource": {
-            "$ref": "#/components/schemas/Output_1777f5e244f91f0645bf7ef39ca23fb64c98c7f12533a1f1b43c45261f87381b"
-          },
-          "revision": {
-            "type": "integer",
-            "format": "int64"
-          }
-        },
-        "required": [
-          "resource",
-          "revision",
-          "policies"
-        ]
-      },
-      "Output_eb4292407d8e3ba03eb696194c02197306e42188fbc3037dfceabf2605138d24": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "kind": {
-            "type": "string"
-          },
-          "tenant": {
-            "type": "string"
-          },
-          "version": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "kind",
-          "id",
-          "version",
-          "tenant"
+          "mode"
         ]
       },
       "Output_ef553e0e338a00cf70d43289eb53e588abb65348804f4defbd8fd2ea4e5691ee": {
@@ -2076,19 +2266,39 @@
           "uriPrefix"
         ]
       },
-      "Output_f9bc94e663aab24458425b5239238901e299cb511fb0bc9e134450b5523464e0": {
+      "Output_f632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69": {
         "type": "object",
         "properties": {
-          "id": {
+          "entity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Output_2180387bae10ad30702ff5f50e131002ae984342d3ae82e85f10f7d03794f74c"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
+          "kind": {
             "type": "string"
           },
-          "type": {
+          "rules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Output_f632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69"
+            },
+            "nullable": true
+          },
+          "value": {
             "type": "string"
           }
         },
         "required": [
-          "type",
-          "id"
+          "kind"
         ]
       },
       "Wire_013ce40651897a22f1d0c9d5a29a86362333458b72c57acb30fa03a2473f08c6": {
@@ -2770,6 +2980,16 @@
       "Wire_1f5f473dc54ed2f6c617275d578b2307a69146cb2ce69ae058bffe57f5c226b4": {
         "type": "object",
         "properties": {
+          "allowedRoles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "canManage": {
+            "type": "boolean"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -2781,7 +3001,18 @@
             "type": "integer",
             "format": "int64"
           },
+          "mcpEnabled": {
+            "type": "boolean"
+          },
+          "mcpPort": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
           "name": {
+            "type": "string"
+          },
+          "namespaceId": {
             "type": "string"
           },
           "ownerId": {
@@ -2796,16 +3027,24 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "visibility": {
+            "type": "string"
           }
         },
         "required": [
+          "canManage",
           "ownerId",
           "name",
           "title",
           "status",
           "etag",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "namespaceId",
+          "visibility",
+          "allowedRoles",
+          "mcpEnabled"
         ]
       },
       "Wire_221846f313892219b53265500a015547384983c9f728252d253349f904fb06a9": {
@@ -3404,15 +3643,15 @@
           }
         },
         "required": [
+          "reportId",
+          "subjectType",
+          "subjectId",
+          "etag",
           "canView",
           "canRun",
           "canEdit",
           "canPublish",
-          "canUseDql",
-          "reportId",
-          "subjectType",
-          "subjectId",
-          "etag"
+          "canUseDql"
         ]
       },
       "Wire_33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58": {
@@ -5864,6 +6103,13 @@
       "Wire_a6d5a259bb2993e6552649336f2c093ccd6ae12f130f8526f5c136a619d0cb51": {
         "type": "object",
         "properties": {
+          "allowedRoles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -5875,7 +6121,18 @@
             "type": "integer",
             "format": "int64"
           },
+          "mcpEnabled": {
+            "type": "boolean"
+          },
+          "mcpPort": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
           "name": {
+            "type": "string"
+          },
+          "namespaceId": {
             "type": "string"
           },
           "ownerId": {
@@ -5890,9 +6147,16 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "visibility": {
+            "type": "string"
           }
         },
         "required": [
+          "namespaceId",
+          "visibility",
+          "allowedRoles",
+          "mcpEnabled",
           "ownerId",
           "name",
           "title",
@@ -7032,6 +7296,16 @@
       "Wire_ddb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231": {
         "type": "object",
         "properties": {
+          "allowedRoles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "canManage": {
+            "type": "boolean"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -7044,7 +7318,18 @@
             "type": "integer",
             "format": "int64"
           },
+          "mcpEnabled": {
+            "type": "boolean"
+          },
+          "mcpPort": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
           "name": {
+            "type": "string"
+          },
+          "namespaceId": {
             "type": "string"
           },
           "ownerId": {
@@ -7059,9 +7344,17 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "visibility": {
+            "type": "string"
           }
         },
         "required": [
+          "canManage",
+          "allowedRoles",
+          "namespaceId",
+          "visibility",
+          "mcpEnabled",
           "ownerId",
           "name",
           "title",
@@ -7704,7 +7997,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Input_03431463bb75c805271cda3d99727948b169a41134e802271c7e8a9391c0be1b"
+                "$ref": "#/components/schemas/Input_97df4a50a602fc26f1ee6311a5f68da1d96e2143f76deaf46ec88c673e7b5125"
               }
             }
           }
@@ -7715,7 +8008,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Output_074baefd6599537117e4be3e30019d7fdfbb35e35777792f4679dc2222339640"
+                  "$ref": "#/components/schemas/Output_bd7a1b00fadef6f5e471ef21cd4fe9df0f1e3f4b9cabd09814c00b321086588a"
                 }
               }
             }
@@ -7736,7 +8029,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Input_1777f5e244f91f0645bf7ef39ca23fb64c98c7f12533a1f1b43c45261f87381b"
+                "$ref": "#/components/schemas/Input_61da40565eeef7dc1d2d89123fe0033e9b0f0809a66731851fd56301624b0dc5"
               }
             }
           }
@@ -7747,7 +8040,39 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Output_d94fe2c0f68aadd9d8fcacadf97221cae176cdc5a262134071dca8fa5d6e14ef"
+                  "$ref": "#/components/schemas/Output_056a233e996244d253928b99e6335fa0dfcab4b0aa7e8ffd7a088546a10a6442"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/access.list": {
+      "post": {
+        "operationId": "POST:/v1/studio/sdk/access.list",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Input_092de1a1aa148d7f76a45d866e2aba4a800ba8a33379ccd1537c3e3699762324"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Output_db16d19662078b5e2bf34bb56caf4e031ec60811b8ff0833d9304fe74bb3deb7"
                 }
               }
             }
@@ -7768,7 +8093,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Input_56eaf778ce1253fe858bf578c97bd7824413c87195caefb7315fd578bae05388"
+                "$ref": "#/components/schemas/Input_d631d9489d8a46cf61ef6ae5a6a27b5e6c1fe964186472df97480ccb0bd6a17c"
               }
             }
           }
@@ -7779,7 +8104,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Output_524acdde45b651c8bd48c66b53c101ffac146671a1ddce5c786a6ecbd96dbe58"
+                  "$ref": "#/components/schemas/Output_2631f895e856b9edb7a880ef06b76a2fcfcf0dc9d13eff46223625680e9a9c89"
                 }
               }
             }
@@ -7795,6 +8120,15 @@
     "/v1/studio/sdk/acl.delete": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/acl.delete",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -7843,6 +8177,13 @@
         "summary": "acl",
         "operationId": "POST:/v1/studio/sdk/acl.list",
         "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "subjectType",
             "in": "query",
@@ -7898,6 +8239,15 @@
     "/v1/studio/sdk/acl.upsert": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/acl.upsert",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -8221,6 +8571,15 @@
     "/v1/studio/sdk/components.create": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/components.create",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -8288,6 +8647,15 @@
       "post": {
         "summary": "report",
         "operationId": "POST:/v1/studio/sdk/components.get",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -8329,6 +8697,15 @@
       "post": {
         "summary": "report",
         "operationId": "POST:/v1/studio/sdk/components.list",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -9167,6 +9544,15 @@
     "/v1/studio/sdk/preview.execute": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/preview.execute",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -9300,6 +9686,15 @@
     "/v1/studio/sdk/publications.publish": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/publications.publish",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -9349,6 +9744,15 @@
     "/v1/studio/sdk/publications.rollback": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/publications.rollback",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -9398,6 +9802,15 @@
     "/v1/studio/sdk/publications.unpublish": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/publications.unpublish",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -9442,6 +9855,15 @@
     "/v1/studio/sdk/resources.delete_file": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/resources.delete_file",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -9474,6 +9896,15 @@
     "/v1/studio/sdk/resources.delete_folder": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/resources.delete_folder",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -9506,6 +9937,15 @@
     "/v1/studio/sdk/resources.delete_skill": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/resources.delete_skill",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -9538,6 +9978,15 @@
     "/v1/studio/sdk/resources.get": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/resources.get",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -9583,6 +10032,15 @@
     "/v1/studio/sdk/resources.upsert_file": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/resources.upsert_file",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -9615,6 +10073,15 @@
     "/v1/studio/sdk/resources.upsert_folder": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/resources.upsert_folder",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -9647,6 +10114,15 @@
     "/v1/studio/sdk/resources.upsert_skill": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/resources.upsert_skill",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -9679,6 +10155,15 @@
     "/v1/studio/sdk/runtime.status": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/runtime.status",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success response",
@@ -9701,6 +10186,15 @@
     "/v1/studio/sdk/versions.apply": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/versions.apply",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -9750,6 +10244,15 @@
     "/v1/studio/sdk/versions.builder": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/versions.builder",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -9799,6 +10302,15 @@
     "/v1/studio/sdk/versions.create": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/versions.create",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -9844,6 +10356,15 @@
       "post": {
         "summary": "version",
         "operationId": "POST:/v1/studio/sdk/versions.descriptor",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -9889,6 +10410,15 @@
     "/v1/studio/sdk/versions.download": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/versions.download",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -9935,6 +10465,15 @@
       "post": {
         "summary": "version",
         "operationId": "POST:/v1/studio/sdk/versions.export_dql",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -9981,6 +10520,15 @@
       "post": {
         "summary": "version",
         "operationId": "POST:/v1/studio/sdk/versions.get",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -10026,6 +10574,15 @@
     "/v1/studio/sdk/versions.inspect": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/versions.inspect",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -10072,6 +10629,15 @@
       "post": {
         "summary": "version",
         "operationId": "POST:/v1/studio/sdk/versions.list",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -10123,6 +10689,15 @@
     "/v1/studio/sdk/versions.load_archive": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/versions.load_archive",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -10167,6 +10742,15 @@
     "/v1/studio/sdk/versions.load_dql": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/versions.load_dql",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -10211,6 +10795,15 @@
     "/v1/studio/sdk/versions.test_compose": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/versions.test_compose",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -10260,6 +10853,15 @@
     "/v1/studio/sdk/versions.test_relation": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/versions.test_relation",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -10312,6 +10914,15 @@
     "/v1/studio/sdk/versions.test_view": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/versions.test_view",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -10364,6 +10975,15 @@
     "/v1/studio/sdk/versions.validate": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/versions.validate",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -10414,6 +11034,15 @@
     "/v1/studio/sdk/versions.warmup": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/versions.warmup",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -10460,6 +11089,15 @@
       "post": {
         "summary": "warmup_run",
         "operationId": "POST:/v1/studio/sdk/versions.warmup_get",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -10504,6 +11142,15 @@
     "/v1/studio/sdk/versions.warmup_list": {
       "post": {
         "operationId": "POST:/v1/studio/sdk/versions.warmup_list",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {

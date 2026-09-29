@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/readercomponent"
@@ -63,8 +64,8 @@ func (r *DefinitionReader) Get(ctx context.Context, reportID string, versionNo i
 	if len(output.Definitions) != 1 || output.Definitions[0] == nil || output.Definitions[0].ReportId != reportID || output.Definitions[0].VersionNo != versionNo {
 		return nil, fmt.Errorf("preview definition reader returned an ambiguous or mismatched version")
 	}
-	if output.Definitions[0].DsnTemplate == nil {
-		return nil, fmt.Errorf("preview definition %s v%d has no connector DSN", reportID, versionNo)
+	if output.Definitions[0].DsnTemplate == nil && strings.TrimSpace(output.Definitions[0].SecretRef) == "" {
+		return nil, fmt.Errorf("preview definition %s v%d has no connector DSN or secret reference", reportID, versionNo)
 	}
 	return output.Definitions[0], nil
 }

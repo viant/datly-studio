@@ -13,12 +13,12 @@ type FileComponent struct {
 	Contract xdatly.Component[Input, Output] "component:\"file,path=/_studio/resource-file-store/write,method=PATCH,connector=studio,view=file,internal=true\" routeName:\"file\" mutation:\"patch\" caseFormat:\"lc\""
 }
 
-// FileDatlyType keeps the public component type linked for blank-import discovery.
+// FileDatlyType returns the public component type.
 func FileDatlyType() reflect.Type { return reflect.TypeOf((*FileComponent)(nil)).Elem() }
 
-// Datly anchors this package's public component contract.
+// The package-level value keeps this real component type reachable for runtime discovery.
 var FileDatly = new(FileComponent)
-var FileDatlyLinkedType = FileDatlyType()
+var _datlyReachableFileComponent = reflect.TypeFor[FileComponent]()
 
 func (FileComponent) EmbedFS() *embed.FS {
 	return &FileDatlyResources

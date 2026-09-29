@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly/authoring/readerbuilder"
@@ -431,6 +432,10 @@ INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_d
 	if err != nil || first.Status != "accepted" || first.RunID == "" {
 		t.Fatalf("first=%+v err=%v", first, err)
 	}
+	var storedNamespace string
+	if err := db.QueryRowContext(ctx, "SELECT namespace_id FROM report_warmup_runs WHERE run_id=?", first.RunID).Scan(&storedNamespace); err != nil || storedNamespace != namespaceaccess.ID("owner", "general") {
+		t.Fatalf("accepted warmup ownership=%q err=%v", storedNamespace, err)
+	}
 	if first.CreatedAt == nil || first.UpdatedAt == nil || first.CreatedBy == nil || *first.CreatedBy != "owner" ||
 		first.UpdatedBy == nil || *first.UpdatedBy != "owner" {
 		t.Fatalf("warmup creation audit=%+v", first)
@@ -730,9 +735,18 @@ func TestTransportDerivesReportIdentityAndOwnerFromPrincipal(t *testing.T) {
 	if _, err = client.Namespaces().Create(principal, sdk.CreateNamespaceInput{Name: namespace, Title: "Inventory Forecasting"}); err != nil {
 		t.Fatal(err)
 	}
-	updated, err := client.Components().Update(principal, report.ID, sdk.UpdateComponentInput{Namespace: &namespace, ETag: report.ETag})
-	if err != nil || updated.Namespace != namespace {
-		t.Fatalf("namespace update=%+v err=%v", updated, err)
+	_, err = client.Components().Update(principal, report.ID, sdk.UpdateComponentInput{Namespace: &namespace, ETag: report.ETag})
+	var move *sdk.Error
+	if !errors.As(err, &move) || move.Code != sdk.ErrorForbidden {
+		t.Fatalf("namespace move error=%v", err)
+	}
+	current, err := client.Components().Get(principal, report.ID)
+	if err != nil || current.Namespace != report.Namespace || current.ETag != report.ETag {
+		t.Fatalf("rejected move changed component=%+v err=%v", current, err)
+	}
+	updated, err := client.Components().Update(principal, report.ID, sdk.UpdateComponentInput{Title: &namespace, ETag: report.ETag})
+	if err != nil || updated.Namespace != report.Namespace {
+		t.Fatalf("title update=%+v err=%v", updated, err)
 	}
 	_, err = client.Components().Update(principal, report.ID, sdk.UpdateComponentInput{Title: &namespace, ETag: report.ETag})
 	var stale *sdk.Error
@@ -1157,6 +1171,14 @@ SELECT 1`})
 		ExpectedSourceRevision: snapshot.Version.SourceRevision})
 	if err != nil || len(snapshot.Skills) != 1 || snapshot.Skills[0].Ordinal != 1 {
 		t.Fatalf("updated skill=%+v err=%v", snapshot, err)
+	}
+	for _, table := range []string{"report_resource_files", "report_resource_folders", "report_skill_roots"} {
+		var owned, wrong int
+		err := db.QueryRow("SELECT COUNT(*), SUM(CASE WHEN namespace_id<>? THEN 1 ELSE 0 END) FROM "+table+" WHERE report_id=?",
+			namespaceaccess.ID(report.OwnerID, report.Namespace), report.ID).Scan(&owned, &wrong)
+		if err != nil || owned == 0 || wrong != 0 {
+			t.Fatalf("%s namespace ownership total=%d wrong=%d err=%v", table, owned, wrong, err)
+		}
 	}
 
 	staleRevision := file.Version.SourceRevision

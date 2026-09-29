@@ -15,7 +15,7 @@ import { postV1StudioSdkResourcesUpsertFile, postV1StudioSdkResourcesDeleteFile,
 import { postV1StudioSdkVersionsBuilder } from './generated/studioClient.gen.js';
 import { postV1StudioSdkRuntimeStatus } from './generated/studioClient.gen.js';
 import { postV1StudioSdkPublicationsPublish, postV1StudioSdkPublicationsRollback, postV1StudioSdkPublicationsUnpublish } from './generated/studioClient.gen.js';
-import { postV1StudioSdkAccessContext, postV1StudioSdkAccessGet, postV1StudioSdkAccessReplace } from './generated/studioClient.gen.js';
+import { postV1StudioSdkAccessList, postV1StudioSdkAccessContext, postV1StudioSdkAccessGet, postV1StudioSdkAccessReplace } from './generated/studioClient.gen.js';
 import { BrowserIdentity } from './browserIdentity.js';
 
 const nativeErrorCode = { 400: 'invalid_argument', 401: 'unauthorized', 403: 'forbidden', 404: 'not_found', 409: 'conflict', 422: 'invalid_argument', 502: 'unavailable', 503: 'unavailable' };
@@ -27,36 +27,77 @@ export class StudioAPI {
     // not, so normalize both forms into an ordinary callable function.
     this.fetcher = options.fetcher ?? globalThis.fetch.bind(globalThis);
     this.onUnauthorized = options.onUnauthorized;
+    this.namespaceId = null;
+    this.namespaceRevision = 0;
+    this.namespaceBlocked = false;
     this.identity = this.config.authentication?.mode === 'identity-token'
       ? options.identity ?? new BrowserIdentity(config, this.fetcher) : null;
   }
 
-  async send(value, init) {
+  setNamespace(namespaceId) {
+    if (namespaceId !== null && (typeof namespaceId !== 'string' || !/^[a-f0-9]{64}$/.test(namespaceId))) throw new TypeError('A valid namespace ID is required');
+    if (this.namespaceId === namespaceId) return;
+    this.namespaceId = namespaceId;
+    this.namespaceRevision += 1;
+  }
+
+  namespaceSnapshot(operation) {
+    if (operation.startsWith('namespaces.') || operation.startsWith('connectors.')) return null;
+    if (this.namespaceBlocked) {
+      const error = new Error('Choose an available namespace before continuing.');
+      error.code = 'namespace_unavailable';
+      throw error;
+    }
+    return { id: this.namespaceId, revision: this.namespaceRevision };
+  }
+
+  setNamespaceBlocked(blocked) {
+    if (this.namespaceBlocked === blocked) return;
+    this.namespaceBlocked = blocked;
+    this.namespaceRevision += 1;
+  }
+
+  assertNamespace(snapshot) {
+    if (snapshot && snapshot.revision !== this.namespaceRevision) {
+      const error = new Error('The namespace changed while this request was running.');
+      error.name = 'AbortError';
+      error.code = 'namespace_changed';
+      throw error;
+    }
+  }
+
+  async send(value, init, snapshot = null) {
     if (!this.identity) return this.fetcher(value, init);
     const token = await this.identity.token();
+    this.assertNamespace(snapshot);
     const first = new Request(value, init);
     const retry = first.clone();
     const headers = new Headers(first.headers);
     headers.set('Authorization', `Bearer ${token}`);
     const response = await this.fetcher(new Request(first, { headers, credentials: 'omit' }));
+    this.assertNamespace(snapshot);
     if (response.status !== 401) return response;
     let renewed;
     try { renewed = await this.identity.token(true); }
-    catch { this.onUnauthorized?.(); return response; }
+    catch { this.assertNamespace(snapshot); this.onUnauthorized?.(); return response; }
+    this.assertNamespace(snapshot);
     const retryHeaders = new Headers(retry.headers);
     retryHeaders.set('Authorization', `Bearer ${renewed}`);
     return this.fetcher(new Request(retry, { headers: retryHeaders, credentials: 'omit' }));
   }
 
   async invoke(operation, input = {}) {
+    const snapshot = this.namespaceSnapshot(operation);
     const headers = { Accept: 'application/json', 'Content-Type': 'application/json' };
     if (this.config.mode === 'development') {
       headers['X-Studio-Development-Subject'] = this.config.development.subject;
     }
+    if (snapshot?.id) headers['X-Studio-Namespace'] = snapshot.id;
     const response = await this.send(`${this.config.apiBaseURL}/v1/studio/sdk/${encodeURIComponent(operation)}`, {
       method: 'POST', headers, credentials: this.identity ? 'omit' : this.config.mode === 'authenticated' ? 'include' : 'same-origin', body: JSON.stringify(input),
-    });
+    }, snapshot);
     const payload = response.status === 204 ? null : await response.json();
+    this.assertNamespace(snapshot);
     if (!response.ok) {
       if (response.status === 401) this.onUnauthorized?.();
       const requestId = response.headers?.get?.('X-Request-ID') || '';
@@ -100,14 +141,29 @@ export class StudioAPI {
     return this.mcpRequest('skills/list', 'skills');
   }
   async mcpRequest(method, resultKey) {
-    const mcpURL = this.identity ? `${this.config.mcpBaseURL}/mcp` : `${this.config.apiBaseURL}/v1/studio/mcp/mcp`;
+    const snapshot = this.namespaceSnapshot('mcp.catalog');
+    let mcpURL = this.identity ? `${this.config.mcpBaseURL}/mcp` : `${this.config.apiBaseURL}/v1/studio/mcp/mcp`;
+    if (snapshot.id && !this.identity && this.config.mode !== 'authenticated') {
+      throw new Error('Namespace MCP discovery requires an authenticated session or identity token.');
+    }
+    if (snapshot.id && this.identity) {
+      const runtime = await this.getRuntimeStatus();
+      this.assertNamespace(snapshot);
+      if (runtime?.host?.namespaceId !== snapshot.id || !runtime?.host?.mcpUrl) {
+        throw new Error('The selected namespace has no ready MCP endpoint. Enable MCP in namespace settings, then retry.');
+      }
+      mcpURL = runtime.host.mcpUrl;
+    }
+    const headers = { Accept: 'application/json', 'Content-Type': 'application/json', 'Mcp-Protocol-Version': '2026-07-28', 'Mcp-Method': method };
+    if (snapshot.id) headers['X-Studio-Namespace'] = snapshot.id;
     const response = await this.send(mcpURL, {
       method: 'POST',
-      headers: { Accept: 'application/json', 'Content-Type': 'application/json', 'Mcp-Protocol-Version': '2026-07-28', 'Mcp-Method': method },
+      headers,
       credentials: this.identity ? 'omit' : this.config.mode === 'authenticated' ? 'include' : 'same-origin',
       body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params: { _meta: { 'io.modelcontextprotocol/protocolVersion': '2026-07-28', 'io.modelcontextprotocol/clientCapabilities': {} } } }),
-    });
+    }, snapshot);
     const body = await response.text();
+    this.assertNamespace(snapshot);
     let payload = null;
     if (body.trim()) {
       try { payload = JSON.parse(body); }
@@ -128,17 +184,21 @@ export class StudioAPI {
     }
     return payload?.result?.[resultKey] ?? [];
   }
+  listAccessResources(input = {}) { return this.nativeRequest(postV1StudioSdkAccessList, 'access.list', input); }
   getResourceAccess(resource) { return this.nativeRequest(postV1StudioSdkAccessGet, 'access.get', resource); }
   getResourceAccessContext(resource) { return this.nativeRequest(postV1StudioSdkAccessContext, 'access.context', resource); }
   replaceResourceAccess(document) { return this.nativeRequest(postV1StudioSdkAccessReplace, 'access.replace', document); }
   async nativeRequest(call, operation, body) {
+    const snapshot = this.namespaceSnapshot(operation);
     const headers = { Accept: 'application/json' };
     if (this.config.mode === 'development') headers['X-Studio-Development-Subject'] = this.config.development.subject;
+    if (snapshot?.id) headers['X-Studio-Namespace'] = snapshot.id;
     const { data, error, response } = await call({
-      body, baseUrl: this.config.apiBaseURL, fetch: this.send.bind(this),
+      body, baseUrl: this.config.apiBaseURL, fetch: (value, init) => this.send(value, init, snapshot),
       credentials: this.identity ? 'omit' : this.config.mode === 'authenticated' ? 'include' : 'same-origin', headers,
       parseAs: 'json',
     });
+    this.assertNamespace(snapshot);
     if (error) {
       if (response?.status === 401) this.onUnauthorized?.();
       const requestId = response?.headers?.get?.('X-Request-ID') || '';
@@ -173,7 +233,7 @@ export class StudioAPI {
   warmupReader(reportId, versionNo) { return this.nativeRequest(postV1StudioSdkVersionsWarmup, 'versions.warmup', { reportId, versionNo }); }
   getWarmupRun(reportId, runId) { return this.nativeRequest(postV1StudioSdkVersionsWarmupGet, 'versions.warmup_get', { reportId, runId }); }
   listWarmupRuns(reportId, versionNo, input = {}) { return this.nativeRequest(postV1StudioSdkVersionsWarmupList, 'versions.warmup_list', { reportId, versionNo, input }); }
-  previewReader(reportId, versionNo, input = {}, limit = 50) { return this.nativeRequest(postV1StudioSdkPreviewExecute, 'preview.execute', { reportId, versionNo, input: { input, limit } }); }
+  previewReader(reportId, versionNo, input = {}, limit = 50, routePath = undefined, cube = false) { return this.nativeRequest(postV1StudioSdkPreviewExecute, 'preview.execute', { reportId, versionNo, input: { input, limit, cube } }); }
   listConnectors(input = {}) { return this.nativeRequest(postV1StudioSdkConnectorsList, 'connectors.list', input); }
   getConnector(name) { return this.nativeRequest(postV1StudioSdkConnectorsGet, 'connectors.get', { name }); }
   createConnector(input) { return this.nativeRequest(postV1StudioSdkConnectorsCreate, 'connectors.create', input); }

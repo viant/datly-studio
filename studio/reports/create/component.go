@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/namespacevalidation"
 	"github.com/viant/datly-studio/sdk"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
@@ -28,6 +29,7 @@ import (
 )
 
 type Input struct {
+	NamespaceId          *string            `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
 	Jwt                  *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
 	Auth                 *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
 	Id                   string             `parameter:"Id,kind=body,in=id,dataType=string" json:"id,omitempty"`
@@ -107,6 +109,31 @@ func (*createHandler) Exec(ctx context.Context, session xhandler.Session, input 
 	if !found || !ok {
 		return fmt.Errorf("Datly component invoker is unavailable")
 	}
+	if input.NamespaceId != nil {
+		if err := namespaceaccess.ValidateResourceOwnership(*input.NamespaceId, ""); err != nil {
+			return &xresponse.Error{Code: 400, Cause: errors.New("valid namespace selection is required")}
+		}
+		selected := &namespaces.Input{}
+		selected.NamespaceId = *input.NamespaceId
+		selected.SetOwnerId(input.Jwt.Subject)
+		selected.SetStatus("active")
+		selected.SetScoped(false)
+		selected.SetPageLimit(2)
+		selected.SetPageOffset(0)
+		selected.Has.NamespaceId = true
+		value, err := invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[namespaces.NamespaceComponent](), "namespace", "GET", "/_studio/namespace-store/read"), Input: selected})
+		if err != nil {
+			return err
+		}
+		page, ok := value.(*namespaces.Output)
+		if !ok || page == nil || len(page.Namespaces) != 1 || page.Namespaces[0] == nil || page.Namespaces[0].NamespaceId != *input.NamespaceId || page.Namespaces[0].OwnerId != input.Jwt.Subject {
+			return &xresponse.Error{Code: 403, Cause: errors.New("selected namespace is unavailable")}
+		}
+		if input.Namespace != "" && input.Namespace != page.Namespaces[0].Name {
+			return &xresponse.Error{Code: 403, Cause: errors.New("component creation is outside the selected namespace")}
+		}
+		namespace = page.Namespaces[0].Name
+	}
 	connectorInput := &connectors.ConnectorGetInput{}
 	connectorInput.SetJwt(input.Jwt)
 	connectorInput.SetAuth(input.Auth)
@@ -150,6 +177,7 @@ func (*createHandler) Exec(ctx context.Context, session xhandler.Session, input 
 	if description := strings.TrimSpace(input.Description); description != "" {
 		row.Description = &description
 	}
+	row.SetNamespaceId(namespaceaccess.ID(row.OwnerId, row.Namespace))
 	write := &stored.Input{}
 	write.SetReports([]*stored.StoredReport{row})
 	written, err := invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[stored.ReportComponent](), "report", "POST", "/_studio/report-store/insert"), Input: write})

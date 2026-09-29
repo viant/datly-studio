@@ -21,6 +21,11 @@ import (
 )
 
 func (t *Transport) writeVersionInsert(ctx context.Context, row *stored.StoredVersion) error {
+	namespaceID, err := t.resourceWorkspaceID(ctx, nil, row.ReportId)
+	if err != nil {
+		return err
+	}
+	row.SetNamespaceId(namespaceID)
 	resources := resource.New()
 	if err := resources.Register(stored.VersionDatlyResourceNamespace, stored.VersionDatlyResources); err != nil {
 		return err

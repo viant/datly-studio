@@ -23,8 +23,9 @@ import (
 )
 
 type Input struct {
-	Jwt  *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
-	Auth *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
+	NamespaceId *string            `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
+	Jwt         *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
+	Auth        *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
 }
 
 type Output struct {
@@ -99,6 +100,16 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 		transport.RuntimeProbe = admin
 	}
 	principal := sdk.WithPrincipal(ctx, sdk.Principal{Subject: input.Jwt.Subject})
+	var header struct {
+		Authorization string `bind:"kind=header,in=Authorization"`
+	}
+	if err := session.Binder().Bind(ctx, &header); err != nil {
+		return err
+	}
+	principal = sdk.WithVerifiedCredential(principal, sdk.VerifiedCredential{Bearer: header.Authorization, Claims: input.Jwt})
+	if input.NamespaceId != nil {
+		principal = sdk.WithNamespaceSelection(principal, *input.NamespaceId)
+	}
 	var response sdk.RuntimeStatus
 	if err = transport.Invoke(principal, sdk.OperationRuntimeStatus, nil, &response); err != nil {
 		var sdkErr *sdk.Error

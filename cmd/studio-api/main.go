@@ -11,6 +11,8 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/viant/authz"
+	"github.com/viant/datly-studio/store/sql/accesscatalog"
 	"log"
 	"net"
 	"net/http"
@@ -25,17 +27,18 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	jwtlib "github.com/golang-jwt/jwt/v5"
 	_ "github.com/lib/pq"
+	accessstore "github.com/viant/authz/datly/store/sql"
+	accessoauth "github.com/viant/authz/oauth"
 	_ "github.com/viant/bigquery"
 	"github.com/viant/datly-studio/internal/bffauth"
 	"github.com/viant/datly-studio/internal/runtimeadmin"
+	"github.com/viant/datly-studio/runtime/accesscontext"
 	"github.com/viant/datly-studio/runtime/preview"
 	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly-studio/sdk/access"
-	accessoauth "github.com/viant/datly-studio/sdk/access/oauth"
 	"github.com/viant/datly-studio/sdk/connectivity"
 	"github.com/viant/datly-studio/sdk/httptransport"
 	sqltransport "github.com/viant/datly-studio/sdk/transport/sql"
-	accessstore "github.com/viant/datly-studio/store/sql/access"
 	"github.com/viant/datly-studio/store/sql/migrate"
 	"github.com/viant/datly-studio/studio/authorization"
 	"github.com/viant/datly-studio/studio/host"
@@ -50,6 +53,7 @@ import (
 // nativeSDKPaths are exact BFF mounts for generated static Datly SDK routes.
 // Every other SDK operation remains on the generic development/compatibility gateway.
 var nativeSDKPaths = []string{
+	"/v1/studio/sdk/access.list",
 	"/v1/studio/sdk/access.context",
 	"/v1/studio/sdk/access.get",
 	"/v1/studio/sdk/access.replace",
@@ -144,6 +148,7 @@ func main() {
 	loginRedirectURL := flag.String("login-redirect-url", "", "exact public callback URL ending in /v1/studio/auth/callback")
 	loginScopes := flag.String("login-scopes", "openid,profile,email", "comma-separated OAuth scopes for BFF login, including openid")
 	loginIDToken := flag.Bool("login-id-token", false, "use an auth-only session and return verified OIDC ID tokens to the browser for direct Datly calls")
+	accessTenant := flag.String("access-tenant", os.Getenv("STUDIO_ACCESS_TENANT"), "server-owned tenant for scoped exact-version previews")
 	accessIssuer := flag.String("access-issuer", os.Getenv("STUDIO_ACCESS_ISSUER"), "dedicated ACL token issuer")
 	accessAudience := flag.String("access-audience", os.Getenv("STUDIO_ACCESS_AUDIENCE"), "dedicated ACL token audience")
 	accessKey := flag.String("access-public-key", os.Getenv("STUDIO_ACCESS_PUBLIC_KEY_FILE"), "ACL issuer RSA public key PEM file")
@@ -230,6 +235,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	// Validate the same server-owned authorization input types that the dynamic
+	// runtime links before staging a published reader.
+	if err = accesscontext.RegisterTypes(dynamicPreview.Types); err != nil {
+		log.Fatal(err)
+	}
 	runtimeAdmin, err := runtimeadmin.New(*dynamicHTTPURL, adminToken, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -245,7 +255,7 @@ func main() {
 			log.Printf("Studio authorizer reader close: %v", err)
 		}
 	}()
-	transport := &sqltransport.Transport{DB: db, Authorizer: authorizer, Predicates: predicates, Probe: connectivity.SQLProbe{}, Catalog: connectivity.SQLCatalog{}, SQLTester: dynamicPreview, Preview: dynamicPreview, ViewTester: dynamicPreview, RelationTester: dynamicPreview, ComposeTester: dynamicPreview, Warmup: dynamicPreview, Validator: dynamicPreview, Activator: runtimeAdmin, RuntimeProbe: runtimeAdmin}
+	transport := &sqltransport.Transport{DB: db, Authorizer: authorizer, Predicates: predicates, Probe: connectivity.SQLProbe{}, Catalog: connectivity.SQLCatalog{}, SQLTester: dynamicPreview, Preview: dynamicPreview, ViewTester: dynamicPreview, RelationTester: dynamicPreview, ComposeTester: dynamicPreview, Warmup: dynamicPreview, Validator: dynamicPreview, ContractInspector: dynamicPreview, Activator: runtimeAdmin, RuntimeProbe: runtimeAdmin}
 	defer func() {
 		closeCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
@@ -267,7 +277,7 @@ func main() {
 			log.Fatal(keyErr)
 		}
 		keyfunc := func(*jwtlib.Token) (any, error) { return key, nil }
-		var provider access.Provider
+		var provider authz.Provider
 		var providerErr error
 		if *accessUserInfoURL != "" {
 			provider, providerErr = accessoauth.NewUserInfo(accessoauth.UserInfoConfig{Issuer: *accessIssuer, Audience: *accessAudience, Algorithms: []string{"RS256"}, Keyfunc: keyfunc, URL: *accessUserInfoURL})
@@ -277,7 +287,10 @@ func main() {
 		if providerErr != nil {
 			log.Fatal(providerErr)
 		}
-		sdkTransport = &access.Transport{Next: transport, Service: &access.Service{Store: &accessstore.Store{DB: db}, Provider: provider}}
+		accessService := &authz.Service{Store: &accessstore.Store{DB: db}, Provider: provider}
+		dynamicPreview.Access, dynamicPreview.AccessTenant = accessService, *accessTenant
+		transport.Preview, transport.ViewTester, transport.RelationTester, transport.ComposeTester = dynamicPreview, dynamicPreview, dynamicPreview, dynamicPreview
+		sdkTransport = &access.Transport{Next: transport, Service: accessService, Catalog: &access.Catalog{Service: accessService, Source: &accesscatalog.Store{DB: db}}}
 	}
 	mux := http.NewServeMux()
 	if *staticRoot != "" {
@@ -370,7 +383,11 @@ func main() {
 				if parseErr != nil {
 					log.Fatal(parseErr)
 				}
-				proxy, proxyErr := sessions.Proxy(target, strings.TrimSuffix(proxyConfig.mount, "/"))
+				var resolver bffauth.ProxyTargetResolver
+				if proxyConfig.mount == "/v1/studio/mcp/" {
+					resolver = namespaceMCPTarget(sdkTransport)
+				}
+				proxy, proxyErr := sessions.ProxyWithResolver(target, strings.TrimSuffix(proxyConfig.mount, "/"), resolver)
 				if proxyErr != nil {
 					log.Fatal(proxyErr)
 				}
@@ -533,7 +550,7 @@ func cors(allowedOrigin string, requireUnsafeOrigin bool, next http.Handler) htt
 		if origin == allowedOrigin {
 			w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
-			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Studio-Development-Subject, X-Request-ID, Mcp-Protocol-Version, Mcp-Method, Mcp-Name, Mcp-Session-Id, Last-Event-ID")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Studio-Namespace, X-Studio-Development-Subject, X-Request-ID, Mcp-Protocol-Version, Mcp-Method, Mcp-Name, Mcp-Session-Id, Last-Event-ID")
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
 			w.Header().Set("Access-Control-Expose-Headers", "X-Request-ID")
 		}

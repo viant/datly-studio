@@ -19,9 +19,12 @@ describe('Runtime catalogs', () => {
   test('keeps live MCP discovery inside Runtime tabs', async () => {
     const user=userEvent.setup();
     const api={listMCPTools:vi.fn().mockResolvedValue([{name:'alice.vendor.read',description:'Read vendors',inputSchema:{type:'object',properties:{limit:{type:'integer'}}},outputSchema:{type:'object',properties:{vendors:{type:'array'}}}}])};
-    render(<RuntimeWorkspace api={api} mode="runtime" status={status} loading={false} error="" onRefresh={vi.fn()} />);
+    const onOpen=vi.fn();
+    render(<RuntimeWorkspace api={api} mode="runtime" status={status} loading={false} error="" onRefresh={vi.fn()} onOpenComponent={onOpen}/>);
     expect(screen.getByRole('heading', { name: 'Runtime' })).toBeTruthy();
-    await user.click(screen.getByRole('tab', { name: 'MCP tools (0)' }));
+    await user.click(screen.getByRole('button',{name:'Open Vendor Catalog'}));
+    expect(onOpen).toHaveBeenCalledWith(expect.objectContaining({id:'vendor',ownerPackage:'alice',versionNo:2}));
+    await user.click(screen.getByRole('tab', { name: /MCP tools/ }));
     expect(await screen.findByText('alice.vendor.read')).toBeTruthy();
     await user.click(screen.getByRole('button', { name: 'Refresh' }));
     await waitFor(() => expect(api.listMCPTools).toHaveBeenCalledTimes(2));
@@ -38,7 +41,7 @@ describe('Runtime catalogs', () => {
     const user=userEvent.setup();
     const onOpen=vi.fn();
     render(<RuntimeWorkspace api={{listMCPSkills:vi.fn().mockResolvedValue([{uri:'skill://alice-guide/SKILL.md',frontmatter:{name:'alice-guide',description:'Use vendors','allowed-tools':'alice.vendor.read'}}]),listMCPTools:vi.fn().mockResolvedValue([{name:'alice.vendor.read'}])}} mode="skills" status={status} loading={false} error="" onRefresh={vi.fn()} onOpenComponent={onOpen} />);
-    expect(screen.getByRole('heading', { name: 'Skills & Resources' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Skills', level: 1 })).toBeTruthy();
     expect(await screen.findByText('alice-guide')).toBeTruthy();
     expect(screen.getByRole('button',{name:'Open MCP tool alice.vendor.read component'})).toBeTruthy();
     await user.click(screen.getByRole('button',{name:'Open MCP tool alice.vendor.read component'}));

@@ -76,6 +76,10 @@ func TestVersionActivationSupersedesAllPagesAndRollsBack(t *testing.T) {
 	if err := activation.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=? AND state='superseded'`, report.ID).Scan(&superseded); err != nil || superseded != targetNo-1 {
 		t.Fatalf("superseded versions=%d err=%v", superseded, err)
 	}
+	var published int
+	if err := activation.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=? AND state='published'`, report.ID).Scan(&published); err != nil || published != 1 {
+		t.Fatalf("expected exactly one published version, got %d: %v", published, err)
+	}
 	target, err := transport.readVersionCatalogTx(owner, activation, versionCatalogRequest{ReportID: report.ID, VersionNo: targetNo, Limit: 2})
 	if err != nil || len(target) != 1 || target[0].State != "published" || target[0].PublishedAt == nil {
 		t.Fatalf("published target=%+v err=%v", target, err)

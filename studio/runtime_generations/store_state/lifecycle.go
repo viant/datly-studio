@@ -27,9 +27,14 @@ func (hooks *GenerationStateRules) Init(_ context.Context, entity *StoredGenerat
 		return fmt.Errorf("generation state requires exact identity and expected status")
 	}
 	previous := state.Previous
-	if previous == nil || previous.Status != entity.Status {
+	if previous == nil || previous.Status != entity.Status || previous.NamespaceId != hooks.Input.NamespaceId {
 		return &xhandler.Conflict{Entity: "runtime_generation", Field: "status", Reason: "generation status changed"}
 	}
+	if entity.Has.NamespaceId && entity.NamespaceId != previous.NamespaceId {
+		return fmt.Errorf("generation namespace ownership is immutable")
+	}
+	entity.NamespaceId = previous.NamespaceId
+	entity.Has.NamespaceId = false
 	switch hooks.Input.Operation {
 	case "activate":
 		if entity.GenerationNo != hooks.Input.TargetGeneration || previous.Status != "building" ||

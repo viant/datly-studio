@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/viant/datly-studio/runtime/accesscontext"
-	"github.com/viant/datly-studio/sdk/access"
+	access "github.com/viant/authz"
 	dsql "github.com/viant/datly/sql"
 	"github.com/viant/datly/transcribe"
 	"github.com/viant/datly/transcribe/column"

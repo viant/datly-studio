@@ -122,6 +122,12 @@ trusted, already-linked predicate package paths on static, authoring, and
 dynamic hosts when embedding additional handlers. The same allowlist is used
 by the native predicate catalog and Reader Builder; it does not register
 types, and unlinked packages fail closed.
+`STUDIO_AUTH_PREDICATE_TYPES` can narrow external packages' governed Security
+catalog entries to comma-separated `package/path#TypeName` values. The API
+continues to link all handlers from `STUDIO_PREDICATE_PACKAGES` for DQL
+validation, while only the named external types can be saved as authorization
+predicates. Studio's built-in authorization handlers remain available. Omit the
+new setting to preserve the existing all-linked-types behavior.
 
 For generic resource-policy ACLs, `-access-user-info-url` (or
 `STUDIO_ACCESS_USER_INFO_URL`) optionally resolves current roles and feature

@@ -27,6 +27,67 @@ function response(payload, status = 200, requestId = '') {
   return { ok: status >= 200 && status < 300, status, headers: { get: (name) => name === 'X-Request-ID' ? requestId : '' }, json: async () => payload, text: async () => payload == null ? '' : typeof payload === 'string' ? payload : JSON.stringify(payload) };
 }
 
+test('selected namespace MCP discovery uses its runtime endpoint', async () => {
+  const id = 'a'.repeat(64);
+  let seen;
+  const api = new StudioAPI({ mode: 'authenticated', apiBaseURL: 'https://studio.example.com', authentication: { mode: 'identity-token' } }, {
+    identity: { token: async () => 'test-token' },
+    fetcher: async (request) => { seen = request; return response({ jsonrpc: '2.0', id: 1, result: { tools: [] } }); },
+  });
+  api.setNamespace(id);
+  api.getRuntimeStatus = async () => ({ host: { namespaceId: id, mcpUrl: 'http://127.0.0.1:8591/mcp' } });
+  assert.deepEqual(await api.listMCPTools(), []);
+  assert.equal(seen.url, 'http://127.0.0.1:8591/mcp');
+  assert.equal(seen.headers.get('X-Studio-Namespace'), id);
+  assert.equal(seen.headers.get('Authorization'), 'Bearer test-token');
+  assert.equal(seen.credentials, 'omit');
+});
+
+test('selected namespace MCP discovery cannot fall back to another namespace', async () => {
+  let calls = 0;
+  const api = new StudioAPI({ mode: 'authenticated', apiBaseURL: 'https://studio.example.com', authentication: { mode: 'identity-token' } }, {
+    identity: { token: async () => 'test-token' },
+    fetcher: async () => { calls++; return response({}); },
+  });
+  api.setNamespace('a'.repeat(64));
+  api.getRuntimeStatus = async () => ({ host: { namespaceId: 'b'.repeat(64), mcpUrl: 'http://127.0.0.1:8592/mcp' } });
+  await assert.rejects(api.listMCPSkills(), /no ready MCP endpoint/);
+  assert.equal(calls, 0);
+});
+
+test('selected namespace MCP never sends a session cookie to its direct endpoint', async () => {
+  let seen;
+  const api = new StudioAPI({ mode: 'authenticated', apiBaseURL: 'https://studio.example.com' }, {
+    fetcher: async (url, init) => { seen = { url, init }; return response({ jsonrpc: '2.0', id: 1, result: { skills: [] } }); },
+  });
+  api.setNamespace('a'.repeat(64));
+  assert.deepEqual(await api.listMCPSkills(), []);
+  assert.equal(seen.url, 'https://studio.example.com/v1/studio/mcp/mcp');
+  assert.equal(seen.init.headers['X-Studio-Namespace'], 'a'.repeat(64));
+  assert.equal(seen.init.credentials, 'include');
+});
+
+test('unavailable namespace blocks resources while retaining directory and global connectors', async () => {
+  const api = new StudioAPI({ mode: 'authenticated', apiBaseURL: 'https://studio.example.com' }, { fetcher: async () => response({ items: [] }) });
+  api.setNamespaceBlocked(true);
+  await assert.rejects(api.listComponents(), { code: 'namespace_unavailable' });
+  await assert.rejects(api.listMCPTools(), { code: 'namespace_unavailable' });
+  assert.deepEqual(await api.listNamespaces(), { items: [] });
+  assert.deepEqual(await api.listConnectors(), { items: [] });
+});
+
+test('MCP catalog discards a response after switching namespaces', async () => {
+  let resolve;
+  const api = new StudioAPI({ mode: 'authenticated', apiBaseURL: 'https://studio.example.com' }, {
+    fetcher: () => new Promise((done) => { resolve = done; }),
+  });
+  const pending = api.listMCPTools();
+  const rejected = assert.rejects(pending, { code: 'namespace_changed' });
+  api.setNamespace('b'.repeat(64));
+  resolve(response({ jsonrpc: '2.0', id: 1, result: { tools: [{ name: 'old-tool' }] } }));
+  await rejected;
+});
+
 test('development API carries an explicit local subject only', async () => {
   let request;
   const api = new StudioAPI({ mode: 'development', apiBaseURL: 'http://127.0.0.1:8080', development: { subject: 'dev-user' } }, {
@@ -597,7 +658,7 @@ test('authenticated preview executes the exact draft version through the SDK', a
   assert.equal(request.url, 'https://studio.example.com/v1/studio/sdk/preview.execute');
   assert.equal(request.credentials, 'include');
   assert.equal(request.headers.get('Authorization'), null);
-  assert.equal(await request.text(), '{"reportId":"vendor-spend","versionNo":1,"input":{"input":{},"limit":50}}');
+  assert.equal(await request.text(), '{"reportId":"vendor-spend","versionNo":1,"input":{"input":{},"limit":50,"cube":false}}');
   assert.deepEqual(result.data, { Summaries: [] });
 });
 
@@ -621,4 +682,77 @@ test('SDK errors retain conflict metadata for authoring recovery', async () => {
     assert.equal(error.field, 'sourceRevision');
     return true;
   });
+});
+
+const namespaceA = 'a'.repeat(64);
+const namespaceB = 'b'.repeat(64);
+
+function deferred() {
+  let resolve;
+  const promise = new Promise((done) => { resolve = done; });
+  return { promise, resolve };
+}
+
+test('resource requests pin namespace headers while global directories stay unscoped', async () => {
+  const seen = [];
+  const api = new StudioAPI({ mode: 'authenticated', apiBaseURL: 'https://studio.example.com' }, {
+    fetcher: async (value, init) => { const request = new Request(value, init); seen.push(request.headers.get('X-Studio-Namespace')); return response({ items: [] }); },
+  });
+  api.setNamespace(namespaceA);
+  await api.listComponents();
+  await api.listNamespaces();
+  await api.listConnectors();
+  await api.invoke('resources.get', {});
+  assert.deepEqual(seen, [namespaceA, null, null, namespaceA]);
+  assert.throws(() => api.setNamespace('forecasting'), TypeError);
+  assert.equal(api.namespaceId, namespaceA);
+});
+
+test('a response from an earlier namespace is discarded even after A to B to A', async () => {
+  const started = deferred();
+  const release = deferred();
+  const api = new StudioAPI({ mode: 'authenticated', apiBaseURL: 'https://studio.example.com' }, {
+    fetcher: async (request) => { assert.equal(request.headers.get('X-Studio-Namespace'), namespaceA); started.resolve(); await release.promise; return response({ items: [{ id: 'old-a' }] }); },
+  });
+  api.setNamespace(namespaceA);
+  const pending = api.listComponents();
+  await started.promise;
+  api.setNamespace(namespaceB);
+  api.setNamespace(namespaceA);
+  const rejected = assert.rejects(pending, (error) => error.name === 'AbortError' && error.code === 'namespace_changed');
+  release.resolve();
+  await rejected;
+});
+
+test('late unauthorized responses do not expire the new namespace view', async () => {
+  const started = deferred();
+  const release = deferred();
+  let expired = false;
+  const api = new StudioAPI({ mode: 'authenticated', apiBaseURL: 'https://studio.example.com' }, {
+    onUnauthorized: () => { expired = true; },
+    fetcher: async () => { started.resolve(); await release.promise; return response({ message: 'expired' }, 401); },
+  });
+  api.setNamespace(namespaceA);
+  const pending = api.listComponents();
+  await started.promise;
+  api.setNamespace(namespaceB);
+  const rejected = assert.rejects(pending, { code: 'namespace_changed' });
+  release.resolve();
+  await rejected;
+  assert.equal(expired, false);
+});
+
+test('token refresh cannot retry a resource request into a different namespace', async () => {
+  const seen = [];
+  let expired = false;
+  let api;
+  const identity = { token: async (force) => { if (force) api.setNamespace(namespaceB); return 'signed-token'; } };
+  api = new StudioAPI({ mode: 'authenticated', apiBaseURL: 'https://studio.example.com', authentication: { mode: 'identity-token' } }, {
+    identity, onUnauthorized: () => { expired = true; },
+    fetcher: async (request) => { seen.push(request.headers.get('X-Studio-Namespace')); return response({ message: 'expired' }, 401); },
+  });
+  api.setNamespace(namespaceA);
+  await assert.rejects(api.listComponents(), { code: 'namespace_changed' });
+  assert.deepEqual(seen, [namespaceA]);
+  assert.equal(expired, false);
 });

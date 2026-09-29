@@ -22,12 +22,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	permissionview "github.com/viant/authz/datly/context/permissions"
 	"reflect"
 	"sort"
 	"strings"
 	"time"
 
-	"github.com/viant/datly-studio/sdk/access"
+	access "github.com/viant/authz"
 	"github.com/viant/datly/bootstrap"
 	rhandler "github.com/viant/datly/runtime/handler"
 	"github.com/viant/datly/runtime/handler/custom"
@@ -61,12 +62,13 @@ type Input struct{}
 // decision: consuming AllowedEntities[entityType] can never bypass the
 // local/remote intersection that produced Scope.
 type Context struct {
-	Subject         string              `json:"subject"`
-	Tenant          string              `json:"tenant"`
-	Roles           []string            `json:"roles"`
-	Exposures       []string            `json:"exposures"`
-	AllowedEntities map[string][]string `json:"allowedEntities"`
-	ValidUntil      time.Time           `json:"validUntil"`
+	EntityPermissions access.EntityPermissionIndex `json:"entityPermissions"`
+	Subject           string                       `json:"subject"`
+	Tenant            string                       `json:"tenant"`
+	Roles             []string                     `json:"roles"`
+	Exposures         []string                     `json:"exposures"`
+	AllowedEntities   map[string][]string          `json:"allowedEntities"`
+	ValidUntil        time.Time                    `json:"validUntil"`
 }
 
 // Scope is the entity-bounded execute decision for the component this context
@@ -236,8 +238,13 @@ func Convert(facts access.Facts, decision access.Decision, entityType string) (*
 	// The canonical map exposes only the narrowed decision, never the broader
 	// facts of the same dimension and no dimension this decision did not cover.
 	allowed := map[string][]string{entityType: append([]string(nil), scope.IDs...)}
+	permissions, err := permissionview.Index(facts.EntityPermissions, decision)
+	if err != nil {
+		return nil, forbidden("access context permissions are malformed")
+	}
+
 	return &Output{
-		Context: &Context{Subject: facts.Subject, Tenant: facts.Tenant, Roles: roles, Exposures: exposures, AllowedEntities: allowed, ValidUntil: facts.ValidUntil},
+		Context: &Context{Subject: facts.Subject, Tenant: facts.Tenant, Roles: roles, Exposures: exposures, AllowedEntities: allowed, EntityPermissions: permissions, ValidUntil: facts.ValidUntil},
 		Scope:   scope,
 	}, nil
 }

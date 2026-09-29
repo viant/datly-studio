@@ -31,6 +31,12 @@ func (t *Transport) readReportCatalog(ctx context.Context, request reportCatalog
 }
 
 func (t *Transport) readReportCatalogTx(ctx context.Context, tx *sql.Tx, request reportCatalogRequest) ([]*sdk.Component, error) {
+	if selected, ok := selectedNamespace(ctx); ok {
+		if request.Namespace != "" && request.Namespace != selected.Name || request.OwnerID != "" && request.OwnerID != selected.OwnerID {
+			return nil, &sdk.Error{Code: sdk.ErrorForbidden, Message: "Component selection is outside the current namespace"}
+		}
+		request.Namespace, request.OwnerID = selected.Name, selected.OwnerID
+	}
 	resources := resource.New()
 	if err := resources.Register(stored.ReportDatlyResourceNamespace, stored.ReportDatlyResources); err != nil {
 		return nil, err

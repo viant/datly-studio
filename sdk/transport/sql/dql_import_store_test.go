@@ -15,6 +15,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
 	imported "github.com/viant/datly-studio/studio/report_versions/store_import"
@@ -114,6 +115,11 @@ func TestDQLImportPersistsExactRowsThroughStoreComponents(t *testing.T) {
 		t.Fatal(err)
 	}
 	version := loaded.Version
+	wantWorkspace := namespaceaccess.ID(f.report.OwnerID, f.report.Namespace)
+	var storedWorkspace string
+	if err := f.db.QueryRow(`SELECT namespace_id FROM report_versions WHERE report_id=? AND version_no=1`, f.report.ID).Scan(&storedWorkspace); err != nil || storedWorkspace != wantWorkspace {
+		t.Fatalf("version workspace=%q want=%q err=%v", storedWorkspace, wantWorkspace, err)
+	}
 	if version.VersionNo != 1 || version.State != "draft" || version.AuthoringMode != "dql" || version.CompileStatus != "pending" ||
 		version.AuthoredDQL != "SELECT 1" || version.GeneratedDQL != "SELECT 1" || len(loaded.Files) != 3 {
 		t.Fatalf("version=%+v files=%v", version, loaded.Files)
@@ -130,7 +136,7 @@ func TestDQLImportPersistsExactRowsThroughStoreComponents(t *testing.T) {
 		notes != " keep spacing " || sourceRevision != 1 || !createdAt.Equal(f.now) {
 		t.Fatalf("version row: %q %q %q %q %q %q %q %d %s", specFormat, datlyVersion, compilerVersion, createdBy, spec, manifest, notes, sourceRevision, createdAt)
 	}
-	rows, err := f.db.Query(`SELECT resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at FROM report_resource_files WHERE report_id=? AND version_no=1 ORDER BY resource_path`, f.report.ID)
+	rows, err := f.db.Query(`SELECT resource_id,namespace_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at FROM report_resource_files WHERE report_id=? AND version_no=1 ORDER BY resource_path`, f.report.ID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -139,16 +145,16 @@ func TestDQLImportPersistsExactRowsThroughStoreComponents(t *testing.T) {
 	wantNamespace := fmt.Sprintf("%s.imports.%x", f.report.OwnerPackage, reportDigest[:8])
 	count := 0
 	for rows.Next() {
-		var resourceID, namespace, path, sha string
+		var resourceID, workspace, namespace, path, sha string
 		var content []byte
 		var size int64
 		var isBinary bool
 		var fileCreatedAt time.Time
-		if err = rows.Scan(&resourceID, &namespace, &path, &content, &size, &sha, &isBinary, &fileCreatedAt); err != nil {
+		if err = rows.Scan(&resourceID, &workspace, &namespace, &path, &content, &size, &sha, &isBinary, &fileCreatedAt); err != nil {
 			t.Fatal(err)
 		}
 		want := files[path]
-		if want == nil || !bytes.Equal(content, want) || resourceID != digest([]byte(path)) || sha != digest(want) || size != int64(len(want)) ||
+		if want == nil || workspace != wantWorkspace || !bytes.Equal(content, want) || resourceID != digest([]byte(path)) || sha != digest(want) || size != int64(len(want)) ||
 			namespace != wantNamespace || isBinary != (path == "assets/logo.bin") || !fileCreatedAt.Equal(f.now) {
 			t.Fatalf("resource row %s: id=%s ns=%s size=%d sha=%s binary=%v at=%s", path, resourceID, namespace, size, sha, isBinary, fileCreatedAt)
 		}
@@ -259,6 +265,7 @@ func TestDQLImportWriterDeniesInconsistentInputBeforeWriting(t *testing.T) {
 		want string
 	}{
 		{name: "digest", edit: func(row *imported.ImportedVersion) { row.File[0].SetContentSha256("0") }, want: "content digest"},
+		{name: "foreign namespace", edit: func(row *imported.ImportedVersion) { row.File[0].SetNamespaceId(strings.Repeat("b", 64)) }, want: "namespace"},
 		{name: "identity", edit: func(row *imported.ImportedVersion) { row.File[0].SetResourceId("0") }, want: "SHA-256 of its path"},
 		{name: "unsafe path", edit: func(row *imported.ImportedVersion) { row.File[0].SetResourcePath("../escape.dql") }, want: "unsafe resource path"},
 		{name: "duplicate path", edit: func(row *imported.ImportedVersion) {

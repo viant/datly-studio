@@ -805,6 +805,15 @@ var postV1StudioSdkAccessGet = (options) => (options.client ?? client).post({
     ...options.headers
   }
 });
+var postV1StudioSdkAccessList = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/access.list",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var postV1StudioSdkAccessReplace = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/v1/studio/sdk/access.replace",
@@ -1367,6 +1376,7 @@ var postV1StudioSdkVersionsWarmupList = (options) => (options.client ?? client).
 export {
   postV1StudioSdkAccessContext,
   postV1StudioSdkAccessGet,
+  postV1StudioSdkAccessList,
   postV1StudioSdkAccessReplace,
   postV1StudioSdkAclDelete,
   postV1StudioSdkAclList,

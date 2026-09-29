@@ -3,15 +3,19 @@ package sqltransport
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"reflect"
 	"strings"
 
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/readercomponent"
 	"github.com/viant/datly-studio/sdk"
+	"github.com/viant/datly-studio/studio/namespaces/accesspredicate"
 	read "github.com/viant/datly-studio/studio/namespaces/store_read"
 	usage "github.com/viant/datly-studio/studio/namespaces/store_usage"
+	"github.com/viant/datly-studio/studio/predicatecatalog"
 	dexec "github.com/viant/datly/exec"
 	druntime "github.com/viant/datly/runtime"
 	"github.com/viant/datly/runtime/registry"
@@ -37,8 +41,16 @@ func (t *Transport) newNamespaceStoreReader() (*namespaceStoreReader, error) {
 	if err := connector.RegisterConnector("studio", t.DB); err != nil {
 		return nil, err
 	}
+	catalog, err := predicatecatalog.New(predicatecatalog.Package{Path: "github.com/viant/datly-studio/studio/namespaces/accesspredicate", Types: []reflect.Type{reflect.TypeFor[accesspredicate.NamespaceDirectory]()}})
+	if err != nil {
+		return nil, err
+	}
+	types, err := catalog.RuntimeTypes()
+	if err != nil {
+		return nil, err
+	}
 	readRegistration, readTarget, err := readercomponent.Compile(reflect.TypeOf(read.NamespaceComponent{}), "store_read",
-		reflect.TypeOf(read.Input{}), reflect.TypeOf(read.Output{}), resources, connector)
+		reflect.TypeOf(read.Input{}), reflect.TypeOf(read.Output{}), resources, connector, types)
 	if err != nil {
 		return nil, err
 	}
@@ -47,6 +59,7 @@ func (t *Transport) newNamespaceStoreReader() (*namespaceStoreReader, error) {
 	if err != nil {
 		return nil, err
 	}
+	readRegistration.Capabilities.Connector = connector
 	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{readRegistration, usageRegistration}, druntime.WithResources(resources))
 	if err != nil {
 		return nil, err
@@ -54,7 +67,7 @@ func (t *Transport) newNamespaceStoreReader() (*namespaceStoreReader, error) {
 	return &namespaceStoreReader{runtime: runtime, read: readTarget, usage: usageTarget}, nil
 }
 
-func (t *Transport) readNamespaces(ctx context.Context, name, query, status string, limit, offset int) ([]*sdk.Namespace, error) {
+func (t *Transport) readNamespaces(ctx context.Context, name, query, status, namespaceID string, limit, offset int) ([]*sdk.Namespace, error) {
 	reader, err := t.newNamespaceStoreReader()
 	if err != nil {
 		return nil, err
@@ -65,9 +78,9 @@ func (t *Transport) readNamespaces(ctx context.Context, name, query, status stri
 	if value := strings.TrimSpace(query); value != "" {
 		search = "%" + strings.ToLower(value) + "%"
 	}
-	input := &read.Input{Name: name, OwnerId: "", Query: search, Status: status, Subject: principal.Subject, Scoped: scoped,
+	input := &read.Input{NamespaceId: namespaceID, Name: name, OwnerId: "", Query: search, Status: status, Subject: principal.Subject, Scoped: scoped,
 		PageLimit: limit, PageOffset: offset,
-		Has: &read.InputHas{Name: true, OwnerId: true, Query: true, Status: true, Subject: true, Scoped: true, PageLimit: true, PageOffset: true}}
+		Has: &read.InputHas{NamespaceId: true, Name: true, OwnerId: true, Query: true, Status: true, Subject: true, Scoped: true, PageLimit: true, PageOffset: true}}
 	value, err := reader.runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: reader.read, Input: input})
 	if err != nil {
 		return nil, err
@@ -78,14 +91,28 @@ func (t *Transport) readNamespaces(ctx context.Context, name, query, status stri
 	}
 	var result []*sdk.Namespace
 	for _, row := range output.Namespaces {
-		if row == nil || name != "" && row.Name != name {
+		if row == nil || name != "" && row.Name != name || namespaceID != "" && row.NamespaceId != namespaceID {
 			return nil, fmt.Errorf("namespace reader returned a mismatched row")
 		}
 		description := ""
 		if row.Description != nil {
 			description = *row.Description
 		}
-		result = append(result, &sdk.Namespace{OwnerID: row.OwnerId, Name: row.Name, Title: row.Title,
+		roles := []string{}
+		if row.AllowedRolesJson != nil {
+			if err = json.Unmarshal([]byte(*row.AllowedRolesJson), &roles); err != nil {
+				return nil, fmt.Errorf("invalid namespace roles")
+			}
+		}
+		id := row.NamespaceId
+		if id == "" {
+			id = namespaceaccess.ID(row.OwnerId, row.Name)
+		}
+		visibility := row.Visibility
+		if visibility == "" {
+			visibility = namespaceaccess.Private
+		}
+		result = append(result, &sdk.Namespace{CanManage: scoped && principal.Subject == row.OwnerId, NamespaceID: id, Visibility: visibility, AllowedRoles: roles, MCPEnabled: row.McpEnabled, MCPPort: row.McpPort, OwnerID: row.OwnerId, Name: row.Name, Title: row.Title,
 			Description: description, Status: row.Status, ETag: row.Etag,
 			CreatedAt: row.CreatedAt, UpdatedAt: row.UpdatedAt})
 	}

@@ -89,15 +89,34 @@ type InputBinding struct {
 
 type ConnectorRead struct{ InputBinding }
 type ConnectorEdit struct{ InputBinding }
-type NamespaceRead struct{ InputBinding }
+type NamespaceRead struct {
+	InputBinding
+	Authorization string             `bind:"kind=header,in=Authorization"`
+	Connectors    connector.Provider `bind:"kind=connector,required"`
+}
 type AuthorizationPredicateRead struct{ InputBinding }
 type AuthorizationPredicateEdit struct{ InputBinding }
 type ReportRead struct{ InputBinding }
-type ReportEdit struct{ InputBinding }
-type ReportPublish struct{ InputBinding }
-type ReportVersionRead struct{ InputBinding }
-type ReportVersionMetadataRead struct{ InputBinding }
-type ReportVersionEdit struct{ InputBinding }
+type ReportEdit struct {
+	InputBinding
+	NamespaceSelection
+}
+type ReportPublish struct {
+	InputBinding
+	NamespaceSelection
+}
+type ReportVersionRead struct {
+	InputBinding
+	NamespaceSelection
+}
+type ReportVersionMetadataRead struct {
+	InputBinding
+	NamespaceSelection
+}
+type ReportVersionEdit struct {
+	InputBinding
+	NamespaceSelection
+}
 type ReportViewRead struct{ InputBinding }
 type ReportParameterRead struct{ InputBinding }
 type ReportParameterEdit struct{ InputBinding }
@@ -116,12 +135,17 @@ type PublicationEdit struct{ InputBinding }
 type PublicationEventRead struct{ InputBinding }
 type ACLRead struct {
 	InputBinding
-	Connectors connector.Provider `bind:"kind=connector,required"`
+	NamespaceID   *string            `bind:"kind=header,in=X-Studio-Namespace"`
+	Authorization string             `bind:"kind=header,in=Authorization"`
+	Connectors    connector.Provider `bind:"kind=connector,required"`
 }
 type ACLEdit struct{ InputBinding }
 type RuntimeRead struct{ InputBinding }
 type RuntimeEdit struct{ InputBinding }
-type WarmupRead struct{ InputBinding }
+type WarmupRead struct {
+	InputBinding
+	NamespaceSelection
+}
 type SessionRead struct{ InputBinding }
 type SessionRevoke struct{ InputBinding }
 
@@ -143,16 +167,9 @@ func (p *NamespaceRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteri
 	if err != nil {
 		return nil, err
 	}
-	return &xpredicate.Criteria{Expression: `(namespaces.owner_id = ? OR EXISTS (
-SELECT 1 FROM components studio_auth_report
-JOIN report_acl studio_auth_acl ON studio_auth_acl.report_id = studio_auth_report.id
-WHERE studio_auth_report.owner_id = namespaces.owner_id
-  AND studio_auth_report.namespace = namespaces.name
-  AND studio_auth_report.deleted_at IS NULL
-  AND studio_auth_acl.subject_type = 'user'
-  AND studio_auth_acl.subject_id = ?
-  AND studio_auth_acl.can_view = TRUE))`, Placeholders: []any{principal, principal}}, nil
+	return namespaceVisibilityCriteria(ctx, p.Connectors, principal, p.Authorization)
 }
+
 func (p *AuthorizationPredicateRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
 	return globalCriteria(ctx, p.Input, permissionPublish)
 }
@@ -170,19 +187,19 @@ func (p *ReportEdit) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, 
 	if err := requireOwnedRows(p.Input, principal, "Reports"); err != nil {
 		return nil, err
 	}
-	return reportCriteriaForSubject(principal, "report.id", permissionEdit), nil
+	return p.NamespaceSelection.report(ctx, p.Input, "report.id", permissionEdit)
 }
 func (p *ReportPublish) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "report.id", permissionPublish)
+	return p.NamespaceSelection.report(ctx, p.Input, "report.id", permissionPublish)
 }
 func (p *ReportVersionRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "v.report_id", permissionDQL)
+	return p.NamespaceSelection.report(ctx, p.Input, "v.report_id", permissionDQL)
 }
 func (p *ReportVersionMetadataRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "v.report_id", permissionView)
+	return p.NamespaceSelection.report(ctx, p.Input, "v.report_id", permissionView)
 }
 func (p *ReportVersionEdit) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "report_version.report_id", permissionEdit)
+	return p.NamespaceSelection.report(ctx, p.Input, "report_version.report_id", permissionEdit)
 }
 func (p *ReportViewRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
 	return reportCriteria(ctx, p.Input, "v.report_id", permissionView)
@@ -260,11 +277,12 @@ func (p *ACLRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, err
 	if len(grants) != 1 {
 		return nil, forbidden("only the report owner can administer access")
 	}
-	return &xpredicate.Criteria{Expression: `EXISTS (
+	criteria := &xpredicate.Criteria{Expression: `EXISTS (
 SELECT 1 FROM components studio_auth_owner
 WHERE studio_auth_owner.id = a.report_id
   AND studio_auth_owner.owner_id = ?
-  AND studio_auth_owner.deleted_at IS NULL)`, Placeholders: []any{principal}}, nil
+  AND studio_auth_owner.deleted_at IS NULL)`, Placeholders: []any{principal}}
+	return (&NamespaceSelection{NamespaceID: p.NamespaceID, Authorization: p.Authorization, Connectors: p.Connectors}).constrain(ctx, p.Input, criteria, "a.report_id")
 }
 func (p *ACLEdit) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
 	return reportCriteria(ctx, p.Input, "report_acl.report_id", permissionPublish)
@@ -276,7 +294,7 @@ func (p *RuntimeEdit) Compute(ctx context.Context, _ any) (*xpredicate.Criteria,
 	return globalCriteria(ctx, p.Input, permissionPublish)
 }
 func (p *WarmupRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "w.report_id", permissionPublish)
+	return p.NamespaceSelection.report(ctx, p.Input, "w.report_id", permissionPublish)
 }
 func (p *SessionRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
 	principal, err := subject(ctx, p.Input)

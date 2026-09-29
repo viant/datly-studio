@@ -12,9 +12,9 @@ import (
 
 	jwtlib "github.com/golang-jwt/jwt/v5"
 	"github.com/viant/datly-studio/runtime/accesscontext"
-	"github.com/viant/datly-studio/sdk/access"
-	"github.com/viant/datly-studio/sdk/access/oauth"
-	accessstore "github.com/viant/datly-studio/store/sql/access"
+	access "github.com/viant/authz"
+	"github.com/viant/authz/oauth"
+	accessstore "github.com/viant/authz/datly/store/sql"
 	"github.com/viant/datly/runtime/registry"
 	"github.com/viant/datly/spec"
 	xresponse "github.com/viant/xdatly/response"
@@ -127,6 +127,10 @@ func (s *Service) accessContexts(registrations []*registry.RegisteredComponent, 
 }
 
 func (s *Service) authorizeBoundResource(ctx context.Context, uri string) error {
+	return s.authorizeBoundResourceAction(ctx, uri, "retrieve")
+}
+
+func validateResourceURI(uri string) error {
 	parsed, err := url.Parse(uri)
 	if err != nil || parsed.Scheme == "" || parsed.RawQuery != "" || parsed.Fragment != "" || parsed.User != nil || strings.Contains(parsed.Path, "\\") {
 		return &xresponse.Error{Code: http.StatusForbidden, Cause: access.ErrDenied}
@@ -135,6 +139,13 @@ func (s *Service) authorizeBoundResource(ctx context.Context, uri string) error 
 		if segment == "." || segment == ".." {
 			return &xresponse.Error{Code: http.StatusForbidden, Cause: access.ErrDenied}
 		}
+	}
+	return nil
+}
+
+func (s *Service) authorizeBoundResourceAction(ctx context.Context, uri, action string) error {
+	if err := validateResourceURI(uri); err != nil {
+		return err
 	}
 	var selected access.Resource
 	length := 0
@@ -147,7 +158,7 @@ func (s *Service) authorizeBoundResource(ctx context.Context, uri string) error 
 	if length == 0 {
 		return &xresponse.Error{Code: http.StatusForbidden, Cause: access.ErrDenied}
 	}
-	return s.authorizeResourcePolicy(ctx, selected, "retrieve")
+	return s.authorizeResourcePolicy(ctx, selected, action)
 }
 
 func (s *Service) resourceCredential(next http.Handler) http.Handler {

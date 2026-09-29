@@ -24,7 +24,7 @@ import {
   validateExposure,
 } from './readerExposure.js';
 
-export function ReaderExposureDialog({ isOpen, api, structure, version, report, onClose, onApply, onReportUpdated }) {
+export function ReaderExposureDialog({ isOpen, readOnly = false, onCache, api, structure, version, report, onClose, onApply, onReportUpdated }) {
   const component = structure?.component;
   const route = baseRoute(structure);
   const exposure = toolExposure(structure);
@@ -115,12 +115,15 @@ export function ReaderExposureDialog({ isOpen, api, structure, version, report, 
       className="studio-connector-dialog studio-exposure-dialog"
       isOpen={isOpen}
       onClose={onClose}
-      title="Edit component"
+      title="Component settings"
       icon="cog"
       canOutsideClickClose={!saving}
     >
       <form onSubmit={submit}>
         <DialogBody className="studio-connector-dialog-body">
+          {readOnly && <Callout compact>Create an editable draft to change these settings.</Callout>}
+          {onCache && <Button icon="database" onClick={onCache}>Cache &amp; warmup</Button>}
+          <fieldset disabled={readOnly || saving} style={{border:0,padding:0,margin:0,minWidth:0}}>
           <p className="studio-dialog-lead">Manage the component identity, connector, analytics behavior, and MCP exposure in one place. View SQL and column contracts remain scoped to their selected view.</p>
           {error && <Callout intent="danger" role="alert" className="studio-dialog-callout">{error}</Callout>}
 
@@ -198,11 +201,12 @@ export function ReaderExposureDialog({ isOpen, api, structure, version, report, 
 
           </section>
 
+        </fieldset>
         </DialogBody>
         <DialogFooter actions={(
           <>
             <Button onClick={onClose} disabled={saving}>Cancel</Button>
-            <Button type="submit" intent="primary" icon="floppy-disk" loading={saving} disabled={!route || loadingConnectors}>
+            <Button type="submit" intent="primary" icon="floppy-disk" loading={saving} disabled={readOnly || !route || loadingConnectors}>
               Save component
             </Button>
           </>

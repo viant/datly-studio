@@ -46,9 +46,10 @@ func (t *Transport) readRuntimeReaderCatalog(ctx context.Context, generation int
 	}
 	defer runtime.Shutdown(context.Background())
 	principal, scoped := sdk.PrincipalFromContext(ctx)
+	namespaceID, _ := sdk.NamespaceSelectionFromContext(ctx)
 	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: target,
-		Input: &stored.Input{Generation: generation, Subject: principal.Subject, Scoped: scoped,
-			Has: &stored.InputHas{Generation: true, Subject: true, Scoped: true}}})
+		Input: &stored.Input{NamespaceId: namespaceID, Generation: generation, Subject: principal.Subject, Scoped: scoped,
+			Has: &stored.InputHas{NamespaceId: true, Generation: true, Subject: true, Scoped: true}}})
 	if err != nil {
 		return nil, err
 	}

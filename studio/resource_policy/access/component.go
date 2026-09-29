@@ -5,15 +5,21 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/viant/authz"
+	"github.com/viant/datly-studio/store/sql/accesscatalog"
+	studioauth "github.com/viant/datly-studio/studio/auth/reader"
+	reports "github.com/viant/datly-studio/studio/reports/get"
+	"github.com/viant/datly/spec"
 	"os"
 	"reflect"
 	"strings"
+	"time"
 
-	jwtlib "github.com/golang-jwt/jwt/v5"
+	store "github.com/viant/authz/datly/store/sql"
+	accessoauth "github.com/viant/authz/oauth"
+	"github.com/viant/datly-studio/internal/accessconfig"
 	"github.com/viant/datly-studio/sdk"
 	acl "github.com/viant/datly-studio/sdk/access"
-	accessoauth "github.com/viant/datly-studio/sdk/access/oauth"
-	store "github.com/viant/datly-studio/store/sql/access"
 	"github.com/viant/datly/exec"
 	rhandler "github.com/viant/datly/runtime/handler"
 	"github.com/viant/datly/runtime/handler/custom"
@@ -25,20 +31,20 @@ import (
 )
 
 type ResourceInput struct {
-	Jwt      *jwt.Claims  `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
-	Resource acl.Resource `parameter:"Resource,kind=body,in=,dataType=acl.Resource,required=true" anonymous:"true"`
+	Jwt      *jwt.Claims    `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
+	Resource authz.Resource `parameter:"Resource,kind=body,in=,dataType=authz.Resource,required=true" anonymous:"true"`
 }
 
 type ReplaceInput struct {
-	Jwt      *jwt.Claims  `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
-	Document acl.Document `parameter:"Document,kind=body,in=,dataType=acl.Document,required=true" anonymous:"true"`
+	Jwt      *jwt.Claims    `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
+	Document authz.Document `parameter:"Document,kind=body,in=,dataType=authz.Document,required=true" anonymous:"true"`
 }
 
 type DocumentOutput struct {
-	Response *acl.Document `parameter:"Response,kind=output,in=body,dataType=*acl.Document" json:"-"`
+	Response *authz.Document `parameter:"Response,kind=output,in=body,dataType=*authz.Document" json:"-"`
 }
 
-func (*DocumentOutput) JSONWireType() reflect.Type { return reflect.TypeFor[acl.Document]() }
+func (*DocumentOutput) JSONWireType() reflect.Type { return reflect.TypeFor[authz.Document]() }
 func (output *DocumentOutput) MarshalJSON() ([]byte, error) {
 	if output == nil || output.Response == nil {
 		return []byte("null"), nil
@@ -47,10 +53,10 @@ func (output *DocumentOutput) MarshalJSON() ([]byte, error) {
 }
 
 type ContextOutput struct {
-	Response *acl.EditorContext `parameter:"Response,kind=output,in=body,dataType=*acl.EditorContext" json:"-"`
+	Response *authz.EditorContext `parameter:"Response,kind=output,in=body,dataType=*authz.EditorContext" json:"-"`
 }
 
-func (*ContextOutput) JSONWireType() reflect.Type { return reflect.TypeFor[acl.EditorContext]() }
+func (*ContextOutput) JSONWireType() reflect.Type { return reflect.TypeFor[authz.EditorContext]() }
 func (output *ContextOutput) MarshalJSON() ([]byte, error) {
 	if output == nil || output.Response == nil {
 		return []byte("null"), nil
@@ -74,7 +80,7 @@ var (
 	GetDatly              = new(GetComponent)
 	ContextDatly          = new(ContextComponent)
 	ReplaceDatly          = new(ReplaceComponent)
-	componentReachability = []reflect.Type{reflect.TypeFor[GetComponent](), reflect.TypeFor[ContextComponent](), reflect.TypeFor[ReplaceComponent]()}
+	componentReachability = []reflect.Type{reflect.TypeFor[ListComponent](), reflect.TypeFor[GetComponent](), reflect.TypeFor[ContextComponent](), reflect.TypeFor[ReplaceComponent]()}
 )
 
 func init() {}
@@ -157,7 +163,7 @@ func (*replaceHandler) Exec(ctx context.Context, session xhandler.Session, input
 	return nil
 }
 
-func setup(ctx context.Context, session xhandler.Session, claims *jwt.Claims) (*acl.Service, context.Context, func(), error) {
+func setup(ctx context.Context, session xhandler.Session, claims *jwt.Claims) (*authz.Service, context.Context, func(), error) {
 	if claims == nil || claims.Subject == "" {
 		return nil, nil, nil, publicError(401, "verified Studio principal is required")
 	}
@@ -175,27 +181,9 @@ func setup(ctx context.Context, session xhandler.Session, claims *jwt.Claims) (*
 	if !strings.HasPrefix(authorization, prefix) || strings.TrimSpace(authorization[len(prefix):]) == "" {
 		return nil, nil, nil, publicError(401, "ACL bearer credential is required")
 	}
-	issuer, audience, keyPath := os.Getenv("STUDIO_ACCESS_ISSUER"), os.Getenv("STUDIO_ACCESS_AUDIENCE"), os.Getenv("STUDIO_ACCESS_PUBLIC_KEY_FILE")
-	if issuer == "" || audience == "" || keyPath == "" {
-		return nil, nil, nil, publicError(503, "ACL verifier is not configured")
-	}
-	pem, err := os.ReadFile(keyPath)
-	if err != nil {
-		return nil, nil, nil, publicError(503, "ACL public key is unavailable")
-	}
-	key, err := jwtlib.ParseRSAPublicKeyFromPEM(pem)
-	if err != nil {
-		return nil, nil, nil, publicError(503, "ACL public key is invalid")
-	}
-	keyfunc := func(*jwtlib.Token) (any, error) { return key, nil }
-	var provider acl.Provider
-	if userInfoURL := strings.TrimSpace(os.Getenv("STUDIO_ACCESS_USER_INFO_URL")); userInfoURL != "" {
-		provider, err = accessoauth.NewUserInfo(accessoauth.UserInfoConfig{Issuer: issuer, Audience: audience, Algorithms: []string{"RS256"}, Keyfunc: keyfunc, URL: userInfoURL})
-	} else {
-		provider, err = accessoauth.New(accessoauth.Config{Issuer: issuer, Audience: audience, Algorithms: []string{"RS256"}, Keyfunc: keyfunc})
-	}
-	if err != nil {
-		return nil, nil, nil, publicError(503, "ACL verifier is invalid")
+	provider, err := accessconfig.FromEnvironment()
+	if err != nil || provider == nil {
+		return nil, nil, nil, publicError(503, "ACL verifier is not configured correctly")
 	}
 	value, found, err := session.Binder().Lookup(ctx, rhandler.ConnectorCapabilityKey)
 	if err != nil {
@@ -218,26 +206,26 @@ func setup(ctx context.Context, session xhandler.Session, claims *jwt.Claims) (*
 		return nil, nil, nil, fmt.Errorf("Datly component invoker is unavailable")
 	}
 	policyStore := &store.Store{DB: db, Invoker: invoker}
-	service := &acl.Service{Store: policyStore, Provider: subjectProvider{Provider: provider, subject: claims.Subject}}
+	service := &authz.Service{Store: policyStore, Provider: subjectProvider{Provider: provider, subject: claims.Subject}}
 	requestCtx := accessoauth.WithBearer(ctx, strings.TrimSpace(authorization[len(prefix):]))
 	return service, requestCtx, func() { _ = policyStore.Close(context.WithoutCancel(ctx)) }, nil
 }
 
 type subjectProvider struct {
-	acl.Provider
+	authz.Provider
 	subject string
 }
 
-func (p subjectProvider) Resolve(ctx context.Context) (acl.Facts, error) {
+func (p subjectProvider) Resolve(ctx context.Context) (authz.Facts, error) {
 	facts, err := p.Provider.Resolve(ctx)
 	if err != nil || facts.Subject != p.subject {
-		return acl.Facts{}, acl.ErrDenied
+		return authz.Facts{}, authz.ErrDenied
 	}
 	return facts, nil
 }
 
 func mapError(err error) error {
-	if errors.Is(err, acl.ErrConflict) {
+	if errors.Is(err, authz.ErrConflict) {
 		return publicError(409, "Access policy changed. Reload before saving.")
 	}
 	return publicError(403, "Resource access is not permitted")
@@ -260,4 +248,111 @@ func publicError(code int, message string) error {
 		category = sdk.ErrorUnavailable
 	}
 	return &xresponse.Error{Code: code, Cause: errors.New(message), Payload: map[string]any{"code": category, "message": message}}
+}
+
+// List exposes only resources whose exact effective policy can be inspected.
+type ListInput struct {
+	Auth  *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
+	Jwt   *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
+	Query acl.CatalogInput   `parameter:"Query,kind=body,in=,dataType=acl.CatalogInput,required=true" anonymous:"true"`
+}
+type ListOutput struct {
+	Response *acl.CatalogPage `parameter:"Response,kind=output,in=body,dataType=*acl.CatalogPage" json:"-"`
+}
+
+func (*ListOutput) JSONWireType() reflect.Type     { return reflect.TypeFor[acl.CatalogPage]() }
+func (o *ListOutput) MarshalJSON() ([]byte, error) { return json.Marshal(o.Response) }
+
+type ListComponent struct {
+	Contract xdatly.Component[ListInput, ListOutput] `component:"access_list,path=/v1/studio/sdk/access.list,method=POST,connector=studio,handler=NewList" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.access.list\",\"description\":\"List authorized permission resources\"}]" caseFormat:"lc"`
+}
+
+var ListDatly = new(ListComponent)
+var ListDatlyLinkedType = reflect.TypeFor[ListComponent]()
+
+func (ListComponent) DatlyHandler(name string) func() (rhandler.TypedHandler, error) {
+	if name == "NewList" {
+		return custom.Factory(NewList)
+	}
+	return nil
+}
+
+type listHandler struct{}
+
+func NewList() xhandler.Contract[ListInput, ListOutput] { return &listHandler{} }
+
+// The authoring catalog lists components authorized by Studio. Independent ACL
+// facts remain required to inspect/edit their policies or execute scoped tools.
+func (*listHandler) Exec(ctx context.Context, session xhandler.Session, input *ListInput, output *ListOutput) error {
+	if input == nil || output == nil || input.Jwt == nil || input.Auth == nil || input.Auth.Auth == nil || input.Jwt.Subject != input.Auth.Auth.Subject {
+		return publicError(403, "verified Studio principal is required")
+	}
+	service, requestCtx, closeStore, err := setup(ctx, session, input.Jwt)
+	if err != nil {
+		if os.Getenv("STUDIO_ACCESS_ISSUER") != "" || os.Getenv("STUDIO_ACCESS_AUDIENCE") != "" || os.Getenv("STUDIO_ACCESS_PUBLIC_KEY_FILE") != "" {
+			return err
+		}
+		value, found, e := session.Binder().Lookup(ctx, rhandler.ConnectorCapabilityKey)
+		if e != nil {
+			return e
+		}
+		connector, ok := value.(xconnector.Provider)
+		if !found || !ok {
+			return fmt.Errorf("Studio connector capability is unavailable")
+		}
+		db, e := connector.Connector(ctx, "studio")
+		if e != nil {
+			return e
+		}
+		policyStore := &store.Store{DB: db}
+		service = &authz.Service{Store: policyStore, Provider: catalogPrincipal{claims: input.Jwt}}
+		requestCtx = ctx
+		closeStore = func() { _ = policyStore.Close(context.WithoutCancel(ctx)) }
+	}
+	defer closeStore()
+	value, found, err := session.Binder().Lookup(ctx, exec.ComponentInvokerKey)
+	if err != nil {
+		return err
+	}
+	invoker, ok := value.(exec.ComponentInvoker)
+	if !found || !ok {
+		return fmt.Errorf("Studio component invoker is unavailable")
+	}
+	visible := map[string]bool{}
+	catalogService := &acl.Catalog{Service: service}
+	if policyStore, ok := service.Store.(*store.Store); ok {
+		catalogService.Source = &accesscatalog.Store{DB: policyStore.DB, Invoker: policyStore.Invoker}
+	}
+	catalogService.AuthoringAccess = func(ctx context.Context, id string) bool {
+		if id == "" {
+			return false
+		}
+		if allowed, seen := visible[id]; seen {
+			return allowed
+		}
+		read := &reports.ReportGetInput{}
+		read.SetJwt(input.Jwt)
+		read.SetAuth(input.Auth)
+		read.SetId(id)
+		value, e := invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: exec.ComponentTarget{Component: spec.Key{Kind: spec.KindComponent, Scope: reflect.TypeFor[reports.ReportComponent]().PkgPath(), Name: "report"}, Route: spec.RouteRef{Method: "POST", Path: "/v1/studio/sdk/components.get"}}, Input: read})
+		item, ok := value.(*reports.ReportGetOutput)
+		allowed := e == nil && ok && item != nil && item.Item != nil && item.Item.Id == id
+		visible[id] = allowed
+		return allowed
+	}
+	page, err := catalogService.List(requestCtx, input.Query)
+	if err != nil {
+		return mapError(err)
+	}
+	output.Response = &page
+	return nil
+}
+
+type catalogPrincipal struct{ claims *jwt.Claims }
+
+func (p catalogPrincipal) Resolve(context.Context) (authz.Facts, error) {
+	if p.claims == nil || p.claims.ExpiresAt == nil || !p.claims.ExpiresAt.Time.After(time.Now()) {
+		return authz.Facts{}, authz.ErrDenied
+	}
+	return authz.Facts{Subject: p.claims.Subject, Issuer: p.claims.Issuer, ValidUntil: p.claims.ExpiresAt.Time}, nil
 }

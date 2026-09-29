@@ -8,6 +8,7 @@ import (
 // ImportedVersion is generated canonical view metadata for version.
 type ImportedVersion struct {
 	ReportId          string                  `sqlx:"report_id,primaryKey"`
+	NamespaceId       string                  `sqlx:"namespace_id"`
 	VersionNo         int                     `sqlx:"version_no,primaryKey"`
 	State             string                  `sqlx:"state"`
 	AuthoringMode     string                  `sqlx:"authoring_mode"`
@@ -24,12 +25,13 @@ type ImportedVersion struct {
 	Notes             *string                 `sqlx:"notes"`
 	CreatedBy         string                  `sqlx:"created_by"`
 	CreatedAt         time.Time               `sqlx:"created_at"`
-	File              []*ImportedResourceFile `view:"file,type=ImportedResourceFile,table=report_resource_files" on:"ReportId:version.report_id=ReportId:file.report_id,VersionNo:version.version_no=VersionNo:file.version_no" json:"file" sql:"uri=studio_report_versions_store_import_version:sql/file.sql"`
+	File              []*ImportedResourceFile `view:"file,type=ImportedResourceFile,table=report_resource_files" on:"ReportId:version.report_id=ReportId:file.report_id,VersionNo:version.version_no=VersionNo:file.version_no,NamespaceId:version.namespace_id=NamespaceId:file.namespace_id" json:"file" sql:"uri=studio_report_versions_store_import_version:sql/file.sql"`
 	Has               *ImportedVersionHas     `setMarker:"true" format:"-" sqlx:"-" diff:"-" json:"-" typeName:"ImportedVersionHas"`
 }
 
 type ImportedVersionHas struct {
 	ReportId          bool
+	NamespaceId       bool
 	VersionNo         bool
 	State             bool
 	AuthoringMode     bool
@@ -52,6 +54,7 @@ type ImportedVersionHas struct {
 // ImportedResourceFile is generated canonical view metadata for version.
 type ImportedResourceFile struct {
 	ReportId      string                   `sqlx:"report_id,primaryKey"`
+	NamespaceId   string                   `sqlx:"namespace_id"`
 	VersionNo     int                      `sqlx:"version_no,primaryKey"`
 	ResourceId    string                   `sqlx:"resource_id,primaryKey"`
 	Namespace     string                   `sqlx:"namespace"`
@@ -66,6 +69,7 @@ type ImportedResourceFile struct {
 
 type ImportedResourceFileHas struct {
 	ReportId      bool
+	NamespaceId   bool
 	VersionNo     bool
 	ResourceId    bool
 	Namespace     bool

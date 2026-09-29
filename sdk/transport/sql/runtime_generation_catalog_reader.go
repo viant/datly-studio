@@ -8,6 +8,7 @@ import (
 
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/readercomponent"
+	"github.com/viant/datly-studio/sdk"
 	stored "github.com/viant/datly-studio/studio/runtime_generations/store_catalog"
 	dexec "github.com/viant/datly/exec"
 	druntime "github.com/viant/datly/runtime"
@@ -34,8 +35,9 @@ func (t *Transport) readGenerationCatalog(ctx context.Context, tx *sql.Tx, gener
 		return nil, err
 	}
 	defer runtime.Shutdown(context.Background())
-	input := &stored.Input{GenerationNo: generationNo, Status: status,
-		Has: &stored.InputHas{GenerationNo: generationNo > 0, Status: status != ""}}
+	namespaceID, _ := sdk.NamespaceSelectionFromContext(ctx)
+	input := &stored.Input{NamespaceId: namespaceID, GenerationNo: generationNo, Status: status,
+		Has: &stored.InputHas{NamespaceId: true, GenerationNo: generationNo > 0, Status: status != ""}}
 	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: target, Input: input})
 	if err != nil {
 		return nil, err

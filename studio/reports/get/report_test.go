@@ -13,6 +13,7 @@ import (
 	requestprovider "github.com/viant/bindly/provider/request"
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/datatest"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly/bootstrap"
 	gateway "github.com/viant/datly/gateway/http"
 	"github.com/viant/datly/gateway/openapi"
@@ -91,6 +92,7 @@ func TestReportGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	entry.Capabilities.Connector = connector
 	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{authEntry, entry}, druntime.WithResources(resources))
 	if err != nil {
 		t.Fatal(err)
@@ -155,6 +157,33 @@ func TestReportGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 		wire["ownerPackage"] != "alice" || wire["etag"] != float64(9) || wire["item"] != nil {
 		t.Fatalf("HTTP report=%v err=%v body=%s", wire, err, response.Body.String())
 	}
+	if _, err := db.ExecContext(ctx, `UPDATE namespaces SET namespace_id=? WHERE owner_id='alice' AND name='general'`, namespaceaccess.ID("alice", "general")); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.ExecContext(ctx, `INSERT INTO namespaces(namespace_id,owner_id,name,title,status,etag,created_at,updated_at) VALUES(?,'alice','other','Other','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, namespaceaccess.ID("alice", "other")); err != nil {
+		t.Fatal(err)
+	}
+	for _, check := range []struct {
+		subject, id string
+		status      int
+	}{
+		{"alice", namespaceaccess.ID("alice", "general"), 200},
+		{"alice", namespaceaccess.ID("alice", "other"), 404},
+		{"bob", namespaceaccess.ID("alice", "general"), 404},
+		{"alice", "invalid", 403},
+		{"alice", "", 403},
+	} {
+		scopedRequest := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/components.get", bytes.NewBufferString(`{"id":"r1"}`))
+		scopedRequest.Header.Set("Content-Type", "application/json")
+		scopedRequest.Header.Set("Authorization", jwt.Bearer(t, check.subject))
+		scopedRequest.Header.Set("X-Studio-Namespace", check.id)
+		scopedResponse := httptest.NewRecorder()
+		handler.ServeHTTP(scopedResponse, scopedRequest)
+		if scopedResponse.Code != check.status {
+			t.Fatalf("namespace header subject=%s id=%q status=%d want=%d body=%s", check.subject, check.id, scopedResponse.Code, check.status, scopedResponse.Body.String())
+		}
+	}
+
 	for _, check := range []struct {
 		subject string
 		id      string
@@ -193,6 +222,23 @@ func TestReportGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	tool, ok := toolService.Registry().ToolRegistry.Get("studio.sdk.components.get")
 	if !ok {
 		t.Fatal("MCP report-get tool is missing")
+	}
+
+	for _, check := range []struct {
+		subject, id string
+		allowed     bool
+	}{
+		{"alice", namespaceaccess.ID("alice", "general"), true},
+		{"alice", namespaceaccess.ID("alice", "other"), false},
+		{"bob", namespaceaccess.ID("alice", "general"), false},
+		{"alice", "invalid", false},
+	} {
+		scopedContext := context.WithValue(ctx, authorization.TokenKey, &authorization.Token{Token: jwt.Bearer(t, check.subject)})
+		scopedResult, scopedErr := tool.Handler(scopedContext, &schema.CallToolRequest{Method: schema.MethodToolsCall, Params: schema.CallToolRequestParams{Name: "studio.sdk.components.get", Arguments: map[string]any{"id": "r1", "namespaceId": check.id}}})
+		allowed := scopedErr == nil && scopedResult != nil && (scopedResult.IsError == nil || !*scopedResult.IsError)
+		if allowed != check.allowed {
+			t.Fatalf("MCP namespace selection subject=%s namespace=%s result=%+v err=%v", check.subject, check.id, scopedResult, scopedErr)
+		}
 	}
 	callContext := context.WithValue(ctx, authorization.TokenKey, &authorization.Token{Token: jwt.Bearer(t, "bob")})
 	result, rpcErr := tool.Handler(callContext, &schema.CallToolRequest{Method: schema.MethodToolsCall,

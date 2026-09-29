@@ -3,6 +3,7 @@ package store_write
 import (
 	context "context"
 	"fmt"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	xhandler "github.com/viant/xdatly/handler"
 	reflect "reflect"
 	"time"
@@ -23,6 +24,18 @@ var (
 func (hooks *WarmupRunRules) Init(_ context.Context, entity *StoredWarmupRun, state xhandler.LifecycleContext[StoredWarmupRun, xhandler.NoParent, Output]) error {
 	if entity == nil || entity.RunId == "" {
 		return fmt.Errorf("warmup run id is required")
+	}
+	if state.Previous == nil {
+		if entity.Has == nil || !entity.Has.NamespaceId {
+			return fmt.Errorf("warmup namespace ownership is required")
+		}
+		if err := namespaceaccess.ValidateResourceOwnership(entity.NamespaceId, ""); err != nil {
+			return err
+		}
+	} else if entity.Has != nil && entity.Has.NamespaceId {
+		if err := namespaceaccess.ValidateResourceOwnership(entity.NamespaceId, state.Previous.NamespaceId); err != nil {
+			return err
+		}
 	}
 	if entity.UpdatedAt == nil {
 		return fmt.Errorf("warmup updated_at token is required")

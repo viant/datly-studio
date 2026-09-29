@@ -1,5 +1,7 @@
 #package('studio/namespaces/store_read')
 
+#import('namespaceaccess','github.com/viant/datly-studio/studio/namespaces/accesspredicate')
+
 #setting($_ = $input_type('Input'))
 #setting($_ = $output_type('Output'))
 #setting($_ = $case_format('lc'))
@@ -8,12 +10,13 @@
 #setting($_ = $connector('studio'))
 #setting($_ = $sql_dest('namespace', 'sql/read.sql'))
 
+#define($_ = $NamespaceId<string>(query/namespaceId).Optional())
 #define($_ = $Name<string>(query/name).Optional())
 #define($_ = $OwnerId<string>(query/ownerId).Optional())
 #define($_ = $Query<string>(query/q).Optional())
 #define($_ = $Status<string>(query/status).Optional())
 #define($_ = $Subject<string>(query/subject).Optional())
-#define($_ = $Scoped<bool>(query/scoped).Required())
+#define($_ = $Scoped<bool>(query/scoped).Required().WithPredicate(3, 'handler', 'namespaceaccess.NamespaceDirectory'))
 #define($_ = $PageLimit<int>(query/pageLimit).Required())
 #define($_ = $PageOffset<int>(query/pageOffset).Required())
 #define($_ = $Namespaces<[]*StoredNamespace>(output/view))

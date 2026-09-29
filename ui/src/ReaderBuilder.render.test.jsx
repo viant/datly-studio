@@ -39,6 +39,183 @@ function readerFixture(capabilities = { canEdit: true, canRun: true, canPublish:
 }
 
 describe('ReaderBuilder graph-first authoring', () => {
+  test('keeps the root reachable and pages 30 child views with searchable relation context', async () => {
+    const user = userEvent.setup();
+    const inspection = readerFixture();
+    inspection.structure.component.rootView.relations = Array.from({ length: 30 }, (_, index) => ({
+      name: `child${index + 1}`, kind: 'subview', on: [{ parentColumn: 'ID', childColumn: 'VENDOR_ID' }],
+      view: { name: `child${index + 1}`, namespace: `child${index + 1}`, source: { table: `TABLE_${index + 1}` }, columns: [], relations: [] },
+    }));
+    const api = { listVersions: vi.fn().mockResolvedValue({ items: [inspection.version] }), inspectVersion: vi.fn().mockResolvedValue(inspection), getTable: vi.fn().mockResolvedValue({columns:[]}) };
+    render(<ReaderBuilder api={api} report={{ id: 'vendor', title: 'Vendor Catalog', defaultConnectorName: 'main' }} onBack={vi.fn()} />);
+    await screen.findByRole('heading', { name: 'Component graph' });
+    expect(screen.getByRole('button', { name: 'Actions for Vendor' })).toBeTruthy();
+    expect(screen.getAllByRole('button', { name: /^Open child view/ })).toHaveLength(10);
+    await user.click(screen.getByRole('button', { name: 'Next child views' }));
+    expect(screen.getByRole('button', { name: 'Open child view Vendor / Child11' })).toBeTruthy();
+    await user.type(screen.getByRole('textbox', { name: 'Find graph view' }), 'TABLE_30');
+    expect(screen.getAllByRole('button', { name: /^Open child view/ })).toHaveLength(1);
+    await user.click(screen.getByRole('button', { name: 'Open relation Vendor / Child30' }));
+    expect(await screen.findByRole('button', { name: 'Edit relation' })).toBeTruthy();
+    expect(screen.getByText('ID → VENDOR_ID')).toBeTruthy();
+  });
+
+  test('opens cube fields before preview and sends selected fields to the cube executor', async () => {
+    const user = userEvent.setup();
+    const inspection = readerFixture();
+    inspection.structure.component.settings = {report:{enabled:true}};
+    inspection.structure.component.rootView.columns = [{name:'Country',groupable:true},{name:'Avails',groupable:false}];
+    const api = {listVersions:vi.fn().mockResolvedValue({items:[inspection.version]}),inspectVersion:vi.fn().mockResolvedValue(inspection),previewReader:vi.fn().mockResolvedValue({data:[{avails:3}],duration:1})};
+    render(<ReaderBuilder api={api} report={{id:'vendor',title:'Vendor Catalog',defaultConnectorName:'main'}} onBack={vi.fn()}/>);
+    await screen.findByRole('heading',{name:'Component graph'});
+    expect(screen.queryByRole('region',{name:'Cube preview selection'})).toBeNull();
+    const settingsTrigger = screen.getByRole('button',{name:'Preview settings',exact:true});
+    settingsTrigger.focus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByRole('region',{name:'Cube preview selection'})).toBeTruthy();
+    screen.getByRole('button',{name:'Close cube preview selection'}).focus();
+    await user.keyboard('{Enter}');
+    expect(document.activeElement).toBe(settingsTrigger);
+    expect(screen.queryByRole('region',{name:'Cube preview selection'})).toBeNull();
+    await user.click(screen.getByRole('button',{name:'Preview',exact:true}));
+    expect(api.previewReader).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('checkbox',{name:'Country'}));
+    await user.click(screen.getByRole('checkbox',{name:'Avails'}));
+    await user.click(screen.getByRole('button',{name:'Run cube preview'}));
+    await waitFor(()=>expect(api.previewReader).toHaveBeenCalledWith('vendor',1,{dimensions:{country:true},measures:{avails:true},filters:{}},50,'/vendors',true));
+    await user.click(screen.getByRole('button',{name:'Refresh component'}));
+    await screen.findByRole('heading',{name:'Component graph'});
+    expect(screen.queryByRole('region',{name:'Cube preview selection'})).toBeNull();
+  });
+
+  test('uses the child connector for metadata and its settings label',async()=>{
+    const user=userEvent.setup();const inspection=readerFixture();
+    inspection.structure.component.rootView.relations[0].view.source.bindings={connector:'lookup'};
+    const api={listVersions:vi.fn().mockResolvedValue({items:[inspection.version]}),inspectVersion:vi.fn().mockResolvedValue(inspection),getTable:vi.fn().mockResolvedValue({columns:[]})};
+    render(<ReaderBuilder api={api} report={{id:'vendor',title:'Vendors',defaultConnectorName:'main'}} onBack={vi.fn()}/>);
+    await screen.findByRole('heading',{name:'Component graph'});
+    await user.click(screen.getByRole('button',{name:'Products',exact:true}));
+    expect(await screen.findByText('lookup',{exact:true})).toBeTruthy();
+    await waitFor(()=>expect(api.getTable).toHaveBeenCalledWith('lookup',expect.objectContaining({table:'PRODUCT'})));
+  });
+
+  test('keeps an aliased joined view limited to its projected contract', async () => {
+    const user = userEvent.setup();
+    const inspection = readerFixture();
+    const child = inspection.structure.component.rootView.relations[0].view;
+    child.columns = [{ name: 'ID', source: 'ID', type: { name: 'int' } }, { name: 'CHANNEL', source: 'c.NAME', type: { name: 'string' } }, { name: 'CHANNEL_LABEL', source: 'c.NAME', type: { name: 'string' } }];
+    inspection.structure.views[1] = { name: 'products', sql: 'SELECT ID, NAME AS CHANNEL, NAME AS CHANNEL_LABEL FROM PRODUCT c', sourceProjectionAll: false };
+    const api = { listVersions: vi.fn().mockResolvedValue({ items: [inspection.version] }), inspectVersion: vi.fn().mockResolvedValue(inspection), getTable: vi.fn().mockResolvedValue({ columns: [{ name: 'ID', type: 'int', primaryKey: true }, { name: 'NAME', type: 'varchar' }, { name: 'UNSELECTED', type: 'varchar' }] }) };
+    render(<ReaderBuilder api={api} report={{ id: 'vendor', title: 'Vendors', defaultConnectorName: 'main' }} onBack={vi.fn()} />);
+    await screen.findByRole('heading', { name: 'Component graph' });
+    await user.click(screen.getByRole('button', { name: 'Products', exact: true }));
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Columns' }).parentElement.textContent).toContain('3 available'));
+    await waitFor(() => expect(api.getTable).toHaveBeenCalled());
+    expect(screen.getByRole('button', { name: /CHANNEL c.NAME string field Edit/ })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /CHANNEL_LABEL c.NAME string field Edit/ })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /UNSELECTED/ })).toBeNull();
+    expect(screen.queryByRole('button', { name: /^NAME NAME/ })).toBeNull();
+  });
+
+  test('keeps a published reader immutable and creates its edit draft', async () => {
+    const user = userEvent.setup();
+    const inspection = readerFixture();
+    inspection.version = { ...inspection.version, state: 'published' };
+    const api = {
+      listVersions: vi.fn().mockResolvedValue({ items: [inspection.version] }),
+      inspectVersion: vi.fn().mockResolvedValue(inspection),
+      getVersion: vi.fn().mockResolvedValue({ authoringMode: 'dql', authoredDql: 'SELECT 1' }),
+      getResources: vi.fn().mockResolvedValue({ files: [], folders: [], skills: [] }),
+      createVersion: vi.fn().mockResolvedValue({ versionNo: 8, sourceRevision: 1 }),
+    };
+    const onReportUpdated = vi.fn();
+    render(<ReaderBuilder api={api} report={{ id: 'vendor', title: 'Vendor Catalog', namespace: 'general', defaultConnectorName: 'main' }} onReportUpdated={onReportUpdated} onBack={vi.fn()} />);
+    await screen.findByRole('heading', { name: 'Component graph' });
+    expect(screen.queryByRole('button', { name: 'Edit component' })).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Predicates' }));
+    expect(screen.queryByRole('button', { name: 'Add predicate' })).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Create editable draft' }));
+    await waitFor(() => expect(onReportUpdated).toHaveBeenCalledWith(expect.objectContaining({ id: 'vendor', versionNo: 8 })));
+  });
+
+  test('surfaces a server-owned authorization predicate in the large input catalog', async () => {
+    const user = userEvent.setup();
+    const inspection = readerFixture();
+    inspection.structure.declarations = [{
+      parameter: { name: 'AuthorizedPublisherIDs', source: { kind: 'param', name: 'Auth.Scope.IDs' }, typeExpr: '[]int' },
+      predicates: [{ ordinal: 0, predicate: { name: 'handler', group: 99, args: ['scope.PublisherScope'] } }],
+    }];
+    const api = { listVersions: vi.fn().mockResolvedValue({ items: [inspection.version] }), inspectVersion: vi.fn().mockResolvedValue(inspection) };
+    render(<ReaderBuilder api={api} report={{ id: 'vendor', title: 'Vendor Catalog', namespace: 'general', defaultConnectorName: 'main' }} onBack={vi.fn()} />);
+    await screen.findByRole('heading', { name: 'Component graph' });
+    await user.click(screen.getByRole('button', { name: 'Predicates' }));
+    expect(await screen.findByText('Authorization')).toBeTruthy();
+    await user.type(screen.getByRole('textbox', { name: 'Search predicates' }), 'authorization');
+    expect(screen.getByRole('button', { name: /AuthorizedPublisherIDs/ })).toBeTruthy();
+  });
+
+  test('sends scoped preview to the server and surfaces an authorization denial', async () => {
+    const user = userEvent.setup();
+    const inspection = readerFixture();
+    inspection.structure.declarations = [{ parameter: { name: 'AuthorizedPublisherIDs', source: { kind: 'param', name: 'Auth.Scope.IDs' }, typeExpr: '[]int' } }];
+    const api = { listVersions: vi.fn().mockResolvedValue({ items: [inspection.version] }), inspectVersion: vi.fn().mockResolvedValue(inspection), previewReader: vi.fn().mockRejectedValue(new Error('Verified publisher scope is unavailable')) };
+    render(<ReaderBuilder api={api} report={{ id: 'vendor', title: 'Vendor Catalog', defaultConnectorName: 'main' }} onBack={vi.fn()}/>);
+    await screen.findByRole('heading', { name: 'Component graph' });
+    expect(screen.getByRole('button', { name: 'Preview', exact: true }).disabled).toBe(false);
+    await user.click(screen.getByRole('button', { name: 'Preview', exact: true }));
+    await waitFor(() => expect(api.previewReader).toHaveBeenCalledWith('vendor', 1, {}, 50, '/vendors', false));
+    expect(await screen.findByText('Verified publisher scope is unavailable')).toBeTruthy();
+    expect(screen.queryByText('UI preview is unavailable: this reader requires a verified runtime entity scope.')).toBeNull();
+  });
+
+  test('keeps scoped preview disabled when the server denies execute permission', async () => {
+    const inspection = readerFixture({ canEdit: true, canRun: false, canPublish: true, canUseDql: true });
+    inspection.structure.declarations = [{ parameter: { name: 'Auth', source: { kind: 'component', name: 'GET:/_studio/access/context/vendor' } } }];
+    const api = { listVersions: vi.fn().mockResolvedValue({ items: [inspection.version] }), inspectVersion: vi.fn().mockResolvedValue(inspection), previewReader: vi.fn() };
+    render(<ReaderBuilder api={api} report={{ id: 'vendor', title: 'Vendor Catalog', defaultConnectorName: 'main' }} onBack={vi.fn()}/>);
+    await screen.findByRole('heading', { name: 'Component graph' });
+    expect(screen.getByRole('button', { name: 'Preview', exact: true }).disabled).toBe(true);
+    expect(api.previewReader).not.toHaveBeenCalled();
+  });
+
+  test('keeps rollback and unpublish reachable while the current draft is invalid', async () => {
+    const user = userEvent.setup();
+    const inspection = readerFixture();
+    inspection.version = { ...inspection.version, versionNo: 2, compileStatus: 'invalid' };
+    const api = {
+      listVersions: vi.fn().mockResolvedValue({ items: [inspection.version, { versionNo: 1, sourceRevision: 1, compileStatus: 'valid' }] }),
+      inspectVersion: vi.fn().mockResolvedValue(inspection),
+      getPublication: vi.fn().mockResolvedValue({ activeVersionNo: 1, activeGeneration: 4, desiredGeneration: 4, status: 'active' }),
+      listPublicationEvents: vi.fn().mockResolvedValue({ items: [] }),
+      getRuntimeStatus: vi.fn().mockResolvedValue({ status: 'active', activeGeneration: 4, reportCount: 1 }),
+    };
+    render(<ReaderBuilder api={api} report={{ id: 'vendor', title: 'Vendor Catalog', namespace: 'general', defaultConnectorName: 'main' }} onBack={vi.fn()} />);
+    await screen.findByRole('heading', { name: 'Component graph' });
+    const release = screen.getByRole('button', { name: 'Release' });
+    expect(release.disabled).toBe(false);
+    await user.click(release);
+    expect(await screen.findByRole('dialog', { name: 'Release reader' })).toBeTruthy();
+    expect(await screen.findByRole('button', { name: 'Review unpublish' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Publish selected version' }).disabled).toBe(true);
+  });
+
+  test('clears a prior preview when the next run is denied', async () => {
+    const user = userEvent.setup();
+    const inspection = readerFixture();
+    const api = {
+      listVersions: vi.fn().mockResolvedValue({ items: [inspection.version] }),
+      inspectVersion: vi.fn().mockResolvedValue(inspection),
+      previewReader: vi.fn().mockResolvedValueOnce({ duration: 1, data: {}, evidence: {} }).mockRejectedValueOnce(new Error('Scoped preview denied')),
+    };
+    render(<ReaderBuilder api={api} report={{ id: 'vendor', title: 'Vendor Catalog', namespace: 'general', defaultConnectorName: 'main' }} onBack={vi.fn()} />);
+    await screen.findByRole('heading', { name: 'Component graph' });
+    await user.click(screen.getByRole('button', { name: 'Preview' }));
+    expect(await screen.findByRole('heading', { name: 'Reader preview' })).toBeTruthy();
+    await user.click(screen.getByRole('button', { name: 'Preview' }));
+    await waitFor(() => expect(screen.getByText('Scoped preview denied')).toBeTruthy());
+    expect(screen.queryByRole('heading', { name: 'Reader preview' })).toBeNull();
+  });
+
   test('validates the inspected source revision', async () => {
     const user = userEvent.setup();
     const inspection = readerFixture();
@@ -82,7 +259,7 @@ describe('ReaderBuilder graph-first authoring', () => {
 
     await user.click(screen.getByRole('button', { name: 'Open SQL' }));
     expect(await screen.findByRole('heading', { name: /Vendor SQL/ })).toBeTruthy();
-    expect(screen.getByText('embed:sql/vendor.sql')).toBeTruthy();
+    expect(screen.getByText('Inline view SQL')).toBeTruthy();
     const editor = screen.getByRole('textbox', { name: 'Vendor SQL source' });
     expect(editor.value).toBe('SELECT * FROM VENDOR');
     await user.click(screen.getByRole('button', { name: 'Minimize SQL editor' }));
@@ -132,7 +309,7 @@ describe('ReaderBuilder graph-first authoring', () => {
     expect(screen.getByRole('button', { name: 'Inputs' }).disabled).toBe(false);
     expect(screen.getByRole('button', { name: 'Predicates' }).disabled).toBe(false);
     expect(screen.getByRole('button', { name: 'Composition lab' }).disabled).toBe(true);
-    expect(screen.getByRole('button', { name: 'Publish' }).disabled).toBe(true);
+    expect(screen.getByRole('button', { name: 'Release' }).disabled).toBe(true);
     expect(screen.queryByRole('tab', { name: 'Advanced component DQL' })).toBeNull();
     await user.click(screen.getByRole('button', { name: 'Inputs' }));
     expect(await screen.findByRole('heading', { name: 'Inputs' })).toBeTruthy();
@@ -205,7 +382,7 @@ describe('ReaderBuilder graph-first authoring', () => {
     render(<ReaderBuilder api={api} report={{ id: 'vendor', title: 'Vendor Catalog', namespace: 'general', defaultConnectorName: 'main' }} onBack={vi.fn()} />);
     await screen.findByRole('heading', { name: 'Component graph' });
     expect(screen.queryByRole('button', { name: 'Level50' })).toBeNull();
-    await user.click(screen.getByRole('button', { name: /Views 51 views/ }));
+    await user.click(screen.getByRole('button', { name: 'Browse views' }));
     expect(screen.getAllByRole('heading', { name: 'Views' })).toHaveLength(1);
     expect(screen.getByText('1–25 of 51')).toBeTruthy();
     await user.type(screen.getByRole('textbox', { name: 'Search views' }), 'TABLE_50');
@@ -293,6 +470,23 @@ describe('ReaderBuilder graph-first authoring', () => {
     expect(api.getTable).not.toHaveBeenCalled();
   });
 
+  test('preserves separate output aliases backed by the same physical field', async () => {
+    const user = userEvent.setup();
+    const inspection = readerFixture();
+    const root = inspection.structure.component.rootView;
+    root.relations = [];
+    root.columns = [{ name: 'CHANNEL', source: 'v.NAME', type: { name: 'string' } }, { name: 'CHANNEL_LABEL', source: 'v.NAME', type: { name: 'string' } }];
+    inspection.structure.views[0] = { name: 'vendor', sql: 'SELECT NAME AS CHANNEL, NAME AS CHANNEL_LABEL FROM VENDOR v', sourceProjectionAll: false };
+    const api = { listVersions: vi.fn().mockResolvedValue({ items: [inspection.version] }), inspectVersion: vi.fn().mockResolvedValue(inspection), getTable: vi.fn().mockResolvedValue({ columns: [{ name: 'NAME', type: 'varchar' }] }) };
+    render(<ReaderBuilder api={api} report={{ id: 'aliases', title: 'Aliases', defaultConnectorName: 'main' }} onBack={vi.fn()} />);
+    await screen.findByRole('heading', { name: 'Component graph' });
+    await user.click(screen.getByRole('button', { name: /Output 2 columns/ }));
+    expect(screen.getByRole('button', { name: /^CHANNEL v.NAME string vendor View$/ })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /^CHANNEL_LABEL v.NAME string vendor View$/ })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /^NAME NAME/ })).toBeNull();
+    expect(api.getTable).not.toHaveBeenCalled();
+  });
+
   test('names an incomplete output source and retries metadata discovery', async () => {
     const user = userEvent.setup();
     const inspection = readerFixture();
@@ -314,6 +508,26 @@ describe('ReaderBuilder graph-first authoring', () => {
     await user.click(screen.getByRole('button', { name: 'Retry metadata' }));
     expect(await screen.findByRole('button', { name: /ID ID int vendor View/ })).toBeTruthy();
     expect(api.getTable).toHaveBeenCalledTimes(2);
+  });
+
+  test('saves embedded SQL bytes without trimming its closing comment newline', async () => {
+    const user=userEvent.setup();
+    const inspection=readerFixture();
+    inspection.structure.component.rootView.source.sql='SELECT vendor.* FROM (${embed:sql/vendor.sql}) vendor';
+    inspection.structure.views[0].sql='${embed:sql/vendor.sql}';
+    const file={reportId:'vendor',versionNo:inspection.version.versionNo,resourceId:'sql-id',namespace:'vendor',resourcePath:'sql/vendor.sql',content:'SELECT * FROM VENDOR\n'};
+    const edited='SELECT ID FROM VENDOR\n-- comment\n';
+    const api={listVersions:vi.fn().mockResolvedValue({items:[inspection.version]}),inspectVersion:vi.fn().mockResolvedValue(inspection),getTable:vi.fn().mockResolvedValue({columns:[]}),getResources:vi.fn().mockResolvedValue({files:[file]}),upsertResourceFile:vi.fn().mockResolvedValue({files:[{...file,content:edited}],version:inspection.version}),applyReaderCommand:vi.fn()};
+    render(<ReaderBuilder api={api} report={{id:'vendor',title:'Vendor Catalog',namespace:'general',defaultConnectorName:'main'}} onBack={vi.fn()}/>);
+    const graph=await screen.findByRole('heading',{name:'Component graph'});
+    await user.click(graph.closest('.studio-graph-panel').querySelector('.studio-view-select'));
+    await user.click(screen.getByRole('button',{name:'Open SQL'}));
+    const editor=await screen.findByRole('textbox',{name:'Vendor SQL source'});
+    await waitFor(()=>expect(editor.value).toBe(file.content));
+    await user.clear(editor);await user.type(editor,edited);
+    await user.click(screen.getByRole('button',{name:'Save SQL'}));
+    await waitFor(()=>expect(api.upsertResourceFile).toHaveBeenCalledWith(expect.objectContaining({resourcePath:'sql/vendor.sql',content:edited,expectedSourceRevision:inspection.version.sourceRevision})));
+    expect(api.applyReaderCommand).not.toHaveBeenCalled();
   });
 
   test('restores focus to the component heading after conflict reload', async () => {

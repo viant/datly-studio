@@ -18,6 +18,6 @@
 #define($_ = $Item<*Report>(output/view).WithTag('json:"-"'))
 
 SELECT report.*, type(report, 'Report'),
-       CAST(report.id AS string), set_limit(report, 1)
+       CAST(report.id AS string), CAST(report.owner_id AS string), CAST(report.namespace AS string), set_limit(report, 1)
 FROM (${embed:sql/report.sql}) report
 WHERE 1=1

@@ -7,6 +7,7 @@ import (
 
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/readercomponent"
+	"github.com/viant/datly-studio/sdk"
 	stored "github.com/viant/datly-studio/studio/runtime_generations/store_status"
 	dexec "github.com/viant/datly/exec"
 	druntime "github.com/viant/datly/runtime"
@@ -33,8 +34,9 @@ func (t *Transport) readActiveGeneration(ctx context.Context) (*stored.StoredGen
 		return nil, err
 	}
 	defer runtime.Shutdown(context.Background())
+	namespaceID, _ := sdk.NamespaceSelectionFromContext(ctx)
 	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: target,
-		Input: &stored.Input{Status: "active", Has: &stored.InputHas{Status: true}}})
+		Input: &stored.Input{NamespaceId: namespaceID, Status: "active", Has: &stored.InputHas{NamespaceId: true, Status: true}}})
 	if err != nil {
 		return nil, err
 	}

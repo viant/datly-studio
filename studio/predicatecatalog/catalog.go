@@ -17,6 +17,9 @@ type Package struct {
 	Alias string
 	Path  string
 	Types []reflect.Type
+	// AuthorizationTypes limits the governed Security catalog while keeping
+	// every linked Type available to compile DQL. Nil preserves legacy behavior.
+	AuthorizationTypes []string
 }
 
 type Descriptor struct {
@@ -46,6 +49,17 @@ func New(packages ...Package) (*Catalog, error) {
 			return nil, fmt.Errorf("predicate package path is required")
 		}
 		alias := strings.TrimSpace(pkg.Alias)
+		var authorizationTypes map[string]bool
+		if pkg.AuthorizationTypes != nil {
+			authorizationTypes = map[string]bool{}
+			for _, name := range pkg.AuthorizationTypes {
+				name = strings.TrimSpace(name)
+				if name == "" || authorizationTypes[name] {
+					return nil, fmt.Errorf("invalid authorization predicate type in %s", path)
+				}
+				authorizationTypes[name] = true
+			}
+		}
 		types := pkg.Types
 		if types == nil {
 			types = linkedPredicateTypes(path)
@@ -64,10 +78,16 @@ func New(packages ...Package) (*Catalog, error) {
 			if _, exists := result.entries[key]; exists {
 				return nil, fmt.Errorf("duplicate predicate link %s.%s", path, typ.Name())
 			}
-			result.entries[key] = Descriptor{Alias: alias, Package: path, TypeName: typ.Name()}
+			if authorizationTypes == nil || authorizationTypes[typ.Name()] {
+				result.entries[key] = Descriptor{Alias: alias, Package: path, TypeName: typ.Name()}
+				delete(authorizationTypes, typ.Name())
+			}
 			if err := result.types.Register(typecatalog.TypeOriginPackage, x.NewType(typ, x.WithPkgPath(path))); err != nil {
 				return nil, err
 			}
+		}
+		for name := range authorizationTypes {
+			return nil, fmt.Errorf("authorization predicate %s.%s is not linked", path, name)
 		}
 	}
 	return result, nil

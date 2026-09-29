@@ -3,6 +3,7 @@ package store_insert
 import (
 	context "context"
 	"fmt"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	xhandler "github.com/viant/xdatly/handler"
 	reflect "reflect"
 )
@@ -25,6 +26,9 @@ func (hooks *ReportInsertRules) Init(_ context.Context, entity *StoredReport, _ 
 		entity.ComponentScope == "" || entity.ComponentName == "" || entity.Status != "draft" ||
 		entity.Etag != 1 || entity.CreatedAt.IsZero() || entity.UpdatedAt.IsZero() {
 		return fmt.Errorf("new report requires identity, owner, connector, draft state, timestamps and etag 1")
+	}
+	if entity.NamespaceId != namespaceaccess.ID(entity.OwnerId, entity.Namespace) {
+		return fmt.Errorf("component namespace ownership must match its owner and namespace")
 	}
 	return nil
 }

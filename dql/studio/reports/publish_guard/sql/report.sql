@@ -1,4 +1,4 @@
-SELECT report.id
+SELECT report.id, report.owner_id, report.namespace
 FROM components report
 WHERE report.deleted_at IS NULL
 ${predicate.Builder().CombineAnd(

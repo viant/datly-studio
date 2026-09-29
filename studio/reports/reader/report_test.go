@@ -12,6 +12,7 @@ import (
 	requestprovider "github.com/viant/bindly/provider/request"
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/datatest"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly/bootstrap"
 	gateway "github.com/viant/datly/gateway/http"
 	"github.com/viant/datly/gateway/openapi"
@@ -84,6 +85,7 @@ func TestReportReaderMinimumContract(t *testing.T) {
 		t.Fatal(err)
 	}
 	authEntry := datatest.AuthRegistration(t, db, jwt.Factory, resources)
+	entry.Capabilities.Connector = &dsql.SQLComponent{DB: db}
 	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{authEntry, entry}, druntime.WithResources(resources))
 	if err != nil {
 		t.Fatal(err)
@@ -268,6 +270,50 @@ func TestReportReaderMinimumContract(t *testing.T) {
 		}
 	})
 
+	t.Run("selected namespace filters HTTP and MCP before pagination", func(t *testing.T) {
+		generalID := namespaceaccess.ID("owner-a", "general")
+		otherID := namespaceaccess.ID("owner-a", "other")
+		if _, err := db.ExecContext(ctx, `UPDATE namespaces SET namespace_id=? WHERE owner_id='owner-a' AND name='general'`, generalID); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := db.ExecContext(ctx, `INSERT INTO namespaces(namespace_id,owner_id,name,title,status,etag,created_at,updated_at) VALUES(?,'owner-a','other','Other','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, otherID); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := db.ExecContext(ctx, `UPDATE components SET namespace='other' WHERE id='r-gamma'`); err != nil {
+			t.Fatal(err)
+		}
+		handler := gateway.NewHandler(runtime, nil, "test")
+		request := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/components.list", bytes.NewBufferString(`{"limit":1}`))
+		request.Header.Set("Content-Type", "application/json")
+		request.Header.Set("Authorization", jwt.Bearer(t, "owner-a"))
+		request.Header.Set("X-Studio-Namespace", generalID)
+		result := httptest.NewRecorder()
+		handler.ServeHTTP(result, request)
+		var page struct {
+			Items []struct {
+				ID string `json:"id"`
+			} `json:"items"`
+		}
+		if err := json.Unmarshal(result.Body.Bytes(), &page); result.Code != 200 || err != nil || len(page.Items) != 1 || page.Items[0].ID != "r-alpha" {
+			t.Fatalf("HTTP namespace pagination: %d %s err=%v", result.Code, result.Body.String(), err)
+		}
+		tool, ok := mcpService.Registry().ToolRegistry.Get("studio.sdk.components.list")
+		if !ok {
+			t.Fatal("MCP list missing")
+		}
+		callCtx := context.WithValue(ctx, authorization.TokenKey, &authorization.Token{Token: jwt.Bearer(t, "owner-a")})
+		mcpResult, mcpErr := tool.Handler(callCtx, &schema.CallToolRequest{Method: schema.MethodToolsCall, Params: schema.CallToolRequestParams{Name: "studio.sdk.components.list", Arguments: map[string]any{"namespaceId": generalID, "limit": 1}}})
+		if mcpErr != nil || mcpResult == nil || mcpResult.IsError != nil && *mcpResult.IsError {
+			t.Fatalf("MCP namespace pagination: %+v err=%v", mcpResult, mcpErr)
+		}
+		body, err := json.Marshal(mcpResult.StructuredContent)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err = json.Unmarshal(body, &page); err != nil || len(page.Items) != 1 || page.Items[0].ID != "r-alpha" {
+			t.Fatalf("MCP namespace page: %s err=%v", body, err)
+		}
+	})
 	t.Run("predicate presence markers", func(t *testing.T) {
 		input := Input{}
 		input.SetStatus("")

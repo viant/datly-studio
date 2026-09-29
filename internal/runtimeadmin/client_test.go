@@ -3,8 +3,10 @@ package runtimeadmin
 import (
 	"context"
 	"encoding/json"
+	"github.com/viant/datly-studio/sdk"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -60,6 +62,77 @@ func TestAdminClientRejectsMissingTokenAndNonOriginURL(t *testing.T) {
 	} {
 		if client, err := New(input.url, input.token, nil); err == nil || client != nil {
 			t.Fatalf("accepted runtime origin=%q token-present=%t", input.url, input.token != "")
+		}
+	}
+}
+
+func TestAdminReloadCarriesSelectedNamespace(t *testing.T) {
+	id := strings.Repeat("a", 64)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var payload struct {
+			NamespaceID string `json:"namespaceId"`
+			Generation  int64  `json:"generation"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil || payload.NamespaceID != id || payload.Generation != 7 {
+			t.Errorf("namespace reload payload=%+v err=%v", payload, err)
+		}
+		if r.Header.Get("X-Studio-Runtime-Token") != "deployment-token" {
+			t.Error("deployment token missing")
+		}
+		w.WriteHeader(204)
+	}))
+	defer server.Close()
+	client, err := New(server.URL, "deployment-token", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := client.Reload(sdk.WithNamespaceSelection(context.Background(), id), 7); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestRuntimeProbeCarriesNamespaceSelection(t *testing.T) {
+	id := strings.Repeat("b", 64)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/_studio/status" || r.URL.Query().Get("namespaceId") != id {
+			t.Error("namespace status selection missing")
+		}
+		if r.Header.Get("X-Studio-Runtime-Token") != "deployment-token" {
+			t.Error("deployment token missing")
+		}
+		_, _ = w.Write([]byte(`{"namespaceId":"` + id + `","mcpUrl":"http://127.0.0.1:8591/mcp","status":"ready","authenticationMode":"required","revision":3}`))
+	}))
+	defer server.Close()
+	client, err := New(server.URL, "deployment-token", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	status, err := client.ProbeRuntime(sdk.WithNamespaceSelection(context.Background(), id))
+	if err != nil || status.Revision != 3 || status.Status != "ready" || status.NamespaceID != id || status.MCPURL != "http://127.0.0.1:8591/mcp" {
+		t.Fatalf("namespace probe=%+v err=%v", status, err)
+	}
+}
+
+func TestRuntimeProbeRejectsWrongNamespaceAndInvalidEndpoint(t *testing.T) {
+	id := strings.Repeat("b", 64)
+	for _, payload := range []map[string]string{
+		{"namespaceId": strings.Repeat("c", 64), "mcpUrl": "http://127.0.0.1:8591/mcp"},
+		{"namespaceId": id, "mcpUrl": "file:///tmp/mcp"},
+		{"namespaceId": id, "mcpUrl": "http://user:password@127.0.0.1:8591/mcp"},
+		{"namespaceId": id, "mcpUrl": "http://127.0.0.1:8591/mcp?token=secret"},
+	} {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			payload["status"] = "ready"
+			_ = json.NewEncoder(w).Encode(payload)
+		}))
+		client, err := New(server.URL, "deployment-token", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		status, err := client.ProbeRuntime(sdk.WithNamespaceSelection(context.Background(), id))
+		server.Close()
+		if err == nil || status != nil {
+			t.Fatal("accepted mismatched namespace or invalid endpoint")
 		}
 	}
 }

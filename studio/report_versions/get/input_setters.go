@@ -48,3 +48,14 @@ func (input *VersionGetInput) SetVersionNo(value int) {
 	}
 	input.Has.VersionNo = true
 }
+
+func (input *VersionGetInput) SetNamespaceId(value *string) {
+	if input == nil {
+		return
+	}
+	input.NamespaceId = value
+	if input.Has == nil {
+		input.Has = &VersionGetInputHas{}
+	}
+	input.Has.NamespaceId = true
+}

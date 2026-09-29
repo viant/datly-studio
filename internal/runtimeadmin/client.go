@@ -42,7 +42,11 @@ func (c *Client) Reload(ctx context.Context, generation int64) error {
 	if c == nil {
 		return fmt.Errorf("dynamic runtime admin client is unavailable")
 	}
-	payload, err := json.Marshal(map[string]int64{"generation": generation})
+	body := map[string]any{"generation": generation}
+	if namespaceID, selected := sdk.NamespaceSelectionFromContext(ctx); selected {
+		body["namespaceId"] = namespaceID
+	}
+	payload, err := json.Marshal(body)
 	if err != nil {
 		return err
 	}
@@ -71,7 +75,11 @@ func (c *Client) ProbeRuntime(ctx context.Context) (*sdk.RuntimeHost, error) {
 	}
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
-	request, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/_studio/status", nil)
+	endpoint := c.baseURL + "/_studio/status"
+	if namespaceID, selected := sdk.NamespaceSelectionFromContext(ctx); selected {
+		endpoint += "?namespaceId=" + url.QueryEscape(namespaceID)
+	}
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -85,6 +93,8 @@ func (c *Client) ProbeRuntime(ctx context.Context) (*sdk.RuntimeHost, error) {
 		return nil, fmt.Errorf("dynamic runtime status returned %s", response.Status)
 	}
 	var payload struct {
+		NamespaceID        string `json:"namespaceId"`
+		MCPURL             string `json:"mcpUrl"`
 		AuthenticationMode string `json:"authenticationMode"`
 		Status             string `json:"status"`
 		Revision           int64  `json:"revision"`
@@ -92,8 +102,19 @@ func (c *Client) ProbeRuntime(ctx context.Context) (*sdk.RuntimeHost, error) {
 	if err = json.NewDecoder(io.LimitReader(response.Body, 4096)).Decode(&payload); err != nil {
 		return nil, err
 	}
+	if namespaceID, selected := sdk.NamespaceSelectionFromContext(ctx); selected && payload.NamespaceID != namespaceID {
+		return nil, fmt.Errorf("dynamic runtime status namespace does not match selection")
+	}
 	if payload.Status != "ready" {
 		return nil, fmt.Errorf("dynamic runtime is not ready")
 	}
-	return &sdk.RuntimeHost{AuthenticationMode: payload.AuthenticationMode, Status: payload.Status, Revision: payload.Revision, CheckedAt: time.Now().UTC()}, nil
+	if payload.MCPURL != "" {
+		endpoint, parseErr := url.Parse(payload.MCPURL)
+		if parseErr != nil || endpoint.Host == "" || endpoint.User != nil ||
+			(endpoint.Scheme != "http" && endpoint.Scheme != "https") || endpoint.Path != "/mcp" ||
+			endpoint.RawQuery != "" || endpoint.Fragment != "" {
+			return nil, fmt.Errorf("dynamic runtime MCP endpoint is invalid")
+		}
+	}
+	return &sdk.RuntimeHost{NamespaceID: payload.NamespaceID, MCPURL: payload.MCPURL, AuthenticationMode: payload.AuthenticationMode, Status: payload.Status, Revision: payload.Revision, CheckedAt: time.Now().UTC()}, nil
 }

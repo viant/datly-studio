@@ -2,7 +2,9 @@ package reader
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"reflect"
 	"strings"
 )
@@ -34,6 +36,24 @@ func (output *NamespaceQueryOutput) Finalize(ctx context.Context) error {
 	input, ok := ctx.Value(reflect.TypeFor[*NamespaceQueryInput]()).(*NamespaceQueryInput)
 	if !ok || input == nil {
 		return fmt.Errorf("namespace list bound input is unavailable")
+	}
+	for _, row := range output.Items {
+		if row == nil {
+			return fmt.Errorf("namespace list returned an empty row")
+		}
+		row.CanManage = input.Jwt != nil && input.Jwt.Subject == row.OwnerId
+		if row.NamespaceId == "" {
+			row.NamespaceId = namespaceaccess.ID(row.OwnerId, row.Name)
+		}
+		if row.Visibility == "" {
+			row.Visibility = namespaceaccess.Private
+		}
+		row.AllowedRoles = []string{}
+		if row.AllowedRolesJson != nil {
+			if err := json.Unmarshal([]byte(*row.AllowedRolesJson), &row.AllowedRoles); err != nil {
+				return fmt.Errorf("invalid namespace roles")
+			}
+		}
 	}
 	output.PageLimit = input.Limit
 	output.PageOffset = input.Offset

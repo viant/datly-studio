@@ -13,12 +13,12 @@ type VersionComponent struct {
 	Contract xdatly.Component[Input, Output] "component:\"version,path=/_studio/report-version-store/insert,method=POST,connector=studio,view=version,internal=true\" routeName:\"version\" mutation:\"post\" caseFormat:\"lc\""
 }
 
-// VersionDatlyType keeps the public component type linked for blank-import discovery.
+// VersionDatlyType returns the public component type.
 func VersionDatlyType() reflect.Type { return reflect.TypeOf((*VersionComponent)(nil)).Elem() }
 
-// Datly anchors this package's public component contract.
+// The package-level value keeps this real component type reachable for runtime discovery.
 var VersionDatly = new(VersionComponent)
-var VersionDatlyLinkedType = VersionDatlyType()
+var _datlyReachableVersionComponent = reflect.TypeFor[VersionComponent]()
 
 func (VersionComponent) EmbedFS() *embed.FS {
 	return &VersionDatlyResources

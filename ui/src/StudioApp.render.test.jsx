@@ -18,6 +18,68 @@ function catalogAPI() {
 }
 
 describe('Studio connector catalog', () => {
+  test('allows keyboard activation of sidebar navigation', async () => {
+    const user = userEvent.setup();
+    render(<StudioApp api={catalogAPI()} mode="development" subject="owner" />);
+    const target = screen.getByRole('button', { name: 'Connectors', exact: true });
+    target.focus();
+    await user.keyboard('{Enter}');
+    expect(await screen.findByRole('heading', { name: 'Connectors', level: 1 })).toBeTruthy();
+  });
+  test('uses one current namespace selector for the component catalog', async () => {
+    localStorage.clear();
+    const user = userEvent.setup();
+    const api = catalogAPI();
+    api.config = { apiBaseURL: 'http://namespace-ui.test' };
+    api.setNamespace = vi.fn();
+    api.setNamespaceBlocked = vi.fn();
+    api.listNamespaces.mockResolvedValue({ items: [
+      { name: 'alpha', title: 'Alpha', ownerId: 'owner', status: 'active', namespaceId: 'a'.repeat(64) },
+      { name: 'beta', title: 'Beta', ownerId: 'owner', status: 'active', namespaceId: 'b'.repeat(64) },
+    ] });
+    render(<StudioApp api={api} mode="development" subject="owner" />);
+    await waitFor(() => expect(api.setNamespace).toHaveBeenLastCalledWith('a'.repeat(64)));
+    await user.click(screen.getAllByText('Components').find((item) => item.closest('.bp6-tree-node')));
+    const selector = screen.getByRole('combobox', { name: 'Current namespace' });
+    expect(screen.queryByRole('combobox', { name: 'Filter components by namespace' })).toBeNull();
+    await user.selectOptions(selector, 'b'.repeat(64));
+    await waitFor(() => expect(api.setNamespace).toHaveBeenLastCalledWith('b'.repeat(64)));
+    expect(localStorage.getItem('studio:namespace:http://namespace-ui.test:owner')).toBe('b'.repeat(64));
+  });
+  test('keeps namespace deletion visible until its request finishes', async () => {
+    const user = userEvent.setup();
+    const api = catalogAPI();
+    let finish;
+    api.deleteNamespace = vi.fn(() => new Promise((resolve) => { finish = resolve; }));
+    api.listNamespaces.mockResolvedValue({ items: [{ name: 'owned', title: 'Owned', ownerId: 'owner', status: 'active', canManage: true, etag: 3 }] });
+    render(<StudioApp api={api} mode="development" subject="owner" />);
+    await user.click(await screen.findByText('Namespaces'));
+    await user.click(await screen.findByRole('button', { name: 'Delete owned' }));
+    await user.click(await screen.findByRole('button', { name: 'Delete namespace' }));
+    await user.keyboard('{Escape}');
+    expect(screen.getByRole('button', { name: 'Delete namespace' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Cancel' }).disabled).toBe(true);
+    expect(api.deleteNamespace).toHaveBeenCalledTimes(1);
+    finish();
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Delete namespace' })).toBeNull());
+  });
+  test('shows view-only namespace actions for viewers and management actions for owners', async () => {
+    const user = userEvent.setup();
+    const api = catalogAPI();
+    api.listNamespaces.mockResolvedValue({ items: [
+      { name: 'shared', title: 'Shared', ownerId: 'other', status: 'active', canManage: false },
+      { name: 'owned', title: 'Owned', ownerId: 'owner', status: 'active', canManage: true },
+    ] });
+    render(<StudioApp api={api} mode="development" subject="owner" />);
+    await user.click(await screen.findByText('Namespaces'));
+    expect(await screen.findByRole('button', { name: 'View shared' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Delete shared' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Edit owned' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Delete owned' })).toBeTruthy();
+    await user.click(screen.getByRole('button', { name: 'View shared' }));
+    expect(await screen.findByRole('dialog', { name: 'Namespace · shared' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Save namespace' })).toBeNull();
+  });
   test('offers authenticated sign-out and preserves a retry on revocation failure', async () => {
     const user=userEvent.setup();
     const onSignOut=vi.fn().mockRejectedValueOnce(new Error('Identity service unavailable')).mockResolvedValueOnce();

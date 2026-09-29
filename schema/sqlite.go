@@ -20,7 +20,7 @@ var (
 	sqliteTableName        = regexp.MustCompile(`(?i)CREATE\s+TABLE\s+([A-Za-z_][A-Za-z0-9_]*)`)
 )
 
-const CanonicalVersion = 16
+const CanonicalVersion = 18
 
 // EnsureSQLiteSequenceLedger installs SQLX's write-intent table before a
 // publication transaction begins. Creating it inside a deferred transaction
@@ -51,6 +51,11 @@ func ApplySQLite(ctx context.Context, db *sql.DB, name string) error {
 	}
 	if _, err = db.ExecContext(ctx, string(payload)); err != nil {
 		return fmt.Errorf("apply SQLite script %q: %w", name, err)
+	}
+	if name == "studio" {
+		if err := EnsureSQLiteSequenceLedger(ctx, db); err != nil {
+			return fmt.Errorf("prepare SQLite sequence ledger: %w", err)
+		}
 	}
 	return nil
 }

@@ -5,6 +5,7 @@ import { ReaderParameterDialog } from './ReaderParameterDialog.jsx';
 import { ReaderPredicateDialog } from './ReaderPredicateDialog.jsx';
 
 const PAGE_SIZE = 25;
+const isServerScope = (item) => item.predicate?.group === 99 || /^param\//i.test(item.source || '');
 const inputTabId = (tab) => `reader-input-${tab}-tab`;
 const inputPanelId = 'reader-input-details-panel';
 
@@ -21,11 +22,12 @@ function outputColumns(root, path = [], discovered = {}, completeSources = new S
 }
 
 function mergeColumns(compiled = [], discovered = []) {
-  const columns = new Map();
-  for (const column of discovered ?? []) columns.set(String(column.source || column.name).toLowerCase(), column);
+  const physical = new Map((discovered ?? []).map((column) => [String(column.source || column.name).toLowerCase(), column]));
+  const columns = new Map((discovered ?? []).map((column) => [String(column.name || column.source).toLowerCase(), column]));
   for (const column of compiled ?? []) {
-    const key = String(column.source || column.name).toLowerCase();
-    columns.set(key, { ...(columns.get(key) || {}), ...column });
+    const source = String(column.source || column.name).toLowerCase();
+    const metadata = physical.get(source) || physical.get(source.split('.').at(-1));
+    columns.set(String(column.name || column.source).toLowerCase(), { ...(metadata || {}), ...column });
   }
   return [...columns.values()].sort((a, b) => Number(Boolean(b.schema?.primaryKey)) - Number(Boolean(a.schema?.primaryKey)));
 }
@@ -88,7 +90,7 @@ export function ContractWorkspace({ api, selection, structure, root, connector, 
   const needle = query.trim().toLowerCase();
   const filtered = rows.filter((item) => {
     const searchable = isInput ? activeInputTab === 'predicates'
-      ? [item.field, item.source, item.predicate?.name, item.view, ...(item.predicate?.args ?? [])]
+      ? [item.field, item.source, item.predicate?.name, item.predicate?.group, item.view, isServerScope(item) ? 'authorization protected scope' : '', ...(item.predicate?.args ?? [])]
       : [item.name, item.typeExpr, item.source?.kind, item.source?.name, item.description]
       : isViews ? [item.view.name, item.view.namespace, item.view.source?.table, item.path] : [item.column.name, item.column.source, item.column.type?.name, item.column.databaseType, item.path];
     return searchable.join(' ').toLowerCase().includes(needle);
@@ -96,6 +98,7 @@ export function ContractWorkspace({ api, selection, structure, root, connector, 
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, pages - 1);
   const visible = filtered.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
+  const showPredicateScope = predicates.some((item) => item.view || item.predicate?.group);
   const title = isInput ? activeInputTab === 'predicates' ? 'Predicates' : 'Inputs' : isViews ? 'Views' : 'Output columns';
   const onInputTabKeyDown = (event) => {
     let next;
@@ -113,7 +116,7 @@ export function ContractWorkspace({ api, selection, structure, root, connector, 
       <div role={isInput ? 'tabpanel' : undefined} id={isInput ? inputPanelId : undefined} aria-labelledby={isInput ? inputTabId(activeInputTab) : undefined} tabIndex={isInput ? 0 : undefined}>
       {(filtered.length > PAGE_SIZE || needle) && <div className="studio-contract-results" aria-live="polite">{filtered.length ? `${currentPage * PAGE_SIZE + 1}–${Math.min((currentPage + 1) * PAGE_SIZE, filtered.length)} of ${filtered.length}` : '0 results'}</div>}
       {isOutput && activeMetadata.failures.length > 0 && <Callout intent="warning" title="Some connector columns are unavailable" role="alert">Could not inspect {activeMetadata.failures.join(', ')}. Compiled columns remain visible; the output count is incomplete.<Button small minimal intent="warning" icon="refresh" onClick={() => setMetadataReload((value) => value + 1)}>Retry metadata</Button></Callout>}
-      {visible.length ? <div className="studio-view-column-list studio-contract-list">{visible.map((item) => isInput ? activeInputTab === 'predicates' ? <button type="button" key={item.id} disabled={!canEdit} onClick={() => setEditing({type:'predicate', id:item.id})}><span><strong>{item.field}</strong><small>{item.source}</small></span><span>{item.predicate?.name}</span><span>{item.view || 'Unassigned'} · group {item.predicate?.group}</span><span className="studio-column-edit">{canEdit ? 'Settings' : ''}</span></button> : <button type="button" key={item.name} disabled={!canEdit} onClick={() => setEditing({type:'input', name:item.name})}><span><strong>{item.name}</strong><small>{item.source?.kind || 'source'} / {item.source?.name || '—'}</small></span><span>{item.typeExpr || 'inferred'}</span><Tag minimal intent={item.source?.kind === 'const' ? 'primary' : 'none'}>{item.source?.kind === 'const' ? 'constant' : item.required ? 'required' : 'optional'}</Tag><span className="studio-column-edit">{canEdit ? 'Settings' : ''}</span></button> : isViews ? <button type="button" key={item.path} aria-label={`Open view ${item.path}`} onClick={() => onSelectView(item.view)}><span><strong>{item.view.namespace || item.view.name}</strong><small className="studio-contract-path" title={item.path}>{item.path}</small></span><span>{item.view.source?.table || 'SQL view'}</span><Tag minimal>Level {item.path.split(' / ').length}</Tag><span className="studio-column-edit">Open</span></button> : <button type="button" key={`${item.path}:${item.column.name}`} onClick={() => onSelectView(item.view)}><span><strong>{item.column.name}</strong><small>{item.column.source || item.column.name}</small></span><span>{item.column.type?.name || item.column.databaseType || 'inferred'}</span><Tag minimal>{item.path}</Tag><span className="studio-column-edit">View</span></button>)}</div> : <div className="studio-empty-compact">{query ? 'No items match this search.' : isInput ? 'No items in this input catalog.' : isViews ? 'No views are defined.' : activeMetadata.loading ? 'Loading connector columns…' : 'No output columns are exposed by this component.'}</div>}
+      {visible.length ? <div className={`studio-view-column-list studio-contract-list ${isInput && activeInputTab === 'predicates' && !showPredicateScope ? 'studio-predicate-list-compact' : ''}`}>{visible.map((item) => isInput ? activeInputTab === 'predicates' ? <button type="button" key={item.id} disabled={!canEdit} onClick={() => setEditing({type:'predicate', id:item.id})}><span><span className="studio-predicate-name"><strong>{item.field}</strong>{isServerScope(item) && <Tag minimal intent="warning">Authorization</Tag>}</span><small>{item.source}</small></span><span>{item.kind === 'handler' ? String(item.predicate?.args?.[0] || 'handler').split('.').pop() : item.predicate?.name}</span>{showPredicateScope && <span>{item.view || (item.predicate?.group ? `Group ${item.predicate.group}` : '')}{item.view && item.predicate?.group ? ` · group ${item.predicate.group}` : ''}</span>}<span className="studio-column-edit">{canEdit ? 'Settings' : ''}</span></button> : <button type="button" key={item.name} disabled={!canEdit} onClick={() => setEditing({type:'input', name:item.name})}><span><strong>{item.name}</strong><small>{item.source?.kind || 'source'} / {item.source?.name || '—'}</small></span><span>{item.typeExpr || 'inferred'}</span><Tag minimal intent={item.source?.kind === 'const' ? 'primary' : 'none'}>{item.source?.kind === 'const' ? 'constant' : item.required ? 'required' : 'optional'}</Tag><span className="studio-column-edit">{canEdit ? 'Settings' : ''}</span></button> : isViews ? <button type="button" key={item.path} aria-label={`Open view ${item.path}`} onClick={() => onSelectView(item.view)}><span><strong>{item.view.namespace || item.view.name}</strong><small className="studio-contract-path" title={item.path}>{item.path}</small></span><span>{item.view.source?.table || 'SQL view'}</span><Tag minimal>Level {item.path.split(' / ').length}</Tag><span className="studio-column-edit">Open</span></button> : <button type="button" key={`${item.path}:${item.column.name}`} onClick={() => onSelectView(item.view)}><span><strong>{item.column.name}</strong><small>{item.column.source || item.column.name}</small></span><span>{item.column.type?.name || item.column.databaseType || 'inferred'}</span><Tag minimal>{item.path}</Tag><span className="studio-column-edit">View</span></button>)}</div> : <div className="studio-empty-compact">{query ? 'No items match this search.' : isInput ? 'No items in this input catalog.' : isViews ? 'No views are defined.' : activeMetadata.loading ? 'Loading connector columns…' : 'No output columns are exposed by this component.'}</div>}
       {filtered.length > PAGE_SIZE && <div className="studio-column-pages"><ButtonGroup minimal><Button small icon="chevron-left" aria-label="Previous contract page" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}/><span>{currentPage + 1} / {pages}</span><Button small icon="chevron-right" aria-label="Next contract page" disabled={currentPage + 1 >= pages} onClick={() => setPage(currentPage + 1)}/></ButtonGroup></div>}
       </div>
     </Card>;

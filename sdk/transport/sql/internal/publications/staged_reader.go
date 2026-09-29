@@ -8,6 +8,7 @@ import (
 
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/readercomponent"
+	"github.com/viant/datly-studio/sdk"
 	stored "github.com/viant/datly-studio/studio/report_publications/store_staged"
 	dexec "github.com/viant/datly/exec"
 	druntime "github.com/viant/datly/runtime"
@@ -34,7 +35,8 @@ func ReadStaged(ctx context.Context, db *sql.DB, tx *sql.Tx, generation int64) (
 		return nil, err
 	}
 	defer runtime.Shutdown(context.Background())
-	input := &stored.Input{DesiredGeneration: generation, Has: &stored.InputHas{DesiredGeneration: true}}
+	namespaceID, _ := sdk.NamespaceSelectionFromContext(ctx)
+	input := &stored.Input{NamespaceId: namespaceID, DesiredGeneration: generation, Has: &stored.InputHas{NamespaceId: true, DesiredGeneration: true}}
 	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: target, Input: input})
 	if err != nil {
 		return nil, err

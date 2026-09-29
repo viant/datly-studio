@@ -11,6 +11,7 @@ import (
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
 	acl "github.com/viant/datly-studio/studio/report_acl/reader"
 	stored "github.com/viant/datly-studio/studio/report_acl/store_write"
+	guard "github.com/viant/datly-studio/studio/reports/publish_guard"
 	"github.com/viant/datly/exec"
 	rhandler "github.com/viant/datly/runtime/handler"
 	"github.com/viant/datly/runtime/handler/custom"
@@ -23,6 +24,7 @@ import (
 )
 
 type Input struct {
+	NamespaceId *string            `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
 	Jwt         *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
 	Auth        *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
 	ReportId    string             `parameter:"ReportId,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
@@ -93,6 +95,20 @@ func (*upsertHandler) Exec(ctx context.Context, session xhandler.Session, input 
 	invoker, ok := value.(exec.ComponentInvoker)
 	if !found || !ok {
 		return fmt.Errorf("Datly component invoker is unavailable")
+	}
+	if input.NamespaceId != nil {
+		access := &guard.Input{}
+		access.SetJwt(input.Jwt)
+		access.SetAuth(input.Auth)
+		access.SetReportId(input.ReportId)
+		scoped, scopeErr := invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[guard.ReportComponent](), "report", "POST", "/_studio/reports/publish-guard"), Input: access})
+		if scopeErr != nil {
+			return scopeErr
+		}
+		allowed, ok := scoped.(*guard.Output)
+		if !ok || allowed == nil || allowed.Item == nil || allowed.Item.Id != input.ReportId {
+			return publicError(403, "Component is outside the selected namespace")
+		}
 	}
 	read := &acl.Input{}
 	read.SetJwt(input.Jwt)

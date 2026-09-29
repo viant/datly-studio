@@ -49,6 +49,17 @@ require (
 replace github.com/viant/datly-studio => %s
 replace github.com/viant/datly => %s
 `, modulePath, projectRoot, datlyRoot)
+	for _, dependency := range []string{"github.com/viant/authz", "github.com/viant/authz/datly"} {
+		command := exec.Command("go", "list", "-m", "-f", "{{.Dir}}", dependency)
+		command.Dir = projectRoot
+		command.Env = append(os.Environ(), "GOWORK=off")
+		directory, lookupErr := command.CombinedOutput()
+		if lookupErr != nil {
+			t.Fatalf("resolve %s: %v", dependency, lookupErr)
+		}
+		goMod += fmt.Sprintf("\nreplace %s => %s\n", dependency, strings.TrimSpace(string(directory)))
+	}
+
 	if err = os.WriteFile(filepath.Join(root, "go.mod"), []byte(goMod), 0o644); err != nil {
 		t.Fatalf("write generated go.mod: %v", err)
 	}

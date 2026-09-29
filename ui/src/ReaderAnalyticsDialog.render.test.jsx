@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 vi.mock('./LazyEditor.jsx',()=>({LazyEditor:({value,onChange,ariaLabel})=><textarea aria-label={ariaLabel} value={value} onChange={(event)=>onChange(event.target.value)}/>}));
 import { ReaderAnalyticsDialog } from './ReaderAnalyticsDialog.jsx';
 
-const structure={component:{rootView:{columns:[{name:'STATUS',source:'STATUS',groupable:true},{name:'TOTAL',source:'TOTAL'}]},settings:{report:{enabled:true,compose:{enabled:true,maxCubes:2,maxLimit:50,timeoutMs:12000}}}}};
+const structure={component:{rootView:{columns:[{name:'Status',source:'STATUS',groupable:true},{name:'Total',source:'TOTAL',groupable:false}]},settings:{report:{enabled:true,compose:{enabled:true,maxCubes:2,maxLimit:50,timeoutMs:12000}}}}};
 
 describe('ReaderAnalyticsDialog',()=>{
   test('builds ordered typed frames and sends the exact composition request',async()=>{

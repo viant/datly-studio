@@ -64,6 +64,10 @@ func (t *Transport) startWarmupRun(ctx context.Context, in versionIdentityReques
 	if err != nil {
 		return err
 	}
+	namespaceID, err := t.resourceWorkspaceID(ctx, nil, in.ReportID)
+	if err != nil {
+		return err
+	}
 	requestedBy := warmupActor(ctx).Subject
 	planKey := warmupprojection.PlanKey(version)
 	activeKey := fmt.Sprintf("%s:%d:%s", in.ReportID, in.VersionNo, planKey)
@@ -90,12 +94,12 @@ func (t *Transport) startWarmupRun(ctx context.Context, in versionIdentityReques
 	if err != nil {
 		return internal(err)
 	}
-	if err = t.writeWarmupRun(ctx, &storedwriter.StoredWarmupRun{RunId: runID, ReportId: in.ReportID,
+	if err = t.writeWarmupRun(ctx, &storedwriter.StoredWarmupRun{NamespaceId: namespaceID, RunId: runID, ReportId: in.ReportID,
 		VersionNo: in.VersionNo, SourceRevision: version.SourceRevision, SpecHash: version.SpecHash,
 		PlanKey: planKey, ActiveKey: &activeKey, Status: "accepted", RequestedBy: requestedBy,
 		TargetJson: json.RawMessage(`{}`), RequestedAt: now, CreatedAt: &now, CreatedBy: &requestedBy,
 		UpdatedAt: &now, UpdatedBy: &requestedBy,
-		Has: &storedwriter.StoredWarmupRunHas{RunId: true, ReportId: true, VersionNo: true,
+		Has: &storedwriter.StoredWarmupRunHas{NamespaceId: true, RunId: true, ReportId: true, VersionNo: true,
 			SourceRevision: true, SpecHash: true, PlanKey: true, ActiveKey: true,
 			Status: true, RequestedBy: true, TargetJson: true, RequestedAt: true,
 			CreatedAt: true, CreatedBy: true, UpdatedAt: true, UpdatedBy: true}}); err != nil {

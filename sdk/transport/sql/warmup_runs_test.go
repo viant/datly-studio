@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
 	storedreader "github.com/viant/datly-studio/studio/report_warmup_runs/store_read"
@@ -145,11 +146,11 @@ func TestTranscribedWarmupWriterRejectsStaleUpdatedAt(t *testing.T) {
 	now := time.Now().UTC().Truncate(time.Microsecond)
 	actor, active := "alice", "active-r1"
 	if err := transport.writeWarmupRun(ctx, &storedwriter.StoredWarmupRun{
-		RunId: "r1", ReportId: "report", VersionNo: 1, SourceRevision: 1,
+		NamespaceId: namespaceaccess.ID("alice", "general"), RunId: "r1", ReportId: "report", VersionNo: 1, SourceRevision: 1,
 		SpecHash: "hash", PlanKey: "plan", ActiveKey: &active, Status: "accepted",
 		RequestedBy: actor, TargetJson: json.RawMessage(`{}`), RequestedAt: now,
 		CreatedAt: &now, CreatedBy: &actor, UpdatedAt: &now, UpdatedBy: &actor,
-		Has: &storedwriter.StoredWarmupRunHas{RunId: true, ReportId: true, VersionNo: true,
+		Has: &storedwriter.StoredWarmupRunHas{NamespaceId: true, RunId: true, ReportId: true, VersionNo: true,
 			SourceRevision: true, SpecHash: true, PlanKey: true, ActiveKey: true,
 			Status: true, RequestedBy: true, TargetJson: true, RequestedAt: true,
 			CreatedAt: true, CreatedBy: true, UpdatedAt: true, UpdatedBy: true}}); err != nil {
@@ -158,6 +159,18 @@ func TestTranscribedWarmupWriterRejectsStaleUpdatedAt(t *testing.T) {
 	before, err := transport.readWarmupRun(ctx, "report", "r1")
 	if err != nil || before.UpdatedAt == nil {
 		t.Fatalf("created run=%+v err=%v", before, err)
+	}
+	var storedNamespace string
+	if err := db.QueryRowContext(ctx, "SELECT namespace_id FROM report_warmup_runs WHERE run_id='r1'").Scan(&storedNamespace); err != nil || storedNamespace != namespaceaccess.ID("alice", "general") {
+		t.Fatalf("warmup ownership=%q err=%v", storedNamespace, err)
+	}
+	err = transport.writeWarmupRun(ctx, &storedwriter.StoredWarmupRun{RunId: "r1", NamespaceId: namespaceaccess.ID("alice", "other"), Status: "running", UpdatedAt: before.UpdatedAt, UpdatedBy: &actor, Has: &storedwriter.StoredWarmupRunHas{RunId: true, NamespaceId: true, Status: true, UpdatedAt: true, UpdatedBy: true}})
+	if err == nil {
+		t.Fatal("warmup namespace move was accepted")
+	}
+	var unchangedStatus string
+	if err := db.QueryRowContext(ctx, "SELECT namespace_id,status FROM report_warmup_runs WHERE run_id='r1'").Scan(&storedNamespace, &unchangedStatus); err != nil || storedNamespace != namespaceaccess.ID("alice", "general") || unchangedStatus != "accepted" {
+		t.Fatalf("denial mutated ownership/state=%q/%q err=%v", storedNamespace, unchangedStatus, err)
 	}
 	started := now.Add(time.Second)
 	if err := transport.writeWarmupRun(ctx, &storedwriter.StoredWarmupRun{RunId: "r1", Status: "running",

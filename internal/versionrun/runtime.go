@@ -3,13 +3,17 @@ package versionrun
 import (
 	"context"
 	"fmt"
+	"os"
 	"reflect"
 	"strings"
 	"time"
 
+	"github.com/viant/datly-studio/internal/accessconfig"
 	"github.com/viant/datly-studio/internal/publisherguard"
 	"github.com/viant/datly-studio/runtime/preview"
 	"github.com/viant/datly-studio/sdk"
+	access "github.com/viant/authz"
+	accessstore "github.com/viant/authz/datly/store/sql"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
 	runaccess "github.com/viant/datly-studio/studio/reports/store_run_access"
 	"github.com/viant/datly/exec"
@@ -76,6 +80,25 @@ func Authorized(ctx context.Context, session xhandler.Session, claims *jwt.Claim
 	}
 	executionCtx, cancel := context.WithTimeout(ctx, timeout)
 	executionCtx = sdk.WithPrincipal(executionCtx, sdk.Principal{Subject: claims.Subject})
-	executionCtx = sdk.WithVerifiedCredential(executionCtx, sdk.VerifiedCredential{Claims: claims})
-	return executionCtx, preview.Dynamic{StudioDB: db, ModulePath: modulePath}, cancel, nil
+	engine := preview.Dynamic{StudioDB: db, ModulePath: modulePath}
+	aclProvider, err := accessconfig.FromEnvironment()
+	if err != nil {
+		cancel()
+		return nil, preview.Dynamic{}, nil, publisherguard.PublicError(503, "ACL verifier is not configured correctly")
+	}
+	credential := sdk.VerifiedCredential{Claims: claims}
+	if aclProvider != nil {
+		var header struct {
+			Authorization string `bind:"kind=header,in=Authorization,required"`
+		}
+		if err := session.Binder().Bind(ctx, &header); err != nil || !strings.HasPrefix(header.Authorization, "Bearer ") || strings.TrimSpace(strings.TrimPrefix(header.Authorization, "Bearer ")) == "" {
+			cancel()
+			return nil, preview.Dynamic{}, nil, publisherguard.PublicError(401, "ACL bearer credential is required")
+		}
+		credential.Bearer = strings.TrimSpace(strings.TrimPrefix(header.Authorization, "Bearer "))
+		engine.Access = &access.Service{Store: &accessstore.Store{DB: db, Invoker: invoker}, Provider: aclProvider}
+		engine.AccessTenant = strings.TrimSpace(os.Getenv("STUDIO_ACCESS_TENANT"))
+	}
+	executionCtx = sdk.WithVerifiedCredential(executionCtx, credential)
+	return executionCtx, engine, cancel, nil
 }

@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/viant/bindly/resource"
+	"github.com/viant/datly-studio/internal/datatest"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly/transcribe"
 	"github.com/viant/datly/transcribe/column"
@@ -43,7 +44,7 @@ func TestGenerateNamespaceStores(t *testing.T) {
 		compiled, compileErr := transcribe.NewCompiler().Compile(ctx, &transcribe.Source{
 			Scope: "github.com/viant/datly-studio/dql/studio/namespaces/" + item.directory,
 			Name:  item.name, Path: item.name + ".dql", Text: string(payload), Connector: "studio",
-			Resources: resources, ColumnRefiner: column.New(column.Connections{"studio": db}),
+			Resources: resources, ColumnRefiner: column.New(column.Connections{"studio": db}), Types: datatest.StudioAuthorizationTypes(t),
 		})
 		if compileErr != nil {
 			t.Fatal(compileErr)

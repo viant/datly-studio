@@ -8,6 +8,7 @@ import (
 
 	"github.com/viant/bindly/locator"
 	"github.com/viant/bindly/resource"
+	"github.com/viant/datly-studio/sdk"
 	stored "github.com/viant/datly-studio/studio/runtime_generations/store_state"
 	"github.com/viant/datly/bootstrap"
 	dexec "github.com/viant/datly/exec"
@@ -78,7 +79,8 @@ func (t *Transport) writeGenerationState(ctx context.Context, tx *sql.Tx, operat
 	if len(component.Routes) > 0 && component.Routes[0] != nil {
 		target.Route = spec.RouteRef{Method: component.Routes[0].Method, Path: component.Routes[0].Path}
 	}
-	input := &stored.Input{}
+	namespaceID, _ := sdk.NamespaceSelectionFromContext(ctx)
+	input := &stored.Input{NamespaceId: namespaceID, Has: &stored.InputHas{NamespaceId: true}}
 	input.SetOperation(operation)
 	input.SetTargetGeneration(targetGeneration)
 	input.SetGenerations(rows)

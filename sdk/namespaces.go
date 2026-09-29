@@ -14,28 +14,42 @@ const (
 )
 
 type Namespace struct {
-	OwnerID     string    `json:"ownerId"`
-	Name        string    `json:"name"`
-	Title       string    `json:"title"`
-	Description string    `json:"description,omitempty"`
-	Status      string    `json:"status"`
-	ETag        int64     `json:"etag"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
+	CanManage    bool      `json:"canManage"`
+	NamespaceID  string    `json:"namespaceId"`
+	Visibility   string    `json:"visibility"`
+	AllowedRoles []string  `json:"allowedRoles"`
+	MCPEnabled   bool      `json:"mcpEnabled"`
+	MCPPort      *int      `json:"mcpPort,omitempty"`
+	OwnerID      string    `json:"ownerId"`
+	Name         string    `json:"name"`
+	Title        string    `json:"title"`
+	Description  string    `json:"description,omitempty"`
+	Status       string    `json:"status"`
+	ETag         int64     `json:"etag"`
+	CreatedAt    time.Time `json:"createdAt"`
+	UpdatedAt    time.Time `json:"updatedAt"`
 }
 
 type CreateNamespaceInput struct {
-	Name        string `json:"name"`
-	Title       string `json:"title"`
-	Description string `json:"description,omitempty"`
-	OwnerID     string `json:"ownerId,omitempty"`
+	Visibility   string   `json:"visibility,omitempty"`
+	AllowedRoles []string `json:"allowedRoles,omitempty"`
+	MCPEnabled   bool     `json:"mcpEnabled,omitempty"`
+	MCPPort      *int     `json:"mcpPort,omitempty"`
+	Name         string   `json:"name"`
+	Title        string   `json:"title"`
+	Description  string   `json:"description,omitempty"`
+	OwnerID      string   `json:"ownerId,omitempty"`
 }
 
 type UpdateNamespaceInput struct {
-	Title       *string `json:"title,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Status      *string `json:"status,omitempty"`
-	ETag        int64   `json:"etag"`
+	Visibility   *string   `json:"visibility,omitempty"`
+	AllowedRoles *[]string `json:"allowedRoles,omitempty"`
+	MCPEnabled   *bool     `json:"mcpEnabled,omitempty"`
+	MCPPort      *int      `json:"mcpPort,omitempty"`
+	Title        *string   `json:"title,omitempty"`
+	Description  *string   `json:"description,omitempty"`
+	Status       *string   `json:"status,omitempty"`
+	ETag         int64     `json:"etag"`
 }
 
 type ListNamespacesInput struct {

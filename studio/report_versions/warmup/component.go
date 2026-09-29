@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/publisherguard"
 	"github.com/viant/datly-studio/internal/versionprojection"
 	"github.com/viant/datly-studio/internal/warmupprojection"
@@ -36,10 +37,11 @@ const modulePath = "github.com/viant/datly-studio"
 const runTimeout = 5 * time.Minute
 
 type Input struct {
-	Jwt       *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
-	Auth      *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
-	ReportID  string             `parameter:"ReportID,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
-	VersionNo int                `parameter:"VersionNo,kind=body,in=versionNo,dataType=int,required=true" json:"versionNo"`
+	NamespaceId *string            `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
+	Jwt         *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
+	Auth        *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
+	ReportID    string             `parameter:"ReportID,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
+	VersionNo   int                `parameter:"VersionNo,kind=body,in=versionNo,dataType=int,required=true" json:"versionNo"`
 }
 
 type Output struct {
@@ -104,6 +106,10 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	if !ok || allowed == nil || allowed.Item == nil || allowed.Item.Id != input.ReportID {
 		return publisherguard.PublicError(404, "report not found")
 	}
+	if allowed.Item.OwnerId == "" || allowed.Item.Namespace == "" {
+		return fmt.Errorf("warmup component ownership is unavailable")
+	}
+	namespaceID := namespaceaccess.ID(allowed.Item.OwnerId, allowed.Item.Namespace)
 	read := &catalog.Input{}
 	read.SetReportId(input.ReportID)
 	read.SetVersionNo(input.VersionNo)
@@ -158,12 +164,12 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 		return err
 	}
 	now, actor := time.Now().UTC(), input.Jwt.Subject
-	row := &storedwriter.StoredWarmupRun{RunId: runID, ReportId: input.ReportID,
+	row := &storedwriter.StoredWarmupRun{NamespaceId: namespaceID, RunId: runID, ReportId: input.ReportID,
 		VersionNo: input.VersionNo, SourceRevision: version.SourceRevision, SpecHash: version.SpecHash,
 		PlanKey: planKey, ActiveKey: &activeKey, Status: "accepted", RequestedBy: actor,
 		TargetJson: json.RawMessage(`{}`), RequestedAt: now, CreatedAt: &now, CreatedBy: &actor,
 		UpdatedAt: &now, UpdatedBy: &actor,
-		Has: &storedwriter.StoredWarmupRunHas{RunId: true, ReportId: true, VersionNo: true,
+		Has: &storedwriter.StoredWarmupRunHas{NamespaceId: true, RunId: true, ReportId: true, VersionNo: true,
 			SourceRevision: true, SpecHash: true, PlanKey: true, ActiveKey: true,
 			Status: true, RequestedBy: true, TargetJson: true, RequestedAt: true,
 			CreatedAt: true, CreatedBy: true, UpdatedAt: true, UpdatedBy: true}}

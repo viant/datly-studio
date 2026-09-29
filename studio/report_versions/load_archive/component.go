@@ -24,10 +24,11 @@ type Options struct {
 }
 
 type Input struct {
-	Jwt      *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
-	Auth     *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
-	ReportId string             `parameter:"ReportId,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
-	Input    Options            `parameter:"Input,kind=body,in=input,dataType=Options,required=true" json:"input"`
+	NamespaceId *string            `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
+	Jwt         *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
+	Auth        *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
+	ReportId    string             `parameter:"ReportId,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
+	Input       Options            `parameter:"Input,kind=body,in=input,dataType=Options,required=true" json:"input"`
 }
 
 type Output = load.Output
@@ -54,6 +55,7 @@ func (*loadHandler) Exec(ctx context.Context, session xhandler.Session, input *I
 	request := &load.Input{}
 	if input != nil {
 		request.Jwt, request.Auth, request.ReportId = input.Jwt, input.Auth, input.ReportId
+		request.NamespaceId = input.NamespaceId
 		request.Input.Notes = input.Input.Notes
 	}
 	return load.ImportBundle(ctx, session, request, output, func() (*sdk.DQLBundle, string, error) {

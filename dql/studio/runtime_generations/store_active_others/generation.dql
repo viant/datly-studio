@@ -9,6 +9,7 @@
 #setting($_ = $connector('studio'))
 #setting($_ = $sql_dest('generation', 'sql/read.sql'))
 
+#define($_ = $NamespaceId<string>(query/namespaceId).Optional())
 #define($_ = $ExcludeGeneration<int64>(query/excludeGeneration).Required().WithPredicate(3, 'handler', 'otheractivepredicate.OtherActive'))
 #define($_ = $Generations<[]*ActiveGeneration>(output/view))
 

@@ -39,7 +39,7 @@ func TestNamespaceGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 		}}},
 		datatest.Table{Name: "namespaces", Rows: []datatest.Row{
 			{"owner_id": "alice", "name": "general", "title": "General", "status": "active", "etag": 1, "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"},
-			{"owner_id": "bob", "name": "finance", "title": "Finance", "description": "Forecasting", "status": "active", "etag": 4, "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"},
+			{"visibility": "public", "owner_id": "bob", "name": "finance", "title": "Finance", "description": "Forecasting", "status": "active", "etag": 4, "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"},
 		}},
 		datatest.Table{Name: "components", Rows: []datatest.Row{{
 			"id": "r1", "slug": "finance", "title": "Finance", "owner_id": "bob", "namespace": "finance",
@@ -90,6 +90,7 @@ func TestNamespaceGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	entry.Capabilities.Connector = connector
 	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{authEntry, entry}, druntime.WithResources(resources))
 	if err != nil {
 		t.Fatal(err)
@@ -127,7 +128,7 @@ func TestNamespaceGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 			t.Fatalf("%s/%s namespace=%+v err=%v", check.subject, check.name, output, invokeErr)
 		}
 	}
-	for _, check := range []struct{ subject, name string }{{"alice", "finance"}, {"bob", "missing"}} {
+	for _, check := range []struct{ subject, name string }{{"viewer", "general"}, {"bob", "missing"}} {
 		_, invokeErr := invoke(check.subject, check.name)
 		var notFound *xresponse.Error
 		if !errors.As(invokeErr, &notFound) || notFound.Code != http.StatusNotFound {
@@ -154,7 +155,7 @@ func TestNamespaceGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	for _, check := range []struct {
 		subject, name string
 		status        int
-	}{{"alice", "finance", 404}, {"bob", "missing", 404}, {"", "finance", 401}} {
+	}{{"viewer", "general", 404}, {"bob", "missing", 404}, {"", "finance", 401}} {
 		denied := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/namespaces.get", bytes.NewBufferString(`{"name":"`+check.name+`"}`))
 		denied.Header.Set("Content-Type", "application/json")
 		if check.subject != "" {
@@ -192,22 +193,22 @@ func TestNamespaceGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	if err = json.Unmarshal(structured, &mcpWire); err != nil || mcpWire["name"] != "finance" || mcpWire["ownerId"] != "bob" {
 		t.Fatalf("MCP namespace=%s err=%v", structured, err)
 	}
-	if _, err = db.ExecContext(ctx, "UPDATE components SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?", "r1"); err != nil {
+	if _, err = db.ExecContext(ctx, "UPDATE namespaces SET visibility = 'private' WHERE owner_id = ? AND name = ?", "bob", "finance"); err != nil {
 		t.Fatal(err)
 	}
 	_, err = invoke("viewer", "finance")
 	var notFound *xresponse.Error
 	if !errors.As(err, &notFound) || notFound.Code != http.StatusNotFound {
-		t.Fatalf("soft-deleted grant error=%v, want 404", err)
+		t.Fatalf("private namespace bypassed via component ACL: error=%v, want 404", err)
 	}
-	if _, err = db.ExecContext(ctx, "UPDATE components SET deleted_at = NULL WHERE id = ?", "r1"); err != nil {
+	if _, err = db.ExecContext(ctx, "UPDATE namespaces SET visibility = 'public' WHERE owner_id = ? AND name = ?", "bob", "finance"); err != nil {
 		t.Fatal(err)
 	}
 	if _, err = db.ExecContext(ctx, "DELETE FROM report_acl WHERE report_id = ? AND subject_id = ?", "r1", "viewer"); err != nil {
 		t.Fatal(err)
 	}
 	_, err = invoke("viewer", "finance")
-	if !errors.As(err, &notFound) || notFound.Code != http.StatusNotFound {
-		t.Fatalf("revoked viewer error=%v, want 404", err)
+	if err != nil {
+		t.Fatalf("public namespace depended on component ACL: %v", err)
 	}
 }

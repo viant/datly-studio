@@ -2,13 +2,13 @@ package reader
 
 // ReportACL is generated canonical view metadata for acl.
 type ReportACL struct {
-	CanView     bool    `sqlx:"can_view"`
-	CanRun      bool    `sqlx:"can_run"`
-	CanEdit     bool    `sqlx:"can_edit"`
-	CanPublish  bool    `sqlx:"can_publish"`
-	CanUseDql   bool    `sqlx:"can_use_dql"`
-	ReportId    *string `sqlx:"report_id"`
-	SubjectType *string `sqlx:"subject_type"`
-	SubjectId   *string `sqlx:"subject_id"`
-	Etag        *int    `sqlx:"etag"`
+	ReportId    *string `sqlx:"report_id,refTable=components,refColumn=id,required=true,primaryKey=true"`
+	SubjectType *string `sqlx:"subject_type,required=true,primaryKey=true"`
+	SubjectId   *string `sqlx:"subject_id,required=true,primaryKey=true"`
+	Etag        *int    `sqlx:"etag,required=true"`
+	CanView     bool    `sqlx:"can_view,required=true"`
+	CanRun      bool    `sqlx:"can_run,required=true"`
+	CanEdit     bool    `sqlx:"can_edit,required=true"`
+	CanPublish  bool    `sqlx:"can_publish,required=true"`
+	CanUseDql   bool    `sqlx:"can_use_dql,required=true"`
 }

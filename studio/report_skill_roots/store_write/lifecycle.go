@@ -3,6 +3,7 @@ package store_write
 import (
 	context "context"
 	"fmt"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	xhandler "github.com/viant/xdatly/handler"
 	"io/fs"
 	reflect "reflect"
@@ -27,6 +28,16 @@ func (hooks *SkillStoreRules) Init(_ context.Context, entity *StoredSkill, state
 		!entity.Has.ReportId || !entity.Has.VersionNo || !entity.Has.SkillId ||
 		!entity.Has.ShouldDelete {
 		return fmt.Errorf("skill root mutation requires complete identity and explicit delete marker")
+	}
+	if !entity.Has.NamespaceId {
+		return fmt.Errorf("resource namespace ownership is required")
+	}
+	previousNamespace := ""
+	if state.Previous != nil {
+		previousNamespace = state.Previous.NamespaceId
+	}
+	if err := namespaceaccess.ValidateResourceOwnership(entity.NamespaceId, previousNamespace); err != nil {
+		return err
 	}
 	if entity.ShouldDelete {
 		if state.Previous == nil {

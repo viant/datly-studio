@@ -12,7 +12,7 @@ import (
 
 func importedVersion(source string, files ...*ImportedResourceFile) *ImportedVersion {
 	authored, generated := source, source
-	return &ImportedVersion{ReportId: "r1", VersionNo: 3, State: "draft", AuthoringMode: "dql", AuthoredDql: &authored, GeneratedDql: &generated,
+	return &ImportedVersion{NamespaceId: strings.Repeat("a", 64), ReportId: "r1", VersionNo: 3, State: "draft", AuthoringMode: "dql", AuthoredDql: &authored, GeneratedDql: &generated,
 		ComponentSpecJson: json.RawMessage(`{}`), SpecFormatVersion: "studio.v1", SpecHash: "hash", TypeManifestJson: json.RawMessage(`{}`),
 		CompileStatus: "pending", DatlyVersion: "v1", CompilerVersion: "studio.v1", SourceRevision: 1, CreatedBy: "owner",
 		CreatedAt: time.Date(2026, 9, 24, 0, 0, 0, 0, time.UTC), File: files, Has: &ImportedVersionHas{}}
@@ -26,7 +26,7 @@ func TestImportRulesDeriveFileIdentityAndDefaults(t *testing.T) {
 	hooks := new(ImportRules)
 	state := xhandler.LifecycleContext[ImportedVersion, xhandler.NoParent, Output]{}
 	source := "SELECT 1"
-	version := &ImportedVersion{ReportId: "r1", VersionNo: 1, AuthoredDql: &source, SpecFormatVersion: "studio.v1", SpecHash: "h", DatlyVersion: "v1",
+	version := &ImportedVersion{NamespaceId: strings.Repeat("a", 64), ReportId: "r1", VersionNo: 1, AuthoredDql: &source, SpecFormatVersion: "studio.v1", SpecHash: "h", DatlyVersion: "v1",
 		CompilerVersion: "studio.v1", CreatedBy: "owner", CreatedAt: time.Date(2026, 9, 24, 0, 0, 0, 0, time.UTC),
 		File: []*ImportedResourceFile{linkedFile("main.dql", []byte(source)), linkedFile("assets/a.bin", []byte{0xff, 0x00})}}
 	version.File[0].VersionNo, version.File[1].VersionNo = 1, 1
@@ -71,6 +71,8 @@ func TestImportRulesValidateDeniesEveryContractViolation(t *testing.T) {
 		want string
 	}{
 		{"missing report", func(v *ImportedVersion) { v.ReportId = " " }, "report id is required"},
+		{"missing workspace", func(v *ImportedVersion) { v.NamespaceId = "" }, "namespace ownership"},
+		{"foreign workspace", func(v *ImportedVersion) { v.File[1].NamespaceId = strings.Repeat("b", 64) }, "namespace ownership differs"},
 		{"unallocated version", func(v *ImportedVersion) { v.VersionNo = 0 }, "must be allocated"},
 		{"not draft", func(v *ImportedVersion) { v.State = "validated" }, "must be drafts"},
 		{"not dql", func(v *ImportedVersion) { v.AuthoringMode = "sql" }, "dql authoring mode"},

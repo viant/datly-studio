@@ -8,7 +8,7 @@ import (
 	authreader "github.com/viant/datly-studio/studio/auth/reader"
 	"github.com/viant/datly-studio/studio/authorization"
 	_ "github.com/viant/datly-studio/studio/connectors/accesspredicate"
-	_ "github.com/viant/datly-studio/studio/namespaces/accesspredicate"
+	namespacepredicate "github.com/viant/datly-studio/studio/namespaces/accesspredicate"
 	"github.com/viant/datly-studio/studio/report_publication_events/listoptions"
 	_ "github.com/viant/datly-studio/studio/report_publications/otheractivepredicate"
 	versionlistoptions "github.com/viant/datly-studio/studio/report_versions/listoptions"
@@ -31,6 +31,7 @@ func StudioAuthorizationTypes(t testing.TB) *typecatalog.Catalog {
 	catalog := typecatalog.NewCatalog()
 	types := []any{
 		jwt.Claims{},
+		namespacepredicate.NamespaceAccess{}, namespacepredicate.NamespaceDirectory{},
 		authreader.AuthContext{}, authreader.Output{},
 		authorization.ConnectorRead{}, authorization.ConnectorEdit{}, authorization.NamespaceRead{},
 		authorization.ReportRead{}, authorization.ReportEdit{}, authorization.ReportPublish{},
@@ -45,7 +46,7 @@ func StudioAuthorizationTypes(t testing.TB) *typecatalog.Catalog {
 		authorization.ACLRead{}, authorization.ACLEdit{},
 		authorization.RuntimeRead{}, authorization.RuntimeEdit{},
 		authorization.WarmupRead{}, authorization.SessionRead{}, authorization.SessionRevoke{},
-		catalogpredicate.ReportCatalogRead{},
+		catalogpredicate.ReportCatalogRead{}, catalogpredicate.RunNamespaceRead{},
 		listoptions.Options{},
 		versionlistoptions.Options{},
 		sdk.WarmupRun{}, sdk.WarmupTarget{}, sdk.Diagnostic{},

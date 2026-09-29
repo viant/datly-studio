@@ -8,6 +8,7 @@ import (
 
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/readercomponent"
+	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
 	"github.com/viant/datly-studio/studio/report_publications/otheractivepredicate"
 	stored "github.com/viant/datly-studio/studio/report_publications/store_active_others"
@@ -45,7 +46,8 @@ func ReadOtherActive(ctx context.Context, db *sql.DB, tx *sql.Tx, excludeReportI
 		return nil, err
 	}
 	defer runtime.Shutdown(context.Background())
-	input := &stored.Input{ExcludeReportId: excludeReportID, Has: &stored.InputHas{ExcludeReportId: true}}
+	namespaceID, _ := sdk.NamespaceSelectionFromContext(ctx)
+	input := &stored.Input{NamespaceId: namespaceID, ExcludeReportId: excludeReportID, Has: &stored.InputHas{NamespaceId: true, ExcludeReportId: true}}
 	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: target, Input: input})
 	if err != nil {
 		return nil, err

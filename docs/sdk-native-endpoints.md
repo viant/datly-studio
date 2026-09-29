@@ -67,6 +67,14 @@ writer. Signed HTTP/direct/BFF MCP tests cover valid and invalid DQL,
 delegated-editor redaction, run-only denial, stale revision and the Docker
 wide reader. Native `versions.test_view`, `.test_relation`, and `.test_compose`
 share the verified `can_run` guard and configured DB capability with preview.
+When ACL verification is configured, these native execution paths retain the
+incoming bearer credential and resolve the same server-owned OAuth provider as
+the policy endpoints. `STUDIO_ACCESS_TENANT` pins the tenant for exact-version
+scoped execution. Partial verifier configuration fails closed. Authorization
+facts must independently match the verified Studio subject; request fields do
+not supply roles, exposures or allowed entities. The user-info adapter currently
+provides roles/features only, so entity-bounded execution still needs a trusted
+entity provider. This wiring does not itself enable scoped UI Preview.
 They execute Datly's actual transient view, relation and derived cube-compose
 paths; SQLite signed HTTP/direct/BFF MCP tests cover root rows, attached-child
 evidence and composed data. The Docker wide view also passed native HTTP and

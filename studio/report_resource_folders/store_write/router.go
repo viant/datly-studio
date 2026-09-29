@@ -13,12 +13,12 @@ type FolderComponent struct {
 	Contract xdatly.Component[Input, Output] "component:\"folder,path=/_studio/resource-folder-store/write,method=PATCH,connector=studio,view=folder,internal=true\" routeName:\"folder\" mutation:\"patch\" caseFormat:\"lc\""
 }
 
-// FolderDatlyType keeps the public component type linked for blank-import discovery.
+// FolderDatlyType returns the public component type.
 func FolderDatlyType() reflect.Type { return reflect.TypeOf((*FolderComponent)(nil)).Elem() }
 
-// Datly anchors this package's public component contract.
+// The package-level value keeps this real component type reachable for runtime discovery.
 var FolderDatly = new(FolderComponent)
-var FolderDatlyLinkedType = FolderDatlyType()
+var _datlyReachableFolderComponent = reflect.TypeFor[FolderComponent]()
 
 func (FolderComponent) EmbedFS() *embed.FS {
 	return &FolderDatlyResources

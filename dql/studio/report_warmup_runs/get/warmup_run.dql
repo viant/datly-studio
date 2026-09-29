@@ -14,6 +14,7 @@
 #setting($_ = $mcp('studio.sdk.versions.warmup_get', 'Read one authorized Datly Studio cache warmup run'))
 #setting($_ = $sql_dest('warmup_run', 'sql/warmup_run.sql'))
 
+#define($_ = $NamespaceId<*string>(header/X-Studio-Namespace).Optional().WithTag('json:"namespaceId,omitempty"'))
 #define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
 #define($_ = $Auth<*studioauth.Output>(component/GET:/v1/studio/auth/context).Required().WithPredicate(3, 'handler', 'studioauthorization.WarmupRead'))
 #define($_ = $ReportId<string>(body/reportId).WithTag('json:"reportId"').Required().WithPredicate(2, 'equal', 'w', 'report_id'))

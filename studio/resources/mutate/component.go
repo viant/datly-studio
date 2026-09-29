@@ -25,8 +25,9 @@ import (
 )
 
 type identity struct {
-	Jwt  *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
-	Auth *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
+	NamespaceId *string            `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
+	Jwt         *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
+	Auth        *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
 }
 
 type FileUpsertInput struct {
@@ -81,12 +82,12 @@ type SkillDeleteComponent struct {
 }
 
 var (
-	FileUpsertDatly             = new(FileUpsertComponent)
-	FileDeleteDatly             = new(FileDeleteComponent)
-	FolderUpsertDatly           = new(FolderUpsertComponent)
-	FolderDeleteDatly           = new(FolderDeleteComponent)
-	SkillUpsertDatly            = new(SkillUpsertComponent)
-	SkillDeleteDatly            = new(SkillDeleteComponent)
+	FileUpsertDatly                      = new(FileUpsertComponent)
+	FileDeleteDatly                      = new(FileDeleteComponent)
+	FolderUpsertDatly                    = new(FolderUpsertComponent)
+	FolderDeleteDatly                    = new(FolderDeleteComponent)
+	SkillUpsertDatly                     = new(SkillUpsertComponent)
+	SkillDeleteDatly                     = new(SkillDeleteComponent)
 	_datlyReachableFileUpsertComponent   = reflect.TypeFor[FileUpsertComponent]()
 	_datlyReachableFileDeleteComponent   = reflect.TypeFor[FileDeleteComponent]()
 	_datlyReachableFolderUpsertComponent = reflect.TypeFor[FolderUpsertComponent]()
@@ -228,6 +229,9 @@ func mutate(ctx context.Context, session xhandler.Session, principal identity, o
 	}
 	engine := &sqltransport.Transport{DB: db, ComponentInvoker: invoker}
 	mutationCtx := sdk.WithPrincipal(ctx, sdk.Principal{Subject: principal.Jwt.Subject})
+	if principal.NamespaceId != nil {
+		mutationCtx = sdk.WithNamespaceSelection(mutationCtx, *principal.NamespaceId)
+	}
 	if err = engine.ApplyResourceMutation(mutationCtx, operation, input); err != nil {
 		return publicMutationError(err)
 	}

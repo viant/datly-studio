@@ -84,3 +84,35 @@ test('embedding app can supply a distinct action contract for another resource k
   expect(screen.getByRole('button', { name: /execute Protected/ })).toBeTruthy();
   expect(screen.queryByRole('button', { name: /edit/ })).toBeNull();
 });
+
+test('permission resources are searchable, paginated and selected without known IDs', async () => {
+  const user=userEvent.setup();
+  const resource={kind:'component',id:'opaque-id',tenant:'tenant-a',version:'8'};
+  const api={listAccessResources:vi.fn().mockResolvedValue({items:[{kind:'skill',id:'skill-id',name:'Forecasting guide',ownerName:'Forecasting',resource,inherited:true}],hasMore:true}),getResourceAccess:vi.fn().mockResolvedValue({resource,revision:1,policies:{}})};
+  render(<SecurityCenter api={api}/>);
+  expect(await screen.findByRole('button',{name:'Forecasting guide'})).toBeTruthy();
+  expect(screen.getByText('skill-id')).toBeTruthy();
+  expect(screen.queryByLabelText('Resource ID')).toBeNull();
+  await user.click(screen.getByRole('button',{name:'Forecasting guide'}));
+  await screen.findByText('Policy revision 1');
+  expect(api.getResourceAccess).toHaveBeenCalledWith(resource);
+  expect(screen.getByText(/inherits permissions from Forecasting/)).toBeTruthy();
+  await user.click(screen.getByRole('button',{name:'Next'}));
+  expect(api.listAccessResources).toHaveBeenLastCalledWith({kind:'',access:'',query:'',limit:10,offset:10});
+  await user.type(screen.getByLabelText('Find a resource'),'guide');
+  expect(api.listAccessResources).toHaveBeenLastCalledWith({kind:'',access:'',query:'guide',limit:10,offset:0});
+});
+
+test('resources without ACL remain visible and public with an access-state filter',async()=>{
+ const user=userEvent.setup();
+ const resource={kind:'component',id:'public-id',tenant:'',version:'3'};
+ const api={listAccessResources:vi.fn().mockResolvedValue({items:[{kind:'component',id:resource.id,name:'Open lookup',resource,public:true,explicitAcl:false}],hasMore:false}),getResourceAccess:vi.fn()};
+ render(<SecurityCenter api={api}/>);
+ await screen.findByRole('button',{name:'Open lookup'});
+ expect(screen.getByText('No explicit ACL')).toBeTruthy();
+ await user.click(screen.getByRole('button',{name:'Open lookup'}));
+ expect(screen.getByText('No explicit ACL is defined for this resource.')).toBeTruthy();
+ expect(api.getResourceAccess).not.toHaveBeenCalled();
+ await user.selectOptions(screen.getByLabelText('Access'),'public');
+ expect(api.listAccessResources).toHaveBeenLastCalledWith({kind:'',access:'public',query:'',limit:10,offset:0});
+});

@@ -5,6 +5,17 @@ import (
 	jwt "github.com/viant/scy/auth/jwt"
 )
 
+func (input *WarmupGetInput) SetNamespaceId(value *string) {
+	if input == nil {
+		return
+	}
+	input.NamespaceId = value
+	if input.Has == nil {
+		input.Has = &WarmupGetInputHas{}
+	}
+	input.Has.NamespaceId = true
+}
+
 func (input *WarmupGetInput) SetJwt(value *jwt.Claims) {
 	if input == nil {
 		return

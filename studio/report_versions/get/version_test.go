@@ -13,6 +13,7 @@ import (
 	requestprovider "github.com/viant/bindly/provider/request"
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/datatest"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly/bootstrap"
 	gateway "github.com/viant/datly/gateway/http"
 	"github.com/viant/datly/gateway/openapi"
@@ -151,6 +152,27 @@ func TestVersionGetScopesMetadataAndRedactsDQLAcrossProtocols(t *testing.T) {
 		t.Fatal("missing JWT was accepted")
 	}
 	handler := gateway.NewHandler(runtime, nil, "test")
+	generalID := namespaceaccess.ID("alice", "general")
+	otherID := namespaceaccess.ID("alice", "other")
+	if _, err := db.ExecContext(ctx, `UPDATE namespaces SET namespace_id=? WHERE owner_id='alice' AND name='general'`, generalID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.ExecContext(ctx, `INSERT INTO namespaces(namespace_id,owner_id,name,title,status,etag,created_at,updated_at) VALUES(?,'alice','other','Other','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, otherID); err != nil {
+		t.Fatal(err)
+	}
+	for _, check := range []struct {
+		subject, id string
+		status      int
+	}{{"alice", generalID, 200}, {"alice", otherID, 404}, {"bob", generalID, 404}, {"alice", "invalid", 403}} {
+		scopedRequest := request(check.subject, 2)
+		scopedRequest.Header.Set("X-Studio-Namespace", check.id)
+		scopedResponse := httptest.NewRecorder()
+		handler.ServeHTTP(scopedResponse, scopedRequest)
+		if scopedResponse.Code != check.status {
+			t.Fatalf("namespace version HTTP subject=%s status=%d want=%d body=%s", check.subject, scopedResponse.Code, check.status, scopedResponse.Body.String())
+		}
+	}
+
 	for _, check := range []struct {
 		subject string
 		wantDQL bool
@@ -191,6 +213,18 @@ func TestVersionGetScopesMetadataAndRedactsDQLAcrossProtocols(t *testing.T) {
 	tool, ok := toolService.Registry().ToolRegistry.Get("studio.sdk.versions.get")
 	if !ok {
 		t.Fatal("MCP version-get tool is missing")
+	}
+
+	for _, check := range []struct {
+		subject, id string
+		allowed     bool
+	}{{"alice", generalID, true}, {"alice", otherID, false}, {"bob", generalID, false}, {"alice", "invalid", false}} {
+		scopedContext := context.WithValue(ctx, authorization.TokenKey, &authorization.Token{Token: jwt.Bearer(t, check.subject)})
+		result, rpcErr := tool.Handler(scopedContext, &schema.CallToolRequest{Method: schema.MethodToolsCall, Params: schema.CallToolRequestParams{Name: "studio.sdk.versions.get", Arguments: map[string]any{"reportId": "r1", "versionNo": 2, "namespaceId": check.id}}})
+		allowed := rpcErr == nil && result != nil && (result.IsError == nil || !*result.IsError)
+		if allowed != check.allowed {
+			t.Fatalf("namespace version MCP subject=%s namespace=%s result=%+v err=%v", check.subject, check.id, result, rpcErr)
+		}
 	}
 	for _, check := range []struct {
 		subject string

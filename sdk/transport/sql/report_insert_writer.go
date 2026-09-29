@@ -3,6 +3,7 @@ package sqltransport
 import (
 	"context"
 	"fmt"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"reflect"
 
 	"github.com/viant/bindly/locator"
@@ -21,6 +22,7 @@ import (
 )
 
 func (t *Transport) writeReportInsert(ctx context.Context, row *stored.StoredReport) error {
+	row.SetNamespaceId(namespaceaccess.ID(row.OwnerId, row.Namespace))
 	resources := resource.New()
 	if err := resources.Register(stored.ReportDatlyResourceNamespace, stored.ReportDatlyResources); err != nil {
 		return err

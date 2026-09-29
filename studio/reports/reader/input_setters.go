@@ -125,3 +125,14 @@ func (input *Input) SetOffset(value int) {
 	}
 	input.Has.Offset = true
 }
+
+func (input *Input) SetNamespaceId(value *string) {
+	if input == nil {
+		return
+	}
+	input.NamespaceId = value
+	if input.Has == nil {
+		input.Has = &InputHas{}
+	}
+	input.Has.NamespaceId = true
+}

@@ -7,7 +7,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	requestprovider "github.com/viant/bindly/provider/request"
 	"github.com/viant/datly/typecatalog"
+	"net/http"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -15,24 +17,29 @@ import (
 	"strings"
 	"time"
 
+	access "github.com/viant/authz"
 	"github.com/viant/bindly"
 	bindresource "github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/connectorinit"
 	"github.com/viant/datly-studio/internal/connectorsecret"
+	"github.com/viant/datly-studio/runtime/accesscontext"
 	studiors "github.com/viant/datly-studio/runtime/resources"
 	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly/authoring/readerbuilder"
 	"github.com/viant/datly/bootstrap"
 	dexec "github.com/viant/datly/exec"
 	mcpresource "github.com/viant/datly/mcp/resource"
+	mcptool "github.com/viant/datly/mcp/tool"
 	"github.com/viant/datly/report"
 	druntime "github.com/viant/datly/runtime"
 	rhandler "github.com/viant/datly/runtime/handler"
+	nativeoutput "github.com/viant/datly/runtime/output"
 	"github.com/viant/datly/spec"
 	dsql "github.com/viant/datly/sql"
 	"github.com/viant/datly/transcribe"
 	"github.com/viant/datly/transcribe/column"
 	"github.com/viant/sqlx"
+	"github.com/viant/tagly/tags"
 	xhandler "github.com/viant/xdatly/handler"
 	"golang.org/x/mod/modfile"
 )
@@ -40,9 +47,11 @@ import (
 // Dynamic executes dynamic reader versions using Datly's runtime-contract
 // materialization. It is an SDK preview executor, not a SQL escape hatch.
 type Dynamic struct {
-	Types    *typecatalog.Catalog
-	StudioDB *sql.DB
-	RootDir  string
+	Access       *access.Service
+	AccessTenant string
+	Types        *typecatalog.Catalog
+	StudioDB     *sql.DB
+	RootDir      string
 	// ModulePath avoids reading go.mod for transient SQL tests in a deployed
 	// binary whose working directory contains no source checkout.
 	ModulePath  string
@@ -73,7 +82,7 @@ func (d Dynamic) Validate(ctx context.Context, reportID string, versionNo int) e
 	}
 	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{
 		Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType,
-		Types: contract.Types, Resources: contract.Resources,
+		Types: contract.Types, Resources: contract.Resources, CodecFactory: accesscontext.Codecs(),
 	})
 	if err != nil {
 		return fmt.Errorf("build runtime artifact: %w", err)
@@ -174,6 +183,9 @@ func (d Dynamic) Execute(ctx context.Context, reportID string, versionNo int, re
 	if strings.TrimSpace(definition.DQL) == "" {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "reader version has no DQL source"}
 	}
+	if request.Cube {
+		return d.executeCube(ctx, reportID, versionNo, request.Input, true, request.Limit)
+	}
 	return d.execute(ctx, definition, definition.DQL, request)
 }
 
@@ -185,7 +197,7 @@ func (d Dynamic) TestView(ctx context.Context, reportID string, versionNo int, v
 	if err != nil {
 		return nil, err
 	}
-	dql, err := testViewDQL(ctx, definition, view)
+	dql, err := testViewDQL(ctx, definition, view, d.Types)
 	if err != nil {
 		return nil, err
 	}
@@ -245,6 +257,20 @@ func (d Dynamic) TestRelation(ctx context.Context, reportID string, versionNo in
 // persisted reader contract. Frame SQL substitution and budgets remain owned by
 // Datly's report package.
 func (d Dynamic) TestCompose(ctx context.Context, reportID string, versionNo int, request sdk.CubeComposeTestInput) (*sdk.CubeComposeTestResult, error) {
+	payload, err := json.Marshal(request)
+	if err != nil {
+		return nil, err
+	}
+	result, err := d.executeCube(ctx, reportID, versionNo, payload, false, 200)
+	if err != nil {
+		return nil, err
+	}
+	return &sdk.CubeComposeTestResult{Data: result.Data, Duration: result.Duration, Diagnostics: result.Diagnostics}, nil
+}
+
+// executeCube uses Datly's derived contract and invocation runtime for both
+// selected cube fields and composition. Client fields never become SQL text.
+func (d Dynamic) executeCube(ctx context.Context, reportID string, versionNo int, payload json.RawMessage, cube bool, limit int) (*sdk.PreviewResult, error) {
 	definition, err := d.definition(ctx, reportID, versionNo)
 	if err != nil {
 		return nil, err
@@ -261,12 +287,27 @@ func (d Dynamic) TestCompose(ctx context.Context, reportID string, versionNo int
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "compile cube source: " + err.Error(), Cause: err}
 	}
-	if contract.Component == nil || contract.Component.Settings == nil || contract.Component.Settings.Report == nil || contract.Component.Settings.Report.Compose == nil || !contract.Component.Settings.Report.Compose.Enabled {
-		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "reader version has no enabled cube composition"}
+	contexts, err := d.previewContexts(ctx, definition, contract.Component)
+	if err != nil {
+		return nil, err
+	}
+	if contract.Component == nil || contract.Component.Settings == nil || contract.Component.Settings.Report == nil || !contract.Component.Settings.Report.Enabled || (!cube && (contract.Component.Settings.Report.Compose == nil || !contract.Component.Settings.Report.Compose.Enabled)) {
+		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "reader version has no enabled requested cube capability"}
+	}
+	if cube {
+		for _, column := range contract.Component.RootView.Columns {
+			if column == nil || column.Groupable == nil {
+				continue
+			}
+			tag := tags.NewTags(strings.ReplaceAll(column.Tag, `\"`, `"`)).Lookup("groupable")
+			if tag != nil && strings.EqualFold(strings.TrimSpace(string(tag.Values)), "false") && *column.Groupable {
+				return nil, &sdk.Error{Code: sdk.ErrorUnavailable, Message: "Datly column discovery did not preserve the authored measure role; upgrade Datly before previewing this cube"}
+			}
+		}
 	}
 	compilation, err := report.NewProjectCompiler(report.ProjectConfig{Types: contract.Types}).CompileArtifacts([]bootstrap.ArtifactInput{{
 		Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType,
-		DirectViewField: outputViewField(contract.Component), Types: contract.Types, Resources: contract.Resources,
+		DirectViewField: outputViewField(contract.Component), Types: contract.Types, Resources: contract.Resources, CodecFactory: accesscontext.Codecs(),
 	}})
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "derive cube composition: " + err.Error(), Cause: err}
@@ -286,11 +327,15 @@ func (d Dynamic) TestCompose(ctx context.Context, reportID string, versionNo int
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "configure cube composition runtime", Cause: err}
 	}
-	runtime, err := druntime.NewRuntime(registered)
+	runtime, err := druntime.NewRuntime(append(registered, contexts...))
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "initialize cube composition runtime", Cause: err}
 	}
 	defer runtime.Shutdown(ctx)
+	suffix := "/cube/compose"
+	if cube {
+		suffix = "/cube"
+	}
 	var composeArtifact *report.ComponentArtifact
 	for _, artifact := range compilation.Artifacts() {
 		component := artifact.Component()
@@ -298,7 +343,7 @@ func (d Dynamic) TestCompose(ctx context.Context, reportID string, versionNo int
 			continue
 		}
 		for _, route := range component.Routes {
-			if route != nil && strings.HasSuffix(strings.TrimSuffix(route.Path, "/"), "/cube/compose") {
+			if route != nil && strings.HasSuffix(strings.TrimSuffix(route.Path, "/"), suffix) {
 				composeArtifact = artifact
 				break
 			}
@@ -307,30 +352,67 @@ func (d Dynamic) TestCompose(ctx context.Context, reportID string, versionNo int
 	if composeArtifact == nil {
 		return nil, &sdk.Error{Code: sdk.ErrorUnavailable, Message: "derived cube composition component is unavailable"}
 	}
-	payload, err := json.Marshal(request)
+	if cube {
+		// Reject misspelled fields before native binding; composition frame codecs
+		// own their own schema and must consume their raw body source.
+		probe := reflect.New(composeArtifact.InputType()).Interface()
+		decoder := json.NewDecoder(strings.NewReader(string(payload)))
+		decoder.DisallowUnknownFields()
+		if err = decoder.Decode(probe); err != nil {
+			return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "cube input does not match derived contract: " + err.Error(), Cause: err}
+		}
+	}
+	request, err := http.NewRequestWithContext(ctx, http.MethodPost, "http://studio.invalid/cube", strings.NewReader(string(payload)))
 	if err != nil {
-		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "encode cube composition input", Cause: err}
+		return nil, err
 	}
-	input := reflect.New(composeArtifact.InputType()).Interface()
-	if err = json.Unmarshal(payload, input); err != nil {
-		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "cube composition input does not match derived contract", Cause: err}
+	request.Header.Set("Content-Type", "application/json")
+	scope, err := requestprovider.New(request)
+	if err != nil {
+		return nil, err
 	}
+	defer scope.Close()
 	component := composeArtifact.Component()
 	if len(component.Routes) == 0 || component.Routes[0] == nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "cube composition route is unavailable"}
 	}
+	plan, err := (nativeoutput.Compiler{}).Compile(nativeoutput.CompileInput{Component: component, Type: composeArtifact.OutputType()})
+	if err != nil {
+		return nil, err
+	}
+	ctx = dexec.CaptureOutputSelection(ctx)
 	started := time.Now()
 	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: dexec.ComponentTarget{
 		Component: component.Key, Route: spec.RouteRef{Method: component.Routes[0].Method, Path: component.Routes[0].Path},
-	}, Input: input})
+	}, Providers: scope.Providers()})
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "execute cube composition: " + err.Error(), Cause: err}
 	}
-	encoded, err := json.Marshal(value)
-	if err != nil {
-		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "encode cube composition result", Cause: err}
+	if limit <= 0 {
+		limit = 50
 	}
-	return &sdk.CubeComposeTestResult{Data: encoded, Duration: time.Since(started)}, nil
+	if limit > 200 {
+		limit = 200
+	}
+	data, count, truncated := limitPreviewRows(value, limit)
+	result, err := plan.Encode(ctx, "json", data)
+	encoded := result.Data
+	if err != nil {
+		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "encode cube result", Cause: err}
+	}
+	for len(encoded) > maxPreviewBytes && count > 1 {
+		data, count, _ = limitPreviewRows(data, (count+1)/2)
+		truncated = true
+		result, err = plan.Encode(ctx, "json", data)
+		encoded = result.Data
+		if err != nil {
+			return nil, err
+		}
+	}
+	if len(encoded) > maxPreviewBytes {
+		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "cube result exceeds preview response budget"}
+	}
+	return &sdk.PreviewResult{Data: encoded, Duration: time.Since(started), Evidence: sdk.ExecutionEvidence{ReportID: reportID, VersionNo: versionNo, SourceRevision: definition.SourceRevision, Connector: definition.Connector, Limit: limit, ReturnedRows: count, EncodedBytes: len(encoded), Truncated: truncated}}, nil
 }
 
 func outputViewField(component *spec.Component) string {
@@ -365,7 +447,7 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 	if contract.Component == nil || contract.Component.RootView == nil || contract.Component.CacheWarmup() == nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "reader version has no authored cache warmup policy"}
 	}
-	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources})
+	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources, CodecFactory: accesscontext.Codecs()})
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "build dynamic reader artifact", Cause: err}
 	}
@@ -446,6 +528,15 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "compile dynamic reader: " + err.Error(), Cause: err}
 	}
+	contexts, err := d.previewContexts(ctx, definition, contract.Component)
+	if err != nil {
+		return nil, err
+	}
+	if len(contexts) > 0 {
+		if err = rejectClientContextValues(contract.Component, request.Input); err != nil {
+			return nil, err
+		}
+	}
 	input := reflect.New(contract.InputType).Interface()
 	if len(request.Input) != 0 {
 		if err = json.Unmarshal(request.Input, input); err != nil {
@@ -456,7 +547,7 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 	if credential, ok := sdk.VerifiedCredentialFromContext(ctx); ok {
 		hydrateVerifiedClaims(input, credential.Claims)
 	}
-	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources})
+	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources, CodecFactory: accesscontext.Codecs()})
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "build dynamic reader artifact", Cause: err}
 	}
@@ -470,7 +561,41 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 	}
 	binder := previewBinder{delegate: rhandler.NewBinder(injector, input), input: input}
 	started := time.Now()
-	data, err := reader.Read(ctx, input, binder, sqlx.ParameterResolver(artifact.Input.Resolver(input)))
+	var data any
+	if len(contexts) == 0 {
+		data, err = reader.Read(ctx, input, binder, sqlx.ParameterResolver(artifact.Input.Resolver(input)))
+	} else {
+		registered, registerErr := artifact.Registration(druntime.RegisteredComponent{Reader: reader})
+		if registerErr != nil {
+			return nil, registerErr
+		}
+		runtime, runtimeErr := druntime.NewRuntime(append(contexts, registered))
+		if runtimeErr != nil {
+			return nil, runtimeErr
+		}
+		defer runtime.Shutdown(ctx)
+		route := contract.Component.Routes[0]
+		inputContract, found := artifact.Input.ForRoute(spec.RouteRef{Method: route.Method, Path: route.Path})
+		if !found {
+			return nil, errors.New("preview route binding is unavailable")
+		}
+		bindingPlan, bindingErr := mcptool.NewCompiler().Compile(mcptool.Input{Component: contract.Component.Key, Exposure: &spec.MCPExposure{Kind: spec.MCPExposureTool, Name: "preview"}, Contract: inputContract, Fields: inputContract.Fields(), TransportReady: true})
+		if bindingErr != nil {
+			return nil, bindingErr
+		}
+		arguments := map[string]interface{}{}
+		if len(request.Input) > 0 {
+			if err = json.Unmarshal(request.Input, &arguments); err != nil {
+				return nil, err
+			}
+		}
+		scope, scopeErr := bindingPlan.Scope(arguments)
+		if scopeErr != nil {
+			return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "preview input does not match its native contract", Cause: scopeErr}
+		}
+		defer scope.Close()
+		data, err = runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: dexec.ComponentTarget{Component: contract.Component.Key, Route: spec.RouteRef{Method: route.Method, Path: route.Path}}, Providers: scope.Providers()})
+	}
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "execute dynamic reader: " + err.Error(), Cause: err}
 	}
@@ -497,6 +622,17 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 	}
 	evidence := sdk.ExecutionEvidence{ReportID: definition.ReportID, VersionNo: definition.VersionNo, SourceRevision: definition.SourceRevision, Connector: definition.Connector, Limit: limit, ReturnedRows: returnedRows, EncodedBytes: len(encoded), Truncated: truncated}
 	return &sdk.PreviewResult{Data: encoded, Duration: time.Since(started), Evidence: evidence}, nil
+}
+
+func rejectUnboundAccessContext(component *spec.Component) error {
+	dependencies, err := accesscontext.DependsOn(component)
+	if err != nil {
+		return &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "invalid access-context dependency", Cause: err}
+	}
+	if len(dependencies) > 0 {
+		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Studio preview cannot execute server-scoped readers without a verified runtime access context"}
+	}
+	return nil
 }
 
 const maxPreviewBytes = 2 << 20
@@ -713,15 +849,50 @@ func hydrateVerifiedClaims(input, claims any) {
 	}
 }
 
-func testViewDQL(ctx context.Context, definition *definition, viewName string) (string, error) {
-	service := readerbuilder.New(readerbuilder.Config{Scope: definition.Scope, Name: definition.Name, AvailableConnectors: []string{definition.Connector}})
+func testViewDQL(ctx context.Context, definition *definition, viewName string, types *typecatalog.Catalog) (string, error) {
+	available := []string{definition.Connector}
+	for _, connector := range definition.Connectors {
+		if connector.Name != definition.Connector {
+			available = append(available, connector.Name)
+		}
+	}
+	service := readerbuilder.New(readerbuilder.Config{Resources: definition.Resources, Types: types, Scope: definition.Scope, Name: definition.Name, AvailableConnectors: available})
 	response := service.Apply(ctx, readerbuilder.Request{DQL: definition.DQL, Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
-	if response.Structure == nil {
+	if response.Structure == nil || response.Structure.Component == nil || response.Structure.Component.TypeContext == nil {
 		return "", &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "reader view structure is unavailable"}
 	}
 	packagePath := strings.TrimSpace(response.Structure.Component.TypeContext.PackagePath)
 	if packagePath == "" {
 		return "", &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "reader component package is unavailable"}
+	}
+	connectorName := definition.Connector
+	var resolveView func(*spec.View) *spec.View
+	resolveView = func(view *spec.View) *spec.View {
+		if view == nil {
+			return nil
+		}
+		if strings.EqualFold(view.Name, viewName) || strings.EqualFold(view.Namespace, viewName) {
+			return view
+		}
+		for _, relation := range view.Relations {
+			if relation != nil {
+				if found := resolveView(relation.View); found != nil {
+					return found
+				}
+			}
+		}
+		return nil
+	}
+	selected := resolveView(response.Structure.Component.RootView)
+	if selected == nil {
+		for _, view := range response.Structure.Component.Views {
+			if selected = resolveView(view); selected != nil {
+				break
+			}
+		}
+	}
+	if selected != nil && selected.Source != nil && selected.Source.Bindings != nil && selected.Source.Bindings.Connector != "" {
+		connectorName = selected.Source.Bindings.Connector
 	}
 	var sourceSpanStart, sourceSpanEnd int
 	found := false
@@ -731,7 +902,14 @@ func testViewDQL(ctx context.Context, definition *definition, viewName string) (
 			break
 		}
 	}
-	if !found || sourceSpanStart < 0 || sourceSpanEnd > len(definition.DQL) || sourceSpanStart >= sourceSpanEnd {
+	inner := ""
+	if selected != nil && selected.Source != nil {
+		inner = selected.Source.SQL
+	}
+	if inner == "" && found && sourceSpanStart >= 0 && sourceSpanEnd <= len(definition.DQL) && sourceSpanStart < sourceSpanEnd {
+		inner = definition.DQL[sourceSpanStart:sourceSpanEnd]
+	}
+	if inner == "" {
 		return "", &sdk.Error{Code: sdk.ErrorNotFound, Message: "reader view not found"}
 	}
 	var declarations []string
@@ -751,8 +929,7 @@ func testViewDQL(ctx context.Context, definition *definition, viewName string) (
 	}
 	token := safeViewToken(viewName)
 	typeName := "Preview" + strings.ToUpper(token[:1]) + token[1:]
-	inner := definition.DQL[sourceSpanStart:sourceSpanEnd]
-	return fmt.Sprintf("#package('%s/viewtest/%s')\n%s#setting($_ = $connector('%s'))\n#setting($_ = $route('/v1/studio/viewtest/%s','GET'))\n%s#define($_ = $Rows<[]*%s>(output/view))\nSELECT tested.*, type(tested, '%s')\nFROM (%s) tested", packagePath, token, imports, definition.Connector, token, strings.Join(declarations, "\n")+"\n", typeName, typeName, inner), nil
+	return fmt.Sprintf("#package('%s/viewtest/%s')\n%s#setting($_ = $connector('%s'))\n#setting($_ = $route('/v1/studio/viewtest/%s','GET'))\n%s#define($_ = $Rows<[]*%s>(output/view))\nSELECT tested.*, type(tested, '%s')\nFROM (%s) tested", packagePath, token, imports, connectorName, token, strings.Join(declarations, "\n")+"\n", typeName, typeName, inner), nil
 }
 
 func safeViewToken(value string) string {
@@ -817,6 +994,7 @@ func (b previewBinder) Lookup(ctx context.Context, key xhandler.ValueKey) (any, 
 }
 
 type definition struct {
+	Types                                               *typecatalog.Catalog
 	Scope, Name, Connector, Driver, DSN, SecretRef, DQL string
 	ReportID                                            string
 	VersionNo                                           int
@@ -855,6 +1033,7 @@ func (d Dynamic) definition(ctx context.Context, reportID string, versionNo int)
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "load reader preview definition", Cause: err}
 	}
+	result.Types = d.Types
 	result.Scope, result.Name, result.Connector = row.ComponentScope, row.ComponentName, row.DefaultConnectorName
 	result.Driver, result.SecretRef = row.Driver, row.SecretRef
 	if row.DsnTemplate != nil {
@@ -984,7 +1163,7 @@ func openSources(ctx context.Context, definition *definition, dql string) (*sour
 
 func requiredConnectors(ctx context.Context, definition *definition, dql string, available []string) []string {
 	required := map[string]bool{definition.Connector: true}
-	inspection := readerbuilder.New(readerbuilder.Config{Scope: definition.Scope, Name: definition.Name, AvailableConnectors: available}).Apply(ctx, readerbuilder.Request{DQL: dql, Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
+	inspection := readerbuilder.New(readerbuilder.Config{Resources: definition.Resources, Types: definition.Types, Scope: definition.Scope, Name: definition.Name, AvailableConnectors: available}).Apply(ctx, readerbuilder.Request{DQL: dql, Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
 	if inspection.Structure != nil {
 		for _, occurrence := range inspection.Structure.Functions {
 			if strings.EqualFold(occurrence.Name, "use_connector") && len(occurrence.Args) > 1 {

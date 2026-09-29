@@ -12,6 +12,7 @@
 
 SELECT skill.*, type(skill, 'StoredSkill'),
        CAST(skill.report_id AS string),
+       CAST(skill.namespace_id AS string),
        CAST(skill.version_no AS int),
        CAST(skill.skill_id AS string),
        CAST(skill.folder_id AS string),

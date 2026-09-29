@@ -99,19 +99,26 @@ func TestNamespaceStoreReadScopeAndPaging(t *testing.T) {
 	if _, err := db.Exec(`INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_run,can_edit,can_publish,can_use_dql,etag) VALUES(?,'user','viewer',TRUE,FALSE,FALSE,FALSE,FALSE,1)`, report.ID); err != nil {
 		t.Fatal(err)
 	}
+
+	if _, err := client.Namespaces().Get(viewer, "alpha"); err == nil {
+		t.Fatal("component ACL bypassed private namespace")
+	}
+	if _, err := db.Exec(`UPDATE namespaces SET visibility='public' WHERE owner_id='owner' AND name='alpha'`); err != nil {
+		t.Fatal(err)
+	}
 	visible, err := client.Namespaces().Get(viewer, "alpha")
 	if err != nil || visible.OwnerID != "owner" || visible.Name != "alpha" {
-		t.Fatalf("ACL namespace=%+v err=%v", visible, err)
+		t.Fatalf("public namespace=%+v err=%v", visible, err)
 	}
 	page, err = client.Namespaces().List(viewer, sdk.ListNamespacesInput{Query: "finance"})
 	if err != nil || len(page.Items) != 2 || page.Items[0].Name != "alpha" || page.Items[1].Name != "private" {
-		t.Fatalf("ACL page=%+v err=%v", page, err)
+		t.Fatalf("public page=%+v err=%v", page, err)
 	}
 	if _, err := db.Exec(`UPDATE components SET deleted_at=? WHERE id=?`, now, report.ID); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := client.Namespaces().Get(viewer, "alpha"); err == nil {
-		t.Fatal("deleted report still granted namespace access")
+	if _, err := client.Namespaces().Get(viewer, "alpha"); err != nil {
+		t.Fatalf("public namespace depended on component grant: %v", err)
 	}
 	page, err = client.Namespaces().List(ctx, sdk.ListNamespacesInput{Status: "archived", Limit: 0, Offset: -1})
 	if err != nil || len(page.Items) != 1 || page.Items[0].Name != "gamma" || page.Offset != 0 || page.Limit != 50 {

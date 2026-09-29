@@ -3,6 +3,7 @@ package sdk
 import (
 	"context"
 	"errors"
+	authzoauth "github.com/viant/authz/oauth"
 	"strings"
 	"time"
 
@@ -31,7 +32,7 @@ type SystemCredentialProvider func(context.Context) (VerifiedCredential, error)
 func WithSystemIdentity(ctx context.Context, provider SystemCredentialProvider) (context.Context, error) {
 	principal := SystemPrincipal()
 	// A maintenance transition must never inherit the triggering user's bearer.
-	ctx = context.WithValue(ctx, credentialKey{}, VerifiedCredential{})
+	ctx = context.WithValue(authzoauth.WithBearer(ctx, ""), credentialKey{}, VerifiedCredential{})
 	if provider == nil {
 		return WithPrincipal(ctx, principal), nil
 	}
@@ -74,7 +75,7 @@ func PrincipalFromContext(ctx context.Context) (Principal, bool) {
 }
 
 func WithVerifiedCredential(ctx context.Context, credential VerifiedCredential) context.Context {
-	return context.WithValue(ctx, credentialKey{}, credential)
+	return context.WithValue(authzoauth.WithBearer(ctx, strings.TrimPrefix(credential.Bearer, "Bearer ")), credentialKey{}, credential)
 }
 
 func VerifiedCredentialFromContext(ctx context.Context) (VerifiedCredential, bool) {

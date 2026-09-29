@@ -4,5 +4,6 @@ package catalogpredicate
 import "reflect"
 
 var _datlyReachableReportCatalogRead = reflect.TypeFor[ReportCatalogRead]()
+var _datlyReachableRunNamespaceRead = reflect.TypeFor[RunNamespaceRead]()
 
 func init() {}

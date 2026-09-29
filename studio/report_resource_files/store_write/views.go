@@ -7,6 +7,7 @@ import (
 // StoredFile is generated canonical view metadata for file.
 type StoredFile struct {
 	ReportId      string         `sqlx:"report_id,primaryKey"`
+	NamespaceId   string         `sqlx:"namespace_id"`
 	VersionNo     int            `sqlx:"version_no,primaryKey"`
 	ResourceId    string         `sqlx:"resource_id,primaryKey"`
 	Namespace     string         `sqlx:"namespace"`
@@ -23,6 +24,7 @@ type StoredFile struct {
 
 type StoredFileHas struct {
 	ReportId      bool
+	NamespaceId   bool
 	VersionNo     bool
 	ResourceId    bool
 	Namespace     bool
@@ -39,6 +41,7 @@ type StoredFileHas struct {
 // CurrentFileView is generated canonical view metadata for file.
 type CurrentFileView struct {
 	ReportId      string    `sqlx:"report_id,primaryKey"`
+	NamespaceId   string    `sqlx:"namespace_id"`
 	VersionNo     int       `sqlx:"version_no,primaryKey"`
 	ResourceId    string    `sqlx:"resource_id,primaryKey"`
 	Namespace     string    `sqlx:"namespace"`

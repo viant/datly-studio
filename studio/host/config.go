@@ -50,5 +50,26 @@ func (c Config) PredicateCatalog() (*predicatecatalog.Catalog, error) {
 			packages = append(packages, predicatecatalog.Package{Alias: path.Base(packagePath), Path: packagePath})
 		}
 	}
+	if raw = strings.TrimSpace(os.Getenv("STUDIO_AUTH_PREDICATE_TYPES")); raw != "" {
+		allowed := map[string][]string{}
+		for _, item := range strings.Split(raw, ",") {
+			packagePath, typeName, ok := strings.Cut(strings.TrimSpace(item), "#")
+			packagePath, typeName = strings.TrimSpace(packagePath), strings.TrimSpace(typeName)
+			if !ok || packagePath == "" || typeName == "" || packagePath == studioAuthorizationPath {
+				return nil, fmt.Errorf("STUDIO_AUTH_PREDICATE_TYPES requires external package#Type entries")
+			}
+			allowed[packagePath] = append(allowed[packagePath], typeName)
+		}
+		for i := range packages {
+			if packages[i].Path == studioAuthorizationPath {
+				continue
+			}
+			packages[i].AuthorizationTypes = append([]string{}, allowed[packages[i].Path]...)
+			delete(allowed, packages[i].Path)
+		}
+		for packagePath := range allowed {
+			return nil, fmt.Errorf("STUDIO_AUTH_PREDICATE_TYPES package %s is not linked", packagePath)
+		}
+	}
 	return predicatecatalog.New(packages...)
 }

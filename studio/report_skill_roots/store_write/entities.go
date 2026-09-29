@@ -10,6 +10,16 @@ func (entity *StoredSkill) SetReportId(value string) {
 	}
 	entity.Has.ReportId = true
 }
+func (entity *StoredSkill) GetNamespaceId() string {
+	return entity.NamespaceId
+}
+func (entity *StoredSkill) SetNamespaceId(value string) {
+	entity.NamespaceId = value
+	if entity.Has == nil {
+		entity.Has = &StoredSkillHas{}
+	}
+	entity.Has.NamespaceId = true
+}
 func (entity *StoredSkill) GetVersionNo() int {
 	return entity.VersionNo
 }

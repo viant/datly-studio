@@ -12,6 +12,7 @@
 
 SELECT file.*, type(file, 'StoredFile'),
        CAST(file.report_id AS string),
+       CAST(file.namespace_id AS string),
        CAST(file.version_no AS int),
        CAST(file.resource_id AS string),
        CAST(file.namespace AS string),

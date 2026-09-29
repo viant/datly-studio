@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
+	"github.com/viant/authz"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -22,10 +23,9 @@ import (
 	"time"
 
 	jwtlib "github.com/golang-jwt/jwt/v5"
+	accessstore "github.com/viant/authz/datly/store/sql"
 	"github.com/viant/datly-studio/internal/bffauth"
 	"github.com/viant/datly-studio/schema"
-	"github.com/viant/datly-studio/sdk/access"
-	accessstore "github.com/viant/datly-studio/store/sql/access"
 	"github.com/viant/datly-studio/studio/predicatecatalog/testdata/extension"
 	mcpschema "github.com/viant/mcp-protocol/schema"
 	scyjwt "github.com/viant/scy/auth/jwt"
@@ -99,29 +99,29 @@ type narrowingDecisions struct {
 	calls int
 }
 
-func (d *narrowingDecisions) Evaluate(_ context.Context, _ access.Request, _ access.Document, facts access.Facts) (access.Decision, error) {
+func (d *narrowingDecisions) Evaluate(_ context.Context, _ authz.Request, _ authz.Document, facts authz.Facts) (authz.Decision, error) {
 	d.calls++
 	flat, err := facts.FlatEntities()
 	if err != nil {
-		return access.Decision{}, err
+		return authz.Decision{}, err
 	}
-	decision := access.Decision{Bounded: true}
+	decision := authz.Decision{Bounded: true}
 	for _, entity := range flat {
 		if d.keep[entity.ID] {
 			decision.Entities = append(decision.Entities, entity)
 		}
 	}
 	if len(decision.Entities) == 0 {
-		return access.Decision{}, access.ErrDenied
+		return authz.Decision{}, authz.ErrDenied
 	}
 	return decision, nil
 }
 
-func newScopedHost(t *testing.T, reports map[string]string, policies map[string]access.Policy, decisions ...access.DecisionProvider) (*scopedHost, error) {
+func newScopedHost(t *testing.T, reports map[string]string, policies map[string]authz.Policy, decisions ...authz.DecisionProvider) (*scopedHost, error) {
 	return newScopedHostConfigured(t, reports, policies, nil, decisions...)
 }
 
-func newScopedHostConfigured(t *testing.T, reports map[string]string, policies map[string]access.Policy, configure func(*ResourceAccessConfig), decisions ...access.DecisionProvider) (*scopedHost, error) {
+func newScopedHostConfigured(t *testing.T, reports map[string]string, policies map[string]authz.Policy, configure func(*ResourceAccessConfig), decisions ...authz.DecisionProvider) (*scopedHost, error) {
 	t.Helper()
 	ctx := context.Background()
 	root := t.TempDir()
@@ -196,7 +196,7 @@ INSERT INTO tasks VALUES(1,101,'alpha-101'),(2,102,'beta-102'),(3,103,'gamma-103
 	}
 	store := service.resourceAccess.Store.(*accessstore.Store)
 	for reportID, policy := range policies {
-		if _, err = store.Provision(ctx, access.Document{Resource: access.Resource{Kind: "component", ID: reportID, Version: "1", Tenant: config.Access.Tenant}, Policies: map[string]access.Policy{"execute": policy}}, "bootstrap"); err != nil {
+		if _, err = store.Provision(ctx, authz.Document{Resource: authz.Resource{Kind: "component", ID: reportID, Version: "1", Tenant: config.Access.Tenant}, Policies: map[string]authz.Policy{"execute": policy}}, "bootstrap"); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -215,7 +215,7 @@ INSERT INTO tasks VALUES(1,101,'alpha-101'),(2,102,'beta-102'),(3,103,'gamma-103
 	return &scopedHost{service: service, httpAddr: httpAddr, mcpAddr: mcpAddr, key: key, store: store}, nil
 }
 
-func (h *scopedHost) token(t *testing.T, subject string, entities []access.Entity) string {
+func (h *scopedHost) token(t *testing.T, subject string, entities []authz.Entity) string {
 	t.Helper()
 	now := time.Now()
 	claims := jwtlib.MapClaims{
@@ -230,7 +230,7 @@ func (h *scopedHost) token(t *testing.T, subject string, entities []access.Entit
 	return signed
 }
 
-func (h *scopedHost) expiredToken(t *testing.T, subject string, entities []access.Entity) string {
+func (h *scopedHost) expiredToken(t *testing.T, subject string, entities []authz.Entity) string {
 	t.Helper()
 	now := time.Now()
 	claims := jwtlib.MapClaims{
@@ -299,17 +299,17 @@ func (h *scopedHost) callTool(t *testing.T, token, name string, arguments map[st
 func TestPublishedReaderRequiresAllowlistedLinkedPredicateBeforeServing(t *testing.T) {
 	_ = extension.LinkedType
 	const extensionPath = "github.com/viant/datly-studio/studio/predicatecatalog/testdata/extension"
-	policy := access.Policy{Mode: "protected", Rule: &access.Rule{Kind: "role", Value: "reader"}}
+	policy := authz.Policy{Mode: "protected", Rule: &authz.Rule{Kind: "role", Value: "reader"}}
 	t.Setenv("STUDIO_PREDICATE_PACKAGES", "")
-	if _, err := newScopedHost(t, map[string]string{"tasks": linkedExtensionDQL}, map[string]access.Policy{"tasks": policy}); err == nil || !strings.Contains(err.Error(), "handler predicate type") {
+	if _, err := newScopedHost(t, map[string]string{"tasks": linkedExtensionDQL}, map[string]authz.Policy{"tasks": policy}); err == nil || !strings.Contains(err.Error(), "handler predicate type") {
 		t.Fatalf("unlinked published predicate was accepted: %v", err)
 	}
 	t.Setenv("STUDIO_PREDICATE_PACKAGES", extensionPath)
-	host, err := newScopedHost(t, map[string]string{"tasks": linkedExtensionDQL}, map[string]access.Policy{"tasks": policy})
+	host, err := newScopedHost(t, map[string]string{"tasks": linkedExtensionDQL}, map[string]authz.Policy{"tasks": policy})
 	if err != nil {
 		t.Fatal(err)
 	}
-	token := host.token(t, "alice", []access.Entity{})
+	token := host.token(t, "alice", []authz.Entity{})
 	status, body := host.get(t, "/tasks?selected=true", token, nil)
 	if status != http.StatusOK {
 		t.Fatalf("linked predicate HTTP status=%d body=%s", status, body)
@@ -340,8 +340,8 @@ func TestPublishedReaderUsesCurrentUserInfoFeaturesOnHTTPAndMCP(t *testing.T) {
 	}))
 	defer userInfo.Close()
 	dql := strings.Replace(unscopedRecordsDQL, "#define($_ = $Records", "#setting($_ = $mcp('records.list','List records'))\n#define($_ = $Records", 1)
-	policy := access.Policy{Mode: "protected", Rule: &access.Rule{Kind: "exposure", Value: "export"}}
-	host, err := newScopedHostConfigured(t, map[string]string{"records": dql}, map[string]access.Policy{"records": policy}, func(config *ResourceAccessConfig) {
+	policy := authz.Policy{Mode: "protected", Rule: &authz.Rule{Kind: "exposure", Value: "export"}}
+	host, err := newScopedHostConfigured(t, map[string]string{"records": dql}, map[string]authz.Policy{"records": policy}, func(config *ResourceAccessConfig) {
 		config.Tenant = "21"
 		config.UserInfoURL = userInfo.URL
 	})
@@ -383,13 +383,13 @@ func TestPublishedReaderUsesCurrentUserInfoFeaturesOnHTTPAndMCP(t *testing.T) {
 }
 
 func TestScopedMCPToolWorksThroughAuthenticatedBFFProxy(t *testing.T) {
-	reader := &access.Rule{Kind: "role", Value: "reader"}
-	policy := access.Policy{Mode: "protected", Rule: reader, EntityType: "project"}
-	host, err := newScopedHost(t, map[string]string{"tasks": scopedTasksDQL}, map[string]access.Policy{"tasks": policy})
+	reader := &authz.Rule{Kind: "role", Value: "reader"}
+	policy := authz.Policy{Mode: "protected", Rule: reader, EntityType: "project"}
+	host, err := newScopedHost(t, map[string]string{"tasks": scopedTasksDQL}, map[string]authz.Policy{"tasks": policy})
 	if err != nil {
 		t.Fatal(err)
 	}
-	token := host.token(t, "alice", []access.Entity{{Type: "project", ID: "101"}})
+	token := host.token(t, "alice", []authz.Entity{{Type: "project", ID: "101"}})
 	sessions, err := bffauth.New(bffauth.Config{}, scopedBFFVerifier{})
 	if err != nil {
 		t.Fatal(err)
@@ -436,10 +436,10 @@ func TestScopedMCPToolWorksThroughAuthenticatedBFFProxy(t *testing.T) {
 	}
 }
 
-func (h *scopedHost) replacePolicy(t *testing.T, reportID string, policy access.Policy) {
+func (h *scopedHost) replacePolicy(t *testing.T, reportID string, policy authz.Policy) {
 	t.Helper()
 	ctx := context.Background()
-	resource := access.Resource{Kind: "component", ID: reportID, Version: "1", Tenant: scopeTestTenant}
+	resource := authz.Resource{Kind: "component", ID: reportID, Version: "1", Tenant: scopeTestTenant}
 	doc, err := h.store.Get(ctx, resource)
 	if err != nil {
 		t.Fatal(err)
@@ -465,17 +465,17 @@ func assertRows(t *testing.T, body string, present, absent []string) {
 }
 
 func TestScopedComponentBindsAuthorizedEntitiesIntoCompiledQuery(t *testing.T) {
-	reader := &access.Rule{Kind: "role", Value: "reader"}
-	scoped := access.Policy{Mode: "protected", Rule: reader, EntityType: "project"}
+	reader := &authz.Rule{Kind: "role", Value: "reader"}
+	scoped := authz.Policy{Mode: "protected", Rule: reader, EntityType: "project"}
 	host, err := newScopedHost(t,
 		map[string]string{"tasks": scopedTasksDQL, "records": unscopedRecordsDQL},
-		map[string]access.Policy{"tasks": scoped, "records": scoped},
+		map[string]authz.Policy{"tasks": scoped, "records": scoped},
 	)
 	if err != nil {
 		t.Fatal(err)
 	}
-	alice := host.token(t, "alice", []access.Entity{{Type: "project", ID: "101"}, {Type: "project", ID: "102"}})
-	bob := host.token(t, "bob", []access.Entity{{Type: "project", ID: "103"}})
+	alice := host.token(t, "alice", []authz.Entity{{Type: "project", ID: "101"}, {Type: "project", ID: "102"}})
+	bob := host.token(t, "bob", []authz.Entity{{Type: "project", ID: "103"}})
 	all := []string{"alpha-101", "beta-102", "gamma-103", "delta-104"}
 
 	t.Run("HTTP returns only the caller's projects", func(t *testing.T) {
@@ -517,7 +517,7 @@ func TestScopedComponentBindsAuthorizedEntitiesIntoCompiledQuery(t *testing.T) {
 		assertRows(t, body, nil, []string{"gamma-103", "delta-104"})
 	})
 	t.Run("expired credential denies", func(t *testing.T) {
-		expired := host.expiredToken(t, "alice", []access.Entity{{Type: "project", ID: "101"}})
+		expired := host.expiredToken(t, "alice", []authz.Entity{{Type: "project", ID: "101"}})
 		status, body := host.get(t, "/tasks", expired, nil)
 		if status != http.StatusForbidden {
 			t.Fatalf("status=%d body=%s", status, body)
@@ -533,7 +533,7 @@ func TestScopedComponentBindsAuthorizedEntitiesIntoCompiledQuery(t *testing.T) {
 			t.Fatalf("status=%d body=%s", status, body)
 		}
 		assertRows(t, body, nil, all)
-		empty := host.token(t, "erin", []access.Entity{})
+		empty := host.token(t, "erin", []authz.Entity{})
 		status, body = host.get(t, "/tasks", empty, nil)
 		if status != http.StatusForbidden {
 			t.Fatalf("status=%d body=%s", status, body)
@@ -566,8 +566,8 @@ func TestScopedComponentBindsAuthorizedEntitiesIntoCompiledQuery(t *testing.T) {
 		assertRows(t, body, nil, all)
 	})
 	t.Run("entity dimension other than the bound one denies", func(t *testing.T) {
-		host.replacePolicy(t, "tasks", access.Policy{Mode: "protected", Rule: reader, EntityType: "account"})
-		accountHolder := host.token(t, "carol", []access.Entity{{Type: "account", ID: "101"}})
+		host.replacePolicy(t, "tasks", authz.Policy{Mode: "protected", Rule: reader, EntityType: "account"})
+		accountHolder := host.token(t, "carol", []authz.Entity{{Type: "account", ID: "101"}})
 		status, body := host.get(t, "/tasks", accountHolder, nil)
 		if status != http.StatusForbidden {
 			t.Fatalf("status=%d body=%s", status, body)
@@ -579,7 +579,7 @@ func TestScopedComponentBindsAuthorizedEntitiesIntoCompiledQuery(t *testing.T) {
 	})
 	t.Run("non canonical or non numeric IDs deny", func(t *testing.T) {
 		for _, id := range []string{"abc", "007", "+101", " 101", "101.0", "1 OR 1=1"} {
-			status, body := host.get(t, "/tasks", host.token(t, "mallory", []access.Entity{{Type: "project", ID: id}}), nil)
+			status, body := host.get(t, "/tasks", host.token(t, "mallory", []authz.Entity{{Type: "project", ID: id}}), nil)
 			if status != http.StatusForbidden {
 				t.Fatalf("id %q status=%d body=%s", id, status, body)
 			}
@@ -587,7 +587,7 @@ func TestScopedComponentBindsAuthorizedEntitiesIntoCompiledQuery(t *testing.T) {
 		}
 	})
 	t.Run("unbounded decision on a scoped component denies", func(t *testing.T) {
-		host.replacePolicy(t, "tasks", access.Policy{Mode: "protected", Rule: reader})
+		host.replacePolicy(t, "tasks", authz.Policy{Mode: "protected", Rule: reader})
 		status, body := host.get(t, "/tasks", alice, nil)
 		if status != http.StatusForbidden {
 			t.Fatalf("status=%d body=%s", status, body)
@@ -595,7 +595,7 @@ func TestScopedComponentBindsAuthorizedEntitiesIntoCompiledQuery(t *testing.T) {
 		assertRows(t, body, nil, all)
 		_, body = host.callTool(t, alice, "tasks.list", nil)
 		assertRows(t, body, nil, all)
-		host.replacePolicy(t, "tasks", access.Policy{Mode: "public"})
+		host.replacePolicy(t, "tasks", authz.Policy{Mode: "public"})
 		status, body = host.get(t, "/tasks", "", nil)
 		if status != http.StatusForbidden {
 			t.Fatalf("public policy ran a scoped component: status=%d body=%s", status, body)
@@ -609,7 +609,7 @@ func TestScopedComponentBindsAuthorizedEntitiesIntoCompiledQuery(t *testing.T) {
 			t.Fatalf("status=%d body=%s", status, body)
 		}
 		assertRows(t, body, []string{"alpha-101", "beta-102"}, []string{"gamma-103", "delta-104"})
-		widened := host.token(t, "alice", []access.Entity{{Type: "project", ID: "104"}})
+		widened := host.token(t, "alice", []authz.Entity{{Type: "project", ID: "104"}})
 		status, body = host.get(t, "/tasks", widened, nil)
 		if status != http.StatusOK {
 			t.Fatalf("status=%d body=%s", status, body)
@@ -623,14 +623,14 @@ func TestScopedComponentBindsAuthorizedEntitiesIntoCompiledQuery(t *testing.T) {
 // facts grant projects 101 and 102, the injected trusted decision keeps only
 // 102, and both the SQL scope and the canonical context see 102 alone.
 func TestScopedComponentHonorsTrustedRemoteNarrowing(t *testing.T) {
-	reader := &access.Rule{Kind: "role", Value: "reader"}
-	scoped := access.Policy{Mode: "protected", Rule: reader, EntityType: "project"}
+	reader := &authz.Rule{Kind: "role", Value: "reader"}
+	scoped := authz.Policy{Mode: "protected", Rule: reader, EntityType: "project"}
 	decisions := &narrowingDecisions{keep: map[string]bool{"102": true, "103": true}}
-	host, err := newScopedHost(t, map[string]string{"tasks": scopedTasksDQL}, map[string]access.Policy{"tasks": scoped}, decisions)
+	host, err := newScopedHost(t, map[string]string{"tasks": scopedTasksDQL}, map[string]authz.Policy{"tasks": scoped}, decisions)
 	if err != nil {
 		t.Fatal(err)
 	}
-	alice := host.token(t, "alice", []access.Entity{{Type: "project", ID: "101"}, {Type: "project", ID: "102"}})
+	alice := host.token(t, "alice", []authz.Entity{{Type: "project", ID: "101"}, {Type: "project", ID: "102"}})
 	status, body := host.get(t, "/tasks", alice, nil)
 	if status != http.StatusOK {
 		t.Fatalf("status=%d body=%s", status, body)
@@ -664,10 +664,10 @@ func TestScopedComponentHonorsTrustedRemoteNarrowing(t *testing.T) {
 func TestScopedGenerationRejectsForeignAccessContext(t *testing.T) {
 	// A component may bind only its own access context; naming another
 	// component's context would read that resource's decision.
-	reader := &access.Rule{Kind: "role", Value: "reader"}
-	scoped := access.Policy{Mode: "protected", Rule: reader, EntityType: "project"}
+	reader := &authz.Rule{Kind: "role", Value: "reader"}
+	scoped := authz.Policy{Mode: "protected", Rule: reader, EntityType: "project"}
 	foreign := strings.Replace(scopedTasksDQL, "/_studio/access/context/tasks/project", "/_studio/access/context/records/project", 1)
-	host, err := newScopedHost(t, map[string]string{"tasks": foreign, "records": unscopedRecordsDQL}, map[string]access.Policy{"tasks": scoped, "records": scoped})
+	host, err := newScopedHost(t, map[string]string{"tasks": foreign, "records": unscopedRecordsDQL}, map[string]authz.Policy{"tasks": scoped, "records": scoped})
 	if err == nil {
 		status, body := host.get(t, "/tasks", "", nil)
 		t.Fatalf("generation started binding a foreign access context (GET /tasks -> %d %s)", status, body)

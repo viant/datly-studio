@@ -34,15 +34,20 @@ type NamespaceMutationRecordHas struct {
 
 // CurrentNamespaceView is generated canonical view metadata for namespace.
 type CurrentNamespaceView struct {
-	OwnerId     string     `sqlx:"owner_id,primaryKey" validate:"required"`
-	Name        string     `sqlx:"name,primaryKey" validate:"required,regexp(^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$)"`
-	Title       string     `validate:"required" sqlx:"title"`
-	Status      string     `validate:"required,choice(active,archived)" sqlx:"status"`
-	Etag        *int       `sqlx:"etag"`
-	Description *string    `sqlx:"description"`
-	CreatedAt   *time.Time `sqlx:"created_at"`
-	UpdatedAt   *time.Time `sqlx:"updated_at"`
-	DeletedAt   *time.Time `sqlx:"deleted_at"`
+	NamespaceId      string     `sqlx:"namespace_id" json:"namespaceId"`
+	Visibility       string     `sqlx:"visibility" json:"visibility"`
+	AllowedRolesJson *string    `sqlx:"allowed_roles_json" json:"-"`
+	McpEnabled       bool       `sqlx:"mcp_enabled" json:"mcpEnabled"`
+	McpPort          *int       `sqlx:"mcp_port" json:"mcpPort,omitempty"`
+	OwnerId          string     `sqlx:"owner_id,primaryKey" validate:"required"`
+	Name             string     `sqlx:"name,primaryKey" validate:"required,regexp(^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$)"`
+	Title            string     `validate:"required" sqlx:"title"`
+	Status           string     `validate:"required,choice(active,archived)" sqlx:"status"`
+	Etag             *int       `sqlx:"etag"`
+	Description      *string    `sqlx:"description"`
+	CreatedAt        *time.Time `sqlx:"created_at"`
+	UpdatedAt        *time.Time `sqlx:"updated_at"`
+	DeletedAt        *time.Time `sqlx:"deleted_at"`
 }
 
 type NamespaceKeysRow struct {

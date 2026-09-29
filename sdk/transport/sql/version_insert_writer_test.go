@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
 	_ "modernc.org/sqlite"
@@ -56,6 +57,10 @@ func TestVersionInsertWriterSupportsSQLAndStructuredModes(t *testing.T) {
 		structured.AuthoredSQL != "" || structured.AuthoredDQL != "" ||
 		string(structured.ComponentSpec) != `{"views":[{"name":"v"}]}` {
 		t.Fatalf("structured version=%+v err=%v", structured, err)
+	}
+	var wrong int
+	if err := db.QueryRow(`SELECT COUNT(*) FROM report_versions WHERE report_id=? AND namespace_id<>?`, report.ID, namespaceaccess.ID(report.OwnerID, report.Namespace)).Scan(&wrong); err != nil || wrong != 0 {
+		t.Fatalf("versions with wrong ownership=%d err=%v", wrong, err)
 	}
 	_, err = client.Versions().Create(owner, report.ID, sdk.CreateVersionInput{AuthoringMode: "sql", CreatedBy: "other", AuthoredSQL: "SELECT 2"})
 	var sdkErr *sdk.Error

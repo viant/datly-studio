@@ -63,13 +63,13 @@ func (s *publishedDefinitionStore) Close(ctx context.Context) error {
 	return s.runtime.Shutdown(ctx)
 }
 
-func (s *publishedDefinitionStore) Definitions(ctx context.Context, generation *int64) ([]definition, error) {
+func (s *publishedDefinitionStore) Definitions(ctx context.Context, generation *int64, namespaceID string) ([]definition, error) {
 	if s == nil || s.runtime == nil {
 		return nil, fmt.Errorf("published definition store is unavailable")
 	}
 	var rows []definition
 	if generation == nil {
-		value, err := s.runtime.InvokeComponent(ctx, exec.ComponentRequest{Target: s.active, Input: &active.Input{}})
+		value, err := s.runtime.InvokeComponent(ctx, exec.ComponentRequest{Target: s.active, Input: &active.Input{NamespaceId: namespaceID, Has: &active.InputHas{NamespaceId: true}}})
 		if err != nil {
 			return nil, err
 		}
@@ -94,7 +94,7 @@ func (s *publishedDefinitionStore) Definitions(ctx context.Context, generation *
 		return nil, fmt.Errorf("candidate generation must be positive")
 	}
 	value, err := s.runtime.InvokeComponent(ctx, exec.ComponentRequest{Target: s.candidate,
-		Input: &candidate.Input{CandidateGeneration: *generation, Has: &candidate.InputHas{CandidateGeneration: true}}})
+		Input: &candidate.Input{NamespaceId: namespaceID, CandidateGeneration: *generation, Has: &candidate.InputHas{NamespaceId: true, CandidateGeneration: true}}})
 	if err != nil {
 		return nil, err
 	}
@@ -118,8 +118,12 @@ func (s *publishedDefinitionStore) Definitions(ctx context.Context, generation *
 
 func mapPublishedDefinition(reportID string, versionNo int, scope, name, connector, driver string,
 	dsn *string, secretRef, generated, authored string) (definition, error) {
-	if reportID == "" || versionNo <= 0 || scope == "" || name == "" || connector == "" || driver == "" || dsn == nil {
+	if reportID == "" || versionNo <= 0 || scope == "" || name == "" || connector == "" || driver == "" || (dsn == nil && strings.TrimSpace(secretRef) == "") {
 		return definition{}, fmt.Errorf("published definition %q has incomplete runtime metadata", reportID)
+	}
+	dsnValue := ""
+	if dsn != nil {
+		dsnValue = *dsn
 	}
 	dql := generated
 	if strings.TrimSpace(dql) == "" {
@@ -129,5 +133,5 @@ func mapPublishedDefinition(reportID string, versionNo int, scope, name, connect
 		return definition{}, fmt.Errorf("published report %s has no DQL", reportID)
 	}
 	return definition{reportID: reportID, versionNo: versionNo, scope: scope, name: name,
-		connector: connector, driver: driver, dsn: *dsn, secretRef: secretRef, dql: dql}, nil
+		connector: connector, driver: driver, dsn: dsnValue, secretRef: secretRef, dql: dql}, nil
 }

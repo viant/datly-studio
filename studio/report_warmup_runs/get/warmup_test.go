@@ -14,6 +14,7 @@ import (
 	requestprovider "github.com/viant/bindly/provider/request"
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/datatest"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly/bootstrap"
 	gateway "github.com/viant/datly/gateway/http"
@@ -91,6 +92,7 @@ func TestWarmupGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	entry.Capabilities.Connector = connector
 	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{authEntry, entry}, druntime.WithResources(resources))
 	if err != nil {
 		t.Fatal(err)
@@ -111,6 +113,24 @@ func TestWarmupGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 			req.Header.Set("Authorization", jwt.Bearer(t, subject))
 		}
 		return req
+	}
+	otherID := namespaceaccess.ID("alice", "other")
+	if _, err := db.ExecContext(ctx, `INSERT INTO namespaces(owner_id,name,title,status,namespace_id,created_at,updated_at) VALUES('alice','other','Other','active',?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, otherID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.ExecContext(ctx, `UPDATE namespaces SET namespace_id=? WHERE owner_id='alice' AND name='general'`, namespaceaccess.ID("alice", "general")); err != nil {
+		t.Fatal(err)
+	}
+	selectedRequest := request("alice", "r1", "w1")
+	selectedRequest.Header.Set("X-Studio-Namespace", otherID)
+	selectedScope, err := requestprovider.New(selectedRequest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	selectedValue, selectedErr := runtime.ExecuteRoute(ctx, http.MethodPost, "/v1/studio/sdk/versions.warmup_get", selectedScope)
+	selectedScope.Close()
+	if selectedErr == nil {
+		t.Fatalf("another workspace returned warmup metadata: %+v", selectedValue)
 	}
 	scope, err := requestprovider.New(request("publisher", "r1", "w1"))
 	if err != nil {

@@ -83,6 +83,9 @@ func TestServiceUpRepairsMissingSequenceLedgerAtCurrentVersion(t *testing.T) {
 	if err := schema.SetSQLiteVersion(ctx, db, schema.CanonicalVersion); err != nil {
 		t.Fatal(err)
 	}
+	if _, err := db.ExecContext(ctx, `DROP TABLE sqlx_sequence_reservations`); err != nil {
+		t.Fatal(err)
+	}
 	assertTableMissing(t, ctx, db, "sqlx_sequence_reservations")
 	service, err := New()
 	if err != nil {

@@ -34,6 +34,7 @@ const modulePath = "github.com/viant/datly-studio"
 const maxValidation = 30 * time.Second
 
 type Input struct {
+	NamespaceId            *string            `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
 	Jwt                    *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
 	Auth                   *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
 	ReportID               string             `parameter:"ReportID,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
@@ -151,6 +152,9 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 		validationCtx, cancel := context.WithTimeout(ctx, maxValidation)
 		defer cancel()
 		validationCtx = sdk.WithPrincipal(validationCtx, sdk.Principal{Subject: input.Jwt.Subject})
+		if input.NamespaceId != nil {
+			validationCtx = sdk.WithNamespaceSelection(validationCtx, *input.NamespaceId)
+		}
 		validationCtx = sdk.WithVerifiedCredential(validationCtx, sdk.VerifiedCredential{Claims: input.Jwt})
 		if validateErr := (preview.Dynamic{StudioDB: db, ModulePath: modulePath}).Validate(validationCtx, input.ReportID, input.VersionNo); validateErr != nil {
 			valid = false

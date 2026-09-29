@@ -11,6 +11,52 @@ import (
 
 type WarmupRunHandlerCurrentWarmupRunSlice []*CurrentWarmupRunView
 
+func WarmupRunHandlerCurrentWarmupRunIndexByNamespaceIdKey(value *CurrentWarmupRunView) (string, bool) {
+	var zero string
+	if value == nil {
+		return zero, false
+	}
+	return value.NamespaceId, true
+}
+
+type WarmupRunHandlerCurrentWarmupRunIndexedByNamespaceId map[string]*CurrentWarmupRunView
+
+func (rows WarmupRunHandlerCurrentWarmupRunSlice) IndexByNamespaceId() (WarmupRunHandlerCurrentWarmupRunIndexedByNamespaceId, error) {
+	result := make(WarmupRunHandlerCurrentWarmupRunIndexedByNamespaceId)
+	for _, row := range rows {
+		key, ok := WarmupRunHandlerCurrentWarmupRunIndexByNamespaceIdKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index WarmupRunHandlerCurrentWarmupRunSlice.IndexByNamespaceId")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index WarmupRunHandlerCurrentWarmupRunIndexedByNamespaceId) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type WarmupRunHandlerCurrentWarmupRunGroupedByNamespaceId map[string][]*CurrentWarmupRunView
+
+func (rows WarmupRunHandlerCurrentWarmupRunSlice) GroupByNamespaceId() WarmupRunHandlerCurrentWarmupRunGroupedByNamespaceId {
+	result := make(WarmupRunHandlerCurrentWarmupRunGroupedByNamespaceId)
+	for _, row := range rows {
+		key, ok := WarmupRunHandlerCurrentWarmupRunIndexByNamespaceIdKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index WarmupRunHandlerCurrentWarmupRunGroupedByNamespaceId) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
 func WarmupRunHandlerCurrentWarmupRunIndexByRunIdKey(value *CurrentWarmupRunView) (string, bool) {
 	var zero string
 	if value == nil {
@@ -1314,6 +1360,9 @@ func BuildWarmupRunHandlerReadIndexes(ctx context.Context, input *Input) (*Warmu
 			loaded, err := projection.Fields(ordinal)
 			if err != nil {
 				return nil, err
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("NamespaceId") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentWarmupRun.NamespaceId")
 			}
 			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("RunId") {
 				return nil, fmt.Errorf("application index field was not loaded: CurrentWarmupRun.RunId")

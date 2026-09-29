@@ -10,3 +10,6 @@ JOIN connectors c ON c.name = r.default_connector_name
 WHERE p.active_generation IS NOT NULL
   AND p.publication_status IN ('active', 'pending', 'unpublishing')
   AND r.deleted_at IS NULL AND c.deleted_at IS NULL
+  AND ($NamespaceId = '' OR EXISTS (SELECT 1 FROM namespaces n
+    WHERE n.namespace_id=$NamespaceId AND n.owner_id=r.owner_id AND n.name=r.namespace
+      AND n.status='active' AND n.deleted_at IS NULL))

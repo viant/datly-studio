@@ -654,6 +654,14 @@ func run(ctx context.Context, output string) error {
 	if err != nil {
 		return err
 	}
+	accessListHandler, err := (resourceaccess.ListComponent{}).DatlyHandler("NewList")()
+	if err != nil {
+		return err
+	}
+	accessList, err := compile(reflect.TypeFor[resourceaccess.ListComponent](), reflect.TypeFor[resourceaccess.ListInput](), reflect.TypeFor[resourceaccess.ListOutput](), resources, types, codec, accessListHandler)
+	if err != nil {
+		return err
+	}
 	accessGetHandler, err := (resourceaccess.GetComponent{}).DatlyHandler("NewGet")()
 	if err != nil {
 		return err
@@ -680,8 +688,9 @@ func run(ctx context.Context, output string) error {
 	}
 	document, err := (openapi.Generator{}).Generate(ctx, openapi.Request{
 		Info:       openapi3.Info{Title: "Datly Studio SDK", Version: "1.0.0"},
-		Components: []*registry.RegisteredComponent{auth, accessGet, accessContext, accessReplace, aclList, aclDelete, aclUpsert, predicateTypes, predicateGet, predicateCreate, predicateUpdate, predicateDelete, predicateList, connectorList, connectorOne, connectorCreate, connectorSchemas, connectorTables, connectorTable, connectorTest, connectorTestSQL, previewExecution, connectorActivate, connectorDelete, connectorDisable, connectorUpdate, namespaceList, namespaceOne, namespaceCreate, namespaceDelete, namespaceUpdate, reportList, reportOne, reportCreate, reportUpdate, publicationOne, publicationHistory, publicationPublish, publicationRollback, publicationUnpublish, versionOne, versionCreate, versionLoad, versionArchive, versionInspect, versionApply, versionBuilder, versionValidate, versionTestView, versionTestRelation, versionTestCompose, versionWarmup, versionPage, versionExport, versionDescriptor, versionDownload, resourceSnapshot, resourceUpsertFile, resourceDeleteFile, resourceUpsertFolder, resourceDeleteFolder, resourceUpsertSkill, resourceDeleteSkill, warmupOne, warmupPage, runtimeStatus},
+		Components: []*registry.RegisteredComponent{auth, accessList, accessGet, accessContext, accessReplace, aclList, aclDelete, aclUpsert, predicateTypes, predicateGet, predicateCreate, predicateUpdate, predicateDelete, predicateList, connectorList, connectorOne, connectorCreate, connectorSchemas, connectorTables, connectorTable, connectorTest, connectorTestSQL, previewExecution, connectorActivate, connectorDelete, connectorDisable, connectorUpdate, namespaceList, namespaceOne, namespaceCreate, namespaceDelete, namespaceUpdate, reportList, reportOne, reportCreate, reportUpdate, publicationOne, publicationHistory, publicationPublish, publicationRollback, publicationUnpublish, versionOne, versionCreate, versionLoad, versionArchive, versionInspect, versionApply, versionBuilder, versionValidate, versionTestView, versionTestRelation, versionTestCompose, versionWarmup, versionPage, versionExport, versionDescriptor, versionDownload, resourceSnapshot, resourceUpsertFile, resourceDeleteFile, resourceUpsertFolder, resourceDeleteFolder, resourceUpsertSkill, resourceDeleteSkill, warmupOne, warmupPage, runtimeStatus},
 		Routes: []spec.RouteRef{
+			{Method: "POST", Path: "/v1/studio/sdk/access.list"},
 			{Method: "POST", Path: "/v1/studio/sdk/access.context"},
 			{Method: "POST", Path: "/v1/studio/sdk/access.get"},
 			{Method: "POST", Path: "/v1/studio/sdk/access.replace"},

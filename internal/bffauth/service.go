@@ -86,6 +86,14 @@ func (s *Service) Register(mux *http.ServeMux) {
 // Proxy expands the opaque session cookie into a server-side bearer header.
 // Browser cookies are stripped before the request reaches Datly.
 func (s *Service) Proxy(target *url.URL, mount string) (http.Handler, error) {
+	return s.ProxyWithResolver(target, mount, nil)
+}
+
+// ProxyTargetResolver receives a verified session context. Only deployment-side
+// lookups may supply a target; request URLs must never become proxy destinations.
+type ProxyTargetResolver func(context.Context, *http.Request) (*url.URL, error)
+
+func (s *Service) ProxyWithResolver(target *url.URL, mount string, resolve ProxyTargetResolver) (http.Handler, error) {
 	if target == nil || target.Scheme == "" || target.Host == "" {
 		return nil, errors.New("dynamic Datly proxy target is required")
 	}
@@ -109,16 +117,53 @@ func (s *Service) Proxy(target *url.URL, mount string) (http.Handler, error) {
 			writeJSON(response, http.StatusUnauthorized, map[string]string{"message": "Studio authentication is required"})
 			return
 		}
+		values, selected := request.Header[http.CanonicalHeaderKey("X-Studio-Namespace")]
+		if selected && (len(values) != 1 || !validNamespaceID(values[0])) {
+			writeJSON(response, http.StatusBadRequest, map[string]string{"message": "A valid namespace selection is required"})
+			return
+		}
+		selectedProxy := proxy
+		if resolve != nil && selected {
+			ctx := sdk.WithPrincipal(request.Context(), current.principal)
+			ctx = sdk.WithVerifiedCredential(ctx, sdk.VerifiedCredential{Bearer: current.token, Claims: current.claims})
+			ctx = sdk.WithNamespaceSelection(ctx, values[0])
+			resolved, resolveErr := resolve(ctx, request)
+			if resolveErr != nil || resolved == nil || resolved.Host == "" || resolved.User != nil ||
+				(resolved.Scheme != "http" && resolved.Scheme != "https") || resolved.RawQuery != "" || resolved.Fragment != "" {
+				writeJSON(response, http.StatusForbidden, map[string]string{"message": "Selected namespace MCP endpoint is unavailable"})
+				return
+			}
+			selectedProxy = httputil.NewSingleHostReverseProxy(resolved)
+			selectedProxy.ModifyResponse = stripUpstreamCORS
+			original := selectedProxy.Director
+			selectedProxy.Director = func(forward *http.Request) {
+				original(forward)
+				forward.URL.Path = path
+				forward.Header.Del("Cookie")
+			}
+		}
 		forward := request.Clone(request.Context())
 		forward.Header = make(http.Header)
-		for _, name := range []string{"Accept", "Content-Type", "Mcp-Session-Id", "Mcp-Protocol-Version", "Mcp-Method", "Mcp-Name", "Last-Event-ID", "X-Request-ID"} {
+		for _, name := range []string{"Accept", "Content-Type", "Mcp-Session-Id", "Mcp-Protocol-Version", "Mcp-Method", "Mcp-Name", "Last-Event-ID", "X-Request-ID", "X-Studio-Namespace"} {
 			for _, value := range request.Header.Values(name) {
 				forward.Header.Add(name, value)
 			}
 		}
 		forward.Header.Set("Authorization", "Bearer "+current.token)
-		proxy.ServeHTTP(response, forward)
+		selectedProxy.ServeHTTP(response, forward)
 	}), nil
+}
+
+func validNamespaceID(id string) bool {
+	if len(id) != 64 {
+		return false
+	}
+	for _, ch := range id {
+		if !(ch >= '0' && ch <= '9' || ch >= 'a' && ch <= 'f') {
+			return false
+		}
+	}
+	return true
 }
 
 // stripUpstreamCORS leaves one browser-facing policy owner: Studio's BFF.

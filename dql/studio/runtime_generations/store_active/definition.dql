@@ -7,6 +7,7 @@
 #setting($_ = $connector('studio'))
 #setting($_ = $sql_dest('definition', 'sql/read.sql'))
 
+#define($_ = $NamespaceId<string>(query/namespaceId).Optional())
 #define($_ = $Definitions<[]*PublishedDefinition>(output/view))
 
 SELECT definition.*, type(definition, 'PublishedDefinition'),

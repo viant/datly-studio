@@ -4,5 +4,6 @@ package accesspredicate
 import "reflect"
 
 var _datlyReachableNamespaceAccess = reflect.TypeFor[NamespaceAccess]()
+var _datlyReachableNamespaceDirectory = reflect.TypeFor[NamespaceDirectory]()
 
 func init() {}

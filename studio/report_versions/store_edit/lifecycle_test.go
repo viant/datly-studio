@@ -11,7 +11,7 @@ import (
 
 func TestVersionEditRulesAdvanceMatchedSourceRevision(t *testing.T) {
 	previousRevision := int64(3)
-	previous := &StoredVersion{ReportId: "report", VersionNo: 2, SourceRevision: &previousRevision}
+	previous := &StoredVersion{ReportId: "report", VersionNo: 2, State: "draft", SourceRevision: &previousRevision}
 	state := xhandler.LifecycleContext[StoredVersion, xhandler.NoParent, Output]{
 		EntityState: xhandler.EntityState[StoredVersion, xhandler.NoParent]{Previous: previous}}
 	row := func() *StoredVersion {
@@ -39,6 +39,11 @@ func TestVersionEditRulesAdvanceMatchedSourceRevision(t *testing.T) {
 		t.Fatalf("missing version error=%v", err)
 	}
 	state.Previous = previous
+	previous.State = "published"
+	if err := rules.Init(context.Background(), row(), state); !errors.As(err, &conflict) {
+		t.Fatalf("published edit error=%v", err)
+	}
+	previous.State = "draft"
 	malformed := row()
 	malformed.ComponentSpecJson = []byte(`bad`)
 	if err := rules.Init(context.Background(), malformed, state); err == nil {

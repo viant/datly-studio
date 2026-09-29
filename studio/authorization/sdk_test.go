@@ -57,11 +57,11 @@ func TestSDKAuthorizerEnforcesOwnerAndACL(t *testing.T) {
 	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{ReportID: "shared", Permission: "run"}); err != nil {
 		t.Fatal(err)
 	}
-	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{NamespaceName: "general", Permission: "view"}); err != nil {
-		t.Fatalf("namespace ACL view: %v", err)
+	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{NamespaceName: "general", Permission: "view"}); err == nil {
+		t.Fatal("component ACL bypassed private namespace")
 	}
-	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{NamespaceName: "general", Permission: "run"}); err != nil {
-		t.Fatalf("namespace ACL run: %v", err)
+	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{NamespaceName: "general", Permission: "run"}); err == nil {
+		t.Fatal("component ACL bypassed private namespace for run")
 	}
 	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{NamespaceName: "general", Permission: "edit"}); err == nil {
 		t.Fatal("namespace ACL edit bypassed owner-only rule")
@@ -78,8 +78,8 @@ func TestSDKAuthorizerEnforcesOwnerAndACL(t *testing.T) {
 	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{ReportID: "shared", Permission: "dql"}); err != nil {
 		t.Fatal(err)
 	}
-	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{NamespaceName: "general", Permission: "dql"}); err != nil {
-		t.Fatalf("namespace ACL DQL after grant: %v", err)
+	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{NamespaceName: "general", Permission: "dql"}); err == nil {
+		t.Fatal("component DQL grant bypassed private namespace")
 	}
 	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{ConnectorName: "main", Permission: "edit"}); err != nil {
 		t.Fatal(err)

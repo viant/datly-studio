@@ -1,1 +1,0 @@
-SELECT TenantId AS TenantId, ResourceKind AS ResourceKind, ResourceId AS ResourceId, ResourceVersion AS ResourceVersion FROM `/`

@@ -5,10 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/viant/authz"
 	"io"
 
 	"github.com/viant/datly-studio/sdk"
 )
+
+const OperationList = "access.list"
 
 const OperationGet = "access.get"
 const OperationReplace = "access.replace"
@@ -18,11 +21,12 @@ const OperationContext = "access.context"
 // Service.Provider must validate the request credential independently.
 type Transport struct {
 	Next    sdk.Transport
-	Service *Service
+	Service *authz.Service
+	Catalog *Catalog
 }
 
 func (t *Transport) Invoke(ctx context.Context, operation string, input, output any) error {
-	if operation != OperationGet && operation != OperationReplace && operation != OperationContext {
+	if operation != OperationGet && operation != OperationReplace && operation != OperationContext && operation != OperationList {
 		if t.Next == nil {
 			return &sdk.Error{Code: sdk.ErrorNotFound, Message: "Unknown SDK operation"}
 		}
@@ -46,13 +50,33 @@ func (t *Transport) Invoke(ctx context.Context, operation string, input, output 
 		}
 		return nil
 	}
-	var result Document
+	if operation == OperationList {
+		var in CatalogInput
+		if err = decode(&in); err != nil {
+			return err
+		}
+		out, ok := output.(*CatalogPage)
+		if !ok {
+			return &sdk.Error{Code: sdk.ErrorInternal, Message: "Invalid catalog output"}
+		}
+		catalog := t.Catalog
+		if catalog == nil {
+			catalog = &Catalog{Service: t.Service}
+		}
+		value, listErr := catalog.List(ctx, in)
+		if listErr != nil {
+			return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Resource catalog is not permitted", Cause: listErr}
+		}
+		*out = value
+		return nil
+	}
+	var result authz.Document
 	if operation == OperationContext {
-		out, ok := output.(*EditorContext)
+		out, ok := output.(*authz.EditorContext)
 		if !ok {
 			return &sdk.Error{Code: sdk.ErrorInternal, Message: "Invalid access output"}
 		}
-		var resource Resource
+		var resource authz.Resource
 		if err = decode(&resource); err != nil {
 			return err
 		}
@@ -63,25 +87,25 @@ func (t *Transport) Invoke(ctx context.Context, operation string, input, output 
 		*out = value
 		return nil
 	}
-	out, ok := output.(*Document)
+	out, ok := output.(*authz.Document)
 	if !ok {
 		return &sdk.Error{Code: sdk.ErrorInternal, Message: "Invalid access output"}
 	}
 	if operation == OperationGet {
-		var resource Resource
+		var resource authz.Resource
 		if err = decode(&resource); err != nil {
 			return err
 		}
 		result, err = t.Service.Get(ctx, resource)
 	} else {
-		var doc Document
+		var doc authz.Document
 		if err = decode(&doc); err != nil {
 			return err
 		}
 		result, err = t.Service.Replace(ctx, doc)
 	}
 	if err != nil {
-		if errors.Is(err, ErrConflict) {
+		if errors.Is(err, authz.ErrConflict) {
 			return &sdk.Error{Code: sdk.ErrorConflict, Message: "Access policy changed. Reload before saving."}
 		}
 		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Resource access is not permitted", Cause: err}

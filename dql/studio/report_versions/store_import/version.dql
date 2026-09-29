@@ -15,7 +15,7 @@
 SELECT version.*, file.*,
        type(version, 'ImportedVersion'), type(file, 'ImportedResourceFile'),
        lifecycle_type(version, 'ImportRules'),
-       CAST(version.report_id AS string), CAST(version.version_no AS int),
+       CAST(version.report_id AS string), CAST(version.namespace_id AS string), CAST(version.version_no AS int),
        CAST(version.state AS string), CAST(version.authoring_mode AS string),
        CAST(version.authored_dql AS *string), CAST(version.generated_dql AS *string),
        CAST(version.component_spec_json AS json.RawMessage),
@@ -25,7 +25,7 @@ SELECT version.*, file.*,
        CAST(version.compiler_version AS string), CAST(version.source_revision AS int64),
        CAST(version.notes AS *string), CAST(version.created_by AS string),
        CAST(version.created_at AS time.Time),
-       CAST(file.report_id AS string), CAST(file.version_no AS int),
+       CAST(file.report_id AS string), CAST(file.namespace_id AS string), CAST(file.version_no AS int),
        CAST(file.resource_id AS string), CAST(file.namespace AS string),
        CAST(file.resource_path AS string), CAST(file.content AS []byte),
        CAST(file.content_size AS int64), CAST(file.content_sha256 AS string),
@@ -39,5 +39,5 @@ SELECT version.*, file.*,
        tag(file.resource_id, 'sqlx:"resource_id,primaryKey"')
 FROM (${embed:sql/read.sql}) version
 LEFT JOIN (${embed:sql/files.sql}) file
-  ON file.report_id = version.report_id AND file.version_no = version.version_no
+  ON file.report_id = version.report_id AND file.version_no = version.version_no AND file.namespace_id = version.namespace_id
 WHERE 1=1

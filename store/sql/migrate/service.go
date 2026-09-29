@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/viant/datly-studio/schema"
@@ -43,8 +44,17 @@ func (s *Service) Up(ctx context.Context, db *sql.DB) error {
 		}
 		return schema.SetSQLiteVersion(ctx, db, schema.CanonicalVersion)
 	}
+	if current == 16 {
+		return migrateNamespaceOwnership(ctx, db)
+	}
+	if current == 17 {
+		return migrateLegacyGenerationOwnership(ctx, db)
+	}
 	if current == 15 {
-		return migrateRefreshLeases(ctx, db)
+		if err = migrateRefreshLeases(ctx, db); err != nil {
+			return err
+		}
+		return migrateNamespaceOwnership(ctx, db)
 	}
 	if err := ensureComponentCatalog(ctx, db); err != nil {
 		return err
@@ -53,7 +63,10 @@ func (s *Service) Up(ctx context.Context, db *sql.DB) error {
 		if err := migrateComponentCatalog(ctx, db); err != nil {
 			return err
 		}
-		return migrateRefreshLeases(ctx, db)
+		if err = migrateRefreshLeases(ctx, db); err != nil {
+			return err
+		}
+		return migrateNamespaceOwnership(ctx, db)
 	}
 	if current == 1 {
 		if err := schema.AddSQLiteColumnFromCanonical(ctx, db, "components", "namespace"); err != nil {
@@ -164,7 +177,10 @@ FROM components GROUP BY owner_id,namespace`); err != nil {
 	if err := migrateComponentCatalog(ctx, db); err != nil {
 		return err
 	}
-	return migrateRefreshLeases(ctx, db)
+	if err = migrateRefreshLeases(ctx, db); err != nil {
+		return err
+	}
+	return migrateNamespaceOwnership(ctx, db)
 }
 
 func migrateComponentCatalog(ctx context.Context, db *sql.DB) error {
@@ -219,17 +235,17 @@ func migrateRefreshLeases(ctx context.Context, db *sql.DB) error {
 	if _, err := tx.ExecContext(ctx, `DELETE FROM schema_version`); err != nil {
 		return err
 	}
-	if _, err := tx.ExecContext(ctx, `INSERT INTO schema_version(version) VALUES (?)`, schema.CanonicalVersion); err != nil {
+	if _, err := tx.ExecContext(ctx, `INSERT INTO schema_version(version) VALUES (?)`, 16); err != nil {
 		return err
 	}
 	return tx.Commit()
 }
 
 func sqliteColumnExists(ctx context.Context, tx *sql.Tx, table, column string) (bool, error) {
-	if table != "bff_sessions" {
+	if !regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`).MatchString(table) {
 		return false, fmt.Errorf("unsupported column lookup table %q", table)
 	}
-	rows, err := tx.QueryContext(ctx, `PRAGMA table_info(bff_sessions)`)
+	rows, err := tx.QueryContext(ctx, `PRAGMA table_info("`+table+`")`)
 	if err != nil {
 		return false, err
 	}

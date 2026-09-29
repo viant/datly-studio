@@ -4,6 +4,7 @@ import { LazyEditor as Editor } from './LazyEditor.jsx';
 import { DownloadComponentButton } from './ComponentTransfer.jsx';
 import { ReaderSubviewDialog } from './ReaderSubviewDialog.jsx';
 import { ReaderRemoveViewDialog } from './ReaderRemoveViewDialog.jsx';
+import { ReaderCubePreview } from './ReaderCubePreview.jsx';
 import { ReaderAnalyticsDialog } from './ReaderAnalyticsDialog.jsx';
 import { ReaderCacheDialog } from './ReaderCacheDialog.jsx';
 import { ResultPreview } from './NestedDataGrid.jsx';
@@ -16,13 +17,20 @@ import { ReaderResourcesDialog } from './ReaderResourcesDialog.jsx';
 import { ReaderACLDialog } from './ReaderACLDialog.jsx';
 import { ReaderConflictDialog } from './ReaderConflictDialog.jsx';
 import { ContractWorkspace } from './ContractWorkspace.jsx';
+import { predicateRows } from './predicateCatalog.js';
+import { cloneReaderDraft } from './cloneReaderDraft.js';
+import { viewSQLResource } from './viewSQLResource.js';
 
 // ReaderBuilder renders the canonical structure returned by the Studio SDK's
 // Datly reader-builder bridge. It does not parse DQL or invent a browser graph.
-export function ReaderBuilder({ api, report, openResources = false, resourceAction = '', onReportUpdated, onBack }) {
+export function ReaderBuilder({ api, report, openResources = false, resourceAction = '', onReportUpdated, onResourcesClosed, onBack }) {
   const headingRef = useRef(null);
+  const previewTriggerRef = useRef(null);
   const [inspection, setInspection] = useState(null);
   const [version, setVersion] = useState(null);
+  const [sqlFiles, setSQLFiles] = useState([]);
+  const [sqlResourceError, setSQLResourceError] = useState('');
+  const [sqlResourcesLoading, setSQLResourcesLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [subviewDialogOpen, setSubviewDialogOpen] = useState(false);
@@ -33,6 +41,8 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
   const [validationDialogOpen, setValidationDialogOpen] = useState(false);
   const [publicationDialogOpen, setPublicationDialogOpen] = useState(false);
   const [resourcesDialogOpen, setResourcesDialogOpen] = useState(false);
+  const [resourceMode, setResourceMode] = useState('skills');
+  const [cloningDraft, setCloningDraft] = useState(false);
   useEffect(() => { if (openResources) setResourcesDialogOpen(true); }, [openResources, report?.id]);
   const [aclDialogOpen, setACLDialogOpen] = useState(false);
   const [conflict, setConflict] = useState(null);
@@ -40,11 +50,14 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
   const [preview, setPreview] = useState(null);
   const [previewTarget, setPreviewTarget] = useState(null);
   const [previewing, setPreviewing] = useState(false);
+  const [cubePreviewOpen, setCubePreviewOpen] = useState(false);
   const [testedView, setTestedView] = useState(null);
   const [testedRelation, setTestedRelation] = useState(null);
   const [testingView, setTestingView] = useState('');
   const [testingRelation, setTestingRelation] = useState('');
   const [selectedNode, setSelectedNode] = useState(null);
+  const [graphBrowse, setGraphBrowse] = useState({query:'',page:0});
+  useEffect(() => { setGraphBrowse({query:'',page:0}); }, [report?.id, report?.versionNo]);
   const [discoveredOutputCount, setDiscoveredOutputCount] = useState(undefined);
   const [inputTab, setInputTab] = useState('parameters');
   const [editRelation, setEditRelation] = useState(null);
@@ -57,7 +70,7 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
 
   const load = async () => {
     if (!report) return;
-    setLoading(true); setError('');
+    setLoading(true); setError(''); setPreview(null); setCubePreviewOpen(false); setTestedView(null); setTestedRelation(null);
     try {
       if (report.versionNo) {
         const selected = await api.inspectVersion(report.id, report.versionNo);
@@ -65,8 +78,12 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
         setInspection(selected);
         return;
       }
-      const page = await api.listVersions(report.id, { limit: 1 });
-      const current = page?.items?.[0];
+      if (report.currentDraftVersion) {
+        const selected = await api.inspectVersion(report.id, report.currentDraftVersion);
+        if (selected.version.state === 'draft') { setVersion(selected.version); setInspection(selected); return; }
+      }
+      const page = await api.listVersions(report.id, { limit: 100 });
+      const current = page?.items?.find(item => item.state === 'draft') || page?.items?.[0];
       if (!current) { setVersion(null); setInspection(null); return; }
       setVersion(current);
       setInspection(await api.inspectVersion(report.id,current.versionNo));
@@ -82,10 +99,42 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
   const diagnostics = inspection?.diagnostics ?? [];
   const source = inspection?.dql ?? '';
   const capabilities = inspection?.capabilities ?? {};
-  const canEdit = capabilities.canEdit !== false;
+  const canEdit = capabilities.canEdit !== false && (!version?.state || version.state === 'draft');
   const canRun = capabilities.canRun !== false;
   const canPublish = capabilities.canPublish !== false;
   const canUseDQL = capabilities.canUseDql === true;
+  useEffect(() => {
+    let cancelled = false;
+    setSQLFiles([]); setSQLResourceError('');
+    if (!canUseDQL || !version?.versionNo || !api.getResources) return;
+    setSQLResourcesLoading(true);
+    api.getResources(report.id, version.versionNo).then(snapshot => {
+      if (!cancelled) setSQLFiles(snapshot?.files ?? []);
+    }).catch(cause => { if (!cancelled) setSQLResourceError(cause.message); }).finally(() => { if (!cancelled) setSQLResourcesLoading(false); });
+    return () => { cancelled = true; };
+  }, [api, report?.id, version?.versionNo, version?.sourceRevision, canUseDQL]);
+  const serverScoped = (inspection?.structure?.declarations ?? []).some(({parameter}) => {
+    const source = parameter?.source;
+    return (source?.kind === 'component' && String(source.name || '').includes('/_studio/access/context/'))
+      || (source?.kind === 'param' && String(source.name || '').startsWith('Auth.Scope.'));
+  });
+  const canPreview = canRun;
+  const createDraft = async () => {
+    if (!report?.id || !version?.versionNo || cloningDraft) return;
+    setCloningDraft(true); setError('');
+    try {
+      const draft = await cloneReaderDraft(api, report.id, version.versionNo);
+      if (onReportUpdated) onReportUpdated({ ...report, versionNo: draft.versionNo, currentDraftVersion: draft.versionNo });
+      else {
+        const next = await api.inspectVersion(report.id, draft.versionNo);
+        setVersion(next.version); setInspection(next);
+      }
+    } catch (cause) {
+      setError(cause.partialDraftVersionNo
+        ? `Draft v${cause.partialDraftVersionNo} was created, but copying its resources failed: ${cause.message}`
+        : cause.message);
+    } finally { setCloningDraft(false); }
+  };
   const applyCommand = async (operation) => {
     if (!inspection?.version) throw new Error('Reader inspection is unavailable.');
     let result;
@@ -104,20 +153,34 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
     }
     setInspection(result.inspection);
     setVersion(result.inspection.version);
-    setTestedRelation(null);
+    setPreview(null); setTestedView(null); setTestedRelation(null);
     return result;
   };
-  const runPreview = async (target = null) => {
+  const runPreview = async (target = null, input = {}, cube = false) => {
     if (!inspection?.version) return;
-    setPreviewing(true); setError(''); setPreviewTarget(target);
-    try { setPreview(await api.previewReader(report.id, inspection.version.versionNo, {}, 50, inspection?.structure?.component?.routes?.[0]?.path)); }
+    setPreviewing(true); setError(''); setPreview(null); setPreviewTarget(target);
+    try { setPreview(await api.previewReader(report.id, inspection.version.versionNo, input, 50, inspection?.structure?.component?.routes?.[0]?.path, cube)); }
     catch (cause) { setError(cause.message); }
     finally { setPreviewing(false); }
+  };
+  const openCubePreview = () => {
+    previewTriggerRef.current = document.activeElement;
+    setCubePreviewOpen(true);
+  };
+  const closeCubePreview = () => {
+    setCubePreviewOpen(false);
+    previewTriggerRef.current?.focus();
+  };
+  const requestPreview = (target = null) => {
+    if (!target && inspection?.structure?.component?.settings?.report?.enabled) openCubePreview();
+    else runPreview(target);
   };
   const viewNames = useMemo(() => collectViews(inspection?.structure), [inspection]);
   const runViewTest = async (view) => {
     if (!inspection?.version || !view) return;
-    setTestingView(view); setError('');
+    const root = inspection.structure?.component?.rootView;
+    if (inspection.structure?.component?.settings?.report?.enabled && [root?.name,root?.namespace].includes(view)) {openCubePreview();return;}
+    setTestingView(view); setError(''); setTestedView(null);
     try { setTestedView(await api.testReaderView(report.id, inspection.version.versionNo, view)); }
     catch (cause) { setError(cause.message); }
     finally { setTestingView(''); }
@@ -146,6 +209,10 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
     await load();
     return result;
   };
+  const promoteVersion = async (selected,reason) => {
+    const result=await api.publishReader(report.id,selected.versionNo,selected.sourceRevision,reason);
+    await load(); return result;
+  };
   const unpublishDraft = async (expectedActiveGeneration, reason) => {
     if (!report) throw new Error('Component is unavailable.');
     const result = await api.unpublishReader(report.id, expectedActiveGeneration, reason);
@@ -153,7 +220,7 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
     return result;
   };
   const rollbackDraft = async (historicalVersion, reason) => {
-    if (!report || !historicalVersion) throw new Error('Historical version is unavailable.');
+    if (!report || !historicalVersion) throw new Error('Selected version is unavailable.');
     let result;
     try { result = await api.rollbackReader(report.id, historicalVersion.versionNo, historicalVersion.sourceRevision, reason); }
     catch (cause) { if (cause?.code === 'conflict') setConflict(cause); throw cause; }
@@ -189,7 +256,12 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
     try { await load(); setConflict(null); requestAnimationFrame(()=>headingRef.current?.focus()); }
     finally { setConflictReloading(false); }
   };
-  const selectView = (node) => setSelectedNode(node);
+  const selectView = (node) => {
+    setSelectedNode(node);
+    if (['input', 'output', 'views'].includes(node?.type)) {
+      requestAnimationFrame(() => document.querySelector('.studio-contract-panel')?.scrollIntoView?.({ block: 'start', behavior: 'smooth' }));
+    }
+  };
   const testSelectedView = (node) => {
     const target = selectedViewNode(node);
     if (!target) return;
@@ -198,7 +270,7 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
   const testSelectedRelation = async (node) => {
     if (!inspection?.version || node?.type !== 'relation') return;
     const identity = `${node.parentName}->${node.child?.name || node.relation?.name}`;
-    setTestingRelation(node.key); setError('');
+    setTestingRelation(node.key); setError(''); setTestedRelation(null);
     try { setTestedRelation(await api.testReaderRelation(report.id, inspection.version.versionNo, identity, {}, 50)); }
     catch (cause) { setError(cause.message); }
     finally { setTestingRelation(''); }
@@ -211,31 +283,46 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
   };
   const activeViewName = activeTab.startsWith('sql:') ? activeTab.slice(activeTab.indexOf(':') + 1) : '';
   const activeView = activeViewName ? findView(rootView, activeViewName) : null;
+  const activeSQL = viewSQLResource(inspection, activeViewName, sqlFiles);
+  const saveViewSQL = async operation => {
+    if (!activeSQL.file) return applyCommand(operation);
+    try {
+      const snapshot = await api.upsertResourceFile({ ...activeSQL.file, reportId: report.id,
+        versionNo: version.versionNo, content: operation.view.sql,
+        expectedSourceRevision: version.sourceRevision });
+      setSQLFiles(snapshot.files ?? []);
+      const next = await api.inspectVersion(report.id, version.versionNo);
+      setInspection(next); setVersion(next.version);
+      setPreview(null); setTestedView(null); setTestedRelation(null);
+    } catch (cause) { if (cause.code === 'conflict') setConflict(cause); throw cause; }
+  };
 
   return <main className="studio-workspace studio-builder-workspace">
     <div className="studio-builder-header">
       {version&&<DownloadComponentButton api={api} report={report} versionNo={version.versionNo} disabled={!canUseDQL}/>}
       <div><Button minimal icon="arrow-left" onClick={requestBack}>Components</Button><h1 ref={headingRef} tabIndex={-1} className="studio-page-heading">{report?.title ?? 'Reader Builder'}</h1>
         <p className="studio-page-description">Versioned Datly reader graph for {report?.defaultConnectorName}.</p></div>
-      {version && <div className="studio-builder-header-actions"><div className="studio-builder-status" aria-label="Component revision status"><Tag minimal>{report?.namespace ?? 'general'}</Tag><Tag minimal>{version.state==='published'?'Published':'Draft'} v{version.versionNo}</Tag><Tag minimal>rev {version.sourceRevision}</Tag><Tag intent={version.compileStatus === 'valid' ? 'success' : version.compileStatus === 'invalid' ? 'danger' : 'warning'} minimal>{version.compileStatus}</Tag></div><Button icon="edit" disabled={!canEdit} onClick={()=>setExposureDialogOpen(true)}>Edit component</Button></div>}
+      {version && <div className="studio-builder-header-actions"><div className="studio-builder-status" aria-label="Component revision status"><Tag minimal>{report?.namespace ?? 'general'}</Tag><Tag minimal>{version.state==='published'?'Published':version.state==='draft'||!version.state?'Draft':'Version'} v{version.versionNo}</Tag><Tag minimal>rev {version.sourceRevision}</Tag><Tag intent={version.compileStatus === 'valid' ? 'success' : version.compileStatus === 'invalid' ? 'danger' : 'warning'} minimal>{version.compileStatus}</Tag>{serverScoped&&<Tag minimal intent="warning" title="Server-owned access context narrows this reader at runtime">Scoped</Tag>}</div>{version.state&&version.state!=='draft'?<Button icon="duplicate" loading={cloningDraft} disabled={capabilities.canEdit===false} onClick={createDraft}>Create editable draft</Button>:<Button icon="edit" disabled={!canEdit} onClick={()=>setExposureDialogOpen(true)}>Edit component</Button>}</div>}
     </div>
     {version && <div className="studio-builder-commandbar" role="toolbar" aria-label="Component authoring commands">
-      <div className="studio-command-group"><span>Author</span><ButtonGroup minimal><Button small icon="add" onClick={() => { selectBuilderTab('component'); setInputTab('parameters'); setSelectedNode({type:'input'}); }}>Inputs</Button><Button small icon="filter" onClick={() => { selectBuilderTab('component'); setInputTab('predicates'); setSelectedNode({type:'input'}); }}>Predicates</Button><Button small icon="heatmap" disabled={!canRun} onClick={() => setAnalyticsDialogOpen(true)}>Composition lab</Button><Button small icon="database" disabled={!canEdit} onClick={() => setCacheDialogOpen(true)}>Cache & warmup</Button></ButtonGroup></div>
-      <div className="studio-command-group"><span>Govern</span><ButtonGroup minimal><Button small icon="folder-open" disabled={!canEdit} onClick={()=>setResourcesDialogOpen(true)}>Skills & resources</Button>{capabilities.canManageAcl===true&&<Button small icon="lock" disabled={!canPublish} onClick={()=>setACLDialogOpen(true)}>Permissions</Button>}</ButtonGroup></div>
-      <div className="studio-command-group studio-command-release"><span>Release</span><ButtonGroup minimal><Button small icon="endorsed" disabled={!canEdit} onClick={()=>setValidationDialogOpen(true)}>Validate</Button><Button small icon="play" disabled={!canRun} loading={previewing&&!previewTarget} onClick={()=>runPreview(null)}>Preview</Button><Button small intent="primary" icon="rocket-slant" disabled={!canPublish || version.compileStatus !== 'valid'} title={!canPublish ? 'Publish permission is required' : version.compileStatus === 'valid' ? 'Publish this validated revision' : 'Validate this exact revision before publishing'} onClick={()=>setPublicationDialogOpen(true)}>Publish</Button><Button small icon="refresh" aria-label="Refresh component" title="Refresh component" onClick={load}/></ButtonGroup></div>
+      <div className="studio-command-group"><span>Author</span><ButtonGroup minimal><Button small icon="add" onClick={() => { selectBuilderTab('component'); setInputTab('parameters'); selectView({type:'input'}); }}>Inputs</Button><Button small icon="filter" onClick={() => { selectBuilderTab('component'); setInputTab('predicates'); selectView({type:'input'}); }}>Predicates</Button><Button small icon="heatmap" disabled={!canPreview} title={!canRun?'Execute permission is required':undefined} onClick={() => setAnalyticsDialogOpen(true)}>Composition lab</Button><Button small icon="database" disabled={!canEdit} onClick={() => setCacheDialogOpen(true)}>Cache & warmup</Button></ButtonGroup></div>
+      <div className="studio-command-group"><span>Govern</span><ButtonGroup minimal><Button small icon="folder-open" disabled={capabilities.canView===false} onClick={()=>{setResourceMode('resources');setResourcesDialogOpen(true);}}>Source resources</Button><Button small icon="learning" disabled={capabilities.canView===false} onClick={()=>{setResourceMode('skills');setResourcesDialogOpen(true);}}>Skills</Button>{capabilities.canManageAcl===true&&<Button small icon="lock" disabled={!canPublish} onClick={()=>setACLDialogOpen(true)}>Permissions</Button>}</ButtonGroup></div>
+      <div className="studio-command-group studio-command-release"><span>Release</span><ButtonGroup minimal><Button small icon="endorsed" title={!canEdit ? 'Create an editable draft to validate changes' : 'Validate this draft'} disabled={!canEdit} onClick={()=>setValidationDialogOpen(true)}>Validate</Button><Button small icon="play" disabled={!canPreview} title={!canRun?'Execute permission is required':undefined} loading={previewing&&!previewTarget} onClick={()=>requestPreview(null)}>Preview</Button>{inspection?.structure?.component?.settings?.report?.enabled && <Button small icon="settings" aria-expanded={cubePreviewOpen} disabled={!canPreview} onClick={openCubePreview}>Preview settings</Button>}<Button small intent="primary" icon="rocket-slant" disabled={!canPublish} title={!canPublish ? 'Publish permission is required' : 'Review publication, rollback, and unpublish'} onClick={()=>setPublicationDialogOpen(true)}>Release</Button><Button small icon="refresh" aria-label="Refresh component" title="Refresh component" onClick={load}/></ButtonGroup></div>
     </div>}
+    {version && (!canEdit || serverScoped) && <p className="studio-muted">{!canEdit && 'Create an editable draft to validate or change this version. '}{serverScoped && 'Preview uses your verified runtime access; the server enforces entity scope.'}</p>}
     {error && <Callout intent="danger" title="Reader Builder request failed" role="alert">{error}<Button small minimal intent="danger" onClick={load}>Retry</Button></Callout>}
     {loading && <div className="studio-loading"><Spinner size={28} /></div>}
     {!loading && !version && <Card className="studio-card studio-empty" elevation={0}><h2>No reader definition yet</h2><span>Create an initial reader version from this catalog entry before composing views.</span></Card>}
-    {!loading && version && <><BuilderTabs componentTitle={report?.title} activeTab={activeTab} viewTabs={viewTabs} canUseDQL={canUseDQL} onSelect={selectBuilderTab} onClose={closeViewTab}/><div className="studio-builder-grid" role="tabpanel" id={workspacePanelId(activeTab)} aria-labelledby={workspaceTabId(activeTab)} tabIndex={0}>
+    {!loading && version && <><BuilderTabs componentTitle={report?.title} activeTab={activeTab} viewTabs={viewTabs} canUseDQL={canUseDQL} onSettings={()=>setExposureDialogOpen(true)} onSkills={()=>{setResourceMode('skills');setResourcesDialogOpen(true);}} onSelect={selectBuilderTab} onClose={closeViewTab}/><div className="studio-builder-grid" role="tabpanel" id={workspacePanelId(activeTab)} aria-labelledby={workspaceTabId(activeTab)} tabIndex={0}>
+      {cubePreviewOpen && <ReaderCubePreview key={`${report.id}:${version.versionNo}:${version.sourceRevision}`} structure={inspection?.structure} pending={previewing} onRun={(input)=>runPreview(null,input,true)} onClose={closeCubePreview}/>}
       {activeTab === 'component' ? <>
-        <Card className={`studio-card studio-graph-panel ${['input','output','views'].includes(selectedNode?.type) ? 'studio-graph-panel-contract' : ''}`} elevation={0}>
-          <div className="studio-panel-heading"><div><h2>Component graph</h2><p className="studio-muted">Open a view to inspect its fields. Select a relation to inspect its join.</p></div><Code>{rootView ? `${displayViewName(rootView)} tree` : 'empty'}</Code></div>
-          {rootView && <ComponentGraph root={rootView} selected={selectedNode} inputCount={inputDeclarationCount(inspection?.structure)} predicateCount={predicateOptionCount(inspection?.structure)} outputCount={outputCount} canEdit={canEdit} canRun={canRun} onSelect={selectView} onOpen={selectView} onOpenSQL={openSQLTab} onAdd={(node)=>{setSelectedNode(node);setSubviewDialogOpen(true);}} onEdit={selectView} onTest={testSelectedView} onRemove={removeSelectedView} />}
+        <Card className={`studio-card studio-graph-panel ${!selectedNode || ['input','output','views'].includes(selectedNode?.type) ? 'studio-graph-panel-contract' : ''}`} elevation={0}>
+          <div className="studio-panel-heading"><h2>Component graph</h2></div>
+          {rootView && <ComponentGraph root={rootView} browse={graphBrowse} onBrowse={setGraphBrowse} selected={selectedNode} inputCount={inputDeclarationCount(inspection?.structure)} predicateCount={predicateOptionCount(inspection?.structure)} outputCount={outputCount} canEdit={canEdit} canRun={canPreview} onSelect={selectView} onOpen={selectView} onOpenSQL={openSQLTab} onAdd={(node)=>{setSelectedNode(node);setSubviewDialogOpen(true);}} onEdit={selectView} onTest={testSelectedView} onRemove={removeSelectedView} />}
         </Card>
-        {['input','output','views'].includes(selectedNode?.type) ? <ContractWorkspace api={api} selection={selectedNode} structure={inspection?.structure} root={rootView} connector={report?.defaultConnectorName} onOutputCount={setDiscoveredOutputCount} canEdit={canEdit} activeInputTab={inputTab} onInputTab={setInputTab} onClear={() => setSelectedNode(null)} onApply={applyCommand} onSelectView={(view) => setSelectedNode({type:'view', name:view.namespace || view.name, label:view.name, view})}/> : <SelectionWorkspace api={api} selection={selectedNode} root={rootView} connector={report?.defaultConnectorName} functions={inspection?.structure?.functions ?? []} version={version} relationTest={testedRelation} canEdit={canEdit} canRun={canRun} testingView={testingView} testingRelation={testingRelation} onClear={() => setSelectedNode(null)} onOpenSQL={openSQLTab} onAdd={(node) => { setSelectedNode(node); setSubviewDialogOpen(true); }} onEditRelation={setEditRelation} onFields={(node) => setEditFields(node)} onTest={testSelectedView} onRunRelation={testSelectedRelation} onPreviewRelation={(node) => runPreview({type:'relation',label:`${displayNodeName(node.parentName, rootView)} → ${displayViewName(node.child?.view)}`})} onRemove={removeSelectedView}/>}
-      </> : activeView ? <ViewWorkspace mode="sql" view={activeView} viewName={activeViewName} root={rootView} sql={viewSourceSQL(inspection, activeViewName)} canEdit={canEdit} canRun={canRun} onDirtyChange={(dirty)=>setDirtyTabs((current)=>{const next=new Set(current);if(dirty)next.add(activeTab);else next.delete(activeTab);return next;})} onApply={applyCommand} onTest={() => runViewTest(activeViewName)} testing={testingView === activeViewName}/> : null}
-      {activeTab === 'advanced' && canUseDQL && <Card className="studio-card studio-advanced-panel" elevation={0}><div className="studio-panel-heading"><div><h2>Advanced component source</h2><p className="studio-muted">Component DQL is structural. View SQL opens in a dedicated SQL tab.</p></div><Button small minimal icon={showRawDQL ? 'eye-off' : 'eye-open'} onClick={() => setShowRawDQL((current) => !current)}>{showRawDQL ? 'Hide raw DQL' : 'Show raw DQL'}</Button></div>{showRawDQL ? <pre className="studio-dql-source">{source || 'No DQL source is defined.'}</pre> : <><div className="studio-dql-resource-list">{collectViewEntries(rootView).map((entry) => <Button key={entry.view.name} minimal icon="code" onClick={() => openSQLTab({ type: 'view', name: entry.view.name, label: entry.view.name, view: entry.view })}>{`embed:sql/${viewResourcePath(entry.view, rootView)}`}</Button>)}</div><Divider/><h3>Diagnostics</h3>{diagnostics.length === 0 ? <div className="studio-diagnostic-ok">Datly inspection completed without diagnostics.</div> : diagnostics.map((item, index) => <Callout key={`${item.code}-${index}`} intent={item.severity === 'error' ? 'danger' : 'warning'} title={item.code || item.severity}>{item.message}</Callout>)}</>}</Card>}
+        {['input','output','views'].includes(selectedNode?.type) ? <ContractWorkspace api={api} selection={selectedNode} structure={inspection?.structure} root={rootView} connector={report?.defaultConnectorName} onOutputCount={setDiscoveredOutputCount} canEdit={canEdit} activeInputTab={inputTab} onInputTab={setInputTab} onClear={() => setSelectedNode(null)} onApply={applyCommand} onSelectView={(view) => setSelectedNode({type:'view', name:view.namespace || view.name, label:view.name, view})}/> : selectedNode ? <SelectionWorkspace api={api} structure={inspection?.structure} selection={selectedNode} root={rootView} connector={report?.defaultConnectorName} functions={inspection?.structure?.functions ?? []} version={version} relationTest={testedRelation} canEdit={canEdit} canRun={canPreview} testingView={testingView} testingRelation={testingRelation} onClear={() => setSelectedNode(null)} onOpenSQL={openSQLTab} onAdd={(node) => { setSelectedNode(node); setSubviewDialogOpen(true); }} onEditRelation={setEditRelation} onFields={(node) => setEditFields(node)} onTest={testSelectedView} onRunRelation={testSelectedRelation} onPreviewRelation={(node) => runPreview({type:'relation',label:`${displayNodeName(node.parentName, rootView)} → ${displayViewName(node.child?.view)}`})} onRemove={removeSelectedView}/> : null}
+      </> : activeView ? <ViewWorkspace mode="sql" view={activeView} viewName={activeViewName} root={rootView} sql={activeSQL.sql} resourcePath={activeSQL.path} resourceError={sqlResourcesLoading ? 'Loading SQL resource…' : sqlResourceError || activeSQL.error} canEdit={canEdit && !sqlResourcesLoading && !sqlResourceError && !activeSQL.error} canRun={canPreview} onDirtyChange={(dirty)=>setDirtyTabs((current)=>{const next=new Set(current);if(dirty)next.add(activeTab);else next.delete(activeTab);return next;})} onApply={saveViewSQL} onTest={() => runViewTest(activeViewName)} testing={testingView === activeViewName}/> : null}
+      {activeTab === 'advanced' && canUseDQL && <Card className="studio-card studio-advanced-panel" elevation={0}><div className="studio-panel-heading"><div><h2>Advanced component source</h2><p className="studio-muted">Component DQL is structural. View SQL opens in a dedicated SQL tab.</p></div><Button small minimal icon={showRawDQL ? 'eye-off' : 'eye-open'} onClick={() => setShowRawDQL((current) => !current)}>{showRawDQL ? 'Hide raw DQL' : 'Show raw DQL'}</Button></div>{showRawDQL ? <pre className="studio-dql-source">{source || 'No DQL source is defined.'}</pre> : <><div className="studio-dql-resource-list">{collectViewEntries(rootView).map((entry) => <Button key={entry.view.name} minimal icon="code" onClick={() => openSQLTab({ type: 'view', name: entry.view.name, label: entry.view.name, view: entry.view })}>{viewSQLResource(inspection,entry.view.name,sqlFiles).path ? `embed:${viewSQLResource(inspection,entry.view.name,sqlFiles).path}` : `${displayViewName(entry.view)} · inline SQL`}</Button>)}</div><Divider/><h3>Diagnostics</h3>{diagnostics.length === 0 ? <div className="studio-diagnostic-ok">Datly inspection completed without diagnostics.</div> : diagnostics.map((item, index) => <Callout key={`${item.code}-${index}`} intent={item.severity === 'error' ? 'danger' : 'warning'} title={item.code || item.severity}>{item.message}</Callout>)}</>}</Card>}
       {preview && <Card className="studio-card studio-preview-panel" elevation={0}>
         <div className="studio-panel-heading"><div><h2>{previewTarget?.type==='relation'?`Graph preview · ${previewTarget.label}`:'Reader preview'}</h2><p className="studio-muted">{previewTarget?.type==='relation'?'Full exact-version graph preview with the selected relation in context; relation-specific assertions are reported only by a dedicated relation test.':'Exact draft-version execution through the authorized Studio SDK.'}</p></div><Code>{formatDuration(preview.duration)}</Code></div>
         <ExecutionEvidence evidence={preview.evidence}/>
@@ -253,17 +340,17 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
     <ReaderFieldDialog isOpen={Boolean(editFields)} node={editFields} columnContracts={inspection?.structure?.columnContracts ?? []} onClose={()=>setEditFields(null)} onApply={async(operation)=>{await applyCommand(operation);setSelectedNode(null);}}/>
     <ReaderAnalyticsDialog isOpen={analyticsDialogOpen} structure={inspection?.structure} onClose={() => setAnalyticsDialogOpen(false)} onTestCompose={runCompose} />
     <ReaderCacheDialog api={api} report={report} version={version} canWarmup={canPublish} isOpen={cacheDialogOpen} structure={inspection?.structure} onClose={() => setCacheDialogOpen(false)} onApply={applyCommand} onWarmup={runWarmup} />
-    <ReaderExposureDialog isOpen={exposureDialogOpen} api={api} structure={inspection?.structure} version={version} report={report} onReportUpdated={onReportUpdated} onClose={()=>setExposureDialogOpen(false)} onApply={applyCommand}/>
+    <ReaderExposureDialog isOpen={exposureDialogOpen} readOnly={!canEdit} onCache={()=>{setExposureDialogOpen(false);setCacheDialogOpen(true);}} api={api} structure={inspection?.structure} version={version} report={report} onReportUpdated={onReportUpdated} onClose={()=>setExposureDialogOpen(false)} onApply={applyCommand}/>
     <ReaderValidationDialog isOpen={validationDialogOpen} version={version} canUseDQL={canUseDQL} onClose={()=>setValidationDialogOpen(false)} onValidate={validateDraft} onOpenSource={()=>{setValidationDialogOpen(false);setActiveTab('advanced');setShowRawDQL(true);}}/>
-    <ReaderPublicationDialog isOpen={publicationDialogOpen} api={api} report={report} version={version} inspection={inspection} onClose={()=>setPublicationDialogOpen(false)} onPublish={publishDraft} onUnpublish={unpublishDraft} onRollback={rollbackDraft}/>
-    <ReaderResourcesDialog isOpen={resourcesDialogOpen} initialAction={resourceAction} api={api} report={report} version={version} onClose={()=>setResourcesDialogOpen(false)} onChanged={resourceChanged}/>
+    <ReaderPublicationDialog isOpen={publicationDialogOpen} api={api} report={report} version={version} inspection={inspection} onClose={()=>setPublicationDialogOpen(false)} onPublish={publishDraft} onPromote={promoteVersion} onUnpublish={unpublishDraft} onRollback={rollbackDraft}/>
+    <ReaderResourcesDialog mode={resourceMode} isOpen={resourcesDialogOpen} initialAction={resourceAction} api={api} report={report} version={version} structure={inspection?.structure} onClose={()=>{setResourcesDialogOpen(false);onResourcesClosed?.();}} onChanged={resourceChanged} onDraftCreated={(draft)=>onReportUpdated?.({...report,versionNo:draft.versionNo,currentDraftVersion:draft.versionNo})}/>
     <ReaderACLDialog isOpen={aclDialogOpen} api={api} report={report} onClose={()=>setACLDialogOpen(false)}/>
     <ReaderConflictDialog conflict={conflict} reloading={conflictReloading} onReview={()=>setConflict(null)} onReload={reloadAfterConflict}/>
     <Alert isOpen={Boolean(pendingTabAction)} intent="warning" icon="warning-sign" confirmButtonText="Discard changes" cancelButtonText="Keep editing" onCancel={()=>setPendingTabAction(null)} onConfirm={discardPendingTab} canEscapeKeyCancel canOutsideClickCancel><p>This SQL tab has unsaved changes. Leaving it now discards the draft; the saved Datly view remains unchanged.</p></Alert>
   </main>;
 }
 
-function BuilderTabs({ componentTitle, activeTab, viewTabs, canUseDQL, onSelect, onClose }) {
+function BuilderTabs({ componentTitle, activeTab, viewTabs, canUseDQL, onSettings, onSkills, onSelect, onClose }) {
   const tabs = ['component', ...viewTabs.map((view) => `${view.mode}:${view.name}`), ...(canUseDQL ? ['advanced'] : [])];
   const onKeyDown = (event, current) => {
     const index = tabs.indexOf(current);
@@ -280,7 +367,9 @@ function BuilderTabs({ componentTitle, activeTab, viewTabs, canUseDQL, onSelect,
   return <div className="studio-builder-tabs" role="tablist" aria-label="Component workspace tabs">
     <Button small icon="application" role="tab" id={workspaceTabId('component')} aria-controls={workspacePanelId('component')} tabIndex={activeTab === 'component' ? 0 : -1} active={activeTab === 'component'} aria-selected={activeTab === 'component'} onKeyDown={(event)=>onKeyDown(event,'component')} onClick={() => onSelect('component')}>{`Component ${componentTitle || ''}`}</Button>
     {viewTabs.map((view) => { const key=`${view.mode}:${view.name}`; return <div role="presentation" className={`studio-builder-tab-view ${activeTab === key ? 'active' : ''}`} key={key}><Button small role="tab" id={workspaceTabId(key)} aria-controls={workspacePanelId(key)} tabIndex={activeTab === key ? 0 : -1} icon={view.mode === 'sql' ? 'code' : 'properties'} active={activeTab === key} aria-selected={activeTab === key} onKeyDown={(event)=>onKeyDown(event,key)} onClick={() => onSelect(key)}>{view.mode === 'sql' ? `${displayViewName(view.view || view)} SQL` : displayViewName(view.view || view)}</Button><Button small minimal icon="cross" aria-label={`Close ${displayViewName(view.view || view)} ${view.mode === 'sql' ? 'SQL' : 'view'} tab`} onClick={() => onClose(view.name, view.mode)}/></div>;})}
-    {canUseDQL && <Button small minimal icon="cog" role="tab" id={workspaceTabId('advanced')} aria-controls={workspacePanelId('advanced')} tabIndex={activeTab === 'advanced' ? 0 : -1} active={activeTab === 'advanced'} aria-selected={activeTab === 'advanced'} aria-label="Advanced component DQL" title="Advanced component DQL" onKeyDown={(event)=>onKeyDown(event,'advanced')} onClick={() => onSelect('advanced')}/>}
+
+    <Button small minimal icon="cog" aria-label="Component settings" onClick={onSettings}>Settings</Button>
+    {canUseDQL && <Button small minimal icon="code" role="tab" id={workspaceTabId('advanced')} aria-controls={workspacePanelId('advanced')} tabIndex={activeTab === 'advanced' ? 0 : -1} active={activeTab === 'advanced'} aria-selected={activeTab === 'advanced'} aria-label="Advanced component DQL" title="DQL source" onKeyDown={(event)=>onKeyDown(event,'advanced')} onClick={() => onSelect('advanced')}>DQL source</Button>}
   </div>;
 }
 
@@ -288,24 +377,25 @@ function workspaceToken(value) { return String(value || 'component').replace(/[^
 function workspaceTabId(value) { return `component-workspace-tab-${workspaceToken(value)}`; }
 function workspacePanelId(value) { return `component-workspace-panel-${workspaceToken(value)}`; }
 
-function ViewWorkspace({ view, viewName, root, sql, canEdit, canRun, onDirtyChange, onApply, onTest, testing }) {
+function ViewWorkspace({ view, viewName, root, sql, resourcePath, resourceError, canEdit, canRun, onDirtyChange, onApply, onTest, testing }) {
   const [draft, setDraft] = useState(sql || '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [editorSize, setEditorSize] = useState('balanced');
   useEffect(() => { setDraft(sql || ''); setError(''); setSaving(false); setEditorSize('balanced'); onDirtyChange?.(false); }, [view?.name, sql]);
   const lineage = viewLineage(root, view?.name).map(displayViewName).join(' / ');
-  const save = async () => { if (!draft.trim()) { setError('View SQL is required.'); return; } setSaving(true); setError(''); try { await onApply({ type: 'updateView', view: { name: viewName || view.name, sql: draft.trim() } }); } catch (cause) { setError(cause.message); } finally { setSaving(false); } };
+  const save = async () => { if (!draft.trim()) { setError('View SQL is required.'); return; } setSaving(true); setError(''); try { await onApply({ type: 'updateView', view: { name: viewName || view.name, sql: draft } }); } catch (cause) { setError(cause.message); } finally { setSaving(false); } };
   const dirty = draft !== (sql || '');
   useEffect(()=>()=>onDirtyChange?.(false),[view?.name]);
   useEffect(()=>{const warn=(event)=>{if(!dirty)return;event.preventDefault();event.returnValue='';};window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn);},[dirty]);
   const relation=findRelationContext(root,view?.name);
-  return <Card className="studio-card studio-view-workspace" elevation={0}><div className="studio-sql-header"><div><h2><span className="studio-view-kind-icon">◇</span>{displayViewName(view)} SQL</h2><p className="studio-muted">{lineage || displayViewName(view)} · <code>{`embed:sql/${viewResourcePath(view, root)}`}</code></p></div><div className="studio-sql-actions"><ButtonGroup minimal aria-label="SQL workspace size"><Button small icon="minimize" aria-label="Minimize SQL editor" aria-pressed={editorSize==='compact'} onClick={()=>setEditorSize('compact')}/><Button small icon="vertical-distribution" aria-label="Balance SQL editor and preview" aria-pressed={editorSize==='balanced'} onClick={()=>setEditorSize('balanced')}/><Button small icon="maximize" aria-label="Maximize SQL editor" aria-pressed={editorSize==='expanded'} onClick={()=>setEditorSize('expanded')}/></ButtonGroup><Tag minimal intent={dirty ? 'warning' : 'success'}>{dirty ? 'Unsaved changes' : 'Saved'}</Tag><Button icon="play" disabled={!canRun} loading={testing} onClick={onTest}>Test view</Button><Button intent="primary" icon="floppy-disk" disabled={!canEdit || !dirty} loading={saving} onClick={save}>Save SQL</Button></div></div>{relation&&<div className="studio-sql-relation-keys"><span>Join keys</span>{(relation.relation.on??[]).map((item,index)=><code key={`${item.parentColumn}-${item.childColumn}-${index}`}>{item.parentColumn} → {item.childColumn}</code>)}</div>}{error && <Callout intent="danger" role="alert">{error}</Callout>}<div className={`studio-code-editor studio-code-editor-resizable ${editorSize}`} aria-label="Resizable SQL pane"><Editor ariaLabel={`${displayViewName(view)} SQL source`} value={draft} onChange={(value)=>{setDraft(value);onDirtyChange?.(value!==(sql||''));}} language="sql" height="100%" readOnly={saving || !canEdit}/></div></Card>;
+  return <Card className="studio-card studio-view-workspace" elevation={0}><div className="studio-sql-header"><div><h2><span className="studio-view-kind-icon">◇</span>{displayViewName(view)} SQL</h2><p className="studio-muted">{lineage || displayViewName(view)} · <code>{resourcePath ? `embed:${resourcePath}` : 'Inline view SQL'}</code></p></div><div className="studio-sql-actions"><ButtonGroup minimal aria-label="SQL workspace size"><Button small icon="minimize" aria-label="Minimize SQL editor" aria-pressed={editorSize==='compact'} onClick={()=>setEditorSize('compact')}/><Button small icon="vertical-distribution" aria-label="Balance SQL editor and preview" aria-pressed={editorSize==='balanced'} onClick={()=>setEditorSize('balanced')}/><Button small icon="maximize" aria-label="Maximize SQL editor" aria-pressed={editorSize==='expanded'} onClick={()=>setEditorSize('expanded')}/></ButtonGroup><Tag minimal intent={dirty ? 'warning' : 'success'}>{dirty ? 'Unsaved changes' : 'Saved'}</Tag><Button icon="play" disabled={!canRun} loading={testing} onClick={onTest}>Test view</Button><Button intent="primary" icon="floppy-disk" disabled={!canEdit || !dirty} loading={saving} onClick={save}>Save SQL</Button></div></div>{relation&&<div className="studio-sql-relation-keys"><span>Join keys</span>{(relation.relation.on??[]).map((item,index)=><code key={`${item.parentColumn}-${item.childColumn}-${index}`}>{item.parentColumn} → {item.childColumn}</code>)}</div>}{(error || resourceError) && <Callout intent="danger" role="alert">{error || resourceError}</Callout>}<div className={`studio-code-editor studio-code-editor-resizable ${editorSize}`} aria-label="Resizable SQL pane"><Editor ariaLabel={`${displayViewName(view)} SQL source`} value={draft} onChange={(value)=>{setDraft(value);onDirtyChange?.(value!==(sql||''));}} language="sql" height="100%" readOnly={saving || !canEdit}/></div></Card>;
 }
 
-function SelectionWorkspace({ api, selection, root, connector, functions, version, relationTest, canEdit, canRun, testingView, testingRelation, onClear, onOpenSQL, onAdd, onEditRelation, onFields, onTest, onRunRelation, onPreviewRelation, onRemove }) {
+function SelectionWorkspace({ api, structure, selection, root, connector, functions, version, relationTest, canEdit, canRun, testingView, testingRelation, onClear, onOpenSQL, onAdd, onEditRelation, onFields, onTest, onRunRelation, onPreviewRelation, onRemove }) {
   const target = selectedViewNode(selection);
   const view = target?.view;
+  const effectiveConnector = viewLineage(root, view?.name).reduce((current,item)=>item.source?.bindings?.connector || current,connector);
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(0);
   const [discoveredColumns, setDiscoveredColumns] = useState([]);
@@ -315,17 +405,20 @@ function SelectionWorkspace({ api, selection, root, connector, functions, versio
   useEffect(() => { setQuery(''); setPage(0); }, [target?.name]);
   useEffect(() => {
     let cancelled = false;
-    if (!view || !api || !connector) { setDiscoveredColumns([]); setMetadataError(''); setMetadataLoading(false); return () => { cancelled = true; }; }
+    if (!view || !api || !effectiveConnector) { setDiscoveredColumns([]); setMetadataError(''); setMetadataLoading(false); return () => { cancelled = true; }; }
     const reference = tableReference(view?.source?.table);
     if (!reference.table) { setDiscoveredColumns([]); setMetadataError(''); setMetadataLoading(false); return () => { cancelled = true; }; }
     setMetadataError(''); setDiscoveredColumns([]); setMetadataLoading(true);
-    api.getTable(connector, reference).then((detail) => {
+    api.getTable(effectiveConnector, reference).then((detail) => {
       if (!cancelled) setDiscoveredColumns((detail?.columns ?? []).map((column) => ({ name: column.name, source: column.name, databaseType: column.type, type: { name: column.type }, groupable: false, schema: column })));
     }).catch((cause) => { if (!cancelled) setMetadataError(cause.message); }).finally(() => { if (!cancelled) setMetadataLoading(false); });
     return () => { cancelled = true; };
-  }, [api, connector, view?.name, view?.source?.table, view?.columns, metadataReload]);
+  }, [api, effectiveConnector, view?.name, view?.source?.table, view?.columns, metadataReload]);
   if (!target || !view) return <Card className="studio-card studio-view-inspector studio-view-inspector-empty" elevation={0}><span>Select a view or relation to inspect its settings and columns.</span></Card>;
-  const resolvedView = { ...view, columns: mergeViewColumns(view?.columns, discoveredColumns) };
+  const viewNames = [view.name, view.namespace].filter(Boolean).map((name) => name.toLowerCase());
+  const constrained = (structure?.columnContracts ?? []).some((item) => viewNames.includes(String(item.view || '').toLowerCase())) || functions.some((fn) => ['output_exclude', 'tag', 'cast'].includes(String(fn.name || '').toLowerCase()) && viewNames.includes(String(fn.args?.[0] || '').split('.')[0].toLowerCase()));
+  const includePhysicalColumns = !constrained && (structure?.views ?? []).some((item) => viewNames.includes(String(item.name || '').toLowerCase()) && item.sourceProjectionAll);
+  const resolvedView = { ...view, columns: mergeViewColumns(view?.columns, discoveredColumns, includePhysicalColumns) };
   const columns = (resolvedView.columns ?? []).filter((column) => `${column.name} ${column.source || ''} ${column.type?.name || column.databaseType || ''}`.toLowerCase().includes(query.trim().toLowerCase()));
   const pageSize = 20;
   const pages = Math.max(1, Math.ceil(columns.length / pageSize));
@@ -341,7 +434,7 @@ function SelectionWorkspace({ api, selection, root, connector, functions, versio
     <Card className="studio-card studio-view-inspector" elevation={0}>
       <div className="studio-inspector-heading"><div><span>{relation ? 'Relation' : target.root ? 'Root view' : 'View settings'}</span><h2>{relation ? `${parentLabel} → ${displayViewName(view)}` : displayViewName(view)}</h2></div><Button minimal small icon="cross" aria-label="Clear graph selection" onClick={onClear}/></div>
       {relation&&<div className="studio-relation-classification"><Tag minimal intent="primary">{derived?'derived output':String(selection.relationKind||'subview')}</Tag><Tag minimal>{String(selection.relation?.cardinality||'many')}</Tag></div>}
-      <dl className="studio-view-settings"><div><dt>Source</dt><dd><code>{sourceLabel}</code></dd></div><div><dt>Connector</dt><dd>{connector || 'Inherited'}</dd></div><div><dt>Contract</dt><dd><code>{view.name || view.namespace}</code></dd></div>{relation && <div><dt>{derived ? 'Output' : 'Keys'}</dt><dd>{derived?<code>Independent output; no parent attachment</code>:<div className="studio-relation-keys">{(selection.relation?.on??[]).map((key,index)=><code key={`${key.parentColumn}-${key.childColumn}-${index}`}>{key.parentColumn} → {key.childColumn}</code>)}</div>}</dd></div>}</dl>
+      <dl className="studio-view-settings"><div><dt>Source</dt><dd><code>{sourceLabel}</code></dd></div><div><dt>Connector</dt><dd>{effectiveConnector || 'Inherited'}</dd></div><div><dt>Contract</dt><dd><code>{view.name || view.namespace}</code></dd></div>{relation && <div><dt>{derived ? 'Output' : 'Keys'}</dt><dd>{derived?<code>Independent output; no parent attachment</code>:<div className="studio-relation-keys">{(selection.relation?.on??[]).map((key,index)=><code key={`${key.parentColumn}-${key.childColumn}-${index}`}>{key.parentColumn} → {key.childColumn}</code>)}</div>}</dd></div>}</dl>
       {viewFunctions.length > 0 && <div className="studio-inspector-policies"><span>Policies</span><div>{viewFunctions.map((fn) => <Tag key={`${fn.name}:${fn.occurrence}`} minimal>{formatFunction(fn)}</Tag>)}</div></div>}
       <div className="studio-inspector-actions" role="toolbar" aria-label="Selected view actions"><Button small icon="code" onClick={() => onOpenSQL(selection)}>{relation?'Child SQL':'Open SQL'}</Button><Button small icon="play" disabled={!canRun} loading={testingView === target.name} onClick={() => onTest(selection)}>{relation?'Test child':'Test view'}</Button>{relation && <Button small icon="diagram-tree" disabled={!canRun} onClick={() => onPreviewRelation(selection)}>Preview full graph</Button>}{!relation && !derived && <Button small icon="git-branch" disabled={!canEdit} onClick={() => onAdd(target)}>Add child</Button>}{relation && !derived && <Button small icon="flows" disabled={!canEdit} onClick={() => onEditRelation(selection)}>Edit relation</Button>}<Button small icon="trash" intent="danger" disabled={!canEdit || target.root} onClick={() => onRemove(selection)}>{relation?'Remove child':'Remove view'}</Button></div>
       {relation&&<section className="studio-relation-evidence" aria-label="Relation test evidence"><div className="studio-panel-heading"><div><h3>Relation test</h3><p>{derived?'Not applicable to independent derived output.':'Attachment evidence for this exact component revision.'}</p></div>{!derived&&<Button small intent="primary" icon="endorsed" loading={testingRelation===selection.key} disabled={!canRun} onClick={()=>onRunRelation(selection)}>Run relation test</Button>}</div>{!derived&&(relationCurrent?<RelationEvidence result={relationTest}/>:<div className="studio-empty-compact">No relation test has been run for this exact revision.</div>)}</section>}
@@ -355,21 +448,28 @@ function SelectionWorkspace({ api, selection, root, connector, functions, versio
   </>;
 }
 
-function ComponentGraph({root,selected,inputCount,predicateCount,outputCount,canEdit,canRun,onSelect,onOpen,onOpenSQL,onAdd,onEdit,onTest,onRemove}) {
+function ComponentGraph({root,browse,onBrowse,selected,inputCount,predicateCount,outputCount,canEdit,canRun,onSelect,onOpen,onOpenSQL,onAdd,onEdit,onTest,onRemove}) {
   const entries = useMemo(() => collectViewEntries(root), [root]);
-  const [query, setQuery] = useState('');
+  const query = browse.query;
+  const setQuery = (query) => onBrowse({query,page:0});
   const [collapsed, setCollapsed] = useState(() => new Set());
-  useEffect(() => { setQuery(''); setCollapsed(new Set()); }, [root?.name]);
+  const childPage = browse.page;
+  const setChildPage = (page) => onBrowse({...browse,page});
+  const compact = entries.length > 12;
+  const children = entries.slice(1).filter((entry) => !query.trim() || `${entry.lineage.join(' / ')} ${entry.canonicalPath.join(' / ')} ${entry.view.name} ${entry.view.namespace || ''} ${entry.view?.source?.table || ''}`.toLowerCase().includes(query.trim().toLowerCase()));
+  const childPages = Math.max(1, Math.ceil(children.length / 10));
+  const currentChildPage = Math.min(childPage, childPages - 1);
+  useEffect(() => { setCollapsed(new Set()); }, [root?.name]);
   const normalized = query.trim().toLowerCase();
   const matches = normalized ? entries.filter((entry) => `${entry.lineage.join(' / ')} ${entry.view?.name || ''} ${entry.view?.source?.table || ''}`.toLowerCase().includes(normalized)) : [];
   const branchNames = entries.filter((entry) => (entry.view?.relations ?? []).length > 0).map((entry) => entry.view.namespace || entry.view.name);
   return <div className="studio-graph-browser">
     <div className="studio-graph-controls"><InputGroup leftIcon="search" aria-label="Find graph view" placeholder="Find a view, path, or table" value={query} onChange={(event) => setQuery(event.target.value)} rightElement={query ? <Button minimal icon="cross" aria-label="Clear graph search" onClick={() => setQuery('')}/> : undefined}/><Tag minimal>{entries.length} {entries.length === 1 ? 'view' : 'views'}</Tag>{entries.length > 12 ? <Button small icon="properties" onClick={() => onSelect({type:'views'})}>Browse views</Button> : <ButtonGroup minimal><Button small icon="collapse-all" disabled={branchNames.length === 0} onClick={() => setCollapsed(new Set(branchNames))}>Collapse</Button><Button small icon="expand-all" disabled={collapsed.size === 0} onClick={() => setCollapsed(new Set())}>Expand</Button></ButtonGroup>}</div>
-    {normalized && <div className="studio-graph-matches" aria-live="polite"><span>{matches.length} {matches.length === 1 ? 'match' : 'matches'}</span>{matches.slice(0, 8).map((entry) => <button type="button" key={entry.view.name} onClick={() => onOpen({type:'view',name:entry.view.namespace||entry.view.name,label:entry.view.name,view:entry.view})}>{entry.lineage.join(' / ')}</button>)}{matches.length > 8 && <span>+{matches.length - 8} more</span>}</div>}
-    <div className="studio-contract-graph"><button type="button" className={`studio-contract-node ${selected?.type === 'input' ? 'selected' : ''}`} aria-pressed={selected?.type === 'input'} onClick={() => onSelect({type:'input'})}><strong>Input</strong><small>{inputCount} inputs · {predicateCount} predicates</small></button><div className="studio-component-graph">{entries.length > 12 ? <button type="button" className={`studio-contract-node studio-views-node ${selected?.type === 'views' ? 'selected' : ''}`} aria-pressed={selected?.type === 'views'} onClick={() => onSelect({type:'views'})}><strong>Views</strong><small>{entries.length} views · root {displayViewName(root)}</small></button> : <ViewBlock view={root} root selected={selected} canEdit={canEdit} canRun={canRun} query={normalized} collapsed={collapsed} onCollapse={(name) => setCollapsed((current) => { const next = new Set(current); if (next.has(name)) next.delete(name); else next.add(name); return next; })} onSelect={onSelect} onOpen={onOpen} onOpenSQL={onOpenSQL} onAdd={onAdd} onEdit={onEdit} onTest={onTest} onRemove={onRemove}/>}</div><button type="button" className={`studio-contract-node ${selected?.type === 'output' ? 'selected' : ''}`} aria-pressed={selected?.type === 'output'} onClick={() => onSelect({type:'output'})}><strong>Output</strong><small>{outputCount == null ? 'Browse columns' : `${outputCount} columns`} · {entries.length} views</small></button></div>
+    {normalized && !compact && <div className="studio-graph-matches" aria-live="polite"><span>{matches.length} {matches.length === 1 ? 'match' : 'matches'}</span>{matches.slice(0, 8).map((entry) => <button type="button" key={entry.view.name} onClick={() => onOpen({type:'view',name:entry.view.namespace||entry.view.name,label:entry.view.name,view:entry.view})}>{entry.lineage.join(' / ')}</button>)}{matches.length > 8 && <span>+{matches.length - 8} more</span>}</div>}
+    <div className="studio-contract-graph"><button type="button" className={`studio-contract-node ${selected?.type === 'input' ? 'selected' : ''}`} aria-pressed={selected?.type === 'input'} onClick={() => onSelect({type:'input'})}><strong>Input</strong><small>{inputCount} inputs · {predicateCount} predicates</small></button><div className="studio-component-graph">{compact ? <div className="studio-large-view-browser"><ViewBlock view={root} root hideChildren selected={selected} canEdit={canEdit} canRun={canRun} onOpen={onOpen} onOpenSQL={onOpenSQL} onAdd={onAdd} onTest={onTest} onRemove={onRemove}/><div className="studio-child-view-list" aria-label="Child views">{children.slice(currentChildPage * 10, (currentChildPage + 1) * 10).map((entry) => { const name = entry.view.namespace || entry.view.name; const node = {type:'view',name,label:entry.view.name,view:entry.view,relationKind:entry.relation?.kind || 'subview'}; const parentName = entry.parent.namespace || entry.parent.name; return <div className="studio-child-view-row" key={entry.canonicalPath.join('/')}><button type="button" aria-label={`Open child view ${entry.lineage.join(' / ')}`} aria-pressed={selected?.type === 'view' && selected.name === name} onClick={() => onOpen(node)}><strong>{displayViewName(entry.view)}</strong><small>{entry.canonicalPath.join(' / ')}</small></button><Button small minimal icon="flows" aria-pressed={selected?.type === 'relation' && selected.key === `${parentName}->${name}`} intent={selected?.type === 'relation' && selected.key === `${parentName}->${name}` ? 'primary' : undefined} aria-label={`Open relation ${entry.lineage.join(' / ')}`} onClick={() => onSelect({type:'relation',key:`${parentName}->${name}`,relation:entry.relation,relationKind:node.relationKind,label:entry.relation.name,parentName,child:node})}>Relation</Button></div>; })}{!children.length && <div className="studio-empty-compact">No child views match this search.</div>}</div><div className="studio-column-pages"><span aria-live="polite">{children.length ? `${currentChildPage * 10 + 1}–${Math.min((currentChildPage + 1) * 10, children.length)} of ${children.length}` : '0 children'}</span>{childPages > 1 && <ButtonGroup minimal><Button small icon="chevron-left" aria-label="Previous child views" disabled={currentChildPage === 0} onClick={() => setChildPage(currentChildPage - 1)}/><Button small icon="chevron-right" aria-label="Next child views" disabled={currentChildPage + 1 >= childPages} onClick={() => setChildPage(currentChildPage + 1)}/></ButtonGroup>}</div></div> : <ViewBlock view={root} root selected={selected} canEdit={canEdit} canRun={canRun} query={normalized} collapsed={collapsed} onCollapse={(name) => setCollapsed((current) => { const next = new Set(current); if (next.has(name)) next.delete(name); else next.add(name); return next; })} onSelect={onSelect} onOpen={onOpen} onOpenSQL={onOpenSQL} onAdd={onAdd} onEdit={onEdit} onTest={onTest} onRemove={onRemove}/>}</div><button type="button" className={`studio-contract-node ${selected?.type === 'output' ? 'selected' : ''}`} aria-pressed={selected?.type === 'output'} onClick={() => onSelect({type:'output'})}><strong>Output</strong><small>{outputCount == null ? 'Browse columns' : `${outputCount} columns`} · {entries.length} views</small></button></div>
   </div>;
 }
-function ViewBlock({view,root=false,relationKind='',selected,canEdit,canRun,query='',collapsed,onCollapse,onSelect,onOpen,onOpenSQL,onAdd,onEdit,onTest,onRemove}) {
+function ViewBlock({view,root=false,relationKind='',selected,canEdit,canRun,query='',collapsed,onCollapse,onSelect,onOpen,onOpenSQL,onAdd,onEdit,onTest,onRemove,hideChildren=false}) {
   const [menuOpen, setMenuOpen] = useState(false);
   const name=view.namespace||view.name;
   const node={type:'view',name,label:view.name,root,relationKind,view};
@@ -381,9 +481,9 @@ function ViewBlock({view,root=false,relationKind='',selected,canEdit,canRun,quer
       <button type="button" aria-pressed={selected?.type==='view'&&selected.name===name} className="studio-view-select" onClick={()=>onOpen(node)}>
         <span className="studio-view-kind-icon" aria-hidden="true">{root ? '◈' : '◇'}</span><strong>{displayViewName(view)}</strong>
       </button>
-      <span className="studio-view-node-actions">{relations.length > 0 && <Button minimal small icon={isCollapsed ? 'chevron-right' : 'chevron-down'} aria-label={`${isCollapsed ? 'Expand' : 'Collapse'} ${displayViewName(view)} descendants`} onClick={(event)=>{event.stopPropagation();onCollapse(name)}}/>}<Popover isOpen={menuOpen} onInteraction={setMenuOpen} interactionKind={PopoverInteractionKind.CLICK} placement="right-start" content={<Menu><MenuItem icon="git-branch" text="Add child view" disabled={!canEdit||relationKind==='derived'} onClick={()=>{setMenuOpen(false);onAdd(node)}}/><MenuItem icon="code" text="Open SQL tab" onClick={()=>{setMenuOpen(false);onOpenSQL(node)}}/><MenuItem icon="play" text="Test view" disabled={!canRun} onClick={()=>{setMenuOpen(false);onTest(node)}}/><MenuItem icon="trash" intent="danger" disabled={!canEdit||root} text="Remove view" onClick={()=>{setMenuOpen(false);onRemove(node)}}/></Menu>}><Button minimal small icon="more" aria-label={`Actions for ${displayViewName(view)}`} onClick={(event)=>{event.stopPropagation();setMenuOpen((current)=>!current)}}/></Popover></span>
+      <span className="studio-view-node-actions">{relations.length > 0 && !hideChildren && <Button minimal small icon={isCollapsed ? 'chevron-right' : 'chevron-down'} aria-label={`${isCollapsed ? 'Expand' : 'Collapse'} ${displayViewName(view)} descendants`} onClick={(event)=>{event.stopPropagation();onCollapse(name)}}/>}<Popover isOpen={menuOpen} onInteraction={setMenuOpen} interactionKind={PopoverInteractionKind.CLICK} placement="right-start" content={<Menu><MenuItem icon="git-branch" text="Add child view" disabled={!canEdit||relationKind==='derived'} onClick={()=>{setMenuOpen(false);onAdd(node)}}/><MenuItem icon="code" text="Open SQL tab" onClick={()=>{setMenuOpen(false);onOpenSQL(node)}}/><MenuItem icon="play" text="Test view" disabled={!canRun} onClick={()=>{setMenuOpen(false);onTest(node)}}/><MenuItem icon="trash" intent="danger" disabled={!canEdit||root} text="Remove view" onClick={()=>{setMenuOpen(false);onRemove(node)}}/></Menu>}><Button minimal small icon="more" aria-label={`Actions for ${displayViewName(view)}`} onClick={(event)=>{event.stopPropagation();setMenuOpen((current)=>!current)}}/></Popover></span>
     </div>
-    {relations.length>0&&!isCollapsed&&<div className={`studio-view-children ${relations.length>1?'branched':''}`}>{relations.map((relation)=>{
+    {relations.length>0&&!hideChildren&&!isCollapsed&&<div className={`studio-view-children ${relations.length>1?'branched':''}`}>{relations.map((relation)=>{
     const childView=relation.view||{name:relation.name,namespace:relation.name,source:{}};
     const childName=childView.namespace||childView.name;
     const relationKey=`${name}->${childName}`;
@@ -403,10 +503,20 @@ function findRelationContext(view,name){if(!view)return null;for(const relation 
 function displayViewName(view){const raw=view?.name==='reader'?(view?.source?.table||view?.namespace||view?.name):(view?.name||view?.namespace||'View');return String(raw).replace(/^ci_/i,'').split(/[_\s-]+/).filter(Boolean).map((part)=>part.charAt(0).toUpperCase()+part.slice(1).toLowerCase()).join(' ') || 'View';}
 function displayNodeName(name,root){return displayViewName(findView(root,name));}
 function viewLineage(root,targetName,path=[]){if(!root)return[];const next=[...path,root];if(root.name===targetName||root.namespace===targetName)return next;for(const relation of root.relations??[]){const found=viewLineage(relation.view,targetName,next);if(found.length)return found;}return[];}
-function collectViewEntries(root,path=[]){if(!root)return[];const next=[...path,root];return [{view:root,lineage:next.map(displayViewName)},...(root.relations??[]).flatMap((relation)=>collectViewEntries(relation.view,next))];}
+function collectViewEntries(root,path=[],relation=null){if(!root)return[];const next=[...path,root];return [{view:root,parent:path.at(-1),relation,canonicalPath:next.map((view)=>view.namespace||view.name),lineage:next.map(displayViewName)},...(root.relations??[]).flatMap((childRelation)=>collectViewEntries(childRelation.view,next,childRelation))];}
 function viewResourcePath(view,root){return `${viewLineage(root,view?.name).map((item)=>displayViewName(item).toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')).join('/')}.sql`;}
-function columnIdentity(column){return String(column?.source||column?.name||'');}
-function mergeViewColumns(compiled=[], discovered=[]){const result=new Map();for(const column of discovered??[])result.set(columnIdentity(column).toLowerCase(),column);for(const column of compiled??[]){const key=columnIdentity(column).toLowerCase();result.set(key,{...(result.get(key)||{}),...column});}return [...result.values()].sort((a,b)=>Number(Boolean(b.schema?.primaryKey))-Number(Boolean(a.schema?.primaryKey)));}
+function columnIdentity(column){return String(column?.name||column?.source||'');}
+function mergeViewColumns(compiled = [], discovered = [], includePhysicalColumns = false) {
+  const physical = new Map((discovered ?? []).map((column) => [columnIdentity(column).toLowerCase(), column]));
+  const result = includePhysicalColumns ? new Map(physical) : new Map();
+  for (const column of compiled ?? []) {
+    const key = columnIdentity(column).toLowerCase();
+    const source = String(column.source || column.name).toLowerCase();
+    const metadata = physical.get(source) || physical.get(source.split('.').at(-1));
+    result.set(key, { ...(metadata || {}), ...column });
+  }
+  return [...result.values()].sort((a, b) => Number(Boolean(b.schema?.primaryKey)) - Number(Boolean(a.schema?.primaryKey)));
+}
 function formatFunction(functionOccurrence){return `${functionOccurrence.name}(${(functionOccurrence.args ?? []).join(', ')})`;}
 function tableReference(value){const parts=String(value||'').split('.').map((item)=>item.trim()).filter(Boolean);return parts.length>1?{schema:parts.slice(0,-1).join('.'),table:parts.at(-1)}:{table:parts[0]||''};}
 function normalizedIdentity(value){return String(value||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'');}
@@ -457,4 +567,4 @@ function formatDuration(value) {
   return `${(nanoseconds / 1e6).toFixed(1)}ms`;
 }
 function inputDeclarationCount(structure){return (structure?.declarations??[]).filter((item)=>item?.parameter&&!['output','component','view'].includes(String(item.parameter.source?.kind||'').toLowerCase())).length;}
-function predicateOptionCount(structure){return (structure?.declarations??[]).reduce((count,item)=>count+(item?.predicates?.length??0),0);}
+function predicateOptionCount(structure){return predicateRows(structure).length;}

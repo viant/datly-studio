@@ -12,6 +12,7 @@
 #define($_ = $Generations<[]*StoredGeneration>(body/data))
 
 SELECT generation.*, type(generation, 'StoredGeneration'),
+       CAST(generation.namespace_id AS string),
        CAST(generation.generation_no AS int64),
        CAST(generation.source_revision AS string),
        CAST(generation.status AS string), CAST(generation.report_count AS int),

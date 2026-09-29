@@ -96,4 +96,19 @@ func TestVersionEditWriterRejectsStaleSourceRevision(t *testing.T) {
 	if err != nil || current.SourceRevision != 2 || current.AuthoredDQL != updatedDQL {
 		t.Fatalf("rejected edits changed version=%+v err=%v", current, err)
 	}
+	if _, err = db.Exec(`UPDATE report_versions SET state='published' WHERE report_id=? AND version_no=?`, report.ID, version.VersionNo); err != nil {
+		t.Fatal(err)
+	}
+	_, err = client.Versions().Apply(owner, report.ID, version.VersionNo, sdk.EditCommand{Kind: "set_dql", ExpectedSourceRevision: 2, Payload: json.RawMessage(`{"authoredDql":"SELECT 4"}`)})
+	if !errors.As(err, &sdkErr) || sdkErr.Code != sdk.ErrorConflict || !strings.Contains(sdkErr.Message, "published version") {
+		t.Fatalf("published SDK edit error=%v", err)
+	}
+	_, err = client.Versions().ApplyReaderCommand(owner, report.ID, version.VersionNo, sdk.ReaderBuilderCommand{ExpectedSourceRevision: 2, Operation: json.RawMessage(`{"type":"setSql"}`)})
+	if !errors.As(err, &sdkErr) || sdkErr.Code != sdk.ErrorConflict || !strings.Contains(sdkErr.Message, "published version") {
+		t.Fatalf("published reader-builder edit error=%v", err)
+	}
+	current, err = client.Versions().Get(owner, report.ID, version.VersionNo)
+	if err != nil || current.SourceRevision != 2 || current.AuthoredDQL != updatedDQL {
+		t.Fatalf("published version changed=%+v err=%v", current, err)
+	}
 }

@@ -1,4 +1,5 @@
 #package('studio/reports/store_run_access')
+#import('catalogpredicate','github.com/viant/datly-studio/studio/reports/catalogpredicate')
 
 #setting($_ = $input_type('Input'))
 #setting($_ = $output_type('Output'))
@@ -9,7 +10,7 @@
 #setting($_ = $sql_dest('access', 'sql/read.sql'))
 
 #define($_ = $ReportId<string>(query/reportId).Required())
-#define($_ = $Subject<string>(query/subject).Required())
+#define($_ = $Subject<string>(query/subject).Required().WithPredicate(3, 'handler', 'catalogpredicate.RunNamespaceRead'))
 #define($_ = $Allowed<[]*RunAccess>(output/view))
 
 SELECT access.*, type(access, 'RunAccess'),

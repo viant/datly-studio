@@ -1,4 +1,5 @@
 CREATE TABLE resource_policy_heads (
+    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     tenant_id VARCHAR(128) NOT NULL,
     resource_kind VARCHAR(64) NOT NULL,
     resource_id VARCHAR(200) NOT NULL,
@@ -12,6 +13,7 @@ CREATE TABLE resource_policy_heads (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE resource_policy_revisions (
+    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     tenant_id VARCHAR(128) NOT NULL,
     resource_kind VARCHAR(64) NOT NULL,
     resource_id VARCHAR(200) NOT NULL,
@@ -57,6 +59,11 @@ CREATE INDEX idx_connectors_owner_updated
     ON connectors(owner_id, updated_at DESC);
 
 CREATE TABLE namespaces (
+    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
+    visibility              VARCHAR(16) NOT NULL DEFAULT 'private',
+    allowed_roles_json      JSON NOT NULL DEFAULT ('[]'),
+    mcp_enabled             BOOLEAN NOT NULL DEFAULT FALSE,
+    mcp_port                INTEGER NULL,
     owner_id                VARCHAR(128) NOT NULL,
     name                    VARCHAR(200) NOT NULL,
     title                   VARCHAR(300) NOT NULL,
@@ -75,6 +82,7 @@ CREATE INDEX idx_namespaces_owner_status_updated
     ON namespaces(owner_id, status, updated_at DESC);
 
 CREATE TABLE authorization_predicates (
+    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     name                    VARCHAR(200) NOT NULL,
     title                   VARCHAR(300) NOT NULL,
     description             TEXT NULL,
@@ -97,6 +105,7 @@ CREATE INDEX idx_authorization_predicates_status_updated
     ON authorization_predicates(status, updated_at DESC);
 
 CREATE TABLE components (
+    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     id                      VARCHAR(64) NOT NULL,
     namespace               VARCHAR(200) NOT NULL DEFAULT 'general',
     slug                    VARCHAR(200) NOT NULL,
@@ -133,6 +142,7 @@ CREATE INDEX idx_reports_status_updated
     ON components(status, updated_at DESC);
 
 CREATE TABLE report_versions (
+    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id                   VARCHAR(64) NOT NULL,
     version_no                  INT NOT NULL,
     state                       VARCHAR(32) NOT NULL,
@@ -173,6 +183,7 @@ CREATE INDEX idx_report_versions_created
     ON report_versions(report_id, created_at DESC);
 
 CREATE TABLE report_views (
+    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id               VARCHAR(64) NOT NULL,
     version_no              INT NOT NULL,
     view_id                 CHAR(64) NOT NULL,
@@ -202,6 +213,7 @@ CREATE INDEX idx_report_views_parent
     ON report_views(report_id, version_no, parent_view_id);
 
 CREATE TABLE report_fields (
+    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id               VARCHAR(64) NOT NULL,
     version_no              INT NOT NULL,
     view_id                 CHAR(64) NOT NULL,
@@ -224,6 +236,7 @@ CREATE TABLE report_fields (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE report_parameters (
+    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id               VARCHAR(64) NOT NULL,
     version_no              INT NOT NULL,
     parameter_id            CHAR(64) NOT NULL,
@@ -249,6 +262,7 @@ CREATE INDEX idx_report_parameters_name
     ON report_parameters(report_id, version_no, name);
 
 CREATE TABLE report_predicates (
+    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id               VARCHAR(64) NOT NULL,
     version_no              INT NOT NULL,
     parameter_id            CHAR(64) NOT NULL,
@@ -264,6 +278,7 @@ CREATE TABLE report_predicates (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE report_cube_configs (
+    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id               VARCHAR(64) NOT NULL,
     version_no              INT NOT NULL,
     cube_enabled            BOOLEAN NOT NULL DEFAULT FALSE,
@@ -292,6 +307,7 @@ CREATE TABLE report_cube_configs (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE report_mcp_exposures (
+    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id               VARCHAR(64) NOT NULL,
     version_no              INT NOT NULL,
     exposure_id             CHAR(64) NOT NULL,
@@ -319,6 +335,7 @@ CREATE INDEX idx_report_mcp_exposures_route
     ON report_mcp_exposures(report_id, version_no, route_id, enabled);
 
 CREATE TABLE report_resource_files (
+    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id               VARCHAR(64) NOT NULL,
     version_no              INT NOT NULL,
     resource_id             CHAR(64) NOT NULL,
@@ -345,6 +362,7 @@ CREATE INDEX idx_report_resource_files_namespace
     ON report_resource_files(report_id, version_no, namespace);
 
 CREATE TABLE report_resource_folders (
+    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id               VARCHAR(64) NOT NULL,
     version_no              INT NOT NULL,
     folder_id               CHAR(64) NOT NULL,
@@ -359,6 +377,7 @@ CREATE TABLE report_resource_folders (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE resource_namespace_claims (
+    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     namespace       VARCHAR(200) NOT NULL,
     report_id       VARCHAR(64) NOT NULL,
     created_at      DATETIME(6) NOT NULL,
@@ -371,6 +390,7 @@ CREATE TABLE resource_namespace_claims (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE report_skill_roots (
+    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id               VARCHAR(64) NOT NULL,
     version_no              INT NOT NULL,
     skill_id                CHAR(64) NOT NULL,
@@ -384,6 +404,7 @@ CREATE TABLE report_skill_roots (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE runtime_generations (
+    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     generation_no           BIGINT NOT NULL,
     source_revision         VARCHAR(128) NOT NULL,
     status                  VARCHAR(32) NOT NULL,
@@ -401,6 +422,7 @@ CREATE TABLE runtime_generations (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE report_warmup_runs (
+    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     run_id                  VARCHAR(64) NOT NULL,
     report_id               VARCHAR(64) NOT NULL,
     version_no              INT NOT NULL,
@@ -442,6 +464,7 @@ CREATE INDEX idx_report_warmup_runs_version_requested
     ON report_warmup_runs(report_id, version_no, requested_at DESC);
 
 CREATE TABLE bff_sessions (
+    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     session_id_hash         CHAR(64) NOT NULL,
     subject_id              VARCHAR(128) NOT NULL,
     payload_ciphertext      BLOB NOT NULL,
@@ -459,6 +482,7 @@ CREATE INDEX idx_bff_sessions_subject_expires
     ON bff_sessions(subject_id, expires_at_unix DESC);
 
 CREATE TABLE report_publications (
+    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id               VARCHAR(64) NOT NULL,
     active_version_no       INT NOT NULL,
     desired_version_no      INT NULL,
@@ -491,6 +515,7 @@ CREATE INDEX idx_report_publications_generation
 -- outcome of a requested lifecycle transition without changing the active
 -- publication state used by the runtime.
 CREATE TABLE report_publication_events (
+    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     event_id                CHAR(64) NOT NULL,
     report_id               VARCHAR(64) NOT NULL,
     owner_id                VARCHAR(128) NOT NULL,
@@ -524,6 +549,7 @@ CREATE INDEX idx_report_publication_events_report_time
     ON report_publication_events(report_id, occurred_at DESC);
 
 CREATE TABLE report_acl (
+    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id               VARCHAR(64) NOT NULL,
     subject_type            VARCHAR(32) NOT NULL,
     subject_id              VARCHAR(128) NOT NULL,

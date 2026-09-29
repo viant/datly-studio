@@ -10,6 +10,16 @@ func (entity *StoredFolder) SetReportId(value string) {
 	}
 	entity.Has.ReportId = true
 }
+func (entity *StoredFolder) GetNamespaceId() string {
+	return entity.NamespaceId
+}
+func (entity *StoredFolder) SetNamespaceId(value string) {
+	entity.NamespaceId = value
+	if entity.Has == nil {
+		entity.Has = &StoredFolderHas{}
+	}
+	entity.Has.NamespaceId = true
+}
 func (entity *StoredFolder) GetVersionNo() int {
 	return entity.VersionNo
 }

@@ -10,6 +10,7 @@ import (
 
 	"github.com/viant/bindly/locator"
 	"github.com/viant/bindly/resource"
+	"github.com/viant/datly-studio/sdk"
 	stored "github.com/viant/datly-studio/studio/runtime_generations/store_insert"
 	"github.com/viant/datly/bootstrap"
 	dexec "github.com/viant/datly/exec"
@@ -93,10 +94,11 @@ func (t *Transport) writeGenerationInsert(ctx context.Context, tx *sql.Tx, row *
 }
 
 func (t *Transport) insertBuildingGeneration(ctx context.Context, tx *sql.Tx, generation int64, revision, requestedBy string, now time.Time) error {
+	namespaceID, _ := sdk.NamespaceSelectionFromContext(ctx)
 	return t.writeGenerationInsert(ctx, tx, &stored.StoredGeneration{
-		GenerationNo: generation, SourceRevision: revision, Status: "building", ReportCount: 0,
+		NamespaceId: namespaceID, GenerationNo: generation, SourceRevision: revision, Status: "building", ReportCount: 0,
 		BuildManifestJson: json.RawMessage(`{}`), RequestedBy: requestedBy, RequestedAt: now,
-		Has: &stored.StoredGenerationHas{GenerationNo: true, SourceRevision: true, Status: true,
+		Has: &stored.StoredGenerationHas{NamespaceId: true, GenerationNo: true, SourceRevision: true, Status: true,
 			ReportCount: true, BuildManifestJson: true, RequestedBy: true, RequestedAt: true},
 	})
 }

@@ -38,6 +38,9 @@ func (hooks *ReportConfigRules) Init(_ context.Context, entity *StoredReport, st
 	if previous.OwnerId != entity.OwnerId {
 		return &xhandler.Conflict{Entity: "report", Field: "owner_id", Reason: "report owner cannot change"}
 	}
+	if previous.Namespace != entity.Namespace {
+		return &xhandler.Conflict{Entity: "report", Field: "namespace", Reason: "component namespace ownership cannot change through configuration"}
+	}
 	next := *entity.Etag + 1
 	entity.SetEtag(&next)
 	return nil

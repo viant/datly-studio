@@ -6,6 +6,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"github.com/viant/authz"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -14,9 +15,8 @@ import (
 	"time"
 
 	jwtlib "github.com/golang-jwt/jwt/v5"
+	"github.com/viant/authz/oauth"
 	"github.com/viant/datly-studio/runtime/accesscontext"
-	"github.com/viant/datly-studio/sdk/access"
-	"github.com/viant/datly-studio/sdk/access/oauth"
 	rhandler "github.com/viant/datly/runtime/handler"
 	"github.com/viant/datly/runtime/registry"
 	"github.com/viant/datly/spec"
@@ -26,32 +26,32 @@ import (
 
 type injectedDecisions struct{ calls int }
 
-func (d *injectedDecisions) Evaluate(context.Context, access.Request, access.Document, access.Facts) (access.Decision, error) {
+func (d *injectedDecisions) Evaluate(context.Context, authz.Request, authz.Document, authz.Facts) (authz.Decision, error) {
 	d.calls++
-	return access.Decision{}, nil
+	return authz.Decision{}, nil
 }
 
 type injectedFacts struct{}
 
-func (injectedFacts) Resolve(context.Context) (access.Facts, error) {
-	return access.Facts{Subject: "alice", Tenant: "one", Issuer: "issuer", Roles: []string{"reader"}, ValidUntil: time.Now().Add(time.Minute)}, nil
+func (injectedFacts) Resolve(context.Context) (authz.Facts, error) {
+	return authz.Facts{Subject: "alice", Tenant: "one", Issuer: "issuer", Roles: []string{"reader"}, ValidUntil: time.Now().Add(time.Minute)}, nil
 }
 
 type countingFacts struct{ calls int }
 
-func (p *countingFacts) Resolve(context.Context) (access.Facts, error) {
+func (p *countingFacts) Resolve(context.Context) (authz.Facts, error) {
 	p.calls++
-	return access.Facts{Subject: "alice", Tenant: "one", Issuer: "issuer", Roles: []string{"reader"},
-		Entities: []access.Entity{{Type: "project", ID: "101"}}, ValidUntil: time.Now().Add(time.Minute)}, nil
+	return authz.Facts{Subject: "alice", Tenant: "one", Issuer: "issuer", Roles: []string{"reader"},
+		Entities: []authz.Entity{{Type: "project", ID: "101"}}, ValidUntil: time.Now().Add(time.Minute)}, nil
 }
 
-type injectedStore struct{ doc access.Document }
+type injectedStore struct{ doc authz.Document }
 
-func (s injectedStore) Get(context.Context, access.Resource) (access.Document, error) {
+func (s injectedStore) Get(context.Context, authz.Resource) (authz.Document, error) {
 	return s.doc, nil
 }
-func (injectedStore) Replace(context.Context, access.Document, int64, string) (access.Document, error) {
-	return access.Document{}, access.ErrDenied
+func (injectedStore) Replace(context.Context, authz.Document, int64, string) (authz.Document, error) {
+	return authz.Document{}, authz.ErrDenied
 }
 
 func TestNativeResourceAccessUsesInjectedProvider(t *testing.T) {
@@ -109,10 +109,10 @@ func TestNativeResourceAccessUsesInjectedProvider(t *testing.T) {
 	if err != nil || facts.Tenant != "21" || len(facts.Roles) != 1 || facts.Roles[0] != "reader" || len(facts.Exposures) != 1 || facts.Exposures[0] != "export" {
 		t.Fatalf("runtime identity facts=%+v error=%v", facts, err)
 	}
-	r := access.Resource{Kind: "component", ID: "report", Version: "1", Tenant: "one"}
-	service.resourceAccess.Store = injectedStore{doc: access.Document{Resource: r, Revision: 1, Policies: map[string]access.Policy{"execute": {Mode: "protected", Rule: &access.Rule{Kind: "role", Value: "reader"}}}}}
+	r := authz.Resource{Kind: "component", ID: "report", Version: "1", Tenant: "one"}
+	service.resourceAccess.Store = injectedStore{doc: authz.Document{Resource: r, Revision: 1, Policies: map[string]authz.Policy{"execute": {Mode: "protected", Rule: &authz.Rule{Kind: "role", Value: "reader"}}}}}
 	service.resourceAccess.Provider = injectedFacts{}
-	if _, err := service.resourceAccess.Authorize(context.Background(), access.Request{Resource: r, Action: "execute"}); err != nil {
+	if _, err := service.resourceAccess.Authorize(context.Background(), authz.Request{Resource: r, Action: "execute"}); err != nil {
 		t.Fatal(err)
 	}
 	if decisions.calls != 1 {
@@ -130,11 +130,11 @@ func containsProviderField(encoded []byte) bool {
 }
 
 func TestBoundAccessContextUsesOneVerifiedFactsSnapshot(t *testing.T) {
-	resource := access.Resource{Kind: "component", ID: "tasks", Version: "1", Tenant: "one"}
+	resource := authz.Resource{Kind: "component", ID: "tasks", Version: "1", Tenant: "one"}
 	provider := &countingFacts{}
-	service := &Service{config: Config{Access: &ResourceAccessConfig{Tenant: "one"}}, resourceAccess: &access.Service{
-		Store: injectedStore{doc: access.Document{Resource: resource, Revision: 1, Policies: map[string]access.Policy{
-			"execute": {Mode: "protected", Rule: &access.Rule{Kind: "role", Value: "reader"}, EntityType: "project"},
+	service := &Service{config: Config{Access: &ResourceAccessConfig{Tenant: "one"}}, resourceAccess: &authz.Service{
+		Store: injectedStore{doc: authz.Document{Resource: resource, Revision: 1, Policies: map[string]authz.Policy{
+			"execute": {Mode: "protected", Rule: &authz.Rule{Kind: "role", Value: "reader"}, EntityType: "project"},
 		}}}, Provider: provider,
 	}}
 	component := &spec.Component{Key: spec.Key{Kind: spec.KindComponent, Scope: "example.com/tasks", Name: "Tasks"}, Parameters: []*spec.Parameter{{

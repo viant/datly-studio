@@ -20,3 +20,6 @@ WHERE (
                AND p.desired_generation = $CandidateGeneration))
 )
   AND r.deleted_at IS NULL AND c.deleted_at IS NULL
+  AND ($NamespaceId = '' OR EXISTS (SELECT 1 FROM namespaces n
+    WHERE n.namespace_id=$NamespaceId AND n.owner_id=r.owner_id AND n.name=r.namespace
+      AND n.status='active' AND n.deleted_at IS NULL))

@@ -1,6 +1,7 @@
 package bffauth
 
 import (
+ "github.com/viant/authz"
 	"bytes"
 	"context"
 	"crypto/rand"
@@ -21,9 +22,9 @@ import (
 
 	jwtv5 "github.com/golang-jwt/jwt/v5"
 	"github.com/viant/datly-studio/sdk/access"
-	accessoauth "github.com/viant/datly-studio/sdk/access/oauth"
+	accessoauth "github.com/viant/authz/oauth"
 	"github.com/viant/datly-studio/sdk/httptransport"
-	accessstore "github.com/viant/datly-studio/store/sql/access"
+	accessstore "github.com/viant/authz/datly/store/sql"
 	"github.com/viant/datly-studio/store/sql/migrate"
 	"github.com/viant/scy/auth/jwt/verifier"
 	"golang.org/x/oauth2"
@@ -137,11 +138,11 @@ func TestOAuthLoginWithSignedJWTAndJWKS(t *testing.T) {
 	}
 	policyStore := &accessstore.Store{DB: db}
 	defer policyStore.Close(context.Background())
-	resource := access.Resource{Kind: "report", ID: "operations", Tenant: "one", Version: "3"}
-	view := access.Policy{Mode: "protected", Rule: &access.Rule{Kind: "subject", Value: "alice"}}
-	manage := access.Policy{Mode: "protected", Rule: &access.Rule{Kind: "role", Value: "access-admin"}}
-	if _, err := policyStore.Provision(context.Background(), access.Document{Resource: resource, Policies: map[string]access.Policy{
-		"viewAccess": view, "manageAccess": manage, "preview": {Mode: "protected", Rule: &access.Rule{Kind: "role", Value: "reviewer"}},
+	resource := authz.Resource{Kind: "report", ID: "operations", Tenant: "one", Version: "3"}
+	view := authz.Policy{Mode: "protected", Rule: &authz.Rule{Kind: "subject", Value: "alice"}}
+	manage := authz.Policy{Mode: "protected", Rule: &authz.Rule{Kind: "role", Value: "access-admin"}}
+	if _, err := policyStore.Provision(context.Background(), authz.Document{Resource: resource, Policies: map[string]authz.Policy{
+		"viewAccess": view, "manageAccess": manage, "preview": {Mode: "protected", Rule: &authz.Rule{Kind: "role", Value: "reviewer"}},
 	}}, "bootstrap"); err != nil {
 		t.Fatal(err)
 	}
@@ -150,7 +151,7 @@ func TestOAuthLoginWithSignedJWTAndJWKS(t *testing.T) {
 		t.Fatal(err)
 	}
 	mux.Handle("POST "+httptransport.PathPrefix, httptransport.Gateway{Config: httptransport.Config{Mode: httptransport.Authenticated, Authenticator: sessions},
-		Transport: &access.Transport{Service: &access.Service{Store: policyStore, Provider: accessProvider}}})
+		Transport: &access.Transport{Service: &authz.Service{Store: policyStore, Provider: accessProvider}}})
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) { _, _ = w.Write([]byte("Studio")) })
 	newBrowser := func() *http.Client {
 		jar, err := cookiejar.New(nil)
@@ -205,19 +206,19 @@ func TestOAuthLoginWithSignedJWTAndJWKS(t *testing.T) {
 			t.Fatalf("verified BFF %s status=%d", operation, answer.StatusCode)
 		}
 		if operation == access.OperationGet {
-			var policy access.Document
+			var policy authz.Document
 			if err := json.NewDecoder(answer.Body).Decode(&policy); err != nil || policy.Resource != resource || policy.Revision != 1 {
 				t.Fatalf("verified policy=%+v err=%v", policy, err)
 			}
 		} else {
-			var context access.EditorContext
+			var context authz.EditorContext
 			if err := json.NewDecoder(answer.Body).Decode(&context); err != nil || context.CanManage || context.Source != "verified-principal" || len(context.Choices.Roles) != 1 || context.Choices.Roles[0].ID != "reviewer" {
 				t.Fatalf("verified editor context=%+v err=%v", context, err)
 			}
 		}
 		answer.Body.Close()
 	}
-	writeAttempt := access.Document{Resource: resource, Revision: 1, Policies: map[string]access.Policy{
+	writeAttempt := authz.Document{Resource: resource, Revision: 1, Policies: map[string]authz.Policy{
 		"viewAccess": view, "manageAccess": manage, "preview": {Mode: "public"},
 	}}
 	blockedWrite, err := callAccess(browser, access.OperationReplace, writeAttempt, "browser-forgery")

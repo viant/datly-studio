@@ -11,7 +11,7 @@
 #define($_ = $Reports<[]*StoredReport>(body/data))
 
 SELECT report.*, type(report, 'StoredReport'),
-       CAST(report.id AS string), CAST(report.namespace AS string),
+       CAST(report.id AS string), CAST(report.namespace_id AS string), CAST(report.namespace AS string),
        CAST(report.slug AS string), CAST(report.title AS string),
        CAST(report.description AS *string), CAST(report.owner_id AS string),
        CAST(report.status AS string), CAST(report.default_connector_name AS string),

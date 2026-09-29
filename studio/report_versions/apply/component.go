@@ -35,11 +35,12 @@ type Command struct {
 }
 
 type Input struct {
-	Jwt       *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
-	Auth      *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
-	ReportId  string             `parameter:"ReportId,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
-	VersionNo int                `parameter:"VersionNo,kind=body,in=versionNo,dataType=int,required=true" json:"versionNo"`
-	Command   Command            `parameter:"Command,kind=body,in=command,dataType=Command,required=true" json:"command"`
+	NamespaceId *string            `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
+	Jwt         *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
+	Auth        *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
+	ReportId    string             `parameter:"ReportId,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
+	VersionNo   int                `parameter:"VersionNo,kind=body,in=versionNo,dataType=int,required=true" json:"versionNo"`
+	Command     Command            `parameter:"Command,kind=body,in=command,dataType=Command,required=true" json:"command"`
 }
 
 type Output struct {
@@ -120,6 +121,9 @@ func (*applyHandler) Exec(ctx context.Context, session xhandler.Session, input *
 		return fmt.Errorf("version source reader returned ambiguous or mismatched rows")
 	}
 	current := versionprojection.FromCatalog(listed.Versions[0])
+	if current.State != "draft" {
+		return publicError(409, "published version cannot be mutated")
+	}
 	if input.Command.ExpectedSourceRevision != current.SourceRevision {
 		return publicError(409, "version source revision does not match")
 	}

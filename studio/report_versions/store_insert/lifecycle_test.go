@@ -10,7 +10,7 @@ import (
 )
 
 func TestVersionInsertRulesRequireInitialRevisionContract(t *testing.T) {
-	row := &StoredVersion{ReportId: "report", VersionNo: 1, State: "draft", AuthoringMode: "dql",
+	row := &StoredVersion{NamespaceId: strings.Repeat("a", 64), ReportId: "report", VersionNo: 1, State: "draft", AuthoringMode: "dql",
 		ComponentSpecJson: []byte(`{}`), TypeManifestJson: []byte(`{}`),
 		SpecFormatVersion: "studio.v1", SpecHash: strings.Repeat("a", 64),
 		CompileStatus: "pending", DatlyVersion: "v1", CompilerVersion: "studio.v1",
@@ -21,6 +21,7 @@ func TestVersionInsertRulesRequireInitialRevisionContract(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, mutate := range []func(*StoredVersion){
+		func(value *StoredVersion) { value.NamespaceId = "" },
 		func(value *StoredVersion) { value.State = "published" },
 		func(value *StoredVersion) { value.AuthoringMode = "unknown" },
 		func(value *StoredVersion) { value.SourceRevision = 2 },

@@ -23,13 +23,14 @@ import (
 	"time"
 
 	jwtlib "github.com/golang-jwt/jwt/v5"
+	resourceaccess "github.com/viant/authz"
+	accessstore "github.com/viant/authz/datly/store/sql"
 	"github.com/viant/datly-studio/internal/bffauth"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/warmupprojection"
 	studiopreview "github.com/viant/datly-studio/runtime/preview"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
-	resourceaccess "github.com/viant/datly-studio/sdk/access"
-	accessstore "github.com/viant/datly-studio/store/sql/access"
 	"github.com/viant/datly-studio/studio/predicatecatalog/testdata/extension"
 	"github.com/viant/datly/bootstrap/connector"
 	"github.com/viant/datly/standalone"
@@ -76,7 +77,7 @@ func TestSelectedStudioStaticComponentsBootstrapTogether(t *testing.T) {
 	if err = db.Close(); err != nil {
 		t.Fatal(err)
 	}
-	configuration.Connectors = []connector.Config{{Name: "studio", Driver: "sqlite", DSN: dsn}}
+	configuration.Connectors = []connector.Config{{Name: "studio", Driver: "sqlite", DSN: dsn}, {Name: "authz", Driver: "sqlite", DSN: dsn}}
 	configuration.Endpoint.Address = "127.0.0.1:0"
 	configuration.Endpoint.Port = 0
 	if configuration.MCP == nil {
@@ -139,7 +140,7 @@ func TestSelectedStudioStaticComponentsBootstrapTogether(t *testing.T) {
 	}
 	for _, path := range []string{
 		"/_studio/report-store/catalog", "/_studio/report-version-store/touch",
-		"/_studio/resource-policy-store/read", "/_studio/resource-policy-store/write",
+		"/_authz/policy-store/read", "/_authz/policy-store/write",
 		"/_studio/resource-file-store/write", "/_studio/resource-folder-store/write",
 		"/_studio/skill-root-store/write", "/_studio/resource-namespace-claim-store/write",
 		"/_studio/resource-namespace-store/presence", "/_studio/resource-namespace-store/usage",
@@ -745,7 +746,9 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT id,slug FROM components WHERE id='p
 		t.Fatalf("exact-version preview engine failed: %v", previewErr)
 	}
 	validatedVersion := httptest.NewRecorder()
-	server.ServeHTTP(validatedVersion, request("/v1/studio/sdk/versions.validate", `{"reportId":"preview-fixture","versionNo":1,"expectedSourceRevision":1}`))
+	selectedValidationRequest := request("/v1/studio/sdk/versions.validate", `{"reportId":"preview-fixture","versionNo":1,"expectedSourceRevision":1}`)
+	selectedValidationRequest.Header.Set("X-Studio-Namespace", namespaceaccess.ID("alice", "production.audit"))
+	server.ServeHTTP(validatedVersion, selectedValidationRequest)
 	if validatedVersion.Code != http.StatusOK || !strings.Contains(validatedVersion.Body.String(), `"valid":true`) ||
 		!strings.Contains(validatedVersion.Body.String(), `"compileStatus":"valid"`) {
 		t.Fatalf("native version validation status=%d body=%s", validatedVersion.Code, validatedVersion.Body.String())
@@ -769,6 +772,10 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT id,slug FROM components WHERE id='p
 		var recordedUpdated sql.NullTime
 		recordedErr := store.QueryRowContext(ctx, `SELECT status,updated_at FROM report_warmup_runs WHERE report_id=? ORDER BY requested_at DESC LIMIT 1`, previewReportID).Scan(&recordedStatus, &recordedUpdated)
 		t.Fatalf("native warmup acceptance status=%d run=%+v recorded=%q updated=%v err=%v body=%s", warmupHTTP.Code, acceptedWarmup, recordedStatus, recordedUpdated, recordedErr, warmupHTTP.Body.String())
+	}
+	var warmupNamespace string
+	if err = store.QueryRowContext(ctx, "SELECT namespace_id FROM report_warmup_runs WHERE run_id=?", acceptedWarmup.RunID).Scan(&warmupNamespace); err != nil || warmupNamespace != namespaceaccess.ID("alice", "production.audit") {
+		t.Fatalf("native warmup namespace=%q err=%v", warmupNamespace, err)
 	}
 	deadline := time.Now().Add(5 * time.Second)
 	var terminalWarmupStatus string
@@ -816,14 +823,60 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT id,slug FROM components WHERE id='p
 	if completedCached.Status != "completed" || completedCached.PlannedCases < 1 || completedCached.CompletedCases != completedCached.PlannedCases {
 		t.Fatalf("cached warmup terminal result=%+v", completedCached)
 	}
+	// The caller owns this namespace too; ownership must not bypass selection.
+	wrongNamespaceID := namespaceaccess.ID("alice", "namespace_guard_other")
+	if _, err = store.ExecContext(ctx, `INSERT INTO namespaces(namespace_id,owner_id,name,title,status,etag,created_at,updated_at) VALUES(?,'alice','namespace_guard_other','Other','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, wrongNamespaceID); err != nil {
+		t.Fatal(err)
+	}
+	for _, operation := range []string{"preview.execute", "versions.test_view"} {
+		payload := `{"reportId":"preview-fixture","versionNo":1,"view":"rows","input":{"limit":10}}`
+		blocked := request("/v1/studio/sdk/"+operation, payload)
+		blocked.Header.Set("X-Studio-Namespace", wrongNamespaceID)
+		blockedResponse := httptest.NewRecorder()
+		server.ServeHTTP(blockedResponse, blocked)
+		if blockedResponse.Code < 400 || blockedResponse.Code >= 500 || strings.Contains(blockedResponse.Body.String(), `"returnedRows":1`) {
+			t.Fatalf("cross-namespace run %s status=%d body=%s", operation, blockedResponse.Code, blockedResponse.Body.String())
+		}
+	}
+
+	var beforeWarmupCount int
+	if err = store.QueryRowContext(ctx, "SELECT COUNT(*) FROM report_warmup_runs WHERE report_id=?", previewReportID).Scan(&beforeWarmupCount); err != nil {
+		t.Fatal(err)
+	}
+	for _, check := range []struct{ operation, payload string }{
+		{"versions.validate", `{"reportId":"preview-fixture","versionNo":1,"expectedSourceRevision":1}`},
+		{"versions.warmup", `{"reportId":"preview-fixture","versionNo":1}`},
+		{"versions.warmup_list", `{"reportId":"preview-fixture","versionNo":1,"input":{"limit":10}}`},
+		{"versions.warmup_get", `{"reportId":"preview-fixture","runId":"` + acceptedWarmup.RunID + `"}`},
+	} {
+		blocked := request("/v1/studio/sdk/"+check.operation, check.payload)
+		blocked.Header.Set("X-Studio-Namespace", wrongNamespaceID)
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, blocked)
+		if response.Code < 400 || response.Code >= 500 {
+			t.Fatalf("cross-namespace %s status=%d body=%s", check.operation, response.Code, response.Body.String())
+		}
+	}
+	var afterWarmupCount int
+	var unchangedValidation sql.NullTime
+	if err = store.QueryRowContext(ctx, "SELECT COUNT(*) FROM report_warmup_runs WHERE report_id=?", previewReportID).Scan(&afterWarmupCount); err != nil || afterWarmupCount != beforeWarmupCount {
+		t.Fatalf("denial created warmup runs: before=%d after=%d err=%v", beforeWarmupCount, afterWarmupCount, err)
+	}
+	if err = store.QueryRowContext(ctx, "SELECT validated_at FROM report_versions WHERE report_id=? AND version_no=1", previewReportID).Scan(&unchangedValidation); err != nil || !unchangedValidation.Time.Equal(validatedAt.Time) {
+		t.Fatalf("denial changed validation evidence: %v", err)
+	}
 	previewHTTP := httptest.NewRecorder()
-	server.ServeHTTP(previewHTTP, request("/v1/studio/sdk/preview.execute", `{"reportId":"preview-fixture","versionNo":1,"input":{"limit":10}}`))
+	previewHTTPRequest := request("/v1/studio/sdk/preview.execute", `{"reportId":"preview-fixture","versionNo":1,"input":{"limit":10}}`)
+	previewHTTPRequest.Header.Set("X-Studio-Namespace", namespaceaccess.ID("alice", "production.audit"))
+	server.ServeHTTP(previewHTTP, previewHTTPRequest)
 	if previewHTTP.Code != http.StatusOK || !strings.Contains(previewHTTP.Body.String(), "preview-fixture") ||
 		!strings.Contains(previewHTTP.Body.String(), `"returnedRows":1`) || strings.Contains(previewHTTP.Body.String(), dsn) {
 		t.Fatalf("native exact-version preview status=%d body=%s", previewHTTP.Code, previewHTTP.Body.String())
 	}
 	viewHTTP := httptest.NewRecorder()
-	server.ServeHTTP(viewHTTP, request("/v1/studio/sdk/versions.test_view", `{"reportId":"preview-fixture","versionNo":1,"view":"rows","input":{"limit":10}}`))
+	viewHTTPRequest := request("/v1/studio/sdk/versions.test_view", `{"reportId":"preview-fixture","versionNo":1,"view":"rows","input":{"limit":10}}`)
+	viewHTTPRequest.Header.Set("X-Studio-Namespace", namespaceaccess.ID("alice", "production.audit"))
+	server.ServeHTTP(viewHTTP, viewHTTPRequest)
 	if viewHTTP.Code != http.StatusOK || !strings.Contains(viewHTTP.Body.String(), `"view":"rows"`) ||
 		!strings.Contains(viewHTTP.Body.String(), "preview-fixture") || strings.Contains(viewHTTP.Body.String(), dsn) {
 		t.Fatalf("native root view test status=%d body=%s", viewHTTP.Code, viewHTTP.Body.String())
@@ -845,6 +898,28 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT id,slug FROM components WHERE id='p
 	server.ServeHTTP(bobPreview, bobPreviewRequest)
 	if bobPreview.Code != http.StatusOK || !strings.Contains(bobPreview.Body.String(), "preview-fixture") {
 		t.Fatalf("delegated runner preview status=%d body=%s", bobPreview.Code, bobPreview.Body.String())
+	}
+
+	// Run permission is separate from metadata visibility within a visible namespace.
+	if _, err = store.ExecContext(ctx, `UPDATE report_acl SET can_view=0 WHERE report_id=? AND subject_id='bob'`, previewReportID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = store.ExecContext(ctx, `UPDATE namespaces SET visibility='public' WHERE owner_id='alice' AND name='production.audit'`); err != nil {
+		t.Fatal(err)
+	}
+	runOnlyRequest := request("/v1/studio/sdk/preview.execute", `{"reportId":"preview-fixture","versionNo":1,"input":{"limit":10}}`)
+	runOnlyRequest.Header.Set("Authorization", "Bearer "+bobToken)
+	runOnlyRequest.Header.Set("X-Studio-Namespace", namespaceaccess.ID("alice", "production.audit"))
+	runOnlyResponse := httptest.NewRecorder()
+	server.ServeHTTP(runOnlyResponse, runOnlyRequest)
+	if runOnlyResponse.Code != http.StatusOK || !strings.Contains(runOnlyResponse.Body.String(), `"returnedRows":1`) {
+		t.Fatalf("visible namespace run-only access status=%d body=%s", runOnlyResponse.Code, runOnlyResponse.Body.String())
+	}
+	if _, err = store.ExecContext(ctx, `UPDATE report_acl SET can_view=1 WHERE report_id=? AND subject_id='bob'`, previewReportID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = store.ExecContext(ctx, `UPDATE namespaces SET visibility='private' WHERE owner_id='alice' AND name='production.audit'`); err != nil {
+		t.Fatal(err)
 	}
 	bobValidation := request("/v1/studio/sdk/versions.validate", `{"reportId":"preview-fixture","versionNo":1,"expectedSourceRevision":1}`)
 	bobValidation.Header.Set("Authorization", "Bearer "+bobToken)
@@ -956,6 +1031,32 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 			t.Fatal(err)
 		}
 	}
+	for _, check := range []struct{ operation, payload string }{
+		{"acl.upsert", `{"reportId":"` + nativeReport.ID + `","subjectType":"user","subjectId":"ns_denied_http","canView":true}`},
+		{"acl.delete", `{"reportId":"` + nativeReport.ID + `","subjectType":"user","subjectId":"grant_http","etag":1}`},
+	} {
+		blocked := request("/v1/studio/sdk/"+check.operation, check.payload)
+		blocked.Header.Set("X-Studio-Namespace", wrongNamespaceID)
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, blocked)
+		if response.Code != http.StatusForbidden {
+			t.Fatalf("cross-namespace %s status=%d body=%s", check.operation, response.Code, response.Body.String())
+		}
+	}
+	deniedACLList := request("/v1/studio/sdk/acl.list", `{"reportId":"`+nativeReport.ID+`"}`)
+	deniedACLList.Header.Set("X-Studio-Namespace", wrongNamespaceID)
+	deniedACLResponse := httptest.NewRecorder()
+	server.ServeHTTP(deniedACLResponse, deniedACLList)
+	if deniedACLResponse.Code != http.StatusOK || strings.Contains(deniedACLResponse.Body.String(), "grant_http") {
+		t.Fatalf("cross-namespace ACL list status=%d body=%s", deniedACLResponse.Code, deniedACLResponse.Body.String())
+	}
+	var untouchedACLCount int
+	if err = store.QueryRowContext(ctx, "SELECT COUNT(*) FROM report_acl WHERE report_id=? AND subject_id='grant_http' AND etag=1", nativeReport.ID).Scan(&untouchedACLCount); err != nil || untouchedACLCount != 1 {
+		t.Fatalf("cross-namespace delete changed grant: count=%d err=%v", untouchedACLCount, err)
+	}
+	if err = store.QueryRowContext(ctx, "SELECT COUNT(*) FROM report_acl WHERE report_id=? AND subject_id='ns_denied_http'", nativeReport.ID).Scan(&untouchedACLCount); err != nil || untouchedACLCount != 0 {
+		t.Fatalf("cross-namespace upsert added grant: count=%d err=%v", untouchedACLCount, err)
+	}
 	invalidACLGrant := httptest.NewRecorder()
 	server.ServeHTTP(invalidACLGrant, request("/v1/studio/sdk/acl.upsert", `{"reportId":"`+nativeReport.ID+`","subjectType":"user","subjectId":"invalid","canEdit":true}`))
 	if invalidACLGrant.Code != http.StatusBadRequest {
@@ -969,7 +1070,9 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		t.Fatalf("non-owner ACL upsert status=%d body=%s", forbiddenACLUpsert.Code, forbiddenACLUpsert.Body.String())
 	}
 	createdACL := httptest.NewRecorder()
-	server.ServeHTTP(createdACL, request("/v1/studio/sdk/acl.upsert", `{"reportId":"`+nativeReport.ID+`","subjectType":"user","subjectId":"upsert_http","canView":true,"canEdit":true}`))
+	selectedACLCreate := request("/v1/studio/sdk/acl.upsert", `{"reportId":"`+nativeReport.ID+`","subjectType":"user","subjectId":"upsert_http","canView":true,"canEdit":true}`)
+	selectedACLCreate.Header.Set("X-Studio-Namespace", namespaceaccess.ID("alice", "production.audit"))
+	server.ServeHTTP(createdACL, selectedACLCreate)
 	if createdACL.Code != http.StatusOK || !strings.Contains(createdACL.Body.String(), `"etag":1`) ||
 		!strings.Contains(createdACL.Body.String(), `"canEdit":true`) {
 		t.Fatalf("native ACL creation status=%d body=%s", createdACL.Code, createdACL.Body.String())
@@ -1025,6 +1128,15 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		!strings.Contains(updatedReport.Body.String(), `"etag":2`) {
 		t.Fatalf("native report update status=%d body=%s", updatedReport.Code, updatedReport.Body.String())
 	}
+	moveNamespaceResponse := httptest.NewRecorder()
+	server.ServeHTTP(moveNamespaceResponse, request("/v1/studio/sdk/components.update", `{"id":"`+nativeReport.ID+`","input":{"namespace":"namespace_guard_other","etag":2}}`))
+	if moveNamespaceResponse.Code != http.StatusForbidden {
+		t.Fatalf("namespace transfer through metadata status=%d body=%s", moveNamespaceResponse.Code, moveNamespaceResponse.Body.String())
+	}
+	var namespaceAfterMove string
+	if err := store.QueryRowContext(ctx, `SELECT namespace_id FROM components WHERE id=?`, nativeReport.ID).Scan(&namespaceAfterMove); err != nil || namespaceAfterMove != namespaceaccess.ID("alice", "production.audit") {
+		t.Fatalf("rejected namespace move changed ownership=%q err=%v", namespaceAfterMove, err)
+	}
 	staleReportUpdate := httptest.NewRecorder()
 	server.ServeHTTP(staleReportUpdate, request("/v1/studio/sdk/components.update", `{"id":"`+nativeReport.ID+`","input":{"title":"Stale","etag":1}}`))
 	if staleReportUpdate.Code != http.StatusConflict {
@@ -1046,6 +1158,13 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		t.Fatalf("invalid version mode status=%d body=%s", invalidVersionMode.Code, invalidVersionMode.Body.String())
 	}
 	createdVersion := httptest.NewRecorder()
+	wrongVersionRequest := request("/v1/studio/sdk/versions.create", `{"reportId":"`+nativeReport.ID+`","input":{"authoringMode":"dql","authoredDql":"SELECT forbidden"}}`)
+	wrongVersionRequest.Header.Set("X-Studio-Namespace", wrongNamespaceID)
+	wrongVersionResponse := httptest.NewRecorder()
+	server.ServeHTTP(wrongVersionResponse, wrongVersionRequest)
+	if wrongVersionResponse.Code != http.StatusForbidden {
+		t.Fatalf("cross-namespace version create status=%d body=%s", wrongVersionResponse.Code, wrongVersionResponse.Body.String())
+	}
 	server.ServeHTTP(createdVersion, request("/v1/studio/sdk/versions.create", `{"reportId":"`+nativeReport.ID+`","input":{"authoringMode":"dql","authoredDql":"SELECT 1","componentSpec":{}}}`))
 	if createdVersion.Code != http.StatusOK || !strings.Contains(createdVersion.Body.String(), `"versionNo":1`) ||
 		!strings.Contains(createdVersion.Body.String(), `"authoredDql":"SELECT 1"`) || !strings.Contains(createdVersion.Body.String(), `"sourceRevision":1`) {
@@ -1054,6 +1173,10 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=? AND version_no=1 AND created_by='alice' AND compile_status='pending'`, nativeReport.ID).Scan(&reportCount); err != nil || reportCount != 1 {
 		t.Fatalf("native version persistence count=%d err=%v", reportCount, err)
 	}
+	var createdVersionNamespace, createdVersionOwner, createdVersionWorkspace string
+	if err := store.QueryRowContext(ctx, `SELECT v.namespace_id,c.owner_id,c.namespace FROM report_versions v JOIN components c ON c.id=v.report_id WHERE v.report_id=? AND v.version_no=1`, nativeReport.ID).Scan(&createdVersionNamespace, &createdVersionOwner, &createdVersionWorkspace); err != nil || createdVersionNamespace != namespaceaccess.ID(createdVersionOwner, createdVersionWorkspace) {
+		t.Fatalf("native created version namespace=%q err=%v", createdVersionNamespace, err)
+	}
 	ownerInspection := httptest.NewRecorder()
 	server.ServeHTTP(ownerInspection, request("/v1/studio/sdk/versions.inspect", `{"reportId":"`+nativeReport.ID+`","versionNo":1}`))
 	if ownerInspection.Code != http.StatusOK || !strings.Contains(ownerInspection.Body.String(), `"dql":"SELECT 1"`) ||
@@ -1061,7 +1184,16 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		t.Fatalf("owner version inspect status=%d body=%s", ownerInspection.Code, ownerInspection.Body.String())
 	}
 	loadReportResponse := httptest.NewRecorder()
-	server.ServeHTTP(loadReportResponse, request("/v1/studio/sdk/components.create", `{"slug":"dql-load","title":"DQL Load","namespace":"production.audit","defaultConnectorName":"main"}`))
+	wrongCreate := request("/v1/studio/sdk/components.create", `{"slug":"ns-create-denied","title":"Denied","namespace":"production.audit","defaultConnectorName":"main"}`)
+	wrongCreate.Header.Set("X-Studio-Namespace", wrongNamespaceID)
+	wrongCreateResult := httptest.NewRecorder()
+	server.ServeHTTP(wrongCreateResult, wrongCreate)
+	if wrongCreateResult.Code != http.StatusForbidden {
+		t.Fatalf("contradictory namespace create status=%d body=%s", wrongCreateResult.Code, wrongCreateResult.Body.String())
+	}
+	selectedCreate := request("/v1/studio/sdk/components.create", `{"slug":"dql-load","title":"DQL Load","defaultConnectorName":"main"}`)
+	selectedCreate.Header.Set("X-Studio-Namespace", namespaceaccess.ID("alice", "production.audit"))
+	server.ServeHTTP(loadReportResponse, selectedCreate)
 	if loadReportResponse.Code != http.StatusOK {
 		t.Fatalf("create DQL load report status=%d body=%s", loadReportResponse.Code, loadReportResponse.Body.String())
 	}
@@ -1070,6 +1202,21 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	}
 	if err = json.Unmarshal(loadReportResponse.Body.Bytes(), &loadReport); err != nil || loadReport.ID == "" {
 		t.Fatalf("DQL load report identity=%+v err=%v", loadReport, err)
+	}
+	var componentWorkspace string
+	if err := store.QueryRowContext(ctx, `SELECT namespace_id FROM components WHERE id=?`, loadReport.ID).Scan(&componentWorkspace); err != nil || componentWorkspace != namespaceaccess.ID("alice", "production.audit") {
+		t.Fatalf("component namespace ownership=%q err=%v", componentWorkspace, err)
+	}
+
+	blockedImport := request("/v1/studio/sdk/versions.load_dql", `{"reportId":"`+loadReport.ID+`","input":{"dql":"SELECT wrong_namespace"}}`)
+	blockedImport.Header.Set("X-Studio-Namespace", wrongNamespaceID)
+	blockedImportResponse := httptest.NewRecorder()
+	server.ServeHTTP(blockedImportResponse, blockedImport)
+	if blockedImportResponse.Code < 400 || blockedImportResponse.Code >= 500 {
+		t.Fatalf("cross-namespace DQL import status=%d body=%s", blockedImportResponse.Code, blockedImportResponse.Body.String())
+	}
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=?`, loadReport.ID).Scan(&reportCount); err != nil || reportCount != 0 {
+		t.Fatalf("denied namespace import wrote versions: count=%d err=%v", reportCount, err)
 	}
 	deniedDQLLoad := request("/v1/studio/sdk/versions.load_dql", `{"reportId":"`+loadReport.ID+`","input":{"dql":"SELECT 1"}}`)
 	deniedDQLLoad.Header.Set("Authorization", "Bearer "+bobToken)
@@ -1084,10 +1231,20 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		t.Fatalf("invalid DQL load status=%d body=%s", invalidDQLLoad.Code, invalidDQLLoad.Body.String())
 	}
 	loadedDQL := httptest.NewRecorder()
-	server.ServeHTTP(loadedDQL, request("/v1/studio/sdk/versions.load_dql", `{"reportId":"`+loadReport.ID+`","input":{"dql":"SELECT 1","notes":"first import"}}`))
+	loadedDQLRequest := request("/v1/studio/sdk/versions.load_dql", `{"reportId":"`+loadReport.ID+`","input":{"dql":"SELECT 1","notes":"first import"}}`)
+	loadedDQLRequest.Header.Set("X-Studio-Namespace", namespaceaccess.ID("alice", "production.audit"))
+	server.ServeHTTP(loadedDQL, loadedDQLRequest)
 	if loadedDQL.Code != http.StatusOK || !strings.Contains(loadedDQL.Body.String(), `"entryDql":"main.dql"`) ||
 		!strings.Contains(loadedDQL.Body.String(), `"versionNo":1`) || !strings.Contains(loadedDQL.Body.String(), `"authoredDql":"SELECT 1"`) {
 		t.Fatalf("native DQL load status=%d body=%s", loadedDQL.Code, loadedDQL.Body.String())
+	}
+	var importedWorkspace string
+	if err := store.QueryRowContext(ctx, `SELECT namespace_id FROM report_versions WHERE report_id=? AND version_no=1`, loadReport.ID).Scan(&importedWorkspace); err != nil || importedWorkspace != namespaceaccess.ID("alice", "production.audit") {
+		t.Fatalf("native imported version namespace=%q err=%v", importedWorkspace, err)
+	}
+	var mismatchedImportFiles int
+	if err := store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_resource_files WHERE report_id=? AND version_no=1 AND namespace_id<>?`, loadReport.ID, importedWorkspace).Scan(&mismatchedImportFiles); err != nil || mismatchedImportFiles != 0 {
+		t.Fatalf("native imported files with wrong namespace=%d err=%v", mismatchedImportFiles, err)
 	}
 	var loadVersionCount, loadFileCount, loadDraft, loadETag int
 	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=? AND version_no=1`, loadReport.ID).Scan(&loadVersionCount); err != nil {
@@ -1099,6 +1256,17 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if err = store.QueryRowContext(ctx, `SELECT current_draft_version,etag FROM components WHERE id=?`, loadReport.ID).Scan(&loadDraft, &loadETag); err != nil ||
 		loadVersionCount != 1 || loadFileCount != 1 || loadDraft != 1 || loadETag != 2 {
 		t.Fatalf("DQL import persisted version=%d file=%d draft=%d etag=%d err=%v", loadVersionCount, loadFileCount, loadDraft, loadETag, err)
+	}
+
+	blockedEdit := request("/v1/studio/sdk/versions.apply", `{"reportId":"`+loadReport.ID+`","versionNo":1,"command":{"kind":"set_dql","expectedSourceRevision":1,"payload":{"authoredDql":"SELECT wrong_namespace"}}}`)
+	blockedEdit.Header.Set("X-Studio-Namespace", wrongNamespaceID)
+	blockedEditResponse := httptest.NewRecorder()
+	server.ServeHTTP(blockedEditResponse, blockedEdit)
+	if blockedEditResponse.Code < 400 || blockedEditResponse.Code >= 500 {
+		t.Fatalf("cross-namespace version edit status=%d body=%s", blockedEditResponse.Code, blockedEditResponse.Body.String())
+	}
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=? AND version_no=1 AND source_revision=1 AND authored_dql='SELECT 1'`, loadReport.ID).Scan(&reportCount); err != nil || reportCount != 1 {
+		t.Fatalf("denied namespace edit changed source: count=%d err=%v", reportCount, err)
 	}
 	deniedVersionEdit := request("/v1/studio/sdk/versions.apply", `{"reportId":"`+loadReport.ID+`","versionNo":1,"command":{"kind":"set_dql","expectedSourceRevision":1,"payload":{"authoredDql":"SELECT stolen"}}}`)
 	deniedVersionEdit.Header.Set("Authorization", "Bearer "+bobToken)
@@ -1113,7 +1281,9 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		t.Fatalf("invalid version edit status=%d body=%s", invalidVersionEdit.Code, invalidVersionEdit.Body.String())
 	}
 	ownerVersionEdit := httptest.NewRecorder()
-	server.ServeHTTP(ownerVersionEdit, request("/v1/studio/sdk/versions.apply", `{"reportId":"`+loadReport.ID+`","versionNo":1,"command":{"kind":"set_dql","expectedSourceRevision":1,"payload":{"authoredDql":"SELECT edited"}}}`))
+	ownerVersionEditRequest := request("/v1/studio/sdk/versions.apply", `{"reportId":"`+loadReport.ID+`","versionNo":1,"command":{"kind":"set_dql","expectedSourceRevision":1,"payload":{"authoredDql":"SELECT edited"}}}`)
+	ownerVersionEditRequest.Header.Set("X-Studio-Namespace", namespaceaccess.ID("alice", "production.audit"))
+	server.ServeHTTP(ownerVersionEdit, ownerVersionEditRequest)
 	if ownerVersionEdit.Code != http.StatusOK || !strings.Contains(ownerVersionEdit.Body.String(), `"sourceRevision":2`) ||
 		!strings.Contains(ownerVersionEdit.Body.String(), `"authoredDql":"SELECT edited"`) {
 		t.Fatalf("native version apply status=%d body=%s", ownerVersionEdit.Code, ownerVersionEdit.Body.String())
@@ -1178,8 +1348,21 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if ambiguousArchive.Code != http.StatusBadRequest {
 		t.Fatalf("ambiguous archive entry status=%d body=%s", ambiguousArchive.Code, ambiguousArchive.Body.String())
 	}
+	blockedArchiveRequest := request("/v1/studio/sdk/versions.load_archive", archiveRequest("main.dql"))
+	blockedArchiveRequest.Header.Set("X-Studio-Namespace", wrongNamespaceID)
+	blockedArchiveResponse := httptest.NewRecorder()
+	server.ServeHTTP(blockedArchiveResponse, blockedArchiveRequest)
+	if blockedArchiveResponse.Code < 400 || blockedArchiveResponse.Code >= 500 {
+		t.Fatalf("cross-namespace archive status=%d body=%s", blockedArchiveResponse.Code, blockedArchiveResponse.Body.String())
+	}
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=?`, archiveReport.ID).Scan(&reportCount); err != nil || reportCount != 0 {
+		t.Fatalf("denied archive created versions: count=%d err=%v", reportCount, err)
+	}
+
 	loadedArchive := httptest.NewRecorder()
-	server.ServeHTTP(loadedArchive, request("/v1/studio/sdk/versions.load_archive", archiveRequest("main.dql")))
+	loadedArchiveRequest := request("/v1/studio/sdk/versions.load_archive", archiveRequest("main.dql"))
+	loadedArchiveRequest.Header.Set("X-Studio-Namespace", namespaceaccess.ID("alice", "production.audit"))
+	server.ServeHTTP(loadedArchive, loadedArchiveRequest)
 	if loadedArchive.Code != http.StatusOK || !strings.Contains(loadedArchive.Body.String(), `"entryDql":"main.dql"`) ||
 		!strings.Contains(loadedArchive.Body.String(), `"versionNo":1`) || !strings.Contains(loadedArchive.Body.String(), `"other.dql"`) ||
 		!strings.Contains(loadedArchive.Body.String(), `"sql/dependency.sql"`) {
@@ -1456,23 +1639,49 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 			t.Errorf("static MCP listener exposed undeclared SDK tool %s", name)
 		}
 	}
-	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.preview.execute", map[string]any{"reportId": previewReportID, "versionNo": 1, "input": map[string]any{"limit": 10}})
+
+	for _, toolName := range []string{"studio.sdk.preview.execute", "studio.sdk.versions.test_view"} {
+		arguments := map[string]any{"namespaceId": wrongNamespaceID, "reportId": previewReportID, "versionNo": 1, "input": map[string]any{"limit": 10}}
+		if toolName == "studio.sdk.versions.test_view" {
+			arguments["view"] = "rows"
+		}
+		status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", toolName, arguments)
+		if status != http.StatusOK || !bytes.Contains(body, []byte(`"isError":true`)) || bytes.Contains(body, []byte(`"returnedRows":1`)) {
+			t.Fatalf("cross-namespace MCP run %s status=%d body=%s", toolName, status, body)
+		}
+	}
+	for _, check := range []struct {
+		tool string
+		args map[string]any
+	}{
+		{"studio.sdk.versions.validate", map[string]any{"reportId": previewReportID, "versionNo": 1, "expectedSourceRevision": 1}},
+		{"studio.sdk.versions.warmup", map[string]any{"reportId": previewReportID, "versionNo": 1}},
+		{"studio.sdk.versions.warmup_list", map[string]any{"reportId": previewReportID, "versionNo": 1, "input": map[string]any{"limit": 10}}},
+		{"studio.sdk.versions.warmup_get", map[string]any{"reportId": previewReportID, "runId": acceptedWarmup.RunID}},
+	} {
+		check.args["namespaceId"] = wrongNamespaceID
+		status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", check.tool, check.args)
+		if status != http.StatusOK || !bytes.Contains(body, []byte(`"isError":true`)) {
+			t.Fatalf("cross-namespace MCP %s status=%d body=%s", check.tool, status, body)
+		}
+	}
+	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.preview.execute", map[string]any{"namespaceId": namespaceaccess.ID("alice", "production.audit"), "reportId": previewReportID, "versionNo": 1, "input": map[string]any{"limit": 10}})
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte("preview-fixture")) || bytes.Contains(body, []byte(dsn)) {
 		t.Fatalf("static MCP exact-version preview status=%d body=%s", status, body)
 	}
-	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.test_view", map[string]any{"reportId": previewReportID, "versionNo": 1, "view": "rows", "input": map[string]any{"limit": 10}})
+	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.test_view", map[string]any{"namespaceId": namespaceaccess.ID("alice", "production.audit"), "reportId": previewReportID, "versionNo": 1, "view": "rows", "input": map[string]any{"limit": 10}})
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte("preview-fixture")) || bytes.Contains(body, []byte(dsn)) {
 		t.Fatalf("static MCP view test status=%d body=%s", status, body)
 	}
-	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.test_relation", map[string]any{"reportId": "relation-fixture", "versionNo": 1, "relation": "versions", "input": map[string]any{"limit": 10}})
+	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.test_relation", map[string]any{"namespaceId": namespaceaccess.ID("alice", "production.audit"), "reportId": "relation-fixture", "versionNo": 1, "relation": "versions", "input": map[string]any{"limit": 10}})
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"attachedChildren":2`)) || bytes.Contains(body, []byte(dsn)) {
 		t.Fatalf("static MCP relation test status=%d body=%s", status, body)
 	}
-	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.test_compose", map[string]any{"reportId": "compose-fixture", "versionNo": 1, "input": map[string]any{"cubes": []any{map[string]any{"dimensions": map[string]any{"status": true}, "measures": map[string]any{"productCount": true}, "filters": map[string]any{}}}, "sql": "SELECT t1.status FROM $CubeSQL1 AS t1"}})
+	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.test_compose", map[string]any{"namespaceId": namespaceaccess.ID("alice", "production.audit"), "reportId": "compose-fixture", "versionNo": 1, "input": map[string]any{"cubes": []any{map[string]any{"dimensions": map[string]any{"status": true}, "measures": map[string]any{"productCount": true}, "filters": map[string]any{}}}, "sql": "SELECT t1.status FROM $CubeSQL1 AS t1"}})
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"data"`)) || bytes.Contains(body, []byte(dsn)) {
 		t.Fatalf("static MCP compose test status=%d body=%s", status, body)
 	}
-	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.validate", map[string]any{"reportId": previewReportID, "versionNo": 1, "expectedSourceRevision": 1})
+	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.validate", map[string]any{"namespaceId": namespaceaccess.ID("alice", "production.audit"), "reportId": previewReportID, "versionNo": 1, "expectedSourceRevision": 1})
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"valid":true`)) || bytes.Contains(body, []byte(dsn)) {
 		t.Fatalf("static MCP version validation status=%d body=%s", status, body)
 	}
@@ -1569,6 +1778,12 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		t.Fatalf("static MCP predicate update status=%d body=%s", status, body)
 	}
 	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.components.create", map[string]any{
+		"namespaceId": wrongNamespaceID, "namespace": "production.audit", "slug": "ns-mcp-create-denied", "title": "Denied", "defaultConnectorName": "main",
+	})
+	if status != http.StatusOK || !bytes.Contains(body, []byte(`"isError":true`)) {
+		t.Fatalf("contradictory MCP namespace create status=%d body=%s", status, body)
+	}
+	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.components.create", map[string]any{
 		"slug": "mcp-default", "title": "MCP Default", "defaultConnectorName": "main",
 	})
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"slug":"mcp-default"`)) {
@@ -1583,8 +1798,31 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"title":"MCP Updated"`)) {
 		t.Fatalf("static MCP report update status=%d body=%s", status, body)
 	}
+	for _, check := range []struct {
+		tool string
+		args map[string]any
+	}{
+		{"studio.sdk.acl.upsert", map[string]any{"reportId": nativeReport.ID, "subjectType": "user", "subjectId": "ns_denied_mcp", "canView": true}},
+		{"studio.sdk.acl.delete", map[string]any{"reportId": nativeReport.ID, "subjectType": "user", "subjectId": "grant_mcp", "etag": 1}},
+	} {
+		check.args["namespaceId"] = wrongNamespaceID
+		status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", check.tool, check.args)
+		if status != http.StatusOK || !bytes.Contains(body, []byte(`"isError":true`)) {
+			t.Fatalf("cross-namespace %s status=%d body=%s", check.tool, status, body)
+		}
+	}
+	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.acl.list", map[string]any{"namespaceId": wrongNamespaceID, "reportId": nativeReport.ID})
+	if status != http.StatusOK || bytes.Contains(body, []byte("grant_mcp")) {
+		t.Fatalf("cross-namespace MCP ACL disclosure: status=%d body=%s", status, body)
+	}
+	if err = store.QueryRowContext(ctx, "SELECT COUNT(*) FROM report_acl WHERE report_id=? AND subject_id='grant_mcp' AND etag=1", nativeReport.ID).Scan(&untouchedACLCount); err != nil || untouchedACLCount != 1 {
+		t.Fatalf("MCP denial deleted grant: count=%d err=%v", untouchedACLCount, err)
+	}
+	if err = store.QueryRowContext(ctx, "SELECT COUNT(*) FROM report_acl WHERE report_id=? AND subject_id='ns_denied_mcp'", nativeReport.ID).Scan(&untouchedACLCount); err != nil || untouchedACLCount != 0 {
+		t.Fatalf("MCP denial created grant: count=%d err=%v", untouchedACLCount, err)
+	}
 	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.acl.upsert", map[string]any{
-		"reportId": nativeReport.ID, "subjectType": "user", "subjectId": "upsert_mcp", "canView": true,
+		"namespaceId": namespaceaccess.ID("alice", "production.audit"), "reportId": nativeReport.ID, "subjectType": "user", "subjectId": "upsert_mcp", "canView": true,
 	})
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"subjectId":"upsert_mcp"`)) {
 		t.Fatalf("static MCP ACL upsert status=%d body=%s", status, body)
@@ -1594,6 +1832,12 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	})
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) {
 		t.Fatalf("static MCP ACL delete status=%d body=%s", status, body)
+	}
+	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.create", map[string]any{
+		"namespaceId": wrongNamespaceID, "reportId": nativeReport.ID, "input": map[string]any{"authoringMode": "dql", "authoredDql": "SELECT wrong_namespace"},
+	})
+	if status != http.StatusOK || !bytes.Contains(body, []byte(`"isError":true`)) {
+		t.Fatalf("cross-namespace MCP version create status=%d body=%s", status, body)
 	}
 	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.create", map[string]any{
 		"reportId": nativeReport.ID, "input": map[string]any{"authoringMode": "sql", "authoredSql": "SELECT 2"},
@@ -1615,15 +1859,32 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		bytes.Contains(body, []byte("private_value")) {
 		t.Fatalf("static MCP delegated inspect status=%d body=%s", status, body)
 	}
+
+	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.load_dql", map[string]any{"namespaceId": wrongNamespaceID, "reportId": loadReport.ID, "input": map[string]any{"dql": "SELECT wrong_namespace"}})
+	if status != http.StatusOK || !bytes.Contains(body, []byte(`"isError":true`)) {
+		t.Fatalf("cross-namespace MCP import status=%d body=%s", status, body)
+	}
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=?`, loadReport.ID).Scan(&reportCount); err != nil || reportCount != 1 {
+		t.Fatalf("denied MCP import wrote versions: count=%d err=%v", reportCount, err)
+	}
+	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.apply", map[string]any{"namespaceId": wrongNamespaceID, "reportId": loadReport.ID, "versionNo": 1, "command": map[string]any{"kind": "set_dql", "expectedSourceRevision": 2, "payload": map[string]any{"authoredDql": "SELECT wrong_namespace"}}})
+	if status != http.StatusOK || !bytes.Contains(body, []byte(`"isError":true`)) {
+		t.Fatalf("cross-namespace MCP edit status=%d body=%s", status, body)
+	}
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=? AND version_no=1 AND source_revision=2 AND authored_dql='SELECT edited'`, loadReport.ID).Scan(&reportCount); err != nil || reportCount != 1 {
+		t.Fatalf("denied MCP edit changed source: count=%d err=%v", reportCount, err)
+	}
 	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.load_dql", map[string]any{
 		"reportId": loadReport.ID, "input": map[string]any{"dql": "SELECT 2"},
+		"namespaceId": namespaceaccess.ID("alice", "production.audit"),
 	})
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"versionNo":2`)) ||
 		!bytes.Contains(body, []byte(`"entryDql":"main.dql"`)) {
 		t.Fatalf("static MCP DQL load status=%d body=%s", status, body)
 	}
 	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.apply", map[string]any{
-		"reportId": loadReport.ID, "versionNo": 1, "command": map[string]any{
+		"namespaceId": namespaceaccess.ID("alice", "production.audit"),
+		"reportId":    loadReport.ID, "versionNo": 1, "command": map[string]any{
 			"kind": "set_sql", "expectedSourceRevision": 2, "payload": map[string]any{"authoredSql": "SELECT 3"},
 		},
 	})
@@ -1631,8 +1892,16 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		!bytes.Contains(body, []byte(`"authoredSql":"SELECT 3"`)) {
 		t.Fatalf("static MCP version apply status=%d body=%s", status, body)
 	}
+
+	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.load_archive", map[string]any{"namespaceId": wrongNamespaceID, "reportId": archiveReport.ID, "input": map[string]any{"archive": archiveBytes, "format": "zip", "entryDql": "other.dql"}})
+	if status != http.StatusOK || !bytes.Contains(body, []byte(`"isError":true`)) {
+		t.Fatalf("cross-namespace MCP archive status=%d body=%s", status, body)
+	}
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=?`, archiveReport.ID).Scan(&reportCount); err != nil || reportCount != 1 {
+		t.Fatalf("denied MCP archive wrote versions: count=%d err=%v", reportCount, err)
+	}
 	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.load_archive", map[string]any{
-		"reportId": archiveReport.ID, "input": map[string]any{"archive": archiveBytes, "format": "zip", "entryDql": "other.dql"},
+		"namespaceId": namespaceaccess.ID("alice", "production.audit"), "reportId": archiveReport.ID, "input": map[string]any{"archive": archiveBytes, "format": "zip", "entryDql": "other.dql"},
 	})
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"versionNo":2`)) ||
 		!bytes.Contains(body, []byte(`"entryDql":"other.dql"`)) {
@@ -1814,6 +2083,39 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"runId":"w`)) || bytes.Contains(body, []byte(dsn)) {
 		t.Fatalf("BFF-proxied durable warmup status=%d body=%s", status, body)
 	}
+
+	// Warmup is asynchronous. Await its exact handle before a connector probe on
+	// the same SQLite file, instead of interleaving unrelated readiness checks.
+	var bffWarmup struct {
+		Result struct {
+			StructuredContent sdk.WarmupRun `json:"structuredContent"`
+		} `json:"result"`
+	}
+	if err = json.Unmarshal(body, &bffWarmup); err != nil || bffWarmup.Result.StructuredContent.RunID == "" {
+		t.Fatalf("BFF warmup handle missing: decode error=%v", err)
+	}
+	deadline = time.Now().Add(5 * time.Second)
+	var bffWarmupTerminal string
+	for time.Now().Before(deadline) {
+		var warmupStatus int
+		warmupStatus, warmupBody := mcpCall(bff.URL+"/v1/studio/sdk-mcp/mcp", "", &http.Cookie{Name: bffauth.DefaultCookieName, Value: id}, "tools/call", "studio.sdk.versions.warmup_get", map[string]any{"reportId": previewReportID, "runId": bffWarmup.Result.StructuredContent.RunID})
+		var snapshot struct {
+			Result struct {
+				StructuredContent sdk.WarmupRun `json:"structuredContent"`
+			} `json:"result"`
+		}
+		if warmupStatus != http.StatusOK || json.Unmarshal(warmupBody, &snapshot) != nil || snapshot.Result.StructuredContent.RunID != bffWarmup.Result.StructuredContent.RunID {
+			t.Fatal("BFF warmup status did not match its handle")
+		}
+		bffWarmupTerminal = snapshot.Result.StructuredContent.Status
+		if bffWarmupTerminal == "completed" || bffWarmupTerminal == "failed" || bffWarmupTerminal == "partial" {
+			break
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+	if bffWarmupTerminal != "completed" && bffWarmupTerminal != "failed" && bffWarmupTerminal != "partial" {
+		t.Fatalf("BFF warmup not terminal: %s", bffWarmupTerminal)
+	}
 	status, body = mcpCall(bff.URL+"/v1/studio/sdk-mcp/mcp", "", &http.Cookie{Name: bffauth.DefaultCookieName, Value: id}, "tools/call", "studio.sdk.connectors.test", map[string]any{"name": "probe_bff"})
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"status":"passed"`)) || bytes.Contains(body, []byte(dsn)) {
 		t.Fatalf("BFF-proxied connector probe status=%d body=%s", status, body)
@@ -1824,7 +2126,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	}
 	status, body = mcpCall(bff.URL+"/v1/studio/sdk-mcp/mcp", "", &http.Cookie{Name: bffauth.DefaultCookieName, Value: id}, "tools/call", "studio.sdk.connectors.test", map[string]any{"name": "secret_catalog"})
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"status":"passed"`)) || bytes.Contains(body, []byte(dsn)) || bytes.Contains(body, []byte(secretPath)) {
-		t.Fatalf("BFF MCP secret-backed connector probe status=%d", status)
+		t.Fatalf("BFF MCP secret-backed connector probe status=%d toolError=%t passed=%t leakedDSN=%t leakedSecretReference=%t", status, bytes.Contains(body, []byte(`"isError":true`)), bytes.Contains(body, []byte(`"status":"passed"`)), bytes.Contains(body, []byte(dsn)), bytes.Contains(body, []byte(secretPath)))
 	}
 	status, body = mcpCall(bff.URL+"/v1/studio/sdk-mcp/mcp", "", &http.Cookie{Name: bffauth.DefaultCookieName, Value: id}, "tools/call", "studio.sdk.connectors.tables", map[string]any{"name": "main", "input": map[string]any{"query": "components", "limit": 5}})
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"name":"components"`)) || bytes.Contains(body, []byte(dsn)) {
@@ -2065,6 +2367,17 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if len(skillSnapshot.Skills) != 1 || skillSnapshot.Skills[0].SkillID == "" || skillSnapshot.Version.SourceRevision != 5 {
 		t.Fatalf("native skill upsert snapshot=%+v", skillSnapshot)
 	}
+	var resourceOwner, resourceWorkspace string
+	if err := store.QueryRowContext(ctx, `SELECT owner_id,namespace FROM components WHERE id='preview-fixture'`).Scan(&resourceOwner, &resourceWorkspace); err != nil {
+		t.Fatal(err)
+	}
+	for _, table := range []string{"report_resource_files", "report_resource_folders", "report_skill_roots"} {
+		var owned, wrong int
+		if err := store.QueryRowContext(ctx, "SELECT COUNT(*), SUM(CASE WHEN namespace_id<>? THEN 1 ELSE 0 END) FROM "+table+" WHERE report_id='preview-fixture'",
+			namespaceaccess.ID(resourceOwner, resourceWorkspace)).Scan(&owned, &wrong); err != nil || owned == 0 || wrong != 0 {
+			t.Fatalf("native %s namespace ownership total=%d wrong=%d err=%v", table, owned, wrong, err)
+		}
+	}
 	deletedSkill := resourceCall("delete_skill", `{"reportId":"preview-fixture","versionNo":3,"skillId":"`+skillSnapshot.Skills[0].SkillID+`","expectedSourceRevision":5}`)
 	if len(deletedSkill.Skills) != 0 || deletedSkill.Version.SourceRevision != 6 {
 		t.Fatalf("native skill delete snapshot=%+v", deletedSkill)
@@ -2081,6 +2394,17 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if len(deletedSkillFile.Files) != 0 || deletedSkillFile.Version.SourceRevision != 9 {
 		t.Fatalf("native skill file delete snapshot=%+v", deletedSkillFile)
 	}
+	blockedResourceRequest := request("/v1/studio/sdk/resources.upsert_file", `{"reportId":"preview-fixture","versionNo":3,"namespace":"`+resourceNamespace+`","resourceId":"ns-blocked","resourcePath":"blocked.md","content":"blocked","expectedSourceRevision":9}`)
+	blockedResourceRequest.Header.Set("X-Studio-Namespace", wrongNamespaceID)
+	blockedResourceResponse := httptest.NewRecorder()
+	server.ServeHTTP(blockedResourceResponse, blockedResourceRequest)
+	if blockedResourceResponse.Code < 400 || blockedResourceResponse.Code >= 500 {
+		t.Fatalf("cross-namespace resource status=%d body=%s", blockedResourceResponse.Code, blockedResourceResponse.Body.String())
+	}
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_resource_files WHERE resource_id='ns-blocked'`).Scan(&reportCount); err != nil || reportCount != 0 {
+		t.Fatalf("denied resource persisted: count=%d err=%v", reportCount, err)
+	}
+
 	invalidResource := httptest.NewRecorder()
 	server.ServeHTTP(invalidResource, request("/v1/studio/sdk/resources.upsert_file", `{"reportId":"preview-fixture","versionNo":3,"namespace":"`+resourceNamespace+`","resourcePath":"../escape.md","content":"invalid","expectedSourceRevision":9}`))
 	if invalidResource.Code != http.StatusBadRequest {
@@ -2098,6 +2422,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 			endpoint, bearer = bff.URL+"/v1/studio/sdk-mcp/mcp", ""
 			cookie = &http.Cookie{Name: bffauth.DefaultCookieName, Value: id}
 		}
+		arguments["namespaceId"] = namespaceaccess.ID("alice", "production.audit")
 		callStatus, callBody := mcpCall(endpoint, bearer, cookie, "tools/call", "studio.sdk.resources."+operation, arguments)
 		if callStatus != http.StatusOK || bytes.Contains(callBody, []byte(`"isError":true`)) {
 			t.Fatalf("native MCP resource %s viaBFF=%t status=%d body=%s", operation, viaBFF, callStatus, callBody)
@@ -2107,6 +2432,14 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 			t.Fatalf("native MCP resource %s revision=%d want=%d err=%v", operation, actual, wantRevision, err)
 		}
 	}
+
+	blockedResourceStatus, blockedResourceBody := mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.resources.upsert_file", map[string]any{"namespaceId": wrongNamespaceID, "reportId": "preview-fixture", "versionNo": 3, "resourceId": "ns-mcp-blocked", "namespace": resourceNamespace, "resourcePath": "blocked.md", "content": "blocked", "expectedSourceRevision": 9})
+	if blockedResourceStatus != http.StatusOK || !bytes.Contains(blockedResourceBody, []byte(`"isError":true`)) {
+		t.Fatalf("cross-namespace MCP file status=%d body=%s", blockedResourceStatus, blockedResourceBody)
+	}
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_resource_files WHERE resource_id='ns-mcp-blocked'`).Scan(&reportCount); err != nil || reportCount != 0 {
+		t.Fatalf("denied MCP file persisted: count=%d err=%v", reportCount, err)
+	}
 	mcpResourceCall(false, "upsert_file", map[string]any{"reportId": "preview-fixture", "versionNo": 3, "resourceId": "rf-mcp", "namespace": resourceNamespace, "resourcePath": "guide/readme.md", "content": "MCP guide", "expectedSourceRevision": 9}, 10)
 	mcpResourceCall(true, "delete_file", map[string]any{"reportId": "preview-fixture", "versionNo": 3, "resourceId": "rf-mcp", "expectedSourceRevision": 10}, 11)
 	mcpResourceCall(false, "upsert_folder", map[string]any{"reportId": "preview-fixture", "versionNo": 3, "folderId": "rd-mcp", "namespace": resourceNamespace, "rootPath": "guide", "uriPrefix": "skill://mcp-guide/", "expectedSourceRevision": 11}, 12)
@@ -2115,8 +2448,23 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	mcpResourceCall(true, "delete_skill", map[string]any{"reportId": "preview-fixture", "versionNo": 3, "skillId": "sk-mcp", "expectedSourceRevision": 14}, 15)
 	mcpResourceCall(false, "delete_folder", map[string]any{"reportId": "preview-fixture", "versionNo": 3, "folderId": "rd-mcp", "expectedSourceRevision": 15}, 16)
 	mcpResourceCall(true, "delete_file", map[string]any{"reportId": "preview-fixture", "versionNo": 3, "resourceId": "rf-mcp-skill", "expectedSourceRevision": 16}, 17)
+	blockedBuilderRequest := request("/v1/studio/sdk/versions.builder", `{"reportId":"preview-fixture","versionNo":3,"command":{"expectedSourceRevision":17,"operation":{"type":"inspect"}}}`)
+	blockedBuilderRequest.Header.Set("X-Studio-Namespace", wrongNamespaceID)
+	blockedBuilderResponse := httptest.NewRecorder()
+	server.ServeHTTP(blockedBuilderResponse, blockedBuilderRequest)
+	if blockedBuilderResponse.Code < 400 || blockedBuilderResponse.Code >= 500 {
+		t.Fatalf("cross-namespace builder status=%d body=%s", blockedBuilderResponse.Code, blockedBuilderResponse.Body.String())
+	}
+
+	blockedBuilderStatus, blockedBuilderBody := mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.builder", map[string]any{"namespaceId": wrongNamespaceID, "reportId": "preview-fixture", "versionNo": 3, "command": map[string]any{"expectedSourceRevision": 17, "operation": map[string]any{"type": "inspect"}}})
+	if blockedBuilderStatus != http.StatusOK || !bytes.Contains(blockedBuilderBody, []byte(`"isError":true`)) {
+		t.Fatalf("cross-namespace MCP builder status=%d body=%s", blockedBuilderStatus, blockedBuilderBody)
+	}
+
 	builderInspect := httptest.NewRecorder()
-	server.ServeHTTP(builderInspect, request("/v1/studio/sdk/versions.builder", `{"reportId":"preview-fixture","versionNo":3,"command":{"expectedSourceRevision":17,"operation":{"type":"inspect"}}}`))
+	builderInspectRequest := request("/v1/studio/sdk/versions.builder", `{"reportId":"preview-fixture","versionNo":3,"command":{"expectedSourceRevision":17,"operation":{"type":"inspect"}}}`)
+	builderInspectRequest.Header.Set("X-Studio-Namespace", namespaceaccess.ID("alice", "production.audit"))
+	server.ServeHTTP(builderInspect, builderInspectRequest)
 	if builderInspect.Code != http.StatusOK || !bytes.Contains(builderInspect.Body.Bytes(), []byte(`"inspection"`)) || bytes.Contains(builderInspect.Body.Bytes(), []byte(dsn)) {
 		t.Fatalf("native builder inspect status=%d body=%s", builderInspect.Code, builderInspect.Body.String())
 	}
@@ -2209,8 +2557,25 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if err = store.QueryRowContext(ctx, `SELECT source_revision FROM report_versions WHERE report_id=? AND version_no=1`, previewReportID).Scan(&publicationRevision); err != nil {
 		t.Fatal(err)
 	}
+	blockedPublish := request("/v1/studio/sdk/publications.publish", fmt.Sprintf(`{"reportId":%q,"versionNo":1,"input":{"expectedSourceRevision":%d}}`, previewReportID, publicationRevision))
+	blockedPublish.Header.Set("X-Studio-Namespace", wrongNamespaceID)
+	blockedPublishResponse := httptest.NewRecorder()
+	server.ServeHTTP(blockedPublishResponse, blockedPublish)
+	if blockedPublishResponse.Code != http.StatusForbidden || len(reloadedGenerations) != 0 {
+		t.Fatalf("cross-namespace publish status=%d reloads=%d", blockedPublishResponse.Code, len(reloadedGenerations))
+	}
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_publications WHERE report_id=?`, previewReportID).Scan(&reportCount); err != nil || reportCount != 0 {
+		t.Fatalf("denied publication created state: count=%d err=%v", reportCount, err)
+	}
+	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.publications.publish", map[string]any{"namespaceId": wrongNamespaceID, "reportId": previewReportID, "versionNo": 1, "input": map[string]any{"expectedSourceRevision": publicationRevision}})
+	if status != http.StatusOK || !bytes.Contains(body, []byte(`"isError":true`)) || len(reloadedGenerations) != 0 {
+		t.Fatalf("cross-namespace MCP publish status=%d reloads=%d", status, len(reloadedGenerations))
+	}
+
 	publish := httptest.NewRecorder()
-	server.ServeHTTP(publish, request("/v1/studio/sdk/publications.publish", fmt.Sprintf(`{"reportId":%q,"versionNo":1,"input":{"expectedSourceRevision":%d}}`, previewReportID, publicationRevision)))
+	publishRequest := request("/v1/studio/sdk/publications.publish", fmt.Sprintf(`{"reportId":%q,"versionNo":1,"input":{"expectedSourceRevision":%d}}`, previewReportID, publicationRevision))
+	publishRequest.Header.Set("X-Studio-Namespace", namespaceaccess.ID("alice", "production.audit"))
+	server.ServeHTTP(publish, publishRequest)
 	if publish.Code != http.StatusOK || !bytes.Contains(publish.Body.Bytes(), []byte(`"status":"active"`)) || len(reloadedGenerations) != 1 {
 		t.Fatalf("native publish status=%d body=%s reloads=%v", publish.Code, publish.Body.String(), reloadedGenerations)
 	}
@@ -2222,7 +2587,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		t.Fatalf("non-publisher publication status=%d body=%s reloads=%v", deniedPublishResponse.Code, deniedPublishResponse.Body.String(), reloadedGenerations)
 	}
 	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.publications.rollback", map[string]any{
-		"reportId": previewReportID, "versionNo": 1, "input": map[string]any{"expectedSourceRevision": publicationRevision},
+		"namespaceId": namespaceaccess.ID("alice", "production.audit"), "reportId": previewReportID, "versionNo": 1, "input": map[string]any{"expectedSourceRevision": publicationRevision},
 	})
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"status":"active"`)) || len(reloadedGenerations) != 2 {
 		t.Fatalf("native rollback MCP status=%d body=%s reloads=%v", status, body, reloadedGenerations)

@@ -3,6 +3,7 @@ package store_write
 import (
 	context "context"
 	"fmt"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"strings"
 
 	"github.com/viant/datly/spec"
@@ -28,6 +29,16 @@ func (hooks *FolderStoreRules) Init(_ context.Context, entity *StoredFolder, sta
 		!entity.Has.ReportId || !entity.Has.VersionNo || !entity.Has.FolderId ||
 		!entity.Has.ShouldDelete {
 		return fmt.Errorf("resource folder mutation requires complete identity and explicit delete marker")
+	}
+	if !entity.Has.NamespaceId {
+		return fmt.Errorf("resource namespace ownership is required")
+	}
+	previousNamespace := ""
+	if state.Previous != nil {
+		previousNamespace = state.Previous.NamespaceId
+	}
+	if err := namespaceaccess.ValidateResourceOwnership(entity.NamespaceId, previousNamespace); err != nil {
+		return err
 	}
 	if entity.ShouldDelete {
 		if state.Previous == nil {

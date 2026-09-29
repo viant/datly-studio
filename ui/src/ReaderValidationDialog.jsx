@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Callout, Dialog, DialogBody, DialogFooter, Icon, Tag } from '@blueprintjs/core';
-
-const checks = [
-  ['data-connection', 'Active connector bindings'],
-  ['code', 'Datly runtime contract and linked types'],
-  ['document', 'Embedded resources and typed input/output'],
-  ['route', 'HTTP route and MCP tool identities'],
-  ['build', 'Executable reader initialization'],
-];
+import { Button, Callout, Dialog, DialogBody, DialogFooter, Tag } from '@blueprintjs/core';
 
 export function ReaderValidationDialog({ isOpen, version, canUseDQL, onClose, onValidate, onOpenSource }) {
   const [validating, setValidating] = useState(false);
@@ -35,20 +27,16 @@ export function ReaderValidationDialog({ isOpen, version, canUseDQL, onClose, on
   };
 
   const valid = result?.valid === true;
-  const previouslyValid=!result&&version?.compileStatus==='valid'&&Boolean(version?.validatedAt);
   const diagnostics = result?.diagnostics ?? [];
   const counts=diagnostics.reduce((summary,item)=>{const severity=normalizeSeverity(item.severity);summary[severity]=(summary[severity]||0)+1;return summary;},{error:0,warning:0,info:0});
   return (
     <Dialog className="studio-connector-dialog studio-validation-dialog" isOpen={isOpen} onClose={onClose} title="Validate reader draft" icon="endorsed" canOutsideClickClose={!validating}>
       <DialogBody className="studio-connector-dialog-body">
-        <p className="studio-dialog-lead">Validation materializes the publishable Datly runtime contract without executing the reader’s business query or changing the active generation.</p>
+        <p className="studio-dialog-lead">Check this exact revision without running its query.</p>
         <div className="studio-validation-revision">
           <span>Draft v{version?.versionNo ?? '—'} · revision {version?.sourceRevision ?? '—'}{version?.validatedAt?` · checked ${formatValidationDate(version.validatedAt)}`:''}</span>
           <Tag minimal intent={version?.compileStatus === 'valid' ? 'success' : version?.compileStatus === 'invalid' ? 'danger' : 'warning'}>{version?.compileStatus ?? 'pending'}</Tag>
         </div>
-        <section className="studio-validation-checks" aria-label="Validation stages">
-          {checks.map(([icon, label]) => <div key={label}><Icon icon={validating?'time':valid||previouslyValid?'small-tick':icon} intent={valid||previouslyValid?'success':validating?'primary':'none'}/><span>{label}</span><Tag minimal intent={valid||previouslyValid?'success':validating?'primary':'none'}>{validating?'checking':result?'checked':previouslyValid?'previously passed':'not run'}</Tag></div>)}
-        </section>
         {error && <Callout intent="danger" title="Validation request failed" role="alert">{error}</Callout>}
         {result && <Callout intent={valid ? 'success' : 'danger'} title={valid ? 'Runtime contract is ready' : 'Runtime contract is not ready'} role="status">
           {valid ? 'This exact source revision may proceed to publication.' : 'The draft remains editable and the current runtime generation is unchanged.'}

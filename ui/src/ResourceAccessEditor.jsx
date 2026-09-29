@@ -9,7 +9,7 @@ const clone = value => JSON.parse(JSON.stringify(value));
 
 // Resource types and selector catalogs belong to the embedding application.
 // This editor never interprets JWTs or computes an authoritative access decision.
-export function ResourceAccessEditor({ api, resource, actions, choices = {}, readOnly = false }) {
+export function ResourceAccessEditor({ api, resource, actions, choices = {}, readOnly = false, displayName, onStateChange }) {
   const [document, setDocument] = useState(null);
   const [draft, setDraft] = useState(null);
   const [action, setAction] = useState(actions[0]);
@@ -45,8 +45,9 @@ export function ResourceAccessEditor({ api, resource, actions, choices = {}, rea
   };
   const changes = changedPolicies(document, draft);
   const dirty = changes.length > 0;
+  useEffect(()=>{onStateChange?.({dirty,saving});},[dirty,saving,onStateChange]);
   const save = async () => {
-    if (!reviewOpen || !dirty || readOnly || editorContext?.canManage === false) return;
+    if (incompleteRules || !reviewOpen || !dirty || readOnly || editorContext?.canManage === false) return;
     const ticket = sequence.current;
     setSaving(true); setError(null);
     try {
@@ -59,11 +60,12 @@ export function ResourceAccessEditor({ api, resource, actions, choices = {}, rea
   const policy = draft?.policies?.[action];
   const cannotManage = readOnly || editorContext?.canManage === false;
   const disabled = cannotManage || saving || loading;
+  const incompleteRules = Object.values(draft?.policies ?? {}).some(policy => policy.mode === 'protected' && policy.rule && !completeRule(policy.rule));
   const providerChoices = editorContext?.choices || choices;
   const conflict = error?.code === 'conflict';
   return <section className="studio-resource-access" aria-label="Resource access">
     <header className="studio-resource-access-heading">
-      <div><h2>Access permissions</h2><p>{resource.kind} · <strong>{resource.id}</strong> · {resource.tenant} · version {resource.version}</p></div>
+      <div><h2>{displayName ? `${displayName} permissions` : 'Access permissions'}</h2><p>{resource.kind} · <strong>{resource.id}</strong> · {resource.tenant} · version {resource.version}</p></div>
       {document && <Tag minimal>Policy revision {document.revision}</Tag>}
     </header>
     {error && <Callout intent={conflict ? 'warning' : 'danger'} role="alert" title={conflict ? 'Permissions changed elsewhere' : 'Access request failed'}>
@@ -104,18 +106,18 @@ export function ResourceAccessEditor({ api, resource, actions, choices = {}, rea
     </div>}
     {document && <footer className="studio-resource-access-footer">
       <span role="status">{cannotManage ? 'You have read-only access.' : saved ? 'Permissions saved.' : dirty ? 'Unsaved permission changes' : 'All changes saved'}</span>
-      {!cannotManage && <Button intent="primary" icon="eye-open" disabled={disabled || !dirty || conflict} onClick={() => setReviewOpen(true)}>Review changes</Button>}
+      {!cannotManage && <Button intent="primary" icon="eye-open" disabled={disabled || !dirty || conflict || incompleteRules} onClick={() => setReviewOpen(true)}>Review changes</Button>}
     </footer>}
     <Dialog className="studio-resource-review-dialog" isOpen={reviewOpen && dirty} title="Review permission changes" icon="eye-open" onClose={() => !saving && setReviewOpen(false)} canEscapeKeyClose={!saving} canOutsideClickClose={!saving}>
       <DialogBody>
-        <p>Review {resource.kind} <strong>{resource.id}</strong> at policy revision {document?.revision}. Saving asks the server to compare and replace this exact revision.</p>
+        <p>Review {resource.kind} <strong>{displayName || resource.id}</strong> ({resource.id}) at policy revision {document?.revision}. Saving asks the server to compare and replace this exact revision.</p>
         <div className="studio-resource-review-changes">{changes.map(change => <section key={change.action} aria-label={`${change.action} change`}>
           <h3>{change.action}</h3><dl><div><dt>Current</dt><dd>{describePolicy(change.before)}</dd></div><div><dt>Proposed</dt><dd>{describePolicy(change.after)}</dd></div></dl>
         </section>)}</div>
         <Callout intent="primary">This is a policy-configuration review, not an effective-access decision. The server rechecks your identity and current revision when saving.</Callout>
         <details className="studio-resource-review-raw"><summary>Exact proposed policy JSON</summary><pre>{JSON.stringify(draft?.policies || {}, null, 2)}</pre></details>
       </DialogBody>
-      <DialogFooter actions={<><Button disabled={saving} onClick={() => setReviewOpen(false)}>Back to editor</Button><Button intent="primary" icon="floppy-disk" loading={saving} disabled={saving || conflict || cannotManage} onClick={save}>Save permissions</Button></>}/>
+      <DialogFooter actions={<><Button disabled={saving} onClick={() => setReviewOpen(false)}>Back to editor</Button><Button intent="primary" icon="floppy-disk" loading={saving} disabled={saving || conflict || cannotManage || incompleteRules} onClick={save}>Save permissions</Button></>}/>
     </Dialog>
   </section>;
 }
@@ -152,4 +154,10 @@ function RuleEditor({ rule, onChange, choices, disabled, path = 'rule', depth = 
       {!options.length && <small>Provider choices are unavailable. Existing rules are preserved.</small>}
     </div>}
   </fieldset>;
+}
+
+function completeRule(rule) {
+  if (rule.kind === 'all' || rule.kind === 'any') return Array.isArray(rule.rules) && rule.rules.length > 0 && rule.rules.every(completeRule);
+  if (rule.kind === 'entity') return Boolean(rule.entity?.type && rule.entity?.id);
+  return Boolean(String(rule.value || '').trim());
 }

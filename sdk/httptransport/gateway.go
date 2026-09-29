@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/viant/authz"
 	"io"
 	"net"
 	"net/http"
@@ -17,6 +18,8 @@ import (
 )
 
 const PathPrefix = "/v1/studio/sdk/"
+
+const NamespaceHeader = "X-Studio-Namespace"
 
 type Mode string
 
@@ -97,6 +100,13 @@ func (g Gateway) ServeHTTP(response http.ResponseWriter, request *http.Request) 
 		writeError(response, http.StatusUnauthorized, &sdk.Error{Code: sdk.ErrorUnauthorized, Message: "Studio authentication is required", Cause: err})
 		return
 	}
+	if values, found := request.Header[http.CanonicalHeaderKey(NamespaceHeader)]; found {
+		if len(values) != 1 || strings.TrimSpace(values[0]) == "" {
+			writeError(response, http.StatusBadRequest, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "one namespace ID is required"})
+			return
+		}
+		ctx = sdk.WithNamespaceSelection(ctx, values[0])
+	}
 	limit := int64(1 << 20)
 	if operation == sdk.OperationVersionLoadDQL || operation == sdk.OperationVersionLoadArchive {
 		limit = 24 << 20
@@ -171,11 +181,14 @@ func isLoopback(remote string) bool {
 }
 
 func outputFor(operation string) (any, bool) {
+	if operation == access.OperationList {
+		return &access.CatalogPage{}, true
+	}
 	if operation == access.OperationContext {
-		return &access.EditorContext{}, true
+		return &authz.EditorContext{}, true
 	}
 	if operation == access.OperationGet || operation == access.OperationReplace {
-		return &access.Document{}, true
+		return &authz.Document{}, true
 	}
 	switch operation {
 	case sdk.OperationConnectorCreate, sdk.OperationConnectorGet, sdk.OperationConnectorUpdate, sdk.OperationConnectorActivate, sdk.OperationConnectorDisable:

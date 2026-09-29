@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/scy/auth/jwt"
 	_ "modernc.org/sqlite"
@@ -125,6 +126,30 @@ INSERT INTO report_publications(report_id,active_version_no,desired_version_no,d
 	assertVersion(&candidate, 2)
 	previous := int64(1)
 	assertVersion(&previous, 1)
+
+	aID, bID := namespaceaccess.ID("owner", "general"), namespaceaccess.ID("owner", "other")
+	if _, err := db.Exec(`UPDATE namespaces SET namespace_id=? WHERE owner_id='owner' AND name='general'`, aID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.Exec(`INSERT INTO namespaces(namespace_id,owner_id,name,title,status,etag,created_at,updated_at) VALUES(?,'owner','other','Other','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, bID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.Exec(`INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('other-reader','other','other-reader','Other','owner','active','main','example.com/other','reader',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+ INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('other-reader',1,'published','dql','SELECT 99','{}','1','other','{}','valid','v1','v1',1,'owner',CURRENT_TIMESTAMP);
+ INSERT INTO report_publications(report_id,active_version_no,active_generation,desired_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at) VALUES('other-reader',1,1,1,'active','other','other','owner',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);`); err != nil {
+		t.Fatal(err)
+	}
+	service.config.NamespaceID = aID
+	assertVersion(nil, 1)
+	assertVersion(&candidate, 2)
+	service.config.NamespaceID = bID
+	for _, generation := range []*int64{nil, &candidate} {
+		scoped, err := service.definitions(ctx, generation)
+		if err != nil || len(scoped) != 1 || scoped[0].reportID != "other-reader" || scoped[0].dql != "SELECT 99" {
+			t.Fatalf("namespace B definitions=%+v err=%v", scoped, err)
+		}
+	}
+	service.config.NamespaceID = aID
 	if _, err = db.Exec(`UPDATE report_publications SET desired_version_no=NULL,publication_status='unpublishing' WHERE report_id='reader'`); err != nil {
 		t.Fatal(err)
 	}

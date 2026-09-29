@@ -4,12 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	policystore "github.com/viant/authz/datly/store/sql"
+	"github.com/viant/datly-studio/store/sql/accesscatalog"
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 
-	acl "github.com/viant/datly-studio/sdk/access"
+	acl "github.com/viant/authz"
 	"github.com/viant/datly-studio/store/sql/migrate"
 	_ "modernc.org/sqlite"
 )
@@ -25,7 +27,7 @@ func TestPolicyPersistenceAndAtomicHistory(t *testing.T) {
 	if err = m.Up(ctx, db); err != nil {
 		t.Fatal(err)
 	}
-	s := &Store{DB: db}
+	s := &policystore.Store{DB: db}
 	r := acl.Resource{Kind: "component", ID: "shared-id", Version: "1", Tenant: "one"}
 	d := acl.Document{Resource: r, Policies: map[string]acl.Policy{"describe": {Mode: "public"}}}
 	d, err = s.Provision(ctx, d, "admin")
@@ -93,7 +95,7 @@ func TestPolicyActivationRunsAsGeneratedComponents(t *testing.T) {
 	if err = m.Up(ctx, db); err != nil {
 		t.Fatal(err)
 	}
-	s := &Store{DB: db}
+	s := &policystore.Store{DB: db}
 	t.Cleanup(func() { _ = s.Close(ctx) })
 	r := acl.Resource{Kind: "component", ID: "records", Version: "3", Tenant: "one"}
 	public := map[string]acl.Policy{"execute": {Mode: "public"}}
@@ -211,4 +213,41 @@ func TestPolicyActivationRunsAsGeneratedComponents(t *testing.T) {
 			t.Fatalf("caller mutation leaked into store: %+v %v", again, err)
 		}
 	})
+}
+
+func TestCatalogExactIdentitiesAndPagination(t *testing.T) {
+	ctx := context.Background()
+	db, err := sql.Open("sqlite", filepath.Join(t.TempDir(), "catalog.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	m, _ := migrate.New()
+	if err = m.Up(ctx, db); err != nil {
+		t.Fatal(err)
+	}
+	store := &policystore.Store{DB: db}
+	for _, id := range []string{"one", "two", "three"} {
+		_, err = store.Provision(ctx, acl.Document{Resource: acl.Resource{Tenant: "tenant", Kind: "component", ID: id, Version: "4"}, Policies: map[string]acl.Policy{"describe": {Mode: "public"}}}, "admin")
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	first, err := (&accesscatalog.Store{DB: db}).Catalog(ctx, 2, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(first) != 2 {
+		t.Fatalf("expected 2 rows, got %d", len(first))
+	}
+	second, err := (&accesscatalog.Store{DB: db}).Catalog(ctx, 2, 2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(second) != 1 || second[0].ID == first[0].ID || second[0].ID == first[1].ID {
+		t.Fatalf("page boundary invalid: %+v", second)
+	}
+	if second[0].Tenant != "tenant" || second[0].Version != "4" || second[0].PolicyKind != "component" {
+		t.Fatalf("identity lost: %+v", second[0])
+	}
 }

@@ -37,3 +37,14 @@ func (input *ReportGetInput) SetId(value string) {
 	}
 	input.Has.Id = true
 }
+
+func (input *ReportGetInput) SetNamespaceId(value *string) {
+	if input == nil {
+		return
+	}
+	input.NamespaceId = value
+	if input.Has == nil {
+		input.Has = &ReportGetInputHas{}
+	}
+	input.Has.NamespaceId = true
+}

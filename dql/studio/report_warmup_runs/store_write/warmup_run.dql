@@ -13,7 +13,7 @@
 #define($_ = $Runs<[]*StoredWarmupRun>(body/data))
 
 SELECT warmup_run.*, type(warmup_run, 'StoredWarmupRun'),
-       CAST(warmup_run.run_id AS string), CAST(warmup_run.report_id AS string),
+       CAST(warmup_run.namespace_id AS string), CAST(warmup_run.run_id AS string), CAST(warmup_run.report_id AS string),
        CAST(warmup_run.version_no AS int), CAST(warmup_run.source_revision AS int64),
        CAST(warmup_run.spec_hash AS string), CAST(warmup_run.plan_key AS string),
        CAST(warmup_run.active_key AS *string), CAST(warmup_run.status AS string),

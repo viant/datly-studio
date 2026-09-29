@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, expect, test, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 vi.mock('./LazyEditor.jsx',()=>({LazyEditor:({value,onChange,ariaLabel})=><textarea aria-label={ariaLabel} value={value} onChange={(event)=>onChange(event.target.value)}/> }));
@@ -8,6 +8,123 @@ import { ReaderResourcesDialog } from './ReaderResourcesDialog.jsx';
 import { skillToolNames, withSkillTools } from './skillFrontmatter.js';
 
 describe('ReaderResourcesDialog',()=>{
+  const sourceSnapshot = () => ({version:{versionNo:3,sourceRevision:4},files:[
+    {resourceId:'skill-file',namespace:'alice.docs',resourcePath:'guide/SKILL.md',content:'---\nname: guide\n---\nUse it.'},
+    {resourceId:'one',namespace:'alice.docs',resourcePath:'sql/one.sql',content:'SELECT 1',contentSize:8},
+    {resourceId:'two',namespace:'alice.docs',resourcePath:'sql/two.sql',content:'SELECT 2',contentSize:8}],
+    folders:[{folderId:'folder',namespace:'alice.docs',rootPath:'guide',uriPrefix:'skill://alice-guide/'}],skills:[{skillId:'skill',folderId:'folder',skillRoot:'.'}]});
+
+  test('source resources opens a visible SQL file instead of skill markup',async()=>{
+    const api={getResources:vi.fn().mockResolvedValue(sourceSnapshot())};
+    render(<ReaderResourcesDialog isOpen mode="resources" api={api} report={{id:'vendor',ownerPackage:'alice'}} version={{versionNo:3,sourceRevision:4}} onClose={vi.fn()}/>);
+    expect((await screen.findByLabelText('Text content')).value).toBe('SELECT 1');
+    expect(screen.getByLabelText('Resource path').value).toBe('sql/one.sql');
+    expect(screen.queryByRole('textbox',{name:'Skill markup'})).toBeNull();
+    expect(screen.queryByRole('tab',{name:/Skills/})).toBeNull();
+  });
+
+  test('protects resource drafts when switching files or closing',async()=>{
+    const user=userEvent.setup();const onClose=vi.fn();
+    const api={getResources:vi.fn().mockResolvedValue(sourceSnapshot())};
+    render(<ReaderResourcesDialog isOpen mode="resources" api={api} report={{id:'vendor',ownerPackage:'alice'}} version={{versionNo:3,sourceRevision:4}} onClose={onClose}/>);
+    const editor=await screen.findByLabelText('Text content');
+    await user.clear(editor);await user.type(editor,'SELECT 3');
+    await user.click(screen.getByRole('button',{name:'Edit sql/two.sql'}));
+    await user.click(screen.getByRole('button',{name:'Keep editing'}));
+    expect(editor.value).toBe('SELECT 3');
+    expect(screen.getByLabelText('Resource path').value).toBe('sql/one.sql');
+    await user.click(screen.getByRole('button',{name:'Edit sql/two.sql'}));
+    await user.click(screen.getByRole('button',{name:'Discard changes'}));
+    expect(screen.getByLabelText('Text content').value).toBe('SELECT 2');
+    await user.type(screen.getByLabelText('Text content'),' -- draft');
+    await user.click(screen.getAllByRole('button',{name:'Close',exact:true}).at(-1));
+    expect(onClose).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('button',{name:'Keep editing'}));
+    expect(screen.getByLabelText('Text content').value).toBe('SELECT 2 -- draft');
+    await user.click(screen.getAllByRole('button',{name:'Close',exact:true}).at(-1));
+    await user.click(screen.getByRole('button',{name:'Discard changes'}));
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  test('a successful save clears the discard guard',async()=>{
+    const user=userEvent.setup();const snapshot=sourceSnapshot();const onClose=vi.fn();
+    const api={getResources:vi.fn().mockResolvedValue(snapshot),upsertResourceFile:vi.fn().mockResolvedValue({...snapshot,version:{versionNo:3,sourceRevision:5}})};
+    render(<ReaderResourcesDialog isOpen mode="resources" api={api} report={{id:'vendor',ownerPackage:'alice'}} version={{versionNo:3,sourceRevision:4}} onClose={onClose}/>);
+    await user.type(await screen.findByLabelText('Text content'),' -- saved');
+    await user.click(screen.getByRole('button',{name:'Update file'}));
+    await screen.findByText('Revision 5');
+    await user.click(screen.getAllByRole('button',{name:'Close',exact:true}).at(-1));
+    expect(onClose).toHaveBeenCalledTimes(1);
+    await waitFor(()=>expect(screen.queryByText('Discard unsaved resource changes?')).toBeNull());
+  });
+
+  test('saving a folder does not clear an unsaved file draft',async()=>{
+    const user=userEvent.setup();const snapshot=sourceSnapshot();const onClose=vi.fn();
+    const api={getResources:vi.fn().mockResolvedValue(snapshot),upsertResourceFolder:vi.fn().mockResolvedValue({...snapshot,version:{versionNo:3,sourceRevision:5}})};
+    render(<ReaderResourcesDialog isOpen api={api} report={{id:'vendor',ownerPackage:'alice'}} version={{versionNo:3,sourceRevision:4}} onClose={onClose}/>);
+    await screen.findByText('Revision 4');
+    await user.click(screen.getByRole('tab',{name:'Files (3)'}));
+    await user.click(screen.getByRole('button',{name:'Edit sql/one.sql'}));
+    await user.type(screen.getByLabelText('Text content'),' -- unsaved');
+    await user.click(screen.getByRole('tab',{name:'Published folders (1)'}));
+    await user.type(screen.getByLabelText('Folder root'),'-new');
+    await user.click(screen.getByRole('button',{name:'Update folder'}));
+    await screen.findByText('Revision 5');
+    await user.click(screen.getAllByRole('button',{name:'Close',exact:true}).at(-1));
+    expect(onClose).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('button',{name:'Keep editing'}));
+    await user.click(screen.getByRole('tab',{name:'Files (3)'}));
+    expect(screen.getByLabelText('Text content').value).toBe('SELECT 1 -- unsaved');
+  });
+
+  test('discarded folder edits do not reappear after reopening',async()=>{
+    const user=userEvent.setup();const onClose=vi.fn();
+    const api={getResources:vi.fn().mockResolvedValue(sourceSnapshot())};
+    const props={api,report:{id:'vendor',ownerPackage:'alice'},version:{versionNo:3,sourceRevision:4},onClose};
+    const {rerender}=render(<ReaderResourcesDialog {...props} isOpen/>);
+    await screen.findByText('Revision 4');
+    await user.click(screen.getByRole('tab',{name:'Published folders (1)'}));
+    await user.type(screen.getByLabelText('Folder root'),'-discarded');
+    await user.click(screen.getAllByRole('button',{name:'Close',exact:true}).at(-1));
+    await user.click(screen.getByRole('button',{name:'Discard changes'}));
+    expect(onClose).toHaveBeenCalledTimes(1);
+    rerender(<ReaderResourcesDialog {...props} isOpen={false}/>);
+    rerender(<ReaderResourcesDialog {...props} isOpen/>);
+    await screen.findByRole('tab',{name:'Published folders (1)'});
+    await user.click(screen.getByRole('tab',{name:'Published folders (1)'}));
+    await waitFor(()=>expect(screen.getByLabelText('Folder root').value).toBe('guide'));
+    await user.click(screen.getAllByRole('button',{name:'Close',exact:true}).at(-1));
+    expect(onClose).toHaveBeenCalledTimes(2);
+    await waitFor(()=>expect(screen.queryByText('Discard unsaved resource changes?')).toBeNull());
+  });
+  test('keeps skill markup savable while live MCP discovery is down', async () => {
+    const user = userEvent.setup();
+    const api = {
+      getResources: vi.fn().mockResolvedValue({ version: { versionNo: 3, sourceRevision: 4 }, files: [], folders: [{ folderId: 'folder', namespace: 'alice.docs', rootPath: 'skills', uriPrefix: 'skill://alice-skills/' }], skills: [] }),
+      listMCPTools: vi.fn().mockRejectedValue(new Error('runtime offline')),
+    };
+    render(<ReaderResourcesDialog isOpen api={api} report={{ id: 'vendor', ownerPackage: 'alice', title: 'Vendor' }} version={{ versionNo: 3, sourceRevision: 4, state: 'draft' }} onClose={vi.fn()} />);
+    expect((await screen.findByRole('alert')).textContent).toContain('Save is available');
+    await user.click(screen.getByRole('tab', { name: 'Files (0)' }));
+    expect(screen.getByRole('button', { name: 'Save file' }).disabled).toBe(false);
+  });
+
+  test('creates an editable draft from a published skill version', async () => {
+    const user = userEvent.setup();
+    const snapshot = { version: { versionNo: 4, sourceRevision: 7 }, files: [], folders: [], skills: [] };
+    const api = {
+      getResources: vi.fn().mockResolvedValue(snapshot),
+      getVersion: vi.fn().mockResolvedValue({ authoringMode: 'dql', authoredDql: 'SELECT 1' }),
+      createVersion: vi.fn().mockResolvedValue({ versionNo: 8, sourceRevision: 1 }),
+      listMCPTools: vi.fn().mockResolvedValue([]),
+    };
+    const onDraftCreated = vi.fn();
+    render(<ReaderResourcesDialog isOpen api={api} report={{ id: 'vendor', ownerPackage: 'alice', title: 'Vendor' }} version={{ versionNo: 4, sourceRevision: 7, state: 'published' }} onClose={vi.fn()} onDraftCreated={onDraftCreated} />);
+    await user.click(await screen.findByRole('button', { name: 'Create editable draft' }));
+    await waitFor(() => expect(onDraftCreated).toHaveBeenCalledWith({ versionNo: 8, sourceRevision: 1 }));
+    expect(api.createVersion).toHaveBeenCalledWith('vendor', expect.objectContaining({ authoredDql: 'SELECT 1' }));
+  });
+
   test('keeps a stale resource write unapplied and reloads the exact revision',async()=>{
     const user=userEvent.setup();
     const stale=Object.assign(new Error('resource revision does not match'),{code:'conflict'});
@@ -27,6 +144,7 @@ describe('ReaderResourcesDialog',()=>{
     expect(onChanged).not.toHaveBeenCalled();
 
     await user.click(screen.getByRole('button',{name:'Reload resources'}));
+    await user.click(screen.getByRole('button',{name:'Discard changes'}));
     expect(await screen.findByText('Revision 5')).toBeTruthy();
     expect(screen.getByText('alice.docs:guide/SKILL.md')).toBeTruthy();
     expect(api.getResources).toHaveBeenCalledTimes(2);
@@ -67,8 +185,19 @@ describe('ReaderResourcesDialog',()=>{
     const editor=await screen.findByRole('textbox',{name:'Skill markup'});
     await userEvent.setup().clear(editor);
     await userEvent.setup().type(editor,'---\nname: guide\ndescription: Guide\nallowed-tools: missing.tool\n---\nUse it.');
-    expect((await screen.findByRole('alert')).textContent).toContain('Tool not found in the live MCP catalog');
+    expect((await screen.findByRole('alert')).textContent).toContain('Tool is neither published nor declared by this component');
     expect(screen.getByRole('button',{name:'Create skill'}).disabled).toBe(true);
+  });
+
+  test('allows a skill to reference its own unpublished declared tool',async()=>{
+    const user=userEvent.setup();
+    const snapshot={version:{versionNo:3,sourceRevision:4},files:[],folders:[{folderId:'folder',namespace:'alice.docs',rootPath:'guide',uriPrefix:'skill://alice-guide/'}],skills:[]};
+    const api={getResources:vi.fn().mockResolvedValue(snapshot),listMCPTools:vi.fn().mockResolvedValue([])};
+    render(<ReaderResourcesDialog isOpen api={api} report={{id:'vendor',ownerPackage:'alice',title:'Vendor'}} version={{versionNo:3,sourceRevision:4}} structure={{component:{routes:[{mcp:[{kind:'tool',name:'alice.vendor.draft'}]}]}}} onClose={vi.fn()}/>);
+    const editor=await screen.findByRole('textbox',{name:'Skill markup'});
+    await user.clear(editor);await user.type(editor,'---\nname: guide\ndescription: Guide\nallowed-tools: alice.vendor.draft\n---\nUse it.');
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect(screen.getByRole('button',{name:'Create skill'}).disabled).toBe(false);
   });
 
   test('creates a skill document and declaration from one action',async()=>{

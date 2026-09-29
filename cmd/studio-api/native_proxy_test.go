@@ -20,10 +20,11 @@ func (nativeProxyVerifier) VerifyClaims(_ context.Context, token string) (*jwt.C
 }
 
 func TestEveryNativeSDKPathUsesAuthenticatedStaticProxy(t *testing.T) {
-	var observedPath, observedBearer, observedCookie, observedDevelopment string
+	var observedPath, observedBearer, observedCookie, observedDevelopment, observedNamespace string
 	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		observedPath, observedBearer = r.URL.Path, r.Header.Get("Authorization")
 		observedCookie, observedDevelopment = r.Header.Get("Cookie"), r.Header.Get("X-Studio-Development-Subject")
+		observedNamespace = r.Header.Get("X-Studio-Namespace")
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer upstream.Close()
@@ -53,9 +54,10 @@ func TestEveryNativeSDKPathUsesAuthenticatedStaticProxy(t *testing.T) {
 			request.AddCookie(&http.Cookie{Name: bffauth.DefaultCookieName, Value: id})
 			request.Header.Set("Authorization", "Bearer attacker")
 			request.Header.Set("X-Studio-Development-Subject", "attacker")
+			request.Header.Set("X-Studio-Namespace", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 			response := httptest.NewRecorder()
 			mux.ServeHTTP(response, request)
-			if response.Code != http.StatusNoContent || observedPath != path || observedBearer != "Bearer owner" || observedCookie != "" || observedDevelopment != "" {
+			if response.Code != http.StatusNoContent || observedPath != path || observedBearer != "Bearer owner" || observedCookie != "" || observedDevelopment != "" || observedNamespace != request.Header.Get("X-Studio-Namespace") {
 				t.Fatalf("native path=%s status=%d upstream=%s bearer=%q cookie=%q development=%q", path, response.Code, observedPath, observedBearer, observedCookie, observedDevelopment)
 			}
 		})

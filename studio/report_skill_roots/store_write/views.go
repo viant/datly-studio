@@ -3,6 +3,7 @@ package store_write
 // StoredSkill is generated canonical view metadata for skill.
 type StoredSkill struct {
 	ReportId     string          `sqlx:"report_id,primaryKey"`
+	NamespaceId  string          `sqlx:"namespace_id"`
 	VersionNo    int             `sqlx:"version_no,primaryKey"`
 	SkillId      string          `sqlx:"skill_id,primaryKey"`
 	FolderId     string          `sqlx:"folder_id"`
@@ -14,6 +15,7 @@ type StoredSkill struct {
 
 type StoredSkillHas struct {
 	ReportId     bool
+	NamespaceId  bool
 	VersionNo    bool
 	SkillId      bool
 	FolderId     bool
@@ -24,12 +26,13 @@ type StoredSkillHas struct {
 
 // CurrentSkillView is generated canonical view metadata for skill.
 type CurrentSkillView struct {
-	ReportId  string `sqlx:"report_id,primaryKey"`
-	VersionNo int    `sqlx:"version_no,primaryKey"`
-	SkillId   string `sqlx:"skill_id,primaryKey"`
-	FolderId  string `sqlx:"folder_id"`
-	SkillRoot string `sqlx:"skill_root"`
-	Ordinal   int    `sqlx:"ordinal"`
+	ReportId    string `sqlx:"report_id,primaryKey"`
+	NamespaceId string `sqlx:"namespace_id"`
+	VersionNo   int    `sqlx:"version_no,primaryKey"`
+	SkillId     string `sqlx:"skill_id,primaryKey"`
+	FolderId    string `sqlx:"folder_id"`
+	SkillRoot   string `sqlx:"skill_root"`
+	Ordinal     int    `sqlx:"ordinal"`
 }
 
 type SkillKeysRow struct {

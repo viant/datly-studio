@@ -34,6 +34,9 @@ func (hooks *VersionEditRules) Init(_ context.Context, entity *StoredVersion, st
 	if previous == nil || previous.SourceRevision == nil || *previous.SourceRevision != *entity.SourceRevision {
 		return &xhandler.Conflict{Entity: "report_version", Field: "source_revision", Reason: "expected source revision does not match"}
 	}
+	if previous.State != "draft" {
+		return &xhandler.Conflict{Entity: "report_version", Field: "state", Reason: "published version cannot be mutated"}
+	}
 	if entity.CompileStatus != "pending" || string(entity.CompileDiagnosticsJson) != "[]" ||
 		!json.Valid(entity.ComponentSpecJson) || len(entity.SpecHash) != 64 {
 		return fmt.Errorf("version edit requires pending compilation, cleared diagnostics, valid spec and SHA-256 hash")

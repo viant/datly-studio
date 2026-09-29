@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/viant/datly-studio/internal/publisherguard"
+	"github.com/viant/datly-studio/runtime/preview"
 	"github.com/viant/datly-studio/sdk"
 	sqltransport "github.com/viant/datly-studio/sdk/transport/sql"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
@@ -26,11 +27,12 @@ import (
 func init() {}
 
 type Input struct {
-	Jwt       *jwt.Claims              `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim" json:"-"`
-	Auth      *studioauth.Output       `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true" json:"-"`
-	ReportId  string                   `parameter:"ReportId,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
-	VersionNo int                      `parameter:"VersionNo,kind=body,in=versionNo,dataType=int,required=true" json:"versionNo"`
-	Command   sdk.ReaderBuilderCommand `parameter:"Command,kind=body,in=command,dataType=sdk.ReaderBuilderCommand,required=true" json:"command"`
+	NamespaceId *string                  `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
+	Jwt         *jwt.Claims              `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim" json:"-"`
+	Auth        *studioauth.Output       `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true" json:"-"`
+	ReportId    string                   `parameter:"ReportId,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
+	VersionNo   int                      `parameter:"VersionNo,kind=body,in=versionNo,dataType=int,required=true" json:"versionNo"`
+	Command     sdk.ReaderBuilderCommand `parameter:"Command,kind=body,in=command,dataType=sdk.ReaderBuilderCommand,required=true" json:"command"`
 }
 
 type Output struct {
@@ -102,7 +104,7 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	if err != nil || db == nil {
 		return fmt.Errorf("configured Studio database is unavailable")
 	}
-	engine := &sqltransport.Transport{DB: db, ComponentInvoker: invoker}
+	engine := &sqltransport.Transport{DB: db, ComponentInvoker: invoker, ContractInspector: preview.Dynamic{StudioDB: db, ModulePath: "github.com/viant/datly-studio"}}
 	request := struct {
 		ReportID  string                   `json:"reportId"`
 		VersionNo int                      `json:"versionNo"`

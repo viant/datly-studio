@@ -15,11 +15,11 @@ import (
 	"sync"
 	"time"
 
+	access "github.com/viant/authz"
 	"github.com/viant/datly-studio/internal/connectorinit"
 	"github.com/viant/datly-studio/internal/connectorsecret"
 	"github.com/viant/datly-studio/runtime/accesscontext"
 	studiors "github.com/viant/datly-studio/runtime/resources"
-	"github.com/viant/datly-studio/sdk/access"
 	studiohost "github.com/viant/datly-studio/studio/host"
 	"github.com/viant/datly/application"
 	"github.com/viant/datly/authoring/readerbuilder"
@@ -249,6 +249,9 @@ func (s *Service) compile(ctx context.Context, seed *typecatalog.Catalog, candid
 	}
 	registrations = append(registrations, accessContexts...)
 	authorizeTarget := func(ctx context.Context, target dexec.ComponentTarget) error {
+		if err := s.authorizeNamespace(ctx); err != nil {
+			return err
+		}
 		reportID := reportByComponent[target.Component]
 		if reportID == "" {
 			return &xresponse.Error{Code: http.StatusForbidden, Cause: errors.New("published component authorization is unavailable")}
@@ -258,17 +261,7 @@ func (s *Service) compile(ctx context.Context, seed *typecatalog.Catalog, candid
 		}
 		return s.authorizeRun(ctx, reportID)
 	}
-	authorizeResource := func(ctx context.Context, uri string) error {
-		if s.config.Access != nil {
-			return s.authorizeBoundResource(ctx, uri)
-		}
-		reportID := reportForResourceURI(loadedResources.ResourceReports, uri)
-		if reportID == "" {
-			// Component-backed resources are authorized by AuthorizeTool when invoked.
-			return nil
-		}
-		return s.authorizeRun(ctx, reportID)
-	}
+	authorizeCatalogTool, authorizeCatalogResource, authorizeResource := s.catalogAuthorizers(reportByComponent, versionByReport, loadedResources.ResourceReports)
 	httpConfig := gateway.Config{Warmup: &gateway.WarmupConfig{Timeout: 30 * time.Second, Authorize: func(context.Context, *http.Request, dexec.ComponentTarget) error {
 		return errors.New("dynamic warmup administration is available through the Studio SDK")
 	}, Completed: func(gateway.WarmupResult, error) {}}, Authorize: func(ctx context.Context, _ *http.Request, target dexec.ComponentTarget) error {
@@ -280,6 +273,7 @@ func (s *Service) compile(ctx context.Context, seed *typecatalog.Catalog, candid
 		Resources:  resources,
 		HTTP:       httpConfig,
 		MCP: mcp.Config{Folders: loadedResources.Folders, AuthorizeTool: authorizeTarget, AuthorizeResource: authorizeResource,
+			AuthorizeCatalogTool: authorizeCatalogTool, AuthorizeCatalogResource: authorizeCatalogResource,
 			ToolMetadata: func(_ context.Context, target dexec.ComponentTarget) (map[string]interface{}, error) {
 				reportID := reportByComponent[target.Component]
 				version := versionByReport[reportID]
@@ -505,7 +499,7 @@ func openRuntimeSources(ctx context.Context, definition definition, active map[s
 }
 
 func (s *Service) definitions(ctx context.Context, candidate *int64) ([]definition, error) {
-	return s.definitionStore.Definitions(ctx, candidate)
+	return s.definitionStore.Definitions(ctx, candidate, s.config.NamespaceID)
 }
 
 func mergeTypes(target, source *typecatalog.Catalog) error {

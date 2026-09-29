@@ -6,6 +6,7 @@ import (
 
 // StoredGeneration is generated canonical view metadata for generation.
 type StoredGeneration struct {
+	NamespaceId     string               `sqlx:"namespace_id"`
 	GenerationNo    int64                `sqlx:"generation_no,primaryKey"`
 	Status          string               `writer:"concurrency" sqlx:"status"`
 	ReportCount     *int                 `sqlx:"report_count"`
@@ -16,6 +17,7 @@ type StoredGeneration struct {
 }
 
 type StoredGenerationHas struct {
+	NamespaceId     bool
 	GenerationNo    bool
 	Status          bool
 	ReportCount     bool
@@ -26,6 +28,7 @@ type StoredGenerationHas struct {
 
 // CurrentGenerationView is generated canonical view metadata for generation.
 type CurrentGenerationView struct {
+	NamespaceId     string     `sqlx:"namespace_id"`
 	GenerationNo    int64      `sqlx:"generation_no,primaryKey"`
 	Status          string     `sqlx:"status"`
 	ReportCount     *int       `sqlx:"report_count"`

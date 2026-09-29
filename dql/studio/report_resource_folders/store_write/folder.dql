@@ -12,6 +12,7 @@
 
 SELECT folder.*, type(folder, 'StoredFolder'),
        CAST(folder.report_id AS string),
+       CAST(folder.namespace_id AS string),
        CAST(folder.version_no AS int),
        CAST(folder.folder_id AS string),
        CAST(folder.namespace AS string),

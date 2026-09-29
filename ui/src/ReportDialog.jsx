@@ -3,7 +3,7 @@ import { Button, Callout, Dialog, DialogBody, DialogFooter, FormGroup, HTMLSelec
 
 const emptyDraft = () => ({ title: '', namespace: '', slug: '', description: '', defaultConnectorName: '' });
 
-export function ReportDialog({ api, isOpen, onClose, onCreated }) {
+export function ReportDialog({ api, isOpen, onClose, onCreated, currentNamespace }) {
   const [draft, setDraft] = useState(emptyDraft);
   const [connectors, setConnectors] = useState([]);
   const [namespaces, setNamespaces] = useState([]);
@@ -19,13 +19,13 @@ export function ReportDialog({ api, isOpen, onClose, onCreated }) {
     Promise.all([api.listConnectors({ status: 'active', limit: 100 }), api.listNamespaces({ status: 'active', limit: 100 })]).then(([connectorPage, namespacePage]) => {
       if (cancelled) return;
       setConnectors(connectorPage?.items ?? []);
-      const namespaceItems = namespacePage?.items ?? [];
+      const namespaceItems = currentNamespace ? [currentNamespace] : namespacePage?.items ?? [];
       setNamespaces(namespaceItems);
       setDraft((current) => ({ ...current, namespace: namespaceItems.find((item) => item.name === 'general')?.name ?? namespaceItems[0]?.name ?? '' }));
     }).catch((cause) => !cancelled && setError(cause.message))
       .finally(() => !cancelled && setLoadingConnectors(false));
     return () => { cancelled = true; };
-  }, [api, isOpen]);
+  }, [api, isOpen, currentNamespace]);
 
   const onTitleChange = (event) => {
     const title = event.target.value;
@@ -55,7 +55,7 @@ export function ReportDialog({ api, isOpen, onClose, onCreated }) {
           <InputGroup id="report-title" value={draft.title} onChange={onTitleChange} placeholder="Vendor Catalog" autoFocus disabled={saving} />
         </FormGroup>
         <FormGroup label="Namespace" labelFor="report-namespace" helperText="Governed catalog identity. Create namespaces from the Namespaces workspace." required>
-          <HTMLSelect id="report-namespace" value={draft.namespace} onChange={(event) => setDraft((current) => ({ ...current, namespace: event.target.value }))} fill disabled={saving || namespaces.length === 0}>
+          <HTMLSelect id="report-namespace" value={draft.namespace} onChange={(event) => setDraft((current) => ({ ...current, namespace: event.target.value }))} fill disabled={saving || Boolean(currentNamespace) || namespaces.length === 0}>
             <option value="">Select a namespace</option>
             {namespaces.map((item) => <option value={item.name} key={`${item.ownerId}:${item.name}`}>{item.title} · {item.name}</option>)}
           </HTMLSelect>

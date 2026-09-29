@@ -7,6 +7,7 @@ import (
 // StoredReport is generated canonical view metadata for report.
 type StoredReport struct {
 	Id                   string           `sqlx:"id,primaryKey"`
+	NamespaceId          string           `sqlx:"namespace_id"`
 	Namespace            string           `sqlx:"namespace"`
 	Slug                 string           `sqlx:"slug"`
 	Title                string           `sqlx:"title"`
@@ -24,6 +25,7 @@ type StoredReport struct {
 
 type StoredReportHas struct {
 	Id                   bool
+	NamespaceId          bool
 	Namespace            bool
 	Slug                 bool
 	Title                bool

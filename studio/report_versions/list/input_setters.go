@@ -71,3 +71,14 @@ func (input *VersionListInput) SetOffset(value int) {
 	}
 	input.Has.Offset = true
 }
+
+func (input *VersionListInput) SetNamespaceId(value *string) {
+	if input == nil {
+		return
+	}
+	input.NamespaceId = value
+	if input.Has == nil {
+		input.Has = &VersionListInputHas{}
+	}
+	input.Has.NamespaceId = true
+}

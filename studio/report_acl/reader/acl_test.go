@@ -110,8 +110,9 @@ func TestACLListSDKDatlyRouteAndMCPContract(t *testing.T) {
 		t.Fatal("SDK ACL MCP tool is missing")
 	}
 	plan, _ := service.Catalog().Tool("studio.sdk.acl.list")
-	if arguments := plan.Arguments(); len(arguments) != 3 || arguments[0].PublicName() != "reportId" ||
-		arguments[0].SourceName() != "reportId" || arguments[0].SourceKind() != "body" {
+	if arguments := plan.Arguments(); len(arguments) != 4 || arguments[0].PublicName() != "namespaceId" ||
+		arguments[0].SourceName() != "X-Studio-Namespace" || arguments[0].SourceKind() != "header" ||
+		arguments[1].PublicName() != "reportId" || arguments[1].SourceName() != "reportId" || arguments[1].SourceKind() != "body" {
 		t.Fatalf("MCP ACL input contract=%+v", arguments)
 	}
 	callTool := func(subject string) (*schema.CallToolResult, string) {

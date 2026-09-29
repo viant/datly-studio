@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,10 +13,26 @@ import (
 	"time"
 
 	"github.com/viant/datly-studio/internal/connectorsecret"
+	"github.com/viant/datly-studio/runtime/accesscontext"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
+	access "github.com/viant/authz"
+	"github.com/viant/datly/spec"
+	"github.com/viant/datly/typecatalog"
 	_ "modernc.org/sqlite"
 )
+
+func TestPreviewRejectsServerScopedReaderWithoutRuntimeContext(t *testing.T) {
+	component := &spec.Component{Parameters: []*spec.Parameter{{Name: "Auth", Source: spec.BindSource{Kind: string(spec.KindComponent), Name: "GET:/_studio/access/context/forecasting/publisher"}}}}
+	err := rejectUnboundAccessContext(component)
+	var denied *sdk.Error
+	if !errors.As(err, &denied) || denied.Code != sdk.ErrorForbidden {
+		t.Fatalf("server-scoped preview error=%v", err)
+	}
+	if err := rejectUnboundAccessContext(&spec.Component{}); err != nil {
+		t.Fatalf("ordinary reader preview was denied: %v", err)
+	}
+}
 
 func TestDynamicExecutesVersionedReaderWithRuntimeContracts(t *testing.T) {
 	ctx := context.Background()
@@ -126,16 +143,73 @@ JOIN (SELECT ID, VENDOR_ID, STATUS FROM PRODUCT) products ON products.VENDOR_ID=
 	if _, err = studio.ExecContext(ctx, `INSERT INTO components(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES ('summary','summary','Summary','owner','draft','vendor','example.com/app/dynamic/summary','reader',1,?,?)`, now, now); err != nil {
 		t.Fatal(err)
 	}
+	scopedDQL := `#package('example.com/app/dynamic/summary/reader')
+#import('studioaccess','github.com/viant/datly-studio/runtime/accesscontext')
+#setting($_ = $connector('vendor'))
+#setting($_ = $route('/scoped-vendors','GET'))
+#define($_ = $Auth<*studioaccess.Output>(component/GET:/_studio/access/context/summary/publisher).Required())
+#define($_ = $AllowedIDs<[]string,[]int>(param/Auth.Scope.IDs).WithCodec('EntityIDs').Required().WithPredicate(0,'in','v','ID'))
+#define($_ = $Name<string>(query/name).Required().WithPredicate(0,'expr','v.NAME = ?'))
+#define($_ = $Rows<[]*ScopedVendor>(output/view))
+SELECT vendors.*,type(vendors,'ScopedVendor')
+FROM (SELECT ID,NAME FROM VENDOR v ${predicate.Builder().CombineAnd($predicate.FilterGroup(0,"AND")).Build("WHERE")}) vendors`
+	if _, err = studio.ExecContext(ctx, `INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES ('summary',2,'draft','dql',?,?,'{}','studio.v1','scoped-hash','{}','pending','v1','studio.v1',1,'owner',?)`, scopedDQL, scopedDQL, now); err != nil {
+		t.Fatal(err)
+	}
+	types := typecatalog.NewCatalog()
+	if err = accesscontext.RegisterTypes(types); err != nil {
+		t.Fatal(err)
+	}
+	facts := access.Facts{Subject: "alice", Tenant: "tenant", Issuer: "trusted", Roles: []string{"reader"}, Entities: []access.Entity{{Type: "publisher", ID: "1"}}, ValidUntil: time.Now().Add(time.Minute)}
+	scoped := Dynamic{StudioDB: studio, RootDir: root, Types: types, AccessTenant: "tenant", Access: &access.Service{Store: previewPolicyStore{access.Resource{Kind: "component", ID: "summary", Version: "2", Tenant: "tenant"}}, Provider: previewFacts{facts}}}
+	caller := sdk.WithVerifiedCredential(sdk.WithPrincipal(ctx, sdk.Principal{Subject: "alice"}), sdk.VerifiedCredential{Bearer: "verified-by-host", Claims: struct{}{}})
+	scopedResult, err := scoped.Execute(caller, "summary", 2, sdk.PreviewInput{Input: json.RawMessage(`{"Name":"Northwind"}`)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(scopedResult.Data), "Northwind") || strings.Contains(string(scopedResult.Data), "Contoso") || scopedResult.Evidence.ReturnedRows != 1 {
+		t.Fatalf("scoped preview=%s evidence=%+v", scopedResult.Data, scopedResult.Evidence)
+	}
+	if _, err = scoped.Execute(caller, "summary", 2, sdk.PreviewInput{Input: json.RawMessage(`{"AllowedIDs":[2],"Auth":{"Scope":{"IDs":["2"]}}}`)}); err == nil {
+		t.Fatal("client scope override accepted")
+	}
 	composeDQL := `#package('example.com/app/dynamic/summary/reader')
 #setting($_ = $connector('vendor'))
 #setting($_ = $route('/summary','GET'))
 #setting($_ = $cube())
 #setting($_ = $cubeCompose(true, false, 4, 20, 5000))
 #define($_ = $Rows<[]*Summary>(output/view))
-SELECT summary.*, groupable(summary), tag(summary.status, 'groupable:"true"'), CAST(summary.product_count AS float64), type(summary, 'Summary')
+SELECT summary.*, groupable(summary), tag(summary.status, 'groupable:"true"'), tag(summary.product_count, 'groupable:"false"'), CAST(summary.product_count AS float64), type(summary, 'Summary')
 FROM (SELECT STATUS AS status, COUNT(*) AS product_count FROM PRODUCT GROUP BY STATUS) summary`
 	if _, err = studio.ExecContext(ctx, `INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES ('summary',1,'draft','dql',?,?, '{}','studio.v1','hash','{}','pending','v1','studio.v1',1,'owner',?)`, composeDQL, composeDQL, now); err != nil {
 		t.Fatal(err)
+	}
+	cube, err := (Dynamic{StudioDB: studio, RootDir: root}).Execute(ctx, "summary", 1, sdk.PreviewInput{Cube: true, Input: json.RawMessage(`{"dimensions":{"status":true},"measures":{"product_count":true},"filters":{}}`), Limit: 1})
+	if err != nil {
+		if os.Getenv("EXPECT_NATIVE_CUBE") == "1" {
+			t.Fatalf("native cube must execute: %v", err)
+		}
+		var capability *sdk.Error
+		if !errors.As(err, &capability) || capability.Code != sdk.ErrorUnavailable || !strings.Contains(capability.Message, "authored measure role") {
+			t.Fatal(err)
+		}
+	} else {
+		if !strings.Contains(string(cube.Data), "ProductCount") || cube.Evidence.ReturnedRows != 1 || cube.Evidence.SourceRevision != 1 {
+			t.Fatalf("cube=%+v", cube)
+		}
+		aggregate, err := (Dynamic{StudioDB: studio, RootDir: root}).Execute(ctx, "summary", 1, sdk.PreviewInput{Cube: true, Input: json.RawMessage(`{"dimensions":{"status":false},"measures":{"product_count":true},"filters":{}}`)})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if (strings.Contains(string(aggregate.Data), `"status"`) || strings.Contains(string(aggregate.Data), `"Status"`)) || !strings.Contains(string(aggregate.Data), "ProductCount") {
+			t.Fatalf("aggregate cube=%s", aggregate.Data)
+		}
+		var grouped struct {
+			Rows []struct{ ProductCount float64 }
+		}
+		if err = json.Unmarshal(aggregate.Data, &grouped); err != nil || len(grouped.Rows) != 1 || grouped.Rows[0].ProductCount != 3 {
+			t.Fatalf("aggregate value=%s err=%v", aggregate.Data, err)
+		}
 	}
 	compose, err := (Dynamic{StudioDB: studio, RootDir: root}).TestCompose(ctx, "summary", 1, sdk.CubeComposeTestInput{
 		Cubes: []json.RawMessage{json.RawMessage(`{"dimensions":{"status":true},"measures":{"productCount":true},"filters":{}}`)},

@@ -7,6 +7,7 @@ import (
 
 // StoredWarmupRun is generated canonical view metadata for warmup_run.
 type StoredWarmupRun struct {
+	NamespaceId     string              `sqlx:"namespace_id"`
 	RunId           string              `sqlx:"run_id,primaryKey"`
 	ReportId        string              `sqlx:"report_id"`
 	VersionNo       int                 `sqlx:"version_no"`
@@ -39,6 +40,7 @@ type StoredWarmupRun struct {
 }
 
 type StoredWarmupRunHas struct {
+	NamespaceId     bool
 	RunId           bool
 	ReportId        bool
 	VersionNo       bool
@@ -71,6 +73,7 @@ type StoredWarmupRunHas struct {
 
 // CurrentWarmupRunView is generated canonical view metadata for warmup_run.
 type CurrentWarmupRunView struct {
+	NamespaceId     string           `sqlx:"namespace_id"`
 	RunId           string           `sqlx:"run_id,primaryKey"`
 	ReportId        string           `sqlx:"report_id"`
 	VersionNo       int              `sqlx:"version_no"`

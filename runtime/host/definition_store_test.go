@@ -27,6 +27,10 @@ func TestMapPublishedDefinitionUsesGeneratedDQLThenAuthoredFallback(t *testing.T
 
 func TestMapPublishedDefinitionFailsClosed(t *testing.T) {
 	dsn := "file:studio.db"
+	secretBacked, err := mapPublishedDefinition("report", 1, "scope", "name", "studio", "sqlite", nil, "file:///tmp/fixture-dsn", "SELECT 1", "")
+	if err != nil || secretBacked.dsn != "" || secretBacked.secretRef != "file:///tmp/fixture-dsn" {
+		t.Fatalf("secret-backed definition=%+v err=%v", secretBacked, err)
+	}
 	if _, err := mapPublishedDefinition("report", 1, "scope", "name", "studio", "sqlite", &dsn, "", " ", ""); err == nil || !strings.Contains(err.Error(), "no DQL") {
 		t.Fatalf("missing DQL: %v", err)
 	}

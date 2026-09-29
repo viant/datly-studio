@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	xhandler "github.com/viant/xdatly/handler"
 	"io/fs"
 	reflect "reflect"
@@ -29,6 +30,16 @@ func (hooks *FileStoreRules) Init(_ context.Context, entity *StoredFile, state x
 		!entity.Has.ReportId || !entity.Has.VersionNo || !entity.Has.ResourceId ||
 		!entity.Has.ShouldDelete {
 		return fmt.Errorf("resource file mutation requires complete identity and an explicit delete marker")
+	}
+	if !entity.Has.NamespaceId {
+		return fmt.Errorf("resource namespace ownership is required")
+	}
+	previousNamespace := ""
+	if state.Previous != nil {
+		previousNamespace = state.Previous.NamespaceId
+	}
+	if err := namespaceaccess.ValidateResourceOwnership(entity.NamespaceId, previousNamespace); err != nil {
+		return err
 	}
 	if entity.ShouldDelete {
 		if state.Previous == nil {

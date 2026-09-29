@@ -8,6 +8,7 @@ import (
 // StoredVersion is generated canonical view metadata for version.
 type StoredVersion struct {
 	ReportId          string            `sqlx:"report_id,primaryKey"`
+	NamespaceId       string            `sqlx:"namespace_id"`
 	VersionNo         int               `sqlx:"version_no,primaryKey"`
 	State             string            `sqlx:"state"`
 	AuthoringMode     string            `sqlx:"authoring_mode"`
@@ -30,6 +31,7 @@ type StoredVersion struct {
 
 type StoredVersionHas struct {
 	ReportId          bool
+	NamespaceId       bool
 	VersionNo         bool
 	State             bool
 	AuthoringMode     bool

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"reflect"
 
 	"github.com/viant/datly-studio/sdk"
@@ -98,12 +99,17 @@ func (t *Transport) resourceReportCatalog(ctx context.Context, tx *sql.Tx, reque
 		if row == nil || row.Id != request.ID || row.OwnerId == "" {
 			return nil, fmt.Errorf("report catalog returned a mismatched row")
 		}
-		reports = append(reports, &sdk.Component{ID: row.Id, OwnerID: row.OwnerId})
+		reports = append(reports, &sdk.Component{ID: row.Id, OwnerID: row.OwnerId, Namespace: row.Namespace})
 	}
 	return reports, nil
 }
 
 func (t *Transport) resourceWriteFile(ctx context.Context, tx *sql.Tx, row *filewrite.StoredFile) error {
+	id, err := t.resourceWorkspaceID(ctx, tx, row.ReportId)
+	if err != nil {
+		return err
+	}
+	row.SetNamespaceId(id)
 	if t.ComponentInvoker == nil {
 		return resourcestore.WriteFile(ctx, t.DB, tx, row)
 	}
@@ -121,6 +127,11 @@ func (t *Transport) resourceWriteFile(ctx context.Context, tx *sql.Tx, row *file
 }
 
 func (t *Transport) resourceWriteFolder(ctx context.Context, tx *sql.Tx, row *folderwrite.StoredFolder) error {
+	id, err := t.resourceWorkspaceID(ctx, tx, row.ReportId)
+	if err != nil {
+		return err
+	}
+	row.SetNamespaceId(id)
 	if t.ComponentInvoker == nil {
 		return resourcestore.WriteFolder(ctx, t.DB, tx, row)
 	}
@@ -138,6 +149,11 @@ func (t *Transport) resourceWriteFolder(ctx context.Context, tx *sql.Tx, row *fo
 }
 
 func (t *Transport) resourceWriteSkill(ctx context.Context, tx *sql.Tx, row *skillwrite.StoredSkill) error {
+	id, err := t.resourceWorkspaceID(ctx, tx, row.ReportId)
+	if err != nil {
+		return err
+	}
+	row.SetNamespaceId(id)
 	if t.ComponentInvoker == nil {
 		return resourcestore.WriteSkill(ctx, t.DB, tx, row)
 	}
@@ -152,6 +168,21 @@ func (t *Transport) resourceWriteSkill(ctx context.Context, tx *sql.Tx, row *ski
 		return fmt.Errorf("skill writer returned %T", value)
 	}
 	return nil
+}
+
+func (t *Transport) resourceWorkspaceID(ctx context.Context, tx *sql.Tx, reportID string) (string, error) {
+	rows, err := t.resourceReportCatalog(ctx, tx, reportCatalogRequest{ID: reportID, Limit: 2, Unscoped: true})
+	if err != nil {
+		return "", err
+	}
+	if len(rows) != 1 || rows[0] == nil || rows[0].OwnerID == "" || rows[0].Namespace == "" {
+		return "", fmt.Errorf("resource component namespace is unavailable")
+	}
+	id := namespaceaccess.ID(rows[0].OwnerID, rows[0].Namespace)
+	if selected, present := sdk.NamespaceSelectionFromContext(ctx); present && selected != id {
+		return "", &sdk.Error{Code: sdk.ErrorForbidden, Message: "Resource is outside the selected namespace"}
+	}
+	return id, nil
 }
 
 func (t *Transport) resourceWriteNamespaceClaim(ctx context.Context, tx *sql.Tx, operation string, row *claimwrite.StoredClaim) error {

@@ -4,10 +4,14 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	jwtv5 "github.com/golang-jwt/jwt/v5"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
+	"time"
 
 	requestprovider "github.com/viant/bindly/provider/request"
 	"github.com/viant/bindly/resource"
@@ -31,6 +35,25 @@ func TestNamespaceReaderUsesVerifiedTypedScope(t *testing.T) {
 	ctx := context.Background()
 	db := datatest.OpenSQLite(t, "namespace_read", "studio")
 	jwt := datatest.NewJWTFixture(t)
+	keyPath := filepath.Join(t.TempDir(), "namespace-public.pem")
+	if err := os.WriteFile(keyPath, jwt.PublicKeyPEM(t), 0600); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("STUDIO_ACCESS_ISSUER", "https://namespace.test")
+	t.Setenv("STUDIO_ACCESS_AUDIENCE", "studio")
+	t.Setenv("STUDIO_ACCESS_PUBLIC_KEY_FILE", keyPath)
+	t.Setenv("STUDIO_ACCESS_USER_INFO_URL", "")
+	bearer := func(subject string) string {
+		roles := []string{}
+		if subject == "analyst" {
+			roles = []string{"forecast_reader"}
+		}
+		if subject == "wrong-case" {
+			roles = []string{"FORECAST_READER"}
+		}
+		return jwt.BearerWithClaims(t, jwtv5.MapClaims{"sub": subject, "iss": "https://namespace.test", "aud": "studio", "tenant": "test", "exp": time.Now().Add(time.Hour).Unix(), "roles": roles})
+	}
+
 	if err := datatest.Hydrate(ctx, db,
 		datatest.Table{Name: "connectors", Rows: []datatest.Row{{
 			"name": "main", "driver": "sqlite", "owner_id": "bob", "status": "active", "etag": 1,
@@ -38,7 +61,8 @@ func TestNamespaceReaderUsesVerifiedTypedScope(t *testing.T) {
 		}}},
 		datatest.Table{Name: "namespaces", Rows: []datatest.Row{
 			{"owner_id": "alice", "name": "general", "title": "General", "status": "active", "etag": 1, "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"},
-			{"owner_id": "bob", "name": "finance", "title": "Finance", "status": "active", "etag": 1, "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"},
+			{"visibility": "public", "owner_id": "bob", "name": "finance", "title": "Finance", "status": "active", "etag": 1, "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"},
+			{"owner_id": "bob", "name": "restricted", "title": "Restricted", "visibility": "private", "allowed_roles_json": "[\"forecast_reader\"]", "status": "active", "etag": 1, "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"},
 		}},
 		datatest.Table{Name: "components", Rows: []datatest.Row{{
 			"id": "r1", "slug": "finance", "title": "Finance", "owner_id": "bob", "namespace": "finance",
@@ -77,7 +101,11 @@ func TestNamespaceReaderUsesVerifiedTypedScope(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	execution, err := artifact.ReaderCompilation().NewExecution(bootstrap.ReaderRuntimeConfig{SQL: &dsql.SQLComponent{DB: db}})
+	connector := &dsql.SQLComponent{DB: db}
+	if err = connector.RegisterConnector("studio", db); err != nil {
+		t.Fatal(err)
+	}
+	execution, err := artifact.ReaderCompilation().NewExecution(bootstrap.ReaderRuntimeConfig{SQL: connector})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,6 +113,7 @@ func TestNamespaceReaderUsesVerifiedTypedScope(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	entry.Capabilities.Connector = connector
 	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{authEntry, entry}, druntime.WithResources(resources))
 	if err != nil {
 		t.Fatal(err)
@@ -105,7 +134,7 @@ func TestNamespaceReaderUsesVerifiedTypedScope(t *testing.T) {
 		request := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/namespaces.list", bytes.NewReader(payload))
 		request.Header.Set("Content-Type", "application/json")
 		if subject != "" {
-			request.Header.Set("Authorization", jwt.Bearer(t, subject))
+			request.Header.Set("Authorization", bearer(subject))
 		}
 		scope, scopeErr := requestprovider.New(request)
 		if scopeErr != nil {
@@ -134,8 +163,8 @@ func TestNamespaceReaderUsesVerifiedTypedScope(t *testing.T) {
 		subject string
 		input   map[string]any
 		want    []string
-	}{{"alice", map[string]any{}, []string{"general"}}, {"bob", map[string]any{}, []string{"finance"}},
-		{"viewer", map[string]any{}, []string{"finance"}}, {"viewer", map[string]any{"query": "FINANCE"}, []string{"finance"}},
+	}{{"alice", map[string]any{}, []string{"finance", "general"}}, {"bob", map[string]any{}, []string{"finance", "restricted"}},
+		{"analyst", map[string]any{}, []string{"finance", "restricted"}}, {"wrong-case", map[string]any{}, []string{"finance"}}, {"viewer", map[string]any{}, []string{"finance"}}, {"viewer", map[string]any{"roles": []string{"forecast_reader"}, "subject": "bob"}, []string{"finance"}}, {"viewer", map[string]any{"query": "FINANCE"}, []string{"finance"}},
 		{"viewer", map[string]any{"status": "active"}, []string{"finance"}}, {"viewer", map[string]any{"status": ""}, []string{"finance"}}} {
 		output, readErr := read(check.subject, check.input)
 		if readErr != nil || !reflect.DeepEqual(names(output), check.want) {
@@ -158,7 +187,7 @@ func TestNamespaceReaderUsesVerifiedTypedScope(t *testing.T) {
 	handler := gateway.NewHandler(runtime, nil, "test")
 	request := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/namespaces.list", bytes.NewBufferString(`{"limit":1}`))
 	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("Authorization", jwt.Bearer(t, "viewer"))
+	request.Header.Set("Authorization", bearer("viewer"))
 	httpResponse := httptest.NewRecorder()
 	handler.ServeHTTP(httpResponse, request)
 	if httpResponse.Code != http.StatusOK {
@@ -189,7 +218,7 @@ func TestNamespaceReaderUsesVerifiedTypedScope(t *testing.T) {
 	if !ok {
 		t.Fatal("namespace MCP tool is missing")
 	}
-	callContext := context.WithValue(ctx, authorization.TokenKey, &authorization.Token{Token: jwt.Bearer(t, "viewer")})
+	callContext := context.WithValue(ctx, authorization.TokenKey, &authorization.Token{Token: bearer("viewer")})
 	result, rpcErr := tool.Handler(callContext, &schema.CallToolRequest{Method: schema.MethodToolsCall,
 		Params: schema.CallToolRequestParams{Name: "studio.sdk.namespaces.list", Arguments: map[string]any{"limit": 1}}})
 	if rpcErr != nil || result == nil || result.IsError != nil && *result.IsError {
@@ -211,21 +240,57 @@ func TestNamespaceReaderUsesVerifiedTypedScope(t *testing.T) {
 	if !ok || mcpNamespace["name"] != "finance" || mcpNamespace["ownerId"] != "bob" {
 		t.Fatalf("MCP namespace=%s", structured)
 	}
-	if _, err = db.ExecContext(ctx, "UPDATE components SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?", "r1"); err != nil {
+	roleRequest := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/namespaces.list", bytes.NewBufferString(`{"query":"restricted"}`))
+	roleRequest.Header.Set("Content-Type", "application/json")
+	roleRequest.Header.Set("Authorization", bearer("analyst"))
+	roleResponse := httptest.NewRecorder()
+	handler.ServeHTTP(roleResponse, roleRequest)
+	if roleResponse.Code != http.StatusOK {
+		t.Fatalf("role HTTP response: %d %s", roleResponse.Code, roleResponse.Body.String())
+	}
+	var rolePage struct {
+		Items []struct {
+			Name string `json:"name"`
+		} `json:"items"`
+	}
+	if err = json.Unmarshal(roleResponse.Body.Bytes(), &rolePage); err != nil || len(rolePage.Items) != 1 || rolePage.Items[0].Name != "restricted" {
+		t.Fatalf("role HTTP page: %s err=%v", roleResponse.Body.String(), err)
+	}
+	roleMCPContext := context.WithValue(ctx, authorization.TokenKey, &authorization.Token{Token: bearer("analyst")})
+	roleResult, roleErr := tool.Handler(roleMCPContext, &schema.CallToolRequest{Method: schema.MethodToolsCall, Params: schema.CallToolRequestParams{Name: "studio.sdk.namespaces.list", Arguments: map[string]any{"query": "restricted"}}})
+	if roleErr != nil || roleResult == nil || roleResult.IsError != nil && *roleResult.IsError {
+		t.Fatalf("role MCP result: %+v err=%v", roleResult, roleErr)
+	}
+	roleWire, err := json.Marshal(roleResult.StructuredContent)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = json.Unmarshal(roleWire, &rolePage); err != nil || len(rolePage.Items) != 1 || rolePage.Items[0].Name != "restricted" {
+		t.Fatalf("role MCP page: %s err=%v", roleWire, err)
+	}
+	if _, err = db.ExecContext(ctx, `UPDATE namespaces SET allowed_roles_json='[]' WHERE owner_id='bob' AND name='restricted'`); err != nil {
+		t.Fatal(err)
+	}
+	roleRevoked, err := read("analyst", map[string]any{})
+	if err != nil || !reflect.DeepEqual(names(roleRevoked), []string{"finance"}) {
+		t.Fatalf("revoked namespace role: %v err=%v", names(roleRevoked), err)
+	}
+
+	if _, err = db.ExecContext(ctx, "UPDATE namespaces SET visibility = 'private' WHERE owner_id = ? AND name = ?", "bob", "finance"); err != nil {
 		t.Fatal(err)
 	}
 	deleted, err := read("viewer", map[string]any{})
 	if err != nil || len(names(deleted)) != 0 {
-		t.Fatalf("soft-deleted report namespace=%v err=%v", names(deleted), err)
+		t.Fatalf("private namespace bypassed via component ACL: namespaces=%v err=%v", names(deleted), err)
 	}
-	if _, err = db.ExecContext(ctx, "UPDATE components SET deleted_at = NULL WHERE id = ?", "r1"); err != nil {
+	if _, err = db.ExecContext(ctx, "UPDATE namespaces SET visibility = 'public' WHERE owner_id = ? AND name = ?", "bob", "finance"); err != nil {
 		t.Fatal(err)
 	}
 	if _, err = db.ExecContext(ctx, "DELETE FROM report_acl WHERE report_id = ? AND subject_id = ?", "r1", "viewer"); err != nil {
 		t.Fatal(err)
 	}
 	revoked, err := read("viewer", map[string]any{})
-	if err != nil || len(names(revoked)) != 0 {
-		t.Fatalf("revoked viewer namespace=%v err=%v", names(revoked), err)
+	if err != nil || !reflect.DeepEqual(names(revoked), []string{"finance"}) {
+		t.Fatalf("public namespace depended on component ACL: namespaces=%v err=%v", names(revoked), err)
 	}
 }

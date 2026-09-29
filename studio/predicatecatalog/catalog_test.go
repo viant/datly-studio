@@ -10,9 +10,35 @@ import (
 )
 
 type testPredicate struct{}
+type queryPredicate struct{}
 
 func (*testPredicate) Compute(context.Context, any) (*predicate.Criteria, error) {
 	return &predicate.Criteria{Expression: "tenant_id = ?", Placeholders: []any{42}}, nil
+}
+
+func (*queryPredicate) Compute(context.Context, any) (*predicate.Criteria, error) {
+	return &predicate.Criteria{Expression: "status = ?", Placeholders: []any{"active"}}, nil
+}
+
+func TestAuthorizationCatalogCanExcludeQueryHandlersWithoutUnlinkingThem(t *testing.T) {
+	const packagePath = "example.com/forecast/predicate"
+	catalog, err := New(Package{Path: packagePath, Types: []reflect.Type{reflect.TypeFor[testPredicate](), reflect.TypeFor[queryPredicate]()}, AuthorizationTypes: []string{"testPredicate"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !catalog.Contains(packagePath, "testPredicate") || catalog.Contains(packagePath, "queryPredicate") {
+		t.Fatalf("security descriptors=%+v", catalog.Descriptors())
+	}
+	types, err := catalog.RuntimeTypes()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, found, err := types.ResolveRuntimeType(typecatalog.PackageAuthority, packagePath+".queryPredicate"); err != nil || !found {
+		t.Fatalf("query handler was not linked: found=%v err=%v", found, err)
+	}
+	if _, err := New(Package{Path: packagePath, Types: []reflect.Type{reflect.TypeFor[testPredicate]()}, AuthorizationTypes: []string{"missing"}}); err == nil {
+		t.Fatal("unlinked authorization type was accepted")
+	}
 }
 
 func TestRuntimeCatalogRetainsExecutableCompute(t *testing.T) {

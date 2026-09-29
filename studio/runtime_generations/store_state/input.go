@@ -2,6 +2,7 @@ package store_state
 
 // Input is the generated input scaffold for generation.
 type Input struct {
+	NamespaceId                   string                        `parameter:"NamespaceId,kind=query,in=namespaceId,dataType=string,required=false"`
 	Operation                     string                        `parameter:"Operation,kind=query,in=operation,dataType=string,required=true"`
 	TargetGeneration              int64                         `parameter:"TargetGeneration,kind=query,in=targetGeneration,dataType=int64,required=true"`
 	Generations                   []*StoredGeneration           `parameter:"Generations,kind=body,in=data,dataType=[]*StoredGeneration" view:"generation,type=StoredGeneration,entityHooks=GenerationStateRules,table=runtime_generations" sql:"uri=studio_runtime_generations_store_state_generation:sql/read.sql"`
@@ -12,6 +13,7 @@ type Input struct {
 }
 
 type InputHas struct {
+	NamespaceId       bool
 	Operation         bool
 	TargetGeneration  bool
 	Generations       bool

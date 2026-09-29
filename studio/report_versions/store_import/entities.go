@@ -15,6 +15,16 @@ func (entity *ImportedVersion) SetReportId(value string) {
 	}
 	entity.Has.ReportId = true
 }
+func (entity *ImportedVersion) GetNamespaceId() string {
+	return entity.NamespaceId
+}
+func (entity *ImportedVersion) SetNamespaceId(value string) {
+	entity.NamespaceId = value
+	if entity.Has == nil {
+		entity.Has = &ImportedVersionHas{}
+	}
+	entity.Has.NamespaceId = true
+}
 func (entity *ImportedVersion) GetVersionNo() int {
 	return entity.VersionNo
 }
@@ -194,6 +204,16 @@ func (entity *ImportedResourceFile) SetReportId(value string) {
 		entity.Has = &ImportedResourceFileHas{}
 	}
 	entity.Has.ReportId = true
+}
+func (entity *ImportedResourceFile) GetNamespaceId() string {
+	return entity.NamespaceId
+}
+func (entity *ImportedResourceFile) SetNamespaceId(value string) {
+	entity.NamespaceId = value
+	if entity.Has == nil {
+		entity.Has = &ImportedResourceFileHas{}
+	}
+	entity.Has.NamespaceId = true
 }
 func (entity *ImportedResourceFile) GetVersionNo() int {
 	return entity.VersionNo

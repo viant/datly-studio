@@ -1,0 +1,10 @@
+import React from 'react';
+import {createRoot} from 'react-dom/client';
+import '@blueprintjs/core/lib/css/blueprint.css';
+import '../src/studio.css';
+import {ReaderBuilder} from '../src/ReaderBuilder.jsx';
+const version={versionNo:1,sourceRevision:1,state:'draft',compileStatus:'valid'};
+const rootView={name:'reader',namespace:'forecasting',source:{table:'FORECASTING'},columns:[{name:'ID',type:{name:'int'}}],relations:Array.from({length:30},(_,index)=>({name:`dictionary_${index+1}`,kind:'subview',on:[{parentColumn:'ID',childColumn:'FORECAST_ID'}],view:{name:`dictionary_${index+1}`,namespace:`dictionary_${index+1}`,source:{table:`SYNTHETIC_DICTIONARY_${index+1}`},columns:[{name:'NAME',type:{name:'string'}}],relations:[]}}))};
+const inspection={version,capabilities:{canEdit:true,canRun:true,canPublish:false,canUseDql:true},diagnostics:[],structure:{component:{rootView,routes:[]},views:[{name:'forecasting',sql:'SELECT ID FROM SYNTHETIC_FORECASTING'},...rootView.relations.map(({view})=>({name:view.name,sql:`SELECT NAME FROM ${view.source.table}`}))],declarations:[],functions:[],predicateExpansions:[],columnContracts:[]}};
+const api={listVersions:async()=>({items:[version]}),inspectVersion:async()=>inspection,getResources:async()=>({files:[],folders:[],skills:[]}),getTable:async()=>({columns:[]})};
+createRoot(document.getElementById('root')).render(<main style={{padding:16}}><p role="note">UX fixture · 30 synthetic child views · no datastore access or saves</p><ReaderBuilder api={api} report={{id:'ux.synthetic',title:'Forecasting UX fixture',defaultConnectorName:'synthetic'}} onBack={()=>{}}/></main>);

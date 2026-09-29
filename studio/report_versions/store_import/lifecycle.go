@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"io/fs"
 	"reflect"
 	"strings"
@@ -80,6 +81,9 @@ func (hooks *ImportRules) Init(_ context.Context, version *ImportedVersion, _ xh
 		if file.Has == nil {
 			file.Has = &ImportedResourceFileHas{}
 		}
+		if !file.Has.NamespaceId && file.NamespaceId == "" {
+			file.SetNamespaceId(version.NamespaceId)
+		}
 		if file.ResourceId == "" {
 			file.SetResourceId(resourceIdentity(file.ResourcePath))
 		}
@@ -107,6 +111,9 @@ func (hooks *ImportRules) Validate(_ context.Context, version *ImportedVersion, 
 	}
 	if strings.TrimSpace(version.ReportId) == "" {
 		return fmt.Errorf("imported version report id is required")
+	}
+	if err := namespaceaccess.ValidateResourceOwnership(version.NamespaceId, ""); err != nil {
+		return err
 	}
 	if version.VersionNo <= 0 {
 		return fmt.Errorf("imported version number must be allocated")
@@ -160,6 +167,9 @@ func (hooks *ImportRules) Validate(_ context.Context, version *ImportedVersion, 
 		seen[path] = true
 		if file.ReportId != version.ReportId || file.VersionNo != version.VersionNo {
 			return fmt.Errorf("resource file %s must belong to the imported version", path)
+		}
+		if file.NamespaceId != version.NamespaceId {
+			return fmt.Errorf("resource file %s namespace ownership differs from its version", path)
 		}
 		if strings.TrimSpace(file.Namespace) == "" {
 			return fmt.Errorf("resource file %s namespace is required", path)

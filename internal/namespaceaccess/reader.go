@@ -50,6 +50,7 @@ func New(db *sql.DB) (*Reader, error) {
 	if err != nil {
 		return nil, err
 	}
+	registration.Capabilities.Connector = connector
 	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{registration}, druntime.WithResources(resources))
 	if err != nil {
 		return nil, err

@@ -40,6 +40,19 @@ VALUES('report',2,'validated','dql','SELECT 2','SELECT 2','{}','studio.v1','two'
 			t.Fatalf("connector options=%s", row.OptionsJson)
 		}
 	}
+	if _, err = db.ExecContext(ctx, `
+INSERT INTO connectors(name,driver,secret_ref,owner_id,status,options_json,etag,created_at,updated_at)
+VALUES('secret','sqlite','file:///tmp/fixture-dsn','owner','active','{}',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at)
+VALUES('secret-report','general','secret-report','Secret Report','owner','draft','secret','example.com/secret','reader',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at)
+VALUES('secret-report',1,'draft','dql','SELECT 1','SELECT 1','{}','studio.v1','secret','{}','valid','v1','v1',1,'owner',CURRENT_TIMESTAMP);`); err != nil {
+		t.Fatal(err)
+	}
+	secret, err := reader.Get(ctx, "secret-report", 1)
+	if err != nil || secret.DsnTemplate != nil || secret.SecretRef != "file:///tmp/fixture-dsn" {
+		t.Fatalf("secret-backed connector=%+v err=%v", secret, err)
+	}
 	for _, key := range []struct {
 		id      string
 		version int

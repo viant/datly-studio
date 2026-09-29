@@ -20,6 +20,7 @@ import (
 	"github.com/viant/datly-studio/internal/readerinspection"
 	"github.com/viant/datly-studio/internal/reportcapability"
 	"github.com/viant/datly-studio/internal/versionidentity"
+	studiors "github.com/viant/datly-studio/runtime/resources"
 	"github.com/viant/datly-studio/sdk"
 	publicationstore "github.com/viant/datly-studio/sdk/transport/sql/internal/publications"
 	connectorconfig "github.com/viant/datly-studio/studio/connectors/store_config"
@@ -115,8 +116,17 @@ func (f AuthorizerFunc) Authorize(ctx context.Context, request AuthorizationRequ
 	return f(ctx, request)
 }
 
+type ContractInspector interface {
+	InspectContract(context.Context, string, int) (*spec.Component, error)
+}
+
+type CandidateContractInspector interface {
+	InspectCandidateContract(context.Context, string, int, string) (*spec.Component, error)
+}
+
 type Transport struct {
-	DB *sql.DB
+	ContractInspector ContractInspector
+	DB                *sql.DB
 	// ComponentInvoker runs linked reader/writer components in the caller's
 	// Datly database unit. Native mutations must use it instead of opening a
 	// second transaction and compiling a separate child runtime.
@@ -152,10 +162,21 @@ func (t *Transport) Invoke(ctx context.Context, operation string, input, output 
 	if t == nil || t.DB == nil {
 		return &sdk.Error{Code: sdk.ErrorUnavailable, Message: "Studio database is unavailable"}
 	}
+	// Namespace management and globally shared connectors are control-plane
+	// operations. A revoked selection must not prevent choosing another workspace.
+	if !strings.HasPrefix(operation, "namespaces.") && !strings.HasPrefix(operation, "connectors.") {
+		var namespaceErr error
+		ctx, namespaceErr = t.resolveNamespace(ctx)
+		if namespaceErr != nil {
+			return namespaceErr
+		}
+	}
 	if err := t.authorize(ctx, operation, input); err != nil {
 		return err
 	}
 	switch operation {
+	case "access.list":
+		return t.listAccessResources(ctx, input, output)
 	case sdk.OperationVersionLoadDQL, sdk.OperationVersionLoadArchive:
 		return t.loadDQL(ctx, operation, input, output)
 	case sdk.OperationVersionDownload:
@@ -367,13 +388,16 @@ func (t *Transport) authorize(ctx context.Context, operation string, input any) 
 		permission = "publish"
 	}
 	reportID := identity.ReportID
-	if reportID == "" && strings.HasPrefix(operation, "reports.") {
+	if reportID == "" && strings.HasPrefix(operation, "components.") {
 		reportID = identity.ID
 	}
-	connectorName := identity.Name
+	connectorName := ""
 	namespaceName := ""
+	if strings.HasPrefix(operation, "connectors.") {
+		connectorName = identity.Name
+	}
 	if strings.HasPrefix(operation, "namespaces.") {
-		namespaceName, connectorName = identity.Name, ""
+		namespaceName = identity.Name
 	}
 	if operation == sdk.OperationNamespaceCreate {
 		namespaceName = ""
@@ -383,6 +407,12 @@ func (t *Transport) authorize(ctx context.Context, operation string, input any) 
 	}
 	if operation == sdk.OperationComponentCreate {
 		reportID = ""
+	}
+	if _, scoped := selectedNamespace(ctx); scoped && reportID != "" {
+		rows, err := t.readReportCatalog(ctx, reportCatalogRequest{ID: reportID, Limit: 2, Unscoped: true})
+		if err != nil || len(rows) != 1 {
+			return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Component is outside the selected namespace", Cause: err}
+		}
 	}
 	if err := t.Authorizer.Authorize(ctx, AuthorizationRequest{Operation: operation, ReportID: reportID, ConnectorName: connectorName, NamespaceName: namespaceName, OwnerID: identity.OwnerID, Permission: permission}); err != nil {
 		var sdkErr *sdk.Error
@@ -692,6 +722,12 @@ func (t *Transport) createReport(ctx context.Context, input, output any) error {
 	if err := decode(input, &in); err != nil {
 		return invalid(err)
 	}
+	if selected, ok := selectedNamespace(ctx); ok {
+		if in.Namespace != "" && in.Namespace != selected.Name || in.OwnerID != "" && in.OwnerID != selected.OwnerID {
+			return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Component creation is outside the selected namespace"}
+		}
+		in.Namespace, in.OwnerID = selected.Name, selected.OwnerID
+	}
 	if !validReportSlug(in.Slug) || strings.TrimSpace(in.Title) == "" || strings.TrimSpace(in.DefaultConnectorName) == "" {
 		return invalid(errors.New("slug, title, and defaultConnectorName are required; slug must use lowercase letters, numbers, and dashes"))
 	}
@@ -850,8 +886,15 @@ func (t *Transport) updateReport(ctx context.Context, input, output any) error {
 		current.Slug = *in.Input.Slug
 	}
 	if in.Input.Namespace != nil {
+		if selected, ok := selectedNamespace(ctx); ok && *in.Input.Namespace != selected.Name {
+			return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Component cannot move outside the selected namespace"}
+		}
+
 		if !validBusinessNamespace(*in.Input.Namespace) {
 			return invalid(errors.New("namespace must use lowercase letters, numbers, underscores, and optional dot-separated segments"))
+		}
+		if *in.Input.Namespace != current.Namespace {
+			return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Component namespace ownership cannot change through configuration", Field: "namespace"}
 		}
 		current.Namespace = *in.Input.Namespace
 	}
@@ -1137,6 +1180,9 @@ func (t *Transport) applyVersionEdit(ctx context.Context, input, output any) err
 	if err != nil {
 		return err
 	}
+	if current.State != "draft" {
+		return &sdk.Error{Code: sdk.ErrorConflict, Message: "published version cannot be mutated"}
+	}
 	if in.Command.ExpectedSourceRevision != current.SourceRevision {
 		return &sdk.Error{Code: sdk.ErrorConflict, Message: "version source revision does not match"}
 	}
@@ -1339,6 +1385,15 @@ func (t *Transport) inspectVersion(ctx context.Context, input, output any) error
 	if err != nil {
 		return err
 	}
+	if capabilities.CanUseDQL && t.ContractInspector != nil && response.Structure != nil && response.Structure.Component != nil {
+		resolved, inspectErr := t.ContractInspector.InspectContract(ctx, in.ReportID, in.VersionNo)
+		if inspectErr == nil && resolved != nil {
+			readerinspection.HydrateColumns(response.Structure.Component.RootView, resolved.RootView)
+		} else {
+			response.Structure.Status = "partial"
+			response.Diagnostics = append(response.Diagnostics, &transcribe.Diagnostic{Severity: transcribe.SeverityWarning, Code: "column_inspection_unavailable", Message: "Column metadata is unavailable; check the draft source and connector configuration."})
+		}
+	}
 	return assign(output, readerInspection(version, response, capabilities))
 }
 
@@ -1370,6 +1425,9 @@ func (t *Transport) applyReaderBuilder(ctx context.Context, input, output any) e
 	if err = json.Unmarshal(in.Command.Operation, &operation); err != nil {
 		return invalid(fmt.Errorf("reader builder operation: %w", err))
 	}
+	if operation.Type != readerbuilder.OperationInspect && version.State != "draft" {
+		return &sdk.Error{Code: sdk.ErrorConflict, Message: "published version cannot be mutated"}
+	}
 	response, err := t.runReaderBuilder(ctx, in.ReportID, version, operation)
 	if err != nil {
 		return err
@@ -1389,12 +1447,28 @@ func (t *Transport) applyReaderBuilder(ctx context.Context, input, output any) e
 	if response.Structure != nil && response.Structure.Component != nil && response.Structure.Component.Settings != nil {
 		connector = strings.TrimSpace(response.Structure.Component.Settings.DefaultConnector)
 	}
+	// Resolve candidate metadata before an enclosing native writer owns locks.
+	if capabilities.CanUseDQL && response.Structure != nil && response.Structure.Component != nil {
+		if inspector, ok := t.ContractInspector.(CandidateContractInspector); ok {
+			resolved, inspectErr := inspector.InspectCandidateContract(ctx, in.ReportID, in.VersionNo, response.DQL)
+			if inspectErr == nil && resolved != nil {
+				readerinspection.HydrateColumns(response.Structure.Component.RootView, resolved.RootView)
+			}
+		}
+	}
 	editedVersion, err := t.persistReaderBuilderDQL(ctx, in.ReportID, version, response.DQL, connector,
 		operation.Type == readerbuilder.OperationSetPackage)
 	if err != nil {
 		return err
 	}
-	inspection.Version = redactVersionDQL(editedVersion, capabilities.CanUseDQL)
+	_, candidateInspected := t.ContractInspector.(CandidateContractInspector)
+	if !candidateInspected && t.ComponentInvoker == nil && capabilities.CanUseDQL && t.ContractInspector != nil && response.Structure != nil && response.Structure.Component != nil {
+		resolved, inspectErr := t.ContractInspector.InspectContract(ctx, in.ReportID, in.VersionNo)
+		if inspectErr == nil && resolved != nil {
+			readerinspection.HydrateColumns(response.Structure.Component.RootView, resolved.RootView)
+		}
+	}
+	inspection = readerInspection(editedVersion, response, capabilities)
 	return assign(output, &sdk.ReaderBuilderResult{Applied: true, Inspection: inspection})
 }
 
@@ -1407,6 +1481,9 @@ func (t *Transport) ApplyReaderBuilder(ctx context.Context, input, output any) e
 func (t *Transport) persistReaderBuilderDQL(ctx context.Context, reportID string, current *sdk.ReportVersion, dql, connector string, setPackage bool) (*sdk.ReportVersion, error) {
 	if current == nil || strings.TrimSpace(dql) == "" {
 		return nil, invalid(errors.New("reader builder DQL is required"))
+	}
+	if current.State != "draft" {
+		return nil, &sdk.Error{Code: sdk.ErrorConflict, Message: "published version cannot be mutated"}
 	}
 	spec := current.ComponentSpec
 	if len(spec) == 0 {
@@ -1718,7 +1795,13 @@ func (t *Transport) runReaderBuilder(ctx context.Context, reportID string, versi
 	if err != nil {
 		return nil, err
 	}
+	resourceVersion := studiors.Version{ReportID: reportID, VersionNo: version.VersionNo}
+	loaded, err := studiors.Load(ctx, t.DB, []studiors.Version{resourceVersion})
+	if err != nil {
+		return nil, internal(err)
+	}
 	service := readerbuilder.New(readerbuilder.Config{
+		Resources:           loaded.ByVersion[resourceVersion],
 		Types:               types,
 		Scope:               report.ComponentScope,
 		Name:                report.ComponentName,
@@ -2261,18 +2344,18 @@ func (t *Transport) runtimeStatus(ctx context.Context, output any) error {
 	}
 	if active == nil {
 		value.Status = "idle"
-		return assign(output, &value)
+	} else {
+		value.ActiveGeneration, value.Status, value.ReportCount = active.GenerationNo, active.Status, active.ReportCount
+		value.ActivatedAt = active.ActivatedAt
+		if len(active.DiagnosticsJson) > 0 {
+			_ = json.Unmarshal(active.DiagnosticsJson, &value.Diagnostics)
+		}
+		readers, readErr := t.runtimeReaders(ctx, value.ActiveGeneration)
+		if readErr != nil {
+			return internal(readErr)
+		}
+		value.Readers = readers
 	}
-	value.ActiveGeneration, value.Status, value.ReportCount = active.GenerationNo, active.Status, active.ReportCount
-	value.ActivatedAt = active.ActivatedAt
-	if len(active.DiagnosticsJson) > 0 {
-		_ = json.Unmarshal(active.DiagnosticsJson, &value.Diagnostics)
-	}
-	readers, err := t.runtimeReaders(ctx, value.ActiveGeneration)
-	if err != nil {
-		return internal(err)
-	}
-	value.Readers = readers
 	checkedAt := time.Now().UTC()
 	if t.Now != nil {
 		checkedAt = t.Now().UTC()

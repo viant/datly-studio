@@ -5,6 +5,16 @@ import (
 	time "time"
 )
 
+func (entity *StoredWarmupRun) GetNamespaceId() string {
+	return entity.NamespaceId
+}
+func (entity *StoredWarmupRun) SetNamespaceId(value string) {
+	entity.NamespaceId = value
+	if entity.Has == nil {
+		entity.Has = &StoredWarmupRunHas{}
+	}
+	entity.Has.NamespaceId = true
+}
 func (entity *StoredWarmupRun) GetRunId() string {
 	return entity.RunId
 }

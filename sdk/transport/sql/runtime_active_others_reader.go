@@ -8,6 +8,7 @@ import (
 
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/readercomponent"
+	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
 	"github.com/viant/datly-studio/studio/runtime_generations/otheractivepredicate"
 	stored "github.com/viant/datly-studio/studio/runtime_generations/store_active_others"
@@ -45,7 +46,8 @@ func (t *Transport) readOtherActiveGenerations(ctx context.Context, tx *sql.Tx, 
 		return nil, err
 	}
 	defer runtime.Shutdown(context.Background())
-	input := &stored.Input{ExcludeGeneration: exclude, Has: &stored.InputHas{ExcludeGeneration: true}}
+	namespaceID, _ := sdk.NamespaceSelectionFromContext(ctx)
+	input := &stored.Input{NamespaceId: namespaceID, ExcludeGeneration: exclude, Has: &stored.InputHas{NamespaceId: true, ExcludeGeneration: true}}
 	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: target, Input: input})
 	if err != nil {
 		return nil, err

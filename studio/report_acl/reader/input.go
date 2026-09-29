@@ -6,6 +6,7 @@ import (
 
 // Input is the generated input scaffold for acl.
 type Input struct {
+	NamespaceId *string     `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
 	Jwt         *jwt.Claims `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
 	ReportId    string      `parameter:"ReportId,kind=body,in=reportId,dataType=string,required=true" json:"reportId" predicate:"equal,group=2,a,report_id" predicate:"handler,group=3,github.com/viant/datly-studio/studio/authorization.ACLRead"`
 	SubjectType string      `parameter:"SubjectType,kind=query,in=subjectType,dataType=string,required=false" json:"subjectType" predicate:"equal,group=1,a,subject_type"`
@@ -14,6 +15,7 @@ type Input struct {
 }
 
 type InputHas struct {
+	NamespaceId bool
 	Jwt         bool
 	ReportId    bool
 	SubjectType bool

@@ -50,3 +50,23 @@ func (f *JWTFixture) Bearer(t testing.TB, subject string) string {
 	}
 	return "Bearer " + encoded
 }
+
+// PublicKeyPEM exposes only the fixture verification key for provider tests.
+func (f *JWTFixture) PublicKeyPEM(t testing.TB) []byte {
+	t.Helper()
+	raw, err := x509.MarshalPKIXPublicKey(&f.private.PublicKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: raw})
+}
+
+// BearerWithClaims signs caller-specified fixture claims.
+func (f *JWTFixture) BearerWithClaims(t testing.TB, claims jwtv5.MapClaims) string {
+	t.Helper()
+	encoded, err := jwtv5.NewWithClaims(jwtv5.SigningMethodRS256, claims).SignedString(f.private)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return "Bearer " + encoded
+}

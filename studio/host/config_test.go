@@ -37,3 +37,18 @@ func TestPredicateCatalogUsesTrustedLinkedPackageAllowlist(t *testing.T) {
 		t.Fatal("unlinked native predicate package was accepted")
 	}
 }
+
+func TestPredicateCatalogLimitsExternalAuthorizationTypes(t *testing.T) {
+	_ = extension.LinkedType
+	const packagePath = "github.com/viant/datly-studio/studio/predicatecatalog/testdata/extension"
+	t.Setenv("STUDIO_PREDICATE_PACKAGES", packagePath)
+	t.Setenv("STUDIO_AUTH_PREDICATE_TYPES", packagePath+"#ReaderScope")
+	catalog, err := (host.Config{}).PredicateCatalog()
+	if err != nil || !catalog.Contains(packagePath, "ReaderScope") {
+		t.Fatalf("filtered catalog=%+v err=%v", catalog, err)
+	}
+	t.Setenv("STUDIO_AUTH_PREDICATE_TYPES", packagePath+"#NotAPredicate")
+	if _, err := (host.Config{}).PredicateCatalog(); err == nil {
+		t.Fatal("non-handler authorization type was accepted")
+	}
+}

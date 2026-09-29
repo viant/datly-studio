@@ -7,6 +7,7 @@ import (
 
 // StoredGeneration is generated canonical view metadata for generation.
 type StoredGeneration struct {
+	NamespaceId       string               `sqlx:"namespace_id"`
 	GenerationNo      int64                `sqlx:"generation_no,primaryKey"`
 	SourceRevision    string               `sqlx:"source_revision"`
 	Status            string               `sqlx:"status"`
@@ -18,6 +19,7 @@ type StoredGeneration struct {
 }
 
 type StoredGenerationHas struct {
+	NamespaceId       bool
 	GenerationNo      bool
 	SourceRevision    bool
 	Status            bool

@@ -2,8 +2,10 @@ package update
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"reflect"
 	"strings"
 	"time"
@@ -22,10 +24,14 @@ import (
 )
 
 type Options struct {
-	Title       *string `json:"title,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Status      *string `json:"status,omitempty"`
-	ETag        int64   `json:"etag"`
+	Visibility   *string   `json:"visibility,omitempty"`
+	AllowedRoles *[]string `json:"allowedRoles,omitempty"`
+	MCPEnabled   *bool     `json:"mcpEnabled,omitempty"`
+	MCPPort      *int      `json:"mcpPort,omitempty"`
+	Title        *string   `json:"title,omitempty"`
+	Description  *string   `json:"description,omitempty"`
+	Status       *string   `json:"status,omitempty"`
+	ETag         int64     `json:"etag"`
 }
 
 type Input struct {
@@ -36,14 +42,19 @@ type Input struct {
 }
 
 type Output struct {
-	OwnerId     string    `parameter:"OwnerId,kind=output,in=body,dataType=string" json:"ownerId"`
-	Name        string    `parameter:"Name,kind=output,in=body,dataType=string" json:"name"`
-	Title       string    `parameter:"Title,kind=output,in=body,dataType=string" json:"title"`
-	Description string    `parameter:"Description,kind=output,in=body,dataType=string" json:"description,omitempty"`
-	Status      string    `parameter:"Status,kind=output,in=body,dataType=string" json:"status"`
-	ETag        int64     `parameter:"ETag,kind=output,in=body,dataType=int64" json:"etag"`
-	CreatedAt   time.Time `parameter:"CreatedAt,kind=output,in=body,dataType=time.Time" json:"createdAt"`
-	UpdatedAt   time.Time `parameter:"UpdatedAt,kind=output,in=body,dataType=time.Time" json:"updatedAt"`
+	NamespaceID  string    `parameter:"NamespaceID,kind=output,in=body,dataType=string" json:"namespaceId"`
+	Visibility   string    `parameter:"Visibility,kind=output,in=body,dataType=string" json:"visibility"`
+	AllowedRoles []string  `parameter:"AllowedRoles,kind=output,in=body,dataType=[]string" json:"allowedRoles"`
+	MCPEnabled   bool      `parameter:"MCPEnabled,kind=output,in=body,dataType=bool" json:"mcpEnabled"`
+	MCPPort      *int      `parameter:"MCPPort,kind=output,in=body,dataType=*int" json:"mcpPort,omitempty"`
+	OwnerId      string    `parameter:"OwnerId,kind=output,in=body,dataType=string" json:"ownerId"`
+	Name         string    `parameter:"Name,kind=output,in=body,dataType=string" json:"name"`
+	Title        string    `parameter:"Title,kind=output,in=body,dataType=string" json:"title"`
+	Description  string    `parameter:"Description,kind=output,in=body,dataType=string" json:"description,omitempty"`
+	Status       string    `parameter:"Status,kind=output,in=body,dataType=string" json:"status"`
+	ETag         int64     `parameter:"ETag,kind=output,in=body,dataType=int64" json:"etag"`
+	CreatedAt    time.Time `parameter:"CreatedAt,kind=output,in=body,dataType=time.Time" json:"createdAt"`
+	UpdatedAt    time.Time `parameter:"UpdatedAt,kind=output,in=body,dataType=time.Time" json:"updatedAt"`
 }
 
 type Component struct {
@@ -129,11 +140,42 @@ func (*updateHandler) Exec(ctx context.Context, session xhandler.Session, input 
 	if title == "" || status != "active" && status != "archived" {
 		return &xresponse.Error{Code: 400, Cause: errors.New("namespace title and active or archived status are required")}
 	}
+	roles := []string{}
+	if current.AllowedRolesJson != nil {
+		if err = json.Unmarshal([]byte(*current.AllowedRolesJson), &roles); err != nil {
+			return fmt.Errorf("invalid stored namespace roles")
+		}
+	}
+	visibility := current.Visibility
+	if visibility == "" {
+		visibility = namespaceaccess.Private
+	}
+	enabled, port := current.McpEnabled, current.McpPort
+	if input.Input.Visibility != nil {
+		visibility = *input.Input.Visibility
+	}
+	if input.Input.AllowedRoles != nil {
+		roles = *input.Input.AllowedRoles
+	}
+	if input.Input.MCPEnabled != nil {
+		enabled = *input.Input.MCPEnabled
+	}
+	if input.Input.MCPPort != nil {
+		port = input.Input.MCPPort
+	}
+	if err = namespaceaccess.Validate(visibility, roles, port); err != nil {
+		return &xresponse.Error{Code: 400, Cause: err}
+	}
+	rolesData, _ := json.Marshal(roles)
+	if roles == nil {
+		rolesData = []byte("[]")
+	}
+	rolesJSON := string(rolesData)
 	now := time.Now().UTC()
 	etag := input.Input.ETag
-	row := &storedwriter.StoredNamespace{OwnerId: current.OwnerId, Name: current.Name,
+	row := &storedwriter.StoredNamespace{NamespaceId: namespaceaccess.ID(current.OwnerId, current.Name), Visibility: visibility, AllowedRolesJson: &rolesJSON, McpEnabled: enabled, McpPort: port, OwnerId: current.OwnerId, Name: current.Name,
 		Title: title, Description: description, Status: status, Etag: &etag, UpdatedAt: &now,
-		Has: &storedwriter.StoredNamespaceHas{OwnerId: true, Name: true, Title: true,
+		Has: &storedwriter.StoredNamespaceHas{NamespaceId: true, Visibility: true, AllowedRolesJson: true, McpEnabled: true, McpPort: true, OwnerId: true, Name: true, Title: true,
 			Description: true, Status: true, Etag: true, UpdatedAt: true}}
 	write := &storedwriter.Input{}
 	write.SetNamespaces([]*storedwriter.StoredNamespace{row})
@@ -150,7 +192,7 @@ func (*updateHandler) Exec(ctx context.Context, session xhandler.Session, input 
 		updated.Data[0].OwnerId != current.OwnerId || updated.Data[0].Name != current.Name || updated.Data[0].Etag == nil {
 		return fmt.Errorf("namespace writer returned %T without one updated row", value)
 	}
-	*output = Output{OwnerId: current.OwnerId, Name: current.Name, Title: title,
+	*output = Output{NamespaceID: namespaceaccess.ID(current.OwnerId, current.Name), Visibility: visibility, AllowedRoles: roles, MCPEnabled: enabled, MCPPort: port, OwnerId: current.OwnerId, Name: current.Name, Title: title,
 		Status: status, ETag: *updated.Data[0].Etag, CreatedAt: current.CreatedAt,
 		UpdatedAt: now}
 	if description != nil {

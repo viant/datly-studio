@@ -24,16 +24,18 @@ import (
 )
 
 type VersionInput struct {
-	Jwt       *jwt.Claims      `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
-	ReportID  string           `parameter:"ReportID,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
-	VersionNo int              `parameter:"VersionNo,kind=body,in=versionNo,dataType=int,required=true" json:"versionNo"`
-	Input     sdk.PublishInput `parameter:"Input,kind=body,in=input,dataType=sdk.PublishInput,required=true" json:"input"`
+	NamespaceId *string          `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
+	Jwt         *jwt.Claims      `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
+	ReportID    string           `parameter:"ReportID,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
+	VersionNo   int              `parameter:"VersionNo,kind=body,in=versionNo,dataType=int,required=true" json:"versionNo"`
+	Input       sdk.PublishInput `parameter:"Input,kind=body,in=input,dataType=sdk.PublishInput,required=true" json:"input"`
 }
 
 type UnpublishInput struct {
-	Jwt      *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
-	ReportID string             `parameter:"ReportID,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
-	Input    sdk.UnpublishInput `parameter:"Input,kind=body,in=input,dataType=sdk.UnpublishInput,required=true" json:"input"`
+	NamespaceId *string            `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
+	Jwt         *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
+	ReportID    string             `parameter:"ReportID,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
+	Input       sdk.UnpublishInput `parameter:"Input,kind=body,in=input,dataType=sdk.UnpublishInput,required=true" json:"input"`
 }
 
 type Output struct {
@@ -110,7 +112,7 @@ func (handler *versionHandler) Exec(ctx context.Context, session xhandler.Sessio
 	if strings.TrimSpace(input.ReportID) == "" || input.VersionNo <= 0 || input.Input.ExpectedSourceRevision <= 0 {
 		return publicError(400, "reportId, versionNo, and positive expectedSourceRevision are required")
 	}
-	return invoke(ctx, session, input.Jwt.Subject, handler.operation, struct {
+	return invoke(ctx, session, input.Jwt, input.NamespaceId, handler.operation, struct {
 		ReportID  string           `json:"reportId"`
 		VersionNo int              `json:"versionNo"`
 		Input     sdk.PublishInput `json:"input"`
@@ -124,13 +126,13 @@ func (*unpublishHandler) Exec(ctx context.Context, session xhandler.Session, inp
 	if strings.TrimSpace(input.ReportID) == "" || input.Input.ExpectedActiveGeneration <= 0 {
 		return publicError(400, "reportId and positive expectedActiveGeneration are required")
 	}
-	return invoke(ctx, session, input.Jwt.Subject, sdk.OperationPublicationRemove, struct {
+	return invoke(ctx, session, input.Jwt, input.NamespaceId, sdk.OperationPublicationRemove, struct {
 		ReportID string             `json:"reportId"`
 		Input    sdk.UnpublishInput `json:"input"`
 	}{input.ReportID, input.Input}, output)
 }
 
-func invoke(ctx context.Context, session xhandler.Session, subject, operation string, body any, output *Output) error {
+func invoke(ctx context.Context, session xhandler.Session, claims *jwt.Claims, namespaceID *string, operation string, body any, output *Output) error {
 	if session == nil || session.Binder() == nil || output == nil {
 		return fmt.Errorf("publication session and output are required")
 	}
@@ -179,7 +181,17 @@ func invoke(ctx context.Context, session xhandler.Session, subject, operation st
 	stop := context.AfterFunc(ctx, cancel)
 	defer stop()
 	defer cancel()
-	principal := sdk.WithPrincipal(lifecycleCtx, sdk.Principal{Subject: subject})
+	principal := sdk.WithPrincipal(lifecycleCtx, sdk.Principal{Subject: claims.Subject})
+	var headers struct {
+		Authorization string `bind:"kind=header,in=Authorization"`
+	}
+	if err := session.Binder().Bind(ctx, &headers); err != nil {
+		return publicError(401, "verified publication credential is required")
+	}
+	principal = sdk.WithVerifiedCredential(principal, sdk.VerifiedCredential{Bearer: headers.Authorization, Claims: claims})
+	if namespaceID != nil {
+		principal = sdk.WithNamespaceSelection(principal, *namespaceID)
+	}
 	publicationMu.Lock()
 	defer publicationMu.Unlock()
 	var response sdk.Publication

@@ -12,6 +12,7 @@ import (
 	requestprovider "github.com/viant/bindly/provider/request"
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/datatest"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly/bootstrap"
 	gateway "github.com/viant/datly/gateway/http"
 	"github.com/viant/datly/gateway/openapi"
@@ -149,6 +150,42 @@ func TestVersionListSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	tool, ok := tools.Registry().ToolRegistry.Get("studio.sdk.versions.list")
 	if !ok {
 		t.Fatal("MCP list tool is missing")
+	}
+
+	generalID := namespaceaccess.ID("alice", "general")
+	otherID := namespaceaccess.ID("alice", "other")
+	if _, err := db.ExecContext(ctx, `UPDATE namespaces SET namespace_id=? WHERE owner_id='alice' AND name='general'`, generalID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.ExecContext(ctx, `INSERT INTO namespaces(namespace_id,owner_id,name,title,status,etag,created_at,updated_at) VALUES(?,'alice','other','Other','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, otherID); err != nil {
+		t.Fatal(err)
+	}
+	for _, check := range []struct {
+		subject, id string
+		count       int
+	}{{"alice", generalID, 1}, {"alice", otherID, 0}, {"bob", generalID, 0}} {
+		scopedRequest := request(check.subject, `{"reportId":"r1","input":{"limit":1,"offset":1}}`)
+		scopedRequest.Header.Set("X-Studio-Namespace", check.id)
+		scopedResponse := httptest.NewRecorder()
+		handler.ServeHTTP(scopedResponse, scopedRequest)
+		var selected struct {
+			Items []map[string]any `json:"items"`
+		}
+		if err := json.Unmarshal(scopedResponse.Body.Bytes(), &selected); scopedResponse.Code != 200 || err != nil || len(selected.Items) != check.count {
+			t.Fatalf("version namespace HTTP subject=%s count=%d body=%s err=%v", check.subject, check.count, scopedResponse.Body.String(), err)
+		}
+		scopedContext := context.WithValue(ctx, authorization.TokenKey, &authorization.Token{Token: jwt.Bearer(t, check.subject)})
+		scopedResult, scopedErr := tool.Handler(scopedContext, &schema.CallToolRequest{Method: schema.MethodToolsCall, Params: schema.CallToolRequestParams{Name: "studio.sdk.versions.list", Arguments: map[string]any{"reportId": "r1", "namespaceId": check.id, "input": map[string]any{"limit": 1, "offset": 1}}}})
+		if scopedErr != nil || scopedResult == nil || scopedResult.IsError != nil && *scopedResult.IsError {
+			t.Fatalf("version namespace MCP: %+v err=%v", scopedResult, scopedErr)
+		}
+		payload, err := json.Marshal(scopedResult.StructuredContent)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err = json.Unmarshal(payload, &selected); err != nil || len(selected.Items) != check.count {
+			t.Fatalf("version namespace MCP subject=%s count=%d payload=%s err=%v", check.subject, check.count, payload, err)
+		}
 	}
 	callContext := context.WithValue(ctx, authorization.TokenKey, &authorization.Token{Token: jwt.Bearer(t, "bob")})
 	result, rpcErr := tool.Handler(callContext, &schema.CallToolRequest{Method: schema.MethodToolsCall, Params: schema.CallToolRequestParams{Name: "studio.sdk.versions.list", Arguments: map[string]any{"reportId": "r1", "input": map[string]any{"limit": 1}}}})
