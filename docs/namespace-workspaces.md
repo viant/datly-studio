@@ -598,3 +598,30 @@ workspace boundary. Protocol checks verify same-owner cross-workspace redaction
 and correct-workspace results. Event DQL explicitly shapes the stored identity,
 status and timestamp columns so regeneration preserves the existing output types.
 Selection is still optional, so this is not complete workspace isolation.
+
+## Two namespace UI publication check
+
+In an isolated catalog copy, namespace.alpha and namespace.beta were created as
+private namespaces through the UI with MCP ports 18891 and 18892. Synthetic
+MySQL literal readers (markers 101 and 202) were imported, validated and published
+through the UI. Both publications are active together in separate owned
+generations, 26 and 27; the same custom runtime process listens on both ports.
+Publishing Beta did not retire Alpha.
+
+This exposed two gaps. The private custom launcher lacked namespace mode; it now
+uses the public namespace group API. A new component's empty builder had no DQL
+entry action; Load DQL now opens an import fixed to that component and creates the
+first draft. Targeted rendered tests and both actual UI imports verify the flow.
+
+End-to-end MCP acceptance is still open: with generic authorization configured,
+the new readers have no provisioned policy documents and their MCP catalogs are
+empty even for the verified namespace owner. This contradicts the desired public
+resource behavior when no explicit ACL exists. Listening ports and active
+publication rows alone do not establish working discovery or execution. Resolve
+that policy lifecycle gap, then test both catalogs and calls together.
+
+Both exact-version UI previews returned their respective markers (101 and 202)
+after both publications became active. Calls to the named MCP tools on both ports
+return authorization denial, confirming the policy gap affects execution as well
+as discovery. GPT-6 Sol granted scoped approval to the new empty-builder Load DQL
+entry and fixed-resource import flow. It did not approve full MCP acceptance.

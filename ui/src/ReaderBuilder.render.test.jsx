@@ -39,6 +39,23 @@ function readerFixture(capabilities = { canEdit: true, canRun: true, canPublish:
 }
 
 describe('ReaderBuilder graph-first authoring', () => {
+  test('loads the first DQL draft directly from an empty component without choosing another resource', async () => {
+    const user = userEvent.setup();
+    const api = {listVersions:vi.fn().mockResolvedValue({items:[]}),loadDQL:vi.fn().mockResolvedValue({version:{versionNo:1}})};
+    const updated = vi.fn();
+    render(<ReaderBuilder api={api} report={{id:'alpha',title:'Alpha marker'}} onReportUpdated={updated} onBack={vi.fn()}/>);
+    await screen.findByRole('heading',{name:'No reader definition yet'});
+    await user.click(screen.getByRole('button',{name:'Load DQL'}));
+    expect(screen.getByRole('combobox',{name:'Component'}).value).toBe('alpha');
+    expect(screen.getByRole('combobox',{name:'Component'}).disabled).toBe(true);
+    const file = new File(['SELECT 1'], 'alpha.dql',{type:'text/plain'});
+    file.text = async () => 'SELECT 1';
+    await user.upload(screen.getByLabelText('DQL or archive'),file);
+    await user.click(screen.getByRole('button',{name:'Import as new draft'}));
+    await waitFor(()=>expect(api.loadDQL).toHaveBeenCalledWith('alpha',{dql:'SELECT 1'}));
+    expect(updated).toHaveBeenCalledWith(expect.objectContaining({id:'alpha',versionNo:1,currentDraftVersion:1}));
+  });
+
   test('keeps the root reachable and pages 30 child views with searchable relation context', async () => {
     const user = userEvent.setup();
     const inspection = readerFixture();
