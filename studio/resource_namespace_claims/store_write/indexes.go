@@ -11,6 +11,52 @@ import (
 
 type ClaimHandlerCurrentClaimSlice []*CurrentClaimView
 
+func ClaimHandlerCurrentClaimIndexByNamespaceIdKey(value *CurrentClaimView) (string, bool) {
+	var zero string
+	if value == nil {
+		return zero, false
+	}
+	return value.NamespaceId, true
+}
+
+type ClaimHandlerCurrentClaimIndexedByNamespaceId map[string]*CurrentClaimView
+
+func (rows ClaimHandlerCurrentClaimSlice) IndexByNamespaceId() (ClaimHandlerCurrentClaimIndexedByNamespaceId, error) {
+	result := make(ClaimHandlerCurrentClaimIndexedByNamespaceId)
+	for _, row := range rows {
+		key, ok := ClaimHandlerCurrentClaimIndexByNamespaceIdKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index ClaimHandlerCurrentClaimSlice.IndexByNamespaceId")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index ClaimHandlerCurrentClaimIndexedByNamespaceId) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type ClaimHandlerCurrentClaimGroupedByNamespaceId map[string][]*CurrentClaimView
+
+func (rows ClaimHandlerCurrentClaimSlice) GroupByNamespaceId() ClaimHandlerCurrentClaimGroupedByNamespaceId {
+	result := make(ClaimHandlerCurrentClaimGroupedByNamespaceId)
+	for _, row := range rows {
+		key, ok := ClaimHandlerCurrentClaimIndexByNamespaceIdKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index ClaimHandlerCurrentClaimGroupedByNamespaceId) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
 func ClaimHandlerCurrentClaimIndexByNamespaceKey(value *CurrentClaimView) (string, bool) {
 	var zero string
 	if value == nil {
@@ -288,9 +334,61 @@ func (index ClaimHandlerCurrentClaimGroupedByUpdatedBy) Has(key string) bool {
 	return ok
 }
 
+type ClaimHandlerCurrentClaimKey struct {
+	NamespaceId string
+	Namespace   string
+}
+
+func ClaimHandlerCurrentClaimIndexByKeyKey(value *CurrentClaimView) (ClaimHandlerCurrentClaimKey, bool) {
+	var zero ClaimHandlerCurrentClaimKey
+	if value == nil {
+		return zero, false
+	}
+	return ClaimHandlerCurrentClaimKey{NamespaceId: value.NamespaceId, Namespace: value.Namespace}, true
+}
+
+type ClaimHandlerCurrentClaimIndexedByKey map[ClaimHandlerCurrentClaimKey]*CurrentClaimView
+
+func (rows ClaimHandlerCurrentClaimSlice) IndexByKey() (ClaimHandlerCurrentClaimIndexedByKey, error) {
+	result := make(ClaimHandlerCurrentClaimIndexedByKey)
+	for _, row := range rows {
+		key, ok := ClaimHandlerCurrentClaimIndexByKeyKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index ClaimHandlerCurrentClaimSlice.IndexByKey")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index ClaimHandlerCurrentClaimIndexedByKey) Has(key ClaimHandlerCurrentClaimKey) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type ClaimHandlerCurrentClaimGroupedByKey map[ClaimHandlerCurrentClaimKey][]*CurrentClaimView
+
+func (rows ClaimHandlerCurrentClaimSlice) GroupByKey() ClaimHandlerCurrentClaimGroupedByKey {
+	result := make(ClaimHandlerCurrentClaimGroupedByKey)
+	for _, row := range rows {
+		key, ok := ClaimHandlerCurrentClaimIndexByKeyKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index ClaimHandlerCurrentClaimGroupedByKey) Has(key ClaimHandlerCurrentClaimKey) bool {
+	_, ok := index[key]
+	return ok
+}
+
 type ClaimHandlerReadIndexes struct {
-	CurrentClaim            ClaimHandlerCurrentClaimSlice
-	CurrentClaimByNamespace ClaimHandlerCurrentClaimIndexedByNamespace
+	CurrentClaim      ClaimHandlerCurrentClaimSlice
+	CurrentClaimByKey ClaimHandlerCurrentClaimIndexedByKey
 }
 
 func BuildClaimHandlerReadIndexes(ctx context.Context, input *Input) (*ClaimHandlerReadIndexes, error) {
@@ -356,6 +454,9 @@ func BuildClaimHandlerReadIndexes(ctx context.Context, input *Input) (*ClaimHand
 			if err != nil {
 				return nil, err
 			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("NamespaceId") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentClaim.NamespaceId")
+			}
 			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("Namespace") {
 				return nil, fmt.Errorf("application index field was not loaded: CurrentClaim.Namespace")
 			}
@@ -380,7 +481,7 @@ func BuildClaimHandlerReadIndexes(ctx context.Context, input *Input) (*ClaimHand
 			return nil, err
 		}
 		result.CurrentClaim = ClaimHandlerCurrentClaimSlice(cloned.([]*CurrentClaimView))
-		result.CurrentClaimByNamespace, err = result.CurrentClaim.IndexByNamespace()
+		result.CurrentClaimByKey, err = result.CurrentClaim.IndexByKey()
 		if err != nil {
 			return nil, err
 		}

@@ -1,5 +1,16 @@
 package store_usage
 
+func (input *Input) SetNamespaceId(value string) {
+	if input == nil {
+		return
+	}
+	input.NamespaceId = value
+	if input.Has == nil {
+		input.Has = &InputHas{}
+	}
+	input.Has.NamespaceId = true
+}
+
 func (input *Input) SetNamespace(value string) {
 	if input == nil {
 		return

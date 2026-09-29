@@ -186,6 +186,11 @@ func (t *Transport) resourceWorkspaceID(ctx context.Context, tx *sql.Tx, reportI
 }
 
 func (t *Transport) resourceWriteNamespaceClaim(ctx context.Context, tx *sql.Tx, operation string, row *claimwrite.StoredClaim) error {
+	id, err := t.resourceWorkspaceID(ctx, tx, row.ReportId)
+	if err != nil {
+		return err
+	}
+	row.SetNamespaceId(id)
 	if t.ComponentInvoker == nil {
 		return resourcestore.WriteNamespaceClaim(ctx, t.DB, tx, operation, row)
 	}
@@ -320,11 +325,15 @@ func (t *Transport) resourceNamespaceHasResources(ctx context.Context, tx *sql.T
 }
 
 func (t *Transport) resourceForeignNamespaceUsage(ctx context.Context, tx *sql.Tx, namespace, excludeReportID string) ([]*namespaceusage.NamespaceUsage, error) {
-	if t.ComponentInvoker == nil {
-		return resourcestore.ReadForeignNamespaceUsage(ctx, t.DB, tx, namespace, excludeReportID)
+	namespaceID, err := t.resourceWorkspaceID(ctx, tx, excludeReportID)
+	if err != nil {
+		return nil, err
 	}
-	in := &namespaceusage.Input{Namespace: namespace, ExcludeReportId: excludeReportID,
-		Has: &namespaceusage.InputHas{Namespace: true, ExcludeReportId: true}}
+	if t.ComponentInvoker == nil {
+		return resourcestore.ReadForeignNamespaceUsage(ctx, t.DB, tx, namespace, excludeReportID, namespaceID)
+	}
+	in := &namespaceusage.Input{NamespaceId: namespaceID, Namespace: namespace, ExcludeReportId: excludeReportID,
+		Has: &namespaceusage.InputHas{NamespaceId: true, Namespace: true, ExcludeReportId: true}}
 	value, err := t.invokeResource(ctx, reflect.TypeFor[namespaceusage.UsageComponent](), "usage", "GET", "/_studio/resource-namespace-store/usage", in)
 	if err != nil {
 		return nil, err

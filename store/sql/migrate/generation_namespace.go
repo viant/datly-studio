@@ -15,6 +15,9 @@ func migrateLegacyGenerationOwnership(ctx context.Context, db *sql.DB) error {
 	if err := assignLegacyGenerationOwnership(ctx, tx); err != nil {
 		return err
 	}
+	if err := rebuildNamespaceClaimKeys(ctx, tx); err != nil {
+		return err
+	}
 	if _, err := tx.ExecContext(ctx, `UPDATE schema_version SET version=?`, schema.CanonicalVersion); err != nil {
 		return err
 	}

@@ -20,7 +20,7 @@ var (
 	sqliteTableName        = regexp.MustCompile(`(?i)CREATE\s+TABLE\s+([A-Za-z_][A-Za-z0-9_]*)`)
 )
 
-const CanonicalVersion = 18
+const CanonicalVersion = 19
 
 // EnsureSQLiteSequenceLedger installs SQLX's write-intent table before a
 // publication transaction begins. Creating it inside a deferred transaction

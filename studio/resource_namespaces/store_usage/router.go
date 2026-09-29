@@ -13,12 +13,12 @@ type UsageComponent struct {
 	Contract xdatly.Component[Input, Output] "component:\"usage,path=/_studio/resource-namespace-store/usage,method=GET,connector=studio,view=usage,internal=true\" routeName:\"usage\" caseFormat:\"lc\""
 }
 
-// UsageDatlyType keeps the public component type linked for blank-import discovery.
+// UsageDatlyType returns the public component type.
 func UsageDatlyType() reflect.Type { return reflect.TypeOf((*UsageComponent)(nil)).Elem() }
 
-// Datly anchors this package's public component contract.
+// The package-level value keeps this real component type reachable for runtime discovery.
 var UsageDatly = new(UsageComponent)
-var UsageDatlyLinkedType = UsageDatlyType()
+var _datlyReachableUsageComponent = reflect.TypeFor[UsageComponent]()
 
 func (UsageComponent) EmbedFS() *embed.FS {
 	return &UsageDatlyResources

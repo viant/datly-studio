@@ -47,6 +47,9 @@ func (s *Service) Up(ctx context.Context, db *sql.DB) error {
 	if current == 16 {
 		return migrateNamespaceOwnership(ctx, db)
 	}
+	if current == 18 {
+		return migrateNamespaceClaimKeys(ctx, db)
+	}
 	if current == 17 {
 		return migrateLegacyGenerationOwnership(ctx, db)
 	}

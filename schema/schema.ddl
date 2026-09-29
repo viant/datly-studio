@@ -384,7 +384,7 @@ CREATE TABLE resource_namespace_claims (
     created_by      VARCHAR(128) NOT NULL,
     updated_at      DATETIME(6) NOT NULL,
     updated_by      VARCHAR(128) NOT NULL,
-    PRIMARY KEY (namespace),
+    PRIMARY KEY (namespace_id, namespace),
     CONSTRAINT fk_resource_namespace_claims_report
         FOREIGN KEY (report_id) REFERENCES components(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

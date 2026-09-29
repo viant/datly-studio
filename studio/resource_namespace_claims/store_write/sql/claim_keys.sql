@@ -1,1 +1,1 @@
-SELECT Namespace AS Namespace FROM `/`
+SELECT NamespaceId AS NamespaceId, Namespace AS Namespace FROM `/`

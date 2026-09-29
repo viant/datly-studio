@@ -3,6 +3,7 @@ package store_write
 import (
 	context "context"
 	"fmt"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	xhandler "github.com/viant/xdatly/handler"
 	reflect "reflect"
 	"strings"
@@ -27,6 +28,16 @@ func (hooks *NamespaceClaimRules) Init(_ context.Context, entity *StoredClaim, s
 		strings.TrimSpace(entity.ReportId) == "" || entity.Has == nil ||
 		!entity.Has.Namespace || !entity.Has.ReportId || !entity.Has.ShouldDelete {
 		return fmt.Errorf("namespace claim requires exact namespace, report and operation marker")
+	}
+	if !entity.Has.NamespaceId {
+		return fmt.Errorf("resource claim workspace ownership is required")
+	}
+	previousNamespace := ""
+	if state.Previous != nil {
+		previousNamespace = state.Previous.NamespaceId
+	}
+	if err := namespaceaccess.ValidateResourceOwnership(entity.NamespaceId, previousNamespace); err != nil {
+		return err
 	}
 	previous := state.Previous
 	if previous != nil && previous.ReportId != entity.ReportId {

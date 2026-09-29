@@ -1093,8 +1093,8 @@ SELECT 1`})
 		t.Fatalf("namespace conflict changed version=%+v err=%v", otherAfter, err)
 	}
 	reservedNamespace := report.OwnerPackage + ".reserved"
-	if _, err := db.Exec(`INSERT INTO resource_namespace_claims(namespace,report_id,created_at,created_by,updated_at,updated_by) VALUES(?,?,?,?,?,?)`,
-		reservedNamespace, otherReport.ID, time.Now(), "owner", time.Now(), "owner"); err != nil {
+	if _, err := db.Exec(`INSERT INTO resource_namespace_claims(namespace_id,namespace,report_id,created_at,created_by,updated_at,updated_by) VALUES(?,?,?,?,?,?,?)`,
+		namespaceaccess.ID(otherReport.OwnerID, otherReport.Namespace), reservedNamespace, otherReport.ID, time.Now(), "owner", time.Now(), "owner"); err != nil {
 		t.Fatal(err)
 	}
 	_, err = client.Resources().UpsertFile(principal, sdk.ResourceFile{ReportID: report.ID,

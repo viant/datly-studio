@@ -145,6 +145,9 @@ func migrateNamespaceOwnership(ctx context.Context, db *sql.DB) error {
 	if err = assignLegacyGenerationOwnership(ctx, tx); err != nil {
 		return err
 	}
+	if err := rebuildNamespaceClaimKeys(ctx, tx); err != nil {
+		return err
+	}
 	if _, err = tx.ExecContext(ctx, "DELETE FROM schema_version"); err != nil {
 		return err
 	}

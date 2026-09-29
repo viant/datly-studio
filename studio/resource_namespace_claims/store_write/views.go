@@ -6,6 +6,7 @@ import (
 
 // StoredClaim is generated canonical view metadata for claim.
 type StoredClaim struct {
+	NamespaceId  string          `sqlx:"namespace_id,primaryKey"`
 	Namespace    string          `sqlx:"namespace,primaryKey"`
 	ReportId     string          `writer:"concurrency" sqlx:"report_id"`
 	CreatedAt    time.Time       `sqlx:"created_at"`
@@ -17,6 +18,7 @@ type StoredClaim struct {
 }
 
 type StoredClaimHas struct {
+	NamespaceId  bool
 	Namespace    bool
 	ReportId     bool
 	CreatedAt    bool
@@ -28,14 +30,16 @@ type StoredClaimHas struct {
 
 // CurrentClaimView is generated canonical view metadata for claim.
 type CurrentClaimView struct {
-	Namespace string    `sqlx:"namespace,primaryKey"`
-	ReportId  string    `sqlx:"report_id"`
-	CreatedAt time.Time `sqlx:"created_at"`
-	CreatedBy string    `sqlx:"created_by"`
-	UpdatedAt time.Time `sqlx:"updated_at"`
-	UpdatedBy string    `sqlx:"updated_by"`
+	NamespaceId string    `sqlx:"namespace_id,primaryKey"`
+	Namespace   string    `sqlx:"namespace,primaryKey"`
+	ReportId    string    `sqlx:"report_id"`
+	CreatedAt   time.Time `sqlx:"created_at"`
+	CreatedBy   string    `sqlx:"created_by"`
+	UpdatedAt   time.Time `sqlx:"updated_at"`
+	UpdatedBy   string    `sqlx:"updated_by"`
 }
 
 type ClaimKeysRow struct {
-	Namespace string `sqlx:"namespace"`
+	NamespaceId string `sqlx:"namespace_id"`
+	Namespace   string `sqlx:"namespace"`
 }

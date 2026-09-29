@@ -3,6 +3,7 @@ package store_write
 import (
 	"context"
 	"errors"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"testing"
 	"time"
 
@@ -11,14 +12,14 @@ import (
 
 func TestNamespaceClaimRulesPreserveOwnerAndAudit(t *testing.T) {
 	now := time.Now().UTC()
-	previous := &StoredClaim{Namespace: "owner.docs", ReportId: "report-1",
+	previous := &StoredClaim{NamespaceId: namespaceaccess.ID("alice", "one"), Namespace: "owner.docs", ReportId: "report-1",
 		CreatedAt: now.Add(-time.Hour), CreatedBy: "alice"}
 	state := xhandler.LifecycleContext[StoredClaim, xhandler.NoParent, Output]{
 		EntityState: xhandler.EntityState[StoredClaim, xhandler.NoParent]{Previous: previous}}
 	row := func(reportID string) *StoredClaim {
-		return &StoredClaim{Namespace: "owner.docs", ReportId: reportID,
+		return &StoredClaim{NamespaceId: namespaceaccess.ID("alice", "one"), Namespace: "owner.docs", ReportId: reportID,
 			CreatedAt: now, CreatedBy: "bob", UpdatedAt: now, UpdatedBy: "bob",
-			Has: &StoredClaimHas{Namespace: true, ReportId: true, CreatedAt: true,
+			Has: &StoredClaimHas{NamespaceId: true, Namespace: true, ReportId: true, CreatedAt: true,
 				CreatedBy: true, UpdatedAt: true, UpdatedBy: true, ShouldDelete: true}}
 	}
 	rules := &NamespaceClaimRules{Input: &Input{Operation: "acquire"}}
@@ -32,8 +33,8 @@ func TestNamespaceClaimRulesPreserveOwnerAndAudit(t *testing.T) {
 		t.Fatalf("cross-owner acquisition error=%v", err)
 	}
 	rules.Input.Operation = "release"
-	release := &StoredClaim{Namespace: "owner.docs", ReportId: "report-1", ShouldDelete: true,
-		Has: &StoredClaimHas{Namespace: true, ReportId: true, ShouldDelete: true}}
+	release := &StoredClaim{NamespaceId: namespaceaccess.ID("alice", "one"), Namespace: "owner.docs", ReportId: "report-1", ShouldDelete: true,
+		Has: &StoredClaimHas{NamespaceId: true, Namespace: true, ReportId: true, ShouldDelete: true}}
 	if err := rules.Init(context.Background(), release, state); err != nil {
 		t.Fatalf("owner release rejected: %v", err)
 	}

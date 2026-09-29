@@ -15,7 +15,7 @@ import (
 	dsql "github.com/viant/datly/sql"
 )
 
-func ReadForeignNamespaceUsage(ctx context.Context, db *sql.DB, tx *sql.Tx, namespace, excludeReportID string) ([]*stored.NamespaceUsage, error) {
+func ReadForeignNamespaceUsage(ctx context.Context, db *sql.DB, tx *sql.Tx, namespace, excludeReportID, namespaceID string) ([]*stored.NamespaceUsage, error) {
 	resources := resource.New()
 	if err := resources.Register(stored.UsageDatlyResourceNamespace, stored.UsageDatlyResources); err != nil {
 		return nil, err
@@ -34,8 +34,8 @@ func ReadForeignNamespaceUsage(ctx context.Context, db *sql.DB, tx *sql.Tx, name
 		return nil, err
 	}
 	defer runtime.Shutdown(context.Background())
-	input := &stored.Input{Namespace: namespace, ExcludeReportId: excludeReportID,
-		Has: &stored.InputHas{Namespace: true, ExcludeReportId: true}}
+	input := &stored.Input{NamespaceId: namespaceID, Namespace: namespace, ExcludeReportId: excludeReportID,
+		Has: &stored.InputHas{NamespaceId: true, Namespace: true, ExcludeReportId: true}}
 	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: target, Input: input})
 	if err != nil {
 		return nil, err

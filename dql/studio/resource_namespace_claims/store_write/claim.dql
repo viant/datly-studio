@@ -12,13 +12,14 @@
 #define($_ = $Claims<[]*StoredClaim>(body/data))
 
 SELECT claim.*, type(claim, 'StoredClaim'),
-       CAST(claim.namespace AS string),
+       CAST(claim.namespace_id AS string), CAST(claim.namespace AS string),
        CAST(claim.report_id AS string),
        CAST(claim.created_at AS time.Time),
        CAST(claim.created_by AS string),
        CAST(claim.updated_at AS time.Time),
        CAST(claim.updated_by AS string),
        CAST(claim.should_delete AS bool),
+       tag(claim.namespace_id, 'sqlx:"namespace_id,primaryKey"'),
        tag(claim.namespace, 'sqlx:"namespace,primaryKey"'),
        lifecycle_type(claim, 'NamespaceClaimRules'),
        concurrency_token(claim.report_id),

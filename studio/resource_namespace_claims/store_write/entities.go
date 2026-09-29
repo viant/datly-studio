@@ -4,6 +4,16 @@ import (
 	time "time"
 )
 
+func (entity *StoredClaim) GetNamespaceId() string {
+	return entity.NamespaceId
+}
+func (entity *StoredClaim) SetNamespaceId(value string) {
+	entity.NamespaceId = value
+	if entity.Has == nil {
+		entity.Has = &StoredClaimHas{}
+	}
+	entity.Has.NamespaceId = true
+}
 func (entity *StoredClaim) GetNamespace() string {
 	return entity.Namespace
 }

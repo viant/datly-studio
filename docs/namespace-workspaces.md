@@ -8,6 +8,20 @@ across namespaces. Connector ownership is not implicitly inherited from the
 currently selected namespace, and connector access does not grant resource access.
 Datly Studio remains independent and reporting-free.
 
+## Current acceptance summary
+
+The published Studio main revision now includes authz integration, namespace
+selection, private/public visibility, separate namespace MCP listeners, and
+cross-version ACL protection. UI-created Alpha/Beta publications run together on
+ports 18891/18892; forecasting and skills pass on private port 18893. The latest
+full forecasting matrix passed 262 inputs / 135 custom handler types.
+
+Completion is still unproven. Real Viant IDP forecasting permission modeling and
+successful scoped UI preview are open. Mandatory resource selection, remaining
+namespace persistence/query scopes, duplicate resource names and complete
+multi-window coordination also remain open. Later sections record incremental
+implementation evidence; none substitutes for these acceptance gates.
+
 ## Implemented foundations
 
 - Schema version 17 adds namespace identity and namespace visibility/MCP metadata.
@@ -180,12 +194,12 @@ gate; scoped selector approval does not establish full resource isolation.
   editor state, storage failures, background suspension and switch/open races.
 - Require and bind namespace selection in all resource routes, including native
   HTTP/MCP components, and scope predicates, policies and runtime metadata.
-- Run independent dynamic MCP listeners and generations for selected namespace
-  ports, with explicit listener readiness and failures.
+- Broaden the verified independent MCP listener/generation scenarios to complete
+  deployment acceptance; UI-published Alpha/Beta and forecasting now run together.
 - Test cross-namespace denial for a caller owning both namespaces, role/public
   visibility, revoked visibility, duplicate resource names, and MCP isolation.
-- Obtain UX review of the rendered namespace flow, followed by end-to-end
-  forecasting execution/publication review.
+- Complete end-to-end forecasting execution/publication UX review. Namespace
+  settings, selection, first-draft import and cube selection have scoped approvals.
 
 Do not treat the schema or SDK fields as proof that namespace isolation is ready.
 No live database upgrade or runtime deployment was performed for these foundations.
@@ -344,15 +358,17 @@ It reads a complete snapshot before changes and preserves existing listeners whe
 snapshot loading or replacement fails. Race-enabled database/protocol tests cover
 independent enable/disable/archive behavior and port conflicts.
 
-The production runtime command has not yet wired this reconciler with namespace-
-scoped definitions, role gates, independent generations/reloads, or UI controls. The supplied host
-factory remains responsible for namespace catalog and authorization isolation;
-the listener manager alone does not enforce resource ACL or namespace visibility.
+The runtime command and private forecasting launcher now wire this reconciler
+through NamespaceFactory with scoped definitions, namespace visibility gates and
+independent generation reloads. UI-created Alpha/Beta publications and the
+forecasting endpoint have been exercised concurrently. The listener manager
+alone does not enforce ACL; the configured host factory supplies those gates.
 
 Port-change tests verify that an occupied port or failed catalog construction
 preserves the existing endpoint, a successful change closes the old port, and
-another namespace's endpoint remains available. Rebind is listener replacement;
-it is not yet namespace-specific runtime generation reload.
+another namespace's endpoint remains available. Rebind replaces the listener;
+namespace-specific generation reload is implemented separately by the host
+source and authenticated admin API.
 
 ## Namespace-scoped runtime definition loads
 
@@ -679,3 +695,34 @@ payloads never supply ownership. Lifecycle checks require canonical ownership
 and reject changes to an existing nonempty namespace. Persistence regressions
 inspect native and SDK-created grants, and mutation tests reject missing or moved
 ownership. This covers component ACL records, not generic policy-head ownership.
+
+On 2026-09-29 the full forecasting runtime matrix passed against namespace MCP
+port 18893: 262 input cases across 135 custom handler types, including built-in
+predicates and explicit-false cases, with zero failures. It ran against the
+current custom binary and published v11 graph using a signed synthetic namespace
+owner, exercising live MCP schema binding and execution without changing the
+predicate inventory or underlying test data. This strengthens fixture acceptance;
+it does not supply real Viant IDP publisher permissions.
+
+## Workspace-local resource namespace claims
+
+Canonical schema version 19 keys named resource claims by workspace ID and
+resource namespace together. Claim writes derive ownership from their stored
+component, and the foreign-usage reader compares only components in the same
+workspace. The SQLite upgrade rebuilds the claim table atomically, preserves
+ownership/audit fields, and rejects orphaned or inconsistent claims. Canonical
+MySQL DDL uses the same composite key.
+
+SDK tests create the same owner.docs/shared.sql resource in Alpha and Beta at
+once, verify content isolation and cross-workspace denial, then release Alpha
+without affecting Beta. Same-workspace name conflicts remain enforced. Component
+slug/ID identity is still global per owner; this change does not claim that
+component slugs can be duplicated across workspaces.
+
+The isolated UI catalog was upgraded to schema 19 through custom API startup.
+Using the UI, draft v2 in Alpha and Beta now both contain awitas.docs/shared.sql,
+with distinct marker SQL and distinct workspace ownership. Both saves succeeded;
+the published v1 generations remain unchanged. The original Studio catalog was
+not upgraded. SDK tests separately verify claim release and cross-workspace
+read denial. Live MySQL upgrade acceptance remains unverified; canonical MySQL
+creation uses the composite key.
