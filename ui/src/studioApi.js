@@ -42,7 +42,7 @@ export class StudioAPI {
   }
 
   namespaceSnapshot(operation) {
-    if (operation.startsWith('namespaces.') || operation.startsWith('connectors.')) return null;
+    if (operation.startsWith('namespaces.') || operation.startsWith('connectors.') || operation === 'authorization_predicates.types') return null;
     if (this.namespaceBlocked) {
       const error = new Error('Choose an available namespace before continuing.');
       error.code = 'namespace_unavailable';

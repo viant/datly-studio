@@ -42,6 +42,7 @@ func (f AuthenticatorFunc) Authenticate(ctx context.Context, request *http.Reque
 }
 
 type Config struct {
+	RequireNamespace   bool
 	Mode               Mode
 	DevelopmentSubject string
 	// DevelopmentCredential mints and verifies a short-lived local JWT for
@@ -101,11 +102,18 @@ func (g Gateway) ServeHTTP(response http.ResponseWriter, request *http.Request) 
 		return
 	}
 	if values, found := request.Header[http.CanonicalHeaderKey(NamespaceHeader)]; found {
-		if len(values) != 1 || strings.TrimSpace(values[0]) == "" {
+		if len(values) != 1 || strings.TrimSpace(values[0]) == "" || (g.Config.RequireNamespace && !validSelectedNamespace(values[0])) {
 			writeError(response, http.StatusBadRequest, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "one namespace ID is required"})
 			return
 		}
 		ctx = sdk.WithNamespaceSelection(ctx, values[0])
+	}
+	if g.Config.RequireNamespace && sdk.RequiresNamespaceSelection(operation) {
+		id, present := sdk.NamespaceSelectionFromContext(ctx)
+		if !present || !validSelectedNamespace(id) {
+			writeError(response, http.StatusBadRequest, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "Choose a namespace before accessing resources"})
+			return
+		}
 	}
 	limit := int64(1 << 20)
 	if operation == sdk.OperationVersionLoadDQL || operation == sdk.OperationVersionLoadArchive {
@@ -135,6 +143,18 @@ func (g Gateway) ServeHTTP(response http.ResponseWriter, request *http.Request) 
 	if err = json.NewEncoder(response).Encode(output); err != nil {
 		writeError(response, http.StatusInternalServerError, &sdk.Error{Code: sdk.ErrorInternal, Message: "encode Studio SDK response", Cause: err})
 	}
+}
+
+func validSelectedNamespace(id string) bool {
+	if len(id) != 64 {
+		return false
+	}
+	for _, ch := range id {
+		if !(ch >= '0' && ch <= '9' || ch >= 'a' && ch <= 'f') {
+			return false
+		}
+	}
+	return true
 }
 
 func (g Gateway) authenticate(request *http.Request) (context.Context, error) {

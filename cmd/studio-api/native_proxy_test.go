@@ -8,7 +8,9 @@ import (
 	"testing"
 
 	"github.com/viant/datly-studio/internal/bffauth"
+	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/scy/auth/jwt"
+	"strings"
 )
 
 type nativeProxyVerifier struct{}
@@ -40,7 +42,7 @@ func TestEveryNativeSDKPathUsesAuthenticatedStaticProxy(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	nativeSDK, err := sessions.Proxy(target, "/")
+	nativeSDK, err := sessions.ProxyWithResolver(target, "/", nativeSDKTarget(target))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -59,6 +61,20 @@ func TestEveryNativeSDKPathUsesAuthenticatedStaticProxy(t *testing.T) {
 			mux.ServeHTTP(response, request)
 			if response.Code != http.StatusNoContent || observedPath != path || observedBearer != "Bearer owner" || observedCookie != "" || observedDevelopment != "" || observedNamespace != request.Header.Get("X-Studio-Namespace") {
 				t.Fatalf("native path=%s status=%d upstream=%s bearer=%q cookie=%q development=%q", path, response.Code, observedPath, observedBearer, observedCookie, observedDevelopment)
+			}
+		})
+		t.Run(path+" missing selection", func(t *testing.T) {
+			observedPath = ""
+			request := httptest.NewRequest(http.MethodPost, path, nil)
+			request.AddCookie(&http.Cookie{Name: bffauth.DefaultCookieName, Value: id})
+			response := httptest.NewRecorder()
+			mux.ServeHTTP(response, request)
+			required := sdk.RequiresNamespaceSelection(strings.TrimPrefix(path, "/v1/studio/sdk/"))
+			if required && (response.Code != 400 || observedPath != "") {
+				t.Fatalf("unscoped resource reached native backend: status=%d path=%s", response.Code, observedPath)
+			}
+			if !required && (response.Code != 204 || observedPath != path) {
+				t.Fatalf("global control unavailable without selection: status=%d", response.Code)
 			}
 		})
 	}

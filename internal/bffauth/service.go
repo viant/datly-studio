@@ -123,11 +123,18 @@ func (s *Service) ProxyWithResolver(target *url.URL, mount string, resolve Proxy
 			return
 		}
 		selectedProxy := proxy
-		if resolve != nil && selected {
+		if resolve != nil {
 			ctx := sdk.WithPrincipal(request.Context(), current.principal)
 			ctx = sdk.WithVerifiedCredential(ctx, sdk.VerifiedCredential{Bearer: current.token, Claims: current.claims})
-			ctx = sdk.WithNamespaceSelection(ctx, values[0])
+			if selected {
+				ctx = sdk.WithNamespaceSelection(ctx, values[0])
+			}
 			resolved, resolveErr := resolve(ctx, request)
+			var argumentError *sdk.Error
+			if errors.As(resolveErr, &argumentError) && argumentError.Code == sdk.ErrorInvalidArgument {
+				writeJSON(response, http.StatusBadRequest, map[string]string{"message": argumentError.Message})
+				return
+			}
 			if resolveErr != nil || resolved == nil || resolved.Host == "" || resolved.User != nil ||
 				(resolved.Scheme != "http" && resolved.Scheme != "https") || resolved.RawQuery != "" || resolved.Fragment != "" {
 				writeJSON(response, http.StatusForbidden, map[string]string{"message": "Selected namespace MCP endpoint is unavailable"})

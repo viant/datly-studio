@@ -794,3 +794,27 @@ editor context succeed. SDK tests retain local
 policy reads and reject foreign components/skills before component or policy
 access. Selection is still optional on these routes; mandatory selection across
 resource APIs remains an acceptance gate.
+
+## Required selection at the Studio API boundary
+
+The Studio API enables required namespace selection for resource HTTP operations
+in both development and authenticated modes. Its authenticated native SDK proxy
+applies the same requirement after session verification. Namespace administration,
+global connectors and linked predicate type discovery remain available without a
+selection. Missing resource selection returns an actionable error before any
+backend request. Supplied malformed or duplicate headers are rejected.
+
+Namespace MCP routing now always invokes its resolver, including when the request
+omits the namespace header. Missing selection therefore cannot reach the fallback
+MCP server. Regression tests cover all mounted native SDK HTTP paths, generic
+resource operations, global recovery operations and zero fallback MCP requests.
+
+The custom prerequisite API was rebuilt and restarted on isolated port 8189.
+Browser UI acceptance loaded Alpha's overview and switched to a Beta-only
+component catalog. Predicate type discovery remains global during recovery on
+both client and server. GPT-6 Sol approved this startup/recovery scope. The full
+Go suite, UI contract suite, 135 rendered UI tests and frontend build passed.
+
+This establishes the Studio API HTTP boundary. Direct native Datly endpoints,
+the static authoring MCP transport and trusted in-process SDK calls still have
+optional selection contracts; their mandatory-selection coverage remains open.

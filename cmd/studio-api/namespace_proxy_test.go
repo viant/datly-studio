@@ -69,10 +69,12 @@ func TestNamespaceMCPProxyUsesVerifiedSessionAndServerEndpoint(t *testing.T) {
 		authenticated bool
 		status        int
 	}{
-		{a, true, 204}, {b, true, 204}, {strings.Repeat("c", 64), true, 403}, {"invalid", true, 400}, {a, false, 401},
+		{a, true, 204}, {b, true, 204}, {strings.Repeat("c", 64), true, 403}, {"invalid", true, 400}, {"", true, 403}, {a, false, 401},
 	} {
 		request := httptest.NewRequest(http.MethodPost, "/v1/studio/mcp/mcp", nil)
-		request.Header.Set("X-Studio-Namespace", tc.id)
+		if tc.id != "" {
+			request.Header.Set("X-Studio-Namespace", tc.id)
+		}
 		request.Header.Set("Authorization", "Bearer attacker")
 		request.Header.Set("X-Studio-Runtime-Token", "attacker")
 		if tc.authenticated {

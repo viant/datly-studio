@@ -67,13 +67,18 @@ test('selected namespace MCP never sends a session cookie to its direct endpoint
   assert.equal(seen.init.credentials, 'include');
 });
 
-test('unavailable namespace blocks resources while retaining directory and global connectors', async () => {
-  const api = new StudioAPI({ mode: 'authenticated', apiBaseURL: 'https://studio.example.com' }, { fetcher: async () => response({ items: [] }) });
+test('unavailable namespace blocks resources while retaining global discovery', async () => {
+  const api = new StudioAPI({ mode: 'authenticated', apiBaseURL: 'https://studio.example.com' }, { fetcher: async (value, init) => {
+    assert.equal(new Request(value, init).headers.get('X-Studio-Namespace'), null);
+    return response({ items: [] });
+  } });
+  api.setNamespace('a'.repeat(64));
   api.setNamespaceBlocked(true);
   await assert.rejects(api.listComponents(), { code: 'namespace_unavailable' });
   await assert.rejects(api.listMCPTools(), { code: 'namespace_unavailable' });
   assert.deepEqual(await api.listNamespaces(), { items: [] });
   assert.deepEqual(await api.listConnectors(), { items: [] });
+  assert.deepEqual(await api.listAuthorizationPredicateTypes(), []);
 });
 
 test('MCP catalog discards a response after switching namespaces', async () => {

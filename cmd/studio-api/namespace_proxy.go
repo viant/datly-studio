@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/viant/datly-studio/internal/bffauth"
 	"github.com/viant/datly-studio/sdk"
@@ -30,6 +31,18 @@ func namespaceMCPTarget(transport sdk.Transport) bffauth.ProxyTargetResolver {
 			return nil, fmt.Errorf("namespace MCP endpoint is invalid")
 		}
 		target.Path = ""
+		return target, nil
+	}
+}
+
+func nativeSDKTarget(target *url.URL) bffauth.ProxyTargetResolver {
+	return func(ctx context.Context, request *http.Request) (*url.URL, error) {
+		operation := strings.TrimPrefix(request.URL.Path, "/v1/studio/sdk/")
+		if sdk.RequiresNamespaceSelection(operation) {
+			if _, present := sdk.NamespaceSelectionFromContext(ctx); !present {
+				return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "Choose a namespace before accessing resources"}
+			}
+		}
 		return target, nil
 	}
 }

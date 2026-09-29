@@ -1,6 +1,9 @@
 package sdk
 
-import "context"
+import (
+	"context"
+	"strings"
+)
 
 type namespaceSelectionKey struct{}
 
@@ -12,4 +15,10 @@ func WithNamespaceSelection(ctx context.Context, id string) context.Context {
 func NamespaceSelectionFromContext(ctx context.Context) (string, bool) {
 	id, ok := ctx.Value(namespaceSelectionKey{}).(string)
 	return id, ok
+}
+
+// RequiresNamespaceSelection distinguishes resource operations from global
+// connector and namespace administration and linked predicate type discovery.
+func RequiresNamespaceSelection(operation string) bool {
+	return !strings.HasPrefix(operation, "namespaces.") && !strings.HasPrefix(operation, "connectors.") && operation != "authorization_predicates.types"
 }

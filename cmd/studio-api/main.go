@@ -51,7 +51,7 @@ import (
 )
 
 // nativeSDKPaths are exact BFF mounts for generated static Datly SDK routes.
-// Every other SDK operation remains on the generic development/compatibility gateway.
+// Every other SDK operation remains on the generic SDK gateway.
 var nativeSDKPaths = []string{
 	"/v1/studio/sdk/access.list",
 	"/v1/studio/sdk/access.context",
@@ -302,7 +302,7 @@ func main() {
 		mux.Handle("/", assets)
 	}
 	var extensionProxy http.Handler
-	gatewayConfig := httptransport.Config{Mode: httptransport.Development, DevelopmentSubject: *subject}
+	gatewayConfig := httptransport.Config{Mode: httptransport.Development, DevelopmentSubject: *subject, RequireNamespace: true}
 	if resolvedMode == string(httptransport.Development) {
 		devJWT, jwtErr := httptransport.NewDevelopmentJWT("studio-development", "studio-sdk")
 		if jwtErr != nil {
@@ -350,7 +350,7 @@ func main() {
 			if parseErr != nil {
 				log.Fatal(parseErr)
 			}
-			nativeSDK, proxyErr := sessions.Proxy(staticTarget, "/")
+			nativeSDK, proxyErr := sessions.ProxyWithResolver(staticTarget, "/", nativeSDKTarget(staticTarget))
 			if proxyErr != nil {
 				log.Fatal(proxyErr)
 			}
@@ -401,7 +401,7 @@ func main() {
 				log.Fatal(proxyErr)
 			}
 		}
-		gatewayConfig = httptransport.Config{Mode: httptransport.Authenticated, Authenticator: sessions}
+		gatewayConfig = httptransport.Config{Mode: httptransport.Authenticated, Authenticator: sessions, RequireNamespace: true}
 	} else {
 		target, parseErr := url.Parse(*dynamicMCPURL)
 		if parseErr != nil {
