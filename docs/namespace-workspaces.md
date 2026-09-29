@@ -633,3 +633,30 @@ Both exact-version UI previews returned their respective markers (101 and 202)
 after both publications became active. The initial named-tool calls were denied as well as discovery; the artifact
 public-default correction now passes both protocol paths. GPT-6 Sol granted scoped approval to the new empty-builder Load DQL
 entry and fixed-resource import flow. It did not approve full MCP acceptance.
+
+## Forecasting and skill regression on a namespace endpoint
+
+The isolated forecasting namespace remains private with no viewer-role additions.
+Its MCP endpoint was enabled through the UI on port 18893. The latest custom
+runtime revalidated the UI-authored published v11 graph: seven dictionary
+relations, composite country/region matching, nullable missing dictionaries,
+representative predicate totals, publisher 127/147 isolation, role/exposure
+discovery and execution denial, and client scope override rejection all pass.
+Native skill discovery/get, MCP resource retrieval and compatibility discovery
+also pass their anonymous, role and exposure denials. Negative fixture tokens
+use the namespace owner subject, so they test the explicit resource policy after
+passing namespace visibility. Alpha and Beta checks still pass concurrently.
+
+These are synthetic signed-owner identities and synthetic viant-e2e data. Real
+Viant IDP publisher grants, successful scoped UI preview and complete namespace
+route/persistence acceptance remain open; no full-goal completion is claimed.
+
+## Cross-version policy safety
+
+Implicit public defaults now require that the component has no policy head in
+any version for the configured tenant. A new version cannot erase an earlier
+explicit policy by omitting its version-specific document. Such a version denies
+runtime discovery/execution until its policy is configured. The presence check
+is a private generated Datly reader; query failures deny access. Tests distinguish
+an explicitly configured component from a never-configured one and cover lookup
+failure. No version policy is silently copied or inferred from role claims.

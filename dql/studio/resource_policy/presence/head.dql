@@ -1,0 +1,14 @@
+#package('studio/resource_policy/presence')
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $route('/_studio/resource-policy-presence', 'GET'))
+#setting($_ = $internal(true))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('head', 'sql/read.sql'))
+#define($_ = $Tenant<string>(query/tenant).Required().WithPredicate(0, 'equal', 'p', 'tenant_id'))
+#define($_ = $ResourceKind<string>(query/resourceKind).Required().WithPredicate(0, 'equal', 'p', 'resource_kind'))
+#define($_ = $ResourceId<string>(query/resourceId).Required().WithPredicate(0, 'equal', 'p', 'resource_id'))
+#define($_ = $Heads<[]*PolicyHead>(output/view))
+SELECT head.*, type(head, 'PolicyHead'), CAST(head.resource_id AS string), set_limit(head, 1)
+FROM (${embed:sql/read.sql}) head
+WHERE 1=1

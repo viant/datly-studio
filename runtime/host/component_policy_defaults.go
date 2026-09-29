@@ -15,8 +15,9 @@ import (
 // policy administration, malformed policies, or database failures.
 type componentPolicyDefaults struct {
 	authz.Store
-	tenant   string
-	versions map[string]int
+	tenant      string
+	versions    map[string]int
+	hasPolicies func(context.Context, authz.Resource) (bool, error)
 }
 
 func (s *componentPolicyDefaults) Get(ctx context.Context, resource authz.Resource) (authz.Document, error) {
@@ -25,6 +26,16 @@ func (s *componentPolicyDefaults) Get(ctx context.Context, resource authz.Resour
 		return document, err
 	}
 	if resource.Kind != "component" || resource.Tenant != s.tenant || s.versions[resource.ID] < 1 || resource.Version != strconv.Itoa(s.versions[resource.ID]) {
+		return document, err
+	}
+	if s.hasPolicies == nil {
+		return document, err
+	}
+	existing, presenceErr := s.hasPolicies(ctx, resource)
+	if presenceErr != nil {
+		return authz.Document{}, presenceErr
+	}
+	if existing {
 		return document, err
 	}
 	return authz.Document{Resource: resource, Revision: 1, Policies: map[string]authz.Policy{
@@ -39,6 +50,6 @@ func (s *Service) publishedAuthorizer(versions map[string]int) *Service {
 		return s
 	}
 	access := *s.resourceAccess
-	access.Store = &componentPolicyDefaults{Store: access.Store, tenant: s.config.Access.Tenant, versions: maps.Clone(versions)}
-	return &Service{config: s.config, studio: s.studio, runAccessStore: s.runAccessStore, resourceAccess: &access}
+	access.Store = &componentPolicyDefaults{Store: access.Store, tenant: s.config.Access.Tenant, versions: maps.Clone(versions), hasPolicies: s.definitionStore.HasPolicy}
+	return &Service{config: s.config, studio: s.studio, runAccessStore: s.runAccessStore, resourceAccess: &access, definitionStore: s.definitionStore}
 }
