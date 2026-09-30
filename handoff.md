@@ -1,6 +1,253 @@
 # Datly Studio handoff
 
-Updated: 2026-09-27
+Updated: 2026-09-30 (America/Los_Angeles)
+
+## Current checkpoint — read this before the historical sections below
+
+The rest of this file preserves a detailed development history through
+2026-09-27. Its old ports, dependency hashes, pending-route counts, and
+"immediate next goal" are historical evidence, **not current instructions**.
+This section is the current source of truth for resuming the Forecasting Studio
+work. No new branch was created; public Studio work is on `main`.
+
+### What the user is building
+
+- Keep public `viant/datly-studio` independent and reporting-free. It is the
+  reusable Datly 1.0 SDK/UI authoring base; private `aistudio` will add Forge
+  reporting separately.
+- Author components, connectors, DQL/embedded SQL, predicates, skills, ACL,
+  namespace configuration, and publication through UI/typed SDK flows. A
+  namespace owns its components, resources, MCP exposure, and skills; private
+  by default, visible to its owner and assigned roles, with explicit public
+  visibility. Global connectors are allowed. Distinct namespaces may expose
+  MCP on distinct ports.
+- Forecasting is the only current business-data scope. Use fabricated
+  `viant-e2e` BigQuery data and a local `ci_ads` MySQL fixture. Do not inspect
+  production table rows. The UI graph must retain all seven Steward join views
+  (Channel, Publisher, Forecastingsite, Carrier, Countryregion, Dma,
+  Agegroup), 235 predicates, and the selected cube measures. Any publisher
+  entity authorization requires an authoritative publisher-grant source;
+  advertiser IDs must never be inferred to be publisher IDs.
+- User explicitly requested no new branches for this project and no Fable
+  review. UX review should use Codex GPT-6 Sol when needed.
+
+### Verified work and current Git state
+
+| Repository | Current checkpoint | Status |
+| --- | --- | --- |
+| `viant/datly-studio` | `4a4025f` on `main`, matching `origin/main` | Pushed graph layout: root above the first child row; all seven first-level children fit at a 1600px desktop width without sideways scrolling. Includes earlier `fd53857` owner visibility during optional user-info outage, `e89a83f` rotating JWKS support, and `7763500` reusable `app/studioapi.Run`. |
+| `viant/sqlparser` | `4a52637` on `main`, matching `origin/main` | Pushed protected-region scanner fast path. Full `GOWORK=off go test ./...` passed. The uncommitted `source/scanner_benchmark_test.go` adds six ordinary/comment/quote/dollar/bracket scaling cases; an unrelated `mcp-go-debugger.log` is untracked. |
+| `viant/authz` | `d5fd275` on `main`, matching `origin/main` when last checked | Pushed verified identity-only resolver so owner/public namespace access does not depend on optional user-info role service. Public OAuth user-info facts require `subject`, `roles`, `features`, and named `entityPermissions`. The working tree later acquired unrelated edits; inspect before touching it. |
+| `viant-internal/auth` | `ENG-57520` existing branch | `4e5ad75` was pushed with public `GET /v1/api/user/info` authority fields and a five-minute successful-facts cache. The branch has subsequently moved to newer commits; do not reset it. Its push CI publishes `gcr.io/unison-cloud/datly-auth:latest` and a Helm chart. No claim is made that the live IDP deployment includes these fields. |
+| `viant/datly` | existing `v1` branch | Datly 1.0 is pinned by Studio; do not substitute legacy APIs. The sibling checkout has unrelated active edits; do not reset or sweep it. |
+| private `steward/studio-prereq` | untracked nested module under Steward | Links forecasting predicate handlers into custom Studio API/runtime binaries and carries fixture/acceptance scripts. It is **not** committed as part of public Studio. Its `go.mod` still pins older Studio/authz revisions, while the dedicated local build used an explicit temporary `go.work`; update only after reviewing private-module scope. |
+
+The Studio `main` working tree currently has **uncommitted** changes for an
+optional `versions.inspect` request field `discoverColumns`, regenerated Go
+and browser OpenAPI clients, an SDK test, documentation, and a direct
+`github.com/viant/sqlparser` version bump to the pushed scanner fix. Focused
+`GOWORK=off go test ./cmd/datly ./studio/report_versions/inspect ./runtime/host`,
+62 `studioApi.test.js` cases, and `npm run build` passed before the turn was
+interrupted. Re-run relevant checks after any further edits. Preserve the
+pre-existing untracked `datly-runtime.dedicated.yaml` and `ui/ux-fixtures/*`;
+they were not part of these commits.
+
+### Current local deployment and reproducible evidence
+
+The dedicated loopback stack was restarted on 2026-09-30 and the UI root
+returned HTTP 200. It is a temporary local process set, not a durable service
+manager; check again after a host/app restart.
+
+| Service | Address and state at checkpoint |
+| --- | --- |
+| Built Studio UI + Viant IDP OAuth BFF | `http://127.0.0.1:19173/`, served by `/tmp/datly-studio-dedicated-19173/start-idp-broker.py` and its private custom API binary. |
+| Static native Studio HTTP / MCP | `127.0.0.1:19181` / `127.0.0.1:19190`, launched from `/tmp/datly-studio-dedicated-19173/datly-studio-static` with `static.yaml`. |
+| Dynamic namespace admin | `127.0.0.1:19184`, custom `forecasting-studio-runtime` with `runtime.yaml`. |
+| Namespace MCP listeners | Forecasting `18893`, Alpha `18891`, Beta `18892` in the isolated SQLite catalog. Simultaneous isolation was previously verified with synthetic fixture identity; real-IDP runtime authorization remains a separate gate. |
+| Studio catalog | `/tmp/datly-studio-dedicated-19173/studio.db`, an isolated SQLite snapshot; backup before real-IDP fixture ownership alignment is `studio.before-idp-owner.db` beside it. |
+| Dedicated `ci_ads` MySQL | Docker `datly_studio_forecast_mysql`, loopback host port **13317**, `--restart unless-stopped`, separate named volume `datly_studio_forecast_mysql_data`. `mysql_dev` on 3307 and `mysql_auth` on 3308 are other workers' containers; do not stop or change them. |
+
+The local MySQL container was copied from `mysql_dev` because that shared
+container had previously been stopped by other work. Only the six lookup
+tables required by Forecasting were imported into the dedicated `ci_ads`:
+`CI_CHANNEL_V2`, `CI_PUBLISHER`, `CI_SITE`, `CI_CARRIER_ALIAS`,
+`CI_COUNTRY_REGION`, and `CI_DMA`. The dump/import was limited to those tables;
+no row contents were printed or inspected. The dedicated connector uses a
+server-held, mode-0600 DSN file
+`/tmp/datly-studio-dedicated-19173/ciads-13317.dsn` and a MySQL principal
+granted `SELECT, SHOW VIEW` on `ci_ads.*`. Do not put its contents in Git,
+logs, UI fields, or handoff text.
+
+The `ci_ads_local` connector was changed **through Studio UI** to that secret
+reference. The latest SQLite catalog check shows `draft`,
+`last_test_status=passed`, etag 8. The UI test action had completed before the
+turn was interrupted, but **activation was not completed**. Reopen the
+authenticated Studio UI, find `ci_ads_local` in Connectors, verify the passing
+probe, then activate it through the UI. Connector changes deliberately reset
+active status. `bq_metrics` remains active/passed. Until activation, a new
+Forecasting validation or column-discovery request may fail its active-source
+check even though the dedicated database is running.
+
+The previous real-IDP browser run showed three governed namespaces, the
+Forecasting component, seven child join views, 236 inputs/235 predicates, and
+61 output columns when `ci_ads_local` was active and reachable. Draft v12
+revision 9 passed `Validate revision` after the private predicate package was
+linked; published v15 revision 7/generation 30 was validated against synthetic
+fixture grants in `studio-prereq/ACCEPTANCE.md`. These do not prove real-user
+publisher access. The live `https://idp.viantinc.com/v1/api/user/info` response
+previously lacked `subject`, `roles`, `features`, and `entityPermissions`, so
+strict role/entity decisions correctly fail closed until the updated auth
+service is deployed. Owner-only namespace visibility uses independently
+verified ID-token identity.
+
+### UX and performance findings
+
+- A blank signed-in page was traced to the temporary staged UI bundle loading
+  two React copies, caused by an incomplete Vite alias/dedupe configuration.
+  The staged build now uses the same Forge aliases and React dedupe as Studio;
+  browser verification showed the app and graph rendering. Do not copy the
+  one-line old staged `vite.config.js` back into the repository.
+- A callback showing `login state is unavailable` was an expired/missing
+  short-lived PKCE state cookie. Start a fresh flow at
+  `http://127.0.0.1:19173/v1/studio/auth/login` in the same browser/profile;
+  reloading a callback URL cannot complete it. OAuth login and static API
+  remain distinct origins/ports. Never log ID/refresh tokens or client secret.
+- The graph originally used a horizontally overflowing flex row that clipped
+  the first children and risked browser back-navigation via trackpad scroll.
+  The pushed layout moves Forecasting below the Input/Output summary row and
+  uses a wrapping grid. At desktop width, all seven children are visible in
+  the first row; at narrow width, measured graph `scrollWidth == clientWidth`.
+  Full labels are available via hover titles where visual truncation remains.
+- `versions.inspect` for Forecasting v12 returned ~428,070 JSON bytes and
+  took about 4.4–4.7 seconds when source-column discovery succeeded. Approximate
+  response breakdown: `structure` 310,937 bytes (`declarations` 196,646;
+  `component` 110,854), `version` 78,158, top-level `dql` 38,827. Datly
+  Reader Builder's DQL parse took ~54 ms, while `InspectContract` metadata
+  discovery took ~1.5–1.8 seconds in a direct probe. Do not describe all
+  4.7 seconds as BigQuery time: Forecasting also opens its local MySQL joins.
+- SQL scanner CPU profile found `source.syntaxContext.advance` and
+  `source.protectedAt` dominated the ~54 ms parser pass. The pushed scanner
+  optimization made six 4/64 KiB SQL-shape benchmarks roughly 12–14% faster
+  and the Forecasting repeated Reader Builder pass ~48–50 ms. This is useful
+  generally, but cannot by itself remove the multi-second inspect delay.
+- Explicit `discoverColumns:false` made the inspect request ~0.54 seconds but
+  returned only **3 declared columns** for this `*`-heavy draft rather than
+  the full **61**. The uncommitted API therefore defaults to full discovery
+  and exposes the fast option only to callers that know the dynamic shape is
+  already complete. Ordinary Studio UI keeps full discovery. Do not enable
+  the fast option by default for this Forecasting draft.
+
+### Important Datly runtime distinction and remaining design work
+
+Dynamic MCP readers do **not** require prelinked generated reader types.
+Datly 1.0 `transcribe.RuntimeContracts` materializes input/output `reflect.Type`
+at runtime and `runtime/host/service.go` registers the resulting components
+once per generation. Their HTTP/MCP calls reuse that registered contract;
+they do not perform column discovery on every tool invocation. Application
+predicate handlers/codecs such as private `PublisherScope` are separate and
+must still be linked into the host binary.
+
+Current generation **reload** in `runtime/host/service.go` calls
+`transcribe.NewCompiler().RuntimeContracts` with
+`ColumnRefiner: column.New(sources.connections)`, so it rediscovers source
+columns when building a new generation. The user's desired direction is:
+discover wildcards when SQL changes in authoring, then keep the resolved
+dynamic Go shape in the registered generation as the execution authority.
+No prelinked generated reader package is required. Avoid adding a parallel
+manifest merely to cache what the dynamic registered shape already expresses.
+The unresolved part is making a fresh generation reconstruct the same complete
+shape without an unnecessary database metadata pass while preserving exact
+version identity, authorization, and wildcard semantics. Do not simply remove
+`ColumnRefiner` from runtime compilation: this current draft then drops from
+61 to 3 columns. Design and test that lifecycle before changing publish/reload.
+
+### Forge windows through MCP — added 2026-09-30
+
+The sibling public Forge checkout now has a focused MCP bridge extension in
+`backend/mcp`:
+
+- `forgeWindowList({clientId?})` lists **active** windows in one connected UI
+  client's current MCP namespace. Its response includes `windowId`, key,
+  title, tab/modal/minimized flags, and selected state. It intentionally omits
+  parameters, forms, datasource collections, and other window content.
+- `forgeWindowGet({clientId?,windowId})` returns the existing semantic snapshot
+  for one exact active window ID in that same UI client and namespace. It
+  rejects missing/whitespace-padded IDs, missing clients/windows, and snapshots
+  with duplicate window IDs; it does not search other clients or namespaces.
+- These are typed `github.com/viant/mcp-protocol/server` tools registered by
+  Forge's existing MCP handler. `GOWORK=off go test ./backend/mcp/...` passed,
+  including service isolation, stale-client refusal, ambiguous-ID refusal,
+  and tool-registration tests. The implementation is committed locally as
+  Forge `a448c2c` on existing `main`. It is **not pushed** at this checkpoint:
+  Forge already had an unrelated outgoing `main` commit (`6b9635b`), so a
+  routine push would publish both. Preserve unrelated Forge untracked files.
+
+This is an **active-window** list, not a registry/catalog of every window
+definition that could be opened. A frontend must opt into Forge's UI bridge
+(`startUIBridge` or `startUIBridgeHTTP`) and publish a current semantic
+snapshot; without a connected frontend the list reports `connected:false` and
+get fails. Datly Studio presently uses Forge theme/components but does not by
+itself establish this UI-bridge connection. The Forge MCP tools also do not
+automatically appear on Datly Studio's namespace MCP listener: private AI
+Studio must compose or proxy them through its generic MCP adapter and enforce
+namespace, role, exposure, and allowed-entity policy **server-side before tool
+discovery and retrieval**. `forgeWindowGet` can contain form/parameter/row
+state; never expose it merely because a caller knows a window ID. No connected
+Forge frontend, authenticated host adapter, or end-to-end window retrieval has
+yet been verified for AI Studio.
+
+### Exact next actions
+
+1. Confirm the three local processes still listen and the dedicated
+   `datly_studio_forecast_mysql` container is healthy. Resume the existing
+   authenticated UI session or start a fresh IDP login; no collision precheck
+   is needed when bootstrapping dedicated ports.
+2. In the UI, finish `ci_ads_local` **activation** after its passing test on
+   port 13317. Confirm both connectors are active/passed. Reopen Forecasting
+   v12 and verify all seven joins and 61 columns. Do not touch the shared
+   `mysql_dev`/`mysql_auth` containers.
+3. Review the uncommitted optional `discoverColumns` API and generated clients.
+   Test default full inspection and explicit `false` against a stable fixture;
+   ensure a missing metadata source yields an actionable diagnostic and never
+   silently claims a complete graph. Commit/push on existing `main` only after
+   validation; preserve the unrelated untracked fixture files.
+4. Decide and implement the dynamic shape/reload boundary described above.
+   Re-run publication, reload, HTTP/MCP tool discovery/calls, cube dimensions
+   and measures, namespace-port isolation, and denial cases. Do not infer
+   publisher permissions from advertiser grants.
+5. Check real IDP rollout for the extended user-info contract. Until it is
+   actually live, protected runtime preview and user-specific entity scope
+   remain blocked. Keep the policy fail-closed; do not turn on a broad public
+   mode merely to make the preview work.
+6. Review the private Studio SDK dependency version in `studio-prereq/go.mod`
+   once public commits are finalized. Do not accidentally commit that untracked
+   nested module inside Steward. Continue AI Studio reporting only after the
+   Datly Studio prerequisite flow is accepted.
+7. Review the local Forge MCP window-list/get commit `a448c2c` and its
+   pre-existing outgoing commit before pushing either. Connect a Forge
+   frontend to the bridge, verify real MCP `tools/list`, list,
+   exact-ID get, disconnected-client behavior, and denied cross-client access.
+   Wire into private AI Studio only through its authorized namespace MCP
+   adapter; do not add reporting behavior to public Datly Studio.
+
+### Verification commands and limits
+
+```bash
+cd /Users/awitas/go/src/github.com/viant/datly-studio
+GOWORK=off go test ./cmd/datly ./studio/report_versions/inspect ./runtime/host
+cd ui && node --test src/studioApi.test.js && npm run build
+
+cd /Users/awitas/go/src/github.com/viant/sqlparser
+GOWORK=off go test ./...
+```
+
+The focused Studio Go packages, 62 browser SDK Node cases, Vite build, and
+SQL parser suite passed at the last code-edit checkpoint. The six-shape
+benchmark file remains uncommitted; keep or discard it based on its review.
+The full Studio suite passed before the current uncommitted inspect-parameter
+change; run it again before claiming a new production-ready commit. Neither
+the synthetic acceptance suite nor a UI screenshot proves real IDP publisher
+authorization or production BigQuery data correctness.
 
 ## Executive summary
 
