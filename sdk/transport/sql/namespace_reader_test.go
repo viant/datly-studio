@@ -96,7 +96,7 @@ func TestNamespaceStoreReadScopeAndPaging(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := db.Exec(`INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_run,can_edit,can_publish,can_use_dql,etag) VALUES(?,'user','viewer',TRUE,FALSE,FALSE,FALSE,FALSE,1)`, report.ID); err != nil {
+	if _, err := db.Exec(`INSERT INTO component_acl(report_id,subject_type,subject_id,can_view,can_run,can_edit,can_publish,can_use_dql,etag) VALUES(?,'user','viewer',TRUE,FALSE,FALSE,FALSE,FALSE,1)`, report.ID); err != nil {
 		t.Fatal(err)
 	}
 

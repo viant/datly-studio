@@ -1,1 +1,1 @@
-SELECT f.*, '' AS should_delete FROM report_resource_folders f
+SELECT f.*, '' AS should_delete FROM component_resource_folders f

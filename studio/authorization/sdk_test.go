@@ -31,7 +31,7 @@ func TestSDKAuthorizerEnforcesOwnerAndACL(t *testing.T) {
 	if _, err = db.Exec(`INSERT INTO components(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES ('shared','shared','Shared','bob','active','main','reports','shared',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = db.Exec(`INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_run,can_edit,can_use_dql) VALUES ('shared','user','alice',TRUE,TRUE,TRUE,FALSE)`); err != nil {
+	if _, err = db.Exec(`INSERT INTO component_acl(report_id,subject_type,subject_id,can_view,can_run,can_edit,can_use_dql) VALUES ('shared','user','alice',TRUE,TRUE,TRUE,FALSE)`); err != nil {
 		t.Fatal(err)
 	}
 	authorizer, err := NewSDKAuthorizer(db)
@@ -72,7 +72,7 @@ func TestSDKAuthorizerEnforcesOwnerAndACL(t *testing.T) {
 	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{ReportID: "shared", Permission: "dql"}); err == nil {
 		t.Fatal("DQL access without can_use_dql unexpectedly allowed")
 	}
-	if _, err = db.Exec(`UPDATE report_acl SET can_use_dql=TRUE WHERE report_id='shared' AND subject_id='alice'`); err != nil {
+	if _, err = db.Exec(`UPDATE component_acl SET can_use_dql=TRUE WHERE report_id='shared' AND subject_id='alice'`); err != nil {
 		t.Fatal(err)
 	}
 	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{ReportID: "shared", Permission: "dql"}); err != nil {
@@ -105,7 +105,7 @@ func TestSDKAuthorizerEnforcesOwnerAndACL(t *testing.T) {
 	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{Permission: "publish"}); err == nil {
 		t.Fatal("viewer global publish authorization unexpectedly allowed")
 	}
-	if _, err = db.Exec(`UPDATE report_acl SET can_publish=TRUE WHERE report_id='shared' AND subject_id='alice'`); err != nil {
+	if _, err = db.Exec(`UPDATE component_acl SET can_publish=TRUE WHERE report_id='shared' AND subject_id='alice'`); err != nil {
 		t.Fatal(err)
 	}
 	if err = authorizer.Authorize(alice, sqltransport.AuthorizationRequest{Permission: "publish"}); err != nil {

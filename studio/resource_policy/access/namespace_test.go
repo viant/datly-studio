@@ -54,7 +54,7 @@ func TestNativePermissionCatalogNamespaceHTTPAndMCP(t *testing.T) {
 		if _, err := db.Exec(`INSERT INTO components(id,slug,title,owner_id,status,namespace,namespace_id,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES(?,?,?,'owner','active',?,?,'main',?,?,1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, name, name, name, name, id, name, name); err != nil {
 			t.Fatal(err)
 		}
-		if _, err := db.Exec(`INSERT INTO report_versions(report_id,version_no,state,authoring_mode,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,created_by,created_at) VALUES(?,1,'draft','dql','{}','1','hash','{}','pending','1','1','owner',CURRENT_TIMESTAMP)`, name); err != nil {
+		if _, err := db.Exec(`INSERT INTO component_versions(report_id,version_no,state,authoring_mode,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,created_by,created_at) VALUES(?,1,'draft','dql','{}','1','hash','{}','pending','1','1','owner',CURRENT_TIMESTAMP)`, name); err != nil {
 			t.Fatal(err)
 		}
 	}

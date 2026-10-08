@@ -1,2 +1,2 @@
 SELECT v.*
-FROM report_versions v
+FROM component_versions v

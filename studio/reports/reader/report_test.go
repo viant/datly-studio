@@ -46,7 +46,7 @@ func TestReportReaderMinimumContract(t *testing.T) {
 			{"id": "r-gamma", "slug": "gamma", "title": "Gamma analytics", "owner_id": "owner-a", "status": "draft", "default_connector_name": "main", "component_scope": "reports/gamma", "component_name": "gamma", "current_draft_version": 1, "etag": 3, "created_at": "2026-09-17 12:00:00", "updated_at": "2026-09-17 12:00:00"},
 			{"id": "r-removed", "slug": "removed", "title": "Removed", "owner_id": "owner-a", "status": "archived", "default_connector_name": "main", "component_scope": "reports/removed", "component_name": "removed", "etag": 4, "created_at": "2026-09-17 13:00:00", "updated_at": "2026-09-17 13:00:00", "deleted_at": "2026-09-17 13:30:00"},
 		}},
-		datatest.Table{Name: "report_acl", Rows: []datatest.Row{
+		datatest.Table{Name: "component_acl", Rows: []datatest.Row{
 			{"report_id": "r-alpha", "subject_type": "user", "subject_id": "viewer", "can_view": true},
 			{"report_id": "r-beta", "subject_type": "user", "subject_id": "viewer", "can_view": true},
 			{"report_id": "r-gamma", "subject_type": "user", "subject_id": "viewer", "can_view": true},
@@ -334,7 +334,7 @@ func TestReportReaderMinimumContract(t *testing.T) {
 		if err != nil || !reflect.DeepEqual(slugs(output), []string{"beta"}) {
 			t.Fatalf("owner-b reports=%v err=%v", slugs(output), err)
 		}
-		if _, err = db.ExecContext(ctx, "DELETE FROM report_acl WHERE report_id = ? AND subject_id = ?", "r-beta", "viewer"); err != nil {
+		if _, err = db.ExecContext(ctx, "DELETE FROM component_acl WHERE report_id = ? AND subject_id = ?", "r-beta", "viewer"); err != nil {
 			t.Fatal(err)
 		}
 		output, err = invoke(map[string]any{})

@@ -42,15 +42,15 @@ func TestResourceGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 		datatest.Table{Name: "connectors", Rows: []datatest.Row{{"name": "main", "driver": "sqlite", "owner_id": "alice", "status": "active", "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"}}},
 		datatest.Table{Name: "namespaces", Rows: []datatest.Row{{"owner_id": "alice", "name": "general", "title": "General", "status": "active", "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"}}},
 		datatest.Table{Name: "components", Rows: []datatest.Row{{"id": "r1", "slug": "first", "title": "First", "owner_id": "alice", "status": "active", "default_connector_name": "main", "namespace": "general", "component_scope": "reports/first", "component_name": "first", "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"}}},
-		datatest.Table{Name: "report_acl", Rows: []datatest.Row{{"report_id": "r1", "subject_type": "user", "subject_id": "viewer", "can_view": true}}},
-		datatest.Table{Name: "report_versions", Rows: []datatest.Row{{"report_id": "r1", "version_no": 2, "state": "draft", "authoring_mode": "dql", "authored_dql": "private source", "generated_dql": "private generated source", "component_spec_json": "{}", "type_manifest_json": "{}", "spec_format_version": "1", "spec_hash": "hash-2", "compile_status": "valid", "datly_version": "v1", "compiler_version": "v1", "source_revision": 2, "created_by": "alice", "created_at": "2026-09-17 09:00:00"}}},
+		datatest.Table{Name: "component_acl", Rows: []datatest.Row{{"report_id": "r1", "subject_type": "user", "subject_id": "viewer", "can_view": true}}},
+		datatest.Table{Name: "component_versions", Rows: []datatest.Row{{"report_id": "r1", "version_no": 2, "state": "draft", "authoring_mode": "dql", "authored_dql": "private source", "generated_dql": "private generated source", "component_spec_json": "{}", "type_manifest_json": "{}", "spec_format_version": "1", "spec_hash": "hash-2", "compile_status": "valid", "datly_version": "v1", "compiler_version": "v1", "source_revision": 2, "created_by": "alice", "created_at": "2026-09-17 09:00:00"}}},
 	); err != nil {
 		t.Fatal(err)
 	}
 	const count = 137
 	for i := count - 1; i >= 0; i-- {
 		id, path := fmt.Sprintf("%064x", i+1), fmt.Sprintf("assets/file-%03d.txt", i)
-		if _, err := db.ExecContext(ctx, `INSERT INTO report_resource_files
+		if _, err := db.ExecContext(ctx, `INSERT INTO component_resource_files
  (report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at)
  VALUES(?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)`, "r1", 2, id, "assets", path, []byte(fmt.Sprintf("value-%03d", i)), 9, id, false); err != nil {
 			t.Fatal(err)
@@ -60,12 +60,12 @@ func TestResourceGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 		id, root string
 		ordinal  int
 	}{{"b", "second", 2}, {"a", "first", 1}} {
-		if _, err := db.ExecContext(ctx, `INSERT INTO report_resource_folders
+		if _, err := db.ExecContext(ctx, `INSERT INTO component_resource_folders
  (report_id,version_no,folder_id,namespace,root_path,uri_prefix,ordinal)
  VALUES(?,?,?,?,?,?,?)`, "r1", 2, item.id, "assets", item.root, "skill://"+item.root+"/", item.ordinal); err != nil {
 			t.Fatal(err)
 		}
-		if _, err := db.ExecContext(ctx, `INSERT INTO report_skill_roots
+		if _, err := db.ExecContext(ctx, `INSERT INTO component_skill_roots
  (report_id,version_no,skill_id,folder_id,skill_root,ordinal)
  VALUES(?,?,?,?,?,?)`, "r1", 2, item.id, item.id, item.root, item.ordinal); err != nil {
 			t.Fatal(err)
@@ -225,7 +225,7 @@ func TestResourceGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	if err != nil || bytes.Contains(structured, []byte("assets/file-136.txt")) {
 		t.Fatalf("MCP intruder snapshot leaked=%s err=%v", structured, err)
 	}
-	if _, err := db.ExecContext(ctx, "DELETE FROM report_acl WHERE report_id = ? AND subject_id = ?", "r1", "viewer"); err != nil {
+	if _, err := db.ExecContext(ctx, "DELETE FROM component_acl WHERE report_id = ? AND subject_id = ?", "r1", "viewer"); err != nil {
 		t.Fatal(err)
 	}
 	response = httptest.NewRecorder()

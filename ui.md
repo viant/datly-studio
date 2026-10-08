@@ -46,9 +46,9 @@ a typed command applied by Datly's source-preserving reader builder. The command
 returns candidate DQL, canonical structure, and source-linked diagnostics. A
 failed edit leaves the prior version unchanged.
 
-`report_views`, `report_fields`, `report_parameters`, `report_predicates`, and
-`report_cube_configs` are queryable projections of a Datly component version. They do not
-become a second executable model. `report_versions.authored_dql`, resources,
+`component_views`, `component_fields`, `component_parameters`, `component_predicates`, and
+`component_cube_configs` are queryable projections of a Datly component version. They do not
+become a second executable model. `component_versions.authored_dql`, resources,
 component snapshot, type manifest, source revision, and digest remain the
 version authority.
 

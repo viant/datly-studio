@@ -38,15 +38,15 @@ func TestSeedSampleCatalog(t *testing.T) {
 
 	assertCount(t, ctx, db, "SELECT COUNT(1) FROM connectors", 2)
 	assertCount(t, ctx, db, "SELECT COUNT(1) FROM components", 2)
-	assertCount(t, ctx, db, "SELECT COUNT(1) FROM report_versions", 2)
-	assertCount(t, ctx, db, "SELECT COUNT(1) FROM report_fields", 4)
-	assertCount(t, ctx, db, "SELECT COUNT(1) FROM report_parameters", 2)
-	assertCount(t, ctx, db, "SELECT COUNT(1) FROM report_predicates", 2)
-	assertCount(t, ctx, db, "SELECT COUNT(1) FROM report_acl", 4)
-	assertCount(t, ctx, db, "SELECT COUNT(1) FROM report_publications", 1)
-	assertCount(t, ctx, db, "SELECT COUNT(1) FROM report_views", 2)
-	assertCount(t, ctx, db, "SELECT COUNT(1) FROM report_cube_configs", 1)
-	assertCount(t, ctx, db, "SELECT COUNT(1) FROM report_mcp_exposures", 1)
+	assertCount(t, ctx, db, "SELECT COUNT(1) FROM component_versions", 2)
+	assertCount(t, ctx, db, "SELECT COUNT(1) FROM component_fields", 4)
+	assertCount(t, ctx, db, "SELECT COUNT(1) FROM component_parameters", 2)
+	assertCount(t, ctx, db, "SELECT COUNT(1) FROM component_predicates", 2)
+	assertCount(t, ctx, db, "SELECT COUNT(1) FROM component_acl", 4)
+	assertCount(t, ctx, db, "SELECT COUNT(1) FROM component_publications", 1)
+	assertCount(t, ctx, db, "SELECT COUNT(1) FROM component_views", 2)
+	assertCount(t, ctx, db, "SELECT COUNT(1) FROM component_cube_configs", 1)
+	assertCount(t, ctx, db, "SELECT COUNT(1) FROM component_mcp_exposures", 1)
 	assertCount(t, ctx, db, "SELECT COUNT(1) FROM runtime_generations", 1)
 
 	var primaryConnectorCount int
@@ -58,7 +58,7 @@ func TestSeedSampleCatalog(t *testing.T) {
 	}
 
 	var sqlText, dqlText string
-	if err := db.QueryRowContext(ctx, "SELECT authored_sql, authored_dql FROM report_versions WHERE report_id=? AND version_no=1", seed.DraftComponentID).Scan(&sqlText, &dqlText); err != nil {
+	if err := db.QueryRowContext(ctx, "SELECT authored_sql, authored_dql FROM component_versions WHERE report_id=? AND version_no=1", seed.DraftComponentID).Scan(&sqlText, &dqlText); err != nil {
 		t.Fatalf("load draft component version error = %v", err)
 	}
 	if sqlText == "" || dqlText == "" {
@@ -66,7 +66,7 @@ func TestSeedSampleCatalog(t *testing.T) {
 	}
 
 	var activeVersion int
-	if err := db.QueryRowContext(ctx, "SELECT active_version_no FROM report_publications WHERE report_id=?", seed.PublishedComponentID).Scan(&activeVersion); err != nil {
+	if err := db.QueryRowContext(ctx, "SELECT active_version_no FROM component_publications WHERE report_id=?", seed.PublishedComponentID).Scan(&activeVersion); err != nil {
 		t.Fatalf("load publication error = %v", err)
 	}
 	if activeVersion != 1 {
@@ -82,7 +82,7 @@ func TestSeedSampleCatalog(t *testing.T) {
 	}
 
 	var publicationStatus string
-	if err := db.QueryRowContext(ctx, "SELECT publication_status FROM report_publications WHERE report_id=?", seed.PublishedComponentID).Scan(&publicationStatus); err != nil {
+	if err := db.QueryRowContext(ctx, "SELECT publication_status FROM component_publications WHERE report_id=?", seed.PublishedComponentID).Scan(&publicationStatus); err != nil {
 		t.Fatalf("load publication status error = %v", err)
 	}
 	if publicationStatus != "active" {
@@ -92,7 +92,7 @@ func TestSeedSampleCatalog(t *testing.T) {
 	var advancedAllowed int
 	if err := db.QueryRowContext(ctx, `
 SELECT can_use_dql
-FROM report_acl
+FROM component_acl
 WHERE report_id=? AND subject_type='role' AND subject_id='report_admin'`, seed.PublishedComponentID).Scan(&advancedAllowed); err != nil {
 		t.Fatalf("load report admin ACL error = %v", err)
 	}

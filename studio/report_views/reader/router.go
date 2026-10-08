@@ -12,7 +12,7 @@ func init() {}
 
 // Component is the generated component scaffold for view.
 type ViewComponent struct {
-	Contract xdatly.Component[Input, Output] "component:\"view,path=/v1/studio/reports/{reportId}/versions/{versionNo}/views,method=GET,connector=studio,view=view\" routeName:\"view\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.report_views.read\\\",\\\"description\\\":\\\"Read compiled report views and fields\\\"}]\" caseFormat:\"lc\""
+	Contract xdatly.Component[Input, Output] "component:\"view,path=/v1/studio/reports/{reportId}/versions/{versionNo}/views,method=GET,connector=studio,view=view\" routeName:\"view\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.component_views.read\\\",\\\"description\\\":\\\"Read compiled report views and fields\\\"}]\" caseFormat:\"lc\""
 }
 
 // ViewDatlyType keeps the public component type linked for blank-import discovery.

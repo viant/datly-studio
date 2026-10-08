@@ -39,7 +39,7 @@ func TestResourceSnapshotReaderIsUnboundedAndOrdered(t *testing.T) {
 		if i > 0 {
 			media = "text/plain"
 		}
-		if _, err := tx.ExecContext(ctx, `INSERT INTO report_resource_files
+		if _, err := tx.ExecContext(ctx, `INSERT INTO component_resource_files
 			(report_id,version_no,resource_id,namespace,resource_path,media_type,content,content_size,content_sha256,is_binary,created_at)
 			VALUES(?,?,?,?,?,?,?,?,?,?,?)`, "r1", 2, id, "assets", name, media, content, len(content), id, false, now); err != nil {
 			t.Fatal(err)
@@ -49,12 +49,12 @@ func TestResourceSnapshotReaderIsUnboundedAndOrdered(t *testing.T) {
 		id, root string
 		ordinal  int
 	}{{"b", "second", 2}, {"a", "first", 1}} {
-		if _, err := tx.ExecContext(ctx, `INSERT INTO report_resource_folders
+		if _, err := tx.ExecContext(ctx, `INSERT INTO component_resource_folders
 			(report_id,version_no,folder_id,namespace,root_path,uri_prefix,ordinal)
 			VALUES(?,?,?,?,?,?,?)`, "r1", 2, folder.id, "assets", folder.root, "skill://"+folder.root+"/", folder.ordinal); err != nil {
 			t.Fatal(err)
 		}
-		if _, err := tx.ExecContext(ctx, `INSERT INTO report_skill_roots
+		if _, err := tx.ExecContext(ctx, `INSERT INTO component_skill_roots
 			(report_id,version_no,skill_id,folder_id,skill_root,ordinal)
 			VALUES(?,?,?,?,?,?)`, "r1", 2, folder.id, folder.id, folder.root, folder.ordinal); err != nil {
 			t.Fatal(err)

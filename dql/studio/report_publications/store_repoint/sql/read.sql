@@ -1,3 +1,3 @@
 SELECT p.report_id, p.desired_generation, p.active_generation,
        p.publication_status
-FROM report_publications p
+FROM component_publications p

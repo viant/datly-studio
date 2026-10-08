@@ -13,7 +13,7 @@ func TestLegacyGenerationOwnershipRequiresCompleteSingleNamespaceReferences(t *t
 		`CREATE TABLE schema_version(version INTEGER); INSERT INTO schema_version VALUES(17)`,
 		`CREATE TABLE components(id TEXT PRIMARY KEY,namespace_id TEXT NOT NULL); INSERT INTO components VALUES('a','alpha'),('a2','alpha'),('b','beta')`,
 		`CREATE TABLE runtime_generations(generation_no INTEGER PRIMARY KEY,report_count INTEGER,namespace_id TEXT NOT NULL DEFAULT ''); INSERT INTO runtime_generations VALUES(1,2,''),(2,2,''),(3,3,''),(4,1,''),(5,1,'existing'),(6,1,'')`,
-		`CREATE TABLE report_publications(report_id TEXT,active_generation INTEGER,desired_generation INTEGER); INSERT INTO report_publications VALUES('a',1,2),('a2',1,3),('b',2,2),('orphan',6,6)`,
+		`CREATE TABLE component_publications(report_id TEXT,active_generation INTEGER,desired_generation INTEGER); INSERT INTO component_publications VALUES('a',1,2),('a2',1,3),('b',2,2),('orphan',6,6)`,
 	} {
 		if _, err := db.ExecContext(ctx, statement); err != nil {
 			t.Fatal(err)

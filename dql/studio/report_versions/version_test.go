@@ -31,7 +31,7 @@ func TestReportVersionReaderContract(t *testing.T) {
 	if !routes["GET /v1/studio/reports/{reportId}/versions"] || !routes["GET /v1/studio/reports/{reportId}/versions/{versionNo}"] {
 		t.Fatalf("report-version routes = %#v", routes)
 	}
-	if !tools["studio.report_versions.read"] || !tools["studio.report_versions.readByVersionNo"] {
+	if !tools["studio.component_versions.read"] || !tools["studio.component_versions.readByVersionNo"] {
 		t.Fatalf("report-version tools = %#v", tools)
 	}
 	if source := compiled.Component.RootView.Source; source == nil || len(source.Embeds) != 1 || source.Embeds[0].Path != "sql/read.sql" {

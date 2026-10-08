@@ -48,7 +48,7 @@ func TestConnectorGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 			"component_scope": "reports/first", "component_name": "first",
 			"etag": 1, "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00",
 		}}},
-		datatest.Table{Name: "report_acl", Rows: []datatest.Row{{
+		datatest.Table{Name: "component_acl", Rows: []datatest.Row{{
 			"report_id": "r1", "subject_type": "user", "subject_id": "bob", "can_view": true,
 		}}},
 	); err != nil {
@@ -218,7 +218,7 @@ func TestConnectorGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	if _, err = db.ExecContext(ctx, "UPDATE components SET deleted_at = NULL WHERE id = ?", "r1"); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = db.ExecContext(ctx, "DELETE FROM report_acl WHERE report_id = ? AND subject_id = ?", "r1", "bob"); err != nil {
+	if _, err = db.ExecContext(ctx, "DELETE FROM component_acl WHERE report_id = ? AND subject_id = ?", "r1", "bob"); err != nil {
 		t.Fatal(err)
 	}
 	_, err = invoke("bob", "main")

@@ -46,7 +46,7 @@ the existing runtime default and its authorization behavior. Policies are
 deployment-owned and loaded at runtime startup.
 
 When generic `Access` is not configured and the default mode requires a Studio
-identity, the legacy owner/`report_acl.can_run` fallback is read through a
+identity, the legacy owner/`component_acl.can_run` fallback is read through a
 server-only Datly v1 component. It requires a verified subject, considers only
 direct user grants, and denies deleted reports. That reader is not registered
 on the public HTTP or MCP gateways. With `Access` configured, the generic

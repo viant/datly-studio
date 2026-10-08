@@ -84,7 +84,7 @@ func TestComponentCatalogReadsAllLiveActiveExactVersions(t *testing.T) {
 			if versionNo == 2 {
 				state = "published"
 			}
-			if _, err := db.ExecContext(ctx, `INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,generated_dql,dql_export_limits_json,type_manifest_json,resource_manifest_json,component_descriptor_json,compile_status,compile_diagnostics_json,datly_version,compiler_version,source_revision,notes,created_by,created_at,validated_at,published_at)
+			if _, err := db.ExecContext(ctx, `INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,generated_dql,dql_export_limits_json,type_manifest_json,resource_manifest_json,component_descriptor_json,compile_status,compile_diagnostics_json,datly_version,compiler_version,source_revision,notes,created_by,created_at,validated_at,published_at)
 				VALUES(?,? ,?,'dql',?, '{"views":[]}', 'v1', ?, ?, '{"max":100}', '{}', '{"files":[]}', '{"name":"reader"}', 'valid', '[]', 'v1', 'v1', ?, 'note','owner',?,?,?)`,
 				id, versionNo, state, fmt.Sprintf("SELECT %d", versionNo), fmt.Sprintf("%064x", versionNo), fmt.Sprintf("SELECT %d", versionNo), versionNo, base, base, publishedAt); err != nil {
 				t.Fatal(err)
@@ -94,7 +94,7 @@ func TestComponentCatalogReadsAllLiveActiveExactVersions(t *testing.T) {
 		if i == 1 {
 			status = "pending"
 		}
-		if _, err := db.ExecContext(ctx, `INSERT INTO report_publications(report_id,active_version_no,desired_version_no,desired_generation,active_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at)
+		if _, err := db.ExecContext(ctx, `INSERT INTO component_publications(report_id,active_version_no,desired_version_no,desired_generation,active_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at)
 			VALUES(?,2,2,1,1,?,'runtime-1',?,'owner',?,?)`, id, status, fmt.Sprintf("%064x", 2), publishedAt, publishedAt); err != nil {
 			t.Fatal(err)
 		}
@@ -102,7 +102,7 @@ func TestComponentCatalogReadsAllLiveActiveExactVersions(t *testing.T) {
 	if _, err := db.ExecContext(ctx, `UPDATE components SET description=NULL,current_draft_version=NULL WHERE id='r-136'`); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := db.ExecContext(ctx, `UPDATE report_versions SET dql_export_limits_json=NULL,resource_manifest_json=NULL,component_descriptor_json=NULL,compile_diagnostics_json=NULL,notes=NULL WHERE report_id='r-136' AND version_no=2`); err != nil {
+	if _, err := db.ExecContext(ctx, `UPDATE component_versions SET dql_export_limits_json=NULL,resource_manifest_json=NULL,component_descriptor_json=NULL,compile_diagnostics_json=NULL,notes=NULL WHERE report_id='r-136' AND version_no=2`); err != nil {
 		t.Fatal(err)
 	}
 	components, err := NewComponentCatalog(db).LoadPublishedComponents(ctx)

@@ -5,5 +5,5 @@ SELECT r.namespace_id, r.run_id, r.report_id, r.version_no, r.source_revision, r
        w.entries, w.duration_ns, w.diagnostics_json, w.target_json,
        w.requested_at, w.created_at, w.created_by, w.updated_at, w.updated_by,
        w.started_at, w.completed_at
-FROM report_warmup_runs w
+FROM component_warmup_runs w
 )  warmup_run WHERE 1 = 1) r WHERE $criteria.CompositeIn("r", $WarmupRunKeys)

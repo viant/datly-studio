@@ -89,10 +89,10 @@ func TestGlobalPredicateMatchesLiveOwnerOrPublishGrant(t *testing.T) {
 	defer db.Close()
 	for _, statement := range []string{
 		`CREATE TABLE components (id TEXT PRIMARY KEY, owner_id TEXT NOT NULL, deleted_at TEXT)`,
-		`CREATE TABLE report_acl (report_id TEXT, subject_type TEXT, subject_id TEXT, can_publish BOOLEAN)`,
+		`CREATE TABLE component_acl (report_id TEXT, subject_type TEXT, subject_id TEXT, can_publish BOOLEAN)`,
 		`CREATE TABLE authorization_predicates (name TEXT)`,
 		`INSERT INTO components(id,owner_id) VALUES ('r1','owner')`,
-		`INSERT INTO report_acl VALUES ('r1','user','delegate',FALSE)`,
+		`INSERT INTO component_acl VALUES ('r1','user','delegate',FALSE)`,
 		`INSERT INTO authorization_predicates VALUES ('linked.handler')`,
 	} {
 		if _, err = db.ExecContext(ctx, statement); err != nil {
@@ -116,7 +116,7 @@ func TestGlobalPredicateMatchesLiveOwnerOrPublishGrant(t *testing.T) {
 	if visible("owner") != 1 || visible("delegate") != 0 {
 		t.Fatal("global predicate did not distinguish owner from ungranted delegate")
 	}
-	if _, err = db.ExecContext(ctx, `UPDATE report_acl SET can_publish=TRUE WHERE subject_id='delegate'`); err != nil {
+	if _, err = db.ExecContext(ctx, `UPDATE component_acl SET can_publish=TRUE WHERE subject_id='delegate'`); err != nil {
 		t.Fatal(err)
 	}
 	if visible("delegate") != 1 {

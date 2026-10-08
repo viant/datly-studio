@@ -64,7 +64,7 @@ func TestOtherActivePublicationsRepointAndRollbackTogether(t *testing.T) {
 		if id == "current" {
 			status, desired = "pending", 2
 		}
-		if _, err := db.ExecContext(ctx, `INSERT INTO report_publications
+		if _, err := db.ExecContext(ctx, `INSERT INTO component_publications
 			(report_id,active_version_no,desired_version_no,desired_generation,active_generation,publication_status,
 			 runtime_revision,spec_hash,published_by,published_at)
 			VALUES(?,?,?, ?,1, ?, 'rev1',?,'owner',?)`, id, version.VersionNo, version.VersionNo, desired, status, version.SpecHash, now); err != nil {
@@ -139,7 +139,7 @@ func TestOtherActivePublicationsRepointAndRollbackTogether(t *testing.T) {
 	if err := db.QueryRowContext(ctx, `SELECT status FROM runtime_generations WHERE generation_no=2`).Scan(&pendingStatus); err != nil || pendingStatus != "building" {
 		t.Fatalf("generation after rollback=%q err=%v", pendingStatus, err)
 	}
-	if err := db.QueryRowContext(ctx, `SELECT publication_status FROM report_publications WHERE report_id='current'`).Scan(&pendingStatus); err != nil || pendingStatus != "pending" {
+	if err := db.QueryRowContext(ctx, `SELECT publication_status FROM component_publications WHERE report_id='current'`).Scan(&pendingStatus); err != nil || pendingStatus != "pending" {
 		t.Fatalf("publication after rollback=%q err=%v", pendingStatus, err)
 	}
 	if _, err := db.Exec(`DROP TRIGGER reject_report_activation`); err != nil {
@@ -230,7 +230,7 @@ func TestOtherActivePublicationsRepointAndRollbackTogether(t *testing.T) {
 		t.Fatalf("unpublished report status=%q etag=%d err=%v", currentStatus, currentETag, err)
 	}
 	var versionState string
-	if err := db.QueryRowContext(ctx, `SELECT state FROM report_versions WHERE report_id='current' AND version_no=1`).Scan(&versionState); err != nil || versionState != "superseded" {
+	if err := db.QueryRowContext(ctx, `SELECT state FROM component_versions WHERE report_id='current' AND version_no=1`).Scan(&versionState); err != nil || versionState != "superseded" {
 		t.Fatalf("unpublished version state=%q err=%v", versionState, err)
 	}
 }

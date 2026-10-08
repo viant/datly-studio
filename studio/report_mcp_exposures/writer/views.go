@@ -2,8 +2,8 @@ package writer
 
 // ReportMCPExposure is generated canonical view metadata for exposure.
 type ReportMCPExposure struct {
-	ReportId *string `sqlx:"report_id,primaryKey,refTable=report_versions,refColumn=report_id,required=true" validate:"required"`
-	VersionNo *int `sqlx:"version_no,primaryKey,refTable=report_versions,refColumn=version_no,required=true"`
+	ReportId *string `sqlx:"report_id,primaryKey,refTable=component_versions,refColumn=report_id,required=true" validate:"required"`
+	VersionNo *int `sqlx:"version_no,primaryKey,refTable=component_versions,refColumn=version_no,required=true"`
 	ExposureId *string `sqlx:"exposure_id,primaryKey,required=true" validate:"required"`
 	RouteId *string `validate:"required" sqlx:"route_id,required=true"`
 	RouteMethod *string `validate:"required" sqlx:"route_method,required=true"`
@@ -38,8 +38,8 @@ type ReportMCPExposureHas struct {
 
 // CurrentExposureView is generated canonical view metadata for exposure.
 type CurrentExposureView struct {
-	ReportId *string `sqlx:"report_id,primaryKey,refTable=report_versions,refColumn=report_id,required=true" validate:"required"`
-	VersionNo *int `sqlx:"version_no,primaryKey,refTable=report_versions,refColumn=version_no,required=true"`
+	ReportId *string `sqlx:"report_id,primaryKey,refTable=component_versions,refColumn=report_id,required=true" validate:"required"`
+	VersionNo *int `sqlx:"version_no,primaryKey,refTable=component_versions,refColumn=version_no,required=true"`
 	ExposureId *string `sqlx:"exposure_id,primaryKey,required=true" validate:"required"`
 	RouteId *string `validate:"required" sqlx:"route_id,required=true"`
 	RouteMethod *string `validate:"required" sqlx:"route_method,required=true"`

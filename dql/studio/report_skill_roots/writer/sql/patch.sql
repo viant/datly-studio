@@ -1,1 +1,1 @@
-SELECT s.*, '' AS should_delete FROM report_skill_roots s
+SELECT s.*, '' AS should_delete FROM component_skill_roots s

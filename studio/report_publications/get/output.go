@@ -6,7 +6,7 @@ import (
 
 // PublicationGetOutput is the generated output scaffold for publication.
 type PublicationGetOutput struct {
-	Item              *Publication `parameter:"Item,kind=output,in=view,dataType=*Publication" json:"-" view:"publication,type=Publication,table=report_publications,limit=1" sql:"uri=studio_report_publications_get_publication:sql/publication.sql"`
+	Item              *Publication `parameter:"Item,kind=output,in=view,dataType=*Publication" json:"-" view:"publication,type=Publication,table=component_publications,limit=1" sql:"uri=studio_report_publications_get_publication:sql/publication.sql"`
 	ResponseReportId  string       `parameter:"ResponseReportId,kind=output,in=body,dataType=string" json:"reportId"`
 	ActiveVersionNo   int          `parameter:"ActiveVersionNo,kind=output,in=body,dataType=int" json:"activeVersionNo"`
 	DesiredVersionNo  *int         `parameter:"DesiredVersionNo,kind=output,in=body,dataType=*int" json:"desiredVersionNo,omitempty"`

@@ -25,7 +25,7 @@ type ImportedVersion struct {
 	Notes             *string                 `sqlx:"notes"`
 	CreatedBy         string                  `sqlx:"created_by"`
 	CreatedAt         time.Time               `sqlx:"created_at"`
-	File              []*ImportedResourceFile `view:"file,type=ImportedResourceFile,table=report_resource_files" on:"ReportId:version.report_id=ReportId:file.report_id,VersionNo:version.version_no=VersionNo:file.version_no,NamespaceId:version.namespace_id=NamespaceId:file.namespace_id" json:"file" sql:"uri=studio_report_versions_store_import_version:sql/file.sql"`
+	File              []*ImportedResourceFile `view:"file,type=ImportedResourceFile,table=component_resource_files" on:"ReportId:version.report_id=ReportId:file.report_id,VersionNo:version.version_no=VersionNo:file.version_no,NamespaceId:version.namespace_id=NamespaceId:file.namespace_id" json:"file" sql:"uri=studio_report_versions_store_import_version:sql/file.sql"`
 	Has               *ImportedVersionHas     `setMarker:"true" format:"-" sqlx:"-" diff:"-" json:"-" typeName:"ImportedVersionHas"`
 }
 

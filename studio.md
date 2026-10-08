@@ -123,7 +123,7 @@ The original prototype modeled:
 The canonical runtime database path is now `schema/schema.ddl`. The
 `cmd/studio-migrate` commands `init-studio`, `up`, `down-to`, `version`, and
 `seed-sample` apply and inspect that snapshot only; the sample fixture writes
-the canonical `reports`, `report_versions`, `report_views`, parameter,
+the canonical `reports`, `component_versions`, `component_views`, parameter,
 predicate, cube, MCP, runtime-generation, publication, and ACL tables. The
 SQL-store migration service delegates to the same canonical snapshot; there
 is no second catalog DDL. The old control/store prototype has been retired;
@@ -204,9 +204,9 @@ canonical database-backed transport for connector and report CRUD/status
 operations, but requires an injected authorization decision for every SDK
 operation so it cannot bypass the protected Datly routes. Version create/list/get, validation, DQL export, and descriptor
 operations and optimistic `versions.apply` structured edits are also backed by
-the canonical `report_versions` table. Preview,
+the canonical `component_versions` table. Preview,
 publication, and runtime lifecycle operations are backed by
-`report_publications` and `runtime_generations`; publication writes the active
+`component_publications` and `runtime_generations`; publication writes the active
 generation and publication row atomically. Preview is routed through an
 injected Datly execution adapter, so the SQL transport does not reimplement a
 query engine. Forge must never bypass the SDK.
@@ -499,11 +499,11 @@ admitted requests release their leases. Studio binds every opened dynamic
 connector handle to that callback, so reloads no longer retain retired database
 connections until process shutdown.
 
-Versioned `report_resource_files` are materialized into immutable Bindly stores
+Versioned `component_resource_files` are materialized into immutable Bindly stores
 for both preview validation and the dynamic host. Each report receives a scoped
 default resource filesystem while named namespaces remain generation-wide and
-owner-reserved. `report_resource_folders` become explicit Datly MCP folder
-plans, and `report_skill_roots` become explicit skills only after their root
+owner-reserved. `component_resource_folders` become explicit Datly MCP folder
+plans, and `component_skill_roots` become explicit skills only after their root
 contains `SKILL.md`. Validation invokes Datly's native folder/skill compiler;
 publication reuses the same plans in the atomically reloaded dynamic host.
 
@@ -870,7 +870,7 @@ row authorization. Report-scoped readers attach a typed authorization handler
 to `ReportId` in predicate group 3; global runtime reads attach the same policy
 to the auth-context component dependency. Connector/report catalog readers use
 their explicit auth-context SQL. The application-owned `studio/authorization`
-handlers scope rows through `reports.owner_id` and `report_acl`; reads require
+handlers scope rows through `reports.owner_id` and `component_acl`; reads require
 `can_view`, edits require `can_edit`, and publication/runtime operations require
 `can_publish`. Writers enforce the same policy through entity lifecycle hooks
 or public `Input.Init` owner validation. A `datly.yaml` reflection test fails if

@@ -2,8 +2,8 @@ package writer
 
 // ReportResourceFolder is generated canonical view metadata for folder.
 type ReportResourceFolder struct {
-	ReportId *string `sqlx:"report_id,primaryKey,refTable=report_versions,refColumn=report_id,required=true" validate:"required"`
-	VersionNo *int `sqlx:"version_no,primaryKey,refTable=report_versions,refColumn=version_no,required=true"`
+	ReportId *string `sqlx:"report_id,primaryKey,refTable=component_versions,refColumn=report_id,required=true" validate:"required"`
+	VersionNo *int `sqlx:"version_no,primaryKey,refTable=component_versions,refColumn=version_no,required=true"`
 	FolderId *string `sqlx:"folder_id,primaryKey,required=true" validate:"required"`
 	Namespace *string `validate:"required" sqlx:"namespace,required=true"`
 	RootPath *string `validate:"required" sqlx:"root_path,required=true"`
@@ -26,8 +26,8 @@ type ReportResourceFolderHas struct {
 
 // CurrentFolderView is generated canonical view metadata for folder.
 type CurrentFolderView struct {
-	ReportId *string `sqlx:"report_id,primaryKey,refTable=report_versions,refColumn=report_id,required=true" validate:"required"`
-	VersionNo *int `sqlx:"version_no,primaryKey,refTable=report_versions,refColumn=version_no,required=true"`
+	ReportId *string `sqlx:"report_id,primaryKey,refTable=component_versions,refColumn=report_id,required=true" validate:"required"`
+	VersionNo *int `sqlx:"version_no,primaryKey,refTable=component_versions,refColumn=version_no,required=true"`
 	FolderId *string `sqlx:"folder_id,primaryKey,required=true" validate:"required"`
 	Namespace *string `validate:"required" sqlx:"namespace,required=true"`
 	RootPath *string `validate:"required" sqlx:"root_path,required=true"`

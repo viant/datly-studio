@@ -90,13 +90,13 @@ func testDynamicHost(t *testing.T, generic, identityRequired bool, extensions ..
 SELECT records.*, labels.*, type(records,'Record'), type(labels,'Label'), use_connector(labels,'lookup')
 FROM (SELECT id,name FROM records) records
 JOIN (SELECT id,label FROM labels) labels ON labels.id=records.id`
-	if _, err = studio.Exec(`INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('records',1,'published','dql',?,?,'{}','studio.v1','hash','{}','valid','v1','studio.v1',1,'owner',?)`, dql, dql, now); err != nil {
+	if _, err = studio.Exec(`INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('records',1,'published','dql',?,?,'{}','studio.v1','hash','{}','valid','v1','studio.v1',1,'owner',?)`, dql, dql, now); err != nil {
 		t.Fatal(err)
 	}
 	if _, err = studio.Exec(`INSERT INTO runtime_generations(generation_no,source_revision,status,report_count,build_manifest_json,requested_by,requested_at,activated_at) VALUES(1,'records:1','active',1,'{}','owner',?,?)`, now, now); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = studio.Exec(`INSERT INTO report_publications(report_id,active_version_no,desired_generation,active_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at) VALUES('records',1,1,1,'active','records:1','hash','owner',?,?)`, now, now); err != nil {
+	if _, err = studio.Exec(`INSERT INTO component_publications(report_id,active_version_no,desired_generation,active_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at) VALUES('records',1,1,1,'active','records:1','hash','owner',?,?)`, now, now); err != nil {
 		t.Fatal(err)
 	}
 	_ = studio.Close()
@@ -230,7 +230,7 @@ JOIN (SELECT id,label FROM labels) labels ON labels.id=records.id`
 		t.Fatal(openErr)
 	}
 	defer verificationDB.Close()
-	if _, err = verificationDB.ExecContext(ctx, `UPDATE report_versions SET generated_dql=?, authored_dql=? WHERE report_id='records' AND version_no=1`, mutationDQL, mutationDQL); err != nil {
+	if _, err = verificationDB.ExecContext(ctx, `UPDATE component_versions SET generated_dql=?, authored_dql=? WHERE report_id='records' AND version_no=1`, mutationDQL, mutationDQL); err != nil {
 		t.Fatal(err)
 	}
 	if reloadErr := service.Reload(ctx, 0); reloadErr == nil || !strings.Contains(reloadErr.Error(), "dynamic components support readers only") {
@@ -248,7 +248,7 @@ JOIN (SELECT id,label FROM labels) labels ON labels.id=records.id`
 	if stillServing.StatusCode != http.StatusOK || !strings.Contains(string(stillPayload), "ready") {
 		t.Fatalf("rejected mutation disrupted reader: status=%d body=%s", stillServing.StatusCode, stillPayload)
 	}
-	if _, err = verificationDB.ExecContext(ctx, `UPDATE report_versions SET generated_dql=?, authored_dql=? WHERE report_id='records' AND version_no=1`, dql, dql); err != nil {
+	if _, err = verificationDB.ExecContext(ctx, `UPDATE component_versions SET generated_dql=?, authored_dql=? WHERE report_id='records' AND version_no=1`, dql, dql); err != nil {
 		t.Fatal(err)
 	}
 	mcpResponse, err := http.Get("http://" + mcpAddress + "/mcp")

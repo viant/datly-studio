@@ -20,13 +20,13 @@ func TestPublicationEventStoreReads(t *testing.T) {
 	defer db.Close()
 	for _, statement := range []string{
 		`CREATE TABLE components (id TEXT PRIMARY KEY, owner_id TEXT NOT NULL, deleted_at TEXT)`,
-		`CREATE TABLE report_publication_events (event_id TEXT PRIMARY KEY, report_id TEXT, owner_id TEXT, operation TEXT, version_no INTEGER, generation_no INTEGER, status TEXT, requested_by TEXT, reason TEXT, failure_code TEXT, failure_message TEXT, occurred_at TIMESTAMP)`,
+		`CREATE TABLE component_publication_events (event_id TEXT PRIMARY KEY, report_id TEXT, owner_id TEXT, operation TEXT, version_no INTEGER, generation_no INTEGER, status TEXT, requested_by TEXT, reason TEXT, failure_code TEXT, failure_message TEXT, occurred_at TIMESTAMP)`,
 		`INSERT INTO components(id,owner_id) VALUES ('r1','alice'),('r2','bob')`,
 		`INSERT INTO components(id,owner_id,deleted_at) VALUES ('deleted','alice','2026-01-01')`,
-		`INSERT INTO report_publication_events VALUES ('e1','r1','alice','publish',NULL,NULL,'succeeded','alice',NULL,NULL,NULL,'2026-01-01T00:00:00Z')`,
-		`INSERT INTO report_publication_events VALUES ('e2','r1','alice','rollback',2,20,'failed','alice','retry','timeout','failed','2026-01-02T00:00:00Z')`,
-		`INSERT INTO report_publication_events VALUES ('e3','r1','alice','publish',3,30,'succeeded','alice','published',NULL,NULL,'2026-01-02T00:00:00Z')`,
-		`INSERT INTO report_publication_events VALUES ('other','r2','bob','publish',1,10,'succeeded','bob',NULL,NULL,NULL,'2026-01-03T00:00:00Z')`,
+		`INSERT INTO component_publication_events VALUES ('e1','r1','alice','publish',NULL,NULL,'succeeded','alice',NULL,NULL,NULL,'2026-01-01T00:00:00Z')`,
+		`INSERT INTO component_publication_events VALUES ('e2','r1','alice','rollback',2,20,'failed','alice','retry','timeout','failed','2026-01-02T00:00:00Z')`,
+		`INSERT INTO component_publication_events VALUES ('e3','r1','alice','publish',3,30,'succeeded','alice','published',NULL,NULL,'2026-01-02T00:00:00Z')`,
+		`INSERT INTO component_publication_events VALUES ('other','r2','bob','publish',1,10,'succeeded','bob',NULL,NULL,NULL,'2026-01-03T00:00:00Z')`,
 	} {
 		if _, err = db.ExecContext(ctx, statement); err != nil {
 			t.Fatal(err)
@@ -132,7 +132,7 @@ func TestPublicationEventNativeWriteUsesCallerTransaction(t *testing.T) {
 	}
 	db.SetMaxOpenConns(1)
 	defer db.Close()
-	if _, err := db.ExecContext(ctx, `CREATE TABLE report_publication_events (
+	if _, err := db.ExecContext(ctx, `CREATE TABLE component_publication_events (
 		event_id TEXT PRIMARY KEY, report_id TEXT NOT NULL, owner_id TEXT NOT NULL,
 		operation TEXT NOT NULL, version_no INTEGER, generation_no INTEGER,
 		status TEXT NOT NULL, requested_by TEXT NOT NULL, reason TEXT,
@@ -151,14 +151,14 @@ func TestPublicationEventNativeWriteUsesCallerTransaction(t *testing.T) {
 		t.Fatal(err)
 	}
 	var count int
-	if err := tx.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_publication_events`).Scan(&count); err != nil || count != 1 {
+	if err := tx.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_publication_events`).Scan(&count); err != nil || count != 1 {
 		_ = tx.Rollback()
 		t.Fatalf("caller transaction count=%d err=%v", count, err)
 	}
 	if err := tx.Rollback(); err != nil {
 		t.Fatal(err)
 	}
-	if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_publication_events`).Scan(&count); err != nil || count != 0 {
+	if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_publication_events`).Scan(&count); err != nil || count != 0 {
 		t.Fatalf("rolled-back count=%d err=%v", count, err)
 	}
 	if err := transport.appendPublicationEvent(ctx, event); err != nil {
@@ -166,7 +166,7 @@ func TestPublicationEventNativeWriteUsesCallerTransaction(t *testing.T) {
 	}
 	var version, reason sql.NullString
 	var requestedBy string
-	if err := db.QueryRowContext(ctx, `SELECT version_no, reason, requested_by FROM report_publication_events`).Scan(&version, &reason, &requestedBy); err != nil {
+	if err := db.QueryRowContext(ctx, `SELECT version_no, reason, requested_by FROM component_publication_events`).Scan(&version, &reason, &requestedBy); err != nil {
 		t.Fatal(err)
 	}
 	if version.Valid || reason.Valid || requestedBy != "alice" {
@@ -175,7 +175,7 @@ func TestPublicationEventNativeWriteUsesCallerTransaction(t *testing.T) {
 	if err := transport.appendPublicationEvent(context.Background(), event); err != nil {
 		t.Fatal(err)
 	}
-	if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_publication_events WHERE requested_by=?`, sdk.SystemPrincipal().Subject).Scan(&count); err != nil || count != 1 {
+	if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_publication_events WHERE requested_by=?`, sdk.SystemPrincipal().Subject).Scan(&count); err != nil || count != 1 {
 		t.Fatalf("system event count=%d err=%v", count, err)
 	}
 }

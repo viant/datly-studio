@@ -53,7 +53,7 @@ func (p *ReportCatalogRead) Compute(ctx context.Context, _ any) (*xpredicate.Cri
 		return nil, forbidden("report catalog subject is required")
 	}
 	criteria := &xpredicate.Criteria{Expression: `(r.owner_id = ? OR EXISTS (
-SELECT 1 FROM report_acl studio_sdk_acl
+SELECT 1 FROM component_acl studio_sdk_acl
 WHERE studio_sdk_acl.report_id = r.id
   AND studio_sdk_acl.subject_type = 'user'
   AND studio_sdk_acl.subject_id = ?

@@ -20,7 +20,7 @@ type ReportParameter struct {
 	TypeExpr *string `sqlx:"type_expr"`
 	Required *int `sqlx:"required"`
 	EmitOutput *int `sqlx:"emit_output"`
-	Predicates []*ReportPredicate `view:"predicates,type=ReportPredicate,table=report_predicates" on:"ReportId:parameters.report_id=ReportId:predicates.report_id,VersionNo:parameters.version_no=VersionNo:predicates.version_no,ParameterId:parameters.parameter_id=ParameterId:predicates.parameter_id" sql:"uri=studio_report_parameters_reader_parameter:sql/predicates.sql"`
+	Predicates []*ReportPredicate `view:"predicates,type=ReportPredicate,table=component_predicates" on:"ReportId:parameters.report_id=ReportId:predicates.report_id,VersionNo:parameters.version_no=VersionNo:predicates.version_no,ParameterId:parameters.parameter_id=ParameterId:predicates.parameter_id" sql:"uri=studio_report_parameters_reader_parameter:sql/predicates.sql"`
 }
 
 // ReportPredicate is generated canonical view metadata for parameter.

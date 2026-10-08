@@ -12,7 +12,7 @@ func init() {}
 
 // Component is the generated component scaffold for folder.
 type FolderComponent struct {
-	Contract xdatly.Component[Input, Output] "component:\"folder,path=/v1/studio/reports/{reportId}/versions/{versionNo}/resources/folders,method=GET,connector=studio,view=folder\" routeName:\"folder\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.report_resource_folders.read\\\",\\\"description\\\":\\\"Read report resource folders\\\"}]\" caseFormat:\"lc\""
+	Contract xdatly.Component[Input, Output] "component:\"folder,path=/v1/studio/reports/{reportId}/versions/{versionNo}/resources/folders,method=GET,connector=studio,view=folder\" routeName:\"folder\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.component_resource_folders.read\\\",\\\"description\\\":\\\"Read report resource folders\\\"}]\" caseFormat:\"lc\""
 }
 
 // FolderDatlyType keeps the public component type linked for blank-import discovery.

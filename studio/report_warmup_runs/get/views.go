@@ -8,8 +8,8 @@ import (
 // WarmupRow is generated canonical view metadata for warmup_run.
 type WarmupRow struct {
 	RunId           string          `sqlx:"run_id,required=true,primaryKey=true"`
-	ReportId        string          `sqlx:"report_id,refTable=report_versions,refColumn=report_id,required=true"`
-	VersionNo       int             `sqlx:"version_no,refTable=report_versions,refColumn=version_no,required=true"`
+	ReportId        string          `sqlx:"report_id,refTable=component_versions,refColumn=report_id,required=true"`
+	VersionNo       int             `sqlx:"version_no,refTable=component_versions,refColumn=version_no,required=true"`
 	SourceRevision  int64           `sqlx:"source_revision,required=true"`
 	SpecHash        string          `sqlx:"spec_hash,required=true"`
 	PlanKey         string          `sqlx:"plan_key,required=true"`

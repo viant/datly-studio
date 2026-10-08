@@ -34,7 +34,7 @@ func (*ACLStoreRules) Init(_ context.Context, row *StoredACL, state xhandler.Lif
 		return nil
 	}
 	if row.Etag == nil {
-		return &xhandler.Conflict{Entity: "report_acl", Field: "etag", Reason: "expected token is missing"}
+		return &xhandler.Conflict{Entity: "component_acl", Field: "etag", Reason: "expected token is missing"}
 	}
 	next := *row.Etag + 1
 	row.SetEtag(&next)

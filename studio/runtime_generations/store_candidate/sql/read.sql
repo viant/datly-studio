@@ -3,9 +3,9 @@ SELECT definition."report_id", definition."version_no", definition."component_sc
        COALESCE(c.secret_ref, '') AS secret_ref,
        COALESCE(v.generated_dql, '') AS generated_dql,
        COALESCE(v.authored_dql, '') AS authored_dql
-FROM report_publications p
+FROM component_publications p
 JOIN components r ON r.id = p.report_id
-JOIN report_versions v ON v.report_id = p.report_id AND v.version_no =
+JOIN component_versions v ON v.report_id = p.report_id AND v.version_no =
   CASE WHEN p.publication_status = 'pending'
              AND p.desired_generation = $CandidateGeneration
              AND p.desired_version_no IS NOT NULL

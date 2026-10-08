@@ -76,10 +76,10 @@ func TestDynamicExecutesVersionedReaderWithRuntimeContracts(t *testing.T) {
 SELECT vendors.*, products.* EXCEPT VENDOR_ID, type(vendors, 'Vendor'), type(products, 'Product')
 FROM (SELECT ID, NAME FROM VENDOR) vendors
 JOIN (SELECT ID, VENDOR_ID, STATUS FROM PRODUCT) products ON products.VENDOR_ID=vendors.ID`, filepath.Join(root, "cache"))
-	if _, err = studio.ExecContext(ctx, `INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES ('vendors',1,'draft','dql',?,?, '{}','studio.v1','hash','{}','pending','v1','studio.v1',1,'owner',?)`, dql, dql, now); err != nil {
+	if _, err = studio.ExecContext(ctx, `INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES ('vendors',1,'draft','dql',?,?, '{}','studio.v1','hash','{}','pending','v1','studio.v1',1,'owner',?)`, dql, dql, now); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = studio.ExecContext(ctx, `INSERT INTO report_resource_files(report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at) VALUES ('vendors',1,'vendors-doc','docs','docs/vendors.md',?,?, 'hash',FALSE,?)`, "Vendor API documentation", len("Vendor API documentation"), now); err != nil {
+	if _, err = studio.ExecContext(ctx, `INSERT INTO component_resource_files(report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at) VALUES ('vendors',1,'vendors-doc','docs','docs/vendors.md',?,?, 'hash',FALSE,?)`, "Vendor API documentation", len("Vendor API documentation"), now); err != nil {
 		t.Fatal(err)
 	}
 	result, err := (Dynamic{StudioDB: studio, RootDir: root}).Execute(ctx, "vendors", 1, sdk.PreviewInput{Limit: 1})
@@ -154,7 +154,7 @@ JOIN (SELECT ID, VENDOR_ID, STATUS FROM PRODUCT) products ON products.VENDOR_ID=
 #define($_ = $Rows<[]*ScopedVendor>(output/view))
 SELECT vendors.*,type(vendors,'ScopedVendor')
 FROM (SELECT ID,NAME FROM VENDOR v ${predicate.Builder().CombineAnd($predicate.FilterGroup(0,"AND")).Build("WHERE")}) vendors`
-	if _, err = studio.ExecContext(ctx, `INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES ('summary',2,'draft','dql',?,?,'{}','studio.v1','scoped-hash','{}','pending','v1','studio.v1',1,'owner',?)`, scopedDQL, scopedDQL, now); err != nil {
+	if _, err = studio.ExecContext(ctx, `INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES ('summary',2,'draft','dql',?,?,'{}','studio.v1','scoped-hash','{}','pending','v1','studio.v1',1,'owner',?)`, scopedDQL, scopedDQL, now); err != nil {
 		t.Fatal(err)
 	}
 	types := typecatalog.NewCatalog()
@@ -182,7 +182,7 @@ FROM (SELECT ID,NAME FROM VENDOR v ${predicate.Builder().CombineAnd($predicate.F
 #define($_ = $Rows<[]*Summary>(output/view))
 SELECT summary.*, groupable(summary), tag(summary.status, 'groupable:"true"'), tag(summary.product_count, 'groupable:"false"'), CAST(summary.product_count AS float64), type(summary, 'Summary')
 FROM (SELECT STATUS AS status, COUNT(*) AS product_count FROM PRODUCT GROUP BY STATUS) summary`
-	if _, err = studio.ExecContext(ctx, `INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES ('summary',1,'draft','dql',?,?, '{}','studio.v1','hash','{}','pending','v1','studio.v1',1,'owner',?)`, composeDQL, composeDQL, now); err != nil {
+	if _, err = studio.ExecContext(ctx, `INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES ('summary',1,'draft','dql',?,?, '{}','studio.v1','hash','{}','pending','v1','studio.v1',1,'owner',?)`, composeDQL, composeDQL, now); err != nil {
 		t.Fatal(err)
 	}
 	cube, err := (Dynamic{StudioDB: studio, RootDir: root}).Execute(ctx, "summary", 1, sdk.PreviewInput{Cube: true, Input: json.RawMessage(`{"dimensions":{"status":true},"measures":{"product_count":true},"filters":{}}`), Limit: 1})

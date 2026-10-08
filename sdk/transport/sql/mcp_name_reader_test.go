@@ -46,7 +46,7 @@ func TestMCPNameReaderSelectsOtherLiveLatestAndActiveRevisions(t *testing.T) {
 			if id == "other" && version == 1 {
 				generated = nil
 			}
-			if _, err := db.ExecContext(ctx, `INSERT INTO report_versions
+			if _, err := db.ExecContext(ctx, `INSERT INTO component_versions
 				(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,
 				 type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at,generated_dql)
 				 VALUES(?,?,'draft','dql',?,'{}','studio.v1',?,'{}','pending','v1','studio.v1',1,'owner',?,?)`,
@@ -55,7 +55,7 @@ func TestMCPNameReaderSelectsOtherLiveLatestAndActiveRevisions(t *testing.T) {
 			}
 		}
 	}
-	if _, err := db.ExecContext(ctx, `INSERT INTO report_publications(report_id,active_version_no,desired_generation,publication_status,spec_hash,published_by,published_at)
+	if _, err := db.ExecContext(ctx, `INSERT INTO component_publications(report_id,active_version_no,desired_generation,publication_status,spec_hash,published_by,published_at)
 		VALUES('other',1,1,'active',?,'owner',?)`, fmt.Sprintf("%064d", 1), now); err != nil {
 		t.Fatal(err)
 	}

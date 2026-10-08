@@ -19,26 +19,26 @@ func TestValidateSkillToolReferencesRejectsUnknownAndDuplicateTools(t *testing.T
 	}
 	defer db.Close()
 	for _, ddl := range []string{
-		`CREATE TABLE report_skill_roots(report_id TEXT,version_no INTEGER,skill_id TEXT,folder_id TEXT,skill_root TEXT)`,
-		`CREATE TABLE report_resource_folders(report_id TEXT,version_no INTEGER,folder_id TEXT,namespace TEXT,root_path TEXT)`,
-		`CREATE TABLE report_resource_files(report_id TEXT,version_no INTEGER,namespace TEXT,resource_path TEXT,content BLOB)`,
+		`CREATE TABLE component_skill_roots(report_id TEXT,version_no INTEGER,skill_id TEXT,folder_id TEXT,skill_root TEXT)`,
+		`CREATE TABLE component_resource_folders(report_id TEXT,version_no INTEGER,folder_id TEXT,namespace TEXT,root_path TEXT)`,
+		`CREATE TABLE component_resource_files(report_id TEXT,version_no INTEGER,namespace TEXT,resource_path TEXT,content BLOB)`,
 	} {
 		if _, err = db.Exec(ddl); err != nil {
 			t.Fatal(err)
 		}
 	}
-	if _, err = db.Exec(`INSERT INTO report_skill_roots VALUES('report',1,'guide','folder','.')`); err != nil {
+	if _, err = db.Exec(`INSERT INTO component_skill_roots VALUES('report',1,'guide','folder','.')`); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = db.Exec(`INSERT INTO report_resource_folders VALUES('report',1,'folder','guide.docs','guide')`); err != nil {
+	if _, err = db.Exec(`INSERT INTO component_resource_folders VALUES('report',1,'folder','guide.docs','guide')`); err != nil {
 		t.Fatal(err)
 	}
 	component := &registry.RegisteredComponent{Component: &spec.Component{Key: spec.Key{Kind: spec.KindComponent, Name: "Reader"}, Routes: []*spec.Route{{Method: "GET", Path: "/records", MCP: []*spec.MCPExposure{{Kind: spec.MCPExposureTool, Name: "records.read"}}}}}}
 	check := func(content string) error {
-		if _, err = db.Exec(`DELETE FROM report_resource_files`); err != nil {
+		if _, err = db.Exec(`DELETE FROM component_resource_files`); err != nil {
 			t.Fatal(err)
 		}
-		if _, err = db.Exec(`INSERT INTO report_resource_files VALUES('report',1,'guide.docs','guide/SKILL.md',?)`, content); err != nil {
+		if _, err = db.Exec(`INSERT INTO component_resource_files VALUES('report',1,'guide.docs','guide/SKILL.md',?)`, content); err != nil {
 			t.Fatal(err)
 		}
 		return validateSkillToolReferences(context.Background(), db, []studiors.Version{{ReportID: "report", VersionNo: 1}}, []*registry.RegisteredComponent{component})

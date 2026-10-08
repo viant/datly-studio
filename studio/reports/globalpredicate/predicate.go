@@ -35,7 +35,7 @@ func (p *GlobalPublish) Compute(ctx context.Context, _ any) (*xpredicate.Criteri
 		return nil, forbidden("global publish subject is required")
 	}
 	return &xpredicate.Criteria{Expression: `(r.owner_id = ? OR EXISTS (
-SELECT 1 FROM report_acl acl
+SELECT 1 FROM component_acl acl
 WHERE acl.report_id = r.id AND acl.subject_type = 'user'
   AND acl.subject_id = ? AND acl.can_publish = TRUE))`,
 		Placeholders: []any{subject, subject}}, nil

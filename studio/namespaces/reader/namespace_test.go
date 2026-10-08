@@ -69,7 +69,7 @@ func TestNamespaceReaderUsesVerifiedTypedScope(t *testing.T) {
 			"status": "active", "default_connector_name": "main", "component_scope": "reports/finance", "component_name": "finance",
 			"etag": 1, "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00",
 		}}},
-		datatest.Table{Name: "report_acl", Rows: []datatest.Row{{
+		datatest.Table{Name: "component_acl", Rows: []datatest.Row{{
 			"report_id": "r1", "subject_type": "user", "subject_id": "viewer", "can_view": true,
 		}}},
 	); err != nil {
@@ -286,7 +286,7 @@ func TestNamespaceReaderUsesVerifiedTypedScope(t *testing.T) {
 	if _, err = db.ExecContext(ctx, "UPDATE namespaces SET visibility = 'public' WHERE owner_id = ? AND name = ?", "bob", "finance"); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = db.ExecContext(ctx, "DELETE FROM report_acl WHERE report_id = ? AND subject_id = ?", "r1", "viewer"); err != nil {
+	if _, err = db.ExecContext(ctx, "DELETE FROM component_acl WHERE report_id = ? AND subject_id = ?", "r1", "viewer"); err != nil {
 		t.Fatal(err)
 	}
 	revoked, err := read("viewer", map[string]any{})

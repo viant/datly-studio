@@ -6,8 +6,8 @@ import (
 
 // ReportResourceFile is generated canonical view metadata for file.
 type ReportResourceFile struct {
-	ReportId *string `sqlx:"report_id,primaryKey,refTable=report_versions,refColumn=report_id,required=true" validate:"required"`
-	VersionNo *int `sqlx:"version_no,primaryKey,refTable=report_versions,refColumn=version_no,required=true"`
+	ReportId *string `sqlx:"report_id,primaryKey,refTable=component_versions,refColumn=report_id,required=true" validate:"required"`
+	VersionNo *int `sqlx:"version_no,primaryKey,refTable=component_versions,refColumn=version_no,required=true"`
 	ResourceId *string `sqlx:"resource_id,primaryKey,required=true" validate:"required"`
 	Namespace *string `validate:"required" sqlx:"namespace,required=true"`
 	ResourcePath *string `validate:"required" sqlx:"resource_path,required=true"`
@@ -38,8 +38,8 @@ type ReportResourceFileHas struct {
 
 // CurrentFileView is generated canonical view metadata for file.
 type CurrentFileView struct {
-	ReportId *string `sqlx:"report_id,primaryKey,refTable=report_versions,refColumn=report_id,required=true" validate:"required"`
-	VersionNo *int `sqlx:"version_no,primaryKey,refTable=report_versions,refColumn=version_no,required=true"`
+	ReportId *string `sqlx:"report_id,primaryKey,refTable=component_versions,refColumn=report_id,required=true" validate:"required"`
+	VersionNo *int `sqlx:"version_no,primaryKey,refTable=component_versions,refColumn=version_no,required=true"`
 	ResourceId *string `sqlx:"resource_id,primaryKey,required=true" validate:"required"`
 	Namespace *string `validate:"required" sqlx:"namespace,required=true"`
 	ResourcePath *string `validate:"required" sqlx:"resource_path,required=true"`

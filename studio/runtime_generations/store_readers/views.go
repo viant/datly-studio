@@ -16,9 +16,9 @@ type PublishedReader struct {
 	PublicationStatus    string               `sqlx:"publication_status"`
 	RuntimeRevision      *string              `sqlx:"runtime_revision"`
 	ActivatedAt          *time.Time           `sqlx:"activated_at"`
-	Exposure             []*PublishedExposure `view:"exposure,type=PublishedExposure,table=report_mcp_exposures" on:"ReportId:reader.report_id=ReportId:exposure.report_id,VersionNo:reader.version_no=VersionNo:exposure.version_no" json:"exposure" sql:"uri=studio_runtime_generations_store_readers_reader:sql/exposures.sql"`
-	Folder               []*PublishedFolder   `view:"folder,type=PublishedFolder,table=report_resource_folders" on:"ReportId:reader.report_id=ReportId:folder.report_id,VersionNo:reader.version_no=VersionNo:folder.version_no" json:"folder" sql:"uri=studio_runtime_generations_store_readers_reader:sql/folders.sql"`
-	Skill                []*PublishedSkill    `view:"skill,type=PublishedSkill,table=report_skill_roots" on:"ReportId:reader.report_id=ReportId:skill.report_id,VersionNo:reader.version_no=VersionNo:skill.version_no" json:"skill" sql:"uri=studio_runtime_generations_store_readers_reader:sql/skills.sql"`
+	Exposure             []*PublishedExposure `view:"exposure,type=PublishedExposure,table=component_mcp_exposures" on:"ReportId:reader.report_id=ReportId:exposure.report_id,VersionNo:reader.version_no=VersionNo:exposure.version_no" json:"exposure" sql:"uri=studio_runtime_generations_store_readers_reader:sql/exposures.sql"`
+	Folder               []*PublishedFolder   `view:"folder,type=PublishedFolder,table=component_resource_folders" on:"ReportId:reader.report_id=ReportId:folder.report_id,VersionNo:reader.version_no=VersionNo:folder.version_no" json:"folder" sql:"uri=studio_runtime_generations_store_readers_reader:sql/folders.sql"`
+	Skill                []*PublishedSkill    `view:"skill,type=PublishedSkill,table=component_skill_roots" on:"ReportId:reader.report_id=ReportId:skill.report_id,VersionNo:reader.version_no=VersionNo:skill.version_no" json:"skill" sql:"uri=studio_runtime_generations_store_readers_reader:sql/skills.sql"`
 }
 
 // PublishedExposure is generated canonical view metadata for reader.

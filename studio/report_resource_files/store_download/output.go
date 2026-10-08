@@ -2,5 +2,5 @@ package store_download
 
 // Output is the generated output scaffold for file.
 type Output struct {
-	Files []*DownloadResourceFile `parameter:"Files,kind=output,in=view,dataType=[]*DownloadResourceFile" view:"file,type=DownloadResourceFile,table=report_resource_files,limit=2001" sql:"uri=studio_report_resource_files_store_download_file:sql/read.sql"`
+	Files []*DownloadResourceFile `parameter:"Files,kind=output,in=view,dataType=[]*DownloadResourceFile" view:"file,type=DownloadResourceFile,table=component_resource_files,limit=2001" sql:"uri=studio_report_resource_files_store_download_file:sql/read.sql"`
 }

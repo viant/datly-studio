@@ -8,7 +8,7 @@ import (
 )
 
 type PublicationEventComponent struct {
-	Contract xdatly.Component[Input, Output] "component:\"event,path=/v1/studio/publication-events,method=GET,connector=studio,view=event\" routeName:\"event\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.report_publication_events.read\\\",\\\"description\\\":\\\"Read owner-scoped publication lifecycle evidence\\\"}]\" caseFormat:\"lc\""
+	Contract xdatly.Component[Input, Output] "component:\"event,path=/v1/studio/publication-events,method=GET,connector=studio,view=event\" routeName:\"event\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.component_publication_events.read\\\",\\\"description\\\":\\\"Read owner-scoped publication lifecycle evidence\\\"}]\" caseFormat:\"lc\""
 }
 
 func PublicationEventDatlyType() reflect.Type {

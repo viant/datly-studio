@@ -9,7 +9,7 @@
 #setting($_ = $case_format('lc'))
 #setting($_ = $route('/v1/studio/reports/{reportId}/versions/{versionNo}/parameters', 'GET'))
 #setting($_ = $connector('studio'))
-#setting($_ = $mcp('studio.report_parameters.read', 'Read report parameters and predicates'))
+#setting($_ = $mcp('studio.component_parameters.read', 'Read report parameters and predicates'))
 #setting($_ = $sql_dest('report_parameter', 'sql/read.sql'))
 
 #define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))

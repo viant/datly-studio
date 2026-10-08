@@ -8,18 +8,18 @@
 #setting($_ = $case_format('lc'))
 #setting($_ = $route('/v1/studio/report-acl', 'PATCH'))
 #setting($_ = $connector('studio'))
-#setting($_ = $sql_dest('report_acl', 'sql/patch.sql'))
+#setting($_ = $sql_dest('component_acl', 'sql/patch.sql'))
 #define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
 #define($_ = $Access<[]*ReportACL>(body/data))
 #define($_ = $Status<response.Status>(output/status).Embed())
 #define($_ = $Violations<?>(transient/status).Output())
 #define($_ = $Data<[]*ReportACL>(body/).Output())
-SELECT report_acl.*, type(report_acl, 'ReportACL'),
-       lifecycle_type(report_acl, 'ACLRules'),
-       tag(report_acl.report_id, 'sqlx:"report_id,primaryKey" validate:"required"'),
-       tag(report_acl.subject_type, 'sqlx:"subject_type,primaryKey" validate:"required"'),
-       tag(report_acl.subject_id, 'sqlx:"subject_id,primaryKey" validate:"required"'),
-       CAST(report_acl.should_delete AS bool), delete_marker(report_acl.should_delete),
-	   concurrency_token(report_acl.etag)
-FROM (${embed:sql/patch.sql}) report_acl
+SELECT component_acl.*, type(component_acl, 'ReportACL'),
+       lifecycle_type(component_acl, 'ACLRules'),
+       tag(component_acl.report_id, 'sqlx:"report_id,primaryKey" validate:"required"'),
+       tag(component_acl.subject_type, 'sqlx:"subject_type,primaryKey" validate:"required"'),
+       tag(component_acl.subject_id, 'sqlx:"subject_id,primaryKey" validate:"required"'),
+       CAST(component_acl.should_delete AS bool), delete_marker(component_acl.should_delete),
+	   concurrency_token(component_acl.etag)
+FROM (${embed:sql/patch.sql}) component_acl
 WHERE 1=1

@@ -37,10 +37,10 @@ func TestPublicationGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 		datatest.Table{Name: "connectors", Rows: []datatest.Row{{"name": "main", "driver": "sqlite", "owner_id": "alice", "status": "active", "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"}}},
 		datatest.Table{Name: "namespaces", Rows: []datatest.Row{{"owner_id": "alice", "name": "general", "title": "General", "status": "active", "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"}}},
 		datatest.Table{Name: "components", Rows: []datatest.Row{{"id": "r1", "slug": "first", "title": "First", "owner_id": "alice", "status": "active", "default_connector_name": "main", "namespace": "general", "component_scope": "reports/first", "component_name": "first", "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"}}},
-		datatest.Table{Name: "report_acl", Rows: []datatest.Row{{"report_id": "r1", "subject_type": "user", "subject_id": "bob", "can_view": true}}},
-		datatest.Table{Name: "report_versions", Rows: []datatest.Row{{"report_id": "r1", "version_no": 1, "state": "published", "authoring_mode": "dql", "component_spec_json": "{}", "spec_format_version": "1", "spec_hash": "hash", "type_manifest_json": "{}", "compile_status": "valid", "datly_version": "v1", "compiler_version": "v1", "source_revision": 1, "created_by": "alice", "created_at": "2026-09-17 09:00:00"}}},
+		datatest.Table{Name: "component_acl", Rows: []datatest.Row{{"report_id": "r1", "subject_type": "user", "subject_id": "bob", "can_view": true}}},
+		datatest.Table{Name: "component_versions", Rows: []datatest.Row{{"report_id": "r1", "version_no": 1, "state": "published", "authoring_mode": "dql", "component_spec_json": "{}", "spec_format_version": "1", "spec_hash": "hash", "type_manifest_json": "{}", "compile_status": "valid", "datly_version": "v1", "compiler_version": "v1", "source_revision": 1, "created_by": "alice", "created_at": "2026-09-17 09:00:00"}}},
 		datatest.Table{Name: "runtime_generations", Rows: []datatest.Row{{"generation_no": 7, "source_revision": "r1:1:7", "status": "active", "report_count": 1, "build_manifest_json": "{}", "requested_by": "alice", "requested_at": "2026-09-17 09:00:00"}}},
-		datatest.Table{Name: "report_publications", Rows: []datatest.Row{{"report_id": "r1", "active_version_no": 1, "desired_version_no": 1, "desired_generation": 7, "active_generation": 7, "publication_status": "active", "runtime_revision": "r1:1:7", "spec_hash": "hash", "published_by": "alice", "published_at": "2026-09-17 10:00:00"}}},
+		datatest.Table{Name: "component_publications", Rows: []datatest.Row{{"report_id": "r1", "active_version_no": 1, "desired_version_no": 1, "desired_generation": 7, "active_generation": 7, "publication_status": "active", "runtime_revision": "r1:1:7", "spec_hash": "hash", "published_by": "alice", "published_at": "2026-09-17 10:00:00"}}},
 	); err != nil {
 		t.Fatal(err)
 	}
@@ -220,7 +220,7 @@ func TestPublicationGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	if err = json.Unmarshal(structured, &mcpWire); err != nil || mcpWire["reportId"] != "r1" || mcpWire["activeGeneration"] != float64(7) {
 		t.Fatalf("MCP publication=%s err=%v", structured, err)
 	}
-	if _, err = db.ExecContext(ctx, "DELETE FROM report_acl WHERE report_id = ? AND subject_id = ?", "r1", "bob"); err != nil {
+	if _, err = db.ExecContext(ctx, "DELETE FROM component_acl WHERE report_id = ? AND subject_id = ?", "r1", "bob"); err != nil {
 		t.Fatal(err)
 	}
 	_, err = invoke("bob", "r1")

@@ -25,7 +25,7 @@ func TestPublicationEventReaderFollowsCurrentReportOwner(t *testing.T) {
 		datatest.Table{Name: "connectors", Rows: []datatest.Row{{"name": "main", "driver": "sqlite", "owner_id": "alice", "status": "active", "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"}}},
 		datatest.Table{Name: "namespaces", Rows: []datatest.Row{{"owner_id": "alice", "name": "general", "title": "General", "status": "active", "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"}, {"owner_id": "carol", "name": "general", "title": "General", "status": "active", "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"}}},
 		datatest.Table{Name: "components", Rows: []datatest.Row{{"id": "r1", "slug": "first", "title": "First", "owner_id": "alice", "status": "active", "default_connector_name": "main", "namespace": "general", "component_scope": "reports/first", "component_name": "first", "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"}}},
-		datatest.Table{Name: "report_publication_events", Rows: []datatest.Row{{"event_id": "e1", "report_id": "r1", "owner_id": "alice", "operation": "publish", "status": "succeeded", "requested_by": "alice", "occurred_at": "2026-09-17 10:00:00"}}},
+		datatest.Table{Name: "component_publication_events", Rows: []datatest.Row{{"event_id": "e1", "report_id": "r1", "owner_id": "alice", "operation": "publish", "status": "succeeded", "requested_by": "alice", "occurred_at": "2026-09-17 10:00:00"}}},
 	); err != nil {
 		t.Fatal(err)
 	}

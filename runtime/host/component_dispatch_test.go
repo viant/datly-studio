@@ -47,15 +47,15 @@ func TestComponentDispatchRunsAuthorizedOlderVersionAndRejectsDrift(t *testing.T
 	}
 	older := strings.Replace(original.dql, "t.name", "'old-version' AS name", 1)
 	active := strings.Replace(original.dql, "t.name", "'active-version' AS name", 1)
-	if _, err := service.studio.ExecContext(ctx, "UPDATE report_versions SET authored_dql=?,generated_dql=? WHERE report_id='records' AND version_no=1", older, older); err != nil {
+	if _, err := service.studio.ExecContext(ctx, "UPDATE component_versions SET authored_dql=?,generated_dql=? WHERE report_id='records' AND version_no=1", older, older); err != nil {
 		t.Fatal(err)
 	}
-	_, err = service.studio.ExecContext(ctx, `INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at)
-   SELECT report_id,2,'published',authoring_mode,?, ?,component_spec_json,spec_format_version,'hash-v2',type_manifest_json,compile_status,datly_version,compiler_version,2,created_by,created_at FROM report_versions WHERE report_id='records' AND version_no=1`, active, active)
+	_, err = service.studio.ExecContext(ctx, `INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at)
+   SELECT report_id,2,'published',authoring_mode,?, ?,component_spec_json,spec_format_version,'hash-v2',type_manifest_json,compile_status,datly_version,compiler_version,2,created_by,created_at FROM component_versions WHERE report_id='records' AND version_no=1`, active, active)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err = service.studio.ExecContext(ctx, "UPDATE report_publications SET active_version_no=2 WHERE report_id='records'"); err != nil {
+	if _, err = service.studio.ExecContext(ctx, "UPDATE component_publications SET active_version_no=2 WHERE report_id='records'"); err != nil {
 		t.Fatal(err)
 	}
 	if err = service.Reload(ctx, 0); err != nil {
@@ -118,7 +118,7 @@ func TestComponentDispatchRunsAuthorizedOlderVersionAndRejectsDrift(t *testing.T
 			t.Fatalf("invalid component revision accepted: %q", revision)
 		}
 	}
-	if _, err := service.studio.ExecContext(ctx, "UPDATE report_versions SET generated_dql=? WHERE report_id='records' AND version_no=1", active); err != nil {
+	if _, err := service.studio.ExecContext(ctx, "UPDATE component_versions SET generated_dql=? WHERE report_id='records' AND version_no=1", active); err != nil {
 		t.Fatal(err)
 	}
 	if result, err := dispatcher.ExecuteComponent(ctx, "records-api", "fetch", pin, nil); err == nil || len(result) != 0 {
@@ -220,10 +220,10 @@ func TestComponentDispatchRejectsChangedVersionedSQLResource(t *testing.T) {
 	if source == unscopedRecordsDQL {
 		t.Fatal("SQL resource fixture did not replace the source")
 	}
-	if _, err := service.studio.ExecContext(ctx, "UPDATE report_versions SET authored_dql=?,generated_dql=? WHERE report_id='records' AND version_no=1", source, source); err != nil {
+	if _, err := service.studio.ExecContext(ctx, "UPDATE component_versions SET authored_dql=?,generated_dql=? WHERE report_id='records' AND version_no=1", source, source); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := service.studio.ExecContext(ctx, `INSERT INTO report_resource_files(report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at) VALUES('records',1,?,'records','sql/records.sql',?,?,?,FALSE,CURRENT_TIMESTAMP)`, identity.ContentFingerprint([]byte("records-resource")), []byte(query), len(query), identity.ContentFingerprint([]byte(query))); err != nil {
+	if _, err := service.studio.ExecContext(ctx, `INSERT INTO component_resource_files(report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at) VALUES('records',1,?,'records','sql/records.sql',?,?,?,FALSE,CURRENT_TIMESTAMP)`, identity.ContentFingerprint([]byte("records-resource")), []byte(query), len(query), identity.ContentFingerprint([]byte(query))); err != nil {
 		t.Fatal(err)
 	}
 	ref := ComponentReference{Kind: "dynamic", ID: "records", Revision: "1", Method: http.MethodGet, Route: "/records"}
@@ -236,7 +236,7 @@ func TestComponentDispatchRejectsChangedVersionedSQLResource(t *testing.T) {
 		t.Fatalf("native SQL resource not executed: %s %v", output, err)
 	}
 	changed := "SELECT t.id, 'changed-resource' AS name FROM tasks t ORDER BY t.id"
-	if _, err := service.studio.ExecContext(ctx, "UPDATE report_resource_files SET content=?,content_size=?,content_sha256=? WHERE report_id='records' AND version_no=1", []byte(changed), len(changed), identity.ContentFingerprint([]byte(changed))); err != nil {
+	if _, err := service.studio.ExecContext(ctx, "UPDATE component_resource_files SET content=?,content_size=?,content_sha256=? WHERE report_id='records' AND version_no=1", []byte(changed), len(changed), identity.ContentFingerprint([]byte(changed))); err != nil {
 		t.Fatal(err)
 	}
 	if output, err := service.ExecuteComponentJSON(ctx, ref, pin, nil); err == nil || len(output) != 0 {

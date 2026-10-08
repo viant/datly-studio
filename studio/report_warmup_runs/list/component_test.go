@@ -52,8 +52,8 @@ func TestWarmupListSDKDatlyHTTPMCPAndRecovery(t *testing.T) {
 			{"id": "r1", "slug": "first", "title": "First", "owner_id": "alice", "status": "active", "default_connector_name": "main", "namespace": "general", "component_scope": "reports/first", "component_name": "first", "created_at": now, "updated_at": now},
 			{"id": "r2", "slug": "second", "title": "Second", "owner_id": "alice", "status": "active", "default_connector_name": "main", "namespace": "general", "component_scope": "reports/second", "component_name": "second", "created_at": now, "updated_at": now},
 		}},
-		datatest.Table{Name: "report_acl", Rows: []datatest.Row{{"report_id": "r1", "subject_type": "user", "subject_id": "publisher", "can_view": true, "can_publish": true}, {"report_id": "r1", "subject_type": "user", "subject_id": "viewer", "can_view": true}}},
-		datatest.Table{Name: "report_versions", Rows: []datatest.Row{
+		datatest.Table{Name: "component_acl", Rows: []datatest.Row{{"report_id": "r1", "subject_type": "user", "subject_id": "publisher", "can_view": true, "can_publish": true}, {"report_id": "r1", "subject_type": "user", "subject_id": "viewer", "can_view": true}}},
+		datatest.Table{Name: "component_versions", Rows: []datatest.Row{
 			{"report_id": "r1", "version_no": 1, "state": "draft", "authoring_mode": "dql", "component_spec_json": "{}", "type_manifest_json": "{}", "spec_format_version": "1", "spec_hash": "hash", "compile_status": "valid", "datly_version": "v1", "compiler_version": "v1", "source_revision": 1, "created_by": "alice", "created_at": now},
 			{"report_id": "r2", "version_no": 1, "state": "draft", "authoring_mode": "dql", "component_spec_json": "{}", "type_manifest_json": "{}", "spec_format_version": "1", "spec_hash": "hash", "compile_status": "valid", "datly_version": "v1", "compiler_version": "v1", "source_revision": 1, "created_by": "alice", "created_at": now},
 		}},
@@ -69,7 +69,7 @@ func TestWarmupListSDKDatlyHTTPMCPAndRecovery(t *testing.T) {
 		{"recent", "r1", "accepted", now},
 		{"foreign-old", "r2", "accepted", old},
 	} {
-		if _, err := db.ExecContext(ctx, `INSERT INTO report_warmup_runs
+		if _, err := db.ExecContext(ctx, `INSERT INTO component_warmup_runs
  (run_id,report_id,version_no,source_revision,spec_hash,plan_key,active_key,status,requested_by,target_json,requested_at,updated_at,updated_by)
  VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)`, item.id, item.report, 1, 1, "hash", "plan", item.id, item.status, "alice", `{}`, item.requestedAt, item.requestedAt, "alice"); err != nil {
 			t.Fatal(err)
@@ -77,7 +77,7 @@ func TestWarmupListSDKDatlyHTTPMCPAndRecovery(t *testing.T) {
 	}
 	for index := 0; index < 105; index++ {
 		id := fmt.Sprintf("foreign-batch-%03d", index)
-		if _, err := db.ExecContext(ctx, `INSERT INTO report_warmup_runs
+		if _, err := db.ExecContext(ctx, `INSERT INTO component_warmup_runs
  (run_id,report_id,version_no,source_revision,spec_hash,plan_key,active_key,status,requested_by,target_json,requested_at,updated_at,updated_by)
  VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)`, id, "r2", 1, 1, "hash", "plan", id, "accepted", "alice", `{}`, old, old, "alice"); err != nil {
 			t.Fatal(err)
@@ -210,7 +210,7 @@ func TestWarmupListSDKDatlyHTTPMCPAndRecovery(t *testing.T) {
 		}
 	}
 	var unchanged string
-	if err := db.QueryRowContext(ctx, "SELECT status FROM report_warmup_runs WHERE run_id='old-a'").Scan(&unchanged); err != nil || unchanged != "accepted" {
+	if err := db.QueryRowContext(ctx, "SELECT status FROM component_warmup_runs WHERE run_id='old-a'").Scan(&unchanged); err != nil || unchanged != "accepted" {
 		t.Fatalf("denial performed expiry recovery: %q %v", unchanged, err)
 	}
 	viewer := httptest.NewRecorder()
@@ -219,7 +219,7 @@ func TestWarmupListSDKDatlyHTTPMCPAndRecovery(t *testing.T) {
 		t.Fatalf("view-only warmup list status=%d body=%s", viewer.Code, viewer.Body.String())
 	}
 	var before string
-	if err = db.QueryRowContext(ctx, "SELECT status FROM report_warmup_runs WHERE run_id='foreign-old'").Scan(&before); err != nil || before != "accepted" {
+	if err = db.QueryRowContext(ctx, "SELECT status FROM component_warmup_runs WHERE run_id='foreign-old'").Scan(&before); err != nil || before != "accepted" {
 		t.Fatalf("unauthorized list triggered global recovery: status=%q err=%v", before, err)
 	}
 	allowed := httptest.NewRecorder()
@@ -233,16 +233,16 @@ func TestWarmupListSDKDatlyHTTPMCPAndRecovery(t *testing.T) {
 	}
 	for _, id := range []string{"old-a", "old-b", "foreign-old"} {
 		var status, updatedBy, diagnostics string
-		if err = db.QueryRowContext(ctx, "SELECT status,updated_by,diagnostics_json FROM report_warmup_runs WHERE run_id=?", id).Scan(&status, &updatedBy, &diagnostics); err != nil || status != "failed" || updatedBy != sdk.SystemPrincipal().Subject || !bytes.Contains([]byte(diagnostics), []byte("warmup_expired")) {
+		if err = db.QueryRowContext(ctx, "SELECT status,updated_by,diagnostics_json FROM component_warmup_runs WHERE run_id=?", id).Scan(&status, &updatedBy, &diagnostics); err != nil || status != "failed" || updatedBy != sdk.SystemPrincipal().Subject || !bytes.Contains([]byte(diagnostics), []byte("warmup_expired")) {
 			t.Fatalf("expired %s status=%q actor=%q diagnostics=%q err=%v", id, status, updatedBy, diagnostics, err)
 		}
 	}
 	var recoveredForeign int
-	if err = db.QueryRowContext(ctx, "SELECT COUNT(*) FROM report_warmup_runs WHERE report_id='r2' AND status='failed' AND diagnostics_json LIKE '%warmup_expired%'").Scan(&recoveredForeign); err != nil || recoveredForeign != 106 {
+	if err = db.QueryRowContext(ctx, "SELECT COUNT(*) FROM component_warmup_runs WHERE report_id='r2' AND status='failed' AND diagnostics_json LIKE '%warmup_expired%'").Scan(&recoveredForeign); err != nil || recoveredForeign != 106 {
 		t.Fatalf("global recovery across 100-row pages=%d err=%v", recoveredForeign, err)
 	}
 	var recent string
-	if err = db.QueryRowContext(ctx, "SELECT status FROM report_warmup_runs WHERE run_id='recent'").Scan(&recent); err != nil || recent != "accepted" {
+	if err = db.QueryRowContext(ctx, "SELECT status FROM component_warmup_runs WHERE run_id='recent'").Scan(&recent); err != nil || recent != "accepted" {
 		t.Fatalf("recent run status=%q err=%v", recent, err)
 	}
 	bounded := httptest.NewRecorder()
@@ -298,7 +298,7 @@ func TestWarmupListSDKDatlyHTTPMCPAndRecovery(t *testing.T) {
 	if err != nil || !bytes.Contains(structured, []byte(`"limit":1`)) {
 		t.Fatalf("MCP warmup list=%s err=%v", structured, err)
 	}
-	if _, err = db.ExecContext(ctx, "DELETE FROM report_acl WHERE report_id = ? AND subject_id = ?", "r1", "publisher"); err != nil {
+	if _, err = db.ExecContext(ctx, "DELETE FROM component_acl WHERE report_id = ? AND subject_id = ?", "r1", "publisher"); err != nil {
 		t.Fatal(err)
 	}
 	revoked := httptest.NewRecorder()

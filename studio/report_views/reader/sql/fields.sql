@@ -3,6 +3,6 @@ SELECT fields."report_id", fields."version_no", fields."view_id", fields."field_
        f.source_column, f.expression, f.database_type, f.go_type,
        f.nullable, f.ordinal, f.filterable, f.orderable,
        f.groupable, f.measurable, f.metadata_json
-FROM report_fields f
+FROM component_fields f
 
 ) fields

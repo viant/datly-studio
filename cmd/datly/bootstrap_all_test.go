@@ -375,7 +375,7 @@ func TestSelectedStudioStaticComponentsBootstrapTogether(t *testing.T) {
 #setting($_ = $route('/v1/studio/readers/preview-wide','GET'))
 #define($_ = $Rows<[]*Row>(output/view))
 SELECT wide.*, type(wide,'Row') FROM (SELECT * FROM STUDIO_WIDE_60) wide`
-		if _, err = store.ExecContext(ctx, `INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at)
+		if _, err = store.ExecContext(ctx, `INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at)
 			VALUES('preview-wide',1,'draft','dql',?,?,'{}','studio.v1','wide-hash','{}','valid','v1','studio.v1',1,'alice',CURRENT_TIMESTAMP)`, wideDQL, wideDQL); err != nil {
 			t.Fatal(err)
 		}
@@ -737,7 +737,7 @@ SELECT wide.*, type(wide,'Row') FROM (SELECT * FROM STUDIO_WIDE_60) wide`
 #setting($_ = $route('/v1/studio/readers/preview-fixture','GET'))
 #define($_ = $Rows<[]*Row>(output/view))
 SELECT rows.*, type(rows,'Row') FROM (SELECT id,slug FROM components WHERE id='preview-fixture') rows`
-	if _, err = store.ExecContext(ctx, `INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at)
+	if _, err = store.ExecContext(ctx, `INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at)
 		VALUES(?,1,'draft','dql',?,?,'{}','studio.v1','preview-hash','{}','valid','v1','studio.v1',1,'alice',CURRENT_TIMESTAMP)`, previewReportID, previewDQL, previewDQL); err != nil {
 		t.Fatal(err)
 	}
@@ -756,7 +756,7 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT id,slug FROM components WHERE id='p
 	}
 	var validatedStatus string
 	var validatedAt sql.NullTime
-	if err = store.QueryRowContext(ctx, `SELECT compile_status,validated_at FROM report_versions WHERE report_id=? AND version_no=1`, previewReportID).Scan(&validatedStatus, &validatedAt); err != nil || validatedStatus != "valid" || !validatedAt.Valid {
+	if err = store.QueryRowContext(ctx, `SELECT compile_status,validated_at FROM component_versions WHERE report_id=? AND version_no=1`, previewReportID).Scan(&validatedStatus, &validatedAt); err != nil || validatedStatus != "valid" || !validatedAt.Valid {
 		t.Fatalf("native version validation persistence status=%q at=%v err=%v", validatedStatus, validatedAt, err)
 	}
 	staleValidation := httptest.NewRecorder()
@@ -771,17 +771,17 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT id,slug FROM components WHERE id='p
 		acceptedWarmup.RunID == "" || acceptedWarmup.ReportID != previewReportID || acceptedWarmup.Status != "accepted" || acceptedWarmup.RequestedBy != "alice" {
 		var recordedStatus string
 		var recordedUpdated sql.NullTime
-		recordedErr := store.QueryRowContext(ctx, `SELECT status,updated_at FROM report_warmup_runs WHERE report_id=? ORDER BY requested_at DESC LIMIT 1`, previewReportID).Scan(&recordedStatus, &recordedUpdated)
+		recordedErr := store.QueryRowContext(ctx, `SELECT status,updated_at FROM component_warmup_runs WHERE report_id=? ORDER BY requested_at DESC LIMIT 1`, previewReportID).Scan(&recordedStatus, &recordedUpdated)
 		t.Fatalf("native warmup acceptance status=%d run=%+v recorded=%q updated=%v err=%v body=%s", warmupHTTP.Code, acceptedWarmup, recordedStatus, recordedUpdated, recordedErr, warmupHTTP.Body.String())
 	}
 	var warmupNamespace string
-	if err = store.QueryRowContext(ctx, "SELECT namespace_id FROM report_warmup_runs WHERE run_id=?", acceptedWarmup.RunID).Scan(&warmupNamespace); err != nil || warmupNamespace != namespaceaccess.ID("alice", "production.audit") {
+	if err = store.QueryRowContext(ctx, "SELECT namespace_id FROM component_warmup_runs WHERE run_id=?", acceptedWarmup.RunID).Scan(&warmupNamespace); err != nil || warmupNamespace != namespaceaccess.ID("alice", "production.audit") {
 		t.Fatalf("native warmup namespace=%q err=%v", warmupNamespace, err)
 	}
 	deadline := time.Now().Add(5 * time.Second)
 	var terminalWarmupStatus string
 	for time.Now().Before(deadline) {
-		if err = store.QueryRowContext(ctx, `SELECT status FROM report_warmup_runs WHERE run_id=?`, acceptedWarmup.RunID).Scan(&terminalWarmupStatus); err != nil {
+		if err = store.QueryRowContext(ctx, `SELECT status FROM component_warmup_runs WHERE run_id=?`, acceptedWarmup.RunID).Scan(&terminalWarmupStatus); err != nil {
 			t.Fatal(err)
 		}
 		if terminalWarmupStatus == "failed" || terminalWarmupStatus == "completed" || terminalWarmupStatus == "partial" {
@@ -799,7 +799,7 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT id,slug FROM components WHERE id='p
 #setting($_ = $cache_warmup(''))
 #define($_ = $Rows<[]*Row>(output/view))
 SELECT rows.*, type(rows,'Row') FROM (SELECT id,slug FROM components WHERE id='preview-fixture') rows`, filepath.ToSlash(filepath.Join(t.TempDir(), "warmup-cache")))
-	if _, err = store.ExecContext(ctx, `INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at)
+	if _, err = store.ExecContext(ctx, `INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at)
 		VALUES(?,3,'draft','dql',?,?,'{}','studio.v1','cache-hash','{}','valid','v1','studio.v1',1,'alice',CURRENT_TIMESTAMP)`, previewReportID, cachedDQL, cachedDQL); err != nil {
 		t.Fatal(err)
 	}
@@ -812,7 +812,7 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT id,slug FROM components WHERE id='p
 	deadline = time.Now().Add(5 * time.Second)
 	var completedCached sdk.WarmupRun
 	for time.Now().Before(deadline) {
-		if err = store.QueryRowContext(ctx, `SELECT status,planned_cases,completed_cases,entries FROM report_warmup_runs WHERE run_id=?`, acceptedCached.RunID).
+		if err = store.QueryRowContext(ctx, `SELECT status,planned_cases,completed_cases,entries FROM component_warmup_runs WHERE run_id=?`, acceptedCached.RunID).
 			Scan(&completedCached.Status, &completedCached.PlannedCases, &completedCached.CompletedCases, &completedCached.Entries); err != nil {
 			t.Fatal(err)
 		}
@@ -841,7 +841,7 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT id,slug FROM components WHERE id='p
 	}
 
 	var beforeWarmupCount int
-	if err = store.QueryRowContext(ctx, "SELECT COUNT(*) FROM report_warmup_runs WHERE report_id=?", previewReportID).Scan(&beforeWarmupCount); err != nil {
+	if err = store.QueryRowContext(ctx, "SELECT COUNT(*) FROM component_warmup_runs WHERE report_id=?", previewReportID).Scan(&beforeWarmupCount); err != nil {
 		t.Fatal(err)
 	}
 	for _, check := range []struct{ operation, payload string }{
@@ -860,10 +860,10 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT id,slug FROM components WHERE id='p
 	}
 	var afterWarmupCount int
 	var unchangedValidation sql.NullTime
-	if err = store.QueryRowContext(ctx, "SELECT COUNT(*) FROM report_warmup_runs WHERE report_id=?", previewReportID).Scan(&afterWarmupCount); err != nil || afterWarmupCount != beforeWarmupCount {
+	if err = store.QueryRowContext(ctx, "SELECT COUNT(*) FROM component_warmup_runs WHERE report_id=?", previewReportID).Scan(&afterWarmupCount); err != nil || afterWarmupCount != beforeWarmupCount {
 		t.Fatalf("denial created warmup runs: before=%d after=%d err=%v", beforeWarmupCount, afterWarmupCount, err)
 	}
-	if err = store.QueryRowContext(ctx, "SELECT validated_at FROM report_versions WHERE report_id=? AND version_no=1", previewReportID).Scan(&unchangedValidation); err != nil || !unchangedValidation.Time.Equal(validatedAt.Time) {
+	if err = store.QueryRowContext(ctx, "SELECT validated_at FROM component_versions WHERE report_id=? AND version_no=1", previewReportID).Scan(&unchangedValidation); err != nil || !unchangedValidation.Time.Equal(validatedAt.Time) {
 		t.Fatalf("denial changed validation evidence: %v", err)
 	}
 	previewHTTP := httptest.NewRecorder()
@@ -889,7 +889,7 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT id,slug FROM components WHERE id='p
 	if bobPreview.Code != http.StatusForbidden {
 		t.Fatalf("non-runner preview status=%d body=%s", bobPreview.Code, bobPreview.Body.String())
 	}
-	if _, err = store.ExecContext(ctx, `INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_run,etag)
+	if _, err = store.ExecContext(ctx, `INSERT INTO component_acl(report_id,subject_type,subject_id,can_view,can_run,etag)
 		VALUES(?,'user','bob',1,1,1)`, previewReportID); err != nil {
 		t.Fatal(err)
 	}
@@ -902,7 +902,7 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT id,slug FROM components WHERE id='p
 	}
 
 	// Run permission is separate from metadata visibility within a visible namespace.
-	if _, err = store.ExecContext(ctx, `UPDATE report_acl SET can_view=0 WHERE report_id=? AND subject_id='bob'`, previewReportID); err != nil {
+	if _, err = store.ExecContext(ctx, `UPDATE component_acl SET can_view=0 WHERE report_id=? AND subject_id='bob'`, previewReportID); err != nil {
 		t.Fatal(err)
 	}
 	if _, err = store.ExecContext(ctx, `UPDATE namespaces SET visibility='public' WHERE owner_id='alice' AND name='production.audit'`); err != nil {
@@ -916,7 +916,7 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT id,slug FROM components WHERE id='p
 	if runOnlyResponse.Code != http.StatusOK || !strings.Contains(runOnlyResponse.Body.String(), `"returnedRows":1`) {
 		t.Fatalf("visible namespace run-only access status=%d body=%s", runOnlyResponse.Code, runOnlyResponse.Body.String())
 	}
-	if _, err = store.ExecContext(ctx, `UPDATE report_acl SET can_view=1 WHERE report_id=? AND subject_id='bob'`, previewReportID); err != nil {
+	if _, err = store.ExecContext(ctx, `UPDATE component_acl SET can_view=1 WHERE report_id=? AND subject_id='bob'`, previewReportID); err != nil {
 		t.Fatal(err)
 	}
 	if _, err = store.ExecContext(ctx, `UPDATE namespaces SET visibility='private' WHERE owner_id='alice' AND name='production.audit'`); err != nil {
@@ -942,7 +942,7 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT id,slug FROM components WHERE id='p
 	if signErr != nil {
 		t.Fatal(signErr)
 	}
-	if _, err = store.ExecContext(ctx, `INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_edit,can_use_dql,etag)
+	if _, err = store.ExecContext(ctx, `INSERT INTO component_acl(report_id,subject_type,subject_id,can_view,can_edit,can_use_dql,etag)
 		VALUES(?,'user','editor',1,1,0,1)`, previewReportID); err != nil {
 		t.Fatal(err)
 	}
@@ -951,7 +951,7 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT id,slug FROM components WHERE id='p
 #setting($_ = $route('/v1/studio/readers/preview-fixture','GET'))
 #define($_ = $Rows<[]*Row>(output/view))
 SELECT rows.*, type(rows,'Row') FROM (SELECT FROM components) rows`
-	if _, err = store.ExecContext(ctx, `INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at)
+	if _, err = store.ExecContext(ctx, `INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at)
 		VALUES(?,2,'draft','dql',?,?,'{}','studio.v1','invalid-hash','{}','pending','v1','studio.v1',1,'alice',CURRENT_TIMESTAMP)`, previewReportID, invalidDQL, invalidDQL); err != nil {
 		t.Fatal(err)
 	}
@@ -967,7 +967,7 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT FROM components) rows`
 	}
 	dedupePlan := warmupprojection.PlanKey(&sdk.ReportVersion{ReportID: previewReportID, VersionNo: 2, SourceRevision: 1, SpecHash: "invalid-hash"})
 	dedupeKey := fmt.Sprintf("%s:%d:%s", previewReportID, 2, dedupePlan)
-	if _, err = store.ExecContext(ctx, `INSERT INTO report_warmup_runs(run_id,report_id,version_no,source_revision,spec_hash,plan_key,active_key,status,requested_by,target_json,requested_at,created_at,created_by,updated_at,updated_by)
+	if _, err = store.ExecContext(ctx, `INSERT INTO component_warmup_runs(run_id,report_id,version_no,source_revision,spec_hash,plan_key,active_key,status,requested_by,target_json,requested_at,created_at,created_by,updated_at,updated_by)
 		VALUES('w-dedupe',?,2,1,'invalid-hash',?,?,'accepted','alice','{}',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,'alice',CURRENT_TIMESTAMP,'alice')`, previewReportID, dedupePlan, dedupeKey); err != nil {
 		t.Fatal(err)
 	}
@@ -987,9 +987,9 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT FROM components) rows`
 #define($_ = $Rows<[]*ReportRow>(output/view))
 SELECT reports.*, versions.*, type(reports,'ReportRow'), type(versions,'VersionRow')
 FROM (SELECT id,slug FROM components WHERE id='preview-fixture') reports
-LEFT JOIN (SELECT report_id,version_no FROM report_versions WHERE report_id='preview-fixture' AND version_no<=2) versions
+LEFT JOIN (SELECT report_id,version_no FROM component_versions WHERE report_id='preview-fixture' AND version_no<=2) versions
 ON versions.report_id=reports.id`
-	if _, err = store.ExecContext(ctx, `INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at)
+	if _, err = store.ExecContext(ctx, `INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at)
 		VALUES('relation-fixture',1,'draft','dql',?,?,'{}','studio.v1','relation-hash','{}','valid','v1','studio.v1',1,'alice',CURRENT_TIMESTAMP)`, relationDQL, relationDQL); err != nil {
 		t.Fatal(err)
 	}
@@ -1012,7 +1012,7 @@ ON versions.report_id=reports.id`
 SELECT summary.*, groupable(summary), tag(summary.status, 'groupable:"true"'),
        CAST(summary.product_count AS float64), type(summary,'Summary')
 FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) summary`
-	if _, err = store.ExecContext(ctx, `INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at)
+	if _, err = store.ExecContext(ctx, `INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at)
 		VALUES('compose-fixture',1,'draft','dql',?,?,'{}','studio.v1','compose-hash','{}','valid','v1','studio.v1',1,'alice',CURRENT_TIMESTAMP)`, composeDQL, composeDQL); err != nil {
 		t.Fatal(err)
 	}
@@ -1027,7 +1027,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		t.Fatalf("missing version preview status=%d body=%s", missingPreview.Code, missingPreview.Body.String())
 	}
 	for _, subject := range []string{"grant_http", "grant_mcp", "grant_bff"} {
-		if _, err = store.ExecContext(ctx, `INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,etag)
+		if _, err = store.ExecContext(ctx, `INSERT INTO component_acl(report_id,subject_type,subject_id,can_view,etag)
 			VALUES(?,'user',?,1,1)`, nativeReport.ID, subject); err != nil {
 			t.Fatal(err)
 		}
@@ -1052,10 +1052,10 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		t.Fatalf("cross-namespace ACL list status=%d body=%s", deniedACLResponse.Code, deniedACLResponse.Body.String())
 	}
 	var untouchedACLCount int
-	if err = store.QueryRowContext(ctx, "SELECT COUNT(*) FROM report_acl WHERE report_id=? AND subject_id='grant_http' AND etag=1", nativeReport.ID).Scan(&untouchedACLCount); err != nil || untouchedACLCount != 1 {
+	if err = store.QueryRowContext(ctx, "SELECT COUNT(*) FROM component_acl WHERE report_id=? AND subject_id='grant_http' AND etag=1", nativeReport.ID).Scan(&untouchedACLCount); err != nil || untouchedACLCount != 1 {
 		t.Fatalf("cross-namespace delete changed grant: count=%d err=%v", untouchedACLCount, err)
 	}
-	if err = store.QueryRowContext(ctx, "SELECT COUNT(*) FROM report_acl WHERE report_id=? AND subject_id='ns_denied_http'", nativeReport.ID).Scan(&untouchedACLCount); err != nil || untouchedACLCount != 0 {
+	if err = store.QueryRowContext(ctx, "SELECT COUNT(*) FROM component_acl WHERE report_id=? AND subject_id='ns_denied_http'", nativeReport.ID).Scan(&untouchedACLCount); err != nil || untouchedACLCount != 0 {
 		t.Fatalf("cross-namespace upsert added grant: count=%d err=%v", untouchedACLCount, err)
 	}
 	invalidACLGrant := httptest.NewRecorder()
@@ -1079,7 +1079,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		t.Fatalf("native ACL creation status=%d body=%s", createdACL.Code, createdACL.Body.String())
 	}
 	var nativeACLNamespace string
-	if err = store.QueryRowContext(ctx, "SELECT namespace_id FROM report_acl WHERE report_id=? AND subject_id='upsert_http'", nativeReport.ID).Scan(&nativeACLNamespace); err != nil || nativeACLNamespace != namespaceaccess.ID("alice", "production.audit") {
+	if err = store.QueryRowContext(ctx, "SELECT namespace_id FROM component_acl WHERE report_id=? AND subject_id='upsert_http'", nativeReport.ID).Scan(&nativeACLNamespace); err != nil || nativeACLNamespace != namespaceaccess.ID("alice", "production.audit") {
 		t.Fatalf("native ACL ownership=%q err=%v", nativeACLNamespace, err)
 	}
 	updatedACL := httptest.NewRecorder()
@@ -1189,11 +1189,11 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		!strings.Contains(createdVersion.Body.String(), `"authoredDql":"SELECT 1"`) || !strings.Contains(createdVersion.Body.String(), `"sourceRevision":1`) {
 		t.Fatalf("native version create status=%d body=%s", createdVersion.Code, createdVersion.Body.String())
 	}
-	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=? AND version_no=1 AND created_by='alice' AND compile_status='pending'`, nativeReport.ID).Scan(&reportCount); err != nil || reportCount != 1 {
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_versions WHERE report_id=? AND version_no=1 AND created_by='alice' AND compile_status='pending'`, nativeReport.ID).Scan(&reportCount); err != nil || reportCount != 1 {
 		t.Fatalf("native version persistence count=%d err=%v", reportCount, err)
 	}
 	var createdVersionNamespace, createdVersionOwner, createdVersionWorkspace string
-	if err := store.QueryRowContext(ctx, `SELECT v.namespace_id,c.owner_id,c.namespace FROM report_versions v JOIN components c ON c.id=v.report_id WHERE v.report_id=? AND v.version_no=1`, nativeReport.ID).Scan(&createdVersionNamespace, &createdVersionOwner, &createdVersionWorkspace); err != nil || createdVersionNamespace != namespaceaccess.ID(createdVersionOwner, createdVersionWorkspace) {
+	if err := store.QueryRowContext(ctx, `SELECT v.namespace_id,c.owner_id,c.namespace FROM component_versions v JOIN components c ON c.id=v.report_id WHERE v.report_id=? AND v.version_no=1`, nativeReport.ID).Scan(&createdVersionNamespace, &createdVersionOwner, &createdVersionWorkspace); err != nil || createdVersionNamespace != namespaceaccess.ID(createdVersionOwner, createdVersionWorkspace) {
 		t.Fatalf("native created version namespace=%q err=%v", createdVersionNamespace, err)
 	}
 	ownerInspection := httptest.NewRecorder()
@@ -1239,7 +1239,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if blockedImportResponse.Code < 400 || blockedImportResponse.Code >= 500 {
 		t.Fatalf("cross-namespace DQL import status=%d body=%s", blockedImportResponse.Code, blockedImportResponse.Body.String())
 	}
-	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=?`, loadReport.ID).Scan(&reportCount); err != nil || reportCount != 0 {
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_versions WHERE report_id=?`, loadReport.ID).Scan(&reportCount); err != nil || reportCount != 0 {
 		t.Fatalf("denied namespace import wrote versions: count=%d err=%v", reportCount, err)
 	}
 	deniedDQLLoad := request("/v1/studio/sdk/versions.load_dql", `{"reportId":"`+loadReport.ID+`","input":{"dql":"SELECT 1"}}`)
@@ -1263,18 +1263,18 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		t.Fatalf("native DQL load status=%d body=%s", loadedDQL.Code, loadedDQL.Body.String())
 	}
 	var importedWorkspace string
-	if err := store.QueryRowContext(ctx, `SELECT namespace_id FROM report_versions WHERE report_id=? AND version_no=1`, loadReport.ID).Scan(&importedWorkspace); err != nil || importedWorkspace != namespaceaccess.ID("alice", "production.audit") {
+	if err := store.QueryRowContext(ctx, `SELECT namespace_id FROM component_versions WHERE report_id=? AND version_no=1`, loadReport.ID).Scan(&importedWorkspace); err != nil || importedWorkspace != namespaceaccess.ID("alice", "production.audit") {
 		t.Fatalf("native imported version namespace=%q err=%v", importedWorkspace, err)
 	}
 	var mismatchedImportFiles int
-	if err := store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_resource_files WHERE report_id=? AND version_no=1 AND namespace_id<>?`, loadReport.ID, importedWorkspace).Scan(&mismatchedImportFiles); err != nil || mismatchedImportFiles != 0 {
+	if err := store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_resource_files WHERE report_id=? AND version_no=1 AND namespace_id<>?`, loadReport.ID, importedWorkspace).Scan(&mismatchedImportFiles); err != nil || mismatchedImportFiles != 0 {
 		t.Fatalf("native imported files with wrong namespace=%d err=%v", mismatchedImportFiles, err)
 	}
 	var loadVersionCount, loadFileCount, loadDraft, loadETag int
-	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=? AND version_no=1`, loadReport.ID).Scan(&loadVersionCount); err != nil {
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_versions WHERE report_id=? AND version_no=1`, loadReport.ID).Scan(&loadVersionCount); err != nil {
 		t.Fatal(err)
 	}
-	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_resource_files WHERE report_id=? AND version_no=1 AND resource_path='main.dql'`, loadReport.ID).Scan(&loadFileCount); err != nil {
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_resource_files WHERE report_id=? AND version_no=1 AND resource_path='main.dql'`, loadReport.ID).Scan(&loadFileCount); err != nil {
 		t.Fatal(err)
 	}
 	if err = store.QueryRowContext(ctx, `SELECT current_draft_version,etag FROM components WHERE id=?`, loadReport.ID).Scan(&loadDraft, &loadETag); err != nil ||
@@ -1289,7 +1289,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if blockedEditResponse.Code < 400 || blockedEditResponse.Code >= 500 {
 		t.Fatalf("cross-namespace version edit status=%d body=%s", blockedEditResponse.Code, blockedEditResponse.Body.String())
 	}
-	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=? AND version_no=1 AND source_revision=1 AND authored_dql='SELECT 1'`, loadReport.ID).Scan(&reportCount); err != nil || reportCount != 1 {
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_versions WHERE report_id=? AND version_no=1 AND source_revision=1 AND authored_dql='SELECT 1'`, loadReport.ID).Scan(&reportCount); err != nil || reportCount != 1 {
 		t.Fatalf("denied namespace edit changed source: count=%d err=%v", reportCount, err)
 	}
 	deniedVersionEdit := request("/v1/studio/sdk/versions.apply", `{"reportId":"`+loadReport.ID+`","versionNo":1,"command":{"kind":"set_dql","expectedSourceRevision":1,"payload":{"authoredDql":"SELECT stolen"}}}`)
@@ -1379,7 +1379,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if blockedArchiveResponse.Code < 400 || blockedArchiveResponse.Code >= 500 {
 		t.Fatalf("cross-namespace archive status=%d body=%s", blockedArchiveResponse.Code, blockedArchiveResponse.Body.String())
 	}
-	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=?`, archiveReport.ID).Scan(&reportCount); err != nil || reportCount != 0 {
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_versions WHERE report_id=?`, archiveReport.ID).Scan(&reportCount); err != nil || reportCount != 0 {
 		t.Fatalf("denied archive created versions: count=%d err=%v", reportCount, err)
 	}
 
@@ -1392,7 +1392,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		!strings.Contains(loadedArchive.Body.String(), `"sql/dependency.sql"`) {
 		t.Fatalf("native archive load status=%d body=%s", loadedArchive.Code, loadedArchive.Body.String())
 	}
-	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_resource_files WHERE report_id=? AND version_no=1`, archiveReport.ID).Scan(&loadFileCount); err != nil || loadFileCount != 3 {
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_resource_files WHERE report_id=? AND version_no=1`, archiveReport.ID).Scan(&loadFileCount); err != nil || loadFileCount != 3 {
 		t.Fatalf("archive resource count=%d err=%v", loadFileCount, err)
 	}
 	if err = store.QueryRowContext(ctx, `SELECT current_draft_version,etag FROM components WHERE id=?`, archiveReport.ID).Scan(&loadDraft, &loadETag); err != nil || loadDraft != 1 || loadETag != 2 {
@@ -1414,7 +1414,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if err = json.Unmarshal(delegatedReport.Body.Bytes(), &delegatedBody); err != nil || delegatedBody.ID == "" {
 		t.Fatalf("delegated report identity=%+v err=%v", delegatedBody, err)
 	}
-	if _, err = store.ExecContext(ctx, `INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_edit)
+	if _, err = store.ExecContext(ctx, `INSERT INTO component_acl(report_id,subject_type,subject_id,can_view,can_edit)
 		VALUES(?,'user','bob',1,1)`, delegatedBody.ID); err != nil {
 		t.Fatal(err)
 	}
@@ -1443,7 +1443,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		t.Fatalf("delegated editor version create status=%d body=%s", delegatedVersion.Code, delegatedVersion.Body.String())
 	}
 	var delegatedSource string
-	if err = store.QueryRowContext(ctx, `SELECT authored_dql FROM report_versions WHERE report_id=? AND version_no=1`, delegatedBody.ID).Scan(&delegatedSource); err != nil || delegatedSource != "SELECT private_value" {
+	if err = store.QueryRowContext(ctx, `SELECT authored_dql FROM component_versions WHERE report_id=? AND version_no=1`, delegatedBody.ID).Scan(&delegatedSource); err != nil || delegatedSource != "SELECT private_value" {
 		t.Fatalf("delegated version stored source=%q err=%v", delegatedSource, err)
 	}
 	viewerInspectRequest := request("/v1/studio/sdk/versions.inspect", `{"reportId":"`+delegatedBody.ID+`","versionNo":1}`)
@@ -1846,10 +1846,10 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if status != http.StatusOK || bytes.Contains(body, []byte("grant_mcp")) {
 		t.Fatalf("cross-namespace MCP ACL disclosure: status=%d body=%s", status, body)
 	}
-	if err = store.QueryRowContext(ctx, "SELECT COUNT(*) FROM report_acl WHERE report_id=? AND subject_id='grant_mcp' AND etag=1", nativeReport.ID).Scan(&untouchedACLCount); err != nil || untouchedACLCount != 1 {
+	if err = store.QueryRowContext(ctx, "SELECT COUNT(*) FROM component_acl WHERE report_id=? AND subject_id='grant_mcp' AND etag=1", nativeReport.ID).Scan(&untouchedACLCount); err != nil || untouchedACLCount != 1 {
 		t.Fatalf("MCP denial deleted grant: count=%d err=%v", untouchedACLCount, err)
 	}
-	if err = store.QueryRowContext(ctx, "SELECT COUNT(*) FROM report_acl WHERE report_id=? AND subject_id='ns_denied_mcp'", nativeReport.ID).Scan(&untouchedACLCount); err != nil || untouchedACLCount != 0 {
+	if err = store.QueryRowContext(ctx, "SELECT COUNT(*) FROM component_acl WHERE report_id=? AND subject_id='ns_denied_mcp'", nativeReport.ID).Scan(&untouchedACLCount); err != nil || untouchedACLCount != 0 {
 		t.Fatalf("MCP denial created grant: count=%d err=%v", untouchedACLCount, err)
 	}
 	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.acl.upsert", map[string]any{
@@ -1895,14 +1895,14 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if status != http.StatusOK || !bytes.Contains(body, []byte(`"isError":true`)) {
 		t.Fatalf("cross-namespace MCP import status=%d body=%s", status, body)
 	}
-	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=?`, loadReport.ID).Scan(&reportCount); err != nil || reportCount != 1 {
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_versions WHERE report_id=?`, loadReport.ID).Scan(&reportCount); err != nil || reportCount != 1 {
 		t.Fatalf("denied MCP import wrote versions: count=%d err=%v", reportCount, err)
 	}
 	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.apply", map[string]any{"namespaceId": wrongNamespaceID, "reportId": loadReport.ID, "versionNo": 1, "command": map[string]any{"kind": "set_dql", "expectedSourceRevision": 2, "payload": map[string]any{"authoredDql": "SELECT wrong_namespace"}}})
 	if status != http.StatusOK || !bytes.Contains(body, []byte(`"isError":true`)) {
 		t.Fatalf("cross-namespace MCP edit status=%d body=%s", status, body)
 	}
-	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=? AND version_no=1 AND source_revision=2 AND authored_dql='SELECT edited'`, loadReport.ID).Scan(&reportCount); err != nil || reportCount != 1 {
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_versions WHERE report_id=? AND version_no=1 AND source_revision=2 AND authored_dql='SELECT edited'`, loadReport.ID).Scan(&reportCount); err != nil || reportCount != 1 {
 		t.Fatalf("denied MCP edit changed source: count=%d err=%v", reportCount, err)
 	}
 	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.load_dql", map[string]any{
@@ -1928,7 +1928,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if status != http.StatusOK || !bytes.Contains(body, []byte(`"isError":true`)) {
 		t.Fatalf("cross-namespace MCP archive status=%d body=%s", status, body)
 	}
-	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=?`, archiveReport.ID).Scan(&reportCount); err != nil || reportCount != 1 {
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_versions WHERE report_id=?`, archiveReport.ID).Scan(&reportCount); err != nil || reportCount != 1 {
 		t.Fatalf("denied MCP archive wrote versions: count=%d err=%v", reportCount, err)
 	}
 	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.load_archive", map[string]any{
@@ -2059,7 +2059,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"subjectId":"upsert_bff"`)) {
 		t.Fatalf("BFF-proxied ACL upsert status=%d body=%s", status, body)
 	}
-	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_acl WHERE report_id=? AND
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_acl WHERE report_id=? AND
 		(subject_id='upsert_http' AND can_view=1 AND can_run=1 AND can_edit=1 AND etag=2 OR
 		 subject_id='upsert_mcp' AND can_view=1 AND etag=1 OR
 		 subject_id='upsert_bff' AND can_view=1 AND can_publish=1 AND etag=1)`, nativeReport.ID).Scan(&reportCount); err != nil || reportCount != 3 {
@@ -2071,7 +2071,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) {
 		t.Fatalf("BFF-proxied ACL delete status=%d body=%s", status, body)
 	}
-	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_acl WHERE report_id=? AND subject_id IN ('grant_http','grant_mcp','grant_bff')`, nativeReport.ID).Scan(&reportCount); err != nil || reportCount != 0 {
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_acl WHERE report_id=? AND subject_id IN ('grant_http','grant_mcp','grant_bff')`, nativeReport.ID).Scan(&reportCount); err != nil || reportCount != 0 {
 		t.Fatalf("ACL deletion persistence count=%d err=%v", reportCount, err)
 	}
 	status, body = mcpCall(bff.URL+"/v1/studio/sdk-mcp/mcp", "", &http.Cookie{Name: bffauth.DefaultCookieName, Value: id}, "tools/call", "studio.sdk.authorization_predicates.types", map[string]any{})
@@ -2244,7 +2244,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	}
 	var editedSourceRevision int64
 	var editedSQL, editedSpec string
-	if err = store.QueryRowContext(ctx, `SELECT source_revision,authored_sql,component_spec_json FROM report_versions WHERE report_id=? AND version_no=1`, loadReport.ID).
+	if err = store.QueryRowContext(ctx, `SELECT source_revision,authored_sql,component_spec_json FROM component_versions WHERE report_id=? AND version_no=1`, loadReport.ID).
 		Scan(&editedSourceRevision, &editedSQL, &editedSpec); err != nil || editedSourceRevision != 4 || editedSQL != "SELECT 3" || editedSpec != `{"name":"Updated"}` {
 		t.Fatalf("MCP version edits persisted revision=%d SQL=%q spec=%q err=%v", editedSourceRevision, editedSQL, editedSpec, err)
 	}
@@ -2256,20 +2256,20 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		t.Fatalf("BFF-proxied archive load status=%d body=%s", status, body)
 	}
 	var archiveVersionCount, archiveFileCount, archiveDraft, archiveETag int
-	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=?`, archiveReport.ID).Scan(&archiveVersionCount); err != nil {
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_versions WHERE report_id=?`, archiveReport.ID).Scan(&archiveVersionCount); err != nil {
 		t.Fatal(err)
 	}
-	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_resource_files WHERE report_id=?`, archiveReport.ID).Scan(&archiveFileCount); err != nil {
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_resource_files WHERE report_id=?`, archiveReport.ID).Scan(&archiveFileCount); err != nil {
 		t.Fatal(err)
 	}
 	if err = store.QueryRowContext(ctx, `SELECT current_draft_version,etag FROM components WHERE id=?`, archiveReport.ID).Scan(&archiveDraft, &archiveETag); err != nil ||
 		archiveVersionCount != 3 || archiveFileCount != 9 || archiveDraft != 3 || archiveETag != 4 {
 		t.Fatalf("MCP archive imports persisted version=%d file=%d draft=%d etag=%d err=%v", archiveVersionCount, archiveFileCount, archiveDraft, archiveETag, err)
 	}
-	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=?`, loadReport.ID).Scan(&loadVersionCount); err != nil {
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_versions WHERE report_id=?`, loadReport.ID).Scan(&loadVersionCount); err != nil {
 		t.Fatal(err)
 	}
-	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_resource_files WHERE report_id=?`, loadReport.ID).Scan(&loadFileCount); err != nil {
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_resource_files WHERE report_id=?`, loadReport.ID).Scan(&loadFileCount); err != nil {
 		t.Fatal(err)
 	}
 	if err = store.QueryRowContext(ctx, `SELECT current_draft_version,etag FROM components WHERE id=?`, loadReport.ID).Scan(&loadDraft, &loadETag); err != nil ||
@@ -2285,10 +2285,10 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if rejectedImport.Code == http.StatusOK {
 		t.Fatalf("native DQL import ignored draft-pointer failure: %s", rejectedImport.Body.String())
 	}
-	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=?`, loadReport.ID).Scan(&loadVersionCount); err != nil {
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_versions WHERE report_id=?`, loadReport.ID).Scan(&loadVersionCount); err != nil {
 		t.Fatal(err)
 	}
-	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_resource_files WHERE report_id=?`, loadReport.ID).Scan(&loadFileCount); err != nil {
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_resource_files WHERE report_id=?`, loadReport.ID).Scan(&loadFileCount); err != nil {
 		t.Fatal(err)
 	}
 	if err = store.QueryRowContext(ctx, `SELECT current_draft_version,etag FROM components WHERE id=?`, loadReport.ID).Scan(&loadDraft, &loadETag); err != nil ||
@@ -2402,7 +2402,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if err := store.QueryRowContext(ctx, `SELECT owner_id,namespace FROM components WHERE id='preview-fixture'`).Scan(&resourceOwner, &resourceWorkspace); err != nil {
 		t.Fatal(err)
 	}
-	for _, table := range []string{"report_resource_files", "report_resource_folders", "report_skill_roots"} {
+	for _, table := range []string{"component_resource_files", "component_resource_folders", "component_skill_roots"} {
 		var owned, wrong int
 		if err := store.QueryRowContext(ctx, "SELECT COUNT(*), SUM(CASE WHEN namespace_id<>? THEN 1 ELSE 0 END) FROM "+table+" WHERE report_id='preview-fixture'",
 			namespaceaccess.ID(resourceOwner, resourceWorkspace)).Scan(&owned, &wrong); err != nil || owned == 0 || wrong != 0 {
@@ -2432,7 +2432,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if blockedResourceResponse.Code < 400 || blockedResourceResponse.Code >= 500 {
 		t.Fatalf("cross-namespace resource status=%d body=%s", blockedResourceResponse.Code, blockedResourceResponse.Body.String())
 	}
-	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_resource_files WHERE resource_id='ns-blocked'`).Scan(&reportCount); err != nil || reportCount != 0 {
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_resource_files WHERE resource_id='ns-blocked'`).Scan(&reportCount); err != nil || reportCount != 0 {
 		t.Fatalf("denied resource persisted: count=%d err=%v", reportCount, err)
 	}
 
@@ -2442,7 +2442,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		t.Fatalf("native invalid resource status=%d body=%s", invalidResource.Code, invalidResource.Body.String())
 	}
 	var sourceRevision int64
-	if err = store.QueryRowContext(ctx, `SELECT source_revision FROM report_versions WHERE report_id='preview-fixture' AND version_no=3`).Scan(&sourceRevision); err != nil || sourceRevision != 9 {
+	if err = store.QueryRowContext(ctx, `SELECT source_revision FROM component_versions WHERE report_id='preview-fixture' AND version_no=3`).Scan(&sourceRevision); err != nil || sourceRevision != 9 {
 		t.Fatalf("native resource rollback revision=%d err=%v", sourceRevision, err)
 	}
 	mcpResourceCall := func(viaBFF bool, operation string, arguments map[string]any, wantRevision int64) {
@@ -2459,7 +2459,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 			t.Fatalf("native MCP resource %s viaBFF=%t status=%d body=%s", operation, viaBFF, callStatus, callBody)
 		}
 		var actual int64
-		if err := store.QueryRowContext(ctx, `SELECT source_revision FROM report_versions WHERE report_id='preview-fixture' AND version_no=3`).Scan(&actual); err != nil || actual != wantRevision {
+		if err := store.QueryRowContext(ctx, `SELECT source_revision FROM component_versions WHERE report_id='preview-fixture' AND version_no=3`).Scan(&actual); err != nil || actual != wantRevision {
 			t.Fatalf("native MCP resource %s revision=%d want=%d err=%v", operation, actual, wantRevision, err)
 		}
 	}
@@ -2468,7 +2468,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if blockedResourceStatus != http.StatusOK || !bytes.Contains(blockedResourceBody, []byte(`"isError":true`)) {
 		t.Fatalf("cross-namespace MCP file status=%d body=%s", blockedResourceStatus, blockedResourceBody)
 	}
-	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_resource_files WHERE resource_id='ns-mcp-blocked'`).Scan(&reportCount); err != nil || reportCount != 0 {
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_resource_files WHERE resource_id='ns-mcp-blocked'`).Scan(&reportCount); err != nil || reportCount != 0 {
 		t.Fatalf("denied MCP file persisted: count=%d err=%v", reportCount, err)
 	}
 	mcpResourceCall(false, "upsert_file", map[string]any{"reportId": "preview-fixture", "versionNo": 3, "resourceId": "rf-mcp", "namespace": resourceNamespace, "resourcePath": "guide/readme.md", "content": "MCP guide", "expectedSourceRevision": 9}, 10)
@@ -2510,7 +2510,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		t.Fatalf("native builder mutation status=%d body=%s", builderChange.Code, builderChange.Body.String())
 	}
 	var persistedRevision, persistedEtag int64
-	if err = store.QueryRowContext(ctx, `SELECT source_revision FROM report_versions WHERE report_id='preview-fixture' AND version_no=3`).Scan(&persistedRevision); err != nil {
+	if err = store.QueryRowContext(ctx, `SELECT source_revision FROM component_versions WHERE report_id='preview-fixture' AND version_no=3`).Scan(&persistedRevision); err != nil {
 		t.Fatal(err)
 	}
 	if err = store.QueryRowContext(ctx, `SELECT etag FROM components WHERE id='preview-fixture'`).Scan(&persistedEtag); err != nil {
@@ -2582,10 +2582,10 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		t.Fatalf("native live runtime status=%d body=%s", liveRuntime.Code, liveRuntime.Body.String())
 	}
 	var publicationRevision int64
-	if _, err = store.ExecContext(ctx, `UPDATE report_versions SET spec_hash=? WHERE report_id=? AND version_no=1`, strings.Repeat("a", 64), previewReportID); err != nil {
+	if _, err = store.ExecContext(ctx, `UPDATE component_versions SET spec_hash=? WHERE report_id=? AND version_no=1`, strings.Repeat("a", 64), previewReportID); err != nil {
 		t.Fatal(err)
 	}
-	if err = store.QueryRowContext(ctx, `SELECT source_revision FROM report_versions WHERE report_id=? AND version_no=1`, previewReportID).Scan(&publicationRevision); err != nil {
+	if err = store.QueryRowContext(ctx, `SELECT source_revision FROM component_versions WHERE report_id=? AND version_no=1`, previewReportID).Scan(&publicationRevision); err != nil {
 		t.Fatal(err)
 	}
 	blockedPublish := request("/v1/studio/sdk/publications.publish", fmt.Sprintf(`{"reportId":%q,"versionNo":1,"input":{"expectedSourceRevision":%d}}`, previewReportID, publicationRevision))
@@ -2595,7 +2595,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if blockedPublishResponse.Code != http.StatusForbidden || len(reloadedGenerations) != 0 {
 		t.Fatalf("cross-namespace publish status=%d reloads=%d", blockedPublishResponse.Code, len(reloadedGenerations))
 	}
-	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_publications WHERE report_id=?`, previewReportID).Scan(&reportCount); err != nil || reportCount != 0 {
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_publications WHERE report_id=?`, previewReportID).Scan(&reportCount); err != nil || reportCount != 0 {
 		t.Fatalf("denied publication created state: count=%d err=%v", reportCount, err)
 	}
 	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.publications.publish", map[string]any{"namespaceId": wrongNamespaceID, "reportId": previewReportID, "versionNo": 1, "input": map[string]any{"expectedSourceRevision": publicationRevision}})
@@ -2624,7 +2624,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		t.Fatalf("native rollback MCP status=%d body=%s reloads=%v", status, body, reloadedGenerations)
 	}
 	var activeGeneration int64
-	if err = store.QueryRowContext(ctx, `SELECT active_generation FROM report_publications WHERE report_id=?`, previewReportID).Scan(&activeGeneration); err != nil || activeGeneration != reloadedGenerations[1] {
+	if err = store.QueryRowContext(ctx, `SELECT active_generation FROM component_publications WHERE report_id=?`, previewReportID).Scan(&activeGeneration); err != nil || activeGeneration != reloadedGenerations[1] {
 		t.Fatalf("rollback active generation=%d err=%v reloads=%v", activeGeneration, err, reloadedGenerations)
 	}
 	status, body = mcpCall(bff.URL+"/v1/studio/sdk-mcp/mcp", "", &http.Cookie{Name: bffauth.DefaultCookieName, Value: id}, "tools/call", "studio.sdk.publications.unpublish", map[string]any{
@@ -2645,7 +2645,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"status":"active"`)) || len(reloadedGenerations) != 5 {
 		t.Fatalf("native BFF rollback MCP status=%d body=%s reloads=%v", status, body, reloadedGenerations)
 	}
-	if err = store.QueryRowContext(ctx, `SELECT active_generation FROM report_publications WHERE report_id=?`, previewReportID).Scan(&activeGeneration); err != nil || activeGeneration != reloadedGenerations[4] {
+	if err = store.QueryRowContext(ctx, `SELECT active_generation FROM component_publications WHERE report_id=?`, previewReportID).Scan(&activeGeneration); err != nil || activeGeneration != reloadedGenerations[4] {
 		t.Fatalf("BFF rollback active generation=%d err=%v reloads=%v", activeGeneration, err, reloadedGenerations)
 	}
 	unpublishHTTP := httptest.NewRecorder()
@@ -2664,7 +2664,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if failedReload.Code != http.StatusServiceUnavailable {
 		t.Fatalf("failed reload publication status=%d body=%s", failedReload.Code, failedReload.Body.String())
 	}
-	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_publications WHERE report_id=? AND publication_status='active'`, previewReportID).Scan(&reportCount); err != nil || reportCount != 0 {
+	if err = store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_publications WHERE report_id=? AND publication_status='active'`, previewReportID).Scan(&reportCount); err != nil || reportCount != 0 {
 		t.Fatalf("failed reload left an active publication count=%d err=%v", reportCount, err)
 	}
 	aclPublicKey := filepath.Join(t.TempDir(), "acl-public.pem")

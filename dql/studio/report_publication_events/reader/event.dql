@@ -8,7 +8,7 @@
 #setting($_ = $case_format('lc'))
 #setting($_ = $route('/v1/studio/publication-events', 'GET'))
 #setting($_ = $connector('studio'))
-#setting($_ = $mcp('studio.report_publication_events.read', 'Read owner-scoped publication lifecycle evidence'))
+#setting($_ = $mcp('studio.component_publication_events.read', 'Read owner-scoped publication lifecycle evidence'))
 #setting($_ = $sql_dest('event', 'sql/read.sql'))
 #define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
 #define($_ = $ReportID<string>(query/reportId).Required().WithPredicate(1, 'equal', 'e', 'report_id').WithPredicate(3, 'handler', 'studioauthorization.PublicationEventRead'))

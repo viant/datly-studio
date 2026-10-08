@@ -12,8 +12,8 @@ func init() {}
 
 // Component is the generated component scaffold for version.
 type VersionComponent struct {
-	Contract1 xdatly.Component[Input, Output] "component:\"version,path=/v1/studio/reports/{reportId}/versions,method=GET,connector=studio,view=version\" routeName:\"version\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.report_versions.read\\\",\\\"description\\\":\\\"Read immutable Datly Studio report versions\\\"}]\" caseFormat:\"lc\""
-	Contract2 xdatly.Component[Input, Output] "component:\"version,path=/v1/studio/reports/{reportId}/versions/{versionNo},method=GET,connector=studio,view=version\" routeName:\"version\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.report_versions.readByVersionNo\\\",\\\"description\\\":\\\"Read immutable Datly Studio report versions\\\"}]\" caseFormat:\"lc\""
+	Contract1 xdatly.Component[Input, Output] "component:\"version,path=/v1/studio/reports/{reportId}/versions,method=GET,connector=studio,view=version\" routeName:\"version\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.component_versions.read\\\",\\\"description\\\":\\\"Read immutable Datly Studio report versions\\\"}]\" caseFormat:\"lc\""
+	Contract2 xdatly.Component[Input, Output] "component:\"version,path=/v1/studio/reports/{reportId}/versions/{versionNo},method=GET,connector=studio,view=version\" routeName:\"version\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.component_versions.readByVersionNo\\\",\\\"description\\\":\\\"Read immutable Datly Studio report versions\\\"}]\" caseFormat:\"lc\""
 }
 
 // VersionDatlyType keeps the public component type linked for blank-import discovery.

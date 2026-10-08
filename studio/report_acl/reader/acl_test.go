@@ -48,7 +48,7 @@ func TestACLListSDKDatlyRouteAndMCPContract(t *testing.T) {
 			"component_scope": "reports/first", "component_name": "first",
 			"etag": 1, "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00",
 		}}},
-		datatest.Table{Name: "report_acl", Rows: []datatest.Row{{
+		datatest.Table{Name: "component_acl", Rows: []datatest.Row{{
 			"report_id": "r1", "subject_type": "user", "subject_id": "bob",
 			"can_view": true, "can_edit": true, "etag": 7,
 		}}},
@@ -266,7 +266,7 @@ func TestACLListSDKDatlyRouteAndMCPContract(t *testing.T) {
 		t.Fatalf("generated OpenAPI lacks SDK request body: %s", response.Body.String())
 	}
 
-	if _, err = db.ExecContext(ctx, "UPDATE report_acl SET can_edit = FALSE WHERE report_id = ? AND subject_id = ?", "r1", "bob"); err != nil {
+	if _, err = db.ExecContext(ctx, "UPDATE component_acl SET can_edit = FALSE WHERE report_id = ? AND subject_id = ?", "r1", "bob"); err != nil {
 		t.Fatal(err)
 	}
 	assertDenied("bob")

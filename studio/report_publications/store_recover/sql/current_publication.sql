@@ -2,5 +2,5 @@ SELECT r."report_id", r."active_version_no", r."desired_version_no", r."desired_
        p.desired_generation, p.active_generation, p.publication_status,
        p.runtime_revision, p.spec_hash, p.published_by,
        p.published_at, p.activated_at, p.failure_json
-FROM report_publications p
+FROM component_publications p
 )  publication) r WHERE $criteria.CompositeIn("r", $PublicationKeys)

@@ -37,7 +37,7 @@ func TestDraftCopyPreservesNamespaceAndPublishedSource(t *testing.T) {
 		t.Fatal(err)
 	}
 	sourceRevision := snapshot.Version.SourceRevision
-	if _, err = f.db.Exec(`UPDATE report_versions SET state='published' WHERE report_id=? AND version_no=?`, f.report.ID, loaded.Version.VersionNo); err != nil {
+	if _, err = f.db.Exec(`UPDATE component_versions SET state='published' WHERE report_id=? AND version_no=?`, f.report.ID, loaded.Version.VersionNo); err != nil {
 		t.Fatal(err)
 	}
 	source, err := f.client.Versions().Get(ctx, f.report.ID, loaded.Version.VersionNo)
@@ -79,7 +79,7 @@ func TestDraftCopyPreservesNamespaceAndPublishedSource(t *testing.T) {
 	if err != nil || len(cloned.Files) != 2 || len(cloned.Folders) != 1 || len(cloned.Skills) != 1 || cloned.Skills[0].FolderID != cloned.Folders[0].FolderID {
 		t.Fatalf("copied graph=%+v err=%v", cloned, err)
 	}
-	for _, table := range []string{"report_versions", "report_resource_files", "report_resource_folders", "report_skill_roots"} {
+	for _, table := range []string{"component_versions", "component_resource_files", "component_resource_folders", "component_skill_roots"} {
 		var wrong int
 		if err := f.db.QueryRow("SELECT COUNT(*) FROM "+table+" WHERE report_id=? AND namespace_id<>?", f.report.ID, id).Scan(&wrong); err != nil || wrong != 0 {
 			t.Fatalf("%s wrong namespace=%d err=%v", table, wrong, err)
@@ -93,7 +93,7 @@ func TestDraftCopyPreservesNamespaceAndPublishedSource(t *testing.T) {
 		t.Fatal("copy created in another selected namespace")
 	}
 	var count int
-	if err := f.db.QueryRow(`SELECT COUNT(*) FROM report_versions WHERE report_id=?`, f.report.ID).Scan(&count); err != nil || count != 2 {
+	if err := f.db.QueryRow(`SELECT COUNT(*) FROM component_versions WHERE report_id=?`, f.report.ID).Scan(&count); err != nil || count != 2 {
 		t.Fatalf("copy denial changed versions=%d err=%v", count, err)
 	}
 }

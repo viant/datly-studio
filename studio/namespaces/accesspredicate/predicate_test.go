@@ -25,10 +25,10 @@ func TestNamespaceAccessPermissionModes(t *testing.T) {
 			t.Fatal(err)
 		}
 		if test.ownerOnly {
-			if strings.Contains(criteria.Expression, "report_acl") || len(criteria.Placeholders) != 2 {
+			if strings.Contains(criteria.Expression, "component_acl") || len(criteria.Placeholders) != 2 {
 				t.Fatalf("%s criteria=%+v", test.permission, criteria)
 			}
-		} else if !strings.Contains(criteria.Expression, "visibility = 'public'") || strings.Contains(criteria.Expression, "report_acl") || len(criteria.Placeholders) != 2 {
+		} else if !strings.Contains(criteria.Expression, "visibility = 'public'") || strings.Contains(criteria.Expression, "component_acl") || len(criteria.Placeholders) != 2 {
 			t.Fatalf("%s criteria=%+v", test.permission, criteria)
 		}
 	}

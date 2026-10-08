@@ -46,7 +46,7 @@ func TestPublicationStatusReaderPreservesNullableFields(t *testing.T) {
 		t.Fatal(err)
 	}
 	now := time.Now().UTC()
-	if _, err := db.ExecContext(ctx, `INSERT INTO report_publications
+	if _, err := db.ExecContext(ctx, `INSERT INTO component_publications
 		(report_id,active_version_no,desired_generation,publication_status,spec_hash,published_by,published_at)
 		VALUES(?,?,1,'pending',?,'owner',?)`, report.ID, version.VersionNo, version.SpecHash, now); err != nil {
 		t.Fatal(err)
@@ -62,7 +62,7 @@ func TestPublicationStatusReaderPreservesNullableFields(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer tx.Rollback()
-	if _, err := tx.ExecContext(ctx, `UPDATE report_publications SET publication_status='unpublishing' WHERE report_id=?`, report.ID); err != nil {
+	if _, err := tx.ExecContext(ctx, `UPDATE component_publications SET publication_status='unpublishing' WHERE report_id=?`, report.ID); err != nil {
 		t.Fatal(err)
 	}
 	snapshot, found, err := transport.publicationSnapshot(owner, tx, report.ID)

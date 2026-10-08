@@ -6,7 +6,7 @@ SELECT version."report_id", version."version_no", version."state", version."auth
        v.compile_status, v.compile_diagnostics_json,
        v.datly_version, v.compiler_version, v.source_revision,
        v.notes, v.created_by, v.created_at, v.validated_at, v.published_at
-FROM report_versions v
+FROM component_versions v
 ${predicate.Builder().CombineAnd(
     $predicate.FilterGroup(1, "AND"),
     $predicate.FilterGroup(2, "AND")

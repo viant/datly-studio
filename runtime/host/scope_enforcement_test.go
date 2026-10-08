@@ -158,10 +158,10 @@ INSERT INTO tasks VALUES(1,101,'alpha-101'),(2,102,'beta-102'),(3,103,'gamma-103
 		if _, err = studio.Exec(`INSERT INTO components(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES(?,?,?,'owner','active','source',?,?,1,?,?)`, reportID, reportID, reportID, scope, reportID, now, now); err != nil {
 			t.Fatal(err)
 		}
-		if _, err = studio.Exec(`INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES(?,1,'published','dql',?,?,'{}','studio.v1','hash','{}','valid','v1','studio.v1',1,'owner',?)`, reportID, dql, dql, now); err != nil {
+		if _, err = studio.Exec(`INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES(?,1,'published','dql',?,?,'{}','studio.v1','hash','{}','valid','v1','studio.v1',1,'owner',?)`, reportID, dql, dql, now); err != nil {
 			t.Fatal(err)
 		}
-		if _, err = studio.Exec(`INSERT INTO report_publications(report_id,active_version_no,desired_generation,active_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at) VALUES(?,1,1,1,'active','gen:1','hash','owner',?,?)`, reportID, now, now); err != nil {
+		if _, err = studio.Exec(`INSERT INTO component_publications(report_id,active_version_no,desired_generation,active_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at) VALUES(?,1,1,1,'active','gen:1','hash','owner',?,?)`, reportID, now, now); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -715,9 +715,9 @@ func TestScopedComponentIsRejectedWithoutGenericAccess(t *testing.T) {
 	}{
 		{`INSERT INTO connectors(name,driver,dsn_template,owner_id,status,options_json,etag,created_at,updated_at) VALUES('source','sqlite',?,'owner','active','{}',1,?,?)`, []any{sourceDSN, now, now}},
 		{`INSERT INTO components(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('tasks','tasks','Tasks','owner','active','source','example.com/runtime/scoped','tasks',1,?,?)`, []any{now, now}},
-		{`INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('tasks',1,'published','dql',?,?,'{}','studio.v1','hash','{}','valid','v1','studio.v1',1,'owner',?)`, []any{scopedTasksDQL, scopedTasksDQL, now}},
+		{`INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('tasks',1,'published','dql',?,?,'{}','studio.v1','hash','{}','valid','v1','studio.v1',1,'owner',?)`, []any{scopedTasksDQL, scopedTasksDQL, now}},
 		{`INSERT INTO runtime_generations(generation_no,source_revision,status,report_count,build_manifest_json,requested_by,requested_at,activated_at) VALUES(1,'gen:1','active',1,'{}','owner',?,?)`, []any{now, now}},
-		{`INSERT INTO report_publications(report_id,active_version_no,desired_generation,active_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at) VALUES('tasks',1,1,1,'active','gen:1','hash','owner',?,?)`, []any{now, now}},
+		{`INSERT INTO component_publications(report_id,active_version_no,desired_generation,active_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at) VALUES('tasks',1,1,1,'active','gen:1','hash','owner',?,?)`, []any{now, now}},
 	}
 	for _, statement := range statements {
 		if _, err = studio.Exec(statement.sql, statement.args...); err != nil {

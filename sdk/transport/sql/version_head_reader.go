@@ -15,7 +15,7 @@ import (
 )
 
 // nextVersionNo allocates the next version number through the generated
-// server-only head reader. The composite primary key on report_versions
+// server-only head reader. The composite primary key on component_versions
 // remains the authority: a concurrent allocation of the same number fails the
 // insert and rolls the caller-owned import transaction back.
 func (t *Transport) nextVersionNo(ctx context.Context, reportID string) (int, error) {

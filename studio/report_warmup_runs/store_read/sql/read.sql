@@ -3,7 +3,7 @@ SELECT warmup_run."run_id", warmup_run."report_id", warmup_run."version_no", war
        w.created_at, w.created_by, w.updated_at, w.updated_by, w.started_at,
        w.completed_at, w.planned_cases, w.completed_cases, w.max_cases,
        w.row_limit, w.entries, w.duration_ns, w.target_json, w.diagnostics_json
-FROM report_warmup_runs w
+FROM component_warmup_runs w
 WHERE ($ReportId = '' OR w.report_id = $ReportId)
   AND ($RunId = '' OR w.run_id = $RunId)
   AND ($ActiveKey = '' OR w.active_key = $ActiveKey)

@@ -18,31 +18,31 @@ func TestValidateSkillToolReferencesExactStoredIdentity(t *testing.T) {
 	}
 	defer db.Close()
 	for _, statement := range []string{
-		`CREATE TABLE report_skill_roots(report_id TEXT,version_no INTEGER,skill_id TEXT,folder_id TEXT,skill_root TEXT)`,
-		`CREATE TABLE report_resource_folders(report_id TEXT,version_no INTEGER,folder_id TEXT,namespace TEXT,root_path TEXT)`,
-		`CREATE TABLE report_resource_files(report_id TEXT,version_no INTEGER,namespace TEXT,resource_path TEXT,content BLOB)`,
-		`INSERT INTO report_skill_roots VALUES('report',1,'guide','folder','nested')`,
-		`INSERT INTO report_skill_roots VALUES('report',2,'wrong-version','folder','nested')`,
-		`INSERT INTO report_skill_roots VALUES('other',1,'wrong-report','folder','nested')`,
-		`INSERT INTO report_resource_folders VALUES('report',1,'folder','guide.docs','manual')`,
-		`INSERT INTO report_resource_folders VALUES('report',2,'folder','guide.docs','manual')`,
-		`INSERT INTO report_resource_folders VALUES('other',1,'folder','guide.docs','manual')`,
-		`INSERT INTO report_resource_files VALUES('report',1,'guide.docs','manual/nested/SKILL.md','---
+		`CREATE TABLE component_skill_roots(report_id TEXT,version_no INTEGER,skill_id TEXT,folder_id TEXT,skill_root TEXT)`,
+		`CREATE TABLE component_resource_folders(report_id TEXT,version_no INTEGER,folder_id TEXT,namespace TEXT,root_path TEXT)`,
+		`CREATE TABLE component_resource_files(report_id TEXT,version_no INTEGER,namespace TEXT,resource_path TEXT,content BLOB)`,
+		`INSERT INTO component_skill_roots VALUES('report',1,'guide','folder','nested')`,
+		`INSERT INTO component_skill_roots VALUES('report',2,'wrong-version','folder','nested')`,
+		`INSERT INTO component_skill_roots VALUES('other',1,'wrong-report','folder','nested')`,
+		`INSERT INTO component_resource_folders VALUES('report',1,'folder','guide.docs','manual')`,
+		`INSERT INTO component_resource_folders VALUES('report',2,'folder','guide.docs','manual')`,
+		`INSERT INTO component_resource_folders VALUES('other',1,'folder','guide.docs','manual')`,
+		`INSERT INTO component_resource_files VALUES('report',1,'guide.docs','manual/nested/SKILL.md','---
 name: guide
 description: Guide
 allowed-tools: skills/list
 ---
 Use it.')`,
-		`INSERT INTO report_resource_files VALUES('report',1,'other.namespace','manual/nested/SKILL.md','---
+		`INSERT INTO component_resource_files VALUES('report',1,'other.namespace','manual/nested/SKILL.md','---
 allowed-tools: missing.tool
 ---')`,
-		`INSERT INTO report_resource_files VALUES('report',1,'guide.docs','manual/SKILL.md','---
+		`INSERT INTO component_resource_files VALUES('report',1,'guide.docs','manual/SKILL.md','---
 allowed-tools: missing.tool
 ---')`,
-		`INSERT INTO report_resource_files VALUES('report',2,'guide.docs','manual/nested/SKILL.md','---
+		`INSERT INTO component_resource_files VALUES('report',2,'guide.docs','manual/nested/SKILL.md','---
 allowed-tools: missing.tool
 ---')`,
-		`INSERT INTO report_resource_files VALUES('other',1,'guide.docs','manual/nested/SKILL.md','---
+		`INSERT INTO component_resource_files VALUES('other',1,'guide.docs','manual/nested/SKILL.md','---
 allowed-tools: missing.tool
 ---')`,
 	} {
@@ -54,7 +54,7 @@ allowed-tools: missing.tool
 	if err := validateSkillToolReferences(context.Background(), db, versions, nil); err != nil {
 		t.Fatalf("exact identity: %v", err)
 	}
-	if _, err := db.Exec(`DELETE FROM report_resource_files WHERE report_id='report' AND version_no=1 AND namespace='guide.docs' AND resource_path='manual/nested/SKILL.md'`); err != nil {
+	if _, err := db.Exec(`DELETE FROM component_resource_files WHERE report_id='report' AND version_no=1 AND namespace='guide.docs' AND resource_path='manual/nested/SKILL.md'`); err != nil {
 		t.Fatal(err)
 	}
 	err = validateSkillToolReferences(context.Background(), db, versions, nil)

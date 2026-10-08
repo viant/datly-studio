@@ -13,9 +13,9 @@ SELECT v.report_id, v.version_no, v.state, v.authoring_mode,
        v.datly_version,
        v.compiler_version, v.source_revision, v.notes, v.created_by,
        v.created_at, v.validated_at, v.published_at
-FROM report_versions v
+FROM component_versions v
 JOIN components r ON r.id = v.report_id AND r.deleted_at IS NULL
-LEFT JOIN report_acl acl ON acl.report_id = r.id
+LEFT JOIN component_acl acl ON acl.report_id = r.id
   AND acl.subject_type = 'user' AND acl.subject_id = $Jwt.Subject
 WHERE v.report_id = $ReportId
   AND ($Input.State = '' OR v.state = $Input.State)

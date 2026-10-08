@@ -133,21 +133,21 @@ FROM components GROUP BY owner_id,namespace`); err != nil {
 		}
 	}
 	if current <= 3 {
-		exists, err := sqliteTableExists(ctx, db, "report_publications")
+		exists, err := sqliteTableExists(ctx, db, "component_publications")
 		if err != nil {
 			return err
 		}
 		if exists {
-			if err := schema.AddSQLiteColumnFromCanonical(ctx, db, "report_publications", "desired_version_no"); err != nil {
+			if err := schema.AddSQLiteColumnFromCanonical(ctx, db, "component_publications", "desired_version_no"); err != nil {
 				return fmt.Errorf("add publication desired version: %w", err)
 			}
-			if _, err := db.ExecContext(ctx, `UPDATE report_publications SET desired_version_no=active_version_no WHERE desired_version_no IS NULL`); err != nil {
+			if _, err := db.ExecContext(ctx, `UPDATE component_publications SET desired_version_no=active_version_no WHERE desired_version_no IS NULL`); err != nil {
 				return fmt.Errorf("backfill publication desired version: %w", err)
 			}
 		}
 	}
 	if current <= 4 {
-		if err := schema.CreateSQLiteTableFromCanonical(ctx, db, "report_warmup_runs"); err != nil {
+		if err := schema.CreateSQLiteTableFromCanonical(ctx, db, "component_warmup_runs"); err != nil {
 			return fmt.Errorf("create warmup runs: %w", err)
 		}
 	}
@@ -157,17 +157,17 @@ FROM components GROUP BY owner_id,namespace`); err != nil {
 		}
 	}
 	if current <= 6 {
-		if err := schema.CreateSQLiteTableFromCanonical(ctx, db, "report_publication_events"); err != nil {
+		if err := schema.CreateSQLiteTableFromCanonical(ctx, db, "component_publication_events"); err != nil {
 			return fmt.Errorf("create publication events: %w", err)
 		}
 	}
 	if current <= 7 {
-		exists, err := sqliteTableExists(ctx, db, "report_acl")
+		exists, err := sqliteTableExists(ctx, db, "component_acl")
 		if err != nil {
 			return err
 		}
 		if exists {
-			if err := schema.AddSQLiteColumnFromCanonical(ctx, db, "report_acl", "etag"); err != nil {
+			if err := schema.AddSQLiteColumnFromCanonical(ctx, db, "component_acl", "etag"); err != nil {
 				return fmt.Errorf("add report ACL etag: %w", err)
 			}
 		}
@@ -183,21 +183,21 @@ FROM components GROUP BY owner_id,namespace`); err != nil {
 		}
 	}
 	if current >= 5 && current <= 11 {
-		exists, err := sqliteTableExists(ctx, db, "report_warmup_runs")
+		exists, err := sqliteTableExists(ctx, db, "component_warmup_runs")
 		if err != nil {
 			return err
 		}
 		if !exists {
-			if err := schema.CreateSQLiteTableFromCanonical(ctx, db, "report_warmup_runs"); err != nil {
+			if err := schema.CreateSQLiteTableFromCanonical(ctx, db, "component_warmup_runs"); err != nil {
 				return fmt.Errorf("create missing warmup runs: %w", err)
 			}
 		} else {
 			for _, column := range []string{"created_at", "created_by", "updated_at", "updated_by"} {
-				if err := schema.AddSQLiteColumnFromCanonical(ctx, db, "report_warmup_runs", column); err != nil {
+				if err := schema.AddSQLiteColumnFromCanonical(ctx, db, "component_warmup_runs", column); err != nil {
 					return fmt.Errorf("add warmup %s: %w", column, err)
 				}
 			}
-			if _, err := db.ExecContext(ctx, `UPDATE report_warmup_runs SET
+			if _, err := db.ExecContext(ctx, `UPDATE component_warmup_runs SET
 				created_at=COALESCE(created_at,requested_at), created_by=COALESCE(created_by,requested_by),
 				updated_at=COALESCE(updated_at,completed_at,started_at,requested_at),
 				updated_by=COALESCE(updated_by,CASE WHEN status='accepted' THEN requested_by ELSE 'system:migration' END)`); err != nil {
@@ -333,7 +333,7 @@ func migrateResourceNamespaceClaims(ctx context.Context, db *sql.DB) error {
 	}
 	defer tx.Rollback()
 	var sources []string
-	for _, table := range []string{"report_resource_files", "report_resource_folders"} {
+	for _, table := range []string{"component_resource_files", "component_resource_folders"} {
 		exists, err := sqliteTableExists(ctx, tx, table)
 		if err != nil {
 			return err

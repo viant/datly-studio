@@ -19,9 +19,9 @@ INSERT INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at)
 VALUES('owner','general','General','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
 INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at)
 VALUES('report','general','report','Report','owner','draft','main','example.com/report','reader',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
-INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at)
+INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at)
 VALUES('report',1,'draft','dql','SELECT 1','SELECT 1','{}','studio.v1','one','{}','valid','v1','v1',1,'owner',CURRENT_TIMESTAMP);
-INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at)
+INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at)
 VALUES('report',2,'validated','dql','SELECT 2','SELECT 2','{}','studio.v1','two','{}','valid','v1','v1',2,'owner',CURRENT_TIMESTAMP);`)
 	if err != nil {
 		t.Fatal(err)
@@ -45,7 +45,7 @@ INSERT INTO connectors(name,driver,secret_ref,owner_id,status,options_json,etag,
 VALUES('secret','sqlite','file:///tmp/fixture-dsn','owner','active','{}',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
 INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at)
 VALUES('secret-report','general','secret-report','Secret Report','owner','draft','secret','example.com/secret','reader',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
-INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at)
+INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at)
 VALUES('secret-report',1,'draft','dql','SELECT 1','SELECT 1','{}','studio.v1','secret','{}','valid','v1','v1',1,'owner',CURRENT_TIMESTAMP);`); err != nil {
 		t.Fatal(err)
 	}

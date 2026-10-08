@@ -48,7 +48,7 @@ func TestConnectorListSDKDatlyContract(t *testing.T) {
 			{"id": "r-beta", "slug": "beta", "title": "Beta", "owner_id": "owner-b", "status": "active", "default_connector_name": "beta", "component_scope": "reports", "component_name": "beta", "created_at": "2026-09-17 10:00:00", "updated_at": "2026-09-17 10:00:00"},
 			{"id": "r-gamma", "slug": "gamma", "title": "Gamma", "owner_id": "owner-a", "status": "active", "default_connector_name": "gamma", "component_scope": "reports", "component_name": "gamma", "created_at": "2026-09-17 10:00:00", "updated_at": "2026-09-17 10:00:00"},
 		}},
-		datatest.Table{Name: "report_acl", Rows: []datatest.Row{
+		datatest.Table{Name: "component_acl", Rows: []datatest.Row{
 			{"report_id": "r-alpha", "subject_type": "user", "subject_id": "viewer", "can_view": true},
 			{"report_id": "r-beta", "subject_type": "user", "subject_id": "viewer", "can_view": true},
 			{"report_id": "r-gamma", "subject_type": "user", "subject_id": "viewer", "can_view": true},
@@ -264,7 +264,7 @@ func TestConnectorListSDKDatlyContract(t *testing.T) {
 	if _, err = db.ExecContext(ctx, "UPDATE components SET deleted_at = NULL WHERE id = ?", "r-beta"); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = db.ExecContext(ctx, "DELETE FROM report_acl WHERE report_id = ? AND subject_id = ?", "r-beta", "viewer"); err != nil {
+	if _, err = db.ExecContext(ctx, "DELETE FROM component_acl WHERE report_id = ? AND subject_id = ?", "r-beta", "viewer"); err != nil {
 		t.Fatal(err)
 	}
 	revoked, err = invokeAs("viewer", map[string]any{})

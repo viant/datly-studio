@@ -11,7 +11,7 @@ WHERE c.deleted_at IS NULL
   AND ($Driver = '' OR c.driver = $Driver)
   AND ($Scoped = FALSE OR c.owner_id = $Subject OR EXISTS (
       SELECT 1 FROM components studio_sdk_report
-      JOIN report_acl studio_sdk_acl ON studio_sdk_acl.report_id = studio_sdk_report.id
+      JOIN component_acl studio_sdk_acl ON studio_sdk_acl.report_id = studio_sdk_report.id
       WHERE studio_sdk_report.default_connector_name = c.name
         AND studio_sdk_report.deleted_at IS NULL
         AND studio_sdk_acl.subject_type = 'user'

@@ -41,12 +41,12 @@ func TestDownloadSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 		datatest.Table{Name: "connectors", Rows: []datatest.Row{{"name": "main", "driver": "sqlite", "owner_id": "alice", "status": "active", "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"}}},
 		datatest.Table{Name: "namespaces", Rows: []datatest.Row{{"owner_id": "alice", "name": "general", "title": "General", "status": "active", "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"}}},
 		datatest.Table{Name: "components", Rows: []datatest.Row{{"id": "r1", "slug": "first", "title": "First", "owner_id": "alice", "status": "active", "default_connector_name": "main", "namespace": "general", "component_scope": "reports/first", "component_name": "first", "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"}}},
-		datatest.Table{Name: "report_acl", Rows: []datatest.Row{{"report_id": "r1", "subject_type": "user", "subject_id": "viewer", "can_view": true}, {"report_id": "r1", "subject_type": "user", "subject_id": "author", "can_view": true, "can_use_dql": true}}},
-		datatest.Table{Name: "report_versions", Rows: []datatest.Row{{"report_id": "r1", "version_no": 1, "state": "draft", "authoring_mode": "dql", "authored_dql": "SELECT 1", "generated_dql": "SELECT 1", "component_spec_json": "{}", "type_manifest_json": "{}", "spec_format_version": "1", "spec_hash": "hash-1", "compile_status": "valid", "datly_version": "v1", "compiler_version": "v1", "source_revision": 1, "created_by": "alice", "created_at": "2026-09-17 09:00:00"}}},
+		datatest.Table{Name: "component_acl", Rows: []datatest.Row{{"report_id": "r1", "subject_type": "user", "subject_id": "viewer", "can_view": true}, {"report_id": "r1", "subject_type": "user", "subject_id": "author", "can_view": true, "can_use_dql": true}}},
+		datatest.Table{Name: "component_versions", Rows: []datatest.Row{{"report_id": "r1", "version_no": 1, "state": "draft", "authoring_mode": "dql", "authored_dql": "SELECT 1", "generated_dql": "SELECT 1", "component_spec_json": "{}", "type_manifest_json": "{}", "spec_format_version": "1", "spec_hash": "hash-1", "compile_status": "valid", "datly_version": "v1", "compiler_version": "v1", "source_revision": 1, "created_by": "alice", "created_at": "2026-09-17 09:00:00"}}},
 	); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := db.ExecContext(ctx, `INSERT INTO report_resource_files
+	if _, err := db.ExecContext(ctx, `INSERT INTO component_resource_files
  (report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at)
  VALUES(?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)`, "r1", 1, strings.Repeat("a", 64), "assets", "assets/readme.txt", []byte("hello"), 5, strings.Repeat("b", 64), false); err != nil {
 		t.Fatal(err)
@@ -200,7 +200,7 @@ func TestDownloadSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 		t.Fatalf("MCP viewer archive leaked=%s err=%v", structured, err)
 	}
 	large := bytes.Repeat([]byte("x"), componentarchive.MaxResourceBytes+1)
-	if _, err = db.ExecContext(ctx, `INSERT INTO report_resource_files
+	if _, err = db.ExecContext(ctx, `INSERT INTO component_resource_files
  (report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at)
  VALUES(?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)`, "r1", 1, strings.Repeat("c", 64), "assets", "assets/oversized.bin", large, len(large), strings.Repeat("d", 64), true); err != nil {
 		t.Fatal(err)
@@ -210,7 +210,7 @@ func TestDownloadSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	if oversized.Code != http.StatusBadRequest || bytes.Contains(oversized.Body.Bytes(), large[:64]) {
 		t.Fatalf("oversized archive status=%d body=%s", oversized.Code, oversized.Body.String())
 	}
-	if _, err := db.ExecContext(ctx, "DELETE FROM report_acl WHERE report_id = ? AND subject_id = ?", "r1", "author"); err != nil {
+	if _, err := db.ExecContext(ctx, "DELETE FROM component_acl WHERE report_id = ? AND subject_id = ?", "r1", "author"); err != nil {
 		t.Fatal(err)
 	}
 	response = httptest.NewRecorder()

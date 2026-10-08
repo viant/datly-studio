@@ -31,23 +31,23 @@ func TestCanonicalStudioSchemaInventory(t *testing.T) {
 		"namespaces":                         {"owner_id", "name", "title", "status", "etag"},
 		"authorization_predicates":           {"name", "package_path", "type_name", "owner_id", "status", "etag"},
 		"components":                         {"id", "namespace", "default_connector_name", "component_scope", "component_name", "current_draft_version"},
-		"report_versions":                    {"report_id", "authoring_mode", "authored_sql", "authored_dql", "generated_dql", "spec_hash"},
-		"report_views":                       {"report_id", "view_id", "source_kind"},
-		"report_fields":                      {"view_id", "field_name", "go_type"},
-		"report_parameters":                  {"parameter_id", "name", "activation_json"},
-		"report_predicates":                  {"parameter_id", "predicate_index", "apply_when_absent"},
-		"report_cube_configs":                {"cube_enabled", "compose_enabled"},
-		"report_mcp_exposures":               {"route_id", "route_path", "kind"},
-		"report_resource_files":              {"resource_path", "content_sha256"},
-		"report_resource_folders":            {"folder_id", "root_path", "uri_prefix"},
+		"component_versions":                 {"report_id", "authoring_mode", "authored_sql", "authored_dql", "generated_dql", "spec_hash"},
+		"component_views":                    {"report_id", "view_id", "source_kind"},
+		"component_fields":                   {"view_id", "field_name", "go_type"},
+		"component_parameters":               {"parameter_id", "name", "activation_json"},
+		"component_predicates":               {"parameter_id", "predicate_index", "apply_when_absent"},
+		"component_cube_configs":             {"cube_enabled", "compose_enabled"},
+		"component_mcp_exposures":            {"route_id", "route_path", "kind"},
+		"component_resource_files":           {"resource_path", "content_sha256"},
+		"component_resource_folders":         {"folder_id", "root_path", "uri_prefix"},
 		"resource_namespace_claims":          {"namespace", "report_id", "created_at", "created_by", "updated_at", "updated_by"},
 		"resource_policy_namespace_bindings": {"tenant_id", "resource_kind", "resource_id", "resource_version", "policy_revision", "namespace_id", "created_at", "created_by", "updated_at", "updated_by"},
-		"report_skill_roots":                 {"skill_id", "folder_id", "skill_root"},
+		"component_skill_roots":              {"skill_id", "folder_id", "skill_root"},
 		"runtime_generations":                {"generation_no", "build_manifest_json", "source_revision"},
 		"bff_sessions":                       {"session_id_hash", "subject_id", "payload_ciphertext", "expires_at_unix"},
-		"report_publications":                {"active_version_no", "desired_version_no", "desired_generation", "publication_status"},
-		"report_publication_events":          {"event_id", "report_id", "owner_id", "operation", "version_no", "generation_no", "status", "requested_by", "failure_message", "occurred_at"},
-		"report_acl":                         {"subject_type", "subject_id", "can_use_dql", "etag"},
+		"component_publications":             {"active_version_no", "desired_version_no", "desired_generation", "publication_status"},
+		"component_publication_events":       {"event_id", "report_id", "owner_id", "operation", "version_no", "generation_no", "status", "requested_by", "failure_message", "occurred_at"},
+		"component_acl":                      {"subject_type", "subject_id", "can_use_dql", "etag"},
 	}
 	wantPrimaryKeys := map[string][]string{
 		"resource_policy_namespace_bindings": {"tenant_id", "resource_kind", "resource_id", "resource_version", "policy_revision"},
@@ -93,8 +93,8 @@ func TestCanonicalStudioSchemaInventory(t *testing.T) {
 	}
 
 	for table, removedColumns := range map[string][]string{
-		"components":      {"mode", "connector_name", "mcp_enabled", "mcp_tool_name", "mcp_description"},
-		"report_versions": {"input_mode", "original_sql", "core_dql", "effective_dql", "generated_sql", "column_overrides_json", "permissions_json", "cube_json"},
+		"components":         {"mode", "connector_name", "mcp_enabled", "mcp_tool_name", "mcp_description"},
+		"component_versions": {"input_mode", "original_sql", "core_dql", "effective_dql", "generated_sql", "column_overrides_json", "permissions_json", "cube_json"},
 	} {
 		for _, removed := range removedColumns {
 			var count int

@@ -16,8 +16,8 @@ func TestNamespaceOwnershipPreservesUncataloguedLegacyNamespace(t *testing.T) {
 		`INSERT INTO connectors VALUES('shared')`,
 		`CREATE TABLE components(id TEXT PRIMARY KEY, owner_id TEXT NOT NULL, namespace TEXT NOT NULL)`,
 		`INSERT INTO components VALUES('forecast','alice','forecasting'),('other','alice','other')`,
-		`CREATE TABLE report_versions(report_id TEXT NOT NULL, version_no INTEGER NOT NULL)`,
-		`INSERT INTO report_versions VALUES('forecast',1)`,
+		`CREATE TABLE component_versions(report_id TEXT NOT NULL, version_no INTEGER NOT NULL)`,
+		`INSERT INTO component_versions VALUES('forecast',1)`,
 	} {
 		if _, err := db.ExecContext(ctx, statement); err != nil {
 			t.Fatal(err)
@@ -47,7 +47,7 @@ func TestNamespaceOwnershipPreservesUncataloguedLegacyNamespace(t *testing.T) {
 	if err := db.QueryRowContext(ctx, `SELECT namespace_id FROM components WHERE id='forecast'`).Scan(&rootID); err != nil {
 		t.Fatal(err)
 	}
-	if err := db.QueryRowContext(ctx, `SELECT namespace_id FROM report_versions WHERE report_id='forecast'`).Scan(&childID); err != nil {
+	if err := db.QueryRowContext(ctx, `SELECT namespace_id FROM component_versions WHERE report_id='forecast'`).Scan(&childID); err != nil {
 		t.Fatal(err)
 	}
 	if rootID != namespaceaccess.ID("alice", "forecasting") || childID != rootID {

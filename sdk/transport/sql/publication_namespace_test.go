@@ -56,7 +56,7 @@ func TestPublicationRepointLeavesAnotherNamespaceUnchanged(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if _, err := db.Exec(`INSERT INTO report_publications(report_id,active_version_no,active_generation,desired_generation,publication_status,runtime_revision,spec_hash,published_by,published_at) VALUES(?,1,1,1,'active','fixture',?,'owner',CURRENT_TIMESTAMP)`, id, version.SpecHash); err != nil {
+		if _, err := db.Exec(`INSERT INTO component_publications(report_id,active_version_no,active_generation,desired_generation,publication_status,runtime_revision,spec_hash,published_by,published_at) VALUES(?,1,1,1,'active','fixture',?,'owner',CURRENT_TIMESTAMP)`, id, version.SpecHash); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -71,7 +71,7 @@ func TestPublicationRepointLeavesAnotherNamespaceUnchanged(t *testing.T) {
 	}
 	for id, want := range map[string]int64{"alpha-other": 2, "beta-other": 1} {
 		var generation int64
-		if err := tx.QueryRowContext(ctx, `SELECT active_generation FROM report_publications WHERE report_id=?`, id).Scan(&generation); err != nil || generation != want {
+		if err := tx.QueryRowContext(ctx, `SELECT active_generation FROM component_publications WHERE report_id=?`, id).Scan(&generation); err != nil || generation != want {
 			t.Fatalf("publication %s generation=%d want=%d err=%v", id, generation, want, err)
 		}
 	}
@@ -79,7 +79,7 @@ func TestPublicationRepointLeavesAnotherNamespaceUnchanged(t *testing.T) {
 		t.Fatal(err)
 	}
 	var restored int64
-	if err := db.QueryRowContext(ctx, `SELECT active_generation FROM report_publications WHERE report_id='alpha-other'`).Scan(&restored); err != nil || restored != 1 {
+	if err := db.QueryRowContext(ctx, `SELECT active_generation FROM component_publications WHERE report_id='alpha-other'`).Scan(&restored); err != nil || restored != 1 {
 		t.Fatalf("repoint rollback generation=%d err=%v", restored, err)
 	}
 }

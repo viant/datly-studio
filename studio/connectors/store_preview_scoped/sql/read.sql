@@ -5,7 +5,7 @@ FROM connectors c
 WHERE c.deleted_at IS NULL AND c.status = 'active'
   AND (c.owner_id = $Subject OR EXISTS (
     SELECT 1 FROM components r
-    JOIN report_acl acl ON acl.report_id = r.id
+    JOIN component_acl acl ON acl.report_id = r.id
     WHERE r.default_connector_name = c.name
       AND r.deleted_at IS NULL
       AND acl.subject_type = 'user'

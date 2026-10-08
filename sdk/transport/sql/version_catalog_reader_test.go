@@ -50,7 +50,7 @@ func TestVersionCatalogReaderKeepsRevisionAndJSONContract(t *testing.T) {
 		if version == count {
 			diagnostics = `[{"message":"valid"}]`
 		}
-		if _, err := tx.ExecContext(ctx, `INSERT INTO report_versions
+		if _, err := tx.ExecContext(ctx, `INSERT INTO component_versions
 			(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,
 			 spec_format_version,spec_hash,type_manifest_json,compile_status,
 			 compile_diagnostics_json,datly_version,compiler_version,source_revision,created_by,created_at)

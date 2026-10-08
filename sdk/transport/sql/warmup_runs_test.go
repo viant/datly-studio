@@ -42,13 +42,13 @@ func TestWarmupRunStoreReadFiltersOrderAndNulls(t *testing.T) {
 		{"d", "r1", 2, now.Add(time.Hour), nil},
 		{"e", "r2", 1, now.Add(time.Hour), nil},
 	} {
-		_, err = db.ExecContext(ctx, `INSERT INTO report_warmup_runs(run_id,report_id,version_no,source_revision,spec_hash,plan_key,active_key,status,requested_by,target_json,requested_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)`, item.id, item.report, item.version, 3, "hash", "plan", item.active, "accepted", "owner", `{}`, item.at)
+		_, err = db.ExecContext(ctx, `INSERT INTO component_warmup_runs(run_id,report_id,version_no,source_revision,spec_hash,plan_key,active_key,status,requested_by,target_json,requested_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)`, item.id, item.report, item.version, 3, "hash", "plan", item.active, "accepted", "owner", `{}`, item.at)
 		if err != nil {
 			t.Fatal(err)
 		}
 	}
 	transport := &Transport{DB: db}
-	_, err = db.ExecContext(ctx, `UPDATE report_warmup_runs SET started_at=?,completed_at=?,max_cases=7,row_limit=9,duration_ns=123,target_json=?,diagnostics_json=? WHERE run_id='b'`, now, now, `{"view":"reader","cacheName":"cache"}`, `[{"severity":"error","code":"warmup_failed","message":"failed"}]`)
+	_, err = db.ExecContext(ctx, `UPDATE component_warmup_runs SET started_at=?,completed_at=?,max_cases=7,row_limit=9,duration_ns=123,target_json=?,diagnostics_json=? WHERE run_id='b'`, now, now, `{"view":"reader","cacheName":"cache"}`, `[{"severity":"error","code":"warmup_failed","message":"failed"}]`)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -100,7 +100,7 @@ func TestRecoverExpiredWarmupRunsUsesNativeMatchedWrites(t *testing.T) {
 			status = "running"
 		}
 		id := fmt.Sprintf("old-%03d", i)
-		if _, err := db.ExecContext(ctx, `INSERT INTO report_warmup_runs
+		if _, err := db.ExecContext(ctx, `INSERT INTO component_warmup_runs
 			(run_id,report_id,version_no,source_revision,spec_hash,plan_key,active_key,status,requested_by,target_json,requested_at,created_at,created_by,updated_at,updated_by)
 			VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, id, "r1", 1, 1, "hash", "plan", id, status, "owner", "{}",
 			now.Add(-warmupRunTimeout-time.Minute), now.Add(-warmupRunTimeout-time.Minute), "owner",
@@ -108,7 +108,7 @@ func TestRecoverExpiredWarmupRunsUsesNativeMatchedWrites(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	if _, err := db.ExecContext(ctx, `INSERT INTO report_warmup_runs
+	if _, err := db.ExecContext(ctx, `INSERT INTO component_warmup_runs
 		(run_id,report_id,version_no,source_revision,spec_hash,plan_key,active_key,status,requested_by,target_json,requested_at,created_at,created_by,updated_at,updated_by)
 		VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, "recent", "r1", 1, 1, "hash", "plan", "recent", "accepted", "owner", "{}", now, now, "owner", now, "owner"); err != nil {
 		t.Fatal(err)
@@ -118,13 +118,13 @@ func TestRecoverExpiredWarmupRunsUsesNativeMatchedWrites(t *testing.T) {
 		t.Fatal(err)
 	}
 	var recovered int
-	if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_warmup_runs
+	if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_warmup_runs
 		WHERE status='failed' AND active_key IS NULL AND completed_at IS NOT NULL
 		AND updated_by='system:datly-studio' AND diagnostics_json LIKE '%warmup_expired%'`).Scan(&recovered); err != nil || recovered != 105 {
 		t.Fatalf("recovered=%d err=%v", recovered, err)
 	}
 	var recentStatus string
-	if err := db.QueryRowContext(ctx, `SELECT status FROM report_warmup_runs WHERE run_id='recent'`).Scan(&recentStatus); err != nil || recentStatus != "accepted" {
+	if err := db.QueryRowContext(ctx, `SELECT status FROM component_warmup_runs WHERE run_id='recent'`).Scan(&recentStatus); err != nil || recentStatus != "accepted" {
 		t.Fatalf("recent status=%q err=%v", recentStatus, err)
 	}
 	if err := transport.recoverExpiredWarmupRuns(ctx, now); err != nil {
@@ -161,7 +161,7 @@ func TestTranscribedWarmupWriterRejectsStaleUpdatedAt(t *testing.T) {
 		t.Fatalf("created run=%+v err=%v", before, err)
 	}
 	var storedNamespace string
-	if err := db.QueryRowContext(ctx, "SELECT namespace_id FROM report_warmup_runs WHERE run_id='r1'").Scan(&storedNamespace); err != nil || storedNamespace != namespaceaccess.ID("alice", "general") {
+	if err := db.QueryRowContext(ctx, "SELECT namespace_id FROM component_warmup_runs WHERE run_id='r1'").Scan(&storedNamespace); err != nil || storedNamespace != namespaceaccess.ID("alice", "general") {
 		t.Fatalf("warmup ownership=%q err=%v", storedNamespace, err)
 	}
 	err = transport.writeWarmupRun(ctx, &storedwriter.StoredWarmupRun{RunId: "r1", NamespaceId: namespaceaccess.ID("alice", "other"), Status: "running", UpdatedAt: before.UpdatedAt, UpdatedBy: &actor, Has: &storedwriter.StoredWarmupRunHas{RunId: true, NamespaceId: true, Status: true, UpdatedAt: true, UpdatedBy: true}})
@@ -169,7 +169,7 @@ func TestTranscribedWarmupWriterRejectsStaleUpdatedAt(t *testing.T) {
 		t.Fatal("warmup namespace move was accepted")
 	}
 	var unchangedStatus string
-	if err := db.QueryRowContext(ctx, "SELECT namespace_id,status FROM report_warmup_runs WHERE run_id='r1'").Scan(&storedNamespace, &unchangedStatus); err != nil || storedNamespace != namespaceaccess.ID("alice", "general") || unchangedStatus != "accepted" {
+	if err := db.QueryRowContext(ctx, "SELECT namespace_id,status FROM component_warmup_runs WHERE run_id='r1'").Scan(&storedNamespace, &unchangedStatus); err != nil || storedNamespace != namespaceaccess.ID("alice", "general") || unchangedStatus != "accepted" {
 		t.Fatalf("denial mutated ownership/state=%q/%q err=%v", storedNamespace, unchangedStatus, err)
 	}
 	started := now.Add(time.Second)

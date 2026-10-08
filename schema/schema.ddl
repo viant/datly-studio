@@ -124,7 +124,7 @@ CREATE INDEX idx_reports_owner_namespace_updated
 CREATE INDEX idx_reports_status_updated
     ON components(status, updated_at DESC);
 
-CREATE TABLE report_versions (
+CREATE TABLE component_versions (
     namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id                   VARCHAR(64) NOT NULL,
     version_no                  INT NOT NULL,
@@ -151,21 +151,21 @@ CREATE TABLE report_versions (
     validated_at                DATETIME(6) NULL,
     published_at                DATETIME(6) NULL,
     PRIMARY KEY (report_id, version_no),
-    UNIQUE KEY uq_report_versions_spec_hash (report_id, spec_hash),
-    CONSTRAINT fk_report_versions_report
+    UNIQUE KEY uq_component_versions_spec_hash (report_id, spec_hash),
+    CONSTRAINT fk_component_versions_report
         FOREIGN KEY (report_id) REFERENCES components(id) ON DELETE CASCADE,
-    CONSTRAINT chk_report_versions_state
+    CONSTRAINT chk_component_versions_state
         CHECK (state IN ('draft', 'validated', 'published', 'superseded', 'failed')),
-    CONSTRAINT chk_report_versions_authoring_mode
+    CONSTRAINT chk_component_versions_authoring_mode
         CHECK (authoring_mode IN ('sql', 'dql', 'structured')),
-    CONSTRAINT chk_report_versions_compile_status
+    CONSTRAINT chk_component_versions_compile_status
         CHECK (compile_status IN ('pending', 'valid', 'invalid', 'error'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE INDEX idx_report_versions_created
-    ON report_versions(report_id, created_at DESC);
+CREATE INDEX idx_component_versions_created
+    ON component_versions(report_id, created_at DESC);
 
-CREATE TABLE report_views (
+CREATE TABLE component_views (
     namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id               VARCHAR(64) NOT NULL,
     version_no              INT NOT NULL,
@@ -183,19 +183,19 @@ CREATE TABLE report_views (
     source_table            VARCHAR(500) NULL,
     metadata_json           JSON NULL,
     PRIMARY KEY (report_id, version_no, view_id),
-    CONSTRAINT fk_report_views_version
+    CONSTRAINT fk_component_views_version
         FOREIGN KEY (report_id, version_no)
-        REFERENCES report_versions(report_id, version_no) ON DELETE CASCADE,
-    CONSTRAINT chk_report_views_role
+        REFERENCES component_versions(report_id, version_no) ON DELETE CASCADE,
+    CONSTRAINT chk_component_views_role
         CHECK (role IN ('root', 'independent', 'relation')),
-    CONSTRAINT chk_report_views_source_kind
+    CONSTRAINT chk_component_views_source_kind
         CHECK (source_kind IN ('sql', 'table', 'resource', 'derived', 'virtual'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE INDEX idx_report_views_parent
-    ON report_views(report_id, version_no, parent_view_id);
+CREATE INDEX idx_component_views_parent
+    ON component_views(report_id, version_no, parent_view_id);
 
-CREATE TABLE report_fields (
+CREATE TABLE component_fields (
     namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id               VARCHAR(64) NOT NULL,
     version_no              INT NOT NULL,
@@ -213,12 +213,12 @@ CREATE TABLE report_fields (
     measurable              BOOLEAN NOT NULL DEFAULT FALSE,
     metadata_json           JSON NULL,
     PRIMARY KEY (report_id, version_no, view_id, field_name),
-    CONSTRAINT fk_report_fields_view
+    CONSTRAINT fk_component_fields_view
         FOREIGN KEY (report_id, version_no, view_id)
-        REFERENCES report_views(report_id, version_no, view_id) ON DELETE CASCADE
+        REFERENCES component_views(report_id, version_no, view_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE report_parameters (
+CREATE TABLE component_parameters (
     namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id               VARCHAR(64) NOT NULL,
     version_no              INT NOT NULL,
@@ -236,15 +236,15 @@ CREATE TABLE report_parameters (
     metadata_json           JSON NULL,
     ordinal                 INT NOT NULL,
     PRIMARY KEY (report_id, version_no, parameter_id),
-    CONSTRAINT fk_report_parameters_version
+    CONSTRAINT fk_component_parameters_version
         FOREIGN KEY (report_id, version_no)
-        REFERENCES report_versions(report_id, version_no) ON DELETE CASCADE
+        REFERENCES component_versions(report_id, version_no) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE INDEX idx_report_parameters_name
-    ON report_parameters(report_id, version_no, name);
+CREATE INDEX idx_component_parameters_name
+    ON component_parameters(report_id, version_no, name);
 
-CREATE TABLE report_predicates (
+CREATE TABLE component_predicates (
     namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id               VARCHAR(64) NOT NULL,
     version_no              INT NOT NULL,
@@ -255,12 +255,12 @@ CREATE TABLE report_predicates (
     args_json               JSON NULL,
     apply_when_absent       BOOLEAN NOT NULL DEFAULT FALSE,
     PRIMARY KEY (report_id, version_no, parameter_id, predicate_index),
-    CONSTRAINT fk_report_predicates_parameter
+    CONSTRAINT fk_component_predicates_parameter
         FOREIGN KEY (report_id, version_no, parameter_id)
-        REFERENCES report_parameters(report_id, version_no, parameter_id) ON DELETE CASCADE
+        REFERENCES component_parameters(report_id, version_no, parameter_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE report_cube_configs (
+CREATE TABLE component_cube_configs (
     namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id               VARCHAR(64) NOT NULL,
     version_no              INT NOT NULL,
@@ -278,9 +278,9 @@ CREATE TABLE report_cube_configs (
     compose_max_limit       INT NULL,
     compose_timeout_ms      INT NULL,
     PRIMARY KEY (report_id, version_no),
-    CONSTRAINT fk_report_cube_configs_version
+    CONSTRAINT fk_component_cube_configs_version
         FOREIGN KEY (report_id, version_no)
-        REFERENCES report_versions(report_id, version_no) ON DELETE CASCADE,
+        REFERENCES component_versions(report_id, version_no) ON DELETE CASCADE,
     CONSTRAINT chk_report_cube_compose_max_cubes
         CHECK (compose_max_cubes IS NULL OR compose_max_cubes > 0),
     CONSTRAINT chk_report_cube_compose_max_limit
@@ -289,7 +289,7 @@ CREATE TABLE report_cube_configs (
         CHECK (compose_timeout_ms IS NULL OR compose_timeout_ms > 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE report_mcp_exposures (
+CREATE TABLE component_mcp_exposures (
     namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id               VARCHAR(64) NOT NULL,
     version_no              INT NOT NULL,
@@ -307,17 +307,17 @@ CREATE TABLE report_mcp_exposures (
     PRIMARY KEY (report_id, version_no, exposure_id),
     UNIQUE KEY uq_report_mcp_exposure_name
         (report_id, version_no, kind, name),
-    CONSTRAINT fk_report_mcp_exposures_version
+    CONSTRAINT fk_component_mcp_exposures_version
         FOREIGN KEY (report_id, version_no)
-        REFERENCES report_versions(report_id, version_no) ON DELETE CASCADE,
+        REFERENCES component_versions(report_id, version_no) ON DELETE CASCADE,
     CONSTRAINT chk_report_mcp_exposure_kind
         CHECK (kind IN ('tool', 'resource', 'resourceTemplate'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE INDEX idx_report_mcp_exposures_route
-    ON report_mcp_exposures(report_id, version_no, route_id, enabled);
+CREATE INDEX idx_component_mcp_exposures_route
+    ON component_mcp_exposures(report_id, version_no, route_id, enabled);
 
-CREATE TABLE report_resource_files (
+CREATE TABLE component_resource_files (
     namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id               VARCHAR(64) NOT NULL,
     version_no              INT NOT NULL,
@@ -331,20 +331,20 @@ CREATE TABLE report_resource_files (
     is_binary               BOOLEAN NOT NULL DEFAULT FALSE,
     created_at              DATETIME(6) NOT NULL,
     PRIMARY KEY (report_id, version_no, resource_id),
-    CONSTRAINT fk_report_resource_files_version
+    CONSTRAINT fk_component_resource_files_version
         FOREIGN KEY (report_id, version_no)
-        REFERENCES report_versions(report_id, version_no) ON DELETE CASCADE,
-    CONSTRAINT chk_report_resource_files_size
+        REFERENCES component_versions(report_id, version_no) ON DELETE CASCADE,
+    CONSTRAINT chk_component_resource_files_size
         CHECK (content_size >= 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE INDEX idx_report_resource_files_digest
-    ON report_resource_files(content_sha256);
+CREATE INDEX idx_component_resource_files_digest
+    ON component_resource_files(content_sha256);
 
-CREATE INDEX idx_report_resource_files_namespace
-    ON report_resource_files(report_id, version_no, namespace);
+CREATE INDEX idx_component_resource_files_namespace
+    ON component_resource_files(report_id, version_no, namespace);
 
-CREATE TABLE report_resource_folders (
+CREATE TABLE component_resource_folders (
     namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id               VARCHAR(64) NOT NULL,
     version_no              INT NOT NULL,
@@ -354,9 +354,9 @@ CREATE TABLE report_resource_folders (
     uri_prefix              VARCHAR(1000) NOT NULL,
     ordinal                 INT NOT NULL DEFAULT 0,
     PRIMARY KEY (report_id, version_no, folder_id),
-    CONSTRAINT fk_report_resource_folders_version
+    CONSTRAINT fk_component_resource_folders_version
         FOREIGN KEY (report_id, version_no)
-        REFERENCES report_versions(report_id, version_no) ON DELETE CASCADE
+        REFERENCES component_versions(report_id, version_no) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE resource_namespace_claims (
@@ -372,7 +372,7 @@ CREATE TABLE resource_namespace_claims (
         FOREIGN KEY (report_id) REFERENCES components(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE report_skill_roots (
+CREATE TABLE component_skill_roots (
     namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id               VARCHAR(64) NOT NULL,
     version_no              INT NOT NULL,
@@ -381,9 +381,9 @@ CREATE TABLE report_skill_roots (
     skill_root              VARCHAR(1000) NOT NULL,
     ordinal                 INT NOT NULL DEFAULT 0,
     PRIMARY KEY (report_id, version_no, skill_id),
-    CONSTRAINT fk_report_skill_roots_folder
+    CONSTRAINT fk_component_skill_roots_folder
         FOREIGN KEY (report_id, version_no, folder_id)
-        REFERENCES report_resource_folders(report_id, version_no, folder_id) ON DELETE CASCADE
+        REFERENCES component_resource_folders(report_id, version_no, folder_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE runtime_generations (
@@ -404,7 +404,7 @@ CREATE TABLE runtime_generations (
         CHECK (status IN ('building', 'active', 'failed', 'retired'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE report_warmup_runs (
+CREATE TABLE component_warmup_runs (
     namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     run_id                  VARCHAR(64) NOT NULL,
     report_id               VARCHAR(64) NOT NULL,
@@ -435,16 +435,16 @@ CREATE TABLE report_warmup_runs (
     started_at              DATETIME(6) NULL,
     completed_at            DATETIME(6) NULL,
     PRIMARY KEY (run_id),
-    UNIQUE KEY uq_report_warmup_runs_active (active_key),
-    CONSTRAINT fk_report_warmup_runs_version
+    UNIQUE KEY uq_component_warmup_runs_active (active_key),
+    CONSTRAINT fk_component_warmup_runs_version
         FOREIGN KEY (report_id, version_no)
-        REFERENCES report_versions(report_id, version_no),
-    CONSTRAINT chk_report_warmup_runs_status
+        REFERENCES component_versions(report_id, version_no),
+    CONSTRAINT chk_component_warmup_runs_status
         CHECK (status IN ('accepted', 'running', 'completed', 'partial', 'failed', 'canceled'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE INDEX idx_report_warmup_runs_version_requested
-    ON report_warmup_runs(report_id, version_no, requested_at DESC);
+CREATE INDEX idx_component_warmup_runs_version_requested
+    ON component_warmup_runs(report_id, version_no, requested_at DESC);
 
 CREATE TABLE bff_sessions (
     namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
@@ -464,7 +464,7 @@ CREATE INDEX idx_bff_sessions_expires
 CREATE INDEX idx_bff_sessions_subject_expires
     ON bff_sessions(subject_id, expires_at_unix DESC);
 
-CREATE TABLE report_publications (
+CREATE TABLE component_publications (
     namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id               VARCHAR(64) NOT NULL,
     active_version_no       INT NOT NULL,
@@ -479,25 +479,25 @@ CREATE TABLE report_publications (
     activated_at            DATETIME(6) NULL,
     failure_json            JSON NULL,
     PRIMARY KEY (report_id),
-    CONSTRAINT fk_report_publications_version
+    CONSTRAINT fk_component_publications_version
         FOREIGN KEY (report_id, active_version_no)
-        REFERENCES report_versions(report_id, version_no),
-    CONSTRAINT fk_report_publications_desired_version
+        REFERENCES component_versions(report_id, version_no),
+    CONSTRAINT fk_component_publications_desired_version
         FOREIGN KEY (report_id, desired_version_no)
-        REFERENCES report_versions(report_id, version_no),
-    CONSTRAINT fk_report_publications_generation
+        REFERENCES component_versions(report_id, version_no),
+    CONSTRAINT fk_component_publications_generation
         FOREIGN KEY (active_generation) REFERENCES runtime_generations(generation_no),
-    CONSTRAINT chk_report_publications_status
+    CONSTRAINT chk_component_publications_status
         CHECK (publication_status IN ('pending', 'active', 'failed', 'unpublishing'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE INDEX idx_report_publications_generation
-    ON report_publications(active_generation, publication_status);
+CREATE INDEX idx_component_publications_generation
+    ON component_publications(active_generation, publication_status);
 
--- report_publication_events is intentionally append-only. It records the
+-- component_publication_events is intentionally append-only. It records the
 -- outcome of a requested lifecycle transition without changing the active
 -- publication state used by the runtime.
-CREATE TABLE report_publication_events (
+CREATE TABLE component_publication_events (
     namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     event_id                CHAR(64) NOT NULL,
     report_id               VARCHAR(64) NOT NULL,
@@ -512,26 +512,26 @@ CREATE TABLE report_publication_events (
     failure_message         VARCHAR(1000) NULL,
     occurred_at             DATETIME(6) NOT NULL,
     PRIMARY KEY (event_id),
-    CONSTRAINT fk_report_publication_events_report
+    CONSTRAINT fk_component_publication_events_report
         FOREIGN KEY (report_id) REFERENCES components(id) ON DELETE CASCADE,
-    CONSTRAINT fk_report_publication_events_version
+    CONSTRAINT fk_component_publication_events_version
         FOREIGN KEY (report_id, version_no)
-        REFERENCES report_versions(report_id, version_no),
-    CONSTRAINT fk_report_publication_events_generation
+        REFERENCES component_versions(report_id, version_no),
+    CONSTRAINT fk_component_publication_events_generation
         FOREIGN KEY (generation_no) REFERENCES runtime_generations(generation_no),
-    CONSTRAINT chk_report_publication_events_operation
+    CONSTRAINT chk_component_publication_events_operation
         CHECK (operation IN ('publish', 'rollback', 'unpublish')),
-    CONSTRAINT chk_report_publication_events_status
+    CONSTRAINT chk_component_publication_events_status
         CHECK (status IN ('succeeded', 'failed'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE INDEX idx_report_publication_events_owner_time
-    ON report_publication_events(owner_id, occurred_at DESC);
+CREATE INDEX idx_component_publication_events_owner_time
+    ON component_publication_events(owner_id, occurred_at DESC);
 
-CREATE INDEX idx_report_publication_events_report_time
-    ON report_publication_events(report_id, occurred_at DESC);
+CREATE INDEX idx_component_publication_events_report_time
+    ON component_publication_events(report_id, occurred_at DESC);
 
-CREATE TABLE report_acl (
+CREATE TABLE component_acl (
     namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     report_id               VARCHAR(64) NOT NULL,
     subject_type            VARCHAR(32) NOT NULL,
@@ -543,6 +543,6 @@ CREATE TABLE report_acl (
     can_use_dql             BOOLEAN NOT NULL DEFAULT FALSE,
     etag                    BIGINT NOT NULL DEFAULT 1,
     PRIMARY KEY (report_id, subject_type, subject_id),
-    CONSTRAINT fk_report_acl_report
+    CONSTRAINT fk_component_acl_report
         FOREIGN KEY (report_id) REFERENCES components(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

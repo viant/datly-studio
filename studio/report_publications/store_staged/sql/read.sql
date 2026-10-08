@@ -1,5 +1,5 @@
 SELECT publication."report_id", publication."desired_generation", publication."publication_status" FROM  (SELECT p.report_id, p.desired_generation, p.publication_status
-FROM report_publications p
+FROM component_publications p
 WHERE 1=1
 ${predicate.Builder().CombineAnd(
     $predicate.FilterGroup(1, "AND")

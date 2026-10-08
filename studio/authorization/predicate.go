@@ -292,7 +292,7 @@ WHERE studio_auth_owner.id = a.report_id
 	return (&NamespaceSelection{NamespaceID: p.NamespaceID, Authorization: p.Authorization, Connectors: p.Connectors}).constrain(ctx, p.Input, criteria, "a.report_id")
 }
 func (p *ACLEdit) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "report_acl.report_id", permissionPublish)
+	return reportCriteria(ctx, p.Input, "component_acl.report_id", permissionPublish)
 }
 func (p *RuntimeRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
 	return globalCriteria(ctx, p.Input, permissionPublish)
@@ -329,7 +329,7 @@ func connectorCriteria(ctx context.Context, input any, nameColumn, ownerColumn, 
 func connectorCriteriaForSubject(subject, nameColumn, ownerColumn, permission string) *xpredicate.Criteria {
 	return &xpredicate.Criteria{Expression: `(` + ownerColumn + ` = ? OR EXISTS (
 SELECT 1 FROM components studio_auth_report
-JOIN report_acl studio_auth_acl ON studio_auth_acl.report_id = studio_auth_report.id
+JOIN component_acl studio_auth_acl ON studio_auth_acl.report_id = studio_auth_report.id
 WHERE studio_auth_report.default_connector_name = ` + nameColumn + `
   AND studio_auth_report.deleted_at IS NULL
   AND studio_auth_acl.subject_type = 'user'
@@ -350,7 +350,7 @@ func reportCriteriaForSubject(subject, reportIDColumn, permission string) *xpred
 SELECT 1 FROM components studio_auth_owner
 WHERE studio_auth_owner.id = ` + reportIDColumn + ` AND studio_auth_owner.owner_id = ?
 ) OR EXISTS (
-SELECT 1 FROM report_acl studio_auth_acl
+SELECT 1 FROM component_acl studio_auth_acl
 WHERE studio_auth_acl.report_id = ` + reportIDColumn + `
   AND studio_auth_acl.subject_type = 'user'
   AND studio_auth_acl.subject_id = ?
@@ -366,7 +366,7 @@ func globalCriteria(ctx context.Context, input any, permission string) (*xpredic
 SELECT 1 FROM components studio_auth_global
 WHERE studio_auth_global.deleted_at IS NULL
   AND (studio_auth_global.owner_id = ? OR EXISTS (
-    SELECT 1 FROM report_acl studio_auth_acl
+    SELECT 1 FROM component_acl studio_auth_acl
     WHERE studio_auth_acl.report_id = studio_auth_global.id
       AND studio_auth_acl.subject_type = 'user'
       AND studio_auth_acl.subject_id = ?

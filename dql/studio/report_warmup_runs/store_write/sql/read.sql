@@ -5,4 +5,4 @@ SELECT w.namespace_id, w.run_id, w.report_id, w.version_no, w.source_revision, w
        w.entries, w.duration_ns, w.diagnostics_json, w.target_json,
        w.requested_at, w.created_at, w.created_by, w.updated_at, w.updated_by,
        w.started_at, w.completed_at
-FROM report_warmup_runs w
+FROM component_warmup_runs w

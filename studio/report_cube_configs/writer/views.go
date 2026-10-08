@@ -11,8 +11,8 @@ type ReportCubeConfig struct {
 	FiltersJson json.RawMessage `sqlx:"filters_json,enc=JSON"`
 	OrderByJson json.RawMessage `sqlx:"order_by_json,enc=JSON"`
 	InputLayoutJson json.RawMessage `sqlx:"input_layout_json,enc=JSON"`
-	ReportId *string `sqlx:"report_id,primaryKey,refTable=report_versions,refColumn=report_id,required=true" validate:"required"`
-	VersionNo *int `sqlx:"version_no,primaryKey,refTable=report_versions,refColumn=version_no,required=true"`
+	ReportId *string `sqlx:"report_id,primaryKey,refTable=component_versions,refColumn=report_id,required=true" validate:"required"`
+	VersionNo *int `sqlx:"version_no,primaryKey,refTable=component_versions,refColumn=version_no,required=true"`
 	ComposeMaxCubes *int `validate:"gt=0" sqlx:"compose_max_cubes"`
 	ComposeMaxLimit *int `validate:"gt=0" sqlx:"compose_max_limit"`
 	ComposeTimeoutMs *int `validate:"gt=0" sqlx:"compose_timeout_ms"`
@@ -49,8 +49,8 @@ type CurrentConfigView struct {
 	FiltersJson json.RawMessage `sqlx:"filters_json,enc=JSON"`
 	OrderByJson json.RawMessage `sqlx:"order_by_json,enc=JSON"`
 	InputLayoutJson json.RawMessage `sqlx:"input_layout_json,enc=JSON"`
-	ReportId *string `sqlx:"report_id,primaryKey,refTable=report_versions,refColumn=report_id,required=true" validate:"required"`
-	VersionNo *int `sqlx:"version_no,primaryKey,refTable=report_versions,refColumn=version_no,required=true"`
+	ReportId *string `sqlx:"report_id,primaryKey,refTable=component_versions,refColumn=report_id,required=true" validate:"required"`
+	VersionNo *int `sqlx:"version_no,primaryKey,refTable=component_versions,refColumn=version_no,required=true"`
 	ComposeMaxCubes *int `validate:"gt=0" sqlx:"compose_max_cubes"`
 	ComposeMaxLimit *int `validate:"gt=0" sqlx:"compose_max_limit"`
 	ComposeTimeoutMs *int `validate:"gt=0" sqlx:"compose_timeout_ms"`

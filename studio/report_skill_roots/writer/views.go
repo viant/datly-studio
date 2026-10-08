@@ -2,10 +2,10 @@ package writer
 
 // ReportSkillRoot is generated canonical view metadata for skill.
 type ReportSkillRoot struct {
-	ReportId *string `sqlx:"report_id,primaryKey,refTable=report_resource_folders,refColumn=report_id,required=true" validate:"required"`
-	VersionNo *int `sqlx:"version_no,primaryKey,refTable=report_resource_folders,refColumn=version_no,required=true"`
+	ReportId *string `sqlx:"report_id,primaryKey,refTable=component_resource_folders,refColumn=report_id,required=true" validate:"required"`
+	VersionNo *int `sqlx:"version_no,primaryKey,refTable=component_resource_folders,refColumn=version_no,required=true"`
 	SkillId *string `sqlx:"skill_id,primaryKey,required=true" validate:"required"`
-	FolderId *string `validate:"required" sqlx:"folder_id,refTable=report_resource_folders,refColumn=folder_id,required=true"`
+	FolderId *string `validate:"required" sqlx:"folder_id,refTable=component_resource_folders,refColumn=folder_id,required=true"`
 	SkillRoot *string `validate:"required" sqlx:"skill_root,required=true"`
 	ShouldDelete bool `sqlx:"-" writer:"delete"`
 	Ordinal *int `sqlx:"ordinal,required=true"`
@@ -24,10 +24,10 @@ type ReportSkillRootHas struct {
 
 // CurrentSkillView is generated canonical view metadata for skill.
 type CurrentSkillView struct {
-	ReportId *string `sqlx:"report_id,primaryKey,refTable=report_resource_folders,refColumn=report_id,required=true" validate:"required"`
-	VersionNo *int `sqlx:"version_no,primaryKey,refTable=report_resource_folders,refColumn=version_no,required=true"`
+	ReportId *string `sqlx:"report_id,primaryKey,refTable=component_resource_folders,refColumn=report_id,required=true" validate:"required"`
+	VersionNo *int `sqlx:"version_no,primaryKey,refTable=component_resource_folders,refColumn=version_no,required=true"`
 	SkillId *string `sqlx:"skill_id,primaryKey,required=true" validate:"required"`
-	FolderId *string `validate:"required" sqlx:"folder_id,refTable=report_resource_folders,refColumn=folder_id,required=true"`
+	FolderId *string `validate:"required" sqlx:"folder_id,refTable=component_resource_folders,refColumn=folder_id,required=true"`
 	SkillRoot *string `validate:"required" sqlx:"skill_root,required=true"`
 	Ordinal *int `sqlx:"ordinal,required=true"`
 }

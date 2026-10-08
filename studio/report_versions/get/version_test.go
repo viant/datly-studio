@@ -37,11 +37,11 @@ func TestVersionGetScopesMetadataAndRedactsDQLAcrossProtocols(t *testing.T) {
 		datatest.Table{Name: "connectors", Rows: []datatest.Row{{"name": "main", "driver": "sqlite", "owner_id": "alice", "status": "active", "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"}}},
 		datatest.Table{Name: "namespaces", Rows: []datatest.Row{{"owner_id": "alice", "name": "general", "title": "General", "status": "active", "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"}}},
 		datatest.Table{Name: "components", Rows: []datatest.Row{{"id": "r1", "slug": "first", "title": "First", "owner_id": "alice", "status": "active", "default_connector_name": "main", "namespace": "general", "component_scope": "reports/first", "component_name": "first", "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"}}},
-		datatest.Table{Name: "report_acl", Rows: []datatest.Row{
+		datatest.Table{Name: "component_acl", Rows: []datatest.Row{
 			{"report_id": "r1", "subject_type": "user", "subject_id": "bob", "can_view": true},
 			{"report_id": "r1", "subject_type": "user", "subject_id": "carol", "can_view": true, "can_edit": true, "can_use_dql": true},
 		}},
-		datatest.Table{Name: "report_versions", Rows: []datatest.Row{{
+		datatest.Table{Name: "component_versions", Rows: []datatest.Row{{
 			"report_id": "r1", "version_no": 2, "state": "draft", "authoring_mode": "dql",
 			"authored_sql": "SELECT 1", "authored_dql": "secret authored DQL", "generated_dql": "secret generated DQL",
 			"component_spec_json": "{}", "spec_format_version": "1", "spec_hash": "hash", "type_manifest_json": "{}",
@@ -245,7 +245,7 @@ func TestVersionGetScopesMetadataAndRedactsDQLAcrossProtocols(t *testing.T) {
 			t.Fatalf("MCP %s version=%s err=%v", check.subject, structured, err)
 		}
 	}
-	if _, err = db.ExecContext(ctx, "DELETE FROM report_acl WHERE report_id = ? AND subject_id = ?", "r1", "bob"); err != nil {
+	if _, err = db.ExecContext(ctx, "DELETE FROM component_acl WHERE report_id = ? AND subject_id = ?", "r1", "bob"); err != nil {
 		t.Fatal(err)
 	}
 	_, err = invoke("bob", 2)

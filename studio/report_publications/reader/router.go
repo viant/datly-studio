@@ -12,7 +12,7 @@ func init() {}
 
 // Component is the generated component scaffold for publication.
 type PublicationComponent struct {
-	Contract xdatly.Component[Input, Output] "component:\"publication,path=/v1/studio/reports/{reportId}/publication,method=GET,connector=studio,view=publication\" routeName:\"publication\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.report_publications.read\\\",\\\"description\\\":\\\"Read report publication state\\\"}]\" caseFormat:\"lc\""
+	Contract xdatly.Component[Input, Output] "component:\"publication,path=/v1/studio/reports/{reportId}/publication,method=GET,connector=studio,view=publication\" routeName:\"publication\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.component_publications.read\\\",\\\"description\\\":\\\"Read report publication state\\\"}]\" caseFormat:\"lc\""
 }
 
 // PublicationDatlyType keeps the public component type linked for blank-import discovery.

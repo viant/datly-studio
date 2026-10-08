@@ -27,7 +27,7 @@ func TestReaderScopeRequiresGenerationAndScopedSubject(t *testing.T) {
 		t.Fatal("missing subject accepted")
 	}
 	unscoped, err := (&ReaderScope{Input: scope{generation: 4}}).Compute(context.Background(), nil)
-	if err != nil || len(unscoped.Placeholders) != 1 || strings.Contains(unscoped.Expression, "report_acl") {
+	if err != nil || len(unscoped.Placeholders) != 1 || strings.Contains(unscoped.Expression, "component_acl") {
 		t.Fatalf("unscoped=%+v err=%v", unscoped, err)
 	}
 	scoped, err := (&ReaderScope{Input: scope{generation: 4, subject: "owner", scoped: true}}).Compute(context.Background(), nil)

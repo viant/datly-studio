@@ -12,7 +12,7 @@ func init() {}
 
 // Component is the generated component scaffold for file.
 type FileComponent struct {
-	Contract xdatly.Component[Input, Output] "component:\"file,path=/v1/studio/reports/{reportId}/versions/{versionNo}/resources/files,method=GET,connector=studio,view=file\" routeName:\"file\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.report_resource_files.read\\\",\\\"description\\\":\\\"Read report resource files\\\"}]\" caseFormat:\"lc\""
+	Contract xdatly.Component[Input, Output] "component:\"file,path=/v1/studio/reports/{reportId}/versions/{versionNo}/resources/files,method=GET,connector=studio,view=file\" routeName:\"file\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.component_resource_files.read\\\",\\\"description\\\":\\\"Read report resource files\\\"}]\" caseFormat:\"lc\""
 }
 
 // FileDatlyType keeps the public component type linked for blank-import discovery.

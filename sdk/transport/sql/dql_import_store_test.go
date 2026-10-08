@@ -117,7 +117,7 @@ func TestDQLImportPersistsExactRowsThroughStoreComponents(t *testing.T) {
 	version := loaded.Version
 	wantWorkspace := namespaceaccess.ID(f.report.OwnerID, f.report.Namespace)
 	var storedWorkspace string
-	if err := f.db.QueryRow(`SELECT namespace_id FROM report_versions WHERE report_id=? AND version_no=1`, f.report.ID).Scan(&storedWorkspace); err != nil || storedWorkspace != wantWorkspace {
+	if err := f.db.QueryRow(`SELECT namespace_id FROM component_versions WHERE report_id=? AND version_no=1`, f.report.ID).Scan(&storedWorkspace); err != nil || storedWorkspace != wantWorkspace {
 		t.Fatalf("version workspace=%q want=%q err=%v", storedWorkspace, wantWorkspace, err)
 	}
 	if version.VersionNo != 1 || version.State != "draft" || version.AuthoringMode != "dql" || version.CompileStatus != "pending" ||
@@ -127,7 +127,7 @@ func TestDQLImportPersistsExactRowsThroughStoreComponents(t *testing.T) {
 	var specFormat, datlyVersion, compilerVersion, createdBy, spec, manifest, notes string
 	var sourceRevision int64
 	var createdAt time.Time
-	err = f.db.QueryRow(`SELECT spec_format_version,datly_version,compiler_version,created_by,component_spec_json,type_manifest_json,notes,source_revision,created_at FROM report_versions WHERE report_id=? AND version_no=1`, f.report.ID).
+	err = f.db.QueryRow(`SELECT spec_format_version,datly_version,compiler_version,created_by,component_spec_json,type_manifest_json,notes,source_revision,created_at FROM component_versions WHERE report_id=? AND version_no=1`, f.report.ID).
 		Scan(&specFormat, &datlyVersion, &compilerVersion, &createdBy, &spec, &manifest, &notes, &sourceRevision, &createdAt)
 	if err != nil {
 		t.Fatal(err)
@@ -136,7 +136,7 @@ func TestDQLImportPersistsExactRowsThroughStoreComponents(t *testing.T) {
 		notes != " keep spacing " || sourceRevision != 1 || !createdAt.Equal(f.now) {
 		t.Fatalf("version row: %q %q %q %q %q %q %q %d %s", specFormat, datlyVersion, compilerVersion, createdBy, spec, manifest, notes, sourceRevision, createdAt)
 	}
-	rows, err := f.db.Query(`SELECT resource_id,namespace_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at FROM report_resource_files WHERE report_id=? AND version_no=1 ORDER BY resource_path`, f.report.ID)
+	rows, err := f.db.Query(`SELECT resource_id,namespace_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at FROM component_resource_files WHERE report_id=? AND version_no=1 ORDER BY resource_path`, f.report.ID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -186,7 +186,7 @@ func TestDQLImportPersistsExactRowsThroughStoreComponents(t *testing.T) {
 		t.Fatal(err)
 	}
 	var secondNotes sql.NullString
-	if err = f.db.QueryRow(`SELECT notes FROM report_versions WHERE report_id=? AND version_no=?`, f.report.ID, second.Version.VersionNo).Scan(&secondNotes); err != nil {
+	if err = f.db.QueryRow(`SELECT notes FROM component_versions WHERE report_id=? AND version_no=?`, f.report.ID, second.Version.VersionNo).Scan(&secondNotes); err != nil {
 		t.Fatal(err)
 	}
 	if second.Version.VersionNo != 2 || secondNotes.Valid {
@@ -211,10 +211,10 @@ func TestDQLImportRollsBackWhenReportChangesConcurrently(t *testing.T) {
 		t.Fatalf("stale report etag error=%v", err)
 	}
 	var versions, resources int
-	if err = f.db.QueryRow(`SELECT COUNT(*) FROM report_versions WHERE report_id=?`, f.report.ID).Scan(&versions); err != nil {
+	if err = f.db.QueryRow(`SELECT COUNT(*) FROM component_versions WHERE report_id=?`, f.report.ID).Scan(&versions); err != nil {
 		t.Fatal(err)
 	}
-	if err = f.db.QueryRow(`SELECT COUNT(*) FROM report_resource_files WHERE report_id=?`, f.report.ID).Scan(&resources); err != nil {
+	if err = f.db.QueryRow(`SELECT COUNT(*) FROM component_resource_files WHERE report_id=?`, f.report.ID).Scan(&resources); err != nil {
 		t.Fatal(err)
 	}
 	if versions != 0 || resources != 0 {
@@ -291,7 +291,7 @@ func TestDQLImportWriterDeniesInconsistentInputBeforeWriting(t *testing.T) {
 				t.Fatalf("error=%v, want %q", err, test.want)
 			}
 			var count int
-			if err = tx.QueryRow(`SELECT COUNT(*) FROM report_versions WHERE report_id=?`, f.report.ID).Scan(&count); err != nil || count != 0 {
+			if err = tx.QueryRow(`SELECT COUNT(*) FROM component_versions WHERE report_id=?`, f.report.ID).Scan(&count); err != nil || count != 0 {
 				t.Fatalf("denied import wrote versions=%d err=%v", count, err)
 			}
 		})
@@ -323,14 +323,14 @@ func TestDQLImportCommitsAndRollsBackUnderSharedCacheDSN(t *testing.T) {
 	if err != nil || loaded.Version.VersionNo != 1 || len(loaded.Files) != 2 {
 		t.Fatalf("shared-cache import: %+v %v", loaded, err)
 	}
-	if _, err = f.db.Exec(`CREATE TRIGGER reject_import BEFORE INSERT ON report_resource_files BEGIN SELECT RAISE(ABORT,'test import failure'); END`); err != nil {
+	if _, err = f.db.Exec(`CREATE TRIGGER reject_import BEFORE INSERT ON component_resource_files BEGIN SELECT RAISE(ABORT,'test import failure'); END`); err != nil {
 		t.Fatal(err)
 	}
 	if _, err = f.client.Versions().LoadDQL(f.ctx, f.report.ID, sdk.LoadDQLInput{DQL: "SELECT 3"}); err == nil {
 		t.Fatal("expected resource failure")
 	}
 	var versions int
-	if err = f.db.QueryRow(`SELECT COUNT(*) FROM report_versions WHERE report_id=?`, f.report.ID).Scan(&versions); err != nil || versions != 1 {
+	if err = f.db.QueryRow(`SELECT COUNT(*) FROM component_versions WHERE report_id=?`, f.report.ID).Scan(&versions); err != nil || versions != 1 {
 		t.Fatalf("versions after rollback=%d err=%v", versions, err)
 	}
 	current, err := f.client.Components().Get(f.ctx, f.report.ID)

@@ -1,1 +1,1 @@
-SELECT p.* FROM report_publications p
+SELECT p.* FROM component_publications p

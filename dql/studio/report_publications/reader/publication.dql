@@ -9,7 +9,7 @@
 #setting($_ = $case_format('lc'))
 #setting($_ = $route('/v1/studio/reports/{reportId}/publication', 'GET'))
 #setting($_ = $connector('studio'))
-#setting($_ = $mcp('studio.report_publications.read', 'Read report publication state'))
+#setting($_ = $mcp('studio.component_publications.read', 'Read report publication state'))
 #setting($_ = $sql_dest('publication', 'sql/read.sql'))
 #define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
 #define($_ = $ReportId<string>(path/reportId).Required().WithPredicate(2, 'equal', 'p', 'report_id').WithPredicate(3, 'handler', 'studioauthorization.PublicationRead'))

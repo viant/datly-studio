@@ -642,12 +642,12 @@ of truth used by unit fixtures and runtime migration. The core entities are:
   provider options, ownership, probe state and lifecycle state.
 - `reports`: user-facing Components; title, business namespace, owner,
   connector reference, deterministic dynamic package scope/name, status/etag.
-- `report_versions`: immutable authored/generated DQL and validation state.
-- `report_views`, `report_parameters`, `report_cube_configs`,
-  `report_mcp_exposures`: component authoring metadata.
-- `report_resource_files`, `report_resource_folders`, `report_skill_roots`:
+- `component_versions`: immutable authored/generated DQL and validation state.
+- `component_views`, `component_parameters`, `component_cube_configs`,
+  `component_mcp_exposures`: component authoring metadata.
+- `component_resource_files`, `component_resource_folders`, `component_skill_roots`:
   versioned resource and skill publishing records.
-- `report_publications`, `runtime_generations`: atomic deployment lifecycle.
+- `component_publications`, `runtime_generations`: atomic deployment lifecycle.
 - ACL tables: owner and delegated `can_view`, `can_edit`, `can_publish` access.
 
 Every schema table has a corresponding static Studio Datly component set where
@@ -934,7 +934,7 @@ Additional completed production-readiness slices:
   named resource URIs, and source-preserving description/example metadata.
   Datly parses `.WithDescription`/`.WithExample`; Studio sends structured field
   mutations and never authors declaration text in the browser.
-- schema v7 adds owner-scoped append-only `report_publication_events` plus a
+- schema v7 adds owner-scoped append-only `component_publication_events` plus a
   dedicated Datly reader and `publications.events.list` SDK operation. Successful
   publish/rollback/unpublish events share the activation transaction; failed
   transitions record bounded redacted evidence after recovery. The release UI
@@ -1637,7 +1637,7 @@ Deployed identity-provider, refresh, and logout behavior remains unverified.
 ## Primary references
 
 Product scope correction: Datly Studio does not expose presentation reports.
-The `reports`/`report_versions` names in storage and SDK code are historical
+The `reports`/`component_versions` names in storage and SDK code are historical
 component-record identifiers. Presentation reports are outside this project.
 Datly Studio authors MCP tools and Skills from Datly components; an optional UI
 definition is future work as a typed, versioned artifact over a validated

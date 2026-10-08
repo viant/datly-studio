@@ -59,7 +59,7 @@ func TestVersionInsertWriterSupportsSQLAndStructuredModes(t *testing.T) {
 		t.Fatalf("structured version=%+v err=%v", structured, err)
 	}
 	var wrong int
-	if err := db.QueryRow(`SELECT COUNT(*) FROM report_versions WHERE report_id=? AND namespace_id<>?`, report.ID, namespaceaccess.ID(report.OwnerID, report.Namespace)).Scan(&wrong); err != nil || wrong != 0 {
+	if err := db.QueryRow(`SELECT COUNT(*) FROM component_versions WHERE report_id=? AND namespace_id<>?`, report.ID, namespaceaccess.ID(report.OwnerID, report.Namespace)).Scan(&wrong); err != nil || wrong != 0 {
 		t.Fatalf("versions with wrong ownership=%d err=%v", wrong, err)
 	}
 	_, err = client.Versions().Create(owner, report.ID, sdk.CreateVersionInput{AuthoringMode: "sql", CreatedBy: "other", AuthoredSQL: "SELECT 2"})

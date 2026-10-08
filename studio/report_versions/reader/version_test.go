@@ -151,7 +151,7 @@ func TestReportVersionReaderMinimumContract(t *testing.T) {
 		if invokeErr != nil || len(versions(viewerDirect)) != 0 {
 			t.Fatalf("viewer without DQL capability direct version=%v err=%v", versions(viewerDirect), invokeErr)
 		}
-		if _, err := db.ExecContext(ctx, `UPDATE report_acl SET can_use_dql = FALSE WHERE report_id = 'r-alpha' AND subject_id = 'viewer'`); err != nil {
+		if _, err := db.ExecContext(ctx, `UPDATE component_acl SET can_use_dql = FALSE WHERE report_id = 'r-alpha' AND subject_id = 'viewer'`); err != nil {
 			t.Fatal(err)
 		}
 		revoked, invokeErr := invoke("/v1/studio/reports/r-alpha/versions?orderBy=version_no", "viewer")
@@ -178,11 +178,11 @@ const reportVersionReaderDataset = `{"tables":[
     {"id":"r-alpha","slug":"alpha","title":"Alpha","owner_id":"owner-a","status":"active","default_connector_name":"main","component_scope":"reports/alpha","component_name":"alpha","created_at":"2026-09-17 09:00:00","updated_at":"2026-09-17 09:00:00"},
     {"id":"r-beta","slug":"beta","title":"Beta","owner_id":"owner-b","status":"draft","default_connector_name":"main","component_scope":"reports/beta","component_name":"beta","created_at":"2026-09-17 09:00:00","updated_at":"2026-09-17 09:00:00"}
   ]},
-  {"name":"report_acl","rows":[
+  {"name":"component_acl","rows":[
     {"report_id":"r-alpha","subject_type":"user","subject_id":"viewer","can_view":true,"can_edit":true,"can_use_dql":true},
     {"report_id":"r-alpha","subject_type":"user","subject_id":"viewer-no-dql","can_view":true}
   ]},
-  {"name":"report_versions","rows":[
+  {"name":"component_versions","rows":[
     {"report_id":"r-alpha","version_no":1,"state":"published","authoring_mode":"sql","component_spec_json":{},"spec_format_version":"1","spec_hash":"alpha-1","type_manifest_json":{},"compile_status":"valid","datly_version":"v1","compiler_version":"v1","source_revision":1,"created_by":"alice","created_at":"2026-09-17 10:00:00"},
     {"report_id":"r-alpha","version_no":2,"state":"draft","authoring_mode":"dql","component_spec_json":{},"spec_format_version":"1","spec_hash":"alpha-2","type_manifest_json":{},"compile_status":"pending","datly_version":"v1","compiler_version":"v1","source_revision":2,"created_by":"bob","created_at":"2026-09-17 11:00:00"},
     {"report_id":"r-alpha","version_no":3,"state":"validated","authoring_mode":"structured","component_spec_json":{},"spec_format_version":"1","spec_hash":"alpha-3","type_manifest_json":{},"compile_status":"valid","datly_version":"v1","compiler_version":"v1","source_revision":3,"created_by":"alice","created_at":"2026-09-17 12:00:00"},

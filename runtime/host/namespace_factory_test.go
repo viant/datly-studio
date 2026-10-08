@@ -52,8 +52,8 @@ SELECT rows.*,type(rows,'Row') FROM (SELECT 1 AS id) rows`
 		}{
 			{`INSERT INTO namespaces(namespace_id,owner_id,name,title,status,visibility,mcp_enabled,etag,created_at,updated_at) VALUES(?,'owner',?,?,'active','public',TRUE,1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, []any{id, name, name}},
 			{`INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES(?,?,?,?,'owner','active','shared',?,'reader',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, []any{name, name, name, name, "github.com/viant/datly-studio/dynamic/" + name}},
-			{`INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES(?,1,'published','dql',?,?,'{}','1','hash','{}','valid','v1','v1',1,'owner',CURRENT_TIMESTAMP)`, []any{name, dql, dql}},
-			{`INSERT INTO report_publications(report_id,active_version_no,active_generation,desired_generation,publication_status,runtime_revision,spec_hash,published_by,published_at) VALUES(?,1,1,1,'active','fixture','hash','owner',CURRENT_TIMESTAMP)`, []any{name}},
+			{`INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES(?,1,'published','dql',?,?,'{}','1','hash','{}','valid','v1','v1',1,'owner',CURRENT_TIMESTAMP)`, []any{name, dql, dql}},
+			{`INSERT INTO component_publications(report_id,active_version_no,active_generation,desired_generation,publication_status,runtime_revision,spec_hash,published_by,published_at) VALUES(?,1,1,1,'active','fixture','hash','owner',CURRENT_TIMESTAMP)`, []any{name}},
 		}
 		for _, statement := range statements {
 			if _, err := db.Exec(statement.sql, statement.args...); err != nil {

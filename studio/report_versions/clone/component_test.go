@@ -61,10 +61,10 @@ func TestNativeClonePreservesPolicyAndRejectsStaleSource(t *testing.T) {
 		datatest.Table{Name: "connectors", Rows: []datatest.Row{{"name": "main", "driver": "sqlite", "owner_id": "alice", "status": "active", "created_at": now, "updated_at": now}}},
 		datatest.Table{Name: "namespaces", Rows: []datatest.Row{{"namespace_id": namespace, "owner_id": "alice", "name": "alpha", "title": "Alpha", "status": "active", "created_at": now, "updated_at": now}, {"namespace_id": namespaceaccess.ID("alice", "beta"), "owner_id": "alice", "name": "beta", "title": "Beta", "status": "active", "created_at": now, "updated_at": now}}},
 		datatest.Table{Name: "components", Rows: []datatest.Row{{"id": "r1", "namespace_id": namespace, "namespace": "alpha", "slug": "source", "title": "Source", "owner_id": "alice", "status": "active", "default_connector_name": "main", "component_scope": "reader/source", "component_name": "source", "created_at": now, "updated_at": now}}},
-		datatest.Table{Name: "report_versions", Rows: []datatest.Row{{"namespace_id": namespace, "report_id": "r1", "version_no": 1, "state": "published", "authoring_mode": "dql", "authored_dql": "#package('reader/source')\nSELECT 1 AS id", "generated_dql": "#package('reader/source')\nSELECT 1 AS id", "component_spec_json": "{}", "type_manifest_json": "{}", "spec_format_version": "1", "spec_hash": "source", "compile_status": "valid", "datly_version": "v1", "compiler_version": "v1", "source_revision": 1, "created_by": "alice", "created_at": now}}},
-		datatest.Table{Name: "report_resource_files", Rows: []datatest.Row{{"namespace_id": namespace, "report_id": "r1", "version_no": 1, "resource_id": fileID, "namespace": "alice.bundle", "resource_path": "skills/clone/SKILL.md", "media_type": "text/markdown", "content": []byte(markdown), "content_size": len(markdown), "content_sha256": hex.EncodeToString(digest[:]), "is_binary": false, "created_at": now}}},
-		datatest.Table{Name: "report_resource_folders", Rows: []datatest.Row{{"namespace_id": namespace, "report_id": "r1", "version_no": 1, "folder_id": folderID, "namespace": "alice.bundle", "root_path": "skills/clone", "uri_prefix": "skill://clone/", "ordinal": 0}}},
-		datatest.Table{Name: "report_skill_roots", Rows: []datatest.Row{{"namespace_id": namespace, "report_id": "r1", "version_no": 1, "skill_id": skillID, "folder_id": folderID, "skill_root": ".", "ordinal": 0}}},
+		datatest.Table{Name: "component_versions", Rows: []datatest.Row{{"namespace_id": namespace, "report_id": "r1", "version_no": 1, "state": "published", "authoring_mode": "dql", "authored_dql": "#package('reader/source')\nSELECT 1 AS id", "generated_dql": "#package('reader/source')\nSELECT 1 AS id", "component_spec_json": "{}", "type_manifest_json": "{}", "spec_format_version": "1", "spec_hash": "source", "compile_status": "valid", "datly_version": "v1", "compiler_version": "v1", "source_revision": 1, "created_by": "alice", "created_at": now}}},
+		datatest.Table{Name: "component_resource_files", Rows: []datatest.Row{{"namespace_id": namespace, "report_id": "r1", "version_no": 1, "resource_id": fileID, "namespace": "alice.bundle", "resource_path": "skills/clone/SKILL.md", "media_type": "text/markdown", "content": []byte(markdown), "content_size": len(markdown), "content_sha256": hex.EncodeToString(digest[:]), "is_binary": false, "created_at": now}}},
+		datatest.Table{Name: "component_resource_folders", Rows: []datatest.Row{{"namespace_id": namespace, "report_id": "r1", "version_no": 1, "folder_id": folderID, "namespace": "alice.bundle", "root_path": "skills/clone", "uri_prefix": "skill://clone/", "ordinal": 0}}},
+		datatest.Table{Name: "component_skill_roots", Rows: []datatest.Row{{"namespace_id": namespace, "report_id": "r1", "version_no": 1, "skill_id": skillID, "folder_id": folderID, "skill_root": ".", "ordinal": 0}}},
 	); err != nil {
 		t.Fatal(err)
 	}
@@ -189,14 +189,14 @@ func TestNativeClonePreservesPolicyAndRejectsStaleSource(t *testing.T) {
 	if err != nil || !reflect.DeepEqual(copiedSkill.Policies, skillPolicy.Policies) {
 		t.Fatalf("explicit skill policy was not preserved: %v", err)
 	}
-	for _, table := range []string{"report_resource_files", "report_resource_folders", "report_skill_roots"} {
+	for _, table := range []string{"component_resource_files", "component_resource_folders", "component_skill_roots"} {
 		var count int
 		if err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM "+table+" WHERE report_id='r1' AND version_no=2").Scan(&count); err != nil || count != 1 {
 			t.Fatalf("%s copy count=%d error=%v", table, count, err)
 		}
 	}
 	var count int
-	if err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM report_versions WHERE report_id='r1'").Scan(&count); err != nil || count != 2 {
+	if err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM component_versions WHERE report_id='r1'").Scan(&count); err != nil || count != 2 {
 		t.Fatalf("unexpected clone version count: %d %v", count, err)
 	}
 	if _, err := db.ExecContext(ctx, `CREATE TRIGGER reject_clone_policy BEFORE INSERT ON resource_policies WHEN NEW.resource_version='3' AND NEW.resource_kind='skill' BEGIN SELECT RAISE(ABORT,'injected late policy failure'); END`); err != nil {
@@ -206,7 +206,7 @@ func TestNativeClonePreservesPolicyAndRejectsStaleSource(t *testing.T) {
 	if failure.Code != 409 {
 		t.Fatalf("injected policy failure was not reached: %d %s", failure.Code, failure.Body.String())
 	}
-	for _, table := range []string{"report_versions", "report_resource_files", "report_resource_folders", "report_skill_roots"} {
+	for _, table := range []string{"component_versions", "component_resource_files", "component_resource_folders", "component_skill_roots"} {
 		var count int
 		if err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM "+table+" WHERE report_id='r1' AND version_no=3").Scan(&count); err != nil || count != 0 {
 			t.Fatalf("partial clone survived in %s: %d %v", table, count, err)
@@ -284,7 +284,7 @@ func TestNativeClonePreservesPolicyAndRejectsStaleSource(t *testing.T) {
 	if corrupt.Code != 409 {
 		t.Fatalf("corrupt source policy was not rejected: %d %s", corrupt.Code, corrupt.Body.String())
 	}
-	if err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM report_versions WHERE report_id='r1'").Scan(&count); err != nil || count != 4 {
+	if err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM component_versions WHERE report_id='r1'").Scan(&count); err != nil || count != 4 {
 		t.Fatalf("corrupt source created a partial version: %d %v", count, err)
 	}
 }

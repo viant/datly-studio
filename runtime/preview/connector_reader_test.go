@@ -30,9 +30,9 @@ INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector
 VALUES('shared-report','general','shared-report','Shared','bob','active','shared','example.com/shared','reader',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
 INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at)
 VALUES('hidden-report','general','hidden-report','Hidden','bob','active','hidden','example.com/hidden','reader',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
-INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_run)
+INSERT INTO component_acl(report_id,subject_type,subject_id,can_view,can_run)
 VALUES('shared-report','user','alice',TRUE,FALSE);
-INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_run)
+INSERT INTO component_acl(report_id,subject_type,subject_id,can_view,can_run)
 VALUES('hidden-report','role','alice',TRUE,FALSE);`)
 	if err != nil {
 		t.Fatal(err)

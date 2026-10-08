@@ -48,7 +48,7 @@ func TestReportGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 			"component_scope": "reports/first", "component_name": "first",
 			"etag": 9, "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00",
 		}}},
-		datatest.Table{Name: "report_acl", Rows: []datatest.Row{{
+		datatest.Table{Name: "component_acl", Rows: []datatest.Row{{
 			"report_id": "r1", "subject_type": "user", "subject_id": "bob", "can_view": true,
 		}}},
 	); err != nil {
@@ -254,7 +254,7 @@ func TestReportGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	if err = json.Unmarshal(structured, &mcpWire); err != nil || mcpWire["id"] != "r1" || mcpWire["ownerPackage"] != "alice" {
 		t.Fatalf("MCP report=%s err=%v", structured, err)
 	}
-	if _, err = db.ExecContext(ctx, "DELETE FROM report_acl WHERE report_id = ? AND subject_id = ?", "r1", "bob"); err != nil {
+	if _, err = db.ExecContext(ctx, "DELETE FROM component_acl WHERE report_id = ? AND subject_id = ?", "r1", "bob"); err != nil {
 		t.Fatal(err)
 	}
 	_, err = invoke("bob", "r1")

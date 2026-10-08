@@ -23,17 +23,17 @@ func TestGeneratedPackagesMatchCanonicalInventory(t *testing.T) {
 	repoRoot := filepath.Clean(filepath.Join("..", ".."))
 	canonical := map[string]bool{
 		"auth":       true,
-		"connectors": true, "namespaces": true, "components": true, "reports": true, "report_versions": true, "report_views": true,
-		"report_parameters": true, "report_cube_configs": true, "report_mcp_exposures": true,
-		"report_resource_files": true, "report_resource_folders": true, "report_skill_roots": true,
-		"runtime_generations": true, "report_warmup_runs": true, "report_publications": true, "report_acl": true,
-		"report_publication_events": true,
-		"bff_sessions":              true,
-		"authorization_predicates":  true,
-		"resource_policy":           true,
-		"resource_namespaces":       true,
-		"resource_namespace_claims": true,
-		"authorization_grants":      true,
+		"connectors": true, "namespaces": true, "components": true, "reports": true, "component_versions": true, "component_views": true,
+		"component_parameters": true, "component_cube_configs": true, "component_mcp_exposures": true,
+		"component_resource_files": true, "component_resource_folders": true, "component_skill_roots": true,
+		"runtime_generations": true, "component_warmup_runs": true, "component_publications": true, "component_acl": true,
+		"component_publication_events": true,
+		"bff_sessions":                 true,
+		"authorization_predicates":     true,
+		"resource_policy":              true,
+		"resource_namespaces":          true,
+		"resource_namespace_claims":    true,
+		"authorization_grants":         true,
 	}
 	legacy := map[string]bool{"report_filters": true}
 	support := map[string]bool{"authorization": true, "host": true, "predicatecatalog": true, "resources": true, "preview": true, "runtime": true}
@@ -52,7 +52,9 @@ func TestGeneratedPackagesMatchCanonicalInventory(t *testing.T) {
 			if label == "generated Go" && support[entry.Name()] {
 				continue
 			}
-			if !canonical[entry.Name()] {
+			// Package paths retain their public names; SQL tables use component names.
+			directoryKey := strings.Replace(entry.Name(), "report_", "component_", 1)
+			if !canonical[directoryKey] {
 				t.Errorf("%s contains unregistered component directory %q", label, entry.Name())
 			}
 		}
@@ -68,7 +70,7 @@ func TestGeneratedPackagesMatchCanonicalInventory(t *testing.T) {
 		if table == "schema_version" {
 			continue
 		}
-		if table == "report_fields" || table == "report_predicates" {
+		if table == "component_fields" || table == "component_predicates" {
 			continue
 		}
 		// This is a Studio migration sidecar that binds legacy shared policy

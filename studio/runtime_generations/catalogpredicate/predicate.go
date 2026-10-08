@@ -37,7 +37,7 @@ func (p *ReaderScope) Compute(ctx context.Context, _ any) (*xpredicate.Criteria,
 		return nil, forbidden("runtime reader subject is required")
 	}
 	criteria.Expression += ` AND (r.owner_id = ? OR EXISTS (
-SELECT 1 FROM report_acl acl WHERE acl.report_id = r.id
+SELECT 1 FROM component_acl acl WHERE acl.report_id = r.id
   AND acl.subject_type = 'user' AND acl.subject_id = ? AND acl.can_publish = TRUE))`
 	criteria.Placeholders = append(criteria.Placeholders, subject, subject)
 	return criteria, nil

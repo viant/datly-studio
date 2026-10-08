@@ -21,7 +21,7 @@ type ReportView struct {
 	SourceKind *string `sqlx:"source_kind"`
 	SourceSql *string `sqlx:"source_sql"`
 	SourceTable *string `sqlx:"source_table"`
-	Fields []*ReportField `view:"fields,type=ReportField,table=report_fields" on:"ReportId:views.report_id=ReportId:fields.report_id,VersionNo:views.version_no=VersionNo:fields.version_no,ViewId:views.view_id=ViewId:fields.view_id" sql:"uri=studio_report_views_reader_view:sql/fields.sql"`
+	Fields []*ReportField `view:"fields,type=ReportField,table=component_fields" on:"ReportId:views.report_id=ReportId:fields.report_id,VersionNo:views.version_no=VersionNo:fields.version_no,ViewId:views.view_id=ViewId:fields.view_id" sql:"uri=studio_report_views_reader_view:sql/fields.sql"`
 }
 
 // ReportField is generated canonical view metadata for view.

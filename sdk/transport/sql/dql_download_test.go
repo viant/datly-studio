@@ -53,7 +53,7 @@ func TestDownloadIncludesMoreThanOneHundredResourceFiles(t *testing.T) {
 	for i := 0; i < count; i++ {
 		name := fmt.Sprintf("assets/file-%03d.txt", i)
 		content := []byte(fmt.Sprintf("contents-%03d", i))
-		_, err := tx.ExecContext(ctx, `INSERT INTO report_resource_files
+		_, err := tx.ExecContext(ctx, `INSERT INTO component_resource_files
  (report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at)
  VALUES(?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)`, report.ID, loaded.Version.VersionNo,
 			fmt.Sprintf("%064x", i+1), "assets", name, content, len(content), fmt.Sprintf("%064x", i+1), false)
@@ -65,7 +65,7 @@ func TestDownloadIncludesMoreThanOneHundredResourceFiles(t *testing.T) {
 		t.Fatal(err)
 	}
 	var storedFiles int
-	if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_resource_files WHERE report_id=? AND version_no=?`,
+	if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_resource_files WHERE report_id=? AND version_no=?`,
 		report.ID, loaded.Version.VersionNo).Scan(&storedFiles); err != nil {
 		t.Fatal(err)
 	}
@@ -100,14 +100,14 @@ func TestDownloadIncludesMoreThanOneHundredResourceFiles(t *testing.T) {
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			resourceID := fmt.Sprintf("%064x", 1000+len(test.name))
-			_, err := db.ExecContext(ctx, `INSERT INTO report_resource_files
+			_, err := db.ExecContext(ctx, `INSERT INTO component_resource_files
  (report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at)
  VALUES(?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)`, report.ID, loaded.Version.VersionNo,
 				resourceID, "assets", test.path, []byte("bad"), 3, resourceID, false)
 			if err != nil {
 				t.Fatal(err)
 			}
-			defer db.ExecContext(ctx, `DELETE FROM report_resource_files WHERE report_id=? AND version_no=? AND resource_id=?`,
+			defer db.ExecContext(ctx, `DELETE FROM component_resource_files WHERE report_id=? AND version_no=? AND resource_id=?`,
 				report.ID, loaded.Version.VersionNo, resourceID)
 			_, err = client.Versions().Download(ctx, report.ID, loaded.Version.VersionNo)
 			var sdkErr *sdk.Error
@@ -117,7 +117,7 @@ func TestDownloadIncludesMoreThanOneHundredResourceFiles(t *testing.T) {
 		})
 	}
 	resourceID := fmt.Sprintf("%064x", 9999)
-	_, err = db.ExecContext(ctx, `INSERT INTO report_resource_files
+	_, err = db.ExecContext(ctx, `INSERT INTO component_resource_files
  (report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at)
  VALUES(?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)`, report.ID, loaded.Version.VersionNo,
 		resourceID, "assets", "assets/oversized.bin", make([]byte, componentarchive.MaxResourceBytes+1),

@@ -8,7 +8,7 @@
 #setting($_ = $case_format('lc'))
 #setting($_ = $route('/v1/studio/reports/{reportId}/versions/{versionNo}/skills', 'GET'))
 #setting($_ = $connector('studio'))
-#setting($_ = $mcp('studio.report_skill_roots.read', 'Read report skill roots'))
+#setting($_ = $mcp('studio.component_skill_roots.read', 'Read report skill roots'))
 #setting($_ = $sql_dest('skill_root', 'sql/read.sql'))
 #define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
 #define($_ = $ReportId<string>(path/reportId).Required().WithPredicate(2, 'equal', 's', 'report_id').WithPredicate(3, 'handler', 'studioauthorization.ReportSkillRead'))

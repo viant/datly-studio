@@ -30,19 +30,19 @@ func TestServiceUpAndDown(t *testing.T) {
 	assertTableExists(t, ctx, db, "connectors")
 	assertTableExists(t, ctx, db, "namespaces")
 	assertTableExists(t, ctx, db, "components")
-	assertTableExists(t, ctx, db, "report_versions")
-	assertTableExists(t, ctx, db, "report_fields")
-	assertTableExists(t, ctx, db, "report_parameters")
-	assertTableExists(t, ctx, db, "report_predicates")
-	assertTableExists(t, ctx, db, "report_views")
-	assertTableExists(t, ctx, db, "report_cube_configs")
-	assertTableExists(t, ctx, db, "report_mcp_exposures")
+	assertTableExists(t, ctx, db, "component_versions")
+	assertTableExists(t, ctx, db, "component_fields")
+	assertTableExists(t, ctx, db, "component_parameters")
+	assertTableExists(t, ctx, db, "component_predicates")
+	assertTableExists(t, ctx, db, "component_views")
+	assertTableExists(t, ctx, db, "component_cube_configs")
+	assertTableExists(t, ctx, db, "component_mcp_exposures")
 	assertTableExists(t, ctx, db, "runtime_generations")
-	assertTableExists(t, ctx, db, "report_warmup_runs")
+	assertTableExists(t, ctx, db, "component_warmup_runs")
 	assertTableExists(t, ctx, db, "bff_sessions")
-	assertTableExists(t, ctx, db, "report_publications")
-	assertTableExists(t, ctx, db, "report_publication_events")
-	assertTableExists(t, ctx, db, "report_acl")
+	assertTableExists(t, ctx, db, "component_publications")
+	assertTableExists(t, ctx, db, "component_publication_events")
+	assertTableExists(t, ctx, db, "component_acl")
 	assertTableExists(t, ctx, db, "resource_namespace_claims")
 	assertTableExists(t, ctx, db, "sqlx_sequence_reservations")
 	assertComponentsConnectorFK(t, ctx, db)
@@ -112,7 +112,7 @@ func TestVersion14CatalogRenamePreservesComponentAndVersion(t *testing.T) {
 		`INSERT INTO connectors(name,driver,owner_id,status,etag,created_at,updated_at) VALUES('main','sqlite','alice','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
 		`INSERT INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at) VALUES('alice','general','General','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
 		`INSERT INTO reports(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('c1','first','First','alice','draft','main','alice','reader',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
-		`INSERT INTO report_versions(report_id,version_no,state,authoring_mode,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('c1',1,'draft','dql','{}','1','hash','{}','pending','v1','v1',1,'alice',CURRENT_TIMESTAMP)`,
+		`INSERT INTO component_versions(report_id,version_no,state,authoring_mode,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('c1',1,'draft','dql','{}','1','hash','{}','pending','v1','v1',1,'alice',CURRENT_TIMESTAMP)`,
 	} {
 		if _, err := db.ExecContext(ctx, statement); err != nil {
 			t.Fatal(err)
@@ -132,7 +132,7 @@ func TestVersion14CatalogRenamePreservesComponentAndVersion(t *testing.T) {
 		t.Fatalf("migrated component title=%q err=%v", title, err)
 	}
 	var versions int
-	if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id='c1'`).Scan(&versions); err != nil || versions != 1 {
+	if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_versions WHERE report_id='c1'`).Scan(&versions); err != nil || versions != 1 {
 		t.Fatalf("migrated version count=%d err=%v", versions, err)
 	}
 	if err := service.Up(ctx, db); err != nil {
@@ -164,9 +164,9 @@ func TestServiceUpBackfillsResourceNamespaceClaims(t *testing.T) {
 				`INSERT INTO connectors(name,driver,owner_id,status,etag,created_at,updated_at) VALUES('main','sqlite','owner','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
 				`INSERT INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at) VALUES('owner','general','General','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
 				`INSERT INTO components(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('r1','r1','R1','owner','draft','main','reports','r1',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
-				`INSERT INTO report_versions(report_id,version_no,state,authoring_mode,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('r1',1,'draft','dql','{}','1','hash-r1','{}','pending','v1','v1',1,'owner',CURRENT_TIMESTAMP)`,
-				`INSERT INTO report_resource_files(report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at) VALUES('r1',1,'file-1','owner.docs','guide/SKILL.md','x',1,'digest',FALSE,CURRENT_TIMESTAMP)`,
-				`INSERT INTO report_resource_folders(report_id,version_no,folder_id,namespace,root_path,uri_prefix) VALUES('r1',1,'folder-1','owner.docs','guide','skill://owner-guide/')`,
+				`INSERT INTO component_versions(report_id,version_no,state,authoring_mode,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('r1',1,'draft','dql','{}','1','hash-r1','{}','pending','v1','v1',1,'owner',CURRENT_TIMESTAMP)`,
+				`INSERT INTO component_resource_files(report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at) VALUES('r1',1,'file-1','owner.docs','guide/SKILL.md','x',1,'digest',FALSE,CURRENT_TIMESTAMP)`,
+				`INSERT INTO component_resource_folders(report_id,version_no,folder_id,namespace,root_path,uri_prefix) VALUES('r1',1,'folder-1','owner.docs','guide','skill://owner-guide/')`,
 			} {
 				if _, err := db.ExecContext(ctx, statement); err != nil {
 					t.Fatal(err)
@@ -175,8 +175,8 @@ func TestServiceUpBackfillsResourceNamespaceClaims(t *testing.T) {
 			if test.conflict {
 				for _, statement := range []string{
 					`INSERT INTO components(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('r2','r2','R2','owner','draft','main','reports','r2',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
-					`INSERT INTO report_versions(report_id,version_no,state,authoring_mode,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('r2',1,'draft','dql','{}','1','hash-r2','{}','pending','v1','v1',1,'owner',CURRENT_TIMESTAMP)`,
-					`INSERT INTO report_resource_files(report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at) VALUES('r2',1,'file-2','owner.docs','other.txt','y',1,'digest',FALSE,CURRENT_TIMESTAMP)`,
+					`INSERT INTO component_versions(report_id,version_no,state,authoring_mode,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('r2',1,'draft','dql','{}','1','hash-r2','{}','pending','v1','v1',1,'owner',CURRENT_TIMESTAMP)`,
+					`INSERT INTO component_resource_files(report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at) VALUES('r2',1,'file-2','owner.docs','other.txt','y',1,'digest',FALSE,CURRENT_TIMESTAMP)`,
 				} {
 					if _, err := db.ExecContext(ctx, statement); err != nil {
 						t.Fatal(err)
@@ -321,14 +321,14 @@ func TestServiceUpAddsDesiredPublicationVersion(t *testing.T) {
 	ctx := context.Background()
 	db := openTestDB(t)
 	if _, err := db.ExecContext(ctx, `
-CREATE TABLE report_publications (
+CREATE TABLE component_publications (
   report_id VARCHAR(64) NOT NULL PRIMARY KEY,
   active_version_no INT NOT NULL
 );
 CREATE TABLE reports (id VARCHAR(64) NOT NULL PRIMARY KEY);
 CREATE TABLE schema_version(version INTEGER NOT NULL);
 INSERT INTO schema_version(version) VALUES (3);
-INSERT INTO report_publications(report_id,active_version_no) VALUES('reader',7);`); err != nil {
+INSERT INTO component_publications(report_id,active_version_no) VALUES('reader',7);`); err != nil {
 		t.Fatal(err)
 	}
 	service, _ := New()
@@ -336,14 +336,14 @@ INSERT INTO report_publications(report_id,active_version_no) VALUES('reader',7);
 		t.Fatal(err)
 	}
 	var desired int
-	if err := db.QueryRowContext(ctx, `SELECT desired_version_no FROM report_publications WHERE report_id='reader'`).Scan(&desired); err != nil || desired != 7 {
+	if err := db.QueryRowContext(ctx, `SELECT desired_version_no FROM component_publications WHERE report_id='reader'`).Scan(&desired); err != nil || desired != 7 {
 		t.Fatalf("desired version=%d err=%v", desired, err)
 	}
 	version, err := service.CurrentVersion(ctx, db)
 	if err != nil || version != schema.CanonicalVersion {
 		t.Fatalf("version=%d err=%v", version, err)
 	}
-	assertTableExists(t, ctx, db, "report_warmup_runs")
+	assertTableExists(t, ctx, db, "component_warmup_runs")
 	assertTableExists(t, ctx, db, "bff_sessions")
 }
 
@@ -374,7 +374,7 @@ func TestServiceUpAddsOwnerScopedPublicationEvents(t *testing.T) {
 	if err := service.Up(ctx, db); err != nil {
 		t.Fatal(err)
 	}
-	assertTableExists(t, ctx, db, "report_publication_events")
+	assertTableExists(t, ctx, db, "component_publication_events")
 	version, err := service.CurrentVersion(ctx, db)
 	if err != nil || version != schema.CanonicalVersion {
 		t.Fatalf("version=%d err=%v", version, err)
@@ -385,7 +385,7 @@ func TestServiceUpAddsReportACLEtag(t *testing.T) {
 	ctx := context.Background()
 	db := openTestDB(t)
 	if _, err := db.ExecContext(ctx, `
-CREATE TABLE report_acl (
+CREATE TABLE component_acl (
   report_id VARCHAR(64) NOT NULL,
   subject_type VARCHAR(32) NOT NULL,
   subject_id VARCHAR(128) NOT NULL,
@@ -399,7 +399,7 @@ CREATE TABLE report_acl (
 CREATE TABLE reports(id VARCHAR(64) NOT NULL PRIMARY KEY);
 CREATE TABLE schema_version(version INTEGER NOT NULL);
 INSERT INTO schema_version(version) VALUES (7);
-INSERT INTO report_acl(report_id,subject_type,subject_id,can_view) VALUES ('reader','user','alice',TRUE);`); err != nil {
+INSERT INTO component_acl(report_id,subject_type,subject_id,can_view) VALUES ('reader','user','alice',TRUE);`); err != nil {
 		t.Fatal(err)
 	}
 	service, _ := New()
@@ -407,7 +407,7 @@ INSERT INTO report_acl(report_id,subject_type,subject_id,can_view) VALUES ('read
 		t.Fatal(err)
 	}
 	var etag int
-	if err := db.QueryRowContext(ctx, `SELECT etag FROM report_acl WHERE report_id='reader' AND subject_id='alice'`).Scan(&etag); err != nil || etag != 1 {
+	if err := db.QueryRowContext(ctx, `SELECT etag FROM component_acl WHERE report_id='reader' AND subject_id='alice'`).Scan(&etag); err != nil || etag != 1 {
 		t.Fatalf("ACL etag=%d err=%v", etag, err)
 	}
 	version, err := service.CurrentVersion(ctx, db)
@@ -423,13 +423,13 @@ func TestServiceUpBackfillsWarmupAuditAndToken(t *testing.T) {
 CREATE TABLE schema_version(version INTEGER NOT NULL);
 INSERT INTO schema_version(version) VALUES (11);
 CREATE TABLE reports(id VARCHAR(64) NOT NULL PRIMARY KEY);
-CREATE TABLE report_warmup_runs (
+CREATE TABLE component_warmup_runs (
   run_id TEXT PRIMARY KEY, status TEXT NOT NULL, requested_at DATETIME NOT NULL,
   requested_by TEXT NOT NULL, started_at DATETIME, completed_at DATETIME
 );
-INSERT INTO report_warmup_runs(run_id,status,requested_at,requested_by)
+INSERT INTO component_warmup_runs(run_id,status,requested_at,requested_by)
   VALUES('accepted','accepted','2026-09-24 10:00:00','alice');
-INSERT INTO report_warmup_runs(run_id,status,requested_at,requested_by,started_at,completed_at)
+INSERT INTO component_warmup_runs(run_id,status,requested_at,requested_by,started_at,completed_at)
   VALUES('completed','completed','2026-09-24 10:00:00','bob',
     '2026-09-24 10:01:00','2026-09-24 10:02:00');`); err != nil {
 		t.Fatal(err)
@@ -446,7 +446,7 @@ INSERT INTO report_warmup_runs(run_id,status,requested_at,requested_by,started_a
 	} {
 		var createdAt, updatedAt, createdBy, updatedBy string
 		if err := db.QueryRowContext(ctx, `SELECT created_at,updated_at,created_by,updated_by
-			FROM report_warmup_runs WHERE run_id=?`, test.id).Scan(&createdAt, &updatedAt, &createdBy, &updatedBy); err != nil {
+			FROM component_warmup_runs WHERE run_id=?`, test.id).Scan(&createdAt, &updatedAt, &createdBy, &updatedBy); err != nil {
 			t.Fatal(err)
 		}
 		if createdAt != "2026-09-24 10:00:00" || updatedAt != test.updatedAt ||
@@ -558,7 +558,7 @@ VALUES ('r1', 'r1', 'Report 1', 'system', 'draft', 'analytics', 'reports', 'r1',
 	}
 
 	_, err = db.ExecContext(ctx, `
-INSERT INTO report_publications(report_id, active_version_no, runtime_revision, published_by, published_at)
+INSERT INTO component_publications(report_id, active_version_no, runtime_revision, published_by, published_at)
 VALUES ('r1', 99, 'rev-1', 'system', CURRENT_TIMESTAMP)`)
 	if err == nil {
 		t.Fatalf("expected missing version foreign key violation")

@@ -34,8 +34,8 @@ func TestVersionExportDQLSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 		datatest.Table{Name: "connectors", Rows: []datatest.Row{{"name": "main", "driver": "sqlite", "owner_id": "alice", "status": "active", "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"}}},
 		datatest.Table{Name: "namespaces", Rows: []datatest.Row{{"owner_id": "alice", "name": "general", "title": "General", "status": "active", "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"}}},
 		datatest.Table{Name: "components", Rows: []datatest.Row{{"id": "r1", "slug": "first", "title": "First", "owner_id": "alice", "status": "active", "default_connector_name": "main", "namespace": "general", "component_scope": "reports/first", "component_name": "first", "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"}}},
-		datatest.Table{Name: "report_acl", Rows: []datatest.Row{{"report_id": "r1", "subject_type": "user", "subject_id": "viewer", "can_view": true}, {"report_id": "r1", "subject_type": "user", "subject_id": "author", "can_view": true, "can_use_dql": true}}},
-		datatest.Table{Name: "report_versions", Rows: []datatest.Row{
+		datatest.Table{Name: "component_acl", Rows: []datatest.Row{{"report_id": "r1", "subject_type": "user", "subject_id": "viewer", "can_view": true}, {"report_id": "r1", "subject_type": "user", "subject_id": "author", "can_view": true, "can_use_dql": true}}},
+		datatest.Table{Name: "component_versions", Rows: []datatest.Row{
 			{"report_id": "r1", "version_no": 1, "state": "draft", "authoring_mode": "dql", "authored_sql": "fallback SQL", "authored_dql": "authored DQL", "generated_dql": "generated DQL", "component_spec_json": "{}", "type_manifest_json": "{}", "spec_format_version": "1", "spec_hash": "hash-1", "compile_status": "valid", "datly_version": "v1", "compiler_version": "v1", "source_revision": 1, "created_by": "alice", "created_at": "2026-09-17 09:00:00"},
 			{"report_id": "r1", "version_no": 2, "state": "draft", "authoring_mode": "dql", "authored_sql": "fallback SQL", "authored_dql": "authored DQL", "generated_dql": "", "component_spec_json": "{}", "type_manifest_json": "{}", "spec_format_version": "1", "spec_hash": "hash-2", "compile_status": "valid", "datly_version": "v1", "compiler_version": "v1", "source_revision": 1, "created_by": "alice", "created_at": "2026-09-17 09:00:00"},
 			{"report_id": "r1", "version_no": 3, "state": "draft", "authoring_mode": "sql", "authored_sql": "fallback SQL", "authored_dql": "", "generated_dql": "", "component_spec_json": "{}", "type_manifest_json": "{}", "spec_format_version": "1", "spec_hash": "hash-3", "compile_status": "valid", "datly_version": "v1", "compiler_version": "v1", "source_revision": 1, "created_by": "alice", "created_at": "2026-09-17 09:00:00"},
@@ -166,7 +166,7 @@ func TestVersionExportDQLSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	if err != nil || bytes.Contains(structured, []byte("generated DQL")) {
 		t.Fatalf("MCP viewer source leaked: %s err=%v", structured, err)
 	}
-	if _, err = db.ExecContext(ctx, "DELETE FROM report_acl WHERE report_id = ? AND subject_id = ?", "r1", "author"); err != nil {
+	if _, err = db.ExecContext(ctx, "DELETE FROM component_acl WHERE report_id = ? AND subject_id = ?", "r1", "author"); err != nil {
 		t.Fatal(err)
 	}
 	response = httptest.NewRecorder()

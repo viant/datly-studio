@@ -212,7 +212,7 @@ dataSources:
 			if changedDQL == exact.dql {
 				t.Fatal("component SQL fixture did not contain its expected source")
 			}
-			if _, err := host.studio.ExecContext(requestCtx, "UPDATE report_versions SET generated_dql=?, authored_dql=? WHERE report_id='records' AND version_no=1", changedDQL, changedDQL); err != nil {
+			if _, err := host.studio.ExecContext(requestCtx, "UPDATE component_versions SET generated_dql=?, authored_dql=? WHERE report_id='records' AND version_no=1", changedDQL, changedDQL); err != nil {
 				t.Fatal(err)
 			}
 			if stale := fetch(fixture); strings.Contains(stale, "ready") || !strings.Contains(stale, "isError") {

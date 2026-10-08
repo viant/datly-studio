@@ -46,7 +46,7 @@ func TestComponentSlugMigrationPreservesIDsChildrenAndForeignKeys(t *testing.T) 
 	if _, err := db.ExecContext(ctx, insert, a, "a", "alpha", "scope/a"); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := db.ExecContext(ctx, `INSERT INTO report_acl(namespace_id,report_id,subject_type,subject_id,can_view) VALUES(?,'a','user','viewer',1)`, a); err != nil {
+	if _, err := db.ExecContext(ctx, `INSERT INTO component_acl(namespace_id,report_id,subject_type,subject_id,can_view) VALUES(?,'a','user','viewer',1)`, a); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := db.ExecContext(ctx, "PRAGMA foreign_keys=ON"); err != nil {
@@ -67,13 +67,13 @@ func TestComponentSlugMigrationPreservesIDsChildrenAndForeignKeys(t *testing.T) 
 		t.Fatal("same-workspace duplicate slug accepted")
 	}
 	var count int
-	if err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM report_acl WHERE report_id='a'").Scan(&count); err != nil || count != 1 {
+	if err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM component_acl WHERE report_id='a'").Scan(&count); err != nil || count != 1 {
 		t.Fatalf("child lost in migration: %d %v", count, err)
 	}
 	if _, err := db.ExecContext(ctx, "DELETE FROM components WHERE id='a'"); err != nil {
 		t.Fatal(err)
 	}
-	if err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM report_acl WHERE report_id='a'").Scan(&count); err != nil || count != 0 {
+	if err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM component_acl WHERE report_id='a'").Scan(&count); err != nil || count != 0 {
 		t.Fatalf("foreign key target changed: %d %v", count, err)
 	}
 	if err := service.Up(ctx, db); err != nil {

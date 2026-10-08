@@ -28,9 +28,9 @@ func migrateLegacyGenerationOwnership(ctx context.Context, db *sql.DB) error {
 // than becoming visible in an arbitrarily chosen namespace.
 func assignLegacyGenerationOwnership(ctx context.Context, tx *sql.Tx) error {
 	for table, columns := range map[string][]string{
-		"runtime_generations": {"namespace_id", "generation_no", "report_count"},
-		"report_publications": {"report_id", "active_generation", "desired_generation"},
-		"components":          {"id", "namespace_id"},
+		"runtime_generations":    {"namespace_id", "generation_no", "report_count"},
+		"component_publications": {"report_id", "active_generation", "desired_generation"},
+		"components":             {"id", "namespace_id"},
 	} {
 		present, err := sqliteTableExists(ctx, tx, table)
 		if err != nil {
@@ -50,14 +50,14 @@ func assignLegacyGenerationOwnership(ctx context.Context, tx *sql.Tx) error {
 		}
 	}
 	_, err := tx.ExecContext(ctx, `UPDATE runtime_generations AS g
-SET namespace_id=(SELECT MIN(c.namespace_id) FROM report_publications p JOIN components c ON c.id=p.report_id
+SET namespace_id=(SELECT MIN(c.namespace_id) FROM component_publications p JOIN components c ON c.id=p.report_id
     WHERE p.active_generation=g.generation_no OR p.desired_generation=g.generation_no)
 WHERE g.namespace_id='' AND g.report_count>0
-AND (SELECT COUNT(DISTINCT p.report_id) FROM report_publications p
+AND (SELECT COUNT(DISTINCT p.report_id) FROM component_publications p
     WHERE p.active_generation=g.generation_no OR p.desired_generation=g.generation_no)=g.report_count
-AND (SELECT COUNT(DISTINCT c.id) FROM report_publications p JOIN components c ON c.id=p.report_id
+AND (SELECT COUNT(DISTINCT c.id) FROM component_publications p JOIN components c ON c.id=p.report_id
     WHERE (p.active_generation=g.generation_no OR p.desired_generation=g.generation_no) AND c.namespace_id<>'')=g.report_count
-AND (SELECT COUNT(DISTINCT c.namespace_id) FROM report_publications p JOIN components c ON c.id=p.report_id
+AND (SELECT COUNT(DISTINCT c.namespace_id) FROM component_publications p JOIN components c ON c.id=p.report_id
     WHERE p.active_generation=g.generation_no OR p.desired_generation=g.generation_no)=1`)
 	return err
 }

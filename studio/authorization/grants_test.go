@@ -27,8 +27,8 @@ func TestLifecycleGrantReaderRequiresLiveExactUserGrant(t *testing.T) {
 	for _, statement := range []string{
 		`INSERT INTO connectors(name,driver,owner_id,status,etag,created_at,updated_at) VALUES('main','sqlite','owner','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
 		`INSERT INTO components(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('report','report','Report','owner','active','main','reports','report',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
-		`INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_edit,can_publish) VALUES('report','user','alice',TRUE,FALSE,FALSE)`,
-		`INSERT INTO report_acl(report_id,subject_type,subject_id,can_publish) VALUES('report','role','alice',TRUE)`,
+		`INSERT INTO component_acl(report_id,subject_type,subject_id,can_view,can_edit,can_publish) VALUES('report','user','alice',TRUE,FALSE,FALSE)`,
+		`INSERT INTO component_acl(report_id,subject_type,subject_id,can_publish) VALUES('report','role','alice',TRUE)`,
 	} {
 		if _, err := db.ExecContext(ctx, statement); err != nil {
 			t.Fatal(err)
@@ -63,7 +63,7 @@ func TestLifecycleGrantReaderRequiresLiveExactUserGrant(t *testing.T) {
 	denied(AuthorizeGlobal(ctx, provider, claims("alice"), permissionPublish))
 	denied(AuthorizeGlobal(ctx, provider, claims("owner"), permissionPublish))
 	denied(AuthorizeReport(ctx, provider, claims("alice"), "missing", permissionView))
-	if _, err := db.ExecContext(ctx, `UPDATE report_acl SET can_publish=TRUE WHERE report_id='report' AND subject_type='user' AND subject_id='alice'`); err != nil {
+	if _, err := db.ExecContext(ctx, `UPDATE component_acl SET can_publish=TRUE WHERE report_id='report' AND subject_type='user' AND subject_id='alice'`); err != nil {
 		t.Fatal(err)
 	}
 	if err := AuthorizeReport(ctx, provider, claims("alice"), "report", permissionPublish); err != nil {

@@ -1,2 +1,2 @@
 SELECT p.*, '' AS should_delete
-FROM report_parameters p
+FROM component_parameters p

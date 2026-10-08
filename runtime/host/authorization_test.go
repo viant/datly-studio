@@ -25,8 +25,8 @@ func TestAuthorizeRunRequiresOwnerOrCanRun(t *testing.T) {
 INSERT INTO connectors(name,driver,owner_id,status,etag,created_at,updated_at) VALUES('main','sqlite','owner','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
 INSERT INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at) VALUES('owner','general','General','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
 INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('reader','general','reader','Reader','owner','active','main','example.com/reader','reader',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
-INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_run) VALUES('reader','user','runner',TRUE,TRUE);
-INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_run) VALUES('reader','user','viewer',TRUE,FALSE);`)
+INSERT INTO component_acl(report_id,subject_type,subject_id,can_view,can_run) VALUES('reader','user','runner',TRUE,TRUE);
+INSERT INTO component_acl(report_id,subject_type,subject_id,can_view,can_run) VALUES('reader','user','viewer',TRUE,FALSE);`)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,7 +51,7 @@ INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_run) VALUE
 		t.Fatal("view-only subject was allowed to execute the reader")
 	}
 	for _, subject := range []string{"runner", "viewer"} {
-		if _, err = db.Exec(`UPDATE report_acl SET subject_type='role' WHERE report_id='reader' AND subject_id=?`, subject); err != nil {
+		if _, err = db.Exec(`UPDATE component_acl SET subject_type='role' WHERE report_id='reader' AND subject_id=?`, subject); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -99,11 +99,11 @@ func TestDefinitionsSeparateActiveAndCandidateVersions(t *testing.T) {
 INSERT INTO connectors(name,driver,dsn_template,owner_id,status,etag,created_at,updated_at) VALUES('main','sqlite','file:test.db','owner','active',1,?,?);
 INSERT INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at) VALUES('owner','general','General','active',1,?,?);
 INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('reader','general','reader','Reader','owner','active','main','example.com/reader','reader',1,?,?);
-INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('reader',1,'published','dql','SELECT 1','{}','1','one','{}','valid','v1','v1',1,'owner',?);
-INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('reader',2,'validated','dql','SELECT 2','{}','1','two','{}','valid','v1','v1',2,'owner',?);
+INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('reader',1,'published','dql','SELECT 1','{}','1','one','{}','valid','v1','v1',1,'owner',?);
+INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('reader',2,'validated','dql','SELECT 2','{}','1','two','{}','valid','v1','v1',2,'owner',?);
 INSERT INTO runtime_generations(generation_no,source_revision,status,report_count,build_manifest_json,requested_by,requested_at,activated_at) VALUES(1,'one','active',1,'{}','owner',?,?);
 INSERT INTO runtime_generations(generation_no,source_revision,status,report_count,build_manifest_json,requested_by,requested_at) VALUES(2,'two','building',0,'{}','owner',?);
-INSERT INTO report_publications(report_id,active_version_no,desired_version_no,desired_generation,active_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at) VALUES('reader',1,2,2,1,'pending','two','two','owner',?,?);`,
+INSERT INTO component_publications(report_id,active_version_no,desired_version_no,desired_generation,active_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at) VALUES('reader',1,2,2,1,'pending','two','two','owner',?,?);`,
 		now, now, now, now, now, now, now, now, now, now, now, now)
 	if err != nil {
 		t.Fatal(err)
@@ -135,8 +135,8 @@ INSERT INTO report_publications(report_id,active_version_no,desired_version_no,d
 		t.Fatal(err)
 	}
 	if _, err := db.Exec(`INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('other-reader','other','other-reader','Other','owner','active','main','example.com/other','reader',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
- INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('other-reader',1,'published','dql','SELECT 99','{}','1','other','{}','valid','v1','v1',1,'owner',CURRENT_TIMESTAMP);
- INSERT INTO report_publications(report_id,active_version_no,active_generation,desired_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at) VALUES('other-reader',1,1,1,'active','other','other','owner',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);`); err != nil {
+ INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('other-reader',1,'published','dql','SELECT 99','{}','1','other','{}','valid','v1','v1',1,'owner',CURRENT_TIMESTAMP);
+ INSERT INTO component_publications(report_id,active_version_no,active_generation,desired_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at) VALUES('other-reader',1,1,1,'active','other','other','owner',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);`); err != nil {
 		t.Fatal(err)
 	}
 	service.config.NamespaceID = aID
@@ -150,7 +150,7 @@ INSERT INTO report_publications(report_id,active_version_no,desired_version_no,d
 		}
 	}
 	service.config.NamespaceID = aID
-	if _, err = db.Exec(`UPDATE report_publications SET desired_version_no=NULL,publication_status='unpublishing' WHERE report_id='reader'`); err != nil {
+	if _, err = db.Exec(`UPDATE component_publications SET desired_version_no=NULL,publication_status='unpublishing' WHERE report_id='reader'`); err != nil {
 		t.Fatal(err)
 	}
 	items, err := service.definitions(ctx, &candidate)

@@ -131,37 +131,37 @@ func insertReport(ctx context.Context, tx *sql.Tx, id, slug, title, description,
 }
 
 func insertVersion(ctx context.Context, tx *sql.Tx, reportID string, versionNo int, state, mode, authoredSQL, authoredDQL, hash, createdBy string, createdAt time.Time, publishedAt *time.Time) error {
-	_, err := tx.ExecContext(ctx, `INSERT INTO report_versions(report_id, version_no, state, authoring_mode, authored_sql, authored_dql, component_spec_json, spec_format_version, spec_hash, generated_dql, type_manifest_json, compile_status, datly_version, compiler_version, source_revision, notes, created_by, created_at, validated_at, published_at) VALUES (?, ?, ?, ?, ?, ?, '{}', 'studio.v1', ?, ?, '{}', 'valid', 'v1', 'studio.v1', 1, ?, ?, ?, ?, ?)`, reportID, versionNo, state, mode, authoredSQL, authoredDQL, hash, authoredDQL, "sample", createdBy, createdAt, publishedAt, publishedAt)
+	_, err := tx.ExecContext(ctx, `INSERT INTO component_versions(report_id, version_no, state, authoring_mode, authored_sql, authored_dql, component_spec_json, spec_format_version, spec_hash, generated_dql, type_manifest_json, compile_status, datly_version, compiler_version, source_revision, notes, created_by, created_at, validated_at, published_at) VALUES (?, ?, ?, ?, ?, ?, '{}', 'studio.v1', ?, ?, '{}', 'valid', 'v1', 'studio.v1', 1, ?, ?, ?, ?, ?)`, reportID, versionNo, state, mode, authoredSQL, authoredDQL, hash, authoredDQL, "sample", createdBy, createdAt, publishedAt, publishedAt)
 	return err
 }
 
 func insertView(ctx context.Context, tx *sql.Tx, reportID string, versionNo int, viewID, name, role, sourceKind, sourceTable, connector string) error {
-	_, err := tx.ExecContext(ctx, `INSERT INTO report_views(report_id, version_no, view_id, view_identity, name, role, connector_name, source_kind, source_table) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, reportID, versionNo, viewID, reportID+":"+viewID, name, role, connector, sourceKind, sourceTable)
+	_, err := tx.ExecContext(ctx, `INSERT INTO component_views(report_id, version_no, view_id, view_identity, name, role, connector_name, source_kind, source_table) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, reportID, versionNo, viewID, reportID+":"+viewID, name, role, connector, sourceKind, sourceTable)
 	return err
 }
 
 func insertField(ctx context.Context, tx *sql.Tx, reportID string, versionNo int, viewID, field, source, goType string, filterable, orderable, groupable, measurable bool) error {
-	_, err := tx.ExecContext(ctx, `INSERT INTO report_fields(report_id, version_no, view_id, field_name, source_column, go_type, nullable, ordinal, filterable, orderable, groupable, measurable, metadata_json) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, '{}')`, reportID, versionNo, viewID, field, source, goType, ordinal(field), boolToInt(filterable), boolToInt(orderable), boolToInt(groupable), boolToInt(measurable))
+	_, err := tx.ExecContext(ctx, `INSERT INTO component_fields(report_id, version_no, view_id, field_name, source_column, go_type, nullable, ordinal, filterable, orderable, groupable, measurable, metadata_json) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, '{}')`, reportID, versionNo, viewID, field, source, goType, ordinal(field), boolToInt(filterable), boolToInt(orderable), boolToInt(groupable), boolToInt(measurable))
 	return err
 }
 
 func insertParameter(ctx context.Context, tx *sql.Tx, reportID string, versionNo int, name, sourceKind, sourceName, typeExpr string, required bool, ordinalNo int) error {
-	_, err := tx.ExecContext(ctx, `INSERT INTO report_parameters(report_id, version_no, parameter_id, parameter_identity, name, source_kind, source_name, type_expr, required, ordinal, metadata_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '{}')`, reportID, versionNo, name, reportID+":"+name, name, sourceKind, sourceName, typeExpr, boolToInt(required), ordinalNo)
+	_, err := tx.ExecContext(ctx, `INSERT INTO component_parameters(report_id, version_no, parameter_id, parameter_identity, name, source_kind, source_name, type_expr, required, ordinal, metadata_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '{}')`, reportID, versionNo, name, reportID+":"+name, name, sourceKind, sourceName, typeExpr, boolToInt(required), ordinalNo)
 	return err
 }
 
 func insertPredicate(ctx context.Context, tx *sql.Tx, reportID string, versionNo int, parameter string, indexNo int, name, args string) error {
-	_, err := tx.ExecContext(ctx, `INSERT INTO report_predicates(report_id, version_no, parameter_id, predicate_index, name, args_json) VALUES (?, ?, ?, ?, ?, ?)`, reportID, versionNo, parameter, indexNo, name, args)
+	_, err := tx.ExecContext(ctx, `INSERT INTO component_predicates(report_id, version_no, parameter_id, predicate_index, name, args_json) VALUES (?, ?, ?, ?, ?, ?)`, reportID, versionNo, parameter, indexNo, name, args)
 	return err
 }
 
 func insertCube(ctx context.Context, tx *sql.Tx, reportID string, versionNo int) error {
-	_, err := tx.ExecContext(ctx, `INSERT INTO report_cube_configs(report_id, version_no, cube_enabled, dimensions_json, measures_json, compose_enabled) VALUES (?, ?, 1, '["order_date"]', '["order_count"]', 1)`, reportID, versionNo)
+	_, err := tx.ExecContext(ctx, `INSERT INTO component_cube_configs(report_id, version_no, cube_enabled, dimensions_json, measures_json, compose_enabled) VALUES (?, ?, 1, '["order_date"]', '["order_count"]', 1)`, reportID, versionNo)
 	return err
 }
 
 func insertMCPExposure(ctx context.Context, tx *sql.Tx, reportID string, versionNo int) error {
-	_, err := tx.ExecContext(ctx, `INSERT INTO report_mcp_exposures(report_id, version_no, exposure_id, route_id, route_method, route_path, kind, name, enabled, ordinal) VALUES (?, ?, 'exposure-orders-daily', 'route-orders-daily', 'GET', '/v1/studio/reports/orders-daily', 'tool', 'orders_daily', 1, 0)`, reportID, versionNo)
+	_, err := tx.ExecContext(ctx, `INSERT INTO component_mcp_exposures(report_id, version_no, exposure_id, route_id, route_method, route_path, kind, name, enabled, ordinal) VALUES (?, ?, 'exposure-orders-daily', 'route-orders-daily', 'GET', '/v1/studio/reports/orders-daily', 'tool', 'orders_daily', 1, 0)`, reportID, versionNo)
 	return err
 }
 
@@ -169,12 +169,12 @@ func insertPublication(ctx context.Context, tx *sql.Tx, reportID string, version
 	if _, err := tx.ExecContext(ctx, `INSERT INTO runtime_generations(generation_no, source_revision, status, report_count, build_manifest_json, requested_by, requested_at, activated_at) VALUES (?, ?, 'active', 1, '{}', ?, ?, ?)`, generation, revision, publishedBy, publishedAt, publishedAt); err != nil {
 		return err
 	}
-	_, err := tx.ExecContext(ctx, `INSERT INTO report_publications(report_id, active_version_no, desired_version_no, desired_generation, active_generation, publication_status, runtime_revision, spec_hash, published_by, published_at, activated_at) VALUES (?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?)`, reportID, versionNo, versionNo, generation, generation, revision, "published-orders-daily", publishedBy, publishedAt, publishedAt)
+	_, err := tx.ExecContext(ctx, `INSERT INTO component_publications(report_id, active_version_no, desired_version_no, desired_generation, active_generation, publication_status, runtime_revision, spec_hash, published_by, published_at, activated_at) VALUES (?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?)`, reportID, versionNo, versionNo, generation, generation, revision, "published-orders-daily", publishedBy, publishedAt, publishedAt)
 	return err
 }
 
 func insertACL(ctx context.Context, tx *sql.Tx, reportID, subjectType, subjectID string, view, run, edit, publish, dql bool) error {
-	_, err := tx.ExecContext(ctx, `INSERT INTO report_acl(report_id, subject_type, subject_id, can_view, can_run, can_edit, can_publish, can_use_dql) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, reportID, subjectType, subjectID, boolToInt(view), boolToInt(run), boolToInt(edit), boolToInt(publish), boolToInt(dql))
+	_, err := tx.ExecContext(ctx, `INSERT INTO component_acl(report_id, subject_type, subject_id, can_view, can_run, can_edit, can_publish, can_use_dql) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, reportID, subjectType, subjectID, boolToInt(view), boolToInt(run), boolToInt(edit), boolToInt(publish), boolToInt(dql))
 	return err
 }
 

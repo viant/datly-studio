@@ -12,7 +12,7 @@ func init() {}
 
 // Component is the generated component scaffold for skill.
 type SkillComponent struct {
-	Contract xdatly.Component[Input, Output] "component:\"skill,path=/v1/studio/reports/{reportId}/versions/{versionNo}/skills,method=GET,connector=studio,view=skill\" routeName:\"skill\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.report_skill_roots.read\\\",\\\"description\\\":\\\"Read report skill roots\\\"}]\" caseFormat:\"lc\""
+	Contract xdatly.Component[Input, Output] "component:\"skill,path=/v1/studio/reports/{reportId}/versions/{versionNo}/skills,method=GET,connector=studio,view=skill\" routeName:\"skill\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.component_skill_roots.read\\\",\\\"description\\\":\\\"Read report skill roots\\\"}]\" caseFormat:\"lc\""
 }
 
 // SkillDatlyType keeps the public component type linked for blank-import discovery.

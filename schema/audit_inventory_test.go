@@ -22,7 +22,7 @@ func TestCanonicalAuditColumnInventory(t *testing.T) {
 		"resource_policy_revisions":          {},
 		"resource_policy_namespace_bindings": {},
 		"resource_namespace_claims":          {},
-		"report_warmup_runs":                 {},
+		"component_warmup_runs":              {},
 	}
 
 	// Temporary migration backlog, not permanent exemptions. Every table in
@@ -30,13 +30,13 @@ func TestCanonicalAuditColumnInventory(t *testing.T) {
 	// added table must already be audited or deliberately join the backlog.
 	legacyBacklog := map[string]struct{}{
 		"connectors": {}, "namespaces": {}, "authorization_predicates": {},
-		"components": {}, "report_versions": {}, "report_views": {},
-		"report_fields": {}, "report_parameters": {}, "report_predicates": {},
-		"report_cube_configs": {}, "report_mcp_exposures": {},
-		"report_resource_files": {}, "report_resource_folders": {},
-		"report_skill_roots": {}, "runtime_generations": {},
-		"bff_sessions": {}, "report_publications": {},
-		"report_publication_events": {}, "report_acl": {},
+		"components": {}, "component_versions": {}, "component_views": {},
+		"component_fields": {}, "component_parameters": {}, "component_predicates": {},
+		"component_cube_configs": {}, "component_mcp_exposures": {},
+		"component_resource_files": {}, "component_resource_folders": {},
+		"component_skill_roots": {}, "runtime_generations": {},
+		"bff_sessions": {}, "component_publications": {},
+		"component_publication_events": {}, "component_acl": {},
 	}
 
 	rows, err := db.QueryContext(context.Background(), `SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name`)

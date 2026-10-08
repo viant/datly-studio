@@ -8,7 +8,7 @@
 #setting($_ = $case_format('lc'))
 #setting($_ = $route('/v1/studio/reports/{reportId}/versions/{versionNo}/resources/files', 'GET'))
 #setting($_ = $connector('studio'))
-#setting($_ = $mcp('studio.report_resource_files.read', 'Read report resource files'))
+#setting($_ = $mcp('studio.component_resource_files.read', 'Read report resource files'))
 #setting($_ = $sql_dest('resource_file', 'sql/read.sql'))
 #define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
 #define($_ = $ReportId<string>(path/reportId).Required().WithPredicate(2, 'equal', 'f', 'report_id').WithPredicate(3, 'handler', 'studioauthorization.ReportResourceFileRead'))

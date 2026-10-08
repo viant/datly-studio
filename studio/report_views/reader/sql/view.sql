@@ -3,7 +3,7 @@ SELECT views."report_id", views."version_no", views."view_id", views."view_ident
        v.parent_view_id, v.relation_name, v.name, v.namespace,
        v.role, v.cardinality, v.connector_name, v.source_kind,
        v.source_sql, v.source_table, v.metadata_json
-FROM report_views v
+FROM component_views v
 WHERE v.report_id = $ReportId
   AND v.version_no = $VersionNo
 ${predicate.Builder().CombineAnd(

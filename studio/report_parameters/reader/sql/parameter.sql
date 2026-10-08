@@ -3,7 +3,7 @@ SELECT parameters."report_id", parameters."version_no", parameters."parameter_id
        p.name, p.source_kind, p.source_name, p.type_expr, p.required,
        p.emit_output, p.query_selector_json, p.codec_json,
        p.activation_json, p.metadata_json
-FROM report_parameters p
+FROM component_parameters p
 WHERE p.report_id = $ReportId
   AND p.version_no = $VersionNo
 ${predicate.Builder().CombineAnd(

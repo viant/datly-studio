@@ -40,7 +40,7 @@ func TestExpiredStageRecoveryUsesMatchedDatlyComponents(t *testing.T) {
 	for _, id := range []string{"restage", "unpublish", "first"} {
 		mustExec(`INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at)
 			VALUES(?,'general',?,?, 'owner','active','main','example.com/reader',?,1,?,?)`, id, id, id, id, now, now)
-		mustExec(`INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at,published_at)
+		mustExec(`INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at,published_at)
 			VALUES(?,1,'published','dql','SELECT 1','{}','1',?,'{}','valid','v1','v1',1,'owner',?,?)`, id, "spec-"+id, now, now)
 	}
 	mustExec(`INSERT INTO runtime_generations(generation_no,source_revision,status,report_count,build_manifest_json,requested_by,requested_at,activated_at)
@@ -63,7 +63,7 @@ func TestExpiredStageRecoveryUsesMatchedDatlyComponents(t *testing.T) {
 		{id: "unpublish", status: "unpublishing", generation: 4, active: int64(1), desired: nil},
 		{id: "first", status: "pending", generation: 3, active: nil, desired: 1},
 	} {
-		mustExec(`INSERT INTO report_publications(report_id,active_version_no,desired_version_no,desired_generation,active_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at)
+		mustExec(`INSERT INTO component_publications(report_id,active_version_no,desired_version_no,desired_generation,active_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at)
 			VALUES(?,1,?,?,?,?, 'staged','staged-spec','owner',?,?)`, item.id, item.desired, item.generation, item.active, item.status, now, now)
 	}
 	transport := &Transport{DB: db}
@@ -97,7 +97,7 @@ func TestExpiredStageRecoveryUsesMatchedDatlyComponents(t *testing.T) {
 	if err := rejected.Rollback(); err != nil {
 		t.Fatal(err)
 	}
-	if err := db.QueryRowContext(ctx, `SELECT publication_status FROM report_publications WHERE report_id='restage'`).Scan(&status); err != nil || status != "pending" {
+	if err := db.QueryRowContext(ctx, `SELECT publication_status FROM component_publications WHERE report_id='restage'`).Scan(&status); err != nil || status != "pending" {
 		t.Fatalf("recovery failure changed publication=%q err=%v", status, err)
 	}
 	if err := db.QueryRowContext(ctx, `SELECT status FROM runtime_generations WHERE generation_no=2`).Scan(&status); err != nil || status != "building" {
@@ -133,7 +133,7 @@ func TestExpiredStageRecoveryUsesMatchedDatlyComponents(t *testing.T) {
 		var desiredVersion sql.NullInt64
 		var generation int64
 		var actualStatus, revision, spec, failure string
-		if err := tx.QueryRowContext(ctx, `SELECT desired_version_no,desired_generation,publication_status,runtime_revision,spec_hash,failure_json FROM report_publications WHERE report_id=?`, item.id).
+		if err := tx.QueryRowContext(ctx, `SELECT desired_version_no,desired_generation,publication_status,runtime_revision,spec_hash,failure_json FROM component_publications WHERE report_id=?`, item.id).
 			Scan(&desiredVersion, &generation, &actualStatus, &revision, &spec, &failure); err != nil ||
 			!desiredVersion.Valid || desiredVersion.Int64 != 1 || generation != item.generation || actualStatus != item.status ||
 			revision != item.revision || spec != item.spec || !strings.Contains(failure, "staged_generation_expired") {

@@ -52,7 +52,7 @@ func TestVersionActivationSupersedesAllPagesAndRollsBack(t *testing.T) {
 		if number == targetNo {
 			state = "validated"
 		}
-		if _, err := tx.ExecContext(ctx, `INSERT INTO report_versions
+		if _, err := tx.ExecContext(ctx, `INSERT INTO component_versions
 			(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,
 			 spec_format_version,spec_hash,type_manifest_json,compile_status,
 			 datly_version,compiler_version,source_revision,created_by,created_at)
@@ -73,11 +73,11 @@ func TestVersionActivationSupersedesAllPagesAndRollsBack(t *testing.T) {
 		t.Fatal(err)
 	}
 	var superseded int
-	if err := activation.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=? AND state='superseded'`, report.ID).Scan(&superseded); err != nil || superseded != targetNo-1 {
+	if err := activation.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_versions WHERE report_id=? AND state='superseded'`, report.ID).Scan(&superseded); err != nil || superseded != targetNo-1 {
 		t.Fatalf("superseded versions=%d err=%v", superseded, err)
 	}
 	var published int
-	if err := activation.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=? AND state='published'`, report.ID).Scan(&published); err != nil || published != 1 {
+	if err := activation.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_versions WHERE report_id=? AND state='published'`, report.ID).Scan(&published); err != nil || published != 1 {
 		t.Fatalf("expected exactly one published version, got %d: %v", published, err)
 	}
 	target, err := transport.readVersionCatalogTx(owner, activation, versionCatalogRequest{ReportID: report.ID, VersionNo: targetNo, Limit: 2})
@@ -87,7 +87,7 @@ func TestVersionActivationSupersedesAllPagesAndRollsBack(t *testing.T) {
 	if err := activation.Rollback(); err != nil {
 		t.Fatal(err)
 	}
-	if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM report_versions WHERE report_id=? AND state='published'`, report.ID).Scan(&superseded); err != nil || superseded != targetNo-1 {
+	if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_versions WHERE report_id=? AND state='published'`, report.ID).Scan(&superseded); err != nil || superseded != targetNo-1 {
 		t.Fatalf("rolled-back published versions=%d err=%v", superseded, err)
 	}
 }

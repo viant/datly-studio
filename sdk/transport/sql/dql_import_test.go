@@ -100,7 +100,7 @@ SELECT records.*, type(records,'Record') FROM (${embed:sql/records.dql}) records
 		t.Fatal("download lost dependency")
 	}
 	// A resource insert failure must roll back the version and draft pointer.
-	if _, err = db.Exec(`CREATE TRIGGER reject_import BEFORE INSERT ON report_resource_files BEGIN SELECT RAISE(ABORT,'test import failure'); END`); err != nil {
+	if _, err = db.Exec(`CREATE TRIGGER reject_import BEFORE INSERT ON component_resource_files BEGIN SELECT RAISE(ABORT,'test import failure'); END`); err != nil {
 		t.Fatal(err)
 	}
 	if _, err = client.Versions().LoadDQL(ctx, report.ID, sdk.LoadDQLInput{DQL: "SELECT 1"}); err == nil {
@@ -130,7 +130,7 @@ SELECT records.*, type(records,'Record') FROM (${embed:sql/records.dql}) records
 	if single.Version.VersionNo != 2 || single.Version.AuthoredDQL != "SELECT 1" {
 		t.Fatalf("single=%+v", single)
 	}
-	if _, err = db.Exec(`INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_edit,can_use_dql)
+	if _, err = db.Exec(`INSERT INTO component_acl(report_id,subject_type,subject_id,can_view,can_edit,can_use_dql)
 		VALUES(?,'user','editor',1,1,0)`, report.ID); err != nil {
 		t.Fatal(err)
 	}
@@ -140,7 +140,7 @@ SELECT records.*, type(records,'Record') FROM (${embed:sql/records.dql}) records
 		t.Fatalf("delegated import response=%+v err=%v", redacted, err)
 	}
 	var storedDQL string
-	if err = db.QueryRow(`SELECT authored_dql FROM report_versions WHERE report_id=? AND version_no=?`, report.ID, redacted.Version.VersionNo).Scan(&storedDQL); err != nil || storedDQL != "SELECT delegated_source" {
+	if err = db.QueryRow(`SELECT authored_dql FROM component_versions WHERE report_id=? AND version_no=?`, report.ID, redacted.Version.VersionNo).Scan(&storedDQL); err != nil || storedDQL != "SELECT delegated_source" {
 		t.Fatalf("delegated import stored DQL=%q err=%v", storedDQL, err)
 	}
 	edited, err := client.Versions().Apply(delegated, report.ID, redacted.Version.VersionNo, sdk.EditCommand{
@@ -151,7 +151,7 @@ SELECT records.*, type(records,'Record') FROM (${embed:sql/records.dql}) records
 		edited.Version.AuthoredDQL != "" || edited.Version.GeneratedDQL != "" {
 		t.Fatalf("delegated edit response=%+v err=%v", edited, err)
 	}
-	if err = db.QueryRow(`SELECT authored_dql FROM report_versions WHERE report_id=? AND version_no=?`, report.ID, redacted.Version.VersionNo).Scan(&storedDQL); err != nil || storedDQL != "SELECT delegated_edit" {
+	if err = db.QueryRow(`SELECT authored_dql FROM component_versions WHERE report_id=? AND version_no=?`, report.ID, redacted.Version.VersionNo).Scan(&storedDQL); err != nil || storedDQL != "SELECT delegated_edit" {
 		t.Fatalf("delegated edit stored DQL=%q err=%v", storedDQL, err)
 	}
 	validated, err := client.Versions().Validate(delegated, report.ID, redacted.Version.VersionNo, edited.Version.SourceRevision)

@@ -30,18 +30,18 @@ func TestLoadBuildsVersionScopedStoreAndSkillFolders(t *testing.T) {
 	if _, err = db.Exec(`INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('report','general','report','Report','owner','draft','main','dynamic/owner/report','reader',1,?,?)`, now, now); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = db.Exec(`INSERT INTO report_versions(report_id,version_no,state,authoring_mode,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('report',1,'draft','dql','{}','studio.v1','hash','{}','pending','v1','studio',1,'owner',?)`, now); err != nil {
+	if _, err = db.Exec(`INSERT INTO component_versions(report_id,version_no,state,authoring_mode,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('report',1,'draft','dql','{}','studio.v1','hash','{}','pending','v1','studio',1,'owner',?)`, now); err != nil {
 		t.Fatal(err)
 	}
 	for _, item := range []struct{ path, content string }{{"sql/records.sql", "SELECT 1"}, {"guide/SKILL.md", "---\nname: guide\ndescription: Test guide\n---\nUse [reference](references/guide.md)."}, {"guide/references/guide.md", "Reference"}} {
-		if _, err = db.Exec(`INSERT INTO report_resource_files(report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at) VALUES('report',1,?,'docs',?,?,?,'hash',0,?)`, item.path, item.path, item.content, len(item.content), now); err != nil {
+		if _, err = db.Exec(`INSERT INTO component_resource_files(report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at) VALUES('report',1,?,'docs',?,?,?,'hash',0,?)`, item.path, item.path, item.content, len(item.content), now); err != nil {
 			t.Fatal(err)
 		}
 	}
-	if _, err = db.Exec(`INSERT INTO report_resource_folders(report_id,version_no,folder_id,namespace,root_path,uri_prefix,ordinal) VALUES('report',1,'docs','docs','guide','skill://report-guide/',0)`); err != nil {
+	if _, err = db.Exec(`INSERT INTO component_resource_folders(report_id,version_no,folder_id,namespace,root_path,uri_prefix,ordinal) VALUES('report',1,'docs','docs','guide','skill://report-guide/',0)`); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = db.Exec(`INSERT INTO report_skill_roots(report_id,version_no,skill_id,folder_id,skill_root,ordinal) VALUES('report',1,'guide','docs','.',0)`); err != nil {
+	if _, err = db.Exec(`INSERT INTO component_skill_roots(report_id,version_no,skill_id,folder_id,skill_root,ordinal) VALUES('report',1,'guide','docs','.',0)`); err != nil {
 		t.Fatal(err)
 	}
 	loaded, err := Load(ctx, db, []Version{{ReportID: "report", VersionNo: 1}})
@@ -93,22 +93,22 @@ func (f *snapshotFixture) version(reportID string, versionNo int) {
 	if versionNo == 1 {
 		f.exec(`INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES(?,'general',?,?,'owner','draft','main',?,'reader',1,?,?)`, reportID, reportID, reportID, "dynamic/owner/"+reportID, now, now)
 	}
-	f.exec(`INSERT INTO report_versions(report_id,version_no,state,authoring_mode,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES(?,?,'draft','dql','{}','studio.v1',?,'{}','pending','v1','studio',1,'owner',?)`, reportID, versionNo, fmt.Sprintf("hash-%d", versionNo), now)
+	f.exec(`INSERT INTO component_versions(report_id,version_no,state,authoring_mode,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES(?,?,'draft','dql','{}','studio.v1',?,'{}','pending','v1','studio',1,'owner',?)`, reportID, versionNo, fmt.Sprintf("hash-%d", versionNo), now)
 }
 
 func (f *snapshotFixture) file(reportID string, versionNo int, id, namespace, resourcePath, content string) {
 	f.t.Helper()
-	f.exec(`INSERT INTO report_resource_files(report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at) VALUES(?,?,?,?,?,?,?,'hash',0,?)`, reportID, versionNo, id, namespace, resourcePath, []byte(content), len(content), time.Now().UTC())
+	f.exec(`INSERT INTO component_resource_files(report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at) VALUES(?,?,?,?,?,?,?,'hash',0,?)`, reportID, versionNo, id, namespace, resourcePath, []byte(content), len(content), time.Now().UTC())
 }
 
 func (f *snapshotFixture) folder(reportID string, versionNo int, id, namespace, root, uri string, ordinal int) {
 	f.t.Helper()
-	f.exec(`INSERT INTO report_resource_folders(report_id,version_no,folder_id,namespace,root_path,uri_prefix,ordinal) VALUES(?,?,?,?,?,?,?)`, reportID, versionNo, id, namespace, root, uri, ordinal)
+	f.exec(`INSERT INTO component_resource_folders(report_id,version_no,folder_id,namespace,root_path,uri_prefix,ordinal) VALUES(?,?,?,?,?,?,?)`, reportID, versionNo, id, namespace, root, uri, ordinal)
 }
 
 func (f *snapshotFixture) skill(reportID string, versionNo int, id, folderID, root string, ordinal int) {
 	f.t.Helper()
-	f.exec(`INSERT INTO report_skill_roots(report_id,version_no,skill_id,folder_id,skill_root,ordinal) VALUES(?,?,?,?,?,?)`, reportID, versionNo, id, folderID, root, ordinal)
+	f.exec(`INSERT INTO component_skill_roots(report_id,version_no,skill_id,folder_id,skill_root,ordinal) VALUES(?,?,?,?,?,?)`, reportID, versionNo, id, folderID, root, ordinal)
 }
 
 func TestLoadExactVersionAndMultipleVersions(t *testing.T) {
@@ -164,7 +164,7 @@ func TestLoadExactVersionAndMultipleVersions(t *testing.T) {
 	if loaded.ResourceReports["resource://early/"] != "report" || loaded.ResourceReports["resource://other/"] != "other" {
 		t.Fatalf("folder owners: %+v", loaded.ResourceReports)
 	}
-	f.exec(`UPDATE report_resource_files SET content=? WHERE report_id='report' AND version_no=2`, []byte("changed"))
+	f.exec(`UPDATE component_resource_files SET content=? WHERE report_id='report' AND version_no=2`, []byte("changed"))
 	if body, err := loaded.ByVersion[newVersion].ReadFile("new.txt"); err != nil || string(body) != "new content" {
 		t.Fatalf("snapshot content changed: %q, %v", body, err)
 	}

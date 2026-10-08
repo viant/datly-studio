@@ -161,13 +161,13 @@ func TestTransportUsesCanonicalConnectorAndReportTables(t *testing.T) {
 	if err != nil || loadedPublication.Status != "active" || loadedPublication.ActiveGeneration == nil {
 		t.Fatalf("loaded publication=%+v err=%v", loadedPublication, err)
 	}
-	if _, err = db.Exec(`INSERT INTO report_mcp_exposures(report_id,version_no,exposure_id,route_id,route_method,route_path,kind,name,description,mime_type,enabled,ordinal) VALUES(?,1,'tool','route','GET','/main','tool','alice.main.read','Read main','application/json',TRUE,0)`, report.ID); err != nil {
+	if _, err = db.Exec(`INSERT INTO component_mcp_exposures(report_id,version_no,exposure_id,route_id,route_method,route_path,kind,name,description,mime_type,enabled,ordinal) VALUES(?,1,'tool','route','GET','/main','tool','alice.main.read','Read main','application/json',TRUE,0)`, report.ID); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = db.Exec(`INSERT INTO report_resource_folders(report_id,version_no,folder_id,namespace,root_path,uri_prefix,ordinal) VALUES(?,1,'docs','alice.docs','guide','skill://alice-guide/',0)`, report.ID); err != nil {
+	if _, err = db.Exec(`INSERT INTO component_resource_folders(report_id,version_no,folder_id,namespace,root_path,uri_prefix,ordinal) VALUES(?,1,'docs','alice.docs','guide','skill://alice-guide/',0)`, report.ID); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = db.Exec(`INSERT INTO report_skill_roots(report_id,version_no,skill_id,folder_id,skill_root,ordinal) VALUES(?,1,'guide','docs','.',0)`, report.ID); err != nil {
+	if _, err = db.Exec(`INSERT INTO component_skill_roots(report_id,version_no,skill_id,folder_id,skill_root,ordinal) VALUES(?,1,'guide','docs','.',0)`, report.ID); err != nil {
 		t.Fatal(err)
 	}
 	transport.RuntimeProbe = RuntimeHostProbeFunc(func(context.Context) (*sdk.RuntimeHost, error) {
@@ -256,7 +256,7 @@ func TestTransportUsesCanonicalConnectorAndReportTables(t *testing.T) {
 		var activeVersion, desiredVersion int
 		var activeGeneration int64
 		var status string
-		if queryErr := db.QueryRow(`SELECT active_version_no,desired_version_no,active_generation,publication_status FROM report_publications WHERE report_id=?`, report.ID).Scan(&activeVersion, &desiredVersion, &activeGeneration, &status); queryErr != nil {
+		if queryErr := db.QueryRow(`SELECT active_version_no,desired_version_no,active_generation,publication_status FROM component_publications WHERE report_id=?`, report.ID).Scan(&activeVersion, &desiredVersion, &activeGeneration, &status); queryErr != nil {
 			return queryErr
 		}
 		if activeVersion != 1 || desiredVersion != versionTwo.VersionNo || activeGeneration != *publication.ActiveGeneration || status != "pending" {
@@ -273,16 +273,16 @@ func TestTransportUsesCanonicalConnectorAndReportTables(t *testing.T) {
 		t.Fatal(err)
 	}
 	var versionOneState, versionTwoState string
-	if err = db.QueryRow(`SELECT state FROM report_versions WHERE report_id=? AND version_no=1`, report.ID).Scan(&versionOneState); err != nil || versionOneState != "superseded" {
+	if err = db.QueryRow(`SELECT state FROM component_versions WHERE report_id=? AND version_no=1`, report.ID).Scan(&versionOneState); err != nil || versionOneState != "superseded" {
 		t.Fatalf("version one state=%q err=%v", versionOneState, err)
 	}
-	if err = db.QueryRow(`SELECT state FROM report_versions WHERE report_id=? AND version_no=?`, report.ID, versionTwo.VersionNo).Scan(&versionTwoState); err != nil || versionTwoState != "published" {
+	if err = db.QueryRow(`SELECT state FROM component_versions WHERE report_id=? AND version_no=?`, report.ID, versionTwo.VersionNo).Scan(&versionTwoState); err != nil || versionTwoState != "published" {
 		t.Fatalf("version two state=%q err=%v", versionTwoState, err)
 	}
 	transport.Activator = RuntimeActivatorFunc(func(_ context.Context, generation int64) error {
 		var activeGeneration int64
 		var status string
-		if queryErr := db.QueryRow(`SELECT active_generation,publication_status FROM report_publications WHERE report_id=?`, report.ID).Scan(&activeGeneration, &status); queryErr != nil {
+		if queryErr := db.QueryRow(`SELECT active_generation,publication_status FROM component_publications WHERE report_id=?`, report.ID).Scan(&activeGeneration, &status); queryErr != nil {
 			return queryErr
 		}
 		if activeGeneration != activatedGeneration || status != "unpublishing" {
@@ -337,7 +337,7 @@ func TestTransportUsesCanonicalConnectorAndReportTables(t *testing.T) {
 	if err = db.QueryRow(`SELECT status FROM runtime_generations ORDER BY generation_no DESC LIMIT 1`).Scan(&generationStatus); err != nil || generationStatus != "failed" {
 		t.Fatalf("failed generation status=%q err=%v", generationStatus, err)
 	}
-	if err = db.QueryRow(`SELECT publication_status FROM report_publications WHERE report_id=?`, report.ID).Scan(&publicationStatus); err != nil || publicationStatus != "failed" {
+	if err = db.QueryRow(`SELECT publication_status FROM component_publications WHERE report_id=?`, report.ID).Scan(&publicationStatus); err != nil || publicationStatus != "failed" {
 		t.Fatalf("restored publication status=%q err=%v", publicationStatus, err)
 	}
 	var failedGeneration int64
@@ -347,7 +347,7 @@ func TestTransportUsesCanonicalConnectorAndReportTables(t *testing.T) {
 	if err = transport.restoreFailedPublication(ctx, report.ID, failedGeneration, publicationState{}, false, errors.New("retry")); err == nil {
 		t.Fatal("already failed generation accepted a second restore")
 	}
-	if err = db.QueryRow(`SELECT publication_status FROM report_publications WHERE report_id=?`, report.ID).Scan(&publicationStatus); err != nil || publicationStatus != "failed" {
+	if err = db.QueryRow(`SELECT publication_status FROM component_publications WHERE report_id=?`, report.ID).Scan(&publicationStatus); err != nil || publicationStatus != "failed" {
 		t.Fatalf("second restore changed publication status=%q err=%v", publicationStatus, err)
 	}
 	transport.Preview = previewStub{}
@@ -418,7 +418,7 @@ func TestWarmupRunsPersistAndDeduplicateServerOwnedEvidence(t *testing.T) {
 INSERT INTO connectors(name,driver,owner_id,status,etag,created_at,updated_at) VALUES('main','sqlite','owner','active',1,?,?);
 INSERT INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at) VALUES('owner','general','General','active',1,?,?);
 INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('reader','general','reader','Reader','owner','draft','main','example.com/reader','reader',1,?,?);
-INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('reader',1,'validated','dql','SELECT 1','{}','1','hash','{}','valid','v1','v1',3,'owner',?);`, now, now, now, now, now, now, now)
+INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES('reader',1,'validated','dql','SELECT 1','{}','1','hash','{}','valid','v1','v1',3,'owner',?);`, now, now, now, now, now, now, now)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -433,7 +433,7 @@ INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_d
 		t.Fatalf("first=%+v err=%v", first, err)
 	}
 	var storedNamespace string
-	if err := db.QueryRowContext(ctx, "SELECT namespace_id FROM report_warmup_runs WHERE run_id=?", first.RunID).Scan(&storedNamespace); err != nil || storedNamespace != namespaceaccess.ID("owner", "general") {
+	if err := db.QueryRowContext(ctx, "SELECT namespace_id FROM component_warmup_runs WHERE run_id=?", first.RunID).Scan(&storedNamespace); err != nil || storedNamespace != namespaceaccess.ID("owner", "general") {
 		t.Fatalf("accepted warmup ownership=%q err=%v", storedNamespace, err)
 	}
 	if first.CreatedAt == nil || first.UpdatedAt == nil || first.CreatedBy == nil || *first.CreatedBy != "owner" ||
@@ -574,7 +574,7 @@ FROM (SELECT 1 AS account_id, SUM(2) AS total GROUP BY 1) spend`
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err = db.Exec(`INSERT INTO report_mcp_exposures(report_id,version_no,exposure_id,route_id,route_method,route_path,kind,name,description,mime_type,enabled,ordinal) VALUES(?,?,'reader','route','GET','/spend','tool','owner.spend.read','Read spend','application/json',TRUE,0)`, report.ID, version.VersionNo); err != nil {
+	if _, err = db.Exec(`INSERT INTO component_mcp_exposures(report_id,version_no,exposure_id,route_id,route_method,route_path,kind,name,description,mime_type,enabled,ordinal) VALUES(?,?,'reader','route','GET','/spend','tool','owner.spend.read','Read spend','application/json',TRUE,0)`, report.ID, version.VersionNo); err != nil {
 		t.Fatal(err)
 	}
 	status, err := client.Runtime().Status(ctx)
@@ -888,7 +888,7 @@ SELECT records.* FROM (SELECT 1 AS id) records`})
 	if _, err = db.Exec(`INSERT INTO runtime_generations(generation_no,source_revision,status,report_count,build_manifest_json,requested_by,requested_at,activated_at) VALUES(1,'reader-builder:1','active',1,'{}','owner-a',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = db.Exec(`INSERT INTO report_publications(report_id,active_version_no,desired_version_no,desired_generation,active_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at) VALUES(?,1,1,1,1,'active','reader-builder:1','hash','owner-a',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, report.ID); err != nil {
+	if _, err = db.Exec(`INSERT INTO component_publications(report_id,active_version_no,desired_version_no,desired_generation,active_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at) VALUES(?,1,1,1,1,'active','reader-builder:1','hash','owner-a',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, report.ID); err != nil {
 		t.Fatal(err)
 	}
 	if _, err = client.Versions().Create(principal, report.ID, sdk.CreateVersionInput{AuthoringMode: "dql", CreatedBy: "owner-a", AuthoredDQL: `#package('example.com/latest')
@@ -948,7 +948,7 @@ func TestTransportScopesCatalogReadsToPrincipalOwnerOrACL(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	if _, err = db.ExecContext(ctx, `INSERT INTO report_acl(report_id,subject_type,subject_id,can_view) VALUES ('shared-report','user','alice',TRUE)`); err != nil {
+	if _, err = db.ExecContext(ctx, `INSERT INTO component_acl(report_id,subject_type,subject_id,can_view) VALUES ('shared-report','user','alice',TRUE)`); err != nil {
 		t.Fatal(err)
 	}
 	scoped := sdk.WithPrincipal(ctx, sdk.Principal{Subject: "alice"})
@@ -1026,7 +1026,7 @@ SELECT 1`})
 	if !errors.As(err, &missingRevision) || missingRevision.Code != sdk.ErrorInvalidArgument {
 		t.Fatalf("resource mutation without revision error=%v", err)
 	}
-	if _, err := db.Exec(`UPDATE report_versions SET state='validated',compile_status='valid',validated_at=CURRENT_TIMESTAMP WHERE report_id=? AND version_no=?`, report.ID, version.VersionNo); err != nil {
+	if _, err := db.Exec(`UPDATE component_versions SET state='validated',compile_status='valid',validated_at=CURRENT_TIMESTAMP WHERE report_id=? AND version_no=?`, report.ID, version.VersionNo); err != nil {
 		t.Fatal(err)
 	}
 	file, err := client.Resources().UpsertFile(principal, sdk.ResourceFile{ReportID: report.ID, VersionNo: version.VersionNo, Namespace: report.OwnerPackage + ".docs", ResourcePath: "guide/SKILL.md", Content: "---\nname: guide\ndescription: Test guide\n---\nUse the guide.", ExpectedSourceRevision: version.SourceRevision})
@@ -1043,13 +1043,13 @@ SELECT 1`})
 	}
 	var touchedState, touchedCompile, touchedDiagnostics string
 	var touchedValidation sql.NullTime
-	if err := db.QueryRow(`SELECT state,compile_status,compile_diagnostics_json,validated_at FROM report_versions WHERE report_id=? AND version_no=?`, report.ID, version.VersionNo).
+	if err := db.QueryRow(`SELECT state,compile_status,compile_diagnostics_json,validated_at FROM component_versions WHERE report_id=? AND version_no=?`, report.ID, version.VersionNo).
 		Scan(&touchedState, &touchedCompile, &touchedDiagnostics, &touchedValidation); err != nil ||
 		touchedState != "draft" || touchedCompile != "pending" || touchedDiagnostics != "[]" || touchedValidation.Valid {
 		t.Fatalf("touched version state=%q compile=%q diagnostics=%q validated=%v err=%v", touchedState, touchedCompile, touchedDiagnostics, touchedValidation, err)
 	}
 	var originalCreated time.Time
-	if err := db.QueryRow(`SELECT created_at FROM report_resource_files WHERE report_id=? AND version_no=? AND resource_id=?`, report.ID, version.VersionNo, file.Files[0].ResourceID).Scan(&originalCreated); err != nil {
+	if err := db.QueryRow(`SELECT created_at FROM component_resource_files WHERE report_id=? AND version_no=? AND resource_id=?`, report.ID, version.VersionNo, file.Files[0].ResourceID).Scan(&originalCreated); err != nil {
 		t.Fatal(err)
 	}
 	file, err = client.Resources().UpsertFile(principal, sdk.ResourceFile{ReportID: report.ID, VersionNo: version.VersionNo,
@@ -1060,7 +1060,7 @@ SELECT 1`})
 		t.Fatalf("updated file=%+v err=%v", file, err)
 	}
 	var preservedCreated time.Time
-	if err := db.QueryRow(`SELECT created_at FROM report_resource_files WHERE report_id=? AND version_no=? AND resource_id=?`, report.ID, version.VersionNo, file.Files[0].ResourceID).Scan(&preservedCreated); err != nil || !preservedCreated.Equal(originalCreated) {
+	if err := db.QueryRow(`SELECT created_at FROM component_resource_files WHERE report_id=? AND version_no=? AND resource_id=?`, report.ID, version.VersionNo, file.Files[0].ResourceID).Scan(&preservedCreated); err != nil || !preservedCreated.Equal(originalCreated) {
 		t.Fatalf("file created_at changed original=%v updated=%v err=%v", originalCreated, preservedCreated, err)
 	}
 	_, err = client.Resources().UpsertFile(principal, sdk.ResourceFile{ReportID: report.ID,
@@ -1172,7 +1172,7 @@ SELECT 1`})
 	if err != nil || len(snapshot.Skills) != 1 || snapshot.Skills[0].Ordinal != 1 {
 		t.Fatalf("updated skill=%+v err=%v", snapshot, err)
 	}
-	for _, table := range []string{"report_resource_files", "report_resource_folders", "report_skill_roots"} {
+	for _, table := range []string{"component_resource_files", "component_resource_folders", "component_skill_roots"} {
 		var owned, wrong int
 		err := db.QueryRow("SELECT COUNT(*), SUM(CASE WHEN namespace_id<>? THEN 1 ELSE 0 END) FROM "+table+" WHERE report_id=?",
 			namespaceaccess.ID(report.OwnerID, report.Namespace), report.ID).Scan(&owned, &wrong)
@@ -1299,7 +1299,7 @@ SELECT 1`})
 	if err := db.QueryRow(`SELECT COUNT(*) FROM resource_namespace_claims WHERE namespace=?`, report.OwnerPackage+".docs").Scan(&releasedClaims); err != nil || releasedClaims != 0 {
 		t.Fatalf("last file should release namespace claim count=%d err=%v", releasedClaims, err)
 	}
-	if _, err := db.Exec(`UPDATE report_versions SET state='published' WHERE report_id=? AND version_no=?`, report.ID, version.VersionNo); err != nil {
+	if _, err := db.Exec(`UPDATE component_versions SET state='published' WHERE report_id=? AND version_no=?`, report.ID, version.VersionNo); err != nil {
 		t.Fatal(err)
 	}
 	_, err = client.Resources().UpsertFile(principal, sdk.ResourceFile{ReportID: report.ID, VersionNo: version.VersionNo,
@@ -1343,7 +1343,7 @@ func TestTransportAdministersReportACLThroughSDK(t *testing.T) {
 		t.Fatalf("ACL entry=%+v err=%v", entry, err)
 	}
 	var aclNamespace string
-	if err = db.QueryRowContext(owner, "SELECT namespace_id FROM report_acl WHERE report_id=? AND subject_id='viewer'", report.ID).Scan(&aclNamespace); err != nil || aclNamespace != namespaceaccess.ID(report.OwnerID, report.Namespace) {
+	if err = db.QueryRowContext(owner, "SELECT namespace_id FROM component_acl WHERE report_id=? AND subject_id='viewer'", report.ID).Scan(&aclNamespace); err != nil || aclNamespace != namespaceaccess.ID(report.OwnerID, report.Namespace) {
 		t.Fatalf("ACL ownership=%q err=%v", aclNamespace, err)
 	}
 	updated, err := client.ACL().Upsert(owner, sdk.ReportACL{ReportID: report.ID, SubjectType: "user", SubjectID: "viewer", CanView: true, CanRun: true, CanEdit: true, ETag: entry.ETag})
@@ -1505,7 +1505,7 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT 1 AS id) rows`
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err = db.Exec(`INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_run,can_edit,can_publish,can_use_dql) VALUES(?, 'user', 'viewer', TRUE, TRUE, FALSE, FALSE, FALSE)`, report.ID); err != nil {
+	if _, err = db.Exec(`INSERT INTO component_acl(report_id,subject_type,subject_id,can_view,can_run,can_edit,can_publish,can_use_dql) VALUES(?, 'user', 'viewer', TRUE, TRUE, FALSE, FALSE, FALSE)`, report.ID); err != nil {
 		t.Fatal(err)
 	}
 	viewer := sdk.WithPrincipal(ctx, sdk.Principal{Subject: "viewer"})
@@ -1536,7 +1536,7 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT 1 AS id) rows`
 	if err != nil || page == nil || len(page.Items) != 1 || page.Items[0].AuthoredDQL != "" || page.Items[0].GeneratedDQL != "" {
 		t.Fatalf("viewer version catalog=%+v err=%v", page, err)
 	}
-	if _, err = db.Exec(`UPDATE report_acl SET can_use_dql=TRUE WHERE report_id=? AND subject_id='viewer'`, report.ID); err != nil {
+	if _, err = db.Exec(`UPDATE component_acl SET can_use_dql=TRUE WHERE report_id=? AND subject_id='viewer'`, report.ID); err != nil {
 		t.Fatal(err)
 	}
 	inspection, err = client.Versions().Inspect(viewer, report.ID, version.VersionNo)
@@ -1589,11 +1589,11 @@ func TestPublicationCompensatesRuntimeWhenActivationPersistenceFails(t *testing.
 INSERT INTO connectors(name,driver,owner_id,status,etag,created_at,updated_at) VALUES('main','sqlite','owner','active',1,?,?);
 INSERT INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at) VALUES('owner','general','General','active',1,?,?);
 INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('reader','general','reader','Reader','owner','active','main','example.com/reader','reader',1,?,?);
-INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at,published_at) VALUES('reader',1,'published','dql','SELECT 1','{}','1','one','{}','valid','v1','v1',1,'owner',?,?);
-INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at,validated_at) VALUES('reader',2,'validated','dql','SELECT 2','{}','1','two','{}','valid','v1','v1',2,'owner',?,?);
+INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at,published_at) VALUES('reader',1,'published','dql','SELECT 1','{}','1','one','{}','valid','v1','v1',1,'owner',?,?);
+INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at,validated_at) VALUES('reader',2,'validated','dql','SELECT 2','{}','1','two','{}','valid','v1','v1',2,'owner',?,?);
 INSERT INTO runtime_generations(generation_no,source_revision,status,report_count,build_manifest_json,requested_by,requested_at,activated_at) VALUES(1,'one','active',1,'{}','owner',?,?);
-INSERT INTO report_publications(report_id,active_version_no,desired_version_no,desired_generation,active_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at) VALUES('reader',1,1,1,1,'active','one','one','owner',?,?);
-CREATE TRIGGER reject_publication_activation BEFORE UPDATE OF publication_status ON report_publications
+INSERT INTO component_publications(report_id,active_version_no,desired_version_no,desired_generation,active_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at) VALUES('reader',1,1,1,1,'active','one','one','owner',?,?);
+CREATE TRIGGER reject_publication_activation BEFORE UPDATE OF publication_status ON component_publications
 WHEN OLD.publication_status='pending' AND NEW.publication_status='active' AND NEW.failure_json IS NULL
 BEGIN SELECT RAISE(ABORT,'activation persistence failed'); END;`,
 		now, now, now, now, now, now, now, now, now, now, now, now, now, now)
@@ -1620,7 +1620,7 @@ BEGIN SELECT RAISE(ABORT,'activation persistence failed'); END;`,
 	var activeGeneration int64
 	var status string
 	var failure sql.NullString
-	if err = db.QueryRow(`SELECT active_version_no,active_generation,publication_status,failure_json FROM report_publications WHERE report_id='reader'`).Scan(&activeVersion, &activeGeneration, &status, &failure); err != nil {
+	if err = db.QueryRow(`SELECT active_version_no,active_generation,publication_status,failure_json FROM component_publications WHERE report_id='reader'`).Scan(&activeVersion, &activeGeneration, &status, &failure); err != nil {
 		t.Fatal(err)
 	}
 	if activeVersion != 1 || activeGeneration != 1 || status != "active" || !failure.Valid {
@@ -1648,11 +1648,11 @@ func TestPublicationRecoversExpiredBuildingGeneration(t *testing.T) {
 INSERT INTO connectors(name,driver,owner_id,status,etag,created_at,updated_at) VALUES('main','sqlite','owner','active',1,?,?);
 INSERT INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at) VALUES('owner','general','General','active',1,?,?);
 INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('reader','general','reader','Reader','owner','active','main','example.com/reader','reader',1,?,?);
-INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at,published_at) VALUES('reader',1,'published','dql','SELECT 1','{}','1','one','{}','valid','v1','v1',1,'owner',?,?);
-INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at,validated_at) VALUES('reader',2,'validated','dql','SELECT 2','{}','1','two','{}','valid','v1','v1',2,'owner',?,?);
+INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at,published_at) VALUES('reader',1,'published','dql','SELECT 1','{}','1','one','{}','valid','v1','v1',1,'owner',?,?);
+INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at,validated_at) VALUES('reader',2,'validated','dql','SELECT 2','{}','1','two','{}','valid','v1','v1',2,'owner',?,?);
 INSERT INTO runtime_generations(generation_no,source_revision,status,report_count,build_manifest_json,requested_by,requested_at,activated_at) VALUES(1,'one','active',1,'{}','owner',?,?);
 INSERT INTO runtime_generations(generation_no,source_revision,status,report_count,build_manifest_json,requested_by,requested_at) VALUES(2,'stale','building',0,'{}','owner',?);
-INSERT INTO report_publications(report_id,active_version_no,desired_version_no,desired_generation,active_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at) VALUES('reader',1,2,2,1,'pending','stale','two','owner',?,?);`,
+INSERT INTO component_publications(report_id,active_version_no,desired_version_no,desired_generation,active_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at) VALUES('reader',1,2,2,1,'pending','stale','two','owner',?,?);`,
 		now, now, now, now, now, now, now, now, now, now, now, stale, now, now)
 	if err != nil {
 		t.Fatal(err)

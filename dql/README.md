@@ -63,7 +63,7 @@ package explicitly.
   explicit `shouldDelete: true` with a complete existing identity; omission and
   false never delete. `etag` is the expected concurrency token.
 
-`report_versions` uses the composite `(report_id, version_no)` identity.
+`component_versions` uses the composite `(report_id, version_no)` identity.
 Its reader scopes every request to `reportId`, adds a `WithURI` version route,
 and supports state/mode/compile-status/author predicates plus selectors. Its
 writer performs full insert validation, sparse PATCH validation, and optimistic

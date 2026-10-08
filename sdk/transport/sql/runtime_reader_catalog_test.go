@@ -38,7 +38,7 @@ func TestRuntimeReaderCatalogNestsChildrenAndScopesPrincipal(t *testing.T) {
 			VALUES(?,'general',?,?,?,'active','main',?,'reader',1,?,?)`, id, owner, owner, owner, "reports/"+owner, now, now); err != nil {
 			t.Fatal(err)
 		}
-		if _, err := db.ExecContext(ctx, `INSERT INTO report_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,
+		if _, err := db.ExecContext(ctx, `INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,component_spec_json,
 			spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at)
 			VALUES(?,1,'published','dql','SELECT 1','{}','studio.v1',?,'{}','valid','v1','studio.v1',1,?,?)`,
 			id, fmt.Sprintf("%064s", owner), owner, now); err != nil {
@@ -51,25 +51,25 @@ func TestRuntimeReaderCatalogNestsChildrenAndScopesPrincipal(t *testing.T) {
 	}
 	for _, owner := range []string{"bob", "carol"} {
 		id := "r-" + owner
-		if _, err := db.ExecContext(ctx, `INSERT INTO report_publications(report_id,active_version_no,desired_generation,active_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at)
+		if _, err := db.ExecContext(ctx, `INSERT INTO component_publications(report_id,active_version_no,desired_generation,active_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at)
 			VALUES(?,1,1,1,'active','rev1',?,?,?,?)`, id, fmt.Sprintf("%064s", owner), owner, now, now); err != nil {
 			t.Fatal(err)
 		}
 	}
-	if _, err := db.ExecContext(ctx, `INSERT INTO report_acl(report_id,subject_type,subject_id,can_view,can_publish)
+	if _, err := db.ExecContext(ctx, `INSERT INTO component_acl(report_id,subject_type,subject_id,can_view,can_publish)
 		VALUES('r-bob','user','alice',TRUE,TRUE)`); err != nil {
 		t.Fatal(err)
 	}
 	for i := 1; i <= 2; i++ {
-		if _, err := db.ExecContext(ctx, `INSERT INTO report_mcp_exposures(report_id,version_no,exposure_id,route_id,route_method,route_path,kind,name,enabled,ordinal)
+		if _, err := db.ExecContext(ctx, `INSERT INTO component_mcp_exposures(report_id,version_no,exposure_id,route_id,route_method,route_path,kind,name,enabled,ordinal)
 			VALUES('r-bob',1,?,?,'GET',?,'tool',?,TRUE,?)`, fmt.Sprintf("exposure-%d", i), fmt.Sprintf("route-%d", i), fmt.Sprintf("/route-%d", i), fmt.Sprintf("tool-%d", i), i); err != nil {
 			t.Fatal(err)
 		}
-		if _, err := db.ExecContext(ctx, `INSERT INTO report_resource_folders(report_id,version_no,folder_id,namespace,root_path,uri_prefix,ordinal)
+		if _, err := db.ExecContext(ctx, `INSERT INTO component_resource_folders(report_id,version_no,folder_id,namespace,root_path,uri_prefix,ordinal)
 			VALUES('r-bob',1,?,'skills',?, ?, ?)`, fmt.Sprintf("folder-%d", i), fmt.Sprintf("guide-%d", i), fmt.Sprintf("skill://guide-%d/", i), i); err != nil {
 			t.Fatal(err)
 		}
-		if _, err := db.ExecContext(ctx, `INSERT INTO report_skill_roots(report_id,version_no,skill_id,folder_id,skill_root,ordinal)
+		if _, err := db.ExecContext(ctx, `INSERT INTO component_skill_roots(report_id,version_no,skill_id,folder_id,skill_root,ordinal)
 			VALUES('r-bob',1,?,? ,'.',?)`, fmt.Sprintf("skill-%d", i), fmt.Sprintf("folder-%d", i), i); err != nil {
 			t.Fatal(err)
 		}

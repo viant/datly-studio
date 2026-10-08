@@ -10,7 +10,7 @@
 #setting($_ = $case_format('lc'))
 #setting($_ = $route('/v1/studio/report-warmup-runs', 'GET'))
 #setting($_ = $connector('studio'))
-#setting($_ = $mcp('studio.report_warmup_runs.read', 'Read durable cache warmup run evidence'))
+#setting($_ = $mcp('studio.component_warmup_runs.read', 'Read durable cache warmup run evidence'))
 #setting($_ = $sql_dest('warmup_run', 'sql/read.sql'))
 #define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
 #define($_ = $Auth<*studioauth.Output>(component/GET:/v1/studio/auth/context).Required().WithPredicate(3, 'handler', 'studioauthorization.WarmupRead'))

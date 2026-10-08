@@ -56,13 +56,13 @@ func TestPublicationRestageWriterMatchesGenerationAndRollsBack(t *testing.T) {
 	if _, err := db.Exec(`UPDATE runtime_generations SET status='active',activated_at=? WHERE generation_no=1`, now); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := db.ExecContext(ctx, `INSERT INTO report_publications
+	if _, err := db.ExecContext(ctx, `INSERT INTO component_publications
 		(report_id,active_version_no,desired_version_no,desired_generation,active_generation,publication_status,
 		 runtime_revision,spec_hash,published_by,published_at,activated_at)
 		VALUES(?,?,?,1,1,'active','report:1:1',?,'owner',?,?)`, report.ID, version.VersionNo, version.VersionNo, version.SpecHash, now, now); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := db.ExecContext(ctx, `UPDATE report_publications SET failure_json='[{"code":"previous"}]' WHERE report_id=?`, report.ID); err != nil {
+	if _, err := db.ExecContext(ctx, `UPDATE component_publications SET failure_json='[{"code":"previous"}]' WHERE report_id=?`, report.ID); err != nil {
 		t.Fatal(err)
 	}
 	tx, err := db.BeginTx(ctx, nil)
@@ -91,7 +91,7 @@ func TestPublicationRestageWriterMatchesGenerationAndRollsBack(t *testing.T) {
 		t.Fatalf("staged snapshot=%+v found=%v err=%v", snapshot, found, err)
 	}
 	var failure sql.NullString
-	if err := tx.QueryRowContext(ctx, `SELECT failure_json FROM report_publications WHERE report_id=?`, report.ID).Scan(&failure); err != nil || failure.Valid {
+	if err := tx.QueryRowContext(ctx, `SELECT failure_json FROM component_publications WHERE report_id=?`, report.ID).Scan(&failure); err != nil || failure.Valid {
 		t.Fatalf("restaged failure_json=%v err=%v, want SQL NULL", failure, err)
 	}
 	staleExpected := int64(1)
@@ -156,7 +156,7 @@ func TestPublicationRestageWriterMatchesGenerationAndRollsBack(t *testing.T) {
 	var desiredVersion sql.NullInt64
 	var desiredGeneration int64
 	var stageStatus string
-	if err := unpublishTx.QueryRowContext(ctx, `SELECT desired_version_no,desired_generation,publication_status,failure_json FROM report_publications WHERE report_id=?`, report.ID).
+	if err := unpublishTx.QueryRowContext(ctx, `SELECT desired_version_no,desired_generation,publication_status,failure_json FROM component_publications WHERE report_id=?`, report.ID).
 		Scan(&desiredVersion, &desiredGeneration, &stageStatus, &failure); err != nil || desiredVersion.Valid || desiredGeneration != 2 || stageStatus != "unpublishing" || failure.Valid {
 		t.Fatalf("unpublish stage version=%v generation=%d status=%q failure=%v err=%v", desiredVersion, desiredGeneration, stageStatus, failure, err)
 	}
@@ -173,7 +173,7 @@ func TestPublicationRestageWriterMatchesGenerationAndRollsBack(t *testing.T) {
 		t.Fatalf("matched unpublish delete: %v", err)
 	}
 	var remaining int
-	if err := unpublishTx.QueryRowContext(ctx, `SELECT COUNT(1) FROM report_publications WHERE report_id=?`, report.ID).Scan(&remaining); err != nil || remaining != 0 {
+	if err := unpublishTx.QueryRowContext(ctx, `SELECT COUNT(1) FROM component_publications WHERE report_id=?`, report.ID).Scan(&remaining); err != nil || remaining != 0 {
 		t.Fatalf("deleted publication remaining=%d err=%v", remaining, err)
 	}
 	if err := unpublishTx.Rollback(); err != nil {

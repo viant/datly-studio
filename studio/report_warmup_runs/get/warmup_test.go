@@ -38,12 +38,12 @@ func TestWarmupGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 		datatest.Table{Name: "connectors", Rows: []datatest.Row{{"name": "main", "driver": "sqlite", "owner_id": "alice", "status": "active", "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"}}},
 		datatest.Table{Name: "namespaces", Rows: []datatest.Row{{"owner_id": "alice", "name": "general", "title": "General", "status": "active", "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"}}},
 		datatest.Table{Name: "components", Rows: []datatest.Row{{"id": "r1", "slug": "first", "title": "First", "owner_id": "alice", "status": "active", "default_connector_name": "main", "namespace": "general", "component_scope": "reports/first", "component_name": "first", "created_at": "2026-09-17 09:00:00", "updated_at": "2026-09-17 09:00:00"}}},
-		datatest.Table{Name: "report_versions", Rows: []datatest.Row{{"report_id": "r1", "version_no": 2, "state": "draft", "authoring_mode": "dql", "component_spec_json": "{}", "type_manifest_json": "{}", "spec_format_version": "1", "spec_hash": "hash", "compile_status": "valid", "datly_version": "v1", "compiler_version": "v1", "source_revision": 3, "created_by": "alice", "created_at": "2026-09-17 09:00:00"}}},
-		datatest.Table{Name: "report_acl", Rows: []datatest.Row{{"report_id": "r1", "subject_type": "user", "subject_id": "publisher", "can_view": true, "can_publish": true}, {"report_id": "r1", "subject_type": "user", "subject_id": "viewer", "can_view": true}}},
+		datatest.Table{Name: "component_versions", Rows: []datatest.Row{{"report_id": "r1", "version_no": 2, "state": "draft", "authoring_mode": "dql", "component_spec_json": "{}", "type_manifest_json": "{}", "spec_format_version": "1", "spec_hash": "hash", "compile_status": "valid", "datly_version": "v1", "compiler_version": "v1", "source_revision": 3, "created_by": "alice", "created_at": "2026-09-17 09:00:00"}}},
+		datatest.Table{Name: "component_acl", Rows: []datatest.Row{{"report_id": "r1", "subject_type": "user", "subject_id": "publisher", "can_view": true, "can_publish": true}, {"report_id": "r1", "subject_type": "user", "subject_id": "viewer", "can_view": true}}},
 	); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := db.ExecContext(ctx, `INSERT INTO report_warmup_runs
+	if _, err := db.ExecContext(ctx, `INSERT INTO component_warmup_runs
  (run_id,report_id,version_no,source_revision,spec_hash,plan_key,status,requested_by,
  requested_at,created_at,created_by,updated_at,updated_by,started_at,completed_at,
  planned_cases,completed_cases,max_cases,row_limit,entries,duration_ns,target_json,diagnostics_json)
@@ -186,7 +186,7 @@ func TestWarmupGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	if err != nil || !bytes.Contains(structured, []byte(`"cacheName":"primary"`)) {
 		t.Fatalf("MCP warmup=%s err=%v", structured, err)
 	}
-	if _, err = db.ExecContext(ctx, "DELETE FROM report_acl WHERE report_id = ? AND subject_id = ?", "r1", "publisher"); err != nil {
+	if _, err = db.ExecContext(ctx, "DELETE FROM component_acl WHERE report_id = ? AND subject_id = ?", "r1", "publisher"); err != nil {
 		t.Fatal(err)
 	}
 	response = httptest.NewRecorder()

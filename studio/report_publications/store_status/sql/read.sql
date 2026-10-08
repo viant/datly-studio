@@ -2,7 +2,7 @@ SELECT publication."report_id", publication."active_version_no", publication."de
        p.desired_generation, p.active_generation, p.publication_status,
        p.runtime_revision, p.spec_hash, p.published_by,
        p.published_at, p.activated_at
-FROM report_publications p
+FROM component_publications p
 ${predicate.Builder().CombineAnd(
     $predicate.FilterGroup(2, "AND")
 ).Build("WHERE")}
