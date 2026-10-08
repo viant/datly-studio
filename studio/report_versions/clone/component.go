@@ -11,7 +11,7 @@ import (
 	"reflect"
 	"strings"
 
-	policy "github.com/viant/authz/datly/store/sql"
+	policy "github.com/viant/authz/component/store/sql"
 	"github.com/viant/datly-studio/internal/versionclone"
 	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly-studio/store/sql/accesscatalog"

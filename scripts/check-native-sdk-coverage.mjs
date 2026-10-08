@@ -17,9 +17,11 @@ for (const match of readFileSync(path.join(sdkDir, 'access/transport.go'), 'utf8
 
 const document = JSON.parse(readFileSync(path.join(sdkDir, 'openapi/studio.json'), 'utf8'));
 const prefix = '/v1/studio/sdk/';
+const shared = new Set(['policies.get', 'policies.context', 'policies.replace', 'authorization.check'].map(name => `/v1/authz/sdk/${name}`));
 const native = new Set();
 const malformed = [];
 for (const [route, methods] of Object.entries(document.paths || {})) {
+  if (shared.has(route) && methods?.post) continue;
   if (!route.startsWith(prefix) || !methods?.post) malformed.push(route);
   else native.add(route.slice(prefix.length));
 }

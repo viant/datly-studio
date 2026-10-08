@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/viant/datly-studio/internal/accessconfig"
+	"github.com/viant/datly-studio/runtime/accessprovider"
 	_ "github.com/viant/sqlx/metadata/product/mysql"
 	_ "github.com/viant/sqlx/metadata/product/sqlite"
 	"github.com/viant/sqlx/metadata/registry"
@@ -27,7 +28,7 @@ func Criteria(ctx context.Context, connectors connector.Provider, subject, alias
 	}
 	expression := "(namespaces.owner_id = ? OR namespaces.visibility = 'public'"
 	values := []any{subject}
-	provider, err := accessconfig.FromEnvironment()
+	provider, err := accessprovider.FromEnvironment(ctx)
 	if err != nil {
 		return nil, forbidden("namespace role verifier is unavailable")
 	}

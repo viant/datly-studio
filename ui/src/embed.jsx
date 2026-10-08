@@ -6,6 +6,9 @@ export { StudioApp } from './StudioApp.jsx';
 export { StudioShell } from './StudioShell.jsx';
 export { createStudioSDK, defineStudioExtension } from './extensions.js';
 export { ResourceAccessEditor } from './ResourceAccessEditor.jsx';
+export { GateRequirementsEditor } from './GateRequirementsEditor.jsx';
+export { gateMCPAdapter } from './gateMCPAdapter.js';
+export { accessMCPAdapter } from './accessMCPAdapter.js';
 export { PermissionsWorkspace } from './SecurityCenter.jsx';
 export { defaultActionsByKind } from './resourceAccessActions.js';
 

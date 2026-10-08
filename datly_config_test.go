@@ -38,8 +38,8 @@ func TestResourcePolicyStoreIsLinkedOnlyForNativeAccess(t *testing.T) {
 	want := map[string]bool{"reader": false, "writer": false, "access": false, "catalog": false}
 	for _, pkg := range loaded.GoBootstrap.Packages {
 		prefix := "github.com/viant/datly-studio/studio/resource_policy/"
-		if strings.HasPrefix(pkg, "github.com/viant/authz/datly/policy/") {
-			prefix = "github.com/viant/authz/datly/policy/"
+		if strings.HasPrefix(pkg, "github.com/viant/authz/component/policy/") {
+			prefix = "github.com/viant/authz/component/policy/"
 		}
 		if strings.HasPrefix(pkg, prefix) {
 			name := strings.TrimPrefix(pkg, prefix)

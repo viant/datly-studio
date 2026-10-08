@@ -94,6 +94,19 @@ GOWORK=off go run ./cmd/studio-migrate \
 ./scripts/seed-development-sqlite.sh
 ```
 
+Upgrade an existing SQLite Studio catalog before starting the updated runtime:
+
+```sh
+GOWORK=off go run ./cmd/studio-migrate \
+  -command up \
+  -dsn 'file:.data/studio.db?cache=shared'
+```
+
+The Studio migration upgrades the Studio-owned catalog. Authz policy tables
+are created from the shared canonical DDL for fresh installations; the new
+Authz schema does not rename or convert a previous `resource_policy_heads`
+layout or backfill policy history.
+
 Start the dynamic runtime with public loopback authentication for local
 development:
 

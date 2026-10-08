@@ -4,7 +4,10 @@ package resources
 
 import (
 	"context"
+	"crypto/sha256"
 	"database/sql"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io/fs"
 	"path"
@@ -32,6 +35,7 @@ type Version struct {
 }
 
 type Loaded struct {
+	Fingerprints    map[Version]string
 	Store           *bindresource.Store
 	ByVersion       map[Version]*bindresource.Store
 	Folders         []mcpresource.Folder
@@ -50,7 +54,7 @@ func Load(ctx context.Context, db *sql.DB, versions []Version) (*Loaded, error) 
 			return nil, fmt.Errorf("resource version identity is required")
 		}
 	}
-	result := &Loaded{Store: bindresource.New(), ByVersion: map[Version]*bindresource.Store{}, ResourceReports: map[string]string{}}
+	result := &Loaded{Fingerprints: map[Version]string{}, Store: bindresource.New(), ByVersion: map[Version]*bindresource.Store{}, ResourceReports: map[string]string{}}
 	if len(versions) == 0 {
 		return result, nil
 	}
@@ -60,6 +64,7 @@ func Load(ctx context.Context, db *sql.DB, versions []Version) (*Loaded, error) 
 	}
 	defer reader.runtime.Shutdown(context.Background())
 	namespaces := map[string]fstest.MapFS{}
+	versionFiles := map[Version][]resourceFingerprintFile{}
 	for _, version := range versions {
 		local := fstest.MapFS{}
 		files, err := reader.files(ctx, version)
@@ -74,6 +79,7 @@ func Load(ctx context.Context, db *sql.DB, versions []Version) (*Loaded, error) 
 				return nil, fmt.Errorf("duplicate default resource path %q for report %s", file.ResourcePath, version.ReportID)
 			}
 			item := &fstest.MapFile{Data: append([]byte(nil), file.Content...)}
+			versionFiles[version] = append(versionFiles[version], resourceFingerprintFile{Namespace: file.Namespace, Path: file.ResourcePath, Content: append([]byte(nil), file.Content...)})
 			local[file.ResourcePath] = item
 			group, registered := namespaces[file.Namespace]
 			if !registered {
@@ -112,6 +118,23 @@ func Load(ctx context.Context, db *sql.DB, versions []Version) (*Loaded, error) 
 			result.ResourceReports[folder.URIPrefix] = version.ReportID
 		}
 		result.Folders = append(result.Folders, folders...)
+		files := versionFiles[version]
+		sort.Slice(files, func(i, j int) bool {
+			if files[i].Namespace == files[j].Namespace {
+				return files[i].Path < files[j].Path
+			}
+			return files[i].Namespace < files[j].Namespace
+		})
+		sort.Slice(folders, func(i, j int) bool { return folders[i].URIPrefix < folders[j].URIPrefix })
+		raw, hashErr := json.Marshal(struct {
+			Files   []resourceFingerprintFile
+			Folders []mcpresource.Folder
+		}{files, folders})
+		if hashErr != nil {
+			return nil, hashErr
+		}
+		hash := sha256.Sum256(raw)
+		result.Fingerprints[version] = hex.EncodeToString(hash[:])
 	}
 	return result, nil
 }
@@ -256,4 +279,9 @@ func validFile(namespace, resourcePath string) error {
 		return fmt.Errorf("invalid resource path %q", resourcePath)
 	}
 	return nil
+}
+
+type resourceFingerprintFile struct {
+	Namespace, Path string
+	Content         []byte
 }

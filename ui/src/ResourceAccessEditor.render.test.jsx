@@ -63,3 +63,17 @@ test('closing the review preserves the draft and performs no mutation', async ()
   expect(api.replaceResourceAccess).not.toHaveBeenCalled();
   expect(screen.getByText('Unsaved permission changes')).toBeTruthy();
 });
+
+test('checks only current principal access to the saved policy', async () => {
+  const user = userEvent.setup();
+  const api = {
+    getResourceAccess: vi.fn().mockResolvedValue(document),
+    getResourceAccessContext: vi.fn().mockResolvedValue({canManage: false, choices: {}}),
+    checkCurrentAccess: vi.fn().mockResolvedValue({effect: 'allow', bounded: false, entities: []}),
+  };
+  render(<ResourceAccessEditor api={api} resource={resource} actions={['retrieve']}/>);
+  await screen.findByText('Policy revision 4');
+  await user.click(screen.getByRole('button', {name: 'Check my current access'}));
+  expect(api.checkCurrentAccess).toHaveBeenCalledWith(resource, 'retrieve');
+  expect((await screen.findByText('Allowed at last check')).closest('[role="status"]').textContent).toContain('saved policy');
+});

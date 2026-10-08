@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"embed"
 	"fmt"
+	policySchema "github.com/viant/authz/component/schema"
 	"regexp"
 	"sort"
 	"strings"
@@ -17,10 +18,15 @@ var (
 	mysqlUniqueKey         = regexp.MustCompile(`(?i)\bUNIQUE\s+KEY\s+[A-Za-z_][A-Za-z0-9_]*\s*\(`)
 	mysqlTableTail         = regexp.MustCompile(`(?i)\)\s+ENGINE\s*=\s*InnoDB\s+DEFAULT\s+CHARSET\s*=\s*utf8mb4\s*;`)
 	mysqlDateTimePrecision = regexp.MustCompile(`(?i)\bDATETIME\s*\(\s*\d+\s*\)`)
-	sqliteTableName        = regexp.MustCompile(`(?i)CREATE\s+TABLE\s+([A-Za-z_][A-Za-z0-9_]*)`)
+	mysqlColumnCharset     = regexp.MustCompile(`(?i)\s+CHARACTER\s+SET\s+(?:ascii|utf8mb4)\s+COLLATE\s+(?:ascii_bin|utf8mb4_bin)`)
+	sqliteTableName        = regexp.MustCompile(`(?i)CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?([A-Za-z_][A-Za-z0-9_]*)`)
 )
 
-const CanonicalVersion = 20
+const (
+	PrePolicyNamespaceVersion = 20
+	PolicyNamespaceVersion    = 21
+	CanonicalVersion          = 22
+)
 
 // EnsureSQLiteSequenceLedger installs SQLX's write-intent table before a
 // publication transaction begins. Creating it inside a deferred transaction
@@ -47,7 +53,10 @@ func ApplySQLite(ctx context.Context, db *sql.DB, name string) error {
 		return fmt.Errorf("read SQLite script %q: %w", name, err)
 	}
 	if name == "studio" {
-		payload = sqliteStudioDDL(payload)
+		payload, err = composeSQLiteStudioDDL(payload)
+		if err != nil {
+			return err
+		}
 	}
 	if _, err = db.ExecContext(ctx, string(payload)); err != nil {
 		return fmt.Errorf("apply SQLite script %q: %w", name, err)
@@ -55,6 +64,9 @@ func ApplySQLite(ctx context.Context, db *sql.DB, name string) error {
 	if name == "studio" {
 		if err := EnsureSQLiteSequenceLedger(ctx, db); err != nil {
 			return fmt.Errorf("prepare SQLite sequence ledger: %w", err)
+		}
+		if err := policySchema.CreatePolicies(ctx, db, "sqlite"); err != nil {
+			return fmt.Errorf("initialize shared policy schema: %w", err)
 		}
 	}
 	return nil
@@ -101,6 +113,14 @@ func AddSQLiteColumnFromCanonical(ctx context.Context, executor interface {
 	if !validSchemaIdentifier(table) || !validSchemaIdentifier(column) {
 		return fmt.Errorf("invalid canonical column target %s.%s", table, column)
 	}
+	if sharedPolicyTable(table) {
+		definition, err := policySchema.PolicyColumnDefinition("sqlite", table, column)
+		if err != nil {
+			return err
+		}
+		_, err = executor.ExecContext(ctx, "ALTER TABLE "+table+" ADD COLUMN "+definition)
+		return err
+	}
 	payload, err := sqliteFiles.ReadFile("schema.ddl")
 	if err != nil {
 		return err
@@ -137,13 +157,31 @@ func SQLiteTableStatements(table string) (string, error) {
 	if !validSchemaIdentifier(table) {
 		return "", fmt.Errorf("invalid canonical table target %s", table)
 	}
+	if sharedPolicyTable(table) {
+		payload, err := policySchema.PolicyDDL("sqlite")
+		if err != nil {
+			return "", err
+		}
+		return tableStatement(payload, table)
+	}
 	payload, err := sqliteFiles.ReadFile("schema.ddl")
 	if err != nil {
 		return "", err
 	}
 	source := string(sqliteStudioDDL(payload))
+	return tableStatement(source, table)
+}
+
+func tableStatement(source, table string) (string, error) {
 	lower := strings.ToLower(source)
-	start := strings.Index(lower, "create table "+strings.ToLower(table)+" (")
+	start := -1
+	for _, match := range sqliteTableName.FindAllStringSubmatchIndex(source, -1) {
+		name := source[match[2]:match[3]]
+		if strings.EqualFold(name, table) {
+			start = match[0]
+			break
+		}
+	}
 	if start < 0 {
 		return "", fmt.Errorf("canonical table %s was not found", table)
 	}
@@ -156,6 +194,9 @@ func SQLiteTableStatements(table string) (string, error) {
 }
 
 func canonicalColumnDefinition(ddl, table, column string) (string, error) {
+	if sharedPolicyTable(table) {
+		return policySchema.PolicyColumnDefinition("sqlite", table, column)
+	}
 	start := strings.Index(strings.ToLower(ddl), "create table "+strings.ToLower(table)+" (")
 	if start < 0 {
 		return "", fmt.Errorf("canonical table %s was not found", table)
@@ -173,6 +214,49 @@ func canonicalColumnDefinition(ddl, table, column string) (string, error) {
 		}
 	}
 	return "", fmt.Errorf("canonical column %s.%s was not found", table, column)
+}
+
+func sharedPolicyTable(table string) bool {
+	return table == "resource_policies" || table == "resource_policy_revisions"
+}
+
+func composeSQLiteStudioDDL(source []byte) ([]byte, error) {
+	result := sqliteStudioDDL(source)
+	policyDDL, err := policySchema.PolicyDDL("sqlite")
+	if err != nil {
+		return nil, err
+	}
+	result = append(result, []byte("\n\n"+policyDDL+"\n")...)
+	return result, nil
+}
+
+// MySQLDDL composes Studio's own canonical tables with the shared Authz
+// component tables. The returned script is for explicit tooling such as the
+// local Endly bootstrap; no duplicate policy DDL is stored in schema.ddl.
+func MySQLDDL() (string, error) {
+	studioDDL, err := sqliteFiles.ReadFile("schema.ddl")
+	if err != nil {
+		return "", err
+	}
+	policyDDL, err := policySchema.PolicyDDL("mysql")
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(studioDDL)) + "\n\n" + policyDDL + "\n", nil
+}
+
+// MySQLTableStatement returns one Studio-owned table definition from the
+// canonical snapshot. Shared policy tables must use the Authz component's
+// schema API instead.
+func MySQLTableStatement(table string) (string, error) {
+	if !validSchemaIdentifier(table) || sharedPolicyTable(table) {
+		return "", fmt.Errorf("invalid Studio-owned MySQL table %s", table)
+	}
+	payload, err := sqliteFiles.ReadFile("schema.ddl")
+	if err != nil {
+		return "", err
+	}
+	return tableStatement(string(payload), table)
 }
 
 func validSchemaIdentifier(value string) bool {
@@ -213,7 +297,8 @@ func DropSQLite(ctx context.Context, db *sql.DB) error {
 	if _, err := db.ExecContext(ctx, `DROP TABLE IF EXISTS sqlx_sequence_reservations`); err != nil {
 		return fmt.Errorf("drop SQLX sequence ledger: %w", err)
 	}
-	return SetSQLiteVersion(ctx, db, 0)
+	_, err = db.ExecContext(ctx, `DROP TABLE IF EXISTS schema_version`)
+	return err
 }
 
 // sqliteStudioDDL derives SQLite test DDL from the authoritative MySQL schema.
@@ -222,6 +307,7 @@ func DropSQLite(ctx context.Context, db *sql.DB) error {
 // options require normalization.
 func sqliteStudioDDL(source []byte) []byte {
 	result := mysqlDateTimePrecision.ReplaceAll(source, []byte("DATETIME"))
+	result = mysqlColumnCharset.ReplaceAll(result, nil)
 	result = mysqlUniqueKey.ReplaceAll(result, []byte("UNIQUE ("))
 	return mysqlTableTail.ReplaceAll(result, []byte(");"))
 }

@@ -17,6 +17,27 @@ browser ID token and resolve account-scoped roles/features, but deployed
 identity-provider and tenant configuration must be verified before it replaces
 the dedicated ACL-token path.
 
+## Shared authorization routes
+
+Studio mounts the shared `github.com/viant/authz` policy provider and evaluator
+at `POST /v1/authz/sdk/policies.get`, `/policies.context`,
+`/policies.replace`, and `/authorization.check`. Their MCP tools are
+`authz.sdk.policies.get`, `authz.sdk.policies.context`,
+`authz.sdk.policies.replace`, and `authz.sdk.authorization.check`. The Studio
+UI uses the generated canonical routes through its shared access adapter; the
+authenticated BFF forwards each exact path with the verified bearer from its
+session cookie.
+
+Studio retains host namespace and JWT validation around these operations.
+Legacy `/v1/studio/sdk/access.get`, `/access.context`, and `/access.replace`
+are thin compatibility wrappers over the shared service. `access.list` stays
+Studio-owned and namespace-aware. Policy reads require `viewAccess`; policy
+management requires `manageAccess`. Runtime checks retain shared 401, 403, and
+503 outcomes, with typed bounded SQL context for entity-scoped decisions.
+This migration does not mount the shared create, gate, or catalog endpoints.
+Policy evaluation and storage are provided by `authz`; `sdk/access` supplies
+only Studio's host catalog and transport adapter.
+
 ## Contract
 
 The Studio UI calls the Studio SDK. Each backend SDK operation is a public
@@ -361,7 +382,16 @@ its base64 archive request and selected entry fields.
 
 `versions.inspect` is a native linked-handler workflow over the exact
 authorized version, active connector catalog and Datly Reader Builder. The
-generic and native paths share an inspection projector. A view grant without
+generic and native paths share an inspection projector.
+`discoverColumns: false` requests a fast DQL-only graph inspection; the default
+still resolves source columns. The fast option is suitable only when the
+dynamic shape is already complete: this Forecasting draft still uses `*`, and
+without discovery it exposes only its three declared columns instead of all
+61. Published dynamic readers use their registered runtime types for requests;
+the current generation reload still performs source-column discovery during
+compilation and must be removed once the dynamic contract is self-contained.
+
+A view grant without
 `can_use_dql` now receives a metadata-only structure (status and view names)
 and diagnostic codes without source-bearing messages; previously the
 Reader Builder structure leaked SQL through component and view fields despite
@@ -554,15 +584,11 @@ stored-generation projection and trusted runtime-admin probe as the generic
 SDK. The static host reads `STUDIO_RUNTIME_ADMIN_TOKEN` and optional
 `STUDIO_DYNAMIC_HTTP_URL` from its own environment; callers cannot supply
 either value. If the probe is unconfigured or fails, an active generation is
-reported with an unavailable host rather than as live-ready. `access.context`,
-`access.get`, and `access.replace` are native routes and MCP tools. The static
-host requires `STUDIO_ACCESS_ISSUER`, `STUDIO_ACCESS_AUDIENCE`, and either
-`STUDIO_ACCESS_PUBLIC_KEY_FILE` or `STUDIO_ACCESS_CERT_URL` to independently
-verify the ACL bearer; the
-policy reader and writer are private linked children of the same Datly
-transaction. The forwarded session bearer must satisfy both Studio's JWT
-validator and the ACL issuer/audience/key check; the native route never
-accepts identity claims from its JSON body. `publications.publish`,
+reported with an unavailable host rather than as live-ready. Shared policy
+routes use the provider's generated components and independently validated
+Studio principal/namespace context as described above. Legacy Studio
+`access.get`, `access.context`, and `access.replace` routes wrap those shared
+operations. `publications.publish`,
 `publications.rollback`, and `publications.unpublish` are native Datly routes
 and MCP tools that call the existing lifecycle service. The static host must
 provide `STUDIO_RUNTIME_ADMIN_TOKEN` and optional `STUDIO_DYNAMIC_HTTP_URL`.
@@ -570,7 +596,9 @@ Their lifecycle owns multiple committed database phases around the dynamic
 reload; it does not join the Datly endpoint's one-commit database unit.
 
 The document currently covers
-`access.context`, `access.get`, `access.replace`, `acl.delete`, `acl.list`, `acl.upsert`, `connectors.activate`, `connectors.create`, `connectors.delete`, `connectors.disable`, `connectors.get`, `connectors.list`, `connectors.update`,
+the shared `authz.sdk` policy and authorization-check tools, Studio's
+`access.list` catalog and compatibility wrappers, `acl.delete`, `acl.list`,
+`acl.upsert`, `connectors.activate`, `connectors.create`, `connectors.delete`, `connectors.disable`, `connectors.get`, `connectors.list`, `connectors.update`,
 `namespaces.create`, `namespaces.delete`, `namespaces.get`, `namespaces.update`,
 `namespaces.list`, `publications.get`, `publications.events.list`, `publications.publish`, `publications.rollback`, `publications.unpublish`, `runtime.status`, `components.get`,
 `components.create`, `components.list`, `components.update`, `versions.apply`, `versions.builder`, `versions.create`, `versions.get`, `versions.list`, `versions.inspect`, `versions.load_dql`, `versions.load_archive`, `versions.export_dql`,

@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
+	"encoding/json"
 	"encoding/pem"
 	"github.com/viant/authz"
 	"net/http"
@@ -73,7 +74,7 @@ func TestNativeResourceAccessUsesInjectedProvider(t *testing.T) {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-		_, _ = w.Write([]byte(`{"status":"ok","info":{"uid":"alice","subject":"alice","userId":7,"accountId":21,"roles":["reader"],"features":["export"],"entityPermissions":[]}}`))
+		_ = json.NewEncoder(w).Encode(authz.Facts{Subject: "alice", Issuer: "issuer", Tenant: "21", Roles: []string{"reader"}, Exposures: []string{"export"}, ValidUntil: time.Now().Add(time.Minute)})
 	}))
 	defer userInfo.Close()
 	config := Config{
@@ -83,6 +84,7 @@ func TestNativeResourceAccessUsesInjectedProvider(t *testing.T) {
 		Access:           &ResourceAccessConfig{Tenant: "one", Issuer: "issuer", Audience: "runtime", PublicKeyFile: keyFile, UserInfoURL: userInfo.URL},
 		DecisionProvider: decisions,
 	}
+	config.Access.Provider = fixtureRemoteProvider(t, config.Access, userInfo.URL)
 	encodedConfig, err := yaml.Marshal(config)
 	if err != nil {
 		t.Fatal(err)
@@ -99,7 +101,7 @@ func TestNativeResourceAccessUsesInjectedProvider(t *testing.T) {
 		t.Fatal("native access service did not retain the injected decision provider")
 	}
 	identityToken, err := jwtlib.NewWithClaims(jwtlib.SigningMethodRS256, jwtlib.MapClaims{
-		"iss": "issuer", "aud": "runtime", "sub": "alice", "user_id": 7, "account_id": 21,
+		"iss": "issuer", "aud": "runtime", "sub": "alice", "tenant": "21",
 		"exp": time.Now().Add(59 * time.Minute).Unix(),
 	}).SignedString(key)
 	if err != nil {

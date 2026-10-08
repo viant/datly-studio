@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 	"reflect"
 
+	sharedapi "github.com/viant/authz/component/api"
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/sdk"
 	authreader "github.com/viant/datly-studio/studio/auth/reader"
@@ -695,12 +696,49 @@ func run(ctx context.Context, output string) error {
 	if err != nil {
 		return err
 	}
+	policyGetHandler, err := (resourceaccess.PolicyGetComponent{}).DatlyHandler("NewPolicyGet")()
+	if err != nil {
+		return err
+	}
+	policyGet, err := compile(reflect.TypeFor[resourceaccess.PolicyGetComponent](), reflect.TypeFor[resourceaccess.PolicyInput](), reflect.TypeFor[sharedapi.PolicyOutput](), resources, types, codec, policyGetHandler)
+	if err != nil {
+		return err
+	}
+	policyContextHandler, err := (resourceaccess.PolicyContextComponent{}).DatlyHandler("NewPolicyContext")()
+	if err != nil {
+		return err
+	}
+	policyContext, err := compile(reflect.TypeFor[resourceaccess.PolicyContextComponent](), reflect.TypeFor[resourceaccess.PolicyInput](), reflect.TypeFor[sharedapi.PolicyContextOutput](), resources, types, codec, policyContextHandler)
+	if err != nil {
+		return err
+	}
+	policyReplaceHandler, err := (resourceaccess.PolicyReplaceComponent{}).DatlyHandler("NewPolicyReplace")()
+	if err != nil {
+		return err
+	}
+	policyReplace, err := compile(reflect.TypeFor[resourceaccess.PolicyReplaceComponent](), reflect.TypeFor[resourceaccess.PolicyWriteInput](), reflect.TypeFor[sharedapi.PolicyOutput](), resources, types, codec, policyReplaceHandler)
+	if err != nil {
+		return err
+	}
+	authorizationCheckHandler, err := (resourceaccess.AuthorizationComponent{}).DatlyHandler("NewAuthorizationCheck")()
+	if err != nil {
+		return err
+	}
+	authorizationCheck, err := compile(reflect.TypeFor[resourceaccess.AuthorizationComponent](), reflect.TypeFor[resourceaccess.AuthorizationInput](), reflect.TypeFor[sharedapi.DecisionOutput](), resources, types, codec, authorizationCheckHandler)
+	if err != nil {
+		return err
+	}
 	document, err := (openapi.Generator{}).Generate(ctx, openapi.Request{
 		Info:       openapi3.Info{Title: "Datly Studio SDK", Version: "1.0.0"},
-		Components: []*registry.RegisteredComponent{auth, accessList, accessGet, accessContext, accessReplace, aclList, aclDelete, aclUpsert, predicateTypes, predicateGet, predicateCreate, predicateUpdate, predicateDelete, predicateList, connectorList, connectorOne, connectorCreate, connectorSchemas, connectorTables, connectorTable, connectorTest, connectorTestSQL, previewExecution, connectorActivate, connectorDelete, connectorDisable, connectorUpdate, namespaceList, namespaceOne, namespaceCreate, namespaceDelete, namespaceUpdate, reportList, reportOne, reportCreate, reportUpdate, publicationOne, publicationHistory, publicationPublish, publicationRollback, publicationUnpublish, versionOne, versionCreate, versionClone, versionLoad, versionArchive, versionInspect, versionApply, versionBuilder, versionValidate, versionTestView, versionTestRelation, versionTestCompose, versionWarmup, versionPage, versionExport, versionDescriptor, versionDownload, resourceSnapshot, resourceUpsertFile, resourceDeleteFile, resourceUpsertFolder, resourceDeleteFolder, resourceUpsertSkill, resourceDeleteSkill, warmupOne, warmupPage, runtimeStatus},
+		Components: []*registry.RegisteredComponent{auth, policyGet, policyContext, policyReplace, authorizationCheck, accessList, accessGet, accessContext, accessReplace, aclList, aclDelete, aclUpsert, predicateTypes, predicateGet, predicateCreate, predicateUpdate, predicateDelete, predicateList, connectorList, connectorOne, connectorCreate, connectorSchemas, connectorTables, connectorTable, connectorTest, connectorTestSQL, previewExecution, connectorActivate, connectorDelete, connectorDisable, connectorUpdate, namespaceList, namespaceOne, namespaceCreate, namespaceDelete, namespaceUpdate, reportList, reportOne, reportCreate, reportUpdate, publicationOne, publicationHistory, publicationPublish, publicationRollback, publicationUnpublish, versionOne, versionCreate, versionClone, versionLoad, versionArchive, versionInspect, versionApply, versionBuilder, versionValidate, versionTestView, versionTestRelation, versionTestCompose, versionWarmup, versionPage, versionExport, versionDescriptor, versionDownload, resourceSnapshot, resourceUpsertFile, resourceDeleteFile, resourceUpsertFolder, resourceDeleteFolder, resourceUpsertSkill, resourceDeleteSkill, warmupOne, warmupPage, runtimeStatus},
 		Routes: []spec.RouteRef{
 			{Method: "POST", Path: "/v1/studio/sdk/access.list"},
 			{Method: "POST", Path: "/v1/studio/sdk/access.context"},
+			{Method: "POST", Path: "/v1/authz/sdk/policies.get"},
+			{Method: "POST", Path: "/v1/authz/sdk/policies.context"},
+			{Method: "POST", Path: "/v1/authz/sdk/policies.replace"},
+			{Method: "POST", Path: "/v1/authz/sdk/authorization.check"},
+
 			{Method: "POST", Path: "/v1/studio/sdk/access.get"},
 			{Method: "POST", Path: "/v1/studio/sdk/access.replace"},
 			{Method: "POST", Path: "/v1/studio/sdk/authorization_predicates.types"},

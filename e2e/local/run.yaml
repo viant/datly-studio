@@ -12,6 +12,13 @@ init:
 pipeline:
   init:
     description: start Docker services and initialize E2E datastores
+    schema:
+      action: exec:run
+      target: $target
+      checkError: true
+      commands:
+        - cd ${appPath}
+        - go run ./cmd/studio-schema -driver mysql -output .data/studio.mysql.ddl
     system:
       action: run
       request: '@system'

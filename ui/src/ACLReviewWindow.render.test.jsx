@@ -59,20 +59,20 @@ test('live review uses current SDK policy read-only without fixture or writes', 
 	const sent = [];
 	const fetcher = vi.fn(async (request) => {
 		sent.push({ url: request.url, credentials: request.credentials, authorization: request.headers.get('Authorization'), body: await request.clone().text() });
-		return new Response(JSON.stringify(request.url.endsWith('access.get')
-			? { resource, revision: 4, policies: { retrieve: { mode: 'public' } } }
-			: { canManage: true, choices: {} }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+		return new Response(JSON.stringify(request.url.endsWith('policies.get')
+			? { document: { resource, revision: 4, policies: { retrieve: { mode: 'public' } } } }
+			: { context: { canManage: true, choices: {} } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
 	});
 	const api = new StudioAPI({ mode: 'authenticated', apiBaseURL: 'https://studio.example.com' }, { fetcher });
 	render(<LiveACLReview api={api} resource={resource}/>);
 	expect(await screen.findByText('Policy revision 4')).toBeTruthy();
 	expect(sent.map(({ url }) => url)).toEqual([
-		'https://studio.example.com/v1/studio/sdk/access.get', 'https://studio.example.com/v1/studio/sdk/access.context',
+		'https://studio.example.com/v1/authz/sdk/policies.get', 'https://studio.example.com/v1/authz/sdk/policies.context',
 	]);
 	for (const request of sent) {
 		expect(request.credentials).toBe('include');
 		expect(request.authorization).toBeNull();
-		expect(JSON.parse(request.body)).toEqual(resource);
+		expect(JSON.parse(request.body)).toEqual({resource});
 	}
 	expect(screen.getByText('Live · read-only')).toBeTruthy();
 	expect(screen.getByLabelText('Access mode').disabled).toBe(true);

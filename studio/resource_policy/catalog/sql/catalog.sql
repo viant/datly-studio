@@ -14,7 +14,7 @@ SELECT h.resource_kind AS kind,h.resource_id AS id,
        COALESCE(c.title,sc.title,'') AS owner_name,COALESCE(c.owner_id,sc.owner_id,'') AS owner_id,
        COALESCE(c.id,sc.id,'') AS component_id,COALESCE(c.namespace_id,sc.namespace_id,'') AS namespace_id,TRUE AS has_policy,
        r.policies_json AS policy_json,'' AS source_dql
-FROM resource_policy_heads h
+FROM resource_policies h
 LEFT JOIN resource_policy_revisions r ON r.tenant_id=h.tenant_id AND r.resource_kind=h.resource_kind
  AND r.resource_id=h.resource_id AND r.resource_version=h.resource_version AND r.revision=h.revision
 LEFT JOIN components c ON h.resource_kind='component' AND c.id=h.resource_id
@@ -25,7 +25,7 @@ UNION ALL
 SELECT 'component',c.id,c.title,'',CAST(v.version_no AS CHAR),'component',c.id,c.title,c.owner_id,c.id,c.namespace_id,FALSE,'{}',COALESCE(v.generated_dql,v.authored_dql,'')
 FROM components c JOIN report_versions v ON v.report_id=c.id
 WHERE c.deleted_at IS NULL AND NOT EXISTS (
- SELECT 1 FROM resource_policy_heads h WHERE h.resource_kind='component' AND h.resource_id=c.id AND h.resource_version=CAST(v.version_no AS CHAR))
+ SELECT 1 FROM resource_policies h WHERE h.resource_kind='component' AND h.resource_id=c.id AND h.resource_version=CAST(v.version_no AS CHAR))
 UNION ALL
 SELECT 'skill',s.skill_id,CASE WHEN s.skill_root='.' THEN f.root_path ELSE s.skill_root END,
        COALESCE(h.tenant_id,''),CAST(s.version_no AS CHAR),'component',s.report_id,c.title,c.owner_id,c.id,c.namespace_id,
@@ -33,10 +33,10 @@ SELECT 'skill',s.skill_id,CASE WHEN s.skill_root='.' THEN f.root_path ELSE s.ski
 FROM report_skill_roots s JOIN components c ON c.id=s.report_id
 JOIN report_versions v ON v.report_id=s.report_id AND v.version_no=s.version_no
 JOIN report_resource_folders f ON f.report_id=s.report_id AND f.version_no=s.version_no AND f.folder_id=s.folder_id
-LEFT JOIN resource_policy_heads h ON h.resource_kind='component' AND h.resource_id=s.report_id AND h.resource_version=CAST(s.version_no AS CHAR)
+LEFT JOIN resource_policies h ON h.resource_kind='component' AND h.resource_id=s.report_id AND h.resource_version=CAST(s.version_no AS CHAR)
 LEFT JOIN resource_policy_revisions r ON r.tenant_id=h.tenant_id AND r.resource_kind=h.resource_kind AND r.resource_id=h.resource_id AND r.resource_version=h.resource_version AND r.revision=h.revision
 WHERE c.deleted_at IS NULL AND NOT EXISTS (
- SELECT 1 FROM resource_policy_heads p WHERE p.resource_kind='skill' AND p.resource_id=s.skill_id AND p.resource_version=CAST(s.version_no AS CHAR))
+ SELECT 1 FROM resource_policies p WHERE p.resource_kind='skill' AND p.resource_id=s.skill_id AND p.resource_version=CAST(s.version_no AS CHAR))
 ) result ORDER BY kind,name,id,tenant,version
 LIMIT $Limit OFFSET $Offset
 ) catalog

@@ -22,7 +22,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	permissionview "github.com/viant/authz/datly/context/permissions"
+	permissionview "github.com/viant/authz/component/context/permissions"
 	"reflect"
 	"sort"
 	"strings"
@@ -129,7 +129,7 @@ func Handler(entityType string, decide Decider) rhandler.TypedHandler {
 		}
 		facts, decision, err := decide(ctx)
 		if err != nil {
-			return nil, forbidden("access context denied")
+			return nil, authorizationError(err)
 		}
 		return Convert(facts, decision, entityType)
 	})
@@ -201,7 +201,7 @@ func DependsOn(component *spec.Component) ([]Dependency, error) {
 // unbounded decision, an empty or mixed entity set, or a decision of another
 // dimension all deny.
 func Convert(facts access.Facts, decision access.Decision, entityType string) (*Output, error) {
-	if strings.TrimSpace(facts.Subject) == "" || strings.TrimSpace(facts.Tenant) == "" {
+	if strings.TrimSpace(facts.Subject) == "" || strings.TrimSpace(facts.Tenant) == "" || strings.TrimSpace(facts.Issuer) == "" {
 		return nil, forbidden("access context requires a verified principal")
 	}
 	if !facts.ValidUntil.After(time.Now()) {
@@ -251,4 +251,15 @@ func Convert(facts access.Facts, decision access.Decision, entityType string) (*
 
 func forbidden(message string) error {
 	return &xresponse.Error{Code: 403, Cause: errors.New(message)}
+}
+
+// Preserve authority status while keeping provider diagnostics private.
+func authorizationError(err error) error {
+	if errors.Is(err, access.ErrUnavailable) {
+		return &xresponse.Error{Code: 503, Cause: access.ErrUnavailable}
+	}
+	if errors.Is(err, access.ErrIdentityDenied) {
+		return &xresponse.Error{Code: 401, Cause: access.ErrIdentityDenied}
+	}
+	return forbidden("access context denied")
 }

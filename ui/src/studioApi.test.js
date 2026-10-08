@@ -454,6 +454,8 @@ test('reader inspection and command methods retain version identity and revision
   await api.applyReaderCommand('vendor-catalog', 1, { expectedSourceRevision: 2, operation: { type: 'inspect' } });
   assert.equal(calls[0].url, 'http://127.0.0.1:8080/v1/studio/sdk/versions.inspect');
   assert.equal(calls[0].body, '{"reportId":"vendor-catalog","versionNo":1}');
+  await api.inspectVersion('vendor-catalog', 1, { discoverColumns: false });
+  assert.equal(calls.at(-1).body, '{"reportId":"vendor-catalog","versionNo":1,"discoverColumns":false}');
   assert.equal(calls[1].url, 'http://127.0.0.1:8080/v1/studio/sdk/versions.validate');
   assert.equal(calls[1].body, '{"reportId":"vendor-catalog","versionNo":1,"expectedSourceRevision":2}');
   assert.equal(calls[2].url, 'http://127.0.0.1:8080/v1/studio/sdk/publications.publish');
@@ -601,18 +603,18 @@ test('report permissions use ACL SDK operations', async () => {
   assert.equal(calls[2].url,'http://127.0.0.1:8080/v1/studio/sdk/acl.delete');
 });
 
-test('generated resource access client uses exact native routes and BFF session', async () => {
+test('shared resource access client uses canonical routes and BFF session', async () => {
   const calls=[];
   const resource={kind:'component',id:'reader',tenant:'one',version:'1'};
   const api=new StudioAPI({mode:'authenticated',apiBaseURL:'https://studio.example.com'}, {fetcher:async(request)=>{
     calls.push({url:request.url,body:await request.text(),credentials:request.credentials,authorization:request.headers.get('Authorization')});
-    return response(request.url.endsWith('access.context')?{canManage:true,choices:{},source:'verified-principal'}:{resource,revision:request.url.endsWith('access.replace')?2:1,policies:{}});
+    return response(request.url.endsWith('policies.context')?{context:{canManage:true,choices:{},source:'verified-principal'}}:{document:{resource,revision:request.url.endsWith('policies.replace')?2:1,policies:{}}});
   }});
   assert.equal((await api.getResourceAccess(resource)).revision,1);
   assert.equal((await api.getResourceAccessContext(resource)).canManage,true);
   assert.equal((await api.replaceResourceAccess({resource,revision:1,policies:{}})).revision,2);
-  assert.deepEqual(calls.map(({url})=>url),['access.get','access.context','access.replace'].map(operation=>`https://studio.example.com/v1/studio/sdk/${operation}`));
-  assert.deepEqual(calls.map(({body})=>JSON.parse(body)),[resource,resource,{resource,revision:1,policies:{}}]);
+  assert.deepEqual(calls.map(({url})=>url),['policies.get','policies.context','policies.replace'].map(operation=>`https://studio.example.com/v1/authz/sdk/${operation}`));
+  assert.deepEqual(calls.map(({body})=>JSON.parse(body)),[{resource},{resource},{document:{resource,revision:1,policies:{}}}]);
   assert.ok(calls.every(({credentials,authorization})=>credentials==='include'&&authorization===null));
 });
 
@@ -760,4 +762,34 @@ test('token refresh cannot retry a resource request into a different namespace',
   await assert.rejects(api.listComponents(), { code: 'namespace_changed' });
   assert.deepEqual(seen, [namespaceA]);
   assert.equal(expired, false);
+});
+
+test('shared authorization check retains namespace and distinguishes denial from outage', async () => {
+  const resource = {kind:'component',id:'reader',tenant:'one',version:'1'};
+  const namespace = 'a'.repeat(64);
+  let status = 200;
+  const api = new StudioAPI({mode:'authenticated',apiBaseURL:'https://studio.example.com'}, {fetcher:async request => {
+    assert.equal(request.url, 'https://studio.example.com/v1/authz/sdk/authorization.check');
+    assert.equal(request.headers.get('X-Studio-Namespace'), namespace);
+    assert.deepEqual(JSON.parse(await request.text()), {resource, action:'execute'});
+    return response(status === 200 ? {decision:{bounded:false,entities:[]}} : {message:'access unavailable'}, status);
+  }});
+  api.setNamespace(namespace);
+  assert.equal((await api.checkCurrentAccess(resource, 'execute')).effect, 'allow');
+  status = 403;
+  assert.equal((await api.checkCurrentAccess(resource, 'execute')).effect, 'deny');
+  status = 503;
+  await assert.rejects(() => api.checkCurrentAccess(resource, 'execute'), error => error.status === 503 && error.code === 'unavailable');
+});
+
+test('shared policy read rejects a response after namespace switch', async () => {
+  let release;
+  const resource = {kind:'component',id:'reader',tenant:'one',version:'1'};
+  const api = new StudioAPI({mode:'authenticated',apiBaseURL:'https://studio.example.com'}, {fetcher:() => new Promise(resolve => { release = resolve; })});
+  api.setNamespace('a'.repeat(64));
+  const pending = api.getResourceAccess(resource);
+  while (!release) await new Promise(resolve => setImmediate(resolve));
+  api.setNamespace('b'.repeat(64));
+  release(response({document:{resource,revision:1,policies:{}}}));
+  await assert.rejects(() => pending, error => error.code === 'namespace_changed');
 });

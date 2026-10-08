@@ -10,6 +10,36 @@ The rest of this file preserves a detailed development history through
 This section is the current source of truth for resuming the Forecasting Studio
 work. No new branch was created; public Studio work is on `main`.
 
+### Latest completion and Git checkpoint
+
+- The earlier handoff checkpoint was committed and pushed to Studio `main`
+  as `aa6468b`. This follow-up document edit is intentionally **unstaged**,
+  as requested by the user; do not stage, commit, or push it automatically.
+- Forge MCP window discovery and exact-ID lookup are implemented in local
+  commit `a448c2c`. Its complete `backend/mcp/...` Go test suite passed,
+  including tool registration, summary redaction, client isolation, duplicate
+  ID rejection, and refusal to read snapshots from disconnected clients.
+  Forge remains two commits ahead of `origin/main`, including pre-existing
+  `6b9635b`; neither outgoing commit was pushed during this task.
+- Studio's dedicated UI root at `http://127.0.0.1:19173/` currently returns
+  HTTP 200. Browser sign-in is required to resume the UI authoring flow.
+- The isolated MySQL fixture is available on port 13317. The connector
+  `ci_ads_local` remains **draft/passed**, etag 8: its connection test passed,
+  but the interrupted UI flow did not activate it. This is the first remaining
+  operational step before repeating Forecasting graph/validation checks.
+- User clarified that window exposure means **saved Forge definitions**, not
+  live browser instances. The current Forge working tree adds `window-list`
+  and `window-get` by stable `windowId`; get includes full `dataSource`
+  definitions. Focused Go tests and real Streamable HTTP MCP initialize/list/
+  call smoke tests pass without a connected frontend. The saved-definition
+  follow-up is uncommitted; the earlier `a448c2c` snapshot implementation is
+  still local. See the detailed Forge section below.
+- The optional inspect API, generated clients, direct SQL parser dependency
+  update, and broader SQL scanner benchmarks remain uncommitted in their
+  respective repositories. Saved-definition tools need host catalog
+  configuration and private AI Studio authorization integration; they do not
+  need a live Forge frontend.
+
 ### What the user is building
 
 - Keep public `viant/datly-studio` independent and reporting-free. It is the
@@ -161,40 +191,56 @@ version identity, authorization, and wildcard semantics. Do not simply remove
 `ColumnRefiner` from runtime compilation: this current draft then drops from
 61 to 3 columns. Design and test that lifecycle before changing publish/reload.
 
-### Forge windows through MCP — added 2026-09-30
+### Saved Forge window definitions through MCP — updated 2026-09-30
 
-The sibling public Forge checkout now has a focused MCP bridge extension in
-`backend/mcp`:
+The requested names are exactly `window-list` and `window-get`; these return
+**saved definitions**, without requiring an open browser. Implementation is in
+Forge `backend/mcp/service/window_definitions.go` and `window_catalog_file.go`.
 
-- `forgeWindowList({clientId?})` lists **active** windows in one connected UI
-  client's current MCP namespace. Its response includes `windowId`, key,
-  title, tab/modal/minimized flags, and selected state. It intentionally omits
-  parameters, forms, datasource collections, and other window content.
-- `forgeWindowGet({clientId?,windowId})` returns the existing semantic snapshot
-  for one exact active window ID in that same UI client and namespace. It
-  rejects missing/whitespace-padded IDs, missing clients/windows, and snapshots
-  with duplicate window IDs; it does not search other clients or namespaces.
-- These are typed `github.com/viant/mcp-protocol/server` tools registered by
-  Forge's existing MCP handler. `GOWORK=off go test ./backend/mcp/...` passed,
-  including service isolation, stale-client refusal, ambiguous-ID refusal,
-  and tool-registration tests. The implementation is committed locally as
-  Forge `a448c2c` on existing `main`. It is **not pushed** at this checkpoint:
-  Forge already had an unrelated outgoing `main` commit (`6b9635b`), so a
-  routine push would publish both. Preserve unrelated Forge untracked files.
+- `window-list({query?,limit?,offset?})` returns authorized summaries with
+  `windowId`, `title`, and optional `namespace`, sorted by stable ID; default
+  page size 25, maximum 100, with `hasMore`. Definitions and datasource
+  configuration are not returned by list.
+- `window-get({windowId})` returns `{windowId,definition}`. It maps the ID to a
+  host-owned loader key, resolves YAML imports through Forge's existing
+  `handlers.LoadWindow`, and applies standard resource-model validation.
+  The definition includes `dataSource`, schemas, resource models, layout,
+  controls, actions, and sibling JavaScript action code where present. It
+  does not invoke datasource services or fetch their rows. Caller-supplied
+  filesystem paths and URLs are never used as loader arguments.
+- Hosts inject `WindowDefinitionCatalog` from their own registry or call
+  `LoadWindowCatalog` with a YAML manifest containing `baseURL` and explicit
+  saved-window ID/key entries. Latest user decision: saved window access is
+  role-only, configured in app config (`roles` per window); no configured roles
+  means open. The server resolves verified caller identity and user permission
+  info through an OAuth provider adapter. `NewCachedWindowRoleResolver` caches
+  successful permissions for five minutes per issuer/subject/tenant, validates
+  caller authentication on every request, and does not cache provider failures.
+  Both list and get use the same role gate. This is an adapter contract and cache
+  implementation; real IDP adapter composition is still required in the host.
+  Standalone CLI rejects role-protected catalogs without an app adapter.
+- CLI `--window-catalog` runs a catalog-only MCP server without a UI token or
+  frontend. The UI bridge handlers remain disabled in that mode. Saved tool
+  definitions are advertised only when a catalog is configured. Example:
+  `backend/mcp/examples/catalog.yaml`; run from Forge with
+  `GOWORK=off go run ./backend/mcp/cmd/forge-mcp --addr 127.0.0.1:5025
+  --window-catalog backend/mcp/examples/catalog.yaml`.
+- `GOWORK=off go test ./backend/mcp/...` passed after this follow-up, including
+  import/data-source/action-code preservation, pagination/filtering, separate
+  role-only authorization, duplicate IDs, path-like unknown IDs, and MCP
+  tools/list + tools/call. A temporary neutral fixture server on port 19525
+  also passed actual Streamable HTTP initialize/list/get; no browser or data
+  source server was connected. This is protocol evidence, not private AI
+  Studio integration evidence.
 
-This is an **active-window** list, not a registry/catalog of every window
-definition that could be opened. A frontend must opt into Forge's UI bridge
-(`startUIBridge` or `startUIBridgeHTTP`) and publish a current semantic
-snapshot; without a connected frontend the list reports `connected:false` and
-get fails. Datly Studio presently uses Forge theme/components but does not by
-itself establish this UI-bridge connection. The Forge MCP tools also do not
-automatically appear on Datly Studio's namespace MCP listener: private AI
-Studio must compose or proxy them through its generic MCP adapter and enforce
-namespace, role, exposure, and allowed-entity policy **server-side before tool
-discovery and retrieval**. `forgeWindowGet` can contain form/parameter/row
-state; never expose it merely because a caller knows a window ID. No connected
-Forge frontend, authenticated host adapter, or end-to-end window retrieval has
-yet been verified for AI Studio.
+Earlier active-instance tools from local commit `a448c2c` are now explicitly
+named `forgeActiveWindowList` and `forgeActiveWindowGet`; they still require
+a frontend snapshot and must not be confused with saved definitions. The
+saved-definition follow-up is uncommitted in Forge. Forge has two outgoing
+commits (`6b9635b`, `a448c2c`) relative to `origin/main`; do not sweep up other
+workers' files or automatically push those commits. Neither saved tools nor
+active tools are yet composed into Datly Studio's namespace MCP listener or
+private AI Studio's authz adapter. Keep public Studio reporting-free.
 
 ### Exact next actions
 
@@ -223,10 +269,10 @@ yet been verified for AI Studio.
    once public commits are finalized. Do not accidentally commit that untracked
    nested module inside Steward. Continue AI Studio reporting only after the
    Datly Studio prerequisite flow is accepted.
-7. Review the local Forge MCP window-list/get commit `a448c2c` and its
-   pre-existing outgoing commit before pushing either. Connect a Forge
-   frontend to the bridge, verify real MCP `tools/list`, list,
-   exact-ID get, disconnected-client behavior, and denied cross-client access.
+7. Review the uncommitted Forge **saved-definition** tools and the two existing
+   outgoing commits before staging/pushing code. Configure an application
+   catalog and verify `window-list`/`window-get` against real saved windows,
+   including resolved datasource definitions and independent access denial.
    Wire into private AI Studio only through its authorized namespace MCP
    adapter; do not add reporting behavior to public Datly Studio.
 
@@ -1604,3 +1650,20 @@ endpoint planning should respect this boundary.
 - [Static component configuration](datly.yaml)
 - [Dynamic runtime configuration](datly-runtime.yaml)
 - [Datly 1.0 Reader Builder](../datly/authoring/readerbuilder)
+
+Saved-window permission follow-up (2026-09-30): removed the generic window policy callback. App-config roles are the sole saved-definition gate. Provider adapter and bounded five-minute role cache are implemented; trusted OAuth adapter composition into the application remains pending. Final validation passed: `GOWORK=off go test -race ./backend/mcp/... ./backend/handlers ./backend/service/meta` in Forge, after callback removal. `handoff.md` remains unstaged.
+
+
+Authz resource-version selection (2026-10-07): `viant/authz/selection.go` now
+provides `ResourceFamily`, a versioned `SelectionDocument` (one default plus
+feature-exposure overrides with unique priorities), `SelectionStore` and cloned
+`StaticSelectionStore`. `Selector.Authorize` resolves one verified identity
+snapshot, selects a version, and authorizes its exact current resource policy;
+it returns mapping/policy revision identifiers and entity bounds. Denial or an
+outage does not fall back to another version. `Selector.FindPolicy` selects the
+same way and requires unbounded `viewAccess` before returning the document.
+Mappings with overrides require verified, unexpired identity; a no-override
+mapping with public wildcard-tenant policy can be anonymous. Endpoint mapping,
+runtime version loading, MCP schema/session coordination and Studio persistence
+remain integration work. The implementation is uncommitted in authz; this
+handoff remains unstaged.

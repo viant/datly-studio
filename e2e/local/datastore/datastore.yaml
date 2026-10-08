@@ -16,7 +16,7 @@ pipeline:
           descriptor: '[username]:[password]@tcp(${dbIP.mysql}:${dbPort.mysql})/[dbname]?parseTime=true&multiStatements=true'
           credentials: $mysqlCredentials
       scripts:
-        - URL: ${appPath}/schema/schema.ddl
+        - URL: ${appPath}/.data/studio.mysql.ddl
 
     prepare:
       action: dsunit:prepare

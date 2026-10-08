@@ -26,12 +26,12 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
-	accessstore "github.com/viant/authz/datly/store/sql"
+	accessstore "github.com/viant/authz/component/store/sql"
 	_ "github.com/viant/bigquery"
-	"github.com/viant/datly-studio/internal/accessconfig"
 	"github.com/viant/datly-studio/internal/bffauth"
 	"github.com/viant/datly-studio/internal/runtimeadmin"
 	"github.com/viant/datly-studio/runtime/accesscontext"
+	"github.com/viant/datly-studio/runtime/accessprovider"
 	"github.com/viant/datly-studio/runtime/preview"
 	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly-studio/sdk/access"
@@ -53,6 +53,10 @@ import (
 // nativeSDKPaths are exact BFF mounts for generated static Datly SDK routes.
 // Every other SDK operation remains on the generic SDK gateway.
 var nativeSDKPaths = []string{
+	"/v1/authz/sdk/policies.get",
+	"/v1/authz/sdk/policies.context",
+	"/v1/authz/sdk/policies.replace",
+	"/v1/authz/sdk/authorization.check",
 	"/v1/studio/sdk/versions.clone",
 	"/v1/studio/sdk/access.list",
 	"/v1/studio/sdk/access.context",
@@ -125,6 +129,23 @@ var nativeSDKPaths = []string{
 // Run starts the Studio API with its standard command-line flags. Applications
 // can link their own predicates and components before calling Run from main.
 func Run() {
+	RunWithOptions(Options{})
+}
+
+// Options supplies process-owned identity wiring for embedders. The factory
+// is invoked once during startup and is never selected from request data.
+type Options struct {
+	AccessProviderFactory accessprovider.ProviderFactory
+	AccessProviderConfig  *accessprovider.Config
+	// Modules adds process-owned, independently authenticated extension APIs.
+	// Embedders supply credential protection and business authorization in each
+	// handler. Modules never inherit development identities or browser facts.
+	Modules ModuleFactory
+}
+
+// RunWithOptions starts Studio with optional host-owned resource identity
+// bootstrap while preserving the standard command-line configuration.
+func RunWithOptions(options Options) {
 	address := flag.String("address", "127.0.0.1:8080", "SDK HTTP listen address")
 	dsn := flag.String("dsn", "file:.data/studio.db?cache=shared", "Studio SQLite DSN")
 	subject := flag.String("subject", "awitas", "local development principal")
@@ -268,21 +289,39 @@ func Run() {
 		}
 	}()
 	var sdkTransport sdk.Transport = transport
-	if *accessIssuer != "" || *accessAudience != "" || *accessKey != "" || *accessCertURL != "" || *accessUserInfoURL != "" {
+	accessConfig := accessprovider.EnvironmentConfig()
+	accessConfig.Issuer, accessConfig.Audience = strings.TrimSpace(*accessIssuer), strings.TrimSpace(*accessAudience)
+	accessConfig.PublicKeyFile, accessConfig.CertURL = strings.TrimSpace(*accessKey), strings.TrimSpace(*accessCertURL)
+	accessConfig.UserInfoURL = strings.TrimSpace(*accessUserInfoURL)
+	if options.AccessProviderConfig != nil {
+		accessConfig = *options.AccessProviderConfig
+	}
+	resourceProvider, providerErr := configuredAccessProvider(lifecycleCtx, options, accessConfig)
+	if providerErr != nil {
+		log.Fatal(providerErr)
+	}
+	if resourceProvider != nil {
 		if resolvedMode != string(httptransport.Authenticated) {
 			log.Fatal("resource ACL requires authenticated Studio mode")
 		}
-		provider, providerErr := accessconfig.New(accessconfig.Config{Issuer: *accessIssuer, Audience: *accessAudience,
-			PublicKeyFile: *accessKey, CertURL: *accessCertURL, UserInfoURL: *accessUserInfoURL})
-		if providerErr != nil {
-			log.Fatal(providerErr)
-		}
-		accessService := &authz.Service{Store: &accessstore.Store{DB: db}, Provider: provider}
+		accessService := &authz.Service{Store: &accessstore.Store{DB: db}, Provider: resourceProvider}
 		dynamicPreview.Access, dynamicPreview.AccessTenant = accessService, *accessTenant
 		transport.Preview, transport.ViewTester, transport.RelationTester, transport.ComposeTester = dynamicPreview, dynamicPreview, dynamicPreview, dynamicPreview
 		sdkTransport = &access.Transport{Next: transport, Service: accessService, Catalog: &access.Catalog{Service: accessService, Source: &accesscatalog.Store{DB: db}}}
 	}
 	mux := http.NewServeMux()
+	if options.Modules != nil {
+		if resolvedMode != string(httptransport.Authenticated) || resourceProvider == nil {
+			log.Fatal("Studio extension modules require authenticated mode and a trusted identity provider")
+		}
+		modules, moduleErr := options.Modules(lifecycleCtx, db, resourceProvider)
+		if moduleErr != nil {
+			log.Fatal(moduleErr)
+		}
+		if moduleErr = mountModules(mux, modules); moduleErr != nil {
+			log.Fatal(moduleErr)
+		}
+	}
 	if *staticRoot != "" {
 		assets, assetErr := newStaticAssets(*staticRoot)
 		if assetErr != nil {
@@ -444,6 +483,18 @@ func Run() {
 	if err := serveUntilStopped(lifecycleCtx, server, listener); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func configuredAccessProvider(ctx context.Context, options Options, config accessprovider.Config) (authz.Provider, error) {
+	factory := options.AccessProviderFactory
+	if factory == nil {
+		factory = accessprovider.RegisteredEnvironmentFactory()
+	}
+	configured := factory != nil || config.Issuer != "" || config.Audience != "" || config.PublicKeyFile != "" || config.CertURL != "" || config.UserInfoURL != ""
+	if !configured {
+		return nil, nil
+	}
+	return accessprovider.New(ctx, config, factory)
 }
 
 func mcpProxyError(response http.ResponseWriter, request *http.Request, err error) {

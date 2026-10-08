@@ -18,10 +18,11 @@ func TestCanonicalAuditColumnInventory(t *testing.T) {
 
 	auditColumns := []string{"created_at", "created_by", "updated_at", "updated_by"}
 	requiredAuditTables := map[string]struct{}{
-		"resource_policy_heads":     {},
-		"resource_policy_revisions": {},
-		"resource_namespace_claims": {},
-		"report_warmup_runs":        {},
+		"resource_policies":                  {},
+		"resource_policy_revisions":          {},
+		"resource_policy_namespace_bindings": {},
+		"resource_namespace_claims":          {},
+		"report_warmup_runs":                 {},
 	}
 
 	// Temporary migration backlog, not permanent exemptions. Every table in

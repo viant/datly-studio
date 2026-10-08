@@ -51,6 +51,8 @@ func TestConvertDenies(t *testing.T) {
 	expired.ValidUntil = time.Now().Add(-time.Second)
 	anonymous := facts()
 	anonymous.Subject = ""
+	unverified := facts()
+	unverified.Issuer = " "
 	malformed := facts()
 	malformed.EntityGroups = access.EntityGroups{"project": {"101", "101"}}
 	bounded := access.Decision{Bounded: true, Entities: []access.Entity{{Type: "project", ID: "101"}}}
@@ -59,6 +61,7 @@ func TestConvertDenies(t *testing.T) {
 		decision  access.Decision
 		dimension string
 	}{
+		"unverified issuer":   {unverified, bounded, "project"},
 		"expired facts":       {expired, bounded, "project"},
 		"anonymous facts":     {anonymous, bounded, "project"},
 		"malformed entities":  {malformed, bounded, "project"},

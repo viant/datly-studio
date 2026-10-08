@@ -34,11 +34,12 @@ import (
 )
 
 type Input struct {
-	NamespaceId *string            `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
-	Jwt         *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
-	Auth        *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
-	ReportId    string             `parameter:"ReportId,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
-	VersionNo   int                `parameter:"VersionNo,kind=body,in=versionNo,dataType=int,required=true" json:"versionNo"`
+	NamespaceId     *string            `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
+	Jwt             *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
+	Auth            *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
+	ReportId        string             `parameter:"ReportId,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
+	VersionNo       int                `parameter:"VersionNo,kind=body,in=versionNo,dataType=int,required=true" json:"versionNo"`
+	DiscoverColumns *bool              `parameter:"DiscoverColumns,kind=body,in=discoverColumns,dataType=*bool,required=false" json:"discoverColumns,omitempty"`
 }
 
 type Output struct {
@@ -167,7 +168,7 @@ func (*inspectHandler) Exec(ctx context.Context, session xhandler.Session, input
 	}
 	inspected := service.Apply(ctx, readerbuilder.Request{DQL: source,
 		Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
-	if permissions.CanUseDQL && inspected.Structure != nil && inspected.Structure.Component != nil {
+	if (input.DiscoverColumns == nil || *input.DiscoverColumns) && permissions.CanUseDQL && inspected.Structure != nil && inspected.Structure.Component != nil {
 		value, found, lookupErr := session.Binder().Lookup(ctx, rhandler.ConnectorCapabilityKey)
 		if lookupErr != nil {
 			return lookupErr

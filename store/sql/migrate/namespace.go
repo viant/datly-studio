@@ -106,6 +106,12 @@ func migrateNamespaceOwnership(ctx context.Context, db *sql.DB) error {
 	}
 	tables.Close()
 	for _, table := range names {
+		// These shared authorization tables retain their historical namespace_id
+		// columns for the dedicated 20→21 association backfill. Do not add Studio
+		// namespace ownership columns to the shared policy schema.
+		if table == "resource_policies" || table == "resource_policy_revisions" {
+			continue
+		}
 		present, err := sqliteColumnExists(ctx, tx, table, "namespace_id")
 		if err != nil {
 			return err

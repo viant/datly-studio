@@ -24,7 +24,7 @@ import (
 
 	jwtlib "github.com/golang-jwt/jwt/v5"
 	resourceaccess "github.com/viant/authz"
-	accessstore "github.com/viant/authz/datly/store/sql"
+	accessstore "github.com/viant/authz/component/store/sql"
 	"github.com/viant/datly-studio/internal/bffauth"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/warmupprojection"
@@ -179,7 +179,7 @@ func TestSelectedStudioStaticComponentsBootstrapTogether(t *testing.T) {
 					continue
 				}
 				matches++
-				wantTool := "studio.sdk." + strings.TrimPrefix(path, "/v1/studio/sdk/")
+				wantTool := sdkToolForPath(path)
 				foundTool := false
 				for _, exposure := range route.MCP {
 					foundTool = foundTool || exposure != nil && exposure.Name == wantTool
@@ -1202,6 +1202,11 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		!strings.Contains(ownerInspection.Body.String(), `"canUseDql":true`) {
 		t.Fatalf("owner version inspect status=%d body=%s", ownerInspection.Code, ownerInspection.Body.String())
 	}
+	structureOnly := httptest.NewRecorder()
+	server.ServeHTTP(structureOnly, request("/v1/studio/sdk/versions.inspect", `{"reportId":"`+nativeReport.ID+`","versionNo":1,"discoverColumns":false}`))
+	if structureOnly.Code != http.StatusOK || !strings.Contains(structureOnly.Body.String(), `"canUseDql":true`) {
+		t.Fatalf("structure-only version inspect status=%d body=%s", structureOnly.Code, structureOnly.Body.String())
+	}
 	loadReportResponse := httptest.NewRecorder()
 	wrongCreate := request("/v1/studio/sdk/components.create", `{"slug":"ns-create-denied","title":"Denied","namespace":"production.audit","defaultConnectorName":"main"}`)
 	wrongCreate.Header.Set("X-Studio-Namespace", wrongNamespaceID)
@@ -1647,14 +1652,14 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	}
 	expectedSDKTools := map[string]bool{}
 	for path := range document.Paths {
-		name := "studio.sdk." + strings.TrimPrefix(path, "/v1/studio/sdk/")
+		name := sdkToolForPath(path)
 		expectedSDKTools[name] = true
 		if !available[name] {
 			t.Errorf("static MCP listener did not list %s", name)
 		}
 	}
 	for name := range available {
-		if strings.HasPrefix(name, "studio.sdk.") && !expectedSDKTools[name] {
+		if (strings.HasPrefix(name, "studio.sdk.") || strings.HasPrefix(name, "authz.sdk.")) && !expectedSDKTools[name] {
 			t.Errorf("static MCP listener exposed undeclared SDK tool %s", name)
 		}
 	}
@@ -2019,7 +2024,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		proxiedTools[tool.Name] = true
 	}
 	for path := range document.Paths {
-		name := "studio.sdk." + strings.TrimPrefix(path, "/v1/studio/sdk/")
+		name := sdkToolForPath(path)
 		if !proxiedTools[name] {
 			t.Errorf("authenticated BFF MCP catalog did not list %s", name)
 		}
@@ -2772,7 +2777,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	returnedAccount.Store(22)
 	changedIdentity := httptest.NewRecorder()
 	server.ServeHTTP(changedIdentity, aclRequest("/v1/studio/sdk/access.get", directBody, directToken))
-	if changedIdentity.Code != http.StatusForbidden {
+	if changedIdentity.Code != http.StatusUnauthorized {
 		t.Fatalf("mismatched identity facts status=%d body=%s", changedIdentity.Code, changedIdentity.Body.String())
 	}
 	t.Setenv("STUDIO_ACCESS_USER_INFO_URL", "")
@@ -2847,4 +2852,11 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"canManage":true`)) {
 		t.Fatalf("native access MCP context status=%d body=%s", status, body)
 	}
+}
+
+func sdkToolForPath(path string) string {
+	if strings.HasPrefix(path, "/v1/authz/sdk/") {
+		return "authz.sdk." + strings.TrimPrefix(path, "/v1/authz/sdk/")
+	}
+	return "studio.sdk." + strings.TrimPrefix(path, "/v1/studio/sdk/")
 }

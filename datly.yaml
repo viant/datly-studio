@@ -163,7 +163,7 @@ GoBootstrap:
     - github.com/viant/datly-studio/studio/resource_namespace_claims/store_write
     - github.com/viant/datly-studio/studio/resource_namespaces/store_presence
     - github.com/viant/datly-studio/studio/resource_namespaces/store_usage
-    - github.com/viant/authz/datly/policy/reader
-    - github.com/viant/authz/datly/policy/writer
+    - github.com/viant/authz/component/policy/reader
+    - github.com/viant/authz/component/policy/writer
     - github.com/viant/datly-studio/studio/resource_policy/access
     - github.com/viant/datly-studio/studio/resource_policy/catalog

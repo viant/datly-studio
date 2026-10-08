@@ -92,9 +92,15 @@ func (t *Transport) Invoke(ctx context.Context, operation string, input, output 
 		if err = t.checkNamespace(ctx, resource); err != nil {
 			return err
 		}
-		value, contextErr := t.Service.EditorContext(ctx, resource)
+		value, contextErr := t.Service.EditorContextWithStatus(ctx, resource)
 		if contextErr != nil {
-			return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Resource access is not permitted", Cause: contextErr}
+			return policyError(contextErr)
+		}
+
+		administration := &authz.Administration{Store: t.Service.Store, Provider: t.Service.Provider, Management: t.Service}
+		value.CanManage, err = administration.CanReplace(ctx, resource)
+		if err != nil {
+			return policyError(err)
 		}
 		*out = value
 		return nil
@@ -111,7 +117,7 @@ func (t *Transport) Invoke(ctx context.Context, operation string, input, output 
 		if err = t.checkNamespace(ctx, resource); err != nil {
 			return err
 		}
-		result, err = t.Service.Get(ctx, resource)
+		result, err = t.Service.GetWithStatus(ctx, resource)
 	} else {
 		var doc authz.Document
 		if err = decode(&doc); err != nil {
@@ -120,13 +126,11 @@ func (t *Transport) Invoke(ctx context.Context, operation string, input, output 
 		if err = t.checkNamespace(ctx, doc.Resource); err != nil {
 			return err
 		}
-		result, err = t.Service.Replace(ctx, doc)
+		administration := &authz.Administration{Store: t.Service.Store, Provider: t.Service.Provider, Management: t.Service}
+		result, err = administration.Replace(ctx, doc)
 	}
 	if err != nil {
-		if errors.Is(err, authz.ErrConflict) {
-			return &sdk.Error{Code: sdk.ErrorConflict, Message: "Access policy changed. Reload before saving."}
-		}
-		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Resource access is not permitted", Cause: err}
+		return policyError(err)
 	}
 	*out = result
 	return nil
@@ -157,4 +161,18 @@ func (t *Transport) canViewComponent(ctx context.Context, id string) bool {
 	}
 	var component sdk.Component
 	return t.Next.Invoke(ctx, sdk.OperationComponentGet, map[string]any{"id": id}, &component) == nil && component.ID == id
+}
+
+// Preserve the shared policy API's public failure categories across SDK transport.
+func policyError(err error) error {
+	switch {
+	case errors.Is(err, authz.ErrConflict):
+		return &sdk.Error{Code: sdk.ErrorConflict, Message: "Access policy changed. Reload before saving.", Cause: err}
+	case errors.Is(err, authz.ErrIdentityDenied):
+		return &sdk.Error{Code: sdk.ErrorUnauthorized, Message: "Authentication required", Cause: err}
+	case errors.Is(err, authz.ErrUnavailable):
+		return &sdk.Error{Code: sdk.ErrorUnavailable, Message: "Authorization service unavailable", Cause: err}
+	default:
+		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Resource access is not permitted", Cause: err}
+	}
 }

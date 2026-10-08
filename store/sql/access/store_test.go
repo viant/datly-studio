@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	policystore "github.com/viant/authz/datly/store/sql"
+	policystore "github.com/viant/authz/component/store/sql"
 	"github.com/viant/datly-studio/store/sql/accesscatalog"
 	"path/filepath"
 	"strings"
@@ -105,7 +105,7 @@ func TestPolicyActivationRunsAsGeneratedComponents(t *testing.T) {
 			t.Fatalf("replace of missing resource: %v", err)
 		}
 		var heads, history int
-		if err := db.QueryRow(`SELECT (SELECT COUNT(*) FROM resource_policy_heads),(SELECT COUNT(*) FROM resource_policy_revisions)`).Scan(&heads, &history); err != nil || heads != 0 || history != 0 {
+		if err := db.QueryRow(`SELECT (SELECT COUNT(*) FROM resource_policies),(SELECT COUNT(*) FROM resource_policy_revisions)`).Scan(&heads, &history); err != nil || heads != 0 || history != 0 {
 			t.Fatalf("rows heads=%d history=%d err=%v", heads, history, err)
 		}
 	})
@@ -128,7 +128,7 @@ func TestPolicyActivationRunsAsGeneratedComponents(t *testing.T) {
 			t.Fatalf("anonymous actor: %v", err)
 		}
 		var heads int
-		if err := db.QueryRow(`SELECT COUNT(*) FROM resource_policy_heads`).Scan(&heads); err != nil || heads != 0 {
+		if err := db.QueryRow(`SELECT COUNT(*) FROM resource_policies`).Scan(&heads); err != nil || heads != 0 {
 			t.Fatalf("denied activation wrote heads=%d err=%v", heads, err)
 		}
 	})

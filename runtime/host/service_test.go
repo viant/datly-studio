@@ -22,7 +22,7 @@ import (
 	"time"
 
 	jwtv5 "github.com/golang-jwt/jwt/v5"
-	accessstore "github.com/viant/authz/datly/store/sql"
+	accessstore "github.com/viant/authz/component/store/sql"
 	"github.com/viant/datly-studio/schema"
 	mcpschema "github.com/viant/mcp-protocol/schema"
 	mcpprotocol "github.com/viant/mcp/server"
@@ -35,7 +35,12 @@ func TestDynamicHostServesPublishedHTTPAndDedicatedMCP(t *testing.T) {
 	t.Run("identity-token", func(t *testing.T) { testDynamicHost(t, false, true) })
 }
 
-func testDynamicHost(t *testing.T, generic, identityRequired bool) {
+type dynamicHostExtension struct {
+	configure func(*Config)
+	verify    func(*Service, string)
+}
+
+func testDynamicHost(t *testing.T, generic, identityRequired bool, extensions ...dynamicHostExtension) {
 	ctx := context.Background()
 	root := t.TempDir()
 	if err := os.WriteFile(filepath.Join(root, "go.mod"), []byte("module example.com/runtime\n\ngo 1.25.0\n"), 0o600); err != nil {
@@ -135,6 +140,11 @@ JOIN (SELECT id,label FROM labels) labels ON labels.id=records.id`
 		}
 		runtimeConfig.Access = &ResourceAccessConfig{Tenant: "*", Issuer: "https://access.example", Audience: "runtime", PublicKeyFile: keyFile}
 	}
+	for _, extension := range extensions {
+		if extension.configure != nil {
+			extension.configure(&runtimeConfig)
+		}
+	}
 	service, err := New(ctx, runtimeConfig)
 	if err != nil {
 		t.Fatal(err)
@@ -154,6 +164,11 @@ JOIN (SELECT id,label FROM labels) labels ON labels.id=records.id`
 		_ = service.Close(closeCtx)
 	})
 	httpAddress, mcpAddress := service.Addresses()
+	for _, extension := range extensions {
+		if extension.verify != nil {
+			extension.verify(service, mcpAddress)
+		}
+	}
 	if httpAddress == "" || mcpAddress == "" || httpAddress == mcpAddress {
 		t.Fatalf("addresses=%q,%q", httpAddress, mcpAddress)
 	}
@@ -323,7 +338,7 @@ JOIN (SELECT id,label FROM labels) labels ON labels.id=records.id`
 		}
 		body, _ := io.ReadAll(denied.Body)
 		denied.Body.Close()
-		if denied.StatusCode != http.StatusForbidden || strings.Contains(string(body), "ready") {
+		if denied.StatusCode != http.StatusUnauthorized || strings.Contains(string(body), "ready") {
 			t.Fatalf("runtime policy bypass: %d %s", denied.StatusCode, body)
 		}
 	}

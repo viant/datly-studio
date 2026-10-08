@@ -9,13 +9,15 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
 	jwtv5 "github.com/golang-jwt/jwt/v5"
 	"github.com/viant/authz"
-	policyreader "github.com/viant/authz/datly/policy/reader"
-	policystore "github.com/viant/authz/datly/store/sql"
+	sharedapi "github.com/viant/authz/component/api"
+	policyreader "github.com/viant/authz/component/policy/reader"
+	policystore "github.com/viant/authz/component/store/sql"
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/datatest"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
@@ -34,6 +36,10 @@ import (
 )
 
 func TestNativePermissionCatalogNamespaceHTTPAndMCP(t *testing.T) {
+	factoryProvider := nativeFactorySubprocess(t, "TestNativePermissionCatalogNamespaceHTTPAndMCP")
+	if factoryProvider == nil {
+		return
+	}
 	ctx := context.Background()
 	db := datatest.OpenSQLite(t, "permission_namespace", "studio")
 	jwt := datatest.NewJWTFixture(t)
@@ -130,6 +136,10 @@ func TestNativePermissionCatalogNamespaceHTTPAndMCP(t *testing.T) {
 		factory               func() (rhandler.TypedHandler, error)
 	}{
 		{reflect.TypeFor[GetComponent](), reflect.TypeFor[ResourceInput](), reflect.TypeFor[DocumentOutput](), (GetComponent{}).DatlyHandler("NewGet")},
+		{reflect.TypeFor[PolicyGetComponent](), reflect.TypeFor[PolicyInput](), reflect.TypeFor[sharedapi.PolicyOutput](), (PolicyGetComponent{}).DatlyHandler("NewPolicyGet")},
+		{reflect.TypeFor[PolicyContextComponent](), reflect.TypeFor[PolicyInput](), reflect.TypeFor[sharedapi.PolicyContextOutput](), (PolicyContextComponent{}).DatlyHandler("NewPolicyContext")},
+		{reflect.TypeFor[PolicyReplaceComponent](), reflect.TypeFor[PolicyWriteInput](), reflect.TypeFor[sharedapi.PolicyOutput](), (PolicyReplaceComponent{}).DatlyHandler("NewPolicyReplace")},
+		{reflect.TypeFor[AuthorizationComponent](), reflect.TypeFor[AuthorizationInput](), reflect.TypeFor[sharedapi.DecisionOutput](), (AuthorizationComponent{}).DatlyHandler("NewAuthorizationCheck")},
 		{reflect.TypeFor[ContextComponent](), reflect.TypeFor[ResourceInput](), reflect.TypeFor[ContextOutput](), (ContextComponent{}).DatlyHandler("NewContext")},
 		{reflect.TypeFor[ReplaceComponent](), reflect.TypeFor[ReplaceInput](), reflect.TypeFor[DocumentOutput](), (ReplaceComponent{}).DatlyHandler("NewReplace")},
 	} {
@@ -230,4 +240,129 @@ func TestNativePermissionCatalogNamespaceHTTPAndMCP(t *testing.T) {
 			t.Fatalf("foreign %s MCP accepted", operation)
 		}
 	}
+	// The canonical shared wire contract uses wrapped inputs and outputs over both transports.
+	resource := map[string]any{"kind": "component", "id": "alpha", "version": "1", "tenant": "tenant"}
+	for _, operation := range []struct {
+		name, field string
+		input       map[string]any
+	}{
+		{"policies.get", "document", map[string]any{"resource": resource}},
+		{"policies.context", "context", map[string]any{"resource": resource}},
+		{"authorization.check", "decision", map[string]any{"resource": resource, "action": "viewAccess"}},
+	} {
+		payload, _ := json.Marshal(operation.input)
+		req := httptest.NewRequest(http.MethodPost, "/v1/authz/sdk/"+operation.name, bytes.NewReader(payload))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", bearer)
+		req.Header.Set("X-Studio-Namespace", namespaceaccess.ID("owner", "alpha"))
+		res := httptest.NewRecorder()
+		httpHandler.ServeHTTP(res, req)
+		if res.Code != 200 {
+			t.Fatalf("shared %s HTTP %d: %s", operation.name, res.Code, res.Body.String())
+		}
+		var wire map[string]any
+		if err := json.Unmarshal(res.Body.Bytes(), &wire); err != nil || wire[operation.field] == nil {
+			t.Fatalf("shared wrapped output: %s (%v)", res.Body.String(), err)
+		}
+		if operation.field == "context" && wire["context"].(map[string]any)["canManage"] != true {
+			t.Fatalf("shared management authority: %s", res.Body.String())
+		}
+		tool, ok := service.Registry().ToolRegistry.Get("authz.sdk." + operation.name)
+		if !ok {
+			t.Fatal("shared MCP tool missing")
+		}
+		arguments := map[string]any{"namespaceId": namespaceaccess.ID("owner", "alpha")}
+		for key, value := range operation.input {
+			arguments[key] = value
+		}
+		result, err := tool.Handler(callCtx, &schema.CallToolRequest{Method: schema.MethodToolsCall, Params: schema.CallToolRequestParams{Name: "authz.sdk." + operation.name, Arguments: arguments}})
+		if err != nil || result == nil || result.IsError != nil && *result.IsError {
+			t.Fatalf("shared %s MCP: %+v %v", operation.name, result, err)
+		}
+		raw, _ := json.Marshal(result.StructuredContent)
+		var mcpWire map[string]any
+		if err := json.Unmarshal(raw, &mcpWire); err != nil || mcpWire[operation.field] == nil {
+			t.Fatalf("shared MCP wrapped output %s", raw)
+		}
+		req = httptest.NewRequest(http.MethodPost, "/v1/authz/sdk/"+operation.name, bytes.NewReader(payload))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", bearer)
+		req.Header.Set("X-Studio-Namespace", namespaceaccess.ID("owner", "beta"))
+		res = httptest.NewRecorder()
+		httpHandler.ServeHTTP(res, req)
+		if res.Code != 403 {
+			t.Fatalf("shared foreign %s HTTP %d: %s", operation.name, res.Code, res.Body.String())
+		}
+		arguments["namespaceId"] = namespaceaccess.ID("owner", "beta")
+		result, err = tool.Handler(callCtx, &schema.CallToolRequest{Method: schema.MethodToolsCall, Params: schema.CallToolRequestParams{Name: "authz.sdk." + operation.name, Arguments: arguments}})
+		if err == nil && result != nil && (result.IsError == nil || !*result.IsError) {
+			t.Fatalf("shared foreign %s MCP accepted", operation.name)
+		}
+	}
+	if factoryProvider.calls == 0 {
+		t.Fatal("native HTTP handlers did not resolve the registered startup factory")
+	}
+	factoryProvider.subject = "changed-authority"
+	deniedByChangedAuthority := httptest.NewRecorder()
+	changedRequest := httptest.NewRequest(http.MethodPost, "/v1/authz/sdk/policies.get", bytes.NewBufferString(`{"resource":{"kind":"component","id":"alpha","version":"1","tenant":"tenant"}}`))
+	changedRequest.Header.Set("Content-Type", "application/json")
+	changedRequest.Header.Set("Authorization", bearer)
+	changedRequest.Header.Set("X-Studio-Namespace", namespaceaccess.ID("owner", "alpha"))
+	httpHandler.ServeHTTP(deniedByChangedAuthority, changedRequest)
+	if deniedByChangedAuthority.Code != http.StatusForbidden && deniedByChangedAuthority.Code != http.StatusUnauthorized {
+		t.Fatalf("native policy handler accepted changed authority: HTTP %d: %s", deniedByChangedAuthority.Code, deniedByChangedAuthority.Body.String())
+	}
+	factoryProvider.subject = "owner"
+	// CAS rejects an outdated revision before writing, with the shared safe error.
+	stale := map[string]any{"document": map[string]any{"resource": resource, "revision": 0, "policies": map[string]any{"viewAccess": map[string]any{"mode": "protected", "rule": map[string]any{"kind": "subject", "value": "owner"}}}}}
+	payload, _ := json.Marshal(stale)
+	req := httptest.NewRequest(http.MethodPost, "/v1/authz/sdk/policies.replace", bytes.NewReader(payload))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", bearer)
+	res := httptest.NewRecorder()
+	httpHandler.ServeHTTP(res, req)
+	if res.Code != 409 {
+		t.Fatalf("shared stale replace %d: %s", res.Code, res.Body.String())
+	}
+
+	denyDocument, err := store.Get(ctx, authz.Resource{Kind: "component", ID: "alpha", Version: "1", Tenant: "tenant"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	denyDocument.Policies["manageAccess"] = authz.Policy{Mode: "protected", Rule: &authz.Rule{Kind: "subject", Value: "another"}}
+	denyDocument, err = store.Replace(ctx, denyDocument, denyDocument.Revision, "fixture")
+	if err != nil {
+		t.Fatal(err)
+	}
+	callHTTP := func(operation string, input any, want int) {
+		t.Helper()
+		body, _ := json.Marshal(input)
+		req := httptest.NewRequest(http.MethodPost, "/v1/authz/sdk/"+operation, bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", bearer)
+		res := httptest.NewRecorder()
+		httpHandler.ServeHTTP(res, req)
+		if res.Code != want {
+			t.Fatalf("%s want %d got %d: %s", operation, want, res.Code, res.Body.String())
+		}
+		if strings.Contains(res.Body.String(), "policies_json") || strings.Contains(res.Body.String(), "invalid character") {
+			t.Fatalf("private storage error leaked: %s", res.Body.String())
+		}
+	}
+	callHTTP("policies.replace", map[string]any{"document": denyDocument}, 403)
+	denyDocument.Policies["viewAccess"] = authz.Policy{Mode: "protected", Rule: &authz.Rule{Kind: "subject", Value: "another"}}
+	denyDocument, err = store.Replace(ctx, denyDocument, denyDocument.Revision, "fixture")
+	if err != nil {
+		t.Fatal(err)
+	}
+	callHTTP("policies.get", map[string]any{"resource": resource}, 403)
+	callHTTP("policies.context", map[string]any{"resource": resource}, 403)
+	// A broken trusted backing store is unavailable, never an allow or a detailed SQL error.
+	if _, err := db.Exec("UPDATE resource_policy_revisions SET policies_json='broken-json' WHERE resource_id='alpha'"); err != nil {
+		t.Fatal(err)
+	}
+	callHTTP("policies.get", map[string]any{"resource": resource}, 503)
+	callHTTP("policies.context", map[string]any{"resource": resource}, 503)
+	callHTTP("authorization.check", map[string]any{"resource": resource, "action": "viewAccess"}, 503)
+
 }

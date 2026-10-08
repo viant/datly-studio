@@ -15,7 +15,8 @@ import { postV1StudioSdkResourcesUpsertFile, postV1StudioSdkResourcesDeleteFile,
 import { postV1StudioSdkVersionsBuilder } from './generated/studioClient.gen.js';
 import { postV1StudioSdkRuntimeStatus } from './generated/studioClient.gen.js';
 import { postV1StudioSdkPublicationsPublish, postV1StudioSdkPublicationsRollback, postV1StudioSdkPublicationsUnpublish } from './generated/studioClient.gen.js';
-import { postV1StudioSdkAccessList, postV1StudioSdkAccessContext, postV1StudioSdkAccessGet, postV1StudioSdkAccessReplace } from './generated/studioClient.gen.js';
+import { postV1StudioSdkAccessList, postV1AuthzSdkPoliciesGet, postV1AuthzSdkPoliciesContext, postV1AuthzSdkPoliciesReplace, postV1AuthzSdkAuthorizationCheck } from './generated/studioClient.gen.js';
+import { accessMCPAdapter } from './accessMCPAdapter.js';
 import { BrowserIdentity } from './browserIdentity.js';
 
 const nativeErrorCode = { 400: 'invalid_argument', 401: 'unauthorized', 403: 'forbidden', 404: 'not_found', 409: 'conflict', 422: 'invalid_argument', 502: 'unavailable', 503: 'unavailable' };
@@ -27,6 +28,17 @@ export class StudioAPI {
     // not, so normalize both forms into an ordinary callable function.
     this.fetcher = options.fetcher ?? globalThis.fetch.bind(globalThis);
     this.onUnauthorized = options.onUnauthorized;
+    this.resourceAccess = accessMCPAdapter((name, input) => {
+      const calls = {
+        'authz.sdk.policies.get': postV1AuthzSdkPoliciesGet,
+        'authz.sdk.policies.context': postV1AuthzSdkPoliciesContext,
+        'authz.sdk.policies.replace': postV1AuthzSdkPoliciesReplace,
+        'authz.sdk.authorization.check': postV1AuthzSdkAuthorizationCheck,
+      };
+      const call = calls[name];
+      if (!call) throw new Error('Authorization operation is not supported');
+      return this.nativeRequest(call, name, input);
+    });
     this.namespaceId = null;
     this.namespaceRevision = 0;
     this.namespaceBlocked = false;
@@ -127,7 +139,7 @@ export class StudioAPI {
   loadDQL(reportId, input) { return this.nativeRequest(postV1StudioSdkVersionsLoadDql, 'versions.load_dql', { reportId, input }); }
   loadArchive(reportId, input) { return this.nativeRequest(postV1StudioSdkVersionsLoadArchive, 'versions.load_archive', { reportId, input }); }
   downloadComponent(reportId, versionNo) { return this.nativeRequest(postV1StudioSdkVersionsDownload, 'versions.download', { reportId, versionNo }); }
-  inspectVersion(reportId, versionNo) { return this.nativeRequest(postV1StudioSdkVersionsInspect, 'versions.inspect', { reportId, versionNo }); }
+  inspectVersion(reportId, versionNo, { discoverColumns } = {}) { return this.nativeRequest(postV1StudioSdkVersionsInspect, 'versions.inspect', discoverColumns === undefined ? { reportId, versionNo } : { reportId, versionNo, discoverColumns }); }
   validateVersion(reportId, versionNo, expectedSourceRevision) { return this.nativeRequest(postV1StudioSdkVersionsValidate, 'versions.validate', { reportId, versionNo, expectedSourceRevision }); }
   publishReader(reportId, versionNo, expectedSourceRevision, reason = '') { return this.nativeRequest(postV1StudioSdkPublicationsPublish, 'publications.publish', { reportId, versionNo, input: { expectedSourceRevision, reason } }); }
   getPublication(reportId) { return this.nativeRequest(postV1StudioSdkPublicationsGet, 'publications.get', { reportId }); }
@@ -186,9 +198,10 @@ export class StudioAPI {
     return payload?.result?.[resultKey] ?? [];
   }
   listAccessResources(input = {}) { return this.nativeRequest(postV1StudioSdkAccessList, 'access.list', input); }
-  getResourceAccess(resource) { return this.nativeRequest(postV1StudioSdkAccessGet, 'access.get', resource); }
-  getResourceAccessContext(resource) { return this.nativeRequest(postV1StudioSdkAccessContext, 'access.context', resource); }
-  replaceResourceAccess(document) { return this.nativeRequest(postV1StudioSdkAccessReplace, 'access.replace', document); }
+  getResourceAccess(resource) { return this.resourceAccess.getResourceAccess(resource); }
+  getResourceAccessContext(resource) { return this.resourceAccess.getResourceAccessContext(resource); }
+  replaceResourceAccess(document) { return this.resourceAccess.replaceResourceAccess(document); }
+  checkCurrentAccess(resource, action) { return this.resourceAccess.checkCurrentAccess(resource, action); }
   async nativeRequest(call, operation, body) {
     const snapshot = this.namespaceSnapshot(operation);
     const headers = { Accept: 'application/json' };

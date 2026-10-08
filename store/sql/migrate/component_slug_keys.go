@@ -43,7 +43,7 @@ func migrateComponentSlugKeys(ctx context.Context, db *sql.DB) (result error) {
 		if err = schema.CreateSQLiteTableFromCanonical(ctx, tx, "components"); err != nil {
 			return err
 		}
-		if _, err = tx.ExecContext(ctx, "UPDATE schema_version SET version=?", schema.CanonicalVersion); err != nil {
+		if _, err = tx.ExecContext(ctx, "UPDATE schema_version SET version=?", schema.PrePolicyNamespaceVersion); err != nil {
 			return err
 		}
 		return tx.Commit()
@@ -61,7 +61,7 @@ func migrateComponentSlugKeys(ctx context.Context, db *sql.DB) (result error) {
 	}
 	globalSlug := regexp.MustCompile(`(?i)UNIQUE\s*\(\s*slug\s*\)`)
 	if !globalSlug.MatchString(currentDDL) {
-		if _, err = tx.ExecContext(ctx, "UPDATE schema_version SET version=?", schema.CanonicalVersion); err != nil {
+		if _, err = tx.ExecContext(ctx, "UPDATE schema_version SET version=?", schema.PrePolicyNamespaceVersion); err != nil {
 			return err
 		}
 		return tx.Commit()
@@ -114,7 +114,7 @@ func migrateComponentSlugKeys(ctx context.Context, db *sql.DB) (result error) {
 			return err
 		}
 	}
-	if _, err = tx.ExecContext(ctx, "UPDATE schema_version SET version=?", schema.CanonicalVersion); err != nil {
+	if _, err = tx.ExecContext(ctx, "UPDATE schema_version SET version=?", schema.PrePolicyNamespaceVersion); err != nil {
 		return err
 	}
 	return tx.Commit()

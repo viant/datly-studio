@@ -113,6 +113,13 @@ func New(ctx context.Context, config Config) (*Service, error) {
 		_ = studio.Close()
 		return nil, err
 	}
+	if err = result.initStockForgeProvider(ctx); err != nil {
+		_ = runAccessStore.Close(context.Background())
+		_ = definitionStore.Close(context.Background())
+		_ = manager.Shutdown(context.Background())
+		_ = studio.Close()
+		return nil, err
+	}
 	result.providerVerifiers = map[string]*verifier.Service{}
 	for name, provider := range config.Authentication.Providers {
 		service := verifier.New(&verifier.Config{CertURL: provider.CertURL})
@@ -160,6 +167,10 @@ func (s *Service) compile(ctx context.Context, seed *typecatalog.Catalog, candid
 	if err != nil {
 		return nil, err
 	}
+	return s.compileDefinitions(ctx, seed, definitions)
+}
+
+func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Catalog, definitions []definition, inspect ...func(definition, *registry.RegisteredComponent, *studiors.Loaded) error) (_ *application.Build, err error) {
 	types, err := seed.Clone()
 	if err != nil {
 		return nil, err
@@ -199,7 +210,15 @@ func (s *Service) compile(ctx context.Context, seed *typecatalog.Catalog, candid
 		}
 		opened = append(opened, sources.opened...)
 		contractResources := loadedResources.ByVersion[studiors.Version{ReportID: definition.reportID, VersionNo: definition.versionNo}]
-		contract, compileErr := transcribe.NewCompiler().RuntimeContracts(ctx, s.config.RootDir, &transcribe.Source{Types: types, Scope: definition.scope, Name: definition.name, Text: definition.dql, Connector: definition.connector, Resources: contractResources, ColumnRefiner: column.New(sources.connections)})
+		source := &transcribe.Source{Types: types, Scope: definition.scope, Name: definition.name, Text: definition.dql, Connector: definition.connector, Resources: contractResources, ColumnRefiner: column.New(sources.connections)}
+		compiler := transcribe.NewCompiler()
+		var contract *transcribe.RuntimeContract
+		var compileErr error
+		if s.config.ModulePath != "" {
+			contract, compileErr = compiler.RuntimeContractsInModule(ctx, s.config.ModulePath, source)
+		} else {
+			contract, compileErr = compiler.RuntimeContracts(ctx, s.config.RootDir, source)
+		}
 		if compileErr != nil {
 			err = fmt.Errorf("compile dynamic report %s: %w", definition.reportID, compileErr)
 			return nil, err
@@ -233,6 +252,11 @@ func (s *Service) compile(ctx context.Context, seed *typecatalog.Catalog, candid
 		}
 		registrations = append(registrations, compiledRegistrations...)
 		for _, registered := range compiledRegistrations {
+			for _, capture := range inspect {
+				if err = capture(definition, registered, loadedResources); err != nil {
+					return nil, err
+				}
+			}
 			reportByComponent[registered.Component.Key] = definition.reportID
 		}
 	}
@@ -510,6 +534,11 @@ func mergeTypes(target, source *typecatalog.Catalog) error {
 }
 
 func (s *Service) Start(ctx context.Context) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if len(s.listeners) > 0 {
+		return fmt.Errorf("runtime host is already started")
+	}
 	if err := s.Reload(ctx, 0); err != nil {
 		return err
 	}
@@ -527,20 +556,49 @@ func (s *Service) Start(ctx context.Context) error {
 		return err
 	}
 	mcpHTTP.Handler = browserMCPCORS(s.config.MCP.CORS, s.oauthDiscovery(mcpHTTP.Handler))
+	if s.config.ForgeProvider != nil {
+		providerHandler, providerErr := s.forgeProviderHTTP(ctx)
+		if providerErr != nil {
+			return providerErr
+		}
+		mux := http.NewServeMux()
+		mux.Handle("/forge/", http.StripPrefix("/forge", providerHandler))
+		mux.Handle("/", mcpHTTP.Handler)
+		mcpHTTP.Handler = mux
+	}
 	mcpHTTP.ReadHeaderTimeout = 5 * time.Second
 	mcpHTTP.ReadTimeout = 30 * time.Second
 	mcpHTTP.WriteTimeout = 60 * time.Second
 	mcpHTTP.IdleTimeout = 2 * time.Minute
-	for _, server := range []*http.Server{httpServer, mcpHTTP} {
-		listener, listenErr := net.Listen("tcp", server.Addr)
-		if listenErr != nil {
-			return listenErr
-		}
-		s.servers = append(s.servers, server)
-		s.listeners = append(s.listeners, listener)
+	servers := []*http.Server{httpServer, mcpHTTP}
+	listeners, err := listenHTTPServers(servers)
+	if err != nil {
+		return err
+	}
+	s.servers = servers
+	s.listeners = listeners
+	for index, server := range servers {
+		listener := listeners[index]
 		go func(server *http.Server, listener net.Listener) { _ = server.Serve(listener) }(server, listener)
 	}
 	return nil
+}
+
+// Bind every transport before serving any of them. A failed MCP bind must not
+// leave an undisclosed HTTP listener accepting requests after Start returns.
+func listenHTTPServers(servers []*http.Server) ([]net.Listener, error) {
+	listeners := make([]net.Listener, 0, len(servers))
+	for _, server := range servers {
+		listener, err := net.Listen("tcp", server.Addr)
+		if err != nil {
+			for _, opened := range listeners {
+				_ = opened.Close()
+			}
+			return nil, err
+		}
+		listeners = append(listeners, listener)
+	}
+	return listeners, nil
 }
 
 func hardenedHTTPServer(address string, handler http.Handler) *http.Server {

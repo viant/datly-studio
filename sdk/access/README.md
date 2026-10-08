@@ -1,89 +1,54 @@
-# Generic resource permissions
+# Studio access integration
 
-This package is shared by Datly Studio and embedding applications. Resources are
-identified by tenant, kind, ID and version. The package is independent of any
-embedding application's workflows. Missing policies deny access.
+This package is Studio's host adapter for the shared `github.com/viant/authz`
+provider and evaluator. It supplies the namespace-aware resource catalog and
+transport compatibility layer. Policy evaluation, policy storage, and the
+generated policy reader/writer components belong to the shared Authz modules;
+`sdk/access` does not define a second evaluator or policy store.
 
-`Evaluate` handles protected/public actions, all/any rules, subjects, roles,
-feature exposures and entity type/ID constraints. Mandatory tenant and entity
-scope checks remain outside OR branches. Its returned scope must be bound by the
-resource executor; policy management does not itself wire runtime enforcement.
+## Canonical shared operations
 
-## Management
+Studio exposes the shared policy operations as POST routes:
 
-`Service` separately authorizes `viewAccess` and `manageAccess`. The SQLite store
-records immutable policy revisions and atomically advances a revision pointer.
-`Provision` is a deployment-only operation for initial policies; clients cannot
-call it. SDK operations are `access.get`, `access.replace`, and `access.context`.
+- `/v1/authz/sdk/policies.get`
+- `/v1/authz/sdk/policies.context`
+- `/v1/authz/sdk/policies.replace`
+- `/v1/authz/sdk/authorization.check`
 
-Policy reads and writes execute the generated `studio/resource_policy` components.
-They are hosted in-process behind these authorized SDK operations and deliberately
-excluded from the default standalone `GoBootstrap.Packages` endpoint. The writer
-owns head CAS and history insertion in one Datly-managed transaction.
+The matching MCP tools are `authz.sdk.policies.get`,
+`authz.sdk.policies.context`, `authz.sdk.policies.replace`, and
+`authz.sdk.authorization.check`. The generated Studio UI client uses these
+routes through the shared access adapter. The authenticated BFF forwards these
+exact paths with the verified bearer credential from the session cookie.
 
-The Studio Security workspace includes Permissions and Authorization predicates.
-Permissions edits an explicitly selected resource policy using the shared
-`ResourceAccessEditor`, exported from the UI embedding API. Current choices come
-from verified identity claims. Configure `Service.Directory` for broader trusted
-provider catalogs. The editor never supplies authoritative identity facts.
-Its structural pre-save review shows changed actions and the current policy
-revision, not an effective authorization decision. The server rechecks
-`manageAccess` and the Datly policy-head CAS when saving.
+The Studio adapter continues to enforce host namespace and JWT checks.
+The `access.get`, `access.context`, and `access.replace` POST operations under
+`/v1/studio/sdk/` remain thin compatibility wrappers around the shared handlers. The separate
+`access.list` operation remains Studio-owned because catalog visibility is
+namespace-aware.
+
+Policy editing requires `manageAccess`; reading a policy requires `viewAccess`.
+Runtime decisions use the shared authorization statuses: 401 for missing or
+invalid identity, 403 for denial, and 503 when the decision service is
+unavailable. Entity-bounded decisions carry typed, bounded SQL context for the
+host runtime to bind.
+
+This migration exposes the listed policy and authorization-check operations.
+It does not mount shared gate, create, or catalog endpoints. The Authz policy
+schema is initialized from canonical fresh DDL; it does not rename or convert
+legacy policy-head tables.
+
+## Host configuration
 
 Configure `studio-api` in authenticated mode with `-access-issuer`,
-`-access-audience` and `-access-public-key` (RSA PEM). Its BFF credential must satisfy
-both the configured Studio authentication and access-provider validation. Separate
-issuer configuration does not automatically exchange tokens. Policy management is
-not enabled through Studio's development-identity header.
+`-access-audience`, and either `-access-public-key` or `-access-cert-url`.
+An optional `-access-user-info-url` supplies verified authority facts. The
+session credential must satisfy both Studio authentication and the access
+provider's issuer/audience checks; configuring another issuer does not exchange
+tokens. Client-supplied roles and development identity headers are not grants.
 
-The OAuth provider accepts signed access tokens with standard `iss`, `aud`, `sub`,
-`exp`, optional `nbf`/`iat`, plus `tenant`, `roles`, `exposures`, and the canonical
-grouped claim `"allowedEntities":{"project":[101,102],"organization":["north"]}`.
-The public Go fact is `access.Facts.EntityGroups` (`access.EntityGroups`, a map
-from type to `[]access.EntityID`); `IDsForType("project")` exposes its checked
-typed IDs. JSON string IDs stay strings. Positive JSON integer IDs up to
-`18446744073709551615` are converted exactly to decimal strings; zero,
-negative, fractional, exponent and larger JSON numbers are rejected. An absent
-type or empty list grants no entity access. Duplicate type keys, duplicate IDs,
-null lists and malformed types deny the claim. Signed legacy flat arrays
-`[{"type":"project","id":"101"}]` and flat Go `Facts.Entities` remain an
-explicit compatibility path; serialization emits the grouped map, and any
-populated flat and grouped views must agree or evaluation denies. Only asymmetric
-algorithms explicitly allowed in configuration are accepted. Keys/JWKS
-resolution is an injected deployment responsibility. Claims are refreshed on
-each request.
-
-## Current integration boundary
-
-Legacy deployments retain their existing ownership/ACL checks. A runtime configured
-with `Access` instead uses generic policies on HTTP/MCP component invocations and
-resource reads. Component keys are `{kind: component, id: Studio ID, version: active
-version, tenant: configured tenant}`. Policies are loaded on each invocation.
-
-Example runtime configuration (in addition to its existing listener/database fields):
-
-```yaml
-Access:
-  Tenant: example
-  Issuer: https://identity.example
-  Audience: studio-access
-  PublicKeyFile: /configured/access-public.pem
-  ResourceBindings:
-    "skill://operations/":
-      kind: skill
-      id: operations
-      version: "1"
-      tenant: example
-```
-
-Resource bindings are deployment-owned and use the longest matching URI prefix.
-Missing policies or bindings deny. Component entity scopes bind through a
-required native `component` input for the server-owned access context, with a
-`param` input deriving typed IDs for SQL predicates. No separate scope-binding
-registry is required. See [access-context binding](../../runtime/host/AUTHENTICATION.md).
-HTTP and MCP tests exercise real SQLite queries, identity isolation and rejected
-override attempts. Bounded decisions on non-component resource reads still deny.
-Publication dependency checks and separate discovery/description action hooks
-remain pending. Initial
-policy provisioning is required; enabling this configuration does not import or
-silently inherit legacy ACL grants.
+Published component execution uses the runtime's existing `Access` configuration.
+Policies are resolved by exact tenant, kind, ID and version on each request.
+Missing policies deny; enabling Authz does not import legacy ownership grants.
+See [runtime authentication and scope binding](../../runtime/host/AUTHENTICATION.md)
+for the typed access-context input required to enforce entity-bounded decisions.

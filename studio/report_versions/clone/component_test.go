@@ -23,7 +23,7 @@ import (
 
 	jwtv5 "github.com/golang-jwt/jwt/v5"
 	"github.com/viant/authz"
-	policystore "github.com/viant/authz/datly/store/sql"
+	policystore "github.com/viant/authz/component/store/sql"
 	"github.com/viant/datly-studio/internal/datatest"
 	_ "github.com/viant/datly-studio/internal/dependencylink"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
@@ -199,7 +199,7 @@ func TestNativeClonePreservesPolicyAndRejectsStaleSource(t *testing.T) {
 	if err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM report_versions WHERE report_id='r1'").Scan(&count); err != nil || count != 2 {
 		t.Fatalf("unexpected clone version count: %d %v", count, err)
 	}
-	if _, err := db.ExecContext(ctx, `CREATE TRIGGER reject_clone_policy BEFORE INSERT ON resource_policy_heads WHEN NEW.resource_version='3' AND NEW.resource_kind='skill' BEGIN SELECT RAISE(ABORT,'injected late policy failure'); END`); err != nil {
+	if _, err := db.ExecContext(ctx, `CREATE TRIGGER reject_clone_policy BEFORE INSERT ON resource_policies WHEN NEW.resource_version='3' AND NEW.resource_kind='skill' BEGIN SELECT RAISE(ABORT,'injected late policy failure'); END`); err != nil {
 		t.Fatal(err)
 	}
 	failure := call(1)
@@ -212,7 +212,7 @@ func TestNativeClonePreservesPolicyAndRejectsStaleSource(t *testing.T) {
 			t.Fatalf("partial clone survived in %s: %d %v", table, count, err)
 		}
 	}
-	for _, table := range []string{"resource_policy_heads", "resource_policy_revisions"} {
+	for _, table := range []string{"resource_policies", "resource_policy_revisions"} {
 		var count int
 		if err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM "+table+" WHERE resource_version='3'").Scan(&count); err != nil || count != 0 {
 			t.Fatalf("partial policy survived in %s: %d %v", table, count, err)
@@ -277,7 +277,7 @@ func TestNativeClonePreservesPolicyAndRejectsStaleSource(t *testing.T) {
 	if err != nil || !reflect.DeepEqual(fourthPolicy.Policies, source.Policies) {
 		t.Fatalf("MCP clone policy mismatch: %v", err)
 	}
-	if _, err := db.ExecContext(ctx, "UPDATE resource_policy_heads SET revision=999 WHERE resource_kind='component' AND resource_id='r1' AND resource_version='1'"); err != nil {
+	if _, err := db.ExecContext(ctx, "UPDATE resource_policies SET revision=999 WHERE resource_kind='component' AND resource_id='r1' AND resource_version='1'"); err != nil {
 		t.Fatal(err)
 	}
 	corrupt := call(1)

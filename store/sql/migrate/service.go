@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
 
+	policySchema "github.com/viant/authz/component/schema"
 	"github.com/viant/datly-studio/schema"
 )
 
@@ -25,17 +26,45 @@ type Service struct{}
 func New() (*Service, error) { return &Service{}, nil }
 
 func (s *Service) Up(ctx context.Context, db *sql.DB) error {
-	if err := s.upNamespaceFoundations(ctx, db); err != nil {
-		return err
-	}
 	current, err := schema.SQLiteVersion(ctx, db)
 	if err != nil {
 		return err
 	}
+	if current > schema.CanonicalVersion {
+		return fmt.Errorf("database schema version %d is newer than supported version %d", current, schema.CanonicalVersion)
+	}
+	if current > 0 {
+		if err := upSharedPolicies(ctx, db); err != nil {
+			return err
+		}
+	}
+	if err := s.upNamespaceFoundations(ctx, db); err != nil {
+		return err
+	}
+	current, err = schema.SQLiteVersion(ctx, db)
+	if err != nil {
+		return err
+	}
 	if current == 19 {
-		return migrateComponentSlugKeys(ctx, db)
+		if err := migrateComponentSlugKeys(ctx, db); err != nil {
+			return err
+		}
+		current = schema.PrePolicyNamespaceVersion
+	}
+	if current == schema.PrePolicyNamespaceVersion {
+		if err := migratePolicyNamespaceBindings(ctx, db); err != nil {
+			return err
+		}
+		current = schema.PolicyNamespaceVersion
+	}
+	if current == schema.PolicyNamespaceVersion {
+		return migrateAuthorizationPredicatePackagePath(ctx, db)
 	}
 	return nil
+}
+
+func upSharedPolicies(ctx context.Context, db *sql.DB) error {
+	return policySchema.CreatePolicies(ctx, db, "sqlite")
 }
 
 func (s *Service) upNamespaceFoundations(ctx context.Context, db *sql.DB) error {
@@ -49,7 +78,7 @@ func (s *Service) upNamespaceFoundations(ctx context.Context, db *sql.DB) error 
 	if err := schema.EnsureSQLiteSequenceLedger(ctx, db); err != nil {
 		return fmt.Errorf("ensure SQLite sequence ledger: %w", err)
 	}
-	if current == schema.CanonicalVersion || current == 19 {
+	if current >= schema.PrePolicyNamespaceVersion || current == 19 {
 		return nil
 	}
 	if current == 0 {
@@ -153,13 +182,6 @@ FROM components GROUP BY owner_id,namespace`); err != nil {
 			return fmt.Errorf("add authorization predicate SQL scope: %w", err)
 		}
 	}
-	if current <= 10 {
-		for _, table := range []string{"resource_policy_heads", "resource_policy_revisions"} {
-			if err := schema.CreateSQLiteTableFromCanonical(ctx, db, table); err != nil {
-				return fmt.Errorf("create %s: %w", table, err)
-			}
-		}
-	}
 	if current >= 5 && current <= 11 {
 		exists, err := sqliteTableExists(ctx, db, "report_warmup_runs")
 		if err != nil {
@@ -187,9 +209,6 @@ FROM components GROUP BY owner_id,namespace`); err != nil {
 		if err := migrateResourceNamespaceClaims(ctx, db); err != nil {
 			return err
 		}
-	}
-	if err := migrateResourcePolicyAudit(ctx, db); err != nil {
-		return err
 	}
 	if err := migrateComponentCatalog(ctx, db); err != nil {
 		return err
@@ -360,81 +379,6 @@ func migrateResourceNamespaceClaims(ctx context.Context, db *sql.DB) error {
 	return tx.Commit()
 }
 
-func migrateResourcePolicyAudit(ctx context.Context, db *sql.DB) error {
-	tx, err := db.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-	for _, table := range []string{"resource_policy_heads", "resource_policy_revisions"} {
-		exists, err := sqliteTableExists(ctx, tx, table)
-		if err != nil {
-			return err
-		}
-		if !exists {
-			if err := schema.CreateSQLiteTableFromCanonical(ctx, tx, table); err != nil {
-				return fmt.Errorf("create missing %s: %w", table, err)
-			}
-		}
-	}
-	var orphan string
-	err = tx.QueryRowContext(ctx, `SELECT h.resource_id FROM resource_policy_heads h
-		WHERE NOT EXISTS (SELECT 1 FROM resource_policy_revisions r
-		WHERE r.tenant_id=h.tenant_id AND r.resource_kind=h.resource_kind AND r.resource_id=h.resource_id
-		AND r.resource_version=h.resource_version) LIMIT 1`).Scan(&orphan)
-	if err == nil {
-		return fmt.Errorf("resource policy head %q has no audit history", orphan)
-	}
-	if !errors.Is(err, sql.ErrNoRows) {
-		return err
-	}
-	for _, table := range []string{"resource_policy_heads", "resource_policy_revisions"} {
-		for _, column := range []string{"created_at", "created_by", "updated_at", "updated_by"} {
-			var count int
-			if err := tx.QueryRowContext(ctx, `SELECT COUNT(1) FROM pragma_table_info(?) WHERE name=?`, table, column).Scan(&count); err != nil {
-				return err
-			}
-			if count != 0 {
-				continue
-			}
-			if err := schema.AddSQLiteColumnFromCanonical(ctx, tx, table, column); err != nil {
-				return fmt.Errorf("add %s.%s: %w", table, column, err)
-			}
-		}
-	}
-	if _, err := tx.ExecContext(ctx, `UPDATE resource_policy_revisions SET
-		created_at=COALESCE(created_at,occurred_at),created_by=COALESCE(created_by,actor_id),
-		updated_at=COALESCE(updated_at,occurred_at),updated_by=COALESCE(updated_by,actor_id)`); err != nil {
-		return fmt.Errorf("backfill resource policy revision audit: %w", err)
-	}
-	if _, err := tx.ExecContext(ctx, `UPDATE resource_policy_heads SET
-		created_at=COALESCE(created_at,(SELECT r.occurred_at FROM resource_policy_revisions r WHERE
-			r.tenant_id=resource_policy_heads.tenant_id AND r.resource_kind=resource_policy_heads.resource_kind
-			AND r.resource_id=resource_policy_heads.resource_id AND r.resource_version=resource_policy_heads.resource_version
-			ORDER BY r.revision ASC LIMIT 1)),
-		created_by=COALESCE(created_by,(SELECT r.actor_id FROM resource_policy_revisions r WHERE
-			r.tenant_id=resource_policy_heads.tenant_id AND r.resource_kind=resource_policy_heads.resource_kind
-			AND r.resource_id=resource_policy_heads.resource_id AND r.resource_version=resource_policy_heads.resource_version
-			ORDER BY r.revision ASC LIMIT 1)),
-		updated_at=COALESCE(updated_at,(SELECT r.occurred_at FROM resource_policy_revisions r WHERE
-			r.tenant_id=resource_policy_heads.tenant_id AND r.resource_kind=resource_policy_heads.resource_kind
-			AND r.resource_id=resource_policy_heads.resource_id AND r.resource_version=resource_policy_heads.resource_version
-			ORDER BY r.revision DESC LIMIT 1)),
-		updated_by=COALESCE(updated_by,(SELECT r.actor_id FROM resource_policy_revisions r WHERE
-			r.tenant_id=resource_policy_heads.tenant_id AND r.resource_kind=resource_policy_heads.resource_kind
-			AND r.resource_id=resource_policy_heads.resource_id AND r.resource_version=resource_policy_heads.resource_version
-			ORDER BY r.revision DESC LIMIT 1))`); err != nil {
-		return fmt.Errorf("backfill resource policy head audit: %w", err)
-	}
-	if _, err := tx.ExecContext(ctx, `DELETE FROM schema_version`); err != nil {
-		return err
-	}
-	if _, err := tx.ExecContext(ctx, `INSERT INTO schema_version(version) VALUES (?)`, 14); err != nil {
-		return err
-	}
-	return tx.Commit()
-}
-
 func sqliteTableExists(ctx context.Context, db interface {
 	QueryRowContext(context.Context, string, ...any) *sql.Row
 }, table string) (bool, error) {
@@ -481,8 +425,13 @@ func (s *Service) Migrations() []Migration {
 		{Version: 11, Name: "resource_policy_revisions"},
 		{Version: 12, Name: "warmup_audit_and_updated_at_concurrency"},
 		{Version: 13, Name: "resource_namespace_claims"},
-		{Version: 14, Name: "resource_policy_audit"},
 		{Version: 15, Name: "component_catalog"},
 		{Version: 16, Name: "durable_refresh_lease"},
+		{Version: 17, Name: "legacy_generation_namespace_ownership"},
+		{Version: 18, Name: "namespace_claim_composite_keys"},
+		{Version: 19, Name: "namespace_ownership"},
+		{Version: 20, Name: "component_slug_namespace_keys"},
+		{Version: 21, Name: "resource_policy_namespace_bindings"},
+		{Version: 22, Name: "authorization_predicate_binary_key_collations"},
 	}
 }

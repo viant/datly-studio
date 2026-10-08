@@ -4,7 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/viant/datly-studio/schema"
 	_ "modernc.org/sqlite"
@@ -209,69 +211,75 @@ func TestServiceUpBackfillsResourceNamespaceClaims(t *testing.T) {
 	}
 }
 
-func TestServiceUpBackfillsResourcePolicyAudit(t *testing.T) {
-	for _, test := range []struct {
-		name   string
-		orphan bool
-	}{{name: "history drives creation and last update"}, {name: "orphan head rolls back", orphan: true}} {
-		t.Run(test.name, func(t *testing.T) {
-			ctx := context.Background()
-			db := openTestDB(t)
-			if err := schema.ApplySQLite(ctx, db, "studio"); err != nil {
-				t.Fatal(err)
+func TestServiceUpAuthorizationPredicateKeyV21ToV22(t *testing.T) {
+	t.Run("full binary key preserved", func(t *testing.T) {
+		ctx := context.Background()
+		db := openTestDB(t)
+		if err := schema.ApplySQLite(ctx, db, "studio"); err != nil {
+			t.Fatal(err)
+		}
+		pathX, pathY := strings.Repeat("a", 999)+"x", strings.Repeat("a", 999)+"y"
+		for _, row := range []struct{ name, path, typeName string }{
+			{"path-x", pathX, "com.example.Café"},
+			{"path-y", pathY, "com.example.Café"},
+			{"case-lower", pathX, "com.example.café"},
+		} {
+			if _, err := db.ExecContext(ctx, `INSERT INTO authorization_predicates(name,title,package_path,type_name,owner_id,status,etag,created_at,updated_at) VALUES(?,?,?,?,'test','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, row.name, row.name, row.path, row.typeName); err != nil {
+				t.Fatalf("insert distinct key %+v: %v", row, err)
 			}
-			if _, err := db.ExecContext(ctx, `INSERT INTO resource_policy_heads(tenant_id,resource_kind,resource_id,resource_version,revision)
-				VALUES('one','report','r1','1',2)`); err != nil {
-				t.Fatal(err)
-			}
-			if !test.orphan {
-				for _, statement := range []string{
-					`INSERT INTO resource_policy_revisions(tenant_id,resource_kind,resource_id,resource_version,revision,policies_json,actor_id,occurred_at)
-					 VALUES('one','report','r1','1',1,'{}','creator','2026-09-01 10:00:00')`,
-					`INSERT INTO resource_policy_revisions(tenant_id,resource_kind,resource_id,resource_version,revision,policies_json,actor_id,occurred_at)
-					 VALUES('one','report','r1','1',2,'{}','editor','2026-09-02 11:00:00')`,
-				} {
-					if _, err := db.ExecContext(ctx, statement); err != nil {
-						t.Fatal(err)
-					}
-				}
-			}
-			for _, table := range []string{"resource_policy_heads", "resource_policy_revisions"} {
-				for _, column := range []string{"created_at", "created_by", "updated_at", "updated_by"} {
-					if _, err := db.ExecContext(ctx, "ALTER TABLE "+table+" DROP COLUMN "+column); err != nil {
-						t.Fatal(err)
-					}
-				}
-			}
-			if err := schema.SetSQLiteVersion(ctx, db, 13); err != nil {
-				t.Fatal(err)
-			}
-			service, _ := New()
-			err := service.Up(ctx, db)
-			if test.orphan {
-				if err == nil {
-					t.Fatal("orphan policy head migration succeeded")
-				}
-				version, versionErr := service.CurrentVersion(ctx, db)
-				if versionErr != nil || version != 13 {
-					t.Fatalf("failed audit migration version=%d err=%v", version, versionErr)
-				}
-				return
-			}
-			if err != nil {
-				t.Fatal(err)
-			}
-			var createdAt, createdBy, updatedAt, updatedBy string
-			if err := db.QueryRowContext(ctx, `SELECT created_at,created_by,updated_at,updated_by FROM resource_policy_heads WHERE resource_id='r1'`).
-				Scan(&createdAt, &createdBy, &updatedAt, &updatedBy); err != nil || createdAt != "2026-09-01 10:00:00" || createdBy != "creator" || updatedAt != "2026-09-02 11:00:00" || updatedBy != "editor" {
-				t.Fatalf("head audit=%q/%q %q/%q err=%v", createdAt, createdBy, updatedAt, updatedBy, err)
-			}
-			if err := db.QueryRowContext(ctx, `SELECT created_at,created_by,updated_at,updated_by FROM resource_policy_revisions WHERE resource_id='r1' AND revision=2`).
-				Scan(&createdAt, &createdBy, &updatedAt, &updatedBy); err != nil || createdAt != "2026-09-02 11:00:00" || createdBy != "editor" || updatedAt != createdAt || updatedBy != "editor" {
-				t.Fatalf("revision audit=%q/%q %q/%q err=%v", createdAt, createdBy, updatedAt, updatedBy, err)
-			}
-		})
+		}
+		if err := schema.SetSQLiteVersion(ctx, db, schema.PolicyNamespaceVersion); err != nil {
+			t.Fatal(err)
+		}
+		service, _ := New()
+		if err := service.Up(ctx, db); err != nil {
+			t.Fatal(err)
+		}
+		if version, err := service.CurrentVersion(ctx, db); err != nil || version != schema.CanonicalVersion {
+			t.Fatalf("schema version=%d err=%v", version, err)
+		}
+		var count int
+		if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM authorization_predicates WHERE package_path=?`, pathX).Scan(&count); err != nil || count != 2 {
+			t.Fatalf("binary/case key rows=%d err=%v", count, err)
+		}
+	})
+	t.Run("non-ASCII path rolls back", func(t *testing.T) {
+		ctx := context.Background()
+		db := openTestDB(t)
+		if err := schema.ApplySQLite(ctx, db, "studio"); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := db.ExecContext(ctx, `INSERT INTO authorization_predicates(name,title,package_path,type_name,owner_id,status,etag,created_at,updated_at) VALUES('nonascii','Non ASCII','pkg.é','pkg.Type','test','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`); err != nil {
+			t.Fatal(err)
+		}
+		if err := schema.SetSQLiteVersion(ctx, db, schema.PolicyNamespaceVersion); err != nil {
+			t.Fatal(err)
+		}
+		service, _ := New()
+		if err := service.Up(ctx, db); err == nil || !strings.Contains(err.Error(), "non-ASCII") {
+			t.Fatalf("non-ASCII path migration error=%v", err)
+		}
+		version, err := service.CurrentVersion(ctx, db)
+		if err != nil || version != schema.PolicyNamespaceVersion {
+			t.Fatalf("failed migration version=%d err=%v", version, err)
+		}
+		var path string
+		if err := db.QueryRowContext(ctx, `SELECT package_path FROM authorization_predicates WHERE name='nonascii'`).Scan(&path); err != nil || path != "pkg.é" {
+			t.Fatalf("failed migration changed value=%q err=%v", path, err)
+		}
+	})
+}
+
+func sameAuditInstant(got, expected string) bool {
+	for _, layout := range []string{time.RFC3339Nano, "2006-01-02 15:04:05.999999999", "2006-01-02 15:04:05"} {
+		actual, err := time.Parse(layout, got)
+		if err != nil {
+			continue
+		}
+		want, err := time.ParseInLocation("2006-01-02 15:04:05", expected, time.UTC)
+		return err == nil && actual.UTC().Equal(want.UTC())
 	}
+	return false
 }
 
 func TestServiceUpAddsNamespaceFromLegacyDDL(t *testing.T) {

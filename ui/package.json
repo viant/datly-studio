@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./src/embed.jsx",
+    "./access": "./src/accessEmbed.jsx",
     "./extensions": "./src/extensions.js",
     "./styles.css": "./src/studio.css"
   },

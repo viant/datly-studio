@@ -10,10 +10,10 @@ import (
 	"strings"
 
 	access "github.com/viant/authz"
-	accessstore "github.com/viant/authz/datly/store/sql"
+	accessstore "github.com/viant/authz/component/store/sql"
 	"github.com/viant/authz/oauth"
-	"github.com/viant/datly-studio/internal/accessconfig"
 	"github.com/viant/datly-studio/runtime/accesscontext"
+	"github.com/viant/datly-studio/runtime/accessprovider"
 	"github.com/viant/datly/runtime/registry"
 	"github.com/viant/datly/spec"
 	xresponse "github.com/viant/xdatly/response"
@@ -24,11 +24,18 @@ func (s *Service) initResourceAccess() error {
 	if c == nil {
 		return nil
 	}
-	provider, err := accessconfig.New(accessconfig.Config{Issuer: c.Issuer, Audience: c.Audience,
-		PublicKeyFile: c.PublicKeyFile, CertURL: c.CertURL, UserInfoURL: c.UserInfoURL})
-	if err != nil {
-		return err
+	provider := c.Provider
+	if provider == nil {
+		var err error
+		provider, err = accessprovider.New(context.Background(), accessprovider.Config{Issuer: c.Issuer, Audience: c.Audience, PublicKeyFile: c.PublicKeyFile, CertURL: c.CertURL, UserInfoURL: c.UserInfoURL}, accessprovider.RegisteredEnvironmentFactory())
+		if err != nil {
+			return err
+		}
 	}
+	if provider == nil {
+		return fmt.Errorf("resource access requires an explicit identity provider")
+	}
+
 	s.resourceAccess = &access.Service{Store: &accessstore.Store{DB: s.studio}, Provider: provider, Decisions: s.config.DecisionProvider}
 	return nil
 }
@@ -37,9 +44,9 @@ func (s *Service) authorizeResourcePolicy(ctx context.Context, r access.Resource
 	if s.resourceAccess == nil {
 		return &xresponse.Error{Code: http.StatusForbidden, Cause: access.ErrDenied}
 	}
-	d, err := s.resourceAccess.Authorize(ctx, access.Request{Resource: r, Action: action})
+	d, _, _, err := s.resourceAccess.AuthorizeWithStatus(ctx, access.Request{Resource: r, Action: action})
 	if err != nil {
-		return &xresponse.Error{Code: http.StatusForbidden, Cause: access.ErrDenied}
+		return resourceAuthorizationError(err)
 	}
 	if d.Bounded {
 		return &xresponse.Error{Code: http.StatusForbidden, Cause: errors.New("typed runtime scope binding is required")}
@@ -58,9 +65,9 @@ func (s *Service) authorizeComponentExecution(ctx context.Context, r access.Reso
 	if s.resourceAccess == nil {
 		return &xresponse.Error{Code: http.StatusForbidden, Cause: access.ErrDenied}
 	}
-	d, err := s.resourceAccess.Authorize(ctx, access.Request{Resource: r, Action: "execute"})
+	d, _, _, err := s.resourceAccess.AuthorizeWithStatus(ctx, access.Request{Resource: r, Action: "execute"})
 	if err != nil {
-		return &xresponse.Error{Code: http.StatusForbidden, Cause: access.ErrDenied}
+		return resourceAuthorizationError(err)
 	}
 	if d.Bounded && !bindsAccessContext {
 		return &xresponse.Error{Code: http.StatusForbidden, Cause: errors.New("entity-bounded policy requires the component to bind its access context")}
@@ -73,6 +80,14 @@ func (s *Service) authorizeComponentExecution(ctx context.Context, r access.Reso
 // concrete route. A component may bind only its own context, and binding one
 // requires generic resource access to be configured.
 func (s *Service) accessContexts(registrations []*registry.RegisteredComponent, reportByComponent map[spec.Key]string, versionByReport map[string]int) ([]*registry.RegisteredComponent, map[string]bool, error) {
+	versions := make(map[string]string, len(versionByReport))
+	for id, version := range versionByReport {
+		versions[id] = strconv.Itoa(version)
+	}
+	return s.accessContextsForVersions(registrations, reportByComponent, versions)
+}
+
+func (s *Service) accessContextsForVersions(registrations []*registry.RegisteredComponent, reportByComponent map[spec.Key]string, versionByReport map[string]string) ([]*registry.RegisteredComponent, map[string]bool, error) {
 	binds := map[string]bool{}
 	seen := map[accesscontext.Dependency]bool{}
 	var contexts []*registry.RegisteredComponent
@@ -97,10 +112,10 @@ func (s *Service) accessContexts(registrations []*registry.RegisteredComponent, 
 			}
 			seen[dependency] = true
 			binds[reportID] = true
-			resource := access.Resource{Kind: "component", ID: reportID, Version: strconv.Itoa(versionByReport[reportID]), Tenant: s.config.Access.Tenant}
+			resource := access.Resource{Kind: "component", ID: reportID, Version: versionByReport[reportID], Tenant: s.config.Access.Tenant}
 			service := s.resourceAccess
 			registration, err := accesscontext.Register(dependency, func(ctx context.Context) (access.Facts, access.Decision, error) {
-				decision, facts, err := service.AuthorizeWithFacts(ctx, access.Request{Resource: resource, Action: "execute"})
+				decision, facts, _, err := service.AuthorizeWithStatus(ctx, access.Request{Resource: resource, Action: "execute"})
 				return facts, decision, err
 			})
 			if err != nil {
@@ -163,6 +178,21 @@ func (s *Service) resourceCredential(next http.Handler) http.Handler {
 			}
 			ctx = oauth.WithBearer(ctx, parts[1])
 		}
+		if s.resourceAccess != nil && s.resourceAccess.Provider != nil {
+			ctx = accessprovider.WithProvider(ctx, s.resourceAccess.Provider)
+		}
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+// resourceAuthorizationError retains shared authority status without exposing
+// provider or store diagnostics to callers.
+func resourceAuthorizationError(err error) error {
+	code, cause := http.StatusForbidden, access.ErrDenied
+	if errors.Is(err, access.ErrUnavailable) {
+		code, cause = http.StatusServiceUnavailable, access.ErrUnavailable
+	} else if errors.Is(err, access.ErrIdentityDenied) {
+		code, cause = http.StatusUnauthorized, access.ErrIdentityDenied
+	}
+	return &xresponse.Error{Code: code, Cause: cause}
 }

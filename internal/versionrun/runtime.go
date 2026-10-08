@@ -9,9 +9,9 @@ import (
 	"time"
 
 	access "github.com/viant/authz"
-	accessstore "github.com/viant/authz/datly/store/sql"
-	"github.com/viant/datly-studio/internal/accessconfig"
+	accessstore "github.com/viant/authz/component/store/sql"
 	"github.com/viant/datly-studio/internal/publisherguard"
+	"github.com/viant/datly-studio/runtime/accessprovider"
 	"github.com/viant/datly-studio/runtime/preview"
 	"github.com/viant/datly-studio/sdk"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
@@ -86,7 +86,7 @@ func Authorized(ctx context.Context, session xhandler.Session, claims *jwt.Claim
 	executionCtx, cancel := context.WithTimeout(ctx, timeout)
 	executionCtx = sdk.WithPrincipal(executionCtx, sdk.Principal{Subject: claims.Subject})
 	engine := preview.Dynamic{StudioDB: db, ModulePath: modulePath, Types: types}
-	aclProvider, err := accessconfig.FromEnvironment()
+	aclProvider, err := accessprovider.FromEnvironment(executionCtx)
 	if err != nil {
 		cancel()
 		return nil, preview.Dynamic{}, nil, publisherguard.PublicError(503, "ACL verifier is not configured correctly")

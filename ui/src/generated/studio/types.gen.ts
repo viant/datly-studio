@@ -66,6 +66,21 @@ export type Input2E06143707781A8502Ab8Fc97824Dec99C9E9B2998F2436174C1D8B57C8D9Cd
     secretRef?: string | null;
 };
 
+export type Input2Eb867Edd4B94Fb2C4C8A4D0Eba79C11F51Facae76665Aec222Fff513Fd80E20 = {
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
+};
+
+export type Input35F4Ac8173F8Fa3Cb8E695D8Cb3D27E2B5F8D83887D73C82E65Fa26E9019D2F5 = {
+    policies?: {
+        [key: string]: Input951160Aef000A2F5135521B7B592659281101C31F9602D34A2718677Dfc28D56;
+    } | null;
+    resource?: Input759A527Aaec8Ccde2E291D9F7014278794Ab6B15717A217294B4Ef4Bb47511E5;
+    revision?: number;
+};
+
 export type Input4B2C38475D83Ff82029Ec4520D07B5Ec88C1409199C252Fc696E28282C52561f = {
     expectedActiveGeneration?: number;
     reason?: string;
@@ -96,6 +111,7 @@ export type Input5Bcc88D6E28E27666Dfa5B56F82424Fa705C9Bf62E9E02961Ffb25163058069
 export type Input5F347683Ef0D72C421F5A4C01Ad3Ad788D864B286Ee54473499Ecc7Aaacee182 = {
     entityType?: string;
     mode?: string;
+    requiredScopes?: Array<string> | null;
     rule?: InputFc83F5Dc2E1741A3C0713Acae5C5589D76E1865E7287675353Ca9558C3E7E7Dc | null;
 };
 
@@ -111,6 +127,20 @@ export type Input6139A906F15F351C7Eae5D9897Ae3973B6172D1373D49394D6C8C6961591484
 };
 
 export type Input61Da40565Eeef7Dc1D2D89123Fe0033E9B0F0809A66731851Fd56301624B0Dc5 = {
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
+};
+
+export type Input67A6C41B53B420074072Fda4F537183A1752B07F36458625612Ede362Fd6Ed25 = {
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
+};
+
+export type Input759A527Aaec8Ccde2E291D9F7014278794Ab6B15717A217294B4Ef4Bb47511E5 = {
     id?: string;
     kind?: string;
     tenant?: string;
@@ -146,6 +176,18 @@ export type Input8B2294Ec4854C9Dd94236A9123A7D8Fe7Dbf92Cab403Fb011D6C8Bf7D53C505
     operation?: unknown;
 };
 
+export type Input92Babcabef72E30Fbb57Dc0D846D94Ab3444A80B93279Fb26Ff7A884Ac2Fffb8 = {
+    id?: string;
+    type?: string;
+};
+
+export type Input951160Aef000A2F5135521B7B592659281101C31F9602D34A2718677Dfc28D56 = {
+    entityType?: string;
+    mode?: string;
+    requiredScopes?: Array<string> | null;
+    rule?: InputD95B4A97507D7D8C7Cf435C3B349Ee1C36Ba23Bb010Ef3E61D69C8Ede93E9Cf7 | null;
+};
+
 export type Input96A025B75D7Ec5Ca504Acf90Ff2915C5535F1449Cf9023D5D424Dce58B581054 = {
     expectedSourceRevision?: number;
     folderId?: string;
@@ -170,6 +212,13 @@ export type Input9Aad80E5262Dd4Bec1816Caf72B4Dd6364E8940A81D02Db58A19387Fcec5E85
     etag?: number;
     options?: unknown;
     secretRef?: string | null;
+};
+
+export type Input9D7023E73Cbba6B4604B174D02B09025C5E7F000Ff37Da44F8F1D02E48C0E4Ca = {
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
 };
 
 export type InputA0D3076A206576E1Fb379Faacd83A9E5289796C14E710E1Fe21529Cfb0C35C21 = {
@@ -270,6 +319,18 @@ export type InputD631D9489D8A46Cf61Ef6Ae5A6A27B5E6C1Fe964186472Df97480Ccb0Bd6A17
     } | null;
     resource?: Input18Be64Dee76Ccbb1B565145615D071Eb94Fd5Ef5E084Ad249271599E217706C8;
     revision?: number;
+};
+
+export type InputD95B4A97507D7D8C7Cf435C3B349Ee1C36Ba23Bb010Ef3E61D69C8Ede93E9Cf7 = {
+    entity?: InputDa8168F080Bfa68B819580Da3D7C62F0F555672Ea65E1590B0F311889F16F426 | null;
+    kind?: string;
+    rules?: Array<InputD95B4A97507D7D8C7Cf435C3B349Ee1C36Ba23Bb010Ef3E61D69C8Ede93E9Cf7> | null;
+    value?: string;
+};
+
+export type InputDa8168F080Bfa68B819580Da3D7C62F0F555672Ea65E1590B0F311889F16F426 = {
+    id?: string;
+    type?: string;
 };
 
 export type InputE14Cc58C4Ee74D7747F498Bcbd7C71A8Cb3028Eda5782588B9C5299Ed0Cf9C37 = {
@@ -604,6 +665,7 @@ export type OutputBd7A1B00Fadef6F5E471Ef21Cd4Fe9Df0F1E3F4B9Cabd09814C00B32108658
 export type OutputC50C4A793548Bb0F3B16Af35D193034D2656958E13E8B0A0Ee655Bd092A1A349 = {
     entityType?: string;
     mode: string;
+    requiredScopes?: Array<string> | null;
     rule?: OutputF632037538F344Fc898Ce8Aad11Eec32Cea261974A86789A20Dfb9954682Ae69 | null;
 };
 
@@ -686,6 +748,7 @@ export type OutputDb16D19662078B5E2Bf34Bb56Caf4E031Ec60811B8Ff0833D9304Fe74Bb3De
 export type OutputE8Ea1801B1Be98B9F440E71042F9D1F205288Fc993De313Deb5492650404E1B8 = {
     entityType?: string;
     mode: string;
+    requiredScopes?: Array<string> | null;
     rule?: Output86A66B97D8718A98219F5Bea5A2Cc298728F5Dfba2334Ccda5E7A236791Aaff7 | null;
 };
 
@@ -788,6 +851,14 @@ export type Wire08043516A7D3B5028514Fc2Ffc6B6Fa38Ab832Ff1F255Ae1206871C7D200A5A6
     versionNo: number;
 };
 
+export type Wire0B4Fc596D18790B4851Cf320F7B9Abf6D446Bab3Fd3F2Ae6A2D3Cb1481542E8f = {
+    entity: Array<Wire18D26Fa6031Fa0C216A09Dd53Df26Cf2Cfff9F4F59Cf5D1C903Cdd34E49A155d> | null;
+    entityTypes: Array<string> | null;
+    exposure: Array<Wire0F93686C6382F8Ae45E9A8242477Ce457B683D146B3Dd9716Ec8115D7Beef8D2> | null;
+    role: Array<Wire979F8401Ed7C6A7A498050De7350E78A8Cbe42Fc8860B3D78Ff2Dff09894Ddc9> | null;
+    subject: Array<Wire49686E94Bea33D02Ba3B047B649A216C420F7Aeaeb9434A4Ad87Db8B0E82Aca4> | null;
+};
+
 export type Wire0Efe2807Dd8489Fd6B68A80Fcb3A13Eacf82Bee604Ffd94663Ddcf539A88Cd14 = {
     entries: Array<string> | null;
     entryDql: string;
@@ -801,6 +872,12 @@ export type Wire0F446F07Ec6516F9B6A7F9E3De1D58Abb30Bb3608144Fb80728627765378E04e
     duration: number;
     evidence: WireEcc4D9A82E8B4Cd1E3Ac77D7Fd7943319B31B3E82973C8Afbcf0002138Ddc950;
     view: string;
+};
+
+export type Wire0F93686C6382F8Ae45E9A8242477Ce457B683D146B3Dd9716Ec8115D7Beef8D2 = {
+    entity?: Wire517B25Ae3A6A1221520076308B5E6474437Dc4Fcead897Aa4Ecfa71Bf21374De | null;
+    id?: string;
+    label: string;
 };
 
 export type Wire13Cb2B9Fac8E64E2Df86Cc6097Eb0Eb4E31B922506E64Ca2Fb8D0Bc76Ccdaeec = {
@@ -822,6 +899,12 @@ export type Wire187F7F4691Bae62916263844A31B0E52F2Ac7573Ba63A1Dda0Cfffa8610B0947
     line?: number;
     message: string;
     severity: string;
+};
+
+export type Wire18D26Fa6031Fa0C216A09Dd53Df26Cf2Cfff9F4F59Cf5D1C903Cdd34E49A155d = {
+    entity?: Wire85Fc54185957A0434E3652651310Cd5912274Fdaa90Cf7F42706E7836E67517c | null;
+    id?: string;
+    label: string;
 };
 
 export type Wire1A54346913F36C827B3Cbb210B4E4062C2B4B68E415F006659F4A97F386665Ac = {
@@ -924,6 +1007,13 @@ export type Wire221846F313892219B53265500A015547384983C9F728252D253349F904Fb06A9
     versionNo?: number | null;
 };
 
+export type Wire22F8D5B6B2E00Ab542F425835E6D63F595971318F417B0060E6C9Dd3890Ffd46 = {
+    entity?: Wire26Bfdc0C14C35Bde2Ded779F8De8De566A8A5E74F4830C6245715540Cfccdb0f | null;
+    kind: string;
+    rules?: Array<Wire22F8D5B6B2E00Ab542F425835E6D63F595971318F417B0060E6C9Dd3890Ffd46> | null;
+    value?: string;
+};
+
 export type Wire239231A7Ea3Ed59E77B205B0783836Ec39Ca3De2A814Ba109F6Bda877Ba20691 = {
     authoredDql?: string;
     authoredSql?: string;
@@ -949,6 +1039,11 @@ export type Wire239231A7Ea3Ed59E77B205B0783836Ec39Ca3De2A814Ba109F6Bda877Ba20691
     typeManifest?: unknown;
     validatedAt?: string | null;
     versionNo: number;
+};
+
+export type Wire26Bfdc0C14C35Bde2Ded779F8De8De566A8A5E74F4830C6245715540Cfccdb0f = {
+    id: string;
+    type: string;
 };
 
 export type Wire284D529F33778B8025Eaf493C0C081Fa071Dfc15595367Cd050C6Aea84390073 = {
@@ -1008,6 +1103,12 @@ export type Wire2Be0684Fe50E4D50E1C7Ed7799C8493F7A6Fbfe50Bcd3Ecfc3B2241E765F60Da
     unmatchedParents: number;
 };
 
+export type Wire2Bece1447E379F703B2F9Dfec5A0D5Fc346A7D1709Dd4A6882C60920A9Ef056f = {
+    canManage: boolean;
+    choices: Wire0B4Fc596D18790B4851Cf320F7B9Abf6D446Bab3Fd3F2Ae6A2D3Cb1481542E8f;
+    source: string;
+};
+
 export type Wire2C9280510E6Ff51Ff291Cf46071183A83553Af0793136E09416Edcc75Cf4Bea9 = {
     authoredDql?: string;
     authoredSql?: string;
@@ -1033,6 +1134,13 @@ export type Wire2C9280510E6Ff51Ff291Cf46071183A83553Af0793136E09416Edcc75Cf4Bea9
     typeManifest?: unknown;
     validatedAt?: string | null;
     versionNo: number;
+};
+
+export type Wire2Fd98Ed1Ef9F13D6B92F605771E0D84Cba3385793616364756034B01Cda28A3d = {
+    entityType?: string;
+    mode: string;
+    requiredScopes?: Array<string> | null;
+    rule?: Wire22F8D5B6B2E00Ab542F425835E6D63F595971318F417B0060E6C9Dd3890Ffd46 | null;
 };
 
 export type Wire3100C253C572F716Ab2Eb88F6D83D813Eedfe0B04003220Edb6E98677Fced244 = {
@@ -1188,6 +1296,13 @@ export type Wire474Ce95Df76D3333C947A6Bd85C78Ed4Cfb5130D19Fec59F6B436E1Accd11E9a
     versionNo: number;
 };
 
+export type Wire47Ab2362281845Fa3C625B315F45Ddecace8A6483837902Bc83Afa48Ecc01F02 = {
+    id: string;
+    kind: string;
+    tenant: string;
+    version: string;
+};
+
 export type Wire48193E904540171957F9Ef3A3A6Aa0D8618569B96Cf8C2Bd174Eb39C4Cf6443a = {
     diagnostics?: Array<Wire187F7F4691Bae62916263844A31B0E52F2Ac7573Ba63A1Dda0Cfffa8610B0947> | null;
     valid: boolean;
@@ -1200,6 +1315,12 @@ export type Wire4865103E82A353748C5Cf4C44Eb18159E252732C3C48350Fe8B3411C3Af62117
     types?: unknown;
 };
 
+export type Wire49686E94Bea33D02Ba3B047B649A216C420F7Aeaeb9434A4Ad87Db8B0E82Aca4 = {
+    entity?: Wire4Ca9Fea7Aa1D6B8D21F5Cfc656A25Fc9Ccb0Ef6B80E665B0Bbcc73084C82A04e | null;
+    id?: string;
+    label: string;
+};
+
 export type Wire49Feff8D08Df046F25F5C6Fbb141C3C4B50C39Af0Dea56Aec129E11334A944E0 = {
     activeGeneration?: number | null;
     activeVersionNo: number;
@@ -1210,6 +1331,11 @@ export type Wire49Feff8D08Df046F25F5C6Fbb141C3C4B50C39Af0Dea56Aec129E11334A944E0
     runtimeRevision?: string;
     specHash?: string;
     status: string;
+};
+
+export type Wire4Ca9Fea7Aa1D6B8D21F5Cfc656A25Fc9Ccb0Ef6B80E665B0Bbcc73084C82A04e = {
+    id: string;
+    type: string;
 };
 
 export type Wire4Dce8Cb2Df5Cbfb88D4Ed91E9D3Efb3Bfd51De7Faa0095856Cda22845A38C9Cf = {
@@ -1228,6 +1354,11 @@ export type Wire503Eecae2F1D1D659F4E4C2E5E08Bec8Db2F264A5Bdc6C2B084Dc41A3Aadf478
     rootPath: string;
     uriPrefix: string;
     versionNo: number;
+};
+
+export type Wire517B25Ae3A6A1221520076308B5E6474437Dc4Fcead897Aa4Ecfa71Bf21374De = {
+    id: string;
+    type: string;
 };
 
 export type Wire51Bb1F0871Dac81Cba14Ebfac4Fc554D215315E30Cd3B214596B5Da0912A4710 = {
@@ -1294,6 +1425,11 @@ export type Wire59787F7087B974A90942D4D67D870A8382B1189Efe4Cc88Cfba1B0Ada4D89C75
     versionNo: number;
 };
 
+export type Wire5Cf4A8A140Fb1A665A97B8362F3128Fdf9Cdb4B3D66B442D124E25C9Ac724D7a = {
+    id: string;
+    type: string;
+};
+
 export type Wire5Dcb9A5385549159028A02B9F90B5F85B74Ea0076B725Bce7E222E5Cfe3Ae71e = {
     code: string;
     column?: number;
@@ -1311,6 +1447,22 @@ export type Wire60Bda844Ac8065E6E072Cef8Ca0C3A6F4Ee6Ad55108Ee3B860D23Ad284Da68Ac
     skillId: string;
     skillRoot: string;
     versionNo: number;
+};
+
+export type Wire615A0539A089E0C573Df4F18B04483A7302C37Cf735Dea31813C024C8E2D0922 = {
+    policies: {
+        [key: string]: Wire2Fd98Ed1Ef9F13D6B92F605771E0D84Cba3385793616364756034B01Cda28A3d;
+    } | null;
+    resource: WireCc8E6D7697C9501B39869778C8E5561398Ec267F3F24741Ddd643Fb0C8D25F2f;
+    revision: number;
+};
+
+export type Wire6238Fe88Bfb9Fb7369Cf10De373A6904Ecf859Ade35A5496Fe0A150Dae56Be72 = {
+    policies: {
+        [key: string]: Wire8A4C5788A2Cf03A1E9Aa38C97C22D5A352F6091Ad7274Cee621E3739A342C0F4;
+    } | null;
+    resource: Wire47Ab2362281845Fa3C625B315F45Ddecace8A6483837902Bc83Afa48Ecc01F02;
+    revision: number;
 };
 
 export type Wire62B416D7643717Df5349D629A8802521Ee46B9F921D7C05E834E68B645Ecb930 = {
@@ -1483,6 +1635,11 @@ export type Wire7Af96Ca0084D089Bcfb5E8B942B9D90A7900D3C1E884C7D9C370D23294D493F8
     [key: string]: unknown;
 };
 
+export type Wire7Bb477D127E2E69Acd8739C2E83Cfa4Cd4B6Cbcb0091Ec6D4Ce7Cec38E659621 = {
+    id: string;
+    type: string;
+};
+
 export type Wire7Be315Ac587Bc72247D0B72942B7067D644F15C0E04A4011F74Ffec56D000203 = {
     createdAt: string;
     description?: string;
@@ -1498,6 +1655,13 @@ export type Wire7Be315Ac587Bc72247D0B72942B7067D644F15C0E04A4011F74Ffec56D000203
     secretConfigured: boolean;
     status: string;
     updatedAt: string;
+};
+
+export type Wire7D7Ffebe9B2C3Db9F219A2E5C8Aedd94C3D67594Fc08B9410116D0Bc7E2A9134 = {
+    entity?: Wire5Cf4A8A140Fb1A665A97B8362F3128Fdf9Cdb4B3D66B442D124E25C9Ac724D7a | null;
+    kind: string;
+    rules?: Array<Wire7D7Ffebe9B2C3Db9F219A2E5C8Aedd94C3D67594Fc08B9410116D0Bc7E2A9134> | null;
+    value?: string;
 };
 
 export type Wire7D83E432Dba96D596847D8Df2F770054A4188B355Ed704D691Dff2A9D8F991Ee = {
@@ -1546,6 +1710,11 @@ export type Wire8147805369C129Ab8A8Ae87482Dbb8Be4C51D1125Dda4427E8Adca5F845D6A7b
     duration: number;
 };
 
+export type Wire85Fc54185957A0434E3652651310Cd5912274Fdaa90Cf7F42706E7836E67517c = {
+    id: string;
+    type: string;
+};
+
 export type Wire878Bfd02A12294E26D1A40F1B673A231Fa11C24402268D818F39F80Be43C86F9 = {
     code: string;
     column?: number;
@@ -1560,6 +1729,13 @@ export type Wire898C903Bc4Eef9B996D8948010Fb2Ca3D9389D10Ce499B1Be1015Bbbba75993c
     folders: Array<Wire77752153Da43Bb0Addc9D671944E117883Dbc02C23B23F9Dead496B805929938 | null> | null;
     skills: Array<Wire60Bda844Ac8065E6E072Cef8Ca0C3A6F4Ee6Ad55108Ee3B860D23Ad284Da68Ac | null> | null;
     version?: Wire942D4E47E476A9E6Ca17A65Af1901A04D22Fd0D3854182C3Efa5E0F74762105e | null;
+};
+
+export type Wire8A4C5788A2Cf03A1E9Aa38C97C22D5A352F6091Ad7274Cee621E3739A342C0F4 = {
+    entityType?: string;
+    mode: string;
+    requiredScopes?: Array<string> | null;
+    rule?: Wire7D7Ffebe9B2C3Db9F219A2E5C8Aedd94C3D67594Fc08B9410116D0Bc7E2A9134 | null;
 };
 
 export type Wire8A9Cf29086A80Cb7Cabcdebcdf40Aa1D03Da579D5B4D6608Dcb4A7446Bcf710d = {
@@ -1591,6 +1767,10 @@ export type Wire8B82F013750Bb50C4A08366119Aaab33D2Ee4C3F59Ab77B868Ec2617Ec5Ef5C8
     typeManifest?: unknown;
     validatedAt?: string | null;
     versionNo: number;
+};
+
+export type Wire9354A215074630106Ae925B0323Dfe169D763D5B75Fe24202Ca25Bd2Fb36Ab21 = {
+    context: Wire2Bece1447E379F703B2F9Dfec5A0D5Fc346A7D1709Dd4A6882C60920A9Ef056f;
 };
 
 export type Wire942D4E47E476A9E6Ca17A65Af1901A04D22Fd0D3854182C3Efa5E0F74762105e = {
@@ -1629,6 +1809,12 @@ export type Wire9763Fc0927F951631F9C089E0800033B9772E81B29Bddc85Ae64E2899F0943E3
     diagnostics?: Array<WireDdc8F3519E98B687E03E321D69E1Dab9D279D6F41Fcef8B1C25D52A95B4F51Bd> | null;
     duration: number;
     evidence: Wire29994796C346A67D8D87067E8F62A29284Fc2Af12311Fbab69Bdf45B428E37F7;
+};
+
+export type Wire979F8401Ed7C6A7A498050De7350E78A8Cbe42Fc8860B3D78Ff2Dff09894Ddc9 = {
+    entity?: Wire7Bb477D127E2E69Acd8739C2E83Cfa4Cd4B6Cbcb0091Ec6D4Ce7Cec38E659621 | null;
+    id?: string;
+    label: string;
 };
 
 export type Wire98B9826A3A782748Dba5C6E5A250E1E52D78E3E1Dbd2Ab11F2Dc2F9352C62E7a = {
@@ -1670,6 +1856,10 @@ export type Wire9E9F2A32Ff76Fe5Fcb226A8378824A3898F344E1E2394372932Dcdf203D1D145
     folders: Array<WireBedeea2Eea3F372Feb231562Eecdb3Aa32C8017835F81Ac7E8D5978E48330812 | null> | null;
     skills: Array<Wire3206393A34Ac737Dcd3540640044680Ce7D2Ad47A4B55B4A06E350301E8Df7F7 | null> | null;
     version?: WireD47A3F0A566536Bf283059Fe5C94Fdc79E8185Ca98Cbe6359316854E6Ae380Ee | null;
+};
+
+export type Wire9Ff34394076F48Ed9D131D938211E94244C83Bf8F3Fbbfacc63525Bd424Ec102 = {
+    document: Wire615A0539A089E0C573Df4F18B04483A7302C37Cf735Dea31813C024C8E2D0922;
 };
 
 export type WireA1D273D5932B1743E789689950989D814Cd8E3A90923654Fe30Afb020Fcc1Ece = {
@@ -1773,6 +1963,10 @@ export type WireBba07F0Bad61Cd85885417E1C20C5Cff98C1Ebf3Abb205Fd71B51C6069Ea161c
     updatedAt: string;
 };
 
+export type WireBc277E5B6Cc7B5F6E3363C1E3628C4127103Aecef86Cccc990395878331130B5 = {
+    decision: WireE664Fa33D9D2D2C968C6Dabd40E4Ac01C5333F4591763B88B02Fd2Feb8B031Ca;
+};
+
 export type WireBd458392Be482912A616E980Fab94755810F3Ed4347C5351A04930F05Dd4Ce31 = {
     columns: Array<Wire284D529F33778B8025Eaf493C0C081Fa071Dfc15595367Cd050C6Aea84390073> | null;
     table: WireCcdd85Ede51B17373Dddff12304F04C5Afd91F3Fe365382C999B601899F69747;
@@ -1855,6 +2049,13 @@ export type WireC47Cf46B58E263Ed665Fbdce50F43Ecc62642C4837741Ba43Aaa439C1623D39c
 
 export type WireC556C6C91D85B6Fe76E559A7132Bc91D46B0C40C216A538C686D074Ec366C766 = {
     [key: string]: unknown;
+};
+
+export type WireCc8E6D7697C9501B39869778C8E5561398Ec267F3F24741Ddd643Fb0C8D25F2f = {
+    id: string;
+    kind: string;
+    tenant: string;
+    version: string;
 };
 
 export type WireCcb72E9Ff740A41F9Ee459D67D34D6D003De93Aa4E74Ce39B240Bc27D65454Ca = {
@@ -1978,6 +2179,10 @@ export type WireD96F9F6E74952B34F1E493521A586F731028Cc293D50A0439Ca0Ba97D376Ca3c
     typeName: string;
 };
 
+export type WireDd57F8078C863D6327Fc4C31894Dd7A9B19A5E8Ce736C4F2F789A161A9Bccf09 = {
+    document: Wire6238Fe88Bfb9Fb7369Cf10De373A6904Ecf859Ade35A5496Fe0A150Dae56Be72;
+};
+
 export type WireDda9A7E06F8980Ccc3D0D82Eca41C2Ab29259E1288943F9B5F95B433A84A7179 = {
     items: Array<Wire1A54346913F36C827B3Cbb210B4E4062C2B4B68E415F006659F4A97F386665Ac | null> | null;
     limit: number;
@@ -2017,6 +2222,11 @@ export type WireE0B9D64Ac7D2034342D226Cd5A657956619Fb94Bfab0F429F31D295Bbee568Fb
     indexColumn?: string;
     indexParameter?: string;
     view: string;
+};
+
+export type WireE664Fa33D9D2D2C968C6Dabd40E4Ac01C5333F4591763B88B02Fd2Feb8B031Ca = {
+    bounded: boolean;
+    entities: Array<WireF791E609Dc9412B052626B655056F1150D4756F8C3A0E758A32B8022F81938D4> | null;
 };
 
 export type WireEa1Dce693F0Fba7795Db01C064Fb101C3191020F13E052Ff246A0378Ec74F044 = {
@@ -2126,6 +2336,11 @@ export type WireF3E391310Ebbdfcf54A80947Dc8023074733A52A02De8Af4F489Eff13A0C137d
     versionNo: number;
 };
 
+export type WireF791E609Dc9412B052626B655056F1150D4756F8C3A0E758A32B8022F81938D4 = {
+    id: string;
+    type: string;
+};
+
 export type WireF932A6D94Aac7D5320966Eccf3629Df536A5A1Bc23Efddc9Cefb59Aad8Af0675 = {
     authoredDql?: string;
     authoredSql?: string;
@@ -2167,6 +2382,92 @@ export type WireFcb2B68Ea97735A078Bf238Fa93Fc316117Bac1Af3B4B77C1A5F30Eb2753801c
     limit: number;
     offset: number;
 };
+
+export type PostV1AuthzSdkAuthorizationCheckData = {
+    body: {
+        action: string;
+        resource: Input9D7023E73Cbba6B4604B174D02B09025C5E7F000Ff37Da44F8F1D02E48C0E4Ca;
+        selection?: Array<Input92Babcabef72E30Fbb57Dc0D846D94Ab3444A80B93279Fb26Ff7A884Ac2Fffb8> | null;
+    };
+    headers?: {
+        'X-Studio-Namespace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/authz/sdk/authorization.check';
+};
+
+export type PostV1AuthzSdkAuthorizationCheckResponses = {
+    /**
+     * Success response
+     */
+    200: WireBc277E5B6Cc7B5F6E3363C1E3628C4127103Aecef86Cccc990395878331130B5;
+};
+
+export type PostV1AuthzSdkAuthorizationCheckResponse = PostV1AuthzSdkAuthorizationCheckResponses[keyof PostV1AuthzSdkAuthorizationCheckResponses];
+
+export type PostV1AuthzSdkPoliciesContextData = {
+    body: {
+        resource: Input2Eb867Edd4B94Fb2C4C8A4D0Eba79C11F51Facae76665Aec222Fff513Fd80E20;
+    };
+    headers?: {
+        'X-Studio-Namespace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/authz/sdk/policies.context';
+};
+
+export type PostV1AuthzSdkPoliciesContextResponses = {
+    /**
+     * Success response
+     */
+    200: Wire9354A215074630106Ae925B0323Dfe169D763D5B75Fe24202Ca25Bd2Fb36Ab21;
+};
+
+export type PostV1AuthzSdkPoliciesContextResponse = PostV1AuthzSdkPoliciesContextResponses[keyof PostV1AuthzSdkPoliciesContextResponses];
+
+export type PostV1AuthzSdkPoliciesGetData = {
+    body: {
+        resource: Input67A6C41B53B420074072Fda4F537183A1752B07F36458625612Ede362Fd6Ed25;
+    };
+    headers?: {
+        'X-Studio-Namespace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/authz/sdk/policies.get';
+};
+
+export type PostV1AuthzSdkPoliciesGetResponses = {
+    /**
+     * Success response
+     */
+    200: WireDd57F8078C863D6327Fc4C31894Dd7A9B19A5E8Ce736C4F2F789A161A9Bccf09;
+};
+
+export type PostV1AuthzSdkPoliciesGetResponse = PostV1AuthzSdkPoliciesGetResponses[keyof PostV1AuthzSdkPoliciesGetResponses];
+
+export type PostV1AuthzSdkPoliciesReplaceData = {
+    body: {
+        document: Input35F4Ac8173F8Fa3Cb8E695D8Cb3D27E2B5F8D83887D73C82E65Fa26E9019D2F5;
+    };
+    headers?: {
+        'X-Studio-Namespace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/authz/sdk/policies.replace';
+};
+
+export type PostV1AuthzSdkPoliciesReplaceResponses = {
+    /**
+     * Success response
+     */
+    200: Wire9Ff34394076F48Ed9D131D938211E94244C83Bf8F3Fbbfacc63525Bd424Ec102;
+};
+
+export type PostV1AuthzSdkPoliciesReplaceResponse = PostV1AuthzSdkPoliciesReplaceResponses[keyof PostV1AuthzSdkPoliciesReplaceResponses];
 
 export type PostV1StudioSdkAccessContextData = {
     body: Input97Df4A50A602Fc26F1Ee6311A5F68Da1D96E2143F76Deaf46Ec88C673E7B5125;
@@ -3331,6 +3632,7 @@ export type PostV1StudioSdkVersionsGetResponse = PostV1StudioSdkVersionsGetRespo
 
 export type PostV1StudioSdkVersionsInspectData = {
     body: {
+        discoverColumns?: boolean | null;
         reportId: string;
         versionNo: number;
     };

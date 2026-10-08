@@ -787,6 +787,42 @@ var createClient = (config = {}) => {
 var client = createClient(createConfig());
 
 // src/generated/studio/sdk.gen.ts
+var postV1AuthzSdkAuthorizationCheck = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/authz/sdk/authorization.check",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1AuthzSdkPoliciesContext = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/authz/sdk/policies.context",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1AuthzSdkPoliciesGet = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/authz/sdk/policies.get",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1AuthzSdkPoliciesReplace = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/authz/sdk/policies.replace",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var postV1StudioSdkAccessContext = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/v1/studio/sdk/access.context",
@@ -1383,6 +1419,10 @@ var postV1StudioSdkVersionsWarmupList = (options) => (options.client ?? client).
   }
 });
 export {
+  postV1AuthzSdkAuthorizationCheck,
+  postV1AuthzSdkPoliciesContext,
+  postV1AuthzSdkPoliciesGet,
+  postV1AuthzSdkPoliciesReplace,
   postV1StudioSdkAccessContext,
   postV1StudioSdkAccessGet,
   postV1StudioSdkAccessList,

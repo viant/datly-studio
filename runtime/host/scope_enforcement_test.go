@@ -9,7 +9,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"encoding/pem"
-	"fmt"
 	"github.com/viant/authz"
 	"io"
 	"net/http"
@@ -17,13 +16,14 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
 
 	jwtlib "github.com/golang-jwt/jwt/v5"
-	accessstore "github.com/viant/authz/datly/store/sql"
+	accessstore "github.com/viant/authz/component/store/sql"
 	"github.com/viant/datly-studio/internal/bffauth"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/studio/predicatecatalog/testdata/extension"
@@ -322,7 +322,7 @@ func TestPublishedReaderRequiresAllowlistedLinkedPredicateBeforeServing(t *testi
 	assertRows(t, body, []string{"alpha-101"}, []string{"beta-102", "gamma-103", "delta-104"})
 }
 
-func TestPublishedReaderUsesCurrentUserInfoFeaturesOnHTTPAndMCP(t *testing.T) {
+func TestPublishedReaderUsesCurrentInjectedFactsOnHTTPAndMCP(t *testing.T) {
 	var allowExport atomic.Bool
 	allowExport.Store(true)
 	var account atomic.Int64
@@ -332,11 +332,11 @@ func TestPublishedReaderUsesCurrentUserInfoFeaturesOnHTTPAndMCP(t *testing.T) {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-		features := `[]`
+		features := []string{}
 		if allowExport.Load() {
-			features = `["export"]`
+			features = []string{"export"}
 		}
-		_, _ = fmt.Fprintf(w, `{"status":"ok","info":{"uid":"alice","subject":"alice","userId":7,"accountId":%d,"roles":[],"features":%s,"entityPermissions":[]}}`, account.Load(), features)
+		_ = json.NewEncoder(w).Encode(authz.Facts{Subject: "alice", Issuer: scopeTestIssuer, Tenant: strconv.FormatInt(account.Load(), 10), Exposures: features, ValidUntil: time.Now().Add(time.Minute)})
 	}))
 	defer userInfo.Close()
 	dql := strings.Replace(unscopedRecordsDQL, "#define($_ = $Records", "#setting($_ = $mcp('records.list','List records'))\n#define($_ = $Records", 1)
@@ -344,12 +344,13 @@ func TestPublishedReaderUsesCurrentUserInfoFeaturesOnHTTPAndMCP(t *testing.T) {
 	host, err := newScopedHostConfigured(t, map[string]string{"records": dql}, map[string]authz.Policy{"records": policy}, func(config *ResourceAccessConfig) {
 		config.Tenant = "21"
 		config.UserInfoURL = userInfo.URL
+		config.Provider = fixtureRemoteProvider(t, config, userInfo.URL)
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	token, err := jwtlib.NewWithClaims(jwtlib.SigningMethodRS256, jwtlib.MapClaims{
-		"iss": scopeTestIssuer, "aud": scopeTestAudience, "sub": "alice", "user_id": 7, "account_id": 21,
+		"iss": scopeTestIssuer, "aud": scopeTestAudience, "sub": "alice", "tenant": "21",
 		"exp": time.Now().Add(59 * time.Minute).Unix(),
 	}).SignedString(host.key)
 	if err != nil {
@@ -377,7 +378,7 @@ func TestPublishedReaderUsesCurrentUserInfoFeaturesOnHTTPAndMCP(t *testing.T) {
 	allowExport.Store(true)
 	account.Store(22)
 	status, body = host.get(t, "/records", token, nil)
-	if status != http.StatusForbidden {
+	if status != http.StatusUnauthorized {
 		t.Fatalf("changed account HTTP status=%d body=%s", status, body)
 	}
 }
@@ -519,7 +520,7 @@ func TestScopedComponentBindsAuthorizedEntitiesIntoCompiledQuery(t *testing.T) {
 	t.Run("expired credential denies", func(t *testing.T) {
 		expired := host.expiredToken(t, "alice", []authz.Entity{{Type: "project", ID: "101"}})
 		status, body := host.get(t, "/tasks", expired, nil)
-		if status != http.StatusForbidden {
+		if status != http.StatusUnauthorized {
 			t.Fatalf("status=%d body=%s", status, body)
 		}
 		assertRows(t, body, nil, all)
@@ -529,7 +530,7 @@ func TestScopedComponentBindsAuthorizedEntitiesIntoCompiledQuery(t *testing.T) {
 	t.Run("principal without allowed IDs denies", func(t *testing.T) {
 		none := host.token(t, "dave", nil)
 		status, body := host.get(t, "/tasks", none, nil)
-		if status != http.StatusForbidden {
+		if status != http.StatusUnauthorized {
 			t.Fatalf("status=%d body=%s", status, body)
 		}
 		assertRows(t, body, nil, all)
@@ -548,7 +549,7 @@ func TestScopedComponentBindsAuthorizedEntitiesIntoCompiledQuery(t *testing.T) {
 	})
 	t.Run("missing credential denies before execution", func(t *testing.T) {
 		status, body := host.get(t, "/tasks", "", nil)
-		if status != http.StatusForbidden {
+		if status != http.StatusUnauthorized {
 			t.Fatalf("status=%d body=%s", status, body)
 		}
 		assertRows(t, body, nil, all)
@@ -580,13 +581,18 @@ func TestScopedComponentBindsAuthorizedEntitiesIntoCompiledQuery(t *testing.T) {
 	t.Run("non canonical or non numeric IDs deny", func(t *testing.T) {
 		for _, id := range []string{"abc", "007", "+101", " 101", "101.0", "1 OR 1=1"} {
 			status, body := host.get(t, "/tasks", host.token(t, "mallory", []authz.Entity{{Type: "project", ID: id}}), nil)
-			if status != http.StatusForbidden {
+			wantStatus := http.StatusForbidden
+			if id == " 101" {
+				wantStatus = http.StatusUnauthorized
+			}
+			if status != wantStatus {
 				t.Fatalf("id %q status=%d body=%s", id, status, body)
 			}
 			assertRows(t, body, nil, all)
 		}
 	})
 	t.Run("unbounded decision on a scoped component denies", func(t *testing.T) {
+		t.Cleanup(func() { host.replacePolicy(t, "tasks", scoped) })
 		host.replacePolicy(t, "tasks", authz.Policy{Mode: "protected", Rule: reader})
 		status, body := host.get(t, "/tasks", alice, nil)
 		if status != http.StatusForbidden {
@@ -597,7 +603,7 @@ func TestScopedComponentBindsAuthorizedEntitiesIntoCompiledQuery(t *testing.T) {
 		assertRows(t, body, nil, all)
 		host.replacePolicy(t, "tasks", authz.Policy{Mode: "public"})
 		status, body = host.get(t, "/tasks", "", nil)
-		if status != http.StatusForbidden {
+		if status != http.StatusUnauthorized {
 			t.Fatalf("public policy ran a scoped component: status=%d body=%s", status, body)
 		}
 		assertRows(t, body, nil, all)

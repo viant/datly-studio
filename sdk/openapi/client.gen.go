@@ -86,6 +86,21 @@ type Input2e06143707781a8502ab8fc97824dec99c9e9b2998f2436174c1d8b57c8d9cdf struc
 	SecretRef   *string     `json:"secretRef,omitempty"`
 }
 
+// Input2eb867edd4b94fb2c4c8a4d0eba79c11f51facae76665aec222fff513fd80e20 defines model for Input_2eb867edd4b94fb2c4c8a4d0eba79c11f51facae76665aec222fff513fd80e20.
+type Input2eb867edd4b94fb2c4c8a4d0eba79c11f51facae76665aec222fff513fd80e20 struct {
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
+}
+
+// Input35f4ac8173f8fa3cb8e695d8cb3d27e2b5f8d83887d73c82e65fa26e9019d2f5 defines model for Input_35f4ac8173f8fa3cb8e695d8cb3d27e2b5f8d83887d73c82e65fa26e9019d2f5.
+type Input35f4ac8173f8fa3cb8e695d8cb3d27e2b5f8d83887d73c82e65fa26e9019d2f5 struct {
+	Policies *map[string]Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56 `json:"policies,omitempty"`
+	Resource *Input759a527aaec8ccde2e291d9f7014278794ab6b15717a217294b4ef4bb47511e5            `json:"resource,omitempty"`
+	Revision *int64                                                                            `json:"revision,omitempty"`
+}
+
 // Input4b2c38475d83ff82029ec4520d07b5ec88c1409199c252fc696e28282c52561f defines model for Input_4b2c38475d83ff82029ec4520d07b5ec88c1409199c252fc696e28282c52561f.
 type Input4b2c38475d83ff82029ec4520d07b5ec88c1409199c252fc696e28282c52561f struct {
 	ExpectedActiveGeneration *int64  `json:"expectedActiveGeneration,omitempty"`
@@ -119,9 +134,10 @@ type Input5bcc88d6e28e27666dfa5b56f82424fa705c9bf62e9e02961ffb251630580697 struc
 
 // Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182 defines model for Input_5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182.
 type Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182 struct {
-	EntityType *string                                                                     `json:"entityType,omitempty"`
-	Mode       *string                                                                     `json:"mode,omitempty"`
-	Rule       *Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule `json:"rule,omitempty"`
+	EntityType     *string                                                                     `json:"entityType,omitempty"`
+	Mode           *string                                                                     `json:"mode,omitempty"`
+	RequiredScopes *[]string                                                                   `json:"requiredScopes,omitempty"`
+	Rule           *Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule `json:"rule,omitempty"`
 }
 
 // Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182Rule1 defines model for Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182.Rule.1.
@@ -146,6 +162,22 @@ type Input6139a906f15f351c7eae5d9897ae3973b6172d1373d49394d6c8c69615914840 struc
 
 // Input61da40565eeef7dc1d2d89123fe0033e9b0f0809a66731851fd56301624b0dc5 defines model for Input_61da40565eeef7dc1d2d89123fe0033e9b0f0809a66731851fd56301624b0dc5.
 type Input61da40565eeef7dc1d2d89123fe0033e9b0f0809a66731851fd56301624b0dc5 struct {
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
+}
+
+// Input67a6c41b53b420074072fda4f537183a1752b07f36458625612ede362fd6ed25 defines model for Input_67a6c41b53b420074072fda4f537183a1752b07f36458625612ede362fd6ed25.
+type Input67a6c41b53b420074072fda4f537183a1752b07f36458625612ede362fd6ed25 struct {
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
+}
+
+// Input759a527aaec8ccde2e291d9f7014278794ab6b15717a217294b4ef4bb47511e5 defines model for Input_759a527aaec8ccde2e291d9f7014278794ab6b15717a217294b4ef4bb47511e5.
+type Input759a527aaec8ccde2e291d9f7014278794ab6b15717a217294b4ef4bb47511e5 struct {
 	Id      *string `json:"id,omitempty"`
 	Kind    *string `json:"kind,omitempty"`
 	Tenant  *string `json:"tenant,omitempty"`
@@ -186,6 +218,28 @@ type Input8b2294ec4854c9dd94236a9123a7d8fe7dbf92cab403fb011d6c8bf7d53c5054 struc
 	Operation              interface{} `json:"operation,omitempty"`
 }
 
+// Input92babcabef72e30fbb57dc0d846d94ab3444a80b93279fb26ff7a884ac2fffb8 defines model for Input_92babcabef72e30fbb57dc0d846d94ab3444a80b93279fb26ff7a884ac2fffb8.
+type Input92babcabef72e30fbb57dc0d846d94ab3444a80b93279fb26ff7a884ac2fffb8 struct {
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
+}
+
+// Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56 defines model for Input_951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56.
+type Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56 struct {
+	EntityType     *string                                                                     `json:"entityType,omitempty"`
+	Mode           *string                                                                     `json:"mode,omitempty"`
+	RequiredScopes *[]string                                                                   `json:"requiredScopes,omitempty"`
+	Rule           *Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56_Rule `json:"rule,omitempty"`
+}
+
+// Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56Rule1 defines model for Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56.Rule.1.
+type Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56Rule1 = map[string]interface{}
+
+// Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56_Rule defines model for Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56.Rule.
+type Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56_Rule struct {
+	union json.RawMessage
+}
+
 // Input96a025b75d7ec5ca504acf90ff2915c5535f1449cf9023d5d424dce58b581054 defines model for Input_96a025b75d7ec5ca504acf90ff2915c5535f1449cf9023d5d424dce58b581054.
 type Input96a025b75d7ec5ca504acf90ff2915c5535f1449cf9023d5d424dce58b581054 struct {
 	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
@@ -213,6 +267,14 @@ type Input9aad80e5262dd4bec1816caf72b4dd6364e8940a81d02db58a19387fcec5e859 struc
 	Etag        *int64      `json:"etag,omitempty"`
 	Options     interface{} `json:"options,omitempty"`
 	SecretRef   *string     `json:"secretRef,omitempty"`
+}
+
+// Input9d7023e73cbba6b4604b174d02b09025c5e7f000ff37da44f8f1d02e48c0e4ca defines model for Input_9d7023e73cbba6b4604b174d02b09025c5e7f000ff37da44f8f1d02e48c0e4ca.
+type Input9d7023e73cbba6b4604b174d02b09025c5e7f000ff37da44f8f1d02e48c0e4ca struct {
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
 }
 
 // InputA0d3076a206576e1fb379faacd83a9e5289796c14e710e1fe21529cfb0c35c21 defines model for Input_a0d3076a206576e1fb379faacd83a9e5289796c14e710e1fe21529cfb0c35c21.
@@ -323,6 +385,28 @@ type InputD631d9489d8a46cf61ef6ae5a6a27b5e6c1fe964186472df97480ccb0bd6a17c struc
 	Policies *map[string]Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182 `json:"policies,omitempty"`
 	Resource *Input18be64dee76ccbb1b565145615d071eb94fd5ef5e084ad249271599e217706c8            `json:"resource,omitempty"`
 	Revision *int64                                                                            `json:"revision,omitempty"`
+}
+
+// InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7 defines model for Input_d95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7.
+type InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7 struct {
+	Entity *InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7_Entity `json:"entity,omitempty"`
+	Kind   *string                                                                       `json:"kind,omitempty"`
+	Rules  *[]InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7      `json:"rules,omitempty"`
+	Value  *string                                                                       `json:"value,omitempty"`
+}
+
+// InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7Entity1 defines model for InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7.Entity.1.
+type InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7Entity1 = map[string]interface{}
+
+// InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7_Entity defines model for InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7.Entity.
+type InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7_Entity struct {
+	union json.RawMessage
+}
+
+// InputDa8168f080bfa68b819580da3d7c62f0f555672ea65e1590b0f311889f16f426 defines model for Input_da8168f080bfa68b819580da3d7c62f0f555672ea65e1590b0f311889f16f426.
+type InputDa8168f080bfa68b819580da3d7c62f0f555672ea65e1590b0f311889f16f426 struct {
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
 }
 
 // InputE14cc58c4ee74d7747f498bcbd7c71a8cb3028eda5782588b9c5299ed0cf9c37 defines model for Input_e14cc58c4ee74d7747f498bcbd7c71a8cb3028eda5782588b9c5299ed0cf9c37.
@@ -745,9 +829,10 @@ type OutputBd7a1b00fadef6f5e471ef21cd4fe9df0f1e3f4b9cabd09814c00b321086588a stru
 
 // OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349 defines model for Output_c50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349.
 type OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349 struct {
-	EntityType *string                                                                      `json:"entityType,omitempty"`
-	Mode       string                                                                       `json:"mode"`
-	Rule       *OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Rule `json:"rule,omitempty"`
+	EntityType     *string                                                                      `json:"entityType,omitempty"`
+	Mode           string                                                                       `json:"mode"`
+	RequiredScopes *[]string                                                                    `json:"requiredScopes,omitempty"`
+	Rule           *OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Rule `json:"rule,omitempty"`
 }
 
 // OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349Rule1 defines model for OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349.Rule.1.
@@ -843,9 +928,10 @@ type OutputDb16d19662078b5e2bf34bb56caf4e031ec60811b8ff0833d9304fe74bb3deb7 stru
 
 // OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8 defines model for Output_e8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8.
 type OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8 struct {
-	EntityType *string                                                                      `json:"entityType,omitempty"`
-	Mode       string                                                                       `json:"mode"`
-	Rule       *OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Rule `json:"rule,omitempty"`
+	EntityType     *string                                                                      `json:"entityType,omitempty"`
+	Mode           string                                                                       `json:"mode"`
+	RequiredScopes *[]string                                                                    `json:"requiredScopes,omitempty"`
+	Rule           *OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Rule `json:"rule,omitempty"`
 }
 
 // OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8Rule1 defines model for OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8.Rule.1.
@@ -970,6 +1056,15 @@ type Wire08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6 struct
 	VersionNo           int64       `json:"versionNo"`
 }
 
+// Wire0b4fc596d18790b4851cf320f7b9abf6d446bab3fd3f2ae6a2d3cb1481542e8f defines model for Wire_0b4fc596d18790b4851cf320f7b9abf6d446bab3fd3f2ae6a2d3cb1481542e8f.
+type Wire0b4fc596d18790b4851cf320f7b9abf6d446bab3fd3f2ae6a2d3cb1481542e8f struct {
+	Entity      *[]Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d `json:"entity"`
+	EntityTypes *[]string                                                               `json:"entityTypes"`
+	Exposure    *[]Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2 `json:"exposure"`
+	Role        *[]Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9 `json:"role"`
+	Subject     *[]Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4 `json:"subject"`
+}
+
 // Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14 defines model for Wire_0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14.
 type Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14 struct {
 	Entries  *[]string                                                                    `json:"entries"`
@@ -993,6 +1088,21 @@ type Wire0f446f07ec6516f9b6a7f9e3de1d58abb30bb3608144fb80728627765378e04e struct
 	Duration    int64                                                                   `json:"duration"`
 	Evidence    WireEcc4d9a82e8b4cd1e3ac77d7fd7943319b31b3e82973c8afbcf0002138ddc950    `json:"evidence"`
 	View        string                                                                  `json:"view"`
+}
+
+// Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2 defines model for Wire_0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2.
+type Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2 struct {
+	Entity *Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2_Entity `json:"entity,omitempty"`
+	Id     *string                                                                      `json:"id,omitempty"`
+	Label  string                                                                       `json:"label"`
+}
+
+// Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2Entity1 defines model for Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2.Entity.1.
+type Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2Entity1 = map[string]interface{}
+
+// Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2_Entity defines model for Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2.Entity.
+type Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2_Entity struct {
+	union json.RawMessage
 }
 
 // Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec defines model for Wire_13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec.
@@ -1049,6 +1159,21 @@ type Wire187f7f4691bae62916263844a31b0e52f2ac7573ba63a1dda0cfffa8610b0947 struct
 	Line     *int64  `json:"line,omitempty"`
 	Message  string  `json:"message"`
 	Severity string  `json:"severity"`
+}
+
+// Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d defines model for Wire_18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d.
+type Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d struct {
+	Entity *Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d_Entity `json:"entity,omitempty"`
+	Id     *string                                                                      `json:"id,omitempty"`
+	Label  string                                                                       `json:"label"`
+}
+
+// Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155dEntity1 defines model for Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d.Entity.1.
+type Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155dEntity1 = map[string]interface{}
+
+// Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d_Entity defines model for Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d.Entity.
+type Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d_Entity struct {
+	union json.RawMessage
 }
 
 // Wire1a54346913f36c827b3cbb210b4e4062c2b4b68e415f006659f4a97f386665ac defines model for Wire_1a54346913f36c827b3cbb210b4e4062c2b4b68e415f006659f4a97f386665ac.
@@ -1156,6 +1281,22 @@ type Wire221846f313892219b53265500a015547384983c9f728252d253349f904fb06a9 struct
 	VersionNo      *int64    `json:"versionNo,omitempty"`
 }
 
+// Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46 defines model for Wire_22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46.
+type Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46 struct {
+	Entity *Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46_Entity `json:"entity,omitempty"`
+	Kind   string                                                                       `json:"kind"`
+	Rules  *[]Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46      `json:"rules,omitempty"`
+	Value  *string                                                                      `json:"value,omitempty"`
+}
+
+// Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46Entity1 defines model for Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46.Entity.1.
+type Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46Entity1 = map[string]interface{}
+
+// Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46_Entity defines model for Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46.Entity.
+type Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46_Entity struct {
+	union json.RawMessage
+}
+
 // Wire239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691 defines model for Wire_239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691.
 type Wire239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691 struct {
 	AuthoredDql         *string     `json:"authoredDql,omitempty"`
@@ -1182,6 +1323,12 @@ type Wire239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691 struct
 	TypeManifest        interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
 	VersionNo           int64       `json:"versionNo"`
+}
+
+// Wire26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f defines model for Wire_26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f.
+type Wire26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f struct {
+	Id   string `json:"id"`
+	Type string `json:"type"`
 }
 
 // Wire284d529f33778b8025eaf493c0c081fa071dfc15595367cd050c6aea84390073 defines model for Wire_284d529f33778b8025eaf493c0c081fa071dfc15595367cd050c6aea84390073.
@@ -1246,6 +1393,13 @@ type Wire2be0684fe50e4d50e1c7ed7799c8493f7a6fbfe50bcd3ecfc3b2241e765f60da struct
 	UnmatchedParents int64                                                                   `json:"unmatchedParents"`
 }
 
+// Wire2bece1447e379f703b2f9dfec5a0d5fc346a7d1709dd4a6882c60920a9ef056f defines model for Wire_2bece1447e379f703b2f9dfec5a0d5fc346a7d1709dd4a6882c60920a9ef056f.
+type Wire2bece1447e379f703b2f9dfec5a0d5fc346a7d1709dd4a6882c60920a9ef056f struct {
+	CanManage bool                                                                 `json:"canManage"`
+	Choices   Wire0b4fc596d18790b4851cf320f7b9abf6d446bab3fd3f2ae6a2d3cb1481542e8f `json:"choices"`
+	Source    string                                                               `json:"source"`
+}
+
 // Wire2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9 defines model for Wire_2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9.
 type Wire2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9 struct {
 	AuthoredDql         *string     `json:"authoredDql,omitempty"`
@@ -1272,6 +1426,22 @@ type Wire2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9 struct
 	TypeManifest        interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
 	VersionNo           int64       `json:"versionNo"`
+}
+
+// Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d defines model for Wire_2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d.
+type Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d struct {
+	EntityType     *string                                                                    `json:"entityType,omitempty"`
+	Mode           string                                                                     `json:"mode"`
+	RequiredScopes *[]string                                                                  `json:"requiredScopes,omitempty"`
+	Rule           *Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d_Rule `json:"rule,omitempty"`
+}
+
+// Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3dRule1 defines model for Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d.Rule.1.
+type Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3dRule1 = map[string]interface{}
+
+// Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d_Rule defines model for Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d.Rule.
+type Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d_Rule struct {
+	union json.RawMessage
 }
 
 // Wire3100c253c572f716ab2eb88f6d83d813eedfe0b04003220edb6e98677fced244 defines model for Wire_3100c253c572f716ab2eb88f6d83d813eedfe0b04003220edb6e98677fced244.
@@ -1494,6 +1664,14 @@ type Wire474ce95df76d3333c947a6bd85c78ed4cfb5130d19fec59f6b436e1accd11e9a struct
 	VersionNo              int64  `json:"versionNo"`
 }
 
+// Wire47ab2362281845fa3c625b315f45ddecace8a6483837902bc83afa48ecc01f02 defines model for Wire_47ab2362281845fa3c625b315f45ddecace8a6483837902bc83afa48ecc01f02.
+type Wire47ab2362281845fa3c625b315f45ddecace8a6483837902bc83afa48ecc01f02 struct {
+	Id      string `json:"id"`
+	Kind    string `json:"kind"`
+	Tenant  string `json:"tenant"`
+	Version string `json:"version"`
+}
+
 // Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a defines model for Wire_48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a.
 type Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a struct {
 	Diagnostics *[]Wire187f7f4691bae62916263844a31b0e52f2ac7573ba63a1dda0cfffa8610b0947      `json:"diagnostics,omitempty"`
@@ -1516,6 +1694,21 @@ type Wire4865103e82a353748c5cf4c44eb18159e252732c3c48350fe8b3411c3af62117 struct
 	Types     interface{} `json:"types,omitempty"`
 }
 
+// Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4 defines model for Wire_49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4.
+type Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4 struct {
+	Entity *Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4_Entity `json:"entity,omitempty"`
+	Id     *string                                                                      `json:"id,omitempty"`
+	Label  string                                                                       `json:"label"`
+}
+
+// Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4Entity1 defines model for Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4.Entity.1.
+type Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4Entity1 = map[string]interface{}
+
+// Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4_Entity defines model for Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4.Entity.
+type Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4_Entity struct {
+	union json.RawMessage
+}
+
 // Wire49feff8d08df046f25f5c6fbb141c3c4b50c39af0dea56aec129e11334a944e0 defines model for Wire_49feff8d08df046f25f5c6fbb141c3c4b50c39af0dea56aec129e11334a944e0.
 type Wire49feff8d08df046f25f5c6fbb141c3c4b50c39af0dea56aec129e11334a944e0 struct {
 	ActiveGeneration  *int64     `json:"activeGeneration,omitempty"`
@@ -1527,6 +1720,12 @@ type Wire49feff8d08df046f25f5c6fbb141c3c4b50c39af0dea56aec129e11334a944e0 struct
 	RuntimeRevision   *string    `json:"runtimeRevision,omitempty"`
 	SpecHash          *string    `json:"specHash,omitempty"`
 	Status            string     `json:"status"`
+}
+
+// Wire4ca9fea7aa1d6b8d21f5cfc656a25fc9ccb0ef6b80e665b0bbcc73084c82a04e defines model for Wire_4ca9fea7aa1d6b8d21f5cfc656a25fc9ccb0ef6b80e665b0bbcc73084c82a04e.
+type Wire4ca9fea7aa1d6b8d21f5cfc656a25fc9ccb0ef6b80e665b0bbcc73084c82a04e struct {
+	Id   string `json:"id"`
+	Type string `json:"type"`
 }
 
 // Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf defines model for Wire_4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf.
@@ -1579,6 +1778,12 @@ type Wire503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478 struct
 	RootPath               string `json:"rootPath"`
 	UriPrefix              string `json:"uriPrefix"`
 	VersionNo              int64  `json:"versionNo"`
+}
+
+// Wire517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de defines model for Wire_517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de.
+type Wire517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de struct {
+	Id   string `json:"id"`
+	Type string `json:"type"`
 }
 
 // Wire51bb1f0871dac81cba14ebfac4fc554d215315e30cd3b214596b5da0912a4710 defines model for Wire_51bb1f0871dac81cba14ebfac4fc554d215315e30cd3b214596b5da0912a4710.
@@ -1648,6 +1853,12 @@ type Wire59787f7087b974a90942d4d67d870a8382b1189efe4cc88cfba1b0ada4d89c75 struct
 	VersionNo           int64       `json:"versionNo"`
 }
 
+// Wire5cf4a8a140fb1a665a97b8362f3128fdf9cdb4b3d66b442d124e25c9ac724d7a defines model for Wire_5cf4a8a140fb1a665a97b8362f3128fdf9cdb4b3d66b442d124e25c9ac724d7a.
+type Wire5cf4a8a140fb1a665a97b8362f3128fdf9cdb4b3d66b442d124e25c9ac724d7a struct {
+	Id   string `json:"id"`
+	Type string `json:"type"`
+}
+
 // Wire5dcb9a5385549159028a02b9f90b5f85b74ea0076b725bce7e222e5cfe3ae71e defines model for Wire_5dcb9a5385549159028a02b9f90b5f85b74ea0076b725bce7e222e5cfe3ae71e.
 type Wire5dcb9a5385549159028a02b9f90b5f85b74ea0076b725bce7e222e5cfe3ae71e struct {
 	Code     string  `json:"code"`
@@ -1667,6 +1878,20 @@ type Wire60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac struct
 	SkillId                string `json:"skillId"`
 	SkillRoot              string `json:"skillRoot"`
 	VersionNo              int64  `json:"versionNo"`
+}
+
+// Wire615a0539a089e0c573df4f18b04483a7302c37cf735dea31813c024c8e2d0922 defines model for Wire_615a0539a089e0c573df4f18b04483a7302c37cf735dea31813c024c8e2d0922.
+type Wire615a0539a089e0c573df4f18b04483a7302c37cf735dea31813c024c8e2d0922 struct {
+	Policies *map[string]Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d `json:"policies"`
+	Resource WireCc8e6d7697c9501b39869778c8e5561398ec267f3f24741ddd643fb0c8d25f2f             `json:"resource"`
+	Revision int64                                                                            `json:"revision"`
+}
+
+// Wire6238fe88bfb9fb7369cf10de373a6904ecf859ade35a5496fe0a150dae56be72 defines model for Wire_6238fe88bfb9fb7369cf10de373a6904ecf859ade35a5496fe0a150dae56be72.
+type Wire6238fe88bfb9fb7369cf10de373a6904ecf859ade35a5496fe0a150dae56be72 struct {
+	Policies *map[string]Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4 `json:"policies"`
+	Resource Wire47ab2362281845fa3c625b315f45ddecace8a6483837902bc83afa48ecc01f02             `json:"resource"`
+	Revision int64                                                                            `json:"revision"`
 }
 
 // Wire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930 defines model for Wire_62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930.
@@ -1897,6 +2122,12 @@ type Wire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e struct
 	VersionNo              int64   `json:"versionNo"`
 }
 
+// Wire7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621 defines model for Wire_7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621.
+type Wire7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621 struct {
+	Id   string `json:"id"`
+	Type string `json:"type"`
+}
+
 // Wire7be315ac587bc72247d0b72942b7067d644f15c0e04a4011f74ffec56d000203 defines model for Wire_7be315ac587bc72247d0b72942b7067d644f15c0e04a4011f74ffec56d000203.
 type Wire7be315ac587bc72247d0b72942b7067d644f15c0e04a4011f74ffec56d000203 struct {
 	CreatedAt         time.Time   `json:"createdAt"`
@@ -1913,6 +2144,22 @@ type Wire7be315ac587bc72247d0b72942b7067d644f15c0e04a4011f74ffec56d000203 struct
 	SecretConfigured  bool        `json:"secretConfigured"`
 	Status            string      `json:"status"`
 	UpdatedAt         time.Time   `json:"updatedAt"`
+}
+
+// Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134 defines model for Wire_7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134.
+type Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134 struct {
+	Entity *Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134_Entity `json:"entity,omitempty"`
+	Kind   string                                                                       `json:"kind"`
+	Rules  *[]Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134      `json:"rules,omitempty"`
+	Value  *string                                                                      `json:"value,omitempty"`
+}
+
+// Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134Entity1 defines model for Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134.Entity.1.
+type Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134Entity1 = map[string]interface{}
+
+// Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134_Entity defines model for Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134.Entity.
+type Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134_Entity struct {
+	union json.RawMessage
 }
 
 // Wire7d83e432dba96d596847d8df2f770054a4188b355ed704d691dff2a9d8f991ee defines model for Wire_7d83e432dba96d596847d8df2f770054a4188b355ed704d691dff2a9d8f991ee.
@@ -1965,6 +2212,12 @@ type Wire8147805369c129ab8a8ae87482dbb8be4c51d1125dda4427e8adca5f845d6a7b struct
 	Duration    int64                                                                   `json:"duration"`
 }
 
+// Wire85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c defines model for Wire_85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c.
+type Wire85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c struct {
+	Id   string `json:"id"`
+	Type string `json:"type"`
+}
+
 // Wire878bfd02a12294e26d1a40f1b673a231fa11c24402268d818f39f80be43c86f9 defines model for Wire_878bfd02a12294e26d1a40f1b673a231fa11c24402268d818f39f80be43c86f9.
 type Wire878bfd02a12294e26d1a40f1b673a231fa11c24402268d818f39f80be43c86f9 struct {
 	Code     string  `json:"code"`
@@ -2015,6 +2268,22 @@ type Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Versio
 	union json.RawMessage
 }
 
+// Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4 defines model for Wire_8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4.
+type Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4 struct {
+	EntityType     *string                                                                    `json:"entityType,omitempty"`
+	Mode           string                                                                     `json:"mode"`
+	RequiredScopes *[]string                                                                  `json:"requiredScopes,omitempty"`
+	Rule           *Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4_Rule `json:"rule,omitempty"`
+}
+
+// Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4Rule1 defines model for Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4.Rule.1.
+type Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4Rule1 = map[string]interface{}
+
+// Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4_Rule defines model for Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4.Rule.
+type Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4_Rule struct {
+	union json.RawMessage
+}
+
 // Wire8a9cf29086a80cb7cabcdebcdf40aa1d03da579d5b4d6608dcb4a7446bcf710d defines model for Wire_8a9cf29086a80cb7cabcdebcdf40aa1d03da579d5b4d6608dcb4a7446bcf710d.
 type Wire8a9cf29086a80cb7cabcdebcdf40aa1d03da579d5b4d6608dcb4a7446bcf710d struct {
 	Items *[]Wire2acc97d2ee9aa7bc9e3441531515d0f2360496ee2ee879ab35b383c390b7221e `json:"items"`
@@ -2046,6 +2315,11 @@ type Wire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8 struct
 	TypeManifest        interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
 	VersionNo           int64       `json:"versionNo"`
+}
+
+// Wire9354a215074630106ae925b0323dfe169d763d5b75fe24202ca25bd2fb36ab21 defines model for Wire_9354a215074630106ae925b0323dfe169d763d5b75fe24202ca25bd2fb36ab21.
+type Wire9354a215074630106ae925b0323dfe169d763d5b75fe24202ca25bd2fb36ab21 struct {
+	Context Wire2bece1447e379f703b2f9dfec5a0d5fc346a7d1709dd4a6882c60920a9ef056f `json:"context"`
 }
 
 // Wire942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e defines model for Wire_942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e.
@@ -2095,6 +2369,21 @@ type Wire9763fc0927f951631f9c089e0800033b9772e81b29bddc85ae64e2899f0943e3 struct
 	Diagnostics *[]WireDdc8f3519e98b687e03e321d69e1dab9d279d6f41fcef8b1c25d52a95b4f51bd `json:"diagnostics,omitempty"`
 	Duration    int64                                                                   `json:"duration"`
 	Evidence    Wire29994796c346a67d8d87067e8f62a29284fc2af12311fbab69bdf45b428e37f7    `json:"evidence"`
+}
+
+// Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9 defines model for Wire_979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9.
+type Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9 struct {
+	Entity *Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9_Entity `json:"entity,omitempty"`
+	Id     *string                                                                      `json:"id,omitempty"`
+	Label  string                                                                       `json:"label"`
+}
+
+// Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9Entity1 defines model for Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9.Entity.1.
+type Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9Entity1 = map[string]interface{}
+
+// Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9_Entity defines model for Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9.Entity.
+type Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9_Entity struct {
+	union json.RawMessage
 }
 
 // Wire98b9826a3a782748dba5c6e5a250e1e52d78e3e1dbd2ab11f2dc2f9352c62e7a defines model for Wire_98b9826a3a782748dba5c6e5a250e1e52d78e3e1dbd2ab11f2dc2f9352c62e7a.
@@ -2171,6 +2460,11 @@ type Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145Version
 // Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Version defines model for Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145.Version.
 type Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Version struct {
 	union json.RawMessage
+}
+
+// Wire9ff34394076f48ed9d131d938211e94244c83bf8f3fbbfacc63525bd424ec102 defines model for Wire_9ff34394076f48ed9d131d938211e94244c83bf8f3fbbfacc63525bd424ec102.
+type Wire9ff34394076f48ed9d131d938211e94244c83bf8f3fbbfacc63525bd424ec102 struct {
+	Document Wire615a0539a089e0c573df4f18b04483a7302c37cf735dea31813c024c8e2d0922 `json:"document"`
 }
 
 // WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece defines model for Wire_a1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece.
@@ -2316,6 +2610,11 @@ type WireBba07f0bad61cd85885417e1c20c5cff98c1ebf3abb205fd71b51c6069ea161c struct
 	UpdatedAt            time.Time `json:"updatedAt"`
 }
 
+// WireBc277e5b6cc7b5f6e3363c1e3628c4127103aecef86cccc990395878331130b5 defines model for Wire_bc277e5b6cc7b5f6e3363c1e3628c4127103aecef86cccc990395878331130b5.
+type WireBc277e5b6cc7b5f6e3363c1e3628c4127103aecef86cccc990395878331130b5 struct {
+	Decision WireE664fa33d9d2d2c968c6dabd40e4ac01c5333f4591763b88b02fd2feb8b031ca `json:"decision"`
+}
+
 // WireBd458392be482912a616e980fab94755810f3ed4347c5351a04930f05dd4ce31 defines model for Wire_bd458392be482912a616e980fab94755810f3ed4347c5351a04930f05dd4ce31.
 type WireBd458392be482912a616e980fab94755810f3ed4347c5351a04930f05dd4ce31 struct {
 	Columns *[]Wire284d529f33778b8025eaf493c0c081fa071dfc15595367cd050c6aea84390073 `json:"columns"`
@@ -2400,6 +2699,14 @@ type WireC47cf46b58e263ed665fbdce50f43ecc62642c4837741ba43aaa439c1623d39c struct
 	CanRun       bool `json:"canRun"`
 	CanUseDql    bool `json:"canUseDql"`
 	CanView      bool `json:"canView"`
+}
+
+// WireCc8e6d7697c9501b39869778c8e5561398ec267f3f24741ddd643fb0c8d25f2f defines model for Wire_cc8e6d7697c9501b39869778c8e5561398ec267f3f24741ddd643fb0c8d25f2f.
+type WireCc8e6d7697c9501b39869778c8e5561398ec267f3f24741ddd643fb0c8d25f2f struct {
+	Id      string `json:"id"`
+	Kind    string `json:"kind"`
+	Tenant  string `json:"tenant"`
+	Version string `json:"version"`
 }
 
 // WireCcb72e9ff740a41f9ee459d67d34d6d003de93aa4e74ce39b240bc27d65454ca defines model for Wire_ccb72e9ff740a41f9ee459d67d34d6d003de93aa4e74ce39b240bc27d65454ca.
@@ -2573,6 +2880,11 @@ type WireD96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c struct
 	TypeName    string  `json:"typeName"`
 }
 
+// WireDd57f8078c863d6327fc4c31894dd7a9b19a5e8ce736c4f2f789a161a9bccf09 defines model for Wire_dd57f8078c863d6327fc4c31894dd7a9b19a5e8ce736c4f2f789a161a9bccf09.
+type WireDd57f8078c863d6327fc4c31894dd7a9b19a5e8ce736c4f2f789a161a9bccf09 struct {
+	Document Wire6238fe88bfb9fb7369cf10de373a6904ecf859ade35a5496fe0a150dae56be72 `json:"document"`
+}
+
 // WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179 defines model for Wire_dda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179.
 type WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179 struct {
 	Items  *[]WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179_Items_Item `json:"items"`
@@ -2624,6 +2936,12 @@ type WireE0b9d64ac7d2034342d226cd5a657956619fb94bfab0f429f31d295bbee568fb struct
 	IndexColumn    *string `json:"indexColumn,omitempty"`
 	IndexParameter *string `json:"indexParameter,omitempty"`
 	View           string  `json:"view"`
+}
+
+// WireE664fa33d9d2d2c968c6dabd40e4ac01c5333f4591763b88b02fd2feb8b031ca defines model for Wire_e664fa33d9d2d2c968c6dabd40e4ac01c5333f4591763b88b02fd2feb8b031ca.
+type WireE664fa33d9d2d2c968c6dabd40e4ac01c5333f4591763b88b02fd2feb8b031ca struct {
+	Bounded  bool                                                                    `json:"bounded"`
+	Entities *[]WireF791e609dc9412b052626b655056f1150d4756f8c3a0e758a32b8022f81938d4 `json:"entities"`
 }
 
 // WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0 defines model for Wire_ec41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0.
@@ -2743,6 +3061,12 @@ type WireF3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d struct
 	VersionNo           int64       `json:"versionNo"`
 }
 
+// WireF791e609dc9412b052626b655056f1150d4756f8c3a0e758a32b8022f81938d4 defines model for Wire_f791e609dc9412b052626b655056f1150d4756f8c3a0e758a32b8022f81938d4.
+type WireF791e609dc9412b052626b655056f1150d4756f8c3a0e758a32b8022f81938d4 struct {
+	Id   string `json:"id"`
+	Type string `json:"type"`
+}
+
 // WireF932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675 defines model for Wire_f932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675.
 type WireF932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675 struct {
 	AuthoredDql         *string     `json:"authoredDql,omitempty"`
@@ -2794,6 +3118,48 @@ type WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801cItems1 
 // WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_Item defines model for Wire_fcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c.items.Item.
 type WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_Item struct {
 	union json.RawMessage
+}
+
+// POSTv1authzsdkauthorizationCheckJSONBody defines parameters for POSTv1authzsdkauthorizationCheck.
+type POSTv1authzsdkauthorizationCheckJSONBody struct {
+	Action    string                                                                   `json:"action"`
+	Resource  Input9d7023e73cbba6b4604b174d02b09025c5e7f000ff37da44f8f1d02e48c0e4ca    `json:"resource"`
+	Selection *[]Input92babcabef72e30fbb57dc0d846d94ab3444a80b93279fb26ff7a884ac2fffb8 `json:"selection,omitempty"`
+}
+
+// POSTv1authzsdkauthorizationCheckParams defines parameters for POSTv1authzsdkauthorizationCheck.
+type POSTv1authzsdkauthorizationCheckParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
+// POSTv1authzsdkpoliciesContextJSONBody defines parameters for POSTv1authzsdkpoliciesContext.
+type POSTv1authzsdkpoliciesContextJSONBody struct {
+	Resource Input2eb867edd4b94fb2c4c8a4d0eba79c11f51facae76665aec222fff513fd80e20 `json:"resource"`
+}
+
+// POSTv1authzsdkpoliciesContextParams defines parameters for POSTv1authzsdkpoliciesContext.
+type POSTv1authzsdkpoliciesContextParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
+// POSTv1authzsdkpoliciesGetJSONBody defines parameters for POSTv1authzsdkpoliciesGet.
+type POSTv1authzsdkpoliciesGetJSONBody struct {
+	Resource Input67a6c41b53b420074072fda4f537183a1752b07f36458625612ede362fd6ed25 `json:"resource"`
+}
+
+// POSTv1authzsdkpoliciesGetParams defines parameters for POSTv1authzsdkpoliciesGet.
+type POSTv1authzsdkpoliciesGetParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
+// POSTv1authzsdkpoliciesReplaceJSONBody defines parameters for POSTv1authzsdkpoliciesReplace.
+type POSTv1authzsdkpoliciesReplaceJSONBody struct {
+	Document Input35f4ac8173f8fa3cb8e695d8cb3d27e2b5f8d83887d73c82e65fa26e9019d2f5 `json:"document"`
+}
+
+// POSTv1authzsdkpoliciesReplaceParams defines parameters for POSTv1authzsdkpoliciesReplace.
+type POSTv1authzsdkpoliciesReplaceParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
 // POSTv1studiosdkaccessContextParams defines parameters for POSTv1studiosdkaccessContext.
@@ -3254,8 +3620,9 @@ type POSTv1studiosdkversionsGetParams struct {
 
 // POSTv1studiosdkversionsInspectJSONBody defines parameters for POSTv1studiosdkversionsInspect.
 type POSTv1studiosdkversionsInspectJSONBody struct {
-	ReportId  string `json:"reportId"`
-	VersionNo int64  `json:"versionNo"`
+	DiscoverColumns *bool  `json:"discoverColumns,omitempty"`
+	ReportId        string `json:"reportId"`
+	VersionNo       int64  `json:"versionNo"`
 }
 
 // POSTv1studiosdkversionsInspectParams defines parameters for POSTv1studiosdkversionsInspect.
@@ -3381,6 +3748,18 @@ type POSTv1studiosdkversionsWarmupListJSONBody struct {
 type POSTv1studiosdkversionsWarmupListParams struct {
 	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
+
+// POSTv1authzsdkauthorizationCheckJSONRequestBody defines body for POSTv1authzsdkauthorizationCheck for application/json ContentType.
+type POSTv1authzsdkauthorizationCheckJSONRequestBody POSTv1authzsdkauthorizationCheckJSONBody
+
+// POSTv1authzsdkpoliciesContextJSONRequestBody defines body for POSTv1authzsdkpoliciesContext for application/json ContentType.
+type POSTv1authzsdkpoliciesContextJSONRequestBody POSTv1authzsdkpoliciesContextJSONBody
+
+// POSTv1authzsdkpoliciesGetJSONRequestBody defines body for POSTv1authzsdkpoliciesGet for application/json ContentType.
+type POSTv1authzsdkpoliciesGetJSONRequestBody POSTv1authzsdkpoliciesGetJSONBody
+
+// POSTv1authzsdkpoliciesReplaceJSONRequestBody defines body for POSTv1authzsdkpoliciesReplace for application/json ContentType.
+type POSTv1authzsdkpoliciesReplaceJSONRequestBody POSTv1authzsdkpoliciesReplaceJSONBody
 
 // POSTv1studiosdkaccessContextJSONRequestBody defines body for POSTv1studiosdkaccessContext for application/json ContentType.
 type POSTv1studiosdkaccessContextJSONRequestBody = Input97df4a50a602fc26f1ee6311a5f68da1d96e2143f76deaf46ec88c673e7b5125
@@ -3635,6 +4014,130 @@ func (t Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Ru
 }
 
 func (t *Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsInputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7 returns the union data inside the Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56_Rule as a InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7
+func (t Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56_Rule) AsInputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7() (InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7, error) {
+	var body InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7 overwrites any union data inside the Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56_Rule as the provided InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7
+func (t *Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56_Rule) FromInputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7(v InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7 performs a merge with any union data inside the Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56_Rule, using the provided InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7
+func (t *Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56_Rule) MergeInputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7(v InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsInput951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56Rule1 returns the union data inside the Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56_Rule as a Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56Rule1
+func (t Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56_Rule) AsInput951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56Rule1() (Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56Rule1, error) {
+	var body Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56Rule1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInput951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56Rule1 overwrites any union data inside the Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56_Rule as the provided Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56Rule1
+func (t *Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56_Rule) FromInput951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56Rule1(v Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56Rule1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInput951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56Rule1 performs a merge with any union data inside the Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56_Rule, using the provided Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56Rule1
+func (t *Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56_Rule) MergeInput951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56Rule1(v Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56Rule1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56_Rule) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56_Rule) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsInputDa8168f080bfa68b819580da3d7c62f0f555672ea65e1590b0f311889f16f426 returns the union data inside the InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7_Entity as a InputDa8168f080bfa68b819580da3d7c62f0f555672ea65e1590b0f311889f16f426
+func (t InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7_Entity) AsInputDa8168f080bfa68b819580da3d7c62f0f555672ea65e1590b0f311889f16f426() (InputDa8168f080bfa68b819580da3d7c62f0f555672ea65e1590b0f311889f16f426, error) {
+	var body InputDa8168f080bfa68b819580da3d7c62f0f555672ea65e1590b0f311889f16f426
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInputDa8168f080bfa68b819580da3d7c62f0f555672ea65e1590b0f311889f16f426 overwrites any union data inside the InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7_Entity as the provided InputDa8168f080bfa68b819580da3d7c62f0f555672ea65e1590b0f311889f16f426
+func (t *InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7_Entity) FromInputDa8168f080bfa68b819580da3d7c62f0f555672ea65e1590b0f311889f16f426(v InputDa8168f080bfa68b819580da3d7c62f0f555672ea65e1590b0f311889f16f426) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInputDa8168f080bfa68b819580da3d7c62f0f555672ea65e1590b0f311889f16f426 performs a merge with any union data inside the InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7_Entity, using the provided InputDa8168f080bfa68b819580da3d7c62f0f555672ea65e1590b0f311889f16f426
+func (t *InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7_Entity) MergeInputDa8168f080bfa68b819580da3d7c62f0f555672ea65e1590b0f311889f16f426(v InputDa8168f080bfa68b819580da3d7c62f0f555672ea65e1590b0f311889f16f426) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsInputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7Entity1 returns the union data inside the InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7_Entity as a InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7Entity1
+func (t InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7_Entity) AsInputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7Entity1() (InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7Entity1, error) {
+	var body InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7Entity1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7Entity1 overwrites any union data inside the InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7_Entity as the provided InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7Entity1
+func (t *InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7_Entity) FromInputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7Entity1(v InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7Entity1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7Entity1 performs a merge with any union data inside the InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7_Entity, using the provided InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7Entity1
+func (t *InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7_Entity) MergeInputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7Entity1(v InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7Entity1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7_Entity) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *InputD95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7_Entity) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -4321,6 +4824,68 @@ func (t *Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14_Ve
 	return err
 }
 
+// AsWire517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de returns the union data inside the Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2_Entity as a Wire517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de
+func (t Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2_Entity) AsWire517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de() (Wire517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de, error) {
+	var body Wire517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de overwrites any union data inside the Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2_Entity as the provided Wire517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de
+func (t *Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2_Entity) FromWire517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de(v Wire517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de performs a merge with any union data inside the Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2_Entity, using the provided Wire517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de
+func (t *Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2_Entity) MergeWire517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de(v Wire517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2Entity1 returns the union data inside the Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2_Entity as a Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2Entity1
+func (t Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2_Entity) AsWire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2Entity1() (Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2Entity1, error) {
+	var body Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2Entity1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2Entity1 overwrites any union data inside the Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2_Entity as the provided Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2Entity1
+func (t *Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2_Entity) FromWire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2Entity1(v Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2Entity1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2Entity1 performs a merge with any union data inside the Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2_Entity, using the provided Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2Entity1
+func (t *Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2_Entity) MergeWire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2Entity1(v Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2Entity1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2_Entity) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2_Entity) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsWire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e returns the union data inside the Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Files_Item as a Wire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e
 func (t Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Files_Item) AsWire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e() (Wire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e, error) {
 	var body Wire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e
@@ -4565,6 +5130,192 @@ func (t Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Ver
 }
 
 func (t *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Version) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c returns the union data inside the Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d_Entity as a Wire85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c
+func (t Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d_Entity) AsWire85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c() (Wire85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c, error) {
+	var body Wire85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c overwrites any union data inside the Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d_Entity as the provided Wire85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c
+func (t *Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d_Entity) FromWire85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c(v Wire85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c performs a merge with any union data inside the Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d_Entity, using the provided Wire85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c
+func (t *Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d_Entity) MergeWire85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c(v Wire85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155dEntity1 returns the union data inside the Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d_Entity as a Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155dEntity1
+func (t Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d_Entity) AsWire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155dEntity1() (Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155dEntity1, error) {
+	var body Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155dEntity1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155dEntity1 overwrites any union data inside the Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d_Entity as the provided Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155dEntity1
+func (t *Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d_Entity) FromWire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155dEntity1(v Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155dEntity1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155dEntity1 performs a merge with any union data inside the Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d_Entity, using the provided Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155dEntity1
+func (t *Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d_Entity) MergeWire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155dEntity1(v Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155dEntity1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d_Entity) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d_Entity) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f returns the union data inside the Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46_Entity as a Wire26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f
+func (t Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46_Entity) AsWire26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f() (Wire26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f, error) {
+	var body Wire26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f overwrites any union data inside the Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46_Entity as the provided Wire26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f
+func (t *Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46_Entity) FromWire26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f(v Wire26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f performs a merge with any union data inside the Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46_Entity, using the provided Wire26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f
+func (t *Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46_Entity) MergeWire26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f(v Wire26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46Entity1 returns the union data inside the Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46_Entity as a Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46Entity1
+func (t Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46_Entity) AsWire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46Entity1() (Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46Entity1, error) {
+	var body Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46Entity1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46Entity1 overwrites any union data inside the Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46_Entity as the provided Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46Entity1
+func (t *Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46_Entity) FromWire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46Entity1(v Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46Entity1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46Entity1 performs a merge with any union data inside the Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46_Entity, using the provided Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46Entity1
+func (t *Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46_Entity) MergeWire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46Entity1(v Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46Entity1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46_Entity) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46_Entity) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46 returns the union data inside the Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d_Rule as a Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46
+func (t Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d_Rule) AsWire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46() (Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46, error) {
+	var body Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46 overwrites any union data inside the Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d_Rule as the provided Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46
+func (t *Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d_Rule) FromWire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46(v Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46 performs a merge with any union data inside the Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d_Rule, using the provided Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46
+func (t *Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d_Rule) MergeWire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46(v Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3dRule1 returns the union data inside the Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d_Rule as a Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3dRule1
+func (t Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d_Rule) AsWire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3dRule1() (Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3dRule1, error) {
+	var body Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3dRule1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3dRule1 overwrites any union data inside the Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d_Rule as the provided Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3dRule1
+func (t *Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d_Rule) FromWire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3dRule1(v Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3dRule1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3dRule1 performs a merge with any union data inside the Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d_Rule, using the provided Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3dRule1
+func (t *Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d_Rule) MergeWire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3dRule1(v Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3dRule1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d_Rule) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d_Rule) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -5061,6 +5812,68 @@ func (t Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a_Ver
 }
 
 func (t *Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a_Version) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire4ca9fea7aa1d6b8d21f5cfc656a25fc9ccb0ef6b80e665b0bbcc73084c82a04e returns the union data inside the Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4_Entity as a Wire4ca9fea7aa1d6b8d21f5cfc656a25fc9ccb0ef6b80e665b0bbcc73084c82a04e
+func (t Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4_Entity) AsWire4ca9fea7aa1d6b8d21f5cfc656a25fc9ccb0ef6b80e665b0bbcc73084c82a04e() (Wire4ca9fea7aa1d6b8d21f5cfc656a25fc9ccb0ef6b80e665b0bbcc73084c82a04e, error) {
+	var body Wire4ca9fea7aa1d6b8d21f5cfc656a25fc9ccb0ef6b80e665b0bbcc73084c82a04e
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire4ca9fea7aa1d6b8d21f5cfc656a25fc9ccb0ef6b80e665b0bbcc73084c82a04e overwrites any union data inside the Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4_Entity as the provided Wire4ca9fea7aa1d6b8d21f5cfc656a25fc9ccb0ef6b80e665b0bbcc73084c82a04e
+func (t *Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4_Entity) FromWire4ca9fea7aa1d6b8d21f5cfc656a25fc9ccb0ef6b80e665b0bbcc73084c82a04e(v Wire4ca9fea7aa1d6b8d21f5cfc656a25fc9ccb0ef6b80e665b0bbcc73084c82a04e) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire4ca9fea7aa1d6b8d21f5cfc656a25fc9ccb0ef6b80e665b0bbcc73084c82a04e performs a merge with any union data inside the Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4_Entity, using the provided Wire4ca9fea7aa1d6b8d21f5cfc656a25fc9ccb0ef6b80e665b0bbcc73084c82a04e
+func (t *Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4_Entity) MergeWire4ca9fea7aa1d6b8d21f5cfc656a25fc9ccb0ef6b80e665b0bbcc73084c82a04e(v Wire4ca9fea7aa1d6b8d21f5cfc656a25fc9ccb0ef6b80e665b0bbcc73084c82a04e) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4Entity1 returns the union data inside the Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4_Entity as a Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4Entity1
+func (t Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4_Entity) AsWire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4Entity1() (Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4Entity1, error) {
+	var body Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4Entity1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4Entity1 overwrites any union data inside the Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4_Entity as the provided Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4Entity1
+func (t *Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4_Entity) FromWire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4Entity1(v Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4Entity1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4Entity1 performs a merge with any union data inside the Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4_Entity, using the provided Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4Entity1
+func (t *Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4_Entity) MergeWire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4Entity1(v Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4Entity1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4_Entity) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4_Entity) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -5685,6 +6498,68 @@ func (t *Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58_In
 	return err
 }
 
+// AsWire5cf4a8a140fb1a665a97b8362f3128fdf9cdb4b3d66b442d124e25c9ac724d7a returns the union data inside the Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134_Entity as a Wire5cf4a8a140fb1a665a97b8362f3128fdf9cdb4b3d66b442d124e25c9ac724d7a
+func (t Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134_Entity) AsWire5cf4a8a140fb1a665a97b8362f3128fdf9cdb4b3d66b442d124e25c9ac724d7a() (Wire5cf4a8a140fb1a665a97b8362f3128fdf9cdb4b3d66b442d124e25c9ac724d7a, error) {
+	var body Wire5cf4a8a140fb1a665a97b8362f3128fdf9cdb4b3d66b442d124e25c9ac724d7a
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire5cf4a8a140fb1a665a97b8362f3128fdf9cdb4b3d66b442d124e25c9ac724d7a overwrites any union data inside the Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134_Entity as the provided Wire5cf4a8a140fb1a665a97b8362f3128fdf9cdb4b3d66b442d124e25c9ac724d7a
+func (t *Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134_Entity) FromWire5cf4a8a140fb1a665a97b8362f3128fdf9cdb4b3d66b442d124e25c9ac724d7a(v Wire5cf4a8a140fb1a665a97b8362f3128fdf9cdb4b3d66b442d124e25c9ac724d7a) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire5cf4a8a140fb1a665a97b8362f3128fdf9cdb4b3d66b442d124e25c9ac724d7a performs a merge with any union data inside the Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134_Entity, using the provided Wire5cf4a8a140fb1a665a97b8362f3128fdf9cdb4b3d66b442d124e25c9ac724d7a
+func (t *Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134_Entity) MergeWire5cf4a8a140fb1a665a97b8362f3128fdf9cdb4b3d66b442d124e25c9ac724d7a(v Wire5cf4a8a140fb1a665a97b8362f3128fdf9cdb4b3d66b442d124e25c9ac724d7a) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134Entity1 returns the union data inside the Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134_Entity as a Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134Entity1
+func (t Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134_Entity) AsWire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134Entity1() (Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134Entity1, error) {
+	var body Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134Entity1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134Entity1 overwrites any union data inside the Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134_Entity as the provided Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134Entity1
+func (t *Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134_Entity) FromWire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134Entity1(v Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134Entity1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134Entity1 performs a merge with any union data inside the Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134_Entity, using the provided Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134Entity1
+func (t *Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134_Entity) MergeWire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134Entity1(v Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134Entity1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134_Entity) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134_Entity) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsWire7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6 returns the union data inside the Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Files_Item as a Wire7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6
 func (t Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Files_Item) AsWire7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6() (Wire7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6, error) {
 	var body Wire7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6
@@ -5933,6 +6808,68 @@ func (t *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Ve
 	return err
 }
 
+// AsWire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134 returns the union data inside the Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4_Rule as a Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134
+func (t Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4_Rule) AsWire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134() (Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134, error) {
+	var body Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134 overwrites any union data inside the Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4_Rule as the provided Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134
+func (t *Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4_Rule) FromWire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134(v Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134 performs a merge with any union data inside the Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4_Rule, using the provided Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134
+func (t *Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4_Rule) MergeWire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134(v Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4Rule1 returns the union data inside the Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4_Rule as a Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4Rule1
+func (t Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4_Rule) AsWire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4Rule1() (Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4Rule1, error) {
+	var body Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4Rule1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4Rule1 overwrites any union data inside the Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4_Rule as the provided Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4Rule1
+func (t *Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4_Rule) FromWire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4Rule1(v Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4Rule1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4Rule1 performs a merge with any union data inside the Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4_Rule, using the provided Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4Rule1
+func (t *Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4_Rule) MergeWire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4Rule1(v Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4Rule1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4_Rule) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4_Rule) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsWire3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c returns the union data inside the Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c_Items_Item as a Wire3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c
 func (t Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c_Items_Item) AsWire3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c() (Wire3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c, error) {
 	var body Wire3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c
@@ -5991,6 +6928,68 @@ func (t Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c_Ite
 }
 
 func (t *Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c_Items_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621 returns the union data inside the Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9_Entity as a Wire7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621
+func (t Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9_Entity) AsWire7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621() (Wire7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621, error) {
+	var body Wire7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621 overwrites any union data inside the Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9_Entity as the provided Wire7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621
+func (t *Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9_Entity) FromWire7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621(v Wire7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621 performs a merge with any union data inside the Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9_Entity, using the provided Wire7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621
+func (t *Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9_Entity) MergeWire7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621(v Wire7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9Entity1 returns the union data inside the Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9_Entity as a Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9Entity1
+func (t Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9_Entity) AsWire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9Entity1() (Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9Entity1, error) {
+	var body Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9Entity1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9Entity1 overwrites any union data inside the Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9_Entity as the provided Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9Entity1
+func (t *Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9_Entity) FromWire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9Entity1(v Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9Entity1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9Entity1 performs a merge with any union data inside the Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9_Entity, using the provided Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9Entity1
+func (t *Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9_Entity) MergeWire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9Entity1(v Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9Entity1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9_Entity) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9_Entity) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -7061,6 +8060,38 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 // The interface specification for the client above.
 type ClientInterface interface {
 
+	// POSTv1authzsdkauthorizationCheckWithBody performs a POST /v1/authz/sdk/authorization.check (the `POSTv1authzsdkauthorizationCheck` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1authzsdkauthorizationCheckWithBody(ctx context.Context, params *POSTv1authzsdkauthorizationCheckParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1authzsdkauthorizationCheck performs a POST /v1/authz/sdk/authorization.check (the `POSTv1authzsdkauthorizationCheck` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1authzsdkauthorizationCheck(ctx context.Context, params *POSTv1authzsdkauthorizationCheckParams, body POSTv1authzsdkauthorizationCheckJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1authzsdkpoliciesContextWithBody performs a POST /v1/authz/sdk/policies.context (the `POSTv1authzsdkpoliciesContext` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1authzsdkpoliciesContextWithBody(ctx context.Context, params *POSTv1authzsdkpoliciesContextParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1authzsdkpoliciesContext performs a POST /v1/authz/sdk/policies.context (the `POSTv1authzsdkpoliciesContext` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1authzsdkpoliciesContext(ctx context.Context, params *POSTv1authzsdkpoliciesContextParams, body POSTv1authzsdkpoliciesContextJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1authzsdkpoliciesGetWithBody performs a POST /v1/authz/sdk/policies.get (the `POSTv1authzsdkpoliciesGet` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1authzsdkpoliciesGetWithBody(ctx context.Context, params *POSTv1authzsdkpoliciesGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1authzsdkpoliciesGet performs a POST /v1/authz/sdk/policies.get (the `POSTv1authzsdkpoliciesGet` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1authzsdkpoliciesGet(ctx context.Context, params *POSTv1authzsdkpoliciesGetParams, body POSTv1authzsdkpoliciesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1authzsdkpoliciesReplaceWithBody performs a POST /v1/authz/sdk/policies.replace (the `POSTv1authzsdkpoliciesReplace` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1authzsdkpoliciesReplaceWithBody(ctx context.Context, params *POSTv1authzsdkpoliciesReplaceParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1authzsdkpoliciesReplace performs a POST /v1/authz/sdk/policies.replace (the `POSTv1authzsdkpoliciesReplace` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1authzsdkpoliciesReplace(ctx context.Context, params *POSTv1authzsdkpoliciesReplaceParams, body POSTv1authzsdkpoliciesReplaceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// POSTv1studiosdkaccessContextWithBody performs a POST /v1/studio/sdk/access.context (the `POSTv1studiosdkaccessContext` operationId) request,
 	// with any type of body and a specified content type.
 	POSTv1studiosdkaccessContextWithBody(ctx context.Context, params *POSTv1studiosdkaccessContextParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -7682,6 +8713,118 @@ type ClientInterface interface {
 	// POSTv1studiosdkversionsWarmupList performs a POST /v1/studio/sdk/versions.warmup_list (the `POSTv1studiosdkversionsWarmupList` operationId) request.
 	// Takes a body of the `application/json` content type.
 	POSTv1studiosdkversionsWarmupList(ctx context.Context, params *POSTv1studiosdkversionsWarmupListParams, body POSTv1studiosdkversionsWarmupListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+// POSTv1authzsdkauthorizationCheckWithBody performs a POST /v1/authz/sdk/authorization.check (the `POSTv1authzsdkauthorizationCheck` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1authzsdkauthorizationCheckWithBody(ctx context.Context, params *POSTv1authzsdkauthorizationCheckParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1authzsdkauthorizationCheckRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1authzsdkauthorizationCheck performs a POST /v1/authz/sdk/authorization.check (the `POSTv1authzsdkauthorizationCheck` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1authzsdkauthorizationCheck(ctx context.Context, params *POSTv1authzsdkauthorizationCheckParams, body POSTv1authzsdkauthorizationCheckJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1authzsdkauthorizationCheckRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1authzsdkpoliciesContextWithBody performs a POST /v1/authz/sdk/policies.context (the `POSTv1authzsdkpoliciesContext` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1authzsdkpoliciesContextWithBody(ctx context.Context, params *POSTv1authzsdkpoliciesContextParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1authzsdkpoliciesContextRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1authzsdkpoliciesContext performs a POST /v1/authz/sdk/policies.context (the `POSTv1authzsdkpoliciesContext` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1authzsdkpoliciesContext(ctx context.Context, params *POSTv1authzsdkpoliciesContextParams, body POSTv1authzsdkpoliciesContextJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1authzsdkpoliciesContextRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1authzsdkpoliciesGetWithBody performs a POST /v1/authz/sdk/policies.get (the `POSTv1authzsdkpoliciesGet` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1authzsdkpoliciesGetWithBody(ctx context.Context, params *POSTv1authzsdkpoliciesGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1authzsdkpoliciesGetRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1authzsdkpoliciesGet performs a POST /v1/authz/sdk/policies.get (the `POSTv1authzsdkpoliciesGet` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1authzsdkpoliciesGet(ctx context.Context, params *POSTv1authzsdkpoliciesGetParams, body POSTv1authzsdkpoliciesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1authzsdkpoliciesGetRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1authzsdkpoliciesReplaceWithBody performs a POST /v1/authz/sdk/policies.replace (the `POSTv1authzsdkpoliciesReplace` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1authzsdkpoliciesReplaceWithBody(ctx context.Context, params *POSTv1authzsdkpoliciesReplaceParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1authzsdkpoliciesReplaceRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1authzsdkpoliciesReplace performs a POST /v1/authz/sdk/policies.replace (the `POSTv1authzsdkpoliciesReplace` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1authzsdkpoliciesReplace(ctx context.Context, params *POSTv1authzsdkpoliciesReplaceParams, body POSTv1authzsdkpoliciesReplaceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1authzsdkpoliciesReplaceRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 // POSTv1studiosdkaccessContextWithBody performs a POST /v1/studio/sdk/access.context (the `POSTv1studiosdkaccessContext` operationId) request,
@@ -9624,6 +10767,226 @@ func (c *Client) POSTv1studiosdkversionsWarmupList(ctx context.Context, params *
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewPOSTv1authzsdkauthorizationCheckRequest calls the generic POSTv1authzsdkauthorizationCheck builder with application/json body
+func NewPOSTv1authzsdkauthorizationCheckRequest(server string, params *POSTv1authzsdkauthorizationCheckParams, body POSTv1authzsdkauthorizationCheckJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1authzsdkauthorizationCheckRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1authzsdkauthorizationCheckRequestWithBody constructs an http.Request for the POSTv1authzsdkauthorizationCheck method, with any body, and a specified content type
+func NewPOSTv1authzsdkauthorizationCheckRequestWithBody(server string, params *POSTv1authzsdkauthorizationCheckParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/authz/sdk/authorization.check")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewPOSTv1authzsdkpoliciesContextRequest calls the generic POSTv1authzsdkpoliciesContext builder with application/json body
+func NewPOSTv1authzsdkpoliciesContextRequest(server string, params *POSTv1authzsdkpoliciesContextParams, body POSTv1authzsdkpoliciesContextJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1authzsdkpoliciesContextRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1authzsdkpoliciesContextRequestWithBody constructs an http.Request for the POSTv1authzsdkpoliciesContext method, with any body, and a specified content type
+func NewPOSTv1authzsdkpoliciesContextRequestWithBody(server string, params *POSTv1authzsdkpoliciesContextParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/authz/sdk/policies.context")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewPOSTv1authzsdkpoliciesGetRequest calls the generic POSTv1authzsdkpoliciesGet builder with application/json body
+func NewPOSTv1authzsdkpoliciesGetRequest(server string, params *POSTv1authzsdkpoliciesGetParams, body POSTv1authzsdkpoliciesGetJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1authzsdkpoliciesGetRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1authzsdkpoliciesGetRequestWithBody constructs an http.Request for the POSTv1authzsdkpoliciesGet method, with any body, and a specified content type
+func NewPOSTv1authzsdkpoliciesGetRequestWithBody(server string, params *POSTv1authzsdkpoliciesGetParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/authz/sdk/policies.get")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewPOSTv1authzsdkpoliciesReplaceRequest calls the generic POSTv1authzsdkpoliciesReplace builder with application/json body
+func NewPOSTv1authzsdkpoliciesReplaceRequest(server string, params *POSTv1authzsdkpoliciesReplaceParams, body POSTv1authzsdkpoliciesReplaceJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1authzsdkpoliciesReplaceRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1authzsdkpoliciesReplaceRequestWithBody constructs an http.Request for the POSTv1authzsdkpoliciesReplace method, with any body, and a specified content type
+func NewPOSTv1authzsdkpoliciesReplaceRequestWithBody(server string, params *POSTv1authzsdkpoliciesReplaceParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/authz/sdk/policies.replace")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
+	return req, nil
 }
 
 // NewPOSTv1studiosdkaccessContextRequest calls the generic POSTv1studiosdkaccessContext builder with application/json body
@@ -13021,6 +14384,46 @@ func WithBaseURL(baseURL string) ClientOption {
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
 
+	// POSTv1authzsdkauthorizationCheckWithBodyWithResponse performs a POST /v1/authz/sdk/authorization.check (the `POSTv1authzsdkauthorizationCheck` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1authzsdkauthorizationCheckWithBodyWithResponse(ctx context.Context, params *POSTv1authzsdkauthorizationCheckParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1authzsdkauthorizationCheckResponse, error)
+
+	// POSTv1authzsdkauthorizationCheckWithResponse performs a POST /v1/authz/sdk/authorization.check (the `POSTv1authzsdkauthorizationCheck` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1authzsdkauthorizationCheckWithResponse(ctx context.Context, params *POSTv1authzsdkauthorizationCheckParams, body POSTv1authzsdkauthorizationCheckJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1authzsdkauthorizationCheckResponse, error)
+
+	// POSTv1authzsdkpoliciesContextWithBodyWithResponse performs a POST /v1/authz/sdk/policies.context (the `POSTv1authzsdkpoliciesContext` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1authzsdkpoliciesContextWithBodyWithResponse(ctx context.Context, params *POSTv1authzsdkpoliciesContextParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1authzsdkpoliciesContextResponse, error)
+
+	// POSTv1authzsdkpoliciesContextWithResponse performs a POST /v1/authz/sdk/policies.context (the `POSTv1authzsdkpoliciesContext` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1authzsdkpoliciesContextWithResponse(ctx context.Context, params *POSTv1authzsdkpoliciesContextParams, body POSTv1authzsdkpoliciesContextJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1authzsdkpoliciesContextResponse, error)
+
+	// POSTv1authzsdkpoliciesGetWithBodyWithResponse performs a POST /v1/authz/sdk/policies.get (the `POSTv1authzsdkpoliciesGet` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1authzsdkpoliciesGetWithBodyWithResponse(ctx context.Context, params *POSTv1authzsdkpoliciesGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1authzsdkpoliciesGetResponse, error)
+
+	// POSTv1authzsdkpoliciesGetWithResponse performs a POST /v1/authz/sdk/policies.get (the `POSTv1authzsdkpoliciesGet` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1authzsdkpoliciesGetWithResponse(ctx context.Context, params *POSTv1authzsdkpoliciesGetParams, body POSTv1authzsdkpoliciesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1authzsdkpoliciesGetResponse, error)
+
+	// POSTv1authzsdkpoliciesReplaceWithBodyWithResponse performs a POST /v1/authz/sdk/policies.replace (the `POSTv1authzsdkpoliciesReplace` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1authzsdkpoliciesReplaceWithBodyWithResponse(ctx context.Context, params *POSTv1authzsdkpoliciesReplaceParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1authzsdkpoliciesReplaceResponse, error)
+
+	// POSTv1authzsdkpoliciesReplaceWithResponse performs a POST /v1/authz/sdk/policies.replace (the `POSTv1authzsdkpoliciesReplace` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1authzsdkpoliciesReplaceWithResponse(ctx context.Context, params *POSTv1authzsdkpoliciesReplaceParams, body POSTv1authzsdkpoliciesReplaceJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1authzsdkpoliciesReplaceResponse, error)
+
 	// POSTv1studiosdkaccessContextWithBodyWithResponse performs a POST /v1/studio/sdk/access.context (the `POSTv1studiosdkaccessContext` operationId) request,
 	// with any type of body and a specified content type.
 	//
@@ -13744,6 +15147,170 @@ type ClientWithResponsesInterface interface {
 	// POSTv1studiosdkversionsWarmupListWithResponse performs a POST /v1/studio/sdk/versions.warmup_list (the `POSTv1studiosdkversionsWarmupList` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	POSTv1studiosdkversionsWarmupListWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupListParams, body POSTv1studiosdkversionsWarmupListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupListResponse, error)
+}
+
+type POSTv1authzsdkauthorizationCheckResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireBc277e5b6cc7b5f6e3363c1e3628c4127103aecef86cccc990395878331130b5
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1authzsdkauthorizationCheckResponse) GetJSON200() *WireBc277e5b6cc7b5f6e3363c1e3628c4127103aecef86cccc990395878331130b5 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1authzsdkauthorizationCheckResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1authzsdkauthorizationCheckResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1authzsdkauthorizationCheckResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1authzsdkauthorizationCheckResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1authzsdkpoliciesContextResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire9354a215074630106ae925b0323dfe169d763d5b75fe24202ca25bd2fb36ab21
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1authzsdkpoliciesContextResponse) GetJSON200() *Wire9354a215074630106ae925b0323dfe169d763d5b75fe24202ca25bd2fb36ab21 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1authzsdkpoliciesContextResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1authzsdkpoliciesContextResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1authzsdkpoliciesContextResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1authzsdkpoliciesContextResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1authzsdkpoliciesGetResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireDd57f8078c863d6327fc4c31894dd7a9b19a5e8ce736c4f2f789a161a9bccf09
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1authzsdkpoliciesGetResponse) GetJSON200() *WireDd57f8078c863d6327fc4c31894dd7a9b19a5e8ce736c4f2f789a161a9bccf09 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1authzsdkpoliciesGetResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1authzsdkpoliciesGetResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1authzsdkpoliciesGetResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1authzsdkpoliciesGetResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1authzsdkpoliciesReplaceResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire9ff34394076f48ed9d131d938211e94244c83bf8f3fbbfacc63525bd424ec102
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1authzsdkpoliciesReplaceResponse) GetJSON200() *Wire9ff34394076f48ed9d131d938211e94244c83bf8f3fbbfacc63525bd424ec102 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1authzsdkpoliciesReplaceResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1authzsdkpoliciesReplaceResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1authzsdkpoliciesReplaceResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1authzsdkpoliciesReplaceResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
 }
 
 type POSTv1studiosdkaccessContextResponse struct {
@@ -16465,6 +18032,94 @@ func (r POSTv1studiosdkversionsWarmupListResponse) ContentType() string {
 	return ""
 }
 
+// POSTv1authzsdkauthorizationCheckWithBodyWithResponse performs a POST /v1/authz/sdk/authorization.check (the `POSTv1authzsdkauthorizationCheck` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1authzsdkauthorizationCheckWithBodyWithResponse(ctx context.Context, params *POSTv1authzsdkauthorizationCheckParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1authzsdkauthorizationCheckResponse, error) {
+	rsp, err := c.POSTv1authzsdkauthorizationCheckWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1authzsdkauthorizationCheckResponse(rsp)
+}
+
+// POSTv1authzsdkauthorizationCheckWithResponse performs a POST /v1/authz/sdk/authorization.check (the `POSTv1authzsdkauthorizationCheck` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1authzsdkauthorizationCheckWithResponse(ctx context.Context, params *POSTv1authzsdkauthorizationCheckParams, body POSTv1authzsdkauthorizationCheckJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1authzsdkauthorizationCheckResponse, error) {
+	rsp, err := c.POSTv1authzsdkauthorizationCheck(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1authzsdkauthorizationCheckResponse(rsp)
+}
+
+// POSTv1authzsdkpoliciesContextWithBodyWithResponse performs a POST /v1/authz/sdk/policies.context (the `POSTv1authzsdkpoliciesContext` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1authzsdkpoliciesContextWithBodyWithResponse(ctx context.Context, params *POSTv1authzsdkpoliciesContextParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1authzsdkpoliciesContextResponse, error) {
+	rsp, err := c.POSTv1authzsdkpoliciesContextWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1authzsdkpoliciesContextResponse(rsp)
+}
+
+// POSTv1authzsdkpoliciesContextWithResponse performs a POST /v1/authz/sdk/policies.context (the `POSTv1authzsdkpoliciesContext` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1authzsdkpoliciesContextWithResponse(ctx context.Context, params *POSTv1authzsdkpoliciesContextParams, body POSTv1authzsdkpoliciesContextJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1authzsdkpoliciesContextResponse, error) {
+	rsp, err := c.POSTv1authzsdkpoliciesContext(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1authzsdkpoliciesContextResponse(rsp)
+}
+
+// POSTv1authzsdkpoliciesGetWithBodyWithResponse performs a POST /v1/authz/sdk/policies.get (the `POSTv1authzsdkpoliciesGet` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1authzsdkpoliciesGetWithBodyWithResponse(ctx context.Context, params *POSTv1authzsdkpoliciesGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1authzsdkpoliciesGetResponse, error) {
+	rsp, err := c.POSTv1authzsdkpoliciesGetWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1authzsdkpoliciesGetResponse(rsp)
+}
+
+// POSTv1authzsdkpoliciesGetWithResponse performs a POST /v1/authz/sdk/policies.get (the `POSTv1authzsdkpoliciesGet` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1authzsdkpoliciesGetWithResponse(ctx context.Context, params *POSTv1authzsdkpoliciesGetParams, body POSTv1authzsdkpoliciesGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1authzsdkpoliciesGetResponse, error) {
+	rsp, err := c.POSTv1authzsdkpoliciesGet(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1authzsdkpoliciesGetResponse(rsp)
+}
+
+// POSTv1authzsdkpoliciesReplaceWithBodyWithResponse performs a POST /v1/authz/sdk/policies.replace (the `POSTv1authzsdkpoliciesReplace` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1authzsdkpoliciesReplaceWithBodyWithResponse(ctx context.Context, params *POSTv1authzsdkpoliciesReplaceParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1authzsdkpoliciesReplaceResponse, error) {
+	rsp, err := c.POSTv1authzsdkpoliciesReplaceWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1authzsdkpoliciesReplaceResponse(rsp)
+}
+
+// POSTv1authzsdkpoliciesReplaceWithResponse performs a POST /v1/authz/sdk/policies.replace (the `POSTv1authzsdkpoliciesReplace` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1authzsdkpoliciesReplaceWithResponse(ctx context.Context, params *POSTv1authzsdkpoliciesReplaceParams, body POSTv1authzsdkpoliciesReplaceJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1authzsdkpoliciesReplaceResponse, error) {
+	rsp, err := c.POSTv1authzsdkpoliciesReplace(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1authzsdkpoliciesReplaceResponse(rsp)
+}
+
 // POSTv1studiosdkaccessContextWithBodyWithResponse performs a POST /v1/studio/sdk/access.context (the `POSTv1studiosdkaccessContext` operationId) request,
 // with any type of body and a specified content type.
 //
@@ -17979,6 +19634,110 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupListWithResponse(ctx 
 		return nil, err
 	}
 	return ParsePOSTv1studiosdkversionsWarmupListResponse(rsp)
+}
+
+// ParsePOSTv1authzsdkauthorizationCheckResponse parses an HTTP response from a POSTv1authzsdkauthorizationCheckWithResponse call
+func ParsePOSTv1authzsdkauthorizationCheckResponse(rsp *http.Response) (*POSTv1authzsdkauthorizationCheckResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1authzsdkauthorizationCheckResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireBc277e5b6cc7b5f6e3363c1e3628c4127103aecef86cccc990395878331130b5
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1authzsdkpoliciesContextResponse parses an HTTP response from a POSTv1authzsdkpoliciesContextWithResponse call
+func ParsePOSTv1authzsdkpoliciesContextResponse(rsp *http.Response) (*POSTv1authzsdkpoliciesContextResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1authzsdkpoliciesContextResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire9354a215074630106ae925b0323dfe169d763d5b75fe24202ca25bd2fb36ab21
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1authzsdkpoliciesGetResponse parses an HTTP response from a POSTv1authzsdkpoliciesGetWithResponse call
+func ParsePOSTv1authzsdkpoliciesGetResponse(rsp *http.Response) (*POSTv1authzsdkpoliciesGetResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1authzsdkpoliciesGetResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireDd57f8078c863d6327fc4c31894dd7a9b19a5e8ce736c4f2f789a161a9bccf09
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1authzsdkpoliciesReplaceResponse parses an HTTP response from a POSTv1authzsdkpoliciesReplaceWithResponse call
+func ParsePOSTv1authzsdkpoliciesReplaceResponse(rsp *http.Response) (*POSTv1authzsdkpoliciesReplaceResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1authzsdkpoliciesReplaceResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire9ff34394076f48ed9d131d938211e94244c83bf8f3fbbfacc63525bd424ec102
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParsePOSTv1studiosdkaccessContextResponse parses an HTTP response from a POSTv1studiosdkaccessContextWithResponse call

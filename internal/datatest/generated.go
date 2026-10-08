@@ -49,7 +49,7 @@ require (
 replace github.com/viant/datly-studio => %s
 replace github.com/viant/datly => %s
 `, modulePath, projectRoot, datlyRoot)
-	for _, dependency := range []string{"github.com/viant/authz", "github.com/viant/authz/datly"} {
+	for _, dependency := range []string{"github.com/viant/authz", "github.com/viant/authz/component"} {
 		command := exec.Command("go", "list", "-m", "-f", "{{.Dir}}", dependency)
 		command.Dir = projectRoot
 		command.Env = append(os.Environ(), "GOWORK=off")

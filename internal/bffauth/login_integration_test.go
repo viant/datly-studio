@@ -24,7 +24,7 @@ import (
 	"github.com/viant/datly-studio/sdk/access"
 	accessoauth "github.com/viant/authz/oauth"
 	"github.com/viant/datly-studio/sdk/httptransport"
-	accessstore "github.com/viant/authz/datly/store/sql"
+	accessstore "github.com/viant/authz/component/store/sql"
 	"github.com/viant/datly-studio/store/sql/migrate"
 	"github.com/viant/scy/auth/jwt/verifier"
 	"golang.org/x/oauth2"

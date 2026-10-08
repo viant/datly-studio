@@ -1,34 +1,3 @@
-CREATE TABLE resource_policy_heads (
-    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
-    tenant_id VARCHAR(128) NOT NULL,
-    resource_kind VARCHAR(64) NOT NULL,
-    resource_id VARCHAR(200) NOT NULL,
-    resource_version VARCHAR(64) NOT NULL,
-    revision BIGINT NOT NULL,
-    created_at DATETIME(6) NULL,
-    created_by VARCHAR(128) NULL,
-    updated_at DATETIME(6) NULL,
-    updated_by VARCHAR(128) NULL,
-    PRIMARY KEY (tenant_id, resource_kind, resource_id, resource_version)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE resource_policy_revisions (
-    namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
-    tenant_id VARCHAR(128) NOT NULL,
-    resource_kind VARCHAR(64) NOT NULL,
-    resource_id VARCHAR(200) NOT NULL,
-    resource_version VARCHAR(64) NOT NULL,
-    revision BIGINT NOT NULL,
-    policies_json JSON NOT NULL,
-    actor_id VARCHAR(128) NOT NULL,
-    occurred_at DATETIME(6) NOT NULL,
-    created_at DATETIME(6) NULL,
-    created_by VARCHAR(128) NULL,
-    updated_at DATETIME(6) NULL,
-    updated_by VARCHAR(128) NULL,
-    PRIMARY KEY (tenant_id, resource_kind, resource_id, resource_version, revision)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 CREATE TABLE connectors (
     name                    VARCHAR(128) NOT NULL,
     driver                  VARCHAR(128) NOT NULL,
@@ -81,13 +50,27 @@ CREATE TABLE namespaces (
 CREATE INDEX idx_namespaces_owner_status_updated
     ON namespaces(owner_id, status, updated_at DESC);
 
+CREATE TABLE resource_policy_namespace_bindings (
+    tenant_id VARBINARY(512) NOT NULL,
+    resource_kind VARBINARY(256) NOT NULL,
+    resource_id VARBINARY(800) NOT NULL,
+    resource_version VARBINARY(256) NOT NULL,
+    policy_revision BIGINT NOT NULL DEFAULT 0,
+    namespace_id VARCHAR(64) NOT NULL DEFAULT '',
+    created_at DATETIME(6) NULL,
+    created_by VARCHAR(128) NULL,
+    updated_at DATETIME(6) NULL,
+    updated_by VARCHAR(128) NULL,
+    PRIMARY KEY (tenant_id, resource_kind, resource_id, resource_version, policy_revision)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE authorization_predicates (
     namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     name                    VARCHAR(200) NOT NULL,
     title                   VARCHAR(300) NOT NULL,
     description             TEXT NULL,
-    package_path            VARCHAR(1000) NOT NULL,
-    type_name               VARCHAR(300) NOT NULL,
+    package_path            VARCHAR(1000) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    type_name               VARCHAR(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
     sql_scope_json          TEXT NULL,
     owner_id                VARCHAR(128) NOT NULL,
     status                  VARCHAR(32) NOT NULL,

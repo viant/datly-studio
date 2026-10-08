@@ -10,6 +10,7 @@ import (
 
 	access "github.com/viant/authz"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
+	forgemcp "github.com/viant/forge/backend/mcp/service"
 	mcpprotocol "github.com/viant/mcp/server"
 	"go.yaml.in/yaml/v3"
 )
@@ -51,6 +52,16 @@ type Admin struct {
 	Token string `yaml:"Token"`
 }
 type Config struct {
+	// ModulePath supplies virtual dynamic package authority in a source-free deployment.
+	ModulePath string `yaml:"ModulePath,omitempty"`
+	// LinkedComponents are immutable application builds supplied by the embedding host.
+	LinkedComponents []LinkedComponentSource `yaml:"-"`
+	// ForgeProvider is an opt-in host extension. Studio does not own Forge
+	// definitions or report schemas; the embedding process supplies them.
+	ForgeProvider *forgemcp.PortableProvider `yaml:"-"`
+	// Forge configures the generic stock provider for operator-owned portable
+	// window definitions. Reporting remains outside this host contract.
+	Forge       *ForgeConfig          `yaml:"Forge,omitempty"`
 	NamespaceID string                `yaml:"NamespaceID,omitempty"`
 	Access      *ResourceAccessConfig `yaml:"Access"`
 	// DecisionProvider is supplied by the embedding process, never by YAML.
@@ -65,6 +76,9 @@ type Config struct {
 }
 
 type ResourceAccessConfig struct {
+	// Provider is a trusted embedding-host identity binding, never YAML input.
+	// When supplied, it owns verification and overrides file verifier settings.
+	Provider         access.Provider            `yaml:"-"`
 	Tenant           string                     `yaml:"Tenant"`
 	Issuer           string                     `yaml:"Issuer"`
 	Audience         string                     `yaml:"Audience"`
@@ -162,7 +176,7 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("unsupported dynamic authentication mode %q", c.Authentication.DefaultMode)
 	}
 	if c.Access != nil {
-		if c.Access.Tenant == "" || c.Access.Issuer == "" || c.Access.Audience == "" || (c.Access.PublicKeyFile == "") == (c.Access.CertURL == "") {
+		if c.Access.Tenant == "" || c.Access.Provider == nil && (c.Access.Issuer == "" || c.Access.Audience == "" || (c.Access.PublicKeyFile == "") == (c.Access.CertURL == "")) {
 			return fmt.Errorf("resource access requires Tenant, Issuer, Audience and one public key file or CertURL")
 		}
 		for prefix, r := range c.Access.ResourceBindings {
@@ -173,6 +187,9 @@ func (c *Config) Validate() error {
 	}
 	if c.Access == nil && !strings.EqualFold(c.Authentication.DefaultMode, "public") && strings.TrimSpace(c.Authentication.CertURL) == "" {
 		return fmt.Errorf("dynamic authenticated mode needs CertURL")
+	}
+	if err := validateForgeConfig(c); err != nil {
+		return err
 	}
 	return nil
 }

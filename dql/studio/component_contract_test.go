@@ -71,7 +71,12 @@ func TestGeneratedPackagesMatchCanonicalInventory(t *testing.T) {
 		if table == "report_fields" || table == "report_predicates" {
 			continue
 		}
-		if table == "resource_policy_heads" || table == "resource_policy_revisions" {
+		// This is a Studio migration sidecar that binds legacy shared policy
+		// namespace metadata; it is not a runtime Datly component resource.
+		if table == "resource_policy_namespace_bindings" {
+			continue
+		}
+		if table == "resource_policies" || table == "resource_policy_revisions" {
 			if !canonical["resource_policy"] {
 				t.Errorf("canonical table %q has no resource_policy component package", table)
 			}

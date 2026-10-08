@@ -888,7 +888,13 @@ the v1 standalone configuration exposes the equivalent settings.
 
 ### 10.3 Connector schema
 
-The executable schema is maintained only in [`schema/schema.ddl`](schema/schema.ddl). MySQL Endly setup uses that file directly, while SQLite unit tests derive their normalized DDL from it through `schema.ApplySQLite`.
+Studio-owned schema is maintained in [`schema/schema.ddl`](schema/schema.ddl). MySQL Endly setup runs `cmd/studio-schema` to compose that file with the canonical shared Authz policy DDL into an ignored runtime artifact; SQLite unit tests compose the same shared DDL through `schema.ApplySQLite`.
+
+Existing MySQL stores use the explicit `MigratePolicyNamespaceBindingsMySQL`
+and `MigrateAuthorizationPredicateKeyMySQL` maintenance helpers. They delegate
+shared policy rename/audit/version work to Authz, copy legacy namespace values
+into the Studio sidecar, and preflight predicate package paths before changing
+their collation. Normal startup does not perform these MySQL migrations.
 
 Schema rules:
 

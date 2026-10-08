@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/viant/authz"
+	sharedapi "github.com/viant/authz/component/api"
 	"github.com/viant/datly-studio/store/sql/accesscatalog"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
 	reports "github.com/viant/datly-studio/studio/reports/get"
@@ -16,9 +17,9 @@ import (
 	"strings"
 	"time"
 
-	store "github.com/viant/authz/datly/store/sql"
+	store "github.com/viant/authz/component/store/sql"
 	accessoauth "github.com/viant/authz/oauth"
-	"github.com/viant/datly-studio/internal/accessconfig"
+	"github.com/viant/datly-studio/runtime/accessprovider"
 	"github.com/viant/datly-studio/sdk"
 	acl "github.com/viant/datly-studio/sdk/access"
 	"github.com/viant/datly/exec"
@@ -129,11 +130,11 @@ func (*getHandler) Exec(ctx context.Context, session xhandler.Session, input *Re
 	if err := checkResourceNamespace(requestCtx, service, input.NamespaceId, input.Resource, input.Auth, input.Jwt); err != nil {
 		return err
 	}
-	value, err := service.Get(requestCtx, input.Resource)
-	if err != nil {
-		return mapError(err)
+	value := &sharedapi.PolicyOutput{}
+	if err := sharedapi.NewGet().Exec(requestCtx, sharedSession(session, service), &sharedapi.PolicyInput{JWT: input.Jwt, Resource: input.Resource}, value); err != nil {
+		return err
 	}
-	output.Response = &value
+	output.Response = &value.Document
 	return nil
 }
 
@@ -149,11 +150,11 @@ func (*contextHandler) Exec(ctx context.Context, session xhandler.Session, input
 	if err := checkResourceNamespace(requestCtx, service, input.NamespaceId, input.Resource, input.Auth, input.Jwt); err != nil {
 		return err
 	}
-	value, err := service.EditorContext(requestCtx, input.Resource)
-	if err != nil {
-		return mapError(err)
+	value := &sharedapi.PolicyContextOutput{}
+	if err := sharedapi.NewPolicyContext().Exec(requestCtx, sharedSession(session, service), &sharedapi.PolicyInput{JWT: input.Jwt, Resource: input.Resource}, value); err != nil {
+		return err
 	}
-	output.Response = &value
+	output.Response = &value.Context
 	return nil
 }
 
@@ -169,11 +170,11 @@ func (*replaceHandler) Exec(ctx context.Context, session xhandler.Session, input
 	if err := checkResourceNamespace(requestCtx, service, input.NamespaceId, input.Document.Resource, input.Auth, input.Jwt); err != nil {
 		return err
 	}
-	value, err := service.Replace(requestCtx, input.Document)
-	if err != nil {
-		return mapError(err)
+	value := &sharedapi.PolicyOutput{}
+	if err := sharedapi.NewReplace().Exec(requestCtx, sharedSession(session, service), &sharedapi.WriteInput{JWT: input.Jwt, Document: input.Document}, value); err != nil {
+		return err
 	}
-	output.Response = &value
+	output.Response = &value.Document
 	return nil
 }
 
@@ -220,7 +221,7 @@ func setup(ctx context.Context, session xhandler.Session, claims *jwt.Claims) (*
 	if !strings.HasPrefix(authorization, prefix) || strings.TrimSpace(authorization[len(prefix):]) == "" {
 		return nil, nil, nil, publicError(401, "ACL bearer credential is required")
 	}
-	provider, err := accessconfig.FromEnvironment()
+	provider, err := accessprovider.FromEnvironment(ctx)
 	if err != nil || provider == nil {
 		return nil, nil, nil, publicError(503, "ACL verifier is not configured correctly")
 	}
@@ -256,8 +257,14 @@ type subjectProvider struct {
 }
 
 func (p subjectProvider) Resolve(ctx context.Context) (authz.Facts, error) {
+	if p.Provider == nil {
+		return authz.Facts{}, authz.ErrUnavailable
+	}
 	facts, err := p.Provider.Resolve(ctx)
-	if err != nil || facts.Subject != p.subject {
+	if err != nil {
+		return authz.Facts{}, err
+	}
+	if facts.Subject != p.subject {
 		return authz.Facts{}, authz.ErrDenied
 	}
 	return facts, nil

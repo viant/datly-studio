@@ -19,10 +19,16 @@ export function ResourceAccessEditor({ api, resource, actions, choices = {}, rea
   const [saved, setSaved] = useState(false);
   const [editorContext, setEditorContext] = useState(null);
   const [reviewOpen, setReviewOpen] = useState(false);
+  const [preview, setPreview] = useState(null);
+  const [previewing, setPreviewing] = useState(false);
+  const [previewError, setPreviewError] = useState(false);
   const sequence = useRef(0);
+  const previewSequence = useRef(0);
   const resourceKey = JSON.stringify(resource);
+  const clearPreview = () => { previewSequence.current++; setPreview(null); setPreviewing(false); setPreviewError(false); };
   const load = async () => {
     const ticket = ++sequence.current;
+    clearPreview();
     setLoading(true); setError(null); setSaved(false); setReviewOpen(false);
     try {
       const [value, context] = await Promise.all([
@@ -37,11 +43,12 @@ export function ResourceAccessEditor({ api, resource, actions, choices = {}, rea
   };
   useEffect(() => {
     setDocument(null); setDraft(null); setAction(actions[0]); setSaving(false); setReviewOpen(false); load();
-    return () => { sequence.current++; };
+    return () => { sequence.current++; previewSequence.current++; };
   }, [api, resourceKey]);
+  useEffect(() => { clearPreview(); }, [action]);
   const update = policy => {
     setDraft(current => ({ ...current, policies: { ...current.policies, [action]: policy } }));
-    setSaved(false);
+    setSaved(false); clearPreview();
   };
   const changes = changedPolicies(document, draft);
   const dirty = changes.length > 0;
@@ -53,11 +60,29 @@ export function ResourceAccessEditor({ api, resource, actions, choices = {}, rea
     try {
       const result = await api.replaceResourceAccess(draft);
       if (ticket !== sequence.current) return;
-      setDocument(result); setDraft(clone(result)); setSaved(true); setReviewOpen(false);
+      setDocument(result); setDraft(clone(result)); setSaved(true); setReviewOpen(false); clearPreview();
     } catch (cause) { if (ticket === sequence.current) { setError(cause); setReviewOpen(false); } }
     finally { if (ticket === sequence.current) setSaving(false); }
   };
   const policy = draft?.policies?.[action];
+  const checkCurrentAccess = async () => {
+    if (!document || typeof api.checkCurrentAccess !== 'function') return;
+    const ticket = ++previewSequence.current;
+    const loadTicket = sequence.current;
+    setPreview(null); setPreviewError(false); setPreviewing(true);
+    try {
+      const decision = await api.checkCurrentAccess(resource, action);
+      if (ticket !== previewSequence.current || loadTicket !== sequence.current) return;
+      if (!decision || !['allow', 'deny'].includes(decision.effect)) throw new Error('Authorization check is invalid');
+      setPreview({decision, checkedAt: new Date().toLocaleTimeString()});
+    } catch (_) { if (ticket === previewSequence.current && loadTicket === sequence.current) setPreviewError(true); }
+    finally { if (ticket === previewSequence.current && loadTicket === sequence.current) setPreviewing(false); }
+  };
+  useEffect(() => {
+    if (!preview) return undefined;
+    const timer = setTimeout(() => setPreview(null), 10_000);
+    return () => clearTimeout(timer);
+  }, [preview]);
   const cannotManage = readOnly || editorContext?.canManage === false;
   const disabled = cannotManage || saving || loading;
   const incompleteRules = Object.values(draft?.policies ?? {}).some(policy => policy.mode === 'protected' && policy.rule && !completeRule(policy.rule));
@@ -85,7 +110,7 @@ export function ResourceAccessEditor({ api, resource, actions, choices = {}, rea
         <FormGroup label="Access mode" labelFor="resource-access-mode">
           <HTMLSelect id="resource-access-mode" disabled={disabled} value={policy?.mode || ''} onChange={event => {
             const mode = event.target.value;
-            if (!mode) { const policies = { ...draft.policies }; delete policies[action]; setDraft({ ...draft, policies }); }
+            if (!mode) { const policies = { ...draft.policies }; delete policies[action]; setDraft({ ...draft, policies }); clearPreview(); }
             else update(mode === 'public' ? { mode } : { mode, rule: blankRule() });
           }}>
             <option value="">Deny access</option><option value="protected">Protected</option>
@@ -106,8 +131,11 @@ export function ResourceAccessEditor({ api, resource, actions, choices = {}, rea
     </div>}
     {document && <footer className="studio-resource-access-footer">
       <span role="status">{cannotManage ? 'You have read-only access.' : saved ? 'Permissions saved.' : dirty ? 'Unsaved permission changes' : 'All changes saved'}</span>
-      {!cannotManage && <Button intent="primary" icon="eye-open" disabled={disabled || !dirty || conflict || incompleteRules} onClick={() => setReviewOpen(true)}>Review changes</Button>}
+      <span>{typeof api.checkCurrentAccess === 'function' && <Button minimal loading={previewing} disabled={loading || saving} onClick={checkCurrentAccess}>Check my current access</Button>}{!cannotManage && <Button intent="primary" icon="eye-open" disabled={disabled || !dirty || conflict || incompleteRules} onClick={() => setReviewOpen(true)}>Review changes</Button>}</span>
     </footer>}
+    {document && typeof api.checkCurrentAccess === 'function' && <p>This check uses the saved policy and your current verified identity{dirty ? ', not your unsaved draft' : ''}.</p>}
+    {preview && <Callout role="status" intent={preview.decision.effect === 'allow' ? 'success' : 'warning'} title={preview.decision.effect === 'allow' ? 'Allowed at last check' : 'Denied at last check'}>{preview.decision.effect === 'allow' ? preview.decision.bounded ? 'Access is limited to your currently allowed entities.' : 'The saved policy allowed this action.' : 'The saved policy denied this action.'} Checked at {preview.checkedAt}.</Callout>}
+    {previewError && <Callout role="alert" intent="danger">Current access could not be checked. Reload and try again.</Callout>}
     <Dialog className="studio-resource-review-dialog" isOpen={reviewOpen && dirty} title="Review permission changes" icon="eye-open" onClose={() => !saving && setReviewOpen(false)} canEscapeKeyClose={!saving} canOutsideClickClose={!saving}>
       <DialogBody>
         <p>Review {resource.kind} <strong>{displayName || resource.id}</strong> ({resource.id}) at policy revision {document?.revision}. Saving asks the server to compare and replace this exact revision.</p>

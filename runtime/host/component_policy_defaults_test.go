@@ -6,7 +6,7 @@ import (
 	"errors"
 	"path/filepath"
 
-	accessstore "github.com/viant/authz/datly/store/sql"
+	accessstore "github.com/viant/authz/component/store/sql"
 	"github.com/viant/datly-studio/schema"
 	"testing"
 
@@ -152,7 +152,7 @@ func TestOtherVersionPolicyPreventsImplicitPublicAccess(t *testing.T) {
 	if _, err = service.Authorize(ctx, authz.Request{Resource: resource, Action: "execute"}); err != nil {
 		t.Fatalf("never-configured component denied: %v", err)
 	}
-	if _, err = db.ExecContext(ctx, "DROP TABLE resource_policy_heads"); err != nil {
+	if _, err = db.ExecContext(ctx, "DROP TABLE resource_policies"); err != nil {
 		t.Fatal(err)
 	}
 	if _, err = service.Authorize(ctx, authz.Request{Resource: resource, Action: "execute"}); err == nil {
