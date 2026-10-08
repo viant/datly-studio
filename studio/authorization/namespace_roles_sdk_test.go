@@ -2,13 +2,14 @@ package authorization_test
 
 import (
 	"context"
+	"errors"
 	jwtv5 "github.com/golang-jwt/jwt/v5"
+	"github.com/viant/authz"
 	"github.com/viant/datly-studio/internal/datatest"
+	"github.com/viant/datly-studio/runtime/accessprovider"
 	"github.com/viant/datly-studio/sdk"
 	sqltransport "github.com/viant/datly-studio/sdk/transport/sql"
 	"github.com/viant/datly-studio/studio/authorization"
-	"net/http"
-	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"testing"
@@ -107,14 +108,11 @@ func TestNamespaceOwnerRemainsVisibleWhenUserInfoCannotSupplyRoles(t *testing.T)
 	t.Setenv("STUDIO_ACCESS_ISSUER", "https://namespace.test")
 	t.Setenv("STUDIO_ACCESS_AUDIENCE", "studio")
 	t.Setenv("STUDIO_ACCESS_PUBLIC_KEY_FILE", keyPath)
-	roles := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		http.Error(w, "unavailable", http.StatusServiceUnavailable)
-	}))
-	defer roles.Close()
-	t.Setenv("STUDIO_ACCESS_USER_INFO_URL", roles.URL)
+	t.Setenv("STUDIO_ACCESS_USER_INFO_URL", "https://userinfo.test")
+	roles := &unavailableNamespaceRoles{}
 	identity := func(subject string) context.Context {
-		bearer := fixture.BearerWithClaims(t, jwtv5.MapClaims{"sub": subject, "iss": "https://namespace.test", "aud": "studio", "user_id": 7, "account_id": 21, "exp": time.Now().Add(30 * time.Minute).Unix()})
-		return sdk.WithVerifiedCredential(sdk.WithPrincipal(ctx, sdk.Principal{Subject: subject}), sdk.VerifiedCredential{Bearer: bearer})
+		bearer := fixture.BearerWithClaims(t, jwtv5.MapClaims{"sub": subject, "iss": "https://namespace.test", "aud": "studio", "roles": []string{"forecast_reader"}, "exp": time.Now().Add(30 * time.Minute).Unix()})
+		return accessprovider.WithProvider(sdk.WithVerifiedCredential(sdk.WithPrincipal(ctx, sdk.Principal{Subject: subject}), sdk.VerifiedCredential{Bearer: bearer}), roles)
 	}
 	authorizer, err := authorization.NewSDKAuthorizer(db)
 	if err != nil {
@@ -141,4 +139,20 @@ func TestNamespaceOwnerRemainsVisibleWhenUserInfoCannotSupplyRoles(t *testing.T)
 	if _, err := client.Namespaces().List(forged, sdk.ListNamespacesInput{}); err == nil {
 		t.Fatal("mismatched verified subject was accepted")
 	}
+	if roles.calls == 0 {
+		t.Fatal("the configured provider outage was not exercised")
+	}
+	// A missing host adapter is invalid configuration, not a transient outage.
+	credential, _ := sdk.VerifiedCredentialFromContext(owner)
+	unbound := sdk.WithVerifiedCredential(sdk.WithPrincipal(ctx, sdk.Principal{Subject: "owner"}), credential)
+	if _, err := client.Namespaces().List(unbound, sdk.ListNamespacesInput{}); err == nil {
+		t.Fatal("missing user-info adapter was accepted")
+	}
+}
+
+type unavailableNamespaceRoles struct{ calls int }
+
+func (p *unavailableNamespaceRoles) Resolve(context.Context) (authz.Facts, error) {
+	p.calls++
+	return authz.Facts{}, errors.New("user-info authority unavailable")
 }

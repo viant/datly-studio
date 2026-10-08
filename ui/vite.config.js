@@ -28,6 +28,9 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
+    // Each rendered authoring test mounts large Blueprint/Forge graphs.
+    // Bound concurrent jsdom workers instead of weakening assertion timeouts.
+    maxWorkers: 2,
     setupFiles: ['./src/testSetup.js'],
     include: ['src/**/*.render.test.{js,jsx}'],
   },

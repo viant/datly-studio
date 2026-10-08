@@ -2711,74 +2711,20 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if accessContext.Code != http.StatusOK || !bytes.Contains(accessContext.Body.Bytes(), []byte(`"canManage":true`)) {
 		t.Fatalf("native access context status=%d body=%s", accessContext.Code, accessContext.Body.String())
 	}
-	// An opt-in identity-facts endpoint can authorize the same native ACL routes
-	// from a browser ID token without accepting roles or tenant from the body.
-	directResource := resourceaccess.Resource{Kind: "component", ID: "direct-identity-fixture", Tenant: "21", Version: "1"}
-	if _, err = policyStore.Provision(ctx, resourceaccess.Document{Resource: directResource, Policies: map[string]resourceaccess.Policy{
-		"viewAccess": {Mode: "protected", Rule: &resourceaccess.Rule{Kind: "exposure", Value: "export"}},
-	}}, "bootstrap"); err != nil {
-		t.Fatal(err)
+	// Studio does not interpret a remote identity service's response schema.
+	// An endpoint without a host-owned adapter is invalid configuration on
+	// both HTTP and MCP, including for an otherwise verified resource owner.
+	t.Setenv("STUDIO_ACCESS_USER_INFO_URL", "https://userinfo.example.test/identity")
+	missingAdapter := httptest.NewRecorder()
+	server.ServeHTTP(missingAdapter, aclRequest("/v1/studio/sdk/access.get", resourceBody, aliceACLToken))
+	if missingAdapter.Code != http.StatusServiceUnavailable {
+		t.Fatalf("missing identity adapter HTTP status=%d body=%s", missingAdapter.Code, missingAdapter.Body.String())
 	}
-	var returnedAccount atomic.Int64
-	var userInfoCalls atomic.Int64
-	returnedAccount.Store(21)
-	userInfo := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		userInfoCalls.Add(1)
-		if r.Method != http.MethodGet || !strings.HasPrefix(r.Header.Get("Authorization"), "Bearer ") {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		_, _ = fmt.Fprintf(w, `{"status":"ok","info":{"uid":"alice","subject":"alice","userId":1,"accountId":%d,"roles":["reader"],"features":["export"],"entityPermissions":[]}}`, returnedAccount.Load())
-	}))
-	defer userInfo.Close()
-	directToken, signErr := jwtlib.NewWithClaims(jwtlib.SigningMethodRS256, jwtlib.MapClaims{
-		"sub": "alice", "user_id": 1, "account_id": 21, "iss": "https://idp.viantinc.com", "aud": "datly-studio-web",
-		"exp": time.Now().Add(59 * time.Minute).Unix(), "iat": time.Now().Add(-time.Minute).Unix(),
-	}).SignedString(key)
-	if signErr != nil {
-		t.Fatal(signErr)
-	}
-	t.Setenv("STUDIO_ACCESS_ISSUER", "https://idp.viantinc.com")
-	t.Setenv("STUDIO_ACCESS_AUDIENCE", "datly-studio-web")
-	t.Setenv("STUDIO_ACCESS_USER_INFO_URL", userInfo.URL)
-	directBody := `{"kind":"component","id":"direct-identity-fixture","tenant":"21","version":"1"}`
-	directAccess := httptest.NewRecorder()
-	server.ServeHTTP(directAccess, aclRequest("/v1/studio/sdk/access.get", directBody, directToken))
-	if directAccess.Code != http.StatusOK || !bytes.Contains(directAccess.Body.Bytes(), []byte(`"revision":1`)) {
-		t.Fatalf("native ID-token access get status=%d body=%s", directAccess.Code, directAccess.Body.String())
-	}
-	status, body = mcpCall(staticMCP, "Bearer "+directToken, nil, "tools/call", "studio.sdk.access.get", map[string]any{
-		"kind": "component", "id": directResource.ID, "tenant": directResource.Tenant, "version": directResource.Version,
+	status, body = mcpCall(staticMCP, "Bearer "+aliceACLToken, nil, "tools/call", "studio.sdk.access.get", map[string]any{
+		"kind": "component", "id": aclResource.ID, "tenant": aclResource.Tenant, "version": aclResource.Version,
 	})
-	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"revision":1`)) {
-		t.Fatalf("native ID-token access MCP status=%d body=%s", status, body)
-	}
-	for _, claim := range []string{"iss", "aud"} {
-		claims := jwtlib.MapClaims{"sub": "alice", "user_id": 1, "account_id": 21,
-			"iss": "https://idp.viantinc.com", "aud": "datly-studio-web", "exp": time.Now().Add(59 * time.Minute).Unix()}
-		claims[claim] = "https://wrong.example"
-		invalidToken, signErr := jwtlib.NewWithClaims(jwtlib.SigningMethodRS256, claims).SignedString(key)
-		if signErr != nil {
-			t.Fatal(signErr)
-		}
-		before := userInfoCalls.Load()
-		denied := httptest.NewRecorder()
-		server.ServeHTTP(denied, aclRequest("/v1/studio/sdk/access.get", directBody, invalidToken))
-		if denied.Code != http.StatusUnauthorized || userInfoCalls.Load() != before {
-			t.Fatalf("wrong %s native access status=%d user-info calls=%d before=%d body=%s", claim, denied.Code, userInfoCalls.Load(), before, denied.Body.String())
-		}
-		mcpStatus, mcpBody := mcpCall(staticMCP, "Bearer "+invalidToken, nil, "tools/call", "studio.sdk.access.get", map[string]any{
-			"kind": "component", "id": directResource.ID, "tenant": directResource.Tenant, "version": directResource.Version,
-		})
-		if mcpStatus != http.StatusOK || !bytes.Contains(mcpBody, []byte(`"isError":true`)) || userInfoCalls.Load() != before {
-			t.Fatalf("wrong %s MCP access status=%d user-info calls=%d before=%d body=%s", claim, mcpStatus, userInfoCalls.Load(), before, mcpBody)
-		}
-	}
-	returnedAccount.Store(22)
-	changedIdentity := httptest.NewRecorder()
-	server.ServeHTTP(changedIdentity, aclRequest("/v1/studio/sdk/access.get", directBody, directToken))
-	if changedIdentity.Code != http.StatusUnauthorized {
-		t.Fatalf("mismatched identity facts status=%d body=%s", changedIdentity.Code, changedIdentity.Body.String())
+	if status != http.StatusOK || !bytes.Contains(body, []byte(`"isError":true`)) {
+		t.Fatalf("missing identity adapter MCP status=%d body=%s", status, body)
 	}
 	t.Setenv("STUDIO_ACCESS_USER_INFO_URL", "")
 	t.Setenv("STUDIO_ACCESS_ISSUER", "https://idp.viantinc.com")
