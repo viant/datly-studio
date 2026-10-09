@@ -2,6 +2,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { StudioShell } from './StudioShell.jsx';
 export { StudioAPI } from './studioApi.js';
+export { loadConfig, validateConfig } from './config.js';
 export { StudioApp } from './StudioApp.jsx';
 export { StudioShell } from './StudioShell.jsx';
 export { createStudioSDK, defineStudioExtension } from './extensions.js';
