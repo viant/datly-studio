@@ -185,7 +185,7 @@ FROM (SELECT STATUS AS status, COUNT(*) AS product_count FROM PRODUCT GROUP BY S
 	if _, err = studio.ExecContext(ctx, `INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES ('summary',1,'draft','dql',?,?, '{}','studio.v1','hash','{}','pending','v1','studio.v1',1,'owner',?)`, composeDQL, composeDQL, now); err != nil {
 		t.Fatal(err)
 	}
-	cube, err := (Dynamic{StudioDB: studio, RootDir: root}).Execute(ctx, "summary", 1, sdk.PreviewInput{Cube: true, Input: json.RawMessage(`{"dimensions":{"status":true},"measures":{"product_count":true},"filters":{}}`), Limit: 1})
+	cube, err := (Dynamic{StudioDB: studio, RootDir: root}).Execute(ctx, "summary", 1, sdk.PreviewInput{Cube: true, Input: json.RawMessage(`{"dimensions":{"status":true},"measures":{"productCount":true},"filters":{}}`), Limit: 1})
 	if err != nil {
 		if os.Getenv("EXPECT_NATIVE_CUBE") == "1" {
 			t.Fatalf("native cube must execute: %v", err)
@@ -203,7 +203,7 @@ FROM (SELECT STATUS AS status, COUNT(*) AS product_count FROM PRODUCT GROUP BY S
 		outer := dexec.CaptureOutputSelection(ctx)
 		nested, finish := dexec.ScopeOutputSelection(outer)
 		dexec.BeginOutputSelection(nested)
-		dimensionOnly, err := (Dynamic{StudioDB: studio, RootDir: root}).Execute(nested, "summary", 1, sdk.PreviewInput{Cube: true, Input: json.RawMessage(`{"dimensions":{"status":true},"measures":{"product_count":false},"filters":{}}`), Limit: 1})
+		dimensionOnly, err := (Dynamic{StudioDB: studio, RootDir: root}).Execute(nested, "summary", 1, sdk.PreviewInput{Cube: true, Input: json.RawMessage(`{"dimensions":{"status":true},"measures":{"productCount":false},"filters":{}}`), Limit: 1})
 		finish(nil, nil)
 		if err != nil {
 			t.Fatal(err)
@@ -211,7 +211,7 @@ FROM (SELECT STATUS AS status, COUNT(*) AS product_count FROM PRODUCT GROUP BY S
 		if strings.Contains(string(dimensionOnly.Data), "ProductCount") || !dimensionOnly.Evidence.Truncated {
 			t.Fatalf("truncated cube must preserve selected fields: %s evidence=%+v", dimensionOnly.Data, dimensionOnly.Evidence)
 		}
-		aggregate, err := (Dynamic{StudioDB: studio, RootDir: root}).Execute(ctx, "summary", 1, sdk.PreviewInput{Cube: true, Input: json.RawMessage(`{"dimensions":{"status":false},"measures":{"product_count":true},"filters":{}}`)})
+		aggregate, err := (Dynamic{StudioDB: studio, RootDir: root}).Execute(ctx, "summary", 1, sdk.PreviewInput{Cube: true, Input: json.RawMessage(`{"dimensions":{"status":false},"measures":{"productCount":true},"filters":{}}`)})
 		if err != nil {
 			t.Fatal(err)
 		}

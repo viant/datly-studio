@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/viant/forge/backend/mcp/portable"
-	forgeservice "github.com/viant/forge/backend/mcp/service"
+	windowprotocol "github.com/viant/agently-core/protocol/window"
+	forgeservice "github.com/viant/agently-core/service/primitiveprovider"
 	"github.com/viant/forge/backend/types"
 	mcpschema "github.com/viant/mcp-protocol/schema"
 )
@@ -20,19 +20,19 @@ import (
 // by the runtime HTTP/MCP integration test. No consumer knows either connector.
 func TestPortableWindowExecutesPublishedDatlyV1Component(t *testing.T) {
 	var runtime *Service
-	var component portable.ComponentBinding
+	var component windowprotocol.ComponentBinding
 	reference := ComponentReference{Kind: "dynamic", ID: "records", Revision: "1", Method: http.MethodGet, Route: "/records"}
 	allowed := true
-	definition := &portable.Definition{ContractVersion: 1, DefinitionRevision: "records:1",
+	definition := &windowprotocol.Definition{ContractVersion: 1, DefinitionRevision: "records:1",
 		Window: &types.Window{WindowKey: "records", View: types.View{Content: &types.Container{}}},
-		DataSources: map[string]*portable.DataSource{"records": {
+		DataSources: map[string]*windowprotocol.DataSource{"records": {
 			ID: "records", DataSource: types.DataSource{Selectors: &types.Selectors{Data: "Records"}},
-			Backend: &portable.Backend{Kind: "provider", Method: portable.FetchTool,
+			Backend: &windowprotocol.Backend{Kind: "provider", Method: windowprotocol.FetchTool,
 				Pinned: map[string]any{"windowKey": "records", "dataSourceId": "records", "definitionRevision": "records:1"}},
 		}},
 	}
-	provider := &forgeservice.PortableProvider{
-		Authority: forgeservice.PortableAuthorityFuncs{
+	provider := &forgeservice.PrimitiveProvider{
+		Authority: forgeservice.PrimitiveAuthorityFuncs{
 			AuthenticateFunc: func(context.Context) (string, error) {
 				if !allowed {
 					return "", errors.New("revoked")
@@ -46,12 +46,14 @@ func TestPortableWindowExecutesPublishedDatlyV1Component(t *testing.T) {
 				return nil
 			},
 		},
-		Host: forgeservice.PortableHostFuncs{
-			CatalogFunc: func(context.Context, *portable.CatalogInput) (*portable.Catalog, error) {
-				return &portable.Catalog{ContractVersion: 1, CatalogRevision: "records:1", Windows: []portable.WindowSummary{{Key: "records", Title: "Published records"}}}, nil
+		Host: forgeservice.PrimitiveHostFuncs{
+			CatalogFunc: func(context.Context, *windowprotocol.CatalogInput) (*windowprotocol.Catalog, error) {
+				return &windowprotocol.Catalog{ContractVersion: 1, CatalogRevision: "records:1", Windows: []windowprotocol.WindowSummary{{Key: "records", Title: "Published records"}}}, nil
 			},
-			DefinitionFunc: func(context.Context, *portable.DefinitionInput) (*portable.Definition, error) { return definition, nil },
-			FetchFunc: func(ctx context.Context, in *portable.FetchInput) (portable.FetchOutput, error) {
+			DefinitionFunc: func(context.Context, *windowprotocol.DefinitionInput) (*windowprotocol.Definition, error) {
+				return definition, nil
+			},
+			FetchFunc: func(ctx context.Context, in *windowprotocol.FetchInput) (windowprotocol.FetchOutput, error) {
 				if in.WindowKey != "records" || in.DataSourceID != "records" {
 					return nil, errors.New("unknown datasource")
 				}
@@ -97,22 +99,22 @@ func TestPortableWindowExecutesPublishedDatlyV1Component(t *testing.T) {
 				}
 				return string(body)
 			}
-			for _, tool := range []string{portable.CatalogTool, portable.DefinitionTool} {
+			for _, tool := range []string{windowprotocol.CatalogTool, windowprotocol.DefinitionTool} {
 				if body := call(tool, map[string]any{"contractVersion": 1, "windowKey": "records"}); !strings.Contains(body, "records:1") {
 					t.Fatalf("%s body=%s", tool, body)
 				}
 			}
 			input := map[string]any{"contractVersion": 1, "windowKey": "records", "dataSourceId": "records", "definitionRevision": "records:1", "inputs": map[string]any{}}
-			if body := call(portable.FetchTool, input); !strings.Contains(body, "ready") || !strings.Contains(body, "primary") {
+			if body := call(windowprotocol.FetchTool, input); !strings.Contains(body, "ready") || !strings.Contains(body, "primary") {
 				t.Fatalf("provider fetch=%s", body)
 			}
 			allowed = false
-			if body := call(portable.FetchTool, input); strings.Contains(body, "ready") || !strings.Contains(body, "isError") {
+			if body := call(windowprotocol.FetchTool, input); strings.Contains(body, "ready") || !strings.Contains(body, "isError") {
 				t.Fatalf("revoked fetch=%s", body)
 			}
 			allowed = true
 			input["definitionRevision"] = "stale"
-			if body := call(portable.FetchTool, input); strings.Contains(body, "ready") || !strings.Contains(body, "isError") {
+			if body := call(windowprotocol.FetchTool, input); strings.Contains(body, "ready") || !strings.Contains(body, "isError") {
 				t.Fatalf("stale fetch=%s", body)
 			}
 		},

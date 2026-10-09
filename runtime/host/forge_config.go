@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	identity "github.com/viant/agently-core/protocol/resource"
 	"github.com/viant/authz"
-	"github.com/viant/forge/backend/reporting/identity"
 )
 
 // ForgeConfig enables the generic stock Forge window provider for a dynamic

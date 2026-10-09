@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/viant/forge/backend/mcp/portable"
-	"github.com/viant/forge/backend/reporting/identity"
+	identity "github.com/viant/agently-core/protocol/resource"
+	windowprotocol "github.com/viant/agently-core/protocol/window"
 )
 
 // ComponentDispatchMapping binds a portable producer service and logical
@@ -68,7 +68,7 @@ func NewForgeComponentDispatcher(runtime *Service, mappings []ComponentDispatchM
 	return result, nil
 }
 
-var _ portable.ComponentDispatcher = (*ForgeComponentDispatcher)(nil)
+var _ windowprotocol.ComponentDispatcher = (*ForgeComponentDispatcher)(nil)
 
 // IsComponentProducer reports only deployment-configured services. It lets a
 // consumer reject unpinned generic datasource routing for this producer.
@@ -80,25 +80,25 @@ func (d *ForgeComponentDispatcher) IsComponentProducer(service string) bool {
 	return ok
 }
 
-func (d *ForgeComponentDispatcher) ObserveComponent(ctx context.Context, service, method string, expected portable.ComponentBinding) (portable.ComponentBinding, error) {
+func (d *ForgeComponentDispatcher) ObserveComponent(ctx context.Context, service, method string, expected windowprotocol.ComponentBinding) (windowprotocol.ComponentBinding, error) {
 	ref, err := d.exactReference(service, method, expected)
 	if err != nil {
-		return portable.ComponentBinding{}, err
+		return windowprotocol.ComponentBinding{}, err
 	}
 	observed, err := d.runtime.ResolveComponentBinding(ctx, ref)
 	if err != nil {
-		return portable.ComponentBinding{}, err
+		return windowprotocol.ComponentBinding{}, err
 	}
 	if err := validateCompleteComponentBinding(expected); err != nil {
-		return portable.ComponentBinding{}, err
+		return windowprotocol.ComponentBinding{}, err
 	}
-	if err := portable.ValidateComponentDispatch(&expected, observed); err != nil {
-		return portable.ComponentBinding{}, err
+	if err := windowprotocol.ValidateComponentDispatch(&expected, observed); err != nil {
+		return windowprotocol.ComponentBinding{}, err
 	}
 	return observed, nil
 }
 
-func (d *ForgeComponentDispatcher) ExecuteComponent(ctx context.Context, service, method string, expected portable.ComponentBinding, args map[string]interface{}) (json.RawMessage, error) {
+func (d *ForgeComponentDispatcher) ExecuteComponent(ctx context.Context, service, method string, expected windowprotocol.ComponentBinding, args map[string]interface{}) (json.RawMessage, error) {
 	ref, err := d.exactReference(service, method, expected)
 	if err != nil {
 		return nil, err
@@ -109,7 +109,7 @@ func (d *ForgeComponentDispatcher) ExecuteComponent(ctx context.Context, service
 	return d.runtime.ExecuteComponentJSON(ctx, ref, expected, args)
 }
 
-func (d *ForgeComponentDispatcher) exactReference(service, method string, expected portable.ComponentBinding) (ComponentReference, error) {
+func (d *ForgeComponentDispatcher) exactReference(service, method string, expected windowprotocol.ComponentBinding) (ComponentReference, error) {
 	if d == nil || d.runtime == nil || service == "" || method == "" || expected.ID == "" || expected.Revision == "" || expected.Kind == "" {
 		return ComponentReference{}, fmt.Errorf("component dispatch pin is incomplete")
 	}
@@ -124,7 +124,7 @@ func (d *ForgeComponentDispatcher) exactReference(service, method string, expect
 	return ComponentReference{}, fmt.Errorf("component dispatch mapping is unavailable for the exact pin")
 }
 
-func validateCompleteComponentBinding(binding portable.ComponentBinding) error {
+func validateCompleteComponentBinding(binding windowprotocol.ComponentBinding) error {
 	if binding.Kind != "dynamic" && binding.Kind != "linked" || binding.ID == "" || binding.Revision == "" || binding.Revision == "active" || binding.Revision == "latest" || binding.Revision == "working" {
 		return fmt.Errorf("component dispatch requires an exact component pin")
 	}

@@ -10,9 +10,9 @@ import (
 	"net/url"
 	"reflect"
 
+	forgehandler "github.com/viant/agently-core/adapter/mcp/primitive"
+	forgeservice "github.com/viant/agently-core/service/primitiveprovider"
 	"github.com/viant/authz/oauth"
-	forgehandler "github.com/viant/forge/backend/mcp/mcp"
-	forgeservice "github.com/viant/forge/backend/mcp/service"
 	mcpserver "github.com/viant/mcp/server"
 )
 
@@ -21,8 +21,8 @@ func (s *Service) forgeProviderHTTP(ctx context.Context) (http.Handler, error) {
 	if provider == nil || provider.Host == nil || provider.Authority == nil {
 		return nil, fmt.Errorf("Forge provider requires a host and invocation authority")
 	}
-	protocol, err := mcpserver.New(mcpserver.WithNewHandler(forgehandler.NewPortableHandler(
-		forgeservice.NewService(&forgeservice.Config{PortableProvider: provider, UseData: true}))))
+	protocol, err := mcpserver.New(mcpserver.WithNewHandler(forgehandler.NewProviderHandler(
+		forgeservice.NewService(&forgeservice.Config{PrimitiveProvider: provider, UseData: true}))))
 	if err != nil {
 		return nil, err
 	}

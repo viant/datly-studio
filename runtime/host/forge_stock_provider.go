@@ -16,22 +16,22 @@ import (
 	"strings"
 	"time"
 
+	identity "github.com/viant/agently-core/protocol/resource"
+	windowprotocol "github.com/viant/agently-core/protocol/window"
+	forgeservice "github.com/viant/agently-core/service/primitiveprovider"
 	"github.com/viant/authz"
 	"github.com/viant/authz/gating"
-	"github.com/viant/forge/backend/mcp/portable"
-	forgeservice "github.com/viant/forge/backend/mcp/service"
-	"github.com/viant/forge/backend/reporting/identity"
 	"github.com/viant/forge/backend/types"
 	yaml "go.yaml.in/yaml/v3"
 )
 
 type stockWindowFile struct {
-	ContractVersion    int                             `json:"contractVersion,omitempty" yaml:"contractVersion,omitempty"`
-	DefinitionRevision string                          `json:"definitionRevision,omitempty" yaml:"definitionRevision,omitempty"`
-	Resource           *identity.ResolvedResource      `json:"resource,omitempty" yaml:"resource,omitempty"`
-	Window             *types.Window                   `json:"window" yaml:"window"`
-	Report             any                             `json:"report,omitempty" yaml:"report,omitempty"`
-	DataSources        map[string]*portable.DataSource `json:"dataSources" yaml:"dataSources"`
+	ContractVersion    int                                   `json:"contractVersion,omitempty" yaml:"contractVersion,omitempty"`
+	DefinitionRevision string                                `json:"definitionRevision,omitempty" yaml:"definitionRevision,omitempty"`
+	Resource           *identity.ResolvedResource            `json:"resource,omitempty" yaml:"resource,omitempty"`
+	Window             *types.Window                         `json:"window" yaml:"window"`
+	Report             any                                   `json:"report,omitempty" yaml:"report,omitempty"`
+	DataSources        map[string]*windowprotocol.DataSource `json:"dataSources" yaml:"dataSources"`
 }
 
 type stockWindowBundle struct {
@@ -41,8 +41,8 @@ type stockWindowBundle struct {
 }
 
 type stockComponentPin struct {
-	Reference ComponentReference        `json:"reference"`
-	Binding   portable.ComponentBinding `json:"binding"`
+	Reference ComponentReference              `json:"reference"`
+	Binding   windowprotocol.ComponentBinding `json:"binding"`
 }
 
 type stockWindowEntry struct {
@@ -106,9 +106,9 @@ func (s *Service) initStockForgeProvider(ctx context.Context) error {
 		source.keys[key] = configured.URI
 	}
 	policy := &stockWindowPolicy{service: s, selector: selector, principals: principals, entries: source.entries, tenant: s.config.Access.Tenant}
-	funcs := forgeservice.PortableHostFuncs{
-		CatalogFunc: func(callCtx context.Context, in *portable.CatalogInput) (*portable.Catalog, error) {
-			catalog := &portable.Catalog{ContractVersion: portable.Version, Windows: make([]portable.WindowSummary, 0, len(source.entries))}
+	funcs := forgeservice.PrimitiveHostFuncs{
+		CatalogFunc: func(callCtx context.Context, in *windowprotocol.CatalogInput) (*windowprotocol.Catalog, error) {
+			catalog := &windowprotocol.Catalog{ContractVersion: windowprotocol.Version, Windows: make([]windowprotocol.WindowSummary, 0, len(source.entries))}
 			for _, entry := range source.entries {
 				admitted := true
 				for _, action := range []string{"discover", "describe"} {
@@ -127,7 +127,7 @@ func (s *Service) initStockForgeProvider(ctx context.Context) error {
 				if err != nil {
 					return nil, err
 				}
-				catalog.Windows = append(catalog.Windows, portable.WindowSummary{ResourceURI: entry.config.URI, Namespace: entry.uri.Namespace,
+				catalog.Windows = append(catalog.Windows, windowprotocol.WindowSummary{ResourceURI: entry.config.URI, Namespace: entry.uri.Namespace,
 					Name: entry.uri.Name, Key: entry.key, Title: title})
 			}
 			catalog.CatalogRevision = stockCatalogRevision(source.entries)
@@ -143,7 +143,7 @@ func (s *Service) initStockForgeProvider(ctx context.Context) error {
 		DefinitionResolvedFunc: source.definition,
 		FetchResolvedFunc:      source.fetch,
 	}
-	authority := forgeservice.PortableAuthorityFuncs{
+	authority := forgeservice.PrimitiveAuthorityFuncs{
 		AuthenticateFunc: func(ctx context.Context) (string, error) {
 			principal, err := policy.principal(ctx)
 			if err != nil {
@@ -177,7 +177,7 @@ func (s *Service) initStockForgeProvider(ctx context.Context) error {
 				return authz.ErrDenied
 			}
 		},
-		AuthorizeFetchFunc: func(ctx context.Context, binding string, input *portable.FetchInput) error {
+		AuthorizeFetchFunc: func(ctx context.Context, binding string, input *windowprotocol.FetchInput) error {
 			principal, err := policy.principal(ctx)
 			if err != nil || stockAuthorityBinding(principal) != binding || input == nil || input.Resource == nil || input.Resource.ResourceCandidate.Kind != identity.WorkingCandidate || input.Resource.ResourceCandidate.Revision != "" {
 				return authz.ErrIdentityDenied
@@ -193,7 +193,7 @@ func (s *Service) initStockForgeProvider(ctx context.Context) error {
 			return err
 		},
 	}
-	s.config.ForgeProvider = &forgeservice.PortableProvider{
+	s.config.ForgeProvider = &forgeservice.PrimitiveProvider{
 		Host: funcs, Authority: authority,
 		ResourceResolver: func(context.Context) (*identity.ResourceResolver, error) {
 			return &identity.ResourceResolver{Source: source, Policy: policy}, nil
@@ -459,7 +459,7 @@ func (s *stockWindowSource) title(ctx context.Context, entry stockWindowEntry) (
 	return entry.uri.Name, nil
 }
 
-func (s *stockWindowSource) definition(ctx context.Context, pin identity.ResolvedResource, raw json.RawMessage) (*portable.Definition, error) {
+func (s *stockWindowSource) definition(ctx context.Context, pin identity.ResolvedResource, raw json.RawMessage) (*windowprotocol.Definition, error) {
 	var bundle stockWindowBundle
 	if err := json.Unmarshal(raw, &bundle); err != nil || bundle.URI != pin.URI {
 		return nil, identity.ErrResourceDenied
@@ -477,28 +477,28 @@ func (s *stockWindowSource) definition(ctx context.Context, pin identity.Resolve
 	window.WindowKey = entry.key
 	window.Namespace = uri.Namespace
 	window.Resource = &pin
-	dataSources := make(map[string]*portable.DataSource, len(file.DataSources))
+	dataSources := make(map[string]*windowprotocol.DataSource, len(file.DataSources))
 	for id, descriptor := range file.DataSources {
 		resolved, exists := bundle.Components[id]
 		if !exists || resolved.Reference != entry.config.Components[id] || resolved.Binding.ID != resolved.Reference.ID || resolved.Binding.Revision != resolved.Reference.Revision || resolved.Binding.SchemaFingerprint == "" || resolved.Binding.ContentFingerprint == "" {
 			return nil, identity.ErrResourceDenied
 		}
-		backend := &portable.Backend{Ownership: "provider", Kind: "datly", Method: portable.FetchTool,
+		backend := &windowprotocol.Backend{Ownership: "provider", Kind: "datly", Method: windowprotocol.FetchTool,
 			Pinned:            map[string]any{"windowKey": entry.key, "dataSourceId": id, "definitionRevision": pin.ContentFingerprint},
 			SchemaFingerprint: resolved.Binding.SchemaFingerprint, Component: &resolved.Binding}
 		copy := *descriptor
 		copy.Backend = backend
 		dataSources[id] = &copy
 	}
-	result := &portable.Definition{Resource: &pin, ContractVersion: portable.Version, DefinitionRevision: pin.ContentFingerprint, Window: &window, DataSources: dataSources}
-	if err := portable.ValidateResourceBindings(result, nil); err != nil {
+	result := &windowprotocol.Definition{Resource: &pin, ContractVersion: windowprotocol.Version, DefinitionRevision: pin.ContentFingerprint, Window: &window, DataSources: dataSources}
+	if err := windowprotocol.ValidateResourceBindings(result, nil); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *stockWindowSource) fetch(ctx context.Context, input *portable.FetchInput, source *portable.DataSource) (portable.FetchOutput, error) {
-	if input == nil || input.Resource == nil || source == nil || source.ID != input.DataSourceID || source.Backend == nil || source.Backend.Kind != "datly" || source.Backend.Ownership != "provider" || source.Backend.Method != portable.FetchTool || source.Backend.Component == nil {
+func (s *stockWindowSource) fetch(ctx context.Context, input *windowprotocol.FetchInput, source *windowprotocol.DataSource) (windowprotocol.FetchOutput, error) {
+	if input == nil || input.Resource == nil || source == nil || source.ID != input.DataSourceID || source.Backend == nil || source.Backend.Kind != "datly" || source.Backend.Ownership != "provider" || source.Backend.Method != windowprotocol.FetchTool || source.Backend.Component == nil {
 		return nil, identity.ErrResourceDenied
 	}
 	entry, ok := s.entries[input.Resource.URI]

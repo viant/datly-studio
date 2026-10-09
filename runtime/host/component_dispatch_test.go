@@ -11,6 +11,8 @@ import (
 	"testing"
 	"time"
 
+	identity "github.com/viant/agently-core/protocol/resource"
+	windowprotocol "github.com/viant/agently-core/protocol/window"
 	"github.com/viant/authz"
 	"github.com/viant/authz/oauth"
 	"github.com/viant/datly/application"
@@ -19,8 +21,6 @@ import (
 	"github.com/viant/datly/runtime/registry"
 	"github.com/viant/datly/spec"
 	"github.com/viant/datly/typecatalog"
-	"github.com/viant/forge/backend/mcp/portable"
-	"github.com/viant/forge/backend/reporting/identity"
 	xhandler "github.com/viant/xdatly/handler"
 )
 
@@ -84,7 +84,7 @@ func TestComponentDispatchRunsAuthorizedOlderVersionAndRejectsDrift(t *testing.T
 	if err != nil || !strings.Contains(string(result), "old-version") || strings.Contains(string(result), "active-version") {
 		t.Fatalf("older component changed dispatch: %s %v", result, err)
 	}
-	for label, altered := range map[string]portable.ComponentBinding{
+	for label, altered := range map[string]windowprotocol.ComponentBinding{
 		"active revision":           {Kind: pin.Kind, ID: pin.ID, Revision: "active", ContentFingerprint: pin.ContentFingerprint, SchemaFingerprint: pin.SchemaFingerprint},
 		"foreign identity":          {Kind: pin.Kind, ID: "other", Revision: pin.Revision, ContentFingerprint: pin.ContentFingerprint, SchemaFingerprint: pin.SchemaFingerprint},
 		"unavailable revision":      {Kind: pin.Kind, ID: pin.ID, Revision: "3", ContentFingerprint: pin.ContentFingerprint, SchemaFingerprint: pin.SchemaFingerprint},

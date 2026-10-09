@@ -15,10 +15,10 @@ import (
 	"time"
 
 	jwtv5 "github.com/golang-jwt/jwt/v5"
+	identity "github.com/viant/agently-core/protocol/resource"
+	windowprotocol "github.com/viant/agently-core/protocol/window"
 	"github.com/viant/authz"
 	"github.com/viant/authz/oauth"
-	"github.com/viant/forge/backend/mcp/portable"
-	"github.com/viant/forge/backend/reporting/identity"
 	mcpschema "github.com/viant/mcp-protocol/schema"
 )
 
@@ -63,7 +63,7 @@ func TestStockForgeProviderUsesExplicitWindowAndComponentBindings(t *testing.T) 
 	expiredToken := identityFixture.token(t, identityFixture.private, "alice", []string{"reader"}, time.Now().Add(-time.Minute))
 	roleDeniedToken := identityFixture.token(t, identityFixture.private, "alice", []string{"visitor"}, time.Now().Add(time.Minute))
 	var definitionPath string
-	var fixture *portable.Definition
+	var fixture *windowprotocol.Definition
 	window := []byte(`window:
   view:
     content:
@@ -111,7 +111,7 @@ dataSources:
 			host.resourceAccess.Store = policies
 			token := validToken
 			testCtx := oauth.WithBearer(context.Background(), token)
-			if _, err := host.config.ForgeProvider.Host.Catalog(testCtx, &portable.CatalogInput{ContractVersion: portable.Version}); err != nil {
+			if _, err := host.config.ForgeProvider.Host.Catalog(testCtx, &windowprotocol.CatalogInput{ContractVersion: windowprotocol.Version}); err != nil {
 				t.Fatalf("stock host catalog: %v", err)
 			}
 			resolver, err := host.config.ForgeProvider.ResourceResolver(testCtx)
@@ -170,11 +170,11 @@ dataSources:
 					"io.modelcontextprotocol/clientCapabilities": map[string]any{},
 				}})
 			}
-			catalog := callTool(portable.CatalogTool, map[string]any{"contractVersion": portable.Version, "limit": 20})
+			catalog := callTool(windowprotocol.CatalogTool, map[string]any{"contractVersion": windowprotocol.Version, "limit": 20})
 			if !strings.Contains(catalog, "window://team/overview") || !strings.Contains(catalog, "Overview") {
 				t.Fatalf("catalog did not expose authorized window: %s", catalog)
 			}
-			definitionResult := callTool(portable.DefinitionTool, map[string]any{"contractVersion": portable.Version, "windowKey": "team_overview"})
+			definitionResult := callTool(windowprotocol.DefinitionTool, map[string]any{"contractVersion": windowprotocol.Version, "windowKey": "team_overview"})
 			if !strings.Contains(definitionResult, "records") || !strings.Contains(definitionResult, "contentFingerprint") {
 				t.Fatalf("definition omitted exact component pin: %s", definitionResult)
 			}
@@ -183,13 +183,13 @@ dataSources:
 				t.Fatalf("resources/read did not return the approved working window: %s", read)
 			}
 			requestCtx := oauth.WithBearer(context.Background(), validToken)
-			fixture, err = host.config.ForgeProvider.Definition(requestCtx, &portable.DefinitionInput{ContractVersion: portable.Version, Resource: &identity.ResourceRef{URI: "window://team/overview"}})
+			fixture, err = host.config.ForgeProvider.Definition(requestCtx, &windowprotocol.DefinitionInput{ContractVersion: windowprotocol.Version, Resource: &identity.ResourceRef{URI: "window://team/overview"}})
 			if err != nil {
 				t.Fatal(err)
 			}
-			fetch := func(pin *portable.Definition) string {
+			fetch := func(pin *windowprotocol.Definition) string {
 				t.Helper()
-				return callTool(portable.FetchTool, map[string]any{"contractVersion": portable.Version, "resource": pin.Resource,
+				return callTool(windowprotocol.FetchTool, map[string]any{"contractVersion": windowprotocol.Version, "resource": pin.Resource,
 					"windowKey": pin.Window.WindowKey, "dataSourceId": "records", "definitionRevision": pin.DefinitionRevision, "inputs": map[string]any{}})
 			}
 			good := fetch(fixture)
@@ -198,7 +198,7 @@ dataSources:
 			}
 			for name, rejected := range map[string]string{"invalid signature": invalidSignature, "expired token": expiredToken, "role denied": roleDeniedToken} {
 				token = rejected
-				denied := callTool(portable.DefinitionTool, map[string]any{"contractVersion": portable.Version, "windowKey": "team_overview"})
+				denied := callTool(windowprotocol.DefinitionTool, map[string]any{"contractVersion": windowprotocol.Version, "windowKey": "team_overview"})
 				if !strings.Contains(denied, "isError") || strings.Contains(denied, "contentFingerprint") {
 					t.Fatalf("%s identity was not denied by the Forge route: %s", name, denied)
 				}
@@ -218,7 +218,7 @@ dataSources:
 			if stale := fetch(fixture); strings.Contains(stale, "ready") || !strings.Contains(stale, "isError") {
 				t.Fatalf("stale SQL binding executed: %s", stale)
 			}
-			fresh, err := host.config.ForgeProvider.Definition(requestCtx, &portable.DefinitionInput{ContractVersion: portable.Version, Resource: &identity.ResourceRef{URI: "window://team/overview"}})
+			fresh, err := host.config.ForgeProvider.Definition(requestCtx, &windowprotocol.DefinitionInput{ContractVersion: windowprotocol.Version, Resource: &identity.ResourceRef{URI: "window://team/overview"}})
 			if err != nil {
 				t.Fatal(err)
 			}

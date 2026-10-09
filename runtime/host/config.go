@@ -8,9 +8,9 @@ import (
 	"os"
 	"strings"
 
+	forgemcp "github.com/viant/agently-core/service/primitiveprovider"
 	access "github.com/viant/authz"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
-	forgemcp "github.com/viant/forge/backend/mcp/service"
 	mcpprotocol "github.com/viant/mcp/server"
 	"go.yaml.in/yaml/v3"
 )
@@ -58,7 +58,7 @@ type Config struct {
 	LinkedComponents []LinkedComponentSource `yaml:"-"`
 	// ForgeProvider is an opt-in host extension. Studio does not own Forge
 	// definitions or report schemas; the embedding process supplies them.
-	ForgeProvider *forgemcp.PortableProvider `yaml:"-"`
+	ForgeProvider *forgemcp.PrimitiveProvider `yaml:"-"`
 	// Forge configures the generic stock provider for operator-owned portable
 	// window definitions. Reporting remains outside this host contract.
 	Forge       *ForgeConfig          `yaml:"Forge,omitempty"`

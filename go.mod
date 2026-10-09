@@ -5,11 +5,14 @@ go 1.25.8
 require modernc.org/sqlite v1.45.0
 
 require (
-	github.com/go-sql-driver/mysql v1.7.0
+	github.com/go-sql-driver/mysql v1.9.0
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/lib/pq v1.10.6
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/oapi-codegen/runtime v1.7.0
+	github.com/viant/agently-core v0.1.57-0.20261008235537-32026b7e271f
+	github.com/viant/agently-core/protocol/resource v0.0.0-20261008223520-8ba096a165a0
+	github.com/viant/agently-core/protocol/window v0.0.0-20261008230757-163b77505d6a
 	github.com/viant/bigquery v0.5.4-0.20260927120042-a47888f8d2cc
 	github.com/viant/bindly v0.4.1-0.20261006234956-d0b4e58bac4e
 	github.com/viant/datly v1.1.1-0.20261008212701-79814253bce5
@@ -27,11 +30,14 @@ require (
 )
 
 require (
+	filippo.io/edwards25519 v1.1.0 // indirect
+	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/tidwall/gjson v1.19.0 // indirect
 	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tiendc/go-deepcopy v1.7.1 // indirect
+	github.com/viant/agently-core/protocol/primitive v0.0.0-20261008224115-9803ba939e65 // indirect
 )
 
 require (
@@ -67,8 +73,8 @@ require (
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
-	github.com/goccy/go-json v0.10.2 // indirect
-	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
+	github.com/goccy/go-json v0.10.5 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.1 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -84,7 +90,6 @@ require (
 	github.com/lestrrat-go/option v1.0.1 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mazznoer/csscolorparser v0.1.3 // indirect
-	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/ncruces/go-strftime v1.0.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
@@ -94,11 +99,11 @@ require (
 	github.com/spiffe/go-spiffe/v2 v2.6.0 // indirect
 	github.com/viant/afs v1.30.1-0.20260914155934-90e95d483861 // indirect
 	github.com/viant/afsc v1.18.0 // indirect
-	github.com/viant/authz v0.0.0-20261008185629-af2e488eec48
+	github.com/viant/authz v0.0.0-20261008202630-c983c9e64ee5
 	github.com/viant/authz/component v0.0.0-20261008185629-af2e488eec48
-	github.com/viant/forge v0.3.45-0.20261006144249-3feb061490cf
+	github.com/viant/forge v0.3.45-0.20261008230317-250262cef29a
 	github.com/viant/gmetric v0.3.2 // indirect
-	github.com/viant/gosh v0.2.4 // indirect
+	github.com/viant/gosh v0.3.0 // indirect
 	github.com/viant/govalidator v0.3.4-0.20260913213120-027a9dd54d73 // indirect
 	github.com/viant/igo v0.2.0 // indirect
 	github.com/viant/parsly v0.3.3 // indirect

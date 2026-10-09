@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	identity "github.com/viant/agently-core/protocol/resource"
+	windowprotocol "github.com/viant/agently-core/protocol/window"
 	"github.com/viant/authz"
 	studiors "github.com/viant/datly-studio/runtime/resources"
 	studiohost "github.com/viant/datly-studio/studio/host"
@@ -19,8 +21,6 @@ import (
 	"github.com/viant/datly/runtime/registry"
 	"github.com/viant/datly/spec"
 	"github.com/viant/datly/typecatalog"
-	"github.com/viant/forge/backend/mcp/portable"
-	"github.com/viant/forge/backend/reporting/identity"
 )
 
 // ComponentReference is a deployment-owned dispatch mapping. An incoming input
@@ -62,10 +62,10 @@ func validateComponentReference(ref ComponentReference) error {
 
 // ResolveComponentBinding describes the exact executable source. The caller
 // must authorize the returned pin before dispatch; no revision is inferred.
-func (s *Service) ResolveComponentBinding(ctx context.Context, ref ComponentReference) (portable.ComponentBinding, error) {
+func (s *Service) ResolveComponentBinding(ctx context.Context, ref ComponentReference) (windowprotocol.ComponentBinding, error) {
 	manager, binding, err := s.componentRuntime(ctx, ref)
 	if err != nil {
-		return portable.ComponentBinding{}, err
+		return windowprotocol.ComponentBinding{}, err
 	}
 	defer manager.Shutdown(context.Background())
 	return binding, nil
@@ -74,13 +74,13 @@ func (s *Service) ResolveComponentBinding(ctx context.Context, ref ComponentRefe
 // ExecuteComponentJSON recompiles the same selected revision, checks content
 // and schema identity, executes native Datly authorization, then refuses source
 // drift before releasing data. It never uses the current publication manager.
-func (s *Service) ExecuteComponentJSON(ctx context.Context, ref ComponentReference, pinned portable.ComponentBinding, inputs map[string]any) (json.RawMessage, error) {
+func (s *Service) ExecuteComponentJSON(ctx context.Context, ref ComponentReference, pinned windowprotocol.ComponentBinding, inputs map[string]any) (json.RawMessage, error) {
 	manager, current, err := s.componentRuntime(ctx, ref)
 	if err != nil {
 		return nil, err
 	}
 	defer manager.Shutdown(context.Background())
-	if err := portable.ValidateComponentDispatch(&pinned, current); err != nil {
+	if err := windowprotocol.ValidateComponentDispatch(&pinned, current); err != nil {
 		return nil, err
 	}
 	if pinned.Kind == "" || pinned.ContentFingerprint == "" {
@@ -122,7 +122,7 @@ func (s *Service) ExecuteComponentJSON(ctx context.Context, ref ComponentReferen
 	if err != nil {
 		return nil, err
 	}
-	if err := portable.ValidateComponentDispatch(&pinned, fresh); err != nil {
+	if err := windowprotocol.ValidateComponentDispatch(&pinned, fresh); err != nil {
 		return nil, err
 	}
 	if s.config.Access != nil && s.resourceAccess != nil {
@@ -150,20 +150,20 @@ func (s *Service) ExecuteComponentJSON(ctx context.Context, ref ComponentReferen
 	return output, nil
 }
 
-func (s *Service) componentRuntime(ctx context.Context, ref ComponentReference) (_ *application.Manager, _ portable.ComponentBinding, err error) {
+func (s *Service) componentRuntime(ctx context.Context, ref ComponentReference) (_ *application.Manager, _ windowprotocol.ComponentBinding, err error) {
 	if s == nil || ctx == nil || ctx.Err() != nil || s.studio == nil {
-		return nil, portable.ComponentBinding{}, fmt.Errorf("component runtime is unavailable")
+		return nil, windowprotocol.ComponentBinding{}, fmt.Errorf("component runtime is unavailable")
 	}
 	if err := validateComponentReference(ref); err != nil {
-		return nil, portable.ComponentBinding{}, err
+		return nil, windowprotocol.ComponentBinding{}, err
 	}
 	types, err := (studiohost.Config{PredicatePackages: s.config.PredicatePackages}).RuntimeTypes()
 	if err != nil {
-		return nil, portable.ComponentBinding{}, err
+		return nil, windowprotocol.ComponentBinding{}, err
 	}
 	manager, err := application.New(types)
 	if err != nil {
-		return nil, portable.ComponentBinding{}, err
+		return nil, windowprotocol.ComponentBinding{}, err
 	}
 	succeeded := false
 	defer func() {
@@ -171,7 +171,7 @@ func (s *Service) componentRuntime(ctx context.Context, ref ComponentReference) 
 			_ = manager.Shutdown(context.Background())
 		}
 	}()
-	binding := portable.ComponentBinding{ID: ref.ID, Revision: ref.Revision, Kind: ref.Kind}
+	binding := windowprotocol.ComponentBinding{ID: ref.ID, Revision: ref.Revision, Kind: ref.Kind}
 	if ref.Kind == "dynamic" {
 		version, _ := strconv.Atoi(ref.Revision)
 		sourceDefinition, err := s.exactDefinition(ctx, ref.ID, version)
