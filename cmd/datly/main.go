@@ -6,16 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/lib/pq"
-	_ "github.com/viant/bigquery"
-	_ "github.com/viant/datly-studio/internal/dependencylink"
-	"github.com/viant/datly/cmd/command"
-	_ "github.com/viant/sqlx/metadata/product/bigquery"
-	_ "github.com/viant/sqlx/metadata/product/mysql"
-	_ "github.com/viant/sqlx/metadata/product/pg"
-	_ "github.com/viant/sqlx/metadata/product/sqlite"
-	_ "modernc.org/sqlite"
+	"github.com/viant/datly-studio/app/datlycmd"
 )
 
 func main() {
@@ -27,5 +18,5 @@ func main() {
 	if len(os.Args) > 1 && os.Args[1] == "link" {
 		os.Exit(runLink(ctx, os.Args[1:], os.Stdout, os.Stderr))
 	}
-	os.Exit((command.Service{}).Run(ctx, os.Args[1:], os.Stdout, os.Stderr))
+	os.Exit(datlycmd.Run(ctx, os.Args[1:], os.Stdout, os.Stderr))
 }
