@@ -13,6 +13,10 @@ import (
 	forgehandler "github.com/viant/agently-core/adapter/mcp/primitive"
 	forgeservice "github.com/viant/agently-core/service/primitiveprovider"
 	"github.com/viant/authz/oauth"
+	"github.com/viant/jsonrpc/transport"
+	protoclient "github.com/viant/mcp-protocol/client"
+	"github.com/viant/mcp-protocol/logger"
+	protoserver "github.com/viant/mcp-protocol/server"
 	mcpserver "github.com/viant/mcp/server"
 )
 
@@ -21,8 +25,17 @@ func (s *Service) forgeProviderHTTP(ctx context.Context) (http.Handler, error) {
 	if provider == nil || provider.Host == nil || provider.Authority == nil {
 		return nil, fmt.Errorf("Forge provider requires a host and invocation authority")
 	}
-	protocol, err := mcpserver.New(mcpserver.WithNewHandler(forgehandler.NewProviderHandler(
-		forgeservice.NewService(&forgeservice.Config{PrimitiveProvider: provider, UseData: true}))))
+	legacy := forgehandler.NewProviderHandler(forgeservice.NewService(&forgeservice.Config{PrimitiveProvider: provider, UseData: true}))
+	protocol, err := mcpserver.New(mcpserver.WithNewHandler(func(ctx context.Context, notifier transport.Notifier, log logger.Logger, client protoclient.Operations) (protoserver.Handler, error) {
+		handler, err := legacy(ctx, notifier, log, client)
+		if err != nil {
+			return nil, err
+		}
+		if err := s.registerWindowPrimitives(handler.(*forgehandler.Handler).DefaultHandler); err != nil {
+			return nil, err
+		}
+		return handler, nil
+	}))
 	if err != nil {
 		return nil, err
 	}

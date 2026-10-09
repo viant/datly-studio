@@ -6,6 +6,35 @@ its normal configuration. It serves operator-owned windows through
 MCP `resources/list` / `resources/read` on `/forge/mcp`. The ordinary Datly
 component MCP endpoint remains `/mcp`.
 
+Set operator-owned `Forge.ProviderIdentity` to also advertise ordinary
+`namespaces/list`, `namespaces/get`, `windows/list`, `windows/get`, and
+`windows/datasource` tools on that same endpoint. Namespaces and canonical URIs
+come exclusively from the existing `Forge.Windows` mappings. This is an
+authoritative window provider that Core's shared resource gateway can discover;
+it does not export an aggregated gateway or a report catalog. Omit the identity
+to retain only the existing portable tools.
+
+The ordinary provider preloads complete `window.bundle` definitions and exact
+component bindings at startup, without a caller or authorization grants. It
+retains only authored content and compiled native metadata read plans; every
+read uses fresh namespace/role authorization and current database metadata.
+Configured files, traced imports, DQL, resources, connector/source identity,
+and linked artifact declarations are checked before serving. Changes deny the
+existing snapshot until restart, rather than recompiling or switching a pin.
+The existing native datasource executor retains its independent authorization,
+typed inputs, predicates, exact component checks and buffered postchecks.
+
+`windows/get` returns a separate runtime `executionProof`. A provider-owned
+`windows/datasource` call must forward it along with the exact resource pin,
+datasource ID and untrusted inputs. Its signature covers the original provider
+lease, actor binding, URI, candidate and component-bearing window variant;
+clients cannot extend the deadline or use another actor/provider's pin. A host
+may further narrow its own lease and must retain its independent target proof.
+Proofs are never part of authored definition bytes or an ACL grant. By default
+the signing key is process-owned and changes on restart; replicated hosts can
+inject a shared `Forge.ExecutionProof` signer/verifier through trusted Go
+configuration. No signing keys or connector credentials are returned to clients.
+
 `Forge.Windows` supplies a canonical `window://namespace/name`, a definition
 path relative to `RootDir`, and a map of datasource IDs to `ComponentReference`
 values. Each reference declares `kind` (`dynamic` or `linked`), `id`, an exact

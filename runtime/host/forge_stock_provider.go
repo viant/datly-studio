@@ -199,7 +199,7 @@ func (s *Service) initStockForgeProvider(ctx context.Context) error {
 			return &identity.ResourceResolver{Source: source, Policy: policy}, nil
 		},
 	}
-	return nil
+	return s.initWindowPrimitives(source, policy)
 }
 
 func (p *stockWindowPolicy) principal(ctx context.Context) (gating.Principal, error) {

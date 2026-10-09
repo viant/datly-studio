@@ -7,15 +7,22 @@ import (
 
 	identity "github.com/viant/agently-core/protocol/resource"
 	"github.com/viant/authz"
+	"github.com/viant/forge/backend/types"
 )
 
 // ForgeConfig enables the generic stock Forge window provider for a dynamic
 // Datly host. Definitions and ACL policy are operator-owned; Studio does not
 // add reporting-specific configuration or storage.
 type ForgeConfig struct {
-	Windows    []ForgeWindow             `json:"windows" yaml:"Windows"`
-	Policies   []authz.Document          `json:"policies" yaml:"Policies"`
-	Selections []authz.SelectionDocument `json:"selections" yaml:"Selections"`
+	// ExecutionProof may be an operator-owned shared signer for replicas.
+	// Nil uses a process-owned key; proofs then cannot cross restarts.
+	ExecutionProof types.WindowTargetProof `json:"-" yaml:"-"`
+	// ProviderIdentity opts the configured windows into ordinary primitive MCP
+	// discovery. It is trusted provenance, separate from their existing URIs.
+	ProviderIdentity string                    `json:"providerIdentity,omitempty" yaml:"ProviderIdentity,omitempty"`
+	Windows          []ForgeWindow             `json:"windows" yaml:"Windows"`
+	Policies         []authz.Document          `json:"policies" yaml:"Policies"`
+	Selections       []authz.SelectionDocument `json:"selections" yaml:"Selections"`
 }
 
 // ForgeWindow maps one logical window to its unversioned YAML or JSON source
@@ -32,6 +39,9 @@ func validateForgeConfig(config *Config) error {
 	}
 	if config.ForgeProvider != nil {
 		return fmt.Errorf("Forge config and an injected Forge provider cannot both be configured")
+	}
+	if strings.TrimSpace(config.Forge.ProviderIdentity) != config.Forge.ProviderIdentity {
+		return fmt.Errorf("stock window provider identity must be canonical")
 	}
 	if config.Access == nil || config.Access.Tenant == "" {
 		return fmt.Errorf("stock Forge windows require resource access with a tenant")

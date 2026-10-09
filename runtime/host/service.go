@@ -15,6 +15,7 @@ import (
 	"sync"
 	"time"
 
+	coreresource "github.com/viant/agently-core/service/resource"
 	access "github.com/viant/authz"
 	"github.com/viant/datly-studio/internal/connectorinit"
 	"github.com/viant/datly-studio/internal/connectorsecret"
@@ -35,6 +36,7 @@ import (
 	"github.com/viant/datly/transcribe"
 	"github.com/viant/datly/transcribe/column"
 	"github.com/viant/datly/typecatalog"
+	"github.com/viant/forge/backend/types"
 	skillformat "github.com/viant/mcp-protocol/extension/skills"
 	"github.com/viant/mcp-protocol/schema"
 	"github.com/viant/scy/auth/jwt"
@@ -45,19 +47,25 @@ import (
 type verifiedClaimsKey struct{}
 
 type Service struct {
-	resourceAccess    *access.Service
-	config            Config
-	studio            *sql.DB
-	connectorStore    *activeConnectorStore
-	definitionStore   *publishedDefinitionStore
-	runAccessStore    *runAccessStore
-	manager           *application.Manager
-	servers           []*http.Server
-	listeners         []net.Listener
-	verifier          *verifier.Service
-	providerVerifiers map[string]*verifier.Service
-	secrets           connectorsecret.Resolver
-	mu                sync.Mutex
+	windowExecutionProof  types.WindowTargetProof
+	metadataDefinitions   *exactDefinitionReader
+	metadataResources     *studiors.Loader
+	windowPrimitives      *coreresource.LocalProvider
+	windowPrimitiveSource *stockPrimitiveSource
+	windowPrimitivePolicy *stockWindowPolicy
+	resourceAccess        *access.Service
+	config                Config
+	studio                *sql.DB
+	connectorStore        *activeConnectorStore
+	definitionStore       *publishedDefinitionStore
+	runAccessStore        *runAccessStore
+	manager               *application.Manager
+	servers               []*http.Server
+	listeners             []net.Listener
+	verifier              *verifier.Service
+	providerVerifiers     map[string]*verifier.Service
+	secrets               connectorsecret.Resolver
+	mu                    sync.Mutex
 }
 
 func New(ctx context.Context, config Config) (*Service, error) {
@@ -760,6 +768,7 @@ func (s *Service) Close(ctx context.Context) error {
 	if s.runAccessStore != nil {
 		result = errors.Join(result, s.runAccessStore.Close(ctx))
 	}
+	result = errors.Join(result, s.closePrimitiveMetadata(ctx))
 	result = errors.Join(result, s.studio.Close())
 	return result
 }

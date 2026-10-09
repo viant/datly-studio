@@ -151,6 +151,12 @@ func (s *Service) ExecuteComponentJSON(ctx context.Context, ref ComponentReferen
 }
 
 func (s *Service) componentRuntime(ctx context.Context, ref ComponentReference) (_ *application.Manager, _ windowprotocol.ComponentBinding, err error) {
+	return s.componentRuntimeWithAuthority(ctx, ref, true)
+}
+
+// Metadata-only construction is private to trusted startup. No request handler
+// can select it, and the resulting manager is closed before caching any bytes.
+func (s *Service) componentRuntimeWithAuthority(ctx context.Context, ref ComponentReference, authorize bool) (_ *application.Manager, _ windowprotocol.ComponentBinding, err error) {
 	if s == nil || ctx == nil || ctx.Err() != nil || s.studio == nil {
 		return nil, windowprotocol.ComponentBinding{}, fmt.Errorf("component runtime is unavailable")
 	}
@@ -179,15 +185,17 @@ func (s *Service) componentRuntime(ctx context.Context, ref ComponentReference) 
 			return nil, binding, err
 		}
 		authorizer := s.publishedAuthorizer(map[string]int{ref.ID: version})
-		if err := authorizer.authorizeNamespace(ctx); err != nil {
-			return nil, binding, err
-		}
-		if s.config.Access != nil {
-			if err := authorizer.authorizeResourcePolicy(ctx, authz.Resource{Kind: "component", ID: ref.ID, Version: ref.Revision, Tenant: s.config.Access.Tenant}, "describe"); err != nil {
+		if authorize {
+			if err := authorizer.authorizeNamespace(ctx); err != nil {
 				return nil, binding, err
 			}
-		} else if err := authorizer.authorizeRun(ctx, ref.ID); err != nil {
-			return nil, binding, err
+			if s.config.Access != nil {
+				if err := authorizer.authorizeResourcePolicy(ctx, authz.Resource{Kind: "component", ID: ref.ID, Version: ref.Revision, Tenant: s.config.Access.Tenant}, "describe"); err != nil {
+					return nil, binding, err
+				}
+			} else if err := authorizer.authorizeRun(ctx, ref.ID); err != nil {
+				return nil, binding, err
+			}
 		}
 		err = manager.Reload(ctx, application.Request{Revision: 1, Compile: func(ctx context.Context, seed *typecatalog.Catalog) (*application.Build, error) {
 			captured := false
@@ -229,14 +237,16 @@ func (s *Service) componentRuntime(ctx context.Context, ref ComponentReference) 
 			return nil, binding, err
 		}
 	} else {
-		if err := s.authorizeNamespace(ctx); err != nil {
-			return nil, binding, err
-		}
-		if s.config.Access == nil || s.resourceAccess == nil {
-			return nil, binding, authz.ErrDenied
-		}
-		if err := s.authorizeResourcePolicy(ctx, authz.Resource{Kind: "component", ID: ref.ID, Version: ref.Revision, Tenant: s.config.Access.Tenant}, "describe"); err != nil {
-			return nil, binding, err
+		if authorize {
+			if err := s.authorizeNamespace(ctx); err != nil {
+				return nil, binding, err
+			}
+			if s.config.Access == nil || s.resourceAccess == nil {
+				return nil, binding, authz.ErrDenied
+			}
+			if err := s.authorizeResourcePolicy(ctx, authz.Resource{Kind: "component", ID: ref.ID, Version: ref.Revision, Tenant: s.config.Access.Tenant}, "describe"); err != nil {
+				return nil, binding, err
+			}
 		}
 		var source *LinkedComponentSource
 		for i := range s.config.LinkedComponents {

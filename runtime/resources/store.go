@@ -46,6 +46,40 @@ type Loaded struct {
 // authority: two active components cannot register different files under the
 // same namespace.
 func Load(ctx context.Context, db *sql.DB, versions []Version) (*Loaded, error) {
+	return load(ctx, db, versions, nil)
+}
+
+// Loader retains only actor-independent native read plans for one DB lifetime.
+// Every Load invokes them with fresh context/inputs and reads current rows.
+type Loader struct {
+	db     *sql.DB
+	reader *snapshotReader
+}
+
+func NewLoader(db *sql.DB) (*Loader, error) {
+	if db == nil {
+		return nil, fmt.Errorf("Studio database is required")
+	}
+	reader, err := newSnapshotReader(db)
+	if err != nil {
+		return nil, err
+	}
+	return &Loader{db: db, reader: reader}, nil
+}
+func (l *Loader) Close(ctx context.Context) error {
+	if l == nil || l.reader == nil {
+		return nil
+	}
+	return l.reader.runtime.Shutdown(ctx)
+}
+func (l *Loader) Load(ctx context.Context, versions []Version) (*Loaded, error) {
+	if l == nil || l.reader == nil {
+		return nil, fmt.Errorf("resource metadata reader is unavailable")
+	}
+	return load(ctx, l.db, versions, l.reader)
+}
+
+func load(ctx context.Context, db *sql.DB, versions []Version, reader *snapshotReader) (*Loaded, error) {
 	if db == nil {
 		return nil, fmt.Errorf("Studio database is required")
 	}
@@ -58,11 +92,14 @@ func Load(ctx context.Context, db *sql.DB, versions []Version) (*Loaded, error) 
 	if len(versions) == 0 {
 		return result, nil
 	}
-	reader, err := newSnapshotReader(db)
-	if err != nil {
-		return nil, err
+	if reader == nil {
+		var err error
+		reader, err = newSnapshotReader(db)
+		if err != nil {
+			return nil, err
+		}
+		defer reader.runtime.Shutdown(context.Background())
 	}
-	defer reader.runtime.Shutdown(context.Background())
 	namespaces := map[string]fstest.MapFS{}
 	versionFiles := map[Version][]resourceFingerprintFile{}
 	for _, version := range versions {
