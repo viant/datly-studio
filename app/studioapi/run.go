@@ -135,6 +135,9 @@ func Run() {
 // Options supplies process-owned identity wiring for embedders. The factory
 // is invoked once during startup and is never selected from request data.
 type Options struct {
+	// SchemaVerifier validates an existing database instead of the default schema initialization.
+	// Only trusted embedding hosts supply this callback.
+	SchemaVerifier        func(context.Context, *sql.DB) error
 	AccessProviderFactory accessprovider.ProviderFactory
 	AccessProviderConfig  *accessprovider.Config
 	// Modules adds process-owned, independently authenticated extension APIs.
@@ -226,7 +229,7 @@ func RunWithOptions(options Options) {
 		log.Fatal(err)
 	}
 	defer db.Close()
-	if err = ensureSchema(context.Background(), db); err != nil {
+	if err = ensureHostSchema(lifecycleCtx, db, options.SchemaVerifier); err != nil {
 		log.Fatal(err)
 	}
 	definitionReader, err := preview.NewDefinitionReader(db)
@@ -310,6 +313,7 @@ func RunWithOptions(options Options) {
 		sdkTransport = &access.Transport{Next: transport, Service: accessService, Catalog: &access.Catalog{Service: accessService, Source: &accesscatalog.Store{DB: db}}}
 	}
 	mux := http.NewServeMux()
+	var mountedModules []Module
 	if options.Modules != nil {
 		if resolvedMode != string(httptransport.Authenticated) || resourceProvider == nil {
 			log.Fatal("Studio extension modules require authenticated mode and a trusted identity provider")
@@ -321,6 +325,7 @@ func RunWithOptions(options Options) {
 		if moduleErr = mountModules(mux, modules); moduleErr != nil {
 			log.Fatal(moduleErr)
 		}
+		mountedModules = append([]Module(nil), modules...)
 	}
 	if *staticRoot != "" {
 		assets, assetErr := newStaticAssets(*staticRoot)
@@ -472,7 +477,7 @@ func RunWithOptions(options Options) {
 	}
 	log.Printf("Studio SDK %s host listening on http://%s", resolvedMode, *address)
 	server := &http.Server{
-		Addr: *address, Handler: requestIDs(cors(origin, resolvedMode == string(httptransport.Authenticated), noStore(routeExtensionProxy(mux, extensionProxy)))),
+		Addr: *address, Handler: requestIDs(corsModules(origin, resolvedMode == string(httptransport.Authenticated), mountedModules, noStore(routeExtensionProxy(mux, extensionProxy)))),
 		ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 30 * time.Second,
 		WriteTimeout: 60 * time.Second, IdleTimeout: 2 * time.Minute,
 	}
@@ -587,6 +592,10 @@ func resolveAllowedOrigin(mode, value string) (string, error) {
 }
 
 func cors(allowedOrigin string, requireUnsafeOrigin bool, next http.Handler) http.Handler {
+	return corsWithOriginException(allowedOrigin, requireUnsafeOrigin, nil, next)
+}
+
+func corsWithOriginException(allowedOrigin string, requireUnsafeOrigin bool, allowMissing func(*http.Request) bool, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Vary", "Origin")
 		origin := strings.TrimSpace(r.Header.Get("Origin"))
@@ -594,7 +603,7 @@ func cors(allowedOrigin string, requireUnsafeOrigin bool, next http.Handler) htt
 			http.Error(w, "origin is not allowed", http.StatusForbidden)
 			return
 		}
-		if requireUnsafeOrigin && origin == "" && r.Method != http.MethodGet && r.Method != http.MethodHead && r.Method != http.MethodOptions {
+		if requireUnsafeOrigin && origin == "" && r.Method != http.MethodGet && r.Method != http.MethodHead && r.Method != http.MethodOptions && (allowMissing == nil || !allowMissing(r)) {
 			http.Error(w, "origin is required", http.StatusForbidden)
 			return
 		}
