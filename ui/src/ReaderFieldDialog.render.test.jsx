@@ -71,4 +71,31 @@ describe('ReaderFieldDialog', () => {
     expect(await screen.findByText('codec: CSV')).toBeTruthy();
     expect(screen.queryByText('trim: true')).toBeNull();
   });
+  test('declares an aggregate output type when driver discovery has no columns', async () => {
+    const user = userEvent.setup();
+    const onApply = vi.fn().mockResolvedValue({});
+    const onClose = vi.fn();
+    render(<ReaderFieldDialog isOpen node={{name:'record',view:{columns:[]}}} columnContracts={[]} onApply={onApply} onClose={onClose}/>);
+    expect(screen.getByRole('button',{name:'Save column contract'}).disabled).toBe(true);
+    await user.type(screen.getByLabelText('SQL output alias'),'total');
+    expect(screen.getByRole('button',{name:'Save column contract'}).disabled).toBe(true);
+    await user.type(screen.getByLabelText('Go cast'),'int64');
+    await user.click(screen.getByRole('button',{name:'Save column contract'}));
+    expect(onApply).toHaveBeenCalledWith(expect.objectContaining({type:'setColumnContract',column:expect.objectContaining({view:'record',column:'total',castType:'int64'})}));
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
+  test('declares a missing aggregate alias while preserving known columns', async () => {
+    const user=userEvent.setup(),onApply=vi.fn().mockResolvedValue({});
+    const node={name:'sale',view:{columns:[{name:'total',source:'total',type:{name:'int64'}}]}};
+    render(<ReaderFieldDialog isOpen node={node} columnContracts={[{view:'sale',column:'total',castType:'int64',tags:{groupable:'false'}}]} onApply={onApply} onClose={vi.fn()}/>);
+    await user.click(screen.getByRole('button',{name:'Declare SQL output'}));
+    await user.type(screen.getByLabelText('SQL output alias'),'quantity');
+    expect(screen.getByRole('button',{name:'Save column contract'}).disabled).toBe(true);
+    await user.type(screen.getByLabelText('Go cast'),'int64');
+    await user.click(screen.getByRole('button',{name:'Save column contract'}));
+    expect(onApply).toHaveBeenCalledWith(expect.objectContaining({type:'setColumnContract',column:expect.objectContaining({view:'sale',column:'quantity',castType:'int64'})}));
+    expect(node.view.columns.map(column=>column.name)).toEqual(['total']);
+  });
+
 });

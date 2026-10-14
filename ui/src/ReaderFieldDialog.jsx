@@ -17,9 +17,11 @@ export function ReaderFieldDialog({ isOpen, node, columnContracts = [], onClose,
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(0);
   const [showCatalog, setShowCatalog] = useState(false);
+  const [newColumn, setNewColumn] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const selected = columns.find((item) => columnIdentity(item) === columnName);
+  const declaring = columns.length === 0 || newColumn;
+  const selected = newColumn ? null : columns.find((item) => columnIdentity(item) === columnName);
   const contract = columnContract(columnContracts, node?.name, columnName);
   const filtered = columns.filter((item) => `${item.name} ${item.source || ''} ${item.type?.name || item.databaseType || ''}`.toLowerCase().includes(query.trim().toLowerCase()));
   const pageSize = 25;
@@ -31,6 +33,7 @@ export function ReaderFieldDialog({ isOpen, node, columnContracts = [], onClose,
     if (!isOpen) return;
     const initial = node?.column ? columnIdentity(node.column) : columnIdentity(columns[0]);
     setShowCatalog(!node?.column);
+    setNewColumn(false);
     setColumnName(initial);
     setQuery(''); setPage(0); setSaving(false); setError(''); setTagName(''); setTagValue('');
   }, [isOpen, node, columns]);
@@ -44,9 +47,10 @@ export function ReaderFieldDialog({ isOpen, node, columnContracts = [], onClose,
     setAdvancedTags(Object.fromEntries(Object.entries(next?.tags ?? {}).filter(([name]) => !['groupable','internal','json','format'].includes(name))));
   }, [isOpen, columnName, columnContracts, node?.name, selected]);
 
-  const selectColumn = (value) => { setColumnName(value); setError(''); };
+  const selectColumn = (value) => { setNewColumn(false); setColumnName(value); setError(''); };
   const apply = async (column) => {
-    if (!node?.name || !columnName) { setError('Select a compiled view column.'); return false; }
+    if (!node?.name || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(columnName)) { setError('Select a column or enter a valid SQL output alias.'); return false; }
+    if (declaring && !castType.trim()) { setError('Declare a Go type for this SQL output alias.'); return false; }
     setSaving(true); setError('');
     try { await onApply({ type: 'setColumnContract', column }); return true; }
     catch (cause) { setError(cause.message); return false; }
@@ -70,7 +74,12 @@ export function ReaderFieldDialog({ isOpen, node, columnContracts = [], onClose,
     <DialogBody>
       <p className="studio-dialog-lead">Edit the selected field’s compiled Datly contract. SQL remains owned by the view; casts and tags remain in the outer projection.</p>
       {error && <Callout intent="danger" role="alert">{error}</Callout>}
-      {columns.length === 0 ? <Callout intent="warning" title="No compiled columns">Refresh connector metadata or use an explicit projection so Datly can expose field contracts.</Callout> : <>
+      {columns.length > 0 && <div className="studio-inspector-actions"><Button small minimal icon={newColumn?'list':'add'} disabled={saving} onClick={()=>{setError('');setNewColumn(!newColumn);setColumnName(newColumn?columnIdentity(columns[0]):'');}}>{newColumn?'Choose existing column':'Declare SQL output'}</Button></div>}
+      {declaring ? <>
+        <Callout intent="primary" title="Declare SQL output">Enter an alias from this view’s SQL and its Go type. Datly validates the declaration and refreshes the columns when you save.</Callout>
+        <FormGroup label="SQL output alias" labelFor="column-unresolved-alias"><InputGroup id="column-unresolved-alias" value={columnName} onChange={(event)=>setColumnName(event.target.value.trim())} placeholder="total" disabled={saving}/></FormGroup>
+        <FormGroup label="Go cast" labelFor="column-cast"><InputGroup id="column-cast" value={castType} onChange={(event)=>setCastType(event.target.value)} placeholder="int64" disabled={saving}/></FormGroup>
+      </> : <>
         {showCatalog && <><InputGroup leftIcon="search" aria-label="Search columns" placeholder="Find 100+ columns by name, source, or type" value={query} onChange={(event) => { setQuery(event.target.value); setPage(0); }}/>
         <div className="studio-column-table-wrap"><HTMLTable striped className="studio-data-table studio-field-role-table"><thead><tr><th>Field</th><th>Type</th><th>Contract</th></tr></thead><tbody>{visibleColumns.map((column) => {
           const itemContract = columnContract(columnContracts, node?.name, columnIdentity(column));
@@ -86,7 +95,7 @@ export function ReaderFieldDialog({ isOpen, node, columnContracts = [], onClose,
         <section className="studio-column-authoring-section studio-column-authoring-advanced"><h3>Advanced metadata tags</h3><p>Use registered Datly/SQLX tag keys. Changes are staged with the contract and applied only when you choose Save column contract.</p><div className="studio-current-tags">{Object.entries(advancedTags).map(([name, value]) => <Tag key={name} minimal onRemove={saving ? undefined : () => removeTag(name)}>{name}: {value || 'empty'}</Tag>)}</div><div className="studio-function-form"><InputGroup aria-label="Advanced tag name" value={tagName} onChange={(event) => setTagName(event.target.value)} placeholder="codec" disabled={saving}/><InputGroup aria-label="Advanced tag value" value={tagValue} onChange={(event) => setTagValue(event.target.value)} placeholder="registered codec options" disabled={saving}/><Button icon="tag" disabled={saving} onClick={saveAdvancedTag}>Stage tag</Button></div></section>
       </>}
     </DialogBody>
-    <DialogFooter actions={<><Button onClick={onClose} disabled={saving}>Cancel</Button><Button intent="primary" icon="floppy-disk" loading={saving} disabled={!columnName} onClick={saveContract}>Save column contract</Button></>}/>
+    <DialogFooter actions={<><Button onClick={onClose} disabled={saving}>Cancel</Button><Button intent="primary" icon="floppy-disk" loading={saving} disabled={!columnName || (declaring && !castType.trim())} onClick={saveContract}>Save column contract</Button></>}/>
   </Dialog>;
 }
 
