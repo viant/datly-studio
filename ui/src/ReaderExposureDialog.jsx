@@ -22,6 +22,8 @@ import {
   suggestExposureName,
   toolExposure,
   projectionOperation,
+  pagingOperation,
+  groupingOperation,
   validateExposure,
 } from './readerExposure.js';
 
@@ -34,6 +36,10 @@ export function ReaderExposureDialog({ isOpen, readOnly = false, onCache, api, s
   const [cubeEnabled, setCubeEnabled] = useState(Boolean(reportSettings?.enabled));
   const [fieldSelection, setFieldSelection] = useState(Boolean(component?.rootView?.selector?.allowFields));
   const [fieldSelectionChanged, setFieldSelectionChanged] = useState(false);
+  const [allowLimit, setAllowLimit] = useState(Boolean(component?.rootView?.selector?.allowLimit));
+  const [allowOffset, setAllowOffset] = useState(Boolean(component?.rootView?.selector?.allowOffset));
+  const [limitChanged, setLimitChanged] = useState(false);
+  const [offsetChanged, setOffsetChanged] = useState(false);
   const [cubeMCP, setCubeMCP] = useState(reportSettings?.mcpTool == null ? true : Boolean(reportSettings.mcpTool));
   const [composeEnabled, setComposeEnabled] = useState(Boolean(compose?.enabled));
   const [composeMCP, setComposeMCP] = useState(Boolean(compose?.mcpTool));
@@ -58,6 +64,9 @@ export function ReaderExposureDialog({ isOpen, readOnly = false, onCache, api, s
     setCubeEnabled(Boolean(reportSettings?.enabled));
     setFieldSelection(Boolean(component?.rootView?.selector?.allowFields));
     setFieldSelectionChanged(false);
+    setAllowLimit(Boolean(component?.rootView?.selector?.allowLimit));
+    setAllowOffset(Boolean(component?.rootView?.selector?.allowOffset));
+    setLimitChanged(false);setOffsetChanged(false);
     setCubeMCP(reportSettings?.mcpTool == null ? true : Boolean(reportSettings.mcpTool));
     setComposeEnabled(Boolean(compose?.enabled));
     setComposeMCP(Boolean(compose?.mcpTool));
@@ -99,7 +108,8 @@ export function ReaderExposureDialog({ isOpen, readOnly = false, onCache, api, s
     setSaving(true);
     setError('');
     try {
-      await onApply(componentSettingsOperation({ connector, cubeEnabled, cubeMCP, composeEnabled, composeMCP, maxCubes: budgets[0], maxLimit: budgets[1], timeoutMs: budgets[2], exposure: { enabled, mcpOnly, name, description, descriptionPath }, projectionChange: fieldSelectionChanged ? projectionOperation(structure, fieldSelection) : undefined }));
+      const pagingChanges = [...(limitChanged ? [pagingOperation(structure,'limit',allowLimit)] : []), ...(offsetChanged ? [pagingOperation(structure,'offset',allowOffset)] : [])];
+      await onApply(componentSettingsOperation({ connector, cubeEnabled, cubeMCP, composeEnabled, composeMCP, maxCubes: budgets[0], maxLimit: budgets[1], timeoutMs: budgets[2], exposure: { enabled, mcpOnly, name, description, descriptionPath }, groupingChange: cubeEnabled ? groupingOperation(structure) : undefined, projectionChange: fieldSelectionChanged ? projectionOperation(structure, fieldSelection) : undefined, pagingChanges }));
       if (api && report?.id) {
         let current = await api.getComponent(report.id);
         if (title.trim() !== current.title || componentDescription.trim() !== (current.description || '')) {
@@ -154,6 +164,8 @@ export function ReaderExposureDialog({ isOpen, readOnly = false, onCache, api, s
             <div><h3 id="analytics-settings-title">Analytics</h3><p>Cube validation and bounded composition apply to the complete reader component.</p></div>
             <Switch checked={cubeEnabled} label="Enable cube" onChange={(event) => { const checked = event.target.checked; setCubeEnabled(checked); if (!checked) setComposeEnabled(false); }} disabled={saving}/>
             <Switch checked={fieldSelection} label="Allow field selection" onChange={(event)=>{setFieldSelection(event.target.checked);setFieldSelectionChanged(true);}} disabled={saving}/>
+            <Switch checked={allowLimit} label="Allow result limit" onChange={event=>{setAllowLimit(event.target.checked);setLimitChanged(true);}} disabled={saving}/>
+            <Switch checked={allowOffset} label="Allow result offset" onChange={event=>{setAllowOffset(event.target.checked);setOffsetChanged(true);}} disabled={saving}/>
             {cubeEnabled && !fieldSelection && <Callout compact intent="warning">Enable field selection to preview selected cube dimensions and measures. This also permits field selection on the source reader.</Callout>}
             {cubeEnabled && <Switch checked={cubeMCP} label="Expose cube as an MCP tool" onChange={(event)=>setCubeMCP(event.target.checked)} disabled={saving}/>}
             <Switch checked={composeEnabled} label="Enable cube composition" onChange={(event) => setComposeEnabled(event.target.checked)} disabled={saving || !cubeEnabled}/>

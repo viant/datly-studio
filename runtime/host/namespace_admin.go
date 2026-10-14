@@ -8,10 +8,14 @@ import (
 	"strings"
 )
 
-// AdminHandler exposes only namespace-specific reload to the deployment token.
+// AdminHandler exposes namespace-specific runtime operations to the deployment token.
 // Group mode has no unscoped reload operation or public namespace mutation API.
 func (g *NamespaceGroup) AdminHandler(token string) http.Handler {
 	return http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+		if request.URL.Path == "/_studio/connection" {
+			g.namespaceConnection(response, request, token)
+			return
+		}
 		if request.URL.Path == "/_studio/status" {
 			g.namespaceStatus(response, request, token)
 			return
@@ -96,4 +100,42 @@ func (g *NamespaceGroup) namespaceStatus(response http.ResponseWriter, request *
 		Revision           int64  `json:"revision"`
 		MCPURL             string `json:"mcpUrl"`
 	}{ids[0], mode, "ready", revision, endpoint.URL()})
+}
+
+func (g *NamespaceGroup) namespaceConnection(w http.ResponseWriter, r *http.Request, token string) {
+	if r.Method != http.MethodGet {
+		w.Header().Set("Allow", http.MethodGet)
+		http.Error(w, "method not allowed", 405)
+		return
+	}
+	credentials := r.Header.Values("X-Studio-Runtime-Token")
+	if len(credentials) != 1 || !validAdminToken(token, credentials[0]) {
+		http.Error(w, "unauthorized", 401)
+		return
+	}
+	ids := r.URL.Query()["namespaceId"]
+	if len(ids) != 1 {
+		http.Error(w, "one namespace ID is required", 400)
+		return
+	}
+	decoded, err := hex.DecodeString(ids[0])
+	if err != nil || len(decoded) != 32 || ids[0] != strings.ToLower(ids[0]) {
+		http.Error(w, "canonical namespace ID is required", 400)
+		return
+	}
+	if _, exists := g.Listeners.Get(ids[0]); !exists {
+		http.Error(w, "namespace runtime is unavailable", 404)
+		return
+	}
+	configuration, err := g.Listeners.Connection(r.Context(), ids[0])
+	if err != nil {
+		http.Error(w, "namespace connection export is unavailable", 503)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no-store")
+	_ = json.NewEncoder(w).Encode(struct {
+		NamespaceID string          `json:"namespaceId"`
+		Config      json.RawMessage `json:"config"`
+	}{ids[0], configuration})
 }

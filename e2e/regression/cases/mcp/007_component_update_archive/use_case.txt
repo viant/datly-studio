@@ -1,0 +1,1 @@
+Update a component, reject stale revision, and archive using the actual public soft-deletion contract.

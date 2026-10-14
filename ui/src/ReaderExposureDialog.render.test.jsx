@@ -14,6 +14,21 @@ const structure = {
 };
 
 describe('ReaderExposureDialog', () => {
+  test('changes paging only after explicit author choices and retains exact rule CAS', async () => {
+    const user=userEvent.setup(),onApply=vi.fn().mockResolvedValue({});
+    const scoped={...structure,functions:[{name:'selector_limit',args:['vendor','false'],occurrence:2},{name:'selector_offset',args:['child','true'],occurrence:0}]};
+    const api={listConnectors:vi.fn().mockResolvedValue({items:[{name:'main',driver:'sqlite'}]}),getComponent:vi.fn().mockResolvedValue({id:'vendor',title:'Vendors',description:''})};
+    render(<ReaderExposureDialog isOpen api={api} structure={scoped} report={{id:'vendor',title:'Vendors',defaultConnectorName:'main'}} onClose={vi.fn()} onApply={onApply}/>);
+    expect(screen.getByRole('checkbox',{name:'Allow result limit'}).checked).toBe(false);
+    expect(screen.getByRole('checkbox',{name:'Allow result offset'}).checked).toBe(false);
+    await user.click(screen.getByRole('checkbox',{name:'Allow result limit'}));
+    await user.click(screen.getByRole('checkbox',{name:'Allow result offset'}));
+    await user.click(screen.getByRole('button',{name:'Save component'}));
+    expect(onApply.mock.calls[0][0].operations.slice(-2)).toEqual([
+      {type:'updateFunction',function:{name:'selector_limit',args:['vendor','true'],occurrence:2,expectedArgs:['vendor','false']}},
+      {type:'addFunction',function:{name:'selector_offset',args:['vendor','true']}}
+    ]);
+  });
   test('keeps denied projection until the author explicitly enables it', async () => {
     const user = userEvent.setup();
     const onApply = vi.fn().mockResolvedValue({});
@@ -57,6 +72,7 @@ describe('ReaderExposureDialog', () => {
       type: 'batch',
       operations: [
         { type: 'setSetting', setting: { name: 'connector', args: ['"main"'] } },
+        { type: 'addFunction', function: { name: 'groupable', args: ['vendor'] } },
         { type: 'setSetting', setting: { name: 'cube', args: [] } },
         { type: 'setSetting', setting: { name: 'cubeCompose', args: ['true', 'true', '12', '250', '45000'] } },
         { type: 'setSetting', setting: { name: 'mcp', args: ['"alice.vendors.read"', '"Read vendors"', '"docs/vendors.md"'] } },

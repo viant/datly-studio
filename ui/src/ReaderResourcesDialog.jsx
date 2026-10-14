@@ -4,15 +4,16 @@ import { LazyEditor as Editor } from './LazyEditor.jsx';
 import { skillToolNames, withSkillTools } from './skillFrontmatter.js';
 import { cloneReaderDraft } from './cloneReaderDraft.js';
 
-export function ReaderResourcesDialog({ isOpen, mode = 'all', initialAction = '', api, report, version, structure, onClose, onChanged, onDraftCreated }) {
+export function ReaderResourcesDialog({ isOpen, mode = 'all', initialAction = '', initialSkillId = '', api, report, version, structure, onClose, onChanged, onDraftCreated }) {
   const [snapshot, setSnapshot] = useState(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [cloning, setCloning] = useState(false);
   const [error, setError] = useState('');
   const namespace = `${report?.ownerPackage || 'user'}.docs`;
+  const skillPrefix = `skill://${api.namespaceId || report?.namespaceId || report?.namespace || 'general'}/components/${report?.id || 'reader'}/${version?.versionNo || 1}/guide/`;
   const [file, setFile] = useState({ namespace, resourcePath: 'guide/SKILL.md', content: skillTemplate(report) });
-  const [folder, setFolder] = useState({ namespace, rootPath: 'guide', uriPrefix: `skill://${report?.ownerPackage || 'user'}-guide/` });
+  const [folder, setFolder] = useState({ namespace, rootPath: 'guide', uriPrefix: skillPrefix });
   const [skill, setSkill] = useState({ folderId: '', skillRoot: '.' });
   const [pendingDelete, setPendingDelete] = useState(null);
   const [conflict, setConflict] = useState(null);
@@ -76,14 +77,18 @@ export function ReaderResourcesDialog({ isOpen, mode = 'all', initialAction = ''
       const next = await api.getResources(report.id, version.versionNo);
       setSnapshot(next); setDirty({});
       const savedFolder = (next.folders ?? []).find((item)=>item.folderId===folder.folderId) || next.folders?.[0];
-      setFolder(savedFolder ? {folderId:savedFolder.folderId,namespace:savedFolder.namespace,rootPath:savedFolder.rootPath,uriPrefix:savedFolder.uriPrefix,ordinal:savedFolder.ordinal||0} : {namespace,rootPath:'guide',uriPrefix:`skill://${report?.ownerPackage||'user'}-guide/`});
+      setFolder(savedFolder ? {folderId:savedFolder.folderId,namespace:savedFolder.namespace,rootPath:savedFolder.rootPath,uriPrefix:savedFolder.uriPrefix,ordinal:savedFolder.ordinal||0} : {namespace,rootPath:'guide',uriPrefix:skillPrefix});
       if (mode === 'resources') {
         const source = (next.files ?? []).find((item) => /\.(dql|sql)$/i.test(item.resourcePath));
         setFile(source ? {resourceId:source.resourceId,namespace:source.namespace,resourcePath:source.resourcePath,mediaType:source.mediaType||'',content:source.content||''} : {namespace,resourcePath:'sql/view.sql',content:''});
       } else if(initialAction==='newSkill'&&next?.folders?.[0]){
         const parent=next.folders[0];let index=(next.skills?.length??0)+1;let name=`skill-${index}`;const used=new Set((next.skills??[]).map((item)=>item.skillRoot));while(used.has(name)){index++;name=`skill-${index}`;}
         setSkill({folderId:parent.folderId,skillRoot:name,ordinal:next.skills?.length??0});setFile({namespace:parent.namespace,resourcePath:`${parent.rootPath}/${name}/SKILL.md`,content:skillTemplate(report,name)});
-      } else if(next?.skills?.[0])selectSkillFrom(next.skills[0],next.folders??[],next.files??[]);
+      } else if (initialSkillId || next?.skills?.[0]) {
+        const chosen = initialSkillId ? next.skills?.find(item => item.skillId === initialSkillId) : next.skills?.find(item => item.skillId === skill.skillId) || next.skills[0];
+        if (!chosen) throw new Error('The selected skill is no longer available in this component version. Close the editor and refresh Skills.');
+        selectSkillFrom(chosen, next.folders ?? [], next.files ?? []);
+      }
       else if (!skill.folderId && next?.folders?.[0]?.folderId) {
         setSkill((current) => ({ ...current, folderId: next.folders[0].folderId }));
         setFile((current) => useFolderForNewSkillFile(current, next.folders[0]));
@@ -91,8 +96,8 @@ export function ReaderResourcesDialog({ isOpen, mode = 'all', initialAction = ''
     } catch (cause) { if(cause?.code==='conflict')setConflict(cause);else setError(cause.message); }
     finally { setLoading(false); }
   };
-  useEffect(() => { if (isOpen) { setPendingDelete(null); setPendingTransition(null); setActiveTab(mode==='resources'?'files':'skills'); load(); } }, [isOpen, mode, report?.id, version?.versionNo]);
-  useEffect(() => { setFile((current) => ({ ...current, namespace })); setFolder((current) => ({ ...current, namespace, uriPrefix: `skill://${report?.ownerPackage || 'user'}-guide/` })); }, [namespace, report?.ownerPackage]);
+  useEffect(() => { if (isOpen) { setPendingDelete(null); setPendingTransition(null); setActiveTab(mode==='resources'?'files':'skills'); load(); } }, [isOpen, mode, report?.id, version?.versionNo, initialSkillId]);
+  useEffect(() => { setFile((current) => ({ ...current, namespace })); setFolder((current) => ({ ...current, namespace, uriPrefix: skillPrefix })); }, [namespace, report?.ownerPackage]);
   const loadMCPTools = () => {
     if (!api?.listMCPTools) return;
     let cancelled = false;
@@ -109,6 +114,18 @@ export function ReaderResourcesDialog({ isOpen, mode = 'all', initialAction = ''
       const next = await action((saved) => { intermediate = saved; });
       setSnapshot(next); setDirty((current)=>Object.fromEntries(Object.entries(current).filter(([scope])=>!savedFields.includes(scope))));
       onChanged?.(next.version);
+      if (savedFields.includes('file')) {
+        const savedFile = next.files?.find(item => item.namespace === file.namespace && item.resourcePath === file.resourcePath);
+        if (savedFile) setFile(current => ({ ...current, resourceId: savedFile.resourceId }));
+      }
+      if (savedFields.includes('folder')) {
+        const savedFolder = next.folders?.find(item => item.namespace === folder.namespace && item.rootPath === folder.rootPath);
+        if (savedFolder) setFolder(current => ({ ...current, folderId: savedFolder.folderId }));
+      }
+      if (savedFields.includes('skill')) {
+        const savedSkill = next.skills?.find(item => item.folderId === skill.folderId && item.skillRoot === skill.skillRoot);
+        if (savedSkill) setSkill(current => ({ ...current, skillId: savedSkill.skillId }));
+      }
       if (!skill.folderId && next?.folders?.[0]?.folderId) {
         setSkill((current) => ({ ...current, folderId: next.folders[0].folderId }));
         setFile((current) => useFolderForNewSkillFile(current, next.folders[0]));
@@ -129,7 +146,7 @@ export function ReaderResourcesDialog({ isOpen, mode = 'all', initialAction = ''
   const skills = snapshot?.skills ?? [];
   const revision = snapshot?.version?.sourceRevision ?? version?.sourceRevision;
   const resetFile=()=>{setFile({namespace,resourcePath:mode==='resources'?'sql/view.sql':'docs/note.md',content:''});setActiveTab('files');};
-  const resetFolder=()=>{setFolder({namespace,rootPath:'guide',uriPrefix:`skill://${report?.ownerPackage||'user'}-guide/`});setActiveTab('folders');};
+  const resetFolder=()=>{setFolder({namespace,rootPath:'guide',uriPrefix:skillPrefix});setActiveTab('folders');};
   const resetSkill=()=>{setSkill({folderId:folders[0]?.folderId||'',skillRoot:'.'});setActiveTab('skills');};
   const skillFileFor=(item)=>{
     const parent=folders.find((folderItem)=>folderItem.folderId===item.folderId);
@@ -233,7 +250,7 @@ export function ReaderResourcesDialog({ isOpen, mode = 'all', initialAction = ''
           <div className="studio-skill-editor-panel">
           <div className="studio-form-grid"><FormGroup label="Published folder" labelFor="skill-folder"><HTMLSelect id="skill-folder" value={skill.folderId} onChange={(event)=>updateSkillLocation(event.target.value,skill.skillRoot)} fill disabled={saving || !editable}><option value="">Select a folder</option>{folders.map((item) => <option key={item.folderId} value={item.folderId}>{item.rootPath}</option>)}</HTMLSelect></FormGroup><FormGroup label="Skill root" labelFor="skill-root"><InputGroup id="skill-root" value={skill.skillRoot} onChange={(event)=>updateSkillLocation(skill.folderId,event.target.value)} disabled={saving || !editable}/></FormGroup></div>
           <FormGroup label="SKILL.md" labelFor="skill-markup-editor"><div className="studio-code-editor studio-skill-editor"><Editor id="skill-markup-editor" ariaLabel="Skill markup" value={file.content} onChange={(content)=>editFile({...file,content})} language="yaml" height="260px" readOnly={saving || !editable}/></div></FormGroup>
-          <section className="studio-skill-tools" aria-labelledby="skill-tools-title"><div><h4 id="skill-tools-title">Allowed MCP tools</h4></div>{toolsError&&<Callout intent="warning" role="alert" title="Live MCP tools unavailable">{toolsError} Save is available; tool references are checked when this version validates.<Button small minimal intent="warning" onClick={loadMCPTools}>Retry</Button></Callout>}{skillToolError&&<Callout intent="danger" role="alert">{skillToolError}</Callout>}<div className="studio-skill-tool-picker"><HTMLSelect aria-label="Add MCP tool to skill" value={toolToAdd} onChange={(event)=>setToolToAdd(event.target.value)} disabled={!editable||saving||toolsLoading||Boolean(toolsError)}><option value="">{toolsLoading?'Loading MCP tools…':'Choose an MCP tool'}</option>{availableTools.filter((item)=>!skillTools.includes(item.name)).map((item)=><option key={item.name} value={item.name}>{item.name}{item.draft?' · This version':''}</option>)}</HTMLSelect><Button icon="add" onClick={addSkillTool} disabled={!editable||!toolToAdd||saving||toolsLoading||Boolean(toolsError)}>Add</Button></div><div className="studio-skill-tool-list">{skillTools.length?skillTools.map((name)=><Tag key={name} interactive rightIcon="small-cross" onRemove={editable?()=>removeSkillTool(name):undefined}>{name}</Tag>):<span className="studio-muted">No tools assigned</span>}</div></section>
+          <section className="studio-skill-tools" aria-labelledby="skill-tools-title"><div><h4 id="skill-tools-title">Allowed MCP tools</h4></div>{toolsError&&<Callout intent="warning" role="alert" title="Live MCP tools unavailable">{toolsError} Save is available; tool references are checked when this version validates.<Button small minimal intent="warning" onClick={loadMCPTools}>Retry</Button></Callout>}{skillToolError&&<Callout intent="danger" role="alert">{skillToolError}</Callout>}<div className="studio-skill-tool-picker"><HTMLSelect aria-label="Add MCP tool to skill" value={toolToAdd} onChange={(event)=>setToolToAdd(event.target.value)} disabled={!editable||saving||toolsLoading||Boolean(toolsError && !availableTools.length)}><option value="">{toolsLoading?'Loading MCP tools…':'Choose an MCP tool'}</option>{availableTools.filter((item)=>!skillTools.includes(item.name)).map((item)=><option key={item.name} value={item.name}>{item.name}{item.draft?' · This version':''}</option>)}</HTMLSelect><Button icon="add" onClick={addSkillTool} disabled={!editable||!toolToAdd||saving||toolsLoading||Boolean(toolsError && !availableTools.length)}>Add</Button></div><div className="studio-skill-tool-list">{skillTools.length?skillTools.map((name)=><Tag key={name} interactive rightIcon="small-cross" onRemove={editable?()=>removeSkillTool(name):undefined}>{name}</Tag>):<span className="studio-muted">No tools assigned</span>}</div></section>
           <Button icon="floppy-disk" intent="primary" loading={saving} disabled={!editable||!skill.folderId||!canSaveFile} onClick={saveSkill}>{skill.skillId?'Save skill':'Create skill'}</Button>
           </div></>}
         </section>}

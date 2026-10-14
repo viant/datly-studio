@@ -40,7 +40,7 @@ export function exposureSetting({ enabled, name, description, descriptionPath })
   return { name: 'mcp', args };
 }
 
-export function componentSettingsOperation({ connector, cubeEnabled, cubeMCP = true, composeEnabled, composeMCP, maxCubes, maxLimit, timeoutMs, exposure, projectionChange }) {
+export function componentSettingsOperation({ connector, cubeEnabled, cubeMCP = true, composeEnabled, composeMCP, maxCubes, maxLimit, timeoutMs, exposure, projectionChange, groupingChange, pagingChanges = [] }) {
   const cubeArgs = cubeMCP ? [] : ["''", "''", "''", "''", "''", "''", "''", 'false'];
   const cube = { type: 'setSetting', setting: cubeEnabled ? { name: 'cube', args: cubeArgs } : { name: 'cube', remove: true } };
   const composition = {
@@ -49,11 +49,38 @@ export function componentSettingsOperation({ connector, cubeEnabled, cubeMCP = t
       ? { name: 'cubeCompose', args: ['true', String(Boolean(composeMCP)), String(maxCubes), String(maxLimit), String(timeoutMs)] }
       : { name: 'cubeCompose', remove: true },
   };
-  const operations = [{ type: 'setSetting', setting: { name: 'connector', args: [quoteDQL(connector)] } }, ...(cubeEnabled ? [cube, composition] : [composition, cube])];
+  const operations = [{ type: 'setSetting', setting: { name: 'connector', args: [quoteDQL(connector)] } }, ...(groupingChange ? [groupingChange] : []), ...(cubeEnabled ? [cube, composition] : [composition, cube])];
   operations.push({ type: 'setSetting', setting: exposureSetting(exposure) });
   operations.push({ type: 'setSetting', setting: exposure?.enabled && exposure?.mcpOnly ? { name: 'mcpOnly', args: ['true'] } : { name: 'mcpOnly', remove: true } });
   if (projectionChange) operations.push(projectionChange);
+  operations.push(...pagingChanges);
   return { type: 'batch', operations };
+}
+
+export function pagingOperation(structure, control, enabled) {
+  if (!['limit','offset'].includes(control)) throw new Error('Unsupported paging control.');
+  const view = structure?.component?.rootView;
+  const identity = view?.namespace || view?.name;
+  if (!identity) throw new Error('The component needs a compiled root view to change paging.');
+  const name = `selector_${control}`;
+  const matching = (structure.functions ?? []).filter(item => item.name.toLowerCase() === name && String(item.args?.[0] ?? '').replace(/^['"]|['"]$/g, '') === identity);
+  if (matching.length > 1) throw new Error(`Multiple ${control} rules exist for the root view.`);
+  const existing = matching[0];
+  return {type:existing?'updateFunction':'addFunction',function:{name,args:[identity,String(Boolean(enabled))],...(existing?{occurrence:existing.occurrence,expectedArgs:existing.args}:{})}};
+}
+
+export function groupingOperation(structure) {
+  const view = structure?.component?.rootView;
+  const identity = view?.namespace || view?.name;
+  if (!identity) throw new Error('The component needs a compiled root view to enable a cube.');
+  if (view.groupable === true) return null;
+  const matching = (structure.functions ?? []).filter((item) => item.name.toLowerCase() === 'groupable' && String(item.args?.[0] ?? '').replace(/^['"]|['"]$/g, '') === identity);
+  if (matching.length > 1) throw new Error('Multiple grouping declarations exist for the root view. Resolve them before enabling a cube.');
+  const existing = matching[0];
+  return { type: existing ? 'updateFunction' : 'addFunction', function: {
+    name: 'groupable', args: [identity],
+    ...(existing ? { occurrence: existing.occurrence, expectedArgs: existing.args } : {}),
+  } };
 }
 
 export function projectionOperation(structure, enabled) {

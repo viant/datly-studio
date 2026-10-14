@@ -793,3 +793,36 @@ test('shared policy read rejects a response after namespace switch', async () =>
   release(response({document:{resource,revision:1,policies:{}}}));
   await assert.rejects(() => pending, error => error.code === 'namespace_changed');
 });
+
+
+test('namespace skill authoring uses selected namespace without an MCP endpoint', async () => {
+ const seen=[];
+ const id='c'.repeat(64);
+ const api=new StudioAPI({mode:'authenticated',apiBaseURL:'https://studio.example.com',authentication:{mode:'identity-token'}},{identity:{token:async()=> 'test-token'},fetcher:async(request)=>{seen.push({url:request.url,namespace:request.headers.get('X-Studio-Namespace'),body:JSON.parse(await request.text())});return response({items:[]});}});
+ api.setNamespace(id);
+ api.getRuntimeStatus=async()=>{throw new Error('Authoring must not require runtime discovery');};
+ const bundle={content:'---\nname: guide\ndescription: Guide\n---\nInstructions.'};
+ await api.listNamespaceSkills({query:'guide'});
+ await api.createNamespaceSkill(bundle);
+ await api.getNamespaceSkill('guide-id',1);
+ await api.updateNamespaceSkill('guide-id',1,bundle);
+ await api.listNamespaceSkillRevisions('guide-id',{limit:10});
+ await api.publishNamespaceSkill('guide-id',2,2);
+ await api.unpublishNamespaceSkill('guide-id',3);
+ await api.deleteNamespaceSkill('guide-id',4);
+ assert.deepEqual(seen.map(call=>call.url.split('.').at(-1)),['list','create','get','update','revisions','publish','unpublish','delete']);
+ assert.ok(seen.every(call=>call.namespace===id));
+ assert.deepEqual(seen[1].body,{bundle});
+ assert.deepEqual(seen[2].body,{skillId:'guide-id',revision:1});
+ assert.deepEqual(seen[5].body,{skillId:'guide-id',etag:2,revision:2});
+});
+
+test('host MCP transport carries SDK DTOs and rejects responses after namespace changes',async()=>{
+ const calls=[];let release;
+ const api=new StudioAPI({mode:'authenticated',apiBaseURL:'https://studio.example',authentication:{mode:'bff'}},{nativeCallTool:async(name,input,options)=>{calls.push({name,input,headers:options.headers});if(name==='studio.sdk.components.list')await new Promise(resolve=>{release=resolve});return {items:[]};},fetcher:()=>{throw new Error('REST must not be called');}});
+ await api.createConnector({name:'consumer',provider:'sqlite'});
+ assert.equal(calls[0].name,'studio.sdk.connectors.create');assert.deepEqual(calls[0].input,{name:'consumer',provider:'sqlite'});
+ api.setNamespace('a'.repeat(64));const pending=api.listComponents();await Promise.resolve();
+ assert.equal(calls[1].headers['X-Studio-Namespace'],'a'.repeat(64));api.setNamespace('b'.repeat(64));release();
+ await assert.rejects(pending,error=>error.code==='namespace_changed');
+});

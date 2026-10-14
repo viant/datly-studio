@@ -1,47 +1,78 @@
-# Datly Studio end-to-end automation
+# Datly Studio Endly acceptance suite
 
-The local E2E environment uses [Endly](https://github.com/viant/endly), matching
-the orchestration structure used by Datly.
+The replacement suite starts at `e2e/run.yaml`. Its acceptance matrix and remaining
+work are tracked in [plan.md](plan.md). Legacy `local/` workflows are retained
+until the replacement matrix passes; they are not the new entry point.
 
-## Prerequisites
+Workflow sources use native YAML mappings and lists, not JSON documents with a
+`.yaml` extension. Keep request arguments structured as YAML; WebDriver command
+expressions are string entries in a YAML list.
 
-- `endly` installed and available on `PATH`
-- Docker running locally
-- an Endly credential named `mysql-e2e` with user `root` and password `dev`
-- Go 1.25.x
+## Build and run locally
 
-## Run
+Install the pinned public Endly revision using the [root build instructions](../README.md#build-and-run-e2e). No sibling checkout is required.
 
-From `e2e/local`:
+With the prerequisites below installed, run from this directory:
 
-```bash
+```sh
 endly
 ```
 
-Run selected phases:
+The default run executes build, SQLite setup, MCP tests, permission tests and
+WebDriver tests sequentially, followed by fixture shutdown. It stops any previous
+fixture before building and assigns a fresh timestamp run ID automatically.
+No database deletion or manual run ID is needed for repeat runs. Build only with
+`endly -t=build`.
 
-```bash
-endly -t=init
-endly -t=build,test
-endly -t=destroy
-```
+## MCP orchestration
 
-The workflow starts a MySQL 8 container on host port `43306`, recreates two
-databases with DSUnit, loads deterministic fixtures, builds/tests Studio, and
-then runs the regression workflow.
+Run Endly's MCP server with this directory as its working directory. Load
+`run.yaml`, list tasks and directory-template instances, then use `runWorkflow`.
+Omit `params.runId` to get a fresh run directory automatically. If you supply an
+explicit `params.runId`, use a new value for setup: preparation refuses to overwrite
+an existing catalog. All generated credentials, databases and browser evidence
+stay under `.data/e2e/<runId>`.
 
-Datastores:
+- Initial build: `tasks: build`.
+- MCP group: `tasks: stop,setup,test`, with discovered `testMCP_*` tag IDs.
+- Permissions: `tasks: stop,setup,test`, with discovered `testPermissions_*` tag IDs.
+- Browser group: `tasks: stop,setup,setupBrowser,test`, with discovered `testWebDriver_*` tag IDs.
+- Complete replacement suite: `tasks: stop,build,setup,setupBrowser,test`.
+- Individual cases: use `tasks: test` with discovered `tagIds` after setup.
+- Cleanup: `tasks: stop`, then close the Endly session to close its WebDriver.
 
-- `datly_studio_e2e`: Studio connectors, reports, versions, and publications
-- `reporting_e2e`: source data used by report components
+Requirements: Go 1.25.8 or newer (automatic Go toolchain downloads enabled),
+Node.js 22.12 or newer with npm, Python 3, a working local Google Chrome installation,
+and Endly at `9ed0e3e271c3d` or newer. Oracle and SQLite use pure-Go drivers; a C compiler is not required for the
+standard binaries. Run browsers as a regular user, not root. macOS and Linux are the
+supported fixture hosts; Windows is not yet supported by its POSIX shell steps.
+Network access is required for public Go modules, npm packages, the pinned public
+Forge archive, and Google's ChromeDriver download. The workflow runs `npm ci`;
+no sibling repository, preinstalled node_modules, Docker, database server, login,
+or pre-existing credentials are required. Endly pins Gosh's published strict-completion
+implementation; build/readiness commands opt in. WebDriver setup downloads the
+official ChromeDriver matching the installed Chrome build into `.data/e2e/webdriver`
+and starts it on port 4445, without replacing a system driver.
 
-Unit tests derive SQLite DDL in memory from `schema/schema.ddl`; Docker
-MySQL remains the E2E dialect.
+DSUnit registers SQLite, creates the consumer schema and loads the dictionary
+fixtures. Business mutations run through the native Studio MCP tools or the
+browser. DSUnit checks persisted effects. The fixture uses signed synthetic
+identities, a real native Studio runtime, isolated namespace MCP listeners,
+and a trusted browser proxy. It does not implement substitute business handlers.
 
-The catalog schema represents the Datly 1.0 redesign. Store and SDK integration
-tests will be added as those layers are implemented.
+The example predicate package is `github.com/viant/datly-studio/e2e/predicates`.
+The fixture links it and configures `STUDIO_PREDICATE_PACKAGES` using the package
+string; the DQL case verifies discovery and filtered execution.
 
-The initial catalog also models named MCP route exposures, cube and cube-compose
-settings, versioned resource files, resource folders, and explicitly declared
-skill roots. Skill resources are stored as version artifacts so a published
-generation can rebuild the same Datly MCP resource snapshot after restart.
+The replacement is still under validation. An authored case or a successful
+zero-assertion operation is not acceptance evidence. See [results.md](results.md)
+for observed runs and outstanding failures.
+
+The browser fixture exposes `/e2e/login` on its loopback origin for switching
+between the allowlisted synthetic IdP users. Credentials remain on the fixture
+server; the page selects a test identity, and the backend still verifies its JWT
+and mock user-info response. This route is not linked into production mains.
+Case `testWebDriver_ui_namespace_admin` creates resources as owner, manages
+namespaces as `namespace-admin`, verifies read-only controls for the differently
+cased role, and proves namespace administration does not grant component MCP
+execution. This case owns its namespace and consumer table.

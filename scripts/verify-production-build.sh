@@ -19,9 +19,9 @@ if [[ "$gate_failed" -ne 0 ]]; then exit 1; fi
 GOWORK=off go mod verify
 GOWORK=off go test ./...
 build_dir="$(mktemp -d "${TMPDIR:-/tmp}/datly-studio-build.XXXXXX")"
-GOWORK=off go build -trimpath -buildvcs=false -o "$build_dir/datly" ./cmd/datly
-GOWORK=off go build -trimpath -buildvcs=false -o "$build_dir/studio-api" ./cmd/studio-api
-GOWORK=off go build -trimpath -buildvcs=false -o "$build_dir/studio-runtime" ./cmd/studio-runtime
+CGO_ENABLED=0 GOWORK=off go build -trimpath -buildvcs=false -o "$build_dir/datly" ./cmd/datly
+CGO_ENABLED=0 GOWORK=off go build -trimpath -buildvcs=false -o "$build_dir/studio-api" ./cmd/studio-api
+CGO_ENABLED=0 GOWORK=off go build -trimpath -buildvcs=false -o "$build_dir/studio-runtime" ./cmd/studio-runtime
 
 cd "$repo_root/ui"
 npm ci

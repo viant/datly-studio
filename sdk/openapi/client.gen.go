@@ -101,6 +101,13 @@ type Input35f4ac8173f8fa3cb8e695d8cb3d27e2b5f8d83887d73c82e65fa26e9019d2f5 struc
 	Revision *int64                                                                            `json:"revision,omitempty"`
 }
 
+// Input3e014bcb4d9aebb2d4ab3215c768fa3b047d0aea2a8f8acc96a3f797bd3e7537 defines model for Input_3e014bcb4d9aebb2d4ab3215c768fa3b047d0aea2a8f8acc96a3f797bd3e7537.
+type Input3e014bcb4d9aebb2d4ab3215c768fa3b047d0aea2a8f8acc96a3f797bd3e7537 struct {
+	Content *string                                                                  `json:"content,omitempty"`
+	Files   *[]InputAd3d7f7da6a796e9a970d9134e8cb0548e78e5e4454fb3c81153a98d9767a129 `json:"files,omitempty"`
+	Title   *string                                                                  `json:"title,omitempty"`
+}
+
 // Input4b2c38475d83ff82029ec4520d07b5ec88c1409199c252fc696e28282c52561f defines model for Input_4b2c38475d83ff82029ec4520d07b5ec88c1409199c252fc696e28282c52561f.
 type Input4b2c38475d83ff82029ec4520d07b5ec88c1409199c252fc696e28282c52561f struct {
 	ExpectedActiveGeneration *int64  `json:"expectedActiveGeneration,omitempty"`
@@ -112,6 +119,22 @@ type Input4b2c38475d83ff82029ec4520d07b5ec88c1409199c252fc696e28282c52561f struc
 type Input4c3d58d8e922b5abbd65732f09a81d45874f0f7555537fd9607035bfecb9f26c struct {
 	Cubes *[]interface{} `json:"cubes,omitempty"`
 	Sql   *string        `json:"sql,omitempty"`
+}
+
+// Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64 defines model for Input_538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64.
+type Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64 struct {
+	Entity *Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64_Entity `json:"entity,omitempty"`
+	Kind   *string                                                                       `json:"kind,omitempty"`
+	Rules  *[]Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64      `json:"rules,omitempty"`
+	Value  *string                                                                       `json:"value,omitempty"`
+}
+
+// Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64Entity1 defines model for Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64.Entity.1.
+type Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64Entity1 = map[string]interface{}
+
+// Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64_Entity defines model for Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64.Entity.
+type Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64_Entity struct {
+	union json.RawMessage
 }
 
 // Input57127985d5662edb0b3d19b39a5c7c1e6df20a3253afa119615d9abc0d06a16b defines model for Input_57127985d5662edb0b3d19b39a5c7c1e6df20a3253afa119615d9abc0d06a16b.
@@ -146,6 +169,13 @@ type Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182Rule1 
 // Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule defines model for Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182.Rule.
 type Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule struct {
 	union json.RawMessage
+}
+
+// Input608a3450a35a065c74a93a11f4a2598a1fe6712435317bc3fa15aa38e4cd6054 defines model for Input_608a3450a35a065c74a93a11f4a2598a1fe6712435317bc3fa15aa38e4cd6054.
+type Input608a3450a35a065c74a93a11f4a2598a1fe6712435317bc3fa15aa38e4cd6054 struct {
+	Content *string                                                                  `json:"content,omitempty"`
+	Files   *[]InputBe69a3e78ead7826b6cd099ed06965f3618cbab616cefd4b7d7f3ae5da42f02b `json:"files,omitempty"`
+	Title   *string                                                                  `json:"title,omitempty"`
 }
 
 // Input6139a906f15f351c7eae5d9897ae3973b6172d1373d49394d6c8c69615914840 defines model for Input_6139a906f15f351c7eae5d9897ae3973b6172d1373d49394d6c8c69615914840.
@@ -218,6 +248,13 @@ type Input8b2294ec4854c9dd94236a9123a7d8fe7dbf92cab403fb011d6c8bf7d53c5054 struc
 	Operation              interface{} `json:"operation,omitempty"`
 }
 
+// Input8d6956b33904910eb5c98596261b238032c1d60ec4985440c7c370ac9e4ab540 defines model for Input_8d6956b33904910eb5c98596261b238032c1d60ec4985440c7c370ac9e4ab540.
+type Input8d6956b33904910eb5c98596261b238032c1d60ec4985440c7c370ac9e4ab540 struct {
+	Policies *map[string]InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7 `json:"policies,omitempty"`
+	Resource *InputB1c1e89e6619cb826e546ecf8347ad7b1464c14d32806b70e5e920cf5d1d5578            `json:"resource,omitempty"`
+	Revision *int64                                                                            `json:"revision,omitempty"`
+}
+
 // Input92babcabef72e30fbb57dc0d846d94ab3444a80b93279fb26ff7a884ac2fffb8 defines model for Input_92babcabef72e30fbb57dc0d846d94ab3444a80b93279fb26ff7a884ac2fffb8.
 type Input92babcabef72e30fbb57dc0d846d94ab3444a80b93279fb26ff7a884ac2fffb8 struct {
 	Id   *string `json:"id,omitempty"`
@@ -287,6 +324,19 @@ type InputA0d3076a206576e1fb379faacd83a9e5289796c14e710e1fe21529cfb0c35c21 struc
 	Notes         *string     `json:"notes,omitempty"`
 }
 
+// InputAb3203ec5968978923da72be592ec5e958eb1b4e1cc56724ca5ea7a8d67f5c38 defines model for Input_ab3203ec5968978923da72be592ec5e958eb1b4e1cc56724ca5ea7a8d67f5c38.
+type InputAb3203ec5968978923da72be592ec5e958eb1b4e1cc56724ca5ea7a8d67f5c38 struct {
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
+}
+
+// InputAd3d7f7da6a796e9a970d9134e8cb0548e78e5e4454fb3c81153a98d9767a129 defines model for Input_ad3d7f7da6a796e9a970d9134e8cb0548e78e5e4454fb3c81153a98d9767a129.
+type InputAd3d7f7da6a796e9a970d9134e8cb0548e78e5e4454fb3c81153a98d9767a129 struct {
+	Content  *string `json:"content,omitempty"`
+	IsBinary *bool   `json:"isBinary,omitempty"`
+	Path     *string `json:"path,omitempty"`
+}
+
 // InputAdff4675f499a769cb093e90fbca27e902af83cc23c5e13071057671fe8d89f0 defines model for Input_adff4675f499a769cb093e90fbca27e902af83cc23c5e13071057671fe8d89f0.
 type InputAdff4675f499a769cb093e90fbca27e902af83cc23c5e13071057671fe8d89f0 struct {
 	Content                *string `json:"content,omitempty"`
@@ -309,6 +359,30 @@ type InputB11523bf8a7cc12531330e851f7fb2dd5c4f01768e8eaf6d9a50d7d84ad1250b struc
 	RequestedBy            *string `json:"requestedBy,omitempty"`
 }
 
+// InputB1c1e89e6619cb826e546ecf8347ad7b1464c14d32806b70e5e920cf5d1d5578 defines model for Input_b1c1e89e6619cb826e546ecf8347ad7b1464c14d32806b70e5e920cf5d1d5578.
+type InputB1c1e89e6619cb826e546ecf8347ad7b1464c14d32806b70e5e920cf5d1d5578 struct {
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
+}
+
+// InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7 defines model for Input_b3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7.
+type InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7 struct {
+	EntityType     *string                                                                     `json:"entityType,omitempty"`
+	Mode           *string                                                                     `json:"mode,omitempty"`
+	RequiredScopes *[]string                                                                   `json:"requiredScopes,omitempty"`
+	Rule           *InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7_Rule `json:"rule,omitempty"`
+}
+
+// InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7Rule1 defines model for InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7.Rule.1.
+type InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7Rule1 = map[string]interface{}
+
+// InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7_Rule defines model for InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7.Rule.
+type InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7_Rule struct {
+	union json.RawMessage
+}
+
 // InputB94652047b45c410057de4a3d589b99411e9b1ce7012ae301388c27534a7d71e defines model for Input_b94652047b45c410057de4a3d589b99411e9b1ce7012ae301388c27534a7d71e.
 type InputB94652047b45c410057de4a3d589b99411e9b1ce7012ae301388c27534a7d71e struct {
 	Limit  *int64 `json:"limit,omitempty"`
@@ -325,6 +399,13 @@ type InputB990d293ef5d3e7e85a2acebd0bbccb12b9ec19ea303b41252de0b2f2bbb9e05 struc
 	OwnerId      *string   `json:"ownerId,omitempty"`
 	Title        *string   `json:"title,omitempty"`
 	Visibility   *string   `json:"visibility,omitempty"`
+}
+
+// InputBe69a3e78ead7826b6cd099ed06965f3618cbab616cefd4b7d7f3ae5da42f02b defines model for Input_be69a3e78ead7826b6cd099ed06965f3618cbab616cefd4b7d7f3ae5da42f02b.
+type InputBe69a3e78ead7826b6cd099ed06965f3618cbab616cefd4b7d7f3ae5da42f02b struct {
+	Content  *string `json:"content,omitempty"`
+	IsBinary *bool   `json:"isBinary,omitempty"`
+	Path     *string `json:"path,omitempty"`
 }
 
 // InputC4cc575a74227096d9bc84a357106f4a2fb90b472fc6273f1682ae88016fea81 defines model for Input_c4cc575a74227096d9bc84a357106f4a2fb90b472fc6273f1682ae88016fea81.
@@ -882,14 +963,20 @@ type OutputD14887150549e1252499c617aacbd48b5aab3c262cdf2f62fa7fbaf8f1edbaa2 stru
 
 // OutputD558223f5d3d6bca0e300c59f8e624af838223bc61f0cb8c88f09c757834ddaa defines model for Output_d558223f5d3d6bca0e300c59f8e624af838223bc61f0cb8c88f09c757834ddaa.
 type OutputD558223f5d3d6bca0e300c59f8e624af838223bc61f0cb8c88f09c757834ddaa struct {
-	CreatedAt   time.Time `json:"createdAt"`
-	Description *string   `json:"description,omitempty"`
-	Etag        int64     `json:"etag"`
-	Name        string    `json:"name"`
-	OwnerId     string    `json:"ownerId"`
-	Status      string    `json:"status"`
-	Title       string    `json:"title"`
-	UpdatedAt   time.Time `json:"updatedAt"`
+	AllowedRoles *[]string `json:"allowedRoles"`
+	CanManage    bool      `json:"canManage"`
+	CreatedAt    time.Time `json:"createdAt"`
+	Description  *string   `json:"description,omitempty"`
+	Etag         int64     `json:"etag"`
+	McpEnabled   bool      `json:"mcpEnabled"`
+	McpPort      *int64    `json:"mcpPort,omitempty"`
+	Name         string    `json:"name"`
+	NamespaceId  string    `json:"namespaceId"`
+	OwnerId      string    `json:"ownerId"`
+	Status       string    `json:"status"`
+	Title        string    `json:"title"`
+	UpdatedAt    time.Time `json:"updatedAt"`
+	Visibility   string    `json:"visibility"`
 }
 
 // OutputD6ae8cf116e1bb372c284270e8317deb57df8687ba83d5701493ce02cfb50799 defines model for Output_d6ae8cf116e1bb372c284270e8317deb57df8687ba83d5701493ce02cfb50799.
@@ -973,6 +1060,13 @@ type OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69Entit
 // OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69_Entity defines model for OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69.Entity.
 type OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69_Entity struct {
 	union json.RawMessage
+}
+
+// Wire0000ae7c5d7884f4ead8c10e8038a8cc022ef4386007285882c2dd1a2fdc867e defines model for Wire_0000ae7c5d7884f4ead8c10e8038a8cc022ef4386007285882c2dd1a2fdc867e.
+type Wire0000ae7c5d7884f4ead8c10e8038a8cc022ef4386007285882c2dd1a2fdc867e struct {
+	Content  string `json:"content"`
+	IsBinary *bool  `json:"isBinary,omitempty"`
+	Path     string `json:"path"`
 }
 
 // Wire013ce40651897a22f1d0c9d5a29a86362333458b72c57acb30fa03a2473f08c6 defines model for Wire_013ce40651897a22f1d0c9d5a29a86362333458b72c57acb30fa03a2473f08c6.
@@ -1065,6 +1159,43 @@ type Wire0b4fc596d18790b4851cf320f7b9abf6d446bab3fd3f2ae6a2d3cb1481542e8f struct
 	Subject     *[]Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4 `json:"subject"`
 }
 
+// Wire0bbf066863381f769b39ad78b59b8059fb6550628396f1f8c25257ce82e6874f defines model for Wire_0bbf066863381f769b39ad78b59b8059fb6550628396f1f8c25257ce82e6874f.
+type Wire0bbf066863381f769b39ad78b59b8059fb6550628396f1f8c25257ce82e6874f struct {
+	CreatedAt         time.Time `json:"createdAt"`
+	Description       string    `json:"description"`
+	Etag              int64     `json:"etag"`
+	LatestRevision    int64     `json:"latestRevision"`
+	Name              string    `json:"name"`
+	NamespaceId       string    `json:"namespaceId"`
+	PublishedRevision int64     `json:"publishedRevision"`
+	SkillId           string    `json:"skillId"`
+	Status            string    `json:"status"`
+	Title             string    `json:"title"`
+	UpdatedAt         time.Time `json:"updatedAt"`
+}
+
+// Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb defines model for Wire_0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb.
+type Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb struct {
+	Revision Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Revision `json:"revision"`
+	Skill    Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Skill    `json:"skill"`
+}
+
+// Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbRevision1 defines model for Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb.Revision.1.
+type Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbRevision1 = map[string]interface{}
+
+// Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Revision defines model for Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb.Revision.
+type Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Revision struct {
+	union json.RawMessage
+}
+
+// Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbSkill1 defines model for Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb.Skill.1.
+type Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbSkill1 = map[string]interface{}
+
+// Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Skill defines model for Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb.Skill.
+type Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Skill struct {
+	union json.RawMessage
+}
+
 // Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14 defines model for Wire_0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14.
 type Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14 struct {
 	Entries  *[]string                                                                    `json:"entries"`
@@ -1103,6 +1234,13 @@ type Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2Entity1
 // Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2_Entity defines model for Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2.Entity.
 type Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2_Entity struct {
 	union json.RawMessage
+}
+
+// Wire136fdd6e98366655d5a5095e8c68f1bcac5a96b892272257e0a31875c4ad186c defines model for Wire_136fdd6e98366655d5a5095e8c68f1bcac5a96b892272257e0a31875c4ad186c.
+type Wire136fdd6e98366655d5a5095e8c68f1bcac5a96b892272257e0a31875c4ad186c struct {
+	Content string                                                                  `json:"content"`
+	Files   *[]Wire39683fa2630319834046222efde0940aba2f6fb3c734927cdb6e6c4bf93acc07 `json:"files,omitempty"`
+	Title   *string                                                                 `json:"title,omitempty"`
 }
 
 // Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec defines model for Wire_13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec.
@@ -1219,6 +1357,19 @@ type Wire1ad149a06cfe9417562b1c9648e0b52832e72cfbf4e1ca313b15480e1aee3e75 struct
 	VersionNo              int64   `json:"versionNo"`
 }
 
+// Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921 defines model for Wire_1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921.
+type Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921 struct {
+	Skill Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921_Skill `json:"skill"`
+}
+
+// Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921Skill1 defines model for Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921.Skill.1.
+type Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921Skill1 = map[string]interface{}
+
+// Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921_Skill defines model for Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921.Skill.
+type Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921_Skill struct {
+	union json.RawMessage
+}
+
 // Wire1e3fdf8fcb04453947f7d75766cc316e3e09d18591edbeef886727e071fe5f28 defines model for Wire_1e3fdf8fcb04453947f7d75766cc316e3e09d18591edbeef886727e071fe5f28.
 type Wire1e3fdf8fcb04453947f7d75766cc316e3e09d18591edbeef886727e071fe5f28 struct {
 	AuthoredDql         *string     `json:"authoredDql,omitempty"`
@@ -1295,6 +1446,21 @@ type Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46Entity1
 // Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46_Entity defines model for Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46.Entity.
 type Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46_Entity struct {
 	union json.RawMessage
+}
+
+// Wire233692382231683192dd7140456422339bf3eeb54d8ac7887d29225da9ca7081 defines model for Wire_233692382231683192dd7140456422339bf3eeb54d8ac7887d29225da9ca7081.
+type Wire233692382231683192dd7140456422339bf3eeb54d8ac7887d29225da9ca7081 struct {
+	CreatedAt         time.Time `json:"createdAt"`
+	Description       string    `json:"description"`
+	Etag              int64     `json:"etag"`
+	LatestRevision    int64     `json:"latestRevision"`
+	Name              string    `json:"name"`
+	NamespaceId       string    `json:"namespaceId"`
+	PublishedRevision int64     `json:"publishedRevision"`
+	SkillId           string    `json:"skillId"`
+	Status            string    `json:"status"`
+	Title             string    `json:"title"`
+	UpdatedAt         time.Time `json:"updatedAt"`
 }
 
 // Wire239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691 defines model for Wire_239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691.
@@ -1523,6 +1689,32 @@ type Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052_Items_
 	union json.RawMessage
 }
 
+// Wire35454323a091acd320d8403a139f69d740fe9ed35bba3514f08ff8ed60a9c1c1 defines model for Wire_35454323a091acd320d8403a139f69d740fe9ed35bba3514f08ff8ed60a9c1c1.
+type Wire35454323a091acd320d8403a139f69d740fe9ed35bba3514f08ff8ed60a9c1c1 struct {
+	Bundle        Wire136fdd6e98366655d5a5095e8c68f1bcac5a96b892272257e0a31875c4ad186c `json:"bundle"`
+	ContentSha256 string                                                               `json:"contentSha256"`
+	CreatedAt     time.Time                                                            `json:"createdAt"`
+	CreatedBy     string                                                               `json:"createdBy"`
+	NamespaceId   string                                                               `json:"namespaceId"`
+	Revision      int64                                                                `json:"revision"`
+	SkillId       string                                                               `json:"skillId"`
+}
+
+// Wire363b086d0a3385aef883a6c101a25e628c10e16f40db550f64380ec9188a63f1 defines model for Wire_363b086d0a3385aef883a6c101a25e628c10e16f40db550f64380ec9188a63f1.
+type Wire363b086d0a3385aef883a6c101a25e628c10e16f40db550f64380ec9188a63f1 struct {
+	CreatedAt         time.Time `json:"createdAt"`
+	Description       string    `json:"description"`
+	Etag              int64     `json:"etag"`
+	LatestRevision    int64     `json:"latestRevision"`
+	Name              string    `json:"name"`
+	NamespaceId       string    `json:"namespaceId"`
+	PublishedRevision int64     `json:"publishedRevision"`
+	SkillId           string    `json:"skillId"`
+	Status            string    `json:"status"`
+	Title             string    `json:"title"`
+	UpdatedAt         time.Time `json:"updatedAt"`
+}
+
 // Wire385cb42fa02eb6e798cbc1f7de0bcdf81fdec7bcc883dc0d6d67a2e6f9974852 defines model for Wire_385cb42fa02eb6e798cbc1f7de0bcdf81fdec7bcc883dc0d6d67a2e6f9974852.
 type Wire385cb42fa02eb6e798cbc1f7de0bcdf81fdec7bcc883dc0d6d67a2e6f9974852 struct {
 	Code     string  `json:"code"`
@@ -1548,6 +1740,13 @@ type Wire38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a_Items_
 	union json.RawMessage
 }
 
+// Wire39683fa2630319834046222efde0940aba2f6fb3c734927cdb6e6c4bf93acc07 defines model for Wire_39683fa2630319834046222efde0940aba2f6fb3c734927cdb6e6c4bf93acc07.
+type Wire39683fa2630319834046222efde0940aba2f6fb3c734927cdb6e6c4bf93acc07 struct {
+	Content  string `json:"content"`
+	IsBinary *bool  `json:"isBinary,omitempty"`
+	Path     string `json:"path"`
+}
+
 // Wire3b57d303fc4270172c8dc3dcc384045b957738421bfa4726d93f6529707bb684 defines model for Wire_3b57d303fc4270172c8dc3dcc384045b957738421bfa4726d93f6529707bb684.
 type Wire3b57d303fc4270172c8dc3dcc384045b957738421bfa4726d93f6529707bb684 struct {
 	Catalog *string `json:"catalog,omitempty"`
@@ -1555,6 +1754,28 @@ type Wire3b57d303fc4270172c8dc3dcc384045b957738421bfa4726d93f6529707bb684 struct
 	Name    string  `json:"name"`
 	Schema  *string `json:"schema,omitempty"`
 	Type    *string `json:"type,omitempty"`
+}
+
+// Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864 defines model for Wire_3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864.
+type Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864 struct {
+	Revision Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Revision `json:"revision"`
+	Skill    Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Skill    `json:"skill"`
+}
+
+// Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Revision1 defines model for Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864.Revision.1.
+type Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Revision1 = map[string]interface{}
+
+// Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Revision defines model for Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864.Revision.
+type Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Revision struct {
+	union json.RawMessage
+}
+
+// Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Skill1 defines model for Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864.Skill.1.
+type Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Skill1 = map[string]interface{}
+
+// Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Skill defines model for Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864.Skill.
+type Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Skill struct {
+	union json.RawMessage
 }
 
 // Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5 defines model for Wire_3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5.
@@ -1597,6 +1818,17 @@ type Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Versio
 	union json.RawMessage
 }
 
+// Wire40408f0a0b8acd6d878be4326076378aa96079592be6ec18a7919fc73b6ee6cb defines model for Wire_40408f0a0b8acd6d878be4326076378aa96079592be6ec18a7919fc73b6ee6cb.
+type Wire40408f0a0b8acd6d878be4326076378aa96079592be6ec18a7919fc73b6ee6cb struct {
+	Bundle        WireF7e0e71af22003b02f42054a48a7fc20f287eb50183d06b8e811c01fad620893 `json:"bundle"`
+	ContentSha256 string                                                               `json:"contentSha256"`
+	CreatedAt     time.Time                                                            `json:"createdAt"`
+	CreatedBy     string                                                               `json:"createdBy"`
+	NamespaceId   string                                                               `json:"namespaceId"`
+	Revision      int64                                                                `json:"revision"`
+	SkillId       string                                                               `json:"skillId"`
+}
+
 // Wire42ea17da2b60208ef30858a88ede92d622320dba9d309726a67f3023fb8ab9e1 defines model for Wire_42ea17da2b60208ef30858a88ede92d622320dba9d309726a67f3023fb8ab9e1.
 type Wire42ea17da2b60208ef30858a88ede92d622320dba9d309726a67f3023fb8ab9e1 struct {
 	Code     string  `json:"code"`
@@ -1633,6 +1865,22 @@ type Wire460cf67195fceed0e09647cd2eec9022848f4fecb76be30099431c098e162bea struct
 	Filename  string    `json:"filename"`
 	Files     *[]string `json:"files"`
 	MediaType string    `json:"mediaType"`
+}
+
+// Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387 defines model for Wire_461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387.
+type Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387 struct {
+	Entity *Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387_Entity `json:"entity,omitempty"`
+	Kind   string                                                                       `json:"kind"`
+	Rules  *[]Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387      `json:"rules,omitempty"`
+	Value  *string                                                                      `json:"value,omitempty"`
+}
+
+// Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387Entity1 defines model for Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387.Entity.1.
+type Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387Entity1 = map[string]interface{}
+
+// Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387_Entity defines model for Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387.Entity.
+type Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387_Entity struct {
+	union json.RawMessage
 }
 
 // Wire46f5783921089422ba86ef3f21455336f0870921db6e2dac69f80e6517b1e68a defines model for Wire_46f5783921089422ba86ef3f21455336f0870921db6e2dac69f80e6517b1e68a.
@@ -1765,6 +2013,20 @@ type Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cfVersion
 
 // Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Version defines model for Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf.Version.
 type Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Version struct {
+	union json.RawMessage
+}
+
+// Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7 defines model for Wire_4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7.
+type Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7 struct {
+	PublicationStatus string                                                                     `json:"publicationStatus"`
+	Skill             Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7_Skill `json:"skill"`
+}
+
+// Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7Skill1 defines model for Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7.Skill.1.
+type Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7Skill1 = map[string]interface{}
+
+// Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7_Skill defines model for Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7.Skill.
+type Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7_Skill struct {
 	union json.RawMessage
 }
 
@@ -1931,6 +2193,13 @@ type Wire62d79acead49ba0d84d3fe813a8d59b4a26f710c0953ffa167816798ed0333f5 struct
 	TestedAt  time.Time `json:"testedAt"`
 }
 
+// Wire6479a7da664c407f8f41f4fdf1e70772bbad9691ef67e8050ded752fc88e802e defines model for Wire_6479a7da664c407f8f41f4fdf1e70772bbad9691ef67e8050ded752fc88e802e.
+type Wire6479a7da664c407f8f41f4fdf1e70772bbad9691ef67e8050ded752fc88e802e struct {
+	Content  string `json:"content"`
+	IsBinary *bool  `json:"isBinary,omitempty"`
+	Path     string `json:"path"`
+}
+
 // Wire65b20b1db94b9a2b772bc75cedde285454a5204dc72354f579cf1fe7fcc34b2b defines model for Wire_65b20b1db94b9a2b772bc75cedde285454a5204dc72354f579cf1fe7fcc34b2b.
 type Wire65b20b1db94b9a2b772bc75cedde285454a5204dc72354f579cf1fe7fcc34b2b struct {
 	Items  *[]Wire3b57d303fc4270172c8dc3dcc384045b957738421bfa4726d93f6529707bb684 `json:"items"`
@@ -1953,6 +2222,22 @@ type Wire686013a325c9be56a2c1decb9988b4f5c30a411074c3d70e9552eecf4ae1fd87 struct
 	Title       string    `json:"title"`
 	TypeName    string    `json:"typeName"`
 	UpdatedAt   time.Time `json:"updatedAt"`
+}
+
+// Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d defines model for Wire_69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d.
+type Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d struct {
+	EntityType     *string                                                                    `json:"entityType,omitempty"`
+	Mode           string                                                                     `json:"mode"`
+	RequiredScopes *[]string                                                                  `json:"requiredScopes,omitempty"`
+	Rule           *Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Rule `json:"rule,omitempty"`
+}
+
+// Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3dRule1 defines model for Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d.Rule.1.
+type Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3dRule1 = map[string]interface{}
+
+// Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Rule defines model for Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d.Rule.
+type Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Rule struct {
+	union json.RawMessage
 }
 
 // Wire6bdc906e5944153cacf17027ff97fe2e0524311a1c332c218e05c2fb3a05012d defines model for Wire_6bdc906e5944153cacf17027ff97fe2e0524311a1c332c218e05c2fb3a05012d.
@@ -2122,6 +2407,13 @@ type Wire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e struct
 	VersionNo              int64   `json:"versionNo"`
 }
 
+// Wire7a9034382c023a3e5b4b4f9403d720cc1bf990d1c827a366a019d586b9f5c801 defines model for Wire_7a9034382c023a3e5b4b4f9403d720cc1bf990d1c827a366a019d586b9f5c801.
+type Wire7a9034382c023a3e5b4b4f9403d720cc1bf990d1c827a366a019d586b9f5c801 struct {
+	Policies *map[string]Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d `json:"policies"`
+	Resource WireAfbd3ba313288192c9a8ae3627ea548117f98143f4f73d04a19579f4207fa6b3             `json:"resource"`
+	Revision int64                                                                            `json:"revision"`
+}
+
 // Wire7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621 defines model for Wire_7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621.
 type Wire7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621 struct {
 	Id   string `json:"id"`
@@ -2212,6 +2504,38 @@ type Wire8147805369c129ab8a8ae87482dbb8be4c51d1125dda4427e8adca5f845d6a7b struct
 	Duration    int64                                                                   `json:"duration"`
 }
 
+// Wire840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86 defines model for Wire_840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86.
+type Wire840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86 struct {
+	Bundle        Wire8901495307607551b54fae77b329fc1b74845fbfdb8111486323e8d7ecd142ce `json:"bundle"`
+	ContentSha256 string                                                               `json:"contentSha256"`
+	CreatedAt     time.Time                                                            `json:"createdAt"`
+	CreatedBy     string                                                               `json:"createdBy"`
+	NamespaceId   string                                                               `json:"namespaceId"`
+	Revision      int64                                                                `json:"revision"`
+	SkillId       string                                                               `json:"skillId"`
+}
+
+// Wire84dd294b4f11f08ca3a9d1430611613b710bcc9fa0f1d0ede017f74044e2f61f defines model for Wire_84dd294b4f11f08ca3a9d1430611613b710bcc9fa0f1d0ede017f74044e2f61f.
+type Wire84dd294b4f11f08ca3a9d1430611613b710bcc9fa0f1d0ede017f74044e2f61f struct {
+	Id   string `json:"id"`
+	Type string `json:"type"`
+}
+
+// Wire85751a68c4d78aaa4c871824bf59452b5102e0d1c20e4ca6f87da0c38821ffa9 defines model for Wire_85751a68c4d78aaa4c871824bf59452b5102e0d1c20e4ca6f87da0c38821ffa9.
+type Wire85751a68c4d78aaa4c871824bf59452b5102e0d1c20e4ca6f87da0c38821ffa9 struct {
+	CreatedAt         time.Time `json:"createdAt"`
+	Description       string    `json:"description"`
+	Etag              int64     `json:"etag"`
+	LatestRevision    int64     `json:"latestRevision"`
+	Name              string    `json:"name"`
+	NamespaceId       string    `json:"namespaceId"`
+	PublishedRevision int64     `json:"publishedRevision"`
+	SkillId           string    `json:"skillId"`
+	Status            string    `json:"status"`
+	Title             string    `json:"title"`
+	UpdatedAt         time.Time `json:"updatedAt"`
+}
+
 // Wire85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c defines model for Wire_85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c.
 type Wire85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c struct {
 	Id   string `json:"id"`
@@ -2226,6 +2550,28 @@ type Wire878bfd02a12294e26d1a40f1b673a231fa11c24402268d818f39f80be43c86f9 struct
 	Line     *int64  `json:"line,omitempty"`
 	Message  string  `json:"message"`
 	Severity string  `json:"severity"`
+}
+
+// Wire88709ac613253ed886933b7e523ce6042f690d19bbc5acdf9769548415baf599 defines model for Wire_88709ac613253ed886933b7e523ce6042f690d19bbc5acdf9769548415baf599.
+type Wire88709ac613253ed886933b7e523ce6042f690d19bbc5acdf9769548415baf599 struct {
+	CreatedAt         time.Time `json:"createdAt"`
+	Description       string    `json:"description"`
+	Etag              int64     `json:"etag"`
+	LatestRevision    int64     `json:"latestRevision"`
+	Name              string    `json:"name"`
+	NamespaceId       string    `json:"namespaceId"`
+	PublishedRevision int64     `json:"publishedRevision"`
+	SkillId           string    `json:"skillId"`
+	Status            string    `json:"status"`
+	Title             string    `json:"title"`
+	UpdatedAt         time.Time `json:"updatedAt"`
+}
+
+// Wire8901495307607551b54fae77b329fc1b74845fbfdb8111486323e8d7ecd142ce defines model for Wire_8901495307607551b54fae77b329fc1b74845fbfdb8111486323e8d7ecd142ce.
+type Wire8901495307607551b54fae77b329fc1b74845fbfdb8111486323e8d7ecd142ce struct {
+	Content string                                                                  `json:"content"`
+	Files   *[]WireF1dc57456af4495c942542a2c666692b7ca8f42a01f826985262b938bf11fd84 `json:"files,omitempty"`
+	Title   *string                                                                 `json:"title,omitempty"`
 }
 
 // Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c defines model for Wire_898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c.
@@ -2315,6 +2661,28 @@ type Wire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8 struct
 	TypeManifest        interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
 	VersionNo           int64       `json:"versionNo"`
+}
+
+// Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b defines model for Wire_923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b.
+type Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b struct {
+	Revision Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Revision `json:"revision"`
+	Skill    Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Skill    `json:"skill"`
+}
+
+// Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bRevision1 defines model for Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b.Revision.1.
+type Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bRevision1 = map[string]interface{}
+
+// Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Revision defines model for Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b.Revision.
+type Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Revision struct {
+	union json.RawMessage
+}
+
+// Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bSkill1 defines model for Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b.Skill.1.
+type Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bSkill1 = map[string]interface{}
+
+// Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Skill defines model for Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b.Skill.
+type Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Skill struct {
+	union json.RawMessage
 }
 
 // Wire9354a215074630106ae925b0323dfe169d763d5b75fe24202ca25bd2fb36ab21 defines model for Wire_9354a215074630106ae925b0323dfe169d763d5b75fe24202ca25bd2fb36ab21.
@@ -2422,6 +2790,13 @@ type Wire9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d struct
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
+// Wire9d8264983bf04cffa36aaebff7ed30c4e0090d3061c007830e518f3633d58fb8 defines model for Wire_9d8264983bf04cffa36aaebff7ed30c4e0090d3061c007830e518f3633d58fb8.
+type Wire9d8264983bf04cffa36aaebff7ed30c4e0090d3061c007830e518f3633d58fb8 struct {
+	Content string                                                                  `json:"content"`
+	Files   *[]Wire0000ae7c5d7884f4ead8c10e8038a8cc022ef4386007285882c2dd1a2fdc867e `json:"files,omitempty"`
+	Title   *string                                                                 `json:"title,omitempty"`
+}
+
 // Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145 defines model for Wire_9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145.
 type Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145 struct {
 	Files   *[]Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Files_Item   `json:"files"`
@@ -2509,6 +2884,14 @@ type WireAacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a struct
 	VersionNo              int64  `json:"versionNo"`
 }
 
+// WireAfbd3ba313288192c9a8ae3627ea548117f98143f4f73d04a19579f4207fa6b3 defines model for Wire_afbd3ba313288192c9a8ae3627ea548117f98143f4f73d04a19579f4207fa6b3.
+type WireAfbd3ba313288192c9a8ae3627ea548117f98143f4f73d04a19579f4207fa6b3 struct {
+	Id      string `json:"id"`
+	Kind    string `json:"kind"`
+	Tenant  string `json:"tenant"`
+	Version string `json:"version"`
+}
+
 // WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19 defines model for Wire_affe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19.
 type WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19 struct {
 	Capabilities Wire3100c253c572f716ab2eb88f6d83d813eedfe0b04003220edb6e98677fced244         `json:"capabilities"`
@@ -2524,6 +2907,17 @@ type WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19Version
 // WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version defines model for WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19.Version.
 type WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version struct {
 	union json.RawMessage
+}
+
+// WireB202a27129afca41f80f68ed94bc40b9a93d92d84de82126bac7e1e2ec9433fe defines model for Wire_b202a27129afca41f80f68ed94bc40b9a93d92d84de82126bac7e1e2ec9433fe.
+type WireB202a27129afca41f80f68ed94bc40b9a93d92d84de82126bac7e1e2ec9433fe struct {
+	Bundle        Wire9d8264983bf04cffa36aaebff7ed30c4e0090d3061c007830e518f3633d58fb8 `json:"bundle"`
+	ContentSha256 string                                                               `json:"contentSha256"`
+	CreatedAt     time.Time                                                            `json:"createdAt"`
+	CreatedBy     string                                                               `json:"createdBy"`
+	NamespaceId   string                                                               `json:"namespaceId"`
+	Revision      int64                                                                `json:"revision"`
+	SkillId       string                                                               `json:"skillId"`
 }
 
 // WireB3c67af74df5a4d366c8f3a628801f07d89d1eefd88ebad70d3689f8970629db defines model for Wire_b3c67af74df5a4d366c8f3a628801f07d89d1eefd88ebad70d3689f8970629db.
@@ -2585,6 +2979,20 @@ type WireB6bb3a3bc73e240bf20da6f0ceb8512d37faeca8e28cca304a69c5e7ff81fa51 struct
 	VersionNo              int64  `json:"versionNo"`
 }
 
+// WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19 defines model for Wire_b976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19.
+type WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19 struct {
+	PublicationStatus string                                                                     `json:"publicationStatus"`
+	Skill             WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19_Skill `json:"skill"`
+}
+
+// WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19Skill1 defines model for WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19.Skill.1.
+type WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19Skill1 = map[string]interface{}
+
+// WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19_Skill defines model for WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19.Skill.
+type WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19_Skill struct {
+	union json.RawMessage
+}
+
 // WireBb9c83695ae936c7031ab2428c59ccda35a4e34af9e6662a945012782ac921e1 defines model for Wire_bb9c83695ae936c7031ab2428c59ccda35a4e34af9e6662a945012782ac921e1.
 type WireBb9c83695ae936c7031ab2428c59ccda35a4e34af9e6662a945012782ac921e1 struct {
 	Complete bool   `json:"complete"`
@@ -2619,6 +3027,19 @@ type WireBc277e5b6cc7b5f6e3363c1e3628c4127103aecef86cccc990395878331130b5 struct
 type WireBd458392be482912a616e980fab94755810f3ed4347c5351a04930f05dd4ce31 struct {
 	Columns *[]Wire284d529f33778b8025eaf493c0c081fa071dfc15595367cd050c6aea84390073 `json:"columns"`
 	Table   WireCcdd85ede51b17373dddff12304f04c5afd91f3fe365382c999b601899f69747    `json:"table"`
+}
+
+// WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033 defines model for Wire_bd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033.
+type WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033 struct {
+	Items *[]WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_Item `json:"items"`
+}
+
+// WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033Items1 defines model for WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033.Items.1.
+type WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033Items1 = map[string]interface{}
+
+// WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_Item defines model for Wire_bd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033.items.Item.
+type WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_Item struct {
+	union json.RawMessage
 }
 
 // WireBe64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0 defines model for Wire_be64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0.
@@ -2689,6 +3110,11 @@ type WireC3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089 struct
 	TypeManifest        interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
 	VersionNo           int64       `json:"versionNo"`
+}
+
+// WireC34a89824b0951b1ac05f75e5bc3de78c6291e85c6dc07c5360c160963f1e221 defines model for Wire_c34a89824b0951b1ac05f75e5bc3de78c6291e85c6dc07c5360c160963f1e221.
+type WireC34a89824b0951b1ac05f75e5bc3de78c6291e85c6dc07c5360c160963f1e221 struct {
+	Document Wire7a9034382c023a3e5b4b4f9403d720cc1bf990d1c827a366a019d586b9f5c801 `json:"document"`
 }
 
 // WireC47cf46b58e263ed665fbdce50f43ecc62642c4837741ba43aaa439c1623d39c defines model for Wire_c47cf46b58e263ed665fbdce50f43ecc62642c4837741ba43aaa439c1623d39c.
@@ -2944,6 +3370,34 @@ type WireE664fa33d9d2d2c968c6dabd40e4ac01c5333f4591763b88b02fd2feb8b031ca struct
 	Entities *[]WireF791e609dc9412b052626b655056f1150d4756f8c3a0e758a32b8022f81938d4 `json:"entities"`
 }
 
+// WireE8eef4e2ee505a6f0706d63914d0a1a7e51cfcb516b0852a6bee4efa3ce9e0b0 defines model for Wire_e8eef4e2ee505a6f0706d63914d0a1a7e51cfcb516b0852a6bee4efa3ce9e0b0.
+type WireE8eef4e2ee505a6f0706d63914d0a1a7e51cfcb516b0852a6bee4efa3ce9e0b0 struct {
+	CreatedAt         time.Time `json:"createdAt"`
+	Description       string    `json:"description"`
+	Etag              int64     `json:"etag"`
+	LatestRevision    int64     `json:"latestRevision"`
+	Name              string    `json:"name"`
+	NamespaceId       string    `json:"namespaceId"`
+	PublishedRevision int64     `json:"publishedRevision"`
+	SkillId           string    `json:"skillId"`
+	Status            string    `json:"status"`
+	Title             string    `json:"title"`
+	UpdatedAt         time.Time `json:"updatedAt"`
+}
+
+// WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90 defines model for Wire_eb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90.
+type WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90 struct {
+	Items *[]WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90_Items_Item `json:"items"`
+}
+
+// WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90Items1 defines model for WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90.Items.1.
+type WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90Items1 = map[string]interface{}
+
+// WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90_Items_Item defines model for Wire_eb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90.items.Item.
+type WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90_Items_Item struct {
+	union json.RawMessage
+}
+
 // WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0 defines model for Wire_ec41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0.
 type WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0 struct {
 	Items  *[]WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0_Items_Item `json:"items"`
@@ -3033,6 +3487,13 @@ type WireF1625788b66eacf74ca98501afd9a4c5d06df56f548c1b3c679070e519cabcba struct
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
+// WireF1dc57456af4495c942542a2c666692b7ca8f42a01f826985262b938bf11fd84 defines model for Wire_f1dc57456af4495c942542a2c666692b7ca8f42a01f826985262b938bf11fd84.
+type WireF1dc57456af4495c942542a2c666692b7ca8f42a01f826985262b938bf11fd84 struct {
+	Content  string `json:"content"`
+	IsBinary *bool  `json:"isBinary,omitempty"`
+	Path     string `json:"path"`
+}
+
 // WireF3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d defines model for Wire_f3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d.
 type WireF3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d struct {
 	AuthoredDql         *string     `json:"authoredDql,omitempty"`
@@ -3061,10 +3522,32 @@ type WireF3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d struct
 	VersionNo           int64       `json:"versionNo"`
 }
 
+// WireF3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960 defines model for Wire_f3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960.
+type WireF3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960 struct {
+	CreatedAt         time.Time `json:"createdAt"`
+	Description       string    `json:"description"`
+	Etag              int64     `json:"etag"`
+	LatestRevision    int64     `json:"latestRevision"`
+	Name              string    `json:"name"`
+	NamespaceId       string    `json:"namespaceId"`
+	PublishedRevision int64     `json:"publishedRevision"`
+	SkillId           string    `json:"skillId"`
+	Status            string    `json:"status"`
+	Title             string    `json:"title"`
+	UpdatedAt         time.Time `json:"updatedAt"`
+}
+
 // WireF791e609dc9412b052626b655056f1150d4756f8c3a0e758a32b8022f81938d4 defines model for Wire_f791e609dc9412b052626b655056f1150d4756f8c3a0e758a32b8022f81938d4.
 type WireF791e609dc9412b052626b655056f1150d4756f8c3a0e758a32b8022f81938d4 struct {
 	Id   string `json:"id"`
 	Type string `json:"type"`
+}
+
+// WireF7e0e71af22003b02f42054a48a7fc20f287eb50183d06b8e811c01fad620893 defines model for Wire_f7e0e71af22003b02f42054a48a7fc20f287eb50183d06b8e811c01fad620893.
+type WireF7e0e71af22003b02f42054a48a7fc20f287eb50183d06b8e811c01fad620893 struct {
+	Content string                                                                  `json:"content"`
+	Files   *[]Wire6479a7da664c407f8f41f4fdf1e70772bbad9691ef67e8050ded752fc88e802e `json:"files,omitempty"`
+	Title   *string                                                                 `json:"title,omitempty"`
 }
 
 // WireF932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675 defines model for Wire_f932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675.
@@ -3139,6 +3622,16 @@ type POSTv1authzsdkpoliciesContextJSONBody struct {
 
 // POSTv1authzsdkpoliciesContextParams defines parameters for POSTv1authzsdkpoliciesContext.
 type POSTv1authzsdkpoliciesContextParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
+// POSTv1authzsdkpoliciesCreateJSONBody defines parameters for POSTv1authzsdkpoliciesCreate.
+type POSTv1authzsdkpoliciesCreateJSONBody struct {
+	Document Input8d6956b33904910eb5c98596261b238032c1d60ec4985440c7c370ac9e4ab540 `json:"document"`
+}
+
+// POSTv1authzsdkpoliciesCreateParams defines parameters for POSTv1authzsdkpoliciesCreate.
+type POSTv1authzsdkpoliciesCreateParams struct {
 	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
@@ -3386,6 +3879,97 @@ type POSTv1studiosdkconnectorsTestSqlJSONBody struct {
 type POSTv1studiosdkconnectorsUpdateJSONBody struct {
 	Input Input9aad80e5262dd4bec1816caf72b4dd6364e8940a81d02db58a19387fcec5e859 `json:"input"`
 	Name  string                                                                `json:"name"`
+}
+
+// POSTv1studiosdknamespaceSkillsCreateJSONBody defines parameters for POSTv1studiosdknamespaceSkillsCreate.
+type POSTv1studiosdknamespaceSkillsCreateJSONBody struct {
+	Bundle Input608a3450a35a065c74a93a11f4a2598a1fe6712435317bc3fa15aa38e4cd6054 `json:"bundle"`
+}
+
+// POSTv1studiosdknamespaceSkillsCreateParams defines parameters for POSTv1studiosdknamespaceSkillsCreate.
+type POSTv1studiosdknamespaceSkillsCreateParams struct {
+	XStudioNamespace string `json:"X-Studio-Namespace"`
+}
+
+// POSTv1studiosdknamespaceSkillsDeleteJSONBody defines parameters for POSTv1studiosdknamespaceSkillsDelete.
+type POSTv1studiosdknamespaceSkillsDeleteJSONBody struct {
+	Etag    int64  `json:"etag"`
+	SkillId string `json:"skillId"`
+}
+
+// POSTv1studiosdknamespaceSkillsDeleteParams defines parameters for POSTv1studiosdknamespaceSkillsDelete.
+type POSTv1studiosdknamespaceSkillsDeleteParams struct {
+	XStudioNamespace string `json:"X-Studio-Namespace"`
+}
+
+// POSTv1studiosdknamespaceSkillsGetJSONBody defines parameters for POSTv1studiosdknamespaceSkillsGet.
+type POSTv1studiosdknamespaceSkillsGetJSONBody struct {
+	Revision *int64 `json:"revision,omitempty"`
+	SkillId  string `json:"skillId"`
+}
+
+// POSTv1studiosdknamespaceSkillsGetParams defines parameters for POSTv1studiosdknamespaceSkillsGet.
+type POSTv1studiosdknamespaceSkillsGetParams struct {
+	XStudioNamespace string `json:"X-Studio-Namespace"`
+}
+
+// POSTv1studiosdknamespaceSkillsListJSONBody defines parameters for POSTv1studiosdknamespaceSkillsList.
+type POSTv1studiosdknamespaceSkillsListJSONBody struct {
+	Limit  *int64  `json:"limit,omitempty"`
+	Offset *int64  `json:"offset,omitempty"`
+	Query  *string `json:"query,omitempty"`
+}
+
+// POSTv1studiosdknamespaceSkillsListParams defines parameters for POSTv1studiosdknamespaceSkillsList.
+type POSTv1studiosdknamespaceSkillsListParams struct {
+	XStudioNamespace string `json:"X-Studio-Namespace"`
+}
+
+// POSTv1studiosdknamespaceSkillsPublishJSONBody defines parameters for POSTv1studiosdknamespaceSkillsPublish.
+type POSTv1studiosdknamespaceSkillsPublishJSONBody struct {
+	Etag     int64  `json:"etag"`
+	Revision int64  `json:"revision"`
+	SkillId  string `json:"skillId"`
+}
+
+// POSTv1studiosdknamespaceSkillsPublishParams defines parameters for POSTv1studiosdknamespaceSkillsPublish.
+type POSTv1studiosdknamespaceSkillsPublishParams struct {
+	XStudioNamespace string `json:"X-Studio-Namespace"`
+}
+
+// POSTv1studiosdknamespaceSkillsRevisionsJSONBody defines parameters for POSTv1studiosdknamespaceSkillsRevisions.
+type POSTv1studiosdknamespaceSkillsRevisionsJSONBody struct {
+	Limit   *int64 `json:"limit,omitempty"`
+	Offset  *int64 `json:"offset,omitempty"`
+	SkillId string `json:"skillId"`
+}
+
+// POSTv1studiosdknamespaceSkillsRevisionsParams defines parameters for POSTv1studiosdknamespaceSkillsRevisions.
+type POSTv1studiosdknamespaceSkillsRevisionsParams struct {
+	XStudioNamespace string `json:"X-Studio-Namespace"`
+}
+
+// POSTv1studiosdknamespaceSkillsUnpublishJSONBody defines parameters for POSTv1studiosdknamespaceSkillsUnpublish.
+type POSTv1studiosdknamespaceSkillsUnpublishJSONBody struct {
+	Etag    int64  `json:"etag"`
+	SkillId string `json:"skillId"`
+}
+
+// POSTv1studiosdknamespaceSkillsUnpublishParams defines parameters for POSTv1studiosdknamespaceSkillsUnpublish.
+type POSTv1studiosdknamespaceSkillsUnpublishParams struct {
+	XStudioNamespace string `json:"X-Studio-Namespace"`
+}
+
+// POSTv1studiosdknamespaceSkillsUpdateJSONBody defines parameters for POSTv1studiosdknamespaceSkillsUpdate.
+type POSTv1studiosdknamespaceSkillsUpdateJSONBody struct {
+	Bundle  Input3e014bcb4d9aebb2d4ab3215c768fa3b047d0aea2a8f8acc96a3f797bd3e7537 `json:"bundle"`
+	Etag    int64                                                                 `json:"etag"`
+	SkillId string                                                                `json:"skillId"`
+}
+
+// POSTv1studiosdknamespaceSkillsUpdateParams defines parameters for POSTv1studiosdknamespaceSkillsUpdate.
+type POSTv1studiosdknamespaceSkillsUpdateParams struct {
+	XStudioNamespace string `json:"X-Studio-Namespace"`
 }
 
 // POSTv1studiosdknamespacesDeleteJSONBody defines parameters for POSTv1studiosdknamespacesDelete.
@@ -3755,6 +4339,9 @@ type POSTv1authzsdkauthorizationCheckJSONRequestBody POSTv1authzsdkauthorization
 // POSTv1authzsdkpoliciesContextJSONRequestBody defines body for POSTv1authzsdkpoliciesContext for application/json ContentType.
 type POSTv1authzsdkpoliciesContextJSONRequestBody POSTv1authzsdkpoliciesContextJSONBody
 
+// POSTv1authzsdkpoliciesCreateJSONRequestBody defines body for POSTv1authzsdkpoliciesCreate for application/json ContentType.
+type POSTv1authzsdkpoliciesCreateJSONRequestBody POSTv1authzsdkpoliciesCreateJSONBody
+
 // POSTv1authzsdkpoliciesGetJSONRequestBody defines body for POSTv1authzsdkpoliciesGet for application/json ContentType.
 type POSTv1authzsdkpoliciesGetJSONRequestBody POSTv1authzsdkpoliciesGetJSONBody
 
@@ -3844,6 +4431,30 @@ type POSTv1studiosdkconnectorsTestSqlJSONRequestBody POSTv1studiosdkconnectorsTe
 
 // POSTv1studiosdkconnectorsUpdateJSONRequestBody defines body for POSTv1studiosdkconnectorsUpdate for application/json ContentType.
 type POSTv1studiosdkconnectorsUpdateJSONRequestBody POSTv1studiosdkconnectorsUpdateJSONBody
+
+// POSTv1studiosdknamespaceSkillsCreateJSONRequestBody defines body for POSTv1studiosdknamespaceSkillsCreate for application/json ContentType.
+type POSTv1studiosdknamespaceSkillsCreateJSONRequestBody POSTv1studiosdknamespaceSkillsCreateJSONBody
+
+// POSTv1studiosdknamespaceSkillsDeleteJSONRequestBody defines body for POSTv1studiosdknamespaceSkillsDelete for application/json ContentType.
+type POSTv1studiosdknamespaceSkillsDeleteJSONRequestBody POSTv1studiosdknamespaceSkillsDeleteJSONBody
+
+// POSTv1studiosdknamespaceSkillsGetJSONRequestBody defines body for POSTv1studiosdknamespaceSkillsGet for application/json ContentType.
+type POSTv1studiosdknamespaceSkillsGetJSONRequestBody POSTv1studiosdknamespaceSkillsGetJSONBody
+
+// POSTv1studiosdknamespaceSkillsListJSONRequestBody defines body for POSTv1studiosdknamespaceSkillsList for application/json ContentType.
+type POSTv1studiosdknamespaceSkillsListJSONRequestBody POSTv1studiosdknamespaceSkillsListJSONBody
+
+// POSTv1studiosdknamespaceSkillsPublishJSONRequestBody defines body for POSTv1studiosdknamespaceSkillsPublish for application/json ContentType.
+type POSTv1studiosdknamespaceSkillsPublishJSONRequestBody POSTv1studiosdknamespaceSkillsPublishJSONBody
+
+// POSTv1studiosdknamespaceSkillsRevisionsJSONRequestBody defines body for POSTv1studiosdknamespaceSkillsRevisions for application/json ContentType.
+type POSTv1studiosdknamespaceSkillsRevisionsJSONRequestBody POSTv1studiosdknamespaceSkillsRevisionsJSONBody
+
+// POSTv1studiosdknamespaceSkillsUnpublishJSONRequestBody defines body for POSTv1studiosdknamespaceSkillsUnpublish for application/json ContentType.
+type POSTv1studiosdknamespaceSkillsUnpublishJSONRequestBody POSTv1studiosdknamespaceSkillsUnpublishJSONBody
+
+// POSTv1studiosdknamespaceSkillsUpdateJSONRequestBody defines body for POSTv1studiosdknamespaceSkillsUpdate for application/json ContentType.
+type POSTv1studiosdknamespaceSkillsUpdateJSONRequestBody POSTv1studiosdknamespaceSkillsUpdateJSONBody
 
 // POSTv1studiosdknamespacesCreateJSONRequestBody defines body for POSTv1studiosdknamespacesCreate for application/json ContentType.
 type POSTv1studiosdknamespacesCreateJSONRequestBody = InputB990d293ef5d3e7e85a2acebd0bbccb12b9ec19ea303b41252de0b2f2bbb9e05
@@ -3955,6 +4566,68 @@ type POSTv1studiosdkversionsWarmupGetJSONRequestBody POSTv1studiosdkversionsWarm
 
 // POSTv1studiosdkversionsWarmupListJSONRequestBody defines body for POSTv1studiosdkversionsWarmupList for application/json ContentType.
 type POSTv1studiosdkversionsWarmupListJSONRequestBody POSTv1studiosdkversionsWarmupListJSONBody
+
+// AsInputAb3203ec5968978923da72be592ec5e958eb1b4e1cc56724ca5ea7a8d67f5c38 returns the union data inside the Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64_Entity as a InputAb3203ec5968978923da72be592ec5e958eb1b4e1cc56724ca5ea7a8d67f5c38
+func (t Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64_Entity) AsInputAb3203ec5968978923da72be592ec5e958eb1b4e1cc56724ca5ea7a8d67f5c38() (InputAb3203ec5968978923da72be592ec5e958eb1b4e1cc56724ca5ea7a8d67f5c38, error) {
+	var body InputAb3203ec5968978923da72be592ec5e958eb1b4e1cc56724ca5ea7a8d67f5c38
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInputAb3203ec5968978923da72be592ec5e958eb1b4e1cc56724ca5ea7a8d67f5c38 overwrites any union data inside the Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64_Entity as the provided InputAb3203ec5968978923da72be592ec5e958eb1b4e1cc56724ca5ea7a8d67f5c38
+func (t *Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64_Entity) FromInputAb3203ec5968978923da72be592ec5e958eb1b4e1cc56724ca5ea7a8d67f5c38(v InputAb3203ec5968978923da72be592ec5e958eb1b4e1cc56724ca5ea7a8d67f5c38) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInputAb3203ec5968978923da72be592ec5e958eb1b4e1cc56724ca5ea7a8d67f5c38 performs a merge with any union data inside the Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64_Entity, using the provided InputAb3203ec5968978923da72be592ec5e958eb1b4e1cc56724ca5ea7a8d67f5c38
+func (t *Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64_Entity) MergeInputAb3203ec5968978923da72be592ec5e958eb1b4e1cc56724ca5ea7a8d67f5c38(v InputAb3203ec5968978923da72be592ec5e958eb1b4e1cc56724ca5ea7a8d67f5c38) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsInput538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64Entity1 returns the union data inside the Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64_Entity as a Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64Entity1
+func (t Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64_Entity) AsInput538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64Entity1() (Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64Entity1, error) {
+	var body Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64Entity1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInput538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64Entity1 overwrites any union data inside the Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64_Entity as the provided Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64Entity1
+func (t *Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64_Entity) FromInput538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64Entity1(v Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64Entity1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInput538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64Entity1 performs a merge with any union data inside the Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64_Entity, using the provided Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64Entity1
+func (t *Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64_Entity) MergeInput538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64Entity1(v Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64Entity1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64_Entity) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64_Entity) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
 
 // AsInputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc returns the union data inside the Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule as a InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc
 func (t Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule) AsInputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc() (InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc, error) {
@@ -4076,6 +4749,68 @@ func (t Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56_Ru
 }
 
 func (t *Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56_Rule) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsInput538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64 returns the union data inside the InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7_Rule as a Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64
+func (t InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7_Rule) AsInput538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64() (Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64, error) {
+	var body Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInput538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64 overwrites any union data inside the InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7_Rule as the provided Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64
+func (t *InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7_Rule) FromInput538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64(v Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInput538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64 performs a merge with any union data inside the InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7_Rule, using the provided Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64
+func (t *InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7_Rule) MergeInput538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64(v Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsInputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7Rule1 returns the union data inside the InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7_Rule as a InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7Rule1
+func (t InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7_Rule) AsInputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7Rule1() (InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7Rule1, error) {
+	var body InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7Rule1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7Rule1 overwrites any union data inside the InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7_Rule as the provided InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7Rule1
+func (t *InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7_Rule) FromInputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7Rule1(v InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7Rule1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7Rule1 performs a merge with any union data inside the InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7_Rule, using the provided InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7Rule1
+func (t *InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7_Rule) MergeInputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7Rule1(v InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7Rule1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7_Rule) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7_Rule) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -4762,6 +5497,130 @@ func (t *OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69_
 	return err
 }
 
+// AsWire840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86 returns the union data inside the Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Revision as a Wire840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86
+func (t Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Revision) AsWire840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86() (Wire840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86, error) {
+	var body Wire840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86 overwrites any union data inside the Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Revision as the provided Wire840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86
+func (t *Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Revision) FromWire840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86(v Wire840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86 performs a merge with any union data inside the Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Revision, using the provided Wire840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86
+func (t *Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Revision) MergeWire840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86(v Wire840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbRevision1 returns the union data inside the Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Revision as a Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbRevision1
+func (t Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Revision) AsWire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbRevision1() (Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbRevision1, error) {
+	var body Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbRevision1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbRevision1 overwrites any union data inside the Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Revision as the provided Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbRevision1
+func (t *Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Revision) FromWire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbRevision1(v Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbRevision1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbRevision1 performs a merge with any union data inside the Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Revision, using the provided Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbRevision1
+func (t *Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Revision) MergeWire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbRevision1(v Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbRevision1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Revision) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Revision) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWireE8eef4e2ee505a6f0706d63914d0a1a7e51cfcb516b0852a6bee4efa3ce9e0b0 returns the union data inside the Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Skill as a WireE8eef4e2ee505a6f0706d63914d0a1a7e51cfcb516b0852a6bee4efa3ce9e0b0
+func (t Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Skill) AsWireE8eef4e2ee505a6f0706d63914d0a1a7e51cfcb516b0852a6bee4efa3ce9e0b0() (WireE8eef4e2ee505a6f0706d63914d0a1a7e51cfcb516b0852a6bee4efa3ce9e0b0, error) {
+	var body WireE8eef4e2ee505a6f0706d63914d0a1a7e51cfcb516b0852a6bee4efa3ce9e0b0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireE8eef4e2ee505a6f0706d63914d0a1a7e51cfcb516b0852a6bee4efa3ce9e0b0 overwrites any union data inside the Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Skill as the provided WireE8eef4e2ee505a6f0706d63914d0a1a7e51cfcb516b0852a6bee4efa3ce9e0b0
+func (t *Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Skill) FromWireE8eef4e2ee505a6f0706d63914d0a1a7e51cfcb516b0852a6bee4efa3ce9e0b0(v WireE8eef4e2ee505a6f0706d63914d0a1a7e51cfcb516b0852a6bee4efa3ce9e0b0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireE8eef4e2ee505a6f0706d63914d0a1a7e51cfcb516b0852a6bee4efa3ce9e0b0 performs a merge with any union data inside the Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Skill, using the provided WireE8eef4e2ee505a6f0706d63914d0a1a7e51cfcb516b0852a6bee4efa3ce9e0b0
+func (t *Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Skill) MergeWireE8eef4e2ee505a6f0706d63914d0a1a7e51cfcb516b0852a6bee4efa3ce9e0b0(v WireE8eef4e2ee505a6f0706d63914d0a1a7e51cfcb516b0852a6bee4efa3ce9e0b0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbSkill1 returns the union data inside the Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Skill as a Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbSkill1
+func (t Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Skill) AsWire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbSkill1() (Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbSkill1, error) {
+	var body Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbSkill1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbSkill1 overwrites any union data inside the Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Skill as the provided Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbSkill1
+func (t *Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Skill) FromWire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbSkill1(v Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbSkill1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbSkill1 performs a merge with any union data inside the Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Skill, using the provided Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbSkill1
+func (t *Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Skill) MergeWire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbSkill1(v Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbSkill1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Skill) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Skill) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsWire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8 returns the union data inside the Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14_Version as a Wire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8
 func (t Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14_Version) AsWire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8() (Wire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8, error) {
 	var body Wire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8
@@ -5196,6 +6055,68 @@ func (t *Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d_En
 	return err
 }
 
+// AsWire363b086d0a3385aef883a6c101a25e628c10e16f40db550f64380ec9188a63f1 returns the union data inside the Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921_Skill as a Wire363b086d0a3385aef883a6c101a25e628c10e16f40db550f64380ec9188a63f1
+func (t Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921_Skill) AsWire363b086d0a3385aef883a6c101a25e628c10e16f40db550f64380ec9188a63f1() (Wire363b086d0a3385aef883a6c101a25e628c10e16f40db550f64380ec9188a63f1, error) {
+	var body Wire363b086d0a3385aef883a6c101a25e628c10e16f40db550f64380ec9188a63f1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire363b086d0a3385aef883a6c101a25e628c10e16f40db550f64380ec9188a63f1 overwrites any union data inside the Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921_Skill as the provided Wire363b086d0a3385aef883a6c101a25e628c10e16f40db550f64380ec9188a63f1
+func (t *Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921_Skill) FromWire363b086d0a3385aef883a6c101a25e628c10e16f40db550f64380ec9188a63f1(v Wire363b086d0a3385aef883a6c101a25e628c10e16f40db550f64380ec9188a63f1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire363b086d0a3385aef883a6c101a25e628c10e16f40db550f64380ec9188a63f1 performs a merge with any union data inside the Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921_Skill, using the provided Wire363b086d0a3385aef883a6c101a25e628c10e16f40db550f64380ec9188a63f1
+func (t *Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921_Skill) MergeWire363b086d0a3385aef883a6c101a25e628c10e16f40db550f64380ec9188a63f1(v Wire363b086d0a3385aef883a6c101a25e628c10e16f40db550f64380ec9188a63f1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921Skill1 returns the union data inside the Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921_Skill as a Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921Skill1
+func (t Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921_Skill) AsWire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921Skill1() (Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921Skill1, error) {
+	var body Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921Skill1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921Skill1 overwrites any union data inside the Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921_Skill as the provided Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921Skill1
+func (t *Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921_Skill) FromWire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921Skill1(v Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921Skill1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921Skill1 performs a merge with any union data inside the Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921_Skill, using the provided Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921Skill1
+func (t *Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921_Skill) MergeWire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921Skill1(v Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921Skill1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921_Skill) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921_Skill) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsWire26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f returns the union data inside the Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46_Entity as a Wire26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f
 func (t Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46_Entity) AsWire26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f() (Wire26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f, error) {
 	var body Wire26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f
@@ -5506,6 +6427,130 @@ func (t *Wire38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a_It
 	return err
 }
 
+// AsWireB202a27129afca41f80f68ed94bc40b9a93d92d84de82126bac7e1e2ec9433fe returns the union data inside the Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Revision as a WireB202a27129afca41f80f68ed94bc40b9a93d92d84de82126bac7e1e2ec9433fe
+func (t Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Revision) AsWireB202a27129afca41f80f68ed94bc40b9a93d92d84de82126bac7e1e2ec9433fe() (WireB202a27129afca41f80f68ed94bc40b9a93d92d84de82126bac7e1e2ec9433fe, error) {
+	var body WireB202a27129afca41f80f68ed94bc40b9a93d92d84de82126bac7e1e2ec9433fe
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireB202a27129afca41f80f68ed94bc40b9a93d92d84de82126bac7e1e2ec9433fe overwrites any union data inside the Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Revision as the provided WireB202a27129afca41f80f68ed94bc40b9a93d92d84de82126bac7e1e2ec9433fe
+func (t *Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Revision) FromWireB202a27129afca41f80f68ed94bc40b9a93d92d84de82126bac7e1e2ec9433fe(v WireB202a27129afca41f80f68ed94bc40b9a93d92d84de82126bac7e1e2ec9433fe) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireB202a27129afca41f80f68ed94bc40b9a93d92d84de82126bac7e1e2ec9433fe performs a merge with any union data inside the Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Revision, using the provided WireB202a27129afca41f80f68ed94bc40b9a93d92d84de82126bac7e1e2ec9433fe
+func (t *Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Revision) MergeWireB202a27129afca41f80f68ed94bc40b9a93d92d84de82126bac7e1e2ec9433fe(v WireB202a27129afca41f80f68ed94bc40b9a93d92d84de82126bac7e1e2ec9433fe) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Revision1 returns the union data inside the Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Revision as a Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Revision1
+func (t Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Revision) AsWire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Revision1() (Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Revision1, error) {
+	var body Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Revision1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Revision1 overwrites any union data inside the Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Revision as the provided Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Revision1
+func (t *Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Revision) FromWire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Revision1(v Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Revision1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Revision1 performs a merge with any union data inside the Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Revision, using the provided Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Revision1
+func (t *Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Revision) MergeWire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Revision1(v Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Revision1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Revision) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Revision) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire233692382231683192dd7140456422339bf3eeb54d8ac7887d29225da9ca7081 returns the union data inside the Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Skill as a Wire233692382231683192dd7140456422339bf3eeb54d8ac7887d29225da9ca7081
+func (t Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Skill) AsWire233692382231683192dd7140456422339bf3eeb54d8ac7887d29225da9ca7081() (Wire233692382231683192dd7140456422339bf3eeb54d8ac7887d29225da9ca7081, error) {
+	var body Wire233692382231683192dd7140456422339bf3eeb54d8ac7887d29225da9ca7081
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire233692382231683192dd7140456422339bf3eeb54d8ac7887d29225da9ca7081 overwrites any union data inside the Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Skill as the provided Wire233692382231683192dd7140456422339bf3eeb54d8ac7887d29225da9ca7081
+func (t *Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Skill) FromWire233692382231683192dd7140456422339bf3eeb54d8ac7887d29225da9ca7081(v Wire233692382231683192dd7140456422339bf3eeb54d8ac7887d29225da9ca7081) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire233692382231683192dd7140456422339bf3eeb54d8ac7887d29225da9ca7081 performs a merge with any union data inside the Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Skill, using the provided Wire233692382231683192dd7140456422339bf3eeb54d8ac7887d29225da9ca7081
+func (t *Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Skill) MergeWire233692382231683192dd7140456422339bf3eeb54d8ac7887d29225da9ca7081(v Wire233692382231683192dd7140456422339bf3eeb54d8ac7887d29225da9ca7081) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Skill1 returns the union data inside the Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Skill as a Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Skill1
+func (t Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Skill) AsWire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Skill1() (Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Skill1, error) {
+	var body Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Skill1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Skill1 overwrites any union data inside the Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Skill as the provided Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Skill1
+func (t *Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Skill) FromWire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Skill1(v Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Skill1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Skill1 performs a merge with any union data inside the Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Skill, using the provided Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Skill1
+func (t *Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Skill) MergeWire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Skill1(v Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Skill1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Skill) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Skill) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsWireBf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016 returns the union data inside the Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Files_Item as a WireBf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016
 func (t Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Files_Item) AsWireBf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016() (WireBf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016, error) {
 	var body WireBf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016
@@ -5750,6 +6795,68 @@ func (t Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Ver
 }
 
 func (t *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Version) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire84dd294b4f11f08ca3a9d1430611613b710bcc9fa0f1d0ede017f74044e2f61f returns the union data inside the Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387_Entity as a Wire84dd294b4f11f08ca3a9d1430611613b710bcc9fa0f1d0ede017f74044e2f61f
+func (t Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387_Entity) AsWire84dd294b4f11f08ca3a9d1430611613b710bcc9fa0f1d0ede017f74044e2f61f() (Wire84dd294b4f11f08ca3a9d1430611613b710bcc9fa0f1d0ede017f74044e2f61f, error) {
+	var body Wire84dd294b4f11f08ca3a9d1430611613b710bcc9fa0f1d0ede017f74044e2f61f
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire84dd294b4f11f08ca3a9d1430611613b710bcc9fa0f1d0ede017f74044e2f61f overwrites any union data inside the Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387_Entity as the provided Wire84dd294b4f11f08ca3a9d1430611613b710bcc9fa0f1d0ede017f74044e2f61f
+func (t *Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387_Entity) FromWire84dd294b4f11f08ca3a9d1430611613b710bcc9fa0f1d0ede017f74044e2f61f(v Wire84dd294b4f11f08ca3a9d1430611613b710bcc9fa0f1d0ede017f74044e2f61f) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire84dd294b4f11f08ca3a9d1430611613b710bcc9fa0f1d0ede017f74044e2f61f performs a merge with any union data inside the Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387_Entity, using the provided Wire84dd294b4f11f08ca3a9d1430611613b710bcc9fa0f1d0ede017f74044e2f61f
+func (t *Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387_Entity) MergeWire84dd294b4f11f08ca3a9d1430611613b710bcc9fa0f1d0ede017f74044e2f61f(v Wire84dd294b4f11f08ca3a9d1430611613b710bcc9fa0f1d0ede017f74044e2f61f) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387Entity1 returns the union data inside the Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387_Entity as a Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387Entity1
+func (t Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387_Entity) AsWire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387Entity1() (Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387Entity1, error) {
+	var body Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387Entity1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387Entity1 overwrites any union data inside the Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387_Entity as the provided Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387Entity1
+func (t *Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387_Entity) FromWire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387Entity1(v Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387Entity1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387Entity1 performs a merge with any union data inside the Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387_Entity, using the provided Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387Entity1
+func (t *Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387_Entity) MergeWire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387Entity1(v Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387Entity1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387_Entity) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387_Entity) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -6122,6 +7229,130 @@ func (t Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Ver
 }
 
 func (t *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Version) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire85751a68c4d78aaa4c871824bf59452b5102e0d1c20e4ca6f87da0c38821ffa9 returns the union data inside the Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7_Skill as a Wire85751a68c4d78aaa4c871824bf59452b5102e0d1c20e4ca6f87da0c38821ffa9
+func (t Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7_Skill) AsWire85751a68c4d78aaa4c871824bf59452b5102e0d1c20e4ca6f87da0c38821ffa9() (Wire85751a68c4d78aaa4c871824bf59452b5102e0d1c20e4ca6f87da0c38821ffa9, error) {
+	var body Wire85751a68c4d78aaa4c871824bf59452b5102e0d1c20e4ca6f87da0c38821ffa9
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire85751a68c4d78aaa4c871824bf59452b5102e0d1c20e4ca6f87da0c38821ffa9 overwrites any union data inside the Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7_Skill as the provided Wire85751a68c4d78aaa4c871824bf59452b5102e0d1c20e4ca6f87da0c38821ffa9
+func (t *Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7_Skill) FromWire85751a68c4d78aaa4c871824bf59452b5102e0d1c20e4ca6f87da0c38821ffa9(v Wire85751a68c4d78aaa4c871824bf59452b5102e0d1c20e4ca6f87da0c38821ffa9) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire85751a68c4d78aaa4c871824bf59452b5102e0d1c20e4ca6f87da0c38821ffa9 performs a merge with any union data inside the Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7_Skill, using the provided Wire85751a68c4d78aaa4c871824bf59452b5102e0d1c20e4ca6f87da0c38821ffa9
+func (t *Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7_Skill) MergeWire85751a68c4d78aaa4c871824bf59452b5102e0d1c20e4ca6f87da0c38821ffa9(v Wire85751a68c4d78aaa4c871824bf59452b5102e0d1c20e4ca6f87da0c38821ffa9) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7Skill1 returns the union data inside the Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7_Skill as a Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7Skill1
+func (t Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7_Skill) AsWire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7Skill1() (Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7Skill1, error) {
+	var body Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7Skill1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7Skill1 overwrites any union data inside the Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7_Skill as the provided Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7Skill1
+func (t *Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7_Skill) FromWire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7Skill1(v Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7Skill1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7Skill1 performs a merge with any union data inside the Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7_Skill, using the provided Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7Skill1
+func (t *Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7_Skill) MergeWire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7Skill1(v Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7Skill1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7_Skill) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7_Skill) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387 returns the union data inside the Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Rule as a Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387
+func (t Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Rule) AsWire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387() (Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387, error) {
+	var body Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387 overwrites any union data inside the Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Rule as the provided Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387
+func (t *Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Rule) FromWire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387(v Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387 performs a merge with any union data inside the Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Rule, using the provided Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387
+func (t *Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Rule) MergeWire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387(v Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3dRule1 returns the union data inside the Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Rule as a Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3dRule1
+func (t Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Rule) AsWire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3dRule1() (Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3dRule1, error) {
+	var body Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3dRule1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3dRule1 overwrites any union data inside the Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Rule as the provided Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3dRule1
+func (t *Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Rule) FromWire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3dRule1(v Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3dRule1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3dRule1 performs a merge with any union data inside the Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Rule, using the provided Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3dRule1
+func (t *Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Rule) MergeWire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3dRule1(v Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3dRule1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Rule) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Rule) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -6870,6 +8101,130 @@ func (t *Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4_Ru
 	return err
 }
 
+// AsWire40408f0a0b8acd6d878be4326076378aa96079592be6ec18a7919fc73b6ee6cb returns the union data inside the Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Revision as a Wire40408f0a0b8acd6d878be4326076378aa96079592be6ec18a7919fc73b6ee6cb
+func (t Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Revision) AsWire40408f0a0b8acd6d878be4326076378aa96079592be6ec18a7919fc73b6ee6cb() (Wire40408f0a0b8acd6d878be4326076378aa96079592be6ec18a7919fc73b6ee6cb, error) {
+	var body Wire40408f0a0b8acd6d878be4326076378aa96079592be6ec18a7919fc73b6ee6cb
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire40408f0a0b8acd6d878be4326076378aa96079592be6ec18a7919fc73b6ee6cb overwrites any union data inside the Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Revision as the provided Wire40408f0a0b8acd6d878be4326076378aa96079592be6ec18a7919fc73b6ee6cb
+func (t *Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Revision) FromWire40408f0a0b8acd6d878be4326076378aa96079592be6ec18a7919fc73b6ee6cb(v Wire40408f0a0b8acd6d878be4326076378aa96079592be6ec18a7919fc73b6ee6cb) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire40408f0a0b8acd6d878be4326076378aa96079592be6ec18a7919fc73b6ee6cb performs a merge with any union data inside the Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Revision, using the provided Wire40408f0a0b8acd6d878be4326076378aa96079592be6ec18a7919fc73b6ee6cb
+func (t *Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Revision) MergeWire40408f0a0b8acd6d878be4326076378aa96079592be6ec18a7919fc73b6ee6cb(v Wire40408f0a0b8acd6d878be4326076378aa96079592be6ec18a7919fc73b6ee6cb) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bRevision1 returns the union data inside the Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Revision as a Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bRevision1
+func (t Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Revision) AsWire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bRevision1() (Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bRevision1, error) {
+	var body Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bRevision1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bRevision1 overwrites any union data inside the Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Revision as the provided Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bRevision1
+func (t *Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Revision) FromWire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bRevision1(v Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bRevision1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bRevision1 performs a merge with any union data inside the Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Revision, using the provided Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bRevision1
+func (t *Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Revision) MergeWire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bRevision1(v Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bRevision1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Revision) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Revision) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire0bbf066863381f769b39ad78b59b8059fb6550628396f1f8c25257ce82e6874f returns the union data inside the Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Skill as a Wire0bbf066863381f769b39ad78b59b8059fb6550628396f1f8c25257ce82e6874f
+func (t Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Skill) AsWire0bbf066863381f769b39ad78b59b8059fb6550628396f1f8c25257ce82e6874f() (Wire0bbf066863381f769b39ad78b59b8059fb6550628396f1f8c25257ce82e6874f, error) {
+	var body Wire0bbf066863381f769b39ad78b59b8059fb6550628396f1f8c25257ce82e6874f
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire0bbf066863381f769b39ad78b59b8059fb6550628396f1f8c25257ce82e6874f overwrites any union data inside the Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Skill as the provided Wire0bbf066863381f769b39ad78b59b8059fb6550628396f1f8c25257ce82e6874f
+func (t *Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Skill) FromWire0bbf066863381f769b39ad78b59b8059fb6550628396f1f8c25257ce82e6874f(v Wire0bbf066863381f769b39ad78b59b8059fb6550628396f1f8c25257ce82e6874f) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire0bbf066863381f769b39ad78b59b8059fb6550628396f1f8c25257ce82e6874f performs a merge with any union data inside the Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Skill, using the provided Wire0bbf066863381f769b39ad78b59b8059fb6550628396f1f8c25257ce82e6874f
+func (t *Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Skill) MergeWire0bbf066863381f769b39ad78b59b8059fb6550628396f1f8c25257ce82e6874f(v Wire0bbf066863381f769b39ad78b59b8059fb6550628396f1f8c25257ce82e6874f) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bSkill1 returns the union data inside the Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Skill as a Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bSkill1
+func (t Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Skill) AsWire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bSkill1() (Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bSkill1, error) {
+	var body Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bSkill1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bSkill1 overwrites any union data inside the Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Skill as the provided Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bSkill1
+func (t *Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Skill) FromWire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bSkill1(v Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bSkill1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bSkill1 performs a merge with any union data inside the Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Skill, using the provided Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bSkill1
+func (t *Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Skill) MergeWire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bSkill1(v Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bSkill1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Skill) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Skill) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsWire3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c returns the union data inside the Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c_Items_Item as a Wire3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c
 func (t Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c_Items_Item) AsWire3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c() (Wire3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c, error) {
 	var body Wire3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c
@@ -7490,6 +8845,130 @@ func (t *WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240_It
 	return err
 }
 
+// AsWireF3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960 returns the union data inside the WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19_Skill as a WireF3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960
+func (t WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19_Skill) AsWireF3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960() (WireF3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960, error) {
+	var body WireF3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireF3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960 overwrites any union data inside the WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19_Skill as the provided WireF3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960
+func (t *WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19_Skill) FromWireF3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960(v WireF3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireF3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960 performs a merge with any union data inside the WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19_Skill, using the provided WireF3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960
+func (t *WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19_Skill) MergeWireF3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960(v WireF3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19Skill1 returns the union data inside the WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19_Skill as a WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19Skill1
+func (t WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19_Skill) AsWireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19Skill1() (WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19Skill1, error) {
+	var body WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19Skill1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19Skill1 overwrites any union data inside the WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19_Skill as the provided WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19Skill1
+func (t *WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19_Skill) FromWireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19Skill1(v WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19Skill1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19Skill1 performs a merge with any union data inside the WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19_Skill, using the provided WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19Skill1
+func (t *WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19_Skill) MergeWireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19Skill1(v WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19Skill1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19_Skill) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19_Skill) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire88709ac613253ed886933b7e523ce6042f690d19bbc5acdf9769548415baf599 returns the union data inside the WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_Item as a Wire88709ac613253ed886933b7e523ce6042f690d19bbc5acdf9769548415baf599
+func (t WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_Item) AsWire88709ac613253ed886933b7e523ce6042f690d19bbc5acdf9769548415baf599() (Wire88709ac613253ed886933b7e523ce6042f690d19bbc5acdf9769548415baf599, error) {
+	var body Wire88709ac613253ed886933b7e523ce6042f690d19bbc5acdf9769548415baf599
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire88709ac613253ed886933b7e523ce6042f690d19bbc5acdf9769548415baf599 overwrites any union data inside the WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_Item as the provided Wire88709ac613253ed886933b7e523ce6042f690d19bbc5acdf9769548415baf599
+func (t *WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_Item) FromWire88709ac613253ed886933b7e523ce6042f690d19bbc5acdf9769548415baf599(v Wire88709ac613253ed886933b7e523ce6042f690d19bbc5acdf9769548415baf599) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire88709ac613253ed886933b7e523ce6042f690d19bbc5acdf9769548415baf599 performs a merge with any union data inside the WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_Item, using the provided Wire88709ac613253ed886933b7e523ce6042f690d19bbc5acdf9769548415baf599
+func (t *WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_Item) MergeWire88709ac613253ed886933b7e523ce6042f690d19bbc5acdf9769548415baf599(v Wire88709ac613253ed886933b7e523ce6042f690d19bbc5acdf9769548415baf599) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033Items1 returns the union data inside the WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_Item as a WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033Items1
+func (t WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_Item) AsWireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033Items1() (WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033Items1, error) {
+	var body WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033Items1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033Items1 overwrites any union data inside the WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_Item as the provided WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033Items1
+func (t *WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_Item) FromWireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033Items1(v WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033Items1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033Items1 performs a merge with any union data inside the WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_Item, using the provided WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033Items1
+func (t *WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_Item) MergeWireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033Items1(v WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033Items1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsWire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1 returns the union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Files_Item as a Wire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1
 func (t WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Files_Item) AsWire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1() (Wire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1, error) {
 	var body Wire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1
@@ -7862,6 +9341,68 @@ func (t *WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179_It
 	return err
 }
 
+// AsWire35454323a091acd320d8403a139f69d740fe9ed35bba3514f08ff8ed60a9c1c1 returns the union data inside the WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90_Items_Item as a Wire35454323a091acd320d8403a139f69d740fe9ed35bba3514f08ff8ed60a9c1c1
+func (t WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90_Items_Item) AsWire35454323a091acd320d8403a139f69d740fe9ed35bba3514f08ff8ed60a9c1c1() (Wire35454323a091acd320d8403a139f69d740fe9ed35bba3514f08ff8ed60a9c1c1, error) {
+	var body Wire35454323a091acd320d8403a139f69d740fe9ed35bba3514f08ff8ed60a9c1c1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire35454323a091acd320d8403a139f69d740fe9ed35bba3514f08ff8ed60a9c1c1 overwrites any union data inside the WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90_Items_Item as the provided Wire35454323a091acd320d8403a139f69d740fe9ed35bba3514f08ff8ed60a9c1c1
+func (t *WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90_Items_Item) FromWire35454323a091acd320d8403a139f69d740fe9ed35bba3514f08ff8ed60a9c1c1(v Wire35454323a091acd320d8403a139f69d740fe9ed35bba3514f08ff8ed60a9c1c1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire35454323a091acd320d8403a139f69d740fe9ed35bba3514f08ff8ed60a9c1c1 performs a merge with any union data inside the WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90_Items_Item, using the provided Wire35454323a091acd320d8403a139f69d740fe9ed35bba3514f08ff8ed60a9c1c1
+func (t *WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90_Items_Item) MergeWire35454323a091acd320d8403a139f69d740fe9ed35bba3514f08ff8ed60a9c1c1(v Wire35454323a091acd320d8403a139f69d740fe9ed35bba3514f08ff8ed60a9c1c1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90Items1 returns the union data inside the WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90_Items_Item as a WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90Items1
+func (t WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90_Items_Item) AsWireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90Items1() (WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90Items1, error) {
+	var body WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90Items1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90Items1 overwrites any union data inside the WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90_Items_Item as the provided WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90Items1
+func (t *WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90_Items_Item) FromWireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90Items1(v WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90Items1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90Items1 performs a merge with any union data inside the WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90_Items_Item, using the provided WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90Items1
+func (t *WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90_Items_Item) MergeWireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90Items1(v WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90Items1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90_Items_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90_Items_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsWire9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d returns the union data inside the WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0_Items_Item as a Wire9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d
 func (t WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0_Items_Item) AsWire9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d() (Wire9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d, error) {
 	var body Wire9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d
@@ -8075,6 +9616,14 @@ type ClientInterface interface {
 	// POSTv1authzsdkpoliciesContext performs a POST /v1/authz/sdk/policies.context (the `POSTv1authzsdkpoliciesContext` operationId) request.
 	// Takes a body of the `application/json` content type.
 	POSTv1authzsdkpoliciesContext(ctx context.Context, params *POSTv1authzsdkpoliciesContextParams, body POSTv1authzsdkpoliciesContextJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1authzsdkpoliciesCreateWithBody performs a POST /v1/authz/sdk/policies.create (the `POSTv1authzsdkpoliciesCreate` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1authzsdkpoliciesCreateWithBody(ctx context.Context, params *POSTv1authzsdkpoliciesCreateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1authzsdkpoliciesCreate performs a POST /v1/authz/sdk/policies.create (the `POSTv1authzsdkpoliciesCreate` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1authzsdkpoliciesCreate(ctx context.Context, params *POSTv1authzsdkpoliciesCreateParams, body POSTv1authzsdkpoliciesCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1authzsdkpoliciesGetWithBody performs a POST /v1/authz/sdk/policies.get (the `POSTv1authzsdkpoliciesGet` operationId) request,
 	// with any type of body and a specified content type.
@@ -8354,6 +9903,70 @@ type ClientInterface interface {
 	// POSTv1studiosdkconnectorsUpdate performs a POST /v1/studio/sdk/connectors.update (the `POSTv1studiosdkconnectorsUpdate` operationId) request.
 	// Takes a body of the `application/json` content type.
 	POSTv1studiosdkconnectorsUpdate(ctx context.Context, body POSTv1studiosdkconnectorsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespaceSkillsCreateWithBody performs a POST /v1/studio/sdk/namespace_skills.create (the `POSTv1studiosdknamespaceSkillsCreate` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdknamespaceSkillsCreateWithBody(ctx context.Context, params *POSTv1studiosdknamespaceSkillsCreateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespaceSkillsCreate performs a POST /v1/studio/sdk/namespace_skills.create (the `POSTv1studiosdknamespaceSkillsCreate` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdknamespaceSkillsCreate(ctx context.Context, params *POSTv1studiosdknamespaceSkillsCreateParams, body POSTv1studiosdknamespaceSkillsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespaceSkillsDeleteWithBody performs a POST /v1/studio/sdk/namespace_skills.delete (the `POSTv1studiosdknamespaceSkillsDelete` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdknamespaceSkillsDeleteWithBody(ctx context.Context, params *POSTv1studiosdknamespaceSkillsDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespaceSkillsDelete performs a POST /v1/studio/sdk/namespace_skills.delete (the `POSTv1studiosdknamespaceSkillsDelete` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdknamespaceSkillsDelete(ctx context.Context, params *POSTv1studiosdknamespaceSkillsDeleteParams, body POSTv1studiosdknamespaceSkillsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespaceSkillsGetWithBody performs a POST /v1/studio/sdk/namespace_skills.get (the `POSTv1studiosdknamespaceSkillsGet` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdknamespaceSkillsGetWithBody(ctx context.Context, params *POSTv1studiosdknamespaceSkillsGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespaceSkillsGet performs a POST /v1/studio/sdk/namespace_skills.get (the `POSTv1studiosdknamespaceSkillsGet` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdknamespaceSkillsGet(ctx context.Context, params *POSTv1studiosdknamespaceSkillsGetParams, body POSTv1studiosdknamespaceSkillsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespaceSkillsListWithBody performs a POST /v1/studio/sdk/namespace_skills.list (the `POSTv1studiosdknamespaceSkillsList` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdknamespaceSkillsListWithBody(ctx context.Context, params *POSTv1studiosdknamespaceSkillsListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespaceSkillsList performs a POST /v1/studio/sdk/namespace_skills.list (the `POSTv1studiosdknamespaceSkillsList` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdknamespaceSkillsList(ctx context.Context, params *POSTv1studiosdknamespaceSkillsListParams, body POSTv1studiosdknamespaceSkillsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespaceSkillsPublishWithBody performs a POST /v1/studio/sdk/namespace_skills.publish (the `POSTv1studiosdknamespaceSkillsPublish` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdknamespaceSkillsPublishWithBody(ctx context.Context, params *POSTv1studiosdknamespaceSkillsPublishParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespaceSkillsPublish performs a POST /v1/studio/sdk/namespace_skills.publish (the `POSTv1studiosdknamespaceSkillsPublish` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdknamespaceSkillsPublish(ctx context.Context, params *POSTv1studiosdknamespaceSkillsPublishParams, body POSTv1studiosdknamespaceSkillsPublishJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespaceSkillsRevisionsWithBody performs a POST /v1/studio/sdk/namespace_skills.revisions (the `POSTv1studiosdknamespaceSkillsRevisions` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdknamespaceSkillsRevisionsWithBody(ctx context.Context, params *POSTv1studiosdknamespaceSkillsRevisionsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespaceSkillsRevisions performs a POST /v1/studio/sdk/namespace_skills.revisions (the `POSTv1studiosdknamespaceSkillsRevisions` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdknamespaceSkillsRevisions(ctx context.Context, params *POSTv1studiosdknamespaceSkillsRevisionsParams, body POSTv1studiosdknamespaceSkillsRevisionsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespaceSkillsUnpublishWithBody performs a POST /v1/studio/sdk/namespace_skills.unpublish (the `POSTv1studiosdknamespaceSkillsUnpublish` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdknamespaceSkillsUnpublishWithBody(ctx context.Context, params *POSTv1studiosdknamespaceSkillsUnpublishParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespaceSkillsUnpublish performs a POST /v1/studio/sdk/namespace_skills.unpublish (the `POSTv1studiosdknamespaceSkillsUnpublish` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdknamespaceSkillsUnpublish(ctx context.Context, params *POSTv1studiosdknamespaceSkillsUnpublishParams, body POSTv1studiosdknamespaceSkillsUnpublishJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespaceSkillsUpdateWithBody performs a POST /v1/studio/sdk/namespace_skills.update (the `POSTv1studiosdknamespaceSkillsUpdate` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdknamespaceSkillsUpdateWithBody(ctx context.Context, params *POSTv1studiosdknamespaceSkillsUpdateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespaceSkillsUpdate performs a POST /v1/studio/sdk/namespace_skills.update (the `POSTv1studiosdknamespaceSkillsUpdate` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdknamespaceSkillsUpdate(ctx context.Context, params *POSTv1studiosdknamespaceSkillsUpdateParams, body POSTv1studiosdknamespaceSkillsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdknamespacesCreateWithBody namespace
 	//
@@ -8761,6 +10374,34 @@ func (c *Client) POSTv1authzsdkpoliciesContextWithBody(ctx context.Context, para
 // Takes a body of the `application/json` content type.
 func (c *Client) POSTv1authzsdkpoliciesContext(ctx context.Context, params *POSTv1authzsdkpoliciesContextParams, body POSTv1authzsdkpoliciesContextJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPOSTv1authzsdkpoliciesContextRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1authzsdkpoliciesCreateWithBody performs a POST /v1/authz/sdk/policies.create (the `POSTv1authzsdkpoliciesCreate` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1authzsdkpoliciesCreateWithBody(ctx context.Context, params *POSTv1authzsdkpoliciesCreateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1authzsdkpoliciesCreateRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1authzsdkpoliciesCreate performs a POST /v1/authz/sdk/policies.create (the `POSTv1authzsdkpoliciesCreate` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1authzsdkpoliciesCreate(ctx context.Context, params *POSTv1authzsdkpoliciesCreateParams, body POSTv1authzsdkpoliciesCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1authzsdkpoliciesCreateRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9650,6 +11291,230 @@ func (c *Client) POSTv1studiosdkconnectorsUpdateWithBody(ctx context.Context, co
 // Takes a body of the `application/json` content type.
 func (c *Client) POSTv1studiosdkconnectorsUpdate(ctx context.Context, body POSTv1studiosdkconnectorsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPOSTv1studiosdkconnectorsUpdateRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespaceSkillsCreateWithBody performs a POST /v1/studio/sdk/namespace_skills.create (the `POSTv1studiosdknamespaceSkillsCreate` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdknamespaceSkillsCreateWithBody(ctx context.Context, params *POSTv1studiosdknamespaceSkillsCreateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespaceSkillsCreateRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespaceSkillsCreate performs a POST /v1/studio/sdk/namespace_skills.create (the `POSTv1studiosdknamespaceSkillsCreate` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdknamespaceSkillsCreate(ctx context.Context, params *POSTv1studiosdknamespaceSkillsCreateParams, body POSTv1studiosdknamespaceSkillsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespaceSkillsCreateRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespaceSkillsDeleteWithBody performs a POST /v1/studio/sdk/namespace_skills.delete (the `POSTv1studiosdknamespaceSkillsDelete` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdknamespaceSkillsDeleteWithBody(ctx context.Context, params *POSTv1studiosdknamespaceSkillsDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespaceSkillsDeleteRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespaceSkillsDelete performs a POST /v1/studio/sdk/namespace_skills.delete (the `POSTv1studiosdknamespaceSkillsDelete` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdknamespaceSkillsDelete(ctx context.Context, params *POSTv1studiosdknamespaceSkillsDeleteParams, body POSTv1studiosdknamespaceSkillsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespaceSkillsDeleteRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespaceSkillsGetWithBody performs a POST /v1/studio/sdk/namespace_skills.get (the `POSTv1studiosdknamespaceSkillsGet` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdknamespaceSkillsGetWithBody(ctx context.Context, params *POSTv1studiosdknamespaceSkillsGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespaceSkillsGetRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespaceSkillsGet performs a POST /v1/studio/sdk/namespace_skills.get (the `POSTv1studiosdknamespaceSkillsGet` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdknamespaceSkillsGet(ctx context.Context, params *POSTv1studiosdknamespaceSkillsGetParams, body POSTv1studiosdknamespaceSkillsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespaceSkillsGetRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespaceSkillsListWithBody performs a POST /v1/studio/sdk/namespace_skills.list (the `POSTv1studiosdknamespaceSkillsList` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdknamespaceSkillsListWithBody(ctx context.Context, params *POSTv1studiosdknamespaceSkillsListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespaceSkillsListRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespaceSkillsList performs a POST /v1/studio/sdk/namespace_skills.list (the `POSTv1studiosdknamespaceSkillsList` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdknamespaceSkillsList(ctx context.Context, params *POSTv1studiosdknamespaceSkillsListParams, body POSTv1studiosdknamespaceSkillsListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespaceSkillsListRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespaceSkillsPublishWithBody performs a POST /v1/studio/sdk/namespace_skills.publish (the `POSTv1studiosdknamespaceSkillsPublish` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdknamespaceSkillsPublishWithBody(ctx context.Context, params *POSTv1studiosdknamespaceSkillsPublishParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespaceSkillsPublishRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespaceSkillsPublish performs a POST /v1/studio/sdk/namespace_skills.publish (the `POSTv1studiosdknamespaceSkillsPublish` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdknamespaceSkillsPublish(ctx context.Context, params *POSTv1studiosdknamespaceSkillsPublishParams, body POSTv1studiosdknamespaceSkillsPublishJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespaceSkillsPublishRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespaceSkillsRevisionsWithBody performs a POST /v1/studio/sdk/namespace_skills.revisions (the `POSTv1studiosdknamespaceSkillsRevisions` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdknamespaceSkillsRevisionsWithBody(ctx context.Context, params *POSTv1studiosdknamespaceSkillsRevisionsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespaceSkillsRevisionsRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespaceSkillsRevisions performs a POST /v1/studio/sdk/namespace_skills.revisions (the `POSTv1studiosdknamespaceSkillsRevisions` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdknamespaceSkillsRevisions(ctx context.Context, params *POSTv1studiosdknamespaceSkillsRevisionsParams, body POSTv1studiosdknamespaceSkillsRevisionsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespaceSkillsRevisionsRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespaceSkillsUnpublishWithBody performs a POST /v1/studio/sdk/namespace_skills.unpublish (the `POSTv1studiosdknamespaceSkillsUnpublish` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdknamespaceSkillsUnpublishWithBody(ctx context.Context, params *POSTv1studiosdknamespaceSkillsUnpublishParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespaceSkillsUnpublishRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespaceSkillsUnpublish performs a POST /v1/studio/sdk/namespace_skills.unpublish (the `POSTv1studiosdknamespaceSkillsUnpublish` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdknamespaceSkillsUnpublish(ctx context.Context, params *POSTv1studiosdknamespaceSkillsUnpublishParams, body POSTv1studiosdknamespaceSkillsUnpublishJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespaceSkillsUnpublishRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespaceSkillsUpdateWithBody performs a POST /v1/studio/sdk/namespace_skills.update (the `POSTv1studiosdknamespaceSkillsUpdate` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdknamespaceSkillsUpdateWithBody(ctx context.Context, params *POSTv1studiosdknamespaceSkillsUpdateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespaceSkillsUpdateRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespaceSkillsUpdate performs a POST /v1/studio/sdk/namespace_skills.update (the `POSTv1studiosdknamespaceSkillsUpdate` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdknamespaceSkillsUpdate(ctx context.Context, params *POSTv1studiosdknamespaceSkillsUpdateParams, body POSTv1studiosdknamespaceSkillsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespaceSkillsUpdateRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10845,6 +12710,61 @@ func NewPOSTv1authzsdkpoliciesContextRequestWithBody(server string, params *POST
 	}
 
 	operationPath := fmt.Sprintf("/v1/authz/sdk/policies.context")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewPOSTv1authzsdkpoliciesCreateRequest calls the generic POSTv1authzsdkpoliciesCreate builder with application/json body
+func NewPOSTv1authzsdkpoliciesCreateRequest(server string, params *POSTv1authzsdkpoliciesCreateParams, body POSTv1authzsdkpoliciesCreateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1authzsdkpoliciesCreateRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1authzsdkpoliciesCreateRequestWithBody constructs an http.Request for the POSTv1authzsdkpoliciesCreate method, with any body, and a specified content type
+func NewPOSTv1authzsdkpoliciesCreateRequestWithBody(server string, params *POSTv1authzsdkpoliciesCreateParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/authz/sdk/policies.create")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -12336,6 +14256,430 @@ func NewPOSTv1studiosdkconnectorsUpdateRequestWithBody(server string, contentTyp
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdknamespaceSkillsCreateRequest calls the generic POSTv1studiosdknamespaceSkillsCreate builder with application/json body
+func NewPOSTv1studiosdknamespaceSkillsCreateRequest(server string, params *POSTv1studiosdknamespaceSkillsCreateParams, body POSTv1studiosdknamespaceSkillsCreateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdknamespaceSkillsCreateRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdknamespaceSkillsCreateRequestWithBody constructs an http.Request for the POSTv1studiosdknamespaceSkillsCreate method, with any body, and a specified content type
+func NewPOSTv1studiosdknamespaceSkillsCreateRequestWithBody(server string, params *POSTv1studiosdknamespaceSkillsCreateParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/namespace_skills.create")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Studio-Namespace", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdknamespaceSkillsDeleteRequest calls the generic POSTv1studiosdknamespaceSkillsDelete builder with application/json body
+func NewPOSTv1studiosdknamespaceSkillsDeleteRequest(server string, params *POSTv1studiosdknamespaceSkillsDeleteParams, body POSTv1studiosdknamespaceSkillsDeleteJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdknamespaceSkillsDeleteRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdknamespaceSkillsDeleteRequestWithBody constructs an http.Request for the POSTv1studiosdknamespaceSkillsDelete method, with any body, and a specified content type
+func NewPOSTv1studiosdknamespaceSkillsDeleteRequestWithBody(server string, params *POSTv1studiosdknamespaceSkillsDeleteParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/namespace_skills.delete")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Studio-Namespace", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdknamespaceSkillsGetRequest calls the generic POSTv1studiosdknamespaceSkillsGet builder with application/json body
+func NewPOSTv1studiosdknamespaceSkillsGetRequest(server string, params *POSTv1studiosdknamespaceSkillsGetParams, body POSTv1studiosdknamespaceSkillsGetJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdknamespaceSkillsGetRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdknamespaceSkillsGetRequestWithBody constructs an http.Request for the POSTv1studiosdknamespaceSkillsGet method, with any body, and a specified content type
+func NewPOSTv1studiosdknamespaceSkillsGetRequestWithBody(server string, params *POSTv1studiosdknamespaceSkillsGetParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/namespace_skills.get")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Studio-Namespace", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdknamespaceSkillsListRequest calls the generic POSTv1studiosdknamespaceSkillsList builder with application/json body
+func NewPOSTv1studiosdknamespaceSkillsListRequest(server string, params *POSTv1studiosdknamespaceSkillsListParams, body POSTv1studiosdknamespaceSkillsListJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdknamespaceSkillsListRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdknamespaceSkillsListRequestWithBody constructs an http.Request for the POSTv1studiosdknamespaceSkillsList method, with any body, and a specified content type
+func NewPOSTv1studiosdknamespaceSkillsListRequestWithBody(server string, params *POSTv1studiosdknamespaceSkillsListParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/namespace_skills.list")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Studio-Namespace", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdknamespaceSkillsPublishRequest calls the generic POSTv1studiosdknamespaceSkillsPublish builder with application/json body
+func NewPOSTv1studiosdknamespaceSkillsPublishRequest(server string, params *POSTv1studiosdknamespaceSkillsPublishParams, body POSTv1studiosdknamespaceSkillsPublishJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdknamespaceSkillsPublishRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdknamespaceSkillsPublishRequestWithBody constructs an http.Request for the POSTv1studiosdknamespaceSkillsPublish method, with any body, and a specified content type
+func NewPOSTv1studiosdknamespaceSkillsPublishRequestWithBody(server string, params *POSTv1studiosdknamespaceSkillsPublishParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/namespace_skills.publish")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Studio-Namespace", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdknamespaceSkillsRevisionsRequest calls the generic POSTv1studiosdknamespaceSkillsRevisions builder with application/json body
+func NewPOSTv1studiosdknamespaceSkillsRevisionsRequest(server string, params *POSTv1studiosdknamespaceSkillsRevisionsParams, body POSTv1studiosdknamespaceSkillsRevisionsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdknamespaceSkillsRevisionsRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdknamespaceSkillsRevisionsRequestWithBody constructs an http.Request for the POSTv1studiosdknamespaceSkillsRevisions method, with any body, and a specified content type
+func NewPOSTv1studiosdknamespaceSkillsRevisionsRequestWithBody(server string, params *POSTv1studiosdknamespaceSkillsRevisionsParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/namespace_skills.revisions")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Studio-Namespace", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdknamespaceSkillsUnpublishRequest calls the generic POSTv1studiosdknamespaceSkillsUnpublish builder with application/json body
+func NewPOSTv1studiosdknamespaceSkillsUnpublishRequest(server string, params *POSTv1studiosdknamespaceSkillsUnpublishParams, body POSTv1studiosdknamespaceSkillsUnpublishJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdknamespaceSkillsUnpublishRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdknamespaceSkillsUnpublishRequestWithBody constructs an http.Request for the POSTv1studiosdknamespaceSkillsUnpublish method, with any body, and a specified content type
+func NewPOSTv1studiosdknamespaceSkillsUnpublishRequestWithBody(server string, params *POSTv1studiosdknamespaceSkillsUnpublishParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/namespace_skills.unpublish")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Studio-Namespace", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdknamespaceSkillsUpdateRequest calls the generic POSTv1studiosdknamespaceSkillsUpdate builder with application/json body
+func NewPOSTv1studiosdknamespaceSkillsUpdateRequest(server string, params *POSTv1studiosdknamespaceSkillsUpdateParams, body POSTv1studiosdknamespaceSkillsUpdateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdknamespaceSkillsUpdateRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdknamespaceSkillsUpdateRequestWithBody constructs an http.Request for the POSTv1studiosdknamespaceSkillsUpdate method, with any body, and a specified content type
+func NewPOSTv1studiosdknamespaceSkillsUpdateRequestWithBody(server string, params *POSTv1studiosdknamespaceSkillsUpdateParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/namespace_skills.update")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Studio-Namespace", headerParam0)
+
+	}
 
 	return req, nil
 }
@@ -14404,6 +16748,16 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	POSTv1authzsdkpoliciesContextWithResponse(ctx context.Context, params *POSTv1authzsdkpoliciesContextParams, body POSTv1authzsdkpoliciesContextJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1authzsdkpoliciesContextResponse, error)
 
+	// POSTv1authzsdkpoliciesCreateWithBodyWithResponse performs a POST /v1/authz/sdk/policies.create (the `POSTv1authzsdkpoliciesCreate` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1authzsdkpoliciesCreateWithBodyWithResponse(ctx context.Context, params *POSTv1authzsdkpoliciesCreateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1authzsdkpoliciesCreateResponse, error)
+
+	// POSTv1authzsdkpoliciesCreateWithResponse performs a POST /v1/authz/sdk/policies.create (the `POSTv1authzsdkpoliciesCreate` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1authzsdkpoliciesCreateWithResponse(ctx context.Context, params *POSTv1authzsdkpoliciesCreateParams, body POSTv1authzsdkpoliciesCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1authzsdkpoliciesCreateResponse, error)
+
 	// POSTv1authzsdkpoliciesGetWithBodyWithResponse performs a POST /v1/authz/sdk/policies.get (the `POSTv1authzsdkpoliciesGet` operationId) request,
 	// with any type of body and a specified content type.
 	//
@@ -14732,6 +17086,86 @@ type ClientWithResponsesInterface interface {
 	// POSTv1studiosdkconnectorsUpdateWithResponse performs a POST /v1/studio/sdk/connectors.update (the `POSTv1studiosdkconnectorsUpdate` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	POSTv1studiosdkconnectorsUpdateWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsUpdateResponse, error)
+
+	// POSTv1studiosdknamespaceSkillsCreateWithBodyWithResponse performs a POST /v1/studio/sdk/namespace_skills.create (the `POSTv1studiosdknamespaceSkillsCreate` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespaceSkillsCreateWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsCreateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsCreateResponse, error)
+
+	// POSTv1studiosdknamespaceSkillsCreateWithResponse performs a POST /v1/studio/sdk/namespace_skills.create (the `POSTv1studiosdknamespaceSkillsCreate` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespaceSkillsCreateWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsCreateParams, body POSTv1studiosdknamespaceSkillsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsCreateResponse, error)
+
+	// POSTv1studiosdknamespaceSkillsDeleteWithBodyWithResponse performs a POST /v1/studio/sdk/namespace_skills.delete (the `POSTv1studiosdknamespaceSkillsDelete` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespaceSkillsDeleteWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsDeleteResponse, error)
+
+	// POSTv1studiosdknamespaceSkillsDeleteWithResponse performs a POST /v1/studio/sdk/namespace_skills.delete (the `POSTv1studiosdknamespaceSkillsDelete` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespaceSkillsDeleteWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsDeleteParams, body POSTv1studiosdknamespaceSkillsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsDeleteResponse, error)
+
+	// POSTv1studiosdknamespaceSkillsGetWithBodyWithResponse performs a POST /v1/studio/sdk/namespace_skills.get (the `POSTv1studiosdknamespaceSkillsGet` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespaceSkillsGetWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsGetResponse, error)
+
+	// POSTv1studiosdknamespaceSkillsGetWithResponse performs a POST /v1/studio/sdk/namespace_skills.get (the `POSTv1studiosdknamespaceSkillsGet` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespaceSkillsGetWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsGetParams, body POSTv1studiosdknamespaceSkillsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsGetResponse, error)
+
+	// POSTv1studiosdknamespaceSkillsListWithBodyWithResponse performs a POST /v1/studio/sdk/namespace_skills.list (the `POSTv1studiosdknamespaceSkillsList` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespaceSkillsListWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsListResponse, error)
+
+	// POSTv1studiosdknamespaceSkillsListWithResponse performs a POST /v1/studio/sdk/namespace_skills.list (the `POSTv1studiosdknamespaceSkillsList` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespaceSkillsListWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsListParams, body POSTv1studiosdknamespaceSkillsListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsListResponse, error)
+
+	// POSTv1studiosdknamespaceSkillsPublishWithBodyWithResponse performs a POST /v1/studio/sdk/namespace_skills.publish (the `POSTv1studiosdknamespaceSkillsPublish` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespaceSkillsPublishWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsPublishParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsPublishResponse, error)
+
+	// POSTv1studiosdknamespaceSkillsPublishWithResponse performs a POST /v1/studio/sdk/namespace_skills.publish (the `POSTv1studiosdknamespaceSkillsPublish` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespaceSkillsPublishWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsPublishParams, body POSTv1studiosdknamespaceSkillsPublishJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsPublishResponse, error)
+
+	// POSTv1studiosdknamespaceSkillsRevisionsWithBodyWithResponse performs a POST /v1/studio/sdk/namespace_skills.revisions (the `POSTv1studiosdknamespaceSkillsRevisions` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespaceSkillsRevisionsWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsRevisionsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsRevisionsResponse, error)
+
+	// POSTv1studiosdknamespaceSkillsRevisionsWithResponse performs a POST /v1/studio/sdk/namespace_skills.revisions (the `POSTv1studiosdknamespaceSkillsRevisions` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespaceSkillsRevisionsWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsRevisionsParams, body POSTv1studiosdknamespaceSkillsRevisionsJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsRevisionsResponse, error)
+
+	// POSTv1studiosdknamespaceSkillsUnpublishWithBodyWithResponse performs a POST /v1/studio/sdk/namespace_skills.unpublish (the `POSTv1studiosdknamespaceSkillsUnpublish` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespaceSkillsUnpublishWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsUnpublishParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsUnpublishResponse, error)
+
+	// POSTv1studiosdknamespaceSkillsUnpublishWithResponse performs a POST /v1/studio/sdk/namespace_skills.unpublish (the `POSTv1studiosdknamespaceSkillsUnpublish` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespaceSkillsUnpublishWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsUnpublishParams, body POSTv1studiosdknamespaceSkillsUnpublishJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsUnpublishResponse, error)
+
+	// POSTv1studiosdknamespaceSkillsUpdateWithBodyWithResponse performs a POST /v1/studio/sdk/namespace_skills.update (the `POSTv1studiosdknamespaceSkillsUpdate` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespaceSkillsUpdateWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsUpdateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsUpdateResponse, error)
+
+	// POSTv1studiosdknamespaceSkillsUpdateWithResponse performs a POST /v1/studio/sdk/namespace_skills.update (the `POSTv1studiosdknamespaceSkillsUpdate` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespaceSkillsUpdateWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsUpdateParams, body POSTv1studiosdknamespaceSkillsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsUpdateResponse, error)
 
 	// POSTv1studiosdknamespacesCreateWithBodyWithResponse namespace
 	//
@@ -15225,6 +17659,47 @@ func (r POSTv1authzsdkpoliciesContextResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r POSTv1authzsdkpoliciesContextResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1authzsdkpoliciesCreateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireC34a89824b0951b1ac05f75e5bc3de78c6291e85c6dc07c5360c160963f1e221
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1authzsdkpoliciesCreateResponse) GetJSON200() *WireC34a89824b0951b1ac05f75e5bc3de78c6291e85c6dc07c5360c160963f1e221 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1authzsdkpoliciesCreateResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1authzsdkpoliciesCreateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1authzsdkpoliciesCreateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1authzsdkpoliciesCreateResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -16475,6 +18950,334 @@ func (r POSTv1studiosdkconnectorsUpdateResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r POSTv1studiosdkconnectorsUpdateResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdknamespaceSkillsCreateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdknamespaceSkillsCreateResponse) GetJSON200() *Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdknamespaceSkillsCreateResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdknamespaceSkillsCreateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdknamespaceSkillsCreateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdknamespaceSkillsCreateResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdknamespaceSkillsDeleteResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdknamespaceSkillsDeleteResponse) GetJSON200() *Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdknamespaceSkillsDeleteResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdknamespaceSkillsDeleteResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdknamespaceSkillsDeleteResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdknamespaceSkillsDeleteResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdknamespaceSkillsGetResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdknamespaceSkillsGetResponse) GetJSON200() *Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdknamespaceSkillsGetResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdknamespaceSkillsGetResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdknamespaceSkillsGetResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdknamespaceSkillsGetResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdknamespaceSkillsListResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdknamespaceSkillsListResponse) GetJSON200() *WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdknamespaceSkillsListResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdknamespaceSkillsListResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdknamespaceSkillsListResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdknamespaceSkillsListResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdknamespaceSkillsPublishResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdknamespaceSkillsPublishResponse) GetJSON200() *WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdknamespaceSkillsPublishResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdknamespaceSkillsPublishResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdknamespaceSkillsPublishResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdknamespaceSkillsPublishResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdknamespaceSkillsRevisionsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdknamespaceSkillsRevisionsResponse) GetJSON200() *WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdknamespaceSkillsRevisionsResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdknamespaceSkillsRevisionsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdknamespaceSkillsRevisionsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdknamespaceSkillsRevisionsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdknamespaceSkillsUnpublishResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdknamespaceSkillsUnpublishResponse) GetJSON200() *Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdknamespaceSkillsUnpublishResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdknamespaceSkillsUnpublishResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdknamespaceSkillsUnpublishResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdknamespaceSkillsUnpublishResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdknamespaceSkillsUpdateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdknamespaceSkillsUpdateResponse) GetJSON200() *Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdknamespaceSkillsUpdateResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdknamespaceSkillsUpdateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdknamespaceSkillsUpdateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdknamespaceSkillsUpdateResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -18076,6 +20879,28 @@ func (c *ClientWithResponses) POSTv1authzsdkpoliciesContextWithResponse(ctx cont
 	return ParsePOSTv1authzsdkpoliciesContextResponse(rsp)
 }
 
+// POSTv1authzsdkpoliciesCreateWithBodyWithResponse performs a POST /v1/authz/sdk/policies.create (the `POSTv1authzsdkpoliciesCreate` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1authzsdkpoliciesCreateWithBodyWithResponse(ctx context.Context, params *POSTv1authzsdkpoliciesCreateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1authzsdkpoliciesCreateResponse, error) {
+	rsp, err := c.POSTv1authzsdkpoliciesCreateWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1authzsdkpoliciesCreateResponse(rsp)
+}
+
+// POSTv1authzsdkpoliciesCreateWithResponse performs a POST /v1/authz/sdk/policies.create (the `POSTv1authzsdkpoliciesCreate` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1authzsdkpoliciesCreateWithResponse(ctx context.Context, params *POSTv1authzsdkpoliciesCreateParams, body POSTv1authzsdkpoliciesCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1authzsdkpoliciesCreateResponse, error) {
+	rsp, err := c.POSTv1authzsdkpoliciesCreate(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1authzsdkpoliciesCreateResponse(rsp)
+}
+
 // POSTv1authzsdkpoliciesGetWithBodyWithResponse performs a POST /v1/authz/sdk/policies.get (the `POSTv1authzsdkpoliciesGet` operationId) request,
 // with any type of body and a specified content type.
 //
@@ -18769,6 +21594,182 @@ func (c *ClientWithResponses) POSTv1studiosdkconnectorsUpdateWithResponse(ctx co
 		return nil, err
 	}
 	return ParsePOSTv1studiosdkconnectorsUpdateResponse(rsp)
+}
+
+// POSTv1studiosdknamespaceSkillsCreateWithBodyWithResponse performs a POST /v1/studio/sdk/namespace_skills.create (the `POSTv1studiosdknamespaceSkillsCreate` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespaceSkillsCreateWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsCreateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsCreateResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespaceSkillsCreateWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespaceSkillsCreateResponse(rsp)
+}
+
+// POSTv1studiosdknamespaceSkillsCreateWithResponse performs a POST /v1/studio/sdk/namespace_skills.create (the `POSTv1studiosdknamespaceSkillsCreate` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespaceSkillsCreateWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsCreateParams, body POSTv1studiosdknamespaceSkillsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsCreateResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespaceSkillsCreate(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespaceSkillsCreateResponse(rsp)
+}
+
+// POSTv1studiosdknamespaceSkillsDeleteWithBodyWithResponse performs a POST /v1/studio/sdk/namespace_skills.delete (the `POSTv1studiosdknamespaceSkillsDelete` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespaceSkillsDeleteWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsDeleteResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespaceSkillsDeleteWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespaceSkillsDeleteResponse(rsp)
+}
+
+// POSTv1studiosdknamespaceSkillsDeleteWithResponse performs a POST /v1/studio/sdk/namespace_skills.delete (the `POSTv1studiosdknamespaceSkillsDelete` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespaceSkillsDeleteWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsDeleteParams, body POSTv1studiosdknamespaceSkillsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsDeleteResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespaceSkillsDelete(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespaceSkillsDeleteResponse(rsp)
+}
+
+// POSTv1studiosdknamespaceSkillsGetWithBodyWithResponse performs a POST /v1/studio/sdk/namespace_skills.get (the `POSTv1studiosdknamespaceSkillsGet` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespaceSkillsGetWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsGetResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespaceSkillsGetWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespaceSkillsGetResponse(rsp)
+}
+
+// POSTv1studiosdknamespaceSkillsGetWithResponse performs a POST /v1/studio/sdk/namespace_skills.get (the `POSTv1studiosdknamespaceSkillsGet` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespaceSkillsGetWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsGetParams, body POSTv1studiosdknamespaceSkillsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsGetResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespaceSkillsGet(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespaceSkillsGetResponse(rsp)
+}
+
+// POSTv1studiosdknamespaceSkillsListWithBodyWithResponse performs a POST /v1/studio/sdk/namespace_skills.list (the `POSTv1studiosdknamespaceSkillsList` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespaceSkillsListWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsListResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespaceSkillsListWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespaceSkillsListResponse(rsp)
+}
+
+// POSTv1studiosdknamespaceSkillsListWithResponse performs a POST /v1/studio/sdk/namespace_skills.list (the `POSTv1studiosdknamespaceSkillsList` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespaceSkillsListWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsListParams, body POSTv1studiosdknamespaceSkillsListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsListResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespaceSkillsList(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespaceSkillsListResponse(rsp)
+}
+
+// POSTv1studiosdknamespaceSkillsPublishWithBodyWithResponse performs a POST /v1/studio/sdk/namespace_skills.publish (the `POSTv1studiosdknamespaceSkillsPublish` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespaceSkillsPublishWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsPublishParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsPublishResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespaceSkillsPublishWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespaceSkillsPublishResponse(rsp)
+}
+
+// POSTv1studiosdknamespaceSkillsPublishWithResponse performs a POST /v1/studio/sdk/namespace_skills.publish (the `POSTv1studiosdknamespaceSkillsPublish` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespaceSkillsPublishWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsPublishParams, body POSTv1studiosdknamespaceSkillsPublishJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsPublishResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespaceSkillsPublish(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespaceSkillsPublishResponse(rsp)
+}
+
+// POSTv1studiosdknamespaceSkillsRevisionsWithBodyWithResponse performs a POST /v1/studio/sdk/namespace_skills.revisions (the `POSTv1studiosdknamespaceSkillsRevisions` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespaceSkillsRevisionsWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsRevisionsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsRevisionsResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespaceSkillsRevisionsWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespaceSkillsRevisionsResponse(rsp)
+}
+
+// POSTv1studiosdknamespaceSkillsRevisionsWithResponse performs a POST /v1/studio/sdk/namespace_skills.revisions (the `POSTv1studiosdknamespaceSkillsRevisions` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespaceSkillsRevisionsWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsRevisionsParams, body POSTv1studiosdknamespaceSkillsRevisionsJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsRevisionsResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespaceSkillsRevisions(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespaceSkillsRevisionsResponse(rsp)
+}
+
+// POSTv1studiosdknamespaceSkillsUnpublishWithBodyWithResponse performs a POST /v1/studio/sdk/namespace_skills.unpublish (the `POSTv1studiosdknamespaceSkillsUnpublish` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespaceSkillsUnpublishWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsUnpublishParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsUnpublishResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespaceSkillsUnpublishWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespaceSkillsUnpublishResponse(rsp)
+}
+
+// POSTv1studiosdknamespaceSkillsUnpublishWithResponse performs a POST /v1/studio/sdk/namespace_skills.unpublish (the `POSTv1studiosdknamespaceSkillsUnpublish` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespaceSkillsUnpublishWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsUnpublishParams, body POSTv1studiosdknamespaceSkillsUnpublishJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsUnpublishResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespaceSkillsUnpublish(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespaceSkillsUnpublishResponse(rsp)
+}
+
+// POSTv1studiosdknamespaceSkillsUpdateWithBodyWithResponse performs a POST /v1/studio/sdk/namespace_skills.update (the `POSTv1studiosdknamespaceSkillsUpdate` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespaceSkillsUpdateWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsUpdateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsUpdateResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespaceSkillsUpdateWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespaceSkillsUpdateResponse(rsp)
+}
+
+// POSTv1studiosdknamespaceSkillsUpdateWithResponse performs a POST /v1/studio/sdk/namespace_skills.update (the `POSTv1studiosdknamespaceSkillsUpdate` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespaceSkillsUpdateWithResponse(ctx context.Context, params *POSTv1studiosdknamespaceSkillsUpdateParams, body POSTv1studiosdknamespaceSkillsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespaceSkillsUpdateResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespaceSkillsUpdate(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespaceSkillsUpdateResponse(rsp)
 }
 
 // POSTv1studiosdknamespacesCreateWithBodyWithResponse namespace
@@ -19688,6 +22689,32 @@ func ParsePOSTv1authzsdkpoliciesContextResponse(rsp *http.Response) (*POSTv1auth
 	return response, nil
 }
 
+// ParsePOSTv1authzsdkpoliciesCreateResponse parses an HTTP response from a POSTv1authzsdkpoliciesCreateWithResponse call
+func ParsePOSTv1authzsdkpoliciesCreateResponse(rsp *http.Response) (*POSTv1authzsdkpoliciesCreateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1authzsdkpoliciesCreateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireC34a89824b0951b1ac05f75e5bc3de78c6291e85c6dc07c5360c160963f1e221
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParsePOSTv1authzsdkpoliciesGetResponse parses an HTTP response from a POSTv1authzsdkpoliciesGetWithResponse call
 func ParsePOSTv1authzsdkpoliciesGetResponse(rsp *http.Response) (*POSTv1authzsdkpoliciesGetResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -20454,6 +23481,214 @@ func ParsePOSTv1studiosdkconnectorsUpdateResponse(rsp *http.Response) (*POSTv1st
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest WireF13c6896f56ef6cd633314e17c86ef09c723b489a575449924c438606e230bf5
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdknamespaceSkillsCreateResponse parses an HTTP response from a POSTv1studiosdknamespaceSkillsCreateWithResponse call
+func ParsePOSTv1studiosdknamespaceSkillsCreateResponse(rsp *http.Response) (*POSTv1studiosdknamespaceSkillsCreateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdknamespaceSkillsCreateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdknamespaceSkillsDeleteResponse parses an HTTP response from a POSTv1studiosdknamespaceSkillsDeleteWithResponse call
+func ParsePOSTv1studiosdknamespaceSkillsDeleteResponse(rsp *http.Response) (*POSTv1studiosdknamespaceSkillsDeleteResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdknamespaceSkillsDeleteResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdknamespaceSkillsGetResponse parses an HTTP response from a POSTv1studiosdknamespaceSkillsGetWithResponse call
+func ParsePOSTv1studiosdknamespaceSkillsGetResponse(rsp *http.Response) (*POSTv1studiosdknamespaceSkillsGetResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdknamespaceSkillsGetResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdknamespaceSkillsListResponse parses an HTTP response from a POSTv1studiosdknamespaceSkillsListWithResponse call
+func ParsePOSTv1studiosdknamespaceSkillsListResponse(rsp *http.Response) (*POSTv1studiosdknamespaceSkillsListResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdknamespaceSkillsListResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdknamespaceSkillsPublishResponse parses an HTTP response from a POSTv1studiosdknamespaceSkillsPublishWithResponse call
+func ParsePOSTv1studiosdknamespaceSkillsPublishResponse(rsp *http.Response) (*POSTv1studiosdknamespaceSkillsPublishResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdknamespaceSkillsPublishResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdknamespaceSkillsRevisionsResponse parses an HTTP response from a POSTv1studiosdknamespaceSkillsRevisionsWithResponse call
+func ParsePOSTv1studiosdknamespaceSkillsRevisionsResponse(rsp *http.Response) (*POSTv1studiosdknamespaceSkillsRevisionsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdknamespaceSkillsRevisionsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdknamespaceSkillsUnpublishResponse parses an HTTP response from a POSTv1studiosdknamespaceSkillsUnpublishWithResponse call
+func ParsePOSTv1studiosdknamespaceSkillsUnpublishResponse(rsp *http.Response) (*POSTv1studiosdknamespaceSkillsUnpublishResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdknamespaceSkillsUnpublishResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdknamespaceSkillsUpdateResponse parses an HTTP response from a POSTv1studiosdknamespaceSkillsUpdateWithResponse call
+func ParsePOSTv1studiosdknamespaceSkillsUpdateResponse(rsp *http.Response) (*POSTv1studiosdknamespaceSkillsUpdateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdknamespaceSkillsUpdateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

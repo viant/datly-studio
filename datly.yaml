@@ -65,6 +65,11 @@ GoBootstrap:
     - github.com/viant/datly-studio/studio/connectors/store_usage
     - github.com/viant/datly-studio/studio/connectors/update
     - github.com/viant/datly-studio/studio/connectors/writer
+    - github.com/viant/datly-studio/studio/namespace_skills/authoring
+    - github.com/viant/datly-studio/studio/namespace_skills/store_read
+    - github.com/viant/datly-studio/studio/namespace_skills/store_revisions
+    - github.com/viant/datly-studio/studio/namespace_skills/store_write
+    - github.com/viant/datly-studio/studio/namespace_skills/store_published
     - github.com/viant/datly-studio/studio/namespaces/reader
     - github.com/viant/datly-studio/studio/namespaces/create
     - github.com/viant/datly-studio/studio/namespaces/delete

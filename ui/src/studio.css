@@ -31,7 +31,7 @@ body { margin: 0; min-width: 320px; background: #f4f7fb; }
 .studio-page-actions { display: flex; justify-content: flex-end; margin: -52px 0 20px; }
 .studio-catalog-actions { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(150px, auto) minmax(120px, auto) auto; justify-content: stretch; gap: 8px; margin: 0 0 16px; }
 .studio-catalog-actions > .bp6-input-group, .studio-catalog-actions > .bp5-input-group { min-width: 0; }
-.studio-catalog-primary-actions { justify-self: end; }
+.studio-catalog-primary-actions { display: flex; align-items: center; gap: 12px; justify-self: end; }
 .studio-catalog-pagination { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 2px 0; color: #667085; font-size: 12px; }
 .studio-card { border: 1px solid #e3eaf2; border-radius: 10px; box-shadow: 0 8px 20px rgb(16 24 40 / 5%); overflow: hidden; }
 .studio-table-wrap { width: 100%; overflow-x: auto; }
@@ -562,8 +562,8 @@ body { margin: 0; min-width: 320px; background: #f4f7fb; }
   .studio-contract-graph > .studio-contract-node:last-child { grid-column: 2; }
   .studio-contract-list > button { grid-template-columns: minmax(0,1fr) auto; }
   .studio-contract-list > button > :nth-child(3) { display: none; }
-  .studio-sidebar { position: fixed; z-index: 30; top: 58px; bottom: 0; left: 0; width: min(280px, 86vw); padding: 12px 8px; box-shadow: 12px 0 30px rgb(16 24 40 / 18%); }
-  .studio-sidebar-scrim { position: fixed; z-index: 29; inset: 58px 0 0; display: block; border: 0; background: rgb(16 24 40 / 36%); }
+  .studio-sidebar { position: fixed; z-index: 19; top: 58px; bottom: 0; left: 0; width: min(280px, 86vw); padding: 12px 8px; box-shadow: 12px 0 30px rgb(16 24 40 / 18%); }
+  .studio-sidebar-scrim { position: fixed; z-index: 18; inset: 58px 0 0; display: block; border: 0; background: rgb(16 24 40 / 36%); }
   .studio-workspace { min-width: 0; padding: 20px 16px; }
   .studio-page-actions { margin: 0 0 16px; justify-content: flex-start; }
   .studio-page-description { margin-bottom: 16px; }
@@ -618,3 +618,22 @@ body { margin: 0; min-width: 320px; background: #f4f7fb; }
 .studio-cube-preview-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; }
 .studio-cube-preview summary { cursor: pointer; margin: 12px 0; }
 @media (max-width: 600px) { .studio-cube-field-groups { grid-template-columns: 1fr; } }
+
+.studio-skill-toolbar, .studio-skill-actions, .studio-skill-row-actions, .studio-skill-pagination, .studio-skill-search { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.studio-skill-toolbar { margin-block: 20px; }
+.studio-skill-search { flex: 1; min-width: 220px; }
+.studio-skill-search .bp6-input-group { flex: 1; min-width: 140px; }
+.studio-skill-toolbar .bp6-form-group { margin-bottom: 0; }
+.studio-skill-actions { margin-block-start: 24px; padding-block-start: 16px; border-top: 1px solid #d8e1ec; }
+.studio-skill-pagination { justify-content: flex-end; margin-block: 16px; }
+.studio-namespace-skill-editor { max-width: 880px; }
+.studio-namespace-skills td p { margin: 6px 0 0; max-width: 50ch; overflow-wrap: anywhere; }
+.studio-skill-file { min-width: 0; margin-block: 16px; padding: 16px; border: 1px solid #d8e1ec; }
+.studio-skill-file legend { padding-inline: 6px; }
+.studio-skill-revision-content { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  .studio-skill-search { flex-basis: 100%; min-width: 0; }
+  .studio-skill-actions > button { flex: 1; }
+}
+.studio-linked-predicates { margin-bottom: 20px; }
+.studio-predicate-package { overflow-wrap: anywhere; min-width: 0; }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	_ "github.com/viant/datly-studio/examples/predicates"
 	"log"
 	"os"
 	"os/signal"
@@ -12,6 +13,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
+	_ "github.com/sijms/go-ora/v2"
 	_ "github.com/viant/bigquery"
 	"github.com/viant/datly-studio/runtime/host"
 	"github.com/viant/datly-studio/runtime/namespacemcp"
@@ -24,6 +26,7 @@ import (
 
 func main() {
 	configPath := flag.String("conf", "datly-runtime.yaml", "dynamic Datly runtime configuration")
+	namespaceTransport := flag.String("namespace-mcp-mode", "", "namespace MCP transport: separate or shared; overrides NamespaceMCPMode")
 	namespaceMode := flag.Bool("namespace-mcp", false, "serve persisted namespace MCP endpoints without a global MCP listener")
 	reconcileInterval := flag.Duration("namespace-reconcile-interval", 2*time.Second, "namespace MCP configuration polling interval")
 	flag.Parse()
@@ -31,9 +34,15 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	if *namespaceTransport != "" {
+		config.NamespaceMCPMode = *namespaceTransport
+		if err = config.Validate(); err != nil {
+			log.Fatal(err)
+		}
+	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	if *namespaceMode {
+	if *namespaceMode || config.NamespaceMCPMode != "" {
 		if err := runNamespaces(ctx, *config, *reconcileInterval); err != nil {
 			log.Fatal(err)
 		}
@@ -82,7 +91,7 @@ func runNamespaces(ctx context.Context, config host.Config, interval time.Durati
 		for _, change := range changes {
 			address := ""
 			if change.Endpoint != nil {
-				address = change.Endpoint.Address
+				address = change.Endpoint.URL()
 			}
 			state := change.Status + ":" + address
 			if previous[change.NamespaceID] == state {

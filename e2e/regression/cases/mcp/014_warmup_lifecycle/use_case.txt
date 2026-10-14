@@ -1,0 +1,1 @@
+Dedicated namespace and database: warm an explicitly authored AFS cache, poll durable completion and list history, reject unauthorized warmup, publish and invoke the namespace MCP repeatedly.

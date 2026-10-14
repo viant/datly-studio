@@ -1,0 +1,31 @@
+#package('studio/namespace_skills/store_read')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/namespace-skill-store/read', 'GET'))
+#setting($_ = $internal(true))
+#setting($_ = $connector('studio'))
+
+#define($_ = $NamespaceId<string>(query/namespaceId).Required().WithPredicate(0,'equal','s','namespace_id'))
+#define($_ = $SkillId<string>(query/skillId).Optional().WithPredicate(0,'equal','s','skill_id'))
+#define($_ = $Name<string>(query/name).Optional().WithPredicate(0,'equal','s','name'))
+#define($_ = $Query<string>(query/query).Optional().WithPredicate(1,'contains','s','name').WithPredicate(1,'contains','s','title'))
+#define($_ = $Limit<int>(query/pageLimit).Required().QuerySelector('skill'))
+#define($_ = $Offset<int>(query/pageOffset).Required().QuerySelector('skill'))
+#define($_ = $Skills<[]*StoredSkill>(output/view))
+
+SELECT skill.*, type(skill,'StoredSkill'),
+       CAST(skill.namespace_id AS string), CAST(skill.skill_id AS string),
+       CAST(skill.name AS string),
+       CAST(skill.title AS string),
+       CAST(skill.description AS string),
+       CAST(skill.latest_revision AS int),
+       CAST(skill.published_revision AS int),
+       CAST(skill.status AS string),
+       CAST(skill.created_by AS string),
+       CAST(skill.updated_by AS string),
+       CAST(skill.etag AS int64),
+       CAST(skill.created_at AS time.Time), CAST(skill.updated_at AS time.Time),
+       CAST(skill.deleted_at AS *time.Time), set_limit(skill,0)
+FROM (${embed:sql/skills.sql}) skill

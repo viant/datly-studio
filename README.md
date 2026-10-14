@@ -37,17 +37,54 @@ remains available without making raw DQL the default editing experience.
 ## Architecture
 
 ```mermaid
-flowchart LR
-    Browser[Studio UI] --> BFF[Studio SDK / BFF]
-    BFF --> Catalog[(Studio catalog)]
-    BFF --> Builder[Datly Reader Builder]
-    Builder --> Drafts[Versioned components]
-    Drafts --> Publish[Publication service]
-    Publish --> HTTP[Dynamic Datly HTTP]
-    Publish --> MCP[Dynamic Datly MCP]
-    HTTP --> Sources[(Application databases)]
-    MCP --> Sources
+flowchart TB
+    subgraph Authoring[Authoring and governance]
+        UI[Studio browser UI] --> API[Studio HTTP API and native MCP authoring tools]
+        API --> Builder[Datly Reader Builder and DQL compiler]
+        Builder --> Catalog[(Studio catalog: components, revisions, resources, policies)]
+        API --> Catalog
+        API --> Publish[Validate and publish exact component revision]
+        Catalog --> Publish
+        Linked[Go-linked custom predicate packages] --> Builder
+    end
+
+    subgraph Authorization[Verified identity and authorization]
+        IdP[Identity provider: roles, exposures, entity permissions] --> Provider[Host-owned verified identity provider]
+        Provider --> Authz[viant/authz policy evaluation]
+        Catalog --> Authz
+        API --> Authz
+    end
+
+    Publish --> Generation[Published runtime generation]
+    Generation --> Namespaces[Namespace runtime manager]
+    Namespaces --> Layout{MCP listener mode}
+    Layout --> Dedicated[Separate ports: automatic or per-namespace custom port]
+    Layout --> Shared[Shared port: namespace-specific URL paths]
+    Dedicated --> MCP_A[Namespace A: isolated MCP catalog]
+    Dedicated --> MCP_B[Namespace B: isolated MCP catalog]
+    Shared --> MCP_A
+    Shared --> MCP_B
+    Clients[MCP clients with user credentials] --> MCP_A
+    Clients --> MCP_B
+    MCP_A --> Authz
+    MCP_B --> Authz
+    Authz -->|allowed discovery or execution| Components[Published reader, Cube and CubeCompose contracts]
+    Linked --> Components
+    Components --> Facts[(Fact or operational database)]
+    Components --> Dictionary[(Dictionary database: optional separate connector)]
 ```
+
+Authoring tools manage Studio's catalog; namespace MCP endpoints expose published
+business components. Namespace visibility, component authoring permissions, and
+runtime resource policies are separate checks. `viant/authz` evaluates verified
+identity facts for catalog discovery and execution; the browser does not decide
+access. Cube and cube-compose behavior belongs to the published Datly component
+contract. Dictionary enrichment can use another connector.
+
+See [capabilities](docs/capabilities.md), [authorization](docs/authorization.md),
+[dynamic MCP](docs/dynamic-mcp.md), [cubes and composition](docs/cubes.md), and
+[custom predicates](docs/custom-predicates.md) for boundaries and configuration.
+
 
 | Process | Default address | Responsibility |
 | --- | --- | --- |
@@ -65,23 +102,21 @@ and MCP listeners.
 
 - Go `1.25.8`
 - Node.js and npm compatible with Vite 6
-- A sibling Forge checkout at `../forge` for the UI package
 - SQLite for the self-contained development catalog
 
 Go builds use the published Datly 1.0 and dependency revisions pinned in
 `go.mod`; no local Datly replacement is required. Generic authorization types and
 Datly policy components come from `github.com/viant/authz` and its `datly` module.
 
-The UI currently uses `forge: file:../../forge`, so keep a Forge checkout beside
-Studio for frontend development. A Datly checkout is optional for framework work.
+The UI installs Forge from the public commit pinned in `ui/package-lock.json`.
+No sibling Forge checkout is required. A Datly checkout is optional for framework work.
 
 ## Quick start
 
-Clone the repositories as siblings:
+Clone the repository:
 
 ```sh
 git clone https://github.com/viant/datly-studio.git
-git clone https://github.com/viant/forge.git
 ```
 
 Initialize the Studio catalog and preseeded SQLite sample database:
@@ -183,8 +218,10 @@ Namespaces are private by default; owners can assign viewer roles or public
 visibility. Resource ACL remains independent of namespace visibility. Connectors
 may be shared globally.
 
-The runtime supports separate namespace MCP listeners and assigned ports through
-`-namespace-mcp`. Namespace support is still being completed: selection is optional
+The runtime supports separate namespace MCP ports and a shared-port mode with
+namespace-specific URL paths. Configure `NamespaceMCPMode` or use
+`-namespace-mcp-mode=separate|shared`; each namespace may request a custom
+dedicated port. See [listener modes and defaults](docs/dynamic-mcp.md). Namespace support is still being completed: selection is optional
 on some APIs, and full persistence and multi-window isolation are not yet accepted.
 See [implementation status](docs/namespace-workspaces.md) for verified behavior
 and remaining gates. Datly Studio remains independent and reporting-free.
@@ -239,14 +276,44 @@ npm test
 npm run build
 ```
 
-Run the MySQL end-to-end workflow after installing
-[Endly](https://github.com/viant/endly) and configuring its documented local
-credential:
+### Build and run e2e
+
+Install [Endly](https://github.com/viant/endly) revision `9ed0e3e271c3d` or newer.
+A sibling checkout is optional; this builds the pinned public source:
 
 ```sh
-cd e2e/local
+endly_src=$(mktemp -d)
+git clone https://github.com/viant/endly.git "$endly_src"
+git -C "$endly_src" checkout 9ed0e3e271c3db226abe4f050c550e54913c52f7
+(cd "$endly_src" && CGO_ENABLED=0 GOWORK=off go build -o endly-bin ./endly)
+install -m 0755 "$endly_src/endly-bin" /usr/local/bin/endly
+endly -v
+```
+
+Run the suite from `e2e`; its build installs the locked UI dependencies:
+
+```sh
+cd e2e
 endly
 ```
+
+Plain `endly` runs the workflows sequentially: stop a previous fixture, build the
+Go fixture and production UI, create a fresh SQLite catalog, seed consumer data
+through DSUnit, start Studio, prepare ChromeDriver, run MCP, permission and browser
+cases, and stop the fixture. Each invocation chooses a new run directory under
+`.data/e2e`, so rerunning does not overwrite an earlier catalog. Python 3 and
+local Google Chrome are required for the browser cases; setup downloads a matching
+ChromeDriver into the fixture directory.
+
+To build only:
+
+```sh
+endly -t=build
+```
+
+See [e2e instructions](e2e/README.md), [coverage plan](e2e/plan.md), and
+[verified results](e2e/results.md). The authored suite is runnable; the larger
+acceptance matrix still has outstanding cases.
 
 The repository keeps generated Datly components and their DQL sources together.
 Changes to canonical schema or DQL contracts must regenerate the affected
@@ -283,6 +350,11 @@ environment-specific configuration.
 
 ## Project documentation
 
+- [Capability overview](docs/capabilities.md)
+- [Authorization and identity](docs/authorization.md)
+- [Namespace MCP publication](docs/dynamic-mcp.md)
+- [Cubes and cube composition](docs/cubes.md)
+- [Linked custom predicates and embedding](docs/custom-predicates.md)
 - [UI and interaction contract](ui.md)
 - [Current architecture and engineering handoff](handoff.md)
 - [Studio implementation notes](studio.md)

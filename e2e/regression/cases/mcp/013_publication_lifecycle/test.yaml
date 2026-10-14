@@ -1,0 +1,665 @@
+pipeline:
+  seed:
+    action: dsunit:init
+    datastore: publicationCycle
+    config:
+      driver: sqlite
+      dsn: ${runDir}/publication-cycle.db
+    scripts:
+      - URL: ${appPath}/e2e/regression/cases/mcp/013_publication_lifecycle/schema.sql
+  createConnector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: publication_cycle
+      driver: sqlite
+      dsnTemplate: ${runDir}/publication-cycle.db
+    allowToolError: true
+    '@name': studio.sdk.connectors.create
+  createConnectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $createConnector
+    expect:
+      IsError: false
+  probe:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: publication_cycle
+    allowToolError: true
+    '@name': studio.sdk.connectors.test
+  probeSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $probe
+    expect:
+      IsError: false
+  connector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: publication_cycle
+    allowToolError: true
+    '@name': studio.sdk.connectors.get
+  connectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $connector
+    expect:
+      IsError: false
+  activate:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: publication_cycle
+      etag: $connector.StructuredContent.etag
+    allowToolError: true
+    '@name': studio.sdk.connectors.activate
+  activateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $activate
+    expect:
+      IsError: false
+  namespace:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: publication_cycle
+      title: publication_cycle
+      mcpEnabled: true
+      mcpPort: 0
+    allowToolError: true
+    '@name': studio.sdk.namespaces.create
+  namespaceSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $namespace
+    expect:
+      IsError: false
+  component:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      title: publication_cycle
+      slug: publication-cycle
+      namespace: publication_cycle
+      defaultConnectorName: publication_cycle
+    allowToolError: true
+    '@name': studio.sdk.components.create
+  componentSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $component
+    expect:
+      IsError: false
+  import:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      input:
+        dql: |-
+          #package('github.com/viant/datly-studio/dynamic/publication_cycle')
+          #setting($_ = $input_type('CustomerInput'))
+          #setting($_ = $output_type('CustomerOutput'))
+          #setting($_ = $case_format('lc'))
+          #setting($_ = $connector('publication_cycle'))
+          #setting($_ = $route('/publication_cycle', 'GET'))
+          #setting($_ = $mcp('publication_cycle.read','Read consumer customers'))
+          #define($_ = $Rows<[]*Customer>(output/view))
+          SELECT customers.*, type(customers,'Customer') FROM (SELECT c.id,c.tenant,c.name,c.active FROM publication_cycle_customers c) customers
+    allowToolError: true
+    '@name': studio.sdk.versions.load_dql
+  importSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $import
+    expect:
+      IsError: false
+  verifyImport:
+    action: validator:assert
+    actual: $import.StructuredContent.version
+    expect:
+      state: draft
+      compileStatus: pending
+    normalizeKVPairs: true
+  validate:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      expectedSourceRevision: $import.StructuredContent.version.sourceRevision
+    allowToolError: true
+    '@name': studio.sdk.versions.validate
+  validateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $validate
+    expect:
+      IsError: false
+  publishHostReady:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.runtime.status
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+    allowToolError: true
+    repeat: 50
+    thinkTimeMs: 100
+    exit: $output:/"status":"ready"/
+  publishHostReadyAssert:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $publishHostReady.StructuredContent.host.status
+    expect: ready
+  publish:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      input:
+        expectedSourceRevision: $import.StructuredContent.version.sourceRevision
+        reason: Endly acceptance
+    allowToolError: true
+    '@name': studio.sdk.publications.publish
+  publishSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $publish
+    expect:
+      IsError: false
+  active:
+    action: validator:assert
+    actual: $publish.StructuredContent.status
+    expect: active
+    normalizeKVPairs: true
+  status:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+    allowToolError: true
+    '@name': studio.sdk.runtime.status
+  statusSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $status
+    expect:
+      IsError: false
+  runtime:
+    action: validator:assert
+    actual: $status.StructuredContent.host
+    expect:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      status: ready
+    normalizeKVPairs: true
+  invoke:
+    action: mcp/runner:call
+    url: $status.StructuredContent.host.mcpUrl
+    arguments: {}
+    bearerTokenSecret: $ownerToken
+    '@name': $status.StructuredContent.readers[0].mcpExposures[0].name
+    allowToolError: true
+  invokeSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $invoke
+    expect:
+      IsError: false
+  data:
+    action: validator:assert
+    actual: $invoke.IsError
+    expect: false
+    normalizeKVPairs: true
+  events:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      input: {}
+    allowToolError: true
+    '@name': studio.sdk.publications.events.list
+  eventsSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $events
+    expect:
+      IsError: false
+  firstRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $invoke
+    expect:
+      IsError: false
+      StructuredContent:
+        "@length@rows": 2
+        rows:
+          - id: 10
+            name: Alpha
+          - id: 20
+            name: Beta
+  downloadArchive:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.versions.download
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+  archiveDownloaded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $downloadArchive
+    expect:
+      IsError: false
+      StructuredContent:
+        mediaType: application/zip
+  importArchive:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.versions.load_archive
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      input:
+        archive: $downloadArchive.StructuredContent.archive
+        format: zip
+        entryDql: $downloadArchive.StructuredContent.entryDql
+  archiveImported:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $importArchive
+    expect:
+      IsError: false
+      StructuredContent:
+        entryDql: $downloadArchive.StructuredContent.entryDql
+        version:
+          state: draft
+          compileStatus: pending
+  validateArchive:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.versions.validate
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $importArchive.StructuredContent.version.versionNo
+      expectedSourceRevision: $importArchive.StructuredContent.version.sourceRevision
+  archiveValidated:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $validateArchive.IsError
+    expect: false
+  archiveDenied:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $outsiderToken
+    '@name': studio.sdk.versions.load_archive
+    allowToolError: true
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      input:
+        archive: $downloadArchive.StructuredContent.archive
+        format: zip
+        entryDql: $downloadArchive.StructuredContent.entryDql
+  archiveDeniedAssert:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $archiveDenied.IsError
+    expect: true
+  publicationGet:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.publications.get
+    allowToolError: true
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+  publicationGetMatches:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $publicationGet
+    expect:
+      IsError: false
+      StructuredContent:
+        activeVersionNo: $import.StructuredContent.version.versionNo
+        status: active
+  readViews:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.component_views.read
+    arguments:
+      ReportId: $component.StructuredContent.id
+      VersionNo: $import.StructuredContent.version.versionNo
+  readViewsAssert:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $readViews
+    expect:
+      IsError: false
+      StructuredContent:
+        # These table readers expose persisted relational metadata; DQL import
+        # stores source and descriptors without populating these legacy tables.
+        '@length@views': 0
+  readParameters:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.component_parameters.read
+    arguments:
+      ReportId: $component.StructuredContent.id
+      VersionNo: $import.StructuredContent.version.versionNo
+  readParametersAssert:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $readParameters
+    expect:
+      IsError: false
+      StructuredContent:
+        '@length@parameters': 0
+  readExposures:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.component_mcp_exposures.read
+    arguments:
+      ReportId: $component.StructuredContent.id
+      VersionNo: $import.StructuredContent.version.versionNo
+  readExposuresAssert:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $readExposures
+    expect:
+      IsError: false
+      StructuredContent:
+        '@length@exposures': 0
+  readVersions:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.component_versions.read
+    arguments:
+      OrderBy: version_no ASC
+      ReportId: $component.StructuredContent.id
+  readVersionsAssert:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $readVersions
+    expect:
+      IsError: false
+      StructuredContent:
+        '@length@versions': 2
+        versions:
+          - reportId: $component.StructuredContent.id
+            versionNo: $import.StructuredContent.version.versionNo
+          - reportId: $component.StructuredContent.id
+            versionNo: $importArchive.StructuredContent.version.versionNo
+  readVersion:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.component_versions.readByVersionNo
+    arguments:
+      ReportId: $component.StructuredContent.id
+      VersionNo: $import.StructuredContent.version.versionNo
+  readVersionAssert:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $readVersion
+    expect:
+      IsError: false
+      StructuredContent:
+        '@length@versions': 1
+        versions:
+          - reportId: $component.StructuredContent.id
+            versionNo: $import.StructuredContent.version.versionNo
+  readPublication:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.component_publications.read
+    arguments:
+      ReportId: $component.StructuredContent.id
+  readPublicationAssert:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $readPublication
+    expect:
+      IsError: false
+      StructuredContent:
+        '@length@publications': 1
+        publications:
+          - reportId: $component.StructuredContent.id
+            activeVersionNo: $import.StructuredContent.version.versionNo
+            publicationStatus: active
+  importSecond:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.versions.load_dql
+    allowToolError: true
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      input:
+        dql: |-
+          #package('github.com/viant/datly-studio/dynamic/publication_cycle')
+          #setting($_ = $input_type('CustomerInput'))
+          #setting($_ = $output_type('CustomerOutput'))
+          #setting($_ = $case_format('lc'))
+          #setting($_ = $connector('publication_cycle'))
+          #setting($_ = $route('/publication_cycle', 'GET'))
+          #setting($_ = $mcp('publication_cycle.read','Read lifecycle customers'))
+          #define($_ = $Rows<[]*Customer>(output/view))
+          SELECT customers.*, type(customers,'Customer') FROM (SELECT c.id,c.tenant,c.name,c.active FROM publication_cycle_customers c WHERE c.active=1) customers
+  secondImported:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $importSecond
+    expect:
+      IsError: false
+  validateSecond:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.versions.validate
+    allowToolError: true
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $importSecond.StructuredContent.version.versionNo
+      expectedSourceRevision: $importSecond.StructuredContent.version.sourceRevision
+  secondValidated:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $validateSecond
+    expect:
+      IsError: false
+  publishSecond:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.publications.publish
+    allowToolError: true
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $importSecond.StructuredContent.version.versionNo
+      input:
+        expectedSourceRevision: $importSecond.StructuredContent.version.sourceRevision
+  secondPublished:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $publishSecond
+    expect:
+      IsError: false
+      StructuredContent:
+        activeVersionNo: $importSecond.StructuredContent.version.versionNo
+        status: active
+  invokeSecond:
+    action: mcp/runner:call
+    url: $status.StructuredContent.host.mcpUrl
+    bearerTokenSecret: $ownerToken
+    '@name': publication_cycle.read
+    allowToolError: true
+    arguments:
+      {}
+  secondRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $invokeSecond
+    expect:
+      IsError: false
+      StructuredContent:
+        "@length@rows": 1
+        rows:
+          - id: 10
+            name: Alpha
+  rollback:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.publications.rollback
+    allowToolError: true
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      input:
+        expectedSourceRevision: $import.StructuredContent.version.sourceRevision
+        reason: Endly restore first version
+  rolledBack:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $rollback
+    expect:
+      IsError: false
+      StructuredContent:
+        activeVersionNo: $import.StructuredContent.version.versionNo
+        status: active
+  invokeRestored:
+    action: mcp/runner:call
+    url: $status.StructuredContent.host.mcpUrl
+    bearerTokenSecret: $ownerToken
+    '@name': publication_cycle.read
+    allowToolError: true
+    arguments:
+      {}
+  restoredRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $invokeRestored
+    expect:
+      IsError: false
+      StructuredContent:
+        "@length@rows": 2
+        rows:
+          - id: 10
+            name: Alpha
+          - id: 20
+            name: Beta
+  unpublishDenied:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $outsiderToken
+    '@name': studio.sdk.publications.unpublish
+    allowToolError: true
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      input:
+        expectedActiveGeneration: $rollback.StructuredContent.activeGeneration
+  outsiderCannotUnpublish:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $unpublishDenied
+    expect:
+      IsError: true
+  unpublishStale:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.publications.unpublish
+    allowToolError: true
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      input:
+        expectedActiveGeneration: $publicationGet.StructuredContent.activeGeneration
+  staleGenerationRejected:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $unpublishStale
+    expect:
+      IsError: true
+  unpublish:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.publications.unpublish
+    allowToolError: true
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      input:
+        expectedActiveGeneration: $rollback.StructuredContent.activeGeneration
+        reason: Endly withdraw publication
+  unpublished:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $unpublish
+    expect:
+      IsError: false
+  withdrawnTools:
+    action: mcp/runner:listTools
+    url: $status.StructuredContent.host.mcpUrl
+    bearerTokenSecret: $ownerToken
+  noPublishedTools:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $withdrawnTools
+    expect:
+      '@length@Tools': 0
+  invokeWithdrawn:
+    action: mcp/runner:call
+    allowProtocolError: true
+    url: $status.StructuredContent.host.mcpUrl
+    bearerTokenSecret: $ownerToken
+    '@name': publication_cycle.read
+    allowToolError: true
+    arguments:
+      {}
+  withdrawnCallDenied:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $invokeWithdrawn
+    expect:
+      IsError: true
+      ProtocolErrorCode: -32601

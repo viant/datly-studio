@@ -3,8 +3,11 @@ package runtimeadmin
 import (
 	"bytes"
 	"context"
+	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
+	agentlyconfig "github.com/viant/agently-core/protocol/mcp/config"
 	"io"
 	"net/http"
 	"net/url"
@@ -13,6 +16,10 @@ import (
 
 	"github.com/viant/datly-studio/sdk"
 )
+
+// ErrNamespaceUnavailable means the runtime manager has no active listener for
+// the selected namespace. It is distinct from an unreachable or invalid admin API.
+var ErrNamespaceUnavailable = errors.New("namespace runtime is unavailable")
 
 // Client talks only to the deployment-configured dynamic Datly admin origin.
 // The token is never taken from an SDK or MCP request.
@@ -89,6 +96,9 @@ func (c *Client) ProbeRuntime(ctx context.Context) (*sdk.RuntimeHost, error) {
 		return nil, err
 	}
 	defer response.Body.Close()
+	if response.StatusCode == http.StatusNotFound {
+		return nil, ErrNamespaceUnavailable
+	}
 	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
 		return nil, fmt.Errorf("dynamic runtime status returned %s", response.Status)
 	}
@@ -110,11 +120,77 @@ func (c *Client) ProbeRuntime(ctx context.Context) (*sdk.RuntimeHost, error) {
 	}
 	if payload.MCPURL != "" {
 		endpoint, parseErr := url.Parse(payload.MCPURL)
+		validPath := endpoint != nil && endpoint.Path == "/mcp"
+		if namespaceID, selected := sdk.NamespaceSelectionFromContext(ctx); selected && endpoint != nil {
+			validPath = validPath || endpoint.Path == "/namespaces/"+namespaceID+"/mcp"
+		}
+
 		if parseErr != nil || endpoint.Host == "" || endpoint.User != nil ||
-			(endpoint.Scheme != "http" && endpoint.Scheme != "https") || endpoint.Path != "/mcp" ||
+			(endpoint.Scheme != "http" && endpoint.Scheme != "https") || !validPath || endpoint.RawPath != "" ||
 			endpoint.RawQuery != "" || endpoint.Fragment != "" {
 			return nil, fmt.Errorf("dynamic runtime MCP endpoint is invalid")
 		}
 	}
 	return &sdk.RuntimeHost{NamespaceID: payload.NamespaceID, MCPURL: payload.MCPURL, AuthenticationMode: payload.AuthenticationMode, Status: payload.Status, Revision: payload.Revision, CheckedAt: time.Now().UTC()}, nil
+}
+
+// Connection reads the deployed namespace's virtual Agently configuration.
+// The caller must authorize namespace visibility before invoking this protected
+// deployment API. No endpoint, credentials or URL may come from the caller's body.
+func (c *Client) Connection(ctx context.Context) (json.RawMessage, error) {
+	if c == nil {
+		return nil, fmt.Errorf("dynamic runtime admin client is unavailable")
+	}
+	id, selected := sdk.NamespaceSelectionFromContext(ctx)
+	decoded, err := hex.DecodeString(id)
+	if !selected || err != nil || len(decoded) != 32 || strings.ToLower(id) != id {
+		return nil, fmt.Errorf("canonical namespace selection is required")
+	}
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/_studio/connection?namespaceId="+url.QueryEscape(id), nil)
+	if err != nil {
+		return nil, err
+	}
+	request.Header.Set("X-Studio-Runtime-Token", c.token)
+	response, err := c.http.Do(request)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+	if response.StatusCode == http.StatusNotFound {
+		return nil, ErrNamespaceUnavailable
+	}
+	if response.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("namespace connection returned %s", response.Status)
+	}
+	data, err := io.ReadAll(io.LimitReader(response.Body, 1024*1024+1))
+	if err != nil {
+		return nil, err
+	}
+	if len(data) > 1024*1024 {
+		return nil, fmt.Errorf("namespace connection exceeds size limit")
+	}
+	var payload struct {
+		NamespaceID string          `json:"namespaceId"`
+		Config      json.RawMessage `json:"config"`
+	}
+	if err = json.Unmarshal(data, &payload); err != nil {
+		return nil, err
+	}
+	if payload.NamespaceID != id {
+		return nil, fmt.Errorf("namespace connection does not match selection")
+	}
+	var consumer agentlyconfig.MCPClient
+	if err = json.Unmarshal(payload.Config, &consumer); err != nil {
+		return nil, fmt.Errorf("invalid Agently MCP connection: %w", err)
+	}
+	if consumer.ClientOptions == nil || consumer.Name == "" || consumer.Transport.Type != "streamable" {
+		return nil, fmt.Errorf("namespace connection must be a named streamable MCP client")
+	}
+	endpoint, err := url.Parse(consumer.Transport.URL)
+	if err != nil || endpoint.Host == "" || endpoint.User != nil || endpoint.RawQuery != "" || endpoint.Fragment != "" || endpoint.Scheme != "http" && endpoint.Scheme != "https" {
+		return nil, fmt.Errorf("invalid namespace connection endpoint")
+	}
+	return append(json.RawMessage(nil), payload.Config...), nil
 }

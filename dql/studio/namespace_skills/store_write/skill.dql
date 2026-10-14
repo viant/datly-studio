@@ -1,0 +1,43 @@
+#package('studio/namespace_skills/store_write')
+#import('json','encoding/json')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/namespace-skill-store/write', 'PATCH'))
+#setting($_ = $internal(true))
+#setting($_ = $connector('studio'))
+
+#define($_ = $Skills<[]*StoredSkill>(body/data))
+#define($_ = $Data<[]*StoredSkill>(output/body))
+
+SELECT skill.*, revisions.*,
+       type(skill, 'StoredSkill'), type(revisions, 'StoredRevision'),
+       CAST(skill.namespace_id AS string), CAST(skill.skill_id AS string),
+       CAST(revisions.namespace_id AS string), CAST(revisions.skill_id AS string),
+       tag(skill.namespace_id, 'sqlx:"namespace_id,primaryKey"'),
+       tag(skill.skill_id, 'sqlx:"skill_id,primaryKey"'),
+       tag(revisions.namespace_id, 'sqlx:"namespace_id,primaryKey"'),
+       tag(revisions.skill_id, 'sqlx:"skill_id,primaryKey"'),
+       tag(revisions.revision, 'sqlx:"revision,primaryKey"'),
+       CAST(skill.name AS string),
+       CAST(skill.title AS string),
+       CAST(skill.description AS string),
+       CAST(skill.latest_revision AS int),
+       CAST(skill.published_revision AS int),
+       CAST(skill.status AS string),
+       CAST(skill.created_by AS string),
+       CAST(skill.updated_by AS string),
+       CAST(skill.etag AS *int64),
+       CAST(skill.created_at AS time.Time), CAST(skill.updated_at AS time.Time),
+       CAST(skill.deleted_at AS *time.Time),
+       CAST(revisions.bundle_json AS json.RawMessage),
+       CAST(revisions.revision AS int), CAST(revisions.content_sha256 AS string),
+       CAST(revisions.created_by AS string), CAST(revisions.updated_by AS string),
+       CAST(revisions.created_at AS time.Time), CAST(revisions.updated_at AS time.Time),
+       lifecycle_type(skill, 'SkillStoreRules'),
+       lifecycle_type(revisions, 'SkillRevisionRules'),
+       concurrency_token(skill.etag)
+FROM (${embed:sql/skills.sql}) skill
+JOIN (${embed:sql/revisions.sql}) revisions
+    ON revisions.namespace_id=skill.namespace_id AND revisions.skill_id=skill.skill_id

@@ -81,6 +81,12 @@ export type Input35F4Ac8173F8Fa3Cb8E695D8Cb3D27E2B5F8D83887D73C82E65Fa26E9019D2F
     revision?: number;
 };
 
+export type Input3E014Bcb4D9Aebb2D4Ab3215C768Fa3B047D0Aea2A8F8Acc96A3F797Bd3E7537 = {
+    content?: string;
+    files?: Array<InputAd3D7F7Da6A796E9A970D9134E8Cb0548E78E5E4454Fb3C81153A98D9767A129> | null;
+    title?: string;
+};
+
 export type Input4B2C38475D83Ff82029Ec4520D07B5Ec88C1409199C252Fc696E28282C52561f = {
     expectedActiveGeneration?: number;
     reason?: string;
@@ -90,6 +96,13 @@ export type Input4B2C38475D83Ff82029Ec4520D07B5Ec88C1409199C252Fc696E28282C52561
 export type Input4C3D58D8E922B5Abbd65732F09A81D45874F0F7555537Fd9607035Bfecb9F26c = {
     cubes?: Array<unknown> | null;
     sql?: string;
+};
+
+export type Input538331453Dfbe7Cb0F7Afe0231Bd64C684A5Fd5E78A13Cc82C044933524Fdc64 = {
+    entity?: InputAb3203Ec5968978923Da72Be592Ec5E958Eb1B4E1Cc56724Ca5Ea7A8D67F5C38 | null;
+    kind?: string;
+    rules?: Array<Input538331453Dfbe7Cb0F7Afe0231Bd64C684A5Fd5E78A13Cc82C044933524Fdc64> | null;
+    value?: string;
 };
 
 export type Input57127985D5662Edb0B3D19B39A5C7C1E6Df20A3253Afa119615D9Abc0D06A16b = {
@@ -113,6 +126,12 @@ export type Input5F347683Ef0D72C421F5A4C01Ad3Ad788D864B286Ee54473499Ecc7Aaacee18
     mode?: string;
     requiredScopes?: Array<string> | null;
     rule?: InputFc83F5Dc2E1741A3C0713Acae5C5589D76E1865E7287675353Ca9558C3E7E7Dc | null;
+};
+
+export type Input608A3450A35A065C74A93A11F4A2598A1Fe6712435317Bc3Fa15Aa38E4Cd6054 = {
+    content?: string;
+    files?: Array<InputBe69A3E78Ead7826B6Cd099Ed06965F3618Cbab616Cefd4B7D7F3Ae5Da42F02b> | null;
+    title?: string;
 };
 
 export type Input6139A906F15F351C7Eae5D9897Ae3973B6172D1373D49394D6C8C69615914840 = {
@@ -176,6 +195,14 @@ export type Input8B2294Ec4854C9Dd94236A9123A7D8Fe7Dbf92Cab403Fb011D6C8Bf7D53C505
     operation?: unknown;
 };
 
+export type Input8D6956B33904910Eb5C98596261B238032C1D60Ec4985440C7C370Ac9E4Ab540 = {
+    policies?: {
+        [key: string]: InputB3Eeaba5D52Fb132E23Cb61C540F14953C5Fc9C0E0Bd74B0748F79995666F4C7;
+    } | null;
+    resource?: InputB1C1E89E6619Cb826E546Ecf8347Ad7B1464C14D32806B70E5E920Cf5D1D5578;
+    revision?: number;
+};
+
 export type Input92Babcabef72E30Fbb57Dc0D846D94Ab3444A80B93279Fb26Ff7A884Ac2Fffb8 = {
     id?: string;
     type?: string;
@@ -230,6 +257,17 @@ export type InputA0D3076A206576E1Fb379Faacd83A9E5289796C14E710E1Fe21529Cfb0C35C2
     notes?: string;
 };
 
+export type InputAb3203Ec5968978923Da72Be592Ec5E958Eb1B4E1Cc56724Ca5Ea7A8D67F5C38 = {
+    id?: string;
+    type?: string;
+};
+
+export type InputAd3D7F7Da6A796E9A970D9134E8Cb0548E78E5E4454Fb3C81153A98D9767A129 = {
+    content?: string;
+    isBinary?: boolean;
+    path?: string;
+};
+
 export type InputAdff4675F499A769Cb093E90Fbca27E902Af83Cc23C5E13071057671Fe8D89F0 = {
     content?: string;
     contentSha256?: string;
@@ -250,6 +288,20 @@ export type InputB11523Bf8A7Cc12531330E851F7Fb2Dd5C4F01768E8Eaf6D9A50D7D84Ad1250
     requestedBy?: string;
 };
 
+export type InputB1C1E89E6619Cb826E546Ecf8347Ad7B1464C14D32806B70E5E920Cf5D1D5578 = {
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
+};
+
+export type InputB3Eeaba5D52Fb132E23Cb61C540F14953C5Fc9C0E0Bd74B0748F79995666F4C7 = {
+    entityType?: string;
+    mode?: string;
+    requiredScopes?: Array<string> | null;
+    rule?: Input538331453Dfbe7Cb0F7Afe0231Bd64C684A5Fd5E78A13Cc82C044933524Fdc64 | null;
+};
+
 export type InputB94652047B45C410057De4A3D589B99411E9B1Ce7012Ae301388C27534A7D71e = {
     limit?: number;
     offset?: number;
@@ -264,6 +316,12 @@ export type InputB990D293Ef5D3E7E85A2Acebd0Bbccb12B9Ec19Ea303B41252De0B2F2Bbb9E0
     ownerId?: string;
     title?: string;
     visibility?: string;
+};
+
+export type InputBe69A3E78Ead7826B6Cd099Ed06965F3618Cbab616Cefd4B7D7F3Ae5Da42F02b = {
+    content?: string;
+    isBinary?: boolean;
+    path?: string;
 };
 
 export type InputC4Cc575A74227096D9Bc84A357106F4A2Fb90B472Fc6273F1682Ae88016Fea81 = {
@@ -703,14 +761,20 @@ export type OutputD14887150549E1252499C617Aacbd48B5Aab3C262Cdf2F62Fa7Fbaf8F1Edba
 };
 
 export type OutputD558223F5D3D6Bca0E300C59F8E624Af838223Bc61F0Cb8C88F09C757834Ddaa = {
+    allowedRoles: Array<string> | null;
+    canManage: boolean;
     createdAt: string;
     description?: string;
     etag: number;
+    mcpEnabled: boolean;
+    mcpPort?: number | null;
     name: string;
+    namespaceId: string;
     ownerId: string;
     status: string;
     title: string;
     updatedAt: string;
+    visibility: string;
 };
 
 export type OutputD6Ae8Cf116E1Bb372C284270E8317Deb57Df8687Ba83D5701493Ce02Cfb50799 = {
@@ -772,6 +836,12 @@ export type OutputF632037538F344Fc898Ce8Aad11Eec32Cea261974A86789A20Dfb9954682Ae
     kind: string;
     rules?: Array<OutputF632037538F344Fc898Ce8Aad11Eec32Cea261974A86789A20Dfb9954682Ae69> | null;
     value?: string;
+};
+
+export type Wire0000Ae7C5D7884F4Ead8C10E8038A8Cc022Ef4386007285882C2Dd1A2Fdc867e = {
+    content: string;
+    isBinary?: boolean;
+    path: string;
 };
 
 export type Wire013Ce40651897A22F1D0C9D5A29A86362333458B72C57Acb30Fa03A2473F08C6 = {
@@ -859,6 +929,25 @@ export type Wire0B4Fc596D18790B4851Cf320F7B9Abf6D446Bab3Fd3F2Ae6A2D3Cb1481542E8f
     subject: Array<Wire49686E94Bea33D02Ba3B047B649A216C420F7Aeaeb9434A4Ad87Db8B0E82Aca4> | null;
 };
 
+export type Wire0Bbf066863381F769B39Ad78B59B8059Fb6550628396F1F8C25257Ce82E6874f = {
+    createdAt: string;
+    description: string;
+    etag: number;
+    latestRevision: number;
+    name: string;
+    namespaceId: string;
+    publishedRevision: number;
+    skillId: string;
+    status: string;
+    title: string;
+    updatedAt: string;
+};
+
+export type Wire0E95F4345D42892D86B80De3Dc21631Fcf8953353774E3F80Cfbd7417A6A1Efb = {
+    revision: Wire840Cfa047107122263565776Ba6756036C58E38F7Dbf6A18C3Ad6F42C3003A86 | null;
+    skill: WireE8Eef4E2Ee505A6F0706D63914D0A1A7E51Cfcb516B0852A6Bee4Efa3Ce9E0B0 | null;
+};
+
 export type Wire0Efe2807Dd8489Fd6B68A80Fcb3A13Eacf82Bee604Ffd94663Ddcf539A88Cd14 = {
     entries: Array<string> | null;
     entryDql: string;
@@ -878,6 +967,12 @@ export type Wire0F93686C6382F8Ae45E9A8242477Ce457B683D146B3Dd9716Ec8115D7Beef8D2
     entity?: Wire517B25Ae3A6A1221520076308B5E6474437Dc4Fcead897Aa4Ecfa71Bf21374De | null;
     id?: string;
     label: string;
+};
+
+export type Wire136Fdd6E98366655D5A5095E8C68F1Bcac5A96B892272257E0A31875C4Ad186c = {
+    content: string;
+    files?: Array<Wire39683Fa2630319834046222Efde0940Aba2F6Fb3C734927Cdb6E6C4Bf93Acc07> | null;
+    title?: string;
 };
 
 export type Wire13Cb2B9Fac8E64E2Df86Cc6097Eb0Eb4E31B922506E64Ca2Fb8D0Bc76Ccdaeec = {
@@ -948,6 +1043,10 @@ export type Wire1Ad149A06Cfe9417562B1C9648E0B52832E72Cfbf4E1Ca313B15480E1Aee3E75
     versionNo: number;
 };
 
+export type Wire1C2899Fcc56A9A0B9D00C82Ab53Bc2F1A89E3B944Fcfcef8B14D5B0Ad682A921 = {
+    skill: Wire363B086D0A3385Aef883A6C101A25E628C10E16F40Db550F64380Ec9188A63F1 | null;
+};
+
 export type Wire1E3Fdf8Fcb04453947F7D75766Cc316E3E09D18591Edbeef886727E071Fe5F28 = {
     authoredDql?: string;
     authoredSql?: string;
@@ -1012,6 +1111,20 @@ export type Wire22F8D5B6B2E00Ab542F425835E6D63F595971318F417B0060E6C9Dd3890Ffd46
     kind: string;
     rules?: Array<Wire22F8D5B6B2E00Ab542F425835E6D63F595971318F417B0060E6C9Dd3890Ffd46> | null;
     value?: string;
+};
+
+export type Wire233692382231683192Dd7140456422339Bf3Eeb54D8Ac7887D29225Da9Ca7081 = {
+    createdAt: string;
+    description: string;
+    etag: number;
+    latestRevision: number;
+    name: string;
+    namespaceId: string;
+    publishedRevision: number;
+    skillId: string;
+    status: string;
+    title: string;
+    updatedAt: string;
 };
 
 export type Wire239231A7Ea3Ed59E77B205B0783836Ec39Ca3De2A814Ba109F6Bda877Ba20691 = {
@@ -1200,6 +1313,30 @@ export type Wire34Bf0E88B3A420C7Ebd2B96F24F5Cb26490558416Af1D276Ad0E58Ea91Aac052
     offset: number;
 };
 
+export type Wire35454323A091Acd320D8403A139F69D740Fe9Ed35Bba3514F08Ff8Ed60A9C1C1 = {
+    bundle: Wire136Fdd6E98366655D5A5095E8C68F1Bcac5A96B892272257E0A31875C4Ad186c;
+    contentSha256: string;
+    createdAt: string;
+    createdBy: string;
+    namespaceId: string;
+    revision: number;
+    skillId: string;
+};
+
+export type Wire363B086D0A3385Aef883A6C101A25E628C10E16F40Db550F64380Ec9188A63F1 = {
+    createdAt: string;
+    description: string;
+    etag: number;
+    latestRevision: number;
+    name: string;
+    namespaceId: string;
+    publishedRevision: number;
+    skillId: string;
+    status: string;
+    title: string;
+    updatedAt: string;
+};
+
 export type Wire385Cb42Fa02Eb6E798Cbc1F7De0Bcdf81Fdec7Bcc883Dc0D6D67A2E6F9974852 = {
     code: string;
     column?: number;
@@ -1215,6 +1352,12 @@ export type Wire38Fcb57C86Eb44D564D0165Fe128Aec29A7664C7Bb39427502B08Df9Aa42649a
     offset: number;
 };
 
+export type Wire39683Fa2630319834046222Efde0940Aba2F6Fb3C734927Cdb6E6C4Bf93Acc07 = {
+    content: string;
+    isBinary?: boolean;
+    path: string;
+};
+
 export type Wire3B57D303Fc4270172C8Dc3Dcc384045B957738421Bfa4726D93F6529707Bb684 = {
     catalog?: string;
     comment?: string;
@@ -1223,11 +1366,26 @@ export type Wire3B57D303Fc4270172C8Dc3Dcc384045B957738421Bfa4726D93F6529707Bb684
     type?: string;
 };
 
+export type Wire3C022C3F6824Eed0192925C922257B45Accccdd131156C75Ae957535Ffa9D864 = {
+    revision: WireB202A27129Afca41F80F68Ed94Bc40B9A93D92D84De82126Bac7E1E2Ec9433Fe | null;
+    skill: Wire233692382231683192Dd7140456422339Bf3Eeb54D8Ac7887D29225Da9Ca7081 | null;
+};
+
 export type Wire3C414184025D515E410A57E243B5070Ba45B75F1Bb950Da08536C0Ce5E8Fbde5 = {
     files: Array<WireBf3995C764F467C660824A6600A7149Dc689D4778F0Ef6B160E197A2Ae0B7016 | null> | null;
     folders: Array<Wire01A7A742A5Dcd667Da4D143E43944F269Ae6E23B2952948E51D0B2791D2Ed360 | null> | null;
     skills: Array<WireAacc75C3206Df7826E260289C3B0D5E2D973Fd06F1Bdc6D8B062241Bdce3294a | null> | null;
     version?: WireF932A6D94Aac7D5320966Eccf3629Df536A5A1Bc23Efddc9Cefb59Aad8Af0675 | null;
+};
+
+export type Wire40408F0A0B8Acd6D878Be4326076378Aa96079592Be6Ec18A7919Fc73B6Ee6Cb = {
+    bundle: WireF7E0E71Af22003B02F42054A48A7Fc20F287Eb50183D06B8E811C01Fad620893;
+    contentSha256: string;
+    createdAt: string;
+    createdBy: string;
+    namespaceId: string;
+    revision: number;
+    skillId: string;
 };
 
 export type Wire42Ea17Da2B60208Ef30858A88Ede92D622320Dba9D309726A67F3023Fb8Ab9E1 = {
@@ -1267,6 +1425,13 @@ export type Wire460Cf67195Fceed0E09647Cd2Eec9022848F4Fecb76Be30099431C098E162Bea
     filename: string;
     files: Array<string> | null;
     mediaType: string;
+};
+
+export type Wire461497616731306Dcde48F09E2924Bf4E01F9Ae3Cde506E2E763Cf51E8D8D387 = {
+    entity?: Wire84Dd294B4F11F08Ca3A9D1430611613B710Bcc9Fa0F1D0Ede017F74044E2F61f | null;
+    kind: string;
+    rules?: Array<Wire461497616731306Dcde48F09E2924Bf4E01F9Ae3Cde506E2E763Cf51E8D8D387> | null;
+    value?: string;
 };
 
 export type Wire46F5783921089422Ba86Ef3F21455336F0870921Db6E2Dac69F80E6517B1E68a = {
@@ -1343,6 +1508,11 @@ export type Wire4Dce8Cb2Df5Cbfb88D4Ed91E9D3Efb3Bfd51De7Faa0095856Cda22845A38C9Cf
     folders: Array<Wire503Eecae2F1D1D659F4E4C2E5E08Bec8Db2F264A5Bdc6C2B084Dc41A3Aadf478 | null> | null;
     skills: Array<Wire51Bb1F0871Dac81Cba14Ebfac4Fc554D215315E30Cd3B214596B5Da0912A4710 | null> | null;
     version?: Wire0279067683C20563Aa495E8737A819024Ba4Eb59Ced1E2723Cda5Eb5890Cb742 | null;
+};
+
+export type Wire4Fe8166D7Fd3Ba559461828B204345507C57F19819425Fa777E6Da1A325464E7 = {
+    publicationStatus: string;
+    skill: Wire85751A68C4D78Aaa4C871824Bf59452B5102E0D1C20E4Ca6F87Da0C38821Ffa9 | null;
 };
 
 export type Wire503Eecae2F1D1D659F4E4C2E5E08Bec8Db2F264A5Bdc6C2B084Dc41A3Aadf478 = {
@@ -1500,6 +1670,12 @@ export type Wire62D79Acead49Ba0D84D3Fe813A8D59B4A26F710C0953Ffa167816798Ed0333F5
     testedAt: string;
 };
 
+export type Wire6479A7Da664C407F8F41F4Fdf1E70772Bbad9691Ef67E8050Ded752Fc88E802e = {
+    content: string;
+    isBinary?: boolean;
+    path: string;
+};
+
 export type Wire65B20B1Db94B9A2B772Bc75Cedde285454A5204Dc72354F579Cf1Fe7Fcc34B2b = {
     items: Array<Wire3B57D303Fc4270172C8Dc3Dcc384045B957738421Bfa4726D93F6529707Bb684> | null;
     limit: number;
@@ -1520,6 +1696,13 @@ export type Wire686013A325C9Be56A2C1Decb9988B4F5C30A411074C3D70E9552Eecf4Ae1Fd87
     title: string;
     typeName: string;
     updatedAt: string;
+};
+
+export type Wire69A7C7Ab30F383C255Ab8Dc4322A722D528D5319Af676A4Ad4Fa42763271Dc3d = {
+    entityType?: string;
+    mode: string;
+    requiredScopes?: Array<string> | null;
+    rule?: Wire461497616731306Dcde48F09E2924Bf4E01F9Ae3Cde506E2E763Cf51E8D8D387 | null;
 };
 
 export type Wire6Bdc906E5944153Cacf17027Ff97Fe2E0524311A1C332C218E05C2Fb3A05012d = {
@@ -1631,6 +1814,14 @@ export type Wire7880C8E6D5D0Da581C3D5Daf2417D9531Fbe99E425A7546Fc53A4981Cab03A9e
     versionNo: number;
 };
 
+export type Wire7A9034382C023A3E5B4B4F9403D720Cc1Bf990D1C827A366A019D586B9F5C801 = {
+    policies: {
+        [key: string]: Wire69A7C7Ab30F383C255Ab8Dc4322A722D528D5319Af676A4Ad4Fa42763271Dc3d;
+    } | null;
+    resource: WireAfbd3Ba313288192C9A8Ae3627Ea548117F98143F4F73D04A19579F4207Fa6B3;
+    revision: number;
+};
+
 export type Wire7Af96Ca0084D089Bcfb5E8B942B9D90A7900D3C1E884C7D9C370D23294D493F8 = {
     [key: string]: unknown;
 };
@@ -1710,6 +1901,35 @@ export type Wire8147805369C129Ab8A8Ae87482Dbb8Be4C51D1125Dda4427E8Adca5F845D6A7b
     duration: number;
 };
 
+export type Wire840Cfa047107122263565776Ba6756036C58E38F7Dbf6A18C3Ad6F42C3003A86 = {
+    bundle: Wire8901495307607551B54Fae77B329Fc1B74845Fbfdb8111486323E8D7Ecd142Ce;
+    contentSha256: string;
+    createdAt: string;
+    createdBy: string;
+    namespaceId: string;
+    revision: number;
+    skillId: string;
+};
+
+export type Wire84Dd294B4F11F08Ca3A9D1430611613B710Bcc9Fa0F1D0Ede017F74044E2F61f = {
+    id: string;
+    type: string;
+};
+
+export type Wire85751A68C4D78Aaa4C871824Bf59452B5102E0D1C20E4Ca6F87Da0C38821Ffa9 = {
+    createdAt: string;
+    description: string;
+    etag: number;
+    latestRevision: number;
+    name: string;
+    namespaceId: string;
+    publishedRevision: number;
+    skillId: string;
+    status: string;
+    title: string;
+    updatedAt: string;
+};
+
 export type Wire85Fc54185957A0434E3652651310Cd5912274Fdaa90Cf7F42706E7836E67517c = {
     id: string;
     type: string;
@@ -1722,6 +1942,26 @@ export type Wire878Bfd02A12294E26D1A40F1B673A231Fa11C24402268D818F39F80Be43C86F9
     line?: number;
     message: string;
     severity: string;
+};
+
+export type Wire88709Ac613253Ed886933B7E523Ce6042F690D19Bbc5Acdf9769548415Baf599 = {
+    createdAt: string;
+    description: string;
+    etag: number;
+    latestRevision: number;
+    name: string;
+    namespaceId: string;
+    publishedRevision: number;
+    skillId: string;
+    status: string;
+    title: string;
+    updatedAt: string;
+};
+
+export type Wire8901495307607551B54Fae77B329Fc1B74845Fbfdb8111486323E8D7Ecd142Ce = {
+    content: string;
+    files?: Array<WireF1Dc57456Af4495C942542A2C666692B7Ca8F42A01F826985262B938Bf11Fd84> | null;
+    title?: string;
 };
 
 export type Wire898C903Bc4Eef9B996D8948010Fb2Ca3D9389D10Ce499B1Be1015Bbbba75993c = {
@@ -1767,6 +2007,11 @@ export type Wire8B82F013750Bb50C4A08366119Aaab33D2Ee4C3F59Ab77B868Ec2617Ec5Ef5C8
     typeManifest?: unknown;
     validatedAt?: string | null;
     versionNo: number;
+};
+
+export type Wire923Fe393829758A49477A04947Afbca35D7C7C9Dd0516E29Fffeac7678B90E3b = {
+    revision: Wire40408F0A0B8Acd6D878Be4326076378Aa96079592Be6Ec18A7919Fc73B6Ee6Cb | null;
+    skill: Wire0Bbf066863381F769B39Ad78B59B8059Fb6550628396F1F8C25257Ce82E6874f | null;
 };
 
 export type Wire9354A215074630106Ae925B0323Dfe169D763D5B75Fe24202Ca25Bd2Fb36Ab21 = {
@@ -1851,6 +2096,12 @@ export type Wire9C01Bf707962841Cbc5605469843177E10A3Ba674269Dbc69Bb1103B39Fe0C3d
     updatedAt: string;
 };
 
+export type Wire9D8264983Bf04Cffa36Aaebff7Ed30C4E0090D3061C007830E518F3633D58Fb8 = {
+    content: string;
+    files?: Array<Wire0000Ae7C5D7884F4Ead8C10E8038A8Cc022Ef4386007285882C2Dd1A2Fdc867e> | null;
+    title?: string;
+};
+
 export type Wire9E9F2A32Ff76Fe5Fcb226A8378824A3898F344E1E2394372932Dcdf203D1D145 = {
     files: Array<Wire1Ad149A06Cfe9417562B1C9648E0B52832E72Cfbf4E1Ca313B15480E1Aee3E75 | null> | null;
     folders: Array<WireBedeea2Eea3F372Feb231562Eecdb3Aa32C8017835F81Ac7E8D5978E48330812 | null> | null;
@@ -1893,12 +2144,29 @@ export type WireAacc75C3206Df7826E260289C3B0D5E2D973Fd06F1Bdc6D8B062241Bdce3294a
     versionNo: number;
 };
 
+export type WireAfbd3Ba313288192C9A8Ae3627Ea548117F98143F4F73D04A19579F4207Fa6B3 = {
+    id: string;
+    kind: string;
+    tenant: string;
+    version: string;
+};
+
 export type WireAffe7195B4B994E2Bc73C2Eafa9399E8Aa7E19Dc564D21B68F89Ebdea0B9Ea19 = {
     capabilities: Wire3100C253C572F716Ab2Eb88F6D83D813Eedfe0B04003220Edb6E98677Fced244;
     diagnostics?: Array<Wire5Dcb9A5385549159028A02B9F90B5F85B74Ea0076B725Bce7E222E5Cfe3Ae71e> | null;
     dql?: string;
     structure?: unknown;
     version: WireC3165Cf4A873913Ce00D191695Cde0C9734357C8A456041Fe80521B5E82Ab089 | null;
+};
+
+export type WireB202A27129Afca41F80F68Ed94Bc40B9A93D92D84De82126Bac7E1E2Ec9433Fe = {
+    bundle: Wire9D8264983Bf04Cffa36Aaebff7Ed30C4E0090D3061C007830E518F3633D58Fb8;
+    contentSha256: string;
+    createdAt: string;
+    createdBy: string;
+    namespaceId: string;
+    revision: number;
+    skillId: string;
 };
 
 export type WireB3C67Af74Df5A4D366C8F3A628801F07D89D1Eefd88Ebad70D3689F8970629Db = {
@@ -1940,6 +2208,11 @@ export type WireB6Bb3A3Bc73E240Bf20Da6F0Ceb8512D37Faeca8E28Cca304A69C5E7Ff81Fa51
     versionNo: number;
 };
 
+export type WireB976B7C7E16991B8B115817F945D0386Ae37D5420E53F9720556D49620Ea1E19 = {
+    publicationStatus: string;
+    skill: WireF3Ea60D2Fa17320C067919706E92C833737F3992042E85B8Ec5055E0A45De960 | null;
+};
+
 export type WireBb9C83695Ae936C7031Ab2428C59Ccda35A4E34Af9E6662A945012782Ac921E1 = {
     complete: boolean;
     dql: string;
@@ -1970,6 +2243,10 @@ export type WireBc277E5B6Cc7B5F6E3363C1E3628C4127103Aecef86Cccc990395878331130B5
 export type WireBd458392Be482912A616E980Fab94755810F3Ed4347C5351A04930F05Dd4Ce31 = {
     columns: Array<Wire284D529F33778B8025Eaf493C0C081Fa071Dfc15595367Cd050C6Aea84390073> | null;
     table: WireCcdd85Ede51B17373Dddff12304F04C5Afd91F3Fe365382C999B601899F69747;
+};
+
+export type WireBd6E76F62Db1909Af28D472C9Cb0Fb67De5010Ef927C7606Ccecfe2Dd7F95033 = {
+    items: Array<Wire88709Ac613253Ed886933B7E523Ce6042F690D19Bbc5Acdf9769548415Baf599 | null> | null;
 };
 
 export type WireBe64A4E788B222824Ca2Bfc9A2295B3Bbec8018E95Bf6A6C02777E55Ddbc83F0 = {
@@ -2036,6 +2313,10 @@ export type WireC3165Cf4A873913Ce00D191695Cde0C9734357C8A456041Fe80521B5E82Ab089
     typeManifest?: unknown;
     validatedAt?: string | null;
     versionNo: number;
+};
+
+export type WireC34A89824B0951B1Ac05F75E5Bc3De78C6291E85C6Dc07C5360C160963F1E221 = {
+    document: Wire7A9034382C023A3E5B4B4F9403D720Cc1Bf990D1C827A366A019D586B9F5C801;
 };
 
 export type WireC47Cf46B58E263Ed665Fbdce50F43Ecc62642C4837741Ba43Aaa439C1623D39c = {
@@ -2229,8 +2510,26 @@ export type WireE664Fa33D9D2D2C968C6Dabd40E4Ac01C5333F4591763B88B02Fd2Feb8B031Ca
     entities: Array<WireF791E609Dc9412B052626B655056F1150D4756F8C3A0E758A32B8022F81938D4> | null;
 };
 
+export type WireE8Eef4E2Ee505A6F0706D63914D0A1A7E51Cfcb516B0852A6Bee4Efa3Ce9E0B0 = {
+    createdAt: string;
+    description: string;
+    etag: number;
+    latestRevision: number;
+    name: string;
+    namespaceId: string;
+    publishedRevision: number;
+    skillId: string;
+    status: string;
+    title: string;
+    updatedAt: string;
+};
+
 export type WireEa1Dce693F0Fba7795Db01C064Fb101C3191020F13E052Ff246A0378Ec74F044 = {
     [key: string]: unknown;
+};
+
+export type WireEb92A7Ed6388E975E65B145F5Aff65431391B74Ba4Ce361A23586Ed9Aeb94C90 = {
+    items: Array<Wire35454323A091Acd320D8403A139F69D740Fe9Ed35Bba3514F08Ff8Ed60A9C1C1 | null> | null;
 };
 
 export type WireEc41Adb937E5F16Ce60477Ecb1B99C973B9578Fe8F638D99357Ce6779C5289F0 = {
@@ -2309,6 +2608,12 @@ export type WireF1625788B66Eacf74Ca98501Afd9A4C5D06Df56F548C1B3C679070E519Cabcba
     updatedAt: string;
 };
 
+export type WireF1Dc57456Af4495C942542A2C666692B7Ca8F42A01F826985262B938Bf11Fd84 = {
+    content: string;
+    isBinary?: boolean;
+    path: string;
+};
+
 export type WireF3E391310Ebbdfcf54A80947Dc8023074733A52A02De8Af4F489Eff13A0C137d = {
     authoredDql?: string;
     authoredSql?: string;
@@ -2336,9 +2641,29 @@ export type WireF3E391310Ebbdfcf54A80947Dc8023074733A52A02De8Af4F489Eff13A0C137d
     versionNo: number;
 };
 
+export type WireF3Ea60D2Fa17320C067919706E92C833737F3992042E85B8Ec5055E0A45De960 = {
+    createdAt: string;
+    description: string;
+    etag: number;
+    latestRevision: number;
+    name: string;
+    namespaceId: string;
+    publishedRevision: number;
+    skillId: string;
+    status: string;
+    title: string;
+    updatedAt: string;
+};
+
 export type WireF791E609Dc9412B052626B655056F1150D4756F8C3A0E758A32B8022F81938D4 = {
     id: string;
     type: string;
+};
+
+export type WireF7E0E71Af22003B02F42054A48A7Fc20F287Eb50183D06B8E811C01Fad620893 = {
+    content: string;
+    files?: Array<Wire6479A7Da664C407F8F41F4Fdf1E70772Bbad9691Ef67E8050Ded752Fc88E802e> | null;
+    title?: string;
 };
 
 export type WireF932A6D94Aac7D5320966Eccf3629Df536A5A1Bc23Efddc9Cefb59Aad8Af0675 = {
@@ -2426,6 +2751,27 @@ export type PostV1AuthzSdkPoliciesContextResponses = {
 };
 
 export type PostV1AuthzSdkPoliciesContextResponse = PostV1AuthzSdkPoliciesContextResponses[keyof PostV1AuthzSdkPoliciesContextResponses];
+
+export type PostV1AuthzSdkPoliciesCreateData = {
+    body: {
+        document: Input8D6956B33904910Eb5C98596261B238032C1D60Ec4985440C7C370Ac9E4Ab540;
+    };
+    headers?: {
+        'X-Studio-Namespace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/authz/sdk/policies.create';
+};
+
+export type PostV1AuthzSdkPoliciesCreateResponses = {
+    /**
+     * Success response
+     */
+    200: WireC34A89824B0951B1Ac05F75E5Bc3De78C6291E85C6Dc07C5360C160963F1E221;
+};
+
+export type PostV1AuthzSdkPoliciesCreateResponse = PostV1AuthzSdkPoliciesCreateResponses[keyof PostV1AuthzSdkPoliciesCreateResponses];
 
 export type PostV1AuthzSdkPoliciesGetData = {
     body: {
@@ -3068,6 +3414,185 @@ export type PostV1StudioSdkConnectorsUpdateResponses = {
 };
 
 export type PostV1StudioSdkConnectorsUpdateResponse = PostV1StudioSdkConnectorsUpdateResponses[keyof PostV1StudioSdkConnectorsUpdateResponses];
+
+export type PostV1StudioSdkNamespaceSkillsCreateData = {
+    body: {
+        bundle: Input608A3450A35A065C74A93A11F4A2598A1Fe6712435317Bc3Fa15Aa38E4Cd6054;
+    };
+    headers: {
+        'X-Studio-Namespace': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/namespace_skills.create';
+};
+
+export type PostV1StudioSdkNamespaceSkillsCreateResponses = {
+    /**
+     * Success response
+     */
+    200: Wire3C022C3F6824Eed0192925C922257B45Accccdd131156C75Ae957535Ffa9D864;
+};
+
+export type PostV1StudioSdkNamespaceSkillsCreateResponse = PostV1StudioSdkNamespaceSkillsCreateResponses[keyof PostV1StudioSdkNamespaceSkillsCreateResponses];
+
+export type PostV1StudioSdkNamespaceSkillsDeleteData = {
+    body: {
+        etag: number;
+        skillId: string;
+    };
+    headers: {
+        'X-Studio-Namespace': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/namespace_skills.delete';
+};
+
+export type PostV1StudioSdkNamespaceSkillsDeleteResponses = {
+    /**
+     * Success response
+     */
+    200: Wire1C2899Fcc56A9A0B9D00C82Ab53Bc2F1A89E3B944Fcfcef8B14D5B0Ad682A921;
+};
+
+export type PostV1StudioSdkNamespaceSkillsDeleteResponse = PostV1StudioSdkNamespaceSkillsDeleteResponses[keyof PostV1StudioSdkNamespaceSkillsDeleteResponses];
+
+export type PostV1StudioSdkNamespaceSkillsGetData = {
+    body: {
+        revision?: number;
+        skillId: string;
+    };
+    headers: {
+        'X-Studio-Namespace': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/namespace_skills.get';
+};
+
+export type PostV1StudioSdkNamespaceSkillsGetResponses = {
+    /**
+     * Success response
+     */
+    200: Wire0E95F4345D42892D86B80De3Dc21631Fcf8953353774E3F80Cfbd7417A6A1Efb;
+};
+
+export type PostV1StudioSdkNamespaceSkillsGetResponse = PostV1StudioSdkNamespaceSkillsGetResponses[keyof PostV1StudioSdkNamespaceSkillsGetResponses];
+
+export type PostV1StudioSdkNamespaceSkillsListData = {
+    body?: {
+        limit?: number;
+        offset?: number;
+        query?: string;
+    };
+    headers: {
+        'X-Studio-Namespace': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/namespace_skills.list';
+};
+
+export type PostV1StudioSdkNamespaceSkillsListResponses = {
+    /**
+     * Success response
+     */
+    200: WireBd6E76F62Db1909Af28D472C9Cb0Fb67De5010Ef927C7606Ccecfe2Dd7F95033;
+};
+
+export type PostV1StudioSdkNamespaceSkillsListResponse = PostV1StudioSdkNamespaceSkillsListResponses[keyof PostV1StudioSdkNamespaceSkillsListResponses];
+
+export type PostV1StudioSdkNamespaceSkillsPublishData = {
+    body: {
+        etag: number;
+        revision: number;
+        skillId: string;
+    };
+    headers: {
+        'X-Studio-Namespace': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/namespace_skills.publish';
+};
+
+export type PostV1StudioSdkNamespaceSkillsPublishResponses = {
+    /**
+     * Success response
+     */
+    200: WireB976B7C7E16991B8B115817F945D0386Ae37D5420E53F9720556D49620Ea1E19;
+};
+
+export type PostV1StudioSdkNamespaceSkillsPublishResponse = PostV1StudioSdkNamespaceSkillsPublishResponses[keyof PostV1StudioSdkNamespaceSkillsPublishResponses];
+
+export type PostV1StudioSdkNamespaceSkillsRevisionsData = {
+    body: {
+        limit?: number;
+        offset?: number;
+        skillId: string;
+    };
+    headers: {
+        'X-Studio-Namespace': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/namespace_skills.revisions';
+};
+
+export type PostV1StudioSdkNamespaceSkillsRevisionsResponses = {
+    /**
+     * Success response
+     */
+    200: WireEb92A7Ed6388E975E65B145F5Aff65431391B74Ba4Ce361A23586Ed9Aeb94C90;
+};
+
+export type PostV1StudioSdkNamespaceSkillsRevisionsResponse = PostV1StudioSdkNamespaceSkillsRevisionsResponses[keyof PostV1StudioSdkNamespaceSkillsRevisionsResponses];
+
+export type PostV1StudioSdkNamespaceSkillsUnpublishData = {
+    body: {
+        etag: number;
+        skillId: string;
+    };
+    headers: {
+        'X-Studio-Namespace': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/namespace_skills.unpublish';
+};
+
+export type PostV1StudioSdkNamespaceSkillsUnpublishResponses = {
+    /**
+     * Success response
+     */
+    200: Wire4Fe8166D7Fd3Ba559461828B204345507C57F19819425Fa777E6Da1A325464E7;
+};
+
+export type PostV1StudioSdkNamespaceSkillsUnpublishResponse = PostV1StudioSdkNamespaceSkillsUnpublishResponses[keyof PostV1StudioSdkNamespaceSkillsUnpublishResponses];
+
+export type PostV1StudioSdkNamespaceSkillsUpdateData = {
+    body: {
+        bundle: Input3E014Bcb4D9Aebb2D4Ab3215C768Fa3B047D0Aea2A8F8Acc96A3F797Bd3E7537;
+        etag: number;
+        skillId: string;
+    };
+    headers: {
+        'X-Studio-Namespace': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/namespace_skills.update';
+};
+
+export type PostV1StudioSdkNamespaceSkillsUpdateResponses = {
+    /**
+     * Success response
+     */
+    200: Wire923Fe393829758A49477A04947Afbca35D7C7C9Dd0516E29Fffeac7678B90E3b;
+};
+
+export type PostV1StudioSdkNamespaceSkillsUpdateResponse = PostV1StudioSdkNamespaceSkillsUpdateResponses[keyof PostV1StudioSdkNamespaceSkillsUpdateResponses];
 
 export type PostV1StudioSdkNamespacesCreateData = {
     body: InputB990D293Ef5D3E7E85A2Acebd0Bbccb12B9Ec19Ea303B41252De0B2F2Bbb9E05;

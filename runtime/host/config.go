@@ -8,6 +8,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/viant/datly-studio/audit"
+
 	forgemcp "github.com/viant/agently-core/service/primitiveprovider"
 	access "github.com/viant/authz"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
@@ -22,13 +24,23 @@ type Listener struct {
 	CORS    *mcpprotocol.Cors `yaml:"CORS,omitempty"`
 }
 type Authentication struct {
-	PublicMCPURL string                             `yaml:"PublicMCPURL"`
-	Providers    map[string]OAuthProvider           `yaml:"Providers"`
-	Components   map[string]ComponentAuthentication `yaml:"Components"`
-	DefaultMode  string                             `yaml:"DefaultMode"`
-	CertURL      string                             `yaml:"CertURL"`
-	Issuer       string                             `yaml:"Issuer"`
-	Audience     string                             `yaml:"Audience"`
+	// ConnectionExport describes the Agently OAuth client registration. Secrets
+	// remain in SCY; nil disables export for protected namespaces.
+	ConnectionExport *MCPConnectionExport               `yaml:"ConnectionExport,omitempty"`
+	PublicMCPURL     string                             `yaml:"PublicMCPURL"`
+	Providers        map[string]OAuthProvider           `yaml:"Providers"`
+	Components       map[string]ComponentAuthentication `yaml:"Components"`
+	DefaultMode      string                             `yaml:"DefaultMode"`
+	CertURL          string                             `yaml:"CertURL"`
+	Issuer           string                             `yaml:"Issuer"`
+	Audience         string                             `yaml:"Audience"`
+}
+
+type MCPConnectionExport struct {
+	Provider        string   `yaml:"Provider"`
+	ClientConfigURL string   `yaml:"ClientConfigURL"`
+	RedirectURI     string   `yaml:"RedirectURI,omitempty"`
+	Scopes          []string `yaml:"Scopes,omitempty"`
 }
 
 type OAuthProvider struct {
@@ -52,6 +64,9 @@ type Admin struct {
 	Token string `yaml:"Token"`
 }
 type Config struct {
+	// ToolCallAudit is an optional host-owned asynchronous audit logger.
+	// Nil disables capture; the host owns the sink and shutdown drain.
+	ToolCallAudit *audit.Logger `yaml:"-"`
 	// ModulePath supplies virtual dynamic package authority in a source-free deployment.
 	ModulePath string `yaml:"ModulePath,omitempty"`
 	// LinkedComponents are immutable application builds supplied by the embedding host.
@@ -61,9 +76,11 @@ type Config struct {
 	ForgeProvider *forgemcp.PrimitiveProvider `yaml:"-"`
 	// Forge configures the generic stock provider for operator-owned portable
 	// window definitions. Reporting remains outside this host contract.
-	Forge       *ForgeConfig          `yaml:"Forge,omitempty"`
-	NamespaceID string                `yaml:"NamespaceID,omitempty"`
-	Access      *ResourceAccessConfig `yaml:"Access"`
+	Forge            *ForgeConfig          `yaml:"Forge,omitempty"`
+	NamespaceID      string                `yaml:"NamespaceID,omitempty"`
+	NamespaceMCPPath string                `yaml:"-"`
+	NamespaceMCPMode string                `yaml:"NamespaceMCPMode,omitempty"`
+	Access           *ResourceAccessConfig `yaml:"Access"`
 	// DecisionProvider is supplied by the embedding process, never by YAML.
 	DecisionProvider  access.DecisionProvider    `yaml:"-"`
 	PredicatePackages []predicatecatalog.Package `yaml:"-"`
@@ -104,6 +121,10 @@ func Load(path string) (*Config, error) {
 }
 
 func (c *Config) Validate() error {
+	if c.NamespaceMCPMode != "" && c.NamespaceMCPMode != "separate" && c.NamespaceMCPMode != "shared" {
+		return fmt.Errorf("NamespaceMCPMode must be separate or shared")
+	}
+
 	if c.NamespaceID != "" {
 		decoded, err := hex.DecodeString(c.NamespaceID)
 		if err != nil || len(decoded) != 32 || c.NamespaceID != strings.ToLower(c.NamespaceID) {

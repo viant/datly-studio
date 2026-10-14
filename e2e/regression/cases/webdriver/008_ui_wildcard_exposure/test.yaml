@@ -1,0 +1,86 @@
+init:
+  caseName: ui_wildcard_exposure
+  caseTitle: Wildcard exposure component
+  caseSlug: ui-wildcard-exposure
+  caseTool: owner.ui.wildcard.exposure.read
+  allowedUser: no-role
+  deniedUser: no-exposure
+  policyCommands:
+    - page.locator(".studio-nav-security").click()
+    - page.getByLabel("Find a resource").fill("${caseTitle}")
+    - page.getByRole("button", "${caseTitle}").click()
+    - page.getByRole("button", "Create access policy").click()
+    - expect(page.locator(".studio-resource-access-heading .bp6-tag")).toHaveText("Policy revision 0",15000)
+    - page.locator("xpath://nav[@aria-label='Permission actions']//button[strong[normalize-space(.)='*']]").click()
+    - page.getByLabel("Access mode").selectOption("protected")
+    - page.getByLabel("rule condition").selectOption("exposure")
+    - page.getByLabel("rule value").selectOption("*")
+    - page.getByRole("button", "Review changes").click()
+    - expect(page.locator(".bp6-dialog-container.bp6-overlay-enter-done .studio-resource-review-dialog")).toBeVisible(15000)
+    - page.getByRole("button", "Save permissions").click()
+    - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+    - expect(page.locator(".studio-resource-access-footer [role='status']")).toHaveText("Permissions saved.",15000)
+pipeline:
+  scenario:
+    action: run
+    request: '@../../../default/access-scenario'
+  denyExecutionInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/${caseName}
+    commands:
+      - page.locator(".studio-nav-security").click()
+      - page.getByLabel("Find a resource").fill("${caseTitle}")
+      - page.getByRole("button", "${caseTitle}").click()
+      - page.locator("xpath://nav[@aria-label='Permission actions']//button[strong[normalize-space(.)='execute']]").click()
+      - page.getByLabel("Access mode").selectOption("deny")
+      - page.getByRole("button", "Review changes").click()
+      - expect(page.locator(".bp6-dialog-container.bp6-overlay-enter-done .studio-resource-review-dialog")).toBeVisible(15000)
+      - page.getByRole("button", "Save permissions").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - expect(page.locator(".studio-resource-access-heading .bp6-tag")).toHaveText("Policy revision 2",15000)
+      - page.locator(".studio-nav-namespaces").click()
+  namespaceAfterOverride:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.namespaces.get
+    arguments:
+      name: $caseName
+  runtimeAfterOverride:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.runtime.status
+    arguments:
+      namespaceId: $namespaceAfterOverride.StructuredContent.namespaceId
+  stillVisible:
+    action: mcp/runner:listTools
+    url: $runtimeAfterOverride.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/${allowedUser}.token
+  inheritedDiscovery:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $stillVisible
+    expect:
+      '@length@Tools': 1
+      Tools:
+        - Name: $caseTool
+  explicitlyDenied:
+    action: mcp/runner:call
+    url: $runtimeAfterOverride.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/${allowedUser}.token
+    '@name': $caseTool
+    arguments: {}
+    allowProtocolError: true
+    allowToolError: true
+  overrideWins:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $explicitlyDenied
+    expect:
+      IsError: true
+      ProtocolErrorCode: -32600

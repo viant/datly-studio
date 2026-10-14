@@ -19,6 +19,7 @@ import (
 )
 
 type Definition struct {
+	Name         string
 	OwnerID      string
 	Visibility   string
 	AllowedRoles []string
@@ -106,7 +107,7 @@ func (source SQLDefinitions) load(ctx context.Context, namespaceID string) ([]De
 					return nil, fmt.Errorf("namespace roles are invalid")
 				}
 			}
-			result = append(result, Definition{NamespaceID: row.NamespaceId, OwnerID: row.OwnerId, Visibility: row.Visibility, AllowedRoles: roles, Active: row.Status == "active", Enabled: row.McpEnabled && row.Status == "active", Port: port})
+			result = append(result, Definition{Name: row.Name, NamespaceID: row.NamespaceId, OwnerID: row.OwnerId, Visibility: row.Visibility, AllowedRoles: roles, Active: row.Status == "active", Enabled: row.McpEnabled && row.Status == "active", Port: port})
 		}
 		if len(output.Namespaces) < pageSize {
 			break

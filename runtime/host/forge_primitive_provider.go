@@ -24,6 +24,7 @@ import (
 // The canonical source binds presentation and exact native component contracts
 // in one working candidate. It neither invents stamps nor changes logical URIs.
 type stockPrimitiveSource struct {
+	datasources      map[string]stockDatasourceEntry
 	original         *stockWindowSource
 	snapshot         *coreresource.NativeAssetSnapshot
 	components       map[ComponentReference]string
@@ -68,6 +69,10 @@ func (s *stockPrimitiveSource) materialize(bundle stockWindowBundle, entry stock
 		binding := bundle.Components[id].Binding
 		copy := *source
 		copy.Backend = &windowprotocol.Backend{Kind: "datly", Ownership: "provider", Method: "windows/datasource", Component: &binding, SchemaFingerprint: binding.SchemaFingerprint, Pinned: map[string]any{"dataSourceId": id}}
+		if entry.config.PublishDataSources {
+			copy.Backend.Method = "datasources/fetch"
+			copy.Backend.Pinned = nil
+		}
 		raw, err := json.Marshal(copy)
 		if err != nil {
 			return nil, err
@@ -83,6 +88,16 @@ func (s *stockPrimitiveSource) materialize(bundle stockWindowBundle, entry stock
 		presentation := source.DataSource
 		w.DataSource[id] = presentation
 		w.ResourceDependencies[id], v.DataSources[id] = fingerprint, raw
+		if entry.config.PublishDataSources {
+			if v.DataSourceResources == nil {
+				v.DataSourceResources = map[string]primitive.DataSourceReference{}
+			}
+			datasourceBytes, err := json.Marshal(stockDatasourceDefinition{SchemaVersion: 1, DataSource: &copy})
+			if err != nil {
+				return nil, err
+			}
+			v.DataSourceResources[id] = primitive.DataSourceReference{ProviderIdentity: s.original.service.config.Forge.ProviderIdentity, Resource: identity.ResourceRef{URI: stockDatasourceURI(entry.uri, id).String(), Revision: identity.WorkingCandidate}, ContentFingerprint: identity.ContentFingerprint(datasourceBytes)}
+		}
 	}
 	fingerprint, err := types.WindowVariantFingerprint(v)
 	if err != nil {
@@ -91,6 +106,10 @@ func (s *stockPrimitiveSource) materialize(bundle stockWindowBundle, entry stock
 	// These source files have no target-aware import mechanism. Advertise only
 	// the actual default and explicit web/desktop rendering of the same source.
 	envelope := types.WindowResourceEnvelope{SchemaVersion: 2, Format: types.WindowBundleFormat, Variants: map[string]types.WindowResourceVariant{fingerprint: v}, Targets: []types.WindowTargetBinding{{Variant: fingerprint}, {Target: types.WindowTarget{Platform: "web", FormFactor: "desktop"}, Variant: fingerprint}}}
+	if entry.config.PublishDataSources {
+		envelope.SchemaVersion = 3
+		envelope.Format = types.WindowReferencesFormat
+	}
 	if err = envelope.Validate(); err != nil {
 		return nil, err
 	}
@@ -164,22 +183,43 @@ func (s *Service) initWindowPrimitives(source *stockWindowSource, policy *stockW
 		_ = s.closePrimitiveMetadata(context.Background())
 		return err
 	}
+	canonical.datasources = map[string]stockDatasourceEntry{}
 	bindings := make([]coreresource.LocalResourceBinding, 0, len(source.entries))
 	for _, entry := range source.entries {
 		entry := entry
-		bindings = append(bindings, coreresource.LocalResourceBinding{URI: entry.config.URI, Title: entry.uri.Name, FormatVersion: 2, Resolver: func(_ context.Context, _ identity.VerifiedActor, action string) (*identity.ResourceResolver, error) {
+		formatVersion := int64(2)
+		if entry.config.PublishDataSources {
+			formatVersion = 3
+		}
+		bindings = append(bindings, coreresource.LocalResourceBinding{URI: entry.config.URI, Title: entry.uri.Name, FormatVersion: formatVersion, Resolver: func(_ context.Context, _ identity.VerifiedActor, action string) (*identity.ResourceResolver, error) {
 			selectedAction := "discover"
 			if action == "resource.get" {
 				selectedAction = "describe"
 			}
 			return &identity.ResourceResolver{ProviderIdentity: s.config.Forge.ProviderIdentity, Source: canonical, Policy: stockPrimitivePolicy{base: policy, action: selectedAction}}, nil
 		}})
+		if entry.config.PublishDataSources {
+			for id := range entry.config.Components {
+				datasource := stockDatasourceEntry{owner: entry, id: id, uri: stockDatasourceURI(entry.uri, id)}
+				if _, exists := canonical.datasources[datasource.uri.String()]; exists {
+					return fmt.Errorf("configured datasource identity is ambiguous")
+				}
+				canonical.datasources[datasource.uri.String()] = datasource
+				bindings = append(bindings, coreresource.LocalResourceBinding{URI: datasource.uri.String(), Title: id, FormatVersion: 1, Resolver: func(_ context.Context, _ identity.VerifiedActor, action string) (*identity.ResourceResolver, error) {
+					selectedAction := "discover"
+					if action == "resource.get" {
+						selectedAction = "describe"
+					}
+					return &identity.ResourceResolver{ProviderIdentity: s.config.Forge.ProviderIdentity, Source: stockDatasourceSource{canonical: canonical, entry: datasource}, Policy: stockDatasourcePolicy{base: policy, entry: datasource, action: selectedAction}}, nil
+				}})
+			}
+		}
 	}
 	provider, err := coreresource.NewLocalProvider(coreresource.LocalConfig{ProviderIdentity: s.config.Forge.ProviderIdentity, Actor: actor, Verify: verify, Bindings: bindings, WindowIndex: canonical.index, WindowListVisibility: func(ctx context.Context, _ identity.VerifiedActor, binding coreresource.LocalResourceBinding) (bool, error) {
 		entry := source.entries[binding.URI]
 		_, err := policy.selectWindow(ctx, entry, "discover")
 		return err == nil, nil
-	}, Validators: map[string]coreresource.LocalResourceValidator{"window": coreresource.ValidateWindowBundle}, Authorize: func(ctx context.Context, _ identity.VerifiedActor, uri identity.ResourceURI, action string) error {
+	}, Validators: map[string]coreresource.LocalResourceValidator{"window": coreresource.ValidateWindowBundle, "datasource": validateStockDatasourceDefinition}, Authorize: func(ctx context.Context, _ identity.VerifiedActor, uri identity.ResourceURI, action string) error {
 		if action == "namespace.list" || action == "namespace.get" {
 			for _, entry := range source.entries {
 				if entry.uri.Namespace == uri.Namespace {
@@ -190,13 +230,17 @@ func (s *Service) initWindowPrimitives(source *stockWindowSource, policy *stockW
 			}
 			return identity.ErrResourceDenied
 		}
-		entry, ok := source.entries[uri.String()]
-		if !ok {
-			return identity.ErrResourceDenied
-		}
 		if action == "resource.list" {
 			_, err := policy.principal(ctx)
 			return err
+		}
+		entry, ok := source.entries[uri.String()]
+		if uri.Kind == "datasource" {
+			datasource, exists := canonical.datasources[uri.String()]
+			entry, ok = datasource.owner, exists
+		}
+		if !ok {
+			return identity.ErrResourceDenied
 		}
 		selectedAction := "discover"
 		if action == "resource.get" {
@@ -258,7 +302,7 @@ func (s *Service) primitiveFetch(ctx context.Context, in stockDatasourceInput) (
 	if current.ValidUntil.Before(operationPin.ValidUntil) {
 		operationPin.ValidUntil = current.ValidUntil
 	}
-	variant, err := types.SelectWindowResource(approved, nil)
+	variant, err := types.SelectWindowResourceWithReferences(approved, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -308,7 +352,7 @@ func (s *Service) signExecutionProof(ctx context.Context, get *primitive.GetResu
 	if get == nil || get.ResolvedResource == nil || get.Resource == nil {
 		return identity.ErrResourceDenied
 	}
-	variant, err := types.SelectWindowResource(get.Resource.DefinitionBytes, nil)
+	variant, err := types.SelectWindowResourceWithReferences(get.Resource.DefinitionBytes, nil)
 	if err != nil {
 		return err
 	}
@@ -325,7 +369,11 @@ func (s *Service) registerWindowPrimitives(base *protoserver.DefaultHandler) err
 	if s.windowPrimitives == nil {
 		return nil
 	}
-	for _, name := range []string{"namespaces/list", "namespaces/get", "windows/list", "windows/get", "windows/datasource"} {
+	names := []string{"namespaces/list", "namespaces/get", "windows/list", "windows/get", "windows/datasource"}
+	if len(s.windowPrimitiveSource.datasources) > 0 {
+		names = append(names, "datasources/list", "datasources/get", "datasources/fetch")
+	}
+	for _, name := range names {
 		name := name
 		var sample any
 		switch name {
@@ -333,10 +381,12 @@ func (s *Service) registerWindowPrimitives(base *protoserver.DefaultHandler) err
 			sample = &primitive.NamespaceListRequest{}
 		case "namespaces/get":
 			sample = &primitive.NamespaceGetRequest{}
-		case "windows/list":
+		case "windows/list", "datasources/list":
 			sample = &primitive.ListRequest{}
-		case "windows/get":
+		case "windows/get", "datasources/get":
 			sample = &primitive.GetRequest{}
+		case "datasources/fetch":
+			sample = &stockPublishedDatasourceInput{}
 		default:
 			sample = &stockDatasourceInput{}
 		}
@@ -366,26 +416,48 @@ func (s *Service) registerWindowPrimitives(base *protoserver.DefaultHandler) err
 								capabilities.Kinds[i].Operations = append(capabilities.Kinds[i].Operations, "fetch")
 								capabilities.Kinds[i].Methods["fetch"] = "windows/datasource"
 							}
+							if capabilities.Kinds[i].Kind == "datasource" {
+								capabilities.Kinds[i].Operations = append(capabilities.Kinds[i].Operations, "fetch")
+								capabilities.Kinds[i].Methods["fetch"] = "datasources/fetch"
+							}
 						}
 					}
 					value = capabilities
 				}
-			case "windows/list":
+			case "windows/list", "datasources/list":
 				var in primitive.ListRequest
 				err = decodePrimitiveArgs(request.Params.Arguments, &in)
 				if err == nil {
-					value, err = s.windowPrimitives.List(ctx, "window", in)
+					kind := "window"
+					if name == "datasources/list" {
+						kind = "datasource"
+					}
+					value, err = s.windowPrimitives.List(ctx, kind, in)
 				}
-			case "windows/get":
+			case "windows/get", "datasources/get":
 				var in primitive.GetRequest
 				err = decodePrimitiveArgs(request.Params.Arguments, &in)
 				if err == nil {
 					var get *primitive.GetResult
-					get, err = s.windowPrimitives.Get(ctx, "window", in)
+					kind := "window"
+					if name == "datasources/get" {
+						kind = "datasource"
+					}
+					get, err = s.windowPrimitives.Get(ctx, kind, in)
 					if err == nil {
-						err = s.signExecutionProof(ctx, get)
+						if kind == "datasource" {
+							err = s.signDatasourceExecutionProof(ctx, get)
+						} else {
+							err = s.signExecutionProof(ctx, get)
+						}
 					}
 					value = get
+				}
+			case "datasources/fetch":
+				var in stockPublishedDatasourceInput
+				err = decodePrimitiveArgs(request.Params.Arguments, &in)
+				if err == nil {
+					value, err = s.publishedDatasourceFetch(ctx, in)
 				}
 			default:
 				var in stockDatasourceInput

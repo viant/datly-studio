@@ -1,0 +1,703 @@
+{
+  "schemaVersion": 1,
+  "catalogSource": "Endly mcp/runner:listTools, operation fa9f5b0f-8be0-4a6a-a659-b840e21458c3, 2026-10-13",
+  "tools": [
+    {
+      "name": "authz.sdk.authorization.check",
+      "cases": [],
+      "status": "pending"
+    },
+    {
+      "name": "authz.sdk.policies.context",
+      "cases": [],
+      "status": "pending"
+    },
+    {
+      "name": "authz.sdk.policies.create",
+      "cases": [],
+      "status": "pending"
+    },
+    {
+      "name": "authz.sdk.policies.get",
+      "cases": [],
+      "status": "pending"
+    },
+    {
+      "name": "authz.sdk.policies.replace",
+      "cases": [],
+      "status": "pending"
+    },
+    {
+      "name": "studio.component_cube_configs.read",
+      "cases": [],
+      "status": "pending"
+    },
+    {
+      "name": "studio.component_mcp_exposures.read",
+      "cases": [
+        "regression/cases/mcp/013_publication_lifecycle/test.yaml"
+      ],
+      "status": "authored-unverified",
+      "notes": "Empty DQL-import inventory verified; nonempty persisted relational metadata coverage remains outstanding."
+    },
+    {
+      "name": "studio.component_parameters.read",
+      "cases": [
+        "regression/cases/mcp/013_publication_lifecycle/test.yaml"
+      ],
+      "status": "authored-unverified",
+      "notes": "Empty DQL-import inventory verified; nonempty persisted relational metadata coverage remains outstanding."
+    },
+    {
+      "name": "studio.component_publications.read",
+      "cases": [
+        "regression/cases/mcp/013_publication_lifecycle/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.component_resource_files.read",
+      "cases": [
+        "regression/cases/mcp/008_resource_skill_lifecycle/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.component_resource_folders.read",
+      "cases": [
+        "regression/cases/mcp/008_resource_skill_lifecycle/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.component_skill_roots.read",
+      "cases": [
+        "regression/cases/mcp/008_resource_skill_lifecycle/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.component_versions.read",
+      "cases": [
+        "regression/cases/mcp/013_publication_lifecycle/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.component_versions.readByVersionNo",
+      "cases": [
+        "regression/cases/mcp/013_publication_lifecycle/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.component_views.read",
+      "cases": [
+        "regression/cases/mcp/013_publication_lifecycle/test.yaml"
+      ],
+      "status": "authored-unverified",
+      "notes": "Empty DQL-import inventory verified; nonempty persisted relational metadata coverage remains outstanding."
+    },
+    {
+      "name": "studio.component_warmup_runs.read",
+      "cases": [],
+      "status": "pending"
+    },
+    {
+      "name": "studio.runtime_generations.read",
+      "cases": [],
+      "status": "pending"
+    },
+    {
+      "name": "studio.sdk.access.context",
+      "cases": [],
+      "status": "pending"
+    },
+    {
+      "name": "studio.sdk.access.get",
+      "cases": [],
+      "status": "pending"
+    },
+    {
+      "name": "studio.sdk.access.list",
+      "cases": [],
+      "status": "pending"
+    },
+    {
+      "name": "studio.sdk.access.replace",
+      "cases": [],
+      "status": "pending"
+    },
+    {
+      "name": "studio.sdk.acl.delete",
+      "cases": [
+        "regression/cases/permissions/002_acl_roles_revocation/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.acl.list",
+      "cases": [
+        "regression/cases/permissions/002_acl_roles_revocation/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.acl.upsert",
+      "cases": [
+        "regression/cases/permissions/002_acl_roles_revocation/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.authorization_predicates.create",
+      "cases": [
+        "regression/cases/mcp/010_predicate_catalog_lifecycle/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.authorization_predicates.delete",
+      "cases": [
+        "regression/cases/mcp/010_predicate_catalog_lifecycle/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.authorization_predicates.get",
+      "cases": [
+        "regression/cases/mcp/010_predicate_catalog_lifecycle/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.authorization_predicates.list",
+      "cases": [
+        "regression/cases/mcp/010_predicate_catalog_lifecycle/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.authorization_predicates.types",
+      "cases": [
+        "regression/cases/mcp/005_package_predicate/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.authorization_predicates.update",
+      "cases": [
+        "regression/cases/mcp/010_predicate_catalog_lifecycle/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.components.create",
+      "cases": [
+        "regression/cases/permissions/002_acl_roles_revocation/test.yaml",
+        "regression/cases/permissions/001_outsider/test.yaml",
+        "regression/cases/mcp/004_publish_invoke/test.yaml",
+        "regression/cases/mcp/007_component_update_archive/test.yaml",
+        "regression/cases/mcp/003_component_authoring/test.yaml",
+        "regression/cases/mcp/005_package_predicate/test.yaml",
+        "regression/cases/mcp/009_builder_revision_clone/test.yaml",
+        "regression/cases/mcp/008_resource_skill_lifecycle/test.yaml",
+        "regression/cases/mcp/011_namespace_runtime_isolation/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.components.get",
+      "cases": [
+        "regression/cases/permissions/002_acl_roles_revocation/test.yaml",
+        "regression/cases/permissions/001_outsider/test.yaml",
+        "regression/cases/mcp/007_component_update_archive/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.components.list",
+      "cases": [
+        "regression/cases/mcp/007_component_update_archive/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.components.update",
+      "cases": [
+        "regression/cases/permissions/002_acl_roles_revocation/test.yaml",
+        "regression/cases/mcp/007_component_update_archive/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.connectors.activate",
+      "cases": [
+        "regression/cases/webdriver/002_component_create/test.yaml",
+        "regression/cases/permissions/002_acl_roles_revocation/test.yaml",
+        "regression/cases/permissions/001_outsider/test.yaml",
+        "regression/cases/mcp/004_publish_invoke/test.yaml",
+        "regression/cases/mcp/002_connector_lifecycle/test.yaml",
+        "regression/cases/mcp/007_component_update_archive/test.yaml",
+        "regression/cases/mcp/003_component_authoring/test.yaml",
+        "regression/cases/mcp/005_package_predicate/test.yaml",
+        "regression/cases/mcp/009_builder_revision_clone/test.yaml",
+        "regression/cases/mcp/008_resource_skill_lifecycle/test.yaml",
+        "regression/cases/mcp/011_namespace_runtime_isolation/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.connectors.create",
+      "cases": [
+        "regression/cases/webdriver/002_component_create/test.yaml",
+        "regression/cases/permissions/002_acl_roles_revocation/test.yaml",
+        "regression/cases/permissions/001_outsider/test.yaml",
+        "regression/cases/mcp/004_publish_invoke/test.yaml",
+        "regression/cases/mcp/002_connector_lifecycle/test.yaml",
+        "regression/cases/mcp/007_component_update_archive/test.yaml",
+        "regression/cases/mcp/003_component_authoring/test.yaml",
+        "regression/cases/mcp/005_package_predicate/test.yaml",
+        "regression/cases/mcp/009_builder_revision_clone/test.yaml",
+        "regression/cases/mcp/008_resource_skill_lifecycle/test.yaml",
+        "regression/cases/mcp/011_namespace_runtime_isolation/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.connectors.delete",
+      "cases": [
+        "regression/cases/mcp/002_connector_lifecycle/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.connectors.disable",
+      "cases": [
+        "regression/cases/mcp/002_connector_lifecycle/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.connectors.get",
+      "cases": [
+        "regression/cases/webdriver/002_component_create/test.yaml",
+        "regression/cases/permissions/002_acl_roles_revocation/test.yaml",
+        "regression/cases/permissions/001_outsider/test.yaml",
+        "regression/cases/mcp/004_publish_invoke/test.yaml",
+        "regression/cases/mcp/002_connector_lifecycle/test.yaml",
+        "regression/cases/mcp/007_component_update_archive/test.yaml",
+        "regression/cases/mcp/003_component_authoring/test.yaml",
+        "regression/cases/mcp/005_package_predicate/test.yaml",
+        "regression/cases/mcp/009_builder_revision_clone/test.yaml",
+        "regression/cases/mcp/008_resource_skill_lifecycle/test.yaml",
+        "regression/cases/mcp/011_namespace_runtime_isolation/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.connectors.list",
+      "cases": [
+        "regression/cases/mcp/002_connector_lifecycle/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.connectors.schemas",
+      "cases": [
+        "regression/cases/mcp/002_connector_lifecycle/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.connectors.table",
+      "cases": [
+        "regression/cases/mcp/002_connector_lifecycle/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.connectors.tables",
+      "cases": [
+        "regression/cases/mcp/002_connector_lifecycle/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.connectors.test",
+      "cases": [
+        "regression/cases/webdriver/002_component_create/test.yaml",
+        "regression/cases/permissions/002_acl_roles_revocation/test.yaml",
+        "regression/cases/permissions/001_outsider/test.yaml",
+        "regression/cases/mcp/004_publish_invoke/test.yaml",
+        "regression/cases/mcp/002_connector_lifecycle/test.yaml",
+        "regression/cases/mcp/007_component_update_archive/test.yaml",
+        "regression/cases/mcp/003_component_authoring/test.yaml",
+        "regression/cases/mcp/005_package_predicate/test.yaml",
+        "regression/cases/mcp/009_builder_revision_clone/test.yaml",
+        "regression/cases/mcp/008_resource_skill_lifecycle/test.yaml",
+        "regression/cases/mcp/011_namespace_runtime_isolation/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.connectors.test_sql",
+      "cases": [
+        "regression/cases/mcp/002_connector_lifecycle/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.sdk.connectors.update",
+      "cases": [
+        "regression/cases/mcp/002_connector_lifecycle/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.namespace_skills.create",
+      "cases": [
+        "regression/cases/mcp/012_namespace_skills/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.sdk.namespace_skills.delete",
+      "cases": [
+        "regression/cases/mcp/012_namespace_skills/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.sdk.namespace_skills.get",
+      "cases": [
+        "regression/cases/mcp/012_namespace_skills/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.sdk.namespace_skills.list",
+      "cases": [
+        "regression/cases/mcp/012_namespace_skills/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.sdk.namespace_skills.publish",
+      "cases": [
+        "regression/cases/mcp/012_namespace_skills/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.sdk.namespace_skills.revisions",
+      "cases": [
+        "regression/cases/mcp/012_namespace_skills/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.sdk.namespace_skills.unpublish",
+      "cases": [
+        "regression/cases/mcp/012_namespace_skills/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.sdk.namespace_skills.update",
+      "cases": [
+        "regression/cases/mcp/012_namespace_skills/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.sdk.namespaces.create",
+      "cases": [
+        "regression/cases/webdriver/002_component_create/test.yaml",
+        "regression/cases/permissions/002_acl_roles_revocation/test.yaml",
+        "regression/cases/permissions/001_outsider/test.yaml",
+        "regression/cases/mcp/004_publish_invoke/test.yaml",
+        "regression/cases/mcp/002_connector_lifecycle/test.yaml",
+        "regression/cases/mcp/006_namespace_lifecycle/test.yaml",
+        "regression/cases/mcp/007_component_update_archive/test.yaml",
+        "regression/cases/mcp/003_component_authoring/test.yaml",
+        "regression/cases/mcp/005_package_predicate/test.yaml",
+        "regression/cases/mcp/009_builder_revision_clone/test.yaml",
+        "regression/cases/mcp/008_resource_skill_lifecycle/test.yaml",
+        "regression/cases/mcp/011_namespace_runtime_isolation/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.sdk.namespaces.delete",
+      "cases": [
+        "regression/cases/mcp/006_namespace_lifecycle/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.sdk.namespaces.get",
+      "cases": [
+        "regression/cases/mcp/006_namespace_lifecycle/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.sdk.namespaces.list",
+      "cases": [
+        "regression/cases/mcp/006_namespace_lifecycle/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.sdk.namespaces.update",
+      "cases": [
+        "regression/cases/permissions/002_acl_roles_revocation/test.yaml",
+        "regression/cases/mcp/006_namespace_lifecycle/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.sdk.preview.execute",
+      "cases": [
+        "regression/cases/mcp/003_component_authoring/test.yaml",
+        "regression/cases/mcp/005_package_predicate/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.publications.events.list",
+      "cases": [
+        "regression/cases/mcp/004_publish_invoke/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.publications.get",
+      "cases": [
+        "regression/cases/mcp/013_publication_lifecycle/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.sdk.publications.publish",
+      "cases": [
+        "regression/cases/mcp/004_publish_invoke/test.yaml",
+        "regression/cases/mcp/011_namespace_runtime_isolation/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.publications.rollback",
+      "cases": [
+        "regression/cases/mcp/013_publication_lifecycle/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.sdk.publications.unpublish",
+      "cases": [
+        "regression/cases/mcp/013_publication_lifecycle/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.sdk.resources.delete_file",
+      "cases": [
+        "regression/cases/mcp/008_resource_skill_lifecycle/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.resources.delete_folder",
+      "cases": [
+        "regression/cases/mcp/008_resource_skill_lifecycle/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.resources.delete_skill",
+      "cases": [
+        "regression/cases/mcp/008_resource_skill_lifecycle/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.resources.get",
+      "cases": [
+        "regression/cases/mcp/008_resource_skill_lifecycle/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.resources.upsert_file",
+      "cases": [
+        "regression/cases/mcp/008_resource_skill_lifecycle/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.resources.upsert_folder",
+      "cases": [
+        "regression/cases/mcp/008_resource_skill_lifecycle/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.resources.upsert_skill",
+      "cases": [
+        "regression/cases/mcp/008_resource_skill_lifecycle/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.runtime.status",
+      "cases": [
+        "regression/cases/mcp/004_publish_invoke/test.yaml",
+        "regression/cases/mcp/011_namespace_runtime_isolation/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.versions.apply",
+      "cases": [
+        "regression/cases/mcp/009_builder_revision_clone/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.versions.builder",
+      "cases": [
+        "regression/cases/mcp/009_builder_revision_clone/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.versions.clone",
+      "cases": [
+        "regression/cases/mcp/009_builder_revision_clone/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.versions.create",
+      "cases": [
+        "regression/cases/mcp/009_builder_revision_clone/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.versions.descriptor",
+      "cases": [
+        "regression/cases/mcp/003_component_authoring/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.versions.download",
+      "cases": [
+        "regression/cases/mcp/003_component_authoring/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.versions.export_dql",
+      "cases": [
+        "regression/cases/mcp/003_component_authoring/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.versions.get",
+      "cases": [
+        "regression/cases/mcp/003_component_authoring/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.versions.inspect",
+      "cases": [
+        "regression/cases/mcp/003_component_authoring/test.yaml",
+        "regression/cases/mcp/009_builder_revision_clone/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.versions.list",
+      "cases": [
+        "regression/cases/mcp/003_component_authoring/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.versions.load_archive",
+      "cases": [
+        "regression/cases/mcp/013_publication_lifecycle/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.sdk.versions.load_dql",
+      "cases": [
+        "regression/cases/permissions/002_acl_roles_revocation/test.yaml",
+        "regression/cases/permissions/001_outsider/test.yaml",
+        "regression/cases/mcp/004_publish_invoke/test.yaml",
+        "regression/cases/mcp/007_component_update_archive/test.yaml",
+        "regression/cases/mcp/003_component_authoring/test.yaml",
+        "regression/cases/mcp/005_package_predicate/test.yaml",
+        "regression/cases/mcp/008_resource_skill_lifecycle/test.yaml",
+        "regression/cases/mcp/011_namespace_runtime_isolation/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.versions.test_compose",
+      "cases": [
+        "regression/cases/webdriver/014_ui_cube_compose/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.sdk.versions.test_relation",
+      "cases": [],
+      "status": "pending"
+    },
+    {
+      "name": "studio.sdk.versions.test_view",
+      "cases": [
+        "regression/cases/mcp/009_builder_revision_clone/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.versions.validate",
+      "cases": [
+        "regression/cases/mcp/004_publish_invoke/test.yaml",
+        "regression/cases/mcp/003_component_authoring/test.yaml",
+        "regression/cases/mcp/011_namespace_runtime_isolation/test.yaml"
+      ],
+      "status": "authored-unverified"
+    },
+    {
+      "name": "studio.sdk.versions.warmup",
+      "cases": [
+        "regression/cases/mcp/014_warmup_lifecycle/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.sdk.versions.warmup_get",
+      "cases": [
+        "regression/cases/mcp/014_warmup_lifecycle/test.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "name": "studio.sdk.versions.warmup_list",
+      "cases": [
+        "regression/cases/mcp/014_warmup_lifecycle/test.yaml"
+      ],
+      "status": "verified"
+    }
+  ]
+}

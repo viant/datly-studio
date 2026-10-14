@@ -1,0 +1,240 @@
+# Endly uses SCY signing, matching Platform e2e. Never print tokens.
+pipeline:
+  sign0:
+    action: secret:signJWT
+    expiryInSec: 7200
+    privateKey:
+      URL: ${runDir}/private.pem
+    claimsURL: ${runDir}/claims/owner.json
+  save0:
+    init:
+      jwtToken: $sign0.TokenString
+    action: storage:upload
+    sourceKey: jwtToken
+    mode: 384
+    dest:
+      URL: ${runDir}/owner.token
+  sign1:
+    action: secret:signJWT
+    expiryInSec: 7200
+    privateKey:
+      URL: ${runDir}/private.pem
+    claimsURL: ${runDir}/claims/editor.json
+  save1:
+    init:
+      jwtToken: $sign1.TokenString
+    action: storage:upload
+    sourceKey: jwtToken
+    mode: 384
+    dest:
+      URL: ${runDir}/editor.token
+  sign2:
+    action: secret:signJWT
+    expiryInSec: 7200
+    privateKey:
+      URL: ${runDir}/private.pem
+    claimsURL: ${runDir}/claims/viewer.json
+  save2:
+    init:
+      jwtToken: $sign2.TokenString
+    action: storage:upload
+    sourceKey: jwtToken
+    mode: 384
+    dest:
+      URL: ${runDir}/viewer.token
+  sign3:
+    action: secret:signJWT
+    expiryInSec: 7200
+    privateKey:
+      URL: ${runDir}/private.pem
+    claimsURL: ${runDir}/claims/runner.json
+  save3:
+    init:
+      jwtToken: $sign3.TokenString
+    action: storage:upload
+    sourceKey: jwtToken
+    mode: 384
+    dest:
+      URL: ${runDir}/runner.token
+  sign4:
+    action: secret:signJWT
+    expiryInSec: 7200
+    privateKey:
+      URL: ${runDir}/private.pem
+    claimsURL: ${runDir}/claims/outsider.json
+  save4:
+    init:
+      jwtToken: $sign4.TokenString
+    action: storage:upload
+    sourceKey: jwtToken
+    mode: 384
+    dest:
+      URL: ${runDir}/outsider.token
+  sign5:
+    action: secret:signJWT
+    expiryInSec: -3600
+    privateKey:
+      URL: ${runDir}/private.pem
+    claimsURL: ${runDir}/claims/expired.json
+  save5:
+    init:
+      jwtToken: $sign5.TokenString
+    action: storage:upload
+    sourceKey: jwtToken
+    mode: 384
+    dest:
+      URL: ${runDir}/expired.token
+  sign6:
+    action: secret:signJWT
+    expiryInSec: 7200
+    privateKey:
+      URL: ${runDir}/private.pem
+    claimsURL: ${runDir}/claims/wrong-issuer.json
+  save6:
+    init:
+      jwtToken: $sign6.TokenString
+    action: storage:upload
+    sourceKey: jwtToken
+    mode: 384
+    dest:
+      URL: ${runDir}/wrong-issuer.token
+  sign7:
+    action: secret:signJWT
+    expiryInSec: 7200
+    privateKey:
+      URL: ${runDir}/private.pem
+    claimsURL: ${runDir}/claims/sales-reader.json
+  save7:
+    init:
+      jwtToken: $sign7.TokenString
+    action: storage:upload
+    sourceKey: jwtToken
+    mode: 384
+    dest:
+      URL: ${runDir}/sales-reader.token
+  sign8:
+    action: secret:signJWT
+    expiryInSec: 7200
+    privateKey:
+      URL: ${runDir}/private.pem
+    claimsURL: ${runDir}/claims/ops-reader.json
+  save8:
+    init:
+      jwtToken: $sign8.TokenString
+    action: storage:upload
+    sourceKey: jwtToken
+    mode: 384
+    dest:
+      URL: ${runDir}/ops-reader.token
+  sign9:
+    action: secret:signJWT
+    expiryInSec: 7200
+    privateKey:
+      URL: ${runDir}/private.pem
+    claimsURL: ${runDir}/claims/no-exposure.json
+  save9:
+    init:
+      jwtToken: $sign9.TokenString
+    action: storage:upload
+    sourceKey: jwtToken
+    mode: 384
+    dest:
+      URL: ${runDir}/no-exposure.token
+  sign10:
+    action: secret:signJWT
+    expiryInSec: 7200
+    privateKey:
+      URL: ${runDir}/private.pem
+    claimsURL: ${runDir}/claims/no-role.json
+  save10:
+    init:
+      jwtToken: $sign10.TokenString
+    action: storage:upload
+    sourceKey: jwtToken
+    mode: 384
+    dest:
+      URL: ${runDir}/no-role.token
+  sign11:
+    action: secret:signJWT
+    expiryInSec: 7200
+    privateKey:
+      URL: ${runDir}/private.pem
+    claimsURL: ${runDir}/claims/customer-10.json
+  save11:
+    init:
+      jwtToken: $sign11.TokenString
+    action: storage:upload
+    sourceKey: jwtToken
+    mode: 384
+    dest:
+      URL: ${runDir}/customer-10.token
+  sign12:
+    action: secret:signJWT
+    expiryInSec: 7200
+    privateKey:
+      URL: ${runDir}/private.pem
+    claimsURL: ${runDir}/claims/customer-20.json
+  save12:
+    init:
+      jwtToken: $sign12.TokenString
+    action: storage:upload
+    sourceKey: jwtToken
+    mode: 384
+    dest:
+      URL: ${runDir}/customer-20.token
+  sign13:
+    action: secret:signJWT
+    expiryInSec: 7200
+    privateKey:
+      URL: ${runDir}/private.pem
+    claimsURL: ${runDir}/claims/customer-no-role.json
+  save13:
+    init:
+      jwtToken: $sign13.TokenString
+    action: storage:upload
+    sourceKey: jwtToken
+    mode: 384
+    dest:
+      URL: ${runDir}/customer-no-role.token
+  sign14:
+    action: secret:signJWT
+    expiryInSec: 7200
+    privateKey:
+      URL: ${runDir}/private.pem
+    claimsURL: ${runDir}/claims/customer-no-grant.json
+  save14:
+    init:
+      jwtToken: $sign14.TokenString
+    action: storage:upload
+    sourceKey: jwtToken
+    mode: 384
+    dest:
+      URL: ${runDir}/customer-no-grant.token
+  sign15:
+    action: secret:signJWT
+    expiryInSec: 7200
+    privateKey:
+      URL: ${runDir}/private.pem
+    claimsURL: ${runDir}/claims/namespace-admin.json
+  save15:
+    init:
+      jwtToken: $sign15.TokenString
+    action: storage:upload
+    sourceKey: jwtToken
+    mode: 384
+    dest:
+      URL: ${runDir}/namespace-admin.token
+  sign16:
+    action: secret:signJWT
+    expiryInSec: 7200
+    privateKey:
+      URL: ${runDir}/private.pem
+    claimsURL: ${runDir}/claims/namespace-not-admin.json
+  save16:
+    init:
+      jwtToken: $sign16.TokenString
+    action: storage:upload
+    sourceKey: jwtToken
+    mode: 384
+    dest:
+      URL: ${runDir}/namespace-not-admin.token

@@ -11,8 +11,10 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/viant/authz"
 	"github.com/viant/datly-studio/store/sql/accesscatalog"
+	"io/fs"
 	"log"
 	"net"
 	"net/http"
@@ -26,6 +28,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
+	_ "github.com/sijms/go-ora/v2"
 	accessstore "github.com/viant/authz/component/store/sql"
 	_ "github.com/viant/bigquery"
 	"github.com/viant/datly-studio/internal/bffauth"
@@ -53,6 +56,7 @@ import (
 // nativeSDKPaths are exact BFF mounts for generated static Datly SDK routes.
 // Every other SDK operation remains on the generic SDK gateway.
 var nativeSDKPaths = []string{
+	"/v1/authz/sdk/policies.create",
 	"/v1/authz/sdk/policies.get",
 	"/v1/authz/sdk/policies.context",
 	"/v1/authz/sdk/policies.replace",
@@ -94,6 +98,14 @@ var nativeSDKPaths = []string{
 	"/v1/studio/sdk/namespaces.delete",
 	"/v1/studio/sdk/namespaces.update",
 	"/v1/studio/sdk/namespaces.list",
+	"/v1/studio/sdk/namespace_skills.list",
+	"/v1/studio/sdk/namespace_skills.get",
+	"/v1/studio/sdk/namespace_skills.create",
+	"/v1/studio/sdk/namespace_skills.update",
+	"/v1/studio/sdk/namespace_skills.delete",
+	"/v1/studio/sdk/namespace_skills.revisions",
+	"/v1/studio/sdk/namespace_skills.publish",
+	"/v1/studio/sdk/namespace_skills.unpublish",
 	"/v1/studio/sdk/publications.get",
 	"/v1/studio/sdk/publications.publish",
 	"/v1/studio/sdk/publications.rollback",
@@ -135,6 +147,14 @@ func Run() {
 // Options supplies process-owned identity wiring for embedders. The factory
 // is invoked once during startup and is never selected from request data.
 type Options struct {
+	// StaticFS serves a compiled public UI (for example embed.FS) when
+	// -static-root is unset. A disk build remains an explicit operator override.
+	StaticFS fs.FS
+	// DatabaseDriver selects host-owned catalog storage; empty preserves SQLite.
+	DatabaseDriver string
+	// HTTPMiddleware is an optional process-owned listener boundary. Unset
+	// preserves the complete standalone routing and authentication behavior.
+	HTTPMiddleware func(http.Handler) http.Handler
 	// SchemaVerifier validates an existing database instead of the default schema initialization.
 	// Only trusted embedding hosts supply this callback.
 	SchemaVerifier        func(context.Context, *sql.DB) error
@@ -143,18 +163,25 @@ type Options struct {
 	// Modules adds process-owned, independently authenticated extension APIs.
 	// Embedders supply credential protection and business authorization in each
 	// handler. Modules never inherit development identities or browser facts.
-	Modules ModuleFactory
+	Modules              ModuleFactory
+	AuthenticatedModules AuthenticatedModuleFactory
 }
 
 // RunWithOptions starts Studio with optional host-owned resource identity
 // bootstrap while preserving the standard command-line configuration.
 func RunWithOptions(options Options) {
 	address := flag.String("address", "127.0.0.1:8080", "SDK HTTP listen address")
-	dsn := flag.String("dsn", "file:.data/studio.db?cache=shared", "Studio SQLite DSN")
+	dsn := flag.String("dsn", "file:.data/studio.db?cache=shared", "Studio catalog DSN")
+	defaultDriver := options.DatabaseDriver
+	if defaultDriver == "" {
+		defaultDriver = "sqlite"
+	}
+	databaseDriver := flag.String("driver", defaultDriver, "Studio catalog driver: sqlite or mysql")
 	subject := flag.String("subject", "awitas", "local development principal")
 	mode := flag.String("mode", "development", "gateway mode: development or authenticated")
 	cookieName := flag.String("session-cookie", bffauth.DefaultCookieName, "authenticated BFF session cookie name")
-	jwtCertURL := flag.String("jwt-cert-url", "", "authenticated JWT certificate URL")
+	jwtCertURL := flag.String("jwt-cert-url", os.Getenv("STUDIO_JWT_CERT_URL"), "authenticated JWT certificate or JWKS URL")
+	jwtPublicKey := flag.String("jwt-public-key", os.Getenv("STUDIO_JWT_PUBLIC_KEY_FILE"), "authenticated RSA public-key SCY resource URL, optionally URL|key")
 	jwtIssuer := flag.String("jwt-issuer", os.Getenv("STUDIO_JWT_ISSUER"), "authenticated JWT issuer")
 	jwtAudience := flag.String("jwt-audience", os.Getenv("STUDIO_JWT_AUDIENCE"), "authenticated JWT audience")
 	sessionKey := flag.String("session-key", os.Getenv("STUDIO_SESSION_KEY"), "base64-encoded 32-byte BFF session encryption key")
@@ -224,12 +251,18 @@ func RunWithOptions(options Options) {
 	if *loginIDToken && extensionConfig != nil {
 		log.Fatal("identity-token mode does not support the BFF extension proxy")
 	}
-	db, err := sql.Open("sqlite", *dsn)
+	if *databaseDriver != "sqlite" && *databaseDriver != "mysql" {
+		log.Fatal("Studio catalog driver must be sqlite or mysql")
+	}
+	if options.DatabaseDriver != "" && *databaseDriver != options.DatabaseDriver {
+		log.Fatal("Studio catalog driver differs from host configuration")
+	}
+	db, err := sql.Open(*databaseDriver, *dsn)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
-	if err = ensureHostSchema(lifecycleCtx, db, options.SchemaVerifier); err != nil {
+	if err = ensureHostDatabaseSchema(lifecycleCtx, db, *databaseDriver, options.SchemaVerifier); err != nil {
 		log.Fatal(err)
 	}
 	definitionReader, err := preview.NewDefinitionReader(db)
@@ -313,6 +346,9 @@ func RunWithOptions(options Options) {
 		sdkTransport = &access.Transport{Next: transport, Service: accessService, Catalog: &access.Catalog{Service: accessService, Source: &accesscatalog.Store{DB: db}}}
 	}
 	mux := http.NewServeMux()
+	if options.AuthenticatedModules != nil && resolvedMode != string(httptransport.Authenticated) {
+		log.Fatal("authenticated modules require authenticated mode")
+	}
 	var mountedModules []Module
 	if options.Modules != nil {
 		if resolvedMode != string(httptransport.Authenticated) || resourceProvider == nil {
@@ -333,6 +369,12 @@ func RunWithOptions(options Options) {
 			log.Fatal(assetErr)
 		}
 		defer assets.Close()
+		mux.Handle("/", assets)
+	} else if options.StaticFS != nil {
+		assets, assetErr := newStaticFS(options.StaticFS)
+		if assetErr != nil {
+			log.Fatal(assetErr)
+		}
 		mux.Handle("/", assets)
 	}
 	var extensionProxy http.Handler
@@ -358,14 +400,15 @@ func RunWithOptions(options Options) {
 		}
 	}
 	if resolvedMode == string(httptransport.Authenticated) {
-		issuer, audience, key, authConfigErr := resolveAuthenticatedConfig(*jwtCertURL, *jwtIssuer, *jwtAudience, *sessionKey)
+		issuer, audience, key, authConfigErr := resolveAuthenticatedConfig(*jwtCertURL, *jwtIssuer, *jwtAudience, *sessionKey, *jwtPublicKey)
 		if authConfigErr != nil {
 			log.Fatal(authConfigErr)
 		}
 		if *loginIDToken && audience != loginOAuth.ClientID {
 			log.Fatal("identity-token login requires -jwt-audience to equal -login-client-id")
 		}
-		jwtVerifier := verifier.New(&verifier.Config{CertURL: strings.TrimSpace(*jwtCertURL)})
+		verification, _ := jwtVerificationConfig(*jwtCertURL, *jwtPublicKey)
+		jwtVerifier := verifier.New(verification)
 		if err = jwtVerifier.Init(context.Background()); err != nil {
 			log.Fatal(err)
 		}
@@ -445,6 +488,19 @@ func RunWithOptions(options Options) {
 				log.Fatal(proxyErr)
 			}
 		}
+		if options.AuthenticatedModules != nil {
+			if resourceProvider == nil {
+				log.Fatal("authenticated modules require resource identity")
+			}
+			modules, moduleErr := options.AuthenticatedModules(lifecycleCtx, db, resourceProvider, sessions)
+			if moduleErr != nil {
+				log.Fatal(moduleErr)
+			}
+			if moduleErr = mountModules(mux, modules); moduleErr != nil {
+				log.Fatal(moduleErr)
+			}
+			mountedModules = append(mountedModules, modules...)
+		}
 		gatewayConfig = httptransport.Config{Mode: httptransport.Authenticated, Authenticator: sessions, RequireNamespace: true}
 	} else {
 		target, parseErr := url.Parse(*dynamicMCPURL)
@@ -476,8 +532,12 @@ func RunWithOptions(options Options) {
 		mux.Handle(httptransport.PathPrefix, gateway)
 	}
 	log.Printf("Studio SDK %s host listening on http://%s", resolvedMode, *address)
+	handler, err := configuredHTTPMiddleware(options.HTTPMiddleware, requestIDs(corsModules(origin, resolvedMode == string(httptransport.Authenticated), mountedModules, noStore(routeExtensionProxy(mux, extensionProxy)))))
+	if err != nil {
+		log.Fatal(err)
+	}
 	server := &http.Server{
-		Addr: *address, Handler: requestIDs(corsModules(origin, resolvedMode == string(httptransport.Authenticated), mountedModules, noStore(routeExtensionProxy(mux, extensionProxy)))),
+		Addr: *address, Handler: handler,
 		ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 30 * time.Second,
 		WriteTimeout: 60 * time.Second, IdleTimeout: 2 * time.Minute,
 	}
@@ -522,9 +582,13 @@ func stripProxyCORS(response *http.Response) error {
 	return nil
 }
 
-func resolveAuthenticatedConfig(certURL, issuer, audience, encodedKey string) (string, string, []byte, error) {
-	if strings.TrimSpace(certURL) == "" {
-		return "", "", nil, errors.New("-jwt-cert-url is required in authenticated mode")
+func resolveAuthenticatedConfig(certURL, issuer, audience, encodedKey string, publicKeys ...string) (string, string, []byte, error) {
+	publicKey := ""
+	if len(publicKeys) > 0 {
+		publicKey = publicKeys[0]
+	}
+	if _, err := jwtVerificationConfig(certURL, publicKey); err != nil {
+		return "", "", nil, err
 	}
 	issuer = strings.TrimSpace(issuer)
 	audience = strings.TrimSpace(audience)

@@ -23,7 +23,7 @@ func (p SQLProbe) Probe(ctx context.Context, connector *sdk.Connector) (*sdk.Con
 	}
 	driver := resolveDriver(strings.ToLower(strings.TrimSpace(connector.Driver)))
 	switch driver {
-	case "sqlite", "sqlite3", "mysql", "postgres", "pgx", "bigquery":
+	case "sqlite", "sqlite3", "mysql", "postgres", "pgx", "bigquery", "oracle":
 	default:
 		return nil, fmt.Errorf("unsupported SQL connector driver %q", connector.Driver)
 	}
@@ -62,8 +62,13 @@ func resolveDriver(driver string) string {
 	for _, candidate := range sql.Drivers() {
 		available[candidate] = true
 	}
-	if available["sqlite3"] {
-		return "sqlite3"
+	// Honor the connector's requested implementation when both names are linked.
+	// In particular, a transitive sqlite3 import may be only a CGO-disabled stub.
+	if available[driver] {
+		return driver
 	}
-	return "sqlite"
+	if available["sqlite"] {
+		return "sqlite"
+	}
+	return "sqlite3"
 }

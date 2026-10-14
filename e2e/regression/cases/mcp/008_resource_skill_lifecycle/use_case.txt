@@ -1,0 +1,1 @@
+Manage versioned files, folders and skill roots using exact source revisions; verify deletion.

@@ -48,7 +48,7 @@ func (s *Service) authorizeResourcePolicy(ctx context.Context, r access.Resource
 	if err != nil {
 		return resourceAuthorizationError(err)
 	}
-	if d.Bounded {
+	if d.Bounded && action != "discover" && action != "describe" {
 		return &xresponse.Error{Code: http.StatusForbidden, Cause: errors.New("typed runtime scope binding is required")}
 	}
 	return nil

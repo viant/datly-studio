@@ -34,7 +34,7 @@ type Input struct {
 type Output = load.Output
 
 type Component struct {
-	Contract xdatly.Component[Input, Output] `component:"version,path=/v1/studio/sdk/versions.load_archive,method=POST,connector=studio,handler=NewLoadArchive" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.versions.load_archive\",\"description\":\"Import an authorized Datly Studio component archive as a draft version\"}]" caseFormat:"lc"`
+	Contract xdatly.Component[Input, Output] `component:"version,path=/v1/studio/sdk/versions.load_archive,method=POST,connector=studio,handler=NewLoadArchive" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.versions.load_archive\",\"description\":\"Import an authorized Datly Studio component archive as a draft version\"}]" componentCallPolicy:"imperative" caseFormat:"lc"`
 }
 
 var VersionDatly = new(Component)

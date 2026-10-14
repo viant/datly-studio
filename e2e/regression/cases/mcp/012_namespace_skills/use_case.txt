@@ -1,0 +1,1 @@
+Independent namespace skill authoring, immutable revisions, publication, native skill/resource calls, ownership denial and archive cleanup. No component or connector dependency.

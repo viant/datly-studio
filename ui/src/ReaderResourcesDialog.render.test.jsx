@@ -97,6 +97,30 @@ describe('ReaderResourcesDialog',()=>{
     expect(onClose).toHaveBeenCalledTimes(2);
     await waitFor(()=>expect(screen.queryByText('Discard unsaved resource changes?')).toBeNull());
   });
+  test('opens the selected skill rather than the first skill in its component', async () => {
+    const snapshot = sourceSnapshot();
+    snapshot.skills.push({skillId:'second',folderId:'folder',skillRoot:'second'});
+    snapshot.files.push({resourceId:'second-file',namespace:'alice.docs',resourcePath:'guide/second/SKILL.md',content:'---\nname: second\n---\nSecond instructions.'});
+    render(<ReaderResourcesDialog isOpen mode="skills" initialSkillId="second" api={{getResources:vi.fn().mockResolvedValue(snapshot)}} report={{id:'vendor',ownerPackage:'alice'}} version={{versionNo:3,state:'draft'}} onClose={vi.fn()}/>);
+    await waitFor(()=>expect(screen.getByLabelText('Skill markup').value).toContain('Second instructions.'));
+  });
+
+  test('a missing selected skill does not open another skill', async () => {
+    render(<ReaderResourcesDialog isOpen mode="skills" initialSkillId="missing" api={{getResources:vi.fn().mockResolvedValue(sourceSnapshot())}} report={{id:'vendor',ownerPackage:'alice'}} version={{versionNo:3,state:'draft'}} onClose={vi.fn()}/>);
+    expect((await screen.findByRole('alert')).textContent).toContain('selected skill is no longer available');
+  });
+
+  test('declared component tools remain selectable while live MCP discovery is down', async () => {
+    const api={getResources:vi.fn().mockResolvedValue(sourceSnapshot()),listMCPTools:vi.fn().mockRejectedValue(new Error('runtime offline'))};
+    render(<ReaderResourcesDialog isOpen mode="skills" api={api} report={{id:'vendor',ownerPackage:'alice'}} version={{versionNo:3,state:'draft'}} structure={{component:{routes:[{mcp:[{kind:'tool',name:'draft.read'}]}]}}} onClose={vi.fn()}/>);
+    await screen.findByRole('alert');
+    const picker=screen.getByLabelText('Add MCP tool to skill');
+    expect(picker.disabled).toBe(false);
+    await userEvent.setup().selectOptions(picker,'draft.read');
+    await userEvent.setup().click(screen.getByRole('button',{name:'Add',exact:true}));
+    expect(screen.getByLabelText('Skill markup').value).toContain('draft.read');
+  });
+
   test('keeps skill markup savable while live MCP discovery is down', async () => {
     const user = userEvent.setup();
     const api = {

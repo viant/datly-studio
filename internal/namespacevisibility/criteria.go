@@ -26,6 +26,9 @@ func Criteria(ctx context.Context, connectors connector.Provider, subject, alias
 	if alias != "n" && alias != "namespaces" {
 		return nil, fmt.Errorf("invalid namespace SQL alias")
 	}
+	if IsAdministrator(ctx, subject) {
+		return &xpredicate.Criteria{Expression: "1=1"}, nil
+	}
 	expression := "(namespaces.owner_id = ? OR namespaces.visibility = 'public'"
 	values := []any{subject}
 	provider, err := accessprovider.FromEnvironment(ctx)

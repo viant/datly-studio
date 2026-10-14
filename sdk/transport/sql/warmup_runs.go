@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/viant/datly-studio/sdk/executionguard"
 	"reflect"
 	"strings"
 	"time"
@@ -113,7 +114,9 @@ func (t *Transport) startWarmupRun(ctx context.Context, in versionIdentityReques
 		return internal(errors.New("warmup run has no updated_at token"))
 	}
 	jobCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), warmupRunTimeout)
+	jobCtx, releaseServerGuard := executionguard.Capture(jobCtx, ctx)
 	go func() {
+		defer releaseServerGuard()
 		defer cancel()
 		t.executeWarmupRun(jobCtx, runID, in.ReportID, in.VersionNo, *run.UpdatedAt)
 	}()

@@ -1,0 +1,2 @@
+SELECT r.namespace_id, r.skill_id, r.revision, r.bundle_json, r.content_sha256, r.created_by, r.updated_by, r.created_at, r.updated_at FROM (SELECT * FROM (SELECT * FROM namespace_skill_revisions
+) revisions) r WHERE $criteria.CompositeIn("r", $Unsafe.ProjectCurrentRevisionsParentKeys($CurrentSkill))

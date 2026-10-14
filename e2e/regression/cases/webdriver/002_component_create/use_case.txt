@@ -1,0 +1,1 @@
+Create a component through the browser and verify its persisted catalog identity with DSUnit.

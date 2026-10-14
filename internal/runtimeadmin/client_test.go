@@ -136,3 +136,64 @@ func TestRuntimeProbeRejectsWrongNamespaceAndInvalidEndpoint(t *testing.T) {
 		}
 	}
 }
+
+func TestRuntimeProbeAcceptsOnlySelectedSharedNamespacePath(t *testing.T) {
+	id := strings.Repeat("b", 64)
+	for _, test := range []struct {
+		path  string
+		allow bool
+	}{
+		{"/namespaces/" + id + "/mcp", true},
+		{"/namespaces/" + strings.Repeat("c", 64) + "/mcp", false},
+		{"/namespaces/" + id + "/../mcp", false},
+		{"/namespaces/" + id + "/%6dcp", false},
+	} {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			_ = json.NewEncoder(w).Encode(map[string]any{"namespaceId": id, "status": "ready", "mcpUrl": "http://127.0.0.1:8591" + test.path})
+		}))
+		client, err := New(server.URL, "token", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, err = client.ProbeRuntime(sdk.WithNamespaceSelection(context.Background(), id))
+		server.Close()
+		if (err == nil) != test.allow {
+			t.Fatalf("path %s allow=%v error=%v", test.path, test.allow, err)
+		}
+	}
+}
+
+func TestConnectionValidatesScopedAgentlyJSON(t *testing.T) {
+	id := strings.Repeat("b", 64)
+	for _, test := range []struct {
+		name, namespace, definition string
+		allow                       bool
+	}{
+		{"bare", id, `{"name":"guide","transport":{"type":"streamable","url":"https://mcp.example/mcp"}}`, true},
+		{"wrong namespace", strings.Repeat("c", 64), `{"name":"guide","transport":{"type":"streamable","url":"https://mcp.example/mcp"}}`, false},
+		{"executable", id, `{"name":"guide","transport":{"type":"stdio","command":"anything"}}`, false},
+		{"credential URL", id, `{"name":"guide","transport":{"type":"streamable","url":"https://user:secret@mcp.example/mcp"}}`, false},
+		{"invalid config", id, `null`, false},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.URL.Path != "/_studio/connection" || r.URL.Query().Get("namespaceId") != id || r.Header.Get("X-Studio-Runtime-Token") != "deployment-token" {
+					t.Error("connection request lost deployment scope")
+				}
+				_ = json.NewEncoder(w).Encode(map[string]any{"namespaceId": test.namespace, "config": json.RawMessage(test.definition)})
+			}))
+			defer server.Close()
+			client, err := New(server.URL, "deployment-token", nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			data, err := client.Connection(sdk.WithNamespaceSelection(context.Background(), id))
+			if (err == nil) != test.allow {
+				t.Fatalf("connection %s %s %v", test.name, data, err)
+			}
+			if _, err = client.Connection(context.Background()); err == nil {
+				t.Fatal("unscoped connection permitted")
+			}
+		})
+	}
+}

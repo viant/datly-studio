@@ -1,0 +1,1 @@
+UI creates a dedicated namespace, connector, component and role policy; MCP publishes and verifies allowed/denied users.

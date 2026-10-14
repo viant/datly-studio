@@ -1,0 +1,240 @@
+pipeline:
+  createConnector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: published
+      driver: sqlite
+      dsnTemplate: ${runDir}/consumer.db
+    allowToolError: true
+    '@name': studio.sdk.connectors.create
+  createConnectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $createConnector
+    expect:
+      IsError: false
+  probe:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: published
+    allowToolError: true
+    '@name': studio.sdk.connectors.test
+  probeSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $probe
+    expect:
+      IsError: false
+  connector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: published
+    allowToolError: true
+    '@name': studio.sdk.connectors.get
+  connectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $connector
+    expect:
+      IsError: false
+  activate:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: published
+      etag: $connector.StructuredContent.etag
+    allowToolError: true
+    '@name': studio.sdk.connectors.activate
+  activateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $activate
+    expect:
+      IsError: false
+  namespace:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: published
+      title: published
+      mcpEnabled: true
+      mcpPort: 0
+    allowToolError: true
+    '@name': studio.sdk.namespaces.create
+  namespaceSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $namespace
+    expect:
+      IsError: false
+  component:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      title: published
+      slug: published
+      namespace: published
+      defaultConnectorName: published
+    allowToolError: true
+    '@name': studio.sdk.components.create
+  componentSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $component
+    expect:
+      IsError: false
+  import:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      input:
+        dql: |-
+          #package('github.com/viant/datly-studio/dynamic/published')
+          #setting($_ = $input_type('CustomerInput'))
+          #setting($_ = $output_type('CustomerOutput'))
+          #setting($_ = $case_format('lc'))
+          #setting($_ = $connector('published'))
+          #setting($_ = $route('/published', 'GET'))
+          #setting($_ = $mcp('published.read','Read consumer customers'))
+          #define($_ = $Rows<[]*Customer>(output/view))
+          SELECT customers.*, type(customers,'Customer') FROM (SELECT c.id,c.tenant,c.name,c.active FROM customers c) customers
+    allowToolError: true
+    '@name': studio.sdk.versions.load_dql
+  importSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $import
+    expect:
+      IsError: false
+  verifyImport:
+    action: validator:assert
+    actual: $import.StructuredContent.version
+    expect:
+      state: draft
+      compileStatus: pending
+    normalizeKVPairs: true
+  validate:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      expectedSourceRevision: $import.StructuredContent.version.sourceRevision
+    allowToolError: true
+    '@name': studio.sdk.versions.validate
+  validateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $validate
+    expect:
+      IsError: false
+  publishHostReady:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.runtime.status
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+    allowToolError: true
+    repeat: 50
+    thinkTimeMs: 100
+    exit: $output:/"status":"ready"/
+  publishHostReadyAssert:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $publishHostReady.StructuredContent.host.status
+    expect: ready
+  publish:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      input:
+        expectedSourceRevision: $import.StructuredContent.version.sourceRevision
+        reason: Endly acceptance
+    allowToolError: true
+    '@name': studio.sdk.publications.publish
+  publishSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $publish
+    expect:
+      IsError: false
+  active:
+    action: validator:assert
+    actual: $publish.StructuredContent.status
+    expect: active
+    normalizeKVPairs: true
+  status:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+    allowToolError: true
+    '@name': studio.sdk.runtime.status
+  statusSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $status
+    expect:
+      IsError: false
+  runtime:
+    action: validator:assert
+    actual: $status.StructuredContent.host
+    expect:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      status: ready
+    normalizeKVPairs: true
+  invoke:
+    action: mcp/runner:call
+    url: $status.StructuredContent.host.mcpUrl
+    arguments: {}
+    bearerTokenSecret: $ownerToken
+    '@name': $status.StructuredContent.readers[0].mcpExposures[0].name
+    allowToolError: true
+  invokeSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $invoke
+    expect:
+      IsError: false
+  data:
+    action: validator:assert
+    actual: $invoke.IsError
+    expect: false
+    normalizeKVPairs: true
+  events:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      input: {}
+    allowToolError: true
+    '@name': studio.sdk.publications.events.list
+  eventsSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $events
+    expect:
+      IsError: false

@@ -106,3 +106,15 @@ describe('NamespaceDialog',()=>{
   });
 
 });
+
+
+test('edits settings on an existing host-owned namespace without revalidating its immutable name', async () => {
+  const user = userEvent.setup();
+  const existing = {...namespace, name: 'ui-component-policy-role', allowedRoles: []};
+  const api = {updateNamespace: vi.fn().mockResolvedValue({...existing, etag: 4})};
+  render(<NamespaceDialog api={api} namespace={existing} isOpen onClose={vi.fn()} onSaved={vi.fn()}/>);
+  expect(screen.getByLabelText('Namespace').disabled).toBe(true);
+  await user.type(screen.getByLabelText('Viewer roles'), 'XYZ{Enter}');
+  await user.click(screen.getByRole('button', {name: 'Save namespace'}));
+  await waitFor(() => expect(api.updateNamespace).toHaveBeenCalledWith(existing.name, expect.objectContaining({etag: 3, allowedRoles: ['XYZ']})));
+});

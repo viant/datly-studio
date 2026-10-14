@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/viant/authz/oauth"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
+	"github.com/viant/datly-studio/internal/namespacevisibility"
 	"reflect"
 	"strings"
 	"time"
@@ -94,8 +96,18 @@ func (*updateHandler) Exec(ctx context.Context, session xhandler.Session, input 
 	if !found || !ok {
 		return fmt.Errorf("Datly component invoker is unavailable")
 	}
+	var headers struct {
+		Authorization string `bind:"kind=header,in=Authorization"`
+	}
+	if err := session.Binder().Bind(ctx, &headers); err != nil {
+		return err
+	}
+	ctx = oauth.WithBearer(ctx, strings.TrimPrefix(headers.Authorization, "Bearer "))
+	administrator := namespacevisibility.IsAdministrator(ctx, input.Jwt.Subject)
 	read := &storedreader.Input{}
-	read.SetOwnerId(input.Jwt.Subject)
+	if !administrator {
+		read.SetOwnerId(input.Jwt.Subject)
+	}
 	read.SetName(input.Name)
 	read.SetQuery("")
 	read.SetStatus("")
@@ -115,7 +127,7 @@ func (*updateHandler) Exec(ctx context.Context, session xhandler.Session, input 
 		return &xresponse.Error{Code: 403, Cause: errors.New("Studio authorization denied")}
 	}
 	if len(result.Namespaces) != 1 || result.Namespaces[0] == nil ||
-		result.Namespaces[0].OwnerId != input.Jwt.Subject || result.Namespaces[0].Name != input.Name {
+		(!administrator && result.Namespaces[0].OwnerId != input.Jwt.Subject) || result.Namespaces[0].Name != input.Name {
 		return fmt.Errorf("owned namespace reader returned ambiguous or mismatched rows")
 	}
 	current := result.Namespaces[0]

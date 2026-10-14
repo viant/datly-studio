@@ -172,6 +172,19 @@ func TestNamespaceReaderUsesVerifiedTypedScope(t *testing.T) {
 		}
 	}
 	for _, check := range []struct {
+		subject string
+		offset  int
+		want    []string
+	}{
+		{"alice", 0, []string{"finance"}}, {"alice", 1, []string{"general"}}, {"alice", 2, []string{}},
+		{"viewer", 0, []string{"finance"}}, {"viewer", 1, []string{}},
+	} {
+		output, readErr := read(check.subject, map[string]any{"limit": 1, "offset": check.offset})
+		if readErr != nil || !reflect.DeepEqual(names(output), check.want) || output.PageLimit != 1 || output.PageOffset != check.offset {
+			t.Fatalf("authorized namespace page subject=%s offset=%d names=%v err=%v", check.subject, check.offset, names(output), readErr)
+		}
+	}
+	for _, check := range []struct {
 		input  map[string]any
 		limit  int
 		offset int

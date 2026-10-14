@@ -13,18 +13,17 @@ describe('ReaderAnalyticsDialog',()=>{
     const user=userEvent.setup();
     const onTestCompose=vi.fn().mockResolvedValue({data:[{STATUS:'active',TOTAL:3}]});
     render(<ReaderAnalyticsDialog isOpen structure={structure} onClose={vi.fn()} onTestCompose={onTestCompose}/>);
-    expect(screen.getByLabelText('Frame 1 dimensions').value).toBe('status');
-    expect(screen.getByLabelText('Frame 1 measures').value).toBe('total');
+    expect(screen.queryByLabelText('Frame 1 dimensions')).toBeNull();
+    expect(screen.getByText('Composition SQL selects this frame’s dimensions and measures.')).toBeTruthy();
 
     await user.click(screen.getByRole('button',{name:'Add cube frame'}));
-    await user.type(screen.getByLabelText('Frame 2 measures'),'total');
     await user.selectOptions(screen.getByLabelText('Frame 2 inherited filters'),'1');
     fireEvent.change(screen.getByLabelText('Frame 2 explicit filters'),{target:{value:'{}'}});
     await user.click(screen.getByRole('button',{name:'Run composition'}));
     expect(onTestCompose).toHaveBeenCalledWith({
       cubes:[
-        {dimensions:{status:true},measures:{total:true},filters:{}},
-        {dimensions:{},measures:{total:true},filters:{},inheritFrom:1},
+        {filters:{}},
+        {filters:{},inheritFrom:1},
       ],
       sql:'SELECT t1.STATUS, t1.TOTAL\nFROM $CubeSQL1 AS t1',
     });

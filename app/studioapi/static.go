@@ -1,7 +1,10 @@
 package studioapi
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"io/fs"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -10,7 +13,21 @@ import (
 
 // staticAssets serves only files beneath an operator-selected public build
 // directory. This is a generic BFF deployment hook, not an application route.
-type staticAssets struct{ root *os.Root }
+type staticAssets struct {
+	root  *os.Root
+	files fs.FS
+}
+
+func newStaticFS(files fs.FS) (*staticAssets, error) {
+	if files == nil {
+		return nil, fmt.Errorf("public asset filesystem is required")
+	}
+	info, err := fs.Stat(files, "index.html")
+	if err != nil || !info.Mode().IsRegular() {
+		return nil, fmt.Errorf("public asset filesystem requires a regular index.html")
+	}
+	return &staticAssets{files: files}, nil
+}
 
 func newStaticAssets(directory string) (*staticAssets, error) {
 	if !filepath.IsAbs(directory) {
@@ -44,7 +61,19 @@ func newStaticAssets(directory string) (*staticAssets, error) {
 	return &staticAssets{root: root}, nil
 }
 
-func (s *staticAssets) Close() error { return s.root.Close() }
+func (s *staticAssets) Close() error {
+	if s.root != nil {
+		return s.root.Close()
+	}
+	return nil
+}
+
+func (s *staticAssets) open(name string) (fs.File, error) {
+	if s.root != nil {
+		return s.root.Open(name)
+	}
+	return s.files.Open(name)
+}
 
 func (s *staticAssets) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet && r.Method != http.MethodHead {
@@ -62,7 +91,7 @@ func (s *staticAssets) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	file, err := s.root.Open(name)
+	file, err := s.open(name)
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -74,7 +103,16 @@ func (s *staticAssets) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("X-Content-Type-Options", "nosniff")
-	http.ServeContent(w, r, name, info.ModTime(), file)
+	content, ok := file.(io.ReadSeeker)
+	if !ok {
+		data, err := io.ReadAll(file)
+		if err != nil {
+			http.Error(w, "asset unavailable", http.StatusInternalServerError)
+			return
+		}
+		content = bytes.NewReader(data)
+	}
+	http.ServeContent(w, r, name, info.ModTime(), content)
 }
 
 func staticFileName(urlPath string) (string, bool) {

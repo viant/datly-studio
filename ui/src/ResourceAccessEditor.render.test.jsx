@@ -77,3 +77,59 @@ test('checks only current principal access to the saved policy', async () => {
   expect(api.checkCurrentAccess).toHaveBeenCalledWith(resource, 'retrieve');
   expect((await screen.findByText('Allowed at last check')).closest('[role="status"]').textContent).toContain('saved policy');
 });
+
+test('creates a first policy through the create contract after review', async () => {
+  const user = userEvent.setup();
+  const initial = {resource, revision: 0, policies: {}};
+  const api = {
+    getResourceAccess: vi.fn().mockResolvedValue(initial),
+    getResourceAccessContext: vi.fn().mockResolvedValue({canManage: true, choices: {role: [{id: 'XYZ', label: 'XYZ'}]}}),
+    createResourceAccess: vi.fn(async value => ({...value, revision: 1})),
+    replaceResourceAccess: vi.fn(),
+  };
+  render(<ResourceAccessEditor api={api} resource={resource} actions={['retrieve']}/>);
+  await screen.findByText('Policy revision 0');
+  await user.selectOptions(screen.getByLabelText('Access mode'), 'protected');
+  await user.selectOptions(screen.getByLabelText('rule value'), 'XYZ');
+  await user.click(screen.getByRole('button', {name: 'Review changes'}));
+  expect(api.createResourceAccess).not.toHaveBeenCalled();
+  await user.click(screen.getByRole('button', {name: 'Save permissions'}));
+  await screen.findByText('Permissions saved.');
+  expect(api.createResourceAccess).toHaveBeenCalledWith({resource, revision: 0, policies: {retrieve: {mode: 'protected', rule: {kind: 'role', value: 'XYZ'}}}});
+  expect(api.replaceResourceAccess).not.toHaveBeenCalled();
+});
+
+test('authors a wildcard fallback with an explicit action denial', async () => {
+  const user = userEvent.setup();
+  const initial = {...document, policies: {}};
+  const api = {getResourceAccess: vi.fn().mockResolvedValue(initial), replaceResourceAccess: vi.fn(async d => ({...d,revision:5}))};
+  render(<ResourceAccessEditor api={api} resource={resource} actions={['retrieve']} choices={{role:[{id:'reader'}]}}/>);
+  await screen.findByText('Policy revision 4');
+  await user.click(screen.getByRole('button',{name:/^\*/}));
+  await user.selectOptions(screen.getByLabelText('Access mode'),'protected');
+  await user.selectOptions(screen.getByLabelText('rule value'),'*');
+  await user.click(screen.getByRole('button',{name:/^retrieve/}));
+  expect(screen.getByRole('option',{name:'Inherit from *'})).toBeTruthy();
+  await user.selectOptions(screen.getByLabelText('Access mode'),'deny');
+  await user.click(screen.getByRole('button',{name:'Review changes'}));
+  await user.click(screen.getByRole('button',{name:'Save permissions'}));
+  await screen.findByText('Permissions saved.');
+  expect(api.replaceResourceAccess.mock.calls[0][0].policies).toEqual({'*':{mode:'protected',rule:{kind:'role',value:'*'}},retrieve:{mode:'deny'}});
+});
+
+test('applies one consumption rule without changing management rules', async () => {
+  const user = userEvent.setup();
+  const manage = {mode:'protected',rule:{kind:'subject',value:'owner'}};
+  const initial = {...document,policies:{execute:{mode:'protected',rule:{kind:'role',value:'reader'}},manageAccess:manage}};
+  const api = {getResourceAccess:vi.fn().mockResolvedValue(initial),replaceResourceAccess:vi.fn(async d=>({...d,revision:5}))};
+  render(<ResourceAccessEditor api={api} resource={resource} actions={['execute','discover','describe','manageAccess']} choices={{role:[{id:'reader'}]}}/>);
+  await screen.findByText('Policy revision 4');
+  await user.click(screen.getByRole('button',{name:'Apply to exposure and execution'}));
+  await user.click(screen.getByRole('button',{name:'Review changes'}));
+  await user.click(screen.getByRole('button',{name:'Save permissions'}));
+  await screen.findByText('Permissions saved.');
+  const saved=api.replaceResourceAccess.mock.calls[0][0].policies;
+  expect(saved.discover).toEqual(initial.policies.execute);
+  expect(saved.describe).toEqual(initial.policies.execute);
+  expect(saved.manageAccess).toEqual(manage);
+});

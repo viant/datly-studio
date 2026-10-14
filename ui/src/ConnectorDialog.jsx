@@ -63,7 +63,7 @@ export function ConnectorDialog({ api, isOpen, onClose, onCreated, connector = n
           </FormGroup>
           <FormGroup label="Provider" labelFor="connector-driver" required>
             <HTMLSelect id="connector-driver" value={draft.driver} onChange={update('driver')} fill disabled={saving}>
-              <option value="sqlite">SQLite</option><option value="mysql">MySQL</option><option value="postgres">PostgreSQL</option><option value="bigquery">BigQuery</option>
+              <option value="sqlite">SQLite</option><option value="mysql">MySQL</option><option value="postgres">PostgreSQL</option><option value="bigquery">BigQuery</option><option value="oracle">Oracle</option>
             </HTMLSelect>
           </FormGroup>
         </div>

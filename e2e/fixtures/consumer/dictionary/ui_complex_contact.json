@@ -1,0 +1,15 @@
+[
+  {},
+  {
+    "id": 101,
+    "record_id": 10,
+    "label": "primary",
+    "detail": "first detail"
+  },
+  {
+    "id": 201,
+    "record_id": 20,
+    "label": "secondary",
+    "detail": "second detail"
+  }
+]

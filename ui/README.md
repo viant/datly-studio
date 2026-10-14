@@ -44,3 +44,23 @@ Run `npm run test:acl-review-visual` to verify the component policy frame at a
 test-only screenshot.
 Set `ACL_REVIEW_DIALOG_SCREENSHOT=/absolute/path.png` to capture the
 pre-save policy-change dialog in the same browser smoke test.
+
+## Skills ownership
+
+The Skills authoring workspace reads authorized component version snapshots and
+does not require a live MCP runtime. Component-owned skills retain their existing
+version, validation, and publication workflow.
+
+Embedding hosts can supply namespace-owned skill authoring with
+`renderNamespaceSkills({ api, namespace, subject, onDirtyChange })` on
+`StudioShell`, `StudioApp`, or `mountStudio`. It can also be supplied through
+`createStudioSDK({ renderNamespaceSkills })`. The workspace then exposes
+Namespace-owned and Component-owned tabs within the selected namespace. Hosts
+without this renderer expose component-owned skills only.
+
+The host renderer must use an authenticated server-authorized provider for every
+read and write. Namespace IDs and names are navigation selections, not permission
+grants. Call `onDirtyChange(dirty, { busy })` as edits or writes change, and clear
+it when the editor closes; Studio protects namespace and ownership switches while
+a skill has unsaved changes or a write is running. Namespace-owned storage and
+its MCP delivery remain the embedding provider's responsibility.

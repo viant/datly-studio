@@ -28,9 +28,12 @@ type ForgeConfig struct {
 // ForgeWindow maps one logical window to its unversioned YAML or JSON source
 // and exact Datly datasource components. Client requests cannot alter it.
 type ForgeWindow struct {
-	URI            string                        `json:"uri" yaml:"URI"`
-	DefinitionPath string                        `json:"definitionPath" yaml:"DefinitionPath"`
-	Components     map[string]ComponentReference `json:"components" yaml:"Components"`
+	// PublishDataSources opts this existing definition into independent
+	// provider-owned datasource resources and v3 references. Inline remains default.
+	PublishDataSources bool                          `json:"publishDataSources,omitempty" yaml:"PublishDataSources,omitempty"`
+	URI                string                        `json:"uri" yaml:"URI"`
+	DefinitionPath     string                        `json:"definitionPath" yaml:"DefinitionPath"`
+	Components         map[string]ComponentReference `json:"components" yaml:"Components"`
 }
 
 func validateForgeConfig(config *Config) error {

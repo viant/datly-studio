@@ -1,0 +1,496 @@
+---
+init:
+  caseTool: owner.ui.catalog.read
+  caseName: ui_catalog
+  caseTitle: Catalog component
+  caseSlug: ui-catalog
+  allowedUser: no-exposure
+  deniedUser: no-role
+  policyCommands:
+  - page.locator(".studio-nav-security").click()
+  - page.getByLabel("Find a resource").fill("${caseTitle}")
+  - page.getByRole("button", "${caseTitle}").click()
+  - page.getByRole("button", "Create access policy").click()
+  - expect(page.locator(".studio-resource-access-heading .bp6-tag")).toHaveText("Policy
+    revision 0",15000)
+  - page.locator("xpath://nav[@aria-label='Permission actions']//button[strong[normalize-space(.)='discover']]").click()
+  - page.getByLabel("Access mode").selectOption("protected")
+  - page.getByLabel("rule condition").selectOption("role")
+  - page.getByLabel("rule value").selectOption("ROLE_ANALYST")
+  - page.locator("xpath://nav[@aria-label='Permission actions']//button[strong[normalize-space(.)='describe']]").click()
+  - page.getByLabel("Access mode").selectOption("protected")
+  - page.getByLabel("rule condition").selectOption("role")
+  - page.getByLabel("rule value").selectOption("ROLE_ANALYST")
+  - page.locator("xpath://nav[@aria-label='Permission actions']//button[strong[normalize-space(.)='execute']]").click()
+  - page.getByLabel("Access mode").selectOption("protected")
+  - page.getByLabel("rule condition").selectOption("role")
+  - page.getByLabel("rule value").selectOption("ROLE_ANALYST")
+  - page.getByRole("button", "Review changes").click()
+  - expect(page.locator(".bp6-dialog-container.bp6-overlay-enter-done .studio-resource-review-dialog")).toBeVisible(15000)
+  - page.getByRole("button", "Save permissions").click()
+  - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+  - expect(page.locator(".studio-resource-access-footer [role='status']")).toHaveText("Permissions
+    saved.",15000)
+  namespaceSkillDocument: |
+    ---
+    name: namespace-guide
+    description: Guide to this namespace.
+    ---
+    Use the customer tools in this namespace.
+  componentSkillDocument: |
+    ---
+    name: component-guide
+    description: Guide to the catalog component.
+    ---
+    Use owner.ui.catalog.read to read the catalog records.
+pipeline:
+  createNamespaceInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: "${runDir}/artifacts/${caseName}"
+    commands:
+    - page.goto("${browserURL}")
+    - page.locator(".studio-nav-namespaces").click()
+    - page.locator(".studio-namespace-actions .studio-catalog-primary-actions button[type='button']").click()
+    - page.getByLabel("Namespace").fill("${caseName}")
+    - expect(page.getByLabel("Namespace")).toHaveValue("${caseName}",15000)
+    - page.getByLabel("Display title").fill("${caseName}")
+    - expect(page.getByLabel("Namespace")).toHaveValue("${caseName}",15000)
+    - page.getByLabel("Visibility").selectOption("public")
+    - page.getByLabel("Description").fill("UI-authored namespace and component skills")
+    - page.getByRole("button", "Create namespace").click()
+    - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+  namespace:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.namespaces.get
+    arguments:
+      name: "$caseName"
+  namespaceSkillInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: "${runDir}/artifacts/${caseName}"
+    commands:
+    - page.getByLabel("Current namespace").selectOption("${namespace.StructuredContent.namespaceId}")
+    - page.locator(".studio-nav-skills").click()
+    - page.getByRole("button", "New namespace skill").click()
+    - page.getByLabel("Display title").fill("Namespace guide")
+    - 'page.getByLabel("SKILL.md").fill("---\nname: namespace-guide\ndescription:
+      Guide to this namespace.\n---\nUse the customer tools in this namespace.\n")'
+    - page.getByRole("button", "Add supporting file").click()
+    - page.getByLabel("File path 1").fill("references/query.md")
+    - page.getByLabel("File content 1").fill("Read the catalog through the namespace
+      MCP endpoint.")
+    - page.getByRole("button", "Save namespace skill").click()
+    - expect(page.getByText("Saved namespace-guide, revision 1.")).toBeVisible(15000)
+    - expect(page.getByRole("button", "Publish namespace-guide")).toBeDisabled(15000)
+  namespaceSkills:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.namespace_skills.list
+    arguments:
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+  independentNamespaceDraft:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$namespaceSkills.StructuredContent"
+    expect:
+      "@length@items": 1
+      items:
+      - name: namespace-guide
+        latestRevision: 1
+        publishedRevision: 0
+  zeroComponentsBeforeNamespaceSkill:
+    action: dsunit:query
+    datastore: studio
+    SQL: SELECT COUNT(*) AS total FROM components WHERE namespace='ui_catalog'
+    expect:
+    - total: 0
+  enableNamespaceMCPInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: "${runDir}/artifacts/${caseName}"
+    commands:
+    - page.locator(".studio-nav-namespaces").click()
+    - page.getByRole("button", "Edit ${caseName}").click()
+    - page.getByLabel("Expose MCP").check()
+    - page.getByRole("button", "Save namespace").click()
+    - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+  namespaceReady:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.runtime.status
+    arguments:
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+    allowToolError: true
+    repeat: 50
+    thinkTimeMs: 100
+    exit: $output:/"status":"ready"/
+  namespaceMCPReady:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$namespaceReady.StructuredContent.host.status"
+    expect: ready
+  publishNamespaceSkill:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.namespace_skills.publish
+    arguments:
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+      skillId: "$namespaceSkills.StructuredContent.items[0].skillId"
+      etag: 1
+      revision: 1
+  namespaceSkillPublished:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$publishNamespaceSkill.StructuredContent.publicationStatus"
+    expect: active
+  onlyNamespaceSkill:
+    action: mcp/runner:listSkills
+    url: "$namespaceReady.StructuredContent.host.mcpUrl"
+    bearerTokenSecret: "$ownerToken"
+  oneSkillWithoutComponents:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$onlyNamespaceSkill"
+    expect:
+      "@length@Skills": 1
+      Skills:
+      - Frontmatter:
+          name: namespace-guide
+  createComponentInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: "${runDir}/artifacts/${caseName}"
+    commands:
+    - expect(page.getByLabel("Current namespace")).toBeEnabled(15000)
+    - page.getByLabel("Current namespace").selectOption("${namespace.StructuredContent.namespaceId}")
+    - expect(page.getByLabel("Current namespace")).toHaveValue("${namespace.StructuredContent.namespaceId}",15000)
+    - page.locator(".studio-nav-connectors").click()
+    - page.locator(".studio-catalog-primary-actions button[type='button']").click()
+    - page.getByLabel("Name").fill("${caseName}")
+    - page.getByLabel("Provider").selectOption("sqlite")
+    - page.getByLabel("DSN template").fill("${runDir}/consumer.db")
+    - page.getByRole("button", "Create connector").click()
+    - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+    - page.getByLabel("Search connectors").fill("${caseName}")
+    - page.getByLabel("Search connectors").press("Enter")
+    - page.locator("xpath://tr[.//*[normalize-space(.)='${caseName}']]//button[@aria-label='Test
+      connector']").click()
+    - page.locator("xpath://tr[.//*[normalize-space(.)='${caseName}']]//button[@aria-label='Activate
+      connector']").click()
+    - page.locator(".studio-nav-schema").click()
+    - page.getByLabel("Connector").selectOption("${caseName}")
+    - page.locator("xpath://button[@role='treeitem'][.//strong[normalize-space(.)='${caseName}_records']]").click()
+    - page.getByRole("button", "Add as root view").click()
+    - page.getByLabel("Component title").fill("${caseTitle}")
+    - page.getByLabel("Slug").fill("${caseSlug}")
+    - page.getByLabel("Root view identifier").fill("record")
+    - page.getByRole("button", "Create component").click()
+    - expect(page.getByRole("button", "Edit component")).toBeVisible(15000)
+  components:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.components.list
+    arguments:
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+      limit: 10
+  oneComponent:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$components.StructuredContent"
+    expect:
+      "@length@items": 1
+      items:
+      - title: "$caseTitle"
+  authorInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: "${runDir}/artifacts/${caseName}"
+    commands:
+    - page.getByRole("button", "Edit component").click()
+    - page.getByLabel("Enable MCP tool").check()
+    - page.getByLabel("Canonical MCP tool name").fill("${caseTool}")
+    - page.getByRole("button", "Save component").click()
+    - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+    - page.getByRole("button", "Validate").click()
+    - page.getByRole("button", "Validate revision").click()
+    - expect(page.getByText("Runtime contract is ready")).toBeVisible(15000)
+    - page.locator("xpath://div[contains(@class,'bp6-dialog-footer-actions')]//button[normalize-space(.)='Close']").click()
+  componentSkillFolderInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: "${runDir}/artifacts/${caseName}"
+    commands:
+    - page.locator(".studio-nav-skills").click()
+    - page.getByRole("tab", "Component-owned").click()
+    - page.getByLabel("Component").selectOption("${components.StructuredContent.items[0].id}")
+    - page.getByRole("button", "New component skill").click()
+    - page.getByRole("button", "Open folders").click()
+    - page.getByLabel("Folder root").fill("component-guide")
+    - page.getByLabel("URI prefix").fill("skill://${namespace.StructuredContent.namespaceId}/components/${components.StructuredContent.items[0].id}/1/component-guide")
+    - page.getByRole("button", "Save folder").click()
+    - expect(page.getByRole("button", "Update folder")).toBeVisible(15000)
+    - page.getByRole("tab", "Skills (0)").click()
+    - page.getByLabel("Skill root").fill(".")
+    - 'page.getByLabel("Skill markup").fill("---\nname: component-guide\ndescription:
+      Guide to the catalog component.\n---\nUse owner.ui.catalog.read to read the
+      catalog records.\n")'
+    - page.getByRole("button", "Create skill").click()
+    - expect(page.getByRole("tab", "Skills (1)")).toBeVisible(15000)
+    - page.locator("xpath://div[contains(@class,'bp6-dialog-footer-actions')]//button[normalize-space(.)='Close']").click()
+    - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+    - page.getByRole("button", "Validate").click()
+    - page.getByRole("button", "Validate revision").click()
+    - expect(page.getByText("Runtime contract is ready")).toBeVisible(15000)
+    - page.locator("xpath://div[contains(@class,'bp6-dialog-footer-actions')]//button[normalize-space(.)='Close']").click()
+  policyInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: "${runDir}/artifacts/${caseName}"
+    commands: "$policyCommands"
+  closeEditor:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    commands:
+    - page.locator(".studio-nav-namespaces").click()
+    - expect(page.getByLabel("Current namespace")).toBeEnabled(15000)
+  versions:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.versions.list
+    arguments:
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+      reportId: "$components.StructuredContent.items[0].id"
+  validated:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$versions.StructuredContent.items[0].compileStatus"
+    expect: valid
+  runtime:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.runtime.status
+    arguments:
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+    allowToolError: true
+    repeat: 50
+    thinkTimeMs: 100
+    exit: $output:/"status":"ready"/
+  runtimeReady:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$runtime.StructuredContent.host.status"
+    expect: ready
+  publish:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.publications.publish
+    arguments:
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+      reportId: "$components.StructuredContent.items[0].id"
+      versionNo: "$versions.StructuredContent.items[0].versionNo"
+      input:
+        expectedSourceRevision: "$versions.StructuredContent.items[0].sourceRevision"
+  published:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$publish.StructuredContent.status"
+    expect: active
+  endpoint:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.runtime.status
+    arguments:
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+  allowedCatalog:
+    action: mcp/runner:listTools
+    url: "$endpoint.StructuredContent.host.mcpUrl"
+    bearerTokenSecret: "${runDir}/${allowedUser}.token"
+  allowedTool:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$allowedCatalog"
+    expect:
+      "@length@Tools": 3
+      Tools:
+      - Name: "${caseTool}"
+      - Name: skills/get
+      - Name: skills/list
+  invokeAllowed:
+    action: mcp/runner:call
+    url: "$endpoint.StructuredContent.host.mcpUrl"
+    bearerTokenSecret: "${runDir}/${allowedUser}.token"
+    "@name": "${caseTool}"
+    arguments: {}
+  returnedData:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$invokeAllowed"
+    expect:
+      IsError: false
+      StructuredContent:
+        "@length@records": 2
+        records:
+        - id: 10
+          name: "${caseName} first"
+        - id: 20
+          name: "${caseName} second"
+  deniedCatalog:
+    action: mcp/runner:listTools
+    url: "$endpoint.StructuredContent.host.mcpUrl"
+    bearerTokenSecret: "${runDir}/${deniedUser}.token"
+  hiddenTool:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$deniedCatalog"
+    expect:
+      "@length@Tools": 2
+      Tools:
+      - Name: skills/get
+      - Name: skills/list
+  invokeDenied:
+    action: mcp/runner:call
+    url: "$endpoint.StructuredContent.host.mcpUrl"
+    bearerTokenSecret: "${runDir}/${deniedUser}.token"
+    "@name": "${caseTool}"
+    arguments: {}
+    allowProtocolError: true
+    allowToolError: true
+  directDenied:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$invokeDenied"
+    expect:
+      IsError: true
+      ProtocolErrorCode: -32600
+  allowedSkills:
+    action: mcp/runner:listSkills
+    url: "$endpoint.StructuredContent.host.mcpUrl"
+    bearerTokenSecret: "${runDir}/${allowedUser}.token"
+  twoPublishedSkills:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$allowedSkills"
+    expect:
+      "@length@Skills": 2
+  getNamespaceSkill:
+    action: mcp/runner:getSkill
+    url: "$endpoint.StructuredContent.host.mcpUrl"
+    bearerTokenSecret: "${runDir}/${allowedUser}.token"
+    uri: skill://${namespace.StructuredContent.namespaceId}/${namespaceSkills.StructuredContent.items[0].skillId}/1/namespace-guide/SKILL.md
+  NamespaceSkillManifest:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$getNamespaceSkill"
+    expect:
+      IsError: false
+      Skill:
+        Uri: skill://${namespace.StructuredContent.namespaceId}/${namespaceSkills.StructuredContent.items[0].skillId}/1/namespace-guide/SKILL.md
+        Frontmatter:
+          name: namespace-guide
+        Resources:
+          "@length@Files": 2
+  readNamespaceSkill:
+    action: mcp/runner:readResource
+    url: "$endpoint.StructuredContent.host.mcpUrl"
+    bearerTokenSecret: "${runDir}/${allowedUser}.token"
+    uri: skill://${namespace.StructuredContent.namespaceId}/${namespaceSkills.StructuredContent.items[0].skillId}/1/namespace-guide/SKILL.md
+  NamespaceSkillBytes:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$readNamespaceSkill.Contents[0].Text"
+    expect: |
+      ---
+      name: namespace-guide
+      description: Guide to this namespace.
+      ---
+      Use the customer tools in this namespace.
+  getComponentSkill:
+    action: mcp/runner:getSkill
+    url: "$endpoint.StructuredContent.host.mcpUrl"
+    bearerTokenSecret: "${runDir}/${allowedUser}.token"
+    uri: skill://${namespace.StructuredContent.namespaceId}/components/${components.StructuredContent.items[0].id}/1/component-guide/SKILL.md
+  ComponentSkillManifest:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$getComponentSkill"
+    expect:
+      IsError: false
+      Skill:
+        Uri: skill://${namespace.StructuredContent.namespaceId}/components/${components.StructuredContent.items[0].id}/1/component-guide/SKILL.md
+        Frontmatter:
+          name: component-guide
+        Resources:
+          "@length@Files": 1
+  readComponentSkill:
+    action: mcp/runner:readResource
+    url: "$endpoint.StructuredContent.host.mcpUrl"
+    bearerTokenSecret: "${runDir}/${allowedUser}.token"
+    uri: skill://${namespace.StructuredContent.namespaceId}/components/${components.StructuredContent.items[0].id}/1/component-guide/SKILL.md
+  ComponentSkillBytes:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$readComponentSkill.Contents[0].Text"
+    expect: |
+      ---
+      name: component-guide
+      description: Guide to the catalog component.
+      ---
+      Use owner.ui.catalog.read to read the catalog records.
+  deniedSkills:
+    action: mcp/runner:listSkills
+    url: "$endpoint.StructuredContent.host.mcpUrl"
+    bearerTokenSecret: "${runDir}/${deniedUser}.token"
+  componentSkillHidden:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$deniedSkills"
+    expect:
+      "@length@Skills": 1
+      Skills:
+      - Frontmatter:
+          name: namespace-guide
+  deniedComponentSkill:
+    action: mcp/runner:getSkill
+    url: "$endpoint.StructuredContent.host.mcpUrl"
+    bearerTokenSecret: "${runDir}/${deniedUser}.token"
+    uri: skill://${namespace.StructuredContent.namespaceId}/components/${components.StructuredContent.items[0].id}/1/component-guide/SKILL.md
+    allowProtocolError: true
+  hiddenSkillCannotBeFetched:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$deniedComponentSkill.IsError"
+    expect: true

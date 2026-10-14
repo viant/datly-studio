@@ -1,0 +1,1 @@
+Create namespace A and B, publish dedicated components, call each endpoint, and reject cross-namespace tool execution.

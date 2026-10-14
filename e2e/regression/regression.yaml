@@ -1,5 +1,31 @@
 pipeline:
-  connectors:
-    action: run
-    request: '@../rule/studio/connectors'
-    tasks: '*'
+  testMCP:
+    tag: $pathMatch
+    subPath: 'cases/mcp/${index}_*'
+    template:
+      test:
+        action: run
+        init:
+          parentPath: $path
+          tag: $tag
+        request: '@test'
+  testPermissions:
+    tag: $pathMatch
+    subPath: 'cases/permissions/${index}_*'
+    template:
+      test:
+        action: run
+        init:
+          parentPath: $path
+          tag: $tag
+        request: '@test'
+  testWebDriver:
+    tag: $pathMatch
+    subPath: 'cases/webdriver/${index}_*'
+    template:
+      test:
+        action: run
+        init:
+          parentPath: $path
+          tag: $tag
+        request: '@test'

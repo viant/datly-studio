@@ -13,6 +13,7 @@ import (
 	"github.com/viant/datly-studio/runtime/preview"
 	"github.com/viant/datly-studio/sdk"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
+	"github.com/viant/datly-studio/studio/host"
 	rhandler "github.com/viant/datly/runtime/handler"
 	"github.com/viant/datly/runtime/handler/custom"
 	"github.com/viant/scy/auth/jwt"
@@ -20,7 +21,6 @@ import (
 	xhandler "github.com/viant/xdatly/handler"
 )
 
-const modulePath = "github.com/viant/datly-studio"
 const maxExecution = 15 * time.Second
 
 type Input struct {
@@ -67,9 +67,17 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	if strings.TrimSpace(input.Input.SQL) == "" {
 		return publisherguard.PublicError(400, "SQL is required")
 	}
+	authoring, err := host.AuthoringFromContext(ctx)
+	if err != nil {
+		return err
+	}
+	types, err := authoring.RuntimeTypes()
+	if err != nil {
+		return err
+	}
 	executionCtx, cancel := context.WithTimeout(ctx, maxExecution)
 	defer cancel()
-	result, err := (preview.Dynamic{ModulePath: modulePath}).TestSQL(executionCtx, connector, input.Input)
+	result, err := (preview.Dynamic{ModulePath: authoring.ModulePath(), Types: types}).TestSQL(executionCtx, connector, input.Input)
 	if err != nil {
 		return publisherguard.PublicError(400, "SQL test could not be compiled or executed")
 	}

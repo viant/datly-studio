@@ -2,8 +2,13 @@ package host
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"io/fs"
 	"maps"
 	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/viant/datly-studio/runtime/namespacemcp"
 	mcpserver "github.com/viant/datly/mcp/server"
@@ -18,6 +23,7 @@ func NamespaceFactory(base Config) namespacemcp.Factory {
 		config.NamespaceID = endpoint.NamespaceID
 		config.MCP.Address = endpoint.Address
 		config.Authentication.PublicMCPURL = "http://" + endpoint.Address
+		config.NamespaceMCPPath = strings.TrimSuffix(endpoint.Path, "/mcp")
 		config.Authentication.Providers = maps.Clone(base.Authentication.Providers)
 		config.Authentication.Components = maps.Clone(base.Authentication.Components)
 		runtime, err := New(ctx, config)
@@ -41,6 +47,9 @@ func (s *namespaceRuntimeSource) PinSnapshot(ctx context.Context) (context.Conte
 	return s.runtime.manager.PinSnapshot(ctx)
 }
 func (s *namespaceRuntimeSource) WrapHTTP(next http.Handler) http.Handler {
+	if s.runtime.config.ToolCallAudit != nil {
+		next = s.runtime.config.ToolCallAudit.Wrap(next)
+	}
 	return browserMCPCORS(s.runtime.config.MCP.CORS, s.runtime.oauthDiscovery(next))
 }
 func (s *namespaceRuntimeSource) Reload(ctx context.Context, generation int64) error {
@@ -50,4 +59,23 @@ func (s *namespaceRuntimeSource) Close(ctx context.Context) error { return s.run
 
 func (s *namespaceRuntimeSource) RuntimeStatus() (string, int64) {
 	return s.runtime.config.Authentication.DefaultMode, int64(s.runtime.manager.Revision())
+}
+
+func (s *namespaceRuntimeSource) RuntimeConnection(ctx context.Context) (json.RawMessage, error) {
+	folder, uri, err := s.runtime.namespaceConnectionFolder(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if folder == nil {
+		return nil, fmt.Errorf("namespace connection export is not configured")
+	}
+	parsed, err := url.Parse(uri)
+	if err != nil {
+		return nil, err
+	}
+	data, err := fs.ReadFile(folder.FS, strings.TrimPrefix(parsed.Path, "/"))
+	if err != nil {
+		return nil, err
+	}
+	return json.RawMessage(data), nil
 }

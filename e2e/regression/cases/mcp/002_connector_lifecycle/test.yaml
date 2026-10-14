@@ -1,0 +1,291 @@
+pipeline:
+  createConnector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: connectorcase
+      driver: sqlite
+      dsnTemplate: ${runDir}/consumer.db
+    allowToolError: true
+    '@name': studio.sdk.connectors.create
+  createConnectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $createConnector
+    expect:
+      IsError: false
+  probe:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: connectorcase
+    allowToolError: true
+    '@name': studio.sdk.connectors.test
+  probeSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $probe
+    expect:
+      IsError: false
+  connector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: connectorcase
+    allowToolError: true
+    '@name': studio.sdk.connectors.get
+  connectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $connector
+    expect:
+      IsError: false
+  activate:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: connectorcase
+      etag: $connector.StructuredContent.etag
+    allowToolError: true
+    '@name': studio.sdk.connectors.activate
+  activateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $activate
+    expect:
+      IsError: false
+  testSQL:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.connectors.test_sql
+    arguments:
+      name: connectorcase
+      input:
+        sql: SELECT id,name FROM customers ORDER BY id
+        limit: 1
+  sqlRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $testSQL
+    expect:
+      IsError: false
+      StructuredContent:
+        data:
+          '@length@rows': 1
+          rows:
+            - id: 1
+              name: Ada
+  sqlDenied:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $outsiderToken
+    '@name': studio.sdk.connectors.test_sql
+    allowToolError: true
+    arguments:
+      name: connectorcase
+      input:
+        sql: SELECT id,name FROM customers
+  sqlDeniedAssert:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $sqlDenied.IsError
+    expect: true
+  namespace:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: connectorcase
+      title: connectorcase
+      mcpEnabled: true
+      mcpPort: 0
+    allowToolError: true
+    '@name': studio.sdk.namespaces.create
+  namespaceSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $namespace
+    expect:
+      IsError: false
+  schemas:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: connectorcase
+      input: {}
+    allowToolError: true
+    '@name': studio.sdk.connectors.schemas
+  schemasSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $schemas
+    expect:
+      IsError: false
+  tables:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: connectorcase
+      input: {}
+    allowToolError: true
+    '@name': studio.sdk.connectors.tables
+  tablesSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $tables
+    expect:
+      IsError: false
+  table:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: connectorcase
+      input:
+        table: customers
+    allowToolError: true
+    '@name': studio.sdk.connectors.table
+  tableSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $table
+    expect:
+      IsError: false
+  list:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      query: connectorcase
+    allowToolError: true
+    '@name': studio.sdk.connectors.list
+  listSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $list
+    expect:
+      IsError: false
+  assertList:
+    action: validator:assert
+    actual: $list.StructuredContent.items
+    expect:
+      - name: connectorcase
+        status: active
+    normalizeKVPairs: true
+  get:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: connectorcase
+    allowToolError: true
+    '@name': studio.sdk.connectors.get
+  getSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $get
+    expect:
+      IsError: false
+  update:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: connectorcase
+      input:
+        etag: $get.StructuredContent.etag
+        description: updated
+    allowToolError: true
+    '@name': studio.sdk.connectors.update
+  updateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $update
+    expect:
+      IsError: false
+  after:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: connectorcase
+    allowToolError: true
+    '@name': studio.sdk.connectors.get
+  afterSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $after
+    expect:
+      IsError: false
+  disable:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: connectorcase
+      etag: $after.StructuredContent.etag
+    allowToolError: true
+    '@name': studio.sdk.connectors.disable
+  disableSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $disable
+    expect:
+      IsError: false
+  disabledSQL:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.connectors.test_sql
+    allowToolError: true
+    arguments:
+      name: connectorcase
+      input:
+        sql: SELECT id,name FROM customers
+  disabledSQLAssert:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $disabledSQL.IsError
+    expect: true
+  disabled:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: connectorcase
+    allowToolError: true
+    '@name': studio.sdk.connectors.get
+  disabledSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $disabled
+    expect:
+      IsError: false
+  delete:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: connectorcase
+      etag: $disabled.StructuredContent.etag
+    allowToolError: true
+    '@name': studio.sdk.connectors.delete
+  deleteSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $delete
+    expect:
+      IsError: false
+  persist:
+    action: dsunit:query
+    datastore: studio
+    SQL: SELECT COUNT(*) AS total FROM connectors WHERE name='connectorcase' AND deleted_at IS NOT NULL AND status='deleted'
+    expect:
+      - total: 1

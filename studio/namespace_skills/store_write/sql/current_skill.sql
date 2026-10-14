@@ -1,0 +1,2 @@
+SELECT r.namespace_id, r.skill_id, r.name, r.title, r.description, r.latest_revision, r.published_revision, r.status, r.created_by, r.updated_by, r.etag, r.created_at, r.updated_at, r.deleted_at FROM (SELECT * FROM  (SELECT * FROM namespace_skills
+)  skill) r WHERE $criteria.CompositeIn("r", $SkillKeys)

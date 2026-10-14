@@ -149,6 +149,16 @@ func TestConnectorCreateSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	if duplicate.Code != http.StatusConflict {
 		t.Fatalf("duplicate status=%d body=%s", duplicate.Code, duplicate.Body.String())
 	}
+	// Deleted connectors retain their names. Reusing one must be a conflict,
+	// never an unhandled database uniqueness failure.
+	if _, err = db.ExecContext(ctx, "UPDATE connectors SET status='deleted',deleted_at=CURRENT_TIMESTAMP WHERE name='warehouse'"); err != nil {
+		t.Fatal(err)
+	}
+	deletedDuplicate := httptest.NewRecorder()
+	handler.ServeHTTP(deletedDuplicate, request("alice", `{"name":"warehouse","driver":"mysql"}`))
+	if deletedDuplicate.Code != http.StatusConflict {
+		t.Fatalf("deleted duplicate status=%d body=%s", deletedDuplicate.Code, deletedDuplicate.Body.String())
+	}
 	document, err := (openapi.Generator{}).Generate(ctx, openapi.Request{Info: openapi3.Info{Title: "Studio SDK", Version: "1"}, Components: []*registry.RegisteredComponent{authEntry, entry}, Routes: []spec.RouteRef{{Method: "POST", Path: "/v1/studio/sdk/connectors.create"}}})
 	if err != nil || document.Paths["/v1/studio/sdk/connectors.create"].Post == nil {
 		t.Fatalf("OpenAPI create route: %v", err)

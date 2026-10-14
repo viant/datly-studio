@@ -1,4 +1,4 @@
-SELECT usage."report_id", usage."namespace" FROM  (SELECT u.report_id, u.namespace
+SELECT resource_usage.* FROM  (SELECT u.report_id, u.namespace
 FROM (
     SELECT report_id, namespace FROM component_resource_files
     UNION ALL
@@ -6,4 +6,4 @@ FROM (
 ) u
 JOIN components workspace_component ON workspace_component.id=u.report_id AND workspace_component.namespace_id=$NamespaceId
 ${predicate.Builder().CombineAnd($predicate.FilterGroup(0, "AND")).Build("WHERE")}
-)  usage WHERE 1 = 1
+)  resource_usage WHERE 1 = 1

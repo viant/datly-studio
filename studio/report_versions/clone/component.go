@@ -47,7 +47,7 @@ func (*Output) JSONWireType() reflect.Type     { return reflect.TypeFor[sdk.Repo
 func (o *Output) MarshalJSON() ([]byte, error) { return json.Marshal(o.Response) }
 
 type Component struct {
-	Contract xdatly.Component[Input, Output] `component:"clone,path=/v1/studio/sdk/versions.clone,method=POST,connector=studio,handler=NewClone" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.versions.clone\",\"description\":\"Clone an authorized exact version with resources and unchanged access policies\"}]" caseFormat:"lc"`
+	Contract xdatly.Component[Input, Output] `component:"clone,path=/v1/studio/sdk/versions.clone,method=POST,connector=studio,handler=NewClone" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.versions.clone\",\"description\":\"Clone an authorized exact version with resources and unchanged access policies\"}]" componentCallPolicy:"imperative" caseFormat:"lc"`
 }
 
 var CloneDatly = new(Component)

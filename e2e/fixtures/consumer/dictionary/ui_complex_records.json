@@ -1,0 +1,17 @@
+[
+  {},
+  {
+    "id": 10,
+    "name": "ui_complex first",
+    "state": "active",
+    "score": 90,
+    "region": "west"
+  },
+  {
+    "id": 20,
+    "name": "ui_complex second",
+    "state": "inactive",
+    "score": 40,
+    "region": "east"
+  }
+]

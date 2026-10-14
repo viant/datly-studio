@@ -30,7 +30,6 @@ func TestValidateSkillToolReferencesExactStoredIdentity(t *testing.T) {
 		`INSERT INTO component_resource_files VALUES('report',1,'guide.docs','manual/nested/SKILL.md','---
 name: guide
 description: Guide
-allowed-tools: skills/list
 ---
 Use it.')`,
 		`INSERT INTO component_resource_files VALUES('report',1,'other.namespace','manual/nested/SKILL.md','---

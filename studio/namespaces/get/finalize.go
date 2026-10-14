@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
+	"github.com/viant/datly-studio/internal/namespacevisibility"
 	"reflect"
 
 	xresponse "github.com/viant/xdatly/response"
@@ -40,7 +41,7 @@ func (output *NamespaceGetOutput) Finalize(ctx context.Context) error {
 	}
 	output.MCPEnabled = namespace.McpEnabled
 	output.MCPPort = namespace.McpPort
-	output.CanManage = input.Jwt != nil && input.Jwt.Subject == namespace.OwnerId
+	output.CanManage = input.Jwt != nil && (input.Jwt.Subject == namespace.OwnerId || namespacevisibility.IsAdministrator(ctx, input.Jwt.Subject))
 	output.OwnerId = namespace.OwnerId
 	output.ResponseName = namespace.Name
 	output.Title = namespace.Title

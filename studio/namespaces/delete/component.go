@@ -4,11 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/viant/authz/oauth"
+	"github.com/viant/datly-studio/internal/namespacevisibility"
 	"net/http"
 	"reflect"
+	"strings"
 	"time"
 
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
+	skills "github.com/viant/datly-studio/studio/namespace_skills/store_read"
 	storedreader "github.com/viant/datly-studio/studio/namespaces/store_read"
 	usage "github.com/viant/datly-studio/studio/namespaces/store_usage"
 	storedwriter "github.com/viant/datly-studio/studio/namespaces/store_write"
@@ -68,8 +72,18 @@ func (*deleteHandler) Exec(ctx context.Context, session xhandler.Session, input 
 	if !found || !ok {
 		return fmt.Errorf("Datly component invoker is unavailable")
 	}
+	var headers struct {
+		Authorization string `bind:"kind=header,in=Authorization"`
+	}
+	if err := session.Binder().Bind(ctx, &headers); err != nil {
+		return err
+	}
+	ctx = oauth.WithBearer(ctx, strings.TrimPrefix(headers.Authorization, "Bearer "))
+	administrator := namespacevisibility.IsAdministrator(ctx, input.Jwt.Subject)
 	read := &storedreader.Input{}
-	read.SetOwnerId(input.Jwt.Subject)
+	if !administrator {
+		read.SetOwnerId(input.Jwt.Subject)
+	}
 	read.SetName(input.Name)
 	read.SetQuery("")
 	read.SetStatus("")
@@ -89,7 +103,7 @@ func (*deleteHandler) Exec(ctx context.Context, session xhandler.Session, input 
 		return publicError(403, "Studio authorization denied")
 	}
 	if len(rows.Namespaces) != 1 || rows.Namespaces[0] == nil ||
-		rows.Namespaces[0].OwnerId != input.Jwt.Subject || rows.Namespaces[0].Name != input.Name {
+		(!administrator && rows.Namespaces[0].OwnerId != input.Jwt.Subject) || rows.Namespaces[0].Name != input.Name {
 		return fmt.Errorf("owned namespace reader returned ambiguous or mismatched rows")
 	}
 	current := rows.Namespaces[0]
@@ -109,6 +123,21 @@ func (*deleteHandler) Exec(ctx context.Context, session xhandler.Session, input 
 	}
 	if used.Usages[0].Used > 0 {
 		return publicError(409, "namespace is referenced by a component")
+	}
+	skillQuery := &skills.Input{}
+	skillQuery.SetNamespaceId(current.NamespaceId)
+	skillQuery.SetPageLimit(1)
+	skillQuery.SetPageOffset(0)
+	skillValue, err := invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[skills.SkillComponent](), "skill", "GET", "/_studio/namespace-skill-store/read"), Input: skillQuery})
+	if err != nil {
+		return err
+	}
+	skillPage, ok := skillValue.(*skills.Output)
+	if !ok || skillPage == nil {
+		return fmt.Errorf("namespace skill usage reader returned %T", skillValue)
+	}
+	if len(skillPage.Skills) > 0 {
+		return publicError(409, "namespace contains independent skills; archive them first")
 	}
 	now, etag := time.Now().UTC(), input.ETag
 	row := &storedwriter.StoredNamespace{OwnerId: current.OwnerId, Name: current.Name,

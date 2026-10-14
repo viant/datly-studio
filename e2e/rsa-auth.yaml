@@ -1,0 +1,99 @@
+init:
+  appPath: $WorkingDirectory(..)
+  generatedRunId: $FormatTime('now In UTC', 'yyyyMMddHHmmssSSS')
+  runId: '$params.runId?$params.runId:$generatedRunId'
+  keyDir: ${appPath}/.cache/e2e/${runId}/jwt
+pipeline:
+  keys:
+    action: exec:run
+    strictCompletion: true
+    checkError: true
+    commands:
+      - mkdir -p ${keyDir}
+      - test ! -e ${keyDir}/private.pem
+      - openssl genrsa -out ${keyDir}/private.pem 2048
+      - chmod 600 ${keyDir}/private.pem
+      - openssl rsa -in ${keyDir}/private.pem -pubout -out ${keyDir}/public.pem
+      - openssl genrsa -out ${keyDir}/unrelated-private.pem 2048
+      - chmod 600 ${keyDir}/unrelated-private.pem
+      - openssl rsa -in ${keyDir}/unrelated-private.pem -pubout -out ${keyDir}/unrelated-public.pem
+  owner:
+    action: secret:signJWT
+    expiryInSec: 3600
+    privateKey:
+      URL: ${keyDir}/private.pem
+    useClaimsMap: true
+    claimsMap:
+      sub: owner
+      user_id: 7
+      account_id: 21
+      iss: studio-e2e
+      aud: studio-e2e
+  ownerSaved:
+    init:
+      jwtToken: $owner.TokenString
+    action: storage:upload
+    sourceKey: jwtToken
+    mode: 384
+    dest:
+      URL: ${keyDir}/owner.token
+  ownerVerified:
+    action: secret:verifyJWT
+    publicKey:
+      URL: ${keyDir}/public.pem
+    token: $owner.TokenString
+  ownerClaims:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $ownerVerified
+    expect:
+      Valid: true
+      Claims:
+        Subject: owner
+        UserID: 7
+        AccountId: 21
+        Issuer: studio-e2e
+  viewer:
+    action: secret:signJWT
+    expiryInSec: 3600
+    privateKey:
+      URL: ${keyDir}/private.pem
+    useClaimsMap: true
+    claimsMap:
+      sub: viewer
+      user_id: 8
+      account_id: 21
+      iss: studio-e2e
+      aud: studio-e2e
+  viewerSaved:
+    init:
+      jwtToken: $viewer.TokenString
+    action: storage:upload
+    sourceKey: jwtToken
+    mode: 384
+    dest:
+      URL: ${keyDir}/viewer.token
+  viewerVerified:
+    action: secret:verifyJWT
+    publicKey:
+      URL: ${keyDir}/public.pem
+    token: $viewer.TokenString
+  viewerClaims:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $viewerVerified
+    expect:
+      Valid: true
+      Claims:
+        Subject: viewer
+        UserID: 8
+        AccountId: 21
+  wrongKey:
+    action: secret:verifyJWT
+    publicKey:
+      URL: ${keyDir}/unrelated-public.pem
+    token: $owner.TokenString
+  wrongKeyRejected:
+    action: validator:assert
+    actual: $wrongKey.Valid
+    expect: false

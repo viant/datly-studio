@@ -1,0 +1,130 @@
+init:
+  caseTool: owner.ui.policy.edit.read
+  caseName: ui_policy_edit
+  caseTitle: Policy edit component
+  caseSlug: ui-policy-edit
+  allowedUser: sales-reader
+  deniedUser: no-exposure
+  policyCommands:
+    - page.locator(".studio-nav-security").click()
+    - page.getByLabel("Find a resource").fill("${caseTitle}")
+    - page.getByRole("button", "${caseTitle}").click()
+    - page.getByRole("button", "Create access policy").click()
+    - expect(page.locator(".studio-resource-access-heading .bp6-tag")).toHaveText("Policy revision 0",15000)
+    - page.locator("xpath://nav[@aria-label='Permission actions']//button[strong[normalize-space(.)='discover']]").click()
+    - page.getByLabel("Access mode").selectOption("protected")
+    - page.getByLabel("rule condition").selectOption("exposure")
+    - page.getByLabel("rule value").selectOption("EXPOSE_SALES")
+    - page.locator("xpath://nav[@aria-label='Permission actions']//button[strong[normalize-space(.)='describe']]").click()
+    - page.getByLabel("Access mode").selectOption("protected")
+    - page.getByLabel("rule condition").selectOption("exposure")
+    - page.getByLabel("rule value").selectOption("EXPOSE_SALES")
+    - page.locator("xpath://nav[@aria-label='Permission actions']//button[strong[normalize-space(.)='execute']]").click()
+    - page.getByLabel("Access mode").selectOption("protected")
+    - page.getByLabel("rule condition").selectOption("exposure")
+    - page.getByLabel("rule value").selectOption("EXPOSE_SALES")
+    - page.getByRole("button", "Review changes").click()
+    - expect(page.locator(".bp6-dialog-container.bp6-overlay-enter-done .studio-resource-review-dialog")).toBeVisible(15000)
+    - page.getByRole("button", "Save permissions").click()
+    - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+    - expect(page.locator(".studio-resource-access-footer [role='status']")).toHaveText("Permissions saved.",15000)
+pipeline:
+  scenario:
+    action: run
+    request: '@../../../default/access-scenario'
+  editExistingPolicy:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/${caseName}
+    commands:
+      - page.locator(".studio-nav-components").click()
+      - page.locator(".studio-nav-security").click()
+      - page.getByLabel("Find a resource").fill("${caseTitle}")
+      - page.getByRole("button", "${caseTitle}").click()
+      - expect(page.locator(".studio-resource-access-heading .bp6-tag")).toHaveText("Policy revision 1",15000)
+      - page.locator("xpath://nav[@aria-label='Permission actions']//button[strong[normalize-space(.)='discover']]").click()
+      - page.getByLabel("rule value").selectOption("EXPOSE_OPERATIONS")
+      - page.locator("xpath://nav[@aria-label='Permission actions']//button[strong[normalize-space(.)='describe']]").click()
+      - page.getByLabel("rule value").selectOption("EXPOSE_OPERATIONS")
+      - page.locator("xpath://nav[@aria-label='Permission actions']//button[strong[normalize-space(.)='execute']]").click()
+      - page.getByLabel("rule value").selectOption("EXPOSE_OPERATIONS")
+      - page.getByRole("button", "Review changes").click()
+      - expect(page.locator(".bp6-dialog-container.bp6-overlay-enter-done .studio-resource-review-dialog")).toBeVisible(15000)
+      - page.getByRole("button", "Save permissions").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - expect(page.locator(".studio-resource-access-footer [role='status']")).toHaveText("Permissions saved.",15000)
+      - expect(page.locator(".studio-resource-access-heading .bp6-tag")).toHaveText("Policy revision 2",15000)
+      - page.locator(".studio-nav-namespaces").click()
+  namespaceAfterEdit:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.namespaces.get
+    arguments:
+      name: $caseName
+  endpointAfterEdit:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.runtime.status
+    arguments:
+      namespaceId: $namespaceAfterEdit.StructuredContent.namespaceId
+  newlyAllowedCatalog:
+    action: mcp/runner:listTools
+    url: $endpointAfterEdit.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/ops-reader.token
+  admittedTool:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $newlyAllowedCatalog
+    expect:
+      '@length@Tools': 1
+      Tools:
+        - Name: $caseTool
+  newlyAllowedCall:
+    action: mcp/runner:call
+    url: $endpointAfterEdit.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/ops-reader.token
+    '@name': $caseTool
+    arguments: {}
+  newlyAllowedData:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $newlyAllowedCall
+    expect:
+      IsError: false
+      StructuredContent:
+        '@length@records': 2
+        records:
+          - id: 10
+            name: ${caseName} first
+          - id: 20
+            name: ${caseName} second
+  revokedCatalog:
+    action: mcp/runner:listTools
+    url: $endpointAfterEdit.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/sales-reader.token
+  revokedTool:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $revokedCatalog
+    expect:
+      '@length@Tools': 0
+  revokedCall:
+    action: mcp/runner:call
+    url: $endpointAfterEdit.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/sales-reader.token
+    '@name': $caseTool
+    arguments: {}
+    allowProtocolError: true
+    allowToolError: true
+  revokedExecution:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $revokedCall
+    expect:
+      IsError: true
+      ProtocolErrorCode: -32600

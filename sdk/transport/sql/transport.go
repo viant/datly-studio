@@ -388,6 +388,14 @@ func (t *Transport) authorize(ctx context.Context, operation string, input any) 
 	case sdk.OperationPublicationPublish, sdk.OperationPublicationRemove, sdk.OperationPublicationRollback, sdk.OperationPublicationEventsList, sdk.OperationRuntimeStatus, sdk.OperationVersionWarmup, sdk.OperationVersionWarmupGet, sdk.OperationVersionWarmupList:
 		permission = "publish"
 	}
+	// resolveNamespace has already verified the selected namespace's visibility.
+	// Its endpoint must be discoverable before the first component is created;
+	// unscoped status still requires the existing global publish authority.
+	if operation == sdk.OperationRuntimeStatus {
+		if _, selected := selectedNamespace(ctx); selected {
+			permission = "view"
+		}
+	}
 	reportID := identity.ReportID
 	if reportID == "" && strings.HasPrefix(operation, "components.") {
 		reportID = identity.ID
@@ -1559,7 +1567,7 @@ func (t *Transport) persistReaderBuilderDQL(ctx context.Context, reportID string
 		}
 	}
 	if tx != nil {
-		if err = tx.Commit(); err != nil {
+		if err = commitWithServerGuard(ctx, tx); err != nil {
 			return nil, internal(err)
 		}
 	}
@@ -2005,7 +2013,7 @@ func (t *Transport) stagePublication(ctx context.Context, in publishRequest, ver
 			return 0, publicationState{}, false, time.Time{}, internal(err)
 		}
 	}
-	if err := tx.Commit(); err != nil {
+	if err := commitWithServerGuard(ctx, tx); err != nil {
 		return 0, publicationState{}, false, time.Time{}, internal(err)
 	}
 	return generation, previous, hasPrevious, now, nil
@@ -2051,7 +2059,7 @@ func (t *Transport) activatePublication(ctx context.Context, reportID string, ve
 	if err = t.appendPublicationEventTx(ctx, activated, event); err != nil {
 		return internal(err)
 	}
-	if err = activated.Commit(); err != nil {
+	if err = commitWithServerGuard(ctx, activated); err != nil {
 		return internal(err)
 	}
 	return nil
@@ -2163,7 +2171,7 @@ func (t *Transport) restoreFailedPublication(ctx context.Context, reportID strin
 	if err := publicationstore.WriteCompensation(ctx, t.DB, tx, operation, generation, restoreStatus, row); err != nil {
 		return fmt.Errorf("restore publication %q: %w", reportID, err)
 	}
-	return tx.Commit()
+	return commitWithServerGuard(ctx, tx)
 }
 
 func (t *Transport) compensateActivationFailure(ctx context.Context, reportID string, generation int64, previous publicationState, hasPrevious bool, cause error) error {
@@ -2267,7 +2275,7 @@ func (t *Transport) unpublish(ctx context.Context, input, output any) (returnErr
 		}
 		return internal(err)
 	}
-	if err = tx.Commit(); err != nil {
+	if err = commitWithServerGuard(ctx, tx); err != nil {
 		return internal(err)
 	}
 	event.GenerationNo = &generation
@@ -2323,7 +2331,7 @@ func (t *Transport) activateUnpublish(ctx context.Context, reportID string, gene
 	if err = t.appendPublicationEventTx(ctx, tx, event); err != nil {
 		return internal(err)
 	}
-	if err = tx.Commit(); err != nil {
+	if err = commitWithServerGuard(ctx, tx); err != nil {
 		return internal(err)
 	}
 	return nil

@@ -13,9 +13,9 @@ export { accessMCPAdapter } from './accessMCPAdapter.js';
 export { PermissionsWorkspace } from './SecurityCenter.jsx';
 export { defaultActionsByKind } from './resourceAccessActions.js';
 
-export function mountStudio(element, { config, sdk, extensions } = {}) {
+export function mountStudio(element, { config, sdk, extensions, renderNamespaceSkills } = {}) {
   if (!element) throw new TypeError('mountStudio requires a DOM element');
   const root = createRoot(element);
-  root.render(<StudioShell config={config} extensions={extensions ?? sdk?.extensions?.() ?? []}/>);
+  root.render(<StudioShell config={config} renderNamespaceSkills={renderNamespaceSkills ?? sdk?.config?.renderNamespaceSkills} extensions={extensions ?? sdk?.extensions?.() ?? []}/>);
   return { unmount: () => root.unmount() };
 }

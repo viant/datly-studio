@@ -1,3 +1,4 @@
+import { postV1StudioSdkNamespaceSkillsList, postV1StudioSdkNamespaceSkillsGet, postV1StudioSdkNamespaceSkillsCreate, postV1StudioSdkNamespaceSkillsUpdate, postV1StudioSdkNamespaceSkillsDelete, postV1StudioSdkNamespaceSkillsRevisions, postV1StudioSdkNamespaceSkillsPublish, postV1StudioSdkNamespaceSkillsUnpublish } from './generated/studioClient.gen.js';
 // StudioAPI is deliberately a client-side counterpart of sdk.Transport: every
 // UI interaction names an SDK operation and sends an SDK DTO. It has no direct
 // SQL, DQL, Datly component, or storage knowledge.
@@ -15,7 +16,7 @@ import { postV1StudioSdkResourcesUpsertFile, postV1StudioSdkResourcesDeleteFile,
 import { postV1StudioSdkVersionsBuilder } from './generated/studioClient.gen.js';
 import { postV1StudioSdkRuntimeStatus } from './generated/studioClient.gen.js';
 import { postV1StudioSdkPublicationsPublish, postV1StudioSdkPublicationsRollback, postV1StudioSdkPublicationsUnpublish } from './generated/studioClient.gen.js';
-import { postV1StudioSdkAccessList, postV1AuthzSdkPoliciesGet, postV1AuthzSdkPoliciesContext, postV1AuthzSdkPoliciesReplace, postV1AuthzSdkAuthorizationCheck } from './generated/studioClient.gen.js';
+import { postV1StudioSdkAccessList, postV1AuthzSdkPoliciesGet, postV1AuthzSdkPoliciesContext, postV1AuthzSdkPoliciesReplace, postV1AuthzSdkPoliciesCreate, postV1AuthzSdkAuthorizationCheck } from './generated/studioClient.gen.js';
 import { accessMCPAdapter } from './accessMCPAdapter.js';
 import { BrowserIdentity } from './browserIdentity.js';
 
@@ -28,11 +29,13 @@ export class StudioAPI {
     // not, so normalize both forms into an ordinary callable function.
     this.fetcher = options.fetcher ?? globalThis.fetch.bind(globalThis);
     this.onUnauthorized = options.onUnauthorized;
+    this.nativeCallTool = options.nativeCallTool;
     this.resourceAccess = accessMCPAdapter((name, input) => {
       const calls = {
         'authz.sdk.policies.get': postV1AuthzSdkPoliciesGet,
         'authz.sdk.policies.context': postV1AuthzSdkPoliciesContext,
         'authz.sdk.policies.replace': postV1AuthzSdkPoliciesReplace,
+        'authz.sdk.policies.create': postV1AuthzSdkPoliciesCreate,
         'authz.sdk.authorization.check': postV1AuthzSdkAuthorizationCheck,
       };
       const call = calls[name];
@@ -200,6 +203,7 @@ export class StudioAPI {
   listAccessResources(input = {}) { return this.nativeRequest(postV1StudioSdkAccessList, 'access.list', input); }
   getResourceAccess(resource) { return this.resourceAccess.getResourceAccess(resource); }
   getResourceAccessContext(resource) { return this.resourceAccess.getResourceAccessContext(resource); }
+  createResourceAccess(document) { return this.resourceAccess.createResourceAccess(document); }
   replaceResourceAccess(document) { return this.resourceAccess.replaceResourceAccess(document); }
   checkCurrentAccess(resource, action) { return this.resourceAccess.checkCurrentAccess(resource, action); }
   async nativeRequest(call, operation, body) {
@@ -207,6 +211,19 @@ export class StudioAPI {
     const headers = { Accept: 'application/json' };
     if (this.config.mode === 'development') headers['X-Studio-Development-Subject'] = this.config.development.subject;
     if (snapshot?.id) headers['X-Studio-Namespace'] = snapshot.id;
+    if (this.nativeCallTool) {
+      const name = operation.startsWith('authz.sdk.') ? operation : `studio.sdk.${operation}`;
+      try {
+        const value = await this.nativeCallTool(name, body ?? {}, {headers,
+          send: (url, init) => this.send(url, {...init, credentials: this.identity ? 'omit' : 'include'}, snapshot)});
+        this.assertNamespace(snapshot);
+        return value;
+      } catch (error) {
+        this.assertNamespace(snapshot);
+        if (error?.status === 401) this.onUnauthorized?.();
+        throw error;
+      }
+    }
     const { data, error, response } = await call({
       body, baseUrl: this.config.apiBaseURL, fetch: (value, init) => this.send(value, init, snapshot),
       credentials: this.identity ? 'omit' : this.config.mode === 'authenticated' ? 'include' : 'same-origin', headers,
@@ -260,6 +277,14 @@ export class StudioAPI {
   activateConnector(name, etag) { return this.nativeRequest(postV1StudioSdkConnectorsActivate, 'connectors.activate', { name, etag }); }
   disableConnector(name, etag) { return this.nativeRequest(postV1StudioSdkConnectorsDisable, 'connectors.disable', { name, etag }); }
   async deleteConnector(name, etag) { await this.nativeRequest(postV1StudioSdkConnectorsDelete, 'connectors.delete', { name, etag }); }
+  listNamespaceSkills(input = {}) { return this.nativeRequest(postV1StudioSdkNamespaceSkillsList, 'namespace_skills.list', input); }
+  getNamespaceSkill(skillId, revision = 0) { return this.nativeRequest(postV1StudioSdkNamespaceSkillsGet, 'namespace_skills.get', { skillId, revision }); }
+  createNamespaceSkill(bundle) { return this.nativeRequest(postV1StudioSdkNamespaceSkillsCreate, 'namespace_skills.create', { bundle }); }
+  updateNamespaceSkill(skillId, etag, bundle) { return this.nativeRequest(postV1StudioSdkNamespaceSkillsUpdate, 'namespace_skills.update', { skillId, etag, bundle }); }
+  deleteNamespaceSkill(skillId, etag) { return this.nativeRequest(postV1StudioSdkNamespaceSkillsDelete, 'namespace_skills.delete', { skillId, etag }); }
+  listNamespaceSkillRevisions(skillId, input = {}) { return this.nativeRequest(postV1StudioSdkNamespaceSkillsRevisions, 'namespace_skills.revisions', { ...input, skillId }); }
+  publishNamespaceSkill(skillId, etag, revision) { return this.nativeRequest(postV1StudioSdkNamespaceSkillsPublish, 'namespace_skills.publish', { skillId, etag, revision }); }
+  unpublishNamespaceSkill(skillId, etag) { return this.nativeRequest(postV1StudioSdkNamespaceSkillsUnpublish, 'namespace_skills.unpublish', { skillId, etag }); }
   listNamespaces(input = {}) { return this.nativeRequest(postV1StudioSdkNamespacesList, 'namespaces.list', input); }
   getNamespace(name) { return this.nativeRequest(postV1StudioSdkNamespacesGet, 'namespaces.get', { name }); }
   createNamespace(input) { return this.nativeRequest(postV1StudioSdkNamespacesCreate, 'namespaces.create', input); }

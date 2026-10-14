@@ -217,6 +217,24 @@
           }
         }
       },
+      "Input_3e014bcb4d9aebb2d4ab3215c768fa3b047d0aea2a8f8acc96a3f797bd3e7537": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Input_ad3d7f7da6a796e9a970d9134e8cb0548e78e5e4454fb3c81153a98d9767a129"
+            },
+            "nullable": true
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
       "Input_4b2c38475d83ff82029ec4520d07b5ec88c1409199c252fc696e28282c52561f": {
         "type": "object",
         "properties": {
@@ -241,6 +259,38 @@
             "nullable": true
           },
           "sql": {
+            "type": "string"
+          }
+        }
+      },
+      "Input_538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Input_ab3203ec5968978923da72be592ec5e958eb1b4e1cc56724ca5ea7a8d67f5c38"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Input_538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64"
+            },
+            "nullable": true
+          },
+          "value": {
             "type": "string"
           }
         }
@@ -316,6 +366,24 @@
                 ]
               }
             ]
+          }
+        }
+      },
+      "Input_608a3450a35a065c74a93a11f4a2598a1fe6712435317bc3fa15aa38e4cd6054": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Input_be69a3e78ead7826b6cd099ed06965f3618cbab616cefd4b7d7f3ae5da42f02b"
+            },
+            "nullable": true
+          },
+          "title": {
+            "type": "string"
           }
         }
       },
@@ -478,6 +546,25 @@
           "operation": {}
         }
       },
+      "Input_8d6956b33904910eb5c98596261b238032c1d60ec4985440c7c370ac9e4ab540": {
+        "type": "object",
+        "properties": {
+          "policies": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Input_b3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7"
+            },
+            "nullable": true
+          },
+          "resource": {
+            "$ref": "#/components/schemas/Input_b1c1e89e6619cb826e546ecf8347ad7b1464c14d32806b70e5e920cf5d1d5578"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "Input_92babcabef72e30fbb57dc0d846d94ab3444a80b93279fb26ff7a884ac2fffb8": {
         "type": "object",
         "properties": {
@@ -631,6 +718,31 @@
           }
         }
       },
+      "Input_ab3203ec5968978923da72be592ec5e958eb1b4e1cc56724ca5ea7a8d67f5c38": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "Input_ad3d7f7da6a796e9a970d9134e8cb0548e78e5e4454fb3c81153a98d9767a129": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "isBinary": {
+            "type": "boolean"
+          },
+          "path": {
+            "type": "string"
+          }
+        }
+      },
       "Input_adff4675f499a769cb093e90fbca27e902af83cc23c5e13071057671fe8d89f0": {
         "type": "object",
         "properties": {
@@ -687,6 +799,55 @@
           }
         }
       },
+      "Input_b1c1e89e6619cb826e546ecf8347ad7b1464c14d32806b70e5e920cf5d1d5578": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "Input_b3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7": {
+        "type": "object",
+        "properties": {
+          "entityType": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "requiredScopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "rule": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Input_538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          }
+        }
+      },
       "Input_b94652047b45c410057de4a3d589b99411e9b1ce7012ae301388c27534a7d71e": {
         "type": "object",
         "properties": {
@@ -732,6 +893,20 @@
             "type": "string"
           },
           "visibility": {
+            "type": "string"
+          }
+        }
+      },
+      "Input_be69a3e78ead7826b6cd099ed06965f3618cbab616cefd4b7d7f3ae5da42f02b": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "isBinary": {
+            "type": "boolean"
+          },
+          "path": {
             "type": "string"
           }
         }
@@ -2323,6 +2498,16 @@
       "Output_d558223f5d3d6bca0e300c59f8e624af838223bc61f0cb8c88f09c757834ddaa": {
         "type": "object",
         "properties": {
+          "allowedRoles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "canManage": {
+            "type": "boolean"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -2334,7 +2519,18 @@
             "type": "integer",
             "format": "int64"
           },
+          "mcpEnabled": {
+            "type": "boolean"
+          },
+          "mcpPort": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
           "name": {
+            "type": "string"
+          },
+          "namespaceId": {
             "type": "string"
           },
           "ownerId": {
@@ -2349,9 +2545,17 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "visibility": {
+            "type": "string"
           }
         },
         "required": [
+          "canManage",
+          "namespaceId",
+          "visibility",
+          "allowedRoles",
+          "mcpEnabled",
           "ownerId",
           "name",
           "title",
@@ -2579,6 +2783,24 @@
         },
         "required": [
           "kind"
+        ]
+      },
+      "Wire_0000ae7c5d7884f4ead8c10e8038a8cc022ef4386007285882c2dd1a2fdc867e": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "isBinary": {
+            "type": "boolean"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "content"
         ]
       },
       "Wire_013ce40651897a22f1d0c9d5a29a86362333458b72c57acb30fa03a2473f08c6": {
@@ -2885,6 +3107,99 @@
           "entityTypes"
         ]
       },
+      "Wire_0bbf066863381f769b39ad78b59b8059fb6550628396f1f8c25257ce82e6874f": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string"
+          },
+          "etag": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "latestRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "publishedRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "skillId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "namespaceId",
+          "skillId",
+          "name",
+          "title",
+          "description",
+          "latestRevision",
+          "publishedRevision",
+          "status",
+          "etag",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "Wire_0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
+          "skill": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_e8eef4e2ee505a6f0706d63914d0a1a7e51cfcb516b0852a6bee4efa3ce9e0b0"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "skill",
+          "revision"
+        ]
+      },
       "Wire_0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14": {
         "type": "object",
         "properties": {
@@ -2981,6 +3296,27 @@
         },
         "required": [
           "label"
+        ]
+      },
+      "Wire_136fdd6e98366655d5a5095e8c68f1bcac5a96b892272257e0a31875c4ad186c": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_39683fa2630319834046222efde0940aba2f6fb3c734927cdb6e6c4bf93acc07"
+            },
+            "nullable": true
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "content"
         ]
       },
       "Wire_13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec": {
@@ -3274,6 +3610,28 @@
           "isBinary"
         ]
       },
+      "Wire_1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921": {
+        "type": "object",
+        "properties": {
+          "skill": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_363b086d0a3385aef883a6c101a25e628c10e16f40db550f64380ec9188a63f1"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "skill"
+        ]
+      },
       "Wire_1e3fdf8fcb04453947f7d75766cc316e3e09d18591edbeef886727e071fe5f28": {
         "type": "object",
         "properties": {
@@ -3521,6 +3879,62 @@
         },
         "required": [
           "kind"
+        ]
+      },
+      "Wire_233692382231683192dd7140456422339bf3eeb54d8ac7887d29225da9ca7081": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string"
+          },
+          "etag": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "latestRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "publishedRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "skillId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "namespaceId",
+          "skillId",
+          "name",
+          "title",
+          "description",
+          "latestRevision",
+          "publishedRevision",
+          "status",
+          "etag",
+          "createdAt",
+          "updatedAt"
         ]
       },
       "Wire_239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691": {
@@ -4213,6 +4627,99 @@
           "offset"
         ]
       },
+      "Wire_35454323a091acd320d8403a139f69d740fe9ed35bba3514f08ff8ed60a9c1c1": {
+        "type": "object",
+        "properties": {
+          "bundle": {
+            "$ref": "#/components/schemas/Wire_136fdd6e98366655d5a5095e8c68f1bcac5a96b892272257e0a31875c4ad186c"
+          },
+          "contentSha256": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "skillId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespaceId",
+          "skillId",
+          "revision",
+          "contentSha256",
+          "bundle",
+          "createdAt",
+          "createdBy"
+        ]
+      },
+      "Wire_363b086d0a3385aef883a6c101a25e628c10e16f40db550f64380ec9188a63f1": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string"
+          },
+          "etag": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "latestRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "publishedRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "skillId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "namespaceId",
+          "skillId",
+          "name",
+          "title",
+          "description",
+          "latestRevision",
+          "publishedRevision",
+          "status",
+          "etag",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
       "Wire_385cb42fa02eb6e798cbc1f7de0bcdf81fdec7bcc883dc0d6d67a2e6f9974852": {
         "type": "object",
         "properties": {
@@ -4279,6 +4786,24 @@
           "offset"
         ]
       },
+      "Wire_39683fa2630319834046222efde0940aba2f6fb3c734927cdb6e6c4bf93acc07": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "isBinary": {
+            "type": "boolean"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "content"
+        ]
+      },
       "Wire_3b57d303fc4270172c8dc3dcc384045b957738421bfa4726d93f6529707bb684": {
         "type": "object",
         "properties": {
@@ -4300,6 +4825,43 @@
         },
         "required": [
           "name"
+        ]
+      },
+      "Wire_3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_b202a27129afca41f80f68ed94bc40b9a93d92d84de82126bac7e1e2ec9433fe"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
+          "skill": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_233692382231683192dd7140456422339bf3eeb54d8ac7887d29225da9ca7081"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "skill",
+          "revision"
         ]
       },
       "Wire_3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5": {
@@ -4378,6 +4940,43 @@
           "files",
           "folders",
           "skills"
+        ]
+      },
+      "Wire_40408f0a0b8acd6d878be4326076378aa96079592be6ec18a7919fc73b6ee6cb": {
+        "type": "object",
+        "properties": {
+          "bundle": {
+            "$ref": "#/components/schemas/Wire_f7e0e71af22003b02f42054a48a7fc20f287eb50183d06b8e811c01fad620893"
+          },
+          "contentSha256": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "skillId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespaceId",
+          "skillId",
+          "revision",
+          "contentSha256",
+          "bundle",
+          "createdAt",
+          "createdBy"
         ]
       },
       "Wire_42ea17da2b60208ef30858a88ede92d622320dba9d309726a67f3023fb8ab9e1": {
@@ -4517,6 +5116,41 @@
           "archive",
           "entryDql",
           "files"
+        ]
+      },
+      "Wire_461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_84dd294b4f11f08ca3a9d1430611613b710bcc9fa0f1d0ede017f74044e2f61f"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387"
+            },
+            "nullable": true
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind"
         ]
       },
       "Wire_46f5783921089422ba86ef3f21455336f0870921db6e2dac69f80e6517b1e68a": {
@@ -4855,6 +5489,32 @@
           "files",
           "folders",
           "skills"
+        ]
+      },
+      "Wire_4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7": {
+        "type": "object",
+        "properties": {
+          "publicationStatus": {
+            "type": "string"
+          },
+          "skill": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_85751a68c4d78aaa4c871824bf59452b5102e0d1c20e4ca6f87da0c38821ffa9"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "skill",
+          "publicationStatus"
         ]
       },
       "Wire_503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478": {
@@ -5364,6 +6024,24 @@
           "testedAt"
         ]
       },
+      "Wire_6479a7da664c407f8f41f4fdf1e70772bbad9691ef67e8050ded752fc88e802e": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "isBinary": {
+            "type": "boolean"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "content"
+        ]
+      },
       "Wire_65b20b1db94b9a2b772bc75cedde285454a5204dc72354f579cf1fe7fcc34b2b": {
         "type": "object",
         "properties": {
@@ -5450,6 +6128,41 @@
           "etag",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "Wire_69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d": {
+        "type": "object",
+        "properties": {
+          "entityType": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "requiredScopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "rule": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "mode"
         ]
       },
       "Wire_6bdc906e5944153cacf17027ff97fe2e0524311a1c332c218e05c2fb3a05012d": {
@@ -5916,6 +6629,30 @@
           "isBinary"
         ]
       },
+      "Wire_7a9034382c023a3e5b4b4f9403d720cc1bf990d1c827a366a019d586b9f5c801": {
+        "type": "object",
+        "properties": {
+          "policies": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Wire_69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d"
+            },
+            "nullable": true
+          },
+          "resource": {
+            "$ref": "#/components/schemas/Wire_afbd3ba313288192c9a8ae3627ea548117f98143f4f73d04a19579f4207fa6b3"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "resource",
+          "revision",
+          "policies"
+        ]
+      },
       "Wire_7af96ca0084d089bcfb5e8b942b9d90a7900d3c1e884c7d9c370d23294d493f8": {
         "type": "object"
       },
@@ -6196,6 +6933,114 @@
           "duration"
         ]
       },
+      "Wire_840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86": {
+        "type": "object",
+        "properties": {
+          "bundle": {
+            "$ref": "#/components/schemas/Wire_8901495307607551b54fae77b329fc1b74845fbfdb8111486323e8d7ecd142ce"
+          },
+          "contentSha256": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "skillId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespaceId",
+          "skillId",
+          "revision",
+          "contentSha256",
+          "bundle",
+          "createdAt",
+          "createdBy"
+        ]
+      },
+      "Wire_84dd294b4f11f08ca3a9d1430611613b710bcc9fa0f1d0ede017f74044e2f61f": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ]
+      },
+      "Wire_85751a68c4d78aaa4c871824bf59452b5102e0d1c20e4ca6f87da0c38821ffa9": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string"
+          },
+          "etag": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "latestRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "publishedRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "skillId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "namespaceId",
+          "skillId",
+          "name",
+          "title",
+          "description",
+          "latestRevision",
+          "publishedRevision",
+          "status",
+          "etag",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
       "Wire_85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c": {
         "type": "object",
         "properties": {
@@ -6239,6 +7084,83 @@
           "severity",
           "code",
           "message"
+        ]
+      },
+      "Wire_88709ac613253ed886933b7e523ce6042f690d19bbc5acdf9769548415baf599": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string"
+          },
+          "etag": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "latestRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "publishedRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "skillId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "namespaceId",
+          "skillId",
+          "name",
+          "title",
+          "description",
+          "latestRevision",
+          "publishedRevision",
+          "status",
+          "etag",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "Wire_8901495307607551b54fae77b329fc1b74845fbfdb8111486323e8d7ecd142ce": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_f1dc57456af4495c942542a2c666692b7ca8f42a01f826985262b938bf11fd84"
+            },
+            "nullable": true
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "content"
         ]
       },
       "Wire_898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c": {
@@ -6453,6 +7375,43 @@
           "sourceRevision",
           "createdBy",
           "createdAt"
+        ]
+      },
+      "Wire_923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_40408f0a0b8acd6d878be4326076378aa96079592be6ec18a7919fc73b6ee6cb"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
+          "skill": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_0bbf066863381f769b39ad78b59b8059fb6550628396f1f8c25257ce82e6874f"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "skill",
+          "revision"
         ]
       },
       "Wire_9354a215074630106ae925b0323dfe169d763d5b75fe24202ca25bd2fb36ab21": {
@@ -6763,6 +7722,27 @@
           "updatedAt"
         ]
       },
+      "Wire_9d8264983bf04cffa36aaebff7ed30c4e0090d3061c007830e518f3633d58fb8": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_0000ae7c5d7884f4ead8c10e8038a8cc022ef4386007285882c2dd1a2fdc867e"
+            },
+            "nullable": true
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "content"
+        ]
+      },
       "Wire_9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145": {
         "type": "object",
         "properties": {
@@ -6984,6 +7964,29 @@
           "ordinal"
         ]
       },
+      "Wire_afbd3ba313288192c9a8ae3627ea548117f98143f4f73d04a19579f4207fa6b3": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "version",
+          "tenant"
+        ]
+      },
       "Wire_affe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19": {
         "type": "object",
         "properties": {
@@ -7019,6 +8022,43 @@
         "required": [
           "version",
           "capabilities"
+        ]
+      },
+      "Wire_b202a27129afca41f80f68ed94bc40b9a93d92d84de82126bac7e1e2ec9433fe": {
+        "type": "object",
+        "properties": {
+          "bundle": {
+            "$ref": "#/components/schemas/Wire_9d8264983bf04cffa36aaebff7ed30c4e0090d3061c007830e518f3633d58fb8"
+          },
+          "contentSha256": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "skillId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespaceId",
+          "skillId",
+          "revision",
+          "contentSha256",
+          "bundle",
+          "createdAt",
+          "createdBy"
         ]
       },
       "Wire_b3c67af74df5a4d366c8f3a628801f07d89d1eefd88ebad70d3689f8970629db": {
@@ -7194,6 +8234,32 @@
           "ordinal"
         ]
       },
+      "Wire_b976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19": {
+        "type": "object",
+        "properties": {
+          "publicationStatus": {
+            "type": "string"
+          },
+          "skill": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_f3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "skill",
+          "publicationStatus"
+        ]
+      },
       "Wire_bb9c83695ae936c7031ab2428c59ccda35a4e34af9e6662a945012782ac921e1": {
         "type": "object",
         "properties": {
@@ -7308,6 +8374,32 @@
         "required": [
           "table",
           "columns"
+        ]
+      },
+      "Wire_bd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Wire_88709ac613253ed886933b7e523ce6042f690d19bbc5acdf9769548415baf599"
+                },
+                {
+                  "type": "object",
+                  "nullable": true,
+                  "enum": [
+                    null
+                  ]
+                }
+              ]
+            },
+            "nullable": true
+          }
+        },
+        "required": [
+          "items"
         ]
       },
       "Wire_be64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0": {
@@ -7539,6 +8631,17 @@
           "sourceRevision",
           "createdBy",
           "createdAt"
+        ]
+      },
+      "Wire_c34a89824b0951b1ac05f75e5bc3de78c6291e85c6dc07c5360c160963f1e221": {
+        "type": "object",
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Wire_7a9034382c023a3e5b4b4f9403d720cc1bf990d1c827a366a019d586b9f5c801"
+          }
+        },
+        "required": [
+          "document"
         ]
       },
       "Wire_c47cf46b58e263ed665fbdce50f43ecc62642c4837741ba43aaa439c1623d39c": {
@@ -8265,8 +9368,90 @@
           "bounded"
         ]
       },
+      "Wire_e8eef4e2ee505a6f0706d63914d0a1a7e51cfcb516b0852a6bee4efa3ce9e0b0": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string"
+          },
+          "etag": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "latestRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "publishedRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "skillId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "namespaceId",
+          "skillId",
+          "name",
+          "title",
+          "description",
+          "latestRevision",
+          "publishedRevision",
+          "status",
+          "etag",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
       "Wire_ea1dce693f0fba7795db01c064fb101c3191020f13e052ff246a0378ec74f044": {
         "type": "object"
+      },
+      "Wire_eb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Wire_35454323a091acd320d8403a139f69d740fe9ed35bba3514f08ff8ed60a9c1c1"
+                },
+                {
+                  "type": "object",
+                  "nullable": true,
+                  "enum": [
+                    null
+                  ]
+                }
+              ]
+            },
+            "nullable": true
+          }
+        },
+        "required": [
+          "items"
+        ]
       },
       "Wire_ec41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0": {
         "type": "object",
@@ -8582,6 +9767,24 @@
           "updatedAt"
         ]
       },
+      "Wire_f1dc57456af4495c942542a2c666692b7ca8f42a01f826985262b938bf11fd84": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "isBinary": {
+            "type": "boolean"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "content"
+        ]
+      },
       "Wire_f3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d": {
         "type": "object",
         "properties": {
@@ -8668,6 +9871,62 @@
           "createdAt"
         ]
       },
+      "Wire_f3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string"
+          },
+          "etag": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "latestRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "publishedRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "skillId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "namespaceId",
+          "skillId",
+          "name",
+          "title",
+          "description",
+          "latestRevision",
+          "publishedRevision",
+          "status",
+          "etag",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
       "Wire_f791e609dc9412b052626b655056f1150d4756f8c3a0e758a32b8022f81938d4": {
         "type": "object",
         "properties": {
@@ -8681,6 +9940,27 @@
         "required": [
           "type",
           "id"
+        ]
+      },
+      "Wire_f7e0e71af22003b02f42054a48a7fc20f287eb50183d06b8e811c01fad620893": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_6479a7da664c407f8f41f4fdf1e70772bbad9691ef67e8050ded752fc88e802e"
+            },
+            "nullable": true
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "content"
         ]
       },
       "Wire_f932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675": {
@@ -8946,6 +10226,55 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Wire_9354a215074630106ae925b0323dfe169d763d5b75fe24202ca25bd2fb36ab21"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/authz/sdk/policies.create": {
+      "post": {
+        "operationId": "POST:/v1/authz/sdk/policies.create",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "document": {
+                    "$ref": "#/components/schemas/Input_8d6956b33904910eb5c98596261b238032c1d60ec4985440c7c370ac9e4ab540"
+                  }
+                },
+                "required": [
+                  "document"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Wire_c34a89824b0951b1ac05f75e5bc3de78c6291e85c6dc07c5360c160963f1e221"
                 }
               }
             }
@@ -10437,6 +11766,451 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Wire_f13c6896f56ef6cd633314e17c86ef09c723b489a575449924c438606e230bf5"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/namespace_skills.create": {
+      "post": {
+        "operationId": "POST:/v1/studio/sdk/namespace_skills.create",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "bundle": {
+                    "$ref": "#/components/schemas/Input_608a3450a35a065c74a93a11f4a2598a1fe6712435317bc3fa15aa38e4cd6054"
+                  }
+                },
+                "required": [
+                  "bundle"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Wire_3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/namespace_skills.delete": {
+      "post": {
+        "operationId": "POST:/v1/studio/sdk/namespace_skills.delete",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "etag": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "skillId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "skillId",
+                  "etag"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Wire_1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/namespace_skills.get": {
+      "post": {
+        "operationId": "POST:/v1/studio/sdk/namespace_skills.get",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "revision": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "skillId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "skillId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Wire_0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/namespace_skills.list": {
+      "post": {
+        "operationId": "POST:/v1/studio/sdk/namespace_skills.list",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "query": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Wire_bd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/namespace_skills.publish": {
+      "post": {
+        "operationId": "POST:/v1/studio/sdk/namespace_skills.publish",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "etag": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "revision": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "skillId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "skillId",
+                  "etag",
+                  "revision"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Wire_b976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/namespace_skills.revisions": {
+      "post": {
+        "operationId": "POST:/v1/studio/sdk/namespace_skills.revisions",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "skillId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "skillId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Wire_eb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/namespace_skills.unpublish": {
+      "post": {
+        "operationId": "POST:/v1/studio/sdk/namespace_skills.unpublish",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "etag": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "skillId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "skillId",
+                  "etag"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Wire_4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/namespace_skills.update": {
+      "post": {
+        "operationId": "POST:/v1/studio/sdk/namespace_skills.update",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "bundle": {
+                    "$ref": "#/components/schemas/Input_3e014bcb4d9aebb2d4ab3215c768fa3b047d0aea2a8f8acc96a3f797bd3e7537"
+                  },
+                  "etag": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "skillId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "skillId",
+                  "etag",
+                  "bundle"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Wire_923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b"
                 }
               }
             }

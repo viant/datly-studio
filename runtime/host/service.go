@@ -17,6 +17,7 @@ import (
 
 	coreresource "github.com/viant/agently-core/service/resource"
 	access "github.com/viant/authz"
+	"github.com/viant/datly-studio/audit"
 	"github.com/viant/datly-studio/internal/connectorinit"
 	"github.com/viant/datly-studio/internal/connectorsecret"
 	"github.com/viant/datly-studio/runtime/accesscontext"
@@ -295,6 +296,36 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 		return authorizer.authorizeRun(ctx, reportID)
 	}
 	authorizeCatalogTool, authorizeCatalogResource, authorizeResource := authorizer.catalogAuthorizers(reportByComponent, versionByReport, loadedResources.ResourceReports)
+	namespaceFolders, namespaceURIs, err := s.namespaceSkillFolders(ctx)
+	if err != nil {
+		return nil, err
+	}
+	loadedResources.Folders = append(loadedResources.Folders, namespaceFolders...)
+	authorizeCatalogResource = authorizer.namespaceSkillAuthorizer(namespaceURIs, authorizeCatalogResource)
+	namespaceCatalogResource := authorizeCatalogResource
+	authorizeResource = func(ctx context.Context, uri string) error {
+		return namespaceCatalogResource(ctx, uri, "retrieve")
+	}
+	connectionFolder, connectionURI, err := s.namespaceConnectionFolder(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if connectionFolder != nil {
+		loadedResources.Folders = append(loadedResources.Folders, *connectionFolder)
+		originalRead, originalCatalog := authorizeResource, authorizeCatalogResource
+		authorizeResource = func(ctx context.Context, uri string) error {
+			if uri == connectionURI {
+				return authorizer.authorizeNamespace(ctx)
+			}
+			return originalRead(ctx, uri)
+		}
+		authorizeCatalogResource = func(ctx context.Context, uri, action string) error {
+			if uri == connectionURI {
+				return authorizer.authorizeNamespace(ctx)
+			}
+			return originalCatalog(ctx, uri, action)
+		}
+	}
 	httpConfig := gateway.Config{Warmup: &gateway.WarmupConfig{Timeout: 30 * time.Second, Authorize: func(context.Context, *http.Request, dexec.ComponentTarget) error {
 		return errors.New("dynamic warmup administration is available through the Studio SDK")
 	}, Completed: func(gateway.WarmupResult, error) {}}, Authorize: func(ctx context.Context, _ *http.Request, target dexec.ComponentTarget) error {
@@ -356,7 +387,9 @@ func requireReaderOnlyContract(component *spec.Component) error {
 // publication time. UI selection is helpful, but direct SDK callers must not
 // be able to publish a skill that names a non-existent tool.
 func validateSkillToolReferences(ctx context.Context, db *sql.DB, versions []studiors.Version, components []*registry.RegisteredComponent) error {
-	known := map[string]bool{mcp.SkillListTool: true, mcp.SkillGetTool: true}
+	// Native skills/list and skills/get are protocol methods, not callable tools.
+	// Frontmatter tool references must name an actual published component tool.
+	known := map[string]bool{}
 	for _, component := range components {
 		if component == nil || component.Component == nil {
 			continue
@@ -563,6 +596,9 @@ func (s *Service) Start(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	if s.config.ToolCallAudit != nil {
+		mcpHTTP.Handler = s.config.ToolCallAudit.Wrap(mcpHTTP.Handler)
+	}
 	mcpHTTP.Handler = browserMCPCORS(s.config.MCP.CORS, s.oauthDiscovery(mcpHTTP.Handler))
 	if s.config.ForgeProvider != nil {
 		providerHandler, providerErr := s.forgeProviderHTTP(ctx)
@@ -686,6 +722,11 @@ func (s *Service) authenticated(next http.Handler) http.Handler {
 			return
 		}
 		ctx := context.WithValue(request.Context(), verifiedClaimsKey{}, claims)
+		identity := audit.Identity{Subject: claims.Subject, NamespaceID: s.config.NamespaceID}
+		if claims.UserID != 0 {
+			identity.UserID = strconv.Itoa(claims.UserID)
+		}
+		ctx = audit.WithIdentity(ctx, identity)
 		next.ServeHTTP(response, request.WithContext(ctx))
 	})
 }

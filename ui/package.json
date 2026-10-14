@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@blueprintjs/core": "^6.0.0-alpha.1",
-    "forge": "file:../../forge",
+    "forge": "https://codeload.github.com/viant/forge/tar.gz/0597fac893974348cff3f5f3228a3a472b2f3276",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

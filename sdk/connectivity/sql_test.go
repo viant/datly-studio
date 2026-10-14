@@ -8,6 +8,8 @@ import (
 
 	"github.com/viant/datly-studio/internal/connectorsecret"
 	"github.com/viant/datly-studio/sdk"
+	// Match the native executable, where a transitive import registers the CGO stub too.
+	_ "github.com/mattn/go-sqlite3"
 	_ "modernc.org/sqlite"
 )
 

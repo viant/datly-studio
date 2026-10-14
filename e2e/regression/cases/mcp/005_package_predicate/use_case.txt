@@ -1,0 +1,1 @@
+Scan the linked predicate package string and execute DQL with the discovered typed handler.

@@ -24,19 +24,22 @@ export function useNamespaceWorkspace(api, subject, busy) {
       pendingRef.current = null;
       reloadRef.current(selected).catch((cause) => setState((previous) => ({ ...previous, error: cause.message })));
     }
+    let exited = false;
     const heartbeat = () => {
       try {
-        if (busyRef.current) localStorage.setItem(lockKey, String(Date.now() + 30000));
+        if (busyRef.current && !exited) localStorage.setItem(lockKey, String(Date.now() + 30000));
         else localStorage.removeItem(lockKey);
       } catch { /* Storage may be unavailable; same-window guards still apply. */ }
     };
     heartbeat();
     const timer = setInterval(heartbeat, 10000);
-    window.addEventListener('beforeunload', heartbeat);
+    const release = () => { exited = true; try { localStorage.removeItem(lockKey); } catch {} };
+    const resume = () => { exited = false; heartbeat(); };
+    window.addEventListener('pagehide', release);
     window.addEventListener('focus', heartbeat);
-    window.addEventListener('pageshow', heartbeat);
+    window.addEventListener('pageshow', resume);
     document.addEventListener('visibilitychange', heartbeat);
-    return () => { clearInterval(timer); window.removeEventListener('beforeunload', heartbeat); window.removeEventListener('focus', heartbeat); window.removeEventListener('pageshow', heartbeat); document.removeEventListener('visibilitychange', heartbeat); try { localStorage.removeItem(lockKey); } catch {} };
+    return () => { clearInterval(timer); window.removeEventListener('pagehide', release); window.removeEventListener('focus', heartbeat); window.removeEventListener('pageshow', resume); document.removeEventListener('visibilitychange', heartbeat); try { localStorage.removeItem(lockKey); } catch {} };
   }, [enabled, lockKey, busy]);
 
   useEffect(() => {
@@ -106,27 +109,36 @@ export function useNamespaceWorkspace(api, subject, busy) {
   }, [api, enabled, key]);
 
   const select = async (id) => {
+    const reject = (message, synchronizationError = false) => {
+      api.setNamespaceBlocked?.(synchronizationError || !state.current);
+      setState((previous) => ({ ...previous, ready: true, synchronizationError, error: message }));
+    };
+    if (busyRef.current) { reject('Close the open editor or dialog before switching namespaces.'); return; }
+    // Acquiring the cross-window lock is asynchronous. Block authoring before
+    // yielding so the next click cannot open a dialog in the previous scope.
+    api.setNamespaceBlocked?.(true);
+    setState((previous) => ({ ...previous, ready: false, error: '' }));
     const change = () => {
-      if (busyRef.current) { setState((previous) => ({ ...previous, error: 'Close the open editor or dialog before switching namespaces.' })); return; }
+      if (busyRef.current) { reject('Close the open editor or dialog before switching namespaces.'); return; }
       try {
         for (let index = 0; index < localStorage.length; index++) {
           const name = localStorage.key(index);
-          if (name?.startsWith(`${key}:edit:`) && Number(localStorage.getItem(name)) > Date.now()) {
-            setState((previous) => ({ ...previous, error: 'Close editors and dialogs in other Studio windows before switching namespaces.' }));
+          if (name !== lockKey && name?.startsWith(`${key}:edit:`) && Number(localStorage.getItem(name)) > Date.now()) {
+            reject('Close editors and dialogs in other Studio windows before switching namespaces.');
             return;
           }
         }
       } catch {
-        setState((previous) => ({ ...previous, synchronizationError: true, error: 'Namespace synchronization is unavailable. Allow browser storage, then select the namespace again.' }));
+        reject('Namespace synchronization is unavailable. Allow browser storage, then select the namespace again.', true);
         return;
       }
       const current = state.items.find((item) => item.namespaceId === id);
-      if (!current) return;
+      if (!current) { reject('The selected namespace is no longer available. Choose another namespace.'); return; }
       // Persist before changing request scope. A failed write must leave every
       // local view and in-flight request pinned to the existing workspace.
       try { localStorage.setItem(key, id); }
       catch {
-        setState((previous) => ({ ...previous, synchronizationError: true, error: 'Namespace synchronization is unavailable. Allow browser storage, then select the namespace again.' }));
+        reject('Namespace synchronization is unavailable. Allow browser storage, then select the namespace again.', true);
         return;
       }
       ++loadRevision.current;
@@ -135,8 +147,10 @@ export function useNamespaceWorkspace(api, subject, busy) {
       api.setNamespaceBlocked?.(false);
       setState((previous) => ({ ...previous, ready: true, current, synchronizationError: false, error: '' }));
     };
-    if (globalThis.navigator?.locks) await navigator.locks.request(key, change);
-    else change();
+    try {
+      if (globalThis.navigator?.locks) await navigator.locks.request(key, change);
+      else change();
+    } catch (cause) { reject(`Namespace synchronization failed: ${cause.message}`, true); }
   };
   const refresh = async () => {
     if (!reloadRef.current) return;

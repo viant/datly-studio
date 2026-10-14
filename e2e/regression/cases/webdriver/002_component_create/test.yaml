@@ -1,0 +1,102 @@
+pipeline:
+  createConnector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: browsercreate
+      driver: sqlite
+      dsnTemplate: ${runDir}/consumer.db
+    allowToolError: true
+    '@name': studio.sdk.connectors.create
+  createConnectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $createConnector
+    expect:
+      IsError: false
+  probe:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: browsercreate
+    allowToolError: true
+    '@name': studio.sdk.connectors.test
+  probeSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $probe
+    expect:
+      IsError: false
+  connector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: browsercreate
+    allowToolError: true
+    '@name': studio.sdk.connectors.get
+  connectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $connector
+    expect:
+      IsError: false
+  activate:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: browsercreate
+      etag: $connector.StructuredContent.etag
+    allowToolError: true
+    '@name': studio.sdk.connectors.activate
+  activateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $activate
+    expect:
+      IsError: false
+  namespace:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: browsercreate
+      title: browsercreate
+      mcpEnabled: true
+      mcpPort: 0
+    allowToolError: true
+    '@name': studio.sdk.namespaces.create
+  namespaceSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $namespace
+    expect:
+      IsError: false
+  browser:
+    action: webdriver:run
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/webdriver
+    commands:
+      - page.goto("${browserURL}")
+      - page.getByLabel("Current namespace").selectOption("browsercreate")
+      - page.locator(".studio-nav-components").click()
+      - page.locator("button[aria-label='New component']").click()
+      - page.getByLabel("Component title").fill("Browser created component")
+      - page.getByLabel("Active connector").selectOption("browsercreate")
+      - page.getByRole("button", "Create component").click()
+      - expect(page.locator("xpath://td[normalize-space(.)='Browser created component']")).toBeVisible(15000)
+    sessionID: localhost:4445
+    autoStart: false
+  persist:
+    action: dsunit:query
+    datastore: studio
+    SQL: SELECT title,namespace,slug,default_connector_name FROM components WHERE namespace='browsercreate'
+    expect:
+      - title: Browser created component
+        namespace: browsercreate
+        slug: browser-created-component
+        default_connector_name: browsercreate

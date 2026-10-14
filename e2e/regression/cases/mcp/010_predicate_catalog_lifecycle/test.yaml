@@ -1,0 +1,94 @@
+pipeline:
+  create:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: consumer.scope
+      title: Consumer scope
+      packagePath: github.com/viant/datly-studio/e2e/predicates
+      typeName: CustomerScope
+      alias: c
+      columns:
+        - tenant
+    allowToolError: false
+    '@name': studio.sdk.authorization_predicates.create
+  createSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $create.IsError
+    expect: false
+  get:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: consumer.scope
+    allowToolError: false
+    '@name': studio.sdk.authorization_predicates.get
+  getSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $get.IsError
+    expect: false
+  linked:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $get.StructuredContent.linked
+    expect: true
+  list:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      query: consumer.scope
+    allowToolError: false
+    '@name': studio.sdk.authorization_predicates.list
+  listSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $list.IsError
+    expect: false
+  update:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: consumer.scope
+      input:
+        etag: $get.StructuredContent.etag
+        description: Updated synthetic handler metadata
+    allowToolError: false
+    '@name': studio.sdk.authorization_predicates.update
+  updateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $update.IsError
+    expect: false
+  delete:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: consumer.scope
+      etag: $update.StructuredContent.etag
+    allowToolError: false
+    '@name': studio.sdk.authorization_predicates.delete
+  deleteSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $delete.IsError
+    expect: false
+  missing:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: consumer.scope
+    allowToolError: true
+    '@name': studio.sdk.authorization_predicates.get
+  denied:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $missing.IsError
+    expect: true

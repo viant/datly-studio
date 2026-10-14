@@ -1,0 +1,1 @@
+Dedicated namespace, connector and SQLite table: publish two distinct versions, retrieve publication state, call the actual namespace MCP after publication and rollback, reject unauthorized and stale unpublish, withdraw and verify tool removal plus invocation denial.

@@ -1,0 +1,48 @@
+init:
+  caseName: ui_entity
+  caseTitle: Entity scoped component
+  caseSlug: ui-entity
+  caseTool: owner.ui.entity.read
+  allowedUser: customer-10
+  deniedUser: customer-20
+  policyCommands:
+    - 'page.locator(".studio-nav-security").click()'
+    - 'page.getByLabel("Find a resource").fill("${caseTitle}")'
+    - 'page.getByRole("button", "${caseTitle}").click()'
+    - 'page.getByRole("button", "Create access policy").click()'
+    - 'page.locator("xpath://nav[@aria-label=''Permission actions'']//button[strong[normalize-space(.)=''discover'']]").click()'
+    - 'page.getByLabel("Access mode").selectOption("protected")'
+    - 'page.getByLabel("rule condition").selectOption("all")'
+    - 'page.getByLabel("rule.1 condition").selectOption("role")'
+    - 'page.getByLabel("rule.1 value").selectOption("XYZ")'
+    - 'page.getByRole("button", "Add rule").click()'
+    - 'page.getByLabel("rule.2 condition").selectOption("entity")'
+    - 'page.getByLabel("rule.2 value").selectOption("customer: 10 (customer: 10)")'
+    - 'page.getByLabel("Required entity scope").selectOption("customer")'
+    - 'page.locator("xpath://nav[@aria-label=''Permission actions'']//button[strong[normalize-space(.)=''describe'']]").click()'
+    - 'page.getByLabel("Access mode").selectOption("protected")'
+    - 'page.getByLabel("rule condition").selectOption("all")'
+    - 'page.getByLabel("rule.1 condition").selectOption("role")'
+    - 'page.getByLabel("rule.1 value").selectOption("XYZ")'
+    - 'page.getByRole("button", "Add rule").click()'
+    - 'page.getByLabel("rule.2 condition").selectOption("entity")'
+    - 'page.getByLabel("rule.2 value").selectOption("customer: 10 (customer: 10)")'
+    - 'page.getByLabel("Required entity scope").selectOption("customer")'
+    - 'page.locator("xpath://nav[@aria-label=''Permission actions'']//button[strong[normalize-space(.)=''execute'']]").click()'
+    - 'page.getByLabel("Access mode").selectOption("protected")'
+    - 'page.getByLabel("rule condition").selectOption("all")'
+    - 'page.getByLabel("rule.1 condition").selectOption("role")'
+    - 'page.getByLabel("rule.1 value").selectOption("XYZ")'
+    - 'page.getByRole("button", "Add rule").click()'
+    - 'page.getByLabel("rule.2 condition").selectOption("entity")'
+    - 'page.getByLabel("rule.2 value").selectOption("customer: 10 (customer: 10)")'
+    - 'page.getByLabel("Required entity scope").selectOption("customer")'
+    - 'page.getByRole("button", "Review changes").click()'
+    - expect(page.locator(".bp6-dialog-container.bp6-overlay-enter-done .studio-resource-review-dialog")).toBeVisible(15000)
+    - 'page.getByRole("button", "Save permissions").click()'
+    - 'expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)'
+    - 'expect(page.locator(".studio-resource-access-footer [role=''status'']")).toHaveText("Permissions saved.",15000)'
+pipeline:
+  scenario:
+    action: run
+    request: '@../../../default/entity-scenario'

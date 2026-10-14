@@ -1,0 +1,182 @@
+pipeline:
+  createConnector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: predicate
+      driver: sqlite
+      dsnTemplate: ${runDir}/consumer.db
+    allowToolError: true
+    '@name': studio.sdk.connectors.create
+  createConnectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $createConnector
+    expect:
+      IsError: false
+  probe:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: predicate
+    allowToolError: true
+    '@name': studio.sdk.connectors.test
+  probeSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $probe
+    expect:
+      IsError: false
+  connector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: predicate
+    allowToolError: true
+    '@name': studio.sdk.connectors.get
+  connectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $connector
+    expect:
+      IsError: false
+  activate:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: predicate
+      etag: $connector.StructuredContent.etag
+    allowToolError: true
+    '@name': studio.sdk.connectors.activate
+  activateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $activate
+    expect:
+      IsError: false
+  namespace:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: predicate
+      title: predicate
+      mcpEnabled: true
+      mcpPort: 0
+    allowToolError: true
+    '@name': studio.sdk.namespaces.create
+  namespaceSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $namespace
+    expect:
+      IsError: false
+  component:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      title: predicate
+      slug: predicate
+      namespace: predicate
+      defaultConnectorName: predicate
+    allowToolError: true
+    '@name': studio.sdk.components.create
+  componentSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $component
+    expect:
+      IsError: false
+  import:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      input:
+        dql: |-
+          #package('github.com/viant/datly-studio/dynamic/predicate')
+          #setting($_ = $input_type('CustomerInput'))
+          #setting($_ = $output_type('CustomerOutput'))
+          #setting($_ = $case_format('lc'))
+          #setting($_ = $connector('predicate'))
+          #setting($_ = $route('/predicate', 'GET'))
+          #setting($_ = $mcp('predicate.read','Read consumer customers'))
+
+          #import('consumer','github.com/viant/datly-studio/e2e/predicates')
+          #define($_ = $Tenant<string>(query/tenant).Required().WithPredicate(0,'handler','consumer.CustomerScope'))
+          #define($_ = $Rows<[]*Customer>(output/view))
+          SELECT customers.*, type(customers,'Customer') FROM (SELECT c.id,c.tenant,c.name,c.active FROM customers c WHERE 1=1 ${predicate.Builder().CombineAnd($predicate.FilterGroup(0, "AND")).Build("AND")}) customers
+    allowToolError: true
+    '@name': studio.sdk.versions.load_dql
+  importSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $import
+    expect:
+      IsError: false
+  verifyImport:
+    action: validator:assert
+    actual: $import.StructuredContent.version
+    expect:
+      state: draft
+      compileStatus: pending
+    normalizeKVPairs: true
+  types:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments: {}
+    allowToolError: true
+    '@name': studio.sdk.authorization_predicates.types
+  typesSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $types
+    expect:
+      IsError: false
+  typed:
+    action: validator:assert
+    actual: $types.StructuredContent.items
+    expect:
+      '@indexBy@': typeName
+      CustomerScope:
+        packagePath: github.com/viant/datly-studio/e2e/predicates
+        typeName: CustomerScope
+      OrderPresence:
+        packagePath: github.com/viant/datly-studio/examples/predicates
+        typeName: OrderPresence
+    normalizeKVPairs: true
+  preview:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      input:
+        input:
+          tenant: alpha
+        limit: 20
+    allowToolError: true
+    '@name': studio.sdk.preview.execute
+  previewSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $preview
+    expect:
+      IsError: false
+  filtered:
+    action: validator:assert
+    actual: $preview.StructuredContent.evidence
+    expect:
+      returnedRows: 3
+    normalizeKVPairs: true

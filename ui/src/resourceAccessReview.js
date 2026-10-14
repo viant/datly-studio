@@ -30,6 +30,7 @@ function describeRule(rule) {
 
 export function describePolicy(policy) {
   if (!policy) return 'Denied · no policy';
+  if (policy.mode === 'deny') return 'Denied explicitly';
   if (policy.mode === 'public') return 'Public consumption';
   if (policy.mode !== 'protected') return 'Invalid mode';
   return `Protected · ${describeRule(policy.rule)}${policy.entityType ? ` · required ${policy.entityType} scope` : ''}`;

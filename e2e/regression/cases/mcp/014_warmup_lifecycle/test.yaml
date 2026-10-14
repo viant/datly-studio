@@ -1,0 +1,357 @@
+pipeline:
+  seed:
+    action: dsunit:init
+    datastore: warmupcase
+    config:
+      driver: sqlite
+      dsn: ${runDir}/warmupcase.db
+    scripts:
+      - URL: ${appPath}/e2e/regression/cases/mcp/014_warmup_lifecycle/schema.sql
+  createConnector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: warmupcase
+      driver: sqlite
+      dsnTemplate: ${runDir}/warmupcase.db
+    allowToolError: true
+    '@name': studio.sdk.connectors.create
+  createConnectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $createConnector
+    expect:
+      IsError: false
+  probe:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: warmupcase
+    allowToolError: true
+    '@name': studio.sdk.connectors.test
+  probeSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $probe
+    expect:
+      IsError: false
+  connector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: warmupcase
+    allowToolError: true
+    '@name': studio.sdk.connectors.get
+  connectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $connector
+    expect:
+      IsError: false
+  activate:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: warmupcase
+      etag: $connector.StructuredContent.etag
+    allowToolError: true
+    '@name': studio.sdk.connectors.activate
+  activateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $activate
+    expect:
+      IsError: false
+  namespace:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: warmupcase
+      title: warmupcase
+      mcpEnabled: true
+      mcpPort: 0
+    allowToolError: true
+    '@name': studio.sdk.namespaces.create
+  namespaceSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $namespace
+    expect:
+      IsError: false
+  component:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      title: warmupcase
+      slug: warmupcase
+      namespace: warmupcase
+      defaultConnectorName: warmupcase
+    allowToolError: true
+    '@name': studio.sdk.components.create
+  componentSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $component
+    expect:
+      IsError: false
+  import:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      input:
+        dql: |-
+          #package('github.com/viant/datly-studio/dynamic/warmupcase')
+          #setting($_ = $input_type('CustomerInput'))
+          #setting($_ = $output_type('CustomerOutput'))
+          #setting($_ = $case_format('lc'))
+          #setting($_ = $connector('warmupcase'))
+          #setting($_ = $route('/warmupcase', 'GET'))
+          #setting($_ = $mcp('warmupcase.read','Read consumer customers'))
+          #setting($_ = $cache('warmupcase','5m').WithProvider('afs').WithLocation('${runDir}/cache/warmupcase'))
+          #setting($_ = $cache_warmup('id'))
+          #define($_ = $Rows<[]*Customer>(output/view))
+          SELECT customers.*, type(customers,'Customer') FROM (SELECT c.id,c.tenant,c.name,c.active FROM warmupcase_customers c) customers
+    allowToolError: true
+    '@name': studio.sdk.versions.load_dql
+  importSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $import
+    expect:
+      IsError: false
+  verifyImport:
+    action: validator:assert
+    actual: $import.StructuredContent.version
+    expect:
+      state: draft
+      compileStatus: pending
+    normalizeKVPairs: true
+  validate:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      expectedSourceRevision: $import.StructuredContent.version.sourceRevision
+    allowToolError: true
+    '@name': studio.sdk.versions.validate
+  validateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $validate
+    expect:
+      IsError: false
+  warmup:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.versions.warmup
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+  accepted:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $warmup
+    expect:
+      IsError: false
+      StructuredContent:
+        status: accepted
+        reportId: $component.StructuredContent.id
+        versionNo: $import.StructuredContent.version.versionNo
+  warmupGet:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.versions.warmup_get
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      runId: $warmup.StructuredContent.runId
+    repeat: 100
+    thinkTimeMs: 100
+    exit: $output:/"status":"(completed|failed)"/
+  completed:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $warmupGet
+    expect:
+      IsError: false
+      StructuredContent:
+        runId: $warmup.StructuredContent.runId
+        status: completed
+        plannedCases: 1
+        completedCases: 1
+        target:
+          cacheName: warmupcase
+          cacheProvider: afs
+          indexColumn: id
+  warmupList:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.versions.warmup_list
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      input:
+        limit: 1
+  listed:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $warmupList
+    expect:
+      IsError: false
+      StructuredContent:
+        '@length@items': 1
+        items:
+          - runId: $warmup.StructuredContent.runId
+            status: completed
+  warmupDenied:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $outsiderToken
+    '@name': studio.sdk.versions.warmup
+    allowToolError: true
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+  denied:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $warmupDenied.IsError
+    expect: true
+  publishHostReady:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.runtime.status
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+    allowToolError: true
+    repeat: 50
+    thinkTimeMs: 100
+    exit: $output:/"status":"ready"/
+  publishHostReadyAssert:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $publishHostReady.StructuredContent.host.status
+    expect: ready
+  publish:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      input:
+        expectedSourceRevision: $import.StructuredContent.version.sourceRevision
+        reason: Endly acceptance
+    allowToolError: true
+    '@name': studio.sdk.publications.publish
+  publishSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $publish
+    expect:
+      IsError: false
+  active:
+    action: validator:assert
+    actual: $publish.StructuredContent.status
+    expect: active
+    normalizeKVPairs: true
+  status:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+    allowToolError: true
+    '@name': studio.sdk.runtime.status
+  statusSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $status
+    expect:
+      IsError: false
+  runtime:
+    action: validator:assert
+    actual: $status.StructuredContent.host
+    expect:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      status: ready
+    normalizeKVPairs: true
+  invoke:
+    action: mcp/runner:call
+    url: $status.StructuredContent.host.mcpUrl
+    arguments: {}
+    bearerTokenSecret: $ownerToken
+    '@name': $status.StructuredContent.readers[0].mcpExposures[0].name
+    allowToolError: true
+  invokeSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $invoke
+    expect:
+      IsError: false
+  data:
+    action: validator:assert
+    actual: $invoke.IsError
+    expect: false
+    normalizeKVPairs: true
+  events:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      input: {}
+    allowToolError: true
+    '@name': studio.sdk.publications.events.list
+  eventsSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $events
+    expect:
+      IsError: false
+  warmResult:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $invoke
+    expect:
+      IsError: false
+      StructuredContent:
+        '@length@rows': 2
+        rows:
+          - id: 10
+            name: Alpha
+          - id: 20
+            name: Beta
+  invokeAgain:
+    action: mcp/runner:call
+    url: $status.StructuredContent.host.mcpUrl
+    bearerTokenSecret: $ownerToken
+    '@name': warmupcase.read
+    arguments: {}
+  repeatedResult:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $invokeAgain.StructuredContent
+    expect: $invoke.StructuredContent

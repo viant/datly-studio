@@ -386,6 +386,50 @@ CREATE TABLE component_skill_roots (
         REFERENCES component_resource_folders(report_id, version_no, folder_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE namespace_skills (
+    namespace_id            VARCHAR(64) NOT NULL,
+    skill_id                CHAR(64) NOT NULL,
+    name                    VARCHAR(200) NOT NULL,
+    title                   VARCHAR(300) NOT NULL,
+    description             TEXT NOT NULL,
+    latest_revision         INT NOT NULL,
+    published_revision      INT NOT NULL DEFAULT 0,
+    status                  VARCHAR(32) NOT NULL DEFAULT 'active',
+    etag                    BIGINT NOT NULL DEFAULT 1,
+    created_at              DATETIME(6) NOT NULL,
+    created_by              VARCHAR(128) NOT NULL,
+    updated_at              DATETIME(6) NOT NULL,
+    updated_by              VARCHAR(128) NOT NULL,
+    deleted_at              DATETIME(6) NULL,
+    PRIMARY KEY (namespace_id, skill_id),
+    UNIQUE KEY uq_namespace_skill_name (namespace_id, name),
+    CONSTRAINT chk_namespace_skill_revisions
+        CHECK (latest_revision > 0 AND published_revision >= 0 AND published_revision <= latest_revision),
+    CONSTRAINT chk_namespace_skill_status
+        CHECK (status IN ('active', 'archived'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE INDEX idx_namespace_skills_publication
+    ON namespace_skills(namespace_id, status, published_revision);
+
+CREATE TABLE namespace_skill_revisions (
+    namespace_id            VARCHAR(64) NOT NULL,
+    skill_id                CHAR(64) NOT NULL,
+    revision                INT NOT NULL,
+    bundle_json             JSON NOT NULL,
+    content_sha256          CHAR(64) NOT NULL,
+    created_at              DATETIME(6) NOT NULL,
+    created_by              VARCHAR(128) NOT NULL,
+    updated_at              DATETIME(6) NOT NULL,
+    updated_by              VARCHAR(128) NOT NULL,
+    PRIMARY KEY (namespace_id, skill_id, revision),
+    CONSTRAINT fk_namespace_skill_revision
+        FOREIGN KEY (namespace_id, skill_id)
+        REFERENCES namespace_skills(namespace_id, skill_id),
+    CONSTRAINT chk_namespace_skill_revision
+        CHECK (revision > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE runtime_generations (
     namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     generation_no           BIGINT NOT NULL,

@@ -1,0 +1,1 @@
+[{}, {"id":1,"customer_id":1,"amount":125.5,"status":"paid"},{"id":2,"customer_id":1,"amount":20,"status":"pending"},{"id":3,"customer_id":3,"amount":75,"status":"paid"}]

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
+	"github.com/viant/datly-studio/internal/namespacevisibility"
 	"reflect"
 	"strings"
 )
@@ -41,7 +42,7 @@ func (output *NamespaceQueryOutput) Finalize(ctx context.Context) error {
 		if row == nil {
 			return fmt.Errorf("namespace list returned an empty row")
 		}
-		row.CanManage = input.Jwt != nil && input.Jwt.Subject == row.OwnerId
+		row.CanManage = input.Jwt != nil && (input.Jwt.Subject == row.OwnerId || namespacevisibility.IsAdministrator(ctx, input.Jwt.Subject))
 		if row.NamespaceId == "" {
 			row.NamespaceId = namespaceaccess.ID(row.OwnerId, row.Name)
 		}

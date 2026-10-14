@@ -1,0 +1,31 @@
+pipeline:
+  catalog:
+    action: mcp/runner:listTools
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+  assert:
+    action: validator:assert
+    actual: $catalog.Tools
+    expect:
+      '@indexBy@': Name
+      studio.sdk.connectors.create:
+        Name: studio.sdk.connectors.create
+        InputSchema:
+          Type: object
+      studio.sdk.namespaces.create:
+        Name: studio.sdk.namespaces.create
+        InputSchema:
+          Type: object
+      studio.sdk.components.create:
+        Name: studio.sdk.components.create
+        InputSchema:
+          Type: object
+      studio.sdk.versions.load_dql:
+        Name: studio.sdk.versions.load_dql
+        InputSchema:
+          Type: object
+      studio.sdk.publications.publish:
+        Name: studio.sdk.publications.publish
+        InputSchema:
+          Type: object
+    normalizeKVPairs: true

@@ -2,6 +2,7 @@ package datly_studio_test
 
 import (
 	"context"
+	datlystudio "github.com/viant/datly-studio"
 	"strings"
 	"testing"
 
@@ -53,5 +54,24 @@ func TestResourcePolicyStoreIsLinkedOnlyForNativeAccess(t *testing.T) {
 		if !linked {
 			t.Errorf("native access package %s is not linked", name)
 		}
+	}
+}
+
+func TestLinkedComponentPackagesAreIndependentCopies(t *testing.T) {
+	first, err := datlystudio.LinkedComponentPackages()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(first) == 0 {
+		t.Fatal("native assembly is empty")
+	}
+	expected := first[0]
+	first[0] = "changed"
+	second, err := datlystudio.LinkedComponentPackages()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if second[0] != expected {
+		t.Fatal("caller changed shared assembly metadata")
 	}
 }

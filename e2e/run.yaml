@@ -1,55 +1,136 @@
 init:
+  appPath: $WorkingDirectory(..)
+  generatedRunId: $FormatTime('now In UTC', 'yyyyMMddHHmmssSSS')
+  runId: '$params.runId?$params.runId:$generatedRunId'
+  runDir: ${appPath}/.data/e2e/${runId}
   target:
     URL: ssh://localhost/
-    credentials: localhost
-  appPath: $WorkingDirectory(..)
-  mysqlCredentials: mysql-e2e
-  dbIP:
-    mysql: 127.0.0.1
-  dbPort:
-    mysql: 43306
-
+  nativeMCP: http://127.0.0.1:18790/mcp
+  browserURL: http://127.0.0.1:18780
+  ownerToken: ${runDir}/owner.token
+  editorToken: ${runDir}/editor.token
+  viewerToken: ${runDir}/viewer.token
+  outsiderToken: ${runDir}/outsider.token
 pipeline:
-  init:
-    system:
-      action: run
-      description: start Docker services
-      request: '@system'
-      tasks: start
-    database:
-      action: run
-      description: recreate and hydrate databases
-      request: '@database/database'
-      tasks: '*'
-
+  cleanupPrevious:
+    action: process:stop
+    target: $target
+    input: ${appPath}/.data/e2e/bin/fixture
   build:
+    action: exec:run
+    target: $target
+    strictCompletion: true
+    checkError: true
+    timeoutMs: 900000
+    commands:
+      - cd ${appPath}
+      - mkdir -p .data/e2e/bin
+      - CGO_ENABLED=0 GOWORK=off go build -o .data/e2e/bin/fixture ./e2e/cmd/fixture
+      - cd ui
+      - npm ci --no-audit --no-fund
+      - npm run build
+  setup:
+    prepare:
+      action: exec:run
+      target: $target
+      strictCompletion: true
+      checkError: true
+      commands:
+        - cd ${appPath}
+        - .data/e2e/bin/fixture -mode prepare -root ${appPath} -dir ${runDir}
+    tokens:
+      action: run
+      request: '@sign-tokens'
+    identityFixtures:
+      action: exec:run
+      target: $target
+      strictCompletion: true
+      checkError: true
+      commands:
+        - ${appPath}/.data/e2e/bin/fixture -mode prepare-idp -root ${appPath} -dir ${runDir}
+    idp:
+      action: http/endpoint:listen
+      host: 127.0.0.1
+      port: 18795
+      replace: true
+      rotate: true
+      indexKeys: [Method, URL, Header.Authorization]
+      baseDirectory: ${runDir}/idp
+    consumer:
+      action: dsunit:init
+      datastore: consumer
+      config:
+        driver: sqlite
+        dsn: ${runDir}/consumer.db
+      scripts:
+        - URL: ${appPath}/e2e/fixtures/consumer/schema.sql
+    dictionary:
+      action: dsunit:prepare
+      datastore: consumer
+      URL: ${appPath}/e2e/fixtures/consumer/dictionary
+    dictionaryDatabase:
+      action: dsunit:init
+      datastore: lookup
+      config:
+        driver: sqlite
+        dsn: ${runDir}/dictionary.db
+      scripts:
+        - URL: ${appPath}/e2e/fixtures/lookup/schema.sql
+    dictionaryRows:
+      action: dsunit:prepare
+      datastore: lookup
+      URL: ${appPath}/e2e/fixtures/lookup/dictionary
+    studio:
+      action: dsunit:register
+      datastore: studio
+      config:
+        driver: sqlite
+        dsn: ${runDir}/studio.db
+    app:
+      action: process:start
+      target: $target
+      directory: $appPath
+      command: ${appPath}/.data/e2e/bin/fixture
+      arguments: [-mode, serve, -root, $appPath, -dir, $runDir]
+      immuneToHangups: true
+    wait:
+      action: exec:run
+      target: $target
+      strictCompletion: true
+      checkError: true
+      timeoutMs: 40000
+      commands:
+        - ${appPath}/.data/e2e/bin/fixture -mode wait -root ${appPath} -dir ${runDir}
+    healthcheck:
+      action: http/runner:send
+      requests:
+        - URL: ${browserURL}/health
+          method: GET
+          expect:
+            Code: 200
+            JSONBody:
+              status: ready
+  setupBrowser:
+    prepareDriver:
+      action: exec:run
+      strictCompletion: true
+      checkError: true
+      timeoutMs: 120000
+      commands:
+        - python3 ${appPath}/e2e/scripts/prepare_webdriver.py ${appPath}/.data/e2e/webdriver
+    startDriver:
+      action: webdriver:start
+      URL: ${appPath}/.data/e2e/webdriver
+      driver: chromedriver
+      capabilities: ["--window-size=1440,1000"]
+      port: 4445
+  audit:
     action: run
-    description: build Datly 1.0 tooling and Studio
-    request: '@build/build'
-    tasks: '*'
-
-  rule:
-    connectors:
-      action: run
-      description: compile and verify Connector components
-      request: '@rule/studio/connectors'
-      tasks: '*'
-
-  app:
-    database:
-      action: run
-      description: initialize local Studio SQLite database
-      request: '@app'
-      tasks: db
-
+    request: '@audit'
   test:
     action: run
-    description: run current regression tasks
     request: '@regression/regression'
-    tasks: '*'
-
-  destroy:
-    action: run
-    description: stop Docker services
-    request: '@system'
-    tasks: stop
+  stop:
+    action: process:stop
+    target: $target
+    input: ${appPath}/.data/e2e/bin/fixture

@@ -32,7 +32,7 @@ export function NamespaceDialog({ api, namespace, isOpen, onClose, onSaved }) {
     if (readOnly) return;
     const name = draft.name.trim();
     const title = draft.title.trim();
-    if (!/^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)*$/.test(name) || !title) {
+    if ((!editing && !/^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)*$/.test(name)) || !title) {
       setError('Enter a title and a lowercase dot-separated namespace such as inventory or delivery.forecasting.');
       return;
     }
@@ -83,7 +83,7 @@ export function NamespaceDialog({ api, namespace, isOpen, onClose, onSaved }) {
         </FormGroup>}
         <Switch label="Expose MCP" checked={draft.mcpEnabled} disabled={saving || readOnly} onChange={(event) => setDraft((current) => ({ ...current, mcpEnabled: event.target.checked }))}/>
         <div className="studio-form-grid">
-        {draft.mcpEnabled && <FormGroup label="MCP port" labelFor="namespace-mcp-port" helperText="0 assigns an available port.">
+        {draft.mcpEnabled && <FormGroup label="MCP port" labelFor="namespace-mcp-port" helperText="0 uses the runtime default: a shared namespace URL or an available dedicated port.">
           <InputGroup id="namespace-mcp-port" type="number" min="0" max="65535" value={draft.mcpPort} disabled={saving || readOnly} onChange={(event) => setDraft((current) => ({ ...current, mcpPort: event.target.value }))}/>
         </FormGroup>}
         {editing && <FormGroup label="Lifecycle" labelFor="namespace-status" helperText={draft.status === 'archived' ? 'Keeps existing components; prevents new ones.' : undefined}>

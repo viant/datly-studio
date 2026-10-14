@@ -1,0 +1,1 @@
+SELECT NamespaceId AS NamespaceId, SkillId AS SkillId FROM `/`

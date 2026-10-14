@@ -1,0 +1,21 @@
+#package('studio/namespace_skills/store_published')
+#import('json','encoding/json')
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/namespace-skill-store/published', 'GET'))
+#setting($_ = $internal(true))
+#setting($_ = $connector('studio'))
+#define($_ = $NamespaceId<string>(query/namespaceId).Required())
+#define($_ = $Limit<int>(query/pageLimit).Required().QuerySelector('skill'))
+#define($_ = $Offset<int>(query/pageOffset).Required().QuerySelector('skill'))
+#define($_ = $Skills<[]*PublishedSkill>(output/view))
+SELECT skill.*, type(skill,'PublishedSkill'),
+       CAST(skill.namespace_id AS string),
+       CAST(skill.skill_id AS string),
+       CAST(skill.revision AS int),
+       CAST(skill.bundle_json AS json.RawMessage),
+       CAST(skill.content_sha256 AS string),
+       CAST(skill.name AS string),
+       set_limit(skill,0)
+FROM (${embed:sql/skills.sql}) skill

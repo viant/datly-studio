@@ -1,8 +1,32 @@
 import React from 'react';
 import {expect,test,vi} from 'vitest';
-import {render,screen,waitFor} from '@testing-library/react';
+import {act,render,screen,waitFor} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {StudioApp,createStudioSDK,defineStudioExtension,loadConfig,validateConfig} from './embed.jsx';
+
+test('cannot open a connector dialog while namespace selection is pending',async()=>{
+ localStorage.clear();
+ const previous=Object.getOwnPropertyDescriptor(navigator,'locks');let release;
+ Object.defineProperty(navigator,'locks',{configurable:true,value:{request:(_key,change)=>new Promise(resolve=>{release=()=>resolve(change());})}});
+ try {
+  const user=userEvent.setup();const a='a'.repeat(64),b='b'.repeat(64);
+  const api={config:{apiBaseURL:'http://studio-pending.test'},setNamespace:vi.fn(),setNamespaceBlocked:vi.fn(),listNamespaces:vi.fn().mockResolvedValue({items:[{namespaceId:a,name:'alpha',status:'active'},{namespaceId:b,name:'beta',status:'active'}]}),listComponents:vi.fn().mockResolvedValue({items:[]}),listConnectors:vi.fn().mockResolvedValue({items:[]}),getRuntimeStatus:vi.fn().mockResolvedValue({})};
+  render(<StudioApp api={api} mode="authenticated" subject="owner"/>);
+  await waitFor(()=>expect(api.setNamespace).toHaveBeenLastCalledWith(a));
+  await user.click(document.querySelector('.studio-nav-connectors .bp6-tree-node-label'));
+  await screen.findByRole('heading',{name:'Connectors',level:1});
+  await user.selectOptions(screen.getByRole('combobox',{name:'Current namespace'}),b);
+  const buttons=screen.getAllByRole('button',{name:'New connector'});
+  for(const button of buttons){expect(button.disabled).toBe(true);await user.click(button);}
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(api.setNamespace).toHaveBeenLastCalledWith(a);
+  await act(async()=>{release();});
+  await waitFor(()=>expect(api.setNamespace).toHaveBeenLastCalledWith(b));
+  for(const button of screen.getAllByRole('button',{name:'New connector'}))expect(button.disabled).toBe(false);
+ } finally {
+  if(previous)Object.defineProperty(navigator,'locks',previous);else delete navigator.locks;
+ }
+});
 
 test('standalone embeddings reuse the public Studio config loader and guards',async()=>{
  const value={mode:'development',apiBaseURL:'http://127.0.0.1:18532',development:{subject:'synthetic'}};

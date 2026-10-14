@@ -42,7 +42,7 @@ type Output struct {
 }
 
 type Component struct {
-	Contract xdatly.Component[Input, Output] `component:"version,path=/v1/studio/sdk/versions.builder,method=POST,connector=studio,handler=NewReaderBuilder" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.versions.builder\",\"description\":\"Apply a versioned Datly Reader Builder command\"}]" caseFormat:"lc"`
+	Contract xdatly.Component[Input, Output] `component:"version,path=/v1/studio/sdk/versions.builder,method=POST,connector=studio,handler=NewReaderBuilder" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.versions.builder\",\"description\":\"Apply a versioned Datly Reader Builder command\"}]" componentCallPolicy:"imperative" caseFormat:"lc"`
 }
 
 var BuilderComponent = new(Component)
@@ -105,15 +105,16 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	if err != nil || db == nil {
 		return fmt.Errorf("configured Studio database is unavailable")
 	}
-	types, err := (host.Config{}).RuntimeTypes()
+	authoring, err := host.AuthoringFromContext(ctx)
 	if err != nil {
 		return err
 	}
-	predicates, err := (host.Config{}).PredicateCatalog()
+	types, err := authoring.RuntimeTypes()
 	if err != nil {
 		return err
 	}
-	engine := &sqltransport.Transport{DB: db, ComponentInvoker: invoker, Predicates: predicates, ContractInspector: preview.Dynamic{StudioDB: db, ModulePath: "github.com/viant/datly-studio", Types: types}}
+	predicates := authoring.PredicateCatalog()
+	engine := &sqltransport.Transport{DB: db, ComponentInvoker: invoker, Predicates: predicates, ContractInspector: preview.Dynamic{StudioDB: db, ModulePath: authoring.ModulePath(), Types: types}}
 	request := struct {
 		ReportID  string                   `json:"reportId"`
 		VersionNo int                      `json:"versionNo"`

@@ -1,0 +1,313 @@
+pipeline:
+  createNamespaceInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/${caseName}
+    commands:
+      - page.goto("${browserURL}")
+      - page.locator(".studio-nav-namespaces").click()
+      - page.locator(".studio-namespace-actions .studio-catalog-primary-actions button[type='button']").click()
+      - page.getByLabel("Namespace").fill("${caseName}")
+      - expect(page.getByLabel("Namespace")).toHaveValue("${caseName}",15000)
+      - page.getByLabel("Display title").fill("${caseName}")
+      - expect(page.getByLabel("Namespace")).toHaveValue("${caseName}",15000)
+      - page.getByLabel("Visibility").selectOption("public")
+      - page.getByLabel("Expose MCP").check()
+      - page.getByRole("button", "Create namespace").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+  namespace:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.namespaces.get
+    arguments:
+      name: $caseName
+  createComponentInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/${caseName}
+    commands:
+      - expect(page.getByLabel("Current namespace")).toBeEnabled(15000)
+      - page.getByLabel("Current namespace").selectOption("${namespace.StructuredContent.namespaceId}")
+      - expect(page.getByLabel("Current namespace")).toHaveValue("${namespace.StructuredContent.namespaceId}",15000)
+      - page.locator(".studio-nav-connectors").click()
+      - page.locator(".studio-catalog-primary-actions button[type='button']").click()
+      - page.getByLabel("Name").fill("${caseName}")
+      - page.getByLabel("Provider").selectOption("sqlite")
+      - page.getByLabel("DSN template").fill("${runDir}/consumer.db")
+      - page.getByRole("button", "Create connector").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - page.getByLabel("Search connectors").fill("${caseName}")
+      - page.getByLabel("Search connectors").press("Enter")
+      - page.locator("xpath://tr[.//*[normalize-space(.)='${caseName}']]//button[@aria-label='Test connector']").click()
+      - page.locator("xpath://tr[.//*[normalize-space(.)='${caseName}']]//button[@aria-label='Activate connector']").click()
+      - page.locator(".studio-nav-schema").click()
+      - page.getByLabel("Connector").selectOption("${caseName}")
+      - page.locator("xpath://button[@role='treeitem'][.//strong[normalize-space(.)='${caseName}_records']]").click()
+      - page.getByRole("button", "Add as root view").click()
+      - page.getByLabel("Component title").fill("${caseTitle}")
+      - page.getByLabel("Slug").fill("${caseSlug}")
+      - page.getByLabel("Root view identifier").fill("record")
+      - page.getByRole("button", "Create component").click()
+      - expect(page.getByRole("button", "Edit component")).toBeVisible(15000)
+  components:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.components.list
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      limit: 10
+  oneComponent:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $components.StructuredContent
+    expect:
+      '@length@items': 1
+      items:
+        - title: $caseTitle
+  bindScopeInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/${caseName}
+    commands:
+      - page.getByRole("button", "Row access scope").click()
+      - page.getByLabel("Entity type").fill("customer")
+      - page.getByLabel("Scoped view").selectOption("record")
+      - page.getByLabel("Entity ID column").fill("id")
+      - page.getByLabel("SQL qualifier").fill("ui_entity_records")
+      - page.getByRole("button", "Bind entity scope").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+  policyInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/${caseName}
+    commands: $policyCommands
+  reopenBuilderInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    commands:
+      - page.locator(".studio-nav-components").click()
+      - page.getByRole("button", "Open Reader Builder").click()
+      - expect(page.getByRole("button", "Edit component")).toBeVisible(15000)
+  authorInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/${caseName}
+    commands:
+      - page.getByRole("button", "Edit component").click()
+      - page.getByLabel("Enable MCP tool").check()
+      - page.getByLabel("Canonical MCP tool name").fill("${caseTool}")
+      - page.getByRole("button", "Save component").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - page.getByRole("button", "Validate").click()
+      - page.getByRole("button", "Validate revision").click()
+      - expect(page.getByText("Runtime contract is ready")).toBeVisible(15000)
+      - page.locator("xpath://div[contains(@class,'bp6-dialog-footer-actions')]//button[normalize-space(.)='Close']").click()
+  closeEditor:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    commands:
+      - page.locator(".studio-nav-namespaces").click()
+      - expect(page.getByLabel("Current namespace")).toBeEnabled(15000)
+  versions:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.versions.list
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+  validated:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $versions.StructuredContent.items[0].compileStatus
+    expect: valid
+  runtime:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.runtime.status
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+    allowToolError: true
+    repeat: 50
+    thinkTimeMs: 100
+    exit: $output:/"status":"ready"/
+  runtimeReady:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $runtime.StructuredContent.host.status
+    expect: ready
+  publish:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.publications.publish
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+      versionNo: $versions.StructuredContent.items[0].versionNo
+      input:
+        expectedSourceRevision: $versions.StructuredContent.items[0].sourceRevision
+  published:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $publish.StructuredContent.status
+    expect: active
+  endpoint:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.runtime.status
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+  allowedCatalog:
+    action: mcp/runner:listTools
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/${allowedUser}.token
+  allowedTool:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $allowedCatalog
+    expect:
+      '@length@Tools': 1
+      Tools:
+        - Name: ${caseTool}
+          InputSchema:
+            '@length@Properties': 0
+  invokeAllowed:
+    action: mcp/runner:call
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/${allowedUser}.token
+    '@name': ${caseTool}
+    arguments: {}
+  returnedData:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $invokeAllowed
+    expect:
+      IsError: false
+      StructuredContent:
+        '@length@records': 1
+        records:
+          - id: 10
+            name: ${caseName} first
+  deniedCatalog:
+    action: mcp/runner:listTools
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/${deniedUser}.token
+  hiddenTool:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $deniedCatalog
+    expect:
+      '@length@Tools': 0
+  invokeDenied:
+    action: mcp/runner:call
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/${deniedUser}.token
+    '@name': ${caseTool}
+    arguments: {}
+    allowProtocolError: true
+    allowToolError: true
+  directDenied:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $invokeDenied
+    expect:
+      IsError: true
+      ProtocolErrorCode: -32600
+  forgedScope:
+    action: mcp/runner:call
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/customer-10.token
+    '@name': $caseTool
+    arguments:
+      AuthorizedEntityIDs: [20]
+      authorizedEntityIDs: [20]
+      Auth:
+        scope:
+          ids: ['20']
+      scope:
+        customer: [20]
+  forgedScopeCannotBroaden:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $forgedScope
+    expect:
+      IsError: false
+      StructuredContent:
+        '@length@records': 1
+        records:
+          - id: 10
+            name: ui_entity first
+  catalogMissingRole:
+    action: mcp/runner:listTools
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/customer-no-role.token
+  hiddenMissingRole:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $catalogMissingRole
+    expect:
+      '@length@Tools': 0
+  invokeMissingRole:
+    action: mcp/runner:call
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/customer-no-role.token
+    '@name': $caseTool
+    arguments: {}
+    allowProtocolError: true
+    allowToolError: true
+  deniedMissingRole:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $invokeMissingRole
+    expect:
+      IsError: true
+      ProtocolErrorCode: -32600
+  catalogMissingEntity:
+    action: mcp/runner:listTools
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/customer-no-grant.token
+  hiddenMissingEntity:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $catalogMissingEntity
+    expect:
+      '@length@Tools': 0
+  invokeMissingEntity:
+    action: mcp/runner:call
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/customer-no-grant.token
+    '@name': $caseTool
+    arguments: {}
+    allowProtocolError: true
+    allowToolError: true
+  deniedMissingEntity:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $invokeMissingEntity
+    expect:
+      IsError: true
+      ProtocolErrorCode: -32600

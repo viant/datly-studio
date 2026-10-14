@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, expect, test, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 vi.mock('./LazyEditor.jsx', () => ({
@@ -596,4 +596,78 @@ describe('ReaderBuilder graph-first authoring', () => {
     await waitFor(()=>expect(document.activeElement).toBe(heading));
     expect(api.inspectVersion).toHaveBeenCalledTimes(2);
   });
+  test('refreshes compiled aggregate columns after inline SQL saves', async () => {
+    const user = userEvent.setup();
+    const initial = readerFixture();
+    delete initial.structure.component.rootView.source.uri;
+    const structural = structuredClone(initial);
+    structural.version.sourceRevision = 5;
+    structural.structure.views[0] = { name: 'vendor', sql: 'SELECT REGION, SUM(AMOUNT) AS TOTAL FROM VENDOR GROUP BY REGION', sourceProjectionAll: false };
+    structural.structure.component.rootView.columns = [];
+    const resolved = structuredClone(structural);
+    resolved.structure.component.rootView.columns = [
+      { name: 'Region', source: 'REGION', type: {name:'string'} },
+      { name: 'Total', source: 'TOTAL', type: {name:'int'} },
+    ];
+    const api = {
+      listVersions: vi.fn().mockResolvedValue({items:[initial.version]}),
+      inspectVersion: vi.fn().mockResolvedValueOnce(initial).mockResolvedValue(resolved),
+      getTable: vi.fn().mockResolvedValue({columns:[{name:'ID',type:'int'}]}),
+      applyReaderCommand: vi.fn().mockResolvedValue({applied:true,inspection:structural}),
+    };
+    render(<ReaderBuilder api={api} report={{id:'vendor',title:'Vendor Catalog',defaultConnectorName:'main'}} onBack={vi.fn()}/>);
+    const graph = await screen.findByRole('heading',{name:'Component graph'});
+    await user.click(graph.closest('.studio-graph-panel').querySelector('.studio-view-select'));
+    await user.click(screen.getByRole('button',{name:'Open SQL'}));
+    const editor = await screen.findByRole('textbox',{name:'Vendor SQL source'});
+    await user.clear(editor); await user.type(editor,structural.structure.views[0].sql);
+    await user.click(screen.getByRole('button',{name:'Save SQL'}));
+    await waitFor(()=>expect(api.inspectVersion).toHaveBeenLastCalledWith('vendor',1,{discoverColumns:true}));
+    await user.click(screen.getByRole('tab',{name:'Component Vendor Catalog'}));
+    await user.click(screen.getByRole('heading',{name:'Component graph'}).closest('.studio-graph-panel').querySelector('.studio-view-select'));
+    await user.click(screen.getByRole('button',{name:'Manage columns'}));
+    const dialog = within(screen.getByRole('dialog'));
+    expect(dialog.getByText('Total',{selector:'strong'})).toBeTruthy();
+    expect(dialog.getByText('Region',{selector:'strong'})).toBeTruthy();
+    expect(dialog.queryByText('ID',{selector:'strong'})).toBeNull();
+  });
+
+});
+
+
+test('keeps component editing unavailable until inspection has loaded its route', async () => {
+  const inspection = readerFixture();
+  let finishInspection;
+  const api = {
+    listVersions: vi.fn().mockResolvedValue({items: [inspection.version]}),
+    inspectVersion: vi.fn(() => new Promise(resolve => { finishInspection = resolve; })),
+  };
+  render(<ReaderBuilder api={api} report={{id: 'vendor', title: 'Vendors'}} onBack={vi.fn()}/>);
+  await waitFor(() => expect(api.inspectVersion).toHaveBeenCalled());
+  expect(screen.queryByRole('button', {name: 'Edit component'})?.disabled ?? true).toBe(true);
+  expect(screen.queryByRole('dialog')).toBeNull();
+  await act(async () => { finishInspection(inspection); });
+  expect((await screen.findByRole('button', {name: 'Edit component'})).disabled).toBe(false);
+});
+
+
+test('ignores an old inspection after switching components', async () => {
+  const user = userEvent.setup();
+  let finishFirst;
+  const first = readerFixture();
+  first.structure.component.routes = [{path: '/first-component'}];
+  const second = readerFixture();
+  second.structure.component.routes = [{path: '/second-component'}];
+  const api = {
+    inspectVersion: vi.fn(id => id === 'first' ? new Promise(resolve => { finishFirst = resolve; }) : Promise.resolve(second)),
+    listConnectors: vi.fn().mockResolvedValue({items: []}),
+  };
+  const view = render(<ReaderBuilder api={api} report={{id: 'first', title: 'First', versionNo: 1}} onBack={vi.fn()}/>);
+  await waitFor(() => expect(api.inspectVersion).toHaveBeenCalledWith('first', 1));
+  view.rerender(<ReaderBuilder api={api} report={{id: 'second', title: 'Second', versionNo: 1}} onBack={vi.fn()}/>);
+  await user.click(await screen.findByRole('button', {name: 'Edit component'}));
+  expect(screen.getByText('/second-component', {exact: false})).toBeTruthy();
+  await act(async () => { finishFirst(first); });
+  expect(screen.getByText('/second-component', {exact: false})).toBeTruthy();
+  expect(screen.queryByText('/first-component', {exact: false})).toBeNull();
 });

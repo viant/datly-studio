@@ -1,0 +1,347 @@
+pipeline:
+  createConnector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: resources
+      driver: sqlite
+      dsnTemplate: ${runDir}/consumer.db
+    allowToolError: false
+    '@name': studio.sdk.connectors.create
+  createConnectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $createConnector.IsError
+    expect: false
+  probe:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: resources
+    allowToolError: false
+    '@name': studio.sdk.connectors.test
+  probeSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $probe.IsError
+    expect: false
+  connector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: resources
+    allowToolError: false
+    '@name': studio.sdk.connectors.get
+  connectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $connector.IsError
+    expect: false
+  activate:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: resources
+      etag: $connector.StructuredContent.etag
+    allowToolError: false
+    '@name': studio.sdk.connectors.activate
+  activateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $activate.IsError
+    expect: false
+  namespace:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: resources
+      title: resources
+      mcpEnabled: true
+      mcpPort: 0
+    allowToolError: false
+    '@name': studio.sdk.namespaces.create
+  namespaceSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $namespace.IsError
+    expect: false
+  component:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      title: resources
+      slug: resources
+      namespace: resources
+      defaultConnectorName: resources
+    allowToolError: false
+    '@name': studio.sdk.components.create
+  componentSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $component.IsError
+    expect: false
+  import:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      input:
+        dql: |-
+          #package('github.com/viant/datly-studio/dynamic/resources')
+          #setting($_ = $input_type('CustomerInput'))
+          #setting($_ = $output_type('CustomerOutput'))
+          #setting($_ = $case_format('lc'))
+          #setting($_ = $connector('resources'))
+          #setting($_ = $route('/resources', 'GET'))
+          #setting($_ = $mcp('resources.read','Read consumer customers'))
+          #define($_ = $Rows<[]*Customer>(output/view))
+          SELECT customers.*, type(customers,'Customer') FROM (SELECT c.id,c.tenant,c.name,c.active FROM customers c) customers
+    allowToolError: false
+    '@name': studio.sdk.versions.load_dql
+  importSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $import.IsError
+    expect: false
+  verifyImport:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $import.StructuredContent.version
+    expect:
+      state: draft
+      compileStatus: pending
+  file:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      resourceId: skillfile
+      namespace: owner.resources.docs
+      resourcePath: guide/SKILL.md
+      content: |
+        ---
+        name: consumer-guide
+        description: Read synthetic customer data.
+        ---
+
+        Use the customer reader.
+      expectedSourceRevision: $import.StructuredContent.version.sourceRevision
+    allowToolError: false
+    '@name': studio.sdk.resources.upsert_file
+  fileSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $file.IsError
+    expect: false
+  folder:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      folderId: skillfolder
+      namespace: owner.resources.docs
+      rootPath: guide
+      uriPrefix: skill://${namespace.StructuredContent.namespaceId}/consumer-guide/
+      expectedSourceRevision: $file.StructuredContent.version.sourceRevision
+    allowToolError: false
+    '@name': studio.sdk.resources.upsert_folder
+  folderSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $folder.IsError
+    expect: false
+  skill:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      skillId: consumerguide
+      folderId: skillfolder
+      skillRoot: .
+      expectedSourceRevision: $folder.StructuredContent.version.sourceRevision
+    allowToolError: false
+    '@name': studio.sdk.resources.upsert_skill
+  skillSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $skill.IsError
+    expect: false
+  snapshot:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+    allowToolError: false
+    '@name': studio.sdk.resources.get
+  snapshotSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $snapshot.IsError
+    expect: false
+  skillPresent:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $snapshot.StructuredContent.skills
+    expect:
+      - skillId: consumerguide
+        folderId: skillfolder
+  readFiles:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.component_resource_files.read
+    arguments:
+      ReportId: $component.StructuredContent.id
+      VersionNo: $import.StructuredContent.version.versionNo
+      Namespace: owner.resources.docs
+  readFilesAssert:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $readFiles
+    expect:
+      IsError: false
+      StructuredContent:
+        '@length@files': 1
+        files:
+          - reportId: $component.StructuredContent.id
+            versionNo: $import.StructuredContent.version.versionNo
+            resourceId: skillfile
+            resourcePath: guide/SKILL.md
+  readFolders:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.component_resource_folders.read
+    arguments:
+      ReportId: $component.StructuredContent.id
+      VersionNo: $import.StructuredContent.version.versionNo
+  readFoldersAssert:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $readFolders
+    expect:
+      IsError: false
+      StructuredContent:
+        '@length@folders': 1
+        folders:
+          - reportId: $component.StructuredContent.id
+            versionNo: $import.StructuredContent.version.versionNo
+            folderId: skillfolder
+            rootPath: guide
+            uriPrefix: skill://${namespace.StructuredContent.namespaceId}/consumer-guide/
+  readSkills:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.component_skill_roots.read
+    arguments:
+      ReportId: $component.StructuredContent.id
+      VersionNo: $import.StructuredContent.version.versionNo
+  readSkillsAssert:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $readSkills
+    expect:
+      IsError: false
+      StructuredContent:
+        '@length@skills': 1
+        skills:
+          - reportId: $component.StructuredContent.id
+            versionNo: $import.StructuredContent.version.versionNo
+            skillId: consumerguide
+            folderId: skillfolder
+            skillRoot: .
+  readFilesOutsider:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $outsiderToken
+    '@name': studio.component_resource_files.read
+    arguments:
+      ReportId: $component.StructuredContent.id
+      VersionNo: $import.StructuredContent.version.versionNo
+  hiddenFiles:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $readFilesOutsider
+    expect:
+      IsError: false
+      StructuredContent:
+        '@length@files': 0
+  removeSkill:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      skillId: consumerguide
+      expectedSourceRevision: $snapshot.StructuredContent.version.sourceRevision
+    allowToolError: false
+    '@name': studio.sdk.resources.delete_skill
+  removeSkillSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $removeSkill.IsError
+    expect: false
+  removeFolder:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      folderId: skillfolder
+      expectedSourceRevision: $removeSkill.StructuredContent.version.sourceRevision
+    allowToolError: false
+    '@name': studio.sdk.resources.delete_folder
+  removeFolderSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $removeFolder.IsError
+    expect: false
+  removeFile:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      resourceId: skillfile
+      expectedSourceRevision: $removeFolder.StructuredContent.version.sourceRevision
+    allowToolError: false
+    '@name': studio.sdk.resources.delete_file
+  removeFileSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $removeFile.IsError
+    expect: false
+  empty:
+    action: dsunit:query
+    datastore: studio
+    SQL: SELECT COUNT(*) AS count FROM component_skill_roots WHERE report_id='$component.StructuredContent.id'
+    expect:
+      - count: 0

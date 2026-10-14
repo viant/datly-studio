@@ -1,0 +1,13 @@
+#package('studio/tool_call_audit/store_write')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/tool-call-audit/write', 'POST'))
+#setting($_ = $internal(true))
+#setting($_ = $connector('studio'))
+
+#define($_ = $Data<[]*ToolCallAudit>(output/body))
+
+SELECT calls.*, type(calls, 'ToolCallAudit')
+FROM (${embed:sql/read.sql}) calls

@@ -11,6 +11,32 @@ function client(items = rows) {
 beforeEach(() => localStorage.clear());
 afterEach(() => vi.restoreAllMocks());
 
+test('blocks authoring while the asynchronous namespace lock is pending', async () => {
+  const previous = Object.getOwnPropertyDescriptor(navigator, 'locks');
+  let release;
+  Object.defineProperty(navigator, 'locks', {configurable: true, value: {
+    request: (_key, change) => new Promise(resolve => { release = () => resolve(change()); }),
+  }});
+  try {
+    const api = client();
+    const {result} = renderHook(() => useNamespaceWorkspace(api, 'owner', false));
+    await waitFor(() => expect(result.current.current?.namespaceId).toBe(a));
+    let selecting;
+    act(() => { selecting = result.current.select(b); });
+    expect(result.current.ready).toBe(false);
+    expect(api.setNamespaceBlocked).toHaveBeenLastCalledWith(true);
+    expect(api.setNamespace).toHaveBeenLastCalledWith(a);
+    await act(async () => { release(); await selecting; });
+    expect(result.current.ready).toBe(true);
+    expect(result.current.current.namespaceId).toBe(b);
+    expect(api.setNamespace).toHaveBeenLastCalledWith(b);
+    expect(api.setNamespaceBlocked).toHaveBeenLastCalledWith(false);
+  } finally {
+    if (previous) Object.defineProperty(navigator, 'locks', previous);
+    else delete navigator.locks;
+  }
+});
+
 test('retries an initial directory error without losing the saved selection', async () => {
   localStorage.setItem(key, b);
   const api = client();
@@ -144,3 +170,32 @@ for (const saved of [null,'invalid']) {
   expect(api.setNamespaceBlocked).toHaveBeenLastCalledWith(false);
  });
 }
+
+
+test('releases only its editor lock on page exit and restores it on return', async () => {
+  const api = client();
+  const { result } = renderHook(() => useNamespaceWorkspace(api, 'owner', true));
+  await waitFor(() => expect(result.current.ready).toBe(true));
+  const ownLock = Object.keys(localStorage).find(name => name.startsWith(`${key}:edit:`));
+  expect(ownLock).toBeTruthy();
+  const otherLock = `${key}:edit:other-window`;
+  localStorage.setItem(otherLock, String(Date.now() + 30000));
+  act(() => window.dispatchEvent(new Event('pagehide')));
+  act(() => document.dispatchEvent(new Event('visibilitychange')));
+  expect(localStorage.getItem(ownLock)).toBeNull();
+  expect(localStorage.getItem(otherLock)).not.toBeNull();
+  act(() => window.dispatchEvent(new Event('pageshow')));
+  expect(Number(localStorage.getItem(ownLock))).toBeGreaterThan(Date.now());
+});
+
+
+test('does not mistake its own stale heartbeat for another window', async () => {
+  const api = client();
+  const {result, rerender} = renderHook(({busy})=>useNamespaceWorkspace(api,'owner',busy), {initialProps:{busy:true}});
+  await waitFor(()=>expect(result.current.ready).toBe(true));
+  const ownLock=Object.keys(localStorage).find(name=>name.startsWith(`${key}:edit:`));
+  rerender({busy:false});
+  localStorage.setItem(ownLock,String(Date.now()+30000));
+  await act(()=>result.current.select(b));
+  expect(result.current.current.namespaceId).toBe(b);
+});

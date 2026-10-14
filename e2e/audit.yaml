@@ -1,0 +1,28 @@
+init:
+  appPath: '$params.appPath?$params.appPath:$WorkingDirectory(..)'
+pipeline:
+  auditTCP:
+    action: exec:run
+    target:
+      URL: ssh://localhost/
+    strictCompletion: true
+    checkError: true
+    timeoutMs: 300000
+    commands:
+      - cd ${appPath}
+      - GOWORK=off go test -race ./runtime/host -run '^TestToolCallAuditE2E$' -count=1 -v
+    extract:
+      - key: auditEnabledPassed
+        regExpr: '(--- PASS: TestToolCallAuditE2E/enabled)'
+        required: true
+      - key: auditDisabledPassed
+        regExpr: '(--- PASS: TestToolCallAuditE2E/disabled)'
+        required: true
+  enabledVerified:
+    action: validator:assert
+    actual: $auditEnabledPassed
+    expect: '--- PASS: TestToolCallAuditE2E/enabled'
+  disabledVerified:
+    action: validator:assert
+    actual: $auditDisabledPassed
+    expect: '--- PASS: TestToolCallAuditE2E/disabled'

@@ -1,0 +1,413 @@
+pipeline:
+  alphacreateConnector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: isolatedalpha
+      driver: sqlite
+      dsnTemplate: ${runDir}/consumer.db
+    allowToolError: false
+    '@name': studio.sdk.connectors.create
+  alphacreateConnectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphacreateConnector.IsError
+    expect: false
+  alphaprobe:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: isolatedalpha
+    allowToolError: false
+    '@name': studio.sdk.connectors.test
+  alphaprobeSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphaprobe.IsError
+    expect: false
+  alphaconnector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: isolatedalpha
+    allowToolError: false
+    '@name': studio.sdk.connectors.get
+  alphaconnectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphaconnector.IsError
+    expect: false
+  alphaactivate:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: isolatedalpha
+      etag: $alphaconnector.StructuredContent.etag
+    allowToolError: false
+    '@name': studio.sdk.connectors.activate
+  alphaactivateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphaactivate.IsError
+    expect: false
+  alphanamespace:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: isolatedalpha
+      title: isolatedalpha
+      mcpEnabled: true
+      mcpPort: 0
+    allowToolError: false
+    '@name': studio.sdk.namespaces.create
+  alphanamespaceSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphanamespace.IsError
+    expect: false
+  alphacomponent:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $alphanamespace.StructuredContent.namespaceId
+      title: isolatedalpha
+      slug: isolatedalpha
+      namespace: isolatedalpha
+      defaultConnectorName: isolatedalpha
+    allowToolError: false
+    '@name': studio.sdk.components.create
+  alphacomponentSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphacomponent.IsError
+    expect: false
+  alphaimport:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $alphanamespace.StructuredContent.namespaceId
+      reportId: $alphacomponent.StructuredContent.id
+      input:
+        dql: |-
+          #package('github.com/viant/datly-studio/dynamic/isolatedalpha')
+          #setting($_ = $input_type('CustomerInput'))
+          #setting($_ = $output_type('CustomerOutput'))
+          #setting($_ = $case_format('lc'))
+          #setting($_ = $connector('isolatedalpha'))
+          #setting($_ = $route('/isolatedalpha', 'GET'))
+          #setting($_ = $mcp('isolatedalpha.read','Read consumer customers'))
+          #define($_ = $Rows<[]*Customer>(output/view))
+          SELECT customers.*, type(customers,'Customer') FROM (SELECT c.id,c.tenant,c.name,c.active FROM customers c) customers
+    allowToolError: false
+    '@name': studio.sdk.versions.load_dql
+  alphaimportSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphaimport.IsError
+    expect: false
+  alphaverifyImport:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphaimport.StructuredContent.version
+    expect:
+      state: draft
+      compileStatus: pending
+  alphavalidate:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $alphanamespace.StructuredContent.namespaceId
+      reportId: $alphacomponent.StructuredContent.id
+      versionNo: $alphaimport.StructuredContent.version.versionNo
+      expectedSourceRevision: $alphaimport.StructuredContent.version.sourceRevision
+    allowToolError: false
+    '@name': studio.sdk.versions.validate
+  alphavalidateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphavalidate.IsError
+    expect: false
+  alphapublishHostReady:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.runtime.status
+    arguments:
+      namespaceId: $alphanamespace.StructuredContent.namespaceId
+    allowToolError: true
+    repeat: 50
+    thinkTimeMs: 100
+    exit: $output:/"status":"ready"/
+  alphapublishHostReadyAssert:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphapublishHostReady.StructuredContent.host.status
+    expect: ready
+  alphapublish:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $alphanamespace.StructuredContent.namespaceId
+      reportId: $alphacomponent.StructuredContent.id
+      versionNo: $alphaimport.StructuredContent.version.versionNo
+      input:
+        expectedSourceRevision: $alphaimport.StructuredContent.version.sourceRevision
+    allowToolError: false
+    '@name': studio.sdk.publications.publish
+  alphapublishSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphapublish.IsError
+    expect: false
+  alphastatus:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $alphanamespace.StructuredContent.namespaceId
+    allowToolError: false
+    '@name': studio.sdk.runtime.status
+  alphastatusSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphastatus.IsError
+    expect: false
+  betacreateConnector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: isolatedbeta
+      driver: sqlite
+      dsnTemplate: ${runDir}/consumer.db
+    allowToolError: false
+    '@name': studio.sdk.connectors.create
+  betacreateConnectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $betacreateConnector.IsError
+    expect: false
+  betaprobe:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: isolatedbeta
+    allowToolError: false
+    '@name': studio.sdk.connectors.test
+  betaprobeSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $betaprobe.IsError
+    expect: false
+  betaconnector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: isolatedbeta
+    allowToolError: false
+    '@name': studio.sdk.connectors.get
+  betaconnectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $betaconnector.IsError
+    expect: false
+  betaactivate:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: isolatedbeta
+      etag: $betaconnector.StructuredContent.etag
+    allowToolError: false
+    '@name': studio.sdk.connectors.activate
+  betaactivateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $betaactivate.IsError
+    expect: false
+  betanamespace:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: isolatedbeta
+      title: isolatedbeta
+      mcpEnabled: true
+      mcpPort: 0
+    allowToolError: false
+    '@name': studio.sdk.namespaces.create
+  betanamespaceSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $betanamespace.IsError
+    expect: false
+  betacomponent:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $betanamespace.StructuredContent.namespaceId
+      title: isolatedbeta
+      slug: isolatedbeta
+      namespace: isolatedbeta
+      defaultConnectorName: isolatedbeta
+    allowToolError: false
+    '@name': studio.sdk.components.create
+  betacomponentSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $betacomponent.IsError
+    expect: false
+  betaimport:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $betanamespace.StructuredContent.namespaceId
+      reportId: $betacomponent.StructuredContent.id
+      input:
+        dql: |-
+          #package('github.com/viant/datly-studio/dynamic/isolatedbeta')
+          #setting($_ = $input_type('CustomerInput'))
+          #setting($_ = $output_type('CustomerOutput'))
+          #setting($_ = $case_format('lc'))
+          #setting($_ = $connector('isolatedbeta'))
+          #setting($_ = $route('/isolatedbeta', 'GET'))
+          #setting($_ = $mcp('isolatedbeta.read','Read consumer customers'))
+          #define($_ = $Rows<[]*Customer>(output/view))
+          SELECT customers.*, type(customers,'Customer') FROM (SELECT c.id,c.tenant,c.name,c.active FROM customers c) customers
+    allowToolError: false
+    '@name': studio.sdk.versions.load_dql
+  betaimportSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $betaimport.IsError
+    expect: false
+  betaverifyImport:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $betaimport.StructuredContent.version
+    expect:
+      state: draft
+      compileStatus: pending
+  betavalidate:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $betanamespace.StructuredContent.namespaceId
+      reportId: $betacomponent.StructuredContent.id
+      versionNo: $betaimport.StructuredContent.version.versionNo
+      expectedSourceRevision: $betaimport.StructuredContent.version.sourceRevision
+    allowToolError: false
+    '@name': studio.sdk.versions.validate
+  betavalidateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $betavalidate.IsError
+    expect: false
+  betapublishHostReady:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.runtime.status
+    arguments:
+      namespaceId: $betanamespace.StructuredContent.namespaceId
+    allowToolError: true
+    repeat: 50
+    thinkTimeMs: 100
+    exit: $output:/"status":"ready"/
+  betapublishHostReadyAssert:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $betapublishHostReady.StructuredContent.host.status
+    expect: ready
+  betapublish:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $betanamespace.StructuredContent.namespaceId
+      reportId: $betacomponent.StructuredContent.id
+      versionNo: $betaimport.StructuredContent.version.versionNo
+      input:
+        expectedSourceRevision: $betaimport.StructuredContent.version.sourceRevision
+    allowToolError: false
+    '@name': studio.sdk.publications.publish
+  betapublishSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $betapublish.IsError
+    expect: false
+  betastatus:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $betanamespace.StructuredContent.namespaceId
+    allowToolError: false
+    '@name': studio.sdk.runtime.status
+  betastatusSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $betastatus.IsError
+    expect: false
+  alphaTools:
+    action: mcp/runner:listTools
+    url: $alphastatus.StructuredContent.host.mcpUrl
+    bearerTokenSecret: $ownerToken
+  betaTools:
+    action: mcp/runner:listTools
+    url: $betastatus.StructuredContent.host.mcpUrl
+    bearerTokenSecret: $ownerToken
+  alphaInvoke:
+    action: mcp/runner:call
+    url: $alphastatus.StructuredContent.host.mcpUrl
+    bearerTokenSecret: $ownerToken
+    arguments: {}
+    allowToolError: false
+    '@name': $alphastatus.StructuredContent.readers[0].mcpExposures[0].name
+  alphaInvokeSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphaInvoke.IsError
+    expect: false
+  betaInvoke:
+    action: mcp/runner:call
+    url: $betastatus.StructuredContent.host.mcpUrl
+    bearerTokenSecret: $ownerToken
+    arguments: {}
+    allowToolError: false
+    '@name': $betastatus.StructuredContent.readers[0].mcpExposures[0].name
+  betaInvokeSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $betaInvoke.IsError
+    expect: false
+  alphaIsolatedCatalog:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphaTools
+    expect:
+      '@length@Tools': 1
+      Tools:
+        - Name: $alphastatus.StructuredContent.readers[0].mcpExposures[0].name
+  betaIsolatedCatalog:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $betaTools
+    expect:
+      '@length@Tools': 1
+      Tools:
+        - Name: $betastatus.StructuredContent.readers[0].mcpExposures[0].name

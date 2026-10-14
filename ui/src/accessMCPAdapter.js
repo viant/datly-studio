@@ -11,6 +11,7 @@ export function accessMCPAdapter(callTool) {
   return {
     getResourceAccess(resource) { return invoke('get', {resource}, 'document'); },
     getResourceAccessContext(resource) { return invoke('context', {resource}, 'context'); },
+    createResourceAccess(document) { return invoke('create', {document}, 'document'); },
     replaceResourceAccess(document) { return invoke('replace', {document}, 'document'); },
     async checkCurrentAccess(resource, action) {
       if (!resource?.kind || !resource?.id || !action) throw new Error('Exact resource and action are required');

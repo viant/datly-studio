@@ -28,6 +28,7 @@ import (
 	"github.com/viant/datly-studio/internal/bffauth"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/warmupprojection"
+	"github.com/viant/datly-studio/runtime/accessprovider"
 	studiopreview "github.com/viant/datly-studio/runtime/preview"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
@@ -243,6 +244,39 @@ func TestSelectedStudioStaticComponentsBootstrapTogether(t *testing.T) {
 	if invalidNamespace.Code != http.StatusBadRequest {
 		t.Fatalf("empty namespace title status=%d body=%s", invalidNamespace.Code, invalidNamespace.Body.String())
 	}
+	t.Run("namespace administrator uses verified roles", func(t *testing.T) {
+		t.Setenv("STUDIO_NAMESPACE_ADMIN_ROLE", "NAMESPACE_ADMIN")
+		created := httptest.NewRecorder()
+		server.ServeHTTP(created, request("/v1/studio/sdk/namespaces.create", `{"name":"admin.audit","title":"Admin Audit"}`))
+		if created.Code != http.StatusOK {
+			t.Fatalf("create status=%d body=%s", created.Code, created.Body.String())
+		}
+		call := func(path, body, role string) *httptest.ResponseRecorder {
+			req := request(path, body)
+			req.Header.Set("Authorization", "Bearer "+bobToken)
+			provider := namespaceAdminProvider{facts: resourceaccess.Facts{Subject: "bob", Issuer: "https://idp.viantinc.com", Tenant: "test", Roles: []string{role}, ValidUntil: time.Now().Add(time.Minute)}}
+			req = req.WithContext(accessprovider.WithProvider(req.Context(), provider))
+			response := httptest.NewRecorder()
+			server.ServeHTTP(response, req)
+			return response
+		}
+		denied := call("/v1/studio/sdk/namespaces.update", `{"name":"admin.audit","input":{"title":"Denied","etag":1}}`, "namespace_admin")
+		if denied.Code != http.StatusForbidden {
+			t.Fatalf("wrong-case admin status=%d body=%s", denied.Code, denied.Body.String())
+		}
+		updated := call("/v1/studio/sdk/namespaces.update", `{"name":"admin.audit","input":{"title":"Managed","etag":1}}`, "NAMESPACE_ADMIN")
+		if updated.Code != http.StatusOK || !strings.Contains(updated.Body.String(), `"title":"Managed"`) || !strings.Contains(updated.Body.String(), `"ownerId":"alice"`) {
+			t.Fatalf("admin update status=%d body=%s", updated.Code, updated.Body.String())
+		}
+		got := call("/v1/studio/sdk/namespaces.get", `{"name":"admin.audit"}`, "NAMESPACE_ADMIN")
+		if got.Code != http.StatusOK || !strings.Contains(got.Body.String(), `"canManage":true`) {
+			t.Fatalf("admin get status=%d body=%s", got.Code, got.Body.String())
+		}
+		deleted := call("/v1/studio/sdk/namespaces.delete", `{"name":"admin.audit","etag":2}`, "NAMESPACE_ADMIN")
+		if deleted.Code != http.StatusNoContent {
+			t.Fatalf("admin delete status=%d body=%s", deleted.Code, deleted.Body.String())
+		}
+	})
 	store, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		t.Fatal(err)
@@ -2375,7 +2409,11 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	const resourceNamespace = "alice.native_resources"
 	fileSnapshot := resourceCall("upsert_file", `{"reportId":"preview-fixture","versionNo":3,"namespace":"`+resourceNamespace+`","resourcePath":"guide/readme.md","content":"public guide","expectedSourceRevision":1}`)
 	if len(fileSnapshot.Files) != 1 || fileSnapshot.Files[0].ResourceID == "" || fileSnapshot.Version.SourceRevision != 2 {
-		t.Fatalf("native file upsert snapshot=%+v", fileSnapshot)
+		var storedFiles int
+		if countErr := store.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_resource_files WHERE report_id='preview-fixture' AND version_no=3`).Scan(&storedFiles); countErr != nil {
+			t.Fatal(countErr)
+		}
+		t.Fatalf("native file upsert snapshot=%+v revision=%d storedFiles=%d", fileSnapshot, fileSnapshot.Version.SourceRevision, storedFiles)
 	}
 	folderSnapshot := resourceCall("upsert_folder", `{"reportId":"preview-fixture","versionNo":3,"namespace":"`+resourceNamespace+`","rootPath":"guide","uriPrefix":"skill://native-guide/","expectedSourceRevision":2}`)
 	if len(folderSnapshot.Folders) != 1 || folderSnapshot.Folders[0].FolderID == "" || folderSnapshot.Version.SourceRevision != 3 {
@@ -2805,4 +2843,10 @@ func sdkToolForPath(path string) string {
 		return "authz.sdk." + strings.TrimPrefix(path, "/v1/authz/sdk/")
 	}
 	return "studio.sdk." + strings.TrimPrefix(path, "/v1/studio/sdk/")
+}
+
+type namespaceAdminProvider struct{ facts resourceaccess.Facts }
+
+func (p namespaceAdminProvider) Resolve(context.Context) (resourceaccess.Facts, error) {
+	return p.facts, nil
 }

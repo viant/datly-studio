@@ -1,0 +1,139 @@
+init:
+  caseTool: owner.ui.namespace.admin.read
+  caseName: ui_namespace_admin
+  caseTitle: Namespace admin component
+  caseSlug: ui-namespace-admin
+  allowedUser: no-exposure
+  deniedUser: no-role
+  policyCommands:
+    - page.locator(".studio-nav-security").click()
+    - page.getByLabel("Find a resource").fill("${caseTitle}")
+    - page.getByRole("button", "${caseTitle}").click()
+    - page.getByRole("button", "Create access policy").click()
+    - expect(page.locator(".studio-resource-access-heading .bp6-tag")).toHaveText("Policy revision 0",15000)
+    - page.locator("xpath://nav[@aria-label='Permission actions']//button[strong[normalize-space(.)='discover']]").click()
+    - page.getByLabel("Access mode").selectOption("protected")
+    - page.getByLabel("rule condition").selectOption("role")
+    - page.getByLabel("rule value").selectOption("ROLE_ANALYST")
+    - page.locator("xpath://nav[@aria-label='Permission actions']//button[strong[normalize-space(.)='describe']]").click()
+    - page.getByLabel("Access mode").selectOption("protected")
+    - page.getByLabel("rule condition").selectOption("role")
+    - page.getByLabel("rule value").selectOption("ROLE_ANALYST")
+    - page.locator("xpath://nav[@aria-label='Permission actions']//button[strong[normalize-space(.)='execute']]").click()
+    - page.getByLabel("Access mode").selectOption("protected")
+    - page.getByLabel("rule condition").selectOption("role")
+    - page.getByLabel("rule value").selectOption("ROLE_ANALYST")
+    - page.getByRole("button", "Review changes").click()
+    - expect(page.locator(".bp6-dialog-container.bp6-overlay-enter-done .studio-resource-review-dialog")).toBeVisible(15000)
+    - page.getByRole("button", "Save permissions").click()
+    - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+    - expect(page.locator(".studio-resource-access-footer [role='status']")).toHaveText("Permissions saved.",15000)
+pipeline:
+  scenario:
+    action: run
+    request: '@../../../default/access-scenario'
+  manageAsAdminInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/${caseName}
+    commands:
+      - page.locator(".studio-nav-namespaces").click()
+      - page.getByRole("button", "New namespace").click()
+      - page.getByLabel("Namespace").fill("ui_namespace_admin_empty")
+      - page.getByLabel("Display title").fill("Disposable admin namespace")
+      - page.getByRole("button", "Create namespace").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - page.goto("${browserURL}/e2e/login")
+      - page.getByLabel("Test identity").selectOption("namespace-admin")
+      - page.getByRole("button", "Sign in").click()
+      - page.locator(".studio-nav-namespaces").click()
+      - page.getByRole("button", "Edit ui_namespace_admin").click()
+      - page.getByLabel("Display title").fill("Managed by namespace admin")
+      - page.getByRole("button", "Save namespace").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - page.getByRole("button", "Delete ui_namespace_admin_empty").click()
+      - page.getByRole("button", "Delete namespace").click()
+      - expect(page.getByRole("button", "Delete ui_namespace_admin_empty")).toHaveCount(0,15000)
+      - page.goto("${browserURL}/e2e/login")
+      - page.getByLabel("Test identity").selectOption("namespace-not-admin")
+      - page.getByRole("button", "Sign in").click()
+      - page.locator(".studio-nav-namespaces").click()
+      - expect(page.getByRole("button", "Edit ui_namespace_admin")).toHaveCount(0,15000)
+      - page.getByRole("button", "View ui_namespace_admin").click()
+      - expect(page.getByLabel("Display title")).toHaveValue("Managed by namespace admin",15000)
+      - expect(page.getByLabel("Display title")).toBeDisabled(15000)
+      - expect(page.getByRole("button", "Save namespace")).toHaveCount(0,15000)
+      - page.locator("xpath://div[contains(@class,'bp6-dialog-footer-actions')]//button[normalize-space(.)='Close']").click()
+      - page.goto("${browserURL}/e2e/login")
+      - page.getByLabel("Test identity").selectOption("owner")
+      - page.getByRole("button", "Sign in").click()
+      - page.locator(".studio-nav-namespaces").click()
+  namespaceAfterEdit:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.namespaces.get
+    arguments:
+      name: $caseName
+  ownerPreserved:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $namespaceAfterEdit.StructuredContent
+    expect:
+      title: Managed by namespace admin
+      ownerId: owner
+      etag: 2
+  endpointAfterEdit:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.runtime.status
+    arguments:
+      namespaceId: $namespaceAfterEdit.StructuredContent.namespaceId
+  adminCatalog:
+    action: mcp/runner:listTools
+    url: $endpointAfterEdit.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/namespace-admin.token
+  adminDoesNotGainConsumption:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $adminCatalog
+    expect:
+      '@length@Tools': 0
+  adminInvoke:
+    action: mcp/runner:call
+    url: $endpointAfterEdit.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/namespace-admin.token
+    '@name': $caseTool
+    arguments: {}
+    allowProtocolError: true
+    allowToolError: true
+  adminExecutionDenied:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $adminInvoke
+    expect:
+      IsError: true
+      ProtocolErrorCode: -32600
+  readerInvoke:
+    action: mcp/runner:call
+    url: $endpointAfterEdit.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/no-exposure.token
+    '@name': $caseTool
+    arguments: {}
+  readerStillAllowed:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $readerInvoke
+    expect:
+      IsError: false
+      StructuredContent:
+        '@length@records': 2
+        records:
+          - id: 10
+            name: ui_namespace_admin first
+          - id: 20
+            name: ui_namespace_admin second

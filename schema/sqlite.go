@@ -23,9 +23,10 @@ var (
 )
 
 const (
-	PrePolicyNamespaceVersion = 20
-	PolicyNamespaceVersion    = 21
-	CanonicalVersion          = 22
+	PrePolicyNamespaceVersion         = 20
+	PolicyNamespaceVersion            = 21
+	AuthorizationPredicatePathVersion = 22
+	CanonicalVersion                  = 23
 )
 
 // EnsureSQLiteSequenceLedger installs SQLX's write-intent table before a

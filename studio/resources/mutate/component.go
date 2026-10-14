@@ -62,23 +62,26 @@ type Output struct {
 	Version *sdk.ReportVersion    `parameter:"Version,kind=output,in=body,dataType=*sdk.ReportVersion" json:"version,omitempty"`
 }
 
+// Resource mutations return a fresh snapshot from the same managed transaction.
+// Imperative child calls flush each native writer before the subsequent read;
+// the root still owns commit/rollback for the complete operation.
 type FileUpsertComponent struct {
-	Contract xdatly.Component[FileUpsertInput, Output] `component:"resource_upsert_file,path=/v1/studio/sdk/resources.upsert_file,method=POST,connector=studio,handler=NewUpsertFile" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.resources.upsert_file\",\"description\":\"Upsert an authorized Datly Studio resource file\"}]" caseFormat:"lc"`
+	Contract xdatly.Component[FileUpsertInput, Output] `component:"resource_upsert_file,path=/v1/studio/sdk/resources.upsert_file,method=POST,connector=studio,handler=NewUpsertFile" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.resources.upsert_file\",\"description\":\"Upsert an authorized Datly Studio resource file\"}]" componentCallPolicy:"imperative" caseFormat:"lc"`
 }
 type FileDeleteComponent struct {
-	Contract xdatly.Component[FileDeleteInput, Output] `component:"resource_delete_file,path=/v1/studio/sdk/resources.delete_file,method=POST,connector=studio,handler=NewDeleteFile" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.resources.delete_file\",\"description\":\"Delete an authorized Datly Studio resource file\"}]" caseFormat:"lc"`
+	Contract xdatly.Component[FileDeleteInput, Output] `component:"resource_delete_file,path=/v1/studio/sdk/resources.delete_file,method=POST,connector=studio,handler=NewDeleteFile" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.resources.delete_file\",\"description\":\"Delete an authorized Datly Studio resource file\"}]" componentCallPolicy:"imperative" caseFormat:"lc"`
 }
 type FolderUpsertComponent struct {
-	Contract xdatly.Component[FolderUpsertInput, Output] `component:"resource_upsert_folder,path=/v1/studio/sdk/resources.upsert_folder,method=POST,connector=studio,handler=NewUpsertFolder" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.resources.upsert_folder\",\"description\":\"Upsert an authorized Datly Studio resource folder\"}]" caseFormat:"lc"`
+	Contract xdatly.Component[FolderUpsertInput, Output] `component:"resource_upsert_folder,path=/v1/studio/sdk/resources.upsert_folder,method=POST,connector=studio,handler=NewUpsertFolder" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.resources.upsert_folder\",\"description\":\"Upsert an authorized Datly Studio resource folder\"}]" componentCallPolicy:"imperative" caseFormat:"lc"`
 }
 type FolderDeleteComponent struct {
-	Contract xdatly.Component[FolderDeleteInput, Output] `component:"resource_delete_folder,path=/v1/studio/sdk/resources.delete_folder,method=POST,connector=studio,handler=NewDeleteFolder" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.resources.delete_folder\",\"description\":\"Delete an authorized Datly Studio resource folder\"}]" caseFormat:"lc"`
+	Contract xdatly.Component[FolderDeleteInput, Output] `component:"resource_delete_folder,path=/v1/studio/sdk/resources.delete_folder,method=POST,connector=studio,handler=NewDeleteFolder" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.resources.delete_folder\",\"description\":\"Delete an authorized Datly Studio resource folder\"}]" componentCallPolicy:"imperative" caseFormat:"lc"`
 }
 type SkillUpsertComponent struct {
-	Contract xdatly.Component[SkillUpsertInput, Output] `component:"resource_upsert_skill,path=/v1/studio/sdk/resources.upsert_skill,method=POST,connector=studio,handler=NewUpsertSkill" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.resources.upsert_skill\",\"description\":\"Upsert an authorized Datly Studio skill root\"}]" caseFormat:"lc"`
+	Contract xdatly.Component[SkillUpsertInput, Output] `component:"resource_upsert_skill,path=/v1/studio/sdk/resources.upsert_skill,method=POST,connector=studio,handler=NewUpsertSkill" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.resources.upsert_skill\",\"description\":\"Upsert an authorized Datly Studio skill root\"}]" componentCallPolicy:"imperative" caseFormat:"lc"`
 }
 type SkillDeleteComponent struct {
-	Contract xdatly.Component[SkillDeleteInput, Output] `component:"resource_delete_skill,path=/v1/studio/sdk/resources.delete_skill,method=POST,connector=studio,handler=NewDeleteSkill" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.resources.delete_skill\",\"description\":\"Delete an authorized Datly Studio skill root\"}]" caseFormat:"lc"`
+	Contract xdatly.Component[SkillDeleteInput, Output] `component:"resource_delete_skill,path=/v1/studio/sdk/resources.delete_skill,method=POST,connector=studio,handler=NewDeleteSkill" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.resources.delete_skill\",\"description\":\"Delete an authorized Datly Studio skill root\"}]" componentCallPolicy:"imperative" caseFormat:"lc"`
 }
 
 var (

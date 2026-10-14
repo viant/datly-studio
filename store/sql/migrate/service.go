@@ -58,7 +58,13 @@ func (s *Service) Up(ctx context.Context, db *sql.DB) error {
 		current = schema.PolicyNamespaceVersion
 	}
 	if current == schema.PolicyNamespaceVersion {
-		return migrateAuthorizationPredicatePackagePath(ctx, db)
+		if err := migrateAuthorizationPredicatePackagePath(ctx, db); err != nil {
+			return err
+		}
+		current = schema.AuthorizationPredicatePathVersion
+	}
+	if current == schema.AuthorizationPredicatePathVersion {
+		return migrateNamespaceSkills(ctx, db)
 	}
 	return nil
 }
@@ -433,5 +439,6 @@ func (s *Service) Migrations() []Migration {
 		{Version: 20, Name: "component_slug_namespace_keys"},
 		{Version: 21, Name: "resource_policy_namespace_bindings"},
 		{Version: 22, Name: "authorization_predicate_binary_key_collations"},
+		{Version: 23, Name: "namespace_owned_skill_revisions"},
 	}
 }

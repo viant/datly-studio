@@ -8,7 +8,7 @@ import (
 
 func TestModuleMountsAreExplicitAndCannotShadowSDK(t *testing.T) {
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(204) })
-	for _, path := range []string{"/", "/mcp", "/v1/studio/sdk-mcp/", "/api/../v1/", "/api/resources?x=1", "/api/{name}", "/api//test"} {
+	for _, path := range []string{"/", "/mcp", "/v1/studio/sdk-mcp/", "/v1/artifacts", "/v1/artifacts/../admin", "/v1/other/", "/api/../v1/", "/api/resources?x=1", "/api/{name}", "/api//test"} {
 		if mountModules(http.NewServeMux(), []Module{{path, h}}) == nil {
 			t.Fatalf("unsafe mount %q", path)
 		}
@@ -17,10 +17,10 @@ func TestModuleMountsAreExplicitAndCannotShadowSDK(t *testing.T) {
 		t.Fatal("duplicate mount")
 	}
 	mux := http.NewServeMux()
-	if err := mountModules(mux, []Module{{"/api/resources/mcp", h}, {"/api/resources/preview/", h}}); err != nil {
+	if err := mountModules(mux, []Module{{"/api/resources/mcp", h}, {"/api/resources/preview/", h}, {"/v1/artifacts/", h}}); err != nil {
 		t.Fatal(err)
 	}
-	for _, path := range []string{"/api/resources/mcp", "/api/resources/preview/window"} {
+	for _, path := range []string{"/api/resources/mcp", "/api/resources/preview/window", "/v1/artifacts/01234567-89ab-cdef-0123-456789abcdef"} {
 		w := httptest.NewRecorder()
 		mux.ServeHTTP(w, httptest.NewRequest("POST", path, nil))
 		if w.Code != 204 {

@@ -34,6 +34,9 @@ func (s *Service) forgeProviderHTTP(ctx context.Context) (http.Handler, error) {
 		if err := s.registerWindowPrimitives(handler.(*forgehandler.Handler).DefaultHandler); err != nil {
 			return nil, err
 		}
+		if s.windowPrimitiveSource != nil && len(s.windowPrimitiveSource.datasources) > 0 {
+			return &stockResourceHandler{Handler: handler, host: s}, nil
+		}
 		return handler, nil
 	}))
 	if err != nil {

@@ -1,0 +1,1 @@
+Create/update/remove governed metadata for a real package-scanned predicate type.

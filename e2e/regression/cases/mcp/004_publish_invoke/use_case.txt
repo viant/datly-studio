@@ -1,0 +1,1 @@
+Publish into a dedicated namespace listener and call the published MCP tool in the same case.

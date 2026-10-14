@@ -1,0 +1,18 @@
+[
+  {},
+  {
+    "id": 1,
+    "customer_id": 10,
+    "active": 0
+  },
+  {
+    "id": 2,
+    "customer_id": 30,
+    "active": 1
+  },
+  {
+    "id": 3,
+    "customer_id": 40,
+    "active": 1
+  }
+]

@@ -111,7 +111,7 @@ func (t *Transport) loadDQL(ctx context.Context, operation string, input, output
 		}
 		return internal(err)
 	}
-	if err = tx.Commit(); err != nil {
+	if err = commitWithServerGuard(ctx, tx); err != nil {
 		return internal(err)
 	}
 	value, err := t.getVersionValue(ctx, report.ID, next)

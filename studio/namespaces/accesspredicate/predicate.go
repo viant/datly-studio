@@ -39,6 +39,9 @@ func (p *NamespaceAccess) Compute(ctx context.Context, _ any) (*xpredicate.Crite
 		return nil, err
 	}
 	if permission == "edit" || permission == "publish" {
+		if namespacevisibility.IsAdministrator(ctx, subject) {
+			return &xpredicate.Criteria{Expression: "n.name = ?", Placeholders: []any{name}}, nil
+		}
 		return &xpredicate.Criteria{Expression: "n.name = ? AND n.owner_id = ?", Placeholders: []any{name, subject}}, nil
 	}
 	switch permission {

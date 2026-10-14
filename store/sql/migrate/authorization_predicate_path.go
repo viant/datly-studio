@@ -59,7 +59,7 @@ func migrateAuthorizationPredicatePackagePath(ctx context.Context, db *sql.DB) e
 	if _, err := tx.ExecContext(ctx, "DELETE FROM schema_version"); err != nil {
 		return err
 	}
-	if _, err := tx.ExecContext(ctx, "INSERT INTO schema_version(version) VALUES (?)", schema.CanonicalVersion); err != nil {
+	if _, err := tx.ExecContext(ctx, "INSERT INTO schema_version(version) VALUES (?)", schema.AuthorizationPredicatePathVersion); err != nil {
 		return err
 	}
 	return tx.Commit()

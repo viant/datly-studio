@@ -1,0 +1,634 @@
+pipeline:
+  createNamespaceInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/${caseName}
+    commands:
+      - page.goto("${browserURL}")
+      - page.locator(".studio-nav-namespaces").click()
+      - page.locator(".studio-namespace-actions .studio-catalog-primary-actions button[type='button']").click()
+      - page.getByLabel("Namespace").fill("${caseName}")
+      - expect(page.getByLabel("Namespace")).toHaveValue("${caseName}",15000)
+      - page.getByLabel("Display title").fill("${caseName}")
+      - expect(page.getByLabel("Namespace")).toHaveValue("${caseName}",15000)
+      - page.getByLabel("Visibility").selectOption("public")
+      - page.getByLabel("Expose MCP").check()
+      - page.getByRole("button", "Create namespace").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+  namespace:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.namespaces.get
+    arguments:
+      name: $caseName
+  createComponentInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/${caseName}
+    commands:
+      - expect(page.getByLabel("Current namespace")).toBeEnabled(15000)
+      - page.getByLabel("Current namespace").selectOption("${namespace.StructuredContent.namespaceId}")
+      - expect(page.getByLabel("Current namespace")).toHaveValue("${namespace.StructuredContent.namespaceId}",15000)
+      - page.locator(".studio-nav-connectors").click()
+      - page.locator(".studio-catalog-primary-actions button[type='button']").click()
+      - page.getByLabel("Name").fill("${caseName}")
+      - page.getByLabel("Provider").selectOption("sqlite")
+      - page.getByLabel("DSN template").fill("${runDir}/consumer.db")
+      - page.getByRole("button", "Create connector").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - page.getByLabel("Search connectors").fill("${caseName}")
+      - page.getByLabel("Search connectors").press("Enter")
+      - page.locator("xpath://tr[.//*[normalize-space(.)='${caseName}']]//button[@aria-label='Test connector']").click()
+      - page.locator("xpath://tr[.//*[normalize-space(.)='${caseName}']]//button[@aria-label='Activate connector']").click()
+      - page.locator(".studio-nav-schema").click()
+      - page.getByLabel("Connector").selectOption("${caseName}")
+      - page.locator("xpath://button[@role='treeitem'][.//strong[normalize-space(.)='${caseName}_records']]").click()
+      - page.getByRole("button", "Add as root view").click()
+      - page.getByLabel("Component title").fill("${caseTitle}")
+      - page.getByLabel("Slug").fill("${caseSlug}")
+      - page.getByLabel("Root view identifier").fill("record")
+      - page.getByRole("button", "Create component").click()
+      - expect(page.getByRole("button", "Edit component")).toBeVisible(15000)
+  components:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.components.list
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      limit: 10
+  oneComponent:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $components.StructuredContent
+    expect:
+      '@length@items': 1
+      items:
+        - title: $caseTitle
+  cubeInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/${caseName}
+    commands:
+      - page.locator(".studio-view-node-actions button[aria-label^='Actions for ']").click()
+      - page.getByRole("menuitem", "Open SQL tab").click()
+      - page.locator(".studio-view-workspace [contenteditable='true']").fill("SELECT c.region, c.channel, SUM(c.amount) AS total FROM ui_compose_records c GROUP BY c.region, c.channel")
+      - page.getByRole("button", "Save SQL").click()
+      - expect(page.locator(".studio-sql-actions .bp6-tag")).toHaveText("Saved",15000)
+      - page.locator("#component-workspace-tab-component").click()
+      - page.locator(".studio-view-select").click()
+      - page.getByRole("button", "Manage columns").click()
+      - page.getByLabel("SQL output alias").fill("total")
+      - page.getByLabel("Go cast").fill("int64")
+      - page.getByRole("button", "Save column contract").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - page.locator(".studio-view-select").click()
+      - page.getByRole("button", "Manage columns").click()
+      - page.locator("xpath://div[contains(@class,'studio-column-dialog')]//button[.//strong[translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='region']]").click()
+      - page.getByLabel("Cube role").selectOption("dimension")
+      - page.getByRole("button", "Save column contract").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - page.locator(".studio-view-select").click()
+      - page.getByRole("button", "Manage columns").click()
+      - page.locator("xpath://div[contains(@class,'studio-column-dialog')]//button[.//strong[translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='channel']]").click()
+      - page.getByLabel("Cube role").selectOption("dimension")
+      - page.getByRole("button", "Save column contract").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - page.locator(".studio-view-select").click()
+      - page.getByRole("button", "Manage columns").click()
+      - page.locator("xpath://div[contains(@class,'studio-column-dialog')]//button[.//strong[translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='total']]").click()
+      - page.getByLabel("Cube role").selectOption("measure")
+      - page.getByRole("button", "Save column contract").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - page.getByRole("button", "Inputs").click()
+      - page.getByRole("button", "Add input").click()
+      - page.getByLabel("Input name").fill("Region")
+      - page.getByLabel("Type expression").fill("string")
+      - page.getByLabel("Source name").fill("region")
+      - page.locator(".studio-inline-contract-form button[type='submit']").click()
+      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Predicates").click()
+      - page.getByRole("button", "Add predicate").click()
+      - page.getByLabel("Parameter").fill("Region")
+      - page.getByLabel("Target view").selectOption("record")
+      - page.getByLabel("Predicate").fill("equal")
+      - page.getByLabel("Predicate arguments").fill("c, region")
+      - page.locator(".studio-inline-contract-form button[type='submit']").click()
+      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Inputs").click()
+      - page.getByRole("button", "Add input").click()
+      - page.getByLabel("Input name").fill("Channel")
+      - page.getByLabel("Type expression").fill("string")
+      - page.getByLabel("Source name").fill("channel")
+      - page.locator(".studio-inline-contract-form button[type='submit']").click()
+      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Predicates").click()
+      - page.getByRole("button", "Add predicate").click()
+      - page.getByLabel("Parameter").fill("Channel")
+      - page.getByLabel("Target view").selectOption("record")
+      - page.getByLabel("Predicate").fill("equal")
+      - page.getByLabel("Predicate arguments").fill("c, channel")
+      - page.locator(".studio-inline-contract-form button[type='submit']").click()
+      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+  dictionaryInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/${caseName}
+    commands:
+      - page.locator(".studio-nav-connectors").click()
+      - page.locator(".studio-catalog-primary-actions button[type='button']").click()
+      - page.getByLabel("Name").fill("ui_compose_dictionary")
+      - page.getByLabel("Provider").selectOption("sqlite")
+      - page.getByLabel("DSN template").fill("${runDir}/dictionary.db")
+      - page.getByRole("button", "Create connector").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - page.getByLabel("Search connectors").fill("ui_compose_dictionary")
+      - page.getByLabel("Search connectors").press("Enter")
+      - page.locator("xpath://tr[.//*[normalize-space(.)='ui_compose_dictionary']]//button[@aria-label='Test connector']").click()
+      - page.locator("xpath://tr[.//*[normalize-space(.)='ui_compose_dictionary']]//button[@aria-label='Activate connector']").click()
+      - page.locator(".studio-nav-schema").click()
+      - page.getByLabel("Connector").selectOption("ui_compose_dictionary")
+      - page.locator("xpath://button[@role='treeitem'][.//strong[normalize-space(.)='ui_compose_regions']]").click()
+      - page.getByRole("button", "Add as subview").click()
+      - page.getByLabel("Component").selectOption("${components.StructuredContent.items[0].id}")
+      - page.getByLabel("Child view identifier").fill("region_info")
+      - page.getByLabel("Parent view").selectOption("record")
+      - page.getByLabel("Relationship").selectOption("lookup")
+      - page.getByLabel("Relation keys").fill("region_info.code=record.region")
+      - page.getByRole("button", "Compile and open").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - expect(page.getByRole("button", "Edit component")).toBeVisible(15000)
+  authorInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/${caseName}
+    commands:
+      - page.getByRole("button", "Edit component").click()
+      - page.getByLabel("Enable cube").check()
+      - page.getByLabel("Allow field selection").check()
+      - page.getByLabel("Expose cube as an MCP tool").check()
+      - page.getByLabel("Enable cube composition").check()
+      - page.getByLabel("Expose composition as an MCP tool").check()
+      - page.getByLabel("Maximum cubes").fill("2")
+      - page.getByLabel("Maximum result rows").fill("50")
+      - page.getByLabel("Enable MCP tool").check()
+      - page.getByLabel("Canonical MCP tool name").fill("${caseTool}")
+      - page.getByRole("button", "Save component").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - page.getByRole("button", "Validate").click()
+      - page.getByRole("button", "Validate revision").click()
+      - expect(page.getByText("Runtime contract is ready")).toBeVisible(15000)
+      - page.locator("xpath://div[contains(@class,'bp6-dialog-footer-actions')]//button[normalize-space(.)='Close']").click()
+  policyInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/${caseName}
+    commands: $policyCommands
+  compositionLabInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/${caseName}
+    commands:
+      - page.locator(".studio-nav-components").click()
+      - page.getByRole("button", "Open Reader Builder").click()
+      - page.getByRole("button", "Composition lab").click()
+      - page.getByLabel("Frame 1 explicit filters").fill("{\"region\":\"east\"}")
+      - page.locator(".studio-compose-dialog [contenteditable='true']").fill("SELECT t1.region, t1.total FROM $CubeSQL1 AS t1")
+      - page.getByRole("button", "Run composition").click()
+      - expect(page.locator("xpath://div[contains(@class,'studio-compose-result')]//tbody/tr[td[normalize-space(.)='east']]/td[normalize-space(.)='30']")).toHaveCount(1,15000)
+      - page.locator(".studio-compose-dialog .bp6-dialog-footer-actions button").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+  closeEditor:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    commands:
+      - page.locator(".studio-nav-namespaces").click()
+      - expect(page.getByLabel("Current namespace")).toBeEnabled(15000)
+  versions:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.versions.list
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+  validated:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $versions.StructuredContent.items[0].compileStatus
+    expect: valid
+  authoredCompose:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.versions.test_compose
+    arguments:
+      reportId: $components.StructuredContent.items[0].id
+      versionNo: $versions.StructuredContent.items[0].versionNo
+      input:
+        cubes:
+          - filters:
+              region: east
+        sql: SELECT t1.region, t1.total FROM $CubeSQL1 AS t1
+  authoredComposeData:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $authoredCompose
+    expect:
+      IsError: false
+      StructuredContent:
+        data:
+          '@length@data': 1
+          data:
+            - region: east
+              total: 30
+  runtime:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.runtime.status
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+    allowToolError: true
+    repeat: 50
+    thinkTimeMs: 100
+    exit: $output:/"status":"ready"/
+  runtimeReady:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $runtime.StructuredContent.host.status
+    expect: ready
+  publish:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.publications.publish
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+      versionNo: $versions.StructuredContent.items[0].versionNo
+      input:
+        expectedSourceRevision: $versions.StructuredContent.items[0].sourceRevision
+  published:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $publish.StructuredContent.status
+    expect: active
+  endpoint:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.runtime.status
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+  allowedCatalog:
+    action: mcp/runner:listTools
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/${allowedUser}.token
+  allowedTool:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $allowedCatalog
+    expect:
+      '@length@Tools': 3
+      Tools:
+        - Name: ${caseTool}
+        - Name: ${caseTool}Cube
+        - Name: ${caseTool}CubeCompose
+  invokeAllowed:
+    action: mcp/runner:call
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/${allowedUser}.token
+    '@name': ${caseTool}
+    arguments: {}
+  returnedData:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $invokeAllowed
+    expect:
+      IsError: false
+      StructuredContent:
+        '@length@records': 5
+        records:
+          '@indexBy@': region,channel
+          eaststore:
+            total: 20
+          eastweb:
+            total: 10
+          weststore:
+            total: 15
+          westweb:
+            total: 5
+          northweb:
+            total: 7
+  deniedCatalog:
+    action: mcp/runner:listTools
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/${deniedUser}.token
+  hiddenTool:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $deniedCatalog
+    expect:
+      '@length@Tools': 0
+  invokeDenied:
+    action: mcp/runner:call
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/${deniedUser}.token
+    '@name': ${caseTool}
+    arguments: {}
+    allowProtocolError: true
+    allowToolError: true
+  directDenied:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $invokeDenied
+    expect:
+      IsError: true
+      ProtocolErrorCode: -32600
+  byRegion:
+    action: mcp/runner:call
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/${allowedUser}.token
+    '@name': ${caseTool}Cube
+    arguments:
+      dimensions:
+        region: true
+      measures:
+        total: true
+      filters: {}
+  byRegionRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $byRegion
+    expect:
+      IsError: false
+      StructuredContent:
+        '@length@records': 3
+        records:
+          '@indexBy@': region
+          east:
+            total: 30
+            regionInfo:
+              label: Eastern
+          west:
+            total: 20
+            regionInfo:
+              label: Western
+          north:
+            total: 7
+            regionInfo: null
+  byChannel:
+    action: mcp/runner:call
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/${allowedUser}.token
+    '@name': ${caseTool}Cube
+    arguments:
+      dimensions:
+        channel: true
+      measures:
+        total: true
+      filters: {}
+  byChannelRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $byChannel
+    expect:
+      IsError: false
+      StructuredContent:
+        '@length@records': 2
+        records:
+          '@indexBy@': channel
+          store:
+            total: 35
+          web:
+            total: 22
+  eastChannels:
+    action: mcp/runner:call
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/${allowedUser}.token
+    '@name': ${caseTool}Cube
+    arguments:
+      dimensions:
+        channel: true
+      measures:
+        total: true
+      filters:
+        region: east
+  eastChannelsRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $eastChannels
+    expect:
+      IsError: false
+      StructuredContent:
+        '@length@records': 2
+        records:
+          '@indexBy@': channel
+          store:
+            total: 20
+          web:
+            total: 10
+  byRegionAgain:
+    action: mcp/runner:call
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/${allowedUser}.token
+    '@name': ${caseTool}Cube
+    arguments:
+      dimensions:
+        region: true
+      measures:
+        total: true
+      filters: {}
+  byRegionAgainRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $byRegionAgain
+    expect:
+      IsError: false
+      StructuredContent:
+        '@length@records': 3
+        records:
+          '@indexBy@': region
+          east:
+            total: 30
+            regionInfo:
+              label: Eastern
+          west:
+            total: 20
+            regionInfo:
+              label: Western
+          north:
+            total: 7
+            regionInfo: null
+  deniedCube:
+    action: mcp/runner:call
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/${deniedUser}.token
+    '@name': ${caseTool}Cube
+    arguments:
+      dimensions:
+        region: true
+      measures:
+        total: true
+    allowToolError: true
+    allowProtocolError: true
+  cubeDenied:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $deniedCube
+    expect:
+      IsError: true
+      ProtocolErrorCode: -32600
+  compareChannels:
+    action: mcp/runner:call
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/${allowedUser}.token
+    '@name': ${caseTool}CubeCompose
+    arguments:
+      cubes:
+        - filters:
+            channel: web
+        - filters:
+            channel: store
+      sql: SELECT t1.region, t1.total AS web, COALESCE(t2.total, 0) AS store FROM $CubeSQL1 AS t1 LEFT JOIN $CubeSQL2 AS t2 ON t1.region=t2.region ORDER BY t1.region
+  comparedRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $compareChannels
+    expect:
+      IsError: false
+      StructuredContent:
+        '@length@data': 3
+        data:
+          '@indexBy@': region
+          east:
+            web: 10
+            store: 20
+          west:
+            web: 5
+            store: 15
+          north:
+            web: 7
+            store: 0
+  compareAgain:
+    action: mcp/runner:call
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/${allowedUser}.token
+    '@name': ${caseTool}CubeCompose
+    arguments:
+      cubes:
+        - filters:
+            channel: web
+            region: east
+        - inheritFrom: 1
+          filters:
+            channel: store
+      sql: SELECT t1.region, t1.total AS web, t2.total AS store FROM $CubeSQL1 AS t1 LEFT JOIN $CubeSQL2 AS t2 ON t1.region=t2.region
+  inheritedFilter:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $compareAgain
+    expect:
+      IsError: false
+      StructuredContent:
+        '@length@data': 1
+        data:
+          - region: east
+            web: 10
+            store: 20
+  compareUnfilteredAgain:
+    action: mcp/runner:call
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/${allowedUser}.token
+    '@name': ${caseTool}CubeCompose
+    arguments:
+      cubes:
+        - filters:
+            channel: web
+        - filters:
+            channel: store
+      sql: SELECT t1.region, t1.total AS web, COALESCE(t2.total, 0) AS store FROM $CubeSQL1 AS t1 LEFT JOIN $CubeSQL2 AS t2 ON t1.region=t2.region ORDER BY t1.region
+  filtersDoNotLeak:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $compareUnfilteredAgain.StructuredContent.data
+    expect: $compareChannels.StructuredContent.data
+  overBudget:
+    action: mcp/runner:call
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/${allowedUser}.token
+    '@name': ${caseTool}CubeCompose
+    arguments:
+      cubes:
+        - filters: {}
+        - filters: {}
+        - filters: {}
+      sql: SELECT t1.region, t1.total FROM $CubeSQL1 AS t1
+    allowToolError: true
+    allowProtocolError: true
+  frameBudgetEnforced:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $overBudget
+    expect:
+      IsError: true
+  arbitrarySource:
+    action: mcp/runner:call
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/${allowedUser}.token
+    '@name': ${caseTool}CubeCompose
+    arguments:
+      cubes:
+        - filters: {}
+      sql: SELECT region, amount FROM ui_compose_records
+    allowToolError: true
+    allowProtocolError: true
+  arbitrarySourceDenied:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $arbitrarySource
+    expect:
+      IsError: true
+  deniedCompose:
+    action: mcp/runner:call
+    url: $endpoint.StructuredContent.host.mcpUrl
+    bearerTokenSecret: ${runDir}/${deniedUser}.token
+    '@name': ${caseTool}CubeCompose
+    arguments:
+      cubes:
+        - filters: {}
+      sql: SELECT t1.region, t1.total FROM $CubeSQL1 AS t1
+    allowToolError: true
+    allowProtocolError: true
+  composeDenied:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $deniedCompose
+    expect:
+      IsError: true
+      ProtocolErrorCode: -32600

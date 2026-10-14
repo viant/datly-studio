@@ -805,6 +805,15 @@ var postV1AuthzSdkPoliciesContext = (options) => (options.client ?? client).post
     ...options.headers
   }
 });
+var postV1AuthzSdkPoliciesCreate = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/authz/sdk/policies.create",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var postV1AuthzSdkPoliciesGet = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/v1/authz/sdk/policies.get",
@@ -1074,6 +1083,78 @@ var postV1StudioSdkConnectorsTestSql = (options) => (options.client ?? client).p
 var postV1StudioSdkConnectorsUpdate = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/v1/studio/sdk/connectors.update",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkNamespaceSkillsCreate = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/namespace_skills.create",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkNamespaceSkillsDelete = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/namespace_skills.delete",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkNamespaceSkillsGet = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/namespace_skills.get",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkNamespaceSkillsList = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/namespace_skills.list",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkNamespaceSkillsPublish = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/namespace_skills.publish",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkNamespaceSkillsRevisions = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/namespace_skills.revisions",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkNamespaceSkillsUnpublish = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/namespace_skills.unpublish",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkNamespaceSkillsUpdate = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/namespace_skills.update",
   ...options,
   headers: {
     "Content-Type": "application/json",
@@ -1421,6 +1502,7 @@ var postV1StudioSdkVersionsWarmupList = (options) => (options.client ?? client).
 export {
   postV1AuthzSdkAuthorizationCheck,
   postV1AuthzSdkPoliciesContext,
+  postV1AuthzSdkPoliciesCreate,
   postV1AuthzSdkPoliciesGet,
   postV1AuthzSdkPoliciesReplace,
   postV1StudioSdkAccessContext,
@@ -1452,6 +1534,14 @@ export {
   postV1StudioSdkConnectorsTest,
   postV1StudioSdkConnectorsTestSql,
   postV1StudioSdkConnectorsUpdate,
+  postV1StudioSdkNamespaceSkillsCreate,
+  postV1StudioSdkNamespaceSkillsDelete,
+  postV1StudioSdkNamespaceSkillsGet,
+  postV1StudioSdkNamespaceSkillsList,
+  postV1StudioSdkNamespaceSkillsPublish,
+  postV1StudioSdkNamespaceSkillsRevisions,
+  postV1StudioSdkNamespaceSkillsUnpublish,
+  postV1StudioSdkNamespaceSkillsUpdate,
   postV1StudioSdkNamespacesCreate,
   postV1StudioSdkNamespacesDelete,
   postV1StudioSdkNamespacesGet,

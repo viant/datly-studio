@@ -1,0 +1,276 @@
+pipeline:
+  createConnector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: authoring
+      driver: sqlite
+      dsnTemplate: ${runDir}/consumer.db
+    allowToolError: true
+    '@name': studio.sdk.connectors.create
+  createConnectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $createConnector
+    expect:
+      IsError: false
+  probe:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: authoring
+    allowToolError: true
+    '@name': studio.sdk.connectors.test
+  probeSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $probe
+    expect:
+      IsError: false
+  connector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: authoring
+    allowToolError: true
+    '@name': studio.sdk.connectors.get
+  connectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $connector
+    expect:
+      IsError: false
+  activate:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: authoring
+      etag: $connector.StructuredContent.etag
+    allowToolError: true
+    '@name': studio.sdk.connectors.activate
+  activateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $activate
+    expect:
+      IsError: false
+  namespace:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: authoring
+      title: authoring
+      mcpEnabled: true
+      mcpPort: 0
+    allowToolError: true
+    '@name': studio.sdk.namespaces.create
+  namespaceSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $namespace
+    expect:
+      IsError: false
+  component:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      title: authoring
+      slug: authoring
+      namespace: authoring
+      defaultConnectorName: authoring
+    allowToolError: true
+    '@name': studio.sdk.components.create
+  componentSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $component
+    expect:
+      IsError: false
+  import:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      input:
+        dql: |-
+          #package('github.com/viant/datly-studio/dynamic/authoring')
+          #setting($_ = $input_type('CustomerInput'))
+          #setting($_ = $output_type('CustomerOutput'))
+          #setting($_ = $case_format('lc'))
+          #setting($_ = $connector('authoring'))
+          #setting($_ = $route('/authoring', 'GET'))
+          #setting($_ = $mcp('authoring.read','Read consumer customers'))
+          #define($_ = $Rows<[]*Customer>(output/view))
+          SELECT customers.*, type(customers,'Customer') FROM (SELECT c.id,c.tenant,c.name,c.active FROM customers c) customers
+    allowToolError: true
+    '@name': studio.sdk.versions.load_dql
+  importSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $import
+    expect:
+      IsError: false
+  verifyImport:
+    action: validator:assert
+    actual: $import.StructuredContent.version
+    expect:
+      state: draft
+      compileStatus: pending
+    normalizeKVPairs: true
+  versions_get:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+    allowToolError: true
+    '@name': studio.sdk.versions.get
+  versions_getSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $versions_get
+    expect:
+      IsError: false
+  versions_inspect:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+    allowToolError: true
+    '@name': studio.sdk.versions.inspect
+  versions_inspectSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $versions_inspect
+    expect:
+      IsError: false
+  versions_descriptor:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+    allowToolError: true
+    '@name': studio.sdk.versions.descriptor
+  versions_descriptorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $versions_descriptor
+    expect:
+      IsError: false
+  versions_export_dql:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+    allowToolError: true
+    '@name': studio.sdk.versions.export_dql
+  versions_export_dqlSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $versions_export_dql
+    expect:
+      IsError: false
+  versions_download:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+    allowToolError: true
+    '@name': studio.sdk.versions.download
+  versions_downloadSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $versions_download
+    expect:
+      IsError: false
+  versionList:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      input: {}
+    allowToolError: true
+    '@name': studio.sdk.versions.list
+  versionListSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $versionList
+    expect:
+      IsError: false
+  validate:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      expectedSourceRevision: $import.StructuredContent.version.sourceRevision
+    allowToolError: true
+    '@name': studio.sdk.versions.validate
+  validateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $validate
+    expect:
+      IsError: false
+  valid:
+    action: validator:assert
+    actual: $validate.StructuredContent.valid
+    expect: true
+    normalizeKVPairs: true
+  preview:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      input:
+        limit: 20
+    allowToolError: true
+    '@name': studio.sdk.preview.execute
+  previewSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $preview
+    expect:
+      IsError: false
+  rows:
+    action: validator:assert
+    actual: $preview.StructuredContent.evidence
+    expect:
+      returnedRows: 4
+    normalizeKVPairs: true
+  persist:
+    action: dsunit:query
+    datastore: studio
+    SQL: SELECT COUNT(*) AS total FROM components WHERE slug='authoring'
+    expect:
+      - total: 1

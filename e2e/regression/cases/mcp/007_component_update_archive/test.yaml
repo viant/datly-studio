@@ -1,0 +1,212 @@
+pipeline:
+  createConnector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: componentlife
+      driver: sqlite
+      dsnTemplate: ${runDir}/consumer.db
+    allowToolError: false
+    '@name': studio.sdk.connectors.create
+  createConnectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $createConnector.IsError
+    expect: false
+  probe:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: componentlife
+    allowToolError: false
+    '@name': studio.sdk.connectors.test
+  probeSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $probe.IsError
+    expect: false
+  connector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: componentlife
+    allowToolError: false
+    '@name': studio.sdk.connectors.get
+  connectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $connector.IsError
+    expect: false
+  activate:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: componentlife
+      etag: $connector.StructuredContent.etag
+    allowToolError: false
+    '@name': studio.sdk.connectors.activate
+  activateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $activate.IsError
+    expect: false
+  namespace:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: componentlife
+      title: componentlife
+      mcpEnabled: true
+      mcpPort: 0
+    allowToolError: false
+    '@name': studio.sdk.namespaces.create
+  namespaceSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $namespace.IsError
+    expect: false
+  component:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      title: componentlife
+      slug: componentlife
+      namespace: componentlife
+      defaultConnectorName: componentlife
+    allowToolError: false
+    '@name': studio.sdk.components.create
+  componentSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $component.IsError
+    expect: false
+  import:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      input:
+        dql: |-
+          #package('github.com/viant/datly-studio/dynamic/componentlife')
+          #setting($_ = $input_type('CustomerInput'))
+          #setting($_ = $output_type('CustomerOutput'))
+          #setting($_ = $case_format('lc'))
+          #setting($_ = $connector('componentlife'))
+          #setting($_ = $route('/componentlife', 'GET'))
+          #setting($_ = $mcp('componentlife.read','Read consumer customers'))
+          #define($_ = $Rows<[]*Customer>(output/view))
+          SELECT customers.*, type(customers,'Customer') FROM (SELECT c.id,c.tenant,c.name,c.active FROM customers c) customers
+    allowToolError: false
+    '@name': studio.sdk.versions.load_dql
+  importSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $import.IsError
+    expect: false
+  verifyImport:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $import.StructuredContent.version
+    expect:
+      state: draft
+      compileStatus: pending
+  read:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      id: $component.StructuredContent.id
+    allowToolError: false
+    '@name': studio.sdk.components.get
+  readSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $read.IsError
+    expect: false
+  update:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      id: $component.StructuredContent.id
+      input:
+        etag: $read.StructuredContent.etag
+        title: Updated component
+    allowToolError: false
+    '@name': studio.sdk.components.update
+  updateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $update.IsError
+    expect: false
+  list:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+    allowToolError: false
+    '@name': studio.sdk.components.list
+  listSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $list.IsError
+    expect: false
+  updated:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $list.StructuredContent.items
+    expect:
+      - title: Updated component
+  stale:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      id: $component.StructuredContent.id
+      input:
+        etag: $read.StructuredContent.etag
+        title: Must not replace
+    allowToolError: true
+    '@name': studio.sdk.components.update
+  conflict:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $stale.IsError
+    expect: true
+  archive:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      id: $component.StructuredContent.id
+      input:
+        etag: $update.StructuredContent.etag
+        status: archived
+    allowToolError: false
+    '@name': studio.sdk.components.update
+  archiveSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $archive.IsError
+    expect: false
+  persist:
+    action: dsunit:query
+    datastore: studio
+    SQL: SELECT title,status FROM components WHERE slug='componentlife'
+    expect:
+      - title: Updated component
+        status: archived

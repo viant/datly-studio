@@ -1,0 +1,31 @@
+[
+  {},
+  {
+    "id": 1,
+    "name": "cube fact 1",
+    "region": "east",
+    "channel": "web",
+    "amount": 10
+  },
+  {
+    "id": 2,
+    "name": "cube fact 2",
+    "region": "east",
+    "channel": "store",
+    "amount": 20
+  },
+  {
+    "id": 3,
+    "name": "cube fact 3",
+    "region": "west",
+    "channel": "web",
+    "amount": 5
+  },
+  {
+    "id": 4,
+    "name": "cube fact 4",
+    "region": "west",
+    "channel": "store",
+    "amount": 15
+  }
+]

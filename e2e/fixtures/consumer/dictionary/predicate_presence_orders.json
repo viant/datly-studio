@@ -1,0 +1,23 @@
+[
+  {},
+  {
+    "id": 1,
+    "customer_id": 10,
+    "status": "paid"
+  },
+  {
+    "id": 2,
+    "customer_id": 10,
+    "status": "paid"
+  },
+  {
+    "id": 3,
+    "customer_id": 20,
+    "status": "pending"
+  },
+  {
+    "id": 4,
+    "customer_id": 30,
+    "status": "paid"
+  }
+]

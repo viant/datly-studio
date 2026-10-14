@@ -46,8 +46,8 @@ func TestValidateSkillToolReferencesRejectsUnknownAndDuplicateTools(t *testing.T
 	if err = check("---\nname: guide\ndescription: Guide\nallowed-tools: records.read\n---\nUse it."); err != nil {
 		t.Fatalf("valid tool list: %v", err)
 	}
-	if err = check("---\nname: guide\ndescription: Guide\nallowed-tools: skills/list skills/get\n---\nUse it."); err != nil {
-		t.Fatalf("compatibility tool list: %v", err)
+	if err = check("---\nname: guide\ndescription: Guide\nallowed-tools: skills/list skills/get\n---\nUse it."); err == nil || !strings.Contains(err.Error(), "absent from this generation") {
+		t.Fatalf("native methods must not be accepted as tools: %v", err)
 	}
 	if err = check("---\nname: guide\ndescription: Guide\nallowed-tools: missing.tool\n---\nUse it."); err == nil || !strings.Contains(err.Error(), "absent from this generation") {
 		t.Fatalf("unknown tool error=%v", err)

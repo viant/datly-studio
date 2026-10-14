@@ -127,8 +127,21 @@ func (*getHandler) Exec(ctx context.Context, session xhandler.Session, input *Re
 		return err
 	}
 	defer closeStore()
+	if input.Resource.Tenant == "" {
+		facts, resolveErr := service.Provider.Resolve(requestCtx)
+		if resolveErr != nil {
+			return publicError(403, "verified policy tenant is required")
+		}
+		input.Resource.Tenant = facts.Tenant
+	}
 	if err := checkResourceNamespace(requestCtx, service, input.NamespaceId, input.Resource, input.Auth, input.Jwt); err != nil {
 		return err
+	}
+	if initial, _, err := initialPolicy(requestCtx, service, input.Resource); err != nil {
+		return err
+	} else if initial != nil {
+		output.Response = initial
+		return nil
 	}
 	value := &sharedapi.PolicyOutput{}
 	if err := sharedapi.NewGet().Exec(requestCtx, sharedSession(session, service), &sharedapi.PolicyInput{JWT: input.Jwt, Resource: input.Resource}, value); err != nil {
@@ -147,8 +160,21 @@ func (*contextHandler) Exec(ctx context.Context, session xhandler.Session, input
 		return err
 	}
 	defer closeStore()
+	if input.Resource.Tenant == "" {
+		facts, resolveErr := service.Provider.Resolve(requestCtx)
+		if resolveErr != nil {
+			return publicError(403, "verified policy tenant is required")
+		}
+		input.Resource.Tenant = facts.Tenant
+	}
 	if err := checkResourceNamespace(requestCtx, service, input.NamespaceId, input.Resource, input.Auth, input.Jwt); err != nil {
 		return err
+	}
+	if _, initial, err := initialPolicy(requestCtx, service, input.Resource); err != nil {
+		return err
+	} else if initial != nil {
+		output.Response = initial
+		return nil
 	}
 	value := &sharedapi.PolicyContextOutput{}
 	if err := sharedapi.NewPolicyContext().Exec(requestCtx, sharedSession(session, service), &sharedapi.PolicyInput{JWT: input.Jwt, Resource: input.Resource}, value); err != nil {

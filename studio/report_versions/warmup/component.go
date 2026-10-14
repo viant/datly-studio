@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/viant/datly-studio/sdk/executionguard"
 	"reflect"
 	"strings"
 	"time"
@@ -18,6 +19,7 @@ import (
 	"github.com/viant/datly-studio/sdk"
 	sqltransport "github.com/viant/datly-studio/sdk/transport/sql"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
+	"github.com/viant/datly-studio/studio/host"
 	catalog "github.com/viant/datly-studio/studio/report_versions/store_catalog"
 	warmuplist "github.com/viant/datly-studio/studio/report_warmup_runs/list"
 	storedreader "github.com/viant/datly-studio/studio/report_warmup_runs/store_read"
@@ -33,7 +35,6 @@ import (
 	xhandler "github.com/viant/xdatly/handler"
 )
 
-const modulePath = "github.com/viant/datly-studio"
 const runTimeout = 5 * time.Minute
 
 type Input struct {
@@ -189,11 +190,21 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 		SourceRevision: version.SourceRevision, SpecHash: version.SpecHash, PlanKey: planKey,
 		Status: "accepted", RequestedBy: actor, RequestedAt: now,
 		CreatedAt: &now, CreatedBy: &actor, UpdatedAt: &now, UpdatedBy: &actor}
+	authoring, err := host.AuthoringFromContext(ctx)
+	if err != nil {
+		return err
+	}
+	types, err := authoring.RuntimeTypes()
+	if err != nil {
+		return err
+	}
 	reportID, versionNo := input.ReportID, input.VersionNo
 	go func() {
 		jobCtx, cancel := context.WithTimeout(sdk.WithPrincipal(context.Background(), sdk.Principal{Subject: actor}), runTimeout)
+		jobCtx, releaseServerGuard := executionguard.Capture(jobCtx, ctx)
+		defer releaseServerGuard()
 		defer cancel()
-		worker := &sqltransport.Transport{DB: db, Warmup: preview.Dynamic{StudioDB: db, ModulePath: modulePath}}
+		worker := &sqltransport.Transport{DB: db, Warmup: preview.Dynamic{StudioDB: db, ModulePath: authoring.ModulePath(), Types: types}}
 		visibleUntil := time.Now().Add(5 * time.Second)
 		for time.Now().Before(visibleUntil) && jobCtx.Err() == nil {
 			committed, readErr := worker.ReadAcceptedWarmupRun(jobCtx, reportID, runID)

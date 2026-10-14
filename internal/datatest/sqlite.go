@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/viant/datly-studio/schema"
+	_ "modernc.org/sqlite"
 )
 
 // Row is one data-driven fixture or expected query row.
@@ -27,7 +27,7 @@ type Table struct {
 func OpenSQLite(t testing.TB, name string, scripts ...string) *sql.DB {
 	t.Helper()
 	dsnName := regexp.MustCompile(`[^a-zA-Z0-9_]+`).ReplaceAllString(t.Name()+"_"+name, "_")
-	db, err := sql.Open("sqlite3", "file:"+dsnName+"?mode=memory&cache=shared")
+	db, err := sql.Open("sqlite", "file:"+dsnName+"?mode=memory&cache=shared")
 	if err != nil {
 		t.Fatalf("open SQLite %s: %v", name, err)
 	}

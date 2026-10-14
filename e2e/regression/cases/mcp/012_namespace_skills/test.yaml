@@ -1,0 +1,522 @@
+---
+pipeline:
+  namespace:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.namespaces.create
+    arguments:
+      name: namespace_skills
+      title: Independent skills
+      mcpEnabled: false
+    allowToolError: false
+  namespaceSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$namespace.IsError"
+    expect: false
+  createSkill:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.namespace_skills.create
+    arguments:
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+      bundle:
+        title: Customer guide
+        content: |
+          ---
+          name: customer-guide
+          description: Namespace customer guide
+          ---
+          Use the customer tools in this namespace.
+        files:
+        - path: references/query.md
+          content: Query customers with the namespace MCP tools.
+    allowToolError: false
+  createSkillSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$createSkill.IsError"
+    expect: false
+  independentDraft:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$createSkill.StructuredContent"
+    expect:
+      skill:
+        latestRevision: 1
+        publishedRevision: 0
+        etag: 1
+      revision:
+        revision: 1
+        bundle:
+          content: |
+            ---
+            name: customer-guide
+            description: Namespace customer guide
+            ---
+            Use the customer tools in this namespace.
+  catalog:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.namespace_skills.list
+    arguments:
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+      query: customer-guide
+    allowToolError: false
+  catalogSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$catalog.IsError"
+    expect: false
+  oneDraft:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$catalog.StructuredContent"
+    expect:
+      "@length@items": 1
+  readDraft:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.namespace_skills.get
+    arguments:
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+      skillId: "$createSkill.StructuredContent.skill.skillId"
+    allowToolError: false
+  readDraftSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$readDraft.IsError"
+    expect: false
+  draftBytes:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$readDraft.StructuredContent.revision.bundle.content"
+    expect: |
+      ---
+      name: customer-guide
+      description: Namespace customer guide
+      ---
+      Use the customer tools in this namespace.
+  outsiderDraft:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$outsiderToken"
+    "@name": studio.sdk.namespace_skills.get
+    arguments:
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+      skillId: "$createSkill.StructuredContent.skill.skillId"
+    allowToolError: true
+  outsiderDraftDenied:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$outsiderDraft.IsError"
+    expect: true
+  zeroComponents:
+    action: dsunit:query
+    datastore: studio
+    SQL: SELECT COUNT(*) AS total FROM components WHERE namespace='namespace_skills'
+    expect:
+    - total: 0
+  enableMCP:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.namespaces.update
+    arguments:
+      name: namespace_skills
+      input:
+        etag: 1
+        mcpEnabled: true
+        mcpPort: 0
+    allowToolError: false
+  enableMCPSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$enableMCP.IsError"
+    expect: false
+  runtime:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.runtime.status
+    arguments:
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+    allowToolError: true
+    repeat: 50
+    thinkTimeMs: 100
+    exit: $output:/"status":"ready"/
+  ready:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$runtime.StructuredContent.host.status"
+    expect: ready
+  publishOne:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.namespace_skills.publish
+    arguments:
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+      skillId: "$createSkill.StructuredContent.skill.skillId"
+      etag: 1
+      revision: 1
+    allowToolError: false
+  publishOneSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$publishOne.IsError"
+    expect: false
+  activeOne:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$publishOne.StructuredContent"
+    expect:
+      publicationStatus: active
+      skill:
+        publishedRevision: 1
+        etag: 2
+  skills:
+    action: mcp/runner:listSkills
+    url: "$runtime.StructuredContent.host.mcpUrl"
+    bearerTokenSecret: "$ownerToken"
+  onePublished:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$skills"
+    expect:
+      "@length@Skills": 1
+  skill:
+    action: mcp/runner:getSkill
+    url: "$runtime.StructuredContent.host.mcpUrl"
+    bearerTokenSecret: "$ownerToken"
+    uri: "$skills.Skills[0].Uri"
+  skillResult:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$skill.IsError"
+    expect: false
+  inventory:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$skill.Skill"
+    expect:
+      Uri: skill://${namespace.StructuredContent.namespaceId}/${createSkill.StructuredContent.skill.skillId}/1/customer-guide/SKILL.md
+      Frontmatter:
+        name: customer-guide
+        description: Namespace customer guide
+      Resources:
+        "@length@Files": 2
+  contentOne:
+    action: mcp/runner:readResource
+    url: "$runtime.StructuredContent.host.mcpUrl"
+    bearerTokenSecret: "$ownerToken"
+    uri: "$skills.Skills[0].Uri"
+  contentOneResult:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$contentOne.IsError"
+    expect: false
+  publishedBytes:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$contentOne.Contents[0].Text"
+    expect: |
+      ---
+      name: customer-guide
+      description: Namespace customer guide
+      ---
+      Use the customer tools in this namespace.
+  deniedSkill:
+    action: mcp/runner:getSkill
+    url: "$runtime.StructuredContent.host.mcpUrl"
+    bearerTokenSecret: "$outsiderToken"
+    uri: "$skills.Skills[0].Uri"
+    allowProtocolError: true
+  deniedSkillResult:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$deniedSkill.IsError"
+    expect: true
+  updateDraft:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.namespace_skills.update
+    arguments:
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+      skillId: "$createSkill.StructuredContent.skill.skillId"
+      etag: 2
+      bundle:
+        title: Revised customer guide
+        content: |
+          ---
+          name: customer-guide
+          description: Revised namespace customer guide
+          ---
+          Use the latest customer tools in this namespace.
+    allowToolError: false
+  updateDraftSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$updateDraft.IsError"
+    expect: false
+  draftRevisionTwo:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$updateDraft.StructuredContent.skill"
+    expect:
+      latestRevision: 2
+      publishedRevision: 1
+      etag: 3
+  retained:
+    action: mcp/runner:readResource
+    url: "$runtime.StructuredContent.host.mcpUrl"
+    bearerTokenSecret: "$ownerToken"
+    uri: "$skills.Skills[0].Uri"
+  retainedResult:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$retained.IsError"
+    expect: false
+  unchangedPublication:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$retained.Contents[0].Text"
+    expect: |
+      ---
+      name: customer-guide
+      description: Namespace customer guide
+      ---
+      Use the customer tools in this namespace.
+  staleUpdate:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.namespace_skills.update
+    arguments:
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+      skillId: "$createSkill.StructuredContent.skill.skillId"
+      etag: 2
+      bundle:
+        content: |
+          ---
+          name: customer-guide
+          description: Revised namespace customer guide
+          ---
+          Use the latest customer tools in this namespace.
+    allowToolError: true
+  staleUpdateDenied:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$staleUpdate.IsError"
+    expect: true
+  history:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.namespace_skills.revisions
+    arguments:
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+      skillId: "$createSkill.StructuredContent.skill.skillId"
+    allowToolError: false
+  historySucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$history.IsError"
+    expect: false
+  twoRevisions:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$history.StructuredContent"
+    expect:
+      "@length@items": 2
+      items:
+      - revision: 2
+      - revision: 1
+  oldRevision:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.namespace_skills.get
+    arguments:
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+      skillId: "$createSkill.StructuredContent.skill.skillId"
+      revision: 1
+    allowToolError: false
+  oldRevisionSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$oldRevision.IsError"
+    expect: false
+  immutableHistory:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$oldRevision.StructuredContent.revision.bundle.content"
+    expect: |
+      ---
+      name: customer-guide
+      description: Namespace customer guide
+      ---
+      Use the customer tools in this namespace.
+  publishTwo:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.namespace_skills.publish
+    arguments:
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+      skillId: "$createSkill.StructuredContent.skill.skillId"
+      etag: 3
+      revision: 2
+    allowToolError: false
+  publishTwoSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$publishTwo.IsError"
+    expect: false
+  newSkills:
+    action: mcp/runner:listSkills
+    url: "$runtime.StructuredContent.host.mcpUrl"
+    bearerTokenSecret: "$ownerToken"
+  contentTwo:
+    action: mcp/runner:readResource
+    url: "$runtime.StructuredContent.host.mcpUrl"
+    bearerTokenSecret: "$ownerToken"
+    uri: "$newSkills.Skills[0].Uri"
+  contentTwoResult:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$contentTwo.IsError"
+    expect: false
+  revisedPublication:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$contentTwo.Contents[0].Text"
+    expect: |
+      ---
+      name: customer-guide
+      description: Revised namespace customer guide
+      ---
+      Use the latest customer tools in this namespace.
+  oldURI:
+    action: mcp/runner:readResource
+    url: "$runtime.StructuredContent.host.mcpUrl"
+    bearerTokenSecret: "$ownerToken"
+    uri: "$skills.Skills[0].Uri"
+    allowProtocolError: true
+  oldURIResult:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$oldURI.IsError"
+    expect: true
+  archivePublished:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.namespace_skills.delete
+    arguments:
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+      skillId: "$createSkill.StructuredContent.skill.skillId"
+      etag: 4
+    allowToolError: true
+  archivePublishedDenied:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$archivePublished.IsError"
+    expect: true
+  namespaceInUse:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.namespaces.delete
+    arguments:
+      name: namespace_skills
+      etag: 2
+    allowToolError: true
+  namespaceInUseDenied:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$namespaceInUse.IsError"
+    expect: true
+  unpublish:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.namespace_skills.unpublish
+    arguments:
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+      skillId: "$createSkill.StructuredContent.skill.skillId"
+      etag: 4
+    allowToolError: false
+  unpublishSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$unpublish.IsError"
+    expect: false
+  unpublished:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$unpublish.StructuredContent"
+    expect:
+      publicationStatus: unpublished
+      skill:
+        publishedRevision: 0
+        etag: 5
+  removedResource:
+    action: mcp/runner:readResource
+    url: "$runtime.StructuredContent.host.mcpUrl"
+    bearerTokenSecret: "$ownerToken"
+    uri: "$newSkills.Skills[0].Uri"
+    allowProtocolError: true
+  removedResourceResult:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$removedResource.IsError"
+    expect: true
+  archive:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.namespace_skills.delete
+    arguments:
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+      skillId: "$createSkill.StructuredContent.skill.skillId"
+      etag: 5
+    allowToolError: false
+  archiveSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$archive.IsError"
+    expect: false
+  archivedGet:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.namespace_skills.get
+    arguments:
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+      skillId: "$createSkill.StructuredContent.skill.skillId"
+    allowToolError: true
+  archivedGetDenied:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$archivedGet.IsError"
+    expect: true
+  deleteNamespace:
+    action: mcp/runner:call
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.namespaces.delete
+    arguments:
+      name: namespace_skills
+      etag: 2
+    allowToolError: false
+  deleteNamespaceSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: "$deleteNamespace.IsError"
+    expect: false

@@ -5,6 +5,7 @@ package namespacemcp
 import (
 	"context"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net"
@@ -21,9 +22,16 @@ type Endpoint struct {
 	NamespaceID string `json:"namespaceId"`
 	Address     string `json:"address"`
 	Port        int    `json:"port"`
+	Path        string `json:"path,omitempty"`
 }
 
-func (e Endpoint) URL() string { return "http://" + e.Address + "/mcp" }
+func (e Endpoint) URL() string {
+	path := e.Path
+	if path == "" {
+		path = "/mcp"
+	}
+	return "http://" + e.Address + path
+}
 
 // Factory receives the reserved address, allowing OAuth resource metadata to
 // use the actual port. The host must restrict the source to this namespace.
@@ -37,14 +45,24 @@ type instance struct {
 	cleanup       func(context.Context) error
 	reload        func(context.Context, int64) error
 	status        func() (string, int64)
+	connection    func(context.Context) (json.RawMessage, error)
+	shared        bool
+	requests      sync.WaitGroup
+	cancel        context.CancelFunc
+	lifetime      context.Context
+	drain         sync.Once
 }
 
 type Manager struct {
-	mu         sync.Mutex
-	entries    map[string]*instance
-	operations map[string]*sync.Mutex
-	closed     bool
-	factory    Factory
+	mu            sync.Mutex
+	entries       map[string]*instance
+	operations    map[string]*sync.Mutex
+	closed        bool
+	factory       Factory
+	sharedServer  *http.Server
+	sharedAddress string
+	sharedPort    int
+	sharedActive  bool
 }
 
 func New(factory Factory) (*Manager, error) {
@@ -96,7 +114,7 @@ func (m *Manager) start(ctx context.Context, id string, port int, replace bool) 
 	}
 	previous := m.entries[id]
 	if previous != nil {
-		if !replace && previous.requestedPort == port || replace && port != 0 && previous.endpoint.Port == port {
+		if !replace && previous.requestedPort == port || replace && previous.requestedPort == port && previous.shared || replace && port != 0 && previous.endpoint.Port == port && !previous.shared {
 			m.mu.Unlock()
 			return previous.endpoint, nil
 		}
@@ -106,17 +124,33 @@ func (m *Manager) start(ctx context.Context, id string, port int, replace bool) 
 		}
 	}
 	m.mu.Unlock()
-	listener, err := net.Listen("tcp", net.JoinHostPort("127.0.0.1", strconv.Itoa(port)))
-	if err != nil {
-		return Endpoint{}, fmt.Errorf("reserve namespace MCP port: %w", err)
+	useShared := m.sharedServer != nil && port == 0
+	var listener net.Listener
+	endpoint := Endpoint{NamespaceID: id}
+	if useShared {
+		m.mu.Lock()
+		active := m.sharedActive
+		m.mu.Unlock()
+		if !active {
+			return Endpoint{}, fmt.Errorf("shared MCP listener is unavailable")
+		}
+		endpoint.Address = m.sharedAddress
+		endpoint.Port = m.sharedPort
+		endpoint.Path = "/namespaces/" + id + "/mcp"
+	} else {
+		listener, err = net.Listen("tcp", net.JoinHostPort("127.0.0.1", strconv.Itoa(port)))
+		if err != nil {
+			return Endpoint{}, fmt.Errorf("reserve namespace MCP port: %w", err)
+		}
+		endpoint.Address = listener.Addr().String()
+		endpoint.Port = listener.Addr().(*net.TCPAddr).Port
 	}
 	registered := false
 	defer func() {
-		if !registered {
+		if !registered && listener != nil {
 			_ = listener.Close()
 		}
 	}()
-	endpoint := Endpoint{NamespaceID: id, Address: listener.Addr().String(), Port: listener.Addr().(*net.TCPAddr).Port}
 	config, err := m.factory(ctx, endpoint)
 	if err != nil {
 		return Endpoint{}, err
@@ -160,7 +194,16 @@ func (m *Manager) start(ctx context.Context, id string, port int, replace bool) 
 	if source, ok := config.Source.(interface{ RuntimeStatus() (string, int64) }); ok {
 		status = source.RuntimeStatus
 	}
-	entry := &instance{endpoint: endpoint, requestedPort: port, server: server, done: make(chan struct{}), cleanup: cleanup, reload: reload, status: status}
+	var connection func(context.Context) (json.RawMessage, error)
+	if source, ok := config.Source.(interface {
+		RuntimeConnection(context.Context) (json.RawMessage, error)
+	}); ok {
+		connection = source.RuntimeConnection
+	}
+	entry := &instance{endpoint: endpoint, requestedPort: port, server: server, done: make(chan struct{}), cleanup: cleanup, reload: reload, status: status, connection: connection, shared: useShared}
+	if useShared {
+		entry.lifetime, entry.cancel = context.WithCancel(context.Background())
+	}
 	m.mu.Lock()
 	if m.closed {
 		m.mu.Unlock()
@@ -168,15 +211,17 @@ func (m *Manager) start(ctx context.Context, id string, port int, replace bool) 
 	}
 	m.entries[id] = entry
 	registered = true
-	go func() {
-		defer close(entry.done)
-		_ = server.Serve(listener)
-		m.mu.Lock()
-		if m.entries[id] == entry {
-			delete(m.entries, id)
-		}
-		m.mu.Unlock()
-	}()
+	if !useShared {
+		go func() {
+			defer close(entry.done)
+			_ = server.Serve(listener)
+			m.mu.Lock()
+			if m.entries[id] == entry {
+				delete(m.entries, id)
+			}
+			m.mu.Unlock()
+		}()
+	}
 	m.mu.Unlock()
 	if previous != nil {
 		drainCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
@@ -199,6 +244,27 @@ func (m *Manager) Get(id string) (Endpoint, bool) {
 func stop(ctx context.Context, entry *instance) error {
 	if entry == nil {
 		return nil
+	}
+	if entry.shared {
+		entry.cancel()
+		entry.drain.Do(func() { go func() { entry.requests.Wait(); close(entry.done) }() })
+		select {
+		case <-entry.done:
+			if entry.cleanup != nil {
+				return entry.cleanup(ctx)
+			}
+			return nil
+		case <-ctx.Done():
+			go func() {
+				<-entry.done
+				if entry.cleanup != nil {
+					cleanupCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+					defer cancel()
+					_ = entry.cleanup(cleanupCtx)
+				}
+			}()
+			return ctx.Err()
+		}
 	}
 	err := entry.server.Shutdown(ctx)
 	if err != nil {
@@ -249,6 +315,13 @@ func (m *Manager) Close(ctx context.Context) error {
 	for _, entry := range entries {
 		result = errors.Join(result, stop(ctx, entry))
 	}
+	if m.sharedServer != nil {
+		err := m.sharedServer.Shutdown(ctx)
+		if err != nil {
+			err = errors.Join(err, m.sharedServer.Close())
+		}
+		result = errors.Join(result, err)
+	}
 	return result
 }
 
@@ -256,9 +329,32 @@ func (m *Manager) RuntimeStatus(id string) (Endpoint, string, int64, bool) {
 	m.mu.Lock()
 	entry := m.entries[id]
 	m.mu.Unlock()
-	if entry == nil || entry.status == nil {
+	if entry == nil || entry.status == nil || entry.shared && !m.sharedAvailable() {
 		return Endpoint{}, "", 0, false
 	}
 	mode, revision := entry.status()
 	return entry.endpoint, mode, revision, true
+}
+
+// Connection returns only the deployed source's configuration references. The
+// caller owns visibility authorization; this is used behind the deployment admin
+// token, never as an unauthenticated directory.
+func (m *Manager) Connection(ctx context.Context, id string) (json.RawMessage, error) {
+	decoded, err := hex.DecodeString(id)
+	if err != nil || len(decoded) != 32 || strings.ToLower(id) != id {
+		return nil, fmt.Errorf("canonical namespace ID is required")
+	}
+	lock := m.operation(id)
+	lock.Lock()
+	defer lock.Unlock()
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	m.mu.Lock()
+	entry, closed := m.entries[id], m.closed
+	m.mu.Unlock()
+	if closed || entry == nil || entry.connection == nil || entry.shared && !m.sharedAvailable() {
+		return nil, fmt.Errorf("namespace connection is unavailable")
+	}
+	return entry.connection(ctx)
 }

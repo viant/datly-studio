@@ -10,6 +10,12 @@ const clone = value => JSON.parse(JSON.stringify(value));
 // Resource types and selector catalogs belong to the embedding application.
 // This editor never interprets JWTs or computes an authoritative access decision.
 export function ResourceAccessEditor({ api, resource, actions, choices = {}, readOnly = false, displayName, onStateChange }) {
+  const actionNames = [...new Set([...actions, '*'])];
+  const policyStatus = name => {
+    const entry = draft?.policies?.[name];
+    if (!entry && name !== '*' && draft?.policies?.['*']) return 'Inherited from *';
+    return entry?.mode === 'public' ? 'Public' : entry?.mode === 'protected' ? 'Protected' : entry?.mode === 'deny' ? 'Denied explicitly' : 'Denied · no policy';
+  };
   const [document, setDocument] = useState(null);
   const [draft, setDraft] = useState(null);
   const [action, setAction] = useState(actions[0]);
@@ -58,7 +64,7 @@ export function ResourceAccessEditor({ api, resource, actions, choices = {}, rea
     const ticket = sequence.current;
     setSaving(true); setError(null);
     try {
-      const result = await api.replaceResourceAccess(draft);
+      const result = document.revision === 0 ? await api.createResourceAccess(draft) : await api.replaceResourceAccess(draft);
       if (ticket !== sequence.current) return;
       setDocument(result); setDraft(clone(result)); setSaved(true); setReviewOpen(false); clearPreview();
     } catch (cause) { if (ticket === sequence.current) { setError(cause); setReviewOpen(false); } }
@@ -99,9 +105,9 @@ export function ResourceAccessEditor({ api, resource, actions, choices = {}, rea
     </Callout>}
     {loading && <div role="status" className="studio-resource-access-loading"><Spinner size={22}/> Loading permissions…</div>}
     {!loading && draft && <div className="studio-resource-access-layout">
-      <div className="studio-resource-action-picker"><FormGroup label="Permission action" labelFor="resource-access-action"><HTMLSelect id="resource-access-action" fill value={action} disabled={saving} onChange={event => setAction(event.target.value)}>{actions.map(name => <option key={name} value={name}>{name} · {draft.policies[name]?.mode === 'public' ? 'Public' : draft.policies[name] ? 'Protected' : 'Denied'}</option>)}</HTMLSelect></FormGroup></div>
-      <nav aria-label="Permission actions">{actions.map(name => <button key={name} type="button" disabled={saving} aria-current={name === action ? 'page' : undefined} onClick={() => setAction(name)}>
-        <strong>{name}</strong><span>{draft.policies[name]?.mode === 'public' ? 'Public' : draft.policies[name] ? 'Protected' : 'Denied · no policy'}</span>
+      <div className="studio-resource-action-picker"><FormGroup label="Permission action" labelFor="resource-access-action"><HTMLSelect id="resource-access-action" fill value={action} disabled={saving} onChange={event => setAction(event.target.value)}>{actionNames.map(name => <option key={name} value={name}>{name === '*' ? '* · Any action' : name} · {policyStatus(name)}</option>)}</HTMLSelect></FormGroup></div>
+      <nav aria-label="Permission actions">{actionNames.map(name => <button key={name} type="button" disabled={saving} aria-current={name === action ? 'page' : undefined} onClick={() => setAction(name)}>
+        <strong>{name}</strong><span>{policyStatus(name)}</span>
       </button>)}</nav>
       <div className="studio-resource-access-detail">
         <h3>{action}</h3>
@@ -111,12 +117,17 @@ export function ResourceAccessEditor({ api, resource, actions, choices = {}, rea
           <HTMLSelect id="resource-access-mode" disabled={disabled} value={policy?.mode || ''} onChange={event => {
             const mode = event.target.value;
             if (!mode) { const policies = { ...draft.policies }; delete policies[action]; setDraft({ ...draft, policies }); clearPreview(); }
-            else update(mode === 'public' ? { mode } : { mode, rule: blankRule() });
+            else update(mode === 'public' || mode === 'deny' ? { mode } : { mode, rule: blankRule() });
           }}>
-            <option value="">Deny access</option><option value="protected">Protected</option>
+            <option value="">{action !== '*' && draft.policies['*'] ? 'Inherit from *' : 'No policy (denied)'}</option><option value="deny">Deny access</option><option value="protected">Protected</option>
             {publicActions.has(action) && <option value="public">Public consumption</option>}
           </HTMLSelect>
         </FormGroup>
+        {!policy && action !== '*' && draft.policies['*'] && <Callout>Uses the policy for any action (*). Choose Deny access to override it.</Callout>}
+        {policy && ['discover', 'describe', 'execute'].includes(action) && <Button disabled={disabled || incompleteRules} onClick={() => {
+          setDraft(current => ({...current, policies: {...current.policies, discover: clone(policy), describe: clone(policy), execute: clone(policy)}}));
+          setSaved(false); clearPreview();
+        }}>Apply to exposure and execution</Button>}
         {policy?.mode === 'public' && <Callout icon="globe">No identity rule is required for this action. Dependencies can still restrict access.</Callout>}
         {policy?.mode === 'protected' && <>
           <RuleEditor rule={policy.rule || blankRule()} onChange={rule => update({ ...policy, rule })} choices={providerChoices} disabled={disabled}/>
@@ -131,7 +142,7 @@ export function ResourceAccessEditor({ api, resource, actions, choices = {}, rea
     </div>}
     {document && <footer className="studio-resource-access-footer">
       <span role="status">{cannotManage ? 'You have read-only access.' : saved ? 'Permissions saved.' : dirty ? 'Unsaved permission changes' : 'All changes saved'}</span>
-      <span>{typeof api.checkCurrentAccess === 'function' && <Button minimal loading={previewing} disabled={loading || saving} onClick={checkCurrentAccess}>Check my current access</Button>}{!cannotManage && <Button intent="primary" icon="eye-open" disabled={disabled || !dirty || conflict || incompleteRules} onClick={() => setReviewOpen(true)}>Review changes</Button>}</span>
+      <div className="studio-resource-access-actions">{typeof api.checkCurrentAccess === 'function' && <Button minimal loading={previewing} disabled={loading || saving} onClick={checkCurrentAccess}>Check my current access</Button>}{!cannotManage && <Button intent="primary" icon="eye-open" disabled={disabled || !dirty || conflict || incompleteRules} onClick={() => setReviewOpen(true)}>Review changes</Button>}</div>
     </footer>}
     {document && typeof api.checkCurrentAccess === 'function' && <p>This check uses the saved policy and your current verified identity{dirty ? ', not your unsaved draft' : ''}.</p>}
     {preview && <Callout role="status" intent={preview.decision.effect === 'allow' ? 'success' : 'warning'} title={preview.decision.effect === 'allow' ? 'Allowed at last check' : 'Denied at last check'}>{preview.decision.effect === 'allow' ? preview.decision.bounded ? 'Access is limited to your currently allowed entities.' : 'The saved policy allowed this action.' : 'The saved policy denied this action.'} Checked at {preview.checkedAt}.</Callout>}
@@ -155,9 +166,12 @@ function RuleEditor({ rule, onChange, choices, disabled, path = 'rule', depth = 
   const options = choices[rule.kind] || [];
   const value = rule.kind === 'entity' ? JSON.stringify(rule.entity || {}) : rule.value || '';
   const [query, setQuery] = useState('');
-  const optionsWithCurrent = [...options];
+  const wildcardOptions = rule.kind === 'entity'
+    ? [...new Set([...(choices.entityTypes || []), ...options.map(item => item.entity?.type).filter(Boolean)])].map(type => ({entity: {type, id: '*'}, label: `Any granted ${type}`}))
+    : ['subject','role','exposure'].includes(rule.kind) ? [{id: '*', label: `* · Any ${rule.kind === 'subject' ? 'authenticated principal' : rule.kind}`} ] : [];
+  const optionsWithCurrent = [...wildcardOptions, ...options.filter(item => rule.kind === 'entity' ? item.entity?.id !== '*' : item.id !== '*')];
   const optionValue = item => rule.kind === 'entity' ? JSON.stringify(item.entity) : item.id;
-  if (value && !options.some(item => optionValue(item) === value)) optionsWithCurrent.unshift({ id: value, entity: rule.entity, label: rule.kind === 'entity' ? `${rule.entity?.type}: ${rule.entity?.id}` : value });
+  if (value && !optionsWithCurrent.some(item => optionValue(item) === value)) optionsWithCurrent.unshift({ id: value, entity: rule.entity, label: rule.kind === 'entity' ? `${rule.entity?.type}: ${rule.entity?.id}` : value });
   return <fieldset className="studio-resource-rule" disabled={disabled}>
     <legend>Access rule</legend>
     <HTMLSelect aria-label={`${path} condition`} value={rule.kind} onChange={event => {

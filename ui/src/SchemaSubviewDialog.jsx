@@ -5,8 +5,10 @@ export function SchemaSubviewDialog({ api, isOpen, connector, table, sql, onClos
   const [reports, setReports] = useState([]);
   const [reportId, setReportId] = useState('');
   const [inspection, setInspection] = useState(null);
-  const [draft, setDraft] = useState({ name: '', parent: '', on: '' });
-  const [loading, setLoading] = useState(false);
+  const [draft, setDraft] = useState({ name: '', parent: '', on: '', relationship: 'rows' });
+  const [loadingReports, setLoadingReports] = useState(false);
+  const [loadingInspection, setLoadingInspection] = useState(false);
+  const loading = loadingReports || loadingInspection;
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const report = useMemo(() => reports.find((item) => item.id === reportId), [reports, reportId]);
@@ -14,15 +16,18 @@ export function SchemaSubviewDialog({ api, isOpen, connector, table, sql, onClos
   useEffect(() => {
     if (!isOpen) return;
     setReports([]); setReportId(''); setInspection(null); setError(''); setSaving(false);
-    setDraft({ name: identifier(table?.name), parent: '', on: '' });
-    setLoading(true);
-    api.listComponents({ connectorName: connector, limit: 100 }).then((page) => {
+    setDraft({ name: identifier(table?.name), parent: '', on: '', relationship: 'rows' });
+    let cancelled = false;
+    setLoadingReports(true);
+    api.listComponents({ limit: 100 }).then((page) => {
+      if (cancelled) return;
       const items=page?.items??[]; setReports(items); setReportId(items[0]?.id??'');
-    }).catch((cause)=>setError(cause.message)).finally(()=>setLoading(false));
+    }).catch((cause)=>!cancelled&&setError(cause.message)).finally(()=>!cancelled&&setLoadingReports(false));
+    return () => { cancelled = true; };
   }, [api,isOpen,connector,table?.name]);
   useEffect(() => {
-    if (!reportId) return;
-    let cancelled=false; setLoading(true); setInspection(null);
+    if (!isOpen || !reportId) { setInspection(null); setLoadingInspection(false); return; }
+    let cancelled=false; setLoadingInspection(true); setInspection(null);
     api.listVersions(reportId,{limit:1}).then(async(page)=>{
       const version=page?.items?.[0]; if(!version) throw new Error('Selected reader has no version.');
       const value=await api.inspectVersion(reportId,version.versionNo); if(cancelled)return;
@@ -30,26 +35,32 @@ export function SchemaSubviewDialog({ api, isOpen, connector, table, sql, onClos
       const parent=value?.structure?.views?.[0]?.name??'';
       const child=suggestViewName(table,value?.structure,parent);
       setDraft((current)=>({...current,name:child,parent,on:suggestRelation(child,parent,table,value?.structure)}));
-    }).catch((cause)=>!cancelled&&setError(cause.message)).finally(()=>!cancelled&&setLoading(false));
+    }).catch((cause)=>!cancelled&&setError(cause.message)).finally(()=>!cancelled&&setLoadingInspection(false));
     return()=>{cancelled=true;};
-  },[api,reportId,table?.name]);
+  },[api,isOpen,reportId,table?.name]);
   const update=(name)=>(event)=>setDraft((current)=>({...current,[name]:event.target.value}));
   const submit=async(event)=>{
     event.preventDefault();
     if(!inspection?.version||!/^[a-z][a-z0-9_]*$/.test(draft.name)||!draft.parent||!draft.on.trim()||!sql.trim()){setError('Select a component and enter a child identifier, parent, and complete relation keys.');return;}
     setSaving(true);setError('');
     try{
-      const result=await api.applyReaderCommand(reportId,inspection.version.versionNo,{expectedSourceRevision:inspection.version.sourceRevision,operation:{type:'addView',view:{name:draft.name,kind:'subview',parent:draft.parent,join:'JOIN',sql:sql.trim(),on:draft.on.trim()}}});
+      const lookup = draft.relationship === 'lookup';
+      const addView = {type:'addView',view:{name:draft.name,kind:'subview',parent:draft.parent,join:lookup?'LEFT JOIN':'JOIN',sql:sql.trim(),on:lookup?`${draft.on.trim()} AND 1=1`:draft.on.trim()}};
+      const operation = connector !== report?.defaultConnectorName
+        ? {type:'batch',operations:[addView,{type:'addFunction',function:{name:'use_connector',args:[draft.name,JSON.stringify(connector)]}}]}
+        : addView;
+      const result=await api.applyReaderCommand(reportId,inspection.version.versionNo,{expectedSourceRevision:inspection.version.sourceRevision,operation});
       if(!result?.applied)throw new Error(result?.inspection?.diagnostics?.[0]?.message||'Datly rejected the related view.');
       await onApplied(report);onClose();
     }catch(cause){setError(cause.message);}finally{setSaving(false);}
   };
   return <Dialog className="studio-connector-dialog studio-subview-dialog" isOpen={isOpen} onClose={onClose} title="Add table to component" icon="git-branch" canOutsideClickClose={!saving}>
     <form onSubmit={submit}><DialogBody><p className="studio-dialog-lead">Attach the selected SQL as a compiled Datly subview. Complete key mappings are required.</p>{error&&<Callout intent="danger" role="alert">{error}</Callout>}
-      <FormGroup label="Component" labelFor="schema-subview-reader" required>{loading&&reports.length===0?<Spinner size={20}/>:<HTMLSelect id="schema-subview-reader" value={reportId} onChange={(event)=>{setError('');setReportId(event.target.value);}} fill disabled={saving}><option value="">Select component</option>{reports.map((item)=><option key={item.id} value={item.id}>{item.title}</option>)}</HTMLSelect>}</FormGroup>
-      <div className="studio-form-grid"><FormGroup label="Child view identifier" labelFor="schema-subview-name" required><InputGroup id="schema-subview-name" value={draft.name} onChange={update('name')} disabled={saving}/></FormGroup><FormGroup label="Parent view" labelFor="schema-subview-parent" required><HTMLSelect id="schema-subview-parent" value={draft.parent} onChange={update('parent')} fill disabled={saving||loading}>{views.map((view)=><option key={view.name} value={view.name}>{view.name}</option>)}</HTMLSelect></FormGroup></div>
-      <FormGroup label="Relation keys" labelFor="schema-subview-on" helperText="For example domains.VENDOR_ID=vendor.ID. Verify every composite key part." required><InputGroup id="schema-subview-on" value={draft.on} onChange={update('on')} disabled={saving} /></FormGroup>
-    </DialogBody><DialogFooter actions={<><Button onClick={onClose} disabled={saving}>Cancel</Button><Button type="submit" intent="primary" loading={saving} disabled={loading||!inspection}>Compile and open</Button></>}/></form>
+      <FormGroup label="Component" labelFor="schema-subview-reader" required>{loading&&reports.length===0?<Spinner size={20}/>:<HTMLSelect id="schema-subview-reader" value={reportId} onChange={(event)=>{setError('');setInspection(null);setReportId(event.target.value);}} fill disabled={saving}><option value="">Select component</option>{reports.map((item)=><option key={item.id} value={item.id}>{item.title}</option>)}</HTMLSelect>}</FormGroup>
+      <div className="studio-form-grid"><FormGroup label="Child view identifier" labelFor="schema-subview-name" required><InputGroup id="schema-subview-name" value={draft.name} onChange={update('name')} disabled={saving||loading||!inspection}/></FormGroup><FormGroup label="Parent view" labelFor="schema-subview-parent" required><HTMLSelect id="schema-subview-parent" value={draft.parent} onChange={update('parent')} fill disabled={saving||loading||!inspection}>{views.map((view)=><option key={view.name} value={view.name}>{view.name}</option>)}</HTMLSelect></FormGroup></div>
+      <FormGroup label="Relationship" labelFor="schema-subview-relationship" helperText={`This view reads from connector ${connector}. An optional lookup preserves parent rows without a dictionary match.`}><HTMLSelect id="schema-subview-relationship" value={draft.relationship} onChange={update('relationship')} fill disabled={saving||loading||!inspection}><option value="rows">Related rows</option><option value="lookup">Optional single lookup</option></HTMLSelect></FormGroup>
+      <FormGroup label="Relation keys" labelFor="schema-subview-on" helperText="For example domains.VENDOR_ID=vendor.ID. Verify every composite key part." required><InputGroup id="schema-subview-on" value={draft.on} onChange={update('on')} disabled={saving||loading||!inspection} /></FormGroup>
+    </DialogBody><DialogFooter actions={<><Button onClick={onClose} disabled={saving}>Cancel</Button><Button type="submit" intent="primary" loading={saving} disabled={saving||loading||!inspection}>Compile and open</Button></>}/></form>
   </Dialog>;
 }
 

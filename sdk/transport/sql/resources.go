@@ -420,7 +420,7 @@ func (t *Transport) mutateResources(ctx context.Context, reportID string, versio
 	if err = t.mutateResourcesInUnit(ctx, reportID, versionNo, expectedRevision, tx, mutation); err != nil {
 		return err
 	}
-	if err = tx.Commit(); err != nil {
+	if err = commitWithServerGuard(ctx, tx); err != nil {
 		return internal(err)
 	}
 	return nil

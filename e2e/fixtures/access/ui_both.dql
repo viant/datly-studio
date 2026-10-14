@@ -1,0 +1,9 @@
+#package('github.com/viant/datly-studio/dynamic/ui_both')
+#setting($_ = $input_type('ReaderInput'))
+#setting($_ = $output_type('ReaderOutput'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $connector('ui_both'))
+#setting($_ = $route('/ui_both', 'GET'))
+#setting($_ = $mcp('owner.ui_both.read','Read dedicated case records'))
+#define($_ = $Rows<[]*Record>(output/view))
+SELECT records.*, type(records,'Record') FROM (SELECT c.id,c.name FROM ui_both_records c ORDER BY c.id) records

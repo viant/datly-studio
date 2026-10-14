@@ -99,3 +99,16 @@ test('component settings batch cube, composition, and MCP atomically', () => {
   const pureMCP = componentSettingsOperation({ connector: 'main', cubeEnabled: false, composeEnabled: false, exposure: { enabled: true, mcpOnly: true, name: 'alice.reader', description: '', descriptionPath: '' } });
   assert.deepEqual(pureMCP.operations.at(-1).setting, { name: 'mcpOnly', args: ['true'] });
 });
+
+
+test('cube enabling marks the root view groupable without duplicating existing metadata', async () => {
+  const {groupingOperation} = await import('./readerExposure.js');
+  const source = {component:{rootView:{name:'reader',namespace:'facts'}},functions:[]};
+  const groupingChange = groupingOperation(source);
+  assert.deepEqual(groupingChange,{type:'addFunction',function:{name:'groupable',args:['facts']}});
+  const batch = componentSettingsOperation({connector:'main',cubeEnabled:true,groupingChange,exposure:{enabled:false}});
+  assert.equal(batch.operations[1],groupingChange);
+  assert.equal(batch.operations[2].setting.name,'cube');
+  source.component.rootView.groupable = true;
+  assert.equal(groupingOperation(source),null);
+});

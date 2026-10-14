@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS ui_compose_regions(code TEXT PRIMARY KEY,label TEXT NOT NULL);

@@ -1,0 +1,26 @@
+#package('studio/namespace_skills/store_revisions')
+#import('json','encoding/json')
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/namespace-skill-store/revisions', 'GET'))
+#setting($_ = $internal(true))
+#setting($_ = $connector('studio'))
+#define($_ = $NamespaceId<string>(query/namespaceId).Required().WithPredicate(0,'equal','r','namespace_id'))
+#define($_ = $Limit<int>(query/pageLimit).Required().QuerySelector('skill'))
+#define($_ = $Offset<int>(query/pageOffset).Required().QuerySelector('skill'))
+#define($_ = $SkillId<string>(query/skillId).Required().WithPredicate(0,'equal','r','skill_id'))
+#define($_ = $Revision<int>(query/revision).Optional().WithPredicate(0,'equal','r','revision'))
+#define($_ = $Revisions<[]*StoredRevision>(output/view))
+SELECT skill.*, type(skill,'StoredRevision'),
+       CAST(skill.namespace_id AS string),
+       CAST(skill.skill_id AS string),
+       CAST(skill.revision AS int),
+       CAST(skill.bundle_json AS json.RawMessage),
+       CAST(skill.content_sha256 AS string),
+       CAST(skill.created_at AS time.Time),
+       CAST(skill.updated_at AS time.Time),
+       CAST(skill.created_by AS string),
+       CAST(skill.updated_by AS string),
+       set_limit(skill,0)
+FROM (${embed:sql/skills.sql}) skill

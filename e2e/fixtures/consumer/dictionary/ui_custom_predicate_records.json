@@ -1,0 +1,19 @@
+[
+  {},
+  {
+    "id": 10,
+    "name": "ui_custom_predicate first"
+  },
+  {
+    "id": 20,
+    "name": "ui_custom_predicate second"
+  },
+  {
+    "id": 30,
+    "name": "ui_custom_predicate third"
+  },
+  {
+    "id": 40,
+    "name": "ui_custom_predicate fourth"
+  }
+]

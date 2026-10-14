@@ -20,6 +20,9 @@
 .studio-resource-rule-selector small { color: var(--access-muted); }
 .studio-resource-access select { max-width: 100%; }
 .studio-resource-access-footer { border-top: 1px solid var(--access-border); padding-top: 20px; color: var(--access-muted); }
+.studio-resource-access-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 12px; min-width: 0; }
+.studio-resource-access-actions > button { margin: 0; max-width: 100%; }
+@media (max-width: 640px) { .studio-resource-access-actions { width: 100%; justify-content: flex-start; } }
 .studio-resource-access-loading { display: flex; gap: 12px; align-items: center; padding-block: 24px; }
 .studio-resource-review-dialog { width: min(720px, calc(100vw - 32px)); }
 .studio-resource-review-dialog .bp6-dialog-body { max-height: min(65vh, 620px); overflow-y: auto; }

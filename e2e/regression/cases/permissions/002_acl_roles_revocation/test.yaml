@@ -1,0 +1,273 @@
+pipeline:
+  createConnector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: aclroles
+      driver: sqlite
+      dsnTemplate: ${runDir}/consumer.db
+    allowToolError: false
+    '@name': studio.sdk.connectors.create
+  createConnectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $createConnector.IsError
+    expect: false
+  probe:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: aclroles
+    allowToolError: false
+    '@name': studio.sdk.connectors.test
+  probeSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $probe.IsError
+    expect: false
+  connector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: aclroles
+    allowToolError: false
+    '@name': studio.sdk.connectors.get
+  connectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $connector.IsError
+    expect: false
+  activate:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: aclroles
+      etag: $connector.StructuredContent.etag
+    allowToolError: false
+    '@name': studio.sdk.connectors.activate
+  activateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $activate.IsError
+    expect: false
+  namespace:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: aclroles
+      title: aclroles
+      mcpEnabled: true
+      mcpPort: 0
+    allowToolError: false
+    '@name': studio.sdk.namespaces.create
+  namespaceSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $namespace.IsError
+    expect: false
+  component:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      title: aclroles
+      slug: aclroles
+      namespace: aclroles
+      defaultConnectorName: aclroles
+    allowToolError: false
+    '@name': studio.sdk.components.create
+  componentSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $component.IsError
+    expect: false
+  import:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      input:
+        dql: |-
+          #package('github.com/viant/datly-studio/dynamic/aclroles')
+          #setting($_ = $input_type('CustomerInput'))
+          #setting($_ = $output_type('CustomerOutput'))
+          #setting($_ = $case_format('lc'))
+          #setting($_ = $connector('aclroles'))
+          #setting($_ = $route('/aclroles', 'GET'))
+          #setting($_ = $mcp('aclroles.read','Read consumer customers'))
+          #define($_ = $Rows<[]*Customer>(output/view))
+          SELECT customers.*, type(customers,'Customer') FROM (SELECT c.id,c.tenant,c.name,c.active FROM customers c) customers
+    allowToolError: false
+    '@name': studio.sdk.versions.load_dql
+  importSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $import.IsError
+    expect: false
+  verifyImport:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $import.StructuredContent.version
+    expect:
+      state: draft
+      compileStatus: pending
+  publicNamespace:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: aclroles
+      input:
+        etag: $namespace.StructuredContent.etag
+        visibility: public
+    allowToolError: false
+    '@name': studio.sdk.namespaces.update
+  publicNamespaceSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $publicNamespace.IsError
+    expect: false
+  viewerGrant:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      subjectType: user
+      subjectId: viewer
+      canView: true
+    allowToolError: false
+    '@name': studio.sdk.acl.upsert
+  viewerGrantSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $viewerGrant.IsError
+    expect: false
+  runnerGrant:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      subjectType: user
+      subjectId: runner
+      canRun: true
+      canView: true
+    allowToolError: false
+    '@name': studio.sdk.acl.upsert
+  runnerGrantSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $runnerGrant.IsError
+    expect: false
+  editorGrant:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      subjectType: user
+      subjectId: editor
+      canView: true
+      canEdit: true
+      canUseDql: true
+    allowToolError: false
+    '@name': studio.sdk.acl.upsert
+  editorGrantSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $editorGrant.IsError
+    expect: false
+  acl:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+    allowToolError: false
+    '@name': studio.sdk.acl.list
+  aclSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $acl.IsError
+    expect: false
+  viewerRead:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $viewerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      id: $component.StructuredContent.id
+    allowToolError: false
+    '@name': studio.sdk.components.get
+  viewerReadSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $viewerRead.IsError
+    expect: false
+  viewerEdit:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $viewerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      id: $component.StructuredContent.id
+      input:
+        etag: $component.StructuredContent.etag
+        title: Forbidden
+    allowToolError: true
+    '@name': studio.sdk.components.update
+  editDenied:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $viewerEdit.IsError
+    expect: true
+  revoke:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      subjectType: user
+      subjectId: viewer
+      etag: $viewerGrant.StructuredContent.etag
+    allowToolError: false
+    '@name': studio.sdk.acl.delete
+  revokeSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $revoke.IsError
+    expect: false
+  revokedRead:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $viewerToken
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      id: $component.StructuredContent.id
+    allowToolError: true
+    '@name': studio.sdk.components.get
+  revoked:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $revokedRead.IsError
+    expect: true
+  persist:
+    action: dsunit:query
+    datastore: studio
+    SQL: SELECT title FROM components WHERE slug='aclroles'
+    expect:
+      - title: aclroles

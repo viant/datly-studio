@@ -31,7 +31,6 @@ import (
 	xhandler "github.com/viant/xdatly/handler"
 )
 
-const modulePath = "github.com/viant/datly-studio"
 const maxValidation = 30 * time.Second
 
 type Input struct {
@@ -157,11 +156,15 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 			validationCtx = sdk.WithNamespaceSelection(validationCtx, *input.NamespaceId)
 		}
 		validationCtx = sdk.WithVerifiedCredential(validationCtx, sdk.VerifiedCredential{Claims: input.Jwt})
-		types, err := (host.Config{}).RuntimeTypes()
+		authoring, err := host.AuthoringFromContext(ctx)
 		if err != nil {
 			return err
 		}
-		if validateErr := (preview.Dynamic{StudioDB: db, ModulePath: modulePath, Types: types}).Validate(validationCtx, input.ReportID, input.VersionNo); validateErr != nil {
+		types, err := authoring.RuntimeTypes()
+		if err != nil {
+			return err
+		}
+		if validateErr := (preview.Dynamic{StudioDB: db, ModulePath: authoring.ModulePath(), Types: types}).Validate(validationCtx, input.ReportID, input.VersionNo); validateErr != nil {
 			valid = false
 			var compileErr *transcribe.CompileError
 			if errors.As(validateErr, &compileErr) && len(compileErr.Diagnostics) > 0 {

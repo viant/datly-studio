@@ -1,0 +1,1 @@
+An authenticated outsider cannot read another principal private namespace/component; persisted state stays unchanged.

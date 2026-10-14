@@ -23,6 +23,8 @@ func TestCanonicalAuditColumnInventory(t *testing.T) {
 		"resource_policy_namespace_bindings": {},
 		"resource_namespace_claims":          {},
 		"component_warmup_runs":              {},
+		"namespace_skills":                   {},
+		"namespace_skill_revisions":          {},
 	}
 
 	// Temporary migration backlog, not permanent exemptions. Every table in

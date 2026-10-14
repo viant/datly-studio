@@ -1,0 +1,1 @@
+Create, probe, activate, inspect, update, disable and delete a real SQLite connector.

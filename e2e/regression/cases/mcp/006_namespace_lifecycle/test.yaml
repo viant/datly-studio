@@ -1,0 +1,184 @@
+pipeline:
+  create:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: emptyspace
+      title: Empty namespace
+    allowToolError: false
+    '@name': studio.sdk.namespaces.create
+  createSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $create.IsError
+    expect: false
+  createPageNamespace:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.namespaces.create
+    arguments:
+      name: emptyspace.page
+      title: Pagination namespace
+  createPageNamespaceSucceeded:
+    action: validator:assert
+    actual: $createPageNamespace.IsError
+    expect: false
+  firstPage:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.namespaces.list
+    arguments:
+      query: emptyspace
+      limit: 1
+      offset: 0
+  firstPageData:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $firstPage.StructuredContent
+    expect:
+      limit: 1
+      offset: 0
+      '@length@items': 1
+      items:
+        - name: emptyspace.page
+  secondPage:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.namespaces.list
+    arguments:
+      query: emptyspace
+      limit: 1
+      offset: 1
+  secondPageData:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $secondPage.StructuredContent
+    expect:
+      limit: 1
+      offset: 1
+      '@length@items': 1
+      items:
+        - name: emptyspace
+  finalPage:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.namespaces.list
+    arguments:
+      query: emptyspace
+      limit: 1
+      offset: 2
+  finalPageData:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $finalPage.StructuredContent
+    expect:
+      limit: 1
+      offset: 2
+      '@length@items': 0
+  hiddenPage:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $outsiderToken
+    '@name': studio.sdk.namespaces.list
+    arguments:
+      query: emptyspace
+      limit: 1
+      offset: 0
+  hiddenPageData:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $hiddenPage.StructuredContent
+    expect:
+      '@length@items': 0
+  get:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: emptyspace
+    allowToolError: false
+    '@name': studio.sdk.namespaces.get
+  getSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $get.IsError
+    expect: false
+  list:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      query: emptyspace
+    allowToolError: false
+    '@name': studio.sdk.namespaces.list
+  listSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $list.IsError
+    expect: false
+  owned:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $get.StructuredContent
+    expect:
+      ownerId: owner
+      visibility: private
+  update:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: emptyspace
+      input:
+        etag: $get.StructuredContent.etag
+        title: Updated namespace
+        visibility: public
+    allowToolError: false
+    '@name': studio.sdk.namespaces.update
+  updateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $update.IsError
+    expect: false
+  updated:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $update.StructuredContent.title
+    expect: Updated namespace
+  delete:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: emptyspace
+      etag: $update.StructuredContent.etag
+    allowToolError: false
+    '@name': studio.sdk.namespaces.delete
+  deleteSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $delete.IsError
+    expect: false
+  deletePageNamespace:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.namespaces.delete
+    arguments:
+      name: emptyspace.page
+      etag: 1
+  deletePageNamespaceSucceeded:
+    action: validator:assert
+    actual: $deletePageNamespace.IsError
+    expect: false
+  persist:
+    action: dsunit:query
+    datastore: studio
+    SQL: SELECT COUNT(*) AS active FROM namespaces WHERE name LIKE 'emptyspace%' AND status='active'
+    expect:
+      - active: 0

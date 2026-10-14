@@ -22,15 +22,13 @@ func (s *stockPrimitiveSource) preload() error {
 	s.components = map[ComponentReference]string{}
 	compiled := map[ComponentReference]stockComponentPin{}
 	definitions := make([]coreresource.NativeSnapshotDefinition, 0, len(s.original.entries))
-	assetPaths := []string{}
-	seenPaths := map[string]bool{}
 	for _, entry := range s.original.entries {
 		entry := entry
-		if !seenPaths[entry.config.DefinitionPath] {
-			assetPaths = append(assetPaths, entry.config.DefinitionPath)
-			seenPaths[entry.config.DefinitionPath] = true
+		formatVersion := int64(2)
+		if entry.config.PublishDataSources {
+			formatVersion = 3
 		}
-		definitions = append(definitions, coreresource.NativeSnapshotDefinition{URI: entry.config.URI, Title: entry.uri.Name, FormatVersion: 2, File: entry.config.DefinitionPath, Load: func(ctx context.Context, reader *coreresource.ExtensionReader, file string) (json.RawMessage, error) {
+		definitions = append(definitions, coreresource.NativeSnapshotDefinition{URI: entry.config.URI, Title: entry.uri.Name, FormatVersion: formatVersion, File: entry.config.DefinitionPath, Load: func(ctx context.Context, reader *coreresource.ExtensionReader, file string) (json.RawMessage, error) {
 			raw, err := reader.ReadFile(ctx, file)
 			if err != nil {
 				return nil, err
@@ -73,7 +71,7 @@ func (s *stockPrimitiveSource) preload() error {
 			return s.materialize(stockWindowBundle{URI: entry.config.URI, Source: raw, Components: pins}, entry)
 		}})
 	}
-	snapshot, err := coreresource.NewNativeAssetSnapshot(ctx, s.original.root, definitions, coreresource.NativeSnapshotOptions{AssetPaths: assetPaths, ImmutableUntilRestart: true})
+	snapshot, err := coreresource.NewNativeAssetSnapshot(ctx, s.original.root, definitions, coreresource.NativeSnapshotOptions{})
 	if err != nil {
 		return err
 	}

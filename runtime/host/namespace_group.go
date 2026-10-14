@@ -13,7 +13,7 @@ import (
 )
 
 // NamespaceGroup owns the persisted-namespace MCP mode. It starts no global
-// MCP listener, so a namespace catalog cannot be reached through an unscoped port.
+// catalog. Shared listeners route only through explicit namespace paths.
 type NamespaceGroup struct {
 	DB          *sql.DB
 	Listeners   *namespacemcp.Manager
@@ -36,7 +36,12 @@ func NewNamespaceGroup(ctx context.Context, config Config) (*NamespaceGroup, err
 		db.Close()
 		return nil, err
 	}
-	manager, err := namespacemcp.New(NamespaceFactory(config))
+	var manager *namespacemcp.Manager
+	if config.NamespaceMCPMode == "shared" {
+		manager, err = namespacemcp.NewShared(NamespaceFactory(config), config.MCP.Address)
+	} else {
+		manager, err = namespacemcp.New(NamespaceFactory(config))
+	}
 	if err != nil {
 		db.Close()
 		return nil, err

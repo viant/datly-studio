@@ -156,16 +156,10 @@ func testConfiguredStudioGateway(t *testing.T, count int) {
 		// provider callback: both original provider and host proofs cross MCP.
 		hostProof, err := types.NewWindowTargetHMAC([]byte(strings.Repeat("h", 32)))
 		require.NoError(t, err)
-		catalog := &coreresource.WindowCatalog{Gateway: gateway, TargetProof: hostProof, Admission: func(ctx context.Context, _ identity.ResolvedResource, _ *types.Window) error {
-			_, err := actor(ctx)
-			return err
-		}}
+		catalog := &coreresource.WindowCatalog{Gateway: gateway, TargetProof: hostProof}
 		opened, err := catalog.Get(ctx, &bridge.WindowDefinitionGetInput{WindowID: uri})
 		require.NoError(t, err)
-		uiBridge := bridge.NewService(&bridge.Config{WindowDefinitions: catalog, Token: "synthetic-ui-token", RequireToken: true, LocalOnly: true, ResolvedWindowAuthorizer: func(ctx context.Context, _ identity.ResolvedResource, _ string, _ map[string]any) error {
-			_, err := actor(ctx)
-			return err
-		}})
+		uiBridge := bridge.NewService(&bridge.Config{WindowDefinitions: catalog, Token: "synthetic-ui-token", RequireToken: true, LocalOnly: true})
 		uiServer := httptest.NewServer(http.HandlerFunc(uiBridge.Hub().ServeWS))
 		defer uiServer.Close()
 		uiClient, _, err := websocket.DefaultDialer.Dial("ws"+strings.TrimPrefix(uiServer.URL, "http"), nil)

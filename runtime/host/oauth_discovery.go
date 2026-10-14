@@ -15,6 +15,9 @@ import (
 // Their canonical resource URLs are configured, never derived from Host headers.
 func (s *Service) oauthDiscovery(next http.Handler) http.Handler {
 	base := strings.TrimRight(s.config.Authentication.PublicMCPURL, "/")
+	if base != "" {
+		base += s.config.NamespaceMCPPath
+	}
 	if base == "" {
 		return s.authenticated(next)
 	}
@@ -37,7 +40,7 @@ func (s *Service) oauthDiscovery(next http.Handler) http.Handler {
 			return
 		}
 		resource := base + "/oauth/" + url.PathEscape(name) + "/mcp"
-		discovery := base + prefix + "oauth/" + url.PathEscape(name) + "/mcp"
+		discovery := strings.TrimRight(s.config.Authentication.PublicMCPURL, "/") + prefix + strings.TrimPrefix(s.config.NamespaceMCPPath+"/oauth/"+url.PathEscape(name)+"/mcp", "/")
 		if metadata {
 			if r.Method != http.MethodGet {
 				w.WriteHeader(http.StatusMethodNotAllowed)

@@ -15,6 +15,7 @@ import (
 	"github.com/viant/datly-studio/sdk"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
 	connectors "github.com/viant/datly-studio/studio/connectors/get"
+	"github.com/viant/datly-studio/studio/host"
 	namespacecreate "github.com/viant/datly-studio/studio/namespaces/create"
 	namespaces "github.com/viant/datly-studio/studio/namespaces/store_read"
 	stored "github.com/viant/datly-studio/studio/reports/store_insert"
@@ -166,10 +167,14 @@ func (*createHandler) Exec(ctx context.Context, session xhandler.Session, input 
 		}
 		id = "r" + hex.EncodeToString(data)
 	}
+	authoring, err := host.AuthoringFromContext(ctx)
+	if err != nil {
+		return err
+	}
 	now := time.Now().UTC()
 	row := &stored.StoredReport{Id: id, Namespace: namespace, Slug: input.Slug, Title: input.Title,
 		OwnerId: input.Jwt.Subject, Status: "draft", DefaultConnectorName: input.DefaultConnectorName,
-		ComponentScope: "github.com/viant/datly-studio/dynamic/" + sdk.OwnerPackageSegment(input.Jwt.Subject) + "/" + id,
+		ComponentScope: authoring.ModulePath() + "/dynamic/" + sdk.OwnerPackageSegment(input.Jwt.Subject) + "/" + id,
 		ComponentName:  "reader", Etag: 1, CreatedAt: now, UpdatedAt: now,
 		Has: &stored.StoredReportHas{Id: true, Namespace: true, Slug: true, Title: true,
 			Description: true, OwnerId: true, Status: true, DefaultConnectorName: true,

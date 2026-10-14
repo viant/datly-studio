@@ -37,6 +37,7 @@ import (
 	connectortestsql "github.com/viant/datly-studio/studio/connectors/test_sql"
 	connectorupdate "github.com/viant/datly-studio/studio/connectors/update"
 	"github.com/viant/datly-studio/studio/host"
+	namespaceskills "github.com/viant/datly-studio/studio/namespace_skills/authoring"
 	namespacecreate "github.com/viant/datly-studio/studio/namespaces/create"
 	namespacedelete "github.com/viant/datly-studio/studio/namespaces/delete"
 	namespaceget "github.com/viant/datly-studio/studio/namespaces/get"
@@ -351,6 +352,70 @@ func run(ctx context.Context, output string) error {
 	}
 	namespaceUpdate, err := compile(reflect.TypeFor[namespaceupdate.Component](), reflect.TypeFor[namespaceupdate.Input](),
 		reflect.TypeFor[namespaceupdate.Output](), resources, types, codec, namespaceUpdateHandler)
+	if err != nil {
+		return err
+	}
+	namespaceSkillListHandler, err := (namespaceskills.ListComponent{}).DatlyHandler("NewList")()
+	if err != nil {
+		return err
+	}
+	namespaceSkillList, err := compile(reflect.TypeFor[namespaceskills.ListComponent](), reflect.TypeFor[namespaceskills.ListInput](), reflect.TypeFor[namespaceskills.ListOutput](), resources, types, codec, namespaceSkillListHandler)
+	if err != nil {
+		return err
+	}
+	namespaceSkillGetHandler, err := (namespaceskills.GetComponent{}).DatlyHandler("NewGet")()
+	if err != nil {
+		return err
+	}
+	namespaceSkillGet, err := compile(reflect.TypeFor[namespaceskills.GetComponent](), reflect.TypeFor[namespaceskills.GetInput](), reflect.TypeFor[namespaceskills.GetOutput](), resources, types, codec, namespaceSkillGetHandler)
+	if err != nil {
+		return err
+	}
+	namespaceSkillCreateHandler, err := (namespaceskills.CreateComponent{}).DatlyHandler("NewCreate")()
+	if err != nil {
+		return err
+	}
+	namespaceSkillCreate, err := compile(reflect.TypeFor[namespaceskills.CreateComponent](), reflect.TypeFor[namespaceskills.CreateInput](), reflect.TypeFor[namespaceskills.GetOutput](), resources, types, codec, namespaceSkillCreateHandler)
+	if err != nil {
+		return err
+	}
+	namespaceSkillUpdateHandler, err := (namespaceskills.UpdateComponent{}).DatlyHandler("NewUpdate")()
+	if err != nil {
+		return err
+	}
+	namespaceSkillUpdate, err := compile(reflect.TypeFor[namespaceskills.UpdateComponent](), reflect.TypeFor[namespaceskills.UpdateInput](), reflect.TypeFor[namespaceskills.GetOutput](), resources, types, codec, namespaceSkillUpdateHandler)
+	if err != nil {
+		return err
+	}
+	namespaceSkillDeleteHandler, err := (namespaceskills.DeleteComponent{}).DatlyHandler("NewDelete")()
+	if err != nil {
+		return err
+	}
+	namespaceSkillDelete, err := compile(reflect.TypeFor[namespaceskills.DeleteComponent](), reflect.TypeFor[namespaceskills.DeleteInput](), reflect.TypeFor[namespaceskills.DeleteOutput](), resources, types, codec, namespaceSkillDeleteHandler)
+	if err != nil {
+		return err
+	}
+	namespaceSkillRevisionsHandler, err := (namespaceskills.RevisionsComponent{}).DatlyHandler("NewRevisions")()
+	if err != nil {
+		return err
+	}
+	namespaceSkillRevisions, err := compile(reflect.TypeFor[namespaceskills.RevisionsComponent](), reflect.TypeFor[namespaceskills.RevisionsInput](), reflect.TypeFor[namespaceskills.RevisionsOutput](), resources, types, codec, namespaceSkillRevisionsHandler)
+	if err != nil {
+		return err
+	}
+	namespaceSkillPublishHandler, err := (namespaceskills.PublishComponent{}).DatlyHandler("NewPublish")()
+	if err != nil {
+		return err
+	}
+	namespaceSkillPublish, err := compile(reflect.TypeFor[namespaceskills.PublishComponent](), reflect.TypeFor[namespaceskills.PublishInput](), reflect.TypeFor[namespaceskills.PublicationOutput](), resources, types, codec, namespaceSkillPublishHandler)
+	if err != nil {
+		return err
+	}
+	namespaceSkillUnpublishHandler, err := (namespaceskills.UnpublishComponent{}).DatlyHandler("NewUnpublish")()
+	if err != nil {
+		return err
+	}
+	namespaceSkillUnpublish, err := compile(reflect.TypeFor[namespaceskills.UnpublishComponent](), reflect.TypeFor[namespaceskills.UnpublishInput](), reflect.TypeFor[namespaceskills.PublicationOutput](), resources, types, codec, namespaceSkillUnpublishHandler)
 	if err != nil {
 		return err
 	}
@@ -712,6 +777,14 @@ func run(ctx context.Context, output string) error {
 	if err != nil {
 		return err
 	}
+	policyCreateHandler, err := (resourceaccess.PolicyCreateComponent{}).DatlyHandler("NewPolicyCreate")()
+	if err != nil {
+		return err
+	}
+	policyCreate, err := compile(reflect.TypeFor[resourceaccess.PolicyCreateComponent](), reflect.TypeFor[resourceaccess.PolicyWriteInput](), reflect.TypeFor[sharedapi.PolicyOutput](), resources, types, codec, policyCreateHandler)
+	if err != nil {
+		return err
+	}
 	policyReplaceHandler, err := (resourceaccess.PolicyReplaceComponent{}).DatlyHandler("NewPolicyReplace")()
 	if err != nil {
 		return err
@@ -730,12 +803,21 @@ func run(ctx context.Context, output string) error {
 	}
 	document, err := (openapi.Generator{}).Generate(ctx, openapi.Request{
 		Info:       openapi3.Info{Title: "Datly Studio SDK", Version: "1.0.0"},
-		Components: []*registry.RegisteredComponent{auth, policyGet, policyContext, policyReplace, authorizationCheck, accessList, accessGet, accessContext, accessReplace, aclList, aclDelete, aclUpsert, predicateTypes, predicateGet, predicateCreate, predicateUpdate, predicateDelete, predicateList, connectorList, connectorOne, connectorCreate, connectorSchemas, connectorTables, connectorTable, connectorTest, connectorTestSQL, previewExecution, connectorActivate, connectorDelete, connectorDisable, connectorUpdate, namespaceList, namespaceOne, namespaceCreate, namespaceDelete, namespaceUpdate, reportList, reportOne, reportCreate, reportUpdate, publicationOne, publicationHistory, publicationPublish, publicationRollback, publicationUnpublish, versionOne, versionCreate, versionClone, versionLoad, versionArchive, versionInspect, versionApply, versionBuilder, versionValidate, versionTestView, versionTestRelation, versionTestCompose, versionWarmup, versionPage, versionExport, versionDescriptor, versionDownload, resourceSnapshot, resourceUpsertFile, resourceDeleteFile, resourceUpsertFolder, resourceDeleteFolder, resourceUpsertSkill, resourceDeleteSkill, warmupOne, warmupPage, runtimeStatus},
+		Components: []*registry.RegisteredComponent{auth, policyGet, policyContext, policyCreate, policyReplace, authorizationCheck, accessList, accessGet, accessContext, accessReplace, aclList, aclDelete, aclUpsert, predicateTypes, predicateGet, predicateCreate, predicateUpdate, predicateDelete, predicateList, connectorList, connectorOne, connectorCreate, connectorSchemas, connectorTables, connectorTable, connectorTest, connectorTestSQL, previewExecution, connectorActivate, connectorDelete, connectorDisable, connectorUpdate, namespaceList, namespaceOne, namespaceCreate, namespaceDelete, namespaceUpdate, namespaceSkillList, namespaceSkillGet, namespaceSkillCreate, namespaceSkillUpdate, namespaceSkillDelete, namespaceSkillRevisions, namespaceSkillPublish, namespaceSkillUnpublish, reportList, reportOne, reportCreate, reportUpdate, publicationOne, publicationHistory, publicationPublish, publicationRollback, publicationUnpublish, versionOne, versionCreate, versionClone, versionLoad, versionArchive, versionInspect, versionApply, versionBuilder, versionValidate, versionTestView, versionTestRelation, versionTestCompose, versionWarmup, versionPage, versionExport, versionDescriptor, versionDownload, resourceSnapshot, resourceUpsertFile, resourceDeleteFile, resourceUpsertFolder, resourceDeleteFolder, resourceUpsertSkill, resourceDeleteSkill, warmupOne, warmupPage, runtimeStatus},
 		Routes: []spec.RouteRef{
+			{Method: "POST", Path: "/v1/studio/sdk/namespace_skills.publish"},
+			{Method: "POST", Path: "/v1/studio/sdk/namespace_skills.unpublish"},
+			{Method: "POST", Path: "/v1/studio/sdk/namespace_skills.list"},
+			{Method: "POST", Path: "/v1/studio/sdk/namespace_skills.get"},
+			{Method: "POST", Path: "/v1/studio/sdk/namespace_skills.create"},
+			{Method: "POST", Path: "/v1/studio/sdk/namespace_skills.update"},
+			{Method: "POST", Path: "/v1/studio/sdk/namespace_skills.delete"},
+			{Method: "POST", Path: "/v1/studio/sdk/namespace_skills.revisions"},
 			{Method: "POST", Path: "/v1/studio/sdk/access.list"},
 			{Method: "POST", Path: "/v1/studio/sdk/access.context"},
 			{Method: "POST", Path: "/v1/authz/sdk/policies.get"},
 			{Method: "POST", Path: "/v1/authz/sdk/policies.context"},
+			{Method: "POST", Path: "/v1/authz/sdk/policies.create"},
 			{Method: "POST", Path: "/v1/authz/sdk/policies.replace"},
 			{Method: "POST", Path: "/v1/authz/sdk/authorization.check"},
 

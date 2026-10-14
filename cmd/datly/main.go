@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	_ "github.com/viant/datly-studio/examples/predicates"
 	"os"
 	"os/signal"
 	"syscall"
