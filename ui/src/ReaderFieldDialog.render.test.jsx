@@ -98,4 +98,17 @@ describe('ReaderFieldDialog', () => {
     expect(node.view.columns.map(column=>column.name)).toEqual(['total']);
   });
 
+  test('keeps a declared alias and type while metadata objects refresh', async () => {
+    const user=userEvent.setup(),onApply=vi.fn();
+    const props={isOpen:true,columnContracts:[],onApply,onClose:vi.fn()};
+    const node={name:'sale',view:{columns:[{name:'total',source:'total',type:{name:'int64'}}]}};
+    const view=render(<ReaderFieldDialog {...props} node={node}/>);
+    await user.click(screen.getByRole('button',{name:'Declare SQL output'}));
+    await user.type(screen.getByLabelText('SQL output alias'),'quantity');
+    await user.type(screen.getByLabelText('Go cast'),'int64');
+    view.rerender(<ReaderFieldDialog {...props} columnContracts={[]} node={{...node,view:{columns:node.view.columns.map(column=>({...column}))}}}/>);
+    expect(screen.getByLabelText('SQL output alias').value).toBe('quantity');
+    expect(screen.getByLabelText('Go cast').value).toBe('int64');
+  });
+
 });

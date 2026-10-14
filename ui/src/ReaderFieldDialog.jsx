@@ -33,10 +33,10 @@ export function ReaderFieldDialog({ isOpen, node, columnContracts = [], onClose,
     if (!isOpen) return;
     const initial = node?.column ? columnIdentity(node.column) : columnIdentity(columns[0]);
     setShowCatalog(!node?.column);
-    setNewColumn(false);
+    setNewColumn(columns.length === 0);
     setColumnName(initial);
     setQuery(''); setPage(0); setSaving(false); setError(''); setTagName(''); setTagValue('');
-  }, [isOpen, node, columns]);
+  }, [isOpen, node?.name, node?.column?.source, node?.column?.name]);
 
   useEffect(() => {
     const next = columnContract(columnContracts, node?.name, columnName);
@@ -45,7 +45,7 @@ export function ReaderFieldDialog({ isOpen, node, columnContracts = [], onClose,
     setPublicName(publicFieldName(next));
     setCastType(next?.castType || '');
     setAdvancedTags(Object.fromEntries(Object.entries(next?.tags ?? {}).filter(([name]) => !['groupable','internal','json','format'].includes(name))));
-  }, [isOpen, columnName, columnContracts, node?.name, selected]);
+  }, [isOpen, columnName, node?.name, JSON.stringify(contract || null), selected?.groupable]);
 
   const selectColumn = (value) => { setNewColumn(false); setColumnName(value); setError(''); };
   const apply = async (column) => {
