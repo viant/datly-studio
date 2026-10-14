@@ -199,6 +199,22 @@ func TestPublicationGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	}
 
 	ownerContext := context.WithValue(ctx, authorization.TokenKey, &authorization.Token{Token: jwt.Bearer(t, "alice")})
+	missingResult, missingErr := tool.Handler(ownerContext, &schema.CallToolRequest{Method: schema.MethodToolsCall,
+		Params: schema.CallToolRequestParams{Name: "studio.sdk.publications.get", Arguments: map[string]any{"reportId": "missing"}}})
+	if missingErr != nil || missingResult == nil || missingResult.IsError == nil || !*missingResult.IsError {
+		t.Fatalf("missing MCP publication: result=%+v error=%v", missingResult, missingErr)
+	}
+	missingJSON, err := json.Marshal(missingResult.StructuredContent)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var missingPayload struct {
+		Code   string `json:"code"`
+		Status int    `json:"status"`
+	}
+	if err = json.Unmarshal(missingJSON, &missingPayload); err != nil || missingPayload.Code != "not_found" || missingPayload.Status != 404 {
+		t.Fatalf("MCP missing publication must preserve not-found semantics: %s, %v", missingJSON, err)
+	}
 	for _, selection := range []string{wrongID, selectedID} {
 		scopedResult, scopedErr := tool.Handler(ownerContext, &schema.CallToolRequest{Method: schema.MethodToolsCall, Params: schema.CallToolRequestParams{Name: "studio.sdk.publications.get", Arguments: map[string]any{"namespaceId": selection, "reportId": "r1"}}})
 		payload, marshalErr := json.Marshal(scopedResult)

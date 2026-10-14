@@ -17,7 +17,9 @@ func (output *PublicationGetOutput) Finalize(ctx context.Context) error {
 		return fmt.Errorf("publication get bound input is unavailable")
 	}
 	if output == nil || output.Item == nil {
-		return &xresponse.Error{Code: 404, Cause: errors.New("publication not found")}
+		return &xresponse.Error{Code: 404, Cause: errors.New("publication not found"), Payload: map[string]any{
+			"code": "not_found", "status": 404, "message": "publication not found",
+		}}
 	}
 	item := output.Item
 	if item.ReportId != input.ReportId {
