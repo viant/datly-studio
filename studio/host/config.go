@@ -50,6 +50,15 @@ func (c Config) PredicateCatalog() (*predicatecatalog.Catalog, error) {
 		Path:  studioAuthorizationPath,
 		Types: authorization.DatlyPredicateHandlerTypes,
 	}}
+	explicit := map[string]bool{}
+	for _, pkg := range c.PredicatePackages {
+		explicit[strings.TrimSpace(pkg.Path)] = true
+	}
+	for _, pkg := range registeredPredicatePackages() {
+		if !explicit[pkg.Path] {
+			packages = append(packages, pkg)
+		}
+	}
 	packages = append(packages, c.PredicatePackages...)
 	seen := map[string]bool{}
 	for _, pkg := range packages {
