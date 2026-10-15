@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"time"
 
-	primitive "github.com/viant/agently-core/protocol/primitive"
-	identity "github.com/viant/agently-core/protocol/resource"
-	windowprotocol "github.com/viant/agently-core/protocol/window"
+	primitive "github.com/viant/forge/backend/provider/contract"
+	identity "github.com/viant/forge/backend/resource"
 	"github.com/viant/forge/backend/types"
+	windowprotocol "github.com/viant/forge/backend/window/contract"
 )
 
 type stockDatasourceEntry struct {

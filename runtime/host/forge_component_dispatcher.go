@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
-	identity "github.com/viant/agently-core/protocol/resource"
-	windowprotocol "github.com/viant/agently-core/protocol/window"
+	identity "github.com/viant/forge/backend/resource"
+	windowprotocol "github.com/viant/forge/backend/window/contract"
 )
 
 // ComponentDispatchMapping binds a portable producer service and logical

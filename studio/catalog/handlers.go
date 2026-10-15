@@ -5,14 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	namespaceext "github.com/viant/mcp-protocol/extension/namespaces"
-	"net/url"
-	"os"
-	"reflect"
-	"sort"
-	"strings"
-
-	agentlyconfig "github.com/viant/agently-core/protocol/mcp/config"
 	"github.com/viant/authz/oauth"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/runtimeadmin"
@@ -21,9 +13,16 @@ import (
 	stored "github.com/viant/datly-studio/studio/namespaces/store_read"
 	"github.com/viant/datly/exec"
 	"github.com/viant/datly/spec"
+	namespaceext "github.com/viant/mcp-protocol/extension/namespaces"
+	mcpconfig "github.com/viant/mcp/client/config"
 	"github.com/viant/scy/auth/jwt"
 	xhandler "github.com/viant/xdatly/handler"
 	xresponse "github.com/viant/xdatly/response"
+	"net/url"
+	"os"
+	"reflect"
+	"sort"
+	"strings"
 )
 
 func fail(code int, message string) error {
@@ -274,7 +273,7 @@ func runResource(ctx context.Context, session xhandler.Session, input *ResourceI
 
 // A persisted enable flag is not proof that a listener is running. Resolve the
 // active generation's exported connection for both discovery and retrieval.
-func connection(ctx context.Context, row *stored.StoredNamespace) (*agentlyconfig.MCPClient, error) {
+func connection(ctx context.Context, row *stored.StoredNamespace) (*mcpconfig.MCPClient, error) {
 	origin := os.Getenv("STUDIO_DYNAMIC_HTTP_URL")
 	if origin == "" {
 		origin = "http://127.0.0.1:8082"
@@ -290,7 +289,7 @@ func connection(ctx context.Context, row *stored.StoredNamespace) (*agentlyconfi
 	if err != nil {
 		return nil, fail(503, "namespace MCP configuration is unavailable")
 	}
-	var result *agentlyconfig.MCPClient
+	var result *mcpconfig.MCPClient
 	if err = json.Unmarshal(data, &result); err != nil {
 		return nil, err
 	}

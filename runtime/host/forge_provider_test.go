@@ -10,9 +10,9 @@ import (
 	"strings"
 	"testing"
 
-	windowprotocol "github.com/viant/agently-core/protocol/window"
-	forgeservice "github.com/viant/agently-core/service/primitiveprovider"
+	forgeservice "github.com/viant/forge/backend/provider"
 	"github.com/viant/forge/backend/types"
+	windowprotocol "github.com/viant/forge/backend/window/contract"
 	mcpschema "github.com/viant/mcp-protocol/schema"
 )
 

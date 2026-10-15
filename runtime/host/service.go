@@ -15,7 +15,6 @@ import (
 	"sync"
 	"time"
 
-	coreresource "github.com/viant/agently-core/service/resource"
 	access "github.com/viant/authz"
 	"github.com/viant/datly-studio/audit"
 	"github.com/viant/datly-studio/internal/connectorinit"
@@ -37,6 +36,7 @@ import (
 	"github.com/viant/datly/transcribe"
 	"github.com/viant/datly/transcribe/column"
 	"github.com/viant/datly/typecatalog"
+	coreresource "github.com/viant/forge/backend/resourcehost"
 	"github.com/viant/forge/backend/types"
 	skillformat "github.com/viant/mcp-protocol/extension/skills"
 	"github.com/viant/mcp-protocol/schema"

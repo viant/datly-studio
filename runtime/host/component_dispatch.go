@@ -10,8 +10,6 @@ import (
 	"strings"
 	"time"
 
-	identity "github.com/viant/agently-core/protocol/resource"
-	windowprotocol "github.com/viant/agently-core/protocol/window"
 	"github.com/viant/authz"
 	studiors "github.com/viant/datly-studio/runtime/resources"
 	studiohost "github.com/viant/datly-studio/studio/host"
@@ -21,6 +19,8 @@ import (
 	"github.com/viant/datly/runtime/registry"
 	"github.com/viant/datly/spec"
 	"github.com/viant/datly/typecatalog"
+	identity "github.com/viant/forge/backend/resource"
+	windowprotocol "github.com/viant/forge/backend/window/contract"
 )
 
 // ComponentReference is a deployment-owned dispatch mapping. An incoming input

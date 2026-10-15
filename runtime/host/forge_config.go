@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	identity "github.com/viant/agently-core/protocol/resource"
 	"github.com/viant/authz"
+	identity "github.com/viant/forge/backend/resource"
 	"github.com/viant/forge/backend/types"
 )
 

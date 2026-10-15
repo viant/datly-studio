@@ -10,9 +10,9 @@ import (
 
 	"github.com/viant/datly-studio/audit"
 
-	forgemcp "github.com/viant/agently-core/service/primitiveprovider"
 	access "github.com/viant/authz"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
+	forgemcp "github.com/viant/forge/backend/provider"
 	mcpprotocol "github.com/viant/mcp/server"
 	"go.yaml.in/yaml/v3"
 )

@@ -1,18 +1,18 @@
 package host
 
 import (
+	mcpconfig "github.com/viant/mcp/client/config"
+
 	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/viant/datly-studio/runtime/namespacemcp"
 	mcpresource "github.com/viant/datly/mcp/resource"
+	"github.com/viant/mcp"
+	authconfig "github.com/viant/mcp/client/auth/config"
 	"net/url"
 	"strings"
 	"testing/fstest"
-
-	agentlyconfig "github.com/viant/agently-core/protocol/mcp/config"
-	"github.com/viant/mcp"
-	authconfig "github.com/viant/mcp/client/auth/config"
 )
 
 // namespaceConnectionJSON serializes configuration references only. Token
@@ -75,7 +75,7 @@ func namespaceConnectionJSON(name string, config Config) ([]byte, error) {
 		return nil, err
 	}
 	// Round-trip through the actual consumer contract, not a Studio-only schema.
-	var consumer agentlyconfig.MCPClient
+	var consumer mcpconfig.MCPClient
 	if err = json.Unmarshal(data, &consumer); err != nil {
 		return nil, err
 	}

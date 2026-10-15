@@ -15,10 +15,10 @@ import (
 	"time"
 
 	jwtv5 "github.com/golang-jwt/jwt/v5"
-	identity "github.com/viant/agently-core/protocol/resource"
-	windowprotocol "github.com/viant/agently-core/protocol/window"
 	"github.com/viant/authz"
 	"github.com/viant/authz/oauth"
+	identity "github.com/viant/forge/backend/resource"
+	windowprotocol "github.com/viant/forge/backend/window/contract"
 	mcpschema "github.com/viant/mcp-protocol/schema"
 )
 

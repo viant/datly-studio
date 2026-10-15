@@ -11,51 +11,37 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.52
 	github.com/oapi-codegen/runtime v1.7.0
 	github.com/stretchr/testify v1.12.1
-	github.com/viant/agently-core v0.1.57-0.20261014183748-b1813540b6b2
-	github.com/viant/agently-core/protocol/primitive v0.0.0-20261014183748-b1813540b6b2
-	github.com/viant/agently-core/protocol/resource v0.0.0-20261014183748-b1813540b6b2
-	github.com/viant/agently-core/protocol/window v0.0.0-20261014183748-b1813540b6b2
 	github.com/viant/bigquery v0.5.4-0.20260927120042-a47888f8d2cc
 	github.com/viant/bindly v0.4.1-0.20261011212616-2c051ae6bd9e
-	github.com/viant/datly v1.1.1-0.20261014171954-a220d43fa66b
-	github.com/viant/jsonrpc v0.25.1-0.20261014183008-5f5e9b141218
-	github.com/viant/mcp v0.24.1-0.20261014183435-4ede589f52da
+	github.com/viant/datly v1.1.1-0.20261015003331-f8fe295597c2
+	github.com/viant/jsonrpc v0.25.1-0.20261014230436-c7e03c1c46eb
+	github.com/viant/mcp v0.24.1-0.20261015005417-1d6bc8f12751
 	github.com/viant/mcp-protocol v0.19.1-0.20261014173008-af92f34f304b
 	github.com/viant/scy v0.35.1-0.20260914041206-699e6c909726
-	github.com/viant/sqlx v0.26.1-0.20261013010041-718390a26adf
+	github.com/viant/sqlx v0.26.1-0.20261013061633-ba8bc02ca651
 	github.com/viant/x v0.5.1-0.20260915043005-1bc42b9eef47
-	github.com/viant/xdatly v1.0.1-0.20261013192427-164ca1782574
+	github.com/viant/xdatly v1.0.1-0.20261014220053-69eb20c7d1a8
 	github.com/viant/xunsafe v0.11.0
 	go.yaml.in/yaml/v3 v3.0.5
 	golang.org/x/mod v0.38.0
 	golang.org/x/oauth2 v0.36.0
 )
 
-require github.com/viant/mcp-tasks v0.0.0-20261008153829-762637b5ea3a // indirect
+require github.com/nxadm/tail v1.4.11 // indirect
 
 require (
-	codeberg.org/go-pdf/fpdf v0.10.0 // indirect
 	filippo.io/edwards25519 v1.2.0 // indirect
-	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dlclark/regexp2/v2 v2.8.1 // indirect
 	github.com/dop251/goja v0.0.0-20261007200356-e2ea74d3d210 // indirect
-	github.com/evanphx/json-patch/v5 v5.9.11 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/google/pprof v0.0.0-20260802141513-ef3492d7dac3 // indirect
 	github.com/gorilla/websocket v1.5.3
-	github.com/ledongthuc/pdf v0.0.0-20260907135840-6c8c28e0e8a0 // indirect
-	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
-	github.com/santhosh-tekuri/jsonschema/v6 v6.0.3 // indirect
 	github.com/sijms/go-ora/v2 v2.9.0
-	github.com/tidwall/gjson v1.19.0 // indirect
+	github.com/tidwall/gjson v1.20.0 // indirect
 	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tiendc/go-deepcopy v1.7.2 // indirect
-	github.com/viant/agently-core/service/reportdefinition/materializer v0.0.0-20261014183748-b1813540b6b2 // indirect
-	github.com/viant/embedius v0.5.6 // indirect
-	github.com/viant/mcp-ui v0.2.1-0.20261011073152-8f30de0c7bc3 // indirect
-	golang.org/x/image v0.38.0 // indirect
 )
 
 require (
@@ -117,9 +103,9 @@ require (
 	github.com/spiffe/go-spiffe/v2 v2.6.0 // indirect
 	github.com/viant/afs v1.30.1-0.20260914155934-90e95d483861 // indirect
 	github.com/viant/afsc v1.18.0 // indirect
-	github.com/viant/authz v0.0.0-20261013220326-83350c91a2e0
+	github.com/viant/authz v0.0.0-20261014234113-96042135a76f
 	github.com/viant/authz/component v0.0.0-20261008185629-af2e488eec48
-	github.com/viant/forge v0.3.45-0.20261014181857-a17d7c56fb46
+	github.com/viant/forge v0.3.45-0.20261015011117-38bb1cf13641
 	github.com/viant/gmetric v0.3.2 // indirect
 	github.com/viant/gosh v0.3.1-0.20261007222529-b829eaaf687b // indirect
 	github.com/viant/govalidator v0.3.4-0.20260913213120-027a9dd54d73 // indirect
@@ -151,10 +137,9 @@ require (
 	go.opentelemetry.io/otel/metric v1.44.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.44.0 // indirect
 	go.opentelemetry.io/otel/sdk/metric v1.44.0 // indirect
-	go.opentelemetry.io/otel/trace v1.44.0 // indirect
+	go.opentelemetry.io/otel/trace v1.44.0
 	go.opentelemetry.io/proto/otlp v1.10.0 // indirect
 	golang.org/x/crypto v0.55.0 // indirect
-	golang.org/x/exp v0.0.0-20251023183803-a4bb9ffd2546 // indirect
 	golang.org/x/net v0.58.0 // indirect
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect

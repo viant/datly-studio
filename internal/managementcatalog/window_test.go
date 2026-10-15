@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	ds "github.com/viant/agently-core/protocol/datasource"
-	identity "github.com/viant/agently-core/protocol/resource"
+	ds "github.com/viant/forge/backend/datasource/contract"
+	identity "github.com/viant/forge/backend/resource"
 	"github.com/viant/forge/backend/types"
 )
 

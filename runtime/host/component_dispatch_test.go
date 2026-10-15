@@ -11,8 +11,6 @@ import (
 	"testing"
 	"time"
 
-	identity "github.com/viant/agently-core/protocol/resource"
-	windowprotocol "github.com/viant/agently-core/protocol/window"
 	"github.com/viant/authz"
 	"github.com/viant/authz/oauth"
 	"github.com/viant/datly/application"
@@ -21,6 +19,8 @@ import (
 	"github.com/viant/datly/runtime/registry"
 	"github.com/viant/datly/spec"
 	"github.com/viant/datly/typecatalog"
+	identity "github.com/viant/forge/backend/resource"
+	windowprotocol "github.com/viant/forge/backend/window/contract"
 	xhandler "github.com/viant/xdatly/handler"
 )
 

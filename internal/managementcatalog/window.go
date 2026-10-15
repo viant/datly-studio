@@ -9,9 +9,9 @@ import (
 	"fmt"
 	"strings"
 
-	ds "github.com/viant/agently-core/protocol/datasource"
-	"github.com/viant/agently-core/protocol/primitive"
-	identity "github.com/viant/agently-core/protocol/resource"
+	ds "github.com/viant/forge/backend/datasource/contract"
+	"github.com/viant/forge/backend/provider/contract"
+	identity "github.com/viant/forge/backend/resource"
 	"github.com/viant/forge/backend/types"
 	"go.yaml.in/yaml/v3"
 )

@@ -16,7 +16,6 @@ import (
 	"testing"
 	"time"
 
-	resourceidentity "github.com/viant/agently-core/protocol/resource"
 	"github.com/viant/bindly/locator"
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/datatest"
@@ -42,6 +41,7 @@ import (
 	viewprovider "github.com/viant/datly/sql/reader/provider"
 	dtag "github.com/viant/datly/tag"
 	"github.com/viant/datly/typecatalog"
+	resourceidentity "github.com/viant/forge/backend/resource"
 	forgetypes "github.com/viant/forge/backend/types"
 	"github.com/viant/mcp-protocol/authorization"
 	namespaceext "github.com/viant/mcp-protocol/extension/namespaces"

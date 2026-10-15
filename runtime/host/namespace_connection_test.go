@@ -1,11 +1,12 @@
 package host
 
 import (
+	mcpconfig "github.com/viant/mcp/client/config"
+
 	"strings"
 	"testing"
 
 	"encoding/json"
-	agentlyconfig "github.com/viant/agently-core/protocol/mcp/config"
 )
 
 func TestNamespaceConnectionOAuthUsesSCYAndScopedEndpoint(t *testing.T) {
@@ -15,7 +16,7 @@ func TestNamespaceConnectionOAuthUsesSCYAndScopedEndpoint(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		var client agentlyconfig.MCPClient
+		var client mcpconfig.MCPClient
 		if err = json.Unmarshal(data, &client); err != nil {
 			t.Fatal(err)
 		}
@@ -52,7 +53,7 @@ func TestNamespaceConnectionDoesNotDowngradeProtectedAuthentication(t *testing.T
 	if err != nil {
 		t.Fatal(err)
 	}
-	var client agentlyconfig.MCPClient
+	var client mcpconfig.MCPClient
 	if err = json.Unmarshal(data, &client); err != nil {
 		t.Fatal(err)
 	}

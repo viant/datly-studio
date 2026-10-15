@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	agentlyconfig "github.com/viant/agently-core/protocol/mcp/config"
+	mcpconfig "github.com/viant/mcp/client/config"
 	"io"
 	"net/http"
 	"net/url"
@@ -181,7 +181,7 @@ func (c *Client) Connection(ctx context.Context) (json.RawMessage, error) {
 	if payload.NamespaceID != id {
 		return nil, fmt.Errorf("namespace connection does not match selection")
 	}
-	var consumer agentlyconfig.MCPClient
+	var consumer mcpconfig.MCPClient
 	if err = json.Unmarshal(payload.Config, &consumer); err != nil {
 		return nil, fmt.Errorf("invalid Agently MCP connection: %w", err)
 	}

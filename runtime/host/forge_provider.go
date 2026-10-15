@@ -10,9 +10,9 @@ import (
 	"net/url"
 	"reflect"
 
-	forgehandler "github.com/viant/agently-core/adapter/mcp/primitive"
-	forgeservice "github.com/viant/agently-core/service/primitiveprovider"
 	"github.com/viant/authz/oauth"
+	forgeservice "github.com/viant/forge/backend/provider"
+	forgehandler "github.com/viant/forge/backend/provider/mcp"
 	"github.com/viant/jsonrpc/transport"
 	protoclient "github.com/viant/mcp-protocol/client"
 	"github.com/viant/mcp-protocol/logger"

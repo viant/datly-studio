@@ -16,12 +16,12 @@ import (
 	"strings"
 	"time"
 
-	identity "github.com/viant/agently-core/protocol/resource"
-	windowprotocol "github.com/viant/agently-core/protocol/window"
-	forgeservice "github.com/viant/agently-core/service/primitiveprovider"
 	"github.com/viant/authz"
 	"github.com/viant/authz/gating"
+	forgeservice "github.com/viant/forge/backend/provider"
+	identity "github.com/viant/forge/backend/resource"
 	"github.com/viant/forge/backend/types"
+	windowprotocol "github.com/viant/forge/backend/window/contract"
 	yaml "go.yaml.in/yaml/v3"
 )
 

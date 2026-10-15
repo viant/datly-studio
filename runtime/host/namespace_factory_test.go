@@ -5,7 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	agentlyconfig "github.com/viant/agently-core/protocol/mcp/config"
+	mcpconfig "github.com/viant/mcp/client/config"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -205,7 +205,7 @@ SELECT rows.*,type(rows,'Row') FROM (SELECT 1 AS id) rows`
 		if err := json.Unmarshal(response["result"], &content); err != nil || len(content.Contents) != 1 {
 			t.Fatalf("connection resource: %+v %v", content, err)
 		}
-		var client agentlyconfig.MCPClient
+		var client mcpconfig.MCPClient
 		if err := json.Unmarshal([]byte(content.Contents[0].Text), &client); err != nil {
 			t.Fatal(err)
 		}
@@ -266,7 +266,7 @@ SELECT rows.*,type(rows,'Row') FROM (SELECT 1 AS id) rows`
 		if err != nil {
 			t.Fatal(err)
 		}
-		var definition agentlyconfig.MCPClient
+		var definition mcpconfig.MCPClient
 		if err = json.Unmarshal(data, &definition); err != nil || definition.Name != name || definition.Transport.URL != endpoint.URL() {
 			t.Fatalf("deployed connection: %s %v", data, err)
 		}
