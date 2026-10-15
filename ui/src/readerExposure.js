@@ -41,7 +41,7 @@ export function exposureSetting({ enabled, name, description, descriptionPath })
 }
 
 export function componentSettingsOperation({ connector, cubeEnabled, cubeMCP = true, composeEnabled, composeMCP, maxCubes, maxLimit, timeoutMs, exposure, projectionChange, groupingChange, pagingChanges = [] }) {
-  const cubeArgs = cubeMCP ? [] : ["''", "''", "''", "''", "''", "''", "''", 'false'];
+  const cubeArgs = ["''", "''", "''", "''", "''", "''", "''", String(Boolean(cubeMCP))];
   const cube = { type: 'setSetting', setting: cubeEnabled ? { name: 'cube', args: cubeArgs } : { name: 'cube', remove: true } };
   const composition = {
     type: 'setSetting',

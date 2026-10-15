@@ -86,6 +86,7 @@ test('component settings batch cube, composition, and MCP atomically', () => {
   assert.equal(operation.type, 'batch');
   assert.deepEqual(operation.operations.map((item) => item.setting.name), ['connector', 'cube', 'cubeCompose', 'mcp', 'mcpOnly']);
   assert.deepEqual(operation.operations[0].setting.args, ['"main"']);
+  assert.deepEqual(operation.operations[1].setting.args, ["''", "''", "''", "''", "''", "''", "''", 'true'], 'cube MCP exposure stays explicit when composition settings are saved');
   assert.deepEqual(operation.operations[2].setting.args, ['true', 'false', '4', '50', '12000']);
   assert.equal(operation.operations[3].setting.args[0], '"alice.vendor.read"');
   assert.equal(operation.operations[4].setting.remove, true);

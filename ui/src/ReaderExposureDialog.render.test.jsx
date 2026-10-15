@@ -73,7 +73,7 @@ describe('ReaderExposureDialog', () => {
       operations: [
         { type: 'setSetting', setting: { name: 'connector', args: ['"main"'] } },
         { type: 'addFunction', function: { name: 'groupable', args: ['vendor'] } },
-        { type: 'setSetting', setting: { name: 'cube', args: [] } },
+        { type: 'setSetting', setting: { name: 'cube', args: ["''", "''", "''", "''", "''", "''", "''", 'true'] } },
         { type: 'setSetting', setting: { name: 'cubeCompose', args: ['true', 'true', '12', '250', '45000'] } },
         { type: 'setSetting', setting: { name: 'mcp', args: ['"alice.vendors.read"', '"Read vendors"', '"docs/vendors.md"'] } },
         { type: 'setSetting', setting: { name: 'mcpOnly', remove: true } },
