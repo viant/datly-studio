@@ -17,6 +17,20 @@ func NewShared(factory Factory, address string) (*Manager, error) {
 	if err != nil {
 		return nil, err
 	}
+	return listenShared(manager, address)
+}
+
+// NewSharedHTTP retains one independently authorized handler per namespace on
+// a shared listener; positive per-namespace ports remain dedicated overrides.
+func NewSharedHTTP(factory HTTPFactory, address string) (*Manager, error) {
+	manager, err := NewHTTP(factory)
+	if err != nil {
+		return nil, err
+	}
+	return listenShared(manager, address)
+}
+
+func listenShared(manager *Manager, address string) (*Manager, error) {
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
 		return nil, fmt.Errorf("reserve shared namespace MCP port: %w", err)

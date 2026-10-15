@@ -37,6 +37,13 @@ func (e Endpoint) URL() string {
 // use the actual port. The host must restrict the source to this namespace.
 type Factory func(context.Context, Endpoint) (mcpserver.Config, error)
 
+// HTTPFactory supplies an already scoped and protected MCP handler. It lets
+// embedding applications reuse listener lifecycle without a Datly catalog.
+// The handler must enforce authentication and namespace authorization itself.
+// Optional Close/Reload/RuntimeStatus/RuntimeConnection hooks are honored just
+// as they are for a Datly source.
+type HTTPFactory func(context.Context, Endpoint) (http.Handler, error)
+
 type instance struct {
 	endpoint      Endpoint
 	requestedPort int
@@ -59,6 +66,7 @@ type Manager struct {
 	operations    map[string]*sync.Mutex
 	closed        bool
 	factory       Factory
+	httpFactory   HTTPFactory
 	sharedServer  *http.Server
 	sharedAddress string
 	sharedPort    int
@@ -70,6 +78,14 @@ func New(factory Factory) (*Manager, error) {
 		return nil, fmt.Errorf("namespace MCP factory is required")
 	}
 	return &Manager{factory: factory, entries: map[string]*instance{}, operations: map[string]*sync.Mutex{}}, nil
+}
+
+// NewHTTP reuses namespace listener lifecycle with host-owned MCP handlers.
+func NewHTTP(factory HTTPFactory) (*Manager, error) {
+	if factory == nil {
+		return nil, fmt.Errorf("namespace MCP HTTP factory is required")
+	}
+	return &Manager{httpFactory: factory, entries: map[string]*instance{}, operations: map[string]*sync.Mutex{}}, nil
 }
 func (m *Manager) operation(id string) *sync.Mutex {
 	m.mu.Lock()
@@ -86,17 +102,28 @@ func (m *Manager) operation(id string) *sync.Mutex {
 // Port zero asks the OS for a free port. Existing identical starts are idempotent;
 // Start rejects port changes; Rebind prepares a replacement before draining the old listener.
 func (m *Manager) Start(ctx context.Context, id string, port int) (Endpoint, error) {
-	return m.start(ctx, id, port, false)
+	return m.start(ctx, id, port, false, nil)
 }
 
 // Rebind constructs and reserves the new endpoint before replacing the old one.
 // Failures before commitment preserve the current listener. A returned endpoint
 // remains active even if an error reports failure to drain the previous server.
 func (m *Manager) Rebind(ctx context.Context, id string, port int) (Endpoint, error) {
-	return m.start(ctx, id, port, true)
+	return m.start(ctx, id, port, true, nil)
 }
 
-func (m *Manager) start(ctx context.Context, id string, port int, replace bool) (Endpoint, error) {
+// RebindWithCommit reserves and constructs the replacement before committing
+// caller-owned state. A failed commit preserves the old endpoint and releases
+// the candidate. The callback also runs for an unchanged endpoint. It must not
+// call Manager methods. As with Rebind, drain failure can follow activation.
+func (m *Manager) RebindWithCommit(ctx context.Context, id string, port int, commit func(Endpoint) error) (Endpoint, error) {
+	if commit == nil {
+		return Endpoint{}, fmt.Errorf("namespace MCP commit callback is required")
+	}
+	return m.start(ctx, id, port, true, commit)
+}
+
+func (m *Manager) start(ctx context.Context, id string, port int, replace bool, commit func(Endpoint) error) (Endpoint, error) {
 	decoded, err := hex.DecodeString(id)
 	if err != nil || len(decoded) != 32 || strings.ToLower(id) != id || port < 0 || port > 65535 {
 		return Endpoint{}, fmt.Errorf("valid namespace ID and port 0–65535 are required")
@@ -115,6 +142,16 @@ func (m *Manager) start(ctx context.Context, id string, port int, replace bool) 
 	previous := m.entries[id]
 	if previous != nil {
 		if !replace && previous.requestedPort == port || replace && previous.requestedPort == port && previous.shared || replace && port != 0 && previous.endpoint.Port == port && !previous.shared {
+			if commit != nil {
+				err := func() error {
+					defer m.mu.Unlock()
+					return commitEndpoint(ctx, previous.endpoint, commit)
+				}()
+				if err != nil {
+					return Endpoint{}, err
+				}
+				return previous.endpoint, nil
+			}
 			m.mu.Unlock()
 			return previous.endpoint, nil
 		}
@@ -151,16 +188,28 @@ func (m *Manager) start(ctx context.Context, id string, port int, replace bool) 
 			_ = listener.Close()
 		}
 	}()
-	config, err := m.factory(ctx, endpoint)
+	var config mcpserver.Config
+	var handler http.Handler
+	var owner any
+	if m.httpFactory != nil {
+		handler, err = m.httpFactory(ctx, endpoint)
+		if err == nil && handler == nil {
+			err = fmt.Errorf("namespace MCP HTTP factory returned no handler")
+		}
+		owner = handler
+	} else {
+		config, err = m.factory(ctx, endpoint)
+		owner = config.Source
+	}
 	if err != nil {
 		return Endpoint{}, err
 	}
 	var cleanup func(context.Context) error
 	var reload func(context.Context, int64) error
-	if source, ok := config.Source.(interface{ Close(context.Context) error }); ok {
+	if source, ok := owner.(interface{ Close(context.Context) error }); ok {
 		cleanup = source.Close
 	}
-	if source, ok := config.Source.(interface {
+	if source, ok := owner.(interface {
 		Reload(context.Context, int64) error
 	}); ok {
 		reload = source.Reload
@@ -172,30 +221,35 @@ func (m *Manager) start(ctx context.Context, id string, port int, replace bool) 
 			_ = cleanup(closeCtx)
 		}
 	}()
-	config.Transport.Kind = mcpserver.TransportStreamable
-	config.Transport.Address = endpoint.Address
-	transport, err := mcpserver.New(config)
-	if err != nil {
-		return Endpoint{}, err
-	}
-	server, err := transport.HTTP()
-	if err != nil {
-		return Endpoint{}, err
+	var server *http.Server
+	if m.httpFactory != nil {
+		server = &http.Server{Addr: endpoint.Address, Handler: handler, ReadHeaderTimeout: 10 * time.Second, IdleTimeout: 60 * time.Second}
+	} else {
+		config.Transport.Kind = mcpserver.TransportStreamable
+		config.Transport.Address = endpoint.Address
+		transport, e := mcpserver.New(config)
+		if e != nil {
+			return Endpoint{}, e
+		}
+		server, err = transport.HTTP()
+		if err != nil {
+			return Endpoint{}, err
+		}
 	}
 	if err = ctx.Err(); err != nil {
 		return Endpoint{}, err
 	}
-	if wrapper, ok := config.Source.(interface {
+	if wrapper, ok := owner.(interface {
 		WrapHTTP(http.Handler) http.Handler
 	}); ok {
 		server.Handler = wrapper.WrapHTTP(server.Handler)
 	}
 	var status func() (string, int64)
-	if source, ok := config.Source.(interface{ RuntimeStatus() (string, int64) }); ok {
+	if source, ok := owner.(interface{ RuntimeStatus() (string, int64) }); ok {
 		status = source.RuntimeStatus
 	}
 	var connection func(context.Context) (json.RawMessage, error)
-	if source, ok := config.Source.(interface {
+	if source, ok := owner.(interface {
 		RuntimeConnection(context.Context) (json.RawMessage, error)
 	}); ok {
 		connection = source.RuntimeConnection
@@ -204,25 +258,33 @@ func (m *Manager) start(ctx context.Context, id string, port int, replace bool) 
 	if useShared {
 		entry.lifetime, entry.cancel = context.WithCancel(context.Background())
 	}
-	m.mu.Lock()
-	if m.closed {
-		m.mu.Unlock()
-		return Endpoint{}, fmt.Errorf("namespace MCP manager is closed")
+	err = func() error {
+		m.mu.Lock()
+		defer m.mu.Unlock()
+		if m.closed {
+			return fmt.Errorf("namespace MCP manager is closed")
+		}
+		if err := commitEndpoint(ctx, endpoint, commit); err != nil {
+			return err
+		}
+		m.entries[id] = entry
+		registered = true
+		if !useShared {
+			go func() {
+				defer close(entry.done)
+				_ = server.Serve(listener)
+				m.mu.Lock()
+				if m.entries[id] == entry {
+					delete(m.entries, id)
+				}
+				m.mu.Unlock()
+			}()
+		}
+		return nil
+	}()
+	if err != nil {
+		return Endpoint{}, err
 	}
-	m.entries[id] = entry
-	registered = true
-	if !useShared {
-		go func() {
-			defer close(entry.done)
-			_ = server.Serve(listener)
-			m.mu.Lock()
-			if m.entries[id] == entry {
-				delete(m.entries, id)
-			}
-			m.mu.Unlock()
-		}()
-	}
-	m.mu.Unlock()
 	if previous != nil {
 		drainCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
 		defer cancel()
@@ -296,14 +358,55 @@ func (m *Manager) Reload(ctx context.Context, id string, generation int64) error
 	return entry.reload(ctx, generation)
 }
 func (m *Manager) Stop(ctx context.Context, id string) error {
+	return m.stopManaged(ctx, id, nil)
+}
+
+// StopWithCommit commits caller-owned withdrawal state before removing the
+// endpoint. A failed callback leaves it active; a later drain error does not
+// undo the committed withdrawal. The callback must not call Manager methods.
+func (m *Manager) StopWithCommit(ctx context.Context, id string, commit func(Endpoint) error) error {
+	if commit == nil {
+		return fmt.Errorf("namespace MCP commit callback is required")
+	}
+	return m.stopManaged(ctx, id, commit)
+}
+
+func (m *Manager) stopManaged(ctx context.Context, id string, commit func(Endpoint) error) error {
 	lock := m.operation(id)
 	lock.Lock()
 	defer lock.Unlock()
-	m.mu.Lock()
-	entry := m.entries[id]
-	delete(m.entries, id)
-	m.mu.Unlock()
+	var entry *instance
+	err := func() error {
+		m.mu.Lock()
+		defer m.mu.Unlock()
+		if m.closed && commit != nil {
+			return fmt.Errorf("namespace MCP manager is closed")
+		}
+		entry = m.entries[id]
+		endpoint := Endpoint{NamespaceID: id}
+		if entry != nil {
+			endpoint = entry.endpoint
+		}
+		if err := commitEndpoint(ctx, endpoint, commit); err != nil {
+			return err
+		}
+		delete(m.entries, id)
+		return nil
+	}()
+	if err != nil {
+		return err
+	}
 	return stop(ctx, entry)
+}
+
+func commitEndpoint(ctx context.Context, endpoint Endpoint, commit func(Endpoint) error) error {
+	if commit == nil {
+		return nil
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	return commit(endpoint)
 }
 func (m *Manager) Close(ctx context.Context) error {
 	m.mu.Lock()
