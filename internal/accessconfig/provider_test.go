@@ -14,7 +14,6 @@ import (
 	jwtlib "github.com/golang-jwt/jwt/v5"
 	access "github.com/viant/authz"
 	accessoauth "github.com/viant/authz/oauth"
-	"github.com/viant/datly-studio/sdk"
 )
 
 func TestEnvironmentProviderRequiresCompleteAuthority(t *testing.T) {
@@ -58,7 +57,7 @@ func TestEnvironmentProviderRequiresCompleteAuthority(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	ctx := sdk.WithVerifiedCredential(context.Background(), sdk.VerifiedCredential{Bearer: bearer, Claims: struct{}{}})
+	ctx := accessoauth.WithBearer(context.Background(), bearer)
 	facts, err := provider.Resolve(ctx)
 	if err != nil || facts.Subject != "alice" || facts.Tenant != "tenant" {
 		t.Fatalf("verified facts: %+v err=%v", facts, err)
@@ -68,7 +67,7 @@ func TestEnvironmentProviderRequiresCompleteAuthority(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	ctx = sdk.WithVerifiedCredential(context.Background(), sdk.VerifiedCredential{Bearer: bearer, Claims: struct{}{}})
+	ctx = accessoauth.WithBearer(context.Background(), bearer)
 	if _, err := provider.Resolve(ctx); err == nil {
 		t.Fatal("wrong issuer accepted")
 	}

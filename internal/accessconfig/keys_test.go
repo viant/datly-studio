@@ -15,7 +15,6 @@ import (
 
 	jwtlib "github.com/golang-jwt/jwt/v5"
 	accessoauth "github.com/viant/authz/oauth"
-	"github.com/viant/datly-studio/sdk"
 )
 
 func TestJWKSAuthorityRefreshesRotatedKeysWithoutTrustingUnknownIDs(t *testing.T) {
@@ -62,7 +61,7 @@ func TestJWKSAuthorityRefreshesRotatedKeysWithoutTrustingUnknownIDs(t *testing.T
 		return value
 	}
 	resolve := func(bearer string) error {
-		ctx := sdk.WithVerifiedCredential(context.Background(), sdk.VerifiedCredential{Bearer: bearer, Claims: struct{}{}})
+		ctx := accessoauth.WithBearer(context.Background(), bearer)
 		_, err := provider.Resolve(ctx)
 		return err
 	}
