@@ -11,12 +11,19 @@ an explicit type list retains the existing registration behavior. Optional
 `STUDIO_AUTH_PREDICATE_TYPES=package/path#Type` entries restrict the governed
 predicate catalog while preserving linked runtime types for DQL compilation.
 
-In **Security → Authorization predicates**, the **Linked Go predicates** table
+In **Security → Authorization predicates → Discovered predicates**, a dedicated
+window provides independent search and refresh. Its **Linked Go predicates** table
 shows each available Go type, its full package path and alias, including types
 without a saved reusable predicate entry. Saved entries and the handler picker
 also display the full identity. MCP clients obtain the same `packagePath` and
 `typeName` fields from `studio.sdk.authorization_predicates.types`; saved entries
 are listed through `studio.sdk.authorization_predicates.list`.
+
+The typed Datly v1 custom handler `studio/authorization_predicates/types` serves
+`POST /v1/studio/sdk/authorization_predicates.types`, returning an `items` array
+with `alias`, `packagePath` and `typeName`. It requires publisher authorization.
+The list includes configured linked types without saved catalog entries and
+respects `STUDIO_AUTH_PREDICATE_TYPES` restrictions.
 
 ## Compiled example
 

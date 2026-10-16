@@ -13,17 +13,20 @@ test('lists complete linked Go identities even before a security entry is create
     listAuthorizationPredicates: vi.fn().mockResolvedValue({items: []}),
     listAuthorizationPredicateTypes: vi.fn().mockResolvedValue(types),
   }}/>);
+  await userEvent.click(screen.getByRole('button', {name: 'Discovered predicates'}));
   const table = await screen.findByRole('table', {name: 'Linked Go predicates'});
   expect(within(table).getByText(types[0].packagePath)).toBeTruthy();
   expect(within(table).getByText(types[1].packagePath)).toBeTruthy();
   expect(within(table).getAllByText('CustomerScope')).toHaveLength(2);
+  await userEvent.click(screen.getAllByRole('button', {name: 'Close'})[0]);
   await userEvent.click(screen.getByRole('button', {name: 'New predicate'}));
   const chooser = screen.getByLabelText('Linked handler');
   expect(within(chooser).getByRole('option', {name: 'example.com/first/predicates · CustomerScope'})).toBeTruthy();
   expect(within(chooser).getByRole('option', {name: 'example.com/second/predicates · CustomerScope'})).toBeTruthy();
   await userEvent.click(screen.getByRole('button', {name: 'Cancel'}));
-  await userEvent.type(screen.getByLabelText('Search authorization predicates'), 'example.com/first');
-  await userEvent.click(screen.getByRole('button', {name: 'Search', exact: true}));
+  await userEvent.click(screen.getByRole('button', {name: 'Discovered predicates'}));
+  await userEvent.type(screen.getByLabelText('Search discovered predicates'), 'example.com/first');
+
   const filtered = await screen.findByRole('table', {name: 'Linked Go predicates'});
   expect(within(filtered).getByText(types[0].packagePath)).toBeTruthy();
   expect(within(filtered).queryByText(types[1].packagePath)).toBeNull();
