@@ -3,9 +3,11 @@ package sqltransport
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -344,3 +346,30 @@ func TestAuthorizationPredicateStoreAuthorizesBeforeMutation(t *testing.T) {
 		}
 	}
 }
+
+func TestDiscoveredPredicateDescriptionResponse(t *testing.T) {
+	catalog, err := predicatecatalog.New(predicatecatalog.Package{Path: "example.com/described", Types: []reflect.Type{reflect.TypeFor[describedPredicateFixture]()}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	transport := &Transport{Predicates: catalog}
+	var page sdk.AuthorizationPredicateTypePage
+	if err = transport.authorizationPredicateTypes(&page); err != nil {
+		t.Fatal(err)
+	}
+	if len(page.Items) != 1 || page.Items[0].Description != new(describedPredicateFixture).Description() {
+		t.Fatalf("response: %+v", page.Items)
+	}
+	data, err := json.Marshal(page)
+	if err != nil || !strings.Contains(string(data), `"description":`) {
+		t.Fatalf("json=%s err=%v", data, err)
+	}
+	data, err = json.Marshal(sdk.AuthorizationPredicateType{TypeName: "Undescribed", PackagePath: "example.com"})
+	if err != nil || strings.Contains(string(data), `"description"`) {
+		t.Fatalf("optional description json=%s err=%v", data, err)
+	}
+}
+
+type describedPredicateFixture struct{}
+
+func (*describedPredicateFixture) Description() string { return "Described SDK fixture" }

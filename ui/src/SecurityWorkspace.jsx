@@ -6,16 +6,16 @@ function PredicateDialog({api,value,types,onClose,onSaved,onError}){const[draft,
 
 export function LinkedPredicateTypes({types = [], query = ''}) {
   const term = query.trim().toLowerCase();
-  const visible = types.filter(type => `${type.packagePath} ${type.typeName} ${type.alias || ''}`.toLowerCase().includes(term));
+  const visible = types.filter(type => `${type.packagePath} ${type.typeName} ${type.alias || ''} ${type.description || ''}`.toLowerCase().includes(term));
   return <Card className="studio-card studio-linked-predicates" elevation={0}>
     <h2>Linked Go predicates</h2>
     <p className="studio-muted">Go types available in this application. Use a linked type when creating a reusable security predicate.</p>
     <div className="studio-table-wrap"><HTMLTable className="studio-data-table" aria-label="Linked Go predicates">
-      <thead><tr><th>Go type</th><th>Full package path</th><th>Alias</th></tr></thead>
+      <thead><tr><th>Go type</th><th>Full package path</th><th>Alias</th><th>Description</th></tr></thead>
       <tbody>{visible.map(type => <tr key={`${type.packagePath}#${type.typeName}`}>
         <td><code>{type.typeName}</code></td>
         <td className="studio-predicate-package"><code>{type.packagePath}</code></td>
-        <td>{type.alias || '—'}</td>
+        <td>{type.alias || '—'}</td><td>{type.description || '—'}</td>
       </tr>)}</tbody>
     </HTMLTable></div>
     {!visible.length && <p>{term ? 'No linked Go predicates match this search.' : 'No Go predicate types are linked in this application.'}</p>}

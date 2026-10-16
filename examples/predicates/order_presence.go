@@ -19,6 +19,13 @@ const PackagePath = "github.com/viant/datly-studio/examples/predicates"
 // This is a query filter, not an authorization decision or a source of roles.
 type OrderPresence struct{}
 
+// Description documents the handler in Studio's discovered predicate catalog.
+func (*OrderPresence) Description() string {
+	return "Filters customers by paid-order presence and active exclusions. Modes: eligible, exists, not_exists. Requires parent alias c."
+}
+
+var _ predicatecatalog.Describer = (*OrderPresence)(nil)
+
 func (*OrderPresence) Compute(ctx context.Context, value any) (*predicate.Criteria, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err

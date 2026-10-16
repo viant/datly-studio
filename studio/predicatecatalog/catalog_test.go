@@ -94,3 +94,23 @@ func TestCatalogDiscoversOnlyLinkedHandlerTypesInAllowedPackage(t *testing.T) {
 		t.Fatal("unlinked package was accepted")
 	}
 }
+
+type pointerDescriber struct{ testPredicate }
+
+func (*pointerDescriber) Description() string { return " Pointer documentation " }
+
+type valueDescriber struct{ testPredicate }
+
+func (valueDescriber) Description() string { return "Value documentation" }
+func TestOptionalDescriptions(t *testing.T) {
+	catalog, err := New(Package{Path: "example.com/described", Types: []reflect.Type{reflect.TypeFor[pointerDescriber](), reflect.TypeFor[valueDescriber](), reflect.TypeFor[testPredicate]()}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := map[string]string{"pointerDescriber": "Pointer documentation", "valueDescriber": "Value documentation", "testPredicate": ""}
+	for _, item := range catalog.Descriptors() {
+		if item.Description != want[item.TypeName] {
+			t.Fatalf("unexpected descriptor: %+v", item)
+		}
+	}
+}

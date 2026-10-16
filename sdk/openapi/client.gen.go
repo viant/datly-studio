@@ -3302,6 +3302,7 @@ type WireD82adbb20251ee59732b96cc17e12fda2b7531a5a2aa9b3011dd7e9258ea62a7 struct
 // WireD96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c defines model for Wire_d96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c.
 type WireD96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c struct {
 	Alias       *string `json:"alias,omitempty"`
+	Description *string `json:"description,omitempty"`
 	PackagePath string  `json:"packagePath"`
 	TypeName    string  `json:"typeName"`
 }

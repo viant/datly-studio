@@ -2456,6 +2456,7 @@ export type WireD82Adbb20251Ee59732B96Cc17E12Fda2B7531A5A2Aa9B3011Dd7E9258Ea62A7
 
 export type WireD96F9F6E74952B34F1E493521A586F731028Cc293D50A0439Ca0Ba97D376Ca3c = {
     alias?: string;
+    description?: string;
     packagePath: string;
     typeName: string;
 };

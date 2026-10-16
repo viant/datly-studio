@@ -84,3 +84,19 @@ runtime applications can use `runtime/host`. Import the example package only
 when wanted. For your own predicates, link your package and provide its package
 path through the configuration or startup hook. Keep SQL identifiers fixed or
 validated and bind user values as placeholders.
+
+## Optional handler descriptions
+
+A handler may implement the structural interface `predicatecatalog.Describer`:
+
+```go
+func (*OrderPresence) Description() string {
+    return "Filters customers by paid-order presence and active exclusions."
+}
+```
+
+`Description() string` must work on a fresh zero-value receiver without injected
+services or side effects. Pointer and value receivers are supported. Discovery
+trims surrounding whitespace and adds optional `description` metadata to the
+v1 types response; empty descriptions are omitted. The discovered predicates
+window displays and searches this text. Existing handlers need no changes.

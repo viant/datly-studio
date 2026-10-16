@@ -67,6 +67,7 @@ type AuthorizationPredicatePage struct {
 }
 
 type AuthorizationPredicateType struct {
+	Description string `json:"description,omitempty"`
 	Alias       string `json:"alias,omitempty"`
 	PackagePath string `json:"packagePath"`
 	TypeName    string `json:"typeName"`

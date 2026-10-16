@@ -240,7 +240,7 @@ func (t *Transport) authorizationPredicateValue(ctx context.Context, name string
 func (t *Transport) authorizationPredicateTypes(output any) error {
 	page := &sdk.AuthorizationPredicateTypePage{}
 	for _, descriptor := range t.Predicates.Descriptors() {
-		page.Items = append(page.Items, &sdk.AuthorizationPredicateType{Alias: descriptor.Alias, PackagePath: descriptor.Package, TypeName: descriptor.TypeName})
+		page.Items = append(page.Items, &sdk.AuthorizationPredicateType{Alias: descriptor.Alias, PackagePath: descriptor.Package, TypeName: descriptor.TypeName, Description: descriptor.Description})
 	}
 	return assign(output, page)
 }

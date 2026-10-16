@@ -22,10 +22,18 @@ type Package struct {
 	AuthorizationTypes []string
 }
 
+// Describer optionally supplies static documentation for a predicate.
+// Description must be safe on a fresh zero-value receiver, without dependencies
+// or side effects. Both value and pointer receivers are supported.
+type Describer interface {
+	Description() string
+}
+
 type Descriptor struct {
-	Alias    string
-	Package  string
-	TypeName string
+	Description string
+	Alias       string
+	Package     string
+	TypeName    string
 }
 
 type Catalog struct {
@@ -79,7 +87,7 @@ func New(packages ...Package) (*Catalog, error) {
 				return nil, fmt.Errorf("duplicate predicate link %s.%s", path, typ.Name())
 			}
 			if authorizationTypes == nil || authorizationTypes[typ.Name()] {
-				result.entries[key] = Descriptor{Alias: alias, Package: path, TypeName: typ.Name()}
+				result.entries[key] = Descriptor{Alias: alias, Package: path, TypeName: typ.Name(), Description: description(typ)}
 				delete(authorizationTypes, typ.Name())
 			}
 			if err := result.types.Register(typecatalog.TypeOriginPackage, x.NewType(typ, x.WithPkgPath(path))); err != nil {
@@ -137,4 +145,11 @@ func (c *Catalog) Descriptors() []Descriptor {
 		return result[i].Package < result[j].Package
 	})
 	return result
+}
+
+func description(typ reflect.Type) string {
+	if !reflect.PointerTo(typ).Implements(reflect.TypeFor[Describer]()) {
+		return ""
+	}
+	return strings.TrimSpace(reflect.New(typ).Interface().(Describer).Description())
 }

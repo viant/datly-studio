@@ -58,7 +58,7 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	output.Items = make([]*sdk.AuthorizationPredicateType, 0, len(catalog.Descriptors()))
 	for _, descriptor := range catalog.Descriptors() {
 		output.Items = append(output.Items, &sdk.AuthorizationPredicateType{
-			Alias: descriptor.Alias, PackagePath: descriptor.Package, TypeName: descriptor.TypeName,
+			Alias: descriptor.Alias, PackagePath: descriptor.Package, TypeName: descriptor.TypeName, Description: descriptor.Description,
 		})
 	}
 	return nil

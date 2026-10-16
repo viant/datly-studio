@@ -14,6 +14,18 @@ func TestOrderPresenceBothBranchesAndPackageScan(t *testing.T) {
 	if err != nil || !catalog.Contains(PackagePath, "OrderPresence") {
 		t.Fatalf("package scan: %v", err)
 	}
+	found := false
+	for _, item := range catalog.Descriptors() {
+		if item.Package == PackagePath && item.TypeName == "OrderPresence" {
+			found = true
+			if item.Description == "" || item.Description != new(OrderPresence).Description() {
+				t.Fatalf("description: %+v", item)
+			}
+		}
+	}
+	if !found {
+		t.Fatal("described example missing")
+	}
 	db, err := sql.Open("sqlite", ":memory:")
 	if err != nil {
 		t.Fatal(err)
