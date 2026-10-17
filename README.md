@@ -30,7 +30,7 @@ go build -o studio ./cmd/studio
 
 One main configuration supplies the HTTP, admin MCP, and default namespace MCP
 listeners; one Studio storage connector; and Datly JWT verification and claims.
-The connector is inline and reuses Datly's DSN/SCY `Secret` contract. Namespaces,
+The singular `Store` is inline and reuses Datly's connector type and DSN/SCY `Secret` contract. Namespaces,
 publications and application data connectors remain database-managed. The host
 owns internal service addresses and starts no child binaries.
 

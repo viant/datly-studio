@@ -25,7 +25,7 @@ func TestLoadRetainsDatlyConfigurationOrigin(t *testing.T) {
 	if c.URL != path {
 		t.Fatalf("origin changed: %q", c.URL)
 	}
-	if c.NamespaceMCP.Address != "127.0.0.1:8082" || c.Connector != "studio" || c.Connectors[0].Secret.Key != "blowfish://default" {
+	if c.NamespaceMCP.Address != "127.0.0.1:8082" || c.Store == nil || c.Store.Secret.Key != "blowfish://default" {
 		t.Fatal("shared/native configuration changed")
 	}
 	entries, err := os.ReadDir(dir)
@@ -39,7 +39,7 @@ func TestLoadRetainsDatlyConfigurationOrigin(t *testing.T) {
 	}
 }
 
-func TestLoadUsesDatlyConnectorDependencyFile(t *testing.T) {
+func TestLoadRejectsAdditionalStorageConnectorFile(t *testing.T) {
 	dir := t.TempDir()
 	connector := `Connectors:
   - Name: studio
@@ -52,27 +52,12 @@ func TestLoadUsesDatlyConnectorDependencyFile(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(dir, "connector.yaml"), []byte(connector), 0600); err != nil {
 		t.Fatal(err)
 	}
-	input := `Endpoint:
-  Address: 127.0.0.1:8080
-MCP:
-  Address: 127.0.0.1:8081
-NamespaceMCP:
-  Address: 127.0.0.1:8082
-Connector: studio
-DependencyURL: connector.yaml
-`
+	input := base + "DependencyURL: connector.yaml\n"
 	path := filepath.Join(dir, "host.yaml")
 	if err := os.WriteFile(path, []byte(input), 0600); err != nil {
 		t.Fatal(err)
 	}
-	c, err := Load(context.Background(), path)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(c.Connectors) != 1 || c.Connectors[0].Name != "studio" || c.Connectors[0].Secret.URL != "file:///config/database.enc" {
-		t.Fatal("Datly connector file was not loaded")
-	}
-	if c.BaseDir != dir {
-		t.Fatalf("relative dependency origin changed: %q", c.BaseDir)
+	if _, err := Load(context.Background(), path); err == nil {
+		t.Fatal("additional deployment connectors accepted")
 	}
 }

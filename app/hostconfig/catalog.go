@@ -12,10 +12,10 @@ import (
 // connections for authored components remain database-managed. The conventional
 // name is supplied when omitted, without changing the caller's configuration.
 func (c *Config) CatalogConnector() (connector.Config, error) {
-	if c == nil || len(c.Connectors) != 1 {
-		return connector.Config{}, errors.New("shared host requires one catalog connector")
+	if c == nil || c.Store == nil {
+		return connector.Config{}, errors.New("shared host requires a Store connector")
 	}
-	result := c.Connectors[0]
+	result := *c.Store
 	result.Name = strings.TrimSpace(result.Name)
 	if result.Name == "" {
 		result.Name = "studio"
@@ -23,9 +23,7 @@ func (c *Config) CatalogConnector() (connector.Config, error) {
 	if result.AliasOf != "" || result.Driver == "" || result.DSN == "" {
 		return connector.Config{}, errors.New("catalog connector requires Driver and DSN")
 	}
-	if c.Connector != "" && c.Connector != result.Name {
-		return connector.Config{}, errors.New("catalog connector selection differs from its definition")
-	}
+
 	return result, nil
 }
 

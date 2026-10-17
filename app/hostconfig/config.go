@@ -6,8 +6,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/viant/datly/bootstrap/connector"
 	"github.com/viant/scy"
 	"io"
+	"strings"
 
 	datly "github.com/viant/datly/standalone/config"
 	"go.yaml.in/yaml/v3"
@@ -19,6 +21,9 @@ import (
 // through Go APIs, not executable code or namespace lists in this document.
 type Config struct {
 	datly.Config
+	// Store is the one Studio metadata storage connection. Application data
+	// connectors are managed in the database, outside deployment configuration.
+	Store        *connector.Config
 	NamespaceMCP *datly.MCP
 	// PublicURL overrides the browser origin when deployed behind a proxy.
 	PublicURL string
@@ -46,6 +51,11 @@ func Decode(data []byte) (*Config, error) {
 	if decoder.Decode(&extra) != io.EOF {
 		return nil, errors.New("host configuration requires one document")
 	}
+	for key := range document {
+		if strings.EqualFold(key, "Connector") || strings.EqualFold(key, "Connectors") {
+			return nil, errors.New("use singular Store for Studio metadata storage")
+		}
+	}
 	raw, err := json.Marshal(document)
 	if err != nil {
 		return nil, errors.New("host configuration requires string mapping keys")
@@ -57,6 +67,9 @@ func Decode(data []byte) (*Config, error) {
 		return nil, errors.New("host configuration contains an unknown field or invalid value")
 	}
 	if err := result.ValidateListeners(); err != nil {
+		return nil, err
+	}
+	if _, err := result.CatalogConnector(); err != nil {
 		return nil, err
 	}
 	return result, nil

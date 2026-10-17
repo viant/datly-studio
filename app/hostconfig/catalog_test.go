@@ -17,9 +17,8 @@ func TestSingleCatalogUsesDatlyConnection(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	c.Connector = ""
-	c.Connectors[0].Name = ""
-	c.Connectors[0].Driver = "sqlite"
+	c.Store.Name = ""
+	c.Store.Driver = "sqlite"
 	dir := t.TempDir()
 	secretPath := filepath.Join(dir, "synthetic-secret.json")
 	secret, err := json.Marshal(map[string]string{"Username": filepath.Join(dir, "catalog.db")})
@@ -29,13 +28,13 @@ func TestSingleCatalogUsesDatlyConnection(t *testing.T) {
 	if err := os.WriteFile(secretPath, secret, 0600); err != nil {
 		t.Fatal(err)
 	}
-	c.Connectors[0].DSN = "${Username}"
-	c.Connectors[0].Secret = &scy.Resource{URL: secretPath}
+	c.Store.DSN = "${Username}"
+	c.Store.Secret = &scy.Resource{URL: secretPath}
 	selected, err := c.CatalogConnector()
 	if err != nil || selected.Name != "studio" {
 		t.Fatalf("default connector: %v", err)
 	}
-	if c.Connectors[0].Name != "" {
+	if c.Store.Name != "" {
 		t.Fatal("selection mutated config")
 	}
 	set, err := c.OpenCatalog(context.Background())
@@ -67,10 +66,10 @@ func TestSingleCatalogUsesDatlyConnection(t *testing.T) {
 
 func TestSingleCatalogRejectsAmbiguityWithoutExposingDSN(t *testing.T) {
 	for _, mutate := range []func(*Config){
-		func(c *Config) { c.Connectors = nil },
-		func(c *Config) { c.Connectors = append(c.Connectors, c.Connectors[0]) },
-		func(c *Config) { c.Connector = "other" },
-		func(c *Config) { c.Connectors[0].AliasOf = "missing" },
+		func(c *Config) { c.Store = nil },
+		func(c *Config) { c.Store.Driver = "" },
+		func(c *Config) { c.Store.DSN = "" },
+		func(c *Config) { c.Store.AliasOf = "missing" },
 	} {
 		c, err := Decode([]byte(base))
 		if err != nil {

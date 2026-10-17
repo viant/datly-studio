@@ -11,14 +11,12 @@ MCP:
   Address: 127.0.0.1:8081
 NamespaceMCP:
   Address: 127.0.0.1:8082
-Connector: studio
-Connectors:
-  - Name: studio
-    Driver: mysql
-    DSN: '${Username}:${Password}@tcp(localhost:3306)/studio'
-    Secret:
-      URL: file:///config/database.enc
-      Key: blowfish://default
+Store:
+  Driver: mysql
+  DSN: '${Username}:${Password}@tcp(localhost:3306)/studio'
+  Secret:
+    URL: file:///config/database.enc
+    Key: blowfish://default
 `
 
 func TestDatlyConnectorAndVerifierCompatibility(t *testing.T) {
@@ -30,10 +28,10 @@ func TestDatlyConnectorAndVerifierCompatibility(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if c.Connector != "studio" || len(c.Connectors) != 1 || c.Connectors[0].Secret.Key != "blowfish://default" {
+		if c.Store == nil || c.Store.Secret.Key != "blowfish://default" {
 			t.Fatal("Datly connector contract lost")
 		}
-		if !strings.Contains(c.Connectors[0].DSN, "${Password}") {
+		if !strings.Contains(c.Store.DSN, "${Password}") {
 			t.Fatal("secret expanded during decode")
 		}
 		if c.JWTValidator == nil || len(c.JWTValidator.RSA) == 0 && c.JWTValidator.CertURL == "" {
@@ -45,7 +43,7 @@ func TestDatlyConnectorAndVerifierCompatibility(t *testing.T) {
 func TestRejectAmbiguousOrNonInfrastructureConfiguration(t *testing.T) {
 	for _, input := range []string{
 		base + "Namespaces: [ar]\n", base + "Discovery: published-reports\n",
-		base + "Connector: duplicate\n", base + "---\nConnector: other\n",
+		base + "Connector: duplicate\n", base + "Connectors: []\n", base + "Store: {}\n", base + "---\nConnector: other\n",
 		strings.Replace(base, "127.0.0.1:8081", "bad-address", 1),
 		"null", "[]", `{"MCP":null,"MCP":{}}`,
 	} {

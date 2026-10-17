@@ -9,6 +9,7 @@ import (
 
 	"github.com/viant/afs"
 	"github.com/viant/afs/storage"
+	"github.com/viant/datly/bootstrap/connector"
 	datly "github.com/viant/datly/standalone/config"
 )
 
@@ -45,7 +46,14 @@ func Load(ctx context.Context, location string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	nativeDocument, err := json.Marshal(&result.Config)
+	store, err := result.CatalogConnector()
+	if err != nil {
+		return nil, err
+	}
+	nativeConfig := result.Config
+	nativeConfig.Connector = store.Name
+	nativeConfig.Connectors = []connector.Config{store}
+	nativeDocument, err := json.Marshal(&nativeConfig)
 	if err != nil {
 		return nil, errors.New("invalid native host configuration")
 	}
@@ -54,6 +62,17 @@ func Load(ctx context.Context, location string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+	if len(native.Connectors) != 1 {
+		return nil, errors.New("additional storage connectors are not supported; use singular Store")
+	}
+	native, err = native.ResolveConstants()
+	if err != nil {
+		return nil, err
+	}
+	resolvedStore := native.Connectors[0]
+	result.Store = &resolvedStore
+	native.Connector = ""
+	native.Connectors = nil
 	result.Config = *native
 	if result.StaticRoot != "" && !filepath.IsAbs(result.StaticRoot) {
 		result.StaticRoot = filepath.Join(native.BaseDir, result.StaticRoot)

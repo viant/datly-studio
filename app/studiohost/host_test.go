@@ -73,7 +73,7 @@ func TestOneProcessHost(t *testing.T) {
 	if err := os.WriteFile(publicPath, pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: public}), 0600); err != nil {
 		t.Fatal(err)
 	}
-	document := map[string]any{"BaseDir": dir, "Endpoint": map[string]any{"Address": "127.0.0.1:0"}, "MCP": map[string]any{"Address": "127.0.0.1:0"}, "NamespaceMCP": map[string]any{"Address": "127.0.0.1:0"}, "Connectors": []any{map[string]any{"Driver": "sqlite", "DSN": dsn}}, "JWTValidator": map[string]any{"RSA": []any{map[string]any{"URL": publicPath}}}, "JWTClaims": map[string]any{"Issuer": "https://synthetic.example", "Audience": "studio", "RequireSubject": true}}
+	document := map[string]any{"BaseDir": dir, "Endpoint": map[string]any{"Address": "127.0.0.1:0"}, "MCP": map[string]any{"Address": "127.0.0.1:0"}, "NamespaceMCP": map[string]any{"Address": "127.0.0.1:0"}, "Store": map[string]any{"Driver": "sqlite", "DSN": dsn}, "JWTValidator": map[string]any{"RSA": []any{map[string]any{"URL": publicPath}}}, "JWTClaims": map[string]any{"Issuer": "https://synthetic.example", "Audience": "studio", "RequireSubject": true}}
 	raw, err := json.Marshal(document)
 	if err != nil {
 		t.Fatal(err)
