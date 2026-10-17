@@ -34,9 +34,12 @@ func TestGeneratedPackagesMatchCanonicalInventory(t *testing.T) {
 		"resource_namespaces":          true,
 		"resource_namespace_claims":    true,
 		"authorization_grants":         true,
+		"namespace_skills":             true,
+		"namespace_skill_revisions":    true,
+		"tool_call_audit":              true,
 	}
 	legacy := map[string]bool{"report_filters": true}
-	support := map[string]bool{"authorization": true, "host": true, "predicatecatalog": true, "resources": true, "preview": true, "runtime": true}
+	support := map[string]bool{"authorization": true, "host": true, "predicatecatalog": true, "resources": true, "preview": true, "runtime": true, "catalog": true}
 	for root, label := range map[string]string{filepath.Join(repoRoot, "studio"): "generated Go", filepath.Join(repoRoot, "dql", "studio"): "DQL"} {
 		entries, err := os.ReadDir(root)
 		if err != nil {
@@ -67,14 +70,14 @@ func TestGeneratedPackagesMatchCanonicalInventory(t *testing.T) {
 	tablePattern := regexp.MustCompile(`(?i)CREATE\s+TABLE\s+([A-Za-z_][A-Za-z0-9_]*)`)
 	for _, match := range tablePattern.FindAllStringSubmatch(string(payload), -1) {
 		table := strings.ToLower(match[1])
-		if table == "schema_version" {
+		if table == "schema_version" || table == "sqlx_sequence_reservations" {
 			continue
 		}
 		if table == "component_fields" || table == "component_predicates" {
 			continue
 		}
-		// This is a Studio migration sidecar that binds legacy shared policy
-		// namespace metadata; it is not a runtime Datly component resource.
+		// Namespace associations are schema metadata, not a separate runtime
+		// component resource.
 		if table == "resource_policy_namespace_bindings" {
 			continue
 		}

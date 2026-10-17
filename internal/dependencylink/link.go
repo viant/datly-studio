@@ -1,6 +1,7 @@
 package dependencylink
 
 import (
+	_ "github.com/viant/authz/component/policy/graph"
 	_ "github.com/viant/authz/component/policy/reader"
 	_ "github.com/viant/authz/component/policy/writer"
 	_ "github.com/viant/datly-studio/internal/bffauth"

@@ -141,28 +141,9 @@ Clone the repository:
 git clone https://github.com/viant/datly-studio.git
 ```
 
-Initialize the Studio catalog and preseeded SQLite sample database:
-
-```sh
-cd datly-studio
-GOWORK=off go run ./cmd/studio-migrate \
-  -command init-studio \
-  -dsn 'file:.data/studio.db?cache=shared'
-./scripts/seed-development-sqlite.sh
-```
-
-Upgrade an existing SQLite Studio catalog before starting the updated runtime:
-
-```sh
-GOWORK=off go run ./cmd/studio-migrate \
-  -command up \
-  -dsn 'file:.data/studio.db?cache=shared'
-```
-
-The Studio migration upgrades the Studio-owned catalog. Authz policy tables
-are created from the shared canonical DDL for fresh installations; the new
-Authz schema does not rename or convert a previous `resource_policy_heads`
-layout or backfill policy history.
+The host creates the canonical Studio tables when its configured store is empty.
+An existing store is checked without running upgrade steps. Development sample
+data is optional and is not part of application startup.
 
 Build the UI and the single application binary:
 
@@ -390,7 +371,6 @@ components and pass the DQL inventory tests.
 | `app/studiohost` | In-process authoring, browser and namespace service lifecycle |
 | `cmd/studio-api` | Optional standalone SDK/BFF entry point |
 | `cmd/studio-runtime` | Optional standalone published-component runtime |
-| `cmd/studio-migrate` | Canonical catalog migration and development seed |
 | `dql/studio` | Datly control-plane DQL sources |
 | `runtime` | Dynamic preview, publication, and host behavior |
 | `schema` | Canonical relational schema and SQLite fixtures |

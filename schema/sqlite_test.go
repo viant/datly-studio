@@ -21,7 +21,7 @@ func TestSQLiteSchemasAndFixtures(t *testing.T) {
 	if err := ApplySQLite(ctx, studio, "studio_seed"); err != nil {
 		t.Fatal(err)
 	}
-	assertCount(t, studio, "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'", 27)
+	assertCount(t, studio, "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'", 28)
 	assertCount(t, studio, "SELECT COUNT(*) FROM connectors WHERE name='reporting' AND status='active'", 1)
 	assertCount(t, studio, "SELECT COUNT(*) FROM namespaces WHERE owner_id='unit' AND name='general' AND status='active'", 1)
 

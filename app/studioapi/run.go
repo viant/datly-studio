@@ -36,12 +36,12 @@ import (
 	"github.com/viant/datly-studio/runtime/accesscontext"
 	"github.com/viant/datly-studio/runtime/accessprovider"
 	"github.com/viant/datly-studio/runtime/preview"
+	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly-studio/sdk/access"
 	"github.com/viant/datly-studio/sdk/connectivity"
 	"github.com/viant/datly-studio/sdk/httptransport"
 	sqltransport "github.com/viant/datly-studio/sdk/transport/sql"
-	"github.com/viant/datly-studio/store/sql/migrate"
 	"github.com/viant/datly-studio/studio/authorization"
 	"github.com/viant/datly-studio/studio/host"
 	versionclone "github.com/viant/datly-studio/studio/report_versions/clone"
@@ -669,13 +669,7 @@ func resolveAuthenticatedIdentity(issuer, audience, encodedKey string) (string, 
 	return issuer, audience, key, nil
 }
 
-func ensureSchema(ctx context.Context, db *sql.DB) error {
-	service, err := migrate.New()
-	if err != nil {
-		return err
-	}
-	return service.Up(ctx, db)
-}
+func ensureSchema(ctx context.Context, db *sql.DB) error { return schema.Initialize(ctx, db, "sqlite") }
 
 const localRuntimeAdminToken = "datly-studio-local-runtime"
 

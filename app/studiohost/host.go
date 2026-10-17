@@ -5,6 +5,7 @@ package studiohost
 import (
 	"context"
 	"crypto/rand"
+	"database/sql"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -23,6 +24,7 @@ import (
 	"github.com/viant/datly-studio/app/studioapi"
 	"github.com/viant/datly-studio/runtime/accessprovider"
 	runtimehost "github.com/viant/datly-studio/runtime/host"
+	"github.com/viant/datly-studio/schema"
 	authoring "github.com/viant/datly-studio/studio/host"
 	"github.com/viant/datly/bootstrap/connector"
 	datlyconfig "github.com/viant/datly/standalone/config"
@@ -86,6 +88,12 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		catalog.DSN = secret.Expand(catalog.DSN)
 		catalog.Secret = nil
 	}
+	if catalog.Driver == "sqlite" {
+		catalog.DSN, err = prepareSQLiteStorage(catalog.DSN)
+		if err != nil {
+			return err
+		}
+	}
 	storage, err := connector.Open(ctx, []connector.Config{catalog}, catalog.Name)
 	if err != nil {
 		return err
@@ -95,6 +103,14 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	if err != nil {
 		return err
 	}
+	if options.Browser.SchemaVerifier != nil {
+		if err := options.Browser.SchemaVerifier(ctx, db); err != nil {
+			return err
+		}
+	} else if err := schema.Initialize(ctx, db, catalog.Driver); err != nil {
+		return err
+	}
+
 	authorityConfig := accessprovider.Config{Issuer: config.JWTClaims.Issuer, Audience: config.JWTClaims.Audience, JWTValidator: config.JWTValidator}
 	provider, err := accessprovider.New(ctx, authorityConfig, options.Native.AccessProviderFactory)
 	if err != nil {
@@ -226,6 +242,9 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		sessionKey = strings.TrimSpace(secret.String())
 	}
 	browser := options.Browser
+	if browser.SchemaVerifier == nil {
+		browser.SchemaVerifier = func(ctx context.Context, db *sql.DB) error { return schema.Verify(ctx, db, catalog.Driver) }
+	}
 	browser.Database = db
 	browser.DatabaseDriver = catalog.Driver
 	browser.Listener = publicListener

@@ -15,13 +15,15 @@ preserving shared policy heads and immutable revision history.
 
 Authz schema setup is for fresh schema creation. It does not rename previous
 policy tables, rewrite keys, backfill history/audit fields, or apply a policy
-version ledger. Studio's own catalog-version steps remain separate from Authz
-table initialization.
+version ledger. The SQLX allocation ledger and canonical layout marker are included in the main
+creation DDL. `schema.Initialize` creates an empty store and verifies an existing
+store without ALTER statements, history conversion, backfill, or repair. There
+are no pre-release schema upgrade steps.
 
 Focused validation:
 
 ```sh
-GOWORK=/tmp/steward-policy-schema.work go test ./schema ./store/sql/migrate
+GOWORK=off go test ./schema ./app/studiohost
 ```
 
 The root-owned disposable MySQL check can apply `schema.MySQLDDL()` to an empty

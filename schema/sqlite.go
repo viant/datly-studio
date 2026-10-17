@@ -22,23 +22,8 @@ var (
 	sqliteTableName        = regexp.MustCompile(`(?i)CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?([A-Za-z_][A-Za-z0-9_]*)`)
 )
 
-const (
-	PrePolicyNamespaceVersion         = 20
-	PolicyNamespaceVersion            = 21
-	AuthorizationPredicatePathVersion = 22
-	CanonicalVersion                  = 23
-)
-
-// EnsureSQLiteSequenceLedger installs SQLX's write-intent table before a
-// publication transaction begins. Creating it inside a deferred transaction
-// can fail after earlier catalog reads have established a SQLite snapshot.
-func EnsureSQLiteSequenceLedger(ctx context.Context, db *sql.DB) error {
-	_, err := db.ExecContext(ctx, `CREATE TABLE IF NOT EXISTS sqlx_sequence_reservations (
-		table_name TEXT PRIMARY KEY,
-		value INTEGER NOT NULL CHECK(value >= 0)
-	)`)
-	return err
-}
+// CanonicalVersion identifies the current schema layout, not an upgrade sequence.
+const CanonicalVersion = 23
 
 // ApplySQLite applies one embedded SQLite schema or fixture script.
 func ApplySQLite(ctx context.Context, db *sql.DB, name string) error {
@@ -62,14 +47,7 @@ func ApplySQLite(ctx context.Context, db *sql.DB, name string) error {
 	if _, err = db.ExecContext(ctx, string(payload)); err != nil {
 		return fmt.Errorf("apply SQLite script %q: %w", name, err)
 	}
-	if name == "studio" {
-		if err := EnsureSQLiteSequenceLedger(ctx, db); err != nil {
-			return fmt.Errorf("prepare SQLite sequence ledger: %w", err)
-		}
-		if err := policySchema.CreatePolicies(ctx, db, "sqlite"); err != nil {
-			return fmt.Errorf("initialize shared policy schema: %w", err)
-		}
-	}
+
 	return nil
 }
 
@@ -103,54 +81,6 @@ func SetSQLiteVersion(ctx context.Context, db *sql.DB, version int) error {
 	}
 	_, err := db.ExecContext(ctx, `INSERT INTO schema_version(version) VALUES (?)`, version)
 	return err
-}
-
-// AddSQLiteColumnFromCanonical adds one column using its definition from the
-// authoritative schema.ddl. Upgrade code names only the table and column; it
-// does not duplicate domain DDL.
-func AddSQLiteColumnFromCanonical(ctx context.Context, executor interface {
-	ExecContext(context.Context, string, ...any) (sql.Result, error)
-}, table, column string) error {
-	if !validSchemaIdentifier(table) || !validSchemaIdentifier(column) {
-		return fmt.Errorf("invalid canonical column target %s.%s", table, column)
-	}
-	if sharedPolicyTable(table) {
-		definition, err := policySchema.PolicyColumnDefinition("sqlite", table, column)
-		if err != nil {
-			return err
-		}
-		_, err = executor.ExecContext(ctx, "ALTER TABLE "+table+" ADD COLUMN "+definition)
-		return err
-	}
-	payload, err := sqliteFiles.ReadFile("schema.ddl")
-	if err != nil {
-		return err
-	}
-	definition, err := canonicalColumnDefinition(string(payload), table, column)
-	if err != nil {
-		return err
-	}
-	_, err = executor.ExecContext(ctx, "ALTER TABLE "+table+" ADD COLUMN "+definition)
-	return err
-}
-
-// CreateSQLiteTableFromCanonical installs one table and its immediately
-// following indexes from schema.ddl. Upgrade code names the table only so the
-// canonical snapshot remains the sole owner of domain DDL.
-func CreateSQLiteTableFromCanonical(ctx context.Context, executor interface {
-	ExecContext(context.Context, string, ...any) (sql.Result, error)
-}, table string) error {
-	if !validSchemaIdentifier(table) {
-		return fmt.Errorf("invalid canonical table target %s", table)
-	}
-	statement, err := SQLiteTableStatements(table)
-	if err != nil {
-		return err
-	}
-	if _, err = executor.ExecContext(ctx, statement); err != nil {
-		return fmt.Errorf("create canonical table %s: %w", table, err)
-	}
-	return nil
 }
 
 // SQLiteTableStatements returns canonical DDL for transactional table rebuilds.
@@ -192,29 +122,6 @@ func tableStatement(source, table string) (string, error) {
 		end = start + 1 + next
 	}
 	return source[start:end], nil
-}
-
-func canonicalColumnDefinition(ddl, table, column string) (string, error) {
-	if sharedPolicyTable(table) {
-		return policySchema.PolicyColumnDefinition("sqlite", table, column)
-	}
-	start := strings.Index(strings.ToLower(ddl), "create table "+strings.ToLower(table)+" (")
-	if start < 0 {
-		return "", fmt.Errorf("canonical table %s was not found", table)
-	}
-	body := ddl[start:]
-	end := strings.Index(body, ") ENGINE")
-	if end < 0 {
-		return "", fmt.Errorf("canonical table %s has no end", table)
-	}
-	for _, line := range strings.Split(body[:end], "\n") {
-		trimmed := strings.TrimSpace(strings.TrimSuffix(strings.TrimSpace(line), ","))
-		fields := strings.Fields(trimmed)
-		if len(fields) > 1 && strings.EqualFold(fields[0], column) {
-			return trimmed, nil
-		}
-	}
-	return "", fmt.Errorf("canonical column %s.%s was not found", table, column)
 }
 
 func sharedPolicyTable(table string) bool {

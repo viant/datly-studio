@@ -1120,10 +1120,10 @@ github.com/viant/assertly v0.4.8/go.mod h1:aGifi++jvCrUaklKEKT0BU95igDNaqkvz+49u
 github.com/viant/assertly v0.9.0/go.mod h1:aGifi++jvCrUaklKEKT0BU95igDNaqkvz+49uaYMPRU=
 github.com/viant/assertly v0.9.1-0.20220620174148-bab013f93a60 h1:VFJvCOHKXv4IqX8rJwn1otpHWQGgMDv2bXtAPgEzndM=
 github.com/viant/assertly v0.9.1-0.20220620174148-bab013f93a60/go.mod h1:aGifi++jvCrUaklKEKT0BU95igDNaqkvz+49uaYMPRU=
-github.com/viant/authz v0.0.0-20261014234113-96042135a76f h1:c+Pf7/zzA4XrAg1Dm9v3BC33WxgQCpOIpZ2cNI4VkEY=
-github.com/viant/authz v0.0.0-20261014234113-96042135a76f/go.mod h1:iazfsC9LZkGsbZY2o/9Aq3p8eHaD09tWudyRN5vQ9eI=
-github.com/viant/authz/component v0.0.0-20261008185629-af2e488eec48 h1:W/Q/a5NPfKmnCZ1ZMSABHGvTVbddJAfq39Gr3tGPwsE=
-github.com/viant/authz/component v0.0.0-20261008185629-af2e488eec48/go.mod h1:fAQmK0X/Swha7F0havB8iyAduleu29IzfdtPtssi6P0=
+github.com/viant/authz v0.0.0-20261017194718-15366eed9f87 h1:kP71SHwU2Zw2/rPDxpHeici6soKwh9GG26u8Bn0uA0I=
+github.com/viant/authz v0.0.0-20261017194718-15366eed9f87/go.mod h1:iazfsC9LZkGsbZY2o/9Aq3p8eHaD09tWudyRN5vQ9eI=
+github.com/viant/authz/component v0.0.0-20261017195827-09176e9405c4 h1:IxngNqqpHBoCo7/FDaZsatuYckvYY1cqggVyzT3wZM0=
+github.com/viant/authz/component v0.0.0-20261017195827-09176e9405c4/go.mod h1:ox0oA/j5NmjymzPlxbFZXl64tnZmnLEIsqCkO8UF2KM=
 github.com/viant/bigquery v0.5.4-0.20260927120042-a47888f8d2cc h1:tMKK7Wn8mjRtJyAHZLbpx1NmGTDU8jy1Q3HQLATBAIY=
 github.com/viant/bigquery v0.5.4-0.20260927120042-a47888f8d2cc/go.mod h1:L5VHC9DEQ1ZlR1yaSbCqnKf6GXz355EGBIbP+wx+wTk=
 github.com/viant/bindly v0.4.1-0.20261011212616-2c051ae6bd9e h1:Jsx2KLz+XxxGx/cENZn5iSE1RUpGdvfq6oSOx1n++tw=

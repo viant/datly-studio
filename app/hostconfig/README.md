@@ -103,9 +103,10 @@ go build -o studio ./cmd/studio
 ./studio --config studio.yaml
 ```
 
-The storage schema must be provisioned before namespace runtime discovery. MySQL
-uses operator-managed migrations; existing standalone SQLite initialization is
-retained by the browser host. The host does not create application/report connector
+The application creates the canonical schema before namespace discovery when
+`Store` is empty. On restart it checks existing tables, columns, indexes and the
+canonical layout marker without running upgrade or repair steps. Both SQLite and
+MySQL use the same canonical creation source and shared Authz policy definitions. The host does not create application/report connector
 definitions in deployment configuration.
 
 `PublicURL` is optional for a proxy deployment; otherwise the browser origin is

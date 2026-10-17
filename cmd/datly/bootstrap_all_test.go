@@ -72,9 +72,6 @@ func TestSelectedStudioStaticComponentsBootstrapTogether(t *testing.T) {
 	if err = schema.ApplySQLite(ctx, db, "studio"); err != nil {
 		t.Fatal(err)
 	}
-	if err = schema.EnsureSQLiteSequenceLedger(ctx, db); err != nil {
-		t.Fatal(err)
-	}
 	if err = db.Close(); err != nil {
 		t.Fatal(err)
 	}

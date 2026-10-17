@@ -65,7 +65,7 @@ func TestCanonicalAuditColumnInventory(t *testing.T) {
 	seenAuditTables := make(map[string]bool, len(requiredAuditTables))
 	for _, table := range tables {
 		// SQLX's allocation ledger is infrastructure, separate from domain audit rows.
-		if table == "sqlx_sequence_reservations" {
+		if table == "sqlx_sequence_reservations" || table == "schema_version" {
 			continue
 		}
 

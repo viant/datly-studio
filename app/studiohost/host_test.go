@@ -27,7 +27,6 @@ import (
 	"github.com/viant/datly-studio/app/hostconfig"
 	"github.com/viant/datly-studio/app/studioapi"
 	"github.com/viant/datly-studio/app/studiohost"
-	"github.com/viant/datly-studio/store/sql/migrate"
 	mcpschema "github.com/viant/mcp-protocol/schema"
 )
 
@@ -45,22 +44,12 @@ func TestOneProcessHost(t *testing.T) {
 		return
 	}
 	dir := t.TempDir()
-	dsn := filepath.Join(dir, "storage.db")
+	dsn := filepath.Join(dir, "fresh-store", "storage.db")
 	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer db.Close()
-	migration, err := migrate.New()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := migration.Up(context.Background(), db); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := db.Exec(`INSERT INTO namespaces(namespace_id,name,title,owner_id,status,etag,created_at,updated_at) VALUES(?, 'synthetic','Synthetic','synthetic-owner','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, strings.Repeat("a", 64)); err != nil {
-		t.Fatal(err)
-	}
 	private, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		t.Fatal(err)
@@ -180,6 +169,9 @@ func TestOneProcessHost(t *testing.T) {
 		t.Fatalf("startup failed: %v", err)
 	case <-ctx.Done():
 		t.Fatal("startup timed out")
+	}
+	if _, err := db.Exec(`INSERT INTO namespaces(namespace_id,name,title,owner_id,status,etag,created_at,updated_at) VALUES(?, 'synthetic','Synthetic','synthetic-owner','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, strings.Repeat("a", 64)); err != nil {
+		t.Fatal(err)
 	}
 	client := &http.Client{Timeout: 5 * time.Second}
 	res, err := client.Get("http://" + endpoints.HTTP + "/")
