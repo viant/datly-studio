@@ -77,6 +77,7 @@ describe('ReaderExposureDialog', () => {
         { type: 'setSetting', setting: { name: 'cubeCompose', args: ['true', 'true', '12', '250', '45000'] } },
         { type: 'setSetting', setting: { name: 'mcp', args: ['"alice.vendors.read"', '"Read vendors"', '"docs/vendors.md"'] } },
         { type: 'setSetting', setting: { name: 'mcpOnly', remove: true } },
+        { type: 'setSetting', setting: { name: 'internal', args: ['false'] } },
       ],
     });
     expect(onClose).toHaveBeenCalledOnce();
@@ -99,4 +100,17 @@ describe('ReaderExposureDialog', () => {
     expect((await screen.findByRole('alert')).textContent).toContain('owner prefix alice.');
     expect(onApply).not.toHaveBeenCalled();
   });
+});
+
+test('keeps an imported internal reader internal with MCP disabled and allows explicit public routing', async () => {
+  const user = userEvent.setup(), onApply = vi.fn().mockResolvedValue({});
+  const api = {listConnectors:vi.fn().mockResolvedValue({items:[{name:'main',driver:'sqlite'}]}),getComponent:vi.fn().mockResolvedValue({id:'vendor',title:'Vendors',description:''})};
+  const scoped = {...structure,component:{...structure.component,routes:[{method:'GET',path:'/vendors',internal:true,mcp:[]}]}};
+  render(<ReaderExposureDialog isOpen api={api} structure={scoped} report={{id:'vendor',title:'Vendors',defaultConnectorName:'main'}} onApply={onApply} onClose={vi.fn()}/>);
+  expect(screen.getByLabelText('Route visibility').value).toBe('internal');
+  await user.click(screen.getByRole('button',{name:'Save component'}));
+  expect(onApply.mock.calls[0][0].operations).toContainEqual({type:'setSetting',setting:{name:'internal',args:['true']}});
+  await user.selectOptions(screen.getByLabelText('Route visibility'),'public');
+  await user.click(screen.getByRole('button',{name:'Save component'}));
+  expect(onApply.mock.calls[1][0].operations).toContainEqual({type:'setSetting',setting:{name:'internal',args:['false']}});
 });

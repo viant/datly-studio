@@ -40,7 +40,7 @@ export function exposureSetting({ enabled, name, description, descriptionPath })
   return { name: 'mcp', args };
 }
 
-export function componentSettingsOperation({ connector, cubeEnabled, cubeMCP = true, composeEnabled, composeMCP, maxCubes, maxLimit, timeoutMs, exposure, projectionChange, groupingChange, pagingChanges = [] }) {
+export function componentSettingsOperation({ connector, cubeEnabled, cubeMCP = true, composeEnabled, composeMCP, maxCubes, maxLimit, timeoutMs, visibility, exposure, projectionChange, groupingChange, pagingChanges = [] }) {
   const cubeArgs = ["''", "''", "''", "''", "''", "''", "''", String(Boolean(cubeMCP))];
   const cube = { type: 'setSetting', setting: cubeEnabled ? { name: 'cube', args: cubeArgs } : { name: 'cube', remove: true } };
   const composition = {
@@ -52,6 +52,13 @@ export function componentSettingsOperation({ connector, cubeEnabled, cubeMCP = t
   const operations = [{ type: 'setSetting', setting: { name: 'connector', args: [quoteDQL(connector)] } }, ...(groupingChange ? [groupingChange] : []), ...(cubeEnabled ? [cube, composition] : [composition, cube])];
   operations.push({ type: 'setSetting', setting: exposureSetting(exposure) });
   operations.push({ type: 'setSetting', setting: exposure?.enabled && exposure?.mcpOnly ? { name: 'mcpOnly', args: ['true'] } : { name: 'mcpOnly', remove: true } });
+  if (visibility !== undefined) {
+    if (!['internal', 'public', 'mcp-only'].includes(visibility)) throw new Error('Invalid route visibility.');
+    if (visibility === 'internal' && (exposure?.enabled || (cubeEnabled && cubeMCP) || (composeEnabled && composeMCP))) throw new Error('Internal routes cannot expose MCP tools.');
+    if (visibility === 'mcp-only' && !exposure?.enabled) throw new Error('MCP-only routes require an enabled MCP tool.');
+    operations[operations.length - 1] = { type: 'setSetting', setting: visibility === 'mcp-only' ? {name:'mcpOnly',args:['true']} : {name:'mcpOnly',remove:true} };
+    operations.push({ type: 'setSetting', setting: { name: 'internal', args: [String(visibility === 'internal')] } });
+  }
   if (projectionChange) operations.push(projectionChange);
   operations.push(...pagingChanges);
   return { type: 'batch', operations };

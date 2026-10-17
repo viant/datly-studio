@@ -113,3 +113,14 @@ test('cube enabling marks the root view groupable without duplicating existing m
   source.component.rootView.groupable = true;
   assert.equal(groupingOperation(source),null);
 });
+
+test('route visibility preserves internal isolation and distinguishes MCP-only exposure', () => {
+  const base={connector:'main',cubeEnabled:false,composeEnabled:false,exposure:{enabled:false}};
+  assert.deepEqual(componentSettingsOperation({...base,visibility:'internal'}).operations.at(-1).setting,{name:'internal',args:['true']});
+  assert.deepEqual(componentSettingsOperation({...base,visibility:'public'}).operations.at(-1).setting,{name:'internal',args:['false']});
+  assert.throws(()=>componentSettingsOperation({...base,visibility:'mcp-only'}),/require an enabled MCP tool/);
+  assert.throws(()=>componentSettingsOperation({...base,visibility:'internal',exposure:{enabled:true,name:'alice.read',description:'',descriptionPath:''}}),/cannot expose MCP/);
+  const op=componentSettingsOperation({...base,visibility:'mcp-only',exposure:{enabled:true,name:'alice.read',description:'',descriptionPath:''}});
+  assert.deepEqual(op.operations.at(-2).setting,{name:'mcpOnly',args:['true']});
+  assert.deepEqual(op.operations.at(-1).setting,{name:'internal',args:['false']});
+});

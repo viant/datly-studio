@@ -47,7 +47,7 @@ export function ReaderExposureDialog({ isOpen, readOnly = false, onCache, api, s
   const [maxLimit, setMaxLimit] = useState(String(compose?.maxLimit ?? 100));
   const [timeout, setTimeoutMs] = useState(String(compose?.timeoutMs ?? 30000));
   const [enabled, setEnabled] = useState(Boolean(exposure));
-  const [mcpOnly, setMCPOnly] = useState(Boolean(route?.internal));
+  const [visibility, setVisibility] = useState(route?.internal ? (exposure ? 'mcp-only' : 'internal') : 'public');
   const [name, setName] = useState(exposure?.name ?? '');
   const [description, setDescription] = useState(exposure?.description ?? '');
   const [descriptionPath, setDescriptionPath] = useState(exposure?.descriptionPath ?? '');
@@ -74,7 +74,7 @@ export function ReaderExposureDialog({ isOpen, readOnly = false, onCache, api, s
     setMaxLimit(String(compose?.maxLimit ?? 100));
     setTimeoutMs(String(compose?.timeoutMs ?? 30000));
     setEnabled(Boolean(exposure));
-    setMCPOnly(Boolean(route?.internal));
+    setVisibility(route?.internal ? (exposure ? 'mcp-only' : 'internal') : 'public');
     setName(exposure?.name ?? suggestExposureName(component, report?.ownerPackage));
     setDescription(exposure?.description ?? component?.description ?? '');
     setDescriptionPath(exposure?.descriptionPath ?? '');
@@ -109,7 +109,7 @@ export function ReaderExposureDialog({ isOpen, readOnly = false, onCache, api, s
     setError('');
     try {
       const pagingChanges = [...(limitChanged ? [pagingOperation(structure,'limit',allowLimit)] : []), ...(offsetChanged ? [pagingOperation(structure,'offset',allowOffset)] : [])];
-      await onApply(componentSettingsOperation({ connector, cubeEnabled, cubeMCP, composeEnabled, composeMCP, maxCubes: budgets[0], maxLimit: budgets[1], timeoutMs: budgets[2], exposure: { enabled, mcpOnly, name, description, descriptionPath }, groupingChange: cubeEnabled ? groupingOperation(structure) : undefined, projectionChange: fieldSelectionChanged ? projectionOperation(structure, fieldSelection) : undefined, pagingChanges }));
+      await onApply(componentSettingsOperation({ connector, cubeEnabled, cubeMCP: visibility !== 'internal' && cubeMCP, composeEnabled, composeMCP: visibility !== 'internal' && composeMCP, maxCubes: budgets[0], maxLimit: budgets[1], timeoutMs: budgets[2], visibility, exposure: { enabled, name, description, descriptionPath }, groupingChange: cubeEnabled ? groupingOperation(structure) : undefined, projectionChange: fieldSelectionChanged ? projectionOperation(structure, fieldSelection) : undefined, pagingChanges }));
       if (api && report?.id) {
         let current = await api.getComponent(report.id);
         if (title.trim() !== current.title || componentDescription.trim() !== (current.description || '')) {
@@ -167,9 +167,9 @@ export function ReaderExposureDialog({ isOpen, readOnly = false, onCache, api, s
             <Switch checked={allowLimit} label="Allow result limit" onChange={event=>{setAllowLimit(event.target.checked);setLimitChanged(true);}} disabled={saving}/>
             <Switch checked={allowOffset} label="Allow result offset" onChange={event=>{setAllowOffset(event.target.checked);setOffsetChanged(true);}} disabled={saving}/>
             {cubeEnabled && !fieldSelection && <Callout compact intent="warning">Enable field selection to preview selected cube dimensions and measures. This also permits field selection on the source reader.</Callout>}
-            {cubeEnabled && <Switch checked={cubeMCP} label="Expose cube as an MCP tool" onChange={(event)=>setCubeMCP(event.target.checked)} disabled={saving}/>}
+            {cubeEnabled && <Switch checked={visibility !== 'internal' && cubeMCP} label="Expose cube as an MCP tool" onChange={(event)=>setCubeMCP(event.target.checked)} disabled={saving || visibility === 'internal'}/>}
             <Switch checked={composeEnabled} label="Enable cube composition" onChange={(event) => setComposeEnabled(event.target.checked)} disabled={saving || !cubeEnabled}/>
-            {composeEnabled && <div className="studio-component-settings-details"><div className="studio-form-grid"><FormGroup label="Maximum cubes" labelFor="compose-max-cubes"><InputGroup id="compose-max-cubes" value={maxCubes} onChange={(event) => setMaxCubes(event.target.value)} inputMode="numeric" disabled={saving}/></FormGroup><FormGroup label="Maximum result rows" labelFor="compose-max-limit"><InputGroup id="compose-max-limit" value={maxLimit} onChange={(event) => setMaxLimit(event.target.value)} inputMode="numeric" disabled={saving}/></FormGroup></div><FormGroup label="Timeout (ms)" labelFor="compose-timeout"><InputGroup id="compose-timeout" value={timeout} onChange={(event) => setTimeoutMs(event.target.value)} inputMode="numeric" disabled={saving}/></FormGroup><Switch checked={composeMCP} label="Expose composition as an MCP tool" onChange={(event) => setComposeMCP(event.target.checked)} disabled={saving}/></div>}
+            {composeEnabled && <div className="studio-component-settings-details"><div className="studio-form-grid"><FormGroup label="Maximum cubes" labelFor="compose-max-cubes"><InputGroup id="compose-max-cubes" value={maxCubes} onChange={(event) => setMaxCubes(event.target.value)} inputMode="numeric" disabled={saving}/></FormGroup><FormGroup label="Maximum result rows" labelFor="compose-max-limit"><InputGroup id="compose-max-limit" value={maxLimit} onChange={(event) => setMaxLimit(event.target.value)} inputMode="numeric" disabled={saving}/></FormGroup></div><FormGroup label="Timeout (ms)" labelFor="compose-timeout"><InputGroup id="compose-timeout" value={timeout} onChange={(event) => setTimeoutMs(event.target.value)} inputMode="numeric" disabled={saving}/></FormGroup><Switch checked={visibility !== 'internal' && composeMCP} label="Expose composition as an MCP tool" onChange={(event) => setComposeMCP(event.target.checked)} disabled={saving}/></div>}
           </section>
 
           <section className="studio-component-settings-section" aria-labelledby="mcp-settings-title">
@@ -179,11 +179,14 @@ export function ReaderExposureDialog({ isOpen, readOnly = false, onCache, api, s
             checked={enabled}
             label="Enable MCP tool"
             onChange={(event) => setEnabled(event.target.checked)}
-            disabled={saving || !route}
+            disabled={saving || !route || visibility !== 'public'}
           />
 
-          {enabled && <Switch checked={mcpOnly} label="Publish as MCP-only" onChange={(event) => setMCPOnly(event.target.checked)} disabled={saving}/>}
-          {enabled && mcpOnly && <Callout compact intent="primary">The component route remains available to Datly’s runtime and MCP server, but is excluded from public HTTP routing.</Callout>}
+          <FormGroup label="Route visibility" labelFor="route-visibility" helperText="Public enables HTTP routing. Authentication and authorization still apply. Internal exposes neither HTTP nor MCP; MCP only excludes HTTP.">
+            <HTMLSelect id="route-visibility" value={visibility} onChange={event => {const value=event.target.value;setVisibility(value);if(value==='internal')setEnabled(false);if(value==='mcp-only')setEnabled(true);}} disabled={saving || !route}>
+              <option value="internal">Internal</option><option value="public">Public HTTP route</option><option value="mcp-only">MCP only</option>
+            </HTMLSelect>
+          </FormGroup>
 
           {enabled && (
             <div className="studio-exposure-form">
