@@ -12,6 +12,8 @@ import (
 	"sort"
 	"strings"
 	"unicode/utf8"
+
+	"go.yaml.in/yaml/v3"
 )
 
 // DQLBundle preserves archive-relative resources and lists every root DQL entry.
@@ -42,7 +44,8 @@ func ReadDQL(reader io.Reader) (*DQLBundle, error) {
 	return &DQLBundle{Entries: []string{"main.dql"}, Files: map[string][]byte{"main.dql": data}}, nil
 }
 
-// ReadDQLArchive reads ZIP, TAR, or TAR.GZ into memory. Root .dql files are
+// ReadDQLArchive reads ZIP, TAR, TAR.GZ, or a YAML text bundle into memory.
+// YAML uses a single files mapping of relative paths to UTF-8 source strings. Root .dql files are
 // entry points; nested files retain their paths for dependency resolution.
 // It never extracts onto the host filesystem or follows archive links.
 func ReadDQLArchive(reader io.Reader, format string) (*DQLBundle, error) {
@@ -93,6 +96,27 @@ func ReadDQLArchive(reader io.Reader, format string) (*DQLBundle, error) {
 		return nil
 	}
 	switch strings.ToLower(format) {
+	case "yaml", "yml":
+		var document struct {
+			Files map[string]string `yaml:"files"`
+		}
+		decoder := yaml.NewDecoder(bytes.NewReader(data))
+		decoder.KnownFields(true)
+		if err := decoder.Decode(&document); err != nil {
+			return nil, err
+		}
+		var trailing any
+		if err := decoder.Decode(&trailing); err != io.EOF {
+			return nil, fmt.Errorf("YAML bundle must contain exactly one document")
+		}
+		for name, content := range document.Files {
+			if !utf8.ValidString(content) {
+				return nil, fmt.Errorf("YAML resource %s must be UTF-8 text", name)
+			}
+			if err := add(name, 0600, strings.NewReader(content)); err != nil {
+				return nil, err
+			}
+		}
 	case "zip":
 		archive, err := zip.NewReader(bytes.NewReader(data), int64(len(data)))
 		if err != nil {
@@ -139,7 +163,7 @@ func ReadDQLArchive(reader io.Reader, format string) (*DQLBundle, error) {
 			}
 		}
 	default:
-		return nil, fmt.Errorf("archive format must be zip, tar, or tar.gz")
+		return nil, fmt.Errorf("archive format must be zip, tar, tar.gz, or yaml")
 	}
 	if len(result.Entries) == 0 {
 		return nil, fmt.Errorf("archive must contain at least one .dql file at its root")

@@ -6,7 +6,9 @@ import (
 	"strings"
 
 	"github.com/viant/datly-studio/runtime/accesscontext"
+	"github.com/viant/datly-studio/runtime/preview"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
+	"github.com/viant/datly/spec"
 	"github.com/viant/datly/typecatalog"
 	"golang.org/x/mod/module"
 )
@@ -15,15 +17,19 @@ const DefaultAuthoringModule = "github.com/viant/datly-studio"
 
 // AuthoringConfig is trusted startup configuration, never a request parameter.
 type AuthoringConfig struct {
-	ModulePath string
-	Config     Config
+	Dependencies preview.DependencyResolver
+	ReaderCaches map[string]*spec.CacheSettings
+	ModulePath   string
+	Config       Config
 }
 
 // Authoring is a detached immutable per-host compilation snapshot.
 type Authoring struct {
-	module     string
-	predicates *predicatecatalog.Catalog
-	types      *typecatalog.Catalog
+	dependencies preview.DependencyResolver
+	readerCaches map[string]*spec.CacheSettings
+	module       string
+	predicates   *predicatecatalog.Catalog
+	types        *typecatalog.Catalog
 }
 
 func NewAuthoring(config AuthoringConfig) (*Authoring, error) {
@@ -46,7 +52,7 @@ func NewAuthoring(config AuthoringConfig) (*Authoring, error) {
 	if err := accesscontext.RegisterTypes(types); err != nil {
 		return nil, err
 	}
-	return &Authoring{module: name, predicates: predicates, types: types}, nil
+	return &Authoring{module: name, predicates: predicates, types: types, readerCaches: cloneReaderCaches(config.ReaderCaches), dependencies: config.Dependencies}, nil
 }
 
 func (a *Authoring) ModulePath() string                          { return a.module }
@@ -68,3 +74,21 @@ func (a *Authoring) Middleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), authoringKey{}, a)))
 	})
 }
+
+// ReaderCaches returns detached deployment settings for version validation and
+// preview. Browser input cannot replace this authoring snapshot.
+func (a *Authoring) ReaderCaches() map[string]*spec.CacheSettings {
+	return cloneReaderCaches(a.readerCaches)
+}
+func cloneReaderCaches(source map[string]*spec.CacheSettings) map[string]*spec.CacheSettings {
+	if source == nil {
+		return nil
+	}
+	result := make(map[string]*spec.CacheSettings, len(source))
+	for name, value := range source {
+		result[name] = value.Clone()
+	}
+	return result
+}
+
+func (a *Authoring) Dependencies() preview.DependencyResolver { return a.dependencies }

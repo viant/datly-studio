@@ -99,6 +99,33 @@ JOIN (SELECT ID, VENDOR_ID, STATUS FROM PRODUCT) products ON products.VENDOR_ID=
 	if warmup.Entries <= 0 || warmup.Duration <= 0 || warmup.PlannedCases != 3 || warmup.CompletedCases != 3 {
 		t.Fatalf("warmup=%+v", warmup)
 	}
+	t.Run("authenticated-dependency-predicate", func(t *testing.T) { checkPreviewDependencyIdentity(t, studio, root, dql) })
+	t.Run("deployment-named-cache", func(t *testing.T) {
+		named := strings.Replace(dql, fmt.Sprintf("#setting($_ = $cache('vendors', '1m').WithLocation('%s'))", filepath.Join(root, "cache")), "#setting($_ = $cache('vendors'))", 1)
+		if named == dql {
+			t.Fatal("cache source replacement failed")
+		}
+		if _, err := studio.ExecContext(ctx, "UPDATE component_versions SET authored_dql=?,generated_dql=? WHERE report_id='vendors' AND version_no=1", named, named); err != nil {
+			t.Fatal(err)
+		}
+		defer func() {
+			if _, err := studio.ExecContext(ctx, "UPDATE component_versions SET authored_dql=?,generated_dql=? WHERE report_id='vendors' AND version_no=1", dql, dql); err != nil {
+				t.Fatal(err)
+			}
+		}()
+		dynamic := Dynamic{StudioDB: studio, RootDir: root}
+		if err := dynamic.Validate(ctx, "vendors", 1); err == nil {
+			t.Fatal("unconfigured preview cache accepted")
+		}
+		dynamic.ReaderCaches = map[string]*spec.CacheSettings{"vendors": {Name: "vendors", Enabled: true, Provider: "afs", Location: filepath.Join(root, "deployment-cache"), TTL: "1m"}}
+		if err := dynamic.Validate(ctx, "vendors", 1); err != nil {
+			t.Fatal(err)
+		}
+		result, err := dynamic.Execute(ctx, "vendors", 1, sdk.PreviewInput{Limit: 1})
+		if err != nil || result == nil || !strings.Contains(string(result.Data), "Northwind") {
+			t.Fatalf("named cache preview: %+v %v", result, err)
+		}
+	})
 	view, err := (Dynamic{StudioDB: studio, RootDir: root}).TestView(ctx, "vendors", 1, "vendors", sdk.ViewTestInput{Limit: 1})
 	if err != nil {
 		t.Fatal(err)

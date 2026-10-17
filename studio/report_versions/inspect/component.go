@@ -185,7 +185,7 @@ func (*inspectHandler) Exec(ctx context.Context, session xhandler.Session, input
 		if dbErr != nil || db == nil {
 			return fmt.Errorf("configured Studio database is unavailable")
 		}
-		resolved, inspectErr := (preview.Dynamic{StudioDB: db, ModulePath: authoring.ModulePath(), Types: types}).InspectContract(ctx, input.ReportId, input.VersionNo)
+		resolved, inspectErr := (preview.Dynamic{StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, ReaderCaches: authoring.ReaderCaches(), Dependencies: authoring.Dependencies()}).InspectContract(ctx, input.ReportId, input.VersionNo)
 		if inspectErr != nil {
 			inspected.Structure.Status = "partial"
 			inspected.Diagnostics = append(inspected.Diagnostics, &transcribe.Diagnostic{Severity: transcribe.SeverityWarning, Code: "column_inspection_unavailable", Message: "Column metadata is unavailable; check the draft source and connector configuration."})

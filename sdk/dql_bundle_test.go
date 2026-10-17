@@ -113,3 +113,27 @@ func TestReadDQLPreservesSourceAndRejectsInvalidText(t *testing.T) {
 		}
 	}
 }
+
+func TestDQLYAMLBundle(t *testing.T) {
+	source := "files:\n  main.dql: |\n    SELECT x.* FROM (${embed:sql/query.sql}) x\n  sql/query.sql: |-\n    SELECT 1 AS id\n"
+	bundle, err := ReadDQLArchive(strings.NewReader(source), "yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(bundle.Entries, []string{"main.dql"}) || string(bundle.Files["main.dql"]) != "SELECT x.* FROM (${embed:sql/query.sql}) x\n" || string(bundle.Files["sql/query.sql"]) != "SELECT 1 AS id" {
+		t.Fatalf("changed source: %+v", bundle)
+	}
+	for _, invalid := range []string{
+		"files:\n  ../main.dql: SELECT 1\n",
+		"files:\n  main.dql: SELECT 1\n  main.dql: SELECT 2\n",
+		"files:\n  nested/main.dql: SELECT 1\n",
+		"files:\n  main.dql: SELECT 1\n  sql: data\n  sql/query.sql: SELECT 2\n",
+		"files:\n  main.dql: SELECT 1\nnamespace: other\n",
+		"files:\n  main.dql: SELECT 1\n---\nfiles: {}\n",
+		"files:\n  main.dql: ''\n",
+	} {
+		if _, err := ReadDQLArchive(strings.NewReader(invalid), "yaml"); err == nil {
+			t.Errorf("accepted invalid bundle: %s", invalid)
+		}
+	}
+}

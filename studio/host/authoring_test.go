@@ -9,6 +9,7 @@ import (
 
 	"github.com/viant/datly-studio/studio/host"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
+	"github.com/viant/datly/spec"
 	"github.com/viant/datly/transcribe"
 )
 
@@ -63,5 +64,23 @@ SELECT 1 AS id`}
 		if (err == nil) != test.allowed {
 			t.Fatalf("module %q allowed=%v error=%v", test.module, test.allowed, err)
 		}
+	}
+}
+
+func TestAuthoringCacheSettingsAreDetached(t *testing.T) {
+	original := &spec.CacheSettings{Name: "local", Enabled: true, Location: "/owned/cache", TTL: "1m"}
+	snapshot, err := host.NewAuthoring(host.AuthoringConfig{ReaderCaches: map[string]*spec.CacheSettings{"local": original}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	original.Location = "/changed"
+	first := snapshot.ReaderCaches()
+	if first["local"].Location != "/owned/cache" {
+		t.Fatal("startup cache mutation leaked")
+	}
+	first["local"].Location = "/changed-again"
+	delete(first, "local")
+	if snapshot.ReaderCaches()["local"].Location != "/owned/cache" {
+		t.Fatal("returned cache mutation leaked")
 	}
 }

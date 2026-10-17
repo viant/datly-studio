@@ -39,6 +39,7 @@ import (
 	"github.com/viant/datly/transcribe"
 	"github.com/viant/datly/transcribe/column"
 	"github.com/viant/sqlx"
+	"github.com/viant/sqlx/io/read/cache/aerospike"
 	"github.com/viant/tagly/tags"
 	xhandler "github.com/viant/xdatly/handler"
 	"golang.org/x/mod/modfile"
@@ -47,6 +48,11 @@ import (
 // Dynamic executes dynamic reader versions using Datly's runtime-contract
 // materialization. It is an SDK preview executor, not a SQL escape hatch.
 type Dynamic struct {
+	Dependencies DependencyResolver
+	// ReaderCaches is trusted deployment configuration shared with publication.
+	// Each preview/validation owns its cache pool and closes it after execution.
+	ReaderCaches map[string]*spec.CacheSettings
+
 	Access       *access.Service
 	AccessTenant string
 	Types        *typecatalog.Catalog
@@ -73,6 +79,8 @@ func (d Dynamic) Validate(ctx context.Context, reportID string, versionNo int) e
 		return err
 	}
 	defer sources.Close()
+	caches := &aerospike.Pool{}
+	defer caches.Close()
 	contract, err := d.runtimeContracts(ctx, &transcribe.Source{Types: d.Types,
 		Scope: definition.Scope, Name: definition.Name, Text: definition.DQL, Connector: definition.Connector,
 		Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections),
@@ -90,7 +98,7 @@ func (d Dynamic) Validate(ctx context.Context, reportID string, versionNo int) e
 	if artifact.ReaderCompilation() == nil {
 		return errors.New("reader compilation is unavailable")
 	}
-	if _, err = artifact.ReaderCompilation().NewExecution(bootstrap.ReaderRuntimeConfig{SQL: sources.SQL}); err != nil {
+	if _, err = artifact.ReaderCompilation().NewExecution(bootstrap.ReaderRuntimeConfig{SQL: sources.SQL, CacheSettings: d.ReaderCaches, Aerospike: caches}); err != nil {
 		return fmt.Errorf("initialize runtime reader: %w", err)
 	}
 	if _, err = (mcpresource.Publisher{Resources: definition.ResourceStore}).Compile(ctx, definition.ResourceFolders); err != nil {
@@ -280,6 +288,8 @@ func (d Dynamic) executeCube(ctx context.Context, reportID string, versionNo int
 		return nil, err
 	}
 	defer sources.Close()
+	caches := &aerospike.Pool{}
+	defer caches.Close()
 	contract, err := d.runtimeContracts(ctx, &transcribe.Source{Types: d.Types,
 		Scope: definition.Scope, Name: definition.Name, Text: definition.DQL, Connector: definition.Connector,
 		Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections),
@@ -287,10 +297,12 @@ func (d Dynamic) executeCube(ctx context.Context, reportID string, versionNo int
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "compile cube source: " + err.Error(), Cause: err}
 	}
-	contexts, err := d.previewContexts(ctx, definition, contract.Component)
+	dependencies, err := d.prepareContexts(ctx, definition, contract.Component)
 	if err != nil {
 		return nil, err
 	}
+	defer dependencies.close()
+	contexts := dependencies.Components
 	if contract.Component == nil || contract.Component.Settings == nil || contract.Component.Settings.Report == nil || !contract.Component.Settings.Report.Enabled || (!cube && (contract.Component.Settings.Report.Compose == nil || !contract.Component.Settings.Report.Compose.Enabled)) {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "reader version has no enabled requested cube capability"}
 	}
@@ -321,13 +333,13 @@ func (d Dynamic) executeCube(ctx context.Context, reportID string, versionNo int
 		if compiled == nil {
 			return report.RuntimeCapabilities{}, errors.New("cube source reader compilation is unavailable")
 		}
-		reader, buildErr := compiled.NewExecution(bootstrap.ReaderRuntimeConfig{SQL: sourceSQL})
+		reader, buildErr := compiled.NewExecution(bootstrap.ReaderRuntimeConfig{SQL: sourceSQL, CacheSettings: d.ReaderCaches, Aerospike: caches})
 		return report.RuntimeCapabilities{Reader: reader}, buildErr
 	}))
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "configure cube composition runtime", Cause: err}
 	}
-	runtime, err := druntime.NewRuntime(append(registered, contexts...))
+	runtime, err := druntime.NewRuntime(append(registered, contexts...), dependencies.Options...)
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "initialize cube composition runtime", Cause: err}
 	}
@@ -367,6 +379,9 @@ func (d Dynamic) executeCube(ctx context.Context, reportID string, versionNo int
 		return nil, err
 	}
 	request.Header.Set("Content-Type", "application/json")
+	if credential, ok := sdk.VerifiedCredentialFromContext(ctx); ok && credential.Bearer != "" {
+		request.Header.Set("Authorization", "Bearer "+credential.Bearer)
+	}
 	scope, err := requestprovider.New(request)
 	if err != nil {
 		return nil, err
@@ -445,6 +460,8 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 		return nil, err
 	}
 	defer sources.Close()
+	caches := &aerospike.Pool{}
+	defer caches.Close()
 	contract, err := d.runtimeContracts(ctx, &transcribe.Source{Types: d.Types, Scope: definition.Scope, Name: definition.Name, Text: definition.DQL, Connector: definition.Connector, Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections)})
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "compile dynamic reader: " + err.Error(), Cause: err}
@@ -456,7 +473,7 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "build dynamic reader artifact", Cause: err}
 	}
-	reader, err := artifact.ReaderCompilation().NewExecution(bootstrap.ReaderRuntimeConfig{SQL: sources.SQL})
+	reader, err := artifact.ReaderCompilation().NewExecution(bootstrap.ReaderRuntimeConfig{SQL: sources.SQL, CacheSettings: d.ReaderCaches, Aerospike: caches})
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "initialize dynamic reader", Cause: err}
 	}
@@ -526,6 +543,8 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 		return nil, err
 	}
 	defer sources.Close()
+	caches := &aerospike.Pool{}
+	defer caches.Close()
 	contract, err := d.runtimeContracts(ctx, &transcribe.Source{Types: d.Types,
 		Scope: definition.Scope, Name: definition.Name, Text: dql, Connector: definition.Connector,
 		Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections),
@@ -533,17 +552,17 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "compile dynamic reader: " + err.Error(), Cause: err}
 	}
-	contexts, err := d.previewContexts(ctx, definition, contract.Component)
+	dependencies, err := d.prepareContexts(ctx, definition, contract.Component)
 	if err != nil {
 		return nil, err
 	}
-	if len(contexts) > 0 {
-		if err = rejectClientContextValues(contract.Component, request.Input); err != nil {
-			return nil, err
-		}
+	defer dependencies.close()
+	contexts := dependencies.Components
+	if err = rejectClientContextValues(contract.Component, request.Input); err != nil {
+		return nil, err
 	}
 	input := reflect.New(contract.InputType).Interface()
-	if len(request.Input) != 0 {
+	if len(contexts) == 0 && len(request.Input) != 0 {
 		if err = json.Unmarshal(request.Input, input); err != nil {
 			return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "preview input does not match reader contract", Cause: err}
 		}
@@ -556,7 +575,7 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "build dynamic reader artifact", Cause: err}
 	}
-	reader, err := artifact.ReaderCompilation().NewExecution(bootstrap.ReaderRuntimeConfig{SQL: sources.SQL})
+	reader, err := artifact.ReaderCompilation().NewExecution(bootstrap.ReaderRuntimeConfig{SQL: sources.SQL, CacheSettings: d.ReaderCaches, Aerospike: caches})
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "initialize dynamic reader", Cause: err}
 	}
@@ -574,7 +593,7 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 		if registerErr != nil {
 			return nil, registerErr
 		}
-		runtime, runtimeErr := druntime.NewRuntime(append(contexts, registered))
+		runtime, runtimeErr := druntime.NewRuntime(append(contexts, registered), dependencies.Options...)
 		if runtimeErr != nil {
 			return nil, runtimeErr
 		}
@@ -599,6 +618,9 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 			return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "preview input does not match its native contract", Cause: scopeErr}
 		}
 		defer scope.Close()
+		if credential, ok := sdk.VerifiedCredentialFromContext(ctx); ok && credential.Bearer != "" {
+			scope = scope.WithHeader("Authorization", "Bearer "+credential.Bearer)
+		}
 		data, err = runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: dexec.ComponentTarget{Component: contract.Component.Key, Route: spec.RouteRef{Method: route.Method, Path: route.Path}}, Providers: scope.Providers()})
 	}
 	if err != nil {

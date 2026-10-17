@@ -1,6 +1,7 @@
 package host
 
 import (
+	"context"
 	"encoding/hex"
 	"fmt"
 	"net"
@@ -9,6 +10,8 @@ import (
 	"strings"
 
 	"github.com/viant/datly-studio/audit"
+	"github.com/viant/datly/application"
+	"github.com/viant/datly/spec"
 
 	access "github.com/viant/authz"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
@@ -63,7 +66,27 @@ type Studio struct {
 type Admin struct {
 	Token string `yaml:"Token"`
 }
+
+// NamespaceBuildExtension composes host-owned components into one published
+// namespace generation. The host owns authorization for added entry points and
+// must retain the existing authorization for dynamic components. It may wrap
+// Shutdown to release additional generation-owned resources, but must retain it.
+// A handler uses its session's ComponentInvoker to call readers in this build;
+// it must not capture a different manager or a mutable publication alias.
+type NamespaceBuildExtension func(context.Context, *application.Build) error
+
 type Config struct {
+	// ReaderCaches supplies deployment-owned named cache settings. Authored DQL
+	// selects a name; the embedding host owns cache locations and credentials.
+	// Each namespace generation owns and drains its own native cache client pool.
+	ReaderCaches map[string]*spec.CacheSettings `yaml:"-"`
+
+	// NamespaceBuildExtensions are trusted, in-process extensions keyed by exact
+	// namespace ID. No default or wildcard extension is applied. Other namespaces
+	// retain the stock runtime. Extensions run only for published namespace builds,
+	// never for authoring preview or isolated exact-version dispatch.
+	NamespaceBuildExtensions map[string]NamespaceBuildExtension `yaml:"-"`
+
 	// ToolCallAudit is an optional host-owned asynchronous audit logger.
 	// Nil disables capture; the host owns the sink and shutdown drain.
 	ToolCallAudit *audit.Logger `yaml:"-"`

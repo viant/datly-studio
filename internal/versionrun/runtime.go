@@ -25,8 +25,6 @@ import (
 	xhandler "github.com/viant/xdatly/handler"
 )
 
-const modulePath = "github.com/viant/datly-studio"
-
 // Authorized returns the exact-version Datly runtime after binding the
 // verified principal and private report can_run decision. The borrowed Studio
 // database remains owned by the static host; callers cancel the returned
@@ -79,13 +77,17 @@ func Authorized(ctx context.Context, session xhandler.Session, claims *jwt.Claim
 	if timeout <= 0 {
 		timeout = 30 * time.Second
 	}
-	types, err := (host.Config{}).RuntimeTypes()
+	authoring, err := host.AuthoringFromContext(ctx)
+	if err != nil {
+		return nil, preview.Dynamic{}, nil, err
+	}
+	types, err := authoring.RuntimeTypes()
 	if err != nil {
 		return nil, preview.Dynamic{}, nil, err
 	}
 	executionCtx, cancel := context.WithTimeout(ctx, timeout)
 	executionCtx = sdk.WithPrincipal(executionCtx, sdk.Principal{Subject: claims.Subject})
-	engine := preview.Dynamic{StudioDB: db, ModulePath: modulePath, Types: types}
+	engine := preview.Dynamic{StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, ReaderCaches: authoring.ReaderCaches(), Dependencies: authoring.Dependencies()}
 	aclProvider, err := accessprovider.FromEnvironment(executionCtx)
 	if err != nil {
 		cancel()

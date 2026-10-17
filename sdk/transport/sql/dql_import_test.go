@@ -11,6 +11,8 @@ import (
 	"strings"
 	"testing"
 
+	"go.yaml.in/yaml/v3"
+
 	"github.com/viant/datly-studio/runtime/preview"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
@@ -18,6 +20,12 @@ import (
 )
 
 func TestDQLImportPersistsAndExecutesDependencies(t *testing.T) {
+	for _, format := range []string{"zip", "yaml"} {
+		t.Run(format, func(t *testing.T) { testDQLImportPersistsAndExecutesDependencies(t, format) })
+	}
+}
+
+func testDQLImportPersistsAndExecutesDependencies(t *testing.T, format string) {
 	ctx := sdk.WithPrincipal(context.Background(), sdk.Principal{Subject: "owner"})
 	db, err := sql.Open("sqlite", "file:"+filepath.Join(t.TempDir(), "studio.db"))
 	if err != nil {
@@ -70,11 +78,19 @@ SELECT records.*, type(records,'Record') FROM (${embed:sql/records.dql}) records
 	if err = writer.Close(); err != nil {
 		t.Fatal(err)
 	}
+	if format == "yaml" {
+		payload, marshalErr := yaml.Marshal(map[string]any{"files": map[string]string{"main.dql": dql, "sql/records.dql": "SELECT id,name FROM records", "other.dql": "SELECT 2"}})
+		if marshalErr != nil {
+			t.Fatal(marshalErr)
+		}
+		archive.Reset()
+		archive.Write(payload)
+	}
 	// Ambiguity must fail before creating any draft.
-	if _, err = client.Versions().LoadArchive(ctx, report.ID, sdk.LoadArchiveInput{Archive: archive.Bytes(), Format: "zip"}); err == nil {
+	if _, err = client.Versions().LoadArchive(ctx, report.ID, sdk.LoadArchiveInput{Archive: archive.Bytes(), Format: format}); err == nil {
 		t.Fatal("accepted ambiguous entry")
 	}
-	loaded, err := client.Versions().LoadArchive(ctx, report.ID, sdk.LoadArchiveInput{Archive: archive.Bytes(), Format: "zip", EntryDQL: "main.dql"})
+	loaded, err := client.Versions().LoadArchive(ctx, report.ID, sdk.LoadArchiveInput{Archive: archive.Bytes(), Format: format, EntryDQL: "main.dql"})
 	if err != nil {
 		t.Fatal(err)
 	}

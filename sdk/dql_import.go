@@ -14,6 +14,8 @@ type LoadDQLInput struct {
 
 // LoadArchiveInput selects one root DQL as the component source. All files,
 // including the other root DQL documents, are retained as version resources.
+// Format supports zip, tar, tar.gz, and yaml (a files mapping of text assets).
+// Namespace ownership comes from the target component, never the bundle.
 // EntryDQL may be omitted only when the archive has one root DQL document.
 type LoadArchiveInput struct {
 	Archive  []byte `json:"archive"`

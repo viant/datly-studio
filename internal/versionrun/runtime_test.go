@@ -8,6 +8,9 @@ import (
 	"database/sql"
 	"encoding/pem"
 	"fmt"
+	"github.com/viant/datly-studio/studio/host"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -67,11 +70,20 @@ func TestAuthorizedRetainsNativeBearerAndServerAuthority(t *testing.T) {
 	claims.Subject = "alice"
 	auth := &studioauth.Output{Auth: &studioauth.AuthContext{Subject: "alice"}}
 	binder := &testBinder{db: new(sql.DB), allowed: true, bearer: "Bearer native-token"}
-	ctx, engine, cancel, err := Authorized(context.Background(), testSession{binder}, claims, auth, "report", 11, time.Second)
+	authoring, err := host.NewAuthoring(host.AuthoringConfig{ModulePath: "example.com/embedding-app"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var authoringCtx context.Context
+	authoring.Middleware(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) { authoringCtx = r.Context() })).ServeHTTP(httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil))
+	ctx, engine, cancel, err := Authorized(authoringCtx, testSession{binder}, claims, auth, "report", 11, time.Second)
 	if err != nil {
 		t.Fatal(err)
 	}
 	cancel()
+	if engine.ModulePath != "example.com/embedding-app" {
+		t.Fatalf("preview ignored host module: %s", engine.ModulePath)
+	}
 	if engine.Access != nil {
 		t.Fatal("absent provider fabricated authority")
 	}

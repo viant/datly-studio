@@ -77,7 +77,7 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	}
 	executionCtx, cancel := context.WithTimeout(ctx, maxExecution)
 	defer cancel()
-	result, err := (preview.Dynamic{ModulePath: authoring.ModulePath(), Types: types}).TestSQL(executionCtx, connector, input.Input)
+	result, err := (preview.Dynamic{ModulePath: authoring.ModulePath(), Types: types, ReaderCaches: authoring.ReaderCaches(), Dependencies: authoring.Dependencies()}).TestSQL(executionCtx, connector, input.Input)
 	if err != nil {
 		return publisherguard.PublicError(400, "SQL test could not be compiled or executed")
 	}

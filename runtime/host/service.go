@@ -42,6 +42,7 @@ import (
 	"github.com/viant/mcp-protocol/schema"
 	"github.com/viant/scy/auth/jwt"
 	"github.com/viant/scy/auth/jwt/verifier"
+	"github.com/viant/sqlx/io/read/cache/aerospike"
 	xresponse "github.com/viant/xdatly/response"
 )
 
@@ -176,7 +177,28 @@ func (s *Service) compile(ctx context.Context, seed *typecatalog.Catalog, candid
 	if err != nil {
 		return nil, err
 	}
-	return s.compileDefinitions(ctx, seed, definitions)
+	build, err := s.compileDefinitions(ctx, seed, definitions)
+	if err != nil {
+		return nil, err
+	}
+	return s.extendNamespaceBuild(ctx, build)
+}
+
+func (s *Service) extendNamespaceBuild(ctx context.Context, build *application.Build) (*application.Build, error) {
+	if s.config.NamespaceID == "" {
+		return build, nil
+	}
+	extend := s.config.NamespaceBuildExtensions[s.config.NamespaceID]
+	if extend == nil {
+		return build, nil
+	}
+	if err := extend(ctx, build); err != nil {
+		if build.Shutdown != nil {
+			err = errors.Join(err, build.Shutdown(context.Background()))
+		}
+		return nil, fmt.Errorf("compose namespace %s: %w", s.config.NamespaceID, err)
+	}
+	return build, nil
 }
 
 func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Catalog, definitions []definition, inspect ...func(definition, *registry.RegisteredComponent, *studiors.Loaded) error) (_ *application.Build, err error) {
@@ -200,8 +222,10 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 		versionByReport[definition.reportID] = definition.versionNo
 	}
 	var opened []*sql.DB
+	caches := &aerospike.Pool{}
 	defer func() {
 		if err != nil {
+			_ = caches.Close()
 			for _, db := range opened {
 				_ = db.Close()
 			}
@@ -249,7 +273,7 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 			if artifact.IsReport() {
 				return report.RuntimeCapabilities{}, nil
 			}
-			reader, readerErr := artifact.ReaderCompilation().NewExecution(bootstrap.ReaderRuntimeConfig{SQL: sources.sql})
+			reader, readerErr := artifact.ReaderCompilation().NewExecution(bootstrap.ReaderRuntimeConfig{SQL: sources.sql, CacheSettings: s.config.ReaderCaches, Aerospike: caches})
 			if readerErr != nil {
 				return report.RuntimeCapabilities{}, readerErr
 			}
@@ -353,7 +377,7 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 		},
 		Version: fmt.Sprintf("dynamic-%d-%d", s.manager.Revision()+1, len(registrations)),
 		Shutdown: func(context.Context) error {
-			var result error
+			result := caches.Close()
 			for _, db := range opened {
 				result = errors.Join(result, db.Close())
 			}

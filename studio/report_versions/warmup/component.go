@@ -204,7 +204,7 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 		jobCtx, releaseServerGuard := executionguard.Capture(jobCtx, ctx)
 		defer releaseServerGuard()
 		defer cancel()
-		worker := &sqltransport.Transport{DB: db, Warmup: preview.Dynamic{StudioDB: db, ModulePath: authoring.ModulePath(), Types: types}}
+		worker := &sqltransport.Transport{DB: db, Warmup: preview.Dynamic{StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, ReaderCaches: authoring.ReaderCaches(), Dependencies: authoring.Dependencies()}}
 		visibleUntil := time.Now().Add(5 * time.Second)
 		for time.Now().Before(visibleUntil) && jobCtx.Err() == nil {
 			committed, readErr := worker.ReadAcceptedWarmupRun(jobCtx, reportID, runID)
