@@ -93,3 +93,10 @@ func (m *Manager) serveShared(w http.ResponseWriter, r *http.Request) {
 	request.RequestURI = url.RequestURI()
 	entry.server.Handler.ServeHTTP(w, request)
 }
+
+// SharedAddress returns the actual bound address, including an allocated port.
+func (m *Manager) SharedAddress() string {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.sharedAddress
+}

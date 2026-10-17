@@ -98,3 +98,12 @@ func (g *NamespaceGroup) Close(ctx context.Context) error {
 	}
 	return errors.Join(adminErr, g.Listeners.Close(ctx), g.DB.Close())
 }
+
+// AdminAddress returns the reserved process-owned admin address after StartAdmin.
+// Startup owns this value; callers must not race startup and shutdown.
+func (g *NamespaceGroup) AdminAddress() string {
+	if g == nil || g.adminServer == nil {
+		return ""
+	}
+	return g.adminServer.Addr
+}

@@ -1,0 +1,337 @@
+// Package studiohost composes Studio authoring, browser APIs and persisted
+// namespace runtimes in one process. Private applications reuse this host.
+package studiohost
+
+import (
+	"context"
+	"crypto/rand"
+	"encoding/base64"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"net"
+	"net/http"
+	"net/url"
+	"strings"
+	"time"
+
+	"github.com/viant/authz"
+	studio "github.com/viant/datly-studio"
+	"github.com/viant/datly-studio/app/datlycmd"
+	"github.com/viant/datly-studio/app/hostconfig"
+	"github.com/viant/datly-studio/app/studioapi"
+	"github.com/viant/datly-studio/runtime/accessprovider"
+	runtimehost "github.com/viant/datly-studio/runtime/host"
+	authoring "github.com/viant/datly-studio/studio/host"
+	"github.com/viant/datly/bootstrap/connector"
+	datlyconfig "github.com/viant/datly/standalone/config"
+	"github.com/viant/mcp-protocol/authorization"
+	oauthmeta "github.com/viant/mcp-protocol/oauth2/meta"
+	"github.com/viant/scy"
+)
+
+// Endpoints contains actual bound addresses, including OS-allocated ports.
+type Endpoints struct{ HTTP, AdminMCP, NamespaceMCP string }
+
+// Options are trusted process bindings. Namespaces and application definitions
+// are never accepted here from browser or agent requests.
+type Options struct {
+	Native  datlycmd.Options
+	Browser studioapi.Options
+	// ConfigureRuntime installs linked extensions before namespace startup.
+	ConfigureRuntime func(*runtimehost.Config) error
+	Ready            func(Endpoints)
+	Diagnostics      io.Writer
+}
+
+// Serve owns every service until shutdown. It starts no child processes and
+// creates no generated configuration files. Internal addresses and admin
+// credentials are process-owned, rather than operator-supplied wiring.
+// The caller must not mutate config or its nested values after startup begins.
+func Serve(parent context.Context, config *hostconfig.Config, options Options) error {
+	if parent == nil {
+		return errors.New("Studio host context is required")
+	}
+	if err := parent.Err(); err != nil {
+		return err
+	}
+	if err := config.ValidateListeners(); err != nil {
+		return err
+	}
+	catalog, err := config.CatalogConnector()
+	if err != nil {
+		return err
+	}
+	if catalog.Driver != "sqlite" && catalog.Driver != "mysql" {
+		return errors.New("Studio storage driver must be sqlite or mysql")
+	}
+	if config.JWTClaims == nil || config.JWTClaims.Issuer == "" || config.JWTClaims.Audience == "" || config.JWTValidator == nil {
+		return errors.New("Studio host requires JWTValidator and issuer/audience JWTClaims")
+	}
+	if options.Browser.Database != nil || options.Browser.Listener != nil || options.Browser.JWTValidator != nil {
+		return errors.New("Studio host owns browser storage, listener and JWT configuration")
+	}
+	if options.Diagnostics == nil {
+		options.Diagnostics = io.Discard
+	}
+	ctx, cancel := context.WithCancel(parent)
+	defer cancel()
+	// Resolve the one storage secret through the same SCY contract as Datly.
+	if catalog.Secret != nil {
+		secret, loadErr := scy.New().Load(ctx, catalog.Secret)
+		if loadErr != nil {
+			return errors.New("Studio storage secret could not be loaded")
+		}
+		catalog.DSN = secret.Expand(catalog.DSN)
+		catalog.Secret = nil
+	}
+	storage, err := connector.Open(ctx, []connector.Config{catalog}, catalog.Name)
+	if err != nil {
+		return err
+	}
+	defer storage.Close()
+	db, err := storage.ResolveDB(ctx, catalog.Name)
+	if err != nil {
+		return err
+	}
+	authorityConfig := accessprovider.Config{Issuer: config.JWTClaims.Issuer, Audience: config.JWTClaims.Audience, JWTValidator: config.JWTValidator}
+	provider, err := accessprovider.New(ctx, authorityConfig, options.Native.AccessProviderFactory)
+	if err != nil {
+		return err
+	}
+	if provider == nil {
+		return errors.New("Studio host identity provider is required")
+	}
+	factory := func(context.Context, accessprovider.Config) (authz.Provider, error) { return provider, nil }
+	options.Native.AccessProviderFactory = factory
+	if options.Native.Authoring == nil {
+		options.Native.Authoring = &authoring.AuthoringConfig{}
+	}
+	authoringConfig := *options.Native.Authoring
+	if authoringConfig.ModulePath == "" {
+		authoringConfig.ModulePath = authoring.DefaultAuthoringModule
+	}
+	if authoringConfig.ReaderCaches == nil {
+		authoringConfig.ReaderCaches = config.Caches
+	}
+	options.Native.Authoring = &authoringConfig
+	publicAddress, err := config.Endpoint.ListenAddress()
+	if err != nil {
+		return err
+	}
+	publicListener, err := net.Listen("tcp", publicAddress)
+	if err != nil {
+		return err
+	}
+	defer publicListener.Close()
+	origin, err := browserOrigin(config.PublicURL, publicListener.Addr().String())
+	if err != nil {
+		return err
+	}
+	nativeConfig := config.Config
+	nativeConfig.Endpoint = datlyconfig.Endpoint{Address: "127.0.0.1:0"}
+	adminMCP := *config.MCP
+	if adminMCP.Authorization == nil {
+		// A protected policy also carries the verified bearer into native MCP input
+		// binding. Reuse the browser SDK MCP mount as the stable resource URI.
+		adminMCP.Authorization = &authorization.Policy{Global: &authorization.Authorization{
+			ProtectedResourceMetadata: &oauthmeta.ProtectedResourceMetadata{Resource: origin + "/v1/studio/sdk-mcp/mcp", AuthorizationServers: []string{config.JWTClaims.Issuer}},
+		}}
+	}
+	nativeConfig.MCP = &adminMCP
+	// Linked Studio contracts share this storage connection through standard aliases.
+	catalog.Name = "studio"
+	nativeConfig.Connector = "studio"
+	nativeConfig.Connectors = []connector.Config{catalog, {Name: "authz", AliasOf: "studio"}}
+	if nativeConfig.GoBootstrap == nil {
+		packages, err := studio.LinkedComponentPackages()
+		if err != nil {
+			return err
+		}
+		nativeConfig.GoBootstrap = &datlyconfig.Packages{Packages: packages, LinkedOnly: true}
+	}
+	native, err := datlycmd.New(ctx, &nativeConfig, options.Native, options.Diagnostics)
+	if err != nil {
+		return err
+	}
+	nativeDone := make(chan struct{})
+	var nativeErr error
+	go func() { nativeErr = native.Serve(ctx, options.Diagnostics); close(nativeDone) }()
+	defer func() {
+		cancel()
+		shutdown, stop := context.WithTimeout(context.Background(), 10*time.Second)
+		defer stop()
+		_ = native.Shutdown(shutdown)
+		<-nativeDone
+	}()
+	ready, stop := context.WithTimeout(ctx, 30*time.Second)
+	addresses, err := native.WaitReady(ready)
+	stop()
+	if err != nil {
+		return err
+	}
+	if len(addresses) != 2 {
+		return errors.New("Studio native host did not publish HTTP and admin MCP listeners")
+	}
+	namespaceAddress, err := config.NamespaceMCP.ListenAddress()
+	if err != nil {
+		return err
+	}
+	token, err := randomKey()
+	if err != nil {
+		return err
+	}
+	tenant := config.Tenant
+	if tenant == "" {
+		tenant = "studio"
+	}
+	runtimeConfig := runtimehost.Config{RootDir: config.BaseDir, ModulePath: authoringConfig.ModulePath,
+		NamespaceMCPMode: "shared", HTTP: runtimehost.Listener{Address: "127.0.0.1:0"}, MCP: runtimehost.Listener{Address: namespaceAddress},
+		Studio: runtimehost.Studio{Driver: catalog.Driver, DSN: catalog.DSN}, Admin: runtimehost.Admin{Token: token},
+		Authentication: runtimehost.Authentication{DefaultMode: "required", Issuer: config.JWTClaims.Issuer, Audience: config.JWTClaims.Audience},
+		Access:         &runtimehost.ResourceAccessConfig{Tenant: tenant, Provider: provider}, ReaderCaches: config.Caches}
+	if options.ConfigureRuntime != nil {
+		if err := options.ConfigureRuntime(&runtimeConfig); err != nil {
+			return err
+		}
+	}
+	group, err := runtimehost.NewNamespaceGroup(ctx, runtimeConfig)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		shutdown, stop := context.WithTimeout(context.Background(), 10*time.Second)
+		defer stop()
+		_ = group.Close(shutdown)
+	}()
+	if err := group.StartAdmin("127.0.0.1:0", token); err != nil {
+		return err
+	}
+	if _, err := group.Reconcile(ctx); err != nil {
+		return err
+	}
+	namespaceDone := make(chan error, 1)
+	go func() { namespaceDone <- group.Run(ctx, time.Second, nil) }()
+	defer func() { cancel(); <-namespaceDone }()
+	sessionKey, err := randomKey()
+	if err != nil {
+		return err
+	}
+	if config.SessionKey != nil {
+		secret, err := scy.New().Load(ctx, config.SessionKey)
+		if err != nil {
+			return errors.New("Studio session secret could not be loaded")
+		}
+		sessionKey = strings.TrimSpace(secret.String())
+	}
+	browser := options.Browser
+	browser.Database = db
+	browser.DatabaseDriver = catalog.Driver
+	browser.Listener = publicListener
+	priorHTTPMiddleware := browser.HTTPMiddleware
+	browser.HTTPMiddleware = func(next http.Handler) http.Handler {
+		handler := browserConfigHandler(origin, next)
+		if priorHTTPMiddleware != nil {
+			return priorHTTPMiddleware(handler)
+		}
+		return handler
+	}
+	browser.JWTValidator = config.JWTValidator
+	browser.AccessProviderConfig = &authorityConfig
+	browser.AccessProviderFactory = factory
+	browserReady := make(chan struct{})
+	priorReady := browser.Ready
+	browser.Ready = func(address net.Addr) {
+		if priorReady != nil {
+			priorReady(address)
+		}
+		close(browserReady)
+	}
+	args := []string{"--address", publicListener.Addr().String(), "--driver", catalog.Driver, "--dsn", catalog.DSN, "--mode", "authenticated",
+		"--jwt-issuer", config.JWTClaims.Issuer, "--jwt-audience", config.JWTClaims.Audience, "--session-key", sessionKey,
+		"--allowed-origin", origin, "--access-tenant", tenant,
+		"--dynamic-admin-token", token, "--dynamic-http-url", "http://" + group.AdminAddress(),
+		"--dynamic-mcp-url", "http://" + group.Listeners.SharedAddress(),
+		"--static-datly-url", "http://" + addresses[0], "--static-mcp-url", "http://" + addresses[1]}
+	if config.StaticRoot != "" {
+		args = append(args, "--static-root", config.StaticRoot)
+	}
+	browserDone := make(chan error, 1)
+	go func() { browserDone <- studioapi.Serve(ctx, args, browser) }()
+	select {
+	case err := <-browserDone:
+		return err
+	case <-nativeDone:
+		cancel()
+		<-browserDone
+		return errors.Join(errors.New("native Studio stopped before browser readiness"), nativeErr)
+	case <-browserReady:
+		if options.Ready != nil {
+			options.Ready(Endpoints{HTTP: publicListener.Addr().String(), AdminMCP: addresses[1], NamespaceMCP: group.Listeners.SharedAddress()})
+		}
+	case <-ctx.Done():
+		cancel()
+		return <-browserDone
+	}
+	select {
+	case err := <-browserDone:
+		return err
+	case <-nativeDone:
+		cancel()
+		<-browserDone
+		return errors.Join(errors.New("native Studio stopped unexpectedly"), nativeErr)
+	case <-ctx.Done():
+		cancel()
+		return <-browserDone
+	}
+}
+
+func randomKey() (string, error) {
+	key := make([]byte, 32)
+	if _, err := rand.Read(key); err != nil {
+		return "", errors.New("Studio host random key generation failed")
+	}
+	return base64.StdEncoding.EncodeToString(key), nil
+}
+func browserOrigin(explicit, address string) (string, error) {
+	if explicit == "" {
+		hostname, port, err := net.SplitHostPort(address)
+		if err != nil {
+			return "", err
+		}
+		if ip := net.ParseIP(hostname); ip != nil && ip.IsUnspecified() {
+			hostname = "localhost"
+		}
+		explicit = "http://" + net.JoinHostPort(hostname, port)
+	}
+	parsed, err := url.Parse(explicit)
+	if err != nil || parsed.Host == "" || parsed.User != nil || parsed.RawQuery != "" || parsed.Fragment != "" || parsed.Path != "" {
+		return "", errors.New("Studio PublicURL must be an HTTP origin")
+	}
+	if parsed.Scheme != "https" && !(parsed.Scheme == "http" && (parsed.Hostname() == "localhost" || net.ParseIP(parsed.Hostname()).IsLoopback())) {
+		return "", fmt.Errorf("Studio PublicURL requires HTTPS or loopback HTTP")
+	}
+	return explicit, nil
+}
+
+// Browser configuration is derived from the application's one public origin.
+// Operators do not maintain a separate client configuration file.
+func browserConfigHandler(origin string, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/studio-config.json" {
+			next.ServeHTTP(w, r)
+			return
+		}
+		if r.Method != http.MethodGet && r.Method != http.MethodHead {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Cache-Control", "no-store")
+		if r.Method == http.MethodHead {
+			return
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{"mode": "authenticated", "apiBaseURL": origin, "authentication": map[string]string{"mode": "bff"}})
+	})
+}

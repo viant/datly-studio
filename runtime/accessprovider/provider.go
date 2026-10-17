@@ -5,6 +5,7 @@ package accessprovider
 import (
 	"context"
 	"errors"
+	"github.com/viant/scy/auth/jwt/verifier"
 	"os"
 	"strings"
 	"sync"
@@ -17,6 +18,7 @@ import (
 // any additional opaque configuration owned by an embedding host; Studio does
 // not interpret it.
 type Config struct {
+	JWTValidator                                          *verifier.Config
 	Issuer, Audience, PublicKeyFile, CertURL, UserInfoURL string
 	Settings                                              []byte
 }
@@ -56,7 +58,7 @@ func New(ctx context.Context, config Config, factory ProviderFactory) (authz.Pro
 		return provider, nil
 	}
 	return accessconfig.New(accessconfig.Config{Issuer: config.Issuer, Audience: config.Audience,
-		PublicKeyFile: config.PublicKeyFile, CertURL: config.CertURL, UserInfoURL: config.UserInfoURL})
+		PublicKeyFile: config.PublicKeyFile, CertURL: config.CertURL, UserInfoURL: config.UserInfoURL, JWTValidator: config.JWTValidator})
 }
 
 // FromEnvironment resolves the process's registered host factory. The first

@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/viant/scy"
 	"io"
 
 	datly "github.com/viant/datly/standalone/config"
@@ -19,6 +20,14 @@ import (
 type Config struct {
 	datly.Config
 	NamespaceMCP *datly.MCP
+	// PublicURL overrides the browser origin when deployed behind a proxy.
+	PublicURL string
+	// Tenant is the existing resource-policy tenant; empty defaults to studio.
+	Tenant string
+	// SessionKey is optional SCY material for stable browser sessions across restarts.
+	// Omission generates a process-local key and invalidates sessions on restart.
+	SessionKey *scy.Resource
+	StaticRoot string
 }
 
 // Decode accepts one YAML or JSON object without resolving secrets or opening

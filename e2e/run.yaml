@@ -12,6 +12,9 @@ init:
   viewerToken: ${runDir}/viewer.token
   outsiderToken: ${runDir}/outsider.token
 pipeline:
+  unifiedHost:
+    action: run
+    request: '@local/unified'
   cleanupPrevious:
     action: process:stop
     target: $target

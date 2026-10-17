@@ -19,6 +19,27 @@ remains available without making raw DQL the default editing experience.
 > codebase. APIs, storage migrations, and UI extension contracts may change
 > before the first stable release.
 
+## Default deployment: one process
+
+Build and start the shared host:
+
+```sh
+go build -o studio ./cmd/studio
+./studio --config studio.yaml
+```
+
+One main configuration supplies the HTTP, admin MCP, and default namespace MCP
+listeners; one Studio storage connector; and Datly JWT verification and claims.
+The connector is inline and reuses Datly's DSN/SCY `Secret` contract. Namespaces,
+publications and application data connectors remain database-managed. The host
+owns internal service addresses and starts no child binaries.
+
+See [shared configuration](app/hostconfig/README.md) for the minimal example,
+secret handling, readiness, shutdown, and current acceptance limits. Existing
+`studio-api`, `studio-runtime`, and native `datly` commands remain explicit
+separate-service entry points. The following older deployment examples describe
+those paths; they are not the default single-process launcher.
+
 ## What Studio provides
 
 - Graph-first authoring for root views, subviews, relations, and SQL resources.
@@ -29,8 +50,8 @@ remains available without making raw DQL the default editing experience.
 - Governed connectors, namespaces, ACLs, and reusable Security predicates.
 - Dedicated MCP tool, resource, and skill catalogs with input/output schemas.
 - Canonical MCP names with reader, Cube, and Cube Compose tool variants.
-- A separate dynamic Datly runtime for published HTTP and Streamable HTTP MCP
-  contracts.
+- In-process dynamic Datly runtimes for published HTTP and Streamable HTTP MCP
+  contracts, with separate-service deployment available explicitly.
 - An embeddable Go host boundary and frontend extension SDK for application-
   specific predicate packages and Studio workspaces.
 

@@ -1,0 +1,28 @@
+init:
+  appPath: $WorkingDirectory(..)
+  target:
+    URL: ssh://localhost/
+
+pipeline:
+  build:
+    description: build the single public Studio application binary
+    action: exec:run
+    target: $target
+    strictCompletion: true
+    checkError: true
+    timeoutMs: 180000
+    commands:
+      - cd ${appPath}
+      - mkdir -p .data/e2e/bin
+      - CGO_ENABLED=0 GOWORK=off go build -o .data/e2e/bin/studio ./cmd/studio
+
+  test:
+    description: one app process and one config own HTTP, admin MCP and namespace MCP
+    action: exec:run
+    target: $target
+    strictCompletion: true
+    checkError: true
+    timeoutMs: 120000
+    commands:
+      - cd ${appPath}
+      - STUDIO_UNIFIED_BINARY='${appPath}/.data/e2e/bin/studio' GOWORK=off go test ./app/studiohost -run '^TestOneProcessHost$' -count=1 -v

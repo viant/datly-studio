@@ -150,6 +150,13 @@ type Options struct {
 	// StaticFS serves a compiled public UI (for example embed.FS) when
 	// -static-root is unset. A disk build remains an explicit operator override.
 	StaticFS fs.FS
+	// Listener transfers an already-reserved HTTP listener to Serve. The host
+	// closes it on startup failure and after HTTP drain, allowing one parent to
+	// reserve its public socket before deriving callback and browser origins.
+	Listener net.Listener
+	// Ready is called after startup and listener acquisition, before serving.
+	// It must return promptly. The parent owns aggregate host readiness.
+	Ready func(net.Addr)
 	// DatabaseDriver selects host-owned catalog storage; empty preserves SQLite.
 	DatabaseDriver string
 	// Database is an optional caller-owned catalog connection, opened from the
@@ -193,6 +200,9 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) error {
 	}
 	if err := lifecycleCtx.Err(); err != nil {
 		return err
+	}
+	if options.Listener != nil {
+		defer options.Listener.Close()
 	}
 	lifecycleCtx, stop := context.WithCancel(lifecycleCtx)
 	defer stop()
@@ -580,9 +590,15 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) error {
 		ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 30 * time.Second,
 		WriteTimeout: 60 * time.Second, IdleTimeout: 2 * time.Minute,
 	}
-	listener, err := net.Listen("tcp", *address)
-	if err != nil {
-		return err
+	listener := options.Listener
+	if listener == nil {
+		listener, err = net.Listen("tcp", *address)
+		if err != nil {
+			return err
+		}
+	}
+	if options.Ready != nil {
+		options.Ready(listener.Addr())
 	}
 	if err := serveUntilStopped(lifecycleCtx, server, listener); err != nil {
 		return err

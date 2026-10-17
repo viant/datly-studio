@@ -3,6 +3,7 @@ package accessconfig
 
 import (
 	"fmt"
+	"github.com/viant/scy/auth/jwt/verifier"
 	"os"
 	"strings"
 
@@ -49,6 +50,7 @@ func IdentityFromEnvironment() (access.Provider, error) {
 }
 
 type Config struct {
+	JWTValidator                                          *verifier.Config
 	Issuer, Audience, PublicKeyFile, CertURL, UserInfoURL string
 }
 
@@ -69,13 +71,13 @@ func newProvider(config Config, factory UserInfoProviderFactory) (access.Provide
 	keyPath := strings.TrimSpace(config.PublicKeyFile)
 	certURL := strings.TrimSpace(config.CertURL)
 	userInfoURL := strings.TrimSpace(config.UserInfoURL)
-	if issuer == "" && audience == "" && keyPath == "" && certURL == "" && userInfoURL == "" {
+	if issuer == "" && audience == "" && keyPath == "" && certURL == "" && userInfoURL == "" && config.JWTValidator == nil {
 		return nil, nil
 	}
 	if issuer == "" || audience == "" {
 		return nil, fmt.Errorf("ACL issuer and audience are required")
 	}
-	keyfunc, err := keyfunc(keyPath, certURL)
+	keyfunc, err := configuredKeyfunc(config.JWTValidator, keyPath, certURL)
 	if err != nil {
 		return nil, err
 	}
