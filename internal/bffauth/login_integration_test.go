@@ -1,7 +1,6 @@
 package bffauth
 
 import (
- "github.com/viant/authz"
 	"bytes"
 	"context"
 	"crypto/rand"
@@ -10,6 +9,7 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
+	"github.com/viant/authz"
 	"math/big"
 	"net/http"
 	"net/http/cookiejar"
@@ -21,10 +21,10 @@ import (
 	"time"
 
 	jwtv5 "github.com/golang-jwt/jwt/v5"
-	"github.com/viant/datly-studio/sdk/access"
-	accessoauth "github.com/viant/authz/oauth"
-	"github.com/viant/datly-studio/sdk/httptransport"
 	accessstore "github.com/viant/authz/component/store/sql"
+	accessoauth "github.com/viant/authz/oauth"
+	"github.com/viant/datly-studio/sdk/access"
+	"github.com/viant/datly-studio/sdk/httptransport"
 	"github.com/viant/datly-studio/store/sql/migrate"
 	"github.com/viant/scy/auth/jwt/verifier"
 	"golang.org/x/oauth2"
@@ -98,7 +98,7 @@ func TestOAuthLoginWithSignedJWTAndJWKS(t *testing.T) {
 				return
 			}
 			w.Header().Set("Content-Type", "application/json")
-			_ = json.NewEncoder(w).Encode(map[string]any{"access_token": signed, "token_type": "Bearer", "expires_in": 3600})
+			_ = json.NewEncoder(w).Encode(map[string]any{"access_token": "synthetic-opaque-access", "id_token": signed, "token_type": "Bearer", "expires_in": 3600})
 		default:
 			http.NotFound(w, r)
 		}
@@ -116,7 +116,7 @@ func TestOAuthLoginWithSignedJWTAndJWKS(t *testing.T) {
 		t.Fatal(err)
 	}
 	login, err := NewLogin(LoginConfig{OAuth: oauth2.Config{
-		ClientID: "studio-web", RedirectURL: studio.URL + callbackPath,
+		ClientID: audience, RedirectURL: studio.URL + callbackPath,
 		Scopes: []string{"openid", "profile"}, Endpoint: oauth2.Endpoint{AuthURL: provider.URL + "/authorize", TokenURL: provider.URL + "/token"}},
 		CookieKey: []byte("0123456789abcdef0123456789abcdef")}, sessions)
 	if err != nil {

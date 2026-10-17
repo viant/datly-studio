@@ -26,6 +26,7 @@ import (
 	"github.com/viant/datly-studio/internal/runtimeadmin"
 	"github.com/viant/datly-studio/runtime/accessprovider"
 	runtimehost "github.com/viant/datly-studio/runtime/host"
+	"github.com/viant/datly-studio/runtime/namespacemcp"
 	"github.com/viant/datly-studio/schema"
 	authoring "github.com/viant/datly-studio/studio/host"
 	"github.com/viant/datly/bootstrap/connector"
@@ -139,6 +140,7 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		options.Native.Authoring = &authoring.AuthoringConfig{}
 	}
 	authoringConfig := *options.Native.Authoring
+	authoringConfig.Const = config.Const
 	if authoringConfig.ModulePath == "" {
 		authoringConfig.ModulePath = authoring.DefaultAuthoringModule
 	}
@@ -224,7 +226,7 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	if tenant == "" {
 		tenant = "studio"
 	}
-	runtimeConfig := runtimehost.Config{InProcess: true, RootDir: config.BaseDir, ModulePath: authoringConfig.ModulePath,
+	runtimeConfig := runtimehost.Config{Const: config.Const, InProcess: true, RootDir: config.BaseDir, ModulePath: authoringConfig.ModulePath,
 		NamespaceMCPMode: "shared", HTTP: runtimehost.Listener{Address: "127.0.0.1:0"}, MCP: runtimehost.Listener{Address: namespaceAddress},
 		Studio:         runtimehost.Studio{Driver: catalog.Driver, DSN: catalog.DSN},
 		Authentication: runtimehost.Authentication{DefaultMode: "required", Issuer: config.JWTClaims.Issuer, Audience: config.JWTClaims.Audience},
@@ -245,12 +247,6 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	}()
 	processGroup.Store(group)
 
-	if _, err := group.Reconcile(ctx); err != nil {
-		return err
-	}
-	namespaceDone := make(chan error, 1)
-	go func() { namespaceDone <- group.Run(ctx, time.Second, nil) }()
-	defer func() { cancel(); <-namespaceDone }()
 	sessionKey, err := randomKey()
 	if err != nil {
 		return err
@@ -264,6 +260,7 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	}
 	endpoints := Endpoints{HTTP: publicListener.Addr().String(), AdminMCP: addresses[1], NamespaceMCP: group.Listeners.SharedAddress(), NativeHTTP: addresses[0]}
 	browser := options.Browser
+	browser.Const = config.Const
 	browser.RuntimeControl = control
 	if config.Login != nil {
 		login := config.Login
@@ -326,12 +323,31 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		<-browserDone
 		return errors.Join(errors.New("native Studio stopped before browser readiness"), nativeErr)
 	case <-browserReady:
-		if options.Ready != nil {
-			options.Ready(endpoints)
-		}
 	case <-ctx.Done():
 		cancel()
 		return <-browserDone
+	}
+	// Private modules have bound their in-process dependencies at browser readiness.
+	if _, err := group.Reconcile(ctx); err != nil {
+		return err
+	}
+	namespaceDone := make(chan error, 1)
+	go func() {
+		previous := ""
+		namespaceDone <- group.Run(ctx, time.Second, func(_ []namespacemcp.Change, err error) {
+			message := ""
+			if err != nil {
+				message = err.Error()
+			}
+			if message != "" && message != previous {
+				fmt.Fprintln(options.Diagnostics, "namespace reconciliation:", message)
+			}
+			previous = message
+		})
+	}()
+	defer func() { cancel(); <-namespaceDone }()
+	if options.Ready != nil {
+		options.Ready(endpoints)
 	}
 	select {
 	case err := <-browserDone:

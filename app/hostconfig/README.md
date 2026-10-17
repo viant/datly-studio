@@ -167,3 +167,48 @@ both RSA resources and certificate discovery for that authority. Mutable user
 facts are read fresh unless UserInfoCacheTTL is explicitly configured. Optional
 EntityEvaluation uses the same authority. No private IdP response shape is built
 into Data Studio.
+
+### Reader deployment constants
+
+Use Datly's `ConstURL` for a flat YAML or JSON mapping, resolved relative to the
+host configuration. The same immutable values flow to reader inspection,
+validation, preview, warmup and published execution in both Studio hosts.
+
+```yaml
+# studio.yaml
+ConstURL: constants/e2e.yaml
+```
+
+```yaml
+# constants/e2e.yaml
+ARProject: ar-e2e
+ARStudiesDataset: studies
+```
+
+Authored DQL can declare production defaults using Datly's existing syntax:
+
+```text
+#setting($_ = $const('ARProject', 'viant-dap'))
+#setting($_ = $const('ARStudiesDataset', 'studies'))
+```
+
+SQL identifiers use `${ARProject}.${ARStudiesDataset}.Consumer_Sentiment_Survey_FACT`
+inside BigQuery backticks. The deployment mapping overrides these defaults without
+changing stored source. Use separate dataset constants for separate source datasets;
+table names remain exact. Constants are trusted host configuration, not preview
+request arguments. Connector configuration still determines the database vendor
+and endpoint; constants do not translate SQL or replace a BigQuery connector.
+
+Catalog connector DSN templates can reference the same deployment constants:
+
+```text
+bigquery://${ARProjectViantDap}/${ARDatasetViantDap_Studies}?emulator=true&endpoint=http%3A%2F%2F127.0.0.1%3A19050%2Fbigquery%2Fv2%2F
+```
+
+Known instance constants expand in the private connection configuration before
+SCY secret resolution; unresolved secret placeholders remain for SCY. Stored DSN
+and DQL templates are not overwritten. Connector probes, schema browsing, reader
+validation/preview and dynamic published readers share this resolution mechanism.
+The emulator option requires the supporting BigQuery driver revision; it is not a
+SQL dialect adapter. Real BigQuery connectors omit that option and use normal
+credentials.

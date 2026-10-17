@@ -11,6 +11,7 @@ import (
 
 	"github.com/viant/datly-studio/internal/runtimeadmin"
 	runtimehost "github.com/viant/datly-studio/runtime/host"
+	"github.com/viant/datly-studio/runtime/namespacemcp"
 	"github.com/viant/datly-studio/sdk"
 )
 
@@ -29,6 +30,19 @@ func inProcessControl(group *atomic.Pointer[runtimehost.NamespaceGroup]) *runtim
 	return runtimeadmin.NewInProcess(func(ctx context.Context, generation int64) error {
 		current, id, err := selected(ctx)
 		if err != nil {
+			return err
+		}
+		// Authoring can enable a namespace and publish before the next periodic
+		// reconciliation. Establish its persisted listener synchronously and
+		// return an actual build error instead of a misleading missing runtime.
+		definitions, err := (namespacemcp.SQLDefinitions{DB: current.DB}).LoadNamespace(ctx, id)
+		if err != nil {
+			return err
+		}
+		if len(definitions) != 1 || !definitions[0].Active || !definitions[0].Enabled {
+			return runtimeadmin.ErrNamespaceUnavailable
+		}
+		if _, err := current.Listeners.Rebind(ctx, id, definitions[0].Port); err != nil {
 			return err
 		}
 		return current.Listeners.Reload(ctx, id, generation)

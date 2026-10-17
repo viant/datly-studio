@@ -2,6 +2,8 @@ package host
 
 import (
 	"context"
+	"github.com/viant/datly-studio/internal/connectorsecret"
+	"github.com/viant/datly/constant"
 	"net/http"
 	"strings"
 
@@ -17,6 +19,7 @@ const DefaultAuthoringModule = "github.com/viant/datly-studio"
 
 // AuthoringConfig is trusted startup configuration, never a request parameter.
 type AuthoringConfig struct {
+	Const        *constant.Values
 	Dependencies preview.DependencyResolver
 	ReaderCaches map[string]*spec.CacheSettings
 	ModulePath   string
@@ -25,6 +28,7 @@ type AuthoringConfig struct {
 
 // Authoring is a detached immutable per-host compilation snapshot.
 type Authoring struct {
+	constants    *constant.Values
 	dependencies preview.DependencyResolver
 	readerCaches map[string]*spec.CacheSettings
 	module       string
@@ -52,7 +56,7 @@ func NewAuthoring(config AuthoringConfig) (*Authoring, error) {
 	if err := accesscontext.RegisterTypes(types); err != nil {
 		return nil, err
 	}
-	return &Authoring{module: name, predicates: predicates, types: types, readerCaches: cloneReaderCaches(config.ReaderCaches), dependencies: config.Dependencies}, nil
+	return &Authoring{constants: config.Const, module: name, predicates: predicates, types: types, readerCaches: cloneReaderCaches(config.ReaderCaches), dependencies: config.Dependencies}, nil
 }
 
 func (a *Authoring) ModulePath() string                          { return a.module }
@@ -71,7 +75,7 @@ func AuthoringFromContext(ctx context.Context) (*Authoring, error) {
 
 func (a *Authoring) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), authoringKey{}, a)))
+		next.ServeHTTP(w, r.WithContext(connectorsecret.WithConstants(context.WithValue(r.Context(), authoringKey{}, a), a.constants)))
 	})
 }
 
@@ -92,3 +96,6 @@ func cloneReaderCaches(source map[string]*spec.CacheSettings) map[string]*spec.C
 }
 
 func (a *Authoring) Dependencies() preview.DependencyResolver { return a.dependencies }
+
+// Constants returns immutable deployment values; request input cannot replace them.
+func (a *Authoring) Constants() *constant.Values { return a.constants }

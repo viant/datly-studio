@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/viant/datly/constant"
 	"net"
 	"net/http"
 	"path"
@@ -236,14 +237,14 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 		return nil, activeErr
 	}
 	for _, definition := range definitions {
-		sources, openErr := openRuntimeSources(ctx, definition, active, s.secrets)
+		sources, openErr := openRuntimeSources(ctx, definition, active, s.secrets, s.config.Const)
 		if openErr != nil {
 			err = openErr
 			return nil, err
 		}
 		opened = append(opened, sources.opened...)
 		contractResources := loadedResources.ByVersion[studiors.Version{ReportID: definition.reportID, VersionNo: definition.versionNo}]
-		source := &transcribe.Source{Types: types, Scope: definition.scope, Name: definition.name, Text: definition.dql, Connector: definition.connector, Resources: contractResources, ColumnRefiner: column.New(sources.connections)}
+		source := &transcribe.Source{Const: s.config.Const, Types: types, Scope: definition.scope, Name: definition.name, Text: definition.dql, Connector: definition.connector, Resources: contractResources, ColumnRefiner: column.New(sources.connections)}
 		compiler := transcribe.NewCompiler()
 		var contract *transcribe.RuntimeContract
 		var compileErr error
@@ -264,7 +265,7 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 			err = mergeErr
 			return nil, err
 		}
-		compilation, buildErr := report.NewProjectCompiler(report.ProjectConfig{Types: contract.Types}).CompileArtifacts([]bootstrap.ArtifactInput{{Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources, CodecFactory: accesscontext.Codecs()}})
+		compilation, buildErr := report.NewProjectCompiler(report.ProjectConfig{Types: contract.Types}).CompileArtifacts([]bootstrap.ArtifactInput{{Const: s.config.Const, Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources, CodecFactory: accesscontext.Codecs()}})
 		if buildErr != nil {
 			err = buildErr
 			return nil, err
@@ -525,12 +526,16 @@ func (s *Service) activeConnectors(ctx context.Context) (map[string]connectorDef
 	return s.connectorStore.Read(ctx)
 }
 
-func openRuntimeSources(ctx context.Context, definition definition, active map[string]connectorDefinition, resolver connectorsecret.Resolver) (*runtimeSources, error) {
+func openRuntimeSources(ctx context.Context, definition definition, active map[string]connectorDefinition, resolver connectorsecret.Resolver, constants ...*constant.Values) (*runtimeSources, error) {
+	var instance *constant.Values
+	if len(constants) > 0 {
+		instance = constants[0]
+	}
 	available := make([]string, 0, len(active))
 	for name := range active {
 		available = append(available, name)
 	}
-	inspection := readerbuilder.New(readerbuilder.Config{Scope: definition.scope, Name: definition.name, AvailableConnectors: available}).Apply(ctx, readerbuilder.Request{DQL: definition.dql, Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
+	inspection := readerbuilder.New(readerbuilder.Config{Const: instance, Scope: definition.scope, Name: definition.name, AvailableConnectors: available}).Apply(ctx, readerbuilder.Request{DQL: definition.dql, Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
 	required := map[string]bool{definition.connector: true}
 	if inspection.Structure != nil {
 		for _, function := range inspection.Structure.Functions {
@@ -551,7 +556,7 @@ func openRuntimeSources(ctx context.Context, definition definition, active map[s
 		if !ok {
 			return nil, fmt.Errorf("dynamic report %s requires active Studio connector %q", definition.reportID, name)
 		}
-		resolvedDSN, resolveErr := connectorsecret.Resolve(ctx, resolver, item.dsn, item.secretRef)
+		resolvedDSN, resolveErr := connectorsecret.Resolve(ctx, resolver, item.dsn, item.secretRef, instance)
 		if resolveErr != nil {
 			return nil, fmt.Errorf("resolve Studio connector %q secret: %w", name, resolveErr)
 		}

@@ -132,7 +132,8 @@ func TestConfiguredDatasourcePublicationMCPProofAndNativeSQL(t *testing.T) {
 		require.Equal(t, datasourceURI, variant.DataSourceResources["records"].Resource.URI)
 		require.NotNil(t, variant.Window.View.Content.Table)
 		require.Len(t, variant.Window.View.Content.Table.Columns, 2)
-		require.True(t, variant.Window.View.Content.FetchData)
+		require.NotNil(t, variant.Window.View.Content.FetchData)
+		require.True(t, *variant.Window.View.Content.FetchData)
 		datasourceBytes := call("datasources/get", map[string]any{"uri": datasourceURI, "revision": "working"})
 		var got primitive.GetResult
 		require.NoError(t, json.Unmarshal(datasourceBytes, &got))

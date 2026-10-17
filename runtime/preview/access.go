@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
+	access "github.com/viant/authz"
 	"github.com/viant/datly-studio/runtime/accesscontext"
 	"github.com/viant/datly-studio/sdk"
-	access "github.com/viant/authz"
 	"github.com/viant/datly/runtime/registry"
 	"github.com/viant/datly/spec"
 )
@@ -66,7 +66,7 @@ func rejectClientContextValues(component *spec.Component, raw json.RawMessage) e
 		return &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "preview input must be an object"}
 	}
 	for _, parameter := range spec.EffectiveParameters(component.Parameters) {
-		if parameter == nil || (!strings.EqualFold(parameter.Source.Kind, "component") && !strings.EqualFold(parameter.Source.Kind, "param")) {
+		if parameter == nil || (!strings.EqualFold(parameter.Source.Kind, "component") && !strings.EqualFold(parameter.Source.Kind, "param") && !strings.EqualFold(parameter.Source.Kind, "const")) {
 			continue
 		}
 		for key := range fields {

@@ -17,6 +17,7 @@ import (
 	"github.com/viant/datly-studio/runtime/accesscontext"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
+	"github.com/viant/datly/constant"
 	dexec "github.com/viant/datly/exec"
 	"github.com/viant/datly/spec"
 	"github.com/viant/datly/typecatalog"
@@ -99,6 +100,59 @@ JOIN (SELECT ID, VENDOR_ID, STATUS FROM PRODUCT) products ON products.VENDOR_ID=
 	if warmup.Entries <= 0 || warmup.Duration <= 0 || warmup.PlannedCases != 3 || warmup.CompletedCases != 3 {
 		t.Fatalf("warmup=%+v", warmup)
 	}
+	t.Run("deployment-constants", func(t *testing.T) {
+		// This is a generic constant-boundary test, not BigQuery dialect acceptance.
+		var lines []string
+		for _, line := range strings.Split(dql, "\n") {
+			if !strings.Contains(line, "$cache") {
+				lines = append(lines, line)
+			}
+		}
+		authored := "#define($_ = $VendorID<int>(const/VendorID).Value('1'))\n" + strings.Join(lines, "\n")
+		authored = strings.Replace(authored, "SELECT ID, NAME FROM VENDOR", "SELECT ID, NAME FROM VENDOR WHERE ID = $VendorID", 1)
+		if _, err := studio.ExecContext(ctx, "UPDATE component_versions SET authored_dql=?,generated_dql=? WHERE report_id='vendors' AND version_no=1", authored, authored); err != nil {
+			t.Fatal(err)
+		}
+		defer func() {
+			if _, err := studio.ExecContext(ctx, "UPDATE component_versions SET authored_dql=?,generated_dql=? WHERE report_id='vendors' AND version_no=1", dql, dql); err != nil {
+				t.Fatal(err)
+			}
+		}()
+		values, err := constant.New(map[string]string{"VendorID": "2", "ReaderDatabase": sourceDSN})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err = studio.ExecContext(ctx, "UPDATE connectors SET dsn_template=? WHERE name='vendor'", "${ReaderDatabase}"); err != nil {
+			t.Fatal(err)
+		}
+		defer func() {
+			if _, err := studio.ExecContext(ctx, "UPDATE connectors SET dsn_template=? WHERE name='vendor'", sourceDSN); err != nil {
+				t.Fatal(err)
+			}
+		}()
+		dynamic := Dynamic{StudioDB: studio, RootDir: root, Const: values}
+		if err = dynamic.Validate(ctx, "vendors", 1); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := dynamic.Execute(ctx, "vendors", 1, sdk.PreviewInput{Input: json.RawMessage(`{"VendorID":1}`)}); err == nil {
+			t.Fatal("client supplied a deployment constant")
+		}
+		result, err := dynamic.Execute(ctx, "vendors", 1, sdk.PreviewInput{})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !strings.Contains(string(result.Data), "Contoso") || strings.Contains(string(result.Data), "Northwind") {
+			t.Fatalf("deployment override lost: %s", result.Data)
+		}
+		var stored string
+		if err = studio.QueryRowContext(ctx, "SELECT authored_dql FROM component_versions WHERE report_id='vendors' AND version_no=1").Scan(&stored); err != nil {
+			t.Fatal(err)
+		}
+		if stored != authored {
+			t.Fatal("preview mutated authored constants")
+		}
+	})
+
 	t.Run("authenticated-dependency-predicate", func(t *testing.T) { checkPreviewDependencyIdentity(t, studio, root, dql) })
 	t.Run("deployment-named-cache", func(t *testing.T) {
 		named := strings.Replace(dql, fmt.Sprintf("#setting($_ = $cache('vendors', '1m').WithLocation('%s'))", filepath.Join(root, "cache")), "#setting($_ = $cache('vendors'))", 1)

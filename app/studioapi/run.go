@@ -14,6 +14,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/viant/authz"
 	"github.com/viant/datly-studio/store/sql/accesscatalog"
+	"github.com/viant/datly/constant"
 	"io/fs"
 	"log"
 	"net"
@@ -152,6 +153,7 @@ type RuntimeControl interface {
 }
 
 type Options struct {
+	Const *constant.Values
 	// RuntimeControl avoids an internal administration listener in embedded hosts.
 	RuntimeControl RuntimeControl
 
@@ -356,7 +358,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) error {
 			log.Printf("Studio preview connector reader close: %v", err)
 		}
 	}()
-	dynamicPreview := preview.Dynamic{StudioDB: db, RootDir: ".", Definitions: definitionReader, Connectors: connectorReader}
+	dynamicPreview := preview.Dynamic{Const: options.Const, StudioDB: db, RootDir: ".", Definitions: definitionReader, Connectors: connectorReader}
 	predicates, err := (host.Config{}).PredicateCatalog()
 	if err != nil {
 		return err
@@ -389,7 +391,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) error {
 			log.Printf("Studio authorizer reader close: %v", err)
 		}
 	}()
-	transport := &sqltransport.Transport{DB: db, Authorizer: authorizer, Predicates: predicates, Probe: connectivity.SQLProbe{}, Catalog: connectivity.SQLCatalog{}, SQLTester: dynamicPreview, Preview: dynamicPreview, ViewTester: dynamicPreview, RelationTester: dynamicPreview, ComposeTester: dynamicPreview, Warmup: dynamicPreview, Validator: dynamicPreview, ContractInspector: dynamicPreview, Activator: runtimeAdmin, RuntimeProbe: runtimeAdmin}
+	transport := &sqltransport.Transport{DB: db, Authorizer: authorizer, Predicates: predicates, Probe: connectivity.SQLProbe{Const: options.Const}, Catalog: connectivity.SQLCatalog{Const: options.Const}, SQLTester: dynamicPreview, Preview: dynamicPreview, ViewTester: dynamicPreview, RelationTester: dynamicPreview, ComposeTester: dynamicPreview, Warmup: dynamicPreview, Validator: dynamicPreview, ContractInspector: dynamicPreview, Activator: runtimeAdmin, RuntimeProbe: runtimeAdmin}
 	defer func() {
 		closeCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
@@ -503,7 +505,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) error {
 			prunerDone := startSessionPruner(lifecycleCtx, sessionStore, *sessionPruneInterval)
 			defer func() { stop(); <-prunerDone }()
 		}
-		sessions, sessionErr := bffauth.New(bffauth.Config{CookieName: *cookieName, Secure: true, Issuer: issuer, Audience: audience, Store: sessionStore}, jwtVerifier)
+		sessions, sessionErr := bffauth.New(bffauth.Config{CookieName: *cookieName, Secure: secureSessionCookies(origin), Issuer: issuer, Audience: audience, Store: sessionStore}, jwtVerifier)
 		if sessionErr != nil {
 			return sessionErr
 		}
@@ -522,7 +524,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) error {
 			}
 		}
 		if loginOAuth != nil {
-			login, loginErr := bffauth.NewLogin(bffauth.LoginConfig{OAuth: *loginOAuth, CookieKey: key, Secure: true, UseIDToken: *loginIDToken, AllowedOrigin: origin}, sessions)
+			login, loginErr := bffauth.NewLogin(bffauth.LoginConfig{OAuth: *loginOAuth, CookieKey: key, Secure: secureSessionCookies(origin), UseIDToken: *loginIDToken, AllowedOrigin: origin}, sessions)
 			if loginErr != nil {
 				return loginErr
 			}

@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/viant/datly/constant"
 	"strings"
 
 	"github.com/viant/datly-studio/internal/connectorinit"
@@ -15,7 +16,10 @@ import (
 // SQLProbe checks relational connectors with database/sql. The host must link
 // the requested driver; no credential or driver implementation is embedded in
 // Studio.
-type SQLProbe struct{ Secrets connectorsecret.Resolver }
+type SQLProbe struct {
+	Secrets connectorsecret.Resolver
+	Const   *constant.Values
+}
 
 func (p SQLProbe) Probe(ctx context.Context, connector *sdk.Connector) (*sdk.ConnectorTestResult, error) {
 	if connector == nil {
@@ -32,7 +36,7 @@ func (p SQLProbe) Probe(ctx context.Context, connector *sdk.Connector) (*sdk.Con
 	if !linked {
 		return nil, fmt.Errorf("SQL connector driver %q is not linked by the host", connector.Driver)
 	}
-	dsn, err := connectorsecret.Resolve(ctx, p.Secrets, connector.DSNTemplate, connector.SecretRef)
+	dsn, err := connectorsecret.Resolve(ctx, p.Secrets, connector.DSNTemplate, connector.SecretRef, p.Const)
 	if err != nil {
 		return nil, err
 	}

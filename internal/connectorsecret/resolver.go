@@ -3,6 +3,7 @@ package connectorsecret
 import (
 	"context"
 	"fmt"
+	"github.com/viant/datly/constant"
 	"strings"
 
 	"github.com/viant/scy/cred/secret"
@@ -44,7 +45,26 @@ func (SCY) Resolve(ctx context.Context, template, reference string) (string, err
 	return resolved, nil
 }
 
-func Resolve(ctx context.Context, resolver Resolver, template, reference string) (string, error) {
+type constantsKey struct{}
+
+// WithConstants binds trusted deployment values; never populate them from request input.
+func WithConstants(ctx context.Context, values *constant.Values) context.Context {
+	return context.WithValue(ctx, constantsKey{}, values)
+}
+
+func Resolve(ctx context.Context, resolver Resolver, template, reference string, values ...*constant.Values) (string, error) {
+	instance, _ := ctx.Value(constantsKey{}).(*constant.Values)
+	if len(values) > 0 && values[0] != nil {
+		instance = values[0]
+	}
+	if instance != nil {
+		expanded, err := instance.ExpandKnown(template)
+		if err != nil {
+			return "", fmt.Errorf("resolve connector deployment constants: %w", err)
+		}
+		template = expanded
+	}
+
 	if strings.TrimSpace(reference) == "" {
 		return strings.TrimSpace(template), nil
 	}

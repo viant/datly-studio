@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
+	"github.com/viant/datly/constant"
 	"net"
 	"net/url"
 	"os"
@@ -78,6 +79,7 @@ type Admin struct {
 type NamespaceBuildExtension func(context.Context, *application.Build) error
 
 type Config struct {
+	Const *constant.Values `yaml:"-"`
 	// InProcess disables only the separate administration endpoint requirement.
 	InProcess bool `yaml:"-"`
 	// NamespaceHTTPMiddleware is a trusted embedding extension around a single

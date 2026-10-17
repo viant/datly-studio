@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/viant/datly/constant"
 	"sort"
 	"strings"
 
@@ -17,10 +18,13 @@ import (
 	"github.com/viant/sqlx/option"
 )
 
-type SQLCatalog struct{ Secrets connectorsecret.Resolver }
+type SQLCatalog struct {
+	Secrets connectorsecret.Resolver
+	Const   *constant.Values
+}
 
 func (c SQLCatalog) Schemas(ctx context.Context, connector *sdk.Connector, input sdk.SchemaCatalogInput) (*sdk.SchemaCatalog, error) {
-	db, err := openCatalogDB(ctx, connector, c.Secrets)
+	db, err := openCatalogDB(ctx, connector, c.Secrets, c.Const)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +50,7 @@ func (c SQLCatalog) Schemas(ctx context.Context, connector *sdk.Connector, input
 }
 
 func (c SQLCatalog) Tables(ctx context.Context, connector *sdk.Connector, input sdk.TableCatalogInput) (*sdk.TableCatalog, error) {
-	db, err := openCatalogDB(ctx, connector, c.Secrets)
+	db, err := openCatalogDB(ctx, connector, c.Secrets, c.Const)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +106,7 @@ func (c SQLCatalog) Table(ctx context.Context, connector *sdk.Connector, input s
 	if strings.TrimSpace(input.Table) == "" {
 		return nil, fmt.Errorf("table is required")
 	}
-	db, err := openCatalogDB(ctx, connector, c.Secrets)
+	db, err := openCatalogDB(ctx, connector, c.Secrets, c.Const)
 	if err != nil {
 		return nil, err
 	}
@@ -139,12 +143,12 @@ func (c SQLCatalog) Table(ctx context.Context, connector *sdk.Connector, input s
 	return result, nil
 }
 
-func openCatalogDB(ctx context.Context, connector *sdk.Connector, resolver connectorsecret.Resolver) (*sql.DB, error) {
+func openCatalogDB(ctx context.Context, connector *sdk.Connector, resolver connectorsecret.Resolver, values ...*constant.Values) (*sql.DB, error) {
 	if connector == nil {
 		return nil, fmt.Errorf("connector is required")
 	}
 	driver := resolveDriver(strings.ToLower(strings.TrimSpace(connector.Driver)))
-	dsn, err := connectorsecret.Resolve(ctx, resolver, connector.DSNTemplate, connector.SecretRef)
+	dsn, err := connectorsecret.Resolve(ctx, resolver, connector.DSNTemplate, connector.SecretRef, values...)
 	if err != nil {
 		return nil, err
 	}

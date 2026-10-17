@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	requestprovider "github.com/viant/bindly/provider/request"
+	"github.com/viant/datly/constant"
 	"github.com/viant/datly/typecatalog"
 	"net/http"
 	"os"
@@ -18,7 +19,6 @@ import (
 	"time"
 
 	access "github.com/viant/authz"
-	"github.com/viant/bindly"
 	bindresource "github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/connectorinit"
 	"github.com/viant/datly-studio/internal/connectorsecret"
@@ -32,22 +32,20 @@ import (
 	mcptool "github.com/viant/datly/mcp/tool"
 	"github.com/viant/datly/report"
 	druntime "github.com/viant/datly/runtime"
-	rhandler "github.com/viant/datly/runtime/handler"
 	nativeoutput "github.com/viant/datly/runtime/output"
 	"github.com/viant/datly/spec"
 	dsql "github.com/viant/datly/sql"
 	"github.com/viant/datly/transcribe"
 	"github.com/viant/datly/transcribe/column"
-	"github.com/viant/sqlx"
 	"github.com/viant/sqlx/io/read/cache/aerospike"
 	"github.com/viant/tagly/tags"
-	xhandler "github.com/viant/xdatly/handler"
 	"golang.org/x/mod/modfile"
 )
 
 // Dynamic executes dynamic reader versions using Datly's runtime-contract
 // materialization. It is an SDK preview executor, not a SQL escape hatch.
 type Dynamic struct {
+	Const        *constant.Values
 	Dependencies DependencyResolver
 	// ReaderCaches is trusted deployment configuration shared with publication.
 	// Each preview/validation owns its cache pool and closes it after execution.
@@ -74,7 +72,7 @@ func (d Dynamic) Validate(ctx context.Context, reportID string, versionNo int) e
 	if err != nil {
 		return err
 	}
-	sources, err := openSources(ctx, definition, definition.DQL)
+	sources, err := openSources(ctx, definition, definition.DQL, d.Const)
 	if err != nil {
 		return err
 	}
@@ -88,7 +86,7 @@ func (d Dynamic) Validate(ctx context.Context, reportID string, versionNo int) e
 	if err != nil {
 		return fmt.Errorf("compile runtime contract: %w", err)
 	}
-	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{
+	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Const: d.Const,
 		Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType,
 		Types: contract.Types, Resources: contract.Resources, CodecFactory: accesscontext.Codecs(),
 	})
@@ -133,7 +131,7 @@ func (d Dynamic) TestSQL(ctx context.Context, connector *sdk.Connector, request 
 			return nil, &sdk.Error{Code: sdk.ErrorUnavailable, Message: "resolve Studio module for SQL test", Cause: err}
 		}
 	}
-	resolvedDSN, err := connectorsecret.Resolve(ctx, d.Secrets, connector.DSNTemplate, connector.SecretRef)
+	resolvedDSN, err := connectorsecret.Resolve(ctx, d.Secrets, connector.DSNTemplate, connector.SecretRef, d.Const)
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorUnavailable, Message: "resolve connector secret", Cause: err}
 	}
@@ -173,6 +171,7 @@ func previewModulePath(root string) (string, error) {
 }
 
 func (d Dynamic) runtimeContracts(ctx context.Context, source *transcribe.Source) (*transcribe.RuntimeContract, error) {
+	source.Const = d.Const
 	compiler := transcribe.NewCompiler()
 	if module := strings.TrimSpace(d.ModulePath); module != "" {
 		return compiler.RuntimeContractsInModule(ctx, module, source)
@@ -205,7 +204,7 @@ func (d Dynamic) TestView(ctx context.Context, reportID string, versionNo int, v
 	if err != nil {
 		return nil, err
 	}
-	dql, err := testViewDQL(ctx, definition, view, d.Types)
+	dql, err := testViewDQL(ctx, definition, view, d.Types, d.Const)
 	if err != nil {
 		return nil, err
 	}
@@ -283,7 +282,7 @@ func (d Dynamic) executeCube(ctx context.Context, reportID string, versionNo int
 	if err != nil {
 		return nil, err
 	}
-	sources, err := openSources(ctx, definition, definition.DQL)
+	sources, err := openSources(ctx, definition, definition.DQL, d.Const)
 	if err != nil {
 		return nil, err
 	}
@@ -317,7 +316,7 @@ func (d Dynamic) executeCube(ctx context.Context, reportID string, versionNo int
 			}
 		}
 	}
-	compilation, err := report.NewProjectCompiler(report.ProjectConfig{Types: contract.Types}).CompileArtifacts([]bootstrap.ArtifactInput{{
+	compilation, err := report.NewProjectCompiler(report.ProjectConfig{Types: contract.Types}).CompileArtifacts([]bootstrap.ArtifactInput{{Const: d.Const,
 		Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType,
 		DirectViewField: outputViewField(contract.Component), Types: contract.Types, Resources: contract.Resources, CodecFactory: accesscontext.Codecs(),
 	}})
@@ -455,7 +454,7 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 	if err != nil {
 		return nil, err
 	}
-	sources, err := openSources(ctx, definition, definition.DQL)
+	sources, err := openSources(ctx, definition, definition.DQL, d.Const)
 	if err != nil {
 		return nil, err
 	}
@@ -469,7 +468,7 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 	if contract.Component == nil || contract.Component.RootView == nil || contract.Component.CacheWarmup() == nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "reader version has no authored cache warmup policy"}
 	}
-	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources, CodecFactory: accesscontext.Codecs()})
+	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Const: d.Const, Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources, CodecFactory: accesscontext.Codecs()})
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "build dynamic reader artifact", Cause: err}
 	}
@@ -538,7 +537,7 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 	if limit > 200 {
 		limit = 200
 	}
-	sources, err := openSources(ctx, definition, dql)
+	sources, err := openSources(ctx, definition, dql, d.Const)
 	if err != nil {
 		return nil, err
 	}
@@ -561,17 +560,7 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 	if err = rejectClientContextValues(contract.Component, request.Input); err != nil {
 		return nil, err
 	}
-	input := reflect.New(contract.InputType).Interface()
-	if len(contexts) == 0 && len(request.Input) != 0 {
-		if err = json.Unmarshal(request.Input, input); err != nil {
-			return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "preview input does not match reader contract", Cause: err}
-		}
-		markSuppliedFields(input, request.Input)
-	}
-	if credential, ok := sdk.VerifiedCredentialFromContext(ctx); ok {
-		hydrateVerifiedClaims(input, credential.Claims)
-	}
-	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources, CodecFactory: accesscontext.Codecs()})
+	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Const: d.Const, Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources, CodecFactory: accesscontext.Codecs()})
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "build dynamic reader artifact", Cause: err}
 	}
@@ -579,16 +568,9 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "initialize dynamic reader", Cause: err}
 	}
-	injector, err := bindly.NewInjector()
-	if err != nil {
-		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "initialize dynamic reader binder", Cause: err}
-	}
-	binder := previewBinder{delegate: rhandler.NewBinder(injector, input), input: input}
 	started := time.Now()
 	var data any
-	if len(contexts) == 0 {
-		data, err = reader.Read(ctx, input, binder, sqlx.ParameterResolver(artifact.Input.Resolver(input)))
-	} else {
+	{
 		registered, registerErr := artifact.Registration(druntime.RegisteredComponent{Reader: reader})
 		if registerErr != nil {
 			return nil, registerErr
@@ -863,27 +845,14 @@ func viewEvidenceName(view *spec.View) string {
 	return view.Namespace
 }
 
-func hydrateVerifiedClaims(input, claims any) {
-	target := reflect.ValueOf(input)
-	if target.Kind() != reflect.Pointer || target.IsNil() {
-		return
-	}
-	target = target.Elem()
-	field := target.FieldByName("Jwt")
-	value := reflect.ValueOf(claims)
-	if field.IsValid() && field.CanSet() && value.IsValid() && value.Type().AssignableTo(field.Type()) {
-		field.Set(value)
-	}
-}
-
-func testViewDQL(ctx context.Context, definition *definition, viewName string, types *typecatalog.Catalog) (string, error) {
+func testViewDQL(ctx context.Context, definition *definition, viewName string, types *typecatalog.Catalog, constants ...*constant.Values) (string, error) {
 	available := []string{definition.Connector}
 	for _, connector := range definition.Connectors {
 		if connector.Name != definition.Connector {
 			available = append(available, connector.Name)
 		}
 	}
-	service := readerbuilder.New(readerbuilder.Config{Resources: definition.Resources, Types: types, Scope: definition.Scope, Name: definition.Name, AvailableConnectors: available})
+	service := readerbuilder.New(readerbuilder.Config{Const: firstConstants(constants), Resources: definition.Resources, Types: types, Scope: definition.Scope, Name: definition.Name, AvailableConnectors: available})
 	response := service.Apply(ctx, readerbuilder.Request{DQL: definition.DQL, Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
 	if response.Structure == nil || response.Structure.Component == nil || response.Structure.Component.TypeContext == nil {
 		return "", &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "reader view structure is unavailable"}
@@ -972,54 +941,6 @@ func safeViewToken(value string) string {
 	return result.String()
 }
 
-func markSuppliedFields(input any, raw json.RawMessage) {
-	var values map[string]json.RawMessage
-	if json.Unmarshal(raw, &values) != nil {
-		return
-	}
-	target := reflect.ValueOf(input)
-	if target.Kind() != reflect.Pointer || target.IsNil() {
-		return
-	}
-	target = target.Elem()
-	marker := target.FieldByName("Has")
-	if !marker.IsValid() || marker.Kind() != reflect.Pointer {
-		return
-	}
-	if marker.IsNil() {
-		marker.Set(reflect.New(marker.Type().Elem()))
-	}
-	for index := 0; index < target.NumField(); index++ {
-		field := target.Type().Field(index)
-		if field.Name == "Has" {
-			continue
-		}
-		for key := range values {
-			if strings.EqualFold(key, field.Name) {
-				if supplied := marker.Elem().FieldByName(field.Name); supplied.IsValid() && supplied.CanSet() && supplied.Kind() == reflect.Bool {
-					supplied.SetBool(true)
-				}
-			}
-		}
-	}
-}
-
-type previewBinder struct {
-	delegate *rhandler.Binder
-	input    any
-}
-
-func (b previewBinder) Bind(ctx context.Context, target any) error {
-	return b.delegate.Bind(ctx, target)
-}
-
-func (b previewBinder) Lookup(ctx context.Context, key xhandler.ValueKey) (any, bool, error) {
-	if key == xhandler.InputKey {
-		return b.input, true, nil
-	}
-	return b.delegate.Lookup(ctx, key)
-}
-
 type definition struct {
 	Types                                               *typecatalog.Catalog
 	Scope, Name, Connector, Driver, DSN, SecretRef, DQL string
@@ -1072,7 +993,7 @@ func (d Dynamic) definition(ctx context.Context, reportID string, versionNo int)
 	if strings.TrimSpace(result.DQL) == "" {
 		result.DQL = row.AuthoredDql
 	}
-	result.DSN, err = connectorsecret.Resolve(ctx, d.Secrets, result.DSN, result.SecretRef)
+	result.DSN, err = connectorsecret.Resolve(ctx, d.Secrets, result.DSN, result.SecretRef, d.Const)
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorUnavailable, Message: "resolve reader connector secret", Cause: err}
 	}
@@ -1130,7 +1051,7 @@ func (s *sources) Close() {
 // openSources derives connector usage from Datly's compiled view metadata and
 // binds exact Studio connector names to both transcription and execution. No
 // connector aliases or per-view Studio registry are maintained here.
-func openSources(ctx context.Context, definition *definition, dql string) (*sources, error) {
+func openSources(ctx context.Context, definition *definition, dql string, constants ...*constant.Values) (*sources, error) {
 	available := map[string]connectorDefinition{}
 	for _, item := range definition.Connectors {
 		available[item.Name] = item
@@ -1142,7 +1063,7 @@ func openSources(ctx context.Context, definition *definition, dql string) (*sour
 	for name := range available {
 		names = append(names, name)
 	}
-	required := requiredConnectors(ctx, definition, dql, names)
+	required := requiredConnectors(ctx, definition, dql, names, constants...)
 	result := &sources{Connections: column.Connections{}}
 	for _, name := range required {
 		item, ok := available[name]
@@ -1150,7 +1071,7 @@ func openSources(ctx context.Context, definition *definition, dql string) (*sour
 			result.Close()
 			return nil, &sdk.Error{Code: sdk.ErrorUnavailable, Message: fmt.Sprintf("Datly reader requires active Studio connector %q", name)}
 		}
-		resolvedDSN, err := connectorsecret.Resolve(ctx, definition.Secrets, item.DSN, item.SecretRef)
+		resolvedDSN, err := connectorsecret.Resolve(ctx, definition.Secrets, item.DSN, item.SecretRef, firstConstants(constants))
 		if err != nil {
 			result.Close()
 			return nil, &sdk.Error{Code: sdk.ErrorUnavailable, Message: fmt.Sprintf("resolve Studio connector %q secret", name), Cause: err}
@@ -1188,9 +1109,9 @@ func openSources(ctx context.Context, definition *definition, dql string) (*sour
 	return result, nil
 }
 
-func requiredConnectors(ctx context.Context, definition *definition, dql string, available []string) []string {
+func requiredConnectors(ctx context.Context, definition *definition, dql string, available []string, constants ...*constant.Values) []string {
 	required := map[string]bool{definition.Connector: true}
-	inspection := readerbuilder.New(readerbuilder.Config{Resources: definition.Resources, Types: definition.Types, Scope: definition.Scope, Name: definition.Name, AvailableConnectors: available}).Apply(ctx, readerbuilder.Request{DQL: dql, Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
+	inspection := readerbuilder.New(readerbuilder.Config{Const: firstConstants(constants), Resources: definition.Resources, Types: definition.Types, Scope: definition.Scope, Name: definition.Name, AvailableConnectors: available}).Apply(ctx, readerbuilder.Request{DQL: dql, Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
 	if inspection.Structure != nil {
 		for _, occurrence := range inspection.Structure.Functions {
 			if strings.EqualFold(occurrence.Name, "use_connector") && len(occurrence.Args) > 1 {
@@ -1246,4 +1167,11 @@ func normalizeDriver(driver string) string {
 	default:
 		return strings.TrimSpace(driver)
 	}
+}
+
+func firstConstants(values []*constant.Values) *constant.Values {
+	if len(values) > 0 {
+		return values[0]
+	}
+	return nil
 }

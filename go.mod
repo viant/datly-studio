@@ -11,16 +11,16 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.52
 	github.com/oapi-codegen/runtime v1.7.0
 	github.com/stretchr/testify v1.12.1
-	github.com/viant/bigquery v0.5.4-0.20260927120042-a47888f8d2cc
-	github.com/viant/bindly v0.4.1-0.20261011212616-2c051ae6bd9e
-	github.com/viant/datly v1.1.1-0.20261015003331-f8fe295597c2
+	github.com/viant/bigquery v0.5.4-0.20261017234417-20686a9ebfa4
+	github.com/viant/bindly v0.4.1-0.20261017023851-b39a34a62792
+	github.com/viant/datly v1.1.1-0.20261017234417-3cc2ec0af0ef
 	github.com/viant/jsonrpc v0.25.1-0.20261014230436-c7e03c1c46eb
-	github.com/viant/mcp v0.24.1-0.20261015005417-1d6bc8f12751
+	github.com/viant/mcp v0.24.1-0.20261016035016-dc29fe9112e9
 	github.com/viant/mcp-protocol v0.19.1-0.20261014173008-af92f34f304b
 	github.com/viant/scy v0.35.1-0.20260914041206-699e6c909726
-	github.com/viant/sqlx v0.26.1-0.20261013061633-ba8bc02ca651
+	github.com/viant/sqlx v0.26.1-0.20261017073006-8e503eb1429a
 	github.com/viant/x v0.5.1-0.20260915043005-1bc42b9eef47
-	github.com/viant/xdatly v1.0.1-0.20261014220053-69eb20c7d1a8
+	github.com/viant/xdatly v1.0.1-0.20261017023827-3a09d6ff7964
 	github.com/viant/xunsafe v0.11.0
 	go.yaml.in/yaml/v3 v3.0.5
 	golang.org/x/mod v0.38.0
@@ -105,14 +105,14 @@ require (
 	github.com/viant/afsc v1.18.0 // indirect
 	github.com/viant/authz v0.0.0-20261017213411-7e7e62acb696
 	github.com/viant/authz/component v0.0.0-20261017195827-09176e9405c4
-	github.com/viant/forge v0.3.45-0.20261015011117-38bb1cf13641
+	github.com/viant/forge v0.3.45-0.20261017190953-b07e77a0fe24
 	github.com/viant/gmetric v0.3.2 // indirect
 	github.com/viant/gosh v0.3.1-0.20261007222529-b829eaaf687b // indirect
 	github.com/viant/govalidator v0.3.4-0.20260913213120-027a9dd54d73 // indirect
 	github.com/viant/igo v0.2.0 // indirect
 	github.com/viant/parsly v0.3.3 // indirect
 	github.com/viant/sqlparser v0.13.1-0.20261012001419-edea4bd5d9c1 // indirect
-	github.com/viant/structology v0.10.1-0.20261014122805-e37281ec0f50 // indirect
+	github.com/viant/structology v0.10.1-0.20261015025741-5750986d416b // indirect
 	github.com/viant/structql v0.5.5-0.20261012183420-6a47e96ff5b5 // indirect
 	github.com/viant/tagly v0.4.1-0.20261007173811-969600917520
 	github.com/viant/toolbox v0.39.0 // indirect

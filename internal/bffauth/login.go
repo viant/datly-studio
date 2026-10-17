@@ -40,8 +40,8 @@ type LoginConfig struct {
 }
 
 // Login owns authorization-code + S256 PKCE and the provider token lifecycle.
-// Identity-token deployments mount DatlyHTTP; Register retains only the
-// explicit legacy BFF access-token flow.
+// Identity-token deployments mount DatlyHTTP. Register keeps credentials on
+// the server and exposes only the opaque browser session cookie.
 type Login struct {
 	config        oauth2.Config
 	sessions      *Service
@@ -172,7 +172,14 @@ func (l *Login) handleCallback(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "login token exchange failed", http.StatusUnauthorized)
 		return
 	}
-	id, _, expires, err := l.sessions.Exchange(ctx, token.AccessToken)
+	// OIDC identifies the user with its ID token. An OAuth access token can be
+	// opaque or carry a different resource audience; it is not a substitute for
+	// those identity claims. OAuth-only providers retain verified JWT support.
+	credential := token.AccessToken
+	if identityToken, ok := token.Extra("id_token").(string); ok && strings.TrimSpace(identityToken) != "" {
+		credential = identityToken
+	}
+	id, _, expires, err := l.sessions.Exchange(ctx, credential)
 	if err != nil {
 		http.Error(w, "login token verification failed", http.StatusUnauthorized)
 		return
