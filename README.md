@@ -35,10 +35,9 @@ publications and application data connectors remain database-managed. The host
 owns internal service addresses and starts no child binaries.
 
 See [shared configuration](app/hostconfig/README.md) for the minimal example,
-secret handling, readiness, shutdown, and current acceptance limits. Existing
-`studio-api`, `studio-runtime`, and native `datly` commands remain explicit
-separate-service entry points. The following older deployment examples describe
-those paths; they are not the default single-process launcher.
+secret handling, readiness, shutdown, and current acceptance limits. The default
+command owns all services in process. Specialized standalone commands remain
+available for explicit separate-service deployments.
 
 ## What Studio provides
 
@@ -107,17 +106,19 @@ See [capabilities](docs/capabilities.md), [authorization](docs/authorization.md)
 [custom predicates](docs/custom-predicates.md) for boundaries and configuration.
 
 
-| Process | Default address | Responsibility |
-| --- | --- | --- |
-| Vite development UI | `127.0.0.1:5173` | Frontend hot reload during development |
-| Studio SDK/BFF | `127.0.0.1:8080` | Authenticated authoring and operational API |
-| Static Datly control plane | `127.0.0.1:8081` | Generated Studio control components |
-| Dynamic Datly HTTP | `127.0.0.1:8082` | Published component HTTP routes |
-| Dynamic Datly MCP | `127.0.0.1:8091` | Published Streamable HTTP MCP server |
+One `studio` process owns the following public listeners. These are example
+addresses configured in the quick start below, not separate executables:
 
-The Vite port is development-only. The production packaging target is a single
-Studio server that embeds the built UI while retaining dedicated dynamic HTTP
-and MCP listeners.
+| Listener | Example address | Responsibility |
+| --- | --- | --- |
+| HTTP | `127.0.0.1:8080` | Built UI, authenticated SDK/BFF and operational API |
+| Admin MCP | `127.0.0.1:8081` | Native Studio authoring and management tools |
+| Namespace MCP | `127.0.0.1:8082` | Shared listener for database-discovered published namespaces |
+
+Internal native HTTP and reload administration use automatically allocated
+loopback addresses. They require no additional operator-configured ports or
+processes. Vite hot reload on `127.0.0.1:5173` is optional frontend development
+infrastructure.
 
 ## Prerequisites
 
@@ -163,36 +164,53 @@ are created from the shared canonical DDL for fresh installations; the new
 Authz schema does not rename or convert a previous `resource_policy_heads`
 layout or backfill policy history.
 
-Start the dynamic runtime with public loopback authentication for local
-development:
-
-```sh
-GOWORK=off go run ./cmd/studio-runtime \
-  -conf datly-runtime.development.yaml
-```
-
-Start the Studio SDK/BFF in another terminal:
-
-```sh
-GOWORK=off go run ./cmd/studio-api \
-  -address 127.0.0.1:8080 \
-  -dsn 'file:.data/studio.db?cache=shared' \
-  -subject developer
-```
-
-Start the UI:
+Build the UI and the single application binary:
 
 ```sh
 cd ui
-npm install
-npm run dev
+npm ci --no-audit --no-fund
+npm run build
+cd ..
+GOWORK=off go build -o studio ./cmd/studio
 ```
 
-Open [http://127.0.0.1:5173](http://127.0.0.1:5173).
+Create `studio.yaml` with one storage definition. Replace the example identity
+provider, issuer, and audience with your registered application's values:
 
-Do not use `datly-runtime.yaml` for an unauthenticated development session: it
-requires verified JWT authentication. Use `datly-runtime.development.yaml` only
-on a loopback interface.
+```yaml
+Endpoint:
+  Address: 127.0.0.1:8080
+MCP:
+  Address: 127.0.0.1:8081
+NamespaceMCP:
+  Address: 127.0.0.1:8082
+Store:
+  Driver: sqlite
+  DSN: 'file:.data/studio.db?cache=shared'
+JWTValidator:
+  CertURL: https://idp.example.com/certs
+JWTClaims:
+  Issuer: https://idp.example.com
+  Audience: studio
+  RequireSubject: true
+StaticRoot: ui/dist
+```
+
+For MySQL storage and SCY secret references, see the
+[shared configuration example](app/hostconfig/README.md). Application data
+connectors and namespace definitions are managed in the database.
+
+Start the application:
+
+```sh
+./studio --config studio.yaml
+```
+
+The process reports its HTTP, admin MCP and namespace MCP addresses after
+startup. Built UI assets are served at [http://127.0.0.1:8080](http://127.0.0.1:8080),
+and browser configuration is derived by the host. Browser OAuth login wiring in
+the combined launcher and full browser-suite adoption remain outstanding; this
+startup example is not a completed interactive sign-in acceptance claim.
 
 ## Authoring workflow
 
@@ -226,11 +244,20 @@ through `tools/list`, including input and output schemas. Skills use the native
 MCP skills capability when advertised and retain `skills/list` and `skills/get`
 tool discovery for hosts without that capability.
 
-The development MCP endpoint is:
+With the example configuration, authoring tools are served at:
 
 ```text
-http://127.0.0.1:8091/mcp
+http://127.0.0.1:8081/mcp
 ```
+
+Published components use their database-owned namespace ID on the shared listener:
+
+```text
+http://127.0.0.1:8082/namespaces/<namespace-id>/mcp
+```
+
+There is no global published-component `/mcp` endpoint in the default shared
+namespace mode.
 
 ## Namespace workspaces
 
@@ -239,13 +266,14 @@ Namespaces are private by default; owners can assign viewer roles or public
 visibility. Resource ACL remains independent of namespace visibility. Connectors
 may be shared globally.
 
-The runtime supports separate namespace MCP ports and a shared-port mode with
-namespace-specific URL paths. Configure `NamespaceMCPMode` or use
-`-namespace-mcp-mode=separate|shared`; each namespace may request a custom
-dedicated port. See [listener modes and defaults](docs/dynamic-mcp.md). Namespace support is still being completed: selection is optional
-on some APIs, and full persistence and multi-window isolation are not yet accepted.
-See [implementation status](docs/namespace-workspaces.md) for verified behavior
-and remaining gates. Datly Studio remains independent and reporting-free.
+The single-process host uses a shared namespace MCP listener configured through
+`NamespaceMCP`. Namespace enablement and per-namespace dedicated-port overrides
+come from database metadata and are reconciled without restarting the process.
+The specialized standalone runtime also retains explicit separate-listener modes;
+see [listener modes](docs/dynamic-mcp.md) for that optional deployment.
+
+See [implementation status](docs/namespace-workspaces.md) for remaining namespace
+acceptance gates. Datly Studio remains independent and reporting-free.
 
 ## Extending Studio
 
@@ -318,13 +346,26 @@ cd e2e
 endly
 ```
 
-Plain `endly` runs the workflows sequentially: stop a previous fixture, build the
-Go fixture and production UI, create a fresh SQLite catalog, seed consumer data
+Plain `endly` first builds and tests the real single-process `studio` binary via
+the `unifiedHost` group, then runs the retained fixture-based browser suite:
+stop a previous fixture, build the Go fixture and production UI, create a fresh SQLite catalog, seed consumer data
 through DSUnit, start Studio, prepare ChromeDriver, run MCP, permission and browser
 cases, and stop the fixture. Each invocation chooses a new run directory under
 `.data/e2e`, so rerunning does not overwrite an earlier catalog. Python 3 and
 local Google Chrome are required for the browser cases; setup downloads a matching
 ChromeDriver into the fixture directory.
+
+The unified-host regression checks one application PID with no child services,
+all three public listeners, authenticated MCP execution and credential rejection,
+derived browser configuration, database-driven namespace enable/disable, and
+shutdown. The broader browser fixture still uses its previous custom assembly;
+migrating that fixture to the shared host remains outstanding.
+
+Run just the unified-host Endly group:
+
+```sh
+endly -r=run -t=unifiedHost
+```
 
 To build only:
 
@@ -344,8 +385,11 @@ components and pass the DQL inventory tests.
 
 | Path | Purpose |
 | --- | --- |
-| `cmd/studio-api` | Studio SDK/BFF process |
-| `cmd/studio-runtime` | Published dynamic HTTP and MCP host |
+| `cmd/studio` | Default single-process application launcher |
+| `app/hostconfig` | Shared configuration with one `Store` connector |
+| `app/studiohost` | In-process authoring, browser and namespace service lifecycle |
+| `cmd/studio-api` | Optional standalone SDK/BFF entry point |
+| `cmd/studio-runtime` | Optional standalone published-component runtime |
 | `cmd/studio-migrate` | Canonical catalog migration and development seed |
 | `dql/studio` | Datly control-plane DQL sources |
 | `runtime` | Dynamic preview, publication, and host behavior |
