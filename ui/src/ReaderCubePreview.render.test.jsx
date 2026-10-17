@@ -33,3 +33,20 @@ describe('Cube preview field selection',()=>{
   expect(screen.getByRole('button',{name:'Run cube preview'}).disabled).toBe(true);
  });
 });
+test('form inputs and calendar dates reach the native cube filter contract',async()=>{
+ const user=userEvent.setup(),onRun=vi.fn();
+ render(<ReaderCubePreview structure={{...structure,declarations:[{parameter:{name:'AdvertiserId',source:{kind:'form'},typeExpr:'int'}},{parameter:{name:'From',source:{kind:'form'},typeExpr:'*time.Time'}},{parameter:{name:'Auth',source:{kind:'component'},typeExpr:'*auth.Output'}}]}} onRun={onRun} onClose={()=>{}}/>);
+ await user.click(screen.getByRole('checkbox',{name:'Avails'}));await user.click(screen.getByText('Filters'));
+ expect(screen.queryByLabelText('Auth')).toBeNull();
+ await user.type(screen.getByLabelText('AdvertiserId'),'53');await user.type(screen.getByLabelText('From'),'2026-09-01');
+ await user.click(screen.getByRole('button',{name:'Run cube preview'}));
+ expect(onRun.mock.calls[0][0].filters).toEqual({advertiserId:53,from:'2026-09-01'});
+ await user.clear(screen.getByLabelText('From'));await user.type(screen.getByLabelText('From'),'2026-02-30');await user.click(screen.getByRole('button',{name:'Run cube preview'}));
+ expect(onRun).toHaveBeenCalledTimes(1);expect(await screen.findByRole('alert')).toBeTruthy();
+});
+test('uses declared JSON column names for cube selectors',async()=>{
+ const user=userEvent.setup(),onRun=vi.fn();
+ render(<ReaderCubePreview structure={{component:{rootView:{columns:[{name:'campaign_id',tag:'json:"campaignId"',groupable:true},{name:'total_spend',tag:'json:"totalSpend"',groupable:false}]}}}} onRun={onRun} onClose={()=>{}}/>);
+ await user.click(screen.getByLabelText('campaign_id'));await user.click(screen.getByLabelText('total_spend'));await user.click(screen.getByRole('button',{name:'Run cube preview'}));
+ expect(onRun).toHaveBeenCalledWith({dimensions:{campaignId:true},measures:{totalSpend:true},filters:{}});
+});

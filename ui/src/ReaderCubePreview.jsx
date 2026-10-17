@@ -4,6 +4,11 @@ import { Button, Callout, Checkbox, FormGroup, InputGroup } from '@blueprintjs/c
 // Wire names retain the canonical column spelling; Datly lowercases only the
 // first letter when compiling the derived cube's public boolean fields.
 const wireName = (value) => String(value || '').replace(/^./, (letter) => letter.toLowerCase());
+const columnWireName = (column) => {
+  const tag = String(column.tag || '').replaceAll('\\"', '"');
+  const name = tag.match(/(?:^|\s)json:"([^",]+)(?:,[^"]*)?"/)?.[1];
+  return name && name !== '-' ? name : wireName(column.name);
+};
 export function ReaderCubePreview({ structure, pending, onRun, onClose }) {
   const heading = useRef(null);
   useEffect(()=>{heading.current?.focus();},[]);
@@ -13,7 +18,7 @@ export function ReaderCubePreview({ structure, pending, onRun, onClose }) {
   const [values, setValues] = useState({});
   const [filterQuery, setFilterQuery] = useState('');
   const [error, setError] = useState('');
-  const filters = useMemo(() => (structure?.declarations ?? []).map((item) => item.parameter).filter((item) => item?.source?.kind === 'query'), [structure]);
+  const filters = useMemo(() => (structure?.declarations ?? []).map((item) => item.parameter).filter((item) => ['query','form'].includes(item?.source?.kind)), [structure]);
   const choices = columns.filter((column)=>typeof column.groupable==='boolean').filter((column) => `${column.name} ${column.source || ''}`.toLowerCase().includes(query.toLowerCase()));
   const count = Object.values(selected).filter(Boolean).length;
   const unresolved = columns.filter((column)=>typeof column.groupable!=='boolean').length;
@@ -22,7 +27,7 @@ export function ReaderCubePreview({ structure, pending, onRun, onClose }) {
 
   const run = async () => {
     const dimensions = {}, measures = {}, inputFilters = {};
-    for (const column of columns.filter((column)=>typeof column.groupable==='boolean')) (column.groupable === true ? dimensions : measures)[wireName(column.name)] = Boolean(selected[column.name]);
+    for (const column of columns.filter((column)=>typeof column.groupable==='boolean')) (column.groupable === true ? dimensions : measures)[columnWireName(column)] = Boolean(selected[column.name]);
     try {
       for (const parameter of filters) {
         const value = values[parameter.name];
@@ -53,6 +58,10 @@ function convertFilter(parameter, value) {
   if (items.some((item)=>item==='')) throw new Error(`${parameter.name} contains an empty value.`);
   const converted = items.map((item)=>{
     if (scalar==='string') return item;
+    if (scalar==='time.Time') {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(item) || Number.isNaN(Date.parse(item)) || new Date(item).toISOString().slice(0,10)!==item) throw new Error(`${parameter.name} requires a valid YYYY-MM-DD date.`);
+      return item;
+    }
     if (scalar==='bool') {if(!['true','false'].includes(item))throw new Error(`${parameter.name} requires true or false.`);return item==='true';}
     if (/^(u?int)(8|16|32|64)?$/.test(scalar)) {
       if (!/^-?\d+$/.test(item)) throw new Error(`${parameter.name} requires whole numbers.`);
@@ -67,4 +76,4 @@ function convertFilter(parameter, value) {
   return array?converted:converted[0];
 }
 
-function supportsFilter(parameter) {return /^(\[\])?(string|bool|u?int(8|16|32|64)?|float(32|64)?)$/.test(String(parameter.typeExpr||'').replace(/^\*/,''));}
+function supportsFilter(parameter) {return /^(\[\])?(string|time\.Time|bool|u?int(8|16|32|64)?|float(32|64)?)$/.test(String(parameter.typeExpr||'').replace(/^\*/,''));}
