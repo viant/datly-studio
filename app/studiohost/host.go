@@ -119,7 +119,14 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	}
 
 	authorityConfig := accessprovider.Config{Issuer: config.JWTClaims.Issuer, Audience: config.JWTClaims.Audience, JWTValidator: config.JWTValidator}
-	provider, err := accessprovider.New(ctx, authorityConfig, options.Native.AccessProviderFactory)
+	var provider authz.Provider
+	if config.Identity != nil && options.Native.AccessProviderFactory == nil {
+		providers, resolveErr := accessprovider.HTTPProviders(ctx, authorityConfig, *config.Identity, config.EntityEvaluation)
+		provider, err = providers.Identity, resolveErr
+	} else {
+		provider, err = accessprovider.New(ctx, authorityConfig, options.Native.AccessProviderFactory)
+	}
+
 	if err != nil {
 		return err
 	}

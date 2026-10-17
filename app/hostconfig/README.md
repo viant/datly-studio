@@ -159,3 +159,11 @@ credential boundary. These extension hooks contain no application/report concept
 `ActiveConnectorConfigs` resolves only named active stored connectors for linked
 component dependencies. It never returns credentials through HTTP/MCP metadata.
 Selected connectors requiring unsupported initialization options fail explicitly.
+
+Optional `Identity` configures a generic Authz user-info authority with explicit
+field paths and tenant mapping. Issuer, audience and key source come only from
+`JWTClaims`/`JWTValidator`; do not repeat them under Identity. The host supports
+both RSA resources and certificate discovery for that authority. Mutable user
+facts are read fresh unless UserInfoCacheTTL is explicitly configured. Optional
+EntityEvaluation uses the same authority. No private IdP response shape is built
+into Data Studio.

@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/viant/authz/oauth"
 	"github.com/viant/datly/bootstrap/connector"
 	"github.com/viant/scy"
 	"io"
@@ -39,9 +40,11 @@ type Config struct {
 	Tenant string
 	// SessionKey is optional SCY material for stable browser sessions across restarts.
 	// Omission generates a process-local key and invalidates sessions on restart.
-	SessionKey *scy.Resource
-	StaticRoot string
-	Login      *Login
+	SessionKey       *scy.Resource
+	StaticRoot       string
+	Login            *Login
+	Identity         *oauth.HTTPIdentityConfig
+	EntityEvaluation *oauth.HTTPEvaluationConfig
 }
 
 // Decode accepts one YAML or JSON object without resolving secrets or opening

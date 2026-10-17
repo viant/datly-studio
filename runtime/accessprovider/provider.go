@@ -12,6 +12,7 @@ import (
 	"sync"
 
 	"github.com/viant/authz"
+	"github.com/viant/authz/oauth"
 	"github.com/viant/datly-studio/internal/accessconfig"
 )
 
@@ -155,4 +156,35 @@ func FromContext(ctx context.Context) (authz.Provider, bool) {
 // user-info authority. It resolves no request-selected key source.
 func VerificationKey(config Config) (jwtlib.Keyfunc, error) {
 	return accessconfig.VerificationKey(config.JWTValidator, config.PublicKeyFile, config.CertURL)
+}
+
+// HTTPProviders resolves generic user-info facts with the same trusted verifier
+// as the application. Field paths and tenant mapping remain explicit IdP config.
+func HTTPProviders(ctx context.Context, settings Config, identity oauth.HTTPIdentityConfig, evaluation *oauth.HTTPEvaluationConfig) (oauth.HTTPProviders, error) {
+	if identity.Issuer != "" || identity.Audience != "" || identity.JWKSURL != "" || identity.Keyfunc != nil {
+		return oauth.HTTPProviders{}, errors.New("Identity uses the shared JWTClaims and JWTValidator")
+	}
+	key, err := VerificationKey(settings)
+	if err != nil {
+		return oauth.HTTPProviders{}, err
+	}
+	identity.Keyfunc = key
+	identity.Issuer = settings.Issuer
+	identity.Audience = settings.Audience
+	if identity.Kind == "" {
+		identity.Kind = "oidc-userinfo"
+	}
+	if len(identity.Algorithms) == 0 {
+		identity.Algorithms = []string{"RS256"}
+	}
+	if identity.FactLease == "" {
+		identity.FactLease = "1m"
+	}
+	if identity.JWKSRefreshInterval == "" {
+		identity.JWKSRefreshInterval = "5m"
+	}
+	if identity.UserInfoCacheTTL == "" {
+		identity.UserInfoCacheTTL = "0s"
+	}
+	return oauth.NewHTTPProviders(ctx, identity, evaluation)
 }
