@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/viant/authz"
 	sharedapi "github.com/viant/authz/component/api"
+	"github.com/viant/datly-studio/runtime/accessprovider"
 	rhandler "github.com/viant/datly/runtime/handler"
 	"github.com/viant/datly/runtime/handler/custom"
 	"github.com/viant/xdatly"
@@ -37,9 +38,9 @@ func NewPolicyCreate() xhandler.Contract[PolicyWriteInput, sharedapi.PolicyOutpu
 
 // Initial policy creation is opt-in through deployment-owned administrator roles.
 // Existing policy replacement continues to require its manageAccess policy.
-func creationAdministration(service *authz.Service) *authz.Administration {
+func creationAdministration(ctx context.Context, service *authz.Service) *authz.Administration {
 	roles := strings.FieldsFunc(os.Getenv("STUDIO_ACCESS_POLICY_EDITOR_ROLES"), func(r rune) bool { return r == ',' || r == ' ' })
-	return &authz.Administration{Store: service.Store, Provider: service.Provider, EditorRoles: roles}
+	return &authz.Administration{Store: service.Store, Provider: service.Provider, EditorRoles: roles, EditorCheck: accessprovider.PolicyEditor(ctx)}
 }
 func (*policyCreateHandler) Exec(ctx context.Context, session xhandler.Session, input *PolicyWriteInput, output *sharedapi.PolicyOutput) error {
 	if input == nil || output == nil {
@@ -57,7 +58,7 @@ func (*policyCreateHandler) Exec(ctx context.Context, session xhandler.Session, 
 	if err != nil || input.Document.Resource.Tenant != facts.Tenant {
 		return publicError(403, "policy creation requires the verified tenant")
 	}
-	services := &sharedapi.Services{Authorization: service, Policies: creationAdministration(service)}
+	services := &sharedapi.Services{Authorization: service, Policies: creationAdministration(requestCtx, service)}
 	bound := authoritySession{Session: session, binder: authorityBinder{Binder: session.Binder(), services: services}}
 	return sharedapi.NewCreate().Exec(requestCtx, bound, &sharedapi.WriteInput{JWT: input.Jwt, Document: input.Document}, output)
 }
@@ -70,7 +71,7 @@ func initialPolicy(ctx context.Context, service *authz.Service, resource authz.R
 	if resource.Tenant == "*" {
 		return nil, nil, publicError(403, "initial policy requires a concrete tenant")
 	}
-	allowed, err := creationAdministration(service).CanReplace(ctx, resource)
+	allowed, err := creationAdministration(ctx, service).CanReplace(ctx, resource)
 	if err != nil {
 		return nil, nil, err
 	}

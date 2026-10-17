@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github.com/viant/authz"
+	"github.com/viant/datly-studio/runtime/accessprovider"
 	"testing"
 	"time"
 )
@@ -51,5 +52,27 @@ func TestInitialPolicyRequiresConfiguredVerifiedRoleAndTenant(t *testing.T) {
 				t.Fatal("initial document granted consumption")
 			}
 		})
+	}
+}
+
+func TestInitialPolicyUsesTrustedHostEditor(t *testing.T) {
+	t.Setenv("STUDIO_ACCESS_POLICY_EDITOR_ROLES", "")
+	resource := authz.Resource{Kind: "component", ID: "reader", Version: "1", Tenant: "tenant"}
+	for _, allowed := range []bool{false, true} {
+		ctx := accessprovider.WithPolicyEditor(context.Background(), func(_ context.Context, facts authz.Facts, got authz.Resource) (bool, error) {
+			if facts.Subject != "owner" || got != resource {
+				t.Fatal("unexpected editor authority")
+			}
+			return allowed, nil
+		})
+		service := &authz.Service{Store: absentPolicyStore{}, Provider: creationFacts{tenant: "tenant"}}
+		doc, editor, err := initialPolicy(ctx, service, resource)
+		if allowed {
+			if err != nil || doc == nil || editor == nil || !editor.CanManage {
+				t.Fatalf("trusted editor denied: %v", err)
+			}
+		} else if err == nil || doc != nil || editor != nil {
+			t.Fatal("non-editor was allowed")
+		}
 	}
 }
