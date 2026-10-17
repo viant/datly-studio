@@ -12,6 +12,7 @@ import (
 	"github.com/viant/datly-studio/internal/readerinspection"
 	"github.com/viant/datly-studio/internal/versionprojection"
 	"github.com/viant/datly-studio/runtime/preview"
+	studiors "github.com/viant/datly-studio/runtime/resources"
 	"github.com/viant/datly-studio/sdk"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
 	connectors "github.com/viant/datly-studio/studio/connectors/store_catalog"
@@ -161,7 +162,24 @@ func (*inspectHandler) Exec(ctx context.Context, session xhandler.Session, input
 	if err != nil {
 		return err
 	}
-	service := readerbuilder.New(readerbuilder.Config{Types: types, Scope: report.Item.ComponentScope,
+	value, found, lookupErr := session.Binder().Lookup(ctx, rhandler.ConnectorCapabilityKey)
+	if lookupErr != nil {
+		return lookupErr
+	}
+	provider, ok := value.(xconnector.Provider)
+	if !found || !ok {
+		return fmt.Errorf("trusted Studio connector capability is unavailable")
+	}
+	db, dbErr := provider.Connector(ctx, "studio")
+	if dbErr != nil || db == nil {
+		return fmt.Errorf("configured Studio database is unavailable")
+	}
+	resourceVersion := studiors.Version{ReportID: input.ReportId, VersionNo: input.VersionNo}
+	loaded, err := studiors.Load(ctx, db, []studiors.Version{resourceVersion})
+	if err != nil {
+		return err
+	}
+	service := readerbuilder.New(readerbuilder.Config{Resources: loaded.ByVersion[resourceVersion], Types: types, Scope: report.Item.ComponentScope,
 		Name: report.Item.ComponentName, AvailableConnectors: available})
 	source := version.GeneratedDQL
 	if strings.TrimSpace(source) == "" {
@@ -173,18 +191,7 @@ func (*inspectHandler) Exec(ctx context.Context, session xhandler.Session, input
 	inspected := service.Apply(ctx, readerbuilder.Request{DQL: source,
 		Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
 	if (input.DiscoverColumns == nil || *input.DiscoverColumns) && permissions.CanUseDQL && inspected.Structure != nil && inspected.Structure.Component != nil {
-		value, found, lookupErr := session.Binder().Lookup(ctx, rhandler.ConnectorCapabilityKey)
-		if lookupErr != nil {
-			return lookupErr
-		}
-		provider, ok := value.(xconnector.Provider)
-		if !found || !ok {
-			return fmt.Errorf("trusted Studio connector capability is unavailable")
-		}
-		db, dbErr := provider.Connector(ctx, "studio")
-		if dbErr != nil || db == nil {
-			return fmt.Errorf("configured Studio database is unavailable")
-		}
+
 		resolved, inspectErr := (preview.Dynamic{StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, ReaderCaches: authoring.ReaderCaches(), Dependencies: authoring.Dependencies()}).InspectContract(ctx, input.ReportId, input.VersionNo)
 		if inspectErr != nil {
 			inspected.Structure.Status = "partial"
