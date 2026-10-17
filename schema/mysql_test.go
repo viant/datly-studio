@@ -54,3 +54,18 @@ func TestMySQLDDLComposesSharedPolicySchema(t *testing.T) {
 		}
 	}
 }
+
+func TestCanonicalMySQLCreationIgnoresCommentPunctuation(t *testing.T) {
+	statements, err := MySQLStatements()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(statements) == 0 {
+		t.Fatal("no canonical statements")
+	}
+	for _, statement := range statements {
+		if !strings.HasPrefix(statement, "CREATE ") && !strings.HasPrefix(statement, "INSERT ") {
+			t.Fatalf("non-SQL canonical statement: %s", statement)
+		}
+	}
+}

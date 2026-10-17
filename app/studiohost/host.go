@@ -41,6 +41,8 @@ type Endpoints struct{ HTTP, AdminMCP, NamespaceMCP, NativeHTTP string }
 // Options are trusted process bindings. Namespaces and application definitions
 // are never accepted here from browser or agent requests.
 type Options struct {
+	// Brand is the linked application name; the separate Data Studio entry retains its own name.
+	Brand   string
 	Native  datlycmd.Options
 	Browser studioapi.Options
 	// ConfigureRuntime installs linked extensions before namespace startup.
@@ -282,7 +284,7 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	browser.Listener = publicListener
 	priorHTTPMiddleware := browser.HTTPMiddleware
 	browser.HTTPMiddleware = func(next http.Handler) http.Handler {
-		handler := browserConfigHandler(origin, next)
+		handler := browserConfigHandler(origin, options.Brand, next)
 		if priorHTTPMiddleware != nil {
 			return priorHTTPMiddleware(handler)
 		}
@@ -367,9 +369,9 @@ func browserOrigin(explicit, address string) (string, error) {
 
 // Browser configuration is derived from the application's one public origin.
 // Operators do not maintain a separate client configuration file.
-func browserConfigHandler(origin string, next http.Handler) http.Handler {
+func browserConfigHandler(origin, brand string, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/studio-config.json" {
+		if r.URL.Path != "/studio-config.json" && r.URL.Path != "/datly-studio-config.json" {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -382,6 +384,10 @@ func browserConfigHandler(origin string, next http.Handler) http.Handler {
 		if r.Method == http.MethodHead {
 			return
 		}
-		_ = json.NewEncoder(w).Encode(map[string]any{"mode": "authenticated", "apiBaseURL": origin, "authentication": map[string]string{"mode": "bff"}})
+		name := brand
+		if name == "" || r.URL.Path == "/datly-studio-config.json" {
+			name = "Data Studio"
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{"brand": name, "mode": "authenticated", "apiBaseURL": origin, "authentication": map[string]string{"mode": "bff"}})
 	})
 }

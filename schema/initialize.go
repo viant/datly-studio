@@ -46,7 +46,7 @@ func Initialize(ctx context.Context, db *sql.DB, driver string) error {
 		} else {
 			// MySQL DDL commits implicitly; execute the canonical script statement by
 			// statement so Store does not require the multiStatements DSN option.
-			for _, statement := range strings.Split(ddl, ";") {
+			for _, statement := range mysqlStatements(ddl) {
 				if strings.TrimSpace(statement) == "" {
 					continue
 				}
@@ -62,6 +62,12 @@ func Initialize(ctx context.Context, db *sql.DB, driver string) error {
 // Verify checks existing storage against the canonical table/column/index
 // inventory and layout marker. It performs reads only and never repairs storage.
 func Verify(ctx context.Context, db *sql.DB, driver string) error {
+	if driver == "mysql" {
+		var extra string
+		if err := db.QueryRowContext(ctx, "SELECT EXTRA FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='runtime_generations' AND COLUMN_NAME='generation_no'").Scan(&extra); err != nil || !strings.Contains(strings.ToLower(extra), "auto_increment") {
+			return errors.New("canonical runtime generation identity is required")
+		}
+	}
 	ddl, err := canonicalDDL(driver)
 	if err != nil {
 		return err
@@ -131,4 +137,33 @@ func canonicalDDL(driver string) (string, error) {
 	}
 	ddl, err := composeSQLiteStudioDDL(source)
 	return string(ddl), err
+}
+
+// MySQLStatements is the canonical creation script as individual executable
+// statements. Full-line comments are removed before delimiter splitting so
+// punctuation in prose cannot become a SQL command.
+func MySQLStatements() ([]string, error) {
+	ddl, err := canonicalDDL("mysql")
+	if err != nil {
+		return nil, err
+	}
+	return mysqlStatements(ddl), nil
+}
+func mysqlStatements(ddl string) []string {
+	lines := strings.Split(ddl, "\n")
+	kept := lines[:0]
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, "--") || strings.HasPrefix(trimmed, "#") {
+			continue
+		}
+		kept = append(kept, line)
+	}
+	result := []string{}
+	for _, statement := range strings.Split(strings.Join(kept, "\n"), ";") {
+		if statement = strings.TrimSpace(statement); statement != "" {
+			result = append(result, statement)
+		}
+	}
+	return result
 }

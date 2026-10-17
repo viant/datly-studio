@@ -432,7 +432,7 @@ CREATE TABLE namespace_skill_revisions (
 
 CREATE TABLE runtime_generations (
     namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
-    generation_no           BIGINT NOT NULL,
+    generation_no           BIGINT NOT NULL AUTO_INCREMENT,
     source_revision         VARCHAR(128) NOT NULL,
     status                  VARCHAR(32) NOT NULL,
     report_count            INT NOT NULL,

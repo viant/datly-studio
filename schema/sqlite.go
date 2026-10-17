@@ -215,6 +215,7 @@ func DropSQLite(ctx context.Context, db *sql.DB) error {
 // options require normalization.
 func sqliteStudioDDL(source []byte) []byte {
 	result := mysqlDateTimePrecision.ReplaceAll(source, []byte("DATETIME"))
+	result = []byte(strings.ReplaceAll(string(result), " AUTO_INCREMENT", ""))
 	result = mysqlColumnCharset.ReplaceAll(result, nil)
 	result = mysqlUniqueKey.ReplaceAll(result, []byte("UNIQUE ("))
 	return mysqlTableTail.ReplaceAll(result, []byte(");"))
