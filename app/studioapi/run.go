@@ -152,6 +152,13 @@ type Options struct {
 	StaticFS fs.FS
 	// DatabaseDriver selects host-owned catalog storage; empty preserves SQLite.
 	DatabaseDriver string
+	// Database is an optional caller-owned catalog connection, opened from the
+	// shared Datly connector configuration. Serve never closes this handle.
+	// DatabaseDriver must accompany it; the caller closes it after all services stop.
+	Database *sql.DB
+	// JWTValidator reuses the shared Datly/SCY verifier configuration. When set,
+	// certificate/key CLI overrides are rejected. Claim and session checks remain.
+	JWTValidator *verifier.Config
 	// HTTPMiddleware is an optional process-owned listener boundary. Unset
 	// preserves the complete standalone routing and authentication behavior.
 	HTTPMiddleware func(http.Handler) http.Handler
@@ -170,104 +177,133 @@ type Options struct {
 // RunWithOptions starts Studio with optional host-owned resource identity
 // bootstrap while preserving the standard command-line configuration.
 func RunWithOptions(options Options) {
-	address := flag.String("address", "127.0.0.1:8080", "SDK HTTP listen address")
-	dsn := flag.String("dsn", "file:.data/studio.db?cache=shared", "Studio catalog DSN")
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	if err := Serve(ctx, os.Args[1:], options); err != nil && !errors.Is(err, flag.ErrHelp) {
+		log.Fatal(err)
+	}
+}
+
+// Serve runs the host with caller-owned cancellation and isolated arguments.
+// It returns startup and serving failures so embedding applications can release
+// their other services. It never mutates os.Args or the global flag registry.
+func Serve(lifecycleCtx context.Context, args []string, options Options) error {
+	if lifecycleCtx == nil {
+		return errors.New("Studio lifecycle context is required")
+	}
+	if err := lifecycleCtx.Err(); err != nil {
+		return err
+	}
+	lifecycleCtx, stop := context.WithCancel(lifecycleCtx)
+	defer stop()
+	flags := flag.NewFlagSet("studio", flag.ContinueOnError)
+	address := flags.String("address", "127.0.0.1:8080", "SDK HTTP listen address")
+	dsn := flags.String("dsn", "file:.data/studio.db?cache=shared", "Studio catalog DSN")
 	defaultDriver := options.DatabaseDriver
 	if defaultDriver == "" {
 		defaultDriver = "sqlite"
 	}
-	databaseDriver := flag.String("driver", defaultDriver, "Studio catalog driver: sqlite or mysql")
-	subject := flag.String("subject", "awitas", "local development principal")
-	mode := flag.String("mode", "development", "gateway mode: development or authenticated")
-	cookieName := flag.String("session-cookie", bffauth.DefaultCookieName, "authenticated BFF session cookie name")
-	jwtCertURL := flag.String("jwt-cert-url", os.Getenv("STUDIO_JWT_CERT_URL"), "authenticated JWT certificate or JWKS URL")
-	jwtPublicKey := flag.String("jwt-public-key", os.Getenv("STUDIO_JWT_PUBLIC_KEY_FILE"), "authenticated RSA public-key SCY resource URL, optionally URL|key")
-	jwtIssuer := flag.String("jwt-issuer", os.Getenv("STUDIO_JWT_ISSUER"), "authenticated JWT issuer")
-	jwtAudience := flag.String("jwt-audience", os.Getenv("STUDIO_JWT_AUDIENCE"), "authenticated JWT audience")
-	sessionKey := flag.String("session-key", os.Getenv("STUDIO_SESSION_KEY"), "base64-encoded 32-byte BFF session encryption key")
-	dynamicHTTPURL := flag.String("dynamic-http-url", "http://127.0.0.1:8082", "dynamic Datly HTTP target")
-	dynamicMCPURL := flag.String("dynamic-mcp-url", "http://127.0.0.1:8091", "dynamic Datly MCP target")
-	staticDatlyURL := flag.String("static-datly-url", "http://127.0.0.1:8081", "static Studio Datly component target")
-	staticMCPURL := flag.String("static-mcp-url", "http://127.0.0.1:8090", "static Studio SDK MCP target")
-	extensionBackendURL := flag.String("extension-backend-url", "", "trusted extension backend origin (authenticated mode only)")
-	extensionUpstreamPrefix := flag.String("extension-upstream-prefix", "", "allowlisted extension upstream path prefix, for example /api/widgets")
-	dynamicAdminToken := flag.String("dynamic-admin-token", os.Getenv("STUDIO_RUNTIME_ADMIN_TOKEN"), "dynamic runtime reload token")
-	allowedOrigin := flag.String("allowed-origin", os.Getenv("STUDIO_ALLOWED_ORIGIN"), "exact Studio browser origin")
-	staticRoot := flag.String("static-root", "", "optional absolute directory of public built UI assets served on the Studio BFF origin")
-	sessionPruneInterval := flag.Duration("session-prune-interval", time.Minute, "how often to prune bounded batches of expired BFF sessions; 0 disables background cleanup")
-	loginAuthURL := flag.String("login-auth-url", "", "optional OAuth authorization endpoint for the BFF login route")
-	loginTokenURL := flag.String("login-token-url", "", "OAuth token endpoint paired with -login-auth-url")
-	loginClientID := flag.String("login-client-id", "", "registered OAuth client ID for BFF login")
-	loginClientSecretFile := flag.String("login-client-secret-file", "", "optional file containing OAuth client secret; omit for a public PKCE client")
-	loginRedirectURL := flag.String("login-redirect-url", "", "exact public callback URL ending in /v1/studio/auth/callback")
-	loginScopes := flag.String("login-scopes", "openid,profile,email", "comma-separated OAuth scopes for BFF login, including openid")
-	loginIDToken := flag.Bool("login-id-token", false, "use an auth-only session and return verified OIDC ID tokens to the browser for direct Datly calls")
-	accessTenant := flag.String("access-tenant", os.Getenv("STUDIO_ACCESS_TENANT"), "server-owned tenant for scoped exact-version previews")
-	accessIssuer := flag.String("access-issuer", os.Getenv("STUDIO_ACCESS_ISSUER"), "dedicated ACL token issuer")
-	accessAudience := flag.String("access-audience", os.Getenv("STUDIO_ACCESS_AUDIENCE"), "dedicated ACL token audience")
-	accessKey := flag.String("access-public-key", os.Getenv("STUDIO_ACCESS_PUBLIC_KEY_FILE"), "ACL issuer RSA public key PEM file")
-	accessCertURL := flag.String("access-cert-url", os.Getenv("STUDIO_ACCESS_CERT_URL"), "ACL issuer JWKS endpoint for rotating keys")
-	accessUserInfoURL := flag.String("access-user-info-url", os.Getenv("STUDIO_ACCESS_USER_INFO_URL"), "optional trusted user-info endpoint for ID-token ACL facts")
-	flag.Parse()
-	if *sessionPruneInterval < 0 {
-		log.Fatal("-session-prune-interval must not be negative")
+	databaseDriver := flags.String("driver", defaultDriver, "Studio catalog driver: sqlite or mysql")
+	subject := flags.String("subject", "awitas", "local development principal")
+	mode := flags.String("mode", "development", "gateway mode: development or authenticated")
+	cookieName := flags.String("session-cookie", bffauth.DefaultCookieName, "authenticated BFF session cookie name")
+	jwtCertURL := flags.String("jwt-cert-url", os.Getenv("STUDIO_JWT_CERT_URL"), "authenticated JWT certificate or JWKS URL")
+	jwtPublicKey := flags.String("jwt-public-key", os.Getenv("STUDIO_JWT_PUBLIC_KEY_FILE"), "authenticated RSA public-key SCY resource URL, optionally URL|key")
+	jwtIssuer := flags.String("jwt-issuer", os.Getenv("STUDIO_JWT_ISSUER"), "authenticated JWT issuer")
+	jwtAudience := flags.String("jwt-audience", os.Getenv("STUDIO_JWT_AUDIENCE"), "authenticated JWT audience")
+	sessionKey := flags.String("session-key", os.Getenv("STUDIO_SESSION_KEY"), "base64-encoded 32-byte BFF session encryption key")
+	dynamicHTTPURL := flags.String("dynamic-http-url", "http://127.0.0.1:8082", "dynamic Datly HTTP target")
+	dynamicMCPURL := flags.String("dynamic-mcp-url", "http://127.0.0.1:8091", "dynamic Datly MCP target")
+	staticDatlyURL := flags.String("static-datly-url", "http://127.0.0.1:8081", "static Studio Datly component target")
+	staticMCPURL := flags.String("static-mcp-url", "http://127.0.0.1:8090", "static Studio SDK MCP target")
+	extensionBackendURL := flags.String("extension-backend-url", "", "trusted extension backend origin (authenticated mode only)")
+	extensionUpstreamPrefix := flags.String("extension-upstream-prefix", "", "allowlisted extension upstream path prefix, for example /api/widgets")
+	dynamicAdminToken := flags.String("dynamic-admin-token", os.Getenv("STUDIO_RUNTIME_ADMIN_TOKEN"), "dynamic runtime reload token")
+	allowedOrigin := flags.String("allowed-origin", os.Getenv("STUDIO_ALLOWED_ORIGIN"), "exact Studio browser origin")
+	staticRoot := flags.String("static-root", "", "optional absolute directory of public built UI assets served on the Studio BFF origin")
+	sessionPruneInterval := flags.Duration("session-prune-interval", time.Minute, "how often to prune bounded batches of expired BFF sessions; 0 disables background cleanup")
+	loginAuthURL := flags.String("login-auth-url", "", "optional OAuth authorization endpoint for the BFF login route")
+	loginTokenURL := flags.String("login-token-url", "", "OAuth token endpoint paired with -login-auth-url")
+	loginClientID := flags.String("login-client-id", "", "registered OAuth client ID for BFF login")
+	loginClientSecretFile := flags.String("login-client-secret-file", "", "optional file containing OAuth client secret; omit for a public PKCE client")
+	loginRedirectURL := flags.String("login-redirect-url", "", "exact public callback URL ending in /v1/studio/auth/callback")
+	loginScopes := flags.String("login-scopes", "openid,profile,email", "comma-separated OAuth scopes for BFF login, including openid")
+	loginIDToken := flags.Bool("login-id-token", false, "use an auth-only session and return verified OIDC ID tokens to the browser for direct Datly calls")
+	accessTenant := flags.String("access-tenant", os.Getenv("STUDIO_ACCESS_TENANT"), "server-owned tenant for scoped exact-version previews")
+	accessIssuer := flags.String("access-issuer", os.Getenv("STUDIO_ACCESS_ISSUER"), "dedicated ACL token issuer")
+	accessAudience := flags.String("access-audience", os.Getenv("STUDIO_ACCESS_AUDIENCE"), "dedicated ACL token audience")
+	accessKey := flags.String("access-public-key", os.Getenv("STUDIO_ACCESS_PUBLIC_KEY_FILE"), "ACL issuer RSA public key PEM file")
+	accessCertURL := flags.String("access-cert-url", os.Getenv("STUDIO_ACCESS_CERT_URL"), "ACL issuer JWKS endpoint for rotating keys")
+	accessUserInfoURL := flags.String("access-user-info-url", os.Getenv("STUDIO_ACCESS_USER_INFO_URL"), "optional trusted user-info endpoint for ID-token ACL facts")
+	if err := flags.Parse(args); err != nil {
+		return err
 	}
-	lifecycleCtx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
+	if flags.NArg() != 0 {
+		return errors.New("Studio does not accept positional arguments")
+	}
+	if *sessionPruneInterval < 0 {
+		return errors.New("-session-prune-interval must not be negative")
+	}
 	resolvedMode := strings.ToLower(strings.TrimSpace(*mode))
 	if err := validateGatewayMode(resolvedMode); err != nil {
-		log.Fatal(err)
+		return err
 	}
 	extensionConfig, err := resolveExtensionProxyConfig(resolvedMode, *extensionBackendURL, *extensionUpstreamPrefix)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	adminToken, err := resolveRuntimeAdminToken(resolvedMode, *dynamicAdminToken)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	origin, err := resolveAllowedOrigin(resolvedMode, *allowedOrigin)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	var loginSecret string
 	if *loginClientSecretFile != "" {
 		secretBytes, readErr := os.ReadFile(*loginClientSecretFile)
 		if readErr != nil {
-			log.Fatal(readErr)
+			return readErr
 		}
 		loginSecret = strings.TrimSpace(string(secretBytes))
 		if loginSecret == "" {
-			log.Fatal("-login-client-secret-file is empty")
+			return errors.New("-login-client-secret-file is empty")
 		}
 	}
 	loginOAuth, err := resolveLoginConfig(resolvedMode, origin, *loginAuthURL, *loginTokenURL, *loginClientID, loginSecret, *loginRedirectURL, *loginScopes)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	if *loginIDToken && loginOAuth == nil {
-		log.Fatal("-login-id-token requires configured OAuth login endpoints")
+		return errors.New("-login-id-token requires configured OAuth login endpoints")
 	}
 	if *loginIDToken && extensionConfig != nil {
-		log.Fatal("identity-token mode does not support the BFF extension proxy")
+		return errors.New("identity-token mode does not support the BFF extension proxy")
 	}
 	if *databaseDriver != "sqlite" && *databaseDriver != "mysql" {
-		log.Fatal("Studio catalog driver must be sqlite or mysql")
+		return errors.New("Studio catalog driver must be sqlite or mysql")
 	}
 	if options.DatabaseDriver != "" && *databaseDriver != options.DatabaseDriver {
-		log.Fatal("Studio catalog driver differs from host configuration")
+		return errors.New("Studio catalog driver differs from host configuration")
 	}
-	db, err := sql.Open(*databaseDriver, *dsn)
-	if err != nil {
-		log.Fatal(err)
+	db := options.Database
+	if db != nil && options.DatabaseDriver == "" {
+		return errors.New("caller-owned catalog requires an explicit database driver")
 	}
-	defer db.Close()
+	if db == nil {
+		db, err = sql.Open(*databaseDriver, *dsn)
+		if err != nil {
+			return err
+		}
+		defer db.Close()
+	}
 	if err = ensureHostDatabaseSchema(lifecycleCtx, db, *databaseDriver, options.SchemaVerifier); err != nil {
-		log.Fatal(err)
+		return err
 	}
 	definitionReader, err := preview.NewDefinitionReader(db)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	defer func() {
 		closeCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -278,7 +314,7 @@ func RunWithOptions(options Options) {
 	}()
 	connectorReader, err := preview.NewConnectorReader(db)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	defer func() {
 		closeCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -290,24 +326,24 @@ func RunWithOptions(options Options) {
 	dynamicPreview := preview.Dynamic{StudioDB: db, RootDir: ".", Definitions: definitionReader, Connectors: connectorReader}
 	predicates, err := (host.Config{}).PredicateCatalog()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	dynamicPreview.Types, err = predicates.RuntimeTypes()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	// Validate the same server-owned authorization input types that the dynamic
 	// runtime links before staging a published reader.
 	if err = accesscontext.RegisterTypes(dynamicPreview.Types); err != nil {
-		log.Fatal(err)
+		return err
 	}
 	runtimeAdmin, err := runtimeadmin.New(*dynamicHTTPURL, adminToken, nil)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	authorizer, err := authorization.NewSDKAuthorizer(db)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	defer func() {
 		closeCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -334,11 +370,11 @@ func RunWithOptions(options Options) {
 	}
 	resourceProvider, providerErr := configuredAccessProvider(lifecycleCtx, options, accessConfig)
 	if providerErr != nil {
-		log.Fatal(providerErr)
+		return providerErr
 	}
 	if resourceProvider != nil {
 		if resolvedMode != string(httptransport.Authenticated) {
-			log.Fatal("resource ACL requires authenticated Studio mode")
+			return errors.New("resource ACL requires authenticated Studio mode")
 		}
 		accessService := &authz.Service{Store: &accessstore.Store{DB: db}, Provider: resourceProvider}
 		dynamicPreview.Access, dynamicPreview.AccessTenant = accessService, *accessTenant
@@ -347,33 +383,33 @@ func RunWithOptions(options Options) {
 	}
 	mux := http.NewServeMux()
 	if options.AuthenticatedModules != nil && resolvedMode != string(httptransport.Authenticated) {
-		log.Fatal("authenticated modules require authenticated mode")
+		return errors.New("authenticated modules require authenticated mode")
 	}
 	var mountedModules []Module
 	if options.Modules != nil {
 		if resolvedMode != string(httptransport.Authenticated) || resourceProvider == nil {
-			log.Fatal("Studio extension modules require authenticated mode and a trusted identity provider")
+			return errors.New("Studio extension modules require authenticated mode and a trusted identity provider")
 		}
 		modules, moduleErr := options.Modules(lifecycleCtx, db, resourceProvider)
 		if moduleErr != nil {
-			log.Fatal(moduleErr)
+			return moduleErr
 		}
 		if moduleErr = mountModules(mux, modules); moduleErr != nil {
-			log.Fatal(moduleErr)
+			return moduleErr
 		}
 		mountedModules = append([]Module(nil), modules...)
 	}
 	if *staticRoot != "" {
 		assets, assetErr := newStaticAssets(*staticRoot)
 		if assetErr != nil {
-			log.Fatal(assetErr)
+			return assetErr
 		}
 		defer assets.Close()
 		mux.Handle("/", assets)
 	} else if options.StaticFS != nil {
 		assets, assetErr := newStaticFS(options.StaticFS)
 		if assetErr != nil {
-			log.Fatal(assetErr)
+			return assetErr
 		}
 		mux.Handle("/", assets)
 	}
@@ -382,16 +418,16 @@ func RunWithOptions(options Options) {
 	if resolvedMode == string(httptransport.Development) {
 		devJWT, jwtErr := httptransport.NewDevelopmentJWT("studio-development", "studio-sdk")
 		if jwtErr != nil {
-			log.Fatal(jwtErr)
+			return jwtErr
 		}
 		gatewayConfig.DevelopmentCredential = devJWT.Credential
 		publicKey, keyErr := devJWT.PublicKeyPEM()
 		if keyErr != nil {
-			log.Fatal(keyErr)
+			return keyErr
 		}
 		cloneHost, cloneErr := versionclone.NewLocalHost(lifecycleCtx, ".", *dsn, publicKey)
 		if cloneErr != nil {
-			log.Fatal(cloneErr)
+			return cloneErr
 		}
 		defer cloneHost.Shutdown(context.Background())
 		sdkTransport = &versionclone.Transport{Next: sdkTransport, Invoker: cloneHost}
@@ -400,21 +436,24 @@ func RunWithOptions(options Options) {
 		}
 	}
 	if resolvedMode == string(httptransport.Authenticated) {
-		issuer, audience, key, authConfigErr := resolveAuthenticatedConfig(*jwtCertURL, *jwtIssuer, *jwtAudience, *sessionKey, *jwtPublicKey)
+		verification, authConfigErr := configuredJWTVerification(options.JWTValidator, *jwtCertURL, *jwtPublicKey)
 		if authConfigErr != nil {
-			log.Fatal(authConfigErr)
+			return authConfigErr
+		}
+		issuer, audience, key, authConfigErr := resolveAuthenticatedIdentity(*jwtIssuer, *jwtAudience, *sessionKey)
+		if authConfigErr != nil {
+			return authConfigErr
 		}
 		if *loginIDToken && audience != loginOAuth.ClientID {
-			log.Fatal("identity-token login requires -jwt-audience to equal -login-client-id")
+			return errors.New("identity-token login requires -jwt-audience to equal -login-client-id")
 		}
-		verification, _ := jwtVerificationConfig(*jwtCertURL, *jwtPublicKey)
 		jwtVerifier := verifier.New(verification)
-		if err = jwtVerifier.Init(context.Background()); err != nil {
-			log.Fatal(err)
+		if err = jwtVerifier.Init(lifecycleCtx); err != nil {
+			return err
 		}
 		sessionStore, sessionErr := bffauth.NewSQLStore(db, key)
 		if sessionErr != nil {
-			log.Fatal(sessionErr)
+			return sessionErr
 		}
 		defer func() {
 			closeCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -429,17 +468,17 @@ func RunWithOptions(options Options) {
 		}
 		sessions, sessionErr := bffauth.New(bffauth.Config{CookieName: *cookieName, Secure: true, Issuer: issuer, Audience: audience, Store: sessionStore}, jwtVerifier)
 		if sessionErr != nil {
-			log.Fatal(sessionErr)
+			return sessionErr
 		}
 		if !*loginIDToken {
 			sessions.Register(mux)
 			staticTarget, parseErr := url.Parse(*staticDatlyURL)
 			if parseErr != nil {
-				log.Fatal(parseErr)
+				return parseErr
 			}
 			nativeSDK, proxyErr := sessions.ProxyWithResolver(staticTarget, "/", nativeSDKTarget(staticTarget))
 			if proxyErr != nil {
-				log.Fatal(proxyErr)
+				return proxyErr
 			}
 			for _, path := range nativeSDKPaths {
 				mux.Handle(path, nativeSDK)
@@ -448,19 +487,19 @@ func RunWithOptions(options Options) {
 		if loginOAuth != nil {
 			login, loginErr := bffauth.NewLogin(bffauth.LoginConfig{OAuth: *loginOAuth, CookieKey: key, Secure: true, UseIDToken: *loginIDToken, AllowedOrigin: origin}, sessions)
 			if loginErr != nil {
-				log.Fatal(loginErr)
+				return loginErr
 			}
 			if *loginIDToken {
 				browserAuth, authErr := login.DatlyHTTP()
 				if authErr != nil {
-					log.Fatal(authErr)
+					return authErr
 				}
 				for _, route := range []string{"GET /v1/studio/auth/login", "GET /v1/studio/auth/callback", "POST /v1/studio/auth/token", "DELETE /v1/studio/auth/session"} {
 					mux.Handle(route, browserAuth)
 				}
 			} else {
 				if err := login.Register(mux); err != nil {
-					log.Fatal(err)
+					return err
 				}
 			}
 		}
@@ -468,7 +507,7 @@ func RunWithOptions(options Options) {
 			for _, proxyConfig := range []struct{ mount, target string }{{"/v1/studio/runtime/", *dynamicHTTPURL}, {"/v1/studio/mcp/", *dynamicMCPURL}, {"/v1/studio/sdk-mcp/", *staticMCPURL}} {
 				target, parseErr := url.Parse(proxyConfig.target)
 				if parseErr != nil {
-					log.Fatal(parseErr)
+					return parseErr
 				}
 				var resolver bffauth.ProxyTargetResolver
 				if proxyConfig.mount == "/v1/studio/mcp/" {
@@ -476,7 +515,7 @@ func RunWithOptions(options Options) {
 				}
 				proxy, proxyErr := sessions.ProxyWithResolver(target, strings.TrimSuffix(proxyConfig.mount, "/"), resolver)
 				if proxyErr != nil {
-					log.Fatal(proxyErr)
+					return proxyErr
 				}
 				mux.Handle(proxyConfig.mount, proxy)
 			}
@@ -485,19 +524,19 @@ func RunWithOptions(options Options) {
 			var proxyErr error
 			extensionProxy, proxyErr = newExtensionProxy(sessions, extensionConfig)
 			if proxyErr != nil {
-				log.Fatal(proxyErr)
+				return proxyErr
 			}
 		}
 		if options.AuthenticatedModules != nil {
 			if resourceProvider == nil {
-				log.Fatal("authenticated modules require resource identity")
+				return errors.New("authenticated modules require resource identity")
 			}
 			modules, moduleErr := options.AuthenticatedModules(lifecycleCtx, db, resourceProvider, sessions)
 			if moduleErr != nil {
-				log.Fatal(moduleErr)
+				return moduleErr
 			}
 			if moduleErr = mountModules(mux, modules); moduleErr != nil {
-				log.Fatal(moduleErr)
+				return moduleErr
 			}
 			mountedModules = append(mountedModules, modules...)
 		}
@@ -505,7 +544,7 @@ func RunWithOptions(options Options) {
 	} else {
 		target, parseErr := url.Parse(*dynamicMCPURL)
 		if parseErr != nil {
-			log.Fatal(parseErr)
+			return parseErr
 		}
 		proxy := httputil.NewSingleHostReverseProxy(target)
 		proxy.ModifyResponse = stripProxyCORS
@@ -534,7 +573,7 @@ func RunWithOptions(options Options) {
 	log.Printf("Studio SDK %s host listening on http://%s", resolvedMode, *address)
 	handler, err := configuredHTTPMiddleware(options.HTTPMiddleware, requestIDs(corsModules(origin, resolvedMode == string(httptransport.Authenticated), mountedModules, noStore(routeExtensionProxy(mux, extensionProxy)))))
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	server := &http.Server{
 		Addr: *address, Handler: handler,
@@ -543,11 +582,12 @@ func RunWithOptions(options Options) {
 	}
 	listener, err := net.Listen("tcp", *address)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	if err := serveUntilStopped(lifecycleCtx, server, listener); err != nil {
-		log.Fatal(err)
+		return err
 	}
+	return nil
 }
 
 func configuredAccessProvider(ctx context.Context, options Options, config accessprovider.Config) (authz.Provider, error) {
@@ -590,6 +630,10 @@ func resolveAuthenticatedConfig(certURL, issuer, audience, encodedKey string, pu
 	if _, err := jwtVerificationConfig(certURL, publicKey); err != nil {
 		return "", "", nil, err
 	}
+	return resolveAuthenticatedIdentity(issuer, audience, encodedKey)
+}
+
+func resolveAuthenticatedIdentity(issuer, audience, encodedKey string) (string, string, []byte, error) {
 	issuer = strings.TrimSpace(issuer)
 	audience = strings.TrimSpace(audience)
 	if issuer == "" {

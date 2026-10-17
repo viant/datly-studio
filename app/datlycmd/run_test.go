@@ -11,6 +11,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"encoding/pem"
+	"fmt"
+	datlyconfig "github.com/viant/datly/standalone/config"
 	"io"
 	"net/http"
 	"os"
@@ -56,7 +58,7 @@ func (o *startupOutput) String() string { o.Lock(); defer o.Unlock(); return o.d
 func TestEmbeddingStartup(t *testing.T) {
 	mode := os.Getenv("STUDIO_EMBEDDING_TEST")
 	if mode == "" {
-		for _, name := range []string{"native", "native-artifact", "missing", "duplicate", "late", "existing"} {
+		for _, name := range []string{"native", "native-artifact", "native-embedded", "missing", "duplicate", "late", "existing"} {
 			t.Run(name, func(t *testing.T) {
 				c := exec.Command(os.Args[0], "-test.run=^TestEmbeddingStartup$", "-test.v")
 				c.Env = append(os.Environ(), "STUDIO_EMBEDDING_TEST="+name)
@@ -137,7 +139,7 @@ func TestEmbeddingStartup(t *testing.T) {
 	// injected provider while loading the original SDK namespace catalog.
 	cfg := map[string]any{"BaseDir": dir, "Endpoint": map[string]any{"Address": "127.0.0.1:0"}, "Connector": "studio", "Connectors": []any{map[string]any{"Name": "studio", "Driver": "sqlite", "DSN": dbPath}, map[string]any{"Name": "authz", "AliasOf": "studio"}}, "JWTValidator": map[string]any{"RSA": []any{map[string]any{"URL": keyPath}}}, "GoBootstrap": map[string]any{"EagerComponents": true, "Packages": []string{"github.com/viant/datly-studio/studio/auth/reader", "github.com/viant/datly-studio/studio/namespaces/reader", "github.com/viant/datly-studio/studio/authorization"}}}
 	raw, _ := json.Marshal(cfg)
-	if mode == "native-artifact" {
+	if mode == "native-artifact" || mode == "native-embedded" {
 		cfg["MCP"] = map[string]any{"Address": "127.0.0.1:0", "Authorization": map[string]any{"Global": map[string]any{"RequiredScopes": []string{"studio:read"}, "ProtectedResourceMetadata": map[string]any{"resource": "https://fixture.invalid/studio"}}}}
 		raw, _ = json.Marshal(cfg)
 	}
@@ -151,7 +153,7 @@ func TestEmbeddingStartup(t *testing.T) {
 	if mode != "missing" {
 		options.AccessProviderFactory = factory
 	}
-	if mode == "native-artifact" {
+	if mode == "native-artifact" || mode == "native-embedded" {
 		binary, err := os.Open(os.Args[0])
 		if err != nil {
 			t.Fatal(err)
@@ -165,7 +167,24 @@ func TestEmbeddingStartup(t *testing.T) {
 		options.LinkedArtifact = &datlyexec.LinkedArtifact{Revision: "owned-studio-release", ContentFingerprint: hex.EncodeToString(h.Sum(nil))}
 	}
 	go func() {
-		done <- datlycmd.RunWithOptions(ctx, []string{"run", "-conf", conf}, out, errs, options)
+		if mode != "native-embedded" {
+			done <- datlycmd.RunWithOptions(ctx, []string{"run", "-conf", conf}, out, errs, options)
+			return
+		}
+		resolved, err := (datlyconfig.Loader{}).Load(ctx, conf)
+		if err == nil {
+			server, buildErr := datlycmd.New(ctx, resolved, options, errs)
+			err = buildErr
+			if err == nil {
+				err = server.Serve(ctx, out)
+			}
+		}
+		if err != nil {
+			fmt.Fprintln(errs, err)
+			done <- 1
+			return
+		}
+		done <- 0
 	}()
 	t.Cleanup(func() {
 		cancel()
@@ -214,7 +233,7 @@ func TestEmbeddingStartup(t *testing.T) {
 		t.Fatal("original native runtime did not invoke injected provider")
 	}
 	t.Logf("original native reader HTTP=%d factory provider Resolve calls=%d body=%s", res.StatusCode, p.calls.Load(), body)
-	if mode == "native-artifact" {
+	if mode == "native-artifact" || mode == "native-embedded" {
 		mcpAddress := ""
 		for mcpAddress == "" {
 			if i := strings.Index(out.String(), "MCP listening on "); i >= 0 {

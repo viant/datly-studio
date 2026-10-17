@@ -96,3 +96,29 @@ func TestAuthenticatedHostUsesSCYRSAOrCertificateVerification(t *testing.T) {
 		t.Fatal("ambiguous verification sources accepted")
 	}
 }
+
+func TestSharedJWTValidatorPreservesSCYResources(t *testing.T) {
+	for _, config := range []*verifier.Config{
+		{CertURL: "https://auth.example.com/certs"},
+		{RSA: []*scy.Resource{{URL: "file:///one.enc", Key: "blowfish://default"}, {URL: "file:///two.pem"}}},
+	} {
+		got, err := configuredJWTVerification(config, "", "")
+		if err != nil || got != config {
+			t.Fatalf("shared verifier was not preserved: %v", err)
+		}
+		if _, err := configuredJWTVerification(config, "https://other.example/certs", ""); err == nil {
+			t.Fatal("conflicting certificate override accepted")
+		}
+		if _, err := configuredJWTVerification(config, "", "file:///other.pem"); err == nil {
+			t.Fatal("conflicting RSA override accepted")
+		}
+	}
+	for _, config := range []*verifier.Config{
+		{}, {RSA: []*scy.Resource{nil}}, {RSA: []*scy.Resource{{}}},
+		{CertURL: "https://auth.example/certs", RSA: []*scy.Resource{{URL: "file:///public.pem"}}},
+	} {
+		if _, err := configuredJWTVerification(config, "", ""); err == nil {
+			t.Fatal("invalid shared verifier accepted")
+		}
+	}
+}

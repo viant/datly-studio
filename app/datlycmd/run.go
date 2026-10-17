@@ -47,12 +47,44 @@ func Run(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 // command. Duplicate or late registrations fail before command execution.
 // Factory registration is process-wide and immutable, including after Run exits.
 func RunWithOptions(ctx context.Context, args []string, stdout, stderr io.Writer, options Options) int {
+	middleware, err := prepareMiddleware(options)
+	if err != nil {
+		fmt.Fprintln(stderr, err)
+		return 1
+	}
+	if middleware == nil && options.LinkedArtifact == nil && !options.RequireComponentBinding {
+		return (command.Service{}).Run(ctx, args, stdout, stderr)
+	}
+	return runBound(ctx, args, stdout, stderr, options, middleware)
+}
+
+// New constructs the native Studio server without parsing CLI arguments or
+// spawning processes. The caller serves it, waits for readiness, and shuts it
+// down through Datly's Server lifecycle. Configuration must already be resolved.
+// A provider factory is process-wide; register it once across hosted services.
+func New(ctx context.Context, cfg *config.Config, options Options, diagnostics io.Writer) (*standalone.Server, error) {
+	if ctx == nil {
+		return nil, fmt.Errorf("native Studio context is required")
+	}
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	if cfg == nil {
+		return nil, fmt.Errorf("native Studio configuration is required")
+	}
+	middleware, err := prepareMiddleware(options)
+	if err != nil {
+		return nil, err
+	}
+	return newServer(ctx, cfg, options, middleware, diagnostics)
+}
+
+func prepareMiddleware(options Options) (func(http.Handler) http.Handler, error) {
 	middleware := options.RequestMiddleware
 	if options.Authoring != nil {
 		snapshot, err := host.NewAuthoring(*options.Authoring)
 		if err != nil {
-			fmt.Fprintln(stderr, err)
-			return 1
+			return nil, err
 		}
 		prior := middleware
 		middleware = func(next http.Handler) http.Handler {
@@ -64,14 +96,10 @@ func RunWithOptions(ctx context.Context, args []string, stdout, stderr io.Writer
 	}
 	if options.AccessProviderFactory != nil {
 		if err := accessprovider.RegisterEnvironmentFactory(options.AccessProviderFactory); err != nil {
-			fmt.Fprintln(stderr, err)
-			return 1
+			return nil, err
 		}
 	}
-	if middleware == nil && options.LinkedArtifact == nil && !options.RequireComponentBinding {
-		return (command.Service{}).Run(ctx, args, stdout, stderr)
-	}
-	return runBound(ctx, args, stdout, stderr, options, middleware)
+	return middleware, nil
 }
 
 // runBound uses the published standalone binding API. Command.Service does not
@@ -109,24 +137,32 @@ func runBound(ctx context.Context, args []string, stdout, stderr io.Writer, bind
 		fmt.Fprintln(stderr, err)
 		return 1
 	}
-	options := standalone.Options{Config: cfg, LinkedArtifact: binding.LinkedArtifact, RequireComponentBinding: binding.RequireComponentBinding, RequireLinked: true, Diagnostics: stderr}
+	if err := serveConfig(ctx, cfg, binding, middleware, stdout, stderr); err != nil {
+		fmt.Fprintln(stderr, err)
+		return 1
+	}
+	return 0
+}
+
+// serveConfig owns the native server lifecycle independently of CLI parsing.
+func serveConfig(ctx context.Context, cfg *config.Config, binding Options, middleware func(http.Handler) http.Handler, stdout, diagnostics io.Writer) error {
+	server, err := newServer(ctx, cfg, binding, middleware, diagnostics)
+	if err != nil {
+		return err
+	}
+	return server.Serve(ctx, stdout)
+}
+
+func newServer(ctx context.Context, cfg *config.Config, binding Options, middleware func(http.Handler) http.Handler, diagnostics io.Writer) (*standalone.Server, error) {
+	options := standalone.Options{Config: cfg, LinkedArtifact: binding.LinkedArtifact, RequireComponentBinding: binding.RequireComponentBinding, RequireLinked: true, Diagnostics: diagnostics}
 	if middleware != nil {
 		// Fail closed on published versions without trusted HTTP wrapping support.
 		field := reflect.ValueOf(&options).Elem().FieldByName("HTTPMiddleware")
 		value := reflect.ValueOf(middleware)
 		if !field.IsValid() || !field.CanSet() || !value.Type().AssignableTo(field.Type()) {
-			fmt.Fprintln(stderr, "configured request middleware requires a Datly release with standalone HTTPMiddleware support")
-			return 1
+			return nil, fmt.Errorf("configured request middleware requires a Datly release with standalone HTTPMiddleware support")
 		}
 		field.Set(value)
 	}
-	server, err := standalone.New(ctx, options)
-	if err == nil {
-		err = server.Serve(ctx, stdout)
-	}
-	if err != nil {
-		fmt.Fprintln(stderr, err)
-		return 1
-	}
-	return 0
+	return standalone.New(ctx, options)
 }
