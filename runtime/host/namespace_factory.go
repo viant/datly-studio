@@ -34,11 +34,14 @@ func NamespaceFactory(base Config) namespacemcp.Factory {
 			_ = runtime.Close(context.Background())
 			return mcpserver.Config{}, err
 		}
-		return mcpserver.Config{Source: &namespaceRuntimeSource{runtime}, Implementation: schema.Implementation{Name: "datly-studio-namespace", Version: "1"}, Transport: mcpserver.TransportConfig{Kind: mcpserver.TransportStreamable, Address: endpoint.Address, CORS: config.MCP.CORS}}, nil
+		return mcpserver.Config{Source: &namespaceRuntimeSource{runtime: runtime, endpoint: endpoint}, Implementation: schema.Implementation{Name: "datly-studio-namespace", Version: "1"}, Transport: mcpserver.TransportConfig{Kind: mcpserver.TransportStreamable, Address: endpoint.Address, CORS: config.MCP.CORS}}, nil
 	}
 }
 
-type namespaceRuntimeSource struct{ runtime *Service }
+type namespaceRuntimeSource struct {
+	runtime  *Service
+	endpoint namespacemcp.Endpoint
+}
 
 func (s *namespaceRuntimeSource) Pin(ctx context.Context) (context.Context, mcpserver.ServerService, error) {
 	return s.runtime.manager.Pin(ctx)
@@ -47,6 +50,9 @@ func (s *namespaceRuntimeSource) PinSnapshot(ctx context.Context) (context.Conte
 	return s.runtime.manager.PinSnapshot(ctx)
 }
 func (s *namespaceRuntimeSource) WrapHTTP(next http.Handler) http.Handler {
+	if wrap := s.runtime.config.NamespaceHTTPMiddleware; wrap != nil {
+		next = wrap(s.endpoint, next)
+	}
 	if s.runtime.config.ToolCallAudit != nil {
 		next = s.runtime.config.ToolCallAudit.Wrap(next)
 	}

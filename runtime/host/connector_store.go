@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/viant/datly-studio/internal/connectorsecret"
+	"github.com/viant/datly/bootstrap/connector"
 	"reflect"
 	"sync"
 
@@ -129,4 +131,43 @@ func (s *activeConnectorStore) components() (*druntime.Runtime, dexec.ComponentT
 	}
 	s.runtime, s.target = runtime, target
 	return runtime, target, nil
+}
+
+// ActiveConnectorConfigs resolves selected database-managed connections for
+// trusted linked dependencies. It is a Go embedding API, never a metadata/tool
+// response. Only explicitly requested names are returned; credentials stay local.
+func ActiveConnectorConfigs(ctx context.Context, db *sql.DB, names ...string) ([]connector.Config, error) {
+	if db == nil || len(names) == 0 {
+		return nil, fmt.Errorf("active connector storage and names are required")
+	}
+	store := &activeConnectorStore{db: db}
+	defer store.Close(context.WithoutCancel(ctx))
+	active, err := store.Read(ctx)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]connector.Config, 0, len(names))
+	seen := map[string]bool{}
+	for _, name := range names {
+		if seen[name] {
+			continue
+		}
+		seen[name] = true
+		item, ok := active[name]
+		if !ok {
+			return nil, fmt.Errorf("required active connector %q is unavailable", name)
+		}
+		if len(item.options) > 0 && string(item.options) != "null" && string(item.options) != "{}" {
+			return nil, fmt.Errorf("linked connector %q requires runtime initialization options", name)
+		}
+		dsn, err := connectorsecret.Resolve(ctx, nil, item.dsn, item.secretRef)
+		if err != nil {
+			return nil, fmt.Errorf("linked connector %q secret is unavailable", name)
+		}
+		if dsn == "" {
+			return nil, fmt.Errorf("linked connector %q DSN is unavailable", name)
+		}
+		result = append(result, connector.Config{Name: name, Driver: normalizeDriver(item.driver), DSN: dsn})
+	}
+	return result, nil
 }

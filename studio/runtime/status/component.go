@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"reflect"
 
 	"github.com/viant/datly-studio/internal/runtimeadmin"
@@ -88,22 +87,13 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	}
 	transport := &sqltransport.Transport{DB: db, Authorizer: &authorization.SDKAuthorizer{DB: db}, Predicates: predicates}
 	defer transport.Close(context.WithoutCancel(ctx))
-	adminToken := os.Getenv("STUDIO_RUNTIME_ADMIN_TOKEN")
-	if adminToken == "" {
-		transport.RuntimeProbe = sqltransport.RuntimeHostProbeFunc(func(context.Context) (*sdk.RuntimeHost, error) {
-			return nil, fmt.Errorf("dynamic runtime admin token is not configured")
-		})
+	admin, configErr := runtimeadmin.Resolve(ctx)
+	if configErr != nil {
+		transport.RuntimeProbe = sqltransport.RuntimeHostProbeFunc(func(context.Context) (*sdk.RuntimeHost, error) { return nil, configErr })
 	} else {
-		adminURL := os.Getenv("STUDIO_DYNAMIC_HTTP_URL")
-		if adminURL == "" {
-			adminURL = "http://127.0.0.1:8082"
-		}
-		admin, configErr := runtimeadmin.New(adminURL, adminToken, nil)
-		if configErr != nil {
-			return configErr
-		}
 		transport.RuntimeProbe = admin
 	}
+
 	principal := sdk.WithPrincipal(ctx, sdk.Principal{Subject: input.Jwt.Subject})
 	var header struct {
 		Authorization string `bind:"kind=header,in=Authorization"`

@@ -11,5 +11,5 @@ async function start() {
 }
 
 start().catch((error) => {
-  document.getElementById('root').textContent = `Datly Studio could not start: ${error.message}`;
+  document.getElementById('root').textContent = `Data Studio could not start: ${error.message}`;
 });

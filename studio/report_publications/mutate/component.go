@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"reflect"
 	"strings"
 	"sync"
@@ -148,15 +147,7 @@ func invoke(ctx context.Context, session xhandler.Session, claims *jwt.Claims, n
 	if err != nil || db == nil {
 		return fmt.Errorf("configured Studio database is unavailable")
 	}
-	token := os.Getenv("STUDIO_RUNTIME_ADMIN_TOKEN")
-	if token == "" {
-		return publicError(503, "dynamic runtime admin token is not configured")
-	}
-	adminURL := os.Getenv("STUDIO_DYNAMIC_HTTP_URL")
-	if adminURL == "" {
-		adminURL = "http://127.0.0.1:8082"
-	}
-	admin, err := runtimeadmin.New(adminURL, token, nil)
+	admin, err := runtimeadmin.Resolve(ctx)
 	if err != nil {
 		return publicError(503, "dynamic runtime admin origin is invalid")
 	}

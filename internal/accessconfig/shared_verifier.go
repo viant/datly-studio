@@ -43,3 +43,8 @@ func configuredKeyfunc(config *verifier.Config, publicKeyFile, certURL string) (
 	}
 	return func(*jwtlib.Token) (any, error) { return set, nil }, nil
 }
+
+// VerificationKey exposes the configured verifier to the public process binding.
+func VerificationKey(config *verifier.Config, publicKeyFile, certURL string) (jwtlib.Keyfunc, error) {
+	return configuredKeyfunc(config, publicKeyFile, certURL)
+}

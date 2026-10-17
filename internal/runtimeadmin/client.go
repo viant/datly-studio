@@ -11,6 +11,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
@@ -24,9 +25,34 @@ var ErrNamespaceUnavailable = errors.New("namespace runtime is unavailable")
 // Client talks only to the deployment-configured dynamic Datly admin origin.
 // The token is never taken from an SDK or MCP request.
 type Client struct {
+	reload     func(context.Context, int64) error
+	probe      func(context.Context) (*sdk.RuntimeHost, error)
+	connection func(context.Context) (json.RawMessage, error)
+
 	baseURL string
 	token   string
 	http    *http.Client
+}
+
+// NewInProcess binds trusted callbacks; no listener or deployment token exists.
+func NewInProcess(reload func(context.Context, int64) error, probe func(context.Context) (*sdk.RuntimeHost, error), connection func(context.Context) (json.RawMessage, error)) *Client {
+	return &Client{reload: reload, probe: probe, connection: connection, http: http.DefaultClient}
+}
+
+type contextKey struct{}
+
+func WithClient(ctx context.Context, client *Client) context.Context {
+	return context.WithValue(ctx, contextKey{}, client)
+}
+func Resolve(ctx context.Context) (*Client, error) {
+	if client, ok := ctx.Value(contextKey{}).(*Client); ok && client != nil {
+		return client, nil
+	}
+	origin := os.Getenv("STUDIO_DYNAMIC_HTTP_URL")
+	if origin == "" {
+		origin = "http://127.0.0.1:8082"
+	}
+	return New(origin, os.Getenv("STUDIO_RUNTIME_ADMIN_TOKEN"), nil)
 }
 
 func New(baseURL, token string, client *http.Client) (*Client, error) {
@@ -48,6 +74,9 @@ func New(baseURL, token string, client *http.Client) (*Client, error) {
 func (c *Client) Reload(ctx context.Context, generation int64) error {
 	if c == nil {
 		return fmt.Errorf("dynamic runtime admin client is unavailable")
+	}
+	if c.reload != nil {
+		return c.reload(ctx, generation)
 	}
 	body := map[string]any{"generation": generation}
 	if namespaceID, selected := sdk.NamespaceSelectionFromContext(ctx); selected {
@@ -79,6 +108,9 @@ func (c *Client) Reload(ctx context.Context, generation int64) error {
 func (c *Client) ProbeRuntime(ctx context.Context) (*sdk.RuntimeHost, error) {
 	if c == nil {
 		return nil, fmt.Errorf("dynamic runtime admin client is unavailable")
+	}
+	if c.probe != nil {
+		return c.probe(ctx)
 	}
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
@@ -140,6 +172,9 @@ func (c *Client) ProbeRuntime(ctx context.Context) (*sdk.RuntimeHost, error) {
 func (c *Client) Connection(ctx context.Context) (json.RawMessage, error) {
 	if c == nil {
 		return nil, fmt.Errorf("dynamic runtime admin client is unavailable")
+	}
+	if c.connection != nil {
+		return c.connection(ctx)
 	}
 	id, selected := sdk.NamespaceSelectionFromContext(ctx)
 	decoded, err := hex.DecodeString(id)

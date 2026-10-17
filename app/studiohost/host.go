@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/viant/authz"
@@ -22,6 +23,7 @@ import (
 	"github.com/viant/datly-studio/app/datlycmd"
 	"github.com/viant/datly-studio/app/hostconfig"
 	"github.com/viant/datly-studio/app/studioapi"
+	"github.com/viant/datly-studio/internal/runtimeadmin"
 	"github.com/viant/datly-studio/runtime/accessprovider"
 	runtimehost "github.com/viant/datly-studio/runtime/host"
 	"github.com/viant/datly-studio/schema"
@@ -34,7 +36,7 @@ import (
 )
 
 // Endpoints contains actual bound addresses, including OS-allocated ports.
-type Endpoints struct{ HTTP, AdminMCP, NamespaceMCP string }
+type Endpoints struct{ HTTP, AdminMCP, NamespaceMCP, NativeHTTP string }
 
 // Options are trusted process bindings. Namespaces and application definitions
 // are never accepted here from browser or agent requests.
@@ -43,6 +45,9 @@ type Options struct {
 	Browser studioapi.Options
 	// ConfigureRuntime installs linked extensions before namespace startup.
 	ConfigureRuntime func(*runtimehost.Config) error
+	// ConfigureBrowser binds app extensions after internal listeners are ready,
+	// before constructing or serving the browser API. Addresses are process-owned.
+	ConfigureBrowser func(*studioapi.Options, Endpoints, *runtimehost.NamespaceGroup) error
 	Ready            func(Endpoints)
 	Diagnostics      io.Writer
 }
@@ -167,6 +172,17 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		}
 		nativeConfig.GoBootstrap = &datlyconfig.Packages{Packages: packages, LinkedOnly: true}
 	}
+	var processGroup atomic.Pointer[runtimehost.NamespaceGroup]
+	control := inProcessControl(&processGroup)
+	nativeMiddleware := options.Native.RequestMiddleware
+	options.Native.RequestMiddleware = func(next http.Handler) http.Handler {
+		if nativeMiddleware != nil {
+			next = nativeMiddleware(next)
+		}
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			next.ServeHTTP(w, r.WithContext(runtimeadmin.WithClient(r.Context(), control)))
+		})
+	}
 	native, err := datlycmd.New(ctx, &nativeConfig, options.Native, options.Diagnostics)
 	if err != nil {
 		return err
@@ -194,17 +210,14 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	if err != nil {
 		return err
 	}
-	token, err := randomKey()
-	if err != nil {
-		return err
-	}
+
 	tenant := config.Tenant
 	if tenant == "" {
 		tenant = "studio"
 	}
-	runtimeConfig := runtimehost.Config{RootDir: config.BaseDir, ModulePath: authoringConfig.ModulePath,
+	runtimeConfig := runtimehost.Config{InProcess: true, RootDir: config.BaseDir, ModulePath: authoringConfig.ModulePath,
 		NamespaceMCPMode: "shared", HTTP: runtimehost.Listener{Address: "127.0.0.1:0"}, MCP: runtimehost.Listener{Address: namespaceAddress},
-		Studio: runtimehost.Studio{Driver: catalog.Driver, DSN: catalog.DSN}, Admin: runtimehost.Admin{Token: token},
+		Studio:         runtimehost.Studio{Driver: catalog.Driver, DSN: catalog.DSN},
 		Authentication: runtimehost.Authentication{DefaultMode: "required", Issuer: config.JWTClaims.Issuer, Audience: config.JWTClaims.Audience},
 		Access:         &runtimehost.ResourceAccessConfig{Tenant: tenant, Provider: provider}, ReaderCaches: config.Caches}
 	if options.ConfigureRuntime != nil {
@@ -221,9 +234,8 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		defer stop()
 		_ = group.Close(shutdown)
 	}()
-	if err := group.StartAdmin("127.0.0.1:0", token); err != nil {
-		return err
-	}
+	processGroup.Store(group)
+
 	if _, err := group.Reconcile(ctx); err != nil {
 		return err
 	}
@@ -241,7 +253,27 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		}
 		sessionKey = strings.TrimSpace(secret.String())
 	}
+	endpoints := Endpoints{HTTP: publicListener.Addr().String(), AdminMCP: addresses[1], NamespaceMCP: group.Listeners.SharedAddress(), NativeHTTP: addresses[0]}
 	browser := options.Browser
+	browser.RuntimeControl = control
+	if config.Login != nil {
+		login := config.Login
+		secret := ""
+		if login.ClientSecret != nil {
+			value, err := scy.New().Load(ctx, login.ClientSecret)
+			if err != nil {
+				return errors.New("Studio OAuth client secret could not be loaded")
+			}
+			secret = strings.TrimSpace(value.String())
+		}
+		browser.Login = &studioapi.Login{AuthorizationURL: login.AuthorizationURL, TokenURL: login.TokenURL, ClientID: login.ClientID, ClientSecret: secret, RedirectURL: origin + "/v1/studio/auth/callback", Scopes: login.Scopes}
+	}
+	if options.ConfigureBrowser != nil {
+		if err := options.ConfigureBrowser(&browser, endpoints, group); err != nil {
+			return err
+		}
+	}
+
 	if browser.SchemaVerifier == nil {
 		browser.SchemaVerifier = func(ctx context.Context, db *sql.DB) error { return schema.Verify(ctx, db, catalog.Driver) }
 	}
@@ -270,7 +302,6 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	args := []string{"--address", publicListener.Addr().String(), "--driver", catalog.Driver, "--dsn", catalog.DSN, "--mode", "authenticated",
 		"--jwt-issuer", config.JWTClaims.Issuer, "--jwt-audience", config.JWTClaims.Audience, "--session-key", sessionKey,
 		"--allowed-origin", origin, "--access-tenant", tenant,
-		"--dynamic-admin-token", token, "--dynamic-http-url", "http://" + group.AdminAddress(),
 		"--dynamic-mcp-url", "http://" + group.Listeners.SharedAddress(),
 		"--static-datly-url", "http://" + addresses[0], "--static-mcp-url", "http://" + addresses[1]}
 	if config.StaticRoot != "" {
@@ -287,7 +318,7 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		return errors.Join(errors.New("native Studio stopped before browser readiness"), nativeErr)
 	case <-browserReady:
 		if options.Ready != nil {
-			options.Ready(Endpoints{HTTP: publicListener.Addr().String(), AdminMCP: addresses[1], NamespaceMCP: group.Listeners.SharedAddress()})
+			options.Ready(endpoints)
 		}
 	case <-ctx.Done():
 		cancel()

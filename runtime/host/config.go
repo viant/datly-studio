@@ -10,8 +10,10 @@ import (
 	"strings"
 
 	"github.com/viant/datly-studio/audit"
+	"github.com/viant/datly-studio/runtime/namespacemcp"
 	"github.com/viant/datly/application"
 	"github.com/viant/datly/spec"
+	"net/http"
 
 	access "github.com/viant/authz"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
@@ -76,6 +78,12 @@ type Admin struct {
 type NamespaceBuildExtension func(context.Context, *application.Build) error
 
 type Config struct {
+	// InProcess disables only the separate administration endpoint requirement.
+	InProcess bool `yaml:"-"`
+	// NamespaceHTTPMiddleware is a trusted embedding extension around a single
+	// namespace transport. It must preserve authentication and namespace isolation.
+	NamespaceHTTPMiddleware func(namespacemcp.Endpoint, http.Handler) http.Handler `yaml:"-"`
+
 	// ReaderCaches supplies deployment-owned named cache settings. Authored DQL
 	// selects a name; the embedding host owns cache locations and credentials.
 	// Each namespace generation owns and drains its own native cache client pool.
@@ -207,7 +215,7 @@ func (c *Config) Validate() error {
 	if strings.TrimSpace(c.RootDir) == "" {
 		c.RootDir = "."
 	}
-	if strings.TrimSpace(c.Admin.Token) == "" {
+	if !c.InProcess && strings.TrimSpace(c.Admin.Token) == "" {
 		return fmt.Errorf("dynamic runtime administration token is required")
 	}
 	host, _, _ := net.SplitHostPort(strings.TrimSpace(c.HTTP.Address))

@@ -10,6 +10,12 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// Login is supplied only by a trusted embedding host, using its shared config.
+type Login struct {
+	AuthorizationURL, TokenURL, ClientID, ClientSecret, RedirectURL string
+	Scopes                                                          []string
+}
+
 func resolveLoginConfig(mode, origin, authURL, tokenURL, clientID, clientSecret, redirectURL, scopes string) (*oauth2.Config, error) {
 	authURL, tokenURL, clientID, redirectURL = strings.TrimSpace(authURL), strings.TrimSpace(tokenURL), strings.TrimSpace(clientID), strings.TrimSpace(redirectURL)
 	if authURL == "" && tokenURL == "" && clientID == "" && clientSecret == "" && redirectURL == "" {

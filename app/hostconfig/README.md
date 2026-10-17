@@ -1,12 +1,13 @@
 # Shared host configuration
 
-This package belongs to public Datly Studio. AI Studio and other embedding
+This package belongs to public Data Studio. AI Studio and other embedding
 applications reuse it; it contains no application report registry or AR settings.
 
 The public `cmd/studio` launcher consumes this shared configuration and starts
 one application process. HTTP, admin MCP, and namespace MCP have separate public
-listeners. Internal native HTTP and reload administration use process-owned
-loopback addresses and credentials. Applications can embed `app/studiohost.Serve`.
+listeners. Internal native HTTP uses a process-owned loopback address. Reload/status and
+connection administration are direct in-process calls; no admin listener or token
+is started. Applications can embed `app/studiohost.Serve`.
 
 Connected acceptance covers a compiled binary, synthetic SQLite storage, admin
 MCP discovery and an authenticated tool call, database-driven namespace enable/
@@ -119,8 +120,9 @@ restart. These are advanced settings, not additional required service wiring.
 
 The browser's `/studio-config.json` is derived from the same public origin and
 uses authenticated BFF mode; there is no separate deployment-side browser config.
-Browser OAuth login wiring is not yet exposed by the combined launcher and remains
-an adoption gate before the full browser workflow can move to it.
+Optional `Login` defines AuthorizationURL, TokenURL, ClientID, a SCY
+ClientSecret resource, and Scopes. The callback is derived from PublicURL. This
+reuses the existing BFF OAuth/session implementation without command-line wiring.
 
 The host links the standard authoring components by default, adds internal
 `studio`/`authz` aliases for the single storage definition, and supplies the same
@@ -143,3 +145,17 @@ database-driven namespace enable/disable without restart, and listener shutdown.
 The regression is included in the main Endly workflow. The retained broader E2E
 fixture still has its previous custom assembly and requires migration to this
 shared host before full-suite adoption can be claimed.
+
+
+`LoadDocument` lets embedding applications remove their typed extension section
+and resolve the remaining shared configuration at the original source URL. It
+preserves Datly constants/relative-resource behavior without temporary config files.
+
+`ConfigureBrowser` binds trusted app modules after internal addresses and the
+namespace manager exist, before browser serving. `NamespaceHTTPMiddleware` wraps
+one already isolated namespace transport and retains its source lifecycle and
+credential boundary. These extension hooks contain no application/report concepts.
+
+`ActiveConnectorConfigs` resolves only named active stored connectors for linked
+component dependencies. It never returns credentials through HTTP/MCP metadata.
+Selected connectors requiring unsupported initialization options fail explicitly.

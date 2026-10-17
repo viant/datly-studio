@@ -3,7 +3,6 @@ package authoring
 import (
 	"context"
 	"fmt"
-	"os"
 	"reflect"
 	"sync"
 	"time"
@@ -92,11 +91,7 @@ func runUnpublish(ctx context.Context, session xhandler.Session, in *UnpublishIn
 }
 func (s *store) publish(ctx context.Context, id string, etag int64, revision int, out *PublicationOutput) error {
 	// Only configured deployment credentials may control the runtime.
-	origin := os.Getenv("STUDIO_DYNAMIC_HTTP_URL")
-	if origin == "" {
-		origin = "http://127.0.0.1:8082"
-	}
-	admin, err := runtimeadmin.New(origin, os.Getenv("STUDIO_RUNTIME_ADMIN_TOKEN"), nil)
+	admin, err := runtimeadmin.Resolve(ctx)
 	if err != nil {
 		return publicError(503, "namespace runtime administration is not configured")
 	}

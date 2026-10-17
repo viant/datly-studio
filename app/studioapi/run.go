@@ -146,7 +146,16 @@ func Run() {
 
 // Options supplies process-owned identity wiring for embedders. The factory
 // is invoked once during startup and is never selected from request data.
+type RuntimeControl interface {
+	Reload(context.Context, int64) error
+	ProbeRuntime(context.Context) (*sdk.RuntimeHost, error)
+}
+
 type Options struct {
+	// RuntimeControl avoids an internal administration listener in embedded hosts.
+	RuntimeControl RuntimeControl
+
+	Login *Login
 	// StaticFS serves a compiled public UI (for example embed.FS) when
 	// -static-root is unset. A disk build remains an explicit operator override.
 	StaticFS fs.FS
@@ -262,10 +271,14 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) error {
 	if err != nil {
 		return err
 	}
-	adminToken, err := resolveRuntimeAdminToken(resolvedMode, *dynamicAdminToken)
-	if err != nil {
-		return err
+	var adminToken string
+	if options.RuntimeControl == nil {
+		adminToken, err = resolveRuntimeAdminToken(resolvedMode, *dynamicAdminToken)
+		if err != nil {
+			return err
+		}
 	}
+
 	origin, err := resolveAllowedOrigin(resolvedMode, *allowedOrigin)
 	if err != nil {
 		return err
@@ -279,6 +292,16 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) error {
 		loginSecret = strings.TrimSpace(string(secretBytes))
 		if loginSecret == "" {
 			return errors.New("-login-client-secret-file is empty")
+		}
+	}
+	if login := options.Login; login != nil {
+		if *loginAuthURL != "" || *loginTokenURL != "" || *loginClientID != "" || *loginClientSecretFile != "" || *loginRedirectURL != "" {
+			return errors.New("host-owned Login cannot be combined with login CLI overrides")
+		}
+		*loginAuthURL, *loginTokenURL, *loginClientID, *loginRedirectURL = login.AuthorizationURL, login.TokenURL, login.ClientID, login.RedirectURL
+		loginSecret = login.ClientSecret
+		if len(login.Scopes) > 0 {
+			*loginScopes = strings.Join(login.Scopes, ",")
 		}
 	}
 	loginOAuth, err := resolveLoginConfig(resolvedMode, origin, *loginAuthURL, *loginTokenURL, *loginClientID, loginSecret, *loginRedirectURL, *loginScopes)
@@ -347,10 +370,14 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) error {
 	if err = accesscontext.RegisterTypes(dynamicPreview.Types); err != nil {
 		return err
 	}
-	runtimeAdmin, err := runtimeadmin.New(*dynamicHTTPURL, adminToken, nil)
-	if err != nil {
-		return err
+	runtimeAdmin := options.RuntimeControl
+	if runtimeAdmin == nil {
+		runtimeAdmin, err = runtimeadmin.New(*dynamicHTTPURL, adminToken, nil)
+		if err != nil {
+			return err
+		}
 	}
+
 	authorizer, err := authorization.NewSDKAuthorizer(db)
 	if err != nil {
 		return err

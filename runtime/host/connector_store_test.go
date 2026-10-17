@@ -104,3 +104,36 @@ func TestActiveConnectorStoreReusesRuntimeButReadsFreshRows(t *testing.T) {
 		t.Fatalf("close runtime=%v err=%v", store.runtime, err)
 	}
 }
+
+func TestActiveConnectorConfigsSelectsFreshStoredConnections(t *testing.T) {
+	ctx := context.Background()
+	db, err := sql.Open("sqlite", "file:"+filepath.Join(t.TempDir(), "studio.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	if err = schema.Initialize(ctx, db, "sqlite"); err != nil {
+		t.Fatal(err)
+	}
+	_, err = db.Exec(`INSERT INTO connectors(name,driver,dsn_template,secret_ref,owner_id,status,etag,created_at,updated_at) VALUES('linked','sqlite','file:synthetic-one','','owner','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	selected, err := ActiveConnectorConfigs(ctx, db, "linked", "linked")
+	if err != nil || len(selected) != 1 || selected[0].DSN != "file:synthetic-one" {
+		t.Fatalf("selected connection: %v", err)
+	}
+	if _, err = db.Exec(`UPDATE connectors SET dsn_template='file:synthetic-two' WHERE name='linked'`); err != nil {
+		t.Fatal(err)
+	}
+	selected, err = ActiveConnectorConfigs(ctx, db, "linked")
+	if err != nil || selected[0].DSN != "file:synthetic-two" {
+		t.Fatal("connector update not observed")
+	}
+	if _, err = db.Exec(`UPDATE connectors SET status='disabled' WHERE name='linked'`); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = ActiveConnectorConfigs(ctx, db, "linked"); err == nil {
+		t.Fatal("disabled connector was resolved")
+	}
+}

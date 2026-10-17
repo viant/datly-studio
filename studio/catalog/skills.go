@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"net/url"
-	"os"
 	"reflect"
 	"sort"
 	"strings"
@@ -88,12 +87,8 @@ func NewSkillGet() xhandler.Contract[SkillGetInput, SkillGetOutput] {
 	return &handler[SkillGetInput, SkillGetOutput]{run: runSkillGet}
 }
 
-func catalogRuntime() (*runtimeadmin.Client, error) {
-	origin := os.Getenv("STUDIO_DYNAMIC_HTTP_URL")
-	if origin == "" {
-		origin = "http://127.0.0.1:8082"
-	}
-	client, err := runtimeadmin.New(origin, os.Getenv("STUDIO_RUNTIME_ADMIN_TOKEN"), nil)
+func catalogRuntime(ctx context.Context) (*runtimeadmin.Client, error) {
+	client, err := runtimeadmin.Resolve(ctx)
 	if err != nil {
 		return nil, fail(503, "namespace runtime administration is not configured")
 	}
@@ -145,7 +140,7 @@ func runSkillList(ctx context.Context, session xhandler.Session, input *SkillLis
 				continue
 			}
 			if client == nil {
-				client, err = catalogRuntime()
+				client, err = catalogRuntime(ctx)
 				if err != nil {
 					return err
 				}
@@ -218,7 +213,7 @@ func runSkillGet(ctx context.Context, session xhandler.Session, input *SkillGetI
 	if !row.McpEnabled {
 		return fail(404, "namespace skill is unavailable")
 	}
-	client, err := catalogRuntime()
+	client, err := catalogRuntime(ctx)
 	if err != nil {
 		return err
 	}

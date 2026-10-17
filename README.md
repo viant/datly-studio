@@ -1,11 +1,11 @@
-# Datly Studio
+# Data Studio
 
 [![Go 1.25.8](https://img.shields.io/badge/Go-1.25.8-00ADD8.svg)](go.mod)
 [![Datly 1.0](https://img.shields.io/badge/Datly-1.0_prerelease-orange.svg)](https://github.com/viant/datly)
 
 **A visual authoring and operations environment for Datly 1.0 components.**
 
-Datly Studio gives SQL-oriented teams a cohesive interface for building,
+Data Studio gives SQL-oriented teams a cohesive interface for building,
 validating, publishing, and operating typed Datly readers. It uses Datly's
 Reader Builder as the authoring authority instead of duplicating DQL parsing or
 generation logic in the browser.
@@ -254,7 +254,7 @@ The specialized standalone runtime also retains explicit separate-listener modes
 see [listener modes](docs/dynamic-mcp.md) for that optional deployment.
 
 See [implementation status](docs/namespace-workspaces.md) for remaining namespace
-acceptance gates. Datly Studio remains independent and reporting-free.
+acceptance gates. Data Studio remains independent and reporting-free.
 
 ## Extending Studio
 

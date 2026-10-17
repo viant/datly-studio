@@ -29,7 +29,7 @@ export function ACLReviewWindow() {
   const params = new URLSearchParams({ frame: '1', scenario, kind, iteration: String(iteration) });
   return <main className="acl-review-window">
     <header className="acl-review-heading">
-      <div><h1>ACL UX review</h1><p>Review the shared Datly Studio permissions editor before release.</p></div>
+      <div><h1>ACL UX review</h1><p>Review the shared Data Studio permissions editor before release.</p></div>
       <Tag minimal intent="primary">Synthetic data only</Tag>
     </header>
     <section className="acl-review-controls" aria-label="Preview controls">

@@ -5,6 +5,7 @@ package accessprovider
 import (
 	"context"
 	"errors"
+	jwtlib "github.com/golang-jwt/jwt/v5"
 	"github.com/viant/scy/auth/jwt/verifier"
 	"os"
 	"strings"
@@ -148,4 +149,10 @@ func FromContext(ctx context.Context) (authz.Provider, bool) {
 	}
 	provider, ok := ctx.Value(contextKey{}).(authz.Provider)
 	return provider, ok && provider != nil
+}
+
+// VerificationKey reuses the host's Datly/SCY JWTValidator for a trusted
+// user-info authority. It resolves no request-selected key source.
+func VerificationKey(config Config) (jwtlib.Keyfunc, error) {
+	return accessconfig.VerificationKey(config.JWTValidator, config.PublicKeyFile, config.CertURL)
 }

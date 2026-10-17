@@ -41,7 +41,7 @@ const noExtensions = [];
 
 // StudioApp is intentionally only a Forge composition. Its data boundary is
 // StudioAPI, which maps one-for-one to the public Studio SDK operation names.
-export function StudioApp({ api, mode, subject, brand = 'Datly Studio', extensions = noExtensions, renderNamespaceSkills, onSignOut }) {
+export function StudioApp({ api, mode, subject, brand = 'Data Studio', extensions = noExtensions, renderNamespaceSkills, onSignOut }) {
   const [skillEditing, setSkillEditing] = useState(false);
   const [section, setSection] = useState('overview');
   const [reports, setReports] = useState([]);

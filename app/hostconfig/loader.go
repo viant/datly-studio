@@ -42,6 +42,29 @@ func Load(ctx context.Context, location string) (*Config, error) {
 		}
 		return nil, errors.New("host configuration could not be loaded")
 	}
+	return LoadDocument(ctx, location, data)
+}
+
+// LoadDocument resolves an already captured document at its original URL. Hosts
+// can remove private extension fields without temporary files or a second read.
+func LoadDocument(ctx context.Context, location string, data []byte) (*Config, error) {
+	if ctx == nil {
+		return nil, errors.New("host configuration context is required")
+	}
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	if strings.TrimSpace(location) == "" {
+		return nil, errors.New("host configuration URL is required")
+	}
+	if !strings.Contains(location, "://") {
+		var err error
+		location, err = filepath.Abs(location)
+		if err != nil {
+			return nil, err
+		}
+	}
+	fs := afs.New()
 	result, err := Decode(data)
 	if err != nil {
 		return nil, err

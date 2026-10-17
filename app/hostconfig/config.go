@@ -19,6 +19,14 @@ import (
 // HTTP listener; MCP is authoring/admin MCP. NamespaceMCP is the default shared
 // listener for database-discovered publications. Embedders register extensions
 // through Go APIs, not executable code or namespace lists in this document.
+type Login struct {
+	AuthorizationURL string
+	TokenURL         string
+	ClientID         string
+	ClientSecret     *scy.Resource
+	Scopes           []string
+}
+
 type Config struct {
 	datly.Config
 	// Store is the one Studio metadata storage connection. Application data
@@ -33,6 +41,7 @@ type Config struct {
 	// Omission generates a process-local key and invalidates sessions on restart.
 	SessionKey *scy.Resource
 	StaticRoot string
+	Login      *Login
 }
 
 // Decode accepts one YAML or JSON object without resolving secrets or opening

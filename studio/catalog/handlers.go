@@ -19,7 +19,6 @@ import (
 	xhandler "github.com/viant/xdatly/handler"
 	xresponse "github.com/viant/xdatly/response"
 	"net/url"
-	"os"
 	"reflect"
 	"sort"
 	"strings"
@@ -274,11 +273,7 @@ func runResource(ctx context.Context, session xhandler.Session, input *ResourceI
 // A persisted enable flag is not proof that a listener is running. Resolve the
 // active generation's exported connection for both discovery and retrieval.
 func connection(ctx context.Context, row *stored.StoredNamespace) (*mcpconfig.MCPClient, error) {
-	origin := os.Getenv("STUDIO_DYNAMIC_HTTP_URL")
-	if origin == "" {
-		origin = "http://127.0.0.1:8082"
-	}
-	client, err := runtimeadmin.New(origin, os.Getenv("STUDIO_RUNTIME_ADMIN_TOKEN"), nil)
+	client, err := runtimeadmin.Resolve(ctx)
 	if err != nil {
 		return nil, fail(503, "namespace runtime administration is not configured")
 	}

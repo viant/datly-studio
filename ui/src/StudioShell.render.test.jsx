@@ -36,7 +36,7 @@ describe('StudioShell authentication boundary',()=>{
     vi.stubGlobal('fetch',fetcher);
     render(<StudioShell config={directConfig}/>);
     await user.click(await screen.findByRole('button',{name:'Sign out'}));
-    expect(await screen.findByRole('heading',{name:'Sign in to Datly Studio'})).toBeTruthy();
+    expect(await screen.findByRole('heading',{name:'Sign in to Data Studio'})).toBeTruthy();
     expect(fetcher.mock.calls[1][1]).toEqual(expect.objectContaining({method:'DELETE',credentials:'include'}));
   });
   test('passes optional host branding through the public embedding seam',async()=>{
@@ -72,6 +72,6 @@ describe('StudioShell authentication boundary',()=>{
     await user.click(screen.getByRole('button',{name:'Try again'}));
     expect(await screen.findByText('Ready as alice')).toBeTruthy();
     await user.click(screen.getByRole('button',{name:'Trigger expired API'}));
-    expect(await screen.findByRole('heading',{name:'Sign in to Datly Studio'})).toBeTruthy();
+    expect(await screen.findByRole('heading',{name:'Sign in to Data Studio'})).toBeTruthy();
   });
 });
