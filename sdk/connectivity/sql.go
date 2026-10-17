@@ -22,10 +22,15 @@ func (p SQLProbe) Probe(ctx context.Context, connector *sdk.Connector) (*sdk.Con
 		return nil, fmt.Errorf("connector is required")
 	}
 	driver := resolveDriver(strings.ToLower(strings.TrimSpace(connector.Driver)))
-	switch driver {
-	case "sqlite", "sqlite3", "mysql", "postgres", "pgx", "bigquery", "oracle":
-	default:
-		return nil, fmt.Errorf("unsupported SQL connector driver %q", connector.Driver)
+	linked := false
+	for _, candidate := range sql.Drivers() {
+		if candidate == driver {
+			linked = true
+			break
+		}
+	}
+	if !linked {
+		return nil, fmt.Errorf("SQL connector driver %q is not linked by the host", connector.Driver)
 	}
 	dsn, err := connectorsecret.Resolve(ctx, p.Secrets, connector.DSNTemplate, connector.SecretRef)
 	if err != nil {

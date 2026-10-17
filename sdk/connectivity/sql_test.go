@@ -10,7 +10,7 @@ import (
 	"github.com/viant/datly-studio/sdk"
 	// Match the native executable, where a transitive import registers the CGO stub too.
 	_ "github.com/mattn/go-sqlite3"
-	_ "modernc.org/sqlite"
+	"modernc.org/sqlite"
 )
 
 func TestResolveDriverUsesLinkedSQLiteDriver(t *testing.T) {
@@ -37,6 +37,24 @@ func TestSQLProbeResolvesServerHeldSecret(t *testing.T) {
 	})}
 	result, err := probe.Probe(context.Background(), &sdk.Connector{Name: "main", Driver: "sqlite", DSNTemplate: "${Database}", SecretRef: "secret://database"})
 	if err != nil || result.Status != "passed" {
+		t.Fatalf("result=%+v err=%v", result, err)
+	}
+}
+
+func init() { sql.Register("linked_test_sqlite", &sqlite.Driver{}) }
+
+func TestSQLProbeAcceptsHostLinkedDriver(t *testing.T) {
+	result, err := (SQLProbe{}).Probe(context.Background(), &sdk.Connector{
+		Name: "custom", Driver: "linked_test_sqlite", DSNTemplate: "file:" + filepath.Join(t.TempDir(), "custom.db"),
+	})
+	if err != nil || result == nil || result.Status != "passed" {
+		t.Fatalf("result=%+v err=%v", result, err)
+	}
+}
+
+func TestSQLProbeRejectsUnlinkedDriver(t *testing.T) {
+	result, err := (SQLProbe{}).Probe(context.Background(), &sdk.Connector{Name: "missing", Driver: "not_linked_driver", DSNTemplate: "unused"})
+	if err == nil || result != nil {
 		t.Fatalf("result=%+v err=%v", result, err)
 	}
 }
