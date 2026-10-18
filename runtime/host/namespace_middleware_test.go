@@ -25,3 +25,23 @@ func TestNamespaceHTTPMiddlewareRetainsEndpointIsolation(t *testing.T) {
 		}
 	}
 }
+
+func TestNativeNamespaceHandlerPreservesAuthenticationWithoutComposition(t *testing.T) {
+	for _, mode := range []string{"required", "public"} {
+		composed := false
+		source := &namespaceRuntimeSource{runtime: &Service{config: Config{
+			Authentication:          Authentication{DefaultMode: mode},
+			NamespaceHTTPMiddleware: func(_ namespacemcp.Endpoint, next http.Handler) http.Handler { composed = true; return next },
+		}}}
+		handler := source.WrapNativeHTTP(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(204) }))
+		w := httptest.NewRecorder()
+		handler.ServeHTTP(w, httptest.NewRequest("POST", "/mcp", nil))
+		want := 204
+		if mode == "required" {
+			want = 401
+		}
+		if w.Code != want || composed {
+			t.Fatalf("mode=%s status=%d composed=%t", mode, w.Code, composed)
+		}
+	}
+}

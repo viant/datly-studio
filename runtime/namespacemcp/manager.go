@@ -48,6 +48,7 @@ type instance struct {
 	endpoint      Endpoint
 	requestedPort int
 	server        *http.Server
+	native        http.Handler
 	done          chan struct{}
 	cleanup       func(context.Context) error
 	reload        func(context.Context, int64) error
@@ -58,6 +59,7 @@ type instance struct {
 	cancel        context.CancelFunc
 	lifetime      context.Context
 	drain         sync.Once
+	drained       chan struct{}
 }
 
 type Manager struct {
@@ -239,6 +241,12 @@ func (m *Manager) start(ctx context.Context, id string, port int, replace bool, 
 	if err = ctx.Err(); err != nil {
 		return Endpoint{}, err
 	}
+	var native http.Handler
+	if wrapper, ok := owner.(interface {
+		WrapNativeHTTP(http.Handler) http.Handler
+	}); ok {
+		native = wrapper.WrapNativeHTTP(server.Handler)
+	}
 	if wrapper, ok := owner.(interface {
 		WrapHTTP(http.Handler) http.Handler
 	}); ok {
@@ -254,10 +262,8 @@ func (m *Manager) start(ctx context.Context, id string, port int, replace bool, 
 	}); ok {
 		connection = source.RuntimeConnection
 	}
-	entry := &instance{endpoint: endpoint, requestedPort: port, server: server, done: make(chan struct{}), cleanup: cleanup, reload: reload, status: status, connection: connection, shared: useShared}
-	if useShared {
-		entry.lifetime, entry.cancel = context.WithCancel(context.Background())
-	}
+	entry := &instance{endpoint: endpoint, requestedPort: port, server: server, done: make(chan struct{}), cleanup: cleanup, reload: reload, status: status, connection: connection, shared: useShared, native: native, drained: make(chan struct{})}
+	entry.lifetime, entry.cancel = context.WithCancel(context.Background())
 	err = func() error {
 		m.mu.Lock()
 		defer m.mu.Unlock()
@@ -307,26 +313,10 @@ func stop(ctx context.Context, entry *instance) error {
 	if entry == nil {
 		return nil
 	}
+	entry.cancel()
+	entry.drain.Do(func() { go func() { entry.requests.Wait(); close(entry.drained) }() })
 	if entry.shared {
-		entry.cancel()
-		entry.drain.Do(func() { go func() { entry.requests.Wait(); close(entry.done) }() })
-		select {
-		case <-entry.done:
-			if entry.cleanup != nil {
-				return entry.cleanup(ctx)
-			}
-			return nil
-		case <-ctx.Done():
-			go func() {
-				<-entry.done
-				if entry.cleanup != nil {
-					cleanupCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-					defer cancel()
-					_ = entry.cleanup(cleanupCtx)
-				}
-			}()
-			return ctx.Err()
-		}
+		return drainAndCleanup(ctx, entry)
 	}
 	err := entry.server.Shutdown(ctx)
 	if err != nil {
@@ -337,10 +327,7 @@ func stop(ctx context.Context, entry *instance) error {
 	case <-ctx.Done():
 		err = errors.Join(err, ctx.Err())
 	}
-	if entry.cleanup != nil {
-		err = errors.Join(err, entry.cleanup(ctx))
-	}
-	return err
+	return errors.Join(err, drainAndCleanup(ctx, entry))
 }
 func (m *Manager) Reload(ctx context.Context, id string, generation int64) error {
 	if generation < 0 {
@@ -460,4 +447,49 @@ func (m *Manager) Connection(ctx context.Context, id string) (json.RawMessage, e
 		return nil, fmt.Errorf("namespace connection is unavailable")
 	}
 	return entry.connection(ctx)
+}
+
+// drainAndCleanup prevents source disposal while an embedded request still owns it.
+func drainAndCleanup(ctx context.Context, entry *instance) error {
+	select {
+	case <-entry.drained:
+		if entry.cleanup != nil {
+			return entry.cleanup(ctx)
+		}
+		return nil
+	case <-ctx.Done():
+		go func() {
+			<-entry.drained
+			if entry.cleanup != nil {
+				cleanupCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+				defer cancel()
+				_ = entry.cleanup(cleanupCtx)
+			}
+		}()
+		return ctx.Err()
+	}
+}
+
+// NativeHandler forwards to the currently active namespace transport without
+// invoking host composition middleware. Only sources explicitly exposing a
+// protected native handler support this API. Authentication remains mandatory
+// according to that source's configuration. No runtime or listener is created.
+func (m *Manager) NativeHandler(id string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		m.mu.Lock()
+		entry := m.entries[id]
+		if m.closed || entry == nil || entry.native == nil {
+			m.mu.Unlock()
+			http.Error(w, "namespace runtime unavailable", http.StatusServiceUnavailable)
+			return
+		}
+		entry.requests.Add(1)
+		m.mu.Unlock()
+		defer entry.requests.Done()
+		ctx, cancel := context.WithCancel(r.Context())
+		defer cancel()
+		detach := context.AfterFunc(entry.lifetime, cancel)
+		defer detach()
+		entry.native.ServeHTTP(w, r.Clone(ctx))
+	})
 }

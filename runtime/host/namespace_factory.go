@@ -53,6 +53,11 @@ func (s *namespaceRuntimeSource) WrapHTTP(next http.Handler) http.Handler {
 	if wrap := s.runtime.config.NamespaceHTTPMiddleware; wrap != nil {
 		next = wrap(s.endpoint, next)
 	}
+	return s.WrapNativeHTTP(next)
+}
+
+// WrapNativeHTTP protects the native transport independently of host composition.
+func (s *namespaceRuntimeSource) WrapNativeHTTP(next http.Handler) http.Handler {
 	if s.runtime.config.ToolCallAudit != nil {
 		next = s.runtime.config.ToolCallAudit.Wrap(next)
 	}

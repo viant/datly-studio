@@ -614,3 +614,23 @@ status schema fields.
 AI Studio's private report SDK follows the same endpoint rule within AI
 Studio. This does not move private report code or product names into
 Datly Studio.
+
+## Reusing a loaded namespace transport
+
+An embedding host can call `NamespaceGroup.Listeners.NativeHandler(namespaceID)`
+to compose the existing namespace MCP transport into its own MCP gateway. Resolve
+`namespaceID` from trusted persisted configuration. This creates neither a runtime
+nor another listener: each request selects the currently active instance, including
+a replacement after rebind. Missing or stopped instances return HTTP 503.
+
+The native handler retains the source's authentication, OAuth discovery, CORS and
+tool audit boundaries, but omits `NamespaceHTTPMiddleware` to avoid recursive host
+composition. The SDK namespace source implements `WrapNativeHTTP` for this purpose;
+custom sources must explicitly implement that protected-handler contract. A raw,
+unprotected fallback is never exposed. Host composition may add its own authorization
+but must still forward the caller's verified credentials to the native boundary.
+
+Both shared and dedicated listeners cancel embedded requests on withdrawal and
+wait for them to drain before disposing the runtime source. A shutdown deadline
+returns promptly while deferred cleanup waits for outstanding requests. The host
+continues to own publication reload scheduling through `Listeners.Reload`.
