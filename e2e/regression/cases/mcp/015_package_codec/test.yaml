@@ -109,7 +109,8 @@ pipeline:
           #setting($_ = $connector('codecs'))
           #setting($_ = $route('/codecs', 'GET'))
           #setting($_ = $mcp('codecs.read','Read consumer customers'))
-          #define($_ = $Tenant<string>(query/tenant).Required().WithCodec('github.com/viant/datly-studio/e2e/codecs.Tenant').WithPredicate(0,'equal','c','tenant'))
+          #import('consumer','github.com/viant/datly-studio/e2e/predicates')
+          #define($_ = $Tenant<string>(query/tenant).Required().WithCodec('github.com/viant/datly-studio/e2e/codecs.Tenant').WithPredicate(0,'handler','consumer.CustomerScope'))
           #define($_ = $Rows<[]*Customer>(output/view))
           SELECT customers.*, type(customers,'Customer') FROM (SELECT c.id,c.tenant,c.name,c.active FROM customers c WHERE 1=1 ${predicate.Builder().CombineAnd($predicate.FilterGroup(0, "AND")).Build("AND")}) customers
     allowToolError: true
@@ -168,6 +169,64 @@ pipeline:
       StructuredContent:
         evidence:
           returnedRows: 3
+  previewValues:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $preview.StructuredContent.data
+    expect:
+      '@length@rows': 3
+      rows:
+        '@indexBy@': id
+        1:
+          tenant: alpha
+          name: Ada
+        2:
+          tenant: alpha
+          name: Lin
+        4:
+          tenant: alpha
+          name: No orders
+  invalidPreview:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.preview.execute
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      input:
+        input:
+          Tenant: 'alpha OR 1=1'
+        limit: 20
+    allowToolError: true
+    allowProtocolError: true
+  invalidPreviewRejected:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $invalidPreview.IsError
+    expect: true
+  predicateTypes:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.authorization_predicates.types
+    arguments: {}
+  predicateTypesSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $predicateTypes.IsError
+    expect: false
+  codecAbsentFromPredicateTypes:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $predicateTypes.StructuredContent.items
+    expect:
+      '@indexBy@': typeName
+      '@exists@Tenant': false
+      CustomerScope:
+        packagePath: github.com/viant/datly-studio/e2e/predicates
+        typeName: CustomerScope
   publishHostReady:
     action: mcp/runner:call
     url: $nativeMCP

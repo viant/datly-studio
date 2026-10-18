@@ -732,3 +732,26 @@ and exact-version diagnostics. The native run-access integration test verifies
 selection retention and still denies a foreign namespace owned by the same user.
 Tests passed for `internal/versionrun`, `studio/reports/store_run_access`, and
 `runtime/preview`. Log: `.data/preview-namespace-endly-mcp-group1.log` (ignored).
+
+## 2026-10-18: codec preview boundaries
+
+Extended MCP case `015_package_codec` with exact preview rows for normalized
+` ALPHA ` input, invalid preview input rejection, and verification that `Tenant`
+is absent from the authorization-predicate type picker while `CustomerScope`
+remains available. The existing published execution and registration rejection
+checks remain in the same directory-owned case.
+
+Focused case passed; all 16 MCP cases then passed with fresh shared DSUnit setup
+using explicit `testMCP_<case>` selectors. Evidence: ignored local
+`.data/e2e/evidence/codec-preview-regression.log` and
+`.data/e2e/evidence/codec-mcp-group-regression2.log`.
+The first group attempt selected the unsupported literal `testMCP_*` and ran
+no cases; it is not counted as acceptance evidence. Browser cases were not run
+for this workflow-only change.
+
+The same case now composes the linked `Tenant` codec with package-scanned
+`CustomerScope` on one input. Exact alpha/beta rows prove normalization happens
+before predicate binding in preview and published execution. The focused run
+passed in 4,373 ms and the full 16-case MCP group passed in 21,925 ms; logs:
+`.data/e2e/evidence/codec-predicate-composition.log` and
+`.data/e2e/evidence/codec-predicate-mcp-group.log`.

@@ -82,9 +82,10 @@ execution. This case owns its namespace and consumer table.
 `regression/cases/mcp/015_package_codec/test.yaml` owns the codec lifecycle case.
 The fixture links `e2e/codecs` and approves its synthetic `Tenant` codec using
 `host.RegisterCodecPackage`. The case imports DQL through the SDK, validates it,
-previews a normalized tenant filter, publishes the revision and invokes it through
-namespace MCP. It checks returned row values, rejects invalid codec input and
-rejects registering the codec as an authorization predicate. Consumer rows are
+normalizes the tenant through its linked codec before binding the linked
+`CustomerScope` predicate, publishes the revision and invokes it through namespace MCP. It checks exact normalized preview rows and published row values, rejects invalid
+codec input in both preview and published execution, verifies the codec is absent
+from the authorization-predicate picker, and rejects registering it as a predicate. Consumer rows are
 hydrated during shared DSUnit setup; the case imports its own reader afterward.
 Run it through the same directory-template MCP group as the predicate cases.
 For a focused run after building the fixture, use path selection so unrelated
