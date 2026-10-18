@@ -181,18 +181,18 @@ ConstURL: constants/e2e.yaml
 
 ```yaml
 # constants/e2e.yaml
-ARProject: ar-e2e
-ARStudiesDataset: studies
+DataProject: example-e2e
+DataDataset: analytics
 ```
 
 Authored DQL can declare production defaults using Datly's existing syntax:
 
 ```text
-#setting($_ = $const('ARProject', 'viant-dap'))
-#setting($_ = $const('ARStudiesDataset', 'studies'))
+#setting($_ = $const('DataProject', 'example-production'))
+#setting($_ = $const('DataDataset', 'analytics'))
 ```
 
-SQL identifiers use `${ARProject}.${ARStudiesDataset}.Consumer_Sentiment_Survey_FACT`
+SQL identifiers use `${DataProject}.${DataDataset}.records`
 inside BigQuery backticks. The deployment mapping overrides these defaults without
 changing stored source. Use separate dataset constants for separate source datasets;
 table names remain exact. Constants are trusted host configuration, not preview
@@ -202,7 +202,7 @@ and endpoint; constants do not translate SQL or replace a BigQuery connector.
 Catalog connector DSN templates can reference the same deployment constants:
 
 ```text
-bigquery://${ARProjectViantDap}/${ARDatasetViantDap_Studies}?emulator=true&endpoint=http%3A%2F%2F127.0.0.1%3A19050%2Fbigquery%2Fv2%2F
+bigquery://${DataProject}/${DataDataset}?emulator=true&endpoint=http%3A%2F%2F127.0.0.1%3A19050%2Fbigquery%2Fv2%2F
 ```
 
 Known instance constants expand in the private connection configuration before

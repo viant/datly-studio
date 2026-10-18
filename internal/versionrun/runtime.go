@@ -87,7 +87,7 @@ func Authorized(ctx context.Context, session xhandler.Session, claims *jwt.Claim
 	}
 	executionCtx, cancel := context.WithTimeout(ctx, timeout)
 	executionCtx = sdk.WithPrincipal(executionCtx, sdk.Principal{Subject: claims.Subject})
-	engine := preview.Dynamic{StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, ReaderCaches: authoring.ReaderCaches(), Dependencies: authoring.Dependencies()}
+	engine := preview.Dynamic{Const: authoring.Constants(), StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, ReaderCaches: authoring.ReaderCaches(), Dependencies: authoring.Dependencies()}
 	aclProvider, err := accessprovider.FromEnvironment(executionCtx)
 	if err != nil {
 		cancel()

@@ -9,6 +9,7 @@ import (
 	"encoding/pem"
 	"fmt"
 	"github.com/viant/datly-studio/studio/host"
+	"github.com/viant/datly/constant"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -70,7 +71,11 @@ func TestAuthorizedRetainsNativeBearerAndServerAuthority(t *testing.T) {
 	claims.Subject = "alice"
 	auth := &studioauth.Output{Auth: &studioauth.AuthContext{Subject: "alice"}}
 	binder := &testBinder{db: new(sql.DB), allowed: true, bearer: "Bearer native-token"}
-	authoring, err := host.NewAuthoring(host.AuthoringConfig{ModulePath: "example.com/embedding-app"})
+	values, err := constant.New(map[string]string{"DataProject": "example-e2e"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	authoring, err := host.NewAuthoring(host.AuthoringConfig{Const: values, ModulePath: "example.com/embedding-app"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -81,6 +86,9 @@ func TestAuthorizedRetainsNativeBearerAndServerAuthority(t *testing.T) {
 		t.Fatal(err)
 	}
 	cancel()
+	if value, ok := engine.Const.Lookup("DataProject"); !ok || value != "example-e2e" {
+		t.Fatal("authenticated execution lost host constants")
+	}
 	if engine.ModulePath != "example.com/embedding-app" {
 		t.Fatalf("preview ignored host module: %s", engine.ModulePath)
 	}
