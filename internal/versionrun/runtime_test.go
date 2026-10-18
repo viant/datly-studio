@@ -40,7 +40,9 @@ type testBinder struct {
 }
 
 func (b *testBinder) Bind(_ context.Context, target any) error {
-	reflect.ValueOf(target).Elem().FieldByName("Authorization").SetString(b.bearer)
+	if field := reflect.ValueOf(target).Elem().FieldByName("Authorization"); field.IsValid() {
+		field.SetString(b.bearer)
+	}
 	return nil
 }
 func (b *testBinder) Lookup(_ context.Context, key xhandler.ValueKey) (any, bool, error) {

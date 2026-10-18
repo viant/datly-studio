@@ -720,3 +720,15 @@ and then all 16 `testMCP_*` IDs. Logs are ignored at
 Pinned-module Go tests also passed for `runtime/host`, `app/studiohost`, and
 `e2e/cmd/fixture`. This run covered MCP behavior, not browser flows or application
 reporting acceptance.
+
+### Native preview namespace propagation
+
+The same full 16-case MCP group passed again (17/17 with setup, 22.0s) after
+adding a pre-publication preview assertion to `016_namespace_composition`.
+The linked dependency resolver checks the selected persisted namespace, and the
+preview returns four actual rows. `versionrun.Authorized` now retains the optional
+transport namespace selection after native run-access authorization, for preview
+and exact-version diagnostics. The native run-access integration test verifies
+selection retention and still denies a foreign namespace owned by the same user.
+Tests passed for `internal/versionrun`, `studio/reports/store_run_access`, and
+`runtime/preview`. Log: `.data/preview-namespace-endly-mcp-group1.log` (ignored).

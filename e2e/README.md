@@ -98,8 +98,9 @@ endly -selector-mode=path -r=run -t=cleanupPrevious,setup,test -i=testMCP_packag
 
 `regression/cases/mcp/016_namespace_composition/test.yaml` creates its namespace
 after fixture startup, imports and publishes its own reader, then calls the linked
-`composition.count` handler through namespace MCP. The handler invokes that
-generation's reader in memory and checks four synthetic consumer rows. The case
+`composition.count` handler through namespace MCP. Before publication, preview verifies that the host dependency resolver receives
+the selected namespace. The handler invokes that generation's reader in memory
+and checks four synthetic consumer rows. The case
 also checks anonymous denial and that a second, generic namespace cannot invoke
 the linked handler. The fixture resolves the extension from the persisted
 namespace identity; no namespace IDs are configured before startup. All consumer

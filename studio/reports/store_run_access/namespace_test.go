@@ -3,6 +3,7 @@ package store_run_access_test
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -156,11 +157,19 @@ type runOutput struct {
 type runHandler struct{}
 
 func (*runHandler) Exec(ctx context.Context, session xhandler.Session, input *runInput, output *runOutput) error {
-	_, _, cancel, err := versionrun.Authorized(ctx, session, input.Jwt, input.Auth, input.ReportID, input.VersionNo, time.Second)
+	executionCtx, _, cancel, err := versionrun.Authorized(ctx, session, input.Jwt, input.Auth, input.ReportID, input.VersionNo, time.Second)
 	if err != nil {
 		return err
 	}
 	defer cancel()
+	selected, found := sdk.NamespaceSelectionFromContext(executionCtx)
+	if input.NamespaceId == nil {
+		if found {
+			return fmt.Errorf("unselected execution gained namespace %q", selected)
+		}
+	} else if !found || selected != *input.NamespaceId {
+		return fmt.Errorf("authorized execution lost namespace selection: %q", selected)
+	}
 	output.Allowed = true
 	return nil
 }

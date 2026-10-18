@@ -87,6 +87,20 @@ func Authorized(ctx context.Context, session xhandler.Session, claims *jwt.Claim
 	}
 	executionCtx, cancel := context.WithTimeout(ctx, timeout)
 	executionCtx = sdk.WithPrincipal(executionCtx, sdk.Principal{Subject: claims.Subject})
+	// The native run-access predicate has already checked this transport
+	// selection against the resource. Retain it for host-owned dependency
+	// resolution in preview and exact-version diagnostics, never as authority.
+	var selection struct {
+		NamespaceID *string `bind:"kind=header,in=X-Studio-Namespace"`
+	}
+	if err := session.Binder().Bind(ctx, &selection); err != nil {
+		cancel()
+		return nil, preview.Dynamic{}, nil, publisherguard.PublicError(400, "namespace selection is invalid")
+	}
+	if selection.NamespaceID != nil {
+		executionCtx = sdk.WithNamespaceSelection(executionCtx, *selection.NamespaceID)
+	}
+
 	engine := preview.Dynamic{Const: authoring.Constants(), StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, ReaderCaches: authoring.ReaderCaches(), Dependencies: authoring.Dependencies()}
 	aclProvider, err := accessprovider.FromEnvironment(executionCtx)
 	if err != nil {

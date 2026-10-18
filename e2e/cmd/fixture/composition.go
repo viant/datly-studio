@@ -9,6 +9,8 @@ import (
 	"reflect"
 
 	runtimehost "github.com/viant/datly-studio/runtime/host"
+	"github.com/viant/datly-studio/runtime/preview"
+	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly/application"
 	"github.com/viant/datly/bootstrap"
 	dexec "github.com/viant/datly/exec"
@@ -114,5 +116,33 @@ func compositionResolver(db *sql.DB) runtimehost.NamespaceBuildResolver {
 			}
 			return nil
 		}, nil
+	}
+}
+
+// Observe the native preview dependency seam. Returning no extra components
+// keeps the actual reader unchanged while detecting lost namespace context.
+func compositionPreview(db *sql.DB) preview.DependencyResolver {
+	return func(ctx context.Context, component *spec.Component) (*preview.DependencyRuntime, error) {
+		selectedReader := false
+		for _, route := range component.Routes {
+			if route.Path == "/composed" {
+				selectedReader = true
+			}
+		}
+		if !selectedReader {
+			return nil, nil
+		}
+		id, found := sdk.NamespaceSelectionFromContext(ctx)
+		if !found {
+			return nil, fmt.Errorf("preview dependency lost selected namespace")
+		}
+		var name string
+		if err := db.QueryRowContext(ctx, "SELECT name FROM namespaces WHERE namespace_id=? AND status='active'", id).Scan(&name); err != nil {
+			return nil, err
+		}
+		if name != "composed" {
+			return nil, fmt.Errorf("preview dependency received foreign namespace")
+		}
+		return nil, nil
 	}
 }

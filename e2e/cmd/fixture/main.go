@@ -162,7 +162,7 @@ func serve(root, dir string) {
 	defer group.Close(context.Background())
 	go func() { check(group.Run(ctx, 100*time.Millisecond, nil)) }()
 	go func() {
-		if code := datlycmd.Run(ctx, []string{"run", "-conf", filepath.Join(dir, "native.json")}, os.Stdout, os.Stderr); code != 0 {
+		if code := datlycmd.RunWithOptions(ctx, []string{"run", "-conf", filepath.Join(dir, "native.json")}, os.Stdout, os.Stderr, datlycmd.Options{Authoring: &studiohost.AuthoringConfig{Dependencies: compositionPreview(compositionDB)}}); code != 0 {
 			cancel()
 		}
 	}()

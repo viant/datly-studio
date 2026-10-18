@@ -143,6 +143,27 @@ pipeline:
     actual: $validate
     expect:
       IsError: false
+  preview:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.preview.execute
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      input:
+        input: {}
+        limit: 20
+  previewNamespaceRetained:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $preview
+    expect:
+      IsError: false
+      StructuredContent:
+        evidence:
+          returnedRows: 4
   publishHostReady:
     action: mcp/runner:call
     url: $nativeMCP
