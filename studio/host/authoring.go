@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/viant/datly-studio/runtime/accesscontext"
 	"github.com/viant/datly-studio/runtime/preview"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
 	"github.com/viant/datly/spec"
@@ -45,15 +44,8 @@ func NewAuthoring(config AuthoringConfig) (*Authoring, error) {
 		return nil, err
 	}
 	// Catalog construction captures the supplied slices and environment once.
-	predicates, err := config.Config.PredicateCatalog()
+	predicates, types, err := config.Config.RuntimeCatalogs()
 	if err != nil {
-		return nil, err
-	}
-	types, err := predicates.RuntimeTypes()
-	if err != nil {
-		return nil, err
-	}
-	if err := accesscontext.RegisterTypes(types); err != nil {
 		return nil, err
 	}
 	return &Authoring{constants: config.Const, module: name, predicates: predicates, types: types, readerCaches: cloneReaderCaches(config.ReaderCaches), dependencies: config.Dependencies}, nil

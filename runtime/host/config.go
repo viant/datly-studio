@@ -17,6 +17,7 @@ import (
 	"net/http"
 
 	access "github.com/viant/authz"
+	"github.com/viant/datly-studio/studio/codeccatalog"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
 	forgemcp "github.com/viant/forge/backend/provider"
 	mcpprotocol "github.com/viant/mcp/server"
@@ -117,6 +118,7 @@ type Config struct {
 	// DecisionProvider is supplied by the embedding process, never by YAML.
 	DecisionProvider  access.DecisionProvider    `yaml:"-"`
 	PredicatePackages []predicatecatalog.Package `yaml:"-"`
+	CodecPackages     []codeccatalog.Package     `yaml:"-"`
 	HTTP              Listener                   `yaml:"HTTP"`
 	MCP               Listener                   `yaml:"MCP"`
 	Authentication    Authentication             `yaml:"Authentication"`

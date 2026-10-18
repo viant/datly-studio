@@ -100,3 +100,28 @@ services or side effects. Pointer and value receivers are supported. Discovery
 trims surrounding whitespace and adds optional `description` metadata to the
 v1 types response; empty descriptions are omitted. The discovered predicates
 window displays and searches this text. Existing handlers need no changes.
+
+## Runtime codecs
+
+Applications may also approve already-linked Go codecs independently of predicates:
+
+```go
+host.RegisterCodecPackage(codeccatalog.Package{
+    Path: "example.com/app/codecs",
+    Types: []reflect.Type{reflect.TypeFor[appcodecs.Filter]()},
+})
+```
+
+Import `studio/codeccatalog` and `studio/host` from this module. Register packages
+before creating a host. Alternatively pass `CodecPackages` in the authoring or
+runtime host's typed `Config`. Omitting `Types` discovers linked codec factories
+and instances in the approved package. Explicit types restrict that capability.
+The Go type must implement `xdatly/codec.Factory` or `xdatly/codec.Instance`.
+DQL references the fully qualified type with `WithCodec('example.com/app/codecs.Filter')`.
+Authoring validation, preview and published execution use the same runtime type
+catalog. Codecs are excluded from the authorization predicate catalog.
+
+Registration does not load Go source or plugins. A new Go implementation must be
+linked into the application binary; readers using an approved codec can be imported,
+validated and published without recompiling that binary. Existing host snapshots
+are unaffected by registrations performed later.

@@ -683,3 +683,21 @@ cannot replace user-info roles/features/grants, and mismatched subject, user ID,
 or account ID is denied. Skill publication tests also pass after removing the
 ordinary skill-tool alias assumption; native skill methods are not tool names.
 This is focused verification, not a full-suite or clean-checkout acceptance run.
+
+
+## Runtime codec extension — 2026-10-18 UTC
+
+The complete 15-case MCP directory group passed with a fresh SQLite catalog and
+shared DSUnit consumer hydration (Endly summary: 16/16 including setup, 20.7s).
+The new `015_package_codec` case imported, validated, previewed, published and
+invoked a reader using the host-approved synthetic `Tenant` codec. Assertions
+checked three normalized preview rows, the exact beta row from namespace MCP,
+invalid-input rejection and refusal to register the codec as an authorization
+predicate. The existing package-predicate preview now supplies its declared
+`Tenant` input name. These are MCP assertions; browser coverage was not run for
+this change.
+
+Command: `endly -selector-mode=path -r=run -t=cleanupPrevious,setup,test -i=<all 15 testMCP_* IDs>`.
+Local log: `.data/codec-e2e-mcp-group2.log` (ignored).
+Pinned-module Go tests passed for `studio/codeccatalog`, `studio/host`,
+`runtime/host` and `e2e/cmd/fixture` with `GOWORK=off`.

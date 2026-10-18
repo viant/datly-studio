@@ -76,3 +76,20 @@ Case `testWebDriver_ui_namespace_admin` creates resources as owner, manages
 namespaces as `namespace-admin`, verifies read-only controls for the differently
 cased role, and proves namespace administration does not grant component MCP
 execution. This case owns its namespace and consumer table.
+
+## Linked codec regression
+
+`regression/cases/mcp/015_package_codec/test.yaml` owns the codec lifecycle case.
+The fixture links `e2e/codecs` and approves its synthetic `Tenant` codec using
+`host.RegisterCodecPackage`. The case imports DQL through the SDK, validates it,
+previews a normalized tenant filter, publishes the revision and invokes it through
+namespace MCP. It checks returned row values, rejects invalid codec input and
+rejects registering the codec as an authorization predicate. Consumer rows are
+hydrated during shared DSUnit setup; the case imports its own reader afterward.
+Run it through the same directory-template MCP group as the predicate cases.
+For a focused run after building the fixture, use path selection so unrelated
+permission/browser groups are skipped:
+
+```sh
+endly -selector-mode=path -r=run -t=cleanupPrevious,setup,test -i=testMCP_package_codec
+```

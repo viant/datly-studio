@@ -1,0 +1,1 @@
+Host-linked codec: import DQL, validate, preview normalized filter, publish, invoke native MCP, reject invalid input; codec is absent from authorization predicate types.

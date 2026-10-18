@@ -83,18 +83,8 @@ func New(ctx context.Context, config Config) (*Service, error) {
 		studio.Close()
 		return nil, err
 	}
-	predicates, err := (studiohost.Config{PredicatePackages: config.PredicatePackages}).PredicateCatalog()
+	types, err := (studiohost.Config{PredicatePackages: config.PredicatePackages, CodecPackages: config.CodecPackages}).RuntimeTypes()
 	if err != nil {
-		studio.Close()
-		return nil, err
-	}
-	types, err := predicates.RuntimeTypes()
-	if err != nil {
-		studio.Close()
-		return nil, err
-	}
-	// Published DQL names the access-context output through its import path.
-	if err = accesscontext.RegisterTypes(types); err != nil {
 		studio.Close()
 		return nil, err
 	}

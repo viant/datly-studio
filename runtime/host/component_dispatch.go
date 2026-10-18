@@ -163,7 +163,7 @@ func (s *Service) componentRuntimeWithAuthority(ctx context.Context, ref Compone
 	if err := validateComponentReference(ref); err != nil {
 		return nil, windowprotocol.ComponentBinding{}, err
 	}
-	types, err := (studiohost.Config{PredicatePackages: s.config.PredicatePackages}).RuntimeTypes()
+	types, err := (studiohost.Config{PredicatePackages: s.config.PredicatePackages, CodecPackages: s.config.CodecPackages}).RuntimeTypes()
 	if err != nil {
 		return nil, windowprotocol.ComponentBinding{}, err
 	}

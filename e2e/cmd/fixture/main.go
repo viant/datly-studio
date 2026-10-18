@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"github.com/viant/authz"
 	"github.com/viant/datly-studio/app/datlycmd"
+	_ "github.com/viant/datly-studio/e2e/codecs"
 	"github.com/viant/datly-studio/e2e/predicates"
 	_ "github.com/viant/datly-studio/examples/predicates"
 	"github.com/viant/datly-studio/runtime/accessprovider"
