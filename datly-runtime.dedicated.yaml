@@ -6,7 +6,7 @@ Authentication:
   DefaultMode: public
 Studio:
   Driver: sqlite
-  DSN: file:.data/studio.db?cache=shared
+  DSN: file:.data/studio-current.db?cache=shared
 Admin:
   Token: datly-studio-dedicated-runtime
 RootDir: .

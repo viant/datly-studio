@@ -1,6 +1,6 @@
 {
   "mode": "development",
-  "apiBaseURL": "http://127.0.0.1:8080",
+  "apiBaseURL": "http://127.0.0.1:18080",
   "development": {
     "subject": "awitas"
   }
