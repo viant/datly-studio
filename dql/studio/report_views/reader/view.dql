@@ -18,7 +18,7 @@
 #define($_ = $Role<string>(query/role).Optional().WithPredicate(1, 'equal', 'v', 'role'))
 #define($_ = $SourceKind<string>(query/sourceKind).Optional().WithPredicate(1, 'equal', 'v', 'source_kind'))
 #define($_ = $Fields<[]string>(query/fields).Optional().QuerySelector('view'))
-#define($_ = $OrderBy<string>(query/orderBy).Optional().QuerySelector('view'))
+#define($_ = $OrderBy<[]string>(query/orderBy).Optional().QuerySelector('view'))
 #define($_ = $Limit<int>(query/limit).Optional().QuerySelector('view'))
 #define($_ = $Offset<int>(query/offset).Optional().QuerySelector('view'))
 #define($_ = $Views<[]*ReportView>(output/view))

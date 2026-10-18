@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
-	"strings"
 
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/predicateprojection"
@@ -28,35 +27,17 @@ type authorizationPredicateReader struct {
 // readAuthorizationPredicateRows invokes the generated, server-owned reader.
 // Invoke has already checked the SDK authorization before reaching this method.
 func (t *Transport) readAuthorizationPredicateRows(ctx context.Context, name string, byName bool, query, status string, limit, offset int) ([]*storedreader.StoredAuthorizationPredicate, error) {
+	if byName && name == "" {
+		return nil, nil
+	}
 	reader, err := t.authorizationPredicateReader()
 	if err != nil {
 		return nil, err
 	}
-	input := &storedreader.Input{}
-	if byName {
-		input.SetName(name)
+	if !byName {
+		name = ""
 	}
-	pattern := ""
-	if value := strings.TrimSpace(query); value != "" {
-		pattern = "%" + strings.ToLower(value) + "%"
-	}
-	input.SetSearchPattern(pattern)
-	input.SetStatus(status)
-	input.SetOrderBy("updated_at DESC, name ASC")
-	input.SetLimit(limit)
-	input.SetOffset(offset)
-	value, err := reader.runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: reader.target, Input: input})
-	if err != nil {
-		return nil, err
-	}
-	output, ok := value.(*storedreader.Output)
-	if !ok {
-		return nil, fmt.Errorf("authorization predicate reader returned %T", value)
-	}
-	if len(output.AuthorizationPredicates) > limit {
-		return nil, fmt.Errorf("authorization predicate reader exceeded page limit")
-	}
-	return output.AuthorizationPredicates, nil
+	return predicateprojection.Read(ctx, reader.runtime, name, query, status, limit, offset)
 }
 
 func (t *Transport) authorizationPredicateReader() (*authorizationPredicateReader, error) {

@@ -17,7 +17,7 @@
 #define($_ = $Status<string>(query/status).Optional().WithPredicate(1, 'equal', 'g', 'status'))
 #define($_ = $SourceRevision<string>(query/sourceRevision).Optional().WithPredicate(1, 'equal', 'g', 'source_revision'))
 #define($_ = $Fields<[]string>(query/fields).Optional().QuerySelector('generation'))
-#define($_ = $OrderBy<string>(query/orderBy).Optional().QuerySelector('generation'))
+#define($_ = $OrderBy<[]string>(query/orderBy).Optional().QuerySelector('generation'))
 #define($_ = $Limit<int>(query/limit).Optional().QuerySelector('generation'))
 #define($_ = $Offset<int>(query/offset).Optional().QuerySelector('generation'))
 #define($_ = $Generations<[]*RuntimeGeneration>(output/view))
