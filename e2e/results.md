@@ -683,3 +683,75 @@ cannot replace user-info roles/features/grants, and mismatched subject, user ID,
 or account ID is denied. Skill publication tests also pass after removing the
 ordinary skill-tool alias assumption; native skill methods are not tool names.
 This is focused verification, not a full-suite or clean-checkout acceptance run.
+
+
+## Runtime codec extension — 2026-10-18 UTC
+
+The complete 15-case MCP directory group passed with a fresh SQLite catalog and
+shared DSUnit consumer hydration (Endly summary: 16/16 including setup, 20.7s).
+The new `015_package_codec` case imported, validated, previewed, published and
+invoked a reader using the host-approved synthetic `Tenant` codec. Assertions
+checked three normalized preview rows, the exact beta row from namespace MCP,
+invalid-input rejection and refusal to register the codec as an authorization
+predicate. The existing package-predicate preview now supplies its declared
+`Tenant` input name. These are MCP assertions; browser coverage was not run for
+this change.
+
+Command: `endly -selector-mode=path -r=run -t=cleanupPrevious,setup,test -i=<all 15 testMCP_* IDs>`.
+Local log: `.data/codec-e2e-mcp-group2.log` (ignored).
+Pinned-module Go tests passed for `studio/codeccatalog`, `studio/host`,
+`runtime/host` and `e2e/cmd/fixture` with `GOWORK=off`.
+
+## Persisted namespace composition — 2026-10-18 UTC
+
+The complete 16-case MCP directory group passed with a fresh SQLite catalog and
+shared DSUnit hydration: Endly summary **17/17 including setup, 21.6s**.
+`016_namespace_composition` creates its namespace after the fixture starts,
+imports and publishes a customer reader, and invokes `composition.count` over
+namespace MCP. Its linked handler calls the published reader in memory and
+returns four synthetic rows. Anonymous invocation is denied, and a separate
+generic namespace does not expose the handler. The extension is selected by
+looking up the current namespace ID in the catalog, without configured IDs.
+
+The focused case passed first (5.8s). Commands use the directory-template IDs:
+`endly -selector-mode=path -r=run -t=cleanupPrevious,setup,test -i=testMCP_namespace_composition`
+and then all 16 `testMCP_*` IDs. Logs are ignored at
+`.data/composition-endly-focused3.log` and `.data/composition-endly-mcp-group1.log`.
+Pinned-module Go tests also passed for `runtime/host`, `app/studiohost`, and
+`e2e/cmd/fixture`. This run covered MCP behavior, not browser flows or application
+reporting acceptance.
+
+### Native preview namespace propagation
+
+The same full 16-case MCP group passed again (17/17 with setup, 22.0s) after
+adding a pre-publication preview assertion to `016_namespace_composition`.
+The linked dependency resolver checks the selected persisted namespace, and the
+preview returns four actual rows. `versionrun.Authorized` now retains the optional
+transport namespace selection after native run-access authorization, for preview
+and exact-version diagnostics. The native run-access integration test verifies
+selection retention and still denies a foreign namespace owned by the same user.
+Tests passed for `internal/versionrun`, `studio/reports/store_run_access`, and
+`runtime/preview`. Log: `.data/preview-namespace-endly-mcp-group1.log` (ignored).
+
+## 2026-10-18: codec preview boundaries
+
+Extended MCP case `015_package_codec` with exact preview rows for normalized
+` ALPHA ` input, invalid preview input rejection, and verification that `Tenant`
+is absent from the authorization-predicate type picker while `CustomerScope`
+remains available. The existing published execution and registration rejection
+checks remain in the same directory-owned case.
+
+Focused case passed; all 16 MCP cases then passed with fresh shared DSUnit setup
+using explicit `testMCP_<case>` selectors. Evidence: ignored local
+`.data/e2e/evidence/codec-preview-regression.log` and
+`.data/e2e/evidence/codec-mcp-group-regression2.log`.
+The first group attempt selected the unsupported literal `testMCP_*` and ran
+no cases; it is not counted as acceptance evidence. Browser cases were not run
+for this workflow-only change.
+
+The same case now composes the linked `Tenant` codec with package-scanned
+`CustomerScope` on one input. Exact alpha/beta rows prove normalization happens
+before predicate binding in preview and published execution. The focused run
+passed in 4,373 ms and the full 16-case MCP group passed in 21,925 ms; logs:
+`.data/e2e/evidence/codec-predicate-composition.log` and
+`.data/e2e/evidence/codec-predicate-mcp-group.log`.

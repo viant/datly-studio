@@ -290,6 +290,15 @@ mountStudio(document.getElementById('root'), { config, sdk });
 
 See [UI embedding](ui/embedding.md) for the extension contract.
 
+Embedding hosts can set `runtime/host.Config.NamespaceBuildResolver` to select an
+in-process build extension from the namespace ID supplied by the runtime. The
+resolver can consult application-owned persisted metadata, so newly created
+namespaces do not require operator configuration or a startup list of IDs. Returning
+`nil, nil` preserves generic behavior. Existing exact entries in
+`NamespaceBuildExtensions` take precedence. Resolution/composition errors close the
+candidate build and leave the previous generation available. These are trusted Go
+hooks excluded from YAML; they cannot load client-supplied Go code or plugins.
+
 ## Development
 
 Run the Go suite:

@@ -39,7 +39,7 @@ func TestGeneratedPackagesMatchCanonicalInventory(t *testing.T) {
 		"tool_call_audit":              true,
 	}
 	legacy := map[string]bool{"report_filters": true}
-	support := map[string]bool{"authorization": true, "host": true, "predicatecatalog": true, "resources": true, "preview": true, "runtime": true, "catalog": true}
+	support := map[string]bool{"codeccatalog": true, "authorization": true, "host": true, "predicatecatalog": true, "resources": true, "preview": true, "runtime": true, "catalog": true}
 	for root, label := range map[string]string{filepath.Join(repoRoot, "studio"): "generated Go", filepath.Join(repoRoot, "dql", "studio"): "DQL"} {
 		entries, err := os.ReadDir(root)
 		if err != nil {

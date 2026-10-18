@@ -1130,6 +1130,10 @@ github.com/viant/bigquery v0.5.4-0.20260927120042-a47888f8d2cc h1:tMKK7Wn8mjRtJy
 github.com/viant/bigquery v0.5.4-0.20260927120042-a47888f8d2cc/go.mod h1:L5VHC9DEQ1ZlR1yaSbCqnKf6GXz355EGBIbP+wx+wTk=
 github.com/viant/bigquery v0.5.4-0.20261017234417-20686a9ebfa4 h1:UsKMuRjK24TaDKsdtHntah5vYoKWVqAy6cWhRA1Ueag=
 github.com/viant/bigquery v0.5.4-0.20261017234417-20686a9ebfa4/go.mod h1:L5VHC9DEQ1ZlR1yaSbCqnKf6GXz355EGBIbP+wx+wTk=
+github.com/viant/bigquery v0.5.4-0.20261018035434-49f81303fc48 h1:v6+UqGVpxNTVWigg8UVxDUsMNvpynBpujO80GJdLUcQ=
+github.com/viant/bigquery v0.5.4-0.20261018035434-49f81303fc48/go.mod h1:L5VHC9DEQ1ZlR1yaSbCqnKf6GXz355EGBIbP+wx+wTk=
+github.com/viant/bigquery v0.5.4-0.20261018094240-7627f510d5d8 h1:HZmrG1ncvhaAh6fjrUBz7MVEkiTs9qaNUUdTKZ9g7E4=
+github.com/viant/bigquery v0.5.4-0.20261018094240-7627f510d5d8/go.mod h1:L5VHC9DEQ1ZlR1yaSbCqnKf6GXz355EGBIbP+wx+wTk=
 github.com/viant/bindly v0.4.1-0.20261011212616-2c051ae6bd9e h1:Jsx2KLz+XxxGx/cENZn5iSE1RUpGdvfq6oSOx1n++tw=
 github.com/viant/bindly v0.4.1-0.20261011212616-2c051ae6bd9e/go.mod h1:2S+CsLqdGI1+s7BSuEWx/+ew8p+/Ax7Xi3HKGiE3/O8=
 github.com/viant/bindly v0.4.1-0.20261017023851-b39a34a62792 h1:lZLdEnaBctE2C5B9MMyLet/Yb11zlJqlf5d4tlmPYro=
@@ -1142,6 +1146,8 @@ github.com/viant/datly v1.1.1-0.20261018093916-5980c71bdc02 h1:1E3X1oFfhh3RC0fAo
 github.com/viant/datly v1.1.1-0.20261018093916-5980c71bdc02/go.mod h1:Zo++HN1I4Un36NiliGVCVlJttawrigNhJ9A78vbKVMg=
 github.com/viant/datly v1.1.1-0.20261018095000-53df1ed78b12 h1:Cc6idfUTDIV6PVhhQ9v9L3vbiyvtGskqBFcoTbaapqU=
 github.com/viant/datly v1.1.1-0.20261018095000-53df1ed78b12/go.mod h1:Zo++HN1I4Un36NiliGVCVlJttawrigNhJ9A78vbKVMg=
+github.com/viant/datly v1.1.1-0.20261018095247-8b68ea560546 h1:vw0WCw1iDniUP3WvjgKh6Lv2Uum+IJCeiPdo6f7oxRc=
+github.com/viant/datly v1.1.1-0.20261018095247-8b68ea560546/go.mod h1:Zo++HN1I4Un36NiliGVCVlJttawrigNhJ9A78vbKVMg=
 github.com/viant/forge v0.3.45-0.20261015011117-38bb1cf13641 h1:yA6VXuZfTdnbkxDY3MN6NKiKavfsg/fjxQmlKqS5KDw=
 github.com/viant/forge v0.3.45-0.20261015011117-38bb1cf13641/go.mod h1:asQHHCMbgC0d3pc0dm+GFFQ5cDyzjG0qN86vrW85rCY=
 github.com/viant/forge v0.3.45-0.20261017190953-b07e77a0fe24 h1:NOie2I6rMGs4jEFkteWrk8wQKivwr6dN9nciKLCYuAM=
@@ -1166,6 +1172,8 @@ github.com/viant/mcp-protocol v0.19.1-0.20261014173008-af92f34f304b h1:0VPbrlB8g
 github.com/viant/mcp-protocol v0.19.1-0.20261014173008-af92f34f304b/go.mod h1:8h2yGk/LjWpyLqQEZYOGuNZQPohCr1vtM8IvtcNcEIQ=
 github.com/viant/mcp-protocol v0.19.1-0.20261018081747-0021ac0fe5d2 h1:OxFvgD6RDJRvfckSxg8xosFPc0up3iWuuv3yOuItuk4=
 github.com/viant/mcp-protocol v0.19.1-0.20261018081747-0021ac0fe5d2/go.mod h1:8h2yGk/LjWpyLqQEZYOGuNZQPohCr1vtM8IvtcNcEIQ=
+github.com/viant/mcp-protocol v0.19.1-0.20261018094612-00acc7754f2b h1:tP6T8AMu+3bZsgTgiT0GIJqhnbZVqzEu7qpoQKquFw8=
+github.com/viant/mcp-protocol v0.19.1-0.20261018094612-00acc7754f2b/go.mod h1:8h2yGk/LjWpyLqQEZYOGuNZQPohCr1vtM8IvtcNcEIQ=
 github.com/viant/parsly v0.3.3 h1:7ytgfLOG4Ils+wviGacWxRD0gAUvVEH/iGsSE+UI8YM=
 github.com/viant/parsly v0.3.3/go.mod h1:85fneXJbErKMGhSQto3A5ElTQCwl3t74U9cSV0waBHw=
 github.com/viant/scy v0.35.1-0.20260914041206-699e6c909726 h1:vXZewpcbOqVvj1yNxwT5mLZzVZXcJViKzv22a0v2uK0=

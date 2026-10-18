@@ -1,5 +1,5 @@
 // Package host is the public embedding boundary for Datly Studio.
-// Applications extend Studio by supplying explicit predicate packages instead
+// Applications extend Studio by supplying linked predicate and codec packages instead
 // of modifying Studio's internal registries.
 package host
 
@@ -11,6 +11,7 @@ import (
 
 	"github.com/viant/datly-studio/runtime/accesscontext"
 	"github.com/viant/datly-studio/studio/authorization"
+	"github.com/viant/datly-studio/studio/codeccatalog"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
 	"github.com/viant/datly/typecatalog"
 )
@@ -22,23 +23,34 @@ const studioAuthorizationPath = "github.com/viant/datly-studio/studio/authorizat
 // Studio's governed authorization-predicate catalog.
 type Config struct {
 	PredicatePackages []predicatecatalog.Package
+	CodecPackages     []codeccatalog.Package
 }
 
 // RuntimeTypes combines linked predicates with server-owned authorization
 // dependency shapes for native authoring and dynamic readers.
 func (c Config) RuntimeTypes() (*typecatalog.Catalog, error) {
+	_, types, err := c.RuntimeCatalogs()
+	return types, err
+}
+
+// RuntimeCatalogs captures predicate selection and runtime type authority together.
+// Codecs are executable runtime types and never enter the predicate picker.
+func (c Config) RuntimeCatalogs() (*predicatecatalog.Catalog, *typecatalog.Catalog, error) {
 	predicates, err := c.PredicateCatalog()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	types, err := predicates.RuntimeTypes()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
+	}
+	if err = codeccatalog.Link(types, c.codecPackages()...); err != nil {
+		return nil, nil, err
 	}
 	if err = accesscontext.RegisterTypes(types); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return types, nil
+	return predicates, types, nil
 }
 
 // PredicateCatalog combines Studio's handlers with application handlers and

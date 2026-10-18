@@ -83,18 +83,8 @@ func New(ctx context.Context, config Config) (*Service, error) {
 		studio.Close()
 		return nil, err
 	}
-	predicates, err := (studiohost.Config{PredicatePackages: config.PredicatePackages}).PredicateCatalog()
+	types, err := (studiohost.Config{PredicatePackages: config.PredicatePackages, CodecPackages: config.CodecPackages}).RuntimeTypes()
 	if err != nil {
-		studio.Close()
-		return nil, err
-	}
-	types, err := predicates.RuntimeTypes()
-	if err != nil {
-		studio.Close()
-		return nil, err
-	}
-	// Published DQL names the access-context output through its import path.
-	if err = accesscontext.RegisterTypes(types); err != nil {
 		studio.Close()
 		return nil, err
 	}
@@ -190,6 +180,16 @@ func (s *Service) extendNamespaceBuild(ctx context.Context, build *application.B
 		return build, nil
 	}
 	extend := s.config.NamespaceBuildExtensions[s.config.NamespaceID]
+	if extend == nil && s.config.NamespaceBuildResolver != nil {
+		var err error
+		extend, err = s.config.NamespaceBuildResolver(ctx, s.config.NamespaceID)
+		if err != nil {
+			if build != nil && build.Shutdown != nil {
+				err = errors.Join(err, build.Shutdown(context.Background()))
+			}
+			return nil, fmt.Errorf("resolve namespace %s build extension: %w", s.config.NamespaceID, err)
+		}
+	}
 	if extend == nil {
 		return build, nil
 	}

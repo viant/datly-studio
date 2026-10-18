@@ -76,3 +76,41 @@ Case `testWebDriver_ui_namespace_admin` creates resources as owner, manages
 namespaces as `namespace-admin`, verifies read-only controls for the differently
 cased role, and proves namespace administration does not grant component MCP
 execution. This case owns its namespace and consumer table.
+
+## Linked codec regression
+
+`regression/cases/mcp/015_package_codec/test.yaml` owns the codec lifecycle case.
+The fixture links `e2e/codecs` and approves its synthetic `Tenant` codec using
+`host.RegisterCodecPackage`. The case imports DQL through the SDK, validates it,
+normalizes the tenant through its linked codec before binding the linked
+`CustomerScope` predicate, publishes the revision and invokes it through namespace MCP. It checks exact normalized preview rows and published row values, rejects invalid
+codec input in both preview and published execution, verifies the codec is absent
+from the authorization-predicate picker, and rejects registering it as a predicate. Consumer rows are
+hydrated during shared DSUnit setup; the case imports its own reader afterward.
+Run it through the same directory-template MCP group as the predicate cases.
+For a focused run after building the fixture, use path selection so unrelated
+permission/browser groups are skipped:
+
+```sh
+endly -selector-mode=path -r=run -t=cleanupPrevious,setup,test -i=testMCP_package_codec
+```
+
+## Namespace composition regression
+
+`regression/cases/mcp/016_namespace_composition/test.yaml` creates its namespace
+after fixture startup, imports and publishes its own reader, then calls the linked
+`composition.count` handler through namespace MCP. Before publication, preview verifies that the host dependency resolver receives
+the selected namespace. The handler invokes that generation's reader in memory
+and checks four synthetic consumer rows. The case
+also checks anonymous denial and that a second, generic namespace cannot invoke
+the linked handler. The fixture resolves the extension from the persisted
+namespace identity; no namespace IDs are configured before startup. All consumer
+rows are hydrated by shared DSUnit setup.
+
+```sh
+endly -selector-mode=path -r=run -t=cleanupPrevious,setup,test -i=testMCP_namespace_composition
+```
+
+Build the fixture first (`endly -r=run -t=build`) after changing linked Go code.
+This is a generic component-composition test; application reporting acceptance
+belongs to the embedding application's E2E suite.

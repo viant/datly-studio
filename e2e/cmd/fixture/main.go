@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"github.com/viant/authz"
 	"github.com/viant/datly-studio/app/datlycmd"
+	_ "github.com/viant/datly-studio/e2e/codecs"
 	"github.com/viant/datly-studio/e2e/predicates"
 	_ "github.com/viant/datly-studio/examples/predicates"
 	"github.com/viant/datly-studio/runtime/accessprovider"
@@ -152,13 +153,16 @@ func serve(root, dir string) {
 	}
 	check(os.Setenv("STUDIO_DYNAMIC_HTTP_URL", "http://127.0.0.1:18782"))
 	check(os.Setenv("STUDIO_RUNTIME_ADMIN_TOKEN", "studio-e2e-admin"))
-	group, err := runtimehost.NewNamespaceGroup(ctx, runtimehost.Config{HTTP: runtimehost.Listener{Address: "127.0.0.1:18782"}, MCP: runtimehost.Listener{Address: "127.0.0.1:0"}, Authentication: runtimehost.Authentication{DefaultMode: "required", Issuer: "studio-e2e", Audience: "studio-e2e"}, Access: &runtimehost.ResourceAccessConfig{Provider: identity, Tenant: "studio-e2e", Issuer: "studio-e2e", Audience: "studio-e2e", PublicKeyFile: filepath.Join(dir, "public.pem")}, Studio: runtimehost.Studio{Driver: "sqlite", DSN: studioDSN(dir)}, Admin: runtimehost.Admin{Token: "studio-e2e-admin"}, RootDir: root})
+	compositionDB, err := sql.Open("sqlite", studioDSN(dir))
+	check(err)
+	defer compositionDB.Close()
+	group, err := runtimehost.NewNamespaceGroup(ctx, runtimehost.Config{NamespaceBuildResolver: compositionResolver(compositionDB), HTTP: runtimehost.Listener{Address: "127.0.0.1:18782"}, MCP: runtimehost.Listener{Address: "127.0.0.1:0"}, Authentication: runtimehost.Authentication{DefaultMode: "required", Issuer: "studio-e2e", Audience: "studio-e2e"}, Access: &runtimehost.ResourceAccessConfig{Provider: identity, Tenant: "studio-e2e", Issuer: "studio-e2e", Audience: "studio-e2e", PublicKeyFile: filepath.Join(dir, "public.pem")}, Studio: runtimehost.Studio{Driver: "sqlite", DSN: studioDSN(dir)}, Admin: runtimehost.Admin{Token: "studio-e2e-admin"}, RootDir: root})
 	check(err)
 	check(group.StartAdmin("127.0.0.1:18782", "studio-e2e-admin"))
 	defer group.Close(context.Background())
 	go func() { check(group.Run(ctx, 100*time.Millisecond, nil)) }()
 	go func() {
-		if code := datlycmd.Run(ctx, []string{"run", "-conf", filepath.Join(dir, "native.json")}, os.Stdout, os.Stderr); code != 0 {
+		if code := datlycmd.RunWithOptions(ctx, []string{"run", "-conf", filepath.Join(dir, "native.json")}, os.Stdout, os.Stderr, datlycmd.Options{Authoring: &studiohost.AuthoringConfig{Dependencies: compositionPreview(compositionDB)}}); code != 0 {
 			cancel()
 		}
 	}()

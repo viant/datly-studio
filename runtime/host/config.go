@@ -17,6 +17,7 @@ import (
 	"net/http"
 
 	access "github.com/viant/authz"
+	"github.com/viant/datly-studio/studio/codeccatalog"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
 	forgemcp "github.com/viant/forge/backend/provider"
 	mcpprotocol "github.com/viant/mcp/server"
@@ -78,6 +79,11 @@ type Admin struct {
 // it must not capture a different manager or a mutable publication alias.
 type NamespaceBuildExtension func(context.Context, *application.Build) error
 
+// NamespaceBuildResolver selects a host-owned extension from the current
+// namespace identity, allowing applications to resolve persisted configuration.
+// Returning nil leaves the namespace generic. It is never populated by YAML.
+type NamespaceBuildResolver func(context.Context, string) (NamespaceBuildExtension, error)
+
 type Config struct {
 	Const *constant.Values `yaml:"-"`
 	// InProcess disables only the separate administration endpoint requirement.
@@ -96,6 +102,8 @@ type Config struct {
 	// retain the stock runtime. Extensions run only for published namespace builds,
 	// never for authoring preview or isolated exact-version dispatch.
 	NamespaceBuildExtensions map[string]NamespaceBuildExtension `yaml:"-"`
+	// An explicit exact-ID extension takes precedence over the resolver.
+	NamespaceBuildResolver NamespaceBuildResolver `yaml:"-"`
 
 	// ToolCallAudit is an optional host-owned asynchronous audit logger.
 	// Nil disables capture; the host owns the sink and shutdown drain.
@@ -117,6 +125,7 @@ type Config struct {
 	// DecisionProvider is supplied by the embedding process, never by YAML.
 	DecisionProvider  access.DecisionProvider    `yaml:"-"`
 	PredicatePackages []predicatecatalog.Package `yaml:"-"`
+	CodecPackages     []codeccatalog.Package     `yaml:"-"`
 	HTTP              Listener                   `yaml:"HTTP"`
 	MCP               Listener                   `yaml:"MCP"`
 	Authentication    Authentication             `yaml:"Authentication"`

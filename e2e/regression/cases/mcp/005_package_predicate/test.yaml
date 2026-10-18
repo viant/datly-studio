@@ -164,7 +164,7 @@ pipeline:
       versionNo: $import.StructuredContent.version.versionNo
       input:
         input:
-          tenant: alpha
+          Tenant: alpha
         limit: 20
     allowToolError: true
     '@name': studio.sdk.preview.execute

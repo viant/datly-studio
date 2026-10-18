@@ -1,0 +1,1 @@
+Host-linked codec and package-scanned predicate in one reader: import DQL, validate, normalize input before predicate binding, assert exact preview rows, publish and invoke native MCP, reject invalid input in preview and execution; codec is absent from authorization predicate types and cannot be registered as a predicate.
