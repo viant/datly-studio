@@ -13,10 +13,10 @@ require (
 	github.com/stretchr/testify v1.12.1
 	github.com/viant/bigquery v0.5.4-0.20261017234417-20686a9ebfa4
 	github.com/viant/bindly v0.4.1-0.20261017023851-b39a34a62792
-	github.com/viant/datly v1.1.1-0.20261017234417-3cc2ec0af0ef
+	github.com/viant/datly v1.1.1-0.20261018095000-53df1ed78b12
 	github.com/viant/jsonrpc v0.25.1-0.20261014230436-c7e03c1c46eb
 	github.com/viant/mcp v0.24.1-0.20261016035016-dc29fe9112e9
-	github.com/viant/mcp-protocol v0.19.1-0.20261014173008-af92f34f304b
+	github.com/viant/mcp-protocol v0.19.1-0.20261018081747-0021ac0fe5d2
 	github.com/viant/scy v0.35.1-0.20260914041206-699e6c909726
 	github.com/viant/sqlx v0.26.1-0.20261017073006-8e503eb1429a
 	github.com/viant/x v0.5.1-0.20260915043005-1bc42b9eef47
@@ -158,3 +158,5 @@ require (
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.12.1 // indirect
 )
+
+replace github.com/viant/mcp-protocol => github.com/viant/mcp-protocol v0.19.1-0.20261014173008-af92f34f304b

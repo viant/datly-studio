@@ -18,7 +18,7 @@
 #define($_ = $RouteId<string>(query/routeId).Optional().WithPredicate(1, 'equal', 'e', 'route_id'))
 #define($_ = $Enabled<bool>(query/enabled).Optional().WithPredicate(1, 'equal', 'e', 'enabled'))
 #define($_ = $Fields<[]string>(query/fields).Optional().QuerySelector('exposure'))
-#define($_ = $OrderBy<string>(query/orderBy).Optional().QuerySelector('exposure'))
+#define($_ = $OrderBy<[]string>(query/orderBy).Optional().QuerySelector('exposure'))
 #define($_ = $Limit<int>(query/limit).Optional().QuerySelector('exposure'))
 #define($_ = $Offset<int>(query/offset).Optional().QuerySelector('exposure'))
 #define($_ = $Exposures<[]*ReportMCPExposure>(output/view))

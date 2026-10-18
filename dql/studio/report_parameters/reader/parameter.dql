@@ -19,7 +19,7 @@
 #define($_ = $Required<bool>(query/required).Optional().WithPredicate(1, 'equal', 'p', 'required'))
 #define($_ = $EmitOutput<bool>(query/emitOutput).Optional().WithPredicate(1, 'equal', 'p', 'emit_output'))
 #define($_ = $Fields<[]string>(query/fields).Optional().QuerySelector('parameter'))
-#define($_ = $OrderBy<string>(query/orderBy).Optional().QuerySelector('parameter'))
+#define($_ = $OrderBy<[]string>(query/orderBy).Optional().QuerySelector('parameter'))
 #define($_ = $Limit<int>(query/limit).Optional().QuerySelector('parameter'))
 #define($_ = $Offset<int>(query/offset).Optional().QuerySelector('parameter'))
 #define($_ = $Parameters<[]*ReportParameter>(output/view))

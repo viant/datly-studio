@@ -15,7 +15,7 @@
 #define($_ = $VersionNo<int>(path/versionNo).Required().WithPredicate(2, 'equal', 'f', 'version_no'))
 #define($_ = $Namespace<string>(query/namespace).Optional().WithPredicate(1, 'equal', 'f', 'namespace'))
 #define($_ = $Fields<[]string>(query/fields).Optional().QuerySelector('file'))
-#define($_ = $OrderBy<string>(query/orderBy).Optional().QuerySelector('file'))
+#define($_ = $OrderBy<[]string>(query/orderBy).Optional().QuerySelector('file'))
 #define($_ = $Limit<int>(query/limit).Optional().QuerySelector('file'))
 #define($_ = $Offset<int>(query/offset).Optional().QuerySelector('file'))
 #define($_ = $Files<[]*ReportResourceFile>(output/view))

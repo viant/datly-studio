@@ -12,7 +12,7 @@
 #define($_ = $Name<string>(query/name).Optional().WithPredicate(0, 'equal', 'p', 'name'))
 #define($_ = $SearchPattern<string>(query/searchPattern).Optional())
 #define($_ = $Status<string>(query/status).Optional())
-#define($_ = $OrderBy<string>(query/orderBy).Optional().QuerySelector('authorization_predicate'))
+#define($_ = $OrderBy<[]string>(query/orderBy).Optional().QuerySelector('authorization_predicate'))
 #define($_ = $Limit<int>(query/limit).Optional().QuerySelector('authorization_predicate'))
 #define($_ = $Offset<int>(query/offset).Optional().QuerySelector('authorization_predicate'))
 #define($_ = $AuthorizationPredicates<[]*StoredAuthorizationPredicate>(output/view))

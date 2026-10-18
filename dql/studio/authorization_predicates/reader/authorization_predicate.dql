@@ -16,7 +16,7 @@
 #define($_ = $Query<string>(query/q).Optional().WithPredicate(0, 'contains', 'p', 'name').WithPredicate(0, 'contains', 'p', 'title').WithPredicate(0, 'contains', 'p', 'package_path').WithPredicate(0, 'contains', 'p', 'type_name'))
 #define($_ = $Status<string>(query/status).Optional().WithPredicate(1, 'equal', 'p', 'status'))
 #define($_ = $Fields<[]string>(query/fields).Optional().QuerySelector('authorization_predicate'))
-#define($_ = $OrderBy<string>(query/orderBy).Optional().QuerySelector('authorization_predicate'))
+#define($_ = $OrderBy<[]string>(query/orderBy).Optional().QuerySelector('authorization_predicate'))
 #define($_ = $Limit<int>(query/limit).Optional().QuerySelector('authorization_predicate'))
 #define($_ = $Offset<int>(query/offset).Optional().QuerySelector('authorization_predicate'))
 #define($_ = $AuthorizationPredicates<[]*AuthorizationPredicateRecord>(output/view))
