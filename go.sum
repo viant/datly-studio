@@ -1148,6 +1148,10 @@ github.com/viant/datly v1.1.1-0.20261018095000-53df1ed78b12 h1:Cc6idfUTDIV6PVhhQ
 github.com/viant/datly v1.1.1-0.20261018095000-53df1ed78b12/go.mod h1:Zo++HN1I4Un36NiliGVCVlJttawrigNhJ9A78vbKVMg=
 github.com/viant/datly v1.1.1-0.20261018095247-8b68ea560546 h1:vw0WCw1iDniUP3WvjgKh6Lv2Uum+IJCeiPdo6f7oxRc=
 github.com/viant/datly v1.1.1-0.20261018095247-8b68ea560546/go.mod h1:Zo++HN1I4Un36NiliGVCVlJttawrigNhJ9A78vbKVMg=
+github.com/viant/datly v1.1.1-0.20261018101512-fd46c8991133 h1:iDedDGa/xSUeFmK4D3fEQXKUe+THhGBbIQZ4NwTriFQ=
+github.com/viant/datly v1.1.1-0.20261018101512-fd46c8991133/go.mod h1:ljNqFTDemN+l8ftDAcpXLc2nQgZIiFIbPwFE4jXECmg=
+github.com/viant/datly v1.1.1-0.20261018101701-a6fffd77ecf5 h1:LGIihoBkF17FDFDB2dBM4RQyyeXqrqYONPXG6nae/2I=
+github.com/viant/datly v1.1.1-0.20261018101701-a6fffd77ecf5/go.mod h1:ljNqFTDemN+l8ftDAcpXLc2nQgZIiFIbPwFE4jXECmg=
 github.com/viant/forge v0.3.45-0.20261015011117-38bb1cf13641 h1:yA6VXuZfTdnbkxDY3MN6NKiKavfsg/fjxQmlKqS5KDw=
 github.com/viant/forge v0.3.45-0.20261015011117-38bb1cf13641/go.mod h1:asQHHCMbgC0d3pc0dm+GFFQ5cDyzjG0qN86vrW85rCY=
 github.com/viant/forge v0.3.45-0.20261017190953-b07e77a0fe24 h1:NOie2I6rMGs4jEFkteWrk8wQKivwr6dN9nciKLCYuAM=
@@ -1184,6 +1188,8 @@ github.com/viant/sqlx v0.26.1-0.20261013061633-ba8bc02ca651 h1:1ivKroIIZuDr3jC03
 github.com/viant/sqlx v0.26.1-0.20261013061633-ba8bc02ca651/go.mod h1:/qyxibjy9VpDiYZwHVwSNHnPXI4476LqYtDty8V0Rg4=
 github.com/viant/sqlx v0.26.1-0.20261017073006-8e503eb1429a h1:+H9tzdtI7qRDqdDXM4mOoNQZlhd2zZwScyJQWKS7m8o=
 github.com/viant/sqlx v0.26.1-0.20261017073006-8e503eb1429a/go.mod h1:/qyxibjy9VpDiYZwHVwSNHnPXI4476LqYtDty8V0Rg4=
+github.com/viant/sqlx v0.26.1-0.20261018094935-de06b674797c h1:igF6+cXKrFcEpZdWwfVf5RsFXkRVD4poZ0NUzm4KbO4=
+github.com/viant/sqlx v0.26.1-0.20261018094935-de06b674797c/go.mod h1:/qyxibjy9VpDiYZwHVwSNHnPXI4476LqYtDty8V0Rg4=
 github.com/viant/structology v0.10.1-0.20261014122805-e37281ec0f50 h1:BlcLBwxvvGnlyWIJhQ9guw7owpEoJXKGzPXG9xe2HlA=
 github.com/viant/structology v0.10.1-0.20261014122805-e37281ec0f50/go.mod h1:sNNuCH9Zt+QUNeV1slf/QKBdOdUIj0AVdhDFR09+8Ig=
 github.com/viant/structology v0.10.1-0.20261015025741-5750986d416b h1:zhC5trcDODkp2n7qr8OnP1/VFvH1XGnNEel6J0QXluM=
