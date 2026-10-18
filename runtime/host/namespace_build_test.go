@@ -90,7 +90,7 @@ func TestNamespaceCustomHandlerInvokesDynamicReaderInMemory(t *testing.T) {
 	}
 	defer manager.Shutdown(ctx)
 	parent := dexec.ComponentTarget{Component: spec.Key{Kind: spec.KindComponent, Scope: "example.com/custom", Name: "Run"}, Route: spec.RouteRef{Method: http.MethodGet, Path: "/run"}}
-	service.config.NamespaceBuildExtensions = map[string]NamespaceBuildExtension{namespaceID: func(ctx context.Context, build *application.Build) error {
+	extend := func(ctx context.Context, build *application.Build) error {
 		var target dexec.ComponentTarget
 		for _, item := range build.Components {
 			for _, route := range item.Component.Routes {
@@ -112,7 +112,14 @@ func TestNamespaceCustomHandlerInvokesDynamicReaderInMemory(t *testing.T) {
 		}
 		build.Components = append(build.Components, registered)
 		return nil
-	}}
+	}
+	service.config.NamespaceBuildResolver = func(_ context.Context, id string) (NamespaceBuildExtension, error) {
+		if id != namespaceID {
+			return nil, nil
+		}
+		return extend, nil
+	}
+
 	err = manager.Reload(ctx, application.Request{Revision: 1, Compile: func(ctx context.Context, seed *typecatalog.Catalog) (*application.Build, error) {
 		return service.compile(ctx, seed, nil)
 	}})
@@ -169,5 +176,51 @@ func TestNamespaceCustomHandlerInvokesDynamicReaderInMemory(t *testing.T) {
 	foreign := dexec.ComponentTarget{Component: spec.Key{Kind: spec.KindComponent, Scope: "example.com/runtime/foreign", Name: "foreign"}, Route: spec.RouteRef{Method: http.MethodGet, Path: "/foreign"}}
 	if _, err = manager.InvokeComponent(ctx, dexec.ComponentRequest{Target: foreign}); err == nil {
 		t.Fatal("unregistered target resolved")
+	}
+}
+
+func TestNamespaceBuildResolverUsesCurrentIdentityAndClosesFailedBuild(t *testing.T) {
+	ctx := context.Background()
+	active := "first"
+	resolved := []string{}
+	composed := []string{}
+	closed := 0
+	unavailable := errors.New("configuration unavailable")
+	service := &Service{config: Config{NamespaceBuildResolver: func(_ context.Context, id string) (NamespaceBuildExtension, error) {
+		resolved = append(resolved, id)
+		if id == "failed" {
+			return nil, unavailable
+		}
+		if id != active {
+			return nil, nil
+		}
+		return func(context.Context, *application.Build) error { composed = append(composed, id); return nil }, nil
+	}}}
+	for _, id := range []string{"", "generic", "first", "second"} {
+		service.config.NamespaceID = id
+		build := &application.Build{}
+		got, err := service.extendNamespaceBuild(ctx, build)
+		if err != nil || got != build {
+			t.Fatalf("%s: %v", id, err)
+		}
+	}
+	active = "second"
+	service.config.NamespaceID = "second"
+	if _, err := service.extendNamespaceBuild(ctx, &application.Build{}); err != nil {
+		t.Fatal(err)
+	}
+	if strings.Join(resolved, ",") != "generic,first,second,second" || strings.Join(composed, ",") != "first,second" {
+		t.Fatalf("resolved=%v composed=%v", resolved, composed)
+	}
+	service.config.NamespaceID = "failed"
+	got, err := service.extendNamespaceBuild(ctx, &application.Build{Shutdown: func(context.Context) error { closed++; return nil }})
+	if got != nil || !errors.Is(err, unavailable) || closed != 1 {
+		t.Fatalf("failed lifecycle: %v %v %d", got, err, closed)
+	}
+	// Explicit startup authority wins, without calling mutable discovery twice.
+	service.config.NamespaceBuildExtensions = map[string]NamespaceBuildExtension{"failed": func(context.Context, *application.Build) error { return nil }}
+	before := len(resolved)
+	if _, err := service.extendNamespaceBuild(ctx, &application.Build{}); err != nil || len(resolved) != before {
+		t.Fatal("explicit extension did not retain precedence")
 	}
 }

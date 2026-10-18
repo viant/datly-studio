@@ -93,3 +93,22 @@ permission/browser groups are skipped:
 ```sh
 endly -selector-mode=path -r=run -t=cleanupPrevious,setup,test -i=testMCP_package_codec
 ```
+
+## Namespace composition regression
+
+`regression/cases/mcp/016_namespace_composition/test.yaml` creates its namespace
+after fixture startup, imports and publishes its own reader, then calls the linked
+`composition.count` handler through namespace MCP. The handler invokes that
+generation's reader in memory and checks four synthetic consumer rows. The case
+also checks anonymous denial and that a second, generic namespace cannot invoke
+the linked handler. The fixture resolves the extension from the persisted
+namespace identity; no namespace IDs are configured before startup. All consumer
+rows are hydrated by shared DSUnit setup.
+
+```sh
+endly -selector-mode=path -r=run -t=cleanupPrevious,setup,test -i=testMCP_namespace_composition
+```
+
+Build the fixture first (`endly -r=run -t=build`) after changing linked Go code.
+This is a generic component-composition test; application reporting acceptance
+belongs to the embedding application's E2E suite.

@@ -701,3 +701,22 @@ Command: `endly -selector-mode=path -r=run -t=cleanupPrevious,setup,test -i=<all
 Local log: `.data/codec-e2e-mcp-group2.log` (ignored).
 Pinned-module Go tests passed for `studio/codeccatalog`, `studio/host`,
 `runtime/host` and `e2e/cmd/fixture` with `GOWORK=off`.
+
+## Persisted namespace composition — 2026-10-18 UTC
+
+The complete 16-case MCP directory group passed with a fresh SQLite catalog and
+shared DSUnit hydration: Endly summary **17/17 including setup, 21.6s**.
+`016_namespace_composition` creates its namespace after the fixture starts,
+imports and publishes a customer reader, and invokes `composition.count` over
+namespace MCP. Its linked handler calls the published reader in memory and
+returns four synthetic rows. Anonymous invocation is denied, and a separate
+generic namespace does not expose the handler. The extension is selected by
+looking up the current namespace ID in the catalog, without configured IDs.
+
+The focused case passed first (5.8s). Commands use the directory-template IDs:
+`endly -selector-mode=path -r=run -t=cleanupPrevious,setup,test -i=testMCP_namespace_composition`
+and then all 16 `testMCP_*` IDs. Logs are ignored at
+`.data/composition-endly-focused3.log` and `.data/composition-endly-mcp-group1.log`.
+Pinned-module Go tests also passed for `runtime/host`, `app/studiohost`, and
+`e2e/cmd/fixture`. This run covered MCP behavior, not browser flows or application
+reporting acceptance.

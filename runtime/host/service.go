@@ -180,6 +180,16 @@ func (s *Service) extendNamespaceBuild(ctx context.Context, build *application.B
 		return build, nil
 	}
 	extend := s.config.NamespaceBuildExtensions[s.config.NamespaceID]
+	if extend == nil && s.config.NamespaceBuildResolver != nil {
+		var err error
+		extend, err = s.config.NamespaceBuildResolver(ctx, s.config.NamespaceID)
+		if err != nil {
+			if build != nil && build.Shutdown != nil {
+				err = errors.Join(err, build.Shutdown(context.Background()))
+			}
+			return nil, fmt.Errorf("resolve namespace %s build extension: %w", s.config.NamespaceID, err)
+		}
+	}
 	if extend == nil {
 		return build, nil
 	}
