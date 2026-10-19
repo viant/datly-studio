@@ -1,3 +1,4 @@
+import { downloadBytes } from './downloadBytes.js';
 import React, { useEffect, useState } from 'react';
 import { Button, Callout, Dialog, DialogBody, DialogFooter, FormGroup, HTMLSelect, InputGroup } from '@blueprintjs/core';
 
@@ -10,7 +11,7 @@ export function DownloadComponentButton({ api, report, versionNo, disabled = fal
       if(!selected){const page=await api.listVersions(report.id,{limit:1,orderBy:'version_no DESC'});selected=page.items?.[0]?.versionNo;}
       if(!selected)throw new Error('This component has no version to download.');
       const result=await api.downloadComponent(report.id,selected);
-      const bytes=Uint8Array.from(atob(result.archive),character=>character.charCodeAt(0));
+      const bytes=downloadBytes(result.archive);
       const url=URL.createObjectURL(new Blob([bytes],{type:result.mediaType}));
       const link=document.createElement('a');link.href=url;link.download=result.filename;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
     }catch(cause){setError(cause.message);}finally{setBusy(false);}
