@@ -124,6 +124,7 @@ export type Input5Bcc88D6E28E27666Dfa5B56F82424Fa705C9Bf62E9E02961Ffb25163058069
 export type Input5F347683Ef0D72C421F5A4C01Ad3Ad788D864B286Ee54473499Ecc7Aaacee182 = {
     entityType?: string;
     mode?: string;
+    priority?: number;
     requiredScopes?: Array<string> | null;
     rule?: InputFc83F5Dc2E1741A3C0713Acae5C5589D76E1865E7287675353Ca9558C3E7E7Dc | null;
 };
@@ -211,6 +212,7 @@ export type Input92Babcabef72E30Fbb57Dc0D846D94Ab3444A80B93279Fb26Ff7A884Ac2Fffb
 export type Input951160Aef000A2F5135521B7B592659281101C31F9602D34A2718677Dfc28D56 = {
     entityType?: string;
     mode?: string;
+    priority?: number;
     requiredScopes?: Array<string> | null;
     rule?: InputD95B4A97507D7D8C7Cf435C3B349Ee1C36Ba23Bb010Ef3E61D69C8Ede93E9Cf7 | null;
 };
@@ -298,6 +300,7 @@ export type InputB1C1E89E6619Cb826E546Ecf8347Ad7B1464C14D32806B70E5E920Cf5D1D557
 export type InputB3Eeaba5D52Fb132E23Cb61C540F14953C5Fc9C0E0Bd74B0748F79995666F4C7 = {
     entityType?: string;
     mode?: string;
+    priority?: number;
     requiredScopes?: Array<string> | null;
     rule?: Input538331453Dfbe7Cb0F7Afe0231Bd64C684A5Fd5E78A13Cc82C044933524Fdc64 | null;
 };
@@ -723,6 +726,7 @@ export type OutputBd7A1B00Fadef6F5E471Ef21Cd4Fe9Df0F1E3F4B9Cabd09814C00B32108658
 export type OutputC50C4A793548Bb0F3B16Af35D193034D2656958E13E8B0A0Ee655Bd092A1A349 = {
     entityType?: string;
     mode: string;
+    priority?: number;
     requiredScopes?: Array<string> | null;
     rule?: OutputF632037538F344Fc898Ce8Aad11Eec32Cea261974A86789A20Dfb9954682Ae69 | null;
 };
@@ -812,6 +816,7 @@ export type OutputDb16D19662078B5E2Bf34Bb56Caf4E031Ec60811B8Ff0833D9304Fe74Bb3De
 export type OutputE8Ea1801B1Be98B9F440E71042F9D1F205288Fc993De313Deb5492650404E1B8 = {
     entityType?: string;
     mode: string;
+    priority?: number;
     requiredScopes?: Array<string> | null;
     rule?: Output86A66B97D8718A98219F5Bea5A2Cc298728F5Dfba2334Ccda5E7A236791Aaff7 | null;
 };
@@ -1252,6 +1257,7 @@ export type Wire2C9280510E6Ff51Ff291Cf46071183A83553Af0793136E09416Edcc75Cf4Bea9
 export type Wire2Fd98Ed1Ef9F13D6B92F605771E0D84Cba3385793616364756034B01Cda28A3d = {
     entityType?: string;
     mode: string;
+    priority?: number;
     requiredScopes?: Array<string> | null;
     rule?: Wire22F8D5B6B2E00Ab542F425835E6D63F595971318F417B0060E6C9Dd3890Ffd46 | null;
 };
@@ -1701,6 +1707,7 @@ export type Wire686013A325C9Be56A2C1Decb9988B4F5C30A411074C3D70E9552Eecf4Ae1Fd87
 export type Wire69A7C7Ab30F383C255Ab8Dc4322A722D528D5319Af676A4Ad4Fa42763271Dc3d = {
     entityType?: string;
     mode: string;
+    priority?: number;
     requiredScopes?: Array<string> | null;
     rule?: Wire461497616731306Dcde48F09E2924Bf4E01F9Ae3Cde506E2E763Cf51E8D8D387 | null;
 };
@@ -1836,6 +1843,7 @@ export type Wire7Be315Ac587Bc72247D0B72942B7067D644F15C0E04A4011F74Ffec56D000203
     description?: string;
     driver: string;
     dsnConfigured: boolean;
+    dsnDisplay?: string;
     etag: number;
     lastTestErrorCode?: string;
     lastTestStatus?: string;
@@ -1844,6 +1852,7 @@ export type Wire7Be315Ac587Bc72247D0B72942B7067D644F15C0E04A4011F74Ffec56D000203
     options?: unknown;
     ownerId: string;
     secretConfigured: boolean;
+    secretRefDisplay?: string;
     status: string;
     updatedAt: string;
 };
@@ -1974,6 +1983,7 @@ export type Wire898C903Bc4Eef9B996D8948010Fb2Ca3D9389D10Ce499B1Be1015Bbbba75993c
 export type Wire8A4C5788A2Cf03A1E9Aa38C97C22D5A352F6091Ad7274Cee621E3739A342C0F4 = {
     entityType?: string;
     mode: string;
+    priority?: number;
     requiredScopes?: Array<string> | null;
     rule?: Wire7D7Ffebe9B2C3Db9F219A2E5C8Aedd94C3D67594Fc08B9410116D0Bc7E2A9134 | null;
 };

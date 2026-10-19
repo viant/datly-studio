@@ -637,3 +637,7 @@ body { margin: 0; min-width: 320px; background: #f4f7fb; }
 }
 .studio-linked-predicates { margin-bottom: 20px; }
 .studio-predicate-package { overflow-wrap: anywhere; min-width: 0; }
+
+.studio-connector-dialog__notice {
+  margin-top: 14px;
+}

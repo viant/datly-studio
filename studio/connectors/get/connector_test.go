@@ -153,7 +153,7 @@ func TestConnectorGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 		wire["options"] == nil || wire["item"] != nil {
 		t.Fatalf("HTTP connector=%v err=%v body=%s", wire, err, response.Body.String())
 	}
-	if bytes.Contains(response.Body.Bytes(), []byte("private-token")) || bytes.Contains(response.Body.Bytes(), []byte("dsnTemplate")) || bytes.Contains(response.Body.Bytes(), []byte("secretRef")) {
+	if wire["dsnTemplate"] != nil || wire["secretRef"] != nil || wire["dsnDisplay"] != "file:private-token" || wire["secretRefDisplay"] != "secret://private-token" {
 		t.Fatalf("HTTP connector leaked secret material: %s", response.Body.String())
 	}
 	for _, check := range []struct {
@@ -204,7 +204,7 @@ func TestConnectorGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	if err = json.Unmarshal(structured, &mcpWire); err != nil || mcpWire["name"] != "main" || mcpWire["dsnConfigured"] != true || mcpWire["secretConfigured"] != true {
 		t.Fatalf("MCP connector=%s err=%v", structured, err)
 	}
-	if bytes.Contains(structured, []byte("private-token")) || bytes.Contains(structured, []byte("dsnTemplate")) {
+	if mcpWire["dsnTemplate"] != nil || mcpWire["dsnDisplay"] != "file:private-token" || mcpWire["secretRefDisplay"] != "secret://private-token" {
 		t.Fatalf("MCP connector leaked secret material: %s", structured)
 	}
 	if _, err = db.ExecContext(ctx, "UPDATE components SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?", "r1"); err != nil {

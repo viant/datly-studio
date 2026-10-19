@@ -23,6 +23,8 @@ type Connector struct {
 	// DSNTemplate is server-only connection material. It is intentionally
 	// omitted from JSON DTOs returned to Forge or other SDK HTTP consumers.
 	DSNTemplate       string          `json:"-"`
+	DSNDisplay        string          `json:"dsnDisplay,omitempty"`
+	SecretRefDisplay  string          `json:"secretRefDisplay,omitempty"`
 	DSNConfigured     bool            `json:"dsnConfigured"`
 	SecretRef         string          `json:"-"`
 	SecretConfigured  bool            `json:"secretConfigured"`

@@ -159,6 +159,7 @@ type Input5bcc88d6e28e27666dfa5b56f82424fa705c9bf62e9e02961ffb251630580697 struc
 type Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182 struct {
 	EntityType     *string                                                                     `json:"entityType,omitempty"`
 	Mode           *string                                                                     `json:"mode,omitempty"`
+	Priority       *int64                                                                      `json:"priority,omitempty"`
 	RequiredScopes *[]string                                                                   `json:"requiredScopes,omitempty"`
 	Rule           *Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule `json:"rule,omitempty"`
 }
@@ -265,6 +266,7 @@ type Input92babcabef72e30fbb57dc0d846d94ab3444a80b93279fb26ff7a884ac2fffb8 struc
 type Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56 struct {
 	EntityType     *string                                                                     `json:"entityType,omitempty"`
 	Mode           *string                                                                     `json:"mode,omitempty"`
+	Priority       *int64                                                                      `json:"priority,omitempty"`
 	RequiredScopes *[]string                                                                   `json:"requiredScopes,omitempty"`
 	Rule           *Input951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56_Rule `json:"rule,omitempty"`
 }
@@ -371,6 +373,7 @@ type InputB1c1e89e6619cb826e546ecf8347ad7b1464c14d32806b70e5e920cf5d1d5578 struc
 type InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7 struct {
 	EntityType     *string                                                                     `json:"entityType,omitempty"`
 	Mode           *string                                                                     `json:"mode,omitempty"`
+	Priority       *int64                                                                      `json:"priority,omitempty"`
 	RequiredScopes *[]string                                                                   `json:"requiredScopes,omitempty"`
 	Rule           *InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7_Rule `json:"rule,omitempty"`
 }
@@ -912,6 +915,7 @@ type OutputBd7a1b00fadef6f5e471ef21cd4fe9df0f1e3f4b9cabd09814c00b321086588a stru
 type OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349 struct {
 	EntityType     *string                                                                      `json:"entityType,omitempty"`
 	Mode           string                                                                       `json:"mode"`
+	Priority       *int64                                                                       `json:"priority,omitempty"`
 	RequiredScopes *[]string                                                                    `json:"requiredScopes,omitempty"`
 	Rule           *OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Rule `json:"rule,omitempty"`
 }
@@ -1017,6 +1021,7 @@ type OutputDb16d19662078b5e2bf34bb56caf4e031ec60811b8ff0833d9304fe74bb3deb7 stru
 type OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8 struct {
 	EntityType     *string                                                                      `json:"entityType,omitempty"`
 	Mode           string                                                                       `json:"mode"`
+	Priority       *int64                                                                       `json:"priority,omitempty"`
 	RequiredScopes *[]string                                                                    `json:"requiredScopes,omitempty"`
 	Rule           *OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Rule `json:"rule,omitempty"`
 }
@@ -1598,6 +1603,7 @@ type Wire2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9 struct
 type Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d struct {
 	EntityType     *string                                                                    `json:"entityType,omitempty"`
 	Mode           string                                                                     `json:"mode"`
+	Priority       *int64                                                                     `json:"priority,omitempty"`
 	RequiredScopes *[]string                                                                  `json:"requiredScopes,omitempty"`
 	Rule           *Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d_Rule `json:"rule,omitempty"`
 }
@@ -2228,6 +2234,7 @@ type Wire686013a325c9be56a2c1decb9988b4f5c30a411074c3d70e9552eecf4ae1fd87 struct
 type Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d struct {
 	EntityType     *string                                                                    `json:"entityType,omitempty"`
 	Mode           string                                                                     `json:"mode"`
+	Priority       *int64                                                                     `json:"priority,omitempty"`
 	RequiredScopes *[]string                                                                  `json:"requiredScopes,omitempty"`
 	Rule           *Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Rule `json:"rule,omitempty"`
 }
@@ -2426,6 +2433,7 @@ type Wire7be315ac587bc72247d0b72942b7067d644f15c0e04a4011f74ffec56d000203 struct
 	Description       *string     `json:"description,omitempty"`
 	Driver            string      `json:"driver"`
 	DsnConfigured     bool        `json:"dsnConfigured"`
+	DsnDisplay        *string     `json:"dsnDisplay,omitempty"`
 	Etag              int64       `json:"etag"`
 	LastTestErrorCode *string     `json:"lastTestErrorCode,omitempty"`
 	LastTestStatus    *string     `json:"lastTestStatus,omitempty"`
@@ -2434,6 +2442,7 @@ type Wire7be315ac587bc72247d0b72942b7067d644f15c0e04a4011f74ffec56d000203 struct
 	Options           interface{} `json:"options,omitempty"`
 	OwnerId           string      `json:"ownerId"`
 	SecretConfigured  bool        `json:"secretConfigured"`
+	SecretRefDisplay  *string     `json:"secretRefDisplay,omitempty"`
 	Status            string      `json:"status"`
 	UpdatedAt         time.Time   `json:"updatedAt"`
 }
@@ -2618,6 +2627,7 @@ type Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Versio
 type Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4 struct {
 	EntityType     *string                                                                    `json:"entityType,omitempty"`
 	Mode           string                                                                     `json:"mode"`
+	Priority       *int64                                                                     `json:"priority,omitempty"`
 	RequiredScopes *[]string                                                                  `json:"requiredScopes,omitempty"`
 	Rule           *Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4_Rule `json:"rule,omitempty"`
 }

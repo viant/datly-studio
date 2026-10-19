@@ -145,7 +145,7 @@ func (s *Service) ProxyWithResolver(target *url.URL, mount string, resolve Proxy
 			original := selectedProxy.Director
 			selectedProxy.Director = func(forward *http.Request) {
 				original(forward)
-				forward.URL.Path = path
+				forward.URL.Path = strings.TrimRight(resolved.Path, "/") + path
 				forward.Header.Del("Cookie")
 			}
 		}

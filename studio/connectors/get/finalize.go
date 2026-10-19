@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/viant/datly-studio/internal/connectordisplay"
 	"reflect"
 
 	xresponse "github.com/viant/xdatly/response"
 )
 
 // Finalize projects the generated reader row into the public connector DTO.
-// The row carries configuration flags but no DSN or secret material.
+// Saved configuration is displayed with embedded credentials masked; secrets are never resolved.
 func (output *ConnectorGetOutput) Finalize(ctx context.Context) error {
 	input, ok := ctx.Value(reflect.TypeFor[*ConnectorGetInput]()).(*ConnectorGetInput)
 	if !ok || input == nil {
@@ -25,6 +26,12 @@ func (output *ConnectorGetOutput) Finalize(ctx context.Context) error {
 	}
 	output.ResponseName = connector.Name
 	output.Driver = connector.Driver
+	if connector.DsnTemplate != nil {
+		output.DsnDisplay = connectordisplay.DSN(*connector.DsnTemplate)
+	}
+	if connector.SecretRef != nil {
+		output.SecretRefDisplay = connectordisplay.SecretReference(*connector.SecretRef)
+	}
 	output.DsnConfigured = connector.DsnConfigured
 	output.SecretConfigured = connector.SecretConfigured
 	if connector.Description != nil {

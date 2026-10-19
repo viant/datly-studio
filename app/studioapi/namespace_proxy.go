@@ -27,10 +27,10 @@ func namespaceMCPTarget(transport sdk.Transport) bffauth.ProxyTargetResolver {
 			return nil, fmt.Errorf("namespace MCP endpoint is unavailable")
 		}
 		target, err := url.Parse(status.Host.MCPURL)
-		if err != nil || target.Path != "/mcp" {
+		if err != nil || (target.Path != "/mcp" && target.Path != "/namespaces/"+id+"/mcp") || target.RawPath != "" {
 			return nil, fmt.Errorf("namespace MCP endpoint is invalid")
 		}
-		target.Path = ""
+		target.Path = strings.TrimSuffix(target.Path, "/mcp")
 		return target, nil
 	}
 }

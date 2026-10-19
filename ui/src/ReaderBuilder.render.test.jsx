@@ -216,7 +216,7 @@ describe('ReaderBuilder graph-first authoring', () => {
     await waitFor(()=>expect(screen.getByRole('button',{name:'Publish selected version'}).disabled).toBe(false));
     await user.click(screen.getByRole('button',{name:'Publish selected version'}));
     await screen.findByText('Published version is now v13 · generation 28.');
-    expect(api.inspectVersion.mock.calls.at(-1)).toEqual(['vendor',13]);
+    expect(api.inspectVersion.mock.calls.at(-1)).toEqual(['vendor',13,{discoverColumns:false}]);
     expect(screen.getByRole('combobox',{name:'Publish version'}).value).toBe('13');
     expect(screen.getByText('Published v13')).toBeTruthy();
   });
@@ -663,7 +663,7 @@ test('ignores an old inspection after switching components', async () => {
     listConnectors: vi.fn().mockResolvedValue({items: []}),
   };
   const view = render(<ReaderBuilder api={api} report={{id: 'first', title: 'First', versionNo: 1}} onBack={vi.fn()}/>);
-  await waitFor(() => expect(api.inspectVersion).toHaveBeenCalledWith('first', 1));
+  await waitFor(() => expect(api.inspectVersion).toHaveBeenCalledWith('first', 1, {discoverColumns:false}));
   view.rerender(<ReaderBuilder api={api} report={{id: 'second', title: 'Second', versionNo: 1}} onBack={vi.fn()}/>);
   await user.click(await screen.findByRole('button', {name: 'Edit component'}));
   expect(screen.getByText('/second-component', {exact: false})).toBeTruthy();

@@ -39,7 +39,11 @@ func TestNamespaceMCPProxyUsesVerifiedSessionAndServerEndpoint(t *testing.T) {
 	upstream := func(id string, calls *int) *httptest.Server {
 		return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			*calls++
-			if r.URL.Path != "/mcp" || r.Header.Get("Authorization") != "Bearer owner" || r.Header.Get("Cookie") != "" || r.Header.Get("X-Studio-Namespace") != id || r.Header.Get("X-Studio-Runtime-Token") != "" {
+			expectedPath := "/mcp"
+			if id == b {
+				expectedPath = "/namespaces/" + b + "/mcp"
+			}
+			if r.URL.Path != expectedPath || r.Header.Get("Authorization") != "Bearer owner" || r.Header.Get("Cookie") != "" || r.Header.Get("X-Studio-Namespace") != id || r.Header.Get("X-Studio-Runtime-Token") != "" {
 				t.Error("namespace proxy forwarded incorrect credentials, path or selection")
 			}
 			w.WriteHeader(http.StatusNoContent)
@@ -50,7 +54,7 @@ func TestNamespaceMCPProxyUsesVerifiedSessionAndServerEndpoint(t *testing.T) {
 	defer bServer.Close()
 	fallback := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { fallbackCalls++; w.WriteHeader(204) }))
 	defer fallback.Close()
-	transport := &namespaceProxyTransport{endpoints: map[string]string{a: aServer.URL + "/mcp", b: bServer.URL + "/mcp"}}
+	transport := &namespaceProxyTransport{endpoints: map[string]string{a: aServer.URL + "/mcp", b: bServer.URL + "/namespaces/" + b + "/mcp"}}
 	sessions, err := bffauth.New(bffauth.Config{}, nativeProxyVerifier{})
 	if err != nil {
 		t.Fatal(err)
@@ -105,5 +109,15 @@ func TestNamespaceMCPProxyUsesVerifiedSessionAndServerEndpoint(t *testing.T) {
 	proxy.ServeHTTP(response, request)
 	if response.Code != 404 || transport.calls != 3 {
 		t.Fatal("exposed namespace admin route")
+	}
+}
+
+func TestNamespaceMCPProxyRejectsDifferentSharedNamespace(t *testing.T) {
+	id := strings.Repeat("a", 64)
+	transport := &namespaceProxyTransport{endpoints: map[string]string{id: "http://127.0.0.1:8097/namespaces/" + strings.Repeat("b", 64) + "/mcp"}}
+	ctx := sdk.WithPrincipal(context.Background(), sdk.Principal{Subject: "owner"})
+	ctx = sdk.WithNamespaceSelection(ctx, id)
+	if _, err := namespaceMCPTarget(transport)(ctx, httptest.NewRequest(http.MethodPost, "/mcp", nil)); err == nil {
+		t.Fatal("accepted another namespace endpoint")
 	}
 }

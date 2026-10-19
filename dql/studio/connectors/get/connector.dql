@@ -19,6 +19,8 @@
 #define($_ = $Item<*Connector>(output/view).WithTag('json:"-"'))
 #define($_ = $ResponseName<string>(output/body).WithTag('json:"name"'))
 #define($_ = $Driver<string>(output/body).WithTag('json:"driver"'))
+#define($_ = $DsnDisplay<string>(output/body).WithTag('json:"dsnDisplay,omitempty"'))
+#define($_ = $SecretRefDisplay<string>(output/body).WithTag('json:"secretRefDisplay,omitempty"'))
 #define($_ = $DsnConfigured<bool>(output/body).WithTag('json:"dsnConfigured"'))
 #define($_ = $SecretConfigured<bool>(output/body).WithTag('json:"secretConfigured"'))
 #define($_ = $Description<string>(output/body).WithTag('json:"description,omitempty"'))
@@ -34,6 +36,7 @@
 
 SELECT connectors.*, type(connectors, 'Connector'),
        CAST(connectors.name AS string), CAST(connectors.driver AS string),
+       CAST(connectors.dsn_template AS *string), CAST(connectors.secret_ref AS *string),
        CAST(connectors.dsn_configured AS bool), CAST(connectors.secret_configured AS bool),
        CAST(connectors.description AS *string), CAST(connectors.owner_id AS string),
        CAST(connectors.status AS string), CAST(connectors.options_json AS json.RawMessage),

@@ -1,4 +1,4 @@
-SELECT c.name, c.driver,
+SELECT c.name, c.driver, c.dsn_template, c.secret_ref,
        CASE WHEN c.dsn_template IS NOT NULL AND TRIM(c.dsn_template) <> '' THEN 1 ELSE 0 END AS dsn_configured,
        CASE WHEN c.secret_ref IS NOT NULL AND TRIM(c.secret_ref) <> '' THEN 1 ELSE 0 END AS secret_configured,
        c.description, c.owner_id, c.status, c.options_json,

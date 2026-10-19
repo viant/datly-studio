@@ -55,8 +55,8 @@ export function ConnectorDialog({ api, isOpen, onClose, onCreated, connector = n
       <DialogBody className="studio-connector-dialog-body">
         <p className="studio-dialog-lead">{editing ? 'Update connection configuration through the Studio SDK. Connection-affecting changes require a fresh probe and activation.' : 'Create a data source for Studio readers. Ownership is assigned by the signed-in server principal.'}</p>
         {editing && <div className="studio-validation-revision"><span>Current revision {connector.etag}</span><Tag minimal intent={connector.status === 'active' ? 'success' : 'warning'}>{connector.status}</Tag></div>}
-        {editing && connector.status === 'active' && <Callout intent="warning" style={{ marginTop: 14 }}>Changing provider, DSN, secret, or provider options moves this connector to draft and clears its old probe result. Test and activate it again before it can build a reader.</Callout>}
-        {conflict ? <Callout intent="warning" role="alert" style={{ marginTop: 14 }}>This connector changed elsewhere. No update was applied. <Button type="button" small minimal intent="warning" icon="refresh" loading={saving} onClick={closeAndRefresh}>Close and refresh catalog</Button></Callout> : error && <Callout intent="danger" role="alert" style={{ marginTop: 14 }}>{error}</Callout>}
+        {editing && connector.status === 'active' && <Callout intent="warning" className="studio-connector-dialog__notice">Changing provider, DSN, secret, or provider options moves this connector to draft and clears its old probe result. Test and activate it again before it can build a reader.</Callout>}
+        {conflict ? <Callout intent="warning" role="alert" className="studio-connector-dialog__notice">This connector changed elsewhere. No update was applied. <Button type="button" small minimal intent="warning" icon="refresh" loading={saving} onClick={closeAndRefresh}>Close and refresh catalog</Button></Callout> : error && <Callout intent="danger" role="alert" className="studio-connector-dialog__notice">{error}</Callout>}
         <div className="studio-form-grid">
           <FormGroup label="Name" labelFor="connector-name" helperText="Stable identifier used by components and generated readers." required>
             <InputGroup id="connector-name" value={draft.name} onChange={update('name')} placeholder="reporting_mysql" autoFocus disabled={saving || editing} />
@@ -67,8 +67,14 @@ export function ConnectorDialog({ api, isOpen, onClose, onCreated, connector = n
             </HTMLSelect>
           </FormGroup>
         </div>
-        <FormGroup label={editing ? 'New DSN template' : 'DSN template'} labelFor="connector-dsn" helperText={editing ? 'Leave blank to keep the existing server-held DSN. Existing connection material is never returned to this browser.' : 'Use a server-side secret reference for credentials; do not paste credentials into the browser.'}>
-          <InputGroup id="connector-dsn" type="password" value={draft.dsnTemplate} onChange={update('dsnTemplate')} placeholder={editing && connector.dsnConfigured ? 'DSN configured on server' : 'Provider connection template'} disabled={saving} />
+        {editing && connector.dsnDisplay && <FormGroup label="Current DSN template" labelFor="connector-current-dsn" helperText="Saved template; embedded credentials are masked. Secret values are not resolved.">
+          <InputGroup id="connector-current-dsn" value={connector.dsnDisplay} readOnly />
+        </FormGroup>}
+        {editing && connector.secretRefDisplay && <FormGroup label="Current secret reference" labelFor="connector-current-secret">
+          <InputGroup id="connector-current-secret" value={connector.secretRefDisplay} readOnly />
+        </FormGroup>}
+        <FormGroup label={editing ? 'New DSN template' : 'DSN template'} labelFor="connector-dsn" helperText={editing ? 'Leave blank to keep the existing server-held DSN. The current template is shown above.' : 'Use a server-side secret reference for credentials; do not paste credentials into the browser.'}>
+          <InputGroup id="connector-dsn" type="text" value={draft.dsnTemplate} onChange={update('dsnTemplate')} placeholder={editing && connector.dsnConfigured ? 'DSN configured on server' : 'Provider connection template'} disabled={saving} />
         </FormGroup>
         <FormGroup label="Description" labelFor="connector-description">
           <TextArea id="connector-description" value={draft.description} onChange={update('description')} fill rows={2} disabled={saving} />

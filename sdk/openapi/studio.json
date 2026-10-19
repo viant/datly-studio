@@ -346,6 +346,10 @@
           "mode": {
             "type": "string"
           },
+          "priority": {
+            "type": "integer",
+            "format": "int64"
+          },
           "requiredScopes": {
             "type": "array",
             "items": {
@@ -584,6 +588,10 @@
           },
           "mode": {
             "type": "string"
+          },
+          "priority": {
+            "type": "integer",
+            "format": "int64"
           },
           "requiredScopes": {
             "type": "array",
@@ -824,6 +832,10 @@
           },
           "mode": {
             "type": "string"
+          },
+          "priority": {
+            "type": "integer",
+            "format": "int64"
           },
           "requiredScopes": {
             "type": "array",
@@ -2335,6 +2347,10 @@
           "mode": {
             "type": "string"
           },
+          "priority": {
+            "type": "integer",
+            "format": "int64"
+          },
           "requiredScopes": {
             "type": "array",
             "items": {
@@ -2678,6 +2694,10 @@
           },
           "mode": {
             "type": "string"
+          },
+          "priority": {
+            "type": "integer",
+            "format": "int64"
           },
           "requiredScopes": {
             "type": "array",
@@ -4360,6 +4380,10 @@
           },
           "mode": {
             "type": "string"
+          },
+          "priority": {
+            "type": "integer",
+            "format": "int64"
           },
           "requiredScopes": {
             "type": "array",
@@ -6139,6 +6163,10 @@
           "mode": {
             "type": "string"
           },
+          "priority": {
+            "type": "integer",
+            "format": "int64"
+          },
           "requiredScopes": {
             "type": "array",
             "items": {
@@ -6687,6 +6715,9 @@
           "dsnConfigured": {
             "type": "boolean"
           },
+          "dsnDisplay": {
+            "type": "string"
+          },
           "etag": {
             "type": "integer",
             "format": "int64"
@@ -6711,6 +6742,9 @@
           },
           "secretConfigured": {
             "type": "boolean"
+          },
+          "secretRefDisplay": {
+            "type": "string"
           },
           "status": {
             "type": "string"
@@ -7249,6 +7283,10 @@
           },
           "mode": {
             "type": "string"
+          },
+          "priority": {
+            "type": "integer",
+            "format": "int64"
           },
           "requiredScopes": {
             "type": "array",

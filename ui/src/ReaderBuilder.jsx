@@ -80,10 +80,10 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
       const selectedVersionNo = Number.isInteger(preferredVersionNo) && preferredVersionNo > 0 ? preferredVersionNo : report.versionNo;
       let selected;
       if (selectedVersionNo) {
-        selected = await api.inspectVersion(report.id, selectedVersionNo);
+        selected = await api.inspectVersion(report.id, selectedVersionNo, { discoverColumns: false });
       } else {
         if (report.currentDraftVersion) {
-          const draft = await api.inspectVersion(report.id, report.currentDraftVersion);
+          const draft = await api.inspectVersion(report.id, report.currentDraftVersion, { discoverColumns: false });
           if (!current()) return;
           if (draft.version.state === 'draft') selected = draft;
         }
@@ -92,7 +92,7 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
           if (!current()) return;
           const version = page?.items?.find(item => item.state === 'draft') || page?.items?.[0];
           if (!version) { setVersion(null); setInspection(null); return; }
-          selected = await api.inspectVersion(report.id, version.versionNo);
+          selected = await api.inspectVersion(report.id, version.versionNo, { discoverColumns: false });
         }
       }
       if (current()) { setVersion(selected.version); setInspection(selected); }
