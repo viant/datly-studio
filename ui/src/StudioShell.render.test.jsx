@@ -29,6 +29,15 @@ describe('StudioShell authentication boundary',()=>{
     const link=await screen.findByRole('link',{name:'Continue to sign in'});
     expect(link.getAttribute('href')).toBe(`${window.location.origin}/v1/studio/auth/login`);
   });
+  test('preserves a Data Studio management deep link while signing in',async()=>{
+    window.history.replaceState({},'', '/?section=components#catalog');
+    vi.stubGlobal('fetch',vi.fn().mockResolvedValue(response({},401)));
+    try {
+      render(<StudioShell config={directConfig}/>);
+      const link=await screen.findByRole('link',{name:'Continue to sign in'});
+      expect(new URL(link.href).searchParams.get('returnTo')).toBe('/?section=components#catalog');
+    } finally { window.history.replaceState({},'', '/'); }
+  });
   test('returns to sign-in only after direct-auth logout succeeds',async()=>{
     const user=userEvent.setup();
     const fetcher=vi.fn().mockResolvedValueOnce(response({id_token:'signed-id',subject:'owner'}))

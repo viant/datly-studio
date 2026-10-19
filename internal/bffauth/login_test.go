@@ -124,7 +124,7 @@ func TestBrowserIdentitySessionRefreshesServerSideAndReturnsOnlyIDToken(t *testi
 		t.Fatal(err)
 	}
 	start := httptest.NewRecorder()
-	mux.ServeHTTP(start, httptest.NewRequest(http.MethodGet, loginPath, nil))
+	mux.ServeHTTP(start, httptest.NewRequest(http.MethodGet, loginPath+"?returnTo="+url.QueryEscape("/?section=components#builder"), nil))
 	if start.Code != http.StatusFound || len(start.Result().Cookies()) != 1 {
 		t.Fatalf("Datly login status=%d headers=%v", start.Code, start.Header())
 	}
@@ -148,11 +148,11 @@ func TestBrowserIdentitySessionRefreshesServerSideAndReturnsOnlyIDToken(t *testi
 			t.Fatalf("invalid Datly callback status=%d headers=%v", denied.Code, denied.Header())
 		}
 	}
-	callback := httptest.NewRequest(http.MethodGet, callbackPath+"?code=approved&state="+url.QueryEscape(authorize.Query().Get("state")), nil)
+	callback := httptest.NewRequest(http.MethodGet, callbackPath+"?code=approved&state="+url.QueryEscape(authorize.Query().Get("state"))+"&returnTo="+url.QueryEscape("//attacker.example"), nil)
 	callback.AddCookie(start.Result().Cookies()[0])
 	completed := httptest.NewRecorder()
 	mux.ServeHTTP(completed, callback)
-	if completed.Code != http.StatusSeeOther || completed.Header().Get("Location") != "/" {
+	if completed.Code != http.StatusSeeOther || completed.Header().Get("Location") != "/?section=components#builder" {
 		t.Fatalf("Datly callback status=%d body=%q headers=%v", completed.Code, completed.Body.String(), completed.Header())
 	}
 	id := ""
@@ -459,7 +459,7 @@ func TestOAuthLoginCreatesVerifiedServerSideSession(t *testing.T) {
 	sessions.Register(mux)
 	login.Register(mux)
 	start := httptest.NewRecorder()
-	mux.ServeHTTP(start, httptest.NewRequest(http.MethodGet, loginPath, nil))
+	mux.ServeHTTP(start, httptest.NewRequest(http.MethodGet, loginPath+"?returnTo="+url.QueryEscape("/workspace?section=window#editor"), nil))
 	if start.Code != http.StatusFound || start.Header().Get("Referrer-Policy") != "no-referrer" || len(start.Result().Cookies()) != 1 {
 		t.Fatalf("start: status=%d headers=%v", start.Code, start.Header())
 	}
@@ -479,7 +479,7 @@ func TestOAuthLoginCreatesVerifiedServerSideSession(t *testing.T) {
 	callback.AddCookie(flowCookie)
 	result := httptest.NewRecorder()
 	mux.ServeHTTP(result, callback)
-	if result.Code != http.StatusSeeOther || result.Header().Get("Location") != "/" || tokenCalls != 1 {
+	if result.Code != http.StatusSeeOther || result.Header().Get("Location") != "/workspace?section=window#editor" || tokenCalls != 1 {
 		t.Fatalf("callback: status=%d location=%q body=%q calls=%d", result.Code, result.Header().Get("Location"), result.Body.String(), tokenCalls)
 	}
 	var sessionCookie *http.Cookie

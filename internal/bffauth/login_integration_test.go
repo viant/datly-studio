@@ -161,11 +161,14 @@ func TestOAuthLoginWithSignedJWTAndJWKS(t *testing.T) {
 		return &http.Client{Jar: jar, Timeout: 5 * time.Second}
 	}
 	browser := newBrowser()
-	response, err := browser.Get(studio.URL + loginPath)
+	response, err := browser.Get(studio.URL + loginPath + "?returnTo=" + url.QueryEscape("/?section=components#catalog"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	response.Body.Close()
+	if response.Request.URL.String() != studio.URL+"/?section=components#catalog" {
+		t.Fatalf("OAuth callback lost browser target: %s", response.Request.URL)
+	}
 	if response.StatusCode != http.StatusOK {
 		t.Fatalf("login status=%d", response.StatusCode)
 	}

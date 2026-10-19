@@ -55,6 +55,7 @@ type Login struct {
 }
 
 type loginState struct {
+	ReturnTo string `json:"returnTo,omitempty"`
 	State    string `json:"state"`
 	Verifier string `json:"verifier"`
 	Expires  int64  `json:"expires"`
@@ -131,7 +132,7 @@ func (l *Login) handleStart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	verifier := oauth2.GenerateVerifier()
-	pending := loginState{State: state, Verifier: verifier, Expires: l.now().Add(stateTTL).Unix()}
+	pending := loginState{State: state, Verifier: verifier, Expires: l.now().Add(stateTTL).Unix(), ReturnTo: loginReturnTo(r.URL.Query()["returnTo"])}
 	encoded, err := l.seal(pending)
 	if err != nil {
 		http.Error(w, "login unavailable", http.StatusServiceUnavailable)
@@ -185,7 +186,7 @@ func (l *Login) handleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	l.sessions.setSessionCookie(w, id, expires)
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	http.Redirect(w, r, loginReturnTo([]string{pending.ReturnTo}), http.StatusSeeOther)
 }
 
 func (l *Login) seal(state loginState) (string, error) {

@@ -32,7 +32,9 @@ type browserAuthComponents struct {
 	Logout   xdatly.Component[authLogoutInput, authHTTPOutput]   `component:"logout,path=/v1/studio/auth/session,method=DELETE"`
 }
 
-type authStartInput struct{}
+type authStartInput struct {
+	ReturnTo []string `parameter:"ReturnTo,kind=query,in=returnTo"`
+}
 type authCallbackInput struct {
 	Codes      []string `parameter:"Codes,kind=query,in=code"`
 	States     []string `parameter:"States,kind=query,in=state"`
@@ -115,13 +117,17 @@ func authResponse(status int, body string, options ...xresponse.Option) *authHTT
 	return &authHTTPOutput{Buffered: xresponse.NewBuffered(all...)}
 }
 
-func (l *Login) datlyStart(_ context.Context, _ *authStartInput) (*authHTTPOutput, error) {
+func (l *Login) datlyStart(_ context.Context, in *authStartInput) (*authHTTPOutput, error) {
 	state, err := randomID()
 	if err != nil {
 		return authResponse(http.StatusServiceUnavailable, "login unavailable"), nil
 	}
 	verifier := oauth2.GenerateVerifier()
-	encoded, err := l.seal(loginState{State: state, Verifier: verifier, Expires: l.now().Add(stateTTL).Unix()})
+	target := "/"
+	if in != nil {
+		target = loginReturnTo(in.ReturnTo)
+	}
+	encoded, err := l.seal(loginState{State: state, Verifier: verifier, Expires: l.now().Add(stateTTL).Unix(), ReturnTo: target})
 	if err != nil {
 		return authResponse(http.StatusServiceUnavailable, "login unavailable"), nil
 	}
@@ -158,7 +164,7 @@ func (l *Login) datlyCallback(ctx context.Context, in *authCallbackInput) (*auth
 	}
 	return authResponse(http.StatusSeeOther, "", clear,
 		xresponse.WithHeader("Set-Cookie", l.sessions.sessionCookie(id, expires).String()),
-		xresponse.WithHeader("Location", "/")), nil
+		xresponse.WithHeader("Location", loginReturnTo([]string{pending.ReturnTo}))), nil
 }
 
 func (l *Login) datlyToken(ctx context.Context, in *authTokenInput) (*authHTTPOutput, error) {

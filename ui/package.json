@@ -7,7 +7,8 @@
     ".": "./src/embed.jsx",
     "./access": "./src/accessEmbed.jsx",
     "./extensions": "./src/extensions.js",
-    "./styles.css": "./src/studio.css"
+    "./styles.css": "./src/studio.css",
+    "./session": "./src/session.js"
   },
   "scripts": {
     "dev": "vite --host 127.0.0.1",
