@@ -32,7 +32,7 @@ var windowSources embed.FS
 func NamespaceWindow(config Config) ([]Definition, error) {
 	names := []string{"namespaces"}
 	if config.ApplicationID == "" || config.ApplicationID == "datastudio" {
-		names = append(names, "connectors")
+		names = append(names, "connectors", "components")
 	}
 	var definitions []Definition
 	if config.ApplicationID == "" || config.ApplicationID == "datastudio" {
@@ -90,10 +90,18 @@ func managementWindow(config Config, name string) ([]Definition, error) {
 		prefix = "connector"
 		operations = append(operations, "test", "activate")
 	}
+	if name == "components" {
+		prefix = "component"
+		operations = []string{"components.get", "components.create", "components.update", "versions.list", "versions.create", "versions.clone", "versions.inspect", "versions.apply", "versions.validate", "versions.builder", "resources.get", "resources.upsert_file", "preview.execute", "publications.get", "publications.publish", "publications.unpublish", "publications.rollback"}
+	}
 	disabled := false
 	for _, operation := range operations {
-		id := prefix + "_" + operation
-		source.DataSources[id] = &ds.DataSource{ID: id, DataSource: types.DataSource{Cardinality: "object"}, Backend: &ds.Backend{Kind: ds.BackendMCPTool, Method: "studio.sdk." + name + "." + operation}, Cache: &ds.CachePolicy{Enabled: &disabled}}
+		id := prefix + "_" + strings.ReplaceAll(operation, ".", "_")
+		method := "studio.sdk." + name + "." + operation
+		if name == "components" {
+			method = "studio.sdk." + operation
+		}
+		source.DataSources[id] = &ds.DataSource{ID: id, DataSource: types.DataSource{Cardinality: "object"}, Backend: &ds.Backend{Kind: ds.BackendMCPTool, Method: method}, Cache: &ds.CachePolicy{Enabled: &disabled}}
 	}
 	return managementwindow.Build(managementwindow.Config{Namespace: config.Namespace, ProviderIdentity: config.ProviderIdentity, MCPService: config.MCPService}, name, source.Window, source.DataSources)
 }

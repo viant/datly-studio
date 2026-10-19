@@ -57,7 +57,7 @@ func navigation(config Config) (Definition, error) {
 				return Definition{}, fmt.Errorf("invalid management section")
 			}
 			seen[section.ID] = true
-			if section.ID == "namespaces" || section.ID == "connectors" && (config.ApplicationID == "" || config.ApplicationID == "datastudio") {
+			if section.ID == "namespaces" || (section.ID == "connectors" || section.ID == "components") && (config.ApplicationID == "" || config.ApplicationID == "datastudio") {
 				menus = append(menus, map[string]any{"id": section.ID, "title": section.Title, "icon": section.Icon, "action": map[string]any{"type": "window", "resourceUri": "window://" + config.Namespace + "/" + section.ID}})
 				continue
 			}
@@ -123,7 +123,7 @@ func embeddedNavigation(config Config) (Definition, error) {
 			if section == "" {
 				return fmt.Errorf("invalid native menu section")
 			}
-			if section == "namespaces" || section == "connectors" && (config.ApplicationID == "" || config.ApplicationID == "datastudio") {
+			if section == "namespaces" || (section == "connectors" || section == "components") && (config.ApplicationID == "" || config.ApplicationID == "datastudio") {
 				item["action"] = map[string]any{"type": "window", "resourceUri": "window://" + config.Namespace + "/" + section}
 				continue
 			}

@@ -29,7 +29,7 @@ func TestManagementRequiresVerifiedPrincipal(t *testing.T) {
 		}
 	}
 	ns, definitions, err := management(claims, auth)
-	if err != nil || ns.Name != "operations" || len(definitions) != 17 {
+	if err != nil || ns.Name != "operations" || len(definitions) != 40 {
 		t.Fatalf("authenticated discovery failed: %+v %v", ns, err)
 	}
 	refs := managementReferences(definitions, "navigation")

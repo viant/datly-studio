@@ -20,7 +20,7 @@ func TestManagementResourceListingPagesAndFilterBoundCursor(t *testing.T) {
 	input := &ResourcesListInput{Jwt: claims, Auth: &studioauth.Output{Auth: &studioauth.AuthContext{Subject: "alice"}}}
 	input.Request.Meta.AdditionalProperties = map[string]any{resourceFilterKey: map[string]any{"namespace": "ns://management", "limit": 1}}
 	seen := map[string]bool{}
-	for page := 0; page < 20; page++ {
+	for page := 0; page < 100; page++ {
 		out := &ResourcesListOutput{}
 		if err := runResourcesList(context.Background(), nil, input, out); err != nil {
 			t.Fatal(err)
@@ -47,7 +47,7 @@ func TestManagementResourceListingPagesAndFilterBoundCursor(t *testing.T) {
 			break
 		}
 	}
-	if input.Request.Cursor != nil || len(seen) != 17 {
+	if input.Request.Cursor != nil || len(seen) != 40 {
 		t.Fatalf("listing never completed: %+v", input.Request.Cursor)
 	}
 	first := &ResourcesListOutput{}

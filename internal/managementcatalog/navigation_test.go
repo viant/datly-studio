@@ -35,7 +35,7 @@ func TestManagementNavigation(t *testing.T) {
 	}
 	for i, section := range source.Menus {
 		action := app.Menus[i].Action
-		if section.ID == "connectors" || section.ID == "namespaces" {
+		if section.ID == "connectors" || section.ID == "namespaces" || section.ID == "components" {
 			if action.Type != "window" || action.ResourceURI != "window://operations/"+section.ID {
 				t.Fatalf("incorrect functional window action: %+v", action)
 			}
@@ -116,7 +116,7 @@ func TestEmbeddedNativeNavigationExactMenuParityAndURLActions(t *testing.T) {
 				section = w["id"].(string)
 			}
 			action := g["action"].(map[string]any)
-			if section == "connectors" || section == "namespaces" {
+			if section == "connectors" || section == "namespaces" || section == "components" {
 				if action["type"] != "window" || action["resourceUri"] != "window://datastudio/"+section {
 					t.Fatalf("incorrect functional window action: %v", action)
 				}

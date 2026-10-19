@@ -1,4 +1,5 @@
-import React from 'react';
+import React,{act} from 'react';
+import {EditorView} from '@codemirror/view';
 import {readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {test,expect,vi} from 'vitest';
@@ -13,7 +14,8 @@ function source(screenName) {
  const {window:definition,dataSources}=parse(readFileSync(resolve(base,'main.yaml'),'utf8'));
  definition.namespace='datastudio';definition.actionAliases=['management'];definition.actions={code:readFileSync(resolve(base,'main.js'),'utf8')};
  const prefix=screenName==='connectors'?'connector':'namespace';
- for(const operation of ['get','create','update',...(screenName==='connectors'?['test','activate']:[])])dataSources[prefix+'_'+operation]={id:prefix+'_'+operation,backend:{kind:'mcp_tool',method:`studio.sdk.${screenName}.${operation}`},cache:{enabled:false},cardinality:'object'};
+ if(screenName==='components') {for(const operation of ['components.get','components.create','components.update','versions.list','versions.create','versions.clone','versions.inspect','versions.apply','versions.validate','versions.builder','resources.get','resources.upsert_file','preview.execute','publications.get','publications.publish','publications.unpublish','publications.rollback'])dataSources['component_'+operation.replaceAll('.','_')]={id:'component_'+operation.replaceAll('.','_'),backend:{kind:'mcp_tool',method:'studio.sdk.'+operation},cardinality:'object',cache:{enabled:false}};}
+ else for(const operation of ['get','create','update',...(screenName==='connectors'?['test','activate']:[])])dataSources[prefix+'_'+operation]={id:prefix+'_'+operation,backend:{kind:'mcp_tool',method:`studio.sdk.${screenName}.${operation}`},cache:{enabled:false},cardinality:'object'};
  definition.dataSource=dataSources;return definition;
 }
 for(const [screenName,openButton,nameLabel,titleLabel] of [['connectors','New connector','Name','Description'],['namespaces','New namespace','Namespace','Display title']]) {
@@ -52,4 +54,49 @@ test('connector window edits the saved revision, preserves blank secrets, and in
  await user.click(screen.getByRole('button',{name:'Test',exact:true}));await waitFor(()=>expect(calls.some(request=>request.dataSourceRef==='connector_test')).toBe(true));
  await user.click(screen.getByRole('button',{name:'Activate',exact:true}));await waitFor(()=>expect(calls.some(request=>request.dataSourceRef==='connector_activate')).toBe(true));
  expect(calls.find(request=>request.dataSourceRef==='connector_activate').options.inputParameters).toEqual({name:'warehouse',etag:7});
+});
+
+test('component window edits actual CodeMirror source with CAS then validates, previews and publishes',async()=>{
+ Range.prototype.getClientRects ||= function(){return [];};Range.prototype.getBoundingClientRect ||= function(){return new DOMRect();};
+ const metadata=source('components'),calls=[],namespaceId='a'.repeat(64);
+ const component={id:'reader',title:'Example reader',slug:'reader',defaultConnectorName:'main',currentDraftVersion:2};
+ let dql='SELECT 1',revision=7,fileSource='SELECT 5';
+ const file=()=>({reportId:'reader',versionNo:2,resourceId:'source-file',namespace:'reader_sql',resourcePath:'sql/main.sql',content:fileSource,mediaType:'text/plain'});
+ const version=()=>({versionNo:2,sourceRevision:revision,state:'draft',authoredDql:dql});
+ const transport=vi.fn(async request=>{
+  calls.push(request);const id=request.dataSourceRef,args=request.options.inputParameters;
+  if(id==='component_namespaces')return {data:[{namespaceId,name:'inventory',title:'Inventory'}]};
+  if(id==='component_connectors')return {data:[{name:'main',status:'active'}]};
+  if(id==='components')return {data:[component]};
+  if(id==='component_components_get')return {data:[component]};
+  if(id==='component_versions_inspect')return {data:[{version:version(),dql,diagnostics:[]}]};
+  if(id==='component_resources_get')return {data:[{files:[file()],version:version()}]};
+  if(id==='component_resources_upsert_file'){expect(args.expectedSourceRevision).toBe(revision);expect(args.resourceId).toBe('source-file');fileSource=args.content;revision++;return {data:[{files:[file()],version:version()}]};}
+  if(id==='component_versions_apply') {expect(args.namespaceId).toBe(namespaceId);expect(args.command.expectedSourceRevision).toBe(revision);dql=args.command.payload.authoredDql;revision++;return {data:[{version:version()}]};}
+  if(id==='component_versions_validate')return {data:[{valid:true,version:version(),diagnostics:[]}]};
+  if(id==='component_preview_execute')return {data:[{data:[{value:2}],diagnostics:[]}]};
+  if(id==='component_publications_publish')return {data:[{status:'active',activeGeneration:4}]};
+  if(id==='component_draft'||id==='component_files')return {data:[]};
+  throw new Error('Unexpected '+id);
+ });
+ render(<SettingProvider endpoints={{}} connectorConfig={{window:{service:{uri:'/window'}}}} services={{dataConnectorTransport:transport}}><WindowContent window={{windowId:'management-component-editor',windowKey:'components'}} selectedMetadata={metadata}/></SettingProvider>);
+ const user=userEvent.setup();await user.click(await screen.findByRole('button',{name:'Namespace',exact:true}));await user.click(await screen.findByText('Inventory'));
+ const row=await screen.findByText('Example reader');if(!row.closest('tr').classList.contains('selected-row'))await user.click(row);
+ await user.click(screen.getByRole('button',{name:'Open reader',exact:true}));
+ await waitFor(()=>expect(document.querySelector('.cm-content').textContent).toBe('SELECT 1'));
+ const editor=EditorView.findFromDOM(document.querySelector('.cm-editor'));
+ await act(async()=>editor.dispatch({changes:{from:0,to:editor.state.doc.length,insert:'SELECT 2'}}));
+ await user.click(screen.getByRole('button',{name:'Save reader DQL',exact:true}));await waitFor(()=>expect(dql).toBe('SELECT 2'));
+ await user.click(screen.getByRole('button',{name:'Validate',exact:true}));await waitFor(()=>expect(calls.some(request=>request.dataSourceRef==='component_versions_validate')).toBe(true));
+ await user.click(screen.getByRole('button',{name:'Run preview',exact:true}));await waitFor(()=>expect(screen.getByLabelText('Preview result',{exact:true}).value).toContain('value'));
+ await user.click(screen.getByRole('button',{name:'Publish version',exact:true}));await waitFor(()=>expect(calls.some(request=>request.dataSourceRef==='component_publications_publish')).toBe(true));
+ expect(calls.find(request=>request.dataSourceRef==='component_publications_publish').options.inputParameters.input.expectedSourceRevision).toBe(8);
+ await user.click(await screen.findByText('reader_sql'));
+ await user.click(await screen.findByText('sql',{exact:true}));
+ await user.click(await screen.findByText('sql/main.sql',{exact:true}));
+ await waitFor(()=>expect(editor.state.doc.toString()).toBe('SELECT 5'));
+ await act(async()=>editor.dispatch({changes:{from:0,to:editor.state.doc.length,insert:'SELECT 6'}}));
+ await user.click(screen.getByRole('button',{name:'Save selected file',exact:true}));
+ await waitFor(()=>expect(fileSource).toBe('SELECT 6'));
+
 });

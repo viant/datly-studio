@@ -1,0 +1,176 @@
+window:
+  windowKey: components
+  view:
+    content:
+      id: component-workspace
+      className: studio-workspace
+      containers:
+        - id: component-context
+          dataSourceRef: component_draft
+          items:
+            - id: namespaceId
+              label: Namespace
+              type: select
+              scope: windowForm
+              dataField: namespaceId
+              optionsDataSourceRef: component_namespaces
+              optionValueField: namespaceId
+              optionLabelField: title
+              on: [{event: onChange, handler: management.selectNamespace}]
+        - id: component-catalog
+          kind: table
+          title: Components
+          dataSourceRef: components
+          fetchData: false
+          on: [{event: onInit, handler: management.idle}]
+          toolbar:
+            items:
+              - {id: new-component, label: New component, icon: add, on: [{event: onClick, handler: management.newComponent}]}
+              - {id: edit-component, label: Edit metadata, icon: edit, on: [{event: onClick, handler: management.editComponent}]}
+              - {id: open-reader, label: Open reader, icon: code, on: [{event: onClick, handler: management.openReader}]}
+              - {id: refresh-components, label: Refresh, icon: refresh, on: [{event: onClick, handler: management.refreshComponents}]}
+          table:
+            columns:
+              - {id: title, name: Title}
+              - {id: slug, name: Slug}
+              - {id: defaultConnectorName, name: Connector}
+              - {id: status, name: Status}
+              - {id: currentDraftVersion, name: Draft version}
+        - id: reader-settings
+          dataSourceRef: component_draft
+          items:
+            - {id: reportId, label: Component ID, dataField: reportId, type: text, readOnly: true}
+            - {id: versionNo, label: Version, dataField: versionNo, type: number}
+            - {id: sourceRevision, label: Source revision, dataField: sourceRevision, type: number, readOnly: true}
+            - {id: state, label: Version state, dataField: state, type: text, readOnly: true}
+          toolbar:
+            items:
+              - {id: load-version, label: Load version, icon: refresh, on: [{event: onClick, handler: management.loadVersion}]}
+              - {id: new-draft, label: New draft, icon: add, on: [{event: onClick, handler: management.createDraft}]}
+              - {id: clone-draft, label: Clone to draft, icon: duplicate, on: [{event: onClick, handler: management.cloneDraft}]}
+              - {id: save-dql, label: Save reader DQL, icon: floppy-disk, on: [{event: onClick, handler: management.saveDQL}]}
+              - {id: validate-reader, label: Validate, icon: tick, on: [{event: onClick, handler: management.validateReader}]}
+        - id: reader-source
+          dataSourceRef: component_draft
+          editor:
+            title: Reader source
+            selector: {source: source, location: location, extension: extension}
+        - id: reader-resources
+          dataSourceRef: component_files
+          fetchData: false
+          treeBrowser:
+            title: Retained source files
+            pathField: treePath
+            valueField: resourceId
+            labelField: resourcePath
+            on:
+              - {event: onInit, handler: management.idle}
+              - {event: onNodeSelect, handler: management.openFile}
+          toolbar:
+            items:
+              - {id: new-file, label: New source file, icon: add, on: [{event: onClick, handler: management.newFile}]}
+              - {id: save-file, label: Save selected file, icon: floppy-disk, on: [{event: onClick, handler: management.saveFile}]}
+        - id: reader-preview
+          dataSourceRef: component_draft
+          items:
+            - {id: previewInput, label: Preview inputs (JSON), dataField: previewInput, type: textarea}
+            - {id: limit, label: Preview row limit, dataField: limit, type: number}
+            - {id: cube, label: Preview cube, dataField: cube, type: checkbox}
+          toolbar:
+            items:
+              - {id: preview-reader, label: Run preview, icon: play, on: [{event: onClick, handler: management.previewReader}]}
+        - id: reader-preview-result
+          dataSourceRef: component_draft
+          items:
+            - {id: previewJSON, label: Preview result, dataField: previewJSON, type: textarea, readOnly: true}
+            - {id: diagnostics, label: Diagnostics, dataField: diagnostics, type: textarea, readOnly: true}
+        - id: reader-publication
+          dataSourceRef: component_draft
+          items:
+            - {id: reason, label: Publication reason, dataField: reason, type: text}
+          toolbar:
+            items:
+              - {id: publish-reader, label: Publish version, icon: cloud-upload, on: [{event: onClick, handler: management.publishReader}]}
+              - {id: unpublish-reader, label: Unpublish, icon: disable, on: [{event: onClick, handler: management.unpublishReader}]}
+              - {id: rollback-reader, label: Roll back to version, icon: undo, on: [{event: onClick, handler: management.rollbackReader}]}
+        - id: reader-command
+          dataSourceRef: component_draft
+          items:
+            - {id: structureCommand, label: Structural operation (JSON), dataField: structureCommand, type: textarea}
+          toolbar:
+            items:
+              - {id: apply-structure, label: Apply structural operation, icon: edit, on: [{event: onClick, handler: management.applyStructureCommand}]}
+        - id: component-outcome
+          dataSourceRef: component_draft
+          items:
+            - {id: outcome, label: Outcome, dataField: outcome, type: textarea, readOnly: true}
+  dialogs:
+    - id: component-metadata
+      title: Component metadata
+      className: studio-connector-dialog
+      dataSourceRef: component_draft
+      fetchOnOpen: false
+      content:
+        id: component-metadata-form
+        items:
+          - {id: slug, label: Slug, dataField: slug, type: text}
+          - {id: title, label: Title, dataField: title, type: text}
+          - {id: description, label: Description, dataField: description, type: textarea}
+          - {id: defaultConnectorName, label: Connector, dataField: defaultConnectorName, type: select, optionsDataSourceRef: component_connectors, optionValueField: name, optionLabelField: name}
+          - {id: outcome, label: Outcome, dataField: outcome, type: textarea, readOnly: true}
+      actions:
+        - {id: save-component, label: Save component, close: true, on: [{event: onClick, handler: management.saveComponent}]}
+        - {id: cancel-component, label: Cancel, close: true}
+    - id: component-file
+      title: Source file identity
+      className: studio-connector-dialog
+      dataSourceRef: component_draft
+      fetchOnOpen: false
+      content:
+        id: source-file-form
+        items:
+          - {id: fileNamespace, label: Resource namespace, dataField: fileNamespace, type: text}
+          - {id: filePath, label: Relative source path, dataField: filePath, type: text}
+      actions:
+        - {id: prepare-file, label: Open new file, close: true, on: [{event: onClick, handler: management.saveFileIdentity}]}
+        - {id: cancel-file, label: Cancel, close: true}
+dataSources:
+  component_namespaces:
+    id: component_namespaces
+    cardinality: collection
+    selectors: {data: items}
+    uniqueKey: [{field: namespaceId}]
+    paging: {enabled: true, size: 100, parameters: {page: offset, size: limit}}
+    backend: {kind: mcp_tool, method: studio.sdk.namespaces.list}
+    cache: {enabled: false}
+  component_connectors:
+    id: component_connectors
+    cardinality: collection
+    selectors: {data: items}
+    uniqueKey: [{field: name}]
+    paging: {enabled: true, size: 100, parameters: {page: offset, size: limit}}
+    backend: {kind: mcp_tool, method: studio.sdk.connectors.list, pinned: {status: active}}
+    cache: {enabled: false}
+  components:
+    id: components
+    cardinality: collection
+    selectionMode: single
+    selectors: {data: items}
+    uniqueKey: [{field: id}]
+    paging: {enabled: true, openEnded: true, size: 25, parameters: {page: offset, size: limit}}
+    backend: {kind: mcp_tool, method: studio.sdk.components.list}
+    on: [{event: onInit, handler: management.idle}]
+    cache: {enabled: false}
+  component_draft:
+    id: component_draft
+    cardinality: object
+    backend: {kind: inline, rows: []}
+    cache: {enabled: false}
+  component_files:
+    id: component_files
+    cardinality: collection
+    selectionMode: single
+    uniqueKey: [{field: resourceId}]
+    backend: {kind: inline, rows: []}
+    on: [{event: onInit, handler: management.idle}]
+    cache: {enabled: false}
