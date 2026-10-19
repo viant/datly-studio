@@ -633,6 +633,11 @@ SELECT wide.*, type(wide,'Row') FROM (SELECT * FROM STUDIO_WIDE_60) wide`
 	if unauthenticatedPredicateTypes.Code != http.StatusUnauthorized {
 		t.Fatalf("unauthenticated predicate types status=%d body=%s", unauthenticatedPredicateTypes.Code, unauthenticatedPredicateTypes.Body.String())
 	}
+	emptyPredicateList := httptest.NewRecorder()
+	server.ServeHTTP(emptyPredicateList, request("/v1/studio/sdk/authorization_predicates.list", `{"limit":26,"offset":0}`))
+	if emptyPredicateList.Code != http.StatusOK || !strings.Contains(emptyPredicateList.Body.String(), `"items":[]`) {
+		t.Fatalf("empty predicate catalog status=%d body=%s", emptyPredicateList.Code, emptyPredicateList.Body.String())
+	}
 	for _, row := range []struct{ name, title, packagePath, typeName, status, scope string }{
 		{"studio.alpha.read", "Alpha access", "github.com/viant/datly-studio/studio/authorization", "ReportRead", "active", `{"alias":"r","columns":["tenant_id"]}`},
 		{"studio.beta.read", "Beta access", "example.com/missing", "NotLinked", "disabled", ""},

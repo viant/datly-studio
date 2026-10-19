@@ -3,6 +3,7 @@ package predicateprojection
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"reflect"
 	"strings"
 
@@ -37,6 +38,7 @@ func Read(ctx context.Context, invoker exec.ComponentInvoker, name, query, statu
 		Route:     spec.RouteRef{Method: "GET", Path: "/_studio/authorization-predicate-store"},
 	}, Input: input, Providers: []locator.Provider{handlerprovider.Static(xhandler.SelectorsKey, selector)}})
 	if err != nil {
+		slog.ErrorContext(ctx, "Studio authorization predicate read failed", "error", err)
 		return nil, err
 	}
 	output, ok := value.(*storedreader.Output)
