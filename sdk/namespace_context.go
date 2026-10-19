@@ -20,5 +20,5 @@ func NamespaceSelectionFromContext(ctx context.Context) (string, bool) {
 // RequiresNamespaceSelection distinguishes resource operations from global
 // connector and namespace administration and linked predicate type discovery.
 func RequiresNamespaceSelection(operation string) bool {
-	return !strings.HasPrefix(operation, "namespaces.") && !strings.HasPrefix(operation, "connectors.") && operation != "authorization_predicates.types"
+	return !strings.HasPrefix(operation, "namespaces.") && !strings.HasPrefix(operation, "connectors.") && operation != "authorization_predicates.types" && operation != "codecs.types"
 }

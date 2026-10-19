@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/viant/datly/typecatalog"
+	"github.com/viant/scy/auth/jwt"
 	"github.com/viant/x"
 	xcodec "github.com/viant/xdatly/codec"
 	"github.com/viant/xunsafe"
@@ -86,4 +87,46 @@ func linkedTypes(path string) []reflect.Type {
 	}
 	sort.Slice(result, func(i, j int) bool { return result[i].Name() < result[j].Name() })
 	return result
+}
+
+// Descriptor identifies executable codec authority, not a browser-provided alias.
+type Descriptor struct {
+	Name             string `json:"name"`
+	Description      string `json:"description"`
+	InputType        string `json:"inputType,omitempty"`
+	OutputType       string `json:"outputType,omitempty"`
+	Builtin          bool   `json:"builtin"`
+	AcceptsArguments bool   `json:"acceptsArguments"`
+}
+
+func Descriptors(packages ...Package) ([]*Descriptor, error) {
+	if err := Link(typecatalog.NewCatalog(), packages...); err != nil {
+		return nil, err
+	}
+	var result []*Descriptor
+	for _, pkg := range packages {
+		types := pkg.Types
+		if types == nil {
+			types = linkedTypes(pkg.Path)
+		}
+		for _, typ := range types {
+			for typ.Kind() == reflect.Pointer {
+				typ = typ.Elem()
+			}
+			result = append(result, &Descriptor{Name: pkg.Path + "." + typ.Name(), Description: "Host-linked Go codec", AcceptsArguments: reflect.PointerTo(typ).Implements(reflect.TypeFor[xcodec.Factory]())})
+		}
+	}
+	sort.Slice(result, func(i, j int) bool { return result[i].Name < result[j].Name })
+	return result, nil
+}
+
+// RegisterBuiltinTypes makes the absolute JwtClaim destination resolvable by DQL.
+func RegisterBuiltinTypes(catalog *typecatalog.Catalog) error {
+	const path = "github.com/viant/scy/auth/jwt"
+	if _, found, err := catalog.ResolveRuntimeType(typecatalog.PackageAuthority, path+".Claims"); err != nil {
+		return err
+	} else if found {
+		return nil
+	}
+	return catalog.Register(typecatalog.TypeOriginPackage, x.NewType(reflect.TypeFor[jwt.Claims](), x.WithPkgPath(path)))
 }

@@ -57,7 +57,7 @@ export class StudioAPI {
   }
 
   namespaceSnapshot(operation) {
-    if (operation.startsWith('namespaces.') || operation.startsWith('connectors.') || operation === 'authorization_predicates.types') return null;
+    if (operation.startsWith('namespaces.') || operation.startsWith('connectors.') || (operation === 'authorization_predicates.types' || operation === 'codecs.types')) return null;
     if (this.namespaceBlocked) {
       const error = new Error('Choose an available namespace before continuing.');
       error.code = 'namespace_unavailable';
@@ -109,6 +109,17 @@ export class StudioAPI {
       body: JSON.stringify({jsonrpc:'2.0',id:1,method:'resources/read',params:{uri,_meta:{'io.modelcontextprotocol/protocolVersion':'2026-07-28','io.modelcontextprotocol/clientCapabilities':{}}}}),
     });
     const value = await response.json();
+    // Older hosts expose the authorized namespace resource tool but do not yet
+    // bridge virtual resources into resources/read.
+    if (response.ok && value.error?.code === -32002) {
+      const fallback = await this.send(endpoint, {method:'POST',credentials:this.identity?'omit':'include',headers:{'Content-Type':'application/json',Accept:'application/json','Mcp-Method':'tools/call','Mcp-Name':'resource/get','Mcp-Protocol-Version':'2026-07-28'},body:JSON.stringify({jsonrpc:'2.0',id:2,method:'tools/call',params:{name:'resource/get',arguments:{uri},_meta:{'io.modelcontextprotocol/protocolVersion':'2026-07-28','io.modelcontextprotocol/clientCapabilities':{}}}})});
+      const payload=await fallback.json();
+      if(!fallback.ok||payload.error||payload.result?.isError)throw new Error(payload.error?.message||payload.result?.content?.find(item=>item.type==='text')?.text||'Management resource could not be loaded.');
+      if(payload.result?.structuredContent!==undefined)return payload.result.structuredContent;
+      const text=payload.result?.content?.find(item=>item.type==='text')?.text;
+      if(!text)throw new Error('Management window resource is missing.');
+      return JSON.parse(text);
+    }
     if (!response.ok || value.error) {
       if (response.status === 401) this.onUnauthorized?.();
       throw new Error(value?.error?.message || value?.message || 'Management window could not be loaded.');
@@ -116,6 +127,37 @@ export class StudioAPI {
     const content = value.result?.contents?.find(item => item.uri === uri && typeof item.text === 'string');
     if (!content) throw new Error('Management window resource is missing.');
     return JSON.parse(content.text);
+  }
+
+  async fetchMCPDataSource(source, input = {}) {
+    const method = source?.backend?.method;
+    if (source?.backend?.kind !== 'mcp_tool' || !method?.startsWith('studio.sdk.')) throw new Error('A Studio MCP datasource is required.');
+    const operation = method.slice('studio.sdk.'.length);
+    const snapshot = this.namespaceSnapshot(operation);
+    const args = {...input, ...(snapshot?.id ? {namespaceId:snapshot.id} : {})};
+    let result;
+    if (this.nativeCallTool) result = await this.nativeRequest(null, operation, args);
+    else {
+      const endpoint = this.identity ? `${this.config.mcpBaseURL}/mcp` : `${this.config.apiBaseURL}/v1/studio/sdk-mcp/mcp`;
+      const headers = {'Content-Type':'application/json',Accept:'application/json','Mcp-Method':'tools/call','Mcp-Name':method,'Mcp-Protocol-Version':'2026-07-28'};
+      if (snapshot?.id) headers['X-Studio-Namespace'] = snapshot.id;
+      if (this.config.mode === 'development') headers['X-Studio-Development-Subject'] = this.config.development.subject;
+      const response = await this.send(endpoint,{method:'POST',credentials:this.identity?'omit':'include',headers,body:JSON.stringify({jsonrpc:'2.0',id:1,method:'tools/call',params:{name:method,arguments:args,_meta:{'io.modelcontextprotocol/protocolVersion':'2026-07-28','io.modelcontextprotocol/clientCapabilities':{}}}})},snapshot);
+      const payload = await response.json();
+      this.assertNamespace(snapshot);
+      const tool = payload?.result;
+      if (!response.ok || payload?.error || tool?.isError) {
+        if(response.status===401)this.onUnauthorized?.();
+        const text=(tool?.content??[]).filter((item)=>item.type==='text').map((item)=>item.text).join(' ');
+        const error=new Error(payload?.error?.message||tool?.structuredContent?.message||text||'Reader lookup datasource failed.');
+        error.code=tool?.structuredContent?.code||nativeErrorCode[response.status];error.status=response.status;throw error;
+      }
+      result=tool?.structuredContent;
+      if(result===undefined){const text=tool?.content?.find((item)=>item.type==='text')?.text;if(text)result=JSON.parse(text);}
+      if(result===undefined)throw new Error('Reader lookup datasource returned no data.');
+    }
+    this.assertNamespace(snapshot);
+    return source.selectors?.data ? source.selectors.data.split('.').reduce((value,key)=>value?.[key],result) ?? [] : result;
   }
 
   async invoke(operation, input = {}) {

@@ -43,6 +43,26 @@ describe('Studio connector catalog', () => {
       window.history.replaceState({}, '', '/');
     }
   });
+  test('opens the created component directly in root SQL', async () => {
+    const user = userEvent.setup();
+    const api = catalogAPI();
+    api.listNamespaces.mockResolvedValue({items:[{name:'general',title:'General',status:'active'}]});
+    api.createComponent = vi.fn().mockResolvedValue({id:'created',title:'New reader',slug:'new-reader',defaultConnectorName:'reporting'});
+    api.listVersions = vi.fn().mockResolvedValue({items:[]});
+    render(<StudioApp api={api} mode="development" subject="owner"/>);
+    await user.click(screen.getAllByRole('button',{name:'Components',exact:true}).find((item)=>item.closest('.bp6-tree-node')));
+    await screen.findByRole('heading',{name:'No components yet'});
+    await user.click(screen.getAllByRole('button',{name:'New component'})[0]);
+    await user.type(screen.getByLabelText('Component title'),'New reader');
+    await user.selectOptions(await screen.findByLabelText('Active connector'),'reporting');
+    await user.click(screen.getByRole('button',{name:'Create component'}));
+    expect(await screen.findByRole('heading',{name:'Root SQL'})).toBeTruthy();
+    expect(screen.getByRole('heading',{name:'New reader',level:1})).toBeTruthy();
+    await waitFor(()=>expect(screen.queryByRole('dialog',{name:'New component'})).toBeNull());
+    expect(api.listVersions).toHaveBeenCalledWith('created',{limit:100});
+    expect(api.createComponent).toHaveBeenCalledTimes(1);
+  });
+
   test('allows keyboard activation of sidebar navigation', async () => {
     const user = userEvent.setup();
     render(<StudioApp api={catalogAPI()} mode="development" subject="owner" />);

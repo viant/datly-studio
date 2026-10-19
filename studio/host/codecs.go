@@ -5,7 +5,10 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/viant/datly-studio/runtime/accesscontext"
 	"github.com/viant/datly-studio/studio/codeccatalog"
+	nativeauth "github.com/viant/datly/runtime/auth"
+	"github.com/viant/datly/runtime/handler/codec/structql"
 	"github.com/viant/datly/typecatalog"
 )
 
@@ -48,4 +51,18 @@ func (c Config) codecPackages() []codeccatalog.Package {
 		}
 	}
 	return append(result, c.CodecPackages...)
+}
+
+// CodecDescriptors describes the pinned Datly built-ins and host-approved codecs.
+func (c Config) CodecDescriptors() ([]*codeccatalog.Descriptor, error) {
+	linked, err := codeccatalog.Descriptors(c.codecPackages()...)
+	if err != nil {
+		return nil, err
+	}
+	result := []*codeccatalog.Descriptor{
+		{Name: structql.Name, Description: "Query a typed value with StructQL", Builtin: true, AcceptsArguments: true},
+		{Name: nativeauth.JwtClaim, Description: "Verify a JWT using the host's configured verifier", InputType: "string", OutputType: "*github.com/viant/scy/auth/jwt.Claims", Builtin: true},
+		{Name: accesscontext.EntityIDsCodec, Description: "Convert authorized entity IDs to the declared ID slice", InputType: "[]string", OutputType: "[]int", Builtin: true},
+	}
+	return append(result, linked...), nil
 }

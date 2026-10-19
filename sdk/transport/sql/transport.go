@@ -24,6 +24,7 @@ import (
 	studiors "github.com/viant/datly-studio/runtime/resources"
 	"github.com/viant/datly-studio/sdk"
 	publicationstore "github.com/viant/datly-studio/sdk/transport/sql/internal/publications"
+	"github.com/viant/datly-studio/studio/codeccatalog"
 	connectorconfig "github.com/viant/datly-studio/studio/connectors/store_config"
 	connectorinsert "github.com/viant/datly-studio/studio/connectors/store_insert"
 	connectorstatus "github.com/viant/datly-studio/studio/connectors/store_status"
@@ -45,6 +46,7 @@ import (
 	"github.com/viant/datly/spec"
 	"github.com/viant/datly/transcribe"
 	"github.com/viant/datly/transcribe/dql"
+	"github.com/viant/datly/typecatalog"
 	xhandler "github.com/viant/xdatly/handler"
 )
 
@@ -126,6 +128,7 @@ type CandidateContractInspector interface {
 }
 
 type Transport struct {
+	RuntimeTypes      *typecatalog.Catalog
 	ContractInspector ContractInspector
 	DB                *sql.DB
 	// ComponentInvoker runs linked reader/writer components in the caller's
@@ -1441,6 +1444,27 @@ func (t *Transport) applyReaderBuilder(ctx context.Context, input, output any) e
 	if err != nil {
 		return err
 	}
+	if response.Applied && operation.Type != readerbuilder.OperationInspect {
+		candidate, editErr := editInputErrors(response.DQL, in.Command.Operation)
+		if editErr != nil {
+			return invalid(editErr)
+		}
+		if candidate != response.DQL {
+			temporary := *version
+			temporary.GeneratedDQL = candidate
+			checked, checkErr := t.runReaderBuilder(ctx, in.ReportID, &temporary, readerbuilder.Operation{Type: readerbuilder.OperationInspect})
+			if checkErr != nil {
+				return checkErr
+			}
+			if len(checked.Diagnostics) != 0 || checked.Structure == nil || checked.Structure.Status != "complete" {
+				checked.Applied = false
+				response = checked
+			} else {
+				checked.Applied = true
+				response = checked
+			}
+		}
+	}
 	capabilities, err := t.reportCapabilities(ctx, in.ReportID)
 	if err != nil {
 		return err
@@ -1801,7 +1825,13 @@ func (t *Transport) runReaderBuilder(ctx context.Context, reportID string, versi
 		operation.Package = &copy
 	}
 	types, err := t.Predicates.RuntimeTypes()
+	if t.RuntimeTypes != nil {
+		types, err = t.RuntimeTypes.Clone()
+	}
 	if err != nil {
+		return nil, err
+	}
+	if err = codeccatalog.RegisterBuiltinTypes(types); err != nil {
 		return nil, err
 	}
 	if err = accesscontext.RegisterTypes(types); err != nil {
@@ -1819,6 +1849,15 @@ func (t *Transport) runReaderBuilder(ctx context.Context, reportID string, versi
 		Name:                report.ComponentName,
 		AvailableConnectors: connectors,
 	})
+	if wholeValueInputEdit(operation) {
+		candidate, editErr := editWholeValueInput(versionDQL(version), operation.Field)
+		response := compileFieldEdit(ctx, service, versionDQL(version), candidate, editErr)
+		return &response, nil
+	}
+	if operation.Type == "updateOutputField" || operation.Type == "removeOutputField" {
+		response := applyOutputField(ctx, service, versionDQL(version), operation)
+		return &response, nil
+	}
 	response := service.Apply(ctx, readerbuilder.Request{DQL: versionDQL(version), Operation: operation})
 	return &response, nil
 }

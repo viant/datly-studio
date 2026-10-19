@@ -46,6 +46,7 @@ GoBootstrap:
     - github.com/viant/datly-studio/studio/authorization_predicates/store_write
     - github.com/viant/datly-studio/studio/reports/catalogpredicate
     - github.com/viant/datly-studio/studio/auth/reader
+    - github.com/viant/datly-studio/studio/codecs/types
     - github.com/viant/datly-studio/studio/catalog
     - github.com/viant/datly-studio/studio/connectors/reader
     - github.com/viant/datly-studio/studio/connectors/create

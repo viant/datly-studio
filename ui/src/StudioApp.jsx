@@ -96,10 +96,7 @@ export function StudioApp({ api, mode, subject, brand = 'Data Studio', extension
   const visibleItems = items;
   const reportNamespaces = [...new Set((namespaces.length ? namespaces.map((item) => item.name) : reports.map((item) => item.namespace || 'general')).filter(Boolean))].sort();
   const columns = reportColumns;
-  const onReportCreated = async () => {
-    setSection('components');
-    await loadSection();
-  };
+  const onReportCreated = (report) => openBuilder(report);
   const onManagementOperation = useCallback((operation) => {
     if (['namespaces.create', 'namespaces.update', 'namespaces.delete'].includes(operation)) return namespaceWorkspace.refresh?.();
   }, [namespaceWorkspace.refresh]);

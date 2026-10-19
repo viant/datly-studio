@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/viant/datly-studio/runtime/preview"
+	"github.com/viant/datly-studio/studio/codeccatalog"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
 	"github.com/viant/datly/spec"
 	"github.com/viant/datly/typecatalog"
@@ -27,6 +28,7 @@ type AuthoringConfig struct {
 
 // Authoring is a detached immutable per-host compilation snapshot.
 type Authoring struct {
+	codecs       []*codeccatalog.Descriptor
 	constants    *constant.Values
 	dependencies preview.DependencyResolver
 	readerCaches map[string]*spec.CacheSettings
@@ -48,7 +50,11 @@ func NewAuthoring(config AuthoringConfig) (*Authoring, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Authoring{constants: config.Const, module: name, predicates: predicates, types: types, readerCaches: cloneReaderCaches(config.ReaderCaches), dependencies: config.Dependencies}, nil
+	codecs, err := config.Config.CodecDescriptors()
+	if err != nil {
+		return nil, err
+	}
+	return &Authoring{codecs: codecs, constants: config.Const, module: name, predicates: predicates, types: types, readerCaches: cloneReaderCaches(config.ReaderCaches), dependencies: config.Dependencies}, nil
 }
 
 func (a *Authoring) ModulePath() string                          { return a.module }
@@ -91,3 +97,12 @@ func (a *Authoring) Dependencies() preview.DependencyResolver { return a.depende
 
 // Constants returns immutable deployment values; request input cannot replace them.
 func (a *Authoring) Constants() *constant.Values { return a.constants }
+
+func (a *Authoring) CodecDescriptors() []*codeccatalog.Descriptor {
+	result := make([]*codeccatalog.Descriptor, 0, len(a.codecs))
+	for _, item := range a.codecs {
+		copy := *item
+		result = append(result, &copy)
+	}
+	return result
+}

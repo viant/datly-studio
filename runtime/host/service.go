@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	xcodec "github.com/viant/xdatly/codec"
 	"net"
 	"net/http"
 	"path"
@@ -18,7 +19,6 @@ import (
 	access "github.com/viant/authz"
 	"github.com/viant/datly-studio/audit"
 	"github.com/viant/datly-studio/internal/connectorsecret"
-	"github.com/viant/datly-studio/runtime/accesscontext"
 	studiors "github.com/viant/datly-studio/runtime/resources"
 	studiohost "github.com/viant/datly-studio/studio/host"
 	"github.com/viant/datly/application"
@@ -47,6 +47,7 @@ import (
 type verifiedClaimsKey struct{}
 
 type Service struct {
+	codecs                xcodec.Factory
 	windowExecutionProof  types.WindowTargetProof
 	metadataDefinitions   *exactDefinitionReader
 	metadataResources     *studiors.Loader
@@ -70,6 +71,10 @@ type Service struct {
 
 func New(ctx context.Context, config Config) (*Service, error) {
 	if err := config.Validate(); err != nil {
+		return nil, err
+	}
+	codecs, err := runtimeCodecs(ctx, config)
+	if err != nil {
 		return nil, err
 	}
 	studio, err := sql.Open(config.Studio.Driver, config.Studio.DSN)
@@ -103,7 +108,7 @@ func New(ctx context.Context, config Config) (*Service, error) {
 		_ = studio.Close()
 		return nil, fmt.Errorf("runtime run access store: %w", err)
 	}
-	result := &Service{config: config, studio: studio, manager: manager, connectorStore: &activeConnectorStore{db: studio}, definitionStore: definitionStore, runAccessStore: runAccessStore}
+	result := &Service{codecs: codecs, config: config, studio: studio, manager: manager, connectorStore: &activeConnectorStore{db: studio}, definitionStore: definitionStore, runAccessStore: runAccessStore}
 	if err = result.initResourceAccess(); err != nil {
 		_ = runAccessStore.Close(context.Background())
 		_ = definitionStore.Close(context.Background())
@@ -265,7 +270,7 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 			err = mergeErr
 			return nil, err
 		}
-		compilation, buildErr := report.NewProjectCompiler(report.ProjectConfig{Types: contract.Types}).CompileArtifacts([]bootstrap.ArtifactInput{{Const: s.config.Const, Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources, CodecFactory: accesscontext.Codecs()}})
+		compilation, buildErr := report.NewProjectCompiler(report.ProjectConfig{Types: contract.Types}).CompileArtifacts([]bootstrap.ArtifactInput{{Const: s.config.Const, Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources, CodecFactory: s.codecs}})
 		if buildErr != nil {
 			err = buildErr
 			return nil, err

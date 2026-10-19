@@ -840,3 +840,44 @@ test('management window uses standard MCP resources/read without namespace disco
  assert.equal(calls[0].init.credentials,'include');
  assert.equal(calls[0].init.headers['X-Studio-Namespace'],undefined);
 });
+
+test('reader lookups use MCP tools/call with the selected namespace and datasource selector', async () => {
+  const calls=[];
+  const api=new StudioAPI({mode:'development',apiBaseURL:'http://localhost:18780',development:{subject:'owner'}},{fetcher:async(value,init)=>{
+    const request=new Request(value,init);
+    calls.push({url:request.url,headers:request.headers,body:await request.json()});
+    return response({jsonrpc:'2.0',id:1,result:{structuredContent:{items:[{name:'server-view'}]}}});
+  }});
+  api.setNamespace('a'.repeat(64));
+  const source={backend:{kind:'mcp_tool',method:'studio.sdk.versions.inspect'},selectors:{data:'items'}};
+  assert.deepEqual(await api.fetchMCPDataSource(source,{reportId:'component',versionNo:2,discoverColumns:true}),[{name:'server-view'}]);
+  assert.equal(calls[0].url,'http://localhost:18780/v1/studio/sdk-mcp/mcp');
+  assert.equal(calls[0].headers.get('X-Studio-Namespace'),'a'.repeat(64));
+  assert.equal(calls[0].body.method,'tools/call');
+  assert.deepEqual(calls[0].body.params.arguments,{reportId:'component',versionNo:2,discoverColumns:true,namespaceId:'a'.repeat(64)});
+});
+
+test('reader MCP lookup rejects results after namespace changes and surfaces tool errors', async () => {
+  let release;
+  const api=new StudioAPI({mode:'development',apiBaseURL:'http://localhost',development:{subject:'owner'}},{fetcher:()=>new Promise(resolve=>{release=resolve;})});
+  api.setNamespace('a'.repeat(64));
+  const source={backend:{kind:'mcp_tool',method:'studio.sdk.versions.inspect'}};
+  const pending=api.fetchMCPDataSource(source,{});
+  api.setNamespace('b'.repeat(64));
+  release(response({result:{structuredContent:{}}}));
+  await assert.rejects(pending,/namespace changed/);
+  const failing=new StudioAPI({mode:'development',apiBaseURL:'http://localhost',development:{subject:'owner'}},{fetcher:async()=>response({result:{isError:true,content:[{type:'text',text:'Discovery unavailable'}]}})});
+  await assert.rejects(failing.fetchMCPDataSource(source,{}),/Discovery unavailable/);
+});
+
+test('management resources fall back to the authorized MCP resource tool on older hosts', async()=>{
+ const calls=[];
+ const api=new StudioAPI({mode:'development',apiBaseURL:'http://localhost',development:{subject:'owner'}},{fetcher:async(value,init)=>{
+  const request=new Request(value,init);const body=await request.json();calls.push(body);
+  return response(calls.length===1?{error:{code:-32002,message:'Resource not found'}}:{result:{structuredContent:{schemaVersion:3}}});
+ }});
+ assert.deepEqual(await api.readManagementResource('window://datastudio/namespaces'),{schemaVersion:3});
+ assert.equal(calls[1].params.name,'resource/get');
+ assert.equal(calls[1].params._meta['io.modelcontextprotocol/protocolVersion'],'2026-07-28');
+ assert.deepEqual(calls[1].params.arguments,{uri:'window://datastudio/namespaces'});
+});

@@ -23,6 +23,7 @@ import (
 	"github.com/viant/datly-studio/internal/connectorinit"
 	"github.com/viant/datly-studio/internal/connectorsecret"
 	"github.com/viant/datly-studio/runtime/accesscontext"
+	studiocodecs "github.com/viant/datly-studio/runtime/codecs"
 	studiors "github.com/viant/datly-studio/runtime/resources"
 	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly/authoring/readerbuilder"
@@ -88,7 +89,7 @@ func (d Dynamic) Validate(ctx context.Context, reportID string, versionNo int) e
 	}
 	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Const: d.Const,
 		Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType,
-		Types: contract.Types, Resources: contract.Resources, CodecFactory: accesscontext.Codecs(),
+		Types: contract.Types, Resources: contract.Resources, CodecFactory: studiocodecs.FromContext(ctx),
 	})
 	if err != nil {
 		return fmt.Errorf("build runtime artifact: %w", err)
@@ -318,7 +319,7 @@ func (d Dynamic) executeCube(ctx context.Context, reportID string, versionNo int
 	}
 	compilation, err := report.NewProjectCompiler(report.ProjectConfig{Types: contract.Types}).CompileArtifacts([]bootstrap.ArtifactInput{{Const: d.Const,
 		Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType,
-		DirectViewField: outputViewField(contract.Component), Types: contract.Types, Resources: contract.Resources, CodecFactory: accesscontext.Codecs(),
+		DirectViewField: outputViewField(contract.Component), Types: contract.Types, Resources: contract.Resources, CodecFactory: studiocodecs.FromContext(ctx),
 	}})
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "derive cube composition: " + err.Error(), Cause: err}
@@ -468,7 +469,7 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 	if contract.Component == nil || contract.Component.RootView == nil || contract.Component.CacheWarmup() == nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "reader version has no authored cache warmup policy"}
 	}
-	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Const: d.Const, Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources, CodecFactory: accesscontext.Codecs()})
+	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Const: d.Const, Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources, CodecFactory: studiocodecs.FromContext(ctx)})
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "build dynamic reader artifact", Cause: err}
 	}
@@ -560,7 +561,7 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 	if err = rejectClientContextValues(contract.Component, request.Input); err != nil {
 		return nil, err
 	}
-	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Const: d.Const, Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources, CodecFactory: accesscontext.Codecs()})
+	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Const: d.Const, Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources, CodecFactory: studiocodecs.FromContext(ctx)})
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "build dynamic reader artifact", Cause: err}
 	}
@@ -568,6 +569,14 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "initialize dynamic reader", Cause: err}
 	}
+	plan, err := (nativeoutput.Compiler{}).Compile(nativeoutput.CompileInput{Component: contract.Component, Type: contract.OutputType})
+	if err != nil {
+		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "compile reader preview output", Cause: err}
+	}
+	// Preview has its own response contract, independent of the enclosing SDK
+	// invocation. Preserve native casing, format names, visibility and selection.
+	ctx = dexec.CaptureChildOutputSelection(ctx)
+	ctx = dexec.CaptureOutputSelection(ctx)
 	started := time.Now()
 	var data any
 	{
@@ -614,14 +623,16 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 			return nil, err
 		}
 	}
-	encoded, err := json.Marshal(data)
+	result, err := plan.Encode(ctx, "json", data)
+	encoded := result.Data
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "encode dynamic reader preview", Cause: err}
 	}
 	for len(encoded) > maxPreviewBytes && returnedRows > 1 {
 		data, returnedRows, _ = limitPreviewRows(data, (returnedRows+1)/2)
 		truncated = true
-		encoded, err = json.Marshal(data)
+		result, err = plan.Encode(ctx, "json", data)
+		encoded = result.Data
 		if err != nil {
 			return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "encode bounded dynamic reader preview", Cause: err}
 		}

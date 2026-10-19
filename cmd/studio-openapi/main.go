@@ -24,6 +24,7 @@ import (
 	predicatelist "github.com/viant/datly-studio/studio/authorization_predicates/list"
 	predicatetypes "github.com/viant/datly-studio/studio/authorization_predicates/types"
 	predicateupdate "github.com/viant/datly-studio/studio/authorization_predicates/update"
+	codectypes "github.com/viant/datly-studio/studio/codecs/types"
 	connectoractivate "github.com/viant/datly-studio/studio/connectors/activate"
 	connectorcreate "github.com/viant/datly-studio/studio/connectors/create"
 	connectordelete "github.com/viant/datly-studio/studio/connectors/delete"
@@ -457,6 +458,14 @@ func run(ctx context.Context, output string) error {
 	if err != nil {
 		return err
 	}
+	codecTypesHandler, err := (codectypes.Component{}).DatlyHandler("NewTypes")()
+	if err != nil {
+		return err
+	}
+	codecTypes, err := compile(reflect.TypeFor[codectypes.Component](), reflect.TypeFor[codectypes.Input](), reflect.TypeFor[codectypes.Output](), resources, types, codec, codecTypesHandler)
+	if err != nil {
+		return err
+	}
 	predicateTypesHandler, err := (predicatetypes.Component{}).DatlyHandler("NewTypes")()
 	if err != nil {
 		return err
@@ -803,8 +812,9 @@ func run(ctx context.Context, output string) error {
 	}
 	document, err := (openapi.Generator{}).Generate(ctx, openapi.Request{
 		Info:       openapi3.Info{Title: "Datly Studio SDK", Version: "1.0.0"},
-		Components: []*registry.RegisteredComponent{auth, policyGet, policyContext, policyCreate, policyReplace, authorizationCheck, accessList, accessGet, accessContext, accessReplace, aclList, aclDelete, aclUpsert, predicateTypes, predicateGet, predicateCreate, predicateUpdate, predicateDelete, predicateList, connectorList, connectorOne, connectorCreate, connectorSchemas, connectorTables, connectorTable, connectorTest, connectorTestSQL, previewExecution, connectorActivate, connectorDelete, connectorDisable, connectorUpdate, namespaceList, namespaceOne, namespaceCreate, namespaceDelete, namespaceUpdate, namespaceSkillList, namespaceSkillGet, namespaceSkillCreate, namespaceSkillUpdate, namespaceSkillDelete, namespaceSkillRevisions, namespaceSkillPublish, namespaceSkillUnpublish, reportList, reportOne, reportCreate, reportUpdate, publicationOne, publicationHistory, publicationPublish, publicationRollback, publicationUnpublish, versionOne, versionCreate, versionClone, versionLoad, versionArchive, versionInspect, versionApply, versionBuilder, versionValidate, versionTestView, versionTestRelation, versionTestCompose, versionWarmup, versionPage, versionExport, versionDescriptor, versionDownload, resourceSnapshot, resourceUpsertFile, resourceDeleteFile, resourceUpsertFolder, resourceDeleteFolder, resourceUpsertSkill, resourceDeleteSkill, warmupOne, warmupPage, runtimeStatus},
+		Components: []*registry.RegisteredComponent{auth, policyGet, policyContext, policyCreate, policyReplace, authorizationCheck, accessList, accessGet, accessContext, accessReplace, aclList, aclDelete, aclUpsert, codecTypes, predicateTypes, predicateGet, predicateCreate, predicateUpdate, predicateDelete, predicateList, connectorList, connectorOne, connectorCreate, connectorSchemas, connectorTables, connectorTable, connectorTest, connectorTestSQL, previewExecution, connectorActivate, connectorDelete, connectorDisable, connectorUpdate, namespaceList, namespaceOne, namespaceCreate, namespaceDelete, namespaceUpdate, namespaceSkillList, namespaceSkillGet, namespaceSkillCreate, namespaceSkillUpdate, namespaceSkillDelete, namespaceSkillRevisions, namespaceSkillPublish, namespaceSkillUnpublish, reportList, reportOne, reportCreate, reportUpdate, publicationOne, publicationHistory, publicationPublish, publicationRollback, publicationUnpublish, versionOne, versionCreate, versionClone, versionLoad, versionArchive, versionInspect, versionApply, versionBuilder, versionValidate, versionTestView, versionTestRelation, versionTestCompose, versionWarmup, versionPage, versionExport, versionDescriptor, versionDownload, resourceSnapshot, resourceUpsertFile, resourceDeleteFile, resourceUpsertFolder, resourceDeleteFolder, resourceUpsertSkill, resourceDeleteSkill, warmupOne, warmupPage, runtimeStatus},
 		Routes: []spec.RouteRef{
+			{Method: "POST", Path: "/v1/studio/sdk/codecs.types"},
 			{Method: "POST", Path: "/v1/studio/sdk/namespace_skills.publish"},
 			{Method: "POST", Path: "/v1/studio/sdk/namespace_skills.unpublish"},
 			{Method: "POST", Path: "/v1/studio/sdk/namespace_skills.list"},

@@ -32,7 +32,7 @@ describe('ReaderFieldDialog', () => {
       type: 'setColumnContract',
       column: {
         view: 'vendor', column: 'NAME', castType: 'model.Name',
-        tags: { groupable: 'true', internal: 'true', format: 'name=VendorName' },
+        tags: { groupable: 'true', internal: 'true', format: 'name=VendorName', json: 'VendorName' },
         removeTags: ['groupable', 'internal', 'json', 'format'],
       },
     });

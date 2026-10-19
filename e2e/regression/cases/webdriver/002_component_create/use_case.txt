@@ -1,1 +1,1 @@
-Create a component through the browser and verify its persisted catalog identity with DSUnit.
+Create an internal component from Components and open Root SQL immediately. Create its first draft without importing DQL or using Schema Browser. Add, edit, and remove inputs and output parameters; rename output/view, add output/status and output/metrics, edit result columns, and verify native preview response fields plus persisted catalog identity.

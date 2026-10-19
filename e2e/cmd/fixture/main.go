@@ -20,6 +20,7 @@ import (
 	"github.com/viant/datly-studio/runtime/accessprovider"
 	runtimehost "github.com/viant/datly-studio/runtime/host"
 	"github.com/viant/datly-studio/store/sql/migrate"
+	studiocatalog "github.com/viant/datly-studio/studio/catalog"
 	studiohost "github.com/viant/datly-studio/studio/host"
 	"go.yaml.in/yaml/v3"
 	"log"
@@ -137,6 +138,7 @@ func prepare(root, dir string) {
 	fmt.Println("prepared isolated Studio catalog and synthetic identities")
 }
 func serve(root, dir string) {
+	check(studiocatalog.ConfigureManagementNavigation(nil, "http://127.0.0.1:18780", "studio-e2e"))
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 	check(os.Setenv("STUDIO_ACCESS_POLICY_EDITOR_ROLES", "ROLE_ADMIN"))

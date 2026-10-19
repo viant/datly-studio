@@ -90,6 +90,57 @@ JOIN (SELECT ID, VENDOR_ID, STATUS FROM PRODUCT) products ON products.VENDOR_ID=
 	if !strings.Contains(string(result.Data), "Northwind") || strings.Contains(string(result.Data), "Contoso") || result.Duration <= 0 || result.Evidence.ReportID != "vendors" || result.Evidence.VersionNo != 1 || result.Evidence.SourceRevision != 1 || result.Evidence.Limit != 1 || result.Evidence.ReturnedRows != 1 || !result.Evidence.Truncated || result.Evidence.EncodedBytes != len(result.Data) {
 		t.Fatalf("preview=%+v", result)
 	}
+	t.Run("internal preview preserves native output names and visibility", func(t *testing.T) {
+		wireDQL := strings.Replace(dql, "SELECT vendors.*", `#setting($_ = $case_format('lc'))
+#setting($_ = $internal(true))
+#setting($_ = $output_exclude('vendors.products'))
+#define($_ = $Status<string>(output/status))
+#define($_ = $Metrics<github.com/viant/xdatly/response.Metrics>(output/metrics))
+SELECT tag(vendors.NAME,'format:"name=CustomerName" json:"customerName"'), tag(vendors.ID,'json:"-"'), vendors.*`, 1)
+		wireDQL = strings.Replace(wireDQL, "#setting($_ = $mcp('owner.vendors.read', 'Read vendors', 'docs/vendors.md'))", "", 1)
+		if _, err := studio.ExecContext(ctx, "UPDATE component_versions SET authored_dql=?, generated_dql=? WHERE report_id='vendors' AND version_no=1", wireDQL, wireDQL); err != nil {
+			t.Fatal(err)
+		}
+		defer func() {
+			if _, err := studio.ExecContext(ctx, "UPDATE component_versions SET authored_dql=?, generated_dql=? WHERE report_id='vendors' AND version_no=1", dql, dql); err != nil {
+				t.Error(err)
+			}
+		}()
+		preview, err := (Dynamic{StudioDB: studio, RootDir: root}).Execute(ctx, "vendors", 1, sdk.PreviewInput{Limit: 1})
+		if err != nil {
+			t.Fatal(err)
+		}
+		var payload map[string]json.RawMessage
+		if err := json.Unmarshal(preview.Data, &payload); err != nil {
+			t.Fatal(err)
+		}
+		var rows []map[string]any
+		if err := json.Unmarshal(payload["vendors"], &rows); err != nil {
+			t.Fatal(err)
+		}
+		if string(payload["status"]) != `"ok"` {
+			t.Fatalf("missing status: %s", preview.Data)
+		}
+		var metrics []map[string]any
+		if err := json.Unmarshal(payload["metrics"], &metrics); err != nil || len(metrics) == 0 {
+			t.Fatalf("missing metrics: %s (%v)", preview.Data, err)
+		}
+		if len(rows) != 1 || rows[0]["customerName"] != "Northwind" {
+			t.Fatalf("native output rename lost: %s", preview.Data)
+		}
+		if _, ok := rows[0]["id"]; ok {
+			t.Fatalf("hidden field exposed: %s", preview.Data)
+		}
+		if _, ok := rows[0]["name"]; ok {
+			t.Fatalf("old field name exposed: %s", preview.Data)
+		}
+		if _, ok := rows[0]["products"]; ok {
+			t.Fatalf("excluded nested output exposed: %s", preview.Data)
+		}
+		if preview.Evidence.EncodedBytes != len(preview.Data) {
+			t.Fatal("wrong encoded byte count")
+		}
+	})
 	if err = (Dynamic{StudioDB: studio, RootDir: root}).Validate(ctx, "vendors", 1); err != nil {
 		t.Fatalf("runtime validation: %v", err)
 	}

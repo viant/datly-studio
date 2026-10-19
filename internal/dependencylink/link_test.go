@@ -49,6 +49,7 @@ var linkedComponentHolders = []struct {
 	{"github.com/viant/datly-studio/studio/catalog", "ResourceComponent"},
 	{"github.com/viant/datly-studio/studio/catalog", "ResourcesListComponent"},
 	{"github.com/viant/datly-studio/studio/authorization_predicates/types", "Component"},
+	{"github.com/viant/datly-studio/studio/codecs/types", "Component"},
 	{"github.com/viant/datly-studio/studio/authorization_predicates/get", "Component"},
 	{"github.com/viant/datly-studio/studio/authorization_predicates/create", "Component"},
 	{"github.com/viant/datly-studio/studio/authorization_predicates/update", "Component"},

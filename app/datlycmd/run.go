@@ -15,9 +15,11 @@ import (
 	_ "github.com/viant/bigquery"
 	_ "github.com/viant/datly-studio/internal/dependencylink"
 	"github.com/viant/datly-studio/runtime/accessprovider"
+	studiocodecs "github.com/viant/datly-studio/runtime/codecs"
 	"github.com/viant/datly-studio/studio/host"
 	"github.com/viant/datly/cmd/command"
 	"github.com/viant/datly/exec"
+	nativeauth "github.com/viant/datly/runtime/auth"
 	"github.com/viant/datly/standalone"
 	"github.com/viant/datly/standalone/config"
 	_ "github.com/viant/sqlx/metadata/product/bigquery"
@@ -154,6 +156,23 @@ func serveConfig(ctx context.Context, cfg *config.Config, binding Options, middl
 }
 
 func newServer(ctx context.Context, cfg *config.Config, binding Options, middleware func(http.Handler) http.Handler, diagnostics io.Writer) (*standalone.Server, error) {
+	// Reuse Datly's verifier configuration for dynamically authored JwtClaim inputs.
+	if cfg.JWTValidator != nil {
+		jwtCodec, err := nativeauth.New(ctx, &nativeauth.Config{JWTValidator: cfg.JWTValidator, ClaimPolicy: cfg.JWTClaims})
+		if err != nil {
+			return nil, err
+		}
+		codecFactory := studiocodecs.New(jwtCodec)
+		previous := middleware
+		middleware = func(next http.Handler) http.Handler {
+			if previous != nil {
+				next = previous(next)
+			}
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				next.ServeHTTP(w, r.WithContext(studiocodecs.WithFactory(r.Context(), codecFactory)))
+			})
+		}
+	}
 	options := standalone.Options{Config: cfg, LinkedArtifact: binding.LinkedArtifact, RequireComponentBinding: binding.RequireComponentBinding, RequireLinked: true, Diagnostics: diagnostics}
 	if middleware != nil {
 		// Fail closed on published versions without trusted HTTP wrapping support.

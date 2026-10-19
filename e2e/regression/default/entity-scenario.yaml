@@ -80,7 +80,8 @@ pipeline:
     failureArtifacts:
       directory: ${runDir}/artifacts/${caseName}
     commands:
-      - page.getByRole("button", "Row access scope").click()
+      - page.getByRole("button", "More actions").click()
+      - page.getByRole("menuitem", "Row access scope").click()
       - page.getByLabel("Entity type").fill("customer")
       - page.getByLabel("Scoped view").selectOption("record")
       - page.getByLabel("Entity ID column").fill("id")

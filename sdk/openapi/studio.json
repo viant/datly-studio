@@ -5422,6 +5422,35 @@
           "status"
         ]
       },
+      "Wire_4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31": {
+        "type": "object",
+        "properties": {
+          "acceptsArguments": {
+            "type": "boolean"
+          },
+          "builtin": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string"
+          },
+          "inputType": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "outputType": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "builtin",
+          "acceptsArguments"
+        ]
+      },
       "Wire_4ca9fea7aa1d6b8d21f5cfc656a25fc9ccb0ef6b80e665b0bbcc73084c82a04e": {
         "type": "object",
         "properties": {
@@ -8716,6 +8745,32 @@
       "Wire_c556c6c91d85b6fe76e559a7132bc91d46b0c40c216a538c686d074ec366c766": {
         "type": "object"
       },
+      "Wire_cc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Wire_4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31"
+                },
+                {
+                  "type": "object",
+                  "nullable": true,
+                  "enum": [
+                    null
+                  ]
+                }
+              ]
+            },
+            "nullable": true
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
       "Wire_cc8e6d7697c9501b39869778c8e5561398ec267f3f24741ddd643fb0c8d25f2f": {
         "type": "object",
         "properties": {
@@ -11029,6 +11084,28 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Wire_46f5783921089422ba86ef3f21455336f0870921db6e2dac69f80e6517b1e68a"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/codecs.types": {
+      "post": {
+        "operationId": "POST:/v1/studio/sdk/codecs.types",
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Wire_cc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332"
                 }
               }
             }

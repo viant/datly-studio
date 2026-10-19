@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/viant/datly/constant"
+	xcodec "github.com/viant/xdatly/codec"
 	"net"
 	"net/url"
 	"os"
@@ -85,7 +86,9 @@ type NamespaceBuildExtension func(context.Context, *application.Build) error
 type NamespaceBuildResolver func(context.Context, string) (NamespaceBuildExtension, error)
 
 type Config struct {
-	Const *constant.Values `yaml:"-"`
+	// CodecFactory is a trusted embedding-host binding; it cannot be set by YAML or requests.
+	CodecFactory xcodec.Factory   `yaml:"-"`
+	Const        *constant.Values `yaml:"-"`
 	// InProcess disables only the separate administration endpoint requirement.
 	InProcess bool `yaml:"-"`
 	// NamespaceHTTPMiddleware is a trusted embedding extension around a single

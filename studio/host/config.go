@@ -47,6 +47,9 @@ func (c Config) RuntimeCatalogs() (*predicatecatalog.Catalog, *typecatalog.Catal
 	if err = codeccatalog.Link(types, c.codecPackages()...); err != nil {
 		return nil, nil, err
 	}
+	if err = codeccatalog.RegisterBuiltinTypes(types); err != nil {
+		return nil, nil, err
+	}
 	if err = accesscontext.RegisterTypes(types); err != nil {
 		return nil, nil, err
 	}

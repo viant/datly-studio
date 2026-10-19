@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"net/http"
 	"net/http/httputil"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -54,6 +55,20 @@ func registerBrowserIdentity(mux *http.ServeMux, proxy *httputil.ReverseProxy, d
 		}
 		http.SetCookie(w, &http.Cookie{Name: "studio_e2e_identity", Value: subject, Path: "/", HttpOnly: true, SameSite: http.SameSiteStrictMode})
 		http.Redirect(w, r, "/", http.StatusSeeOther)
+	})
+	// Mirror the production BFF MCP route while retaining the fixture identity.
+	mcpURL, _ := url.Parse("http://127.0.0.1:18790")
+	mcpProxy := httputil.NewSingleHostReverseProxy(mcpURL)
+	mux.HandleFunc("/v1/studio/sdk-mcp/", func(w http.ResponseWriter, r *http.Request) {
+		subject, ok := selected(r)
+		if !ok {
+			http.Error(w, "unknown fixture identity", http.StatusUnauthorized)
+			return
+		}
+		r.Header.Set("Authorization", "Bearer "+tokens[subject])
+		r.Header.Del("X-Studio-Development-Subject")
+		r.URL.Path = strings.TrimPrefix(r.URL.Path, "/v1/studio/sdk-mcp")
+		mcpProxy.ServeHTTP(w, r)
 	})
 	mux.HandleFunc("/v1/", func(w http.ResponseWriter, r *http.Request) {
 		subject, ok := selected(r)

@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Button, ButtonGroup, Callout, Card, Code, Divider, InputGroup, Menu, MenuItem, Popover, PopoverInteractionKind, Spinner, Tag } from '@blueprintjs/core';
+import { Alert, Button, ButtonGroup, Callout, Card, Code, Divider, HTMLSelect, Icon, InputGroup, Menu, MenuItem, Popover, PopoverInteractionKind, Spinner, Tag } from '@blueprintjs/core';
 import { LazyEditor as Editor } from './LazyEditor.jsx';
 import { DownloadComponentButton, ImportComponentButton } from './ComponentTransfer.jsx';
 import { ReaderSubviewDialog } from './ReaderSubviewDialog.jsx';
+import { ReaderCreateForm } from './ReaderCreateForm.jsx';
 import { ReaderRemoveViewDialog } from './ReaderRemoveViewDialog.jsx';
 import { ReaderCubePreview } from './ReaderCubePreview.jsx';
 import { ReaderAnalyticsDialog } from './ReaderAnalyticsDialog.jsx';
@@ -18,6 +19,7 @@ import { ReaderEntityScopeDialog } from './ReaderEntityScopeDialog.jsx';
 import { ReaderACLDialog } from './ReaderACLDialog.jsx';
 import { ReaderConflictDialog } from './ReaderConflictDialog.jsx';
 import { ContractWorkspace } from './ContractWorkspace.jsx';
+import {useReaderLookups} from './useReaderLookups.js';
 import { predicateRows } from './predicateCatalog.js';
 import { cloneReaderDraft } from './cloneReaderDraft.js';
 import { viewSQLResource } from './viewSQLResource.js';
@@ -29,6 +31,9 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
   const previewTriggerRef = useRef(null);
   const [inspection, setInspection] = useState(null);
   const [version, setVersion] = useState(null);
+  const [creatingReader, setCreatingReader] = useState(true);
+  const [rootDraftDirty, setRootDraftDirty] = useState(false);
+  const [rootDraftSaving, setRootDraftSaving] = useState(false);
   const [sqlFiles, setSQLFiles] = useState([]);
   const [sqlResourceError, setSQLResourceError] = useState('');
   const [sqlResourcesLoading, setSQLResourcesLoading] = useState(false);
@@ -64,7 +69,16 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
   const [inputTab, setInputTab] = useState('parameters');
   const [editRelation, setEditRelation] = useState(null);
   const [editFields, setEditFields] = useState(null);
-  const [activeTab, setActiveTab] = useState('component');
+  const [workspaceTab,setWorkspaceTab] = useState('graph');
+  const [sqlTab,setSQLTab] = useState('');
+  const [outputTab,setOutputTab] = useState('parameters');
+  const [toolsOpen,setToolsOpen] = useState(false);
+  const [previewError,setPreviewError] = useState('');
+  const [previewOrigin,setPreviewOrigin] = useState('graph');
+  const lastPreviewRequest=useRef(null);
+  const previewGeneration=useRef(0);
+  const inputSelection=useMemo(()=>({type:'input'}),[]);
+  const outputSelection=useMemo(()=>({type:'output'}),[]);
   const [viewTabs, setViewTabs] = useState([]);
   const [showRawDQL, setShowRawDQL] = useState(false);
   const [dirtyTabs,setDirtyTabs]=useState(()=>new Set());
@@ -101,6 +115,10 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
   };
   useEffect(() => { load(); return () => { loadGeneration.current++; }; }, [api, report?.id, report?.versionNo]);
 
+  useEffect(() => { setCreatingReader(true);setWorkspaceTab('graph');setSQLTab('');setViewTabs([]);setDirtyTabs(new Set());setPreviewError(''); }, [report?.id]);
+
+  useEffect(()=>{previewGeneration.current++;setPreview(null);setTestedView(null);setPreviewError('');setPreviewing(false);setTestingView('');},[report?.id,version?.versionNo,version?.sourceRevision]);
+
   const rootView = inspection?.structure?.component?.rootView;
   useEffect(() => { setDiscoveredOutputCount(undefined); }, [rootView]);
   const compiledOutputCount = collectViewEntries(rootView).reduce((count, entry) => count + (entry.view?.columns?.length ?? 0), 0);
@@ -108,6 +126,8 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
   const diagnostics = inspection?.diagnostics ?? [];
   const source = inspection?.dql ?? '';
   const capabilities = inspection?.capabilities ?? {};
+  const lookups=useReaderLookups(api,report,version,inspection?.structure,workspaceTab==='inputs');
+  const needsReader = !rootView && !source.trim() && (!version?.state || version.state === 'draft');
   const ready = !loading && !error && Boolean(inspection);
   const canEdit = ready && capabilities.canEdit !== false && (!version?.state || version.state === 'draft');
   const canRun = ready && capabilities.canRun !== false;
@@ -143,12 +163,25 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
       setError(cause.message);
     } finally { setCloningDraft(false); }
   };
-  const applyCommand = async (operation) => {
-    if (!inspection?.version) throw new Error('Reader inspection is unavailable.');
+  const createReader = async (reader, visibility) => {
+    const draft = version || await api.createVersion(report.id, { authoringMode: 'dql', notes: 'Created from source SQL.' });
+    // Keep the empty draft for retry when compilation fails, including after cancel.
+    setVersion(draft);
+    const operation = visibility === 'internal' ? {type:'batch',operations:[
+      {type:'createReader',reader:{...reader,package:`${report.componentScope}/${report.componentName}`,connector:report.defaultConnectorName}},
+      {type:'setSetting',setting:{name:'internal',args:['true']}},
+    ]} : {type:'createReader',reader};
+    await applyCommand(operation, draft);
+    setCreatingReader(false);
+    setWorkspaceTab('graph');
+    requestAnimationFrame(() => headingRef.current?.focus());
+  };
+  const applyCommand = async (operation, targetVersion = inspection?.version) => {
+    if (!targetVersion) throw new Error('Reader inspection is unavailable.');
     let result;
     try {
-      result = await api.applyReaderCommand(report.id, inspection.version.versionNo, {
-        expectedSourceRevision: inspection.version.sourceRevision,
+      result = await api.applyReaderCommand(report.id, targetVersion.versionNo, {
+        expectedSourceRevision: targetVersion.sourceRevision,
         operation,
       });
     } catch (cause) {
@@ -173,19 +206,24 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
     }
     setInspection(result.inspection);
     setVersion(result.inspection.version);
-    setPreview(null); setTestedView(null); setTestedRelation(null);
+    setPreview(null);setPreviewError(''); setTestedView(null); setTestedRelation(null);
     return result;
   };
   const runPreview = async (target = null, input = {}, cube = false) => {
     if (!inspection?.version) return;
-    setPreviewing(true); setError(''); setPreview(null); setPreviewTarget(target);
-    try { setPreview(await api.previewReader(report.id, inspection.version.versionNo, input, 50, inspection?.structure?.component?.routes?.[0]?.path, cube)); }
-    catch (cause) { setError(cause.message); }
-    finally { setPreviewing(false); }
+    const generation=++previewGeneration.current;
+    lastPreviewRequest.current={target,input,cube};
+    if(workspaceTab!=='preview')setPreviewOrigin(workspaceTab);
+    setWorkspaceTab('preview');setCubePreviewOpen(false);
+    setPreviewing(true); setPreviewError(''); setPreview(null);setTestedView(null); setPreviewTarget(target);
+    try { const result=await api.previewReader(report.id, inspection.version.versionNo, input, 50, inspection?.structure?.component?.routes?.[0]?.path, cube);if(generation===previewGeneration.current)setPreview(result); }
+    catch (cause) { if(generation===previewGeneration.current)setPreviewError(cause.message); }
+    finally { if(generation===previewGeneration.current)setPreviewing(false); }
   };
   const openCubePreview = () => {
     previewTriggerRef.current = document.activeElement;
-    setCubePreviewOpen(true);
+    if(workspaceTab!=='preview')setPreviewOrigin(workspaceTab);
+    setWorkspaceTab('preview');setCubePreviewOpen(true);
   };
   const closeCubePreview = () => {
     setCubePreviewOpen(false);
@@ -200,10 +238,14 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
     if (!inspection?.version || !view) return;
     const root = inspection.structure?.component?.rootView;
     if (inspection.structure?.component?.settings?.report?.enabled && [root?.name,root?.namespace].includes(view)) {openCubePreview();return;}
-    setTestingView(view); setError(''); setTestedView(null);
-    try { setTestedView(await api.testReaderView(report.id, inspection.version.versionNo, view)); }
-    catch (cause) { setError(cause.message); }
-    finally { setTestingView(''); }
+    if(workspaceTab!=='preview')setPreviewOrigin(workspaceTab);
+    setWorkspaceTab('preview');setCubePreviewOpen(false);setPreview(null);
+    const generation=++previewGeneration.current;
+    lastPreviewRequest.current={view};
+    setTestingView(view); setPreviewError(''); setTestedView(null);
+    try { const result=await api.testReaderView(report.id, inspection.version.versionNo, view);if(generation===previewGeneration.current)setTestedView(result); }
+    catch (cause) { if(generation===previewGeneration.current)setPreviewError(cause.message); }
+    finally { if(generation===previewGeneration.current)setTestingView(''); }
   };
   const runWarmup = async () => {
     if (!inspection?.version) throw new Error('Reader inspection is unavailable.');
@@ -255,19 +297,27 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
   const openSQLTab = (node) => {
     const target = selectedViewNode(node);
     if (!target) return;
+    const view=findView(rootView,target.name)||target.view;
+    const name=view?.namespace||view?.name||target.name;
     setSelectedNode(node);
-    setViewTabs((current) => current.some((item) => item.name === target.name) ? current : [...current, { ...target, mode: 'sql' }]);
-    setActiveTab(`sql:${target.name}`);
+    setViewTabs((current) => current.some((item) => item.name === name) ? current : [...current, { ...target, name, view, mode: 'sql' }]);
+    setSQLTab(`sql:${name}`);setWorkspaceTab('sql');
   };
   const closeViewTabNow = (name, mode) => {
     setViewTabs((current) => current.filter((item) => item.name !== name || item.mode !== mode));
     setDirtyTabs((current)=>{const next=new Set(current);next.delete(`${mode}:${name}`);return next;});
-    if (activeTab === `${mode}:${name}`) setActiveTab('component');
+    if (sqlTab === `${mode}:${name}`) {const next=viewTabs.find((item)=>item.name!==name);setSQLTab(next?`sql:${next.name}`:'');}
   };
   const closeViewTab=(name,mode)=>{const key=`${mode}:${name}`;if(dirtyTabs.has(key)){setPendingTabAction({kind:'close',name,mode});return;}closeViewTabNow(name,mode);};
-  const selectBuilderTab=(next)=>{if(next===activeTab)return;if(dirtyTabs.has(activeTab)){setPendingTabAction({kind:'select',next});return;}setActiveTab(next);};
-  const discardPendingTab=()=>{const action=pendingTabAction;if(!action)return;if(action.kind==='close')closeViewTabNow(action.name,action.mode);else if(action.kind==='back'){setDirtyTabs(new Set());onBack();}else{setDirtyTabs((current)=>{const next=new Set(current);next.delete(activeTab);return next;});setActiveTab(action.next);}setPendingTabAction(null);};
-  const requestBack=()=>{if(dirtyTabs.has(activeTab)){setPendingTabAction({kind:'back'});return;}onBack();};
+  const selectSQLTab = (next) => setSQLTab(next);
+  const navigateWorkspace = (next) => {
+    if(next==='sql'&&!sqlTab&&rootView)openSQLTab({type:'view',name:rootView.namespace||rootView.name,label:rootView.name,view:rootView});
+    setWorkspaceTab(next);
+  };
+  const discardPendingTab=()=>{const action=pendingTabAction;if(!action)return;if(action.kind==='close')closeViewTabNow(action.name,action.mode);else if(action.kind==='cancel-root'){setCreatingReader(false);}else if(action.kind==='back'){setDirtyTabs(new Set());onBack();}setPendingTabAction(null);};
+  const requestBack=()=>{if(rootDraftDirty||dirtyTabs.size){setPendingTabAction({kind:'back'});return;}onBack();};
+  const runTool=(action)=>{setToolsOpen(false);action();};
+  const retryPreview=()=>{const previous=lastPreviewRequest.current;if(previous?.view)runViewTest(previous.view);else if(previous)runPreview(previous.target,previous.input,previous.cube);else requestPreview();};
   const reloadAfterConflict = async () => {
     setConflictReloading(true);
     setSubviewDialogOpen(false); setRemoveViewDialogOpen(false);
@@ -277,10 +327,9 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
     finally { setConflictReloading(false); }
   };
   const selectView = (node) => {
-    setSelectedNode(node);
-    if (['input', 'output', 'views'].includes(node?.type)) {
-      requestAnimationFrame(() => document.querySelector('.studio-contract-panel')?.scrollIntoView?.({ block: 'start', behavior: 'smooth' }));
-    }
+    if(node?.type==='input'){setWorkspaceTab('inputs');return;}
+    if(node?.type==='output'){setWorkspaceTab('outputs');return;}
+    setSelectedNode(node);setWorkspaceTab('graph');
   };
   const testSelectedView = (node) => {
     const target = selectedViewNode(node);
@@ -301,10 +350,9 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
     setSelectedNode(target);
     setRemoveViewDialogOpen(true);
   };
-  const activeViewName = activeTab.startsWith('sql:') ? activeTab.slice(activeTab.indexOf(':') + 1) : '';
-  const activeView = activeViewName ? findView(rootView, activeViewName) : null;
-  const activeSQL = viewSQLResource(inspection, activeViewName, sqlFiles);
-  const saveViewSQL = async operation => {
+  const activeViewName = sqlTab.startsWith('sql:') ? sqlTab.slice(4) : '';
+  const saveViewSQL = async (operation, name=activeViewName) => {
+    const activeSQL=viewSQLResource(inspection,name,sqlFiles);
     if (!activeSQL.file) return applyCommand(operation);
     try {
       const snapshot = await api.upsertResourceFile({ ...activeSQL.file, reportId: report.id,
@@ -313,84 +361,122 @@ export function ReaderBuilder({ api, report, openResources = false, resourceActi
       setSQLFiles(snapshot.files ?? []);
       const next = await api.inspectVersion(report.id, version.versionNo);
       setInspection(next); setVersion(next.version);
-      setPreview(null); setTestedView(null); setTestedRelation(null);
+      setPreview(null);setPreviewError(''); setTestedView(null); setTestedRelation(null);
     } catch (cause) { if (cause.code === 'conflict') setConflict(cause); throw cause; }
   };
 
   return <main className="studio-workspace studio-builder-workspace">
     <div className="studio-builder-header">
-      {version&&<DownloadComponentButton api={api} report={report} versionNo={version.versionNo} disabled={!canUseDQL}/>}
-      <div><Button minimal icon="arrow-left" onClick={requestBack}>Components</Button><h1 ref={headingRef} tabIndex={-1} className="studio-page-heading">{report?.title ?? 'Reader Builder'}</h1>
+      <div><Button minimal icon="arrow-left" disabled={rootDraftSaving} onClick={requestBack}>Components</Button><h1 ref={headingRef} tabIndex={-1} className="studio-page-heading">{report?.title ?? 'Reader Builder'}</h1>
         <p className="studio-page-description">Versioned Datly reader graph for {report?.defaultConnectorName}.</p></div>
-      {version && <div className="studio-builder-header-actions"><div className="studio-builder-status" aria-label="Component revision status"><Tag minimal>{report?.namespace ?? 'general'}</Tag><Tag minimal>{version.state==='published'?'Published':version.state==='draft'||!version.state?'Draft':'Version'} v{version.versionNo}</Tag><Tag minimal>rev {version.sourceRevision}</Tag><Tag intent={version.compileStatus === 'valid' ? 'success' : version.compileStatus === 'invalid' ? 'danger' : 'warning'} minimal>{version.compileStatus}</Tag>{serverScoped&&<Tag minimal intent="warning" title="Server-owned access context narrows this reader at runtime">Scoped</Tag>}</div>{version.state&&version.state!=='draft'?<Button icon="duplicate" loading={cloningDraft} disabled={!ready || capabilities.canEdit===false} onClick={createDraft}>Create editable draft</Button>:<Button icon="edit" disabled={!canEdit} onClick={()=>setExposureDialogOpen(true)}>Edit component</Button>}</div>}
+      {version && !needsReader && <div className="studio-builder-header-actions"><DownloadComponentButton api={api} report={report} versionNo={version.versionNo} disabled={!canUseDQL}/><div className="studio-builder-status" aria-label="Component revision status"><Tag minimal>{report?.namespace ?? 'general'}</Tag><Tag minimal>{version.state==='published'?'Published':version.state==='draft'||!version.state?'Draft':'Version'} v{version.versionNo}</Tag><Tag minimal>rev {version.sourceRevision}</Tag><Tag intent={version.compileStatus === 'valid' ? 'success' : version.compileStatus === 'invalid' ? 'danger' : 'warning'} minimal>{version.compileStatus}</Tag>{serverScoped&&<Tag minimal intent="warning" title="Server-owned access context narrows this reader at runtime">Scoped</Tag>}</div>{version.state&&version.state!=='draft'?<Button icon="duplicate" loading={cloningDraft} disabled={!ready || capabilities.canEdit===false} onClick={createDraft}>Create editable draft</Button>:<Button icon="edit" disabled={!canEdit} onClick={()=>setExposureDialogOpen(true)}>Edit component</Button>}</div>}
     </div>
-    {version && <div className="studio-builder-commandbar" role="toolbar" aria-label="Component authoring commands">
-      <div className="studio-command-group"><span>Author</span><ButtonGroup minimal><Button small icon="add" onClick={() => { selectBuilderTab('component'); setInputTab('parameters'); selectView({type:'input'}); }}>Inputs</Button><Button small icon="filter" onClick={() => { selectBuilderTab('component'); setInputTab('predicates'); selectView({type:'input'}); }}>Predicates</Button><Button small icon="heatmap" disabled={!canPreview} title={!canRun?'Execute permission is required':undefined} onClick={() => setAnalyticsDialogOpen(true)}>Composition lab</Button><Button small icon="database" disabled={!canEdit} onClick={() => setCacheDialogOpen(true)}>Cache & warmup</Button></ButtonGroup></div>
-      <div className="studio-command-group"><span>Govern</span><ButtonGroup minimal><Button small icon="filter" disabled={!canEdit || serverScoped} onClick={()=>setEntityScopeOpen(true)}>Row access scope</Button><Button small icon="folder-open" disabled={!ready || capabilities.canView===false} onClick={()=>{setResourceMode('resources');setResourcesDialogOpen(true);}}>Source resources</Button><Button small icon="learning" disabled={!ready || capabilities.canView===false} onClick={()=>{setResourceMode('skills');setResourcesDialogOpen(true);}}>Skills</Button>{capabilities.canManageAcl===true&&<Button small icon="lock" disabled={!canPublish} onClick={()=>setACLDialogOpen(true)}>Permissions</Button>}</ButtonGroup></div>
-      <div className="studio-command-group studio-command-release"><span>Release</span><ButtonGroup minimal><Button small icon="endorsed" title={!canEdit ? 'Create an editable draft to validate changes' : 'Validate this draft'} disabled={!canEdit} onClick={()=>setValidationDialogOpen(true)}>Validate</Button><Button small icon="play" disabled={!canPreview} title={!canRun?'Execute permission is required':undefined} loading={previewing&&!previewTarget} onClick={()=>requestPreview(null)}>Preview</Button>{inspection?.structure?.component?.settings?.report?.enabled && <Button small icon="settings" aria-expanded={cubePreviewOpen} disabled={!canPreview} onClick={openCubePreview}>Preview settings</Button>}<Button small intent="primary" icon="rocket-slant" disabled={!canPublish} title={!canPublish ? 'Publish permission is required' : 'Review publication, rollback, and unpublish'} onClick={()=>setPublicationDialogOpen(true)}>Release</Button><Button small icon="refresh" aria-label="Refresh component" title="Refresh component" onClick={load}/></ButtonGroup></div>
+    {version && !needsReader && <div className="studio-builder-actions" role="toolbar" aria-label="Component authoring commands">
+      <Button intent="primary" icon="play" disabled={!canPreview} loading={previewing || Boolean(testingView)} onClick={()=>requestPreview()}>Run preview</Button>
+      <Button icon="endorsed" disabled={!canEdit} onClick={()=>setValidationDialogOpen(true)}>Validate</Button>
+      <Button icon="rocket-slant" disabled={!canPublish} onClick={()=>setPublicationDialogOpen(true)}>Release</Button>
+      <Popover isOpen={toolsOpen} onInteraction={setToolsOpen} placement="bottom-start" content={<Menu>
+        <MenuItem text="Composition lab" icon="heatmap" disabled={!canPreview} onClick={()=>runTool(()=>setAnalyticsDialogOpen(true))}/>
+        <MenuItem text="Cache & warmup" icon="database" disabled={!canEdit} onClick={()=>runTool(()=>setCacheDialogOpen(true))}/>
+        <MenuItem text="Row access scope" icon="filter" disabled={!canEdit||serverScoped} onClick={()=>runTool(()=>setEntityScopeOpen(true))}/>
+        <MenuItem text="Source resources" icon="folder-open" disabled={!ready||capabilities.canView===false} onClick={()=>runTool(()=>{setResourceMode('resources');setResourcesDialogOpen(true);})}/>
+        <MenuItem text="Skills" icon="learning" disabled={!ready||capabilities.canView===false} onClick={()=>runTool(()=>{setResourceMode('skills');setResourcesDialogOpen(true);})}/>
+        {capabilities.canManageAcl===true&&<MenuItem text="Permissions" icon="lock" disabled={!canPublish} onClick={()=>runTool(()=>setACLDialogOpen(true))}/>}
+        <MenuItem text="Refresh component" icon="refresh" onClick={()=>runTool(load)}/>
+      </Menu>}><Button icon="more" aria-label="More actions">More</Button></Popover>
     </div>}
-    {version && (!canEdit || serverScoped) && <p className="studio-muted">{!canEdit && 'Create an editable draft to validate or change this version. '}{serverScoped && 'Preview uses your verified runtime access; the server enforces entity scope.'}</p>}
+    {version && !needsReader && (!canEdit || serverScoped) && <p className="studio-muted">{!canEdit && 'Create an editable draft to validate or change this version. '}{serverScoped && 'Preview uses your verified runtime access; the server enforces entity scope.'}</p>}
     {error && <Callout intent="danger" title="Reader Builder request failed" role="alert">{error}<Button small minimal intent="danger" onClick={load}>Retry</Button></Callout>}
     {loading && <div className="studio-loading"><Spinner size={28} /></div>}
-    {!loading && !version && <Card className="studio-card studio-empty" elevation={0}><h2>No reader definition yet</h2><p>Load a DQL file or archive to create the first draft.</p><ImportComponentButton api={api} report={report} label="Load DQL" onImported={(updated)=>onReportUpdated ? onReportUpdated(updated) : load()}/></Card>}
-    {!loading && version && <><BuilderTabs componentTitle={report?.title} activeTab={activeTab} viewTabs={viewTabs} canUseDQL={canUseDQL} onSettings={()=>setExposureDialogOpen(true)} onSkills={()=>{setResourceMode('skills');setResourcesDialogOpen(true);}} onSelect={selectBuilderTab} onClose={closeViewTab}/><div className="studio-builder-grid" role="tabpanel" id={workspacePanelId(activeTab)} aria-labelledby={workspaceTabId(activeTab)} tabIndex={0}>
-      {cubePreviewOpen && <ReaderCubePreview key={`${report.id}:${version.versionNo}:${version.sourceRevision}`} structure={inspection?.structure} pending={previewing} onRun={(input)=>runPreview(null,input,true)} onClose={closeCubePreview}/>}
-      {!cubePreviewOpen && (activeTab === 'component' ? <>
-        <Card className={`studio-card studio-graph-panel ${!selectedNode || ['input','output','views'].includes(selectedNode?.type) ? 'studio-graph-panel-contract' : ''}`} elevation={0}>
-          <div className="studio-panel-heading"><h2>Component graph</h2></div>
-          {rootView && <ComponentGraph root={rootView} browse={graphBrowse} onBrowse={setGraphBrowse} selected={selectedNode} inputCount={inputDeclarationCount(inspection?.structure)} predicateCount={predicateOptionCount(inspection?.structure)} outputCount={outputCount} canEdit={canEdit} canRun={canPreview} onSelect={selectView} onOpen={selectView} onOpenSQL={openSQLTab} onAdd={(node)=>{setSelectedNode(node);setSubviewDialogOpen(true);}} onEdit={selectView} onTest={testSelectedView} onRemove={removeSelectedView} />}
-        </Card>
-        {['input','output','views'].includes(selectedNode?.type) ? <ContractWorkspace api={api} selection={selectedNode} structure={inspection?.structure} root={rootView} connector={report?.defaultConnectorName} onOutputCount={setDiscoveredOutputCount} canEdit={canEdit} activeInputTab={inputTab} onInputTab={setInputTab} onClear={() => setSelectedNode(null)} onApply={applyCommand} onSelectView={(view) => setSelectedNode({type:'view', name:view.namespace || view.name, label:view.name, view})}/> : selectedNode ? <SelectionWorkspace api={api} structure={inspection?.structure} selection={selectedNode} root={rootView} connector={report?.defaultConnectorName} functions={inspection?.structure?.functions ?? []} version={version} relationTest={testedRelation} canEdit={canEdit} canCreateDraft={ready && capabilities.canEdit !== false && version?.state === 'published'} onCreateDraft={createDraft} cloningDraft={cloningDraft} canRun={canPreview} testingView={testingView} testingRelation={testingRelation} onClear={() => setSelectedNode(null)} onOpenSQL={openSQLTab} onAdd={(node) => { setSelectedNode(node); setSubviewDialogOpen(true); }} onEditRelation={setEditRelation} onFields={(node) => setEditFields(node)} onTest={testSelectedView} onRunRelation={testSelectedRelation} onPreviewRelation={(node) => runPreview({type:'relation',label:`${displayNodeName(node.parentName, rootView)} → ${displayViewName(node.child?.view)}`})} onRemove={removeSelectedView}/> : null}
-      </> : activeView ? <ViewWorkspace mode="sql" view={activeView} viewName={activeViewName} root={rootView} sql={activeSQL.sql} resourcePath={activeSQL.path} resourceError={sqlResourcesLoading ? 'Loading SQL resource…' : sqlResourceError || activeSQL.error} canEdit={canEdit && !sqlResourcesLoading && !sqlResourceError && !activeSQL.error} canRun={canPreview} onDirtyChange={(dirty)=>setDirtyTabs((current)=>{const next=new Set(current);if(dirty)next.add(activeTab);else next.delete(activeTab);return next;})} onApply={saveViewSQL} onTest={() => runViewTest(activeViewName)} testing={testingView === activeViewName}/> : null)}
-      {!cubePreviewOpen && activeTab === 'advanced' && canUseDQL && <Card className="studio-card studio-advanced-panel" elevation={0}><div className="studio-panel-heading"><div><h2>Advanced component source</h2><p className="studio-muted">Component DQL is structural. View SQL opens in a dedicated SQL tab.</p></div><Button small minimal icon={showRawDQL ? 'eye-off' : 'eye-open'} onClick={() => setShowRawDQL((current) => !current)}>{showRawDQL ? 'Hide raw DQL' : 'Show raw DQL'}</Button></div>{showRawDQL ? <pre className="studio-dql-source">{source || 'No DQL source is defined.'}</pre> : <><div className="studio-dql-resource-list">{collectViewEntries(rootView).map((entry) => <Button key={entry.view.name} minimal icon="code" onClick={() => openSQLTab({ type: 'view', name: entry.view.name, label: entry.view.name, view: entry.view })}>{viewSQLResource(inspection,entry.view.name,sqlFiles).path ? `embed:${viewSQLResource(inspection,entry.view.name,sqlFiles).path}` : `${displayViewName(entry.view)} · inline SQL`}</Button>)}</div><Divider/><h3>Diagnostics</h3>{diagnostics.length === 0 ? <div className="studio-diagnostic-ok">Datly inspection completed without diagnostics.</div> : diagnostics.map((item, index) => <Callout key={`${item.code}-${index}`} intent={item.severity === 'error' ? 'danger' : 'warning'} title={item.code || item.severity}>{item.message}</Callout>)}</>}</Card>}
+    {!loading && !error && needsReader && (creatingReader ? <ReaderCreateForm key={report.id} report={report} disabled={capabilities.canEdit===false} onCreate={createReader} onDirtyChange={setRootDraftDirty} onBusyChange={setRootDraftSaving} onCancel={()=>rootDraftDirty ? setPendingTabAction({kind:'cancel-root'}) : setCreatingReader(false)} importAction={<ImportComponentButton api={api} report={report} label="Load DQL" onImported={(updated)=>onReportUpdated ? onReportUpdated(updated) : load()}/>}/> : <Card className="studio-card studio-empty" elevation={0}><h2>No reader definition yet</h2><p>Create a reader from SQL, or load an existing DQL file or archive.</p><div className="studio-schema-actions"><Button intent="primary" icon="new-object" disabled={capabilities.canEdit===false} onClick={()=>setCreatingReader(true)}>Create reader</Button><ImportComponentButton api={api} report={report} label="Load DQL" onImported={(updated)=>onReportUpdated ? onReportUpdated(updated) : load()}/></div></Card>)}
+    {!loading && version && !needsReader && <>
+      <WorkspaceTabs value={workspaceTab} onSelect={navigateWorkspace} pending={previewing||Boolean(testingView)}/>
+      <div className="studio-builder-content">
+        <section className="studio-workspace-panel" role="tabpanel" id="reader-panel-graph" aria-labelledby="reader-tab-graph" hidden={workspaceTab!=='graph'}>
+          <div className={`studio-graph-workspace ${selectedNode?'has-selection':''}`}>
+            <Card className="studio-card studio-graph-panel" elevation={0}><div className="studio-panel-heading"><h2>Component graph</h2></div>
+              {rootView&&<ComponentGraph root={rootView} browse={graphBrowse} onBrowse={setGraphBrowse} selected={selectedNode} inputCount={inputDeclarationCount(inspection?.structure)} predicateCount={predicateOptionCount(inspection?.structure)} outputCount={outputCount} canEdit={canEdit} canRun={canPreview} onSelect={selectView} onOpen={selectView} onOpenSQL={openSQLTab} onAdd={(node)=>{setSelectedNode(node);setSubviewDialogOpen(true);}} onEdit={selectView} onTest={testSelectedView} onRemove={removeSelectedView}/>}
+            </Card>
+            {selectedNode?.type==='views'&&<ContractWorkspace api={api} selection={selectedNode} structure={inspection?.structure} root={rootView} connector={report?.defaultConnectorName} canEdit={canEdit} onClear={()=>setSelectedNode(null)} onApply={applyCommand} onSelectView={(view)=>selectView({type:'view',name:view.namespace||view.name,label:view.name,view})}/>}
+            {selectedNode&&selectedNode.type!=='views'&&<SelectionWorkspace api={api} structure={inspection?.structure} selection={selectedNode} root={rootView} connector={report?.defaultConnectorName} functions={inspection?.structure?.functions ?? []} version={version} relationTest={testedRelation} canEdit={canEdit} canCreateDraft={ready && capabilities.canEdit !== false && version?.state === 'published'} onCreateDraft={createDraft} cloningDraft={cloningDraft} canRun={canPreview} testingView={testingView} testingRelation={testingRelation} onClear={() => setSelectedNode(null)} onOpenSQL={openSQLTab} onAdd={(node) => { setSelectedNode(node); setSubviewDialogOpen(true); }} onEditRelation={setEditRelation} onFields={(node) => setEditFields(node)} onTest={testSelectedView} onRunRelation={testSelectedRelation} onPreviewRelation={(node) => runPreview({type:'relation',label:`${displayNodeName(node.parentName, rootView)} → ${displayViewName(node.child?.view)}`})} onRemove={removeSelectedView}/>}
+          </div>
+        </section>
+        <section className="studio-workspace-panel" role="tabpanel" id="reader-panel-inputs" aria-labelledby="reader-tab-inputs" hidden={workspaceTab!=='inputs'}>
+          <ContractWorkspace lookups={lookups} active={workspaceTab==='inputs'} api={api} selection={inputSelection} structure={lookups.structure} root={rootView} connector={report?.defaultConnectorName} canEdit={canEdit} activeInputTab={inputTab} onInputTab={setInputTab} onClear={()=>setWorkspaceTab('graph')} onApply={applyCommand} onSelectView={selectView}/>
+        </section>
+        <section className="studio-workspace-panel" role="tabpanel" id="reader-panel-outputs" aria-labelledby="reader-tab-outputs" hidden={workspaceTab!=='outputs'}>
+          <ContractWorkspace active={workspaceTab==='outputs'} api={api} selection={outputSelection} structure={inspection?.structure} root={rootView} connector={report?.defaultConnectorName} onOutputCount={setDiscoveredOutputCount} canEdit={canEdit} activeOutputTab={outputTab} onOutputTab={setOutputTab} onClear={()=>setWorkspaceTab('graph')} onApply={applyCommand} onSelectView={(view)=>selectView({type:'view',name:view.namespace||view.name,label:view.name,view})} onEditOutput={({view,column})=>setEditFields({name:view.namespace||view.name,label:view.name,view,column})} onOutputSQL={(view)=>openSQLTab({type:'view',name:view.namespace||view.name,label:view.name,view})}/>
+        </section>
+        <section className="studio-workspace-panel" role="tabpanel" id="reader-panel-sql" aria-labelledby="reader-tab-sql" hidden={workspaceTab!=='sql'}>
+          <SQLTabs value={sqlTab} viewTabs={viewTabs} views={collectViewEntries(rootView)} canUseDQL={canUseDQL} onSelect={selectSQLTab} onClose={closeViewTab} onOpen={openSQLTab}/>
+          <div className="studio-sql-panels">
+            {!sqlTab&&<div className="studio-empty-compact">Choose a view to open its SQL.</div>}
+            {viewTabs.map((item)=>{const key=`sql:${item.name}`;const view=findView(rootView,item.name);const resource=viewSQLResource(inspection,item.name,sqlFiles);return view&&<section className="studio-sql-panel" role="tabpanel" id={workspacePanelId(key)} aria-labelledby={workspaceTabId(key)} hidden={sqlTab!==key} key={key}>
+              <ViewWorkspace view={view} viewName={item.name} root={rootView} sql={resource.sql} resourcePath={resource.path} resourceError={sqlResourcesLoading?'Loading SQL resource…':sqlResourceError||resource.error} canEdit={canEdit&&!sqlResourcesLoading&&!sqlResourceError&&!resource.error} canRun={canPreview} onDirtyChange={(dirty)=>setDirtyTabs((current)=>{const next=new Set(current);if(dirty)next.add(key);else next.delete(key);return next;})} onApply={(operation)=>saveViewSQL(operation,item.name)} onTest={()=>runViewTest(item.name)} testing={testingView===item.name}/>
+            </section>;})}
+            {canUseDQL&&<section className="studio-sql-panel" role="tabpanel" id={workspacePanelId('advanced')} aria-labelledby={workspaceTabId('advanced')} hidden={sqlTab!=='advanced'}><Card className="studio-card studio-advanced-panel" elevation={0}><div className="studio-panel-heading"><div><h2>Advanced component source</h2><p className="studio-muted">Component DQL is structural. View SQL opens in a dedicated SQL tab.</p></div><Button small minimal icon={showRawDQL ? 'eye-off' : 'eye-open'} onClick={() => setShowRawDQL((current) => !current)}>{showRawDQL ? 'Hide raw DQL' : 'Show raw DQL'}</Button></div>{showRawDQL ? <pre className="studio-dql-source">{source || 'No DQL source is defined.'}</pre> : <><div className="studio-dql-resource-list">{collectViewEntries(rootView).map((entry) => <Button key={entry.view.name} minimal icon="code" onClick={() => openSQLTab({ type: 'view', name: entry.view.name, label: entry.view.name, view: entry.view })}>{viewSQLResource(inspection,entry.view.name,sqlFiles).path ? `embed:${viewSQLResource(inspection,entry.view.name,sqlFiles).path}` : `${displayViewName(entry.view)} · inline SQL`}</Button>)}</div><Divider/><h3>Diagnostics</h3>{diagnostics.length === 0 ? <div className="studio-diagnostic-ok">Datly inspection completed without diagnostics.</div> : diagnostics.map((item, index) => <Callout key={`${item.code}-${index}`} intent={item.severity === 'error' ? 'danger' : 'warning'} title={item.code || item.severity}>{item.message}</Callout>)}</>}</Card></section>}
+          </div>
+        </section>
+        <section className="studio-workspace-panel studio-preview-workspace" role="tabpanel" id="reader-panel-preview" aria-labelledby="reader-tab-preview" hidden={workspaceTab!=='preview'}>
+          <div className="studio-preview-navigation"><Button minimal icon="arrow-left" onClick={()=>navigateWorkspace(previewOrigin)}>Back to {previewOrigin==='sql'?'SQL':previewOrigin.charAt(0).toUpperCase()+previewOrigin.slice(1)}</Button>{inspection?.structure?.component?.settings?.report?.enabled&&<Button small icon="settings" onClick={()=>setCubePreviewOpen((value)=>!value)}>{cubePreviewOpen?'Results':'Preview settings'}</Button>}</div>
+          {inspection?.structure?.component?.settings?.report?.enabled&&<div className="studio-cube-configuration" hidden={!cubePreviewOpen}><ReaderCubePreview key={`${report.id}:${version.versionNo}`} structure={inspection?.structure} pending={previewing} onRun={(input)=>runPreview(null,input,true)} onClose={closeCubePreview}/></div>}
+          <div className="studio-preview-results" hidden={cubePreviewOpen}>
+            {dirtyTabs.size>0&&<Callout compact intent="warning">Preview uses the saved revision. Save SQL to include your edits.</Callout>}
+            {(previewing||testingView)&&<div className="studio-loading" role="status"><Spinner size={24}/><span>{testingView?`Testing ${testingView}…`:'Running preview…'}</span></div>}
+            {previewError&&<Callout intent="danger" role="alert" title="Preview failed">{previewError}<Button small intent="danger" onClick={retryPreview}>Retry preview</Button></Callout>}
+            {!preview&&!testedView&&!previewError&&!previewing&&!testingView&&<div className="studio-empty-compact"><h2>Reader preview</h2><p>Run this revision to inspect its response. Source changes clear earlier results.</p><Button intent="primary" icon="play" disabled={!canPreview} onClick={()=>requestPreview()}>Run this revision</Button></div>}
       {preview && <Card className="studio-card studio-preview-panel" elevation={0}>
         <div className="studio-panel-heading"><div><h2>{previewTarget?.type==='relation'?`Graph preview · ${previewTarget.label}`:'Reader preview'}</h2><p className="studio-muted">{previewTarget?.type==='relation'?'Full exact-version graph preview with the selected relation in context; relation-specific assertions are reported only by a dedicated relation test.':'Exact-version execution through the authorized Studio SDK.'}</p></div><Code>{formatDuration(preview.duration)}</Code></div>
         <ExecutionEvidence evidence={preview.evidence}/>
-        <ResultPreview data={preview.data}/>
+        <div className="studio-preview-result-body"><ResultPreview data={preview.data}/></div>
       </Card>}
       {testedView && <Card className="studio-card studio-preview-panel" elevation={0}>
         <div className="studio-panel-heading"><div><h2>View test · {testedView.view}</h2><p className="studio-muted">A dynamically generated Datly reader for this view only.</p></div><Code>{formatDuration(testedView.duration)}</Code></div>
         <ExecutionEvidence evidence={testedView.evidence}/>
-        <ResultPreview data={testedView.data}/>
+        <div className="studio-preview-result-body"><ResultPreview data={testedView.data}/></div>
       </Card>}
-    </div></>}
+          </div>
+        </section>
+      </div>
+    </>}
     <ReaderEntityScopeDialog isOpen={entityScopeOpen} report={report} root={rootView} structure={inspection?.structure} onClose={()=>setEntityScopeOpen(false)} onApply={applyCommand}/>
     <ReaderSubviewDialog isOpen={subviewDialogOpen} structure={inspection?.structure} initialParent={selectedNode?.type==='view'?selectedNode.name:''} onClose={() => setSubviewDialogOpen(false)} onApply={applyCommand} />
     <ReaderRemoveViewDialog isOpen={removeViewDialogOpen} structure={inspection?.structure} initialView={selectedNode?.type==='view'?selectedNode.name:''} onClose={() => setRemoveViewDialogOpen(false)} onApply={applyCommand} />
     <ReaderRelationDialog isOpen={Boolean(editRelation)} node={editRelation} structure={inspection?.structure} onClose={()=>setEditRelation(null)} onApply={async(operation)=>{await applyCommand(operation);setSelectedNode(null);}}/>
-    <ReaderFieldDialog isOpen={Boolean(editFields)} node={editFields} columnContracts={inspection?.structure?.columnContracts ?? []} onClose={()=>setEditFields(null)} onApply={async(operation)=>{await applyCommand(operation);setSelectedNode(null);}}/>
+    <ReaderFieldDialog isOpen={Boolean(editFields)} node={editFields} columnContracts={inspection?.structure?.columnContracts ?? []} onClose={()=>setEditFields(null)} onApply={async(operation)=>{await applyCommand(operation);if(workspaceTab==='graph')setSelectedNode(null);}}/>
     <ReaderAnalyticsDialog isOpen={analyticsDialogOpen} structure={inspection?.structure} onClose={() => setAnalyticsDialogOpen(false)} onTestCompose={runCompose} />
     <ReaderCacheDialog api={api} report={report} version={version} canWarmup={canPublish} isOpen={cacheDialogOpen} structure={inspection?.structure} onClose={() => setCacheDialogOpen(false)} onApply={applyCommand} onWarmup={runWarmup} />
     <ReaderExposureDialog isOpen={exposureDialogOpen} readOnly={!canEdit} onCache={()=>{setExposureDialogOpen(false);setCacheDialogOpen(true);}} api={api} structure={inspection?.structure} version={version} report={report} onReportUpdated={onReportUpdated} onClose={()=>setExposureDialogOpen(false)} onApply={applyCommand}/>
-    <ReaderValidationDialog isOpen={validationDialogOpen} version={version} canUseDQL={canUseDQL} onClose={()=>setValidationDialogOpen(false)} onValidate={validateDraft} onOpenSource={()=>{setValidationDialogOpen(false);setActiveTab('advanced');setShowRawDQL(true);}}/>
+    <ReaderValidationDialog isOpen={validationDialogOpen} version={version} canUseDQL={canUseDQL} onClose={()=>setValidationDialogOpen(false)} onValidate={validateDraft} onOpenSource={()=>{setValidationDialogOpen(false);setWorkspaceTab('sql');setSQLTab('advanced');setShowRawDQL(true);}}/>
     <ReaderPublicationDialog isOpen={publicationDialogOpen} api={api} report={report} version={version} inspection={inspection} onClose={()=>setPublicationDialogOpen(false)} onPublish={publishDraft} onPromote={promoteVersion} onUnpublish={unpublishDraft} onRollback={rollbackDraft}/>
     <ReaderResourcesDialog mode={resourceMode} isOpen={resourcesDialogOpen} initialAction={resourceAction} initialSkillId={report?.resourceSkillId || ''} api={api} report={report} version={version} structure={inspection?.structure} onClose={()=>{setResourcesDialogOpen(false);onResourcesClosed?.();}} onChanged={resourceChanged} onDraftCreated={(draft)=>onReportUpdated?.({...report,versionNo:draft.versionNo,currentDraftVersion:draft.versionNo})}/>
     <ReaderACLDialog isOpen={aclDialogOpen} api={api} report={report} onClose={()=>setACLDialogOpen(false)}/>
     <ReaderConflictDialog conflict={conflict} reloading={conflictReloading} onReview={()=>setConflict(null)} onReload={reloadAfterConflict}/>
-    <Alert isOpen={Boolean(pendingTabAction)} intent="warning" icon="warning-sign" confirmButtonText="Discard changes" cancelButtonText="Keep editing" onCancel={()=>setPendingTabAction(null)} onConfirm={discardPendingTab} canEscapeKeyCancel canOutsideClickCancel><p>This SQL tab has unsaved changes. Leaving it now discards the draft; the saved Datly view remains unchanged.</p></Alert>
+    <Alert isOpen={Boolean(pendingTabAction)} intent="warning" icon="warning-sign" confirmButtonText="Discard changes" cancelButtonText="Keep editing" onCancel={()=>setPendingTabAction(null)} onConfirm={discardPendingTab} canEscapeKeyCancel canOutsideClickCancel><p>{needsReader ? 'Your root SQL has unsaved changes. Leaving now discards the query you entered.' : 'This SQL tab has unsaved changes. Leaving it now discards the draft; the saved Datly view remains unchanged.'}</p></Alert>
   </main>;
 }
 
-function BuilderTabs({ componentTitle, activeTab, viewTabs, canUseDQL, onSettings, onSkills, onSelect, onClose }) {
-  const tabs = ['component', ...viewTabs.map((view) => `${view.mode}:${view.name}`), ...(canUseDQL ? ['advanced'] : [])];
-  const onKeyDown = (event, current) => {
-    const index = tabs.indexOf(current);
-    let next = -1;
-    if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
-    if (event.key === 'ArrowLeft') next = (index - 1 + tabs.length) % tabs.length;
-    if (event.key === 'Home') next = 0;
-    if (event.key === 'End') next = tabs.length - 1;
-    if (next < 0) return;
-    event.preventDefault();
-    onSelect(tabs[next]);
-    requestAnimationFrame(() => document.getElementById(workspaceTabId(tabs[next]))?.focus());
-  };
-  return <div className="studio-builder-tabs" role="tablist" aria-label="Component workspace tabs">
-    <Button small icon="application" role="tab" id={workspaceTabId('component')} aria-controls={workspacePanelId('component')} tabIndex={activeTab === 'component' ? 0 : -1} active={activeTab === 'component'} aria-selected={activeTab === 'component'} onKeyDown={(event)=>onKeyDown(event,'component')} onClick={() => onSelect('component')}>{`Component ${componentTitle || ''}`}</Button>
-    {viewTabs.map((view) => { const key=`${view.mode}:${view.name}`; return <div role="presentation" className={`studio-builder-tab-view ${activeTab === key ? 'active' : ''}`} key={key}><Button small role="tab" id={workspaceTabId(key)} aria-controls={workspacePanelId(key)} tabIndex={activeTab === key ? 0 : -1} icon={view.mode === 'sql' ? 'code' : 'properties'} active={activeTab === key} aria-selected={activeTab === key} onKeyDown={(event)=>onKeyDown(event,key)} onClick={() => onSelect(key)}>{view.mode === 'sql' ? `${displayViewName(view.view || view)} SQL` : displayViewName(view.view || view)}</Button><Button small minimal icon="cross" aria-label={`Close ${displayViewName(view.view || view)} ${view.mode === 'sql' ? 'SQL' : 'view'} tab`} onClick={() => onClose(view.name, view.mode)}/></div>;})}
-
-    <Button small minimal icon="cog" aria-label="Component settings" onClick={onSettings}>Settings</Button>
-    {canUseDQL && <Button small minimal icon="code" role="tab" id={workspaceTabId('advanced')} aria-controls={workspacePanelId('advanced')} tabIndex={activeTab === 'advanced' ? 0 : -1} active={activeTab === 'advanced'} aria-selected={activeTab === 'advanced'} aria-label="Advanced component DQL" title="DQL source" onKeyDown={(event)=>onKeyDown(event,'advanced')} onClick={() => onSelect('advanced')}>DQL source</Button>}
+function moveTab(event, tabs, current, onSelect, id) {
+  const index=tabs.indexOf(current);let next;
+  if(event.key==='ArrowRight')next=(index+1)%tabs.length;
+  else if(event.key==='ArrowLeft')next=(index-1+tabs.length)%tabs.length;
+  else if(event.key==='Home')next=0;
+  else if(event.key==='End')next=tabs.length-1;
+  else return;
+  event.preventDefault();onSelect(tabs[next]);requestAnimationFrame(()=>document.getElementById(id(tabs[next]))?.focus());
+}
+function WorkspaceTabs({value,onSelect,pending}) {
+  const tabs=['graph','inputs','outputs','sql','preview'];
+  const labels={graph:'Graph',inputs:'Inputs',outputs:'Outputs',sql:'SQL',preview:'Preview'};
+  const icons={graph:'git-branch',inputs:'log-in',outputs:'log-out',sql:'code',preview:'play'};
+  return <div className="studio-builder-tabs studio-primary-tabs" role="tablist" aria-label="Reader workspaces">{tabs.map((tab)=><button type="button" className={`studio-workspace-tab studio-tab-${tab}`} key={tab} role="tab" id={`reader-tab-${tab}`} aria-controls={`reader-panel-${tab}`} aria-selected={value===tab} tabIndex={value===tab?0:-1} onKeyDown={(event)=>moveTab(event,tabs,tab,onSelect,(key)=>`reader-tab-${key}`)} onClick={()=>onSelect(tab)}><span className="studio-tab-icon"><Icon icon={icons[tab]} size={16} aria-hidden="true"/></span><span>{labels[tab]}</span>{tab==='preview'&&pending&&<span className="studio-tab-running" aria-label="Running"> · running</span>}</button>)}</div>;
+}
+function SQLTabs({value,viewTabs,views,canUseDQL,onSelect,onClose,onOpen}) {
+  const tabs=[...viewTabs.map((view)=>`sql:${view.name}`),...(canUseDQL?['advanced']:[])];
+  return <div className="studio-builder-tabs studio-sql-tabs" role="tablist" aria-label="SQL views">
+    <HTMLSelect aria-label="Open view SQL" value="" onChange={(event)=>{const entry=views.find(({view})=>(view.namespace||view.name)===event.target.value);if(entry)onOpen({type:'view',name:entry.view.namespace||entry.view.name,label:entry.view.name,view:entry.view});}}><option value="">Open view…</option>{views.map(({view})=><option key={view.namespace||view.name} value={view.namespace||view.name}>{displayViewName(view)}</option>)}</HTMLSelect>
+    {viewTabs.map((view)=>{const key=`sql:${view.name}`;return <div role="presentation" className={`studio-builder-tab-view ${value===key?'active':''}`} key={key}><button type="button" className="studio-sql-tab" role="tab" id={workspaceTabId(key)} aria-controls={workspacePanelId(key)} tabIndex={value===key?0:-1} aria-selected={value===key} onKeyDown={(event)=>moveTab(event,tabs,key,onSelect,workspaceTabId)} onClick={()=>onSelect(key)}><Icon icon="code" aria-hidden="true"/>{displayViewName(view.view||view)} SQL</button><button type="button" className="studio-tab-close" aria-label={`Close ${displayViewName(view.view||view)} SQL tab`} onClick={()=>onClose(view.name,'sql')}><Icon icon="cross" size={12} aria-hidden="true"/></button></div>;})}
+    {canUseDQL&&<button type="button" className="studio-sql-tab studio-dql-tab" role="tab" id={workspaceTabId('advanced')} aria-controls={workspacePanelId('advanced')} tabIndex={value==='advanced'?0:-1} aria-selected={value==='advanced'} aria-label="Advanced component DQL" onKeyDown={(event)=>moveTab(event,tabs,'advanced',onSelect,workspaceTabId)} onClick={()=>onSelect('advanced')}><Icon icon="document" aria-hidden="true"/>Component DQL</button>}
   </div>;
 }
 
@@ -402,15 +488,14 @@ function ViewWorkspace({ view, viewName, root, sql, resourcePath, resourceError,
   const [draft, setDraft] = useState(sql || '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [editorSize, setEditorSize] = useState('balanced');
-  useEffect(() => { setDraft(sql || ''); setError(''); setSaving(false); setEditorSize('balanced'); onDirtyChange?.(false); }, [view?.name, sql]);
+  useEffect(() => { setDraft(sql || ''); setError(''); setSaving(false); onDirtyChange?.(false); }, [view?.name, sql]);
   const lineage = viewLineage(root, view?.name).map(displayViewName).join(' / ');
   const save = async () => { if (!draft.trim()) { setError('View SQL is required.'); return; } setSaving(true); setError(''); try { await onApply({ type: 'updateView', view: { name: viewName || view.name, sql: draft } }); } catch (cause) { setError(cause.message); } finally { setSaving(false); } };
   const dirty = draft !== (sql || '');
   useEffect(()=>()=>onDirtyChange?.(false),[view?.name]);
   useEffect(()=>{const warn=(event)=>{if(!dirty)return;event.preventDefault();event.returnValue='';};window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn);},[dirty]);
   const relation=findRelationContext(root,view?.name);
-  return <Card className="studio-card studio-view-workspace" elevation={0}><div className="studio-sql-header"><div><h2><span className="studio-view-kind-icon">◇</span>{displayViewName(view)} SQL</h2><p className="studio-muted">{lineage || displayViewName(view)} · <code>{resourcePath ? `embed:${resourcePath}` : 'Inline view SQL'}</code></p></div><div className="studio-sql-actions"><ButtonGroup minimal aria-label="SQL workspace size"><Button small icon="minimize" aria-label="Minimize SQL editor" aria-pressed={editorSize==='compact'} onClick={()=>setEditorSize('compact')}/><Button small icon="vertical-distribution" aria-label="Balance SQL editor and preview" aria-pressed={editorSize==='balanced'} onClick={()=>setEditorSize('balanced')}/><Button small icon="maximize" aria-label="Maximize SQL editor" aria-pressed={editorSize==='expanded'} onClick={()=>setEditorSize('expanded')}/></ButtonGroup><Tag minimal intent={dirty ? 'warning' : 'success'}>{dirty ? 'Unsaved changes' : 'Saved'}</Tag><Button icon="play" disabled={!canRun} loading={testing} onClick={onTest}>Test view</Button><Button intent="primary" icon="floppy-disk" disabled={!canEdit || !dirty} loading={saving} onClick={save}>Save SQL</Button></div></div>{relation&&<div className="studio-sql-relation-keys"><span>Join keys</span>{(relation.relation.on??[]).map((item,index)=><code key={`${item.parentColumn}-${item.childColumn}-${index}`}>{item.parentColumn} → {item.childColumn}</code>)}</div>}{(error || resourceError) && <Callout intent="danger" role="alert">{error || resourceError}</Callout>}<div className={`studio-code-editor studio-code-editor-resizable ${editorSize}`} aria-label="Resizable SQL pane"><Editor ariaLabel={`${displayViewName(view)} SQL source`} value={draft} onChange={(value)=>{setDraft(value);onDirtyChange?.(value!==(sql||''));}} language="sql" height="100%" readOnly={saving || !canEdit}/></div></Card>;
+  return <Card className="studio-card studio-view-workspace" elevation={0}><div className="studio-sql-header"><div><h2><Icon icon="code" aria-hidden="true"/>{displayViewName(view)} SQL</h2><p className="studio-muted">{lineage || displayViewName(view)} · <code>{resourcePath ? `embed:${resourcePath}` : 'Inline view SQL'}</code></p></div><div className="studio-sql-actions"><Tag minimal intent={dirty ? 'warning' : 'success'}>{dirty ? 'Unsaved changes' : 'Saved'}</Tag><Button icon="play" disabled={!canRun} loading={testing} onClick={onTest}>Test view</Button><Button intent="primary" icon="floppy-disk" disabled={!canEdit || !dirty} loading={saving} onClick={save}>Save SQL</Button></div></div>{relation&&<div className="studio-sql-relation-keys"><span>Join keys</span>{(relation.relation.on??[]).map((item,index)=><code key={`${item.parentColumn}-${item.childColumn}-${index}`}>{item.parentColumn} → {item.childColumn}</code>)}</div>}{(error || resourceError) && <Callout intent="danger" role="alert">{error || resourceError}</Callout>}<div className="studio-code-editor studio-code-editor-resizable" aria-label="SQL editor pane"><Editor ariaLabel={`${displayViewName(view)} SQL source`} value={draft} onChange={(value)=>{setDraft(value);onDirtyChange?.(value!==(sql||''));}} language="sql" height="100%" readOnly={saving || !canEdit}/></div></Card>;
 }
 
 function SelectionWorkspace({ api, structure, selection, root, connector, functions, version, relationTest, canEdit, canCreateDraft, onCreateDraft, cloningDraft, canRun, testingView, testingRelation, onClear, onOpenSQL, onAdd, onEditRelation, onFields, onTest, onRunRelation, onPreviewRelation, onRemove }) {
@@ -588,10 +673,10 @@ function formatDuration(value) {
   if (nanoseconds < 1e6) return `${Math.round(nanoseconds / 1e3)}µs`;
   return `${(nanoseconds / 1e6).toFixed(1)}ms`;
 }
-function inputDeclarationCount(structure){return (structure?.declarations??[]).filter((item)=>item?.parameter&&!['output','component','view'].includes(String(item.parameter.source?.kind||'').toLowerCase())).length;}
+function inputDeclarationCount(structure){return (structure?.declarations??[]).filter((item)=>item?.parameter&&String(item.parameter.source?.kind||'').toLowerCase()!=='output').length;}
 function predicateOptionCount(structure){return predicateRows(structure).length;}
 
 function commandChangesColumns(operation) {
-  return ['updateView', 'setColumnContract'].includes(operation?.type)
+  return ['createReader', 'updateView', 'setColumnContract', 'updateOutputField', 'removeOutputField'].includes(operation?.type)
     || (operation?.type === 'batch' && (operation.operations ?? []).some(commandChangesColumns));
 }

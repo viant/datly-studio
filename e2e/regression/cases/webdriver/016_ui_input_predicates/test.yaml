@@ -1,0 +1,964 @@
+init:
+  caseName: ui_input_predicates
+pipeline:
+  createNamespace:
+    action: webdriver:run
+    browser: chrome
+    sessionID: localhost:4445
+    autoStart: false
+    failureArtifacts:
+      directory: ${runDir}/artifacts/webdriver
+    commands:
+      - page.goto("${browserURL}")
+      - page.getByRole("button", "Namespaces").click()
+      - page.getByRole("button", "New namespace").click()
+      - page.getByLabel("Namespace").fill("${caseName}")
+      - page.getByLabel("Display title").fill("${caseName}")
+      - page.getByRole("button", "Save").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+  namespace:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.namespaces.get
+    arguments:
+      name: $caseName
+    allowToolError: true
+  namespaceSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $namespace
+    expect:
+      IsError: false
+  createConnector:
+    action: webdriver:run
+    browser: chrome
+    sessionID: localhost:4445
+    autoStart: false
+    failureArtifacts:
+      directory: ${runDir}/artifacts/webdriver
+    commands:
+      - page.goto("${browserURL}")
+      - page.getByLabel("Current namespace").selectOption("${namespace.StructuredContent.namespaceId}")
+      - page.getByRole("button", "Connectors").click()
+      - page.getByRole("button", "New connector").click()
+      - page.getByLabel("Name").fill("${caseName}")
+      - page.getByLabel("Driver").click()
+      - page.getByRole("menuitem", "SQLite").click()
+      - page.getByLabel("DSN (blank keeps existing)").fill("${runDir}/consumer.db")
+      - page.getByRole("button", "Save").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - page.getByLabel("Find connector, driver, or owner").fill("${caseName}")
+      - page.getByRole("button", "Search").click()
+      - page.getByRole("button", "Test").click()
+      - expect(page.getByLabel("Outcome")).toHaveValue("passed",15000)
+      - page.getByRole("button", "Refresh data").click()
+      - page.getByRole("button", "Activate").click()
+  createReader:
+    action: webdriver:run
+    browser: chrome
+    sessionID: localhost:4445
+    autoStart: false
+    failureArtifacts:
+      directory: ${runDir}/artifacts/webdriver
+    commands:
+      - page.locator(".studio-nav-components").click()
+      - page.locator("button[aria-label='New component']").click()
+      - page.getByLabel("Component title").fill("UI predicate lifecycle")
+      - page.getByLabel("Active connector").selectOption("${caseName}")
+      - page.getByRole("button", "Create component").click()
+      - expect(page.getByRole("heading", "Root SQL")).toBeVisible(15000)
+      - page.getByLabel("Component visibility").selectOption("internal")
+      - page.locator(".studio-code-editor [contenteditable='true']").fill("SELECT c.id, c.tenant, c.name, c.active FROM customers c ORDER BY c.id")
+      - page.getByRole("button", "Create reader").click()
+      - expect(page.getByRole("heading", "Component graph")).toBeVisible(15000)
+      - page.getByRole("tab", "Inputs").click()
+  createInputs:
+    action: webdriver:run
+    browser: chrome
+    sessionID: localhost:4445
+    autoStart: false
+    failureArtifacts:
+      directory: ${runDir}/artifacts/webdriver
+    commands:
+      - page.getByRole("button", "Add input").click()
+      - page.getByLabel("Input name").fill("Limit")
+      - page.getByLabel("Type expression").fill("int")
+      - page.getByLabel("Kind source").fill("limit")
+      - page.getByLabel("Query selector view").selectOption("record")
+      - page.locator(".studio-inline-contract-form button[type='submit']").click()
+      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Add input").click()
+      - page.getByLabel("Input name").fill("IDs")
+      - page.getByLabel("Type expression").fill("[]int")
+      - page.getByLabel("Kind source").fill("ids")
+      - page.getByLabel("Predicate").selectOption("in")
+      - page.getByLabel("SQL alias").fill("c")
+      - page.getByLabel("Filter dimension").selectOption("id")
+      - page.locator(".studio-inline-contract-form button[type='submit']").click()
+      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Add input").click()
+      - page.getByLabel("Input name").fill("Active")
+      - page.getByLabel("Type expression").fill("int")
+      - page.getByLabel("Kind source").fill("active")
+      - page.getByLabel("Predicate").selectOption("expr")
+      - page.getByLabel("Predicate arguments").fill("COALESCE(c.active, 0) = ?")
+      - page.locator(".studio-inline-contract-form button[type='submit']").click()
+      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Add input").click()
+      - page.getByLabel("Input name").fill("Tenant")
+      - page.getByLabel("Type expression").fill("string")
+      - page.getByLabel("Kind source").fill("tenant")
+      - page.getByLabel("Predicate").selectOption("handler")
+      - page.getByLabel("Find custom predicate").fill("CustomerScope")
+      - page.getByLabel("Custom predicate").selectOption("github.com/viant/datly-studio/e2e/predicates.CustomerScope")
+      - page.locator(".studio-inline-contract-form button[type='submit']").click()
+      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+  components:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.components.list
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      query: UI predicate lifecycle
+    allowToolError: true
+  componentsSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $components
+    expect:
+      IsError: false
+  baseline:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.preview.execute
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+      versionNo: 1
+      input:
+        input: {}
+        limit: 50
+    allowToolError: true
+  baselineSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $baseline
+    expect:
+      IsError: false
+  baselineRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $baseline.StructuredContent.evidence
+    expect:
+      returnedRows: 4
+  baselineIDs:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $baseline.StructuredContent.data.records
+    expect:
+      - id: 1
+      - id: 2
+      - id: 3
+      - id: 4
+  limited:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.preview.execute
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+      versionNo: 1
+      input:
+        input:
+          Limit: 1
+        limit: 50
+    allowToolError: true
+  limitedSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $limited
+    expect:
+      IsError: false
+  limitedRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $limited.StructuredContent.evidence
+    expect:
+      returnedRows: 1
+  limitedIDs:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $limited.StructuredContent.data.records
+    expect:
+      - id: 1
+  included:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.preview.execute
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+      versionNo: 1
+      input:
+        input:
+          IDs:
+            - 1
+            - 3
+        limit: 50
+    allowToolError: true
+  includedSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $included
+    expect:
+      IsError: false
+  includedRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $included.StructuredContent.evidence
+    expect:
+      returnedRows: 2
+  includedIDs:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $included.StructuredContent.data.records
+    expect:
+      - id: 1
+      - id: 3
+  zero:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.preview.execute
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+      versionNo: 1
+      input:
+        input:
+          Active: 0
+        limit: 50
+    allowToolError: true
+  zeroSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $zero
+    expect:
+      IsError: false
+  zeroRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $zero.StructuredContent.evidence
+    expect:
+      returnedRows: 1
+  zeroIDs:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $zero.StructuredContent.data.records
+    expect:
+      - id: 2
+  custom:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.preview.execute
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+      versionNo: 1
+      input:
+        input:
+          Tenant: alpha
+        limit: 50
+    allowToolError: true
+  customSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $custom
+    expect:
+      IsError: false
+  customRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $custom.StructuredContent.evidence
+    expect:
+      returnedRows: 3
+  customIDs:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $custom.StructuredContent.data.records
+    expect:
+      - id: 1
+      - id: 2
+      - id: 4
+  combined:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.preview.execute
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+      versionNo: 1
+      input:
+        input:
+          IDs:
+            - 1
+            - 2
+            - 3
+          Active: 1
+          Tenant: alpha
+        limit: 50
+    allowToolError: true
+  combinedSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $combined
+    expect:
+      IsError: false
+  combinedRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $combined.StructuredContent.evidence
+    expect:
+      returnedRows: 1
+  combinedIDs:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $combined.StructuredContent.data.records
+    expect:
+      - id: 1
+  editSelector:
+    action: webdriver:run
+    browser: chrome
+    sessionID: localhost:4445
+    autoStart: false
+    failureArtifacts:
+      directory: ${runDir}/artifacts/webdriver
+    commands:
+      - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='Limit']]").click()
+      - page.getByLabel("Query selector view").selectOption("")
+      - page.getByRole("button", "Save input").click()
+      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+  selectorRemoved:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.preview.execute
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+      versionNo: 1
+      input:
+        input:
+          Limit: 1
+        limit: 50
+    allowToolError: true
+  selectorRemovedSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $selectorRemoved
+    expect:
+      IsError: false
+  selectorRemovedRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $selectorRemoved.StructuredContent.evidence
+    expect:
+      returnedRows: 4
+  selectorRemovedIDs:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $selectorRemoved.StructuredContent.data.records
+    expect:
+      - id: 1
+      - id: 2
+      - id: 3
+      - id: 4
+  restoreSelector:
+    action: webdriver:run
+    browser: chrome
+    sessionID: localhost:4445
+    autoStart: false
+    failureArtifacts:
+      directory: ${runDir}/artifacts/webdriver
+    commands:
+      - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='Limit']]").click()
+      - page.getByLabel("Query selector view").selectOption("record")
+      - page.getByRole("button", "Save input").click()
+      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+  selectorRestored:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.preview.execute
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+      versionNo: 1
+      input:
+        input:
+          Limit: 1
+        limit: 50
+    allowToolError: true
+  selectorRestoredSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $selectorRestored
+    expect:
+      IsError: false
+  selectorRestoredRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $selectorRestored.StructuredContent.evidence
+    expect:
+      returnedRows: 1
+  selectorRestoredIDs:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $selectorRestored.StructuredContent.data.records
+    expect:
+      - id: 1
+  editPredicates:
+    action: webdriver:run
+    browser: chrome
+    sessionID: localhost:4445
+    autoStart: false
+    failureArtifacts:
+      directory: ${runDir}/artifacts/webdriver
+    commands:
+      - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='IDs']]").click()
+      - page.getByRole("button", "Edit in predicate \u00b7 group 1").click()
+      - page.getByLabel("Predicate").selectOption("not_in")
+      - page.locator(".bp6-dialog button[type='submit']").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - page.getByRole("button", "Back to inputs").click()
+      - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='Active']]").click()
+      - page.getByRole("button", "Edit expr predicate \u00b7 group 1").click()
+      - page.getByLabel("Predicate arguments").fill("COALESCE(c.active, 0) <> ?")
+      - page.locator(".bp6-dialog button[type='submit']").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - page.getByRole("button", "Back to inputs").click()
+  excluded:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.preview.execute
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+      versionNo: 1
+      input:
+        input:
+          IDs:
+            - 1
+            - 3
+        limit: 50
+    allowToolError: true
+  excludedSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $excluded
+    expect:
+      IsError: false
+  excludedRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $excluded.StructuredContent.evidence
+    expect:
+      returnedRows: 2
+  excludedIDs:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $excluded.StructuredContent.data.records
+    expect:
+      - id: 2
+      - id: 4
+  expressionEdited:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.preview.execute
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+      versionNo: 1
+      input:
+        input:
+          Active: 0
+        limit: 50
+    allowToolError: true
+  expressionEditedSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $expressionEdited
+    expect:
+      IsError: false
+  expressionEditedRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $expressionEdited.StructuredContent.evidence
+    expect:
+      returnedRows: 3
+  expressionEditedIDs:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $expressionEdited.StructuredContent.data.records
+    expect:
+      - id: 1
+      - id: 3
+      - id: 4
+  renameInput:
+    action: webdriver:run
+    browser: chrome
+    sessionID: localhost:4445
+    autoStart: false
+    failureArtifacts:
+      directory: ${runDir}/artifacts/webdriver
+    commands:
+      - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='Tenant']]").click()
+      - page.getByLabel("Input name").fill("TenantFilter")
+      - page.getByRole("button", "Save input").click()
+      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+  renamed:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.preview.execute
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+      versionNo: 1
+      input:
+        input:
+          TenantFilter: beta
+        limit: 50
+    allowToolError: true
+  renamedSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $renamed
+    expect:
+      IsError: false
+  renamedRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $renamed.StructuredContent.evidence
+    expect:
+      returnedRows: 1
+  renamedIDs:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $renamed.StructuredContent.data.records
+    expect:
+      - id: 3
+  editHandler:
+    action: webdriver:run
+    browser: chrome
+    sessionID: localhost:4445
+    autoStart: false
+    failureArtifacts:
+      directory: ${runDir}/artifacts/webdriver
+    commands:
+      - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='TenantFilter']]").click()
+      - page.getByRole("button", "Edit handler predicate \u00b7 group 1").click()
+      - page.getByLabel("Find custom predicate").fill("OrderPresence")
+      - page.getByLabel("Custom predicate").selectOption("github.com/viant/datly-studio/examples/predicates.OrderPresence")
+      - page.locator(".bp6-dialog button[type='submit']").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - page.getByRole("button", "Back to inputs").click()
+  handlerEdited:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.preview.execute
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+      versionNo: 1
+      input:
+        input:
+          TenantFilter: exists
+        limit: 50
+    allowToolError: true
+  handlerEditedSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $handlerEdited
+    expect:
+      IsError: false
+  handlerEditedRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $handlerEdited.StructuredContent.evidence
+    expect:
+      returnedRows: 0
+  removePredicates:
+    action: webdriver:run
+    browser: chrome
+    sessionID: localhost:4445
+    autoStart: false
+    failureArtifacts:
+      directory: ${runDir}/artifacts/webdriver
+    commands:
+      - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='Active']]").click()
+      - page.getByRole("button", "Edit expr predicate \u00b7 group 1").click()
+      - page.locator("xpath://div[contains(concat(' ',normalize-space(@class),' '),' bp6-dialog ')]//button[normalize-space(.)='Remove']").click()
+      - page.getByRole("button", "Confirm removal").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - page.getByRole("button", "Back to inputs").click()
+      - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='TenantFilter']]").click()
+      - page.getByRole("button", "Edit handler predicate \u00b7 group 1").click()
+      - page.locator("xpath://div[contains(concat(' ',normalize-space(@class),' '),' bp6-dialog ')]//button[normalize-space(.)='Remove']").click()
+      - page.getByRole("button", "Confirm removal").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - page.getByRole("button", "Back to inputs").click()
+  predicatesRemoved:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.preview.execute
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+      versionNo: 1
+      input:
+        input:
+          Active: 0
+          TenantFilter: alpha
+        limit: 50
+    allowToolError: true
+  predicatesRemovedSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $predicatesRemoved
+    expect:
+      IsError: false
+  predicatesRemovedRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $predicatesRemoved.StructuredContent.evidence
+    expect:
+      returnedRows: 4
+  predicatesRemovedIDs:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $predicatesRemoved.StructuredContent.data.records
+    expect:
+      - id: 1
+      - id: 2
+      - id: 3
+      - id: 4
+  removeInputs:
+    action: webdriver:run
+    browser: chrome
+    sessionID: localhost:4445
+    autoStart: false
+    failureArtifacts:
+      directory: ${runDir}/artifacts/webdriver
+    commands:
+      - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='IDs']]").click()
+      - page.getByRole("button", "Remove").click()
+      - page.getByLabel("Confirm input name").fill("IDs")
+      - page.getByRole("button", "Remove input").click()
+      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='Active']]").click()
+      - page.getByRole("button", "Remove").click()
+      - page.getByLabel("Confirm input name").fill("Active")
+      - page.getByRole("button", "Remove input").click()
+      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='TenantFilter']]").click()
+      - page.getByRole("button", "Remove").click()
+      - page.getByLabel("Confirm input name").fill("TenantFilter")
+      - page.getByRole("button", "Remove input").click()
+      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='Limit']]").click()
+      - page.getByRole("button", "Remove").click()
+      - page.getByLabel("Confirm input name").fill("Limit")
+      - page.getByRole("button", "Remove input").click()
+      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - expect(page.locator(".studio-contract-panel .studio-empty-compact")).toHaveText("No items in this input catalog.",15000)
+  allRemoved:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.preview.execute
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+      versionNo: 1
+      input:
+        input: {}
+        limit: 50
+    allowToolError: true
+  allRemovedSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $allRemoved
+    expect:
+      IsError: false
+  allRemovedRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $allRemoved.StructuredContent.evidence
+    expect:
+      returnedRows: 4
+  allRemovedIDs:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $allRemoved.StructuredContent.data.records
+    expect:
+      - id: 1
+      - id: 2
+      - id: 3
+      - id: 4
+  finalInspection:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.versions.inspect
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+      versionNo: 1
+      discoverColumns: true
+    allowToolError: true
+  finalInspectionSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $finalInspection
+    expect:
+      IsError: false
+  createJWT:
+    action: webdriver:run
+    browser: chrome
+    sessionID: localhost:4445
+    autoStart: false
+    failureArtifacts:
+      directory: ${runDir}/artifacts/webdriver
+    commands:
+      - page.getByRole("button", "Add input").click()
+      - page.getByLabel("Input name").fill("JWT")
+      - page.locator(".studio-input-binding summary").click()
+      - page.getByLabel("Codec").selectOption("JwtClaim")
+      - expect(page.getByLabel("Kind")).toHaveValue("header",15000)
+      - expect(page.getByLabel("Kind source")).toHaveValue("Authorization",15000)
+      - expect(page.getByLabel("Required")).toHaveValue("true",15000)
+      - expect(page.getByLabel("Type expression")).toHaveValue("string,*github.com/viant/scy/auth/jwt.Claims",15000)
+      - page.locator(".studio-input-errors summary").click()
+      - expect(page.getByLabel("Error code")).toHaveValue("401",15000)
+      - page.getByLabel("Error message").fill("Sign in required")
+      - page.locator(".studio-inline-contract-form button[type='submit']").click()
+      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+  jwtPreview:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.preview.execute
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+      versionNo: 1
+      input:
+        input: {}
+        limit: 50
+    allowToolError: true
+  jwtPreviewSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $jwtPreview
+    expect:
+      IsError: false
+  jwtPreviewRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $jwtPreview.StructuredContent.evidence
+    expect:
+      returnedRows: 4
+  jwtInspection:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.versions.inspect
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+      versionNo: 1
+      discoverColumns: true
+    allowToolError: true
+  jwtInspectionSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $jwtInspection
+    expect:
+      IsError: false
+  jwtContract:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $jwtInspection.StructuredContent.structure.declarations
+    expect:
+      "@indexBy@": parameter.name
+      JWT:
+        parameter:
+          source:
+            kind: header
+            name: Authorization
+          required: true
+          errorStatusCode: 401
+          errorMessage: Sign in required
+          codec:
+            body: JwtClaim
+  codecDenied:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: ${runDir}/outsider.token
+    "@name": studio.sdk.codecs.types
+    arguments: {}
+    allowToolError: true
+  codecDeniedCheck:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $codecDenied
+    expect:
+      IsError: true
+  editJWT:
+    action: webdriver:run
+    browser: chrome
+    sessionID: localhost:4445
+    autoStart: false
+    failureArtifacts:
+      directory: ${runDir}/artifacts/webdriver
+    commands:
+      - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='JWT']]").click()
+      - expect(page.getByLabel("Type expression")).toHaveValue("string,*github.com/viant/scy/auth/jwt.Claims",15000)
+      - page.locator(".studio-input-errors summary").click()
+      - page.getByLabel("Error message").fill("Authentication required")
+      - page.getByRole("button", "Save input").click()
+      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+  customCodec:
+    action: webdriver:run
+    browser: chrome
+    sessionID: localhost:4445
+    autoStart: false
+    failureArtifacts:
+      directory: ${runDir}/artifacts/webdriver
+    commands:
+      - page.getByRole("button", "Add input").click()
+      - page.getByLabel("Input name").fill("TenantName")
+      - page.getByLabel("Kind source").fill("tenantName")
+      - page.getByLabel("Predicate").selectOption("equal")
+      - page.getByLabel("SQL alias").fill("c")
+      - page.getByLabel("Filter dimension").selectOption("tenant")
+      - page.locator(".studio-input-binding summary").click()
+      - page.getByLabel("Codec").selectOption("github.com/viant/datly-studio/e2e/codecs.Tenant")
+      - page.locator(".studio-input-errors summary").click()
+      - page.getByLabel("Error code").fill("422")
+      - page.getByLabel("Error message").fill("Unknown tenant")
+      - page.locator(".studio-inline-contract-form button[type='submit']").click()
+      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+  customCodecPreview:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.preview.execute
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+      versionNo: 1
+      input:
+        input:
+          TenantName: " ALPHA "
+        limit: 50
+    allowToolError: true
+  customCodecSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $customCodecPreview
+    expect:
+      IsError: false
+  customCodecRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $customCodecPreview.StructuredContent.evidence
+    expect:
+      returnedRows: 3
+  customCodecInvalid:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.preview.execute
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+      versionNo: 1
+      input:
+        input:
+          TenantName: invalid
+        limit: 50
+    allowToolError: true
+  customCodecInvalidCheck:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $customCodecInvalid
+    expect:
+      IsError: true
+  removeCodec:
+    action: webdriver:run
+    browser: chrome
+    sessionID: localhost:4445
+    autoStart: false
+    failureArtifacts:
+      directory: ${runDir}/artifacts/webdriver
+    commands:
+      - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='TenantName']]").click()
+      - page.locator(".studio-input-binding summary").click()
+      - page.getByLabel("Codec").selectOption("")
+      - page.locator(".studio-input-errors summary").click()
+      - page.getByLabel("Error code").fill("")
+      - page.getByLabel("Error message").fill("")
+      - page.getByRole("button", "Save input").click()
+      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+  withoutCodec:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.preview.execute
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      reportId: $components.StructuredContent.items[0].id
+      versionNo: 1
+      input:
+        input:
+          TenantName: " ALPHA "
+        limit: 50
+    allowToolError: true
+  withoutCodecSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $withoutCodec
+    expect:
+      IsError: false
+  withoutCodecRows:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $withoutCodec.StructuredContent.evidence
+    expect:
+      returnedRows: 0
+  removeCodecInput:
+    action: webdriver:run
+    browser: chrome
+    sessionID: localhost:4445
+    autoStart: false
+    failureArtifacts:
+      directory: ${runDir}/artifacts/webdriver
+    commands:
+      - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='TenantName']]").click()
+      - page.getByRole("button", "Remove").click()
+      - page.getByLabel("Confirm input name").fill("TenantName")
+      - page.getByRole("button", "Remove input").click()
+      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)

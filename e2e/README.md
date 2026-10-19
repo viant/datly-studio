@@ -114,3 +114,24 @@ endly -selector-mode=path -r=run -t=cleanupPrevious,setup,test -i=testMCP_namesp
 Build the fixture first (`endly -r=run -t=build`) after changing linked Go code.
 This is a generic component-composition test; application reporting acceptance
 belongs to the embedding application's E2E suite.
+
+## Component creation and parameter authoring
+
+`testWebDriver_component_create` starts in **Components → New component** and
+checks immediate navigation to Root SQL. It creates an internal reader, exercises
+input and output parameter add/edit/remove, renames the `output/view` holder,
+and adds `output/status` and `output/metrics`. Result-column editing is checked
+separately, including an exact public name and removal from the JSON response.
+The case checks real preview data, validates the draft, and verifies catalog
+persistence. Source kind and source location are labeled **Kind** and
+**Kind source** in the parameter forms.
+
+`webdriver/016_ui_input_predicates` is the dedicated UI-only input/predicate lifecycle test.
+It creates its namespace, connector, component, and inputs through controls and Root SQL;
+it never imports or pastes DQL. It uses MCP-backed view/dimension/predicate lookups,
+then edits selectors, expressions, handlers, and input names, and removes predicates and inputs.
+Read-only MCP preview assertions verify exact returned IDs after each change.
+
+The same case covers MCP codec discovery, required `JwtClaim` with its absolute claims type,
+401 error metadata, a custom codec selected by absolute Go package/type path, invalid codec input,
+error-setting edits, codec removal, and denial of codec discovery to an unauthorized principal.
