@@ -17,7 +17,7 @@ func (c *Login) Resolve(ctx context.Context) (*oauth2.Config, error) {
 		return nil, nil
 	}
 	if c.ClientConfig != nil {
-		if c.AuthorizationURL != "" || c.TokenURL != "" || c.ClientID != "" || c.ClientSecret != nil || len(c.Scopes) != 0 {
+		if c.AuthorizationURL != "" || c.TokenURL != "" || c.ClientID != "" || c.ClientSecret != nil {
 			return nil, errors.New("Login.ClientConfig cannot be combined with individual OAuth settings")
 		}
 		resource := *c.ClientConfig
@@ -31,6 +31,9 @@ func (c *Login) Resolve(ctx context.Context) (*oauth2.Config, error) {
 			return nil, errors.New("Studio OAuth client configuration is invalid")
 		}
 		result := client.Config
+		if len(c.Scopes) > 0 {
+			result.Scopes = append([]string(nil), c.Scopes...)
+		}
 		return &result, nil
 	}
 	result := &oauth2.Config{ClientID: c.ClientID, Endpoint: oauth2.Endpoint{AuthURL: c.AuthorizationURL, TokenURL: c.TokenURL}, Scopes: append([]string(nil), c.Scopes...)}

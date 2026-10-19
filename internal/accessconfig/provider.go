@@ -52,6 +52,7 @@ func IdentityFromEnvironment() (access.Provider, error) {
 type Config struct {
 	JWTValidator                                          *verifier.Config
 	Issuer, Audience, PublicKeyFile, CertURL, UserInfoURL string
+	Tenant                                                string
 }
 
 // New resolves one server-owned verifier for static, dynamic, and SDK paths.
@@ -75,6 +76,9 @@ func newProvider(config Config, factory UserInfoProviderFactory) (access.Provide
 		return nil, nil
 	}
 	if issuer == "" || audience == "" {
+		if config.JWTValidator != nil && userInfoURL == "" {
+			return newVerifiedIdentity(config)
+		}
 		return nil, fmt.Errorf("ACL issuer and audience are required")
 	}
 	keyfunc, err := configuredKeyfunc(config.JWTValidator, keyPath, certURL)

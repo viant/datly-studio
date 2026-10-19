@@ -50,3 +50,27 @@ func TestLoginRejectsAmbiguousAndUnreadableClient(t *testing.T) {
 		}
 	}
 }
+
+func TestWholeSCYClientAllowsExplicitRootScopeOverride(t *testing.T) {
+	want := oauth2.Config{ClientID: "synthetic-client", ClientSecret: "synthetic-private", Scopes: []string{"original"}}
+	encoded, err := json.Marshal(cred.Oauth2Config{Config: want})
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(t.TempDir(), "client.json")
+	if err = os.WriteFile(path, encoded, 0600); err != nil {
+		t.Fatal(err)
+	}
+	scopes := []string{"openid", "profile"}
+	got, err := (&Login{ClientConfig: &scy.Resource{URL: path, Key: "blowfish://default"}, Scopes: scopes}).Resolve(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(got.Scopes, scopes) {
+		t.Fatal("root scopes did not override loaded client scopes")
+	}
+	got.Scopes[0] = "changed"
+	if scopes[0] != "openid" {
+		t.Fatal("returned scopes alias configuration")
+	}
+}

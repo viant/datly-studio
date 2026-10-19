@@ -28,6 +28,7 @@ import (
 	runtimehost "github.com/viant/datly-studio/runtime/host"
 	"github.com/viant/datly-studio/runtime/namespacemcp"
 	"github.com/viant/datly-studio/schema"
+	studiocatalog "github.com/viant/datly-studio/studio/catalog"
 	authoring "github.com/viant/datly-studio/studio/host"
 	"github.com/viant/datly/bootstrap/connector"
 	datlyconfig "github.com/viant/datly/standalone/config"
@@ -66,6 +67,9 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	if err := parent.Err(); err != nil {
 		return err
 	}
+	if err := config.ValidateAuth(); err != nil {
+		return err
+	}
 	if err := config.ValidateListeners(); err != nil {
 		return err
 	}
@@ -76,8 +80,16 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	if catalog.Driver != "sqlite" && catalog.Driver != "mysql" {
 		return errors.New("Studio storage driver must be sqlite or mysql")
 	}
-	if config.JWTClaims == nil || config.JWTClaims.Issuer == "" || config.JWTClaims.Audience == "" || config.JWTValidator == nil {
-		return errors.New("Studio host requires JWTValidator and issuer/audience JWTClaims")
+	if config.JWTValidator == nil {
+		return errors.New("Studio host requires JWTValidator")
+	}
+	issuer, audience := "", ""
+	if config.JWTClaims != nil {
+		issuer, audience = config.JWTClaims.Issuer, config.JWTClaims.Audience
+	}
+	policyTenant := config.Tenant
+	if policyTenant == "" {
+		policyTenant = "studio"
 	}
 	if options.Browser.Database != nil || options.Browser.Listener != nil || options.Browser.JWTValidator != nil {
 		return errors.New("Studio host owns browser storage, listener and JWT configuration")
@@ -119,7 +131,7 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		return err
 	}
 
-	authorityConfig := accessprovider.Config{Issuer: config.JWTClaims.Issuer, Audience: config.JWTClaims.Audience, JWTValidator: config.JWTValidator}
+	authorityConfig := accessprovider.Config{Issuer: issuer, Audience: audience, JWTValidator: config.JWTValidator, Tenant: policyTenant}
 	var provider authz.Provider
 	if config.Identity != nil && options.Native.AccessProviderFactory == nil {
 		providers, resolveErr := accessprovider.HTTPProviders(ctx, authorityConfig, *config.Identity, config.EntityEvaluation)
@@ -161,6 +173,9 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	if err != nil {
 		return err
 	}
+	if err := studiocatalog.ConfigureManagementNavigation(nil, origin, "datastudio"); err != nil {
+		return err
+	}
 	nativeConfig := config.Config
 	nativeConfig.Endpoint = datlyconfig.Endpoint{Address: "127.0.0.1:0"}
 	adminMCP := *config.MCP
@@ -168,7 +183,7 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		// A protected policy also carries the verified bearer into native MCP input
 		// binding. Reuse the browser SDK MCP mount as the stable resource URI.
 		adminMCP.Authorization = &authorization.Policy{Global: &authorization.Authorization{
-			ProtectedResourceMetadata: &oauthmeta.ProtectedResourceMetadata{Resource: origin + "/v1/studio/sdk-mcp/mcp", AuthorizationServers: []string{config.JWTClaims.Issuer}},
+			ProtectedResourceMetadata: &oauthmeta.ProtectedResourceMetadata{Resource: origin + "/v1/studio/sdk-mcp/mcp", AuthorizationServers: optionalIssuer(issuer)},
 		}}
 	}
 	nativeConfig.MCP = &adminMCP
@@ -229,7 +244,7 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	runtimeConfig := runtimehost.Config{Const: config.Const, InProcess: true, RootDir: config.BaseDir, ModulePath: authoringConfig.ModulePath,
 		NamespaceMCPMode: "shared", HTTP: runtimehost.Listener{Address: "127.0.0.1:0"}, MCP: runtimehost.Listener{Address: namespaceAddress},
 		Studio:         runtimehost.Studio{Driver: catalog.Driver, DSN: catalog.DSN},
-		Authentication: runtimehost.Authentication{DefaultMode: "required", Issuer: config.JWTClaims.Issuer, Audience: config.JWTClaims.Audience, ConnectionExport: config.NamespaceConnectionExport, Providers: config.NamespaceOAuthProviders},
+		Authentication: runtimehost.Authentication{DefaultMode: "required", Issuer: issuer, Audience: audience, ConnectionExport: config.NamespaceConnectionExport, Providers: config.NamespaceOAuthProviders},
 		Access:         &runtimehost.ResourceAccessConfig{Tenant: tenant, Provider: provider}, ReaderCaches: config.Caches}
 	if options.ConfigureRuntime != nil {
 		if err := options.ConfigureRuntime(&runtimeConfig); err != nil {
@@ -270,6 +285,13 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		browser.Login = &studioapi.Login{AuthorizationURL: login.Endpoint.AuthURL, TokenURL: login.Endpoint.TokenURL, ClientID: login.ClientID, ClientSecret: login.ClientSecret, RedirectURL: origin + "/v1/studio/auth/callback", Scopes: login.Scopes}
 	}
 
+	if config.Auth != nil && config.Auth.Enabled {
+		login, err := config.Auth.Resolve(ctx, origin)
+		if err != nil {
+			return err
+		}
+		browser.Login = &studioapi.Login{AuthorizationURL: login.Endpoint.AuthURL, TokenURL: login.Endpoint.TokenURL, ClientID: login.ClientID, ClientSecret: login.ClientSecret, RedirectURL: origin + "/v1/studio/auth/callback", Scopes: login.Scopes}
+	}
 	if options.ConfigureBrowser != nil {
 		if err := options.ConfigureBrowser(&browser, endpoints, group); err != nil {
 			return err
@@ -284,7 +306,15 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	browser.Listener = publicListener
 	priorHTTPMiddleware := browser.HTTPMiddleware
 	browser.HTTPMiddleware = func(next http.Handler) http.Handler {
-		handler := browserConfigHandler(origin, options.Brand, next)
+		settings := map[string]any{"mode": "bff"}
+		if config.Auth != nil {
+			settings["enabled"] = config.Auth.Enabled
+			if config.Auth.Enabled {
+				settings["label"] = config.Auth.OAuth.Label
+				settings["redirectSameTab"] = true
+			}
+		}
+		handler := browserConfigHandler(origin, options.Brand, next, settings)
 		if priorHTTPMiddleware != nil {
 			return priorHTTPMiddleware(handler)
 		}
@@ -302,10 +332,13 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		close(browserReady)
 	}
 	args := []string{"--address", publicListener.Addr().String(), "--driver", catalog.Driver, "--dsn", catalog.DSN, "--mode", "authenticated",
-		"--jwt-issuer", config.JWTClaims.Issuer, "--jwt-audience", config.JWTClaims.Audience, "--session-key", sessionKey,
+		"--jwt-issuer", issuer, "--jwt-audience", audience, "--session-key", sessionKey,
 		"--allowed-origin", origin, "--access-tenant", tenant,
 		"--dynamic-mcp-url", "http://" + group.Listeners.SharedAddress(),
 		"--static-datly-url", "http://" + addresses[0], "--static-mcp-url", "http://" + addresses[1]}
+	if config.Auth != nil && config.Auth.CookieName != "" {
+		args = append(args, "--session-cookie", config.Auth.CookieName)
+	}
 	if config.StaticRoot != "" {
 		args = append(args, "--static-root", config.StaticRoot)
 	}
@@ -388,7 +421,11 @@ func browserOrigin(explicit, address string) (string, error) {
 
 // Browser configuration is derived from the application's one public origin.
 // Operators do not maintain a separate client configuration file.
-func browserConfigHandler(origin, brand string, next http.Handler) http.Handler {
+func browserConfigHandler(origin, brand string, next http.Handler, settings ...map[string]any) http.Handler {
+	authentication := map[string]any{"mode": "bff"}
+	if len(settings) > 0 {
+		authentication = settings[0]
+	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/studio-config.json" && r.URL.Path != "/datly-studio-config.json" {
 			next.ServeHTTP(w, r)
@@ -407,6 +444,13 @@ func browserConfigHandler(origin, brand string, next http.Handler) http.Handler 
 		if name == "" || r.URL.Path == "/datly-studio-config.json" {
 			name = "Data Studio"
 		}
-		_ = json.NewEncoder(w).Encode(map[string]any{"brand": name, "mode": "authenticated", "apiBaseURL": origin, "authentication": map[string]string{"mode": "bff"}})
+		_ = json.NewEncoder(w).Encode(map[string]any{"brand": name, "mode": "authenticated", "apiBaseURL": origin, "authentication": authentication})
 	})
+}
+
+func optionalIssuer(issuer string) []string {
+	if issuer == "" {
+		return nil
+	}
+	return []string{issuer}
 }

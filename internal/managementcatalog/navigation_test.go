@@ -2,6 +2,7 @@ package managementcatalog
 
 import (
 	"encoding/json"
+	"github.com/viant/datly-studio/nativeapp"
 	"net/url"
 	"testing"
 )
@@ -28,7 +29,11 @@ func TestManagementNavigation(t *testing.T) {
 	if nav.URI != "navigation://operations/main" || app.ID != "datastudio" || app.Title != "Data Studio" || app.Icon != "database" || len(app.Menus) != 9 {
 		t.Fatalf("incorrect navigation: %s", nav.JSON)
 	}
-	for i, section := range defaultSections {
+	var source struct{ Menus []Section }
+	if err := json.Unmarshal(nativeapp.Navigation(), &source); err != nil {
+		t.Fatal(err)
+	}
+	for i, section := range source.Menus {
 		action := app.Menus[i].Action
 		target, _ := url.Parse(action.URL)
 		if action.Type != "url" || target.Host != "studio.example" || target.Query().Get("section") != section.ID || target.Query().Get("theme") != "dark" {
@@ -65,4 +70,51 @@ func TestManagementNavigationTrustedURL(t *testing.T) {
 			t.Fatalf("rejected %q: %v", value, err)
 		}
 	}
+}
+
+func TestEmbeddedNativeNavigationExactMenuParityAndURLActions(t *testing.T) {
+	var source map[string]any
+	if err := json.Unmarshal(nativeapp.Navigation(), &source); err != nil {
+		t.Fatal(err)
+	}
+	nav, err := navigation(Config{Namespace: "datastudio", PublicURL: "https://studio.example/admin", Navigation: nativeapp.Navigation()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var envelope struct{ Applications []map[string]any }
+	if err = json.Unmarshal(nav.JSON, &envelope); err != nil {
+		t.Fatal(err)
+	}
+	var compare func([]any, []any)
+	compare = func(want, got []any) {
+		if len(want) != len(got) {
+			t.Fatalf("menu count changed")
+		}
+		for i, raw := range want {
+			w := raw.(map[string]any)
+			g := got[i].(map[string]any)
+			for _, key := range []string{"id", "title", "icon"} {
+				if w[key] != g[key] {
+					t.Fatalf("native menu changed: %s", key)
+				}
+			}
+			section, _ := w["section"].(string)
+			if section == "" {
+				section = w["id"].(string)
+			}
+			action := g["action"].(map[string]any)
+			u, err := url.Parse(action["url"].(string))
+			if err != nil || action["type"] != "url" || u.Host != "studio.example" || u.Path != "/admin" || u.Query().Get("section") != section {
+				t.Fatalf("incorrect native action: %v", action)
+			}
+			if child, ok := w["children"].([]any); ok {
+				compare(child, g["children"].([]any))
+			}
+		}
+	}
+	app := envelope.Applications[0]
+	if app["id"] != source["id"] || app["title"] != source["title"] || app["icon"] != source["icon"] {
+		t.Fatal("native identity changed")
+	}
+	compare(source["menus"].([]any), app["menus"].([]any))
 }

@@ -22,6 +22,7 @@ import (
 type Config struct {
 	JWTValidator                                          *verifier.Config
 	Issuer, Audience, PublicKeyFile, CertURL, UserInfoURL string
+	Tenant                                                string
 	Settings                                              []byte
 }
 
@@ -60,7 +61,7 @@ func New(ctx context.Context, config Config, factory ProviderFactory) (authz.Pro
 		return provider, nil
 	}
 	return accessconfig.New(accessconfig.Config{Issuer: config.Issuer, Audience: config.Audience,
-		PublicKeyFile: config.PublicKeyFile, CertURL: config.CertURL, UserInfoURL: config.UserInfoURL, JWTValidator: config.JWTValidator})
+		PublicKeyFile: config.PublicKeyFile, CertURL: config.CertURL, UserInfoURL: config.UserInfoURL, JWTValidator: config.JWTValidator, Tenant: config.Tenant})
 }
 
 // FromEnvironment resolves the process's registered host factory. The first
@@ -187,4 +188,11 @@ func HTTPProviders(ctx context.Context, settings Config, identity oauth.HTTPIden
 		identity.UserInfoCacheTTL = "0s"
 	}
 	return oauth.NewHTTPProviders(ctx, identity, evaluation)
+}
+
+// ClaimsVerifier exposes only claims authenticated by the configured JWTValidator.
+type ClaimsVerifier = accessconfig.ClaimsVerifier
+
+func NewClaimsVerifier(config Config) (*ClaimsVerifier, error) {
+	return accessconfig.NewClaimsVerifier(accessconfig.Config{JWTValidator: config.JWTValidator, Issuer: config.Issuer, Audience: config.Audience, PublicKeyFile: config.PublicKeyFile, CertURL: config.CertURL, Tenant: config.Tenant})
 }

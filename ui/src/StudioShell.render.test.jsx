@@ -84,3 +84,18 @@ describe('StudioShell authentication boundary',()=>{
     expect(await screen.findByRole('heading',{name:'Sign in to Data Studio'})).toBeTruthy();
   });
 });
+
+test('uses the configured IdP label for the existing same-tab BFF link',async()=>{
+ vi.stubGlobal('fetch',vi.fn().mockResolvedValue(response({},401)));
+ render(<StudioShell config={{...config,authentication:{...config.authentication,enabled:true,label:'Sign in with IdP',redirectSameTab:true}}}/>);
+ const link=await screen.findByRole('link',{name:'Sign in with IdP'});
+ expect(link.getAttribute('href')).toBe('https://studio.example.com/v1/studio/auth/login');
+ expect(link.getAttribute('target')).toBeNull();
+});
+
+test('does not offer browser login when deployment Auth is disabled',async()=>{
+ vi.stubGlobal('fetch',vi.fn().mockResolvedValue(response({},401)));
+ render(<StudioShell config={{...config,authentication:{...config.authentication,enabled:false}}}/>);
+ expect(await screen.findByText('Browser sign-in is disabled by this deployment.')).toBeTruthy();
+ expect(screen.queryByRole('link',{name:'Continue to sign in'})).toBeNull();
+});

@@ -30,3 +30,8 @@ test('identity-token mode separates auth, static Datly, and dynamic MCP origins'
   assert.throws(() => validateConfig({ mode: 'authenticated', apiBaseURL: 'https://static.example.com',
     authentication: { mode: 'identity-token', authBaseURL: 'https://studio.example.com' } }), /mcpBaseURL/);
 });
+
+test('BFF configuration preserves the explicit login label and enablement',()=>{
+ const config=validateConfig({mode:'authenticated',apiBaseURL:'https://studio.example',authentication:{mode:'bff',enabled:true,label:'Sign in with IdP',redirectSameTab:true}});
+ assert.equal(config.authentication.label,'Sign in with IdP');assert.equal(config.authentication.enabled,true);assert.equal(config.authentication.redirectSameTab,true);
+});

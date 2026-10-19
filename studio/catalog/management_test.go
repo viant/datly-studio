@@ -50,3 +50,33 @@ func TestManagementRejectsInvalidHostNavigation(t *testing.T) {
 		t.Fatal("untrusted host URL accepted")
 	}
 }
+
+func TestEmbeddedManagementNavigationUsesBinaryIdentityAndVerifiedCatalog(t *testing.T) {
+	managementSettings.Lock()
+	previous := managementSettings.config
+	managementSettings.config = nil
+	managementSettings.Unlock()
+	t.Cleanup(func() { managementSettings.Lock(); managementSettings.config = previous; managementSettings.Unlock() })
+	t.Setenv("STUDIO_MANAGEMENT_NAMESPACE", "caller-config-must-not-select-brand")
+	t.Setenv("STUDIO_MANAGEMENT_SECTIONS_JSON", "malformed-old-config")
+	if err := ConfigureManagementNavigation(nil, "https://studio.example/admin", "provider"); err != nil {
+		t.Fatal(err)
+	}
+	claims := &jwt.Claims{}
+	claims.Subject = "alice"
+	auth := &studioauth.Output{Auth: &studioauth.AuthContext{Subject: "alice"}}
+	ns, defs, err := management(claims, auth)
+	if err != nil || ns.Name != "datastudio" {
+		t.Fatalf("embedded namespace unavailable: %v", err)
+	}
+	refs := managementReferences(defs, "navigation")
+	if len(refs) != 1 || refs[0].URI != "navigation://datastudio/main" {
+		t.Fatalf("filtered navigation unavailable: %v", refs)
+	}
+	if _, _, err = management(nil, auth); err == nil {
+		t.Fatal("embedded navigation bypassed authentication")
+	}
+	if err = ConfigureManagementNavigation(nil, "https://user:pass@studio.example", "provider"); err == nil {
+		t.Fatal("credential URL accepted")
+	}
+}

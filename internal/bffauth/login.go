@@ -43,15 +43,16 @@ type LoginConfig struct {
 // Identity-token deployments mount DatlyHTTP. Register keeps credentials on
 // the server and exposes only the opaque browser session cookie.
 type Login struct {
-	config        oauth2.Config
-	sessions      *Service
-	aead          cipher.AEAD
-	secure        bool
-	now           func() time.Time
-	client        *http.Client
-	useIDToken    bool
-	allowedOrigin string
-	refreshMu     sync.Mutex
+	config          oauth2.Config
+	sessions        *Service
+	aead            cipher.AEAD
+	secure          bool
+	now             func() time.Time
+	client          *http.Client
+	useIDToken      bool
+	allowedOrigin   string
+	stateCookieName string
+	refreshMu       sync.Mutex
 }
 
 type loginState struct {
@@ -97,7 +98,11 @@ func NewLogin(config LoginConfig, sessions *Service) (*Login, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Login{config: config.OAuth, sessions: sessions, aead: aead, secure: config.Secure,
+	stateCookieName := stateCookie
+	if sessions.config.CookieName != DefaultCookieName {
+		stateCookieName = sessions.config.CookieName + "_login_state"
+	}
+	return &Login{stateCookieName: stateCookieName, config: config.OAuth, sessions: sessions, aead: aead, secure: config.Secure,
 		useIDToken: config.UseIDToken, allowedOrigin: strings.TrimRight(config.AllowedOrigin, "/"),
 		now: time.Now, client: &http.Client{Timeout: 10 * time.Second}}, nil
 }
@@ -138,7 +143,7 @@ func (l *Login) handleStart(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "login unavailable", http.StatusServiceUnavailable)
 		return
 	}
-	http.SetCookie(w, &http.Cookie{Name: stateCookie, Value: encoded, Path: callbackPath, HttpOnly: true,
+	http.SetCookie(w, &http.Cookie{Name: l.stateCookieName, Value: encoded, Path: callbackPath, HttpOnly: true,
 		Secure: l.secure, SameSite: http.SameSiteLaxMode, MaxAge: int(stateTTL.Seconds())})
 	w.Header().Set("Cache-Control", "no-store")
 	w.Header().Set("Referrer-Policy", "no-referrer")
@@ -146,7 +151,7 @@ func (l *Login) handleStart(w http.ResponseWriter, r *http.Request) {
 }
 
 func (l *Login) handleCallback(w http.ResponseWriter, r *http.Request) {
-	http.SetCookie(w, &http.Cookie{Name: stateCookie, Value: "", Path: callbackPath, HttpOnly: true,
+	http.SetCookie(w, &http.Cookie{Name: l.stateCookieName, Value: "", Path: callbackPath, HttpOnly: true,
 		Secure: l.secure, SameSite: http.SameSiteLaxMode, MaxAge: -1})
 	w.Header().Set("Cache-Control", "no-store")
 	w.Header().Set("Referrer-Policy", "no-referrer")
@@ -155,7 +160,7 @@ func (l *Login) handleCallback(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "login was not completed", http.StatusUnauthorized)
 		return
 	}
-	cookie, err := r.Cookie(stateCookie)
+	cookie, err := r.Cookie(l.stateCookieName)
 	if err != nil {
 		http.Error(w, "login state is unavailable", http.StatusUnauthorized)
 		return

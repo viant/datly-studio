@@ -25,6 +25,7 @@ type Config struct {
 	ApplicationID    string
 	ApplicationName  string
 	ApplicationIcon  string
+	Navigation       json.RawMessage
 	Sections         []Section
 }
 

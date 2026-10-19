@@ -479,7 +479,10 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) error {
 		if authConfigErr != nil {
 			return authConfigErr
 		}
-		issuer, audience, key, authConfigErr := resolveAuthenticatedIdentity(*jwtIssuer, *jwtAudience, *sessionKey)
+		if options.JWTValidator != nil && *jwtAudience == "" && loginOAuth != nil {
+			*jwtAudience = loginOAuth.ClientID
+		}
+		issuer, audience, key, authConfigErr := resolveAuthenticatedIdentity(*jwtIssuer, *jwtAudience, *sessionKey, options.JWTValidator != nil)
 		if authConfigErr != nil {
 			return authConfigErr
 		}
@@ -505,7 +508,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) error {
 			prunerDone := startSessionPruner(lifecycleCtx, sessionStore, *sessionPruneInterval)
 			defer func() { stop(); <-prunerDone }()
 		}
-		sessions, sessionErr := bffauth.New(bffauth.Config{CookieName: *cookieName, Secure: secureSessionCookies(origin), Issuer: issuer, Audience: audience, Store: sessionStore}, jwtVerifier)
+		sessions, sessionErr := bffauth.New(bffauth.Config{CookieName: *cookieName, Secure: secureSessionCookies(origin), Issuer: issuer, Audience: audience, Store: sessionStore}, strictClaimsVerifier{jwtVerifier})
 		if sessionErr != nil {
 			return sessionErr
 		}
@@ -678,13 +681,14 @@ func resolveAuthenticatedConfig(certURL, issuer, audience, encodedKey string, pu
 	return resolveAuthenticatedIdentity(issuer, audience, encodedKey)
 }
 
-func resolveAuthenticatedIdentity(issuer, audience, encodedKey string) (string, string, []byte, error) {
+func resolveAuthenticatedIdentity(issuer, audience, encodedKey string, shared ...bool) (string, string, []byte, error) {
+	optionalRestrictions := len(shared) > 0 && shared[0]
 	issuer = strings.TrimSpace(issuer)
 	audience = strings.TrimSpace(audience)
-	if issuer == "" {
+	if issuer == "" && !optionalRestrictions {
 		return "", "", nil, errors.New("-jwt-issuer or STUDIO_JWT_ISSUER is required in authenticated mode")
 	}
-	if audience == "" {
+	if audience == "" && !optionalRestrictions {
 		return "", "", nil, errors.New("-jwt-audience or STUDIO_JWT_AUDIENCE is required in authenticated mode")
 	}
 	encodedKey = strings.TrimSpace(encodedKey)

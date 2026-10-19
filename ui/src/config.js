@@ -51,6 +51,9 @@ export function validateConfig(value) {
       ...brand,
       authentication: {
         mode: authMode,
+        ...(typeof authentication?.enabled==='boolean'?{enabled:authentication.enabled}:{}),
+        ...(authentication?.label?{label:authentication.label}:{}),
+        ...(typeof authentication?.redirectSameTab==='boolean'?{redirectSameTab:authentication.redirectSameTab}:{}),
         mePath: authentication?.mePath || '/v1/studio/auth/me',
         loginPath: authentication?.loginPath || '/v1/studio/auth/login',
       },

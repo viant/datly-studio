@@ -37,8 +37,7 @@ type Config struct {
 	// connectors are managed in the database, outside deployment configuration.
 	Store        *connector.Config
 	NamespaceMCP *datly.MCP
-	// Namespace connection discovery exports SCY references only. Nil retains
-	// disabled connection export for protected namespace runtimes.
+	// Legacy explicit namespace OAuth overrides; unrelated to browser login.
 	NamespaceConnectionExport *runtimehost.MCPConnectionExport
 	NamespaceOAuthProviders   map[string]runtimehost.OAuthProvider
 	// PublicURL overrides the browser origin when deployed behind a proxy.
@@ -49,6 +48,7 @@ type Config struct {
 	// Omission generates a process-local key and invalidates sessions on restart.
 	SessionKey       *scy.Resource
 	StaticRoot       string
+	Auth             *Auth
 	Login            *Login
 	Identity         *oauth.HTTPIdentityConfig
 	EntityEvaluation *oauth.HTTPEvaluationConfig
@@ -79,11 +79,17 @@ func Decode(data []byte) (*Config, error) {
 	if err != nil {
 		return nil, errors.New("host configuration requires string mapping keys")
 	}
+	if err := validateAuthDocument(document); err != nil {
+		return nil, err
+	}
 	result := &Config{}
 	jsonDecoder := json.NewDecoder(bytes.NewReader(raw))
 	jsonDecoder.DisallowUnknownFields()
 	if err := jsonDecoder.Decode(result); err != nil {
 		return nil, errors.New("host configuration contains an unknown field or invalid value")
+	}
+	if err := result.ValidateAuth(); err != nil {
+		return nil, err
 	}
 	if err := result.ValidateListeners(); err != nil {
 		return nil, err

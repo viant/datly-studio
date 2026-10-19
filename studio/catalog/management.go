@@ -5,8 +5,10 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/viant/datly-studio/internal/managementcatalog"
+	"github.com/viant/datly-studio/nativeapp"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
 	namespaceext "github.com/viant/mcp-protocol/extension/namespaces"
 	"github.com/viant/scy/auth/jwt"
@@ -20,23 +22,32 @@ func management(claims *jwt.Claims, auth *studioauth.Output) (*Namespace, []mana
 		return nil, nil, fail(403, "verified Studio principal is required")
 	}
 	id := os.Getenv("STUDIO_MANAGEMENT_NAMESPACE")
-	if id == "" {
+	managementSettings.RLock()
+	installed := managementSettings.config
+	configured := installed != nil
+	managementSettings.RUnlock()
+	if id == "" && !configured {
 		return nil, nil, nil
 	}
 	var sections []managementcatalog.Section
-	if raw := os.Getenv("STUDIO_MANAGEMENT_SECTIONS_JSON"); raw != "" {
+	if raw := os.Getenv("STUDIO_MANAGEMENT_SECTIONS_JSON"); raw != "" && installed == nil {
 		if err := json.Unmarshal([]byte(raw), &sections); err != nil {
 			return nil, nil, fail(503, "management sections are not configured correctly")
 		}
 	}
-	definitions, err := managementcatalog.NamespaceWindow(managementcatalog.Config{
+	config := managementcatalog.Config{
 		PublicURL:       os.Getenv("STUDIO_MANAGEMENT_PUBLIC_URL"),
 		ApplicationID:   os.Getenv("STUDIO_MANAGEMENT_APPLICATION_ID"),
 		ApplicationName: os.Getenv("STUDIO_MANAGEMENT_APPLICATION_NAME"),
 		ApplicationIcon: os.Getenv("STUDIO_MANAGEMENT_APPLICATION_ICON"),
 		Sections:        sections,
 		Namespace:       id, ProviderIdentity: os.Getenv("STUDIO_MANAGEMENT_PROVIDER_ID"), MCPService: os.Getenv("STUDIO_MANAGEMENT_MCP_SERVICE"),
-	})
+	}
+	if installed != nil {
+		config = *installed
+		id = config.Namespace
+	}
+	definitions, err := managementcatalog.NamespaceWindow(config)
 	if err != nil {
 		return nil, nil, fail(503, "management resource catalog is not configured correctly")
 	}
@@ -62,4 +73,32 @@ func managementReferences(definitions []managementcatalog.Definition, kind strin
 	}
 	sort.Slice(result, func(i, j int) bool { return result[i].URI < result[j].URI })
 	return result
+}
+
+var managementSettings struct {
+	sync.RWMutex
+	config *managementcatalog.Config
+}
+
+// ConfigureManagementNavigation installs one binary-owned native menu. Passing
+// nil selects Data Studio's embedded definition. Call before serving requests.
+// PublicURL is the trusted host URL; no caller-provided navigation is accepted.
+func ConfigureManagementNavigation(definition []byte, publicURL, providerIdentity string) error {
+	if len(definition) == 0 {
+		definition = nativeapp.Navigation()
+	}
+	var app struct {
+		ID string `json:"id"`
+	}
+	if err := json.Unmarshal(definition, &app); err != nil {
+		return err
+	}
+	config := managementcatalog.Config{Namespace: app.ID, ApplicationID: app.ID, ProviderIdentity: providerIdentity, MCPService: app.ID, PublicURL: publicURL, Navigation: append(json.RawMessage(nil), definition...)}
+	if _, err := managementcatalog.NamespaceWindow(config); err != nil {
+		return err
+	}
+	managementSettings.Lock()
+	managementSettings.config = &config
+	managementSettings.Unlock()
+	return nil
 }

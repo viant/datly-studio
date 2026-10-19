@@ -1,0 +1,55 @@
+{
+  "id": "datastudio",
+  "title": "Data Studio",
+  "icon": "database",
+  "menus": [
+    {
+      "id": "overview",
+      "title": "Overview",
+      "icon": "home"
+    },
+    {
+      "id": "connectors",
+      "title": "Connectors",
+      "icon": "database"
+    },
+    {
+      "id": "schema",
+      "title": "Schema Browser",
+      "icon": "diagram-tree"
+    },
+    {
+      "id": "namespaces",
+      "title": "Namespaces",
+      "icon": "folder-shared"
+    },
+    {
+      "id": "security",
+      "title": "Security",
+      "icon": "shield"
+    },
+    {
+      "id": "runtime",
+      "title": "Runtime",
+      "icon": "pulse"
+    },
+    {
+      "id": "skills",
+      "title": "Skills",
+      "icon": "learning"
+    },
+    {
+      "id": "components",
+      "title": "Components",
+      "icon": "application",
+      "children": [
+        {
+          "id": "components-catalog",
+          "title": "Catalog",
+          "icon": "th",
+          "section": "components"
+        }
+      ]
+    }
+  ]
+}

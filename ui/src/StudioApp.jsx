@@ -1,3 +1,4 @@
+import nativeNavigation from './nativeNavigation.json' with {type:'json'};
 import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { ForgeThemeBoundary, ForgeThemeProvider } from 'forge/theme';
 import { Alert, Button, ButtonGroup, Callout, Card, HTMLSelect, HTMLTable, InputGroup, Navbar, Spinner, Tag, Tree } from '@blueprintjs/core';
@@ -207,18 +208,8 @@ export function StudioApp({ api, mode, subject, brand = 'Data Studio', extension
     finally { setSigningOut(false); }
   };
   const extensionNavigation = extensions.map((extension) => ({ id: extension.id, label: extension.label, icon: extension.icon, className: `studio-nav-extension studio-nav-${extension.id}`, section: extension.id, isSelected: section === extension.id }));
-  const navigation = [
-    { id: 'overview', label: 'Overview', icon: 'home', className: 'studio-nav-overview', section: 'overview', isSelected: section==='overview' },
-    { id: 'connectors', label: 'Connectors', icon: 'database', className: 'studio-nav-connectors', section: 'connectors', isSelected: section==='connectors' },
-    { id: 'schema', label: 'Schema Browser', icon: 'diagram-tree', className: 'studio-nav-schema', section: 'schema', isSelected: section==='schema' },
-    { id: 'namespaces', label: 'Namespaces', icon: 'folder-shared', className: 'studio-nav-namespaces', section: 'namespaces', isSelected: section==='namespaces' },
-    { id: 'security', label: 'Security', icon: 'shield', className: 'studio-nav-security', section: 'security', isSelected: section==='security' },
-    { id: 'runtime', label: 'Runtime', icon: 'pulse', className: 'studio-nav-runtime', section: 'runtime', isSelected: section==='runtime' },
-    { id: 'skills', label: 'Skills', icon: 'learning', className: 'studio-nav-skills', section: 'skills', isSelected: section==='skills' },
-    { id: 'components', label: 'Components', icon: 'application', className: 'studio-nav-components', section: 'components', isSelected: section==='components'||section==='builder', childNodes: [
-      { id: 'components-catalog', label: 'Catalog', icon: 'th', className: 'studio-nav-components-catalog', section: 'components', isSelected: section==='components' },
-    ] }, ...extensionNavigation,
-  ].filter((item) => item.label.toLowerCase().includes(navigationQuery.toLowerCase()) || item.childNodes?.some((child) => child.label.toLowerCase().includes(navigationQuery.toLowerCase())));
+  const nativeNode = (item) => ({id:item.id,label:item.title,icon:item.icon,className:`studio-nav-${item.id}`,section:item.section||item.id,isSelected:section===(item.section||item.id)||(item.id==='components'&&section==='builder'),...(item.children?{childNodes:item.children.map(nativeNode)}:{})});
+  const navigation = [...nativeNavigation.menus.map(nativeNode), ...extensionNavigation].filter((item) => item.label.toLowerCase().includes(navigationQuery.toLowerCase()) || item.childNodes?.some((child) => child.label.toLowerCase().includes(navigationQuery.toLowerCase())));
   const navigationButton = (node) => <Button className="studio-navigation-label" minimal onClick={(event) => { event.stopPropagation(); navigate(node.section); }}>{node.label}</Button>;
   const interactiveNavigation = navigation.map((node) => ({ ...node, label: navigationButton(node), childNodes: node.childNodes?.map((child) => ({ ...child, label: navigationButton(child) })) }));
   return <ForgeThemeProvider><ForgeThemeBoundary windowKey="datly-studio">
