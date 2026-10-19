@@ -87,9 +87,14 @@ func (t *Transport) writeGenerationInsert(ctx context.Context, tx *sql.Tx, row *
 	if err != nil {
 		return err
 	}
-	if _, ok := value.(*stored.Output); !ok {
+	output, ok := value.(*stored.Output)
+	if !ok {
 		return fmt.Errorf("runtime generation insert writer returned %T", value)
 	}
+	if len(output.Data) != 1 || output.Data[0] == nil || output.Data[0].GenerationNo <= 0 {
+		return fmt.Errorf("runtime generation writer returned no allocated identity")
+	}
+	row.GenerationNo = output.Data[0].GenerationNo
 	return nil
 }
 
@@ -101,4 +106,16 @@ func (t *Transport) insertBuildingGeneration(ctx context.Context, tx *sql.Tx, ge
 		Has: &stored.StoredGenerationHas{NamespaceId: true, GenerationNo: true, SourceRevision: true, Status: true,
 			ReportCount: true, BuildManifestJson: true, RequestedBy: true, RequestedAt: true},
 	})
+}
+
+// createBuildingGeneration obtains its identity through the generated writer's
+// native auto-increment contract, on the caller-owned transaction.
+func (t *Transport) createBuildingGeneration(ctx context.Context, tx *sql.Tx, revision, requestedBy string, now time.Time) (int64, error) {
+	namespaceID, _ := sdk.NamespaceSelectionFromContext(ctx)
+	row := &stored.StoredGeneration{NamespaceId: namespaceID, SourceRevision: revision, Status: "building", ReportCount: 0, BuildManifestJson: json.RawMessage(`{}`), RequestedBy: requestedBy, RequestedAt: now,
+		Has: &stored.StoredGenerationHas{NamespaceId: true, SourceRevision: true, Status: true, ReportCount: true, BuildManifestJson: true, RequestedBy: true, RequestedAt: true}}
+	if err := t.writeGenerationInsert(ctx, tx, row); err != nil {
+		return 0, err
+	}
+	return row.GenerationNo, nil
 }

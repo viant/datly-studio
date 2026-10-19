@@ -2,6 +2,7 @@ package schema
 
 import (
 	"context"
+	"strings"
 	"testing"
 )
 
@@ -55,4 +56,22 @@ func TestInitializeRejectsOldShapeWithoutAlteringIt(t *testing.T) {
 	assertCount(t, db, "SELECT COUNT(*) FROM connectors WHERE name='preserved'", 1)
 	assertTablePresence(t, ctx, db, "schema_version", false)
 	assertTablePresence(t, ctx, db, "namespaces", false)
+}
+
+func TestInitializeRejectsGenerationCounterDowngradeWithoutRepair(t *testing.T) {
+	db := openSQLite(t, "generation_identity_required")
+	defer db.Close()
+	ctx := context.Background()
+	ddl, err := canonicalDDL("sqlite")
+	if err != nil {
+		t.Fatal(err)
+	}
+	ddl = strings.Replace(ddl, "INTEGER PRIMARY KEY AUTOINCREMENT", "INTEGER PRIMARY KEY", 1)
+	if _, err = db.ExecContext(ctx, ddl); err != nil {
+		t.Fatal(err)
+	}
+	if err = Initialize(ctx, db, "sqlite"); err == nil || !strings.Contains(err.Error(), "AUTOINCREMENT") {
+		t.Fatalf("non-native identity accepted: %v", err)
+	}
+	assertTablePresence(t, ctx, db, "sqlx_sequence_reservations", false)
 }

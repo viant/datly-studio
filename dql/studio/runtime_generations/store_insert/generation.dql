@@ -19,7 +19,7 @@ SELECT generation.*, type(generation, 'StoredGeneration'),
        CAST(generation.build_manifest_json AS json.RawMessage),
        CAST(generation.requested_by AS string),
        CAST(generation.requested_at AS time.Time),
-       tag(generation.generation_no, 'sqlx:"generation_no,primaryKey"'),
+       tag(generation.generation_no, 'sqlx:"generation_no,primaryKey,autoincrement"'),
        tag(generation.build_manifest_json, 'sqlx:"build_manifest_json,enc=JSON"'),
        lifecycle_type(generation, 'GenerationInsertRules')
 FROM (${embed:sql/read.sql}) generation

@@ -22,7 +22,7 @@ var (
 )
 
 func (hooks *GenerationInsertRules) Init(_ context.Context, entity *StoredGeneration, _ xhandler.LifecycleContext[StoredGeneration, xhandler.NoParent, Output]) error {
-	if entity == nil || entity.GenerationNo <= 0 || strings.TrimSpace(entity.SourceRevision) == "" ||
+	if entity == nil || entity.GenerationNo < 0 || strings.TrimSpace(entity.SourceRevision) == "" ||
 		entity.Status != "building" || entity.ReportCount != 0 ||
 		strings.TrimSpace(entity.RequestedBy) == "" || entity.RequestedAt.IsZero() ||
 		!json.Valid(entity.BuildManifestJson) {
@@ -34,6 +34,9 @@ func (hooks *GenerationInsertRules) Validate(ctx context.Context, entity *Stored
 	return nil
 }
 func (hooks *GenerationInsertRules) AfterSequence(ctx context.Context, entity *StoredGeneration, state xhandler.LifecycleContext[StoredGeneration, xhandler.NoParent, Output]) error {
+	if entity == nil || entity.GenerationNo <= 0 {
+		return fmt.Errorf("runtime generation requires a database-allocated identity")
+	}
 	return nil
 }
 func (hooks *GenerationInsertRules) AfterQueue(ctx context.Context, entity *StoredGeneration, state xhandler.LifecycleContext[StoredGeneration, xhandler.NoParent, Output]) error {

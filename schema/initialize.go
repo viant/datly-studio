@@ -62,6 +62,12 @@ func Initialize(ctx context.Context, db *sql.DB, driver string) error {
 // Verify checks existing storage against the canonical table/column/index
 // inventory and layout marker. It performs reads only and never repairs storage.
 func Verify(ctx context.Context, db *sql.DB, driver string) error {
+	if driver == "sqlite" {
+		var definition string
+		if err := db.QueryRowContext(ctx, "SELECT sql FROM sqlite_master WHERE type='table' AND name='runtime_generations'").Scan(&definition); err != nil || !strings.Contains(strings.ToUpper(definition), "AUTOINCREMENT") {
+			return errors.New("canonical runtime generation AUTOINCREMENT identity is required")
+		}
+	}
 	if driver == "mysql" {
 		var extra string
 		if err := db.QueryRowContext(ctx, "SELECT EXTRA FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='runtime_generations' AND COLUMN_NAME='generation_no'").Scan(&extra); err != nil || !strings.Contains(strings.ToLower(extra), "auto_increment") {

@@ -17,7 +17,7 @@ func TestGenerationInsertRulesRequireBuildingState(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, mutate := range []func(*StoredGeneration){
-		func(value *StoredGeneration) { value.GenerationNo = 0 },
+		func(value *StoredGeneration) { value.GenerationNo = -1 },
 		func(value *StoredGeneration) { value.Status = "active" },
 		func(value *StoredGeneration) { value.ReportCount = 1 },
 		func(value *StoredGeneration) { value.BuildManifestJson = []byte(`bad`) },
@@ -28,5 +28,21 @@ func TestGenerationInsertRulesRequireBuildingState(t *testing.T) {
 		if err := rules.Init(context.Background(), &invalid, state); err == nil {
 			t.Fatalf("invalid generation accepted: %+v", invalid)
 		}
+	}
+}
+
+func TestGenerationInsertAllowsNativeIdentityBeforeSequence(t *testing.T) {
+	row := &StoredGeneration{SourceRevision: "revision", Status: "building", BuildManifestJson: []byte(`{}`), RequestedBy: "owner", RequestedAt: time.Now().UTC()}
+	hooks := &GenerationInsertRules{}
+	state := xhandler.LifecycleContext[StoredGeneration, xhandler.NoParent, Output]{}
+	if err := hooks.Init(context.Background(), row, state); err != nil {
+		t.Fatal(err)
+	}
+	if err := hooks.AfterSequence(context.Background(), row, state); err == nil {
+		t.Fatal("missing native identity accepted")
+	}
+	row.GenerationNo = 7
+	if err := hooks.AfterSequence(context.Background(), row, state); err != nil {
+		t.Fatal(err)
 	}
 }

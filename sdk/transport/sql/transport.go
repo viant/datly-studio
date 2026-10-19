@@ -1965,12 +1965,9 @@ func (t *Transport) stagePublication(ctx context.Context, in publishRequest, ver
 	if err = t.ensureNoStagedGeneration(ctx, tx, now); err != nil {
 		return 0, publicationState{}, false, time.Time{}, err
 	}
-	generation, err := t.nextGenerationNo(ctx, tx)
+	runtimeRevision := fmt.Sprintf("%s:%d:%s", in.ReportID, in.VersionNo, rand.Text())
+	generation, err := t.createBuildingGeneration(ctx, tx, runtimeRevision, in.Input.RequestedBy, now)
 	if err != nil {
-		return 0, publicationState{}, false, time.Time{}, internal(err)
-	}
-	runtimeRevision := fmt.Sprintf("%s:%d:%d", in.ReportID, in.VersionNo, generation)
-	if err := t.insertBuildingGeneration(ctx, tx, generation, runtimeRevision, in.Input.RequestedBy, now); err != nil {
 		return 0, publicationState{}, false, time.Time{}, classify(err, "runtime generation", fmt.Sprint(generation))
 	}
 	previous, hasPrevious, err := t.publicationSnapshot(ctx, tx, in.ReportID)
@@ -2254,12 +2251,9 @@ func (t *Transport) unpublish(ctx context.Context, input, output any) (returnErr
 	if err = t.ensureNoStagedGeneration(ctx, tx, now); err != nil {
 		return err
 	}
-	generation, err := t.nextGenerationNo(ctx, tx)
+	revision := fmt.Sprintf("unpublish:%s:%s", in.ReportID, rand.Text())
+	generation, err := t.createBuildingGeneration(ctx, tx, revision, in.Input.RequestedBy, now)
 	if err != nil {
-		return internal(err)
-	}
-	revision := fmt.Sprintf("unpublish:%s:%d", in.ReportID, generation)
-	if err = t.insertBuildingGeneration(ctx, tx, generation, revision, in.Input.RequestedBy, now); err != nil {
 		return classify(err, "runtime generation", fmt.Sprint(generation))
 	}
 	expected := previous.desiredGeneration

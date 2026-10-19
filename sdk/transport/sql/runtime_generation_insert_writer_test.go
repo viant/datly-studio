@@ -49,3 +49,47 @@ func TestGenerationInsertWriterJoinsCallerTransaction(t *testing.T) {
 		t.Fatal("duplicate generation identity was accepted")
 	}
 }
+
+func TestGenerationWriterUsesNativeIdentityWithoutReservationLedger(t *testing.T) {
+	ctx := context.Background()
+	db, err := sql.Open("sqlite", "file:"+filepath.Join(t.TempDir(), "native.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	if err = schema.ApplySQLite(ctx, db, "studio"); err != nil {
+		t.Fatal(err)
+	}
+	transport := &Transport{DB: db}
+	now := time.Now().UTC()
+	if err = transport.insertBuildingGeneration(ctx, nil, 41, "seed", "owner", now); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = db.ExecContext(ctx, "DELETE FROM runtime_generations WHERE generation_no=41"); err != nil {
+		t.Fatal(err)
+	}
+	id, err := transport.createBuildingGeneration(ctx, nil, "new", "owner", now)
+	if err != nil || id != 42 {
+		t.Fatalf("native identity=%d want42 after deleting high row; err=%v", id, err)
+	}
+	var ledgers int
+	if err = db.QueryRowContext(ctx, "SELECT COUNT(*) FROM sqlite_master WHERE name='sqlx_sequence_reservations'").Scan(&ledgers); err != nil || ledgers != 0 {
+		t.Fatalf("auxiliary ledgers=%d err=%v", ledgers, err)
+	}
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer tx.Rollback()
+	pending, err := transport.createBuildingGeneration(ctx, tx, "pending", "owner", now)
+	if err != nil || pending != 43 {
+		t.Fatalf("pending identity=%d err=%v", pending, err)
+	}
+	if err = tx.Rollback(); err != nil {
+		t.Fatal(err)
+	}
+	var count int
+	if err = db.QueryRowContext(ctx, "SELECT COUNT(*) FROM runtime_generations WHERE generation_no=?", pending).Scan(&count); err != nil || count != 0 {
+		t.Fatalf("caller rollback lost: count=%d err=%v", count, err)
+	}
+}
