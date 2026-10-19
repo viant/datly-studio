@@ -1,0 +1,58 @@
+window:
+  windowKey: namespaces
+  view:
+    content:
+      id: namespaces
+      className: studio-workspace
+      kind: table
+      title: Namespaces
+      dataSourceRef: namespaces
+      toolbar:
+        items:
+          - {id: new, label: New namespace, icon: add, on: [{event: onClick, handler: management.newNamespace}]}
+          - {id: edit, label: Edit namespace, icon: edit, on: [{event: onClick, handler: management.editNamespace}]}
+          - {id: refresh, label: Refresh, icon: refresh, on: [{event: onClick, handler: management.refreshNamespaces}]}
+      table:
+        columns:
+          - {id: title, name: Title}
+          - {id: name, name: Namespace}
+          - {id: status, name: Status}
+          - {id: visibility, name: Visibility}
+          - {id: mcpEnabled, name: MCP enabled}
+  dialogs:
+    - id: namespace-editor
+      title: Namespace settings
+      className: studio-connector-dialog
+      dataSourceRef: namespace_draft
+      fetchOnOpen: false
+      content:
+        id: namespace-form
+        items:
+          - {id: name, label: Namespace, dataField: name, type: text, readOnlyWhen: {selector: editing, when: true}}
+          - {id: title, label: Display title, dataField: title, type: text}
+          - {id: description, label: Description, dataField: description, type: textarea}
+          - {id: visibility, label: Visibility, dataField: visibility, type: select, options: [{value: private, label: Private}, {value: public, label: Public}]}
+          - {id: allowedRoles, label: Viewer roles (JSON array), dataField: allowedRoles, type: textarea}
+          - {id: status, label: Status, dataField: status, type: select, options: [{value: active, label: Active}, {value: disabled, label: Disabled}]}
+          - {id: mcpEnabled, label: Expose MCP, dataField: mcpEnabled, type: checkbox}
+          - {id: mcpPort, label: MCP port (0 selects automatically), dataField: mcpPort, type: number}
+          - {id: outcome, label: Outcome, dataField: outcome, type: textarea, readOnly: true}
+      actions:
+        - {id: reload, label: Reload saved revision, on: [{event: onClick, handler: management.reloadNamespace}]}
+        - {id: save, label: Save, close: true, on: [{event: onClick, handler: management.saveNamespace}]}
+        - {id: cancel, label: Cancel, close: true}
+dataSources:
+  namespaces:
+    id: namespaces
+    cardinality: collection
+    selectionMode: single
+    selectors: {data: items}
+    uniqueKey: [{field: namespaceId}]
+    paging: {enabled: true, openEnded: true, size: 25, parameters: {page: offset, size: limit}}
+    backend: {kind: mcp_tool, method: studio.sdk.namespaces.list}
+    cache: {enabled: false}
+  namespace_draft:
+    id: namespace_draft
+    cardinality: object
+    backend: {kind: inline, rows: []}
+    cache: {enabled: false}

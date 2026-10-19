@@ -9,7 +9,9 @@ import (
 
 	"github.com/viant/datly-studio/internal/managementcatalog"
 	"github.com/viant/datly-studio/nativeapp"
+	"github.com/viant/datly-studio/runtime/managementwindow"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
+	identity "github.com/viant/forge/backend/resource"
 	namespaceext "github.com/viant/mcp-protocol/extension/namespaces"
 	"github.com/viant/scy/auth/jwt"
 )
@@ -24,6 +26,7 @@ func management(claims *jwt.Claims, auth *studioauth.Output) (*Namespace, []mana
 	id := os.Getenv("STUDIO_MANAGEMENT_NAMESPACE")
 	managementSettings.RLock()
 	installed := managementSettings.config
+	registered := managementSettings.resources
 	configured := installed != nil
 	managementSettings.RUnlock()
 	if id == "" && !configured {
@@ -51,6 +54,75 @@ func management(claims *jwt.Claims, auth *studioauth.Output) (*Namespace, []mana
 	if err != nil {
 		return nil, nil, fail(503, "management resource catalog is not configured correctly")
 	}
+	byURI := make(map[string]managementwindow.Definition, len(definitions)+len(registered))
+	for _, definition := range definitions {
+		byURI[definition.URI] = definition
+	}
+	for _, definition := range registered {
+		uri, _ := identity.ParseResourceURI(definition.URI)
+		if uri.Namespace == id {
+			byURI[definition.URI] = definition
+		}
+	}
+	definitions = definitions[:0]
+	for _, definition := range byURI {
+		if strings.HasPrefix(definition.URI, "navigation://") {
+			var app map[string]any
+			if err := json.Unmarshal(definition.JSON, &app); err != nil {
+				return nil, nil, err
+			}
+			var bind func([]any)
+			bind = func(menus []any) {
+				for _, raw := range menus {
+					menu, ok := raw.(map[string]any)
+					if !ok {
+						continue
+					}
+					if children, ok := menu["children"].([]any); ok && len(children) > 0 {
+						delete(menu, "action")
+						bind(children)
+						continue
+					}
+					section, _ := menu["section"].(string)
+					if section == "" {
+						section, _ = menu["id"].(string)
+					}
+					uri := "window://" + id + "/" + section
+					if _, exists := byURI[uri]; exists {
+						menu["action"] = map[string]any{"type": "window", "resourceUri": uri}
+					} else if action, ok := menu["action"].(map[string]any); ok && action["type"] == "url" {
+						// Unported screens remain explicit pending items. They must
+						// not open a separate native application from this workspace.
+						delete(menu, "action")
+						menu["disabled"] = true
+					}
+				}
+			}
+			applications, _ := app["applications"].([]any)
+			for _, raw := range applications {
+				application, ok := raw.(map[string]any)
+				if !ok {
+					continue
+				}
+				var styles []string
+				for uri := range byURI {
+					if strings.HasPrefix(uri, "style://"+id+"/") {
+						styles = append(styles, uri)
+					}
+				}
+				if len(styles) > 0 {
+					sort.Strings(styles)
+					application["styleResources"] = styles
+				}
+				if menus, ok := application["menus"].([]any); ok {
+					bind(menus)
+				}
+			}
+			definition.JSON, _ = json.Marshal(app)
+		}
+		definitions = append(definitions, managementwindow.Definition{URI: definition.URI, JSON: append(json.RawMessage(nil), definition.JSON...)})
+	}
+	sort.Slice(definitions, func(i, j int) bool { return definitions[i].URI < definitions[j].URI })
 	uri, err := namespaceext.URI(id)
 	if err != nil {
 		return nil, nil, fail(503, "management namespace identity is invalid")
@@ -65,7 +137,13 @@ func managementReferences(definitions []managementcatalog.Definition, kind strin
 		if kind != "" && kind != resourceKind {
 			continue
 		}
-		name, description := "Namespaces", "Manage Datly Studio namespaces"
+		_, name, _ := strings.Cut(definition.URI, "://")
+		_, name, _ = strings.Cut(name, "/")
+		name = strings.ReplaceAll(name, "_", " ")
+		if name != "" {
+			name = strings.ToUpper(name[:1]) + name[1:]
+		}
+		description := "Datly Studio management " + resourceKind
 		if resourceKind == "navigation" {
 			name, description = "Management", "Open Studio management"
 		}
@@ -77,7 +155,34 @@ func managementReferences(definitions []managementcatalog.Definition, kind strin
 
 var managementSettings struct {
 	sync.RWMutex
-	config *managementcatalog.Config
+	config    *managementcatalog.Config
+	resources []managementwindow.Definition
+}
+
+// ConfigureManagementResources registers binary-owned management resources.
+// Call before serving; authenticated catalog discovery and resource reads keep
+// their existing guards. Exact URIs replace defaults for the same namespace.
+// Definitions are copied and cannot be selected or supplied by a tool caller.
+func ConfigureManagementResources(definitions []managementwindow.Definition) error {
+	owned := make([]managementwindow.Definition, 0, len(definitions))
+	seen := map[string]bool{}
+	for _, definition := range definitions {
+		uri, err := identity.ParseResourceURI(definition.URI)
+		if err != nil || !json.Valid(definition.JSON) || seen[definition.URI] {
+			return fail(400, "invalid management resource definition")
+		}
+		switch uri.Kind {
+		case "window", "datasource", "style", "mcp":
+		default:
+			return fail(400, "unsupported management resource kind")
+		}
+		seen[definition.URI] = true
+		owned = append(owned, managementwindow.Definition{URI: definition.URI, JSON: append(json.RawMessage(nil), definition.JSON...)})
+	}
+	managementSettings.Lock()
+	managementSettings.resources = owned
+	managementSettings.Unlock()
+	return nil
 }
 
 // ConfigureManagementNavigation installs one binary-owned native menu. Passing
@@ -93,7 +198,7 @@ func ConfigureManagementNavigation(definition []byte, publicURL, providerIdentit
 	if err := json.Unmarshal(definition, &app); err != nil {
 		return err
 	}
-	config := managementcatalog.Config{Namespace: app.ID, ApplicationID: app.ID, ProviderIdentity: providerIdentity, MCPService: app.ID, PublicURL: publicURL, Navigation: append(json.RawMessage(nil), definition...)}
+	config := managementcatalog.Config{Namespace: app.ID, ApplicationID: app.ID, ProviderIdentity: providerIdentity, MCPService: "mcp://" + app.ID + "/admin", PublicURL: publicURL, Navigation: append(json.RawMessage(nil), definition...)}
 	if _, err := managementcatalog.NamespaceWindow(config); err != nil {
 		return err
 	}

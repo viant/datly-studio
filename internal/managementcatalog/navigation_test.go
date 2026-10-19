@@ -35,6 +35,12 @@ func TestManagementNavigation(t *testing.T) {
 	}
 	for i, section := range source.Menus {
 		action := app.Menus[i].Action
+		if section.ID == "connectors" || section.ID == "namespaces" {
+			if action.Type != "window" || action.ResourceURI != "window://operations/"+section.ID {
+				t.Fatalf("incorrect functional window action: %+v", action)
+			}
+			continue
+		}
 		target, _ := url.Parse(action.URL)
 		if action.Type != "url" || target.Host != "studio.example" || target.Query().Get("section") != section.ID || target.Query().Get("theme") != "dark" {
 			t.Fatalf("incorrect action: %+v", action)
@@ -110,6 +116,12 @@ func TestEmbeddedNativeNavigationExactMenuParityAndURLActions(t *testing.T) {
 				section = w["id"].(string)
 			}
 			action := g["action"].(map[string]any)
+			if section == "connectors" || section == "namespaces" {
+				if action["type"] != "window" || action["resourceUri"] != "window://datastudio/"+section {
+					t.Fatalf("incorrect functional window action: %v", action)
+				}
+				continue
+			}
 			u, err := url.Parse(action["url"].(string))
 			if err != nil || action["type"] != "url" || u.Host != "studio.example" || u.Path != "/admin" || u.Query().Get("section") != section {
 				t.Fatalf("incorrect native action: %v", action)

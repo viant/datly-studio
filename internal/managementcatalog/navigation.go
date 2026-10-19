@@ -57,6 +57,10 @@ func navigation(config Config) (Definition, error) {
 				return Definition{}, fmt.Errorf("invalid management section")
 			}
 			seen[section.ID] = true
+			if section.ID == "namespaces" || section.ID == "connectors" && (config.ApplicationID == "" || config.ApplicationID == "datastudio") {
+				menus = append(menus, map[string]any{"id": section.ID, "title": section.Title, "icon": section.Icon, "action": map[string]any{"type": "window", "resourceUri": "window://" + config.Namespace + "/" + section.ID}})
+				continue
+			}
 			target := *base
 			query := target.Query()
 			query.Set("section", section.ID)
@@ -65,7 +69,11 @@ func navigation(config Config) (Definition, error) {
 		}
 	}
 	menus = append(menus, map[string]any{"id": "namespace-catalog", "title": "Namespace Catalog", "icon": "folder-shared", "action": map[string]any{"type": "window", "resourceUri": "window://" + config.Namespace + "/namespaces"}})
-	data, err := json.Marshal(map[string]any{"schemaVersion": 1, "name": title, "icon": icon, "applications": []any{map[string]any{"id": applicationID, "title": title, "icon": icon, "menus": menus}}})
+	application := map[string]any{"id": applicationID, "title": title, "icon": icon, "menus": menus}
+	if applicationID == "datastudio" {
+		application["styleResources"] = []string{"style://" + config.Namespace + "/workspace"}
+	}
+	data, err := json.Marshal(map[string]any{"schemaVersion": 1, "name": title, "icon": icon, "applications": []any{application}})
 	return Definition{URI: "navigation://" + config.Namespace + "/main", JSON: data}, err
 }
 
@@ -79,6 +87,9 @@ func embeddedNavigation(config Config) (Definition, error) {
 	icon, _ := app["icon"].(string)
 	if id == "" || title == "" || icon == "" {
 		return Definition{}, fmt.Errorf("invalid native application")
+	}
+	if config.ApplicationID == "" || config.ApplicationID == "datastudio" {
+		app["styleResources"] = []string{"style://" + config.Namespace + "/workspace"}
 	}
 	// Reuse the same trusted URL validation as legacy management definitions.
 	check := config
@@ -111,6 +122,10 @@ func embeddedNavigation(config Config) (Definition, error) {
 			}
 			if section == "" {
 				return fmt.Errorf("invalid native menu section")
+			}
+			if section == "namespaces" || section == "connectors" && (config.ApplicationID == "" || config.ApplicationID == "datastudio") {
+				item["action"] = map[string]any{"type": "window", "resourceUri": "window://" + config.Namespace + "/" + section}
+				continue
 			}
 			target := *base
 			query := target.Query()

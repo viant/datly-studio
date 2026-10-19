@@ -18,8 +18,12 @@ func TestNamespaceWindowPortableContract(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if len(definitions) != 3 || definitions[0].URI != "window://"+namespace+"/namespaces" || definitions[1].URI != "datasource://"+namespace+"/namespaces" {
-				t.Fatalf("unexpected resource identities: %+v", definitions)
+			byURI := map[string]Definition{}
+			for _, definition := range definitions {
+				byURI[definition.URI] = definition
+			}
+			if len(definitions) != 16 || definitions[1].URI != "window://"+namespace+"/namespaces" {
+				t.Fatalf("unexpected resource count: %d", len(definitions))
 			}
 			var envelope types.WindowResourceEnvelope
 			for _, definition := range definitions {
@@ -32,7 +36,7 @@ func TestNamespaceWindowPortableContract(t *testing.T) {
 					t.Fatal("MCP object roundtrip changed resource content")
 				}
 			}
-			if err := json.Unmarshal(definitions[0].JSON, &envelope); err != nil {
+			if err := json.Unmarshal(byURI["window://"+namespace+"/namespaces"].JSON, &envelope); err != nil {
 				t.Fatal(err)
 			}
 			if err := envelope.Validate(); err != nil {
@@ -42,7 +46,7 @@ func TestNamespaceWindowPortableContract(t *testing.T) {
 				SchemaVersion int           `json:"schemaVersion"`
 				DataSource    ds.DataSource `json:"dataSource"`
 			}
-			if err := json.Unmarshal(definitions[1].JSON, &datasource); err != nil {
+			if err := json.Unmarshal(byURI["datasource://"+namespace+"/namespaces"].JSON, &datasource); err != nil {
 				t.Fatal(err)
 			}
 			value := datasource.DataSource
@@ -57,7 +61,7 @@ func TestNamespaceWindowPortableContract(t *testing.T) {
 			}
 			for _, variant := range envelope.Variants {
 				ref := variant.DataSourceResources["namespaces"]
-				if ref.Resource.URI != definitions[1].URI || ref.ProviderIdentity != config.ProviderIdentity || ref.ContentFingerprint != identity.ContentFingerprint(definitions[1].JSON) {
+				if ref.Resource.URI != "datasource://"+namespace+"/namespaces" || ref.ProviderIdentity != config.ProviderIdentity || ref.ContentFingerprint != identity.ContentFingerprint(byURI["datasource://"+namespace+"/namespaces"].JSON) {
 					t.Fatal("window does not bind the exact reusable datasource")
 				}
 				if variant.Window.Namespace != namespace || variant.Window.View.Content.DataSourceRef != "namespaces" || len(variant.Window.View.Content.Table.Columns) != 5 {

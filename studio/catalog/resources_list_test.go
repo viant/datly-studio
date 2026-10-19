@@ -2,6 +2,8 @@ package catalog
 
 import (
 	"context"
+	"encoding/json"
+	namespaceext "github.com/viant/mcp-protocol/extension/namespaces"
 	"testing"
 
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
@@ -18,7 +20,7 @@ func TestManagementResourceListingPagesAndFilterBoundCursor(t *testing.T) {
 	input := &ResourcesListInput{Jwt: claims, Auth: &studioauth.Output{Auth: &studioauth.AuthContext{Subject: "alice"}}}
 	input.Request.Meta.AdditionalProperties = map[string]any{resourceFilterKey: map[string]any{"namespace": "ns://management", "limit": 1}}
 	seen := map[string]bool{}
-	for page := 0; page < 3; page++ {
+	for page := 0; page < 20; page++ {
 		out := &ResourcesListOutput{}
 		if err := runResourcesList(context.Background(), nil, input, out); err != nil {
 			t.Fatal(err)
@@ -31,9 +33,21 @@ func TestManagementResourceListingPagesAndFilterBoundCursor(t *testing.T) {
 			t.Fatalf("duplicate %s", uri)
 		}
 		seen[uri] = true
+		fetched := &ResourceOutput{}
+		read := &ResourceInput{Jwt: claims, Auth: input.Auth, Request: namespaceext.ResourceGetRequest{URI: uri}}
+		if err := runResource(context.Background(), nil, read, fetched); err != nil || !json.Valid(fetched.Response) {
+			t.Fatalf("resource %s: %v", uri, err)
+		}
+		read.Jwt = nil
+		if err := runResource(context.Background(), nil, read, &ResourceOutput{}); err == nil {
+			t.Fatal("unauthenticated definition read succeeded")
+		}
 		input.Request.Cursor = out.Response.NextCursor
+		if input.Request.Cursor == nil {
+			break
+		}
 	}
-	if input.Request.Cursor != nil || len(seen) != 3 {
+	if input.Request.Cursor != nil || len(seen) != 17 {
 		t.Fatalf("listing never completed: %+v", input.Request.Cursor)
 	}
 	first := &ResourcesListOutput{}

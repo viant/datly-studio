@@ -556,6 +556,9 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) error {
 					resolver = namespaceMCPTarget(sdkTransport)
 				}
 				proxy, proxyErr := sessions.ProxyWithResolver(target, strings.TrimSuffix(proxyConfig.mount, "/"), resolver)
+				if proxyConfig.mount == "/v1/studio/sdk-mcp/" {
+					proxy, proxyErr = sessions.ProxyNativeMCP(target, strings.TrimSuffix(proxyConfig.mount, "/"))
+				}
 				if proxyErr != nil {
 					return proxyErr
 				}

@@ -1,0 +1,75 @@
+window:
+  windowKey: connectors
+  view:
+    content:
+      id: connector-management
+      className: studio-workspace
+      containers:
+        - id: connector-list
+          kind: table
+          title: Connectors
+          dataSourceRef: connectors
+          toolbar:
+            items:
+              - {id: new, label: New connector, icon: add, on: [{event: onClick, handler: management.newConnector}]}
+              - {id: edit, label: Edit, icon: edit, on: [{event: onClick, handler: management.editConnector}]}
+              - {id: test, label: Test, icon: pulse, on: [{event: onClick, handler: management.testConnector}]}
+              - {id: activate, label: Activate, icon: tick, on: [{event: onClick, handler: management.activateConnector}]}
+              - {id: refresh, label: Refresh, icon: refresh, on: [{event: onClick, handler: management.refreshConnectors}]}
+          table:
+            columns:
+              - {id: name, name: Name}
+              - {id: driver, name: Driver}
+              - {id: description, name: Description}
+              - {id: status, name: Status}
+              - {id: lastTestStatus, name: Last test}
+              - {id: etag, name: Revision}
+        - id: connector-outcome
+          dataSourceRef: connector_draft
+          items:
+            - {id: outcome, label: Outcome, dataField: outcome, type: textarea, readOnly: true}
+  dialogs:
+    - id: connector-editor
+      title: Connector configuration
+      className: studio-connector-dialog
+      dataSourceRef: connector_draft
+      fetchOnOpen: false
+      content:
+        id: connector-form
+        items:
+          - {id: name, label: Name, dataField: name, type: text, readOnlyWhen: {selector: editing, when: true}}
+          - id: driver
+            label: Driver
+            dataField: driver
+            type: select
+            options: [{value: mysql, label: MySQL}, {value: sqlite, label: SQLite}, {value: postgres, label: PostgreSQL}, {value: bigquery, label: BigQuery}, {value: oracle, label: Oracle}]
+          - {id: description, label: Description, dataField: description, type: textarea}
+          - {id: dsnDisplay, label: Saved DSN, dataField: dsnDisplay, type: textarea, readOnly: true}
+          - {id: secretRefDisplay, label: Saved secret reference, dataField: secretRefDisplay, type: text, readOnly: true}
+          - {id: dsnTemplate, label: DSN (blank keeps existing), dataField: dsnTemplate, type: textarea}
+          - {id: secretURL, label: Secret URL, dataField: secretURL, type: text}
+          - {id: secretKey, label: Secret key, dataField: secretKey, type: text}
+          - {id: clearSecret, label: Remove secret, dataField: clearSecret, type: checkbox}
+          - {id: options, label: Options (JSON), dataField: options, type: textarea}
+          - {id: yamlText, label: YAML configuration (Driver / DSN / Secret.URL / Secret.Key), dataField: yamlText, type: textarea}
+          - {id: outcome, label: Outcome, dataField: outcome, type: textarea, readOnly: true}
+      actions:
+        - {id: yaml, label: Apply YAML, on: [{event: onClick, handler: management.applyYAML}]}
+        - {id: reload, label: Reload saved revision, on: [{event: onClick, handler: management.reloadConnector}]}
+        - {id: save, label: Save, close: true, on: [{event: onClick, handler: management.saveConnector}]}
+        - {id: cancel, label: Cancel, close: true}
+dataSources:
+  connectors:
+    id: connectors
+    cardinality: collection
+    selectionMode: single
+    selectors: {data: items}
+    uniqueKey: [{field: name}]
+    paging: {enabled: true, openEnded: true, size: 25, parameters: {page: offset, size: limit}}
+    backend: {kind: mcp_tool, method: studio.sdk.connectors.list}
+    cache: {enabled: false}
+  connector_draft:
+    id: connector_draft
+    cardinality: object
+    backend: {kind: inline, rows: []}
+    cache: {enabled: false}
