@@ -8,14 +8,13 @@ export function LinkedPredicateTypes({types = [], query = ''}) {
   const term = query.trim().toLowerCase();
   const visible = types.filter(type => `${type.packagePath} ${type.typeName} ${type.alias || ''} ${type.description || ''}`.toLowerCase().includes(term));
   return <Card className="studio-card studio-linked-predicates" elevation={0}>
-    <h2>Linked Go predicates</h2>
-    <p className="studio-muted">Go types available in this application. Use a linked type when creating a reusable security predicate.</p>
-    <div className="studio-table-wrap"><HTMLTable className="studio-data-table" aria-label="Linked Go predicates">
-      <thead><tr><th>Go type</th><th>Full package path</th><th>Alias</th><th>Description</th></tr></thead>
+    <p className="studio-discovery__count">{visible.length} linked predicate{visible.length === 1 ? "" : "s"}</p>
+    <div className="studio-table-wrap"><HTMLTable className="studio-data-table studio-discovery__table" aria-label="Linked Go predicates">
+      <colgroup><col className="studio-discovery__type"/><col className="studio-discovery__package"/><col className="studio-discovery__alias"/></colgroup><thead><tr><th>Go type</th><th>Package</th><th>Alias</th></tr></thead>
       <tbody>{visible.map(type => <tr key={`${type.packagePath}#${type.typeName}`}>
-        <td><code>{type.typeName}</code></td>
+        <td><code>{type.typeName}</code>{type.description && <div className="studio-discovery__description">{type.description}</div>}</td>
         <td className="studio-predicate-package"><code>{type.packagePath}</code></td>
-        <td>{type.alias || '—'}</td><td>{type.description || '—'}</td>
+        <td>{type.alias || '—'}</td>
       </tr>)}</tbody>
     </HTMLTable></div>
     {!visible.length && <p>{term ? 'No linked Go predicates match this search.' : 'No Go predicate types are linked in this application.'}</p>}
@@ -39,9 +38,9 @@ export function DiscoveredPredicatesDialog({api, isOpen, onClose}) {
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [api, isOpen, revision]);
-  return <Dialog className="studio-security-dialog" isOpen={isOpen} title="Discovered predicates" icon="search" onClose={onClose}>
+  return <Dialog className="studio-security-dialog studio-discovery" isOpen={isOpen} title="Discovered predicates" icon="search" onClose={onClose}>
     <DialogBody>
-      <p>Custom Go predicate handlers discovered in configured, linked packages.</p>
+      <p>Linked handlers available for reusable security predicates.</p>
       <InputGroup aria-label="Search discovered predicates" type="search" leftIcon="search" placeholder="Find package, type, or alias" value={query} onChange={event => setQuery(event.target.value)}/>
       {error ? <Callout intent="danger" role="alert" title="Predicate discovery failed">{error}</Callout> : loading ? <div role="status"><Spinner size={24}/>Loading discovered predicates…</div> : <LinkedPredicateTypes types={types} query={query}/>}
     </DialogBody>
