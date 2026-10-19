@@ -11,17 +11,25 @@ import (
 
 func main() {
 	driver := flag.String("driver", "mysql", "Target database driver")
+	table := flag.String("table", "", "Optional canonical table name (required for SQLite)")
 	output := flag.String("output", "", "Generated schema script path")
 	flag.Parse()
 	if flag.NArg() != 0 || *output == "" {
-		fmt.Fprintln(os.Stderr, "usage: studio-schema -driver mysql -output <path>")
+		fmt.Fprintln(os.Stderr, "usage: studio-schema -driver mysql|sqlite [-table name] -output <path>")
 		os.Exit(2)
 	}
-	if *driver != "mysql" {
-		fmt.Fprintln(os.Stderr, "studio-schema only generates the MySQL Endly script")
-		os.Exit(2)
+	var ddl string
+	var err error
+	switch {
+	case *driver == "mysql" && *table == "":
+		ddl, err = schema.MySQLDDL()
+	case *driver == "mysql":
+		ddl, err = schema.MySQLTableStatement(*table)
+	case *driver == "sqlite" && *table != "":
+		ddl, err = schema.SQLiteTableStatements(*table)
+	default:
+		err = fmt.Errorf("SQLite requires -table; supported drivers are mysql and sqlite")
 	}
-	ddl, err := schema.MySQLDDL()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
