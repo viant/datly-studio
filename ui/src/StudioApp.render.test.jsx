@@ -5,6 +5,9 @@ import userEvent from '@testing-library/user-event';
 import {managementResourceFixture} from './managementWindowFixture.js';
 import { StudioApp } from './StudioApp.jsx';
 
+// Transform the lazy runtime as test setup, outside interaction deadlines.
+import './ManagementWindowRuntime.jsx';
+
 function catalogAPI() {
   const api = {
     readManagementResource: vi.fn(async(uri)=>managementResourceFixture(uri.split("/").at(-1))),
