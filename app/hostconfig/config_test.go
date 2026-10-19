@@ -52,3 +52,26 @@ func TestRejectAmbiguousOrNonInfrastructureConfiguration(t *testing.T) {
 		}
 	}
 }
+
+func TestNamespaceConnectionConfigPreservesUnreadableSCYReference(t *testing.T) {
+	raw := base + `NamespaceConnectionExport:
+  Provider: employees
+  ClientConfigURL: file:///does-not-exist/namespace-client.enc|blowfish://env/UNSET_NAMESPACE_KEY
+  Scopes: [openid]
+NamespaceOAuthProviders:
+  employees:
+    Issuer: https://idp.example
+    CertURL: https://idp.example/certs
+    Audience: namespace-client
+`
+	config, err := Decode([]byte(raw))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if config.NamespaceConnectionExport == nil || config.NamespaceConnectionExport.ClientConfigURL != "file:///does-not-exist/namespace-client.enc|blowfish://env/UNSET_NAMESPACE_KEY" || config.NamespaceConnectionExport.Provider != "employees" || len(config.NamespaceConnectionExport.Scopes) != 1 {
+		t.Fatal("namespace SCY reference was resolved or changed")
+	}
+	if config.NamespaceOAuthProviders["employees"].Issuer != "https://idp.example" {
+		t.Fatal("namespace issuer configuration lost")
+	}
+}

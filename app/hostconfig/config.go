@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/viant/authz/oauth"
+	runtimehost "github.com/viant/datly-studio/runtime/host"
 	"github.com/viant/datly/bootstrap/connector"
 	"github.com/viant/scy"
 	"io"
@@ -36,6 +37,10 @@ type Config struct {
 	// connectors are managed in the database, outside deployment configuration.
 	Store        *connector.Config
 	NamespaceMCP *datly.MCP
+	// Namespace connection discovery exports SCY references only. Nil retains
+	// disabled connection export for protected namespace runtimes.
+	NamespaceConnectionExport *runtimehost.MCPConnectionExport
+	NamespaceOAuthProviders   map[string]runtimehost.OAuthProvider
 	// PublicURL overrides the browser origin when deployed behind a proxy.
 	PublicURL string
 	// Tenant is the existing resource-policy tenant; empty defaults to studio.

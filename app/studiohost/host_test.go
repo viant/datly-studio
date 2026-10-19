@@ -63,6 +63,10 @@ func TestOneProcessHost(t *testing.T) {
 		t.Fatal(err)
 	}
 	document := map[string]any{"BaseDir": dir, "Endpoint": map[string]any{"Address": "127.0.0.1:0"}, "MCP": map[string]any{"Address": "127.0.0.1:0"}, "NamespaceMCP": map[string]any{"Address": "127.0.0.1:0"}, "Store": map[string]any{"Driver": "sqlite", "DSN": dsn}, "JWTValidator": map[string]any{"RSA": []any{map[string]any{"URL": publicPath}}}, "JWTClaims": map[string]any{"Issuer": "https://synthetic.example", "Audience": "studio", "RequireSubject": true}}
+	// Connection export must never decrypt or read its SCY reference. This
+	// deliberately absent file is unrelated to the browser's login client.
+	document["NamespaceConnectionExport"] = map[string]any{"Provider": "synthetic", "ClientConfigURL": "file:///unreadable-synthetic-namespace-client.enc|blowfish://env/UNSET_SYNTHETIC_NAMESPACE_KEY", "Scopes": []string{"openid"}}
+	document["NamespaceOAuthProviders"] = map[string]any{"synthetic": map[string]any{"Issuer": "https://synthetic.example", "Audience": "studio", "CertURL": "file://" + publicPath}}
 	raw, err := json.Marshal(document)
 	if err != nil {
 		t.Fatal(err)
@@ -244,7 +248,7 @@ func TestOneProcessHost(t *testing.T) {
 		}
 		payload, _ := io.ReadAll(response.Body)
 		response.Body.Close()
-		denied := response.StatusCode == 401 || response.StatusCode == 403 || strings.Contains(string(payload), `"status":401`) || strings.Contains(string(payload), `"status":403`)
+		denied := response.StatusCode == 401 || response.StatusCode == 403 || strings.Contains(string(payload), `"status":401`) || strings.Contains(string(payload), `"status":403`) || strings.Contains(string(payload), `"code":-32001`)
 		if !denied {
 			t.Fatalf("invalid native MCP credential was not denied: %d %s", response.StatusCode, payload)
 		}
@@ -303,6 +307,93 @@ func TestOneProcessHost(t *testing.T) {
 	}
 	if !discovered {
 		t.Fatal("database-enabled namespace did not become available on the shared listener")
+	}
+	// The ordinary post-login flow discovers connection metadata without
+	// calling the namespace-administration get tool.
+	metadata := map[string]any{"io.modelcontextprotocol/protocolVersion": mcpschema.LatestProtocolVersion, "io.modelcontextprotocol/clientCapabilities": map[string]any{}}
+	callNative := func(method string, params map[string]any) []byte {
+		params["_meta"] = metadata
+		raw, err := json.Marshal(map[string]any{"jsonrpc": "2.0", "id": 15, "method": method, "params": params})
+		if err != nil {
+			t.Fatal(err)
+		}
+		request, _ := http.NewRequest("POST", "http://"+endpoints.AdminMCP+"/mcp", bytes.NewReader(raw))
+		request.Header.Set("Content-Type", "application/json")
+		request.Header.Set("Accept", "application/json")
+		request.Header.Set("Authorization", "Bearer "+bearer)
+		request.Header.Set(mcpschema.HeaderMethod, method)
+		request.Header.Set("Mcp-Protocol-Version", mcpschema.LatestProtocolVersion)
+		if method == "resources/read" {
+			request.Header.Set(mcpschema.HeaderName, params["uri"].(string))
+		} else if method == "tools/call" {
+			request.Header.Set(mcpschema.HeaderName, params["name"].(string))
+		}
+		response, err := client.Do(request)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer response.Body.Close()
+		body, _ := io.ReadAll(response.Body)
+		if response.StatusCode != 200 {
+			t.Fatalf("native discovery %s status=%d body=%s", method, response.StatusCode, body)
+		}
+		return body
+	}
+	metadata["io.viant/resources/filter"] = map[string]any{"namespace": "ns://" + strings.Repeat("a", 64), "kind": "mcp", "limit": 1}
+	connectionPage := callNative("resources/list", map[string]any{})
+	var listed struct {
+		Result struct {
+			Resources []struct {
+				URI string `json:"uri"`
+			}
+		}
+	}
+	if err := json.Unmarshal(connectionPage, &listed); err != nil || len(listed.Result.Resources) != 1 {
+		t.Fatalf("native MCP reference missing: %s", connectionPage)
+	}
+	delete(metadata, "io.viant/resources/filter")
+	uri := listed.Result.Resources[0].URI
+	read := callNative("resources/read", map[string]any{"uri": uri})
+	var opened struct {
+		Result struct{ Contents []struct{ Text string } }
+	}
+	if err := json.Unmarshal(read, &opened); err != nil || len(opened.Result.Contents) != 1 {
+		t.Fatalf("native MCP reference unreadable: %s", read)
+	}
+	var connection struct {
+		Name      string
+		Transport struct{ URL string }
+		Auth      struct {
+			WorkspaceTokenReuse string
+			PassUserToken       *bool
+			InlineProvider      struct {
+				Clients map[string]struct{ ConfigURL string }
+			}
+		}
+	}
+	if err := json.Unmarshal([]byte(opened.Result.Contents[0].Text), &connection); err != nil {
+		t.Fatal(err)
+	}
+	if connection.Name != "synthetic" || connection.Transport.URL != namespaceURL[:len(namespaceURL)-len("/mcp")]+"/oauth/synthetic/mcp" || connection.Auth.WorkspaceTokenReuse != "never" || connection.Auth.InlineProvider.Clients["agently"].ConfigURL != "file:///unreadable-synthetic-namespace-client.enc|blowfish://env/UNSET_SYNTHETIC_NAMESPACE_KEY" {
+		t.Fatalf("incorrect namespace connection metadata: %s", opened.Result.Contents[0].Text)
+	}
+	tool := callNative("tools/call", map[string]any{"name": "resource/get", "arguments": map[string]any{"uri": uri}})
+	var toolWire struct {
+		Result struct {
+			StructuredContent json.RawMessage
+			IsError           bool
+		}
+	}
+	if err := json.Unmarshal(tool, &toolWire); err != nil || toolWire.Result.IsError {
+		t.Fatalf("native MCP reference tool failed: %s", tool)
+	}
+	var toolJSON, readJSON any
+	_ = json.Unmarshal(toolWire.Result.StructuredContent, &toolJSON)
+	_ = json.Unmarshal([]byte(opened.Result.Contents[0].Text), &readJSON)
+	toolBytes, _ := json.Marshal(toolJSON)
+	readBytes, _ := json.Marshal(readJSON)
+	if !bytes.Equal(toolBytes, readBytes) {
+		t.Fatal("standard and tool MCP connection definitions differ")
 	}
 	if _, err := db.Exec("UPDATE namespaces SET mcp_enabled=0 WHERE namespace_id=?", strings.Repeat("a", 64)); err != nil {
 		t.Fatal(err)

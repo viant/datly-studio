@@ -229,7 +229,7 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	runtimeConfig := runtimehost.Config{Const: config.Const, InProcess: true, RootDir: config.BaseDir, ModulePath: authoringConfig.ModulePath,
 		NamespaceMCPMode: "shared", HTTP: runtimehost.Listener{Address: "127.0.0.1:0"}, MCP: runtimehost.Listener{Address: namespaceAddress},
 		Studio:         runtimehost.Studio{Driver: catalog.Driver, DSN: catalog.DSN},
-		Authentication: runtimehost.Authentication{DefaultMode: "required", Issuer: config.JWTClaims.Issuer, Audience: config.JWTClaims.Audience},
+		Authentication: runtimehost.Authentication{DefaultMode: "required", Issuer: config.JWTClaims.Issuer, Audience: config.JWTClaims.Audience, ConnectionExport: config.NamespaceConnectionExport, Providers: config.NamespaceOAuthProviders},
 		Access:         &runtimehost.ResourceAccessConfig{Tenant: tenant, Provider: provider}, ReaderCaches: config.Caches}
 	if options.ConfigureRuntime != nil {
 		if err := options.ConfigureRuntime(&runtimeConfig); err != nil {
