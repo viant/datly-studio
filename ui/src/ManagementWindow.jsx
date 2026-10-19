@@ -1,8 +1,8 @@
 import React, {useEffect, useId, useMemo, useState} from 'react';
 import {Button, Callout, Spinner} from '@blueprintjs/core';
-import WindowContent from '../node_modules/forge/src/components/WindowContent.jsx';
-import {SettingProvider} from '../node_modules/forge/src/core/context/Setting.jsx';
-import '../node_modules/forge/src/packs/blueprint/index.jsx';
+import {WindowContent} from 'forge/components';
+import {SettingProvider} from 'forge/core';
+import 'forge';
 import {managementWindowMetadata, managementWindowTransport} from './managementWindow.js';
 
 // The shell owns loading and connection context only. Layout and all screen
