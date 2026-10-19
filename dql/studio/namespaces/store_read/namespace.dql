@@ -11,6 +11,7 @@
 #setting($_ = $sql_dest('namespace', 'sql/read.sql'))
 
 #define($_ = $NamespaceId<string>(query/namespaceId).Optional())
+#define($_ = $McpOnly<bool>(query/mcpOnly).Optional())
 #define($_ = $Name<string>(query/name).Optional())
 #define($_ = $OwnerId<string>(query/ownerId).Optional())
 #define($_ = $Query<string>(query/q).Optional())

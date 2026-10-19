@@ -28,6 +28,9 @@ func fail(code int, message string) error {
 	return &xresponse.Error{Code: code, Cause: errors.New(message)}
 }
 func directory(ctx context.Context, session xhandler.Session, claims *jwt.Claims, auth *studioauth.Output, id, query string, limit, offset int) ([]*stored.StoredNamespace, error) {
+	return directoryPage(ctx, session, claims, auth, id, "", query, false, limit, offset)
+}
+func directoryPage(ctx context.Context, session xhandler.Session, claims *jwt.Claims, auth *studioauth.Output, id, name, query string, mcpOnly bool, limit, offset int) ([]*stored.StoredNamespace, error) {
 	if claims == nil || claims.Subject == "" || auth == nil || auth.Auth == nil || auth.Auth.Subject != claims.Subject {
 		return nil, fail(403, "verified Studio principal is required")
 	}
@@ -54,6 +57,8 @@ func directory(ctx context.Context, session xhandler.Session, claims *jwt.Claims
 	ctx = oauth.WithBearer(ctx, strings.TrimPrefix(headers.Authorization, "Bearer "))
 	input := &stored.Input{}
 	input.NamespaceId = id
+	input.SetName(name)
+	input.SetMcpOnly(mcpOnly)
 	input.SetScoped(true)
 	input.Has.NamespaceId = true
 	input.SetSubject(claims.Subject)

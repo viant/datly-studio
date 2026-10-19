@@ -18,7 +18,7 @@ func TestNamespaceWindowPortableContract(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if len(definitions) != 2 || definitions[0].URI != "window://"+namespace+"/namespaces" || definitions[1].URI != "datasource://"+namespace+"/namespaces" {
+			if len(definitions) != 3 || definitions[0].URI != "window://"+namespace+"/namespaces" || definitions[1].URI != "datasource://"+namespace+"/namespaces" {
 				t.Fatalf("unexpected resource identities: %+v", definitions)
 			}
 			var envelope types.WindowResourceEnvelope

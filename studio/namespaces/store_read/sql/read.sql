@@ -2,6 +2,7 @@ SELECT namespace."namespace_id", namespace."visibility", namespace."allowed_role
        n.created_at, n.updated_at
 FROM namespaces n
 WHERE n.deleted_at IS NULL
+ AND ($McpOnly = FALSE OR n.mcp_enabled = TRUE)
  AND ($NamespaceId = '' OR n.namespace_id = $NamespaceId)
   AND ($OwnerId = '' OR n.owner_id = $OwnerId)
   AND ($Name = '' OR n.name = $Name)

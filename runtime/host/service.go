@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/viant/datly/constant"
 	"net"
 	"net/http"
 	"path"
@@ -18,13 +17,11 @@ import (
 
 	access "github.com/viant/authz"
 	"github.com/viant/datly-studio/audit"
-	"github.com/viant/datly-studio/internal/connectorinit"
 	"github.com/viant/datly-studio/internal/connectorsecret"
 	"github.com/viant/datly-studio/runtime/accesscontext"
 	studiors "github.com/viant/datly-studio/runtime/resources"
 	studiohost "github.com/viant/datly-studio/studio/host"
 	"github.com/viant/datly/application"
-	"github.com/viant/datly/authoring/readerbuilder"
 	"github.com/viant/datly/bootstrap"
 	dexec "github.com/viant/datly/exec"
 	gateway "github.com/viant/datly/gateway/http"
@@ -222,13 +219,13 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 	for _, definition := range definitions {
 		versionByReport[definition.reportID] = definition.versionNo
 	}
-	var opened []*sql.DB
+	var pooled *runtimeConnectorSet
 	caches := &aerospike.Pool{}
 	defer func() {
 		if err != nil {
 			_ = caches.Close()
-			for _, db := range opened {
-				_ = db.Close()
+			if pooled != nil {
+				_ = pooled.Close()
 			}
 		}
 	}()
@@ -236,13 +233,16 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 	if activeErr != nil {
 		return nil, activeErr
 	}
+	pooled, err = openRuntimeConnectorSet(ctx, definitions, active, s.secrets, s.config.Const)
+	if err != nil {
+		return nil, err
+	}
 	for _, definition := range definitions {
-		sources, openErr := openRuntimeSources(ctx, definition, active, s.secrets, s.config.Const)
+		sources, openErr := pooled.sources(ctx, definition.connector)
 		if openErr != nil {
 			err = openErr
 			return nil, err
 		}
-		opened = append(opened, sources.opened...)
 		contractResources := loadedResources.ByVersion[studiors.Version{ReportID: definition.reportID, VersionNo: definition.versionNo}]
 		source := &transcribe.Source{Const: s.config.Const, Types: types, Scope: definition.scope, Name: definition.name, Text: definition.dql, Connector: definition.connector, Resources: contractResources, ColumnRefiner: column.New(sources.connections)}
 		compiler := transcribe.NewCompiler()
@@ -379,9 +379,7 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 		Version: fmt.Sprintf("dynamic-%d-%d", s.manager.Revision()+1, len(registrations)),
 		Shutdown: func(context.Context) error {
 			result := caches.Close()
-			for _, db := range opened {
-				result = errors.Join(result, db.Close())
-			}
+			result = errors.Join(result, pooled.Close())
 			return result
 		},
 	}, nil
@@ -510,87 +508,10 @@ type definition struct {
 type runtimeSources struct {
 	sql         *dsql.SQLComponent
 	connections column.Connections
-	opened      []*sql.DB
-}
-
-func (s *runtimeSources) Close() {
-	if s == nil {
-		return
-	}
-	for _, db := range s.opened {
-		_ = db.Close()
-	}
 }
 
 func (s *Service) activeConnectors(ctx context.Context) (map[string]connectorDefinition, error) {
 	return s.connectorStore.Read(ctx)
-}
-
-func openRuntimeSources(ctx context.Context, definition definition, active map[string]connectorDefinition, resolver connectorsecret.Resolver, constants ...*constant.Values) (*runtimeSources, error) {
-	var instance *constant.Values
-	if len(constants) > 0 {
-		instance = constants[0]
-	}
-	available := make([]string, 0, len(active))
-	for name := range active {
-		available = append(available, name)
-	}
-	inspection := readerbuilder.New(readerbuilder.Config{Const: instance, Scope: definition.scope, Name: definition.name, AvailableConnectors: available}).Apply(ctx, readerbuilder.Request{DQL: definition.dql, Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
-	required := map[string]bool{definition.connector: true}
-	if inspection.Structure != nil {
-		for _, function := range inspection.Structure.Functions {
-			if strings.EqualFold(function.Name, "use_connector") && len(function.Args) > 1 {
-				required[strings.Trim(strings.TrimSpace(function.Args[1]), "'\"")] = true
-			}
-		}
-	}
-	result := &runtimeSources{connections: column.Connections{}}
-	success := false
-	defer func() {
-		if !success {
-			result.Close()
-		}
-	}()
-	for name := range required {
-		item, ok := active[name]
-		if !ok {
-			return nil, fmt.Errorf("dynamic report %s requires active Studio connector %q", definition.reportID, name)
-		}
-		resolvedDSN, resolveErr := connectorsecret.Resolve(ctx, resolver, item.dsn, item.secretRef, instance)
-		if resolveErr != nil {
-			return nil, fmt.Errorf("resolve Studio connector %q secret: %w", name, resolveErr)
-		}
-		if strings.TrimSpace(resolvedDSN) == "" {
-			return nil, fmt.Errorf("Studio connector %q has no DSN", name)
-		}
-		db, err := sql.Open(normalizeDriver(item.driver), resolvedDSN)
-		if err != nil {
-			return nil, fmt.Errorf("open Studio connector %q: %w", name, err)
-		}
-		if err = connectorinit.Configure(ctx, db, item.driver, item.options); err != nil {
-			_ = db.Close()
-			return nil, fmt.Errorf("configure Studio connector %q: %w", name, err)
-		}
-		if err = db.PingContext(ctx); err != nil {
-			_ = db.Close()
-			return nil, fmt.Errorf("ping Studio connector %q: %w", name, err)
-		}
-		result.opened = append(result.opened, db)
-		result.connections[name] = db
-		if name == definition.connector {
-			result.sql = &dsql.SQLComponent{DB: db}
-		}
-	}
-	if result.sql == nil {
-		return nil, fmt.Errorf("default Studio connector %q is unavailable", definition.connector)
-	}
-	for name, db := range result.connections {
-		if err := result.sql.RegisterConnector(name, db); err != nil {
-			return nil, err
-		}
-	}
-	success = true
-	return result, nil
 }
 
 func (s *Service) definitions(ctx context.Context, candidate *int64) ([]definition, error) {

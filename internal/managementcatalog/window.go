@@ -21,6 +21,11 @@ type Config struct {
 	Namespace        string
 	ProviderIdentity string
 	MCPService       string
+	PublicURL        string
+	ApplicationID    string
+	ApplicationName  string
+	ApplicationIcon  string
+	Sections         []Section
 }
 
 type Definition struct {
@@ -31,7 +36,8 @@ type Definition struct {
 //go:embed namespaces.yaml
 var namespacesYAML []byte
 
-// NamespaceWindow returns the complete window bundle and its reusable datasource.
+// NamespaceWindow returns the management navigation, namespace window bundle,
+// and reusable datasource.
 // The configured MCP service is the existing management connection; no recursive
 // or self-referential MCP configuration resource is emitted.
 func NamespaceWindow(config Config) ([]Definition, error) {
@@ -112,5 +118,9 @@ func NamespaceWindow(config Config) ([]Definition, error) {
 	if err != nil {
 		return nil, err
 	}
-	return []Definition{{URI: windowURI, JSON: window}, {URI: datasourceURI, JSON: datasource}}, nil
+	nav, err := navigation(config)
+	if err != nil {
+		return nil, err
+	}
+	return []Definition{{URI: windowURI, JSON: window}, {URI: datasourceURI, JSON: datasource}, nav}, nil
 }

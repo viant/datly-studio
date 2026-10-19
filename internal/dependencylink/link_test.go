@@ -44,6 +44,10 @@ var linkedComponentHolders = []struct {
 	holder      string
 }{
 	{"github.com/viant/datly-studio/studio/auth/reader", "ContextComponent"},
+	{"github.com/viant/datly-studio/studio/catalog", "ListComponent"},
+	{"github.com/viant/datly-studio/studio/catalog", "GetComponent"},
+	{"github.com/viant/datly-studio/studio/catalog", "ResourceComponent"},
+	{"github.com/viant/datly-studio/studio/catalog", "ResourcesListComponent"},
 	{"github.com/viant/datly-studio/studio/authorization_predicates/types", "Component"},
 	{"github.com/viant/datly-studio/studio/authorization_predicates/get", "Component"},
 	{"github.com/viant/datly-studio/studio/authorization_predicates/create", "Component"},
@@ -187,6 +191,7 @@ var linkedComponentHolders = []struct {
 	{"github.com/viant/datly-studio/studio/resource_namespace_claims/store_write", "ClaimComponent"},
 	{"github.com/viant/datly-studio/studio/resource_namespaces/store_presence", "UsageComponent"},
 	{"github.com/viant/datly-studio/studio/resource_namespaces/store_usage", "UsageComponent"},
+	{"github.com/viant/authz/component/policy/graph", "GraphComponent"},
 	{"github.com/viant/authz/component/policy/reader", "PolicyComponent"},
 	{"github.com/viant/authz/component/policy/writer", "PolicyComponent"},
 	{"github.com/viant/datly-studio/studio/resource_policy/access", "GetComponent"},

@@ -87,3 +87,14 @@ func (input *Input) SetPageOffset(value int) {
 	}
 	input.Has.PageOffset = true
 }
+
+func (input *Input) SetMcpOnly(value bool) {
+	if input == nil {
+		return
+	}
+	input.McpOnly = value
+	if input.Has == nil {
+		input.Has = &InputHas{}
+	}
+	input.Has.McpOnly = true
+}

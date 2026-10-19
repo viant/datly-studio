@@ -2,6 +2,7 @@ package store_read
 
 // Input is the generated input scaffold for namespace.
 type Input struct {
+	McpOnly     bool      `parameter:"McpOnly,kind=query,in=mcpOnly,dataType=bool,required=false"`
 	NamespaceId string    `parameter:"NamespaceId,kind=query,in=namespaceId,dataType=string,required=false"`
 	Name        string    `parameter:"Name,kind=query,in=name,dataType=string,required=false"`
 	OwnerId     string    `parameter:"OwnerId,kind=query,in=ownerId,dataType=string,required=false"`
@@ -15,6 +16,7 @@ type Input struct {
 }
 
 type InputHas struct {
+	McpOnly     bool
 	NamespaceId bool
 	Name        bool
 	OwnerId     bool

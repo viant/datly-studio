@@ -26,6 +26,7 @@ import (
 	_ "github.com/viant/datly-studio/studio/bff_sessions/store_read"
 	_ "github.com/viant/datly-studio/studio/bff_sessions/store_write"
 	_ "github.com/viant/datly-studio/studio/bff_sessions/writer"
+	_ "github.com/viant/datly-studio/studio/catalog"
 	_ "github.com/viant/datly-studio/studio/connectors/accesspredicate"
 	_ "github.com/viant/datly-studio/studio/connectors/activate"
 	_ "github.com/viant/datly-studio/studio/connectors/create"

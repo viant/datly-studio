@@ -56,6 +56,11 @@ func (staticSessionVerifier) VerifyClaims(context.Context, string) (*scyjwt.Clai
 func TestSelectedStudioStaticComponentsBootstrapTogether(t *testing.T) {
 	ctx := context.Background()
 	t.Setenv("STUDIO_PREDICATE_PACKAGES", "")
+	t.Setenv("STUDIO_MANAGEMENT_NAMESPACE", "studio-management")
+	t.Setenv("STUDIO_MANAGEMENT_PROVIDER_ID", "studio-management-provider")
+	t.Setenv("STUDIO_MANAGEMENT_MCP_SERVICE", "studio-management")
+	t.Setenv("STUDIO_MANAGEMENT_PUBLIC_URL", "https://studio.example.com")
+	t.Setenv("STUDIO_MANAGEMENT_SECTIONS_JSON", "")
 	root, err := filepath.Abs(filepath.Join("..", ".."))
 	if err != nil {
 		t.Fatal(err)
@@ -1625,7 +1630,19 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 			"io.modelcontextprotocol/protocolVersion":    mcpschema.LatestProtocolVersion,
 			"io.modelcontextprotocol/clientCapabilities": map[string]any{},
 		}}
-		if name != "" {
+		if method == "resources/list" {
+			for key, value := range arguments {
+				if key == "_meta" {
+					for metaKey, metaValue := range value.(map[string]any) {
+						params["_meta"].(map[string]any)[metaKey] = metaValue
+					}
+				} else {
+					params[key] = value
+				}
+			}
+		} else if method == "resources/read" {
+			params["uri"] = arguments["uri"]
+		} else if name != "" {
 			params["name"], params["arguments"] = name, arguments
 		}
 		payload, marshalErr := json.Marshal(map[string]any{"jsonrpc": "2.0", "id": 1, "method": method, "params": params})
@@ -1646,7 +1663,9 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		}
 		req.Header.Set("Mcp-Protocol-Version", mcpschema.LatestProtocolVersion)
 		req.Header.Set("Mcp-Method", method)
-		if name != "" {
+		if method == "resources/read" {
+			req.Header.Set("Mcp-Name", arguments["uri"].(string))
+		} else if name != "" {
 			req.Header.Set("Mcp-Name", name)
 		}
 		res, callErr := http.DefaultClient.Do(req)
@@ -1685,6 +1704,173 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 			t.Errorf("static MCP listener listed duplicate tool %s", tool.Name)
 		}
 		available[tool.Name] = true
+	}
+	// Management discovery must be reachable on the authenticated native MCP
+	// listener, rather than merely existing as an unselected Go package.
+	for _, name := range []string{"namespaces/list", "namespaces/get", "resource/get"} {
+		if !available[name] {
+			t.Fatalf("native MCP is missing management catalog tool %s", name)
+		}
+	}
+	for _, operation := range []struct {
+		name      string
+		arguments map[string]any
+		want      string
+	}{
+		{"namespaces/list", map[string]any{}, "ns://studio-management"},
+		{"namespaces/get", map[string]any{"uri": "ns://studio-management", "kind": "navigation"}, "navigation://studio-management/main"},
+		{"resource/get", map[string]any{"uri": "navigation://studio-management/main"}, "Data Studio"},
+		{"resource/get", map[string]any{"uri": "window://studio-management/namespaces"}, "studio-management-provider"},
+		{"resource/get", map[string]any{"uri": "datasource://studio-management/namespaces"}, "studio.sdk.namespaces.list"},
+	} {
+		status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", operation.name, operation.arguments)
+		if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(operation.want)) {
+			t.Fatalf("authenticated management %s status=%d body=%s", operation.name, status, body)
+		}
+		if operation.name == "resource/get" {
+			var toolWire struct {
+				Result struct {
+					StructuredContent json.RawMessage `json:"structuredContent"`
+				}
+			}
+			if err := json.Unmarshal(body, &toolWire); err != nil {
+				t.Fatal(err)
+			}
+			readStatus, readBody := mcpCall(staticMCP, "Bearer "+token, nil, "resources/read", "", operation.arguments)
+			var readWire struct {
+				Result struct{ Contents []struct{ URI, Text string } }
+				Error  json.RawMessage
+			}
+			if err := json.Unmarshal(readBody, &readWire); err != nil {
+				t.Fatal(err)
+			}
+			if readStatus != http.StatusOK || len(readWire.Error) > 0 || len(readWire.Result.Contents) != 1 {
+				t.Fatalf("standard management read status=%d body=%s", readStatus, readBody)
+			}
+			var toolValue, readValue any
+			if err := json.Unmarshal(toolWire.Result.StructuredContent, &toolValue); err != nil {
+				t.Fatal(err)
+			}
+			if err := json.Unmarshal([]byte(readWire.Result.Contents[0].Text), &readValue); err != nil {
+				t.Fatal(err)
+			}
+			toolCanonical, _ := json.Marshal(toolValue)
+			readCanonical, _ := json.Marshal(readValue)
+			if !bytes.Equal(toolCanonical, readCanonical) {
+				t.Fatalf("standard/tool resource mismatch: %s vs %s", toolCanonical, readCanonical)
+			}
+			deniedStatus, deniedBody := mcpCall(staticMCP, "", nil, "resources/read", "", operation.arguments)
+			if deniedStatus == http.StatusOK && !bytes.Contains(deniedBody, []byte(`"error"`)) {
+				t.Fatalf("unauthenticated standard read exposed: %s", deniedBody)
+			}
+		}
+		status, body = mcpCall(staticMCP, "", nil, "tools/call", operation.name, operation.arguments)
+		if status == http.StatusOK && !bytes.Contains(body, []byte(`"isError":true`)) && !bytes.Contains(body, []byte(`"error"`)) {
+			t.Fatalf("unauthenticated management %s exposed: %s", operation.name, body)
+		}
+	}
+	for _, uri := range []string{"navigation://studio-management/missing", "navigation://studio-management/main?caller=untrusted", "mcp://invalid/missing"} {
+		_, missingBody := mcpCall(staticMCP, "Bearer "+token, nil, "resources/read", "", map[string]any{"uri": uri})
+		if !bytes.Contains(missingBody, []byte(`"error"`)) || bytes.Contains(missingBody, []byte(`"contents"`)) {
+			t.Fatalf("invalid/missing standard resource returned contents: %s", missingBody)
+		}
+	}
+	// Standard resource listing is scoped and paginated at the native catalog.
+	listArgs := map[string]any{"_meta": map[string]any{"io.viant/resources/filter": map[string]any{"namespace": "ns://studio-management", "limit": 1}}}
+	seenManagement := map[string]bool{}
+	for page := 0; page < 4; page++ {
+		listedStatus, listedBody := mcpCall(staticMCP, "Bearer "+token, nil, "resources/list", "", listArgs)
+		var listed struct {
+			Result struct {
+				Resources []struct {
+					URI string `json:"uri"`
+				}
+				NextCursor *string `json:"nextCursor"`
+			}
+			Error json.RawMessage
+		}
+		if err := json.Unmarshal(listedBody, &listed); err != nil {
+			t.Fatal(err)
+		}
+		if listedStatus != http.StatusOK || len(listed.Error) > 0 || len(listed.Result.Resources) != 1 {
+			t.Fatalf("native resource page status=%d body=%s", listedStatus, listedBody)
+		}
+		uri := listed.Result.Resources[0].URI
+		if seenManagement[uri] {
+			t.Fatalf("repeated resource page: %s", uri)
+		}
+		seenManagement[uri] = true
+		readStatus, readBody := mcpCall(staticMCP, "Bearer "+token, nil, "resources/read", "", map[string]any{"uri": uri})
+		if readStatus != http.StatusOK || !bytes.Contains(readBody, []byte(`"contents"`)) {
+			t.Fatalf("listed resource unreadable: %s", readBody)
+		}
+		if listed.Result.NextCursor == nil {
+			break
+		}
+		listArgs["cursor"] = *listed.Result.NextCursor
+	}
+	if len(seenManagement) != 3 {
+		t.Fatalf("management listing returned %v", seenManagement)
+	}
+	for _, namespace := range []string{"studio-management", "ns://studio-management"} {
+		args := map[string]any{"_meta": map[string]any{"io.viant/resources/filter": map[string]any{"namespace": namespace, "kind": "navigation", "query": "Management"}}}
+		_, listedBody := mcpCall(staticMCP, "Bearer "+token, nil, "resources/list", "", args)
+		if !bytes.Contains(listedBody, []byte("navigation://studio-management/main")) || bytes.Contains(listedBody, []byte("window://studio-management/")) {
+			t.Fatalf("resource filters ignored: %s", listedBody)
+		}
+	}
+	_, deniedList := mcpCall(staticMCP, "", nil, "resources/list", "", listArgs)
+	if !bytes.Contains(deniedList, []byte(`"error"`)) {
+		t.Fatalf("unauthenticated standard listing exposed: %s", deniedList)
+	}
+	// Only enabled, authorized namespaces enter the SQL-backed MCP-ref pages.
+	probeIDs := []string{strings.Repeat("d", 64), strings.Repeat("e", 64), strings.Repeat("f", 64), strings.Repeat("9", 64)}
+	for i, id := range probeIDs {
+		owner := "alice"
+		if i == 2 {
+			owner = "bob"
+		}
+		enabled := i != 3
+		if _, err := store.Exec(`INSERT INTO namespaces(namespace_id,owner_id,name,title,status,mcp_enabled,etag,created_at,updated_at) VALUES(?,?,?,?,'active',?,1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, id, owner, fmt.Sprintf("page_probe_%d", i), fmt.Sprintf("Page probe %d", i), enabled); err != nil {
+			t.Fatal(err)
+		}
+	}
+	args := map[string]any{"_meta": map[string]any{"io.viant/resources/filter": map[string]any{"kind": "mcp", "query": "page_probe", "limit": 1}}}
+	seenRefs := map[string]bool{}
+	for page := 0; page < 3; page++ {
+		_, body := mcpCall(staticMCP, "Bearer "+token, nil, "resources/list", "", args)
+		var listed struct {
+			Result struct {
+				Resources []struct {
+					URI string `json:"uri"`
+				}
+				NextCursor *string `json:"nextCursor"`
+			}
+			Error json.RawMessage
+		}
+		if err := json.Unmarshal(body, &listed); err != nil {
+			t.Fatal(err)
+		}
+		if len(listed.Error) > 0 || len(listed.Result.Resources) != 1 {
+			t.Fatalf("SQL resource page failed: %s", body)
+		}
+		uri := listed.Result.Resources[0].URI
+		if seenRefs[uri] || strings.Contains(uri, probeIDs[2]) || strings.Contains(uri, probeIDs[3]) {
+			t.Fatalf("unauthorized/disabled/repeated MCP reference: %s", body)
+		}
+		seenRefs[uri] = true
+		if listed.Result.NextCursor == nil {
+			break
+		}
+		args["cursor"] = *listed.Result.NextCursor
+	}
+	if len(seenRefs) != 2 {
+		t.Fatalf("SQL resource pagination=%v", seenRefs)
+	}
+	for _, id := range probeIDs {
+		if _, err := store.Exec(`DELETE FROM namespaces WHERE namespace_id=?`, id); err != nil {
+			t.Fatal(err)
+		}
 	}
 	expectedSDKTools := map[string]bool{}
 	for path := range document.Paths {

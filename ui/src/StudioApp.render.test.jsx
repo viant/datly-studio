@@ -18,6 +18,17 @@ function catalogAPI() {
 }
 
 describe('Studio connector catalog', () => {
+  test('opens the management section selected by a deep link', async () => {
+    window.history.replaceState({}, '', '/?section=connectors');
+    const api = catalogAPI();
+    try {
+      render(<StudioApp api={api} mode="development" subject="owner" />);
+      expect(await screen.findByRole('heading', { name: 'Connectors', level: 1 })).toBeTruthy();
+      await waitFor(() => expect(api.listConnectors).toHaveBeenCalled());
+    } finally {
+      window.history.replaceState({}, '', '/');
+    }
+  });
   test('allows keyboard activation of sidebar navigation', async () => {
     const user = userEvent.setup();
     render(<StudioApp api={catalogAPI()} mode="development" subject="owner" />);

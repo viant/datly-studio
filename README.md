@@ -420,3 +420,9 @@ Licensing files must be added before a public release. Until a repository-level
 license is committed, the source is **not licensed for redistribution** merely
 because it is visible on GitHub. Datly and each dependency retain their own
 licenses.
+
+Dynamic namespace compilation shares Datly's native connector set across its
+published readers. A reader borrows a named database pool rather than opening a
+new pool. The owning generation closes its pools only after its readers drain;
+failed candidates release their own pools without closing the active generation.
+This uses the native connector defaults and adds no connection-count limit.

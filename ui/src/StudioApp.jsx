@@ -10,6 +10,7 @@ import { RuntimeWorkspace } from './RuntimeWorkspace.jsx';
 import { ImportComponentButton, DownloadComponentButton } from './ComponentTransfer.jsx';
 import { SecurityCenter as SecurityWorkspace } from './SecurityCenter.jsx';
 import { overviewFromSettled } from './overviewModel.js';
+import { managementSection } from './managementNavigation.js';
 import { useNamespaceWorkspace } from './useNamespaceWorkspace.js';
 
 const ReaderBuilder = lazy(() => import('./ReaderBuilder.jsx').then((module) => ({ default: module.ReaderBuilder })));
@@ -43,7 +44,7 @@ const noExtensions = [];
 // StudioAPI, which maps one-for-one to the public Studio SDK operation names.
 export function StudioApp({ api, mode, subject, brand = 'Data Studio', extensions = noExtensions, renderNamespaceSkills, onSignOut }) {
   const [skillEditing, setSkillEditing] = useState(false);
-  const [section, setSection] = useState('overview');
+  const [section, setSection] = useState(() => managementSection(globalThis.location?.search, extensions));
   const [reports, setReports] = useState([]);
   const [connectors, setConnectors] = useState([]);
   const [namespaces, setNamespaces] = useState([]);
