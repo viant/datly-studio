@@ -90,6 +90,7 @@ describe('ReaderBuilder graph-first authoring', () => {
     settingsTrigger.focus();
     await user.keyboard('{Enter}');
     expect(screen.getByRole('region',{name:'Cube preview selection'})).toBeTruthy();
+    expect(screen.queryByRole('heading',{name:'Component graph'})).toBeNull();
     screen.getByRole('button',{name:'Close cube preview selection'}).focus();
     await user.keyboard('{Enter}');
     expect(document.activeElement).toBe(settingsTrigger);

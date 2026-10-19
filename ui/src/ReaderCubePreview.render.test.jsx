@@ -50,3 +50,17 @@ test('uses declared JSON column names for cube selectors',async()=>{
  await user.click(screen.getByLabelText('campaign_id'));await user.click(screen.getByLabelText('total_spend'));await user.click(screen.getByRole('button',{name:'Run cube preview'}));
  expect(onRun).toHaveBeenCalledWith({dimensions:{campaignId:true},measures:{totalSpend:true},filters:{}});
 });
+
+test('opens required filters instead of sending an invalid preview',async()=>{
+ const user=userEvent.setup(),onRun=vi.fn();
+ const required={...structure,declarations:[{parameter:{name:'AdvertiserId',required:true,typeExpr:'int',source:{kind:'form'}}}]};
+ render(<ReaderCubePreview structure={required} onRun={onRun} onClose={()=>{}}/>);
+ await user.click(screen.getByRole('checkbox',{name:'Avails'}));
+ await user.click(screen.getByRole('button',{name:'Run cube preview'}));
+ expect(screen.getByRole('alert').textContent).toContain('AdvertiserId is required');
+ expect(onRun).not.toHaveBeenCalled();
+ expect(screen.getByLabelText('AdvertiserId *').closest('details').open).toBe(true);
+ await user.type(screen.getByLabelText('AdvertiserId *'),'83611');
+ await user.click(screen.getByRole('button',{name:'Run cube preview'}));
+ expect(onRun).toHaveBeenCalledWith(expect.objectContaining({filters:{advertiserId:83611}}));
+});

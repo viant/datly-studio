@@ -18,6 +18,7 @@ export function ReaderCubePreview({ structure, pending, onRun, onClose }) {
   const [values, setValues] = useState({});
   const [filterQuery, setFilterQuery] = useState('');
   const [error, setError] = useState('');
+  const [filtersOpen,setFiltersOpen]=useState(false);
   const filters = useMemo(() => (structure?.declarations ?? []).map((item) => item.parameter).filter((item) => ['query','form'].includes(item?.source?.kind)), [structure]);
   const choices = columns.filter((column)=>typeof column.groupable==='boolean').filter((column) => `${column.name} ${column.source || ''}`.toLowerCase().includes(query.toLowerCase()));
   const count = Object.values(selected).filter(Boolean).length;
@@ -31,7 +32,10 @@ export function ReaderCubePreview({ structure, pending, onRun, onClose }) {
     try {
       for (const parameter of filters) {
         const value = values[parameter.name];
-        if (value == null || value === '') continue;
+        if (value == null || value === '') {
+          if (parameter.required === true) {setFiltersOpen(true);setFilterQuery('');throw new Error(`${parameter.name} is required. Enter it in Filters before running.`);}
+          continue;
+        }
         const converted = convertFilter(parameter, value);
         inputFilters[wireName(parameter.name)] = converted;
       }
@@ -45,7 +49,7 @@ export function ReaderCubePreview({ structure, pending, onRun, onClose }) {
     {unresolved>0&&<p className="studio-muted">{unresolved} fields need a dimension or measure role.</p>}
     <InputGroup leftIcon="search" aria-label="Find cube fields" placeholder="Find a dimension or measure" value={query} onChange={(event)=>setQuery(event.target.value)}/>
     <div className="studio-cube-field-groups">{['Dimensions','Measures'].map((role)=><fieldset key={role}><legend>{role}</legend><div className="studio-cube-field-list">{choices.filter((column)=>(column.groupable===true)===(role==='Dimensions')).map((column)=><Checkbox key={column.name} label={column.name} checked={Boolean(selected[column.name])} disabled={pending} onChange={(event)=>setSelected({...selected,[column.name]:event.target.checked})}/>)}{!choices.some((column)=>(column.groupable===true)===(role==='Dimensions'))&&<p className="studio-muted">No matching {role.toLowerCase()}.</p>}</div></fieldset>)}</div>
-    {filters.length>0&&<details><summary>Filters</summary><InputGroup aria-label="Find cube filters" placeholder="Find a filter" value={filterQuery} onChange={(event)=>setFilterQuery(event.target.value)}/><p className="studio-muted">Showing {Math.min(filterMatches.length,10)} of {filterMatches.length} filters{filterMatches.length>10?' · Refine search to find another filter':''}</p>{filterMatches.slice(0,10).map((parameter)=><FormGroup key={parameter.name} label={parameter.name} labelFor={`cube-filter-${parameter.name}`} helperText={!supportsFilter(parameter)?`Filter type ${parameter.typeExpr||'unknown'} needs a structured editor`:String(parameter.typeExpr||'').startsWith('[]')?'Comma-separated values':undefined}><InputGroup id={`cube-filter-${parameter.name}`} value={values[parameter.name]||''} disabled={pending||!supportsFilter(parameter)} onChange={(event)=>setValues({...values,[parameter.name]:event.target.value})}/></FormGroup>)}</details>}
+    {filters.length>0&&<details open={filtersOpen} onToggle={event=>setFiltersOpen(event.currentTarget.open)}><summary>Filters</summary><InputGroup aria-label="Find cube filters" placeholder="Find a filter" value={filterQuery} onChange={(event)=>setFilterQuery(event.target.value)}/><p className="studio-muted">Showing {Math.min(filterMatches.length,10)} of {filterMatches.length} filters{filterMatches.length>10?' · Refine search to find another filter':''}</p>{filterMatches.slice(0,10).map((parameter)=><FormGroup key={parameter.name} label={parameter.name+(parameter.required?' *':'')} labelFor={`cube-filter-${parameter.name}`} helperText={!supportsFilter(parameter)?`Filter type ${parameter.typeExpr||'unknown'} needs a structured editor`:String(parameter.typeExpr||'').startsWith('[]')?'Comma-separated values':undefined}><InputGroup id={`cube-filter-${parameter.name}`} value={values[parameter.name]||''} disabled={pending||!supportsFilter(parameter)} onChange={(event)=>setValues({...values,[parameter.name]:event.target.value})}/></FormGroup>)}</details>}
     <div className="studio-cube-preview-actions"><span aria-live="polite">{count} selected</span><Button intent="primary" icon="play" disabled={count===0||missingMeasures||pending} loading={pending} onClick={run}>Run cube preview</Button></div>
   </section>;
 }
