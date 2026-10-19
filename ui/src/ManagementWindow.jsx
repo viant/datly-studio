@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useId, useMemo, useState} from 'react';
 import {Button, Callout, Spinner} from '@blueprintjs/core';
 import WindowContent from '../node_modules/forge/src/components/WindowContent.jsx';
 import {SettingProvider} from '../node_modules/forge/src/core/context/Setting.jsx';
@@ -8,6 +8,8 @@ import {managementWindowMetadata, managementWindowTransport} from './managementW
 // The shell owns loading and connection context only. Layout and all screen
 // actions are supplied by the same resource returned to remote Forge hosts.
 export function ManagementWindow({api, uri, instanceKey = uri}) {
+  const mountId = useId();
+  const windowId = `${instanceKey}:${mountId}`;
   const [state, setState] = useState({});
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
@@ -22,5 +24,5 @@ export function ManagementWindow({api, uri, instanceKey = uri}) {
   const services = useMemo(() => state.metadata ? {dataConnectorTransport: managementWindowTransport(api, state.metadata)} : {}, [api, state.metadata]);
   if (state.error) return <Callout intent="danger" title="Unable to open this window">{state.error.message} <Button onClick={() => setAttempt(value => value + 1)}>Retry</Button></Callout>;
   if (!state.metadata) return <Spinner aria-label="Loading window" size={24}/>;
-  return <SettingProvider connectorConfig={{window: {service: {uri}}}} services={services}><WindowContent key={instanceKey} window={{windowId: instanceKey, windowKey: state.metadata.windowKey}} selectedMetadata={state.metadata}/></SettingProvider>;
+  return <SettingProvider connectorConfig={{window: {service: {uri}}}} services={services}><WindowContent key={windowId} window={{windowId, windowKey: state.metadata.windowKey}} selectedMetadata={state.metadata}/></SettingProvider>;
 }

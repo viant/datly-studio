@@ -826,3 +826,17 @@ test('host MCP transport carries SDK DTOs and rejects responses after namespace 
  assert.equal(calls[1].headers['X-Studio-Namespace'],'a'.repeat(64));api.setNamespace('b'.repeat(64));release();
  await assert.rejects(pending,error=>error.code==='namespace_changed');
 });
+
+test('management window uses standard MCP resources/read without namespace discovery',async()=>{
+ const uri='window://datastudio/connectors',resource={schemaVersion:3,targets:[],variants:{}};
+ const calls=[];
+ const api=new StudioAPI({mode:'authenticated',apiBaseURL:'https://studio.example',authentication:{mode:'bff'}},{fetcher:async(url,init)=>{
+  calls.push({url,init});return new Response(JSON.stringify({jsonrpc:'2.0',id:1,result:{contents:[{uri,mimeType:'application/json',text:JSON.stringify(resource)}]}}),{status:200,headers:{'Content-Type':'application/json'}});
+ }});
+ assert.deepEqual(await api.readManagementResource(uri),resource);
+ assert.equal(calls.length,1);
+ assert.equal(calls[0].url,'https://studio.example/v1/studio/sdk-mcp/mcp');
+ assert.equal(JSON.parse(calls[0].init.body).method,'resources/read');
+ assert.equal(calls[0].init.credentials,'include');
+ assert.equal(calls[0].init.headers['X-Studio-Namespace'],undefined);
+});

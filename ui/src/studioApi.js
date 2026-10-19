@@ -102,20 +102,20 @@ export class StudioAPI {
   }
 
   async readManagementResource(uri) {
-    if (this.nativeCallTool) return this.nativeCallTool('resource/get', {uri, target: {platform: 'web', formFactor: 'desktop'}}, {
-      headers: {}, send: (url, init) => this.send(url, {...init, credentials: this.identity ? 'omit' : 'include'}),
-    });
-    const response = await this.send(`${this.config.apiBaseURL}/v1/studio/catalog/resource/get`, {
+    const endpoint = this.identity ? `${this.config.mcpBaseURL}/mcp` : `${this.config.apiBaseURL}/v1/studio/sdk-mcp/mcp`;
+    const response = await this.send(endpoint, {
       method: 'POST', credentials: this.identity ? 'omit' : 'include',
-      headers: {'Content-Type': 'application/json', Accept: 'application/json'},
-      body: JSON.stringify({uri, target: {platform: 'web', formFactor: 'desktop'}}),
+      headers: {'Content-Type': 'application/json', Accept: 'application/json', 'Mcp-Method': 'resources/read', 'Mcp-Name': uri, 'Mcp-Protocol-Version': '2026-07-28'},
+      body: JSON.stringify({jsonrpc:'2.0',id:1,method:'resources/read',params:{uri,_meta:{'io.modelcontextprotocol/protocolVersion':'2026-07-28','io.modelcontextprotocol/clientCapabilities':{}}}}),
     });
     const value = await response.json();
-    if (!response.ok) {
+    if (!response.ok || value.error) {
       if (response.status === 401) this.onUnauthorized?.();
-      throw new Error(value?.message || 'Management window could not be loaded.');
+      throw new Error(value?.error?.message || value?.message || 'Management window could not be loaded.');
     }
-    return value;
+    const content = value.result?.contents?.find(item => item.uri === uri && typeof item.text === 'string');
+    if (!content) throw new Error('Management window resource is missing.');
+    return JSON.parse(content.text);
   }
 
   async invoke(operation, input = {}) {

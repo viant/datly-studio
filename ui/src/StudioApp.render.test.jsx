@@ -2,10 +2,12 @@ import React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import {managementResourceFixture} from './managementWindowFixture.js';
 import { StudioApp } from './StudioApp.jsx';
 
 function catalogAPI() {
-  return {
+  const api = {
+    readManagementResource: vi.fn(async()=>managementResourceFixture("connectors")),
     listComponents: vi.fn().mockResolvedValue({ items: [] }),
     listNamespaces: vi.fn().mockResolvedValue({ items: [] }),
     getRuntimeStatus: vi.fn().mockResolvedValue({}),
@@ -15,6 +17,12 @@ function catalogAPI() {
     }),
     disableConnector: vi.fn(),
   };
+  api.invoke=vi.fn((operation,input)=>{
+    if(operation==='connectors.list')return api.listConnectors(input);
+    if(operation==='connectors.disable')return api.disableConnector(input.name,input.etag);
+    throw new Error('Unexpected operation '+operation);
+  });
+  return api;
 }
 
 describe('Studio connector catalog', () => {
@@ -23,7 +31,7 @@ describe('Studio connector catalog', () => {
     const api = catalogAPI();
     try {
       render(<StudioApp api={api} mode="development" subject="owner" />);
-      expect(await screen.findByRole('heading', { name: 'Connectors', level: 1 })).toBeTruthy();
+      expect(await screen.findByRole('button', { name: 'New connector', exact:true })).toBeTruthy();
       await waitFor(() => expect(api.listConnectors).toHaveBeenCalled());
     } finally {
       window.history.replaceState({}, '', '/');
@@ -35,7 +43,7 @@ describe('Studio connector catalog', () => {
     const target = screen.getByRole('button', { name: 'Connectors', exact: true });
     target.focus();
     await user.keyboard('{Enter}');
-    expect(await screen.findByRole('heading', { name: 'Connectors', level: 1 })).toBeTruthy();
+    expect(await screen.findByRole('button', { name: 'New connector', exact:true })).toBeTruthy();
   });
   test('uses one current namespace selector for the component catalog', async () => {
     localStorage.clear();
@@ -108,15 +116,14 @@ describe('Studio connector catalog', () => {
     await user.click(await screen.findByText('Connectors'));
     const selectedNav=screen.getAllByText('Connectors').find((item)=>item.closest('.bp6-tree-node'));
     expect(selectedNav.closest('.bp6-tree-node').className).toContain('bp6-tree-node-selected');
-    const search = await screen.findByRole('textbox', { name: 'Search connectors' });
+    const search = await screen.findByRole('textbox', { name: 'Find connector, driver, or owner' });
     await user.type(search, 'missing');
     await user.click(screen.getByRole('button', { name: 'Search' }));
 
-    expect(await screen.findByRole('heading', { name: 'No matching connectors' })).toBeTruthy();
-    expect(screen.getByText(/Adjust the search or lifecycle filter/i)).toBeTruthy();
-    expect(api.listConnectors).toHaveBeenCalledWith(expect.objectContaining({ query: 'missing', limit: 26, offset: 0 }));
+    await waitFor(()=>expect(screen.queryByText('reporting')).toBeNull());
+    expect(api.listConnectors).toHaveBeenCalledWith(expect.objectContaining({ query: 'missing', limit: 25, offset: 0 }));
 
-    await user.click(screen.getByRole('button', { name: 'Clear connector search' }));
+    await user.clear(search);await user.click(screen.getByRole('button',{name:'Search',exact:true}));
     await waitFor(() => expect(screen.getByText('reporting')).toBeTruthy());
   });
 
@@ -126,10 +133,12 @@ describe('Studio connector catalog', () => {
     render(<StudioApp api={api} mode="development" subject="owner" />);
 
     await user.click(await screen.findByText('Connectors'));
-    await user.selectOptions(await screen.findByRole('combobox', { name: 'Filter connectors by status' }), 'disabled');
+    await user.click(await screen.findByRole('button',{name:'Status',exact:true}));
+    await user.click(await screen.findByText('Disabled',{exact:true}));
+    await user.click(screen.getByRole('button',{name:'Search',exact:true}));
 
-    expect(await screen.findByRole('heading', { name: 'No matching connectors' })).toBeTruthy();
-    expect(api.listConnectors).toHaveBeenCalledWith(expect.objectContaining({ status: 'disabled', limit: 26, offset: 0 }));
+    await waitFor(()=>expect(screen.queryByText('reporting')).toBeNull());
+    expect(api.listConnectors).toHaveBeenCalledWith(expect.objectContaining({ status: 'disabled', limit: 25, offset: 0 }));
   });
 
   test('keeps a stale lifecycle change unapplied and offers catalog refresh', async () => {
@@ -139,14 +148,13 @@ describe('Studio connector catalog', () => {
     render(<StudioApp api={api} mode="development" subject="owner" />);
 
     await user.click(await screen.findByText('Connectors'));
-    await user.click(await screen.findByRole('button', { name: 'Disable connector' }));
+    await screen.findByText('reporting');
+    await user.click(await screen.findByRole('button', { name: 'Disable',exact:true }));
 
-    const warning = await screen.findByRole('alert');
-    expect(warning.textContent).toContain('Connector changed elsewhere');
-    expect(warning.textContent).toContain('No change was applied');
+    await waitFor(()=>expect(screen.getByLabelText('Outcome',{exact:true}).value).toContain('connector etag does not match'));
     expect(api.disableConnector).toHaveBeenCalledWith('reporting', 2);
     const callsBeforeRefresh = api.listConnectors.mock.calls.length;
-    await user.click(screen.getByRole('button', { name: 'Refresh catalog' }));
+    await user.click(screen.getByRole('button', { name: 'Refresh',exact:true }));
     await waitFor(() => expect(api.listConnectors.mock.calls.length).toBeGreaterThan(callsBeforeRefresh));
   });
 });

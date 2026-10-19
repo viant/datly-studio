@@ -1,24 +1,13 @@
 import React,{act} from 'react';
 import {EditorView} from '@codemirror/view';
-import {readFileSync} from 'node:fs';
-import {resolve} from 'node:path';
+import {managementWindowFixture as source} from './managementWindowFixture.js';
 import {test,expect,vi} from 'vitest';
 import {render,screen,waitFor} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import {parse} from 'yaml';
 import WindowContent from '../node_modules/forge/src/components/WindowContent.jsx';
 import {SettingProvider} from '../node_modules/forge/src/core/context/Setting.jsx';
 import '../node_modules/forge/src/packs/blueprint/index.jsx';
-function source(screenName) {
- const base=resolve(process.cwd(),`../internal/managementcatalog/windows/${screenName}/shared`);
- const {window:definition,dataSources}=parse(readFileSync(resolve(base,'main.yaml'),'utf8'));
- definition.namespace='datastudio';definition.actionAliases=['management'];definition.actions={code:readFileSync(resolve(base,'main.js'),'utf8')};
- if(screenName==='connectors') {const behavior=readFileSync(resolve(base,'behavior.js'),'utf8');definition.actions.code=`(() => {${behavior.replace('export default ', '')};return ${definition.actions.code};})()`;}
- const prefix=screenName==='connectors'?'connector':'namespace';
- if(screenName==='components') {for(const operation of ['components.get','components.create','components.update','versions.list','versions.create','versions.clone','versions.inspect','versions.apply','versions.validate','versions.builder','resources.get','resources.upsert_file','preview.execute','publications.get','publications.publish','publications.unpublish','publications.rollback'])dataSources['component_'+operation.replaceAll('.','_')]={id:'component_'+operation.replaceAll('.','_'),backend:{kind:'mcp_tool',method:'studio.sdk.'+operation},cardinality:'object',cache:{enabled:false}};}
- else for(const operation of ['get','create','update',...(screenName==='connectors'?['test','activate','disable','delete']:[])])dataSources[prefix+'_'+operation]={id:prefix+'_'+operation,backend:{kind:'mcp_tool',method:`studio.sdk.${screenName}.${operation}`},cache:{enabled:false},cardinality:'object'};
- definition.dataSource=dataSources;return definition;
-}
+
 for(const [screenName,openButton,nameLabel,titleLabel] of [['connectors','New connector','Name','Description'],['namespaces','New namespace','Namespace','Display title']]) {
  test(`${screenName} window opens an editable Forge dialog and invokes the SDK create operation`,async()=>{
   const metadata=source(screenName),calls=[];
