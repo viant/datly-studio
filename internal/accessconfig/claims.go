@@ -72,6 +72,15 @@ func (p *verifiedIdentity) Resolve(ctx context.Context) (authz.Facts, error) {
 	return principal.Facts, err
 }
 func (p *verifiedIdentity) ResolvePrincipal(ctx context.Context) (gating.Principal, error) {
+	if ctx == nil || ctx.Err() != nil {
+		return gating.Principal{}, authz.ErrDenied
+	}
+	if scope, _ := ctx.Value(identityScopeKey{}).(*identityScope); scope != nil {
+		return scope.resolve(ctx, p)
+	}
+	return p.readPrincipal(ctx)
+}
+func (p *verifiedIdentity) readPrincipal(ctx context.Context) (gating.Principal, error) {
 	claims, err := p.verifier.Verify(ctx)
 	if err != nil {
 		return gating.Principal{}, err
