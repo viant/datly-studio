@@ -34,6 +34,5 @@
   }),
   deleteNamespace:()=>run(async()=>{const form=draft().getFormData();await call('delete',{name:form.name,etag:form.etag});await refresh();}),
   searchNamespaces:()=>run(async()=>{const filter=ds('namespace_filter').getFormData();ds('namespaces').setInputParameters({query:(filter.query||'').trim(),status:filter.status||'',offset:0});await refresh();}),
-  refreshNamespaces:refresh
  };
 })()

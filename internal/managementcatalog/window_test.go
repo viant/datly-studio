@@ -111,3 +111,34 @@ func TestConnectorActionsIncludeCanonicalBehavior(t *testing.T) {
 		}
 	}
 }
+
+func TestConnectorLifecycleUsesForgeMutationCommands(t *testing.T) {
+	definitions, err := managementWindow(Config{Namespace: "datastudio", ProviderIdentity: "studio", MCPService: "admin"}, "connectors")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var envelope types.WindowResourceEnvelope
+	if err = json.Unmarshal(definitions[0].JSON, &envelope); err != nil {
+		t.Fatal(err)
+	}
+	for _, variant := range envelope.Variants {
+		found := 0
+		for _, container := range variant.Window.View.Content.Containers {
+			if container.ID != "connector-list" {
+				continue
+			}
+			for _, item := range container.EditableCollection.Operations {
+				if item.ID != "activate" && item.ID != "disable" {
+					continue
+				}
+				found++
+				if item.Handler != "" || item.Mutation == nil || item.Mutation.DataSourceRef != "connector_"+item.ID || item.Mutation.Payload == nil || len(item.Mutation.Refresh) != 1 {
+					t.Fatalf("%s lost canonical command metadata", item.ID)
+				}
+			}
+		}
+		if found != 2 {
+			t.Fatal("missing lifecycle commands")
+		}
+	}
+}

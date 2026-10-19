@@ -24,7 +24,7 @@ window:
               - {id: new, label: New namespace, icon: add, on: [{event: onClick, handler: management.newNamespace}]}
               - {id: edit, label: Edit namespace, icon: edit, on: [{event: onClick, handler: management.editNamespace}]}
               - {id: delete, label: Delete namespace, icon: trash, on: [{event: onClick, handler: management.confirmDeleteNamespace}]}
-              - {id: refresh, label: Refresh, icon: refresh, on: [{event: onClick, handler: management.refreshNamespaces}]}
+              - {id: refresh, label: Refresh, icon: refresh}
           table:
             columns:
               - {id: title, name: Title}

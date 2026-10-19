@@ -42,19 +42,11 @@
    const result=record(await call('test',{name:row.name}));
    draft().setFormField({item:{dataField:'outcome'},value:result.message||result.status||'Probe completed.'});refresh();
   }),
-  activateConnector: () => run(async () => {
-   const row=selected();if(!row)throw new Error('Select a connector.');
-   const current=await reload(row.name);await call('activate',{name:row.name,etag:current.etag});refresh();
-  }),
   reloadConnector: () => run(async () => {const form=draft().getFormData();const current=await reload(form.name);draft().setFormData({values:{...current,editing:true,dsnTemplate:'',secretURL:'',secretKey:'',options:JSON.stringify(current.options||{},null,2),outcome:'Reloaded current revision.'}});}),
   searchConnectors: () => run(async () => {
    const filter=ds('connector_filter').getFormData();
    ds('connectors').setInputParameters({query:(filter.query||'').trim(),status:filter.status||'',offset:0});
    await refresh();
-  }),
-  disableConnector: () => run(async () => {
-   const row=selected();if(!row)throw new Error('Select a connector.');
-   await call('disable',{name:row.name,etag:row.etag});await refresh();
   }),
   confirmDeleteConnector: () => run(async () => {
    const row=selected();if(!row)throw new Error('Select a connector.');
@@ -65,6 +57,5 @@
   deleteConnector: () => run(async () => {
    const form=draft().getFormData();await call('delete',{name:form.name,etag:form.etag});await refresh();
   }),
-  refreshConnectors: refresh
  };
 })()

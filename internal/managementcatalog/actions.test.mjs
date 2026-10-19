@@ -29,7 +29,6 @@ async function fixture(screen) {
  assert.deepEqual(f.calls.at(-1),{id:'connector_update',parameters:{name:'warehouse',input:{driver:'mysql',description:'',options:{pool:2},etag:8}}});
  f.form={...f.form,clearSecret:true};await f.actions.saveConnector();assert.equal(f.calls.at(-1).parameters.input.secretRef,'');
  await f.actions.testConnector();assert.equal(f.calls.at(-1).id,'connector_test');
- await f.actions.activateConnector();assert.deepEqual(f.calls.at(-1),{id:'connector_activate',parameters:{name:'warehouse',etag:8}});
  f.failures.set('connector_update',new Error('Revision conflict'));
  assert.equal(await f.actions.saveConnector(),false);assert.equal(f.form.outcome,'Revision conflict');
  f.form={...f.form,yamlText:'Driver: mysql\nDriver: sqlite'};assert.equal(await f.actions.applyYAML(),false);
@@ -45,7 +44,7 @@ async function fixture(screen) {
  assert.deepEqual(f.calls.at(-1),{id:'namespace_update',parameters:{name:'inventory',input:{title:'Inventory',description:'',visibility:'private',allowedRoles:['editors'],mcpEnabled:true,mcpPort:8097,status:'active',etag:13}}});
  f.failures.set('namespace_update',new Error('Forbidden'));assert.equal(await f.actions.saveNamespace(),false);assert.equal(f.form.outcome,'Forbidden');
 }
-console.log('functional management actions: exact MCP inputs, secret omission/removal, YAML, etags, test/activate, dynamic port, conflict and denial passed');
+console.log('functional management actions: exact MCP inputs, secret omission/removal, YAML, etags, probe, dynamic port, conflict and denial passed');
 
 {
  const f=await fixture('components'), namespaceId='a'.repeat(64);

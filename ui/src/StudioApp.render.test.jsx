@@ -156,10 +156,10 @@ describe('Studio connector catalog', () => {
     await screen.findByText('reporting');
     await user.click(await screen.findByRole('button', { name: 'Disable',exact:true }));
 
-    await waitFor(()=>expect(screen.getByLabelText('Outcome',{exact:true}).value).toContain('connector etag does not match'));
+    expect(await screen.findByText('connector etag does not match')).toBeTruthy();
     expect(api.disableConnector).toHaveBeenCalledWith('reporting', 2);
     const callsBeforeRefresh = api.listConnectors.mock.calls.length;
-    await user.click(screen.getByRole('button', { name: 'Refresh',exact:true }));
+    await user.click(screen.getByRole('button', { name: 'Refresh data',exact:true }));
     await waitFor(() => expect(api.listConnectors.mock.calls.length).toBeGreaterThan(callsBeforeRefresh));
   });
 });
