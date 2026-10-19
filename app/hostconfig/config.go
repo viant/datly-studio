@@ -21,6 +21,8 @@ import (
 // listener for database-discovered publications. Embedders register extensions
 // through Go APIs, not executable code or namespace lists in this document.
 type Login struct {
+	// ClientConfig loads the complete OAuth client through SCY, without plaintext files.
+	ClientConfig     *scy.Resource
 	AuthorizationURL string
 	TokenURL         string
 	ClientID         string

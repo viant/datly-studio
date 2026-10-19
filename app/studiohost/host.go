@@ -263,17 +263,13 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	browser.Const = config.Const
 	browser.RuntimeControl = control
 	if config.Login != nil {
-		login := config.Login
-		secret := ""
-		if login.ClientSecret != nil {
-			value, err := scy.New().Load(ctx, login.ClientSecret)
-			if err != nil {
-				return errors.New("Studio OAuth client secret could not be loaded")
-			}
-			secret = strings.TrimSpace(value.String())
+		login, err := config.Login.Resolve(ctx)
+		if err != nil {
+			return err
 		}
-		browser.Login = &studioapi.Login{AuthorizationURL: login.AuthorizationURL, TokenURL: login.TokenURL, ClientID: login.ClientID, ClientSecret: secret, RedirectURL: origin + "/v1/studio/auth/callback", Scopes: login.Scopes}
+		browser.Login = &studioapi.Login{AuthorizationURL: login.Endpoint.AuthURL, TokenURL: login.Endpoint.TokenURL, ClientID: login.ClientID, ClientSecret: login.ClientSecret, RedirectURL: origin + "/v1/studio/auth/callback", Scopes: login.Scopes}
 	}
+
 	if options.ConfigureBrowser != nil {
 		if err := options.ConfigureBrowser(&browser, endpoints, group); err != nil {
 			return err

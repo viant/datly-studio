@@ -212,3 +212,18 @@ validation/preview and dynamic published readers share this resolution mechanism
 The emulator option requires the supporting BigQuery driver revision; it is not a
 SQL dialect adapter. Real BigQuery connectors omit that option and use normal
 credentials.
+
+To load a complete encrypted OAuth client without producing a plaintext secret
+file, use the shared SCY resource contract:
+
+```yaml
+Login:
+  ClientConfig:
+    URL: /path/to/idp-client.enc
+    Key: blowfish://default
+```
+
+`ClientConfig` contains SCY's OAuth2 client configuration. It is resolved only in
+server memory. Do not combine it with individual Login fields; ambiguous input is
+rejected. The host still owns the callback URL for its public origin and validates
+login endpoints through the existing browser authentication service.
