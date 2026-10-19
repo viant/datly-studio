@@ -22,7 +22,7 @@ func TestNamespaceWindowPortableContract(t *testing.T) {
 			for _, definition := range definitions {
 				byURI[definition.URI] = definition
 			}
-			if len(definitions) != 42 || definitions[1].URI != "window://"+namespace+"/namespaces" {
+			if len(definitions) != 44 || definitions[1].URI != "window://"+namespace+"/namespaces" {
 				t.Fatalf("unexpected resource count: %d", len(definitions))
 			}
 			var envelope types.WindowResourceEnvelope
@@ -64,7 +64,7 @@ func TestNamespaceWindowPortableContract(t *testing.T) {
 				if ref.Resource.URI != "datasource://"+namespace+"/namespaces" || ref.ProviderIdentity != config.ProviderIdentity || ref.ContentFingerprint != identity.ContentFingerprint(byURI["datasource://"+namespace+"/namespaces"].JSON) {
 					t.Fatal("window does not bind the exact reusable datasource")
 				}
-				if variant.Window.Namespace != namespace || variant.Window.View.Content.DataSourceRef != "namespaces" || len(variant.Window.View.Content.Table.Columns) != 5 {
+				if variant.Window.Namespace != namespace || len(variant.Window.View.Content.Containers) != 2 {
 					t.Fatal("window lost its namespace or table definition")
 				}
 			}

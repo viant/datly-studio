@@ -4,22 +4,43 @@ window:
     content:
       id: namespaces
       className: studio-workspace
-      kind: table
-      title: Namespaces
-      dataSourceRef: namespaces
-      toolbar:
-        items:
-          - {id: new, label: New namespace, icon: add, on: [{event: onClick, handler: management.newNamespace}]}
-          - {id: edit, label: Edit namespace, icon: edit, on: [{event: onClick, handler: management.editNamespace}]}
-          - {id: refresh, label: Refresh, icon: refresh, on: [{event: onClick, handler: management.refreshNamespaces}]}
-      table:
-        columns:
-          - {id: title, name: Title}
-          - {id: name, name: Namespace}
-          - {id: status, name: Status}
-          - {id: visibility, name: Visibility}
-          - {id: mcpEnabled, name: MCP enabled}
+      containers:
+        - id: namespace-search
+          dataSourceRef: namespace_filter
+          items:
+            - {id: query, label: Find namespace, dataField: query, type: text}
+            - {id: status, label: Lifecycle, dataField: status, type: select, options: [{value: '', label: All states}, {value: active, label: Active}, {value: disabled, label: Disabled}]}
+            - {id: search, label: Search, type: button, on: [{event: onClick, handler: management.searchNamespaces}]}
+        - id: namespace-list
+          kind: table
+          title: Namespaces
+          dataSourceRef: namespaces
+          toolbar:
+            items:
+              - {id: new, label: New namespace, icon: add, on: [{event: onClick, handler: management.newNamespace}]}
+              - {id: edit, label: Edit namespace, icon: edit, on: [{event: onClick, handler: management.editNamespace}]}
+              - {id: delete, label: Delete namespace, icon: trash, on: [{event: onClick, handler: management.confirmDeleteNamespace}]}
+              - {id: refresh, label: Refresh, icon: refresh, on: [{event: onClick, handler: management.refreshNamespaces}]}
+          table:
+            columns:
+              - {id: title, name: Title}
+              - {id: name, name: Namespace}
+              - {id: status, name: Status}
+              - {id: visibility, name: Visibility}
+              - {id: mcpEnabled, name: MCP enabled}
   dialogs:
+    - id: namespace-delete
+      title: Delete namespace
+      dataSourceRef: namespace_draft
+      fetchOnOpen: false
+      content:
+        id: namespace-delete-confirmation
+        items:
+          - {id: name, label: Namespace to delete, dataField: name, type: text, readOnly: true}
+          - {id: outcome, label: Outcome, dataField: outcome, type: textarea, readOnly: true}
+      actions:
+        - {id: delete, label: Confirm deletion, close: true, on: [{event: onClick, handler: management.deleteNamespace}]}
+        - {id: cancel, label: Cancel, close: true}
     - id: namespace-editor
       title: Namespace settings
       className: studio-connector-dialog
@@ -42,6 +63,11 @@ window:
         - {id: save, label: Save, close: true, on: [{event: onClick, handler: management.saveNamespace}]}
         - {id: cancel, label: Cancel, close: true}
 dataSources:
+  namespace_filter:
+    id: namespace_filter
+    cardinality: object
+    backend: {kind: inline, rows: []}
+    cache: {enabled: false}
   namespaces:
     id: namespaces
     cardinality: collection

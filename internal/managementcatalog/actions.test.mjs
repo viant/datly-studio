@@ -77,3 +77,16 @@ console.log('functional management actions: exact MCP inputs, secret omission/re
  await f.actions.openFile({item:file});assert.equal(await f.actions.saveFile(),false);assert.equal(f.form.outcome,'Source revision conflict');
 }
 console.log('component controller: selected namespace, source/file CAS, typed operation inputs, validation, preview, publication and conflict passed');
+{
+ const f=await fixture('namespaces');
+ f.actions.newNamespace();f.form={...f.form,name:'inventory',title:'Inventory',allowedRoles:'["editor","editor"]',mcpEnabled:true,mcpPort:70000};
+ assert.equal(await f.actions.saveNamespace(),false);assert.equal(f.calls.length,0);
+ f.form={...f.form,mcpPort:0};assert.equal(await f.actions.saveNamespace(),true);
+ assert.deepEqual(f.calls[0].parameters.allowedRoles,['editor']);
+ f.form={...f.form,editing:true,canManage:false,etag:2};
+ const before=f.calls.length;assert.equal(await f.actions.saveNamespace(),false);assert.equal(f.calls.length,before);
+ f.selected={name:'inventory',etag:3,canManage:true};
+ assert.equal(await f.actions.confirmDeleteNamespace(),true);assert.equal(f.calls.length,before);
+ assert.equal(await f.actions.deleteNamespace(),true);assert.deepEqual(f.calls.at(-1),{id:'namespace_delete',parameters:{name:'inventory',etag:3}});
+}
+console.log('namespace port validation, role normalization, read-only state, confirmed CAS deletion passed');
