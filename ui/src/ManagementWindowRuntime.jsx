@@ -7,7 +7,7 @@ import {managementWindowMetadata, managementWindowTransport} from './managementW
 
 // The shell owns loading and connection context only. Layout and all screen
 // actions are supplied by the same resource returned to remote Forge hosts.
-export default function ManagementWindowRuntime({api, uri, instanceKey = uri, onOperationCompleted}) {
+export default function ManagementWindowRuntime({api, uri, instanceKey = uri, parameters, onOperationCompleted}) {
   const mountId = useId();
   const windowId = `${instanceKey}:${mountId}`;
   const [state, setState] = useState({});
@@ -24,5 +24,5 @@ export default function ManagementWindowRuntime({api, uri, instanceKey = uri, on
   const services = useMemo(() => state.metadata ? {dataConnectorTransport: managementWindowTransport(api, state.metadata, onOperationCompleted)} : {}, [api, state.metadata, onOperationCompleted]);
   if (state.error) return <Callout intent="danger" title="Unable to open this window">{state.error.message} <Button onClick={() => setAttempt(value => value + 1)}>Retry</Button></Callout>;
   if (!state.metadata) return <Spinner aria-label="Loading window" size={24}/>;
-  return <SettingProvider connectorConfig={{window: {service: {uri}}}} services={services}><WindowContent key={windowId} window={{windowId, windowKey: state.metadata.windowKey}} selectedMetadata={state.metadata}/></SettingProvider>;
+  return <SettingProvider connectorConfig={{window: {service: {uri}}}} services={services}><WindowContent key={windowId} window={{windowId, windowKey: state.metadata.windowKey, parameters}} selectedMetadata={state.metadata}/></SettingProvider>;
 }

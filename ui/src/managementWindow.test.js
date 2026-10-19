@@ -26,3 +26,11 @@ test('uses the native MCP adapter when configured, with no HTTP fallback',async(
  await transport({dataSourceRef:'rows'});
  assert.deepEqual(calls,[[null,'connectors.list',{}]]);
 });
+
+test('a host adapter invokes its own catalog tool without changing the shared definition',async()=>{
+ const metadata=managementWindowMetadata(envelope);metadata.dataSource.rows={...source,backend:{kind:'mcp_tool',method:'resources/list',service:'mcp://example/catalog'}};
+ const calls=[];const api={invokeManagementTool:async(...args)=>{calls.push(args);return {resources:[]};},invoke:()=>{throw new Error('SDK fallback is forbidden');}};
+ const transport=managementWindowTransport(api,metadata);
+ await transport({dataSourceRef:'rows',options:{inputParameters:{namespace:'example',kind:'style'}}});
+ assert.deepEqual(calls,[['resources/list',{namespace:'example',kind:'style'},{signal:undefined}]]);
+});

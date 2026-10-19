@@ -19,7 +19,13 @@ export function managementWindowTransport(api, metadata, onOperationCompleted) {
     if (!source) throw new Error('Unknown management datasource.');
     if (source.backend?.kind === 'inline') return {data: source.backend.rows || []};
     const method = source.backend?.method;
-    if (source.backend?.kind !== 'mcp_tool' || !method?.startsWith('studio.sdk.')) throw new Error('Unsupported management datasource operation.');
+    if (source.backend?.kind !== 'mcp_tool' || typeof method !== 'string' || !method) throw new Error('Unsupported management datasource operation.');
+    if (typeof api.invokeManagementTool === 'function') {
+      const result = await api.invokeManagementTool(method, options.inputParameters || {}, {signal: options.signal});
+      await onOperationCompleted?.(method);
+      return result;
+    }
+    if (!method.startsWith('studio.sdk.')) throw new Error('This host has no adapter for the management tool.');
     // Only the host-selected Studio SDK receives requests; a window cannot
     // replace its endpoint or the signed-in identity.
     const operation = method.slice('studio.sdk.'.length);
