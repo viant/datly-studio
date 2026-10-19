@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	xcodec "github.com/viant/xdatly/codec"
+	"log/slog"
 	"net"
 	"net/http"
 	"path"
@@ -205,6 +206,11 @@ func (s *Service) extendNamespaceBuild(ctx context.Context, build *application.B
 }
 
 func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Catalog, definitions []definition, inspect ...func(definition, *registry.RegisteredComponent, *studiors.Loaded) error) (_ *application.Build, err error) {
+	started := time.Now()
+	defer func() {
+		slog.InfoContext(ctx, "Studio namespace compilation", "namespaceId", s.config.NamespaceID, "components", len(definitions), "elapsedMs", float64(time.Since(started))/float64(time.Millisecond), "failed", err != nil)
+	}()
+
 	types, err := seed.Clone()
 	if err != nil {
 		return nil, err
@@ -243,6 +249,7 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 		return nil, err
 	}
 	for _, definition := range definitions {
+		componentStarted := time.Now()
 		sources, openErr := pooled.sources(ctx, definition.connector)
 		if openErr != nil {
 			err = openErr
@@ -258,6 +265,7 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 		} else {
 			contract, compileErr = compiler.RuntimeContracts(ctx, s.config.RootDir, source)
 		}
+		contractFinished := time.Now()
 		if compileErr != nil {
 			err = fmt.Errorf("compile dynamic report %s: %w", definition.reportID, compileErr)
 			return nil, err
@@ -275,6 +283,7 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 			err = buildErr
 			return nil, err
 		}
+		artifactsFinished := time.Now()
 		compiledRegistrations, registerErr := compilation.RuntimeComponents(ctx, report.RuntimeConfigureFunc(func(_ context.Context, artifact *report.ComponentArtifact) (report.RuntimeCapabilities, error) {
 			if artifact.IsReport() {
 				return report.RuntimeCapabilities{}, nil
@@ -289,6 +298,10 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 			err = registerErr
 			return nil, err
 		}
+		slog.InfoContext(ctx, "Studio component compilation", "namespaceId", s.config.NamespaceID, "componentId", definition.reportID,
+			"contractMs", float64(contractFinished.Sub(componentStarted))/float64(time.Millisecond),
+			"artifactsMs", float64(artifactsFinished.Sub(contractFinished))/float64(time.Millisecond),
+			"runtimeMs", float64(time.Since(artifactsFinished))/float64(time.Millisecond))
 		registrations = append(registrations, compiledRegistrations...)
 		for _, registered := range compiledRegistrations {
 			for _, capture := range inspect {
