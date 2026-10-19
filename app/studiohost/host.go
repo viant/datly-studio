@@ -357,8 +357,23 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		return <-browserDone
 	}
 	// Private modules have bound their in-process dependencies at browser readiness.
-	if _, err := group.Reconcile(ctx); err != nil {
-		return err
+	if changes, err := group.Reconcile(ctx); err != nil {
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+		isolated := false
+		for _, change := range changes {
+			if change.Status == "failed" && change.NamespaceID != "" {
+				isolated = true
+				break
+			}
+		}
+		// No per-namespace results means the persisted snapshot or global
+		// discovery failed. Keep that terminal; only individual restores retry.
+		if !isolated {
+			return err
+		}
+		fmt.Fprintln(options.Diagnostics, "namespace reconciliation:", err)
 	}
 	namespaceDone := make(chan error, 1)
 	go func() {
