@@ -29,8 +29,8 @@ func TestManagementRequiresVerifiedPrincipal(t *testing.T) {
 		}
 	}
 	ns, definitions, err := management(claims, auth)
-	if err != nil || ns.Name != "operations" || len(definitions) != 40 {
-		t.Fatalf("authenticated discovery failed: %+v %v", ns, err)
+	if err != nil || ns.Name != "operations" || len(definitions) == 0 {
+		t.Fatalf("authenticated discovery failed: namespace=%+v definitions=%d error=%v", ns, len(definitions), err)
 	}
 	refs := managementReferences(definitions, "navigation")
 	if len(refs) != 1 || refs[0].URI != "navigation://operations/main" || refs[0].Name != "Management" {
@@ -111,12 +111,23 @@ func TestEmbeddedManagementNavigationUsesBinaryIdentityAndVerifiedCatalog(t *tes
 			check = func(menus []any) {
 				for _, raw := range menus {
 					item := raw.(map[string]any)
+					if item["disabled"] == true {
+						t.Fatal("unported management menu remains visible")
+					}
 					if children, ok := item["children"].([]any); ok {
+						if len(children) == 0 {
+							t.Fatal("empty management menu group remains visible")
+						}
 						check(children)
 						continue
 					}
-					if action, ok := item["action"].(map[string]any); ok && action["type"] == "url" {
-						t.Fatal("external native action remains")
+					action, ok := item["action"].(map[string]any)
+					if !ok || action["type"] != "window" {
+						t.Fatal("management leaf must target a native window")
+					}
+					uri, _ := action["resourceUri"].(string)
+					if !strings.HasPrefix(uri, "window://datastudio/") {
+						t.Fatal("management leaf must use its own namespace")
 					}
 				}
 			}

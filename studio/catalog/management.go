@@ -71,16 +71,22 @@ func management(claims *jwt.Claims, auth *studioauth.Output) (*Namespace, []mana
 			if err := json.Unmarshal(definition.JSON, &app); err != nil {
 				return nil, nil, err
 			}
-			var bind func([]any)
-			bind = func(menus []any) {
+			var bind func([]any) []any
+			bind = func(menus []any) []any {
+				visible := make([]any, 0, len(menus))
 				for _, raw := range menus {
 					menu, ok := raw.(map[string]any)
 					if !ok {
 						continue
 					}
 					if children, ok := menu["children"].([]any); ok && len(children) > 0 {
+						children = bind(children)
+						if len(children) == 0 {
+							continue
+						}
+						menu["children"] = children
 						delete(menu, "action")
-						bind(children)
+						visible = append(visible, menu)
 						continue
 					}
 					section, _ := menu["section"].(string)
@@ -90,13 +96,11 @@ func management(claims *jwt.Claims, auth *studioauth.Output) (*Namespace, []mana
 					uri := "window://" + id + "/" + section
 					if _, exists := byURI[uri]; exists {
 						menu["action"] = map[string]any{"type": "window", "resourceUri": uri}
-					} else if action, ok := menu["action"].(map[string]any); ok && action["type"] == "url" {
-						// Unported screens remain explicit pending items. They must
-						// not open a separate native application from this workspace.
-						delete(menu, "action")
-						menu["disabled"] = true
+						delete(menu, "disabled")
+						visible = append(visible, menu)
 					}
 				}
+				return visible
 			}
 			applications, _ := app["applications"].([]any)
 			for _, raw := range applications {
@@ -115,7 +119,7 @@ func management(claims *jwt.Claims, auth *studioauth.Output) (*Namespace, []mana
 					application["styleResources"] = styles
 				}
 				if menus, ok := application["menus"].([]any); ok {
-					bind(menus)
+					application["menus"] = bind(menus)
 				}
 			}
 			definition.JSON, _ = json.Marshal(app)
