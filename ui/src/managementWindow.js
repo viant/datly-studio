@@ -13,7 +13,7 @@ export function managementWindowMetadata(envelope, target = {platform: 'web', fo
   }))};
 }
 
-export function managementWindowTransport(api, metadata) {
+export function managementWindowTransport(api, metadata, onOperationCompleted) {
   return async ({dataSourceRef, options = {}}) => {
     const source = metadata.dataSource[dataSourceRef];
     if (!source) throw new Error('Unknown management datasource.');
@@ -23,6 +23,8 @@ export function managementWindowTransport(api, metadata) {
     // Only the host-selected Studio SDK receives requests; a window cannot
     // replace its endpoint or the signed-in identity.
     const operation = method.slice('studio.sdk.'.length);
-    return api.nativeCallTool ? api.nativeRequest(null, operation, options.inputParameters || {}) : api.invoke(operation, options.inputParameters || {});
+    const result = await (api.nativeCallTool ? api.nativeRequest(null, operation, options.inputParameters || {}) : api.invoke(operation, options.inputParameters || {}));
+    await onOperationCompleted?.(operation);
+    return result;
   };
 }

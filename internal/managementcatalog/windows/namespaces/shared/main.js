@@ -4,7 +4,7 @@
  const call=(operation,parameters)=>ds('namespace_'+operation).fetchRecords({parameters});
  const record=result=>{const value=result?.rows??result?.data??result;return Array.isArray(value)?value[0]:value;};
  let busy=false;
- const run=async fn=>{if(busy)return false;busy=true;try{await fn();return true;}catch(error){draft().setFormField({item:{dataField:'outcome'},value:error.message});return false;}finally{busy=false;}};
+ const run=async fn=>{if(busy)return false;busy=true;draft().setFormField({item:{dataField:"pending"},value:true});try{await fn();return true;}catch(error){draft().setFormField({item:{dataField:'outcome'},value:error.message});return false;}finally{busy=false;draft().setFormField({item:{dataField:"pending"},value:false});}};
  const refresh=()=>ds('namespaces').fetchCollection();
  const open=values=>{draft().setFormData({values});context.handlers.window.openDialog({execution:{args:['namespace-editor']}});};
  const edit=current=>open({...current,editing:true,allowedRoles:JSON.stringify(current.allowedRoles||[]),mcpPort:current.mcpPort??0,outcome:''});

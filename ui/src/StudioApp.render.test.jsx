@@ -7,7 +7,7 @@ import { StudioApp } from './StudioApp.jsx';
 
 function catalogAPI() {
   const api = {
-    readManagementResource: vi.fn(async()=>managementResourceFixture("connectors")),
+    readManagementResource: vi.fn(async(uri)=>managementResourceFixture(uri.split("/").at(-1))),
     listComponents: vi.fn().mockResolvedValue({ items: [] }),
     listNamespaces: vi.fn().mockResolvedValue({ items: [] }),
     getRuntimeStatus: vi.fn().mockResolvedValue({}),
@@ -18,6 +18,9 @@ function catalogAPI() {
     disableConnector: vi.fn(),
   };
   api.invoke=vi.fn((operation,input)=>{
+    if(operation==='namespaces.list')return api.listNamespaces(input);
+    if(operation==='namespaces.delete')return api.deleteNamespace(input.name,input.etag);
+    if(operation==='namespaces.get')return api.listNamespaces().then(page=>page.items.find(item=>item.name===input.name));
     if(operation==='connectors.list')return api.listConnectors(input);
     if(operation==='connectors.disable')return api.disableConnector(input.name,input.etag);
     throw new Error('Unexpected operation '+operation);
@@ -73,14 +76,14 @@ describe('Studio connector catalog', () => {
     api.listNamespaces.mockResolvedValue({ items: [{ name: 'owned', title: 'Owned', ownerId: 'owner', status: 'active', canManage: true, etag: 3 }] });
     render(<StudioApp api={api} mode="development" subject="owner" />);
     await user.click(await screen.findByText('Namespaces'));
-    await user.click(await screen.findByRole('button', { name: 'Delete owned' }));
-    await user.click(await screen.findByRole('button', { name: 'Delete namespace' }));
+    await user.click(await screen.findByRole('button', { name: 'Delete namespace',exact:true }));
+    await user.click(await screen.findByRole('button', { name: 'Confirm deletion' }));
     await user.keyboard('{Escape}');
-    expect(screen.getByRole('button', { name: 'Delete namespace' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Confirm deletion' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Cancel' }).disabled).toBe(true);
     expect(api.deleteNamespace).toHaveBeenCalledTimes(1);
     finish();
-    await waitFor(() => expect(screen.queryByRole('button', { name: 'Delete namespace' })).toBeNull());
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Confirm deletion' })).toBeNull());
   });
   test('shows view-only namespace actions for viewers and management actions for owners', async () => {
     const user = userEvent.setup();
@@ -91,13 +94,12 @@ describe('Studio connector catalog', () => {
     ] });
     render(<StudioApp api={api} mode="development" subject="owner" />);
     await user.click(await screen.findByText('Namespaces'));
-    expect(await screen.findByRole('button', { name: 'View shared' })).toBeTruthy();
-    expect(screen.queryByRole('button', { name: 'Delete shared' })).toBeNull();
-    expect(screen.getByRole('button', { name: 'Edit owned' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Delete owned' })).toBeTruthy();
-    await user.click(screen.getByRole('button', { name: 'View shared' }));
-    expect(await screen.findByRole('dialog', { name: 'Namespace · shared' })).toBeTruthy();
-    expect(screen.queryByRole('button', { name: 'Save namespace' })).toBeNull();
+    const row=await screen.findByText('Shared');
+    if(!row.closest('tr').classList.contains('selected-row'))await user.click(row);
+    await user.click(screen.getByRole('button',{name:'Edit namespace',exact:true}));
+    expect(await screen.findByRole('dialog',{name:'Namespace settings'})).toBeTruthy();
+    expect(screen.queryByRole('button',{name:'Save',exact:true})).toBeNull();
+    expect(screen.getByLabelText('Display title',{exact:true}).readOnly).toBe(true);
   });
   test('offers authenticated sign-out and preserves a retry on revocation failure', async () => {
     const user=userEvent.setup();

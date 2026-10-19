@@ -9,8 +9,12 @@ window:
           dataSourceRef: namespace_filter
           items:
             - {id: query, label: Find namespace, dataField: query, type: text}
-            - {id: status, label: Lifecycle, dataField: status, type: select, options: [{value: '', label: All states}, {value: active, label: Active}, {value: disabled, label: Disabled}]}
+            - {id: status, label: Lifecycle, dataField: status, readOnlyWhen: {selector: canManage, equals: false}, type: select, options: [{value: '', label: All states}, {value: active, label: Active}, {value: archived, label: Archived}]}
             - {id: search, label: Search, type: button, on: [{event: onClick, handler: management.searchNamespaces}]}
+        - id: namespace-outcome
+          dataSourceRef: namespace_draft
+          items:
+            - {id: outcome, label: Outcome, dataField: outcome, type: textarea, readOnly: true}
         - id: namespace-list
           kind: table
           title: Namespaces
@@ -33,35 +37,37 @@ window:
       title: Delete namespace
       dataSourceRef: namespace_draft
       fetchOnOpen: false
+      properties: {closeDisabledWhen: {selector: pending, equals: true}}
       content:
         id: namespace-delete-confirmation
         items:
           - {id: name, label: Namespace to delete, dataField: name, type: text, readOnly: true}
           - {id: outcome, label: Outcome, dataField: outcome, type: textarea, readOnly: true}
       actions:
-        - {id: delete, label: Confirm deletion, close: true, on: [{event: onClick, handler: management.deleteNamespace}]}
-        - {id: cancel, label: Cancel, close: true}
+        - {id: delete, label: Confirm deletion, close: true, disabledWhen: {selector: pending, equals: true}, on: [{event: onClick, handler: management.deleteNamespace}]}
+        - {id: cancel, label: Cancel, close: true, disabledWhen: {selector: pending, equals: true}}
     - id: namespace-editor
       title: Namespace settings
       className: studio-connector-dialog
       dataSourceRef: namespace_draft
       fetchOnOpen: false
+      properties: {closeDisabledWhen: {selector: pending, equals: true}}
       content:
         id: namespace-form
         items:
           - {id: name, label: Namespace, dataField: name, type: text, readOnlyWhen: {selector: editing, when: true}}
-          - {id: title, label: Display title, dataField: title, type: text}
-          - {id: description, label: Description, dataField: description, type: textarea}
-          - {id: visibility, label: Visibility, dataField: visibility, type: select, options: [{value: private, label: Private}, {value: public, label: Public}]}
-          - {id: allowedRoles, label: Viewer roles (JSON array), dataField: allowedRoles, type: textarea}
-          - {id: status, label: Status, dataField: status, type: select, options: [{value: active, label: Active}, {value: disabled, label: Disabled}]}
-          - {id: mcpEnabled, label: Expose MCP, dataField: mcpEnabled, type: checkbox}
-          - {id: mcpPort, label: MCP port (0 selects automatically), dataField: mcpPort, type: number}
+          - {id: title, label: Display title, dataField: title, readOnlyWhen: {selector: canManage, equals: false}, type: text}
+          - {id: description, label: Description, dataField: description, readOnlyWhen: {selector: canManage, equals: false}, type: textarea}
+          - {id: visibility, label: Visibility, dataField: visibility, readOnlyWhen: {selector: canManage, equals: false}, type: select, options: [{value: private, label: Private}, {value: public, label: Public}]}
+          - {id: allowedRoles, label: Viewer roles (JSON array), dataField: allowedRoles, readOnlyWhen: {selector: canManage, equals: false}, type: textarea}
+          - {id: status, label: Status, dataField: status, readOnlyWhen: {selector: canManage, equals: false}, type: select, options: [{value: active, label: Active}, {value: archived, label: Archived}]}
+          - {id: mcpEnabled, label: Expose MCP, dataField: mcpEnabled, readOnlyWhen: {selector: canManage, equals: false}, type: checkbox}
+          - {id: mcpPort, label: MCP port (0 selects automatically), dataField: mcpPort, readOnlyWhen: {selector: canManage, equals: false}, type: number}
           - {id: outcome, label: Outcome, dataField: outcome, type: textarea, readOnly: true}
       actions:
         - {id: reload, label: Reload saved revision, on: [{event: onClick, handler: management.reloadNamespace}]}
-        - {id: save, label: Save, close: true, on: [{event: onClick, handler: management.saveNamespace}]}
-        - {id: cancel, label: Cancel, close: true}
+        - {id: save, label: Save, close: true, visibleWhen: {selector: canManage, notEquals: false}, disabledWhen: {selector: pending, equals: true}, on: [{event: onClick, handler: management.saveNamespace}]}
+        - {id: cancel, label: Cancel, close: true, disabledWhen: {selector: pending, equals: true}}
 dataSources:
   namespace_filter:
     id: namespace_filter

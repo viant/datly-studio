@@ -2,9 +2,8 @@ import { ModuleLoadBoundary } from './ModuleLoadBoundary.jsx';
 import nativeNavigation from './nativeNavigation.json' with {type:'json'};
 import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { ForgeThemeBoundary, ForgeThemeProvider } from 'forge/theme';
-import { Alert, Button, ButtonGroup, Callout, Card, HTMLSelect, HTMLTable, InputGroup, Navbar, Spinner, Tag, Tree } from '@blueprintjs/core';
+import { Button, ButtonGroup, Callout, Card, HTMLSelect, HTMLTable, InputGroup, Navbar, Spinner, Tag, Tree } from '@blueprintjs/core';
 import { ManagementWindow } from './ManagementWindow.jsx';
-import { NamespaceDialog } from './NamespaceDialog.jsx';
 import { OverviewWorkspace } from './OverviewWorkspace.jsx';
 import { ReportDialog } from './ReportDialog.jsx';
 import { SkillsWorkspace } from './SkillsWorkspace.jsx';
@@ -26,13 +25,6 @@ const reportColumns = [
   { label: 'Updated', key: 'updatedAt', hideNarrow: true },
 ];
 
-const namespaceColumns = [
-  { label: 'Title', key: 'title' },
-  { label: 'Namespace', key: 'name' },
-  { label: 'Status', key: 'status' },
-  { label: 'Updated', key: 'updatedAt', hideNarrow: true },
-];
-
 const noExtensions = [];
 
 // StudioApp is intentionally only a Forge composition. Its data boundary is
@@ -45,17 +37,12 @@ export function StudioApp({ api, mode, subject, brand = 'Data Studio', extension
   const [runtime, setRuntime] = useState(null);
   const [overview, setOverview] = useState(null);
   const [error, setError] = useState('');
-  const [namespaceConflict, setNamespaceConflict] = useState(false);
   const [loading, setLoading] = useState(true);
   const [signingOut, setSigningOut] = useState(false);
   const [signOutError, setSignOutError] = useState('');
   const [navigationOpen, setNavigationOpen] = useState(() => typeof window === 'undefined' || !window.matchMedia?.('(max-width: 720px)').matches);
   const [navigationQuery, setNavigationQuery] = useState('');
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
-  const [namespaceDialogOpen, setNamespaceDialogOpen] = useState(false);
-  const [editingNamespace, setEditingNamespace] = useState(null);
-  const [pendingNamespaceDelete, setPendingNamespaceDelete] = useState(null);
-  const [deletingNamespace, setDeletingNamespace] = useState(false);
   const [builderReport, setBuilderReport] = useState(null);
   const [openBuilderResources, setOpenBuilderResources] = useState(false);
   const [builderResourceAction, setBuilderResourceAction] = useState('');
@@ -66,13 +53,7 @@ export function StudioApp({ api, mode, subject, brand = 'Data Studio', extension
   const [reportOffset, setReportOffset] = useState(0);
   const [reportHasNext, setReportHasNext] = useState(false);
   const reportPageSize = 25;
-  const [namespaceSearch, setNamespaceSearch] = useState('');
-  const [namespaceQuery, setNamespaceQuery] = useState('');
-  const [namespaceStatus, setNamespaceStatus] = useState('');
-  const [namespaceOffset, setNamespaceOffset] = useState(0);
-  const [namespaceHasNext, setNamespaceHasNext] = useState(false);
-  const namespacePageSize = 25;
-  const namespaceWorkspace = useNamespaceWorkspace(api, subject, skillEditing || section === 'builder' || section === 'security' || extensions.some((item) => item.id === section) || section === 'connectors' || namespaceDialogOpen || reportDialogOpen || deletingNamespace);
+  const namespaceWorkspace = useNamespaceWorkspace(api, subject, skillEditing || section === 'builder' || section === 'security' || extensions.some((item) => item.id === section) || section === 'connectors' || section === 'namespaces' || reportDialogOpen);
   const currentNamespaceId = namespaceWorkspace.current?.namespaceId;
   const namespaceChanging = namespaceWorkspace.enabled && !namespaceWorkspace.ready;
   useEffect(() => {
@@ -85,15 +66,15 @@ export function StudioApp({ api, mode, subject, brand = 'Data Studio', extension
 
   const loadSection = useCallback(() => {
     if (namespaceWorkspace.enabled && (!namespaceWorkspace.ready || !currentNamespaceId) && !['namespaces', 'connectors', 'schema'].includes(section)) { setLoading(false); return () => {}; }
-    if (section === 'connectors' || section === 'skills' || section === 'builder' || section === 'schema' || section === 'security' || extensions.some((extension) => extension.id === section)) { setLoading(false); return () => {}; }
+    if (section === 'connectors' || section === 'namespaces' || section === 'skills' || section === 'builder' || section === 'schema' || section === 'security' || extensions.some((extension) => extension.id === section)) { setLoading(false); return () => {}; }
     let cancelled = false;
-    setError(''); setNamespaceConflict(false);
+    setError('');
     setLoading(true);
     const request = section === 'overview'
       ? Promise.allSettled([api.listComponents({ limit: 6 }), api.listConnectors({ limit: 100 }), api.listNamespaces({ limit: 500 }), api.getRuntimeStatus()]).then(overviewFromSettled)
       : section === 'components'
       ? Promise.all([api.listComponents({ query: reportQuery, namespace: reportNamespace, status: reportStatus, limit: reportPageSize + 1, offset: reportOffset }), api.listNamespaces({ limit: 500 })])
-      : section === 'namespaces' ? api.listNamespaces({query:namespaceQuery,status:namespaceStatus,limit:namespacePageSize+1,offset:namespaceOffset}) : api.getRuntimeStatus();
+      : api.getRuntimeStatus();
     request.then((page) => {
       if (cancelled) return;
       if (section === 'overview') { setOverview(page); return; }
@@ -105,38 +86,23 @@ export function StudioApp({ api, mode, subject, brand = 'Data Studio', extension
         setReportHasNext(items.length > reportPageSize);
         setNamespaces(page[1]?.items ?? []);
       }
-      else if (section === 'namespaces') { setNamespaces(items.slice(0,namespacePageSize)); setNamespaceHasNext(items.length>namespacePageSize); }
     }).catch((cause) => !cancelled && setError(cause.message))
       .finally(() => !cancelled && setLoading(false));
     return () => { cancelled = true; };
-  }, [api, section, extensions, reportNamespace, reportOffset, reportQuery, reportStatus, namespaceOffset, namespaceQuery, namespaceStatus, currentNamespaceId, namespaceWorkspace.ready, namespaceWorkspace.enabled]);
+  }, [api, section, extensions, reportNamespace, reportOffset, reportQuery, reportStatus, currentNamespaceId, namespaceWorkspace.ready, namespaceWorkspace.enabled]);
   useEffect(loadSection, [loadSection]);
 
-  const items = section === 'components' ? reports : namespaces;
+  const items = reports;
   const visibleItems = items;
   const reportNamespaces = [...new Set((namespaces.length ? namespaces.map((item) => item.name) : reports.map((item) => item.namespace || 'general')).filter(Boolean))].sort();
-  const columns = section === 'components' ? reportColumns : namespaceColumns;
+  const columns = reportColumns;
   const onReportCreated = async () => {
     setSection('components');
     await loadSection();
   };
-  const onNamespaceSaved = async () => {
-    setEditingNamespace(null);
-    setSection('namespaces');
-    await namespaceWorkspace.refresh?.();
-    await loadSection();
-  };
-  const deleteNamespace = async () => {
-    if (!pendingNamespaceDelete || deletingNamespace) return;
-    setDeletingNamespace(true); setError('');
-    try {
-      await api.deleteNamespace(pendingNamespaceDelete.name, pendingNamespaceDelete.etag);
-      setPendingNamespaceDelete(null);
-      await namespaceWorkspace.refresh?.();
-      await loadSection();
-    } catch (cause) { setPendingNamespaceDelete(null); setNamespaceConflict(cause?.code==='conflict'&&String(cause.message).includes('etag')); setError(cause.message); }
-    finally { setDeletingNamespace(false); }
-  };
+  const onManagementOperation = useCallback((operation) => {
+    if (['namespaces.create', 'namespaces.update', 'namespaces.delete'].includes(operation)) return namespaceWorkspace.refresh?.();
+  }, [namespaceWorkspace.refresh]);
   const openBuilder = (report) => { setBuilderReport(report); setOpenBuilderResources(Boolean(report?.openResources)); setBuilderResourceAction(report?.resourceAction||''); setSection('builder'); };
   const navigate = (target) => {
     if (!target) return;
@@ -171,34 +137,22 @@ export function StudioApp({ api, mode, subject, brand = 'Data Studio', extension
     {navigationOpen && <aside className="studio-sidebar"><InputGroup leftIcon="search" placeholder="Find Studio resource" value={navigationQuery} onChange={(event) => setNavigationQuery(event.target.value)} />
       <Tree className="studio-tree" contents={interactiveNavigation} onNodeClick={(node) => navigate(node.section)} />
     </aside>}
-    {namespaceWorkspace.enabled && !currentNamespaceId && !['namespaces', 'connectors', 'schema'].includes(section) ? <main className="studio-main"><Callout title="Choose a namespace">Select an available namespace above, or create one in Namespaces.</Callout></main> : section === 'connectors' ? <main className="studio-workspace"><ManagementWindow api={api} uri="window://datastudio/connectors" instanceKey="native-datastudio-connectors"/></main> : section === 'builder' ? <ModuleLoadBoundary key="builder" onBack={() => setSection('components')}><Suspense fallback={<WorkspaceLoading label="Loading component workspace"/>}><ReaderBuilder api={api} report={builderReport} openResources={openBuilderResources} resourceAction={builderResourceAction} onReportUpdated={setBuilderReport} onResourcesClosed={()=>{setOpenBuilderResources(false);setBuilderResourceAction('');}} onBack={() => setSection('components')} /></Suspense></ModuleLoadBoundary> : section === 'schema' ? <ModuleLoadBoundary key="schema" onBack={() => setSection('components')}><Suspense fallback={<WorkspaceLoading label="Loading schema browser"/>}><SchemaBrowser api={api} onOpenBuilder={openBuilder} /></Suspense></ModuleLoadBoundary> : section === 'security' ? <SecurityWorkspace api={api}/> : extensions.some((extension) => extension.id === section) ? extensions.find((extension) => extension.id === section).render({ api, mode, subject, navigate, openComponent: openBuilder, currentNamespace: namespaceWorkspace.current, namespaceItems: namespaceWorkspace.items }) : section === 'overview' ? <OverviewWorkspace data={overview} loading={loading} error={error} onRefresh={loadSection} onNavigate={navigate} onOpenComponent={openBuilder}/> : section === 'skills' ? <SkillsWorkspace key={currentNamespaceId || 'unscoped'} api={api} namespace={namespaceWorkspace.current} subject={subject} renderNamespaceSkills={renderNamespaceSkills} onDirtyChange={setSkillEditing} onOpenComponent={openBuilder}/> : section === 'runtime' ? <RuntimeWorkspace key={currentNamespaceId || "unscoped"} api={api} mode={section} status={runtime} loading={loading} error={error} onRefresh={loadSection} onOpenComponent={openBuilder}/> : <main className="studio-workspace">
-      <div className="studio-page-heading-row"><h1 className="studio-page-heading">{section === 'namespaces' ? 'Namespaces' : 'Components'}</h1>{section==='components'&&<ImportComponentButton api={api} onImported={openBuilder}/>}</div>
-      <p className="studio-page-description">{section === 'namespaces' ? 'Govern production component groups without changing Datly package identity.' : 'Create and manage read-only dynamic Datly components.'}</p>
-      {section === 'namespaces' && <form className="studio-page-actions studio-catalog-actions studio-namespace-actions" onSubmit={(event)=>{event.preventDefault();setNamespaceOffset(0);setNamespaceQuery(namespaceSearch.trim());}}><InputGroup leftIcon="search" aria-label="Search namespaces" placeholder="Find namespace, title, or description" value={namespaceSearch} onChange={(event)=>setNamespaceSearch(event.target.value)} rightElement={namespaceSearch?<Button type="button" minimal icon="cross" aria-label="Clear namespace search" onClick={()=>{setNamespaceSearch('');setNamespaceQuery('');setNamespaceOffset(0);}}/>:undefined}/><HTMLSelect aria-label="Filter namespaces by status" value={namespaceStatus} onChange={(event)=>{setNamespaceStatus(event.target.value);setNamespaceOffset(0);}}><option value="">All states</option><option value="active">Active</option><option value="archived">Archived</option></HTMLSelect><div className="studio-catalog-primary-actions"><Button type="submit" icon="search">Search</Button><Button type="button" intent="primary" icon="add" disabled={namespaceChanging} onClick={() => { setEditingNamespace(null); setNamespaceDialogOpen(true); }}>New namespace</Button></div></form>}
+    {namespaceWorkspace.enabled && !currentNamespaceId && !['namespaces', 'connectors', 'schema'].includes(section) ? <main className="studio-main"><Callout title="Choose a namespace">Select an available namespace above, or create one in Namespaces.</Callout></main> : ['connectors', 'namespaces'].includes(section) ? <main className="studio-workspace"><ManagementWindow key={section} api={api} uri={`window://datastudio/${section}`} instanceKey={`native-datastudio-${section}`} onOperationCompleted={onManagementOperation}/></main> : section === 'builder' ? <ModuleLoadBoundary key="builder" onBack={() => setSection('components')}><Suspense fallback={<WorkspaceLoading label="Loading component workspace"/>}><ReaderBuilder api={api} report={builderReport} openResources={openBuilderResources} resourceAction={builderResourceAction} onReportUpdated={setBuilderReport} onResourcesClosed={()=>{setOpenBuilderResources(false);setBuilderResourceAction('');}} onBack={() => setSection('components')} /></Suspense></ModuleLoadBoundary> : section === 'schema' ? <ModuleLoadBoundary key="schema" onBack={() => setSection('components')}><Suspense fallback={<WorkspaceLoading label="Loading schema browser"/>}><SchemaBrowser api={api} onOpenBuilder={openBuilder} /></Suspense></ModuleLoadBoundary> : section === 'security' ? <SecurityWorkspace api={api}/> : extensions.some((extension) => extension.id === section) ? extensions.find((extension) => extension.id === section).render({ api, mode, subject, navigate, openComponent: openBuilder, currentNamespace: namespaceWorkspace.current, namespaceItems: namespaceWorkspace.items }) : section === 'overview' ? <OverviewWorkspace data={overview} loading={loading} error={error} onRefresh={loadSection} onNavigate={navigate} onOpenComponent={openBuilder}/> : section === 'skills' ? <SkillsWorkspace key={currentNamespaceId || 'unscoped'} api={api} namespace={namespaceWorkspace.current} subject={subject} renderNamespaceSkills={renderNamespaceSkills} onDirtyChange={setSkillEditing} onOpenComponent={openBuilder}/> : section === 'runtime' ? <RuntimeWorkspace key={currentNamespaceId || "unscoped"} api={api} mode={section} status={runtime} loading={loading} error={error} onRefresh={loadSection} onOpenComponent={openBuilder}/> : <main className="studio-workspace">
+      <div className="studio-page-heading-row"><h1 className="studio-page-heading">Components</h1>{section==='components'&&<ImportComponentButton api={api} onImported={openBuilder}/>}</div>
+      <p className="studio-page-description">Create and manage read-only dynamic Datly components.</p>
       {section === 'components' && <form className="studio-page-actions studio-catalog-actions" onSubmit={(event) => { event.preventDefault(); setReportOffset(0); setReportQuery(reportSearch.trim()); }}><InputGroup leftIcon="search" aria-label="Search components" placeholder="Find title, slug, or description" value={reportSearch} onChange={(event) => setReportSearch(event.target.value)} rightElement={reportSearch ? <Button type="button" minimal icon="cross" aria-label="Clear component search" onClick={() => { setReportSearch(''); setReportQuery(''); setReportOffset(0); }}/> : undefined}/>{!namespaceWorkspace.enabled && <HTMLSelect aria-label="Filter components by namespace" value={reportNamespace} onChange={(event) => { setReportNamespace(event.target.value); setReportOffset(0); }}><option value="">All namespaces</option>{reportNamespaces.map((namespace) => <option key={namespace} value={namespace}>{namespace}</option>)}</HTMLSelect>}<HTMLSelect aria-label="Filter components by status" value={reportStatus} onChange={(event) => { setReportStatus(event.target.value); setReportOffset(0); }}><option value="">All states</option><option value="draft">Draft</option><option value="active">Active</option><option value="archived">Archived</option></HTMLSelect><div className="studio-catalog-primary-actions"><Button type="submit" icon="search" title="Search components" aria-label="Search components"/><Button type="button" intent="primary" icon="add" title="New component" aria-label="New component" disabled={namespaceChanging} onClick={() => setReportDialogOpen(true)}>New component</Button></div></form>}
-      {namespaceConflict&&<Callout intent="warning" title="Namespace changed elsewhere" role="alert" style={{marginBottom:16}}>No namespace change was applied. Refresh the governed catalog before reviewing and retrying.<Button small intent="warning" minimal icon="refresh" onClick={loadSection}>Refresh catalog</Button></Callout>}
-      {error && !namespaceConflict && <Callout intent="danger" title="Studio request failed" role="alert" style={{ marginBottom: 16 }}>{error}<Button small intent="danger" minimal onClick={loadSection}>Retry</Button></Callout>}
+      {error && <Callout intent="danger" title="Studio request failed" role="alert" style={{ marginBottom: 16 }}>{error}<Button small intent="danger" minimal onClick={loadSection}>Retry</Button></Callout>}
       <Card className="studio-card" elevation={0}>
       {loading ? <Spinner size={24} /> : <div className="studio-table-wrap"><HTMLTable className="studio-data-table" striped interactive>
-        <thead><tr>{columns.map((column) => <th className={column.hideNarrow ? 'studio-hide-narrow' : ''} key={column.key} style={{ padding: 8 }}>{column.label}</th>)}{section === 'namespaces' && <th aria-label="Namespace actions" />}{section === 'components' && <th aria-label="Reader actions" />}</tr></thead>
+        <thead><tr>{columns.map((column) => <th className={column.hideNarrow ? 'studio-hide-narrow' : ''} key={column.key} style={{ padding: 8 }}>{column.label}</th>)}{section === 'components' && <th aria-label="Reader actions" />}</tr></thead>
         <tbody>{visibleItems.map((item) => <tr key={item.id ?? item.name}>
           {columns.map((column) => <td className={column.hideNarrow ? 'studio-hide-narrow' : ''} key={column.key} style={{ borderTop: '1px solid #ddd', padding: 8 }}>{column.key === 'status' ? <><Tag intent={statusIntent(item.status)} minimal>{item.status}</Tag></> : displayValue(column.key, item[column.key])}</td>)}
-          {section === 'namespaces' && <td><ButtonGroup minimal>
-            <Button small icon={item.canManage === false ? 'eye-open' : 'edit'} title={item.canManage === false ? 'View namespace' : 'Edit namespace'} aria-label={`${item.canManage === false ? 'View' : 'Edit'} ${item.name}`} onClick={() => { setEditingNamespace(item); setNamespaceDialogOpen(true); }}/>
-            {item.canManage !== false && <Button small icon="trash" intent="danger" title="Delete namespace" aria-label={`Delete ${item.name}`} onClick={() => setPendingNamespaceDelete(item)}/>}
-          </ButtonGroup></td>}
           {section === 'components' && <td><ButtonGroup minimal><Button small icon="application" title="Open Reader Builder" aria-label="Open Reader Builder" onClick={() => openBuilder(item)} /><DownloadComponentButton api={api} report={item}/></ButtonGroup></td>}
         </tr>)}</tbody>
-      </HTMLTable></div>}{!loading && !error && items.length === 0 && <div className="studio-empty"><h2>{section === 'components' && (reportQuery || reportNamespace || reportStatus) ? 'No matching components' : section==='namespaces'&&(namespaceQuery||namespaceStatus)?'No matching namespaces':`No ${section === 'components' ? 'components' : section} yet`}</h2><span>{section === 'namespaces' ? namespaceQuery||namespaceStatus?'Adjust the search or lifecycle filter to broaden the governed catalog.':'Create a governed namespace before organizing production components.' : reportQuery || reportNamespace || reportStatus ? 'Adjust the search or filters to broaden the catalog.' : 'Create the versioned home for your first dynamic reader component.'}</span>{section === 'namespaces' ? !(namespaceQuery||namespaceStatus)&&<Button intent="primary" icon="add" disabled={namespaceChanging} onClick={() => setNamespaceDialogOpen(true)} style={{ marginTop: 16 }}>New namespace</Button> : !(reportQuery || reportNamespace || reportStatus) && <Button intent="primary" icon="add" disabled={namespaceChanging} onClick={() => setReportDialogOpen(true)} style={{ marginTop: 16 }}>New component</Button>}</div>}</Card>
+      </HTMLTable></div>}{!loading && !error && items.length === 0 && <div className="studio-empty"><h2>{section === 'components' && (reportQuery || reportNamespace || reportStatus) ? 'No matching components' : `No ${section === 'components' ? 'components' : section} yet`}</h2><span>{reportQuery || reportNamespace || reportStatus ? 'Adjust the search or filters to broaden the catalog.' : 'Create the versioned home for your first dynamic reader component.'}</span>{!(reportQuery || reportNamespace || reportStatus) && <Button intent="primary" icon="add" disabled={namespaceChanging} onClick={() => setReportDialogOpen(true)} style={{ marginTop: 16 }}>New component</Button>}</div>}</Card>
       {section === 'components' && !loading && (reportOffset > 0 || reportHasNext) && <div className="studio-catalog-pagination"><span>Showing {reportOffset + 1}–{reportOffset + reports.length}</span><ButtonGroup minimal><Button icon="chevron-left" disabled={reportOffset === 0} onClick={() => setReportOffset(Math.max(0, reportOffset - reportPageSize))}>Previous</Button><Button icon="chevron-right" disabled={!reportHasNext} onClick={() => setReportOffset(reportOffset + reportPageSize)}>Next</Button></ButtonGroup></div>}
-      {section === 'namespaces'&&!loading&&(namespaceOffset>0||namespaceHasNext)&&<div className="studio-catalog-pagination"><span>Showing {namespaceOffset+1}–{namespaceOffset+namespaces.length}</span><ButtonGroup minimal><Button icon="chevron-left" disabled={namespaceOffset===0} onClick={()=>setNamespaceOffset(Math.max(0,namespaceOffset-namespacePageSize))}>Previous</Button><Button icon="chevron-right" disabled={!namespaceHasNext} onClick={()=>setNamespaceOffset(namespaceOffset+namespacePageSize)}>Next</Button></ButtonGroup></div>}
     </main>}</div></div>
     <ReportDialog currentNamespace={namespaceWorkspace.current} api={api} isOpen={reportDialogOpen} onClose={() => setReportDialogOpen(false)} onCreated={onReportCreated} />
-    <NamespaceDialog api={api} namespace={editingNamespace} isOpen={namespaceDialogOpen} onClose={() => { setNamespaceDialogOpen(false); setEditingNamespace(null); }} onSaved={onNamespaceSaved}/>
-    <Alert isOpen={Boolean(pendingNamespaceDelete)} intent="danger" icon="trash" confirmButtonText="Delete namespace" cancelButtonText="Cancel" loading={deletingNamespace} onCancel={() => { if (!deletingNamespace) setPendingNamespaceDelete(null); }} onConfirm={deleteNamespace} canEscapeKeyCancel={!deletingNamespace} canOutsideClickCancel={!deletingNamespace}>
-      <p>Delete <strong>{pendingNamespaceDelete?.name}</strong>?</p>
-      <p className="studio-muted">Studio blocks deletion while any component still belongs to this namespace.</p>
-    </Alert>
   </ForgeThemeBoundary></ForgeThemeProvider>;
 }
 

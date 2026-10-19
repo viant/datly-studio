@@ -64,7 +64,7 @@ func TestNamespaceWindowPortableContract(t *testing.T) {
 				if ref.Resource.URI != "datasource://"+namespace+"/namespaces" || ref.ProviderIdentity != config.ProviderIdentity || ref.ContentFingerprint != identity.ContentFingerprint(byURI["datasource://"+namespace+"/namespaces"].JSON) {
 					t.Fatal("window does not bind the exact reusable datasource")
 				}
-				if variant.Window.Namespace != namespace || len(variant.Window.View.Content.Containers) != 2 {
+				if variant.Window.Namespace != namespace || len(variant.Window.View.Content.Containers) != 3 {
 					t.Fatal("window lost its namespace or table definition")
 				}
 			}
