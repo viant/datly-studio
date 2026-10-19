@@ -98,6 +98,13 @@ func TestEmbeddedNativeNavigationExactMenuParityAndURLActions(t *testing.T) {
 					t.Fatalf("native menu changed: %s", key)
 				}
 			}
+			if child, ok := w["children"].([]any); ok && len(child) > 0 {
+				if _, exists := g["action"]; exists {
+					t.Fatal("navigation group must not also have an action")
+				}
+				compare(child, g["children"].([]any))
+				continue
+			}
 			section, _ := w["section"].(string)
 			if section == "" {
 				section = w["id"].(string)
@@ -106,9 +113,6 @@ func TestEmbeddedNativeNavigationExactMenuParityAndURLActions(t *testing.T) {
 			u, err := url.Parse(action["url"].(string))
 			if err != nil || action["type"] != "url" || u.Host != "studio.example" || u.Path != "/admin" || u.Query().Get("section") != section {
 				t.Fatalf("incorrect native action: %v", action)
-			}
-			if child, ok := w["children"].([]any); ok {
-				compare(child, g["children"].([]any))
 			}
 		}
 	}

@@ -98,6 +98,13 @@ func embeddedNavigation(config Config) (Definition, error) {
 			if !ok {
 				return fmt.Errorf("invalid native menu")
 			}
+			if children, ok := item["children"].([]any); ok && len(children) > 0 {
+				delete(item, "action")
+				if err := bind(children); err != nil {
+					return err
+				}
+				continue
+			}
 			section, _ := item["section"].(string)
 			if section == "" {
 				section, _ = item["id"].(string)
@@ -110,11 +117,6 @@ func embeddedNavigation(config Config) (Definition, error) {
 			query.Set("section", section)
 			target.RawQuery = query.Encode()
 			item["action"] = map[string]any{"type": "url", "url": target.String()}
-			if children, ok := item["children"].([]any); ok {
-				if err := bind(children); err != nil {
-					return err
-				}
-			}
 		}
 		return nil
 	}
