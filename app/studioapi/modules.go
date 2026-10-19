@@ -47,11 +47,12 @@ func mountModules(mux *http.ServeMux, modules []Module) error {
 // corsModules permits non-browser bearer clients only on explicitly mounted,
 // independently authenticated modules. Cookie-only SDK/browser requests retain
 // the Origin requirement, and explicit foreign origins are always rejected.
-func corsModules(origin string, required bool, modules []Module, next http.Handler) http.Handler {
+func corsModules(origin string, required bool, modules []Module, next http.Handler, bearerPaths ...string) http.Handler {
 	paths := make([]string, len(modules))
 	for i, module := range modules {
 		paths[i] = module.Path
 	}
+	paths = append(paths, bearerPaths...)
 	return corsWithOriginException(origin, required, func(r *http.Request) bool {
 		fields := strings.Fields(r.Header.Get("Authorization"))
 		if len(fields) != 2 || !strings.EqualFold(fields[0], "Bearer") || fields[1] == "" {

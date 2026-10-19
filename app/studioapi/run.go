@@ -421,6 +421,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) error {
 		sdkTransport = &access.Transport{Next: transport, Service: accessService, Catalog: &access.Catalog{Service: accessService, Source: &accesscatalog.Store{DB: db}}}
 	}
 	mux := http.NewServeMux()
+	var nativeBearerPaths []string
 	if options.AuthenticatedModules != nil && resolvedMode != string(httptransport.Authenticated) {
 		return errors.New("authenticated modules require authenticated mode")
 	}
@@ -558,6 +559,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) error {
 				proxy, proxyErr := sessions.ProxyWithResolver(target, strings.TrimSuffix(proxyConfig.mount, "/"), resolver)
 				if proxyConfig.mount == "/v1/studio/sdk-mcp/" {
 					proxy, proxyErr = sessions.ProxyNativeMCP(target, strings.TrimSuffix(proxyConfig.mount, "/"))
+					nativeBearerPaths = append(nativeBearerPaths, proxyConfig.mount+"mcp")
 				}
 				if proxyErr != nil {
 					return proxyErr
@@ -616,7 +618,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) error {
 		mux.Handle(httptransport.PathPrefix, gateway)
 	}
 	log.Printf("Studio SDK %s host listening on http://%s", resolvedMode, *address)
-	handler, err := configuredHTTPMiddleware(options.HTTPMiddleware, requestIDs(corsModules(origin, resolvedMode == string(httptransport.Authenticated), mountedModules, noStore(routeExtensionProxy(mux, extensionProxy)))))
+	handler, err := configuredHTTPMiddleware(options.HTTPMiddleware, requestIDs(corsModules(origin, resolvedMode == string(httptransport.Authenticated), mountedModules, noStore(routeExtensionProxy(mux, extensionProxy)), nativeBearerPaths...)))
 	if err != nil {
 		return err
 	}

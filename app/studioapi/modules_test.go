@@ -74,3 +74,36 @@ func TestModuleBearerMCPOriginBoundary(t *testing.T) {
 		})
 	}
 }
+
+func TestNativeSDKBearerProxyOriginException(t *testing.T) {
+	for _, tc := range []struct {
+		name, path, auth, origin string
+		want                     int
+	}{
+		{"server bearer", "/v1/studio/sdk-mcp/mcp", "Bearer valid", "", 204},
+		{"invalid bearer reaches verifier", "/v1/studio/sdk-mcp/mcp", "Bearer invalid", "", 401},
+		{"cookie requires origin", "/v1/studio/sdk-mcp/mcp", "", "", 403},
+		{"foreign origin rejected", "/v1/studio/sdk-mcp/mcp", "Bearer valid", "https://foreign.example", 403},
+		{"sibling not exempt", "/v1/studio/sdk-mcp/other", "Bearer valid", "", 403},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Header.Get("Authorization") != "Bearer valid" {
+					w.WriteHeader(401)
+					return
+				}
+				w.WriteHeader(204)
+			})
+			h := corsModules("https://studio.example", true, nil, next, "/v1/studio/sdk-mcp/mcp")
+			r := httptest.NewRequest("POST", tc.path, nil)
+			r.Header.Set("Authorization", tc.auth)
+			r.Header.Set("Origin", tc.origin)
+			r.Header.Set("Cookie", "session=irrelevant")
+			w := httptest.NewRecorder()
+			h.ServeHTTP(w, r)
+			if w.Code != tc.want {
+				t.Fatalf("status=%d want=%d", w.Code, tc.want)
+			}
+		})
+	}
+}
