@@ -95,7 +95,7 @@ func managementWindow(config Config, name string) ([]Definition, error) {
 	prefix := "namespace"
 	if name == "connectors" {
 		prefix = "connector"
-		operations = append(operations, "test", "activate")
+		operations = append(operations, "test", "activate", "disable", "delete")
 	}
 	if name == "components" {
 		prefix = "component"

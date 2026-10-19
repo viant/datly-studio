@@ -5,6 +5,16 @@ window:
       id: connector-management
       className: studio-workspace
       containers:
+        - id: connector-search
+          dataSourceRef: connector_filter
+          items:
+            - {id: query, label: "Find connector, driver, or owner", dataField: query, type: text}
+            - id: status
+              label: Status
+              dataField: status
+              type: select
+              options: [{value: '', label: All states}, {value: active, label: Active}, {value: draft, label: Draft}, {value: disabled, label: Disabled}]
+            - {id: search, label: Search, type: button, on: [{event: onClick, handler: management.searchConnectors}]}
         - id: connector-list
           kind: table
           title: Connectors
@@ -15,20 +25,33 @@ window:
               - {id: edit, label: Edit, icon: edit, on: [{event: onClick, handler: management.editConnector}]}
               - {id: test, label: Test, icon: pulse, on: [{event: onClick, handler: management.testConnector}]}
               - {id: activate, label: Activate, icon: tick, on: [{event: onClick, handler: management.activateConnector}]}
+              - {id: disable, label: Disable, icon: power, on: [{event: onClick, handler: management.disableConnector}]}
+              - {id: delete, label: Delete, icon: trash, on: [{event: onClick, handler: management.confirmDeleteConnector}]}
               - {id: refresh, label: Refresh, icon: refresh, on: [{event: onClick, handler: management.refreshConnectors}]}
           table:
             columns:
               - {id: name, name: Name}
               - {id: driver, name: Driver}
-              - {id: description, name: Description}
+              - {id: ownerId, name: Owner}
               - {id: status, name: Status}
               - {id: lastTestStatus, name: Last test}
-              - {id: etag, name: Revision}
         - id: connector-outcome
           dataSourceRef: connector_draft
           items:
             - {id: outcome, label: Outcome, dataField: outcome, type: textarea, readOnly: true}
   dialogs:
+    - id: connector-delete
+      title: Delete connector
+      dataSourceRef: connector_draft
+      fetchOnOpen: false
+      content:
+        id: connector-delete-confirmation
+        items:
+          - {id: name, label: Connector to delete, dataField: name, type: text, readOnly: true}
+          - {id: outcome, label: Outcome, dataField: outcome, type: textarea, readOnly: true}
+      actions:
+        - {id: delete, label: Delete connector, close: true, on: [{event: onClick, handler: management.deleteConnector}]}
+        - {id: cancel, label: Cancel, close: true}
     - id: connector-editor
       title: Connector configuration
       className: studio-connector-dialog
@@ -59,6 +82,11 @@ window:
         - {id: save, label: Save, close: true, on: [{event: onClick, handler: management.saveConnector}]}
         - {id: cancel, label: Cancel, close: true}
 dataSources:
+  connector_filter:
+    id: connector_filter
+    cardinality: object
+    backend: {kind: inline, rows: []}
+    cache: {enabled: false}
   connectors:
     id: connectors
     cardinality: collection

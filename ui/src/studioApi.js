@@ -101,6 +101,23 @@ export class StudioAPI {
     return this.fetcher(new Request(retry, { headers: retryHeaders, credentials: 'omit' }));
   }
 
+  async readManagementResource(uri) {
+    if (this.nativeCallTool) return this.nativeCallTool('resource/get', {uri, target: {platform: 'web', formFactor: 'desktop'}}, {
+      headers: {}, send: (url, init) => this.send(url, {...init, credentials: this.identity ? 'omit' : 'include'}),
+    });
+    const response = await this.send(`${this.config.apiBaseURL}/v1/studio/catalog/resource/get`, {
+      method: 'POST', credentials: this.identity ? 'omit' : 'include',
+      headers: {'Content-Type': 'application/json', Accept: 'application/json'},
+      body: JSON.stringify({uri, target: {platform: 'web', formFactor: 'desktop'}}),
+    });
+    const value = await response.json();
+    if (!response.ok) {
+      if (response.status === 401) this.onUnauthorized?.();
+      throw new Error(value?.message || 'Management window could not be loaded.');
+    }
+    return value;
+  }
+
   async invoke(operation, input = {}) {
     const snapshot = this.namespaceSnapshot(operation);
     const headers = { Accept: 'application/json', 'Content-Type': 'application/json' };

@@ -16,7 +16,7 @@ function source(screenName) {
  if(screenName==='connectors') {const behavior=readFileSync(resolve(base,'behavior.js'),'utf8');definition.actions.code=`(() => {${behavior.replace('export default ', '')};return ${definition.actions.code};})()`;}
  const prefix=screenName==='connectors'?'connector':'namespace';
  if(screenName==='components') {for(const operation of ['components.get','components.create','components.update','versions.list','versions.create','versions.clone','versions.inspect','versions.apply','versions.validate','versions.builder','resources.get','resources.upsert_file','preview.execute','publications.get','publications.publish','publications.unpublish','publications.rollback'])dataSources['component_'+operation.replaceAll('.','_')]={id:'component_'+operation.replaceAll('.','_'),backend:{kind:'mcp_tool',method:'studio.sdk.'+operation},cardinality:'object',cache:{enabled:false}};}
- else for(const operation of ['get','create','update',...(screenName==='connectors'?['test','activate']:[])])dataSources[prefix+'_'+operation]={id:prefix+'_'+operation,backend:{kind:'mcp_tool',method:`studio.sdk.${screenName}.${operation}`},cache:{enabled:false},cardinality:'object'};
+ else for(const operation of ['get','create','update',...(screenName==='connectors'?['test','activate','disable','delete']:[])])dataSources[prefix+'_'+operation]={id:prefix+'_'+operation,backend:{kind:'mcp_tool',method:`studio.sdk.${screenName}.${operation}`},cache:{enabled:false},cardinality:'object'};
  definition.dataSource=dataSources;return definition;
 }
 for(const [screenName,openButton,nameLabel,titleLabel] of [['connectors','New connector','Name','Description'],['namespaces','New namespace','Namespace','Display title']]) {
@@ -100,4 +100,41 @@ test('component window edits actual CodeMirror source with CAS then validates, p
  await user.click(screen.getByRole('button',{name:'Save selected file',exact:true}));
  await waitFor(()=>expect(fileSource).toBe('SELECT 6'));
 
+});
+
+test('native management host loads and executes the canonical connector window',async()=>{
+ const {ManagementWindow}=await import('./ManagementWindow.jsx');
+ const definition=source('connectors');
+ const dataSources=definition.dataSource;
+ const canonical={...definition,dataSource:Object.fromEntries(Object.entries(dataSources).map(([id,value])=>[id,{cardinality:value.cardinality}]))};
+ const resource={schemaVersion:3,targets:[{target:{platform:'web',formFactor:'desktop'},variant:'same'}],variants:{same:{window:canonical,dataSources}}};
+ const api={readManagementResource:vi.fn().mockResolvedValue(resource),invoke:vi.fn(async(operation)=>operation==='connectors.list'?{items:[]}:{name:'shared'})};
+ render(<ManagementWindow api={api} uri="window://datastudio/connectors" instanceKey="native-shared-connector"/>);
+ const user=userEvent.setup();
+ await user.click(await screen.findByRole('button',{name:'New connector',exact:true}));
+ await user.type(await screen.findByLabelText('Name',{exact:true}),'shared');
+ await user.click(screen.getByRole('button',{name:'Save',exact:true}));
+ await waitFor(()=>expect(api.invoke).toHaveBeenCalledWith('connectors.create',expect.objectContaining({name:'shared',driver:'mysql'})));
+ expect(api.readManagementResource).toHaveBeenCalledOnce();
+ expect(api.readManagementResource).toHaveBeenCalledWith('window://datastudio/connectors');
+});
+
+test('canonical connector window searches on the server and confirms revision-bound deletion',async()=>{
+ const {ManagementWindow}=await import('./ManagementWindow.jsx');
+ const definition=source('connectors'),dataSources=definition.dataSource;
+ const resource={schemaVersion:3,targets:[{variant:'default'}],variants:{default:{window:{...definition,dataSource:Object.fromEntries(Object.entries(dataSources).map(([id,value])=>[id,{cardinality:value.cardinality}]))},dataSources}}};
+ const saved={name:'warehouse',driver:'mysql',status:'disabled',etag:9};
+ const calls=[];
+ const api={readManagementResource:async()=>resource,invoke:async(operation,input)=>{calls.push([operation,input]);return operation==='connectors.list'?{items:[saved]}:saved;}};
+ render(<ManagementWindow api={api} uri="window://datastudio/connectors" instanceKey="canonical-search-delete"/>);
+ const user=userEvent.setup();
+ const row=await screen.findByText('warehouse');
+ await user.type(screen.getByLabelText('Find connector, driver, or owner',{exact:true}),'warehouse');
+ await user.click(screen.getByRole('button',{name:'Search',exact:true}));
+ await waitFor(()=>expect(calls.some(([operation,input])=>operation==='connectors.list'&&input.query==='warehouse')).toBe(true));
+ const refreshed=screen.getByText('warehouse');if(!refreshed.closest('tr').classList.contains('selected-row'))await user.click(refreshed);
+ await user.click(screen.getByRole('button',{name:'Delete',exact:true}));
+ expect(calls.some(([operation])=>operation==='connectors.delete')).toBe(false);
+ await user.click(await screen.findByRole('button',{name:'Delete connector',exact:true}));
+ await waitFor(()=>expect(calls).toContainEqual(['connectors.delete',{name:'warehouse',etag:9}]));
 });

@@ -19,3 +19,5 @@ export function mountStudio(element, { config, sdk, extensions, renderNamespaceS
   root.render(<StudioShell config={config} renderNamespaceSkills={renderNamespaceSkills ?? sdk?.config?.renderNamespaceSkills} extensions={extensions ?? sdk?.extensions?.() ?? []}/>);
   return { unmount: () => root.unmount() };
 }
+
+export { ManagementWindow } from './ManagementWindow.jsx';
