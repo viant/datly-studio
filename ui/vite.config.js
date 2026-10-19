@@ -23,7 +23,7 @@ export default defineConfig({
   },
   server: {
     host: '127.0.0.1',
-    fs: { allow: [fileURLToPath(new URL('.', import.meta.url)), fileURLToPath(new URL('./node_modules/forge', import.meta.url))] },
+    fs: { allow: [fileURLToPath(new URL('../internal/managementcatalog/windows', import.meta.url)), fileURLToPath(new URL('.', import.meta.url)), fileURLToPath(new URL('./node_modules/forge', import.meta.url))] },
   },
   test: {
     environment: 'jsdom',

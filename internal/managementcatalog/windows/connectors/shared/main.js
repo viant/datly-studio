@@ -1,4 +1,5 @@
 (() => {
+ const rules = connectorBehavior();
  const ds = id => context.Context(id).handlers.dataSource;
  const draft = () => ds('connector_draft');
  const call = (operation, parameters) => ds('connector_' + operation).fetchRecords({parameters});
@@ -27,29 +28,13 @@
   }),
   applyYAML: () => run(async () => {
    const form=draft().getFormData(), value=utilities.yaml.parse(form.yamlText||'');
-   if (!value || typeof value!=='object' || Array.isArray(value) || Object.keys(value).some(key=>!['Driver','DSN','Secret'].includes(key))) throw new Error('Connector YAML supports Driver, DSN, and Secret only.');
-   const patch={...form};
-   if(Object.hasOwn(value,'Driver')) { if(typeof value.Driver!=='string') throw new Error('Driver must be a string.'); patch.driver=value.Driver; }
-   if(Object.hasOwn(value,'DSN')) { if(typeof value.DSN!=='string') throw new Error('DSN must be a string.'); patch.dsnTemplate=value.DSN; }
-   if(Object.hasOwn(value,'Secret')) {
-    if(value.Secret===null) {patch.secretURL='';patch.secretKey='';patch.clearSecret=true;}
-    else {
-     const secret=value.Secret;
-     if(!secret || typeof secret!=='object' || Array.isArray(secret) || Object.keys(secret).some(key=>!['URL','Key'].includes(key)) || typeof secret.URL!=='string' || !secret.URL.trim() || (secret.Key!==undefined && typeof secret.Key!=='string')) throw new Error('Secret requires URL and optional Key strings.');
-     patch.secretURL=secret.URL;patch.secretKey=secret.Key||'';patch.clearSecret=false;
-    }
-   }
+   const patch={...form,...rules.yamlPatch(value)};
    draft().setFormData({values:patch});
   }),
   saveConnector: () => run(async () => {
    const form=draft().getFormData();
-   const input={driver:form.driver,description:form.description||'',options:JSON.parse(form.options||'{}')};
-   const url=(form.secretURL||'').trim(),key=(form.secretKey||'').trim();
-   if(key&&!url&&!form.clearSecret) throw new Error('Enter the secret URL together with its key reference.');
-   if(!form.editing || (form.dsnTemplate||'').trim()) input.dsnTemplate=(form.dsnTemplate||'').trim();
-   if(!form.editing || url || form.clearSecret) input.secretRef=form.clearSecret?'':url+(key?'|'+key:'');
-   if(form.editing) await call('update',{name:form.name,input:{...input,etag:form.etag}});
-   else await call('create',{name:form.name,...input});
+   const {operation,parameters}=rules.saveRequest(form);
+   await call(operation,parameters);
    refresh();
   }),
   testConnector: () => run(async () => {

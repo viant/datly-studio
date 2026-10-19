@@ -82,6 +82,13 @@ func managementWindow(config Config, name string) ([]Definition, error) {
 	if err != nil {
 		return nil, err
 	}
+	if name == "connectors" {
+		behavior, err := windowSources.ReadFile("windows/connectors/shared/behavior.js")
+		if err != nil {
+			return nil, err
+		}
+		code = []byte("(() => {\n" + strings.Replace(string(behavior), "export default ", "", 1) + "\nreturn " + string(code) + ";\n})()")
+	}
 	source.Window.Actions = &types.Actions{Code: string(code)}
 	source.Window.ActionAliases = []string{"management"}
 	operations := []string{"get", "create", "update"}

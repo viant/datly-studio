@@ -3,7 +3,8 @@ import {readFile} from 'node:fs/promises';
 import {parseDocument} from '../../ui/node_modules/yaml/dist/index.js';
 
 async function fixture(screen) {
- const source=await readFile(new URL(`./windows/${screen}/shared/main.js`,import.meta.url),'utf8');
+ let source=await readFile(new URL(`./windows/${screen}/shared/main.js`,import.meta.url),'utf8');
+ if(screen==='connectors') {const behavior=await readFile(new URL('./windows/connectors/shared/behavior.js',import.meta.url),'utf8');source=`(() => {${behavior.replace('export default ', '')};return ${source};})()`;}
  let form={}, selected=null,refresh=0,opened=0;const windowForm={};const collections=new Map();const calls=[];const failures=new Map();
  const responses=new Map();
  const dataSource=id=>({

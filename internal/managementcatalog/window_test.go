@@ -88,3 +88,26 @@ func TestNamespaceWindowRejectsInvalidIdentity(t *testing.T) {
 		}
 	}
 }
+
+// The published action bundle must contain the same behavior module imported by
+// the native UI, rather than a separately maintained copy of its rules.
+func TestConnectorActionsIncludeCanonicalBehavior(t *testing.T) {
+	definitions, err := managementWindow(Config{Namespace: "datastudio", ProviderIdentity: "studio", MCPService: "admin"}, "connectors")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var envelope types.WindowResourceEnvelope
+	if err := json.Unmarshal(definitions[0].JSON, &envelope); err != nil {
+		t.Fatal(err)
+	}
+	behavior, err := windowSources.ReadFile("windows/connectors/shared/behavior.js")
+	if err != nil {
+		t.Fatal(err)
+	}
+	executable := bytes.Replace(behavior, []byte("export default "), nil, 1)
+	for _, variant := range envelope.Variants {
+		if !bytes.Contains([]byte(variant.Window.Actions.Code), executable) {
+			t.Fatal("published actions lost the canonical connector behavior")
+		}
+	}
+}

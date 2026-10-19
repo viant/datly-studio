@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { parseDocument } from 'yaml';
+import connectorBehavior from '../../internal/managementcatalog/windows/connectors/shared/behavior.js';
+const connectorRules = connectorBehavior();
 import { Button, Callout, Collapse, Dialog, DialogBody, DialogFooter, FormGroup, HTMLSelect, InputGroup, Switch, Tag, TextArea } from '@blueprintjs/core';
 
 const splitSecretReference = (reference = '') => {
@@ -38,56 +40,21 @@ export function ConnectorDialog({ api, isOpen, onClose, onCreated, connector = n
     try {
       const document = parseDocument(yamlText, { uniqueKeys: true });
       if (document.errors.length) throw new Error(document.errors[0].message);
-      const value = document.toJS();
-      if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Connector YAML must be an object.');
-      const fields = Object.keys(value);
-      if (!fields.length || fields.some((field) => !['Driver', 'DSN', 'Secret'].includes(field))) throw new Error('Connector YAML supports Driver, DSN, and Secret only.');
-      const patch = {};
-      if (Object.hasOwn(value, 'Driver')) {
-        if (!['sqlite', 'mysql', 'postgres', 'bigquery', 'oracle'].includes(value.Driver)) throw new Error('Choose a supported connector Driver.');
-        patch.driver = value.Driver;
-      }
-      if (Object.hasOwn(value, 'DSN')) {
-        if (typeof value.DSN !== 'string') throw new Error('DSN must be a string.');
-        patch.dsnTemplate = value.DSN;
-      }
-      if (Object.hasOwn(value, 'Secret')) {
-        if (value.Secret === null) {
-          patch.secretURL = ''; patch.secretKey = '';
-        } else {
-          const secret = value.Secret;
-          if (!secret || typeof secret !== 'object' || Array.isArray(secret) || Object.keys(secret).some((field) => !['URL', 'Key'].includes(field))) throw new Error('Secret must contain URL and optional Key.');
-          if (typeof secret.URL !== 'string' || !secret.URL.trim() || (Object.hasOwn(secret, 'Key') && typeof secret.Key !== 'string')) throw new Error('Secret requires a URL string and an optional Key string.');
-          patch.secretURL = secret.URL; patch.secretKey = secret.Key || '';
-        }
-      }
+      const patch = connectorRules.yamlPatch(document.toJS());
       setDraft((current) => ({ ...current, ...patch }));
-      if (Object.hasOwn(value, 'Secret')) { setClearSecret(editing && value.Secret === null); setAdvanced(true); }
+      if (Object.hasOwn(patch, 'clearSecret')) { setClearSecret(editing && patch.clearSecret); setAdvanced(true); }
       setError(''); setConflict(false);
     } catch (cause) { setError(cause.message); }
   };
 
   const submit = async (event) => {
     event.preventDefault();
-    const name = draft.name.trim();
-    if (!/^[a-z][a-z0-9_-]{0,127}$/i.test(name)) {
-      setError('Use a connector name beginning with a letter; letters, numbers, underscores, and dashes are allowed.');
-      return;
-    }
-    const secretURL = draft.secretURL.trim(), secretKey = draft.secretKey.trim();
-    if (!clearSecret && secretKey && !secretURL) { setError('Enter the secret URL together with its key reference.'); return; }
-    const secretRef = secretURL ? `${secretURL}${secretKey ? `|${secretKey}` : ''}` : '';
-    let options;
-    try { options = JSON.parse(draft.options || '{}'); }
-    catch { setError('Options must be valid JSON.'); return; }
     setSaving(true); setError('');
     try {
-      const input = { driver: draft.driver, description: draft.description.trim(), options };
-      if (!editing || draft.dsnTemplate.trim()) input.dsnTemplate = draft.dsnTemplate.trim();
-      if (!editing || secretRef || clearSecret) input.secretRef = clearSecret ? '' : secretRef;
-      const saved = editing
-        ? await api.updateConnector(connector.name, { ...input, etag: connector.etag })
-        : await api.createConnector({ name, ...input });
+      const {operation, parameters} = connectorRules.saveRequest({...draft, editing, clearSecret, etag: connector?.etag});
+      const saved = operation === 'update'
+        ? await api.updateConnector(parameters.name, parameters.input)
+        : await api.createConnector(parameters);
       await onCreated(saved);
       onClose();
     } catch (cause) { setConflict(cause?.code === 'conflict'); setError(cause.message); }

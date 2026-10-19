@@ -13,6 +13,7 @@ function source(screenName) {
  const base=resolve(process.cwd(),`../internal/managementcatalog/windows/${screenName}/shared`);
  const {window:definition,dataSources}=parse(readFileSync(resolve(base,'main.yaml'),'utf8'));
  definition.namespace='datastudio';definition.actionAliases=['management'];definition.actions={code:readFileSync(resolve(base,'main.js'),'utf8')};
+ if(screenName==='connectors') {const behavior=readFileSync(resolve(base,'behavior.js'),'utf8');definition.actions.code=`(() => {${behavior.replace('export default ', '')};return ${definition.actions.code};})()`;}
  const prefix=screenName==='connectors'?'connector':'namespace';
  if(screenName==='components') {for(const operation of ['components.get','components.create','components.update','versions.list','versions.create','versions.clone','versions.inspect','versions.apply','versions.validate','versions.builder','resources.get','resources.upsert_file','preview.execute','publications.get','publications.publish','publications.unpublish','publications.rollback'])dataSources['component_'+operation.replaceAll('.','_')]={id:'component_'+operation.replaceAll('.','_'),backend:{kind:'mcp_tool',method:'studio.sdk.'+operation},cardinality:'object',cache:{enabled:false}};}
  else for(const operation of ['get','create','update',...(screenName==='connectors'?['test','activate']:[])])dataSources[prefix+'_'+operation]={id:prefix+'_'+operation,backend:{kind:'mcp_tool',method:`studio.sdk.${screenName}.${operation}`},cache:{enabled:false},cardinality:'object'};

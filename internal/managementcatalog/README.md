@@ -7,7 +7,16 @@ a tool-only canonical administrative connection, and the native workspace style.
 its own binary-owned definitions without a second transport or authorization
 stack. Catalog discovery and each operation retain their existing server guards.
 
-The authoritative sources are `windows/<screen>/shared/main.yaml` and `main.js`.
+The target architecture is one Forge window and JavaScript behavior per screen,
+consumed by both the native Studio shell and remote hosts. The current native JSX
+screens have not yet all been consolidated; the portable windows below must not
+be treated as native parity until both hosts render the same artifact.
+
+The window sources are `windows/<screen>/shared/main.yaml` and `main.js`.
+Connector validation and save construction live only in `connectors/shared/behavior.js`:
+the native dialog imports that module, and publication embeds the exact same
+function in the Forge action bundle. This is an intermediate consolidation step,
+not completion of the shared-window migration.
 Actions contain presentation state and exact SDK input mappings; validation,
 ownership, source revisions, probes and publication decisions stay in the SDK.
 Unported navigation entries are disabled instead of launching another app.
