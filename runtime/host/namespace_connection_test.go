@@ -40,8 +40,21 @@ func TestNamespaceConnectionOAuthUsesSCYAndScopedEndpoint(t *testing.T) {
 
 func TestNamespaceConnectionDoesNotDowngradeProtectedAuthentication(t *testing.T) {
 	config := Config{Authentication: Authentication{DefaultMode: "required", PublicMCPURL: "https://mcp.example"}}
-	if _, err := namespaceConnectionJSON("sales", config); err == nil {
-		t.Fatal("protected connection exported without OAuth configuration")
+	protected, err := namespaceConnectionJSON("sales", config)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var definition mcpconfig.MCPClient
+	if err = json.Unmarshal(protected, &definition); err != nil {
+		t.Fatal(err)
+	}
+	if definition.Auth == nil || definition.Auth.BackendForFrontend == nil || !*definition.Auth.BackendForFrontend || !definition.Auth.UseIdToken || definition.Auth.InlineProvider != nil || definition.Auth.ProviderRef != "" || definition.Auth.Mode != "" || definition.ToolsListVisibility != "private" || definition.Transport.URL != "https://mcp.example/mcp" {
+		t.Fatalf("protected namespace did not retain consumer BFF authentication: %s", protected)
+	}
+	for _, value := range []string{"configURL", "clientSecret", "accessToken", "refreshToken", "inlined://"} {
+		if strings.Contains(string(protected), value) {
+			t.Fatalf("unexpected credential configuration: %s", protected)
+		}
 	}
 	config.Authentication.Providers = map[string]OAuthProvider{"employees": {Issuer: "https://idp.example"}}
 	config.Authentication.ConnectionExport = &MCPConnectionExport{Provider: "employees", ClientConfigURL: "inlined://plaintext-credentials"}

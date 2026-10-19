@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
+	"database/sql"
 	"encoding/json"
 	"encoding/pem"
 	"io"
@@ -25,6 +26,8 @@ import (
 	"github.com/viant/datly-studio/app/hostconfig"
 	"github.com/viant/datly-studio/app/studioapi"
 	"github.com/viant/datly-studio/app/studiohost"
+	mcpschema "github.com/viant/mcp-protocol/schema"
+	mcpcfg "github.com/viant/mcp/client/config"
 )
 
 func TestUppercaseAuthHostWithoutJWTClaims(t *testing.T) {
@@ -143,4 +146,86 @@ func TestUppercaseAuthHostWithoutJWTClaims(t *testing.T) {
 			require.True(t, strings.Contains(string(body), "Sign in with IdP"))
 		})
 	}
+	// No namespace OAuth export settings are configured. The protected native
+	// namespace must nevertheless publish its existing consumer-BFF reference.
+	database, err := sql.Open("sqlite", filepath.Join(root, "studio.db"))
+	require.NoError(t, err)
+	defer database.Close()
+	namespaceID := strings.Repeat("a", 64)
+	_, err = database.Exec(`INSERT INTO namespaces(namespace_id,name,title,owner_id,status,mcp_enabled,mcp_port,etag,created_at,updated_at) VALUES(?, 'bff-namespace','BFF namespace','owner','active',1,0,1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, namespaceID)
+	require.NoError(t, err)
+	bearer, err := jwtlib.NewWithClaims(jwtlib.SigningMethodRS256, jwtlib.MapClaims{"iss": "https://signed-issuer.example/", "aud": "studio-client", "sub": "owner", "account_id": 42, "exp": time.Now().Add(time.Minute).Unix()}).SignedString(key)
+	require.NoError(t, err)
+	endpoint := "http://" + endpoints.NamespaceMCP + "/namespaces/" + namespaceID + "/mcp"
+	call := func(method string, params map[string]any, credential string) (int, map[string]json.RawMessage) {
+		params["_meta"] = map[string]any{"io.modelcontextprotocol/protocolVersion": mcpschema.LatestProtocolVersion, "io.modelcontextprotocol/clientCapabilities": map[string]any{}}
+		raw, err := json.Marshal(map[string]any{"jsonrpc": "2.0", "id": 1, "method": method, "params": params})
+		require.NoError(t, err)
+		request, err := http.NewRequest(http.MethodPost, endpoint, strings.NewReader(string(raw)))
+		require.NoError(t, err)
+		request.Header.Set("Content-Type", "application/json")
+		request.Header.Set("Accept", "application/json")
+		request.Header.Set(mcpschema.HeaderMethod, method)
+		request.Header.Set("Mcp-Protocol-Version", mcpschema.LatestProtocolVersion)
+		if uri, ok := params["uri"].(string); ok {
+			request.Header.Set(mcpschema.HeaderName, uri)
+		}
+		if credential != "" {
+			request.Header.Set("Authorization", "Bearer "+credential)
+		}
+		response, err := client.Do(request)
+		require.NoError(t, err)
+		defer response.Body.Close()
+		payload, err := io.ReadAll(response.Body)
+		require.NoError(t, err)
+		result := map[string]json.RawMessage{}
+		_ = json.Unmarshal(payload, &result)
+		return response.StatusCode, result
+	}
+	var inventory mcpschema.ListResourcesResult
+	require.Eventually(t, func() bool {
+		status, reply := call("resources/list", map[string]any{}, bearer)
+		if status != http.StatusOK || reply["error"] != nil {
+			return false
+		}
+		if json.Unmarshal(reply["result"], &inventory) != nil {
+			return false
+		}
+		return len(inventory.Resources) == 1
+	}, 20*time.Second, 100*time.Millisecond)
+	uri := inventory.Resources[0].Uri
+	require.Equal(t, "mcp://ns/bff-namespace", uri)
+	status, reply := call("resources/read", map[string]any{"uri": uri}, bearer)
+	require.Equal(t, http.StatusOK, status)
+	require.Nil(t, reply["error"])
+	var read mcpschema.ReadResourceResult
+	require.NoError(t, json.Unmarshal(reply["result"], &read))
+	require.Len(t, read.Contents, 1)
+	var definition mcpcfg.MCPClient
+	require.NoError(t, json.Unmarshal([]byte(read.Contents[0].Text), &definition))
+	require.Equal(t, endpoint, definition.Transport.URL)
+	require.Equal(t, "private", definition.ToolsListVisibility)
+	require.NotNil(t, definition.Auth)
+	require.NotNil(t, definition.Auth.BackendForFrontend)
+	require.True(t, *definition.Auth.BackendForFrontend)
+	require.True(t, definition.Auth.UseIdToken)
+	require.Nil(t, definition.Auth.InlineProvider)
+	for _, method := range []string{"resources/list", "resources/read"} {
+		params := map[string]any{}
+		if method == "resources/read" {
+			params["uri"] = uri
+		}
+		status, reply = call(method, params, "")
+		denied := status == http.StatusUnauthorized || status == http.StatusForbidden || reply["error"] != nil
+		if method == "resources/list" && !denied {
+			// Native MCP discovery denies individual private resources by
+			// omission; it need not reject an otherwise empty inventory.
+			var anonymous mcpschema.ListResourcesResult
+			require.NoError(t, json.Unmarshal(reply["result"], &anonymous))
+			require.Empty(t, anonymous.Resources, "unauthenticated inventory must not expose the protected BFF reference")
+		} else {
+			require.True(t, denied, "unauthenticated native connection %s must fail", method)
+		}
+	}
+
 }

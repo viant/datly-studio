@@ -32,7 +32,7 @@ type Listener struct {
 }
 type Authentication struct {
 	// ConnectionExport describes the Agently OAuth client registration. Secrets
-	// remain in SCY; nil disables export for protected namespaces.
+	// remain in SCY; nil selects the existing consumer BFF for protected namespaces.
 	ConnectionExport *MCPConnectionExport               `yaml:"ConnectionExport,omitempty"`
 	PublicMCPURL     string                             `yaml:"PublicMCPURL"`
 	Providers        map[string]OAuthProvider           `yaml:"Providers"`

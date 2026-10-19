@@ -16,7 +16,7 @@ import (
 )
 
 // namespaceConnectionJSON serializes configuration references only. Token
-// resolution and encryption belong to Agently and the configured SCY resource.
+// resolution belongs to the consumer BFF or an explicit legacy OAuth provider.
 func namespaceConnectionJSON(name string, config Config) ([]byte, error) {
 	base := strings.TrimRight(config.Authentication.PublicMCPURL, "/")
 	u, err := url.Parse(base)
@@ -42,32 +42,34 @@ func namespaceConnectionJSON(name string, config Config) ([]byte, error) {
 	if config.Authentication.DefaultMode != "public" {
 		export := config.Authentication.ConnectionExport
 		if export == nil {
-			return nil, fmt.Errorf("namespace OAuth connection export is not configured")
-		}
-		provider, ok := config.Authentication.Providers[export.Provider]
-		if !ok || export.Provider == "" {
-			return nil, fmt.Errorf("namespace OAuth provider is not configured")
-		}
-		// SCY accepts both ordinary resource URLs and URL|key-reference forms.
-		// Preserve the reference; exporting configuration must never fetch it.
-		parts := strings.SplitN(export.ClientConfigURL, "|", 2)
-		secret, err := url.Parse(parts[0])
-		if err != nil || strings.TrimSpace(parts[0]) == "" || strings.HasPrefix(parts[0], "inlined:") || secret.User != nil || secret.Fragment != "" {
-			return nil, fmt.Errorf("OAuth client configuration requires a SCY secret resource")
-		}
-		if len(parts) == 2 {
-			key, keyErr := url.Parse(parts[1])
-			if keyErr != nil || key.Scheme == "" || key.Scheme == "inlined" || key.User != nil {
-				return nil, fmt.Errorf("SCY encryption must use a key resource reference")
+			enabled := true
+			document.Auth = &mcp.ClientAuth{BackendForFrontend: &enabled, UseIdToken: true}
+		} else {
+			provider, ok := config.Authentication.Providers[export.Provider]
+			if !ok || export.Provider == "" {
+				return nil, fmt.Errorf("namespace OAuth provider is not configured")
 			}
-		}
-		providerPath := "/oauth/" + url.PathEscape(export.Provider) + "/mcp"
-		document.Transport.URL = base + config.NamespaceMCPPath + providerPath
-		document.ProtectedResourceMetadataURL = base + "/.well-known/oauth-protected-resource/" + strings.TrimPrefix(config.NamespaceMCPPath+providerPath, "/")
-		document.Auth = &mcp.ClientAuth{Mode: "oauth", ClientRef: "agently", Resource: document.Transport.URL, TokenType: "accessToken", Resolution: "eager", WorkspaceTokenReuse: "never",
-			Scopes: append([]string(nil), export.Scopes...), InlineProvider: &authconfig.OAuthProvider{ID: export.Provider, Issuer: provider.Issuer, DefaultClient: "agently", Clients: map[string]*authconfig.OAuthClient{"agently": {ConfigURL: export.ClientConfigURL, RedirectURI: export.RedirectURI}}}}
-		if err := document.Auth.InlineProvider.Validate(); err != nil {
-			return nil, fmt.Errorf("namespace OAuth provider is invalid: %w", err)
+			// SCY accepts both ordinary resource URLs and URL|key-reference forms.
+			// Preserve the reference; exporting configuration must never fetch it.
+			parts := strings.SplitN(export.ClientConfigURL, "|", 2)
+			secret, err := url.Parse(parts[0])
+			if err != nil || strings.TrimSpace(parts[0]) == "" || strings.HasPrefix(parts[0], "inlined:") || secret.User != nil || secret.Fragment != "" {
+				return nil, fmt.Errorf("OAuth client configuration requires a SCY secret resource")
+			}
+			if len(parts) == 2 {
+				key, keyErr := url.Parse(parts[1])
+				if keyErr != nil || key.Scheme == "" || key.Scheme == "inlined" || key.User != nil {
+					return nil, fmt.Errorf("SCY encryption must use a key resource reference")
+				}
+			}
+			providerPath := "/oauth/" + url.PathEscape(export.Provider) + "/mcp"
+			document.Transport.URL = base + config.NamespaceMCPPath + providerPath
+			document.ProtectedResourceMetadataURL = base + "/.well-known/oauth-protected-resource/" + strings.TrimPrefix(config.NamespaceMCPPath+providerPath, "/")
+			document.Auth = &mcp.ClientAuth{Mode: "oauth", ClientRef: "agently", Resource: document.Transport.URL, TokenType: "accessToken", Resolution: "eager", WorkspaceTokenReuse: "never",
+				Scopes: append([]string(nil), export.Scopes...), InlineProvider: &authconfig.OAuthProvider{ID: export.Provider, Issuer: provider.Issuer, DefaultClient: "agently", Clients: map[string]*authconfig.OAuthClient{"agently": {ConfigURL: export.ClientConfigURL, RedirectURI: export.RedirectURI}}}}
+			if err := document.Auth.InlineProvider.Validate(); err != nil {
+				return nil, fmt.Errorf("namespace OAuth provider is invalid: %w", err)
+			}
 		}
 	}
 	data, err := json.MarshalIndent(document, "", "  ")
@@ -86,7 +88,7 @@ func namespaceConnectionJSON(name string, config Config) ([]byte, error) {
 }
 
 func (s *Service) namespaceConnectionFolder(ctx context.Context) (*mcpresource.Folder, string, error) {
-	if s.config.NamespaceID == "" || (s.config.Authentication.PublicMCPURL == "" && s.config.Authentication.ConnectionExport == nil) || (s.config.Authentication.DefaultMode != "public" && s.config.Authentication.ConnectionExport == nil) {
+	if s.config.NamespaceID == "" || (s.config.Authentication.PublicMCPURL == "" && s.config.Authentication.ConnectionExport == nil) {
 		return nil, "", nil
 	}
 	rows, err := (namespacemcp.SQLDefinitions{DB: s.studio}).LoadNamespace(ctx, s.config.NamespaceID)
