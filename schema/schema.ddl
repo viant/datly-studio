@@ -592,13 +592,6 @@ CREATE TABLE component_acl (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
--- SQLX's allocation ledger is part of fresh Studio storage creation.
-CREATE TABLE sqlx_sequence_reservations (
-    table_name              VARCHAR(255) NOT NULL,
-    value                   BIGINT NOT NULL CHECK (value >= 0),
-    PRIMARY KEY (table_name)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 -- One canonical layout marker; there is no pre-release upgrade chain.
 CREATE TABLE schema_version (
     version                 INTEGER NOT NULL

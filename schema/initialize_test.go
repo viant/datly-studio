@@ -23,7 +23,7 @@ func TestInitializeCreatesCanonicalStorageAndReopensReadOnly(t *testing.T) {
 	}
 	assertCount(t, db, "SELECT COUNT(*) FROM connectors WHERE name='synthetic'", 1)
 	assertCount(t, db, "SELECT COUNT(*) FROM schema_version", 1)
-	assertTablePresence(t, ctx, db, "sqlx_sequence_reservations", true)
+	assertTablePresence(t, ctx, db, "sqlx_sequence_reservations", false)
 }
 
 func TestInitializeRejectsIncompleteStorageWithoutRepair(t *testing.T) {
@@ -33,13 +33,13 @@ func TestInitializeRejectsIncompleteStorageWithoutRepair(t *testing.T) {
 	if err := Initialize(ctx, db, "sqlite"); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := db.Exec("DROP TABLE sqlx_sequence_reservations"); err != nil {
+	if _, err := db.Exec("DROP TABLE bff_sessions"); err != nil {
 		t.Fatal(err)
 	}
 	if err := Initialize(ctx, db, "sqlite"); err == nil {
 		t.Fatal("incomplete storage accepted")
 	}
-	assertTablePresence(t, ctx, db, "sqlx_sequence_reservations", false)
+	assertTablePresence(t, ctx, db, "bff_sessions", false)
 }
 
 func TestInitializeRejectsOldShapeWithoutAlteringIt(t *testing.T) {

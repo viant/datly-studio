@@ -3,6 +3,7 @@ package schema
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -21,7 +22,7 @@ func TestSQLiteSchemasAndFixtures(t *testing.T) {
 	if err := ApplySQLite(ctx, studio, "studio_seed"); err != nil {
 		t.Fatal(err)
 	}
-	assertCount(t, studio, "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'", 28)
+	assertCount(t, studio, "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'", 27)
 	assertCount(t, studio, "SELECT COUNT(*) FROM connectors WHERE name='reporting' AND status='active'", 1)
 	assertCount(t, studio, "SELECT COUNT(*) FROM namespaces WHERE owner_id='unit' AND name='general' AND status='active'", 1)
 
@@ -128,4 +129,26 @@ func assertCount(t *testing.T, db *sql.DB, query string, want int) {
 	if actual != want {
 		t.Fatalf("query %q count = %d, want %d", query, actual, want)
 	}
+}
+
+func TestSQLiteGenerationsUseNativeAutoIncrementWithoutReservationTable(t *testing.T) {
+	db := openSQLite(t, "native_generation_identity")
+	defer db.Close()
+	ctx := context.Background()
+	if err := Initialize(ctx, db, "sqlite"); err != nil {
+		t.Fatal(err)
+	}
+	assertTablePresence(t, ctx, db, "sqlx_sequence_reservations", false)
+	for i := int64(1); i <= 2; i++ {
+		result, err := db.ExecContext(ctx, `INSERT INTO runtime_generations(source_revision,status,report_count,build_manifest_json,requested_by,requested_at) VALUES(?,'building',0,'{}','owner',CURRENT_TIMESTAMP)`, fmt.Sprint("native-", i))
+		if err != nil {
+			t.Fatal(err)
+		}
+		id, err := result.LastInsertId()
+		if err != nil || id != i {
+			t.Fatalf("native ID=%d want=%d error=%v", id, i, err)
+		}
+	}
+	assertCount(t, db, "SELECT seq FROM sqlite_sequence WHERE name='runtime_generations'", 2)
+	assertTablePresence(t, ctx, db, "sqlx_sequence_reservations", false)
 }

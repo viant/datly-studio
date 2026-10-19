@@ -215,7 +215,26 @@ func DropSQLite(ctx context.Context, db *sql.DB) error {
 // options require normalization.
 func sqliteStudioDDL(source []byte) []byte {
 	result := mysqlDateTimePrecision.ReplaceAll(source, []byte("DATETIME"))
-	result = []byte(strings.ReplaceAll(string(result), " AUTO_INCREMENT", ""))
+	// Preserve the engine-owned identity, rather than stripping AUTO_INCREMENT
+	// and turning it into a manually allocated BIGINT primary key.
+	text := string(result)
+	autoColumn := regexp.MustCompile(`(?m)^([ \t]*)([a-z_][a-z0-9_]*)[ \t]+(?:BIGINT|INT|INTEGER)[ \t]+NOT NULL AUTO_INCREMENT,`)
+	for _, table := range sqliteTableName.FindAllStringSubmatch(text, -1) {
+		block, err := tableStatement(text, table[1])
+		if err != nil {
+			continue
+		}
+		match := autoColumn.FindStringSubmatch(block)
+		if len(match) == 0 {
+			continue
+		}
+		column := match[2]
+		changed := autoColumn.ReplaceAllString(block, "${1}${2} INTEGER PRIMARY KEY AUTOINCREMENT,")
+		primary := regexp.MustCompile(`(?m)^[ \t]*PRIMARY KEY \(` + regexp.QuoteMeta(column) + `\),\n`)
+		changed = primary.ReplaceAllString(changed, "")
+		text = strings.Replace(text, block, changed, 1)
+	}
+	result = []byte(text)
 	result = mysqlColumnCharset.ReplaceAll(result, nil)
 	result = mysqlUniqueKey.ReplaceAll(result, []byte("UNIQUE ("))
 	return mysqlTableTail.ReplaceAll(result, []byte(");"))
