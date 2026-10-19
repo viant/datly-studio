@@ -13,6 +13,7 @@ import (
 	stored "github.com/viant/datly-studio/studio/namespaces/store_read"
 	"github.com/viant/datly/exec"
 	"github.com/viant/datly/spec"
+	"github.com/viant/forge/backend/types"
 	namespaceext "github.com/viant/mcp-protocol/extension/namespaces"
 	mcpconfig "github.com/viant/mcp/client/config"
 	"github.com/viant/scy/auth/jwt"
@@ -249,6 +250,15 @@ func runResource(ctx context.Context, session xhandler.Session, input *ResourceI
 	}
 	for _, definition := range definitions {
 		if definition.URI == input.Request.URI {
+			if input.Target != nil {
+				target := input.Target
+				if !strings.HasPrefix(definition.URI, "window://") || target.SelectionToken != "" || target.ExecutionProof != nil || len(target.DependencyPins) != 0 {
+					return fail(400, "invalid window target")
+				}
+				if _, err := types.SelectWindowResourceWithReferences(definition.JSON, target); err != nil {
+					return fail(400, "window target selection unsupported")
+				}
+			}
 			output.Response = append(json.RawMessage(nil), definition.JSON...)
 			return nil
 		}

@@ -7,6 +7,7 @@ import (
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
 	rhandler "github.com/viant/datly/runtime/handler"
 	"github.com/viant/datly/runtime/handler/custom"
+	"github.com/viant/forge/backend/types"
 	namespaceext "github.com/viant/mcp-protocol/extension/namespaces"
 	"github.com/viant/scy/auth/jwt"
 	"github.com/viant/xdatly"
@@ -106,6 +107,7 @@ func NewGet() xhandler.Contract[GetInput, GetOutput] {
 }
 
 type ResourceInput struct {
+	Target  *types.WindowTarget             `parameter:"Target,kind=body,in=target" json:"target,omitempty"`
 	Jwt     *jwt.Claims                     `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
 	Auth    *studioauth.Output              `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
 	Request namespaceext.ResourceGetRequest `parameter:"Request,kind=body,in=,dataType=namespaceext.ResourceGetRequest,required=true" anonymous:"true"`
