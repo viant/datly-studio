@@ -6,7 +6,7 @@
  const record=result=>{const value=result?.rows??result?.data??result;return Array.isArray(value)?value[0]:value;};
  const call=async(id,parameters)=>record(await ds(id).fetchRecords({parameters}));
  const popup=id=>context.handlers.window.openDialog({execution:{args:[id]}});
- const params=()=>context.services.hostWindow.parameters||{};
+ const params=()=>context.windowState?.parameters||{};
  const run=async(id,action)=>{if(get(id).saving)return false;set(id,{saving:true,outcome:''});try{await action();return true;}catch(error){set(id,{outcome:error.message});return false;}finally{set(id,{saving:false});}};
  const slugify=value=>value.toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
  const open=report=>context.services.hostWindow.navigate('builder',{report});

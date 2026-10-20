@@ -5,7 +5,7 @@
  const rows=(id,values)=>ds(id).setCollection((values||[]).map((value,index)=>({id:value.id??value.skillId??String(index),...value})));
  const record=result=>{const value=result?.rows??result?.data??result;return Array.isArray(value)?value[0]:value;};
  const call=async(id,input={})=>record(await ds(id).fetchRecords({parameters:input}));
- const host=()=>context.services.hostWindow,params=()=>host().parameters||{};
+ const host=()=>context.services?.hostWindow||{},params=()=>(context.windowState?.parameters||{});
  const state=()=>get('skill_state'),draft=()=>get('skill_draft');
  const run=async(action,ref='skill_state')=>{if(state().saving)return false;set('skill_state',{saving:true,outcome:'',notice:''});set(ref,{saving:true});try{await action();return true;}catch(error){set('skill_state',{outcome:error.code==='conflict'?'Skill changed elsewhere: '+error.message:error.message});if(error.code==='conflict')set('skill_draft',{conflict:true});return false;}finally{set('skill_state',{saving:false});set(ref,{saving:false});}};
  const markDirty=()=>{set('skill_draft',{dirty:true,hasContent:Boolean(draft().content?.trim())});host().setDirty?.(true);};

@@ -1,5 +1,5 @@
 (() => {
- const ds=id=>context.Context(id).handlers.dataSource,host=()=>context.services.hostWindow,params=()=>host().parameters,draft=()=>ds('composition_draft').getFormData()||{};
+ const ds=id=>context.Context(id).handlers.dataSource,host=()=>context.services?.hostWindow||{},params=()=>(context.windowState?.parameters||{}),draft=()=>ds('composition_draft').getFormData()||{};
  const set=values=>ds('composition_draft').setFormData({values:{...draft(),...values}});
  const record=result=>result?.rows?.[0]??result?.data?.[0]??result?.data??result;
  const call=async(id,parameters)=>record(await ds(id).fetchRecords({parameters}));

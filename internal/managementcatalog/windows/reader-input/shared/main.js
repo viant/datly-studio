@@ -3,8 +3,8 @@
  const get=id=>ds(id).getFormData()||{};
  const set=(id,values)=>ds(id).setFormData({values:{...get(id),...values}});
  const draft=()=>get('input_draft');
- const host=()=>context.services.hostWindow;
- const params=()=>host().parameters;
+ const host=()=>context.services?.hostWindow||{};
+ const params=()=>(context.windowState?.parameters||{});
  const record=result=>{const value=result?.rows??result?.data??result;return Array.isArray(value)?value[0]:value;};
  const call=async(ref,input={})=>record(await ds(ref).fetchRecords({parameters:input}));
  const rows=(ref,items)=>ds(ref).setCollection((items||[]).map((item,index)=>({id:item.id??item.name??String(index),...item})));

@@ -1,1 +1,1 @@
-(() => ({initialize:()=>{const resource=context.services.hostWindow.parameters?.resource;if(!resource)return;context.Context('security_selection').handlers.dataSource.setFormData({values:{resource,displayName:resource.id,readOnly:true}});}}))()
+(() => ({initialize:()=>{const resource=context.windowState?.parameters?.resource;if(!resource)return;context.Context('security_selection').handlers.dataSource.setFormData({values:{resource,displayName:resource.id,readOnly:true}});}}))()

@@ -2,8 +2,8 @@
  const ds=id=>context.Context(id).handlers.dataSource;
  const draft=()=>ds('output_draft').getFormData()||{};
  const set=values=>ds('output_draft').setFormData({values:{...draft(),...values}});
- const host=()=>context.services.hostWindow;
- const params=()=>host().parameters;
+ const host=()=>context.services?.hostWindow||{};
+ const params=()=>(context.windowState?.parameters||{});
  const record=result=>{const value=result?.rows??result?.data??result;return Array.isArray(value)?value[0]:value;};
  const call=async(ref,parameters)=>record(await ds(ref).fetchRecords({parameters}));
  let busy=false;

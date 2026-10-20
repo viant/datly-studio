@@ -18,7 +18,7 @@ function mount(inputName=''){
   if(id==='input_apply')return {data:[{applied:true,inspection:{...inspection,version:{...inspection.version,sourceRevision:8}}}]};
   return {data:[]};
  });
- render(<SettingProvider connectorConfig={{window:{service:{uri:'/window'}}}} services={{dataConnectorTransport:transport,hostWindow:{parameters:{reportId:'reader',versionNo:1,inputName},complete,close}}}><WindowContent window={{windowId:`forge-input-${++serial}`,windowKey:'reader-input'}} selectedMetadata={managementWindowFixture('reader-input')}/></SettingProvider>);
+ render(<SettingProvider connectorConfig={{window:{service:{uri:'/window'}}}} services={{dataConnectorTransport:transport,hostWindow:{complete,close}}}><WindowContent window={{windowId:`forge-input-${++serial}`,windowKey:'reader-input',parameters:{reportId:'reader',versionNo:1,inputName}}} selectedMetadata={managementWindowFixture('reader-input')}/></SettingProvider>);
  return {calls,complete,close};
 }
 async function choose(user,label,option){await user.click(screen.getByLabelText(label,{exact:true}));await user.click(await screen.findByRole('menuitem',{name:option,exact:true}));}

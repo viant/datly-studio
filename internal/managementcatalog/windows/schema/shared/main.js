@@ -7,7 +7,7 @@
  const record=result=>{if(result&&Object.prototype.hasOwnProperty.call(result,'duration'))return result;const value=result?.rows??result?.data??result;return Array.isArray(value)?value[0]:value;};
  const list=result=>{const value=record(result);return Array.isArray(value)?value:value?.items||[];};
  const call=async(id,input)=>record(await ds(id).fetchRecords({parameters:input}));
- const host=()=>context.services.hostWindow;
+ const host=()=>context.services?.hostWindow||{};
  const run=async(id,action)=>{if(get(id).saving)return false;set(id,{saving:true,outcome:''});try{await action();return true;}catch(error){set(id,{outcome:error.message});return false;}finally{set(id,{saving:false});}};
  const open=id=>{host().setDirty?.(true);context.handlers.window.openDialog({execution:{args:[id]}});};
  const selectTab=tabId=>context.handlers.window.selectTab({containerId:'schema-detail-tabs',tabId});

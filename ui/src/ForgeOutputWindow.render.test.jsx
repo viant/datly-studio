@@ -11,7 +11,7 @@ function mount(outputName=''){
  const inspection={version:{versionNo:1,sourceRevision:7,state:'draft'},capabilities:{canEdit:true},structure:{declarations:outputName?[{parameter:{name:outputName,typeExpr:'string',source:{kind:'output',name:'body'}}}]:[]}};
  const calls=[],complete=vi.fn();
  const transport=vi.fn(async request=>{calls.push(request);if(request.dataSourceRef==='output_inspect')return {data:[inspection]};if(request.dataSourceRef==='output_apply')return {data:[{applied:true,inspection:{...inspection,version:{...inspection.version,sourceRevision:8}}}]};return {data:[]};});
- render(<SettingProvider connectorConfig={{window:{service:{uri:'/window'}}}} services={{dataConnectorTransport:transport,hostWindow:{parameters:{reportId:'reader',versionNo:1,outputName},complete,close:vi.fn()}}}><WindowContent window={{windowId:`forge-output-${++serial}`,windowKey:'reader-output'}} selectedMetadata={managementWindowFixture('reader-output')}/></SettingProvider>);
+ render(<SettingProvider connectorConfig={{window:{service:{uri:'/window'}}}} services={{dataConnectorTransport:transport,hostWindow:{complete,close:vi.fn()}}}><WindowContent window={{windowId:`forge-output-${++serial}`,windowKey:'reader-output',parameters:{reportId:'reader',versionNo:1,outputName}}} selectedMetadata={managementWindowFixture('reader-output')}/></SettingProvider>);
  return {calls,complete};
 }
 test('Forge output metadata creates metrics with the fully qualified Datly type',async()=>{

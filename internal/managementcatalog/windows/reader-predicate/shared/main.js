@@ -2,7 +2,7 @@
  const ds=id=>context.Context(id).handlers.dataSource;
  const draft=()=>ds('predicate_editor_draft').getFormData()||{};
  const set=values=>ds('predicate_editor_draft').setFormData({values:{...draft(),...values}});
- const host=()=>context.services.hostWindow,params=()=>host().parameters;
+ const host=()=>context.services?.hostWindow||{},params=()=>(context.windowState?.parameters||{});
  const record=result=>{const value=result?.rows??result?.data??result;return Array.isArray(value)?value[0]:value;};
  const call=async(ref,parameters)=>record(await ds(ref).fetchRecords({parameters}));
  const rows=(ref,items)=>ds(ref).setCollection((items||[]).map((item,index)=>({id:item.id??item.name??String(index),...item})));
