@@ -668,3 +668,19 @@ real HTTP `resources/list` calls page through authorized, MCP-enabled namespace
 references and exclude disabled and other-owner rows. Management listing pages
 are also read back through standard `resources/read`. Keep the DQL authoritative
 when the subquery parser gap is fixed and full regeneration becomes available.
+
+## Multiple embedded management applications
+
+A host embedding more than one management application can call
+`catalog.ConfigureManagementApplications` once before serving requests. Pass a
+`ManagementApplication` for each binary-owned navigation definition, public URL,
+and provider identity. A nil navigation selects the embedded Data Studio menu.
+Applications must have distinct namespace IDs; invalid configuration is rejected
+without replacing the active set.
+
+The SDK exposes each application's namespace, resource headers, and exact resource
+URIs through the existing authenticated catalog. Resource overrides remain scoped
+to their registered application namespace; unknown namespaces are not admitted.
+This registration creates no database namespaces or records and does not change
+operation authorization. The existing `ConfigureManagementNavigation` API retains
+single-application behavior and replaces any prior additional applications.

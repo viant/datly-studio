@@ -19,23 +19,38 @@ import (
 // These are server-owned settings. The portable definitions contain no records
 // or credentials; any verified Studio principal may discover the management UI.
 // Its datasource calls still pass through the actual management tool's policy.
+type managementCatalog struct {
+	namespace   *Namespace
+	definitions []managementcatalog.Definition
+}
+
+// management retains the primary-catalog contract for existing integrations.
 func management(claims *jwt.Claims, auth *studioauth.Output) (*Namespace, []managementcatalog.Definition, error) {
+	catalogs, err := managementCatalogs(claims, auth)
+	if err != nil || len(catalogs) == 0 {
+		return nil, nil, err
+	}
+	return catalogs[0].namespace, catalogs[0].definitions, nil
+}
+
+func managementCatalogs(claims *jwt.Claims, auth *studioauth.Output) ([]managementCatalog, error) {
 	if claims == nil || claims.Subject == "" || auth == nil || auth.Auth == nil || auth.Auth.Subject != claims.Subject {
-		return nil, nil, fail(403, "verified Studio principal is required")
+		return nil, fail(403, "verified Studio principal is required")
 	}
 	id := os.Getenv("STUDIO_MANAGEMENT_NAMESPACE")
 	managementSettings.RLock()
 	installed := managementSettings.config
 	registered := managementSettings.resources
+	additional := append([]*managementcatalog.Config(nil), managementSettings.additional...)
 	configured := installed != nil
 	managementSettings.RUnlock()
 	if id == "" && !configured {
-		return nil, nil, nil
+		return nil, nil
 	}
 	var sections []managementcatalog.Section
 	if raw := os.Getenv("STUDIO_MANAGEMENT_SECTIONS_JSON"); raw != "" && installed == nil {
 		if err := json.Unmarshal([]byte(raw), &sections); err != nil {
-			return nil, nil, fail(503, "management sections are not configured correctly")
+			return nil, fail(503, "management sections are not configured correctly")
 		}
 	}
 	config := managementcatalog.Config{
@@ -50,6 +65,21 @@ func management(claims *jwt.Claims, auth *studioauth.Output) (*Namespace, []mana
 		config = *installed
 		id = config.Namespace
 	}
+	configs := append([]*managementcatalog.Config{&config}, additional...)
+	catalogs := make([]managementCatalog, 0, len(configs))
+	for _, current := range configs {
+		namespace, definitions, err := managementForConfig(*current, registered)
+		if err != nil {
+			return nil, err
+		}
+		catalogs = append(catalogs, managementCatalog{namespace: namespace, definitions: definitions})
+	}
+	return catalogs, nil
+}
+
+func managementForConfig(config managementcatalog.Config, registered []managementwindow.Definition) (*Namespace, []managementcatalog.Definition, error) {
+	id := config.Namespace
+
 	definitions, err := managementcatalog.NamespaceWindow(config)
 	if err != nil {
 		return nil, nil, fail(503, "management resource catalog is not configured correctly")
@@ -157,8 +187,9 @@ func managementReferences(definitions []managementcatalog.Definition, kind strin
 
 var managementSettings struct {
 	sync.RWMutex
-	config    *managementcatalog.Config
-	resources []managementwindow.Definition
+	config     *managementcatalog.Config
+	additional []*managementcatalog.Config
+	resources  []managementwindow.Definition
 }
 
 // ConfigureManagementResources registers binary-owned management resources.
@@ -191,21 +222,51 @@ func ConfigureManagementResources(definitions []managementwindow.Definition) err
 // nil selects Data Studio's embedded definition. Call before serving requests.
 // PublicURL is the trusted host URL; no caller-provided navigation is accepted.
 func ConfigureManagementNavigation(definition []byte, publicURL, providerIdentity string) error {
-	if len(definition) == 0 {
-		definition = nativeapp.Navigation()
+	return ConfigureManagementApplications([]ManagementApplication{{Navigation: definition, PublicURL: publicURL, ProviderIdentity: providerIdentity}})
+}
+
+// ManagementApplication is a binary-owned administrative UI. A nil Navigation
+// selects the embedded Data Studio application; definitions never come from callers.
+type ManagementApplication struct {
+	Navigation       []byte
+	PublicURL        string
+	ProviderIdentity string
+}
+
+// ConfigureManagementApplications installs isolated administrative namespaces
+// atomically before serving requests. Each application owns its menu, built-in
+// resources, producer connection and namespace-scoped resource overrides.
+// Existing principal and operation authorization applies to every application.
+func ConfigureManagementApplications(applications []ManagementApplication) error {
+	if len(applications) == 0 {
+		return fail(400, "management applications required")
 	}
-	var app struct {
-		ID string `json:"id"`
-	}
-	if err := json.Unmarshal(definition, &app); err != nil {
-		return err
-	}
-	config := managementcatalog.Config{Namespace: app.ID, ApplicationID: app.ID, ProviderIdentity: providerIdentity, MCPService: "mcp://" + app.ID + "/admin", PublicURL: publicURL, Navigation: append(json.RawMessage(nil), definition...)}
-	if _, err := managementcatalog.NamespaceWindow(config); err != nil {
-		return err
+	configs := make([]*managementcatalog.Config, 0, len(applications))
+	seen := map[string]bool{}
+	for _, application := range applications {
+		definition := application.Navigation
+		if len(definition) == 0 {
+			definition = nativeapp.Navigation()
+		}
+		var app struct {
+			ID string `json:"id"`
+		}
+		if err := json.Unmarshal(definition, &app); err != nil {
+			return err
+		}
+		if seen[app.ID] {
+			return fail(400, "duplicate management namespace")
+		}
+		config := managementcatalog.Config{Namespace: app.ID, ApplicationID: app.ID, ProviderIdentity: application.ProviderIdentity, MCPService: "mcp://" + app.ID + "/admin", PublicURL: application.PublicURL, Navigation: append(json.RawMessage(nil), definition...)}
+		if _, err := managementcatalog.NamespaceWindow(config); err != nil {
+			return err
+		}
+		seen[app.ID] = true
+		configs = append(configs, &config)
 	}
 	managementSettings.Lock()
-	managementSettings.config = &config
+	managementSettings.config = configs[0]
+	managementSettings.additional = configs[1:]
 	managementSettings.Unlock()
 	return nil
 }

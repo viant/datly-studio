@@ -160,12 +160,12 @@ func runList(ctx context.Context, session xhandler.Session, input *ListInput, ou
 		return fail(400, "namespace catalog input/output required")
 	}
 	entries := []Namespace{}
-	adminNamespace, _, adminErr := management(input.Jwt, input.Auth)
+	catalogs, adminErr := managementCatalogs(input.Jwt, input.Auth)
 	if adminErr != nil {
 		return adminErr
 	}
-	if adminNamespace != nil {
-		entries = append(entries, *adminNamespace)
+	for _, catalog := range catalogs {
+		entries = append(entries, *catalog.namespace)
 	}
 	seen := map[string]bool{}
 	for offset := 0; ; offset += 500 {
@@ -203,17 +203,19 @@ func runGet(ctx context.Context, session xhandler.Session, input *GetInput, outp
 	if err != nil {
 		return err
 	}
-	adminNamespace, definitions, err := management(input.Jwt, input.Auth)
+	catalogs, err := managementCatalogs(input.Jwt, input.Auth)
 	if err != nil {
 		return err
 	}
-	if adminNamespace != nil && adminNamespace.URI == input.Request.URI {
-		output.Response = &namespaceext.GetResult{Namespace: adminNamespace}
-		output.Response.Resources, output.Response.NextCursor, err = namespaceext.Paginate(managementReferences(definitions, input.Request.Kind), input.Request.Cursor, 32)
-		if errors.Is(err, namespaceext.ErrCursor) {
-			return fail(400, err.Error())
+	for _, catalog := range catalogs {
+		if catalog.namespace.URI == input.Request.URI {
+			output.Response = &namespaceext.GetResult{Namespace: catalog.namespace}
+			output.Response.Resources, output.Response.NextCursor, err = namespaceext.Paginate(managementReferences(catalog.definitions, input.Request.Kind), input.Request.Cursor, 32)
+			if errors.Is(err, namespaceext.ErrCursor) {
+				return fail(400, err.Error())
+			}
+			return err
 		}
-		return err
 	}
 	row, err := visible(ctx, session, input.Jwt, input.Auth, id)
 	if err != nil {
@@ -244,23 +246,25 @@ func runResource(ctx context.Context, session xhandler.Session, input *ResourceI
 	if input == nil || output == nil {
 		return fail(400, "resource input/output required")
 	}
-	_, definitions, err := management(input.Jwt, input.Auth)
+	catalogs, err := managementCatalogs(input.Jwt, input.Auth)
 	if err != nil {
 		return err
 	}
-	for _, definition := range definitions {
-		if definition.URI == input.Request.URI {
-			if input.Target != nil {
-				target := input.Target
-				if !strings.HasPrefix(definition.URI, "window://") || target.SelectionToken != "" || target.ExecutionProof != nil || len(target.DependencyPins) != 0 {
-					return fail(400, "invalid window target")
+	for _, catalog := range catalogs {
+		for _, definition := range catalog.definitions {
+			if definition.URI == input.Request.URI {
+				if input.Target != nil {
+					target := input.Target
+					if !strings.HasPrefix(definition.URI, "window://") || target.SelectionToken != "" || target.ExecutionProof != nil || len(target.DependencyPins) != 0 {
+						return fail(400, "invalid window target")
+					}
+					if _, err := types.SelectWindowResourceWithReferences(definition.JSON, target); err != nil {
+						return fail(400, "window target selection unsupported")
+					}
 				}
-				if _, err := types.SelectWindowResourceWithReferences(definition.JSON, target); err != nil {
-					return fail(400, "window target selection unsupported")
-				}
+				output.Response = append(json.RawMessage(nil), definition.JSON...)
+				return nil
 			}
-			output.Response = append(json.RawMessage(nil), definition.JSON...)
-			return nil
 		}
 	}
 	id, name, err := ParseVirtualURI(input.Request.URI)

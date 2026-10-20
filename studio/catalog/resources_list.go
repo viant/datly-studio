@@ -66,7 +66,7 @@ func runResourcesList(ctx context.Context, session xhandler.Session, input *Reso
 	if input == nil || output == nil {
 		return fail(400, "resource listing input/output required")
 	}
-	admin, definitions, err := management(input.Jwt, input.Auth)
+	catalogs, err := managementCatalogs(input.Jwt, input.Auth)
 	if err != nil {
 		return err
 	}
@@ -111,8 +111,15 @@ func runResourcesList(ctx context.Context, session xhandler.Session, input *Reso
 	}
 	resources := []schema.Resource{}
 	managementEntries := []Reference{}
-	if admin != nil && (filter.Namespace == "" || filter.Namespace == admin.Name) {
-		for _, ref := range managementReferences(definitions, filter.Kind) {
+	managementNamespace := false
+	for _, catalog := range catalogs {
+		if filter.Namespace == catalog.namespace.Name {
+			managementNamespace = true
+		}
+		if filter.Namespace != "" && filter.Namespace != catalog.namespace.Name {
+			continue
+		}
+		for _, ref := range managementReferences(catalog.definitions, filter.Kind) {
 			if filter.Query == "" || strings.Contains(strings.ToLower(ref.Name+" "+ref.Description+" "+ref.URI), strings.ToLower(filter.Query)) {
 				managementEntries = append(managementEntries, ref)
 			}
@@ -128,7 +135,7 @@ func runResourcesList(ctx context.Context, session xhandler.Session, input *Reso
 		cursor.Management++
 	}
 	more := cursor.Management < len(managementEntries)
-	if !more && (filter.Kind == "" || filter.Kind == "mcp") && (admin == nil || filter.Namespace != admin.Name) {
+	if !more && (filter.Kind == "" || filter.Kind == "mcp") && !managementNamespace {
 		remaining := filter.Limit - len(resources)
 		id, name := "", ""
 		if filter.Namespace != "" {

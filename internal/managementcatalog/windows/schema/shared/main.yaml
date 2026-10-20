@@ -20,6 +20,7 @@ window:
                 label: Refresh
                 icon: refresh
                 handler: management.initialize
+                disabledWhen: {dataSourceRef: schema_state, selector: saving, equals: true}
         - id: schema-layout
           layout:
             orientation: horizontal
@@ -34,6 +35,7 @@ window:
                       label: Connector
                       dataField: connectorName
                       type: select
+                      disabledWhen: {selector: saving, equals: true}
                       optionsDataSourceRef: schema_connectors
                       optionValueField: name
                       optionLabelField: label
@@ -47,6 +49,7 @@ window:
                       label: Schema
                       dataField: schemaName
                       type: select
+                      disabledWhen: {selector: saving, equals: true}
                       optionsDataSourceRef: schema_names
                       optionValueField: name
                       optionLabelField: label
@@ -60,6 +63,7 @@ window:
                       label: Find tables or views
                       dataField: query
                       type: text
+                      disabledWhen: {selector: saving, equals: true}
                       properties:
                         placeholder: Find tables or views
                         fill: true
@@ -71,6 +75,7 @@ window:
                         - event: onClick
                           handler: management.searchTables
                       type: button
+                      disabledWhen: {selector: saving, equals: true}
                       isStandalone: true
                       properties:
                         fill: true
@@ -100,6 +105,7 @@ window:
                         type: button
                         icon: search
                         tooltip: Inspect table
+                        disabledWhen: {dataSourceRef: schema_state, selector: saving, equals: true}
                         cellProperties:
                           aria-label: Inspect table
                         on:

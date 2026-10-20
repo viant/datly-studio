@@ -69,3 +69,15 @@ test('Forge child authoring ignores an older component inspection after a new se
  const child=screen.getByLabelText('Child view identifier',{exact:true});await user.clear(child);await user.type(child,'contact');await act(async()=>first(response('first_root')));
  expect(child.value).toBe('contact');expect(screen.getByRole('button',{name:'Parent view',exact:true}).textContent).toContain('second_root');
 });
+
+
+test('schema search locks inspect until the current metadata request completes',async()=>{
+ const user=userEvent.setup(),{api}=mount();
+ const inspectButton=await screen.findByRole('button',{name:'Inspect table',exact:true});await waitFor(()=>expect(inspectButton.disabled).toBe(false));
+ const original=api.fetchMCPDataSource.getMockImplementation();let finish;
+ api.fetchMCPDataSource.mockImplementation((source,input)=>source.backend.method==='studio.sdk.connectors.tables'?new Promise(resolve=>{finish=resolve;}):original(source,input));
+ await user.click(screen.getByRole('button',{name:'Search tables',exact:true}));await waitFor(()=>expect(inspectButton.disabled).toBe(true));expect(screen.getByRole('button',{name:'Search tables',exact:true}).disabled).toBe(true);
+ await user.click(inspectButton);expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.connectors.table')).toBe(false);
+ await act(async()=>finish({items:[{schema:'sales',name:'VENDOR',type:'TABLE'}]}));await waitFor(()=>expect(inspectButton.disabled).toBe(false));await user.click(inspectButton);
+ await screen.findByRole('textbox',{name:'SQL source',exact:true});expect(api.fetchMCPDataSource.mock.calls.filter(([source])=>source.backend.method==='studio.sdk.connectors.table')).toHaveLength(1);
+});
