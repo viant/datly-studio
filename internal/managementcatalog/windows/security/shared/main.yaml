@@ -704,6 +704,9 @@ window:
       title: Discovered predicates
       dataSourceRef: security_type_filter
       fetchOnOpen: false
+      properties:
+        className: studio-security-discovery-dialog
+        searchable: false
       content:
         id: security-type-discovery
         containers:
@@ -727,12 +730,16 @@ window:
               columns:
                 - id: typeName
                   name: Go type
+                  width: 180
                 - id: packagePath
                   name: Package
+                  width: 400
                 - id: alias
                   name: Alias
+                  width: 150
                 - id: description
                   name: Description
+                  width: 300
               emptyState:
                 compact: true
                 title: No linked Go predicate types

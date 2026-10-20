@@ -220,6 +220,10 @@ body { margin: 0; min-width: 320px; background: #f4f7fb; }
 .studio-resource-list small { overflow: hidden; color: #667085; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
 .studio-resource-section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .studio-acl-dialog { width: min(760px, calc(100vw - 28px)); }
+.studio-security-discovery-dialog { width: min(1180px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); }
+.studio-security-discovery-dialog .bp6-dialog-body, .studio-security-discovery-dialog .bp5-dialog-body { min-height: 0; overflow-y: auto; }
+.studio-security-discovery-dialog .basic-table-scroll { overflow-x: auto; }
+.studio-security-discovery-dialog .basic-table-scroll table { min-width: 1030px; }
 .studio-acl-list, .studio-acl-form { margin-top: 16px; padding-top: 14px; border-top: 1px solid #d8e1ec; }
 .studio-acl-list h3, .studio-acl-form h3 { margin: 0 0 10px; font-size: 16px; }
 .studio-acl-list .studio-panel-heading, .studio-acl-form .studio-panel-heading { margin-bottom: 10px; }
