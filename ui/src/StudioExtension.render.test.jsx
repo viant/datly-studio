@@ -1,8 +1,24 @@
+import {managementResourceFixture} from './managementWindowFixture.js';
+import './ManagementWindowRuntime.jsx';
 import React from 'react';
 import {expect,test,vi} from 'vitest';
 import {act,render,screen,waitFor} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {StudioApp,createStudioSDK,defineStudioExtension,loadConfig,validateConfig} from './embed.jsx';
+
+
+function metadataAPI(api) {
+ api.readManagementResource=async uri=>managementResourceFixture(uri.split('/').at(-1));
+ api.fetchMCPDataSource=async(source,input)=>{
+  const name=source.backend.method;
+  if(name==='studio.sdk.namespaces.list')return api.listNamespaces(input);
+  if(name==='studio.sdk.connectors.list')return api.listConnectors(input);
+  if(name==='studio.sdk.components.list')return api.listComponents(input);
+  if(name==='studio.sdk.runtime.status')return api.getRuntimeStatus();
+  throw new Error('Unexpected '+name);
+ };
+ return api;
+}
 
 test('cannot open a connector dialog while namespace selection is pending',async()=>{
  localStorage.clear();
@@ -11,18 +27,18 @@ test('cannot open a connector dialog while namespace selection is pending',async
  try {
   const user=userEvent.setup();const a='a'.repeat(64),b='b'.repeat(64);
   const api={config:{apiBaseURL:'http://studio-pending.test'},setNamespace:vi.fn(),setNamespaceBlocked:vi.fn(),listNamespaces:vi.fn().mockResolvedValue({items:[{namespaceId:a,name:'alpha',status:'active'},{namespaceId:b,name:'beta',status:'active'}]}),listComponents:vi.fn().mockResolvedValue({items:[]}),listConnectors:vi.fn().mockResolvedValue({items:[]}),getRuntimeStatus:vi.fn().mockResolvedValue({})};
-  render(<StudioApp api={api} mode="authenticated" subject="owner"/>);
+  render(<StudioApp api={metadataAPI(api)} mode="authenticated" subject="owner"/>);
   await waitFor(()=>expect(api.setNamespace).toHaveBeenLastCalledWith(a));
   await user.click(document.querySelector('.studio-nav-connectors .bp6-tree-node-label'));
   await screen.findByRole('heading',{name:'Connectors',level:1});
   await user.selectOptions(screen.getByRole('combobox',{name:'Current namespace'}),b);
   const buttons=screen.getAllByRole('button',{name:'New connector'});
-  for(const button of buttons){expect(button.disabled).toBe(true);await user.click(button);}
+  for(const button of buttons){expect(button.matches(':disabled')).toBe(true);await user.click(button);}
   expect(screen.queryByRole('dialog')).toBeNull();
   expect(api.setNamespace).toHaveBeenLastCalledWith(a);
   await act(async()=>{release();});
   await waitFor(()=>expect(api.setNamespace).toHaveBeenLastCalledWith(b));
-  for(const button of screen.getAllByRole('button',{name:'New connector'}))expect(button.disabled).toBe(false);
+  for(const button of screen.getAllByRole('button',{name:'New connector'}))expect(button.matches(':disabled')).toBe(false);
  } finally {
   if(previous)Object.defineProperty(navigator,'locks',previous);else delete navigator.locks;
  }
@@ -50,7 +66,7 @@ test('installed primitive workspace shares the original Studio namespace and aut
   lastContext=context;
   return <section aria-label="Primitive resources"><h1>Primitive resources</h1><output data-testid="extension-namespace">{context.currentNamespace.name}</output></section>;
  }}));
- render(<StudioApp api={api} mode="authenticated" subject="viewer" extensions={sdk.extensions()}/>);
+ render(<StudioApp api={metadataAPI(api)} mode="authenticated" subject="viewer" extensions={sdk.extensions()}/>);
  await waitFor(()=>expect(api.setNamespace).toHaveBeenLastCalledWith(rows[0].namespaceId));
  expect(await screen.findByRole('heading',{name:'Overview',level:1})).toBeTruthy();
  await user.click(screen.getByText('Resources'));

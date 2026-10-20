@@ -881,3 +881,12 @@ test('management resources fall back to the authorized MCP resource tool on olde
  assert.equal(calls[1].params._meta['io.modelcontextprotocol/protocolVersion'],'2026-07-28');
  assert.deepEqual(calls[1].params.arguments,{uri:'window://datastudio/namespaces'});
 });
+
+test('policy datasources use admitted MCP tools with exact authz DTOs and no injected namespace argument',async()=>{
+ const seen=[];
+ const api=new StudioAPI({mode:'development',apiBaseURL:'http://localhost',development:{subject:'owner'}},{fetcher:async(value,init)=>{const request=new Request(value,init);seen.push({body:await request.json(),headers:request.headers});return response({result:{structuredContent:{document:{revision:1,policies:{}}}}});}});
+ api.setNamespace('a'.repeat(64));const resource={kind:'skill',id:'guide',tenant:'owner',version:'1'};
+ const value=await api.fetchMCPDataSource({backend:{kind:'mcp_tool',method:'authz.sdk.policies.get'}},{resource});
+ assert.equal(value.document.revision,1);assert.deepEqual(seen[0].body.params.arguments,{resource});assert.equal(seen[0].body.params.name,'authz.sdk.policies.get');assert.equal(seen[0].headers.get('X-Studio-Namespace'),'a'.repeat(64));
+ await assert.rejects(()=>api.fetchMCPDataSource({backend:{kind:'mcp_tool',method:'authz.sdk.policies.untrusted'}},{}),/Studio MCP datasource/);
+});

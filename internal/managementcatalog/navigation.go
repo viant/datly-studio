@@ -57,8 +57,8 @@ func navigation(config Config) (Definition, error) {
 				return Definition{}, fmt.Errorf("invalid management section")
 			}
 			seen[section.ID] = true
-			if section.ID == "namespaces" || (section.ID == "connectors" || section.ID == "components") && (config.ApplicationID == "" || config.ApplicationID == "datastudio") {
-				menus = append(menus, map[string]any{"id": section.ID, "title": section.Title, "icon": section.Icon, "action": map[string]any{"type": "window", "resourceUri": "window://" + config.Namespace + "/" + section.ID}})
+			if section.ID == "namespaces" || (section.ID == "connectors" || section.ID == "components" || section.ID == "overview" || section.ID == "runtime" || section.ID == "schema" || section.ID == "skills" || section.ID == "security") && (config.ApplicationID == "" || config.ApplicationID == "datastudio") {
+				menus = append(menus, map[string]any{"id": section.ID, "title": section.Title, "icon": section.Icon, "action": map[string]any{"type": "window", "resourceUri": "window://" + config.Namespace + "/" + WindowName(section.ID)}})
 				continue
 			}
 			target := *base
@@ -123,8 +123,8 @@ func embeddedNavigation(config Config) (Definition, error) {
 			if section == "" {
 				return fmt.Errorf("invalid native menu section")
 			}
-			if section == "namespaces" || (section == "connectors" || section == "components") && (config.ApplicationID == "" || config.ApplicationID == "datastudio") {
-				item["action"] = map[string]any{"type": "window", "resourceUri": "window://" + config.Namespace + "/" + section}
+			if section == "namespaces" || (section == "connectors" || section == "components" || section == "overview" || section == "runtime" || section == "schema" || section == "skills" || section == "security") && (config.ApplicationID == "" || config.ApplicationID == "datastudio") {
+				item["action"] = map[string]any{"type": "window", "resourceUri": "window://" + config.Namespace + "/" + WindowName(section)}
 				continue
 			}
 			target := *base
@@ -144,4 +144,11 @@ func embeddedNavigation(config Config) (Definition, error) {
 	}
 	data, err := json.Marshal(map[string]any{"schemaVersion": 1, "name": title, "icon": icon, "applications": []any{app}})
 	return Definition{URI: "navigation://" + config.Namespace + "/main", JSON: data}, err
+}
+
+func WindowName(section string) string {
+	if section == "components" {
+		return "component-catalog"
+	}
+	return section
 }

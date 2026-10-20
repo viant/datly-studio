@@ -1,69 +1,47 @@
 import React from 'react';
-import { describe, expect, test, vi } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import {expect,test,vi} from 'vitest';
+import {render,screen,waitFor,within} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { RuntimeWorkspace } from './RuntimeWorkspace.jsx';
-
-const status = {
-  status: 'active', activeGeneration: 12, reportCount: 1,
-  host: { status: 'ready', revision: 12 },
-  readers: [{
-    reportId: 'vendor', title: 'Vendor Catalog', namespace: 'general', ownerPackage: 'alice', connectorName: 'reporting', versionNo: 2, status: 'active',
-    mcpExposures: [{ kind: 'tool', name: 'alice.vendor.read', component: 'reader', method: 'GET', path: '/vendors', enabled: true }, { kind: 'tool', name: 'VendorCube', component: 'VendorCube', method: 'POST', path: '/vendors/cube', enabled: true }, { kind: 'tool', name: 'VendorCubeCompose', component: 'VendorCubeCompose', method: 'POST', path: '/vendors/cube/compose', enabled: true }],
-    mcpResources: [{ namespace: 'alice.docs', rootPath: 'guide', uriPrefix: 'skill://alice-guide/' }],
-    skills: [{ skillId: 'guide', skillRoot: '.', uriPrefix: 'skill://alice-guide/' }],
-  }],
-};
-
-describe('Runtime catalogs', () => {
-  test('keeps live MCP discovery inside Runtime tabs', async () => {
-    const user=userEvent.setup();
-    const api={listMCPTools:vi.fn().mockResolvedValue([{name:'alice.vendor.read',description:'Read vendors',inputSchema:{type:'object',properties:{limit:{type:'integer'}}},outputSchema:{type:'object',properties:{vendors:{type:'array'}}}}])};
-    const onOpen=vi.fn();
-    render(<RuntimeWorkspace api={api} mode="runtime" status={status} loading={false} error="" onRefresh={vi.fn()} onOpenComponent={onOpen}/>);
-    expect(screen.getByRole('heading', { name: 'Runtime' })).toBeTruthy();
-    await user.click(screen.getByRole('button',{name:'Open Vendor Catalog'}));
-    expect(onOpen).toHaveBeenCalledWith(expect.objectContaining({id:'vendor',ownerPackage:'alice',versionNo:2}));
-    await user.click(screen.getByRole('tab', { name: /MCP tools/ }));
-    expect(await screen.findByText('alice.vendor.read')).toBeTruthy();
-    await user.click(screen.getByRole('button', { name: 'Refresh' }));
-    await waitFor(() => expect(api.listMCPTools).toHaveBeenCalledTimes(2));
-    expect(screen.getAllByText('1 fields')).toHaveLength(2);
-    await user.click(screen.getByRole('button',{name:'Inspect alice.vendor.read schema'}));
-    const dialog = await screen.findByRole('dialog',{name:'alice.vendor.read contract'});
-    expect(screen.getAllByText(/vendors/).length).toBeGreaterThan(1);
-    await user.click(within(dialog).getAllByRole('button', { name: 'Close' }).at(-1));
-    await user.click(screen.getByRole('tab', { name: 'Resources (1)' }));
-    expect(screen.getByText('skill://alice-guide/')).toBeTruthy();
-  });
-
-  test('links a published skill to its versioned component editor', async () => {
-    const user=userEvent.setup();
-    const onOpen=vi.fn();
-    render(<RuntimeWorkspace api={{listMCPSkills:vi.fn().mockResolvedValue([{uri:'skill://alice-guide/SKILL.md',frontmatter:{name:'alice-guide',description:'Use vendors','allowed-tools':'alice.vendor.read'}}]),listMCPTools:vi.fn().mockResolvedValue([{name:'alice.vendor.read'}])}} mode="skills" status={status} loading={false} error="" onRefresh={vi.fn()} onOpenComponent={onOpen} />);
-    expect(screen.getByRole('heading', { name: 'Skills', level: 1 })).toBeTruthy();
-    expect(await screen.findByText('alice-guide')).toBeTruthy();
-    expect(screen.getByRole('button',{name:'Open MCP tool alice.vendor.read component'})).toBeTruthy();
-    await user.click(screen.getByRole('button',{name:'Open MCP tool alice.vendor.read component'}));
-    expect(onOpen).toHaveBeenCalledWith(expect.objectContaining({id:'vendor',versionNo:2}));
-    onOpen.mockClear();
-    await user.click(screen.getByRole('button', { name: 'Edit in component' }));
-    expect(onOpen).toHaveBeenCalledWith(expect.objectContaining({ id: 'vendor', title: 'Vendor Catalog', ownerPackage:'alice', versionNo:2, openResources: true }));
-  });
-
-  test('keeps live skill inventory read-only until the owning component is opened',async()=>{
-    const user=userEvent.setup();
-    const api={listMCPSkills:vi.fn().mockResolvedValue([{uri:'skill://alice-guide/SKILL.md',frontmatter:{name:'alice-guide',description:'Guide','allowed-tools':'alice.vendor.read'}}]),listMCPTools:vi.fn().mockResolvedValue([{name:'alice.vendor.read'}]),upsertResourceFile:vi.fn(),deleteSkillRoot:vi.fn(),publishReader:vi.fn()};
-    const onOpen=vi.fn();
-    render(<RuntimeWorkspace api={api} mode="skills" status={status} loading={false} error="" onRefresh={vi.fn()} onOpenComponent={onOpen}/>);
-    await screen.findByText('alice-guide');
-    expect(screen.getByRole('radio',{name:'Select alice-guide skill'}).getAttribute('name')).toBe('published-skill');
-    expect(screen.queryByRole('button',{name:'Assign'})).toBeNull();
-    expect(screen.queryByRole('button',{name:'Remove alice.vendor.read from skill'})).toBeNull();
-    await user.click(screen.getByRole('button',{name:'Edit in component'}));
-    expect(onOpen).toHaveBeenCalledWith(expect.objectContaining({id:'vendor',openResources:true}));
-    expect(api.upsertResourceFile).not.toHaveBeenCalled();
-    expect(api.deleteSkillRoot).not.toHaveBeenCalled();
-    expect(api.publishReader).not.toHaveBeenCalled();
-  });
+import ManagementWindowRuntime from './ManagementWindowRuntime.jsx';
+import {managementResourceFixture} from './managementWindowFixture.js';
+let serial=0;
+const reader={reportId:'vendor',title:'Vendor Catalog',namespace:'general',ownerPackage:'alice',connectorName:'reporting',versionNo:2,status:'active',runtimeRevision:'rev12',mcpExposures:[{name:'alice.vendor.read'}],mcpResources:[{namespace:'alice.docs',rootPath:'guide',uriPrefix:'skill://alice-guide/'}]};
+function mount({failedCatalog=false,failedStatus=false}={}){
+ const navigate=vi.fn();const api={readManagementResource:async()=>managementResourceFixture('runtime'),fetchMCPDataSource:vi.fn(async(source)=>{if(failedStatus)throw new Error('Status denied');return {data:[{status:'active',activeGeneration:12,reportCount:1,host:{status:'ready',revision:12},readers:[reader]}]};}),listMCPTools:vi.fn(async()=>{if(failedCatalog)throw new Error('Discovery denied');return [{name:'alice.vendor.read',description:'Read vendors',inputSchema:{type:'object',required:['limit'],properties:{limit:{type:'integer',description:'Maximum rows'}}},outputSchema:{type:'object',properties:{vendors:{type:'array'}}}}];})};
+ render(<ManagementWindowRuntime api={api} uri="window://datastudio/runtime" instanceKey={'forge-runtime-'+(++serial)} onNavigate={navigate}/>);return {api,navigate};
+}
+test('metadata Runtime retains component navigation, live MCP contracts and resources',async()=>{
+ const user=userEvent.setup(),{api,navigate}=mount();
+ expect(await screen.findByRole('heading',{name:'Runtime',exact:true})).toBeTruthy();
+ await screen.findByText('Vendor Catalog');await screen.findByText('Generation 12');
+ await user.click(screen.getByRole('button',{name:'Open component',exact:true}));
+ expect(navigate).toHaveBeenCalledWith('builder',{report:expect.objectContaining({id:'vendor',ownerPackage:'alice',versionNo:2})});
+ await user.click(screen.getByRole('tab',{name:'MCP tools',exact:true}));
+ await screen.findByText('alice.vendor.read');
+ expect(screen.getAllByText('1 fields')).toHaveLength(2);
+ await user.click(screen.getByRole('button',{name:'Inspect schema',exact:true}));
+ const dialog=await screen.findByRole('dialog',{name:'MCP tool contract'});
+ expect(within(dialog).getByText('limit',{exact:true})).toBeTruthy();expect(within(dialog).getByText('required',{exact:true})).toBeTruthy();
+ await user.click(within(dialog).getByRole('tab',{name:'Output',exact:true}));
+ expect(within(dialog).getByText('vendors',{exact:true})).toBeTruthy();
+ await user.click(within(dialog).getAllByRole('button',{name:'Close',exact:true}).at(-1));
+ await user.click(screen.getByRole('tab',{name:'Resources',exact:true}));
+ expect(await screen.findByText('skill://alice-guide/')).toBeTruthy();
+ await user.click(screen.getByRole('button',{name:'Refresh',exact:true}));
+ await waitFor(()=>expect(api.listMCPTools).toHaveBeenCalledTimes(2));
+});
+test('metadata Runtime searches the live tool catalog and keeps healthy status on discovery failure',async()=>{
+ const user=userEvent.setup();mount();await screen.findByText('Vendor Catalog');
+ await user.click(screen.getByRole('tab',{name:'MCP tools',exact:true}));
+ const query=screen.getByLabelText('Find MCP tool name or description',{exact:true});
+ await user.type(query,'missing');await waitFor(()=>expect(screen.queryByText('alice.vendor.read',{exact:true})).toBeNull());
+ await user.clear(query);expect(await screen.findByText('alice.vendor.read',{exact:true})).toBeTruthy();
+});
+test('metadata Runtime reports partial MCP failure while retaining deployed components',async()=>{
+ mount({failedCatalog:true});expect(await screen.findByText('Vendor Catalog')).toBeTruthy();
+ expect(await screen.findByRole('alert')).toBeTruthy();expect(screen.getByText(/Datly MCP catalog unavailable: Discovery denied/)).toBeTruthy();
+});
+test('metadata Runtime keeps live discovery visible when status retrieval fails',async()=>{
+ const user=userEvent.setup();mount({failedStatus:true});await screen.findByText(/Runtime status unavailable: Status denied/);
+ await user.click(screen.getByRole('tab',{name:'MCP tools',exact:true}));expect(await screen.findByText('alice.vendor.read')).toBeTruthy();
 });

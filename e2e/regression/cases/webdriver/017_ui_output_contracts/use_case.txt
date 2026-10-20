@@ -1,0 +1,1 @@
+UI-only namespace, connector and internal component creation; input/output add, edit, rename and remove; output/view, body, status and metrics kinds; SQL result-column rename/hide and table/JSON preview; validation and read-only MCP persistence checks. No DQL import or DQL source authoring.

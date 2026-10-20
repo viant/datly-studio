@@ -3,7 +3,7 @@ import { describe, expect, test, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-vi.mock('./LazyEditor.jsx',()=>({LazyEditor:({value,onChange,ariaLabel})=><textarea aria-label={ariaLabel} value={value} onChange={(event)=>onChange(event.target.value)}/>}));
+vi.mock('forge/reader-workbench/editor',()=>({LazyEditor:({value,onChange,ariaLabel})=><textarea aria-label={ariaLabel} value={value} onChange={(event)=>onChange(event.target.value)}/>}));
 import { ReaderAnalyticsDialog } from './ReaderAnalyticsDialog.jsx';
 
 const structure={component:{rootView:{columns:[{name:'Status',source:'STATUS',groupable:true},{name:'Total',source:'TOTAL',groupable:false}]},settings:{report:{enabled:true,compose:{enabled:true,maxCubes:2,maxLimit:50,timeoutMs:12000}}}}};

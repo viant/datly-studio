@@ -1,0 +1,828 @@
+window:
+  windowKey: reader-input
+  on:
+    - event: onInit
+      handler: management.initialize
+  view:
+    content:
+      id: input-window
+      className: studio-forge-input-window
+      dataSourceRef: input_draft
+      fetchData: false
+      containers:
+        - id: input-editor
+          dataSourceRef: input_draft
+          fetchData: false
+          parameterEditor:
+            label: Input settings
+            readOnlyWhen:
+              any:
+                - selector: saving
+                  equals: true
+                - selector: canEdit
+                  equals: false
+                - selector: loading
+                  equals: true
+            fields:
+              - id: name
+                label: Input name
+                dataField: name
+                type: text
+                on:
+                  - event: onChange
+                    handler: management.changeName
+              - id: type
+                label: Type expression
+                dataField: type
+                type: text
+              - id: kind
+                label: Kind
+                dataField: kind
+                type: select
+                optionsDataSourceRef: input_kinds
+                optionValueField: name
+                optionLabelField: label
+                on:
+                  - event: onChange
+                    handler: management.changeKind
+                properties:
+                  filterable: true
+                  menuProps:
+                    style:
+                      maxHeight: 300
+                      overflowY: auto
+                  inputProps:
+                    aria-label: Find kind
+              - id: source
+                label: Kind source
+                dataField: source
+                type: text
+              - id: required
+                label: Required
+                dataField: required
+                type: select
+                options:
+                  - value: false
+                    label: Optional
+                  - value: true
+                    label: Required
+              - id: querySelector
+                label: Query selector view
+                dataField: querySelector
+                type: select
+                optionsDataSourceRef: input_views
+                optionValueField: name
+                optionLabelField: label
+                properties:
+                  filterable: true
+                  menuProps:
+                    style:
+                      maxHeight: 300
+                      overflowY: auto
+                  inputProps:
+                    aria-label: Find query selector view
+            sections:
+              - id: new-predicate
+                label: Predicate
+                fields:
+                  - id: predicateName
+                    label: Predicate
+                    dataField: predicateName
+                    type: select
+                    optionsDataSourceRef: input_predicates
+                    optionValueField: name
+                    optionLabelField: label
+                    on:
+                      - event: onChange
+                        handler: management.changePredicate
+                    properties:
+                      filterable: true
+                      menuProps:
+                        style:
+                          maxHeight: 300
+                          overflowY: auto
+                      inputProps:
+                        aria-label: Find predicate
+                  - id: predicateView
+                    label: Target view
+                    dataField: predicateView
+                    type: select
+                    optionsDataSourceRef: input_views
+                    optionValueField: name
+                    optionLabelField: label
+                    on:
+                      - event: onChange
+                        handler: management.changeView
+                    visibleWhen:
+                      selector: predicateName
+                      notEquals: ""
+                    properties:
+                      filterable: true
+                      menuProps:
+                        style:
+                          maxHeight: 300
+                          overflowY: auto
+                      inputProps:
+                        aria-label: Find target view
+                  - id: predicateAlias
+                    label: SQL alias
+                    dataField: predicateAlias
+                    type: text
+                    visibleWhen:
+                      selector: predicateName
+                      in:
+                        - equal
+                        - in
+                        - not_equal
+                        - not_in
+                        - less_or_equal
+                        - less_than
+                        - greater_or_equal
+                        - greater_than
+                        - like
+                        - not_like
+                        - contains
+                        - not_contains
+                        - is_null
+                        - is_not_null
+                    on:
+                      - event: onChange
+                        handler: management.changeDimension
+                  - id: predicateDimension
+                    label: Filter dimension
+                    dataField: predicateDimension
+                    type: select
+                    optionsDataSourceRef: input_dimensions
+                    optionValueField: name
+                    optionLabelField: label
+                    on:
+                      - event: onChange
+                        handler: management.changeDimension
+                    visibleWhen:
+                      selector: predicateName
+                      in:
+                        - equal
+                        - in
+                        - not_equal
+                        - not_in
+                        - less_or_equal
+                        - less_than
+                        - greater_or_equal
+                        - greater_than
+                        - like
+                        - not_like
+                        - contains
+                        - not_contains
+                        - is_null
+                        - is_not_null
+                    properties:
+                      filterable: true
+                      menuProps:
+                        style:
+                          maxHeight: 300
+                          overflowY: auto
+                      inputProps:
+                        aria-label: Find filter dimension
+                  - id: predicateArgs
+                    label: Predicate arguments
+                    dataField: predicateArgs
+                    type: textarea
+                    visibleWhen:
+                      all:
+                        - selector: predicateName
+                          notEquals: ""
+                        - not:
+                            selector: predicateName
+                            in:
+                              - equal
+                              - in
+                              - not_equal
+                              - not_in
+                              - less_or_equal
+                              - less_than
+                              - greater_or_equal
+                              - greater_than
+                              - like
+                              - not_like
+                              - contains
+                              - not_contains
+                              - is_null
+                              - is_not_null
+                              - handler
+                  - id: predicateHandler
+                    label: Custom predicate
+                    dataField: predicateHandler
+                    type: select
+                    optionsDataSourceRef: input_handlers
+                    optionValueField: name
+                    optionLabelField: label
+                    visibleWhen:
+                      selector: predicateName
+                      equals: handler
+                    properties:
+                      filterable: true
+                      menuProps:
+                        style:
+                          maxHeight: 300
+                          overflowY: auto
+                      inputProps:
+                        aria-label: Find custom predicate
+                  - id: predicateGroup
+                    label: Group
+                    dataField: predicateGroup
+                    type: number
+                    visibleWhen:
+                      selector: predicateName
+                      notEquals: ""
+                  - id: predicateOperator
+                    label: Within-group operator
+                    dataField: predicateOperator
+                    type: select
+                    options:
+                      - value: AND
+                        label: AND
+                      - value: OR
+                        label: OR
+                    visibleWhen:
+                      selector: predicateName
+                      notEquals: ""
+                  - id: predicateAbsent
+                    label: Apply when input is absent
+                    dataField: predicateAbsent
+                    type: checkbox
+                    visibleWhen:
+                      selector: predicateName
+                      notEquals: ""
+                visibleWhen:
+                  selector: editing
+                  equals: false
+              - id: binding
+                label: Binding options
+                fields:
+                  - id: codec
+                    label: Codec
+                    dataField: codec
+                    type: select
+                    optionsDataSourceRef: input_codecs
+                    optionValueField: name
+                    optionLabelField: label
+                    on:
+                      - event: onChange
+                        handler: management.changeCodec
+                    properties:
+                      filterable: true
+                      menuProps:
+                        style:
+                          maxHeight: 300
+                          overflowY: auto
+                      inputProps:
+                        aria-label: Find codec
+                  - id: codecArgs
+                    label: Codec arguments
+                    dataField: codecArgs
+                    type: text
+                    readOnlyWhen:
+                      selector: codecAllowsArgs
+                      equals: false
+                  - id: uri
+                    label: Resource or route URI
+                    dataField: uri
+                    type: text
+                  - id: emitOutput
+                    label: Emit in output
+                    dataField: emitOutput
+                    type: checkbox
+                  - id: value
+                    label: Authored default
+                    dataField: value
+                    type: text
+              - id: errors
+                label: Error response
+                fields:
+                  - id: errorCode
+                    label: Error code
+                    dataField: errorCode
+                    type: number
+                  - id: errorMessage
+                    label: Error message
+                    dataField: errorMessage
+                    type: text
+              - id: documentation
+                label: Documentation & testing
+                fields:
+                  - id: description
+                    label: Description
+                    dataField: description
+                    type: text
+                  - id: example
+                    label: Example value
+                    dataField: example
+                    type: text
+        - id: attached-predicates
+          title: Attached predicates
+          kind: table
+          dataSourceRef: input_attached
+          fetchData: false
+          visibleWhen:
+            dataSourceRef: input_draft
+            selector: editing
+            equals: true
+          table:
+            columns:
+              - id: name
+                name: Predicate
+              - id: group
+                name: Group
+              - id: args
+                name: Arguments
+            presentation: catalog
+            fullWidth: true
+            enforceColumnSize: false
+          toolbar:
+            items:
+              - id: add-predicate
+                label: Add predicate
+                type: button
+                icon: add
+                on:
+                  - event: onClick
+                    handler: management.newPredicate
+                hideLabel: false
+              - id: edit-predicate
+                label: Edit predicate
+                type: button
+                icon: edit
+                on:
+                  - event: onClick
+                    handler: management.editPredicate
+                hideLabel: false
+              - id: remove-predicate
+                label: Remove predicate
+                type: button
+                icon: trash
+                on:
+                  - event: onClick
+                    handler: management.confirmPredicateRemove
+                hideLabel: false
+        - id: input-outcome
+          dataSourceRef: input_draft
+          fetchData: false
+          items:
+            - id: outcome
+              label: Outcome
+              dataField: outcome
+              type: textarea
+              readOnly: true
+        - id: input-actions
+          dataSourceRef: input_draft
+          fetchData: false
+          toolbar:
+            items:
+              - id: back
+                label: Back to inputs
+                type: button
+                icon: arrow-left
+                on:
+                  - event: onClick
+                    handler: management.close
+                hideLabel: false
+              - id: reload
+                label: Reload saved revision
+                type: button
+                icon: refresh
+                on:
+                  - event: onClick
+                    handler: management.confirmReload
+                hideLabel: false
+              - id: remove
+                label: Remove input
+                type: button
+                icon: trash
+                on:
+                  - event: onClick
+                    handler: management.confirmRemove
+                visibleWhen:
+                  selector: editing
+                  equals: true
+                hideLabel: false
+              - id: save
+                label: Save input
+                type: button
+                icon: floppy-disk
+                on:
+                  - event: onClick
+                    handler: management.save
+                disabledWhen:
+                  any:
+                    - selector: loading
+                      equals: true
+                    - selector: saving
+                      equals: true
+                    - selector: canEdit
+                      equals: false
+                hideLabel: false
+  dialogs:
+    - id: remove-input
+      title: Remove input
+      dataSourceRef: input_draft
+      fetchOnOpen: false
+      content:
+        id: remove-input-fields
+        dataSourceRef: input_draft
+        items:
+          - id: confirmName
+            label: Confirm input name
+            dataField: confirmName
+            type: text
+      actions:
+        - id: confirm
+          label: Confirm removal
+          type: button
+          icon: trash
+          on:
+            - event: onClick
+              handler: management.remove
+          close: true
+        - id: cancel
+          label: Cancel
+          close: true
+    - id: reload-input
+      title: Discard unsaved input changes?
+      dataSourceRef: input_draft
+      fetchOnOpen: false
+      content:
+        id: reload-input-notice
+        items:
+          - id: notice
+            label: ""
+            dataField: notice
+            type: label
+            value: Reloading replaces this form with the saved revision.
+      actions:
+        - id: confirm
+          label: Reload
+          type: button
+          icon: refresh
+          on:
+            - event: onClick
+              handler: management.initialize
+          close: true
+        - id: cancel
+          label: Keep editing
+          close: true
+    - id: predicate
+      title: Predicate settings
+      dataSourceRef: predicate_draft
+      fetchOnOpen: false
+      content:
+        id: predicate-editor
+        dataSourceRef: predicate_draft
+        fetchData: false
+        parameterEditor:
+          label: Predicate definition
+          readOnlyWhen:
+            selector: locked
+            equals: true
+          fields:
+            - id: predicateName
+              label: Predicate
+              dataField: predicateName
+              type: select
+              optionsDataSourceRef: input_predicates
+              optionValueField: name
+              optionLabelField: label
+              on:
+                - event: onChange
+                  handler: management.changePredicate
+              properties:
+                filterable: true
+                menuProps:
+                  style:
+                    maxHeight: 300
+                    overflowY: auto
+                inputProps:
+                  aria-label: Find predicate
+            - id: predicateView
+              label: Target view
+              dataField: predicateView
+              type: select
+              optionsDataSourceRef: input_views
+              optionValueField: name
+              optionLabelField: label
+              on:
+                - event: onChange
+                  handler: management.changeView
+              visibleWhen:
+                selector: predicateName
+                notEquals: ""
+              properties:
+                filterable: true
+                menuProps:
+                  style:
+                    maxHeight: 300
+                    overflowY: auto
+                inputProps:
+                  aria-label: Find target view
+            - id: predicateAlias
+              label: SQL alias
+              dataField: predicateAlias
+              type: text
+              visibleWhen:
+                selector: predicateName
+                in:
+                  - equal
+                  - in
+                  - not_equal
+                  - not_in
+                  - less_or_equal
+                  - less_than
+                  - greater_or_equal
+                  - greater_than
+                  - like
+                  - not_like
+                  - contains
+                  - not_contains
+                  - is_null
+                  - is_not_null
+              on:
+                - event: onChange
+                  handler: management.changeDimension
+            - id: predicateDimension
+              label: Filter dimension
+              dataField: predicateDimension
+              type: select
+              optionsDataSourceRef: input_dimensions
+              optionValueField: name
+              optionLabelField: label
+              on:
+                - event: onChange
+                  handler: management.changeDimension
+              visibleWhen:
+                selector: predicateName
+                in:
+                  - equal
+                  - in
+                  - not_equal
+                  - not_in
+                  - less_or_equal
+                  - less_than
+                  - greater_or_equal
+                  - greater_than
+                  - like
+                  - not_like
+                  - contains
+                  - not_contains
+                  - is_null
+                  - is_not_null
+              properties:
+                filterable: true
+                menuProps:
+                  style:
+                    maxHeight: 300
+                    overflowY: auto
+                inputProps:
+                  aria-label: Find filter dimension
+            - id: predicateArgs
+              label: Predicate arguments
+              dataField: predicateArgs
+              type: textarea
+              visibleWhen:
+                all:
+                  - selector: predicateName
+                    notEquals: ""
+                  - not:
+                      selector: predicateName
+                      in:
+                        - equal
+                        - in
+                        - not_equal
+                        - not_in
+                        - less_or_equal
+                        - less_than
+                        - greater_or_equal
+                        - greater_than
+                        - like
+                        - not_like
+                        - contains
+                        - not_contains
+                        - is_null
+                        - is_not_null
+                        - handler
+            - id: predicateHandler
+              label: Custom predicate
+              dataField: predicateHandler
+              type: select
+              optionsDataSourceRef: input_handlers
+              optionValueField: name
+              optionLabelField: label
+              visibleWhen:
+                selector: predicateName
+                equals: handler
+              properties:
+                filterable: true
+                menuProps:
+                  style:
+                    maxHeight: 300
+                    overflowY: auto
+                inputProps:
+                  aria-label: Find custom predicate
+            - id: predicateGroup
+              label: Group
+              dataField: predicateGroup
+              type: number
+              visibleWhen:
+                selector: predicateName
+                notEquals: ""
+            - id: predicateOperator
+              label: Within-group operator
+              dataField: predicateOperator
+              type: select
+              options:
+                - value: AND
+                  label: AND
+                - value: OR
+                  label: OR
+              visibleWhen:
+                selector: predicateName
+                notEquals: ""
+            - id: predicateAbsent
+              label: Apply when input is absent
+              dataField: predicateAbsent
+              type: checkbox
+              visibleWhen:
+                selector: predicateName
+                notEquals: ""
+            - id: outcome
+              dataField: outcome
+              label: Outcome
+              type: textarea
+              readOnly: true
+      actions:
+        - id: remove
+          label: Remove
+          type: button
+          icon: trash
+          visibleWhen:
+            selector: editing
+            equals: true
+          on:
+            - event: onClick
+              handler: management.confirmPredicateRemove
+        - id: save
+          label: Save predicate
+          type: button
+          icon: floppy-disk
+          on:
+            - event: onClick
+              handler: management.savePredicate
+          close: true
+        - id: cancel
+          label: Cancel
+          close: true
+    - id: remove-predicate
+      title: Remove predicate
+      dataSourceRef: predicate_draft
+      fetchOnOpen: false
+      content:
+        id: remove-predicate-notice
+        items:
+          - id: notice
+            label: ""
+            type: label
+            value: Remove this predicate from the input?
+      actions:
+        - id: confirm
+          label: Confirm removal
+          close: true
+          on:
+            - event: onClick
+              handler: management.removePredicate
+        - id: cancel
+          label: Cancel
+          close: true
+dataSources:
+  input_draft:
+    id: input_draft
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  predicate_draft:
+    id: predicate_draft
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  input_kinds:
+    id: input_kinds
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    selectionMode: single
+    uniqueKey:
+      - field: id
+  input_views:
+    id: input_views
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    selectionMode: single
+    uniqueKey:
+      - field: id
+  input_predicates:
+    id: input_predicates
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    selectionMode: single
+    uniqueKey:
+      - field: id
+  input_dimensions:
+    id: input_dimensions
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    selectionMode: single
+    uniqueKey:
+      - field: id
+  input_handlers:
+    id: input_handlers
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    selectionMode: single
+    uniqueKey:
+      - field: id
+  input_codecs:
+    id: input_codecs
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    selectionMode: single
+    uniqueKey:
+      - field: id
+  input_attached:
+    id: input_attached
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    selectionMode: single
+    uniqueKey:
+      - field: id
+  input_inspect:
+    id: input_inspect
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.inspect
+    cache:
+      enabled: false
+  input_apply:
+    id: input_apply
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.builder
+    cache:
+      enabled: false
+  input_codec_types:
+    id: input_codec_types
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.codecs.types
+    cache:
+      enabled: false
+  input_handler_types:
+    id: input_handler_types
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.authorization_predicates.types
+    cache:
+      enabled: false

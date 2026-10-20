@@ -20,72 +20,49 @@ window:
       id: connector-management
       className: studio-workspace
       containers:
+        - id: connector-header
+          workspaceSummary:
+            title: Connectors
+            description: Validate and manage data sources used by Studio readers.
+            stateDataSourceRef: connector_draft
+            errorField: outcome
+            actions:
+              - {id: refresh-catalog, label: Refresh, icon: refresh, handler: management.refreshConnectors}
         - id: connector-search
+          className: forge-catalog-search
           dataSourceRef: connector_filter
           items:
-            - {id: query, label: "Find connector, driver, or owner", dataField: query, type: text}
+            - {id: query, label: "Find connector, driver, or owner", hideLabel: true, properties: {placeholder: "Find connector, driver, or owner"}, dataField: query, type: text}
             - id: status
               label: Status
+              hideLabel: true
               dataField: status
               type: select
               options: [{value: '', label: All states}, {value: active, label: Active}, {value: draft, label: Draft}, {value: disabled, label: Disabled}]
-            - {id: search, label: Search, type: button, on: [{event: onClick, handler: management.searchConnectors}]}
+            - {id: search, label: Search, isStandalone: true, icon: search, type: button, on: [{event: onClick, handler: management.searchConnectors}]}
+            - {id: new, label: New connector, isStandalone: true, type: button, icon: add, intent: primary, on: [{event: onClick, handler: management.newConnector}]}
         - id: connector-list
           kind: table
           title: Connectors
           dataSourceRef: connectors
-          toolbar:
-            items:
-              - {id: new, label: New connector, icon: add, on: [{event: onClick, handler: management.newConnector}]}
-              - {id: edit, label: Edit, icon: edit, on: [{event: onClick, handler: management.editConnector}]}
-              - {id: test, label: Test, icon: pulse, on: [{event: onClick, handler: management.testConnector}]}
-              - {id: delete, label: Delete, icon: trash, on: [{event: onClick, handler: management.confirmDeleteConnector}]}
-              - {id: refresh, label: Refresh, icon: refresh}
-          editableCollection:
-            identityFields: [name]
-            selection: {min: 1, max: 1}
-            operations:
-              - id: activate
-                label: Activate
-                icon: tick
-                requiresSelection: true
-                mutation:
-                  commandId: connector-activate
-                  dataSourceRef: connector_activate
-                  payload:
-                    modelRef: connectorIdentity
-                    target: '$'
-                    mode: full
-                    fields:
-                      name: {scope: selection, dataSourceRef: connectors, selector: selected.name}
-                      etag: {scope: selection, dataSourceRef: connectors, selector: selected.etag}
-                  refresh: [{dataSourceRef: connectors, bypassCache: true}]
-              - id: disable
-                label: Disable
-                icon: power
-                requiresSelection: true
-                mutation:
-                  commandId: connector-disable
-                  dataSourceRef: connector_disable
-                  payload:
-                    modelRef: connectorIdentity
-                    target: '$'
-                    mode: full
-                    fields:
-                      name: {scope: selection, dataSourceRef: connectors, selector: selected.name}
-                      etag: {scope: selection, dataSourceRef: connectors, selector: selected.etag}
-                  refresh: [{dataSourceRef: connectors, bypassCache: true}]
           table:
+            presentation: catalog
+            fullWidth: true
+            enforceColumnSize: false
             columns:
-              - {id: name, name: Name}
-              - {id: driver, name: Driver}
+              - {id: name, name: Name, sortable: true, showFullContent: false}
+              - {id: driver, name: Driver, sortable: true}
+              - id: status
+                name: Status
+                badge: {field: status, replaceValue: true, valueMap: {active: active, draft: draft, disabled: disabled}, toneMap: {active: positive, draft: warning, disabled: neutral}}
               - {id: ownerId, name: Owner}
-              - {id: status, name: Status}
-              - {id: lastTestStatus, name: Last test}
-        - id: connector-outcome
-          dataSourceRef: connector_draft
-          items:
-            - {id: outcome, label: Outcome, dataField: outcome, type: textarea, readOnly: true}
+              - id: lastTestStatus
+                name: Connectivity
+                badge: {field: lastTestStatus, replaceValue: true, valueMap: {passed: passed, failed: failed}, toneMap: {passed: positive, failed: danger}}
+              - {id: test, name: '', type: button, icon: refresh, tooltip: Test, width: 36, cellProperties: {aria-label: Test}, on: [{event: onClick, handler: management.testConnector}]}
+              - {id: edit, name: '', type: button, icon: edit, tooltip: Edit, width: 36, cellProperties: {aria-label: Edit}, on: [{event: onClick, handler: management.editConnector}]}
+              - {id: toggle, name: '', type: button, icon: power, tooltip: Activate or disable, width: 36, cellProperties: {aria-label: Activate or disable}, on: [{event: onClick, handler: management.toggleConnector}]}
+              - {id: delete, name: '', type: button, icon: trash, tooltip: Delete, width: 36, cellProperties: {aria-label: Delete, intent: danger}, on: [{event: onClick, handler: management.confirmDeleteConnector}]}
   dialogs:
     - id: connector-delete
       title: Delete connector

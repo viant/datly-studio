@@ -50,10 +50,13 @@ pipeline:
       - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
       - page.getByLabel("Find connector, driver, or owner").fill("${caseName}")
       - page.getByRole("button", "Search").click()
+      - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr")).toHaveCount(1,15000)
       - page.getByRole("button", "Test").click()
-      - expect(page.getByLabel("Outcome")).toHaveValue("passed",15000)
-      - page.getByRole("button", "Refresh data").click()
-      - page.getByRole("button", "Activate").click()
+      - expect(page.getByRole("alert")).toHaveText("passed",15000)
+      - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr[1]/td[5]")).toHaveText("passed",15000)
+      - page.getByRole("button", "Refresh").click()
+      - page.getByRole("button", "Activate or disable").click()
+      - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr[1]/td[3]")).toHaveText("active",15000)
   createReader:
     action: webdriver:run
     browser: chrome
@@ -63,9 +66,11 @@ pipeline:
       directory: ${runDir}/artifacts/webdriver
     commands:
       - page.locator(".studio-nav-components").click()
-      - page.locator("button[aria-label='New component']").click()
+      - page.getByRole("button", "New component").click()
       - page.getByLabel("Component title").fill("UI predicate lifecycle")
-      - page.getByLabel("Active connector").selectOption("${caseName}")
+      - page.getByRole("button", "Active connector").click()
+      - page.locator("input[placeholder='Find connector']").fill("${caseName}")
+      - page.getByRole("menuitem", "${caseName} · sqlite").click()
       - page.getByRole("button", "Create component").click()
       - expect(page.getByRole("heading", "Root SQL")).toBeVisible(15000)
       - page.getByLabel("Component visibility").selectOption("internal")
@@ -85,35 +90,44 @@ pipeline:
       - page.getByLabel("Input name").fill("Limit")
       - page.getByLabel("Type expression").fill("int")
       - page.getByLabel("Kind source").fill("limit")
-      - page.getByLabel("Query selector view").selectOption("record")
-      - page.locator(".studio-inline-contract-form button[type='submit']").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByLabel("Query selector view").click()
+      - page.getByRole("menuitem", "reader (record)").click()
+      - page.getByRole("button", "Save input").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("button", "Add input").click()
       - page.getByLabel("Input name").fill("IDs")
       - page.getByLabel("Type expression").fill("[]int")
       - page.getByLabel("Kind source").fill("ids")
-      - page.getByLabel("Predicate").selectOption("in")
+      - page.locator("xpath://summary[normalize-space(.)='Predicate']").click()
+      - page.getByLabel("Predicate").click()
+      - page.getByRole("menuitem", "in").click()
       - page.getByLabel("SQL alias").fill("c")
-      - page.getByLabel("Filter dimension").selectOption("id")
-      - page.locator(".studio-inline-contract-form button[type='submit']").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByLabel("Filter dimension").click()
+      - page.getByRole("menuitem", "id").click()
+      - page.getByRole("button", "Save input").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("button", "Add input").click()
       - page.getByLabel("Input name").fill("Active")
       - page.getByLabel("Type expression").fill("int")
       - page.getByLabel("Kind source").fill("active")
-      - page.getByLabel("Predicate").selectOption("expr")
+      - page.locator("xpath://summary[normalize-space(.)='Predicate']").click()
+      - page.getByLabel("Predicate").click()
+      - page.getByRole("menuitem", "expr").click()
       - page.getByLabel("Predicate arguments").fill("COALESCE(c.active, 0) = ?")
-      - page.locator(".studio-inline-contract-form button[type='submit']").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Save input").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("button", "Add input").click()
       - page.getByLabel("Input name").fill("Tenant")
       - page.getByLabel("Type expression").fill("string")
       - page.getByLabel("Kind source").fill("tenant")
-      - page.getByLabel("Predicate").selectOption("handler")
+      - page.locator("xpath://summary[normalize-space(.)='Predicate']").click()
+      - page.getByLabel("Predicate").click()
+      - page.getByRole("menuitem", "Custom Go predicate").click()
+      - page.getByLabel("Custom predicate").click()
       - page.getByLabel("Find custom predicate").fill("CustomerScope")
-      - page.getByLabel("Custom predicate").selectOption("github.com/viant/datly-studio/e2e/predicates.CustomerScope")
-      - page.locator(".studio-inline-contract-form button[type='submit']").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("menuitem", "CustomerScope — github.com/viant/datly-studio/e2e/predicates").click()
+      - page.getByRole("button", "Save input").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
   components:
     action: mcp/runner:call
     url: $nativeMCP
@@ -342,9 +356,10 @@ pipeline:
       directory: ${runDir}/artifacts/webdriver
     commands:
       - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='Limit']]").click()
-      - page.getByLabel("Query selector view").selectOption("")
+      - page.getByLabel("Query selector view").click()
+      - page.getByRole("menuitem", "No query selector").click()
       - page.getByRole("button", "Save input").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
   selectorRemoved:
     action: mcp/runner:call
     url: $nativeMCP
@@ -389,9 +404,10 @@ pipeline:
       directory: ${runDir}/artifacts/webdriver
     commands:
       - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='Limit']]").click()
-      - page.getByLabel("Query selector view").selectOption("record")
+      - page.getByLabel("Query selector view").click()
+      - page.getByRole("menuitem", "reader (record)").click()
       - page.getByRole("button", "Save input").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
   selectorRestored:
     action: mcp/runner:call
     url: $nativeMCP
@@ -433,15 +449,18 @@ pipeline:
       directory: ${runDir}/artifacts/webdriver
     commands:
       - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='IDs']]").click()
-      - page.getByRole("button", "Edit in predicate \u00b7 group 1").click()
-      - page.getByLabel("Predicate").selectOption("not_in")
-      - page.locator(".bp6-dialog button[type='submit']").click()
+      - page.locator("xpath://div[@data-forge-container-id='attached-predicates']//tbody/tr[1]").click()
+      - page.getByRole("button", "Edit predicate").click()
+      - page.getByLabel("Predicate").click()
+      - page.getByRole("menuitem", "not_in").click()
+      - page.getByRole("button", "Save predicate").click()
       - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
       - page.getByRole("button", "Back to inputs").click()
       - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='Active']]").click()
-      - page.getByRole("button", "Edit expr predicate \u00b7 group 1").click()
+      - page.locator("xpath://div[@data-forge-container-id='attached-predicates']//tbody/tr[1]").click()
+      - page.getByRole("button", "Edit predicate").click()
       - page.getByLabel("Predicate arguments").fill("COALESCE(c.active, 0) <> ?")
-      - page.locator(".bp6-dialog button[type='submit']").click()
+      - page.getByRole("button", "Save predicate").click()
       - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
       - page.getByRole("button", "Back to inputs").click()
   excluded:
@@ -524,7 +543,7 @@ pipeline:
       - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='Tenant']]").click()
       - page.getByLabel("Input name").fill("TenantFilter")
       - page.getByRole("button", "Save input").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
   renamed:
     action: mcp/runner:call
     url: $nativeMCP
@@ -566,10 +585,12 @@ pipeline:
       directory: ${runDir}/artifacts/webdriver
     commands:
       - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='TenantFilter']]").click()
-      - page.getByRole("button", "Edit handler predicate \u00b7 group 1").click()
+      - page.locator("xpath://div[@data-forge-container-id='attached-predicates']//tbody/tr[1]").click()
+      - page.getByRole("button", "Edit predicate").click()
+      - page.getByLabel("Custom predicate").click()
       - page.getByLabel("Find custom predicate").fill("OrderPresence")
-      - page.getByLabel("Custom predicate").selectOption("github.com/viant/datly-studio/examples/predicates.OrderPresence")
-      - page.locator(".bp6-dialog button[type='submit']").click()
+      - page.getByRole("menuitem", "OrderPresence — github.com/viant/datly-studio/examples/predicates").click()
+      - page.getByRole("button", "Save predicate").click()
       - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
       - page.getByRole("button", "Back to inputs").click()
   handlerEdited:
@@ -607,13 +628,15 @@ pipeline:
       directory: ${runDir}/artifacts/webdriver
     commands:
       - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='Active']]").click()
-      - page.getByRole("button", "Edit expr predicate \u00b7 group 1").click()
+      - page.locator("xpath://div[@data-forge-container-id='attached-predicates']//tbody/tr[1]").click()
+      - page.getByRole("button", "Edit predicate").click()
       - page.locator("xpath://div[contains(concat(' ',normalize-space(@class),' '),' bp6-dialog ')]//button[normalize-space(.)='Remove']").click()
       - page.getByRole("button", "Confirm removal").click()
       - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
       - page.getByRole("button", "Back to inputs").click()
       - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='TenantFilter']]").click()
-      - page.getByRole("button", "Edit handler predicate \u00b7 group 1").click()
+      - page.locator("xpath://div[@data-forge-container-id='attached-predicates']//tbody/tr[1]").click()
+      - page.getByRole("button", "Edit predicate").click()
       - page.locator("xpath://div[contains(concat(' ',normalize-space(@class),' '),' bp6-dialog ')]//button[normalize-space(.)='Remove']").click()
       - page.getByRole("button", "Confirm removal").click()
       - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
@@ -663,25 +686,25 @@ pipeline:
       directory: ${runDir}/artifacts/webdriver
     commands:
       - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='IDs']]").click()
-      - page.getByRole("button", "Remove").click()
+      - page.getByRole("button", "Remove input").click()
       - page.getByLabel("Confirm input name").fill("IDs")
-      - page.getByRole("button", "Remove input").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Confirm removal").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='Active']]").click()
-      - page.getByRole("button", "Remove").click()
+      - page.getByRole("button", "Remove input").click()
       - page.getByLabel("Confirm input name").fill("Active")
-      - page.getByRole("button", "Remove input").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Confirm removal").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='TenantFilter']]").click()
-      - page.getByRole("button", "Remove").click()
+      - page.getByRole("button", "Remove input").click()
       - page.getByLabel("Confirm input name").fill("TenantFilter")
-      - page.getByRole("button", "Remove input").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Confirm removal").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='Limit']]").click()
-      - page.getByRole("button", "Remove").click()
-      - page.getByLabel("Confirm input name").fill("Limit")
       - page.getByRole("button", "Remove input").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByLabel("Confirm input name").fill("Limit")
+      - page.getByRole("button", "Confirm removal").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - expect(page.locator(".studio-contract-panel .studio-empty-compact")).toHaveText("No items in this input catalog.",15000)
   allRemoved:
     action: mcp/runner:call
@@ -744,17 +767,18 @@ pipeline:
     commands:
       - page.getByRole("button", "Add input").click()
       - page.getByLabel("Input name").fill("JWT")
-      - page.locator(".studio-input-binding summary").click()
-      - page.getByLabel("Codec").selectOption("JwtClaim")
-      - expect(page.getByLabel("Kind")).toHaveValue("header",15000)
+      - page.locator("xpath://summary[normalize-space(.)='Binding options']").click()
+      - page.getByLabel("Codec").click()
+      - page.getByRole("menuitem", "JwtClaim").click()
+      - expect(page.getByLabel("Kind")).toHaveText("header",15000)
       - expect(page.getByLabel("Kind source")).toHaveValue("Authorization",15000)
-      - expect(page.getByLabel("Required")).toHaveValue("true",15000)
+      - expect(page.getByLabel("Required")).toHaveText("Required",15000)
       - expect(page.getByLabel("Type expression")).toHaveValue("string,*github.com/viant/scy/auth/jwt.Claims",15000)
-      - page.locator(".studio-input-errors summary").click()
+      - page.locator("xpath://summary[normalize-space(.)='Error response']").click()
       - expect(page.getByLabel("Error code")).toHaveValue("401",15000)
       - page.getByLabel("Error message").fill("Sign in required")
-      - page.locator(".studio-inline-contract-form button[type='submit']").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Save input").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
   jwtPreview:
     action: mcp/runner:call
     url: $nativeMCP
@@ -836,10 +860,10 @@ pipeline:
     commands:
       - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='JWT']]").click()
       - expect(page.getByLabel("Type expression")).toHaveValue("string,*github.com/viant/scy/auth/jwt.Claims",15000)
-      - page.locator(".studio-input-errors summary").click()
+      - page.locator("xpath://summary[normalize-space(.)='Error response']").click()
       - page.getByLabel("Error message").fill("Authentication required")
       - page.getByRole("button", "Save input").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
   customCodec:
     action: webdriver:run
     browser: chrome
@@ -851,16 +875,20 @@ pipeline:
       - page.getByRole("button", "Add input").click()
       - page.getByLabel("Input name").fill("TenantName")
       - page.getByLabel("Kind source").fill("tenantName")
-      - page.getByLabel("Predicate").selectOption("equal")
+      - page.locator("xpath://summary[normalize-space(.)='Predicate']").click()
+      - page.getByLabel("Predicate").click()
+      - page.getByRole("menuitem", "equal").click()
       - page.getByLabel("SQL alias").fill("c")
-      - page.getByLabel("Filter dimension").selectOption("tenant")
-      - page.locator(".studio-input-binding summary").click()
-      - page.getByLabel("Codec").selectOption("github.com/viant/datly-studio/e2e/codecs.Tenant")
-      - page.locator(".studio-input-errors summary").click()
+      - page.getByLabel("Filter dimension").click()
+      - page.getByRole("menuitem", "tenant").click()
+      - page.locator("xpath://summary[normalize-space(.)='Binding options']").click()
+      - page.getByLabel("Codec").click()
+      - page.getByRole("menuitem", "github.com/viant/datly-studio/e2e/codecs.Tenant").click()
+      - page.locator("xpath://summary[normalize-space(.)='Error response']").click()
       - page.getByLabel("Error code").fill("422")
       - page.getByLabel("Error message").fill("Unknown tenant")
-      - page.locator(".studio-inline-contract-form button[type='submit']").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Save input").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
   customCodecPreview:
     action: mcp/runner:call
     url: $nativeMCP
@@ -916,13 +944,14 @@ pipeline:
       directory: ${runDir}/artifacts/webdriver
     commands:
       - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='TenantName']]").click()
-      - page.locator(".studio-input-binding summary").click()
-      - page.getByLabel("Codec").selectOption("")
-      - page.locator(".studio-input-errors summary").click()
+      - page.locator("xpath://summary[normalize-space(.)='Binding options']").click()
+      - page.getByLabel("Codec").click()
+      - page.getByRole("menuitem", "No codec").click()
+      - page.locator("xpath://summary[normalize-space(.)='Error response']").click()
       - page.getByLabel("Error code").fill("")
       - page.getByLabel("Error message").fill("")
       - page.getByRole("button", "Save input").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
   withoutCodec:
     action: mcp/runner:call
     url: $nativeMCP
@@ -958,7 +987,7 @@ pipeline:
       directory: ${runDir}/artifacts/webdriver
     commands:
       - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='TenantName']]").click()
-      - page.getByRole("button", "Remove").click()
-      - page.getByLabel("Confirm input name").fill("TenantName")
       - page.getByRole("button", "Remove input").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByLabel("Confirm input name").fill("TenantName")
+      - page.getByRole("button", "Confirm removal").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)

@@ -1,0 +1,153 @@
+window:
+  windowKey: reader-output
+  on:
+    - event: onInit
+      handler: management.initialize
+  view:
+    content:
+      id: output-window
+      className: studio-forge-output-window
+      dataSourceRef: output_draft
+      fetchData: false
+      containers:
+        - id: output-editor
+          dataSourceRef: output_draft
+          fetchData: false
+          parameterEditor:
+            label: Output settings
+            readOnlyWhen:
+              any:
+                - selector: loading
+                  equals: true
+                - selector: saving
+                  equals: true
+                - selector: canEdit
+                  equals: false
+            fields:
+              - id: name
+                dataField: name
+                label: Output name
+                type: text
+              - id: type
+                dataField: type
+                label: Type expression
+                type: text
+              - id: kind
+                dataField: kind
+                label: Kind
+                type: text
+                readOnly: true
+              - id: source
+                dataField: source
+                label: Kind source
+                type: select
+                options:
+                  - value: view
+                    label: view
+                  - value: body
+                    label: body
+                  - value: status
+                    label: status
+                  - value: metrics
+                    label: metrics
+                  - value: derived
+                    label: derived
+                  - value: summary
+                    label: summary
+                on:
+                  - event: onChange
+                    handler: management.changeSource
+        - id: output-outcome
+          dataSourceRef: output_draft
+          fetchData: false
+          items:
+            - id: outcome
+              dataField: outcome
+              label: Outcome
+              type: textarea
+              readOnly: true
+        - id: output-actions
+          dataSourceRef: output_draft
+          fetchData: false
+          toolbar:
+            items:
+              - id: back
+                label: Back to outputs
+                icon: arrow-left
+                on:
+                  - event: onClick
+                    handler: management.close
+                hideLabel: false
+              - id: remove
+                label: Remove output
+                icon: trash
+                visibleWhen:
+                  selector: editing
+                  equals: true
+                on:
+                  - event: onClick
+                    handler: management.confirmRemove
+                hideLabel: false
+              - id: save
+                label: Save output
+                icon: floppy-disk
+                disabledWhen:
+                  any:
+                    - selector: loading
+                      equals: true
+                    - selector: saving
+                      equals: true
+                    - selector: canEdit
+                      equals: false
+                on:
+                  - event: onClick
+                    handler: management.save
+                hideLabel: false
+  dialogs:
+    - id: remove-output
+      title: Remove output
+      dataSourceRef: output_draft
+      fetchOnOpen: false
+      content:
+        id: remove-output-fields
+        dataSourceRef: output_draft
+        items:
+          - id: confirmation
+            dataField: confirmation
+            label: Confirm output name
+            type: text
+      actions:
+        - id: remove
+          label: Confirm removal
+          close: true
+          on:
+            - event: onClick
+              handler: management.remove
+        - id: cancel
+          label: Cancel
+          close: true
+dataSources:
+  output_draft:
+    id: output_draft
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  output_inspect:
+    id: output_inspect
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.inspect
+    cache:
+      enabled: false
+  output_apply:
+    id: output_apply
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.builder
+    cache:
+      enabled: false

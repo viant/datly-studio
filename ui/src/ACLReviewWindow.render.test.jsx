@@ -5,6 +5,8 @@ import userEvent from '@testing-library/user-event';
 import { ACLReviewWindow, ACLReviewFrame, LiveACLReview } from './ACLReviewWindow.jsx';
 import { createReviewFixture } from './aclReviewFixture.js';
 import { liveACLReviewResource } from './aclReviewURL.js';
+import {managementResourceFixture} from './managementWindowFixture.js';
+import './ManagementWindowRuntime.jsx';
 import { StudioAPI } from './studioApi.js';
 
 test('switches viewport and scenario without contacting a live service', async () => {
@@ -54,31 +56,22 @@ test('synthetic save and conflict never issue HTTP requests', async () => {
   } finally { fetcher.mockRestore(); }
 });
 
-test('live review uses current SDK policy read-only without fixture or writes', async () => {
-	const resource = { kind: 'skill', id: 'deploy', tenant: 'one', version: '2' };
-	const sent = [];
-	const fetcher = vi.fn(async (request) => {
-		sent.push({ url: request.url, credentials: request.credentials, authorization: request.headers.get('Authorization'), body: await request.clone().text() });
-		return new Response(JSON.stringify(request.url.endsWith('policies.get')
-			? { document: { resource, revision: 4, policies: { retrieve: { mode: 'public' } } } }
-			: { context: { canManage: true, choices: {} } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
-	});
-	const api = new StudioAPI({ mode: 'authenticated', apiBaseURL: 'https://studio.example.com' }, { fetcher });
-	render(<LiveACLReview api={api} resource={resource}/>);
-	expect(await screen.findByText('Policy revision 4')).toBeTruthy();
-	expect(sent.map(({ url }) => url)).toEqual([
-		'https://studio.example.com/v1/authz/sdk/policies.get', 'https://studio.example.com/v1/authz/sdk/policies.context',
-	]);
-	for (const request of sent) {
-		expect(request.credentials).toBe('include');
-		expect(request.authorization).toBeNull();
-		expect(JSON.parse(request.body)).toEqual({resource});
-	}
-	expect(screen.getByText('Live · read-only')).toBeTruthy();
-	expect(screen.getByLabelText('Access mode').disabled).toBe(true);
-	expect(screen.getByLabelText('Permission action').value).toBe('retrieve');
-	expect(screen.queryByRole('button', { name: 'Review changes' })).toBeNull();
-	expect(fetcher).toHaveBeenCalledTimes(2);
+test('live review loads the same metadata resource and uses read-only policy MCP operations',async()=>{
+ const resource={kind:'skill',id:'deploy',tenant:'one',version:'2'},sent=[];
+ const fetcher=vi.fn(async(value,init)=>{
+  const request=new Request(value,init),body=await request.json();sent.push({request,body});
+  let result;
+  if(body.method==='resources/read')result={contents:[{uri:'window://datastudio/access-review',mimeType:'application/json',text:JSON.stringify(managementResourceFixture('access-review'))}]};
+  else if(body.params.name==='authz.sdk.policies.get')result={structuredContent:{document:{resource,revision:4,policies:{retrieve:{mode:'public'}}}}};
+  else if(body.params.name==='authz.sdk.policies.context')result={structuredContent:{context:{canManage:true,choices:{}}}};
+  else throw new Error('Unexpected operation '+body.params?.name);
+  return new Response(JSON.stringify({jsonrpc:'2.0',id:1,result}),{status:200,headers:{'Content-Type':'application/json'}});
+ });
+ render(<LiveACLReview api={new StudioAPI({mode:'authenticated',apiBaseURL:'https://studio.example.com'},{fetcher})} resource={resource}/>);
+ await screen.findByText('Policy revision 4');expect(screen.getByLabelText('Access mode').disabled).toBe(true);expect(screen.getByLabelText('Permission action').value).toBe('retrieve');expect(screen.queryByRole('button',{name:'Review changes'})).toBeNull();
+ expect(screen.getByText('Live · read-only')).toBeTruthy();
+ expect(sent.map(({body})=>body.method==='resources/read'?body.method:body.params.name)).toEqual(['resources/read','authz.sdk.policies.get','authz.sdk.policies.context']);
+ for(const {request,body} of sent){expect(request.url).toBe('https://studio.example.com/v1/studio/sdk-mcp/mcp');expect(request.credentials).toBe('include');expect(request.headers.get('Authorization')).toBeNull();if(body.method==='tools/call')expect(body.params.arguments).toEqual({resource});}
 });
 
 test('live review URL requires a declared resource contract and exact identity', () => {

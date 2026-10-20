@@ -3,6 +3,7 @@
 package managementcatalog
 
 import (
+	"bytes"
 	"embed"
 	"encoding/json"
 	"fmt"
@@ -32,7 +33,7 @@ var windowSources embed.FS
 func NamespaceWindow(config Config) ([]Definition, error) {
 	names := []string{"namespaces"}
 	if config.ApplicationID == "" || config.ApplicationID == "datastudio" {
-		names = append(names, "connectors", "components", "schema", "runtime")
+		names = append(names, "connectors", "components", "schema", "runtime", "reader-input", "reader-output", "reader-predicate", "overview", "component-catalog", "skills", "security", "access-review", "reader-workbench", "reader-composition")
 	}
 	var definitions []Definition
 	if config.ApplicationID == "" || config.ApplicationID == "datastudio" {
@@ -60,7 +61,20 @@ func NamespaceWindow(config Config) ([]Definition, error) {
 		}
 		definitions = append(definitions, Definition{URI: uri, JSON: connection})
 	}
-	return append(definitions, nav), nil
+	definitions = append(definitions, nav)
+	seen := map[string]json.RawMessage{}
+	unique := make([]Definition, 0, len(definitions))
+	for _, definition := range definitions {
+		if prior, exists := seen[definition.URI]; exists {
+			if !bytes.Equal(prior, definition.JSON) {
+				return nil, fmt.Errorf("conflicting shared management resource %s", definition.URI)
+			}
+			continue
+		}
+		seen[definition.URI] = definition.JSON
+		unique = append(unique, definition)
+	}
+	return unique, nil
 }
 func managementWindow(config Config, name string) ([]Definition, error) {
 	raw, err := windowSources.ReadFile("windows/" + name + "/shared/main.yaml")
@@ -104,8 +118,8 @@ func managementWindow(config Config, name string) ([]Definition, error) {
 		prefix = "component"
 		operations = []string{"components.get", "components.create", "components.update", "versions.list", "versions.create", "versions.clone", "versions.inspect", "versions.apply", "versions.validate", "versions.builder", "resources.get", "resources.upsert_file", "preview.execute", "publications.get", "publications.publish", "publications.unpublish", "publications.rollback"}
 	}
-	if name == "schema" || name == "runtime" {
-		operations = nil // Read-only SDK tools are declared by the Forge source.
+	if name == "schema" || name == "runtime" || name == "reader-input" || name == "overview" || name == "reader-output" || name == "reader-predicate" || name == "component-catalog" || name == "skills" || name == "security" || name == "access-review" || name == "reader-workbench" || name == "reader-composition" {
+		operations = nil // All SDK bindings for these windows are declared in their source.
 	}
 	disabled := false
 	for _, operation := range operations {
@@ -115,6 +129,9 @@ func managementWindow(config Config, name string) ([]Definition, error) {
 			method = "studio.sdk." + operation
 		}
 		source.DataSources[id] = &ds.DataSource{ID: id, DataSource: types.DataSource{Cardinality: "object"}, Backend: &ds.Backend{Kind: ds.BackendMCPTool, Method: method}, Cache: &ds.CachePolicy{Enabled: &disabled}}
+	}
+	if source.Window.View.Content != nil && source.Window.View.Content.ReaderWorkbench != nil {
+		source.Window.View.Content.ReaderWorkbench.ResourceNamespace = config.Namespace
 	}
 	return managementwindow.Build(managementwindow.Config{Namespace: config.Namespace, ProviderIdentity: config.ProviderIdentity, MCPService: config.MCPService}, name, source.Window, source.DataSources)
 }

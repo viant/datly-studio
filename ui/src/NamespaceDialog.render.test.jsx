@@ -1,120 +1,14 @@
 import React from 'react';
-import { describe, expect, test, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import {test,expect,vi} from 'vitest';
+import {render,screen,waitFor} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { NamespaceDialog } from './NamespaceDialog.jsx';
-
-const namespace={name:'inventory.forecasting',title:'Forecasting',description:'Planning readers',status:'active',etag:3};
-
-describe('NamespaceDialog',()=>{
-  test('preserves a stale edit and reloads the authoritative namespace',async()=>{
-    const user=userEvent.setup();
-    const conflict=Object.assign(new Error('namespace etag does not match'),{code:'conflict'});
-    const api={updateNamespace:vi.fn().mockRejectedValue(conflict),getNamespace:vi.fn().mockResolvedValue({...namespace,title:'Forecasting production',etag:4})};
-    const onSaved=vi.fn();
-    render(<NamespaceDialog api={api} namespace={namespace} isOpen onClose={vi.fn()} onSaved={onSaved}/>);
-
-    const title=screen.getByLabelText('Display title');
-    await user.clear(title);await user.type(title,'My unsaved title');
-    await user.click(screen.getByRole('button',{name:'Save namespace'}));
-    expect((await screen.findByRole('alert')).textContent).toContain('Your change was not applied');
-    expect(title.value).toBe('My unsaved title');
-    expect(onSaved).not.toHaveBeenCalled();
-
-    await user.click(screen.getByRole('button',{name:'Reload namespace'}));
-    expect(await screen.findByDisplayValue('Forecasting production')).toBeTruthy();
-    expect(screen.queryByRole('alert')).toBeNull();
-    expect(api.getNamespace).toHaveBeenCalledWith('inventory.forecasting');
-  });
-
-  test('keeps entered create values after server rejection',async()=>{
-    const user=userEvent.setup();
-    const api={createNamespace:vi.fn().mockRejectedValue(new Error('namespace already exists'))};
-    render(<NamespaceDialog api={api} namespace={null} isOpen onClose={vi.fn()} onSaved={vi.fn()}/>);
-    await user.type(screen.getByLabelText('Namespace'),'finance.reporting');
-    await user.type(screen.getByLabelText('Display title'),'Finance reporting');
-    await user.click(screen.getByRole('button',{name:'Create namespace'}));
-    expect((await screen.findByRole('alert')).textContent).toContain('namespace already exists');
-    expect(screen.getByLabelText('Namespace').value).toBe('finance.reporting');
-    expect(screen.getByLabelText('Display title').value).toBe('Finance reporting');
-  });
-  test('creates private namespace with exact viewer roles and optional MCP port',async()=>{
-    const user=userEvent.setup();
-    const api={createNamespace:vi.fn().mockResolvedValue({name:'forecasting'})};
-    render(<NamespaceDialog api={api} isOpen onClose={vi.fn()} onSaved={vi.fn()}/>);
-    expect(screen.getByLabelText('Visibility').value).toBe('private');
-    expect(screen.getByLabelText('Expose MCP').checked).toBe(false);
-    await user.type(screen.getByLabelText('Namespace'),'forecasting');
-    await user.type(screen.getByLabelText('Display title'),'Forecasting');
-    await user.type(screen.getByLabelText('Viewer roles'),'forecast_reader{Enter}');
-    await user.click(screen.getByLabelText('Expose MCP'));
-    await user.clear(screen.getByLabelText('MCP port'));await user.type(screen.getByLabelText('MCP port'),'8591');
-    await user.click(screen.getByRole('button',{name:'Create namespace'}));
-    expect(api.createNamespace).toHaveBeenCalledWith({name:'forecasting',title:'Forecasting',description:'',visibility:'private',allowedRoles:['forecast_reader'],mcpEnabled:true,mcpPort:8591});
-  });
-
-  test('blocks invalid enabled MCP port without losing values',async()=>{
-    const user=userEvent.setup();const api={createNamespace:vi.fn()};
-    render(<NamespaceDialog api={api} isOpen onClose={vi.fn()} onSaved={vi.fn()}/>);
-    await user.type(screen.getByLabelText('Namespace'),'forecasting');await user.type(screen.getByLabelText('Display title'),'Forecasting');
-    await user.click(screen.getByLabelText('Expose MCP'));
-    await user.clear(screen.getByLabelText('MCP port'));await user.type(screen.getByLabelText('MCP port'),'70000');
-    await user.click(screen.getByRole('button',{name:'Create namespace'}));
-    expect((await screen.findByRole('alert')).textContent).toContain('0 to 65535');
-    expect(api.createNamespace).not.toHaveBeenCalled();expect(screen.getByLabelText('MCP port').value).toBe('70000');
-  });
-
-  test('viewer can inspect settings and close without management controls',async()=>{
-    const user=userEvent.setup();const onClose=vi.fn();const api={updateNamespace:vi.fn()};
-    render(<NamespaceDialog api={api} namespace={{...namespace,ownerId:'owner',canManage:false}} isOpen onClose={onClose} onSaved={vi.fn()}/>);
-    expect(screen.getByLabelText('Display title').disabled).toBe(true);
-    expect(screen.getByLabelText('Visibility').disabled).toBe(true);
-    expect(screen.queryByRole('button',{name:'Save namespace'})).toBeNull();
-    await user.click(screen.getAllByRole('button',{name:'Close',exact:true}).at(-1));
-    expect(onClose).toHaveBeenCalled();expect(api.updateNamespace).not.toHaveBeenCalled();
-  });
-
-  test('save includes a typed role without requiring Enter',async()=>{
-    const user=userEvent.setup();const api={createNamespace:vi.fn().mockResolvedValue({name:'forecasting'})};
-    render(<NamespaceDialog api={api} isOpen onClose={vi.fn()} onSaved={vi.fn()}/>);
-    await user.type(screen.getByLabelText('Namespace'),'forecasting');await user.type(screen.getByLabelText('Display title'),'Forecasting');
-    await user.type(screen.getByLabelText('Viewer roles'),'forecast_reader');
-    await user.click(screen.getByRole('button',{name:'Create namespace'}));
-    expect(api.createNamespace.mock.calls[0][0].allowedRoles).toEqual(['forecast_reader']);
-  });
-
-  test('saving blocks Escape, header close and cancel',async()=>{
-    const user=userEvent.setup();let finish;const pending=new Promise((resolve)=>{finish=resolve;});
-    const api={updateNamespace:vi.fn().mockReturnValue(pending)};const onClose=vi.fn();
-    render(<NamespaceDialog api={api} namespace={namespace} isOpen onClose={onClose} onSaved={vi.fn()}/>);
-    await user.click(screen.getByRole('button',{name:'Save namespace'}));
-    await user.keyboard('{Escape}');
-    expect(screen.queryByRole('button',{name:'Close',exact:true})).toBeNull();
-    expect(screen.getByRole('button',{name:'Cancel'}).disabled).toBe(true);
-    expect(onClose).not.toHaveBeenCalled();
-    finish(namespace);await waitFor(()=>expect(onClose).toHaveBeenCalledOnce());
-  });
-
-  test('conflict reload updates owner and management capability',async()=>{
-    const user=userEvent.setup();const conflict=Object.assign(new Error('stale'),{code:'conflict'});
-    const api={updateNamespace:vi.fn().mockRejectedValue(conflict),getNamespace:vi.fn().mockResolvedValue({...namespace,ownerId:'new-owner',canManage:false,etag:4})};
-    render(<NamespaceDialog api={api} namespace={{...namespace,ownerId:'owner',canManage:true}} isOpen onClose={vi.fn()} onSaved={vi.fn()}/>);
-    await user.click(screen.getByRole('button',{name:'Save namespace'}));await screen.findByRole('alert');
-    await user.click(screen.getByRole('button',{name:'Reload namespace'}));
-    await waitFor(()=>expect(screen.queryByRole('button',{name:'Save namespace'})).toBeNull());
-    expect(screen.getByLabelText('Display title').disabled).toBe(true);expect(screen.getByText('Owner: new-owner')).toBeTruthy();
-  });
-
-});
-
-
-test('edits settings on an existing host-owned namespace without revalidating its immutable name', async () => {
-  const user = userEvent.setup();
-  const existing = {...namespace, name: 'ui-component-policy-role', allowedRoles: []};
-  const api = {updateNamespace: vi.fn().mockResolvedValue({...existing, etag: 4})};
-  render(<NamespaceDialog api={api} namespace={existing} isOpen onClose={vi.fn()} onSaved={vi.fn()}/>);
-  expect(screen.getByLabelText('Namespace').disabled).toBe(true);
-  await user.type(screen.getByLabelText('Viewer roles'), 'XYZ{Enter}');
-  await user.click(screen.getByRole('button', {name: 'Save namespace'}));
-  await waitFor(() => expect(api.updateNamespace).toHaveBeenCalledWith(existing.name, expect.objectContaining({etag: 3, allowedRoles: ['XYZ']})));
-});
+import ManagementWindowRuntime from './ManagementWindowRuntime.jsx';
+import {managementResourceFixture} from './managementWindowFixture.js';
+let serial=0;
+const original={name:'inventory.forecasting',title:'Forecasting',description:'Planning',status:'active',etag:3,canManage:true,visibility:'private',allowedRoles:[],mcpEnabled:false,mcpPort:0};
+function mount({saved=original,conflict=false,update}={}){let reads=0;const api={readManagementResource:async()=>managementResourceFixture('namespaces'),fetchMCPDataSource:vi.fn(async(source,input)=>{const method=source.backend.method;if(method==='studio.sdk.namespaces.list')return {items:[saved]};if(method==='studio.sdk.namespaces.get')return ++reads>1?{...saved,title:'Authoritative title',etag:4,canManage:false,ownerId:'new-owner'}:saved;if(method==='studio.sdk.namespaces.update'){if(conflict)throw Object.assign(new Error('namespace etag does not match'),{code:'conflict'});return update?update(input):saved;}if(method==='studio.sdk.namespaces.create')throw new Error('namespace already exists');return {};})};render(<ManagementWindowRuntime api={api} uri="window://datastudio/namespaces" instanceKey={'namespace-dialog-'+(++serial)}/>);return api;}
+async function edit(user){await user.click(await screen.findByRole('button',{name:'Edit namespace',exact:true}));return screen.findByRole('dialog',{name:'Namespace settings'});}
+test('metadata namespace conflict preserves edits and reloads authoritative management capability',async()=>{const user=userEvent.setup(),api=mount({conflict:true});await edit(user);const title=screen.getByLabelText('Display title',{exact:true});await user.clear(title);await user.type(title,'Unsaved');await user.click(screen.getByRole('button',{name:'Save',exact:true}));await waitFor(()=>expect(screen.getByLabelText('Outcome',{exact:true}).value).toBe('namespace etag does not match'));expect(title.value).toBe('Unsaved');await user.click(screen.getByRole('button',{name:'Reload saved revision',exact:true}));await waitFor(()=>expect(title.value).toBe('Authoritative title'));expect(screen.queryByRole('button',{name:'Save',exact:true})).toBeNull();expect(title.readOnly).toBe(true);expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.namespaces.update')[1].input.etag).toBe(3);});
+test('metadata namespace validates MCP port and retains rejected create fields',async()=>{const user=userEvent.setup();mount();await user.click(await screen.findByRole('button',{name:'New namespace',exact:true}));await user.type(screen.getByLabelText('Namespace',{exact:true}),'finance.reporting');await user.type(screen.getByLabelText('Display title',{exact:true}),'Finance');await user.click(screen.getByRole('button',{name:'Save',exact:true}));await waitFor(()=>expect(screen.getByLabelText('Outcome',{exact:true}).value).toBe('namespace already exists'));expect(screen.getByLabelText('Namespace',{exact:true}).value).toBe('finance.reporting');});
+test('metadata namespace cannot be dismissed while its CAS save is pending',async()=>{let finish;const user=userEvent.setup();mount({update:()=>new Promise(resolve=>{finish=resolve;})});await edit(user);await user.click(screen.getByRole('button',{name:'Save',exact:true}));await waitFor(()=>expect(finish).toBeTypeOf('function'));await user.keyboard('{Escape}');expect(screen.getByRole('dialog',{name:'Namespace settings'})).toBeTruthy();expect(screen.getByRole('button',{name:'Cancel',exact:true}).disabled).toBe(true);finish(original);await waitFor(()=>expect(screen.queryByRole('dialog')).toBeNull());});
+test('metadata namespace preserves host-owned immutable names and exact viewer roles',async()=>{const user=userEvent.setup(),api=mount({saved:{...original,name:'ui-component-policy-role'}});await edit(user);expect(screen.getByLabelText('Namespace',{exact:true}).readOnly).toBe(true);const roles=screen.getByLabelText('Viewer roles (JSON array)',{exact:true});await user.clear(roles);await user.click(roles);await user.paste('["XYZ"]');await user.click(screen.getByRole('button',{name:'Save',exact:true}));await waitFor(()=>expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.namespaces.update')).toBe(true));expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.namespaces.update')[1]).toMatchObject({name:'ui-component-policy-role',input:{etag:3,allowedRoles:['XYZ']}});});

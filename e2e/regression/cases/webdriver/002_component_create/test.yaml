@@ -8,7 +8,7 @@ pipeline:
       driver: sqlite
       dsnTemplate: ${runDir}/consumer.db
     allowToolError: true
-    '@name': studio.sdk.connectors.create
+    "@name": studio.sdk.connectors.create
   createConnectorSucceeded:
     action: validator:assert
     normalizeKVPairs: true
@@ -22,7 +22,7 @@ pipeline:
     arguments:
       name: browsercreate
     allowToolError: true
-    '@name': studio.sdk.connectors.test
+    "@name": studio.sdk.connectors.test
   probeSucceeded:
     action: validator:assert
     normalizeKVPairs: true
@@ -36,7 +36,7 @@ pipeline:
     arguments:
       name: browsercreate
     allowToolError: true
-    '@name': studio.sdk.connectors.get
+    "@name": studio.sdk.connectors.get
   connectorSucceeded:
     action: validator:assert
     normalizeKVPairs: true
@@ -51,7 +51,7 @@ pipeline:
       name: browsercreate
       etag: $connector.StructuredContent.etag
     allowToolError: true
-    '@name': studio.sdk.connectors.activate
+    "@name": studio.sdk.connectors.activate
   activateSucceeded:
     action: validator:assert
     normalizeKVPairs: true
@@ -68,7 +68,7 @@ pipeline:
       mcpEnabled: true
       mcpPort: 0
     allowToolError: true
-    '@name': studio.sdk.namespaces.create
+    "@name": studio.sdk.namespaces.create
   namespaceSucceeded:
     action: validator:assert
     normalizeKVPairs: true
@@ -82,17 +82,20 @@ pipeline:
       directory: ${runDir}/artifacts/webdriver
     commands:
       - page.goto("${browserURL}")
-      - page.getByLabel("Current namespace").selectOption("${namespace.StructuredContent.namespaceId}")
+      - page.getByLabel("Current
+        namespace").selectOption("${namespace.StructuredContent.namespaceId}")
       - page.locator(".studio-nav-components").click()
-      - page.locator("button[aria-label='New component']").click()
+      - page.getByRole("button", "New component").click()
       - page.getByLabel("Component title").fill("Browser created component")
-      - page.getByLabel("Active connector").selectOption("browsercreate")
+      - page.getByRole("button", "Active connector").click()
+      - page.getByRole("menuitem", "browsercreate · sqlite").click()
       - page.getByRole("button", "Create component").click()
       - expect(page.getByRole("heading", "Root SQL")).toBeVisible(15000)
-      - expect(page.getByRole("heading", "Browser created component")).toBeVisible(15000)
+      - expect(page.getByRole("main", "Component editor")).toBeVisible(15000)
       - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
       - page.getByLabel("Component visibility").selectOption("internal")
-      - page.locator(".studio-code-editor [contenteditable='true']").fill("SELECT id FROM customers ORDER BY id")
+      - page.locator(".studio-code-editor
+        [contenteditable='true']").fill("SELECT id FROM customers ORDER BY id")
       - page.getByRole("button", "Create reader").click()
       - expect(page.getByRole("heading", "Component graph")).toBeVisible(15000)
       - page.getByRole("button", "Edit component").click()
@@ -102,65 +105,74 @@ pipeline:
       - page.getByRole("button", "Add input").click()
       - page.getByLabel("Input name").fill("SearchName")
       - page.getByLabel("Kind source").fill("searchName")
-      - page.locator(".studio-inline-contract-form button[type='submit']").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Save input").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='SearchName']]").click()
       - page.getByLabel("Input name").fill("NameFilter")
       - page.getByLabel("Kind source").fill("name")
-      - page.locator(".studio-input-documentation summary").click()
+      - page.locator("xpath://summary[normalize-space(.)='Documentation']").click()
       - page.getByLabel("Description").fill("Filter customers by name")
       - page.getByRole("button", "Save input").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - expect(page.locator("xpath://div[contains(@class,'studio-contract-list')]//strong[normalize-space(.)='NameFilter']")).toBeVisible(15000)
       - expect(page.locator("xpath://div[contains(@class,'studio-contract-list')]//strong[normalize-space(.)='SearchName']")).toHaveCount(0,15000)
       - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='NameFilter']]").click()
-      - page.getByRole("button", "Remove").click()
-      - page.getByLabel("Confirm input name").fill("NameFilter")
       - page.getByRole("button", "Remove input").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
-      - expect(page.locator(".studio-contract-panel .studio-empty-compact")).toHaveText("No items in this input catalog.",15000)
+      - page.getByLabel("Confirm input name").fill("NameFilter")
+      - page.getByRole("button", "Confirm removal").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
+      - expect(page.locator(".studio-contract-panel
+        .studio-empty-compact")).toHaveText("No items in this input
+        catalog.",15000)
       - page.getByRole("tab", "Outputs").click()
       - expect(page.getByRole("heading", "Output parameters")).toBeVisible(15000)
       - page.getByRole("button", "Add output").click()
       - page.getByLabel("Output name").fill("Temporary")
       - page.getByLabel("Type expression").fill("string")
       - expect(page.getByLabel("Kind")).toHaveValue("output",15000)
-      - page.getByLabel("Kind source").selectOption("body")
-      - page.getByRole("button", "Add output").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Kind source").click()
+      - page.getByRole("menuitem", "body").click()
+      - page.getByRole("button", "Save output").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='Temporary']]").click()
       - page.getByLabel("Output name").fill("Note")
       - page.getByRole("button", "Save output").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='Note']]").click()
       - page.getByRole("button", "Remove output").click()
       - page.getByLabel("Confirm output name").fill("Note")
       - page.getByRole("button", "Confirm removal").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - expect(page.locator("xpath://div[contains(@class,'studio-contract-list')]//strong[normalize-space(.)='Note']")).toHaveCount(0,15000)
       - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='Records']]").click()
       - expect(page.getByLabel("Kind")).toHaveValue("output",15000)
-      - expect(page.getByLabel("Kind source")).toHaveValue("view",15000)
+      - expect(page.getByLabel("Kind source")).toHaveText("view",15000)
       - page.getByLabel("Output name").fill("Customers")
       - page.getByRole("button", "Save output").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("button", "Add output").click()
       - page.getByLabel("Output name").fill("Status")
-      - page.getByLabel("Kind source").selectOption("status")
+      - page.getByRole("button", "Kind source").click()
+      - page.getByRole("menuitem", "status").click()
       - expect(page.getByLabel("Type expression")).toHaveValue("string",15000)
-      - page.getByRole("button", "Add output").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Save output").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("button", "Add output").click()
       - page.getByLabel("Output name").fill("Metrics")
-      - page.getByLabel("Kind source").selectOption("metrics")
-      - expect(page.getByLabel("Type expression")).toHaveValue("github.com/viant/xdatly/response.Metrics",15000)
-      - page.getByRole("button", "Add output").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Kind source").click()
+      - page.getByRole("menuitem", "metrics").click()
+      - expect(page.getByLabel("Type
+        expression")).toHaveValue("github.com/viant/xdatly/response.Metrics",15000)
+      - page.getByRole("button", "Save output").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("tab", "Result columns").click()
       - page.getByRole("button", "Edit root SQL").click()
-      - page.locator(".studio-view-workspace [contenteditable='true']").fill("SELECT id, name, active FROM customers ORDER BY id")
+      - page.locator(".studio-view-workspace
+        [contenteditable='true']").fill("SELECT id, name, active FROM customers
+        ORDER BY id")
       - page.getByRole("button", "Save SQL").click()
-      - expect(page.locator(".studio-sql-actions .bp6-tag")).toHaveText("Saved",15000)
+      - expect(page.locator(".studio-sql-actions
+        .bp6-tag")).toHaveText("Saved",15000)
       - page.getByRole("tab", "Outputs").click()
       - page.getByRole("tab", "Result columns").click()
       - expect(page.locator("xpath://div[contains(@class,'studio-contract-list')]//strong[translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='name']")).toBeVisible(15000)
@@ -175,12 +187,14 @@ pipeline:
       - expect(page.locator("#reader-tab-preview[aria-selected='true']")).toBeVisible(15000)
       - expect(page.locator("#reader-panel-graph:not([hidden])")).toHaveCount(0,15000)
       - expect(page.locator("#reader-panel-outputs:not([hidden])")).toHaveCount(0,15000)
-      - expect(page.locator("xpath://section[contains(@class,'studio-nested-collection')]//th[normalize-space(.)='customerName']")).toBeVisible(15000)
-      - expect(page.locator("xpath://section[contains(@class,'studio-nested-collection')]//td[normalize-space(.)='Ada']")).toBeVisible(15000)
-      - expect(page.locator("xpath://section[contains(@class,'studio-nested-collection')]//th[normalize-space(.)='active']")).toHaveCount(0,15000)
+      - expect(page.locator("xpath://section[contains(@class,'forge-nested-collection')]//th[normalize-space(.)='customerName']")).toBeVisible(15000)
+      - expect(page.locator("xpath://section[contains(@class,'forge-nested-collection')]//td[normalize-space(.)='Ada']")).toBeVisible(15000)
+      - expect(page.locator("xpath://section[contains(@class,'forge-nested-collection')]//th[normalize-space(.)='active']")).toHaveCount(0,15000)
       - page.getByRole("button", "JSON").click()
-      - 'expect(page.locator(".studio-preview-json")).toContainText(''"status": "ok"'',15000)'
-      - 'expect(page.locator(".studio-preview-json")).toContainText(''"metrics": ['',15000)'
+      - "expect(page.locator(\".forge-preview-json\")).toContainText('\"status\
+        \": \"ok\"',15000)"
+      - "expect(page.locator(\".forge-preview-json\")).toContainText('\"metrics\
+        \": [',15000)"
       - page.getByRole("button", "Validate").click()
       - page.getByRole("button", "Validate revision").click()
       - expect(page.getByText("Runtime contract is ready")).toBeVisible(15000)
@@ -191,7 +205,8 @@ pipeline:
   persist:
     action: dsunit:query
     datastore: studio
-    SQL: SELECT title,namespace,slug,default_connector_name FROM components WHERE namespace='browsercreate'
+    SQL: SELECT title,namespace,slug,default_connector_name FROM components WHERE
+      namespace='browsercreate'
     expect:
       - title: Browser created component
         namespace: browsercreate

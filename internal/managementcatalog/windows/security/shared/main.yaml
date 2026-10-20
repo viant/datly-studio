@@ -1,0 +1,991 @@
+window:
+  windowKey: security
+  title: Security
+  on:
+    - event: onInit
+      handler: management.initialize
+  view:
+    content:
+      id: security-workspace
+      className: studio-workspace
+      containers:
+        - id: security-header
+          workspaceSummary:
+            title: Security
+            titleField: heading
+            descriptionField: description
+            description: Manage resource permissions and reusable authorization predicates.
+            stateDataSourceRef: security_state
+            errorField: outcome
+        - id: security-tabs
+          tabs:
+            defaultSelectedTabId: security-permissions
+            mountPolicy: visited
+          on:
+            - event: onTabChange
+              handler: management.tabChanged
+          containers:
+            - id: security-permissions
+              title: Permissions
+              icon: lock
+              containers:
+                - id: security-resource-filters
+                  dataSourceRef: security_filter
+                  fetchData: false
+                  className: forge-catalog-search
+                  items:
+                    - id: query
+                      label: Find a resource
+                      dataField: query
+                      type: text
+                      hideLabel: true
+                      properties:
+                        placeholder: Name or ID
+                    - id: kind
+                      label: Resource type
+                      dataField: kind
+                      type: select
+                      hideLabel: true
+                      optionsDataSourceRef: security_kind_filters
+                      optionValueField: id
+                      optionLabelField: label
+                      optionsFetchMode: never
+                    - id: access
+                      label: Access
+                      dataField: access
+                      type: select
+                      hideLabel: true
+                      options:
+                        - value: ""
+                          label: All access
+                        - value: public
+                          label: Public
+                        - value: protected
+                          label: Protected
+                    - id: search
+                      label: Search resources
+                      hideLabel: false
+                      icon: search
+                      on:
+                        - event: onClick
+                          handler: management.searchResources
+                      type: button
+                      isStandalone: true
+                  toolbar:
+                    items:
+                      - id: identity
+                        label: Load resource identity
+                        hideLabel: false
+                        icon: key
+                        on:
+                          - event: onClick
+                            handler: management.openIdentity
+                - id: security-resource-list
+                  dataSourceRef: security_resources
+                  fetchData: false
+                  table:
+                    presentation: catalog
+                    fullWidth: true
+                    enforceColumnSize: false
+                    columns:
+                      - id: name
+                        name: Resource
+                      - id: id
+                        name: ID
+                      - id: kind
+                        name: Type
+                      - id: tenantVersion
+                        name: Tenant / version
+                      - id: permissions
+                        name: Permissions
+                      - id: open
+                        name: ""
+                        type: button
+                        icon: lock
+                        tooltip: Open permissions
+                        cellProperties:
+                          aria-label: Open permissions
+                        on:
+                          - event: onClick
+                            handler: management.chooseResource
+                      - id: versions
+                        name: ""
+                        type: button
+                        icon: history
+                        tooltip: Choose resource version
+                        cellProperties:
+                          aria-label: Choose resource version
+                        on:
+                          - event: onClick
+                            handler: management.versions
+                        visibleWhen:
+                          source: row
+                          selector: hasVersions
+                          equals: true
+                    emptyState:
+                      compact: true
+                      title: No resources match these filters
+                - id: security-resource-pages
+                  dataSourceRef: security_state
+                  fetchData: false
+                  toolbar:
+                    items:
+                      - id: previous
+                        label: Previous resources
+                        hideLabel: false
+                        icon: chevron-left
+                        on:
+                          - event: onClick
+                            handler: management.previousResources
+                        disabledWhen:
+                          selector: offset
+                          equals: 0
+                      - id: next
+                        label: Next resources
+                        hideLabel: false
+                        icon: chevron-right
+                        on:
+                          - event: onClick
+                            handler: management.nextResources
+                        disabledWhen:
+                          selector: hasMore
+                          equals: false
+                - id: security-no-policy
+                  dataSourceRef: security_state
+                  fetchData: false
+                  visibleWhen:
+                    all:
+                      - dataSourceRef: security_state
+                        selector: hasSelection
+                        equals: true
+                      - dataSourceRef: security_selection
+                        selector: explicitAcl
+                        equals: false
+                  workspaceSummary:
+                    sections:
+                      - id: policy-info
+                        title: Access policy
+                        dataSourceRef: security_info
+                        labelField: label
+                        detailFields:
+                          - detail
+                  toolbar:
+                    items:
+                      - id: create-policy
+                        label: Create access policy
+                        hideLabel: false
+                        icon: add
+                        on:
+                          - event: onClick
+                            handler: management.createPolicy
+                - id: security-inherited-message
+                  dataSourceRef: security_selection
+                  fetchData: false
+                  visibleWhen:
+                    selector: inheritedMessage
+                    notEmpty: true
+                  items:
+                    - id: inheritedMessage
+                      type: label
+                      scope: form
+                      dataField: inheritedMessage
+                - id: security-policy-panel
+                  dataSourceRef: security_selection
+                  fetchData: false
+                  visibleWhen:
+                    all:
+                      - dataSourceRef: security_state
+                        selector: hasSelection
+                        equals: true
+                      - dataSourceRef: security_selection
+                        selector: explicitAcl
+                        notEquals: false
+                  resourcePolicyEditor:
+                    dataSourceRef: security_selection
+                    resourceField: resource
+                    displayNameField: displayName
+                    actionsByKindField: actionsByKind
+                    choicesField: choices
+                    actionsByKind:
+                      component:
+                        - discover
+                        - describe
+                        - execute
+                        - export
+                        - edit
+                        - validate
+                        - publish
+                        - unpublish
+                        - viewAccess
+                        - manageAccess
+                      skill:
+                        - discover
+                        - describe
+                        - retrieve
+                        - export
+                        - edit
+                        - validate
+                        - publish
+                        - unpublish
+                        - viewAccess
+                        - manageAccess
+                    publicActions:
+                      - discover
+                      - describe
+                      - execute
+                      - retrieve
+                    relatedActions:
+                      - discover
+                      - describe
+                      - execute
+                    applyGroupLabel: Apply to exposure and execution
+                    operations:
+                      get: security_policy_get
+                      context: security_policy_context
+                      create: security_policy_create
+                      replace: security_policy_replace
+                      check: security_policy_check
+                    onStateChange: management.policyStateChanged
+                  toolbar:
+                    items:
+                      - id: close
+                        label: Close permissions
+                        hideLabel: false
+                        icon: cross
+                        on:
+                          - event: onClick
+                            handler: management.closePermissions
+                  items:
+                    - id: reviewURL
+                      dataField: reviewURL
+                      label: Review current permissions
+                      type: link
+                      appearance: inline
+                      isStandalone: true
+                      properties:
+                        text: Review current permissions
+                      visibleWhen:
+                        selector: reviewURL
+                        notEmpty: true
+            - id: security-predicates-tab
+              title: Authorization predicates
+              visibleWhen:
+                dataSourceRef: security_state
+                selector: permissionsOnly
+                equals: false
+              icon: shield
+              containers:
+                - id: security-predicate-controls
+                  dataSourceRef: security_predicate_filter
+                  fetchData: false
+                  className: forge-catalog-search
+                  items:
+                    - id: query
+                      label: Search authorization predicates
+                      dataField: query
+                      type: text
+                      hideLabel: true
+                      properties:
+                        placeholder: Find predicate, package, or type
+                    - id: status
+                      label: Filter predicates by status
+                      dataField: status
+                      type: select
+                      hideLabel: true
+                      options:
+                        - value: ""
+                          label: All states
+                        - value: active
+                          label: Active
+                        - value: disabled
+                          label: Disabled
+                    - id: search
+                      label: Search predicates
+                      hideLabel: false
+                      icon: search
+                      on:
+                        - event: onClick
+                          handler: management.searchPredicates
+                      type: button
+                      isStandalone: true
+                  toolbar:
+                    items:
+                      - id: types
+                        label: Discovered predicates
+                        hideLabel: false
+                        icon: search
+                        on:
+                          - event: onClick
+                            handler: management.discoverTypes
+                      - id: new
+                        label: New predicate
+                        hideLabel: false
+                        icon: add
+                        on:
+                          - event: onClick
+                            handler: management.newPredicate
+                - id: security-predicate-list
+                  dataSourceRef: security_predicates
+                  fetchData: false
+                  table:
+                    presentation: catalog
+                    fullWidth: true
+                    enforceColumnSize: false
+                    columns:
+                      - id: title
+                        name: Predicate
+                      - id: name
+                        name: Canonical name
+                      - id: goType
+                        name: Go predicate
+                      - id: sqlMetadata
+                        name: Declared SQL metadata
+                      - id: linkedLabel
+                        name: Link
+                      - id: status
+                        name: Status
+                      - id: edit
+                        name: ""
+                        type: button
+                        icon: edit
+                        tooltip: Edit authorization predicate
+                        cellProperties:
+                          aria-label: Edit authorization predicate
+                        on:
+                          - event: onClick
+                            handler: management.editPredicate
+                      - id: delete
+                        name: ""
+                        type: button
+                        icon: trash
+                        tooltip: Delete authorization predicate
+                        cellProperties:
+                          aria-label: Delete authorization predicate
+                        on:
+                          - event: onClick
+                            handler: management.confirmDelete
+                    emptyState:
+                      compact: true
+                      title: No authorization predicates
+                - id: security-predicate-pages
+                  dataSourceRef: security_state
+                  fetchData: false
+                  toolbar:
+                    items:
+                      - id: previous
+                        label: Previous predicates
+                        hideLabel: false
+                        icon: chevron-left
+                        on:
+                          - event: onClick
+                            handler: management.previousPredicates
+                        disabledWhen:
+                          selector: predicateOffset
+                          equals: 0
+                      - id: next
+                        label: Next predicates
+                        hideLabel: false
+                        icon: chevron-right
+                        on:
+                          - event: onClick
+                            handler: management.nextPredicates
+                        disabledWhen:
+                          selector: predicateHasMore
+                          equals: false
+              disabledWhen:
+                dataSourceRef: security_state
+                selector: policyDirty
+                equals: true
+        - id: security-bindings
+          containers:
+            - id: security_state-binding
+              dataSourceRef: security_state
+              fetchData: false
+            - id: security_filter-binding
+              dataSourceRef: security_filter
+              fetchData: false
+            - id: security_selection-binding
+              dataSourceRef: security_selection
+              fetchData: false
+            - id: security_identity-binding
+              dataSourceRef: security_identity
+              fetchData: false
+            - id: security_predicate_filter-binding
+              dataSourceRef: security_predicate_filter
+              fetchData: false
+            - id: security_predicate_draft-binding
+              dataSourceRef: security_predicate_draft
+              fetchData: false
+            - id: security_confirm-binding
+              dataSourceRef: security_confirm
+              fetchData: false
+            - id: security_type_filter-binding
+              dataSourceRef: security_type_filter
+              fetchData: false
+            - id: security_resources-binding
+              dataSourceRef: security_resources
+              fetchData: false
+            - id: security_versions-binding
+              dataSourceRef: security_versions
+              fetchData: false
+            - id: security_predicates-binding
+              dataSourceRef: security_predicates
+              fetchData: false
+            - id: security_types-binding
+              dataSourceRef: security_types
+              fetchData: false
+            - id: security_filtered_types-binding
+              dataSourceRef: security_filtered_types
+              fetchData: false
+            - id: security_info-binding
+              dataSourceRef: security_info
+              fetchData: false
+            - id: security_access-binding
+              dataSourceRef: security_access
+              fetchData: false
+            - id: security_policy_get-binding
+              dataSourceRef: security_policy_get
+              fetchData: false
+            - id: security_policy_context-binding
+              dataSourceRef: security_policy_context
+              fetchData: false
+            - id: security_policy_create-binding
+              dataSourceRef: security_policy_create
+              fetchData: false
+            - id: security_policy_replace-binding
+              dataSourceRef: security_policy_replace
+              fetchData: false
+            - id: security_policy_check-binding
+              dataSourceRef: security_policy_check
+              fetchData: false
+            - id: security_predicate_list-binding
+              dataSourceRef: security_predicate_list
+              fetchData: false
+            - id: security_predicate_get-binding
+              dataSourceRef: security_predicate_get
+              fetchData: false
+            - id: security_predicate_create-binding
+              dataSourceRef: security_predicate_create
+              fetchData: false
+            - id: security_predicate_update-binding
+              dataSourceRef: security_predicate_update
+              fetchData: false
+            - id: security_predicate_delete-binding
+              dataSourceRef: security_predicate_delete
+              fetchData: false
+            - id: security_predicate_types-binding
+              dataSourceRef: security_predicate_types
+              fetchData: false
+  dialogs:
+    - id: security-identity
+      title: Load permissions
+      dataSourceRef: security_identity
+      fetchOnOpen: false
+      content:
+        id: security-identity-form
+        parameterEditor:
+          dataSourceRef: security_identity
+          label: Resource identity
+          fields:
+            - id: kind
+              label: Resource type
+              dataField: kind
+              type: select
+              optionsDataSourceRef: security_kinds
+              optionValueField: id
+              optionLabelField: label
+              optionsFetchMode: never
+            - id: id
+              label: Resource ID
+              dataField: id
+              type: text
+            - id: tenant
+              label: Tenant
+              dataField: tenant
+              type: text
+            - id: version
+              label: Version
+              dataField: version
+              type: text
+            - &a1
+              id: outcome
+              label: Outcome
+              dataField: outcome
+              type: text
+              readOnly: true
+              visibleWhen:
+                selector: outcome
+                notEmpty: true
+      actions:
+        - id: load
+          label: Load permissions
+          close: true
+          on:
+            - event: onClick
+              handler: management.loadIdentity
+        - &a2
+          id: cancel
+          label: Cancel
+          close: true
+          disabledWhen:
+            selector: saving
+            equals: true
+    - id: security-versions
+      title: Resource versions
+      dataSourceRef: security_versions
+      fetchOnOpen: false
+      content:
+        id: security-version-list
+        dataSourceRef: security_versions
+        fetchData: false
+        table:
+          presentation: catalog
+          fullWidth: true
+          enforceColumnSize: false
+          columns:
+            - id: version
+              name: Version
+            - id: tenant
+              name: Tenant
+            - id: published
+              name: Published
+            - id: open
+              name: ""
+              type: button
+              icon: lock
+              tooltip: Open this version permissions
+              cellProperties:
+                aria-label: Open this version permissions
+              on:
+                - event: onClick
+                  handler: management.chooseVersion
+          emptyState:
+            compact: true
+            title: No resource versions
+      actions:
+        - id: close
+          label: Close
+          close: true
+    - id: security-discard
+      title: Discard permission changes?
+      dataSourceRef: security_state
+      fetchOnOpen: false
+      content:
+        id: security-discard-message
+        items:
+          - id: message
+            type: label
+            value: Discard unsaved permission changes and open the requested resource?
+      actions:
+        - id: discard
+          label: Discard changes
+          close: true
+          on:
+            - event: onClick
+              handler: management.discardPermissions
+        - id: cancel
+          label: Keep editing
+          close: true
+    - id: security-predicate-editor
+      title: Authorization predicate
+      dataSourceRef: security_predicate_draft
+      fetchOnOpen: false
+      closeDisabledWhen:
+        selector: saving
+        equals: true
+      on:
+        - event: onClose
+          handler: management.closePredicate
+      content:
+        id: security-predicate-form
+        parameterEditor:
+          dataSourceRef: security_predicate_draft
+          label: Authorization predicate
+          readOnlyWhen:
+            selector: saving
+            equals: true
+          fields:
+            - id: name
+              label: Canonical name
+              dataField: name
+              type: text
+              readOnlyWhen:
+                selector: editing
+                equals: true
+            - id: title
+              label: Display name
+              dataField: title
+              type: text
+            - id: handler
+              label: Linked handler
+              dataField: handler
+              type: select
+              optionsDataSourceRef: security_types
+              optionValueField: id
+              optionLabelField: label
+              optionsFetchMode: never
+              properties:
+                inputProps:
+                  placeholder: Find linked handler
+                popoverProps:
+                  popoverClassName: studio-lookup-options
+                filterable: true
+                menuProps:
+                  style:
+                    maxHeight: 300
+                    overflowY: auto
+            - id: alias
+              label: Alias
+              dataField: alias
+              type: text
+            - id: columns
+              label: Columns
+              dataField: columns
+              type: text
+            - id: status
+              label: Status
+              dataField: status
+              type: select
+              options:
+                - value: active
+                  label: Active
+                - value: disabled
+                  label: Disabled
+            - id: description
+              label: Description
+              dataField: description
+              type: textarea
+            - *a1
+      actions:
+        - id: save
+          label: Save predicate
+          intent: primary
+          close: true
+          disabledWhen:
+            selector: saving
+            equals: true
+          on:
+            - event: onClick
+              handler: management.savePredicate
+        - id: cancel
+          label: Cancel
+          close: true
+          disabledWhen:
+            selector: saving
+            equals: true
+    - id: security-predicate-delete
+      title: Delete authorization predicate
+      dataSourceRef: security_confirm
+      fetchOnOpen: false
+      closeDisabledWhen:
+        selector: saving
+        equals: true
+      content:
+        id: security-predicate-confirm
+        items:
+          - id: name
+            label: Predicate
+            dataField: name
+            type: text
+            readOnly: true
+          - *a1
+      actions:
+        - id: delete
+          label: Delete predicate
+          close: true
+          on:
+            - event: onClick
+              handler: management.deletePredicate
+          disabledWhen:
+            selector: saving
+            equals: true
+        - *a2
+    - id: security-discovery
+      title: Discovered predicates
+      dataSourceRef: security_type_filter
+      fetchOnOpen: false
+      content:
+        id: security-type-discovery
+        containers:
+          - id: security-type-query
+            dataSourceRef: security_type_filter
+            items:
+              - id: query
+                label: Search discovered predicates
+                dataField: query
+                type: text
+                on:
+                  - event: onChange
+                    handler: management.filterTypes
+          - id: security-discovered-types
+            dataSourceRef: security_filtered_types
+            fetchData: false
+            table:
+              presentation: catalog
+              fullWidth: true
+              enforceColumnSize: false
+              columns:
+                - id: typeName
+                  name: Go type
+                - id: packagePath
+                  name: Package
+                - id: alias
+                  name: Alias
+                - id: description
+                  name: Description
+              emptyState:
+                compact: true
+                title: No linked Go predicate types
+      actions:
+        - id: refresh
+          label: Refresh discovery
+          on:
+            - event: onClick
+              handler: management.refreshTypes
+        - id: close
+          label: Close
+          close: true
+dataSources:
+  security_state:
+    id: security_state
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  security_filter:
+    id: security_filter
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  security_selection:
+    id: security_selection
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  security_identity:
+    id: security_identity
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  security_predicate_filter:
+    id: security_predicate_filter
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  security_predicate_draft:
+    id: security_predicate_draft
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  security_confirm:
+    id: security_confirm
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  security_type_filter:
+    id: security_type_filter
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  security_resources:
+    id: security_resources
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
+    selectionMode: single
+  security_versions:
+    id: security_versions
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
+    selectionMode: single
+  security_predicates:
+    id: security_predicates
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
+    selectionMode: single
+  security_types:
+    id: security_types
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
+    selectionMode: single
+  security_filtered_types:
+    id: security_filtered_types
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
+    selectionMode: single
+  security_info:
+    id: security_info
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
+    selectionMode: single
+  security_access:
+    id: security_access
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.access.list
+    cache:
+      enabled: false
+  security_policy_get:
+    id: security_policy_get
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: authz.sdk.policies.get
+    cache:
+      enabled: false
+  security_policy_context:
+    id: security_policy_context
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: authz.sdk.policies.context
+    cache:
+      enabled: false
+  security_policy_create:
+    id: security_policy_create
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: authz.sdk.policies.create
+    cache:
+      enabled: false
+  security_policy_replace:
+    id: security_policy_replace
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: authz.sdk.policies.replace
+    cache:
+      enabled: false
+  security_policy_check:
+    id: security_policy_check
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: authz.sdk.authorization.check
+    cache:
+      enabled: false
+  security_predicate_list:
+    id: security_predicate_list
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.authorization_predicates.list
+    cache:
+      enabled: false
+  security_predicate_get:
+    id: security_predicate_get
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.authorization_predicates.get
+    cache:
+      enabled: false
+  security_predicate_create:
+    id: security_predicate_create
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.authorization_predicates.create
+    cache:
+      enabled: false
+  security_predicate_update:
+    id: security_predicate_update
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.authorization_predicates.update
+    cache:
+      enabled: false
+  security_predicate_delete:
+    id: security_predicate_delete
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.authorization_predicates.delete
+    cache:
+      enabled: false
+  security_predicate_types:
+    id: security_predicate_types
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.authorization_predicates.types
+    cache:
+      enabled: false
+
+  security_kinds:
+    id: security_kinds
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  security_kind_filters:
+    id: security_kind_filters
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false

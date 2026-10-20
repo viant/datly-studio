@@ -1,0 +1,907 @@
+window:
+  windowKey: skills
+  title: Skills
+  on:
+    - event: onInit
+      handler: management.initialize
+  view:
+    content:
+      id: skills-workspace
+      className: studio-workspace
+      containers:
+        - id: skills-header
+          workspaceSummary:
+            title: Skills
+            description: Manage reusable skills in the selected namespace.
+            stateDataSourceRef: skill_state
+            errorField: outcome
+        - id: skill-notice
+          dataSourceRef: skill_state
+          fetchData: false
+          visibleWhen:
+            selector: notice
+            notEmpty: true
+          items:
+            - id: notice
+              type: label
+              scope: form
+              dataField: notice
+              properties:
+                role: status
+        - id: skills-ownership
+          tabs:
+            defaultSelectedTabId: namespace-owned
+            mountPolicy: visited
+          on:
+            - event: onTabChange
+              handler: management.ownershipChanged
+          containers:
+            - id: namespace-owned
+              title: Namespace-owned
+              icon: folder-shared
+              containers:
+                - id: namespace-skills-external
+                  visibleWhen:
+                    dataSourceRef: skill_state
+                    selector: useHost
+                    equals: true
+                  hostContent:
+                    slot: namespace-skills
+                    on:
+                      - event: onDirtyChange
+                        handler: management.externalDirty
+                - id: namespace-skills-default
+                  visibleWhen:
+                    dataSourceRef: skill_state
+                    selector: useHost
+                    equals: false
+                  containers:
+                    - id: namespace-skill-unavailable
+                      visibleWhen:
+                        dataSourceRef: skill_state
+                        selector: editable
+                        equals: false
+                      workspaceSummary:
+                        sections:
+                          - id: restricted
+                            title: Namespace skill access
+                            dataSourceRef: skill_history
+                            labelField: revision
+                            emptyText: Namespace skills are managed by the namespace owner and namespace
+                              administrators.
+                    - id: namespace-skill-authoring
+                      visibleWhen:
+                        dataSourceRef: skill_state
+                        selector: editable
+                        equals: true
+                      containers:
+                        - id: namespace-skill-catalog
+                          dataSourceRef: skill_state
+                          fetchData: false
+                          visibleWhen:
+                            dataSourceRef: skill_state
+                            selector: editing
+                            equals: false
+                          containers:
+                            - id: namespace-skill-tools
+                              dataSourceRef: skill_filter
+                              fetchData: false
+                              items:
+                                - id: query
+                                  label: Search namespace skills
+                                  dataField: query
+                                  type: text
+                                  hideLabel: true
+                                  properties:
+                                    placeholder: Find a skill
+                              toolbar:
+                                items:
+                                  - id: search
+                                    label: Search
+                                    hideLabel: false
+                                    icon: search
+                                    on:
+                                      - event: onClick
+                                        handler: management.searchNamespace
+                                    disabledWhen:
+                                      dataSourceRef: skill_state
+                                      selector: saving
+                                      equals: true
+                                  - id: new
+                                    label: New namespace skill
+                                    hideLabel: false
+                                    icon: add
+                                    on:
+                                      - event: onClick
+                                        handler: management.newNamespace
+                                    disabledWhen:
+                                      dataSourceRef: skill_state
+                                      selector: saving
+                                      equals: true
+                                  - id: refresh
+                                    label: Refresh skills
+                                    hideLabel: false
+                                    icon: refresh
+                                    on:
+                                      - event: onClick
+                                        handler: management.searchNamespace
+                                    disabledWhen:
+                                      dataSourceRef: skill_state
+                                      selector: saving
+                                      equals: true
+                            - id: namespace-skill-rows
+                              dataSourceRef: skill_rows
+                              fetchData: false
+                              table:
+                                presentation: catalog
+                                fullWidth: true
+                                enforceColumnSize: false
+                                emptyState:
+                                  compact: true
+                                  title: No skills found
+                                columns:
+                                  - id: displayTitle
+                                    name: Skill
+                                  - id: description
+                                    name: Description
+                                  - id: latestRevision
+                                    name: Draft revision
+                                  - id: publication
+                                    name: Publication
+                                  - id: edit
+                                    name: ""
+                                    type: button
+                                    icon: edit
+                                    tooltip: Edit namespace skill
+                                    cellProperties:
+                                      aria-label: Edit namespace skill
+                                    on:
+                                      - event: onClick
+                                        handler: management.editNamespace
+                                    disabledWhen:
+                                      dataSourceRef: skill_state
+                                      selector: saving
+                                      equals: true
+                                  - id: history
+                                    name: ""
+                                    type: button
+                                    icon: history
+                                    tooltip: Skill revision history
+                                    cellProperties:
+                                      aria-label: Skill revision history
+                                    on:
+                                      - event: onClick
+                                        handler: management.showHistory
+                                    disabledWhen:
+                                      dataSourceRef: skill_state
+                                      selector: saving
+                                      equals: true
+                                  - id: publish
+                                    name: ""
+                                    type: button
+                                    icon: upload
+                                    tooltip: Publish namespace skill
+                                    cellProperties:
+                                      aria-label: Publish namespace skill
+                                    on:
+                                      - event: onClick
+                                        handler: management.publishNamespace
+                                    disabledWhen:
+                                      any:
+                                        - dataSourceRef: skill_state
+                                          selector: saving
+                                          equals: true
+                                        - dataSourceRef: skill_state
+                                          selector: mcpEnabled
+                                          equals: false
+                                        - source: row
+                                          selector: publishable
+                                          equals: false
+                                  - id: unpublish
+                                    name: ""
+                                    type: button
+                                    icon: disable
+                                    tooltip: Unpublish namespace skill
+                                    cellProperties:
+                                      aria-label: Unpublish namespace skill
+                                    on:
+                                      - event: onClick
+                                        handler: management.unpublishNamespace
+                                    disabledWhen:
+                                      dataSourceRef: skill_state
+                                      selector: saving
+                                      equals: true
+                                    visibleWhen:
+                                      source: row
+                                      selector: publishedRevision
+                                      notEquals: 0
+                                  - id: archive
+                                    name: ""
+                                    type: button
+                                    icon: trash
+                                    tooltip: Archive namespace skill
+                                    cellProperties:
+                                      aria-label: Archive namespace skill
+                                    on:
+                                      - event: onClick
+                                        handler: management.confirmArchive
+                                    disabledWhen:
+                                      dataSourceRef: skill_state
+                                      selector: saving
+                                      equals: true
+                                    visibleWhen:
+                                      source: row
+                                      selector: publishedRevision
+                                      equals: 0
+                            - id: namespace-skill-paging
+                              dataSourceRef: skill_state
+                              fetchData: false
+                              visibleWhen:
+                                any:
+                                  - dataSourceRef: skill_state
+                                    selector: offset
+                                    notEquals: 0
+                                  - dataSourceRef: skill_state
+                                    selector: hasNext
+                                    equals: true
+                              toolbar:
+                                items:
+                                  - id: previous
+                                    label: Previous
+                                    hideLabel: false
+                                    icon: chevron-left
+                                    on:
+                                      - event: onClick
+                                        handler: management.previousNamespace
+                                    disabledWhen:
+                                      selector: offset
+                                      equals: 0
+                                  - id: next
+                                    label: Next
+                                    hideLabel: false
+                                    icon: chevron-right
+                                    on:
+                                      - event: onClick
+                                        handler: management.nextNamespace
+                                    disabledWhen:
+                                      selector: hasNext
+                                      equals: false
+                        - id: namespace-skill-editor
+                          dataSourceRef: skill_state
+                          fetchData: false
+                          visibleWhen:
+                            dataSourceRef: skill_state
+                            selector: editing
+                            equals: true
+                          containers:
+                            - id: skill-editor-header
+                              dataSourceRef: skill_draft
+                              fetchData: false
+                              resourceHeader:
+                                dataSourceRef: skill_draft
+                                titleField: editorTitle
+                                subtitleField: revisionLabel
+                            - id: skill-editor-tools
+                              dataSourceRef: skill_draft
+                              fetchData: false
+                              toolbar:
+                                items:
+                                  - id: save
+                                    label: Save namespace skill
+                                    hideLabel: false
+                                    icon: floppy-disk
+                                    on:
+                                      - event: onClick
+                                        handler: management.saveNamespace
+                                    disabledWhen:
+                                      any:
+                                        - selector: saving
+                                          equals: true
+                                        - selector: dirty
+                                          equals: false
+                                        - selector: conflict
+                                          equals: true
+                                        - selector: hasContent
+                                          equals: false
+                                  - id: reload
+                                    label: Discard edits and reload
+                                    hideLabel: false
+                                    icon: refresh
+                                    on:
+                                      - event: onClick
+                                        handler: management.reloadNamespace
+                                    visibleWhen:
+                                      selector: isNew
+                                      notEquals: true
+                                    disabledWhen:
+                                      selector: saving
+                                      equals: true
+                                  - id: discard
+                                    label: Discard changes
+                                    hideLabel: false
+                                    icon: cross
+                                    on:
+                                      - event: onClick
+                                        handler: management.discardNamespace
+                                    disabledWhen:
+                                      selector: saving
+                                      equals: true
+                            - id: skill-editor-tabs
+                              tabs:
+                                defaultSelectedTabId: skill-document
+                                mountPolicy: visited
+                              on:
+                                - event: onTabChange
+                                  handler: management.editorTabChanged
+                              containers:
+                                - id: skill-document
+                                  title: Document
+                                  icon: document
+                                  dataSourceRef: skill_draft
+                                  containers:
+                                    - id: skill-document-title
+                                      dataSourceRef: skill_draft
+                                      fetchData: false
+                                      items:
+                                        - id: title
+                                          label: Display title
+                                          dataField: title
+                                          type: text
+                                          readOnlyWhen:
+                                            selector: saving
+                                            equals: true
+                                          on:
+                                            - event: onChange
+                                              handler: management.markDirty
+                                    - id: skill-document-source
+                                      dataSourceRef: skill_draft
+                                      editor:
+                                        title: SKILL.md
+                                        selector:
+                                          source: content
+                                          extension: extension
+                                        readOnlyWhen:
+                                          selector: saving
+                                          equals: true
+                                        on:
+                                          - event: onChange
+                                            handler: management.markDirty
+                                        style:
+                                          height: 360px
+                                - id: skill-supporting-files
+                                  title: Supporting files
+                                  icon: folder-close
+                                  containers:
+                                    - id: namespace-skill-files
+                                      dataSourceRef: skill_files
+                                      fetchData: false
+                                      table:
+                                        presentation: catalog
+                                        fullWidth: true
+                                        enforceColumnSize: false
+                                        emptyState:
+                                          compact: true
+                                          title: No supporting files
+                                        columns:
+                                          - id: path
+                                            name: Relative path
+                                          - id: format
+                                            name: Format
+                                          - id: edit
+                                            name: ""
+                                            type: button
+                                            icon: edit
+                                            tooltip: Edit supporting file
+                                            cellProperties:
+                                              aria-label: Edit supporting file
+                                            on:
+                                              - event: onClick
+                                                handler: management.editFile
+                                            disabledWhen:
+                                              dataSourceRef: skill_state
+                                              selector: saving
+                                              equals: true
+                                          - id: remove
+                                            name: ""
+                                            type: button
+                                            icon: trash
+                                            tooltip: Remove supporting file
+                                            cellProperties:
+                                              aria-label: Remove supporting file
+                                            on:
+                                              - event: onClick
+                                                handler: management.removeFile
+                                            disabledWhen:
+                                              dataSourceRef: skill_state
+                                              selector: saving
+                                              equals: true
+                                      toolbar:
+                                        items:
+                                          - id: add
+                                            label: Add supporting file
+                                            hideLabel: false
+                                            icon: add
+                                            on:
+                                              - event: onClick
+                                                handler: management.newFile
+                                - id: namespace-skill-history
+                                  title: History
+                                  icon: history
+                                  visibleWhen:
+                                    dataSourceRef: skill_draft
+                                    selector: isNew
+                                    notEquals: true
+                                  containers:
+                                    - id: skill-history-rows
+                                      dataSourceRef: skill_history
+                                      fetchData: false
+                                      table:
+                                        presentation: catalog
+                                        fullWidth: true
+                                        enforceColumnSize: false
+                                        emptyState:
+                                          compact: true
+                                          title: No saved revisions
+                                        columns:
+                                          - id: revision
+                                            name: Revision
+                                          - id: createdBy
+                                            name: Created by
+                                          - id: view
+                                            name: ""
+                                            type: button
+                                            icon: document
+                                            tooltip: View skill revision
+                                            cellProperties:
+                                              aria-label: View skill revision
+                                            on:
+                                              - event: onClick
+                                                handler: management.viewRevision
+                                            disabledWhen:
+                                              dataSourceRef: skill_state
+                                              selector: saving
+                                              equals: true
+                                    - id: skill-revision-content
+                                      dataSourceRef: skill_revision
+                                      fetchData: false
+                                      editor:
+                                        title: Revision content
+                                        selector:
+                                          source: content
+                                          extension: extension
+                                        readOnly: true
+                                        style:
+                                          height: 280px
+            - id: component-owned
+              title: Component-owned
+              icon: application
+              disabledWhen:
+                dataSourceRef: skill_state
+                selector: editing
+                equals: true
+              containers:
+                - id: component-skill-tools
+                  dataSourceRef: skill_component_filter
+                  fetchData: false
+                  items:
+                    - id: componentId
+                      label: Component
+                      dataField: componentId
+                      type: select
+                      optionsDataSourceRef: skill_components
+                      optionValueField: id
+                      optionLabelField: title
+                      optionsFetchMode: never
+                    - id: query
+                      label: Search component skills
+                      dataField: query
+                      type: text
+                      properties:
+                        placeholder: Find skill or component
+                      on:
+                        - event: onChange
+                          handler: management.filterComponents
+                  toolbar:
+                    items:
+                      - id: new
+                        label: New component skill
+                        hideLabel: false
+                        icon: add
+                        on:
+                          - event: onClick
+                            handler: management.newComponentSkill
+                      - id: refresh
+                        label: Refresh component skills
+                        hideLabel: false
+                        icon: refresh
+                        on:
+                          - event: onClick
+                            handler: management.loadComponents
+                - id: component-skill-rows
+                  dataSourceRef: skill_component_rows
+                  fetchData: false
+                  table:
+                    presentation: catalog
+                    fullWidth: true
+                    enforceColumnSize: false
+                    emptyState:
+                      compact: true
+                      title: No component skills in this namespace
+                    columns:
+                      - id: skillRoot
+                        name: Skill
+                      - id: componentTitle
+                        name: Component
+                      - id: versionNo
+                        name: Version
+                      - id: edit
+                        name: ""
+                        type: button
+                        icon: edit
+                        tooltip: Edit component skill
+                        cellProperties:
+                          aria-label: Edit component skill
+                        on:
+                          - event: onClick
+                            handler: management.editComponentSkill
+                        disabledWhen:
+                          dataSourceRef: skill_state
+                          selector: saving
+                          equals: true
+        - id: skills-bindings
+          containers:
+            - id: skill_state-binding
+              dataSourceRef: skill_state
+              fetchData: false
+            - id: skill_filter-binding
+              dataSourceRef: skill_filter
+              fetchData: false
+            - id: skill_draft-binding
+              dataSourceRef: skill_draft
+              fetchData: false
+            - id: skill_file_draft-binding
+              dataSourceRef: skill_file_draft
+              fetchData: false
+            - id: skill_component_filter-binding
+              dataSourceRef: skill_component_filter
+              fetchData: false
+            - id: skill_revision-binding
+              dataSourceRef: skill_revision
+              fetchData: false
+            - id: skill_confirm-binding
+              dataSourceRef: skill_confirm
+              fetchData: false
+            - id: skill_rows-binding
+              dataSourceRef: skill_rows
+              fetchData: false
+            - id: skill_files-binding
+              dataSourceRef: skill_files
+              fetchData: false
+            - id: skill_history-binding
+              dataSourceRef: skill_history
+              fetchData: false
+            - id: skill_components-binding
+              dataSourceRef: skill_components
+              fetchData: false
+            - id: skill_component_rows-binding
+              dataSourceRef: skill_component_rows
+              fetchData: false
+            - id: skill_list-binding
+              dataSourceRef: skill_list
+              fetchData: false
+            - id: skill_get-binding
+              dataSourceRef: skill_get
+              fetchData: false
+            - id: skill_create-binding
+              dataSourceRef: skill_create
+              fetchData: false
+            - id: skill_update-binding
+              dataSourceRef: skill_update
+              fetchData: false
+            - id: skill_publish-binding
+              dataSourceRef: skill_publish
+              fetchData: false
+            - id: skill_unpublish-binding
+              dataSourceRef: skill_unpublish
+              fetchData: false
+            - id: skill_delete-binding
+              dataSourceRef: skill_delete
+              fetchData: false
+            - id: skill_revisions-binding
+              dataSourceRef: skill_revisions
+              fetchData: false
+            - id: skill_component_list-binding
+              dataSourceRef: skill_component_list
+              fetchData: false
+            - id: skill_version_list-binding
+              dataSourceRef: skill_version_list
+              fetchData: false
+            - id: skill_resources-binding
+              dataSourceRef: skill_resources
+              fetchData: false
+  dialogs:
+    - id: skill-file
+      title: Supporting file
+      dataSourceRef: skill_file_draft
+      fetchOnOpen: false
+      closeDisabledWhen:
+        dataSourceRef: skill_state
+        selector: saving
+        equals: true
+      content:
+        id: supporting-file-form
+        parameterEditor:
+          dataSourceRef: skill_file_draft
+          label: Supporting file
+          fields:
+            - id: path
+              label: Relative path
+              dataField: path
+              type: text
+              readOnlyWhen:
+                selector: isBinary
+                equals: true
+            - id: content
+              label: Content
+              dataField: content
+              type: textarea
+              readOnlyWhen:
+                selector: isBinary
+                equals: true
+              visibleWhen:
+                selector: isBinary
+                notEquals: true
+            - id: outcome
+              label: Outcome
+              dataField: outcome
+              type: text
+              readOnly: true
+              visibleWhen:
+                selector: outcome
+                notEmpty: true
+            - id: binary-notice
+              label: ""
+              type: label
+              value: Existing binary content will be preserved.
+              visibleWhen:
+                selector: isBinary
+                equals: true
+      actions:
+        - id: save
+          label: Save supporting file
+          close: true
+          disabledWhen:
+            selector: isBinary
+            equals: true
+          on:
+            - event: onClick
+              handler: management.saveFile
+        - id: cancel
+          label: Cancel
+          close: true
+    - id: skill-archive
+      title: Archive namespace skill
+      dataSourceRef: skill_confirm
+      fetchOnOpen: false
+      closeDisabledWhen:
+        dataSourceRef: skill_state
+        selector: saving
+        equals: true
+      content:
+        id: skill-archive-form
+        items:
+          - id: name
+            label: Skill
+            dataField: name
+            type: text
+            readOnly: true
+      actions:
+        - id: archive
+          label: Confirm archive
+          close: true
+          on:
+            - event: onClick
+              handler: management.archiveNamespace
+        - id: cancel
+          label: Cancel
+          close: true
+dataSources:
+  skill_state:
+    id: skill_state
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  skill_filter:
+    id: skill_filter
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  skill_draft:
+    id: skill_draft
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  skill_file_draft:
+    id: skill_file_draft
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  skill_component_filter:
+    id: skill_component_filter
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  skill_revision:
+    id: skill_revision
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  skill_confirm:
+    id: skill_confirm
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  skill_rows:
+    id: skill_rows
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
+    selectionMode: single
+  skill_files:
+    id: skill_files
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
+    selectionMode: single
+  skill_history:
+    id: skill_history
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
+    selectionMode: single
+  skill_components:
+    id: skill_components
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
+    selectionMode: single
+  skill_component_rows:
+    id: skill_component_rows
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
+    selectionMode: single
+  skill_list:
+    id: skill_list
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.namespace_skills.list
+    cache:
+      enabled: false
+  skill_get:
+    id: skill_get
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.namespace_skills.get
+    cache:
+      enabled: false
+  skill_create:
+    id: skill_create
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.namespace_skills.create
+    cache:
+      enabled: false
+  skill_update:
+    id: skill_update
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.namespace_skills.update
+    cache:
+      enabled: false
+  skill_publish:
+    id: skill_publish
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.namespace_skills.publish
+    cache:
+      enabled: false
+  skill_unpublish:
+    id: skill_unpublish
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.namespace_skills.unpublish
+    cache:
+      enabled: false
+  skill_delete:
+    id: skill_delete
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.namespace_skills.delete
+    cache:
+      enabled: false
+  skill_revisions:
+    id: skill_revisions
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.namespace_skills.revisions
+    cache:
+      enabled: false
+  skill_component_list:
+    id: skill_component_list
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.components.list
+    cache:
+      enabled: false
+  skill_version_list:
+    id: skill_version_list
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.list
+    cache:
+      enabled: false
+  skill_resources:
+    id: skill_resources
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.resources.get
+    cache:
+      enabled: false

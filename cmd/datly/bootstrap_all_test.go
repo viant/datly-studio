@@ -26,6 +26,7 @@ import (
 	resourceaccess "github.com/viant/authz"
 	accessstore "github.com/viant/authz/component/store/sql"
 	"github.com/viant/datly-studio/internal/bffauth"
+	"github.com/viant/datly-studio/internal/managementcatalog"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/warmupprojection"
 	"github.com/viant/datly-studio/runtime/accessprovider"
@@ -1776,9 +1777,18 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		}
 	}
 	// Standard resource listing is scoped and paginated at the native catalog.
-	listArgs := map[string]any{"_meta": map[string]any{"io.viant/resources/filter": map[string]any{"namespace": "ns://studio-management", "limit": 1}}}
+	expectedDefinitions, err := managementcatalog.NamespaceWindow(managementcatalog.Config{Namespace: "studio-management", ProviderIdentity: "studio-management-provider", MCPService: "studio-management", PublicURL: "https://studio.example.com"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	expectedManagement := map[string]bool{}
+	for _, entry := range expectedDefinitions {
+		expectedManagement[entry.URI] = true
+	}
+	listArgs := map[string]any{"_meta": map[string]any{"io.viant/resources/filter": map[string]any{"namespace": "ns://studio-management", "limit": 25}}}
 	seenManagement := map[string]bool{}
-	for page := 0; page < 4; page++ {
+	listingComplete := false
+	for page := 0; page <= len(expectedManagement); page++ {
 		listedStatus, listedBody := mcpCall(staticMCP, "Bearer "+token, nil, "resources/list", "", listArgs)
 		var listed struct {
 			Result struct {
@@ -1792,24 +1802,30 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		if err := json.Unmarshal(listedBody, &listed); err != nil {
 			t.Fatal(err)
 		}
-		if listedStatus != http.StatusOK || len(listed.Error) > 0 || len(listed.Result.Resources) != 1 {
+		if listedStatus != http.StatusOK || len(listed.Error) > 0 || len(listed.Result.Resources) == 0 || len(listed.Result.Resources) > 25 {
 			t.Fatalf("native resource page status=%d body=%s", listedStatus, listedBody)
 		}
-		uri := listed.Result.Resources[0].URI
-		if seenManagement[uri] {
-			t.Fatalf("repeated resource page: %s", uri)
-		}
-		seenManagement[uri] = true
-		readStatus, readBody := mcpCall(staticMCP, "Bearer "+token, nil, "resources/read", "", map[string]any{"uri": uri})
-		if readStatus != http.StatusOK || !bytes.Contains(readBody, []byte(`"contents"`)) {
-			t.Fatalf("listed resource unreadable: %s", readBody)
+		for _, entry := range listed.Result.Resources {
+			uri := entry.URI
+			if !expectedManagement[uri] {
+				t.Fatalf("unexpected management resource: %s", uri)
+			}
+			if seenManagement[uri] {
+				t.Fatalf("repeated resource page: %s", uri)
+			}
+			seenManagement[uri] = true
+			readStatus, readBody := mcpCall(staticMCP, "Bearer "+token, nil, "resources/read", "", map[string]any{"uri": uri})
+			if readStatus != http.StatusOK || !bytes.Contains(readBody, []byte(`"contents"`)) {
+				t.Fatalf("listed resource unreadable: %s", readBody)
+			}
 		}
 		if listed.Result.NextCursor == nil {
+			listingComplete = true
 			break
 		}
 		listArgs["cursor"] = *listed.Result.NextCursor
 	}
-	if len(seenManagement) != 3 {
+	if !listingComplete || len(seenManagement) != len(expectedManagement) {
 		t.Fatalf("management listing returned %v", seenManagement)
 	}
 	for _, namespace := range []string{"studio-management", "ns://studio-management"} {

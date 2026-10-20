@@ -10,7 +10,7 @@ init:
     - page.getByLabel("Find a resource").fill("${caseTitle}")
     - page.getByRole("button", "${caseTitle}").click()
     - page.getByRole("button", "Create access policy").click()
-    - expect(page.locator(".studio-resource-access-heading .bp6-tag")).toHaveText("Policy revision 0",15000)
+    - expect(page.locator(".forge-resource-access-heading .bp6-tag")).toHaveText("Policy revision 0",15000)
     - page.locator("xpath://nav[@aria-label='Permission actions']//button[strong[normalize-space(.)='discover']]").click()
     - page.getByLabel("Access mode").selectOption("protected")
     - page.getByLabel("rule condition").selectOption("exposure")
@@ -24,10 +24,10 @@ init:
     - page.getByLabel("rule condition").selectOption("exposure")
     - page.getByLabel("rule value").selectOption("EXPOSE_SALES")
     - page.getByRole("button", "Review changes").click()
-    - expect(page.locator(".bp6-dialog-container.bp6-overlay-enter-done .studio-resource-review-dialog")).toBeVisible(15000)
+    - expect(page.locator(".bp6-dialog-container.bp6-overlay-enter-done .forge-resource-review-dialog")).toBeVisible(15000)
     - page.getByRole("button", "Save permissions").click()
     - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
-    - expect(page.locator(".studio-resource-access-footer [role='status']")).toHaveText("Permissions saved.",15000)
+    - expect(page.locator(".forge-resource-access-footer [role='status']")).toHaveText("Permissions saved.",15000)
 pipeline:
   scenario:
     action: run

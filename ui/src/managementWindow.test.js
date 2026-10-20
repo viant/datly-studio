@@ -34,3 +34,16 @@ test('a host adapter invokes its own catalog tool without changing the shared de
  await transport({dataSourceRef:'rows',options:{inputParameters:{namespace:'example',kind:'style'}}});
  assert.deepEqual(calls,[['resources/list',{namespace:'example',kind:'style'},{signal:undefined}]]);
 });
+
+test('runtime catalog metadata uses the namespace-scoped MCP protocol adapter',async()=>{
+ const metadata=managementWindowMetadata(envelope);
+ metadata.dataSource.tools={id:'tools',backend:{kind:'mcp_protocol',service:'runtime',method:'tools/list'}};
+ let calls=0;
+ const transport=managementWindowTransport({listMCPTools:async()=>{calls++;return [{name:'reader.read'}];}},metadata);
+ assert.deepEqual(await transport({dataSourceRef:'tools'}),{tools:[{name:'reader.read'}]});
+ assert.equal(calls,1);
+ metadata.dataSource.tools.backend.method='tools/call';
+ await assert.rejects(()=>transport({dataSourceRef:'tools'}),/Unsupported management MCP catalog/);
+ metadata.dataSource.tools.backend.method='tools/list';metadata.dataSource.tools.backend.service='untrusted';
+ await assert.rejects(()=>transport({dataSourceRef:'tools'}),/Unsupported management MCP catalog/);
+});

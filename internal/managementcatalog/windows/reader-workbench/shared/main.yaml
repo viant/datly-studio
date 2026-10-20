@@ -1,0 +1,676 @@
+window:
+  windowKey: reader-workbench
+  title: Component editor
+  on:
+    - event: onInit
+      handler: management.initialize
+  view:
+    content:
+      id: reader-workbench
+      dataSourceRef: workbench_context
+      fetchData: false
+      readerWorkbench:
+        dataSourceRef: workbench_context
+        reportField: report
+        namespaceField: namespaceId
+        openResourcesField: openResources
+        resourceActionField: resourceAction
+        resourceNamespace: datastudio
+        defaults:
+          routePrefix: /v1/studio/readers/
+        operations:
+          listComponents:
+            dataSourceRef: workbench_list_components
+            parameters: {}
+            spreadArg: 0
+          getComponent:
+            dataSourceRef: workbench_get_component
+            parameters:
+              id:
+                arg: 0
+          updateComponent:
+            dataSourceRef: workbench_update_component
+            parameters:
+              id:
+                arg: 0
+              input:
+                arg: 1
+            mutation: true
+          listVersions:
+            dataSourceRef: workbench_list_versions
+            parameters:
+              reportId: &a1
+                arg: 0
+              input:
+                arg: 1
+                default: {}
+          getVersion:
+            dataSourceRef: workbench_get_version
+            parameters: &a3
+              reportId: *a1
+              versionNo: &a2
+                arg: 1
+          createVersion:
+            dataSourceRef: workbench_create_version
+            parameters:
+              reportId: *a1
+              input:
+                arg: 1
+            mutation: true
+          cloneVersion:
+            dataSourceRef: workbench_clone_version
+            parameters:
+              reportId: *a1
+              versionNo: *a2
+              expectedSourceRevision:
+                arg: 2
+            mutation: true
+          loadDQL:
+            dataSourceRef: workbench_load_d_q_l
+            parameters:
+              reportId: *a1
+              input:
+                arg: 1
+            mutation: true
+          loadArchive:
+            dataSourceRef: workbench_load_archive
+            parameters:
+              reportId: *a1
+              input:
+                arg: 1
+            mutation: true
+          downloadComponent:
+            dataSourceRef: workbench_download_component
+            parameters: *a3
+          inspectVersion:
+            dataSourceRef: workbench_inspect_version
+            parameters:
+              reportId: *a1
+              versionNo: *a2
+              discoverColumns:
+                arg: 2
+                selector: discoverColumns
+          validateVersion:
+            dataSourceRef: workbench_validate_version
+            parameters:
+              reportId: *a1
+              versionNo: *a2
+              expectedSourceRevision:
+                arg: 2
+            mutation: true
+          publishReader:
+            dataSourceRef: workbench_publish_reader
+            parameters:
+              reportId: *a1
+              versionNo: *a2
+              input.expectedSourceRevision:
+                arg: 2
+              input.reason:
+                arg: 3
+                default: ""
+            mutation: true
+          rollbackReader:
+            dataSourceRef: workbench_rollback_reader
+            parameters:
+              reportId: *a1
+              versionNo: *a2
+              input.expectedSourceRevision:
+                arg: 2
+              input.reason:
+                arg: 3
+                default: ""
+            mutation: true
+          getPublication:
+            dataSourceRef: workbench_get_publication
+            parameters: &a4
+              reportId: *a1
+          listPublicationEvents:
+            dataSourceRef: workbench_list_publication_events
+            parameters:
+              reportId: *a1
+              input:
+                arg: 1
+                default: {}
+          unpublishReader:
+            dataSourceRef: workbench_unpublish_reader
+            parameters:
+              reportId: *a1
+              input.expectedActiveGeneration:
+                arg: 1
+              input.reason:
+                arg: 2
+                default: ""
+            mutation: true
+          getRuntimeStatus:
+            dataSourceRef: workbench_get_runtime_status
+            parameters: {}
+          listMCPTools:
+            dataSourceRef: workbench_list_m_c_p_tools
+            parameters: {}
+            responseSelector: tools
+            responseDefault: []
+          listACL:
+            dataSourceRef: workbench_list_a_c_l
+            parameters: *a4
+            responseSelector: items
+            responseDefault: []
+          upsertACL:
+            dataSourceRef: workbench_upsert_a_c_l
+            parameters: {}
+            spreadArg: 0
+            mutation: true
+          deleteACL:
+            dataSourceRef: workbench_delete_a_c_l
+            parameters:
+              reportId: *a1
+              subjectType:
+                arg: 1
+              subjectId:
+                arg: 2
+              etag:
+                arg: 3
+            mutation: true
+          getResources:
+            dataSourceRef: workbench_get_resources
+            parameters: *a3
+          upsertResourceFile:
+            dataSourceRef: workbench_upsert_resource_file
+            parameters: {}
+            spreadArg: 0
+            mutation: true
+          upsertResourceFolder:
+            dataSourceRef: workbench_upsert_resource_folder
+            parameters: {}
+            spreadArg: 0
+            mutation: true
+          upsertSkillRoot:
+            dataSourceRef: workbench_upsert_skill_root
+            parameters: {}
+            spreadArg: 0
+            mutation: true
+          deleteResourceFile:
+            dataSourceRef: workbench_delete_resource_file
+            parameters:
+              reportId: *a1
+              versionNo: *a2
+              resourceId:
+                arg: 2
+              expectedSourceRevision:
+                arg: 3
+            mutation: true
+          deleteResourceFolder:
+            dataSourceRef: workbench_delete_resource_folder
+            parameters:
+              reportId: *a1
+              versionNo: *a2
+              folderId:
+                arg: 2
+              expectedSourceRevision:
+                arg: 3
+            mutation: true
+          deleteSkillRoot:
+            dataSourceRef: workbench_delete_skill_root
+            parameters:
+              reportId: *a1
+              versionNo: *a2
+              skillId:
+                arg: 2
+              expectedSourceRevision:
+                arg: 3
+            mutation: true
+          applyReaderCommand:
+            dataSourceRef: workbench_apply_reader_command
+            parameters:
+              reportId: *a1
+              versionNo: *a2
+              command:
+                arg: 2
+            mutation: true
+          testReaderView:
+            dataSourceRef: workbench_test_reader_view
+            parameters:
+              reportId: *a1
+              versionNo: *a2
+              view:
+                arg: 2
+              input.input:
+                arg: 3
+                default: {}
+              input.limit:
+                arg: 4
+                default: 50
+          testReaderRelation:
+            dataSourceRef: workbench_test_reader_relation
+            parameters:
+              reportId: *a1
+              versionNo: *a2
+              relation:
+                arg: 2
+              input.input:
+                arg: 3
+                default: {}
+              input.limit:
+                arg: 4
+                default: 50
+          testCubeCompose:
+            dataSourceRef: workbench_test_cube_compose
+            parameters:
+              reportId: *a1
+              versionNo: *a2
+              input:
+                arg: 2
+          warmupReader:
+            dataSourceRef: workbench_warmup_reader
+            parameters: *a3
+            mutation: true
+          getWarmupRun:
+            dataSourceRef: workbench_get_warmup_run
+            parameters:
+              reportId: *a1
+              runId:
+                arg: 1
+          listWarmupRuns:
+            dataSourceRef: workbench_list_warmup_runs
+            parameters:
+              reportId: *a1
+              versionNo: *a2
+              input:
+                arg: 2
+                default: {}
+          previewReader:
+            dataSourceRef: workbench_preview_reader
+            parameters:
+              reportId: *a1
+              versionNo: *a2
+              input.input:
+                arg: 2
+                default: {}
+              input.limit:
+                arg: 3
+                default: 50
+              input.cube:
+                arg: 5
+                default: false
+          listConnectors:
+            dataSourceRef: workbench_list_connectors
+            parameters: {}
+            spreadArg: 0
+          getTable:
+            dataSourceRef: workbench_get_table
+            parameters:
+              name:
+                arg: 0
+              input:
+                arg: 1
+        lookups:
+          codecs:
+            dataSourceRef: workbench_lookup_codecs
+            responseSelector: items
+            responseDefault: []
+          definition:
+            dataSourceRef: workbench_lookup_definition
+          authorizationPredicates:
+            dataSourceRef: workbench_lookup_authorizationPredicates
+            responseSelector: items
+            responseDefault: []
+          predicateTypes:
+            dataSourceRef: workbench_lookup_predicateTypes
+            responseSelector: items
+            responseDefault: []
+        onBack: management.back
+        onReportUpdated: management.reportUpdated
+        onResourcesClosed: management.resourcesClosed
+dataSources:
+  workbench_context:
+    id: workbench_context
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  workbench_list_components:
+    id: workbench_list_components
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.components.list
+    cache:
+      enabled: false
+  workbench_get_component:
+    id: workbench_get_component
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.components.get
+    cache:
+      enabled: false
+  workbench_update_component:
+    id: workbench_update_component
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.components.update
+    cache:
+      enabled: false
+  workbench_list_versions:
+    id: workbench_list_versions
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.list
+    cache:
+      enabled: false
+  workbench_get_version:
+    id: workbench_get_version
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.get
+    cache:
+      enabled: false
+  workbench_create_version:
+    id: workbench_create_version
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.create
+    cache:
+      enabled: false
+  workbench_clone_version:
+    id: workbench_clone_version
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.clone
+    cache:
+      enabled: false
+  workbench_load_d_q_l:
+    id: workbench_load_d_q_l
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.load_dql
+    cache:
+      enabled: false
+  workbench_load_archive:
+    id: workbench_load_archive
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.load_archive
+    cache:
+      enabled: false
+  workbench_download_component:
+    id: workbench_download_component
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.download
+    cache:
+      enabled: false
+  workbench_inspect_version:
+    id: workbench_inspect_version
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.inspect
+    cache:
+      enabled: false
+  workbench_validate_version:
+    id: workbench_validate_version
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.validate
+    cache:
+      enabled: false
+  workbench_publish_reader:
+    id: workbench_publish_reader
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.publications.publish
+    cache:
+      enabled: false
+  workbench_rollback_reader:
+    id: workbench_rollback_reader
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.publications.rollback
+    cache:
+      enabled: false
+  workbench_get_publication:
+    id: workbench_get_publication
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.publications.get
+    cache:
+      enabled: false
+  workbench_list_publication_events:
+    id: workbench_list_publication_events
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.publications.events.list
+    cache:
+      enabled: false
+  workbench_unpublish_reader:
+    id: workbench_unpublish_reader
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.publications.unpublish
+    cache:
+      enabled: false
+  workbench_get_runtime_status:
+    id: workbench_get_runtime_status
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.runtime.status
+    cache:
+      enabled: false
+  workbench_list_m_c_p_tools:
+    id: workbench_list_m_c_p_tools
+    cardinality: object
+    backend:
+      kind: mcp_protocol
+      service: runtime
+      method: tools/list
+    cache:
+      enabled: false
+  workbench_list_a_c_l:
+    id: workbench_list_a_c_l
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.acl.list
+    cache:
+      enabled: false
+  workbench_upsert_a_c_l:
+    id: workbench_upsert_a_c_l
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.acl.upsert
+    cache:
+      enabled: false
+  workbench_delete_a_c_l:
+    id: workbench_delete_a_c_l
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.acl.delete
+    cache:
+      enabled: false
+  workbench_get_resources:
+    id: workbench_get_resources
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.resources.get
+    cache:
+      enabled: false
+  workbench_upsert_resource_file:
+    id: workbench_upsert_resource_file
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.resources.upsert_file
+    cache:
+      enabled: false
+  workbench_upsert_resource_folder:
+    id: workbench_upsert_resource_folder
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.resources.upsert_folder
+    cache:
+      enabled: false
+  workbench_upsert_skill_root:
+    id: workbench_upsert_skill_root
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.resources.upsert_skill
+    cache:
+      enabled: false
+  workbench_delete_resource_file:
+    id: workbench_delete_resource_file
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.resources.delete_file
+    cache:
+      enabled: false
+  workbench_delete_resource_folder:
+    id: workbench_delete_resource_folder
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.resources.delete_folder
+    cache:
+      enabled: false
+  workbench_delete_skill_root:
+    id: workbench_delete_skill_root
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.resources.delete_skill
+    cache:
+      enabled: false
+  workbench_apply_reader_command:
+    id: workbench_apply_reader_command
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.builder
+    cache:
+      enabled: false
+  workbench_test_reader_view:
+    id: workbench_test_reader_view
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.test_view
+    cache:
+      enabled: false
+  workbench_test_reader_relation:
+    id: workbench_test_reader_relation
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.test_relation
+    cache:
+      enabled: false
+  workbench_test_cube_compose:
+    id: workbench_test_cube_compose
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.test_compose
+    cache:
+      enabled: false
+  workbench_warmup_reader:
+    id: workbench_warmup_reader
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.warmup
+    cache:
+      enabled: false
+  workbench_get_warmup_run:
+    id: workbench_get_warmup_run
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.warmup_get
+    cache:
+      enabled: false
+  workbench_list_warmup_runs:
+    id: workbench_list_warmup_runs
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.warmup_list
+    cache:
+      enabled: false
+  workbench_preview_reader:
+    id: workbench_preview_reader
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.preview.execute
+    cache:
+      enabled: false
+  workbench_list_connectors:
+    id: workbench_list_connectors
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.connectors.list
+    cache:
+      enabled: false
+  workbench_get_table:
+    id: workbench_get_table
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.connectors.table
+    cache:
+      enabled: false
+  workbench_lookup_codecs:
+    id: workbench_lookup_codecs
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.codecs.types
+    cache:
+      enabled: false
+  workbench_lookup_definition:
+    id: workbench_lookup_definition
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.inspect
+    cache:
+      enabled: false
+  workbench_lookup_authorizationPredicates:
+    id: workbench_lookup_authorizationPredicates
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.authorization_predicates.list
+    cache:
+      enabled: false
+  workbench_lookup_predicateTypes:
+    id: workbench_lookup_predicateTypes
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.authorization_predicates.types
+    cache:
+      enabled: false

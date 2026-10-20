@@ -1,0 +1,86 @@
+window:
+  windowKey: access-preview
+  title: ACL UX review
+  namespace: datastudio
+  dataSource:
+    preview_context:
+      id: preview_context
+      cardinality: object
+      backend:
+        kind: inline
+        rows: []
+  view:
+    content:
+      id: access-preview
+      dataSourceRef: preview_context
+      fetchData: false
+      previewWorkbench:
+        title: ACL UX review
+        description: Review the shared permissions editor before release.
+        badge: Synthetic data only
+        baseURL: ./acl-review.html
+        iframeTitle: ACL permissions preview
+        defaults:
+          viewport: desktop
+          scenario: editable
+          kind: component
+        fixedParameters:
+          frame: "1"
+        queryFields:
+          - scenario
+          - kind
+        viewportField: viewport
+        widths:
+          desktop: 1200
+          tablet: 768
+          phone: 390
+        narrowAt: 650
+        narrowValue: phone
+        resetLabel: Reset preview
+        controls:
+          - id: viewport
+            label: Viewport
+            options:
+              - value: desktop
+                label: Desktop · 1200 px
+              - value: tablet
+                label: Tablet · 768 px
+              - value: phone
+                label: Phone · 390 px
+          - id: kind
+            label: Resource
+            options:
+              - value: component
+                label: Component
+              - value: skill
+                label: Skill
+          - id: scenario
+            label: Scenario
+            options:
+              - value: editable
+                label: Editable policy
+              - value: readonly
+                label: Read-only access
+              - value: denied
+                label: Access denied
+              - value: unavailable
+                label: Provider unavailable
+              - value: loading
+                label: Loading permissions
+              - value: empty
+                label: No action policies
+              - value: conflict
+                label: Revision conflict on save
+        checklistDescription: These checks are local notes, not an automated approval.
+        checklist:
+          - Actions and access modes are clear
+          - Provider choices are easy to find
+          - Entity type and ID are visible
+          - All / any rules read correctly
+          - Keyboard focus is visible
+          - Read-only controls cannot change
+          - Errors explain how to recover
+          - Conflict preserves unsaved edits
+          - Phone layout remains usable
+        note: Use Tab and Shift+Tab inside the preview. In the conflict scenario, edit a
+          rule and save to inspect recovery.

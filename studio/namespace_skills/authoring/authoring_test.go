@@ -19,6 +19,7 @@ import (
 	"github.com/viant/bindly/locator"
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/datatest"
+	"github.com/viant/datly-studio/internal/managementcatalog"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/readercomponent"
 	"github.com/viant/datly-studio/sdk"
@@ -47,6 +48,7 @@ import (
 	namespaceext "github.com/viant/mcp-protocol/extension/namespaces"
 	"github.com/viant/mcp-protocol/schema"
 	"github.com/viant/x"
+	"strings"
 )
 
 func TestNamespaceSkillAuthoringHTTP(t *testing.T) {
@@ -218,18 +220,42 @@ func TestNamespaceSkillAuthoringHTTP(t *testing.T) {
 			if err := json.Unmarshal(raw, &namespaces); err != nil || len(namespaces.Namespaces) != 3 {
 				t.Fatalf("management namespace missing: %s %v", raw, err)
 			}
+			definitions, err := managementcatalog.NamespaceWindow(managementcatalog.Config{Namespace: name, ProviderIdentity: "studio-management", MCPService: "studio-management"})
+			if err != nil {
+				t.Fatal(err)
+			}
 			for _, kind := range []string{"", "window", "datasource", "mcp"} {
-				raw = catalogCall("owner", "namespaces/get", map[string]any{"uri": "ns://" + name, "kind": kind}, false)
-				var page namespaceext.GetResult
-				want := 1
-				if kind == "" {
-					want = 2
+				expected := map[string]bool{}
+				for _, definition := range definitions {
+					if kind == "" || strings.HasPrefix(definition.URI, kind+"://") {
+						expected[definition.URI] = true
+					}
 				}
-				if kind == "mcp" {
-					want = 0
+				seen := map[string]bool{}
+				var cursor *string
+				for index := 0; index <= len(expected); index++ {
+					arguments := map[string]any{"uri": "ns://" + name, "kind": kind}
+					if cursor != nil {
+						arguments["cursor"] = *cursor
+					}
+					raw = catalogCall("owner", "namespaces/get", arguments, false)
+					var page namespaceext.GetResult
+					if err := json.Unmarshal(raw, &page); err != nil {
+						t.Fatal(err)
+					}
+					for _, entry := range page.Resources {
+						if !expected[entry.URI] || seen[entry.URI] {
+							t.Fatalf("unexpected/repeated management resource: %s", entry.URI)
+						}
+						seen[entry.URI] = true
+					}
+					cursor = page.NextCursor
+					if cursor == nil {
+						break
+					}
 				}
-				if err := json.Unmarshal(raw, &page); err != nil || len(page.Resources) != want || page.NextCursor != nil {
-					t.Fatalf("management resource kinds: %s %v", raw, err)
+				if cursor != nil || len(seen) != len(expected) {
+					t.Fatalf("management kind %s: read %d of %d resources", kind, len(seen), len(expected))
 				}
 			}
 			window := catalogCall("owner", "resource/get", map[string]any{"uri": "window://" + name + "/namespaces"}, false)

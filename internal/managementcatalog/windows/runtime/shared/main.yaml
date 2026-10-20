@@ -2,54 +2,488 @@ window:
   windowKey: runtime
   title: Runtime
   on:
-    - {event: onInit, handler: management.refreshRuntime}
+    - event: onInit
+      handler: management.refreshRuntime
   view:
     content:
       id: runtime-management
-      className: studio-workspace studio-runtime-overview
+      className: studio-workspace studio-runtime-workspace
       containers:
-        - id: runtime-controls
-          className: studio-runtime-overview__controls
+        - id: runtime-header
+          workspaceSummary:
+            title: Runtime
+            description: Inspect the active generation and discover the live Datly contracts
+              it serves.
+            stateDataSourceRef: runtime_state
+            errorField: outcome
+            actions:
+              - id: refresh
+                label: Refresh
+                icon: refresh
+                handler: management.refreshRuntime
+            sections:
+              - id: generation
+                title: Recorded runtime generation
+                fullWidth: true
+                dataSourceRef: runtime_summary
+                labelField: label
+                detailFields:
+                  - detail
+                statusField: status
+                statusFirst: true
+                statuses:
+                  Ready:
+                    intent: success
+                    icon: tick-circle
+                  Review:
+                    intent: warning
+                    icon: warning-sign
+                emptyText: Loading runtime status…
+        - id: runtime-diagnostic-list
+          workspaceSummary:
+            sections:
+              - id: diagnostics
+                title: Runtime diagnostics
+                dataSourceRef: runtime_diagnostics
+                labelField: code
+                detailFields:
+                  - message
+                emptyText: No runtime diagnostics.
           dataSourceRef: runtime_state
           fetchData: false
-          toolbar:
+          visibleWhen:
+            selector: diagnosticCount
+            notEquals: 0
+        - id: runtime-tabs
+          tabs:
+            defaultSelectedTabId: runtime-components
+            mountPolicy: visited
+          containers:
+            - id: runtime-components
+              title: Components
+              icon: application
+              containers:
+                - id: runtime-component-search
+                  dataSourceRef: runtime_component_filter
+                  fetchData: false
+                  items:
+                    - id: runtime-component-search-query
+                      label: Find component, namespace, connector, or revision
+                      hideLabel: true
+                      dataField: query
+                      type: text
+                      properties:
+                        placeholder: Find component, namespace, connector, or revision
+                      on:
+                        - event: onChange
+                          handler: management.searchComponents
+                - id: runtime-component-list
+                  dataSourceRef: runtime_components
+                  fetchData: false
+                  table:
+                    presentation: catalog
+                    fullWidth: true
+                    enforceColumnSize: false
+                    columns:
+                      - id: title
+                        name: Component
+                        sortable: true
+                      - id: namespace
+                        name: Namespace
+                      - id: version
+                        name: Version
+                      - id: connectorName
+                        name: Connector
+                      - id: runtimeRevision
+                        name: Runtime revision
+                      - id: status
+                        name: State
+                        badge:
+                          field: status
+                          replaceValue: true
+                          valueMap:
+                            active: active
+                            Ready: Ready
+                            Review: Review
+                            error: error
+                            warning: warning
+                          toneMap:
+                            active: positive
+                            Ready: positive
+                            Review: warning
+                            error: danger
+                            warning: warning
+                      - id: exposed
+                        name: MCP
+                      - id: open
+                        name: ""
+                        type: button
+                        icon: application
+                        tooltip: Open component
+                        cellProperties:
+                          aria-label: Open component
+                        on:
+                          - event: onClick
+                            handler: management.openComponent
+                    emptyState:
+                      compact: true
+                      title: No deployed components
+                      body: No deployed components are visible with your publication permissions.
+            - id: runtime-tools
+              title: MCP tools
+              icon: wrench
+              containers:
+                - id: runtime-tool-search
+                  dataSourceRef: runtime_tool_filter
+                  fetchData: false
+                  items:
+                    - id: runtime-tool-search-query
+                      label: Find MCP tool name or description
+                      hideLabel: true
+                      dataField: query
+                      type: text
+                      properties:
+                        placeholder: Find MCP tool name or description
+                      on:
+                        - event: onChange
+                          handler: management.searchTools
+                - id: runtime-tool-list
+                  dataSourceRef: runtime_tools
+                  fetchData: false
+                  table:
+                    presentation: catalog
+                    fullWidth: true
+                    enforceColumnSize: false
+                    columns:
+                      - id: name
+                        name: Tool
+                        sortable: true
+                      - id: description
+                        name: Description
+                      - id: inputSummary
+                        name: Input
+                      - id: outputSummary
+                        name: Output
+                      - id: inspect
+                        name: ""
+                        type: button
+                        icon: search
+                        tooltip: Inspect schema
+                        cellProperties:
+                          aria-label: Inspect schema
+                        on:
+                          - event: onClick
+                            handler: management.inspectTool
+                    emptyState:
+                      compact: true
+                      title: No MCP tools
+                      body: Publish an MCP tool from a component, or adjust the search.
+            - id: runtime-resources
+              title: Resources
+              icon: folder-close
+              containers:
+                - id: runtime-resource-search
+                  dataSourceRef: runtime_resource_filter
+                  fetchData: false
+                  items:
+                    - id: runtime-resource-search-query
+                      label: Find URI, namespace, folder, or component
+                      hideLabel: true
+                      dataField: query
+                      type: text
+                      properties:
+                        placeholder: Find URI, namespace, folder, or component
+                      on:
+                        - event: onChange
+                          handler: management.searchResources
+                - id: runtime-resource-list
+                  dataSourceRef: runtime_resources
+                  fetchData: false
+                  table:
+                    presentation: catalog
+                    fullWidth: true
+                    enforceColumnSize: false
+                    columns:
+                      - id: uriPrefix
+                        name: URI prefix
+                      - id: componentTitle
+                        name: Component
+                      - id: namespace
+                        name: Namespace
+                      - id: rootPath
+                        name: Folder
+                    emptyState:
+                      compact: true
+                      title: No published resources
+                      body: No MCP resource folders are published in this runtime generation.
+        - id: runtime-bindings
+          containers:
+            - id: runtime_state-binding
+              dataSourceRef: runtime_state
+              fetchData: false
+            - id: runtime_status-binding
+              dataSourceRef: runtime_status
+              fetchData: false
+            - id: runtime_components-binding
+              dataSourceRef: runtime_components
+              fetchData: false
+            - id: runtime_tools-binding
+              dataSourceRef: runtime_tools
+              fetchData: false
+            - id: runtime_resources-binding
+              dataSourceRef: runtime_resources
+              fetchData: false
+            - id: runtime_diagnostics-binding
+              dataSourceRef: runtime_diagnostics
+              fetchData: false
+            - id: runtime_summary-binding
+              dataSourceRef: runtime_summary
+              fetchData: false
+            - id: runtime_live_tools-binding
+              dataSourceRef: runtime_live_tools
+              fetchData: false
+            - id: runtime_tool-binding
+              dataSourceRef: runtime_tool
+              fetchData: false
+            - id: runtime_input_fields-binding
+              dataSourceRef: runtime_input_fields
+              fetchData: false
+            - id: runtime_output_fields-binding
+              dataSourceRef: runtime_output_fields
+              fetchData: false
+            - id: runtime_component_filter-binding
+              dataSourceRef: runtime_component_filter
+              fetchData: false
+            - id: runtime_tool_filter-binding
+              dataSourceRef: runtime_tool_filter
+              fetchData: false
+            - id: runtime_resource_filter-binding
+              dataSourceRef: runtime_resource_filter
+              fetchData: false
+            - id: runtime-inventory-binding
+              dataSourceRef: runtime_inventory
+              fetchData: false
+  dialogs:
+    - id: runtime-contract
+      title: MCP tool contract
+      dataSourceRef: runtime_tool
+      fetchOnOpen: false
+      content:
+        id: runtime-contract-content
+        containers:
+          - id: runtime-tool-name
+            dataSourceRef: runtime_tool
+            fetchData: false
             items:
-              - {id: refresh, label: Refresh runtime, icon: refresh, on: [{event: onClick, handler: management.refreshRuntime}]}
-              - {id: previous, label: Previous generations, icon: chevron-left, on: [{event: onClick, handler: management.previousGenerations}]}
-              - {id: next, label: Next generations, icon: chevron-right, on: [{event: onClick, handler: management.nextGenerations}]}
-          items:
-            - {id: status, label: Status, dataField: status, type: text, readOnly: true}
-            - {id: activeGeneration, label: Active generation, dataField: activeGeneration, type: number, readOnly: true}
-            - {id: reportCount, label: Report count, dataField: reportCount, type: number, readOnly: true}
-            - {id: hostStatus, label: Host status, dataField: hostStatus, type: text, readOnly: true}
-            - {id: outcome, label: Outcome, dataField: outcome, type: textarea, readOnly: true}
-        - id: runtime-generations
-          kind: table
-          title: Generation history
-          className: studio-runtime-overview__generations
-          dataSourceRef: runtime_generations
-          fetchData: false
-          table:
-            columns:
-              - {id: generationNo, name: Generation}
-              - {id: status, name: Status}
-              - {id: reportCount, name: Reports}
-              - {id: sourceRevision, name: Source revision}
-              - {id: activatedAt, name: Activated}
+              - id: runtime-tool-name-value
+                label: Tool
+                dataField: name
+                type: text
+                readOnly: true
+          - id: runtime-contract-tabs
+            tabs:
+              defaultSelectedTabId: runtime-contract-input
+            containers:
+              - id: runtime-contract-input
+                title: Input
+                containers:
+                  - id: runtime-input-contract-fields
+                    dataSourceRef: runtime_input_fields
+                    fetchData: false
+                    table:
+                      presentation: catalog
+                      fullWidth: true
+                      enforceColumnSize: false
+                      columns:
+                        - id: name
+                          name: Field
+                        - id: type
+                          name: Type
+                        - id: required
+                          name: Required
+                        - id: description
+                          name: Description
+                  - id: runtime-input-contract-json
+                    dataSourceRef: runtime_tool
+                    editor:
+                      title: Input JSON schema
+                      selector:
+                        source: inputJSON
+                        extension: extension
+                      readOnly: true
+              - id: runtime-contract-output
+                title: Output
+                containers:
+                  - id: runtime-output-contract-fields
+                    dataSourceRef: runtime_output_fields
+                    fetchData: false
+                    table:
+                      presentation: catalog
+                      fullWidth: true
+                      enforceColumnSize: false
+                      columns:
+                        - id: name
+                          name: Field
+                        - id: type
+                          name: Type
+                        - id: required
+                          name: Required
+                        - id: description
+                          name: Description
+                  - id: runtime-output-contract-json
+                    dataSourceRef: runtime_tool
+                    editor:
+                      title: Output JSON schema
+                      selector:
+                        source: outputJSON
+                        extension: extension
+                      readOnly: true
+      actions:
+        - id: close
+          label: Close
+          close: true
 dataSources:
   runtime_state:
     id: runtime_state
     cardinality: object
-    backend: {kind: inline, rows: []}
-    cache: {enabled: false}
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
   runtime_status:
     id: runtime_status
     cardinality: object
-    backend: {kind: mcp_tool, method: studio.sdk.runtime.status}
-    cache: {enabled: false}
-  runtime_generations:
-    id: runtime_generations
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.runtime.status
+    cache:
+      enabled: false
+  runtime_components:
+    id: runtime_components
     cardinality: collection
-    selectors: {data: generations}
-    backend: {kind: mcp_tool, method: studio.runtime_generations.read}
-    cache: {enabled: false}
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
+    selectionMode: single
+  runtime_tools:
+    id: runtime_tools
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
+    selectionMode: single
+  runtime_resources:
+    id: runtime_resources
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
+    selectionMode: single
+  runtime_diagnostics:
+    id: runtime_diagnostics
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
+    selectionMode: single
+  runtime_summary:
+    id: runtime_summary
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
+    selectionMode: single
+  runtime_live_tools:
+    id: runtime_live_tools
+    cardinality: collection
+    backend:
+      kind: mcp_protocol
+      service: runtime
+      method: tools/list
+    selectors:
+      data: tools
+    cache:
+      enabled: false
+  runtime_tool:
+    id: runtime_tool
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  runtime_input_fields:
+    id: runtime_input_fields
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
+    selectionMode: single
+  runtime_output_fields:
+    id: runtime_output_fields
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
+    selectionMode: single
+  runtime_component_filter:
+    id: runtime_component_filter
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  runtime_tool_filter:
+    id: runtime_tool_filter
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  runtime_resource_filter:
+    id: runtime_resource_filter
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  runtime_inventory:
+    id: runtime_inventory
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Callout, Card, Spinner } from '@blueprintjs/core';
+import {AuthenticationWindow} from './AuthenticationWindow.jsx';
 import { StudioAPI } from './studioApi.js';
 import { StudioApp } from './StudioApp.jsx';
 import { sessionURL, loginURL } from './session.js';
@@ -33,10 +33,7 @@ export function StudioShell({ config, extensions = noExtensions, renderNamespace
   };
   useEffect(() => { inspectSession(); }, [config]);
   if (session.state === 'ready') return <StudioApp api={api} mode={config.mode} subject={session.subject} brand={config.brand || 'Data Studio'} extensions={extensions} renderNamespaceSkills={renderNamespaceSkills} onSignOut={identity ? signOut : undefined}/>;
-  if (session.state === 'loading') return <AuthWindow><Spinner size={30}/><h1>{config.brand ? `Checking ${config.brand} session` : 'Checking Studio session'}</h1><p>{identity ? 'Restoring your in-memory identity token.' : 'Restoring your secure server-side session.'}</p></AuthWindow>;
-  if (session.state === 'error') return <AuthWindow><Callout intent="danger" title="Studio authentication is unavailable" role="alert">{session.message}</Callout><Button icon="refresh" intent="primary" onClick={inspectSession}>Try again</Button></AuthWindow>;
   const loginConfig = identity ? { apiBaseURL: config.authentication.authBaseURL } : config;
-  return <AuthWindow><div className="studio-auth-mark">{(config.brand || 'Data Studio').charAt(0)}</div><h1>Sign in to {config.brand || 'Data Studio'}</h1><p>{identity ? 'Your identity token stays in this page only. Sign in to restore it.' : 'Your session is missing or expired. Authentication continues through the deployment identity provider; tokens are never stored in this browser.'}</p><>{config.authentication.enabled!==false?<a className="bp6-button bp6-intent-primary bp6-large" href={loginURL(loginConfig, config.authentication.loginPath)}><span className="bp6-button-text">{config.authentication.label || 'Continue to sign in'}</span></a>:<p>Browser sign-in is disabled by this deployment.</p>}</><Button minimal icon="refresh" onClick={inspectSession}>Check session again</Button></AuthWindow>;
+  const login=session.state==='unauthenticated'&&config.authentication.enabled!==false?{href:loginURL(loginConfig,config.authentication.loginPath),label:config.authentication.label||'Continue to sign in'}:null;
+  return <AuthenticationWindow key={session.state} state={session.state} brand={config.brand||'Data Studio'} message={session.message} identity={Boolean(identity)} login={login} onRetry={inspectSession}/>;
 }
-
-function AuthWindow({ children }) { return <main className="studio-auth-shell"><Card className="studio-card studio-auth-card" elevation={0}>{children}</Card></main>; }

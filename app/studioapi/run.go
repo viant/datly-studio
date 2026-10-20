@@ -68,6 +68,7 @@ var nativeSDKPaths = []string{
 	"/v1/studio/sdk/access.get",
 	"/v1/studio/sdk/access.replace",
 	"/v1/studio/sdk/authorization_predicates.types",
+	"/v1/studio/sdk/codecs.types",
 	"/v1/studio/sdk/authorization_predicates.get",
 	"/v1/studio/sdk/authorization_predicates.create",
 	"/v1/studio/sdk/authorization_predicates.update",

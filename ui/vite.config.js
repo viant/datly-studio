@@ -4,6 +4,16 @@ import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
   plugins: [react()],
+  // Source-distributed Forge widgets need their CommonJS dependencies bundled
+  // in development as well as in the production Rollup build.
+  optimizeDeps: {
+    exclude: ['forge'],
+    include: [
+      '@preact/signals-react', '@preact/signals-react/runtime',
+      'use-sync-external-store/shim/index.js', 'fast-deep-equal', 'numeral', 'recharts',
+      '@blueprintjs/icons', '@blueprintjs/datetime2', '@blueprintjs/select',
+    ],
+  },
   build: {
     rollupOptions: {
       input: {

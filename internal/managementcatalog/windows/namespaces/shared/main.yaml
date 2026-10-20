@@ -5,86 +5,274 @@ window:
       id: namespaces
       className: studio-workspace
       containers:
+        - id: namespace-header
+          workspaceSummary:
+            title: Namespaces
+            description: Manage governed namespaces and their MCP endpoints.
+            stateDataSourceRef: namespace_draft
+            errorField: outcome
         - id: namespace-search
           dataSourceRef: namespace_filter
           items:
-            - {id: query, label: Find namespace, dataField: query, type: text}
-            - {id: status, label: Lifecycle, dataField: status, readOnlyWhen: {selector: canManage, equals: false}, type: select, options: [{value: '', label: All states}, {value: active, label: Active}, {value: archived, label: Archived}]}
-            - {id: search, label: Search, type: button, on: [{event: onClick, handler: management.searchNamespaces}]}
-        - id: namespace-outcome
-          dataSourceRef: namespace_draft
-          items:
-            - {id: outcome, label: Outcome, dataField: outcome, type: textarea, readOnly: true}
+            - id: query
+              label: Find namespace
+              dataField: query
+              type: text
+            - id: status
+              label: Lifecycle
+              dataField: status
+              readOnlyWhen:
+                selector: canManage
+                equals: false
+              type: select
+              options:
+                - value: ""
+                  label: All states
+                - value: active
+                  label: Active
+                - value: archived
+                  label: Archived
+            - id: search
+              label: Search
+              type: button
+              on:
+                - event: onClick
+                  handler: management.searchNamespaces
         - id: namespace-list
           kind: table
           title: Namespaces
           dataSourceRef: namespaces
           toolbar:
             items:
-              - {id: new, label: New namespace, icon: add, on: [{event: onClick, handler: management.newNamespace}]}
-              - {id: edit, label: Edit namespace, icon: edit, on: [{event: onClick, handler: management.editNamespace}]}
-              - {id: delete, label: Delete namespace, icon: trash, on: [{event: onClick, handler: management.confirmDeleteNamespace}]}
-              - {id: refresh, label: Refresh, icon: refresh}
+              - id: new
+                label: New namespace
+                icon: add
+                on:
+                  - event: onClick
+                    handler: management.newNamespace
+                hideLabel: false
+              - id: edit
+                label: Edit namespace
+                enableWhenSelection: true
+                disabledWhen:
+                  dataSourceRef: namespace_draft
+                  selector: pending
+                  equals: true
+                icon: edit
+                on:
+                  - event: onClick
+                    handler: management.editNamespace
+                hideLabel: false
+              - id: delete
+                label: Delete namespace
+                enableWhenSelection: true
+                disabledWhen:
+                  dataSourceRef: namespace_draft
+                  selector: pending
+                  equals: true
+                icon: trash
+                on:
+                  - event: onClick
+                    handler: management.confirmDeleteNamespace
+                hideLabel: false
+              - id: refresh
+                label: Refresh
+                icon: refresh
+                hideLabel: false
           table:
             columns:
-              - {id: title, name: Title}
-              - {id: name, name: Namespace}
-              - {id: status, name: Status}
-              - {id: visibility, name: Visibility}
-              - {id: mcpEnabled, name: MCP enabled}
+              - id: title
+                name: Title
+              - id: name
+                name: Namespace
+              - id: status
+                name: Status
+              - id: visibility
+                name: Visibility
+              - id: mcpEnabled
+                name: MCP enabled
+            presentation: catalog
+            fullWidth: true
+            enforceColumnSize: false
   dialogs:
     - id: namespace-delete
       title: Delete namespace
       dataSourceRef: namespace_draft
       fetchOnOpen: false
-      properties: {closeDisabledWhen: {selector: pending, equals: true}}
+      properties:
+        closeDisabledWhen:
+          selector: pending
+          equals: true
       content:
         id: namespace-delete-confirmation
         items:
-          - {id: name, label: Namespace to delete, dataField: name, type: text, readOnly: true}
-          - {id: outcome, label: Outcome, dataField: outcome, type: textarea, readOnly: true}
+          - id: name
+            label: Namespace to delete
+            dataField: name
+            type: text
+            readOnly: true
+          - id: outcome
+            label: Outcome
+            dataField: outcome
+            type: textarea
+            readOnly: true
       actions:
-        - {id: delete, label: Confirm deletion, close: true, disabledWhen: {selector: pending, equals: true}, on: [{event: onClick, handler: management.deleteNamespace}]}
-        - {id: cancel, label: Cancel, close: true, disabledWhen: {selector: pending, equals: true}}
+        - id: delete
+          label: Confirm deletion
+          close: true
+          disabledWhen:
+            selector: pending
+            equals: true
+          on:
+            - event: onClick
+              handler: management.deleteNamespace
+        - id: cancel
+          label: Cancel
+          close: true
+          disabledWhen:
+            selector: pending
+            equals: true
     - id: namespace-editor
       title: Namespace settings
       className: studio-connector-dialog
       dataSourceRef: namespace_draft
       fetchOnOpen: false
-      properties: {closeDisabledWhen: {selector: pending, equals: true}}
+      properties:
+        closeDisabledWhen:
+          selector: pending
+          equals: true
       content:
         id: namespace-form
         items:
-          - {id: name, label: Namespace, dataField: name, type: text, readOnlyWhen: {selector: editing, when: true}}
-          - {id: title, label: Display title, dataField: title, readOnlyWhen: {selector: canManage, equals: false}, type: text}
-          - {id: description, label: Description, dataField: description, readOnlyWhen: {selector: canManage, equals: false}, type: textarea}
-          - {id: visibility, label: Visibility, dataField: visibility, readOnlyWhen: {selector: canManage, equals: false}, type: select, options: [{value: private, label: Private}, {value: public, label: Public}]}
-          - {id: allowedRoles, label: Viewer roles (JSON array), dataField: allowedRoles, readOnlyWhen: {selector: canManage, equals: false}, type: textarea}
-          - {id: status, label: Status, dataField: status, readOnlyWhen: {selector: canManage, equals: false}, type: select, options: [{value: active, label: Active}, {value: archived, label: Archived}]}
-          - {id: mcpEnabled, label: Expose MCP, dataField: mcpEnabled, readOnlyWhen: {selector: canManage, equals: false}, type: checkbox}
-          - {id: mcpPort, label: MCP port (0 selects automatically), dataField: mcpPort, readOnlyWhen: {selector: canManage, equals: false}, type: number}
-          - {id: outcome, label: Outcome, dataField: outcome, type: textarea, readOnly: true}
+          - id: name
+            label: Namespace
+            dataField: name
+            type: text
+            readOnlyWhen:
+              selector: editing
+              when: true
+          - id: title
+            label: Display title
+            dataField: title
+            readOnlyWhen:
+              selector: canManage
+              equals: false
+            type: text
+          - id: description
+            label: Description
+            dataField: description
+            readOnlyWhen:
+              selector: canManage
+              equals: false
+            type: textarea
+          - id: visibility
+            label: Visibility
+            dataField: visibility
+            readOnlyWhen:
+              selector: canManage
+              equals: false
+            type: select
+            options:
+              - value: private
+                label: Private
+              - value: public
+                label: Public
+          - id: allowedRoles
+            label: Viewer roles (JSON array)
+            dataField: allowedRoles
+            readOnlyWhen:
+              selector: canManage
+              equals: false
+            type: textarea
+          - id: status
+            label: Status
+            dataField: status
+            readOnlyWhen:
+              selector: canManage
+              equals: false
+            type: select
+            options:
+              - value: active
+                label: Active
+              - value: archived
+                label: Archived
+          - id: mcpEnabled
+            label: Expose MCP
+            dataField: mcpEnabled
+            readOnlyWhen:
+              selector: canManage
+              equals: false
+            type: checkbox
+          - id: mcpPort
+            label: MCP port (0 selects automatically)
+            dataField: mcpPort
+            readOnlyWhen:
+              selector: canManage
+              equals: false
+            type: number
+          - id: outcome
+            label: Outcome
+            dataField: outcome
+            type: textarea
+            readOnly: true
       actions:
-        - {id: reload, label: Reload saved revision, on: [{event: onClick, handler: management.reloadNamespace}]}
-        - {id: save, label: Save, close: true, visibleWhen: {selector: canManage, notEquals: false}, disabledWhen: {selector: pending, equals: true}, on: [{event: onClick, handler: management.saveNamespace}]}
-        - {id: cancel, label: Cancel, close: true, disabledWhen: {selector: pending, equals: true}}
+        - id: reload
+          label: Reload saved revision
+          on:
+            - event: onClick
+              handler: management.reloadNamespace
+        - id: save
+          label: Save
+          close: true
+          visibleWhen:
+            selector: canManage
+            notEquals: false
+          disabledWhen:
+            selector: pending
+            equals: true
+          on:
+            - event: onClick
+              handler: management.saveNamespace
+        - id: cancel
+          label: Cancel
+          close: true
+          disabledWhen:
+            selector: pending
+            equals: true
 dataSources:
   namespace_filter:
     id: namespace_filter
     cardinality: object
-    backend: {kind: inline, rows: []}
-    cache: {enabled: false}
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
   namespaces:
     id: namespaces
     cardinality: collection
     selectionMode: single
-    selectors: {data: items}
-    uniqueKey: [{field: namespaceId}]
-    paging: {enabled: true, openEnded: true, size: 25, parameters: {page: offset, size: limit}}
-    backend: {kind: mcp_tool, method: studio.sdk.namespaces.list}
-    cache: {enabled: false}
+    selectors:
+      data: items
+    uniqueKey:
+      - field: namespaceId
+    paging:
+      enabled: true
+      openEnded: true
+      size: 25
+      parameters:
+        page: offset
+        size: limit
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.namespaces.list
+    cache:
+      enabled: false
   namespace_draft:
     id: namespace_draft
     cardinality: object
-    backend: {kind: inline, rows: []}
-    cache: {enabled: false}
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false

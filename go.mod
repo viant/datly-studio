@@ -12,14 +12,14 @@ require (
 	github.com/oapi-codegen/runtime v1.7.0
 	github.com/stretchr/testify v1.12.1
 	github.com/viant/bigquery v0.5.4-0.20261018094240-7627f510d5d8
-	github.com/viant/bindly v0.4.1-0.20261018155557-9d28a71d691c
-	github.com/viant/datly v1.1.1-0.20261019042458-988196ea8f83
+	github.com/viant/bindly v0.4.1-0.20261019214243-0a0ac77b49fe
+	github.com/viant/datly v1.1.1-0.20261020024755-511d9713e2f2
 	github.com/viant/jsonrpc v0.25.1-0.20261017043720-5809a36c92af
 	github.com/viant/mcp v0.24.1-0.20261018180156-2794488fbdb7
-	github.com/viant/mcp-protocol v0.19.1-0.20261018094612-00acc7754f2b
+	github.com/viant/mcp-protocol v0.19.1-0.20261019190045-bf1f848b71f9
 	github.com/viant/scy v0.35.1-0.20260914041206-699e6c909726
 	github.com/viant/sqlx v0.26.1-0.20261019190555-2b47eeb3f37f
-	github.com/viant/x v0.5.1-0.20260915043005-1bc42b9eef47
+	github.com/viant/x v0.5.1-0.20261019170608-3c4033ed8ccd
 	github.com/viant/xdatly v1.0.1-0.20261017023827-3a09d6ff7964
 	github.com/viant/xunsafe v0.11.0
 	go.yaml.in/yaml/v3 v3.0.5
@@ -105,7 +105,7 @@ require (
 	github.com/viant/afsc v1.18.0 // indirect
 	github.com/viant/authz v0.0.0-20261017213411-7e7e62acb696
 	github.com/viant/authz/component v0.0.0-20261017195827-09176e9405c4
-	github.com/viant/forge v0.3.45-0.20261019121701-cccbea43e0b1
+	github.com/viant/forge v0.3.45-0.20261020102109-dfee05a49fab
 	github.com/viant/gmetric v0.3.2 // indirect
 	github.com/viant/gosh v0.3.1-0.20261007222529-b829eaaf687b // indirect
 	github.com/viant/govalidator v0.3.4-0.20260913213120-027a9dd54d73 // indirect

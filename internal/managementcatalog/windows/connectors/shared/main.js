@@ -20,9 +20,14 @@
  };
  const reload = async name => record(await call('get',{name}));
  return {
+  refreshConnectors:()=>run(refresh),
+  toggleConnector: props => run(async () => {
+   const row=props?.row||selected();if(!row)throw new Error('Select a connector.');
+   await call(row.status==='active'?'disable':'activate',{name:row.name,etag:row.etag});await refresh();
+  }),
   newConnector: () => open({name:'',driver:'mysql',dsnTemplate:'',secretURL:'',secretKey:'',description:'',options:'{}',editing:false,outcome:''}),
-  editConnector: () => run(async () => {
-   const row = selected(); if (!row) throw new Error('Select a connector.');
+  editConnector: props => run(async () => {
+   const row = props?.row||selected(); if (!row) throw new Error('Select a connector.');
    const current = await reload(row.name);
    open({...current,editing:true,dsnTemplate:'',secretURL:'',secretKey:'',clearSecret:false,options:JSON.stringify(current.options||{},null,2),outcome:'Blank connection fields keep the saved configuration. Use Remove secret to clear its reference.'});
   }),
@@ -37,10 +42,10 @@
    await call(operation,parameters);
    refresh();
   }),
-  testConnector: () => run(async () => {
-   const row=selected();if(!row)throw new Error('Select a connector.');
+  testConnector: props => run(async () => {
+   const row=props?.row||selected();if(!row)throw new Error('Select a connector.');
    const result=record(await call('test',{name:row.name}));
-   draft().setFormField({item:{dataField:'outcome'},value:result.message||result.status||'Probe completed.'});refresh();
+   draft().setFormField({item:{dataField:'outcome'},value:result.message||result.status||'Probe completed.'});await refresh();
   }),
   reloadConnector: () => run(async () => {const form=draft().getFormData();const current=await reload(form.name);draft().setFormData({values:{...current,editing:true,dsnTemplate:'',secretURL:'',secretKey:'',options:JSON.stringify(current.options||{},null,2),outcome:'Reloaded current revision.'}});}),
   searchConnectors: () => run(async () => {
@@ -48,8 +53,8 @@
    ds('connectors').setInputParameters({query:(filter.query||'').trim(),status:filter.status||'',offset:0});
    await refresh();
   }),
-  confirmDeleteConnector: () => run(async () => {
-   const row=selected();if(!row)throw new Error('Select a connector.');
+  confirmDeleteConnector: props => run(async () => {
+   const row=props?.row||selected();if(!row)throw new Error('Select a connector.');
    if(row.status==='active')throw new Error('Disable the connector before deleting it.');
    draft().setFormData({values:{name:row.name,etag:row.etag,outcome:'Deletion is blocked while a component references this connector.'}});
    context.handlers.window.openDialog({execution:{args:['connector-delete']}});

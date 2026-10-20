@@ -38,10 +38,10 @@ init:
     - 'page.getByLabel("rule.2 value").selectOption("customer: 10 (customer: 10)")'
     - 'page.getByLabel("Required entity scope").selectOption("customer")'
     - 'page.getByRole("button", "Review changes").click()'
-    - expect(page.locator(".bp6-dialog-container.bp6-overlay-enter-done .studio-resource-review-dialog")).toBeVisible(15000)
+    - expect(page.locator(".bp6-dialog-container.bp6-overlay-enter-done .forge-resource-review-dialog")).toBeVisible(15000)
     - 'page.getByRole("button", "Save permissions").click()'
     - 'expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)'
-    - 'expect(page.locator(".studio-resource-access-footer [role=''status'']")).toHaveText("Permissions saved.",15000)'
+    - 'expect(page.locator(".forge-resource-access-footer [role=''status'']")).toHaveText("Permissions saved.",15000)'
 pipeline:
   scenario:
     action: run

@@ -1,3 +1,4 @@
+import {isManagedMCPTool} from './managementWindow.js';
 import { postV1StudioSdkNamespaceSkillsList, postV1StudioSdkNamespaceSkillsGet, postV1StudioSdkNamespaceSkillsCreate, postV1StudioSdkNamespaceSkillsUpdate, postV1StudioSdkNamespaceSkillsDelete, postV1StudioSdkNamespaceSkillsRevisions, postV1StudioSdkNamespaceSkillsPublish, postV1StudioSdkNamespaceSkillsUnpublish } from './generated/studioClient.gen.js';
 // StudioAPI is deliberately a client-side counterpart of sdk.Transport: every
 // UI interaction names an SDK operation and sends an SDK DTO. It has no direct
@@ -131,10 +132,10 @@ export class StudioAPI {
 
   async fetchMCPDataSource(source, input = {}) {
     const method = source?.backend?.method;
-    if (source?.backend?.kind !== 'mcp_tool' || !method?.startsWith('studio.sdk.')) throw new Error('A Studio MCP datasource is required.');
-    const operation = method.slice('studio.sdk.'.length);
+    if (source?.backend?.kind !== 'mcp_tool' || !isManagedMCPTool(method)) throw new Error('A Studio MCP datasource is required.');
+    const operation = method.startsWith('studio.sdk.') ? method.slice('studio.sdk.'.length) : method;
     const snapshot = this.namespaceSnapshot(operation);
-    const args = {...input, ...(snapshot?.id ? {namespaceId:snapshot.id} : {})};
+    const args = {...input, ...(method.startsWith('studio.sdk.') && snapshot?.id ? {namespaceId:snapshot.id} : {})};
     let result;
     if (this.nativeCallTool) result = await this.nativeRequest(null, operation, args);
     else {

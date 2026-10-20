@@ -2,7 +2,7 @@ import React,{act} from 'react';
 import {EditorView} from '@codemirror/view';
 import {managementWindowFixture as source} from './managementWindowFixture.js';
 import {test,expect,vi} from 'vitest';
-import {render,screen,waitFor} from '@testing-library/react';
+import {render,screen,waitFor,within} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import WindowContent from '../node_modules/forge/src/components/WindowContent.jsx';
 import {SettingProvider} from '../node_modules/forge/src/core/context/Setting.jsx';
@@ -42,7 +42,7 @@ test('connector window edits the saved revision, preserves blank secrets, and in
  const input=calls.find(request=>request.dataSourceRef==='connector_update').options.inputParameters;
  expect(input).toEqual({name:'warehouse',input:{driver:'mysql',description:'Updated',options:{pool:2},etag:7}});
  await user.click(screen.getByRole('button',{name:'Test',exact:true}));await waitFor(()=>expect(calls.some(request=>request.dataSourceRef==='connector_test')).toBe(true));
- await user.click(screen.getByRole('button',{name:'Activate',exact:true}));await waitFor(()=>expect(calls.some(request=>request.dataSourceRef==='connector_activate')).toBe(true));
+ await user.click(screen.getByRole('button',{name:'Activate or disable',exact:true}));await waitFor(()=>expect(calls.some(request=>request.dataSourceRef==='connector_activate')).toBe(true));
  expect(calls.find(request=>request.dataSourceRef==='connector_activate').options.inputParameters).toEqual({name:'warehouse',etag:7});
 });
 
@@ -126,4 +126,19 @@ test('canonical connector window searches on the server and confirms revision-bo
  expect(calls.some(([operation])=>operation==='connectors.delete')).toBe(false);
  await user.click(await screen.findByRole('button',{name:'Delete connector',exact:true}));
  await waitFor(()=>expect(calls).toContainEqual(['connectors.delete',{name:'warehouse',etag:9}]));
+});
+
+test('catalog row actions address the clicked connector without prior selection',async()=>{
+ const metadata=source('connectors'),calls=[];
+ const rows=[{name:'first',driver:'mysql',status:'active',etag:3,lastTestStatus:'passed'},{name:'second-long-connector-name',driver:'sqlite',status:'draft',etag:8,lastTestStatus:'failed'}];
+ const transport=vi.fn(async request=>{calls.push(request);if(request.dataSourceRef==='connectors')return {data:rows};if(request.dataSourceRef==='connector_get')return {data:[rows.find(row=>row.name===request.options.inputParameters.name)]};return {data:[{}]};});
+ render(<SettingProvider endpoints={{}} connectorConfig={{window:{service:{uri:'/window'}}}} services={{dataConnectorTransport:transport}}><WindowContent window={{windowId:'catalog-direct-row-action',windowKey:'connectors'}} selectedMetadata={metadata}/></SettingProvider>);
+ const user=userEvent.setup();const row=(await screen.findByText('second-long-connector-name')).closest('tr');
+ expect(row.closest('.basic-table-wrapper').classList.contains('is-catalog-presentation')).toBe(true);
+ expect(document.querySelector('textarea')).toBeNull();
+ await user.click(within(row).getByRole('button',{name:'Activate or disable',exact:true}));
+ await waitFor(()=>expect(calls.some(request=>request.dataSourceRef==='connector_activate')).toBe(true));
+ expect(calls.find(request=>request.dataSourceRef==='connector_activate').options.inputParameters).toEqual({name:'second-long-connector-name',etag:8});
+ await user.click(within(row).getByRole('button',{name:'Edit',exact:true}));
+ expect((await screen.findByLabelText('Name',{exact:true})).value).toBe('second-long-connector-name');
 });

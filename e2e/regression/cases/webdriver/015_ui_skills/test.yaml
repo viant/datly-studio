@@ -2,16 +2,20 @@
 init:
   caseTool: owner.ui.catalog.read
   caseName: ui_catalog
+  caseTable: ui_catalog_records
+  caseDataName: ui_catalog
   caseTitle: Catalog component
   caseSlug: ui-catalog
   allowedUser: no-exposure
   deniedUser: no-role
   policyCommands:
+  - page.goto("${browserURL}")
   - page.locator(".studio-nav-security").click()
   - page.getByLabel("Find a resource").fill("${caseTitle}")
-  - page.getByRole("button", "${caseTitle}").click()
+  - page.getByRole("button", "Search resources").click()
+  - page.locator("xpath://tr[.//*[normalize-space(.)='${caseTitle}']]//button[@aria-label='Open permissions']").click()
   - page.getByRole("button", "Create access policy").click()
-  - expect(page.locator(".studio-resource-access-heading .bp6-tag")).toHaveText("Policy
+  - expect(page.locator(".forge-resource-access-heading .bp6-tag")).toHaveText("Policy
     revision 0",15000)
   - page.locator("xpath://nav[@aria-label='Permission actions']//button[strong[normalize-space(.)='discover']]").click()
   - page.getByLabel("Access mode").selectOption("protected")
@@ -26,10 +30,10 @@ init:
   - page.getByLabel("rule condition").selectOption("role")
   - page.getByLabel("rule value").selectOption("ROLE_ANALYST")
   - page.getByRole("button", "Review changes").click()
-  - expect(page.locator(".bp6-dialog-container.bp6-overlay-enter-done .studio-resource-review-dialog")).toBeVisible(15000)
+  - expect(page.locator(".bp6-dialog-container.bp6-overlay-enter-done .forge-resource-review-dialog")).toBeVisible(15000)
   - page.getByRole("button", "Save permissions").click()
   - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
-  - expect(page.locator(".studio-resource-access-footer [role='status']")).toHaveText("Permissions
+  - expect(page.locator(".forge-resource-access-footer [role='status']")).toHaveText("Permissions
     saved.",15000)
   namespaceSkillDocument: |
     ---
@@ -42,7 +46,7 @@ init:
     name: component-guide
     description: Guide to the catalog component.
     ---
-    Use owner.ui.catalog.read to read the catalog records.
+    Use ${caseTool} to read the catalog records.
 pipeline:
   createNamespaceInUI:
     action: webdriver:run
@@ -54,14 +58,15 @@ pipeline:
     commands:
     - page.goto("${browserURL}")
     - page.locator(".studio-nav-namespaces").click()
-    - page.locator(".studio-namespace-actions .studio-catalog-primary-actions button[type='button']").click()
+    - page.getByRole("button", "New namespace").click()
     - page.getByLabel("Namespace").fill("${caseName}")
     - expect(page.getByLabel("Namespace")).toHaveValue("${caseName}",15000)
     - page.getByLabel("Display title").fill("${caseName}")
     - expect(page.getByLabel("Namespace")).toHaveValue("${caseName}",15000)
-    - page.getByLabel("Visibility").selectOption("public")
+    - page.getByRole("button", "Visibility").click()
+    - page.getByRole("menuitem", "Public").click()
     - page.getByLabel("Description").fill("UI-authored namespace and component skills")
-    - page.getByRole("button", "Create namespace").click()
+    - page.getByRole("button", "Save").click()
     - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
   namespace:
     action: mcp/runner:call
@@ -78,19 +83,22 @@ pipeline:
     failureArtifacts:
       directory: "${runDir}/artifacts/${caseName}"
     commands:
+    - page.goto("${browserURL}")
     - page.getByLabel("Current namespace").selectOption("${namespace.StructuredContent.namespaceId}")
     - page.locator(".studio-nav-skills").click()
+    - expect(page.getByRole("button", "New namespace skill")).toBeEnabled(15000)
     - page.getByRole("button", "New namespace skill").click()
     - page.getByLabel("Display title").fill("Namespace guide")
     - 'page.getByLabel("SKILL.md").fill("---\nname: namespace-guide\ndescription:
       Guide to this namespace.\n---\nUse the customer tools in this namespace.\n")'
+    - page.getByRole("tab", "Supporting files").click()
     - page.getByRole("button", "Add supporting file").click()
-    - page.getByLabel("File path 1").fill("references/query.md")
-    - page.getByLabel("File content 1").fill("Read the catalog through the namespace
-      MCP endpoint.")
+    - page.getByLabel("Relative path").fill("references/query.md")
+    - page.getByLabel("Content").fill("Read the catalog through the namespace MCP endpoint.")
+    - page.getByRole("button", "Save supporting file").click()
     - page.getByRole("button", "Save namespace skill").click()
-    - expect(page.getByText("Saved namespace-guide, revision 1.")).toBeVisible(15000)
-    - expect(page.getByRole("button", "Publish namespace-guide")).toBeDisabled(15000)
+    - expect(page.locator("xpath://*[@role='status'][normalize-space(.)='Saved namespace-guide, revision 1.']")).toBeVisible(15000)
+    - expect(page.getByRole("button", "Publish namespace skill")).toBeDisabled(15000)
   namespaceSkills:
     action: mcp/runner:call
     url: "$nativeMCP"
@@ -111,7 +119,7 @@ pipeline:
   zeroComponentsBeforeNamespaceSkill:
     action: dsunit:query
     datastore: studio
-    SQL: SELECT COUNT(*) AS total FROM components WHERE namespace='ui_catalog'
+    SQL: SELECT COUNT(*) AS total FROM components WHERE namespace='${caseName}'
     expect:
     - total: 0
   enableNamespaceMCPInUI:
@@ -122,10 +130,15 @@ pipeline:
     failureArtifacts:
       directory: "${runDir}/artifacts/${caseName}"
     commands:
+    - page.goto("${browserURL}")
     - page.locator(".studio-nav-namespaces").click()
-    - page.getByRole("button", "Edit ${caseName}").click()
+    - page.getByLabel("Find namespace").fill("${caseName}")
+    - page.getByRole("button", "Search").click()
+    - expect(page.locator("xpath://div[@data-forge-container-id='namespace-list']//tbody/tr")).toHaveCount(1,15000)
+    - expect(page.getByRole("button", "Edit namespace")).toBeEnabled(15000)
+    - page.getByRole("button", "Edit namespace").click()
     - page.getByLabel("Expose MCP").check()
-    - page.getByRole("button", "Save namespace").click()
+    - page.getByRole("button", "Save").click()
     - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
   namespaceReady:
     action: mcp/runner:call
@@ -143,21 +156,31 @@ pipeline:
     normalizeKVPairs: true
     actual: "$namespaceReady.StructuredContent.host.status"
     expect: ready
+  publishNamespaceSkillInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: "${runDir}/artifacts/${caseName}"
+    commands:
+    - page.locator(".studio-nav-skills").click()
+    - expect(page.getByRole("button", "Publish namespace skill")).toBeEnabled(15000)
+    - page.getByRole("button", "Publish namespace skill").click()
+    - expect(page.locator("xpath://*[@role='status'][normalize-space(.)='Published namespace-guide, revision 1.']")).toBeVisible(15000)
   publishNamespaceSkill:
     action: mcp/runner:call
     url: "$nativeMCP"
     bearerTokenSecret: "$ownerToken"
-    "@name": studio.sdk.namespace_skills.publish
+    "@name": studio.sdk.namespace_skills.get
     arguments:
       namespaceId: "$namespace.StructuredContent.namespaceId"
       skillId: "$namespaceSkills.StructuredContent.items[0].skillId"
-      etag: 1
-      revision: 1
   namespaceSkillPublished:
     action: validator:assert
     normalizeKVPairs: true
-    actual: "$publishNamespaceSkill.StructuredContent.publicationStatus"
-    expect: active
+    actual: "$publishNamespaceSkill.StructuredContent.skill.publishedRevision"
+    expect: 1
   onlyNamespaceSkill:
     action: mcp/runner:listSkills
     url: "$namespaceReady.StructuredContent.host.mcpUrl"
@@ -183,21 +206,27 @@ pipeline:
     - page.getByLabel("Current namespace").selectOption("${namespace.StructuredContent.namespaceId}")
     - expect(page.getByLabel("Current namespace")).toHaveValue("${namespace.StructuredContent.namespaceId}",15000)
     - page.locator(".studio-nav-connectors").click()
-    - page.locator(".studio-catalog-primary-actions button[type='button']").click()
+    - page.getByRole("button", "New connector").click()
     - page.getByLabel("Name").fill("${caseName}")
-    - page.getByLabel("Provider").selectOption("sqlite")
-    - page.getByLabel("DSN template").fill("${runDir}/consumer.db")
-    - page.getByRole("button", "Create connector").click()
+    - page.getByLabel("Driver").click()
+    - page.getByRole("menuitem", "SQLite").click()
+    - page.getByLabel("DSN (blank keeps existing)").fill("${runDir}/consumer.db")
+    - page.getByRole("button", "Save").click()
     - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
-    - page.getByLabel("Search connectors").fill("${caseName}")
-    - page.getByLabel("Search connectors").press("Enter")
-    - page.locator("xpath://tr[.//*[normalize-space(.)='${caseName}']]//button[@aria-label='Test
-      connector']").click()
-    - page.locator("xpath://tr[.//*[normalize-space(.)='${caseName}']]//button[@aria-label='Activate
-      connector']").click()
+    - page.getByLabel("Find connector, driver, or owner").fill("${caseName}")
+    - page.getByRole("button", "Search").click()
+    - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr")).toHaveCount(1,15000)
+    - page.getByRole("button", "Test").click()
+    - expect(page.getByRole("alert")).toHaveText("passed",15000)
+    - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr[1]/td[5]")).toHaveText("passed",15000)
+    - page.getByRole("button", "Activate or disable").click()
+    - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr[1]/td[3]")).toHaveText("active",15000)
     - page.locator(".studio-nav-schema").click()
-    - page.getByLabel("Connector").selectOption("${caseName}")
-    - page.locator("xpath://button[@role='treeitem'][.//strong[normalize-space(.)='${caseName}_records']]").click()
+    - page.getByRole("button", "Connector").click()
+    - page.getByRole("menuitem", "${caseName}").click()
+    - page.getByLabel("Find tables or views").fill("${caseTable}")
+    - page.getByRole("button", "Search tables").click()
+    - page.locator("xpath://tr[.//*[normalize-space(.)='${caseTable}']]//button[@aria-label='Inspect table']").click()
     - page.getByRole("button", "Add as root view").click()
     - page.getByLabel("Component title").fill("${caseTitle}")
     - page.getByLabel("Slug").fill("${caseSlug}")
@@ -247,7 +276,8 @@ pipeline:
     commands:
     - page.locator(".studio-nav-skills").click()
     - page.getByRole("tab", "Component-owned").click()
-    - page.getByLabel("Component").selectOption("${components.StructuredContent.items[0].id}")
+    - page.getByRole("button", "Component").click()
+    - page.getByRole("menuitem", "${caseTitle}").click()
     - page.getByRole("button", "New component skill").click()
     - page.getByRole("button", "Open folders").click()
     - page.getByLabel("Folder root").fill("component-guide")
@@ -257,7 +287,7 @@ pipeline:
     - page.getByRole("tab", "Skills (0)").click()
     - page.getByLabel("Skill root").fill(".")
     - 'page.getByLabel("Skill markup").fill("---\nname: component-guide\ndescription:
-      Guide to the catalog component.\n---\nUse owner.ui.catalog.read to read the
+      Guide to the catalog component.\n---\nUse ${caseTool} to read the
       catalog records.\n")'
     - page.getByRole("button", "Create skill").click()
     - expect(page.getByRole("tab", "Skills (1)")).toBeVisible(15000)
@@ -312,17 +342,34 @@ pipeline:
     normalizeKVPairs: true
     actual: "$runtime.StructuredContent.host.status"
     expect: ready
+  publishInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: "${runDir}/artifacts/${caseName}"
+    commands:
+    - page.goto("${browserURL}")
+    - page.locator(".studio-nav-components").click()
+    - page.locator("input[placeholder='Find title, slug, or description']").fill("${caseTitle}")
+    - page.getByRole("button", "Search components").click()
+    - expect(page.locator("xpath://div[@data-forge-container-id='catalog-rows']//tbody/tr")).toHaveCount(1,15000)
+    - page.getByRole("button", "Open Reader Builder").click()
+    - expect(page.getByRole("heading", "Component graph")).toBeVisible(15000)
+    - page.getByRole("button", "Release").click()
+    - expect(page.getByRole("button", "Publish selected version")).toBeEnabled(15000)
+    - page.getByRole("button", "Publish selected version").click()
+    - expect(page.locator(".studio-publication-dialog .bp6-intent-success[role='status']")).toBeVisible(30000)
+    - page.locator("xpath://div[contains(@class,'bp6-dialog-footer-actions')]//button[normalize-space(.)='Close']").click()
   publish:
     action: mcp/runner:call
     url: "$nativeMCP"
     bearerTokenSecret: "$ownerToken"
-    "@name": studio.sdk.publications.publish
+    "@name": studio.sdk.publications.get
     arguments:
       namespaceId: "$namespace.StructuredContent.namespaceId"
       reportId: "$components.StructuredContent.items[0].id"
-      versionNo: "$versions.StructuredContent.items[0].versionNo"
-      input:
-        expectedSourceRevision: "$versions.StructuredContent.items[0].sourceRevision"
   published:
     action: validator:assert
     normalizeKVPairs: true
@@ -365,9 +412,9 @@ pipeline:
         "@length@records": 2
         records:
         - id: 10
-          name: "${caseName} first"
+          name: "${caseDataName} first"
         - id: 20
-          name: "${caseName} second"
+          name: "${caseDataName} second"
   deniedCatalog:
     action: mcp/runner:listTools
     url: "$endpoint.StructuredContent.host.mcpUrl"
@@ -469,7 +516,7 @@ pipeline:
       name: component-guide
       description: Guide to the catalog component.
       ---
-      Use owner.ui.catalog.read to read the catalog records.
+      Use ${caseTool} to read the catalog records.
   deniedSkills:
     action: mcp/runner:listSkills
     url: "$endpoint.StructuredContent.host.mcpUrl"

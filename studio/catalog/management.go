@@ -87,7 +87,8 @@ func management(claims *jwt.Claims, auth *studioauth.Output) (*Namespace, []mana
 					if section == "" {
 						section, _ = menu["id"].(string)
 					}
-					uri := "window://" + id + "/" + section
+					windowName := managementcatalog.WindowName(section)
+					uri := "window://" + id + "/" + windowName
 					if _, exists := byURI[uri]; exists {
 						menu["action"] = map[string]any{"type": "window", "resourceUri": uri}
 						delete(menu, "disabled")

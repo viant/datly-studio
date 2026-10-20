@@ -1,0 +1,410 @@
+window:
+  windowKey: reader-predicate
+  on:
+    - event: onInit
+      handler: management.initialize
+  view:
+    content:
+      id: predicate-window
+      dataSourceRef: predicate_editor_draft
+      fetchData: false
+      containers:
+        - id: predicate-editor
+          dataSourceRef: predicate_editor_draft
+          fetchData: false
+          parameterEditor:
+            label: Predicate settings
+            readOnlyWhen:
+              any:
+                - selector: loading
+                  equals: true
+                - selector: saving
+                  equals: true
+                - selector: canEdit
+                  equals: false
+                - selector: locked
+                  equals: true
+            fields:
+              - id: field
+                dataField: field
+                label: Input
+                type: select
+                optionsDataSourceRef: predicate_inputs
+                optionValueField: name
+                optionLabelField: name
+                properties:
+                  filterable: true
+                  menuProps:
+                    style:
+                      maxHeight: 300
+                      overflowY: auto
+                readOnlyWhen:
+                  selector: editing
+                  equals: true
+              - id: predicateName
+                label: Predicate
+                dataField: predicateName
+                type: select
+                optionsDataSourceRef: predicate_names
+                optionValueField: name
+                optionLabelField: label
+                on:
+                  - event: onChange
+                    handler: management.changePredicate
+                properties:
+                  filterable: true
+                  menuProps:
+                    style:
+                      maxHeight: 300
+                      overflowY: auto
+                  inputProps:
+                    aria-label: Find predicate
+              - id: predicateView
+                label: Target view
+                dataField: predicateView
+                type: select
+                optionsDataSourceRef: predicate_views
+                optionValueField: name
+                optionLabelField: label
+                on:
+                  - event: onChange
+                    handler: management.changeView
+                visibleWhen:
+                  selector: predicateName
+                  notEquals: ""
+                properties:
+                  filterable: true
+                  menuProps:
+                    style:
+                      maxHeight: 300
+                      overflowY: auto
+                  inputProps:
+                    aria-label: Find target view
+                readOnlyWhen:
+                  selector: editing
+                  equals: true
+              - id: predicateAlias
+                label: SQL alias
+                dataField: predicateAlias
+                type: text
+                visibleWhen:
+                  selector: predicateName
+                  in:
+                    - equal
+                    - in
+                    - not_equal
+                    - not_in
+                    - less_or_equal
+                    - less_than
+                    - greater_or_equal
+                    - greater_than
+                    - like
+                    - not_like
+                    - contains
+                    - not_contains
+                    - is_null
+                    - is_not_null
+                on:
+                  - event: onChange
+                    handler: management.changeDimension
+              - id: predicateDimension
+                label: Filter dimension
+                dataField: predicateDimension
+                type: select
+                optionsDataSourceRef: predicate_dimensions
+                optionValueField: name
+                optionLabelField: label
+                on:
+                  - event: onChange
+                    handler: management.changeDimension
+                visibleWhen:
+                  selector: predicateName
+                  in:
+                    - equal
+                    - in
+                    - not_equal
+                    - not_in
+                    - less_or_equal
+                    - less_than
+                    - greater_or_equal
+                    - greater_than
+                    - like
+                    - not_like
+                    - contains
+                    - not_contains
+                    - is_null
+                    - is_not_null
+                properties:
+                  filterable: true
+                  menuProps:
+                    style:
+                      maxHeight: 300
+                      overflowY: auto
+                  inputProps:
+                    aria-label: Find filter dimension
+              - id: predicateArgs
+                label: Predicate arguments
+                dataField: predicateArgs
+                type: textarea
+                visibleWhen:
+                  all:
+                    - selector: predicateName
+                      notEquals: ""
+                    - not:
+                        selector: predicateName
+                        in:
+                          - equal
+                          - in
+                          - not_equal
+                          - not_in
+                          - less_or_equal
+                          - less_than
+                          - greater_or_equal
+                          - greater_than
+                          - like
+                          - not_like
+                          - contains
+                          - not_contains
+                          - is_null
+                          - is_not_null
+                          - handler
+              - id: predicateHandler
+                label: Custom predicate
+                dataField: predicateHandler
+                type: select
+                optionsDataSourceRef: predicate_handlers
+                optionValueField: name
+                optionLabelField: label
+                visibleWhen:
+                  selector: predicateName
+                  equals: handler
+                properties:
+                  filterable: true
+                  menuProps:
+                    style:
+                      maxHeight: 300
+                      overflowY: auto
+                  inputProps:
+                    aria-label: Find custom predicate
+              - id: predicateGroup
+                label: Group
+                dataField: predicateGroup
+                type: number
+                visibleWhen:
+                  selector: predicateName
+                  notEquals: ""
+              - id: predicateOperator
+                label: Within-group operator
+                dataField: predicateOperator
+                type: select
+                options:
+                  - value: AND
+                    label: AND
+                  - value: OR
+                    label: OR
+                visibleWhen:
+                  selector: predicateName
+                  notEquals: ""
+                readOnlyWhen:
+                  selector: editing
+                  equals: true
+              - id: predicateAbsent
+                label: Apply when input is absent
+                dataField: predicateAbsent
+                type: checkbox
+                visibleWhen:
+                  selector: predicateName
+                  notEquals: ""
+            sections:
+              - id: authorization
+                label: Authorization options
+                visibleWhen:
+                  selector: editing
+                  notEquals: true
+                fields:
+                  - id: securityName
+                    dataField: securityName
+                    label: Security predicate
+                    type: select
+                    optionsDataSourceRef: predicate_security
+                    optionValueField: name
+                    optionLabelField: label
+                    optionsFetchMode: never
+                    properties:
+                      filterable: true
+                      menuProps:
+                        style:
+                          maxHeight: 300
+                          overflowY: auto
+        - id: predicate-outcome
+          dataSourceRef: predicate_editor_draft
+          fetchData: false
+          items:
+            - id: outcome
+              dataField: outcome
+              label: Outcome
+              type: textarea
+              readOnly: true
+        - id: predicate-actions
+          dataSourceRef: predicate_editor_draft
+          fetchData: false
+          toolbar:
+            items:
+              - id: back
+                label: Back to predicates
+                icon: arrow-left
+                on:
+                  - event: onClick
+                    handler: management.close
+                hideLabel: false
+              - id: remove
+                label: Remove predicate
+                icon: trash
+                on:
+                  - event: onClick
+                    handler: management.confirmRemove
+                visibleWhen:
+                  selector: editing
+                  equals: true
+                disabledWhen:
+                  selector: locked
+                  equals: true
+                hideLabel: false
+              - id: save
+                label: Save predicate
+                icon: floppy-disk
+                on:
+                  - event: onClick
+                    handler: management.save
+                disabledWhen:
+                  any:
+                    - selector: loading
+                      equals: true
+                    - selector: saving
+                      equals: true
+                    - selector: canEdit
+                      equals: false
+                    - selector: locked
+                      equals: true
+                hideLabel: false
+        - id: predicate-security-bindings
+          containers:
+            - id: predicate_security-binding
+              dataSourceRef: predicate_security
+              fetchData: false
+            - id: predicate_security_list-binding
+              dataSourceRef: predicate_security_list
+              fetchData: false
+  dialogs:
+    - id: remove-predicate
+      title: Remove predicate
+      dataSourceRef: predicate_editor_draft
+      fetchOnOpen: false
+      content:
+        id: remove-notice
+        items:
+          - id: notice
+            type: label
+            value: Remove this predicate from its input?
+      actions:
+        - id: confirm
+          label: Confirm removal
+          icon: trash
+          on:
+            - event: onClick
+              handler: management.remove
+          close: true
+        - id: cancel
+          label: Cancel
+          close: true
+dataSources:
+  predicate_editor_draft:
+    id: predicate_editor_draft
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  predicate_inputs:
+    id: predicate_inputs
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  predicate_views:
+    id: predicate_views
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  predicate_names:
+    id: predicate_names
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  predicate_dimensions:
+    id: predicate_dimensions
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  predicate_handlers:
+    id: predicate_handlers
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  predicate_inspect:
+    id: predicate_inspect
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.inspect
+    cache:
+      enabled: false
+  predicate_apply:
+    id: predicate_apply
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.builder
+    cache:
+      enabled: false
+  predicate_types:
+    id: predicate_types
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.authorization_predicates.types
+    cache:
+      enabled: false
+  predicate_security:
+    id: predicate_security
+    cardinality: collection
+    uniqueKey:
+      - field: name
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  predicate_security_list:
+    id: predicate_security_list
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.authorization_predicates.list
+    cache:
+      enabled: false

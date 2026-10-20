@@ -1,0 +1,117 @@
+window:
+  windowKey: access-review
+  title: Permissions review
+  on:
+    - event: onInit
+      handler: management.initialize
+  view:
+    content:
+      id: access-review
+      className: studio-workspace
+      containers:
+        - id: access-review-header
+          workspaceSummary:
+            title: Permissions review
+            description: Current policy for this resource under your authenticated Studio
+              session.
+        - id: live-read-only
+          items:
+            - id: review-read-only-label
+              type: label
+              value: Live · read-only
+        - id: access-review-policy
+          dataSourceRef: security_selection
+          fetchData: false
+          resourcePolicyEditor:
+            dataSourceRef: security_selection
+            resourceField: resource
+            displayNameField: displayName
+            actionsByKind:
+              component:
+                - discover
+                - describe
+                - execute
+                - export
+                - edit
+                - validate
+                - publish
+                - unpublish
+                - viewAccess
+                - manageAccess
+              skill:
+                - discover
+                - describe
+                - retrieve
+                - export
+                - edit
+                - validate
+                - publish
+                - unpublish
+                - viewAccess
+                - manageAccess
+            publicActions:
+              - discover
+              - describe
+              - execute
+              - retrieve
+            relatedActions:
+              - discover
+              - describe
+              - execute
+            applyGroupLabel: Apply to exposure and execution
+            operations:
+              get: security_policy_get
+              context: security_policy_context
+              create: security_policy_create
+              replace: security_policy_replace
+              check: security_policy_check
+            readOnly: true
+dataSources:
+  security_selection:
+    id: security_selection
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  security_policy_get:
+    id: security_policy_get
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: authz.sdk.policies.get
+    cache:
+      enabled: false
+  security_policy_context:
+    id: security_policy_context
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: authz.sdk.policies.context
+    cache:
+      enabled: false
+  security_policy_create:
+    id: security_policy_create
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: authz.sdk.policies.create
+    cache:
+      enabled: false
+  security_policy_replace:
+    id: security_policy_replace
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: authz.sdk.policies.replace
+    cache:
+      enabled: false
+  security_policy_check:
+    id: security_policy_check
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: authz.sdk.authorization.check
+    cache:
+      enabled: false

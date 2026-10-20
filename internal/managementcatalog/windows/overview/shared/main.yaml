@@ -1,0 +1,145 @@
+window:
+  windowKey: overview
+  title: Overview
+  on:
+    - event: onInit
+      handler: management.refresh
+  view:
+    content:
+      id: overview
+      className: studio-workspace studio-forge-overview
+      workspaceSummary:
+        title: Overview
+        description: Resume authoring and review infrastructure and catalog checks.
+        stateDataSourceRef: overview_state
+        errorField: outcome
+        actions:
+          - id: refresh
+            label: Refresh
+            icon: refresh
+            handler: management.refresh
+          - id: catalog
+            label: Components
+            icon: application
+            intent: primary
+            handler: management.catalog
+        sections:
+          - id: continue-authoring
+            title: Continue authoring
+            dataSourceRef: overview_reports
+            labelField: title
+            detailFields: [namespace, defaultConnectorName]
+            statusField: status
+            statuses:
+              active: {intent: success}
+              draft: {intent: warning}
+            dateField: updatedAt
+            handler: management.openComponent
+            emptyText: No components are available yet.
+            action:
+              id: catalog-link
+              label: View catalog
+              handler: management.catalog
+          - id: readiness
+            title: Environment readiness
+            dataSourceRef: overview_checks
+            labelField: label
+            detailFields: [value]
+            statusField: status
+            statusFirst: true
+            statuses:
+              Ready: {intent: success, icon: tick-circle}
+              Review: {intent: warning, icon: warning-sign}
+            handler: management.openCheck
+          - id: issues
+            title: Environment issues
+            dataSourceRef: overview_issues
+            labelField: title
+            detailFields: [detail]
+            handler: management.openIssue
+            fullWidth: true
+            emptyText: No infrastructure or catalog issues detected.
+      containers:
+        - id: overview-data-dependencies
+          containers:
+            - id: overview_connectors-binding
+              dataSourceRef: overview_connectors
+              fetchData: false
+            - id: overview_namespaces-binding
+              dataSourceRef: overview_namespaces
+              fetchData: false
+            - id: overview_runtime-binding
+              dataSourceRef: overview_runtime
+              fetchData: false
+dataSources:
+  overview_reports:
+    id: overview_reports
+    cardinality: collection
+    selectionMode: single
+    uniqueKey:
+      - field: id
+    selectors:
+      data: items
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.components.list
+    cache:
+      enabled: false
+  overview_connectors:
+    id: overview_connectors
+    cardinality: collection
+    selectors:
+      data: items
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.connectors.list
+    cache:
+      enabled: false
+  overview_namespaces:
+    id: overview_namespaces
+    cardinality: collection
+    selectors:
+      data: items
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.namespaces.list
+    cache:
+      enabled: false
+  overview_runtime:
+    id: overview_runtime
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.runtime.status
+    cache:
+      enabled: false
+  overview_checks:
+    id: overview_checks
+    cardinality: collection
+    selectionMode: single
+    uniqueKey:
+      - field: id
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  overview_issues:
+    id: overview_issues
+    cardinality: collection
+    selectionMode: single
+    uniqueKey:
+      - field: id
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  overview_state:
+    id: overview_state
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false

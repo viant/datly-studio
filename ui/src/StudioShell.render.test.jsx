@@ -56,7 +56,7 @@ describe('StudioShell authentication boundary',()=>{
   test('shows an intentional loading state while restoring the HttpOnly session',async()=>{
     vi.stubGlobal('fetch',vi.fn(()=>new Promise(()=>{})));
     render(<StudioShell config={config}/>);
-    expect(screen.getByRole('heading',{name:'Checking Studio session'})).toBeTruthy();
+    expect(await screen.findByRole('heading',{name:'Checking Studio session'})).toBeTruthy();
     expect(screen.getByText(/secure server-side session/i)).toBeTruthy();
   });
 
@@ -90,7 +90,7 @@ test('uses the configured IdP label for the existing same-tab BFF link',async()=
  render(<StudioShell config={{...config,authentication:{...config.authentication,enabled:true,label:'Sign in with IdP',redirectSameTab:true}}}/>);
  const link=await screen.findByRole('link',{name:'Sign in with IdP'});
  expect(link.getAttribute('href')).toBe('https://studio.example.com/v1/studio/auth/login');
- expect(link.getAttribute('target')).toBeNull();
+ expect(link.getAttribute('target')).toBe('_self');
 });
 
 test('does not offer browser login when deployment Auth is disabled',async()=>{

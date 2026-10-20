@@ -1,0 +1,75 @@
+window:
+  windowKey: reader-composition
+  title: Boolean composition
+  on:
+    - event: onInit
+      handler: management.initialize
+  view:
+    content:
+      id: composition-window
+      dataSourceRef: composition_draft
+      fetchData: false
+      containers:
+        - id: composition-header
+          workspaceSummary:
+            title: Boolean composition
+            stateDataSourceRef: composition_draft
+            errorField: outcome
+        - id: composition-editor
+          dataSourceRef: composition_draft
+          fetchData: false
+          predicateCompositionEditor:
+            dataSourceRef: composition_draft
+            compositionsField: compositions
+            protectedGroups:
+              - 99
+            onSave: management.save
+            groupsField: groups
+            onGroupSave: management.saveGroup
+        - id: composition-footer
+          dataSourceRef: composition_draft
+          toolbar:
+            items:
+              - id: back
+                label: Back to predicates
+                hideLabel: false
+                icon: arrow-left
+                disabledWhen:
+                  selector: saving
+                  equals: true
+                on:
+                  - event: onClick
+                    handler: management.close
+        - id: composition-bindings
+          containers:
+            - id: composition_inspect-binding
+              dataSourceRef: composition_inspect
+              fetchData: false
+            - id: composition_apply-binding
+              dataSourceRef: composition_apply
+              fetchData: false
+dataSources:
+  composition_draft:
+    id: composition_draft
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  composition_inspect:
+    id: composition_inspect
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.inspect
+    cache:
+      enabled: false
+  composition_apply:
+    id: composition_apply
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.builder
+    cache:
+      enabled: false

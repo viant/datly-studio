@@ -2,113 +2,641 @@ window:
   windowKey: schema
   title: Schema Browser
   on:
-    - {event: onInit, handler: management.initialize}
+    - event: onInit
+      handler: management.initialize
   view:
     content:
       id: schema-browser
-      className: studio-workspace studio-schema-browser
+      className: studio-workspace studio-forge-schema-workspace
       containers:
-        - id: schema-controls
-          className: studio-schema-browser__controls
-          dataSourceRef: schema_state
-          fetchData: false
-          items:
-            - {id: query, label: Find schema or table, dataField: query, type: text}
-            - {id: outcome, label: Outcome, dataField: outcome, type: textarea, readOnly: true}
-        - id: schema-connectors
-          kind: table
-          title: Connectors
-          className: studio-schema-browser__connectors
-          dataSourceRef: schema_connectors
-          fetchData: false
-          toolbar:
-            items:
-              - {id: refresh, label: Refresh connectors, icon: refresh, on: [{event: onClick, handler: management.initialize}]}
-              - {id: load-schemas, label: Load schemas, icon: database, on: [{event: onClick, handler: management.loadSchemas}]}
-          table:
-            columns:
-              - {id: name, name: Name}
-              - {id: driver, name: Driver}
-              - {id: status, name: Status}
-        - id: schema-names
-          kind: table
-          title: Schemas
-          className: studio-schema-browser__schemas
-          dataSourceRef: schema_names
-          fetchData: false
-          toolbar:
-            items:
-              - {id: load-tables, label: Load tables, icon: list, on: [{event: onClick, handler: management.loadTables}]}
-          table:
-            columns:
-              - {id: name, name: Schema}
-        - id: schema-tables
-          kind: table
-          title: Tables
-          className: studio-schema-browser__tables
-          dataSourceRef: schema_tables
-          fetchData: false
-          toolbar:
-            items:
-              - {id: inspect-table, label: Inspect table, icon: search, on: [{event: onClick, handler: management.inspectTable}]}
-              - {id: next-tables, label: Next page, icon: chevron-right, on: [{event: onClick, handler: management.nextTables}]}
-          table:
-            columns:
-              - {id: schema, name: Schema}
-              - {id: name, name: Table}
-              - {id: type, name: Type}
-        - id: schema-columns
-          kind: table
-          title: Columns
-          className: studio-schema-browser__columns
-          dataSourceRef: schema_columns
-          fetchData: false
-          table:
-            columns:
-              - {id: name, name: Column}
-              - {id: type, name: Type}
-              - {id: nullable, name: Nullable}
-              - {id: primaryKey, name: Primary key}
-              - {id: autoIncrement, name: Auto increment}
+        - id: schema-header
+          workspaceSummary:
+            title: Schema Browser
+            description: Explore authorized connector metadata and use tables as Datly view
+              sources.
+            stateDataSourceRef: schema_state
+            errorField: outcome
+            actions:
+              - id: refresh
+                label: Refresh
+                icon: refresh
+                handler: management.initialize
+        - id: schema-layout
+          layout:
+            kind: grid
+            columns: 4
+            collapseAt: 900px
+            gap: 20px
+            labels:
+              mode: none
+          containers:
+            - id: schema-explorer
+              columnSpan: 1
+              containers:
+                - id: schema-selectors
+                  dataSourceRef: schema_state
+                  fetchData: false
+                  items:
+                    - id: connectorName
+                      label: Connector
+                      dataField: connectorName
+                      type: select
+                      optionsDataSourceRef: schema_connectors
+                      optionValueField: name
+                      optionLabelField: label
+                      optionsFetchMode: never
+                      on:
+                        - event: onChange
+                          handler: management.changeConnector
+                    - id: schemaName
+                      label: Schema
+                      dataField: schemaName
+                      type: select
+                      optionsDataSourceRef: schema_names
+                      optionValueField: name
+                      optionLabelField: label
+                      optionsFetchMode: never
+                      on:
+                        - event: onChange
+                          handler: management.changeSchema
+                    - id: query
+                      label: Find tables or views
+                      dataField: query
+                      type: text
+                      properties:
+                        placeholder: Find tables or views
+                  toolbar:
+                    items:
+                      - id: find
+                        label: Search tables
+                        hideLabel: false
+                        icon: search
+                        on:
+                          - event: onClick
+                            handler: management.searchTables
+                - id: schema-object-list
+                  dataSourceRef: schema_tables
+                  fetchData: false
+                  table:
+                    presentation: catalog
+                    fullWidth: true
+                    enforceColumnSize: false
+                    columns:
+                      - id: name
+                        name: Table or view
+                        on:
+                          - event: onClick
+                            handler: management.inspectTable
+                      - id: inspect
+                        name: ""
+                        type: button
+                        icon: search
+                        tooltip: Inspect table
+                        cellProperties:
+                          aria-label: Inspect table
+                        on:
+                          - event: onClick
+                            handler: management.inspectTable
+                    emptyState:
+                      compact: true
+                      title: No matching records
+                - id: schema-object-paging
+                  dataSourceRef: schema_state
+                  fetchData: false
+                  toolbar:
+                    items:
+                      - id: prev
+                        label: Previous
+                        hideLabel: false
+                        icon: chevron-left
+                        on:
+                          - event: onClick
+                            handler: management.previousTables
+                        disabledWhen:
+                          selector: tableOffset
+                          equals: 0
+                      - id: next
+                        label: Next
+                        hideLabel: false
+                        icon: chevron-right
+                        on:
+                          - event: onClick
+                            handler: management.nextTables
+                        disabledWhen:
+                          selector: hasMore
+                          equals: false
+            - id: schema-detail
+              columnSpan: 3
+              containers:
+                - id: schema-empty
+                  dataSourceRef: schema_state
+                  fetchData: false
+                  visibleWhen:
+                    selector: selected
+                    notEquals: true
+                  workspaceSummary:
+                    sections:
+                      - id: choose
+                        title: Choose a database object
+                        dataSourceRef: schema_views
+                        labelField: name
+                        emptyText: Inspect columns and relationships, then add a root view or subview to
+                          a component.
+                - id: schema-selected
+                  dataSourceRef: schema_state
+                  fetchData: false
+                  visibleWhen:
+                    selector: selected
+                    equals: true
+                  containers:
+                    - id: schema-detail-header
+                      dataSourceRef: schema_state
+                      resourceHeader:
+                        dataSourceRef: schema_state
+                        titleField: tableName
+                        subtitleField: connectorName
+                        actions:
+                          - id: close
+                            label: Close table
+                            icon: cross
+                            handler: management.closeTable
+                    - id: schema-detail-tabs
+                      tabs:
+                        defaultSelectedTabId: schema-sql
+                        mountPolicy: visited
+                      containers:
+                        - id: schema-sql
+                          title: SQL
+                          icon: code
+                          dataSourceRef: schema_state
+                          editor:
+                            title: SQL source
+                            selector:
+                              source: sql
+                              extension: extension
+                            readOnlyWhen:
+                              selector: saving
+                              equals: true
+                            style:
+                              height: 280px
+                            on:
+                              - event: onChange
+                                handler: management.invalidateSQL
+                          toolbar:
+                            items:
+                              - id: test
+                                label: Test SQL
+                                hideLabel: false
+                                icon: play
+                                on:
+                                  - event: onClick
+                                    handler: management.testSQL
+                              - id: root
+                                label: Add as root view
+                                hideLabel: false
+                                icon: new-object
+                                on:
+                                  - event: onClick
+                                    handler: management.newRoot
+                              - id: child
+                                label: Add as subview
+                                hideLabel: false
+                                icon: git-branch
+                                on:
+                                  - event: onClick
+                                    handler: management.newChild
+                        - id: schema-columns
+                          dataSourceRef: schema_columns
+                          fetchData: false
+                          table:
+                            presentation: catalog
+                            fullWidth: true
+                            enforceColumnSize: false
+                            columns:
+                              - id: name
+                                name: Name
+                              - id: type
+                                name: Type
+                              - id: constraints
+                                name: Constraints
+                              - id: reference
+                                name: Reference
+                            emptyState:
+                              compact: true
+                              title: No matching records
+                          title: Columns
+                          icon: properties
+                        - id: schema-result
+                          title: Result
+                          icon: th
+                          dataSourceRef: schema_test_result
+                          fetchData: false
+                          resultPreview:
+                            dataSourceRef: schema_test_result
+                            dataField: data
+                            label: SQL test result
+        - id: schema-bindings
+          containers:
+            - id: schema_state-binding
+              dataSourceRef: schema_state
+              fetchData: false
+            - id: schema_root_draft-binding
+              dataSourceRef: schema_root_draft
+              fetchData: false
+            - id: schema_child_draft-binding
+              dataSourceRef: schema_child_draft
+              fetchData: false
+            - id: schema_test_result-binding
+              dataSourceRef: schema_test_result
+              fetchData: false
+            - id: schema_connectors-binding
+              dataSourceRef: schema_connectors
+              fetchData: false
+            - id: schema_names-binding
+              dataSourceRef: schema_names
+              fetchData: false
+            - id: schema_tables-binding
+              dataSourceRef: schema_tables
+              fetchData: false
+            - id: schema_columns-binding
+              dataSourceRef: schema_columns
+              fetchData: false
+            - id: schema_components-binding
+              dataSourceRef: schema_components
+              fetchData: false
+            - id: schema_views-binding
+              dataSourceRef: schema_views
+              fetchData: false
+            - id: schema_connector_list-binding
+              dataSourceRef: schema_connector_list
+              fetchData: false
+            - id: schema_name_list-binding
+              dataSourceRef: schema_name_list
+              fetchData: false
+            - id: schema_table_list-binding
+              dataSourceRef: schema_table_list
+              fetchData: false
+            - id: schema_table-binding
+              dataSourceRef: schema_table
+              fetchData: false
+            - id: schema_test-binding
+              dataSourceRef: schema_test
+              fetchData: false
+            - id: schema_component_list-binding
+              dataSourceRef: schema_component_list
+              fetchData: false
+            - id: schema_component_create-binding
+              dataSourceRef: schema_component_create
+              fetchData: false
+            - id: schema_version_create-binding
+              dataSourceRef: schema_version_create
+              fetchData: false
+            - id: schema_version_list-binding
+              dataSourceRef: schema_version_list
+              fetchData: false
+            - id: schema_inspect-binding
+              dataSourceRef: schema_inspect
+              fetchData: false
+            - id: schema_apply-binding
+              dataSourceRef: schema_apply
+              fetchData: false
+  dialogs:
+    - id: schema-root
+      title: Create component from table
+      dataSourceRef: schema_root_draft
+      fetchOnOpen: false
+      closeDisabledWhen:
+        selector: saving
+        equals: true
+      on:
+        - event: onClose
+          handler: management.closeDialog
+      content:
+        id: schema-root-form
+        parameterEditor:
+          dataSourceRef: schema_root_draft
+          label: New root view
+          readOnlyWhen:
+            selector: saving
+            equals: true
+          fields:
+            - id: title
+              label: Component title
+              dataField: title
+              type: text
+              required: true
+            - id: slug
+              label: Slug
+              dataField: slug
+              type: text
+              required: true
+            - id: viewName
+              label: Root view identifier
+              dataField: viewName
+              type: text
+              required: true
+            - &a1
+              id: outcome
+              label: Outcome
+              dataField: outcome
+              type: text
+              readOnly: true
+              visibleWhen:
+                selector: outcome
+                notEmpty: true
+      actions:
+        - id: create
+          label: Create component
+          intent: primary
+          close: true
+          disabledWhen:
+            selector: saving
+            equals: true
+          on:
+            - event: onClick
+              handler: management.createRoot
+        - id: cancel
+          label: Cancel
+          close: true
+          disabledWhen:
+            selector: saving
+            equals: true
+    - id: schema-child
+      title: Add table to component
+      dataSourceRef: schema_child_draft
+      fetchOnOpen: false
+      closeDisabledWhen:
+        selector: saving
+        equals: true
+      on:
+        - event: onClose
+          handler: management.closeDialog
+      content:
+        id: schema-child-form
+        parameterEditor:
+          dataSourceRef: schema_child_draft
+          label: Add related view
+          readOnlyWhen:
+            selector: saving
+            equals: true
+          fields:
+            - id: reportId
+              label: Component
+              dataField: reportId
+              type: select
+              optionsDataSourceRef: schema_components
+              optionValueField: id
+              optionLabelField: title
+              optionsFetchMode: never
+              on:
+                - event: onChange
+                  handler: management.loadComponent
+            - id: name
+              label: Child view identifier
+              dataField: name
+              type: text
+              readOnlyWhen:
+                selector: loading
+                equals: true
+            - id: parent
+              label: Parent view
+              dataField: parent
+              type: select
+              optionsDataSourceRef: schema_views
+              optionValueField: name
+              optionLabelField: name
+              optionsFetchMode: never
+              readOnlyWhen:
+                selector: loading
+                equals: true
+            - id: relationship
+              label: Relationship
+              dataField: relationship
+              type: select
+              options:
+                - value: rows
+                  label: Related rows
+                - value: lookup
+                  label: Optional single lookup
+              readOnlyWhen:
+                selector: loading
+                equals: true
+            - id: on
+              label: Relation keys
+              dataField: on
+              type: text
+              readOnlyWhen:
+                selector: loading
+                equals: true
+              properties:
+                placeholder: child.id=parent.id
+            - *a1
+      actions:
+        - id: apply
+          label: Compile and open
+          intent: primary
+          close: true
+          disabledWhen:
+            any:
+              - selector: saving
+                equals: true
+              - selector: loading
+                equals: true
+              - selector: canCompile
+                equals: false
+          on:
+            - event: onClick
+              handler: management.addChild
+        - id: cancel
+          label: Cancel
+          close: true
+          disabledWhen:
+            selector: saving
+            equals: true
 dataSources:
   schema_state:
     id: schema_state
     cardinality: object
-    backend: {kind: inline, rows: []}
-    cache: {enabled: false}
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  schema_root_draft:
+    id: schema_root_draft
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  schema_child_draft:
+    id: schema_child_draft
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  schema_test_result:
+    id: schema_test_result
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
   schema_connectors:
     id: schema_connectors
     cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
     selectionMode: single
-    selectors: {data: items}
-    uniqueKey: [{field: name}]
-    paging: {enabled: true, openEnded: true, size: 25, parameters: {page: offset, size: limit}}
-    backend: {kind: mcp_tool, method: studio.sdk.connectors.list}
-    cache: {enabled: false}
   schema_names:
     id: schema_names
     cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
     selectionMode: single
-    selectors: {data: items}
-    uniqueKey: [{field: name}]
-    backend: {kind: mcp_tool, method: studio.sdk.connectors.schemas}
-    cache: {enabled: false}
   schema_tables:
     id: schema_tables
     cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
     selectionMode: single
-    selectors: {data: items}
-    uniqueKey: [{field: schema}, {field: name}]
-    paging: {enabled: true, openEnded: true, size: 25, parameters: {page: input.offset, size: input.limit}}
-    backend: {kind: mcp_tool, method: studio.sdk.connectors.tables}
-    cache: {enabled: false}
-  schema_table:
-    id: schema_table
-    cardinality: object
-    backend: {kind: mcp_tool, method: studio.sdk.connectors.table}
-    cache: {enabled: false}
   schema_columns:
     id: schema_columns
     cardinality: collection
-    backend: {kind: inline, rows: []}
-    cache: {enabled: false}
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
+    selectionMode: single
+  schema_components:
+    id: schema_components
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
+    selectionMode: single
+  schema_views:
+    id: schema_views
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
+    selectionMode: single
+  schema_connector_list:
+    id: schema_connector_list
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.connectors.list
+    cache:
+      enabled: false
+  schema_name_list:
+    id: schema_name_list
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.connectors.schemas
+    cache:
+      enabled: false
+  schema_table_list:
+    id: schema_table_list
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.connectors.tables
+    cache:
+      enabled: false
+  schema_table:
+    id: schema_table
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.connectors.table
+    cache:
+      enabled: false
+  schema_test:
+    id: schema_test
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.connectors.test_sql
+    cache:
+      enabled: false
+  schema_component_list:
+    id: schema_component_list
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.components.list
+    cache:
+      enabled: false
+  schema_component_create:
+    id: schema_component_create
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.components.create
+    cache:
+      enabled: false
+  schema_version_create:
+    id: schema_version_create
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.create
+    cache:
+      enabled: false
+  schema_version_list:
+    id: schema_version_list
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.list
+    cache:
+      enabled: false
+  schema_inspect:
+    id: schema_inspect
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.inspect
+    cache:
+      enabled: false
+  schema_apply:
+    id: schema_apply
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.builder
+    cache:
+      enabled: false

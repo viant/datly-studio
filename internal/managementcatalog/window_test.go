@@ -22,7 +22,7 @@ func TestNamespaceWindowPortableContract(t *testing.T) {
 			for _, definition := range definitions {
 				byURI[definition.URI] = definition
 			}
-			if len(definitions) != 55 || definitions[1].URI != "window://"+namespace+"/namespaces" {
+			if len(definitions) != 241 || definitions[1].URI != "window://"+namespace+"/namespaces" {
 				t.Fatalf("unexpected resource count: %d", len(definitions))
 			}
 			var envelope types.WindowResourceEnvelope
@@ -112,7 +112,7 @@ func TestConnectorActionsIncludeCanonicalBehavior(t *testing.T) {
 	}
 }
 
-func TestConnectorLifecycleUsesForgeMutationCommands(t *testing.T) {
+func TestConnectorCatalogPresentationAndRowActions(t *testing.T) {
 	definitions, err := managementWindow(Config{Namespace: "datastudio", ProviderIdentity: "studio", MCPService: "admin"}, "connectors")
 	if err != nil {
 		t.Fatal(err)
@@ -122,23 +122,59 @@ func TestConnectorLifecycleUsesForgeMutationCommands(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, variant := range envelope.Variants {
-		found := 0
+		found := false
 		for _, container := range variant.Window.View.Content.Containers {
 			if container.ID != "connector-list" {
 				continue
 			}
-			for _, item := range container.EditableCollection.Operations {
-				if item.ID != "activate" && item.ID != "disable" {
-					continue
+			found = true
+			if container.Table == nil || container.Table.Presentation != "catalog" || container.Table.FullWidth == nil || !*container.Table.FullWidth {
+				t.Fatal("catalog must fill available width")
+			}
+			actions := map[string]bool{}
+			for _, column := range container.Table.Columns {
+				if column.Type == "button" && len(column.On) > 0 {
+					actions[column.ID] = true
 				}
-				found++
-				if item.Handler != "" || item.Mutation == nil || item.Mutation.DataSourceRef != "connector_"+item.ID || item.Mutation.Payload == nil || len(item.Mutation.Refresh) != 1 {
-					t.Fatalf("%s lost canonical command metadata", item.ID)
+			}
+			for _, id := range []string{"test", "edit", "toggle", "delete"} {
+				if !actions[id] {
+					t.Fatalf("missing row action %s", id)
 				}
 			}
 		}
-		if found != 2 {
-			t.Fatal("missing lifecycle commands")
+		if !found {
+			t.Fatal("missing connector catalog")
+		}
+	}
+}
+
+func TestSchemaWindowKeepsSharedPreviewAndMutationCloseGuards(t *testing.T) {
+	definitions, err := managementWindow(Config{Namespace: "datastudio", ProviderIdentity: "studio", MCPService: "admin"}, "schema")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Contains(definitions[0].JSON, []byte(`"resultPreview"`)) {
+		t.Fatal("compiled schema window lost its shared result preview")
+	}
+	if !bytes.Contains(definitions[0].JSON, []byte(`"closeDisabledWhen"`)) {
+		t.Fatal("compiled schema window lost its mutation close guard")
+	}
+}
+
+func TestPortableWorkbenchBindsChildWindowsToProducerNamespace(t *testing.T) {
+	definitions, err := managementWindow(Config{Namespace: "custom-admin", ProviderIdentity: "studio", MCPService: "admin"}, "reader-workbench")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var envelope types.WindowResourceEnvelope
+	if err = json.Unmarshal(definitions[0].JSON, &envelope); err != nil {
+		t.Fatal(err)
+	}
+	for _, variant := range envelope.Variants {
+		spec := variant.Window.View.Content.ReaderWorkbench
+		if spec == nil || spec.ResourceNamespace != "custom-admin" || len(spec.Operations) == 0 {
+			t.Fatal("workbench lost its authored bindings or child resource namespace")
 		}
 	}
 }

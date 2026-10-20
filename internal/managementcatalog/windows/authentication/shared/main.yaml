@@ -1,0 +1,78 @@
+window:
+  windowKey: authentication
+  title: Studio authentication
+  view:
+    content:
+      id: authentication
+      className: studio-auth-shell
+      style:
+        minHeight: 100vh
+      containers:
+        - id: session-card
+          className: studio-auth-card
+          card:
+            className: studio-card
+          dataSourceRef: authentication
+          fetchData: true
+          containers:
+            - id: session-summary
+              workspaceSummary:
+                stateDataSourceRef: authentication
+                titleField: heading
+                descriptionField: description
+                errorField: error
+            - id: sign-in
+              dataSourceRef: authentication
+              fetchData: false
+              visibleWhen:
+                selector: loginEnabled
+                equals: true
+              items:
+                - id: login
+                  type: link
+                  dataField: login
+                  appearance: inline
+                  hideLabel: true
+                  isStandalone: true
+                  properties:
+                    className: bp6-button bp6-intent-primary bp6-large
+                    style:
+                      color: var(--forge-on-primary, white)
+            - id: retry-error
+              dataSourceRef: authentication
+              fetchData: false
+              visibleWhen:
+                selector: state
+                equals: error
+              items:
+                - id: retry
+                  type: button
+                  label: Try again
+                  hideLabel: false
+                  icon: refresh
+                  isStandalone: true
+                  on:
+                    - event: onClick
+                      handler: authentication.retry
+            - id: retry-session
+              dataSourceRef: authentication
+              fetchData: false
+              visibleWhen:
+                selector: state
+                equals: unauthenticated
+              items:
+                - id: retry-session
+                  type: button
+                  label: Check session again
+                  hideLabel: false
+                  icon: refresh
+                  isStandalone: true
+                  on:
+                    - event: onClick
+                      handler: authentication.retry
+                - id: disabled-login
+                  type: label
+                  value: Browser sign-in is disabled by this deployment.
+                  visibleWhen:
+                    selector: browserLoginDisabled
+                    equals: true

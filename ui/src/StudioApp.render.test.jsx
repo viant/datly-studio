@@ -25,6 +25,10 @@ function catalogAPI() {
     if(operation==='namespaces.delete')return api.deleteNamespace(input.name,input.etag);
     if(operation==='namespaces.get')return api.listNamespaces().then(page=>page.items.find(item=>item.name===input.name));
     if(operation==='connectors.list')return api.listConnectors(input);
+    if(operation==='components.list')return api.listComponents(input);
+    if(operation==='components.create')return api.createComponent(input);
+    if(operation==='versions.list')return api.listVersions(input.reportId,input.input);
+    if(operation==='runtime.status')return api.getRuntimeStatus();
     if(operation==='connectors.disable')return api.disableConnector(input.name,input.etag);
     throw new Error('Unexpected operation '+operation);
   });
@@ -54,13 +58,20 @@ describe('Studio connector catalog', () => {
     await screen.findByRole('heading',{name:'No components yet'});
     await user.click(screen.getAllByRole('button',{name:'New component'})[0]);
     await user.type(screen.getByLabelText('Component title'),'New reader');
-    await user.selectOptions(await screen.findByLabelText('Active connector'),'reporting');
+    await user.click(await screen.findByRole('button',{name:'Active connector',exact:true}));
+    await user.click(await screen.findByRole('menuitem',{name:'reporting · sqlite',exact:true}));
     await user.click(screen.getByRole('button',{name:'Create component'}));
     expect(await screen.findByRole('heading',{name:'Root SQL'})).toBeTruthy();
-    expect(screen.getByRole('heading',{name:'New reader',level:1})).toBeTruthy();
+    expect(screen.getByRole('main',{name:'Component editor'})).toBeTruthy();
     await waitFor(()=>expect(screen.queryByRole('dialog',{name:'New component'})).toBeNull());
     expect(api.listVersions).toHaveBeenCalledWith('created',{limit:100});
     expect(api.createComponent).toHaveBeenCalledTimes(1);
+    await user.clear(screen.getByLabelText('Root view identifier'));
+    await user.type(screen.getByLabelText('Root view identifier'),'customers');
+    await user.selectOptions(screen.getByLabelText('Component visibility'),'internal');
+    await waitFor(()=>expect(screen.getByLabelText('Root view identifier').value).toBe('customers'));
+    expect(screen.getByLabelText('Component visibility').value).toBe('internal');
+    expect(api.listVersions).toHaveBeenCalledTimes(1);
   });
 
   test('allows keyboard activation of sidebar navigation', async () => {
@@ -174,12 +185,12 @@ describe('Studio connector catalog', () => {
 
     await user.click(await screen.findByText('Connectors'));
     await screen.findByText('reporting');
-    await user.click(await screen.findByRole('button', { name: 'Disable',exact:true }));
+    await user.click(await screen.findByRole('button', { name: 'Activate or disable',exact:true }));
 
     expect(await screen.findByText('connector etag does not match')).toBeTruthy();
     expect(api.disableConnector).toHaveBeenCalledWith('reporting', 2);
     const callsBeforeRefresh = api.listConnectors.mock.calls.length;
-    await user.click(screen.getByRole('button', { name: 'Refresh data',exact:true }));
+    await user.click(screen.getByRole('button', { name: 'Refresh',exact:true }));
     await waitFor(() => expect(api.listConnectors.mock.calls.length).toBeGreaterThan(callsBeforeRefresh));
   });
 });

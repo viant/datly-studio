@@ -3,11 +3,19 @@ import { describe, expect, test, vi } from 'vitest';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-vi.mock('./LazyEditor.jsx', () => ({
+vi.mock('forge/reader-workbench/editor', () => ({
   LazyEditor: ({ value, onChange, readOnly, ariaLabel }) => <textarea aria-label={ariaLabel} value={value} readOnly={readOnly} onChange={(event) => onChange(event.target.value)} />,
 }));
 
 import { ReaderBuilder } from './ReaderBuilder.jsx';
+import './ManagementWindowRuntime.jsx';
+import {managementResourceFixture} from './managementWindowFixture.js';
+function forgeAPI(api,inspection){
+ inspection.version.state ||= 'draft';
+ api.readManagementResource=vi.fn(async uri=>managementResourceFixture(uri.split('/').at(-1)));
+ api.fetchMCPDataSource=vi.fn(async(source,input)=>source.backend.method==='studio.sdk.versions.inspect'?inspection:source.backend.method==='studio.sdk.versions.builder'?api.applyReaderCommand(input.reportId,input.versionNo,input.command):{items:[]});
+ return api;
+}
 
 function readerFixture(capabilities = { canEdit: true, canRun: true, canPublish: true, canUseDql: true }) {
   const version = { versionNo: 1, sourceRevision: 4, compileStatus: 'valid' };
@@ -340,6 +348,7 @@ describe('ReaderBuilder graph-first authoring', () => {
     const inspection=readerFixture();
     let finish;
     const api={listVersions:vi.fn().mockResolvedValue({items:[inspection.version]}),inspectVersion:vi.fn().mockResolvedValue(inspection),previewReader:vi.fn(()=>new Promise(resolve=>{finish=resolve;}))};
+    forgeAPI(api,inspection);
     render(<ReaderBuilder api={api} report={{id:'vendor',title:'Vendor'}} onBack={vi.fn()}/>);
     await screen.findByRole('heading',{name:'Component graph'});
     await user.click(screen.getByRole('tab',{name:'Preview',exact:true}));
@@ -349,7 +358,8 @@ describe('ReaderBuilder graph-first authoring', () => {
     expect(screen.getByRole('status').textContent).toContain('Running preview');
     await user.click(screen.getByRole('tab',{name:'Inputs',exact:true}));
     await user.click(screen.getByRole('button',{name:'Add input'}));
-    await user.type(screen.getByLabelText('Input name'),'Search');
+    await waitFor(()=>expect(api.readManagementResource).toHaveBeenCalled());
+    await user.type(await screen.findByLabelText('Input name',{}, {timeout:5000}),'Search');
     await act(async()=>finish({duration:1,data:{records:[{id:1}]},evidence:{}}));
     expect(screen.getByRole('tab',{name:'Inputs',exact:true}).getAttribute('aria-selected')).toBe('true');
     await user.click(screen.getByRole('tab',{name:'Preview',exact:true}));
@@ -511,6 +521,7 @@ describe('ReaderBuilder graph-first authoring', () => {
     }));
     inspection.structure.predicateExpansions = [{ group: 1, view: 'vendor', operator: 'AND' }];
     const api = { listVersions: vi.fn().mockResolvedValue({ items: [inspection.version] }), inspectVersion: vi.fn().mockResolvedValue(inspection), getTable: vi.fn().mockResolvedValue({ columns: [] }), listAuthorizationPredicates: vi.fn().mockResolvedValue({items:[]}), applyReaderCommand: vi.fn() };
+    forgeAPI(api,inspection);
     render(<ReaderBuilder api={api} report={{ id: 'vendor', title: 'Vendor Catalog', namespace: 'general', defaultConnectorName: 'main' }} onBack={vi.fn()} />);
     await screen.findByRole('heading', { name: 'Component graph' });
     await user.click(screen.getByRole('button', { name: /Input 205 inputs/ }));
@@ -529,14 +540,14 @@ describe('ReaderBuilder graph-first authoring', () => {
     expect(screen.getByText('26–50 of 205')).toBeTruthy();
     await user.type(screen.getByRole('textbox', { name: 'Search inputs' }), 'input_204');
     await user.click(screen.getByRole('button', { name: /Input204/ }));
-    expect(screen.getByRole('heading', { name: 'Edit Input204' })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'Input settings' })).toBeTruthy();
     expect(screen.getByLabelText('Input name').value).toBe('Input204');
     expect(screen.queryByRole('dialog')).toBeNull();
     await user.click(screen.getByRole('button', { name: 'Back to inputs' }));
     await user.click(screen.getByRole('tab', { name: /Predicates 205/ }));
     expect(screen.getByText('1–25 of 205')).toBeTruthy();
     await user.click(screen.getByRole('button', { name: /Input0/ }));
-    expect(screen.getByRole('heading', { name: 'Edit Input0' })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'Predicate settings' })).toBeTruthy();
     expect(screen.queryByRole('dialog')).toBeNull();
     await user.click(screen.getByRole('button', { name: 'Back to predicates' }));
     await user.click(screen.getByRole('tab', {name:'Outputs',exact:true}));
@@ -736,7 +747,7 @@ describe('ReaderBuilder graph-first authoring', () => {
     await user.click(screen.getByRole('button',{name:'Save SQL'}));
     expect(await screen.findByRole('dialog',{name:'Reader changed elsewhere'})).toBeTruthy();
     await user.click(screen.getByRole('button',{name:'Reload latest'}));
-    const heading=await screen.findByRole('heading',{name:'Vendor Catalog'});
+    const heading=await screen.findByRole('main',{name:'Component editor'});
     await waitFor(()=>expect(document.activeElement).toBe(heading));
     expect(api.inspectVersion).toHaveBeenCalledTimes(2);
   });

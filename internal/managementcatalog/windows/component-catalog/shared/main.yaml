@@ -1,0 +1,529 @@
+window:
+  windowKey: component-catalog
+  title: Components
+  on:
+    - event: onInit
+      handler: management.initialize
+  view:
+    content:
+      id: component-catalog
+      className: studio-workspace
+      containers:
+        - id: catalog-header
+          workspaceSummary:
+            title: Components
+            description: Create and manage read-only dynamic Datly components.
+            stateDataSourceRef: catalog_state
+            errorField: outcome
+            actions:
+              - id: refresh
+                label: Refresh
+                icon: refresh
+                handler: management.search
+              - id: import
+                label: Import component
+                icon: import
+                handler: management.openImport
+              - id: new
+                label: New component
+                icon: add
+                intent: primary
+                handler: management.newComponent
+        - id: catalog-filter
+          className: forge-catalog-search
+          dataSourceRef: catalog_filter
+          fetchData: false
+          items:
+            - id: query
+              label: Search components
+              dataField: query
+              type: text
+              hideLabel: true
+              properties:
+                placeholder: Find title, slug, or description
+            - id: namespace
+              label: Filter components by namespace
+              dataField: namespace
+              type: select
+              optionsDataSourceRef: catalog_namespaces
+              optionValueField: name
+              optionLabelField: title
+              optionsFetchMode: never
+              visibleWhen:
+                scope: form
+                dataSourceRef: catalog_state
+                selector: namespaceUnlocked
+                equals: true
+            - id: status
+              label: Filter components by status
+              dataField: status
+              type: select
+              hideLabel: true
+              options:
+                - value: ""
+                  label: All states
+                - value: draft
+                  label: Draft
+                - value: active
+                  label: Active
+                - value: archived
+                  label: Archived
+            - id: search
+              label: Search components
+              type: button
+              icon: search
+              isStandalone: true
+              on:
+                - event: onClick
+                  handler: management.search
+        - id: catalog-rows
+          dataSourceRef: catalog_rows
+          fetchData: false
+          table:
+            presentation: catalog
+            fullWidth: true
+            enforceColumnSize: false
+            columns:
+              - id: title
+                name: Title
+                sortable: true
+              - id: slug
+                name: Slug
+              - id: namespace
+                name: Namespace
+              - id: defaultConnectorName
+                name: Connector
+              - id: status
+                name: Status
+                badge:
+                  field: status
+                  replaceValue: true
+                  valueMap:
+                    active: active
+                    draft: draft
+                    archived: archived
+                  toneMap:
+                    active: positive
+                    draft: warning
+                    archived: neutral
+              - id: updatedAt
+                name: Updated
+                format: datetime
+              - id: open
+                name: ""
+                type: button
+                icon: application
+                tooltip: Open Reader Builder
+                cellProperties:
+                  aria-label: Open Reader Builder
+                on:
+                  - event: onClick
+                    handler: management.openComponent
+              - id: download
+                name: ""
+                type: button
+                icon: download
+                tooltip: Download component
+                cellProperties:
+                  aria-label: Download component
+                on:
+                  - event: onClick
+                    handler: management.download
+            emptyState:
+              title: No components yet
+              body: Create the versioned home for your first dynamic reader component.
+        - id: catalog-paging
+          dataSourceRef: catalog_state
+          fetchData: false
+          toolbar:
+            items:
+              - id: previous
+                label: Previous
+                hideLabel: false
+                icon: chevron-left
+                disabledWhen:
+                  selector: offset
+                  equals: 0
+                on:
+                  - event: onClick
+                    handler: management.previous
+              - id: next
+                label: Next
+                hideLabel: false
+                icon: chevron-right
+                disabledWhen:
+                  selector: hasNext
+                  equals: false
+                on:
+                  - event: onClick
+                    handler: management.next
+          visibleWhen:
+            any:
+              - selector: offset
+                notEquals: 0
+              - selector: hasNext
+                equals: true
+        - id: catalog-bindings
+          containers:
+            - id: catalog_state-binding
+              dataSourceRef: catalog_state
+              fetchData: false
+            - id: catalog_filter-binding
+              dataSourceRef: catalog_filter
+              fetchData: false
+            - id: catalog_draft-binding
+              dataSourceRef: catalog_draft
+              fetchData: false
+            - id: catalog_import-binding
+              dataSourceRef: catalog_import
+              fetchData: false
+            - id: catalog_rows-binding
+              dataSourceRef: catalog_rows
+              fetchData: false
+            - id: catalog_namespaces-binding
+              dataSourceRef: catalog_namespaces
+              fetchData: false
+            - id: catalog_connectors-binding
+              dataSourceRef: catalog_connectors
+              fetchData: false
+            - id: catalog_targets-binding
+              dataSourceRef: catalog_targets
+              fetchData: false
+            - id: catalog_list-binding
+              dataSourceRef: catalog_list
+              fetchData: false
+            - id: catalog_namespace_list-binding
+              dataSourceRef: catalog_namespace_list
+              fetchData: false
+            - id: catalog_connector_list-binding
+              dataSourceRef: catalog_connector_list
+              fetchData: false
+            - id: catalog_create-binding
+              dataSourceRef: catalog_create
+              fetchData: false
+            - id: catalog_versions-binding
+              dataSourceRef: catalog_versions
+              fetchData: false
+            - id: catalog_download-binding
+              dataSourceRef: catalog_download
+              fetchData: false
+            - id: catalog_load_dql-binding
+              dataSourceRef: catalog_load_dql
+              fetchData: false
+            - id: catalog_load_archive-binding
+              dataSourceRef: catalog_load_archive
+              fetchData: false
+            - id: catalog-create-namespaces-binding
+              dataSourceRef: catalog_create_namespaces
+              fetchData: false
+  dialogs:
+    - id: new-component
+      title: New component
+      dataSourceRef: catalog_draft
+      fetchOnOpen: false
+      content:
+        id: component-create-form
+        parameterEditor:
+          dataSourceRef: catalog_draft
+          label: Create component
+          fields:
+            - id: title
+              label: Component title
+              dataField: title
+              type: text
+              required: true
+              on:
+                - event: onChange
+                  handler: management.changeTitle
+            - id: namespace
+              label: Namespace
+              dataField: namespace
+              type: select
+              optionsDataSourceRef: catalog_create_namespaces
+              optionValueField: name
+              optionLabelField: title
+              optionsFetchMode: never
+              readOnlyWhen:
+                selector: namespaceLocked
+                equals: true
+            - id: slug
+              label: Slug
+              dataField: slug
+              type: text
+              required: true
+              on:
+                - event: onChange
+                  handler: management.changeSlug
+            - id: defaultConnectorName
+              label: Active connector
+              dataField: defaultConnectorName
+              type: select
+              optionsDataSourceRef: catalog_connectors
+              optionValueField: name
+              optionLabelField: label
+              optionsFetchMode: never
+              properties:
+                filterable: true
+                inputProps:
+                  placeholder: Find connector
+                menuProps:
+                  style:
+                    maxHeight: 300
+                    overflowY: auto
+            - id: description
+              label: Description
+              dataField: description
+              type: textarea
+            - id: create-outcome
+              label: Outcome
+              dataField: outcome
+              type: text
+              readOnly: true
+              visibleWhen:
+                selector: outcome
+                notEmpty: true
+          readOnlyWhen:
+            selector: saving
+            equals: true
+      actions:
+        - id: create
+          label: Create component
+          intent: primary
+          close: true
+          on:
+            - event: onClick
+              handler: management.createComponent
+          disabledWhen:
+            any:
+              - selector: saving
+                equals: true
+              - selector: canCreate
+                equals: false
+        - id: cancel
+          label: Cancel
+          close: true
+          disabledWhen:
+            selector: saving
+            equals: true
+          on:
+            - event: onClick
+              handler: management.cancel
+      closeDisabledWhen:
+        selector: saving
+        equals: true
+      on:
+        - event: onClose
+          handler: management.cancel
+    - id: catalog-import
+      title: Import component
+      dataSourceRef: catalog_import
+      fetchOnOpen: false
+      content:
+        id: catalog-import-form
+        parameterEditor:
+          dataSourceRef: catalog_import
+          label: Import as a new draft
+          fields:
+            - id: reportId
+              label: Component
+              dataField: reportId
+              type: select
+              optionsDataSourceRef: catalog_targets
+              optionValueField: id
+              optionLabelField: title
+              optionsFetchMode: never
+            - id: file
+              label: DQL or archive
+              dataField: file
+              type: file
+              properties:
+                accept: .dql,.zip,.tar,.tar.gz,.tgz
+            - id: entryDql
+              label: Root DQL file
+              dataField: entryDql
+              type: text
+            - id: import-outcome
+              label: Outcome
+              dataField: outcome
+              type: text
+              readOnly: true
+              visibleWhen:
+                selector: outcome
+                notEmpty: true
+          readOnlyWhen:
+            selector: saving
+            equals: true
+      actions:
+        - id: import
+          label: Import as new draft
+          intent: primary
+          close: true
+          on:
+            - event: onClick
+              handler: management.importComponent
+          disabledWhen:
+            selector: saving
+            equals: true
+        - id: cancel
+          label: Cancel
+          close: true
+          disabledWhen:
+            selector: saving
+            equals: true
+          on:
+            - event: onClick
+              handler: management.cancel
+      closeDisabledWhen:
+        selector: saving
+        equals: true
+      on:
+        - event: onClose
+          handler: management.cancel
+dataSources:
+  catalog_state:
+    id: catalog_state
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  catalog_filter:
+    id: catalog_filter
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  catalog_draft:
+    id: catalog_draft
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  catalog_import:
+    id: catalog_import
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+  catalog_rows:
+    id: catalog_rows
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
+    selectionMode: single
+  catalog_namespaces:
+    id: catalog_namespaces
+    cardinality: collection
+    backend: &a1
+      kind: inline
+      rows: []
+    cache: &a2
+      enabled: false
+    uniqueKey: &a3
+      - field: name
+    selectionMode: single
+  catalog_connectors:
+    id: catalog_connectors
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: name
+    selectionMode: single
+  catalog_targets:
+    id: catalog_targets
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache:
+      enabled: false
+    uniqueKey:
+      - field: id
+    selectionMode: single
+  catalog_list:
+    id: catalog_list
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.components.list
+    cache:
+      enabled: false
+  catalog_namespace_list:
+    id: catalog_namespace_list
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.namespaces.list
+    cache:
+      enabled: false
+  catalog_connector_list:
+    id: catalog_connector_list
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.connectors.list
+    cache:
+      enabled: false
+  catalog_create:
+    id: catalog_create
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.components.create
+    cache:
+      enabled: false
+  catalog_versions:
+    id: catalog_versions
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.list
+    cache:
+      enabled: false
+  catalog_download:
+    id: catalog_download
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.download
+    cache:
+      enabled: false
+  catalog_load_dql:
+    id: catalog_load_dql
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.load_dql
+    cache:
+      enabled: false
+  catalog_load_archive:
+    id: catalog_load_archive
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.load_archive
+    cache:
+      enabled: false
+  catalog_create_namespaces:
+    id: catalog_create_namespaces
+    cardinality: collection
+    backend: *a1
+    cache: *a2
+    uniqueKey: *a3
+    selectionMode: single
