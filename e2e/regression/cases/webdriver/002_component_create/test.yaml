@@ -1,80 +1,58 @@
 pipeline:
-  createConnector:
-    action: mcp/runner:call
-    url: $nativeMCP
-    bearerTokenSecret: $ownerToken
-    arguments:
-      name: browsercreate
-      driver: sqlite
-      dsnTemplate: ${runDir}/consumer.db
-    allowToolError: true
-    "@name": studio.sdk.connectors.create
-  createConnectorSucceeded:
-    action: validator:assert
-    normalizeKVPairs: true
-    actual: $createConnector
-    expect:
-      IsError: false
-  probe:
-    action: mcp/runner:call
-    url: $nativeMCP
-    bearerTokenSecret: $ownerToken
-    arguments:
-      name: browsercreate
-    allowToolError: true
-    "@name": studio.sdk.connectors.test
-  probeSucceeded:
-    action: validator:assert
-    normalizeKVPairs: true
-    actual: $probe
-    expect:
-      IsError: false
-  connector:
-    action: mcp/runner:call
-    url: $nativeMCP
-    bearerTokenSecret: $ownerToken
-    arguments:
-      name: browsercreate
-    allowToolError: true
-    "@name": studio.sdk.connectors.get
-  connectorSucceeded:
-    action: validator:assert
-    normalizeKVPairs: true
-    actual: $connector
-    expect:
-      IsError: false
-  activate:
-    action: mcp/runner:call
-    url: $nativeMCP
-    bearerTokenSecret: $ownerToken
-    arguments:
-      name: browsercreate
-      etag: $connector.StructuredContent.etag
-    allowToolError: true
-    "@name": studio.sdk.connectors.activate
-  activateSucceeded:
-    action: validator:assert
-    normalizeKVPairs: true
-    actual: $activate
-    expect:
-      IsError: false
+  createNamespaceInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/${caseName}
+    commands:
+      - page.goto("${browserURL}")
+      - page.locator(".studio-nav-namespaces").click()
+      - page.getByRole("button", "New namespace").click()
+      - page.getByLabel("Namespace").fill("${caseName}")
+      - expect(page.getByLabel("Namespace")).toHaveValue("${caseName}",15000)
+      - page.getByLabel("Display title").fill("${caseName}")
+      - expect(page.getByLabel("Namespace")).toHaveValue("${caseName}",15000)
+      - page.getByRole("button", "Visibility").click()
+      - page.getByRole("menuitem", "Public").click()
+      - page.getByLabel("Expose MCP").check()
+      - page.getByRole("button", "Save").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
   namespace:
     action: mcp/runner:call
     url: $nativeMCP
     bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.namespaces.get
     arguments:
-      name: browsercreate
-      title: browsercreate
-      mcpEnabled: true
-      mcpPort: 0
-    allowToolError: true
-    "@name": studio.sdk.namespaces.create
-  namespaceSucceeded:
-    action: validator:assert
-    normalizeKVPairs: true
-    actual: $namespace
-    expect:
-      IsError: false
+      name: $caseName
+  createConnectorInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/${caseName}
+    commands:
+      - expect(page.getByLabel("Current namespace")).toBeEnabled(15000)
+      - page.getByLabel("Current namespace").selectOption("${namespace.StructuredContent.namespaceId}")
+      - expect(page.getByLabel("Current namespace")).toHaveValue("${namespace.StructuredContent.namespaceId}",15000)
+      - page.locator(".studio-nav-connectors").click()
+      - page.getByRole("button", "New connector").click()
+      - page.getByLabel("Name").fill("${caseName}")
+      - page.getByLabel("Driver").click()
+      - page.getByRole("menuitem", "SQLite").click()
+      - page.getByLabel("DSN (blank keeps existing)").fill("${runDir}/consumer.db")
+      - page.getByRole("button", "Save").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - page.getByLabel("Find connector, driver, or owner").fill("${caseName}")
+      - page.getByRole("button", "Search").click()
+      - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr")).toHaveCount(1,15000)
+      - page.getByRole("button", "Test").click()
+      - expect(page.getByRole("alert")).toHaveText("passed",15000)
+      - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr[1]/td[5]")).toHaveText("passed",15000)
+      - page.getByRole("button", "Activate or disable").click()
+      - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr[1]/td[3]")).toHaveText("active",15000)
   browser:
     action: webdriver:run
     browser: chrome
@@ -82,8 +60,7 @@ pipeline:
       directory: ${runDir}/artifacts/webdriver
     commands:
       - page.goto("${browserURL}")
-      - page.getByLabel("Current
-        namespace").selectOption("${namespace.StructuredContent.namespaceId}")
+      - page.getByLabel("Current namespace").selectOption("${namespace.StructuredContent.namespaceId}")
       - page.locator(".studio-nav-components").click()
       - page.getByRole("button", "New component").click()
       - page.getByLabel("Component title").fill("Browser created component")
@@ -91,11 +68,10 @@ pipeline:
       - page.getByRole("menuitem", "browsercreate · sqlite").click()
       - page.getByRole("button", "Create component").click()
       - expect(page.getByRole("heading", "Root SQL")).toBeVisible(15000)
-      - expect(page.getByRole("main", "Component editor")).toBeVisible(15000)
+      - expect(page.locator("main[aria-label='Component editor']")).toBeVisible(15000)
       - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
       - page.getByLabel("Component visibility").selectOption("internal")
-      - page.locator(".studio-code-editor
-        [contenteditable='true']").fill("SELECT id FROM customers ORDER BY id")
+      - page.locator(".studio-code-editor [contenteditable='true']").fill("SELECT id FROM customers ORDER BY id")
       - page.getByRole("button", "Create reader").click()
       - expect(page.getByRole("heading", "Component graph")).toBeVisible(15000)
       - page.getByRole("button", "Edit component").click()
@@ -110,7 +86,7 @@ pipeline:
       - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='SearchName']]").click()
       - page.getByLabel("Input name").fill("NameFilter")
       - page.getByLabel("Kind source").fill("name")
-      - page.locator("xpath://summary[normalize-space(.)='Documentation']").click()
+      - page.locator("xpath://summary[normalize-space(.)='Documentation & testing']").click()
       - page.getByLabel("Description").fill("Filter customers by name")
       - page.getByRole("button", "Save input").click()
       - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
@@ -121,9 +97,7 @@ pipeline:
       - page.getByLabel("Confirm input name").fill("NameFilter")
       - page.getByRole("button", "Confirm removal").click()
       - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
-      - expect(page.locator(".studio-contract-panel
-        .studio-empty-compact")).toHaveText("No items in this input
-        catalog.",15000)
+      - expect(page.locator(".studio-contract-panel .studio-empty-compact")).toHaveText("No items in this input catalog.",15000)
       - page.getByRole("tab", "Outputs").click()
       - expect(page.getByRole("heading", "Output parameters")).toBeVisible(15000)
       - page.getByRole("button", "Add output").click()
@@ -161,18 +135,14 @@ pipeline:
       - page.getByLabel("Output name").fill("Metrics")
       - page.getByRole("button", "Kind source").click()
       - page.getByRole("menuitem", "metrics").click()
-      - expect(page.getByLabel("Type
-        expression")).toHaveValue("github.com/viant/xdatly/response.Metrics",15000)
+      - expect(page.getByLabel("Type expression")).toHaveValue("github.com/viant/xdatly/response.Metrics",15000)
       - page.getByRole("button", "Save output").click()
       - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("tab", "Result columns").click()
       - page.getByRole("button", "Edit root SQL").click()
-      - page.locator(".studio-view-workspace
-        [contenteditable='true']").fill("SELECT id, name, active FROM customers
-        ORDER BY id")
+      - page.locator(".studio-view-workspace [contenteditable='true']").fill("SELECT id, name, active FROM customers ORDER BY id")
       - page.getByRole("button", "Save SQL").click()
-      - expect(page.locator(".studio-sql-actions
-        .bp6-tag")).toHaveText("Saved",15000)
+      - expect(page.locator(".studio-sql-actions .bp6-tag")).toHaveText("Saved",15000)
       - page.getByRole("tab", "Outputs").click()
       - page.getByRole("tab", "Result columns").click()
       - expect(page.locator("xpath://div[contains(@class,'studio-contract-list')]//strong[translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='name']")).toBeVisible(15000)
@@ -191,10 +161,8 @@ pipeline:
       - expect(page.locator("xpath://section[contains(@class,'forge-nested-collection')]//td[normalize-space(.)='Ada']")).toBeVisible(15000)
       - expect(page.locator("xpath://section[contains(@class,'forge-nested-collection')]//th[normalize-space(.)='active']")).toHaveCount(0,15000)
       - page.getByRole("button", "JSON").click()
-      - "expect(page.locator(\".forge-preview-json\")).toContainText('\"status\
-        \": \"ok\"',15000)"
-      - "expect(page.locator(\".forge-preview-json\")).toContainText('\"metrics\
-        \": [',15000)"
+      - "expect(page.locator(\".forge-preview-json\")).toContainText('\"status\": \"ok\"',15000)"
+      - "expect(page.locator(\".forge-preview-json\")).toContainText('\"metrics\": [',15000)"
       - page.getByRole("button", "Validate").click()
       - page.getByRole("button", "Validate revision").click()
       - expect(page.getByText("Runtime contract is ready")).toBeVisible(15000)
@@ -205,10 +173,11 @@ pipeline:
   persist:
     action: dsunit:query
     datastore: studio
-    SQL: SELECT title,namespace,slug,default_connector_name FROM components WHERE
-      namespace='browsercreate'
+    SQL: SELECT title,namespace,slug,default_connector_name FROM components WHERE namespace='browsercreate'
     expect:
       - title: Browser created component
         namespace: browsercreate
         slug: browser-created-component
         default_connector_name: browsercreate
+init:
+  caseName: browsercreate

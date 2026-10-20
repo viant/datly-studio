@@ -9,20 +9,21 @@ pipeline:
     commands:
       - page.goto("${browserURL}")
       - page.locator(".studio-nav-namespaces").click()
-      - page.locator(".studio-namespace-actions .studio-catalog-primary-actions button[type='button']").click()
+      - page.getByRole("button", "New namespace").click()
       - page.getByLabel("Namespace").fill("${caseName}")
       - expect(page.getByLabel("Namespace")).toHaveValue("${caseName}",15000)
       - page.getByLabel("Display title").fill("${caseName}")
       - expect(page.getByLabel("Namespace")).toHaveValue("${caseName}",15000)
-      - page.getByLabel("Visibility").selectOption("public")
+      - page.getByRole("button", "Visibility").click()
+      - page.getByRole("menuitem", "Public").click()
       - page.getByLabel("Expose MCP").check()
-      - page.getByRole("button", "Create namespace").click()
+      - page.getByRole("button", "Save").click()
       - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
   namespace:
     action: mcp/runner:call
     url: $nativeMCP
     bearerTokenSecret: $ownerToken
-    '@name': studio.sdk.namespaces.get
+    "@name": studio.sdk.namespaces.get
     arguments:
       name: $caseName
   createComponentInUI:
@@ -37,19 +38,27 @@ pipeline:
       - page.getByLabel("Current namespace").selectOption("${namespace.StructuredContent.namespaceId}")
       - expect(page.getByLabel("Current namespace")).toHaveValue("${namespace.StructuredContent.namespaceId}",15000)
       - page.locator(".studio-nav-connectors").click()
-      - page.locator(".studio-catalog-primary-actions button[type='button']").click()
+      - page.getByRole("button", "New connector").click()
       - page.getByLabel("Name").fill("${caseName}")
-      - page.getByLabel("Provider").selectOption("sqlite")
-      - page.getByLabel("DSN template").fill("${runDir}/consumer.db")
-      - page.getByRole("button", "Create connector").click()
+      - page.getByLabel("Driver").click()
+      - page.getByRole("menuitem", "SQLite").click()
+      - page.getByLabel("DSN (blank keeps existing)").fill("${runDir}/consumer.db")
+      - page.getByRole("button", "Save").click()
       - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
-      - page.getByLabel("Search connectors").fill("${caseName}")
-      - page.getByLabel("Search connectors").press("Enter")
-      - page.locator("xpath://tr[.//*[normalize-space(.)='${caseName}']]//button[@aria-label='Test connector']").click()
-      - page.locator("xpath://tr[.//*[normalize-space(.)='${caseName}']]//button[@aria-label='Activate connector']").click()
+      - page.getByLabel("Find connector, driver, or owner").fill("${caseName}")
+      - page.getByRole("button", "Search").click()
+      - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr")).toHaveCount(1,15000)
+      - page.getByRole("button", "Test").click()
+      - expect(page.getByRole("alert")).toHaveText("passed",15000)
+      - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr[1]/td[5]")).toHaveText("passed",15000)
+      - page.getByRole("button", "Activate or disable").click()
+      - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr[1]/td[3]")).toHaveText("active",15000)
       - page.locator(".studio-nav-schema").click()
-      - page.getByLabel("Connector").selectOption("${caseName}")
-      - page.locator("xpath://button[@role='treeitem'][.//strong[normalize-space(.)='${caseName}_records']]").click()
+      - page.getByRole("button", "Connector").click()
+      - page.getByRole("menuitem", "${caseName}").click()
+      - page.getByLabel("Find tables or views").fill("${caseName}_records")
+      - page.getByRole("button", "Search tables").click()
+      - page.locator("xpath://tr[.//*[normalize-space(.)='${caseName}_records']]//button[@aria-label='Inspect table']").click()
       - page.getByRole("button", "Add as root view").click()
       - page.getByLabel("Component title").fill("${caseTitle}")
       - page.getByLabel("Slug").fill("${caseSlug}")
@@ -60,7 +69,7 @@ pipeline:
     action: mcp/runner:call
     url: $nativeMCP
     bearerTokenSecret: $ownerToken
-    '@name': studio.sdk.components.list
+    "@name": studio.sdk.components.list
     arguments:
       namespaceId: $namespace.StructuredContent.namespaceId
       limit: 10
@@ -69,7 +78,7 @@ pipeline:
     normalizeKVPairs: true
     actual: $components.StructuredContent
     expect:
-      '@length@items': 1
+      "@length@items": 1
       items:
         - title: $caseTitle
   graphInUI:
@@ -81,103 +90,141 @@ pipeline:
       directory: ${runDir}/artifacts/${caseName}
     commands:
       - page.locator(".studio-nav-schema").click()
-      - page.getByLabel("Connector").selectOption("${caseName}")
-      - page.locator("xpath://button[@role='treeitem'][.//strong[normalize-space(.)='${caseName}_contact']]").click()
+      - page.getByLabel("Connector").click()
+      - page.getByRole("menuitem", "${caseName}").click()
+      - page.getByLabel("Find tables or views").fill("${caseName}_contact")
+      - page.getByRole("button", "Search tables").click()
+      - page.locator("xpath://tr[.//*[normalize-space(.)='${caseName}_contact']]//button[@aria-label='Inspect table']").click()
       - page.getByRole("button", "Add as subview").click()
-      - page.getByLabel("Component").selectOption("${components.StructuredContent.items[0].id}")
+      - page.getByLabel("Component").click()
+      - page.getByRole("menuitem", "${caseTitle}").click()
+      - expect(page.getByRole("button", "Compile and open")).toBeEnabled(15000)
       - page.getByLabel("Child view identifier").fill("contact")
-      - page.getByLabel("Parent view").selectOption("record")
+      - page.getByLabel("Parent view").click()
+      - page.getByRole("menuitem", "record").click()
       - page.getByLabel("Relation keys").fill("contact.record_id=record.id")
       - page.getByRole("button", "Compile and open").click()
       - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
       - page.locator(".studio-nav-schema").click()
-      - page.getByLabel("Connector").selectOption("${caseName}")
-      - page.locator("xpath://button[@role='treeitem'][.//strong[normalize-space(.)='${caseName}_order']]").click()
+      - page.getByLabel("Connector").click()
+      - page.getByRole("menuitem", "${caseName}").click()
+      - page.getByLabel("Find tables or views").fill("${caseName}_order")
+      - page.getByRole("button", "Search tables").click()
+      - page.locator("xpath://tr[.//*[normalize-space(.)='${caseName}_order']]//button[@aria-label='Inspect table']").click()
       - page.getByRole("button", "Add as subview").click()
-      - page.getByLabel("Component").selectOption("${components.StructuredContent.items[0].id}")
+      - page.getByLabel("Component").click()
+      - page.getByRole("menuitem", "${caseTitle}").click()
+      - expect(page.getByRole("button", "Compile and open")).toBeEnabled(15000)
       - page.getByLabel("Child view identifier").fill("purchase")
-      - page.getByLabel("Parent view").selectOption("record")
+      - page.getByLabel("Parent view").click()
+      - page.getByRole("menuitem", "record").click()
       - page.getByLabel("Relation keys").fill("purchase.record_id=record.id")
       - page.getByRole("button", "Compile and open").click()
       - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
       - page.locator(".studio-nav-schema").click()
-      - page.getByLabel("Connector").selectOption("${caseName}")
-      - page.locator("xpath://button[@role='treeitem'][.//strong[normalize-space(.)='${caseName}_note']]").click()
+      - page.getByLabel("Connector").click()
+      - page.getByRole("menuitem", "${caseName}").click()
+      - page.getByLabel("Find tables or views").fill("${caseName}_note")
+      - page.getByRole("button", "Search tables").click()
+      - page.locator("xpath://tr[.//*[normalize-space(.)='${caseName}_note']]//button[@aria-label='Inspect table']").click()
       - page.getByRole("button", "Add as subview").click()
-      - page.getByLabel("Component").selectOption("${components.StructuredContent.items[0].id}")
+      - page.getByLabel("Component").click()
+      - page.getByRole("menuitem", "${caseTitle}").click()
+      - expect(page.getByRole("button", "Compile and open")).toBeEnabled(15000)
       - page.getByLabel("Child view identifier").fill("note")
-      - page.getByLabel("Parent view").selectOption("record")
+      - page.getByLabel("Parent view").click()
+      - page.getByRole("menuitem", "record").click()
       - page.getByLabel("Relation keys").fill("note.record_id=record.id")
       - page.getByRole("button", "Compile and open").click()
       - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
       - page.getByRole("tab", "Inputs").click()
+      - page.locator("#reader-input-parameters-tab").click()
       - page.getByRole("button", "Add input").click()
       - page.getByLabel("Input name").fill("CustomerID")
       - page.getByLabel("Type expression").fill("int")
       - page.getByLabel("Kind source").fill("customerId")
-      - page.locator(".studio-inline-contract-form button[type='submit']").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Save input").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("tab", "Inputs").click()
       - page.locator("#reader-input-predicates-tab").click()
       - page.getByRole("button", "Add predicate").click()
-      - page.getByLabel("Parameter").fill("CustomerID")
-      - page.getByLabel("Target view").selectOption("record")
-      - page.getByLabel("Predicate").selectOption("equal")
-      - page.locator(".studio-predicate-arguments summary").click()
-      - page.getByLabel("Predicate arguments").fill("${caseName}_records, id")
-      - page.locator(".studio-inline-contract-form button[type='submit']").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByLabel("Input").click()
+      - page.getByRole("menuitem", "CustomerID").click()
+      - page.getByLabel("Target view").click()
+      - page.locator("xpath://*[@role='menuitem'][normalize-space(.)='record' or contains(normalize-space(.),'(record)')]").click()
+      - page.getByLabel("Predicate").click()
+      - page.getByRole("menuitem", "equal").click()
+      - page.getByLabel("SQL alias").fill("${caseName}_records")
+      - page.getByLabel("Filter dimension").click()
+      - page.locator("xpath://*[@role='menuitem'][normalize-space(.)='id' or contains(normalize-space(.),'(id)')]").click()
+      - page.getByRole("button", "Save predicate").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("tab", "Inputs").click()
+      - page.locator("#reader-input-parameters-tab").click()
       - page.getByRole("button", "Add input").click()
       - page.getByLabel("Input name").fill("Name")
       - page.getByLabel("Type expression").fill("string")
       - page.getByLabel("Kind source").fill("name")
-      - page.locator(".studio-inline-contract-form button[type='submit']").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Save input").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("tab", "Inputs").click()
       - page.locator("#reader-input-predicates-tab").click()
       - page.getByRole("button", "Add predicate").click()
-      - page.getByLabel("Parameter").fill("Name")
-      - page.getByLabel("Target view").selectOption("record")
-      - page.getByLabel("Predicate").selectOption("equal")
-      - page.locator(".studio-predicate-arguments summary").click()
-      - page.getByLabel("Predicate arguments").fill("${caseName}_records, name")
-      - page.locator(".studio-inline-contract-form button[type='submit']").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByLabel("Input").click()
+      - page.getByRole("menuitem", "Name").click()
+      - page.getByLabel("Target view").click()
+      - page.locator("xpath://*[@role='menuitem'][normalize-space(.)='record' or contains(normalize-space(.),'(record)')]").click()
+      - page.getByLabel("Predicate").click()
+      - page.getByRole("menuitem", "equal").click()
+      - page.getByLabel("SQL alias").fill("${caseName}_records")
+      - page.getByLabel("Filter dimension").click()
+      - page.locator("xpath://*[@role='menuitem'][normalize-space(.)='name' or contains(normalize-space(.),'(name)')]").click()
+      - page.getByRole("button", "Save predicate").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("tab", "Inputs").click()
+      - page.locator("#reader-input-parameters-tab").click()
       - page.getByRole("button", "Add input").click()
       - page.getByLabel("Input name").fill("State")
       - page.getByLabel("Type expression").fill("string")
       - page.getByLabel("Kind source").fill("state")
-      - page.locator(".studio-inline-contract-form button[type='submit']").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Save input").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("tab", "Inputs").click()
       - page.locator("#reader-input-predicates-tab").click()
       - page.getByRole("button", "Add predicate").click()
-      - page.getByLabel("Parameter").fill("State")
-      - page.getByLabel("Target view").selectOption("record")
-      - page.getByLabel("Predicate").selectOption("equal")
-      - page.locator(".studio-predicate-arguments summary").click()
-      - page.getByLabel("Predicate arguments").fill("${caseName}_records, state")
-      - page.locator(".studio-inline-contract-form button[type='submit']").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByLabel("Input").click()
+      - page.getByRole("menuitem", "State").click()
+      - page.getByLabel("Target view").click()
+      - page.locator("xpath://*[@role='menuitem'][normalize-space(.)='record' or contains(normalize-space(.),'(record)')]").click()
+      - page.getByLabel("Predicate").click()
+      - page.getByRole("menuitem", "equal").click()
+      - page.getByLabel("SQL alias").fill("${caseName}_records")
+      - page.getByLabel("Filter dimension").click()
+      - page.locator("xpath://*[@role='menuitem'][normalize-space(.)='state' or contains(normalize-space(.),'(state)')]").click()
+      - page.getByRole("button", "Save predicate").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("tab", "Inputs").click()
+      - page.locator("#reader-input-parameters-tab").click()
       - page.getByRole("button", "Add input").click()
       - page.getByLabel("Input name").fill("Score")
       - page.getByLabel("Type expression").fill("int")
       - page.getByLabel("Kind source").fill("score")
-      - page.locator(".studio-inline-contract-form button[type='submit']").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Save input").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("tab", "Inputs").click()
       - page.locator("#reader-input-predicates-tab").click()
       - page.getByRole("button", "Add predicate").click()
-      - page.getByLabel("Parameter").fill("Score")
-      - page.getByLabel("Target view").selectOption("record")
-      - page.getByLabel("Predicate").selectOption("equal")
-      - page.locator(".studio-predicate-arguments summary").click()
-      - page.getByLabel("Predicate arguments").fill("${caseName}_records, score")
-      - page.locator(".studio-inline-contract-form button[type='submit']").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByLabel("Input").click()
+      - page.getByRole("menuitem", "Score").click()
+      - page.getByLabel("Target view").click()
+      - page.locator("xpath://*[@role='menuitem'][normalize-space(.)='record' or contains(normalize-space(.),'(record)')]").click()
+      - page.getByLabel("Predicate").click()
+      - page.getByRole("menuitem", "equal").click()
+      - page.getByLabel("SQL alias").fill("${caseName}_records")
+      - page.getByLabel("Filter dimension").click()
+      - page.locator("xpath://*[@role='menuitem'][normalize-space(.)='score' or contains(normalize-space(.),'(score)')]").click()
+      - page.getByRole("button", "Save predicate").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
   authorInUI:
     action: webdriver:run
     sessionID: localhost:4445
@@ -215,7 +262,7 @@ pipeline:
     action: mcp/runner:call
     url: $nativeMCP
     bearerTokenSecret: $ownerToken
-    '@name': studio.sdk.versions.list
+    "@name": studio.sdk.versions.list
     arguments:
       namespaceId: $namespace.StructuredContent.namespaceId
       reportId: $components.StructuredContent.items[0].id
@@ -228,7 +275,7 @@ pipeline:
     action: mcp/runner:call
     url: $nativeMCP
     bearerTokenSecret: $ownerToken
-    '@name': studio.sdk.runtime.status
+    "@name": studio.sdk.runtime.status
     arguments:
       namespaceId: $namespace.StructuredContent.namespaceId
     allowToolError: true
@@ -240,17 +287,34 @@ pipeline:
     normalizeKVPairs: true
     actual: $runtime.StructuredContent.host.status
     expect: ready
+  publishInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/${caseName}
+    commands:
+      - page.goto("${browserURL}")
+      - page.locator(".studio-nav-components").click()
+      - page.locator("input[placeholder='Find title, slug, or description']").fill("${caseTitle}")
+      - page.getByRole("button", "Search components").click()
+      - expect(page.locator("xpath://div[@data-forge-container-id='catalog-rows']//tbody/tr")).toHaveCount(1,15000)
+      - page.getByRole("button", "Open Reader Builder").click()
+      - expect(page.getByRole("heading", "Component graph")).toBeVisible(15000)
+      - page.getByRole("button", "Release").click()
+      - expect(page.getByRole("button", "Publish selected version")).toBeEnabled(15000)
+      - page.getByRole("button", "Publish selected version").click()
+      - expect(page.locator(".studio-publication-dialog .bp6-intent-success[role='status']")).toBeVisible(30000)
+      - page.locator("xpath://div[contains(@class,'bp6-dialog-footer-actions')]//button[normalize-space(.)='Close']").click()
   publish:
     action: mcp/runner:call
     url: $nativeMCP
     bearerTokenSecret: $ownerToken
-    '@name': studio.sdk.publications.publish
+    "@name": studio.sdk.publications.get
     arguments:
       namespaceId: $namespace.StructuredContent.namespaceId
       reportId: $components.StructuredContent.items[0].id
-      versionNo: $versions.StructuredContent.items[0].versionNo
-      input:
-        expectedSourceRevision: $versions.StructuredContent.items[0].sourceRevision
   published:
     action: validator:assert
     normalizeKVPairs: true
@@ -260,7 +324,7 @@ pipeline:
     action: mcp/runner:call
     url: $nativeMCP
     bearerTokenSecret: $ownerToken
-    '@name': studio.sdk.runtime.status
+    "@name": studio.sdk.runtime.status
     arguments:
       namespaceId: $namespace.StructuredContent.namespaceId
   allowedCatalog:
@@ -272,14 +336,14 @@ pipeline:
     normalizeKVPairs: true
     actual: $allowedCatalog
     expect:
-      '@length@Tools': 1
+      "@length@Tools": 1
       Tools:
         - Name: ${caseTool}
   invokeAllowed:
     action: mcp/runner:call
     url: $endpoint.StructuredContent.host.mcpUrl
     bearerTokenSecret: ${runDir}/${allowedUser}.token
-    '@name': ${caseTool}
+    "@name": ${caseTool}
     arguments: {}
   returnedData:
     action: validator:assert
@@ -288,7 +352,7 @@ pipeline:
     expect:
       IsError: false
       StructuredContent:
-        '@length@records': 2
+        "@length@records": 2
         records:
           - id: 10
             name: ${caseName} first
@@ -312,12 +376,12 @@ pipeline:
     normalizeKVPairs: true
     actual: $deniedCatalog
     expect:
-      '@length@Tools': 0
+      "@length@Tools": 0
   invokeDenied:
     action: mcp/runner:call
     url: $endpoint.StructuredContent.host.mcpUrl
     bearerTokenSecret: ${runDir}/${deniedUser}.token
-    '@name': ${caseTool}
+    "@name": ${caseTool}
     arguments: {}
     allowProtocolError: true
     allowToolError: true
@@ -332,7 +396,7 @@ pipeline:
     action: mcp/runner:call
     url: $endpoint.StructuredContent.host.mcpUrl
     bearerTokenSecret: ${runDir}/${allowedUser}.token
-    '@name': ${caseTool}
+    "@name": ${caseTool}
     arguments:
       CustomerID: 10
   verifyCustomerID:
@@ -342,7 +406,7 @@ pipeline:
     expect:
       IsError: false
       StructuredContent:
-        '@length@records': 1
+        "@length@records": 1
         records:
           - id: 10
             name: ui_complex first
@@ -350,7 +414,7 @@ pipeline:
     action: mcp/runner:call
     url: $endpoint.StructuredContent.host.mcpUrl
     bearerTokenSecret: ${runDir}/${allowedUser}.token
-    '@name': ${caseTool}
+    "@name": ${caseTool}
     arguments:
       Name: ui_complex first
   verifyName:
@@ -360,7 +424,7 @@ pipeline:
     expect:
       IsError: false
       StructuredContent:
-        '@length@records': 1
+        "@length@records": 1
         records:
           - id: 10
             name: ui_complex first
@@ -368,7 +432,7 @@ pipeline:
     action: mcp/runner:call
     url: $endpoint.StructuredContent.host.mcpUrl
     bearerTokenSecret: ${runDir}/${allowedUser}.token
-    '@name': ${caseTool}
+    "@name": ${caseTool}
     arguments:
       State: active
   verifyState:
@@ -378,7 +442,7 @@ pipeline:
     expect:
       IsError: false
       StructuredContent:
-        '@length@records': 1
+        "@length@records": 1
         records:
           - id: 10
             name: ui_complex first
@@ -386,7 +450,7 @@ pipeline:
     action: mcp/runner:call
     url: $endpoint.StructuredContent.host.mcpUrl
     bearerTokenSecret: ${runDir}/${allowedUser}.token
-    '@name': ${caseTool}
+    "@name": ${caseTool}
     arguments:
       Score: 90
   verifyScore:
@@ -396,7 +460,7 @@ pipeline:
     expect:
       IsError: false
       StructuredContent:
-        '@length@records': 1
+        "@length@records": 1
         records:
           - id: 10
             name: ui_complex first
@@ -423,41 +487,50 @@ pipeline:
       - page.getByRole("button", "Save column contract").click()
       - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
       - page.getByRole("tab", "Inputs").click()
+      - page.locator("#reader-input-parameters-tab").click()
       - page.getByRole("button", "Add input").click()
       - page.getByLabel("Input name").fill("Region")
       - page.getByLabel("Type expression").fill("string")
       - page.getByLabel("Kind source").fill("region")
-      - page.locator(".studio-inline-contract-form button[type='submit']").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Save input").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("tab", "Inputs").click()
       - page.locator("#reader-input-predicates-tab").click()
       - page.getByRole("button", "Add predicate").click()
-      - page.getByLabel("Parameter").fill("Region")
-      - page.getByLabel("Target view").selectOption("record")
-      - page.getByLabel("Predicate").selectOption("equal")
-      - page.locator(".studio-predicate-arguments summary").click()
-      - page.getByLabel("Predicate arguments").fill("${caseName}_records, region")
-      - page.locator(".studio-inline-contract-form button[type='submit']").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByLabel("Input").click()
+      - page.getByRole("menuitem", "Region").click()
+      - page.getByLabel("Target view").click()
+      - page.locator("xpath://*[@role='menuitem'][normalize-space(.)='record' or contains(normalize-space(.),'(record)')]").click()
+      - page.getByLabel("Predicate").click()
+      - page.getByRole("menuitem", "equal").click()
+      - page.getByLabel("SQL alias").fill("${caseName}_records")
+      - page.getByLabel("Filter dimension").click()
+      - page.locator("xpath://*[@role='menuitem'][normalize-space(.)='region' or contains(normalize-space(.),'(region)')]").click()
+      - page.getByRole("button", "Save predicate").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("tab", "Inputs").click()
+      - page.locator("#reader-input-parameters-tab").click()
       - page.getByRole("button", "Add input").click()
       - page.getByLabel("Input name").fill("ContactLabel")
       - page.getByLabel("Type expression").fill("string")
       - page.getByLabel("Kind source").fill("contactLabel")
-      - page.locator(".studio-inline-contract-form button[type='submit']").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Save input").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("tab", "Inputs").click()
       - page.locator("#reader-input-predicates-tab").click()
       - page.getByRole("button", "Add predicate").click()
-      - page.getByLabel("Parameter").fill("ContactLabel")
-      - page.getByLabel("Target view").selectOption("contact")
-      - page.locator(".studio-predicate-options summary").click()
+      - page.getByLabel("Input").click()
+      - page.getByRole("menuitem", "ContactLabel").click()
+      - page.getByLabel("Target view").click()
+      - page.locator("xpath://*[@role='menuitem'][normalize-space(.)='contact' or contains(normalize-space(.),'(contact)')]").click()
       - page.getByLabel("Group").fill("2")
-      - page.getByLabel("Predicate").selectOption("equal")
-      - page.locator(".studio-predicate-arguments summary").click()
-      - page.getByLabel("Predicate arguments").fill("${caseName}_contact, label")
-      - page.locator(".studio-inline-contract-form button[type='submit']").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByLabel("Predicate").click()
+      - page.getByRole("menuitem", "equal").click()
+      - page.getByLabel("SQL alias").fill("${caseName}_contact")
+      - page.getByLabel("Filter dimension").click()
+      - page.locator("xpath://*[@role='menuitem'][normalize-space(.)='label' or contains(normalize-space(.),'(label)')]").click()
+      - page.getByRole("button", "Save predicate").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("button", "Validate").click()
       - page.getByRole("button", "Validate revision").click()
       - expect(page.getByText("Runtime contract is ready")).toBeVisible(15000)
@@ -472,15 +545,16 @@ pipeline:
     commands:
       - page.locator(".studio-nav-security").click()
       - page.getByLabel("Find a resource").fill("${caseTitle}")
-      - page.getByRole("button", "${caseTitle}").click()
-      - expect(page.locator(".studio-resource-access-heading .bp6-tag")).toHaveText("Policy revision 1",15000)
-      - expect(page.locator(".studio-resource-access-heading")).toContainText("version 2",15000)
+      - page.getByRole("button", "Search resources").click()
+      - page.locator("xpath://tr[.//*[normalize-space(.)='${caseTitle}']]//button[@aria-label='Open permissions']").click()
+      - expect(page.locator(".forge-resource-access-heading .bp6-tag")).toHaveText("Policy revision 1",15000)
+      - expect(page.locator(".forge-resource-access-heading")).toContainText("version 2",15000)
       - page.locator(".studio-nav-namespaces").click()
   secondVersions:
     action: mcp/runner:call
     url: $nativeMCP
     bearerTokenSecret: $ownerToken
-    '@name': studio.sdk.versions.list
+    "@name": studio.sdk.versions.list
     arguments:
       namespaceId: $namespace.StructuredContent.namespaceId
       reportId: $components.StructuredContent.items[0].id
@@ -491,17 +565,34 @@ pipeline:
     expect:
       versionNo: 2
       compileStatus: valid
+  republishInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/${caseName}
+    commands:
+      - page.goto("${browserURL}")
+      - page.locator(".studio-nav-components").click()
+      - page.locator("input[placeholder='Find title, slug, or description']").fill("${caseTitle}")
+      - page.getByRole("button", "Search components").click()
+      - expect(page.locator("xpath://div[@data-forge-container-id='catalog-rows']//tbody/tr")).toHaveCount(1,15000)
+      - page.getByRole("button", "Open Reader Builder").click()
+      - expect(page.getByRole("heading", "Component graph")).toBeVisible(15000)
+      - page.getByRole("button", "Release").click()
+      - expect(page.getByRole("button", "Publish selected version")).toBeEnabled(15000)
+      - page.getByRole("button", "Publish selected version").click()
+      - expect(page.locator(".studio-publication-dialog .bp6-intent-success[role='status']")).toBeVisible(30000)
+      - page.locator("xpath://div[contains(@class,'bp6-dialog-footer-actions')]//button[normalize-space(.)='Close']").click()
   republish:
     action: mcp/runner:call
     url: $nativeMCP
     bearerTokenSecret: $ownerToken
-    '@name': studio.sdk.publications.publish
+    "@name": studio.sdk.publications.get
     arguments:
       namespaceId: $namespace.StructuredContent.namespaceId
       reportId: $components.StructuredContent.items[0].id
-      versionNo: 2
-      input:
-        expectedSourceRevision: $secondVersions.StructuredContent.items[0].sourceRevision
   secondPublication:
     action: validator:assert
     normalizeKVPairs: true
@@ -518,7 +609,7 @@ pipeline:
     normalizeKVPairs: true
     actual: $secondCatalog
     expect:
-      '@length@Tools': 1
+      "@length@Tools": 1
       Tools:
         - Name: ${caseTool}
           InputSchema:
@@ -531,7 +622,7 @@ pipeline:
     action: mcp/runner:call
     url: $endpoint.StructuredContent.host.mcpUrl
     bearerTokenSecret: ${runDir}/${allowedUser}.token
-    '@name': ${caseTool}
+    "@name": ${caseTool}
     arguments:
       Region: east
       ContactLabel: secondary
@@ -542,15 +633,15 @@ pipeline:
     expect:
       IsError: false
       StructuredContent:
-        '@length@records': 1
+        "@length@records": 1
         records:
           - id: 20
             name: ui_complex second
-            '@length@contact': 1
+            "@length@contact": 1
             contact:
               - id: 201
                 label: secondary
-                '@exists@detail': false
+                "@exists@detail": false
             purchase:
               - id: 202
                 amount: 240
@@ -561,7 +652,7 @@ pipeline:
     action: mcp/runner:call
     url: $endpoint.StructuredContent.host.mcpUrl
     bearerTokenSecret: ${runDir}/${allowedUser}.token
-    '@name': ${caseTool}
+    "@name": ${caseTool}
     arguments:
       CustomerID: 10
       Name: ui_complex first
@@ -576,10 +667,10 @@ pipeline:
     expect:
       IsError: false
       StructuredContent:
-        '@length@records': 1
+        "@length@records": 1
         records:
           - id: 10
             contact:
               - id: 101
                 label: primary
-                '@exists@detail': false
+                "@exists@detail": false

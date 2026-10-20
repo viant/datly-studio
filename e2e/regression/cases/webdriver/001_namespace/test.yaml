@@ -7,10 +7,10 @@ pipeline:
     commands:
       - page.goto("${browserURL}")
       - page.getByRole("button", "Namespaces").click()
-      - page.locator(".studio-namespace-actions .studio-catalog-primary-actions button[type='button']").click()
+      - page.getByRole("button", "New namespace").click()
       - page.getByLabel("Namespace").fill("browsernamespace")
       - page.getByLabel("Display title").fill("Browser namespace")
-      - page.getByRole("button", "Create namespace").click()
+      - page.getByRole("button", "Save").click()
       - expect(page.locator("xpath://td[normalize-space(.)='Browser namespace']")).toBeVisible(15000)
     sessionID: localhost:4445
     autoStart: false

@@ -7,17 +7,18 @@ pipeline:
     failureArtifacts:
       directory: ${runDir}/artifacts/${caseName}
     commands:
-      - page.goto("${browserURL}")
-      - page.locator(".studio-nav-namespaces").click()
-      - page.locator(".studio-namespace-actions .studio-catalog-primary-actions button[type='button']").click()
-      - page.getByLabel("Namespace").fill("${caseName}")
-      - expect(page.getByLabel("Namespace")).toHaveValue("${caseName}",15000)
-      - page.getByLabel("Display title").fill("${caseName}")
-      - expect(page.getByLabel("Namespace")).toHaveValue("${caseName}",15000)
-      - page.getByLabel("Visibility").selectOption("public")
-      - page.getByLabel("Expose MCP").check()
-      - page.getByRole("button", "Create namespace").click()
-      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+    - page.goto("${browserURL}")
+    - page.locator(".studio-nav-namespaces").click()
+    - page.getByRole("button", "New namespace").click()
+    - page.getByLabel("Namespace").fill("${caseName}")
+    - expect(page.getByLabel("Namespace")).toHaveValue("${caseName}",15000)
+    - page.getByLabel("Display title").fill("${caseName}")
+    - expect(page.getByLabel("Namespace")).toHaveValue("${caseName}",15000)
+    - page.getByRole("button", "Visibility").click()
+    - page.getByRole("menuitem", "Public").click()
+    - page.getByLabel("Expose MCP").check()
+    - page.getByRole("button", "Save").click()
+    - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
   namespace:
     action: mcp/runner:call
     url: $nativeMCP
@@ -33,29 +34,37 @@ pipeline:
     failureArtifacts:
       directory: ${runDir}/artifacts/${caseName}
     commands:
-      - expect(page.getByLabel("Current namespace")).toBeEnabled(15000)
-      - page.getByLabel("Current namespace").selectOption("${namespace.StructuredContent.namespaceId}")
-      - expect(page.getByLabel("Current namespace")).toHaveValue("${namespace.StructuredContent.namespaceId}",15000)
-      - page.locator(".studio-nav-connectors").click()
-      - page.locator(".studio-catalog-primary-actions button[type='button']").click()
-      - page.getByLabel("Name").fill("${caseName}")
-      - page.getByLabel("Provider").selectOption("sqlite")
-      - page.getByLabel("DSN template").fill("${runDir}/consumer.db")
-      - page.getByRole("button", "Create connector").click()
-      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
-      - page.getByLabel("Search connectors").fill("${caseName}")
-      - page.getByLabel("Search connectors").press("Enter")
-      - page.locator("xpath://tr[.//*[normalize-space(.)='${caseName}']]//button[@aria-label='Test connector']").click()
-      - page.locator("xpath://tr[.//*[normalize-space(.)='${caseName}']]//button[@aria-label='Activate connector']").click()
-      - page.locator(".studio-nav-schema").click()
-      - page.getByLabel("Connector").selectOption("${caseName}")
-      - page.locator("xpath://button[@role='treeitem'][.//strong[normalize-space(.)='${caseName}_records']]").click()
-      - page.getByRole("button", "Add as root view").click()
-      - page.getByLabel("Component title").fill("${caseTitle}")
-      - page.getByLabel("Slug").fill("${caseSlug}")
-      - page.getByLabel("Root view identifier").fill("record")
-      - page.getByRole("button", "Create component").click()
-      - expect(page.getByRole("button", "Edit component")).toBeVisible(15000)
+    - expect(page.getByLabel("Current namespace")).toBeEnabled(15000)
+    - page.getByLabel("Current namespace").selectOption("${namespace.StructuredContent.namespaceId}")
+    - expect(page.getByLabel("Current namespace")).toHaveValue("${namespace.StructuredContent.namespaceId}",15000)
+    - page.locator(".studio-nav-connectors").click()
+    - page.getByRole("button", "New connector").click()
+    - page.getByLabel("Name").fill("${caseName}")
+    - page.getByLabel("Driver").click()
+    - page.getByRole("menuitem", "SQLite").click()
+    - page.getByLabel("DSN (blank keeps existing)").fill("${runDir}/consumer.db")
+    - page.getByRole("button", "Save").click()
+    - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+    - page.getByLabel("Find connector, driver, or owner").fill("${caseName}")
+    - page.getByRole("button", "Search").click()
+    - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr")).toHaveCount(1,15000)
+    - page.getByRole("button", "Test").click()
+    - expect(page.getByRole("alert")).toHaveText("passed",15000)
+    - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr[1]/td[5]")).toHaveText("passed",15000)
+    - page.getByRole("button", "Activate or disable").click()
+    - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr[1]/td[3]")).toHaveText("active",15000)
+    - page.locator(".studio-nav-schema").click()
+    - page.getByRole("button", "Connector").click()
+    - page.getByRole("menuitem", "${caseName}").click()
+    - page.getByLabel("Find tables or views").fill("${caseName}_records")
+    - page.getByRole("button", "Search tables").click()
+    - page.locator("xpath://tr[.//*[normalize-space(.)='${caseName}_records']]//button[@aria-label='Inspect table']").click()
+    - page.getByRole("button", "Add as root view").click()
+    - page.getByLabel("Component title").fill("${caseTitle}")
+    - page.getByLabel("Slug").fill("${caseSlug}")
+    - page.getByLabel("Root view identifier").fill("record")
+    - page.getByRole("button", "Create component").click()
+    - expect(page.getByRole("button", "Edit component")).toBeVisible(15000)
   components:
     action: mcp/runner:call
     url: $nativeMCP
@@ -85,7 +94,7 @@ pipeline:
       - page.locator(".studio-view-workspace [contenteditable='true']").fill("SELECT c.region, c.channel, SUM(c.amount) AS total FROM ui_compose_records c GROUP BY c.region, c.channel")
       - page.getByRole("button", "Save SQL").click()
       - expect(page.locator(".studio-sql-actions .bp6-tag")).toHaveText("Saved",15000)
-      - page.locator("#component-workspace-tab-component").click()
+      - page.getByRole("tab", "Graph").click()
       - page.locator(".studio-view-select").click()
       - page.getByRole("button", "Manage columns").click()
       - page.getByLabel("SQL output alias").fill("total")
@@ -111,39 +120,49 @@ pipeline:
       - page.getByRole("button", "Save column contract").click()
       - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
       - page.getByRole("tab", "Inputs").click()
+      - page.locator("#reader-input-parameters-tab").click()
       - page.getByRole("button", "Add input").click()
       - page.getByLabel("Input name").fill("Region")
       - page.getByLabel("Type expression").fill("string")
       - page.getByLabel("Kind source").fill("region")
-      - page.locator(".studio-inline-contract-form button[type='submit']").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Save input").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("tab", "Inputs").click()
       - page.locator("#reader-input-predicates-tab").click()
       - page.getByRole("button", "Add predicate").click()
-      - page.getByLabel("Parameter").fill("Region")
-      - page.getByLabel("Target view").selectOption("record")
-      - page.getByLabel("Predicate").selectOption("equal")
-      - page.locator(".studio-predicate-arguments summary").click()
-      - page.getByLabel("Predicate arguments").fill("c, region")
-      - page.locator(".studio-inline-contract-form button[type='submit']").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByLabel("Input").click()
+      - page.getByRole("menuitem", "Region").click()
+      - page.getByLabel("Target view").click()
+      - page.locator("xpath://*[@role='menuitem'][normalize-space(.)='record' or contains(normalize-space(.),'(record)')]").click()
+      - page.getByLabel("Predicate").click()
+      - page.getByRole("menuitem", "equal").click()
+      - page.getByLabel("SQL alias").fill("c")
+      - page.getByLabel("Filter dimension").click()
+      - page.locator("xpath://*[@role='menuitem'][normalize-space(.)='region' or contains(normalize-space(.),'(region)')]").click()
+      - page.getByRole("button", "Save predicate").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("tab", "Inputs").click()
+      - page.locator("#reader-input-parameters-tab").click()
       - page.getByRole("button", "Add input").click()
       - page.getByLabel("Input name").fill("Channel")
       - page.getByLabel("Type expression").fill("string")
       - page.getByLabel("Kind source").fill("channel")
-      - page.locator(".studio-inline-contract-form button[type='submit']").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByRole("button", "Save input").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("tab", "Inputs").click()
       - page.locator("#reader-input-predicates-tab").click()
       - page.getByRole("button", "Add predicate").click()
-      - page.getByLabel("Parameter").fill("Channel")
-      - page.getByLabel("Target view").selectOption("record")
-      - page.getByLabel("Predicate").selectOption("equal")
-      - page.locator(".studio-predicate-arguments summary").click()
-      - page.getByLabel("Predicate arguments").fill("c, channel")
-      - page.locator(".studio-inline-contract-form button[type='submit']").click()
-      - expect(page.locator(".studio-inline-contract-form")).toHaveCount(0,15000)
+      - page.getByLabel("Input").click()
+      - page.getByRole("menuitem", "Channel").click()
+      - page.getByLabel("Target view").click()
+      - page.locator("xpath://*[@role='menuitem'][normalize-space(.)='record' or contains(normalize-space(.),'(record)')]").click()
+      - page.getByLabel("Predicate").click()
+      - page.getByRole("menuitem", "equal").click()
+      - page.getByLabel("SQL alias").fill("c")
+      - page.getByLabel("Filter dimension").click()
+      - page.locator("xpath://*[@role='menuitem'][normalize-space(.)='channel' or contains(normalize-space(.),'(channel)')]").click()
+      - page.getByRole("button", "Save predicate").click()
+      - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
   dictionaryInUI:
     action: webdriver:run
     sessionID: localhost:4445
@@ -153,24 +172,34 @@ pipeline:
       directory: ${runDir}/artifacts/${caseName}
     commands:
       - page.locator(".studio-nav-connectors").click()
-      - page.locator(".studio-catalog-primary-actions button[type='button']").click()
+      - page.getByRole("button", "New connector").click()
       - page.getByLabel("Name").fill("ui_compose_dictionary")
-      - page.getByLabel("Provider").selectOption("sqlite")
-      - page.getByLabel("DSN template").fill("${runDir}/dictionary.db")
-      - page.getByRole("button", "Create connector").click()
+      - page.getByLabel("Driver").click()
+      - page.getByRole("menuitem", "SQLite").click()
+      - page.getByLabel("DSN (blank keeps existing)").fill("${runDir}/dictionary.db")
+      - page.getByRole("button", "Save").click()
       - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
-      - page.getByLabel("Search connectors").fill("ui_compose_dictionary")
-      - page.getByLabel("Search connectors").press("Enter")
-      - page.locator("xpath://tr[.//*[normalize-space(.)='ui_compose_dictionary']]//button[@aria-label='Test connector']").click()
-      - page.locator("xpath://tr[.//*[normalize-space(.)='ui_compose_dictionary']]//button[@aria-label='Activate connector']").click()
+      - page.getByLabel("Find connector, driver, or owner").fill("ui_compose_dictionary")
+      - page.getByRole("button", "Search").click()
+      - page.locator("xpath://tr[.//*[normalize-space(.)='ui_compose_dictionary']]//button[@aria-label='Test']").click()
+      - expect(page.getByRole("alert")).toHaveText("passed",15000)
+      - page.locator("xpath://tr[.//*[normalize-space(.)='ui_compose_dictionary']]//button[@aria-label='Activate or disable']").click()
+      - expect(page.locator("xpath://tr[.//*[normalize-space(.)='ui_compose_dictionary']]/td[3]")).toHaveText("active",15000)
       - page.locator(".studio-nav-schema").click()
-      - page.getByLabel("Connector").selectOption("ui_compose_dictionary")
-      - page.locator("xpath://button[@role='treeitem'][.//strong[normalize-space(.)='ui_compose_regions']]").click()
+      - page.getByLabel("Connector").click()
+      - page.getByRole("menuitem", "ui_compose_dictionary").click()
+      - page.getByLabel("Find tables or views").fill("ui_compose_regions")
+      - page.getByRole("button", "Search tables").click()
+      - page.locator("xpath://tr[.//*[normalize-space(.)='ui_compose_regions']]//button[@aria-label='Inspect table']").click()
       - page.getByRole("button", "Add as subview").click()
-      - page.getByLabel("Component").selectOption("${components.StructuredContent.items[0].id}")
+      - page.getByLabel("Component").click()
+      - page.getByRole("menuitem", "${caseTitle}").click()
+      - expect(page.getByRole("button", "Compile and open")).toBeEnabled(15000)
       - page.getByLabel("Child view identifier").fill("region_info")
-      - page.getByLabel("Parent view").selectOption("record")
-      - page.getByLabel("Relationship").selectOption("lookup")
+      - page.getByLabel("Parent view").click()
+      - page.getByRole("menuitem", "record").click()
+      - page.getByLabel("Relationship").click()
+      - page.getByRole("menuitem", "Optional single lookup").click()
       - page.getByLabel("Relation keys").fill("region_info.code=record.region")
       - page.getByRole("button", "Compile and open").click()
       - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
@@ -287,17 +316,34 @@ pipeline:
     normalizeKVPairs: true
     actual: $runtime.StructuredContent.host.status
     expect: ready
+  publishInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: "${runDir}/artifacts/${caseName}"
+    commands:
+    - page.goto("${browserURL}")
+    - page.locator(".studio-nav-components").click()
+    - page.locator("input[placeholder='Find title, slug, or description']").fill("${caseTitle}")
+    - page.getByRole("button", "Search components").click()
+    - expect(page.locator("xpath://div[@data-forge-container-id='catalog-rows']//tbody/tr")).toHaveCount(1,15000)
+    - page.getByRole("button", "Open Reader Builder").click()
+    - expect(page.getByRole("heading", "Component graph")).toBeVisible(15000)
+    - page.getByRole("button", "Release").click()
+    - expect(page.getByRole("button", "Publish selected version")).toBeEnabled(15000)
+    - page.getByRole("button", "Publish selected version").click()
+    - expect(page.locator(".studio-publication-dialog .bp6-intent-success[role='status']")).toBeVisible(30000)
+    - page.locator("xpath://div[contains(@class,'bp6-dialog-footer-actions')]//button[normalize-space(.)='Close']").click()
   publish:
     action: mcp/runner:call
-    url: $nativeMCP
-    bearerTokenSecret: $ownerToken
-    '@name': studio.sdk.publications.publish
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.publications.get
     arguments:
-      namespaceId: $namespace.StructuredContent.namespaceId
-      reportId: $components.StructuredContent.items[0].id
-      versionNo: $versions.StructuredContent.items[0].versionNo
-      input:
-        expectedSourceRevision: $versions.StructuredContent.items[0].sourceRevision
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+      reportId: "$components.StructuredContent.items[0].id"
   published:
     action: validator:assert
     normalizeKVPairs: true

@@ -7,17 +7,18 @@ pipeline:
     failureArtifacts:
       directory: ${runDir}/artifacts/${caseName}
     commands:
-      - page.goto("${browserURL}")
-      - page.locator(".studio-nav-namespaces").click()
-      - page.locator(".studio-namespace-actions .studio-catalog-primary-actions button[type='button']").click()
-      - page.getByLabel("Namespace").fill("${caseName}")
-      - expect(page.getByLabel("Namespace")).toHaveValue("${caseName}",15000)
-      - page.getByLabel("Display title").fill("${caseName}")
-      - expect(page.getByLabel("Namespace")).toHaveValue("${caseName}",15000)
-      - page.getByLabel("Visibility").selectOption("public")
-      - page.getByLabel("Expose MCP").check()
-      - page.getByRole("button", "Create namespace").click()
-      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+    - page.goto("${browserURL}")
+    - page.locator(".studio-nav-namespaces").click()
+    - page.getByRole("button", "New namespace").click()
+    - page.getByLabel("Namespace").fill("${caseName}")
+    - expect(page.getByLabel("Namespace")).toHaveValue("${caseName}",15000)
+    - page.getByLabel("Display title").fill("${caseName}")
+    - expect(page.getByLabel("Namespace")).toHaveValue("${caseName}",15000)
+    - page.getByRole("button", "Visibility").click()
+    - page.getByRole("menuitem", "Public").click()
+    - page.getByLabel("Expose MCP").check()
+    - page.getByRole("button", "Save").click()
+    - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
   namespace:
     action: mcp/runner:call
     url: $nativeMCP
@@ -33,29 +34,37 @@ pipeline:
     failureArtifacts:
       directory: ${runDir}/artifacts/${caseName}
     commands:
-      - expect(page.getByLabel("Current namespace")).toBeEnabled(15000)
-      - page.getByLabel("Current namespace").selectOption("${namespace.StructuredContent.namespaceId}")
-      - expect(page.getByLabel("Current namespace")).toHaveValue("${namespace.StructuredContent.namespaceId}",15000)
-      - page.locator(".studio-nav-connectors").click()
-      - page.locator(".studio-catalog-primary-actions button[type='button']").click()
-      - page.getByLabel("Name").fill("${caseName}")
-      - page.getByLabel("Provider").selectOption("sqlite")
-      - page.getByLabel("DSN template").fill("${runDir}/consumer.db")
-      - page.getByRole("button", "Create connector").click()
-      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
-      - page.getByLabel("Search connectors").fill("${caseName}")
-      - page.getByLabel("Search connectors").press("Enter")
-      - page.locator("xpath://tr[.//*[normalize-space(.)='${caseName}']]//button[@aria-label='Test connector']").click()
-      - page.locator("xpath://tr[.//*[normalize-space(.)='${caseName}']]//button[@aria-label='Activate connector']").click()
-      - page.locator(".studio-nav-schema").click()
-      - page.getByLabel("Connector").selectOption("${caseName}")
-      - page.locator("xpath://button[@role='treeitem'][.//strong[normalize-space(.)='${caseName}_records']]").click()
-      - page.getByRole("button", "Add as root view").click()
-      - page.getByLabel("Component title").fill("${caseTitle}")
-      - page.getByLabel("Slug").fill("${caseSlug}")
-      - page.getByLabel("Root view identifier").fill("record")
-      - page.getByRole("button", "Create component").click()
-      - expect(page.getByRole("button", "Edit component")).toBeVisible(15000)
+    - expect(page.getByLabel("Current namespace")).toBeEnabled(15000)
+    - page.getByLabel("Current namespace").selectOption("${namespace.StructuredContent.namespaceId}")
+    - expect(page.getByLabel("Current namespace")).toHaveValue("${namespace.StructuredContent.namespaceId}",15000)
+    - page.locator(".studio-nav-connectors").click()
+    - page.getByRole("button", "New connector").click()
+    - page.getByLabel("Name").fill("${caseName}")
+    - page.getByLabel("Driver").click()
+    - page.getByRole("menuitem", "SQLite").click()
+    - page.getByLabel("DSN (blank keeps existing)").fill("${runDir}/consumer.db")
+    - page.getByRole("button", "Save").click()
+    - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+    - page.getByLabel("Find connector, driver, or owner").fill("${caseName}")
+    - page.getByRole("button", "Search").click()
+    - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr")).toHaveCount(1,15000)
+    - page.getByRole("button", "Test").click()
+    - expect(page.getByRole("alert")).toHaveText("passed",15000)
+    - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr[1]/td[5]")).toHaveText("passed",15000)
+    - page.getByRole("button", "Activate or disable").click()
+    - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr[1]/td[3]")).toHaveText("active",15000)
+    - page.locator(".studio-nav-schema").click()
+    - page.getByRole("button", "Connector").click()
+    - page.getByRole("menuitem", "${caseName}").click()
+    - page.getByLabel("Find tables or views").fill("${caseName}_records")
+    - page.getByRole("button", "Search tables").click()
+    - page.locator("xpath://tr[.//*[normalize-space(.)='${caseName}_records']]//button[@aria-label='Inspect table']").click()
+    - page.getByRole("button", "Add as root view").click()
+    - page.getByLabel("Component title").fill("${caseTitle}")
+    - page.getByLabel("Slug").fill("${caseSlug}")
+    - page.getByLabel("Root view identifier").fill("record")
+    - page.getByRole("button", "Create component").click()
+    - expect(page.getByRole("button", "Edit component")).toBeVisible(15000)
   components:
     action: mcp/runner:call
     url: $nativeMCP
@@ -159,17 +168,34 @@ pipeline:
     normalizeKVPairs: true
     actual: $runtime.StructuredContent.host.status
     expect: ready
+  publishInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: "${runDir}/artifacts/${caseName}"
+    commands:
+    - page.goto("${browserURL}")
+    - page.locator(".studio-nav-components").click()
+    - page.locator("input[placeholder='Find title, slug, or description']").fill("${caseTitle}")
+    - page.getByRole("button", "Search components").click()
+    - expect(page.locator("xpath://div[@data-forge-container-id='catalog-rows']//tbody/tr")).toHaveCount(1,15000)
+    - page.getByRole("button", "Open Reader Builder").click()
+    - expect(page.getByRole("heading", "Component graph")).toBeVisible(15000)
+    - page.getByRole("button", "Release").click()
+    - expect(page.getByRole("button", "Publish selected version")).toBeEnabled(15000)
+    - page.getByRole("button", "Publish selected version").click()
+    - expect(page.locator(".studio-publication-dialog .bp6-intent-success[role='status']")).toBeVisible(30000)
+    - page.locator("xpath://div[contains(@class,'bp6-dialog-footer-actions')]//button[normalize-space(.)='Close']").click()
   publish:
     action: mcp/runner:call
-    url: $nativeMCP
-    bearerTokenSecret: $ownerToken
-    '@name': studio.sdk.publications.publish
+    url: "$nativeMCP"
+    bearerTokenSecret: "$ownerToken"
+    "@name": studio.sdk.publications.get
     arguments:
-      namespaceId: $namespace.StructuredContent.namespaceId
-      reportId: $components.StructuredContent.items[0].id
-      versionNo: $versions.StructuredContent.items[0].versionNo
-      input:
-        expectedSourceRevision: $versions.StructuredContent.items[0].sourceRevision
+      namespaceId: "$namespace.StructuredContent.namespaceId"
+      reportId: "$components.StructuredContent.items[0].id"
   published:
     action: validator:assert
     normalizeKVPairs: true
