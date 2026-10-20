@@ -1,0 +1,1 @@
+UI-only namespace and connector setup; verify Forge schema explorer bounds, search alignment, opaque sticky headers, hidden datasource layout ownership, and SQL result navigation. MCP calls only read namespace identity.

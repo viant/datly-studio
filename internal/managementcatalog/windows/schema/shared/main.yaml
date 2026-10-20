@@ -12,8 +12,7 @@ window:
         - id: schema-header
           workspaceSummary:
             title: Schema Browser
-            description: Explore authorized connector metadata and use tables as Datly view
-              sources.
+            description: Explore authorized connector metadata and use tables as Datly view sources.
             stateDataSourceRef: schema_state
             errorField: outcome
             actions:
@@ -23,15 +22,9 @@ window:
                 handler: management.initialize
         - id: schema-layout
           layout:
-            kind: grid
-            columns: 4
-            collapseAt: 900px
-            gap: 20px
-            labels:
-              mode: none
+            orientation: horizontal
           containers:
             - id: schema-explorer
-              columnSpan: 1
               containers:
                 - id: schema-selectors
                   dataSourceRef: schema_state
@@ -48,6 +41,8 @@ window:
                       on:
                         - event: onChange
                           handler: management.changeConnector
+                      properties:
+                        fill: true
                     - id: schemaName
                       label: Schema
                       dataField: schemaName
@@ -59,21 +54,33 @@ window:
                       on:
                         - event: onChange
                           handler: management.changeSchema
+                      properties:
+                        fill: true
                     - id: query
                       label: Find tables or views
                       dataField: query
                       type: text
                       properties:
                         placeholder: Find tables or views
-                  toolbar:
-                    items:
-                      - id: find
-                        label: Search tables
-                        hideLabel: false
-                        icon: search
-                        on:
-                          - event: onClick
-                            handler: management.searchTables
+                        fill: true
+                    - id: find
+                      label: Search tables
+                      hideLabel: false
+                      icon: search
+                      on:
+                        - event: onClick
+                          handler: management.searchTables
+                      type: button
+                      isStandalone: true
+                      properties:
+                        fill: true
+                  sizingMode: content
+                  layout:
+                    kind: grid
+                    columns: 1
+                    rowGap: 8px
+                    labels:
+                      mode: top
                 - id: schema-object-list
                   dataSourceRef: schema_tables
                   fetchData: false
@@ -87,6 +94,7 @@ window:
                         on:
                           - event: onClick
                             handler: management.inspectTable
+                        minWidth: 160
                       - id: inspect
                         name: ""
                         type: button
@@ -97,9 +105,12 @@ window:
                         on:
                           - event: onClick
                             handler: management.inspectTable
+                        minWidth: 36
                     emptyState:
                       compact: true
                       title: No matching records
+                    density: compact
+                  sizingMode: fill
                 - id: schema-object-paging
                   dataSourceRef: schema_state
                   fetchData: false
@@ -125,8 +136,21 @@ window:
                         disabledWhen:
                           selector: hasMore
                           equals: false
+                  sizingMode: content
+                  visibleWhen:
+                    any:
+                      - selector: hasMore
+                        equals: true
+                      - selector: tableOffset
+                        gt: 0
+              className: studio-forge-schema-explorer
+              sizingMode: fill
+              style:
+                width: 300px
+                minWidth: 260px
+                maxWidth: 320px
+                height: 100%
             - id: schema-detail
-              columnSpan: 3
               containers:
                 - id: schema-empty
                   dataSourceRef: schema_state
@@ -135,13 +159,10 @@ window:
                     selector: selected
                     notEquals: true
                   workspaceSummary:
-                    sections:
-                      - id: choose
-                        title: Choose a database object
-                        dataSourceRef: schema_views
-                        labelField: name
-                        emptyText: Inspect columns and relationships, then add a root view or subview to
-                          a component.
+                    title: Choose a database object
+                    description: Inspect columns and relationships, then add a root view or subview to a component.
+                  className: studio-forge-schema-empty
+                  sizingMode: fill
                 - id: schema-selected
                   dataSourceRef: schema_state
                   fetchData: false
@@ -178,7 +199,7 @@ window:
                               selector: saving
                               equals: true
                             style:
-                              height: 280px
+                              height: 100%
                             on:
                               - event: onChange
                                 handler: management.invalidateSQL
@@ -235,6 +256,10 @@ window:
                             dataSourceRef: schema_test_result
                             dataField: data
                             label: SQL test result
+              className: studio-forge-schema-detail
+              sizingMode: fill
+          className: studio-forge-schema-layout
+          sizingMode: fill
         - id: schema-bindings
           containers:
             - id: schema_state-binding
@@ -300,6 +325,9 @@ window:
             - id: schema_apply-binding
               dataSourceRef: schema_apply
               fetchData: false
+      sizingMode: fill
+      style:
+        height: calc(100dvh - var(--studio-navbar-height, 58px))
   dialogs:
     - id: schema-root
       title: Create component from table

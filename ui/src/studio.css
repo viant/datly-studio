@@ -3,6 +3,7 @@
 body { margin: 0; min-width: 320px; background: #f4f7fb; }
 .studio-app { display: flex; flex-direction: column; min-height: 100vh; }
 .studio-app-body { display: flex; flex: 1; min-width: 0; }
+.studio-management-host { flex: 1; min-width: 0; min-height: 0; }
 .studio-reader-host { flex: 1; min-width: 0; min-height: 0; }
 .studio-sidebar-scrim { display: none; }
 .studio-auth-shell { display: grid; justify-content: center; min-height: 100vh; padding: 24px; place-items: center; background: radial-gradient(circle at 50% 15%,#e8f2ff 0,#f4f7fb 42%,#eef2f7 100%); }
@@ -745,6 +746,25 @@ body { margin: 0; min-width: 320px; background: #f4f7fb; }
   .studio-forge-input-window .forge-parameter-editor__fields [data-forge-part="fields"] { grid-template-columns: minmax(0, 1fr); }
 }
 
-.studio-forge-schema-workspace [data-forge-container-id="schema-object-list"] .basic-table-scroll { max-height:calc(100dvh - 380px); min-height:160px; overflow:auto; }
-.studio-forge-schema-workspace [data-forge-container-id="schema-explorer"] .is-catalog-presentation { padding:8px; }
+
+
 .studio-forge-schema-workspace [data-forge-container-id="schema-columns"] .basic-table-scroll { max-height:calc(100dvh - 330px); overflow:auto; }
+
+/* Metadata-owned schema explorer and detail panes, rendered by Forge. */
+.studio-forge-schema-workspace { max-width: none; padding: 24px; }
+.studio-forge-schema-workspace [data-forge-container-id="schema-header"] { margin-bottom: 20px; }
+.studio-forge-schema-layout { border: 1px solid #d8e1ec; border-radius: 10px; overflow: hidden !important; background: #fff; }
+.studio-forge-schema-explorer { padding: 16px; border-right: 1px solid #d8e1ec; background: #f8fafc; }
+.studio-forge-schema-explorer [data-forge-container-id="schema-selectors"] { margin-bottom: 16px; }
+.studio-forge-schema-explorer [data-forge-container-id="schema-object-list"] { overflow: hidden !important; }
+.studio-forge-schema-detail { padding: 20px; overflow: auto !important; }
+.studio-forge-schema-empty { justify-content: center; }
+.studio-forge-schema-empty .forge-workspace-summary__header { max-width: 52ch; margin-inline: auto; text-align: center; }
+.studio-forge-schema-empty .forge-workspace-summary__header h1 { font-size: 20px; }
+@media(max-width:760px) {
+ .studio-forge-schema-workspace { padding: 16px; height: auto !important; }
+ .studio-forge-schema-layout > div { flex-direction: column !important; }
+ .studio-forge-schema-explorer { width: 100% !important; max-width: none !important; border-right: 0; border-bottom: 1px solid #d8e1ec; }
+ .studio-forge-schema-explorer [data-forge-container-id="schema-object-list"] { max-height: 240px; }
+ .studio-forge-schema-detail { min-height: 320px !important; }
+}
