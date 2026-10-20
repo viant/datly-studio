@@ -60,7 +60,8 @@ func Initialize(ctx context.Context, db *sql.DB, driver string) error {
 }
 
 // Verify checks existing storage against the canonical table/column/index
-// inventory and layout marker. It performs reads only and never repairs storage.
+// inventory. It performs reads only and never repairs storage. Historical
+// schema_version rows do not determine whether the actual layout is usable.
 func Verify(ctx context.Context, db *sql.DB, driver string) error {
 	if driver == "sqlite" {
 		var definition string
@@ -120,10 +121,6 @@ func Verify(ctx context.Context, db *sql.DB, driver string) error {
 		if err := db.QueryRowContext(ctx, query, index[1]).Scan(&count); err != nil || count < 1 {
 			return fmt.Errorf("Studio store is missing canonical index %s", index[1])
 		}
-	}
-	var count, minimum, maximum int
-	if err := db.QueryRowContext(ctx, "SELECT COUNT(*),MIN(version),MAX(version) FROM schema_version").Scan(&count, &minimum, &maximum); err != nil || count != 1 || minimum != CanonicalVersion || maximum != CanonicalVersion {
-		return errors.New("Studio store does not match the canonical schema layout")
 	}
 	return nil
 }

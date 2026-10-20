@@ -75,3 +75,38 @@ func TestInitializeRejectsGenerationCounterDowngradeWithoutRepair(t *testing.T) 
 	}
 	assertTablePresence(t, ctx, db, "sqlx_sequence_reservations", false)
 }
+
+func TestExistingStorageDoesNotDependOnVersionMarkerHistory(t *testing.T) {
+	for _, test := range []struct {
+		name, markers string
+		count         int
+	}{
+		{"older_marker", "22", 1},
+		{"migration_history", "20),(21),(22),(23", 4},
+		{"empty_marker", "", 0},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			db := openSQLite(t, test.name)
+			defer db.Close()
+			ctx := context.Background()
+			if err := Initialize(ctx, db, "sqlite"); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := db.Exec("DELETE FROM schema_version"); err != nil {
+				t.Fatal(err)
+			}
+			if test.markers != "" {
+				if _, err := db.Exec("INSERT INTO schema_version(version) VALUES (" + test.markers + ")"); err != nil {
+					t.Fatal(err)
+				}
+			}
+			if _, err := db.Exec("PRAGMA query_only=ON"); err != nil {
+				t.Fatal(err)
+			}
+			if err := Initialize(ctx, db, "sqlite"); err != nil {
+				t.Fatalf("existing store rejected its version history: %v", err)
+			}
+			assertCount(t, db, "SELECT COUNT(*) FROM schema_version", test.count)
+		})
+	}
+}
