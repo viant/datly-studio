@@ -47,8 +47,8 @@ func TestManagementResourceListingPagesAndFilterBoundCursor(t *testing.T) {
 			break
 		}
 	}
-	if input.Request.Cursor != nil || len(seen) != 40 {
-		t.Fatalf("listing never completed: %+v", input.Request.Cursor)
+	if input.Request.Cursor != nil || len(seen) != 56 {
+		t.Fatalf("listing never completed: cursor=%+v resources=%d", input.Request.Cursor, len(seen))
 	}
 	first := &ResourcesListOutput{}
 	if err := runResourcesList(context.Background(), nil, input, first); err != nil {

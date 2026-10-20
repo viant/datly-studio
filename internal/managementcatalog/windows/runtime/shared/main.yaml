@@ -1,0 +1,55 @@
+window:
+  windowKey: runtime
+  title: Runtime
+  on:
+    - {event: onInit, handler: management.refreshRuntime}
+  view:
+    content:
+      id: runtime-management
+      className: studio-workspace studio-runtime-overview
+      containers:
+        - id: runtime-controls
+          className: studio-runtime-overview__controls
+          dataSourceRef: runtime_state
+          fetchData: false
+          toolbar:
+            items:
+              - {id: refresh, label: Refresh runtime, icon: refresh, on: [{event: onClick, handler: management.refreshRuntime}]}
+              - {id: previous, label: Previous generations, icon: chevron-left, on: [{event: onClick, handler: management.previousGenerations}]}
+              - {id: next, label: Next generations, icon: chevron-right, on: [{event: onClick, handler: management.nextGenerations}]}
+          items:
+            - {id: status, label: Status, dataField: status, type: text, readOnly: true}
+            - {id: activeGeneration, label: Active generation, dataField: activeGeneration, type: number, readOnly: true}
+            - {id: reportCount, label: Report count, dataField: reportCount, type: number, readOnly: true}
+            - {id: hostStatus, label: Host status, dataField: hostStatus, type: text, readOnly: true}
+            - {id: outcome, label: Outcome, dataField: outcome, type: textarea, readOnly: true}
+        - id: runtime-generations
+          kind: table
+          title: Generation history
+          className: studio-runtime-overview__generations
+          dataSourceRef: runtime_generations
+          fetchData: false
+          table:
+            columns:
+              - {id: generationNo, name: Generation}
+              - {id: status, name: Status}
+              - {id: reportCount, name: Reports}
+              - {id: sourceRevision, name: Source revision}
+              - {id: activatedAt, name: Activated}
+dataSources:
+  runtime_state:
+    id: runtime_state
+    cardinality: object
+    backend: {kind: inline, rows: []}
+    cache: {enabled: false}
+  runtime_status:
+    id: runtime_status
+    cardinality: object
+    backend: {kind: mcp_tool, method: studio.sdk.runtime.status}
+    cache: {enabled: false}
+  runtime_generations:
+    id: runtime_generations
+    cardinality: collection
+    selectors: {data: generations}
+    backend: {kind: mcp_tool, method: studio.runtime_generations.read}
+    cache: {enabled: false}

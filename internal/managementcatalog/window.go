@@ -32,7 +32,7 @@ var windowSources embed.FS
 func NamespaceWindow(config Config) ([]Definition, error) {
 	names := []string{"namespaces"}
 	if config.ApplicationID == "" || config.ApplicationID == "datastudio" {
-		names = append(names, "connectors", "components")
+		names = append(names, "connectors", "components", "schema", "runtime")
 	}
 	var definitions []Definition
 	if config.ApplicationID == "" || config.ApplicationID == "datastudio" {
@@ -103,6 +103,9 @@ func managementWindow(config Config, name string) ([]Definition, error) {
 	if name == "components" {
 		prefix = "component"
 		operations = []string{"components.get", "components.create", "components.update", "versions.list", "versions.create", "versions.clone", "versions.inspect", "versions.apply", "versions.validate", "versions.builder", "resources.get", "resources.upsert_file", "preview.execute", "publications.get", "publications.publish", "publications.unpublish", "publications.rollback"}
+	}
+	if name == "schema" || name == "runtime" {
+		operations = nil // Read-only SDK tools are declared by the Forge source.
 	}
 	disabled := false
 	for _, operation := range operations {

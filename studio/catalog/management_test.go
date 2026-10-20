@@ -108,6 +108,7 @@ func TestEmbeddedManagementNavigationUsesBinaryIdentityAndVerifiedCatalog(t *tes
 				t.Fatal("navigation envelope metadata lost")
 			}
 			var check func([]any)
+			seenWindows := map[string]bool{}
 			check = func(menus []any) {
 				for _, raw := range menus {
 					item := raw.(map[string]any)
@@ -129,6 +130,7 @@ func TestEmbeddedManagementNavigationUsesBinaryIdentityAndVerifiedCatalog(t *tes
 					if !strings.HasPrefix(uri, "window://datastudio/") {
 						t.Fatal("management leaf must use its own namespace")
 					}
+				seenWindows[uri] = true
 				}
 			}
 			for _, raw := range nav["applications"].([]any) {
@@ -136,6 +138,11 @@ func TestEmbeddedManagementNavigationUsesBinaryIdentityAndVerifiedCatalog(t *tes
 				check(app["menus"].([]any))
 				if len(app["styleResources"].([]any)) != 1 {
 					t.Fatal("native stylesheet not bound")
+				}
+			}
+			for _, uri := range []string{"window://datastudio/schema", "window://datastudio/runtime"} {
+				if !seenWindows[uri] {
+					t.Fatalf("functional management window absent from navigation: %s", uri)
 				}
 			}
 		}

@@ -1,0 +1,114 @@
+window:
+  windowKey: schema
+  title: Schema Browser
+  on:
+    - {event: onInit, handler: management.initialize}
+  view:
+    content:
+      id: schema-browser
+      className: studio-workspace studio-schema-browser
+      containers:
+        - id: schema-controls
+          className: studio-schema-browser__controls
+          dataSourceRef: schema_state
+          fetchData: false
+          items:
+            - {id: query, label: Find schema or table, dataField: query, type: text}
+            - {id: outcome, label: Outcome, dataField: outcome, type: textarea, readOnly: true}
+        - id: schema-connectors
+          kind: table
+          title: Connectors
+          className: studio-schema-browser__connectors
+          dataSourceRef: schema_connectors
+          fetchData: false
+          toolbar:
+            items:
+              - {id: refresh, label: Refresh connectors, icon: refresh, on: [{event: onClick, handler: management.initialize}]}
+              - {id: load-schemas, label: Load schemas, icon: database, on: [{event: onClick, handler: management.loadSchemas}]}
+          table:
+            columns:
+              - {id: name, name: Name}
+              - {id: driver, name: Driver}
+              - {id: status, name: Status}
+        - id: schema-names
+          kind: table
+          title: Schemas
+          className: studio-schema-browser__schemas
+          dataSourceRef: schema_names
+          fetchData: false
+          toolbar:
+            items:
+              - {id: load-tables, label: Load tables, icon: list, on: [{event: onClick, handler: management.loadTables}]}
+          table:
+            columns:
+              - {id: name, name: Schema}
+        - id: schema-tables
+          kind: table
+          title: Tables
+          className: studio-schema-browser__tables
+          dataSourceRef: schema_tables
+          fetchData: false
+          toolbar:
+            items:
+              - {id: inspect-table, label: Inspect table, icon: search, on: [{event: onClick, handler: management.inspectTable}]}
+              - {id: next-tables, label: Next page, icon: chevron-right, on: [{event: onClick, handler: management.nextTables}]}
+          table:
+            columns:
+              - {id: schema, name: Schema}
+              - {id: name, name: Table}
+              - {id: type, name: Type}
+        - id: schema-columns
+          kind: table
+          title: Columns
+          className: studio-schema-browser__columns
+          dataSourceRef: schema_columns
+          fetchData: false
+          table:
+            columns:
+              - {id: name, name: Column}
+              - {id: type, name: Type}
+              - {id: nullable, name: Nullable}
+              - {id: primaryKey, name: Primary key}
+              - {id: autoIncrement, name: Auto increment}
+dataSources:
+  schema_state:
+    id: schema_state
+    cardinality: object
+    backend: {kind: inline, rows: []}
+    cache: {enabled: false}
+  schema_connectors:
+    id: schema_connectors
+    cardinality: collection
+    selectionMode: single
+    selectors: {data: items}
+    uniqueKey: [{field: name}]
+    paging: {enabled: true, openEnded: true, size: 25, parameters: {page: offset, size: limit}}
+    backend: {kind: mcp_tool, method: studio.sdk.connectors.list}
+    cache: {enabled: false}
+  schema_names:
+    id: schema_names
+    cardinality: collection
+    selectionMode: single
+    selectors: {data: items}
+    uniqueKey: [{field: name}]
+    backend: {kind: mcp_tool, method: studio.sdk.connectors.schemas}
+    cache: {enabled: false}
+  schema_tables:
+    id: schema_tables
+    cardinality: collection
+    selectionMode: single
+    selectors: {data: items}
+    uniqueKey: [{field: schema}, {field: name}]
+    paging: {enabled: true, openEnded: true, size: 25, parameters: {page: input.offset, size: input.limit}}
+    backend: {kind: mcp_tool, method: studio.sdk.connectors.tables}
+    cache: {enabled: false}
+  schema_table:
+    id: schema_table
+    cardinality: object
+    backend: {kind: mcp_tool, method: studio.sdk.connectors.table}
+    cache: {enabled: false}
+  schema_columns:
+    id: schema_columns
+    cardinality: collection
+    backend: {kind: inline, rows: []}
+    cache: {enabled: false}

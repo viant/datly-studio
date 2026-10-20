@@ -19,6 +19,9 @@ body { margin: 0; min-width: 320px; background: #f4f7fb; }
 }
 .studio-sidebar { width: 256px; padding: 16px 12px; border-right: 1px solid #d8e1ec; background: #ffffff; }
 .studio-workspace { flex: 1; min-width: 0; max-width: 1320px; padding: 32px; width: auto; }
+.studio-schema-browser, .studio-runtime-overview { --studio-admin-stack-gap: 16px; min-width: 0; }
+.studio-schema-browser__controls, .studio-schema-browser__connectors, .studio-schema-browser__schemas, .studio-schema-browser__tables, .studio-runtime-overview__controls { margin-block-end: var(--studio-admin-stack-gap); min-width: 0; }
+.studio-schema-browser__columns, .studio-runtime-overview__generations { min-width: 0; overflow-x: auto; }
 .studio-page-heading { margin: 0 0 4px; font-size: 28px; letter-spacing: -.03em; }
 .studio-page-heading-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
 .studio-page-heading-row .studio-page-description { margin-bottom: 0; }
