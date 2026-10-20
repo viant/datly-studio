@@ -35,6 +35,23 @@ test('edits a provider role and preserves edits on revision conflict', async () 
   expect(screen.queryByRole('option', { name: 'Public consumption' })).toBeNull();
 });
 
+test.each([
+  ['role', 'Custom role', 'ROLE_CUSTOM'],
+  ['exposure', 'Custom feature exposure', 'EXPOSE_CUSTOM'],
+])('saves a custom %s name outside provider choices', async (kind, label, value) => {
+  const user = userEvent.setup();
+  const initial = {...document, policies: {retrieve: {mode: 'protected', rule: {kind, value: 'OLD_VALUE'}}}};
+  const api = {getResourceAccess: vi.fn().mockResolvedValue(initial), getResourceAccessContext: vi.fn().mockResolvedValue({canManage: true, choices: {role: [], exposure: []}}), replaceResourceAccess: vi.fn(async draft => ({...draft, revision: 5}))};
+  render(<ResourceAccessEditor api={api} resource={resource} actions={['retrieve']}/>);
+  const input = await screen.findByRole('textbox', {name: label});
+  await user.clear(input);
+  await user.type(input, value);
+  await user.click(screen.getByRole('button', {name: 'Review changes'}));
+  await user.click(screen.getByRole('button', {name: 'Save permissions'}));
+  await screen.findByText('Permissions saved.');
+  expect(api.replaceResourceAccess.mock.calls[0][0].policies.retrieve.rule).toEqual({kind, value});
+});
+
 test('serializes entity type and id and mandatory scope independently', async () => {
   const user = userEvent.setup();
   const api = { getResourceAccess: vi.fn().mockResolvedValue(document), replaceResourceAccess: vi.fn(async d => ({ ...d, revision: 5 })) };
