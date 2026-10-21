@@ -33,8 +33,12 @@ type Input struct {
 }
 
 type Output struct {
-	Data     json.RawMessage `parameter:"Data,kind=output,in=body,dataType=json.RawMessage" json:"data,omitempty"`
-	Duration time.Duration   `parameter:"Duration,kind=output,in=body,dataType=time.Duration" json:"duration"`
+	Offset       int             `parameter:"Offset,kind=output,in=body,dataType=int" json:"offset"`
+	Limit        int             `parameter:"Limit,kind=output,in=body,dataType=int" json:"limit"`
+	ReturnedRows int             `parameter:"ReturnedRows,kind=output,in=body,dataType=int" json:"returnedRows"`
+	HasMore      bool            `parameter:"HasMore,kind=output,in=body,dataType=bool" json:"hasMore"`
+	Data         json.RawMessage `parameter:"Data,kind=output,in=body,dataType=json.RawMessage" json:"data,omitempty"`
+	Duration     time.Duration   `parameter:"Duration,kind=output,in=body,dataType=time.Duration" json:"duration"`
 }
 
 type Component struct {
@@ -58,6 +62,9 @@ func NewTestSQL() xhandler.Contract[Input, Output] { return &handler{} }
 func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input, output *Output) error {
 	if input == nil || output == nil {
 		return fmt.Errorf("connector SQL test input and output are required")
+	}
+	if input.Input.Offset < 0 {
+		return publisherguard.PublicError(400, "SQL result offset must be nonnegative")
 	}
 	timeout, err := executionTimeout(input.Input.TimeoutSeconds)
 	if err != nil {
@@ -95,6 +102,7 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 		return fmt.Errorf("transient SQL test returned no result")
 	}
 	output.Data, output.Duration = result.Data, result.Duration
+	output.Offset, output.Limit, output.ReturnedRows, output.HasMore = result.Offset, result.Limit, result.ReturnedRows, result.HasMore
 	return nil
 }
 

@@ -62,8 +62,8 @@ continues to be checked by the connector and database credentials.
 Explorer uses a full-page Forge SQL workbench beside connector/schema/table discovery.
 **New SQL** opens an editor tab for the selected connector. Inspecting a table
 opens a separate discovery tab with its SQL and columns. Every **Run SQL** opens
-an execution tab containing the captured SQL, connector, timeout, status and
-results; later runs do not replace it. **Create component** uses the selected
+a result tab that keeps the captured SQL, connector, timeout and status.
+SQL is collapsed behind **Show SQL**; later runs do not replace the result tab. **Create component** uses the selected
 tab's SQL and connector, then opens the component editor. When the tab strip
 overflows, left/right scroll buttons appear and new or selected tabs are revealed.
 The dedicated `e2e/management/explorer-tabs.yaml` covers execution snapshots, table
@@ -76,6 +76,10 @@ default to 60. HTTP request cancellation and upstream deadlines still apply.
 Timeouts produce a specific 504 message rather than a syntax/compilation error.
 The BFF does not impose its normal write deadline on SQL/MCP execution.
 
-Result previews remain limited to 50 rows. That limit does not limit the database
-scan or aggregation workload. Use qualified table names for the selected project
+Result tabs use server-side offset pagination with **Previous**, **Next**, and
+**Rows per page** (25, 50, 100 or 200; initially 50). The backend fetches one extra
+row to identify the last page without a count query. Previously visited pages are
+retained in the result tab. Each new page executes the captured query again; use
+`ORDER BY` for consistent ordering, and be aware that source changes can affect
+later pages. Page size does not limit the database scan or aggregation workload. Use qualified table names for the selected project
 and schema; connector discovery scope does not rewrite authored SQL.

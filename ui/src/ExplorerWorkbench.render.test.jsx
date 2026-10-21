@@ -13,7 +13,7 @@ function mount({execute}={}) {
    case 'studio.sdk.connectors.discover':return {catalog:'project',catalogs:[{name:'project'}],schemas:[{name:'dataset',catalog:'project'}]};
    case 'studio.sdk.connectors.tables':return {items:[{name:'orders',schema:'dataset',type:'TABLE'},{name:'customers',schema:'dataset',type:'TABLE'}]};
    case 'studio.sdk.connectors.table':return {table:{name:input.input.table,schema:'dataset'},columns:[{name:'id',type:'INTEGER'}]};
-   case 'studio.sdk.connectors.test_sql':return execute?execute(input):{data:[{answer:input.input.sql}],duration:1};
+   case 'studio.sdk.connectors.test_sql':return execute?execute(input):{data:[{answer:input.input.sql}],duration:1,returnedRows:1,hasMore:false};
    case 'studio.sdk.components.create':return {id:'new-component',title:input.title,defaultConnectorName:input.defaultConnectorName};
    case 'studio.sdk.versions.create':return {versionNo:1,sourceRevision:1};
    case 'studio.sdk.versions.builder':return {applied:true};
@@ -36,7 +36,7 @@ test('each execution gets an immutable result tab and sends the explicit uncappe
  await user.click(screen.getByRole('button',{name:'Run SQL',exact:true}));await screen.findByText('SELECT 2 AS answer',{selector:'td'});
  const calls=api.fetchMCPDataSource.mock.calls.filter(([source])=>source.backend.method==='studio.sdk.connectors.test_sql');
  expect(calls.map(([,input])=>input.input.timeoutSeconds)).toEqual([0,600]);
- await user.click(first);expect(screen.getByRole('textbox',{name:'Executed SQL',exact:true}).textContent).toContain('SELECT 1 AS answer');
+ await user.click(first);await user.click(screen.getByRole('button',{name:'Show SQL',exact:true}));expect(screen.getByRole('textbox',{name:'Executed SQL',exact:true}).textContent).toContain('SELECT 1 AS answer');
  expect(within(document.getElementById(first.getAttribute('aria-controls'))).getByLabelText('Timeout used (seconds)',{exact:true}).value).toBe('0');
  expect(screen.getAllByRole('tab').filter(tab=>tab.textContent.includes('Run '))).toHaveLength(2);
 });
@@ -78,4 +78,24 @@ test('overflowing tabs have clickable left and right scrolling controls',async()
  await user.click(screen.getByRole('button',{name:'Scroll tabs left'}));
  await waitFor(()=>expect(rail.scrollLeft).toBe(0));
  expect(screen.getAllByRole('tab')).toHaveLength(6);
+});
+
+
+test('result tabs page on the server, cache previous pages and retain execution context',async()=>{
+ const user=userEvent.setup(),{api}=mount({execute:input=>({data:[{marker:input.input.offset+1}],duration:1,offset:input.input.offset,limit:input.input.limit,returnedRows:input.input.limit,hasMore:input.input.offset===0})});
+ await editSQL('SELECT id FROM records ORDER BY id');
+ await user.click(screen.getByRole('button',{name:'Run SQL',exact:true}));
+ await screen.findByText('1',{selector:'td'});
+ expect(screen.queryByRole('textbox',{name:'Executed SQL',exact:true})).toBeNull();
+ await user.click(screen.getByRole('button',{name:'Next',exact:true}));
+ await screen.findByText('51',{selector:'td'});
+ expect(screen.getByRole('button',{name:'Next',exact:true}).disabled).toBe(true);
+ await user.click(screen.getByRole('button',{name:'Previous',exact:true}));
+ await screen.findByText('1',{selector:'td'});
+ await user.selectOptions(screen.getByLabelText('Rows per page'),'25');
+ await screen.findByText('Page 1 · 25 rows');
+ const calls=api.fetchMCPDataSource.mock.calls.filter(([source])=>source.backend.method==='studio.sdk.connectors.test_sql').map(([,input])=>input);
+ expect(calls.map(input=>[input.input.offset,input.input.limit])).toEqual([[0,50],[50,50],[0,25]]);
+ expect(calls.every(input=>input.name==='Bq'&&input.input.sql==='SELECT id FROM records ORDER BY id')).toBe(true);
+ expect(screen.getAllByRole('tab').filter(tab=>tab.textContent.includes('Run '))).toHaveLength(1);
 });

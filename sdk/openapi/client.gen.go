@@ -547,6 +547,7 @@ type InputDa8168f080bfa68b819580da3d7c62f0f555672ea65e1590b0f311889f16f426 struc
 // InputE14cc58c4ee74d7747f498bcbd7c71a8cb3028eda5782588b9c5299ed0cf9c37 defines model for Input_e14cc58c4ee74d7747f498bcbd7c71a8cb3028eda5782588b9c5299ed0cf9c37.
 type InputE14cc58c4ee74d7747f498bcbd7c71a8cb3028eda5782588b9c5299ed0cf9c37 struct {
 	Limit          *int64  `json:"limit,omitempty"`
+	Offset         *int64  `json:"offset,omitempty"`
 	Sql            *string `json:"sql,omitempty"`
 	TimeoutSeconds *int64  `json:"timeoutSeconds,omitempty"`
 }
@@ -1538,8 +1539,12 @@ type Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Versio
 
 // Wire15d90b839a0fff7f61055596a65a67fe8590915342e1278e39ef8abd4433ce14 defines model for Wire_15d90b839a0fff7f61055596a65a67fe8590915342e1278e39ef8abd4433ce14.
 type Wire15d90b839a0fff7f61055596a65a67fe8590915342e1278e39ef8abd4433ce14 struct {
-	Data     interface{} `json:"data,omitempty"`
-	Duration int64       `json:"duration"`
+	Data         interface{} `json:"data,omitempty"`
+	Duration     int64       `json:"duration"`
+	HasMore      bool        `json:"hasMore"`
+	Limit        int64       `json:"limit"`
+	Offset       int64       `json:"offset"`
+	ReturnedRows int64       `json:"returnedRows"`
 }
 
 // Wire168acff25133f72df514ff38f09aae1a60280ad693da3c888e9f6ec48bae90a6 defines model for Wire_168acff25133f72df514ff38f09aae1a60280ad693da3c888e9f6ec48bae90a6.

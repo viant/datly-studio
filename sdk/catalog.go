@@ -35,10 +35,15 @@ type SQLTestInput struct {
 	TimeoutSeconds *int   `json:"timeoutSeconds,omitempty"`
 	SQL            string `json:"sql"`
 	Limit          int    `json:"limit,omitempty"`
+	Offset         int    `json:"offset,omitempty"`
 }
 type SQLTestResult struct {
-	Data     json.RawMessage `json:"data,omitempty"`
-	Duration time.Duration   `json:"duration"`
+	Offset       int             `json:"offset"`
+	Limit        int             `json:"limit"`
+	ReturnedRows int             `json:"returnedRows"`
+	HasMore      bool            `json:"hasMore"`
+	Data         json.RawMessage `json:"data,omitempty"`
+	Duration     time.Duration   `json:"duration"`
 }
 
 type DatabaseSchema struct {

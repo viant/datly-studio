@@ -821,3 +821,8 @@ body { margin: 0; min-width: 320px; background: #f4f7fb; }
  .studio-explorer-workbench-host { flex:0 0 auto !important; height:auto !important; min-height:650px; }
  .studio-explorer-workbench-host [data-forge-primitive="hostContent"] { height:auto; min-height:650px; }
 }
+
+.studio-explorer-result-paging { display:flex; align-items:center; flex-wrap:wrap; gap:10px; padding:8px 12px; border-bottom:1px solid var(--forge-border-color,#d8e1ec); }
+.studio-explorer-result-paging .bp6-form-group { margin:0; display:flex; align-items:center; flex-direction:row; gap:8px; }
+.studio-explorer-result-paging .bp6-label { margin:0; }
+.studio-explorer-result-paging small { color:var(--forge-text-muted,#526174); }

@@ -1270,6 +1270,10 @@
             "type": "integer",
             "format": "int64"
           },
+          "offset": {
+            "type": "integer",
+            "format": "int64"
+          },
           "sql": {
             "type": "string"
           },
@@ -4212,9 +4216,28 @@
           "duration": {
             "type": "integer",
             "format": "int64"
+          },
+          "hasMore": {
+            "type": "boolean"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "offset": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "returnedRows": {
+            "type": "integer",
+            "format": "int64"
           }
         },
         "required": [
+          "offset",
+          "limit",
+          "returnedRows",
+          "hasMore",
           "duration"
         ]
       },

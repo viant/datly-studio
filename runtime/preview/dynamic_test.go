@@ -249,6 +249,26 @@ SELECT tag(vendors.NAME,'format:"name=CustomerName" json:"customerName"'), tag(v
 	if err != nil {
 		t.Fatal(err)
 	}
+	for _, page := range []struct {
+		offset int
+		name   string
+		more   bool
+	}{{0, "Northwind", true}, {1, "Contoso", true}, {2, "Fabrikam", false}, {3, "", false}} {
+		result, pageErr := (Dynamic{ModulePath: "example.com/app"}).TestSQL(ctx, &sdk.Connector{Name: "vendor", Driver: "sqlite", DSNTemplate: sourceDSN}, sdk.SQLTestInput{SQL: "SELECT ID, NAME FROM VENDOR ORDER BY ID", Limit: 1, Offset: page.offset})
+		if pageErr != nil {
+			t.Fatal(pageErr)
+		}
+		if result.Offset != page.offset || result.Limit != 1 || result.HasMore != page.more || (page.name != "" && !strings.Contains(string(result.Data), page.name)) {
+			t.Fatalf("page %d: %+v data=%s", page.offset, result, result.Data)
+		}
+	}
+	bounded, err := (Dynamic{ModulePath: "example.com/app"}).TestSQL(ctx, &sdk.Connector{Name: "vendor", Driver: "sqlite", DSNTemplate: sourceDSN}, sdk.SQLTestInput{SQL: "SELECT ID, NAME FROM VENDOR ORDER BY ID LIMIT 2", Limit: 1, Offset: 1})
+	if err != nil || bounded.HasMore || bounded.ReturnedRows != 1 || !strings.Contains(string(bounded.Data), "Contoso") {
+		t.Fatalf("authored limit not preserved: %+v %v", bounded, err)
+	}
+	if _, err := (Dynamic{ModulePath: "example.com/app"}).TestSQL(ctx, &sdk.Connector{Name: "vendor", Driver: "sqlite", DSNTemplate: sourceDSN}, sdk.SQLTestInput{SQL: "SELECT ID FROM VENDOR", Offset: -1}); err == nil {
+		t.Fatal("negative page offset accepted")
+	}
 	withoutGoMod, err := (Dynamic{RootDir: t.TempDir(), ModulePath: "example.com/app"}).TestSQL(ctx,
 		&sdk.Connector{Name: "vendor", Driver: "sqlite", DSNTemplate: sourceDSN},
 		sdk.SQLTestInput{SQL: "SELECT ID, NAME FROM VENDOR", Limit: 1})

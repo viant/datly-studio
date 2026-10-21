@@ -1,6 +1,6 @@
 import React,{useEffect,useId,useRef,useState} from 'react';
 import {useSignalEffect} from '@preact/signals-react';
-import {Button,Callout,FormGroup,InputGroup,Spinner,Tag} from '@blueprintjs/core';
+import {Button,Callout,FormGroup,HTMLSelect,InputGroup,Spinner,Tag} from '@blueprintjs/core';
 import {WorkspaceRuntimeSurface} from 'forge/components';
 import Editor from 'forge/editor';
 import {ResultPreview} from 'forge/result-preview';
@@ -60,16 +60,33 @@ export default function ExplorerWorkbench({getState,executeQuery,createComponent
   const remaining=tabs.filter(tab=>tab.windowId!==tabId);
   setTabs(remaining);if(selected===tabId)setSelected(remaining.at(-1)?.windowId||'');return true;
  };
+ const loadPage=async (source,offset,index,pageSize=source.pageSize)=>{
+  update(source.windowId,{loadingPage:true,pageError:''});
+  try{
+   const result=await executeQuery({connectorName:source.connectorName,sql:source.sql,timeoutSeconds:source.timeoutSeconds,limit:pageSize,offset});
+   if(alive.current)setTabs(current=>current.map(tab=>{
+    if(tab.windowId!==source.windowId)return tab;
+    const pages=pageSize===tab.pageSize?[...(tab.pages||[])]:[];
+    pages[index]={...result,offset};
+    return {...tab,pages,pageIndex:index,pageSize,data:result?.data,loadingPage:false};
+   }));
+  }catch(error){if(alive.current)update(source.windowId,{loadingPage:false,pageError:error.message||'Could not load results.'});}
+ };
+ const page=async(source,index)=>{
+  if(source.pages?.[index]){update(source.windowId,{pageIndex:index,data:source.pages[index].data,pageError:''});return;}
+  const current=source.pages?.[source.pageIndex];
+  if(current?.hasMore)await loadPage(source,current.offset+current.returnedRows,index);
+ };
  const run=async source=>{
   const timeoutSeconds=Number(source.timeoutSeconds);
   if(!source.sql.trim()){setNotice('Enter SQL to run.');return;}
   if(!Number.isSafeInteger(timeoutSeconds)||timeoutSeconds<0){setNotice('Timeout must be a nonnegative whole number of seconds. Use 0 for no Studio timeout.');return;}
   const number=++sequence.current,windowId=`run-${number}`,started=performance.now();
-  const snapshot={...source,windowId,number,label:`Run ${++counts.current.run}`,kind:'execution',status:'running',timeoutSeconds,data:undefined,error:'',elapsed:0};
+  const snapshot={...source,windowId,number,label:`Run ${++counts.current.run}`,kind:'execution',status:'running',timeoutSeconds,data:undefined,error:'',pageError:'',loadingPage:false,elapsed:0,pageSize:source.pageSize||50,pages:[],pageIndex:0};
   append(snapshot);setNotice('');
   try{
-   const result=await executeQuery({connectorName:snapshot.connectorName,sql:snapshot.sql,timeoutSeconds,limit:50});
-   if(alive.current)update(windowId,{status:'complete',data:result?.data,elapsed:performance.now()-started});
+   const result=await executeQuery({connectorName:snapshot.connectorName,sql:snapshot.sql,timeoutSeconds,limit:snapshot.pageSize,offset:0});
+   if(alive.current)update(windowId,{status:'complete',data:result?.data,pages:[{...result,offset:0}],elapsed:performance.now()-started});
   }catch(error){if(alive.current)update(windowId,{status:'failed',error:error.message||'Query execution failed.',elapsed:performance.now()-started});}
  };
  return <section className="studio-explorer-workbench" aria-label="SQL workspace">
@@ -89,24 +106,25 @@ export default function ExplorerWorkbench({getState,executeQuery,createComponent
      className:'studio-explorer-query-tabs',itemClassName:'studio-explorer-query-tab',tabClassName:'studio-explorer-query-tab-button',
      renderLabel:tab=><><span>{tab.label}</span>{' '}<span className="studio-explorer-tab-connector">{tab.connectorName}</span>{' '}{tab.kind==='execution'&&<span className={`studio-explorer-run-state is-${tab.status}`}>{tab.status==='complete'?'Done':tab.status==='failed'?'Failed':'Running'}</span>}</>}}
     panelProps={{id,entries:tabs,selectedId:selected,className:'studio-explorer-query-panel',renderContent:tab=><QueryPanel tab={tab} update={changes=>update(tab.windowId,changes)}
-     run={()=>run(tab)} create={()=>createComponent({...tab})} addSubview={tab.kind==='table'?()=>addSubview({...tab}):null}/>}}/>
+     page={index=>page(tab,index)} resizePage={size=>loadPage(tab,0,0,size)} run={()=>run(tab)} create={()=>createComponent({...tab})} addSubview={tab.kind==='table'?()=>addSubview({...tab}):null}/>}}/>
    </div>
   }
  </section>;
 }
 
-function QueryPanel({tab,update,run,create,addSubview}) {
- const timeoutID=useId(),[details,setDetails]=useState(false);
+function QueryPanel({tab,update,run,create,addSubview,page,resizePage}) {
+ const timeoutID=useId(),pageSizeID=useId(),[details,setDetails]=useState(false),[showSQL,setShowSQL]=useState(false);
  const execution=tab.kind==='execution';
  return <>
   <div className="studio-explorer-query-context">
    <strong>{tab.connectorName}</strong><span>{[tab.driver,tab.catalogName,tab.schemaName].filter(Boolean).join(' · ')}</span>
    {execution&&<Tag minimal>{tab.status==='running'?'Running':`${tab.status==='complete'?'Completed':'Failed'} · ${(tab.elapsed/1000).toFixed(1)}s`}</Tag>}
   </div>
-  <div className="studio-explorer-query-editor">
+  {(!execution||showSQL)&&<div className="studio-explorer-query-editor">
    <Editor value={tab.sql} onChange={sql=>update({sql})} language="sql" height="100%" readOnly={execution} ariaLabel={execution?'Executed SQL':'SQL query'}/>
-  </div>
+  </div>}
   <div className="studio-explorer-query-actions">
+   {execution&&<Button icon="code" active={showSQL} onClick={()=>setShowSQL(value=>!value)}>{showSQL?'Hide SQL':'Show SQL'}</Button>}
    <Button intent="primary" icon="play" onClick={run} disabled={!tab.sql.trim()||tab.status==='running'}>Run SQL</Button>
    <FormGroup label={execution?'Timeout used (seconds)':'Timeout (seconds)'} labelFor={timeoutID} className="studio-explorer-timeout">
     <InputGroup id={timeoutID} type="number" min={0} step={1} value={String(tab.timeoutSeconds)} readOnly={execution} onChange={event=>update({timeoutSeconds:event.target.value})}/>
@@ -116,11 +134,24 @@ function QueryPanel({tab,update,run,create,addSubview}) {
    {!execution&&tab.detail&&<Button icon="properties" active={details} onClick={()=>setDetails(value=>!value)}>Columns</Button>}
    {addSubview&&<Button icon="git-branch" onClick={addSubview}>Add as subview</Button>}
   </div>
-  <div className="studio-explorer-query-results" aria-live="polite">
+  {execution&&tab.status==='complete'&&<nav className="studio-explorer-result-paging" aria-label="Result pagination">
+   <Button icon="chevron-left" disabled={tab.loadingPage||tab.pageIndex===0} onClick={()=>page(tab.pageIndex-1)}>Previous</Button>
+   <span>Page {tab.pageIndex+1} · {tab.pages?.[tab.pageIndex]?.returnedRows||0} rows</span>
+   <Button rightIcon="chevron-right" disabled={tab.loadingPage||!tab.pages?.[tab.pageIndex]?.hasMore} onClick={()=>page(tab.pageIndex+1)}>Next</Button>
+   <FormGroup label="Rows per page" labelFor={pageSizeID}>
+    <HTMLSelect id={pageSizeID} value={tab.pageSize} disabled={tab.loadingPage} onChange={event=>resizePage(Number(event.target.value))}>
+     {[25,50,100,200].map(size=><option key={size} value={size}>{size}</option>)}
+    </HTMLSelect>
+   </FormGroup>
+   {tab.loadingPage&&<Spinner size={16}/>}
+   <small>Pages are fetched on demand. Use ORDER BY for consistent ordering.</small>
+  </nav>}
+  {tab.pageError&&<Callout intent="danger" role="alert">{tab.pageError}</Callout>}
+  <div className="studio-explorer-query-results" aria-live="polite" aria-busy={tab.loadingPage===true}>
    {tab.status==='running'?<div className="studio-explorer-query-progress" role="status"><Spinner size={20}/> Running on {tab.connectorName} · {tab.timeoutSeconds===0?'No Studio timeout':`${tab.timeoutSeconds}s timeout`}</div>:
     tab.error?<Callout intent="danger" role="alert" title="Query failed">{tab.error}</Callout>:
     execution?<ResultPreview data={tab.data}/>:details?<ResultPreview data={{columns:tab.detail?.columns||[]}}/>:
-    <div className="studio-explorer-query-empty">Run SQL to open a new execution tab. Results are limited to 50 rows; this does not limit the database scan.</div>}
+    <div className="studio-explorer-query-empty">Run SQL to open a new execution tab. Results open in a new tab with pagination; page size does not limit the database scan.</div>}
   </div>
  </>;
 }

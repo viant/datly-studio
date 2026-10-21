@@ -443,6 +443,7 @@ export type InputDa8168F080Bfa68B819580Da3D7C62F0F555672Ea65E1590B0F311889F16F42
 
 export type InputE14Cc58C4Ee74D7747F498Bcbd7C71A8Cb3028Eda5782588B9C5299Ed0Cf9C37 = {
     limit?: number;
+    offset?: number;
     sql?: string;
     timeoutSeconds?: number | null;
 };
@@ -1207,6 +1208,10 @@ export type Wire13Cb2B9Fac8E64E2Df86Cc6097Eb0Eb4E31B922506E64Ca2Fb8D0Bc76Ccdaeec
 export type Wire15D90B839A0Fff7F61055596A65A67Fe8590915342E1278E39Ef8Abd4433Ce14 = {
     data?: unknown;
     duration: number;
+    hasMore: boolean;
+    limit: number;
+    offset: number;
+    returnedRows: number;
 };
 
 export type Wire168Acff25133F72Df514Ff38F09Aae1A60280Ad693Da3C888E9F6Ec48Bae90A6 = {

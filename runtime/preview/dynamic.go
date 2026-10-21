@@ -116,6 +116,9 @@ func (d Dynamic) TestSQL(ctx context.Context, connector *sdk.Connector, request 
 	if sqlText == "" {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "SQL is required"}
 	}
+	if request.Offset < 0 {
+		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "SQL result offset must be nonnegative"}
+	}
 	limit := request.Limit
 	if limit <= 0 {
 		limit = 50
@@ -146,17 +149,18 @@ func (d Dynamic) TestSQL(ctx context.Context, connector *sdk.Connector, request 
 #setting($_ = $route('/v1/studio/sqltest/%s', 'GET'))
 #setting($_ = $case_format('lc'))
 
+#define($_ = $Offset<int>(query/offset).Optional().QuerySelector('result'))
 #define($_ = $Rows<[]*SQLTestRow>(output/view))
 
 SELECT result.*,
        type(result, 'SQLTestRow'),
        set_limit(result, %d)
-FROM (%s) result`, definition.Scope, connector.Name, token, limit, sqlText)
-	preview, err := d.execute(ctx, definition, dql, sdk.PreviewInput{Limit: limit})
+FROM (%s) result`, definition.Scope, connector.Name, token, limit+1, sqlText)
+	preview, err := d.execute(ctx, definition, dql, sdk.PreviewInput{Limit: limit, Input: json.RawMessage(fmt.Sprintf(`{"offset":%d}`, request.Offset))})
 	if err != nil {
 		return nil, err
 	}
-	return &sdk.SQLTestResult{Data: preview.Data, Duration: preview.Duration}, nil
+	return &sdk.SQLTestResult{Data: preview.Data, Duration: preview.Duration, Offset: request.Offset, Limit: limit, ReturnedRows: preview.Evidence.ReturnedRows, HasMore: preview.Evidence.Truncated}, nil
 }
 
 func previewModulePath(root string) (string, error) {

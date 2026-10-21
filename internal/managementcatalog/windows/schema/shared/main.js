@@ -86,7 +86,7 @@
  };
  return {
   workbenchState:()=>({...state(),driver:connection().driver||''}),
-  executeWorkbench:props=>call('schema_test',{name:props.value.connectorName,input:{sql:props.value.sql,limit:50,timeoutSeconds:props.value.timeoutSeconds}}),
+  executeWorkbench:props=>call('schema_test',{name:props.value.connectorName,input:{sql:props.value.sql,limit:props.value.limit||50,offset:props.value.offset||0,timeoutSeconds:props.value.timeoutSeconds}}),
   componentFromWorkbench:props=>{
    const source=props.value;if(!source?.connectorName||!source.sql?.trim())return false;
    const table=source.detail?.table;
