@@ -25,11 +25,11 @@
    const row=props?.row||selected();if(!row)throw new Error('Select a connector.');
    await call(row.status==='active'?'disable':'activate',{name:row.name,etag:row.etag});await refresh();
   }),
-  newConnector: () => open({name:'',driver:'mysql',dsnTemplate:'',secretURL:'',secretKey:'',description:'',options:'{}',editing:false,outcome:''}),
+  newConnector: () => open({name:'',driver:'mysql',dsnTemplate:'',secretURL:'',secretKey:'',description:'',options:'{}',catalogRows:[],schemaRows:[],editing:false,outcome:''}),
   editConnector: props => run(async () => {
    const row = props?.row||selected(); if (!row) throw new Error('Select a connector.');
    const current = await reload(row.name);
-   open({...current,editing:true,dsnTemplate:'',secretURL:'',secretKey:'',clearSecret:false,options:JSON.stringify(current.options||{},null,2),outcome:'Blank connection fields keep the saved configuration. Use Remove secret to clear its reference.'});
+   open({...current,editing:true,dsnTemplate:'',secretURL:'',secretKey:'',clearSecret:false,...rules.discoveryDraft(current.options),discoveryConfigured:Boolean(current.options?.discovery),outcome:'Blank connection fields keep the saved configuration. Use Remove secret to clear its reference.'});
   }),
   applyYAML: () => run(async () => {
    const form=draft().getFormData(), value=utilities.yaml.parse(form.yamlText||'');
@@ -47,7 +47,7 @@
    const result=record(await call('test',{name:row.name}));
    draft().setFormField({item:{dataField:'outcome'},value:result.message||result.status||'Probe completed.'});await refresh();
   }),
-  reloadConnector: () => run(async () => {const form=draft().getFormData();const current=await reload(form.name);draft().setFormData({values:{...current,editing:true,dsnTemplate:'',secretURL:'',secretKey:'',options:JSON.stringify(current.options||{},null,2),outcome:'Reloaded current revision.'}});}),
+  reloadConnector: () => run(async () => {const form=draft().getFormData();const current=await reload(form.name);draft().setFormData({values:{...current,editing:true,dsnTemplate:'',secretURL:'',secretKey:'',...rules.discoveryDraft(current.options),discoveryConfigured:Boolean(current.options?.discovery),outcome:'Reloaded current revision.'}});}),
   searchConnectors: () => run(async () => {
    const filter=ds('connector_filter').getFormData();
    ds('connectors').setInputParameters({query:(filter.query||'').trim(),status:filter.status||'',offset:0});

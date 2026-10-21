@@ -90,6 +90,29 @@ window:
             dataField: driver
             type: select
             options: [{value: mysql, label: MySQL}, {value: sqlite, label: SQLite}, {value: postgres, label: PostgreSQL}, {value: bigquery, label: BigQuery}, {value: oracle, label: Oracle}]
+          - id: catalogRows
+            label: Projects / catalogs
+            widget: arrayFields
+            scope: form
+            dataField: catalogRows
+            properties:
+              addLabel: Add project / catalog
+              removeLabel: Remove project / catalog
+              newRow: {name: ''}
+              fields:
+                - {field: name, label: Project / catalog, type: text}
+          - id: schemaRows
+            label: Schemas / datasets
+            widget: arrayFields
+            scope: form
+            dataField: schemaRows
+            properties:
+              addLabel: Add schema / dataset
+              removeLabel: Remove schema / dataset
+              newRow: {catalog: '', name: ''}
+              fields:
+                - {field: catalog, label: Project / catalog (optional), type: text}
+                - {field: name, label: Schema / dataset, type: text}
           - {id: description, label: Description, dataField: description, type: textarea}
           - {id: dsnDisplay, label: Saved DSN, dataField: dsnDisplay, type: textarea, readOnly: true}
           - {id: secretRefDisplay, label: Saved secret reference, dataField: secretRefDisplay, type: text, readOnly: true}

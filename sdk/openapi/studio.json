@@ -539,6 +539,9 @@
       "Input_8a771218c929de9ad6df8d7f26a11916c0d2c478600a618560aef8cdaa883cf6": {
         "type": "object",
         "properties": {
+          "catalog": {
+            "type": "string"
+          },
           "schema": {
             "type": "string"
           },
@@ -1002,6 +1005,9 @@
       "Input_ce48d096271799f6074437499f254f457869d225dfbc7ea54c0552fa34341dd8": {
         "type": "object",
         "properties": {
+          "catalog": {
+            "type": "string"
+          },
           "limit": {
             "type": "integer",
             "format": "int64"
@@ -1043,6 +1049,17 @@
           }
         }
       },
+      "Input_d13baaa98e1e58d154b95568037ffe8fe73e5a0dfa3d93b7f97d31535e8a8b10": {
+        "type": "object",
+        "properties": {
+          "catalog": {
+            "type": "string"
+          },
+          "schema": {
+            "type": "string"
+          }
+        }
+      },
       "Input_d1b436abf4fd54a2fa997cbd492e576d712e8c35c087bfcf2d72d6d2dffb0f20": {
         "type": "object",
         "properties": {
@@ -1071,6 +1088,9 @@
       "Input_d2fa4c9bb7cfdde0500d01f13469e3e914f15fb6eb841dd0cf0c53094ae7e08a": {
         "type": "object",
         "properties": {
+          "catalog": {
+            "type": "string"
+          },
           "query": {
             "type": "string"
           }
@@ -3453,6 +3473,53 @@
         },
         "required": [
           "duration"
+        ]
+      },
+      "Wire_168acff25133f72df514ff38f09aae1a60280ad693da3c888e9f6ec48bae90a6": {
+        "type": "object",
+        "properties": {
+          "catalog": {
+            "type": "string"
+          },
+          "catalogs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_a2017528848c398dbe63d56f9c45139f7f4ebf51f3b52cadf11a77fb2b585406"
+            },
+            "nullable": true
+          },
+          "driver": {
+            "type": "string"
+          },
+          "product": {
+            "type": "string"
+          },
+          "schema": {
+            "type": "string"
+          },
+          "schemas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_b981e81a865e06c9a0806c0be6f35790a2a830c9d214f66357056f42835e3045"
+            },
+            "nullable": true
+          },
+          "version": {
+            "type": "string"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "required": [
+          "driver",
+          "product",
+          "catalogs",
+          "schemas"
         ]
       },
       "Wire_187f7f4691bae62916263844a31b0e52f2ac7573ba63a1dda0cfffa8610b0947": {
@@ -7961,6 +8028,17 @@
           "version"
         ]
       },
+      "Wire_a2017528848c398dbe63d56f9c45139f7f4ebf51f3b52cadf11a77fb2b585406": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
       "Wire_a6d5a259bb2993e6552649336f2c093ccd6ae12f130f8526f5c136a619d0cb51": {
         "type": "object",
         "properties": {
@@ -8366,6 +8444,20 @@
         "required": [
           "skill",
           "publicationStatus"
+        ]
+      },
+      "Wire_b981e81a865e06c9a0806c0be6f35790a2a830c9d214f66357056f42835e3045": {
+        "type": "object",
+        "properties": {
+          "catalog": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
         ]
       },
       "Wire_bb9c83695ae936c7031ab2428c59ccda35a4e34af9e6662a945012782ac921e1": {
@@ -11570,6 +11662,49 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Wire_777f17beb973ceea33d037ba165a4751392efacdd3a1e9425eb0da2b7461ba6e"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/connectors.discover": {
+      "post": {
+        "operationId": "POST:/v1/studio/sdk/connectors.discover",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "$ref": "#/components/schemas/Input_d13baaa98e1e58d154b95568037ffe8fe73e5a0dfa3d93b7f97d31535e8a8b10"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Wire_168acff25133f72df514ff38f09aae1a60280ad693da3c888e9f6ec48bae90a6"
                 }
               }
             }

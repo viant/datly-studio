@@ -6,7 +6,11 @@
  const rows=(id,values)=>ds(id).setCollection((values||[]).map((value,index)=>({id:value.id??value.name??String(index),...value})));
  const record=result=>{if(result&&Object.prototype.hasOwnProperty.call(result,'duration'))return result;const value=result?.rows??result?.data??result;return Array.isArray(value)?value[0]:value;};
  const list=result=>{const value=record(result);return Array.isArray(value)?value:value?.items||[];};
- const call=async(id,input)=>record(await ds(id).fetchRecords({parameters:input}));
+ const call=async(id,input)=>{
+  const request=ds(id).fetchRecords({parameters:input});
+  if(!['schema_discover','schema_name_list','schema_table_list','schema_table'].includes(id))return record(await request);
+  let timer;try{return record(await Promise.race([request,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Database discovery timed out. Select a project/schema and retry.')),35000);})]));}finally{clearTimeout(timer);}
+ };
  const host=()=>context.services?.hostWindow||{};
  const run=async(id,action)=>{if(get(id).saving)return false;set(id,{saving:true,outcome:''});try{await action();return true;}catch(error){set(id,{outcome:error.message});return false;}finally{set(id,{saving:false});}};
  const open=id=>{host().setDirty?.(true);context.handlers.window.openDialog({execution:{args:[id]}});};
@@ -16,16 +20,49 @@
  const titleCase=value=>words(value).map(word=>word.length<=3?word.toUpperCase():word[0].toUpperCase()+word.slice(1).toLowerCase()).join(' ');
  const findView=(view,name)=>{if(!view)return null;if(view.name===name||view.namespace===name)return view;for(const relation of view.relations||[]){const found=findView(relation.view,name);if(found)return found;}return null;};
  const terminal=value=>String(value||'').replaceAll('`','').toLowerCase().split('.').at(-1);
+ const connection=()=>ds('schema_connectors').getCollection().find(item=>item.name===state().connectorName)||{};
+ const scope=()=>state().catalogName?{catalog:state().catalogName}:{};
+ const unique=(values,key)=>[...new Map(values.map(item=>[key(item),item])).values()];
+ const catalogChoices=discovered=>{
+  const saved=connection().options?.discovery;
+  const names=Object.hasOwn(saved||{},'catalogs')?saved.catalogs:(discovered||[]).map(item=>item.name);
+  rows('schema_catalogs',[{name:'',label:'Connection default'},...unique(names.filter(Boolean).map(name=>({name,label:name})),item=>item.name)]);
+ };
+ const schemaChoices=discovered=>{
+  const saved=connection().options?.discovery;
+  const choices=Object.hasOwn(saved||{},'schemas')?saved.schemas.filter(item=>!item.catalog||item.catalog===state().catalogName):(discovered||[]);
+  rows('schema_names',[{id:'default',name:'',label:'Connection default'},...unique(choices.filter(item=>item.name).map(item=>({...item,label:item.name})),item=>item.name)]);
+ };
+ let discoveryEpoch=0;
+ const clearObjects=()=>{rows('schema_tables',[]);rows('schema_columns',[]);set('schema_state',{selected:false,detail:null,sql:'',hasMore:false});};
+ const localChoices=()=>{
+  catalogChoices([]);const catalogs=ds('schema_catalogs').getCollection();
+  if(!catalogs.some(item=>item.name===state().catalogName))set('schema_state',{catalogName:catalogs.find(item=>item.name)?.name||''});
+  schemaChoices([]);const schemas=ds('schema_names').getCollection();
+  if(!schemas.some(item=>item.name===state().schemaName))set('schema_state',{schemaName:schemas.find(item=>item.name)?.name||''});
+ };
+ const cancelDiscovery=()=>{++discoveryEpoch;set('schema_state',{metadataLoading:false,loadStatus:'Choose a scope and click Load schemas.',outcome:''});};
+ const discovery=async()=>{
+  const form={...state()};if(!form.connectorName)return false;
+  const epoch=++discoveryEpoch;
+  set('schema_state',{metadataLoading:true,loadStatus:'Loading database and schemas…',outcome:''});
+  try{
+   const result=await call('schema_discover',{name:form.connectorName,input:form.catalogName?{catalog:form.catalogName}:{}});
+   if(epoch!==discoveryEpoch)return false;
+   catalogChoices(result?.catalogs);
+   const catalogs=ds('schema_catalogs').getCollection();
+   const catalogName=form.catalogName||(catalogs.find(item=>item.name)?.name||result?.catalog||'');
+   set('schema_state',{catalogName,productVersion:result?.version||result?.product||''});
+   schemaChoices(result?.schemas);const choices=ds('schema_names').getCollection();
+   const schemaName=form.schemaName&&choices.some(item=>item.name===form.schemaName)?form.schemaName:(choices.find(item=>item.name)?.name||'');
+   clearObjects();set('schema_state',{schemaName,loadStatus:'Schemas loaded. Choose one and search tables.',outcome:(result?.warnings||[]).join(' ')});return true;
+  }catch(error){if(epoch===discoveryEpoch)set('schema_state',{outcome:error.message,loadStatus:'Load failed. You can retry or edit the lookup lists.'});return false;}
+  finally{if(epoch===discoveryEpoch)set('schema_state',{metadataLoading:false});}
+ };
  const tables=async offset=>{
   const form=state();if(!form.connectorName)return;
-  const result=await call('schema_table_list',{name:form.connectorName,input:{schema:form.schemaName||'',query:(form.query||'').trim(),limit:201,offset}});
+  const result=await call('schema_table_list',{name:form.connectorName,input:{...scope(),schema:form.schemaName||'',query:(form.query||'').trim(),limit:201,offset}});
   rows('schema_tables',(result?.items||[]).slice(0,200));set('schema_state',{tableOffset:offset,hasMore:(result?.items||[]).length>200});
- };
- const schemas=async()=>{
-  const form=state();if(!form.connectorName)return;
-  const result=await call('schema_name_list',{name:form.connectorName,input:{}});
-  rows('schema_names',[{id:'default',name:'',label:'Default schema'},...(result?.items||[]).filter(item=>item.name).map(item=>({...item,label:item.name}))]);
-  set('schema_state',{schemaName:'',selected:false,sql:''});rows('schema_columns',[]);await tables(0);
  };
  const inspectComponent=async()=>{
   const form=get('schema_child_draft'),reportId=form.reportId,epoch=(state().childLoadEpoch||0)+1;
@@ -47,13 +84,35 @@
  };
  return {
   invalidateSQL:()=>ds('schema_test_result').setFormData({values:{data:null}}),
-  initialize:()=>run('schema_state',async()=>{const result=await call('schema_connector_list',{status:'active',limit:100});const connectors=result?.items||[];rows('schema_connectors',connectors.map(item=>({...item,label:item.name})));set('schema_state',{connectorName:connectors[0]?.name||'',schemaName:'',query:'',selected:false,sql:'',extension:'sql',tableOffset:0,hasMore:false});await schemas();}),
-  changeConnector:()=>run('schema_state',schemas),
-  changeSchema:()=>run('schema_state',()=>tables(0)),
+  initialize:()=>run('schema_state',async()=>{const before=state(),result=await call('schema_connector_list',{status:'active',limit:100});const connectors=result?.items||[];rows('schema_connectors',connectors.map(item=>({...item,label:item.name})));set('schema_state',{connectorName:connectors.some(item=>item.name===before.connectorName)?before.connectorName:(connectors[0]?.name||''),catalogName:before.catalogName||'',schemaName:before.schemaName||'',query:'',selected:false,sql:'',extension:'sql',tableOffset:0,hasMore:false});cancelDiscovery();localChoices();clearObjects();}),
+  changeConnector:()=>{cancelDiscovery();set('schema_state',{catalogName:'',schemaName:'',productVersion:''});localChoices();clearObjects();},
+  changeCatalog:()=>{cancelDiscovery();set('schema_state',{schemaName:''});schemaChoices([]);clearObjects();},
+  loadSchemas:discovery,
+  cancelDiscovery,
+  editLookups:()=>run('schema_state',async()=>{
+   const current=await call('schema_connector_get',{name:state().connectorName}),saved=current.options?.discovery||{};
+   const catalogs=saved.catalogs||(ds('schema_catalogs').getCollection().map(item=>item.name).filter(Boolean));
+   const schemas=saved.schemas||(ds('schema_names').getCollection().filter(item=>item.name).map(item=>({catalog:state().catalogName||'',name:item.name})));
+   ds('schema_lookup_draft').setFormData({values:{connectorName:current.name,etag:current.etag,options:current.options||{},catalogRows:catalogs.map(name=>({name})),schemaRows:schemas.map(item=>({...item})),outcome:''}});
+   open('schema-lookups');
+  }),
+  discoverLookups:()=>run('schema_lookup_draft',async()=>{
+   const form=get('schema_lookup_draft'),result=await call('schema_discover',{name:form.connectorName,input:scope()});
+   set('schema_lookup_draft',{catalogRows:unique([...(form.catalogRows||[]),...(result?.catalogs||[]).map(item=>({name:item.name}))],item=>item.name),schemaRows:unique([...(form.schemaRows||[]),...(result?.schemas||[]).map(item=>({catalog:item.catalog||state().catalogName||'',name:item.name}))],item=>item.catalog+'\n'+item.name),outcome:(result?.warnings||[]).join(' ')});
+  }),
+  saveLookups:()=>run('schema_lookup_draft',async()=>{
+   const form=get('schema_lookup_draft'),catalogs=form.catalogRows||[],schemas=form.schemaRows||[];
+   if(catalogs.some(item=>!item.name?.trim())||schemas.some(item=>!item.name?.trim()))throw new Error('Enter a name for each lookup entry or remove its empty row.');
+   const options={...form.options,discovery:{catalogs:[...new Set(catalogs.map(item=>item.name.trim()))],schemas:unique(schemas.map(item=>({catalog:(item.catalog||'').trim(),name:item.name.trim()})),item=>item.catalog+'\n'+item.name)}};
+   const updated=await call('schema_connector_update',{name:form.connectorName,input:{options,etag:form.etag}});
+   rows('schema_connectors',ds('schema_connectors').getCollection().map(item=>item.name===form.connectorName?{...item,...updated,options}:item));
+   catalogChoices([]);const choices=ds('schema_catalogs').getCollection();set('schema_state',{catalogName:choices.some(item=>item.name===state().catalogName)?state().catalogName:(choices.find(item=>item.name)?.name||''),schemaName:''});cancelDiscovery();localChoices();clearObjects();
+  }),
+  changeSchema:()=>{cancelDiscovery();clearObjects();},
   searchTables:()=>run('schema_state',()=>tables(0)),
   previousTables:()=>run('schema_state',()=>tables(Math.max(0,(state().tableOffset||0)-200))),
   nextTables:()=>state().hasMore?run('schema_state',()=>tables((state().tableOffset||0)+200)):false,
-  inspectTable:props=>run('schema_state',async()=>{const table=props.row||ds('schema_tables').peekSelection()?.selected;if(!table)return;const detail=await call('schema_table',{name:state().connectorName,input:{schema:table.schema||state().schemaName||'',table:table.name}});set('schema_state',{detail,tableName:detail.table.name,selected:true,sql:'SELECT *\nFROM '+[detail.table.schema,detail.table.name].filter(Boolean).join('.'),extension:'sql'});rows('schema_columns',(detail.columns||[]).map(column=>({...column,constraints:[column.primaryKey?'PK':'',column.unique?'unique':'',column.nullable?'nullable':'required'].filter(Boolean).join(' · '),reference:column.referenceTable?column.referenceTable+'.'+column.referenceColumn:''})));ds('schema_test_result').setFormData({values:{data:null}});selectTab('schema-sql');}),
+  inspectTable:props=>run('schema_state',async()=>{const table=props.row||ds('schema_tables').peekSelection()?.selected;if(!table)return;const detail=await call('schema_table',{name:state().connectorName,input:{...scope(),schema:table.schema||state().schemaName||'',table:table.name}});set('schema_state',{detail,tableName:detail.table.name,selected:true,sql:'SELECT *\nFROM '+(connection().driver==='bigquery'?'`'+[detail.table.catalog||state().catalogName,detail.table.schema,detail.table.name].filter(Boolean).join('.')+'`':[detail.table.schema,detail.table.name].filter(Boolean).join('.')),extension:'sql'});rows('schema_columns',(detail.columns||[]).map(column=>({...column,constraints:[column.primaryKey?'PK':'',column.unique?'unique':'',column.nullable?'nullable':'required'].filter(Boolean).join(' · '),reference:column.referenceTable?column.referenceTable+'.'+column.referenceColumn:''})));ds('schema_test_result').setFormData({values:{data:null}});selectTab('schema-sql');}),
   closeTable:()=>{set('schema_state',{selected:false,detail:null,sql:''});ds('schema_test_result').setFormData({values:{data:null}});},
   testSQL:()=>run('schema_state',async()=>{if(!state().sql?.trim())throw new Error('Enter SQL to test.');const result=await call('schema_test',{name:state().connectorName,input:{sql:state().sql.trim(),limit:50}});ds('schema_test_result').setFormData({values:result});selectTab('schema-result');}),
   newRoot:()=>{const table=state().detail?.table;if(!table)return false;ds('schema_root_draft').setFormData({values:{title:titleCase(table.name),slug:words(table.name).map(word=>word.toLowerCase()).join('-'),viewName:identifier(table.name),saving:false,outcome:''}});open('schema-root');},

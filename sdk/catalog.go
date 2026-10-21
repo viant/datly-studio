@@ -7,24 +7,28 @@ import (
 )
 
 const (
-	OperationConnectorSchemas = "connectors.schemas"
-	OperationConnectorTables  = "connectors.tables"
-	OperationConnectorTable   = "connectors.table"
-	OperationConnectorTestSQL = "connectors.test_sql"
+	OperationConnectorDiscover = "connectors.discover"
+	OperationConnectorSchemas  = "connectors.schemas"
+	OperationConnectorTables   = "connectors.tables"
+	OperationConnectorTable    = "connectors.table"
+	OperationConnectorTestSQL  = "connectors.test_sql"
 )
 
 type SchemaCatalogInput struct {
-	Query string `json:"query,omitempty"`
+	Catalog string `json:"catalog,omitempty"`
+	Query   string `json:"query,omitempty"`
 }
 type TableCatalogInput struct {
-	Schema string `json:"schema,omitempty"`
-	Query  string `json:"query,omitempty"`
-	Limit  int    `json:"limit,omitempty"`
-	Offset int    `json:"offset,omitempty"`
+	Catalog string `json:"catalog,omitempty"`
+	Schema  string `json:"schema,omitempty"`
+	Query   string `json:"query,omitempty"`
+	Limit   int    `json:"limit,omitempty"`
+	Offset  int    `json:"offset,omitempty"`
 }
 type TableDetailInput struct {
-	Schema string `json:"schema,omitempty"`
-	Table  string `json:"table"`
+	Catalog string `json:"catalog,omitempty"`
+	Schema  string `json:"schema,omitempty"`
+	Table   string `json:"table"`
 }
 type SQLTestInput struct {
 	SQL   string `json:"sql"`
@@ -84,6 +88,7 @@ type ConnectorSQLTester interface {
 }
 
 type CatalogService interface {
+	Discover(context.Context, string, DatabaseDiscoveryInput) (*DatabaseDiscovery, error)
 	Schemas(context.Context, string, SchemaCatalogInput) (*SchemaCatalog, error)
 	Tables(context.Context, string, TableCatalogInput) (*TableCatalog, error)
 	Table(context.Context, string, TableDetailInput) (*TableDetail, error)
@@ -114,5 +119,34 @@ func (c catalogClient) TestSQL(ctx context.Context, name string, input SQLTestIn
 	return invoke[SQLTestResult](ctx, c.transport, OperationConnectorTestSQL, struct {
 		Name  string       `json:"name"`
 		Input SQLTestInput `json:"input"`
+	}{name, input})
+}
+
+// DatabaseDiscoveryInput selects metadata scope without changing the connector.
+type DatabaseDiscoveryInput struct {
+	Catalog string `json:"catalog,omitempty"`
+	Schema  string `json:"schema,omitempty"`
+}
+type DatabaseCatalog struct {
+	Name string `json:"name"`
+}
+type DatabaseDiscovery struct {
+	Driver   string            `json:"driver"`
+	Product  string            `json:"product"`
+	Version  string            `json:"version,omitempty"`
+	Catalog  string            `json:"catalog,omitempty"`
+	Schema   string            `json:"schema,omitempty"`
+	Catalogs []DatabaseCatalog `json:"catalogs"`
+	Schemas  []DatabaseSchema  `json:"schemas"`
+	Warnings []string          `json:"warnings,omitempty"`
+}
+type DatabaseDiscoverer interface {
+	Discover(context.Context, *Connector, DatabaseDiscoveryInput) (*DatabaseDiscovery, error)
+}
+
+func (c catalogClient) Discover(ctx context.Context, name string, input DatabaseDiscoveryInput) (*DatabaseDiscovery, error) {
+	return invoke[DatabaseDiscovery](ctx, c.transport, OperationConnectorDiscover, struct {
+		Name  string                 `json:"name"`
+		Input DatabaseDiscoveryInput `json:"input"`
 	}{name, input})
 }

@@ -1,0 +1,96 @@
+pipeline:
+  create:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.connectors.create
+    arguments:
+      name: discovery_scoped
+      driver: sqlite
+      dsnTemplate: ${runDir}/discovery-primary.db
+      options:
+        sqliteAttachments:
+          lookup: ${runDir}/discovery-lookup.db
+  probe:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.connectors.test
+    arguments: {name: discovery_scoped}
+  activate:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.connectors.activate
+    arguments: {name: discovery_scoped, etag: 1}
+  discover:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.connectors.discover
+    arguments: {name: discovery_scoped, input: {}}
+  metadata:
+    action: validator:assert
+    actual: $discover.StructuredContent
+    expect:
+      driver: sqlite
+      product: SQLite
+      '@length@schemas': 2
+  browseAndEditLists:
+    action: webdriver:run
+    sessionID: localhost:4446
+    autoStart: false
+    browser: chrome
+    failureArtifacts: {directory: '${runDir}/artifacts/discovery'}
+    commands:
+      - page.goto("${browserURL}/e2e/login")
+      - page.getByLabel("Test identity").selectOption("owner")
+      - page.getByRole("button", "Sign in").click()
+      - page.getByRole("button", "Schema Browser").click()
+      - expect(page.getByRole("button", "Load schemas")).toBeEnabled(15000)
+      - expect(page.getByRole("button", "Inspect table")).toHaveCount(0,15000)
+      - page.getByRole("button", "Load schemas").click()
+      - expect(page.getByRole("button", "Load schemas")).toBeEnabled(30000)
+      - page.getByRole("button", "Edit lookup lists").click()
+      - page.getByRole("button", "Add project / catalog").click()
+      - page.getByLabel("Project / catalog 1").fill("local")
+      - page.getByRole("button", "Remove schema / dataset 1").click()
+      - page.getByLabel("Project / catalog (optional) 1").fill("local")
+      - page.getByLabel("Schema / dataset 1").fill("lookup")
+      - page.getByRole("button", "Save lookup lists").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - page.getByRole("button", "Project / catalog").click()
+      - page.getByRole("menuitem", "local").click()
+      - page.getByRole("button", "Schema / dataset").click()
+      - page.getByRole("menuitem", "lookup").click()
+      - page.getByRole("button", "Search tables").click()
+      - expect(page.getByRole("button", "Inspect table")).toHaveCount(1,15000)
+      - page.getByRole("button", "Inspect table").click()
+      - page.getByRole("tab", "Columns").click()
+      - expect(page.locator("xpath://td[normalize-space(.)='dataset_marker']")).toBeVisible(15000)
+      - expect(page.locator("xpath://td[normalize-space(.)='main_marker']")).toHaveCount(0,15000)
+  savedLists:
+    action: dsunit:query
+    datastore: studio
+    SQL: >-
+      SELECT status,last_test_status,
+      json_extract(options_json,'$.discovery.catalogs[0]') AS catalog,
+      json_extract(options_json,'$.discovery.schemas[0].name') AS schema_name
+      FROM connectors WHERE name='discovery_scoped'
+    expect:
+      - {status: active, last_test_status: passed, catalog: local, schema_name: lookup}
+  scopedColumns:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.connectors.table
+    arguments: {name: discovery_scoped, input: {catalog: local, schema: lookup, table: discovery_items}}
+  columnBoundary:
+    action: validator:assert
+    actual: $scopedColumns.StructuredContent
+    expect:
+      table: {schema: lookup, name: discovery_items}
+      '@length@columns': 2
+      columns:
+        - {name: dataset_marker}
+        - {name: id}

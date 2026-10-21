@@ -25,7 +25,7 @@ import (
 
 var subjects = []string{"owner", "editor", "viewer", "runner", "outsider", "expired", "wrong-issuer", "sales-reader", "ops-reader", "no-exposure", "no-role", "customer-10", "customer-20", "customer-no-role", "customer-no-grant", "namespace-admin", "namespace-not-admin"}
 
-const mockInfoURL = "http://127.0.0.1:18795/v1/api/user/info"
+func mockInfoURL() string { return fixtureURL(18795) + "/v1/api/user/info" }
 
 func profileRoles(subject string) ([]string, []string) {
 	switch subject {
@@ -72,7 +72,7 @@ func prepareIDP(dir string) {
 		token, err := os.ReadFile(filepath.Join(dir, subject+".token"))
 		check(err)
 		roles, features := profileRoles(subject)
-		write(filepath.Join(base, fmt.Sprintf("%02d-req.json", i)), map[string]any{"Method": "GET", "URL": mockInfoURL, "Header": map[string][]string{"Authorization": {"Bearer " + strings.TrimSpace(string(token))}}})
+		write(filepath.Join(base, fmt.Sprintf("%02d-req.json", i)), map[string]any{"Method": "GET", "URL": mockInfoURL(), "Header": map[string][]string{"Authorization": {"Bearer " + strings.TrimSpace(string(token))}}})
 		body, err := json.Marshal(map[string]any{"status": "ok", "info": map[string]any{"subject": subject, "uid": strconv.Itoa(i + 1), "userId": i + 1, "accountId": 42, "roles": roles, "features": features, "entityPermissions": profileEntityPermissions(subject), "evaluatedAt": time.Now().UTC(), "validUntil": time.Now().Add(time.Hour).UTC()}})
 		check(err)
 		write(filepath.Join(base, fmt.Sprintf("%02d-resp.json", i)), map[string]any{"Code": 200, "Header": map[string][]string{"Content-Type": {"application/json"}}, "Body": string(body)})
@@ -116,7 +116,7 @@ func (p *idpProvider) Resolve(ctx context.Context) (authz.Facts, error) {
 	if claims.UserID < 1 || claims.AccountID != 42 || claims.ExpiresAt == nil {
 		return authz.Facts{}, authz.ErrDenied
 	}
-	req, err := http.NewRequestWithContext(ctx, "GET", mockInfoURL, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", mockInfoURL(), nil)
 	if err != nil {
 		return authz.Facts{}, authz.ErrUnavailable
 	}

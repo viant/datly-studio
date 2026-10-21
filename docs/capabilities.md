@@ -33,3 +33,28 @@ discovery catalog acceptance remains outstanding. See the
 [e2e plan](../e2e/plan.md) and [results](../e2e/results.md) for tested behavior and
 remaining coverage. Passing the current suite does not mean every planned
 capability or database dialect has live acceptance coverage.
+
+## Database discovery scopes
+
+The Forge Schema Browser loads only the connector list when opened. **Load
+schemas** explicitly calls `studio.sdk.connectors.discover`, a custom Datly
+handler returning the database product/version, current catalog/schema and
+available metadata choices. **Stop waiting** dismisses a pending lookup and
+ignores its late result. Discovery requests have a 30-second server deadline.
+
+**Edit lookup lists** uses Forge `arrayFields` to add/remove projects/catalogs
+and schemas/datasets. Lists are also editable in connector configuration and
+persist under `options.discovery.catalogs` and `options.discovery.schemas`;
+no DDL is required. Editing those lists preserves activation and probe status.
+They are metadata hints, not restrictions or database-creation operations.
+Use **Discover entries** to merge available metadata into the editable lists.
+Some drivers expose only the current catalog; other accessible catalog names
+can be entered manually. BigQuery does not expose a database server version.
+
+The existing `studio.sdk.connectors.schemas`, `.tables` and `.table` tools
+accept `input.catalog`; table and column discovery also accept `input.schema`.
+The selected scope overrides discovery defaults without changing stored DSNs
+or credentials. BigQuery preserves connection credentials, region and options
+while selecting the requested project and dataset. SQLite attachment discovery
+uses only attachment paths already configured on the connector. Source access
+continues to be checked by the connector and database credentials.

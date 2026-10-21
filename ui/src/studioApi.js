@@ -7,7 +7,7 @@ import { postV1StudioSdkAclDelete, postV1StudioSdkAclList, postV1StudioSdkAclUps
 import { postV1StudioSdkAuthorizationPredicatesGet, postV1StudioSdkAuthorizationPredicatesList } from './generated/studioClient.gen.js';
 import { postV1StudioSdkAuthorizationPredicatesCreate } from './generated/studioClient.gen.js';
 import { postV1StudioSdkAuthorizationPredicatesUpdate, postV1StudioSdkAuthorizationPredicatesDelete } from './generated/studioClient.gen.js';
-import { postV1StudioSdkConnectorsSchemas, postV1StudioSdkConnectorsTables, postV1StudioSdkConnectorsTable } from './generated/studioClient.gen.js';
+import { postV1StudioSdkConnectorsDiscover, postV1StudioSdkConnectorsSchemas, postV1StudioSdkConnectorsTables, postV1StudioSdkConnectorsTable } from './generated/studioClient.gen.js';
 import { postV1StudioSdkConnectorsTest } from './generated/studioClient.gen.js';
 import { postV1StudioSdkConnectorsTestSql } from './generated/studioClient.gen.js';
 import { postV1StudioSdkPreviewExecute } from './generated/studioClient.gen.js';
@@ -330,6 +330,7 @@ export class StudioAPI {
   createConnector(input) { return this.nativeRequest(postV1StudioSdkConnectorsCreate, 'connectors.create', input); }
   updateConnector(name, input) { return this.nativeRequest(postV1StudioSdkConnectorsUpdate, 'connectors.update', { name, input }); }
   testConnector(name) { return this.nativeRequest(postV1StudioSdkConnectorsTest, 'connectors.test', { name }); }
+  discoverConnector(name, input = {}) { return this.nativeRequest(postV1StudioSdkConnectorsDiscover, 'connectors.discover', { name, input }); }
   listSchemas(name, input = {}) { return this.nativeRequest(postV1StudioSdkConnectorsSchemas, 'connectors.schemas', { name, input }); }
   listTables(name, input = {}) { return this.nativeRequest(postV1StudioSdkConnectorsTables, 'connectors.tables', { name, input }); }
   getTable(name, input) { return this.nativeRequest(postV1StudioSdkConnectorsTable, 'connectors.table', { name, input }); }

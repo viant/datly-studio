@@ -1,9 +1,9 @@
 package store_config
 
 import (
-	"bytes"
 	context "context"
 	"fmt"
+	"github.com/viant/datly-studio/internal/connectorinit"
 	xhandler "github.com/viant/xdatly/handler"
 	reflect "reflect"
 )
@@ -35,7 +35,7 @@ func (hooks *ConnectorConfigRules) Init(_ context.Context, entity *StoredConnect
 		return &xhandler.Conflict{Entity: "connector", Field: "etag", Reason: "expected etag does not match"}
 	}
 	if entity.Driver != previous.Driver || stringValue(entity.DsnTemplate) != stringValue(previous.DsnTemplate) ||
-		stringValue(entity.SecretRef) != stringValue(previous.SecretRef) || !bytes.Equal(entity.OptionsJson, previous.OptionsJson) {
+		stringValue(entity.SecretRef) != stringValue(previous.SecretRef) || !connectorinit.ConnectionOptionsEqual(entity.OptionsJson, previous.OptionsJson) {
 		entity.SetStatus("draft")
 		entity.SetLastTestStatus(nil)
 		entity.SetLastTestErrorCode(nil)

@@ -201,7 +201,7 @@ func (t *Transport) Invoke(ctx context.Context, operation string, input, output 
 		return t.deleteConnector(ctx, input)
 	case sdk.OperationConnectorTest:
 		return t.testConnector(ctx, input, output)
-	case sdk.OperationConnectorSchemas, sdk.OperationConnectorTables, sdk.OperationConnectorTable, sdk.OperationConnectorTestSQL:
+	case sdk.OperationConnectorDiscover, sdk.OperationConnectorSchemas, sdk.OperationConnectorTables, sdk.OperationConnectorTable, sdk.OperationConnectorTestSQL:
 		return t.connectorCatalog(ctx, operation, input, output)
 	case sdk.OperationNamespaceCreate:
 		return t.createNamespace(ctx, input, output)
@@ -323,6 +323,20 @@ func (t *Transport) connectorCatalog(ctx context.Context, operation string, inpu
 		result, testErr := t.SQLTester.TestSQL(ctx, &connector.Connector, request)
 		if testErr != nil {
 			return testErr
+		}
+		return assign(output, result)
+	case sdk.OperationConnectorDiscover:
+		explorer, ok := t.Catalog.(sdk.DatabaseDiscoverer)
+		if !ok {
+			return &sdk.Error{Code: sdk.ErrorUnavailable, Message: "database discovery is not configured"}
+		}
+		var request sdk.DatabaseDiscoveryInput
+		if err = decode(envelope.Input, &request); err != nil {
+			return invalid(err)
+		}
+		result, err := explorer.Discover(ctx, &connector.Connector, request)
+		if err != nil {
+			return internal(err)
 		}
 		return assign(output, result)
 	case sdk.OperationConnectorSchemas:

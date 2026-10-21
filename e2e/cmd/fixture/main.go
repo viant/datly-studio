@@ -49,11 +49,23 @@ func write(name string, v any) {
 	check(err)
 	check(os.WriteFile(name, data, 0600))
 }
+
+var portOffset int
+var namespaceAdminRole = "NAMESPACE_ADMIN"
+
+func fixtureAddress(base int) string { return fmt.Sprintf("127.0.0.1:%d", base+portOffset) }
+func fixtureURL(base int) string     { return "http://" + fixtureAddress(base) }
+
 func main() {
 	mode := flag.String("mode", "serve", "prepare or serve")
 	root := flag.String("root", "", "Studio repository root")
 	dir := flag.String("dir", "", "dedicated e2e working directory")
+	flag.IntVar(&portOffset, "port-offset", 0, "offset for all fixture HTTP/MCP/IdP ports")
+	flag.StringVar(&namespaceAdminRole, "namespace-admin-role", "NAMESPACE_ADMIN", "optional global namespace administrator role")
 	flag.Parse()
+	if portOffset < 0 || portOffset > 46000 {
+		log.Fatal("invalid fixture port offset")
+	}
 	if !filepath.IsAbs(*root) || !filepath.IsAbs(*dir) || !strings.HasPrefix(*dir, filepath.Join(*root, ".data", "e2e")+string(os.PathSeparator)) {
 		log.Fatal("root and isolated .data/e2e/<run> directory required")
 	}
@@ -62,8 +74,8 @@ func main() {
 		deadline := time.Now().Add(30 * time.Second)
 		for time.Now().Before(deadline) {
 			ready := true
-			for _, port := range []string{"18780", "18790"} {
-				c, e := net.DialTimeout("tcp", "127.0.0.1:"+port, 200*time.Millisecond)
+			for _, port := range []int{18780, 18790} {
+				c, e := net.DialTimeout("tcp", fixtureAddress(port), 200*time.Millisecond)
 				if e != nil {
 					ready = false
 				} else {
@@ -127,22 +139,22 @@ func prepare(root, dir string) {
 	config := map[string]any{}
 	check(yaml.Unmarshal(configBytes, &config))
 	config["BaseDir"] = root
-	config["Endpoint"] = map[string]any{"Address": "127.0.0.1:18781"}
-	config["MCP"] = map[string]any{"Address": "127.0.0.1:18790", "Authorization": map[string]any{"Global": map[string]any{"ProtectedResourceMetadata": map[string]any{"Resource": "http://127.0.0.1:18790/mcp"}}}}
+	config["Endpoint"] = map[string]any{"Address": fixtureAddress(18781)}
+	config["MCP"] = map[string]any{"Address": fixtureAddress(18790), "Authorization": map[string]any{"Global": map[string]any{"ProtectedResourceMetadata": map[string]any{"Resource": fixtureURL(18790) + "/mcp"}}}}
 	config["Connectors"] = []any{map[string]any{"Name": "studio", "Driver": "sqlite", "DSN": studioDSN(dir)}, map[string]any{"Name": "authz", "AliasOf": "studio"}}
 	config["JWTValidator"] = map[string]any{"RSA": []any{map[string]any{"URL": filepath.Join(dir, "public.pem")}}}
 	config["JWTClaims"] = map[string]any{"Issuer": "studio-e2e", "Audience": "studio-e2e", "RequireSubject": true}
-	config["CORS"] = map[string]any{"AllowOrigins": []string{"http://127.0.0.1:18780"}, "AllowMethods": []string{"GET", "POST", "OPTIONS"}, "AllowHeaders": []string{"Content-Type", "Authorization", "X-Studio-Namespace"}}
+	config["CORS"] = map[string]any{"AllowOrigins": []string{fixtureURL(18780)}, "AllowMethods": []string{"GET", "POST", "OPTIONS"}, "AllowHeaders": []string{"Content-Type", "Authorization", "X-Studio-Namespace"}}
 	write(filepath.Join(dir, "native.json"), config)
-	write(filepath.Join(dir, "studio-config.json"), map[string]any{"mode": "development", "apiBaseURL": "http://127.0.0.1:18780", "development": map[string]string{"subject": "owner"}})
+	write(filepath.Join(dir, "studio-config.json"), map[string]any{"mode": "development", "apiBaseURL": fixtureURL(18780), "development": map[string]string{"subject": "owner"}})
 	fmt.Println("prepared isolated Studio catalog and synthetic identities")
 }
 func serve(root, dir string) {
-	check(studiocatalog.ConfigureManagementNavigation(nil, "http://127.0.0.1:18780", "studio-e2e"))
+	check(studiocatalog.ConfigureManagementNavigation(nil, fixtureURL(18780), "studio-e2e"))
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 	check(os.Setenv("STUDIO_ACCESS_POLICY_EDITOR_ROLES", "ROLE_ADMIN"))
-	check(os.Setenv("STUDIO_NAMESPACE_ADMIN_ROLE", "NAMESPACE_ADMIN"))
+	check(os.Setenv("STUDIO_NAMESPACE_ADMIN_ROLE", namespaceAdminRole))
 	identity, err := newIDP(dir)
 	check(err)
 	check(accessprovider.RegisterEnvironmentFactory(func(context.Context, accessprovider.Config) (authz.Provider, error) { return identity, nil }))
@@ -153,14 +165,14 @@ func serve(root, dir string) {
 	if !catalog.Contains(predicatePackage, "CustomerScope") {
 		log.Fatal("package-string predicate discovery failed")
 	}
-	check(os.Setenv("STUDIO_DYNAMIC_HTTP_URL", "http://127.0.0.1:18782"))
+	check(os.Setenv("STUDIO_DYNAMIC_HTTP_URL", fixtureURL(18782)))
 	check(os.Setenv("STUDIO_RUNTIME_ADMIN_TOKEN", "studio-e2e-admin"))
 	compositionDB, err := sql.Open("sqlite", studioDSN(dir))
 	check(err)
 	defer compositionDB.Close()
-	group, err := runtimehost.NewNamespaceGroup(ctx, runtimehost.Config{NamespaceBuildResolver: compositionResolver(compositionDB), HTTP: runtimehost.Listener{Address: "127.0.0.1:18782"}, MCP: runtimehost.Listener{Address: "127.0.0.1:0"}, Authentication: runtimehost.Authentication{DefaultMode: "required", Issuer: "studio-e2e", Audience: "studio-e2e"}, Access: &runtimehost.ResourceAccessConfig{Provider: identity, Tenant: "studio-e2e", Issuer: "studio-e2e", Audience: "studio-e2e", PublicKeyFile: filepath.Join(dir, "public.pem")}, Studio: runtimehost.Studio{Driver: "sqlite", DSN: studioDSN(dir)}, Admin: runtimehost.Admin{Token: "studio-e2e-admin"}, RootDir: root})
+	group, err := runtimehost.NewNamespaceGroup(ctx, runtimehost.Config{NamespaceBuildResolver: compositionResolver(compositionDB), HTTP: runtimehost.Listener{Address: fixtureAddress(18782)}, MCP: runtimehost.Listener{Address: "127.0.0.1:0"}, Authentication: runtimehost.Authentication{DefaultMode: "required", Issuer: "studio-e2e", Audience: "studio-e2e"}, Access: &runtimehost.ResourceAccessConfig{Provider: identity, Tenant: "studio-e2e", Issuer: "studio-e2e", Audience: "studio-e2e", PublicKeyFile: filepath.Join(dir, "public.pem")}, Studio: runtimehost.Studio{Driver: "sqlite", DSN: studioDSN(dir)}, Admin: runtimehost.Admin{Token: "studio-e2e-admin"}, RootDir: root})
 	check(err)
-	check(group.StartAdmin("127.0.0.1:18782", "studio-e2e-admin"))
+	check(group.StartAdmin(fixtureAddress(18782), "studio-e2e-admin"))
 	defer group.Close(context.Background())
 	go func() { check(group.Run(ctx, 100*time.Millisecond, nil)) }()
 	go func() {
@@ -168,7 +180,7 @@ func serve(root, dir string) {
 			cancel()
 		}
 	}()
-	native, _ := url.Parse("http://127.0.0.1:18781")
+	native, _ := url.Parse(fixtureURL(18781))
 	proxy := httputil.NewSingleHostReverseProxy(native)
 	mux := http.NewServeMux()
 	check(registerBrowserIdentity(mux, proxy, dir))
@@ -177,9 +189,9 @@ func serve(root, dir string) {
 		fmt.Fprint(w, `{"status":"ready","predicatePackage":"`+predicatePackage+`"}`)
 	})
 	mux.Handle("/", http.FileServer(http.Dir(filepath.Join(root, "ui", "dist"))))
-	server := &http.Server{Addr: "127.0.0.1:18780", Handler: mux, ReadHeaderTimeout: 5 * time.Second}
+	server := &http.Server{Addr: fixtureAddress(18780), Handler: mux, ReadHeaderTimeout: 5 * time.Second}
 	go func() { <-ctx.Done(); server.Shutdown(context.Background()) }()
-	fmt.Println("Studio e2e fixture listening on 18780, 18781, 18782, 18790")
+	fmt.Printf("Studio e2e fixture: browser=%s native=%s MCP=%s\n", fixtureURL(18780), fixtureURL(18781), fixtureURL(18790))
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		check(err)
 	}

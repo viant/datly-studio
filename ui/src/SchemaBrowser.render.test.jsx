@@ -6,11 +6,14 @@ import userEvent from '@testing-library/user-event';
 import ManagementWindowRuntime from './ManagementWindowRuntime.jsx';
 import {managementResourceFixture} from './managementWindowFixture.js';
 let serial=0;
-function mount({denied=false,connector='main',inspectVersion,components}={}){
+function mount({denied=false,connector='main',inspectVersion,components,connectorOptions={}}={}){
  const navigate=vi.fn(),dirty=vi.fn();
  const api={readManagementResource:async()=>managementResourceFixture('schema'),fetchMCPDataSource:vi.fn(async(source,input)=>{
   switch(source.backend.method){
-   case 'studio.sdk.connectors.list':if(denied)throw new Error('connector catalog unavailable');return {items:[{name:connector,driver:'sqlite'}]};
+   case 'studio.sdk.connectors.list':if(denied)throw new Error('connector catalog unavailable');return {items:[{name:connector,driver:'sqlite',options:connectorOptions,etag:4}]};
+   case 'studio.sdk.connectors.discover':return {product:'SQLite',version:'3',catalog:'main',catalogs:[{name:'main'}],schemas:[{catalog:'main',name:'sales'}]};
+   case 'studio.sdk.connectors.get':return {name:connector,driver:'sqlite',options:connectorOptions,etag:4};
+   case 'studio.sdk.connectors.update':return {name:connector,driver:'sqlite',status:'active',options:input.input.options,etag:5};
    case 'studio.sdk.connectors.schemas':return {items:[{catalog:'main',name:'sales'}]};
    case 'studio.sdk.connectors.tables':return {items:[{schema:'sales',name:'VENDOR',type:'TABLE'}]};
    case 'studio.sdk.connectors.table':return {table:{schema:'sales',name:'VENDOR',type:'TABLE'},columns:[{name:'ID',type:'INTEGER',primaryKey:true,nullable:false}]};
@@ -26,7 +29,8 @@ function mount({denied=false,connector='main',inspectVersion,components}={}){
  })};
  render(<ManagementWindowRuntime api={api} uri="window://datastudio/schema" instanceKey={'forge-schema-'+(++serial)} onNavigate={navigate} onDirtyChange={dirty}/>);return {api,navigate,dirty};
 }
-async function inspect(user){await user.click(await screen.findByRole('button',{name:'Inspect table',exact:true}));return screen.findByRole('textbox',{name:'SQL source',exact:true});}
+async function load(user){await user.click(await screen.findByRole('button',{name:'Load schemas',exact:true}));await waitFor(()=>expect(screen.getByRole('button',{name:'Load schemas',exact:true}).disabled).toBe(false));await user.click(screen.getByRole('button',{name:'Search tables',exact:true}));await screen.findByRole('button',{name:'Inspect table',exact:true});}
+async function inspect(user){await load(user);await user.click(await screen.findByRole('button',{name:'Inspect table',exact:true}));return screen.findByRole('textbox',{name:'SQL source',exact:true});}
 test('Forge schema discovery keeps SQL, columns and real SQL results in tabs',async()=>{
  const user=userEvent.setup(),{api}=mount();const editor=await inspect(user);expect(editor.textContent.replaceAll('\n','')).toBe('SELECT *FROM sales.VENDOR');
  await user.click(screen.getByRole('tab',{name:'Columns',exact:true}));expect(await screen.findByText('PK · required')).toBeTruthy();
@@ -72,7 +76,7 @@ test('Forge child authoring ignores an older component inspection after a new se
 
 
 test('schema search locks inspect until the current metadata request completes',async()=>{
- const user=userEvent.setup(),{api}=mount();
+ const user=userEvent.setup(),{api}=mount();await load(user);
  const inspectButton=await screen.findByRole('button',{name:'Inspect table',exact:true});await waitFor(()=>expect(inspectButton.disabled).toBe(false));
  const original=api.fetchMCPDataSource.getMockImplementation();let finish;
  api.fetchMCPDataSource.mockImplementation((source,input)=>source.backend.method==='studio.sdk.connectors.tables'?new Promise(resolve=>{finish=resolve;}):original(source,input));
@@ -80,4 +84,41 @@ test('schema search locks inspect until the current metadata request completes',
  await user.click(inspectButton);expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.connectors.table')).toBe(false);
  await act(async()=>finish({items:[{schema:'sales',name:'VENDOR',type:'TABLE'}]}));await waitFor(()=>expect(inspectButton.disabled).toBe(false));await user.click(inspectButton);
  await screen.findByRole('textbox',{name:'SQL source',exact:true});expect(api.fetchMCPDataSource.mock.calls.filter(([source])=>source.backend.method==='studio.sdk.connectors.table')).toHaveLength(1);
+});
+
+test('project and schema lookups remain editable and preserve connector configuration',async()=>{
+ const user=userEvent.setup(),{api}=mount({connectorOptions:{pool:3}});await load(user);
+ await user.click(screen.getByRole('button',{name:'Edit lookup lists',exact:true}));
+ await screen.findByRole('dialog',{name:'Project and schema lookup lists'});
+ await user.click(screen.getByRole('button',{name:'Add project / catalog',exact:true}));
+ await user.type(screen.getByRole('textbox',{name:'Project / catalog 2',exact:true}),'other-project');
+ await user.click(screen.getByRole('button',{name:'Add schema / dataset',exact:true}));
+ await user.type(screen.getByRole('textbox',{name:'Project / catalog (optional) 2',exact:true}),'other-project');
+ await user.type(screen.getByRole('textbox',{name:'Schema / dataset 2',exact:true}),'analytics');
+ await user.click(screen.getByRole('button',{name:'Save lookup lists',exact:true}));
+ await waitFor(()=>expect(screen.queryByRole('dialog')).toBeNull());
+ const saved=api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.connectors.update')[1];
+ expect(saved).toMatchObject({name:'main',input:{etag:4,options:{pool:3,discovery:{catalogs:['main','other-project'],schemas:[{catalog:'main',name:'sales'},{catalog:'other-project',name:'analytics'}]}}}});
+ expect(saved.input).not.toHaveProperty('driver');expect(saved.input).not.toHaveProperty('dsnTemplate');expect(saved.input).not.toHaveProperty('secretRef');
+ await user.click(screen.getByRole('button',{name:'Project / catalog',exact:true}));
+ await user.click(await screen.findByRole('menuitem',{name:'other-project',exact:true}));
+ await user.click(screen.getByRole('button',{name:'Schema / dataset',exact:true}));await user.click(await screen.findByRole('menuitem',{name:'analytics',exact:true}));await user.click(screen.getByRole('button',{name:'Search tables',exact:true}));
+ await waitFor(()=>expect(api.fetchMCPDataSource.mock.calls.some(([source,input])=>source.backend.method==='studio.sdk.connectors.tables'&&input.input.catalog==='other-project'&&input.input.schema==='analytics')).toBe(true));
+ await user.click(screen.getByRole('button',{name:'Inspect table',exact:true}));
+ expect(api.fetchMCPDataSource.mock.calls.filter(([source])=>source.backend.method==='studio.sdk.connectors.table').at(-1)[1].input.catalog).toBe('other-project');
+});
+
+test('schema loading is explicit, can be abandoned, and ignores late results',async()=>{
+ const user=userEvent.setup(),{api}=mount();await screen.findByRole('button',{name:'Load schemas',exact:true});
+ expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.connectors.discover')).toBe(false);
+ const original=api.fetchMCPDataSource.getMockImplementation();let finish;
+ api.fetchMCPDataSource.mockImplementation((source,input)=>source.backend.method==='studio.sdk.connectors.discover'?new Promise(resolve=>{finish=resolve;}):original(source,input));
+ await user.click(screen.getByRole('button',{name:'Load schemas',exact:true}));
+ await waitFor(()=>expect(finish).toBeTypeOf('function'));
+ expect(screen.getByRole('button',{name:'Connector',exact:true}).disabled).toBe(false);
+ await user.click(screen.getByRole('button',{name:'Stop waiting',exact:true}));
+ expect(screen.getByRole('button',{name:'Load schemas',exact:true}).disabled).toBe(false);
+ await act(async()=>finish({catalogs:[{name:'late-project'}],schemas:[{catalog:'late-project',name:'late-schema'}]}));
+ expect(screen.queryByText('Schemas loaded. Choose one and search tables.')).toBeNull();
+ expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.connectors.tables')).toBe(false);
 });

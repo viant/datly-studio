@@ -385,6 +385,12 @@ func TestSelectedStudioStaticComponentsBootstrapTogether(t *testing.T) {
 	if bobProbe.Code != http.StatusForbidden {
 		t.Fatalf("non-editor connector probe status=%d body=%s", bobProbe.Code, bobProbe.Body.String())
 	}
+	discovered := httptest.NewRecorder()
+	server.ServeHTTP(discovered, request("/v1/studio/sdk/connectors.discover", `{"name":"main","input":{}}`))
+	var database sdk.DatabaseDiscovery
+	if discovered.Code != 200 || json.Unmarshal(discovered.Body.Bytes(), &database) != nil || database.Product == "" || database.Version == "" || len(database.Schemas) == 0 || strings.Contains(discovered.Body.String(), dsn) {
+		t.Fatalf("native database discovery: %d %s", discovered.Code, discovered.Body.String())
+	}
 	schemas := httptest.NewRecorder()
 	server.ServeHTTP(schemas, request("/v1/studio/sdk/connectors.schemas", `{"name":"main","input":{}}`))
 	if schemas.Code != http.StatusOK || !strings.Contains(schemas.Body.String(), `"items"`) || strings.Contains(schemas.Body.String(), dsn) {
@@ -414,7 +420,7 @@ func TestSelectedStudioStaticComponentsBootstrapTogether(t *testing.T) {
 	if bobSchemas.Code == http.StatusOK || strings.Contains(bobSchemas.Body.String(), dsn) {
 		t.Fatalf("non-viewer connector schemas status=%d body=%s", bobSchemas.Code, bobSchemas.Body.String())
 	}
-	for _, operation := range []string{"tables", "table"} {
+	for _, operation := range []string{"discover", "tables", "table"} {
 		body := `{"name":"main","input":{"query":"components"}}`
 		if operation == "table" {
 			body = `{"name":"main","input":{"table":"components"}}`
@@ -1990,6 +1996,10 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.warmup", map[string]any{"reportId": previewReportID, "versionNo": 1})
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"runId":"w`)) || bytes.Contains(body, []byte(dsn)) {
 		t.Fatalf("static MCP durable warmup status=%d body=%s", status, body)
+	}
+	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.connectors.discover", map[string]any{"name": "main", "input": map[string]any{}})
+	if status != 200 || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"catalogs"`)) || !bytes.Contains(body, []byte(`"version"`)) || bytes.Contains(body, []byte(dsn)) {
+		t.Fatalf("MCP database discovery: %d %s", status, body)
 	}
 	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.connectors.schemas", map[string]any{"name": "main", "input": map[string]any{}})
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"items"`)) || bytes.Contains(body, []byte(dsn)) {

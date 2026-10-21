@@ -80,6 +80,7 @@ var nativeSDKPaths = []string{
 	"/v1/studio/sdk/connectors.get",
 	"/v1/studio/sdk/connectors.create",
 	"/v1/studio/sdk/connectors.schemas",
+	"/v1/studio/sdk/connectors.discover",
 	"/v1/studio/sdk/connectors.tables",
 	"/v1/studio/sdk/connectors.table",
 	"/v1/studio/sdk/connectors.test",

@@ -66,6 +66,9 @@ pipeline:
       - page.locator(".studio-nav-schema").click()
       - page.getByRole("button", "Connector").click()
       - page.getByRole("menuitem", "${caseName}").click()
+      - page.getByRole("button", "Load schemas").click()
+      - expect(page.getByRole("button", "Load schemas")).toBeEnabled(30000)
+      - page.getByRole("button", "Search tables").click()
       - expect(page.locator("xpath://tr[.//*[normalize-space(.)='customers']]//button[@aria-label='Inspect table']")).toBeVisible(15000)
   layout:
     action: webdriver:call-driver

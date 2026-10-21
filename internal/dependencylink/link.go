@@ -33,6 +33,7 @@ import (
 	_ "github.com/viant/datly-studio/studio/connectors/create"
 	_ "github.com/viant/datly-studio/studio/connectors/delete"
 	_ "github.com/viant/datly-studio/studio/connectors/disable"
+	_ "github.com/viant/datly-studio/studio/connectors/discover"
 	_ "github.com/viant/datly-studio/studio/connectors/get"
 	_ "github.com/viant/datly-studio/studio/connectors/reader"
 	_ "github.com/viant/datly-studio/studio/connectors/schemas"

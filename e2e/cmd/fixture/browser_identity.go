@@ -57,7 +57,7 @@ func registerBrowserIdentity(mux *http.ServeMux, proxy *httputil.ReverseProxy, d
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	})
 	// Mirror the production BFF MCP route while retaining the fixture identity.
-	mcpURL, _ := url.Parse("http://127.0.0.1:18790")
+	mcpURL, _ := url.Parse(fixtureURL(18790))
 	mcpProxy := httputil.NewSingleHostReverseProxy(mcpURL)
 	mux.HandleFunc("/v1/studio/sdk-mcp/", func(w http.ResponseWriter, r *http.Request) {
 		subject, ok := selected(r)
@@ -88,7 +88,7 @@ func registerBrowserIdentity(mux *http.ServeMux, proxy *httputil.ReverseProxy, d
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Cache-Control", "no-store")
-		if err := json.NewEncoder(w).Encode(map[string]any{"mode": "development", "apiBaseURL": "http://127.0.0.1:18780", "development": map[string]string{"subject": subject}}); err != nil {
+		if err := json.NewEncoder(w).Encode(map[string]any{"mode": "development", "apiBaseURL": fixtureURL(18780), "development": map[string]string{"subject": subject}}); err != nil {
 			fmt.Println("fixture configuration encoding failed")
 		}
 	})

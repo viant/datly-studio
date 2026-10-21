@@ -1,0 +1,111 @@
+# Global namespace administration is disabled by management.yaml.
+pipeline:
+  ownerDelegatesInUI:
+    action: webdriver:run
+    sessionID: localhost:4446
+    autoStart: false
+    browser: chrome
+    failureArtifacts: {directory: '${runDir}/artifacts/namespace-managers'}
+    commands:
+      - page.goto("${browserURL}/e2e/login")
+      - page.getByLabel("Test identity").selectOption("owner")
+      - page.getByRole("button", "Sign in").click()
+      - page.getByRole("button", "Namespaces").click()
+      - page.getByRole("button", "New namespace").click()
+      - page.getByLabel("Namespace").fill("delegated.alpha")
+      - page.getByLabel("Display title").fill("Delegated Alpha")
+      - page.getByRole("button", "Add viewer role").click()
+      - page.locator("input[aria-label='Viewer role 1']").fill("namespace_admin")
+      - page.getByRole("button", "Add manager role").click()
+      - page.locator("input[aria-label='Manager role 1']").fill("ROLE_ANALYST")
+      - page.getByRole("button", "Save").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - page.getByRole("button", "New namespace").click()
+      - page.getByLabel("Namespace").fill("delegated.beta")
+      - page.getByLabel("Display title").fill("Viewer Only Beta")
+      - page.getByRole("button", "Add viewer role").click()
+      - page.locator("input[aria-label='Viewer role 1']").fill("ROLE_ANALYST")
+      - page.getByRole("button", "Save").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+  managerEditsOnlyAssignedNamespace:
+    action: webdriver:run
+    sessionID: localhost:4446
+    autoStart: false
+    browser: chrome
+    failureArtifacts: {directory: '${runDir}/artifacts/namespace-managers'}
+    commands:
+      - page.goto("${browserURL}/e2e/login")
+      - page.getByLabel("Test identity").selectOption("no-exposure")
+      - page.getByRole("button", "Sign in").click()
+      - page.getByRole("button", "Namespaces").click()
+      - page.getByLabel("Find namespace").fill("delegated.alpha")
+      - page.getByRole("button", "Search").click()
+      - expect(page.locator("xpath://div[@data-forge-container-id='namespace-list']//tbody/tr")).toHaveCount(1,15000)
+      - page.getByRole("button", "Edit namespace").click()
+      - page.getByLabel("Display title").fill("Managed Alpha")
+      - page.getByRole("button", "Visibility").click()
+      - page.getByRole("menuitem", "Public").click()
+      - page.getByRole("button", "Add viewer role").click()
+      - page.locator("input[aria-label='Viewer role 2']").fill("ADDITIONAL_READER")
+      - page.getByRole("button", "Save").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - page.getByLabel("Find namespace").fill("delegated.beta")
+      - page.getByRole("button", "Search").click()
+      - expect(page.locator("xpath://div[@data-forge-container-id='namespace-list']//tbody/tr")).toHaveCount(1,15000)
+      - page.getByRole("button", "Edit namespace").click()
+      - expect(page.getByLabel("Display title")).toHaveAttribute("readonly","true",15000)
+      - expect(page.getByRole("button", "Save")).toHaveCount(0,15000)
+      - expect(page.getByRole("button", "Add manager role")).toHaveCount(0,15000)
+      - page.getByRole("button", "Cancel").click()
+  changesPersist:
+    action: dsunit:query
+    datastore: studio
+    SQL: >-
+      SELECT owner_id,title,visibility,
+      json_extract(allowed_roles_json,'$.manage[0]') AS manager,
+      json_extract(allowed_roles_json,'$.view[1]') AS added_reader
+      FROM namespaces WHERE name='delegated.alpha'
+    expect:
+      - {owner_id: owner, title: Managed Alpha, visibility: public, manager: ROLE_ANALYST, added_reader: ADDITIONAL_READER}
+  ownerRevokesInUI:
+    action: webdriver:run
+    sessionID: localhost:4446
+    autoStart: false
+    browser: chrome
+    failureArtifacts: {directory: '${runDir}/artifacts/namespace-managers'}
+    commands:
+      - page.goto("${browserURL}/e2e/login")
+      - page.getByLabel("Test identity").selectOption("owner")
+      - page.getByRole("button", "Sign in").click()
+      - page.getByRole("button", "Namespaces").click()
+      - page.getByLabel("Find namespace").fill("delegated.alpha")
+      - page.getByRole("button", "Search").click()
+      - expect(page.locator("xpath://div[@data-forge-container-id='namespace-list']//tbody/tr")).toHaveCount(1,15000)
+      - page.getByRole("button", "Edit namespace").click()
+      - page.getByRole("button", "Remove manager role 1").click()
+      - page.getByRole("button", "Save").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - page.goto("${browserURL}/e2e/login")
+      - page.getByLabel("Test identity").selectOption("no-exposure")
+      - page.getByRole("button", "Sign in").click()
+      - page.getByRole("button", "Namespaces").click()
+      - page.getByLabel("Find namespace").fill("delegated.alpha")
+      - page.getByRole("button", "Search").click()
+      - expect(page.locator("xpath://div[@data-forge-container-id='namespace-list']//tbody/tr")).toHaveCount(1,15000)
+      - page.getByRole("button", "Edit namespace").click()
+      - expect(page.getByLabel("Display title")).toHaveValue("Managed Alpha",15000)
+      - expect(page.getByRole("button", "Save")).toHaveCount(0,15000)
+      - expect(page.getByRole("button", "Add manager role")).toHaveCount(0,15000)
+      - page.getByRole("button", "Cancel").click()
+  revokedOnServer:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: ${runDir}/no-exposure.token
+    '@name': studio.sdk.namespaces.update
+    arguments: {name: delegated.alpha, input: {title: Unauthorized, etag: 3}}
+    allowToolError: true
+    allowProtocolError: true
+  denied:
+    action: validator:assert
+    actual: $revokedOnServer
+    expect: {IsError: true}

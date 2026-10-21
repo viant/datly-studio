@@ -3,6 +3,7 @@ package sqltransport
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"path/filepath"
 	"strings"
@@ -66,6 +67,46 @@ func TestConnectorStatusWriterUsesMatchedEtagAndCurrentProbe(t *testing.T) {
 	_, err = client.Connectors().Disable(ctx, active.Name, active.ETag)
 	if !errors.As(err, &sdkErr) || sdkErr.Code != sdk.ErrorConflict {
 		t.Fatalf("deleted connector status error=%v, want conflict", err)
+	}
+}
+
+func TestLookupListEditsPreserveActiveConnectorAndProbe(t *testing.T) {
+	ctx := sdk.WithPrincipal(context.Background(), sdk.Principal{Subject: "owner"})
+	db, err := sql.Open("sqlite", "file:"+filepath.Join(t.TempDir(), "studio.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	if err = schema.ApplySQLite(ctx, db, "studio"); err != nil {
+		t.Fatal(err)
+	}
+	transport := &Transport{DB: db, Authorizer: allowAuthorizer{}, Probe: sdk.ConnectorProbeFunc(func(context.Context, *sdk.Connector) (*sdk.ConnectorTestResult, error) {
+		return &sdk.ConnectorTestResult{Status: "passed"}, nil
+	})}
+	client, err := sdk.NewClient(transport)
+	if err != nil {
+		t.Fatal(err)
+	}
+	created, err := client.Connectors().Create(ctx, sdk.CreateConnectorInput{Name: "lookup", Driver: "sqlite"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = client.Connectors().Test(ctx, created.Name); err != nil {
+		t.Fatal(err)
+	}
+	active, err := client.Connectors().Activate(ctx, created.Name, created.ETag)
+	if err != nil {
+		t.Fatal(err)
+	}
+	options := json.RawMessage(`{"discovery":{"catalogs":["other-project"],"schemas":[{"catalog":"other-project","name":"analytics"}]}}`)
+	updated, err := client.Connectors().Update(ctx, created.Name, sdk.UpdateConnectorInput{ETag: active.ETag, Options: &options})
+	if err != nil || updated.Status != "active" || updated.LastTestStatus != "passed" {
+		t.Fatalf("lookup edit reset connectivity: %+v %v", updated, err)
+	}
+	options = json.RawMessage(`{"sqliteAttachments":{"aux":"other.db"}}`)
+	updated, err = client.Connectors().Update(ctx, created.Name, sdk.UpdateConnectorInput{ETag: updated.ETag, Options: &options})
+	if err != nil || updated.Status != "draft" || updated.LastTestStatus != "" {
+		t.Fatalf("connection edit did not reset probe: %+v %v", updated, err)
 	}
 }
 

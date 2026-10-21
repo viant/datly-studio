@@ -755,8 +755,8 @@ body { margin: 0; min-width: 320px; background: #f4f7fb; }
 .studio-forge-schema-workspace [data-forge-container-id="schema-header"] { margin-bottom: 20px; }
 .studio-forge-schema-layout { border: 1px solid #d8e1ec; border-radius: 10px; overflow: hidden !important; background: #fff; }
 .studio-forge-schema-explorer { padding: 16px; border-right: 1px solid #d8e1ec; background: #f8fafc; }
-.studio-forge-schema-explorer [data-forge-container-id="schema-selectors"] { margin-bottom: 16px; }
-.studio-forge-schema-explorer [data-forge-container-id="schema-object-list"] { overflow: hidden !important; }
+.studio-forge-schema-explorer [data-forge-container-id="schema-selectors"] { margin-bottom: 12px; max-height: calc(100% - 150px); overflow-y: auto !important; flex-shrink: 0; }
+.studio-forge-schema-explorer [data-forge-container-id="schema-object-list"] { overflow: hidden !important; min-height: 130px; }
 .studio-forge-schema-detail { padding: 20px; overflow: auto !important; }
 .studio-forge-schema-empty { justify-content: center; }
 .studio-forge-schema-empty .forge-workspace-summary__header { max-width: 52ch; margin-inline: auto; text-align: center; }

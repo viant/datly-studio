@@ -135,3 +135,27 @@ Read-only MCP preview assertions verify exact returned IDs after each change.
 The same case covers MCP codec discovery, required `JwtClaim` with its absolute claims type,
 401 error metadata, a custom codec selected by absolute Go package/type path, invalid codec input,
 error-setting edits, codec removal, and denial of codec discovery to an unauthorized principal.
+
+## Dedicated discovery and namespace-manager UI acceptance
+
+```sh
+cd e2e
+endly -r=management
+```
+
+`management.yaml` builds the real fixture and production UI, uses isolated
+catalog/source databases, and runs two dedicated cases:
+
+- `management/discovery.yaml`: MCP product/schema metadata, explicit UI schema
+  loading, editable project/schema lookup lists, persisted activation/probe
+  preservation, and table/column isolation across SQLite attachments.
+- `management/namespace-managers.yaml`: UI owner delegation, manager updates to
+  namespace settings and read grants, another namespace remaining read-only,
+  UI revocation, and server-side denial after revocation. The fixture starts
+  with the global namespace administrator role disabled.
+
+This suite uses HTTP/MCP/IdP ports 19780/19781/19782/19790/19795 and ChromeDriver
+4446, separately from the default suite and POC. It does not stop other fixtures.
+Use a fresh run ID for setup. After setup, rerun only `discovery` or
+`namespaceManagers` in the same Endly session; stop with `-t=stop` using that
+session's run parameters if a failure interrupted the pipeline.

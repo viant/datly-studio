@@ -890,3 +890,15 @@ test('policy datasources use admitted MCP tools with exact authz DTOs and no inj
  assert.equal(value.document.revision,1);assert.deepEqual(seen[0].body.params.arguments,{resource});assert.equal(seen[0].body.params.name,'authz.sdk.policies.get');assert.equal(seen[0].headers.get('X-Studio-Namespace'),'a'.repeat(64));
  await assert.rejects(()=>api.fetchMCPDataSource({backend:{kind:'mcp_tool',method:'authz.sdk.policies.untrusted'}},{}),/Studio MCP datasource/);
 });
+
+test('database discovery and catalog overrides use the typed native routes', async()=>{
+ const calls=[];const api=new StudioAPI({mode:'authenticated',apiBaseURL:'https://studio.example.com'},{fetcher:async request=>{calls.push({url:request.url,body:JSON.parse(await request.text())});return response({});}});
+ await api.discoverConnector('bq',{catalog:'other-project'});
+ await api.listSchemas('bq',{catalog:'other-project'});
+ await api.listTables('bq',{catalog:'other-project',schema:'dataset'});
+ await api.getTable('bq',{catalog:'other-project',schema:'dataset',table:'records'});
+ assert.equal(calls[0].url,'https://studio.example.com/v1/studio/sdk/connectors.discover');
+ assert.deepEqual(calls[0].body,{name:'bq',input:{catalog:'other-project'}});
+ assert.equal(calls[1].body.input.catalog,'other-project');
+ assert.deepEqual(calls[3].body.input,{catalog:'other-project',schema:'dataset',table:'records'});
+});

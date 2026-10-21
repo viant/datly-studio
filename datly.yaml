@@ -51,6 +51,7 @@ GoBootstrap:
     - github.com/viant/datly-studio/studio/connectors/reader
     - github.com/viant/datly-studio/studio/connectors/create
     - github.com/viant/datly-studio/studio/connectors/schemas
+    - github.com/viant/datly-studio/studio/connectors/discover
     - github.com/viant/datly-studio/studio/connectors/tables
     - github.com/viant/datly-studio/studio/connectors/table
     - github.com/viant/datly-studio/studio/connectors/test

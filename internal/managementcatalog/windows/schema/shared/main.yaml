@@ -16,6 +16,11 @@ window:
             stateDataSourceRef: schema_state
             errorField: outcome
             actions:
+              - id: edit-lookups
+                label: Edit lookup lists
+                icon: edit
+                handler: management.editLookups
+                disabledWhen: {dataSourceRef: schema_state, selector: saving, equals: true}
               - id: refresh
                 label: Refresh
                 icon: refresh
@@ -45,8 +50,21 @@ window:
                           handler: management.changeConnector
                       properties:
                         fill: true
+                    - id: catalogName
+                      label: Project / catalog
+                      dataField: catalogName
+                      type: select
+                      disabledWhen: {selector: saving, equals: true}
+                      optionsDataSourceRef: schema_catalogs
+                      optionValueField: name
+                      optionLabelField: label
+                      optionsFetchMode: never
+                      on:
+                        - event: onChange
+                          handler: management.changeCatalog
+                      properties: {fill: true, filterable: true}
                     - id: schemaName
-                      label: Schema
+                      label: Schema / dataset
                       dataField: schemaName
                       type: select
                       disabledWhen: {selector: saving, equals: true}
@@ -59,6 +77,29 @@ window:
                           handler: management.changeSchema
                       properties:
                         fill: true
+                        filterable: true
+                    - id: load-schemas
+                      label: Load schemas
+                      type: button
+                      hideLabel: true
+                      isStandalone: true
+                      icon: database
+                      disabledWhen: {selector: metadataLoading, equals: true}
+                      on: [{event: onClick, handler: management.loadSchemas}]
+                    - id: cancel-discovery
+                      label: Stop waiting
+                      type: button
+                      hideLabel: true
+                      isStandalone: true
+                      visibleWhen: {selector: metadataLoading, equals: true}
+                      on: [{event: onClick, handler: management.cancelDiscovery}]
+                    - id: loadStatus
+                      dataField: loadStatus
+                      widget: label
+                    - id: productVersion
+                      hideLabel: true
+                      dataField: productVersion
+                      widget: label
                     - id: query
                       label: Find tables or views
                       dataField: query
@@ -283,6 +324,21 @@ window:
             - id: schema_connectors-binding
               dataSourceRef: schema_connectors
               fetchData: false
+            - id: schema_catalogs-binding
+              dataSourceRef: schema_catalogs
+              fetchData: false
+            - id: schema_lookup_draft-binding
+              dataSourceRef: schema_lookup_draft
+              fetchData: false
+            - id: schema_discover-binding
+              dataSourceRef: schema_discover
+              fetchData: false
+            - id: schema_connector_get-binding
+              dataSourceRef: schema_connector_get
+              fetchData: false
+            - id: schema_connector_update-binding
+              dataSourceRef: schema_connector_update
+              fetchData: false
             - id: schema_names-binding
               dataSourceRef: schema_names
               fetchData: false
@@ -335,6 +391,52 @@ window:
       style:
         height: calc(100dvh - var(--studio-navbar-height, 58px))
   dialogs:
+    - id: schema-lookups
+      title: Project and schema lookup lists
+      className: studio-connector-dialog
+      dataSourceRef: schema_lookup_draft
+      fetchOnOpen: false
+      closeDisabledWhen: {selector: saving, equals: true}
+      content:
+        id: schema-lookup-form
+        items:
+          - id: catalogRows
+            label: Projects / catalogs
+            widget: arrayFields
+            scope: form
+            dataField: catalogRows
+            readOnlyWhen: {selector: saving, equals: true}
+            properties:
+              addLabel: Add project / catalog
+              removeLabel: Remove project / catalog
+              newRow: {name: ''}
+              fields:
+                - {field: name, label: Project / catalog, type: text}
+          - id: schemaRows
+            label: Schemas / datasets
+            widget: arrayFields
+            scope: form
+            dataField: schemaRows
+            readOnlyWhen: {selector: saving, equals: true}
+            properties:
+              addLabel: Add schema / dataset
+              removeLabel: Remove schema / dataset
+              newRow: {catalog: '', name: ''}
+              fields:
+                - {field: catalog, label: Project / catalog (optional), type: text}
+                - {field: name, label: Schema / dataset, type: text}
+          - {id: lookupOutcome, label: Outcome, dataField: outcome, type: text, readOnly: true}
+      actions:
+        - id: discover
+          label: Discover entries
+          disabledWhen: {selector: saving, equals: true}
+          on: [{event: onClick, handler: management.discoverLookups}]
+        - id: save-lookups
+          label: Save lookup lists
+          close: true
+          disabledWhen: {selector: saving, equals: true}
+          on: [{event: onClick, handler: management.saveLookups}]
+        - {id: cancel, label: Cancel, close: true, disabledWhen: {selector: saving, equals: true}}
     - id: schema-root
       title: Create component from table
       dataSourceRef: schema_root_draft
@@ -674,3 +776,30 @@ dataSources:
       method: studio.sdk.versions.builder
     cache:
       enabled: false
+
+  schema_catalogs:
+    id: schema_catalogs
+    cardinality: collection
+    backend: {kind: inline, rows: []}
+    cache: {enabled: false}
+    uniqueKey: [{field: id}]
+  schema_lookup_draft:
+    id: schema_lookup_draft
+    cardinality: object
+    backend: {kind: inline, rows: []}
+    cache: {enabled: false}
+  schema_discover:
+    id: schema_discover
+    cardinality: object
+    backend: {kind: mcp_tool, method: studio.sdk.connectors.discover}
+    cache: {enabled: false}
+  schema_connector_get:
+    id: schema_connector_get
+    cardinality: object
+    backend: {kind: mcp_tool, method: studio.sdk.connectors.get}
+    cache: {enabled: false}
+  schema_connector_update:
+    id: schema_connector_update
+    cardinality: object
+    backend: {kind: mcp_tool, method: studio.sdk.connectors.update}
+    cache: {enabled: false}

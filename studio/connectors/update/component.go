@@ -1,11 +1,11 @@
 package update
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/viant/datly-studio/internal/connectorinit"
 	"reflect"
 	"strings"
 	"time"
@@ -147,7 +147,7 @@ func (*updateHandler) Exec(ctx context.Context, session xhandler.Session, input 
 		options = append(options[:0], (*input.Input.Options)...)
 	}
 	changedConnection := driver != current.Driver || dsn != stringValue(current.DsnTemplate) ||
-		secret != stringValue(current.SecretRef) || !bytes.Equal(options, current.OptionsJson)
+		secret != stringValue(current.SecretRef) || !connectorinit.ConnectionOptionsEqual(options, current.OptionsJson)
 	now, etag := time.Now().UTC(), input.Input.ETag
 	row := &stored.StoredConnector{Name: input.Name, Driver: driver, DsnTemplate: optional(dsn),
 		SecretRef: optional(secret), Description: optional(description), OptionsJson: options,

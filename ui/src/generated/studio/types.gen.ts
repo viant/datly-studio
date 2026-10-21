@@ -188,6 +188,7 @@ export type Input89A37Caef4565Ff5D5Aa4568065F46B182888B77F96C21Fb1Eed777C45878F9
 };
 
 export type Input8A771218C929De9Ad6Df8D7F26A11916C0D2C478600A618560Aef8Cdaa883Cf6 = {
+    catalog?: string;
     schema?: string;
     table?: string;
 };
@@ -349,6 +350,7 @@ export type InputC8F891Bb6Cfd81599Dce6F4F5D400A21Caa864A78F2Dabaa10E3173F02Ca8Db
 };
 
 export type InputCe48D096271799F6074437499F254F457869D225Dfbc7Ea54C0552Fa34341Dd8 = {
+    catalog?: string;
     limit?: number;
     offset?: number;
     query?: string;
@@ -364,6 +366,11 @@ export type InputCe5005B864956Cbc2469Fc8D71A73Cc80F19Dd86C8340815B1Edae79273B876
     versionNo?: number;
 };
 
+export type InputD13Baaa98E1E58D154B95568037Ffe8Fe73E5A0Dfa3D93B7F97D31535E8A8B10 = {
+    catalog?: string;
+    schema?: string;
+};
+
 export type InputD1B436Abf4Fd54A2Fa997Cbd492E576D712E8C35C087Bfcf2D72D6D2Dffb0F20 = {
     expectedSourceRevision?: number;
     folderId?: string;
@@ -374,6 +381,7 @@ export type InputD1B436Abf4Fd54A2Fa997Cbd492E576D712E8C35C087Bfcf2D72D6D2Dffb0F2
 };
 
 export type InputD2Fa4C9Bb7Cfdde0500D01F13469E3E914F15Fb6Eb841Dd0Cf0C53094Ae7E08a = {
+    catalog?: string;
     query?: string;
 };
 
@@ -994,6 +1002,17 @@ export type Wire13Cb2B9Fac8E64E2Df86Cc6097Eb0Eb4E31B922506E64Ca2Fb8D0Bc76Ccdaeec
 export type Wire15D90B839A0Fff7F61055596A65A67Fe8590915342E1278E39Ef8Abd4433Ce14 = {
     data?: unknown;
     duration: number;
+};
+
+export type Wire168Acff25133F72Df514Ff38F09Aae1A60280Ad693Da3C888E9F6Ec48Bae90A6 = {
+    catalog?: string;
+    catalogs: Array<WireA2017528848C398Dbe63D56F9C45139F7F4Ebf51F3B52Cadf11A77Fb2B585406> | null;
+    driver: string;
+    product: string;
+    schema?: string;
+    schemas: Array<WireB981E81A865E06C9A0806C0Be6F35790A2A830C9D214F66357056F42835E3045> | null;
+    version?: string;
+    warnings?: Array<string> | null;
 };
 
 export type Wire187F7F4691Bae62916263844A31B0E52F2Ac7573Ba63A1Dda0Cfffa8610B0947 = {
@@ -2142,6 +2161,10 @@ export type WireA1D273D5932B1743E789689950989D814Cd8E3A90923654Fe30Afb020Fcc1Ece
     version: WireF3E391310Ebbdfcf54A80947Dc8023074733A52A02De8Af4F489Eff13A0C137d | null;
 };
 
+export type WireA2017528848C398Dbe63D56F9C45139F7F4Ebf51F3B52Cadf11A77Fb2B585406 = {
+    name: string;
+};
+
 export type WireA6D5A259Bb2993E6552649336F2C093Ccd6Ae12F130F8526F5C136A619D0Cb51 = {
     allowedRoles: Array<string> | null;
     createdAt: string;
@@ -2236,6 +2259,11 @@ export type WireB6Bb3A3Bc73E240Bf20Da6F0Ceb8512D37Faeca8E28Cca304A69C5E7Ff81Fa51
 export type WireB976B7C7E16991B8B115817F945D0386Ae37D5420E53F9720556D49620Ea1E19 = {
     publicationStatus: string;
     skill: WireF3Ea60D2Fa17320C067919706E92C833737F3992042E85B8Ec5055E0A45De960 | null;
+};
+
+export type WireB981E81A865E06C9A0806C0Be6F35790A2A830C9D214F66357056F42835E3045 = {
+    catalog?: string;
+    name: string;
 };
 
 export type WireBb9C83695Ae936C7031Ab2428C59Ccda35A4E34Af9E6662A945012782Ac921E1 = {
@@ -3305,6 +3333,25 @@ export type PostV1StudioSdkConnectorsDisableResponses = {
 };
 
 export type PostV1StudioSdkConnectorsDisableResponse = PostV1StudioSdkConnectorsDisableResponses[keyof PostV1StudioSdkConnectorsDisableResponses];
+
+export type PostV1StudioSdkConnectorsDiscoverData = {
+    body: {
+        input?: InputD13Baaa98E1E58D154B95568037Ffe8Fe73E5A0Dfa3D93B7F97D31535E8A8B10;
+        name: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/connectors.discover';
+};
+
+export type PostV1StudioSdkConnectorsDiscoverResponses = {
+    /**
+     * Success response
+     */
+    200: Wire168Acff25133F72Df514Ff38F09Aae1A60280Ad693Da3C888E9F6Ec48Bae90A6;
+};
+
+export type PostV1StudioSdkConnectorsDiscoverResponse = PostV1StudioSdkConnectorsDiscoverResponses[keyof PostV1StudioSdkConnectorsDiscoverResponses];
 
 export type PostV1StudioSdkConnectorsGetData = {
     body: {

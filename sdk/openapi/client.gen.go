@@ -240,8 +240,9 @@ type Input89a37caef4565ff5d5aa4568065f46b182888b77f96c21fb1eed777c45878f9e struc
 
 // Input8a771218c929de9ad6df8d7f26a11916c0d2c478600a618560aef8cdaa883cf6 defines model for Input_8a771218c929de9ad6df8d7f26a11916c0d2c478600a618560aef8cdaa883cf6.
 type Input8a771218c929de9ad6df8d7f26a11916c0d2c478600a618560aef8cdaa883cf6 struct {
-	Schema *string `json:"schema,omitempty"`
-	Table  *string `json:"table,omitempty"`
+	Catalog *string `json:"catalog,omitempty"`
+	Schema  *string `json:"schema,omitempty"`
+	Table   *string `json:"table,omitempty"`
 }
 
 // Input8b2294ec4854c9dd94236a9123a7d8fe7dbf92cab403fb011d6c8bf7d53c5054 defines model for Input_8b2294ec4854c9dd94236a9123a7d8fe7dbf92cab403fb011d6c8bf7d53c5054.
@@ -436,10 +437,11 @@ type InputC8f891bb6cfd81599dce6f4f5d400a21caa864a78f2dabaa10e3173f02ca8db3 struc
 
 // InputCe48d096271799f6074437499f254f457869d225dfbc7ea54c0552fa34341dd8 defines model for Input_ce48d096271799f6074437499f254f457869d225dfbc7ea54c0552fa34341dd8.
 type InputCe48d096271799f6074437499f254f457869d225dfbc7ea54c0552fa34341dd8 struct {
-	Limit  *int64  `json:"limit,omitempty"`
-	Offset *int64  `json:"offset,omitempty"`
-	Query  *string `json:"query,omitempty"`
-	Schema *string `json:"schema,omitempty"`
+	Catalog *string `json:"catalog,omitempty"`
+	Limit   *int64  `json:"limit,omitempty"`
+	Offset  *int64  `json:"offset,omitempty"`
+	Query   *string `json:"query,omitempty"`
+	Schema  *string `json:"schema,omitempty"`
 }
 
 // InputCe5005b864956cbc2469fc8d71a73cc80f19dd86c8340815b1edae79273b8769 defines model for Input_ce5005b864956cbc2469fc8d71a73cc80f19dd86c8340815b1edae79273b8769.
@@ -450,6 +452,12 @@ type InputCe5005b864956cbc2469fc8d71a73cc80f19dd86c8340815b1edae79273b8769 struc
 	ResourceId             *string `json:"resourceId,omitempty"`
 	SkillId                *string `json:"skillId,omitempty"`
 	VersionNo              *int64  `json:"versionNo,omitempty"`
+}
+
+// InputD13baaa98e1e58d154b95568037ffe8fe73e5a0dfa3d93b7f97d31535e8a8b10 defines model for Input_d13baaa98e1e58d154b95568037ffe8fe73e5a0dfa3d93b7f97d31535e8a8b10.
+type InputD13baaa98e1e58d154b95568037ffe8fe73e5a0dfa3d93b7f97d31535e8a8b10 struct {
+	Catalog *string `json:"catalog,omitempty"`
+	Schema  *string `json:"schema,omitempty"`
 }
 
 // InputD1b436abf4fd54a2fa997cbd492e576d712e8c35c087bfcf2d72d6d2dffb0f20 defines model for Input_d1b436abf4fd54a2fa997cbd492e576d712e8c35c087bfcf2d72d6d2dffb0f20.
@@ -464,7 +472,8 @@ type InputD1b436abf4fd54a2fa997cbd492e576d712e8c35c087bfcf2d72d6d2dffb0f20 struc
 
 // InputD2fa4c9bb7cfdde0500d01f13469e3e914f15fb6eb841dd0cf0c53094ae7e08a defines model for Input_d2fa4c9bb7cfdde0500d01f13469e3e914f15fb6eb841dd0cf0c53094ae7e08a.
 type InputD2fa4c9bb7cfdde0500d01f13469e3e914f15fb6eb841dd0cf0c53094ae7e08a struct {
-	Query *string `json:"query,omitempty"`
+	Catalog *string `json:"catalog,omitempty"`
+	Query   *string `json:"query,omitempty"`
 }
 
 // InputD631d9489d8a46cf61ef6ae5a6a27b5e6c1fe964186472df97480ccb0bd6a17c defines model for Input_d631d9489d8a46cf61ef6ae5a6a27b5e6c1fe964186472df97480ccb0bd6a17c.
@@ -1296,6 +1305,18 @@ type Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Versio
 type Wire15d90b839a0fff7f61055596a65a67fe8590915342e1278e39ef8abd4433ce14 struct {
 	Data     interface{} `json:"data,omitempty"`
 	Duration int64       `json:"duration"`
+}
+
+// Wire168acff25133f72df514ff38f09aae1a60280ad693da3c888e9f6ec48bae90a6 defines model for Wire_168acff25133f72df514ff38f09aae1a60280ad693da3c888e9f6ec48bae90a6.
+type Wire168acff25133f72df514ff38f09aae1a60280ad693da3c888e9f6ec48bae90a6 struct {
+	Catalog  *string                                                                 `json:"catalog,omitempty"`
+	Catalogs *[]WireA2017528848c398dbe63d56f9c45139f7f4ebf51f3b52cadf11a77fb2b585406 `json:"catalogs"`
+	Driver   string                                                                  `json:"driver"`
+	Product  string                                                                  `json:"product"`
+	Schema   *string                                                                 `json:"schema,omitempty"`
+	Schemas  *[]WireB981e81a865e06c9a0806c0be6f35790a2a830c9d214f66357056f42835e3045 `json:"schemas"`
+	Version  *string                                                                 `json:"version,omitempty"`
+	Warnings *[]string                                                               `json:"warnings,omitempty"`
 }
 
 // Wire187f7f4691bae62916263844a31b0e52f2ac7573ba63a1dda0cfffa8610b0947 defines model for Wire_187f7f4691bae62916263844a31b0e52f2ac7573ba63a1dda0cfffa8610b0947.
@@ -2881,6 +2902,11 @@ type WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Versio
 	union json.RawMessage
 }
 
+// WireA2017528848c398dbe63d56f9c45139f7f4ebf51f3b52cadf11a77fb2b585406 defines model for Wire_a2017528848c398dbe63d56f9c45139f7f4ebf51f3b52cadf11a77fb2b585406.
+type WireA2017528848c398dbe63d56f9c45139f7f4ebf51f3b52cadf11a77fb2b585406 struct {
+	Name string `json:"name"`
+}
+
 // WireA6d5a259bb2993e6552649336f2c093ccd6ae12f130f8526f5c136a619d0cb51 defines model for Wire_a6d5a259bb2993e6552649336f2c093ccd6ae12f130f8526f5c136a619d0cb51.
 type WireA6d5a259bb2993e6552649336f2c093ccd6ae12f130f8526f5c136a619d0cb51 struct {
 	AllowedRoles *[]string `json:"allowedRoles"`
@@ -3017,6 +3043,12 @@ type WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19Skill1 
 // WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19_Skill defines model for WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19.Skill.
 type WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19_Skill struct {
 	union json.RawMessage
+}
+
+// WireB981e81a865e06c9a0806c0be6f35790a2a830c9d214f66357056f42835e3045 defines model for Wire_b981e81a865e06c9a0806c0be6f35790a2a830c9d214f66357056f42835e3045.
+type WireB981e81a865e06c9a0806c0be6f35790a2a830c9d214f66357056f42835e3045 struct {
+	Catalog *string `json:"catalog,omitempty"`
+	Name    string  `json:"name"`
 }
 
 // WireBb9c83695ae936c7031ab2428c59ccda35a4e34af9e6662a945012782ac921e1 defines model for Wire_bb9c83695ae936c7031ab2428c59ccda35a4e34af9e6662a945012782ac921e1.
@@ -3870,6 +3902,12 @@ type POSTv1studiosdkconnectorsDisableJSONBody struct {
 	Name string `json:"name"`
 }
 
+// POSTv1studiosdkconnectorsDiscoverJSONBody defines parameters for POSTv1studiosdkconnectorsDiscover.
+type POSTv1studiosdkconnectorsDiscoverJSONBody struct {
+	Input *InputD13baaa98e1e58d154b95568037ffe8fe73e5a0dfa3d93b7f97d31535e8a8b10 `json:"input,omitempty"`
+	Name  string                                                                 `json:"name"`
+}
+
 // POSTv1studiosdkconnectorsGetJSONBody defines parameters for POSTv1studiosdkconnectorsGet.
 type POSTv1studiosdkconnectorsGetJSONBody struct {
 	Name string `json:"name"`
@@ -4448,6 +4486,9 @@ type POSTv1studiosdkconnectorsDeleteJSONRequestBody POSTv1studiosdkconnectorsDel
 
 // POSTv1studiosdkconnectorsDisableJSONRequestBody defines body for POSTv1studiosdkconnectorsDisable for application/json ContentType.
 type POSTv1studiosdkconnectorsDisableJSONRequestBody POSTv1studiosdkconnectorsDisableJSONBody
+
+// POSTv1studiosdkconnectorsDiscoverJSONRequestBody defines body for POSTv1studiosdkconnectorsDiscover for application/json ContentType.
+type POSTv1studiosdkconnectorsDiscoverJSONRequestBody POSTv1studiosdkconnectorsDiscoverJSONBody
 
 // POSTv1studiosdkconnectorsGetJSONRequestBody defines body for POSTv1studiosdkconnectorsGet for application/json ContentType.
 type POSTv1studiosdkconnectorsGetJSONRequestBody POSTv1studiosdkconnectorsGetJSONBody
@@ -9934,6 +9975,14 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	POSTv1studiosdkconnectorsDisable(ctx context.Context, body POSTv1studiosdkconnectorsDisableJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// POSTv1studiosdkconnectorsDiscoverWithBody performs a POST /v1/studio/sdk/connectors.discover (the `POSTv1studiosdkconnectorsDiscover` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkconnectorsDiscoverWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkconnectorsDiscover performs a POST /v1/studio/sdk/connectors.discover (the `POSTv1studiosdkconnectorsDiscover` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkconnectorsDiscover(ctx context.Context, body POSTv1studiosdkconnectorsDiscoverJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// POSTv1studiosdkconnectorsGetWithBody connector
 	//
 	// Takes any type of body and a specified content type.
@@ -11174,6 +11223,34 @@ func (c *Client) POSTv1studiosdkconnectorsDisableWithBody(ctx context.Context, c
 // Takes a body of the `application/json` content type.
 func (c *Client) POSTv1studiosdkconnectorsDisable(ctx context.Context, body POSTv1studiosdkconnectorsDisableJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPOSTv1studiosdkconnectorsDisableRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkconnectorsDiscoverWithBody performs a POST /v1/studio/sdk/connectors.discover (the `POSTv1studiosdkconnectorsDiscover` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkconnectorsDiscoverWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkconnectorsDiscoverRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkconnectorsDiscover performs a POST /v1/studio/sdk/connectors.discover (the `POSTv1studiosdkconnectorsDiscover` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkconnectorsDiscover(ctx context.Context, body POSTv1studiosdkconnectorsDiscoverJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkconnectorsDiscoverRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -14067,6 +14144,46 @@ func NewPOSTv1studiosdkconnectorsDisableRequestWithBody(server string, contentTy
 	}
 
 	operationPath := fmt.Sprintf("/v1/studio/sdk/connectors.disable")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkconnectorsDiscoverRequest calls the generic POSTv1studiosdkconnectorsDiscover builder with application/json body
+func NewPOSTv1studiosdkconnectorsDiscoverRequest(server string, body POSTv1studiosdkconnectorsDiscoverJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkconnectorsDiscoverRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkconnectorsDiscoverRequestWithBody constructs an http.Request for the POSTv1studiosdkconnectorsDiscover method, with any body, and a specified content type
+func NewPOSTv1studiosdkconnectorsDiscoverRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/connectors.discover")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -17150,6 +17267,16 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	POSTv1studiosdkconnectorsDisableWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsDisableJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsDisableResponse, error)
 
+	// POSTv1studiosdkconnectorsDiscoverWithBodyWithResponse performs a POST /v1/studio/sdk/connectors.discover (the `POSTv1studiosdkconnectorsDiscover` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkconnectorsDiscoverWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsDiscoverResponse, error)
+
+	// POSTv1studiosdkconnectorsDiscoverWithResponse performs a POST /v1/studio/sdk/connectors.discover (the `POSTv1studiosdkconnectorsDiscover` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkconnectorsDiscoverWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsDiscoverJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsDiscoverResponse, error)
+
 	// POSTv1studiosdkconnectorsGetWithBodyWithResponse connector
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -18814,6 +18941,47 @@ func (r POSTv1studiosdkconnectorsDisableResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r POSTv1studiosdkconnectorsDisableResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkconnectorsDiscoverResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Wire168acff25133f72df514ff38f09aae1a60280ad693da3c888e9f6ec48bae90a6
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkconnectorsDiscoverResponse) GetJSON200() *Wire168acff25133f72df514ff38f09aae1a60280ad693da3c888e9f6ec48bae90a6 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkconnectorsDiscoverResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkconnectorsDiscoverResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkconnectorsDiscoverResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkconnectorsDiscoverResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -21615,6 +21783,28 @@ func (c *ClientWithResponses) POSTv1studiosdkconnectorsDisableWithResponse(ctx c
 	return ParsePOSTv1studiosdkconnectorsDisableResponse(rsp)
 }
 
+// POSTv1studiosdkconnectorsDiscoverWithBodyWithResponse performs a POST /v1/studio/sdk/connectors.discover (the `POSTv1studiosdkconnectorsDiscover` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkconnectorsDiscoverWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsDiscoverResponse, error) {
+	rsp, err := c.POSTv1studiosdkconnectorsDiscoverWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkconnectorsDiscoverResponse(rsp)
+}
+
+// POSTv1studiosdkconnectorsDiscoverWithResponse performs a POST /v1/studio/sdk/connectors.discover (the `POSTv1studiosdkconnectorsDiscover` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkconnectorsDiscoverWithResponse(ctx context.Context, body POSTv1studiosdkconnectorsDiscoverJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkconnectorsDiscoverResponse, error) {
+	rsp, err := c.POSTv1studiosdkconnectorsDiscover(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkconnectorsDiscoverResponse(rsp)
+}
+
 // POSTv1studiosdkconnectorsGetWithBodyWithResponse connector
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -23502,6 +23692,32 @@ func ParsePOSTv1studiosdkconnectorsDisableResponse(rsp *http.Response) (*POSTv1s
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest Wire777f17beb973ceea33d037ba165a4751392efacdd3a1e9425eb0da2b7461ba6e
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkconnectorsDiscoverResponse parses an HTTP response from a POSTv1studiosdkconnectorsDiscoverWithResponse call
+func ParsePOSTv1studiosdkconnectorsDiscoverResponse(rsp *http.Response) (*POSTv1studiosdkconnectorsDiscoverResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkconnectorsDiscoverResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Wire168acff25133f72df514ff38f09aae1a60280ad693da3c888e9f6ec48bae90a6
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

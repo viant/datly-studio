@@ -73,6 +73,7 @@ var linkedComponentHolders = []struct {
 	{"github.com/viant/datly-studio/studio/connectors/update", "Component"},
 	{"github.com/viant/datly-studio/studio/connectors/create", "ConnectorComponent"},
 	{"github.com/viant/datly-studio/studio/connectors/schemas", "Component"},
+	{"github.com/viant/datly-studio/studio/connectors/discover", "Component"},
 	{"github.com/viant/datly-studio/studio/connectors/tables", "Component"},
 	{"github.com/viant/datly-studio/studio/connectors/table", "Component"},
 	{"github.com/viant/datly-studio/studio/connectors/test", "Component"},

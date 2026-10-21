@@ -3,10 +3,14 @@ package connectivity
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"github.com/viant/datly/constant"
+	"net/url"
 	"sort"
 	"strings"
+	"time"
+	"unicode"
 
 	"github.com/viant/datly-studio/internal/connectorinit"
 	"github.com/viant/datly-studio/internal/connectorsecret"
@@ -24,14 +28,28 @@ type SQLCatalog struct {
 }
 
 func (c SQLCatalog) Schemas(ctx context.Context, connector *sdk.Connector, input sdk.SchemaCatalogInput) (*sdk.SchemaCatalog, error) {
-	db, err := openCatalogDB(ctx, connector, c.Secrets, c.Const)
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+	scope, err := resolveDiscoveryScope(connector, input.Catalog, "")
+	if err != nil {
+		return nil, err
+	}
+	db, err := openDiscoveryDB(ctx, connector, c.Secrets, c.Const, scope)
 	if err != nil {
 		return nil, err
 	}
 	defer db.Close()
-	var schemas []sink.Schema
-	err = metadata.New().Info(ctx, db, info.KindSchemas, &schemas)
+	session, err := config.Session(ctx, db)
 	if err != nil {
+		return nil, err
+	}
+	scope.apply(session)
+	var schemas []sink.Schema
+	err = metadata.New().Info(ctx, db, info.KindSchemas, &schemas, option.NewArgs(session.Catalog))
+	if err != nil {
+		if scope.Catalog != "" {
+			return nil, err
+		}
 		session, sessionErr := config.Session(ctx, db)
 		if sessionErr != nil {
 			return nil, err
@@ -50,7 +68,13 @@ func (c SQLCatalog) Schemas(ctx context.Context, connector *sdk.Connector, input
 }
 
 func (c SQLCatalog) Tables(ctx context.Context, connector *sdk.Connector, input sdk.TableCatalogInput) (*sdk.TableCatalog, error) {
-	db, err := openCatalogDB(ctx, connector, c.Secrets, c.Const)
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+	scope, err := resolveDiscoveryScope(connector, input.Catalog, input.Schema)
+	if err != nil {
+		return nil, err
+	}
+	db, err := openDiscoveryDB(ctx, connector, c.Secrets, c.Const, scope)
 	if err != nil {
 		return nil, err
 	}
@@ -59,10 +83,8 @@ func (c SQLCatalog) Tables(ctx context.Context, connector *sdk.Connector, input 
 	if err != nil {
 		return nil, err
 	}
-	schema := input.Schema
-	if schema == "" {
-		schema = session.Schema
-	}
+	scope.apply(session)
+	schema := session.Schema
 	var tables []sink.Table
 	if err = metadata.New().Info(ctx, db, info.KindTables, &tables, option.NewArgs(session.Catalog, schema)); err != nil {
 		return nil, err
@@ -80,6 +102,12 @@ func (c SQLCatalog) Tables(ctx context.Context, connector *sdk.Connector, input 
 		kind := "TABLE"
 		if item.Type != nil && *item.Type != "" {
 			kind = *item.Type
+		}
+		if item.Catalog == "" {
+			item.Catalog = session.Catalog
+		}
+		if item.Schema == "" {
+			item.Schema = schema
 		}
 		items = append(items, sdk.DatabaseTable{Catalog: item.Catalog, Schema: item.Schema, Name: item.Name, Type: kind, Comment: comment})
 	}
@@ -103,10 +131,16 @@ func (c SQLCatalog) Tables(ctx context.Context, connector *sdk.Connector, input 
 }
 
 func (c SQLCatalog) Table(ctx context.Context, connector *sdk.Connector, input sdk.TableDetailInput) (*sdk.TableDetail, error) {
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
 	if strings.TrimSpace(input.Table) == "" {
 		return nil, fmt.Errorf("table is required")
 	}
-	db, err := openCatalogDB(ctx, connector, c.Secrets, c.Const)
+	scope, err := resolveDiscoveryScope(connector, input.Catalog, input.Schema)
+	if err != nil {
+		return nil, err
+	}
+	db, err := openDiscoveryDB(ctx, connector, c.Secrets, c.Const, scope)
 	if err != nil {
 		return nil, err
 	}
@@ -115,10 +149,8 @@ func (c SQLCatalog) Table(ctx context.Context, connector *sdk.Connector, input s
 	if err != nil {
 		return nil, err
 	}
-	schema := input.Schema
-	if schema == "" {
-		schema = session.Schema
-	}
+	scope.apply(session)
+	schema := session.Schema
 	columns, err := config.Columns(ctx, session, db, input.Table)
 	if err != nil {
 		return nil, err
@@ -144,6 +176,14 @@ func (c SQLCatalog) Table(ctx context.Context, connector *sdk.Connector, input s
 }
 
 func openCatalogDB(ctx context.Context, connector *sdk.Connector, resolver connectorsecret.Resolver, values ...*constant.Values) (*sql.DB, error) {
+	return openScopedCatalogDB(ctx, connector, resolver, discoveryScope{}, values...)
+}
+
+func openDiscoveryDB(ctx context.Context, connector *sdk.Connector, resolver connectorsecret.Resolver, constants *constant.Values, scope discoveryScope) (*sql.DB, error) {
+	return openScopedCatalogDB(ctx, connector, resolver, scope, constants)
+}
+
+func openScopedCatalogDB(ctx context.Context, connector *sdk.Connector, resolver connectorsecret.Resolver, scope discoveryScope, values ...*constant.Values) (*sql.DB, error) {
 	if connector == nil {
 		return nil, fmt.Errorf("connector is required")
 	}
@@ -154,6 +194,21 @@ func openCatalogDB(ctx context.Context, connector *sdk.Connector, resolver conne
 	}
 	if dsn == "" {
 		return nil, fmt.Errorf("connector %q has no DSN", connector.Name)
+	}
+	// SQLX's SQLite metadata queries target main. Open the configured attachment
+	// as the discovery connection rather than silently describing main's tables.
+	if strings.Contains(driver, "sqlite") && scope.Schema != "" && scope.Schema != "main" {
+		var configured struct {
+			Attachments map[string]string `json:"sqliteAttachments"`
+		}
+		if json.Unmarshal(connector.Options, &configured) != nil || configured.Attachments[scope.Schema] == "" {
+			return nil, fmt.Errorf("selected SQLite schema is not a configured attachment")
+		}
+		dsn = configured.Attachments[scope.Schema]
+	}
+	dsn, err = discoveryDSN(driver, dsn, scope)
+	if err != nil {
+		return nil, err
 	}
 	db, err := sql.Open(driver, dsn)
 	if err != nil {
@@ -168,4 +223,71 @@ func openCatalogDB(ctx context.Context, connector *sdk.Connector, resolver conne
 		return nil, err
 	}
 	return db, nil
+}
+
+// Discovery defaults are ordinary connector options, not schema or driver locks.
+// Per-request values override them without modifying stored connection material.
+type discoveryScope struct {
+	Catalog string `json:"catalog"`
+	Schema  string `json:"schema"`
+}
+
+func resolveDiscoveryScope(connector *sdk.Connector, catalog, schema string) (discoveryScope, error) {
+	var options struct {
+		Discovery discoveryScope `json:"discovery"`
+	}
+	if connector == nil {
+		return discoveryScope{}, fmt.Errorf("connector is required")
+	}
+	if len(connector.Options) > 0 && json.Unmarshal(connector.Options, &options) != nil {
+		return discoveryScope{}, fmt.Errorf("invalid connector discovery options")
+	}
+	scope := options.Discovery
+	if strings.TrimSpace(catalog) != "" {
+		scope.Catalog = catalog
+	}
+	if strings.TrimSpace(schema) != "" {
+		scope.Schema = schema
+	}
+	scope.Catalog = strings.TrimSpace(scope.Catalog)
+	scope.Schema = strings.TrimSpace(scope.Schema)
+	// SQLX metadata templates interpolate these identifiers for some products.
+	for _, name := range []string{scope.Catalog, scope.Schema} {
+		for _, char := range name {
+			if !unicode.IsLetter(char) && !unicode.IsDigit(char) && char != '_' && char != '-' && char != '$' {
+				return discoveryScope{}, fmt.Errorf("project/catalog and schema names may contain letters, numbers, underscores, hyphens and dollar signs")
+			}
+		}
+	}
+	return scope, nil
+}
+func (s discoveryScope) apply(session *sink.Session) {
+	if s.Catalog != "" {
+		session.Catalog = s.Catalog
+	}
+	if s.Schema != "" {
+		session.Schema = s.Schema
+	}
+}
+func discoveryDSN(driver, dsn string, scope discoveryScope) (string, error) {
+	if driver != "bigquery" || scope.Catalog == "" && scope.Schema == "" {
+		return dsn, nil
+	}
+	parsed, err := url.Parse(dsn)
+	if err != nil || parsed.Scheme != "bigquery" {
+		return "", fmt.Errorf("invalid BigQuery discovery connection")
+	}
+	if scope.Catalog != "" {
+		parsed.Host = scope.Catalog
+	}
+	if scope.Schema != "" {
+		parts := strings.Split(strings.Trim(parsed.Path, "/"), "/")
+		if len(parts) > 1 {
+			parsed.Path = "/" + parts[0] + "/" + scope.Schema
+		} else {
+			parsed.Path = "/" + scope.Schema
+		}
+		parsed.RawPath = ""
+	}
+	return parsed.String(), nil
 }

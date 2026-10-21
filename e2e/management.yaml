@@ -1,0 +1,109 @@
+# Dedicated discovery and namespace delegation UI acceptance. Run from e2e/.
+init:
+  appPath: $WorkingDirectory(..)
+  generatedRunId: $FormatTime('now In UTC', 'yyyyMMddHHmmssSSS')
+  runId: '$params.runId?$params.runId:$generatedRunId'
+  runDir: ${appPath}/.data/e2e/management-${runId}
+  target:
+    URL: ssh://localhost/
+  nativeMCP: http://127.0.0.1:19790/mcp
+  browserURL: http://127.0.0.1:19780
+  ownerToken: ${runDir}/owner.token
+pipeline:
+  build:
+    action: exec:run
+    target: $target
+    strictCompletion: true
+    checkError: true
+    timeoutMs: 900000
+    commands:
+      - cd '${appPath}'
+      - mkdir -p .data/e2e/bin
+      - CGO_ENABLED=0 GOWORK=off go build -o .data/e2e/bin/management-fixture ./e2e/cmd/fixture
+      - cd ui
+      - npm run build
+  setup:
+    prepare:
+      action: exec:run
+      target: $target
+      strictCompletion: true
+      checkError: true
+      commands:
+        - ${appPath}/.data/e2e/bin/management-fixture -mode prepare -root ${appPath} -dir ${runDir} -port-offset 1000
+    tokens:
+      action: run
+      request: '@sign-tokens'
+    identityFixtures:
+      action: exec:run
+      target: $target
+      strictCompletion: true
+      checkError: true
+      commands:
+        - ${appPath}/.data/e2e/bin/management-fixture -mode prepare-idp -root ${appPath} -dir ${runDir} -port-offset 1000
+    idp:
+      action: http/endpoint:listen
+      host: 127.0.0.1
+      port: 19795
+      replace: false
+      rotate: true
+      indexKeys: [Method, URL, Header.Authorization]
+      baseDirectory: ${runDir}/idp
+    studio:
+      action: dsunit:register
+      datastore: studio
+      config:
+        driver: sqlite
+        dsn: ${runDir}/studio.db
+    primary:
+      action: dsunit:init
+      datastore: discovery_primary
+      config: {driver: sqlite, dsn: '${runDir}/discovery-primary.db'}
+      scripts:
+        - URL: ${appPath}/e2e/fixtures/discovery/primary.sql
+    lookup:
+      action: dsunit:init
+      datastore: discovery_lookup
+      config: {driver: sqlite, dsn: '${runDir}/discovery-lookup.db'}
+      scripts:
+        - URL: ${appPath}/e2e/fixtures/discovery/lookup.sql
+    app:
+      action: process:start
+      target: $target
+      directory: $appPath
+      command: ${appPath}/.data/e2e/bin/management-fixture
+      arguments: [-root, $appPath, -dir, $runDir, -port-offset, '1000', '-namespace-admin-role=']
+      immuneToHangups: true
+    wait:
+      action: exec:run
+      target: $target
+      strictCompletion: true
+      checkError: true
+      timeoutMs: 40000
+      commands:
+        - ${appPath}/.data/e2e/bin/management-fixture -mode wait -root ${appPath} -dir ${runDir} -port-offset 1000
+  browser:
+    driver:
+      action: exec:run
+      target: $target
+      strictCompletion: true
+      checkError: true
+      timeoutMs: 120000
+      commands:
+        - python3 ${appPath}/e2e/scripts/prepare_webdriver.py ${appPath}/.data/e2e/webdriver
+    start:
+      action: webdriver:start
+      URL: ${appPath}/.data/e2e/webdriver
+      driver: chromedriver
+      capabilities: ['--window-size=1440,1000']
+      port: 4446
+  discovery:
+    action: run
+    request: '@management/discovery'
+  namespaceManagers:
+    action: run
+    request: '@management/namespace-managers'
+  stop:
+    action: process:stop
+    target: $target
+    input: ${appPath}/.data/e2e/bin/management-fixture
+    signal: '15'

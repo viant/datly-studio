@@ -1022,6 +1022,15 @@ var postV1StudioSdkConnectorsDisable = (options) => (options.client ?? client).p
     ...options.headers
   }
 });
+var postV1StudioSdkConnectorsDiscover = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/connectors.discover",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var postV1StudioSdkConnectorsGet = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/v1/studio/sdk/connectors.get",
@@ -1532,6 +1541,7 @@ export {
   postV1StudioSdkConnectorsCreate,
   postV1StudioSdkConnectorsDelete,
   postV1StudioSdkConnectorsDisable,
+  postV1StudioSdkConnectorsDiscover,
   postV1StudioSdkConnectorsGet,
   postV1StudioSdkConnectorsList,
   postV1StudioSdkConnectorsSchemas,
