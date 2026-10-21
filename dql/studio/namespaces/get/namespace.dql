@@ -16,6 +16,13 @@
 #define($_ = $Auth<*studioauth.Output>(component/GET:/v1/studio/auth/context).Required().WithPredicate(3, 'handler', 'studioauthorization.NamespaceRead'))
 #define($_ = $Name<string>(body/name).WithTag('json:"name"').Required().WithPredicate(2, 'equal', 'n', 'name'))
 #define($_ = $Item<*NamespaceRecord>(output/view).WithTag('json:"-"'))
+#define($_ = $CanManage<bool>(output/body).WithTag('json:"canManage"'))
+#define($_ = $NamespaceID<string>(output/body).WithTag('json:"namespaceId"'))
+#define($_ = $Visibility<string>(output/body).WithTag('json:"visibility"'))
+#define($_ = $AllowedRoles<[]string>(output/body).WithTag('json:"allowedRoles"'))
+#define($_ = $MCPEnabled<bool>(output/body).WithTag('json:"mcpEnabled"'))
+#define($_ = $MCPPort<*int>(output/body).WithTag('json:"mcpPort,omitempty"'))
+#define($_ = $ManagerRoles<[]string>(output/body).WithTag('json:"managerRoles"'))
 #define($_ = $OwnerId<string>(output/body).WithTag('json:"ownerId"'))
 #define($_ = $ResponseName<string>(output/body).WithTag('json:"name"'))
 #define($_ = $Title<string>(output/body).WithTag('json:"title"'))
@@ -26,6 +33,10 @@
 #define($_ = $UpdatedAt<time.Time>(output/body).WithTag('json:"updatedAt"'))
 
 SELECT namespaces.*, type(namespaces, 'NamespaceRecord'),
+       CAST(namespaces.namespace_id AS string), CAST(namespaces.visibility AS string),
+       CAST(namespaces.allowed_roles_json AS *string), CAST(namespaces.mcp_enabled AS bool), CAST(namespaces.mcp_port AS *int),
+       tag(namespaces.allowed_roles_json, 'sqlx:"allowed_roles_json" json:"-"'),
+       tag(namespaces.namespace_id, 'json:"namespaceId"'), tag(namespaces.mcp_enabled, 'json:"mcpEnabled"'), tag(namespaces.mcp_port, 'json:"mcpPort,omitempty"'),
        CAST(namespaces.owner_id AS string), CAST(namespaces.name AS string),
        CAST(namespaces.title AS string), CAST(namespaces.description AS *string),
        CAST(namespaces.status AS string), CAST(namespaces.etag AS int64),

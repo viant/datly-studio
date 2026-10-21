@@ -6,6 +6,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/viant/datly-studio/internal/namespacevisibility"
 	"reflect"
 
 	"github.com/viant/bindly/resource"
@@ -66,7 +67,11 @@ func (reader *Reader) Read(ctx context.Context, reportID, subject string) (*stor
 	if len(output.Capabilities) != 1 || output.Capabilities[0] == nil || output.Capabilities[0].ReportId != reportID {
 		return nil, fmt.Errorf("report capability reader returned an ambiguous or mismatched report")
 	}
-	return output.Capabilities[0], nil
+	row := output.Capabilities[0]
+	if namespacevisibility.IsManager(ctx, subject, row.NamespaceRoles) {
+		row.CanView, row.CanRun, row.CanEdit, row.CanPublish, row.CanUseDql = true, true, true, true, true
+	}
+	return row, nil
 }
 
 func (reader *Reader) Close(ctx context.Context) error {

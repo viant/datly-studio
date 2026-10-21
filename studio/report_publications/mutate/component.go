@@ -10,6 +10,7 @@ import (
 	"sync"
 
 	"github.com/viant/datly-studio/internal/runtimeadmin"
+	"github.com/viant/datly-studio/runtime/accessprovider"
 	"github.com/viant/datly-studio/sdk"
 	sqltransport "github.com/viant/datly-studio/sdk/transport/sql"
 	"github.com/viant/datly-studio/studio/authorization"
@@ -172,6 +173,10 @@ func invoke(ctx context.Context, session xhandler.Session, claims *jwt.Claims, n
 	stop := context.AfterFunc(ctx, cancel)
 	defer stop()
 	defer cancel()
+	// Retain the trusted identity authority, but not the endpoint transaction.
+	if identity, ok := accessprovider.FromContext(ctx); ok {
+		lifecycleCtx = accessprovider.WithProvider(lifecycleCtx, identity)
+	}
 	principal := sdk.WithPrincipal(lifecycleCtx, sdk.Principal{Subject: claims.Subject})
 	var headers struct {
 		Authorization string `bind:"kind=header,in=Authorization"`

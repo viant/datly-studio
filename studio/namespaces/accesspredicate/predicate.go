@@ -39,10 +39,13 @@ func (p *NamespaceAccess) Compute(ctx context.Context, _ any) (*xpredicate.Crite
 		return nil, err
 	}
 	if permission == "edit" || permission == "publish" {
-		if namespacevisibility.IsAdministrator(ctx, subject) {
-			return &xpredicate.Criteria{Expression: "n.name = ?", Placeholders: []any{name}}, nil
+		management, err := namespacevisibility.ManagementCriteria(ctx, p.Connectors, subject, "n")
+		if err != nil {
+			return nil, err
 		}
-		return &xpredicate.Criteria{Expression: "n.name = ? AND n.owner_id = ?", Placeholders: []any{name, subject}}, nil
+		management.Expression = "n.name = ? AND (" + management.Expression + ")"
+		management.Placeholders = append([]any{name}, management.Placeholders...)
+		return management, nil
 	}
 	switch permission {
 	case "view", "run", "dql":

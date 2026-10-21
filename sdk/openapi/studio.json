@@ -409,6 +409,13 @@
             "type": "integer",
             "format": "int64"
           },
+          "managerRoles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
           "mcpEnabled": {
             "type": "boolean",
             "nullable": true
@@ -887,6 +894,13 @@
             "type": "string",
             "nullable": true
           },
+          "managerRoles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
           "mcpEnabled": {
             "type": "boolean"
           },
@@ -896,6 +910,9 @@
             "nullable": true
           },
           "name": {
+            "type": "string"
+          },
+          "namespaceId": {
             "type": "string"
           },
           "ownerId": {
@@ -2535,6 +2552,13 @@
             "type": "integer",
             "format": "int64"
           },
+          "managerRoles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
           "mcpEnabled": {
             "type": "boolean"
           },
@@ -2571,6 +2595,7 @@
           "namespaceId",
           "visibility",
           "allowedRoles",
+          "managerRoles",
           "mcpEnabled",
           "ownerId",
           "name",
@@ -3762,6 +3787,13 @@
             "type": "integer",
             "format": "int64"
           },
+          "managerRoles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
           "mcpEnabled": {
             "type": "boolean"
           },
@@ -3795,17 +3827,18 @@
         },
         "required": [
           "canManage",
+          "namespaceId",
+          "visibility",
+          "allowedRoles",
+          "mcpEnabled",
+          "managerRoles",
           "ownerId",
           "name",
           "title",
           "status",
           "etag",
           "createdAt",
-          "updatedAt",
-          "namespaceId",
-          "visibility",
-          "allowedRoles",
-          "mcpEnabled"
+          "updatedAt"
         ]
       },
       "Wire_221846f313892219b53265500a015547384983c9f728252d253349f904fb06a9": {
@@ -7949,6 +7982,13 @@
             "type": "integer",
             "format": "int64"
           },
+          "managerRoles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
           "mcpEnabled": {
             "type": "boolean"
           },
@@ -7984,6 +8024,7 @@
           "namespaceId",
           "visibility",
           "allowedRoles",
+          "managerRoles",
           "mcpEnabled",
           "ownerId",
           "name",
@@ -9343,6 +9384,13 @@
             "type": "integer",
             "format": "int64"
           },
+          "managerRoles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
           "mcpEnabled": {
             "type": "boolean"
           },
@@ -9375,8 +9423,9 @@
           }
         },
         "required": [
-          "canManage",
           "allowedRoles",
+          "canManage",
+          "managerRoles",
           "namespaceId",
           "visibility",
           "mcpEnabled",

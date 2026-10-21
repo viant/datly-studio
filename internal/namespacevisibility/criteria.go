@@ -2,7 +2,6 @@ package namespacevisibility
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -12,7 +11,6 @@ import (
 	"github.com/viant/datly-studio/runtime/accessprovider"
 	_ "github.com/viant/sqlx/metadata/product/mysql"
 	_ "github.com/viant/sqlx/metadata/product/sqlite"
-	"github.com/viant/sqlx/metadata/registry"
 	"github.com/viant/xdatly/connector"
 	xpredicate "github.com/viant/xdatly/predicate"
 	xresponse "github.com/viant/xdatly/response"
@@ -51,40 +49,13 @@ func Criteria(ctx context.Context, connectors connector.Provider, subject, alias
 			}
 			return &xpredicate.Criteria{Expression: strings.ReplaceAll(expression+")", "namespaces.", alias+"."), Placeholders: values}, nil
 		}
-		if len(facts.Roles) > 0 {
-			if connectors == nil {
-				return nil, forbidden("namespace connector is unavailable")
-			}
-			db, err := connectors.Connector(ctx, "studio")
-			if err != nil || db == nil {
-				return nil, forbidden("namespace connector is unavailable")
-			}
-			product := registry.MatchProduct(db)
-			if product == nil {
-				return nil, fmt.Errorf("namespace role SQL dialect is unavailable")
-			}
-			seen := map[string]bool{}
-			for _, role := range facts.Roles {
-				if role == "" || strings.TrimSpace(role) != role || seen[role] {
-					continue
-				}
-				seen[role] = true
-				switch strings.ToLower(product.Name) {
-				case "sqlite", "sqlite3":
-					expression += " OR (namespaces.visibility = 'private' AND EXISTS (SELECT 1 FROM json_each(namespaces.allowed_roles_json) role WHERE role.type = 'text' AND role.value = ? COLLATE BINARY))"
-					values = append(values, role)
-				case "mysql":
-					expression += " OR (namespaces.visibility = 'private' AND JSON_CONTAINS(namespaces.allowed_roles_json, ?))"
-					encoded, err := json.Marshal(role)
-					if err != nil {
-						return nil, err
-					}
-					values = append(values, string(encoded))
-				default:
-					return nil, fmt.Errorf("namespace roles unsupported for %s", product.Name)
-				}
-			}
+		rememberRoles(ctx, facts)
+		roles, err := roleCriteria(connectors, ctx, "namespaces", facts.Roles, false)
+		if err != nil {
+			return nil, err
 		}
+		expression += " OR " + roles.Expression
+		values = append(values, roles.Placeholders...)
 	}
 	return &xpredicate.Criteria{Expression: strings.ReplaceAll(expression+")", "namespaces.", alias+"."), Placeholders: values}, nil
 }

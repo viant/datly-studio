@@ -8,6 +8,9 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/viant/authz/oauth"
+	"github.com/viant/datly-studio/internal/namespacevisibility"
+	"github.com/viant/datly-studio/internal/reportcapability"
 	"github.com/viant/scy/auth/jwt"
 	"github.com/viant/xdatly/connector"
 	xpredicate "github.com/viant/xdatly/predicate"
@@ -84,7 +87,9 @@ const (
 // InputBinding is embedded structurally in every handler so Datly binds the
 // component's declared input. It intentionally does not read request context.
 type InputBinding struct {
-	Input any `bind:"kind=input,required"`
+	Input                any                `bind:"kind=input,required"`
+	ManagerAuthorization string             `bind:"kind=header,in=Authorization"`
+	ManagerConnectors    connector.Provider `bind:"kind=connector"`
 }
 
 type ConnectorRead struct{ InputBinding }
@@ -183,7 +188,7 @@ func (p *AuthorizationPredicateEdit) Compute(ctx context.Context, _ any) (*xpred
 	return globalCriteria(ctx, p.Input, permissionPublish)
 }
 func (p *ReportRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "reports.id", permissionView)
+	return p.InputBinding.report(ctx, "reports.id", permissionView)
 }
 func (p *ReportEdit) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
 	principal, err := subject(ctx, p.Input)
@@ -208,49 +213,49 @@ func (p *ReportVersionEdit) Compute(ctx context.Context, _ any) (*xpredicate.Cri
 	return p.NamespaceSelection.report(ctx, p.Input, "report_version.report_id", permissionEdit)
 }
 func (p *ReportViewRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "v.report_id", permissionView)
+	return p.InputBinding.report(ctx, "v.report_id", permissionView)
 }
 func (p *ReportParameterRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "p.report_id", permissionView)
+	return p.InputBinding.report(ctx, "p.report_id", permissionView)
 }
 func (p *ReportParameterEdit) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "parameter.report_id", permissionEdit)
+	return p.InputBinding.report(ctx, "parameter.report_id", permissionEdit)
 }
 func (p *ReportCubeRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "c.report_id", permissionView)
+	return p.InputBinding.report(ctx, "c.report_id", permissionView)
 }
 func (p *ReportCubeEdit) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "cube_config.report_id", permissionEdit)
+	return p.InputBinding.report(ctx, "cube_config.report_id", permissionEdit)
 }
 func (p *ReportMCPRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "e.report_id", permissionView)
+	return p.InputBinding.report(ctx, "e.report_id", permissionView)
 }
 func (p *ReportMCPEdit) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "exposure.report_id", permissionEdit)
+	return p.InputBinding.report(ctx, "exposure.report_id", permissionEdit)
 }
 func (p *ReportResourceFileRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "f.report_id", permissionView)
+	return p.InputBinding.report(ctx, "f.report_id", permissionView)
 }
 func (p *ReportResourceFileEdit) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "resource_file.report_id", permissionEdit)
+	return p.InputBinding.report(ctx, "resource_file.report_id", permissionEdit)
 }
 func (p *ReportResourceFolderRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "f.report_id", permissionView)
+	return p.InputBinding.report(ctx, "f.report_id", permissionView)
 }
 func (p *ReportResourceFolderEdit) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "resource_folder.report_id", permissionEdit)
+	return p.InputBinding.report(ctx, "resource_folder.report_id", permissionEdit)
 }
 func (p *ReportSkillRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "s.report_id", permissionView)
+	return p.InputBinding.report(ctx, "s.report_id", permissionView)
 }
 func (p *ReportSkillEdit) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "skill_root.report_id", permissionEdit)
+	return p.InputBinding.report(ctx, "skill_root.report_id", permissionEdit)
 }
 func (p *PublicationRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
 	return p.NamespaceSelection.report(ctx, p.Input, "p.report_id", permissionView)
 }
 func (p *PublicationEdit) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "publication.report_id", permissionPublish)
+	return p.InputBinding.report(ctx, "publication.report_id", permissionPublish)
 }
 
 // PublicationEventRead requires the report's current owner. The audit trail
@@ -277,22 +282,30 @@ func (p *ACLRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, err
 	if strings.TrimSpace(reportID) == "" {
 		return nil, forbidden("report identity is required")
 	}
+	ctx = oauth.WithBearer(ctx, strings.TrimPrefix(p.Authorization, "Bearer "))
 	grants, err := readGrants(ctx, p.Connectors, principal, reportID, "owner", false)
 	if err != nil {
 		return nil, err
 	}
 	if len(grants) != 1 {
-		return nil, forbidden("only the report owner can administer access")
+		if !componentManager(ctx, p.Connectors, principal, reportID) {
+			return nil, forbidden("only the report owner or namespace manager can administer access")
+		}
 	}
 	criteria := &xpredicate.Criteria{Expression: `EXISTS (
 SELECT 1 FROM components studio_auth_owner
 WHERE studio_auth_owner.id = a.report_id
   AND studio_auth_owner.owner_id = ?
   AND studio_auth_owner.deleted_at IS NULL)`, Placeholders: []any{principal}}
+	ctx = oauth.WithBearer(ctx, strings.TrimPrefix(p.Authorization, "Bearer "))
+	criteria, err = namespacevisibility.AddComponentManagers(ctx, p.Connectors, principal, "a.report_id", criteria)
+	if err != nil {
+		return nil, err
+	}
 	return (&NamespaceSelection{NamespaceID: p.NamespaceID, Authorization: p.Authorization, Connectors: p.Connectors}).constrain(ctx, p.Input, criteria, "a.report_id")
 }
 func (p *ACLEdit) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	return reportCriteria(ctx, p.Input, "component_acl.report_id", permissionPublish)
+	return p.InputBinding.report(ctx, "component_acl.report_id", permissionPublish)
 }
 func (p *RuntimeRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
 	return globalCriteria(ctx, p.Input, permissionPublish)
@@ -335,6 +348,21 @@ WHERE studio_auth_report.default_connector_name = ` + nameColumn + `
   AND studio_auth_acl.subject_type = 'user'
   AND studio_auth_acl.subject_id = ?
 	  AND studio_auth_acl.` + permission + ` = TRUE))`, Placeholders: []any{subject, subject}}
+}
+
+func (p *InputBinding) report(ctx context.Context, idColumn, permission string) (*xpredicate.Criteria, error) {
+	if p.ManagerAuthorization != "" {
+		ctx = oauth.WithBearer(ctx, strings.TrimPrefix(p.ManagerAuthorization, "Bearer "))
+	}
+	criteria, err := reportCriteria(ctx, p.Input, idColumn, permission)
+	if err != nil {
+		return nil, err
+	}
+	principal, err := subject(ctx, p.Input)
+	if err != nil {
+		return nil, err
+	}
+	return namespacevisibility.AddComponentManagers(ctx, p.ManagerConnectors, principal, idColumn, criteria)
 }
 
 func reportCriteria(ctx context.Context, input any, reportIDColumn, permission string) (*xpredicate.Criteria, error) {
@@ -466,6 +494,17 @@ func AuthorizeReport(ctx context.Context, provider connector.Provider, claims *j
 			}
 		}
 	}
+	db, dbErr := provider.Connector(ctx, "studio")
+	if dbErr == nil && db != nil {
+		reader, readErr := reportcapability.New(db)
+		if readErr == nil {
+			defer reader.Close(context.Background())
+			row, readErr := reader.Read(ctx, reportID, principal)
+			if readErr == nil && row != nil && namespacevisibility.IsManager(ctx, principal, row.NamespaceRoles) {
+				return nil
+			}
+		}
+	}
 	return forbidden("report authorization is required")
 }
 
@@ -539,3 +578,20 @@ func claimsFromInput(input any) *jwt.Claims {
 }
 
 func forbidden(message string) error { return &xresponse.Error{Code: 403, Cause: errors.New(message)} }
+
+func componentManager(ctx context.Context, provider connector.Provider, subject, reportID string) bool {
+	if provider == nil {
+		return false
+	}
+	db, err := provider.Connector(ctx, "studio")
+	if err != nil || db == nil {
+		return false
+	}
+	reader, err := reportcapability.New(db)
+	if err != nil {
+		return false
+	}
+	defer reader.Close(context.Background())
+	row, err := reader.Read(ctx, reportID, subject)
+	return err == nil && row != nil && namespacevisibility.IsManager(ctx, subject, row.NamespaceRoles)
+}

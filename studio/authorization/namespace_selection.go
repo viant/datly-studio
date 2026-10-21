@@ -18,7 +18,7 @@ type NamespaceSelection struct {
 }
 
 func (selection *NamespaceSelection) report(ctx context.Context, input any, idColumn, permission string) (*xpredicate.Criteria, error) {
-	criteria, err := reportCriteria(ctx, input, idColumn, permission)
+	criteria, err := (&InputBinding{Input: input, ManagerAuthorization: selection.Authorization, ManagerConnectors: selection.Connectors}).report(ctx, idColumn, permission)
 	if err != nil {
 		return nil, err
 	}

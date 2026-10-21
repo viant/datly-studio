@@ -23,6 +23,14 @@
 #define($_ = $PageOffset<int>(output/body).WithTag('json:"offset"'))
 
 SELECT namespaces.*, type(namespaces, 'NamespaceRecord'),
+       CAST(namespaces.namespace_id AS string), CAST(namespaces.visibility AS string),
+       CAST(namespaces.allowed_roles_json AS *string), CAST(namespaces.mcp_enabled AS bool), CAST(namespaces.mcp_port AS *int),
+       tag(namespaces.allowed_roles_json, 'sqlx:"allowed_roles_json" json:"-"'),
+       tag(namespaces.namespace_id, 'json:"namespaceId"'), tag(namespaces.mcp_enabled, 'json:"mcpEnabled"'), tag(namespaces.mcp_port, 'json:"mcpPort,omitempty"'),
+       CAST(namespaces.allowed_roles AS []string), tag(namespaces.allowed_roles, 'sqlx:"-" json:"allowedRoles"'),
+       CAST(namespaces.can_manage AS bool), tag(namespaces.can_manage, 'sqlx:"-" json:"canManage"'),
+       CAST(namespaces.manager_roles AS []string),
+       tag(namespaces.manager_roles, 'sqlx:"-" json:"managerRoles"'),
        CAST(namespaces.owner_id AS string),
        CAST(namespaces.name AS string),
        CAST(namespaces.title AS string),

@@ -13,6 +13,7 @@
 #define($_ = $Capabilities<[]*ReportCapability>(output/view))
 
 SELECT capability.*, type(capability, 'ReportCapability'),
+       CAST(capability.namespace_roles AS *string), tag(capability.namespace_roles, 'json:"-"'),
        CAST(capability.report_id AS string),
        CAST(capability.owner_id AS string),
        CAST(capability.can_view AS bool),

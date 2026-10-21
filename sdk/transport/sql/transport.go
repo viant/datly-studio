@@ -16,7 +16,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/viant/datly-studio/internal/namespaceroles"
 	"github.com/viant/datly-studio/internal/namespacevalidation"
+	"github.com/viant/datly-studio/internal/namespacevisibility"
 	"github.com/viant/datly-studio/internal/readerinspection"
 	"github.com/viant/datly-studio/internal/reportcapability"
 	"github.com/viant/datly-studio/internal/versionidentity"
@@ -757,7 +759,11 @@ func (t *Transport) createReport(ctx context.Context, input, output any) error {
 		in.OwnerID = principal.Subject
 	}
 	if hasPrincipal && in.OwnerID != principal.Subject {
-		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "cannot create another principal's report"}
+		selected, ok := selectedNamespace(ctx)
+		encoded, encodeErr := (namespaceroles.Grants{Manage: selected.ManagerRoles}).Encode()
+		if !ok || encodeErr != nil || selected.OwnerID != in.OwnerID || !namespacevisibility.IsManager(ctx, principal.Subject, &encoded) {
+			return &sdk.Error{Code: sdk.ErrorForbidden, Message: "cannot create another principal's report"}
+		}
 	}
 	if strings.TrimSpace(in.ID) == "" {
 		var err error

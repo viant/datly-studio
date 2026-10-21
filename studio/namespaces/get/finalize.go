@@ -2,10 +2,10 @@ package get
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
+	"github.com/viant/datly-studio/internal/namespaceroles"
 	"github.com/viant/datly-studio/internal/namespacevisibility"
 	"reflect"
 
@@ -33,15 +33,14 @@ func (output *NamespaceGetOutput) Finalize(ctx context.Context) error {
 	if output.Visibility == "" {
 		output.Visibility = namespaceaccess.Private
 	}
-	output.AllowedRoles = []string{}
-	if namespace.AllowedRolesJson != nil {
-		if err := json.Unmarshal([]byte(*namespace.AllowedRolesJson), &output.AllowedRoles); err != nil {
-			return fmt.Errorf("invalid namespace roles")
-		}
+	grants, err := namespaceroles.Decode(namespace.AllowedRolesJson)
+	if err != nil {
+		return err
 	}
+	output.AllowedRoles, output.ManagerRoles = grants.View, grants.Manage
 	output.MCPEnabled = namespace.McpEnabled
 	output.MCPPort = namespace.McpPort
-	output.CanManage = input.Jwt != nil && (input.Jwt.Subject == namespace.OwnerId || namespacevisibility.IsAdministrator(ctx, input.Jwt.Subject))
+	output.CanManage = input.Jwt != nil && namespacevisibility.CanManage(ctx, input.Jwt.Subject, namespace.OwnerId, namespace.AllowedRolesJson)
 	output.OwnerId = namespace.OwnerId
 	output.ResponseName = namespace.Name
 	output.Title = namespace.Title

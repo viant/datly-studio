@@ -1,7 +1,23 @@
 # Namespace workspaces: implementation status
 
-Namespaces are private by default. Their owner manages visibility and assigned
-viewer roles. Public visibility does not grant management or bypass resource ACL.
+Namespaces are private by default. Owners can assign viewer roles (`allowedRoles`)
+and namespace-scoped manager roles (`managerRoles`). Viewers can discover the
+namespace. Managers can edit its settings, visibility and read grants, manage
+namespace skills, and edit/publish its components and administer component read
+permissions. Managers may delegate or revoke manager roles in that namespace.
+The owner remains immutable; a manager role grants no authority in other
+namespaces and does not bypass published resource execution policies.
+
+The namespace editor exposes separate **Viewer roles** and **Manager roles**
+fields. Both match exact roles returned by the verified identity provider. Existing
+viewer assignments remain read-only.
+
+No DDL or new columns are required. The existing `allowed_roles_json` accepts
+legacy viewer arrays and a grant document `{ "view": [...], "manage": [...] }`.
+Writes use the document when manager roles are present; sparse updates preserve
+omitted grants and an explicit empty `managerRoles` array revokes delegation.
+Deploy the updated reader/writer together: older binaries cannot read grant
+documents and should not be used after manager grants are saved.
 DQL, components, skills and MCP exposure belong to a namespace; owning two
 namespaces does not combine them. Connectors may be global infrastructure shared
 across namespaces. Connector ownership is not implicitly inherited from the
@@ -59,7 +75,7 @@ migration behavior, not complete request isolation.
   test registrations must supply it explicitly as well.
 - The SDK directory and namespace access readers use the same visibility criteria
   as the native endpoints. Component ACL does not grant private namespace access.
-  Edit/publish namespace management remains owner-only. Signed-role SDK tests
+  Edit/publish namespace management accepts owners and explicit namespace manager roles. Signed-role SDK tests
   cover get/list, role revocation, public access, subject mismatch, and denied role
   management.
 

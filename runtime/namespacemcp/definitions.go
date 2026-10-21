@@ -3,8 +3,8 @@ package namespacemcp
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
+	"github.com/viant/datly-studio/internal/namespaceroles"
 	"reflect"
 
 	"github.com/viant/bindly/resource"
@@ -101,12 +101,11 @@ func (source SQLDefinitions) load(ctx context.Context, namespaceID string) ([]De
 			if row.McpPort != nil {
 				port = *row.McpPort
 			}
-			roles := []string{}
-			if row.AllowedRolesJson != nil {
-				if err := json.Unmarshal([]byte(*row.AllowedRolesJson), &roles); err != nil {
-					return nil, fmt.Errorf("namespace roles are invalid")
-				}
+			grants, err := namespaceroles.Decode(row.AllowedRolesJson)
+			if err != nil {
+				return nil, err
 			}
+			roles := append(append([]string{}, grants.View...), grants.Manage...)
 			result = append(result, Definition{Name: row.Name, NamespaceID: row.NamespaceId, OwnerID: row.OwnerId, Visibility: row.Visibility, AllowedRoles: roles, Active: row.Status == "active", Enabled: row.McpEnabled && row.Status == "active", Port: port})
 		}
 		if len(output.Namespaces) < pageSize {

@@ -3,9 +3,9 @@ package sqltransport
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"errors"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
+	"github.com/viant/datly-studio/internal/namespaceroles"
 	"strings"
 	"time"
 
@@ -46,14 +46,13 @@ func (t *Transport) createNamespace(ctx context.Context, input, output any) erro
 	if in.Visibility == "" {
 		in.Visibility = namespaceaccess.Private
 	}
-	roles, _ := json.Marshal(in.AllowedRoles)
-	if in.AllowedRoles == nil {
-		roles = []byte("[]")
+	rolesJSON, err := (namespaceroles.Grants{View: in.AllowedRoles, Manage: in.ManagerRoles}).Encode()
+	if err != nil {
+		return invalid(err)
 	}
-	rolesJSON := string(roles)
 	now := t.now()
 	etag := int64(1)
-	err := t.insertNamespaceRow(ctx, &insert.StoredNamespace{NamespaceId: namespaceaccess.ID(in.OwnerID, in.Name), Visibility: in.Visibility, AllowedRolesJson: &rolesJSON, McpEnabled: in.MCPEnabled, McpPort: in.MCPPort, OwnerId: in.OwnerID, Name: in.Name,
+	err = t.insertNamespaceRow(ctx, &insert.StoredNamespace{NamespaceId: namespaceaccess.ID(in.OwnerID, in.Name), Visibility: in.Visibility, AllowedRolesJson: &rolesJSON, McpEnabled: in.MCPEnabled, McpPort: in.MCPPort, OwnerId: in.OwnerID, Name: in.Name,
 		Title: in.Title, Description: namespaceOptionalDescription(in.Description), Status: "active",
 		Etag: &etag, CreatedAt: &now, UpdatedAt: &now,
 		Has: &insert.StoredNamespaceHas{NamespaceId: true, Visibility: true, AllowedRolesJson: true, McpEnabled: true, McpPort: true, OwnerId: true, Name: true, Title: true, Description: true,
@@ -151,6 +150,9 @@ func (t *Transport) updateNamespace(ctx context.Context, input, output any) erro
 	if in.Input.AllowedRoles != nil {
 		current.AllowedRoles = *in.Input.AllowedRoles
 	}
+	if in.Input.ManagerRoles != nil {
+		current.ManagerRoles = *in.Input.ManagerRoles
+	}
 	if in.Input.MCPEnabled != nil {
 		current.MCPEnabled = *in.Input.MCPEnabled
 	}
@@ -160,11 +162,10 @@ func (t *Transport) updateNamespace(ctx context.Context, input, output any) erro
 	if err := namespaceaccess.Validate(current.Visibility, current.AllowedRoles, current.MCPPort); err != nil {
 		return invalid(err)
 	}
-	roles, _ := json.Marshal(current.AllowedRoles)
-	if current.AllowedRoles == nil {
-		roles = []byte("[]")
+	rolesJSON, err := (namespaceroles.Grants{View: current.AllowedRoles, Manage: current.ManagerRoles}).Encode()
+	if err != nil {
+		return invalid(err)
 	}
-	rolesJSON := string(roles)
 	if current.Title == "" {
 		return invalid(errors.New("namespace title is required"))
 	}

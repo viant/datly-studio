@@ -60,3 +60,16 @@ value must match a role returned by the configured, verified authorization
 provider; request bodies and browser fields cannot grant it. Expired identity,
 missing roles, differently cased names and provider failures do not grant the
 administrator capability. Component execution remains governed by its own policy.
+
+### Namespace manager delegation
+
+A namespace owner can assign `managerRoles` in Namespace settings. Unlike
+`STUDIO_NAMESPACE_ADMIN_ROLE`, each assignment applies only to that namespace.
+Verified members can change namespace settings and viewer/manager grants, manage
+namespace skills, edit and publish its components, and change component read
+permissions. Component ownership remains unchanged. Public visibility and viewer
+roles never imply management. Removing a manager role takes effect on subsequent
+requests; stale namespace updates are rejected by the existing ETag check.
+
+Manager grants use the existing namespace roles JSON column; the schema is
+unchanged. Published execution remains governed by resource policies.

@@ -10,8 +10,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/viant/authz/oauth"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/namespacevalidation"
+	"github.com/viant/datly-studio/internal/namespacevisibility"
 	"github.com/viant/datly-studio/sdk"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
 	connectors "github.com/viant/datly-studio/studio/connectors/get"
@@ -110,15 +112,23 @@ func (*createHandler) Exec(ctx context.Context, session xhandler.Session, input 
 	if !found || !ok {
 		return fmt.Errorf("Datly component invoker is unavailable")
 	}
+	owner := input.Jwt.Subject
+	var headers struct {
+		Authorization string `bind:"kind=header,in=Authorization"`
+	}
+	if err := session.Binder().Bind(ctx, &headers); err != nil {
+		return err
+	}
+	ctx = oauth.WithBearer(ctx, strings.TrimPrefix(headers.Authorization, "Bearer "))
 	if input.NamespaceId != nil {
 		if err := namespaceaccess.ValidateResourceOwnership(*input.NamespaceId, ""); err != nil {
 			return &xresponse.Error{Code: 400, Cause: errors.New("valid namespace selection is required")}
 		}
 		selected := &namespaces.Input{}
 		selected.NamespaceId = *input.NamespaceId
-		selected.SetOwnerId(input.Jwt.Subject)
 		selected.SetStatus("active")
-		selected.SetScoped(false)
+		selected.SetScoped(true)
+		selected.SetSubject(input.Jwt.Subject)
 		selected.SetPageLimit(2)
 		selected.SetPageOffset(0)
 		selected.Has.NamespaceId = true
@@ -127,13 +137,14 @@ func (*createHandler) Exec(ctx context.Context, session xhandler.Session, input 
 			return err
 		}
 		page, ok := value.(*namespaces.Output)
-		if !ok || page == nil || len(page.Namespaces) != 1 || page.Namespaces[0] == nil || page.Namespaces[0].NamespaceId != *input.NamespaceId || page.Namespaces[0].OwnerId != input.Jwt.Subject {
+		if !ok || page == nil || len(page.Namespaces) != 1 || page.Namespaces[0] == nil || page.Namespaces[0].NamespaceId != *input.NamespaceId || (page.Namespaces[0].OwnerId != input.Jwt.Subject && !namespacevisibility.IsManager(ctx, input.Jwt.Subject, page.Namespaces[0].AllowedRolesJson)) {
 			return &xresponse.Error{Code: 403, Cause: errors.New("selected namespace is unavailable")}
 		}
 		if input.Namespace != "" && input.Namespace != page.Namespaces[0].Name {
 			return &xresponse.Error{Code: 403, Cause: errors.New("component creation is outside the selected namespace")}
 		}
 		namespace = page.Namespaces[0].Name
+		owner = page.Namespaces[0].OwnerId
 	}
 	connectorInput := &connectors.ConnectorGetInput{}
 	connectorInput.SetJwt(input.Jwt)
@@ -156,8 +167,10 @@ func (*createHandler) Exec(ctx context.Context, session xhandler.Session, input 
 	if connector.Item.Status != "active" {
 		return &xresponse.Error{Code: 400, Cause: errors.New("default connector must be active")}
 	}
-	if err := requireNamespace(ctx, invoker, input, namespace); err != nil {
-		return err
+	if input.NamespaceId == nil {
+		if err := requireNamespace(ctx, invoker, input, namespace); err != nil {
+			return err
+		}
 	}
 	id := strings.TrimSpace(input.Id)
 	if id == "" {
@@ -173,8 +186,8 @@ func (*createHandler) Exec(ctx context.Context, session xhandler.Session, input 
 	}
 	now := time.Now().UTC()
 	row := &stored.StoredReport{Id: id, Namespace: namespace, Slug: input.Slug, Title: input.Title,
-		OwnerId: input.Jwt.Subject, Status: "draft", DefaultConnectorName: input.DefaultConnectorName,
-		ComponentScope: authoring.ModulePath() + "/dynamic/" + sdk.OwnerPackageSegment(input.Jwt.Subject) + "/" + id,
+		OwnerId: owner, Status: "draft", DefaultConnectorName: input.DefaultConnectorName,
+		ComponentScope: authoring.ModulePath() + "/dynamic/" + sdk.OwnerPackageSegment(owner) + "/" + id,
 		ComponentName:  "reader", Etag: 1, CreatedAt: now, UpdatedAt: now,
 		Has: &stored.StoredReportHas{Id: true, Namespace: true, Slug: true, Title: true,
 			Description: true, OwnerId: true, Status: true, DefaultConnectorName: true,
@@ -194,7 +207,7 @@ func (*createHandler) Exec(ctx context.Context, session xhandler.Session, input 
 		return fmt.Errorf("report insert returned %T without one inserted row: %+v", written, written)
 	}
 	report := mutation.Data[0]
-	if report == nil || report.Id != id || report.OwnerId != input.Jwt.Subject {
+	if report == nil || report.Id != id || report.OwnerId != owner {
 		return fmt.Errorf("report insert returned a mismatched row")
 	}
 	*output = Output{Id: report.Id, Namespace: report.Namespace, Slug: report.Slug,

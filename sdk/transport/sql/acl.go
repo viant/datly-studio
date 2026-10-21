@@ -4,6 +4,7 @@ import (
 	"context"
 	stdsql "database/sql"
 	"errors"
+	"github.com/viant/datly-studio/internal/namespacevisibility"
 	"strings"
 
 	"github.com/viant/datly-studio/sdk"
@@ -164,7 +165,10 @@ func (t *Transport) requireACLAdmin(ctx context.Context, reportID string) error 
 		return nil // trusted in-process administration
 	}
 	if principal.Subject != report.OwnerID {
-		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "only the report owner can administer access"}
+		row, err := t.readReportCapability(ctx, reportID, principal.Subject)
+		if err != nil || row == nil || !namespacevisibility.IsManager(ctx, principal.Subject, row.NamespaceRoles) {
+			return &sdk.Error{Code: sdk.ErrorForbidden, Message: "only the report owner or namespace manager can administer access"}
+		}
 	}
 	return nil
 }

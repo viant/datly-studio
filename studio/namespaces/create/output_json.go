@@ -14,6 +14,7 @@ type NamespaceResponse struct {
 	NamespaceID  string    `json:"namespaceId"`
 	Visibility   string    `json:"visibility"`
 	AllowedRoles []string  `json:"allowedRoles"`
+	ManagerRoles []string  `json:"managerRoles"`
 	MCPEnabled   bool      `json:"mcpEnabled"`
 	MCPPort      *int      `json:"mcpPort,omitempty"`
 	OwnerID      string    `json:"ownerId"`
@@ -41,7 +42,7 @@ func (output *NamespaceCreateOutput) MarshalJSON() ([]byte, error) {
 		return nil, fmt.Errorf("created namespace response is incomplete")
 	}
 	roles := append([]string{}, row.AllowedRoles...)
-	result := NamespaceResponse{CanManage: true, NamespaceID: row.NamespaceId, Visibility: row.Visibility, AllowedRoles: roles, MCPEnabled: row.McpEnabled, MCPPort: row.McpPort, OwnerID: row.OwnerId, Name: row.Name, Title: row.Title,
+	result := NamespaceResponse{CanManage: true, NamespaceID: row.NamespaceId, Visibility: row.Visibility, AllowedRoles: roles, ManagerRoles: append([]string{}, row.ManagerRoles...), MCPEnabled: row.McpEnabled, MCPPort: row.McpPort, OwnerID: row.OwnerId, Name: row.Name, Title: row.Title,
 		Status: row.Status, ETag: *row.Etag, CreatedAt: *row.CreatedAt, UpdatedAt: *row.UpdatedAt}
 	if row.Description != nil {
 		result.Description = *row.Description

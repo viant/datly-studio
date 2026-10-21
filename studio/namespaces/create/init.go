@@ -2,9 +2,9 @@ package create
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
+	"github.com/viant/datly-studio/internal/namespaceroles"
 	"strings"
 	"time"
 
@@ -40,11 +40,10 @@ func (input *NamespaceCreateInput) Init(context.Context) error {
 	if row.Visibility == "" {
 		row.Visibility = namespaceaccess.Private
 	}
-	roles, _ := json.Marshal(row.AllowedRoles)
-	if row.AllowedRoles == nil {
-		roles = []byte("[]")
+	serialized, err := (namespaceroles.Grants{View: row.AllowedRoles, Manage: row.ManagerRoles}).Encode()
+	if err != nil {
+		return &xresponse.Error{Code: 400, Cause: err}
 	}
-	serialized := string(roles)
 	row.NamespaceId = namespaceaccess.ID(input.Jwt.Subject, row.Name)
 	row.AllowedRolesJson = &serialized
 	now, etag := time.Now().UTC(), int64(1)

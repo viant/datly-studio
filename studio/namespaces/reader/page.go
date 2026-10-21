@@ -2,9 +2,9 @@ package reader
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
+	"github.com/viant/datly-studio/internal/namespaceroles"
 	"github.com/viant/datly-studio/internal/namespacevisibility"
 	"reflect"
 	"strings"
@@ -42,19 +42,18 @@ func (output *NamespaceQueryOutput) Finalize(ctx context.Context) error {
 		if row == nil {
 			return fmt.Errorf("namespace list returned an empty row")
 		}
-		row.CanManage = input.Jwt != nil && (input.Jwt.Subject == row.OwnerId || namespacevisibility.IsAdministrator(ctx, input.Jwt.Subject))
+		row.CanManage = input.Jwt != nil && namespacevisibility.CanManage(ctx, input.Jwt.Subject, row.OwnerId, row.AllowedRolesJson)
 		if row.NamespaceId == "" {
 			row.NamespaceId = namespaceaccess.ID(row.OwnerId, row.Name)
 		}
 		if row.Visibility == "" {
 			row.Visibility = namespaceaccess.Private
 		}
-		row.AllowedRoles = []string{}
-		if row.AllowedRolesJson != nil {
-			if err := json.Unmarshal([]byte(*row.AllowedRolesJson), &row.AllowedRoles); err != nil {
-				return fmt.Errorf("invalid namespace roles")
-			}
+		grants, err := namespaceroles.Decode(row.AllowedRolesJson)
+		if err != nil {
+			return err
 		}
+		row.AllowedRoles, row.ManagerRoles = grants.View, grants.Manage
 	}
 	output.PageLimit = input.Limit
 	output.PageOffset = input.Offset

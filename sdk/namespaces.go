@@ -18,6 +18,7 @@ type Namespace struct {
 	NamespaceID  string    `json:"namespaceId"`
 	Visibility   string    `json:"visibility"`
 	AllowedRoles []string  `json:"allowedRoles"`
+	ManagerRoles []string  `json:"managerRoles"`
 	MCPEnabled   bool      `json:"mcpEnabled"`
 	MCPPort      *int      `json:"mcpPort,omitempty"`
 	OwnerID      string    `json:"ownerId"`
@@ -33,6 +34,7 @@ type Namespace struct {
 type CreateNamespaceInput struct {
 	Visibility   string   `json:"visibility,omitempty"`
 	AllowedRoles []string `json:"allowedRoles,omitempty"`
+	ManagerRoles []string `json:"managerRoles,omitempty"`
 	MCPEnabled   bool     `json:"mcpEnabled,omitempty"`
 	MCPPort      *int     `json:"mcpPort,omitempty"`
 	Name         string   `json:"name"`
@@ -44,6 +46,7 @@ type CreateNamespaceInput struct {
 type UpdateNamespaceInput struct {
 	Visibility   *string   `json:"visibility,omitempty"`
 	AllowedRoles *[]string `json:"allowedRoles,omitempty"`
+	ManagerRoles *[]string `json:"managerRoles,omitempty"`
 	MCPEnabled   *bool     `json:"mcpEnabled,omitempty"`
 	MCPPort      *int      `json:"mcpPort,omitempty"`
 	Title        *string   `json:"title,omitempty"`

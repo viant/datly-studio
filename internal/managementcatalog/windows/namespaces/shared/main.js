@@ -7,9 +7,9 @@
  const run=async fn=>{if(busy)return false;busy=true;draft().setFormField({item:{dataField:"pending"},value:true});try{await fn();return true;}catch(error){draft().setFormField({item:{dataField:'outcome'},value:error.message});return false;}finally{busy=false;draft().setFormField({item:{dataField:"pending"},value:false});}};
  const refresh=()=>ds('namespaces').fetchCollection();
  const open=values=>{draft().setFormData({values});context.handlers.window.openDialog({execution:{args:['namespace-editor']}});};
- const edit=current=>open({...current,editing:true,allowedRoles:JSON.stringify(current.allowedRoles||[]),mcpPort:current.mcpPort??0,outcome:''});
+ const edit=current=>open({...current,editing:true,allowedRoles:JSON.stringify(current.allowedRoles||[]),managerRoles:JSON.stringify(current.managerRoles||[]),mcpPort:current.mcpPort??0,outcome:''});
  return {
-  newNamespace:()=>open({name:'',title:'',description:'',visibility:'private',allowedRoles:'[]',mcpEnabled:false,mcpPort:0,editing:false,status:'active',outcome:''}),
+  newNamespace:()=>open({name:'',title:'',description:'',visibility:'private',allowedRoles:'[]',managerRoles:'[]',mcpEnabled:false,mcpPort:0,editing:false,status:'active',outcome:''}),
   editNamespace:()=>run(async()=>{const row=ds('namespaces').peekSelection()?.selected;if(!row)throw new Error('Select a namespace.');edit(record(await call('get',{name:row.name})));}),
   saveNamespace:()=>run(async()=>{
    const form=draft().getFormData();
@@ -18,9 +18,11 @@
    if((!form.editing&&!/^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)*$/.test(name))||!title)throw new Error('Enter a title and a lowercase dot-separated namespace such as inventory or delivery.forecasting.');
    const roles=JSON.parse(form.allowedRoles||'[]');
    if(!Array.isArray(roles)||roles.some(role=>typeof role!=='string'))throw new Error('Viewer roles must be a JSON array of strings.');
+   const managers=JSON.parse(form.managerRoles||'[]');
+   if(!Array.isArray(managers)||managers.some(role=>typeof role!=='string'||!role.trim()||role!==role.trim()||role==='*'))throw new Error('Manager roles must be a JSON array of exact role names.');
    const port=Number(form.mcpPort);
    if(form.mcpEnabled&&(!Number.isInteger(port)||port<0||port>65535))throw new Error('Enter an MCP port from 0 to 65535.');
-   const input={title,description:(form.description||'').trim(),visibility:form.visibility,allowedRoles:[...new Set(roles.map(role=>role.trim()).filter(Boolean))],mcpEnabled:Boolean(form.mcpEnabled),mcpPort:Number.isInteger(port)&&port>=0&&port<=65535?port:0};
+   const input={title,description:(form.description||'').trim(),visibility:form.visibility,allowedRoles:[...new Set(roles.map(role=>role.trim()).filter(Boolean))],managerRoles:[...new Set(managers)],mcpEnabled:Boolean(form.mcpEnabled),mcpPort:Number.isInteger(port)&&port>=0&&port<=65535?port:0};
    if(form.editing)await call('update',{name,input:{...input,status:form.status,etag:form.etag}});
    else await call('create',{name,...input});
    refresh();

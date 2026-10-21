@@ -3,9 +3,9 @@ package sqltransport
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
+	"github.com/viant/datly-studio/internal/namespaceroles"
 	"github.com/viant/datly-studio/internal/namespacevisibility"
 	"reflect"
 	"strings"
@@ -75,7 +75,6 @@ func (t *Transport) readNamespaces(ctx context.Context, name, query, status, nam
 	}
 	defer reader.runtime.Shutdown(context.Background())
 	principal, scoped := sdk.PrincipalFromContext(ctx)
-	administrator := scoped && namespacevisibility.IsAdministrator(ctx, principal.Subject)
 	search := ""
 	if value := strings.TrimSpace(query); value != "" {
 		search = "%" + strings.ToLower(value) + "%"
@@ -100,11 +99,9 @@ func (t *Transport) readNamespaces(ctx context.Context, name, query, status, nam
 		if row.Description != nil {
 			description = *row.Description
 		}
-		roles := []string{}
-		if row.AllowedRolesJson != nil {
-			if err = json.Unmarshal([]byte(*row.AllowedRolesJson), &roles); err != nil {
-				return nil, fmt.Errorf("invalid namespace roles")
-			}
+		grants, err := namespaceroles.Decode(row.AllowedRolesJson)
+		if err != nil {
+			return nil, err
 		}
 		id := row.NamespaceId
 		if id == "" {
@@ -114,7 +111,7 @@ func (t *Transport) readNamespaces(ctx context.Context, name, query, status, nam
 		if visibility == "" {
 			visibility = namespaceaccess.Private
 		}
-		result = append(result, &sdk.Namespace{CanManage: scoped && (principal.Subject == row.OwnerId || administrator), NamespaceID: id, Visibility: visibility, AllowedRoles: roles, MCPEnabled: row.McpEnabled, MCPPort: row.McpPort, OwnerID: row.OwnerId, Name: row.Name, Title: row.Title,
+		result = append(result, &sdk.Namespace{CanManage: scoped && namespacevisibility.CanManage(ctx, principal.Subject, row.OwnerId, row.AllowedRolesJson), NamespaceID: id, Visibility: visibility, AllowedRoles: grants.View, ManagerRoles: grants.Manage, MCPEnabled: row.McpEnabled, MCPPort: row.McpPort, OwnerID: row.OwnerId, Name: row.Name, Title: row.Title,
 			Description: description, Status: row.Status, ETag: row.Etag,
 			CreatedAt: row.CreatedAt, UpdatedAt: row.UpdatedAt})
 	}

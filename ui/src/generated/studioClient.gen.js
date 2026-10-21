@@ -945,6 +945,11 @@ var postV1StudioSdkAuthorizationPredicatesUpdate = (options) => (options.client 
     ...options.headers
   }
 });
+var postV1StudioSdkCodecsTypes = (options) => (options?.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/codecs.types",
+  ...options
+});
 var postV1StudioSdkComponentsCreate = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/v1/studio/sdk/components.create",
@@ -1518,6 +1523,7 @@ export {
   postV1StudioSdkAuthorizationPredicatesList,
   postV1StudioSdkAuthorizationPredicatesTypes,
   postV1StudioSdkAuthorizationPredicatesUpdate,
+  postV1StudioSdkCodecsTypes,
   postV1StudioSdkComponentsCreate,
   postV1StudioSdkComponentsGet,
   postV1StudioSdkComponentsList,

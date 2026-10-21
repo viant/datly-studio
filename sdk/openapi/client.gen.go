@@ -184,6 +184,7 @@ type Input6139a906f15f351c7eae5d9897ae3973b6172d1373d49394d6c8c69615914840 struc
 	AllowedRoles *[]string `json:"allowedRoles,omitempty"`
 	Description  *string   `json:"description,omitempty"`
 	Etag         *int64    `json:"etag,omitempty"`
+	ManagerRoles *[]string `json:"managerRoles,omitempty"`
 	McpEnabled   *bool     `json:"mcpEnabled,omitempty"`
 	McpPort      *int64    `json:"mcpPort,omitempty"`
 	Status       *string   `json:"status,omitempty"`
@@ -396,9 +397,11 @@ type InputB94652047b45c410057de4a3d589b99411e9b1ce7012ae301388c27534a7d71e struc
 type InputB990d293ef5d3e7e85a2acebd0bbccb12b9ec19ea303b41252de0b2f2bbb9e05 struct {
 	AllowedRoles *[]string `json:"allowedRoles,omitempty"`
 	Description  *string   `json:"description,omitempty"`
+	ManagerRoles *[]string `json:"managerRoles,omitempty"`
 	McpEnabled   *bool     `json:"mcpEnabled,omitempty"`
 	McpPort      *int64    `json:"mcpPort,omitempty"`
 	Name         *string   `json:"name,omitempty"`
+	NamespaceId  *string   `json:"namespaceId,omitempty"`
 	OwnerId      *string   `json:"ownerId,omitempty"`
 	Title        *string   `json:"title,omitempty"`
 	Visibility   *string   `json:"visibility,omitempty"`
@@ -972,6 +975,7 @@ type OutputD558223f5d3d6bca0e300c59f8e624af838223bc61f0cb8c88f09c757834ddaa stru
 	CreatedAt    time.Time `json:"createdAt"`
 	Description  *string   `json:"description,omitempty"`
 	Etag         int64     `json:"etag"`
+	ManagerRoles *[]string `json:"managerRoles"`
 	McpEnabled   bool      `json:"mcpEnabled"`
 	McpPort      *int64    `json:"mcpPort,omitempty"`
 	Name         string    `json:"name"`
@@ -1410,6 +1414,7 @@ type Wire1f5f473dc54ed2f6c617275d578b2307a69146cb2ce69ae058bffe57f5c226b4 struct
 	CreatedAt    time.Time `json:"createdAt"`
 	Description  *string   `json:"description,omitempty"`
 	Etag         int64     `json:"etag"`
+	ManagerRoles *[]string `json:"managerRoles"`
 	McpEnabled   bool      `json:"mcpEnabled"`
 	McpPort      *int64    `json:"mcpPort,omitempty"`
 	Name         string    `json:"name"`
@@ -1974,6 +1979,16 @@ type Wire49feff8d08df046f25f5c6fbb141c3c4b50c39af0dea56aec129e11334a944e0 struct
 	RuntimeRevision   *string    `json:"runtimeRevision,omitempty"`
 	SpecHash          *string    `json:"specHash,omitempty"`
 	Status            string     `json:"status"`
+}
+
+// Wire4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31 defines model for Wire_4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31.
+type Wire4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31 struct {
+	AcceptsArguments bool    `json:"acceptsArguments"`
+	Builtin          bool    `json:"builtin"`
+	Description      string  `json:"description"`
+	InputType        *string `json:"inputType,omitempty"`
+	Name             string  `json:"name"`
+	OutputType       *string `json:"outputType,omitempty"`
 }
 
 // Wire4ca9fea7aa1d6b8d21f5cfc656a25fc9ccb0ef6b80e665b0bbcc73084c82a04e defines model for Wire_4ca9fea7aa1d6b8d21f5cfc656a25fc9ccb0ef6b80e665b0bbcc73084c82a04e.
@@ -2872,6 +2887,7 @@ type WireA6d5a259bb2993e6552649336f2c093ccd6ae12f130f8526f5c136a619d0cb51 struct
 	CreatedAt    time.Time `json:"createdAt"`
 	Description  *string   `json:"description,omitempty"`
 	Etag         int64     `json:"etag"`
+	ManagerRoles *[]string `json:"managerRoles"`
 	McpEnabled   bool      `json:"mcpEnabled"`
 	McpPort      *int64    `json:"mcpPort,omitempty"`
 	Name         string    `json:"name"`
@@ -3137,6 +3153,19 @@ type WireC47cf46b58e263ed665fbdce50f43ecc62642c4837741ba43aaa439c1623d39c struct
 	CanView      bool `json:"canView"`
 }
 
+// WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332 defines model for Wire_cc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332.
+type WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332 struct {
+	Items *[]WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332_Items_Item `json:"items"`
+}
+
+// WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332Items1 defines model for WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332.Items.1.
+type WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332Items1 = map[string]interface{}
+
+// WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332_Items_Item defines model for Wire_cc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332.items.Item.
+type WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332_Items_Item struct {
+	union json.RawMessage
+}
+
 // WireCc8e6d7697c9501b39869778c8e5561398ec267f3f24741ddd643fb0c8d25f2f defines model for Wire_cc8e6d7697c9501b39869778c8e5561398ec267f3f24741ddd643fb0c8d25f2f.
 type WireCc8e6d7697c9501b39869778c8e5561398ec267f3f24741ddd643fb0c8d25f2f struct {
 	Id      string `json:"id"`
@@ -3344,6 +3373,7 @@ type WireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231 struct
 	CreatedAt    time.Time `json:"createdAt"`
 	Description  *string   `json:"description,omitempty"`
 	Etag         int64     `json:"etag"`
+	ManagerRoles *[]string `json:"managerRoles"`
 	McpEnabled   bool      `json:"mcpEnabled"`
 	McpPort      *int64    `json:"mcpPort,omitempty"`
 	Name         string    `json:"name"`
@@ -8980,6 +9010,68 @@ func (t *WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_It
 	return err
 }
 
+// AsWire4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31 returns the union data inside the WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332_Items_Item as a Wire4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31
+func (t WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332_Items_Item) AsWire4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31() (Wire4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31, error) {
+	var body Wire4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31 overwrites any union data inside the WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332_Items_Item as the provided Wire4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31
+func (t *WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332_Items_Item) FromWire4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31(v Wire4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31 performs a merge with any union data inside the WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332_Items_Item, using the provided Wire4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31
+func (t *WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332_Items_Item) MergeWire4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31(v Wire4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332Items1 returns the union data inside the WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332_Items_Item as a WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332Items1
+func (t WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332_Items_Item) AsWireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332Items1() (WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332Items1, error) {
+	var body WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332Items1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332Items1 overwrites any union data inside the WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332_Items_Item as the provided WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332Items1
+func (t *WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332_Items_Item) FromWireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332Items1(v WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332Items1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332Items1 performs a merge with any union data inside the WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332_Items_Item, using the provided WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332Items1
+func (t *WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332_Items_Item) MergeWireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332Items1(v WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332Items1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332_Items_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332_Items_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsWire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1 returns the union data inside the WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Files_Item as a Wire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1
 func (t WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Files_Item) AsWire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1() (Wire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1, error) {
 	var body Wire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1
@@ -9756,6 +9848,9 @@ type ClientInterface interface {
 	// POSTv1studiosdkauthorizationPredicatesUpdate performs a POST /v1/studio/sdk/authorization_predicates.update (the `POSTv1studiosdkauthorizationPredicatesUpdate` operationId) request.
 	// Takes a body of the `application/json` content type.
 	POSTv1studiosdkauthorizationPredicatesUpdate(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkcodecsTypes performs a POST /v1/studio/sdk/codecs.types (the `POSTv1studiosdkcodecsTypes` operationId) request.
+	POSTv1studiosdkcodecsTypes(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkcomponentsCreateWithBody performs a POST /v1/studio/sdk/components.create (the `POSTv1studiosdkcomponentsCreate` operationId) request,
 	// with any type of body and a specified content type.
@@ -10824,6 +10919,19 @@ func (c *Client) POSTv1studiosdkauthorizationPredicatesUpdateWithBody(ctx contex
 // Takes a body of the `application/json` content type.
 func (c *Client) POSTv1studiosdkauthorizationPredicatesUpdate(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPOSTv1studiosdkauthorizationPredicatesUpdateRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkcodecsTypes performs a POST /v1/studio/sdk/codecs.types (the `POSTv1studiosdkcodecsTypes` operationId) request.
+func (c *Client) POSTv1studiosdkcodecsTypes(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkcodecsTypesRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -13567,6 +13675,33 @@ func NewPOSTv1studiosdkauthorizationPredicatesUpdateRequestWithBody(server strin
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkcodecsTypesRequest constructs an http.Request for the POSTv1studiosdkcodecsTypes method
+func NewPOSTv1studiosdkcodecsTypesRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/codecs.types")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -16918,6 +17053,11 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	POSTv1studiosdkauthorizationPredicatesUpdateWithResponse(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesUpdateResponse, error)
 
+	// POSTv1studiosdkcodecsTypesWithResponse performs a POST /v1/studio/sdk/codecs.types (the `POSTv1studiosdkcodecsTypes` operationId) request.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkcodecsTypesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcodecsTypesResponse, error)
+
 	// POSTv1studiosdkcomponentsCreateWithBodyWithResponse performs a POST /v1/studio/sdk/components.create (the `POSTv1studiosdkcomponentsCreate` operationId) request,
 	// with any type of body and a specified content type.
 	//
@@ -18312,6 +18452,47 @@ func (r POSTv1studiosdkauthorizationPredicatesUpdateResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r POSTv1studiosdkauthorizationPredicatesUpdateResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkcodecsTypesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkcodecsTypesResponse) GetJSON200() *WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkcodecsTypesResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkcodecsTypesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkcodecsTypesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkcodecsTypesResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -21235,6 +21416,17 @@ func (c *ClientWithResponses) POSTv1studiosdkauthorizationPredicatesUpdateWithRe
 	return ParsePOSTv1studiosdkauthorizationPredicatesUpdateResponse(rsp)
 }
 
+// POSTv1studiosdkcodecsTypesWithResponse performs a POST /v1/studio/sdk/codecs.types (the `POSTv1studiosdkcodecsTypes` operationId) request.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkcodecsTypesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcodecsTypesResponse, error) {
+	rsp, err := c.POSTv1studiosdkcodecsTypes(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkcodecsTypesResponse(rsp)
+}
+
 // POSTv1studiosdkcomponentsCreateWithBodyWithResponse performs a POST /v1/studio/sdk/components.create (the `POSTv1studiosdkcomponentsCreate` operationId) request,
 // with any type of body and a specified content type.
 //
@@ -23086,6 +23278,32 @@ func ParsePOSTv1studiosdkauthorizationPredicatesUpdateResponse(rsp *http.Respons
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest Wire46f5783921089422ba86ef3f21455336f0870921db6e2dac69f80e6517b1e68a
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkcodecsTypesResponse parses an HTTP response from a POSTv1studiosdkcodecsTypesWithResponse call
+func ParsePOSTv1studiosdkcodecsTypesResponse(rsp *http.Response) (*POSTv1studiosdkcodecsTypesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkcodecsTypesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

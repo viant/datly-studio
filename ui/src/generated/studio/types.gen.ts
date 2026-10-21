@@ -139,6 +139,7 @@ export type Input6139A906F15F351C7Eae5D9897Ae3973B6172D1373D49394D6C8C6961591484
     allowedRoles?: Array<string> | null;
     description?: string | null;
     etag?: number;
+    managerRoles?: Array<string> | null;
     mcpEnabled?: boolean | null;
     mcpPort?: number | null;
     status?: string | null;
@@ -313,9 +314,11 @@ export type InputB94652047B45C410057De4A3D589B99411E9B1Ce7012Ae301388C27534A7D71
 export type InputB990D293Ef5D3E7E85A2Acebd0Bbccb12B9Ec19Ea303B41252De0B2F2Bbb9E05 = {
     allowedRoles?: Array<string> | null;
     description?: string | null;
+    managerRoles?: Array<string> | null;
     mcpEnabled?: boolean;
     mcpPort?: number | null;
     name?: string;
+    namespaceId?: string;
     ownerId?: string;
     title?: string;
     visibility?: string;
@@ -770,6 +773,7 @@ export type OutputD558223F5D3D6Bca0E300C59F8E624Af838223Bc61F0Cb8C88F09C757834Dd
     createdAt: string;
     description?: string;
     etag: number;
+    managerRoles: Array<string> | null;
     mcpEnabled: boolean;
     mcpPort?: number | null;
     name: string;
@@ -1085,6 +1089,7 @@ export type Wire1F5F473Dc54Ed2F6C617275D578B2307A69146Cb2Ce69Ae058Bffe57F5C226B4
     createdAt: string;
     description?: string;
     etag: number;
+    managerRoles: Array<string> | null;
     mcpEnabled: boolean;
     mcpPort?: number | null;
     name: string;
@@ -1502,6 +1507,15 @@ export type Wire49Feff8D08Df046F25F5C6Fbb141C3C4B50C39Af0Dea56Aec129E11334A944E0
     runtimeRevision?: string;
     specHash?: string;
     status: string;
+};
+
+export type Wire4A60C88B37D05078003E5Fbb2823Acfe26909222Cd13C85C5D99D48381609A31 = {
+    acceptsArguments: boolean;
+    builtin: boolean;
+    description: string;
+    inputType?: string;
+    name: string;
+    outputType?: string;
 };
 
 export type Wire4Ca9Fea7Aa1D6B8D21F5Cfc656A25Fc9Ccb0Ef6B80E665B0Bbcc73084C82A04e = {
@@ -2133,6 +2147,7 @@ export type WireA6D5A259Bb2993E6552649336F2C093Ccd6Ae12F130F8526F5C136A619D0Cb51
     createdAt: string;
     description?: string;
     etag: number;
+    managerRoles: Array<string> | null;
     mcpEnabled: boolean;
     mcpPort?: number | null;
     name: string;
@@ -2342,6 +2357,10 @@ export type WireC556C6C91D85B6Fe76E559A7132Bc91D46B0C40C216A538C686D074Ec366C766
     [key: string]: unknown;
 };
 
+export type WireCc811B40C825A2509701C74E9A5E2Cc1D9D5Fba79F30Ab17F90611527D0F5332 = {
+    items: Array<Wire4A60C88B37D05078003E5Fbb2823Acfe26909222Cd13C85C5D99D48381609A31 | null> | null;
+};
+
 export type WireCc8E6D7697C9501B39869778C8E5561398Ec267F3F24741Ddd643Fb0C8D25F2f = {
     id: string;
     kind: string;
@@ -2487,6 +2506,7 @@ export type WireDdb0758361D7645100D4271Bb6Abcc08E955D5Bf64Bce42081793C40D1A24231
     createdAt: string;
     description?: string | null;
     etag: number;
+    managerRoles: Array<string> | null;
     mcpEnabled: boolean;
     mcpPort?: number | null;
     name: string;
@@ -3095,6 +3115,22 @@ export type PostV1StudioSdkAuthorizationPredicatesUpdateResponses = {
 };
 
 export type PostV1StudioSdkAuthorizationPredicatesUpdateResponse = PostV1StudioSdkAuthorizationPredicatesUpdateResponses[keyof PostV1StudioSdkAuthorizationPredicatesUpdateResponses];
+
+export type PostV1StudioSdkCodecsTypesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/codecs.types';
+};
+
+export type PostV1StudioSdkCodecsTypesResponses = {
+    /**
+     * Success response
+     */
+    200: WireCc811B40C825A2509701C74E9A5E2Cc1D9D5Fba79F30Ab17F90611527D0F5332;
+};
+
+export type PostV1StudioSdkCodecsTypesResponse = PostV1StudioSdkCodecsTypesResponses[keyof PostV1StudioSdkCodecsTypesResponses];
 
 export type PostV1StudioSdkComponentsCreateData = {
     body: {

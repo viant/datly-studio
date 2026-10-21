@@ -58,6 +58,14 @@ WHERE studio_sdk_acl.report_id = r.id
   AND studio_sdk_acl.subject_type = 'user'
   AND studio_sdk_acl.subject_id = ?
   AND studio_sdk_acl.can_view = TRUE))`, Placeholders: []any{principal, principal}}
+	if p.Authorization != "" {
+		ctx = oauth.WithBearer(ctx, strings.TrimPrefix(p.Authorization, "Bearer "))
+	}
+	var err error
+	criteria, err = namespacevisibility.AddComponentManagers(ctx, p.Connectors, principal, "r.id", criteria)
+	if err != nil {
+		return nil, err
+	}
 	namespaceID := p.NamespaceID
 	if typed, ok := p.Input.(interface{ ReportCatalogNamespace() *string }); ok && typed.ReportCatalogNamespace() != nil {
 		selected := typed.ReportCatalogNamespace()

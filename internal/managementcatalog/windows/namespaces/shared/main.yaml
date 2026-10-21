@@ -184,6 +184,13 @@ window:
               selector: canManage
               equals: false
             type: textarea
+          - id: managerRoles
+            label: Manager roles (JSON array)
+            dataField: managerRoles
+            readOnlyWhen:
+              selector: canManage
+              equals: false
+            type: textarea
           - id: status
             label: Status
             dataField: status

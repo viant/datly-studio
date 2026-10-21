@@ -54,14 +54,11 @@ func authorize(ctx context.Context, session xhandler.Session, namespaceID string
 	if err = session.Binder().Bind(ctx, &headers); err != nil {
 		return nil, err
 	}
-	admin := namespacevisibility.IsAdministrator(oauth.WithBearer(ctx, strings.TrimPrefix(headers.Authorization, "Bearer ")), claims.Subject)
+	ctx = oauth.WithBearer(ctx, strings.TrimPrefix(headers.Authorization, "Bearer "))
 	input := &namespaces.Input{}
 	input.NamespaceId = namespaceID
 	input.SetScoped(false)
 	input.Has.NamespaceId = true
-	if !admin {
-		input.SetOwnerId(claims.Subject)
-	}
 	input.SetStatus("active")
 	input.SetPageLimit(2)
 	input.SetPageOffset(0)
@@ -73,7 +70,7 @@ func authorize(ctx context.Context, session xhandler.Session, namespaceID string
 	if !ok || page == nil {
 		return nil, fmt.Errorf("namespace reader returned %T", value)
 	}
-	if len(page.Namespaces) != 1 || page.Namespaces[0] == nil || page.Namespaces[0].NamespaceId != namespaceID || (!admin && page.Namespaces[0].OwnerId != claims.Subject) {
+	if len(page.Namespaces) != 1 || page.Namespaces[0] == nil || page.Namespaces[0].NamespaceId != namespaceID || !namespacevisibility.CanManage(ctx, claims.Subject, page.Namespaces[0].OwnerId, page.Namespaces[0].AllowedRolesJson) {
 		return nil, publicError(403, "namespace management denied")
 	}
 	return &store{invoker: invoker, namespaceID: namespaceID, subject: claims.Subject}, nil

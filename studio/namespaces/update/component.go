@@ -2,11 +2,11 @@ package update
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/viant/authz/oauth"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
+	"github.com/viant/datly-studio/internal/namespaceroles"
 	"github.com/viant/datly-studio/internal/namespacevisibility"
 	"reflect"
 	"strings"
@@ -28,6 +28,7 @@ import (
 type Options struct {
 	Visibility   *string   `json:"visibility,omitempty"`
 	AllowedRoles *[]string `json:"allowedRoles,omitempty"`
+	ManagerRoles *[]string `json:"managerRoles,omitempty"`
 	MCPEnabled   *bool     `json:"mcpEnabled,omitempty"`
 	MCPPort      *int      `json:"mcpPort,omitempty"`
 	Title        *string   `json:"title,omitempty"`
@@ -47,6 +48,7 @@ type Output struct {
 	NamespaceID  string    `parameter:"NamespaceID,kind=output,in=body,dataType=string" json:"namespaceId"`
 	Visibility   string    `parameter:"Visibility,kind=output,in=body,dataType=string" json:"visibility"`
 	AllowedRoles []string  `parameter:"AllowedRoles,kind=output,in=body,dataType=[]string" json:"allowedRoles"`
+	ManagerRoles []string  `parameter:"ManagerRoles,kind=output,in=body,dataType=[]string" json:"managerRoles"`
 	MCPEnabled   bool      `parameter:"MCPEnabled,kind=output,in=body,dataType=bool" json:"mcpEnabled"`
 	MCPPort      *int      `parameter:"MCPPort,kind=output,in=body,dataType=*int" json:"mcpPort,omitempty"`
 	OwnerId      string    `parameter:"OwnerId,kind=output,in=body,dataType=string" json:"ownerId"`
@@ -103,16 +105,12 @@ func (*updateHandler) Exec(ctx context.Context, session xhandler.Session, input 
 		return err
 	}
 	ctx = oauth.WithBearer(ctx, strings.TrimPrefix(headers.Authorization, "Bearer "))
-	administrator := namespacevisibility.IsAdministrator(ctx, input.Jwt.Subject)
 	read := &storedreader.Input{}
-	if !administrator {
-		read.SetOwnerId(input.Jwt.Subject)
-	}
 	read.SetName(input.Name)
 	read.SetQuery("")
 	read.SetStatus("")
-	read.SetSubject("")
-	read.SetScoped(false)
+	read.SetSubject(input.Jwt.Subject)
+	read.SetScoped(true)
 	read.SetPageLimit(2)
 	read.SetPageOffset(0)
 	value, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[storedreader.NamespaceComponent](), "namespace", "GET", "/_studio/namespace-store/read"), Input: read})
@@ -127,8 +125,8 @@ func (*updateHandler) Exec(ctx context.Context, session xhandler.Session, input 
 		return &xresponse.Error{Code: 403, Cause: errors.New("Studio authorization denied")}
 	}
 	if len(result.Namespaces) != 1 || result.Namespaces[0] == nil ||
-		(!administrator && result.Namespaces[0].OwnerId != input.Jwt.Subject) || result.Namespaces[0].Name != input.Name {
-		return fmt.Errorf("owned namespace reader returned ambiguous or mismatched rows")
+		!namespacevisibility.CanManage(ctx, input.Jwt.Subject, result.Namespaces[0].OwnerId, result.Namespaces[0].AllowedRolesJson) || result.Namespaces[0].Name != input.Name {
+		return &xresponse.Error{Code: 403, Cause: errors.New("namespace management denied")}
 	}
 	current := result.Namespaces[0]
 	if current.Etag != input.Input.ETag {
@@ -152,12 +150,11 @@ func (*updateHandler) Exec(ctx context.Context, session xhandler.Session, input 
 	if title == "" || status != "active" && status != "archived" {
 		return &xresponse.Error{Code: 400, Cause: errors.New("namespace title and active or archived status are required")}
 	}
-	roles := []string{}
-	if current.AllowedRolesJson != nil {
-		if err = json.Unmarshal([]byte(*current.AllowedRolesJson), &roles); err != nil {
-			return fmt.Errorf("invalid stored namespace roles")
-		}
+	grants, err := namespaceroles.Decode(current.AllowedRolesJson)
+	if err != nil {
+		return err
 	}
+	roles, managers := grants.View, grants.Manage
 	visibility := current.Visibility
 	if visibility == "" {
 		visibility = namespaceaccess.Private
@@ -169,6 +166,9 @@ func (*updateHandler) Exec(ctx context.Context, session xhandler.Session, input 
 	if input.Input.AllowedRoles != nil {
 		roles = *input.Input.AllowedRoles
 	}
+	if input.Input.ManagerRoles != nil {
+		managers = *input.Input.ManagerRoles
+	}
 	if input.Input.MCPEnabled != nil {
 		enabled = *input.Input.MCPEnabled
 	}
@@ -178,11 +178,10 @@ func (*updateHandler) Exec(ctx context.Context, session xhandler.Session, input 
 	if err = namespaceaccess.Validate(visibility, roles, port); err != nil {
 		return &xresponse.Error{Code: 400, Cause: err}
 	}
-	rolesData, _ := json.Marshal(roles)
-	if roles == nil {
-		rolesData = []byte("[]")
+	rolesJSON, err := (namespaceroles.Grants{View: roles, Manage: managers}).Encode()
+	if err != nil {
+		return &xresponse.Error{Code: 400, Cause: err}
 	}
-	rolesJSON := string(rolesData)
 	now := time.Now().UTC()
 	etag := input.Input.ETag
 	row := &storedwriter.StoredNamespace{NamespaceId: namespaceaccess.ID(current.OwnerId, current.Name), Visibility: visibility, AllowedRolesJson: &rolesJSON, McpEnabled: enabled, McpPort: port, OwnerId: current.OwnerId, Name: current.Name,
@@ -204,7 +203,7 @@ func (*updateHandler) Exec(ctx context.Context, session xhandler.Session, input 
 		updated.Data[0].OwnerId != current.OwnerId || updated.Data[0].Name != current.Name || updated.Data[0].Etag == nil {
 		return fmt.Errorf("namespace writer returned %T without one updated row", value)
 	}
-	*output = Output{NamespaceID: namespaceaccess.ID(current.OwnerId, current.Name), Visibility: visibility, AllowedRoles: roles, MCPEnabled: enabled, MCPPort: port, OwnerId: current.OwnerId, Name: current.Name, Title: title,
+	*output = Output{NamespaceID: namespaceaccess.ID(current.OwnerId, current.Name), Visibility: visibility, AllowedRoles: roles, ManagerRoles: managers, MCPEnabled: enabled, MCPPort: port, OwnerId: current.OwnerId, Name: current.Name, Title: title,
 		Status: status, ETag: *updated.Data[0].Etag, CreatedAt: current.CreatedAt,
 		UpdatedAt: now}
 	if description != nil {

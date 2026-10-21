@@ -79,16 +79,12 @@ func (*deleteHandler) Exec(ctx context.Context, session xhandler.Session, input 
 		return err
 	}
 	ctx = oauth.WithBearer(ctx, strings.TrimPrefix(headers.Authorization, "Bearer "))
-	administrator := namespacevisibility.IsAdministrator(ctx, input.Jwt.Subject)
 	read := &storedreader.Input{}
-	if !administrator {
-		read.SetOwnerId(input.Jwt.Subject)
-	}
 	read.SetName(input.Name)
 	read.SetQuery("")
 	read.SetStatus("")
-	read.SetSubject("")
-	read.SetScoped(false)
+	read.SetSubject(input.Jwt.Subject)
+	read.SetScoped(true)
 	read.SetPageLimit(2)
 	read.SetPageOffset(0)
 	value, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[storedreader.NamespaceComponent](), "namespace", "GET", "/_studio/namespace-store/read"), Input: read})
@@ -103,8 +99,8 @@ func (*deleteHandler) Exec(ctx context.Context, session xhandler.Session, input 
 		return publicError(403, "Studio authorization denied")
 	}
 	if len(rows.Namespaces) != 1 || rows.Namespaces[0] == nil ||
-		(!administrator && rows.Namespaces[0].OwnerId != input.Jwt.Subject) || rows.Namespaces[0].Name != input.Name {
-		return fmt.Errorf("owned namespace reader returned ambiguous or mismatched rows")
+		!namespacevisibility.CanManage(ctx, input.Jwt.Subject, rows.Namespaces[0].OwnerId, rows.Namespaces[0].AllowedRolesJson) || rows.Namespaces[0].Name != input.Name {
+		return &xresponse.Error{Code: 403, Cause: errors.New("namespace management denied")}
 	}
 	current := rows.Namespaces[0]
 	if current.Etag != input.ETag {

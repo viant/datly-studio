@@ -1,5 +1,6 @@
 # Local Studio state and databases
 .data/
+poc/
 *.db
 *.db-shm
 *.db-wal

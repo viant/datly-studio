@@ -247,6 +247,46 @@ func TestSelectedStudioStaticComponentsBootstrapTogether(t *testing.T) {
 	if invalidNamespace.Code != http.StatusBadRequest {
 		t.Fatalf("empty namespace title status=%d body=%s", invalidNamespace.Code, invalidNamespace.Body.String())
 	}
+
+	t.Run("namespace manager roles stay scoped and revocable", func(t *testing.T) {
+		t.Setenv("STUDIO_NAMESPACE_ADMIN_ROLE", "")
+		call := func(path, body, role string) *httptest.ResponseRecorder {
+			req := request(path, body)
+			if role != "owner" {
+				req.Header.Set("Authorization", "Bearer "+bobToken)
+				provider := namespaceAdminProvider{facts: resourceaccess.Facts{Subject: "bob", Issuer: "https://idp.viantinc.com", Tenant: "test", Roles: []string{role}, ValidUntil: time.Now().Add(time.Minute)}}
+				req = req.WithContext(accessprovider.WithProvider(req.Context(), provider))
+			}
+			response := httptest.NewRecorder()
+			server.ServeHTTP(response, req)
+			return response
+		}
+		check := func(path, body, role string, want int) *httptest.ResponseRecorder {
+			t.Helper()
+			r := call(path, body, role)
+			if r.Code != want {
+				t.Fatalf("%s role=%s status=%d body=%s", path, role, r.Code, r.Body.String())
+			}
+			return r
+		}
+		check("/v1/studio/sdk/namespaces.create", `{"name":"manager.alpha","title":"Alpha","allowedRoles":["READER"],"managerRoles":["TEAM_MANAGER"]}`, "owner", 200)
+		check("/v1/studio/sdk/namespaces.create", `{"name":"manager.beta","title":"Beta","allowedRoles":["TEAM_MANAGER"]}`, "owner", 200)
+		got := check("/v1/studio/sdk/namespaces.get", `{"name":"manager.alpha"}`, "TEAM_MANAGER", 200)
+		if !strings.Contains(got.Body.String(), `"canManage":true`) || !strings.Contains(got.Body.String(), `"managerRoles":["TEAM_MANAGER"]`) {
+			t.Fatalf("manager projection: %s", got.Body.String())
+		}
+		for _, role := range []string{"READER", "team_manager"} {
+			check("/v1/studio/sdk/namespaces.update", `{"name":"manager.alpha","input":{"title":"Denied","managerRoles":["READER"],"etag":1}}`, role, 403)
+		}
+		check("/v1/studio/sdk/namespaces.update", `{"name":"manager.beta","input":{"title":"Denied","etag":1}}`, "TEAM_MANAGER", 403)
+		check("/v1/studio/sdk/namespaces.update", `{"name":"manager.alpha","input":{"title":"Managed","visibility":"public","allowedRoles":["NEW_READER"],"etag":1}}`, "TEAM_MANAGER", 200)
+		check("/v1/studio/sdk/namespaces.update", `{"name":"manager.alpha","input":{"title":"Stale","etag":1}}`, "TEAM_MANAGER", 409)
+		check("/v1/studio/sdk/namespaces.update", `{"name":"manager.alpha","input":{"managerRoles":[],"etag":2}}`, "owner", 200)
+		check("/v1/studio/sdk/namespaces.delete", `{"name":"manager.alpha","etag":3}`, "TEAM_MANAGER", 403)
+		check("/v1/studio/sdk/namespaces.update", `{"name":"manager.alpha","input":{"managerRoles":["TEAM_MANAGER"],"etag":3}}`, "owner", 200)
+		check("/v1/studio/sdk/namespaces.delete", `{"name":"manager.alpha","etag":4}`, "TEAM_MANAGER", 204)
+		check("/v1/studio/sdk/namespaces.delete", `{"name":"manager.beta","etag":1}`, "owner", 204)
+	})
 	t.Run("namespace administrator uses verified roles", func(t *testing.T) {
 		t.Setenv("STUDIO_NAMESPACE_ADMIN_ROLE", "NAMESPACE_ADMIN")
 		created := httptest.NewRecorder()
@@ -2848,7 +2888,19 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	publish := httptest.NewRecorder()
 	publishRequest := request("/v1/studio/sdk/publications.publish", fmt.Sprintf(`{"reportId":%q,"versionNo":1,"input":{"expectedSourceRevision":%d}}`, previewReportID, publicationRevision))
 	publishRequest.Header.Set("X-Studio-Namespace", namespaceaccess.ID("alice", "production.audit"))
+	var priorNamespaceRoles string
+	if err = store.QueryRowContext(ctx, `SELECT allowed_roles_json FROM namespaces WHERE owner_id='alice' AND name='production.audit'`).Scan(&priorNamespaceRoles); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = store.ExecContext(ctx, `UPDATE namespaces SET allowed_roles_json='{"view":[],"manage":["PUBLISH_MANAGER"]}' WHERE owner_id='alice' AND name='production.audit'`); err != nil {
+		t.Fatal(err)
+	}
+	publishRequest.Header.Set("Authorization", "Bearer "+bobToken)
+	publishRequest = publishRequest.WithContext(accessprovider.WithProvider(publishRequest.Context(), namespaceAdminProvider{facts: resourceaccess.Facts{Subject: "bob", Issuer: "https://idp.viantinc.com", Tenant: "test", Roles: []string{"PUBLISH_MANAGER"}, ValidUntil: time.Now().Add(time.Minute)}}))
 	server.ServeHTTP(publish, publishRequest)
+	if _, err = store.ExecContext(ctx, `UPDATE namespaces SET allowed_roles_json=? WHERE owner_id='alice' AND name='production.audit'`, priorNamespaceRoles); err != nil {
+		t.Fatal(err)
+	}
 	if publish.Code != http.StatusOK || !bytes.Contains(publish.Body.Bytes(), []byte(`"status":"active"`)) || len(reloadedGenerations) != 1 {
 		t.Fatalf("native publish status=%d body=%s reloads=%v", publish.Code, publish.Body.String(), reloadedGenerations)
 	}
@@ -3040,6 +3092,53 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"canManage":true`)) {
 		t.Fatalf("native access MCP context status=%d body=%s", status, body)
 	}
+	t.Run("namespace managers edit components and read permissions", func(t *testing.T) {
+		t.Setenv("STUDIO_NAMESPACE_ADMIN_ROLE", "")
+		ownerCall := func(path string, input any) *httptest.ResponseRecorder {
+			raw, _ := json.Marshal(input)
+			r := httptest.NewRecorder()
+			server.ServeHTTP(r, request(path, string(raw)))
+			return r
+		}
+		created := ownerCall("/v1/studio/sdk/namespaces.create", map[string]any{"name": "manager.components", "title": "Managed components", "managerRoles": []string{"COMPONENT_MANAGER"}})
+		if created.Code != 200 {
+			t.Fatalf("namespace create: %d %s", created.Code, created.Body.String())
+		}
+		created = ownerCall("/v1/studio/sdk/components.create", map[string]any{"namespace": "manager.components", "slug": "managed", "title": "Managed", "defaultConnectorName": "main"})
+		var component sdk.Component
+		if created.Code != 200 || json.Unmarshal(created.Body.Bytes(), &component) != nil || component.ID == "" {
+			t.Fatalf("component create: %d %s", created.Code, created.Body.String())
+		}
+		call := func(path string, input any, role string, want int) *httptest.ResponseRecorder {
+			t.Helper()
+			raw, _ := json.Marshal(input)
+			req := request(path, string(raw))
+			req.Header.Set("Authorization", "Bearer "+bobToken)
+			req.Header.Set("X-Studio-Namespace", namespaceaccess.ID("alice", "manager.components"))
+			req = req.WithContext(accessprovider.WithProvider(req.Context(), namespaceAdminProvider{facts: resourceaccess.Facts{Subject: "bob", Issuer: "https://idp.viantinc.com", Tenant: "test", Roles: []string{role}, ValidUntil: time.Now().Add(time.Minute)}}))
+			r := httptest.NewRecorder()
+			server.ServeHTTP(r, req)
+			if r.Code != want {
+				t.Fatalf("%s role=%s: %d %s", path, role, r.Code, r.Body.String())
+			}
+			return r
+		}
+
+		if _, err = store.ExecContext(ctx, `INSERT INTO connectors(name,driver,owner_id,status,etag,created_at,updated_at) VALUES('manager_source','sqlite','bob','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`); err != nil {
+			t.Fatal(err)
+		}
+		managedCreate := call("/v1/studio/sdk/components.create", map[string]any{"slug": "manager-created", "title": "Created by manager", "defaultConnectorName": "manager_source"}, "COMPONENT_MANAGER", 200)
+		if !strings.Contains(managedCreate.Body.String(), `"ownerId":"alice"`) {
+			t.Fatalf("manager changed namespace ownership: %s", managedCreate.Body.String())
+		}
+		call("/v1/studio/sdk/components.get", map[string]any{"id": component.ID}, "COMPONENT_MANAGER", 200)
+		call("/v1/studio/sdk/components.update", map[string]any{"id": component.ID, "input": map[string]any{"title": "Managed edit", "etag": component.ETag}}, "COMPONENT_MANAGER", 200)
+		call("/v1/studio/sdk/acl.upsert", map[string]any{"reportId": component.ID, "subjectType": "user", "subjectId": "manager-reader", "canView": true}, "COMPONENT_MANAGER", 200)
+		call("/v1/studio/sdk/acl.list", map[string]any{"reportId": component.ID}, "COMPONENT_MANAGER", 200)
+		call("/v1/studio/sdk/acl.delete", map[string]any{"reportId": component.ID, "subjectType": "user", "subjectId": "manager-reader", "etag": 1}, "COMPONENT_MANAGER", 204)
+		call("/v1/studio/sdk/components.update", map[string]any{"id": component.ID, "input": map[string]any{"title": "Denied", "etag": component.ETag + 1}}, "OTHER_MANAGER", 403)
+	})
+
 }
 
 func sdkToolForPath(path string) string {
