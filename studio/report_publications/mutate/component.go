@@ -9,6 +9,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/viant/authz/oauth"
 	"github.com/viant/datly-studio/internal/runtimeadmin"
 	"github.com/viant/datly-studio/runtime/accessprovider"
 	"github.com/viant/datly-studio/sdk"
@@ -177,14 +178,16 @@ func invoke(ctx context.Context, session xhandler.Session, claims *jwt.Claims, n
 	if identity, ok := accessprovider.FromContext(ctx); ok {
 		lifecycleCtx = accessprovider.WithProvider(lifecycleCtx, identity)
 	}
-	principal := sdk.WithPrincipal(lifecycleCtx, sdk.Principal{Subject: claims.Subject})
 	var headers struct {
 		Authorization string `bind:"kind=header,in=Authorization"`
 	}
 	if err := session.Binder().Bind(ctx, &headers); err != nil {
 		return publicError(401, "verified publication credential is required")
 	}
-	principal = sdk.WithVerifiedCredential(principal, sdk.VerifiedCredential{Bearer: headers.Authorization, Claims: claims})
+	principal, err := publicationCredentialContext(lifecycleCtx, claims, headers.Authorization)
+	if err != nil {
+		return err
+	}
 	if namespaceID != nil {
 		principal = sdk.WithNamespaceSelection(principal, *namespaceID)
 	}
@@ -233,4 +236,16 @@ func mapError(err error) error {
 
 func publicError(code int, message string) error {
 	return &xresponse.Error{Code: code, Cause: errors.New(message), Payload: map[string]string{"message": message}}
+}
+
+// Detached publication transactions retain the verified credential owner used
+// by namespace access checks, independently of the enclosing Datly invocation.
+func publicationCredentialContext(ctx context.Context, claims *jwt.Claims, header string) (context.Context, error) {
+	fields := strings.Fields(header)
+	if claims == nil || len(fields) != 2 || !strings.EqualFold(fields[0], "Bearer") {
+		return nil, publicError(401, "verified publication credential is required")
+	}
+	principal := sdk.WithPrincipal(ctx, sdk.Principal{Subject: claims.Subject})
+	principal = oauth.WithBearer(principal, fields[1])
+	return sdk.WithVerifiedCredential(principal, sdk.VerifiedCredential{Bearer: header, Claims: claims}), nil
 }
