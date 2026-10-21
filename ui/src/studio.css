@@ -778,3 +778,46 @@ body { margin: 0; min-width: 320px; background: #f4f7fb; }
 
 .studio-explorer-sql-dialog { width:min(1100px, calc(100vw - 32px)); max-height:calc(100dvh - 32px); }
 .studio-explorer-sql-dialog .bp6-dialog-body { overflow:auto; max-height:calc(100dvh - 170px); }
+
+/* Explorer follows the compact Forge workspace: browser left, query tabs right. */
+.studio-explorer-workbench-host { min-width:0; flex:1 1 auto; }
+.studio-explorer-workbench-host [data-forge-primitive="hostContent"] { display:flex; flex:1 1 auto; min-height:0; height:100%; }
+.studio-explorer-workbench { display:flex; flex-direction:column; flex:1; min-width:0; min-height:0; background:var(--forge-surface,#fff); color:var(--forge-text,#1c2733); }
+.studio-explorer-query-header { display:flex; align-items:center; gap:12px; padding:8px 12px; border-bottom:1px solid var(--forge-border-color,#d8e1ec); }
+.studio-explorer-query-header>span { font-size:12px; color:var(--forge-text-muted,#526174); }
+.studio-explorer-query-runtime { display:flex; flex-direction:column; flex:1; min-width:0; min-height:0; }
+.studio-explorer-query-tabs { display:flex; flex-shrink:0; overflow-x:auto; border-bottom:1px solid var(--forge-border-color,#d8e1ec); }
+.studio-explorer-query-tab { display:flex; align-items:center; flex-shrink:0; border-right:1px solid var(--forge-border-color,#d8e1ec); }
+.studio-explorer-query-tab-button { display:flex; align-items:center; gap:8px; min-height:38px; border:0; background:transparent; padding:8px 12px; color:inherit; cursor:pointer; }
+.studio-explorer-query-tab-button.is-active { background:var(--forge-selection-background,#e8f1ff); color:var(--forge-primary-color,#195ea8); box-shadow:inset 0 -2px var(--forge-primary-color,#195ea8); }
+.studio-explorer-query-tab>button:last-child:not(.studio-explorer-query-tab-button) { border:0; background:transparent; padding:6px 10px; color:inherit; cursor:pointer; }
+.studio-explorer-tab-connector { font-size:11px; color:var(--forge-text-muted,#526174); }
+.studio-explorer-run-state { font-size:11px; }
+.studio-explorer-run-state.is-failed { color:var(--forge-danger-color,#a82424); }
+.studio-explorer-query-panel { display:flex; flex-direction:column; flex:1; min-height:0; min-width:0; }
+.studio-explorer-query-panel[hidden] { display:none; }
+.studio-explorer-query-context { display:flex; align-items:center; gap:10px; padding:8px 12px; font-size:12px; }
+.studio-explorer-query-context>span { color:var(--forge-text-muted,#526174); }
+.studio-explorer-query-editor { min-height:200px; height:34vh; resize:vertical; overflow:auto; border-block:1px solid var(--forge-border-color,#d8e1ec); }
+.studio-explorer-query-actions { display:flex; align-items:center; flex-wrap:wrap; gap:10px; padding:8px 12px; border-bottom:1px solid var(--forge-border-color,#d8e1ec); }
+.studio-explorer-timeout.bp6-form-group { margin:0; display:flex; flex-direction:row; align-items:center; gap:8px; }
+.studio-explorer-timeout .bp6-label { margin:0; font-size:12px; }
+.studio-explorer-timeout .bp6-input-group { width:90px; }
+.studio-explorer-timeout-help { font-size:11px; color:var(--forge-text-muted,#526174); }
+.studio-explorer-query-results { padding:12px; flex:1; overflow:auto; min-height:120px; }
+.studio-explorer-query-empty { padding:20px 12px; color:var(--forge-text-muted,#526174); font-size:13px; }
+.studio-explorer-query-progress { display:flex; align-items:center; gap:10px; padding:16px; }
+@media(max-width:720px) { .studio-explorer-query-header>span { display:none; } .studio-explorer-query-editor { height:32vh; } .studio-explorer-workbench { min-height:65vh; } }
+.studio-explorer-tab-shell { position:relative; display:flex; flex:1 1 auto; flex-direction:column; min-height:0; min-width:0; }
+.studio-explorer-tab-shell.has-overflow .studio-explorer-query-tabs { padding-inline:36px; scroll-padding-inline:36px; }
+.studio-explorer-tab-scroll.bp6-button { position:absolute; top:0; z-index:2; width:34px; min-height:38px; border-radius:0; background:var(--forge-surface,#fff); }
+.studio-explorer-tab-scroll.is-left { left:0; }
+.studio-explorer-tab-scroll.is-right { right:0; }
+
+@media(max-width:760px) {
+ .studio-forge-schema-workspace [data-forge-container-id="schema-layout"] { flex:0 0 auto !important; height:auto !important; min-height:0; overflow:visible !important; }
+ .studio-forge-schema-layout > div { flex:0 0 auto !important; height:auto !important; overflow:visible !important; }
+ .studio-forge-schema-explorer { flex:0 0 auto !important; height:auto !important; min-height:420px; }
+ .studio-explorer-workbench-host { flex:0 0 auto !important; height:auto !important; min-height:650px; }
+ .studio-explorer-workbench-host [data-forge-primitive="hostContent"] { height:auto; min-height:650px; }
+}

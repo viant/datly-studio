@@ -2,7 +2,7 @@
 pipeline:
   ownerDelegatesInUI:
     action: webdriver:run
-    sessionID: localhost:4446
+    sessionID: localhost:4448
     autoStart: false
     browser: chrome
     failureArtifacts: {directory: '${runDir}/artifacts/namespace-managers'}
@@ -29,7 +29,7 @@ pipeline:
       - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
   managerEditsOnlyAssignedNamespace:
     action: webdriver:run
-    sessionID: localhost:4446
+    sessionID: localhost:4448
     autoStart: false
     browser: chrome
     failureArtifacts: {directory: '${runDir}/artifacts/namespace-managers'}
@@ -75,7 +75,7 @@ pipeline:
     arguments: {name: delegated.alpha}
   managerSetsDefaultInUI:
     action: webdriver:run
-    sessionID: localhost:4446
+    sessionID: localhost:4448
     autoStart: false
     browser: chrome
     failureArtifacts: {directory: '${runDir}/artifacts/namespace-default'}
@@ -108,7 +108,7 @@ pipeline:
       - {revision: 1, execute_role: ROLE_ANALYST, discover_role: ROLE_ANALYST, describe_role: ROLE_ANALYST}
   ownerRevokesInUI:
     action: webdriver:run
-    sessionID: localhost:4446
+    sessionID: localhost:4448
     autoStart: false
     browser: chrome
     failureArtifacts: {directory: '${runDir}/artifacts/namespace-managers'}

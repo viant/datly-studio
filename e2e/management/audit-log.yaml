@@ -21,7 +21,7 @@ pipeline:
       defaultConnectorName: discovery_scoped
   managerTogglesInUI:
     action: webdriver:run
-    sessionID: localhost:4446
+    sessionID: localhost:4448
     autoStart: false
     browser: chrome
     failureArtifacts: {directory: '${runDir}/artifacts/audit'}
@@ -43,7 +43,7 @@ pipeline:
       - {audit_enabled: 0}
   managerReenables:
     action: webdriver:run
-    sessionID: localhost:4446
+    sessionID: localhost:4448
     autoStart: false
     browser: chrome
     failureArtifacts: {directory: '${runDir}/artifacts/audit'}
@@ -53,7 +53,7 @@ pipeline:
       - expect(page.getByText("Audit setting saved.")).toBeVisible(15000)
   componentFlagInUI:
     action: webdriver:run
-    sessionID: localhost:4446
+    sessionID: localhost:4448
     autoStart: false
     browser: chrome
     failureArtifacts: {directory: '${runDir}/artifacts/audit'}
@@ -85,7 +85,7 @@ pipeline:
     expect: {IsError: true}
   viewerInspectsInUI:
     action: webdriver:run
-    sessionID: localhost:4446
+    sessionID: localhost:4448
     autoStart: false
     browser: chrome
     failureArtifacts: {directory: '${runDir}/artifacts/audit'}

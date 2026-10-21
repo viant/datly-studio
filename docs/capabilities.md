@@ -59,10 +59,23 @@ while selecting the requested project and dataset. SQLite attachment discovery
 uses only attachment paths already configured on the connector. Source access
 continues to be checked by the connector and database credentials.
 
-Explorer's **Open SQL window** opens a Forge editor for the selected connector
-without requiring table discovery. The window shows the selected project/schema
-as context; use qualified names in SQL when querying that scope. **Run SQL** uses
-the existing authorized, bounded Datly SQL test endpoint. **Create component**
-creates a component and its first version using that same connector and SQL,
-then opens the component editor. SQL drafts survive closing/reopening the window
-within the current Explorer instance and are kept separately by connector/scope.
+Explorer uses a full-page Forge SQL workbench beside connector/schema/table discovery.
+**New SQL** opens an editor tab for the selected connector. Inspecting a table
+opens a separate discovery tab with its SQL and columns. Every **Run SQL** opens
+an execution tab containing the captured SQL, connector, timeout, status and
+results; later runs do not replace it. **Create component** uses the selected
+tab's SQL and connector, then opens the component editor. When the tab strip
+overflows, left/right scroll buttons appear and new or selected tabs are revealed.
+The dedicated `e2e/management/explorer-tabs.yaml` covers execution snapshots, table
+tabs, explicit timeouts, component creation, and tab overflow.
+
+**Timeout (seconds)** is always visible: positive values set the execution
+budget, and **0 disables the Studio deadline**. There is no product-specific
+upper cap. The initial value is 60 seconds; SDK requests omitting the field also
+default to 60. HTTP request cancellation and upstream deadlines still apply.
+Timeouts produce a specific 504 message rather than a syntax/compilation error.
+The BFF does not impose its normal write deadline on SQL/MCP execution.
+
+Result previews remain limited to 50 rows. That limit does not limit the database
+scan or aggregation workload. Use qualified table names for the selected project
+and schema; connector discovery scope does not rewrite authored SQL.

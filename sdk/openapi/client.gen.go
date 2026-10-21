@@ -546,8 +546,9 @@ type InputDa8168f080bfa68b819580da3d7c62f0f555672ea65e1590b0f311889f16f426 struc
 
 // InputE14cc58c4ee74d7747f498bcbd7c71a8cb3028eda5782588b9c5299ed0cf9c37 defines model for Input_e14cc58c4ee74d7747f498bcbd7c71a8cb3028eda5782588b9c5299ed0cf9c37.
 type InputE14cc58c4ee74d7747f498bcbd7c71a8cb3028eda5782588b9c5299ed0cf9c37 struct {
-	Limit *int64  `json:"limit,omitempty"`
-	Sql   *string `json:"sql,omitempty"`
+	Limit          *int64  `json:"limit,omitempty"`
+	Sql            *string `json:"sql,omitempty"`
+	TimeoutSeconds *int64  `json:"timeoutSeconds,omitempty"`
 }
 
 // InputEa8cf0b60e82e17c8f2e6bc2ad35fe0985cc717838bb65d7f9b56c81bd0718aa defines model for Input_ea8cf0b60e82e17c8f2e6bc2ad35fe0985cc717838bb65d7f9b56c81bd0718aa.

@@ -31,8 +31,10 @@ type TableDetailInput struct {
 	Table   string `json:"table"`
 }
 type SQLTestInput struct {
-	SQL   string `json:"sql"`
-	Limit int    `json:"limit,omitempty"`
+	// TimeoutSeconds is explicit per execution: nil defaults to 60; zero disables the Studio deadline.
+	TimeoutSeconds *int   `json:"timeoutSeconds,omitempty"`
+	SQL            string `json:"sql"`
+	Limit          int    `json:"limit,omitempty"`
 }
 type SQLTestResult struct {
 	Data     json.RawMessage `json:"data,omitempty"`

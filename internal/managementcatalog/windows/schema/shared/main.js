@@ -85,17 +85,27 @@
   finally{if(get('schema_child_draft').loadEpoch===epoch)set('schema_child_draft',{loading:false});}
  };
  return {
+  workbenchState:()=>({...state(),driver:connection().driver||''}),
+  executeWorkbench:props=>call('schema_test',{name:props.value.connectorName,input:{sql:props.value.sql,limit:50,timeoutSeconds:props.value.timeoutSeconds}}),
+  componentFromWorkbench:props=>{
+   const source=props.value;if(!source?.connectorName||!source.sql?.trim())return false;
+   const table=source.detail?.table;
+   ds('schema_root_draft').setFormData({values:{title:table?titleCase(table.name):'SQL query',slug:table?words(table.name).map(word=>word.toLowerCase()).join('-'):'sql-query',viewName:table?identifier(table.name):'query',source:{...source},saving:false,outcome:''}});open('schema-root');return true;
+  },
+  subviewFromWorkbench:props=>{set('schema_state',{...props.value,selected:true});return context.lookupHandler?.('management.newChild')?.({context});},
   openSQL:()=>run('schema_state',async()=>{
+   if(state().useWorkbench){set('schema_state',{sqlRequest:(state().sqlRequest||0)+1});return;}
    const current=state();if(!current.connectorName)throw new Error('Select a connector first.');
    const source={connectorName:current.connectorName,driver:connection().driver||'',catalogName:current.catalogName||'',schemaName:current.schemaName||''};
-   ds('schema_query_draft').setFormData({values:{...source,sql:(current.sqlDrafts||{})[sqlKey(source)]??current.sql??'',extension:'sql',contextLabel:[source.connectorName,source.driver,source.catalogName,source.schemaName].filter(Boolean).join(' · '),saving:false,outcome:''}});
+   ds('schema_query_draft').setFormData({values:{...source,sql:(current.sqlDrafts||{})[sqlKey(source)]??current.sql??'',extension:'sql',timeoutSeconds:60,contextLabel:[source.connectorName,source.driver,source.catalogName,source.schemaName].filter(Boolean).join(' · '),saving:false,outcome:''}});
    ds('schema_query_result').setFormData({values:{data:null}});open('schema-query');
   }),
   queryChanged:()=>ds('schema_query_result').setFormData({values:{data:null}}),
   runQuery:()=>run('schema_query_draft',async()=>{
    const form=get('schema_query_draft');if(!form.connectorName||!form.sql?.trim())throw new Error('Enter SQL to run.');
+   const timeoutSeconds=Number(form.timeoutSeconds);if(!Number.isInteger(timeoutSeconds)||timeoutSeconds<0)throw new Error('Timeout must be a nonnegative whole number of seconds; 0 disables the Studio timeout.');
    ds('schema_query_result').setFormData({values:{data:null}});
-   const result=await call('schema_test',{name:form.connectorName,input:{sql:form.sql.trim(),limit:50}});
+   const result=await call('schema_test',{name:form.connectorName,input:{sql:form.sql.trim(),limit:50,timeoutSeconds}});
    ds('schema_query_result').setFormData({values:result});
   }),
   closeQuery:()=>{rememberSQL();host().setDirty?.(false);return true;},
@@ -105,7 +115,7 @@
    ds('schema_root_draft').setFormData({values:{title:'SQL query',slug:'sql-query',viewName:'query',source:{...form},saving:false,outcome:''}});open('schema-root');return true;
   },
   invalidateSQL:()=>ds('schema_test_result').setFormData({values:{data:null}}),
-  initialize:()=>run('schema_state',async()=>{const before=state(),result=await call('schema_connector_list',{status:'active',limit:100});const connectors=result?.items||[];rows('schema_connectors',connectors.map(item=>({...item,label:item.name})));set('schema_state',{connectorName:connectors.some(item=>item.name===before.connectorName)?before.connectorName:(connectors[0]?.name||''),catalogName:before.catalogName||'',schemaName:before.schemaName||'',query:'',selected:false,sql:'',extension:'sql',tableOffset:0,hasMore:false});cancelDiscovery();localChoices();clearObjects();}),
+  initialize:()=>run('schema_state',async()=>{const before=state(),result=await call('schema_connector_list',{status:'active',limit:100});const connectors=result?.items||[];rows('schema_connectors',connectors.map(item=>({...item,label:item.name})));set('schema_state',{useWorkbench:context.windowState?.parameters?.hasSQLWorkbench===true,connectorName:connectors.some(item=>item.name===before.connectorName)?before.connectorName:(connectors[0]?.name||''),catalogName:before.catalogName||'',schemaName:before.schemaName||'',query:'',selected:false,sql:'',timeoutSeconds:before.timeoutSeconds??60,extension:'sql',tableOffset:0,hasMore:false});cancelDiscovery();localChoices();clearObjects();}),
   changeConnector:()=>{cancelDiscovery();set('schema_state',{catalogName:'',schemaName:'',productVersion:''});localChoices();clearObjects();},
   changeCatalog:()=>{cancelDiscovery();set('schema_state',{schemaName:''});schemaChoices([]);clearObjects();},
   loadSchemas:discovery,
@@ -133,9 +143,9 @@
   searchTables:()=>run('schema_state',()=>tables(0)),
   previousTables:()=>run('schema_state',()=>tables(Math.max(0,(state().tableOffset||0)-200))),
   nextTables:()=>state().hasMore?run('schema_state',()=>tables((state().tableOffset||0)+200)):false,
-  inspectTable:props=>run('schema_state',async()=>{const table=props.row||ds('schema_tables').peekSelection()?.selected;if(!table)return;const detail=await call('schema_table',{name:state().connectorName,input:{...scope(),schema:table.schema||state().schemaName||'',table:table.name}});set('schema_state',{detail,tableName:detail.table.name,selected:true,sql:'SELECT *\nFROM '+(connection().driver==='bigquery'?'`'+[detail.table.catalog||state().catalogName,detail.table.schema,detail.table.name].filter(Boolean).join('.')+'`':[detail.table.schema,detail.table.name].filter(Boolean).join('.')),extension:'sql'});rows('schema_columns',(detail.columns||[]).map(column=>({...column,constraints:[column.primaryKey?'PK':'',column.unique?'unique':'',column.nullable?'nullable':'required'].filter(Boolean).join(' · '),reference:column.referenceTable?column.referenceTable+'.'+column.referenceColumn:''})));ds('schema_test_result').setFormData({values:{data:null}});selectTab('schema-sql');}),
+  inspectTable:props=>run('schema_state',async()=>{const table=props.row||ds('schema_tables').peekSelection()?.selected;if(!table)return;const detail=await call('schema_table',{name:state().connectorName,input:{...scope(),schema:table.schema||state().schemaName||'',table:table.name}});set('schema_state',{tableRequest:(state().tableRequest||0)+1,detail,tableName:detail.table.name,selected:true,sql:'SELECT *\nFROM '+(connection().driver==='bigquery'?'`'+[detail.table.catalog||state().catalogName,detail.table.schema,detail.table.name].filter(Boolean).join('.')+'`':[detail.table.schema,detail.table.name].filter(Boolean).join('.')),extension:'sql'});rows('schema_columns',(detail.columns||[]).map(column=>({...column,constraints:[column.primaryKey?'PK':'',column.unique?'unique':'',column.nullable?'nullable':'required'].filter(Boolean).join(' · '),reference:column.referenceTable?column.referenceTable+'.'+column.referenceColumn:''})));ds('schema_test_result').setFormData({values:{data:null}});selectTab('schema-sql');}),
   closeTable:()=>{set('schema_state',{selected:false,detail:null,sql:''});ds('schema_test_result').setFormData({values:{data:null}});},
-  testSQL:()=>run('schema_state',async()=>{if(!state().sql?.trim())throw new Error('Enter SQL to test.');const result=await call('schema_test',{name:state().connectorName,input:{sql:state().sql.trim(),limit:50}});ds('schema_test_result').setFormData({values:result});selectTab('schema-result');}),
+  testSQL:()=>run('schema_state',async()=>{if(!state().sql?.trim())throw new Error('Enter SQL to test.');const result=await call('schema_test',{name:state().connectorName,input:{sql:state().sql.trim(),limit:50,timeoutSeconds:Number(state().timeoutSeconds??60)}});ds('schema_test_result').setFormData({values:result});selectTab('schema-result');}),
   newRoot:()=>{const table=state().detail?.table;if(!table)return false;ds('schema_root_draft').setFormData({values:{title:titleCase(table.name),slug:words(table.name).map(word=>word.toLowerCase()).join('-'),viewName:identifier(table.name),source:{...state()},saving:false,outcome:''}});open('schema-root');},
   createRoot:()=>run('schema_root_draft',async()=>{
    const form=get('schema_root_draft'),source=form.source||state();if(!form.title?.trim()||!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(form.slug)||!/^[a-z][a-z0-9_]*$/.test(form.viewName)||!source.sql?.trim())throw new Error('Enter a title, lowercase slug, view identifier, and source SQL.');

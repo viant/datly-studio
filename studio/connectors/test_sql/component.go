@@ -3,7 +3,9 @@ package test_sql
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"math"
 	"reflect"
 	"strings"
 	"time"
@@ -21,7 +23,7 @@ import (
 	xhandler "github.com/viant/xdatly/handler"
 )
 
-const maxExecution = 15 * time.Second
+const defaultExecution = 60 * time.Second
 
 type Input struct {
 	Jwt   *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
@@ -57,6 +59,10 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	if input == nil || output == nil {
 		return fmt.Errorf("connector SQL test input and output are required")
 	}
+	timeout, err := executionTimeout(input.Input.TimeoutSeconds)
+	if err != nil {
+		return err
+	}
 	connector, err := connectorcatalog.ForProbe(ctx, session, input.Jwt, input.Auth, input.Name)
 	if err != nil {
 		return err
@@ -75,15 +81,39 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	if err != nil {
 		return err
 	}
-	executionCtx, cancel := context.WithTimeout(ctx, maxExecution)
+	executionCtx, cancel := context.WithCancel(ctx)
+	if timeout > 0 {
+		cancel()
+		executionCtx, cancel = context.WithTimeout(ctx, timeout)
+	}
 	defer cancel()
 	result, err := (preview.Dynamic{ModulePath: authoring.ModulePath(), Types: types, Const: authoring.Constants(), ReaderCaches: authoring.ReaderCaches(), Dependencies: authoring.Dependencies()}).TestSQL(executionCtx, connector, input.Input)
 	if err != nil {
-		return publisherguard.PublicError(400, "SQL test could not be compiled or executed")
+		return executionError(executionCtx, err, timeout)
 	}
 	if result == nil {
 		return fmt.Errorf("transient SQL test returned no result")
 	}
 	output.Data, output.Duration = result.Data, result.Duration
 	return nil
+}
+
+func executionTimeout(seconds *int) (time.Duration, error) {
+	if seconds == nil {
+		return defaultExecution, nil
+	}
+	if *seconds < 0 || int64(*seconds) > math.MaxInt64/int64(time.Second) {
+		return 0, publisherguard.PublicError(400, "SQL timeout must be a nonnegative, representable number of seconds; 0 disables the Studio timeout")
+	}
+	return time.Duration(*seconds) * time.Second, nil
+}
+
+func executionError(ctx context.Context, err error, timeout time.Duration) error {
+	if errors.Is(ctx.Err(), context.DeadlineExceeded) || errors.Is(err, context.DeadlineExceeded) {
+		if timeout == 0 {
+			return publisherguard.PublicError(504, "The request deadline expired. The Studio SQL timeout was disabled.")
+		}
+		return publisherguard.PublicError(504, fmt.Sprintf("SQL query timed out (configured timeout: %d seconds). Increase Timeout (seconds) or narrow the query.", int(timeout/time.Second)))
+	}
+	return publisherguard.PublicError(400, "SQL test could not be compiled or executed")
 }

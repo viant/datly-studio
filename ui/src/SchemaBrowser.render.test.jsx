@@ -27,7 +27,7 @@ function mount({denied=false,connector='main',inspectVersion,components,connecto
    default:throw new Error('Unexpected '+source.backend.method);
   }
  })};
- render(<ManagementWindowRuntime api={api} uri="window://datastudio/schema" instanceKey={'forge-schema-'+(++serial)} onNavigate={navigate} onDirtyChange={dirty}/>);return {api,navigate,dirty};
+ render(<ManagementWindowRuntime api={api} uri="window://datastudio/schema" instanceKey={'forge-schema-'+(++serial)} parameters={{hasSQLWorkbench:false}} onNavigate={navigate} onDirtyChange={dirty}/>);return {api,navigate,dirty};
 }
 async function load(user){await user.click(await screen.findByRole('button',{name:'Load schemas',exact:true}));await waitFor(()=>expect(screen.getByRole('button',{name:'Load schemas',exact:true}).disabled).toBe(false));await user.click(screen.getByRole('button',{name:'Search tables',exact:true}));await screen.findByRole('button',{name:'Inspect table',exact:true});}
 async function inspect(user){await load(user);await user.click(await screen.findByRole('button',{name:'Inspect table',exact:true}));return screen.findByRole('textbox',{name:'SQL source',exact:true});}
@@ -36,7 +36,7 @@ test('Forge schema discovery keeps SQL, columns and real SQL results in tabs',as
  await user.click(screen.getByRole('tab',{name:'Columns',exact:true}));expect(await screen.findByText('PK · required')).toBeTruthy();
  await user.click(screen.getByRole('tab',{name:'SQL',exact:true}));await user.click(screen.getByRole('button',{name:'Test SQL',exact:true}));
  expect(await screen.findByRole('heading',{name:'SQL test result'})).toBeTruthy();expect(screen.getByRole('tab',{name:'Result',exact:true}).getAttribute('aria-selected')).toBe('true');
- expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.connectors.test_sql')[1]).toEqual({name:'main',input:{sql:'SELECT *\nFROM sales.VENDOR',limit:50}});
+ expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.connectors.test_sql')[1]).toEqual({name:'main',input:{sql:'SELECT *\nFROM sales.VENDOR',limit:50,timeoutSeconds:60}});
  expect(within(screen.getByRole('tabpanel',{name:'Result'})).getByText('1',{exact:true})).toBeTruthy();
  await user.click(screen.getByRole('tab',{name:'SQL',exact:true}));
  const view=EditorView.findFromDOM(screen.getByRole('textbox',{name:'SQL source',exact:true}).closest('.cm-editor'));
@@ -126,7 +126,7 @@ test('schema loading is explicit, can be abandoned, and ignores late results',as
 
 test('Explorer SQL window works without discovery and creates a component on its captured connector',async()=>{
  const user=userEvent.setup(),{api,navigate}=mount({connector:'warehouse'});
- await user.click(await screen.findByRole('button',{name:'Open SQL window',exact:true}));
+ await user.click(await screen.findByRole('button',{name:'New SQL',exact:true}));
  const dialog=await screen.findByRole('dialog',{name:'SQL window',exact:true});
  expect(within(dialog).getByDisplayValue('warehouse · sqlite')).toBeTruthy();
  expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.connectors.discover')).toBe(false);
@@ -135,7 +135,7 @@ test('Explorer SQL window works without discovery and creates a component on its
  await act(async()=>view.dispatch({changes:{from:0,to:view.state.doc.length,insert:'SELECT 42 AS answer'}}));
  await user.click(within(dialog).getByRole('button',{name:'Run SQL',exact:true}));
  await waitFor(()=>expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.connectors.test_sql')).toBe(true));
- expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.connectors.test_sql')[1]).toEqual({name:'warehouse',input:{sql:'SELECT 42 AS answer',limit:50}});
+ expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.connectors.test_sql')[1]).toEqual({name:'warehouse',input:{sql:'SELECT 42 AS answer',limit:50,timeoutSeconds:60}});
  await user.click(within(dialog).getByRole('button',{name:'Create component',exact:true}));
  await waitFor(()=>expect(screen.queryByRole('dialog',{name:'SQL window',exact:true})).toBeNull());
  await user.click(await screen.findByRole('button',{name:'Create component',exact:true}));
@@ -146,11 +146,11 @@ test('Explorer SQL window works without discovery and creates a component on its
 
 test('closing an SQL window preserves its draft and releases the navigation guard',async()=>{
  const user=userEvent.setup(),{dirty}=mount();
- await user.click(await screen.findByRole('button',{name:'Open SQL window',exact:true}));
+ await user.click(await screen.findByRole('button',{name:'New SQL',exact:true}));
  const view=EditorView.findFromDOM((await screen.findByRole('textbox',{name:'SQL query',exact:true})).closest('.cm-editor'));
  await act(async()=>view.dispatch({changes:{from:0,to:view.state.doc.length,insert:'SELECT 99 AS retained'}}));
  await user.click(within(screen.getByRole('dialog',{name:'SQL window',exact:true})).getAllByRole('button',{name:'Close',exact:true}).at(-1));
  await waitFor(()=>expect(screen.queryByRole('dialog')).toBeNull());expect(dirty).toHaveBeenLastCalledWith(false);
- await user.click(screen.getByRole('button',{name:'Open SQL window',exact:true}));
+ await user.click(screen.getByRole('button',{name:'New SQL',exact:true}));
  await waitFor(()=>expect(screen.getByRole('textbox',{name:'SQL query',exact:true}).textContent).toContain('SELECT 99 AS retained'));
 });

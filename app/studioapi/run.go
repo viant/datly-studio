@@ -637,7 +637,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) error {
 		return err
 	}
 	server := &http.Server{
-		Addr: *address, Handler: handler,
+		Addr: *address, Handler: explicitExecutionDeadline(handler),
 		ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 30 * time.Second,
 		WriteTimeout: 60 * time.Second, IdleTimeout: 2 * time.Minute,
 	}

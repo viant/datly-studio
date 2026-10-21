@@ -444,6 +444,7 @@ export type InputDa8168F080Bfa68B819580Da3D7C62F0F555672Ea65E1590B0F311889F16F42
 export type InputE14Cc58C4Ee74D7747F498Bcbd7C71A8Cb3028Eda5782588B9C5299Ed0Cf9C37 = {
     limit?: number;
     sql?: string;
+    timeoutSeconds?: number | null;
 };
 
 export type InputEa8Cf0B60E82E17C8F2E6Bc2Ad35Fe0985Cc717838Bb65D7F9B56C81Bd0718Aa = {

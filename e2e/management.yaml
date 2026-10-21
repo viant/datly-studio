@@ -95,10 +95,13 @@ pipeline:
       URL: ${appPath}/.data/e2e/webdriver
       driver: chromedriver
       capabilities: ['--headless=new', '--window-size=1440,1000']
-      port: 4446
+      port: 4448
   discovery:
     action: run
     request: '@management/discovery'
+  explorerTabs:
+    action: run
+    request: '@management/explorer-tabs'
   auditContention:
     action: exec:run
     target: $target

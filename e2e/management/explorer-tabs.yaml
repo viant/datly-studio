@@ -1,0 +1,89 @@
+# A dedicated namespace and synthetic owner isolate Explorer's SQL executions.
+pipeline:
+  namespace:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.namespaces.create
+    arguments: {name: explorer.tabs, title: Explorer Tabs, visibility: private}
+  tableAndExecutionTabs:
+    action: webdriver:run
+    sessionID: localhost:4448
+    autoStart: false
+    browser: chrome
+    failureArtifacts: {directory: '${runDir}/artifacts/explorer-tabs'}
+    commands:
+      - page.goto("${browserURL}/e2e/login")
+      - page.getByLabel("Test identity").selectOption("owner")
+      - page.getByRole("button", "Sign in").click()
+      - page.getByLabel("Current namespace").selectOption("${namespace.StructuredContent.namespaceId}")
+      - page.locator("xpath://aside[contains(@class,'studio-sidebar')]//button[normalize-space(.)='Explorer']").click()
+      - page.getByRole("button", "Load schemas").click()
+      - expect(page.getByRole("button", "Load schemas")).toBeEnabled(30000)
+      - page.getByRole("button", "Search tables").click()
+      - expect(page.getByRole("button", "Inspect table")).toHaveCount(2,15000)
+      - page.locator("xpath://tr[td[normalize-space(.)='discovery_items']]//button[@aria-label='Inspect table']").click()
+      - expect(page.locator("xpath://button[@role='tab'][span[normalize-space(.)='discovery_items']]")).toBeVisible(15000)
+      - page.locator("xpath://tr[td[normalize-space(.)='discovery_extra']]//button[@aria-label='Inspect table']").click()
+      - expect(page.locator("xpath://button[@role='tab'][span[normalize-space(.)='discovery_extra']]")).toBeVisible(15000)
+      - page.getByRole("button", "New SQL tab").click()
+      - page.locator(".studio-explorer-query-panel:not([hidden]) [contenteditable='true']").fill("SELECT 1 AS marker")
+      - page.locator(".studio-explorer-query-panel:not([hidden]) input[type='number']").fill("0")
+      - page.locator("xpath://div[contains(@class,'studio-explorer-query-panel') and not(@hidden)]//button[normalize-space(.)='Run SQL']").click()
+      - expect(page.locator("xpath://div[contains(@class,'studio-explorer-query-panel') and not(@hidden)]//td[normalize-space(.)='1']")).toBeVisible(20000)
+      - page.locator("xpath://button[@role='tab'][span[normalize-space(.)='SQL 2']]").click()
+      - page.locator(".studio-explorer-query-panel:not([hidden]) [contenteditable='true']").fill("SELECT 2 AS marker")
+      - page.locator(".studio-explorer-query-panel:not([hidden]) input[type='number']").fill("600")
+      - page.locator("xpath://div[contains(@class,'studio-explorer-query-panel') and not(@hidden)]//button[normalize-space(.)='Run SQL']").click()
+      - expect(page.locator("xpath://div[contains(@class,'studio-explorer-query-panel') and not(@hidden)]//td[normalize-space(.)='2']")).toBeVisible(20000)
+      - expect(page.locator("xpath://button[@role='tab'][span[starts-with(normalize-space(.),'Run ')]]")).toHaveCount(2,15000)
+      - page.locator("xpath://button[@role='tab'][span[normalize-space(.)='Run 1']]").click()
+      - expect(page.locator(".studio-explorer-query-panel:not([hidden]) input[type='number']")).toHaveValue("0",15000)
+      - expect(page.locator("xpath://div[contains(@class,'studio-explorer-query-panel') and not(@hidden)]//td[normalize-space(.)='1']")).toBeVisible(15000)
+      - page.locator("xpath://div[contains(@class,'studio-explorer-query-panel') and not(@hidden)]//button[normalize-space(.)='Create component']").click()
+      - page.getByLabel("Component title").fill("Execution snapshot component")
+      - page.getByLabel("Slug").fill("execution-snapshot")
+      - page.locator("xpath://div[@role='dialog']//button[normalize-space(.)='Create component']").click()
+      - expect(page.getByRole("heading", "Component graph")).toBeVisible(20000)
+  selectedExecutionPersisted:
+    action: dsunit:query
+    datastore: studio
+    SQL: >-
+      SELECT c.default_connector_name,
+      CASE WHEN v.authored_dql LIKE '%SELECT 1 AS marker%' AND v.authored_dql NOT LIKE '%SELECT 2 AS marker%' THEN 1 ELSE 0 END AS original_execution_sql
+      FROM components c JOIN component_versions v ON v.report_id=c.id WHERE c.slug='execution-snapshot'
+    expect:
+      - {default_connector_name: discovery_scoped, original_execution_sql: 1}
+  scrollOverflow:
+    action: webdriver:run
+    sessionID: localhost:4448
+    autoStart: false
+    browser: chrome
+    failureArtifacts: {directory: '${runDir}/artifacts/explorer-overflow'}
+    commands:
+      - page.goto("${browserURL}/e2e/login")
+      - page.getByLabel("Test identity").selectOption("owner")
+      - page.getByRole("button", "Sign in").click()
+      - page.getByLabel("Current namespace").selectOption("${namespace.StructuredContent.namespaceId}")
+      - page.locator("xpath://aside[contains(@class,'studio-sidebar')]//button[normalize-space(.)='Explorer']").click()
+      - page.getByRole("button", "New SQL tab").click()
+      - page.getByRole("button", "New SQL tab").click()
+      - page.getByRole("button", "New SQL tab").click()
+      - page.getByRole("button", "New SQL tab").click()
+      - page.getByRole("button", "New SQL tab").click()
+      - page.getByRole("button", "New SQL tab").click()
+      - page.getByRole("button", "New SQL tab").click()
+      - page.getByRole("button", "New SQL tab").click()
+      - page.getByRole("button", "New SQL tab").click()
+      - page.getByRole("button", "New SQL tab").click()
+      - page.getByRole("button", "New SQL tab").click()
+      - page.getByRole("button", "New SQL tab").click()
+      - page.getByRole("button", "New SQL tab").click()
+      - page.getByRole("button", "New SQL tab").click()
+      - expect(page.getByRole("button", "Scroll tabs left")).toBeEnabled(15000)
+      - expect(page.getByRole("button", "Scroll tabs right")).toBeDisabled(15000)
+      - page.getByRole("button", "Scroll tabs left").click()
+      - expect(page.getByRole("button", "Scroll tabs right")).toBeEnabled(15000)
+      - page.getByRole("button", "Scroll tabs right").click()
+      - expect(page.getByRole("button", "Scroll tabs right")).toBeDisabled(15000)
+      - expect(page.locator("xpath://button[@role='tab' and @aria-selected='true']/span[normalize-space(.)='SQL 15']")).toBeVisible(15000)

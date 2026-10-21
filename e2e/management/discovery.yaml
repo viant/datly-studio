@@ -38,7 +38,7 @@ pipeline:
       '@length@schemas': 2
   browseAndEditLists:
     action: webdriver:run
-    sessionID: localhost:4446
+    sessionID: localhost:4448
     autoStart: false
     browser: chrome
     failureArtifacts: {directory: '${runDir}/artifacts/discovery'}
@@ -63,15 +63,16 @@ pipeline:
       - page.getByRole("menuitem", "local").click()
       - page.getByRole("button", "Schema / dataset").click()
       - page.getByRole("menuitem", "lookup").click()
+      - page.getByLabel("Find tables or views").fill("discovery_items")
       - page.getByRole("button", "Search tables").click()
       - expect(page.getByRole("button", "Inspect table")).toHaveCount(1,15000)
       - page.getByRole("button", "Inspect table").click()
-      - page.getByRole("tab", "Columns").click()
+      - page.getByRole("button", "Columns").click()
       - expect(page.locator("xpath://td[normalize-space(.)='dataset_marker']")).toBeVisible(15000)
       - expect(page.locator("xpath://td[normalize-space(.)='main_marker']")).toHaveCount(0,15000)
   connectorStateInUI:
     action: webdriver:run
-    sessionID: localhost:4446
+    sessionID: localhost:4448
     autoStart: false
     browser: chrome
     failureArtifacts: {directory: '${runDir}/artifacts/connector-state'}
@@ -120,7 +121,7 @@ pipeline:
     arguments: {name: explorer.sql, title: Explorer SQL, visibility: private}
   sqlWindowCreatesComponent:
     action: webdriver:run
-    sessionID: localhost:4446
+    sessionID: localhost:4448
     autoStart: false
     browser: chrome
     failureArtifacts: {directory: '${runDir}/artifacts/explorer-sql'}
@@ -130,16 +131,17 @@ pipeline:
       - page.getByRole("button", "Sign in").click()
       - page.getByLabel("Current namespace").selectOption("${sqlNamespace.StructuredContent.namespaceId}")
       - page.locator("xpath://aside[contains(@class,'studio-sidebar')]//button[normalize-space(.)='Explorer']").click()
-      - page.getByRole("button", "Open SQL window").click()
-      - page.locator(".studio-explorer-sql-dialog [contenteditable='true']").fill("SELECT id, dataset_marker FROM lookup.discovery_items")
-      - page.getByRole("button", "Run SQL").click()
-      - expect(page.locator("xpath://div[contains(@class,'studio-explorer-sql-dialog')]//td[normalize-space(.)='lookup']")).toBeVisible(20000)
-      - page.getByRole("button", "Create component").click()
-      - expect(page.locator(".studio-explorer-sql-dialog")).toHaveCount(0,15000)
+      - page.getByRole("button", "New SQL").click()
+      - page.locator(".studio-explorer-query-panel:not([hidden]) [contenteditable='true']").fill("SELECT id, dataset_marker FROM lookup.discovery_items")
+      - page.locator(".studio-explorer-query-panel:not([hidden]) input[type='number']").fill("0")
+      - page.locator("xpath://div[contains(@class,'studio-explorer-query-panel') and not(@hidden)]//button[normalize-space(.)='Run SQL']").click()
+      - expect(page.locator("xpath://div[contains(@class,'studio-explorer-query-panel') and not(@hidden)]//td[normalize-space(.)='lookup']")).toBeVisible(20000)
+      - page.locator("xpath://div[contains(@class,'studio-explorer-query-panel') and not(@hidden)]//button[normalize-space(.)='Create component']").click()
+      - expect(page.locator("xpath://div[@role='dialog']//h2[normalize-space(.)='Create component']")).toBeVisible(15000)
       - page.getByLabel("Component title").fill("Explorer SQL component")
       - page.getByLabel("Slug").fill("explorer-sql")
       - page.getByLabel("Root view identifier").fill("items")
-      - page.getByRole("button", "Create component").click()
+      - page.locator("xpath://div[@role='dialog']//button[normalize-space(.)='Create component']").click()
       - expect(page.getByRole("heading", "Component graph")).toBeVisible(20000)
   sqlComponentPersisted:
     action: dsunit:query

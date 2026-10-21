@@ -1272,6 +1272,11 @@
           },
           "sql": {
             "type": "string"
+          },
+          "timeoutSeconds": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
           }
         }
       },

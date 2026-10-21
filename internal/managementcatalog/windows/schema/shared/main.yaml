@@ -12,12 +12,12 @@ window:
         - id: schema-header
           workspaceSummary:
             title: Explorer
-            description: Explore authorized connector metadata and use tables as Datly view sources.
+            description: Browse connectors, write SQL, and keep each execution in its own tab.
             stateDataSourceRef: schema_state
             errorField: outcome
             actions:
               - id: open-sql
-                label: Open SQL window
+                label: New SQL
                 icon: code
                 handler: management.openSQL
                 disabledWhen:
@@ -89,7 +89,7 @@ window:
                     - id: load-schemas
                       label: Load schemas
                       type: button
-                      hideLabel: true
+                      hideLabel: false
                       isStandalone: true
                       icon: database
                       disabledWhen: {selector: metadataLoading, equals: true}
@@ -97,7 +97,7 @@ window:
                     - id: cancel-discovery
                       label: Stop waiting
                       type: button
-                      hideLabel: true
+                      hideLabel: false
                       isStandalone: true
                       visibleWhen: {selector: metadataLoading, equals: true}
                       on: [{event: onClick, handler: management.cancelDiscovery}]
@@ -205,7 +205,21 @@ window:
                 minWidth: 260px
                 maxWidth: 320px
                 height: 100%
+            - id: schema-sql-workbench
+              dataSourceRef: schema_state
+              fetchData: false
+              visibleWhen: {selector: useWorkbench, equals: true}
+              hostContent:
+                slot: explorer-sql
+                on:
+                  - {event: getState, handler: management.workbenchState}
+                  - {event: executeQuery, handler: management.executeWorkbench}
+                  - {event: createComponent, handler: management.componentFromWorkbench}
+                  - {event: addSubview, handler: management.subviewFromWorkbench}
+              sizingMode: fill
+              className: studio-explorer-workbench-host
             - id: schema-detail
+              visibleWhen: {dataSourceRef: schema_state, selector: useWorkbench, notEquals: true}
               containers:
                 - id: schema-empty
                   dataSourceRef: schema_state
@@ -258,6 +272,13 @@ window:
                             on:
                               - event: onChange
                                 handler: management.invalidateSQL
+                          items:
+                            - id: tableSQLTimeout
+                              label: Timeout (seconds)
+                              dataField: timeoutSeconds
+                              type: number
+                              properties: {min: 0, step: 1}
+                              helperText: 0 disables the Studio timeout.
                           toolbar:
                             items:
                               - id: test
@@ -429,6 +450,13 @@ window:
                 dataField: contextLabel
                 type: text
                 readOnly: true
+              - id: sqlTimeoutSeconds
+                label: Timeout (seconds)
+                dataField: timeoutSeconds
+                type: number
+                readOnlyWhen: {selector: saving, equals: true}
+                properties: {min: 0, step: 1}
+                helperText: 0 disables the Studio timeout.
           - id: explorer-sql-editor
             dataSourceRef: schema_query_draft
             fetchData: false
