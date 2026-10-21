@@ -141,7 +141,7 @@ func (d Dynamic) TestSQL(ctx context.Context, connector *sdk.Connector, request 
 	}
 	definition := &definition{
 		Scope: modulePath + "/dynamic/sqltest/" + token,
-		Name:  "preview", Connector: connector.Name, Driver: connector.Driver, DSN: resolvedDSN, Options: connector.Options, Secrets: d.Secrets,
+		Name:  "preview", Connector: connector.Name, Driver: connector.Driver, DSN: resolvedDSN, Options: connector.Options, Secrets: d.Secrets, SQLTestOffset: &request.Offset,
 	}
 	dql := fmt.Sprintf(`#package('%s')
 
@@ -149,14 +149,13 @@ func (d Dynamic) TestSQL(ctx context.Context, connector *sdk.Connector, request 
 #setting($_ = $route('/v1/studio/sqltest/%s', 'GET'))
 #setting($_ = $case_format('lc'))
 
-#define($_ = $Offset<int>(query/offset).Optional().QuerySelector('result'))
 #define($_ = $Rows<[]*SQLTestRow>(output/view))
 
 SELECT result.*,
        type(result, 'SQLTestRow'),
        set_limit(result, %d)
 FROM (%s) result`, definition.Scope, connector.Name, token, limit+1, sqlText)
-	preview, err := d.execute(ctx, definition, dql, sdk.PreviewInput{Limit: limit, Input: json.RawMessage(fmt.Sprintf(`{"offset":%d}`, request.Offset))})
+	preview, err := d.execute(ctx, definition, dql, sdk.PreviewInput{Limit: limit})
 	if err != nil {
 		return nil, err
 	}
@@ -555,6 +554,17 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 	})
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "compile dynamic reader: " + err.Error(), Cause: err}
+	}
+	// Paging is owned by this transient SQL execution, independent of any
+	// outer HTTP/MCP request's query providers or selector bindings.
+	if definition.SQLTestOffset != nil {
+		controls := contract.Component.RootView.Source.Controls
+		if controls == nil {
+			controls = &spec.ViewControls{}
+			contract.Component.RootView.Source.Controls = controls
+		}
+		offset := *definition.SQLTestOffset
+		controls.Offset = &offset
 	}
 	dependencies, err := d.prepareContexts(ctx, definition, contract.Component)
 	if err != nil {
@@ -957,6 +967,7 @@ func safeViewToken(value string) string {
 }
 
 type definition struct {
+	SQLTestOffset                                       *int
 	Types                                               *typecatalog.Catalog
 	Scope, Name, Connector, Driver, DSN, SecretRef, DQL string
 	ReportID                                            string
