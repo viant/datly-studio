@@ -1,6 +1,6 @@
 window:
   windowKey: schema
-  title: Schema Browser
+  title: Explorer
   on:
     - event: onInit
       handler: management.initialize
@@ -11,11 +11,19 @@ window:
       containers:
         - id: schema-header
           workspaceSummary:
-            title: Schema Browser
+            title: Explorer
             description: Explore authorized connector metadata and use tables as Datly view sources.
             stateDataSourceRef: schema_state
             errorField: outcome
             actions:
+              - id: open-sql
+                label: Open SQL window
+                icon: code
+                handler: management.openSQL
+                disabledWhen:
+                  any:
+                    - {dataSourceRef: schema_state, selector: saving, equals: true}
+                    - {dataSourceRef: schema_state, selector: connectorName, equals: ''}
               - id: edit-lookups
                 label: Edit lookup lists
                 icon: edit
@@ -309,6 +317,12 @@ window:
           sizingMode: fill
         - id: schema-bindings
           containers:
+            - id: schema_query_draft-binding
+              dataSourceRef: schema_query_draft
+              fetchData: false
+            - id: schema_query_result-binding
+              dataSourceRef: schema_query_result
+              fetchData: false
             - id: schema_state-binding
               dataSourceRef: schema_state
               fetchData: false
@@ -391,6 +405,62 @@ window:
       style:
         height: calc(100dvh - var(--studio-navbar-height, 58px))
   dialogs:
+    - id: schema-query
+      title: SQL window
+      className: studio-explorer-sql-dialog
+      dataSourceRef: schema_query_draft
+      fetchOnOpen: false
+      closeDisabledWhen: {selector: saving, equals: true}
+      on: [{event: onClose, handler: management.closeQuery}]
+      content:
+        id: explorer-sql-content
+        containers:
+          - id: explorer-sql-context
+            dataSourceRef: schema_query_draft
+            fetchData: false
+            workspaceSummary:
+              title: SQL query
+              stateDataSourceRef: schema_query_draft
+              errorField: outcome
+              description: Use qualified table names for the selected project and schema. Results are limited to 50 rows.
+            items:
+              - id: sqlConnectionContext
+                label: Selected connector and scope
+                dataField: contextLabel
+                type: text
+                readOnly: true
+          - id: explorer-sql-editor
+            dataSourceRef: schema_query_draft
+            fetchData: false
+            editor:
+              title: SQL query
+              selector: {source: sql, extension: extension}
+              readOnlyWhen: {selector: saving, equals: true}
+              style: {height: 260px}
+              on: [{event: onChange, handler: management.queryChanged}]
+          - id: explorer-sql-result
+            dataSourceRef: schema_query_result
+            fetchData: false
+            resultPreview:
+              dataSourceRef: schema_query_result
+              dataField: data
+              label: Query result
+      actions:
+        - id: run-query
+          label: Run SQL
+          icon: play
+          intent: primary
+          disabledWhen: {selector: saving, equals: true}
+          on: [{event: onClick, handler: management.runQuery}]
+        - id: query-component
+          label: Create component
+          icon: new-object
+          disabledWhen: {selector: saving, equals: true}
+          on: [{event: onClick, handler: management.componentFromSQL}]
+        - id: close-query
+          label: Close
+          close: true
+          disabledWhen: {selector: saving, equals: true}
     - id: schema-lookups
       title: Project and schema lookup lists
       className: studio-connector-dialog
@@ -441,7 +511,7 @@ window:
           on: [{event: onClick, handler: management.saveLookups}]
         - {id: cancel, label: Cancel, close: true, disabledWhen: {selector: saving, equals: true}}
     - id: schema-root
-      title: Create component from table
+      title: Create component
       dataSourceRef: schema_root_draft
       fetchOnOpen: false
       closeDisabledWhen:
@@ -593,6 +663,16 @@ window:
             selector: saving
             equals: true
 dataSources:
+  schema_query_draft:
+    id: schema_query_draft
+    cardinality: object
+    backend: {kind: inline, rows: []}
+    cache: {enabled: false}
+  schema_query_result:
+    id: schema_query_result
+    cardinality: object
+    backend: {kind: inline, rows: []}
+    cache: {enabled: false}
   schema_state:
     id: schema_state
     cardinality: object

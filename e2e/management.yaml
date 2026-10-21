@@ -94,7 +94,7 @@ pipeline:
       action: webdriver:start
       URL: ${appPath}/.data/e2e/webdriver
       driver: chromedriver
-      capabilities: ['--window-size=1440,1000']
+      capabilities: ['--headless=new', '--window-size=1440,1000']
       port: 4446
   discovery:
     action: run

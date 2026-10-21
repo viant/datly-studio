@@ -36,7 +36,7 @@ capability or database dialect has live acceptance coverage.
 
 ## Database discovery scopes
 
-The Forge Schema Browser loads only the connector list when opened. **Load
+The Forge Explorer loads only the connector list when opened. **Load
 schemas** explicitly calls `studio.sdk.connectors.discover`, a custom Datly
 handler returning the database product/version, current catalog/schema and
 available metadata choices. **Stop waiting** dismisses a pending lookup and
@@ -58,3 +58,11 @@ or credentials. BigQuery preserves connection credentials, region and options
 while selecting the requested project and dataset. SQLite attachment discovery
 uses only attachment paths already configured on the connector. Source access
 continues to be checked by the connector and database credentials.
+
+Explorer's **Open SQL window** opens a Forge editor for the selected connector
+without requiring table discovery. The window shows the selected project/schema
+as context; use qualified names in SQL when querying that scope. **Run SQL** uses
+the existing authorized, bounded Datly SQL test endpoint. **Create component**
+creates a component and its first version using that same connector and SQL,
+then opens the component editor. SQL drafts survive closing/reopening the window
+within the current Explorer instance and are kept separately by connector/scope.

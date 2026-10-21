@@ -123,3 +123,34 @@ test('schema loading is explicit, can be abandoned, and ignores late results',as
  expect(screen.queryByText('Schemas loaded. Choose one and search tables.')).toBeNull();
  expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.connectors.tables')).toBe(false);
 });
+
+test('Explorer SQL window works without discovery and creates a component on its captured connector',async()=>{
+ const user=userEvent.setup(),{api,navigate}=mount({connector:'warehouse'});
+ await user.click(await screen.findByRole('button',{name:'Open SQL window',exact:true}));
+ const dialog=await screen.findByRole('dialog',{name:'SQL window',exact:true});
+ expect(within(dialog).getByDisplayValue('warehouse · sqlite')).toBeTruthy();
+ expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.connectors.discover')).toBe(false);
+ const editor=within(dialog).getByRole('textbox',{name:'SQL query',exact:true});
+ const view=EditorView.findFromDOM(editor.closest('.cm-editor'));
+ await act(async()=>view.dispatch({changes:{from:0,to:view.state.doc.length,insert:'SELECT 42 AS answer'}}));
+ await user.click(within(dialog).getByRole('button',{name:'Run SQL',exact:true}));
+ await waitFor(()=>expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.connectors.test_sql')).toBe(true));
+ expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.connectors.test_sql')[1]).toEqual({name:'warehouse',input:{sql:'SELECT 42 AS answer',limit:50}});
+ await user.click(within(dialog).getByRole('button',{name:'Create component',exact:true}));
+ await waitFor(()=>expect(screen.queryByRole('dialog',{name:'SQL window',exact:true})).toBeNull());
+ await user.click(await screen.findByRole('button',{name:'Create component',exact:true}));
+ await waitFor(()=>expect(navigate).toHaveBeenCalledWith('builder',{report:expect.objectContaining({id:'created',versionNo:1})}));
+ expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.components.create')[1]).toMatchObject({defaultConnectorName:'warehouse'});
+ expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.versions.builder')[1].command.operation.reader.sql).toBe('SELECT 42 AS answer');
+});
+
+test('closing an SQL window preserves its draft and releases the navigation guard',async()=>{
+ const user=userEvent.setup(),{dirty}=mount();
+ await user.click(await screen.findByRole('button',{name:'Open SQL window',exact:true}));
+ const view=EditorView.findFromDOM((await screen.findByRole('textbox',{name:'SQL query',exact:true})).closest('.cm-editor'));
+ await act(async()=>view.dispatch({changes:{from:0,to:view.state.doc.length,insert:'SELECT 99 AS retained'}}));
+ await user.click(within(screen.getByRole('dialog',{name:'SQL window',exact:true})).getAllByRole('button',{name:'Close',exact:true}).at(-1));
+ await waitFor(()=>expect(screen.queryByRole('dialog')).toBeNull());expect(dirty).toHaveBeenLastCalledWith(false);
+ await user.click(screen.getByRole('button',{name:'Open SQL window',exact:true}));
+ await waitFor(()=>expect(screen.getByRole('textbox',{name:'SQL query',exact:true}).textContent).toContain('SELECT 99 AS retained'));
+});

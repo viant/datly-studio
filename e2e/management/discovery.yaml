@@ -46,7 +46,7 @@ pipeline:
       - page.goto("${browserURL}/e2e/login")
       - page.getByLabel("Test identity").selectOption("owner")
       - page.getByRole("button", "Sign in").click()
-      - page.locator("xpath://aside[contains(@class,'studio-sidebar')]//button[normalize-space(.)='Schema Browser']").click()
+      - page.locator("xpath://aside[contains(@class,'studio-sidebar')]//button[normalize-space(.)='Explorer']").click()
       - expect(page.getByRole("button", "Load schemas")).toBeEnabled(15000)
       - expect(page.getByRole("button", "Inspect table")).toHaveCount(0,15000)
       - page.getByRole("button", "Load schemas").click()
@@ -112,3 +112,42 @@ pipeline:
       columns:
         - {name: dataset_marker}
         - {name: id}
+  sqlNamespace:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.namespaces.create
+    arguments: {name: explorer.sql, title: Explorer SQL, visibility: private}
+  sqlWindowCreatesComponent:
+    action: webdriver:run
+    sessionID: localhost:4446
+    autoStart: false
+    browser: chrome
+    failureArtifacts: {directory: '${runDir}/artifacts/explorer-sql'}
+    commands:
+      - page.goto("${browserURL}/e2e/login")
+      - page.getByLabel("Test identity").selectOption("owner")
+      - page.getByRole("button", "Sign in").click()
+      - page.getByLabel("Current namespace").selectOption("${sqlNamespace.StructuredContent.namespaceId}")
+      - page.locator("xpath://aside[contains(@class,'studio-sidebar')]//button[normalize-space(.)='Explorer']").click()
+      - page.getByRole("button", "Open SQL window").click()
+      - page.locator(".studio-explorer-sql-dialog [contenteditable='true']").fill("SELECT id, dataset_marker FROM lookup.discovery_items")
+      - page.getByRole("button", "Run SQL").click()
+      - expect(page.locator("xpath://div[contains(@class,'studio-explorer-sql-dialog')]//td[normalize-space(.)='lookup']")).toBeVisible(20000)
+      - page.getByRole("button", "Create component").click()
+      - expect(page.locator(".studio-explorer-sql-dialog")).toHaveCount(0,15000)
+      - page.getByLabel("Component title").fill("Explorer SQL component")
+      - page.getByLabel("Slug").fill("explorer-sql")
+      - page.getByLabel("Root view identifier").fill("items")
+      - page.getByRole("button", "Create component").click()
+      - expect(page.getByRole("heading", "Component graph")).toBeVisible(20000)
+  sqlComponentPersisted:
+    action: dsunit:query
+    datastore: studio
+    SQL: >-
+      SELECT c.title,c.default_connector_name,v.version_no,
+      CASE WHEN v.authored_dql LIKE '%SELECT id, dataset_marker FROM lookup.discovery_items%' THEN 1 ELSE 0 END AS sql_preserved
+      FROM components c JOIN component_versions v ON v.report_id=c.id
+      WHERE c.slug='explorer-sql'
+    expect:
+      - {title: Explorer SQL component, default_connector_name: discovery_scoped, version_no: 1, sql_preserved: 1}

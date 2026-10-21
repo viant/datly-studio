@@ -26,7 +26,7 @@ Navigation entries use the local metadata host instead of launching another app.
 | Namespaces | Shared native/remote Forge window: server search, create/edit/delete, viewer state, visibility/roles and MCP exposure/port. Port zero retains automatic allocation. |
 | Components | Catalog/metadata; reader version selection, creation and cloning; retained source tree and code editor; DQL/file saves with source revisions; validation, preview and publication/rollback. The expert source editor also offers structural-operation JSON through the typed builder; ordinary authoring uses the Reader Builder widgets. |
 | Overview, Runtime, Components catalog | Native routes consume the metadata sources described below. |
-| Schema Browser | Shared native/remote metadata: connector/schema/table discovery, SQL editor, columns/result tabs, root creation and CAS-guarded cross-connector subviews. |
+| Explorer | Shared native/remote metadata: connector/schema/table discovery, SQL editor, columns/result tabs, root creation and CAS-guarded cross-connector subviews. |
 | Skills | Metadata namespace drafts/files, revision history, CAS, publication, and component-owned inventory. The optional host renderer is a named Forge host-content slot. |
 | Security, Reader Builder | Shared Forge widgets composed by metadata, including policy review, SQL/graph authoring and protected dialogs. |
 
@@ -65,7 +65,7 @@ or API tests alone are not proof of visual parity.
 ## Native consolidation progress
 
 The native shell now renders the published Overview, Connectors, Namespaces,
-Runtime, Schema Browser, Skills, and Components catalog (`window://datastudio/component-catalog`) windows.
+Runtime, Explorer, Skills, and Components catalog (`window://datastudio/component-catalog`) windows.
 The expert `components` resource remains a separate Forge version/source editor.
 Input, output and predicate authoring dialogs also use metadata windows. Reader
 Builder, Security, policy review and the preview harness now use shared Forge

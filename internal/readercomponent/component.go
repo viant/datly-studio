@@ -53,6 +53,9 @@ func Compile(holder reflect.Type, packageName string, inputType, outputType refl
 	if err != nil {
 		return nil, dexec.ComponentTarget{}, err
 	}
+	// Predicates may bind the same trusted connector used by the reader (for
+	// example, to resolve namespace-role SQL for the selected dialect).
+	registration.Capabilities.Connector = connector
 	target := dexec.ComponentTarget{Component: component.Key}
 	if len(component.Routes) > 0 && component.Routes[0] != nil {
 		target.Route = spec.RouteRef{Method: component.Routes[0].Method, Path: component.Routes[0].Path}

@@ -775,3 +775,6 @@ body { margin: 0; min-width: 320px; background: #f4f7fb; }
 .studio-workspace-panel[hidden] { display:none; }
 
 .studio-workspace-content, .studio-workspace-content > .forge-window-content-root { display:flex; flex-direction:column; flex:1 1 auto; min-width:0; min-height:0; }
+
+.studio-explorer-sql-dialog { width:min(1100px, calc(100vw - 32px)); max-height:calc(100dvh - 32px); }
+.studio-explorer-sql-dialog .bp6-dialog-body { overflow:auto; max-height:calc(100dvh - 170px); }
