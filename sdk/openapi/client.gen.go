@@ -34,6 +34,19 @@ type Input092de1a1aa148d7f76a45d866e2aba4a800ba8a33379ccd1537c3e3699762324 struc
 	Query  *string `json:"query,omitempty"`
 }
 
+// Input16e880b7e1336bc65f022f03876990c2b5f1454881ea2bbd6c7292cc1f91f5c7 defines model for Input_16e880b7e1336bc65f022f03876990c2b5f1454881ea2bbd6c7292cc1f91f5c7.
+type Input16e880b7e1336bc65f022f03876990c2b5f1454881ea2bbd6c7292cc1f91f5c7 struct {
+	BeforeId    *int64  `json:"beforeId,omitempty"`
+	From        *string `json:"from,omitempty"`
+	Id          *int64  `json:"id,omitempty"`
+	Limit       *int64  `json:"limit,omitempty"`
+	NamespaceId *string `json:"namespaceId,omitempty"`
+	Status      *string `json:"status,omitempty"`
+	Subject     *string `json:"subject,omitempty"`
+	To          *string `json:"to,omitempty"`
+	ToolName    *string `json:"toolName,omitempty"`
+}
+
 // Input18be64dee76ccbb1b565145615d071eb94fd5ef5e084ad249271599e217706c8 defines model for Input_18be64dee76ccbb1b565145615d071eb94fd5ef5e084ad249271599e217706c8.
 type Input18be64dee76ccbb1b565145615d071eb94fd5ef5e084ad249271599e217706c8 struct {
 	Id      *string `json:"id,omitempty"`
@@ -121,6 +134,19 @@ type Input4c3d58d8e922b5abbd65732f09a81d45874f0f7555537fd9607035bfecb9f26c struc
 	Sql   *string        `json:"sql,omitempty"`
 }
 
+// Input5376879923223066d44a504078b601c9acf8f628f9b9b8e57f2a2a4afe791409 defines model for Input_5376879923223066d44a504078b601c9acf8f628f9b9b8e57f2a2a4afe791409.
+type Input5376879923223066d44a504078b601c9acf8f628f9b9b8e57f2a2a4afe791409 struct {
+	BeforeId    *int64  `json:"beforeId,omitempty"`
+	From        *string `json:"from,omitempty"`
+	Id          *int64  `json:"id,omitempty"`
+	Limit       *int64  `json:"limit,omitempty"`
+	NamespaceId *string `json:"namespaceId,omitempty"`
+	Status      *string `json:"status,omitempty"`
+	Subject     *string `json:"subject,omitempty"`
+	To          *string `json:"to,omitempty"`
+	ToolName    *string `json:"toolName,omitempty"`
+}
+
 // Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64 defines model for Input_538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64.
 type Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64 struct {
 	Entity *Input538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64_Entity `json:"entity,omitempty"`
@@ -206,6 +232,19 @@ type Input67a6c41b53b420074072fda4f537183a1752b07f36458625612ede362fd6ed25 struc
 	Kind    *string `json:"kind,omitempty"`
 	Tenant  *string `json:"tenant,omitempty"`
 	Version *string `json:"version,omitempty"`
+}
+
+// Input71f300e4492dfb2e7896f28bb40eda0284261da644ef97b9256cae2ba1742eee defines model for Input_71f300e4492dfb2e7896f28bb40eda0284261da644ef97b9256cae2ba1742eee.
+type Input71f300e4492dfb2e7896f28bb40eda0284261da644ef97b9256cae2ba1742eee struct {
+	BeforeId    *int64  `json:"beforeId,omitempty"`
+	From        *string `json:"from,omitempty"`
+	Id          *int64  `json:"id,omitempty"`
+	Limit       *int64  `json:"limit,omitempty"`
+	NamespaceId *string `json:"namespaceId,omitempty"`
+	Status      *string `json:"status,omitempty"`
+	Subject     *string `json:"subject,omitempty"`
+	To          *string `json:"to,omitempty"`
+	ToolName    *string `json:"toolName,omitempty"`
 }
 
 // Input759a527aaec8ccde2e291d9f7014278794ab6b15717a217294b4ef4bb47511e5 defines model for Input_759a527aaec8ccde2e291d9f7014278794ab6b15717a217294b4ef4bb47511e5.
@@ -531,6 +570,19 @@ type InputF67c0a976b1eec135c3429edd18e7c91d527c0309b4e4c0e2920d3629cffd80e struc
 	Type *string `json:"type,omitempty"`
 }
 
+// InputFbe063b0dffe21f52c69687522edb79a427791ea48e91e51705a9b76a1b8b60b defines model for Input_fbe063b0dffe21f52c69687522edb79a427791ea48e91e51705a9b76a1b8b60b.
+type InputFbe063b0dffe21f52c69687522edb79a427791ea48e91e51705a9b76a1b8b60b struct {
+	BeforeId    *int64  `json:"beforeId,omitempty"`
+	From        *string `json:"from,omitempty"`
+	Id          *int64  `json:"id,omitempty"`
+	Limit       *int64  `json:"limit,omitempty"`
+	NamespaceId *string `json:"namespaceId,omitempty"`
+	Status      *string `json:"status,omitempty"`
+	Subject     *string `json:"subject,omitempty"`
+	To          *string `json:"to,omitempty"`
+	ToolName    *string `json:"toolName,omitempty"`
+}
+
 // InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc defines model for Input_fc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc.
 type InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc struct {
 	Entity *InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc_Entity `json:"entity,omitempty"`
@@ -545,6 +597,14 @@ type InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dcEntity
 // InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc_Entity defines model for InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc.Entity.
 type InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc_Entity struct {
 	union json.RawMessage
+}
+
+// Output0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3 defines model for Output_0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3.
+type Output0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3 struct {
+	Id      string `json:"id"`
+	Kind    string `json:"kind"`
+	Tenant  string `json:"tenant"`
+	Version string `json:"version"`
 }
 
 // Output056a233e996244d253928b99e6335fa0dfcab4b0aa7e8ffd7a088546a10a6442 defines model for Output_056a233e996244d253928b99e6335fa0dfcab4b0aa7e8ffd7a088546a10a6442.
@@ -591,6 +651,14 @@ type Output0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa stru
 	Status             string    `json:"status"`
 }
 
+// Output0d489bb6e8d34088f812c6b2a93a0c83b9a5f8fd2ac13b17094145376c09065b defines model for Output_0d489bb6e8d34088f812c6b2a93a0c83b9a5f8fd2ac13b17094145376c09065b.
+type Output0d489bb6e8d34088f812c6b2a93a0c83b9a5f8fd2ac13b17094145376c09065b struct {
+	Id      string `json:"id"`
+	Kind    string `json:"kind"`
+	Tenant  string `json:"tenant"`
+	Version string `json:"version"`
+}
+
 // Output1d9bf0079b94d75e2b9b7b33bb81b13886a46428db871596012139c64cc1a4d6 defines model for Output_1d9bf0079b94d75e2b9b7b33bb81b13886a46428db871596012139c64cc1a4d6.
 type Output1d9bf0079b94d75e2b9b7b33bb81b13886a46428db871596012139c64cc1a4d6 struct {
 	Code     string  `json:"code"`
@@ -629,10 +697,63 @@ type Output2631f895e856b9edb7a880ef06b76a2fcfcf0dc9d13eff46223625680e9a9c89 stru
 	Revision int64                                                                              `json:"revision"`
 }
 
+// Output2914a64d6f54333c61713839f0d41e0bc4a70208751189288a2870c3ee2496f9 defines model for Output_2914a64d6f54333c61713839f0d41e0bc4a70208751189288a2870c3ee2496f9.
+type Output2914a64d6f54333c61713839f0d41e0bc4a70208751189288a2870c3ee2496f9 struct {
+	ClientIp          string    `json:"clientIp"`
+	ComponentId       *string   `json:"componentId,omitempty"`
+	DurationMs        int64     `json:"durationMs"`
+	Id                int64     `json:"id"`
+	NamespaceId       string    `json:"namespaceId"`
+	Request           *string   `json:"request,omitempty"`
+	Response          *string   `json:"response,omitempty"`
+	ResponseTruncated bool      `json:"responseTruncated"`
+	StartedAt         time.Time `json:"startedAt"`
+	Status            string    `json:"status"`
+	Subject           string    `json:"subject"`
+	ToolName          string    `json:"toolName"`
+}
+
+// Output32c4d843c350375fa1807b89e7db16553000af864bad1017ad3662f2db1c9b64 defines model for Output_32c4d843c350375fa1807b89e7db16553000af864bad1017ad3662f2db1c9b64.
+type Output32c4d843c350375fa1807b89e7db16553000af864bad1017ad3662f2db1c9b64 struct {
+	ClientIp          string    `json:"clientIp"`
+	ComponentId       *string   `json:"componentId,omitempty"`
+	DurationMs        int64     `json:"durationMs"`
+	Id                int64     `json:"id"`
+	NamespaceId       string    `json:"namespaceId"`
+	Request           *string   `json:"request,omitempty"`
+	Response          *string   `json:"response,omitempty"`
+	ResponseTruncated bool      `json:"responseTruncated"`
+	StartedAt         time.Time `json:"startedAt"`
+	Status            string    `json:"status"`
+	Subject           string    `json:"subject"`
+	ToolName          string    `json:"toolName"`
+}
+
 // Output3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243 defines model for Output_3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243.
 type Output3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243 struct {
 	Id   string `json:"id"`
 	Type string `json:"type"`
+}
+
+// Output41c3b19ac03c771407eb0e4c05284c0e7c1997324fd4198bdf3fd31fa8d96c5d defines model for Output_41c3b19ac03c771407eb0e4c05284c0e7c1997324fd4198bdf3fd31fa8d96c5d.
+type Output41c3b19ac03c771407eb0e4c05284c0e7c1997324fd4198bdf3fd31fa8d96c5d struct {
+	Archive     *[]byte                                                                   `json:"archive,omitempty"`
+	CanManage   bool                                                                      `json:"canManage"`
+	CanView     bool                                                                      `json:"canView"`
+	ComponentId *string                                                                   `json:"componentId,omitempty"`
+	Count       *int64                                                                    `json:"count,omitempty"`
+	Dropped     int                                                                       `json:"dropped"`
+	Effective   bool                                                                      `json:"effective"`
+	Enabled     bool                                                                      `json:"enabled"`
+	Failed      int                                                                       `json:"failed"`
+	Filename    *string                                                                   `json:"filename,omitempty"`
+	Items       *[]OutputEc5ca322e57ac033e6183e7ca87a4dc5a2dba0223eb08b4a914e37bb9e628b8e `json:"items,omitempty"`
+	MediaType   *string                                                                   `json:"mediaType,omitempty"`
+	NamespaceId string                                                                    `json:"namespaceId"`
+	NextId      *int64                                                                    `json:"nextId,omitempty"`
+	ToolName    *string                                                                   `json:"toolName,omitempty"`
+	Truncated   *bool                                                                     `json:"truncated,omitempty"`
+	ViewerRole  string                                                                    `json:"viewerRole"`
 }
 
 // Output449a47a8e9ea6ae974f687ac5b55486e7e726cc8043ed75e896c8b78c8b99391 defines model for Output_449a47a8e9ea6ae974f687ac5b55486e7e726cc8043ed75e896c8b78c8b99391.
@@ -664,11 +785,20 @@ type Output4cf988a4800a68fa7db9d130c60eed0b35369d4c3fc9465e70d61b648bd34b6d stru
 
 // Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68 defines model for Output_4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68.
 type Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68 struct {
-	ExplicitAcl bool                                                                   `json:"explicitAcl"`
-	Inherited   bool                                                                   `json:"inherited"`
-	Public      bool                                                                   `json:"public"`
-	Published   bool                                                                   `json:"published"`
-	Resource    Output8d5c08b62d8e11c6b7d0078039d84942d60e13602d2b6b0b25ee4e92d1e8a0bb `json:"resource"`
+	DefaultResource *Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68_DefaultResource `json:"defaultResource,omitempty"`
+	ExplicitAcl     bool                                                                                    `json:"explicitAcl"`
+	Inherited       bool                                                                                    `json:"inherited"`
+	Public          bool                                                                                    `json:"public"`
+	Published       bool                                                                                    `json:"published"`
+	Resource        Output8d5c08b62d8e11c6b7d0078039d84942d60e13602d2b6b0b25ee4e92d1e8a0bb                  `json:"resource"`
+}
+
+// Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68DefaultResource1 defines model for Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68.DefaultResource.1.
+type Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68DefaultResource1 = map[string]interface{}
+
+// Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68_DefaultResource defines model for Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68.DefaultResource.
+type Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68_DefaultResource struct {
+	union json.RawMessage
 }
 
 // Output4fd42d5ac7e58fb29e7ad717b49ad43d1aa3d0a32c5e034148c82bc6baebd5a8 defines model for Output_4fd42d5ac7e58fb29e7ad717b49ad43d1aa3d0a32c5e034148c82bc6baebd5a8.
@@ -735,6 +865,48 @@ type Output61da40565eeef7dc1d2d89123fe0033e9b0f0809a66731851fd56301624b0dc5 stru
 	Kind    string `json:"kind"`
 	Tenant  string `json:"tenant"`
 	Version string `json:"version"`
+}
+
+// Output644e4d09ac406b19e7277668f0cfaf1136c2f29c1d92a8e6af44cadd8ca60cd1 defines model for Output_644e4d09ac406b19e7277668f0cfaf1136c2f29c1d92a8e6af44cadd8ca60cd1.
+type Output644e4d09ac406b19e7277668f0cfaf1136c2f29c1d92a8e6af44cadd8ca60cd1 struct {
+	Archive     *[]byte                                                                   `json:"archive,omitempty"`
+	CanManage   bool                                                                      `json:"canManage"`
+	CanView     bool                                                                      `json:"canView"`
+	ComponentId *string                                                                   `json:"componentId,omitempty"`
+	Count       *int64                                                                    `json:"count,omitempty"`
+	Dropped     int                                                                       `json:"dropped"`
+	Effective   bool                                                                      `json:"effective"`
+	Enabled     bool                                                                      `json:"enabled"`
+	Failed      int                                                                       `json:"failed"`
+	Filename    *string                                                                   `json:"filename,omitempty"`
+	Items       *[]Output32c4d843c350375fa1807b89e7db16553000af864bad1017ad3662f2db1c9b64 `json:"items,omitempty"`
+	MediaType   *string                                                                   `json:"mediaType,omitempty"`
+	NamespaceId string                                                                    `json:"namespaceId"`
+	NextId      *int64                                                                    `json:"nextId,omitempty"`
+	ToolName    *string                                                                   `json:"toolName,omitempty"`
+	Truncated   *bool                                                                     `json:"truncated,omitempty"`
+	ViewerRole  string                                                                    `json:"viewerRole"`
+}
+
+// Output6e81e11a33076e68bb3d8b58da936317e65e2cb7c08f61adc82433c8705924b4 defines model for Output_6e81e11a33076e68bb3d8b58da936317e65e2cb7c08f61adc82433c8705924b4.
+type Output6e81e11a33076e68bb3d8b58da936317e65e2cb7c08f61adc82433c8705924b4 struct {
+	Archive     *[]byte                                                                   `json:"archive,omitempty"`
+	CanManage   bool                                                                      `json:"canManage"`
+	CanView     bool                                                                      `json:"canView"`
+	ComponentId *string                                                                   `json:"componentId,omitempty"`
+	Count       *int64                                                                    `json:"count,omitempty"`
+	Dropped     int                                                                       `json:"dropped"`
+	Effective   bool                                                                      `json:"effective"`
+	Enabled     bool                                                                      `json:"enabled"`
+	Failed      int                                                                       `json:"failed"`
+	Filename    *string                                                                   `json:"filename,omitempty"`
+	Items       *[]Output2914a64d6f54333c61713839f0d41e0bc4a70208751189288a2870c3ee2496f9 `json:"items,omitempty"`
+	MediaType   *string                                                                   `json:"mediaType,omitempty"`
+	NamespaceId string                                                                    `json:"namespaceId"`
+	NextId      *int64                                                                    `json:"nextId,omitempty"`
+	ToolName    *string                                                                   `json:"toolName,omitempty"`
+	Truncated   *bool                                                                     `json:"truncated,omitempty"`
+	ViewerRole  string                                                                    `json:"viewerRole"`
 }
 
 // Output73a8618e3debe1667f7aafcc74ab58dec2fbd11494bb2e579aae6d2b58f205f3 defines model for Output_73a8618e3debe1667f7aafcc74ab58dec2fbd11494bb2e579aae6d2b58f205f3.
@@ -817,6 +989,27 @@ type Output8d5c08b62d8e11c6b7d0078039d84942d60e13602d2b6b0b25ee4e92d1e8a0bb stru
 type Output8f9918cf758d7828437221562274ce1aadfefc572741f4475e8f668456c57771 struct {
 	Id   string `json:"id"`
 	Type string `json:"type"`
+}
+
+// Output9425f0d8184856b1b2b82b988287de19f673178a98f7561041bfddbdcaad307a defines model for Output_9425f0d8184856b1b2b82b988287de19f673178a98f7561041bfddbdcaad307a.
+type Output9425f0d8184856b1b2b82b988287de19f673178a98f7561041bfddbdcaad307a struct {
+	Archive     *[]byte                                                                   `json:"archive,omitempty"`
+	CanManage   bool                                                                      `json:"canManage"`
+	CanView     bool                                                                      `json:"canView"`
+	ComponentId *string                                                                   `json:"componentId,omitempty"`
+	Count       *int64                                                                    `json:"count,omitempty"`
+	Dropped     int                                                                       `json:"dropped"`
+	Effective   bool                                                                      `json:"effective"`
+	Enabled     bool                                                                      `json:"enabled"`
+	Failed      int                                                                       `json:"failed"`
+	Filename    *string                                                                   `json:"filename,omitempty"`
+	Items       *[]OutputEc019e5831c65213d65f292f7835722945f552d76106b1cf7c1608395564458e `json:"items,omitempty"`
+	MediaType   *string                                                                   `json:"mediaType,omitempty"`
+	NamespaceId string                                                                    `json:"namespaceId"`
+	NextId      *int64                                                                    `json:"nextId,omitempty"`
+	ToolName    *string                                                                   `json:"toolName,omitempty"`
+	Truncated   *bool                                                                     `json:"truncated,omitempty"`
+	ViewerRole  string                                                                    `json:"viewerRole"`
 }
 
 // Output9e0f449c95fcfb4ee0592ebadf3e17adccbdc32fa89bf50ab9ae8511c2009041 defines model for Output_9e0f449c95fcfb4ee0592ebadf3e17adccbdc32fa89bf50ab9ae8511c2009041.
@@ -942,16 +1135,25 @@ type OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Rule
 
 // OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac defines model for Output_c59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac.
 type OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac struct {
-	ExplicitAcl bool                                                                      `json:"explicitAcl"`
-	Id          string                                                                    `json:"id"`
-	Inherited   bool                                                                      `json:"inherited"`
-	Kind        string                                                                    `json:"kind"`
-	Name        string                                                                    `json:"name"`
-	OwnerName   *string                                                                   `json:"ownerName,omitempty"`
-	Public      bool                                                                      `json:"public"`
-	Published   bool                                                                      `json:"published"`
-	Resource    OutputD14887150549e1252499c617aacbd48b5aab3c262cdf2f62fa7fbaf8f1edbaa2    `json:"resource"`
-	Versions    *[]Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68 `json:"versions,omitempty"`
+	DefaultResource *OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac_DefaultResource `json:"defaultResource,omitempty"`
+	ExplicitAcl     bool                                                                                    `json:"explicitAcl"`
+	Id              string                                                                                  `json:"id"`
+	Inherited       bool                                                                                    `json:"inherited"`
+	Kind            string                                                                                  `json:"kind"`
+	Name            string                                                                                  `json:"name"`
+	OwnerName       *string                                                                                 `json:"ownerName,omitempty"`
+	Public          bool                                                                                    `json:"public"`
+	Published       bool                                                                                    `json:"published"`
+	Resource        OutputD14887150549e1252499c617aacbd48b5aab3c262cdf2f62fa7fbaf8f1edbaa2                  `json:"resource"`
+	Versions        *[]Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68               `json:"versions,omitempty"`
+}
+
+// OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79acDefaultResource1 defines model for OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac.DefaultResource.1.
+type OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79acDefaultResource1 = map[string]interface{}
+
+// OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac_DefaultResource defines model for OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac.DefaultResource.
+type OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac_DefaultResource struct {
+	union json.RawMessage
 }
 
 // OutputC97b7b59c0c99ea53e6472f7e79baee9949576f0200174c238c8b514fcc51b69 defines model for Output_c97b7b59c0c99ea53e6472f7e79baee9949576f0200174c238c8b514fcc51b69.
@@ -1045,6 +1247,38 @@ type OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8Rule1
 // OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Rule defines model for OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8.Rule.
 type OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Rule struct {
 	union json.RawMessage
+}
+
+// OutputEc019e5831c65213d65f292f7835722945f552d76106b1cf7c1608395564458e defines model for Output_ec019e5831c65213d65f292f7835722945f552d76106b1cf7c1608395564458e.
+type OutputEc019e5831c65213d65f292f7835722945f552d76106b1cf7c1608395564458e struct {
+	ClientIp          string    `json:"clientIp"`
+	ComponentId       *string   `json:"componentId,omitempty"`
+	DurationMs        int64     `json:"durationMs"`
+	Id                int64     `json:"id"`
+	NamespaceId       string    `json:"namespaceId"`
+	Request           *string   `json:"request,omitempty"`
+	Response          *string   `json:"response,omitempty"`
+	ResponseTruncated bool      `json:"responseTruncated"`
+	StartedAt         time.Time `json:"startedAt"`
+	Status            string    `json:"status"`
+	Subject           string    `json:"subject"`
+	ToolName          string    `json:"toolName"`
+}
+
+// OutputEc5ca322e57ac033e6183e7ca87a4dc5a2dba0223eb08b4a914e37bb9e628b8e defines model for Output_ec5ca322e57ac033e6183e7ca87a4dc5a2dba0223eb08b4a914e37bb9e628b8e.
+type OutputEc5ca322e57ac033e6183e7ca87a4dc5a2dba0223eb08b4a914e37bb9e628b8e struct {
+	ClientIp          string    `json:"clientIp"`
+	ComponentId       *string   `json:"componentId,omitempty"`
+	DurationMs        int64     `json:"durationMs"`
+	Id                int64     `json:"id"`
+	NamespaceId       string    `json:"namespaceId"`
+	Request           *string   `json:"request,omitempty"`
+	Response          *string   `json:"response,omitempty"`
+	ResponseTruncated bool      `json:"responseTruncated"`
+	StartedAt         time.Time `json:"startedAt"`
+	Status            string    `json:"status"`
+	Subject           string    `json:"subject"`
+	ToolName          string    `json:"toolName"`
 }
 
 // OutputEf553e0e338a00cf70d43289eb53e588abb65348804f4defbd8fd2ea4e5691ee defines model for Output_ef553e0e338a00cf70d43289eb53e588abb65348804f4defbd8fd2ea4e5691ee.
@@ -2989,6 +3223,7 @@ type WireB3c67af74df5a4d366c8f3a628801f07d89d1eefd88ebad70d3689f8970629db_Items_
 
 // WireB42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044 defines model for Wire_b42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044.
 type WireB42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044 struct {
+	AuditEnabled         bool      `json:"auditEnabled"`
 	ComponentName        string    `json:"componentName"`
 	ComponentScope       string    `json:"componentScope"`
 	CreatedAt            time.Time `json:"createdAt"`
@@ -3059,6 +3294,7 @@ type WireBb9c83695ae936c7031ab2428c59ccda35a4e34af9e6662a945012782ac921e1 struct
 
 // WireBba07f0bad61cd85885417e1c20c5cff98c1ebf3abb205fd71b51c6069ea161c defines model for Wire_bba07f0bad61cd85885417e1c20c5cff98c1ebf3abb205fd71b51c6069ea161c.
 type WireBba07f0bad61cd85885417e1c20c5cff98c1ebf3abb205fd71b51c6069ea161c struct {
+	AuditEnabled         bool      `json:"auditEnabled"`
 	ComponentName        string    `json:"componentName"`
 	ComponentScope       string    `json:"componentScope"`
 	CreatedAt            time.Time `json:"createdAt"`
@@ -3791,6 +4027,62 @@ type POSTv1studiosdkaclUpsertParams struct {
 	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
+// POSTv1studiosdkauditConfigureJSONBody defines parameters for POSTv1studiosdkauditConfigure.
+type POSTv1studiosdkauditConfigureJSONBody struct {
+	ComponentId *string                                                                `json:"componentId,omitempty"`
+	Enabled     *bool                                                                  `json:"enabled,omitempty"`
+	Filter      *InputFbe063b0dffe21f52c69687522edb79a427791ea48e91e51705a9b76a1b8b60b `json:"filter,omitempty"`
+	MaxRows     *int64                                                                 `json:"maxRows,omitempty"`
+	ToolName    *string                                                                `json:"toolName,omitempty"`
+}
+
+// POSTv1studiosdkauditConfigureParams defines parameters for POSTv1studiosdkauditConfigure.
+type POSTv1studiosdkauditConfigureParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
+// POSTv1studiosdkauditExportJSONBody defines parameters for POSTv1studiosdkauditExport.
+type POSTv1studiosdkauditExportJSONBody struct {
+	ComponentId *string                                                                `json:"componentId,omitempty"`
+	Enabled     *bool                                                                  `json:"enabled,omitempty"`
+	Filter      *Input71f300e4492dfb2e7896f28bb40eda0284261da644ef97b9256cae2ba1742eee `json:"filter,omitempty"`
+	MaxRows     *int64                                                                 `json:"maxRows,omitempty"`
+	ToolName    *string                                                                `json:"toolName,omitempty"`
+}
+
+// POSTv1studiosdkauditExportParams defines parameters for POSTv1studiosdkauditExport.
+type POSTv1studiosdkauditExportParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
+// POSTv1studiosdkauditListJSONBody defines parameters for POSTv1studiosdkauditList.
+type POSTv1studiosdkauditListJSONBody struct {
+	ComponentId *string                                                                `json:"componentId,omitempty"`
+	Enabled     *bool                                                                  `json:"enabled,omitempty"`
+	Filter      *Input5376879923223066d44a504078b601c9acf8f628f9b9b8e57f2a2a4afe791409 `json:"filter,omitempty"`
+	MaxRows     *int64                                                                 `json:"maxRows,omitempty"`
+	ToolName    *string                                                                `json:"toolName,omitempty"`
+}
+
+// POSTv1studiosdkauditListParams defines parameters for POSTv1studiosdkauditList.
+type POSTv1studiosdkauditListParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
+// POSTv1studiosdkauditStatusJSONBody defines parameters for POSTv1studiosdkauditStatus.
+type POSTv1studiosdkauditStatusJSONBody struct {
+	ComponentId *string                                                                `json:"componentId,omitempty"`
+	Enabled     *bool                                                                  `json:"enabled,omitempty"`
+	Filter      *Input16e880b7e1336bc65f022f03876990c2b5f1454881ea2bbd6c7292cc1f91f5c7 `json:"filter,omitempty"`
+	MaxRows     *int64                                                                 `json:"maxRows,omitempty"`
+	ToolName    *string                                                                `json:"toolName,omitempty"`
+}
+
+// POSTv1studiosdkauditStatusParams defines parameters for POSTv1studiosdkauditStatus.
+type POSTv1studiosdkauditStatusParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
 // POSTv1studiosdkauthorizationPredicatesCreateJSONBody defines parameters for POSTv1studiosdkauthorizationPredicatesCreate.
 type POSTv1studiosdkauthorizationPredicatesCreateJSONBody struct {
 	Alias       *string   `json:"alias,omitempty"`
@@ -4448,6 +4740,18 @@ type POSTv1studiosdkaclListJSONRequestBody POSTv1studiosdkaclListJSONBody
 // POSTv1studiosdkaclUpsertJSONRequestBody defines body for POSTv1studiosdkaclUpsert for application/json ContentType.
 type POSTv1studiosdkaclUpsertJSONRequestBody POSTv1studiosdkaclUpsertJSONBody
 
+// POSTv1studiosdkauditConfigureJSONRequestBody defines body for POSTv1studiosdkauditConfigure for application/json ContentType.
+type POSTv1studiosdkauditConfigureJSONRequestBody POSTv1studiosdkauditConfigureJSONBody
+
+// POSTv1studiosdkauditExportJSONRequestBody defines body for POSTv1studiosdkauditExport for application/json ContentType.
+type POSTv1studiosdkauditExportJSONRequestBody POSTv1studiosdkauditExportJSONBody
+
+// POSTv1studiosdkauditListJSONRequestBody defines body for POSTv1studiosdkauditList for application/json ContentType.
+type POSTv1studiosdkauditListJSONRequestBody POSTv1studiosdkauditListJSONBody
+
+// POSTv1studiosdkauditStatusJSONRequestBody defines body for POSTv1studiosdkauditStatus for application/json ContentType.
+type POSTv1studiosdkauditStatusJSONRequestBody POSTv1studiosdkauditStatusJSONBody
+
 // POSTv1studiosdkauthorizationPredicatesCreateJSONRequestBody defines body for POSTv1studiosdkauthorizationPredicatesCreate for application/json ContentType.
 type POSTv1studiosdkauthorizationPredicatesCreateJSONRequestBody POSTv1studiosdkauthorizationPredicatesCreateJSONBody
 
@@ -5083,6 +5387,68 @@ func (t *Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260_
 	return err
 }
 
+// AsOutput0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3 returns the union data inside the Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68_DefaultResource as a Output0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3
+func (t Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68_DefaultResource) AsOutput0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3() (Output0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3, error) {
+	var body Output0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutput0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3 overwrites any union data inside the Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68_DefaultResource as the provided Output0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3
+func (t *Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68_DefaultResource) FromOutput0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3(v Output0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutput0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3 performs a merge with any union data inside the Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68_DefaultResource, using the provided Output0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3
+func (t *Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68_DefaultResource) MergeOutput0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3(v Output0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsOutput4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68DefaultResource1 returns the union data inside the Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68_DefaultResource as a Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68DefaultResource1
+func (t Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68_DefaultResource) AsOutput4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68DefaultResource1() (Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68DefaultResource1, error) {
+	var body Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68DefaultResource1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutput4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68DefaultResource1 overwrites any union data inside the Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68_DefaultResource as the provided Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68DefaultResource1
+func (t *Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68_DefaultResource) FromOutput4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68DefaultResource1(v Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68DefaultResource1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutput4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68DefaultResource1 performs a merge with any union data inside the Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68_DefaultResource, using the provided Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68DefaultResource1
+func (t *Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68_DefaultResource) MergeOutput4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68DefaultResource1(v Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68DefaultResource1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68_DefaultResource) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68_DefaultResource) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsOutput819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f returns the union data inside the Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89_Entity as a Output819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f
 func (t Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89_Entity) AsOutput819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f() (Output819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f, error) {
 	var body Output819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f
@@ -5451,6 +5817,68 @@ func (t OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_R
 }
 
 func (t *OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Rule) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsOutput0d489bb6e8d34088f812c6b2a93a0c83b9a5f8fd2ac13b17094145376c09065b returns the union data inside the OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac_DefaultResource as a Output0d489bb6e8d34088f812c6b2a93a0c83b9a5f8fd2ac13b17094145376c09065b
+func (t OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac_DefaultResource) AsOutput0d489bb6e8d34088f812c6b2a93a0c83b9a5f8fd2ac13b17094145376c09065b() (Output0d489bb6e8d34088f812c6b2a93a0c83b9a5f8fd2ac13b17094145376c09065b, error) {
+	var body Output0d489bb6e8d34088f812c6b2a93a0c83b9a5f8fd2ac13b17094145376c09065b
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutput0d489bb6e8d34088f812c6b2a93a0c83b9a5f8fd2ac13b17094145376c09065b overwrites any union data inside the OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac_DefaultResource as the provided Output0d489bb6e8d34088f812c6b2a93a0c83b9a5f8fd2ac13b17094145376c09065b
+func (t *OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac_DefaultResource) FromOutput0d489bb6e8d34088f812c6b2a93a0c83b9a5f8fd2ac13b17094145376c09065b(v Output0d489bb6e8d34088f812c6b2a93a0c83b9a5f8fd2ac13b17094145376c09065b) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutput0d489bb6e8d34088f812c6b2a93a0c83b9a5f8fd2ac13b17094145376c09065b performs a merge with any union data inside the OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac_DefaultResource, using the provided Output0d489bb6e8d34088f812c6b2a93a0c83b9a5f8fd2ac13b17094145376c09065b
+func (t *OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac_DefaultResource) MergeOutput0d489bb6e8d34088f812c6b2a93a0c83b9a5f8fd2ac13b17094145376c09065b(v Output0d489bb6e8d34088f812c6b2a93a0c83b9a5f8fd2ac13b17094145376c09065b) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsOutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79acDefaultResource1 returns the union data inside the OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac_DefaultResource as a OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79acDefaultResource1
+func (t OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac_DefaultResource) AsOutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79acDefaultResource1() (OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79acDefaultResource1, error) {
+	var body OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79acDefaultResource1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79acDefaultResource1 overwrites any union data inside the OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac_DefaultResource as the provided OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79acDefaultResource1
+func (t *OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac_DefaultResource) FromOutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79acDefaultResource1(v OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79acDefaultResource1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79acDefaultResource1 performs a merge with any union data inside the OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac_DefaultResource, using the provided OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79acDefaultResource1
+func (t *OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac_DefaultResource) MergeOutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79acDefaultResource1(v OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79acDefaultResource1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac_DefaultResource) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac_DefaultResource) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -9847,6 +10275,38 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	POSTv1studiosdkaclUpsert(ctx context.Context, params *POSTv1studiosdkaclUpsertParams, body POSTv1studiosdkaclUpsertJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// POSTv1studiosdkauditConfigureWithBody performs a POST /v1/studio/sdk/audit.configure (the `POSTv1studiosdkauditConfigure` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkauditConfigureWithBody(ctx context.Context, params *POSTv1studiosdkauditConfigureParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkauditConfigure performs a POST /v1/studio/sdk/audit.configure (the `POSTv1studiosdkauditConfigure` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkauditConfigure(ctx context.Context, params *POSTv1studiosdkauditConfigureParams, body POSTv1studiosdkauditConfigureJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkauditExportWithBody performs a POST /v1/studio/sdk/audit.export (the `POSTv1studiosdkauditExport` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkauditExportWithBody(ctx context.Context, params *POSTv1studiosdkauditExportParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkauditExport performs a POST /v1/studio/sdk/audit.export (the `POSTv1studiosdkauditExport` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkauditExport(ctx context.Context, params *POSTv1studiosdkauditExportParams, body POSTv1studiosdkauditExportJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkauditListWithBody performs a POST /v1/studio/sdk/audit.list (the `POSTv1studiosdkauditList` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkauditListWithBody(ctx context.Context, params *POSTv1studiosdkauditListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkauditList performs a POST /v1/studio/sdk/audit.list (the `POSTv1studiosdkauditList` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkauditList(ctx context.Context, params *POSTv1studiosdkauditListParams, body POSTv1studiosdkauditListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkauditStatusWithBody performs a POST /v1/studio/sdk/audit.status (the `POSTv1studiosdkauditStatus` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkauditStatusWithBody(ctx context.Context, params *POSTv1studiosdkauditStatusParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkauditStatus performs a POST /v1/studio/sdk/audit.status (the `POSTv1studiosdkauditStatus` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkauditStatus(ctx context.Context, params *POSTv1studiosdkauditStatusParams, body POSTv1studiosdkauditStatusJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// POSTv1studiosdkauthorizationPredicatesCreateWithBody performs a POST /v1/studio/sdk/authorization_predicates.create (the `POSTv1studiosdkauthorizationPredicatesCreate` operationId) request,
 	// with any type of body and a specified content type.
 	POSTv1studiosdkauthorizationPredicatesCreateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -10815,6 +11275,118 @@ func (c *Client) POSTv1studiosdkaclUpsertWithBody(ctx context.Context, params *P
 // Takes a body of the `application/json` content type.
 func (c *Client) POSTv1studiosdkaclUpsert(ctx context.Context, params *POSTv1studiosdkaclUpsertParams, body POSTv1studiosdkaclUpsertJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPOSTv1studiosdkaclUpsertRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkauditConfigureWithBody performs a POST /v1/studio/sdk/audit.configure (the `POSTv1studiosdkauditConfigure` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkauditConfigureWithBody(ctx context.Context, params *POSTv1studiosdkauditConfigureParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkauditConfigureRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkauditConfigure performs a POST /v1/studio/sdk/audit.configure (the `POSTv1studiosdkauditConfigure` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkauditConfigure(ctx context.Context, params *POSTv1studiosdkauditConfigureParams, body POSTv1studiosdkauditConfigureJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkauditConfigureRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkauditExportWithBody performs a POST /v1/studio/sdk/audit.export (the `POSTv1studiosdkauditExport` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkauditExportWithBody(ctx context.Context, params *POSTv1studiosdkauditExportParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkauditExportRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkauditExport performs a POST /v1/studio/sdk/audit.export (the `POSTv1studiosdkauditExport` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkauditExport(ctx context.Context, params *POSTv1studiosdkauditExportParams, body POSTv1studiosdkauditExportJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkauditExportRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkauditListWithBody performs a POST /v1/studio/sdk/audit.list (the `POSTv1studiosdkauditList` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkauditListWithBody(ctx context.Context, params *POSTv1studiosdkauditListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkauditListRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkauditList performs a POST /v1/studio/sdk/audit.list (the `POSTv1studiosdkauditList` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkauditList(ctx context.Context, params *POSTv1studiosdkauditListParams, body POSTv1studiosdkauditListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkauditListRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkauditStatusWithBody performs a POST /v1/studio/sdk/audit.status (the `POSTv1studiosdkauditStatus` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkauditStatusWithBody(ctx context.Context, params *POSTv1studiosdkauditStatusParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkauditStatusRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkauditStatus performs a POST /v1/studio/sdk/audit.status (the `POSTv1studiosdkauditStatus` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkauditStatus(ctx context.Context, params *POSTv1studiosdkauditStatusParams, body POSTv1studiosdkauditStatusJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkauditStatusRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -13495,6 +14067,226 @@ func NewPOSTv1studiosdkaclUpsertRequestWithBody(server string, params *POSTv1stu
 	}
 
 	operationPath := fmt.Sprintf("/v1/studio/sdk/acl.upsert")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkauditConfigureRequest calls the generic POSTv1studiosdkauditConfigure builder with application/json body
+func NewPOSTv1studiosdkauditConfigureRequest(server string, params *POSTv1studiosdkauditConfigureParams, body POSTv1studiosdkauditConfigureJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkauditConfigureRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkauditConfigureRequestWithBody constructs an http.Request for the POSTv1studiosdkauditConfigure method, with any body, and a specified content type
+func NewPOSTv1studiosdkauditConfigureRequestWithBody(server string, params *POSTv1studiosdkauditConfigureParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/audit.configure")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkauditExportRequest calls the generic POSTv1studiosdkauditExport builder with application/json body
+func NewPOSTv1studiosdkauditExportRequest(server string, params *POSTv1studiosdkauditExportParams, body POSTv1studiosdkauditExportJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkauditExportRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkauditExportRequestWithBody constructs an http.Request for the POSTv1studiosdkauditExport method, with any body, and a specified content type
+func NewPOSTv1studiosdkauditExportRequestWithBody(server string, params *POSTv1studiosdkauditExportParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/audit.export")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkauditListRequest calls the generic POSTv1studiosdkauditList builder with application/json body
+func NewPOSTv1studiosdkauditListRequest(server string, params *POSTv1studiosdkauditListParams, body POSTv1studiosdkauditListJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkauditListRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkauditListRequestWithBody constructs an http.Request for the POSTv1studiosdkauditList method, with any body, and a specified content type
+func NewPOSTv1studiosdkauditListRequestWithBody(server string, params *POSTv1studiosdkauditListParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/audit.list")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkauditStatusRequest calls the generic POSTv1studiosdkauditStatus builder with application/json body
+func NewPOSTv1studiosdkauditStatusRequest(server string, params *POSTv1studiosdkauditStatusParams, body POSTv1studiosdkauditStatusJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkauditStatusRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkauditStatusRequestWithBody constructs an http.Request for the POSTv1studiosdkauditStatus method, with any body, and a specified content type
+func NewPOSTv1studiosdkauditStatusRequestWithBody(server string, params *POSTv1studiosdkauditStatusParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/audit.status")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -17115,6 +17907,46 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	POSTv1studiosdkaclUpsertWithResponse(ctx context.Context, params *POSTv1studiosdkaclUpsertParams, body POSTv1studiosdkaclUpsertJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkaclUpsertResponse, error)
 
+	// POSTv1studiosdkauditConfigureWithBodyWithResponse performs a POST /v1/studio/sdk/audit.configure (the `POSTv1studiosdkauditConfigure` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkauditConfigureWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkauditConfigureParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauditConfigureResponse, error)
+
+	// POSTv1studiosdkauditConfigureWithResponse performs a POST /v1/studio/sdk/audit.configure (the `POSTv1studiosdkauditConfigure` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkauditConfigureWithResponse(ctx context.Context, params *POSTv1studiosdkauditConfigureParams, body POSTv1studiosdkauditConfigureJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauditConfigureResponse, error)
+
+	// POSTv1studiosdkauditExportWithBodyWithResponse performs a POST /v1/studio/sdk/audit.export (the `POSTv1studiosdkauditExport` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkauditExportWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkauditExportParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauditExportResponse, error)
+
+	// POSTv1studiosdkauditExportWithResponse performs a POST /v1/studio/sdk/audit.export (the `POSTv1studiosdkauditExport` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkauditExportWithResponse(ctx context.Context, params *POSTv1studiosdkauditExportParams, body POSTv1studiosdkauditExportJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauditExportResponse, error)
+
+	// POSTv1studiosdkauditListWithBodyWithResponse performs a POST /v1/studio/sdk/audit.list (the `POSTv1studiosdkauditList` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkauditListWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkauditListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauditListResponse, error)
+
+	// POSTv1studiosdkauditListWithResponse performs a POST /v1/studio/sdk/audit.list (the `POSTv1studiosdkauditList` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkauditListWithResponse(ctx context.Context, params *POSTv1studiosdkauditListParams, body POSTv1studiosdkauditListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauditListResponse, error)
+
+	// POSTv1studiosdkauditStatusWithBodyWithResponse performs a POST /v1/studio/sdk/audit.status (the `POSTv1studiosdkauditStatus` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkauditStatusWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkauditStatusParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauditStatusResponse, error)
+
+	// POSTv1studiosdkauditStatusWithResponse performs a POST /v1/studio/sdk/audit.status (the `POSTv1studiosdkauditStatus` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkauditStatusWithResponse(ctx context.Context, params *POSTv1studiosdkauditStatusParams, body POSTv1studiosdkauditStatusJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauditStatusResponse, error)
+
 	// POSTv1studiosdkauthorizationPredicatesCreateWithBodyWithResponse performs a POST /v1/studio/sdk/authorization_predicates.create (the `POSTv1studiosdkauthorizationPredicatesCreate` operationId) request,
 	// with any type of body and a specified content type.
 	//
@@ -18340,6 +19172,170 @@ func (r POSTv1studiosdkaclUpsertResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r POSTv1studiosdkaclUpsertResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkauditConfigureResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Output6e81e11a33076e68bb3d8b58da936317e65e2cb7c08f61adc82433c8705924b4
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkauditConfigureResponse) GetJSON200() *Output6e81e11a33076e68bb3d8b58da936317e65e2cb7c08f61adc82433c8705924b4 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkauditConfigureResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkauditConfigureResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkauditConfigureResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkauditConfigureResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkauditExportResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Output41c3b19ac03c771407eb0e4c05284c0e7c1997324fd4198bdf3fd31fa8d96c5d
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkauditExportResponse) GetJSON200() *Output41c3b19ac03c771407eb0e4c05284c0e7c1997324fd4198bdf3fd31fa8d96c5d {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkauditExportResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkauditExportResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkauditExportResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkauditExportResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkauditListResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Output644e4d09ac406b19e7277668f0cfaf1136c2f29c1d92a8e6af44cadd8ca60cd1
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkauditListResponse) GetJSON200() *Output644e4d09ac406b19e7277668f0cfaf1136c2f29c1d92a8e6af44cadd8ca60cd1 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkauditListResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkauditListResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkauditListResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkauditListResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkauditStatusResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Output9425f0d8184856b1b2b82b988287de19f673178a98f7561041bfddbdcaad307a
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkauditStatusResponse) GetJSON200() *Output9425f0d8184856b1b2b82b988287de19f673178a98f7561041bfddbdcaad307a {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkauditStatusResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkauditStatusResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkauditStatusResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkauditStatusResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -21463,6 +22459,94 @@ func (c *ClientWithResponses) POSTv1studiosdkaclUpsertWithResponse(ctx context.C
 	return ParsePOSTv1studiosdkaclUpsertResponse(rsp)
 }
 
+// POSTv1studiosdkauditConfigureWithBodyWithResponse performs a POST /v1/studio/sdk/audit.configure (the `POSTv1studiosdkauditConfigure` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkauditConfigureWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkauditConfigureParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauditConfigureResponse, error) {
+	rsp, err := c.POSTv1studiosdkauditConfigureWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkauditConfigureResponse(rsp)
+}
+
+// POSTv1studiosdkauditConfigureWithResponse performs a POST /v1/studio/sdk/audit.configure (the `POSTv1studiosdkauditConfigure` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkauditConfigureWithResponse(ctx context.Context, params *POSTv1studiosdkauditConfigureParams, body POSTv1studiosdkauditConfigureJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauditConfigureResponse, error) {
+	rsp, err := c.POSTv1studiosdkauditConfigure(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkauditConfigureResponse(rsp)
+}
+
+// POSTv1studiosdkauditExportWithBodyWithResponse performs a POST /v1/studio/sdk/audit.export (the `POSTv1studiosdkauditExport` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkauditExportWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkauditExportParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauditExportResponse, error) {
+	rsp, err := c.POSTv1studiosdkauditExportWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkauditExportResponse(rsp)
+}
+
+// POSTv1studiosdkauditExportWithResponse performs a POST /v1/studio/sdk/audit.export (the `POSTv1studiosdkauditExport` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkauditExportWithResponse(ctx context.Context, params *POSTv1studiosdkauditExportParams, body POSTv1studiosdkauditExportJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauditExportResponse, error) {
+	rsp, err := c.POSTv1studiosdkauditExport(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkauditExportResponse(rsp)
+}
+
+// POSTv1studiosdkauditListWithBodyWithResponse performs a POST /v1/studio/sdk/audit.list (the `POSTv1studiosdkauditList` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkauditListWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkauditListParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauditListResponse, error) {
+	rsp, err := c.POSTv1studiosdkauditListWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkauditListResponse(rsp)
+}
+
+// POSTv1studiosdkauditListWithResponse performs a POST /v1/studio/sdk/audit.list (the `POSTv1studiosdkauditList` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkauditListWithResponse(ctx context.Context, params *POSTv1studiosdkauditListParams, body POSTv1studiosdkauditListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauditListResponse, error) {
+	rsp, err := c.POSTv1studiosdkauditList(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkauditListResponse(rsp)
+}
+
+// POSTv1studiosdkauditStatusWithBodyWithResponse performs a POST /v1/studio/sdk/audit.status (the `POSTv1studiosdkauditStatus` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkauditStatusWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkauditStatusParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauditStatusResponse, error) {
+	rsp, err := c.POSTv1studiosdkauditStatusWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkauditStatusResponse(rsp)
+}
+
+// POSTv1studiosdkauditStatusWithResponse performs a POST /v1/studio/sdk/audit.status (the `POSTv1studiosdkauditStatus` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkauditStatusWithResponse(ctx context.Context, params *POSTv1studiosdkauditStatusParams, body POSTv1studiosdkauditStatusJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauditStatusResponse, error) {
+	rsp, err := c.POSTv1studiosdkauditStatus(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkauditStatusResponse(rsp)
+}
+
 // POSTv1studiosdkauthorizationPredicatesCreateWithBodyWithResponse performs a POST /v1/studio/sdk/authorization_predicates.create (the `POSTv1studiosdkauthorizationPredicatesCreate` operationId) request,
 // with any type of body and a specified content type.
 //
@@ -23322,6 +24406,110 @@ func ParsePOSTv1studiosdkaclUpsertResponse(rsp *http.Response) (*POSTv1studiosdk
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest Wire013ce40651897a22f1d0c9d5a29a86362333458b72c57acb30fa03a2473f08c6
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkauditConfigureResponse parses an HTTP response from a POSTv1studiosdkauditConfigureWithResponse call
+func ParsePOSTv1studiosdkauditConfigureResponse(rsp *http.Response) (*POSTv1studiosdkauditConfigureResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkauditConfigureResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Output6e81e11a33076e68bb3d8b58da936317e65e2cb7c08f61adc82433c8705924b4
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkauditExportResponse parses an HTTP response from a POSTv1studiosdkauditExportWithResponse call
+func ParsePOSTv1studiosdkauditExportResponse(rsp *http.Response) (*POSTv1studiosdkauditExportResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkauditExportResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Output41c3b19ac03c771407eb0e4c05284c0e7c1997324fd4198bdf3fd31fa8d96c5d
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkauditListResponse parses an HTTP response from a POSTv1studiosdkauditListWithResponse call
+func ParsePOSTv1studiosdkauditListResponse(rsp *http.Response) (*POSTv1studiosdkauditListResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkauditListResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Output644e4d09ac406b19e7277668f0cfaf1136c2f29c1d92a8e6af44cadd8ca60cd1
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkauditStatusResponse parses an HTTP response from a POSTv1studiosdkauditStatusWithResponse call
+func ParsePOSTv1studiosdkauditStatusResponse(rsp *http.Response) (*POSTv1studiosdkauditStatusResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkauditStatusResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Output9425f0d8184856b1b2b82b988287de19f673178a98f7561041bfddbdcaad307a
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

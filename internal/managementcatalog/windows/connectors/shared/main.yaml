@@ -61,7 +61,7 @@ window:
                 badge: {field: lastTestStatus, replaceValue: true, valueMap: {passed: passed, failed: failed}, toneMap: {passed: positive, failed: danger}}
               - {id: test, name: '', type: button, icon: refresh, tooltip: Test, width: 36, cellProperties: {aria-label: Test}, on: [{event: onClick, handler: management.testConnector}]}
               - {id: edit, name: '', type: button, icon: edit, tooltip: Edit, width: 36, cellProperties: {aria-label: Edit}, on: [{event: onClick, handler: management.editConnector}]}
-              - {id: toggle, name: '', type: button, icon: power, tooltip: Activate or disable, width: 36, cellProperties: {aria-label: Activate or disable}, on: [{event: onClick, handler: management.toggleConnector}]}
+              - {id: toggle, name: Connection, type: button, icon: power, pressedWhenValue: active, tooltip: Activate or disable, width: 100, cellProperties: {aria-label: Activate or disable}, on: [{event: onValue, handler: management.connectorStatus}, {event: onProperties, handler: management.connectorState}, {event: onClick, handler: management.toggleConnector}]}
               - {id: delete, name: '', type: button, icon: trash, tooltip: Delete, width: 36, cellProperties: {aria-label: Delete, intent: danger}, on: [{event: onClick, handler: management.confirmDeleteConnector}]}
   dialogs:
     - id: connector-delete

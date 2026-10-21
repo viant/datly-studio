@@ -3,6 +3,7 @@ package versionrun
 import (
 	"context"
 	"fmt"
+	"github.com/viant/datly-studio/internal/namespacepolicy"
 	"os"
 	"reflect"
 	"strings"
@@ -117,7 +118,14 @@ func Authorized(ctx context.Context, session xhandler.Session, claims *jwt.Claim
 			return nil, preview.Dynamic{}, nil, publisherguard.PublicError(401, "ACL bearer credential is required")
 		}
 		credential.Bearer = strings.TrimSpace(strings.TrimPrefix(header.Authorization, "Bearer "))
-		engine.Access = &access.Service{Store: &accessstore.Store{DB: db, Invoker: invoker}, Provider: aclProvider}
+		reader, err := namespacepolicy.NewReader(db)
+		if err != nil {
+			cancel()
+			return nil, preview.Dynamic{}, nil, publisherguard.PublicError(503, "Namespace policy reader is unavailable")
+		}
+		release := cancel
+		cancel = func() { release(); _ = reader.Close(context.WithoutCancel(ctx)) }
+		engine.Access = &access.Service{Store: &namespacepolicy.Store{Store: &accessstore.Store{DB: db, Invoker: invoker}, Namespace: reader.Namespace}, Provider: aclProvider}
 		engine.AccessTenant = strings.TrimSpace(os.Getenv("STUDIO_ACCESS_TENANT"))
 	}
 	executionCtx = sdk.WithVerifiedCredential(executionCtx, credential)

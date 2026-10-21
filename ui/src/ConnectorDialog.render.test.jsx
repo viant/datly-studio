@@ -25,3 +25,21 @@ test('connector lookup entries save independently of the editable driver',async(
  expect(input.options.discovery).toEqual({catalogs:['my-project'],schemas:[{catalog:'my-project',name:'analytics'}]});
  expect(input).not.toHaveProperty('dsnTemplate');expect(input).not.toHaveProperty('secretRef');
 });
+test('connector lifecycle button shows green On and red Off after server refresh',async()=>{
+ const user=userEvent.setup();let status='active',etag=4;
+ const api={readManagementResource:async()=>managementResourceFixture('connectors'),fetchMCPDataSource:vi.fn(async(source,input)=>{
+  if(source.backend.method==='studio.sdk.connectors.list')return {items:[{...saved,status,etag}]};
+  if(source.backend.method==='studio.sdk.connectors.disable'){status='disabled';etag++;return {...saved,status,etag};}
+  if(source.backend.method==='studio.sdk.connectors.activate'){status='active';etag++;return {...saved,status,etag};}
+  throw new Error('Unexpected '+source.backend.method);
+ })};
+ render(<ManagementWindowRuntime api={api} uri="window://datastudio/connectors" instanceKey={'connector-state-'+(++serial)}/>);
+ const toggle=await screen.findByRole('button',{name:'Activate or disable',exact:true});
+ expect(toggle.getAttribute('aria-pressed')).toBe('true');expect(toggle.textContent).toContain('On');expect(toggle.className).toContain('intent-success');
+ await user.click(toggle);
+ await waitFor(()=>expect(screen.getByRole('button',{name:'Activate or disable',exact:true}).textContent).toContain('Off'));
+ expect(screen.getByRole('button',{name:'Activate or disable',exact:true}).className).toContain('intent-danger');expect(screen.getByRole('button',{name:'Activate or disable',exact:true}).getAttribute('aria-pressed')).toBe('false');
+ await user.click(screen.getByRole('button',{name:'Activate or disable',exact:true}));
+ await waitFor(()=>expect(screen.getByRole('button',{name:'Activate or disable',exact:true}).textContent).toContain('On'));
+ expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.connectors.activate')[1]).toEqual({name:saved.name,etag:5});
+});

@@ -16,6 +16,7 @@ const nativeFactoryChildEnv = "STUDIO_NATIVE_ACCESS_FACTORY_CHILD"
 
 type nativeFactoryProvider struct {
 	subject string
+	roles   []string
 	calls   int
 }
 
@@ -24,7 +25,7 @@ func (p *nativeFactoryProvider) Resolve(ctx context.Context) (authz.Facts, error
 	if oauth.Bearer(ctx) == "" {
 		return authz.Facts{}, authz.ErrIdentityDenied
 	}
-	return authz.Facts{Subject: p.subject, Issuer: "test", Tenant: "tenant", ValidUntil: time.Now().Add(time.Minute)}, nil
+	return authz.Facts{Subject: p.subject, Roles: p.roles, Issuer: "test", Tenant: "tenant", ValidUntil: time.Now().Add(time.Minute)}, nil
 }
 
 // NativeFactorySubprocess returns nil in the parent process after it has run

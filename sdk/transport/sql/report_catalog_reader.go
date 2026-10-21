@@ -90,7 +90,7 @@ func (t *Transport) readReportCatalogTx(ctx context.Context, tx *sql.Tx, request
 		if row == nil || request.ID != "" && row.Id != request.ID {
 			return nil, fmt.Errorf("report catalog returned a mismatched row")
 		}
-		item := &sdk.Component{ID: row.Id, Namespace: row.Namespace, Slug: row.Slug, Title: row.Title,
+		item := &sdk.Component{ID: row.Id, AuditEnabled: row.AuditEnabled, Namespace: row.Namespace, Slug: row.Slug, Title: row.Title,
 			OwnerID: row.OwnerId, OwnerPackage: sdk.OwnerPackageSegment(row.OwnerId), Status: row.Status,
 			DefaultConnectorName: row.DefaultConnectorName, ComponentScope: row.ComponentScope,
 			ComponentName: row.ComponentName, CurrentDraftVersion: row.CurrentDraftVersion,

@@ -23,6 +23,7 @@ import (
 	"github.com/viant/datly-studio/app/datlycmd"
 	"github.com/viant/datly-studio/app/hostconfig"
 	"github.com/viant/datly-studio/app/studioapi"
+	"github.com/viant/datly-studio/audit"
 	"github.com/viant/datly-studio/internal/runtimeadmin"
 	"github.com/viant/datly-studio/runtime/accessprovider"
 	runtimehost "github.com/viant/datly-studio/runtime/host"
@@ -146,6 +147,22 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	if provider == nil {
 		return errors.New("Studio host identity provider is required")
 	}
+	viewerRole := "AUDIT_VIEWER"
+	if config.Audit != nil && config.Audit.ViewerRole != "" {
+		viewerRole = config.Audit.ViewerRole
+	}
+	if viewerRole == "*" || strings.TrimSpace(viewerRole) != viewerRole {
+		return errors.New("Audit.ViewerRole must be an exact role name")
+	}
+	auditService := &audit.Service{DB: db, Provider: provider, ViewerRole: viewerRole}
+	defer auditService.Close(context.Background())
+	auditService.Logger = audit.New(audit.Config{Enabled: true, Sanitize: audit.RedactJSON, Identity: auditService.Identity, Policy: auditService.Policy,
+		OnError: func(error) { fmt.Fprintln(options.Diagnostics, "MCP audit persistence failed") }, OnDrop: func() { fmt.Fprintln(options.Diagnostics, "MCP audit queue full") }}, &audit.SQLSink{DB: db})
+	defer func() {
+		drain, stop := context.WithTimeout(context.Background(), 10*time.Second)
+		defer stop()
+		_ = auditService.Logger.Close(drain)
+	}()
 	factory := func(context.Context, accessprovider.Config) (authz.Provider, error) { return provider, nil }
 	options.Native.AccessProviderFactory = factory
 	if options.Native.Authoring == nil {
@@ -205,8 +222,9 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		if nativeMiddleware != nil {
 			next = nativeMiddleware(next)
 		}
+		next = auditService.Logger.Wrap(next)
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			next.ServeHTTP(w, r.WithContext(runtimeadmin.WithClient(r.Context(), control)))
+			next.ServeHTTP(w, r.WithContext(audit.WithService(runtimeadmin.WithClient(r.Context(), control), auditService)))
 		})
 	}
 	native, err := datlycmd.New(ctx, &nativeConfig, options.Native, options.Diagnostics)
@@ -241,7 +259,7 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	if tenant == "" {
 		tenant = "studio"
 	}
-	runtimeConfig := runtimehost.Config{Const: config.Const, InProcess: true, RootDir: config.BaseDir, ModulePath: authoringConfig.ModulePath,
+	runtimeConfig := runtimehost.Config{ToolCallAudit: auditService.Logger, Const: config.Const, InProcess: true, RootDir: config.BaseDir, ModulePath: authoringConfig.ModulePath,
 		NamespaceMCPMode: "shared", HTTP: runtimehost.Listener{Address: "127.0.0.1:0"}, MCP: runtimehost.Listener{Address: namespaceAddress},
 		Studio:         runtimehost.Studio{Driver: catalog.Driver, DSN: catalog.DSN},
 		Authentication: runtimehost.Authentication{DefaultMode: "required", Issuer: issuer, Audience: audience, ConnectionExport: config.NamespaceConnectionExport, Providers: config.NamespaceOAuthProviders},

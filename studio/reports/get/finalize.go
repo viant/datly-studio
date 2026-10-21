@@ -34,6 +34,7 @@ func (output *ReportGetOutput) Finalize(ctx context.Context) error {
 	output.OwnerId = report.OwnerId
 	output.OwnerPackage = sdk.OwnerPackageSegment(report.OwnerId)
 	output.Status = report.Status
+	output.AuditEnabled = report.AuditEnabled
 	output.DefaultConnectorName = report.DefaultConnectorName
 	output.ComponentScope = report.ComponentScope
 	output.ComponentName = report.ComponentName

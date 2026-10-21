@@ -20,23 +20,25 @@ type CatalogInput struct {
 	Offset int    `json:"offset,omitempty"`
 }
 type CatalogVersion struct {
-	Published   bool           `json:"published"`
-	Resource    authz.Resource `json:"resource"`
-	Public      bool           `json:"public"`
-	ExplicitACL bool           `json:"explicitAcl"`
-	Inherited   bool           `json:"inherited"`
+	DefaultResource *authz.Resource `json:"defaultResource,omitempty"`
+	Published       bool            `json:"published"`
+	Resource        authz.Resource  `json:"resource"`
+	Public          bool            `json:"public"`
+	ExplicitACL     bool            `json:"explicitAcl"`
+	Inherited       bool            `json:"inherited"`
 }
 type CatalogEntry struct {
-	Published   bool             `json:"published"`
-	Versions    []CatalogVersion `json:"versions,omitempty"`
-	Public      bool             `json:"public"`
-	ExplicitACL bool             `json:"explicitAcl"`
-	Kind        string           `json:"kind"`
-	ID          string           `json:"id"`
-	Name        string           `json:"name"`
-	OwnerName   string           `json:"ownerName,omitempty"`
-	Resource    authz.Resource   `json:"resource"`
-	Inherited   bool             `json:"inherited"`
+	DefaultResource *authz.Resource  `json:"defaultResource,omitempty"`
+	Published       bool             `json:"published"`
+	Versions        []CatalogVersion `json:"versions,omitempty"`
+	Public          bool             `json:"public"`
+	ExplicitACL     bool             `json:"explicitAcl"`
+	Kind            string           `json:"kind"`
+	ID              string           `json:"id"`
+	Name            string           `json:"name"`
+	OwnerName       string           `json:"ownerName,omitempty"`
+	Resource        authz.Resource   `json:"resource"`
+	Inherited       bool             `json:"inherited"`
 }
 type CatalogPage struct {
 	Items   []CatalogEntry `json:"items"`
@@ -47,6 +49,7 @@ type catalogStore interface {
 }
 
 type Catalog struct {
+	DefaultPolicy   func(context.Context, *catalog.Entry, authz.Facts) (*authz.Document, error)
 	Source          catalogStore
 	Service         *authz.Service
 	AuthoringAccess func(context.Context, string) bool
@@ -128,7 +131,26 @@ func (s *Catalog) List(ctx context.Context, in CatalogInput) (CatalogPage, error
 				groups[key] = entry
 				order = append(order, key)
 			}
-			entry.Versions = append(entry.Versions, CatalogVersion{Published: row.Published, Resource: resource, Public: CatalogPublic(row), ExplicitACL: row.HasPolicy, Inherited: row.Kind != row.PolicyKind || row.ID != row.PolicyID})
+			var defaultResource *authz.Resource
+			public := CatalogPublic(row)
+			if !row.HasPolicy && s.DefaultPolicy != nil {
+				document, err := s.DefaultPolicy(ctx, row, facts)
+				if err != nil {
+					return page, err
+				}
+				if document != nil {
+					defaultResource = &document.Resource
+					effective := *row
+					effective.HasPolicy = true
+					payload, err := json.Marshal(document.Policies)
+					if err != nil {
+						return page, err
+					}
+					effective.PolicyJSON = string(payload)
+					public = CatalogPublic(&effective)
+				}
+			}
+			entry.Versions = append(entry.Versions, CatalogVersion{DefaultResource: defaultResource, Published: row.Published, Resource: resource, Public: public, ExplicitACL: row.HasPolicy, Inherited: row.Kind != row.PolicyKind || row.ID != row.PolicyID})
 		}
 		if len(rows) < 100 {
 			break
@@ -146,6 +168,7 @@ func (s *Catalog) List(ctx context.Context, in CatalogInput) (CatalogPage, error
 			return entry.Versions[i].Resource.Version > entry.Versions[j].Resource.Version
 		})
 		current := entry.Versions[0]
+		entry.DefaultResource = current.DefaultResource
 		entry.Published = current.Published
 		entry.Resource = current.Resource
 		entry.Public = current.Public

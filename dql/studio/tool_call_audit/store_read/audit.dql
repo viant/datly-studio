@@ -1,0 +1,29 @@
+#package('studio/tool_call_audit/store_read')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/tool-call-audit/read', 'GET'))
+#setting($_ = $internal(true))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('events', 'sql/read.sql'))
+
+#define($_ = $NamespaceId<string>(query/namespaceId).Required())
+#define($_ = $ToolName<string>(query/toolName).Optional().WithPredicate(0,'equal','a','tool_name'))
+#define($_ = $Subject<string>(query/subject).Optional().WithPredicate(0,'equal','a','jwt_sub'))
+#define($_ = $Status<string>(query/status).Optional().WithPredicate(0,'equal','a','status'))
+#define($_ = $From<time.Time>(query/from).Optional().WithPredicate(0,'greater_or_equal','a','started_at'))
+#define($_ = $To<time.Time>(query/to).Optional().WithPredicate(0,'less_or_equal','a','started_at'))
+#define($_ = $BeforeId<int64>(query/beforeId).Optional().WithPredicate(0,'less_than','a','id'))
+#define($_ = $Id<int64>(query/id).Optional().WithPredicate(0,'equal','a','id'))
+#define($_ = $IncludeBodies<bool>(query/includeBodies).Required())
+#define($_ = $Events<[]*Event>(output/view))
+
+SELECT events.*, type(events,'Event'),
+ CAST(events.id AS int64), CAST(events.started_at AS time.Time),
+ CAST(events.request_body AS []byte), CAST(events.response_body AS []byte),
+ CAST(events.response_truncated AS bool), set_limit(events,101)
+FROM (${embed:sql/read.sql}) events
+WHERE 1=1
+
+ORDER BY events.id DESC

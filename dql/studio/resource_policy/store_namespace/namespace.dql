@@ -1,0 +1,15 @@
+#package('studio/resource_policy/store_namespace')
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/resource-policy-store/namespace', 'GET'))
+#setting($_ = $internal(true))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('namespace', 'sql/read.sql'))
+#define($_ = $NamespaceId<string>(query/namespaceId).Required())
+#define($_ = $ComponentId<string>(query/componentId).Required())
+#define($_ = $Namespaces<[]*Namespace>(output/view))
+SELECT namespace.*, type(namespace,'Namespace'),
+ CAST(namespace.namespace_id AS string), CAST(namespace.owner_id AS string), CAST(namespace.status AS string), CAST(namespace.roles_json AS *string), set_limit(namespace,2)
+FROM (${embed:sql/read.sql}) namespace
+WHERE 1=1

@@ -15,6 +15,8 @@
   const rows=list(result);ds('catalog_rows').setCollection(rows.slice(0,25));set('catalog_state',{offset,hasNext:rows.length>25,outcome:''});
  };
  return {
+  openAudit:props=>run('catalog_state',async()=>{const row=props.row||ds('catalog_rows').peekSelection()?.selected;if(!row)return;const setting=await call('catalog_audit_status',{componentId:row.id});set('catalog_audit',{...setting,title:row.title,outcome:setting.effective?'Auditing is active.':'Auditing is disabled for this component or namespace.'});popup('component-audit');}),
+  saveAudit:()=>run('catalog_audit',async()=>{const form=get('catalog_audit');const setting=await call('catalog_audit_configure',{componentId:form.componentId,enabled:Boolean(form.enabled)});set('catalog_audit',{...setting,outcome:setting.effective?'Auditing enabled.':'Auditing disabled for this component or namespace.'});await refresh(get('catalog_state').offset||0);}),
   cancel:()=>{context.services.hostWindow.setDirty?.(false);return true;},
   initialize:()=>run('catalog_state',async()=>{
    set('catalog_state',{namespaceUnlocked:!params().currentNamespace,offset:0,hasNext:false});

@@ -87,7 +87,7 @@ test('schema search locks inspect until the current metadata request completes',
 });
 
 test('project and schema lookups remain editable and preserve connector configuration',async()=>{
- const user=userEvent.setup(),{api}=mount({connectorOptions:{pool:3}});await load(user);
+ const user=userEvent.setup(),{api,dirty}=mount({connectorOptions:{pool:3}});await load(user);
  await user.click(screen.getByRole('button',{name:'Edit lookup lists',exact:true}));
  await screen.findByRole('dialog',{name:'Project and schema lookup lists'});
  await user.click(screen.getByRole('button',{name:'Add project / catalog',exact:true}));
@@ -97,6 +97,7 @@ test('project and schema lookups remain editable and preserve connector configur
  await user.type(screen.getByRole('textbox',{name:'Schema / dataset 2',exact:true}),'analytics');
  await user.click(screen.getByRole('button',{name:'Save lookup lists',exact:true}));
  await waitFor(()=>expect(screen.queryByRole('dialog')).toBeNull());
+ expect(dirty).toHaveBeenLastCalledWith(false);
  const saved=api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.connectors.update')[1];
  expect(saved).toMatchObject({name:'main',input:{etag:4,options:{pool:3,discovery:{catalogs:['main','other-project'],schemas:[{catalog:'main',name:'sales'},{catalog:'other-project',name:'analytics'}]}}}});
  expect(saved.input).not.toHaveProperty('driver');expect(saved.input).not.toHaveProperty('dsnTemplate');expect(saved.input).not.toHaveProperty('secretRef');

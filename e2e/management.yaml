@@ -44,7 +44,7 @@ pipeline:
       action: http/endpoint:listen
       host: 127.0.0.1
       port: 19795
-      replace: false
+      replace: true
       rotate: true
       indexKeys: [Method, URL, Header.Authorization]
       baseDirectory: ${runDir}/idp
@@ -99,9 +99,20 @@ pipeline:
   discovery:
     action: run
     request: '@management/discovery'
+  auditContention:
+    action: exec:run
+    target: $target
+    strictCompletion: true
+    checkError: true
+    timeoutMs: 60000
+    commands:
+      - python3 ${appPath}/e2e/scripts/audit_contention.py ${runDir}
   namespaceManagers:
     action: run
     request: '@management/namespace-managers'
+  audit:
+    action: run
+    request: '@management/audit-log'
   stop:
     action: process:stop
     target: $target

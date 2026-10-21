@@ -1,0 +1,147 @@
+init:
+  auditDate: $FormatTime('now', 'yyyy-MM-dd')
+# Synthetic role E2E_AUDIT_VIEWER grants viewing, independently of ROLE_ANALYST management.
+pipeline:
+  namespace:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.namespaces.create
+    arguments: {name: audit.e2e, title: Audit E2E, visibility: public, managerRoles: [ROLE_ANALYST]}
+  component:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.components.create
+    arguments:
+      namespaceId: ${namespace.StructuredContent.namespaceId}
+      namespace: audit.e2e
+      slug: audit-reader
+      title: Audit Reader
+      defaultConnectorName: discovery_scoped
+  managerTogglesInUI:
+    action: webdriver:run
+    sessionID: localhost:4446
+    autoStart: false
+    browser: chrome
+    failureArtifacts: {directory: '${runDir}/artifacts/audit'}
+    commands:
+      - page.goto("${browserURL}/e2e/login")
+      - page.getByLabel("Test identity").selectOption("no-exposure")
+      - page.getByRole("button", "Sign in").click()
+      - page.getByLabel("Current namespace").selectOption("${namespace.StructuredContent.namespaceId}")
+      - page.locator("xpath://aside[contains(@class,'studio-sidebar')]//button[normalize-space(.)='Audit log']").click()
+      - expect(page.getByLabel("Namespace audit enabled")).toBeEnabled(15000)
+      - page.locator("label[for='enabled']").click()
+      - page.getByRole("button", "Save audit setting").click()
+      - expect(page.getByText("Audit setting saved.")).toBeVisible(15000)
+  disabledPersisted:
+    action: dsunit:query
+    datastore: studio
+    SQL: SELECT audit_enabled FROM namespaces WHERE name='audit.e2e'
+    expect:
+      - {audit_enabled: 0}
+  managerReenables:
+    action: webdriver:run
+    sessionID: localhost:4446
+    autoStart: false
+    browser: chrome
+    failureArtifacts: {directory: '${runDir}/artifacts/audit'}
+    commands:
+      - page.locator("label[for='enabled']").click()
+      - page.getByRole("button", "Save audit setting").click()
+      - expect(page.getByText("Audit setting saved.")).toBeVisible(15000)
+  componentFlagInUI:
+    action: webdriver:run
+    sessionID: localhost:4446
+    autoStart: false
+    browser: chrome
+    failureArtifacts: {directory: '${runDir}/artifacts/audit'}
+    commands:
+      - page.locator("xpath://aside[contains(@class,'studio-sidebar')]//button[normalize-space(.)='Components']").click()
+      - page.getByRole("button", "Component audit settings").click()
+      - expect(page.getByLabel("Audit enabled")).toBeEnabled(15000)
+      - page.locator("label[for='enabled']").click()
+      - page.getByRole("button", "Save audit setting").click()
+      - expect(page.getByLabel("Outcome")).toHaveValue("Auditing disabled for this component or namespace.",15000)
+      - page.locator("xpath://div[contains(@class,'bp6-dialog-footer')]//button[normalize-space(.)='Close']").click()
+  componentFlagPersisted:
+    action: dsunit:query
+    datastore: studio
+    SQL: SELECT audit_enabled FROM components WHERE slug='audit-reader'
+    expect:
+      - {audit_enabled: 0}
+  managerCannotRead:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: ${runDir}/no-exposure.token
+    '@name': studio.sdk.audit.list
+    arguments: {namespaceId: '${namespace.StructuredContent.namespaceId}'}
+    allowToolError: true
+    allowProtocolError: true
+  readDenied:
+    action: validator:assert
+    actual: $managerCannotRead
+    expect: {IsError: true}
+  viewerInspectsInUI:
+    action: webdriver:run
+    sessionID: localhost:4446
+    autoStart: false
+    browser: chrome
+    failureArtifacts: {directory: '${runDir}/artifacts/audit'}
+    commands:
+      - page.goto("${browserURL}/e2e/login")
+      - page.getByLabel("Test identity").selectOption("audit-viewer")
+      - page.getByRole("button", "Sign in").click()
+      - page.getByLabel("Current namespace").selectOption("${namespace.StructuredContent.namespaceId}")
+      - page.locator("xpath://aside[contains(@class,'studio-sidebar')]//button[normalize-space(.)='Audit log']").click()
+      - expect(page.getByLabel("Namespace audit enabled")).toHaveAttribute("disabled","true",15000)
+      - page.getByLabel("From").fill("${auditDate} 00:00")
+      - page.getByLabel("To").fill("${auditDate} 23:59")
+      - page.getByLabel("Tool name").fill("audit.configuration")
+      - page.getByRole("button", "Filter calls").click()
+      - expect(page.locator("xpath://div[@data-forge-container-id='audit-events']//tbody/tr")).toHaveCount(3,15000)
+  viewerCannotToggle:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: ${runDir}/audit-viewer.token
+    '@name': studio.sdk.audit.configure
+    arguments: {namespaceId: '${namespace.StructuredContent.namespaceId}', enabled: false}
+    allowToolError: true
+    allowProtocolError: true
+  writeDenied:
+    action: validator:assert
+    actual: $viewerCannotToggle
+    expect: {IsError: true}
+  exportCSV:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: ${runDir}/audit-viewer.token
+    '@name': studio.sdk.audit.export
+    arguments:
+      namespaceId: ${namespace.StructuredContent.namespaceId}
+      filter: {toolName: audit.configuration, subject: no-exposure}
+  csvExportVerified:
+    action: validator:assert
+    actual: $exportCSV.StructuredContent
+    expect: {count: 3, mediaType: 'text/csv; charset=utf-8'}
+  exportDenied:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: ${runDir}/no-exposure.token
+    '@name': studio.sdk.audit.export
+    arguments: {namespaceId: '${namespace.StructuredContent.namespaceId}'}
+    allowToolError: true
+    allowProtocolError: true
+  exportPermissionVerified:
+    action: validator:assert
+    actual: $exportDenied
+    expect: {IsError: true}
+  storedCapture:
+    action: dsunit:query
+    datastore: studio
+    SQL: >-
+      SELECT CASE WHEN COUNT(*)>0 THEN 1 ELSE 0 END AS calls FROM tool_call_audit a JOIN namespaces n ON n.namespace_id=a.namespace_id
+      WHERE n.name='audit.e2e' AND a.request_compression='gzip' AND a.response_original_bytes IS NULL
+    expect:
+      - {calls: 1}

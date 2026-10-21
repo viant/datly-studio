@@ -119,6 +119,15 @@ window:
                 on:
                   - event: onClick
                     handler: management.openComponent
+              - id: audit
+                name: ''
+                type: button
+                icon: history
+                tooltip: Component audit settings
+                cellProperties: {aria-label: Component audit settings}
+                on:
+                  - event: onClick
+                    handler: management.openAudit
               - id: download
                 name: ""
                 type: button
@@ -217,6 +226,30 @@ window:
               dataSourceRef: catalog_create_namespaces
               fetchData: false
   dialogs:
+    - id: component-audit
+      title: Component audit settings
+      className: studio-connector-dialog
+      dataSourceRef: catalog_audit
+      fetchOnOpen: false
+      content:
+        id: component-audit-fields
+        items:
+          - {id: title, label: Component, dataField: title, type: text, readOnly: true}
+          - id: enabled
+            label: Audit enabled
+            dataField: enabled
+            type: checkbox
+            disabledWhen: {selector: canManage, equals: false}
+          - {id: outcome, label: Outcome, dataField: outcome, type: text, readOnly: true}
+      actions:
+        - id: save
+          label: Save audit setting
+          close: false
+          disabledWhen: {selector: canManage, equals: false}
+          on:
+            - event: onClick
+              handler: management.saveAudit
+        - {id: close, label: Close, close: true}
     - id: new-component
       title: New component
       dataSourceRef: catalog_draft
@@ -527,3 +560,18 @@ dataSources:
     cache: *a2
     uniqueKey: *a3
     selectionMode: single
+  catalog_audit:
+    id: catalog_audit
+    cardinality: object
+    backend: {kind: inline, rows: []}
+    cache: {enabled: false}
+  catalog_audit_status:
+    id: catalog_audit_status
+    cardinality: object
+    backend: {kind: mcp_tool, method: studio.sdk.audit.status}
+    cache: {enabled: false}
+  catalog_audit_configure:
+    id: catalog_audit_configure
+    cardinality: object
+    backend: {kind: mcp_tool, method: studio.sdk.audit.configure}
+    cache: {enabled: false}

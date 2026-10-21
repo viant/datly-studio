@@ -131,6 +131,10 @@ GoBootstrap:
     - github.com/viant/datly-studio/studio/report_skill_roots/writer
     - github.com/viant/datly-studio/studio/runtime_generations/reader
     - github.com/viant/datly-studio/studio/runtime_generations/writer
+    - github.com/viant/datly-studio/studio/audit/status
+    - github.com/viant/datly-studio/studio/audit/configure
+    - github.com/viant/datly-studio/studio/audit/list
+    - github.com/viant/datly-studio/studio/audit/export
     - github.com/viant/datly-studio/studio/runtime/status
     - github.com/viant/datly-studio/studio/report_warmup_runs/reader
     - github.com/viant/datly-studio/studio/report_warmup_runs/get

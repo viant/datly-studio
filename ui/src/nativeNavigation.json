@@ -34,6 +34,11 @@
       "icon": "pulse"
     },
     {
+      "id": "audit",
+      "title": "Audit log",
+      "icon": "history"
+    },
+    {
       "id": "skills",
       "title": "Skills",
       "icon": "learning"

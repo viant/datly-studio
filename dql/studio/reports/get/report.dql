@@ -24,6 +24,7 @@
 #define($_ = $Description<string>(output/body).WithTag('json:"description,omitempty"'))
 #define($_ = $OwnerId<string>(output/body).WithTag('json:"ownerId"'))
 #define($_ = $OwnerPackage<string>(output/body).WithTag('json:"ownerPackage"'))
+#define($_ = $AuditEnabled<bool>(output/body).WithTag('json:"auditEnabled"'))
 #define($_ = $Status<string>(output/body).WithTag('json:"status"'))
 #define($_ = $DefaultConnectorName<string>(output/body).WithTag('json:"defaultConnectorName"'))
 #define($_ = $ComponentScope<string>(output/body).WithTag('json:"componentScope"'))
@@ -34,7 +35,7 @@
 #define($_ = $UpdatedAt<time.Time>(output/body).WithTag('json:"updatedAt"'))
 
 SELECT report.*, type(report, 'Report'),
-       CAST(report.id AS string), CAST(report.namespace AS string),
+       CAST(report.audit_enabled AS bool), CAST(report.id AS string), CAST(report.namespace AS string),
        CAST(report.slug AS string), CAST(report.title AS string),
        CAST(report.description AS *string), CAST(report.owner_id AS string),
        CAST(report.owner_package AS string), CAST(report.status AS string),

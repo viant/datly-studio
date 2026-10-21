@@ -2,6 +2,8 @@ package access
 
 import (
 	"context"
+	store "github.com/viant/authz/component/store/sql"
+	"github.com/viant/datly-studio/internal/namespacepolicy"
 	"reflect"
 
 	"github.com/viant/authz"
@@ -165,8 +167,23 @@ func (*authorizationHandler) Exec(ctx context.Context, session xhandler.Session,
 		return err
 	}
 	defer closeStore()
+	if input.Resource.Tenant == "" {
+		facts, err := service.Provider.Resolve(requestCtx)
+		if err != nil {
+			return publicError(403, "Verified policy tenant is required")
+		}
+		input.Resource.Tenant = facts.Tenant
+	}
 	if err := checkResourceNamespace(requestCtx, service, input.NamespaceId, input.Resource, input.Auth, input.Jwt); err != nil {
 		return err
+	}
+	if input.Resource.Kind == "component" {
+		reader, err := namespacepolicy.NewReader(service.Store.(*store.Store).DB)
+		if err != nil {
+			return err
+		}
+		defer reader.Close(context.WithoutCancel(ctx))
+		service.Store = &namespacepolicy.Store{Store: service.Store, Namespace: reader.Namespace}
 	}
 	return sharedapi.NewCheck().Exec(requestCtx, sharedSession(session, service), &sharedapi.CheckInput{JWT: input.Jwt, Resource: input.Resource, Action: input.Action, Selection: input.Selection}, output)
 }

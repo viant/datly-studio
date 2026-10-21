@@ -4,6 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	policygraph "github.com/viant/authz/component/policy/graph"
+	policywriter "github.com/viant/authz/component/policy/writer"
+	"github.com/viant/bindly/locator"
+	"github.com/viant/datly-studio/internal/namespacepolicy"
+	writerhandler "github.com/viant/datly/runtime/handler/writer"
+	"github.com/viant/datly/sql/dml"
+	viewprovider "github.com/viant/datly/sql/reader/provider"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -87,6 +94,12 @@ func TestNativePermissionCatalogNamespaceHTTPAndMCP(t *testing.T) {
 	if err := resources.Register(policyreader.PolicyDatlyResourceNamespace, policyreader.PolicyDatlyResources); err != nil {
 		t.Fatal(err)
 	}
+	if err := resources.Register(policywriter.PolicyDatlyResourceNamespace, policywriter.PolicyDatlyResources); err != nil {
+		t.Fatal(err)
+	}
+	if err := resources.Register(policygraph.GraphDatlyResourceNamespace, policygraph.GraphDatlyResources); err != nil {
+		t.Fatal(err)
+	}
 	connector := &dsql.SQLComponent{DB: db}
 	if err := connector.RegisterConnector("studio", db); err != nil {
 		t.Fatal(err)
@@ -108,6 +121,19 @@ func TestNativePermissionCatalogNamespaceHTTPAndMCP(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+		if len(component.Routes) > 0 && component.Routes[0].Method == "PATCH" {
+			views, err := viewprovider.New(viewprovider.Config{Dependencies: artifact.ViewDependencies, Input: artifact.Input, SQL: connector})
+			if err != nil {
+				t.Fatal(err)
+			}
+			writer, err := writerhandler.New(component, input, output, "patch")
+			if err != nil {
+				t.Fatal(err)
+			}
+			entry := &registry.RegisteredComponent{Component: artifact.Component, Input: artifact.Input, Output: artifact.Output, OutputType: output, Handler: writer, Providers: []locator.Provider{views}, DataSource: dml.Source{DB: db}}
+			entry.Capabilities.Connector = connector
+			return entry
+		}
 		registration := registry.RegisteredComponent{}
 		registration.Capabilities.Connector = connector
 		if handler == nil {
@@ -127,6 +153,8 @@ func TestNativePermissionCatalogNamespaceHTTPAndMCP(t *testing.T) {
 		t.Fatal(err)
 	}
 	entries := []*registry.RegisteredComponent{datatest.AuthRegistration(t, db, jwt.Factory, resources),
+		compile(reflect.TypeFor[policywriter.PolicyComponent](), reflect.TypeFor[policywriter.Input](), reflect.TypeFor[policywriter.Output](), nil),
+		compile(reflect.TypeFor[policygraph.GraphComponent](), reflect.TypeFor[policygraph.Input](), reflect.TypeFor[policygraph.Output](), nil),
 		compile(reflect.TypeFor[policyreader.PolicyComponent](), reflect.TypeFor[policyreader.Input](), reflect.TypeFor[policyreader.Output](), nil),
 		compile(reflect.TypeFor[policycatalog.Component](), reflect.TypeFor[policycatalog.Input](), reflect.TypeFor[policycatalog.Output](), nil),
 		compile(reflect.TypeFor[reports.ReportComponent](), reflect.TypeFor[reports.ReportGetInput](), reflect.TypeFor[reports.ReportGetOutput](), nil),
@@ -138,6 +166,7 @@ func TestNativePermissionCatalogNamespaceHTTPAndMCP(t *testing.T) {
 		{reflect.TypeFor[GetComponent](), reflect.TypeFor[ResourceInput](), reflect.TypeFor[DocumentOutput](), (GetComponent{}).DatlyHandler("NewGet")},
 		{reflect.TypeFor[PolicyGetComponent](), reflect.TypeFor[PolicyInput](), reflect.TypeFor[sharedapi.PolicyOutput](), (PolicyGetComponent{}).DatlyHandler("NewPolicyGet")},
 		{reflect.TypeFor[PolicyContextComponent](), reflect.TypeFor[PolicyInput](), reflect.TypeFor[sharedapi.PolicyContextOutput](), (PolicyContextComponent{}).DatlyHandler("NewPolicyContext")},
+		{reflect.TypeFor[PolicyCreateComponent](), reflect.TypeFor[PolicyWriteInput](), reflect.TypeFor[sharedapi.PolicyOutput](), (PolicyCreateComponent{}).DatlyHandler("NewPolicyCreate")},
 		{reflect.TypeFor[PolicyReplaceComponent](), reflect.TypeFor[PolicyWriteInput](), reflect.TypeFor[sharedapi.PolicyOutput](), (PolicyReplaceComponent{}).DatlyHandler("NewPolicyReplace")},
 		{reflect.TypeFor[AuthorizationComponent](), reflect.TypeFor[AuthorizationInput](), reflect.TypeFor[sharedapi.DecisionOutput](), (AuthorizationComponent{}).DatlyHandler("NewAuthorizationCheck")},
 		{reflect.TypeFor[ContextComponent](), reflect.TypeFor[ResourceInput](), reflect.TypeFor[ContextOutput](), (ContextComponent{}).DatlyHandler("NewContext")},
@@ -364,5 +393,72 @@ func TestNativePermissionCatalogNamespaceHTTPAndMCP(t *testing.T) {
 	callHTTP("policies.get", map[string]any{"resource": resource}, 503)
 	callHTTP("policies.context", map[string]any{"resource": resource}, 503)
 	callHTTP("authorization.check", map[string]any{"resource": resource, "action": "viewAccess"}, 503)
+
+	t.Run("namespace default administration", func(t *testing.T) {
+		ns := namespaceaccess.ID("owner", "beta")
+		resource := namespacepolicy.Resource(ns, "tenant")
+		request := func(operation string, input any, scope string, want int) []byte {
+			t.Helper()
+			payload, _ := json.Marshal(input)
+			req := httptest.NewRequest(http.MethodPost, "/v1/authz/sdk/"+operation, bytes.NewReader(payload))
+			req.Header.Set("Content-Type", "application/json")
+			req.Header.Set("Authorization", bearer)
+			if scope != "" {
+				req.Header.Set("X-Studio-Namespace", scope)
+			}
+			response := httptest.NewRecorder()
+			httpHandler.ServeHTTP(response, req)
+			if response.Code != want {
+				t.Fatalf("namespace %s: want %d, got %d: %s", operation, want, response.Code, response.Body.String())
+			}
+			return response.Body.Bytes()
+		}
+		input := map[string]any{"resource": resource}
+		request("policies.get", input, "", 200)
+		request("policies.get", input, namespaceaccess.ID("owner", "alpha"), 403)
+		request("policies.context", input, ns, 200)
+		var initial sharedapi.PolicyOutput
+		if err := json.Unmarshal(request("policies.get", input, ns, 200), &initial); err != nil {
+			t.Fatal(err)
+		}
+		if initial.Document.Revision != 0 {
+			t.Fatal("missing default was not editable")
+		}
+		initial.Document.Policies = map[string]authz.Policy{"execute": {Mode: "protected", Rule: &authz.Rule{Kind: "role", Value: "reader"}}}
+		var saved sharedapi.PolicyOutput
+		if err := json.Unmarshal(request("policies.create", map[string]any{"document": initial.Document}, ns, 200), &saved); err != nil {
+			t.Fatal(err)
+		}
+		if saved.Document.Revision != 1 {
+			t.Fatal("default not persisted")
+		}
+		saved.Document.Policies["execute"] = authz.Policy{Mode: "deny"}
+		request("policies.replace", map[string]any{"document": saved.Document}, ns, 200)
+		request("policies.replace", map[string]any{"document": saved.Document}, ns, 409)
+		tool, _ := service.Registry().ToolRegistry.Get("authz.sdk.policies.get")
+		result, err := tool.Handler(callCtx, &schema.CallToolRequest{Method: schema.MethodToolsCall, Params: schema.CallToolRequestParams{Name: "authz.sdk.policies.get", Arguments: map[string]any{"namespaceId": ns, "resource": resource}}})
+		if err != nil || result == nil || result.IsError != nil && *result.IsError {
+			t.Fatalf("namespace default MCP: %+v %v", result, err)
+		}
+		// The current namespace manager, not a global policy role, controls saves.
+		if _, err := db.Exec(`UPDATE namespaces SET allowed_roles_json='{"view":["manager"],"manage":[]}' WHERE namespace_id=?`, ns); err != nil {
+			t.Fatal(err)
+		}
+		factoryProvider.subject = "delegate"
+		factoryProvider.roles = []string{"manager"}
+		bearer = jwt.BearerWithClaims(t, jwtv5.MapClaims{"sub": "delegate", "iss": "test", "aud": "studio", "tenant": "tenant", "exp": time.Now().Add(time.Hour).Unix()})
+		request("policies.get", input, ns, 403)
+		if _, err := db.Exec(`UPDATE namespaces SET allowed_roles_json='{"view":[],"manage":["manager"]}' WHERE namespace_id=?`, ns); err != nil {
+			t.Fatal(err)
+		}
+		request("policies.get", input, ns, 200)
+		saved.Document.Revision = 2
+		request("policies.replace", map[string]any{"document": saved.Document}, ns, 200)
+		if _, err := db.Exec(`UPDATE namespaces SET allowed_roles_json='[]' WHERE namespace_id=?`, ns); err != nil {
+			t.Fatal(err)
+		}
+		saved.Document.Revision = 3
+		request("policies.replace", map[string]any{"document": saved.Document}, ns, 403)
+	})
 
 }

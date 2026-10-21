@@ -26,6 +26,22 @@ func prepareSQLiteStorage(dsn string) (string, error) {
 		}
 	}
 	options.Add("_pragma", "foreign_keys(1)")
+	// Native writer graphs read Current before writing. Reserve the writer at
+	// transaction start so an asynchronous audit commit cannot invalidate that
+	// SQLite snapshot during its later read-to-write upgrade.
+	if options.Get("_txlock") == "" {
+		options.Set("_txlock", "immediate")
+	}
+	// Audit writes share storage with authoring; wait briefly for concurrent writers.
+	hasBusyTimeout := false
+	for _, pragma := range options["_pragma"] {
+		if strings.HasPrefix(strings.ToLower(pragma), "busy_timeout") {
+			hasBusyTimeout = true
+		}
+	}
+	if !hasBusyTimeout {
+		options.Add("_pragma", "busy_timeout(5000)")
+	}
 	if path != ":memory:" && options.Get("mode") != "memory" && options.Get("mode") != "ro" && options.Get("mode") != "rw" {
 		decoded, err := url.PathUnescape(path)
 		if err != nil {

@@ -29,7 +29,7 @@
 #define($_ = $PageOffset<int>(output/body).WithTag('json:"offset"'))
 
 SELECT reports.*, type(reports, 'Report'),
-       CAST(reports.id AS string), CAST(reports.namespace AS string),
+       CAST(reports.audit_enabled AS bool), CAST(reports.id AS string), CAST(reports.namespace AS string),
        CAST(reports.slug AS string), CAST(reports.title AS string),
        CAST(reports.description AS *string), CAST(reports.owner_id AS string),
        CAST(reports.owner_package AS string), CAST(reports.status AS string),

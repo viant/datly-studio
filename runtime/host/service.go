@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/viant/datly-studio/internal/namespacepolicy"
 	xcodec "github.com/viant/xdatly/codec"
 	"log/slog"
 	"net"
@@ -56,6 +57,7 @@ type Service struct {
 	windowPrimitiveSource *stockPrimitiveSource
 	windowPrimitivePolicy *stockWindowPolicy
 	resourceAccess        *access.Service
+	namespacePolicyReader *namespacepolicy.Reader
 	config                Config
 	studio                *sql.DB
 	connectorStore        *activeConnectorStore
@@ -592,7 +594,10 @@ func (s *Service) Start(ctx context.Context) error {
 		return err
 	}
 	if s.config.ToolCallAudit != nil {
-		mcpHTTP.Handler = s.config.ToolCallAudit.Wrap(mcpHTTP.Handler)
+		wrapped := s.config.ToolCallAudit.Wrap(mcpHTTP.Handler)
+		mcpHTTP.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			wrapped.ServeHTTP(w, r.WithContext(audit.WithNamespace(r.Context(), s.config.NamespaceID)))
+		})
 	}
 	mcpHTTP.Handler = browserMCPCORS(s.config.MCP.CORS, s.oauthDiscovery(mcpHTTP.Handler))
 	if s.config.ForgeProvider != nil {
@@ -803,6 +808,16 @@ func (s *Service) Close(ctx context.Context) error {
 	}
 	if s.runAccessStore != nil {
 		result = errors.Join(result, s.runAccessStore.Close(ctx))
+	}
+	if s.namespacePolicyReader != nil {
+		result = errors.Join(result, s.namespacePolicyReader.Close(ctx))
+	}
+	if s.resourceAccess != nil {
+		if inherited, ok := s.resourceAccess.Store.(*namespacepolicy.Store); ok {
+			if closer, ok := inherited.Store.(interface{ Close(context.Context) error }); ok {
+				result = errors.Join(result, closer.Close(ctx))
+			}
+		}
 	}
 	result = errors.Join(result, s.closePrimitiveMetadata(ctx))
 	result = errors.Join(result, s.studio.Close())

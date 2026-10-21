@@ -895,6 +895,42 @@ var postV1StudioSdkAclUpsert = (options) => (options.client ?? client).post({
     ...options.headers
   }
 });
+var postV1StudioSdkAuditConfigure = (options) => (options?.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/audit.configure",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options?.headers
+  }
+});
+var postV1StudioSdkAuditExport = (options) => (options?.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/audit.export",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options?.headers
+  }
+});
+var postV1StudioSdkAuditList = (options) => (options?.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/audit.list",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options?.headers
+  }
+});
+var postV1StudioSdkAuditStatus = (options) => (options?.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/audit.status",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options?.headers
+  }
+});
 var postV1StudioSdkAuthorizationPredicatesCreate = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/v1/studio/sdk/authorization_predicates.create",
@@ -1526,6 +1562,10 @@ export {
   postV1StudioSdkAclDelete,
   postV1StudioSdkAclList,
   postV1StudioSdkAclUpsert,
+  postV1StudioSdkAuditConfigure,
+  postV1StudioSdkAuditExport,
+  postV1StudioSdkAuditList,
+  postV1StudioSdkAuditStatus,
   postV1StudioSdkAuthorizationPredicatesCreate,
   postV1StudioSdkAuthorizationPredicatesDelete,
   postV1StudioSdkAuthorizationPredicatesGet,

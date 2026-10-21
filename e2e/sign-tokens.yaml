@@ -238,3 +238,18 @@ pipeline:
     mode: 384
     dest:
       URL: ${runDir}/namespace-not-admin.token
+
+  signAuditViewer:
+    action: secret:signJWT
+    expiryInSec: 7200
+    privateKey:
+      URL: ${runDir}/private.pem
+    claimsURL: ${runDir}/claims/audit-viewer.json
+  saveAuditViewer:
+    init:
+      jwtToken: $signAuditViewer.TokenString
+    action: storage:upload
+    sourceKey: jwtToken
+    mode: 384
+    dest:
+      URL: ${runDir}/audit-viewer.token

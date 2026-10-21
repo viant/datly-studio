@@ -74,7 +74,7 @@ func TestToolCallAuditE2E(t *testing.T) {
 				}
 				c := parsed.Claims.(jwtv5.MapClaims)
 				return audit.Identity{Subject: c["sub"].(string), UserID: c["user_id"].(string), NamespaceID: "audit-namespace", TraceID: "0123456789abcdef0123456789abcdef", SpanID: "0123456789abcdef"}
-			}}, auditGateSink{next: audit.SQLSink{DB: db}, gate: gate})
+			}}, auditGateSink{next: &audit.SQLSink{DB: db}, gate: gate})
 			defer logger.Close(context.Background())
 			testDynamicHost(t, false, false, dynamicHostExtension{configure: func(c *Config) { c.ToolCallAudit = logger }, verify: func(_ *Service, address string) {
 				body := `{"jsonrpc":"2.0","id":17,"method":"tools/call","params":{"name":"records.read","arguments":{},"password":"do-not-store","_meta":{"io.modelcontextprotocol/protocolVersion":"` + mcpschema.LatestProtocolVersion + `","io.modelcontextprotocol/clientCapabilities":{}}}}`
@@ -123,8 +123,8 @@ func TestToolCallAuditE2E(t *testing.T) {
 				}
 				var name, ip, sub, user, ns, trace, span, rc, sc string
 				var req, res []byte
-				var rqSize, rsSize int64
-				err = db.QueryRow(`SELECT tool_name,client_ip,jwt_sub,user_id,namespace_id,trace_id,span_id,request_body,response_body,request_compression,response_compression,request_original_bytes,response_original_bytes FROM tool_call_audit`).Scan(&name, &ip, &sub, &user, &ns, &trace, &span, &req, &res, &rc, &sc, &rqSize, &rsSize)
+				var rqSize int64
+				err = db.QueryRow(`SELECT tool_name,client_ip,jwt_sub,user_id,namespace_id,trace_id,span_id,request_body,response_body,request_compression,response_compression,request_original_bytes FROM tool_call_audit`).Scan(&name, &ip, &sub, &user, &ns, &trace, &span, &req, &res, &rc, &sc, &rqSize)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -141,13 +141,13 @@ func TestToolCallAuditE2E(t *testing.T) {
 					}
 					defer reader.Close()
 					plain, e := io.ReadAll(reader)
-					if e != nil || int64(len(plain)) != size {
+					if e != nil || size >= 0 && int64(len(plain)) != size {
 						t.Fatalf("gzip roundtrip: %v size %d/%d", e, len(plain), size)
 					}
 					return plain
 				}
 				req = decode(req, rc, rqSize)
-				res = decode(res, sc, rsSize)
+				res = decode(res, sc, -1)
 				if bytes.Contains(req, []byte("do-not-store")) || bytes.Contains(req, []byte(token)) || !bytes.Contains(req, []byte("[REDACTED]")) || !bytes.Contains(res, []byte("ready")) {
 					t.Fatal("body retention/redaction failed")
 				}

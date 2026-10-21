@@ -91,3 +91,27 @@ test('embedded permissions metadata preserves host kinds and custom action contr
  expect(screen.queryByRole('button',{name:/^publish /})).toBeNull();
  expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='authz.sdk.policies.get')[1]).toEqual({resource:custom});
 });
+test('namespace default opens first and saves one policy for all tools',async()=>{
+ const user=userEvent.setup(),{api}=mount({items:[],parameters:{currentNamespace:{namespaceId:'ns-a',name:'analytics',canManage:true}}});
+ await screen.findByText('Namespace default permissions');
+ expect(screen.getByRole('button',{name:'Edit namespace default',exact:true})).toBeTruthy();
+ expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='authz.sdk.policies.get')[1]).toEqual({resource:{kind:'namespace',id:'ns-a',tenant:'',version:'1'}});
+ await screen.findByText('Policy revision 4');
+ await user.click(screen.getByRole('button',{name:/^execute Protected/}));
+ await user.selectOptions(screen.getByLabelText('rule value'),'analyst');
+ await user.click(screen.getByRole('button',{name:'Apply to exposure and execution',exact:true}));
+ await user.click(screen.getByRole('button',{name:'Review changes',exact:true}));
+ await user.click(screen.getByRole('button',{name:'Save permissions',exact:true}));
+ await screen.findByText('Permissions saved.');
+ const calls=api.fetchMCPDataSource.mock.calls.filter(([source])=>source.backend.method==='authz.sdk.policies.replace');
+ expect(calls).toHaveLength(1);
+ expect(calls[0][1].document.resource.kind).toBe('namespace');
+ for(const action of ['discover','describe','execute'])expect(calls[0][1].document.policies[action].rule.value).toBe('analyst');
+ expect(screen.queryByRole('button',{name:/^manageAccess /})).toBeNull();
+});
+test('tools without an override show namespace inheritance instead of public access',async()=>{
+ const user=userEvent.setup(),{api}=mount({items:[{...entry,kind:'component',inherited:false,public:false,explicitAcl:false,defaultResource:{kind:'namespace',id:'ns-a',tenant:'tenant-a',version:'1'}}]});
+ await user.click(await screen.findByRole('button',{name:'Open permissions',exact:true}));
+ expect(await screen.findByText('Uses the namespace default policy. An optional tool override takes precedence.')).toBeTruthy();
+ expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='authz.sdk.policies.get')).toBe(false);
+});

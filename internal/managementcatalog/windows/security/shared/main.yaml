@@ -29,6 +29,149 @@ window:
               title: Permissions
               icon: lock
               containers:
+                - id: security-namespace-default
+                  dataSourceRef: security_state
+                  fetchData: false
+                  visibleWhen:
+                    selector: canManageNamespace
+                    equals: true
+                  workspaceSummary:
+                    title: Namespace default policy
+                    description: Set who can discover and execute all tools in this namespace. New tools inherit this policy automatically; tool overrides are optional.
+                  toolbar:
+                    items:
+                      - id: namespace-default
+                        label: Edit namespace default
+                        hideLabel: false
+                        icon: lock
+                        on:
+                          - event: onClick
+                            handler: management.namespaceDefault
+                - id: security-no-policy
+                  dataSourceRef: security_state
+                  fetchData: false
+                  visibleWhen:
+                    all:
+                      - dataSourceRef: security_state
+                        selector: hasSelection
+                        equals: true
+                      - dataSourceRef: security_selection
+                        selector: explicitAcl
+                        equals: false
+                  workspaceSummary:
+                    sections:
+                      - id: policy-info
+                        title: Access policy
+                        dataSourceRef: security_info
+                        labelField: label
+                        detailFields:
+                          - detail
+                  toolbar:
+                    items:
+                      - id: create-policy
+                        label: Create access policy
+                        hideLabel: false
+                        icon: add
+                        on:
+                          - event: onClick
+                            handler: management.createPolicy
+                - id: security-inherited-message
+                  dataSourceRef: security_selection
+                  fetchData: false
+                  visibleWhen:
+                    selector: inheritedMessage
+                    notEmpty: true
+                  items:
+                    - id: inheritedMessage
+                      type: label
+                      scope: form
+                      dataField: inheritedMessage
+                - id: security-policy-panel
+                  dataSourceRef: security_selection
+                  fetchData: false
+                  visibleWhen:
+                    all:
+                      - dataSourceRef: security_state
+                        selector: hasSelection
+                        equals: true
+                      - dataSourceRef: security_selection
+                        selector: explicitAcl
+                        notEquals: false
+                  resourcePolicyEditor:
+                    dataSourceRef: security_selection
+                    resourceField: resource
+                    displayNameField: displayName
+                    actionsByKindField: actionsByKind
+                    choicesField: choices
+                    actionsByKind:
+                      namespace:
+                        - discover
+                        - describe
+                        - execute
+                      component:
+                        - discover
+                        - describe
+                        - execute
+                        - export
+                        - edit
+                        - validate
+                        - publish
+                        - unpublish
+                        - viewAccess
+                        - manageAccess
+                      skill:
+                        - discover
+                        - describe
+                        - retrieve
+                        - export
+                        - edit
+                        - validate
+                        - publish
+                        - unpublish
+                        - viewAccess
+                        - manageAccess
+                    publicActions:
+                      - discover
+                      - describe
+                      - execute
+                      - retrieve
+                    relatedActions:
+                      - discover
+                      - describe
+                      - execute
+                    applyGroupLabel: Apply to exposure and execution
+                    operations:
+                      get: security_policy_get
+                      context: security_policy_context
+                      create: security_policy_create
+                      replace: security_policy_replace
+                      check: security_policy_check
+                    onStateChange: management.policyStateChanged
+                  toolbar:
+                    items:
+                      - id: close
+                        label: Close permissions
+                        hideLabel: false
+                        icon: cross
+                        on:
+                          - event: onClick
+                            handler: management.closePermissions
+                  items:
+                    - id: reviewURL
+                      dataField: reviewURL
+                      label: Review current permissions
+                      type: link
+                      appearance: inline
+                      isStandalone: true
+                      properties:
+                        text: Review current permissions
+                      visibleWhen:
+                        selector: reviewURL
+                        notEmpty: true
+                - id: security-overrides-heading
+                  workspaceSummary:
+                    title: Tool overrides
+                    description: Optional policies for tools that need different permissions from the namespace default.
                 - id: security-resource-filters
                   dataSourceRef: security_filter
                   fetchData: false
@@ -150,123 +293,6 @@ window:
                         disabledWhen:
                           selector: hasMore
                           equals: false
-                - id: security-no-policy
-                  dataSourceRef: security_state
-                  fetchData: false
-                  visibleWhen:
-                    all:
-                      - dataSourceRef: security_state
-                        selector: hasSelection
-                        equals: true
-                      - dataSourceRef: security_selection
-                        selector: explicitAcl
-                        equals: false
-                  workspaceSummary:
-                    sections:
-                      - id: policy-info
-                        title: Access policy
-                        dataSourceRef: security_info
-                        labelField: label
-                        detailFields:
-                          - detail
-                  toolbar:
-                    items:
-                      - id: create-policy
-                        label: Create access policy
-                        hideLabel: false
-                        icon: add
-                        on:
-                          - event: onClick
-                            handler: management.createPolicy
-                - id: security-inherited-message
-                  dataSourceRef: security_selection
-                  fetchData: false
-                  visibleWhen:
-                    selector: inheritedMessage
-                    notEmpty: true
-                  items:
-                    - id: inheritedMessage
-                      type: label
-                      scope: form
-                      dataField: inheritedMessage
-                - id: security-policy-panel
-                  dataSourceRef: security_selection
-                  fetchData: false
-                  visibleWhen:
-                    all:
-                      - dataSourceRef: security_state
-                        selector: hasSelection
-                        equals: true
-                      - dataSourceRef: security_selection
-                        selector: explicitAcl
-                        notEquals: false
-                  resourcePolicyEditor:
-                    dataSourceRef: security_selection
-                    resourceField: resource
-                    displayNameField: displayName
-                    actionsByKindField: actionsByKind
-                    choicesField: choices
-                    actionsByKind:
-                      component:
-                        - discover
-                        - describe
-                        - execute
-                        - export
-                        - edit
-                        - validate
-                        - publish
-                        - unpublish
-                        - viewAccess
-                        - manageAccess
-                      skill:
-                        - discover
-                        - describe
-                        - retrieve
-                        - export
-                        - edit
-                        - validate
-                        - publish
-                        - unpublish
-                        - viewAccess
-                        - manageAccess
-                    publicActions:
-                      - discover
-                      - describe
-                      - execute
-                      - retrieve
-                    relatedActions:
-                      - discover
-                      - describe
-                      - execute
-                    applyGroupLabel: Apply to exposure and execution
-                    operations:
-                      get: security_policy_get
-                      context: security_policy_context
-                      create: security_policy_create
-                      replace: security_policy_replace
-                      check: security_policy_check
-                    onStateChange: management.policyStateChanged
-                  toolbar:
-                    items:
-                      - id: close
-                        label: Close permissions
-                        hideLabel: false
-                        icon: cross
-                        on:
-                          - event: onClick
-                            handler: management.closePermissions
-                  items:
-                    - id: reviewURL
-                      dataField: reviewURL
-                      label: Review current permissions
-                      type: link
-                      appearance: inline
-                      isStandalone: true
-                      properties:
-                        text: Review current permissions
-                      visibleWhen:
-                        selector: reviewURL
-                        notEmpty: true
             - id: security-predicates-tab
               title: Authorization predicates
               visibleWhen:

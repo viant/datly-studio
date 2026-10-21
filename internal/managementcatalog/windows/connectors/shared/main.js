@@ -21,6 +21,8 @@
  const reload = async name => record(await call('get',{name}));
  return {
   refreshConnectors:()=>run(refresh),
+  connectorStatus: props => props?.row?.status,
+  connectorState: props => {const active=props?.row?.status==='active';return {text:active?'On':'Off',intent:active?'success':'danger',minimal:false,title:active?'On — click to disable':'Off — click to activate'};},
   toggleConnector: props => run(async () => {
    const row=props?.row||selected();if(!row)throw new Error('Select a connector.');
    await call(row.status==='active'?'disable':'activate',{name:row.name,etag:row.etag});await refresh();

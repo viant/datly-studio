@@ -45,7 +45,7 @@ func TestOneProcessHost(t *testing.T) {
 	}
 	dir := t.TempDir()
 	dsn := filepath.Join(dir, "fresh-store", "storage.db")
-	db, err := sql.Open("sqlite", dsn)
+	db, err := sql.Open("sqlite", "file:"+dsn+"?_pragma=busy_timeout(5000)")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -65,6 +65,7 @@ func TestOneProcessHost(t *testing.T) {
 	document := map[string]any{"BaseDir": dir, "Endpoint": map[string]any{"Address": "127.0.0.1:0"}, "MCP": map[string]any{"Address": "127.0.0.1:0"}, "NamespaceMCP": map[string]any{"Address": "127.0.0.1:0"}, "Store": map[string]any{"Driver": "sqlite", "DSN": dsn}, "JWTValidator": map[string]any{"RSA": []any{map[string]any{"URL": publicPath}}}, "JWTClaims": map[string]any{"Issuer": "https://synthetic.example", "Audience": "studio", "RequireSubject": true}}
 	// Connection export must never decrypt or read its SCY reference. This
 	// deliberately absent file is unrelated to the browser's login client.
+	document["Audit"] = map[string]any{"ViewerRole": "E2E_AUDIT_VIEWER"}
 	document["NamespaceConnectionExport"] = map[string]any{"Provider": "synthetic", "ClientConfigURL": "file:///unreadable-synthetic-namespace-client.enc|blowfish://env/UNSET_SYNTHETIC_NAMESPACE_KEY", "Scopes": []string{"openid"}}
 	document["NamespaceOAuthProviders"] = map[string]any{"synthetic": map[string]any{"Issuer": "https://synthetic.example", "Audience": "studio", "CertURL": "file://" + publicPath}}
 	raw, err := json.Marshal(document)
@@ -338,6 +339,49 @@ func TestOneProcessHost(t *testing.T) {
 			t.Fatalf("native discovery %s status=%d body=%s", method, response.StatusCode, body)
 		}
 		return body
+	}
+
+	// Real admin MCP controls use namespace ownership, independently of audit viewing.
+	for _, enabled := range []bool{false, true} {
+		body := callNative("tools/call", map[string]any{"name": "studio.sdk.audit.configure", "arguments": map[string]any{"namespaceId": strings.Repeat("a", 64), "enabled": enabled}})
+		if bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"canManage":true`)) {
+			t.Fatalf("audit control: %s", body)
+		}
+		var persisted bool
+		if err := db.QueryRow("SELECT audit_enabled FROM namespaces WHERE namespace_id=?", strings.Repeat("a", 64)).Scan(&persisted); err != nil || persisted != enabled {
+			t.Fatalf("audit setting persistence: %v %v", persisted, err)
+		}
+	}
+	deniedAudit := callNative("tools/call", map[string]any{"name": "studio.sdk.audit.list", "arguments": map[string]any{"namespaceId": strings.Repeat("a", 64)}})
+	if !bytes.Contains(deniedAudit, []byte(`"isError":true`)) && !bytes.Contains(deniedAudit, []byte(`"error":`)) {
+		t.Fatalf("manager read audit without viewer role: %s", deniedAudit)
+	}
+	auditDeadline := time.Now().Add(5 * time.Second)
+	for {
+		var count int
+		err := db.QueryRow("SELECT COUNT(*) FROM tool_call_audit WHERE tool_name='studio.sdk.namespaces.list' AND jwt_sub='synthetic-owner' AND response_compression='gzip' AND response_original_bytes IS NULL").Scan(&count)
+		if err == nil && count > 0 {
+			break
+		}
+		if time.Now().After(auditDeadline) {
+			t.Fatalf("automatic admin MCP audit missing: %v", err)
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+
+	ownerBearer := bearer
+	bearer, err = jwtlib.NewWithClaims(jwtlib.SigningMethodRS256, jwtlib.MapClaims{"iss": "https://synthetic.example", "aud": "studio", "sub": "synthetic-owner", "exp": time.Now().Add(time.Minute).Unix(), "tenant": "studio", "user_id": 1, "roles": []string{"E2E_AUDIT_VIEWER"}}).SignedString(private)
+	if err != nil {
+		t.Fatal(err)
+	}
+	csvResult := callNative("tools/call", map[string]any{"name": "studio.sdk.audit.export", "arguments": map[string]any{"namespaceId": strings.Repeat("a", 64), "filter": map[string]any{"toolName": "audit.configuration"}}})
+	if bytes.Contains(csvResult, []byte(`"isError":true`)) || !bytes.Contains(csvResult, []byte(`"mediaType":"text/csv; charset=utf-8"`)) || !bytes.Contains(csvResult, []byte(`"archive":`)) {
+		t.Fatalf("CSV export MCP: %s", csvResult)
+	}
+	bearer = ownerBearer
+	deniedCSV := callNative("tools/call", map[string]any{"name": "studio.sdk.audit.export", "arguments": map[string]any{"namespaceId": strings.Repeat("a", 64)}})
+	if !bytes.Contains(deniedCSV, []byte(`"isError":true`)) && !bytes.Contains(deniedCSV, []byte(`"error":`)) {
+		t.Fatalf("CSV export bypassed viewer permission: %s", deniedCSV)
 	}
 	metadata["io.viant/resources/filter"] = map[string]any{"namespace": "ns://" + strings.Repeat("a", 64), "kind": "mcp", "limit": 1}
 	connectionPage := callNative("resources/list", map[string]any{})

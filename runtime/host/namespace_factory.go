@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/viant/datly-studio/audit"
 	"io/fs"
 	"maps"
 	"net/http"
@@ -59,7 +60,10 @@ func (s *namespaceRuntimeSource) WrapHTTP(next http.Handler) http.Handler {
 // WrapNativeHTTP protects the native transport independently of host composition.
 func (s *namespaceRuntimeSource) WrapNativeHTTP(next http.Handler) http.Handler {
 	if s.runtime.config.ToolCallAudit != nil {
-		next = s.runtime.config.ToolCallAudit.Wrap(next)
+		wrapped := s.runtime.config.ToolCallAudit.Wrap(next)
+		next = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			wrapped.ServeHTTP(w, r.WithContext(audit.WithNamespace(r.Context(), s.endpoint.NamespaceID)))
+		})
 	}
 	return browserMCPCORS(s.runtime.config.MCP.CORS, s.runtime.oauthDiscovery(next))
 }

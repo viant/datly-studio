@@ -12,6 +12,7 @@ import (
 	access "github.com/viant/authz"
 	accessstore "github.com/viant/authz/component/store/sql"
 	"github.com/viant/authz/oauth"
+	"github.com/viant/datly-studio/internal/namespacepolicy"
 	"github.com/viant/datly-studio/runtime/accesscontext"
 	"github.com/viant/datly-studio/runtime/accessprovider"
 	"github.com/viant/datly/runtime/registry"
@@ -36,7 +37,12 @@ func (s *Service) initResourceAccess() error {
 		return fmt.Errorf("resource access requires an explicit identity provider")
 	}
 
-	s.resourceAccess = &access.Service{Store: &accessstore.Store{DB: s.studio}, Provider: provider, Decisions: s.config.DecisionProvider}
+	reader, err := namespacepolicy.NewReader(s.studio)
+	if err != nil {
+		return err
+	}
+	s.namespacePolicyReader = reader
+	s.resourceAccess = &access.Service{Store: &namespacepolicy.Store{Store: &accessstore.Store{DB: s.studio}, Namespace: reader.Namespace}, Provider: provider, Decisions: s.config.DecisionProvider}
 	return nil
 }
 

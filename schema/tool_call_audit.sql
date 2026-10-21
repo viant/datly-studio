@@ -1,9 +1,10 @@
 CREATE TABLE tool_call_audit (
-    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    id BIGINT NOT NULL AUTO_INCREMENT,
     namespace_id VARCHAR(64) NULL,
+    component_id VARCHAR(64) NULL,
     tool_name VARCHAR(255) NOT NULL,
     started_at DATETIME(6) NOT NULL,
-    duration_ms BIGINT UNSIGNED NULL,
+    duration_ms BIGINT NULL,
     status VARCHAR(32) NOT NULL,
     client_ip VARCHAR(45) NULL,
     jwt_sub VARCHAR(255) NULL,
@@ -11,14 +12,16 @@ CREATE TABLE tool_call_audit (
     trace_id VARCHAR(32) NULL,
     span_id VARCHAR(16) NULL,
     request_body LONGBLOB NULL,
-    request_compression ENUM('none', 'gzip') NOT NULL DEFAULT 'none',
-    request_original_bytes BIGINT UNSIGNED NULL,
+    request_compression VARCHAR(8) NOT NULL DEFAULT 'none',
+    request_original_bytes BIGINT NULL,
     response_body LONGBLOB NULL,
-    response_compression ENUM('none', 'gzip') NOT NULL DEFAULT 'none',
-    response_original_bytes BIGINT UNSIGNED NULL,
-    PRIMARY KEY (id),
-    KEY idx_audit_started (started_at),
-    KEY idx_audit_namespace_tool (namespace_id, tool_name, started_at),
-    KEY idx_audit_subject (jwt_sub, started_at),
-    KEY idx_audit_trace (trace_id, span_id)
+    response_compression VARCHAR(8) NOT NULL DEFAULT 'none',
+    response_original_bytes BIGINT NULL,
+    response_truncated BOOLEAN NOT NULL DEFAULT FALSE,
+    PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE INDEX idx_audit_started ON tool_call_audit(started_at);
+CREATE INDEX idx_audit_namespace_tool ON tool_call_audit(namespace_id,tool_name,started_at);
+CREATE INDEX idx_audit_subject ON tool_call_audit(jwt_sub,started_at);
+CREATE INDEX idx_audit_trace ON tool_call_audit(trace_id,span_id);

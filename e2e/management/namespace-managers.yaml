@@ -10,7 +10,7 @@ pipeline:
       - page.goto("${browserURL}/e2e/login")
       - page.getByLabel("Test identity").selectOption("owner")
       - page.getByRole("button", "Sign in").click()
-      - page.getByRole("button", "Namespaces").click()
+      - page.locator("xpath://aside[contains(@class,'studio-sidebar')]//button[normalize-space(.)='Namespaces']").click()
       - page.getByRole("button", "New namespace").click()
       - page.getByLabel("Namespace").fill("delegated.alpha")
       - page.getByLabel("Display title").fill("Delegated Alpha")
@@ -37,7 +37,7 @@ pipeline:
       - page.goto("${browserURL}/e2e/login")
       - page.getByLabel("Test identity").selectOption("no-exposure")
       - page.getByRole("button", "Sign in").click()
-      - page.getByRole("button", "Namespaces").click()
+      - page.locator("xpath://aside[contains(@class,'studio-sidebar')]//button[normalize-space(.)='Namespaces']").click()
       - page.getByLabel("Find namespace").fill("delegated.alpha")
       - page.getByRole("button", "Search").click()
       - expect(page.locator("xpath://div[@data-forge-container-id='namespace-list']//tbody/tr")).toHaveCount(1,15000)
@@ -67,6 +67,45 @@ pipeline:
       FROM namespaces WHERE name='delegated.alpha'
     expect:
       - {owner_id: owner, title: Managed Alpha, visibility: public, manager: ROLE_ANALYST, added_reader: ADDITIONAL_READER}
+  defaultNamespace:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.namespaces.get
+    arguments: {name: delegated.alpha}
+  managerSetsDefaultInUI:
+    action: webdriver:run
+    sessionID: localhost:4446
+    autoStart: false
+    browser: chrome
+    failureArtifacts: {directory: '${runDir}/artifacts/namespace-default'}
+    commands:
+      - page.getByLabel("Current namespace").selectOption("${defaultNamespace.StructuredContent.namespaceId}")
+      - page.locator("xpath://aside[contains(@class,'studio-sidebar')]//button[normalize-space(.)='Security']").click()
+      - expect(page.getByRole("button", "Edit namespace default")).toBeVisible(15000)
+      - expect(page.locator("xpath://span[contains(@class,'bp6-tag')]//span[normalize-space(.)='Policy revision 0']")).toBeVisible(15000)
+      - page.getByLabel("Access mode").selectOption("protected")
+      - page.getByLabel("rule condition").selectOption("role")
+      - page.getByLabel("rule value").selectOption("ROLE_ANALYST")
+      - page.getByRole("button", "Apply to exposure and execution").click()
+      - page.getByRole("button", "Review changes").click()
+      - page.getByRole("button", "Save permissions").click()
+      - expect(page.getByText("Permissions saved.")).toBeVisible(15000)
+  defaultPersisted:
+    action: dsunit:query
+    datastore: studio
+    SQL: >-
+      SELECT h.revision,
+      json_extract(r.policies_json,'$.execute.rule.value') AS execute_role,
+      json_extract(r.policies_json,'$.discover.rule.value') AS discover_role,
+      json_extract(r.policies_json,'$.describe.rule.value') AS describe_role
+      FROM resource_policies h JOIN resource_policy_revisions r
+      ON r.tenant_id=h.tenant_id AND r.resource_kind=h.resource_kind AND r.resource_id=h.resource_id
+      AND r.resource_version=h.resource_version AND r.revision=h.revision
+      JOIN namespaces n ON n.namespace_id=h.resource_id
+      WHERE h.resource_kind='namespace' AND n.name='delegated.alpha'
+    expect:
+      - {revision: 1, execute_role: ROLE_ANALYST, discover_role: ROLE_ANALYST, describe_role: ROLE_ANALYST}
   ownerRevokesInUI:
     action: webdriver:run
     sessionID: localhost:4446
@@ -77,7 +116,7 @@ pipeline:
       - page.goto("${browserURL}/e2e/login")
       - page.getByLabel("Test identity").selectOption("owner")
       - page.getByRole("button", "Sign in").click()
-      - page.getByRole("button", "Namespaces").click()
+      - page.locator("xpath://aside[contains(@class,'studio-sidebar')]//button[normalize-space(.)='Namespaces']").click()
       - page.getByLabel("Find namespace").fill("delegated.alpha")
       - page.getByRole("button", "Search").click()
       - expect(page.locator("xpath://div[@data-forge-container-id='namespace-list']//tbody/tr")).toHaveCount(1,15000)
@@ -88,7 +127,7 @@ pipeline:
       - page.goto("${browserURL}/e2e/login")
       - page.getByLabel("Test identity").selectOption("no-exposure")
       - page.getByRole("button", "Sign in").click()
-      - page.getByRole("button", "Namespaces").click()
+      - page.locator("xpath://aside[contains(@class,'studio-sidebar')]//button[normalize-space(.)='Namespaces']").click()
       - page.getByLabel("Find namespace").fill("delegated.alpha")
       - page.getByRole("button", "Search").click()
       - expect(page.locator("xpath://div[@data-forge-container-id='namespace-list']//tbody/tr")).toHaveCount(1,15000)

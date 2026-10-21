@@ -1,0 +1,46 @@
+init:
+  appPath: '$params.appPath?$params.appPath:$WorkingDirectory(..)'
+pipeline:
+  runtime:
+    action: exec:run
+    target: {URL: 'ssh://localhost/'}
+    strictCompletion: true
+    checkError: true
+    timeoutMs: 300000
+    commands:
+      - cd ${appPath}
+      - GOWORK=off go test -race ./internal/namespacepolicy ./runtime/host -run '^TestNamespaceDefault' -count=1 -v
+    extract:
+      - key: runtimePassed
+        regExpr: '(--- PASS: TestNamespaceDefaultPolicyHTTPAndMCP)'
+        required: true
+  administration:
+    action: exec:run
+    target: {URL: 'ssh://localhost/'}
+    strictCompletion: true
+    checkError: true
+    timeoutMs: 300000
+    commands:
+      - cd ${appPath}
+      - GOWORK=off go test -race ./studio/resource_policy/access -run '^TestNativePermissionCatalogNamespaceHTTPAndMCP$' -count=1 -v
+    extract:
+      - key: administrationPassed
+        regExpr: '(--- PASS: TestNativePermissionCatalogNamespaceHTTPAndMCP)'
+        required: true
+  ui:
+    action: exec:run
+    target: {URL: 'ssh://localhost/'}
+    strictCompletion: true
+    checkError: true
+    timeoutMs: 300000
+    commands:
+      - cd ${appPath}/ui
+      - npm run test:rendered -- src/SecurityCenter.render.test.jsx
+  runtimeVerified:
+    action: validator:assert
+    actual: $runtimePassed
+    expect: '--- PASS: TestNamespaceDefaultPolicyHTTPAndMCP'
+  administrationVerified:
+    action: validator:assert
+    actual: $administrationPassed
+    expect: '--- PASS: TestNativePermissionCatalogNamespaceHTTPAndMCP'

@@ -12,13 +12,13 @@ require (
 	github.com/oapi-codegen/runtime v1.7.0
 	github.com/stretchr/testify v1.12.1
 	github.com/viant/bigquery v0.5.4-0.20261018094240-7627f510d5d8
-	github.com/viant/bindly v0.4.1-0.20261019214243-0a0ac77b49fe
-	github.com/viant/datly v1.1.1-0.20261020024755-511d9713e2f2
-	github.com/viant/jsonrpc v0.25.1-0.20261017043720-5809a36c92af
+	github.com/viant/bindly v0.4.1-0.20261020114552-79f0b7e785ef
+	github.com/viant/datly v1.1.1-0.20261021171948-be7e60f4750b
+	github.com/viant/jsonrpc v0.25.1-0.20261021031150-a24a3b9ae218
 	github.com/viant/mcp v0.24.1-0.20261018180156-2794488fbdb7
 	github.com/viant/mcp-protocol v0.19.1-0.20261019190045-bf1f848b71f9
 	github.com/viant/scy v0.35.1-0.20260914041206-699e6c909726
-	github.com/viant/sqlx v0.26.1-0.20261019190555-2b47eeb3f37f
+	github.com/viant/sqlx v0.26.1-0.20261020184823-1cd663e62434
 	github.com/viant/x v0.5.1-0.20261019170608-3c4033ed8ccd
 	github.com/viant/xdatly v1.0.1-0.20261017023827-3a09d6ff7964
 	github.com/viant/xunsafe v0.11.0
@@ -111,8 +111,8 @@ require (
 	github.com/viant/govalidator v0.3.4-0.20260913213120-027a9dd54d73 // indirect
 	github.com/viant/igo v0.2.0 // indirect
 	github.com/viant/parsly v0.3.3 // indirect
-	github.com/viant/sqlparser v0.13.1-0.20261012001419-edea4bd5d9c1 // indirect
-	github.com/viant/structology v0.10.1-0.20261015025741-5750986d416b // indirect
+	github.com/viant/sqlparser v0.13.1-0.20261020184305-eeeefdc54c15 // indirect
+	github.com/viant/structology v0.10.1-0.20261021171329-9f693e1e9f21 // indirect
 	github.com/viant/structql v0.5.5-0.20261012183420-6a47e96ff5b5 // indirect
 	github.com/viant/tagly v0.4.1-0.20261007173811-969600917520
 	github.com/viant/toolbox v0.39.0 // indirect

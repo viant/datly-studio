@@ -1,0 +1,191 @@
+window:
+  windowKey: audit
+  title: Audit log
+  on:
+    - event: onInit
+      handler: management.initialize
+  view:
+    content:
+      id: audit-workspace
+      className: studio-workspace studio-audit-workspace
+      containers:
+        - id: audit-header
+          workspaceSummary:
+            title: MCP audit log
+            description: Inspect tool calls in the selected namespace. Response previews are capped at 32 KiB and compressed in storage.
+            stateDataSourceRef: audit_state
+            errorField: outcome
+            actions:
+              - id: export
+                label: Export CSV
+                icon: download
+                handler: management.exportCSV
+              - id: refresh
+                label: Refresh
+                icon: refresh
+                handler: management.search
+        - id: audit-settings
+          dataSourceRef: audit_state
+          fetchData: false
+          items:
+            - id: enabled
+              label: Namespace audit enabled
+              dataField: enabled
+              type: checkbox
+              disabledWhen: {selector: canManage, equals: false}
+            - id: save-audit
+              label: Save audit setting
+              type: button
+              isStandalone: true
+              disabledWhen: {selector: canManage, equals: false}
+              on:
+                - event: onClick
+                  handler: management.saveSetting
+        - id: audit-filters
+          dataSourceRef: audit_filter
+          fetchData: false
+          items:
+            - {id: tool, label: Tool name, dataField: toolName, type: text}
+            - {id: subject, label: Caller subject, dataField: subject, type: text}
+            - id: status
+              label: Status
+              dataField: status
+              type: select
+              options:
+                - {value: '', label: All statuses}
+                - {value: OK, label: Success}
+                - {value: Tool error, label: Tool error}
+                - {value: Forbidden, label: Forbidden}
+                - {value: Unauthorized, label: Unauthorized}
+            - id: from
+              label: From (local time)
+              dataField: from
+              type: datetime
+              properties:
+                dateFnsFormat: yyyy-MM-dd HH:mm
+                inputProps: {id: from, aria-label: From}
+            - id: to
+              label: To (local time)
+              dataField: to
+              type: datetime
+              properties:
+                dateFnsFormat: yyyy-MM-dd HH:mm
+                inputProps: {id: to, aria-label: To}
+            - id: search
+              label: Filter calls
+              icon: search
+              type: button
+              isStandalone: true
+              on:
+                - event: onClick
+                  handler: management.search
+        - id: audit-events
+          dataSourceRef: audit_rows
+          fetchData: false
+          table:
+            presentation: catalog
+            fullWidth: true
+            enforceColumnSize: false
+            columns:
+              - {id: startedAt, name: Time, format: datetime}
+              - {id: toolName, name: Tool}
+              - {id: subject, name: Caller}
+              - {id: status, name: Status}
+              - {id: durationMs, name: Duration (ms)}
+              - id: inspect
+                name: ''
+                type: button
+                icon: eye-open
+                tooltip: Inspect audit event
+                cellProperties: {aria-label: Inspect audit event}
+                on:
+                  - event: onClick
+                    handler: management.inspect
+            emptyState:
+              title: No audit events
+              body: Run an MCP tool or adjust the filters, then refresh.
+        - id: audit-paging
+          dataSourceRef: audit_state
+          fetchData: false
+          items:
+            - id: older
+              label: Older calls
+              type: button
+              isStandalone: true
+              disabledWhen: {selector: nextId, equals: 0}
+              on:
+                - event: onClick
+                  handler: management.older
+  dialogs:
+    - id: audit-detail
+      title: MCP tool call
+      className: studio-connector-dialog
+      dataSourceRef: audit_detail
+      fetchOnOpen: false
+      content:
+        id: audit-detail-fields
+        items:
+          - {id: tool, label: Tool, dataField: toolName, type: text, readOnly: true}
+          - {id: status, label: Status, dataField: status, type: text, readOnly: true}
+          - {id: capture, label: Capture, dataField: capture, type: text, readOnly: true}
+          - {id: request, label: Request, dataField: request, type: textarea, readOnly: true}
+          - {id: response, label: Response, dataField: response, type: textarea, readOnly: true}
+      actions:
+        - {id: close, label: Close, close: true}
+dataSources:
+  audit_state:
+    id: audit_state
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache: {enabled: false}
+  audit_filter:
+    id: audit_filter
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache: {enabled: false}
+  audit_detail:
+    id: audit_detail
+    cardinality: object
+    backend:
+      kind: inline
+      rows: []
+    cache: {enabled: false}
+  audit_rows:
+    id: audit_rows
+    cardinality: collection
+    backend:
+      kind: inline
+      rows: []
+    cache: {enabled: false}
+  audit_status:
+    id: audit_status
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.audit.status
+    cache: {enabled: false}
+  audit_configure:
+    id: audit_configure
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.audit.configure
+    cache: {enabled: false}
+  audit_list:
+    id: audit_list
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.audit.list
+    cache: {enabled: false}
+  audit_export:
+    id: audit_export
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.audit.export
+    cache: {enabled: false}

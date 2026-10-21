@@ -13,6 +13,7 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/viant/authz"
+	"github.com/viant/datly-studio/internal/namespacepolicy"
 	"github.com/viant/datly-studio/store/sql/accesscatalog"
 	"github.com/viant/datly/constant"
 	"io/fs"
@@ -81,6 +82,10 @@ var nativeSDKPaths = []string{
 	"/v1/studio/sdk/connectors.create",
 	"/v1/studio/sdk/connectors.schemas",
 	"/v1/studio/sdk/connectors.discover",
+	"/v1/studio/sdk/audit.status",
+	"/v1/studio/sdk/audit.configure",
+	"/v1/studio/sdk/audit.list",
+	"/v1/studio/sdk/audit.export",
 	"/v1/studio/sdk/connectors.tables",
 	"/v1/studio/sdk/connectors.table",
 	"/v1/studio/sdk/connectors.test",
@@ -418,7 +423,14 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) error {
 			return errors.New("resource ACL requires authenticated Studio mode")
 		}
 		accessService := &authz.Service{Store: &accessstore.Store{DB: db}, Provider: resourceProvider}
-		dynamicPreview.Access, dynamicPreview.AccessTenant = accessService, *accessTenant
+		namespaceReader, err := namespacepolicy.NewReader(db)
+		if err != nil {
+			return err
+		}
+		defer namespaceReader.Close(context.Background())
+		executionAccess := *accessService
+		executionAccess.Store = &namespacepolicy.Store{Store: accessService.Store, Namespace: namespaceReader.Namespace}
+		dynamicPreview.Access, dynamicPreview.AccessTenant = &executionAccess, *accessTenant
 		transport.Preview, transport.ViewTester, transport.RelationTester, transport.ComposeTester = dynamicPreview, dynamicPreview, dynamicPreview, dynamicPreview
 		sdkTransport = &access.Transport{Next: transport, Service: accessService, Catalog: &access.Catalog{Service: accessService, Source: &accesscatalog.Store{DB: db}}}
 	}

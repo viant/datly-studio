@@ -23,12 +23,14 @@ import (
 	"github.com/viant/authz/oauth"
 )
 
-var subjects = []string{"owner", "editor", "viewer", "runner", "outsider", "expired", "wrong-issuer", "sales-reader", "ops-reader", "no-exposure", "no-role", "customer-10", "customer-20", "customer-no-role", "customer-no-grant", "namespace-admin", "namespace-not-admin"}
+var subjects = []string{"owner", "editor", "viewer", "runner", "outsider", "expired", "wrong-issuer", "sales-reader", "ops-reader", "no-exposure", "no-role", "customer-10", "customer-20", "customer-no-role", "customer-no-grant", "namespace-admin", "namespace-not-admin", "audit-viewer"}
 
 func mockInfoURL() string { return fixtureURL(18795) + "/v1/api/user/info" }
 
 func profileRoles(subject string) ([]string, []string) {
 	switch subject {
+	case "audit-viewer":
+		return []string{"E2E_AUDIT_VIEWER"}, []string{}
 	case "namespace-admin":
 		return []string{"NAMESPACE_ADMIN"}, []string{}
 	case "namespace-not-admin":

@@ -18,6 +18,15 @@ pipeline:
       - key: auditDisabledPassed
         regExpr: '(--- PASS: TestToolCallAuditE2E/disabled)'
         required: true
+  controls:
+    action: exec:run
+    target: {URL: 'ssh://localhost/'}
+    strictCompletion: true
+    checkError: true
+    timeoutMs: 300000
+    commands:
+      - cd ${appPath}
+      - GOWORK=off go test -race ./audit ./app/studiohost -run 'TestScopedAuditControls|TestCaptureLimitAndDynamicToggle|TestOversizedRequestStillAudited|TestAuditEnrichmentDoesNotBlockResponse|TestAuditFiltersAndDateRange|TestCSV|TestOneProcessHost' -count=1 -v
   enabledVerified:
     action: validator:assert
     actual: $auditEnabledPassed

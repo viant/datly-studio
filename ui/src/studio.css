@@ -768,3 +768,10 @@ body { margin: 0; min-width: 320px; background: #f4f7fb; }
  .studio-forge-schema-explorer [data-forge-container-id="schema-object-list"] { max-height: 240px; }
  .studio-forge-schema-detail { min-height: 320px !important; }
 }
+
+/* Forge owns lazy mounting and retained workspace panels; Studio supplies layout. */
+.studio-workspace-runtime { display:flex; flex:1 1 auto; min-width:0; min-height:0; }
+.studio-workspace-panel { display:flex; flex:1 1 auto; min-width:0; min-height:0; }
+.studio-workspace-panel[hidden] { display:none; }
+
+.studio-workspace-content, .studio-workspace-content > .forge-window-content-root { display:flex; flex-direction:column; flex:1 1 auto; min-width:0; min-height:0; }

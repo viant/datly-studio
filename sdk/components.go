@@ -14,6 +14,7 @@ const (
 )
 
 type Component struct {
+	AuditEnabled         bool      `json:"auditEnabled"`
 	ID                   string    `json:"id"`
 	Namespace            string    `json:"namespace"`
 	Slug                 string    `json:"slug"`

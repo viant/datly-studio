@@ -43,6 +43,41 @@
           }
         }
       },
+      "Input_16e880b7e1336bc65f022f03876990c2b5f1454881ea2bbd6c7292cc1f91f5c7": {
+        "type": "object",
+        "properties": {
+          "beforeId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "from": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "toolName": {
+            "type": "string"
+          }
+        }
+      },
       "Input_18be64dee76ccbb1b565145615d071eb94fd5ef5e084ad249271599e217706c8": {
         "type": "object",
         "properties": {
@@ -263,6 +298,41 @@
           }
         }
       },
+      "Input_5376879923223066d44a504078b601c9acf8f628f9b9b8e57f2a2a4afe791409": {
+        "type": "object",
+        "properties": {
+          "beforeId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "from": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "toolName": {
+            "type": "string"
+          }
+        }
+      },
       "Input_538331453dfbe7cb0f7afe0231bd64c684a5fd5e78a13cc82c044933524fdc64": {
         "type": "object",
         "properties": {
@@ -469,6 +539,41 @@
             "type": "string"
           },
           "version": {
+            "type": "string"
+          }
+        }
+      },
+      "Input_71f300e4492dfb2e7896f28bb40eda0284261da644ef97b9256cae2ba1742eee": {
+        "type": "object",
+        "properties": {
+          "beforeId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "from": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "toolName": {
             "type": "string"
           }
         }
@@ -1209,6 +1314,41 @@
           }
         }
       },
+      "Input_fbe063b0dffe21f52c69687522edb79a427791ea48e91e51705a9b76a1b8b60b": {
+        "type": "object",
+        "properties": {
+          "beforeId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "from": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "toolName": {
+            "type": "string"
+          }
+        }
+      },
       "Input_fc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc": {
         "type": "object",
         "properties": {
@@ -1240,6 +1380,29 @@
             "type": "string"
           }
         }
+      },
+      "Output_0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "version",
+          "tenant"
+        ]
       },
       "Output_056a233e996244d253928b99e6335fa0dfcab4b0aa7e8ffd7a088546a10a6442": {
         "type": "object",
@@ -1408,6 +1571,29 @@
           "checkedAt"
         ]
       },
+      "Output_0d489bb6e8d34088f812c6b2a93a0c83b9a5f8fd2ac13b17094145376c09065b": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "version",
+          "tenant"
+        ]
+      },
       "Output_1d9bf0079b94d75e2b9b7b33bb81b13886a46428db871596012139c64cc1a4d6": {
         "type": "object",
         "properties": {
@@ -1505,6 +1691,116 @@
           "policies"
         ]
       },
+      "Output_2914a64d6f54333c61713839f0d41e0bc4a70208751189288a2870c3ee2496f9": {
+        "type": "object",
+        "properties": {
+          "clientIp": {
+            "type": "string"
+          },
+          "componentId": {
+            "type": "string"
+          },
+          "durationMs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "request": {
+            "type": "string"
+          },
+          "response": {
+            "type": "string"
+          },
+          "responseTruncated": {
+            "type": "boolean"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "toolName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "namespaceId",
+          "toolName",
+          "startedAt",
+          "durationMs",
+          "status",
+          "subject",
+          "clientIp",
+          "responseTruncated"
+        ]
+      },
+      "Output_32c4d843c350375fa1807b89e7db16553000af864bad1017ad3662f2db1c9b64": {
+        "type": "object",
+        "properties": {
+          "clientIp": {
+            "type": "string"
+          },
+          "componentId": {
+            "type": "string"
+          },
+          "durationMs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "request": {
+            "type": "string"
+          },
+          "response": {
+            "type": "string"
+          },
+          "responseTruncated": {
+            "type": "boolean"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "toolName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "namespaceId",
+          "toolName",
+          "startedAt",
+          "durationMs",
+          "status",
+          "subject",
+          "clientIp",
+          "responseTruncated"
+        ]
+      },
       "Output_3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243": {
         "type": "object",
         "properties": {
@@ -1518,6 +1814,82 @@
         "required": [
           "type",
           "id"
+        ]
+      },
+      "Output_41c3b19ac03c771407eb0e4c05284c0e7c1997324fd4198bdf3fd31fa8d96c5d": {
+        "type": "object",
+        "properties": {
+          "archive": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "canManage": {
+            "type": "boolean"
+          },
+          "canView": {
+            "type": "boolean"
+          },
+          "componentId": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "dropped": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "effective": {
+            "type": "boolean"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "failed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "filename": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Output_ec5ca322e57ac033e6183e7ca87a4dc5a2dba0223eb08b4a914e37bb9e628b8e"
+            },
+            "nullable": true
+          },
+          "mediaType": {
+            "type": "string"
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "nextId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "toolName": {
+            "type": "string"
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "viewerRole": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespaceId",
+          "enabled",
+          "effective",
+          "canManage",
+          "canView",
+          "viewerRole",
+          "dropped",
+          "failed"
         ]
       },
       "Output_449a47a8e9ea6ae974f687ac5b55486e7e726cc8043ed75e896c8b78c8b99391": {
@@ -1617,6 +1989,20 @@
       "Output_4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68": {
         "type": "object",
         "properties": {
+          "defaultResource": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Output_0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
           "explicitAcl": {
             "type": "boolean"
           },
@@ -1849,6 +2235,158 @@
           "id",
           "version",
           "tenant"
+        ]
+      },
+      "Output_644e4d09ac406b19e7277668f0cfaf1136c2f29c1d92a8e6af44cadd8ca60cd1": {
+        "type": "object",
+        "properties": {
+          "archive": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "canManage": {
+            "type": "boolean"
+          },
+          "canView": {
+            "type": "boolean"
+          },
+          "componentId": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "dropped": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "effective": {
+            "type": "boolean"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "failed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "filename": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Output_32c4d843c350375fa1807b89e7db16553000af864bad1017ad3662f2db1c9b64"
+            },
+            "nullable": true
+          },
+          "mediaType": {
+            "type": "string"
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "nextId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "toolName": {
+            "type": "string"
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "viewerRole": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespaceId",
+          "enabled",
+          "effective",
+          "canManage",
+          "canView",
+          "viewerRole",
+          "dropped",
+          "failed"
+        ]
+      },
+      "Output_6e81e11a33076e68bb3d8b58da936317e65e2cb7c08f61adc82433c8705924b4": {
+        "type": "object",
+        "properties": {
+          "archive": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "canManage": {
+            "type": "boolean"
+          },
+          "canView": {
+            "type": "boolean"
+          },
+          "componentId": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "dropped": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "effective": {
+            "type": "boolean"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "failed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "filename": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Output_2914a64d6f54333c61713839f0d41e0bc4a70208751189288a2870c3ee2496f9"
+            },
+            "nullable": true
+          },
+          "mediaType": {
+            "type": "string"
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "nextId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "toolName": {
+            "type": "string"
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "viewerRole": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespaceId",
+          "enabled",
+          "effective",
+          "canManage",
+          "canView",
+          "viewerRole",
+          "dropped",
+          "failed"
         ]
       },
       "Output_73a8618e3debe1667f7aafcc74ab58dec2fbd11494bb2e579aae6d2b58f205f3": {
@@ -2086,6 +2624,82 @@
         "required": [
           "type",
           "id"
+        ]
+      },
+      "Output_9425f0d8184856b1b2b82b988287de19f673178a98f7561041bfddbdcaad307a": {
+        "type": "object",
+        "properties": {
+          "archive": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "canManage": {
+            "type": "boolean"
+          },
+          "canView": {
+            "type": "boolean"
+          },
+          "componentId": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "dropped": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "effective": {
+            "type": "boolean"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "failed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "filename": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Output_ec019e5831c65213d65f292f7835722945f552d76106b1cf7c1608395564458e"
+            },
+            "nullable": true
+          },
+          "mediaType": {
+            "type": "string"
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "nextId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "toolName": {
+            "type": "string"
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "viewerRole": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespaceId",
+          "enabled",
+          "effective",
+          "canManage",
+          "canView",
+          "viewerRole",
+          "dropped",
+          "failed"
         ]
       },
       "Output_9e0f449c95fcfb4ee0592ebadf3e17adccbdc32fa89bf50ab9ae8511c2009041": {
@@ -2417,6 +3031,20 @@
       "Output_c59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac": {
         "type": "object",
         "properties": {
+          "defaultResource": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Output_0d489bb6e8d34088f812c6b2a93a0c83b9a5f8fd2ac13b17094145376c09065b"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
           "explicitAcl": {
             "type": "boolean"
           },
@@ -2768,6 +3396,116 @@
         },
         "required": [
           "mode"
+        ]
+      },
+      "Output_ec019e5831c65213d65f292f7835722945f552d76106b1cf7c1608395564458e": {
+        "type": "object",
+        "properties": {
+          "clientIp": {
+            "type": "string"
+          },
+          "componentId": {
+            "type": "string"
+          },
+          "durationMs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "request": {
+            "type": "string"
+          },
+          "response": {
+            "type": "string"
+          },
+          "responseTruncated": {
+            "type": "boolean"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "toolName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "namespaceId",
+          "toolName",
+          "startedAt",
+          "durationMs",
+          "status",
+          "subject",
+          "clientIp",
+          "responseTruncated"
+        ]
+      },
+      "Output_ec5ca322e57ac033e6183e7ca87a4dc5a2dba0223eb08b4a914e37bb9e628b8e": {
+        "type": "object",
+        "properties": {
+          "clientIp": {
+            "type": "string"
+          },
+          "componentId": {
+            "type": "string"
+          },
+          "durationMs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "request": {
+            "type": "string"
+          },
+          "response": {
+            "type": "string"
+          },
+          "responseTruncated": {
+            "type": "boolean"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "toolName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "namespaceId",
+          "toolName",
+          "startedAt",
+          "durationMs",
+          "status",
+          "subject",
+          "clientIp",
+          "responseTruncated"
         ]
       },
       "Output_ef553e0e338a00cf70d43289eb53e588abb65348804f4defbd8fd2ea4e5691ee": {
@@ -8286,6 +9024,9 @@
       "Wire_b42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044": {
         "type": "object",
         "properties": {
+          "auditEnabled": {
+            "type": "boolean"
+          },
           "componentName": {
             "type": "string"
           },
@@ -8344,6 +9085,7 @@
           "title",
           "ownerId",
           "ownerPackage",
+          "auditEnabled",
           "status",
           "defaultConnectorName",
           "componentScope",
@@ -8478,6 +9220,9 @@
       "Wire_bba07f0bad61cd85885417e1c20c5cff98c1ebf3abb205fd71b51c6069ea161c": {
         "type": "object",
         "properties": {
+          "auditEnabled": {
+            "type": "boolean"
+          },
           "componentName": {
             "type": "string"
           },
@@ -8531,6 +9276,7 @@
           }
         },
         "required": [
+          "auditEnabled",
           "id",
           "namespace",
           "slug",
@@ -10969,6 +11715,242 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Wire_013ce40651897a22f1d0c9d5a29a86362333458b72c57acb30fa03a2473f08c6"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/audit.configure": {
+      "post": {
+        "operationId": "POST:/v1/studio/sdk/audit.configure",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "componentId": {
+                    "type": "string"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "nullable": true
+                  },
+                  "filter": {
+                    "$ref": "#/components/schemas/Input_fbe063b0dffe21f52c69687522edb79a427791ea48e91e51705a9b76a1b8b60b"
+                  },
+                  "maxRows": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "toolName": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Output_6e81e11a33076e68bb3d8b58da936317e65e2cb7c08f61adc82433c8705924b4"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/audit.export": {
+      "post": {
+        "operationId": "POST:/v1/studio/sdk/audit.export",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "componentId": {
+                    "type": "string"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "nullable": true
+                  },
+                  "filter": {
+                    "$ref": "#/components/schemas/Input_71f300e4492dfb2e7896f28bb40eda0284261da644ef97b9256cae2ba1742eee"
+                  },
+                  "maxRows": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "toolName": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Output_41c3b19ac03c771407eb0e4c05284c0e7c1997324fd4198bdf3fd31fa8d96c5d"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/audit.list": {
+      "post": {
+        "operationId": "POST:/v1/studio/sdk/audit.list",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "componentId": {
+                    "type": "string"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "nullable": true
+                  },
+                  "filter": {
+                    "$ref": "#/components/schemas/Input_5376879923223066d44a504078b601c9acf8f628f9b9b8e57f2a2a4afe791409"
+                  },
+                  "maxRows": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "toolName": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Output_644e4d09ac406b19e7277668f0cfaf1136c2f29c1d92a8e6af44cadd8ca60cd1"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/audit.status": {
+      "post": {
+        "operationId": "POST:/v1/studio/sdk/audit.status",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "componentId": {
+                    "type": "string"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "nullable": true
+                  },
+                  "filter": {
+                    "$ref": "#/components/schemas/Input_16e880b7e1336bc65f022f03876990c2b5f1454881ea2bbd6c7292cc1f91f5c7"
+                  },
+                  "maxRows": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "toolName": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Output_9425f0d8184856b1b2b82b988287de19f673178a98f7561041bfddbdcaad307a"
                 }
               }
             }

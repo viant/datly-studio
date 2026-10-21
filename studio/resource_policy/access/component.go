@@ -2,11 +2,13 @@ package access
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/viant/authz"
 	sharedapi "github.com/viant/authz/component/api"
+	"github.com/viant/datly-studio/internal/namespacepolicy"
 	"github.com/viant/datly-studio/store/sql/accesscatalog"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
 	reports "github.com/viant/datly-studio/studio/reports/get"
@@ -143,6 +145,14 @@ func (*getHandler) Exec(ctx context.Context, session xhandler.Session, input *Re
 		output.Response = initial
 		return nil
 	}
+	if input.Resource.Kind == "namespace" {
+		document, err := creationAdministration(requestCtx, service).Get(requestCtx, input.Resource)
+		if err != nil {
+			return mapError(err)
+		}
+		output.Response = &document
+		return nil
+	}
 	value := &sharedapi.PolicyOutput{}
 	if err := sharedapi.NewGet().Exec(requestCtx, sharedSession(session, service), &sharedapi.PolicyInput{JWT: input.Jwt, Resource: input.Resource}, value); err != nil {
 		return err
@@ -176,6 +186,10 @@ func (*contextHandler) Exec(ctx context.Context, session xhandler.Session, input
 		output.Response = initial
 		return nil
 	}
+	if input.Resource.Kind == "namespace" {
+		output.Response, err = verifiedEditorContext(requestCtx, service)
+		return err
+	}
 	value := &sharedapi.PolicyContextOutput{}
 	if err := sharedapi.NewPolicyContext().Exec(requestCtx, sharedSession(session, service), &sharedapi.PolicyInput{JWT: input.Jwt, Resource: input.Resource}, value); err != nil {
 		return err
@@ -196,6 +210,17 @@ func (*replaceHandler) Exec(ctx context.Context, session xhandler.Session, input
 	if err := checkResourceNamespace(requestCtx, service, input.NamespaceId, input.Document.Resource, input.Auth, input.Jwt); err != nil {
 		return err
 	}
+	if err = validateNamespacePolicy(input.Document); err != nil {
+		return err
+	}
+	if input.Document.Resource.Kind == "namespace" {
+		document, err := creationAdministration(requestCtx, service).Replace(requestCtx, input.Document)
+		if err != nil {
+			return mapError(err)
+		}
+		output.Response = &document
+		return nil
+	}
 	value := &sharedapi.PolicyOutput{}
 	if err := sharedapi.NewReplace().Exec(requestCtx, sharedSession(session, service), &sharedapi.WriteInput{JWT: input.Jwt, Document: input.Document}, value); err != nil {
 		return err
@@ -205,6 +230,12 @@ func (*replaceHandler) Exec(ctx context.Context, session xhandler.Session, input
 }
 
 func checkResourceNamespace(ctx context.Context, service *authz.Service, namespaceID *string, resource authz.Resource, auth *studioauth.Output, claims *jwt.Claims) error {
+	if resource.Kind == "namespace" {
+		if auth == nil || auth.Auth == nil || claims == nil || auth.Auth.Subject != claims.Subject {
+			return publicError(403, "Verified Studio identity is required")
+		}
+		return checkNamespacePolicy(ctx, service, namespaceID, resource)
+	}
 	if namespaceID == nil {
 		return nil
 	}
@@ -297,6 +328,9 @@ func (p subjectProvider) Resolve(ctx context.Context) (authz.Facts, error) {
 }
 
 func mapError(err error) error {
+	if errors.Is(err, authz.ErrUnavailable) {
+		return publicError(503, "Resource policy service is unavailable")
+	}
 	if errors.Is(err, authz.ErrConflict) {
 		return publicError(409, "Access policy changed. Reload before saving.")
 	}
@@ -393,6 +427,23 @@ func (*listHandler) Exec(ctx context.Context, session xhandler.Session, input *L
 	}
 	visible := map[string]bool{}
 	catalogService := &acl.Catalog{Service: service}
+	catalogService.DefaultPolicy = func(ctx context.Context, row *catalog.Entry, facts authz.Facts) (*authz.Document, error) {
+		if row.NamespaceID == "" || facts.Tenant == "" || (row.Tenant != "" && row.Tenant != facts.Tenant) {
+			return nil, nil
+		}
+		resource := namespacepolicy.Resource(row.NamespaceID, facts.Tenant)
+		document, err := service.Store.Get(ctx, resource)
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		if err != nil {
+			return nil, err
+		}
+		if document.Resource != resource || document.Revision < 1 {
+			return nil, authz.ErrDenied
+		}
+		return &document, nil
+	}
 	if policyStore, ok := service.Store.(*store.Store); ok {
 		catalogService.Source = &accesscatalog.Store{DB: policyStore.DB, Invoker: policyStore.Invoker}
 	}

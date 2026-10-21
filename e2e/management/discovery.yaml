@@ -46,7 +46,7 @@ pipeline:
       - page.goto("${browserURL}/e2e/login")
       - page.getByLabel("Test identity").selectOption("owner")
       - page.getByRole("button", "Sign in").click()
-      - page.getByRole("button", "Schema Browser").click()
+      - page.locator("xpath://aside[contains(@class,'studio-sidebar')]//button[normalize-space(.)='Schema Browser']").click()
       - expect(page.getByRole("button", "Load schemas")).toBeEnabled(15000)
       - expect(page.getByRole("button", "Inspect table")).toHaveCount(0,15000)
       - page.getByRole("button", "Load schemas").click()
@@ -69,6 +69,24 @@ pipeline:
       - page.getByRole("tab", "Columns").click()
       - expect(page.locator("xpath://td[normalize-space(.)='dataset_marker']")).toBeVisible(15000)
       - expect(page.locator("xpath://td[normalize-space(.)='main_marker']")).toHaveCount(0,15000)
+  connectorStateInUI:
+    action: webdriver:run
+    sessionID: localhost:4446
+    autoStart: false
+    browser: chrome
+    failureArtifacts: {directory: '${runDir}/artifacts/connector-state'}
+    commands:
+      - page.locator("xpath://aside[contains(@class,'studio-sidebar')]//button[normalize-space(.)='Connectors']").click()
+      - page.getByLabel("Find connector, driver, or owner").fill("discovery_scoped")
+      - page.getByRole("button", "Search").click()
+      - expect(page.getByRole("button", "Activate or disable")).toHaveCount(1,15000)
+      - expect(page.getByRole("button", "Activate or disable")).toHaveAttribute("aria-pressed","true",15000)
+      - expect(page.locator("button.bp6-intent-success[aria-label='Activate or disable']")).toHaveText("On",15000)
+      - page.getByRole("button", "Activate or disable").click()
+      - expect(page.locator("button.bp6-intent-danger[aria-label='Activate or disable']")).toHaveText("Off",15000)
+      - expect(page.getByRole("button", "Activate or disable")).toHaveAttribute("aria-pressed","false",15000)
+      - page.getByRole("button", "Activate or disable").click()
+      - expect(page.locator("button.bp6-intent-success[aria-label='Activate or disable']")).toHaveText("On",15000)
   savedLists:
     action: dsunit:query
     datastore: studio

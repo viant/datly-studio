@@ -6,6 +6,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	access "github.com/viant/authz"
 	"github.com/viant/authz/oauth"
+	"github.com/viant/datly-studio/internal/datatest"
 	"net/http"
 	"os"
 	"testing"
@@ -24,10 +25,11 @@ func TestRuntimeResourceAccessUsesInjectedPrivateBindingWithoutInterpretingDTO(t
 	if err := config.Validate(); err != nil {
 		t.Fatal(err)
 	}
-	service := &Service{config: config}
+	service := &Service{config: config, studio: datatest.OpenSQLite(t, "injected_access", "studio")}
 	if err := service.initResourceAccess(); err != nil {
 		t.Fatal(err)
 	}
+	t.Cleanup(func() { _ = service.namespacePolicyReader.Close(context.Background()) })
 	if service.resourceAccess.Provider != provider {
 		t.Fatal("injected authority replaced by an implicit wire adapter")
 	}

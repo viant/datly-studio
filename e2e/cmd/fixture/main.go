@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"github.com/viant/authz"
 	"github.com/viant/datly-studio/app/datlycmd"
+	"github.com/viant/datly-studio/audit"
 	_ "github.com/viant/datly-studio/e2e/codecs"
 	"github.com/viant/datly-studio/e2e/predicates"
 	_ "github.com/viant/datly-studio/examples/predicates"
@@ -104,7 +105,7 @@ func main() {
 	serve(*root, *dir)
 }
 func studioDSN(dir string) string {
-	return "file:" + filepath.Join(dir, "studio.db") + "?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)"
+	return "file:" + filepath.Join(dir, "studio.db") + "?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)&_txlock=immediate"
 }
 
 func prepare(root, dir string) {
@@ -170,13 +171,22 @@ func serve(root, dir string) {
 	compositionDB, err := sql.Open("sqlite", studioDSN(dir))
 	check(err)
 	defer compositionDB.Close()
-	group, err := runtimehost.NewNamespaceGroup(ctx, runtimehost.Config{NamespaceBuildResolver: compositionResolver(compositionDB), HTTP: runtimehost.Listener{Address: fixtureAddress(18782)}, MCP: runtimehost.Listener{Address: "127.0.0.1:0"}, Authentication: runtimehost.Authentication{DefaultMode: "required", Issuer: "studio-e2e", Audience: "studio-e2e"}, Access: &runtimehost.ResourceAccessConfig{Provider: identity, Tenant: "studio-e2e", Issuer: "studio-e2e", Audience: "studio-e2e", PublicKeyFile: filepath.Join(dir, "public.pem")}, Studio: runtimehost.Studio{Driver: "sqlite", DSN: studioDSN(dir)}, Admin: runtimehost.Admin{Token: "studio-e2e-admin"}, RootDir: root})
+	auditService := &audit.Service{DB: compositionDB, Provider: identity, ViewerRole: "E2E_AUDIT_VIEWER"}
+	defer auditService.Close(context.Background())
+	auditService.Logger = audit.New(audit.Config{Enabled: true, Sanitize: audit.RedactJSON, Identity: auditService.Identity, Policy: auditService.Policy}, &audit.SQLSink{DB: compositionDB})
+	defer auditService.Logger.Close(context.Background())
+	group, err := runtimehost.NewNamespaceGroup(ctx, runtimehost.Config{ToolCallAudit: auditService.Logger, NamespaceBuildResolver: compositionResolver(compositionDB), HTTP: runtimehost.Listener{Address: fixtureAddress(18782)}, MCP: runtimehost.Listener{Address: "127.0.0.1:0"}, Authentication: runtimehost.Authentication{DefaultMode: "required", Issuer: "studio-e2e", Audience: "studio-e2e"}, Access: &runtimehost.ResourceAccessConfig{Provider: identity, Tenant: "studio-e2e", Issuer: "studio-e2e", Audience: "studio-e2e", PublicKeyFile: filepath.Join(dir, "public.pem")}, Studio: runtimehost.Studio{Driver: "sqlite", DSN: studioDSN(dir)}, Admin: runtimehost.Admin{Token: "studio-e2e-admin"}, RootDir: root})
 	check(err)
 	check(group.StartAdmin(fixtureAddress(18782), "studio-e2e-admin"))
 	defer group.Close(context.Background())
 	go func() { check(group.Run(ctx, 100*time.Millisecond, nil)) }()
 	go func() {
-		if code := datlycmd.RunWithOptions(ctx, []string{"run", "-conf", filepath.Join(dir, "native.json")}, os.Stdout, os.Stderr, datlycmd.Options{Authoring: &studiohost.AuthoringConfig{Dependencies: compositionPreview(compositionDB)}}); code != 0 {
+		if code := datlycmd.RunWithOptions(ctx, []string{"run", "-conf", filepath.Join(dir, "native.json")}, os.Stdout, os.Stderr, datlycmd.Options{RequestMiddleware: func(next http.Handler) http.Handler {
+			wrapped := auditService.Logger.Wrap(next)
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				wrapped.ServeHTTP(w, r.WithContext(audit.WithService(r.Context(), auditService)))
+			})
+		}, Authoring: &studiohost.AuthoringConfig{Dependencies: compositionPreview(compositionDB)}}); code != 0 {
 			cancel()
 		}
 	}()

@@ -40,7 +40,15 @@ func NewPolicyCreate() xhandler.Contract[PolicyWriteInput, sharedapi.PolicyOutpu
 // Existing policy replacement continues to require its manageAccess policy.
 func creationAdministration(ctx context.Context, service *authz.Service) *authz.Administration {
 	roles := strings.FieldsFunc(os.Getenv("STUDIO_ACCESS_POLICY_EDITOR_ROLES"), func(r rune) bool { return r == ',' || r == ' ' })
-	return &authz.Administration{Store: service.Store, Provider: service.Provider, EditorRoles: roles, EditorCheck: accessprovider.PolicyEditor(ctx)}
+	admin := &authz.Administration{Store: service.Store, Provider: service.Provider, EditorRoles: roles, EditorCheck: accessprovider.PolicyEditor(ctx)}
+	fallback := *admin
+	admin.EditorCheck = func(ctx context.Context, facts authz.Facts, resource authz.Resource) (bool, error) {
+		if resource.Kind == "namespace" {
+			return canManageNamespacePolicy(ctx, service, facts, resource)
+		}
+		return fallback.CanReplace(ctx, resource)
+	}
+	return admin
 }
 func (*policyCreateHandler) Exec(ctx context.Context, session xhandler.Session, input *PolicyWriteInput, output *sharedapi.PolicyOutput) error {
 	if input == nil || output == nil {
@@ -52,6 +60,9 @@ func (*policyCreateHandler) Exec(ctx context.Context, session xhandler.Session, 
 	}
 	defer closeStore()
 	if err = checkResourceNamespace(requestCtx, service, input.NamespaceId, input.Document.Resource, input.Auth, input.Jwt); err != nil {
+		return err
+	}
+	if err = validateNamespacePolicy(input.Document); err != nil {
 		return err
 	}
 	facts, err := service.Provider.Resolve(requestCtx)
@@ -78,9 +89,28 @@ func initialPolicy(ctx context.Context, service *authz.Service, resource authz.R
 	if !allowed {
 		return nil, nil, publicError(403, "initial policy creation is not permitted")
 	}
+	editor, err := verifiedEditorContext(ctx, service)
+	if err != nil {
+		return nil, nil, err
+	}
 	facts, err := service.Provider.Resolve(ctx)
 	if err != nil {
 		return nil, nil, err
+	}
+	document := &authz.Document{Resource: resource, Revision: 0, Policies: map[string]authz.Policy{
+		"viewAccess":   {Mode: "protected", Rule: &authz.Rule{Kind: "subject", Value: facts.Subject}},
+		"manageAccess": {Mode: "protected", Rule: &authz.Rule{Kind: "subject", Value: facts.Subject}},
+	}}
+	if resource.Kind == "namespace" {
+		document.Policies = map[string]authz.Policy{"discover": {Mode: "deny"}, "describe": {Mode: "deny"}, "execute": {Mode: "deny"}}
+	}
+	return document, editor, nil
+}
+
+func verifiedEditorContext(ctx context.Context, service *authz.Service) (*authz.EditorContext, error) {
+	facts, err := service.Provider.Resolve(ctx)
+	if err != nil {
+		return nil, err
 	}
 	choices := authz.Choices{Subjects: []authz.Choice{{ID: facts.Subject, Label: facts.Subject}}}
 	for _, role := range facts.Roles {
@@ -91,7 +121,7 @@ func initialPolicy(ctx context.Context, service *authz.Service, resource authz.R
 	}
 	entities, err := facts.FlatEntities()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	seen := map[string]bool{}
 	for _, entity := range entities {
@@ -102,9 +132,6 @@ func initialPolicy(ctx context.Context, service *authz.Service, resource authz.R
 			seen[entity.Type] = true
 		}
 	}
-	document := &authz.Document{Resource: resource, Revision: 0, Policies: map[string]authz.Policy{
-		"viewAccess":   {Mode: "protected", Rule: &authz.Rule{Kind: "subject", Value: facts.Subject}},
-		"manageAccess": {Mode: "protected", Rule: &authz.Rule{Kind: "subject", Value: facts.Subject}},
-	}}
-	return document, &authz.EditorContext{Source: "verified-principal", CanManage: true, Choices: choices}, nil
+
+	return &authz.EditorContext{Source: "verified-principal", CanManage: true, Choices: choices}, nil
 }

@@ -857,3 +857,31 @@ but fails exact-version authorization because the draft clone lacks its source
 version's policy. See [draft policy continuity](draft-policy-continuity.md).
 Successful scoped UI execution remains unverified. This uses synthetic signed
 identity and a copied test catalog, not real Viant entity grants.
+
+### Default tool policy
+
+Security opens the current namespace's **Namespace default policy** for its owner
+or delegated manager. Configure discover, describe and execute once; the default
+applies to every current and future component in that namespace that has no
+explicit policy at the requested version. **Apply to exposure and execution**
+copies the selected rule across those three actions. Tool policies are optional
+overrides, and the catalog identifies tools using the namespace default.
+
+Defaults use the existing Authz policy tables with resource kind `namespace`,
+ID equal to the persisted namespace ID, the verified tenant, and version `1`.
+No additional table or role JSON fields are needed. This is a default policy,
+not a literal `namespace:*` resource glob. An explicit tool document takes
+precedence in full, including explicit deny and missing actions. Absent a
+namespace default, existing tool behavior is preserved.
+
+Namespace owners and current manager roles administer this default; viewer
+roles and global policy-editor roles do not grant that permission. Each read
+and save rechecks the current namespace and verified tenant, and writes retain
+revision conflict checks. Namespace visibility remains a separate gate. Entity
+bounds are preserved and require the tool's native access-context binding.
+Administration permissions are never inherited from the namespace execution
+policy.
+
+Run `e2e/namespace-policy.yaml` through Endly for native HTTP/MCP execution,
+manager/owner save and revocation checks, persistence/CAS, and rendered Forge
+policy-editor interactions.

@@ -397,6 +397,9 @@ window:
       dataSourceRef: schema_lookup_draft
       fetchOnOpen: false
       closeDisabledWhen: {selector: saving, equals: true}
+      on:
+        - event: onClose
+          handler: management.closeDialog
       content:
         id: schema-lookup-form
         items:

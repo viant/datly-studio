@@ -1,17 +1,24 @@
 import nativeNavigation from './nativeNavigation.json' with {type:'json'};
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useId, useState } from 'react';
 import { ForgeThemeBoundary, ForgeThemeProvider } from 'forge/theme';
 import { Button, Callout, HTMLSelect, InputGroup, Navbar, Spinner, Tag, Tree } from '@blueprintjs/core';
+import { WorkspaceRuntimeSurface, PersistentWindowContent } from 'forge/components';
 import { ManagementWindow } from './ManagementWindow.jsx';
 import { managementSection } from './managementNavigation.js';
 import { useNamespaceWorkspace } from './useNamespaceWorkspace.js';
 
 
 const noExtensions = [];
+function WorkspaceContent({active,render}) {
+  const [host,setHost] = useState(null);
+  return <><div ref={setHost} className="studio-workspace-content"/><PersistentWindowContent host={active?host:null}>{render()}</PersistentWindowContent></>;
+}
+const nativeSections = ['audit', 'connectors', 'namespaces', 'overview', 'runtime', 'components', 'schema', 'skills', 'security', 'builder'];
 
 // StudioApp is intentionally only a Forge composition. Its data boundary is
 // StudioAPI, which maps one-for-one to the public Studio SDK operation names.
 export function StudioApp({ api, mode, subject, brand = 'Data Studio', extensions = noExtensions, renderNamespaceSkills, onSignOut }) {
+  const workspaceId = useId();
   const [skillEditing, setSkillEditing] = useState(false);
   const [section, setSection] = useState(() => managementSection(globalThis.location?.search, extensions));
   const [error, setError] = useState('');
@@ -59,6 +66,23 @@ export function StudioApp({ api, mode, subject, brand = 'Data Studio', extension
     {navigationOpen && <aside className="studio-sidebar"><InputGroup leftIcon="search" placeholder="Find Studio resource" value={navigationQuery} onChange={(event) => setNavigationQuery(event.target.value)} />
       <Tree className="studio-tree" contents={interactiveNavigation} onNodeClick={(node) => navigate(node.section)} />
     </aside>}
-    {namespaceWorkspace.enabled && !currentNamespaceId && !['namespaces', 'connectors', 'schema'].includes(section) ? <main className="studio-main"><Callout title="Choose a namespace">Select an available namespace above, or create one in Namespaces.</Callout></main> : ['connectors', 'namespaces', 'overview', 'runtime', 'components', 'schema', 'skills', 'security', 'builder'].includes(section) ? <div className={section==='builder'?'studio-reader-host':'studio-management-host'} role={section==='builder'?undefined:'main'}><ManagementWindow key={`${section}:${currentNamespaceId||'unscoped'}`} api={api} disabled={namespaceWorkspace.enabled&&!namespaceWorkspace.ready} uri={`window://datastudio/${section==='components'?'component-catalog':section==='builder'?'reader-workbench':section}`} parameters={{currentNamespace:namespaceWorkspace.current,report:builderReport,hasNamespaceSkillsRenderer:Boolean(renderNamespaceSkills)}} renderSlots={renderNamespaceSkills?{'namespace-skills':props=>renderNamespaceSkills({api,namespace:namespaceWorkspace.current,subject,onDirtyChange:props.onDirtyChange})}:undefined} onDirtyChange={setSkillEditing} instanceKey={`native-datastudio-${section}`} onOperationCompleted={onManagementOperation} onNavigate={(target,parameters)=>target==='builder'?openBuilder(parameters.report):navigate(target,parameters?.discardConfirmed===true)}/></div> : extensions.some((extension) => extension.id === section) ? extensions.find((extension) => extension.id === section).render({ api, mode, subject, navigate, openComponent: openBuilder, currentNamespace: namespaceWorkspace.current, namespaceItems: namespaceWorkspace.items }) : null}</div></div>
+    <WorkspaceRuntimeSurface key={currentNamespaceId||'unscoped'} className="studio-workspace-runtime"
+      tabProps={{visibility:'never'}}
+      panelProps={{id:`studio-${workspaceId}`,entries:[...nativeSections.map(windowId=>({windowId,label:windowId,kind:'window'})),...extensions.map(extension=>({windowId:extension.id,label:extension.label,kind:'extension'}))],selectedId:section,className:'studio-workspace-panel',
+        renderContent:(entry,{active})=><WorkspaceContent active={active} render={()=>{
+          const target=entry.windowId;
+          if(namespaceWorkspace.enabled&&!currentNamespaceId&&!['namespaces','connectors','schema'].includes(target))return <main className="studio-main"><Callout title="Choose a namespace">Select an available namespace above, or create one in Namespaces.</Callout></main>;
+          if(!nativeSections.includes(target))return extensions.find(extension=>extension.id===target)?.render({api,mode,subject,navigate,openComponent:openBuilder,currentNamespace:namespaceWorkspace.current,namespaceItems:namespaceWorkspace.items});
+          return <div className={target==='builder'?'studio-reader-host':'studio-management-host'} role={target==='builder'?undefined:'main'}>
+            <ManagementWindow key={target==='builder'?`${builderReport?.id||''}:${builderReport?.versionNo||''}`:target} api={api} disabled={namespaceWorkspace.enabled&&!namespaceWorkspace.ready}
+              uri={`window://datastudio/${target==='components'?'component-catalog':target==='builder'?'reader-workbench':target}`}
+              parameters={{currentNamespace:namespaceWorkspace.current,report:builderReport,hasNamespaceSkillsRenderer:Boolean(renderNamespaceSkills)}}
+              renderSlots={renderNamespaceSkills?{'namespace-skills':props=>renderNamespaceSkills({api,namespace:namespaceWorkspace.current,subject,onDirtyChange:props.onDirtyChange})}:undefined}
+              onDirtyChange={value=>{if(target===section)setSkillEditing(value);}}
+              instanceKey={`native-datastudio-${target}`} onOperationCompleted={onManagementOperation}
+              onNavigate={(next,parameters)=>next==='builder'?openBuilder(parameters.report):navigate(next,parameters?.discardConfirmed===true)}/>
+          </div>;
+        }}/>}}/>
+    </div></div>
   </ForgeThemeBoundary></ForgeThemeProvider>;
 }

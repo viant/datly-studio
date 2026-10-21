@@ -1,4 +1,4 @@
-SELECT r.id, r.namespace, r.slug, r.title, r.description, r.owner_id, '' AS owner_package, r.status,
+SELECT r.audit_enabled, r.id, r.namespace, r.slug, r.title, r.description, r.owner_id, '' AS owner_package, r.status,
        r.default_connector_name, r.component_scope, r.component_name,
        r.current_draft_version, r.etag, r.created_at, r.updated_at
 FROM components r

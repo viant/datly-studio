@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"github.com/viant/authz"
+	"github.com/viant/datly-studio/internal/namespacepolicy"
 	"io"
 	"math/big"
 	"net/http"
@@ -150,7 +151,7 @@ JOIN (SELECT id,label FROM labels) labels ON labels.id=records.id`
 		t.Fatal(err)
 	}
 	if generic {
-		_, err = service.resourceAccess.Store.(*accessstore.Store).Provision(ctx, authz.Document{Resource: authz.Resource{Kind: "component", ID: "records", Version: "1", Tenant: "*"}, Policies: map[string]authz.Policy{"execute": {Mode: "public"}}}, "bootstrap")
+		_, err = service.resourceAccess.Store.(*namespacepolicy.Store).Store.(*accessstore.Store).Provision(ctx, authz.Document{Resource: authz.Resource{Kind: "component", ID: "records", Version: "1", Tenant: "*"}, Policies: map[string]authz.Policy{"execute": {Mode: "public"}}}, "bootstrap")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -322,7 +323,7 @@ JOIN (SELECT id,label FROM labels) labels ON labels.id=records.id`
 		t.Fatalf("restarted status=%d body=%s", restartedResponse.StatusCode, restartedPayload)
 	}
 	if generic {
-		store := service.resourceAccess.Store.(*accessstore.Store)
+		store := service.resourceAccess.Store.(*namespacepolicy.Store).Store.(*accessstore.Store)
 		r := authz.Resource{Kind: "component", ID: "records", Version: "1", Tenant: "*"}
 		doc, e := store.Get(ctx, r)
 		if e != nil {

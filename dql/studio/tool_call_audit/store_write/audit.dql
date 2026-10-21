@@ -9,5 +9,12 @@
 
 #define($_ = $Data<[]*ToolCallAudit>(output/body))
 
-SELECT calls.*, type(calls, 'ToolCallAudit')
+SELECT calls.*, type(calls, 'ToolCallAudit'),
+ CAST(calls.id AS int64), tag(calls.id,'sqlx:"id,primaryKey,autoincrement"'),
+ CAST(calls.tool_name AS string), CAST(calls.started_at AS time.Time),
+ CAST(calls.status AS string), CAST(calls.duration_ms AS *int64),
+ CAST(calls.request_body AS []byte), CAST(calls.response_body AS []byte),
+ CAST(calls.request_original_bytes AS *int64),
+ CAST(calls.request_compression AS string), CAST(calls.response_compression AS string),
+ CAST(calls.response_truncated AS bool)
 FROM (${embed:sql/read.sql}) calls

@@ -57,7 +57,7 @@ func navigation(config Config) (Definition, error) {
 				return Definition{}, fmt.Errorf("invalid management section")
 			}
 			seen[section.ID] = true
-			if section.ID == "namespaces" || (section.ID == "connectors" || section.ID == "components" || section.ID == "overview" || section.ID == "runtime" || section.ID == "schema" || section.ID == "skills" || section.ID == "security") && (config.ApplicationID == "" || config.ApplicationID == "datastudio") {
+			if section.ID == "namespaces" || (section.ID == "audit" || section.ID == "connectors" || section.ID == "components" || section.ID == "overview" || section.ID == "runtime" || section.ID == "schema" || section.ID == "skills" || section.ID == "security") && (config.ApplicationID == "" || config.ApplicationID == "datastudio") {
 				menus = append(menus, map[string]any{"id": section.ID, "title": section.Title, "icon": section.Icon, "action": map[string]any{"type": "window", "resourceUri": "window://" + config.Namespace + "/" + WindowName(section.ID)}})
 				continue
 			}

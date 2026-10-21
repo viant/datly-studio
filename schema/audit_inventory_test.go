@@ -23,6 +23,7 @@ func TestCanonicalAuditColumnInventory(t *testing.T) {
 		"resource_policy_namespace_bindings": {},
 		"resource_namespace_claims":          {},
 		"component_warmup_runs":              {},
+		"tool_audit_settings":                {},
 		"namespace_skills":                   {},
 		"namespace_skill_revisions":          {},
 	}
@@ -65,6 +66,13 @@ func TestCanonicalAuditColumnInventory(t *testing.T) {
 	seenAuditTables := make(map[string]bool, len(requiredAuditTables))
 	for _, table := range tables {
 		// SQLX's allocation ledger is infrastructure, separate from domain audit rows.
+		if table == "tool_call_audit" {
+			columns, err := canonicalTableColumns(t, db, table)
+			if err != nil || !columns["started_at"] || !columns["jwt_sub"] {
+				t.Fatalf("event audit provenance is missing: %v", err)
+			}
+			continue
+		}
 		if table == "sqlx_sequence_reservations" || table == "schema_version" {
 			continue
 		}

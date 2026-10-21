@@ -26,7 +26,7 @@ func TestManagementNavigation(t *testing.T) {
 		t.Fatal(err)
 	}
 	app := envelope.Applications[0]
-	if nav.URI != "navigation://operations/main" || app.ID != "datastudio" || app.Title != "Data Studio" || app.Icon != "database" || len(app.Menus) != 9 {
+	if nav.URI != "navigation://operations/main" || app.ID != "datastudio" || app.Title != "Data Studio" || app.Icon != "database" || len(app.Menus) != 10 {
 		t.Fatalf("incorrect navigation: %s", nav.JSON)
 	}
 	var source struct{ Menus []Section }
@@ -35,7 +35,7 @@ func TestManagementNavigation(t *testing.T) {
 	}
 	for i, section := range source.Menus {
 		action := app.Menus[i].Action
-		if section.ID == "connectors" || section.ID == "namespaces" || section.ID == "components" || section.ID == "overview" || section.ID == "runtime" || section.ID == "schema" || section.ID == "skills" || section.ID == "security" {
+		if section.ID == "audit" || section.ID == "connectors" || section.ID == "namespaces" || section.ID == "components" || section.ID == "overview" || section.ID == "runtime" || section.ID == "schema" || section.ID == "skills" || section.ID == "security" {
 			if action.Type != "window" || action.ResourceURI != "window://operations/"+WindowName(section.ID) {
 				t.Fatalf("incorrect functional window action: %+v", action)
 			}
@@ -46,7 +46,7 @@ func TestManagementNavigation(t *testing.T) {
 			t.Fatalf("incorrect action: %+v", action)
 		}
 	}
-	if app.Menus[8].Action.ResourceURI != "window://operations/namespaces" {
+	if app.Menus[len(app.Menus)-1].Action.ResourceURI != "window://operations/namespaces" {
 		t.Fatal("missing portable namespace catalog")
 	}
 	config.ApplicationID = "host-app"

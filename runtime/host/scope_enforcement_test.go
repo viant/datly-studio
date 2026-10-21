@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"github.com/viant/authz"
+	"github.com/viant/datly-studio/internal/namespacepolicy"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -194,7 +195,7 @@ INSERT INTO tasks VALUES(1,101,'alpha-101'),(2,102,'beta-102'),(3,103,'gamma-103
 	if err != nil {
 		return nil, err
 	}
-	store := service.resourceAccess.Store.(*accessstore.Store)
+	store := service.resourceAccess.Store.(*namespacepolicy.Store).Store.(*accessstore.Store)
 	for reportID, policy := range policies {
 		if _, err = store.Provision(ctx, authz.Document{Resource: authz.Resource{Kind: "component", ID: reportID, Version: "1", Tenant: config.Access.Tenant}, Policies: map[string]authz.Policy{"execute": policy}}, "bootstrap"); err != nil {
 			t.Fatal(err)

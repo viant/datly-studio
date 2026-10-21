@@ -23,7 +23,7 @@ var (
 )
 
 // CanonicalVersion identifies the current schema layout, not an upgrade sequence.
-const CanonicalVersion = 23
+const CanonicalVersion = 24
 
 // ApplySQLite applies one embedded SQLite schema or fixture script.
 func ApplySQLite(ctx context.Context, db *sql.DB, name string) error {
@@ -230,8 +230,9 @@ func sqliteStudioDDL(source []byte) []byte {
 		}
 		column := match[2]
 		changed := autoColumn.ReplaceAllString(block, "${1}${2} INTEGER PRIMARY KEY AUTOINCREMENT,")
-		primary := regexp.MustCompile(`(?m)^[ \t]*PRIMARY KEY \(` + regexp.QuoteMeta(column) + `\),\n`)
+		primary := regexp.MustCompile(`(?m)^[ \t]*PRIMARY KEY \(` + regexp.QuoteMeta(column) + `\),?\n`)
 		changed = primary.ReplaceAllString(changed, "")
+		changed = regexp.MustCompile(`,\s*\) ENGINE`).ReplaceAllString(changed, ") ENGINE")
 		text = strings.Replace(text, block, changed, 1)
 	}
 	result = []byte(text)

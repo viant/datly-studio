@@ -31,7 +31,12 @@ type Login struct {
 	Scopes           []string
 }
 
+type Audit struct {
+	ViewerRole string
+}
+
 type Config struct {
+	Audit *Audit
 	datly.Config
 	// Store is the one Studio metadata storage connection. Application data
 	// connectors are managed in the database, outside deployment configuration.

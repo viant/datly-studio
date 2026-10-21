@@ -194,3 +194,35 @@ describe('Studio connector catalog', () => {
     await waitFor(() => expect(api.listConnectors.mock.calls.length).toBeGreaterThan(callsBeforeRefresh));
   });
 });
+
+test('shared Forge runtime lazily loads and retains visited workspace state',async()=>{
+ const user=userEvent.setup(),api=catalogAPI();
+ render(<StudioApp api={api} mode="development" subject="retained-owner"/>);
+ await user.click(screen.getByRole('button',{name:'Connectors',exact:true}));
+ const search=await screen.findByRole('textbox',{name:'Find connector, driver, or owner'});
+ await user.type(search,'keep this filter');
+ const reads=api.readManagementResource.mock.calls.filter(([uri])=>uri==='window://datastudio/connectors').length;
+ await user.click(screen.getByRole('button',{name:'Namespaces',exact:true}));
+ await screen.findByRole('button',{name:'New namespace',exact:true});
+ expect(screen.queryByRole('textbox',{name:'Find connector, driver, or owner'})).toBeNull();
+ const hidden=document.querySelector('[role="tabpanel"][aria-label="connectors"]');
+ expect(hidden.hidden).toBe(true);expect(hidden.hasAttribute('inert')).toBe(true);
+ await user.click(screen.getByRole('button',{name:'Connectors',exact:true}));
+ expect(screen.getByRole('textbox',{name:'Find connector, driver, or owner'}).value).toBe('keep this filter');
+ expect(api.readManagementResource.mock.calls.filter(([uri])=>uri==='window://datastudio/connectors')).toHaveLength(reads);
+ expect(api.readManagementResource.mock.calls.some(([uri])=>uri==='window://datastudio/security')).toBe(false);
+ expect(document.querySelector('[data-forge-workspace-runtime="true"]')).toBeTruthy();
+});
+test('shared workspace retention never carries a form into another namespace',async()=>{
+ const user=userEvent.setup(),api=catalogAPI(),first='a'.repeat(64),second='b'.repeat(64);
+ api.setNamespace=vi.fn();api.setNamespaceBlocked=vi.fn();
+ api.listNamespaces.mockResolvedValue({items:[{namespaceId:first,name:'alpha',title:'Alpha',ownerId:'owner',status:'active'},{namespaceId:second,name:'beta',title:'Beta',ownerId:'owner',status:'active'}]});
+ render(<StudioApp api={api} mode="development" subject="namespace-retention-owner"/>);
+ await waitFor(()=>expect(api.setNamespace).toHaveBeenCalledWith(first));
+ await user.click(screen.getByRole('button',{name:'Connectors',exact:true}));
+ await user.type(await screen.findByRole('textbox',{name:'Find connector, driver, or owner'}),'alpha-only');
+ await user.selectOptions(screen.getByLabelText('Current namespace'),second);
+ await waitFor(()=>expect(api.setNamespace).toHaveBeenLastCalledWith(second));
+ expect((await screen.findByRole('textbox',{name:'Find connector, driver, or owner'})).value).toBe('');
+ expect(screen.queryByDisplayValue('alpha-only')).toBeNull();
+});
