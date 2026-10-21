@@ -178,19 +178,39 @@ window:
               - value: public
                 label: Public
           - id: allowedRoles
-            label: Viewer roles (JSON array)
-            dataField: allowedRoles
+            label: Viewer roles
+            dataField: viewerRoleRows
             readOnlyWhen:
               selector: canManage
               equals: false
-            type: textarea
+            widget: arrayFields
+            scope: form
+            properties:
+              rowLabel: Viewer role
+              addLabel: Add viewer role
+              removeLabel: Remove viewer role
+              newRow: {role: ''}
+              fields:
+                - field: role
+                  label: Viewer role
+                  type: text
           - id: managerRoles
-            label: Manager roles (JSON array)
-            dataField: managerRoles
+            label: Manager roles
+            dataField: managerRoleRows
             readOnlyWhen:
               selector: canManage
               equals: false
-            type: textarea
+            widget: arrayFields
+            scope: form
+            properties:
+              rowLabel: Manager role
+              addLabel: Add manager role
+              removeLabel: Remove manager role
+              newRow: {role: ''}
+              fields:
+                - field: role
+                  label: Manager role
+                  type: text
           - id: status
             label: Status
             dataField: status

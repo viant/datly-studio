@@ -11,13 +11,42 @@ async function edit(user){await user.click(await screen.findByRole('button',{nam
 test('metadata namespace conflict preserves edits and reloads authoritative management capability',async()=>{const user=userEvent.setup(),api=mount({conflict:true});await edit(user);const title=screen.getByLabelText('Display title',{exact:true});await user.clear(title);await user.type(title,'Unsaved');await user.click(screen.getByRole('button',{name:'Save',exact:true}));await waitFor(()=>expect(screen.getByLabelText('Outcome',{exact:true}).value).toBe('namespace etag does not match'));expect(title.value).toBe('Unsaved');await user.click(screen.getByRole('button',{name:'Reload saved revision',exact:true}));await waitFor(()=>expect(title.value).toBe('Authoritative title'));expect(screen.queryByRole('button',{name:'Save',exact:true})).toBeNull();expect(title.readOnly).toBe(true);expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.namespaces.update')[1].input.etag).toBe(3);});
 test('metadata namespace validates MCP port and retains rejected create fields',async()=>{const user=userEvent.setup();mount();await user.click(await screen.findByRole('button',{name:'New namespace',exact:true}));await user.type(screen.getByLabelText('Namespace',{exact:true}),'finance.reporting');await user.type(screen.getByLabelText('Display title',{exact:true}),'Finance');await user.click(screen.getByRole('button',{name:'Save',exact:true}));await waitFor(()=>expect(screen.getByLabelText('Outcome',{exact:true}).value).toBe('namespace already exists'));expect(screen.getByLabelText('Namespace',{exact:true}).value).toBe('finance.reporting');});
 test('metadata namespace cannot be dismissed while its CAS save is pending',async()=>{let finish;const user=userEvent.setup();mount({update:()=>new Promise(resolve=>{finish=resolve;})});await edit(user);await user.click(screen.getByRole('button',{name:'Save',exact:true}));await waitFor(()=>expect(finish).toBeTypeOf('function'));await user.keyboard('{Escape}');expect(screen.getByRole('dialog',{name:'Namespace settings'})).toBeTruthy();expect(screen.getByRole('button',{name:'Cancel',exact:true}).disabled).toBe(true);finish(original);await waitFor(()=>expect(screen.queryByRole('dialog')).toBeNull());});
-test('metadata namespace preserves host-owned immutable names and exact viewer roles',async()=>{const user=userEvent.setup(),api=mount({saved:{...original,name:'ui-component-policy-role'}});await edit(user);expect(screen.getByLabelText('Namespace',{exact:true}).readOnly).toBe(true);const roles=screen.getByLabelText('Viewer roles (JSON array)',{exact:true});await user.clear(roles);await user.click(roles);await user.paste('["XYZ"]');await user.click(screen.getByRole('button',{name:'Save',exact:true}));await waitFor(()=>expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.namespaces.update')).toBe(true));expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.namespaces.update')[1]).toMatchObject({name:'ui-component-policy-role',input:{etag:3,allowedRoles:['XYZ']}});});
+test('metadata namespace preserves host-owned immutable names and exact viewer roles',async()=>{const user=userEvent.setup(),api=mount({saved:{...original,name:'ui-component-policy-role'}});await edit(user);expect(screen.getByLabelText('Namespace',{exact:true}).readOnly).toBe(true);await user.click(screen.getByRole('button',{name:'Add viewer role',exact:true}));const roles=screen.getByRole('textbox',{name:'Viewer role 1',exact:true});await user.type(roles,'XYZ');await user.click(screen.getByRole('button',{name:'Save',exact:true}));await waitFor(()=>expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.namespaces.update')).toBe(true));expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.namespaces.update')[1]).toMatchObject({name:'ui-component-policy-role',input:{etag:3,allowedRoles:['XYZ']}});});
 
  test('namespace manager roles are saved separately from viewer roles',async()=>{
  const user=userEvent.setup(),api=mount();await edit(user);
- const managers=screen.getByLabelText('Manager roles (JSON array)',{exact:true});
- await user.clear(managers);await user.click(managers);await user.paste('["TEAM_MANAGER"]');
+ await user.click(screen.getByRole('button',{name:'Add manager role',exact:true}));
+ const managers=screen.getByRole('textbox',{name:'Manager role 1',exact:true});
+ await user.type(managers,'TEAM_MANAGER');
  await user.click(screen.getByRole('button',{name:'Save',exact:true}));
  await waitFor(()=>expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.namespaces.update')).toBe(true));
  expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.namespaces.update')[1]).toMatchObject({name:original.name,input:{managerRoles:['TEAM_MANAGER'],allowedRoles:[],etag:3}});
  });
+
+test('role rows load, add, remove and save plain string arrays',async()=>{
+ const user=userEvent.setup(),api=mount({saved:{...original,allowedRoles:['READER_A','READER_B'],managerRoles:['MANAGER_A']}});
+ await edit(user);
+ expect(screen.getByRole('textbox',{name:'Viewer role 1',exact:true}).value).toBe('READER_A');
+ expect(screen.getByRole('textbox',{name:'Manager role 1',exact:true}).value).toBe('MANAGER_A');
+ await user.click(screen.getByRole('button',{name:'Remove viewer role 1',exact:true}));
+ await user.click(screen.getByRole('button',{name:'Remove manager role 1',exact:true}));
+ await user.click(screen.getByRole('button',{name:'Add viewer role',exact:true}));
+ await user.type(screen.getByRole('textbox',{name:'Viewer role 2',exact:true}),'READER_C');
+ await user.click(screen.getByRole('button',{name:'Save',exact:true}));
+ await waitFor(()=>expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.namespaces.update')).toBe(true));
+ expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.namespaces.update')[1].input).toMatchObject({allowedRoles:['READER_B','READER_C'],managerRoles:[]});
+});
+test('viewer cannot add, remove or edit role rows',async()=>{
+ const user=userEvent.setup();mount({saved:{...original,canManage:false,allowedRoles:['READER'],managerRoles:['MANAGER']}});await edit(user);
+ expect(screen.queryByRole('button',{name:'Add viewer role',exact:true})).toBeNull();
+ expect(screen.queryByRole('button',{name:'Add manager role',exact:true})).toBeNull();
+ expect(screen.queryByRole('button',{name:'Remove manager role 1',exact:true})).toBeNull();
+ expect(screen.getByRole('textbox',{name:'Manager role 1',exact:true}).disabled).toBe(true);
+});
+test('empty role rows are explained without saving',async()=>{
+ const user=userEvent.setup(),api=mount();await edit(user);
+ await user.click(screen.getByRole('button',{name:'Add manager role',exact:true}));
+ await user.click(screen.getByRole('button',{name:'Save',exact:true}));
+ await waitFor(()=>expect(screen.getByLabelText('Outcome',{exact:true}).value).toBe('Enter each manager role or remove its empty row.'));
+ expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.namespaces.update')).toBe(false);
+});
