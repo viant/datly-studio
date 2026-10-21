@@ -58,6 +58,12 @@ pipeline:
       - page.getByLabel("Slug").fill("execution-snapshot")
       - page.locator("xpath://div[@role='dialog']//button[normalize-space(.)='Create component']").click()
       - expect(page.getByRole("heading", "Component graph")).toBeVisible(20000)
+      - page.locator(".studio-graph-panel .studio-view-select").click()
+      - expect(page.locator("xpath://h2[normalize-space(.)='Columns']/..//*[normalize-space(.)='1 available']")).toBeVisible(20000)
+      - expect(page.locator("xpath://div[contains(@class,'studio-view-column-list')]//small[normalize-space(.)='marker' and not(ancestor::*[@hidden])]")).toBeVisible(20000)
+      - page.getByRole("tab", "Outputs").click()
+      - page.getByRole("tab", "Result columns").click()
+      - expect(page.locator("xpath://div[contains(@class,'studio-view-column-list')]//small[normalize-space(.)='marker' and not(ancestor::*[@hidden])]")).toBeVisible(20000)
   selectedExecutionPersisted:
     action: dsunit:query
     datastore: studio

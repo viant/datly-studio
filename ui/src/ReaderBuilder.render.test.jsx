@@ -212,7 +212,8 @@ describe('ReaderBuilder graph-first authoring', () => {
     await screen.findByRole('heading',{name:'Component graph'});
     await user.click(screen.getByRole('button',{name:'Products',exact:true}));
     expect(await screen.findByText('lookup',{exact:true})).toBeTruthy();
-    await waitFor(()=>expect(api.getTable).toHaveBeenCalledWith('lookup',expect.objectContaining({table:'PRODUCT'})));
+    await waitFor(()=>expect(api.inspectVersion).toHaveBeenCalledWith('vendor',1,{discoverColumns:true}));
+    expect(api.getTable).not.toHaveBeenCalled();
   });
 
   test('keeps an aliased joined view limited to its projected contract', async () => {
@@ -226,7 +227,8 @@ describe('ReaderBuilder graph-first authoring', () => {
     await screen.findByRole('heading', { name: 'Component graph' });
     await user.click(screen.getByRole('button', { name: 'Products', exact: true }));
     await waitFor(() => expect(screen.getByRole('heading', { name: 'Columns' }).parentElement.textContent).toContain('3 available'));
-    await waitFor(() => expect(api.getTable).toHaveBeenCalled());
+    await waitFor(() => expect(api.inspectVersion).toHaveBeenCalledWith('vendor',1,{discoverColumns:true}));
+    expect(api.getTable).not.toHaveBeenCalled();
     expect(screen.getByRole('button', { name: /CHANNEL c.NAME string field Edit/ })).toBeTruthy();
     expect(screen.getByRole('button', { name: /CHANNEL_LABEL c.NAME string field Edit/ })).toBeTruthy();
     expect(screen.queryByRole('button', { name: /UNSELECTED/ })).toBeNull();
@@ -404,9 +406,11 @@ describe('ReaderBuilder graph-first authoring', () => {
   test('selects a view inline, opens SQL explicitly, and guards unsaved navigation', async () => {
     const user = userEvent.setup();
     const inspection = readerFixture();
+    const resolved=structuredClone(inspection);
+    resolved.structure.component.rootView.columns.push({name:'NAME',source:'NAME',type:{name:'string'}});
     const api = {
       listVersions: vi.fn().mockResolvedValue({ items: [inspection.version] }),
-      inspectVersion: vi.fn().mockResolvedValue(inspection),
+      inspectVersion: vi.fn(async(id,version,options)=>options?.discoverColumns?resolved:inspection),
       getConnector: vi.fn().mockResolvedValue({ name: 'main', driver: 'sqlite' }),
       testReaderView: vi.fn().mockResolvedValue({ view: 'vendor', duration: 1, data: [], evidence: { versionNo: 1, sourceRevision: 4 } }),
       getTable: vi.fn().mockResolvedValue({ columns: [
@@ -424,7 +428,7 @@ describe('ReaderBuilder graph-first authoring', () => {
 
     expect(await screen.findByText('Root view')).toBeTruthy();
     expect(screen.getByRole('toolbar', { name: 'Selected view actions' })).toBeTruthy();
-    expect(screen.getByText('2 available')).toBeTruthy();
+    expect(await screen.findByText('2 available')).toBeTruthy();
     expect(screen.queryByRole('heading', { name: 'Vendor SQL' })).toBeNull();
 
     await user.click(screen.getByRole('button', { name: 'Open SQL' }));
@@ -583,7 +587,7 @@ describe('ReaderBuilder graph-first authoring', () => {
     expect(await screen.findByRole('heading', { name: 'Level50' })).toBeTruthy();
   });
 
-  test('loads output columns for a 20-view hierarchy from connector metadata', async () => {
+  test('loads output columns for a 20-view hierarchy from SQL column discovery', async () => {
     const user = userEvent.setup();
     const inspection = readerFixture();
     const root = inspection.structure.component.rootView;
@@ -598,9 +602,11 @@ describe('ReaderBuilder graph-first authoring', () => {
       nodes[index] = view;
       inspection.structure.views.push({ name, sql: `SELECT * FROM ${view.source.table}`, sourceProjectionAll: true });
     }
+    const resolved=structuredClone(inspection);
+    const hydrate=view=>{view.columns=['ID','PARENT_ID','NAME','NODE_KIND','LEVEL_NO'].map(name=>({name,source:name,type:{name:'string'}}));for(const relation of view.relations||[])hydrate(relation.view);};hydrate(resolved.structure.component.rootView);
     const api = {
       listVersions: vi.fn().mockResolvedValue({ items: [inspection.version] }),
-      inspectVersion: vi.fn().mockResolvedValue(inspection),
+      inspectVersion: vi.fn(async(id,version,options)=>options?.discoverColumns?resolved:inspection),
       getTable: vi.fn().mockResolvedValue({ columns: ['ID', 'PARENT_ID', 'NAME', 'NODE_KIND', 'LEVEL_NO'].map((name) => ({ name, type: 'varchar' })) }),
     };
     render(<ReaderBuilder api={api} report={{ id: 'hierarchy', title: 'Hierarchy 20', namespace: 'scale', defaultConnectorName: 'scale_mysql' }} onBack={vi.fn()} />);
@@ -608,13 +614,14 @@ describe('ReaderBuilder graph-first authoring', () => {
     await user.click(screen.getByRole('button', { name: /Output Browse columns/ }));
     await user.click(screen.getByRole('tab',{name:'Result columns'}));
     expect(await screen.findByText('1–25 of 100')).toBeTruthy();
-    expect(api.getTable).toHaveBeenCalledTimes(20);
+    expect(api.getTable).not.toHaveBeenCalled();
+    expect(api.inspectVersion.mock.calls.filter(([, ,options])=>options?.discoverColumns)).toHaveLength(1);
     await user.type(screen.getByRole('textbox', { name: 'Search output columns' }), 'view_20');
     expect(screen.getByText('1–5 of 5')).toBeTruthy();
     expect(screen.getAllByRole('button', { name: /view_20/ })).toHaveLength(5);
   });
 
-  test('shows 60 physical fields with the primary key first and searchable output', async () => {
+  test('shows 60 SQL result fields and searchable output', async () => {
     const user = userEvent.setup();
     const inspection = readerFixture();
     const root = inspection.structure.component.rootView;
@@ -625,9 +632,11 @@ describe('ReaderBuilder graph-first authoring', () => {
     root.relations = [];
     const fields = Array.from({ length: 59 }, (_, index) => ({ name: `FIELD_${String(index + 1).padStart(2, '0')}`, type: 'varchar' }));
     fields.push({ name: 'ID', type: 'int', primaryKey: true });
+    const resolved=structuredClone(inspection);
+    resolved.structure.component.rootView.columns=[fields.at(-1),...fields.slice(0,-1)].map(field=>({name:field.name,source:field.name,type:{name:field.type}}));
     const api = {
       listVersions: vi.fn().mockResolvedValue({ items: [inspection.version] }),
-      inspectVersion: vi.fn().mockResolvedValue(inspection),
+      inspectVersion: vi.fn(async(id,version,options)=>options?.discoverColumns?resolved:inspection),
       getTable: vi.fn().mockResolvedValue({ columns: fields }),
     };
     render(<ReaderBuilder api={api} report={{ id: 'wide', title: 'Wide 60 Fields', namespace: 'scale', defaultConnectorName: 'scale_mysql' }} onBack={vi.fn()} />);
@@ -692,7 +701,7 @@ describe('ReaderBuilder graph-first authoring', () => {
     root.relations = [];
     const api = {
       listVersions: vi.fn().mockResolvedValue({ items: [inspection.version] }),
-      inspectVersion: vi.fn().mockResolvedValue(inspection),
+      inspectVersion: vi.fn().mockResolvedValueOnce(inspection).mockRejectedValueOnce(new Error('SQL discovery offline')).mockResolvedValue(inspection),
       getTable: vi.fn().mockRejectedValueOnce(new Error('offline')).mockResolvedValue({ columns: [{ name: 'ID', type: 'int', primaryKey: true }] }),
     };
     render(<ReaderBuilder api={api} report={{ id: 'retry', title: 'Retry Reader', namespace: 'scale', defaultConnectorName: 'scale_mysql' }} onBack={vi.fn()} />);
@@ -703,9 +712,10 @@ describe('ReaderBuilder graph-first authoring', () => {
     expect(warning.textContent).toContain('VENDOR');
     expect(warning.textContent).toContain('output count is incomplete');
     expect(screen.getByRole('tab',{name:'Outputs',exact:true}).getAttribute('aria-selected')).toBe('true');
-    await user.click(screen.getByRole('button', { name: 'Retry metadata' }));
+    await user.click(screen.getByRole('button', { name: 'Retry discovery' }));
     expect(await screen.findByRole('button', { name: /ID ID int vendor Settings/ })).toBeTruthy();
-    expect(api.getTable).toHaveBeenCalledTimes(2);
+    expect(api.getTable).not.toHaveBeenCalled();
+    expect(api.inspectVersion).toHaveBeenCalledWith('retry',1,{discoverColumns:true});
   });
 
   test('saves embedded SQL bytes without trimming its closing comment newline', async () => {
@@ -749,7 +759,7 @@ describe('ReaderBuilder graph-first authoring', () => {
     await user.click(screen.getByRole('button',{name:'Reload latest'}));
     const heading=await screen.findByRole('main',{name:'Component editor'});
     await waitFor(()=>expect(document.activeElement).toBe(heading));
-    expect(api.inspectVersion).toHaveBeenCalledTimes(2);
+    expect(api.inspectVersion.mock.calls.filter(([, ,options])=>!options?.discoverColumns)).toHaveLength(2);
   });
   test('refreshes compiled aggregate columns after inline SQL saves', async () => {
     const user = userEvent.setup();
@@ -825,4 +835,26 @@ test('ignores an old inspection after switching components', async () => {
   await act(async () => { finishFirst(first); });
   expect(screen.getByText('/second-component', {exact: false})).toBeTruthy();
   expect(screen.queryByText('/first-component', {exact: false})).toBeNull();
+});
+
+
+test('automatically requests SQL column discovery for aggregates without table catalog access',async()=>{
+ const user=userEvent.setup(),inspection=readerFixture();
+ inspection.structure.component.rootView.columns=[];
+ inspection.structure.component.rootView.relations=[];
+ inspection.structure.component.rootView.source={table:'`project.dataset.source`',sql:'SELECT COUNT(*) AS total_rows FROM `project.dataset.source`'};
+ inspection.structure.views=[{name:'vendor',sql:inspection.structure.component.rootView.source.sql,sourceProjectionAll:false}];
+ const resolved=structuredClone(inspection);
+ resolved.structure.component.rootView.columns=[{name:'TotalRows',source:'total_rows',type:{name:'int'}}];
+ const api={listVersions:vi.fn().mockResolvedValue({items:[inspection.version]}),inspectVersion:vi.fn(async(id,version,options)=>options?.discoverColumns?resolved:inspection),getTable:vi.fn().mockRejectedValue(new Error('catalog must not be requested'))};
+ render(<ReaderBuilder api={api} report={{id:'aggregate',title:'Aggregate',defaultConnectorName:'Bq'}} onBack={vi.fn()}/>);
+ const graph=await screen.findByRole('heading',{name:'Component graph'});
+ await user.click(graph.closest('.studio-graph-panel').querySelector('.studio-view-select'));
+ expect(await screen.findByRole('button',{name:/TotalRows total_rows int/})).toBeTruthy();
+ expect(api.inspectVersion).toHaveBeenCalledWith('aggregate',1,{discoverColumns:true});
+ expect(api.getTable).not.toHaveBeenCalled();
+ await user.click(screen.getByRole('tab',{name:'Outputs',exact:true}));
+ await user.click(screen.getByRole('tab',{name:'Result columns'}));
+ expect(await screen.findByRole('button',{name:/TotalRows total_rows int vendor/})).toBeTruthy();
+ expect(api.getTable).not.toHaveBeenCalled();
 });

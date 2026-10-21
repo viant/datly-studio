@@ -83,3 +83,11 @@ retained in the result tab. Each new page executes the captured query again; use
 `ORDER BY` for consistent ordering, and be aware that source changes can affect
 later pages. Page size does not limit the database scan or aggregation workload. Use qualified table names for the selected project
 and schema; connector discovery scope does not rewrite authored SQL.
+
+Component view and output columns are automatically discovered from saved SQL
+through `versions.inspect` with `discoverColumns: true`. Datly v1 issues its
+zero-row discovery query and reads driver column types, preserving computed
+expressions and aliases. The component editor does not call `connectors.table`
+for result columns. Failed discovery retains known columns and offers **Retry
+discovery**. Source revision checks prevent stale discoveries from replacing a
+newer contract.

@@ -245,6 +245,24 @@ SELECT tag(vendors.NAME,'format:"name=CustomerName" json:"customerName"'), tag(v
 	if relation.Relation != "products" || relation.ParentView != "vendors" || relation.ChildView != "products" || relation.ParentRows != 3 || relation.MatchedParents != 2 || relation.UnmatchedParents != 1 || relation.AttachedChildren != 3 || len(relation.Keys) != 1 || relation.Keys[0].ParentColumn != "ID" || relation.Keys[0].ChildColumn != "VENDOR_ID" || relation.Evidence.VersionNo != 1 {
 		t.Fatalf("relation test=%+v", relation)
 	}
+	// Result columns come from Datly's zero-row SQL discovery, including
+	// aliases and expressions that do not exist in the table catalog.
+	inspectedColumns, err := (Dynamic{StudioDB: studio, RootDir: root}).InspectCandidateContract(ctx, "vendors", 1, `#package('example.com/app/dynamic/vendors')
+#setting($_ = $connector('vendor'))
+#setting($_ = $route('/vendors','GET'))
+#define($_ = $Rows<[]*Summary>(output/view))
+SELECT result.*, type(result,'Summary'), CAST(result.total_rows AS int), CAST(result.total_id AS int)
+FROM (SELECT COUNT(*) AS total_rows, SUM(ID) AS total_id FROM VENDOR) result`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	discoveredNames := ""
+	for _, column := range inspectedColumns.RootView.Columns {
+		discoveredNames += strings.ToLower(column.Name+" "+column.Source) + " "
+	}
+	if !strings.Contains(discoveredNames, "total_rows") || !strings.Contains(discoveredNames, "total_id") || len(inspectedColumns.RootView.Columns) != 2 {
+		t.Fatalf("SQL result metadata = %s", discoveredNames)
+	}
 	sqlTest, err := (Dynamic{StudioDB: studio, RootDir: root}).TestSQL(ctx, &sdk.Connector{Name: "vendor", Driver: "sqlite", DSNTemplate: sourceDSN}, sdk.SQLTestInput{SQL: "SELECT ID, NAME FROM VENDOR", Limit: 1})
 	if err != nil {
 		t.Fatal(err)
