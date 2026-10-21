@@ -20,7 +20,7 @@ import (
 
 // ErrNamespaceUnavailable means the runtime manager has no active listener for
 // the selected namespace. It is distinct from an unreachable or invalid admin API.
-var ErrNamespaceUnavailable = errors.New("namespace runtime is unavailable")
+var ErrNamespaceUnavailable = errors.New("namespace runtime is unavailable. Open Namespaces, edit the selected namespace, enable MCP, and save. If MCP is already enabled, check its runtime status. Then retry Release on the same component version")
 
 // Client talks only to the deployment-configured dynamic Datly admin origin.
 // The token is never taken from an SDK or MCP request.
@@ -99,6 +99,11 @@ func (c *Client) Reload(ctx context.Context, generation int64) error {
 		return err
 	}
 	defer response.Body.Close()
+	if response.StatusCode == http.StatusNotFound {
+		if _, selected := sdk.NamespaceSelectionFromContext(ctx); selected {
+			return ErrNamespaceUnavailable
+		}
+	}
 	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
 		return fmt.Errorf("dynamic runtime reload returned %s", response.Status)
 	}

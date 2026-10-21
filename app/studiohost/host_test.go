@@ -341,6 +341,61 @@ func TestOneProcessHost(t *testing.T) {
 		return body
 	}
 
+	// Built-in authoring guidance is a native skill, independent of any
+	// component publication or namespace-owned skill.
+	var skillPage struct {
+		Result mcpschema.ListSkillsResult
+		Error  any
+	}
+	listedSkill := callNative("skills/list", map[string]any{})
+	if err := json.Unmarshal(listedSkill, &skillPage); err != nil || skillPage.Error != nil {
+		t.Fatalf("native management skills: %s %v", listedSkill, err)
+	}
+	skillURI := ""
+	for _, item := range skillPage.Result.Skills {
+		if item.Frontmatter["name"] == "datly-studio-authoring" {
+			skillURI = item.Uri
+		}
+	}
+	if skillURI == "" {
+		t.Fatalf("built-in skill absent: %s", listedSkill)
+	}
+	var skillResult struct {
+		Result mcpschema.GetSkillResult
+		Error  any
+	}
+	gotSkill := callNative("skills/get", map[string]any{"uri": skillURI})
+	if err := json.Unmarshal(gotSkill, &skillResult); err != nil || skillResult.Error != nil || len(skillResult.Result.Skill.Resources.Files) != 5 {
+		t.Fatalf("native skill get: %s %v", gotSkill, err)
+	}
+	for _, file := range skillResult.Result.Skill.Resources.Files {
+		var readResult struct {
+			Result mcpschema.ReadResourceResult
+			Error  any
+		}
+		read := callNative("resources/read", map[string]any{"uri": file.Uri})
+		if err := json.Unmarshal(read, &readResult); err != nil || readResult.Error != nil || len(readResult.Result.Contents) != 1 || readResult.Result.Contents[0].Text == "" {
+			t.Fatalf("native skill reference read %s: %s %v", file.Uri, read, err)
+		}
+	}
+
+	verifiedBearer := bearer
+	bearer = "invalid-resource-credential"
+	for _, probe := range []struct {
+		method string
+		params map[string]any
+	}{
+		{"skills/list", map[string]any{}},
+		{"skills/get", map[string]any{"uri": skillURI}},
+		{"resources/read", map[string]any{"uri": skillURI}},
+	} {
+		denied := callNative(probe.method, probe.params)
+		if !bytes.Contains(denied, []byte(`"error":`)) {
+			t.Fatalf("unverified credential read management skill via %s: %s", probe.method, denied)
+		}
+	}
+	bearer = verifiedBearer
+
 	// Real admin MCP controls use namespace ownership, independently of audit viewing.
 	for _, enabled := range []bool{false, true} {
 		body := callNative("tools/call", map[string]any{"name": "studio.sdk.audit.configure", "arguments": map[string]any{"namespaceId": strings.Repeat("a", 64), "enabled": enabled}})

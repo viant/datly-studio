@@ -14,6 +14,7 @@ import (
 	_ "github.com/sijms/go-ora/v2"
 	_ "github.com/viant/bigquery"
 	_ "github.com/viant/datly-studio/internal/dependencylink"
+	"github.com/viant/datly-studio/internal/managementskills"
 	"github.com/viant/datly-studio/runtime/accessprovider"
 	studiocodecs "github.com/viant/datly-studio/runtime/codecs"
 	"github.com/viant/datly-studio/studio/host"
@@ -22,10 +23,14 @@ import (
 	nativeauth "github.com/viant/datly/runtime/auth"
 	"github.com/viant/datly/standalone"
 	"github.com/viant/datly/standalone/config"
+	"github.com/viant/mcp-protocol/authorization"
+	mcpauth "github.com/viant/mcp/server/auth"
+	"github.com/viant/scy/auth/jwt"
 	_ "github.com/viant/sqlx/metadata/product/bigquery"
 	_ "github.com/viant/sqlx/metadata/product/mysql"
 	_ "github.com/viant/sqlx/metadata/product/pg"
 	_ "github.com/viant/sqlx/metadata/product/sqlite"
+	xcodec "github.com/viant/xdatly/codec"
 	_ "modernc.org/sqlite"
 )
 
@@ -38,6 +43,7 @@ type Options struct {
 	LinkedArtifact          *exec.LinkedArtifact
 	RequireComponentBinding bool
 	AccessProviderFactory   accessprovider.ProviderFactory
+	MCPResourceAuthorizer   mcpauth.ResourceAuthorizer
 }
 
 // Run runs the original native command with the existing process bindings.
@@ -156,11 +162,32 @@ func serveConfig(ctx context.Context, cfg *config.Config, binding Options, middl
 }
 
 func newServer(ctx context.Context, cfg *config.Config, binding Options, middleware func(http.Handler) http.Handler, diagnostics io.Writer) (*standalone.Server, error) {
+	resourceAuthorizer := binding.MCPResourceAuthorizer
 	// Reuse Datly's verifier configuration for dynamically authored JwtClaim inputs.
 	if cfg.JWTValidator != nil {
 		jwtCodec, err := nativeauth.New(ctx, &nativeauth.Config{JWTValidator: cfg.JWTValidator, ClaimPolicy: cfg.JWTClaims})
 		if err != nil {
 			return nil, err
+		}
+		if resourceAuthorizer == nil {
+			claimsCodec, codecErr := jwtCodec.New(&xcodec.Config{Body: nativeauth.JwtClaim, SourceType: reflect.TypeFor[string](), DestinationType: reflect.TypeFor[*jwt.Claims]()})
+			if codecErr != nil {
+				return nil, codecErr
+			}
+			resourceAuthorizer = func(ctx context.Context, token *authorization.Token, rule *authorization.Authorization) error {
+				if token == nil || token.Token == "" {
+					return fmt.Errorf("verified resource credential is required")
+				}
+				if _, err := claimsCodec.Value(ctx, token.Token); err != nil {
+					return fmt.Errorf("resource credential verification failed")
+				}
+				// Claim-to-scope mapping is application policy. Hosts with
+				// scoped resources must supply that existing verifier explicitly.
+				if rule != nil && len(rule.RequiredScopes) > 0 {
+					return fmt.Errorf("scoped MCP resources require a linked resource authorizer")
+				}
+				return nil
+			}
 		}
 		codecFactory := studiocodecs.New(jwtCodec)
 		previous := middleware
@@ -173,7 +200,16 @@ func newServer(ctx context.Context, cfg *config.Config, binding Options, middlew
 			})
 		}
 	}
-	options := standalone.Options{Config: cfg, LinkedArtifact: binding.LinkedArtifact, RequireComponentBinding: binding.RequireComponentBinding, RequireLinked: true, Diagnostics: diagnostics}
+	// Built-in agent guidance belongs to the management server, independently
+	// of component releases and namespace-owned business skills.
+	if cfg.MCP != nil {
+		copied := *cfg
+		managementMCP := *cfg.MCP
+		managementMCP.Folders = append(append(managementMCP.Folders[:0:0], managementMCP.Folders...), managementskills.Folder())
+		copied.MCP = &managementMCP
+		cfg = &copied
+	}
+	options := standalone.Options{MCPResourceAuthorizer: resourceAuthorizer, Config: cfg, LinkedArtifact: binding.LinkedArtifact, RequireComponentBinding: binding.RequireComponentBinding, RequireLinked: true, Diagnostics: diagnostics}
 	if middleware != nil {
 		// Fail closed on published versions without trusted HTTP wrapping support.
 		field := reflect.ValueOf(&options).Elem().FieldByName("HTTPMiddleware")

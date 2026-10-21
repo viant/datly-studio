@@ -91,3 +91,12 @@ expressions and aliases. The component editor does not call `connectors.table`
 for result columns. Failed discovery retains known columns and offers **Retry
 discovery**. Source revision checks prevent stale discoveries from replacing a
 newer contract.
+
+Management MCP embeds the native `datly-studio-authoring` skill. Authenticated
+agents discover it with `skills/list`, fetch its manifest with `skills/get`, and
+read its workflow, DQL grammar, and cube/dictionary references with `resources/read`.
+It is independent of namespace releases. Namespace-directory compatibility tools
+are named `studio.sdk.catalog.skills.list` and `.get`, preserving Datly's reserved
+`skills/list` and `skills/get` bridges. Native protected resource access reuses the
+configured JWT verifier; applications requiring resource scopes supply their own
+linked `MCPResourceAuthorizer`.

@@ -57,10 +57,10 @@ func (o *SkillGetOutput) MarshalJSON() ([]byte, error) {
 }
 
 type SkillListComponent struct {
-	Contract xdatly.Component[SkillListInput, SkillListOutput] `component:"catalog_skills_list,path=/v1/studio/catalog/skills/list,method=POST,connector=studio,handler=NewSkillList" mcp:"[{\"kind\":\"tool\",\"name\":\"skills/list\",\"description\":\"List authorized published namespace skills\"}]" caseFormat:"lc"`
+	Contract xdatly.Component[SkillListInput, SkillListOutput] `component:"catalog_skills_list,path=/v1/studio/catalog/skills/list,method=POST,connector=studio,handler=NewSkillList" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.catalog.skills.list\",\"description\":\"List authorized published namespace skills\"}]" caseFormat:"lc"`
 }
 type SkillGetComponent struct {
-	Contract xdatly.Component[SkillGetInput, SkillGetOutput] `component:"catalog_skills_get,path=/v1/studio/catalog/skills/get,method=POST,connector=studio,handler=NewSkillGet" mcp:"[{\"kind\":\"tool\",\"name\":\"skills/get\",\"description\":\"Retrieve an authorized published namespace skill\"}]" caseFormat:"lc"`
+	Contract xdatly.Component[SkillGetInput, SkillGetOutput] `component:"catalog_skills_get,path=/v1/studio/catalog/skills/get,method=POST,connector=studio,handler=NewSkillGet" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.catalog.skills.get\",\"description\":\"Retrieve an authorized published namespace skill\"}]" caseFormat:"lc"`
 }
 
 var SkillListDatly = new(SkillListComponent)
