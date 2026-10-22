@@ -98,6 +98,11 @@ func (g Gateway) ServeHTTP(response http.ResponseWriter, request *http.Request) 
 	}
 	ctx, err := g.authenticate(request)
 	if err != nil {
+		var unavailable *sdk.Error
+		if errors.As(err, &unavailable) && unavailable.Code == sdk.ErrorUnavailable {
+			writeError(response, http.StatusServiceUnavailable, &sdk.Error{Code: sdk.ErrorUnavailable, Message: "Studio session verification is temporarily unavailable", Cause: err})
+			return
+		}
 		writeError(response, http.StatusUnauthorized, &sdk.Error{Code: sdk.ErrorUnauthorized, Message: "Studio authentication is required", Cause: err})
 		return
 	}

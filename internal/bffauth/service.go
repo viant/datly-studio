@@ -114,7 +114,8 @@ func (s *Service) ProxyWithResolver(target *url.URL, mount string, resolve Proxy
 		}
 		current, err := s.sessionForRequest(request)
 		if err != nil {
-			writeJSON(response, http.StatusUnauthorized, map[string]string{"message": "Studio authentication is required"})
+			status, message := sessionErrorResponse(err)
+			writeJSON(response, status, map[string]string{"message": message})
 			return
 		}
 		values, selected := request.Header[http.CanonicalHeaderKey("X-Studio-Namespace")]
@@ -199,7 +200,8 @@ func (s *Service) Authenticate(ctx context.Context, request *http.Request) (cont
 func (s *Service) handleMe(response http.ResponseWriter, request *http.Request) {
 	principal, err := s.principal(request)
 	if err != nil {
-		writeJSON(response, http.StatusUnauthorized, map[string]any{"authenticated": false})
+		status, message := sessionErrorResponse(err)
+		writeJSON(response, status, map[string]any{"authenticated": false, "message": message})
 		return
 	}
 	writeJSON(response, http.StatusOK, map[string]any{"authenticated": true, "subject": principal.Subject})
@@ -335,7 +337,7 @@ func (s *Service) sessionForID(ctx context.Context, id string) (session, error) 
 	}
 	current, ok, err := s.store.Get(ctx, id)
 	if err != nil {
-		return session{}, fmt.Errorf("load Studio session: %w", err)
+		return session{}, &sdk.Error{Code: sdk.ErrorUnavailable, Message: "Studio session verification is temporarily unavailable", Cause: err}
 	}
 	if !ok || !s.now().Before(current.expiresAt) {
 		if ok {
@@ -388,4 +390,13 @@ func writeJSON(response http.ResponseWriter, status int, value any) {
 	response.Header().Set("Content-Type", "application/json")
 	response.WriteHeader(status)
 	_ = json.NewEncoder(response).Encode(value)
+}
+
+// Store outages must fail closed without presenting a valid session as expired.
+func sessionErrorResponse(err error) (int, string) {
+	var unavailable *sdk.Error
+	if errors.As(err, &unavailable) && unavailable.Code == sdk.ErrorUnavailable {
+		return http.StatusServiceUnavailable, "Studio session verification is temporarily unavailable"
+	}
+	return http.StatusUnauthorized, "Studio authentication is required"
 }
