@@ -8,8 +8,8 @@ let serial=0;
 const saved={name:'warehouse',driver:'mysql',etag:4,status:'draft',description:'',dsnDisplay:'${Username}:${Password}@tcp(db:3306)/reporting',secretRefDisplay:'file:///config/old.enc|blowfish://env/OLD',options:{}};
 function mount(){const api={readManagementResource:async()=>managementResourceFixture('connectors'),fetchMCPDataSource:vi.fn(async(source,input)=>source.backend.method==='studio.sdk.connectors.list'?{items:[saved]}:source.backend.method==='studio.sdk.connectors.get'?saved:{...saved,etag:5})};render(<ManagementWindowRuntime api={api} uri="window://datastudio/connectors" instanceKey={'connector-dialog-'+(++serial)}/>);return api;}
 async function edit(user){await user.click(await screen.findByRole('button',{name:'Edit',exact:true}));await screen.findByLabelText('Description',{exact:true});}
-test('metadata connector saves unrelated edits without reusing displayed secrets or DSN',async()=>{const user=userEvent.setup(),api=mount();await edit(user);expect(screen.getByLabelText('Saved DSN',{exact:true}).value).toBe(saved.dsnDisplay);expect(screen.getByLabelText('Saved DSN',{exact:true}).readOnly).toBe(true);expect(screen.getByLabelText('Saved secret reference',{exact:true}).value).toBe(saved.secretRefDisplay);await user.type(screen.getByLabelText('Description',{exact:true}),'Updated');await user.click(screen.getByRole('button',{name:'Save',exact:true}));await waitFor(()=>expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.connectors.update')).toBe(true));const input=api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.connectors.update')[1];expect(input).toMatchObject({name:'warehouse',input:{description:'Updated',etag:4}});expect(input.input).not.toHaveProperty('dsnTemplate');expect(input.input).not.toHaveProperty('secretRef');});
-test('metadata connector replaces DSN and SCY reference only when explicitly entered',async()=>{const user=userEvent.setup(),api=mount();await edit(user);await user.type(screen.getByLabelText('DSN (blank keeps existing)',{exact:true}),'mysql://new');await user.type(screen.getByLabelText('Secret URL',{exact:true}),'file:///config/new.enc');await user.type(screen.getByLabelText('Secret key',{exact:true}),'blowfish://default');await user.click(screen.getByRole('button',{name:'Save',exact:true}));await waitFor(()=>expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.connectors.update')).toBe(true));expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.connectors.update')[1].input).toMatchObject({dsnTemplate:'mysql://new',secretRef:'file:///config/new.enc|blowfish://default'});});
+test('metadata connector saves unrelated edits without reusing displayed secrets or DSN',async()=>{const user=userEvent.setup(),api=mount();await edit(user);expect(screen.getByLabelText('DSN',{exact:true}).value).toBe(saved.dsnDisplay);expect(screen.getByLabelText('DSN',{exact:true}).readOnly).toBe(false);expect(screen.getByLabelText('Secret reference',{exact:true}).value).toBe(saved.secretRefDisplay);await user.type(screen.getByLabelText('Description',{exact:true}),'Updated');await user.click(screen.getByRole('button',{name:'Save',exact:true}));await waitFor(()=>expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.connectors.update')).toBe(true));const input=api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.connectors.update')[1];expect(input).toMatchObject({name:'warehouse',input:{description:'Updated',etag:4}});expect(input.input).not.toHaveProperty('dsnTemplate');expect(input.input).not.toHaveProperty('secretRef');});
+test('metadata connector replaces DSN and SCY reference only when explicitly entered',async()=>{const user=userEvent.setup(),api=mount();await edit(user);await user.clear(screen.getByLabelText('DSN',{exact:true}));await user.type(screen.getByLabelText('DSN',{exact:true}),'mysql://new');await user.type(screen.getByLabelText('Secret URL',{exact:true}),'file:///config/new.enc');await user.type(screen.getByLabelText('Secret key',{exact:true}),'blowfish://default');await user.click(screen.getByRole('button',{name:'Save',exact:true}));await waitFor(()=>expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.connectors.update')).toBe(true));expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.connectors.update')[1].input).toMatchObject({dsnTemplate:'mysql://new',secretRef:'file:///config/new.enc|blowfish://default'});});
 test('metadata connector rejects a replacement key without URL and preserves the entered draft',async()=>{const user=userEvent.setup(),api=mount();await edit(user);await user.type(screen.getByLabelText('Secret key',{exact:true}),'blowfish://default');await user.click(screen.getByRole('button',{name:'Save',exact:true}));await waitFor(()=>expect(screen.getByLabelText('Outcome',{exact:true}).value).toContain('secret URL'));expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.connectors.update')).toBe(false);expect(screen.getByLabelText('Secret key',{exact:true}).value).toBe('blowfish://default');});
 
 test('connector lookup entries save independently of the editable driver',async()=>{
@@ -50,19 +50,19 @@ test('Save & test probes the newly saved configuration and keeps detailed errors
   switch(source.backend.method){
    case 'studio.sdk.connectors.list':return {items:[current]};
    case 'studio.sdk.connectors.get':return current;
-   case 'studio.sdk.connectors.update':current={...current,...input.input,etag:5};return current;
+   case 'studio.sdk.connectors.update':current={...current,...input.input,dsnDisplay:input.input.dsnTemplate??current.dsnDisplay,etag:5};return current;
    case 'studio.sdk.connectors.test':current={...current,lastTestStatus:'failed',etag:6};return {name:current.name,status:'failed',errorCode:'secret_not_found',message:'Connector secret file was not found on this server. Check the secret URL and deployment volume mount.',testedAt:'2026-10-22T17:00:00Z'};
    default:throw new Error('Unexpected '+source.backend.method);
   }
  })};
  render(<ManagementWindowRuntime api={api} uri="window://datastudio/connectors" instanceKey={'connector-probe-'+(++serial)}/>);
  await edit(user);
- await user.type(screen.getByLabelText('DSN (blank keeps existing)',{exact:true}),'new-dsn');
+ await user.clear(screen.getByLabelText('DSN',{exact:true}));await user.type(screen.getByLabelText('DSN',{exact:true}),'new-dsn');
  await user.click(screen.getByRole('button',{name:'Save & test',exact:true}));
  await waitFor(()=>expect(screen.getByLabelText('Outcome',{exact:true}).value).toContain('[secret_not_found]'));
  expect(screen.getByLabelText('Outcome',{exact:true}).value).toContain('deployment volume mount');
  expect(screen.getByRole('button',{name:'Save & test',exact:true})).toBeTruthy();
- expect(screen.getByLabelText('DSN (blank keeps existing)',{exact:true}).value).toBe('');
+ expect(screen.getByLabelText('DSN',{exact:true}).value).toBe('new-dsn');
  const calls=api.fetchMCPDataSource.mock.calls;
  const update=calls.findIndex(([source])=>source.backend.method==='studio.sdk.connectors.update');
  const probe=calls.findIndex(([source])=>source.backend.method==='studio.sdk.connectors.test');
@@ -71,4 +71,23 @@ test('Save & test probes the newly saved configuration and keeps detailed errors
  expect(calls[probe][1]).toEqual({name:'warehouse'});
  await user.click(screen.getByRole('button',{name:'Save',exact:true}));
  await waitFor(()=>expect(api.fetchMCPDataSource.mock.calls.filter(([source])=>source.backend.method==='studio.sdk.connectors.update').at(-1)[1].input.etag).toBe(6));
+});
+
+
+test('saved secret reference can be edited directly and saved with its key',async()=>{
+ const user=userEvent.setup(),api=mount();await edit(user);
+ const reference=screen.getByLabelText('Secret reference',{exact:true});
+ expect(reference.readOnly).toBe(false);
+ await user.clear(reference);await user.type(reference,'/opt/studio/secrets/steward-mysql.enc|blowfish://default');
+ await user.click(screen.getByRole('button',{name:'Save',exact:true}));
+ await waitFor(()=>expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.connectors.update')).toBe(true));
+ expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.connectors.update')[1].input).toMatchObject({secretRef:'/opt/studio/secrets/steward-mysql.enc|blowfish://default',etag:4});
+});
+
+test('clearing the editable secret reference removes it explicitly',async()=>{
+ const user=userEvent.setup(),api=mount();await edit(user);
+ await user.clear(screen.getByLabelText('Secret reference',{exact:true}));
+ await user.click(screen.getByRole('button',{name:'Save',exact:true}));
+ await waitFor(()=>expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.connectors.update')).toBe(true));
+ expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.connectors.update')[1].input.secretRef).toBe('');
 });

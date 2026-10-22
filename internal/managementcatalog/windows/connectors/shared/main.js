@@ -19,7 +19,7 @@
   context.handlers.window.openDialog({execution:{args:['connector-editor']}});
  };
  const reload = async name => record(await call('get',{name}));
- const showSaved = (current, outcome) => draft().setFormData({values:{...current,editing:true,dsnTemplate:'',secretURL:'',secretKey:'',clearSecret:false,...rules.discoveryDraft(current.options),discoveryConfigured:Boolean(current.options?.discovery),outcome}});
+ const showSaved = (current, outcome) => draft().setFormData({values:{...current,originalSecretRefDisplay:current.secretRefDisplay||'',originalDSNDisplay:current.dsnDisplay||'',editing:true,dsnTemplate:current.dsnDisplay||'',secretURL:'',secretKey:'',clearSecret:false,...rules.discoveryDraft(current.options),discoveryConfigured:Boolean(current.options?.discovery),outcome}});
  const probeOutcome = result => [result.status==='passed'?'Connection passed.':`Connection failed${result.errorCode?` [${result.errorCode}]`:''}.`,result.message,result.testedAt?`Tested at ${result.testedAt}`:''].filter(Boolean).join('\n');
  return {
   refreshConnectors:()=>run(refresh),
@@ -33,7 +33,7 @@
   editConnector: props => run(async () => {
    const row = props?.row||selected(); if (!row) throw new Error('Select a connector.');
    const current = await reload(row.name);
-   open({...current,editing:true,dsnTemplate:'',secretURL:'',secretKey:'',clearSecret:false,...rules.discoveryDraft(current.options),discoveryConfigured:Boolean(current.options?.discovery),outcome:'Blank connection fields keep the saved configuration. Use Remove secret to clear its reference.'});
+   open({...current,originalSecretRefDisplay:current.secretRefDisplay||'',originalDSNDisplay:current.dsnDisplay||'',editing:true,dsnTemplate:current.dsnDisplay||'',secretURL:'',secretKey:'',clearSecret:false,...rules.discoveryDraft(current.options),discoveryConfigured:Boolean(current.options?.discovery),outcome:'Edit the DSN or secret reference directly. Unchanged values keep the saved configuration.'});
   }),
   applyYAML: () => run(async () => {
    const form=draft().getFormData(), value=utilities.yaml.parse(form.yamlText||'');
@@ -61,7 +61,7 @@
    const result=record(await call('test',{name:row.name}));
    draft().setFormField({item:{dataField:'outcome'},value:probeOutcome(result)});await refresh();
   }),
-  reloadConnector: () => run(async () => {const form=draft().getFormData();const current=await reload(form.name);draft().setFormData({values:{...current,editing:true,dsnTemplate:'',secretURL:'',secretKey:'',...rules.discoveryDraft(current.options),discoveryConfigured:Boolean(current.options?.discovery),outcome:'Reloaded current revision.'}});}),
+  reloadConnector: () => run(async () => {const form=draft().getFormData();const current=await reload(form.name);draft().setFormData({values:{...current,originalSecretRefDisplay:current.secretRefDisplay||'',originalDSNDisplay:current.dsnDisplay||'',editing:true,dsnTemplate:current.dsnDisplay||'',secretURL:'',secretKey:'',...rules.discoveryDraft(current.options),discoveryConfigured:Boolean(current.options?.discovery),outcome:'Reloaded current revision.'}});}),
   searchConnectors: () => run(async () => {
    const filter=ds('connector_filter').getFormData();
    ds('connectors').setInputParameters({query:(filter.query||'').trim(),status:filter.status||'',offset:0});

@@ -36,7 +36,7 @@ test('connector window edits the saved revision, preserves blank secrets, and in
  const user=userEvent.setup();const row=await screen.findByText('warehouse');if(!row.closest('tr').classList.contains('selected-row'))await user.click(row);
  await user.click(screen.getByRole('button',{name:'Edit',exact:true}));
  const description=await screen.findByLabelText('Description',{exact:true});await user.clear(description);await user.type(description,'Updated');
- expect(screen.getByLabelText('Saved secret reference',{exact:true}).value).toBe(saved.secretRefDisplay);
+ expect(screen.getByLabelText('Secret reference',{exact:true}).value).toBe(saved.secretRefDisplay);
  await user.click(screen.getByRole('button',{name:'Save',exact:true}));
  await waitFor(()=>expect(calls.some(request=>request.dataSourceRef==='connector_update')).toBe(true));
  const input=calls.find(request=>request.dataSourceRef==='connector_update').options.inputParameters;

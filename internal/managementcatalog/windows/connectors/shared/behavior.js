@@ -41,8 +41,13 @@ export default function connectorBehavior() {
     if(catalogs.some(row=>!row?.name?.trim())||schemas.some(row=>!row?.name?.trim()))throw new Error('Enter a name for each lookup entry or remove its empty row.');
     if(catalogs.length||schemas.length||form.discoveryConfigured)options.discovery={catalogs:[...new Set(catalogs.map(row=>row.name.trim()))],schemas:schemas.map(row=>({catalog:(row.catalog||'').trim(),name:row.name.trim()}))};
     const input = {driver: form.driver, description: (form.description || '').trim(), options};
-    if (!form.editing || (form.dsnTemplate || '').trim()) input.dsnTemplate = (form.dsnTemplate || '').trim();
-    if (!form.editing || url || form.clearSecret) input.secretRef = form.clearSecret ? '' : url + (key ? '|' + key : '');
+    const dsn = (form.dsnTemplate || '').trim();
+    if (!form.editing || dsn !== (form.originalDSNDisplay || '').trim()) input.dsnTemplate = dsn;
+    const reference = (form.secretRefDisplay || '').trim();
+    const referenceChanged = reference !== (form.originalSecretRefDisplay || '').trim();
+    if (!form.editing || url || form.clearSecret || referenceChanged) {
+      input.secretRef = form.clearSecret ? '' : url ? url + (key ? '|' + key : '') : reference;
+    }
     return form.editing ? {operation: 'update', parameters: {name, input: {...input, etag: form.etag}}} : {operation: 'create', parameters: {name, ...input}};
   }
   return {yamlPatch, saveRequest, discoveryDraft};

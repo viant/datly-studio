@@ -115,9 +115,8 @@ window:
                 - {field: catalog, label: Project / catalog (optional), type: text}
                 - {field: name, label: Schema / dataset, type: text}
           - {id: description, label: Description, dataField: description, type: textarea}
-          - {id: dsnDisplay, label: Saved DSN, dataField: dsnDisplay, type: textarea, readOnly: true}
-          - {id: secretRefDisplay, label: Saved secret reference, dataField: secretRefDisplay, type: text, readOnly: true}
-          - {id: dsnTemplate, label: DSN (blank keeps existing), dataField: dsnTemplate, type: textarea}
+          - {id: secretRefDisplay, label: Secret reference, dataField: secretRefDisplay, type: text}
+          - {id: dsnTemplate, label: DSN, dataField: dsnTemplate, type: textarea}
           - {id: secretURL, label: Secret URL, dataField: secretURL, type: text}
           - {id: secretKey, label: Secret key, dataField: secretKey, type: text}
           - {id: clearSecret, label: Remove secret, dataField: clearSecret, type: checkbox}
