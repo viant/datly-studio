@@ -34,8 +34,8 @@ func Criteria(ctx context.Context, connectors connector.Provider, subject, alias
 		return nil, forbidden("namespace role verifier is unavailable")
 	}
 	if provider != nil {
-		facts, err := provider.Resolve(ctx)
-		if err != nil || facts.Subject != subject || facts.Issuer == "" || !facts.ValidUntil.After(time.Now()) {
+		roles, err := verifiedRoles(ctx, subject)
+		if err != nil {
 			// A user-info outage must not hide a namespace from its verified
 			// owner or from authenticated viewers of a public namespace. It
 			// does fail closed for role-based visibility.
@@ -49,15 +49,16 @@ func Criteria(ctx context.Context, connectors connector.Provider, subject, alias
 			}
 			return &xpredicate.Criteria{Expression: strings.ReplaceAll(expression+")", "namespaces.", alias+"."), Placeholders: values}, nil
 		}
-		rememberRoles(ctx, facts)
-		roles, err := roleCriteria(connectors, ctx, "namespaces", facts.Roles, false)
+		roleScope, err := roleCriteria(connectors, ctx, "namespaces", roles, false)
 		if err != nil {
 			return nil, err
 		}
-		expression += " OR " + roles.Expression
-		values = append(values, roles.Placeholders...)
+		expression += " OR " + roleScope.Expression
+		values = append(values, roleScope.Placeholders...)
 	}
 	return &xpredicate.Criteria{Expression: strings.ReplaceAll(expression+")", "namespaces.", alias+"."), Placeholders: values}, nil
 }
 
-func forbidden(message string) error { return &xresponse.Error{Code: 403, Cause: errors.New(message)} }
+func forbidden(message string) error {
+	return &xresponse.Error{Code: 403, Cause: errors.New(message), Payload: map[string]string{"message": message}}
+}

@@ -341,6 +341,22 @@ func TestOneProcessHost(t *testing.T) {
 		return body
 	}
 
+	// Authoring failures must remain useful MCP errors rather than null payloads.
+	for _, probe := range []struct {
+		name      string
+		arguments map[string]any
+		message   string
+	}{
+		{"studio.sdk.components.create", map[string]any{"slug": "invalid_slug", "title": "Demo", "defaultConnectorName": "source"}, "slug must use lowercase letters"},
+		{"studio.sdk.components.get", map[string]any{"id": "missing-report"}, "report not found"},
+		{"studio.sdk.namespaces.get", map[string]any{"name": "missing-namespace"}, "namespace not found"},
+	} {
+		body := callNative("tools/call", map[string]any{"name": probe.name, "arguments": probe.arguments})
+		if !bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(probe.message)) || bytes.Contains(body, []byte(`"structuredContent":null`)) {
+			t.Fatalf("authoring error %s: %s", probe.name, body)
+		}
+	}
+
 	// Built-in authoring guidance is a native skill, independent of any
 	// component publication or namespace-owned skill.
 	var skillPage struct {
@@ -365,7 +381,7 @@ func TestOneProcessHost(t *testing.T) {
 		Error  any
 	}
 	gotSkill := callNative("skills/get", map[string]any{"uri": skillURI})
-	if err := json.Unmarshal(gotSkill, &skillResult); err != nil || skillResult.Error != nil || len(skillResult.Result.Skill.Resources.Files) != 5 {
+	if err := json.Unmarshal(gotSkill, &skillResult); err != nil || skillResult.Error != nil || len(skillResult.Result.Skill.Resources.Files) != 7 {
 		t.Fatalf("native skill get: %s %v", gotSkill, err)
 	}
 	for _, file := range skillResult.Result.Skill.Resources.Files {
@@ -395,6 +411,17 @@ func TestOneProcessHost(t *testing.T) {
 		}
 	}
 	bearer = verifiedBearer
+
+	// Agents can discover the live namespace catalog through their existing admin
+	// connection, including after publication changes its business tool set.
+	catalogTools := callNative("tools/call", map[string]any{"name": "studio.sdk.catalog.tools.list", "arguments": map[string]any{"namespaceId": strings.Repeat("a", 64)}})
+	if bytes.Contains(catalogTools, []byte(`"isError":true`)) || !bytes.Contains(catalogTools, []byte(`"tools":`)) {
+		t.Fatalf("live namespace tool discovery: %s", catalogTools)
+	}
+	deniedTools := callNative("tools/call", map[string]any{"name": "studio.sdk.catalog.tools.list", "arguments": map[string]any{"namespaceId": strings.Repeat("b", 64)}})
+	if !bytes.Contains(deniedTools, []byte(`"isError":true`)) && !bytes.Contains(deniedTools, []byte(`"error":`)) {
+		t.Fatalf("unknown namespace tool discovery permitted: %s", deniedTools)
+	}
 
 	// Real admin MCP controls use namespace ownership, independently of audit viewing.
 	for _, enabled := range []bool{false, true} {

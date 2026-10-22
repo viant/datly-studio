@@ -254,6 +254,20 @@ func TestConnectorListSDKDatlyContract(t *testing.T) {
 	if bytes.Contains(structured, []byte("private-token")) || bytes.Contains(structured, []byte("dsnTemplate")) {
 		t.Fatalf("MCP connector leaked secret material: %s", structured)
 	}
+
+	// Agent discovery can request a small catalog without receiving large options.
+	projected, projectionErr := tool.Handler(callContext, &schema.CallToolRequest{Method: schema.MethodToolsCall, Params: schema.CallToolRequestParams{Name: "studio.sdk.connectors.list", Arguments: map[string]any{"query": "alpha", "fields": []any{"name", "driver", "status", "ownerId"}}}})
+	if projectionErr != nil || projected == nil || projected.IsError != nil && *projected.IsError {
+		t.Fatalf("projected catalog: %+v %v", projected, projectionErr)
+	}
+	projectionWire, marshalErr := json.Marshal(projected.StructuredContent)
+	var projectedRows struct {
+		Items []map[string]any `json:"items"`
+	}
+	if marshalErr != nil || json.Unmarshal(projectionWire, &projectedRows) != nil || len(projectedRows.Items) != 1 || len(projectedRows.Items[0]) != 4 || projectedRows.Items[0]["ownerId"] != "owner-a" {
+		t.Fatalf("catalog field selection was ignored: %s %v", projectionWire, marshalErr)
+	}
+
 	if _, err = db.ExecContext(ctx, "UPDATE components SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?", "r-beta"); err != nil {
 		t.Fatal(err)
 	}

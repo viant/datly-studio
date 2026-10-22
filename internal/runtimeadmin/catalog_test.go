@@ -75,3 +75,67 @@ func TestReadCatalogRejectsUnscopedAndNonReadOperations(t *testing.T) {
 		t.Fatalf("unscoped request: %v", err)
 	}
 }
+
+func TestLiveToolsAndInvocationPreserveCallerAuthority(t *testing.T) {
+	id := strings.Repeat("c", 64)
+	var origin string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/_studio/status" {
+			if r.Header.Get("X-Studio-Runtime-Token") != "deployment" || r.Header.Get("Authorization") != "" || r.URL.Query().Get("namespaceId") != id {
+				t.Error("runtime status authority changed")
+			}
+			json.NewEncoder(w).Encode(map[string]any{"namespaceId": id, "status": "ready", "mcpUrl": origin + "/namespaces/" + id + "/mcp"})
+			return
+		}
+		if r.Header.Get("Authorization") != "Bearer caller" || r.Header.Get("X-Studio-Runtime-Token") != "" {
+			t.Error("caller authority was replaced by deployment credential")
+		}
+		var message struct {
+			Method string         `json:"method"`
+			Params map[string]any `json:"params"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&message); err != nil {
+			t.Error(err)
+		}
+		switch message.Method {
+		case "tools/list":
+			if message.Params["cursor"] != "next-page" {
+				t.Error("tool cursor changed")
+			}
+			w.Write([]byte(`{"jsonrpc":"2.0","id":1,"result":{"tools":[{"name":"new.cube","inputSchema":{"type":"object"}}]}}`))
+		case "tools/call":
+			if message.Params["name"] != "new.cube" || r.Header.Get("Mcp-Name") != "new.cube" {
+				t.Error("tool identity changed")
+			}
+			args := message.Params["arguments"].(map[string]any)
+			if args["limit"] != float64(10) {
+				t.Error("tool arguments changed")
+			}
+			w.Write([]byte(`{"jsonrpc":"2.0","id":1,"result":{"content":[{"type":"text","text":"ok"}],"structuredContent":{"rows":[{"value":7}]}}}`))
+		default:
+			t.Error("unexpected MCP method")
+		}
+	}))
+	defer server.Close()
+	origin = server.URL
+	client, err := New(origin, "deployment", server.Client())
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx := sdk.WithNamespaceSelection(context.Background(), id)
+	cursor := "next-page"
+	listed, err := client.ReadCatalog(ctx, "caller", "tools/list", "", &cursor)
+	if err != nil || !strings.Contains(string(listed), "new.cube") {
+		t.Fatalf("tools=%s %v", listed, err)
+	}
+	result, err := client.CallTool(ctx, "caller", "new.cube", map[string]any{"limit": 10}, 0)
+	if err != nil || !strings.Contains(string(result), `"value":7`) {
+		t.Fatalf("result=%s %v", result, err)
+	}
+	if _, err = client.CallTool(context.Background(), "caller", "new.cube", nil, 0); err == nil {
+		t.Fatal("unscoped invocation accepted")
+	}
+	if _, err = client.CallTool(ctx, "", "new.cube", nil, 0); err == nil {
+		t.Fatal("missing caller accepted")
+	}
+}

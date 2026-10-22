@@ -2,12 +2,11 @@ package get
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"reflect"
 
+	"github.com/viant/datly-studio/internal/publisherguard"
 	"github.com/viant/datly-studio/sdk"
-	xresponse "github.com/viant/xdatly/response"
 )
 
 // Finalize gives the direct Datly reader the same single-item contract as
@@ -18,7 +17,7 @@ func (output *ReportGetOutput) Finalize(ctx context.Context) error {
 		return fmt.Errorf("report get bound input is unavailable")
 	}
 	if output == nil || output.Item == nil {
-		return &xresponse.Error{Code: 404, Cause: errors.New("report not found")}
+		return publisherguard.PublicError(404, "report not found")
 	}
 	if output.Item.Id != input.Id || output.Item.OwnerId == "" {
 		return fmt.Errorf("report get returned a mismatched row")

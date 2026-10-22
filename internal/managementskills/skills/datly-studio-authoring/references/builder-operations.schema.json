@@ -1,0 +1,870 @@
+{
+  "$comment": "Structural payload types and operation envelopes; shared mutation fields have operation-specific semantic requirements checked by the native builder.",
+  "$defs": {
+    "CodecMutation": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "ColumnContractMutation": {
+      "additionalProperties": false,
+      "properties": {
+        "castType": {
+          "type": "string"
+        },
+        "column": {
+          "type": "string"
+        },
+        "removeTags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "tags": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "view": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "view",
+        "column"
+      ],
+      "type": "object"
+    },
+    "ColumnRoleMutation": {
+      "additionalProperties": false,
+      "properties": {
+        "column": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "view": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "view",
+        "column",
+        "role"
+      ],
+      "type": "object"
+    },
+    "Field": {
+      "additionalProperties": false,
+      "properties": {
+        "codec": {
+          "$ref": "#/$defs/CodecMutation"
+        },
+        "description": {
+          "type": "string"
+        },
+        "emitOutput": {
+          "type": "boolean"
+        },
+        "example": {
+          "type": "string"
+        },
+        "existingName": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "querySelector": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "sourceKind": {
+          "type": "string"
+        },
+        "sourceName": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "updateCodec": {
+          "type": "boolean"
+        },
+        "updateDescription": {
+          "type": "boolean"
+        },
+        "updateExample": {
+          "type": "boolean"
+        },
+        "updateQuerySelector": {
+          "type": "string"
+        },
+        "updateUri": {
+          "type": "boolean"
+        },
+        "updateValue": {
+          "type": "boolean"
+        },
+        "uri": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "sourceKind",
+        "sourceName"
+      ],
+      "type": "object"
+    },
+    "FunctionMutation": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "expectedArgs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "name": {
+          "type": "string"
+        },
+        "occurrence": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "Operation": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "properties": {
+            "type": {
+              "const": "addField"
+            }
+          },
+          "required": [
+            "type",
+            "field"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "addFieldPredicate"
+            }
+          },
+          "required": [
+            "type",
+            "predicate"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "addFunction"
+            }
+          },
+          "required": [
+            "type",
+            "function"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "addView"
+            }
+          },
+          "required": [
+            "type",
+            "view"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "batch"
+            }
+          },
+          "required": [
+            "type",
+            "operations"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "createReader"
+            }
+          },
+          "required": [
+            "type",
+            "reader"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "inspect"
+            }
+          },
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "removeField"
+            }
+          },
+          "required": [
+            "type",
+            "field"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "removeFieldPredicate"
+            }
+          },
+          "required": [
+            "type",
+            "predicate"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "removeFunction"
+            }
+          },
+          "required": [
+            "type",
+            "function"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "removeView"
+            }
+          },
+          "required": [
+            "type",
+            "view"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "setColumnContract"
+            }
+          },
+          "required": [
+            "type",
+            "column"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "setColumnRole"
+            }
+          },
+          "required": [
+            "type",
+            "columnRole"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "setPackage"
+            }
+          },
+          "required": [
+            "type",
+            "package"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "setSetting"
+            }
+          },
+          "required": [
+            "type",
+            "setting"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "updateField"
+            }
+          },
+          "required": [
+            "type",
+            "field"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "updateFieldPredicate"
+            }
+          },
+          "required": [
+            "type",
+            "predicate"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "updateFunction"
+            }
+          },
+          "required": [
+            "type",
+            "function"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "updatePredicateComposition"
+            }
+          },
+          "required": [
+            "type",
+            "predicateComposition"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "updatePredicateGroup"
+            }
+          },
+          "required": [
+            "type",
+            "predicateGroup"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "updateRelation"
+            }
+          },
+          "required": [
+            "type",
+            "relation"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "updateView"
+            }
+          },
+          "required": [
+            "type",
+            "view"
+          ]
+        }
+      ],
+      "properties": {
+        "column": {
+          "$ref": "#/$defs/ColumnContractMutation"
+        },
+        "columnRole": {
+          "$ref": "#/$defs/ColumnRoleMutation"
+        },
+        "field": {
+          "$ref": "#/$defs/Field"
+        },
+        "function": {
+          "$ref": "#/$defs/FunctionMutation"
+        },
+        "operations": {
+          "items": {
+            "$ref": "#/$defs/Operation"
+          },
+          "type": "array"
+        },
+        "package": {
+          "$ref": "#/$defs/PackageMutation"
+        },
+        "predicate": {
+          "$ref": "#/$defs/PredicateMutation"
+        },
+        "predicateComposition": {
+          "$ref": "#/$defs/PredicateCompositionMutation"
+        },
+        "predicateGroup": {
+          "$ref": "#/$defs/PredicateGroupMutation"
+        },
+        "reader": {
+          "$ref": "#/$defs/ReaderMutation"
+        },
+        "relation": {
+          "$ref": "#/$defs/RelationMutation"
+        },
+        "setting": {
+          "$ref": "#/$defs/SettingMutation"
+        },
+        "type": {
+          "type": "string"
+        },
+        "view": {
+          "$ref": "#/$defs/ViewMutation"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "type": "object"
+    },
+    "PackageMutation": {
+      "additionalProperties": false,
+      "properties": {
+        "expected": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "PredicateCompositionMutation": {
+      "additionalProperties": false,
+      "properties": {
+        "buildKeyword": {
+          "type": "string"
+        },
+        "occurrence": {
+          "type": "integer"
+        },
+        "terms": {
+          "items": {
+            "$ref": "#/$defs/PredicateCompositionTerm"
+          },
+          "type": "array"
+        },
+        "view": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "view",
+        "occurrence",
+        "terms",
+        "buildKeyword"
+      ],
+      "type": "object"
+    },
+    "PredicateCompositionTerm": {
+      "additionalProperties": false,
+      "properties": {
+        "connector": {
+          "type": "string"
+        },
+        "groups": {
+          "items": {
+            "type": "integer"
+          },
+          "type": "array"
+        },
+        "operator": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "operator",
+        "connector",
+        "groups"
+      ],
+      "type": "object"
+    },
+    "PredicateGroupMutation": {
+      "additionalProperties": false,
+      "properties": {
+        "group": {
+          "type": "integer"
+        },
+        "operator": {
+          "type": "string"
+        },
+        "views": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "group",
+        "views",
+        "operator"
+      ],
+      "type": "object"
+    },
+    "PredicateMutation": {
+      "additionalProperties": false,
+      "properties": {
+        "applyWhenAbsent": {
+          "type": "boolean"
+        },
+        "args": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "combineOperator": {
+          "type": "string"
+        },
+        "expansionViews": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "field": {
+          "type": "string"
+        },
+        "group": {
+          "type": "integer"
+        },
+        "groupOperator": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "occurrence": {
+          "type": "integer"
+        },
+        "view": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "view",
+        "group"
+      ],
+      "type": "object"
+    },
+    "ReaderMutation": {
+      "additionalProperties": false,
+      "properties": {
+        "connector": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "outputName": {
+          "type": "string"
+        },
+        "package": {
+          "type": "string"
+        },
+        "route": {
+          "type": "string"
+        },
+        "sql": {
+          "type": "string"
+        },
+        "typeName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "package",
+        "connector",
+        "route",
+        "name",
+        "sql"
+      ],
+      "type": "object"
+    },
+    "RelationMutation": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "on": {
+          "type": "string"
+        },
+        "parent": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "parent",
+        "on"
+      ],
+      "type": "object"
+    },
+    "SettingMutation": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "name": {
+          "type": "string"
+        },
+        "options": {
+          "items": {
+            "$ref": "#/$defs/FunctionMutation"
+          },
+          "type": "array"
+        },
+        "remove": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "ViewMutation": {
+      "additionalProperties": false,
+      "properties": {
+        "join": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "on": {
+          "type": "string"
+        },
+        "parent": {
+          "type": "string"
+        },
+        "sql": {
+          "type": "string"
+        },
+        "typeExpr": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    }
+  },
+  "$ref": "#/$defs/Operation",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "x-operation-contracts": {
+    "addField": {
+      "payloadField": "field",
+      "required": [
+        "type",
+        "field"
+      ]
+    },
+    "addFieldPredicate": {
+      "payloadField": "predicate",
+      "required": [
+        "type",
+        "predicate"
+      ]
+    },
+    "addFunction": {
+      "payloadField": "function",
+      "required": [
+        "type",
+        "function"
+      ]
+    },
+    "addView": {
+      "payloadField": "view",
+      "required": [
+        "type",
+        "view"
+      ]
+    },
+    "batch": {
+      "payloadField": "operations",
+      "required": [
+        "type",
+        "operations"
+      ]
+    },
+    "createReader": {
+      "payloadField": "reader",
+      "required": [
+        "type",
+        "reader"
+      ]
+    },
+    "inspect": {
+      "payloadField": "",
+      "required": [
+        "type"
+      ]
+    },
+    "removeField": {
+      "payloadField": "field",
+      "required": [
+        "type",
+        "field"
+      ]
+    },
+    "removeFieldPredicate": {
+      "payloadField": "predicate",
+      "required": [
+        "type",
+        "predicate"
+      ]
+    },
+    "removeFunction": {
+      "payloadField": "function",
+      "required": [
+        "type",
+        "function"
+      ]
+    },
+    "removeView": {
+      "payloadField": "view",
+      "required": [
+        "type",
+        "view"
+      ]
+    },
+    "setColumnContract": {
+      "payloadField": "column",
+      "required": [
+        "type",
+        "column"
+      ]
+    },
+    "setColumnRole": {
+      "payloadField": "columnRole",
+      "required": [
+        "type",
+        "columnRole"
+      ]
+    },
+    "setPackage": {
+      "payloadField": "package",
+      "required": [
+        "type",
+        "package"
+      ]
+    },
+    "setSetting": {
+      "payloadField": "setting",
+      "required": [
+        "type",
+        "setting"
+      ]
+    },
+    "updateField": {
+      "payloadField": "field",
+      "required": [
+        "type",
+        "field"
+      ]
+    },
+    "updateFieldPredicate": {
+      "payloadField": "predicate",
+      "required": [
+        "type",
+        "predicate"
+      ]
+    },
+    "updateFunction": {
+      "payloadField": "function",
+      "required": [
+        "type",
+        "function"
+      ]
+    },
+    "updatePredicateComposition": {
+      "payloadField": "predicateComposition",
+      "required": [
+        "type",
+        "predicateComposition"
+      ]
+    },
+    "updatePredicateGroup": {
+      "payloadField": "predicateGroup",
+      "required": [
+        "type",
+        "predicateGroup"
+      ]
+    },
+    "updateRelation": {
+      "payloadField": "relation",
+      "required": [
+        "type",
+        "relation"
+      ]
+    },
+    "updateView": {
+      "payloadField": "view",
+      "required": [
+        "type",
+        "view"
+      ]
+    }
+  }
+}

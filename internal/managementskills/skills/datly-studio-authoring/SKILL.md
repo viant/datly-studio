@@ -1,6 +1,6 @@
 ---
 name: datly-studio-authoring
-description: Discover database schemas, author Datly v1 components and cubes, enrich BigQuery facts with MySQL dictionaries, and validate, release, and verify them through Studio management MCP.
+description: Inspect and explain existing Datly components, discover database schemas, create Datly v1 readers and cubes with BigQuery facts and MySQL dictionaries, and validate, release, and verify them through Studio management MCP.
 ---
 
 # Datly Studio authoring
@@ -13,8 +13,10 @@ change namespace configuration, access new data, or execute expensive queries.
 Read the relevant supporting resources with native `resources/read`, resolving
 paths relative to this skill URI:
 
-- [MCP workflow](references/workflow.md): connector and schema discovery, editing,
+- [MCP workflow](references/workflow.md): inspecting saved components, connector and schema discovery, editing,
   revision checks, validation, release, runtime readiness, authentication, and recovery.
+- [Complete worked example](references/worked-example.md): exact create/apply/validate/release payloads and a BigQuery cube with two MySQL lookups.
+- [Builder operation schema](references/builder-operations.schema.json): JSON payload fields and supported operation types, checked against the linked builder.
 - [DQL](references/dql.md): complete reader shape, bindings, SQL column discovery,
   predicates, resources, and generation boundaries.
 - [Formal grammar](references/dql.ebnf.txt): structural Datly v1 grammar; SQL dialects,

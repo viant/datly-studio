@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -14,6 +13,7 @@ import (
 	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/namespacevalidation"
 	"github.com/viant/datly-studio/internal/namespacevisibility"
+	"github.com/viant/datly-studio/internal/publisherguard"
 	"github.com/viant/datly-studio/sdk"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
 	connectors "github.com/viant/datly-studio/studio/connectors/get"
@@ -28,7 +28,6 @@ import (
 	"github.com/viant/scy/auth/jwt"
 	"github.com/viant/xdatly"
 	xhandler "github.com/viant/xdatly/handler"
-	xresponse "github.com/viant/xdatly/response"
 )
 
 type Input struct {
@@ -85,24 +84,24 @@ func NewReportCreate() xhandler.Contract[Input, Output] { return &createHandler{
 func (*createHandler) Exec(ctx context.Context, session xhandler.Session, input *Input, output *Output) error {
 	if input == nil || input.Jwt == nil || input.Auth == nil || input.Auth.Auth == nil ||
 		input.Jwt.Subject == "" || input.Auth.Auth.Subject != input.Jwt.Subject {
-		return &xresponse.Error{Code: 403, Cause: errors.New("verified Studio owner is required")}
+		return publisherguard.PublicError(403, "verified Studio owner is required")
 	}
 	if session == nil || session.Binder() == nil || output == nil {
 		return fmt.Errorf("report create handler session and output are required")
 	}
 	input.Slug, input.Title, input.DefaultConnectorName = strings.TrimSpace(input.Slug), strings.TrimSpace(input.Title), strings.TrimSpace(input.DefaultConnectorName)
 	if !validSlug(input.Slug) || input.Title == "" || input.DefaultConnectorName == "" {
-		return &xresponse.Error{Code: 400, Cause: errors.New("slug, title, and defaultConnectorName are required; slug must use lowercase letters, numbers, and dashes")}
+		return publisherguard.PublicError(400, "slug, title, and defaultConnectorName are required; slug must use lowercase letters, numbers, and dashes")
 	}
 	namespace := strings.TrimSpace(input.Namespace)
 	if namespace == "" {
 		namespace = "general"
 	}
 	if !namespacevalidation.ValidName(namespace) {
-		return &xresponse.Error{Code: 400, Cause: errors.New("namespace must use lowercase letters, numbers, underscores, and optional dot-separated segments")}
+		return publisherguard.PublicError(400, "namespace must use lowercase letters, numbers, underscores, and optional dot-separated segments")
 	}
 	if owner := strings.TrimSpace(input.OwnerId); owner != "" && owner != input.Jwt.Subject {
-		return &xresponse.Error{Code: 403, Cause: errors.New("cannot create another principal's report")}
+		return publisherguard.PublicError(403, "cannot create another principal's report")
 	}
 	value, found, err := session.Binder().Lookup(ctx, exec.ComponentInvokerKey)
 	if err != nil {
@@ -122,7 +121,7 @@ func (*createHandler) Exec(ctx context.Context, session xhandler.Session, input 
 	ctx = oauth.WithBearer(ctx, strings.TrimPrefix(headers.Authorization, "Bearer "))
 	if input.NamespaceId != nil {
 		if err := namespaceaccess.ValidateResourceOwnership(*input.NamespaceId, ""); err != nil {
-			return &xresponse.Error{Code: 400, Cause: errors.New("valid namespace selection is required")}
+			return publisherguard.PublicError(400, "valid namespace selection is required")
 		}
 		selected := &namespaces.Input{}
 		selected.NamespaceId = *input.NamespaceId
@@ -138,10 +137,10 @@ func (*createHandler) Exec(ctx context.Context, session xhandler.Session, input 
 		}
 		page, ok := value.(*namespaces.Output)
 		if !ok || page == nil || len(page.Namespaces) != 1 || page.Namespaces[0] == nil || page.Namespaces[0].NamespaceId != *input.NamespaceId || (page.Namespaces[0].OwnerId != input.Jwt.Subject && !namespacevisibility.IsManager(ctx, input.Jwt.Subject, page.Namespaces[0].AllowedRolesJson)) {
-			return &xresponse.Error{Code: 403, Cause: errors.New("selected namespace is unavailable")}
+			return publisherguard.PublicError(403, "selected namespace is unavailable")
 		}
 		if input.Namespace != "" && input.Namespace != page.Namespaces[0].Name {
-			return &xresponse.Error{Code: 403, Cause: errors.New("component creation is outside the selected namespace")}
+			return publisherguard.PublicError(403, "component creation is outside the selected namespace")
 		}
 		namespace = page.Namespaces[0].Name
 		owner = page.Namespaces[0].OwnerId
@@ -159,13 +158,13 @@ func (*createHandler) Exec(ctx context.Context, session xhandler.Session, input 
 		return fmt.Errorf("connector reader returned %T", value)
 	}
 	if connector.Item == nil {
-		return &xresponse.Error{Code: 404, Cause: errors.New("connector not found")}
+		return publisherguard.PublicError(404, "connector not found")
 	}
 	if connector.Item.Name != input.DefaultConnectorName || connector.Item.OwnerId == "" {
 		return fmt.Errorf("connector reader returned mismatched identity")
 	}
 	if connector.Item.Status != "active" {
-		return &xresponse.Error{Code: 400, Cause: errors.New("default connector must be active")}
+		return publisherguard.PublicError(400, "default connector must be active")
 	}
 	if input.NamespaceId == nil {
 		if err := requireNamespace(ctx, invoker, input, namespace); err != nil {
@@ -248,7 +247,7 @@ func requireNamespace(ctx context.Context, invoker exec.ComponentInvoker, input 
 			return false, fmt.Errorf("owned namespace reader returned ambiguous or mismatched rows")
 		}
 		if result.Namespaces[0].Status != "active" {
-			return false, &xresponse.Error{Code: 400, Cause: errors.New("namespace must be active")}
+			return false, publisherguard.PublicError(400, "namespace must be active")
 		}
 		return true, nil
 	}
@@ -257,7 +256,7 @@ func requireNamespace(ctx context.Context, invoker exec.ComponentInvoker, input 
 		return err
 	}
 	if name != "general" {
-		return &xresponse.Error{Code: 404, Cause: errors.New("namespace not found")}
+		return publisherguard.PublicError(404, "namespace not found")
 	}
 	created := &namespacecreate.NamespaceCreateInput{}
 	created.SetJwt(input.Jwt)

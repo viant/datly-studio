@@ -82,3 +82,53 @@ func (p *adminTestProvider) Resolve(context.Context) (authz.Facts, error) {
 	}
 	return p.facts, nil
 }
+
+func TestVisibilityReusesVerifiedFactsOnlyWithinInvocation(t *testing.T) {
+	t.Setenv("STUDIO_NAMESPACE_ADMIN_ROLE", "NAMESPACE_ADMIN")
+	provider := &countedRoleProvider{facts: authz.Facts{Subject: "alice", Issuer: "idp", Tenant: "one", ValidUntil: time.Now().Add(time.Minute)}}
+	base := accessprovider.WithProvider(context.Background(), provider)
+	scope := oauth.WithBearer(xexec.WithContext(base, xexec.New()), "verified-caller")
+	if _, err := Criteria(scope, nil, "alice", "n"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := verifiedRoles(scope, "alice"); err != nil {
+		t.Fatal(err)
+	}
+	if provider.reads != 1 {
+		t.Fatalf("one visibility decision fetched identity %d times", provider.reads)
+	}
+	// A later source change cannot elevate this invocation's captured identity.
+	provider.facts.Roles = []string{"NAMESPACE_ADMIN"}
+	if IsAdministrator(scope, "alice") {
+		t.Fatal("negative invocation snapshot gained a new administrator role")
+	}
+	if provider.reads != 1 {
+		t.Fatal("invocation snapshot was re-fetched")
+	}
+	next := oauth.WithBearer(xexec.WithContext(base, xexec.New()), "verified-caller")
+	roles, err := verifiedRoles(next, "alice")
+	if err != nil || len(roles) != 1 || provider.reads != 2 {
+		t.Fatalf("next invocation did not refresh facts: %v %v reads=%d", roles, err, provider.reads)
+	}
+	provider.fail = true
+	if _, err = verifiedRoles(oauth.WithBearer(scope, "different-caller"), "alice"); err == nil {
+		t.Fatal("role facts reused for a different credential")
+	}
+	if _, err = verifiedRoles(scope, "bob"); err == nil {
+		t.Fatal("role facts reused for a different subject")
+	}
+}
+
+type countedRoleProvider struct {
+	facts authz.Facts
+	reads int
+	fail  bool
+}
+
+func (p *countedRoleProvider) Resolve(context.Context) (authz.Facts, error) {
+	p.reads++
+	if p.fail {
+		return authz.Facts{}, errors.New("unavailable")
+	}
+	return p.facts, nil
+}

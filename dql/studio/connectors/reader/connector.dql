@@ -19,7 +19,7 @@
 #define($_ = $Status<string>(body/status).WithTag('json:"status"').Optional().WithPredicate(1, 'equal', 'c', 'status'))
 #define($_ = $OwnerID<string>(body/ownerId).WithTag('json:"ownerId"').Optional().WithPredicate(1, 'equal', 'c', 'owner_id'))
 #define($_ = $Driver<string>(body/driver).WithTag('json:"driver"').Optional().WithPredicate(1, 'equal', 'c', 'driver'))
-#define($_ = $Fields<[]string>(body/fields).WithTag('json:"fields"').Optional())
+#define($_ = $Fields<[]string>(body/fields).WithTag('json:"fields"').Optional().QuerySelector('connector'))
 #define($_ = $OrderBy<string>(body/orderBy).WithTag('json:"orderBy"').Optional())
 #define($_ = $Limit<int>(body/limit).WithTag('json:"limit"').Optional().QuerySelector('connector'))
 #define($_ = $Offset<int>(body/offset).WithTag('json:"offset"').Optional().QuerySelector('connector'))
@@ -42,6 +42,7 @@ SELECT connectors.*, type(connectors, 'Connector'),
 	   tag(connectors.last_test_status, 'json:"lastTestStatus,omitempty"'),
 	   tag(connectors.last_test_error_code, 'json:"lastTestErrorCode,omitempty"'),
 	   tag(connectors.last_tested_at, 'json:"lastTestedAt,omitempty"'),
+       selector_fields(connectors, true),
        set_limit(connectors, 500)
 FROM (
     ${embed:sql/read.sql}

@@ -27,20 +27,32 @@ const roleFactsKey = "datly-studio.namespace-role-facts"
 
 func rememberRoles(ctx context.Context, facts authz.Facts) {
 	if execution := xexec.GetContext(ctx); execution != nil && oauth.Bearer(ctx) != "" {
+		facts.Roles = append([]string(nil), facts.Roles...)
 		execution.SetValue(roleFactsKey, roleFacts{facts: facts, credential: sha256.Sum256([]byte(oauth.Bearer(ctx)))})
 	}
+}
+
+// scopedRoleFacts is an invocation snapshot, never a cross-request user-info cache.
+func scopedRoleFacts(ctx context.Context, subject string) (authz.Facts, bool) {
+	if ctx == nil || ctx.Err() != nil || subject == "" {
+		return authz.Facts{}, false
+	}
+	if execution := xexec.GetContext(ctx); execution != nil {
+		if value, ok := execution.Value(roleFactsKey); ok {
+			if saved, ok := value.(roleFacts); ok && saved.facts.Subject == subject && saved.facts.Issuer != "" && saved.facts.ValidUntil.After(time.Now()) && (oauth.Bearer(ctx) == "" || saved.credential == sha256.Sum256([]byte(oauth.Bearer(ctx)))) {
+				return saved.facts, true
+			}
+		}
+	}
+	return authz.Facts{}, false
 }
 
 func verifiedRoles(ctx context.Context, subject string) ([]string, error) {
 	if ctx == nil || ctx.Err() != nil || subject == "" {
 		return nil, forbidden("namespace identity is required")
 	}
-	if execution := xexec.GetContext(ctx); execution != nil {
-		if value, ok := execution.Value(roleFactsKey); ok {
-			if saved, ok := value.(roleFacts); ok && saved.facts.Subject == subject && saved.facts.ValidUntil.After(time.Now()) && (oauth.Bearer(ctx) == "" || saved.credential == sha256.Sum256([]byte(oauth.Bearer(ctx)))) {
-				return saved.facts.Roles, nil
-			}
-		}
+	if saved, ok := scopedRoleFacts(ctx, subject); ok {
+		return saved.Roles, nil
 	}
 	provider, err := accessprovider.FromEnvironment(ctx)
 	if err != nil || provider == nil {

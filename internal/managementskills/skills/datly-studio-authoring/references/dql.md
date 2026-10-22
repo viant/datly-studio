@@ -14,14 +14,14 @@ not an executable validator or an exhaustive SQL dialect grammar.
 #setting($_ = $route('/analytics/orders', 'GET'))
 #setting($_ = $case_format('lc'))
 
-#define($_ = $AccountID<int>(query/accountId).WithPredicate(0, 'equal', 'o', 'account_id'))
+#define($_ = $AccountID<int>(query/accountId).Required().WithPredicate(0, 'equal', 'o', 'account_id'))
 #define($_ = $Rows<[]*OrderRow>(output/view))
 
 SELECT orders.*, type(orders, 'OrderRow'), set_limit(orders, 50)
 FROM (
     SELECT o.order_id, o.account_id, o.order_date, o.amount
     FROM orders o
-    WHERE ${predicate.Builder().CombineOr($predicate.FilterGroup(0, "AND")).Build("AND")}
+    ${predicate.Builder().CombineOr($predicate.FilterGroup(0, "AND")).Build("WHERE")}
 ) orders
 ```
 

@@ -2,14 +2,13 @@ package get
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/namespaceroles"
 	"github.com/viant/datly-studio/internal/namespacevisibility"
 	"reflect"
 
-	xresponse "github.com/viant/xdatly/response"
+	"github.com/viant/datly-studio/internal/publisherguard"
 )
 
 // Finalize projects the authorized row to the direct namespaces.get DTO.
@@ -19,7 +18,7 @@ func (output *NamespaceGetOutput) Finalize(ctx context.Context) error {
 		return fmt.Errorf("namespace get bound input is unavailable")
 	}
 	if output == nil || output.Item == nil {
-		return &xresponse.Error{Code: 404, Cause: errors.New("namespace not found")}
+		return publisherguard.PublicError(404, "namespace not found")
 	}
 	namespace := output.Item
 	if namespace.Name != input.Name || namespace.OwnerId == "" {

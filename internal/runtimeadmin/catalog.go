@@ -37,7 +37,7 @@ func (c *Client) ReadCatalog(ctx context.Context, bearer, method, uri string, cu
 		"io.modelcontextprotocol/clientCapabilities": map[string]any{},
 	}}
 	switch method {
-	case "skills/list", "resources/list":
+	case "skills/list", "resources/list", "tools/list":
 		if uri != "" {
 			return nil, fmt.Errorf("catalog listing does not accept a resource URI")
 		}
@@ -52,8 +52,30 @@ func (c *Client) ReadCatalog(ctx context.Context, bearer, method, uri string, cu
 	default:
 		return nil, fmt.Errorf("unsupported read-only namespace catalog method")
 	}
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	defer cancel()
+	return c.namespaceRPC(ctx, bearer, method, params, uri, 10*time.Second)
+}
+
+// CallTool forwards only the caller credential to the selected namespace. The
+// deployment credential is used solely to resolve the trusted runtime endpoint.
+func (c *Client) CallTool(ctx context.Context, bearer, name string, arguments map[string]any, timeout time.Duration) (json.RawMessage, error) {
+	if strings.TrimSpace(name) == "" || strings.TrimSpace(bearer) == "" || timeout < 0 {
+		return nil, fmt.Errorf("caller credential, tool name and nonnegative timeout are required")
+	}
+	params := map[string]any{"name": name, "arguments": arguments, "_meta": map[string]any{"io.modelcontextprotocol/protocolVersion": schema.LatestProtocolVersion, "io.modelcontextprotocol/clientCapabilities": map[string]any{}}}
+	return c.namespaceRPC(ctx, bearer, "tools/call", params, name, timeout)
+}
+
+func (c *Client) namespaceRPC(ctx context.Context, bearer, method string, params map[string]any, name string, timeout time.Duration) (json.RawMessage, error) {
+	id, selected := sdk.NamespaceSelectionFromContext(ctx)
+	decoded, err := hex.DecodeString(id)
+	if !selected || err != nil || len(decoded) != 32 || strings.ToLower(id) != id {
+		return nil, fmt.Errorf("canonical namespace selection is required")
+	}
+	if timeout > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, timeout)
+		defer cancel()
+	}
 	host, err := c.ProbeRuntime(ctx)
 	if err != nil {
 		return nil, err
@@ -73,8 +95,8 @@ func (c *Client) ReadCatalog(ctx context.Context, bearer, method, uri string, cu
 	request.Header.Set("Accept", "application/json, text/event-stream")
 	request.Header.Set("Mcp-Protocol-Version", schema.LatestProtocolVersion)
 	request.Header.Set("Mcp-Method", method)
-	if uri != "" {
-		request.Header.Set("Mcp-Name", uri)
+	if name != "" {
+		request.Header.Set("Mcp-Name", name)
 	}
 	if bearer != "" {
 		request.Header.Set("Authorization", "Bearer "+bearer)

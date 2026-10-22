@@ -577,7 +577,9 @@ func claimsFromInput(input any) *jwt.Claims {
 	return nil
 }
 
-func forbidden(message string) error { return &xresponse.Error{Code: 403, Cause: errors.New(message)} }
+func forbidden(message string) error {
+	return &xresponse.Error{Code: 403, Cause: errors.New(message), Payload: map[string]string{"message": message}}
+}
 
 func componentManager(ctx context.Context, provider connector.Provider, subject, reportID string) bool {
 	if provider == nil {

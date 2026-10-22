@@ -2,11 +2,10 @@ package get
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"reflect"
 
-	xresponse "github.com/viant/xdatly/response"
+	"github.com/viant/datly-studio/internal/publisherguard"
 )
 
 // Finalize projects the authorized row into the direct Studio SDK response.
@@ -23,7 +22,7 @@ func (output *VersionGetOutput) Finalize(ctx context.Context) error {
 // Datly still owns success-hook timing and response publication.
 func (output *VersionGetOutput) ProjectItem(reportID string, versionNo int) error {
 	if output == nil || output.Item == nil {
-		return &xresponse.Error{Code: 404, Cause: errors.New("report version not found")}
+		return publisherguard.PublicError(404, "report version not found")
 	}
 	item := output.Item
 	if item.ReportId != reportID || item.VersionNo != versionNo {

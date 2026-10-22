@@ -32,12 +32,21 @@ func IsAdministrator(ctx context.Context, subject string) bool {
 			}
 		}
 	}
+	// A verified negative role result remains stable within this invocation.
+	// Positive administration still requires the separately bound decision below.
+	if saved, ok := scopedRoleFacts(ctx, subject); ok && !matchesAdministrator(role, subject, saved, time.Now()) {
+		return false
+	}
 	provider, err := accessprovider.FromEnvironment(ctx)
 	if err != nil || provider == nil {
 		return false
 	}
 	facts, err := provider.Resolve(ctx)
-	if err != nil || ctx.Err() != nil || !matchesAdministrator(role, subject, facts, time.Now()) {
+	if err != nil || ctx.Err() != nil || facts.Subject != subject || facts.Issuer == "" || !facts.ValidUntil.After(time.Now()) {
+		return false
+	}
+	rememberRoles(ctx, facts)
+	if !matchesAdministrator(role, subject, facts, time.Now()) {
 		return false
 	}
 	if execution != nil && bearer != "" {
