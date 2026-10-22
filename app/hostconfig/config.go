@@ -36,7 +36,8 @@ type Audit struct {
 }
 
 type Config struct {
-	Audit *Audit
+	MCPToolNames runtimehost.MCPToolNames
+	Audit        *Audit
 	datly.Config
 	// Store is the one Studio metadata storage connection. Application data
 	// connectors are managed in the database, outside deployment configuration.

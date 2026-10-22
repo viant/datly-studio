@@ -86,6 +86,7 @@ type NamespaceBuildExtension func(context.Context, *application.Build) error
 type NamespaceBuildResolver func(context.Context, string) (NamespaceBuildExtension, error)
 
 type Config struct {
+	MCPToolNames MCPToolNames `yaml:"MCPToolNames"`
 	// CodecFactory is a trusted embedding-host binding; it cannot be set by YAML or requests.
 	CodecFactory xcodec.Factory   `yaml:"-"`
 	Const        *constant.Values `yaml:"-"`

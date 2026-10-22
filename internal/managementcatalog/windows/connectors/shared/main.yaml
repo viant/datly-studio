@@ -84,6 +84,7 @@ window:
       content:
         id: connector-form
         items:
+          - {id: outcome, label: Outcome, dataField: outcome, type: textarea, readOnly: true}
           - {id: name, label: Name, dataField: name, type: text, readOnlyWhen: {selector: editing, when: true}}
           - id: driver
             label: Driver
@@ -122,10 +123,10 @@ window:
           - {id: clearSecret, label: Remove secret, dataField: clearSecret, type: checkbox}
           - {id: options, label: Options (JSON), dataField: options, type: textarea}
           - {id: yamlText, label: YAML configuration (Driver / DSN / Secret.URL / Secret.Key), dataField: yamlText, type: textarea}
-          - {id: outcome, label: Outcome, dataField: outcome, type: textarea, readOnly: true}
       actions:
         - {id: yaml, label: Apply YAML, on: [{event: onClick, handler: management.applyYAML}]}
         - {id: reload, label: Reload saved revision, on: [{event: onClick, handler: management.reloadConnector}]}
+        - {id: test, label: Save & test, icon: refresh, on: [{event: onClick, handler: management.saveAndTestConnector}]}
         - {id: save, label: Save, close: true, on: [{event: onClick, handler: management.saveConnector}]}
         - {id: cancel, label: Cancel, close: true}
 dataSources:

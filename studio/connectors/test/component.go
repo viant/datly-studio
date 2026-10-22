@@ -64,7 +64,8 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	result, probeErr := (connectivity.SQLProbe{}).Probe(ctx, connector)
 	status, code, message := "passed", "", ""
 	if probeErr != nil {
-		status, code, message = "failed", "connectivity_failed", "connector connectivity check failed"
+		status = "failed"
+		code, message = connectivity.Diagnostic(probeErr)
 	} else if result != nil && result.Status != "" {
 		status = result.Status
 	}

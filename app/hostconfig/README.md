@@ -227,3 +227,20 @@ Login:
 server memory. Do not combine it with individual Login fields; ambiguous input is
 rejected. The host still owns the callback URL for its public origin and validates
 login endpoints through the existing browser authentication service.
+
+### Published MCP tool prefixes
+
+`MCPToolNames.RemoveSubjectPhrases` optionally removes literal, case-insensitive
+phrases from the owner prefix of published namespace MCP tool names:
+
+```yaml
+MCPToolNames:
+  RemoveSubjectPhrases: [viant, devtest, "_"]
+```
+
+For example, `awitasviantdevtest.ssp.read` becomes `awitas.ssp.read`. Removal
+applies only to the segment before the first dot. The verified subject, ownership,
+Go package identity, authored DQL, route target, and authorization remain unchanged.
+The default leaves names unchanged. Invalid prefixes and collisions reject the
+new generation instead of overwriting another tool. Clients must rediscover tools
+after a deployment changes these settings.

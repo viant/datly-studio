@@ -25,6 +25,7 @@ import (
 	"github.com/viant/datly-studio/runtime/accesscontext"
 	studiors "github.com/viant/datly-studio/runtime/resources"
 	"github.com/viant/datly-studio/sdk"
+	"github.com/viant/datly-studio/sdk/connectivity"
 	publicationstore "github.com/viant/datly-studio/sdk/transport/sql/internal/publications"
 	"github.com/viant/datly-studio/studio/codeccatalog"
 	connectorconfig "github.com/viant/datly-studio/studio/connectors/store_config"
@@ -701,7 +702,7 @@ func (t *Transport) testConnector(ctx context.Context, input, output any) error 
 	if probeErr != nil {
 		result.Status = "failed"
 		// A driver or secret resolver error can contain the connection string.
-		result.Message, result.ErrorCode = "connector connectivity check failed", "connectivity_failed"
+		result.ErrorCode, result.Message = connectivity.Diagnostic(probeErr)
 	} else if result.Status == "" {
 		result.Status = "passed"
 	}

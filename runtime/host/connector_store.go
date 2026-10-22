@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/viant/datly-studio/internal/connectorinit"
 	"github.com/viant/datly-studio/internal/connectorsecret"
 	"github.com/viant/datly/bootstrap/connector"
 	"reflect"
@@ -157,7 +158,7 @@ func ActiveConnectorConfigs(ctx context.Context, db *sql.DB, names ...string) ([
 		if !ok {
 			return nil, fmt.Errorf("required active connector %q is unavailable", name)
 		}
-		if len(item.options) > 0 && string(item.options) != "null" && string(item.options) != "{}" {
+		if !connectorinit.ConnectionOptionsEqual(item.options, nil) {
 			return nil, fmt.Errorf("linked connector %q requires runtime initialization options", name)
 		}
 		dsn, err := connectorsecret.Resolve(ctx, nil, item.dsn, item.secretRef)

@@ -19,6 +19,8 @@
   context.handlers.window.openDialog({execution:{args:['connector-editor']}});
  };
  const reload = async name => record(await call('get',{name}));
+ const showSaved = (current, outcome) => draft().setFormData({values:{...current,editing:true,dsnTemplate:'',secretURL:'',secretKey:'',clearSecret:false,...rules.discoveryDraft(current.options),discoveryConfigured:Boolean(current.options?.discovery),outcome}});
+ const probeOutcome = result => [result.status==='passed'?'Connection passed.':`Connection failed${result.errorCode?` [${result.errorCode}]`:''}.`,result.message,result.testedAt?`Tested at ${result.testedAt}`:''].filter(Boolean).join('\n');
  return {
   refreshConnectors:()=>run(refresh),
   connectorStatus: props => props?.row?.status,
@@ -44,10 +46,20 @@
    await call(operation,parameters);
    refresh();
   }),
+  saveAndTestConnector: () => run(async () => {
+   const form=draft().getFormData();
+   const {operation,parameters}=rules.saveRequest(form);
+   await call(operation,parameters);
+   showSaved(await reload(form.name),'Configuration saved. Testing connection (30-second timeout)…');
+   await refresh();
+   const result=record(await call('test',{name:form.name}));
+   showSaved(await reload(form.name),probeOutcome(result));
+   await refresh();
+  }),
   testConnector: props => run(async () => {
    const row=props?.row||selected();if(!row)throw new Error('Select a connector.');
    const result=record(await call('test',{name:row.name}));
-   draft().setFormField({item:{dataField:'outcome'},value:result.message||result.status||'Probe completed.'});await refresh();
+   draft().setFormField({item:{dataField:'outcome'},value:probeOutcome(result)});await refresh();
   }),
   reloadConnector: () => run(async () => {const form=draft().getFormData();const current=await reload(form.name);draft().setFormData({values:{...current,editing:true,dsnTemplate:'',secretURL:'',secretKey:'',...rules.discoveryDraft(current.options),discoveryConfigured:Boolean(current.options?.discovery),outcome:'Reloaded current revision.'}});}),
   searchConnectors: () => run(async () => {

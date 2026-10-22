@@ -130,6 +130,18 @@ func TestActiveConnectorConfigsSelectsFreshStoredConnections(t *testing.T) {
 	if err != nil || selected[0].DSN != "file:synthetic-two" {
 		t.Fatal("connector update not observed")
 	}
+	if _, err = db.Exec(`UPDATE connectors SET options_json='{"discovery":{"schemas":[{"name":"main"}]}}' WHERE name='linked'`); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = ActiveConnectorConfigs(ctx, db, "linked"); err != nil {
+		t.Fatalf("discovery preferences must not require connection initialization: %v", err)
+	}
+	if _, err = db.Exec(`UPDATE connectors SET options_json='{"sqliteAttachments":{"other":"file:other"}}' WHERE name='linked'`); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = ActiveConnectorConfigs(ctx, db, "linked"); err == nil {
+		t.Fatal("connection initialization options were silently discarded")
+	}
 	if _, err = db.Exec(`UPDATE connectors SET status='disabled' WHERE name='linked'`); err != nil {
 		t.Fatal(err)
 	}

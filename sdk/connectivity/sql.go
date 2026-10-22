@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/viant/datly/constant"
 	"strings"
+	"time"
 
 	"github.com/viant/datly-studio/internal/connectorinit"
 	"github.com/viant/datly-studio/internal/connectorsecret"
@@ -25,6 +26,9 @@ func (p SQLProbe) Probe(ctx context.Context, connector *sdk.Connector) (*sdk.Con
 	if connector == nil {
 		return nil, fmt.Errorf("connector is required")
 	}
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+
 	driver := resolveDriver(strings.ToLower(strings.TrimSpace(connector.Driver)))
 	linked := false
 	for _, candidate := range sql.Drivers() {
@@ -34,25 +38,25 @@ func (p SQLProbe) Probe(ctx context.Context, connector *sdk.Connector) (*sdk.Con
 		}
 	}
 	if !linked {
-		return nil, fmt.Errorf("SQL connector driver %q is not linked by the host", connector.Driver)
+		return nil, &ProbeError{Code: "driver_not_linked", Message: "The selected SQL driver is not linked in this server executable."}
 	}
 	dsn, err := connectorsecret.Resolve(ctx, p.Secrets, connector.DSNTemplate, connector.SecretRef, p.Const)
 	if err != nil {
-		return nil, err
+		return nil, probeFailure("secret", err)
 	}
 	if strings.TrimSpace(dsn) == "" {
-		return nil, fmt.Errorf("connector %q has no DSN template", connector.Name)
+		return nil, &ProbeError{Code: "dsn_missing", Message: "The connector has no DSN. Enter a DSN or a complete DSN secret."}
 	}
 	db, err := sql.Open(driver, dsn)
 	if err != nil {
-		return nil, err
+		return nil, probeFailure("open", err)
 	}
 	defer db.Close()
 	if err = connectorinit.Configure(ctx, db, driver, connector.Options); err != nil {
-		return nil, err
+		return nil, probeFailure("initialize", err)
 	}
 	if err = db.PingContext(ctx); err != nil {
-		return nil, err
+		return nil, probeFailure("ping", err)
 	}
 	return &sdk.ConnectorTestResult{Status: "passed"}, nil
 }

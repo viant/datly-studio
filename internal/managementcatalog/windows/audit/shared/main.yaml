@@ -127,6 +127,8 @@ window:
         items:
           - {id: tool, label: Tool, dataField: toolName, type: text, readOnly: true}
           - {id: status, label: Status, dataField: status, type: text, readOnly: true}
+          - {id: startedAt, label: Event time (UTC), dataField: startedAt, type: text, readOnly: true}
+          - {id: durationMs, label: Elapsed time (ms), dataField: durationMs, type: number, readOnly: true}
           - {id: capture, label: Capture, dataField: capture, type: text, readOnly: true}
           - {id: request, label: Request, dataField: request, type: textarea, readOnly: true}
           - {id: response, label: Response, dataField: response, type: textarea, readOnly: true}

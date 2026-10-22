@@ -1,0 +1,61 @@
+init:
+  studioMCP: http://127.0.0.1:18981/mcp
+  tokenFile: /tmp/datly-studio-test.token
+  connectorName: connector-quick-test-missing-secret
+  missingSecret: /tmp/datly-studio-probe-secret-does-not-exist.enc
+pipeline:
+  missing:
+    action: exec:run
+    checkError: true
+    strictCompletion: true
+    commands:
+      - test ! -e '${missingSecret}'
+  create:
+    action: mcp/runner:call
+    url: ${studioMCP}
+    bearerTokenSecret: ${tokenFile}
+    '@name': studio.sdk.connectors.create
+    arguments:
+      name: ${connectorName}
+      driver: mysql
+      dsnTemplate: '$Username:$Password@tcp(127.0.0.1:1)/fixture'
+      secretRef: ${missingSecret}|blowfish://default
+      description: Disposable local missing-secret diagnostic test
+  probe:
+    action: mcp/runner:call
+    url: ${studioMCP}
+    bearerTokenSecret: ${tokenFile}
+    '@name': studio.sdk.connectors.test
+    arguments: {name: '${connectorName}'}
+  probe_assert:
+    action: validator:assert
+    actual: $probe
+    expect:
+      IsError: false
+      StructuredContent:
+        name: ${connectorName}
+        status: failed
+        errorCode: secret_not_found
+        message: Connector secret file was not found on this server. Check the secret URL and deployment volume mount.
+  read:
+    action: mcp/runner:call
+    url: ${studioMCP}
+    bearerTokenSecret: ${tokenFile}
+    '@name': studio.sdk.connectors.get
+    arguments: {name: '${connectorName}'}
+  persisted_assert:
+    action: validator:assert
+    actual: $read
+    expect:
+      IsError: false
+      StructuredContent:
+        name: ${connectorName}
+        status: draft
+        lastTestStatus: failed
+        lastTestErrorCode: secret_not_found
+  cleanup:
+    action: mcp/runner:call
+    url: ${studioMCP}
+    bearerTokenSecret: ${tokenFile}
+    '@name': studio.sdk.connectors.delete
+    arguments: {name: '${connectorName}', etag: '$read.StructuredContent.etag'}

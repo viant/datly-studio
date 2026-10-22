@@ -12,13 +12,13 @@ require (
 	github.com/oapi-codegen/runtime v1.7.0
 	github.com/stretchr/testify v1.12.1
 	github.com/viant/bigquery v0.5.4-0.20261018094240-7627f510d5d8
-	github.com/viant/bindly v0.4.1-0.20261020114552-79f0b7e785ef
-	github.com/viant/datly v1.1.1-0.20261021171948-be7e60f4750b
+	github.com/viant/bindly v0.4.1-0.20261021172156-afd22f40fbb8
+	github.com/viant/datly v1.1.1-0.20261022172530-0d59aea04ece
 	github.com/viant/jsonrpc v0.25.1-0.20261021031150-a24a3b9ae218
 	github.com/viant/mcp v0.24.1-0.20261018180156-2794488fbdb7
 	github.com/viant/mcp-protocol v0.19.1-0.20261019190045-bf1f848b71f9
 	github.com/viant/scy v0.35.1-0.20260914041206-699e6c909726
-	github.com/viant/sqlx v0.26.1-0.20261020184823-1cd663e62434
+	github.com/viant/sqlx v0.26.1-0.20261021190723-9d9204de862e
 	github.com/viant/x v0.5.1-0.20261019170608-3c4033ed8ccd
 	github.com/viant/xdatly v1.0.1-0.20261017023827-3a09d6ff7964
 	github.com/viant/xunsafe v0.11.0
@@ -103,15 +103,15 @@ require (
 	github.com/spiffe/go-spiffe/v2 v2.6.0 // indirect
 	github.com/viant/afs v1.30.1-0.20260914155934-90e95d483861
 	github.com/viant/afsc v1.18.0 // indirect
-	github.com/viant/authz v0.0.0-20261022145739-e618ce6d35c6
-	github.com/viant/authz/component v0.0.0-20261022145739-e618ce6d35c6
+	github.com/viant/authz v0.0.0-20261022171511-cc9325165338
+	github.com/viant/authz/component v0.0.0-20261022171511-cc9325165338
 	github.com/viant/forge v0.3.45-0.20261020143045-05d28290fb17
 	github.com/viant/gmetric v0.3.2 // indirect
 	github.com/viant/gosh v0.3.1-0.20261007222529-b829eaaf687b // indirect
 	github.com/viant/govalidator v0.3.4-0.20260913213120-027a9dd54d73 // indirect
 	github.com/viant/igo v0.2.0 // indirect
 	github.com/viant/parsly v0.3.3 // indirect
-	github.com/viant/sqlparser v0.13.1-0.20261020184305-eeeefdc54c15 // indirect
+	github.com/viant/sqlparser v0.13.1-0.20261021204353-1c20a82bbb29 // indirect
 	github.com/viant/structology v0.10.1-0.20261021171329-9f693e1e9f21 // indirect
 	github.com/viant/structql v0.5.5-0.20261012183420-6a47e96ff5b5 // indirect
 	github.com/viant/tagly v0.4.1-0.20261007173811-969600917520

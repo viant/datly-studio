@@ -403,6 +403,11 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 	}, Completed: func(gateway.WarmupResult, error) {}}, Authorize: func(ctx context.Context, _ *http.Request, target dexec.ComponentTarget) error {
 		return authorizeTarget(ctx, target)
 	}}
+	registrations, err = s.config.MCPToolNames.registrations(registrations)
+	if err != nil {
+		return nil, err
+	}
+
 	return &application.Build{
 		Components: registrations,
 		Types:      types,

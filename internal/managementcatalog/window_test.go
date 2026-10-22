@@ -22,7 +22,7 @@ func TestNamespaceWindowPortableContract(t *testing.T) {
 			for _, definition := range definitions {
 				byURI[definition.URI] = definition
 			}
-			if len(definitions) != 260 || definitions[1].URI != "window://"+namespace+"/namespaces" {
+			if len(definitions) != 261 || definitions[1].URI != "window://"+namespace+"/namespaces" {
 				t.Fatalf("unexpected resource count: %d", len(definitions))
 			}
 			var envelope types.WindowResourceEnvelope

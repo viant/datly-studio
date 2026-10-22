@@ -1126,10 +1126,14 @@ github.com/viant/authz v0.0.0-20261017213411-7e7e62acb696 h1:LfRznlVrHxylD2v0N2p
 github.com/viant/authz v0.0.0-20261017213411-7e7e62acb696/go.mod h1:iazfsC9LZkGsbZY2o/9Aq3p8eHaD09tWudyRN5vQ9eI=
 github.com/viant/authz v0.0.0-20261022145739-e618ce6d35c6 h1:Syz5TCL8Am4WcRTL0RCN1OylsW7g4ZuV4vwjydax3oM=
 github.com/viant/authz v0.0.0-20261022145739-e618ce6d35c6/go.mod h1:iazfsC9LZkGsbZY2o/9Aq3p8eHaD09tWudyRN5vQ9eI=
+github.com/viant/authz v0.0.0-20261022171511-cc9325165338 h1:5ST1P++4KhCr4PRSP+NoMHuVBy+wiENGVAR1jVJjqpY=
+github.com/viant/authz v0.0.0-20261022171511-cc9325165338/go.mod h1:iazfsC9LZkGsbZY2o/9Aq3p8eHaD09tWudyRN5vQ9eI=
 github.com/viant/authz/component v0.0.0-20261017195827-09176e9405c4 h1:IxngNqqpHBoCo7/FDaZsatuYckvYY1cqggVyzT3wZM0=
 github.com/viant/authz/component v0.0.0-20261017195827-09176e9405c4/go.mod h1:ox0oA/j5NmjymzPlxbFZXl64tnZmnLEIsqCkO8UF2KM=
 github.com/viant/authz/component v0.0.0-20261022145739-e618ce6d35c6 h1:xL9BUIAtyOYV64a7c1lnYahOqOU2pigYrPmRKan/meE=
 github.com/viant/authz/component v0.0.0-20261022145739-e618ce6d35c6/go.mod h1:ox0oA/j5NmjymzPlxbFZXl64tnZmnLEIsqCkO8UF2KM=
+github.com/viant/authz/component v0.0.0-20261022171511-cc9325165338 h1:6MkTMmaxdPb+z7dG5sSUIbYsN9jCrHZzOhH3o/Fgn58=
+github.com/viant/authz/component v0.0.0-20261022171511-cc9325165338/go.mod h1:ox0oA/j5NmjymzPlxbFZXl64tnZmnLEIsqCkO8UF2KM=
 github.com/viant/bigquery v0.5.4-0.20260927120042-a47888f8d2cc h1:tMKK7Wn8mjRtJyAHZLbpx1NmGTDU8jy1Q3HQLATBAIY=
 github.com/viant/bigquery v0.5.4-0.20260927120042-a47888f8d2cc/go.mod h1:L5VHC9DEQ1ZlR1yaSbCqnKf6GXz355EGBIbP+wx+wTk=
 github.com/viant/bigquery v0.5.4-0.20261017234417-20686a9ebfa4 h1:UsKMuRjK24TaDKsdtHntah5vYoKWVqAy6cWhRA1Ueag=
@@ -1148,6 +1152,8 @@ github.com/viant/bindly v0.4.1-0.20261019214243-0a0ac77b49fe h1:+7/7BHyJOfxMoeZv
 github.com/viant/bindly v0.4.1-0.20261019214243-0a0ac77b49fe/go.mod h1:2S+CsLqdGI1+s7BSuEWx/+ew8p+/Ax7Xi3HKGiE3/O8=
 github.com/viant/bindly v0.4.1-0.20261020114552-79f0b7e785ef h1:xumfBbaADGUvSXe/vPvR6oamQ8c+BDqwZQdeAYcUO2M=
 github.com/viant/bindly v0.4.1-0.20261020114552-79f0b7e785ef/go.mod h1:2S+CsLqdGI1+s7BSuEWx/+ew8p+/Ax7Xi3HKGiE3/O8=
+github.com/viant/bindly v0.4.1-0.20261021172156-afd22f40fbb8 h1:nL0WC7i8EKYFQeQ9GcFwpd1dDEMPq9oHxRIFswjXiEY=
+github.com/viant/bindly v0.4.1-0.20261021172156-afd22f40fbb8/go.mod h1:2S+CsLqdGI1+s7BSuEWx/+ew8p+/Ax7Xi3HKGiE3/O8=
 github.com/viant/datly v1.1.1-0.20261015003331-f8fe295597c2 h1:CPd0Ie6sC5zF0J1KOfLcybKljyAv0WfxheXzsiIIo+Y=
 github.com/viant/datly v1.1.1-0.20261015003331-f8fe295597c2/go.mod h1:ZTgRq3nw7RY3SY0/zTwx3hKXG+xU6j5/NXrBDAMYWpI=
 github.com/viant/datly v1.1.1-0.20261017234417-3cc2ec0af0ef h1:MILUDhVP/yNZz76xHaopGziw+bR9zJsruPFhf6nvHec=
@@ -1170,6 +1176,12 @@ github.com/viant/datly v1.1.1-0.20261020024755-511d9713e2f2 h1:LZuBPglP4qnGRQNW7
 github.com/viant/datly v1.1.1-0.20261020024755-511d9713e2f2/go.mod h1:l56EMiSIohJEoLSn3t6vtzmFcsFBKNsqRQTpdGSB6Vs=
 github.com/viant/datly v1.1.1-0.20261021171948-be7e60f4750b h1:iPGVIwi3PDtrZh8SpsGCDHtJxQvCPF6g9flddNA1FQQ=
 github.com/viant/datly v1.1.1-0.20261021171948-be7e60f4750b/go.mod h1:Y+r61H0GDt0F8eaLhQECSl3qYzPoDsADjiHbN4SWqbA=
+github.com/viant/datly v1.1.1-0.20261022171511-e9a0aeb08ade h1:SCoUti6JuycgPzWzWKIeh0dgJHbZO4RLaAYAF1Q8XAw=
+github.com/viant/datly v1.1.1-0.20261022171511-e9a0aeb08ade/go.mod h1:n/GddK78xClFrsqGeGCMCplH4JvH7cG5xNJQMhhyRt4=
+github.com/viant/datly v1.1.1-0.20261022172134-b3ed2ff08929 h1:f4zymUkAyrtxyBEEtf+IbLJ6llTz8lxKUuYUEmtWBpw=
+github.com/viant/datly v1.1.1-0.20261022172134-b3ed2ff08929/go.mod h1:n/GddK78xClFrsqGeGCMCplH4JvH7cG5xNJQMhhyRt4=
+github.com/viant/datly v1.1.1-0.20261022172530-0d59aea04ece h1:CGps9rG3PKcnPynrcuthYG9+2BKyGXLyU3o+aX8jwXI=
+github.com/viant/datly v1.1.1-0.20261022172530-0d59aea04ece/go.mod h1:n/GddK78xClFrsqGeGCMCplH4JvH7cG5xNJQMhhyRt4=
 github.com/viant/forge v0.3.45-0.20261015011117-38bb1cf13641 h1:yA6VXuZfTdnbkxDY3MN6NKiKavfsg/fjxQmlKqS5KDw=
 github.com/viant/forge v0.3.45-0.20261015011117-38bb1cf13641/go.mod h1:asQHHCMbgC0d3pc0dm+GFFQ5cDyzjG0qN86vrW85rCY=
 github.com/viant/forge v0.3.45-0.20261017190953-b07e77a0fe24 h1:NOie2I6rMGs4jEFkteWrk8wQKivwr6dN9nciKLCYuAM=
@@ -1228,6 +1240,8 @@ github.com/viant/sqlparser v0.13.1-0.20261012001419-edea4bd5d9c1 h1:sx40yrmj2CbF
 github.com/viant/sqlparser v0.13.1-0.20261012001419-edea4bd5d9c1/go.mod h1:2QRGiGZYk2/pjhORGG1zLVQ9JO+bXFhqIVi31mkCRPg=
 github.com/viant/sqlparser v0.13.1-0.20261020184305-eeeefdc54c15 h1:OK9dW75TsBBPOEUzz0bqkm3riSu7zJgcv1WMg+nX1A8=
 github.com/viant/sqlparser v0.13.1-0.20261020184305-eeeefdc54c15/go.mod h1:2QRGiGZYk2/pjhORGG1zLVQ9JO+bXFhqIVi31mkCRPg=
+github.com/viant/sqlparser v0.13.1-0.20261021204353-1c20a82bbb29 h1:D2jXx7vkI5hNMZEMP9ZXFhmeE2e1fovWEwzqM2+qO9k=
+github.com/viant/sqlparser v0.13.1-0.20261021204353-1c20a82bbb29/go.mod h1:2QRGiGZYk2/pjhORGG1zLVQ9JO+bXFhqIVi31mkCRPg=
 github.com/viant/sqlx v0.26.1-0.20261013061633-ba8bc02ca651 h1:1ivKroIIZuDr3jC030Smx94VFktdhyXl2QjLpXnaOO4=
 github.com/viant/sqlx v0.26.1-0.20261013061633-ba8bc02ca651/go.mod h1:/qyxibjy9VpDiYZwHVwSNHnPXI4476LqYtDty8V0Rg4=
 github.com/viant/sqlx v0.26.1-0.20261017073006-8e503eb1429a h1:+H9tzdtI7qRDqdDXM4mOoNQZlhd2zZwScyJQWKS7m8o=
@@ -1238,6 +1252,8 @@ github.com/viant/sqlx v0.26.1-0.20261019190555-2b47eeb3f37f h1:8pwr+eadta8aEvP3L
 github.com/viant/sqlx v0.26.1-0.20261019190555-2b47eeb3f37f/go.mod h1:/qyxibjy9VpDiYZwHVwSNHnPXI4476LqYtDty8V0Rg4=
 github.com/viant/sqlx v0.26.1-0.20261020184823-1cd663e62434 h1:IGwtSwzK1SpasqFBoI166ikUN78zxksHFeIcvi7ve0Y=
 github.com/viant/sqlx v0.26.1-0.20261020184823-1cd663e62434/go.mod h1:/qyxibjy9VpDiYZwHVwSNHnPXI4476LqYtDty8V0Rg4=
+github.com/viant/sqlx v0.26.1-0.20261021190723-9d9204de862e h1:toVUl/FDwrdIAlbjhqn2UHL7Ve8zf7PzJMTuQ5ULX1A=
+github.com/viant/sqlx v0.26.1-0.20261021190723-9d9204de862e/go.mod h1:/qyxibjy9VpDiYZwHVwSNHnPXI4476LqYtDty8V0Rg4=
 github.com/viant/structology v0.10.1-0.20261014122805-e37281ec0f50 h1:BlcLBwxvvGnlyWIJhQ9guw7owpEoJXKGzPXG9xe2HlA=
 github.com/viant/structology v0.10.1-0.20261014122805-e37281ec0f50/go.mod h1:sNNuCH9Zt+QUNeV1slf/QKBdOdUIj0AVdhDFR09+8Ig=
 github.com/viant/structology v0.10.1-0.20261015025741-5750986d416b h1:zhC5trcDODkp2n7qr8OnP1/VFvH1XGnNEel6J0QXluM=

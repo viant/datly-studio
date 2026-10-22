@@ -21,6 +21,8 @@ test('audit viewer can filter and inspect capped event without changing capture'
  await user.type(screen.getByLabelText('Tool name'),'example.read');await user.click(screen.getByRole('button',{name:'Filter calls'}));
  await waitFor(()=>expect(api.fetchMCPDataSource.mock.calls.some(([source,input])=>source.backend.method==='studio.sdk.audit.list'&&input.filter?.toolName==='example.read')).toBe(true));
  await user.click(screen.getByRole('button',{name:'Inspect audit event'}));await screen.findByLabelText('Response');
+ expect(screen.getByLabelText('Event time (UTC)').value).toBe(event.startedAt);
+ expect(screen.getByLabelText('Elapsed time (ms)').value).toBe(String(event.durationMs));
  expect(screen.getByLabelText('Response').value).toBe('{"output":2}');expect(screen.getByLabelText('Capture').value).toContain('truncated');
 });
 test('namespace manager can toggle without receiving audit payloads',async()=>{

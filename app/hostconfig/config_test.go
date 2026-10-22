@@ -75,3 +75,13 @@ NamespaceOAuthProviders:
 		t.Fatal("namespace issuer configuration lost")
 	}
 }
+
+func TestToolPrefixPhraseRemovalConfiguration(t *testing.T) {
+	config, err := Decode([]byte(base + "MCPToolNames:\n  RemoveSubjectPhrases: [viant, devtest, '_']\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := strings.Join(config.MCPToolNames.RemoveSubjectPhrases, ","); got != "viant,devtest,_" {
+		t.Fatalf("tool naming configuration lost: %q", got)
+	}
+}

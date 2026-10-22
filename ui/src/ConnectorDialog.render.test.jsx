@@ -43,3 +43,32 @@ test('connector lifecycle button shows green On and red Off after server refresh
  await waitFor(()=>expect(screen.getByRole('button',{name:'Activate or disable',exact:true}).textContent).toContain('On'));
  expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.connectors.activate')[1]).toEqual({name:saved.name,etag:5});
 });
+
+test('Save & test probes the newly saved configuration and keeps detailed errors in the dialog',async()=>{
+ const user=userEvent.setup();let current={...saved};
+ const api={readManagementResource:async()=>managementResourceFixture('connectors'),fetchMCPDataSource:vi.fn(async(source,input)=>{
+  switch(source.backend.method){
+   case 'studio.sdk.connectors.list':return {items:[current]};
+   case 'studio.sdk.connectors.get':return current;
+   case 'studio.sdk.connectors.update':current={...current,...input.input,etag:5};return current;
+   case 'studio.sdk.connectors.test':current={...current,lastTestStatus:'failed',etag:6};return {name:current.name,status:'failed',errorCode:'secret_not_found',message:'Connector secret file was not found on this server. Check the secret URL and deployment volume mount.',testedAt:'2026-10-22T17:00:00Z'};
+   default:throw new Error('Unexpected '+source.backend.method);
+  }
+ })};
+ render(<ManagementWindowRuntime api={api} uri="window://datastudio/connectors" instanceKey={'connector-probe-'+(++serial)}/>);
+ await edit(user);
+ await user.type(screen.getByLabelText('DSN (blank keeps existing)',{exact:true}),'new-dsn');
+ await user.click(screen.getByRole('button',{name:'Save & test',exact:true}));
+ await waitFor(()=>expect(screen.getByLabelText('Outcome',{exact:true}).value).toContain('[secret_not_found]'));
+ expect(screen.getByLabelText('Outcome',{exact:true}).value).toContain('deployment volume mount');
+ expect(screen.getByRole('button',{name:'Save & test',exact:true})).toBeTruthy();
+ expect(screen.getByLabelText('DSN (blank keeps existing)',{exact:true}).value).toBe('');
+ const calls=api.fetchMCPDataSource.mock.calls;
+ const update=calls.findIndex(([source])=>source.backend.method==='studio.sdk.connectors.update');
+ const probe=calls.findIndex(([source])=>source.backend.method==='studio.sdk.connectors.test');
+ expect(update).toBeGreaterThan(-1);expect(probe).toBeGreaterThan(update);
+ expect(calls[update][1].input.dsnTemplate).toBe('new-dsn');
+ expect(calls[probe][1]).toEqual({name:'warehouse'});
+ await user.click(screen.getByRole('button',{name:'Save',exact:true}));
+ await waitFor(()=>expect(api.fetchMCPDataSource.mock.calls.filter(([source])=>source.backend.method==='studio.sdk.connectors.update').at(-1)[1].input.etag).toBe(6));
+});

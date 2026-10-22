@@ -58,3 +58,11 @@ func TestSQLProbeRejectsUnlinkedDriver(t *testing.T) {
 		t.Fatalf("result=%+v err=%v", result, err)
 	}
 }
+
+func TestSQLProbeMissingLocalSecretHasActionableDiagnostic(t *testing.T) {
+	_, err := (SQLProbe{}).Probe(context.Background(), &sdk.Connector{Name: "missing-secret", Driver: "sqlite", DSNTemplate: "file:unused", SecretRef: filepath.Join(t.TempDir(), "missing.enc") + "|blowfish://default"})
+	code, message := Diagnostic(err)
+	if code != "secret_not_found" {
+		t.Fatalf("diagnostic code=%s message=%s", code, message)
+	}
+}
