@@ -39,10 +39,22 @@ def check(path, existing_report):
     errors = ["tool error: " + str(item) for item in failures]
     if not final or final.get("is_error"):
         errors.append("successful final response is missing")
-    stages = ["skills_list", "skills_get", "components_create", "versions_create", "versions_apply", "versions_inspect", "versions_validate", "publications_publish", "runtime_status", "catalog_tools_list", "catalog_tools_call"]
+    stages = ["skills_list", "components_create", "versions_create", "versions_apply", "versions_inspect", "versions_validate", "publications_publish", "runtime_status", "catalog_tools_list", "catalog_tools_call"]
     for stage in stages:
         if not any(call["name"].endswith("__studio_sdk_" + stage) or call["name"].endswith("__" + stage) for call in calls):
             errors.append("missing stage: " + stage)
+    # skills/list may already include the complete resource inventory. A client
+    # can read it directly; skills/get only repeats that inventory, not its text.
+    skill_uris = set()
+    for call in calls:
+        if call["name"].endswith("__skills_list"):
+            result = results.get(call["id"])
+            if isinstance(result, dict):
+                skill_uris.update(skill.get("uri") for skill in result.get("skills", []))
+    read_skills = [call for call in calls if call["name"] == "ReadMcpResourceTool"
+                   and call.get("input", {}).get("uri") in skill_uris]
+    if not any(results.get(call["id"]) for call in read_skills):
+        errors.append("advertised skill content was not read through resources/read")
     created = [call for call in calls if call["name"].endswith("__studio_sdk_components_create")]
     report_id = None
     if len(created) != 1:

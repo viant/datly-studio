@@ -27,7 +27,9 @@ at most 10 returned rows; change the checker with the fixture when changing that
 scope. A missing final answer, tool error, missing lifecycle stage, corrective inline DQL edits, publication
 revision mismatch, absent live catalog tool or failed/empty/unscoped invocation
 fails the gate. This checks actual tool evidence, not the model's claim that it
-completed the task. Review fact/lookup SQL and reduced-grouping output as well;
+completed the task. The agent must read an advertised skill using `resources/read`;
+`skills/get` is optional when `skills/list` already returned its resource inventory.
+Review fact/lookup SQL and reduced-grouping output as well;
 metadata and transcript checks alone do not prove analytical semantics.
 
 Deterministic transport coverage lives in `app/studiohost/host_test.go` (native
