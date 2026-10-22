@@ -28,8 +28,11 @@ import (
 type browserAuthComponents struct {
 	Start    xdatly.Component[authStartInput, authHTTPOutput]    `component:"start,path=/v1/studio/auth/login,method=GET"`
 	Callback xdatly.Component[authCallbackInput, authHTTPOutput] `component:"callback,path=/v1/studio/auth/callback,method=GET"`
-	Token    xdatly.Component[authTokenInput, authHTTPOutput]    `component:"token,path=/v1/studio/auth/token,method=POST"`
-	Logout   xdatly.Component[authLogoutInput, authHTTPOutput]   `component:"logout,path=/v1/studio/auth/session,method=DELETE"`
+	// Commit each session-store child before waiting on the external IdP. A
+	// caller-owned transaction would retain SQLite locks across refresh and block
+	// another instance from observing the lease or the renewed token.
+	Token  xdatly.Component[authTokenInput, authHTTPOutput]  `component:"token,path=/v1/studio/auth/token,method=POST" independentChildTransactions:"true"`
+	Logout xdatly.Component[authLogoutInput, authHTTPOutput] `component:"logout,path=/v1/studio/auth/session,method=DELETE"`
 }
 
 type authStartInput struct {
