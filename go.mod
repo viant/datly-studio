@@ -103,8 +103,8 @@ require (
 	github.com/spiffe/go-spiffe/v2 v2.6.0 // indirect
 	github.com/viant/afs v1.30.1-0.20260914155934-90e95d483861
 	github.com/viant/afsc v1.18.0 // indirect
-	github.com/viant/authz v0.0.0-20261017213411-7e7e62acb696
-	github.com/viant/authz/component v0.0.0-20261017195827-09176e9405c4
+	github.com/viant/authz v0.0.0-20261022145739-e618ce6d35c6
+	github.com/viant/authz/component v0.0.0-20261022145739-e618ce6d35c6
 	github.com/viant/forge v0.3.45-0.20261020143045-05d28290fb17
 	github.com/viant/gmetric v0.3.2 // indirect
 	github.com/viant/gosh v0.3.1-0.20261007222529-b829eaaf687b // indirect
