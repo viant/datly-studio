@@ -8,7 +8,13 @@ export function accessMCPAdapter(callTool) {
     if (!value || typeof value !== 'object') throw new Error(`Policy ${field} is missing`);
     return value;
   };
+  const named = (operation, input = {}) => callTool('authz.sdk.namedPolicies.manage', {operation, ...input});
   return {
+    listNamedPolicies: async () => (await named('list')).policies || [],
+    createNamedPolicy: async (id, definition) => (await named('create', {id, definition})).policy,
+    updateNamedPolicy: (reference, definition) => named('update', {reference, definition}),
+    namedPolicyImpact: async reference => (await named('impact', {reference})).impacts || [],
+    assignNamedPolicy: async (resource, expectedRevision, actions, reference) => (await named('assign', {resource, expectedRevision, actions, reference})).document,
     getResourceAccess(resource) { return invoke('get', {resource}, 'document'); },
     getResourceAccessContext(resource) { return invoke('context', {resource}, 'context'); },
     createResourceAccess(document) { return invoke('create', {document}, 'document'); },

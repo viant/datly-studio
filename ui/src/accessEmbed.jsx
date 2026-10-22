@@ -5,3 +5,5 @@ export {GateRequirementsEditor} from './GateRequirementsEditor.jsx';
 export {accessMCPAdapter} from './accessMCPAdapter.js';
 export {gateMCPAdapter} from './gateMCPAdapter.js';
 export {authzHTTPCall, accessHTTPAdapter, gateHTTPAdapter} from './authzHTTPAdapter.js';
+
+export {NamedPolicyManager} from 'forge/resource-policy-editor';

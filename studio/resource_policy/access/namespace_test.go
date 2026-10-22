@@ -8,6 +8,7 @@ import (
 	policywriter "github.com/viant/authz/component/policy/writer"
 	"github.com/viant/bindly/locator"
 	"github.com/viant/datly-studio/internal/namespacepolicy"
+	"github.com/viant/datly-studio/runtime/accessprovider"
 	writerhandler "github.com/viant/datly/runtime/handler/writer"
 	"github.com/viant/datly/sql/dml"
 	viewprovider "github.com/viant/datly/sql/reader/provider"
@@ -163,6 +164,7 @@ func TestNativePermissionCatalogNamespaceHTTPAndMCP(t *testing.T) {
 		holder, input, output reflect.Type
 		factory               func() (rhandler.TypedHandler, error)
 	}{
+		{reflect.TypeFor[NamedPolicyComponent](), reflect.TypeFor[NamedPolicyInput](), reflect.TypeFor[sharedapi.NamedOutput](), (NamedPolicyComponent{}).DatlyHandler("NewNamedPolicies")},
 		{reflect.TypeFor[GetComponent](), reflect.TypeFor[ResourceInput](), reflect.TypeFor[DocumentOutput](), (GetComponent{}).DatlyHandler("NewGet")},
 		{reflect.TypeFor[PolicyGetComponent](), reflect.TypeFor[PolicyInput](), reflect.TypeFor[sharedapi.PolicyOutput](), (PolicyGetComponent{}).DatlyHandler("NewPolicyGet")},
 		{reflect.TypeFor[PolicyContextComponent](), reflect.TypeFor[PolicyInput](), reflect.TypeFor[sharedapi.PolicyContextOutput](), (PolicyContextComponent{}).DatlyHandler("NewPolicyContext")},
@@ -185,6 +187,56 @@ func TestNativePermissionCatalogNamespaceHTTPAndMCP(t *testing.T) {
 	t.Cleanup(func() { _ = runtime.Shutdown(ctx) })
 	bearer := jwt.BearerWithClaims(t, jwtv5.MapClaims{"sub": "owner", "iss": "test", "aud": "studio", "tenant": "tenant", "exp": time.Now().Add(time.Hour).Unix()})
 	httpHandler := gateway.NewHandler(runtime, nil, "test")
+	// Named policies use the same authenticated native component boundary.
+	namedPayload := []byte(`{"operation":"list"}`)
+	namedRequest := httptest.NewRequest(http.MethodPost, "/v1/authz/sdk/namedPolicies.manage", bytes.NewReader(namedPayload))
+	namedRequest.Header.Set("Content-Type", "application/json")
+	namedRequest.Header.Set("Authorization", bearer)
+	namedResponse := httptest.NewRecorder()
+	httpHandler.ServeHTTP(namedResponse, namedRequest)
+	if namedResponse.Code != 200 {
+		t.Fatalf("named policies HTTP %d: %s", namedResponse.Code, namedResponse.Body.String())
+	}
+
+	namedCall := func(input map[string]any, want int) sharedapi.NamedOutput {
+		t.Helper()
+		payload, _ := json.Marshal(input)
+		req := httptest.NewRequest(http.MethodPost, "/v1/authz/sdk/namedPolicies.manage", bytes.NewReader(payload))
+		req = req.WithContext(accessprovider.WithPolicyEditor(req.Context(), func(_ context.Context, facts authz.Facts, resource authz.Resource) (bool, error) {
+			return facts.Subject == "owner" && resource.Tenant == facts.Tenant && resource.Kind == "policy", nil
+		}))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", bearer)
+		res := httptest.NewRecorder()
+		httpHandler.ServeHTTP(res, req)
+		if res.Code != want {
+			t.Fatalf("named policies %v HTTP %d: %s", input["operation"], res.Code, res.Body.String())
+		}
+		var output sharedapi.NamedOutput
+		if want == 200 {
+			if err := json.Unmarshal(res.Body.Bytes(), &output); err != nil {
+				t.Fatal(err)
+			}
+		}
+		return output
+	}
+	definition := authz.NamedDefinition{DisplayName: "Viant users", Policies: map[string]authz.Policy{"*": {Mode: "protected", Rule: &authz.Rule{Kind: "group", Value: "Viant internal"}}}}
+	namedCreated := namedCall(map[string]any{"operation": "create", "id": "stable-viant-users", "definition": definition}, 200)
+	if namedCreated.Policy == nil {
+		t.Fatal("created named policy missing")
+	}
+	namedRef := authz.NamedReference{Resource: namedCreated.Policy.Resource, Revision: namedCreated.Policy.Revision}
+	definition.DisplayName = "Renamed Viant users"
+	namedUpdated := namedCall(map[string]any{"operation": "update", "reference": namedRef, "definition": definition}, 200)
+	if namedUpdated.Policy == nil || namedUpdated.Policy.Revision != 2 || namedUpdated.Policy.Resource != namedRef.Resource {
+		t.Fatal("named policy identity or revision lost")
+	}
+	namedCall(map[string]any{"operation": "update", "reference": namedRef, "definition": definition}, 409)
+	namedListed := namedCall(map[string]any{"operation": "list"}, 200)
+	if len(namedListed.Policies) != 1 || namedListed.Policies[0].DisplayName != "Renamed Viant users" {
+		t.Fatal("named policy list did not reflect update")
+	}
+
 	check := func(raw []byte, want string) {
 		var page struct {
 			Items []struct {
@@ -417,6 +469,12 @@ func TestNativePermissionCatalogNamespaceHTTPAndMCP(t *testing.T) {
 		request("policies.get", input, "", 200)
 		request("policies.get", input, namespaceaccess.ID("owner", "alpha"), 403)
 		request("policies.context", input, ns, 200)
+		namedInput := map[string]any{"operation": "create", "id": "supply", "definition": authz.NamedDefinition{DisplayName: "Supply", Policies: map[string]authz.Policy{"*": {Mode: "protected", Rule: &authz.Rule{Kind: "role", Value: "ROLE_STEWARD_SUPER_USER"}}}}}
+		request("namedPolicies.manage", namedInput, namespaceaccess.ID("other", "beta"), 403)
+		var supply sharedapi.NamedOutput
+		if err := json.Unmarshal(request("namedPolicies.manage", namedInput, ns, 200), &supply); err != nil || supply.Policy == nil || supply.Policy.DisplayName != "Supply" {
+			t.Fatalf("namespace owner could not create reusable policy: %+v %v", supply, err)
+		}
 		var initial sharedapi.PolicyOutput
 		if err := json.Unmarshal(request("policies.get", input, ns, 200), &initial); err != nil {
 			t.Fatal(err)

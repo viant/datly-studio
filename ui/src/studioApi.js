@@ -18,6 +18,7 @@ import { postV1StudioSdkVersionsBuilder } from './generated/studioClient.gen.js'
 import { postV1StudioSdkRuntimeStatus } from './generated/studioClient.gen.js';
 import { postV1StudioSdkPublicationsPublish, postV1StudioSdkPublicationsRollback, postV1StudioSdkPublicationsUnpublish } from './generated/studioClient.gen.js';
 import { postV1StudioSdkAccessList, postV1AuthzSdkPoliciesGet, postV1AuthzSdkPoliciesContext, postV1AuthzSdkPoliciesReplace, postV1AuthzSdkPoliciesCreate, postV1AuthzSdkAuthorizationCheck } from './generated/studioClient.gen.js';
+import {postNamedPolicies} from './namedPolicySDK.js';
 import { accessMCPAdapter } from './accessMCPAdapter.js';
 import { BrowserIdentity } from './browserIdentity.js';
 
@@ -33,6 +34,7 @@ export class StudioAPI {
     this.nativeCallTool = options.nativeCallTool;
     this.resourceAccess = accessMCPAdapter((name, input) => {
       const calls = {
+        'authz.sdk.namedPolicies.manage': postNamedPolicies,
         'authz.sdk.policies.get': postV1AuthzSdkPoliciesGet,
         'authz.sdk.policies.context': postV1AuthzSdkPoliciesContext,
         'authz.sdk.policies.replace': postV1AuthzSdkPoliciesReplace,
@@ -261,6 +263,11 @@ export class StudioAPI {
     return payload?.result?.[resultKey] ?? [];
   }
   listAccessResources(input = {}) { return this.nativeRequest(postV1StudioSdkAccessList, 'access.list', input); }
+  listNamedPolicies() { return this.resourceAccess.listNamedPolicies(); }
+  createNamedPolicy(id, definition) { return this.resourceAccess.createNamedPolicy(id, definition); }
+  updateNamedPolicy(reference, definition) { return this.resourceAccess.updateNamedPolicy(reference, definition); }
+  namedPolicyImpact(reference) { return this.resourceAccess.namedPolicyImpact(reference); }
+  assignNamedPolicy(resource, revision, actions, reference) { return this.resourceAccess.assignNamedPolicy(resource, revision, actions, reference); }
   getResourceAccess(resource) { return this.resourceAccess.getResourceAccess(resource); }
   getResourceAccessContext(resource) { return this.resourceAccess.getResourceAccessContext(resource); }
   createResourceAccess(document) { return this.resourceAccess.createResourceAccess(document); }

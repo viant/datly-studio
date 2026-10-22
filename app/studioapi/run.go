@@ -58,6 +58,7 @@ import (
 // nativeSDKPaths are exact BFF mounts for generated static Datly SDK routes.
 // Every other SDK operation remains on the generic SDK gateway.
 var nativeSDKPaths = []string{
+	"/v1/authz/sdk/namedPolicies.manage",
 	"/v1/authz/sdk/policies.create",
 	"/v1/authz/sdk/policies.get",
 	"/v1/authz/sdk/policies.context",

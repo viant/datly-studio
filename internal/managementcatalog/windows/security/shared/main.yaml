@@ -141,6 +141,7 @@ window:
                       - execute
                     applyGroupLabel: Apply to exposure and execution
                     operations:
+                      named: security_named_policies
                       get: security_policy_get
                       context: security_policy_context
                       create: security_policy_create
@@ -468,6 +469,9 @@ window:
               fetchData: false
             - id: security_access-binding
               dataSourceRef: security_access
+              fetchData: false
+            - id: security_named_policies-binding
+              dataSourceRef: security_named_policies
               fetchData: false
             - id: security_policy_get-binding
               dataSourceRef: security_policy_get
@@ -1020,5 +1024,14 @@ dataSources:
     backend:
       kind: inline
       rows: []
+    cache:
+      enabled: false
+
+  security_named_policies:
+    id: security_named_policies
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: authz.sdk.namedPolicies.manage
     cache:
       enabled: false

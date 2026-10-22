@@ -12,6 +12,7 @@ const types=[{packagePath:'example.com/first/predicates',typeName:'CustomerScope
 function mount({items=[entry],readonly=false,policyConflict=false,kindContract,hasMore=true,parameters}={}){
  const dirty=vi.fn();const api={readManagementResource:async()=>{const value=managementResourceFixture('security');if(kindContract){for(const variant of Object.values(value.variants)){const tab=variant.window.view.content.containers.find(node=>node.id==='security-tabs').containers[0];tab.containers.find(node=>node.id==='security-policy-panel').resourcePolicyEditor.actionsByKind=kindContract;}}return value;},fetchMCPDataSource:vi.fn(async(source,input)=>{
   switch(source.backend.method){
+   case 'authz.sdk.namedPolicies.manage':return {policies:[]};
    case 'studio.sdk.access.list':return {items,hasMore};
    case 'authz.sdk.policies.get':return {document:{resource:input.resource,revision:4,policies:{execute:{mode:'protected',rule:{kind:'role',value:'reader'}}}}};
    case 'authz.sdk.policies.context':return {context:{canManage:!readonly,source:'provider-directory',choices:{role:[{id:'reader',label:'Reader'},{id:'analyst',label:'Analyst'}]}}};

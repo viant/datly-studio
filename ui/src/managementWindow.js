@@ -1,4 +1,4 @@
-const authorizationTools = new Set(['authz.sdk.policies.get','authz.sdk.policies.context','authz.sdk.policies.create','authz.sdk.policies.replace','authz.sdk.authorization.check']);
+const authorizationTools = new Set(['authz.sdk.namedPolicies.manage','authz.sdk.policies.get','authz.sdk.policies.context','authz.sdk.policies.create','authz.sdk.policies.replace','authz.sdk.authorization.check']);
 export const isManagedMCPTool = method => typeof method === 'string' && (method.startsWith('studio.sdk.') || authorizationTools.has(method));
 
 export {resourceWindowMetadata as managementWindowMetadata} from 'forge/resource-window/metadata';

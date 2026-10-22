@@ -2,7 +2,7 @@ import {accessMCPAdapter} from './accessMCPAdapter.js';
 import {gateMCPAdapter} from './gateMCPAdapter.js';
 
 const operationPaths = new Set([
-  'authorization.check',
+  'authorization.check', 'namedPolicies.manage',
   'policies.get', 'policies.context', 'policies.create', 'policies.replace',
   'gates.check', 'gates.get', 'gates.context', 'gates.replace',
 ]);
