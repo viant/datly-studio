@@ -39,10 +39,10 @@ type authStartInput struct {
 	ReturnTo []string `parameter:"ReturnTo,kind=query,in=returnTo"`
 }
 type authCallbackInput struct {
-	Codes      []string `parameter:"Codes,kind=query,in=code"`
-	States     []string `parameter:"States,kind=query,in=state"`
-	Error      string   `parameter:"Error,kind=query,in=error"`
-	FlowCookie string   `parameter:"FlowCookie,kind=cookie,in=studio_login_state"`
+	Codes        []string `parameter:"Codes,kind=query,in=code"`
+	States       []string `parameter:"States,kind=query,in=state"`
+	Error        string   `parameter:"Error,kind=query,in=error"`
+	CookieHeader string   `parameter:"CookieHeader,kind=header,in=Cookie"`
 }
 type authTokenInput struct {
 	Origin       string `parameter:"Origin,kind=header,in=Origin"`
@@ -134,22 +134,23 @@ func (l *Login) datlyStart(_ context.Context, in *authStartInput) (*authHTTPOutp
 	if err != nil {
 		return authResponse(http.StatusServiceUnavailable, "login unavailable"), nil
 	}
-	cookie := (&http.Cookie{Name: stateCookie, Value: encoded, Path: callbackPath, HttpOnly: true,
+	cookie := (&http.Cookie{Name: l.stateCookieName, Value: encoded, Path: callbackPath, HttpOnly: true,
 		Secure: l.secure, SameSite: http.SameSiteLaxMode, MaxAge: int(stateTTL.Seconds())}).String()
 	return authResponse(http.StatusFound, "", xresponse.WithHeader("Set-Cookie", cookie),
 		xresponse.WithHeader("Location", l.config.AuthCodeURL(state, oauth2.S256ChallengeOption(verifier)))), nil
 }
 
 func (l *Login) datlyCallback(ctx context.Context, in *authCallbackInput) (*authHTTPOutput, error) {
-	clear := xresponse.WithHeader("Set-Cookie", (&http.Cookie{Name: stateCookie, Value: "", Path: callbackPath,
+	clear := xresponse.WithHeader("Set-Cookie", (&http.Cookie{Name: l.stateCookieName, Value: "", Path: callbackPath,
 		HttpOnly: true, Secure: l.secure, SameSite: http.SameSiteLaxMode, MaxAge: -1}).String())
 	if in == nil || in.Error != "" || len(in.Codes) != 1 || len(in.States) != 1 || in.Codes[0] == "" || in.States[0] == "" {
 		return authResponse(http.StatusUnauthorized, "login was not completed", clear), nil
 	}
-	if in.FlowCookie == "" {
+	flowCookie := cookieValue(in.CookieHeader, l.stateCookieName)
+	if flowCookie == "" {
 		return authResponse(http.StatusUnauthorized, "login state is unavailable", clear), nil
 	}
-	pending, err := l.open(in.FlowCookie)
+	pending, err := l.open(flowCookie)
 	if err != nil || l.now().Unix() >= pending.Expires || subtle.ConstantTimeCompare([]byte(in.States[0]), []byte(pending.State)) != 1 {
 		return authResponse(http.StatusUnauthorized, "login state is invalid", clear), nil
 	}
