@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/viant/datly-studio/internal/componentarchive"
+	"github.com/viant/datly-studio/internal/resourceartifact"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
 )
@@ -61,12 +62,20 @@ func TestDownloadIncludesMoreThanOneHundredResourceFiles(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
+	_, err = tx.ExecContext(ctx, `INSERT INTO component_resource_files
+ (report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at)
+ VALUES(?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)`, report.ID, loaded.Version.VersionNo,
+		fmt.Sprintf("%064x", count+1), resourceartifact.Namespace, "compiled/private.json",
+		[]byte("private artifact"), len("private artifact"), fmt.Sprintf("%064x", count+1), false)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := tx.Commit(); err != nil {
 		t.Fatal(err)
 	}
 	var storedFiles int
-	if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_resource_files WHERE report_id=? AND version_no=?`,
-		report.ID, loaded.Version.VersionNo).Scan(&storedFiles); err != nil {
+	if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM component_resource_files WHERE report_id=? AND version_no=? AND namespace<>?`,
+		report.ID, loaded.Version.VersionNo, resourceartifact.Namespace).Scan(&storedFiles); err != nil {
 		t.Fatal(err)
 	}
 	download, err := client.Versions().Download(ctx, report.ID, loaded.Version.VersionNo)
@@ -82,6 +91,29 @@ func TestDownloadIncludesMoreThanOneHundredResourceFiles(t *testing.T) {
 	}
 	if len(bundle.Files) != storedFiles+1 || string(bundle.Files[download.EntryDQL]) != "SELECT 1" {
 		t.Fatalf("archive entries=%d entry=%q", len(bundle.Files), download.EntryDQL)
+	}
+	if _, found := bundle.Files["compiled/private.json"]; found {
+		t.Fatal("host-owned compiled artifact was exported")
+	}
+	oversizedPrivateID := fmt.Sprintf("%064x", 9000)
+	_, err = db.ExecContext(ctx, `INSERT INTO component_resource_files
+ (report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at)
+ VALUES(?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)`, report.ID, loaded.Version.VersionNo,
+		oversizedPrivateID, resourceartifact.Namespace, "compiled/oversized.json",
+		make([]byte, componentarchive.MaxResourceBytes+1), componentarchive.MaxResourceBytes+1, oversizedPrivateID, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	privateExcluded, err := client.Versions().Download(ctx, report.ID, loaded.Version.VersionNo)
+	if err != nil {
+		t.Fatalf("compiled artifact affected export budget: %v", err)
+	}
+	if len(privateExcluded.Files) != storedFiles+1 {
+		t.Fatalf("compiled artifact affected export count: files=%d", len(privateExcluded.Files))
+	}
+	if _, err = db.ExecContext(ctx, `DELETE FROM component_resource_files WHERE report_id=? AND version_no=? AND resource_id=?`,
+		report.ID, loaded.Version.VersionNo, oversizedPrivateID); err != nil {
+		t.Fatal(err)
 	}
 	for i := 0; i < count; i++ {
 		name := fmt.Sprintf("assets/file-%03d.txt", i)

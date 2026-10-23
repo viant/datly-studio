@@ -25,6 +25,7 @@ import (
 type connectorDefinition struct {
 	name, driver, dsn, secretRef string
 	options                      json.RawMessage
+	etag                         int64
 }
 
 type activeConnectorStore struct {
@@ -68,7 +69,7 @@ func (s *activeConnectorStore) Read(ctx context.Context) (map[string]connectorDe
 		if _, exists := result[row.Name]; exists {
 			return nil, fmt.Errorf("active connector store returned duplicate connector %q", row.Name)
 		}
-		item := connectorDefinition{name: row.Name, driver: row.Driver, secretRef: row.SecretRef, options: row.OptionsJson}
+		item := connectorDefinition{name: row.Name, driver: row.Driver, secretRef: row.SecretRef, options: row.OptionsJson, etag: row.Etag}
 		if row.DsnTemplate != nil {
 			item.dsn = *row.DsnTemplate
 		}

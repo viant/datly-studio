@@ -14,7 +14,9 @@
 SELECT connector.*, type(connector, 'StoredConnector'),
        CAST(connector.name AS string),
        CAST(connector.driver AS string),
+       CAST(connector.dsn_template AS string), optional(connector.dsn_template),
        CAST(connector.secret_ref AS string),
+       CAST(connector.etag AS int64),
        CAST(connector.options_json AS json.RawMessage),
        tag(connector.options_json, 'sqlx:"options_json,enc=JSON"'),
        set_limit(connector, 0)

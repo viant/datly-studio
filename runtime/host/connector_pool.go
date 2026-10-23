@@ -53,14 +53,8 @@ func openRuntimeConnectorSet(ctx context.Context, definitions []definition, acti
 	sort.Strings(available)
 	required := map[string]bool{}
 	for _, definition := range definitions {
-		required[definition.connector] = true
-		inspection := readerbuilder.New(readerbuilder.Config{Const: instance, Scope: definition.scope, Name: definition.name, AvailableConnectors: available}).Apply(ctx, readerbuilder.Request{DQL: definition.dql, Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
-		if inspection.Structure != nil {
-			for _, function := range inspection.Structure.Functions {
-				if strings.EqualFold(function.Name, "use_connector") && len(function.Args) > 1 {
-					required[strings.Trim(strings.TrimSpace(function.Args[1]), "'\"")] = true
-				}
-			}
+		for _, name := range referencedRuntimeConnectors(ctx, definition, available, instance) {
+			required[name] = true
 		}
 	}
 	names := make([]string, 0, len(required))
@@ -103,4 +97,24 @@ func openRuntimeConnectorSet(ctx context.Context, definitions []definition, acti
 		result.connections[name] = db
 	}
 	return result, nil
+}
+
+// referencedRuntimeConnectors is the same declared DQL connector closure used
+// both to open execution pools and to partition compiled artifact identities.
+func referencedRuntimeConnectors(ctx context.Context, definition definition, available []string, constants *constant.Values) []string {
+	required := map[string]bool{definition.connector: true}
+	inspection := readerbuilder.New(readerbuilder.Config{Const: constants, Scope: definition.scope, Name: definition.name, AvailableConnectors: available}).Apply(ctx, readerbuilder.Request{DQL: definition.dql, Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
+	if inspection.Structure != nil {
+		for _, function := range inspection.Structure.Functions {
+			if strings.EqualFold(function.Name, "use_connector") && len(function.Args) > 1 {
+				required[strings.Trim(strings.TrimSpace(function.Args[1]), "'\"")] = true
+			}
+		}
+	}
+	names := make([]string, 0, len(required))
+	for name := range required {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
 }

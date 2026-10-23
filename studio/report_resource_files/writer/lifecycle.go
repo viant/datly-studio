@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/viant/datly-studio/internal/resourceartifact"
 	"github.com/viant/datly-studio/studio/authorization"
 	"github.com/viant/xdatly/connector"
 	xhandler "github.com/viant/xdatly/handler"
@@ -29,6 +30,9 @@ func (r *FileRules) Init(context.Context, *ReportResourceFile, xhandler.Lifecycl
 func (r *FileRules) Validate(ctx context.Context, value *ReportResourceFile, _ xhandler.LifecycleContext[ReportResourceFile, xhandler.NoParent, Output]) error {
 	if value == nil || value.ReportId == nil {
 		return fmt.Errorf("report identity is required")
+	}
+	if value.Namespace != nil && *value.Namespace == resourceartifact.Namespace {
+		return fmt.Errorf("compiled resource namespace is host-owned")
 	}
 	if r == nil || r.Input == nil {
 		return fmt.Errorf("authorization input is unavailable")

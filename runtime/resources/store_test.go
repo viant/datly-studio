@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/viant/datly-studio/internal/resourceartifact"
 	"github.com/viant/datly-studio/schema"
 	_ "modernc.org/sqlite"
 )
@@ -167,6 +168,31 @@ func TestLoadExactVersionAndMultipleVersions(t *testing.T) {
 	f.exec(`UPDATE component_resource_files SET content=? WHERE report_id='report' AND version_no=2`, []byte("changed"))
 	if body, err := loaded.ByVersion[newVersion].ReadFile("new.txt"); err != nil || string(body) != "new content" {
 		t.Fatalf("snapshot content changed: %q, %v", body, err)
+	}
+}
+
+func TestLoadExcludesCompiledRowsFromSourceFingerprintAndResources(t *testing.T) {
+	f := newSnapshotFixture(t)
+	f.version("report", 1)
+	f.file("report", 1, "source", "docs", "sql/read.sql", "SELECT 1")
+	version := Version{ReportID: "report", VersionNo: 1}
+	before, err := Load(context.Background(), f.db, []Version{version})
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.file("report", 1, "artifact", resourceartifact.Namespace, "compiled/artifact.json", `{"private":true}`)
+	after, err := Load(context.Background(), f.db, []Version{version})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if before.Fingerprints[version] != after.Fingerprints[version] {
+		t.Fatal("compiled artifact changed source resource fingerprint")
+	}
+	if _, err := after.Store.ReadFile("compiled/artifact.json"); err == nil {
+		t.Fatal("compiled artifact leaked into public default store")
+	}
+	if _, err := after.Store.ReadFile(resourceartifact.Namespace + ":compiled/artifact.json"); err == nil {
+		t.Fatal("compiled artifact leaked into public namespace")
 	}
 }
 

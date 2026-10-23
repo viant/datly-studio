@@ -3,4 +3,5 @@ SELECT f.report_id, f.version_no, f.resource_id, f.namespace, f.resource_path,
        f.is_binary, f.created_at
 FROM component_resource_files f
 WHERE f.report_id = $ReportId AND f.version_no = $VersionNo
+  AND f.namespace <> '__datly_compiled'
 ${predicate.Builder().CombineAnd($predicate.FilterGroup(1, "AND"), $predicate.FilterGroup(2, "AND"), $predicate.FilterGroup(3, "AND")).Build("AND")}

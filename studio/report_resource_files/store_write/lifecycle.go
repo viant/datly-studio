@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
+	"github.com/viant/datly-studio/internal/resourceartifact"
 	xhandler "github.com/viant/xdatly/handler"
 	"io/fs"
 	reflect "reflect"
@@ -24,7 +25,7 @@ var (
 	FileStoreRulesDatly = FileStoreRulesDatlyType()
 )
 
-func (hooks *FileStoreRules) Init(_ context.Context, entity *StoredFile, state xhandler.LifecycleContext[StoredFile, xhandler.NoParent, Output]) error {
+func (hooks *FileStoreRules) Init(ctx context.Context, entity *StoredFile, state xhandler.LifecycleContext[StoredFile, xhandler.NoParent, Output]) error {
 	if entity == nil || strings.TrimSpace(entity.ReportId) == "" || entity.VersionNo <= 0 ||
 		strings.TrimSpace(entity.ResourceId) == "" || entity.Has == nil ||
 		!entity.Has.ReportId || !entity.Has.VersionNo || !entity.Has.ResourceId ||
@@ -40,6 +41,24 @@ func (hooks *FileStoreRules) Init(_ context.Context, entity *StoredFile, state x
 	}
 	if err := namespaceaccess.ValidateResourceOwnership(entity.NamespaceId, previousNamespace); err != nil {
 		return err
+	}
+	if entity.Namespace == resourceartifact.Namespace || state.Previous != nil && state.Previous.Namespace == resourceartifact.Namespace {
+		if !resourceartifact.TrustedWrite(ctx) {
+			return fmt.Errorf("compiled resource namespace is host-owned")
+		}
+		if entity.ShouldDelete {
+			return fmt.Errorf("compiled resource artifacts are immutable")
+		}
+		if state.Previous != nil {
+			previous := state.Previous
+			previousDigest := sha256.Sum256(previous.Content)
+			previousHash := hex.EncodeToString(previousDigest[:])
+			corrupt := previous.ContentSize != int64(len(previous.Content)) || previous.ContentSha256 != previousHash
+			if previous.Namespace != entity.Namespace || previous.ResourcePath != entity.ResourcePath ||
+				(corrupt || previous.ContentSha256 != entity.ContentSha256 || string(previous.Content) != string(entity.Content)) && resourceartifact.RepairDigest(ctx) != previousHash {
+				return &xhandler.Conflict{Entity: "compiled_artifact", Field: "resource_id", Reason: "published bytes cannot change"}
+			}
+		}
 	}
 	if entity.ShouldDelete {
 		if state.Previous == nil {

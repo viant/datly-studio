@@ -18,6 +18,7 @@ import (
 
 	bindresource "github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/readercomponent"
+	"github.com/viant/datly-studio/internal/resourceartifact"
 	storedfiles "github.com/viant/datly-studio/studio/report_resource_files/store_snapshot"
 	storedfolders "github.com/viant/datly-studio/studio/report_resource_folders/store_snapshot"
 	storedskills "github.com/viant/datly-studio/studio/report_skill_roots/store_snapshot"
@@ -109,6 +110,12 @@ func load(ctx context.Context, db *sql.DB, versions []Version, reader *snapshotR
 			return nil, err
 		}
 		for _, file := range files {
+			// Published compiled contracts are host-private DB artifacts. They
+			// must not become source inputs, public resources, or part of the
+			// fingerprint that decides whether the artifact itself is current.
+			if file.Namespace == resourceartifact.Namespace {
+				continue
+			}
 			if err = validFile(file.Namespace, file.ResourcePath); err != nil {
 				return nil, err
 			}

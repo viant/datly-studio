@@ -3,6 +3,7 @@ package resourcesnapshot
 import (
 	"fmt"
 
+	"github.com/viant/datly-studio/internal/resourceartifact"
 	"github.com/viant/datly-studio/sdk"
 	files "github.com/viant/datly-studio/studio/report_resource_files/store_snapshot"
 	folders "github.com/viant/datly-studio/studio/report_resource_folders/store_snapshot"
@@ -15,6 +16,9 @@ func Files(reportID string, versionNo int, rows []*files.SnapshotFile) ([]*sdk.R
 	for _, row := range rows {
 		if row == nil || row.ReportId != reportID || row.VersionNo != versionNo {
 			return nil, fmt.Errorf("resource file reader returned a mismatched row")
+		}
+		if row.Namespace == resourceartifact.Namespace {
+			continue // host-owned compiled bytes are never authored resource files
 		}
 		item := &sdk.ResourceFile{ReportID: row.ReportId, VersionNo: row.VersionNo, ResourceID: row.ResourceId,
 			Namespace: row.Namespace, ResourcePath: row.ResourcePath, Content: string(row.Content),

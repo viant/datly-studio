@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/viant/datly-studio/internal/resourceartifact"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
 	resourcestore "github.com/viant/datly-studio/sdk/transport/sql/internal/resources"
@@ -44,6 +45,13 @@ func TestResourceSnapshotReaderIsUnboundedAndOrdered(t *testing.T) {
 			VALUES(?,?,?,?,?,?,?,?,?,?,?)`, "r1", 2, id, "assets", name, media, content, len(content), id, false, now); err != nil {
 			t.Fatal(err)
 		}
+	}
+	if _, err := tx.ExecContext(ctx, `INSERT INTO component_resource_files
+		(report_id,version_no,resource_id,namespace,resource_path,media_type,content,content_size,content_sha256,is_binary,created_at)
+		VALUES(?,?,?,?,?,?,?,?,?,?,?)`, "r1", 2, fmt.Sprintf("%064x", count+1), resourceartifact.Namespace,
+		"compiled/private.json", resourceartifact.MediaType, []byte("private compiled bytes"), len("private compiled bytes"),
+		fmt.Sprintf("%064x", count+1), false, now); err != nil {
+		t.Fatal(err)
 	}
 	for _, folder := range []struct {
 		id, root string

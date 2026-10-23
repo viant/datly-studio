@@ -14,6 +14,7 @@ import (
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/componentarchive"
 	"github.com/viant/datly-studio/internal/datatest"
+	"github.com/viant/datly-studio/internal/resourceartifact"
 	"github.com/viant/datly-studio/sdk"
 	resourcefiles "github.com/viant/datly-studio/studio/report_resource_files/store_download"
 	budget "github.com/viant/datly-studio/studio/report_resource_files/store_download_budget"
@@ -49,6 +50,13 @@ func TestDownloadSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	if _, err := db.ExecContext(ctx, `INSERT INTO component_resource_files
  (report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at)
  VALUES(?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)`, "r1", 1, strings.Repeat("a", 64), "assets", "assets/readme.txt", []byte("hello"), 5, strings.Repeat("b", 64), false); err != nil {
+		t.Fatal(err)
+	}
+	private := bytes.Repeat([]byte("p"), componentarchive.MaxResourceBytes+1)
+	if _, err := db.ExecContext(ctx, `INSERT INTO component_resource_files
+ (report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at)
+ VALUES(?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)`, "r1", 1, strings.Repeat("e", 64),
+		resourceartifact.Namespace, "compiled/private.json", private, len(private), strings.Repeat("e", 64), false); err != nil {
 		t.Fatal(err)
 	}
 	resources := resource.New()
@@ -153,6 +161,9 @@ func TestDownloadSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	bundle, err := sdk.ReadDQLArchive(bytes.NewReader(wire.Archive), "zip")
 	if err != nil || string(bundle.Files[wire.EntryDQL]) != "SELECT 1" || string(bundle.Files["assets/readme.txt"]) != "hello" {
 		t.Fatalf("archive=%v err=%v", bundle, err)
+	}
+	if _, found := bundle.Files["compiled/private.json"]; found {
+		t.Fatal("host-owned compiled artifact was exported")
 	}
 	for _, check := range []struct {
 		subject string

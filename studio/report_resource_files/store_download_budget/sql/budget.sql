@@ -2,4 +2,5 @@ SELECT budget."file_count", budget."content_bytes" FROM  (SELECT COUNT(*) AS fil
        COALESCE(SUM(LENGTH(f.content)), 0) AS content_bytes
 FROM component_resource_files f
 WHERE f.report_id = $ReportId AND f.version_no = $VersionNo
+  AND f.namespace <> '__datly_compiled'
 )  budget WHERE 1 = 1

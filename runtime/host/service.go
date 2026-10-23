@@ -2,8 +2,10 @@ package host
 
 import (
 	"context"
+	"crypto/sha256"
 	"crypto/subtle"
 	"database/sql"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,7 +14,9 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
+	"os"
 	"path"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -21,6 +25,7 @@ import (
 	access "github.com/viant/authz"
 	"github.com/viant/datly-studio/audit"
 	"github.com/viant/datly-studio/internal/connectorsecret"
+	"github.com/viant/datly-studio/internal/resourceartifact"
 	studiors "github.com/viant/datly-studio/runtime/resources"
 	studiohost "github.com/viant/datly-studio/studio/host"
 	"github.com/viant/datly/application"
@@ -49,27 +54,29 @@ import (
 type verifiedClaimsKey struct{}
 
 type Service struct {
-	codecs                xcodec.Factory
-	windowExecutionProof  types.WindowTargetProof
-	metadataDefinitions   *exactDefinitionReader
-	metadataResources     *studiors.Loader
-	windowPrimitives      *coreresource.LocalProvider
-	windowPrimitiveSource *stockPrimitiveSource
-	windowPrimitivePolicy *stockWindowPolicy
-	resourceAccess        *access.Service
-	namespacePolicyReader *namespacepolicy.Reader
-	config                Config
-	studio                *sql.DB
-	connectorStore        *activeConnectorStore
-	definitionStore       *publishedDefinitionStore
-	runAccessStore        *runAccessStore
-	manager               *application.Manager
-	servers               []*http.Server
-	listeners             []net.Listener
-	verifier              *verifier.Service
-	providerVerifiers     map[string]*verifier.Service
-	secrets               connectorsecret.Resolver
-	mu                    sync.Mutex
+	codecs                 xcodec.Factory
+	windowExecutionProof   types.WindowTargetProof
+	metadataDefinitions    *exactDefinitionReader
+	metadataResources      *studiors.Loader
+	windowPrimitives       *coreresource.LocalProvider
+	windowPrimitiveSource  *stockPrimitiveSource
+	windowPrimitivePolicy  *stockWindowPolicy
+	resourceAccess         *access.Service
+	namespacePolicyReader  *namespacepolicy.Reader
+	config                 Config
+	studio                 *sql.DB
+	connectorStore         *activeConnectorStore
+	definitionStore        *publishedDefinitionStore
+	compiledArtifacts      *compiledArtifactStore
+	compileRuntimeContract func(context.Context, *transcribe.Source) (*transcribe.RuntimeContract, error)
+	runAccessStore         *runAccessStore
+	manager                *application.Manager
+	servers                []*http.Server
+	listeners              []net.Listener
+	verifier               *verifier.Service
+	providerVerifiers      map[string]*verifier.Service
+	secrets                connectorsecret.Resolver
+	mu                     sync.Mutex
 }
 
 func New(ctx context.Context, config Config) (*Service, error) {
@@ -111,8 +118,17 @@ func New(ctx context.Context, config Config) (*Service, error) {
 		_ = studio.Close()
 		return nil, fmt.Errorf("runtime run access store: %w", err)
 	}
-	result := &Service{codecs: codecs, config: config, studio: studio, manager: manager, connectorStore: &activeConnectorStore{db: studio}, definitionStore: definitionStore, runAccessStore: runAccessStore}
+	compiledArtifacts, err := newCompiledArtifactStore(studio)
+	if err != nil {
+		_ = runAccessStore.Close(context.Background())
+		_ = definitionStore.Close(context.Background())
+		_ = manager.Shutdown(context.Background())
+		_ = studio.Close()
+		return nil, fmt.Errorf("runtime compiled artifact store: %w", err)
+	}
+	result := &Service{codecs: codecs, config: config, studio: studio, manager: manager, connectorStore: &activeConnectorStore{db: studio}, definitionStore: definitionStore, runAccessStore: runAccessStore, compiledArtifacts: compiledArtifacts}
 	if err = result.initResourceAccess(); err != nil {
+		_ = compiledArtifacts.Close(context.Background())
 		_ = runAccessStore.Close(context.Background())
 		_ = definitionStore.Close(context.Background())
 		_ = manager.Shutdown(context.Background())
@@ -120,6 +136,7 @@ func New(ctx context.Context, config Config) (*Service, error) {
 		return nil, err
 	}
 	if err = result.initStockForgeProvider(ctx); err != nil {
+		_ = compiledArtifacts.Close(context.Background())
 		_ = runAccessStore.Close(context.Background())
 		_ = definitionStore.Close(context.Background())
 		_ = manager.Shutdown(context.Background())
@@ -130,6 +147,7 @@ func New(ctx context.Context, config Config) (*Service, error) {
 	for name, provider := range config.Authentication.Providers {
 		service := verifier.New(&verifier.Config{CertURL: provider.CertURL})
 		if err = service.Init(ctx); err != nil {
+			_ = compiledArtifacts.Close(context.Background())
 			_ = runAccessStore.Close(context.Background())
 			_ = definitionStore.Close(context.Background())
 			_ = manager.Shutdown(context.Background())
@@ -141,6 +159,7 @@ func New(ctx context.Context, config Config) (*Service, error) {
 	if config.Access == nil && !strings.EqualFold(config.Authentication.DefaultMode, "public") {
 		result.verifier = verifier.New(&verifier.Config{CertURL: config.Authentication.CertURL})
 		if err = result.verifier.Init(ctx); err != nil {
+			_ = compiledArtifacts.Close(context.Background())
 			_ = runAccessStore.Close(context.Background())
 			_ = definitionStore.Close(context.Background())
 			_ = manager.Shutdown(context.Background())
@@ -213,18 +232,22 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 		slog.InfoContext(ctx, "Studio namespace compilation", "namespaceId", s.config.NamespaceID, "components", len(definitions), "elapsedMs", float64(time.Since(started))/float64(time.Millisecond), "failed", err != nil)
 	}()
 
+	phaseStarted := time.Now()
 	types, err := seed.Clone()
 	if err != nil {
 		return nil, err
 	}
+	compiledArtifactTiming(ctx, "namespace.seed.clone", time.Since(phaseStarted), 0)
 	versions := make([]studiors.Version, 0, len(definitions))
 	for _, definition := range definitions {
 		versions = append(versions, studiors.Version{ReportID: definition.reportID, VersionNo: definition.versionNo})
 	}
+	phaseStarted = time.Now()
 	loadedResources, err := studiors.Load(ctx, s.studio, versions)
 	if err != nil {
 		return nil, err
 	}
+	compiledArtifactTiming(ctx, "namespace.resources.load", time.Since(phaseStarted), 0)
 	resources := loadedResources.Store
 	registrations := make([]*registry.RegisteredComponent, 0, len(definitions))
 	reportByComponent := map[spec.Key]string{}
@@ -242,14 +265,18 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 			}
 		}
 	}()
+	phaseStarted = time.Now()
 	active, activeErr := s.activeConnectors(ctx)
 	if activeErr != nil {
 		return nil, activeErr
 	}
+	compiledArtifactTiming(ctx, "namespace.connectors.read", time.Since(phaseStarted), 0)
+	phaseStarted = time.Now()
 	pooled, err = openRuntimeConnectorSet(ctx, definitions, active, s.secrets, s.config.Const)
 	if err != nil {
 		return nil, err
 	}
+	compiledArtifactTiming(ctx, "namespace.connectors.open", time.Since(phaseStarted), 0)
 	type contractResult struct {
 		sources  *runtimeSources
 		contract *transcribe.RuntimeContract
@@ -257,28 +284,133 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 	}
 	compileOne := func(compileCtx context.Context, definition definition, catalog *typecatalog.Catalog) (contractResult, error) {
 		started := time.Now()
+		version := studiors.Version{ReportID: definition.reportID, VersionNo: definition.versionNo}
+		contractResources := loadedResources.ByVersion[version]
+		var cacheIdentity resourceartifact.Identity
+		var cacheOwner string
+		var repairDigest string
+		bypassReason := "store-unavailable"
+		cacheable := s.compiledArtifacts != nil
+		if cacheable {
+			available := make([]string, 0, len(active))
+			for name := range active {
+				available = append(available, name)
+			}
+			sort.Strings(available)
+			selected := map[string]connectorDefinition{}
+			for _, name := range referencedRuntimeConnectors(compileCtx, definition, available, s.config.Const) {
+				item, exists := active[name]
+				if !exists {
+					cacheable = false
+					bypassReason = "connector-unavailable"
+					break
+				}
+				selected[name] = item
+			}
+			if cacheable {
+				var identityErr error
+				identityStarted := time.Now()
+				cacheIdentity, cacheOwner, identityErr = compilerInputIdentity(s.config.NamespaceID, s.config.ModulePath, s.config.RootDir,
+					definition, loadedResources.Fingerprints[version], s.config.Const.Identity(), selected, catalog)
+				compiledArtifactTiming(compileCtx, "artifact.identity", time.Since(identityStarted), 0)
+				if identityErr != nil {
+					cacheable = false
+					bypassReason = "identity-unavailable"
+				}
+			}
+		}
+		if cacheable {
+			lookupStarted := time.Now()
+			stored, lookupErr := s.compiledArtifacts.Get(compileCtx, definition.reportID, definition.versionNo, cacheIdentity)
+			compiledArtifactTiming(compileCtx, "artifact.lookup", time.Since(lookupStarted), len(stored))
+			missReason := "absent"
+			if lookupErr == nil {
+				var frozen transcribe.RuntimeContractArtifact
+				if json.Unmarshal(stored, &frozen) == nil {
+					hydrateStarted := time.Now()
+					contract, hydrateErr := frozen.Materialize(catalog, contractResources)
+					compiledArtifactTiming(compileCtx, "artifact.hydrate", time.Since(hydrateStarted), len(stored))
+					if hydrateErr == nil && requireReaderOnlyContract(contract.Component) == nil {
+						sources, openErr := pooled.sources(compileCtx, definition.connector)
+						if openErr != nil {
+							return contractResult{}, openErr
+						}
+						compiledArtifactTiming(compileCtx, "artifact.hit", time.Since(started), len(stored))
+						return contractResult{sources: sources, contract: contract, elapsed: time.Since(started)}, nil
+					}
+					missReason = "hydrate-invalid"
+				} else {
+					missReason = "decode-invalid"
+				}
+				prior := sha256.Sum256(stored)
+				repairDigest = hex.EncodeToString(prior[:])
+			} else if errors.Is(lookupErr, errCompiledArtifactCorrupt) {
+				missReason = "checksum-invalid"
+				if len(stored) > 0 {
+					prior := sha256.Sum256(stored)
+					repairDigest = hex.EncodeToString(prior[:])
+				}
+			}
+			if lookupErr != nil && !errors.Is(lookupErr, sql.ErrNoRows) && !errors.Is(lookupErr, errCompiledArtifactCorrupt) {
+				return contractResult{}, fmt.Errorf("read compiled artifact: %w", lookupErr)
+			}
+			compiledArtifactTimingReason(compileCtx, "artifact.miss", missReason, time.Since(lookupStarted), 0)
+		} else {
+			compiledArtifactTimingReason(compileCtx, "artifact.bypass", bypassReason, time.Since(started), 0)
+		}
 		sources, openErr := pooled.sources(compileCtx, definition.connector)
 		if openErr != nil {
 			return contractResult{}, openErr
 		}
-		contractResources := loadedResources.ByVersion[studiors.Version{ReportID: definition.reportID, VersionNo: definition.versionNo}]
 		source := &transcribe.Source{Const: s.config.Const, Types: catalog, Scope: definition.scope, Name: definition.name, Text: definition.dql, Connector: definition.connector, Resources: contractResources, ColumnRefiner: column.New(sources.connections)}
-		compiler := transcribe.NewCompiler()
 		var contract *transcribe.RuntimeContract
 		var compileErr error
-		if s.config.ModulePath != "" {
-			contract, compileErr = compiler.RuntimeContractsInModule(compileCtx, s.config.ModulePath, source)
+		discoveryStarted := time.Now()
+		if s.compileRuntimeContract != nil {
+			contract, compileErr = s.compileRuntimeContract(compileCtx, source)
 		} else {
-			contract, compileErr = compiler.RuntimeContracts(compileCtx, s.config.RootDir, source)
+			compiler := transcribe.NewCompiler()
+			if s.config.ModulePath != "" {
+				contract, compileErr = compiler.RuntimeContractsInModule(compileCtx, s.config.ModulePath, source)
+			} else {
+				contract, compileErr = compiler.RuntimeContracts(compileCtx, s.config.RootDir, source)
+			}
 		}
 		if compileErr != nil {
 			return contractResult{}, fmt.Errorf("compile dynamic report %s: %w", definition.reportID, compileErr)
 		}
+		compiledArtifactTiming(compileCtx, "artifact.discovery", time.Since(discoveryStarted), 0)
 		if contractErr := requireReaderOnlyContract(contract.Component); contractErr != nil {
 			return contractResult{}, fmt.Errorf("compile dynamic report %s: %w", definition.reportID, contractErr)
 		}
+		if cacheable {
+			frozen, freezeErr := contract.Freeze()
+			if freezeErr == nil {
+				encoded, encodeErr := json.Marshal(frozen)
+				if encodeErr != nil {
+					return contractResult{}, encodeErr
+				}
+				storeStarted := time.Now()
+				var putErr error
+				if repairDigest != "" {
+					putErr = s.compiledArtifacts.Repair(compileCtx, cacheOwner, definition.reportID, definition.versionNo, cacheIdentity, encoded, repairDigest)
+				} else {
+					putErr = s.compiledArtifacts.Put(compileCtx, cacheOwner, definition.reportID, definition.versionNo, cacheIdentity, encoded)
+				}
+				compiledArtifactTiming(compileCtx, "artifact.store", time.Since(storeStarted), len(encoded))
+				if putErr != nil && !errors.Is(putErr, errCompiledArtifactTooLarge) {
+					return contractResult{}, fmt.Errorf("publish compiled artifact: %w", putErr)
+				}
+				if errors.Is(putErr, errCompiledArtifactTooLarge) {
+					compiledArtifactTiming(compileCtx, "artifact.oversize", 0, len(encoded))
+				}
+			} else {
+				compiledArtifactTimingReason(compileCtx, "artifact.unsupported", "freeze-unsupported", 0, 0)
+			}
+		}
 		return contractResult{sources: sources, contract: contract, elapsed: time.Since(started)}, nil
 	}
+	phaseStarted = time.Now()
 	prepared, parallelErr := compileContracts(ctx, definitions, func(compileCtx context.Context, definition definition) (contractResult, error) {
 		catalog, cloneErr := seed.Clone()
 		if cloneErr != nil {
@@ -286,11 +418,13 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 		}
 		return compileOne(compileCtx, definition, catalog)
 	})
+	compiledArtifactTiming(ctx, "namespace.contracts.stage", time.Since(phaseStarted), 0)
 	if parallelErr != nil {
 		// A reader may import a type generated by an earlier reader. Preserve
 		// that ordered contract when independent preparation cannot resolve it.
 		slog.WarnContext(ctx, "Studio parallel contract preparation retried in order", "namespaceId", s.config.NamespaceID)
 	}
+	var artifactsElapsed, registrationsElapsed time.Duration
 	for i, definition := range definitions {
 		var current contractResult
 		if parallelErr != nil {
@@ -313,6 +447,7 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 			return nil, err
 		}
 		artifactsFinished := time.Now()
+		artifactsElapsed += artifactsFinished.Sub(contractFinished)
 		compiledRegistrations, registerErr := compilation.RuntimeComponents(ctx, report.RuntimeConfigureFunc(func(_ context.Context, artifact *report.ComponentArtifact) (report.RuntimeCapabilities, error) {
 			if artifact.IsReport() {
 				return report.RuntimeCapabilities{}, nil
@@ -327,6 +462,7 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 			err = registerErr
 			return nil, err
 		}
+		registrationsElapsed += time.Since(artifactsFinished)
 		slog.InfoContext(ctx, "Studio component compilation", "namespaceId", s.config.NamespaceID, "componentId", definition.reportID,
 			"contractMs", float64(current.elapsed)/float64(time.Millisecond),
 			"artifactsMs", float64(artifactsFinished.Sub(contractFinished))/float64(time.Millisecond),
@@ -341,6 +477,8 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 			reportByComponent[registered.Component.Key] = definition.reportID
 		}
 	}
+	compiledArtifactTiming(ctx, "namespace.artifacts.compile", artifactsElapsed, 0)
+	compiledArtifactTiming(ctx, "namespace.runtime.register", registrationsElapsed, 0)
 	if err = validateSkillToolReferences(ctx, s.studio, versions, registrations); err != nil {
 		return nil, err
 	}
@@ -560,6 +698,18 @@ type definition struct {
 type runtimeSources struct {
 	sql         *dsql.SQLComponent
 	connections column.Connections
+}
+
+func compiledArtifactTiming(ctx context.Context, phase string, elapsed time.Duration, bytes int) {
+	compiledArtifactTimingReason(ctx, phase, "", elapsed, bytes)
+}
+
+func compiledArtifactTimingReason(ctx context.Context, phase, reason string, elapsed time.Duration, bytes int) {
+	if os.Getenv("BACKEND_PRIMITIVE_TRACE") != "1" {
+		return
+	}
+	slog.InfoContext(ctx, "Studio compiled artifact", "phase", phase, "reason", reason,
+		"elapsedMs", float64(elapsed)/float64(time.Millisecond), "bytes", bytes)
 }
 
 func (s *Service) activeConnectors(ctx context.Context) (map[string]connectorDefinition, error) {
@@ -813,6 +963,9 @@ func (s *Service) Close(ctx context.Context) error {
 	}
 	if s.runAccessStore != nil {
 		result = errors.Join(result, s.runAccessStore.Close(ctx))
+	}
+	if s.compiledArtifacts != nil {
+		result = errors.Join(result, s.compiledArtifacts.Close(ctx))
 	}
 	if s.namespacePolicyReader != nil {
 		result = errors.Join(result, s.namespacePolicyReader.Close(ctx))

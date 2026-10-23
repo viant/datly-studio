@@ -14,6 +14,7 @@ import (
 
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/datatest"
+	"github.com/viant/datly-studio/internal/resourceartifact"
 	"github.com/viant/datly-studio/sdk"
 	files "github.com/viant/datly-studio/studio/report_resource_files/store_snapshot"
 	folders "github.com/viant/datly-studio/studio/report_resource_folders/store_snapshot"
@@ -55,6 +56,13 @@ func TestResourceGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
  VALUES(?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)`, "r1", 2, id, "assets", path, []byte(fmt.Sprintf("value-%03d", i)), 9, id, false); err != nil {
 			t.Fatal(err)
 		}
+	}
+	if _, err := db.ExecContext(ctx, `INSERT INTO component_resource_files
+ (report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at)
+ VALUES(?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)`, "r1", 2, strings.Repeat("f", 64),
+		resourceartifact.Namespace, "compiled/private.json", []byte("private compiled payload"),
+		len("private compiled payload"), strings.Repeat("f", 64), false); err != nil {
+		t.Fatal(err)
 	}
 	for _, item := range []struct {
 		id, root string
@@ -178,6 +186,9 @@ func TestResourceGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	if wire.Files[0].ResourcePath != "assets/file-000.txt" || wire.Files[count-1].ResourcePath != "assets/file-136.txt" || wire.Folders[0].FolderID != "a" || wire.Skills[0].SkillID != "a" || wire.Version.GeneratedDQL != "" || wire.Version.AuthoredDQL != "" {
 		t.Fatalf("snapshot ordering/redaction: first=%+v last=%+v folders=%+v skills=%+v version=%+v", wire.Files[0], wire.Files[count-1], wire.Folders, wire.Skills, wire.Version)
 	}
+	if bytes.Contains(response.Body.Bytes(), []byte("private compiled payload")) {
+		t.Fatal("host-owned compiled artifact appeared in the public snapshot")
+	}
 	for _, check := range []struct {
 		subject string
 		version int
@@ -218,7 +229,7 @@ func TestResourceGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 		return json.Marshal(result.StructuredContent)
 	}
 	structured, err := call("viewer")
-	if err != nil || !bytes.Contains(structured, []byte("assets/file-136.txt")) || bytes.Contains(structured, []byte("private source")) {
+	if err != nil || !bytes.Contains(structured, []byte("assets/file-136.txt")) || bytes.Contains(structured, []byte("private source")) || bytes.Contains(structured, []byte("private compiled payload")) {
 		t.Fatalf("MCP snapshot=%s err=%v", structured, err)
 	}
 	structured, err = call("intruder")
