@@ -26,7 +26,11 @@ func (s *Service) forgeProviderHTTP(ctx context.Context) (http.Handler, error) {
 		return nil, fmt.Errorf("Forge provider requires a host and invocation authority")
 	}
 	legacy := forgehandler.NewProviderHandler(forgeservice.NewService(&forgeservice.Config{PrimitiveProvider: provider, UseData: true}))
-	protocol, err := mcpserver.New(mcpserver.WithNewHandler(func(ctx context.Context, notifier transport.Notifier, log logger.Logger, client protoclient.Operations) (protoserver.Handler, error) {
+	protocol, err := mcpserver.New(mcpserver.WithOnSessionClose(func(notifier transport.Notifier) {
+		if source, ok := s.config.ArtifactCohorts.(interface{ UnsubscribeResources(transport.Notifier) }); ok {
+			source.UnsubscribeResources(notifier)
+		}
+	}), mcpserver.WithNewHandler(func(ctx context.Context, notifier transport.Notifier, log logger.Logger, client protoclient.Operations) (protoserver.Handler, error) {
 		handler, err := legacy(ctx, notifier, log, client)
 		if err != nil {
 			return nil, err
@@ -34,8 +38,28 @@ func (s *Service) forgeProviderHTTP(ctx context.Context) (http.Handler, error) {
 		if err := s.registerWindowPrimitives(handler.(*forgehandler.Handler).DefaultHandler); err != nil {
 			return nil, err
 		}
+		var cohort *artifactCohortHandler
+		if s.config.ArtifactCohorts != nil {
+			cohort = &artifactCohortHandler{notifier: notifier}
+			if source, ok := s.config.ArtifactCohorts.(interface {
+				SubscribeResources(transport.Notifier) func()
+			}); ok {
+				cohort.source = source
+			}
+		}
+		var activate func()
+		if cohort != nil {
+			activate = cohort.activateNotifications
+		}
+		if err := s.registerArtifactCohortTools(ctx, handler.(*forgehandler.Handler).DefaultHandler, activate); err != nil {
+			return nil, err
+		}
 		if s.windowPrimitiveSource != nil && len(s.windowPrimitiveSource.datasources) > 0 {
-			return &stockResourceHandler{Handler: handler, host: s}, nil
+			handler = &stockResourceHandler{Handler: handler, host: s}
+		}
+		if cohort != nil {
+			cohort.Handler = handler
+			handler = cohort
 		}
 		return handler, nil
 	}))

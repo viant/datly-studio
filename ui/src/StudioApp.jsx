@@ -6,6 +6,7 @@ import { WorkspaceRuntimeSurface, PersistentWindowContent } from 'forge/componen
 import { ManagementWindow } from './ManagementWindow.jsx';
 import { managementSection } from './managementNavigation.js';
 import { useNamespaceWorkspace } from './useNamespaceWorkspace.js';
+import {managementWindowDestination} from 'forge/host-window/navigation';
 
 
 const noExtensions = [];
@@ -75,7 +76,7 @@ export function StudioApp({ api, mode, subject, brand = 'Data Studio', extension
           if(!nativeSections.includes(target))return extensions.find(extension=>extension.id===target)?.render({api,mode,subject,navigate,openComponent:openBuilder,currentNamespace:namespaceWorkspace.current,namespaceItems:namespaceWorkspace.items});
           return <div className={target==='builder'?'studio-reader-host':'studio-management-host'} role={target==='builder'?undefined:'main'}>
             <ManagementWindow key={target==='builder'?`${builderReport?.id||''}:${builderReport?.versionNo||''}`:target} api={api} disabled={namespaceWorkspace.enabled&&!namespaceWorkspace.ready}
-              uri={`window://datastudio/${target==='components'?'component-catalog':target==='builder'?'reader-workbench':target}`}
+              uri={`window://datastudio/${managementWindowDestination(target)?.name || target}`}
               parameters={{currentNamespace:namespaceWorkspace.current,report:builderReport,hasNamespaceSkillsRenderer:Boolean(renderNamespaceSkills)}}
               renderSlots={renderNamespaceSkills?{'namespace-skills':props=>renderNamespaceSkills({api,namespace:namespaceWorkspace.current,subject,onDirtyChange:props.onDirtyChange})}:undefined}
               onDirtyChange={value=>{if(target===section)setSkillEditing(value);}}

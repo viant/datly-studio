@@ -28,7 +28,9 @@ type stockPrimitiveSource struct {
 	original         *stockWindowSource
 	snapshot         *coreresource.NativeAssetSnapshot
 	components       map[ComponentReference]string
+	closures         map[string]compiledStockWindowClosure
 	metadataCompiles atomic.Int64
+	closureCompiles  atomic.Int64
 	invalidated      atomic.Bool
 }
 
@@ -191,7 +193,7 @@ func (s *Service) initWindowPrimitives(source *stockWindowSource, policy *stockW
 		if entry.config.PublishDataSources {
 			formatVersion = 3
 		}
-		bindings = append(bindings, coreresource.LocalResourceBinding{URI: entry.config.URI, Title: entry.uri.Name, FormatVersion: formatVersion, Resolver: func(_ context.Context, _ identity.VerifiedActor, action string) (*identity.ResourceResolver, error) {
+		bindings = append(bindings, coreresource.LocalResourceBinding{URI: entry.config.URI, Title: entry.uri.Name, FormatVersion: formatVersion, Changes: canonical.snapshot, Resolver: func(_ context.Context, _ identity.VerifiedActor, action string) (*identity.ResourceResolver, error) {
 			selectedAction := "discover"
 			if action == "resource.get" {
 				selectedAction = "describe"
@@ -205,7 +207,7 @@ func (s *Service) initWindowPrimitives(source *stockWindowSource, policy *stockW
 					return fmt.Errorf("configured datasource identity is ambiguous")
 				}
 				canonical.datasources[datasource.uri.String()] = datasource
-				bindings = append(bindings, coreresource.LocalResourceBinding{URI: datasource.uri.String(), Title: id, FormatVersion: 1, Resolver: func(_ context.Context, _ identity.VerifiedActor, action string) (*identity.ResourceResolver, error) {
+				bindings = append(bindings, coreresource.LocalResourceBinding{URI: datasource.uri.String(), Title: id, FormatVersion: 1, Changes: canonical.snapshot, Resolver: func(_ context.Context, _ identity.VerifiedActor, action string) (*identity.ResourceResolver, error) {
 					selectedAction := "discover"
 					if action == "resource.get" {
 						selectedAction = "describe"

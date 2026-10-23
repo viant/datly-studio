@@ -4,6 +4,7 @@ import '@blueprintjs/core/lib/css/blueprint.css';
 import './studio.css';
 import { loadConfig } from './config.js';
 import { StudioShell } from './StudioShell.jsx';
+import './perfDiagnostics.js';
 
 async function start() {
   const config = await loadConfig();

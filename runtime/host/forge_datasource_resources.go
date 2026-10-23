@@ -31,6 +31,27 @@ func (h *stockResourceHandler) Initialize(ctx context.Context, request *schema.I
 		out.Capabilities.Resources = &schema.ServerCapabilitiesResources{}
 	}
 }
+
+// ListResourceTemplates advertises the optional complete stock-window closure.
+// The template itself contains no actor-specific names or authorization facts;
+// each read still performs current provider admission.
+func (h *stockResourceHandler) ListResourceTemplates(ctx context.Context, request *jsonrpc.TypedRequest[*schema.ListResourceTemplatesRequest]) (*schema.ListResourceTemplatesResult, *jsonrpc.Error) {
+	result, rpcErr := h.Handler.ListResourceTemplates(ctx, request)
+	if rpcErr != nil {
+		return nil, rpcErr
+	}
+	if result == nil {
+		result = &schema.ListResourceTemplatesResult{}
+	}
+	if result.ResultType == "" && result.NextCursor == nil {
+		result.ResultType = schema.ResultTypeComplete
+	}
+	result.CacheScope = schema.ListResourceTemplatesResultCacheScopePrivate
+	result.TtlMs = 0
+	mime := "application/json"
+	result.ResourceTemplates = append(result.ResourceTemplates, schema.ResourceTemplate{Name: "stock-window-closure", UriTemplate: "bundle://{namespace}/{name}", MimeType: &mime})
+	return result, nil
+}
 func (h *stockResourceHandler) Discover(ctx context.Context, out *schema.DiscoverResult) {
 	if discovery, ok := h.Handler.(interface {
 		Discover(context.Context, *schema.DiscoverResult)
@@ -66,6 +87,9 @@ func (h *stockResourceHandler) ReadResource(ctx context.Context, request *jsonrp
 		return nil, jsonrpc.NewInvalidRequest("resource request required", nil)
 	}
 	uri, err := identity.ParseResourceURI(request.Request.Params.Uri)
+	if err == nil && uri.Kind == "bundle" {
+		return h.readWindowBundleResource(ctx, uri)
+	}
 	if err != nil || uri.Kind != "datasource" {
 		return h.Handler.ReadResource(ctx, request)
 	}

@@ -18,7 +18,8 @@
   refreshRuntime:async()=>{
    if(busy)return false;busy=true;state({outcome:'',diagnosticCount:0});
    try{
-    const results=await Promise.allSettled([ds('runtime_status').fetchRecords(),ds('runtime_live_tools').fetchRecords()]);
+   const namespaceId=context.windowState?.parameters?.currentNamespace?.namespaceId||'';
+   const results=await Promise.allSettled([ds('runtime_status').fetchRecords(),ds('runtime_live_tools').fetchRecords({parameters:{namespaceId}})]);
     const errors=[];
     if(results[0].status==='fulfilled'){
      const status=record(results[0].value)||{};

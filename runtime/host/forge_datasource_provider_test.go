@@ -152,6 +152,41 @@ func TestConfiguredDatasourcePublicationMCPProofAndNativeSQL(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, read.Contents, 1)
 		require.Equal(t, string(got.Resource.DefinitionBytes), read.Contents[0].Text)
+		templates, err := client.ListResourceTemplates(ctx, nil)
+		require.NoError(t, err)
+		foundBundle := false
+		for _, template := range templates.ResourceTemplates {
+			foundBundle = foundBundle || template.UriTemplate == "bundle://{namespace}/{name}"
+		}
+		require.True(t, foundBundle, "bundle route must be advertised before a host opts in")
+		bundleURI := "bundle://team/overview"
+		bundled, err := client.ReadResource(ctx, &schema.ReadResourceRequestParams{Uri: bundleURI})
+		require.NoError(t, err)
+		var totalBundleRead time.Duration
+		for i := 0; i < 5; i++ {
+			started := time.Now()
+			_, err = client.ReadResource(ctx, &schema.ReadResourceRequestParams{Uri: bundleURI})
+			require.NoError(t, err)
+			totalBundleRead += time.Since(started)
+		}
+		t.Logf("authorized local bundle MCP read mean over 5: %s", totalBundleRead/5)
+		require.Len(t, bundled.Contents, 1)
+		var closure stockWindowClosure
+		require.NoError(t, json.Unmarshal([]byte(bundled.Contents[0].Text), &closure))
+		require.True(t, closure.Complete)
+		require.Equal(t, "window.closure", closure.Format)
+		require.Equal(t, uri, closure.WindowURI)
+		require.Len(t, closure.Entries, 2)
+		require.Equal(t, uri, closure.Entries[0].URI)
+		require.Equal(t, datasourceURI, closure.Entries[1].URI)
+		entryBytes, err := json.Marshal(closure.Entries)
+		require.NoError(t, err)
+		require.Equal(t, identity.ContentFingerprint(entryBytes), closure.ContentHash)
+		for _, member := range closure.Entries {
+			require.Equal(t, identity.ContentFingerprint([]byte(member.DefinitionText)), member.ContentFingerprint)
+		}
+		_, err = client.ReadResource(ctx, &schema.ReadResourceRequestParams{Uri: "bundle://team/unknown"})
+		require.Error(t, err, "unknown window must not produce a partial closure")
 		input := stockPublishedDatasourceInput{Resource: *got.ResolvedResource, ExecutionProof: got.ExecutionProof, DataSourceID: "records", Inputs: map[string]any{}}
 		encoded, _ := json.Marshal(input)
 		var args map[string]any
@@ -232,5 +267,11 @@ func TestConfiguredDatasourcePublicationMCPProofAndNativeSQL(t *testing.T) {
 		token.Store(f.token(t, f.private, "mallory", []string{"outsider"}, time.Now().Add(time.Minute)))
 		_, err = client.ReadResource(ctx, &schema.ReadResourceRequestParams{Uri: datasourceURI})
 		require.Error(t, err)
+		_, err = client.ReadResource(ctx, &schema.ReadResourceRequestParams{Uri: bundleURI})
+		require.Error(t, err, "a prior bundle hash never grants a different principal access")
+		token.Store(f.token(t, f.private, "alice", []string{"reader"}, time.Now().Add(time.Minute)))
+		host.windowPrimitiveSource.invalidated.Store(true)
+		_, err = client.ReadResource(ctx, &schema.ReadResourceRequestParams{Uri: bundleURI})
+		require.Error(t, err, "source drift must fail closed rather than returning cached content")
 	}})
 }

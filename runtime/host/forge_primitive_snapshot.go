@@ -19,7 +19,7 @@ func (s *stockPrimitiveSource) preload() error {
 	// compilation. Managers are closed immediately, never retained in the cache.
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
-	s.components = map[ComponentReference]string{}
+	componentSources := map[ComponentReference]string{}
 	compiled := map[ComponentReference]stockComponentPin{}
 	definitions := make([]coreresource.NativeSnapshotDefinition, 0, len(s.original.entries))
 	for _, entry := range s.original.entries {
@@ -63,10 +63,10 @@ func (s *stockPrimitiveSource) preload() error {
 				if err != nil || before != after {
 					return nil, identity.ErrResourceStale
 				}
-				if original, exists := s.components[ref]; exists && original != after {
+				if original, exists := componentSources[ref]; exists && original != after {
 					return nil, identity.ErrResourceStale
 				}
-				s.components[ref], pins[id] = after, pin
+				componentSources[ref], pins[id] = after, pin
 			}
 			return s.materialize(stockWindowBundle{URI: entry.config.URI, Source: raw, Components: pins}, entry)
 		}})
@@ -75,7 +75,34 @@ func (s *stockPrimitiveSource) preload() error {
 	if err != nil {
 		return err
 	}
-	s.snapshot = snapshot
+	// The stock provider has only process-owned working candidates. Compile each
+	// complete datasource closure at this startup snapshot boundary, before the
+	// provider is exposed. Reads never assemble or repair a partial closure.
+	closures := map[string]compiledStockWindowClosure{}
+	for _, entry := range s.original.entries {
+		if !entry.config.PublishDataSources {
+			continue
+		}
+		candidates, err := snapshot.Candidates(ctx, entry.uri)
+		if err != nil || len(candidates) != 1 {
+			return identity.ErrResourceStale
+		}
+		raw, err := snapshot.ReadCandidate(ctx, entry.uri, candidates[0])
+		if err != nil {
+			return err
+		}
+		closure, err := compileStockWindowClosure(raw, entry, s.original.service.config.Forge.ProviderIdentity)
+		if err != nil {
+			return err
+		}
+		closures[entry.uri.String()] = closure
+		s.closureCompiles.Add(1)
+	}
+	// Failed candidate loading never replaces a previous valid source generation.
+	// This preload is currently startup-only; a future hot reload must publish
+	// these fields together behind one generation pointer for concurrent readers.
+	s.components, s.snapshot, s.closures = componentSources, snapshot, closures
+	s.invalidated.Store(false)
 	return nil
 }
 

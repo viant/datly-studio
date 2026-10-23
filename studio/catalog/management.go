@@ -185,6 +185,33 @@ func managementReferences(definitions []managementcatalog.Definition, kind strin
 	return result
 }
 
+// PublishedManagementWindowBundles compiles the exact active binary-owned
+// management definition set, including registered URI overrides, for a trusted
+// producer publication path. MCP callers never invoke this helper directly;
+// the transport must still enforce its configured host identity and cohort
+// authorization before it exposes the resulting immutable bytes.
+func PublishedManagementWindowBundles(namespace string) ([]managementcatalog.Definition, error) {
+	managementSettings.RLock()
+	var selected *managementcatalog.Config
+	for _, current := range append([]*managementcatalog.Config{managementSettings.config}, managementSettings.additional...) {
+		if current != nil && current.Namespace == namespace {
+			copy := *current
+			selected = &copy
+			break
+		}
+	}
+	registered := append([]managementwindow.Definition(nil), managementSettings.resources...)
+	managementSettings.RUnlock()
+	if selected == nil {
+		return nil, fail(503, "management namespace is not configured")
+	}
+	_, definitions, err := managementForConfig(*selected, registered)
+	if err != nil {
+		return nil, err
+	}
+	return managementcatalog.CompileDefinitions(definitions)
+}
+
 var managementSettings struct {
 	sync.RWMutex
 	config     *managementcatalog.Config

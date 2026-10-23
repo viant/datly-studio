@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/viant/datly-studio/internal/namespaceaccess"
+	"github.com/viant/datly-studio/internal/namespacevalidation"
 	"github.com/viant/datly-studio/internal/runtimeadmin"
 	"github.com/viant/datly-studio/sdk"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
@@ -24,7 +25,8 @@ import (
 type ToolListInput struct {
 	Jwt         *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
 	Auth        *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
-	NamespaceID string             `parameter:"NamespaceID,kind=body,in=namespaceId,dataType=string,required=true" json:"namespaceId"`
+	NamespaceID string             `parameter:"NamespaceID,kind=body,in=namespaceId,dataType=string,required=false" json:"namespaceId,omitempty"`
+	Namespace   string             `parameter:"Namespace,kind=body,in=namespace,dataType=string,required=false" json:"namespace,omitempty"`
 	Cursor      *string            `parameter:"Cursor,kind=body,in=cursor,dataType=*string,required=false" json:"cursor,omitempty"`
 	Query       string             `parameter:"Query,kind=body,in=query,dataType=string,required=false" json:"query,omitempty"`
 }
@@ -100,11 +102,15 @@ func runToolList(ctx context.Context, session xhandler.Session, input *ToolListI
 	if input == nil || output == nil {
 		return fail(400, "tool list input/output required")
 	}
-	client, bearer, err := toolRuntime(ctx, session, input.Jwt, input.Auth, input.NamespaceID)
+	namespaceID, err := selectedToolNamespace(ctx, session, input.Jwt, input.Auth, input.NamespaceID, input.Namespace)
 	if err != nil {
 		return err
 	}
-	raw, err := client.ReadCatalog(sdk.WithNamespaceSelection(ctx, input.NamespaceID), bearer, "tools/list", "", input.Cursor)
+	client, bearer, err := toolRuntime(ctx, session, input.Jwt, input.Auth, namespaceID)
+	if err != nil {
+		return err
+	}
+	raw, err := client.ReadCatalog(sdk.WithNamespaceSelection(ctx, namespaceID), bearer, "tools/list", "", input.Cursor)
 	if err != nil {
 		return namespaceToolError(err)
 	}
@@ -123,6 +129,35 @@ func runToolList(ctx context.Context, session xhandler.Session, input *ToolListI
 	}
 	output.Response = &result
 	return nil
+}
+
+func selectedToolNamespace(ctx context.Context, session xhandler.Session, claims *jwt.Claims, auth *studioauth.Output, id, name string) (string, error) {
+	if id != "" {
+		if name != "" {
+			row, err := visible(ctx, session, claims, auth, id)
+			if err != nil {
+				return "", err
+			}
+			if row.Name != name {
+				return "", fail(409, "namespace identity and name disagree")
+			}
+		}
+		return id, nil
+	}
+	if !namespacevalidation.ValidName(name) {
+		return "", fail(400, "canonical namespaceId or namespace name is required")
+	}
+	rows, err := directoryPage(ctx, session, claims, auth, "", name, "", false, 2, 0)
+	if err != nil {
+		return "", err
+	}
+	if len(rows) == 0 {
+		return "", fail(404, "namespace not found or access denied")
+	}
+	if len(rows) != 1 || rows[0].Name != name {
+		return "", fail(409, "namespace name is ambiguous")
+	}
+	return rows[0].NamespaceId, nil
 }
 func runToolCall(ctx context.Context, session xhandler.Session, input *ToolCallInput, output *ToolCallOutput) error {
 	if input == nil || output == nil || strings.TrimSpace(input.Name) == "" {

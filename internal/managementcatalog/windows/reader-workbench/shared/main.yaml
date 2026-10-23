@@ -146,7 +146,11 @@ window:
             parameters: {}
           listMCPTools:
             dataSourceRef: workbench_list_m_c_p_tools
-            parameters: {}
+            parameters:
+              namespaceId:
+                arg: 0
+              namespace:
+                arg: 1
             responseSelector: tools
             responseDefault: []
           listACL:

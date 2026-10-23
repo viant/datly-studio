@@ -20,6 +20,7 @@ import (
 	access "github.com/viant/authz"
 	"github.com/viant/datly-studio/studio/codeccatalog"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
+	"github.com/viant/forge/backend/artifactcohort"
 	forgemcp "github.com/viant/forge/backend/provider"
 	mcpprotocol "github.com/viant/mcp/server"
 	"go.yaml.in/yaml/v3"
@@ -119,6 +120,11 @@ type Config struct {
 	// ForgeProvider is an opt-in host extension. Studio does not own Forge
 	// definitions or report schemas; the embedding process supplies them.
 	ForgeProvider *forgemcp.PrimitiveProvider `yaml:"-"`
+	// ArtifactCohorts is an opt-in, process-owned published catalog. It is never
+	// loaded from authored YAML or browser values. The paired callback authorizes
+	// the configured host service identity on the existing authenticated MCP.
+	ArtifactCohorts       artifactcohort.Caller       `yaml:"-"`
+	AuthorizeArtifactHost func(context.Context) error `yaml:"-"`
 	// Forge configures the generic stock provider for operator-owned portable
 	// window definitions. Reporting remains outside this host contract.
 	Forge            *ForgeConfig          `yaml:"Forge,omitempty"`
@@ -257,6 +263,12 @@ func (c *Config) Validate() error {
 	}
 	if err := validateForgeConfig(c); err != nil {
 		return err
+	}
+	if (c.ArtifactCohorts == nil) != (c.AuthorizeArtifactHost == nil) {
+		return fmt.Errorf("artifact cohort publisher requires a configured host service authorizer")
+	}
+	if c.ArtifactCohorts != nil && c.Forge == nil && c.ForgeProvider == nil {
+		return fmt.Errorf("artifact cohorts require a configured Forge MCP producer")
 	}
 	return nil
 }
