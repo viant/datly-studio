@@ -55,10 +55,11 @@ type SessionStore interface {
 // Service is both the auth HTTP surface and the SDK gateway authenticator.
 // Tokens remain server-side; the cookie contains only a random session ID.
 type Service struct {
-	config   Config
-	verifier ClaimsVerifier
-	now      func() time.Time
-	store    SessionStore
+	config         Config
+	verifier       ClaimsVerifier
+	now            func() time.Time
+	store          SessionStore
+	refreshSession func(context.Context, string) (session, error)
 }
 
 func New(config Config, verifier ClaimsVerifier) (*Service, error) {
@@ -328,7 +329,14 @@ func (s *Service) sessionForRequest(request *http.Request) (session, error) {
 	if err != nil || strings.TrimSpace(cookie.Value) == "" {
 		return session{}, errors.New("Studio session is required")
 	}
-	return s.sessionForID(request.Context(), cookie.Value)
+	current, err := s.sessionForID(request.Context(), cookie.Value)
+	if err != nil {
+		return session{}, err
+	}
+	if current.refreshToken != "" && s.refreshSession != nil && !s.now().Add(time.Minute).Before(current.idTokenExpiresAt) {
+		return s.refreshSession(request.Context(), cookie.Value)
+	}
+	return current, nil
 }
 
 func (s *Service) sessionForID(ctx context.Context, id string) (session, error) {

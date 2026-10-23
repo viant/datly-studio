@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly/bootstrap"
 	gateway "github.com/viant/datly/gateway/http"
 	druntime "github.com/viant/datly/runtime"
@@ -179,75 +180,17 @@ func (l *Login) datlyToken(ctx context.Context, in *authTokenInput) (*authHTTPOu
 	if id == "" {
 		return authResponse(http.StatusUnauthorized, "sign in required"), nil
 	}
-	coordinator, distributed := l.sessions.store.(refreshLeaseStore)
-	if !distributed {
-		l.refreshMu.Lock()
-		defer l.refreshMu.Unlock()
-	}
-	current, err := l.sessions.sessionForID(ctx, id)
-	if err != nil || current.refreshToken == "" {
-		return authResponse(http.StatusUnauthorized, "sign in required"), nil
-	}
-	if !l.now().Add(time.Minute).Before(current.idTokenExpiresAt) {
-		owner := ""
-		if distributed {
-			owner, err = randomID()
-			if err != nil {
-				return authResponse(http.StatusServiceUnavailable, "identity refresh unavailable"), nil
+	current, err := l.freshIdentitySession(ctx, id)
+	if err != nil {
+		var failure *sdk.Error
+		if errors.As(err, &failure) {
+			status := http.StatusUnauthorized
+			if failure.Code == sdk.ErrorUnavailable {
+				status = http.StatusServiceUnavailable
 			}
-			acquired, leaseErr := coordinator.AcquireRefreshLease(ctx, id, owner, l.now(), 30*time.Second)
-			if leaseErr != nil {
-				return authResponse(http.StatusServiceUnavailable, "identity refresh unavailable"), nil
-			}
-			if !acquired {
-				current, err = l.awaitRefreshedSession(ctx, id, current.token)
-				if err != nil {
-					return authResponse(http.StatusServiceUnavailable, "identity refresh is in progress"), nil
-				}
-				return identityTokenResponse(current), nil
-			}
-			defer func() {
-				releaseCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
-				defer cancel()
-				_ = coordinator.ReleaseRefreshLease(releaseCtx, id, owner, l.now())
-			}()
-			current, err = l.sessions.sessionForID(ctx, id)
-			if err != nil || current.refreshToken == "" {
-				return authResponse(http.StatusUnauthorized, "sign in required"), nil
-			}
-			if l.now().Add(time.Minute).Before(current.idTokenExpiresAt) {
-				return identityTokenResponse(current), nil
-			}
+			return authResponse(status, failure.Message), nil
 		}
-		refreshCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Second)
-		defer cancel()
-		refreshCtx = context.WithValue(refreshCtx, oauth2.HTTPClient, l.client)
-		base := &oauth2.Token{RefreshToken: current.refreshToken, Expiry: l.now().Add(-time.Second)}
-		refreshed, refreshErr := l.config.TokenSource(refreshCtx, base).Token()
-		if refreshErr != nil || refreshed == nil {
-			return authResponse(http.StatusServiceUnavailable, "identity token refresh failed"), nil
-		}
-		idToken, _ := refreshed.Extra("id_token").(string)
-		claims, verifyErr := l.sessions.verifier.VerifyClaims(refreshCtx, idToken)
-		if verifyErr != nil || claims == nil || validateTokenBinding(claims, l.sessions.config.Issuer, l.sessions.config.Audience) != nil ||
-			claims.ExpiresAt == nil || !l.now().Before(claims.ExpiresAt.Time) ||
-			claims.ExpiresAt.Time.After(l.now().Add(maximumBrowserIDTokenTTL)) || claims.Subject != current.principal.Subject {
-			return authResponse(http.StatusUnauthorized, "refreshed identity token was rejected"), nil
-		}
-		current.token, current.claims, current.idTokenExpiresAt = idToken, claims, claims.ExpiresAt.Time
-		if refreshed.RefreshToken != "" {
-			current.refreshToken = refreshed.RefreshToken
-		}
-		commitCtx, commitCancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
-		defer commitCancel()
-		if distributed {
-			err = coordinator.CompleteRefreshLease(commitCtx, id, owner, l.now(), current)
-		} else {
-			err = l.sessions.store.Put(commitCtx, id, current)
-		}
-		if err != nil {
-			return authResponse(http.StatusServiceUnavailable, "identity session update failed"), nil
-		}
+		return authResponse(http.StatusServiceUnavailable, "identity refresh unavailable"), nil
 	}
 	return identityTokenResponse(current), nil
 }

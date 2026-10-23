@@ -102,9 +102,11 @@ func NewLogin(config LoginConfig, sessions *Service) (*Login, error) {
 	if sessions.config.CookieName != DefaultCookieName {
 		stateCookieName = sessions.config.CookieName + "_login_state"
 	}
-	return &Login{stateCookieName: stateCookieName, config: config.OAuth, sessions: sessions, aead: aead, secure: config.Secure,
+	login := &Login{stateCookieName: stateCookieName, config: config.OAuth, sessions: sessions, aead: aead, secure: config.Secure,
 		useIDToken: config.UseIDToken, allowedOrigin: strings.TrimRight(config.AllowedOrigin, "/"),
-		now: time.Now, client: &http.Client{Timeout: 10 * time.Second}}, nil
+		now: time.Now, client: &http.Client{Timeout: 10 * time.Second}}
+	sessions.refreshSession = login.freshIdentitySession
+	return login, nil
 }
 
 func validateLoginURL(value, name string) error {
@@ -185,7 +187,13 @@ func (l *Login) handleCallback(w http.ResponseWriter, r *http.Request) {
 	if identityToken, ok := token.Extra("id_token").(string); ok && strings.TrimSpace(identityToken) != "" {
 		credential = identityToken
 	}
-	id, _, expires, err := l.sessions.Exchange(ctx, credential)
+	var id string
+	var expires time.Time
+	if identityToken, ok := token.Extra("id_token").(string); ok && strings.TrimSpace(identityToken) != "" && token.RefreshToken != "" {
+		id, _, expires, err = l.sessions.ExchangeIDToken(ctx, identityToken, token.RefreshToken)
+	} else {
+		id, _, expires, err = l.sessions.Exchange(ctx, credential)
+	}
 	if err != nil {
 		http.Error(w, "login token verification failed", http.StatusUnauthorized)
 		return
