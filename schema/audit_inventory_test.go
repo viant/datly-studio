@@ -26,6 +26,9 @@ func TestCanonicalAuditColumnInventory(t *testing.T) {
 		"tool_audit_settings":                {},
 		"namespace_skills":                   {},
 		"namespace_skill_revisions":          {},
+		"artifact_release_bundles":           {},
+		"artifact_release_channels":          {},
+		"artifact_release_operations":        {},
 	}
 
 	// Temporary migration backlog, not permanent exemptions. Every table in
