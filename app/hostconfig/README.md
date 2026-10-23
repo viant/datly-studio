@@ -244,3 +244,10 @@ Go package identity, authored DQL, route target, and authorization remain unchan
 The default leaves names unchanged. Invalid prefixes and collisions reject the
 new generation instead of overwriting another tool. Clients must rediscover tools
 after a deployment changes these settings.
+
+The configured `PublicURL` is also the trusted public origin for namespace MCP
+connection exports and OAuth discovery. Namespace paths are appended automatically;
+no per-namespace public URL is needed. Listener addresses remain independent. With
+no public origin configured, loopback namespace listeners keep their local URL;
+wildcard/non-loopback listeners can still publish without advertising an internal
+HTTP address as a public connection.

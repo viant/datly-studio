@@ -264,6 +264,11 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		Studio:         runtimehost.Studio{Driver: catalog.Driver, DSN: catalog.DSN},
 		Authentication: runtimehost.Authentication{DefaultMode: "required", Issuer: issuer, Audience: audience, ConnectionExport: config.NamespaceConnectionExport, Providers: config.NamespaceOAuthProviders},
 		Access:         &runtimehost.ResourceAccessConfig{Tenant: tenant, Provider: provider}, ReaderCaches: config.Caches}
+	// PublicURL already defines the trusted reverse-proxy origin for this host.
+	// Local deployments without it retain the namespace listener's loopback URL.
+	if config.PublicURL != "" {
+		runtimeConfig.Authentication.PublicMCPURL = origin
+	}
 	if options.ConfigureRuntime != nil {
 		if err := options.ConfigureRuntime(&runtimeConfig); err != nil {
 			return err

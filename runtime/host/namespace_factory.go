@@ -7,6 +7,7 @@ import (
 	"github.com/viant/datly-studio/audit"
 	"io/fs"
 	"maps"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
@@ -20,13 +21,7 @@ import (
 // The returned source owns its runtime resources and closes after listener drain.
 func NamespaceFactory(base Config) namespacemcp.Factory {
 	return func(ctx context.Context, endpoint namespacemcp.Endpoint) (mcpserver.Config, error) {
-		config := base
-		config.NamespaceID = endpoint.NamespaceID
-		config.MCP.Address = endpoint.Address
-		config.Authentication.PublicMCPURL = "http://" + endpoint.Address
-		config.NamespaceMCPPath = strings.TrimSuffix(endpoint.Path, "/mcp")
-		config.Authentication.Providers = maps.Clone(base.Authentication.Providers)
-		config.Authentication.Components = maps.Clone(base.Authentication.Components)
+		config := namespaceRuntimeConfig(base, endpoint)
 		runtime, err := New(ctx, config)
 		if err != nil {
 			return mcpserver.Config{}, err
@@ -37,6 +32,24 @@ func NamespaceFactory(base Config) namespacemcp.Factory {
 		}
 		return mcpserver.Config{Source: &namespaceRuntimeSource{runtime: runtime, endpoint: endpoint}, Implementation: schema.Implementation{Name: "datly-studio-namespace", Version: "1"}, Transport: mcpserver.TransportConfig{Kind: mcpserver.TransportStreamable, Address: endpoint.Address, CORS: config.MCP.CORS}}, nil
 	}
+}
+
+// Public origins are deployment configuration, not listener addresses. Keep a
+// configured origin unchanged; only local loopback listeners have a safe default.
+func namespaceRuntimeConfig(base Config, endpoint namespacemcp.Endpoint) Config {
+	config := base
+	config.NamespaceID = endpoint.NamespaceID
+	config.MCP.Address = endpoint.Address
+	if config.Authentication.PublicMCPURL == "" {
+		host, _, err := net.SplitHostPort(endpoint.Address)
+		if err == nil && (strings.EqualFold(host, "localhost") || net.ParseIP(host).IsLoopback()) {
+			config.Authentication.PublicMCPURL = "http://" + endpoint.Address
+		}
+	}
+	config.NamespaceMCPPath = strings.TrimSuffix(endpoint.Path, "/mcp")
+	config.Authentication.Providers = maps.Clone(base.Authentication.Providers)
+	config.Authentication.Components = maps.Clone(base.Authentication.Components)
+	return config
 }
 
 type namespaceRuntimeSource struct {

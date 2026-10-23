@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	mcpconfig "github.com/viant/mcp/client/config"
 	"io"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
@@ -25,7 +26,7 @@ import (
 )
 
 func TestNamespaceFactoryBuildsScopedRuntimeCatalogsAndReloads(t *testing.T) {
-	for _, mode := range []string{"separate", "shared"} {
+	for _, mode := range []string{"separate", "shared", "shared-production"} {
 		t.Run(mode, func(t *testing.T) { testNamespaceFactory(t, mode) })
 	}
 }
@@ -92,8 +93,13 @@ SELECT rows.*,type(rows,'Row') FROM (SELECT 1 AS id) rows`
 	}
 	config := Config{HTTP: Listener{Address: "127.0.0.1:0"}, MCP: Listener{Address: "127.0.0.1:0"}, Authentication: Authentication{DefaultMode: "public"}, Studio: Studio{Driver: "sqlite", DSN: dsn}, Admin: Admin{Token: "fixture-admin"}, RootDir: moduleRoot}
 	var manager *namespacemcp.Manager
-	if mode == "shared" {
-		manager, err = namespacemcp.NewShared(NamespaceFactory(config), "127.0.0.1:0")
+	if strings.HasPrefix(mode, "shared") {
+		address := "127.0.0.1:0"
+		if mode == "shared-production" {
+			address = "0.0.0.0:0"
+			config.Authentication.PublicMCPURL = "https://mcp.example"
+		}
+		manager, err = namespacemcp.NewShared(NamespaceFactory(config), address)
 	} else {
 		manager, err = namespacemcp.New(NamespaceFactory(config))
 	}
@@ -117,7 +123,15 @@ SELECT rows.*,type(rows,'Row') FROM (SELECT 1 AS id) rows`
 		t.Helper()
 		params["_meta"] = map[string]any{"io.modelcontextprotocol/protocolVersion": mcpschema.LatestProtocolVersion, "io.modelcontextprotocol/clientCapabilities": map[string]any{}}
 		payload, _ := json.Marshal(map[string]any{"jsonrpc": "2.0", "id": 1, "method": method, "params": params})
-		request, _ := http.NewRequest(http.MethodPost, endpoint.URL(), bytes.NewReader(payload))
+		target := endpoint.URL()
+		if mode == "shared-production" {
+			_, port, err := net.SplitHostPort(endpoint.Address)
+			if err != nil {
+				t.Fatal(err)
+			}
+			target = "http://127.0.0.1:" + port + endpoint.Path
+		}
+		request, _ := http.NewRequest(http.MethodPost, target, bytes.NewReader(payload))
 		request.Header.Set("Content-Type", "application/json")
 		request.Header.Set("Accept", "application/json, text/event-stream")
 		request.Header.Set("Mcp-Method", method)
@@ -209,7 +223,7 @@ SELECT rows.*,type(rows,'Row') FROM (SELECT 1 AS id) rows`
 		if err := json.Unmarshal([]byte(content.Contents[0].Text), &client); err != nil {
 			t.Fatal(err)
 		}
-		if content.Contents[0].Uri != uri || client.Name != name || client.Transport.URL != endpoint.URL() || client.Auth == nil || client.Auth.ShouldPassUserToken() || client.Auth.BackendForFrontend == nil || *client.Auth.BackendForFrontend {
+		if content.Contents[0].Uri != uri || client.Name != name || client.Transport.URL != namespacePublicURL(config, endpoint) || client.Auth == nil || client.Auth.ShouldPassUserToken() || client.Auth.BackendForFrontend == nil || *client.Auth.BackendForFrontend {
 			t.Fatalf("wrong namespace connection: %+v", client)
 		}
 		other := "alpha"
@@ -267,7 +281,7 @@ SELECT rows.*,type(rows,'Row') FROM (SELECT 1 AS id) rows`
 			t.Fatal(err)
 		}
 		var definition mcpconfig.MCPClient
-		if err = json.Unmarshal(data, &definition); err != nil || definition.Name != name || definition.Transport.URL != endpoint.URL() {
+		if err = json.Unmarshal(data, &definition); err != nil || definition.Name != name || definition.Transport.URL != namespacePublicURL(config, endpoint) {
 			t.Fatalf("deployed connection: %s %v", data, err)
 		}
 	}
@@ -355,5 +369,36 @@ SELECT rows.*,type(rows,'Row') FROM (SELECT 1 AS id) rows`
 	}
 	if !strings.Contains(call(a), "alpha.read") {
 		t.Fatal("namespace B visibility changed A")
+	}
+}
+
+func namespacePublicURL(config Config, endpoint namespacemcp.Endpoint) string {
+	if config.Authentication.PublicMCPURL != "" {
+		return strings.TrimRight(config.Authentication.PublicMCPURL, "/") + endpoint.Path
+	}
+	return endpoint.URL()
+}
+
+func TestNamespaceRuntimeConfigPublicOrigin(t *testing.T) {
+	for _, tc := range []struct{ name, address, configured, want string }{
+		{"production origin", "0.0.0.0:8091", "https://mcp.example", "https://mcp.example"},
+		{"wildcard", "0.0.0.0:8091", "", ""},
+		{"ipv6 wildcard", "[::]:8091", "", ""},
+		{"private listener", "192.0.2.10:8091", "", ""},
+		{"loopback", "127.0.0.1:18982", "", "http://127.0.0.1:18982"},
+		{"ipv6 loopback", "[::1]:18982", "", "http://[::1]:18982"},
+		{"localhost", "localhost:18982", "", "http://localhost:18982"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			base := Config{Authentication: Authentication{PublicMCPURL: tc.configured, DefaultMode: "required"}}
+			endpoint := namespacemcp.Endpoint{NamespaceID: "namespace", Address: tc.address, Path: "/namespaces/namespace/mcp"}
+			got := namespaceRuntimeConfig(base, endpoint)
+			if got.Authentication.PublicMCPURL != tc.want || got.MCP.Address != tc.address || got.NamespaceMCPPath != "/namespaces/namespace" || got.Authentication.DefaultMode != "required" {
+				t.Fatalf("incorrect namespace configuration: %+v", got)
+			}
+			if base.Authentication.PublicMCPURL != tc.configured || base.MCP.Address != "" {
+				t.Fatal("base configuration mutated")
+			}
+		})
 	}
 }
