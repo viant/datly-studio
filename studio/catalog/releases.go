@@ -3,6 +3,7 @@ package catalog
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"reflect"
 	"strings"
 	"sync"
@@ -229,7 +230,7 @@ func runReleaseList(ctx context.Context, session xhandler.Session, in *ReleaseLi
 		return err
 	}
 	out.Response, err = manager.List(ctx, in.Request)
-	return err
+	return releaseContractError(err)
 }
 func runReleaseCandidates(ctx context.Context, session xhandler.Session, in *ReleaseCandidatesInput, out *ReleaseCandidatesOutput) error {
 	if in == nil || out == nil || in.Request.Validate() != nil {
@@ -240,7 +241,7 @@ func runReleaseCandidates(ctx context.Context, session xhandler.Session, in *Rel
 		return err
 	}
 	out.Response, err = manager.Candidates(ctx, in.Request)
-	return err
+	return releaseContractError(err)
 }
 func runReleasePublish(ctx context.Context, session xhandler.Session, in *ReleasePublishInput, out *ReleaseResultOutput) error {
 	if in == nil || out == nil || in.Request.Validate() != nil {
@@ -251,7 +252,7 @@ func runReleasePublish(ctx context.Context, session xhandler.Session, in *Releas
 		return err
 	}
 	out.Response, err = manager.Publish(ctx, in.Request)
-	return err
+	return releaseContractError(err)
 }
 func runReleasePromote(ctx context.Context, session xhandler.Session, in *ReleasePromoteInput, out *ReleaseResultOutput) error {
 	if in == nil || out == nil || in.Request.Validate() != nil {
@@ -262,7 +263,7 @@ func runReleasePromote(ctx context.Context, session xhandler.Session, in *Releas
 		return err
 	}
 	out.Response, err = manager.Promote(ctx, in.Request)
-	return err
+	return releaseContractError(err)
 }
 func runReleaseHistory(ctx context.Context, session xhandler.Session, in *ReleaseHistoryInput, out *ReleaseHistoryOutput) error {
 	if in == nil || out == nil || in.Request.Validate() != nil {
@@ -273,5 +274,17 @@ func runReleaseHistory(ctx context.Context, session xhandler.Session, in *Releas
 		return err
 	}
 	out.Response, err = manager.History(ctx, in.Request)
-	return err
+	return releaseContractError(err)
+}
+
+// Expected release contract failures retain their recoverable wire status.
+func releaseContractError(err error) error {
+	switch {
+	case errors.Is(err, contract.ErrConflict):
+		return fail(409, "Release changed. Reload and try again.")
+	case errors.Is(err, contract.ErrInvalid):
+		return fail(400, "Invalid release request.")
+	default:
+		return err
+	}
 }

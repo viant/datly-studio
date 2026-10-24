@@ -151,3 +151,19 @@ func TestNativeReleaseResolverRequiresVisibleMatchingNamespace(t *testing.T) {
 		t.Fatalf("invisible namespace reached resolver: %v id=%q", err, resolved)
 	}
 }
+
+func TestReleaseContractErrorsPreserveRecoverableStatus(t *testing.T) {
+	for _, item := range []struct {
+		failure error
+		code    int
+	}{{contract.ErrConflict, 409}, {contract.ErrInvalid, 400}} {
+		var wire *response.Error
+		if !errors.As(releaseContractError(item.failure), &wire) || wire.Code != item.code {
+			t.Fatalf("wrong contract status: %v", wire)
+		}
+	}
+	failure := errors.New("internal failure")
+	if releaseContractError(failure) != failure || releaseContractError(nil) != nil {
+		t.Fatal("unexpected internal error rewrite")
+	}
+}
