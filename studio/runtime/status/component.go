@@ -12,6 +12,7 @@ import (
 	sqltransport "github.com/viant/datly-studio/sdk/transport/sql"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
 	"github.com/viant/datly-studio/studio/authorization"
+	"github.com/viant/datly-studio/studio/catalog"
 	"github.com/viant/datly-studio/studio/host"
 	rhandler "github.com/viant/datly/runtime/handler"
 	"github.com/viant/datly/runtime/handler/custom"
@@ -121,6 +122,9 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 			return &xresponse.Error{Code: code, Cause: errors.New(sdkErr.Message), Payload: map[string]string{"message": sdkErr.Message}}
 		}
 		return err
+	}
+	if input.NamespaceId != nil && response.Host != nil && response.Host.NamespaceID == *input.NamespaceId && response.Host.Status == "ready" && catalog.ReleaseManagementForNamespace(principal, *input.NamespaceId) {
+		response.ReleasesAvailable = true
 	}
 	output.Response = &response
 	return nil

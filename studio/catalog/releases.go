@@ -47,6 +47,23 @@ func ReleaseManagementAvailable() bool {
 	return releaseSource.manager != nil || releaseSource.resolve != nil
 }
 
+// ReleaseManagementForNamespace is a status-only capability probe after the
+// ordinary SDK runtime-status operation has verified the selected namespace.
+// It returns no manager or grant and never authorizes a release mutation.
+func ReleaseManagementForNamespace(ctx context.Context, namespaceID string) bool {
+	if ctx == nil || ctx.Err() != nil || namespaceID == "" {
+		return false
+	}
+	releaseSource.RLock()
+	manager, resolve := releaseSource.manager, releaseSource.resolve
+	releaseSource.RUnlock()
+	if resolve == nil {
+		return manager != nil
+	}
+	selected, err := resolve(ctx, namespaceID)
+	return err == nil && selected != nil
+}
+
 func releaseManager(ctx context.Context, session xhandler.Session, claims *jwt.Claims, auth *studioauth.Output, namespaceID, name string) (sdkrelease.Manager, error) {
 	if claims == nil || claims.Subject == "" || auth == nil || auth.Auth == nil || auth.Auth.Subject != claims.Subject {
 		return nil, fail(403, "verified Studio identity is required")
