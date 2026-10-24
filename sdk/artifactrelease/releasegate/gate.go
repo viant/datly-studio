@@ -6,6 +6,7 @@ package releasegate
 import (
 	"context"
 	"errors"
+	"reflect"
 	"sync"
 
 	"github.com/viant/forge/backend/artifactrelease"
@@ -117,6 +118,43 @@ func (g *Gate) Recover(ctx context.Context) error {
 	}
 	g.ready = true
 	return nil
+}
+
+// Block prevents release reads after a background durable-state probe fails.
+// SyncCommitted or startup Recover can restore readiness after reconciliation.
+func (g *Gate) Block() {
+	if g == nil {
+		return
+	}
+	g.mu.Lock()
+	g.ready = false
+	g.mu.Unlock()
+}
+
+// SyncCommitted projects only committed channel pointers. It deliberately
+// leaves pending intents to startup Recover, because another process may still
+// be projecting an in-flight operation. The returned flag describes a change
+// in the visible manifest, not merely a changed SQL revision.
+func (g *Gate) SyncCommitted(ctx context.Context) (bool, error) {
+	if g == nil || ctx == nil || ctx.Err() != nil {
+		return false, artifactrelease.ErrInvalid
+	}
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	g.ready = false
+	before, err := g.projection.Snapshot(ctx)
+	if err != nil {
+		return false, err
+	}
+	if err = g.projection.Reconcile(ctx); err != nil {
+		return false, err
+	}
+	after, err := g.projection.Snapshot(ctx)
+	if err != nil {
+		return false, err
+	}
+	g.ready = true
+	return !reflect.DeepEqual(before, after), nil
 }
 
 // Promote stages one immutable release intent before projecting it. A failed

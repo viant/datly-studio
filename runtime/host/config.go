@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/viant/datly-studio/audit"
 	"github.com/viant/datly-studio/runtime/namespacemcp"
@@ -130,6 +131,10 @@ type Config struct {
 	// tenant/account/workspace and authoring rights from verified request state;
 	// authored YAML and browser arguments cannot install or scope it.
 	ReleaseManagement sdkrelease.Manager `yaml:"-"`
+	// ReleaseSyncInterval controls committed release reconciliation in a
+	// process sharing the release SQL store. Zero uses the host's 2s default.
+	// It is trusted host configuration, never an authored or browser setting.
+	ReleaseSyncInterval time.Duration `yaml:"-"`
 	// Forge configures the generic stock provider for operator-owned portable
 	// window definitions. Reporting remains outside this host contract.
 	Forge            *ForgeConfig          `yaml:"Forge,omitempty"`
@@ -191,6 +196,9 @@ func (c *Config) Validate() error {
 
 	if c == nil {
 		return fmt.Errorf("dynamic Datly host config is required")
+	}
+	if c.ReleaseSyncInterval < 0 {
+		return fmt.Errorf("release reconciliation interval must not be negative")
 	}
 	if (strings.TrimSpace(c.Authentication.Issuer) == "") != (strings.TrimSpace(c.Authentication.Audience) == "") {
 		return fmt.Errorf("default runtime identity requires both Issuer and Audience")

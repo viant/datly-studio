@@ -1,10 +1,52 @@
 package studioapi
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
+	"sync/atomic"
 	"testing"
+	"time"
 )
+
+type blockingModuleHandler struct {
+	started chan struct{}
+	release chan struct{}
+	closes  atomic.Int32
+}
+
+func (h *blockingModuleHandler) ServeHTTP(http.ResponseWriter, *http.Request) {}
+func (h *blockingModuleHandler) Close(ctx context.Context) error {
+	h.closes.Add(1)
+	close(h.started)
+	select {
+	case <-h.release:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+}
+
+func TestModuleCloseJoinsWorkerExactlyOnce(t *testing.T) {
+	h := &blockingModuleHandler{started: make(chan struct{}), release: make(chan struct{})}
+	completed := make(chan error, 1)
+	go func() {
+		completed <- closeModules(context.Background(), []Module{{Path: "/api/one", Handler: h}, {Path: "/api/two", Handler: h}})
+	}()
+	<-h.started
+	select {
+	case <-completed:
+		t.Fatal("module close returned before worker joined")
+	case <-time.After(time.Millisecond):
+	}
+	close(h.release)
+	if err := <-completed; err != nil {
+		t.Fatal(err)
+	}
+	if h.closes.Load() != 1 {
+		t.Fatalf("shared module closed %d times", h.closes.Load())
+	}
+}
 
 func TestModuleMountsAreExplicitAndCannotShadowSDK(t *testing.T) {
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(204) })

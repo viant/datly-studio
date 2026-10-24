@@ -38,6 +38,7 @@ func (s *Service) forgeProviderHTTP(ctx context.Context) (http.Handler, error) {
 		if err := controller.Recover(ctx); err != nil {
 			return nil, fmt.Errorf("reconcile release channels: %w", err)
 		}
+		s.releaseSyncController = controller
 	}
 	legacy := forgehandler.NewProviderHandler(forgeservice.NewService(&forgeservice.Config{PrimitiveProvider: provider, UseData: true}))
 	protocol, err := mcpserver.New(mcpserver.WithOnSessionClose(func(notifier transport.Notifier) {

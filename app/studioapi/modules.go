@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
+	"reflect"
 	"strings"
 
 	"github.com/viant/authz"
@@ -15,6 +16,30 @@ type Module struct {
 	Path    string
 	Handler http.Handler
 }
+
+// Module handlers may implement Close(context.Context) error. Serve waits for
+// those optional process-owned workers before releasing its borrowed database.
+// A shared handler mounted at multiple paths is closed only once.
+func closeModules(ctx context.Context, modules []Module) error {
+	seen := map[any]bool{}
+	var result error
+	for i := len(modules) - 1; i >= 0; i-- {
+		handler := modules[i].Handler
+		closer, ok := handler.(interface{ Close(context.Context) error })
+		if !ok {
+			continue
+		}
+		if reflect.TypeOf(handler).Comparable() {
+			if seen[handler] {
+				continue
+			}
+			seen[handler] = true
+		}
+		result = errors.Join(result, closer.Close(ctx))
+	}
+	return result
+}
+
 type ModuleFactory func(context.Context, *sql.DB, authz.Provider) ([]Module, error)
 
 // AuthenticatedModuleFactory installs process-owned cookie-authenticated

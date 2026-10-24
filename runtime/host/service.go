@@ -27,6 +27,7 @@ import (
 	"github.com/viant/datly-studio/internal/connectorsecret"
 	"github.com/viant/datly-studio/internal/resourceartifact"
 	studiors "github.com/viant/datly-studio/runtime/resources"
+	sdkrelease "github.com/viant/datly-studio/sdk/artifactrelease"
 	studiohost "github.com/viant/datly-studio/studio/host"
 	"github.com/viant/datly/application"
 	"github.com/viant/datly/bootstrap"
@@ -77,6 +78,9 @@ type Service struct {
 	providerVerifiers      map[string]*verifier.Service
 	secrets                connectorsecret.Resolver
 	mu                     sync.Mutex
+	releaseSyncController  *sdkrelease.Controller
+	releaseSyncCancel      context.CancelFunc
+	releaseSyncDone        chan struct{}
 }
 
 func New(ctx context.Context, config Config) (*Service, error) {
@@ -785,6 +789,23 @@ func (s *Service) Start(ctx context.Context) error {
 		listener := listeners[index]
 		go func(server *http.Server, listener net.Listener) { _ = server.Serve(listener) }(server, listener)
 	}
+	if s.releaseSyncController != nil {
+		interval := s.config.ReleaseSyncInterval
+		if interval <= 0 {
+			interval = 2 * time.Second
+		}
+		workerCtx, cancel := context.WithCancel(context.Background())
+		s.releaseSyncCancel = cancel
+		s.releaseSyncDone = make(chan struct{})
+		go func() {
+			defer close(s.releaseSyncDone)
+			_ = s.releaseSyncController.RunSync(workerCtx, interval, func(_ bool, err error) {
+				if err != nil && workerCtx.Err() == nil {
+					slog.Warn("release background reconciliation failed")
+				}
+			})
+		}()
+	}
 	return nil
 }
 
@@ -924,6 +945,14 @@ func (s *Service) authorizeRun(ctx context.Context, reportID string) error {
 }
 
 func (s *Service) Close(ctx context.Context) error {
+	if s.releaseSyncCancel != nil {
+		s.releaseSyncCancel()
+		select {
+		case <-s.releaseSyncDone:
+		case <-time.After(time.Second):
+			slog.Warn("release background reconciliation did not stop before shutdown")
+		}
+	}
 	var result error
 	errorsByServer := make(chan error, len(s.servers)+1)
 	var wait sync.WaitGroup

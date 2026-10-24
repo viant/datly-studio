@@ -2,16 +2,22 @@ package artifactrelease
 
 import (
 	"context"
+	"crypto/sha256"
 	"database/sql"
+	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"reflect"
 	"sort"
+	"sync"
+	"time"
 
 	"github.com/viant/authz"
 	"github.com/viant/datly-studio/sdk/artifactrelease/releasegate"
 	"github.com/viant/datly-studio/sdk/artifactrelease/sqlstore"
 	"github.com/viant/forge/backend/artifactcohort"
 	contract "github.com/viant/forge/backend/artifactrelease"
+	identity "github.com/viant/forge/backend/resource"
 )
 
 // ControllerConfig is supplied only by a trusted embedding host. Callbacks
@@ -50,8 +56,10 @@ type ControllerConfig struct {
 }
 
 type Controller struct {
-	config ControllerConfig
-	gate   *releasegate.Gate
+	config          ControllerConfig
+	gate            *releasegate.Gate
+	syncMu          sync.Mutex
+	syncFingerprint string
 }
 
 // ActiveSelection is an immutable committed release pointer. It is still not
@@ -253,6 +261,114 @@ func (c *Controller) projectionTenant() string {
 	return c.config.Scope.Tenant
 }
 func (c *Controller) Recover(ctx context.Context) error { return c.gate.Recover(ctx) }
+
+// SyncOnce reconciles a second process's committed release changes. All SQL,
+// policy-head, and source-availability checks happen off the serving path.
+// Pending intents are intentionally ignored until startup recovery: their
+// originating process may still be projecting them.
+func (c *Controller) SyncOnce(ctx context.Context) (bool, error) {
+	if c == nil || ctx == nil || ctx.Err() != nil {
+		return false, contract.ErrInvalid
+	}
+	c.syncMu.Lock()
+	defer c.syncMu.Unlock()
+	fingerprint, err := c.committedFingerprint(ctx)
+	if err != nil {
+		c.gate.Block()
+		return false, err
+	}
+	if fingerprint == c.syncFingerprint && c.gate.Read(func() error { return nil }) == nil {
+		return false, nil
+	}
+	changed, err := c.gate.SyncCommitted(ctx)
+	if err != nil {
+		return false, err
+	}
+	c.syncFingerprint = fingerprint
+	if changed && c.config.Notify != nil {
+		c.config.Notify(ctx)
+	}
+	return changed, nil
+}
+
+// RunSync follows the host's bounded background reconciliation convention.
+// A failed pass blocks release reads and is retried; cancellation stops the
+// worker without depending on a data request or an MCP session.
+func (c *Controller) RunSync(ctx context.Context, interval time.Duration, observe func(bool, error)) error {
+	if c == nil || ctx == nil || interval <= 0 {
+		return contract.ErrInvalid
+	}
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+	for {
+		if ctx.Err() != nil {
+			return nil
+		}
+		changed, err := c.SyncOnce(ctx)
+		if observe != nil {
+			observe(changed, err)
+		}
+		select {
+		case <-ctx.Done():
+			return nil
+		case <-ticker.C:
+		}
+	}
+}
+
+func (c *Controller) committedFingerprint(ctx context.Context) (string, error) {
+	channels, err := c.config.Store.ListChannels(ctx)
+	if err != nil {
+		return "", err
+	}
+	sort.Slice(channels, func(i, j int) bool { return channels[i].Key.Name < channels[j].Key.Name })
+	type activeState struct {
+		Channel     contract.Channel
+		Roots       []bool
+		PolicyFresh bool
+	}
+	states := make([]activeState, 0, len(channels))
+	for _, channel := range channels {
+		if channel.ActiveBundleHash == "" {
+			continue
+		}
+		bundle, err := c.config.Store.Bundle(ctx, channel.ActiveBundleHash)
+		if err != nil {
+			return "", err
+		}
+		state := activeState{Channel: channel, Roots: make([]bool, len(bundle.Roots))}
+		for i, root := range bundle.Roots {
+			availabilityErr := c.config.AvailableRoot(ctx, root)
+			if availabilityErr != nil && !expectedReleaseWithdrawal(availabilityErr) {
+				return "", availabilityErr
+			}
+			state.Roots[i] = availabilityErr == nil
+		}
+		deps, err := c.config.Store.ActiveDependencies(ctx, channel.Key)
+		if err != nil {
+			return "", err
+		}
+		if len(deps) > 0 {
+			fenceErr := c.config.Fence(ctx, deps)
+			if fenceErr != nil && !expectedReleaseWithdrawal(fenceErr) {
+				return "", fenceErr
+			}
+			state.PolicyFresh = fenceErr == nil
+		}
+		states = append(states, state)
+	}
+	raw, err := json.Marshal(states)
+	if err != nil {
+		return "", err
+	}
+	sum := sha256.Sum256(raw)
+	return hex.EncodeToString(sum[:]), nil
+}
+
+func expectedReleaseWithdrawal(err error) bool {
+	return errors.Is(err, contract.ErrInvalid) || errors.Is(err, contract.ErrConflict) ||
+		errors.Is(err, authz.ErrDenied) || errors.Is(err, identity.ErrResourceDenied) || errors.Is(err, sql.ErrNoRows)
+}
 
 // RefreshPolicies is a producer-owned post-commit hook for a named policy
 // update/archive. It advances only affected channel revisions with the same
@@ -707,7 +823,10 @@ func (c *Controller) reconcile(ctx context.Context) error {
 			}
 			available := true
 			for _, root := range bundle.Roots {
-				if c.config.AvailableRoot(ctx, root) != nil {
+				if availabilityErr := c.config.AvailableRoot(ctx, root); availabilityErr != nil {
+					if !expectedReleaseWithdrawal(availabilityErr) {
+						return availabilityErr
+					}
 					available = false
 					break
 				}
@@ -745,6 +864,11 @@ func (c *Controller) reconcile(ctx context.Context) error {
 	current, err := c.config.Publisher.Snapshot()
 	if err != nil {
 		return err
+	}
+	samePolicies := len(current.Policies) == 0 && len(manifest.Policies) == 0 || reflect.DeepEqual(current.Policies, manifest.Policies)
+	sameCohorts := len(current.Cohorts) == 0 && len(manifest.Cohorts) == 0 || reflect.DeepEqual(current.Cohorts, manifest.Cohorts)
+	if samePolicies && sameCohorts {
+		return nil
 	}
 	_, err = c.config.Publisher.ReplaceCatalog(ctx, manifest.Policies, manifest.Cohorts, current.Generation)
 	return err

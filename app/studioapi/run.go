@@ -196,8 +196,8 @@ type Options struct {
 	// ReleaseUse is injected by a trusted host after binding a verified account
 	// scope and exact published component companion index. Browser payloads
 	// cannot configure it.
-	ReleaseUse       func(context.Context, sqltransport.AuthorizationRequest) (bool, error)
-	ReleaseNamespace string
+	ReleaseUse                 func(context.Context, sqltransport.AuthorizationRequest) (bool, error)
+	ReleaseNamespace           string
 	ReleaseManagementAvailable bool
 	// Modules adds process-owned, independently authenticated extension APIs.
 	// Embedders supply credential protection and business authorization in each
@@ -219,7 +219,7 @@ func RunWithOptions(options Options) {
 // Serve runs the host with caller-owned cancellation and isolated arguments.
 // It returns startup and serving failures so embedding applications can release
 // their other services. It never mutates os.Args or the global flag registry.
-func Serve(lifecycleCtx context.Context, args []string, options Options) error {
+func Serve(lifecycleCtx context.Context, args []string, options Options) (result error) {
 	if lifecycleCtx == nil {
 		return errors.New("Studio lifecycle context is required")
 	}
@@ -406,7 +406,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) error {
 			log.Printf("Studio authorizer reader close: %v", err)
 		}
 	}()
-	transport := &sqltransport.Transport{DB: db, Authorizer: authorizer, ReleaseNamespace: options.ReleaseNamespace,ReleaseManagementAvailable:options.ReleaseManagementAvailable, Predicates: predicates, Probe: connectivity.SQLProbe{Const: options.Const}, Catalog: connectivity.SQLCatalog{Const: options.Const}, SQLTester: dynamicPreview, Preview: dynamicPreview, ViewTester: dynamicPreview, RelationTester: dynamicPreview, ComposeTester: dynamicPreview, Warmup: dynamicPreview, Validator: dynamicPreview, ContractInspector: dynamicPreview, Activator: runtimeAdmin, RuntimeProbe: runtimeAdmin}
+	transport := &sqltransport.Transport{DB: db, Authorizer: authorizer, ReleaseNamespace: options.ReleaseNamespace, ReleaseManagementAvailable: options.ReleaseManagementAvailable, Predicates: predicates, Probe: connectivity.SQLProbe{Const: options.Const}, Catalog: connectivity.SQLCatalog{Const: options.Const}, SQLTester: dynamicPreview, Preview: dynamicPreview, ViewTester: dynamicPreview, RelationTester: dynamicPreview, ComposeTester: dynamicPreview, Warmup: dynamicPreview, Validator: dynamicPreview, ContractInspector: dynamicPreview, Activator: runtimeAdmin, RuntimeProbe: runtimeAdmin}
 	defer func() {
 		closeCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
@@ -448,6 +448,11 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) error {
 		return errors.New("authenticated modules require authenticated mode")
 	}
 	var mountedModules []Module
+	defer func() {
+		shutdown, stop := context.WithTimeout(context.Background(), 10*time.Second)
+		defer stop()
+		result = errors.Join(result, closeModules(shutdown, mountedModules))
+	}()
 	if options.Modules != nil {
 		if resolvedMode != string(httptransport.Authenticated) || resourceProvider == nil {
 			return errors.New("Studio extension modules require authenticated mode and a trusted identity provider")
@@ -456,10 +461,10 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) error {
 		if moduleErr != nil {
 			return moduleErr
 		}
+		mountedModules = append(mountedModules, modules...)
 		if moduleErr = mountModules(mux, modules); moduleErr != nil {
 			return moduleErr
 		}
-		mountedModules = append([]Module(nil), modules...)
 	}
 	if *staticRoot != "" {
 		assets, assetErr := newStaticAssets(*staticRoot)
@@ -604,10 +609,10 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) error {
 			if moduleErr != nil {
 				return moduleErr
 			}
+			mountedModules = append(mountedModules, modules...)
 			if moduleErr = mountModules(mux, modules); moduleErr != nil {
 				return moduleErr
 			}
-			mountedModules = append(mountedModules, modules...)
 		}
 		gatewayConfig = httptransport.Config{Mode: httptransport.Authenticated, Authenticator: sessions, RequireNamespace: true}
 	} else {
