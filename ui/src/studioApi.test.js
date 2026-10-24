@@ -575,6 +575,20 @@ test('publication lifecycle stays behind Studio SDK operations', async () => {
   assert.equal(calls[3].subject,'dev-user');
 });
 
+test('runtime status binds the selected namespace in both header and native body', async () => {
+  const id='a'.repeat(64), calls=[];
+  const api=new StudioAPI({mode:'development',apiBaseURL:'http://127.0.0.1:8080',development:{subject:'owner'}},{fetcher:async(request,init)=>{
+    const item=request instanceof Request ? {headers:request.headers,body:await request.text()} : {headers:new Headers(init.headers),body:init.body};
+    calls.push(item);return response({releasesAvailable:true,host:{namespaceId:id,status:'ready'}});
+  }});
+  api.setNamespace(id);
+  const status=await api.getRuntimeStatus();
+  assert.equal(status.releasesAvailable,true);
+  assert.equal(calls.length,1);
+  assert.equal(calls[0].headers.get('X-Studio-Namespace'),id);
+  assert.deepEqual(JSON.parse(calls[0].body),{namespaceId:id});
+});
+
 test('generated publication get preserves not-found evidence', async () => {
   const api=new StudioAPI({mode:'authenticated',apiBaseURL:'https://studio.example.com'}, {fetcher:async()=>response({message:'publication not found'},404,'publication-request-1')});
   await assert.rejects(()=>api.getPublication('missing'),(error)=>error.status===404&&error.code==='not_found'&&error.requestId==='publication-request-1');

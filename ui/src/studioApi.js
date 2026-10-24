@@ -213,7 +213,7 @@ export class StudioAPI {
   listPublicationEvents(reportId, input = {}) { return this.nativeRequest(postV1StudioSdkPublicationsEventsList, 'publications.events.list', { reportId, input }); }
   unpublishReader(reportId, expectedActiveGeneration, reason = '') { return this.nativeRequest(postV1StudioSdkPublicationsUnpublish, 'publications.unpublish', { reportId, input: { expectedActiveGeneration, reason } }); }
   rollbackReader(reportId, versionNo, expectedSourceRevision, reason = '') { return this.nativeRequest(postV1StudioSdkPublicationsRollback, 'publications.rollback', { reportId, versionNo, input: { expectedSourceRevision, reason } }); }
-  getRuntimeStatus() { return this.nativeRequest(postV1StudioSdkRuntimeStatus, 'runtime.status', {}); }
+  getRuntimeStatus() { return this.nativeRequest(postV1StudioSdkRuntimeStatus, 'runtime.status', this.namespaceId ? {namespaceId:this.namespaceId} : {}); }
   async listMCPTools() {
     return this.mcpRequest('tools/list', 'tools');
   }
