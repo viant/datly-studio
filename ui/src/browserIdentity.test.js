@@ -33,6 +33,16 @@ test('deduplicates refreshes and clears the in-memory token on failure', async (
   assert.equal(identity.subject, '');
 });
 
+test('a token refresh cannot silently switch the current principal', async () => {
+  let count=0;
+  const identity=new BrowserIdentity(config,async()=>({ok:true,json:async()=>({id_token:`signed-${++count}`,subject:count===1?'alice':'bob'})}));
+  await identity.token();
+  await assert.rejects(identity.token(true),/Identity session changed/);
+  assert.equal(identity.idToken,'');
+  assert.equal(identity.subject,'');
+  assert.ok(identity.epoch>0);
+});
+
 test('sign out revokes the cookie session before clearing the in-memory ID token', async () => {
   let revoke;
   const identity = new BrowserIdentity(config, async (url, init) => {

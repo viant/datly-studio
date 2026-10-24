@@ -69,6 +69,10 @@ export class BrowserIdentity {
       this.clear();
       throw new Error('Identity service returned an invalid token response');
     }
+    if (this.subject && value.subject !== this.subject) {
+      this.clear();
+      throw new Error('Identity session changed');
+    }
     this.idToken = value.id_token;
     this.subject = value.subject;
     return this.idToken;

@@ -2,6 +2,54 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { StudioAPI } from './studioApi.js';
 
+test('native MCP scope fences a late response after identity rotation on the same StudioAPI',async()=>{
+ const selected='a'.repeat(64);let release;
+ const api=new StudioAPI({mode:'authenticated',apiBaseURL:'https://studio.example',authentication:{mode:'bff'}},{fetcher:()=>new Promise(resolve=>{release=resolve;})});
+ api.setNamespace(selected);api.setVerifiedSubject('alice');
+ const snapshot=api.namespaceSnapshot('release.management');
+ const old=api.nativeToolOptions(snapshot,{'X-Studio-Namespace':selected});
+ const pending=old.send('https://studio.example/v1/studio/sdk-mcp/mcp',{method:'POST'});
+ api.clearVerifiedSubject();api.setVerifiedSubject('bob');
+ const next=api.nativeToolOptions(snapshot,{'X-Studio-Namespace':selected});
+ assert.notEqual(old.scopeKey,next.scopeKey);
+ assert.equal(old.owner,next.owner);
+ release(new Response('{}',{status:200}));
+ await assert.rejects(pending,error=>error.code==='identity_changed'&&error.name==='AbortError');
+});
+
+test('an old namespace release error cannot rotate the new namespace identity scope',async()=>{
+ const first='a'.repeat(64),second='b'.repeat(64);let rejectCall;
+ const api=new StudioAPI({mode:'authenticated',apiBaseURL:'https://studio.example',authentication:{mode:'bff'}},{nativeCallTool:()=>new Promise((_resolve,reject)=>{rejectCall=reject;})});
+ api.setNamespace(first);api.setVerifiedSubject('alice');
+ const before=api.authRevision;
+ const pending=api.callReleaseTool('releases/list',{namespace:'first'});
+ api.setNamespace(second);
+ rejectCall(Object.assign(new Error('old denied'),{status:401}));
+ await assert.rejects(pending,error=>error.code==='namespace_changed');
+ assert.equal(api.authRevision,before);
+});
+
+test('verified login and namespace selection eagerly prepare one scoped native catalog',()=>{
+ const first='a'.repeat(64),second='b'.repeat(64),prepared=[];
+ const nativeCallTool=async()=>({});
+ nativeCallTool.prepare=async options=>{prepared.push(options);};
+ const api=new StudioAPI({mode:'authenticated',apiBaseURL:'https://studio.example',authentication:{mode:'bff'}},{nativeCallTool});
+ api.setNamespace(first);
+ assert.equal(prepared.length,0,'no identity means no background MCP connection');
+ api.setVerifiedSubject('alice');
+ assert.equal(prepared.length,1);
+ api.setNamespace(first);
+ assert.equal(prepared.length,1);
+ api.setNamespace(second);
+ assert.equal(prepared.length,2);
+ api.clearVerifiedSubject();
+ api.setVerifiedSubject('bob');
+ assert.equal(prepared.length,3);
+ assert.deepEqual(prepared.map(options=>options.headers['X-Studio-Namespace']),[first,second,second]);
+ assert.ok(prepared.every(options=>options.owner===api));
+ assert.equal(new Set(prepared.map(options=>options.scopeKey)).size,3);
+});
+
 test('identity-token mode sends bearer ID tokens directly to Datly and never sends cookies', async () => {
   const seen = [];
   let token = 'id-1';

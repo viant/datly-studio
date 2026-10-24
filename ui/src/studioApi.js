@@ -31,7 +31,9 @@ export class StudioAPI {
     // Window.fetch requires its original receiver in browsers. Test doubles do
     // not, so normalize both forms into an ordinary callable function.
     this.fetcher = options.fetcher ?? globalThis.fetch.bind(globalThis);
-    this.onUnauthorized = options.onUnauthorized;
+    this.authRevision = 0;
+    this.verifiedSubject = '';
+    this.onUnauthorized = () => { this.clearVerifiedSubject(); options.onUnauthorized?.(); };
     this.nativeCallTool = options.nativeCallTool;
     this.resourceAccess = accessMCPAdapter((name, input) => {
       const calls = {
@@ -59,6 +61,42 @@ export class StudioAPI {
     if (this.namespaceId === namespaceId) return;
     this.namespaceId = namespaceId;
     this.namespaceRevision += 1;
+    this.prepareNativeTools();
+  }
+
+  // These values partition transport reuse only. The producer still verifies
+  // every call; a browser-supplied subject never becomes an authorization fact.
+  setVerifiedSubject(subject) {
+    const next = String(subject || '').trim();
+    if (next && next !== this.verifiedSubject) { this.verifiedSubject = next; this.authRevision++; this.prepareNativeTools(); }
+  }
+
+  clearVerifiedSubject() { this.verifiedSubject = ''; this.authRevision++; }
+
+  prepareNativeTools() {
+    if (!this.namespaceId || this.namespaceBlocked || typeof this.nativeCallTool?.prepare !== 'function'
+      || this.config.mode === 'authenticated' && !this.verifiedSubject) return;
+    const snapshot=this.namespaceSnapshot('release.management');
+    const headers={'X-Studio-Namespace':snapshot.id};
+    if(this.config.mode==='development')headers['X-Studio-Development-Subject']=this.config.development.subject;
+    try { void Promise.resolve(this.nativeCallTool.prepare(this.nativeToolOptions(snapshot,headers))).catch(()=>{}); }
+    catch { /* Explicit calls surface setup errors; eager preparation is optional. */ }
+  }
+
+  nativeScopeKey(snapshot) {
+    return JSON.stringify([snapshot?.id || '', snapshot?.revision ?? this.namespaceRevision, this.authRevision, this.identity?.epoch ?? 0]);
+  }
+
+  nativeToolOptions(snapshot, headers) {
+    const scopeKey = this.nativeScopeKey(snapshot);
+    return {headers, owner: this, scopeKey, send: async (url, init) => {
+      this.assertNamespace(snapshot);
+      if (scopeKey !== this.nativeScopeKey(snapshot)) throw Object.assign(new Error('The Studio identity changed while this request was running.'), {name:'AbortError',code:'identity_changed'});
+      const response = await this.send(url, {...init, credentials: this.identity ? 'omit' : 'include'}, snapshot);
+      this.assertNamespace(snapshot);
+      if (scopeKey !== this.nativeScopeKey(snapshot)) throw Object.assign(new Error('The Studio identity changed while this request was running.'), {name:'AbortError',code:'identity_changed'});
+      return response;
+    }};
   }
 
   namespaceSnapshot(operation) {
@@ -75,6 +113,7 @@ export class StudioAPI {
     if (this.namespaceBlocked === blocked) return;
     this.namespaceBlocked = blocked;
     this.namespaceRevision += 1;
+    if(!blocked)this.prepareNativeTools();
   }
 
   assertNamespace(snapshot) {
@@ -252,7 +291,9 @@ export class StudioAPI {
     const headers = {'Content-Type':'application/json',Accept:'application/json','Mcp-Method':'tools/call','Mcp-Name':method,'Mcp-Protocol-Version':'2026-07-28','X-Studio-Namespace':snapshot.id};
     if (this.config.mode === 'development') headers['X-Studio-Development-Subject'] = this.config.development.subject;
     if (this.nativeCallTool) {
-      const result = await this.nativeCallTool(method,input,{headers,send:(url,init)=>this.send(url,{...init,credentials:this.identity?'omit':'include'},snapshot)});
+      let result;
+      try { result = await this.nativeCallTool(method,input,this.nativeToolOptions(snapshot,headers)); }
+      catch (error) { this.assertNamespace(snapshot); if (error?.status === 401) this.onUnauthorized(); throw error; }
       this.assertNamespace(snapshot);
       return result;
     }
@@ -347,8 +388,7 @@ export class StudioAPI {
     if (this.nativeCallTool) {
       const name = operation.startsWith('authz.sdk.') ? operation : `studio.sdk.${operation}`;
       try {
-        const value = await this.nativeCallTool(name, body ?? {}, {headers,
-          send: (url, init) => this.send(url, {...init, credentials: this.identity ? 'omit' : 'include'}, snapshot)});
+        const value = await this.nativeCallTool(name, body ?? {}, this.nativeToolOptions(snapshot,headers));
         this.assertNamespace(snapshot);
         return value;
       } catch (error) {

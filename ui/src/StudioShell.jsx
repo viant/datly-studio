@@ -14,6 +14,7 @@ export function StudioShell({ config, extensions = noExtensions, renderNamespace
   const signOut = async () => {
     if (!identity) return;
     await identity.signOut();
+    api.clearVerifiedSubject();
     setSession({ state: 'unauthenticated' });
   };
   const inspectSession = async () => {
@@ -22,14 +23,16 @@ export function StudioShell({ config, extensions = noExtensions, renderNamespace
     try {
       if (identity) {
         await identity.token();
+        api.setVerifiedSubject(identity.subject);
         setSession({ state: 'ready', subject: identity.subject });
         return;
       }
       const response = await fetch(sessionURL(config, config.authentication.mePath), { headers: { Accept: 'application/json' }, credentials: 'include' });
       const value = await response.json().catch(() => ({}));
-      if (!response.ok || value?.authenticated !== true) { setSession({ state: 'unauthenticated' }); return; }
+      if (!response.ok || value?.authenticated !== true) { api.clearVerifiedSubject(); setSession({ state: 'unauthenticated' }); return; }
+      api.setVerifiedSubject(value.subject);
       setSession({ state: 'ready', subject: value.subject || 'Authenticated user' });
-    } catch (cause) { setSession(cause.status === 401 ? { state: 'unauthenticated' } : { state: 'error', message: cause.message }); }
+    } catch (cause) { if(cause.status===401)api.clearVerifiedSubject();setSession(cause.status === 401 ? { state: 'unauthenticated' } : { state: 'error', message: cause.message }); }
   };
   useEffect(() => { inspectSession(); }, [config]);
   if (session.state === 'ready') return <StudioApp api={api} mode={config.mode} subject={session.subject} brand={config.brand || 'Data Studio'} extensions={extensions} renderNamespaceSkills={renderNamespaceSkills} onSignOut={identity ? signOut : undefined}/>;
