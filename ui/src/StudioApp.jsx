@@ -1,5 +1,5 @@
 import nativeNavigation from './nativeNavigation.json' with {type:'json'};
-import React, { useCallback, useId, useState } from 'react';
+import React, { lazy, Suspense, useCallback, useEffect, useId, useState } from 'react';
 import { ForgeThemeBoundary, ForgeThemeProvider } from 'forge/theme';
 import { Button, Callout, HTMLSelect, InputGroup, Navbar, Spinner, Tag, Tree } from '@blueprintjs/core';
 import { WorkspaceRuntimeSurface, PersistentWindowContent } from 'forge/components';
@@ -10,11 +10,12 @@ import {managementWindowDestination} from 'forge/host-window/navigation';
 
 
 const noExtensions = [];
+const ReleaseWorkspace = lazy(() => import('./ReleaseWorkspace.jsx'));
 function WorkspaceContent({active,render}) {
   const [host,setHost] = useState(null);
   return <><div ref={setHost} className="studio-workspace-content"/><PersistentWindowContent host={active?host:null}>{render()}</PersistentWindowContent></>;
 }
-const nativeSections = ['audit', 'connectors', 'namespaces', 'overview', 'runtime', 'components', 'schema', 'skills', 'security', 'builder'];
+const nativeSections = ['audit', 'connectors', 'namespaces', 'overview', 'runtime', 'components', 'schema', 'skills', 'security', 'builder', 'releases'];
 
 // StudioApp is intentionally only a Forge composition. Its data boundary is
 // StudioAPI, which maps one-for-one to the public Studio SDK operation names.
@@ -30,6 +31,17 @@ export function StudioApp({ api, mode, subject, brand = 'Data Studio', extension
   const [builderReport, setBuilderReport] = useState(null);
   const namespaceWorkspace = useNamespaceWorkspace(api, subject, skillEditing || section === 'builder' || section === 'security' || extensions.some((item) => item.id === section));
   const currentNamespaceId = namespaceWorkspace.current?.namespaceId;
+  const currentNamespaceName = namespaceWorkspace.current?.name;
+  const [releaseAvailable,setReleaseAvailable] = useState(false);
+  useEffect(() => {
+    let active=true;
+    setReleaseAvailable(false);
+    if (namespaceWorkspace.ready && currentNamespaceName && typeof api.supportsReleases === 'function') {
+      api.supportsReleases().then(value => {if(active)setReleaseAvailable(value === true);}).catch(() => {if(active)setReleaseAvailable(false);});
+    }
+    return () => {active=false;};
+  },[api,namespaceWorkspace.ready,currentNamespaceId,currentNamespaceName]);
+  const selectedSection = section === 'releases' && !releaseAvailable ? 'overview' : section;
   const onManagementOperation = useCallback((operation) => {
     if (['namespaces.create', 'namespaces.update', 'namespaces.delete'].includes(operation)) return namespaceWorkspace.refresh?.();
   }, [namespaceWorkspace.refresh]);
@@ -50,7 +62,7 @@ export function StudioApp({ api, mode, subject, brand = 'Data Studio', extension
   };
   const extensionNavigation = extensions.map((extension) => ({ id: extension.id, label: extension.label, icon: extension.icon, className: `studio-nav-extension studio-nav-${extension.id}`, section: extension.id, isSelected: section === extension.id }));
   const nativeNode = (item) => ({id:item.id,label:item.title,icon:item.icon,className:`studio-nav-${item.id}`,section:item.section||item.id,isSelected:section===(item.section||item.id)||(item.id==='components'&&section==='builder'),...(item.children?{childNodes:item.children.map(nativeNode)}:{})});
-  const navigation = [...nativeNavigation.menus.map(nativeNode), ...extensionNavigation].filter((item) => item.label.toLowerCase().includes(navigationQuery.toLowerCase()) || item.childNodes?.some((child) => child.label.toLowerCase().includes(navigationQuery.toLowerCase())));
+  const navigation = [...nativeNavigation.menus.map(nativeNode), ...(releaseAvailable ? [nativeNode({id:'releases',title:'Releases',icon:'projects'})] : []), ...extensionNavigation].filter((item) => item.label.toLowerCase().includes(navigationQuery.toLowerCase()) || item.childNodes?.some((child) => child.label.toLowerCase().includes(navigationQuery.toLowerCase())));
   const navigationButton = (node) => <Button className="studio-navigation-label" minimal onClick={(event) => { event.stopPropagation(); navigate(node.section); }}>{node.label}</Button>;
   const interactiveNavigation = navigation.map((node) => ({ ...node, label: navigationButton(node), childNodes: node.childNodes?.map((child) => ({ ...child, label: navigationButton(child) })) }));
   return <ForgeThemeProvider><ForgeThemeBoundary windowKey="datly-studio">
@@ -69,11 +81,12 @@ export function StudioApp({ api, mode, subject, brand = 'Data Studio', extension
     </aside>}
     <WorkspaceRuntimeSurface key={currentNamespaceId||'unscoped'} className="studio-workspace-runtime"
       tabProps={{visibility:'never'}}
-      panelProps={{id:`studio-${workspaceId}`,entries:[...nativeSections.map(windowId=>({windowId,label:windowId,kind:'window'})),...extensions.map(extension=>({windowId:extension.id,label:extension.label,kind:'extension'}))],selectedId:section,className:'studio-workspace-panel',
+      panelProps={{id:`studio-${workspaceId}`,entries:[...nativeSections.filter(windowId=>windowId!=='releases'||releaseAvailable).map(windowId=>({windowId,label:windowId,kind:'window'})),...extensions.map(extension=>({windowId:extension.id,label:extension.label,kind:'extension'}))],selectedId:selectedSection,className:'studio-workspace-panel',
         renderContent:(entry,{active})=><WorkspaceContent active={active} render={()=>{
           const target=entry.windowId;
           if(namespaceWorkspace.enabled&&!currentNamespaceId&&!['namespaces','connectors','schema'].includes(target))return <main className="studio-main"><Callout title="Choose a namespace">Select an available namespace above, or create one in Namespaces.</Callout></main>;
           if(!nativeSections.includes(target))return extensions.find(extension=>extension.id===target)?.render({api,mode,subject,navigate,openComponent:openBuilder,currentNamespace:namespaceWorkspace.current,namespaceItems:namespaceWorkspace.items});
+          if(target==='releases')return releaseAvailable&&currentNamespaceName?<main className="studio-management-host"><Suspense fallback={<div role="status"><Spinner size={20}/> Opening releases…</div>}><ReleaseWorkspace api={api} namespace={currentNamespaceName}/></Suspense></main>:null;
           return <div className={target==='builder'?'studio-reader-host':'studio-management-host'} role={target==='builder'?undefined:'main'}>
             <ManagementWindow key={target==='builder'?`${builderReport?.id||''}:${builderReport?.versionNo||''}`:target} api={api} disabled={namespaceWorkspace.enabled&&!namespaceWorkspace.ready}
               uri={`window://datastudio/${managementWindowDestination(target)?.name || target}`}

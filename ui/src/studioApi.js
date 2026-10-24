@@ -21,6 +21,7 @@ import { postV1StudioSdkAccessList, postV1AuthzSdkPoliciesGet, postV1AuthzSdkPol
 import {postNamedPolicies} from './namedPolicySDK.js';
 import { accessMCPAdapter } from './accessMCPAdapter.js';
 import { BrowserIdentity } from './browserIdentity.js';
+import {releaseMethods, supportsReleaseTools} from 'forge/release-manager/adapter';
 
 const nativeErrorCode = { 400: 'invalid_argument', 401: 'unauthorized', 403: 'forbidden', 404: 'not_found', 409: 'conflict', 422: 'invalid_argument', 502: 'unavailable', 503: 'unavailable' };
 
@@ -48,6 +49,7 @@ export class StudioAPI {
     this.namespaceId = null;
     this.namespaceRevision = 0;
     this.namespaceBlocked = false;
+    this.releaseToolAvailability = null;
     this.identity = this.config.authentication?.mode === 'identity-token'
       ? options.identity ?? new BrowserIdentity(config, this.fetcher) : null;
   }
@@ -214,6 +216,47 @@ export class StudioAPI {
   getRuntimeStatus() { return this.nativeRequest(postV1StudioSdkRuntimeStatus, 'runtime.status', {}); }
   async listMCPTools() {
     return this.mcpRequest('tools/list', 'tools');
+  }
+  async supportsReleases() {
+    const snapshot = this.namespaceSnapshot('release.management');
+    if (!snapshot?.id) return false;
+    const key = `${snapshot.id}:${snapshot.revision}`;
+    if (this.releaseToolAvailability?.key !== key) {
+      const promise = this.listMCPTools().then(supportsReleaseTools).catch(() => false);
+      this.releaseToolAvailability = {key,promise};
+    }
+    const value = await this.releaseToolAvailability.promise;
+    this.assertNamespace(snapshot);
+    return value;
+  }
+  async callReleaseTool(method, input) {
+    if (!releaseMethods.includes(method)) throw new Error('Unsupported release operation.');
+    const snapshot = this.namespaceSnapshot('release.management');
+    if (!snapshot?.id) throw new Error('Choose an available namespace before managing releases.');
+    const headers = {'Content-Type':'application/json',Accept:'application/json','Mcp-Method':'tools/call','Mcp-Name':method,'Mcp-Protocol-Version':'2026-07-28','X-Studio-Namespace':snapshot.id};
+    if (this.config.mode === 'development') headers['X-Studio-Development-Subject'] = this.config.development.subject;
+    if (this.nativeCallTool) {
+      const result = await this.nativeCallTool(method,input,{headers,send:(url,init)=>this.send(url,{...init,credentials:this.identity?'omit':'include'},snapshot)});
+      this.assertNamespace(snapshot);
+      return result;
+    }
+    const endpoint = this.identity ? `${this.config.mcpBaseURL}/mcp` : `${this.config.apiBaseURL}/v1/studio/sdk-mcp/mcp`;
+    const response = await this.send(endpoint,{method:'POST',credentials:this.identity?'omit':'include',headers,body:JSON.stringify({jsonrpc:'2.0',id:1,method:'tools/call',params:{name:method,arguments:input,_meta:{'io.modelcontextprotocol/protocolVersion':'2026-07-28','io.modelcontextprotocol/clientCapabilities':{}}}})},snapshot);
+    const payload = await response.json();
+    this.assertNamespace(snapshot);
+    const result = payload?.result;
+    if (!response.ok || payload?.error || result?.isError) {
+      if (response.status === 401) this.onUnauthorized?.();
+      const message = result?.structuredContent?.message || payload?.error?.message || result?.content?.find(item=>item.type==='text')?.text || `Release operation failed (${response.status}).`;
+      const error = new Error(message);
+      error.code = result?.structuredContent?.code || nativeErrorCode[response.status];
+      error.status = result?.structuredContent?.status || response.status;
+      throw error;
+    }
+    if (result?.structuredContent !== undefined) return result.structuredContent;
+    const text = result?.content?.find(item=>item.type==='text')?.text;
+    if (text) return JSON.parse(text);
+    throw new Error('Release operation returned no result.');
   }
   async listMCPSkills() {
     return this.mcpRequest('skills/list', 'skills');

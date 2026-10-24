@@ -4,6 +4,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {managementResourceFixture} from './managementWindowFixture.js';
 import { StudioApp } from './StudioApp.jsx';
+vi.mock('./ReleaseWorkspace.jsx',()=>({default:({namespace})=><section aria-label="Release manager fixture">Release namespace {namespace}</section>}));
 
 // Transform the lazy runtime as test setup, outside interaction deadlines.
 import './ManagementWindowRuntime.jsx';
@@ -36,6 +37,29 @@ function catalogAPI() {
 }
 
 describe('Studio connector catalog', () => {
+  test('shows Releases only after all release tools are advertised for the selected namespace',async()=>{
+    localStorage.clear();
+    const api=catalogAPI();
+    api.config={apiBaseURL:'http://release-ui.test'};
+    api.setNamespace=vi.fn();api.setNamespaceBlocked=vi.fn();
+    api.listNamespaces.mockResolvedValue({items:[{name:'sales',title:'Sales',ownerId:'owner',status:'active',namespaceId:'a'.repeat(64)}]});
+    api.supportsReleases=vi.fn(async()=>false);
+    render(<StudioApp api={api} mode="development" subject="owner"/>);
+    await waitFor(()=>expect(api.supportsReleases).toHaveBeenCalledTimes(1));
+    expect(screen.queryByRole('button',{name:'Releases'})).toBeNull();
+  });
+  test('opens the namespace-bound release manager when release methods are advertised',async()=>{
+    localStorage.clear();
+    const api=catalogAPI();
+    api.config={apiBaseURL:'http://release-ui.test'};
+    api.setNamespace=vi.fn();api.setNamespaceBlocked=vi.fn();
+    api.listNamespaces.mockResolvedValue({items:[{name:'sales',title:'Sales',ownerId:'owner',status:'active',namespaceId:'a'.repeat(64)}]});
+    api.supportsReleases=vi.fn(async()=>true);
+    const user=userEvent.setup();
+    render(<StudioApp api={api} mode="development" subject="owner"/>);
+    await user.click(await screen.findByRole('button',{name:'Releases'}));
+    expect(await screen.findByText('Release namespace sales')).toBeTruthy();
+  });
   test('opens the management section selected by a deep link', async () => {
     window.history.replaceState({}, '', '/?section=connectors');
     const api = catalogAPI();
