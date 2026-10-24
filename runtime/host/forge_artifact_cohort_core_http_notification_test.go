@@ -388,24 +388,65 @@ func TestPublishedNotificationRebindsCoreHTTPWindowAndDatasource(t *testing.T) {
 			t.Fatalf("v3 GET %d %s", status, id)
 		}
 		cancelCtx, cancelSlow := context.WithCancel(ctx)
-		cancelDone := make(chan callResult, 1)
+		defer cancelSlow()
+		cancelDone, independentDone := make(chan callResult, 1), make(chan callResult, 1)
 		go func() {
 			status, _, e := postAt(cancelCtx, "records", "instance", `{"inputs":{"block":true}}`)
 			cancelDone <- callResult{status, e}
 		}()
+		go func() {
+			status, _, e := postAt(ctx, "records", "instance", `{"inputs":{"block":true}}`)
+			independentDone <- callResult{status, e}
+		}()
+		for entered := 0; entered < 2; entered++ {
+			select {
+			case <-business.entered:
+			case <-time.After(2 * time.Second):
+				t.Fatal("Core serialized two datasource calls before producer dispatch")
+			}
+		}
+		// A separate window and datasource must complete before either blocked
+		// call is released. This checks the real HTTP binding and SDK adapters.
+		fastDone := make(chan callResult, 1)
+		go func() {
+			status, body := getOther()
+			if status != 200 || !strings.Contains(body, "other-window") {
+				fastDone <- callResult{status, fmt.Errorf("unrelated metadata failed")}
+				return
+			}
+			status, _, e := postAt(ctx, "other", "other-instance", `{"inputs":{}}`)
+			fastDone <- callResult{status, e}
+		}()
 		select {
-		case <-business.entered:
+		case result := <-fastDone:
+			if result.err != nil || result.status != 200 {
+				t.Fatalf("unrelated window/data call blocked: %+v", result)
+			}
 		case <-time.After(2 * time.Second):
-			t.Fatal("cancelled call did not enter")
+			t.Fatal("unrelated window/data call waited for producer release")
 		}
 		cancelSlow()
 		select {
-		case <-cancelDone:
+		case result := <-cancelDone:
+			if result.err == nil {
+				t.Fatalf("canceled call returned a result: %+v", result)
+			}
 		case <-time.After(time.Second):
 			t.Fatal("cancelled call held execution")
 		}
-		if status, _, e := postAt(ctx, "other", "other-instance", `{"inputs":{}}`); e != nil || status != 200 {
-			t.Fatalf("cancel held unrelated datasource: %d %v", status, e)
+		select {
+		case result := <-independentDone:
+			t.Fatalf("canceling one call canceled another: %+v", result)
+		default:
+		}
+		business.release <- struct{}{}
+		select {
+		case result := <-independentDone:
+			if result.err != nil || result.status != 200 {
+				t.Fatalf("independent producer call failed: %+v", result)
+			}
+		case <-time.After(2 * time.Second):
+			t.Fatal("independent producer call did not release")
 		}
 	}})
 }

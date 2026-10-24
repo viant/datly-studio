@@ -7,7 +7,9 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"strings"
+	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/viant/datly-studio/internal/bffauth"
 	"github.com/viant/datly-studio/sdk"
@@ -16,6 +18,161 @@ import (
 type namespaceProxyTransport struct {
 	endpoints map[string]string
 	calls     int
+}
+
+type concurrentNamespaceTransport struct {
+	id, endpoint string
+	calls        atomic.Int32
+}
+
+func (s *concurrentNamespaceTransport) Invoke(ctx context.Context, operation string, _ any, output any) error {
+	s.calls.Add(1)
+	principal, verified := sdk.PrincipalFromContext(ctx)
+	id, selected := sdk.NamespaceSelectionFromContext(ctx)
+	if !verified || principal.Subject != "owner" || !selected || id != s.id || operation != sdk.OperationRuntimeStatus {
+		return fmt.Errorf("verified namespace selection required")
+	}
+	*output.(*sdk.RuntimeStatus) = sdk.RuntimeStatus{Host: &sdk.RuntimeHost{NamespaceID: id, MCPURL: s.endpoint, Status: "ready"}}
+	return nil
+}
+
+func TestNamespaceMCPProxyForwardsConcurrentProducerCalls(t *testing.T) {
+	id := strings.Repeat("a", 64)
+	entered := make(chan string, 2)
+	canceled := make(chan string, 2)
+	releaseSecond := make(chan struct{})
+	var firstCalls, secondCalls, metadataCalls atomic.Int32
+	producer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/mcp" || r.Header.Get("Authorization") != "Bearer owner" || r.Header.Get("Cookie") != "" || r.Header.Get("X-Studio-Namespace") != id || r.Header.Get("Mcp-Session-Id") != "shared-session" {
+			t.Error("producer received incorrect verified route or credential")
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+		if r.Method == http.MethodGet {
+			metadataCalls.Add(1)
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		switch r.Header.Get("X-Request-ID") {
+		case "first":
+			firstCalls.Add(1)
+			entered <- "first"
+			<-r.Context().Done()
+			canceled <- "first"
+		case "second":
+			secondCalls.Add(1)
+			entered <- "second"
+			select {
+			case <-releaseSecond:
+				w.WriteHeader(http.StatusOK)
+			case <-r.Context().Done():
+				canceled <- "second"
+			}
+		default:
+			t.Error("unexpected producer request")
+			w.WriteHeader(http.StatusBadRequest)
+		}
+	}))
+	defer producer.Close()
+	transport := &concurrentNamespaceTransport{id: id, endpoint: producer.URL + "/mcp"}
+	sessions, err := bffauth.New(bffauth.Config{}, nativeProxyVerifier{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	cookie, _, _, err := sessions.Exchange(context.Background(), "owner")
+	if err != nil {
+		t.Fatal(err)
+	}
+	target, _ := url.Parse(producer.URL)
+	proxy, err := sessions.ProxyWithResolver(target, "/v1/studio/mcp", namespaceMCPTarget(transport))
+	if err != nil {
+		t.Fatal(err)
+	}
+	server := httptest.NewServer(proxy)
+	defer server.Close()
+	client := &http.Client{Timeout: 5 * time.Second}
+	request := func(ctx context.Context, method, requestID string) *http.Request {
+		req, e := http.NewRequestWithContext(ctx, method, server.URL+"/v1/studio/mcp/mcp", nil)
+		if e != nil {
+			t.Fatal(e)
+		}
+		req.AddCookie(&http.Cookie{Name: bffauth.DefaultCookieName, Value: cookie})
+		req.Header.Set("X-Studio-Namespace", id)
+		req.Header.Set("Mcp-Session-Id", "shared-session")
+		if requestID != "" {
+			req.Header.Set("X-Request-ID", requestID)
+		}
+		return req
+	}
+	firstCtx, cancelFirst := context.WithCancel(context.Background())
+	defer cancelFirst()
+	type result struct {
+		status int
+		err    error
+	}
+	firstDone, secondDone := make(chan result, 1), make(chan result, 1)
+	call := func(ctx context.Context, id string, done chan<- result) {
+		response, e := client.Do(request(ctx, http.MethodPost, id))
+		if e != nil {
+			done <- result{err: e}
+			return
+		}
+		response.Body.Close()
+		done <- result{status: response.StatusCode}
+	}
+	go call(firstCtx, "first", firstDone)
+	go call(context.Background(), "second", secondDone)
+	seen := map[string]bool{}
+	for len(seen) < 2 {
+		select {
+		case id := <-entered:
+			seen[id] = true
+		case <-time.After(2 * time.Second):
+			t.Fatalf("producer calls serialized before dispatch: %v", seen)
+		}
+	}
+	metadata, err := client.Do(request(context.Background(), http.MethodGet, ""))
+	if err != nil {
+		t.Fatal(err)
+	}
+	metadata.Body.Close()
+	if metadata.StatusCode != http.StatusNoContent {
+		t.Fatalf("metadata waited or failed: %d", metadata.StatusCode)
+	}
+	cancelFirst()
+	select {
+	case result := <-firstDone:
+		if result.err == nil {
+			t.Fatalf("canceled first call returned %+v", result)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("canceled call did not release")
+	}
+	select {
+	case id := <-canceled:
+		if id != "first" {
+			t.Fatalf("cancel propagated to %s", id)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("upstream first call was not canceled")
+	}
+	select {
+	case result := <-secondDone:
+		t.Fatalf("second call canceled with first: %+v", result)
+	default:
+	}
+	close(releaseSecond)
+	select {
+	case result := <-secondDone:
+		if result.err != nil || result.status != http.StatusOK {
+			t.Fatalf("independent call failed: %+v", result)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("second producer call did not complete")
+	}
+	if firstCalls.Load() != 1 || secondCalls.Load() != 1 || metadataCalls.Load() != 1 || transport.calls.Load() != 3 {
+		t.Fatalf("unexpected forwarding/retry counts: first=%d second=%d metadata=%d resolver=%d", firstCalls.Load(), secondCalls.Load(), metadataCalls.Load(), transport.calls.Load())
+	}
 }
 
 func (s *namespaceProxyTransport) Invoke(ctx context.Context, operation string, input, output any) error {
