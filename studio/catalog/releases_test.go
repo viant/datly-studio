@@ -3,8 +3,10 @@ package catalog
 import (
 	"context"
 	"errors"
+	"reflect"
 	"testing"
 
+	"github.com/viant/authz/oauth"
 	"github.com/viant/datly-studio/sdk/artifactrelease"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
 	stored "github.com/viant/datly-studio/studio/namespaces/store_read"
@@ -22,7 +24,16 @@ func (s releaseTestSession) Response() response.Writer { return nil }
 
 type releaseTestBinder struct{ invoker exec.ComponentInvoker }
 
-func (b releaseTestBinder) Bind(context.Context, any) error { return nil }
+func (b releaseTestBinder) Bind(_ context.Context, target any) error {
+	value := reflect.ValueOf(target)
+	if value.Kind() == reflect.Pointer && value.Elem().Kind() == reflect.Struct {
+		field := value.Elem().FieldByName("Authorization")
+		if field.IsValid() && field.CanSet() && field.Kind() == reflect.String {
+			field.SetString("Bearer verified-test")
+		}
+	}
+	return nil
+}
 func (b releaseTestBinder) Lookup(_ context.Context, key xhandler.ValueKey) (any, bool, error) {
 	if key == exec.ComponentInvokerKey {
 		return b.invoker, true, nil
@@ -46,12 +57,13 @@ func (i releaseTestInvoker) InvokeComponent(_ context.Context, request exec.Comp
 	return &stored.Output{Namespaces: i.rows}, nil
 }
 
-type catalogReleaseFixture struct{ namespace string }
+type catalogReleaseFixture struct{ namespace, bearer string }
 
 var _ artifactrelease.Manager = (*catalogReleaseFixture)(nil)
 
-func (f *catalogReleaseFixture) List(_ context.Context, in contract.ListInput) (contract.ListOutput, error) {
+func (f *catalogReleaseFixture) List(ctx context.Context, in contract.ListInput) (contract.ListOutput, error) {
 	f.namespace = in.Namespace
+	f.bearer = oauth.Bearer(ctx)
 	return contract.ListOutput{}, nil
 }
 func (*catalogReleaseFixture) Candidates(context.Context, contract.CandidatesInput) (contract.CandidatesOutput, error) {
@@ -109,8 +121,8 @@ func TestNativeReleaseResolverRequiresVisibleMatchingNamespace(t *testing.T) {
 	})
 	input := &ReleaseListInput{ReleaseIdentity: ReleaseIdentity{Jwt: claims, Auth: verified, NamespaceID: namespaceID}, Request: contract.ListInput{Namespace: "demo"}}
 	session := releaseTestSession{binder: releaseTestBinder{invoker: releaseTestInvoker{rows: []*stored.StoredNamespace{{NamespaceId: namespaceID, Name: "demo"}}}}}
-	if err := runReleaseList(ctx, session, input, new(ReleaseListOutput)); err != nil || resolved != namespaceID || manager.namespace != "demo" {
-		t.Fatalf("visible selected namespace was not routed: %v id=%q name=%q", err, resolved, manager.namespace)
+	if err := runReleaseList(ctx, session, input, new(ReleaseListOutput)); err != nil || resolved != namespaceID || manager.namespace != "demo" || manager.bearer != "verified-test" {
+		t.Fatalf("visible selected namespace was not routed with the verified bearer: %v id=%q name=%q bearerPresent=%t", err, resolved, manager.namespace, manager.bearer != "")
 	}
 	resolved = ""
 	session.binder = releaseTestBinder{invoker: releaseTestInvoker{rows: []*stored.StoredNamespace{{NamespaceId: namespaceID, Name: "other"}}}}

@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"reflect"
+	"strings"
 	"sync"
 
+	"github.com/viant/authz/oauth"
 	sdkrelease "github.com/viant/datly-studio/sdk/artifactrelease"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
 	rhandler "github.com/viant/datly/runtime/handler"
@@ -64,27 +66,37 @@ func ReleaseManagementForNamespace(ctx context.Context, namespaceID string) bool
 	return err == nil && selected != nil
 }
 
-func releaseManager(ctx context.Context, session xhandler.Session, claims *jwt.Claims, auth *studioauth.Output, namespaceID, name string) (sdkrelease.Manager, error) {
+func releaseManager(ctx context.Context, session xhandler.Session, claims *jwt.Claims, auth *studioauth.Output, namespaceID, name string) (context.Context, sdkrelease.Manager, error) {
 	if claims == nil || claims.Subject == "" || auth == nil || auth.Auth == nil || auth.Auth.Subject != claims.Subject {
-		return nil, fail(403, "verified Studio identity is required")
+		return ctx, nil, fail(403, "verified Studio identity is required")
 	}
 	releaseSource.RLock()
 	manager, resolve := releaseSource.manager, releaseSource.resolve
 	releaseSource.RUnlock()
 	if resolve != nil {
+		if session == nil || session.Binder() == nil {
+			return ctx, nil, fail(403, "verified Studio bearer is required")
+		}
+		var headers struct {
+			Authorization string `bind:"kind=header,in=Authorization"`
+		}
+		if err := session.Binder().Bind(ctx, &headers); err != nil || !strings.HasPrefix(headers.Authorization, "Bearer ") || strings.TrimSpace(strings.TrimPrefix(headers.Authorization, "Bearer ")) == "" {
+			return ctx, nil, fail(403, "verified Studio bearer is required")
+		}
+		ctx = oauth.WithBearer(ctx, strings.TrimPrefix(headers.Authorization, "Bearer "))
 		selected, err := selectedToolNamespace(ctx, session, claims, auth, namespaceID, name)
 		if err != nil {
-			return nil, err
+			return ctx, nil, err
 		}
 		manager, err = resolve(ctx, selected)
 		if err != nil {
-			return nil, err
+			return ctx, nil, err
 		}
 	}
 	if manager == nil {
-		return nil, fail(503, "release management is unavailable")
+		return ctx, nil, fail(503, "release management is unavailable")
 	}
-	return manager, nil
+	return ctx, manager, nil
 }
 
 type ReleaseIdentity struct {
@@ -212,7 +224,7 @@ func runReleaseList(ctx context.Context, session xhandler.Session, in *ReleaseLi
 	if in == nil || out == nil || in.Request.Validate() != nil {
 		return fail(400, "invalid release request")
 	}
-	manager, err := releaseManager(ctx, session, in.Jwt, in.Auth, in.NamespaceID, in.Request.Namespace)
+	ctx, manager, err := releaseManager(ctx, session, in.Jwt, in.Auth, in.NamespaceID, in.Request.Namespace)
 	if err != nil {
 		return err
 	}
@@ -223,7 +235,7 @@ func runReleaseCandidates(ctx context.Context, session xhandler.Session, in *Rel
 	if in == nil || out == nil || in.Request.Validate() != nil {
 		return fail(400, "invalid release request")
 	}
-	manager, err := releaseManager(ctx, session, in.Jwt, in.Auth, in.NamespaceID, in.Request.Namespace)
+	ctx, manager, err := releaseManager(ctx, session, in.Jwt, in.Auth, in.NamespaceID, in.Request.Namespace)
 	if err != nil {
 		return err
 	}
@@ -234,7 +246,7 @@ func runReleasePublish(ctx context.Context, session xhandler.Session, in *Releas
 	if in == nil || out == nil || in.Request.Validate() != nil {
 		return fail(400, "invalid release request")
 	}
-	manager, err := releaseManager(ctx, session, in.Jwt, in.Auth, in.NamespaceID, in.Request.Namespace)
+	ctx, manager, err := releaseManager(ctx, session, in.Jwt, in.Auth, in.NamespaceID, in.Request.Namespace)
 	if err != nil {
 		return err
 	}
@@ -245,7 +257,7 @@ func runReleasePromote(ctx context.Context, session xhandler.Session, in *Releas
 	if in == nil || out == nil || in.Request.Validate() != nil {
 		return fail(400, "invalid release request")
 	}
-	manager, err := releaseManager(ctx, session, in.Jwt, in.Auth, in.NamespaceID, in.Request.Namespace)
+	ctx, manager, err := releaseManager(ctx, session, in.Jwt, in.Auth, in.NamespaceID, in.Request.Namespace)
 	if err != nil {
 		return err
 	}
@@ -256,7 +268,7 @@ func runReleaseHistory(ctx context.Context, session xhandler.Session, in *Releas
 	if in == nil || out == nil || in.Request.Validate() != nil {
 		return fail(400, "invalid release request")
 	}
-	manager, err := releaseManager(ctx, session, in.Jwt, in.Auth, in.NamespaceID, in.Request.Namespace)
+	ctx, manager, err := releaseManager(ctx, session, in.Jwt, in.Auth, in.NamespaceID, in.Request.Namespace)
 	if err != nil {
 		return err
 	}
