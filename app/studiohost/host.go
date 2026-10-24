@@ -177,6 +177,7 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		authoringConfig.ReaderCaches = config.Caches
 	}
 	options.Native.Authoring = &authoringConfig
+	options.Browser.AuthoringModule = authoringConfig.ModulePath
 	publicAddress, err := config.Endpoint.ListenAddress()
 	if err != nil {
 		return err

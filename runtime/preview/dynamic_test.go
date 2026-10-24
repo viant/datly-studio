@@ -14,6 +14,7 @@ import (
 
 	access "github.com/viant/authz"
 	"github.com/viant/datly-studio/internal/connectorsecret"
+	"github.com/viant/datly-studio/internal/runtimevalidation"
 	"github.com/viant/datly-studio/runtime/accesscontext"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
@@ -83,6 +84,16 @@ JOIN (SELECT ID, VENDOR_ID, STATUS FROM PRODUCT) products ON products.VENDOR_ID=
 	if _, err = studio.ExecContext(ctx, `INSERT INTO component_resource_files(report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at) VALUES ('vendors',1,'vendors-doc','docs','docs/vendors.md',?,?, 'hash',FALSE,?)`, "Vendor API documentation", len("Vendor API documentation"), now); err != nil {
 		t.Fatal(err)
 	}
+	t.Run("validation classifies host package authority", func(t *testing.T) {
+		err := (Dynamic{StudioDB: studio, ModulePath: "example.com/other"}).Validate(ctx, "vendors", 1)
+		var phase *runtimevalidation.Error
+		if !errors.As(err, &phase) || phase.Code != "runtime_package_authority" {
+			t.Fatalf("wrong package classification: %v", err)
+		}
+		if d := runtimevalidation.Diagnostics(err)[0]; d.Stage != "contract" || d.Field != "componentScope" {
+			t.Fatalf("diagnostic %+v", d)
+		}
+	})
 	result, err := (Dynamic{StudioDB: studio, RootDir: root}).Execute(ctx, "vendors", 1, sdk.PreviewInput{Limit: 1})
 	if err != nil {
 		t.Fatal(err)
@@ -141,7 +152,7 @@ SELECT tag(vendors.NAME,'format:"name=CustomerName" json:"customerName"'), tag(v
 			t.Fatal("wrong encoded byte count")
 		}
 	})
-	if err = (Dynamic{StudioDB: studio, RootDir: root}).Validate(ctx, "vendors", 1); err != nil {
+	if err = (Dynamic{StudioDB: studio, ModulePath: "example.com/app"}).Validate(ctx, "vendors", 1); err != nil {
 		t.Fatalf("runtime validation: %v", err)
 	}
 	warmup, err := (Dynamic{StudioDB: studio, RootDir: root}).Warmup(ctx, "vendors", 1)

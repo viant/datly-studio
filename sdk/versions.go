@@ -98,6 +98,8 @@ type ValidationResult struct {
 	Diagnostics []Diagnostic   `json:"diagnostics,omitempty"`
 }
 type Diagnostic struct {
+	Stage    string `json:"stage,omitempty"`
+	Field    string `json:"field,omitempty"`
 	Severity string `json:"severity"`
 	Code     string `json:"code"`
 	Message  string `json:"message"`

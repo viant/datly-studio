@@ -11,6 +11,7 @@ import (
 
 	"github.com/viant/datly-studio/internal/publisherguard"
 	"github.com/viant/datly-studio/internal/readerinspection"
+	"github.com/viant/datly-studio/internal/runtimevalidation"
 	"github.com/viant/datly-studio/internal/versionprojection"
 	"github.com/viant/datly-studio/runtime/preview"
 	"github.com/viant/datly-studio/sdk"
@@ -24,7 +25,6 @@ import (
 	rhandler "github.com/viant/datly/runtime/handler"
 	"github.com/viant/datly/runtime/handler/custom"
 	"github.com/viant/datly/spec"
-	"github.com/viant/datly/transcribe"
 	"github.com/viant/scy/auth/jwt"
 	"github.com/viant/xdatly"
 	xconnector "github.com/viant/xdatly/connector"
@@ -166,17 +166,7 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 		}
 		if validateErr := (preview.Dynamic{StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, Const: authoring.Constants(), ReaderCaches: authoring.ReaderCaches(), Dependencies: authoring.Dependencies()}).Validate(validationCtx, input.ReportID, input.VersionNo); validateErr != nil {
 			valid = false
-			var compileErr *transcribe.CompileError
-			if errors.As(validateErr, &compileErr) && len(compileErr.Diagnostics) > 0 {
-				for _, item := range compileErr.Diagnostics {
-					if item != nil {
-						diagnostics = append(diagnostics, sdk.Diagnostic{Severity: string(item.Severity), Code: item.Code,
-							Message: item.Message, Hint: item.Hint, Line: item.Span.Start.Line, Column: item.Span.Start.Char})
-					}
-				}
-			} else {
-				diagnostics = append(diagnostics, sdk.Diagnostic{Severity: "error", Code: "runtime_contract", Message: "reader runtime contract could not be initialized"})
-			}
+			diagnostics = append(diagnostics, runtimevalidation.Diagnostics(validateErr)...)
 		}
 	}
 	status := "valid"

@@ -162,7 +162,9 @@ type RuntimeControl interface {
 }
 
 type Options struct {
-	Const *constant.Values
+	// AuthoringModule is selected by the embedding host, never a request.
+	AuthoringModule string
+	Const           *constant.Values
 	// RuntimeControl avoids an internal administration listener in embedded hosts.
 	RuntimeControl RuntimeControl
 
@@ -373,7 +375,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) (result
 			log.Printf("Studio preview connector reader close: %v", err)
 		}
 	}()
-	dynamicPreview := preview.Dynamic{Const: options.Const, StudioDB: db, RootDir: ".", Definitions: definitionReader, Connectors: connectorReader}
+	dynamicPreview := preview.Dynamic{Const: options.Const, ModulePath: options.AuthoringModule, StudioDB: db, RootDir: ".", Definitions: definitionReader, Connectors: connectorReader}
 	predicates, err := (host.Config{}).PredicateCatalog()
 	if err != nil {
 		return err
@@ -408,7 +410,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) (result
 			log.Printf("Studio authorizer reader close: %v", err)
 		}
 	}()
-	transport := &sqltransport.Transport{DB: db, Authorizer: authorizer, ReleaseNamespace: options.ReleaseNamespace, ReleaseManagementAvailable: options.ReleaseManagementAvailable, Predicates: predicates, Probe: connectivity.SQLProbe{Const: options.Const}, Catalog: connectivity.SQLCatalog{Const: options.Const}, SQLTester: dynamicPreview, Preview: dynamicPreview, ViewTester: dynamicPreview, RelationTester: dynamicPreview, ComposeTester: dynamicPreview, Warmup: dynamicPreview, CacheInvalidator: cacheInvalidator, Validator: dynamicPreview, ContractInspector: dynamicPreview, Activator: runtimeAdmin, RuntimeProbe: runtimeAdmin}
+	transport := &sqltransport.Transport{AuthoringModule: options.AuthoringModule, DB: db, Authorizer: authorizer, ReleaseNamespace: options.ReleaseNamespace, ReleaseManagementAvailable: options.ReleaseManagementAvailable, Predicates: predicates, Probe: connectivity.SQLProbe{Const: options.Const}, Catalog: connectivity.SQLCatalog{Const: options.Const}, SQLTester: dynamicPreview, Preview: dynamicPreview, ViewTester: dynamicPreview, RelationTester: dynamicPreview, ComposeTester: dynamicPreview, Warmup: dynamicPreview, CacheInvalidator: cacheInvalidator, Validator: dynamicPreview, ContractInspector: dynamicPreview, Activator: runtimeAdmin, RuntimeProbe: runtimeAdmin}
 	defer func() {
 		closeCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()

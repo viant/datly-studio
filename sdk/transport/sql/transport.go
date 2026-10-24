@@ -22,6 +22,7 @@ import (
 	"github.com/viant/datly-studio/internal/namespacevisibility"
 	"github.com/viant/datly-studio/internal/readerinspection"
 	"github.com/viant/datly-studio/internal/reportcapability"
+	"github.com/viant/datly-studio/internal/runtimevalidation"
 	"github.com/viant/datly-studio/internal/versionidentity"
 	"github.com/viant/datly-studio/runtime/accesscontext"
 	studiors "github.com/viant/datly-studio/runtime/resources"
@@ -148,6 +149,8 @@ type CandidateContractInspector interface {
 }
 
 type Transport struct {
+	// AuthoringModule is trusted host configuration, never request data.
+	AuthoringModule string
 	// ReleaseNamespace is a trusted startup capability. Empty hides native
 	// releases regardless of static tool annotations.
 	ReleaseNamespace           string
@@ -830,7 +833,7 @@ func (t *Transport) createReport(ctx context.Context, input, output any) error {
 		}
 	}
 	if hasPrincipal || strings.TrimSpace(in.ComponentScope) == "" {
-		in.ComponentScope = dynamicComponentScope(in.OwnerID, in.ID)
+		in.ComponentScope = t.dynamicComponentScope(in.OwnerID, in.ID)
 	}
 	if hasPrincipal || strings.TrimSpace(in.ComponentName) == "" {
 		in.ComponentName = "reader"
@@ -868,8 +871,12 @@ func validBusinessNamespace(value string) bool {
 	return namespacevalidation.ValidName(value)
 }
 
-func dynamicComponentScope(ownerID, reportID string) string {
-	return "github.com/viant/datly-studio/dynamic/" + sdk.OwnerPackageSegment(ownerID) + "/" + strings.TrimSpace(reportID)
+func (t *Transport) dynamicComponentScope(ownerID, reportID string) string {
+	module := strings.TrimSuffix(strings.TrimSpace(t.AuthoringModule), "/")
+	if module == "" {
+		module = "github.com/viant/datly-studio"
+	}
+	return module + "/dynamic/" + sdk.OwnerPackageSegment(ownerID) + "/" + strings.TrimSpace(reportID)
 }
 
 func validReportSlug(value string) bool {
@@ -1365,17 +1372,7 @@ func (t *Transport) validateVersion(ctx context.Context, input, output any) erro
 	} else if t.Validator != nil {
 		if validateErr := t.Validator.Validate(ctx, in.ReportID, in.VersionNo); validateErr != nil {
 			valid = false
-			var compileErr *transcribe.CompileError
-			if errors.As(validateErr, &compileErr) && len(compileErr.Diagnostics) > 0 {
-				for _, item := range compileErr.Diagnostics {
-					if item == nil {
-						continue
-					}
-					diagnostics = append(diagnostics, sdk.Diagnostic{Severity: string(item.Severity), Code: item.Code, Message: item.Message, Hint: item.Hint, Line: item.Span.Start.Line, Column: item.Span.Start.Char})
-				}
-			} else {
-				diagnostics = append(diagnostics, sdk.Diagnostic{Severity: "error", Code: "runtime_contract", Message: validateErr.Error()})
-			}
+			diagnostics = append(diagnostics, runtimevalidation.Diagnostics(validateErr)...)
 		}
 	}
 	status := "valid"
@@ -1631,7 +1628,7 @@ func (t *Transport) persistReaderBuilderDQL(ctx context.Context, reportID string
 		}
 		componentScope, componentName := report.ComponentScope, report.ComponentName
 		if setPackage {
-			componentScope = dynamicComponentScope(report.OwnerID, report.ID)
+			componentScope = t.dynamicComponentScope(report.OwnerID, report.ID)
 			componentName = "reader"
 		}
 		err = t.builderWriteReportConfig(ctx, tx, &reportconfig.StoredReport{
@@ -1912,7 +1909,7 @@ func (t *Transport) runReaderBuilder(ctx context.Context, reportID string, versi
 	}
 	if operation.Type == readerbuilder.OperationSetPackage && operation.Package != nil {
 		copy := *operation.Package
-		copy.Path = dynamicComponentScope(report.OwnerID, report.ID) + "/reader"
+		copy.Path = t.dynamicComponentScope(report.OwnerID, report.ID) + "/reader"
 		operation.Package = &copy
 	}
 	types, err := t.Predicates.RuntimeTypes()

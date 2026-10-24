@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
@@ -695,64 +696,76 @@ func TestTransportRequiresNewProbeAfterConnectionConfigurationChange(t *testing.
 }
 
 func TestTransportDerivesReportIdentityAndOwnerFromPrincipal(t *testing.T) {
-	ctx := context.Background()
-	db, err := sql.Open("sqlite", fmt.Sprintf("file:%s?mode=memory&cache=shared", t.Name()))
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer db.Close()
-	if err = schema.ApplySQLite(ctx, db, "studio"); err != nil {
-		t.Fatal(err)
-	}
-	client, err := sdk.NewClient(&Transport{DB: db, Authorizer: allowAuthorizer{}})
-	if err != nil {
-		t.Fatal(err)
-	}
-	principal := sdk.WithPrincipal(ctx, sdk.Principal{Subject: "owner-a"})
-	connector, err := client.Connectors().Create(principal, sdk.CreateConnectorInput{Name: "main", Driver: "sqlite"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	input := sdk.CreateComponentInput{Slug: "vendor-catalog", Title: "Vendor Catalog", DefaultConnectorName: connector.Name}
-	if _, err = client.Components().Create(principal, input); err == nil {
-		t.Fatal("report creation with an inactive connector unexpectedly succeeded")
-	}
-	if _, err = db.Exec(`UPDATE connectors SET status='active' WHERE name='main'`); err != nil {
-		t.Fatal(err)
-	}
-	report, err := client.Components().Create(principal, input)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if report.ID == "" || report.Namespace != "general" || report.OwnerID != "owner-a" || report.OwnerPackage == "" || !strings.Contains(report.ComponentScope, "/dynamic/"+report.OwnerPackage+"/"+report.ID) || report.ComponentName != "reader" {
-		t.Fatalf("report=%+v", report)
-	}
-	_, err = client.Components().Create(principal, input)
-	var duplicate *sdk.Error
-	if !errors.As(err, &duplicate) || duplicate.Code != sdk.ErrorConflict {
-		t.Fatalf("duplicate report slug error=%v", err)
-	}
-	namespace := "inventory.forecasting"
-	if _, err = client.Namespaces().Create(principal, sdk.CreateNamespaceInput{Name: namespace, Title: "Inventory Forecasting"}); err != nil {
-		t.Fatal(err)
-	}
-	_, err = client.Components().Update(principal, report.ID, sdk.UpdateComponentInput{Namespace: &namespace, ETag: report.ETag})
-	var move *sdk.Error
-	if !errors.As(err, &move) || move.Code != sdk.ErrorForbidden {
-		t.Fatalf("namespace move error=%v", err)
-	}
-	current, err := client.Components().Get(principal, report.ID)
-	if err != nil || current.Namespace != report.Namespace || current.ETag != report.ETag {
-		t.Fatalf("rejected move changed component=%+v err=%v", current, err)
-	}
-	updated, err := client.Components().Update(principal, report.ID, sdk.UpdateComponentInput{Title: &namespace, ETag: report.ETag})
-	if err != nil || updated.Namespace != report.Namespace {
-		t.Fatalf("title update=%+v err=%v", updated, err)
-	}
-	_, err = client.Components().Update(principal, report.ID, sdk.UpdateComponentInput{Title: &namespace, ETag: report.ETag})
-	var stale *sdk.Error
-	if !errors.As(err, &stale) || stale.Code != sdk.ErrorConflict {
-		t.Fatalf("stale report update error=%v", err)
+	for _, module := range []string{"", "example.com/embedding-app"} {
+		t.Run(module, func(t *testing.T) {
+			ctx := context.Background()
+			db, err := sql.Open("sqlite", filepath.Join(t.TempDir(), "studio.db"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer db.Close()
+			if err = schema.ApplySQLite(ctx, db, "studio"); err != nil {
+				t.Fatal(err)
+			}
+			client, err := sdk.NewClient(&Transport{AuthoringModule: module, DB: db, Authorizer: allowAuthorizer{}})
+			if err != nil {
+				t.Fatal(err)
+			}
+			principal := sdk.WithPrincipal(ctx, sdk.Principal{Subject: "owner-a"})
+			connector, err := client.Connectors().Create(principal, sdk.CreateConnectorInput{Name: "main", Driver: "sqlite"})
+			if err != nil {
+				t.Fatal(err)
+			}
+			input := sdk.CreateComponentInput{ComponentScope: "attacker.invalid/override", Slug: "vendor-catalog", Title: "Vendor Catalog", DefaultConnectorName: connector.Name}
+			if _, err = client.Components().Create(principal, input); err == nil {
+				t.Fatal("report creation with an inactive connector unexpectedly succeeded")
+			}
+			if _, err = db.Exec(`UPDATE connectors SET status='active' WHERE name='main'`); err != nil {
+				t.Fatal(err)
+			}
+			report, err := client.Components().Create(principal, input)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if report.ID == "" || report.Namespace != "general" || report.OwnerID != "owner-a" || report.OwnerPackage == "" || !strings.Contains(report.ComponentScope, "/dynamic/"+report.OwnerPackage+"/"+report.ID) || report.ComponentName != "reader" {
+				t.Fatalf("report=%+v", report)
+			}
+			expectedModule := module
+			if expectedModule == "" {
+				expectedModule = "github.com/viant/datly-studio"
+			}
+			if !strings.HasPrefix(report.ComponentScope, expectedModule+"/dynamic/") {
+				t.Fatalf("host module ignored: %s", report.ComponentScope)
+			}
+			_, err = client.Components().Create(principal, input)
+			var duplicate *sdk.Error
+			if !errors.As(err, &duplicate) || duplicate.Code != sdk.ErrorConflict {
+				t.Fatalf("duplicate report slug error=%v", err)
+			}
+			namespace := "inventory.forecasting"
+			if _, err = client.Namespaces().Create(principal, sdk.CreateNamespaceInput{Name: namespace, Title: "Inventory Forecasting"}); err != nil {
+				t.Fatal(err)
+			}
+			_, err = client.Components().Update(principal, report.ID, sdk.UpdateComponentInput{Namespace: &namespace, ETag: report.ETag})
+			var move *sdk.Error
+			if !errors.As(err, &move) || move.Code != sdk.ErrorForbidden {
+				t.Fatalf("namespace move error=%v", err)
+			}
+			current, err := client.Components().Get(principal, report.ID)
+			if err != nil || current.Namespace != report.Namespace || current.ETag != report.ETag {
+				t.Fatalf("rejected move changed component=%+v err=%v", current, err)
+			}
+			updated, err := client.Components().Update(principal, report.ID, sdk.UpdateComponentInput{Title: &namespace, ETag: report.ETag})
+			if err != nil || updated.Namespace != report.Namespace {
+				t.Fatalf("title update=%+v err=%v", updated, err)
+			}
+			_, err = client.Components().Update(principal, report.ID, sdk.UpdateComponentInput{Title: &namespace, ETag: report.ETag})
+			var stale *sdk.Error
+			if !errors.As(err, &stale) || stale.Code != sdk.ErrorConflict {
+				t.Fatalf("stale report update error=%v", err)
+			}
+
+		})
 	}
 }
 
@@ -766,7 +779,7 @@ func TestTransportReusesDatlyReaderBuilderForVersionedDQL(t *testing.T) {
 	if err = schema.ApplySQLite(ctx, db, "studio"); err != nil {
 		t.Fatal(err)
 	}
-	transport := &Transport{DB: db, Authorizer: allowAuthorizer{}}
+	transport := &Transport{AuthoringModule: "example.com/embedding-app", DB: db, Authorizer: allowAuthorizer{}}
 	client, err := sdk.NewClient(transport)
 	if err != nil {
 		t.Fatal(err)

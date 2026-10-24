@@ -22,6 +22,7 @@ import (
 	bindresource "github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/connectorinit"
 	"github.com/viant/datly-studio/internal/connectorsecret"
+	"github.com/viant/datly-studio/internal/runtimevalidation"
 	"github.com/viant/datly-studio/runtime/accesscontext"
 	studiocodecs "github.com/viant/datly-studio/runtime/codecs"
 	studiors "github.com/viant/datly-studio/runtime/resources"
@@ -71,11 +72,11 @@ type Dynamic struct {
 func (d Dynamic) Validate(ctx context.Context, reportID string, versionNo int) error {
 	definition, err := d.definition(ctx, reportID, versionNo)
 	if err != nil {
-		return err
+		return runtimevalidation.Wrap("definition", err)
 	}
 	sources, err := openSources(ctx, definition, definition.DQL, d.Const)
 	if err != nil {
-		return err
+		return runtimevalidation.Wrap("connector", err)
 	}
 	defer sources.Close()
 	caches := &aerospike.Pool{}
@@ -85,23 +86,28 @@ func (d Dynamic) Validate(ctx context.Context, reportID string, versionNo int) e
 		Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections),
 	})
 	if err != nil {
-		return fmt.Errorf("compile runtime contract: %w", err)
+		// Keep Datly's module authority guard authoritative and retain its cause.
+		// The stored scope is host-owned metadata, never an error message.
+		if module := strings.TrimSuffix(strings.TrimSpace(d.ModulePath), "/"); module != "" && !strings.HasPrefix(definition.Scope, module+"/") {
+			return &runtimevalidation.Error{Stage: "contract", Code: "runtime_package_authority", Field: "componentScope", Cause: err}
+		}
+		return runtimevalidation.Wrap("contract", err)
 	}
 	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Const: d.Const,
 		Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType,
 		Types: contract.Types, Resources: contract.Resources, CodecFactory: studiocodecs.FromContext(ctx),
 	})
 	if err != nil {
-		return fmt.Errorf("build runtime artifact: %w", err)
+		return runtimevalidation.Wrap("artifact", err)
 	}
 	if artifact.ReaderCompilation() == nil {
-		return errors.New("reader compilation is unavailable")
+		return runtimevalidation.Wrap("reader", errors.New("reader compilation is unavailable"))
 	}
 	if _, err = artifact.ReaderCompilation().NewExecution(bootstrap.ReaderRuntimeConfig{SQL: sources.SQL, CacheSettings: d.ReaderCaches, Aerospike: caches}); err != nil {
-		return fmt.Errorf("initialize runtime reader: %w", err)
+		return runtimevalidation.Wrap("reader", err)
 	}
 	if _, err = (mcpresource.Publisher{Resources: definition.ResourceStore}).Compile(ctx, definition.ResourceFolders); err != nil {
-		return fmt.Errorf("compile MCP resources and skills: %w", err)
+		return runtimevalidation.Wrap("resources", err)
 	}
 	return nil
 }
