@@ -1,13 +1,16 @@
 package sqlstore
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
+	"reflect"
 	"sort"
 	"strings"
 
@@ -153,14 +156,37 @@ func decodeDependencies(raw []byte) ([]authz.NamedDependency, error) {
 		return nil, nil
 	}
 	var value []authz.NamedDependency
-	if json.Unmarshal(raw, &value) != nil {
+	if strictJSON(raw, &value) != nil || value == nil {
 		return nil, contract.ErrInvalid
 	}
 	canonical, err := marshalDependencies(value)
-	if err != nil || string(canonical) != string(raw) {
+	if err != nil {
+		return nil, contract.ErrInvalid
+	}
+	var ordered []authz.NamedDependency
+	if json.Unmarshal(canonical, &ordered) != nil || !reflect.DeepEqual(value, ordered) {
 		return nil, contract.ErrInvalid
 	}
 	return value, nil
+}
+
+// SQL JSON columns may rewrite whitespace and object-key order. Decode exact
+// typed values while still rejecting unknown fields and trailing JSON values;
+// callers then validate ordering and immutable content separately.
+func strictJSON(raw []byte, target any) error {
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(target); err != nil {
+		return err
+	}
+	var trailing any
+	if err := decoder.Decode(&trailing); err != io.EOF {
+		if err == nil {
+			return contract.ErrInvalid
+		}
+		return err
+	}
+	return nil
 }
 
 func (s *Store) putBindingsTx(ctx context.Context, tx *sql.Tx, bundle contract.Bundle, raw []byte, hash string) error {
@@ -168,7 +194,9 @@ func (s *Store) putBindingsTx(ctx context.Context, tx *sql.Tx, bundle contract.B
 	var priorHash string
 	err := tx.QueryRowContext(ctx, `SELECT bindings_json,bindings_hash FROM artifact_release_bundle_bindings WHERE scope_id=? AND bundle_hash=?`, s.scope.id(), bundle.Hash).Scan(&priorRaw, &priorHash)
 	if err == nil {
-		if priorHash == hash && string(priorRaw) == string(raw) {
+		prior, readErr := decodeBindings(bundle, priorRaw, priorHash)
+		var incoming []ComponentBinding
+		if readErr == nil && json.Unmarshal(raw, &incoming) == nil && reflect.DeepEqual(prior, incoming) && priorHash == hash {
 			return nil
 		}
 		return contract.ErrConflict
@@ -194,12 +222,16 @@ func (s *Store) BundleBindings(ctx context.Context, bundle contract.Bundle) ([]C
 	if err := s.DB.QueryRowContext(ctx, `SELECT bindings_json,bindings_hash FROM artifact_release_bundle_bindings WHERE scope_id=? AND bundle_hash=?`, s.scope.id(), bundle.Hash).Scan(&raw, &hash); err != nil {
 		return nil, err
 	}
+	return decodeBindings(bundle, raw, hash)
+}
+
+func decodeBindings(bundle contract.Bundle, raw []byte, hash string) ([]ComponentBinding, error) {
 	var bindings []ComponentBinding
-	if json.Unmarshal(raw, &bindings) != nil {
+	if strictJSON(raw, &bindings) != nil || bindings == nil {
 		return nil, contract.ErrInvalid
 	}
 	validated, canonical, expected, err := validateBindings(bundle, bindings)
-	if err != nil || hash != expected || string(canonical) != string(raw) {
+	if err != nil || hash != expected || !reflect.DeepEqual(bindings, validated) || len(canonical) == 0 {
 		return nil, contract.ErrInvalid
 	}
 	return validated, nil
