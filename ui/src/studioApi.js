@@ -217,6 +217,18 @@ export class StudioAPI {
   async listMCPTools() {
     return this.mcpRequest('tools/list', 'tools');
   }
+  async listReleaseTools() {
+    const snapshot = this.namespaceSnapshot('release.management');
+    if (!snapshot?.id) throw new Error('Choose an available namespace before managing releases.');
+    const endpoint = this.identity ? `${this.config.mcpBaseURL}/mcp` : `${this.config.apiBaseURL}/v1/studio/sdk-mcp/mcp`;
+    const headers = {'Content-Type':'application/json',Accept:'application/json','Mcp-Method':'tools/list','Mcp-Protocol-Version':'2026-07-28','X-Studio-Namespace':snapshot.id};
+    if (this.config.mode === 'development') headers['X-Studio-Development-Subject'] = this.config.development.subject;
+    const response = await this.send(endpoint,{method:'POST',credentials:this.identity?'omit':'include',headers,body:JSON.stringify({jsonrpc:'2.0',id:1,method:'tools/list',params:{_meta:{'io.modelcontextprotocol/protocolVersion':'2026-07-28','io.modelcontextprotocol/clientCapabilities':{}}}})},snapshot);
+    const payload = await response.json();
+    this.assertNamespace(snapshot);
+    if (!response.ok || payload?.error || !Array.isArray(payload?.result?.tools)) throw new Error('Release tool catalog is unavailable.');
+    return payload.result.tools;
+  }
   async supportsReleases(namespaceName) {
     const snapshot = this.namespaceSnapshot('release.management');
     if (!snapshot?.id || !namespaceName) return false;
@@ -225,7 +237,7 @@ export class StudioAPI {
       const promise = this.getRuntimeStatus().then(async status => {
         this.assertNamespace(snapshot);
         if (status?.releasesAvailable !== true || (status.releaseNamespace && status.releaseNamespace !== namespaceName)) return false;
-        return supportsReleaseTools(await this.listMCPTools());
+        return supportsReleaseTools(await this.listReleaseTools());
       }).catch(() => false);
       this.releaseToolAvailability = {key,promise};
     }

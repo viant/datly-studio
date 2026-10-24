@@ -16,6 +16,7 @@ import (
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
 	rhandler "github.com/viant/datly/runtime/handler"
 	"github.com/viant/datly/runtime/handler/custom"
+	identity "github.com/viant/forge/backend/resource"
 	"github.com/viant/mcp-protocol/schema"
 	"github.com/viant/scy/auth/jwt"
 	"github.com/viant/xdatly"
@@ -144,7 +145,11 @@ func selectedToolNamespace(ctx context.Context, session xhandler.Session, claims
 		}
 		return id, nil
 	}
-	if !namespacevalidation.ValidName(name) {
+	// Managed AI Studio namespaces use the same canonical resource identity as
+	// their published artifacts and may contain hyphens. This is only a name
+	// selector: directoryPage still resolves exactly one namespace visible to
+	// the verified caller before returning its persisted ID.
+	if !namespacevalidation.ValidName(name) && !(identity.ResourceURI{Kind: "window", Namespace: name, Name: "validate"}).Valid() {
 		return "", fail(400, "canonical namespaceId or namespace name is required")
 	}
 	rows, err := directoryPage(ctx, session, claims, auth, "", name, "", false, 2, 0)

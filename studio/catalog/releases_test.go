@@ -51,7 +51,7 @@ func (i releaseTestInvoker) InvokeComponent(_ context.Context, request exec.Comp
 		return nil, i.err
 	}
 	input, ok := request.Input.(*stored.Input)
-	if !ok || input.NamespaceId == "" || request.Target.Route.Path != "/_studio/namespace-store/read" {
+	if !ok || input.NamespaceId == "" && input.Name == "" || request.Target.Route.Path != "/_studio/namespace-store/read" {
 		return nil, errors.New("release namespace lookup did not use the scoped reader")
 	}
 	return &stored.Output{Namespaces: i.rows}, nil
@@ -124,6 +124,23 @@ func TestNativeReleaseResolverRequiresVisibleMatchingNamespace(t *testing.T) {
 	if err := runReleaseList(ctx, session, input, new(ReleaseListOutput)); err != nil || resolved != namespaceID || manager.namespace != "demo" || manager.bearer != "verified-test" {
 		t.Fatalf("visible selected namespace was not routed with the verified bearer: %v id=%q name=%q bearerPresent=%t", err, resolved, manager.namespace, manager.bearer != "")
 	}
+	// The MCP transport may omit the optional X-Studio-Namespace header. A
+	// managed namespace with a hyphen remains selectable by its exact name,
+	// subject to the same persisted visibility and unique-ID check.
+	resolved = ""
+	input.NamespaceID = ""
+	input.Request.Namespace = "ui-release"
+	session.binder = releaseTestBinder{invoker: releaseTestInvoker{rows: []*stored.StoredNamespace{{NamespaceId: namespaceID, Name: "ui-release"}}}}
+	if err := runReleaseList(ctx, session, input, new(ReleaseListOutput)); err != nil || resolved != namespaceID || manager.namespace != "ui-release" {
+		t.Fatalf("visible managed namespace name was not resolved: %v id=%q name=%q", err, resolved, manager.namespace)
+	}
+	resolved = ""
+	session.binder = releaseTestBinder{invoker: releaseTestInvoker{rows: []*stored.StoredNamespace{{NamespaceId: namespaceID, Name: "ui-release"}, {NamespaceId: "f" + namespaceID[1:], Name: "ui-release"}}}}
+	if err := runReleaseList(ctx, session, input, new(ReleaseListOutput)); err == nil || resolved != "" {
+		t.Fatalf("ambiguous managed namespace name reached release controller: %v id=%q", err, resolved)
+	}
+	input.NamespaceID = namespaceID
+	input.Request.Namespace = "demo"
 	resolved = ""
 	session.binder = releaseTestBinder{invoker: releaseTestInvoker{rows: []*stored.StoredNamespace{{NamespaceId: namespaceID, Name: "other"}}}}
 	if err := runReleaseList(ctx, session, input, new(ReleaseListOutput)); err == nil || resolved != "" {
