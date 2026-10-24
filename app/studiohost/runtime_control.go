@@ -13,6 +13,7 @@ import (
 	runtimehost "github.com/viant/datly-studio/runtime/host"
 	"github.com/viant/datly-studio/runtime/namespacemcp"
 	"github.com/viant/datly-studio/sdk"
+	dexec "github.com/viant/datly/exec"
 )
 
 // Process-owned callbacks share the namespace manager with authoring. Nothing
@@ -27,7 +28,7 @@ func inProcessControl(group *atomic.Pointer[runtimehost.NamespaceGroup]) *runtim
 		}
 		return current, id, nil
 	}
-	return runtimeadmin.NewInProcess(func(ctx context.Context, generation int64) error {
+	return runtimeadmin.NewInProcessWithCache(func(ctx context.Context, generation int64) error {
 		current, id, err := selected(ctx)
 		if err != nil {
 			return err
@@ -62,5 +63,11 @@ func inProcessControl(group *atomic.Pointer[runtimehost.NamespaceGroup]) *runtim
 			return nil, err
 		}
 		return current.Listeners.Connection(ctx, id)
+	}, func(ctx context.Context, reportID string, version int, routePath, view string) ([]dexec.CacheInvalidation, error) {
+		current, id, err := selected(ctx)
+		if err != nil {
+			return nil, err
+		}
+		return current.Listeners.InvalidatePublishedCacheView(ctx, id, reportID, version, routePath, view)
 	})
 }

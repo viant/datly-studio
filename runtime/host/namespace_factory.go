@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/viant/datly-studio/runtime/namespacemcp"
+	dexec "github.com/viant/datly/exec"
 	mcpserver "github.com/viant/datly/mcp/server"
 	"github.com/viant/mcp-protocol/schema"
 )
@@ -106,4 +107,8 @@ func (s *namespaceRuntimeSource) RuntimeConnection(ctx context.Context) (json.Ra
 		return nil, err
 	}
 	return json.RawMessage(data), nil
+}
+
+func (s *namespaceRuntimeSource) InvalidatePublishedCacheView(ctx context.Context, reportID string, version int, routePath, view string) ([]dexec.CacheInvalidation, error) {
+	return s.runtime.InvalidatePublishedCacheView(ctx, reportID, version, routePath, view)
 }

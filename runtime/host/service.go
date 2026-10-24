@@ -545,9 +545,15 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 			return originalCatalog(ctx, uri, action)
 		}
 	}
+	cacheAdmin := func(ctx context.Context, _ *http.Request, target dexec.ComponentTarget) error {
+		return authorizeCacheAdministration(ctx, target, reportByComponent, versionByReport)
+	}
 	httpConfig := gateway.Config{Warmup: &gateway.WarmupConfig{Timeout: 30 * time.Second, Authorize: func(context.Context, *http.Request, dexec.ComponentTarget) error {
 		return errors.New("dynamic warmup administration is available through the Studio SDK")
-	}, Completed: func(gateway.WarmupResult, error) {}}, Authorize: func(ctx context.Context, _ *http.Request, target dexec.ComponentTarget) error {
+	}, Completed: func(gateway.WarmupResult, error) {}}, CacheInvalidation: &gateway.CacheInvalidationConfig{Timeout: 5 * time.Second, Authorize: cacheAdmin}, Authorize: func(ctx context.Context, request *http.Request, target dexec.ComponentTarget) error {
+		if request.URL.Path == gateway.DefaultCacheInvalidateURI || strings.HasPrefix(request.URL.Path, gateway.DefaultCacheInvalidateURI+"/") {
+			return cacheAdmin(ctx, request, target)
+		}
 		return authorizeTarget(ctx, target)
 	}}
 	registrations, err = s.config.MCPToolNames.registrations(registrations)
@@ -747,6 +753,7 @@ func (s *Service) Start(ctx context.Context) error {
 	routes := http.NewServeMux()
 	routes.HandleFunc("/_studio/reload", s.reloadHTTP)
 	routes.HandleFunc("/_studio/status", s.statusHTTP)
+	routes.HandleFunc("/_studio/cache/invalidate", s.cacheInvalidateHTTP)
 	routes.Handle("/", browserHTTPCORS(s.config.HTTP.CORS, s.authenticated(s.manager)))
 	httpServer := hardenedHTTPServer(s.config.HTTP.Address, routes)
 	protocol, err := mcpserver.New(mcpserver.Config{Source: s.manager, Implementation: schema.Implementation{Name: "datly-studio-dynamic", Version: "1"}, Transport: mcpserver.TransportConfig{Kind: mcpserver.TransportStreamable, Address: s.config.MCP.Address, CORS: s.config.MCP.CORS}})

@@ -76,6 +76,10 @@ type WarmupExecutor interface {
 	Warmup(context.Context, string, int) (*sdk.WarmupResult, error)
 }
 
+type CacheViewInvalidator interface {
+	InvalidatePublishedCacheView(context.Context, string, int, string, string) ([]dexec.CacheInvalidation, error)
+}
+
 type VersionValidator interface {
 	Validate(context.Context, string, int) error
 }
@@ -146,11 +150,11 @@ type CandidateContractInspector interface {
 type Transport struct {
 	// ReleaseNamespace is a trusted startup capability. Empty hides native
 	// releases regardless of static tool annotations.
-	ReleaseNamespace  string
+	ReleaseNamespace           string
 	ReleaseManagementAvailable bool
-	RuntimeTypes      *typecatalog.Catalog
-	ContractInspector ContractInspector
-	DB                *sql.DB
+	RuntimeTypes               *typecatalog.Catalog
+	ContractInspector          ContractInspector
+	DB                         *sql.DB
 	// ComponentInvoker runs linked reader/writer components in the caller's
 	// Datly database unit. Native mutations must use it instead of opening a
 	// second transaction and compiling a separate child runtime.
@@ -161,6 +165,7 @@ type Transport struct {
 	RelationTester           RelationTester
 	ComposeTester            CubeComposeTester
 	Warmup                   WarmupExecutor
+	CacheInvalidator         CacheViewInvalidator
 	Validator                VersionValidator
 	Activator                RuntimeActivator
 	RuntimeProbe             RuntimeHostProbe
@@ -280,6 +285,8 @@ func (t *Transport) Invoke(ctx context.Context, operation string, input, output 
 		return t.testVersionCompose(ctx, input, output)
 	case sdk.OperationVersionWarmup:
 		return t.warmupVersion(ctx, input, output)
+	case sdk.OperationVersionInvalidateCache:
+		return t.invalidateVersionCache(ctx, input, output)
 	case sdk.OperationVersionWarmupGet:
 		return t.getWarmupRun(ctx, input, output)
 	case sdk.OperationVersionWarmupList:
@@ -436,7 +443,7 @@ func (t *Transport) authorize(ctx context.Context, operation string, input any) 
 	case sdk.OperationACLUpsert, sdk.OperationACLDelete,
 		sdk.OperationAuthorizationPredicateCreate, sdk.OperationAuthorizationPredicateGet, sdk.OperationAuthorizationPredicateList, sdk.OperationAuthorizationPredicateUpdate, sdk.OperationAuthorizationPredicateDelete, sdk.OperationAuthorizationPredicateTypes:
 		permission = "publish"
-	case sdk.OperationPublicationPublish, sdk.OperationPublicationRemove, sdk.OperationPublicationRollback, sdk.OperationPublicationEventsList, sdk.OperationRuntimeStatus, sdk.OperationVersionWarmup, sdk.OperationVersionWarmupGet, sdk.OperationVersionWarmupList:
+	case sdk.OperationPublicationPublish, sdk.OperationPublicationRemove, sdk.OperationPublicationRollback, sdk.OperationPublicationEventsList, sdk.OperationRuntimeStatus, sdk.OperationVersionWarmup, sdk.OperationVersionWarmupGet, sdk.OperationVersionWarmupList, sdk.OperationVersionInvalidateCache:
 		permission = "publish"
 	}
 	// resolveNamespace has already verified the selected namespace's visibility.
@@ -1854,6 +1861,34 @@ func (t *Transport) warmupVersion(ctx context.Context, input, output any) error 
 		return invalid(errors.New("reportId and versionNo are required"))
 	}
 	return t.startWarmupRun(ctx, in, output)
+}
+
+func (t *Transport) invalidateVersionCache(ctx context.Context, input, output any) error {
+	if t.CacheInvalidator == nil {
+		return &sdk.Error{Code: sdk.ErrorUnavailable, Message: "published cache administration is not configured"}
+	}
+	var in struct {
+		versionIdentityRequest
+		RoutePath string `json:"routePath"`
+		View      string `json:"view"`
+	}
+	if err := decode(input, &in); err != nil {
+		return invalid(err)
+	}
+	if strings.TrimSpace(in.ReportID) == "" || in.VersionNo < 1 || strings.TrimSpace(in.RoutePath) == "" || strings.TrimSpace(in.View) == "" {
+		return invalid(errors.New("reportId, versionNo, routePath, and view are required"))
+	}
+	if _, err := t.getVersionValue(ctx, in.ReportID, in.VersionNo); err != nil {
+		return err
+	}
+	items, err := t.CacheInvalidator.InvalidatePublishedCacheView(ctx, in.ReportID, in.VersionNo, in.RoutePath, in.View)
+	if err != nil {
+		return internal(err)
+	}
+	if len(items) != 1 || items[0].View != in.View || items[0].Scope != "all" || items[0].Generation == "" || items[0].Error != "" {
+		return internal(errors.New("published cache invalidation returned no exact view generation"))
+	}
+	return assign(output, &sdk.CacheViewInvalidation{ReportID: in.ReportID, VersionNo: in.VersionNo, View: in.View, Generation: items[0].Generation})
 }
 
 func (t *Transport) runReaderBuilder(ctx context.Context, reportID string, version *sdk.ReportVersion, operation readerbuilder.Operation) (*readerbuilder.Response, error) {

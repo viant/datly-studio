@@ -278,6 +278,8 @@ func outputFor(operation string) (any, bool) {
 		return new(sdk.CubeComposeTestResult), true
 	case sdk.OperationVersionWarmup:
 		return new(sdk.WarmupResult), true
+	case sdk.OperationVersionInvalidateCache:
+		return new(sdk.CacheViewInvalidation), true
 	case sdk.OperationVersionWarmupGet:
 		return new(sdk.WarmupRun), true
 	case sdk.OperationVersionWarmupList:

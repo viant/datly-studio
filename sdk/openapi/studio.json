@@ -3527,6 +3527,12 @@
             },
             "nullable": true
           },
+          "releaseNamespace": {
+            "type": "string"
+          },
+          "releasesAvailable": {
+            "type": "boolean"
+          },
           "reportCount": {
             "type": "integer",
             "format": "int64"
@@ -16724,6 +16730,84 @@
             "BearerJWT": []
           }
         ]
+      }
+    },
+    "/v1/studio/sdk/versions.invalidate_cache": {
+      "post": {
+        "summary": "Invalidate one published reader cache view",
+        "operationId": "POSTv1studiosdkversionsInvalidateCache",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reportId": {
+                    "type": "string"
+                  },
+                  "routePath": {
+                    "type": "string"
+                  },
+                  "versionNo": {
+                    "type": "integer"
+                  },
+                  "view": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "reportId",
+                  "versionNo",
+                  "routePath",
+                  "view"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Exact cache view generation advanced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "generation": {
+                      "type": "string"
+                    },
+                    "reportId": {
+                      "type": "string"
+                    },
+                    "versionNo": {
+                      "type": "integer"
+                    },
+                    "view": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reportId",
+                    "versionNo",
+                    "view",
+                    "generation"
+                  ]
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/v1/studio/sdk/versions.list": {

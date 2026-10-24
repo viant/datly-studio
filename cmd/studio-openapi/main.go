@@ -965,6 +965,14 @@ func run(ctx context.Context, output string) error {
 	if err != nil {
 		return err
 	}
+	// Cache invalidation is an HTTP-only SDK control operation. Its selected
+	// namespace and publisher permission are checked by the SDK transport; no
+	// Datly business component or MCP data tool is advertised for it.
+	var cacheInvalidate openapi3.PathItem
+	if err = json.Unmarshal([]byte(`{"post":{"operationId":"POSTv1studiosdkversionsInvalidateCache","summary":"Invalidate one published reader cache view","parameters":[{"name":"X-Studio-Namespace","in":"header","required":true,"schema":{"type":"string"}}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","required":["reportId","versionNo","routePath","view"],"properties":{"reportId":{"type":"string"},"versionNo":{"type":"integer"},"routePath":{"type":"string"},"view":{"type":"string"}}}}}},"responses":{"200":{"description":"Exact cache view generation advanced","content":{"application/json":{"schema":{"type":"object","required":["reportId","versionNo","view","generation"],"properties":{"reportId":{"type":"string"},"versionNo":{"type":"integer"},"view":{"type":"string"},"generation":{"type":"string"}}}}}}}}}`), &cacheInvalidate); err != nil {
+		return err
+	}
+	document.Paths["/v1/studio/sdk/versions.invalidate_cache"] = &cacheInvalidate
 	aclDeleteRoute := document.Paths["/v1/studio/sdk/acl.delete"]
 	if aclDeleteRoute == nil || aclDeleteRoute.Post == nil {
 		return fmt.Errorf("native acl.delete OpenAPI route is missing")

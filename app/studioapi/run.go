@@ -97,6 +97,7 @@ var nativeSDKPaths = []string{
 	"/v1/studio/sdk/versions.test_relation",
 	"/v1/studio/sdk/versions.test_compose",
 	"/v1/studio/sdk/versions.warmup",
+	"/v1/studio/sdk/versions.invalidate_cache",
 	"/v1/studio/sdk/connectors.activate",
 	"/v1/studio/sdk/connectors.delete",
 	"/v1/studio/sdk/connectors.disable",
@@ -393,6 +394,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) (result
 			return err
 		}
 	}
+	cacheInvalidator, _ := runtimeAdmin.(sqltransport.CacheViewInvalidator)
 
 	authorizer, err := authorization.NewSDKAuthorizer(db)
 	if err != nil {
@@ -406,7 +408,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) (result
 			log.Printf("Studio authorizer reader close: %v", err)
 		}
 	}()
-	transport := &sqltransport.Transport{DB: db, Authorizer: authorizer, ReleaseNamespace: options.ReleaseNamespace, ReleaseManagementAvailable: options.ReleaseManagementAvailable, Predicates: predicates, Probe: connectivity.SQLProbe{Const: options.Const}, Catalog: connectivity.SQLCatalog{Const: options.Const}, SQLTester: dynamicPreview, Preview: dynamicPreview, ViewTester: dynamicPreview, RelationTester: dynamicPreview, ComposeTester: dynamicPreview, Warmup: dynamicPreview, Validator: dynamicPreview, ContractInspector: dynamicPreview, Activator: runtimeAdmin, RuntimeProbe: runtimeAdmin}
+	transport := &sqltransport.Transport{DB: db, Authorizer: authorizer, ReleaseNamespace: options.ReleaseNamespace, ReleaseManagementAvailable: options.ReleaseManagementAvailable, Predicates: predicates, Probe: connectivity.SQLProbe{Const: options.Const}, Catalog: connectivity.SQLCatalog{Const: options.Const}, SQLTester: dynamicPreview, Preview: dynamicPreview, ViewTester: dynamicPreview, RelationTester: dynamicPreview, ComposeTester: dynamicPreview, Warmup: dynamicPreview, CacheInvalidator: cacheInvalidator, Validator: dynamicPreview, ContractInspector: dynamicPreview, Activator: runtimeAdmin, RuntimeProbe: runtimeAdmin}
 	defer func() {
 		closeCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()

@@ -1359,13 +1359,15 @@ type OutputA81d693fd6e1ff78672b05458a01513d11113731358ae9bfeaca4fd73d9c722c stru
 
 // OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688 defines model for Output_ad75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688.
 type OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688 struct {
-	ActivatedAt      *time.Time                                                                   `json:"activatedAt,omitempty"`
-	ActiveGeneration int64                                                                        `json:"activeGeneration"`
-	Diagnostics      *[]Output4fd42d5ac7e58fb29e7ad717b49ad43d1aa3d0a32c5e034148c82bc6baebd5a8    `json:"diagnostics,omitempty"`
-	Host             *OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688_Host `json:"host,omitempty"`
-	Readers          *[]Output4cf988a4800a68fa7db9d130c60eed0b35369d4c3fc9465e70d61b648bd34b6d    `json:"readers,omitempty"`
-	ReportCount      int64                                                                        `json:"reportCount"`
-	Status           string                                                                       `json:"status"`
+	ActivatedAt       *time.Time                                                                   `json:"activatedAt,omitempty"`
+	ActiveGeneration  int64                                                                        `json:"activeGeneration"`
+	Diagnostics       *[]Output4fd42d5ac7e58fb29e7ad717b49ad43d1aa3d0a32c5e034148c82bc6baebd5a8    `json:"diagnostics,omitempty"`
+	Host              *OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688_Host `json:"host,omitempty"`
+	Readers           *[]Output4cf988a4800a68fa7db9d130c60eed0b35369d4c3fc9465e70d61b648bd34b6d    `json:"readers,omitempty"`
+	ReleaseNamespace  *string                                                                      `json:"releaseNamespace,omitempty"`
+	ReleasesAvailable *bool                                                                        `json:"releasesAvailable,omitempty"`
+	ReportCount       int64                                                                        `json:"reportCount"`
+	Status            string                                                                       `json:"status"`
 }
 
 // OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688Host1 defines model for OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688.Host.1.
@@ -5383,6 +5385,19 @@ type POSTv1studiosdkversionsInspectParams struct {
 	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
+// POSTv1studiosdkversionsInvalidateCacheJSONBody defines parameters for POSTv1studiosdkversionsInvalidateCache.
+type POSTv1studiosdkversionsInvalidateCacheJSONBody struct {
+	ReportId  string `json:"reportId"`
+	RoutePath string `json:"routePath"`
+	VersionNo int    `json:"versionNo"`
+	View      string `json:"view"`
+}
+
+// POSTv1studiosdkversionsInvalidateCacheParams defines parameters for POSTv1studiosdkversionsInvalidateCache.
+type POSTv1studiosdkversionsInvalidateCacheParams struct {
+	XStudioNamespace string `json:"X-Studio-Namespace"`
+}
+
 // POSTv1studiosdkversionsListJSONBody defines parameters for POSTv1studiosdkversionsList.
 type POSTv1studiosdkversionsListJSONBody struct {
 	Input    *Input2d7353179486a6080c97a342425fc1796b1a0e525ea43989e78b586465c68fb6 `json:"input,omitempty"`
@@ -5723,6 +5738,9 @@ type POSTv1studiosdkversionsGetJSONRequestBody POSTv1studiosdkversionsGetJSONBod
 
 // POSTv1studiosdkversionsInspectJSONRequestBody defines body for POSTv1studiosdkversionsInspect for application/json ContentType.
 type POSTv1studiosdkversionsInspectJSONRequestBody POSTv1studiosdkversionsInspectJSONBody
+
+// POSTv1studiosdkversionsInvalidateCacheJSONRequestBody defines body for POSTv1studiosdkversionsInvalidateCache for application/json ContentType.
+type POSTv1studiosdkversionsInvalidateCacheJSONRequestBody POSTv1studiosdkversionsInvalidateCacheJSONBody
 
 // POSTv1studiosdkversionsListJSONRequestBody defines body for POSTv1studiosdkversionsList for application/json ContentType.
 type POSTv1studiosdkversionsListJSONRequestBody POSTv1studiosdkversionsListJSONBody
@@ -13891,6 +13909,20 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	POSTv1studiosdkversionsInspect(ctx context.Context, params *POSTv1studiosdkversionsInspectParams, body POSTv1studiosdkversionsInspectJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// POSTv1studiosdkversionsInvalidateCacheWithBody Invalidate one published reader cache view
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /v1/studio/sdk/versions.invalidate_cache (the `POSTv1studiosdkversionsInvalidateCache` operationId).
+	POSTv1studiosdkversionsInvalidateCacheWithBody(ctx context.Context, params *POSTv1studiosdkversionsInvalidateCacheParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsInvalidateCache Invalidate one published reader cache view
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /v1/studio/sdk/versions.invalidate_cache (the `POSTv1studiosdkversionsInvalidateCache` operationId).
+	POSTv1studiosdkversionsInvalidateCache(ctx context.Context, params *POSTv1studiosdkversionsInvalidateCacheParams, body POSTv1studiosdkversionsInvalidateCacheJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// POSTv1studiosdkversionsListWithBody version
 	//
 	// Takes any type of body and a specified content type.
@@ -16169,6 +16201,40 @@ func (c *Client) POSTv1studiosdkversionsInspectWithBody(ctx context.Context, par
 // Takes a body of the `application/json` content type.
 func (c *Client) POSTv1studiosdkversionsInspect(ctx context.Context, params *POSTv1studiosdkversionsInspectParams, body POSTv1studiosdkversionsInspectJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPOSTv1studiosdkversionsInspectRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsInvalidateCacheWithBody Invalidate one published reader cache view
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /v1/studio/sdk/versions.invalidate_cache (the `POSTv1studiosdkversionsInvalidateCache` operationId).
+func (c *Client) POSTv1studiosdkversionsInvalidateCacheWithBody(ctx context.Context, params *POSTv1studiosdkversionsInvalidateCacheParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsInvalidateCacheRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsInvalidateCache Invalidate one published reader cache view
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /v1/studio/sdk/versions.invalidate_cache (the `POSTv1studiosdkversionsInvalidateCache` operationId).
+func (c *Client) POSTv1studiosdkversionsInvalidateCache(ctx context.Context, params *POSTv1studiosdkversionsInvalidateCacheParams, body POSTv1studiosdkversionsInvalidateCacheJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsInvalidateCacheRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -20313,6 +20379,59 @@ func NewPOSTv1studiosdkversionsInspectRequestWithBody(server string, params *POS
 	return req, nil
 }
 
+// NewPOSTv1studiosdkversionsInvalidateCacheRequest calls the generic POSTv1studiosdkversionsInvalidateCache builder with application/json body
+func NewPOSTv1studiosdkversionsInvalidateCacheRequest(server string, params *POSTv1studiosdkversionsInvalidateCacheParams, body POSTv1studiosdkversionsInvalidateCacheJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsInvalidateCacheRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsInvalidateCacheRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsInvalidateCache method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsInvalidateCacheRequestWithBody(server string, params *POSTv1studiosdkversionsInvalidateCacheParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.invalidate_cache")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Studio-Namespace", headerParam0)
+
+	}
+
+	return req, nil
+}
+
 // NewPOSTv1studiosdkversionsListRequest calls the generic POSTv1studiosdkversionsList builder with application/json body
 func NewPOSTv1studiosdkversionsListRequest(server string, params *POSTv1studiosdkversionsListParams, body POSTv1studiosdkversionsListJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -21717,6 +21836,20 @@ type ClientWithResponsesInterface interface {
 	// POSTv1studiosdkversionsInspectWithResponse performs a POST /v1/studio/sdk/versions.inspect (the `POSTv1studiosdkversionsInspect` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	POSTv1studiosdkversionsInspectWithResponse(ctx context.Context, params *POSTv1studiosdkversionsInspectParams, body POSTv1studiosdkversionsInspectJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsInspectResponse, error)
+
+	// POSTv1studiosdkversionsInvalidateCacheWithBodyWithResponse Invalidate one published reader cache view
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /v1/studio/sdk/versions.invalidate_cache (the `POSTv1studiosdkversionsInvalidateCache` operationId).
+	POSTv1studiosdkversionsInvalidateCacheWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsInvalidateCacheParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsInvalidateCacheResponse, error)
+
+	// POSTv1studiosdkversionsInvalidateCacheWithResponse Invalidate one published reader cache view
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /v1/studio/sdk/versions.invalidate_cache (the `POSTv1studiosdkversionsInvalidateCache` operationId).
+	POSTv1studiosdkversionsInvalidateCacheWithResponse(ctx context.Context, params *POSTv1studiosdkversionsInvalidateCacheParams, body POSTv1studiosdkversionsInvalidateCacheJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsInvalidateCacheResponse, error)
 
 	// POSTv1studiosdkversionsListWithBodyWithResponse version
 	//
@@ -24956,6 +25089,57 @@ func (r POSTv1studiosdkversionsInspectResponse) ContentType() string {
 	return ""
 }
 
+type POSTv1studiosdkversionsInvalidateCacheResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *struct {
+		Generation string `json:"generation"`
+		ReportId   string `json:"reportId"`
+		VersionNo  int    `json:"versionNo"`
+		View       string `json:"view"`
+	}
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsInvalidateCacheResponse) GetJSON200() *struct {
+	Generation string `json:"generation"`
+	ReportId   string `json:"reportId"`
+	VersionNo  int    `json:"versionNo"`
+	View       string `json:"view"`
+} {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsInvalidateCacheResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsInvalidateCacheResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsInvalidateCacheResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsInvalidateCacheResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type POSTv1studiosdkversionsListResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -27081,6 +27265,32 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsInspectWithResponse(ctx con
 		return nil, err
 	}
 	return ParsePOSTv1studiosdkversionsInspectResponse(rsp)
+}
+
+// POSTv1studiosdkversionsInvalidateCacheWithBodyWithResponse Invalidate one published reader cache view
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /v1/studio/sdk/versions.invalidate_cache (the `POSTv1studiosdkversionsInvalidateCache` operationId).
+func (c *ClientWithResponses) POSTv1studiosdkversionsInvalidateCacheWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsInvalidateCacheParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsInvalidateCacheResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsInvalidateCacheWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsInvalidateCacheResponse(rsp)
+}
+
+// POSTv1studiosdkversionsInvalidateCacheWithResponse Invalidate one published reader cache view
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /v1/studio/sdk/versions.invalidate_cache (the `POSTv1studiosdkversionsInvalidateCache` operationId).
+func (c *ClientWithResponses) POSTv1studiosdkversionsInvalidateCacheWithResponse(ctx context.Context, params *POSTv1studiosdkversionsInvalidateCacheParams, body POSTv1studiosdkversionsInvalidateCacheJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsInvalidateCacheResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsInvalidateCache(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsInvalidateCacheResponse(rsp)
 }
 
 // POSTv1studiosdkversionsListWithBodyWithResponse version
@@ -29263,6 +29473,37 @@ func ParsePOSTv1studiosdkversionsInspectResponse(rsp *http.Response) (*POSTv1stu
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsInvalidateCacheResponse parses an HTTP response from a POSTv1studiosdkversionsInvalidateCacheWithResponse call
+func ParsePOSTv1studiosdkversionsInvalidateCacheResponse(rsp *http.Response) (*POSTv1studiosdkversionsInvalidateCacheResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsInvalidateCacheResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Generation string `json:"generation"`
+			ReportId   string `json:"reportId"`
+			VersionNo  int    `json:"versionNo"`
+			View       string `json:"view"`
+		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

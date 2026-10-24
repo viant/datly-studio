@@ -15,6 +15,7 @@ import (
 	"sync"
 	"time"
 
+	dexec "github.com/viant/datly/exec"
 	mcpserver "github.com/viant/datly/mcp/server"
 )
 
@@ -54,6 +55,7 @@ type instance struct {
 	reload        func(context.Context, int64) error
 	status        func() (string, int64)
 	connection    func(context.Context) (json.RawMessage, error)
+	invalidate    func(context.Context, string, int, string, string) ([]dexec.CacheInvalidation, error)
 	shared        bool
 	requests      sync.WaitGroup
 	cancel        context.CancelFunc
@@ -262,7 +264,13 @@ func (m *Manager) start(ctx context.Context, id string, port int, replace bool, 
 	}); ok {
 		connection = source.RuntimeConnection
 	}
-	entry := &instance{endpoint: endpoint, requestedPort: port, server: server, done: make(chan struct{}), cleanup: cleanup, reload: reload, status: status, connection: connection, shared: useShared, native: native, drained: make(chan struct{})}
+	var invalidate func(context.Context, string, int, string, string) ([]dexec.CacheInvalidation, error)
+	if source, ok := owner.(interface {
+		InvalidatePublishedCacheView(context.Context, string, int, string, string) ([]dexec.CacheInvalidation, error)
+	}); ok {
+		invalidate = source.InvalidatePublishedCacheView
+	}
+	entry := &instance{endpoint: endpoint, requestedPort: port, server: server, done: make(chan struct{}), cleanup: cleanup, reload: reload, status: status, connection: connection, invalidate: invalidate, shared: useShared, native: native, drained: make(chan struct{})}
 	entry.lifetime, entry.cancel = context.WithCancel(context.Background())
 	err = func() error {
 		m.mu.Lock()
@@ -447,6 +455,29 @@ func (m *Manager) Connection(ctx context.Context, id string) (json.RawMessage, e
 		return nil, fmt.Errorf("namespace connection is unavailable")
 	}
 	return entry.connection(ctx)
+}
+
+// InvalidatePublishedCacheView invokes only the current namespace source's
+// trusted control capability. It never sends an MCP data call or trusts a
+// namespace ID from the source implementation.
+func (m *Manager) InvalidatePublishedCacheView(ctx context.Context, id, reportID string, version int, routePath, view string) ([]dexec.CacheInvalidation, error) {
+	decoded, err := hex.DecodeString(id)
+	if err != nil || len(decoded) != 32 || id != strings.ToLower(id) {
+		return nil, fmt.Errorf("canonical namespace ID is required")
+	}
+	lock := m.operation(id)
+	lock.Lock()
+	defer lock.Unlock()
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	m.mu.Lock()
+	entry, closed := m.entries[id], m.closed
+	m.mu.Unlock()
+	if closed || entry == nil || entry.invalidate == nil || entry.shared && !m.sharedAvailable() {
+		return nil, fmt.Errorf("namespace cache administration is unavailable")
+	}
+	return entry.invalidate(ctx, reportID, version, routePath, view)
 }
 
 // drainAndCleanup prevents source disposal while an embedded request still owns it.

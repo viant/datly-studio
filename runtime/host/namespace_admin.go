@@ -12,6 +12,10 @@ import (
 // Group mode has no unscoped reload operation or public namespace mutation API.
 func (g *NamespaceGroup) AdminHandler(token string) http.Handler {
 	return http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+		if request.URL.Path == "/_studio/cache/invalidate" {
+			g.namespaceCacheInvalidate(response, request, token)
+			return
+		}
 		if request.URL.Path == "/_studio/connection" {
 			g.namespaceConnection(response, request, token)
 			return
@@ -64,6 +68,48 @@ func (g *NamespaceGroup) AdminHandler(token string) http.Handler {
 		response.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(response).Encode(map[string]string{"status": "active", "namespaceId": payload.NamespaceID})
 	})
+}
+
+func (g *NamespaceGroup) namespaceCacheInvalidate(response http.ResponseWriter, request *http.Request, token string) {
+	if request.Method != http.MethodPost {
+		response.Header().Set("Allow", http.MethodPost)
+		http.Error(response, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	values := request.Header.Values("X-Studio-Runtime-Token")
+	if len(values) != 1 || !validAdminToken(token, values[0]) {
+		http.Error(response, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	var payload struct {
+		NamespaceID string `json:"namespaceId"`
+		ReportID    string `json:"reportId"`
+		VersionNo   int    `json:"versionNo"`
+		RoutePath   string `json:"routePath"`
+		View        string `json:"view"`
+	}
+	decoder := json.NewDecoder(http.MaxBytesReader(response, request.Body, 2048))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&payload); err != nil || decoder.Decode(new(any)) != io.EOF || payload.ReportID == "" || payload.VersionNo < 1 || payload.RoutePath == "" || payload.View == "" {
+		http.Error(response, "invalid cache administration request", http.StatusBadRequest)
+		return
+	}
+	decoded, err := hex.DecodeString(payload.NamespaceID)
+	if err != nil || len(decoded) != 32 || payload.NamespaceID != strings.ToLower(payload.NamespaceID) {
+		http.Error(response, "canonical namespace ID is required", http.StatusBadRequest)
+		return
+	}
+	invalidated, err := g.Listeners.InvalidatePublishedCacheView(request.Context(), payload.NamespaceID, payload.ReportID, payload.VersionNo, payload.RoutePath, payload.View)
+	if err != nil {
+		http.Error(response, "exact published cache view is unavailable", http.StatusConflict)
+		return
+	}
+	response.Header().Set("Content-Type", "application/json")
+	response.Header().Set("Cache-Control", "no-store")
+	_ = json.NewEncoder(response).Encode(struct {
+		NamespaceID string `json:"namespaceId"`
+		Invalidated any    `json:"invalidated"`
+	}{payload.NamespaceID, invalidated})
 }
 
 func (g *NamespaceGroup) namespaceStatus(response http.ResponseWriter, request *http.Request, token string) {

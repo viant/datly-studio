@@ -7,22 +7,23 @@ import (
 )
 
 const (
-	OperationVersionCreate       = "versions.create"
-	OperationVersionClone        = "versions.clone"
-	OperationVersionGet          = "versions.get"
-	OperationVersionList         = "versions.list"
-	OperationVersionApply        = "versions.apply"
-	OperationVersionValidate     = "versions.validate"
-	OperationVersionDescriptor   = "versions.descriptor"
-	OperationVersionExportDQL    = "versions.export_dql"
-	OperationVersionInspect      = "versions.inspect"
-	OperationVersionBuilder      = "versions.builder"
-	OperationVersionTestView     = "versions.test_view"
-	OperationVersionTestRelation = "versions.test_relation"
-	OperationVersionTestCompose  = "versions.test_compose"
-	OperationVersionWarmup       = "versions.warmup"
-	OperationVersionWarmupGet    = "versions.warmup_get"
-	OperationVersionWarmupList   = "versions.warmup_list"
+	OperationVersionCreate          = "versions.create"
+	OperationVersionClone           = "versions.clone"
+	OperationVersionGet             = "versions.get"
+	OperationVersionList            = "versions.list"
+	OperationVersionApply           = "versions.apply"
+	OperationVersionValidate        = "versions.validate"
+	OperationVersionDescriptor      = "versions.descriptor"
+	OperationVersionExportDQL       = "versions.export_dql"
+	OperationVersionInspect         = "versions.inspect"
+	OperationVersionBuilder         = "versions.builder"
+	OperationVersionTestView        = "versions.test_view"
+	OperationVersionTestRelation    = "versions.test_relation"
+	OperationVersionTestCompose     = "versions.test_compose"
+	OperationVersionWarmup          = "versions.warmup"
+	OperationVersionWarmupGet       = "versions.warmup_get"
+	OperationVersionWarmupList      = "versions.warmup_list"
+	OperationVersionInvalidateCache = "versions.invalidate_cache"
 )
 
 type ReportVersion struct {
@@ -228,6 +229,15 @@ type WarmupRun struct {
 
 type WarmupResult = WarmupRun
 
+// CacheViewInvalidation is one exact published view generation after an
+// authorized control-plane request; it contains no cached data or SQL.
+type CacheViewInvalidation struct {
+	ReportID   string `json:"reportId"`
+	VersionNo  int    `json:"versionNo"`
+	View       string `json:"view"`
+	Generation string `json:"generation"`
+}
+
 type ListWarmupRunsInput struct {
 	Limit  int `json:"limit,omitempty"`
 	Offset int `json:"offset,omitempty"`
@@ -257,6 +267,7 @@ type VersionService interface {
 	TestRelation(context.Context, string, int, string, ViewTestInput) (*RelationTestResult, error)
 	TestCompose(context.Context, string, int, CubeComposeTestInput) (*CubeComposeTestResult, error)
 	Warmup(context.Context, string, int) (*WarmupResult, error)
+	InvalidateCacheView(context.Context, string, int, string, string) (*CacheViewInvalidation, error)
 	WarmupRun(context.Context, string, string) (*WarmupRun, error)
 	ListWarmupRuns(context.Context, string, int, ListWarmupRunsInput) (*WarmupRunPage, error)
 }
@@ -341,6 +352,14 @@ func (c versionClient) TestCompose(ctx context.Context, id string, v int, input 
 }
 func (c versionClient) Warmup(ctx context.Context, id string, v int) (*WarmupResult, error) {
 	return invoke[WarmupResult](ctx, c.transport, OperationVersionWarmup, versionIdentity{id, v})
+}
+
+func (c versionClient) InvalidateCacheView(ctx context.Context, id string, v int, routePath, view string) (*CacheViewInvalidation, error) {
+	return invoke[CacheViewInvalidation](ctx, c.transport, OperationVersionInvalidateCache, struct {
+		versionIdentity
+		RoutePath string `json:"routePath"`
+		View      string `json:"view"`
+	}{versionIdentity{id, v}, routePath, view})
 }
 
 func (c versionClient) WarmupRun(ctx context.Context, id, runID string) (*WarmupRun, error) {
