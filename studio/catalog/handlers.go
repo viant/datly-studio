@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/viant/authz/oauth"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
+	"github.com/viant/datly-studio/internal/namespacevalidation"
 	"github.com/viant/datly-studio/internal/runtimeadmin"
 	"github.com/viant/datly-studio/sdk"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
@@ -113,6 +114,20 @@ func namespace(row *stored.StoredNamespace) *Namespace {
 // path. Namespace identity avoids collisions between identically named owners.
 func VirtualURI(namespaceID, name string) string {
 	return (&url.URL{Scheme: "mcp", Host: namespaceID, Path: "/" + name}).String()
+}
+
+// LogicalURI keeps an authored namespace's stable MCP reference while the
+// producer resolves its current persisted storage ID for each verified caller.
+// It is an alias to the same connection bytes, never a second endpoint.
+func LogicalURI(name string) string {
+	return (&url.URL{Scheme: "mcp", Host: name, Path: "/" + name}).String()
+}
+func ParseLogicalURI(value string) (string, error) {
+	parsed, err := url.Parse(value)
+	if err != nil || parsed.Scheme != "mcp" || parsed.User != nil || parsed.Opaque != "" || parsed.RawQuery != "" || parsed.ForceQuery || parsed.Fragment != "" || parsed.RawPath != "" || !namespacevalidation.ValidName(parsed.Host) || parsed.Path != "/"+parsed.Host || LogicalURI(parsed.Host) != value {
+		return "", fail(400, "invalid logical MCP resource URI")
+	}
+	return parsed.Host, nil
 }
 func ParseNamespaceURI(value string) (string, error) {
 	id, err := namespaceext.ParseURI(value)
@@ -234,6 +249,7 @@ func runGet(ctx context.Context, session xhandler.Session, input *GetInput, outp
 		}
 		if connectionErr == nil {
 			entries = append(entries, Reference{Kind: "mcp", URI: VirtualURI(row.NamespaceId, row.Name), Name: row.Name, Description: description, MimeType: "application/json"})
+			entries = append(entries, Reference{Kind: "mcp", URI: LogicalURI(row.Name), Name: row.Name, Description: description, MimeType: "application/json"})
 		}
 	}
 	output.Response.Resources, output.Response.NextCursor, err = namespaceext.Paginate(entries, input.Request.Cursor, 32)
@@ -268,10 +284,26 @@ func runResource(ctx context.Context, session xhandler.Session, input *ResourceI
 		}
 	}
 	id, name, err := ParseVirtualURI(input.Request.URI)
-	if err != nil {
-		return err
+	var row *stored.StoredNamespace
+	if err == nil {
+		row, err = visible(ctx, session, input.Jwt, input.Auth, id)
+	} else {
+		name, err = ParseLogicalURI(input.Request.URI)
+		if err != nil {
+			return err
+		}
+		rows, lookupErr := directoryPage(ctx, session, input.Jwt, input.Auth, "", name, "", true, 2, 0)
+		if lookupErr != nil {
+			return lookupErr
+		}
+		if len(rows) == 0 {
+			return fail(404, "namespace MCP resource is unavailable")
+		}
+		if len(rows) != 1 {
+			return fail(409, "namespace MCP resource name is ambiguous")
+		}
+		row = rows[0]
 	}
-	row, err := visible(ctx, session, input.Jwt, input.Auth, id)
 	if err != nil {
 		return err
 	}
