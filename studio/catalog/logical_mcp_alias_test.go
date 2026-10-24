@@ -94,3 +94,18 @@ func TestLogicalMCPAliasUsesVisibleActiveNamespaceAndKeepsOpaqueURI(t *testing.T
 		t.Fatal("disabled MCP namespace returned alias")
 	}
 }
+
+func TestLogicalMCPAliasRejectsNonCanonicalOrLegacyNamespaceNames(t *testing.T) {
+	for _, uri := range []string{
+		"mcp://ar/other", "mcp://ar/ar?x=1", "mcp://user@ar/ar",
+		"mcp://AR/AR", "mcp://ar/%61r", "mcp://ar/ar/../ar",
+		"mcp://ar-name/ar-name", "mcp://123/123",
+	} {
+		if _, err := ParseLogicalURI(uri); err == nil {
+			t.Fatalf("noncanonical logical alias accepted: %q", uri)
+		}
+	}
+	if got, err := ParseLogicalURI("mcp://ar/ar"); err != nil || got != "ar" {
+		t.Fatalf("canonical logical alias: %q %v", got, err)
+	}
+}

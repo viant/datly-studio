@@ -249,7 +249,9 @@ func runGet(ctx context.Context, session xhandler.Session, input *GetInput, outp
 		}
 		if connectionErr == nil {
 			entries = append(entries, Reference{Kind: "mcp", URI: VirtualURI(row.NamespaceId, row.Name), Name: row.Name, Description: description, MimeType: "application/json"})
-			entries = append(entries, Reference{Kind: "mcp", URI: LogicalURI(row.Name), Name: row.Name, Description: description, MimeType: "application/json"})
+			if namespacevalidation.ValidName(row.Name) {
+				entries = append(entries, Reference{Kind: "mcp", URI: LogicalURI(row.Name), Name: row.Name, Description: description, MimeType: "application/json"})
+			}
 		}
 	}
 	output.Response.Resources, output.Response.NextCursor, err = namespaceext.Paginate(entries, input.Request.Cursor, 32)
