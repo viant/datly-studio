@@ -27,7 +27,14 @@ require (
 	golang.org/x/oauth2 v0.36.0
 )
 
-require github.com/nxadm/tail v1.4.11 // indirect
+require (
+	github.com/dolthub/maphash v0.1.0 // indirect
+	github.com/dolthub/swiss v0.2.1 // indirect
+	github.com/mhmtszr/concurrent-swiss-map v1.0.8 // indirect
+	github.com/nxadm/tail v1.4.11 // indirect
+	github.com/viant/bintly v0.2.0 // indirect
+	github.com/viant/scache v0.5.1-0.20241014222741-4367658dff4f // indirect
+)
 
 require (
 	filippo.io/edwards25519 v1.2.0 // indirect
