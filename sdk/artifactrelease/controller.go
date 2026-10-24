@@ -543,11 +543,7 @@ func (c *Controller) Candidates(ctx context.Context, in contract.CandidatesInput
 		return contract.CandidatesOutput{}, err
 	}
 	out := contract.CandidatesOutput{Artifacts: []contract.Candidate{}}
-	var generation uint64
-	if err := c.gate.Read(func() error {
-		generation = c.config.Publisher.Generation()
-		return nil
-	}); err != nil {
+	if err := c.gate.Read(func() error { return nil }); err != nil {
 		return out, err
 	}
 	// The producer callback may read its own release admission index. Never
@@ -560,6 +556,17 @@ func (c *Controller) Candidates(ctx context.Context, in contract.CandidatesInput
 	if err = ctx.Err(); err != nil {
 		return out, err
 	}
+	// Candidate enumeration is producer-owned publication inventory, not a
+	// selection from the active release generation. The callback may overlap an
+	// unrelated channel promotion; keep verified scope without rejecting a
+	// valid read merely because that channel advanced.
+	actual, err := c.config.VerifyScope(ctx)
+	if err != nil {
+		return out, err
+	}
+	if actual != c.config.Scope {
+		return out, contract.ErrInvalid
+	}
 	seen := map[string]bool{}
 	for _, item := range items {
 		if validateRootPartition(item.Root, c.config.Scope.Namespace) != nil || seen[artifactcohort.RootKey(item.Root)] {
@@ -568,12 +575,7 @@ func (c *Controller) Candidates(ctx context.Context, in contract.CandidatesInput
 		seen[artifactcohort.RootKey(item.Root)] = true
 	}
 	sortCandidates(items)
-	if err = c.gate.Read(func() error {
-		if c.config.Publisher.Generation() != generation {
-			return contract.ErrConflict
-		}
-		return nil
-	}); err != nil {
+	if err = c.gate.Read(func() error { return nil }); err != nil {
 		return out, err
 	}
 	out.Artifacts = append(out.Artifacts, items...)

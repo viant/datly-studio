@@ -52,6 +52,8 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 	policyHeadRevision := int64(1)
 	notifications := 0
 	var candidateHook func() error
+	var candidateItems []contract.Candidate
+	verifiedScope := scope
 	rootAvailable := true
 	makeArtifacts := func(refs []artifactcohort.RootRef) []*artifactcohort.Artifact {
 		result := make([]*artifactcohort.Artifact, 0, len(refs))
@@ -66,7 +68,7 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 	}
 	controller, err := sdkrelease.NewController(sdkrelease.ControllerConfig{
 		Scope: scope, ProjectionTenant: "issuer", Store: store, Publisher: publisher,
-		VerifyScope: func(context.Context) (sqlstore.Scope, error) { return scope, nil },
+		VerifyScope: func(context.Context) (sqlstore.Scope, error) { return verifiedScope, nil },
 		Authorize: func(_ context.Context, action string) error {
 			if action == "publish" && !allowPublish {
 				return errors.New("editor revoked")
@@ -78,9 +80,11 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 		},
 		Candidates: func(context.Context) ([]contract.Candidate, error) {
 			if candidateHook != nil {
-				return nil, candidateHook()
+				if err := candidateHook(); err != nil {
+					return nil, err
+				}
 			}
-			return nil, nil
+			return append([]contract.Candidate(nil), candidateItems...), nil
 		},
 		Prepare: func(_ context.Context, refs []artifactcohort.RootRef) ([]*artifactcohort.Artifact, error) {
 			prepared++
@@ -214,6 +218,56 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 	if err != nil || projected.Cohorts[0].Tenant != "issuer" || projected.Policies[0].Resource.Tenant != "issuer" || firstSnapshot.Selections[0].Channel.Key.Tenant != "storage" || firstSnapshot.Selections[0].Dependencies[0].Resource.Tenant != "storage" {
 		t.Fatalf("projection mutated storage authority: %+v %v", projected, err)
 	}
+	t.Run("candidate inventory survives unrelated release generation change", func(t *testing.T) {
+		candidateItems = []contract.Candidate{{Root: root(1)}}
+		before := publisher.Generation()
+		candidateHook = func() error {
+			return controller.Gate().Update(func() error {
+				current, readErr := publisher.Snapshot()
+				if readErr != nil {
+					return readErr
+				}
+				other := current.Cohorts[0]
+				other.Name += "-unrelated"
+				if _, readErr = publisher.ReplaceCatalog(ctx, current.Policies, append(append([]artifactcohort.Cohort(nil), current.Cohorts...), other), current.Generation); readErr != nil {
+					return readErr
+				}
+				updated, readErr := publisher.Snapshot()
+				if readErr != nil {
+					return readErr
+				}
+				_, readErr = publisher.ReplaceCatalog(ctx, current.Policies, current.Cohorts, updated.Generation)
+				return readErr
+			})
+		}
+		defer func() { candidateHook, candidateItems = nil, nil }()
+		found, readErr := controller.Candidates(ctx, contract.CandidatesInput{Namespace: "demo"})
+		if readErr != nil || len(found.Artifacts) != 1 || found.Artifacts[0].Root != root(1) || publisher.Generation() <= before {
+			t.Fatalf("unrelated channel generation rejected stable published candidate: %+v %v", found, readErr)
+		}
+	})
+	t.Run("candidate callback failure and changed verified scope fail closed", func(t *testing.T) {
+		candidateItems = []contract.Candidate{{Root: root(1)}}
+		defer func() { candidateHook, candidateItems, verifiedScope = nil, nil, scope }()
+		unavailable := errors.New("producer inventory unavailable")
+		candidateHook = func() error { return unavailable }
+		if found, readErr := controller.Candidates(ctx, contract.CandidatesInput{Namespace: "demo"}); !errors.Is(readErr, unavailable) || len(found.Artifacts) != 0 {
+			t.Fatalf("producer callback error was hidden: %+v %v", found, readErr)
+		}
+		candidateHook = func() error {
+			verifiedScope.Account = "other-account"
+			return nil
+		}
+		if found, readErr := controller.Candidates(ctx, contract.CandidatesInput{Namespace: "demo"}); !errors.Is(readErr, contract.ErrInvalid) || len(found.Artifacts) != 0 {
+			t.Fatalf("changed verified scope released candidate metadata: %+v %v", found, readErr)
+		}
+		verifiedScope = scope
+		callCtx, cancel := context.WithCancel(ctx)
+		candidateHook = func() error { cancel(); return nil }
+		if found, readErr := controller.Candidates(callCtx, contract.CandidatesInput{Namespace: "demo"}); !errors.Is(readErr, context.Canceled) || len(found.Artifacts) != 0 {
+			t.Fatalf("cancelled callback released candidate metadata: %+v %v", found, readErr)
+		}
+	})
 	operator := context.WithValue(ctx, audienceRoleKey{}, "operator")
 	if _, err = controller.AdmitRoot(ctx, root(1)); err == nil {
 		t.Fatal("unassigned actor admitted")
