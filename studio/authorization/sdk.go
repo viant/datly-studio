@@ -17,7 +17,10 @@ import (
 // SDKAuthorizer applies Studio ownership and report ACL rules to the public
 // SDK transport. Construct it with NewSDKAuthorizer for a reusable reader.
 type SDKAuthorizer struct {
-	DB                 *sql.DB
+	DB *sql.DB
+	// ReleaseUse is an optional trusted cross-process exact component grant.
+	// It applies only to view/run; edit, publish and authored DQL stay on ACL.
+	ReleaseUse         func(context.Context, sqltransport.AuthorizationRequest) (bool, error)
 	ReportCapabilities *reportcapability.Reader
 	NamespaceAccess    *namespaceaccess.Reader
 	ConnectorAccess    *connectoraccess.Reader
@@ -67,7 +70,25 @@ func (a SDKAuthorizer) Authorize(ctx context.Context, request sqltransport.Autho
 		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "cannot create another principal's resource"}
 	}
 	if request.ReportID != "" {
-		return a.report(ctx, principal.Subject, request.ReportID, request.Permission)
+		err := a.report(ctx, principal.Subject, request.ReportID, request.Permission)
+		if err == nil {
+			return nil
+		}
+		if a.ReleaseUse != nil && (request.Permission == "view" || request.Permission == "run") {
+			var active int
+			if checkErr := a.DB.QueryRowContext(ctx, `SELECT COUNT(*) FROM components WHERE id=? AND status='active' AND deleted_at IS NULL`, request.ReportID).Scan(&active); checkErr != nil || active != 1 {
+				return err
+			}
+			allowed, releaseErr := a.ReleaseUse(ctx, request)
+			if releaseErr != nil {
+				return releaseErr
+			}
+			if allowed {
+				sqltransport.MarkReleaseUse(ctx)
+				return nil
+			}
+		}
+		return err
 	}
 	if request.ConnectorName != "" {
 		return a.connector(ctx, principal.Subject, request.ConnectorName, request.Permission)

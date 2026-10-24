@@ -193,6 +193,10 @@ type Options struct {
 	SchemaVerifier        func(context.Context, *sql.DB) error
 	AccessProviderFactory accessprovider.ProviderFactory
 	AccessProviderConfig  *accessprovider.Config
+	// ReleaseUse is injected by a trusted host after binding a verified account
+	// scope and exact published component companion index. Browser payloads
+	// cannot configure it.
+	ReleaseUse func(context.Context, sqltransport.AuthorizationRequest) (bool, error)
 	// Modules adds process-owned, independently authenticated extension APIs.
 	// Embedders supply credential protection and business authorization in each
 	// handler. Modules never inherit development identities or browser facts.
@@ -392,6 +396,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) error {
 	if err != nil {
 		return err
 	}
+	authorizer.ReleaseUse = options.ReleaseUse
 	defer func() {
 		closeCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()

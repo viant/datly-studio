@@ -11,6 +11,7 @@ import (
 	"reflect"
 
 	"github.com/viant/authz/oauth"
+	sdkrelease "github.com/viant/datly-studio/sdk/artifactrelease"
 	forgeservice "github.com/viant/forge/backend/provider"
 	forgehandler "github.com/viant/forge/backend/provider/mcp"
 	"github.com/viant/jsonrpc/transport"
@@ -24,6 +25,19 @@ func (s *Service) forgeProviderHTTP(ctx context.Context) (http.Handler, error) {
 	provider := s.config.ForgeProvider
 	if provider == nil || provider.Host == nil || provider.Authority == nil {
 		return nil, fmt.Errorf("Forge provider requires a host and invocation authority")
+	}
+	if s.config.ReleaseManagement != nil {
+		controller, ok := s.config.ReleaseManagement.(*sdkrelease.Controller)
+		catalog, sourceOK := s.config.ArtifactCohorts.(*PublishedArtifactCatalog)
+		if !ok || controller == nil || !sourceOK || catalog == nil || catalog.Publisher != controller.Publisher() {
+			return nil, fmt.Errorf("release management requires the matching trusted catalog controller")
+		}
+		if err := catalog.BindReleaseGate(controller.Gate()); err != nil {
+			return nil, err
+		}
+		if err := controller.Recover(ctx); err != nil {
+			return nil, fmt.Errorf("reconcile release channels: %w", err)
+		}
 	}
 	legacy := forgehandler.NewProviderHandler(forgeservice.NewService(&forgeservice.Config{PrimitiveProvider: provider, UseData: true}))
 	protocol, err := mcpserver.New(mcpserver.WithOnSessionClose(func(notifier transport.Notifier) {
@@ -40,7 +54,7 @@ func (s *Service) forgeProviderHTTP(ctx context.Context) (http.Handler, error) {
 		}
 		var cohort *artifactCohortHandler
 		if s.config.ArtifactCohorts != nil {
-			cohort = &artifactCohortHandler{notifier: notifier}
+			cohort = &artifactCohortHandler{notifier: notifier, releases: s.config.ReleaseManagement != nil}
 			if source, ok := s.config.ArtifactCohorts.(interface {
 				SubscribeResources(transport.Notifier) func()
 			}); ok {
@@ -52,6 +66,9 @@ func (s *Service) forgeProviderHTTP(ctx context.Context) (http.Handler, error) {
 			activate = cohort.activateNotifications
 		}
 		if err := s.registerArtifactCohortTools(ctx, handler.(*forgehandler.Handler).DefaultHandler, activate); err != nil {
+			return nil, err
+		}
+		if err := s.registerReleaseTools(handler.(*forgehandler.Handler).DefaultHandler); err != nil {
 			return nil, err
 		}
 		if s.windowPrimitiveSource != nil && len(s.windowPrimitiveSource.datasources) > 0 {

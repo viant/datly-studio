@@ -12,6 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -104,6 +105,7 @@ func (f RuntimeHostProbeFunc) ProbeRuntime(ctx context.Context) (*sdk.RuntimeHos
 type AuthorizationRequest struct {
 	Operation     string
 	ReportID      string
+	VersionNo     string
 	ConnectorName string
 	NamespaceName string
 	OwnerID       string
@@ -120,6 +122,17 @@ type AuthorizerFunc func(context.Context, AuthorizationRequest) error
 
 func (f AuthorizerFunc) Authorize(ctx context.Context, request AuthorizationRequest) error {
 	return f(ctx, request)
+}
+
+type releaseUseMarkerKey struct{}
+
+// MarkReleaseUse is called only by the trusted authorizer after a release
+// grant, never from request input. It enables the post-preview revocation
+// fence without adding an extra check to ordinary Studio preview requests.
+func MarkReleaseUse(ctx context.Context) {
+	if marker, ok := ctx.Value(releaseUseMarkerKey{}).(*bool); ok && marker != nil {
+		*marker = true
+	}
 }
 
 type ContractInspector interface {
@@ -177,6 +190,11 @@ func (t *Transport) Invoke(ctx context.Context, operation string, input, output 
 		if namespaceErr != nil {
 			return namespaceErr
 		}
+	}
+	var releaseUsed *bool
+	if operation == sdk.OperationPreviewExecute {
+		releaseUsed = new(bool)
+		ctx = context.WithValue(ctx, releaseUseMarkerKey{}, releaseUsed)
 	}
 	if err := t.authorize(ctx, operation, input); err != nil {
 		return err
@@ -265,7 +283,15 @@ func (t *Transport) Invoke(ctx context.Context, operation string, input, output 
 	case sdk.OperationVersionDescriptor:
 		return t.versionDescriptor(ctx, input, output)
 	case sdk.OperationPreviewExecute:
-		return t.preview(ctx, input, output)
+		if err := t.preview(ctx, input, output); err != nil {
+			return err
+		}
+		// A released exact component may be revoked while its fresh preview
+		// query runs. Ordinary previews retain their single authorization check.
+		if releaseUsed != nil && *releaseUsed {
+			return t.authorize(ctx, operation, input)
+		}
+		return nil
 	case sdk.OperationPublicationPublish:
 		return t.publish(ctx, input, output, "publish")
 	case sdk.OperationPublicationGet:
@@ -379,10 +405,11 @@ func (t *Transport) authorize(ctx context.Context, operation string, input any) 
 		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Studio authorization is required"}
 	}
 	var identity struct {
-		ReportID string `json:"reportId"`
-		ID       string `json:"id"`
-		Name     string `json:"name"`
-		OwnerID  string `json:"ownerId"`
+		ReportID  string `json:"reportId"`
+		VersionNo int    `json:"versionNo"`
+		ID        string `json:"id"`
+		Name      string `json:"name"`
+		OwnerID   string `json:"ownerId"`
 	}
 	if input != nil {
 		if err := decode(input, &identity); err != nil {
@@ -443,7 +470,11 @@ func (t *Transport) authorize(ctx context.Context, operation string, input any) 
 			return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Component is outside the selected namespace", Cause: err}
 		}
 	}
-	if err := t.Authorizer.Authorize(ctx, AuthorizationRequest{Operation: operation, ReportID: reportID, ConnectorName: connectorName, NamespaceName: namespaceName, OwnerID: identity.OwnerID, Permission: permission}); err != nil {
+	version := ""
+	if identity.VersionNo > 0 {
+		version = strconv.Itoa(identity.VersionNo)
+	}
+	if err := t.Authorizer.Authorize(ctx, AuthorizationRequest{Operation: operation, ReportID: reportID, VersionNo: version, ConnectorName: connectorName, NamespaceName: namespaceName, OwnerID: identity.OwnerID, Permission: permission}); err != nil {
 		var sdkErr *sdk.Error
 		if errors.As(err, &sdkErr) {
 			return err

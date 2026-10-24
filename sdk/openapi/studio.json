@@ -21,6 +21,24 @@
           }
         }
       },
+      "Input_076758bda765e30b3e408b43ee0cbb794e78b6ece06c2a0fe0f8aeea3a0781bf": {
+        "type": "object",
+        "properties": {
+          "archived": {
+            "type": "boolean"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "policies": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Input_b3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7"
+            },
+            "nullable": true
+          }
+        }
+      },
       "Input_092de1a1aa148d7f76a45d866e2aba4a800ba8a33379ccd1537c3e3699762324": {
         "type": "object",
         "properties": {
@@ -40,6 +58,18 @@
           },
           "query": {
             "type": "string"
+          }
+        }
+      },
+      "Input_0f5f1cf2450cee08c778d2b1c4353731cbb0800b0541cc996028ba24a37c91d7": {
+        "type": "object",
+        "properties": {
+          "resource": {
+            "$ref": "#/components/schemas/Input_f3044df0c7cd0b878c0b87a29dd6e79969b672d3c9442314ba8ecc0d65ac197b"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -91,6 +121,17 @@
             "type": "string"
           },
           "version": {
+            "type": "string"
+          }
+        }
+      },
+      "Input_194eebb56df8f1ed3424269e7db1f54e85c282cf1b1dc6eb1106baba7c5e7bfb": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
             "type": "string"
           }
         }
@@ -252,6 +293,18 @@
           }
         }
       },
+      "Input_3b8ad7ea195cbba3ef3be5685f87cf9a98b9cdc47646253bc4c507a08ccf62cf": {
+        "type": "object",
+        "properties": {
+          "resource": {
+            "$ref": "#/components/schemas/Input_b9ed012c9a5f956116b995a745542c2f26c860fa50a7bfd3194b5ff50f5b8acc"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "Input_3e014bcb4d9aebb2d4ab3215c768fa3b047d0aea2a8f8acc96a3f797bd3e7537": {
         "type": "object",
         "properties": {
@@ -267,6 +320,56 @@
           },
           "title": {
             "type": "string"
+          }
+        }
+      },
+      "Input_4155bc328a41cd280ef14fe7e54532d7ec4a83be3c2b80962e7c87eb82012ee9": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Input_194eebb56df8f1ed3424269e7db1f54e85c282cf1b1dc6eb1106baba7c5e7bfb"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Input_4155bc328a41cd280ef14fe7e54532d7ec4a83be3c2b80962e7c87eb82012ee9"
+            },
+            "nullable": true
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "Input_43bca7433ca4faefe025999b3ee7b4f90cbf25310ba6c90d7cc3d1f92246bfce": {
+        "type": "object",
+        "properties": {
+          "archived": {
+            "type": "boolean"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "policies": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Input_5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182"
+            },
+            "nullable": true
           }
         }
       },
@@ -295,6 +398,41 @@
           },
           "sql": {
             "type": "string"
+          }
+        }
+      },
+      "Input_4cf2af18ea34dee432a18bf9c93cf0b99a245da68470766bf479987f50491b02": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "Input_50c5f7ec9c2f1fcb275defab335cb64387fd3cc958b8b2479bbf89ae0b0a4143": {
+        "type": "object",
+        "properties": {
+          "archived": {
+            "type": "boolean"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "policies": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Input_951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56"
+            },
+            "nullable": true
           }
         }
       },
@@ -410,11 +548,39 @@
       "Input_5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182": {
         "type": "object",
         "properties": {
+          "definition": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Input_43bca7433ca4faefe025999b3ee7b4f90cbf25310ba6c90d7cc3d1f92246bfce"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
           "entityType": {
             "type": "string"
           },
           "mode": {
             "type": "string"
+          },
+          "named": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Input_3b8ad7ea195cbba3ef3be5685f87cf9a98b9cdc47646253bc4c507a08ccf62cf"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
           },
           "priority": {
             "type": "integer",
@@ -578,6 +744,36 @@
           }
         }
       },
+      "Input_7298e871bdf09331554012091edf11449d4eb415940035c889510198cdd0af88": {
+        "type": "object",
+        "properties": {
+          "resource": {
+            "$ref": "#/components/schemas/Input_bd791b54c0d35da0760921d9d63b3348b5207ef8caf38fb113d9a4438cb5af98"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "Input_7505a6132b67f69d21bb25d0ae97732fcf6cb3e8135392eac3748d5a7580e2e3": {
+        "type": "object",
+        "properties": {
+          "archived": {
+            "type": "boolean"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "policies": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Input_f634d5143d6e3364c1db207e4711ff7d15d1b7a7e480685eba2b81375d329894"
+            },
+            "nullable": true
+          }
+        }
+      },
       "Input_759a527aaec8ccde2e291d9f7014278794ab6b15717a217294b4ef4bb47511e5": {
         "type": "object",
         "properties": {
@@ -698,11 +894,39 @@
       "Input_951160aef000a2f5135521b7b592659281101c31f9602d34a2718677dfc28d56": {
         "type": "object",
         "properties": {
+          "definition": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Input_50c5f7ec9c2f1fcb275defab335cb64387fd3cc958b8b2479bbf89ae0b0a4143"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
           "entityType": {
             "type": "string"
           },
           "mode": {
             "type": "string"
+          },
+          "named": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Input_d8b4d20bc92512787930d291bc165427c7184dacb3a8a39a503bbf2c4cca7eba"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
           },
           "priority": {
             "type": "integer",
@@ -942,11 +1166,39 @@
       "Input_b3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7": {
         "type": "object",
         "properties": {
+          "definition": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Input_076758bda765e30b3e408b43ee0cbb794e78b6ece06c2a0fe0f8aeea3a0781bf"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
           "entityType": {
             "type": "string"
           },
           "mode": {
             "type": "string"
+          },
+          "named": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Input_d96c77fce94d09d181eab2c9524935c78921e434e5774e5bd48fb3885a378b9f"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
           },
           "priority": {
             "type": "integer",
@@ -972,6 +1224,23 @@
                 ]
               }
             ]
+          }
+        }
+      },
+      "Input_b82f913d0626c11b7f6ba5ea84bf2d64f02682115d7ebd1f69c25c0a11cad13f": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
           }
         }
       },
@@ -1034,6 +1303,40 @@
           }
         }
       },
+      "Input_b9ed012c9a5f956116b995a745542c2f26c860fa50a7bfd3194b5ff50f5b8acc": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "Input_bd791b54c0d35da0760921d9d63b3348b5207ef8caf38fb113d9a4438cb5af98": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
       "Input_be69a3e78ead7826b6cd099ed06965f3618cbab616cefd4b7d7f3ae5da42f02b": {
         "type": "object",
         "properties": {
@@ -1044,6 +1347,23 @@
             "type": "boolean"
           },
           "path": {
+            "type": "string"
+          }
+        }
+      },
+      "Input_c49089732f06e8921b5a8f056112206f0708224770d7a14440fb23d20d42cf48": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
             "type": "string"
           }
         }
@@ -1220,6 +1540,18 @@
           }
         }
       },
+      "Input_d8b4d20bc92512787930d291bc165427c7184dacb3a8a39a503bbf2c4cca7eba": {
+        "type": "object",
+        "properties": {
+          "resource": {
+            "$ref": "#/components/schemas/Input_b82f913d0626c11b7f6ba5ea84bf2d64f02682115d7ebd1f69c25c0a11cad13f"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "Input_d95b4a97507d7d8c7cf435c3b349ee1c36ba23bb010ef3e61d69c8ede93e9cf7": {
         "type": "object",
         "properties": {
@@ -1249,6 +1581,18 @@
           },
           "value": {
             "type": "string"
+          }
+        }
+      },
+      "Input_d96c77fce94d09d181eab2c9524935c78921e434e5774e5bd48fb3885a378b9f": {
+        "type": "object",
+        "properties": {
+          "resource": {
+            "$ref": "#/components/schemas/Input_4cf2af18ea34dee432a18bf9c93cf0b99a245da68470766bf479987f50491b02"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -1309,6 +1653,87 @@
           },
           "requestedBy": {
             "type": "string"
+          }
+        }
+      },
+      "Input_f3044df0c7cd0b878c0b87a29dd6e79969b672d3c9442314ba8ecc0d65ac197b": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "Input_f634d5143d6e3364c1db207e4711ff7d15d1b7a7e480685eba2b81375d329894": {
+        "type": "object",
+        "properties": {
+          "definition": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Input_7505a6132b67f69d21bb25d0ae97732fcf6cb3e8135392eac3748d5a7580e2e3"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
+          "entityType": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "named": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Input_7298e871bdf09331554012091edf11449d4eb415940035c889510198cdd0af88"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
+          "priority": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "requiredScopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "rule": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Input_4155bc328a41cd280ef14fe7e54532d7ec4a83be3c2b80962e7c87eb82012ee9"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
           }
         }
       },
@@ -1676,6 +2101,21 @@
           "id"
         ]
       },
+      "Output_2554cffa5d52275ed88bc66799a2f7c47bac9cf0e050075987cbda8ba8d24268": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ]
+      },
       "Output_2631f895e856b9edb7a880ef06b76a2fcfcf0dc9d13eff46223625680e9a9c89": {
         "type": "object",
         "properties": {
@@ -1753,6 +2193,22 @@
           "subject",
           "clientIp",
           "responseTruncated"
+        ]
+      },
+      "Output_2c9aea90415dac647efe579c8889a77a58c3e88f24a1c30f945e7743e5dd5ae2": {
+        "type": "object",
+        "properties": {
+          "resource": {
+            "$ref": "#/components/schemas/Output_a81d693fd6e1ff78672b05458a01513d11113731358ae9bfeaca4fd73d9c722c"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "resource",
+          "revision"
         ]
       },
       "Output_32c4d843c350375fa1807b89e7db16553000af864bad1017ad3662f2db1c9b64": {
@@ -1925,6 +2381,34 @@
         },
         "required": [
           "view"
+        ]
+      },
+      "Output_4767292ff45ca739fbde17dcfac16967b1b00630ad105de675c19514080628f9": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Output_2554cffa5d52275ed88bc66799a2f7c47bac9cf0e050075987cbda8ba8d24268"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "label"
         ]
       },
       "Output_4cf988a4800a68fa7db9d130c60eed0b35369d4c3fc9465e70d61b648bd34b6d": {
@@ -2221,6 +2705,28 @@
         },
         "required": [
           "label"
+        ]
+      },
+      "Output_6056449cb6ff77eb0e24f9d110ff3a533c12d36a31eead7bf54ff52e31d48474": {
+        "type": "object",
+        "properties": {
+          "archived": {
+            "type": "boolean"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "policies": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Output_c50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349"
+            },
+            "nullable": true
+          }
+        },
+        "required": [
+          "displayName",
+          "policies"
         ]
       },
       "Output_61da40565eeef7dc1d2d89123fe0033e9b0f0809a66731851fd56301624b0dc5": {
@@ -2711,6 +3217,51 @@
           "failed"
         ]
       },
+      "Output_98eb7261961a0f07a9564be0e254f8e95836e8bb1689bf42e5fa490dcea8bf1b": {
+        "type": "object",
+        "properties": {
+          "archived": {
+            "type": "boolean"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "policies": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Output_e8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8"
+            },
+            "nullable": true
+          }
+        },
+        "required": [
+          "displayName",
+          "policies"
+        ]
+      },
+      "Output_9d49df36a755675144ae6bef3dd7487cbc740221600721423879d97bb66fb067": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "version",
+          "tenant"
+        ]
+      },
       "Output_9e0f449c95fcfb4ee0592ebadf3e17adccbdc32fa89bf50ab9ae8511c2009041": {
         "type": "object",
         "properties": {
@@ -2739,6 +3290,22 @@
           "severity",
           "code",
           "message"
+        ]
+      },
+      "Output_9e876c762bb492c132e790521d9bfeabfef411c08f89b004511cfca729fc5ff3": {
+        "type": "object",
+        "properties": {
+          "resource": {
+            "$ref": "#/components/schemas/Output_9d49df36a755675144ae6bef3dd7487cbc740221600721423879d97bb66fb067"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "resource",
+          "revision"
         ]
       },
       "Output_a2a90743713296048071979d14b3abdfc10b4ee77e446ab9dbd7f2c07bbe7266": {
@@ -2897,6 +3464,29 @@
           "status"
         ]
       },
+      "Output_a81d693fd6e1ff78672b05458a01513d11113731358ae9bfeaca4fd73d9c722c": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "version",
+          "tenant"
+        ]
+      },
       "Output_ad75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688": {
         "type": "object",
         "properties": {
@@ -3001,11 +3591,39 @@
       "Output_c50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349": {
         "type": "object",
         "properties": {
+          "definition": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Output_6056449cb6ff77eb0e24f9d110ff3a533c12d36a31eead7bf54ff52e31d48474"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
           "entityType": {
             "type": "string"
           },
           "mode": {
             "type": "string"
+          },
+          "named": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Output_2c9aea90415dac647efe579c8889a77a58c3e88f24a1c30f945e7743e5dd5ae2"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
           },
           "priority": {
             "type": "integer",
@@ -3124,6 +3742,13 @@
             },
             "nullable": true
           },
+          "group": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Output_4767292ff45ca739fbde17dcfac16967b1b00630ad105de675c19514080628f9"
+            },
+            "nullable": true
+          },
           "role": {
             "type": "array",
             "items": {
@@ -3142,6 +3767,7 @@
         "required": [
           "subject",
           "role",
+          "group",
           "exposure",
           "entity",
           "entityTypes"
@@ -3371,11 +3997,39 @@
       "Output_e8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8": {
         "type": "object",
         "properties": {
+          "definition": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Output_98eb7261961a0f07a9564be0e254f8e95836e8bb1689bf42e5fa490dcea8bf1b"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
           "entityType": {
             "type": "string"
           },
           "mode": {
             "type": "string"
+          },
+          "named": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Output_9e876c762bb492c132e790521d9bfeabfef411c08f89b004511cfca729fc5ff3"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
           },
           "priority": {
             "type": "integer",
@@ -3786,6 +4440,29 @@
           "createdAt"
         ]
       },
+      "Wire_03ebbc8325840f6f4bebaca4c18406daaad9dd6178c9cb8aad7f2d20427ce1c4": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "version",
+          "tenant"
+        ]
+      },
       "Wire_08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6": {
         "type": "object",
         "properties": {
@@ -3872,6 +4549,29 @@
           "createdAt"
         ]
       },
+      "Wire_08938620e84156f14c3eb03478de7df19afa5374952a4abae29cf28f9d58f8f5": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "version",
+          "tenant"
+        ]
+      },
       "Wire_0b4fc596d18790b4851cf320f7b9abf6d446bab3fd3f2ae6a2d3cb1481542e8f": {
         "type": "object",
         "properties": {
@@ -3896,6 +4596,13 @@
             },
             "nullable": true
           },
+          "group": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_e7011437759d2568973820dd3cff070baab4d58b71061ca4e17f36cb9345841c"
+            },
+            "nullable": true
+          },
           "role": {
             "type": "array",
             "items": {
@@ -3914,6 +4621,7 @@
         "required": [
           "subject",
           "role",
+          "group",
           "exposure",
           "entity",
           "entityTypes"
@@ -4344,6 +5052,41 @@
         },
         "required": [
           "label"
+        ]
+      },
+      "Wire_19c8c23fc3af1e96aac7711875cf1799e140a146786e49d01c34189b09f54fb0": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_7b8cbc8d8b0de849d09cdeec45a5dba6c27adb0ab09ab21d972f36bf0d392c29"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_19c8c23fc3af1e96aac7711875cf1799e140a146786e49d01c34189b09f54fb0"
+            },
+            "nullable": true
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind"
         ]
       },
       "Wire_1a54346913f36c827b3cbb210b4e4062c2b4b68e415f006659f4a97f386665ac": {
@@ -4909,6 +5652,29 @@
           "createdAt"
         ]
       },
+      "Wire_24c5509faa036e9e6670c5516a5cee39a37d0f0b6acf8de88a079bf1f2661939": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "version",
+          "tenant"
+        ]
+      },
       "Wire_26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f": {
         "type": "object",
         "properties": {
@@ -4922,6 +5688,73 @@
         "required": [
           "type",
           "id"
+        ]
+      },
+      "Wire_2814de9651d34fb853f6a86b2936b81947b070cd306c8f39e5a036a9a3e140d6": {
+        "type": "object",
+        "properties": {
+          "definition": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_3cd464989c150f4ca0b00b3d8d3628d2b1fe67ab85b72705ab0e70f949f86c37"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
+          "entityType": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "named": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_c396441efc9d7ad7833a50003f492395e59e7a127979ee1bb2a1ef138b369ac9"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
+          "priority": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "requiredScopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "rule": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_c4facae1d7de805700fd614d7869128040212f41ac67951ed63113923ea516c1"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "mode"
         ]
       },
       "Wire_284d529f33778b8025eaf493c0c081fa071dfc15595367cd050c6aea84390073": {
@@ -5241,11 +6074,39 @@
       "Wire_2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d": {
         "type": "object",
         "properties": {
+          "definition": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_df12dfa59799793038c477f45c5acb6ce486b84479f8df9c47f1698fc478a940"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
           "entityType": {
             "type": "string"
           },
           "mode": {
             "type": "string"
+          },
+          "named": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_4005354453da2a3b21d88c48a90831cfd66f9382e7b23092aff074c99385dad7"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
           },
           "priority": {
             "type": "integer",
@@ -5610,6 +6471,29 @@
           "updatedAt"
         ]
       },
+      "Wire_36888c12b4c85b22b7268c24f5ea35ba103cb9e473a0790cc8cc669a45a523fa": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "version",
+          "tenant"
+        ]
+      },
       "Wire_385cb42fa02eb6e798cbc1f7de0bcdf81fdec7bcc883dc0d6d67a2e6f9974852": {
         "type": "object",
         "properties": {
@@ -5694,6 +6578,34 @@
           "content"
         ]
       },
+      "Wire_3aa247018499f407d544ef56f7b69626ced040fe25af781379c5b770f172e6dd": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string"
+          },
+          "policies": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Wire_f32e0e52a42838184862b0bfabd74676e965524151930580722e42d1d5218aad"
+            },
+            "nullable": true
+          },
+          "resource": {
+            "$ref": "#/components/schemas/Wire_9b9625c5bec32646decbda4f9d3e2d367c5b2ccc04c411e68f25c2e19cfc951e"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "resource",
+          "revision",
+          "displayName",
+          "policies"
+        ]
+      },
       "Wire_3b57d303fc4270172c8dc3dcc384045b957738421bfa4726d93f6529707bb684": {
         "type": "object",
         "properties": {
@@ -5752,6 +6664,21 @@
         "required": [
           "skill",
           "revision"
+        ]
+      },
+      "Wire_3c40dfab646d0be2f44f4740be696d523c8a5de2edbb5c4b839253b21385dd92": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
         ]
       },
       "Wire_3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5": {
@@ -5832,6 +6759,44 @@
           "skills"
         ]
       },
+      "Wire_3cd464989c150f4ca0b00b3d8d3628d2b1fe67ab85b72705ab0e70f949f86c37": {
+        "type": "object",
+        "properties": {
+          "archived": {
+            "type": "boolean"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "policies": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Wire_2814de9651d34fb853f6a86b2936b81947b070cd306c8f39e5a036a9a3e140d6"
+            },
+            "nullable": true
+          }
+        },
+        "required": [
+          "displayName",
+          "policies"
+        ]
+      },
+      "Wire_4005354453da2a3b21d88c48a90831cfd66f9382e7b23092aff074c99385dad7": {
+        "type": "object",
+        "properties": {
+          "resource": {
+            "$ref": "#/components/schemas/Wire_5f3729574877d8503a4dec333774588fe1c7a2ed2ff47c9b7076fcd0f551abe7"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "resource",
+          "revision"
+        ]
+      },
       "Wire_40408f0a0b8acd6d878be4326076378aa96079592be6ec18a7919fc73b6ee6cb": {
         "type": "object",
         "properties": {
@@ -5867,6 +6832,28 @@
           "bundle",
           "createdAt",
           "createdBy"
+        ]
+      },
+      "Wire_4240b3df02540530130e0c750596c876294d98d94741cc17333d3f61b4f176f5": {
+        "type": "object",
+        "properties": {
+          "archived": {
+            "type": "boolean"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "policies": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Wire_8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4"
+            },
+            "nullable": true
+          }
+        },
+        "required": [
+          "displayName",
+          "policies"
         ]
       },
       "Wire_42ea17da2b60208ef30858a88ede92d622320dba9d309726a67f3023fb8ab9e1": {
@@ -5970,6 +6957,22 @@
           "etag",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "Wire_443e7fd9953bff903ca8e9d8e708c7c2edf58ac7f381395736a02d9cea3d50f1": {
+        "type": "object",
+        "properties": {
+          "resource": {
+            "$ref": "#/components/schemas/Wire_eb7b2634d1508669f7e5b30d66379dfa7e55bdd38ca9eaafb526530bee3fe4a1"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "resource",
+          "revision"
         ]
       },
       "Wire_460cf67195fceed0e09647cd2eec9022848f4fecb76be30099431c098e162bea": {
@@ -6201,6 +7204,41 @@
         "required": [
           "valid",
           "version"
+        ]
+      },
+      "Wire_484871696bd68d511515dbe742bbf05c512e426119ec9d15b0d61ddb9525a58a": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_ee0e388919265cb6a34b160d48af21f28f7d7c7a89bfa0e33a9bc2a1e516d497"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_484871696bd68d511515dbe742bbf05c512e426119ec9d15b0d61ddb9525a58a"
+            },
+            "nullable": true
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind"
         ]
       },
       "Wire_4865103e82a353748c5cf4c44eb18159e252732c3c48350fe8b3411c3af62117": {
@@ -6746,6 +7784,29 @@
           "message"
         ]
       },
+      "Wire_5f3729574877d8503a4dec333774588fe1c7a2ed2ff47c9b7076fcd0f551abe7": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "version",
+          "tenant"
+        ]
+      },
       "Wire_60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac": {
         "type": "object",
         "properties": {
@@ -6986,6 +8047,28 @@
           "offset"
         ]
       },
+      "Wire_685e9f1303192c34245f5ced6b00c18bebddb5a91116b2d04935d49d39a4538f": {
+        "type": "object",
+        "properties": {
+          "archived": {
+            "type": "boolean"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "policies": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Wire_f32e0e52a42838184862b0bfabd74676e965524151930580722e42d1d5218aad"
+            },
+            "nullable": true
+          }
+        },
+        "required": [
+          "displayName",
+          "policies"
+        ]
+      },
       "Wire_686013a325c9be56a2c1decb9988b4f5c30a411074c3d70e9552eecf4ae1fd87": {
         "type": "object",
         "properties": {
@@ -7049,14 +8132,66 @@
           "updatedAt"
         ]
       },
+      "Wire_6916e19155f8286deab316189062a4bd3d0a8389de6824abfe4de66459ffeca7": {
+        "type": "object",
+        "properties": {
+          "actions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "resource": {
+            "$ref": "#/components/schemas/Wire_87969e56d492a2f730b444adee19ef93ac7c1be948b8dc6be8f7220cc9a8fdf2"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "resource",
+          "revision",
+          "actions"
+        ]
+      },
       "Wire_69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d": {
         "type": "object",
         "properties": {
+          "definition": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_e3281ba035f286ae15da4d6b5fc837e6c74b9abed0818e83c7a340abb154e805"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
           "entityType": {
             "type": "string"
           },
           "mode": {
             "type": "string"
+          },
+          "named": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_b6838e6fc47c275d5128904db750df032d83f139b6513ac839109381f0b0e05d"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
           },
           "priority": {
             "type": "integer",
@@ -7153,6 +8288,29 @@
           "contentSize",
           "contentSha256",
           "isBinary"
+        ]
+      },
+      "Wire_6eb7fc5381443fd97876b99edd185761fb616aa93f65106e8bce0b948e4541ea": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "version",
+          "tenant"
         ]
       },
       "Wire_71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad": {
@@ -7552,6 +8710,34 @@
           "isBinary"
         ]
       },
+      "Wire_78c1ec1bb60829ef8b35985f93d524d34ace814d043b978112938d75ae4c831a": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string"
+          },
+          "policies": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Wire_8e91903699babbed9e7ba5df80407c5e4ba8d274d534089cde3a462c51f42580"
+            },
+            "nullable": true
+          },
+          "resource": {
+            "$ref": "#/components/schemas/Wire_24c5509faa036e9e6670c5516a5cee39a37d0f0b6acf8de88a079bf1f2661939"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "resource",
+          "revision",
+          "displayName",
+          "policies"
+        ]
+      },
       "Wire_7a9034382c023a3e5b4b4f9403d720cc1bf990d1c827a366a019d586b9f5c801": {
         "type": "object",
         "properties": {
@@ -7578,6 +8764,21 @@
       },
       "Wire_7af96ca0084d089bcfb5e8b942b9d90a7900d3c1e884c7d9c370d23294d493f8": {
         "type": "object"
+      },
+      "Wire_7b8cbc8d8b0de849d09cdeec45a5dba6c27adb0ab09ab21d972f36bf0d392c29": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ]
       },
       "Wire_7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621": {
         "type": "object",
@@ -8015,6 +9216,29 @@
           "message"
         ]
       },
+      "Wire_87969e56d492a2f730b444adee19ef93ac7c1be948b8dc6be8f7220cc9a8fdf2": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "version",
+          "tenant"
+        ]
+      },
       "Wire_88709ac613253ed886933b7e523ce6042f690d19bbc5acdf9769548415baf599": {
         "type": "object",
         "properties": {
@@ -8173,11 +9397,39 @@
       "Wire_8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4": {
         "type": "object",
         "properties": {
+          "definition": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_4240b3df02540530130e0c750596c876294d98d94741cc17333d3f61b4f176f5"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
           "entityType": {
             "type": "string"
           },
           "mode": {
             "type": "string"
+          },
+          "named": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_e832454f19415c813fd78ba2b907f9390f2ec4a8b6f370286ef5e8bebbbabf34"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
           },
           "priority": {
             "type": "integer",
@@ -8310,6 +9562,73 @@
           "createdAt"
         ]
       },
+      "Wire_8e91903699babbed9e7ba5df80407c5e4ba8d274d534089cde3a462c51f42580": {
+        "type": "object",
+        "properties": {
+          "definition": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_c802f2917b8e2a3792964f9ec6387ab7aed5bce5f6f459ac36ed90610be10ade"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
+          "entityType": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "named": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_443e7fd9953bff903ca8e9d8e708c7c2edf58ac7f381395736a02d9cea3d50f1"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
+          "priority": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "requiredScopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "rule": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_19c8c23fc3af1e96aac7711875cf1799e140a146786e49d01c34189b09f54fb0"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "mode"
+        ]
+      },
       "Wire_923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b": {
         "type": "object",
         "properties": {
@@ -8356,6 +9675,21 @@
         },
         "required": [
           "context"
+        ]
+      },
+      "Wire_9375a58120b02e204afaa76104d340f0d003f1a889466d014b6e77474c4633a6": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
         ]
       },
       "Wire_942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e": {
@@ -8590,6 +9924,29 @@
           "etag",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "Wire_9b9625c5bec32646decbda4f9d3e2d367c5b2ccc04c411e68f25c2e19cfc951e": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "version",
+          "tenant"
         ]
       },
       "Wire_9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d": {
@@ -9149,6 +10506,22 @@
           "items"
         ]
       },
+      "Wire_b6838e6fc47c275d5128904db750df032d83f139b6513ac839109381f0b0e05d": {
+        "type": "object",
+        "properties": {
+          "resource": {
+            "$ref": "#/components/schemas/Wire_08938620e84156f14c3eb03478de7df19afa5374952a4abae29cf28f9d58f8f5"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "resource",
+          "revision"
+        ]
+      },
       "Wire_b6bb3a3bc73e240bf20da6f0ceb8512d37faeca8e28cca304a69c5e7ff81fa51": {
         "type": "object",
         "properties": {
@@ -9618,6 +10991,69 @@
           "document"
         ]
       },
+      "Wire_c38c2d9780ed3554863ff8a5dc7c7bd625b9c3263af13cdca862e977c297d435": {
+        "type": "object",
+        "properties": {
+          "document": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_dc7d19b963043f09d2349eb8f581a65f7e20e3be2a6bce59a4837debdae7a8b2"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
+          "impacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_6916e19155f8286deab316189062a4bd3d0a8389de6824abfe4de66459ffeca7"
+            },
+            "nullable": true
+          },
+          "policies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_3aa247018499f407d544ef56f7b69626ced040fe25af781379c5b770f172e6dd"
+            },
+            "nullable": true
+          },
+          "policy": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_78c1ec1bb60829ef8b35985f93d524d34ace814d043b978112938d75ae4c831a"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "Wire_c396441efc9d7ad7833a50003f492395e59e7a127979ee1bb2a1ef138b369ac9": {
+        "type": "object",
+        "properties": {
+          "resource": {
+            "$ref": "#/components/schemas/Wire_6eb7fc5381443fd97876b99edd185761fb616aa93f65106e8bce0b948e4541ea"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "resource",
+          "revision"
+        ]
+      },
       "Wire_c47cf46b58e263ed665fbdce50f43ecc62642c4837741ba43aaa439c1623d39c": {
         "type": "object",
         "properties": {
@@ -9649,8 +11085,65 @@
           "canUseDql"
         ]
       },
+      "Wire_c4facae1d7de805700fd614d7869128040212f41ac67951ed63113923ea516c1": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_9375a58120b02e204afaa76104d340f0d003f1a889466d014b6e77474c4633a6"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_c4facae1d7de805700fd614d7869128040212f41ac67951ed63113923ea516c1"
+            },
+            "nullable": true
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
       "Wire_c556c6c91d85b6fe76e559a7132bc91d46b0c40c216a538c686d074ec366c766": {
         "type": "object"
+      },
+      "Wire_c802f2917b8e2a3792964f9ec6387ab7aed5bce5f6f459ac36ed90610be10ade": {
+        "type": "object",
+        "properties": {
+          "archived": {
+            "type": "boolean"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "policies": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Wire_8e91903699babbed9e7ba5df80407c5e4ba8d274d534089cde3a462c51f42580"
+            },
+            "nullable": true
+          }
+        },
+        "required": [
+          "displayName",
+          "policies"
+        ]
       },
       "Wire_cc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332": {
         "type": "object",
@@ -9759,6 +11252,22 @@
         },
         "required": [
           "name"
+        ]
+      },
+      "Wire_cfcaf2b72b62ce0a723c37fe6863f96b754785b31db4030a9f684317c5490937": {
+        "type": "object",
+        "properties": {
+          "resource": {
+            "$ref": "#/components/schemas/Wire_f00a6067197bf8503ad2ca929fcac6dd56da64854bf53cfa63f2e90af408ef5d"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "resource",
+          "revision"
         ]
       },
       "Wire_d1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d": {
@@ -10178,6 +11687,30 @@
           "typeName"
         ]
       },
+      "Wire_dc7d19b963043f09d2349eb8f581a65f7e20e3be2a6bce59a4837debdae7a8b2": {
+        "type": "object",
+        "properties": {
+          "policies": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Wire_2814de9651d34fb853f6a86b2936b81947b070cd306c8f39e5a036a9a3e140d6"
+            },
+            "nullable": true
+          },
+          "resource": {
+            "$ref": "#/components/schemas/Wire_36888c12b4c85b22b7268c24f5ea35ba103cb9e473a0790cc8cc669a45a523fa"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "resource",
+          "revision",
+          "policies"
+        ]
+      },
       "Wire_dd57f8078c863d6327fc4c31894dd7a9b19a5e8ce736c4f2f789a161a9bccf09": {
         "type": "object",
         "properties": {
@@ -10334,6 +11867,28 @@
           "message"
         ]
       },
+      "Wire_df12dfa59799793038c477f45c5acb6ce486b84479f8df9c47f1698fc478a940": {
+        "type": "object",
+        "properties": {
+          "archived": {
+            "type": "boolean"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "policies": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Wire_2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d"
+            },
+            "nullable": true
+          }
+        },
+        "required": [
+          "displayName",
+          "policies"
+        ]
+      },
       "Wire_e0b9d64ac7d2034342d226cd5a657956619fb94bfab0f429f31d295bbee568fb": {
         "type": "object",
         "properties": {
@@ -10360,6 +11915,28 @@
           "view"
         ]
       },
+      "Wire_e3281ba035f286ae15da4d6b5fc837e6c74b9abed0818e83c7a340abb154e805": {
+        "type": "object",
+        "properties": {
+          "archived": {
+            "type": "boolean"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "policies": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Wire_69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d"
+            },
+            "nullable": true
+          }
+        },
+        "required": [
+          "displayName",
+          "policies"
+        ]
+      },
       "Wire_e664fa33d9d2d2c968c6dabd40e4ac01c5333f4591763b88b02fd2feb8b031ca": {
         "type": "object",
         "properties": {
@@ -10377,6 +11954,50 @@
         "required": [
           "entities",
           "bounded"
+        ]
+      },
+      "Wire_e7011437759d2568973820dd3cff070baab4d58b71061ca4e17f36cb9345841c": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_3c40dfab646d0be2f44f4740be696d523c8a5de2edbb5c4b839253b21385dd92"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "label"
+        ]
+      },
+      "Wire_e832454f19415c813fd78ba2b907f9390f2ec4a8b6f370286ef5e8bebbbabf34": {
+        "type": "object",
+        "properties": {
+          "resource": {
+            "$ref": "#/components/schemas/Wire_03ebbc8325840f6f4bebaca4c18406daaad9dd6178c9cb8aad7f2d20427ce1c4"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "resource",
+          "revision"
         ]
       },
       "Wire_e8eef4e2ee505a6f0706d63914d0a1a7e51cfcb516b0852a6bee4efa3ce9e0b0": {
@@ -10437,6 +12058,29 @@
       },
       "Wire_ea1dce693f0fba7795db01c064fb101c3191020f13e052ff246a0378ec74f044": {
         "type": "object"
+      },
+      "Wire_eb7b2634d1508669f7e5b30d66379dfa7e55bdd38ca9eaafb526530bee3fe4a1": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "version",
+          "tenant"
+        ]
       },
       "Wire_eb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90": {
         "type": "object",
@@ -10538,6 +12182,21 @@
           "returnedRows",
           "encodedBytes",
           "truncated"
+        ]
+      },
+      "Wire_ee0e388919265cb6a34b160d48af21f28f7d7c7a89bfa0e33a9bc2a1e516d497": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
         ]
       },
       "Wire_eeef16b9cbcbd1e6e3c91399a7a3ea1ea6f63b90114ecd6f2b6b393de239190a": {
@@ -10652,6 +12311,29 @@
           "completedCases",
           "entries",
           "target"
+        ]
+      },
+      "Wire_f00a6067197bf8503ad2ca929fcac6dd56da64854bf53cfa63f2e90af408ef5d": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "version",
+          "tenant"
         ]
       },
       "Wire_f13c6896f56ef6cd633314e17c86ef09c723b489a575449924c438606e230bf5": {
@@ -10794,6 +12476,73 @@
         "required": [
           "path",
           "content"
+        ]
+      },
+      "Wire_f32e0e52a42838184862b0bfabd74676e965524151930580722e42d1d5218aad": {
+        "type": "object",
+        "properties": {
+          "definition": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_685e9f1303192c34245f5ced6b00c18bebddb5a91116b2d04935d49d39a4538f"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
+          "entityType": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "named": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_cfcaf2b72b62ce0a723c37fe6863f96b754785b31db4030a9f684317c5490937"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
+          "priority": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "requiredScopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "rule": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_484871696bd68d511515dbe742bbf05c512e426119ec9d15b0d61ddb9525a58a"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "mode"
         ]
       },
       "Wire_f3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d": {
@@ -11188,6 +12937,78 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Wire_bc277e5b6cc7b5f6e3363c1e3628c4127103aecef86cccc990395878331130b5"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/authz/sdk/namedPolicies.manage": {
+      "post": {
+        "operationId": "POST:/v1/authz/sdk/namedPolicies.manage",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "actions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "nullable": true
+                  },
+                  "definition": {
+                    "$ref": "#/components/schemas/Input_7505a6132b67f69d21bb25d0ae97732fcf6cb3e8135392eac3748d5a7580e2e3"
+                  },
+                  "expectedRevision": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "operation": {
+                    "type": "string"
+                  },
+                  "reference": {
+                    "$ref": "#/components/schemas/Input_0f5f1cf2450cee08c778d2b1c4353731cbb0800b0541cc996028ba24a37c91d7"
+                  },
+                  "resource": {
+                    "$ref": "#/components/schemas/Input_c49089732f06e8921b5a8f056112206f0708224770d7a14440fb23d20d42cf48"
+                  }
+                },
+                "required": [
+                  "operation"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Wire_c38c2d9780ed3554863ff8a5dc7c7bd625b9c3263af13cdca862e977c297d435"
                 }
               }
             }

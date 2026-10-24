@@ -796,6 +796,15 @@ var postV1AuthzSdkAuthorizationCheck = (options) => (options.client ?? client).p
     ...options.headers
   }
 });
+var postV1AuthzSdkNamedPoliciesManage = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/authz/sdk/namedPolicies.manage",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var postV1AuthzSdkPoliciesContext = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/v1/authz/sdk/policies.context",
@@ -1551,6 +1560,7 @@ var postV1StudioSdkVersionsWarmupList = (options) => (options.client ?? client).
 });
 export {
   postV1AuthzSdkAuthorizationCheck,
+  postV1AuthzSdkNamedPoliciesManage,
   postV1AuthzSdkPoliciesContext,
   postV1AuthzSdkPoliciesCreate,
   postV1AuthzSdkPoliciesGet,

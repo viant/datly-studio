@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/viant/authz"
+	"github.com/viant/datly-studio/sdk/artifactrelease/releasegate"
 	"github.com/viant/forge/backend/artifactcohort"
 	"github.com/viant/jsonrpc"
 	"github.com/viant/jsonrpc/transport"
@@ -17,16 +18,51 @@ import (
 // once at the MCP handler using Config.AuthorizeArtifactHost. The publisher
 // stores producer-closed top-level versions and their complete policy catalog.
 type PublishedArtifactCatalog struct {
-	Publisher *artifactcohort.Publisher
-	mu        sync.Mutex
-	next      uint64
-	sinks     map[uint64]transport.Notifier
+	Publisher   *artifactcohort.Publisher
+	mu          sync.Mutex
+	next        uint64
+	sinks       map[uint64]transport.Notifier
+	releaseGate *releasegate.Gate
 }
 
 func NewPublishedArtifactCatalog(p *artifactcohort.Publisher) *PublishedArtifactCatalog {
 	return &PublishedArtifactCatalog{Publisher: p}
 }
+
+// BindReleaseGate is called after trusted startup publication and before MCP
+// serving. The same gate must cover release-aware reads and all source writes.
+func (s *PublishedArtifactCatalog) BindReleaseGate(g *releasegate.Gate) error {
+	if s == nil || g == nil {
+		return artifactcohort.ErrInvalid
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.releaseGate == g {
+		return nil
+	}
+	if s.releaseGate != nil {
+		return artifactcohort.ErrConflict
+	}
+	s.releaseGate = g
+	return nil
+}
+func (s *PublishedArtifactCatalog) gate() *releasegate.Gate {
+	if s == nil {
+		return nil
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.releaseGate
+}
 func (s *PublishedArtifactCatalog) Discover(ctx context.Context) (artifactcohort.Manifest, error) {
+	if gate := s.gate(); gate != nil {
+		var manifest artifactcohort.Manifest
+		err := gate.Read(func() error { var readErr error; manifest, readErr = s.discover(ctx); return readErr })
+		return manifest, err
+	}
+	return s.discover(ctx)
+}
+func (s *PublishedArtifactCatalog) discover(ctx context.Context) (artifactcohort.Manifest, error) {
 	if s == nil || s.Publisher == nil || ctx == nil || ctx.Err() != nil {
 		return artifactcohort.Manifest{}, artifactcohort.ErrUnavailable
 	}
@@ -37,6 +73,14 @@ func (s *PublishedArtifactCatalog) Discover(ctx context.Context) (artifactcohort
 	return manifest, err
 }
 func (s *PublishedArtifactCatalog) Fetch(ctx context.Context, input artifactcohort.FetchInput) (*artifactcohort.Artifact, error) {
+	if gate := s.gate(); gate != nil {
+		var artifact *artifactcohort.Artifact
+		err := gate.Read(func() error { var readErr error; artifact, readErr = s.fetch(ctx, input); return readErr })
+		return artifact, err
+	}
+	return s.fetch(ctx, input)
+}
+func (s *PublishedArtifactCatalog) fetch(ctx context.Context, input artifactcohort.FetchInput) (*artifactcohort.Artifact, error) {
 	if s == nil || s.Publisher == nil || input.Tenant == "" || ctx == nil || ctx.Err() != nil {
 		return nil, artifactcohort.ErrUnavailable
 	}
@@ -72,28 +116,63 @@ func (s *PublishedArtifactCatalog) Fetch(ctx context.Context, input artifactcoho
 	return artifact, err
 }
 func (s *PublishedArtifactCatalog) Publish(ctx context.Context, root artifactcohort.RootRef, payload json.RawMessage, validate func(context.Context, json.RawMessage) error) (*artifactcohort.Artifact, uint64, error) {
-	if s == nil || s.Publisher == nil {
-		return nil, 0, artifactcohort.ErrUnavailable
+	var artifact *artifactcohort.Artifact
+	var generation uint64
+	var changed bool
+	perform := func() error {
+		var err error
+		artifact, generation, changed, err = s.publish(ctx, root, payload, validate)
+		return err
 	}
-	before, beforeErr := s.Publisher.Snapshot()
-	artifact, generation, err := s.Publisher.Publish(ctx, root, payload, validate)
-	if err == nil {
-		after, afterErr := s.Publisher.Snapshot()
-		if afterErr == nil && (beforeErr != nil || after.Hash != before.Hash) {
-			s.notify(ctx, artifactcohort.NotificationUpdated, artifact.Root.URI)
-		}
+	var err error
+	if gate := s.gate(); gate != nil {
+		err = gate.Update(perform)
+	} else {
+		err = perform()
+	}
+	if err == nil && changed {
+		s.notify(ctx, artifactcohort.NotificationUpdated, artifact.Root.URI)
 	}
 	return artifact, generation, err
 }
-func (s *PublishedArtifactCatalog) ReplaceCatalog(ctx context.Context, policies []authz.Document, cohorts []artifactcohort.Cohort, expectedGeneration uint64) (artifactcohort.Manifest, error) {
+func (s *PublishedArtifactCatalog) publish(ctx context.Context, root artifactcohort.RootRef, payload json.RawMessage, validate func(context.Context, json.RawMessage) error) (*artifactcohort.Artifact, uint64, bool, error) {
 	if s == nil || s.Publisher == nil {
-		return artifactcohort.Manifest{}, artifactcohort.ErrUnavailable
+		return nil, 0, false, artifactcohort.ErrUnavailable
 	}
-	manifest, err := s.Publisher.ReplaceCatalog(ctx, policies, cohorts, expectedGeneration)
+	before, beforeErr := s.Publisher.Snapshot()
+	artifact, generation, err := s.Publisher.Publish(ctx, root, payload, validate)
+	changed := false
+	if err == nil {
+		after, afterErr := s.Publisher.Snapshot()
+		if afterErr == nil && (beforeErr != nil || after.Hash != before.Hash) {
+			changed = true
+		}
+	}
+	return artifact, generation, changed, err
+}
+func (s *PublishedArtifactCatalog) ReplaceCatalog(ctx context.Context, policies []authz.Document, cohorts []artifactcohort.Cohort, expectedGeneration uint64) (artifactcohort.Manifest, error) {
+	var manifest artifactcohort.Manifest
+	perform := func() error {
+		var err error
+		manifest, err = s.replaceCatalog(ctx, policies, cohorts, expectedGeneration)
+		return err
+	}
+	var err error
+	if gate := s.gate(); gate != nil {
+		err = gate.Update(perform)
+	} else {
+		err = perform()
+	}
 	if err == nil {
 		s.notify(ctx, artifactcohort.NotificationListChanged, "")
 	}
 	return manifest, err
+}
+func (s *PublishedArtifactCatalog) replaceCatalog(ctx context.Context, policies []authz.Document, cohorts []artifactcohort.Cohort, expectedGeneration uint64) (artifactcohort.Manifest, error) {
+	if s == nil || s.Publisher == nil {
+		return artifactcohort.Manifest{}, artifactcohort.ErrUnavailable
+	}
+	return s.Publisher.ReplaceCatalog(ctx, policies, cohorts, expectedGeneration)
 }
 
 // RemoveRoot withdraws a published top-level URI from every cohort after the
@@ -101,13 +180,27 @@ func (s *PublishedArtifactCatalog) ReplaceCatalog(ctx context.Context, policies 
 // Publisher storage, but Fetch can no longer serve them without an active
 // cohort reference. Root-only removal changes only the URI's partition.
 func (s *PublishedArtifactCatalog) RemoveRoot(ctx context.Context, uri string) error {
+	removed := false
+	perform := func() error { var err error; removed, err = s.removeRoot(ctx, uri); return err }
+	var err error
+	if gate := s.gate(); gate != nil {
+		err = gate.Update(perform)
+	} else {
+		err = perform()
+	}
+	if err == nil && removed {
+		s.notify(ctx, artifactcohort.NotificationUpdated, uri)
+	}
+	return err
+}
+func (s *PublishedArtifactCatalog) removeRoot(ctx context.Context, uri string) (bool, error) {
 	if s == nil || s.Publisher == nil || ctx == nil || ctx.Err() != nil || uri == "" {
-		return artifactcohort.ErrInvalid
+		return false, artifactcohort.ErrInvalid
 	}
 	for attempt := 0; attempt < 8; attempt++ {
 		manifest, err := s.Publisher.Snapshot()
 		if err != nil {
-			return err
+			return false, err
 		}
 		removed := false
 		for i := range manifest.Cohorts {
@@ -153,19 +246,18 @@ func (s *PublishedArtifactCatalog) RemoveRoot(ctx context.Context, uri string) e
 			manifest.Cohorts[i].FollowPublished = keptFollows
 		}
 		if !removed {
-			return nil
+			return false, nil
 		}
 		_, err = s.Publisher.ReplaceCatalog(ctx, manifest.Policies, manifest.Cohorts, manifest.Generation)
 		if errors.Is(err, artifactcohort.ErrConflict) {
 			continue
 		}
 		if err != nil {
-			return err
+			return false, err
 		}
-		s.notify(ctx, artifactcohort.NotificationUpdated, uri)
-		return nil
+		return true, nil
 	}
-	return artifactcohort.ErrConflict
+	return false, artifactcohort.ErrConflict
 }
 func (s *PublishedArtifactCatalog) SubscribeResources(sink transport.Notifier) func() {
 	if s == nil || sink == nil {

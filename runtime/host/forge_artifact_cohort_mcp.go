@@ -27,6 +27,7 @@ type artifactCohortHandler struct {
 		SubscribeResources(transport.Notifier) func()
 	}
 	subscriptionOnce sync.Once
+	releases         bool
 }
 
 func (h *artifactCohortHandler) activateNotifications() {
@@ -39,6 +40,9 @@ func (h *artifactCohortHandler) activateNotifications() {
 func (h *artifactCohortHandler) Initialize(ctx context.Context, request *schema.InitializeRequestParams, result *schema.InitializeResult) {
 	h.Handler.Initialize(ctx, request, result)
 	artifactCohortCapability(&result.Capabilities)
+	if h.releases {
+		artifactReleaseCapability(&result.Capabilities)
+	}
 }
 func (h *artifactCohortHandler) Discover(ctx context.Context, result *schema.DiscoverResult) {
 	if discovery, ok := h.Handler.(interface {
@@ -47,6 +51,9 @@ func (h *artifactCohortHandler) Discover(ctx context.Context, result *schema.Dis
 		discovery.Discover(ctx, result)
 	}
 	artifactCohortCapability(&result.Capabilities)
+	if h.releases {
+		artifactReleaseCapability(&result.Capabilities)
+	}
 }
 func artifactCohortCapability(c *schema.ServerCapabilities) {
 	if c.Extensions == nil {

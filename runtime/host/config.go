@@ -13,6 +13,7 @@ import (
 
 	"github.com/viant/datly-studio/audit"
 	"github.com/viant/datly-studio/runtime/namespacemcp"
+	sdkrelease "github.com/viant/datly-studio/sdk/artifactrelease"
 	"github.com/viant/datly/application"
 	"github.com/viant/datly/spec"
 	"net/http"
@@ -125,6 +126,10 @@ type Config struct {
 	// the configured host service identity on the existing authenticated MCP.
 	ArtifactCohorts       artifactcohort.Caller       `yaml:"-"`
 	AuthorizeArtifactHost func(context.Context) error `yaml:"-"`
+	// ReleaseManagement is a trusted, host-owned editor adapter. It derives
+	// tenant/account/workspace and authoring rights from verified request state;
+	// authored YAML and browser arguments cannot install or scope it.
+	ReleaseManagement sdkrelease.Manager `yaml:"-"`
 	// Forge configures the generic stock provider for operator-owned portable
 	// window definitions. Reporting remains outside this host contract.
 	Forge            *ForgeConfig          `yaml:"Forge,omitempty"`

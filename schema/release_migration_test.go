@@ -14,7 +14,7 @@ func TestReleaseMigration25IsExplicitAndRestoresCanonicalSchema(t *testing.T) {
 	if err := ApplySQLite(ctx, db, "studio"); err != nil {
 		t.Fatal(err)
 	}
-	for _, table := range []string{"artifact_release_operations", "artifact_release_channels", "artifact_release_bundles"} {
+	for _, table := range []string{"artifact_release_bundle_bindings", "artifact_release_operations", "artifact_release_channels", "artifact_release_bundles"} {
 		if _, err := db.ExecContext(ctx, "DROP TABLE "+table); err != nil {
 			t.Fatal(err)
 		}
@@ -30,6 +30,16 @@ func TestReleaseMigration25IsExplicitAndRestoresCanonicalSchema(t *testing.T) {
 		t.Fatal(err)
 	}
 	if _, err := db.ExecContext(ctx, string(upgrade)); err != nil {
+		t.Fatal(err)
+	}
+	if err := Verify(ctx, db, "sqlite"); err == nil {
+		t.Fatal("version 25 lacks immutable binding companion")
+	}
+	bindings, err := os.ReadFile("migrations/026-artifact-release-bindings.sqlite.sql")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = db.ExecContext(ctx, string(bindings)); err != nil {
 		t.Fatal(err)
 	}
 	if err := Verify(ctx, db, "sqlite"); err != nil {

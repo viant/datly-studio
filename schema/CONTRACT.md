@@ -18,15 +18,18 @@ promotion outbox. Bundle rows are immutable. A channel's active bundle and
 revision change only after publisher projection completes; pending operations
 can be replayed after a restart without reporting premature activation. These
 tables do not replace Authz policy heads or component ACLs.
+Version 26 adds immutable producer-validated component bindings for each
+bundle so the Studio API and native runtime use the same exact component
+revisions and fingerprints; no browser alias is an authority.
 
 Authz schema setup is for fresh schema creation. It does not rename previous
 policy tables, rewrite keys, backfill history/audit fields, or apply a policy
 version ledger. The SQLX allocation ledger and canonical layout marker are included in the main
 creation DDL. `schema.Initialize` creates an empty store and verifies an existing
 store without ALTER statements, history conversion, backfill, or repair. The
-explicit additive `025-artifact-releases` scripts upgrade an existing
-version-24 Studio store after an operator backup; startup never applies them
-implicitly.
+explicit additive `025-artifact-releases` and
+`026-artifact-release-bindings` scripts upgrade a version-24 Studio store in
+order after an operator backup; startup never applies them implicitly.
 
 Focused validation:
 

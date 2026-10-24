@@ -104,6 +104,19 @@ func (g *Gate) Recover(ctx context.Context) error {
 // projection is explicitly failed after restoring the prior manifest. A DB
 // completion failure retains the pending intent for restart reconciliation.
 func (g *Gate) Promote(ctx context.Context, current, next artifactrelease.Channel, bundle artifactrelease.Bundle) error {
+	return g.PromoteWithPreflight(ctx, current, next, bundle, nil)
+}
+
+// PromoteWithPreflight rechecks the editor/lease under the write lock just
+// before durable Stage. Recovery finishes an already accepted operation under
+// producer authority without relying on the initiating user's session.
+func (g *Gate) PromoteWithPreflight(ctx context.Context, current, next artifactrelease.Channel, bundle artifactrelease.Bundle, preflight func(context.Context) error) error {
+	return g.PromoteWithStage(ctx, current, next, bundle, preflight, nil)
+}
+
+// PromoteWithStage lets a producer atomically persist immutable companion
+// bindings and the outbox operation in its existing SQL transaction.
+func (g *Gate) PromoteWithStage(ctx context.Context, current, next artifactrelease.Channel, bundle artifactrelease.Bundle, preflight func(context.Context) error, stage func(context.Context, artifactrelease.Channel, artifactrelease.Channel, artifactrelease.Bundle) (string, error)) error {
 	if g == nil || ctx == nil || ctx.Err() != nil {
 		return artifactrelease.ErrInvalid
 	}
@@ -112,7 +125,15 @@ func (g *Gate) Promote(ctx context.Context, current, next artifactrelease.Channe
 	if !g.ready {
 		return ErrNotReady
 	}
-	operationID, err := g.store.StageRevision(ctx, current, next, bundle)
+	if preflight != nil {
+		if err := preflight(ctx); err != nil {
+			return err
+		}
+	}
+	if stage == nil {
+		stage = g.store.StageRevision
+	}
+	operationID, err := stage(ctx, current, next, bundle)
 	if err != nil {
 		return err
 	}

@@ -296,27 +296,16 @@ func (s *Store) channel(ctx context.Context, source queryRow, key artifactreleas
 // StageRevision atomically reserves the channel and records a durable intent;
 // it does not change the committed active bundle or revision.
 func (s *Store) StageRevision(ctx context.Context, current, next artifactrelease.Channel, bundle artifactrelease.Bundle) (string, error) {
-	if s == nil || s.DB == nil || ctx == nil || ctx.Err() != nil {
-		return "", artifactrelease.ErrInvalid
-	}
-	tx, err := s.DB.BeginTx(ctx, nil)
-	if err != nil {
-		return "", err
-	}
-	defer tx.Rollback()
-	operationID, err := s.StageRevisionTx(ctx, tx, current, next, bundle)
-	if err != nil {
-		return "", err
-	}
-	if err = tx.Commit(); err != nil {
-		return "", err
-	}
-	return operationID, nil
+	return s.StageRevisionWithBindings(ctx, current, next, bundle, nil)
 }
 
 // StageRevisionTx lets the trusted host commit other release-grant metadata
 // with the pending channel intent. The caller owns commit and rollback.
 func (s *Store) StageRevisionTx(ctx context.Context, tx *sql.Tx, current, next artifactrelease.Channel, bundle artifactrelease.Bundle) (string, error) {
+	return s.stageRevisionTx(ctx, tx, current, next, bundle, nil)
+}
+
+func (s *Store) stageRevisionTx(ctx context.Context, tx *sql.Tx, current, next artifactrelease.Channel, bundle artifactrelease.Bundle, dependencies []byte) (string, error) {
 	if s == nil || tx == nil || ctx == nil || ctx.Err() != nil || !s.scope.owns(current.Key) ||
 		current.Key != next.Key || artifactrelease.ValidateChannel(current) != nil || artifactrelease.ValidateChannel(next) != nil ||
 		artifactrelease.ValidateBundle(bundle) != nil || bundle.Namespace != s.scope.Namespace || next.ActiveBundleHash != bundle.Hash ||
@@ -365,9 +354,9 @@ func (s *Store) StageRevisionTx(ctx context.Context, tx *sql.Tx, current, next a
 		return "", err
 	}
 	_, err = tx.ExecContext(ctx, `INSERT INTO artifact_release_operations
- (operation_id,scope_id,channel_name,expected_revision,target_revision,target_bundle_hash,next_channel_json,status,created_at,created_by,updated_at,updated_by)
- VALUES (?,?,?,?,?,?,?,'pending',?,?,?,?)`, operationID, s.scope.id(), current.Key.Name,
-		int64(current.Revision), int64(next.Revision), bundle.Hash, raw, now, actor, now, actor)
+ (operation_id,scope_id,channel_name,expected_revision,target_revision,target_bundle_hash,next_channel_json,dependencies_json,status,created_at,created_by,updated_at,updated_by)
+ VALUES (?,?,?,?,?,?,?,?,'pending',?,?,?,?)`, operationID, s.scope.id(), current.Key.Name,
+		int64(current.Revision), int64(next.Revision), bundle.Hash, raw, dependencies, now, actor, now, actor)
 	if err != nil {
 		return "", err
 	}
@@ -426,9 +415,9 @@ func (s *Store) CompleteRevision(ctx context.Context, key artifactrelease.Key, e
 		return err
 	}
 	now := s.now()
-	result, err := tx.ExecContext(ctx, `UPDATE artifact_release_channels SET description=?,policy_refs_json=?,active_bundle_hash=?,revision=?,pending_operation_id=NULL,updated_at=?,updated_by=?
+	result, err := tx.ExecContext(ctx, `UPDATE artifact_release_channels SET description=?,policy_refs_json=?,active_bundle_hash=?,active_dependencies_json=?,revision=?,pending_operation_id=NULL,updated_at=?,updated_by=?
  WHERE scope_id=? AND name=? AND revision=? AND pending_operation_id=?`, operation.Next.Description, policies,
-		operation.Next.ActiveBundleHash, int64(operation.Next.Revision), now, actor,
+		operation.Next.ActiveBundleHash, operation.dependencies, int64(operation.Next.Revision), now, actor,
 		s.scope.id(), key.Name, int64(expectedCurrentRevision), operation.id)
 	if err != nil {
 		return err
@@ -529,17 +518,18 @@ func validOperationID(value string) bool {
 
 type pendingRow struct {
 	artifactrelease.PendingRevision
-	id string
+	id           string
+	dependencies []byte
 }
 
 func (s *Store) pendingForChannel(ctx context.Context, tx *sql.Tx, key artifactrelease.Key) (pendingRow, error) {
 	var id, hash, status string
 	var expected, target int64
-	var raw []byte
-	err := tx.QueryRowContext(ctx, `SELECT o.operation_id,o.expected_revision,o.target_revision,o.target_bundle_hash,o.next_channel_json,o.status
+	var raw, dependencies []byte
+	err := tx.QueryRowContext(ctx, `SELECT o.operation_id,o.expected_revision,o.target_revision,o.target_bundle_hash,o.next_channel_json,o.dependencies_json,o.status
  FROM artifact_release_operations o JOIN artifact_release_channels c ON c.scope_id=o.scope_id AND c.name=o.channel_name
  WHERE o.scope_id=? AND o.channel_name=? AND c.pending_operation_id=o.operation_id`, s.scope.id(), key.Name).
-		Scan(&id, &expected, &target, &hash, &raw, &status)
+		Scan(&id, &expected, &target, &hash, &raw, &dependencies, &status)
 	if err != nil {
 		return pendingRow{}, err
 	}
@@ -555,7 +545,7 @@ func (s *Store) pendingForChannel(ctx context.Context, tx *sql.Tx, key artifactr
 		next.Revision != uint64(target) || next.ActiveBundleHash != hash || current.Revision != uint64(expected) {
 		return pendingRow{}, artifactrelease.ErrInvalid
 	}
-	return pendingRow{PendingRevision: artifactrelease.PendingRevision{OperationID: id, Current: current, Next: next, BundleHash: hash}, id: id}, nil
+	return pendingRow{PendingRevision: artifactrelease.PendingRevision{OperationID: id, Current: current, Next: next, BundleHash: hash}, id: id, dependencies: dependencies}, nil
 }
 
 // Pending returns only intents still referenced by their channel's pending

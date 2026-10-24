@@ -605,6 +605,7 @@ CREATE TABLE artifact_release_channels (
     description            TEXT NOT NULL,
     policy_refs_json       JSON NOT NULL,
     active_bundle_hash     CHAR(64) NULL,
+    active_dependencies_json JSON NULL,
     revision               BIGINT NOT NULL,
     pending_operation_id   CHAR(32) NULL,
     created_at             DATETIME(6) NOT NULL,
@@ -626,6 +627,7 @@ CREATE TABLE artifact_release_operations (
     target_revision        BIGINT NOT NULL,
     target_bundle_hash     CHAR(64) NOT NULL,
     next_channel_json      JSON NOT NULL,
+    dependencies_json      JSON NULL,
     status                 VARCHAR(16) NOT NULL,
     created_at             DATETIME(6) NOT NULL,
     created_by             VARCHAR(128) NOT NULL,
@@ -646,6 +648,23 @@ CREATE TABLE artifact_release_operations (
 
 CREATE INDEX idx_artifact_release_operations_pending
     ON artifact_release_operations(scope_id, status, created_at);
+
+-- Producer-validated closure bindings are immutable with their bundle. The
+-- Studio API and native runtime read the same exact component revisions.
+CREATE TABLE artifact_release_bundle_bindings (
+    scope_id               CHAR(64) NOT NULL,
+    bundle_hash            CHAR(64) NOT NULL,
+    bindings_json          JSON NOT NULL,
+    bindings_hash          CHAR(64) NOT NULL,
+    created_at             DATETIME(6) NOT NULL,
+    created_by             VARCHAR(128) NOT NULL,
+    updated_at             DATETIME(6) NOT NULL,
+    updated_by             VARCHAR(128) NOT NULL,
+    PRIMARY KEY (scope_id, bundle_hash),
+    CONSTRAINT fk_artifact_release_bindings_bundle
+        FOREIGN KEY (scope_id, bundle_hash)
+        REFERENCES artifact_release_bundles(scope_id, bundle_hash)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE component_acl (
     namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
@@ -669,7 +688,7 @@ CREATE TABLE schema_version (
     version                 INTEGER NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO schema_version(version) VALUES (25);
+INSERT INTO schema_version(version) VALUES (26);
 
 CREATE TABLE tool_call_audit (
     id BIGINT NOT NULL AUTO_INCREMENT,
