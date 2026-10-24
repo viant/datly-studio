@@ -227,6 +227,16 @@ window:
                           overflowY: auto
                       inputProps:
                         aria-label: Find custom predicate
+                  - id: predicateHandlerArgs
+                    label: Handler arguments (JSON array)
+                    dataField: predicateHandlerArgs
+                    type: textarea
+                    visibleWhen:
+                      selector: predicateName
+                      equals: handler
+                    properties:
+                      placeholder: '["alias", "p", "enabled", true, "limit", 7, "fallback", null]'
+                      rows: 3
                   - id: predicateGroup
                     label: Group
                     dataField: predicateGroup
@@ -626,6 +636,16 @@ window:
                     overflowY: auto
                 inputProps:
                   aria-label: Find custom predicate
+            - id: predicateHandlerArgs
+              label: Handler arguments (JSON array)
+              dataField: predicateHandlerArgs
+              type: textarea
+              visibleWhen:
+                selector: predicateName
+                equals: handler
+              properties:
+                placeholder: '["alias", "p", "enabled", true, "limit", 7, "fallback", null]'
+                rows: 3
             - id: predicateGroup
               label: Group
               dataField: predicateGroup

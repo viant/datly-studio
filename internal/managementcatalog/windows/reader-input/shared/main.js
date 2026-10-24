@@ -19,6 +19,17 @@
  const views=()=>{const result=[];const visit=node=>{if(!node)return;const name=node.namespace||node.name;if(!result.some(item=>item.name===name))result.push({name,label:node.name&&node.name!==name?`${node.name} (${name})`:name,node});for(const relation of node.relations||[])visit(relation.view);};visit(inspection?.structure?.component?.rootView);return result;};
  const dimensions=view=>rows('input_dimensions',(views().find(item=>item.name===view)?.node.columns||[]).map(column=>({name:column.source||column.name,label:column.source&&column.source!==column.name?`${column.name} (${column.source})`:column.name})));
  const single=name=>['expr','literal_in','multi_in','multi_not_in','when_present','when_not_present','handler'].includes(name);
+ const handlerDefaults=predicate=>{
+  const values=predicate?.name==='handler'?[...(predicate.args||[]).slice(1),...(predicate.handlerArgs||[])]:[];
+  return {predicateHandlerArgs:values.length?JSON.stringify(values):'',predicateHadHandlerArgs:values.length>0};
+ };
+ const handlerArguments=form=>{
+  const text=String(form.predicateHandlerArgs||'').trim();
+  if(!text)return form.predicateHadHandlerArgs?[]:undefined;
+  let values;try{values=JSON.parse(text);}catch{throw new Error('Enter handler arguments as a JSON array.');}
+  if(!Array.isArray(values)||values.some(value=>value!==null&&typeof value!=='string'&&typeof value!=='boolean'&&!Number.isSafeInteger(value)))throw new Error('Handler arguments support only strings, booleans, integers, and null.');
+  return values;
+ };
  const attached=()=>{
   const declaration=(inspection?.structure?.declarations||[]).find(item=>item.parameter?.name===draft().existingName);
   rows('input_attached',(declaration?.predicates||[]).map(item=>({id:`${draft().existingName}:${item.ordinal}`,name:item.predicate.name,args:(item.predicate.args||[]).join(', '),group:item.predicate.group,occurrence:item.ordinal,predicate:item.predicate,views:(inspection.structure.predicateExpansions||[]).filter(exp=>exp.group===item.predicate.group).map(exp=>exp.view)})));
@@ -41,9 +52,10 @@
   if(!field||!name||!form.predicateView||!args.length||args.some(value=>!value?.trim()))throw new Error('Choose a predicate, target view, and arguments.');
   const group=Number(form.predicateGroup);
   if(!Number.isInteger(group)||group<0||group===99)throw new Error('Choose a non-negative filter group. Required authorization uses the privileged workflow.');
-  return {field,occurrence,name,args,view:form.predicateView,expansionViews:form.expansionViews,group,groupOperator:form.predicateOperator||'AND',applyWhenAbsent:form.predicateAbsent===true};
+  const handlerArgs=name==='handler'?handlerArguments(form):undefined;
+  return {field,occurrence,name,args,...(handlerArgs!==undefined?{handlerArgs}:{}),view:form.predicateView,expansionViews:form.expansionViews,group,groupOperator:form.predicateOperator||'AND',applyWhenAbsent:form.predicateAbsent===true};
  };
- const predicateDefaults=()=>({predicateName:'',predicateView:views()[0]?.name||'',predicateAlias:'',predicateDimension:'',predicateArgs:'',predicateHandler:'',predicateGroup:1,predicateOperator:'AND',predicateAbsent:false});
+ const predicateDefaults=()=>({predicateName:'',predicateView:views()[0]?.name||'',predicateAlias:'',predicateDimension:'',predicateArgs:'',predicateHandler:'',predicateHandlerArgs:'',predicateHadHandlerArgs:false,predicateGroup:1,predicateOperator:'AND',predicateAbsent:false});
  const initialize=async()=>{
   set('input_draft',{loading:true,outcome:''});
   try{
@@ -93,7 +105,7 @@
   confirmRemove:()=>{set('input_draft',{confirmName:''});popup('remove-input');},
   remove:()=>run(async()=>{if(draft().confirmName!==draft().existingName)throw new Error('Type the exact input name to confirm removal.');const result=await apply({type:'removeField',field:{existingName:draft().existingName}});await host().complete({result,close:true});}),
   newPredicate:()=>{ds('predicate_draft').setFormData({values:{...predicateDefaults(),predicateName:'equal',outcome:'',editing:false,locked:false}});dimensions(views()[0]?.name);popup('predicate');},
-  editPredicate:()=>{const row=ds('input_attached').peekSelection()?.selected;if(!row)return;const p=row.predicate;ds('predicate_draft').setFormData({values:{editing:true,occurrence:row.occurrence,locked:p.group===99,predicateName:p.name,predicateView:row.views?.[0]||views()[0]?.name,predicateArgs:(p.args||[]).join(', '),predicateAlias:p.args?.[0]||'',predicateDimension:p.args?.[1]||'',predicateHandler:p.name==='handler'?p.args?.[0]||'':'',predicateGroup:p.group,predicateOperator:'AND',predicateAbsent:p.applyWhenAbsent===true,expansionViews:row.views,outcome:''}});dimensions(get('predicate_draft').predicateView);popup('predicate');},
+  editPredicate:()=>{const row=ds('input_attached').peekSelection()?.selected;if(!row)return;const p=row.predicate;ds('predicate_draft').setFormData({values:{editing:true,occurrence:row.occurrence,locked:p.group===99,predicateName:p.name,predicateView:row.views?.[0]||views()[0]?.name,predicateArgs:(p.args||[]).join(', '),predicateAlias:p.args?.[0]||'',predicateDimension:p.args?.[1]||'',predicateHandler:p.name==='handler'?p.args?.[0]||'':'',...handlerDefaults(p),predicateGroup:p.group,predicateOperator:'AND',predicateAbsent:p.applyWhenAbsent===true,expansionViews:row.views,outcome:''}});dimensions(get('predicate_draft').predicateView);popup('predicate');},
   savePredicate:()=>run(async()=>{const p=get('predicate_draft');if(p.locked)throw new Error('Required authorization predicates cannot be changed here.');const result=await apply({type:p.editing?'updateFieldPredicate':'addFieldPredicate',predicate:predicate(p,draft().existingName,p.occurrence||0)});await host().complete({result,close:false});},'predicate_draft'),
   confirmPredicateRemove:()=>{const row=ds('input_attached').peekSelection()?.selected;if(!row)return;if(row.group===99){set('input_draft',{outcome:'Required authorization predicates cannot be removed here.'});return;}popup('remove-predicate');},
   removePredicate:()=>run(async()=>{const row=ds('input_attached').peekSelection()?.selected;if(!row)throw new Error('Select a predicate.');if(row.group===99)throw new Error('Required authorization predicates cannot be removed here.');const result=await apply({type:'removeFieldPredicate',predicate:{field:draft().existingName,occurrence:row.occurrence}});await host().complete({result,close:false});context.handlers.window.closeDialog({dialogId:'predicate'});})
