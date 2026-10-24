@@ -1194,6 +1194,8 @@ github.com/viant/datly v1.1.1-0.20261022172530-0d59aea04ece h1:CGps9rG3PKcnPynrc
 github.com/viant/datly v1.1.1-0.20261022172530-0d59aea04ece/go.mod h1:n/GddK78xClFrsqGeGCMCplH4JvH7cG5xNJQMhhyRt4=
 github.com/viant/datly v1.1.1-0.20261023203247-0b9a0c1e4054 h1:K0Ec+2HVmIviZ50IJSStTm4hvdwHYp1aDBuoTLknQ4I=
 github.com/viant/datly v1.1.1-0.20261023203247-0b9a0c1e4054/go.mod h1:VJjM4cQpjs5L9GvuK3TwodubvrTZxYd0qz2a5WPe7r8=
+github.com/viant/datly v1.1.1-0.20261024184358-587676559c26 h1:bNB6VF7nL7phAfkXi0t5yMb6UfcnLF7yDYCn0XdsaO0=
+github.com/viant/datly v1.1.1-0.20261024184358-587676559c26/go.mod h1:AhQ2S4eoXSn1mP2OFfEbhmFZbWi41pESlRoOuPmrmO0=
 github.com/viant/forge v0.3.45-0.20261015011117-38bb1cf13641 h1:yA6VXuZfTdnbkxDY3MN6NKiKavfsg/fjxQmlKqS5KDw=
 github.com/viant/forge v0.3.45-0.20261015011117-38bb1cf13641/go.mod h1:asQHHCMbgC0d3pc0dm+GFFQ5cDyzjG0qN86vrW85rCY=
 github.com/viant/forge v0.3.45-0.20261017190953-b07e77a0fe24 h1:NOie2I6rMGs4jEFkteWrk8wQKivwr6dN9nciKLCYuAM=
@@ -1224,6 +1226,8 @@ github.com/viant/forge v0.3.45-0.20261023233949-e9b84f6c97a1 h1:xGjfuUcvrvbGsIgZ
 github.com/viant/forge v0.3.45-0.20261023233949-e9b84f6c97a1/go.mod h1:LFwCJLTUSLZaA6c3txU8FuKhlhD8Tv/omGBFL9AKtrk=
 github.com/viant/forge v0.3.45-0.20261024011721-67e8e946b68d h1:fwQBqxrw7jO7TG97jKcxgDnr+8nVZWF2Yg6fukUC7mc=
 github.com/viant/forge v0.3.45-0.20261024011721-67e8e946b68d/go.mod h1:LFwCJLTUSLZaA6c3txU8FuKhlhD8Tv/omGBFL9AKtrk=
+github.com/viant/forge v0.3.45-0.20261024181946-a09eab2de015 h1:0dapEZbLe6ftg5bu2offuqDyBhHSUBPPVgu7fAoyPmc=
+github.com/viant/forge v0.3.45-0.20261024181946-a09eab2de015/go.mod h1:LFwCJLTUSLZaA6c3txU8FuKhlhD8Tv/omGBFL9AKtrk=
 github.com/viant/gmetric v0.3.2 h1:zTdW9QrPk2P0i/do9fokxtHesFQCvYqIc5Yktzmyxtg=
 github.com/viant/gmetric v0.3.2/go.mod h1:3WGxSMCL+owUb0HewYXMLxkoen8e8MlX1Vd2C6tJ5qw=
 github.com/viant/godiff v0.4.3-0.20260914060527-9f2005ca82e8 h1:PCgpoW8IwGsYDs805dCXp25vLTWkakpfvIYll0Twir4=
@@ -1304,6 +1308,8 @@ github.com/viant/xdatly v1.0.1-0.20261014220053-69eb20c7d1a8 h1:8qupMnH+MeZ5TZJP
 github.com/viant/xdatly v1.0.1-0.20261014220053-69eb20c7d1a8/go.mod h1:t085YqeJeRWQzuzio1Th4Jkfcb6E35n/XSw3ltCAkrI=
 github.com/viant/xdatly v1.0.1-0.20261017023827-3a09d6ff7964 h1:dYmZuEzx3c5ej5MZ5tjyZr04eSbibyHZKT9TqwTQfkE=
 github.com/viant/xdatly v1.0.1-0.20261017023827-3a09d6ff7964/go.mod h1:t085YqeJeRWQzuzio1Th4Jkfcb6E35n/XSw3ltCAkrI=
+github.com/viant/xdatly v1.0.1-0.20261024171213-64c863c68aa7 h1:K7fdo2mXNLKiBMr21GorzmGeaA51RLxsfJxia95s37s=
+github.com/viant/xdatly v1.0.1-0.20261024171213-64c863c68aa7/go.mod h1:t085YqeJeRWQzuzio1Th4Jkfcb6E35n/XSw3ltCAkrI=
 github.com/viant/xlsy v0.3.1 h1:KwA7PxOTVg+ns4CCPOdfNy5aEA9OUlIByUbuNC9ju0s=
 github.com/viant/xlsy v0.3.1/go.mod h1:RajfF9HkL/PfIxRCvZSubpNlpdMUNDKYZp8C1o3vF4Q=
 github.com/viant/xmlify v0.1.2-0.20260914155716-e525a8788fd0 h1:KOvP8KJgM8+SmrsnPOOnZ6EPhAvivMj7dS/QCfBk++U=
