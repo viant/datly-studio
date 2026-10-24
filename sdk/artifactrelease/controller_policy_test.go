@@ -96,11 +96,25 @@ func TestPolicyRefreshWithdrawsOnlyAffectedChannel(t *testing.T) {
 	if err = controller.Recover(ctx); err != nil {
 		t.Fatal(err)
 	}
+	shared := artifacts["window://demo/a"].Root
+	sharedHash := ""
 	for _, name := range []string{"a", "b"} {
 		ref := authz.NamedReference{Resource: docs[name].Resource, Revision: 1}
-		if _, err = controller.Publish(ctx, contract.PublishInput{Namespace: "demo", Name: name, Policies: []authz.NamedReference{ref}, Roots: []artifactcohort.RootRef{artifacts["window://demo/"+name].Root}}); err != nil {
-			t.Fatal(err)
+		result, publishErr := controller.Publish(ctx, contract.PublishInput{Namespace: "demo", Name: name, Policies: []authz.NamedReference{ref}, Roots: []artifactcohort.RootRef{shared}})
+		if publishErr != nil {
+			t.Fatal(publishErr)
 		}
+		if result.Bundle == nil || sharedHash != "" && result.Bundle.Hash != sharedHash {
+			t.Fatalf("same revision produced a different bundle across releases: %+v", result)
+		}
+		sharedHash = result.Bundle.Hash
+	}
+	var bundleCount int
+	if err = db.QueryRowContext(ctx, `SELECT COUNT(*) FROM artifact_release_bundles`).Scan(&bundleCount); err != nil {
+		t.Fatal(err)
+	}
+	if bundleCount != 1 {
+		t.Fatalf("shared immutable bundle was copied per release: %d", bundleCount)
 	}
 	bad := docs["a"]
 	bad.Revision = 2
@@ -112,6 +126,9 @@ func TestPolicyRefreshWithdrawsOnlyAffectedChannel(t *testing.T) {
 	snapshot, err := controller.ActiveSnapshot(ctx)
 	if err != nil || len(snapshot.Selections) != 1 || snapshot.Selections[0].Channel.Key.Name != "b" {
 		t.Fatalf("unrelated channel was blocked: %+v %v", snapshot, err)
+	}
+	if snapshot.Selections[0].Bundle.Hash != sharedHash || len(snapshot.Selections[0].Bundle.Roots) != 1 || snapshot.Selections[0].Bundle.Roots[0] != shared {
+		t.Fatal("withdrawing one release changed the other release's shared revision")
 	}
 	fresh := artifactcohort.NewPublisher()
 	if _, err = fresh.ReplaceCatalog(ctx, nil, nil, 0); err != nil {
