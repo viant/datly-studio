@@ -18,13 +18,17 @@ import (
 // derive scope, editor authority, policy heads and closed artifact bytes from
 // server-owned state; no browser field can supply those capabilities.
 type ControllerConfig struct {
-	Scope       sqlstore.Scope
-	Store       *sqlstore.Store
-	Publisher   *artifactcohort.Publisher
-	VerifyScope func(context.Context) (sqlstore.Scope, error)
-	Authorize   func(context.Context, string) error
-	Candidates  func(context.Context) ([]contract.Candidate, error)
-	Prepare     func(context.Context, []artifactcohort.RootRef) ([]*artifactcohort.Artifact, error)
+	Scope sqlstore.Scope
+	// ProjectionTenant is the configured recipient identity tenant on the wire.
+	// Empty keeps the storage tenant. Named policy heads and dependency records
+	// always stay in Scope.Tenant.
+	ProjectionTenant string
+	Store            *sqlstore.Store
+	Publisher        *artifactcohort.Publisher
+	VerifyScope      func(context.Context) (sqlstore.Scope, error)
+	Authorize        func(context.Context, string) error
+	Candidates       func(context.Context) ([]contract.Candidate, error)
+	Prepare          func(context.Context, []artifactcohort.RootRef) ([]*artifactcohort.Artifact, error)
 	// CompileBindings derives exact native component pins from validated closed
 	// bytes; client aliases never enter this companion record.
 	CompileBindings func(context.Context, contract.Bundle, []*artifactcohort.Artifact) ([]sqlstore.ComponentBinding, error)
@@ -32,6 +36,9 @@ type ControllerConfig struct {
 	// producer persistence during restart. It must not require a user lease or
 	// discover mutable working resources.
 	RestoreArtifacts func(context.Context, []artifactcohort.RootRef) ([]*artifactcohort.Artifact, error)
+	// AvailableRoot checks the producer's committed publication/archive state,
+	// independently of retained immutable bytes. It must work on restart.
+	AvailableRoot    func(context.Context, artifactcohort.RootRef) error
 	ValidateArtifact func(context.Context, *artifactcohort.Artifact) error
 	NamedDocuments   func(context.Context, []authz.NamedReference) ([]authz.Document, error)
 	Fence            func(context.Context, []authz.NamedDependency) error
@@ -88,19 +95,32 @@ func (c *Controller) ActiveSnapshot(ctx context.Context) (ActiveSnapshot, error)
 			if readErr != nil {
 				return readErr
 			}
-			if !manifestSelectsChannel(manifest, channel, bundle) {
-				return contract.ErrConflict
+			if !manifestSelectsChannel(manifest, channel, bundle, c.projectionTenant()) {
+				continue
+			}
+			available := true
+			for _, root := range bundle.Roots {
+				if c.config.AvailableRoot(ctx, root) != nil {
+					available = false
+					break
+				}
+			}
+			if !available {
+				continue
 			}
 			bindings, readErr := c.config.Store.BundleBindings(ctx, bundle)
 			if readErr != nil {
 				return readErr
 			}
 			dependencies, readErr := c.config.Store.ActiveDependencies(ctx, channel.Key)
-			if readErr != nil || len(dependencies) == 0 {
-				return contract.ErrInvalid
+			if readErr != nil {
+				return readErr
+			}
+			if len(dependencies) == 0 {
+				continue
 			}
 			if readErr = c.config.Fence(ctx, dependencies); readErr != nil {
-				return readErr
+				continue
 			}
 			out.Selections = append(out.Selections, ActiveSelection{Channel: channel, Bundle: bundle, Bindings: bindings, Dependencies: dependencies})
 		}
@@ -109,12 +129,12 @@ func (c *Controller) ActiveSnapshot(ctx context.Context) (ActiveSnapshot, error)
 	return out, err
 }
 
-func manifestSelectsChannel(manifest artifactcohort.Manifest, channel contract.Channel, bundle contract.Bundle) bool {
+func manifestSelectsChannel(manifest artifactcohort.Manifest, channel contract.Channel, bundle contract.Bundle, projectionTenant string) bool {
 	for _, ref := range channel.Policies {
 		name := contract.ReleaseCohortName(channel.Key, ref)
 		matched := false
 		for _, cohort := range manifest.Cohorts {
-			if cohort.Tenant != channel.Key.Tenant || cohort.Name != name {
+			if cohort.Tenant != projectionTenant || cohort.Name != name {
 				continue
 			}
 			if len(cohort.Roots) != len(bundle.Roots) {
@@ -209,7 +229,10 @@ func (c *Controller) FenceRoot(ctx context.Context, root artifactcohort.RootRef,
 var _ Manager = (*Controller)(nil)
 
 func NewController(config ControllerConfig) (*Controller, error) {
-	if config.Store == nil || config.Publisher == nil || config.VerifyScope == nil || config.Authorize == nil || config.Candidates == nil || config.Prepare == nil || config.CompileBindings == nil || config.RestoreArtifacts == nil || config.ValidateArtifact == nil || config.NamedDocuments == nil || config.Fence == nil || config.AdmitAudience == nil || !(contract.Key{Tenant: config.Scope.Tenant, Account: config.Scope.Account, Workspace: config.Scope.Workspace, Namespace: config.Scope.Namespace, Name: "scope"}).Valid() {
+	if config.Store == nil || config.Publisher == nil || config.VerifyScope == nil || config.Authorize == nil || config.Candidates == nil || config.Prepare == nil || config.CompileBindings == nil || config.RestoreArtifacts == nil || config.AvailableRoot == nil || config.ValidateArtifact == nil || config.NamedDocuments == nil || config.Fence == nil || config.AdmitAudience == nil || !(contract.Key{Tenant: config.Scope.Tenant, Account: config.Scope.Account, Workspace: config.Scope.Workspace, Namespace: config.Scope.Namespace, Name: "scope"}).Valid() {
+		return nil, contract.ErrInvalid
+	}
+	if config.ProjectionTenant != "" && !(contract.Key{Tenant: config.ProjectionTenant, Account: config.Scope.Account, Workspace: config.Scope.Workspace, Namespace: config.Scope.Namespace, Name: "scope"}).Valid() {
 		return nil, contract.ErrInvalid
 	}
 	c := &Controller{config: config}
@@ -223,7 +246,92 @@ func NewController(config ControllerConfig) (*Controller, error) {
 
 func (c *Controller) Gate() *releasegate.Gate              { return c.gate }
 func (c *Controller) Publisher() *artifactcohort.Publisher { return c.config.Publisher }
-func (c *Controller) Recover(ctx context.Context) error    { return c.gate.Recover(ctx) }
+func (c *Controller) projectionTenant() string {
+	if c.config.ProjectionTenant != "" {
+		return c.config.ProjectionTenant
+	}
+	return c.config.Scope.Tenant
+}
+func (c *Controller) Recover(ctx context.Context) error { return c.gate.Recover(ctx) }
+
+// RefreshPolicies is a producer-owned post-commit hook for a named policy
+// update/archive. It advances only affected channel revisions with the same
+// exact bundle. An invalid new head withdraws only that channel's cohorts;
+// persisted old dependencies keep API/runtime admission denied until retry.
+func (c *Controller) RefreshPolicies(ctx context.Context, changed authz.Resource) error {
+	if c == nil || ctx == nil || ctx.Err() != nil || changed.Kind != "policy" || changed.Tenant != c.config.Scope.Tenant || changed.ID == "" {
+		return contract.ErrInvalid
+	}
+	channels, err := c.config.Store.ListChannels(ctx)
+	if err != nil {
+		return err
+	}
+	var failures []error
+	for _, current := range channels {
+		if current.ActiveBundleHash == "" {
+			continue
+		}
+		deps, readErr := c.config.Store.ActiveDependencies(ctx, current.Key)
+		if readErr != nil {
+			return readErr
+		}
+		affected := false
+		for _, dep := range deps {
+			if dep.Resource == changed {
+				affected = true
+				break
+			}
+		}
+		if !affected {
+			continue
+		}
+		bundle, readErr := c.config.Store.Bundle(ctx, current.ActiveBundleHash)
+		if readErr != nil {
+			return readErr
+		}
+		bindings, readErr := c.config.Store.BundleBindings(ctx, bundle)
+		if readErr != nil {
+			return readErr
+		}
+		next, readErr := contract.PreparePromotion(current, current.Revision, bundle)
+		if readErr != nil {
+			return readErr
+		}
+		compiled, compileErr := c.compile(ctx, next, bundle)
+		if compileErr == nil {
+			stage := func(ctx context.Context, old, new contract.Channel, selected contract.Bundle) (string, error) {
+				return c.config.Store.StageRevisionWithBindingsAndDependencies(ctx, old, new, selected, bindings, compiled.Dependencies)
+			}
+			compileErr = c.gate.PromoteWithStage(ctx, current, next, bundle, nil, stage)
+		}
+		if compileErr != nil {
+			if withdrawErr := c.withdrawDerived(ctx, current.Key); withdrawErr != nil {
+				failures = append(failures, errors.Join(compileErr, withdrawErr))
+				continue
+			}
+			failures = append(failures, compileErr)
+		}
+		if c.config.Notify != nil {
+			c.config.Notify(ctx)
+		}
+	}
+	return errors.Join(failures...)
+}
+
+func (c *Controller) withdrawDerived(ctx context.Context, key contract.Key) error {
+	return c.gate.UpdateOrBlock(func() error {
+		manifest, err := c.config.Publisher.Snapshot()
+		if err != nil {
+			return err
+		}
+		policies, cohorts, err := contract.MergeProjectedActivation(manifest, key, c.projectionTenant(), contract.Compilation{})
+		if err != nil {
+			return err
+		}
+		_, err = c.config.Publisher.ReplaceCatalog(ctx, policies, cohorts, manifest.Generation)
+		return err
+	})
+}
 
 func (c *Controller) check(ctx context.Context, namespace, action string) error {
 	if c == nil || ctx == nil || ctx.Err() != nil || namespace != c.config.Scope.Namespace {
@@ -248,16 +356,43 @@ func (c *Controller) List(ctx context.Context, in contract.ListInput) (contract.
 	}
 	var out contract.ListOutput
 	err := c.gate.Read(func() error {
+		manifest, manifestErr := c.config.Publisher.Snapshot()
+		if manifestErr != nil {
+			return manifestErr
+		}
 		channels, err := c.config.Store.ListChannels(ctx)
 		if err != nil {
 			return err
 		}
 		for _, channel := range channels {
 			status, active := contract.StatusPending, false
+			result := contract.Result{Channel: channel, Status: status, Activated: active}
 			if channel.Revision > 0 && channel.ActiveBundleHash != "" {
+				bundle, readErr := c.config.Store.Bundle(ctx, channel.ActiveBundleHash)
+				if readErr != nil {
+					return readErr
+				}
+				result.Bundle = &bundle
 				status, active = contract.StatusActive, true
+				if !manifestSelectsChannel(manifest, channel, bundle, c.projectionTenant()) {
+					status, active = contract.StatusFailed, false
+				}
+				for _, root := range bundle.Roots {
+					if c.config.AvailableRoot(ctx, root) != nil {
+						status, active = contract.StatusFailed, false
+						break
+					}
+				}
+				deps, depErr := c.config.Store.ActiveDependencies(ctx, channel.Key)
+				if depErr != nil {
+					return depErr
+				}
+				if len(deps) == 0 || c.config.Fence(ctx, deps) != nil {
+					status, active = contract.StatusFailed, false
+				}
 			}
-			out.Channels = append(out.Channels, contract.Result{Channel: channel, Status: status, Activated: active})
+			result.Status, result.Activated = status, active
+			out.Channels = append(out.Channels, result)
 		}
 		return nil
 	})
@@ -314,6 +449,9 @@ func (c *Controller) Publish(ctx context.Context, in contract.PublishInput) (con
 	for _, artifact := range artifacts {
 		if artifact == nil || !requested[artifactcohort.RootKey(artifact.Root)] || artifactcohort.ValidateArtifact(artifact) != nil {
 			return contract.Result{}, contract.ErrInvalid
+		}
+		if err := c.config.AvailableRoot(ctx, artifact.Root); err != nil {
+			return contract.Result{}, err
 		}
 		delete(requested, artifactcohort.RootKey(artifact.Root))
 	}
@@ -469,6 +607,15 @@ func (c *Controller) compile(ctx context.Context, channel contract.Channel, bund
 	if err = c.config.Fence(ctx, result.Dependencies); err != nil {
 		return contract.Compilation{}, err
 	}
+	if target := c.projectionTenant(); target != channel.Key.Tenant {
+		for i := range result.Policies {
+			result.Policies[i].Resource.Tenant = target
+		}
+		for i := range result.Cohorts {
+			result.Cohorts[i].Tenant = target
+			result.Cohorts[i].PolicyResource.Tenant = target
+		}
+	}
 	return result, nil
 }
 
@@ -530,7 +677,7 @@ func (c *Controller) project(ctx context.Context, item contract.PendingRevision)
 	if err != nil {
 		return err
 	}
-	policies, cohorts, err := contract.MergeActivation(manifest, item.Next.Key, compiled)
+	policies, cohorts, err := contract.MergeProjectedActivation(manifest, item.Next.Key, c.projectionTenant(), compiled)
 	if err != nil {
 		return err
 	}
@@ -558,19 +705,35 @@ func (c *Controller) reconcile(ctx context.Context) error {
 			if _, readErr = c.config.Store.BundleBindings(ctx, bundle); readErr != nil {
 				return readErr
 			}
-			if readErr = c.retainRoots(ctx, bundle.Roots); readErr != nil {
-				return readErr
+			available := true
+			for _, root := range bundle.Roots {
+				if c.config.AvailableRoot(ctx, root) != nil {
+					available = false
+					break
+				}
 			}
-			compiled, readErr = c.compile(ctx, channel, bundle)
-			if readErr != nil {
-				return readErr
-			}
-			activeDeps, readErr := c.config.Store.ActiveDependencies(ctx, channel.Key)
-			if readErr != nil || !reflect.DeepEqual(activeDeps, compiled.Dependencies) {
-				return contract.ErrConflict
+			if available {
+				if readErr = c.retainRoots(ctx, bundle.Roots); readErr != nil {
+					return readErr
+				}
+				compiled, readErr = c.compile(ctx, channel, bundle)
+				if readErr != nil {
+					if !errors.Is(readErr, contract.ErrConflict) && !errors.Is(readErr, contract.ErrInvalid) && !errors.Is(readErr, authz.ErrDenied) && !errors.Is(readErr, sql.ErrNoRows) {
+						return readErr
+					}
+					compiled = contract.Compilation{}
+				} else {
+					activeDeps, depErr := c.config.Store.ActiveDependencies(ctx, channel.Key)
+					if depErr != nil {
+						return depErr
+					}
+					if !reflect.DeepEqual(activeDeps, compiled.Dependencies) {
+						compiled = contract.Compilation{}
+					}
+				}
 			}
 		}
-		manifest.Policies, manifest.Cohorts, err = contract.MergeActivation(manifest, channel.Key, compiled)
+		manifest.Policies, manifest.Cohorts, err = contract.MergeProjectedActivation(manifest, channel.Key, c.projectionTenant(), compiled)
 		if err != nil {
 			return err
 		}

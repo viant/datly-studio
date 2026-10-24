@@ -173,8 +173,9 @@ func TestTransportUsesCanonicalConnectorAndReportTables(t *testing.T) {
 	transport.RuntimeProbe = RuntimeHostProbeFunc(func(context.Context) (*sdk.RuntimeHost, error) {
 		return &sdk.RuntimeHost{Status: "ready", Revision: *publication.ActiveGeneration}, nil
 	})
+	transport.ReleaseNamespace = "demo"
 	runtimeStatus, err := client.Runtime().Status(ctx)
-	if err != nil || runtimeStatus.Status != "active" || runtimeStatus.ActiveGeneration != *publication.ActiveGeneration || runtimeStatus.Host == nil || runtimeStatus.Host.Status != "ready" || runtimeStatus.Host.Revision != *publication.ActiveGeneration || len(runtimeStatus.Readers) != 1 || len(runtimeStatus.Readers[0].MCPExposures) != 1 || len(runtimeStatus.Readers[0].MCPResources) != 1 || runtimeStatus.Readers[0].MCPResources[0].URIPrefix != "skill://alice-guide/" || len(runtimeStatus.Readers[0].Skills) != 1 || runtimeStatus.Readers[0].Skills[0].SkillRoot != "." {
+	if err != nil || runtimeStatus.Status != "active" || !runtimeStatus.ReleasesAvailable || runtimeStatus.ReleaseNamespace != "demo" || runtimeStatus.ActiveGeneration != *publication.ActiveGeneration || runtimeStatus.Host == nil || runtimeStatus.Host.Status != "ready" || runtimeStatus.Host.Revision != *publication.ActiveGeneration || len(runtimeStatus.Readers) != 1 || len(runtimeStatus.Readers[0].MCPExposures) != 1 || len(runtimeStatus.Readers[0].MCPResources) != 1 || runtimeStatus.Readers[0].MCPResources[0].URIPrefix != "skill://alice-guide/" || len(runtimeStatus.Readers[0].Skills) != 1 || runtimeStatus.Readers[0].Skills[0].SkillRoot != "." {
 		t.Fatalf("runtime status = %+v, %v", runtimeStatus, err)
 	}
 	aliceStatus, err := client.Runtime().Status(sdk.WithPrincipal(ctx, sdk.Principal{Subject: "alice"}))

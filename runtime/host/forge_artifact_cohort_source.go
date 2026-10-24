@@ -305,3 +305,10 @@ func (s *PublishedArtifactCatalog) notify(ctx context.Context, method, uri strin
 		_ = sink.Notify(ctx, &jsonrpc.Notification{Jsonrpc: jsonrpc.Version, Method: method, Params: params})
 	}
 }
+
+// NotifyListChanged signals a completed release activation after its SQL
+// channel pointer and Publisher manifest are both committed. It never mutates
+// the manifest and runs outside the release write gate.
+func(s *PublishedArtifactCatalog) NotifyListChanged(ctx context.Context){
+	if s!=nil{s.notify(ctx,artifactcohort.NotificationListChanged,"")}
+}

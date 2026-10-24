@@ -37,8 +37,10 @@ func TestDynamicHostServesPublishedHTTPAndDedicatedMCP(t *testing.T) {
 }
 
 type dynamicHostExtension struct {
-	configure func(*Config)
-	verify    func(*Service, string)
+	configure         func(*Config)
+	prepare           func(*Service)
+	verify            func(*Service, string)
+	skipDefaultChecks bool
 }
 
 func testDynamicHost(t *testing.T, generic, identityRequired bool, extensions ...dynamicHostExtension) {
@@ -156,6 +158,11 @@ JOIN (SELECT id,label FROM labels) labels ON labels.id=records.id`
 			t.Fatal(err)
 		}
 	}
+	for _, extension := range extensions {
+		if extension.prepare != nil {
+			extension.prepare(service)
+		}
+	}
 	if err = service.Start(ctx); err != nil {
 		t.Fatal(err)
 	}
@@ -168,6 +175,11 @@ JOIN (SELECT id,label FROM labels) labels ON labels.id=records.id`
 	for _, extension := range extensions {
 		if extension.verify != nil {
 			extension.verify(service, mcpAddress)
+		}
+	}
+	for _, extension := range extensions {
+		if extension.skipDefaultChecks {
+			return
 		}
 	}
 	if httpAddress == "" || mcpAddress == "" || httpAddress == mcpAddress {

@@ -220,9 +220,17 @@ func TestNativePermissionCatalogNamespaceHTTPAndMCP(t *testing.T) {
 		}
 		return output
 	}
+	var projectedPolicies []authz.Resource
+	ConfigureNamedPolicyChanged(func(_ context.Context, resource authz.Resource) error {
+		projectedPolicies = append(projectedPolicies, resource)
+		return nil
+	})
+	defer ConfigureNamedPolicyChanged(nil)
+	ConfigureNamedPolicyAccountScope(func(context.Context) (string, error) { return "2222", nil })
+	defer ConfigureNamedPolicyAccountScope(nil)
 	definition := authz.NamedDefinition{DisplayName: "Viant users", Policies: map[string]authz.Policy{"*": {Mode: "protected", Rule: &authz.Rule{Kind: "group", Value: "Viant internal"}}}}
 	namedCreated := namedCall(map[string]any{"operation": "create", "id": "stable-viant-users", "definition": definition}, 200)
-	if namedCreated.Policy == nil {
+	if namedCreated.Policy == nil || namedCreated.Policy.Resource.ID != "account/2222/stable-viant-users" {
 		t.Fatal("created named policy missing")
 	}
 	namedRef := authz.NamedReference{Resource: namedCreated.Policy.Resource, Revision: namedCreated.Policy.Revision}
@@ -231,11 +239,18 @@ func TestNativePermissionCatalogNamespaceHTTPAndMCP(t *testing.T) {
 	if namedUpdated.Policy == nil || namedUpdated.Policy.Revision != 2 || namedUpdated.Policy.Resource != namedRef.Resource {
 		t.Fatal("named policy identity or revision lost")
 	}
+	if len(projectedPolicies) != 1 || projectedPolicies[0] != namedRef.Resource {
+		t.Fatalf("post-commit release refresh missing: %+v", projectedPolicies)
+	}
 	namedCall(map[string]any{"operation": "update", "reference": namedRef, "definition": definition}, 409)
+	if len(projectedPolicies) != 1 {
+		t.Fatal("failed named update triggered release refresh")
+	}
 	namedListed := namedCall(map[string]any{"operation": "list"}, 200)
 	if len(namedListed.Policies) != 1 || namedListed.Policies[0].DisplayName != "Renamed Viant users" {
 		t.Fatal("named policy list did not reflect update")
 	}
+	ConfigureNamedPolicyAccountScope(nil)
 
 	check := func(raw []byte, want string) {
 		var page struct {

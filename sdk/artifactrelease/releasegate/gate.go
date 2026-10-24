@@ -73,6 +73,25 @@ func (g *Gate) Update(update func() error) error {
 	return update()
 }
 
+// UpdateOrBlock serializes a fail-closed withdrawal. If the producer cannot
+// remove an invalid cohort, release reads stay unavailable until Recover
+// reconciles the committed policy/catalog state.
+func (g *Gate) UpdateOrBlock(update func() error) error {
+	if g == nil || update == nil {
+		return artifactrelease.ErrInvalid
+	}
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	if !g.ready {
+		return ErrNotReady
+	}
+	if err := update(); err != nil {
+		g.ready = false
+		return err
+	}
+	return nil
+}
+
 // Recover must run before release serving starts. A crash between Project and
 // Complete leaves a pending intent; replay projects it again idempotently and
 // acknowledges that exact operation ID. On failure the prior manifest is

@@ -23,13 +23,17 @@ type Reader struct {
 	Decisions         authz.DecisionProvider
 	NamedDocuments    func(context.Context, []authz.NamedReference) ([]authz.Document, error)
 	FenceDependencies func(context.Context, []authz.NamedDependency) error
+	// RootAvailable checks the producer's committed archive/publication state
+	// from shared storage, so a retained immutable bundle cannot revive a
+	// withdrawn root in the separate SDK process.
+	RootAvailable func(context.Context, artifactcohort.RootRef) error
 	// NativeConstraints retains explicit component deny, account/entity scope,
 	// and row predicates. A producer may return deny for unsupported bounds.
 	NativeConstraints func(context.Context, sqlstore.ComponentBinding, string) error
 }
 
 func (r *Reader) Allowed(ctx context.Context, componentID, revision, permission string) (bool, error) {
-	if r == nil || r.Store == nil || r.VerifyScope == nil || r.Provider == nil || r.NamedDocuments == nil || r.FenceDependencies == nil || r.NativeConstraints == nil || ctx == nil || ctx.Err() != nil || componentID == "" || (permission != "view" && permission != "run") || permission == "run" && revision == "" {
+	if r == nil || r.Store == nil || r.VerifyScope == nil || r.Provider == nil || r.NamedDocuments == nil || r.FenceDependencies == nil || r.RootAvailable == nil || r.NativeConstraints == nil || ctx == nil || ctx.Err() != nil || componentID == "" || (permission != "view" && permission != "run") || permission == "run" && revision == "" {
 		return false, contract.ErrInvalid
 	}
 	actual, err := r.VerifyScope(ctx)
@@ -60,6 +64,12 @@ func (r *Reader) Allowed(ctx context.Context, componentID, revision, permission 
 			if binding.ComponentID != componentID || revision != "" && binding.ComponentRevision != revision {
 				continue
 			}
+			if availableErr := r.RootAvailable(ctx, binding.Root); availableErr != nil {
+				if errors.Is(availableErr, authz.ErrDenied) || errors.Is(availableErr, artifactcohort.ErrDenied) {
+					continue
+				}
+				return false, availableErr
+			}
 			if readErr = r.NativeConstraints(ctx, binding, permission); readErr != nil {
 				if errors.Is(readErr, authz.ErrDenied) {
 					continue
@@ -73,10 +83,16 @@ func (r *Reader) Allowed(ctx context.Context, componentID, revision, permission 
 			continue
 		}
 		persisted, readErr := r.Store.ActiveDependencies(ctx, channel.Key)
-		if readErr != nil || len(persisted) == 0 {
-			return false, contract.ErrInvalid
+		if readErr != nil {
+			return false, readErr
+		}
+		if len(persisted) == 0 {
+			continue
 		}
 		if readErr = r.FenceDependencies(ctx, persisted); readErr != nil {
+			if errors.Is(readErr, contract.ErrConflict) || errors.Is(readErr, authz.ErrDenied) {
+				continue
+			}
 			return false, readErr
 		}
 		docs, readErr := r.NamedDocuments(ctx, channel.Policies)
@@ -85,10 +101,13 @@ func (r *Reader) Allowed(ctx context.Context, componentID, revision, permission 
 		}
 		compiled, readErr := contract.CompileCohorts(ctx, channel, bundle, docs)
 		if readErr != nil {
+			if errors.Is(readErr, contract.ErrConflict) || errors.Is(readErr, contract.ErrInvalid) || errors.Is(readErr, authz.ErrDenied) {
+				continue
+			}
 			return false, readErr
 		}
 		if !reflect.DeepEqual(compiled.Dependencies, persisted) {
-			return false, contract.ErrConflict
+			continue
 		}
 		store, readErr := authz.NewStaticStore(compiled.Policies)
 		if readErr != nil {
@@ -108,6 +127,13 @@ func (r *Reader) Allowed(ctx context.Context, componentID, revision, permission 
 			}
 			if readErr = r.FenceDependencies(ctx, persisted); readErr != nil {
 				return false, readErr
+			}
+			for _, binding := range bindings {
+				if binding.ComponentID == componentID && (revision == "" || binding.ComponentRevision == revision) {
+					if availableErr := r.RootAvailable(ctx, binding.Root); availableErr != nil {
+						return false, availableErr
+					}
+				}
 			}
 			// Policy heads can remain unchanged while a channel moves to another
 			// bundle. Fence the exact committed selection as well as its policy.

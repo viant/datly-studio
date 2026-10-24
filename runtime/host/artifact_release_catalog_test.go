@@ -61,6 +61,7 @@ func TestArtifactReleaseCatalogServingUsesActivationGate(t *testing.T) {
 		RestoreArtifacts: func(context.Context, []artifactcohort.RootRef) ([]*artifactcohort.Artifact, error) {
 			return []*artifactcohort.Artifact{{Root: root, Payload: body}}, nil
 		},
+		AvailableRoot:    func(context.Context, artifactcohort.RootRef) error { return nil },
 		ValidateArtifact: func(context.Context, *artifactcohort.Artifact) error { return nil },
 		NamedDocuments: func(context.Context, []authz.NamedReference) ([]authz.Document, error) {
 			return []authz.Document{doc}, nil

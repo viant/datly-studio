@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -76,6 +77,11 @@ func (s *Service) ResolveComponentBinding(ctx context.Context, ref ComponentRefe
 // drift before releasing data. It never uses the current publication manager.
 func (s *Service) ExecuteComponentJSON(ctx context.Context, ref ComponentReference, pinned windowprotocol.ComponentBinding, inputs map[string]any) (json.RawMessage, error) {
 	manager, current, err := s.componentRuntime(ctx, ref)
+	metadataDenied := false
+	if err != nil && errors.Is(err, authz.ErrDenied) && s.releaseController() != nil {
+		manager, current, err = s.componentRuntimeWithAuthority(ctx, ref, false)
+		metadataDenied = true
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -87,6 +93,7 @@ func (s *Service) ExecuteComponentJSON(ctx context.Context, ref ComponentReferen
 		return nil, fmt.Errorf("complete component pin is required")
 	}
 	var observedPolicyRevision int64
+	var releaseLease *releaseComponentLease
 	if s.config.Access != nil && s.resourceAccess != nil {
 		policyService := s.resourceAccess
 		if ref.Kind == "dynamic" {
@@ -94,8 +101,16 @@ func (s *Service) ExecuteComponentJSON(ctx context.Context, ref ComponentReferen
 			policyService = s.publishedAuthorizer(map[string]int{ref.ID: version}).resourceAccess
 		}
 		_, _, observedPolicyRevision, err = policyService.AuthorizeWithStatus(ctx, authz.Request{Resource: authz.Resource{Kind: "component", ID: ref.ID, Version: ref.Revision, Tenant: s.config.Access.Tenant}, Action: "execute"})
-		if err != nil {
-			return nil, err
+		if err != nil || metadataDenied {
+			if err != nil && !errors.Is(err, authz.ErrDenied) {
+				return nil, err
+			}
+			lease, admissionErr := s.admitReleasedComponent(ctx, ref, pinned)
+			if admissionErr != nil {
+				return nil, err
+			}
+			releaseLease = &lease
+			ctx = context.WithValue(ctx, releaseComponentContextKey{}, lease)
 		}
 	}
 	var observed authz.Facts
@@ -118,14 +133,27 @@ func (s *Service) ExecuteComponentJSON(ctx context.Context, ref ComponentReferen
 	}
 	// Re-resolve exactly the same revision after execution. This also detects
 	// changed SQL/resources/linked source contracts during a long reader call.
-	fresh, err := s.ResolveComponentBinding(ctx, ref)
+	var fresh windowprotocol.ComponentBinding
+	if releaseLease != nil {
+		verification, observed, readErr := s.componentRuntimeWithAuthority(ctx, ref, false)
+		if verification != nil {
+			_ = verification.Shutdown(context.Background())
+		}
+		fresh, err = observed, readErr
+	} else {
+		fresh, err = s.ResolveComponentBinding(ctx, ref)
+	}
 	if err != nil {
 		return nil, err
 	}
 	if err := windowprotocol.ValidateComponentDispatch(&pinned, fresh); err != nil {
 		return nil, err
 	}
-	if s.config.Access != nil && s.resourceAccess != nil {
+	if releaseLease != nil {
+		if err = s.fenceReleasedComponent(ctx, *releaseLease); err != nil {
+			return nil, err
+		}
+	} else if s.config.Access != nil && s.resourceAccess != nil {
 		policyService := s.resourceAccess
 		if ref.Kind == "dynamic" {
 			version, _ := strconv.Atoi(ref.Revision)
@@ -326,8 +354,11 @@ func (s *Service) componentRuntimeWithAuthority(ctx context.Context, ref Compone
 				if s.config.Access == nil || s.resourceAccess == nil {
 					return authz.ErrDenied
 				}
-				if err := s.authorizeComponentExecution(ctx, authz.Resource{Kind: "component", ID: ref.ID, Version: ref.Revision, Tenant: s.config.Access.Tenant}, binds[ref.ID]); err != nil {
-					return err
+				resource := authz.Resource{Kind: "component", ID: ref.ID, Version: ref.Revision, Tenant: s.config.Access.Tenant}
+				if err := s.authorizeComponentExecution(ctx, resource, binds[ref.ID]); err != nil {
+					if !admittedReleaseFor(ctx, resource) || !errors.Is(err, authz.ErrDenied) {
+						return err
+					}
 				}
 				if previous != nil {
 					return previous(ctx, r, target)

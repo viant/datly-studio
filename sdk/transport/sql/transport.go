@@ -144,6 +144,10 @@ type CandidateContractInspector interface {
 }
 
 type Transport struct {
+	// ReleaseNamespace is a trusted startup capability. Empty hides native
+	// releases regardless of static tool annotations.
+	ReleaseNamespace  string
+	ReleaseManagementAvailable bool
 	RuntimeTypes      *typecatalog.Catalog
 	ContractInspector ContractInspector
 	DB                *sql.DB
@@ -2435,6 +2439,10 @@ func (t *Transport) getPublication(ctx context.Context, reportID string, output 
 
 func (t *Transport) runtimeStatus(ctx context.Context, output any) error {
 	var value sdk.RuntimeStatus
+	if t.ReleaseManagementAvailable || t.ReleaseNamespace != "" {
+		value.ReleasesAvailable = true
+		value.ReleaseNamespace = t.ReleaseNamespace
+	}
 	active, err := t.readActiveGeneration(ctx)
 	if err != nil {
 		return internal(err)

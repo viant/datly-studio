@@ -29,7 +29,7 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 	if err = schema.ApplySQLite(ctx, db, "studio"); err != nil {
 		t.Fatal(err)
 	}
-	scope := sqlstore.Scope{Tenant: "tenant", Account: "account", Workspace: "workspace", Namespace: "demo"}
+	scope := sqlstore.Scope{Tenant: "storage", Account: "account", Workspace: "workspace", Namespace: "demo"}
 	store, err := sqlstore.New(db, scope, "verified-editor")
 	if err != nil {
 		t.Fatal(err)
@@ -38,7 +38,7 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 	if _, err = publisher.ReplaceCatalog(ctx, nil, nil, 0); err != nil {
 		t.Fatal(err)
 	}
-	resource := authz.Resource{Tenant: "tenant", Kind: "policy", ID: "operators", Version: "logical"}
+	resource := authz.Resource{Tenant: "storage", Kind: "policy", ID: "operators", Version: "logical"}
 	ref := authz.NamedReference{Resource: resource, Revision: 1}
 	doc := authz.Document{Resource: resource, Revision: 1, Policies: map[string]authz.Policy{authz.NamedDefinitionAction: {Mode: "definition", Definition: &authz.NamedDefinition{DisplayName: "Operators", Policies: map[string]authz.Policy{
 		"describe": {Mode: "protected", Rule: &authz.Rule{Kind: "role", Value: "operator"}},
@@ -49,6 +49,8 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 	allowPublish := true
 	revokeDuringPrepare := false
 	policyHeadRevision := int64(1)
+	notifications := 0
+	rootAvailable := true
 	makeArtifacts := func(refs []artifactcohort.RootRef) []*artifactcohort.Artifact {
 		result := make([]*artifactcohort.Artifact, 0, len(refs))
 		for _, root := range refs {
@@ -61,7 +63,7 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 		return result
 	}
 	controller, err := sdkrelease.NewController(sdkrelease.ControllerConfig{
-		Scope: scope, Store: store, Publisher: publisher,
+		Scope: scope, ProjectionTenant: "issuer", Store: store, Publisher: publisher,
 		VerifyScope: func(context.Context) (sqlstore.Scope, error) { return scope, nil },
 		Authorize: func(_ context.Context, action string) error {
 			if action == "publish" && !allowPublish {
@@ -87,6 +89,12 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 			restored++
 			return makeArtifacts(refs), nil
 		},
+		AvailableRoot: func(context.Context, artifactcohort.RootRef) error {
+			if !rootAvailable {
+				return artifactcohort.ErrDenied
+			}
+			return nil
+		},
 		ValidateArtifact: func(context.Context, *artifactcohort.Artifact) error { return nil },
 		NamedDocuments: func(context.Context, []authz.NamedReference) ([]authz.Document, error) {
 			return []authz.Document{doc}, nil
@@ -101,8 +109,9 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 		},
 		AdmitAudience: func(ctx context.Context, _ contract.Channel, _ authz.NamedReference) (bool, error) {
 			role, _ := ctx.Value(audienceRoleKey{}).(string)
-			return role == "operator", nil
+			return role == doc.Policies[authz.NamedDefinitionAction].Definition.Policies["execute"].Rule.Value, nil
 		},
+		Notify: func(context.Context) { notifications++ },
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -124,6 +133,10 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 	firstSnapshot, err := controller.ActiveSnapshot(ctx)
 	if err != nil || len(firstSnapshot.Selections) != 1 || firstSnapshot.Selections[0].Bundle.Hash != first.Bundle.Hash {
 		t.Fatalf("active selection: %+v %v", firstSnapshot, err)
+	}
+	projected, err := publisher.Snapshot()
+	if err != nil || projected.Cohorts[0].Tenant != "issuer" || projected.Policies[0].Resource.Tenant != "issuer" || firstSnapshot.Selections[0].Channel.Key.Tenant != "storage" || firstSnapshot.Selections[0].Dependencies[0].Resource.Tenant != "storage" {
+		t.Fatalf("projection mutated storage authority: %+v %v", projected, err)
 	}
 	operator := context.WithValue(ctx, audienceRoleKey{}, "operator")
 	if _, err = controller.AdmitRoot(ctx, root(1)); err == nil {
@@ -159,9 +172,13 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 	if err != nil || len(listed.Channels) != 1 || listed.Channels[0].Channel.Revision != 3 {
 		t.Fatalf("list: %+v %v", listed, err)
 	}
+	if listed.Channels[0].Bundle == nil || len(listed.Channels[0].Bundle.Roots) != 1 || listed.Channels[0].Bundle.Roots[0] != root(1) || !listed.Channels[0].Activated {
+		t.Fatalf("active list omitted selected bundle: %+v", listed.Channels[0])
+	}
 	policyHeadRevision = 2
-	if _, err = controller.ActiveSnapshot(ctx); !errors.Is(err, contract.ErrConflict) {
-		t.Fatalf("stale named policy head admitted: %v", err)
+	stale, err := controller.ActiveSnapshot(ctx)
+	if err != nil || len(stale.Selections) != 0 {
+		t.Fatalf("stale named policy head admitted: %+v %v", stale, err)
 	}
 	policyHeadRevision = 1
 	history, err := controller.History(ctx, contract.HistoryInput{Namespace: "demo", Name: "main"})
@@ -190,7 +207,7 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 		t.Fatal(err)
 	}
 	restarted, err := sdkrelease.NewController(sdkrelease.ControllerConfig{
-		Scope: scope, Store: store, Publisher: freshPublisher,
+		Scope: scope, ProjectionTenant: "issuer", Store: store, Publisher: freshPublisher,
 		VerifyScope: func(context.Context) (sqlstore.Scope, error) { return scope, nil },
 		Authorize:   func(context.Context, string) error { return nil },
 		Candidates:  func(context.Context) ([]contract.Candidate, error) { return nil, nil },
@@ -204,6 +221,12 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 		RestoreArtifacts: func(_ context.Context, refs []artifactcohort.RootRef) ([]*artifactcohort.Artifact, error) {
 			restored++
 			return makeArtifacts(refs), nil
+		},
+		AvailableRoot: func(context.Context, artifactcohort.RootRef) error {
+			if !rootAvailable {
+				return artifactcohort.ErrDenied
+			}
+			return nil
 		},
 		ValidateArtifact: func(context.Context, *artifactcohort.Artifact) error { return nil },
 		NamedDocuments: func(context.Context, []authz.NamedReference) ([]authz.Document, error) {
@@ -227,5 +250,58 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 	got, err := restarted.ActiveSnapshot(ctx)
 	if err != nil || len(got.Selections) != 1 || got.Selections[0].Bundle.Hash != first.Bundle.Hash {
 		t.Fatalf("restart selection: %+v %v", got, err)
+	}
+	rootAvailable = false
+	if denied, readErr := controller.ActiveSnapshot(ctx); readErr != nil || len(denied.Selections) != 0 {
+		t.Fatalf("archived root served locally: %+v %v", denied, readErr)
+	}
+	if err = restarted.Recover(ctx); err != nil {
+		t.Fatalf("archive restart recovery: %v", err)
+	}
+	if denied, readErr := restarted.ActiveSnapshot(ctx); readErr != nil || len(denied.Selections) != 0 {
+		t.Fatalf("archived root restored after restart: %+v %v", denied, readErr)
+	}
+	rootAvailable = true
+	if err = restarted.Recover(ctx); err != nil {
+		t.Fatalf("reactivated source recovery: %v", err)
+	}
+	doc.Revision = 2
+	definition := doc.Policies[authz.NamedDefinitionAction].Definition
+	definition.Policies["describe"] = authz.Policy{Mode: "protected", Rule: &authz.Rule{Kind: "role", Value: "viewer"}}
+	definition.Policies["execute"] = authz.Policy{Mode: "protected", Rule: &authz.Rule{Kind: "role", Value: "viewer"}}
+	policyHeadRevision = 2
+	priorPrepared, priorRestored := prepared, restored
+	if err = controller.RefreshPolicies(ctx, resource); err != nil {
+		t.Fatal(err)
+	}
+	updated, err := store.Channel(ctx, first.Channel.Key)
+	if err != nil || updated.Revision != 4 || updated.ActiveBundleHash != first.Bundle.Hash || prepared != priorPrepared || restored != priorRestored || notifications != 4 {
+		t.Fatalf("policy refresh rebuilt bytes or missed activation channel=%+v err=%v prepared=%d restored=%d notified=%d", updated, err, prepared, restored, notifications)
+	}
+	if _, err = controller.AdmitRoot(operator, root(1)); err == nil {
+		t.Fatal("old recipient survived policy update")
+	}
+	viewer := context.WithValue(ctx, audienceRoleKey{}, "viewer")
+	if _, err = controller.AdmitRoot(viewer, root(1)); err != nil {
+		t.Fatalf("new recipient not admitted: %v", err)
+	}
+	// A subsequently archived named policy removes only this cohort and keeps
+	// the old bundle bytes retained for a future authorized revision.
+	definition.Archived = true
+	doc.Revision = 3
+	policyHeadRevision = 3
+	if err = controller.RefreshPolicies(ctx, resource); err == nil {
+		t.Fatal("archived head was accepted")
+	}
+	withdrawn, err := controller.ActiveSnapshot(ctx)
+	if err != nil || len(withdrawn.Selections) != 0 || notifications != 5 {
+		t.Fatalf("invalid policy remained visible: %+v %v notified=%d", withdrawn, err, notifications)
+	}
+	if err = restarted.Recover(ctx); err != nil {
+		t.Fatalf("restart restored archived policy: %v", err)
+	}
+	withdrawn, err = restarted.ActiveSnapshot(ctx)
+	if err != nil || len(withdrawn.Selections) != 0 {
+		t.Fatalf("fresh Publisher resurrected archived recipient: %+v %v", withdrawn, err)
 	}
 }

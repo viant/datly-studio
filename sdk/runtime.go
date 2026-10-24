@@ -94,13 +94,15 @@ type PublicationEventPage struct {
 	Offset int                 `json:"offset"`
 }
 type RuntimeStatus struct {
-	ActiveGeneration int64           `json:"activeGeneration"`
-	Status           string          `json:"status"`
-	ReportCount      int             `json:"reportCount"`
-	ActivatedAt      *time.Time      `json:"activatedAt,omitempty"`
-	Diagnostics      []Diagnostic    `json:"diagnostics,omitempty"`
-	Readers          []RuntimeReader `json:"readers,omitempty"`
-	Host             *RuntimeHost    `json:"host,omitempty"`
+	ActiveGeneration  int64           `json:"activeGeneration"`
+	ReleasesAvailable bool            `json:"releasesAvailable,omitempty"`
+	ReleaseNamespace  string          `json:"releaseNamespace,omitempty"`
+	Status            string          `json:"status"`
+	ReportCount       int             `json:"reportCount"`
+	ActivatedAt       *time.Time      `json:"activatedAt,omitempty"`
+	Diagnostics       []Diagnostic    `json:"diagnostics,omitempty"`
+	Readers           []RuntimeReader `json:"readers,omitempty"`
+	Host              *RuntimeHost    `json:"host,omitempty"`
 }
 
 type RuntimeHost struct {

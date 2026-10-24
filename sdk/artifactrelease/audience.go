@@ -22,12 +22,16 @@ func AudienceEvaluator(publisher *artifactcohort.Publisher, provider authz.Provi
 		if err != nil {
 			return false, err
 		}
-		resource := authz.Resource{Tenant: channel.Key.Tenant, Kind: "cohort", ID: contract.ReleaseCohortName(channel.Key, reference), Version: "logical"}
+		name := contract.ReleaseCohortName(channel.Key, reference)
+		var resource authz.Resource
 		found := false
 		for _, cohort := range manifest.Cohorts {
-			if cohort.PolicyResource == resource && cohort.Tenant == channel.Key.Tenant && cohort.Name == resource.ID {
+			if cohort.Name == name && cohort.PolicyResource.Kind == "cohort" && cohort.PolicyResource.ID == name && cohort.PolicyResource.Version == "logical" && cohort.Tenant == cohort.PolicyResource.Tenant {
+				if found {
+					return false, contract.ErrInvalid
+				}
+				resource = cohort.PolicyResource
 				found = true
-				break
 			}
 		}
 		if !found {

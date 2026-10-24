@@ -196,7 +196,9 @@ type Options struct {
 	// ReleaseUse is injected by a trusted host after binding a verified account
 	// scope and exact published component companion index. Browser payloads
 	// cannot configure it.
-	ReleaseUse func(context.Context, sqltransport.AuthorizationRequest) (bool, error)
+	ReleaseUse       func(context.Context, sqltransport.AuthorizationRequest) (bool, error)
+	ReleaseNamespace string
+	ReleaseManagementAvailable bool
 	// Modules adds process-owned, independently authenticated extension APIs.
 	// Embedders supply credential protection and business authorization in each
 	// handler. Modules never inherit development identities or browser facts.
@@ -404,7 +406,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) error {
 			log.Printf("Studio authorizer reader close: %v", err)
 		}
 	}()
-	transport := &sqltransport.Transport{DB: db, Authorizer: authorizer, Predicates: predicates, Probe: connectivity.SQLProbe{Const: options.Const}, Catalog: connectivity.SQLCatalog{Const: options.Const}, SQLTester: dynamicPreview, Preview: dynamicPreview, ViewTester: dynamicPreview, RelationTester: dynamicPreview, ComposeTester: dynamicPreview, Warmup: dynamicPreview, Validator: dynamicPreview, ContractInspector: dynamicPreview, Activator: runtimeAdmin, RuntimeProbe: runtimeAdmin}
+	transport := &sqltransport.Transport{DB: db, Authorizer: authorizer, ReleaseNamespace: options.ReleaseNamespace,ReleaseManagementAvailable:options.ReleaseManagementAvailable, Predicates: predicates, Probe: connectivity.SQLProbe{Const: options.Const}, Catalog: connectivity.SQLCatalog{Const: options.Const}, SQLTester: dynamicPreview, Preview: dynamicPreview, ViewTester: dynamicPreview, RelationTester: dynamicPreview, ComposeTester: dynamicPreview, Warmup: dynamicPreview, Validator: dynamicPreview, ContractInspector: dynamicPreview, Activator: runtimeAdmin, RuntimeProbe: runtimeAdmin}
 	defer func() {
 		closeCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()

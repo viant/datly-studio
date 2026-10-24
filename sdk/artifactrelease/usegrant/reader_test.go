@@ -92,6 +92,7 @@ func TestIndependentSDKReaderGrantsOnlyActiveExactComponent(t *testing.T) {
 			}
 			return nil
 		},
+		RootAvailable: func(context.Context, artifactcohort.RootRef) error { return nil },
 		NativeConstraints: func(_ context.Context, b sqlstore.ComponentBinding, _ string) error {
 			if b.ComponentID != "reader" || b.ComponentRevision != "7" {
 				return authz.ErrDenied
@@ -180,7 +181,7 @@ func TestIndependentSDKReaderGrantsOnlyActiveExactComponent(t *testing.T) {
 	}
 	reader.FenceDependencies = func(context.Context, []authz.NamedDependency) error { return contract.ErrConflict }
 	allowed, err = reader.Allowed(ctx, "reader", "7", "run")
-	if allowed || !errors.Is(err, contract.ErrConflict) {
+	if allowed || err != nil {
 		t.Fatalf("changed policy head admitted: %t %v", allowed, err)
 	}
 }

@@ -501,7 +501,12 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 			return &xresponse.Error{Code: http.StatusForbidden, Cause: errors.New("published component authorization is unavailable")}
 		}
 		if s.config.Access != nil {
-			return authorizer.authorizeComponentExecution(ctx, access.Resource{Kind: "component", ID: reportID, Version: strconv.Itoa(versionByReport[reportID]), Tenant: s.config.Access.Tenant}, bindsAccessContext[reportID])
+			resource := access.Resource{Kind: "component", ID: reportID, Version: strconv.Itoa(versionByReport[reportID]), Tenant: s.config.Access.Tenant}
+			err := authorizer.authorizeComponentExecution(ctx, resource, bindsAccessContext[reportID])
+			if err != nil && admittedReleaseFor(ctx, resource) && errors.Is(err, access.ErrDenied) {
+				return nil
+			}
+			return err
 		}
 		return authorizer.authorizeRun(ctx, reportID)
 	}
