@@ -52,6 +52,7 @@ func TestTwoControllersSynchronizeCommittedReleaseAndWithdrawals(t *testing.T) {
 		return &artifactcohort.Artifact{Root: ref, Payload: body}
 	}
 	var restoredB, notifiedB atomic.Int64
+	var checkedRootsB, checkedPoliciesB atomic.Int64
 	var raceArmed atomic.Bool
 	raceReached := make(chan struct{})
 	raceResume := make(chan struct{})
@@ -92,6 +93,9 @@ func TestTwoControllersSynchronizeCommittedReleaseAndWithdrawals(t *testing.T) {
 				return out, nil
 			},
 			AvailableRoot: func(callCtx context.Context, _ artifactcohort.RootRef) error {
+				if second {
+					checkedRootsB.Add(1)
+				}
 				if second && blockSource.CompareAndSwap(true, false) {
 					close(blockedSourceEntered)
 					<-callCtx.Done()
@@ -117,6 +121,9 @@ func TestTwoControllersSynchronizeCommittedReleaseAndWithdrawals(t *testing.T) {
 				}}}}}}, nil
 			},
 			Fence: func(_ context.Context, deps []authz.NamedDependency) error {
+				if second {
+					checkedPoliciesB.Add(1)
+				}
 				if second && raceArmed.CompareAndSwap(true, false) {
 					close(raceReached)
 					<-raceResume
@@ -228,6 +235,27 @@ func TestTwoControllersSynchronizeCommittedReleaseAndWithdrawals(t *testing.T) {
 	assertSelected(0)
 	if notifications != 1 || notifiedB.Load() != 6 {
 		t.Fatalf("notifications=%d,want6", notifiedB.Load())
+	}
+	policyAvailable.Store(true)
+	if err = a.RefreshPolicies(ctx, policy); err != nil {
+		t.Fatal(err)
+	}
+	if changed, e := b.SyncOnce(ctx); e != nil || !changed {
+		t.Fatalf("policy restore: %v %v", changed, e)
+	}
+	if _, e = a.Publish(ctx, contract.PublishInput{Namespace: "demo", Name: "secondary", Policies: []authz.NamedReference{ref}, Roots: []artifactcohort.RootRef{root(1)}}); e != nil {
+		t.Fatal(e)
+	}
+	if changed, e := b.SyncOnce(ctx); e != nil || !changed {
+		t.Fatalf("shared-root release: %v %v", changed, e)
+	}
+	checkedRootsB.Store(0)
+	checkedPoliciesB.Store(0)
+	if changed, e := b.SyncOnce(ctx); e != nil || changed {
+		t.Fatalf("shared-root unchanged pass: %v %v", changed, e)
+	}
+	if checkedRootsB.Load() != 1 || checkedPoliciesB.Load() != 1 {
+		t.Fatalf("duplicate per-pass root/policy checks: roots=%d policy=%d", checkedRootsB.Load(), checkedPoliciesB.Load())
 	}
 	// An in-flight Stage changes only pending fields; B must not project it or
 	// repeatedly rebuild the last committed channel.

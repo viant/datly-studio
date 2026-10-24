@@ -328,6 +328,11 @@ func (c *Controller) committedFingerprint(ctx context.Context) (string, error) {
 		PolicyFresh bool
 	}
 	states := make([]activeState, 0, len(channels))
+	// Several channels may select the same immutable root or named policy head.
+	// Share checks only within this background pass; never retain an allow/deny
+	// across passes or use this memo on the serving path.
+	rootAvailable := make(map[artifactcohort.RootRef]bool)
+	policyFresh := make(map[string]bool)
 	for _, channel := range channels {
 		if channel.ActiveBundleHash == "" {
 			continue
@@ -338,22 +343,37 @@ func (c *Controller) committedFingerprint(ctx context.Context) (string, error) {
 		}
 		state := activeState{Channel: channel, Roots: make([]bool, len(bundle.Roots))}
 		for i, root := range bundle.Roots {
+			if available, found := rootAvailable[root]; found {
+				state.Roots[i] = available
+				continue
+			}
 			availabilityErr := c.config.AvailableRoot(ctx, root)
 			if availabilityErr != nil && !expectedReleaseWithdrawal(availabilityErr) {
 				return "", availabilityErr
 			}
 			state.Roots[i] = availabilityErr == nil
+			rootAvailable[root] = state.Roots[i]
 		}
 		deps, err := c.config.Store.ActiveDependencies(ctx, channel.Key)
 		if err != nil {
 			return "", err
 		}
 		if len(deps) > 0 {
+			canonical, marshalErr := json.Marshal(deps)
+			if marshalErr != nil {
+				return "", marshalErr
+			}
+			if fresh, found := policyFresh[string(canonical)]; found {
+				state.PolicyFresh = fresh
+				states = append(states, state)
+				continue
+			}
 			fenceErr := c.config.Fence(ctx, deps)
 			if fenceErr != nil && !expectedReleaseWithdrawal(fenceErr) {
 				return "", fenceErr
 			}
 			state.PolicyFresh = fenceErr == nil
+			policyFresh[string(canonical)] = state.PolicyFresh
 		}
 		states = append(states, state)
 	}
@@ -865,8 +885,25 @@ func (c *Controller) reconcile(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	// ReplaceCatalog orders cohorts before hashing. Apply that same canonical
+	// order here so a multi-channel no-op does not advance generation or emit a
+	// second notification simply because channels were scanned by name.
+	sort.Slice(manifest.Cohorts, func(i, j int) bool {
+		return manifest.Cohorts[i].Tenant+"|"+manifest.Cohorts[i].Name < manifest.Cohorts[j].Tenant+"|"+manifest.Cohorts[j].Name
+	})
+	// Publisher recomputes the two cohort hashes from the resolved policies and
+	// selected roots. The merge candidate carries empty derived hashes, so
+	// compare the authoritative inputs after confirming named dependencies
+	// above; otherwise every unchanged multi-channel pass advances generation.
+	currentCohorts := append([]artifactcohort.Cohort(nil), current.Cohorts...)
+	for i := range currentCohorts {
+		currentCohorts[i].Hash, currentCohorts[i].PolicyHash = "", ""
+	}
+	for i := range manifest.Cohorts {
+		manifest.Cohorts[i].Hash, manifest.Cohorts[i].PolicyHash = "", ""
+	}
 	samePolicies := len(current.Policies) == 0 && len(manifest.Policies) == 0 || reflect.DeepEqual(current.Policies, manifest.Policies)
-	sameCohorts := len(current.Cohorts) == 0 && len(manifest.Cohorts) == 0 || reflect.DeepEqual(current.Cohorts, manifest.Cohorts)
+	sameCohorts := len(currentCohorts) == 0 && len(manifest.Cohorts) == 0 || reflect.DeepEqual(currentCohorts, manifest.Cohorts)
 	if samePolicies && sameCohorts {
 		return nil
 	}

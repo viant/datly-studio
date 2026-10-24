@@ -5,7 +5,10 @@ process owns its own in-memory published manifest. A producer must call
 `Controller.Recover` before serving, then run `Controller.RunSync` in a
 background worker to learn about committed changes made by another process.
 `RunSync` checks committed channel revisions, current named-policy dependencies,
-and source availability. It never runs on a window or data request. Pending
+and source availability. The work is proportional to active channels plus
+distinct exact roots and dependency sets; identical roots or named-policy
+dependencies shared by several channels are checked once per pass. It never
+runs on a window or data request, and no allow/deny result survives a pass. Pending
 operations are reserved for startup recovery so a second process cannot race
 the writer while its projection is in progress.
 
