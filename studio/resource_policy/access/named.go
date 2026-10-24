@@ -135,6 +135,19 @@ func (*namedPoliciesHandler) Exec(ctx context.Context, session xhandler.Session,
 		}
 	}
 	services := &sharedapi.Services{Authorization: service, Policies: admin, Named: &authz.NamedAdministration{Policies: admin, Inventory: native}}
+	if in.Operation == "releaseChoices" {
+		if accountPrefix == "" {
+			return publicError(503, "Release policy choices are unavailable")
+		}
+		// List performs the existing viewAccess checks. Definition excludes
+		// archived heads; this additional filter has no actor-supplied scope.
+		listed, listErr := services.Named.List(requestCtx)
+		if listErr != nil {
+			return listErr
+		}
+		out.Policies = releasePolicyChoices(listed, accountPrefix)
+		return nil
+	}
 	bound := authoritySession{Session: session, binder: authorityBinder{Binder: session.Binder(), services: services}}
 	if err := sharedapi.NewNamed().Exec(requestCtx, bound, &sharedapi.NamedInput{JWT: in.Jwt, Operation: in.Operation, ID: id, Reference: in.Reference, Definition: in.Definition, Resource: in.Resource, ExpectedRevision: in.ExpectedRevision, Actions: in.Actions}, out); err != nil {
 		return err
@@ -150,4 +163,32 @@ func (*namedPoliciesHandler) Exec(ctx context.Context, session xhandler.Session,
 		}
 	}
 	return nil
+}
+
+func releasePolicyChoices(listed []authz.NamedPolicy, accountPrefix string) []authz.NamedPolicy {
+	choices := make([]authz.NamedPolicy, 0, len(listed))
+	for _, candidate := range listed {
+		if candidate.Resource.Kind != "policy" || candidate.Resource.Version != "logical" || !strings.HasPrefix(candidate.Resource.ID, accountPrefix) || candidate.Revision <= 0 {
+			continue
+		}
+		compatible := true
+		for _, action := range []string{"describe", "execute"} {
+			policy, found := authz.PolicyForAction(candidate.Policies, action)
+			if !found || !releaseAudienceAction(action, policy) {
+				compatible = false
+				break
+			}
+		}
+		if policy, found := authz.PolicyForAction(candidate.Policies, "discover"); found && !releaseAudienceAction("discover", policy) {
+			compatible = false
+		}
+		if compatible {
+			choices = append(choices, candidate)
+		}
+	}
+	return choices
+}
+
+func releaseAudienceAction(action string, policy authz.Policy) bool {
+	return policy.Mode == "protected" && policy.Rule != nil && policy.EntityType == "" && authz.ValidatePolicy(action, policy) == nil
 }
