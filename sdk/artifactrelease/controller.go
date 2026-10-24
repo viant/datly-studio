@@ -543,23 +543,41 @@ func (c *Controller) Candidates(ctx context.Context, in contract.CandidatesInput
 		return contract.CandidatesOutput{}, err
 	}
 	out := contract.CandidatesOutput{Artifacts: []contract.Candidate{}}
-	err := c.gate.Read(func() error {
-		items, err := c.config.Candidates(ctx)
-		if err != nil {
-			return err
-		}
-		seen := map[string]bool{}
-		for _, item := range items {
-			if validateRootPartition(item.Root, c.config.Scope.Namespace) != nil || seen[artifactcohort.RootKey(item.Root)] {
-				return contract.ErrInvalid
-			}
-			seen[artifactcohort.RootKey(item.Root)] = true
-		}
-		sortCandidates(items)
-		out.Artifacts = append(out.Artifacts, items...)
+	var generation uint64
+	if err := c.gate.Read(func() error {
+		generation = c.config.Publisher.Generation()
 		return nil
-	})
-	return out, err
+	}); err != nil {
+		return out, err
+	}
+	// The producer callback may read its own release admission index. Never
+	// hold Gate's read lock across that callback: a queued reconciliation writer
+	// would block a nested read while waiting for this read to finish.
+	items, err := c.config.Candidates(ctx)
+	if err != nil {
+		return out, err
+	}
+	if err = ctx.Err(); err != nil {
+		return out, err
+	}
+	seen := map[string]bool{}
+	for _, item := range items {
+		if validateRootPartition(item.Root, c.config.Scope.Namespace) != nil || seen[artifactcohort.RootKey(item.Root)] {
+			return out, contract.ErrInvalid
+		}
+		seen[artifactcohort.RootKey(item.Root)] = true
+	}
+	sortCandidates(items)
+	if err = c.gate.Read(func() error {
+		if c.config.Publisher.Generation() != generation {
+			return contract.ErrConflict
+		}
+		return nil
+	}); err != nil {
+		return out, err
+	}
+	out.Artifacts = append(out.Artifacts, items...)
+	return out, nil
 }
 
 func (c *Controller) Publish(ctx context.Context, in contract.PublishInput) (contract.Result, error) {

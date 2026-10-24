@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/viant/authz"
 	"github.com/viant/datly-studio/schema"
@@ -50,6 +51,7 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 	revokeDuringPrepare := false
 	policyHeadRevision := int64(1)
 	notifications := 0
+	var candidateHook func() error
 	rootAvailable := true
 	makeArtifacts := func(refs []artifactcohort.RootRef) []*artifactcohort.Artifact {
 		result := make([]*artifactcohort.Artifact, 0, len(refs))
@@ -74,7 +76,12 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 			}
 			return errors.New("denied")
 		},
-		Candidates: func(context.Context) ([]contract.Candidate, error) { return nil, nil },
+		Candidates: func(context.Context) ([]contract.Candidate, error) {
+			if candidateHook != nil {
+				return nil, candidateHook()
+			}
+			return nil, nil
+		},
 		Prepare: func(_ context.Context, refs []artifactcohort.RootRef) ([]*artifactcohort.Artifact, error) {
 			prepared++
 			if revokeDuringPrepare {
@@ -141,6 +148,50 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 			}
 			if string(wire[item.field]) != "[]" {
 				t.Errorf("empty %s must be an array for the release editor, got %s", item.field, raw)
+			}
+		}
+	})
+	t.Run("producer candidates can reenter release gate with concurrent reads", func(t *testing.T) {
+		entered := make(chan struct{}, 2)
+		continueCalls := make(chan struct{})
+		candidateHook = func() error {
+			entered <- struct{}{}
+			<-continueCalls
+			if err := controller.Gate().Read(func() error { return nil }); err != nil {
+				return err
+			}
+			return controller.Gate().Update(func() error { return nil })
+		}
+		defer func() { candidateHook = nil }()
+		completed := make(chan error, 3)
+		for i := 0; i < 2; i++ {
+			go func() {
+				_, callErr := controller.Candidates(ctx, contract.CandidatesInput{Namespace: "demo"})
+				completed <- callErr
+			}()
+		}
+		deadline := time.NewTimer(3 * time.Second)
+		defer deadline.Stop()
+		for i := 0; i < 2; i++ {
+			select {
+			case <-entered:
+			case <-deadline.C:
+				t.Fatal("two producer candidate callbacks did not enter concurrently")
+			}
+		}
+		go func() {
+			_, callErr := controller.History(ctx, contract.HistoryInput{Namespace: "demo", Name: "main"})
+			completed <- callErr
+		}()
+		close(continueCalls)
+		for i := 0; i < 3; i++ {
+			select {
+			case callErr := <-completed:
+				if callErr != nil {
+					t.Fatal(callErr)
+				}
+			case <-deadline.C:
+				t.Fatal("nested release admission blocked candidates/history behind a gate writer")
 			}
 		}
 	})
