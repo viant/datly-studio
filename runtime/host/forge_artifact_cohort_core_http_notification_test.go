@@ -33,10 +33,11 @@ import (
 )
 
 type notifiedBusinessExecutor struct {
-	client  mcpclient.Interface
-	calls   atomic.Int64
-	entered chan struct{}
-	release chan struct{}
+	client   mcpclient.Interface
+	calls    atomic.Int64
+	entered  chan struct{}
+	release  chan struct{}
+	canceled chan struct{}
 }
 
 func (e *notifiedBusinessExecutor) Execute(ctx context.Context, name string, args map[string]interface{}) (string, error) {
@@ -52,6 +53,12 @@ func (e *notifiedBusinessExecutor) Execute(ctx context.Context, name string, arg
 		select {
 		case <-e.release:
 		case <-ctx.Done():
+			if e.canceled != nil {
+				select {
+				case e.canceled <- struct{}{}:
+				default:
+				}
+			}
 			return "", ctx.Err()
 		}
 	}
@@ -228,7 +235,13 @@ func TestPublishedNotificationRebindsCoreHTTPWindowAndDatasource(t *testing.T) {
 		sdk := coresdk.NewHandler(nil, coresdk.WithPublishedWindowBindings(bindings))
 		mux := http.NewServeMux()
 		trusted := func(next http.Handler) http.Handler {
-			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { next.ServeHTTP(w, r.WithContext(user)) })
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				// Keep the HTTP request's cancellation; a verified identity is
+				// attached to this request rather than replacing its context with
+				// the fixture's long-lived owner context.
+				verified := context.WithValue(oauth.WithBearer(r.Context(), userToken), cohortTestSessionKey{}, "owner")
+				next.ServeHTTP(w, r.WithContext(verified))
+			})
 		}
 		mux.Handle("/window/", trusted(ui))
 		mux.Handle("/v1/api/", trusted(sdk))
@@ -332,6 +345,7 @@ func TestPublishedNotificationRebindsCoreHTTPWindowAndDatasource(t *testing.T) {
 		}
 		business.entered = make(chan struct{}, 2)
 		business.release = make(chan struct{})
+		business.canceled = make(chan struct{}, 2)
 		defer close(business.release)
 		type callResult struct {
 			status int
@@ -433,6 +447,11 @@ func TestPublishedNotificationRebindsCoreHTTPWindowAndDatasource(t *testing.T) {
 			}
 		case <-time.After(time.Second):
 			t.Fatal("cancelled call held execution")
+		}
+		select {
+		case <-business.canceled:
+		case <-time.After(time.Second):
+			t.Fatal("client cancellation did not reach the Core producer executor")
 		}
 		select {
 		case result := <-independentDone:
