@@ -119,6 +119,31 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 	if err = controller.Recover(ctx); err != nil {
 		t.Fatal(err)
 	}
+	t.Run("empty management collections are JSON arrays", func(t *testing.T) {
+		listed, listErr := controller.List(ctx, contract.ListInput{Namespace: "demo"})
+		candidates, candidateErr := controller.Candidates(ctx, contract.CandidatesInput{Namespace: "demo"})
+		history, historyErr := controller.History(ctx, contract.HistoryInput{Namespace: "demo", Name: "main"})
+		for _, item := range []struct {
+			field string
+			value any
+			err   error
+		}{{"channels", listed, listErr}, {"artifacts", candidates, candidateErr}, {"entries", history, historyErr}} {
+			if item.err != nil {
+				t.Fatalf("%s: %v", item.field, item.err)
+			}
+			raw, marshalErr := json.Marshal(item.value)
+			if marshalErr != nil {
+				t.Fatal(marshalErr)
+			}
+			var wire map[string]json.RawMessage
+			if err := json.Unmarshal(raw, &wire); err != nil {
+				t.Fatal(err)
+			}
+			if string(wire[item.field]) != "[]" {
+				t.Errorf("empty %s must be an array for the release editor, got %s", item.field, raw)
+			}
+		}
+	})
 	root := func(version uint64) artifactcohort.RootRef {
 		body := json.RawMessage(`{"version":1}`)
 		if version == 2 {

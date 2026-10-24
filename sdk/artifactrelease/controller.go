@@ -354,7 +354,7 @@ func (c *Controller) List(ctx context.Context, in contract.ListInput) (contract.
 	if err := c.check(ctx, in.Namespace, "list"); err != nil {
 		return contract.ListOutput{}, err
 	}
-	var out contract.ListOutput
+	out := contract.ListOutput{Channels: []contract.Result{}}
 	err := c.gate.Read(func() error {
 		manifest, manifestErr := c.config.Publisher.Snapshot()
 		if manifestErr != nil {
@@ -406,7 +406,7 @@ func (c *Controller) Candidates(ctx context.Context, in contract.CandidatesInput
 	if err := c.check(ctx, in.Namespace, "candidates"); err != nil {
 		return contract.CandidatesOutput{}, err
 	}
-	var out contract.CandidatesOutput
+	out := contract.CandidatesOutput{Artifacts: []contract.Candidate{}}
 	err := c.gate.Read(func() error {
 		items, err := c.config.Candidates(ctx)
 		if err != nil {
@@ -420,7 +420,7 @@ func (c *Controller) Candidates(ctx context.Context, in contract.CandidatesInput
 			seen[artifactcohort.RootKey(item.Root)] = true
 		}
 		sortCandidates(items)
-		out.Artifacts = items
+		out.Artifacts = append(out.Artifacts, items...)
 		return nil
 	})
 	return out, err
@@ -556,7 +556,7 @@ func (c *Controller) History(ctx context.Context, in contract.HistoryInput) (con
 	if err := c.check(ctx, in.Namespace, "history"); err != nil {
 		return contract.HistoryOutput{}, err
 	}
-	var out contract.HistoryOutput
+	out := contract.HistoryOutput{Entries: []contract.HistoryEntry{}}
 	err := c.gate.Read(func() error {
 		items, err := c.config.Store.History(ctx, c.key(in.Name))
 		if err != nil {
