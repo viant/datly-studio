@@ -6,18 +6,39 @@ const namespaceId='a'.repeat(64);
 const namespace='sales';
 const methods=['releases/list','releases/candidates','releases/publish','releases/promote','releases/history'];
 
-test('Data Studio advertises Releases only when every release tool is present and caches the selected namespace check',async()=>{
+test('Data Studio requires ready runtime status and all five release tools, cached for the selected namespace',async()=>{
   const api=new StudioAPI({mode:'development',apiBaseURL:'http://studio.test',development:{subject:'fixture'}});
   api.setNamespace(namespaceId);
-  let reads=0;
+  let reads=0,statusReads=0;
+  api.getRuntimeStatus=async()=>{statusReads++;return {releasesAvailable:true,releaseNamespace:namespace};};
   api.listMCPTools=async()=>{reads++;return methods.map(name=>({name}));};
-  assert.equal(await api.supportsReleases(),true);
-  assert.equal(await api.supportsReleases(),true);
+  assert.equal(await api.supportsReleases(namespace),true);
+  assert.equal(await api.supportsReleases(namespace),true);
   assert.equal(reads,1);
+  assert.equal(statusReads,1);
   api.setNamespace('b'.repeat(64));
   api.listMCPTools=async()=>{reads++;return methods.slice(0,4).map(name=>({name}));};
-  assert.equal(await api.supportsReleases(),false);
+  assert.equal(await api.supportsReleases(namespace),false);
   assert.equal(reads,2);
+  assert.equal(statusReads,2);
+});
+
+test('static release tools do not expose the UI without manager readiness or for another namespace',async()=>{
+  const api=new StudioAPI({mode:'development',apiBaseURL:'http://studio.test',development:{subject:'fixture'}});
+  api.setNamespace(namespaceId);
+  let tools=0;
+  api.listMCPTools=async()=>{tools++;return methods.map(name=>({name}));};
+  api.getRuntimeStatus=async()=>({releasesAvailable:false});
+  assert.equal(await api.supportsReleases(namespace),false);
+  assert.equal(tools,0);
+  api.setNamespace('b'.repeat(64));
+  api.getRuntimeStatus=async()=>({releasesAvailable:true,releaseNamespace:'other'});
+  assert.equal(await api.supportsReleases(namespace),false);
+  assert.equal(tools,0);
+  api.setNamespace('c'.repeat(64));
+  api.getRuntimeStatus=async()=>({releasesAvailable:true,releaseNamespace:''});
+  assert.equal(await api.supportsReleases(namespace),true);
+  assert.equal(tools,1);
 });
 
 test('Data Studio release requests use authenticated MCP with selected namespace ID header and DTO name only',async()=>{

@@ -37,7 +37,7 @@ export function StudioApp({ api, mode, subject, brand = 'Data Studio', extension
     let active=true;
     setReleaseAvailable(false);
     if (namespaceWorkspace.ready && currentNamespaceName && typeof api.supportsReleases === 'function') {
-      api.supportsReleases().then(value => {if(active)setReleaseAvailable(value === true);}).catch(() => {if(active)setReleaseAvailable(false);});
+      api.supportsReleases(currentNamespaceName).then(value => {if(active)setReleaseAvailable(value === true);}).catch(() => {if(active)setReleaseAvailable(false);});
     }
     return () => {active=false;};
   },[api,namespaceWorkspace.ready,currentNamespaceId,currentNamespaceName]);

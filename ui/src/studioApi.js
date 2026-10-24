@@ -217,12 +217,16 @@ export class StudioAPI {
   async listMCPTools() {
     return this.mcpRequest('tools/list', 'tools');
   }
-  async supportsReleases() {
+  async supportsReleases(namespaceName) {
     const snapshot = this.namespaceSnapshot('release.management');
-    if (!snapshot?.id) return false;
-    const key = `${snapshot.id}:${snapshot.revision}`;
+    if (!snapshot?.id || !namespaceName) return false;
+    const key = `${snapshot.id}:${snapshot.revision}:${namespaceName}`;
     if (this.releaseToolAvailability?.key !== key) {
-      const promise = this.listMCPTools().then(supportsReleaseTools).catch(() => false);
+      const promise = this.getRuntimeStatus().then(async status => {
+        this.assertNamespace(snapshot);
+        if (status?.releasesAvailable !== true || (status.releaseNamespace && status.releaseNamespace !== namespaceName)) return false;
+        return supportsReleaseTools(await this.listMCPTools());
+      }).catch(() => false);
       this.releaseToolAvailability = {key,promise};
     }
     const value = await this.releaseToolAvailability.promise;

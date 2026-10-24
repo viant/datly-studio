@@ -46,6 +46,7 @@ describe('Studio connector catalog', () => {
     api.supportsReleases=vi.fn(async()=>false);
     render(<StudioApp api={api} mode="development" subject="owner"/>);
     await waitFor(()=>expect(api.supportsReleases).toHaveBeenCalledTimes(1));
+    expect(api.supportsReleases).toHaveBeenCalledWith('sales');
     expect(screen.queryByRole('button',{name:'Releases'})).toBeNull();
   });
   test('opens the namespace-bound release manager when release methods are advertised',async()=>{
@@ -58,6 +59,7 @@ describe('Studio connector catalog', () => {
     const user=userEvent.setup();
     render(<StudioApp api={api} mode="development" subject="owner"/>);
     await user.click(await screen.findByRole('button',{name:'Releases'}));
+    expect(api.supportsReleases).toHaveBeenCalledWith('sales');
     expect(await screen.findByText('Release namespace sales')).toBeTruthy();
   });
   test('opens the management section selected by a deep link', async () => {
