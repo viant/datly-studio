@@ -313,6 +313,8 @@ export class StudioAPI {
   listNamedPolicies() { return this.resourceAccess.listNamedPolicies(); }
   async listReleasePolicies() {
     const result = await this.nativeRequest(postNamedPolicies, 'authz.sdk.namedPolicies.manage', {operation:'releaseChoices'});
+    // The shared named-policy contract omits an empty optional collection.
+    if (result && !Array.isArray(result) && typeof result === 'object' && result.policies === undefined) return [];
     if (!Array.isArray(result?.policies)) throw new Error('Release policy choices are unavailable.');
     return result.policies;
   }

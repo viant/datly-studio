@@ -83,5 +83,7 @@ test('release policy choices use the existing named-policy API without changing 
     ['authz.sdk.namedPolicies.manage',{operation:'list'}],
   ]);
   api.nativeCallTool=async()=>({});
+  assert.deepEqual(await api.listReleasePolicies(),[]);
+  api.nativeCallTool=async()=>({policies:null});
   await assert.rejects(()=>api.listReleasePolicies(),/Release policy choices are unavailable/);
 });
