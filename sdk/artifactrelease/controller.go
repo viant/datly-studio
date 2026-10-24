@@ -387,7 +387,7 @@ func (c *Controller) committedFingerprint(ctx context.Context) (string, error) {
 
 func expectedReleaseWithdrawal(err error) bool {
 	return errors.Is(err, contract.ErrInvalid) || errors.Is(err, contract.ErrConflict) ||
-		errors.Is(err, authz.ErrDenied) || errors.Is(err, identity.ErrResourceDenied) || errors.Is(err, sql.ErrNoRows)
+		errors.Is(err, authz.ErrDenied) || errors.Is(err, artifactcohort.ErrDenied) || errors.Is(err, identity.ErrResourceDenied) || errors.Is(err, sql.ErrNoRows)
 }
 
 // RefreshPolicies is a producer-owned post-commit hook for a named policy
