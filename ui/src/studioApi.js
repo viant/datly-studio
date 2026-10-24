@@ -311,6 +311,11 @@ export class StudioAPI {
   }
   listAccessResources(input = {}) { return this.nativeRequest(postV1StudioSdkAccessList, 'access.list', input); }
   listNamedPolicies() { return this.resourceAccess.listNamedPolicies(); }
+  async listReleasePolicies() {
+    const result = await this.nativeRequest(postNamedPolicies, 'authz.sdk.namedPolicies.manage', {operation:'releaseChoices'});
+    if (!Array.isArray(result?.policies)) throw new Error('Release policy choices are unavailable.');
+    return result.policies;
+  }
   createNamedPolicy(id, definition) { return this.resourceAccess.createNamedPolicy(id, definition); }
   updateNamedPolicy(reference, definition) { return this.resourceAccess.updateNamedPolicy(reference, definition); }
   namedPolicyImpact(reference) { return this.resourceAccess.namedPolicyImpact(reference); }

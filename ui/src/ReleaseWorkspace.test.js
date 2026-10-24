@@ -67,3 +67,21 @@ test('Data Studio cookie-mode release request uses the existing MCP tools/call e
   assert.equal(calls[0].init.credentials,'include');
   assert.deepEqual(JSON.parse(calls[0].init.body).params.arguments,{namespace});
 });
+
+test('release policy choices use the existing named-policy API without changing Security list',async()=>{
+  const calls=[];
+  const choice={resource:{tenant:'tenant',kind:'policy',id:'account/verified/readers',version:'logical'},revision:3,displayName:'Readers'};
+  const api=new StudioAPI({mode:'development',apiBaseURL:'http://studio.test',development:{subject:'fixture'}},{nativeCallTool:async(method,input)=>{
+    calls.push([method,input]);
+    return {policies:[choice]};
+  }});
+  api.setNamespace(namespaceId);
+  assert.deepEqual(await api.listReleasePolicies(),[choice]);
+  assert.deepEqual(await api.listNamedPolicies(),[choice]);
+  assert.deepEqual(calls,[
+    ['authz.sdk.namedPolicies.manage',{operation:'releaseChoices'}],
+    ['authz.sdk.namedPolicies.manage',{operation:'list'}],
+  ]);
+  api.nativeCallTool=async()=>({});
+  await assert.rejects(()=>api.listReleasePolicies(),/Release policy choices are unavailable/);
+});
