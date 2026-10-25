@@ -18,7 +18,7 @@ require (
 	github.com/viant/mcp v0.24.1-0.20261018180156-2794488fbdb7
 	github.com/viant/mcp-protocol v0.19.1-0.20261019190045-bf1f848b71f9
 	github.com/viant/scy v0.35.1-0.20260914041206-699e6c909726
-	github.com/viant/sqlx v0.26.1-0.20261021190723-9d9204de862e
+	github.com/viant/sqlx v0.26.1-0.20261024205830-2074609095cb
 	github.com/viant/x v0.5.1-0.20261023202900-f9ec3e0a7de4
 	github.com/viant/xdatly v1.0.1-0.20261024171213-64c863c68aa7
 	github.com/viant/xunsafe v0.11.0
