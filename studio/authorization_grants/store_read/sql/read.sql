@@ -1,4 +1,4 @@
-SELECT grant."report_id", grant."subject_id", grant."subject_type", grant."grant_source", grant."can_view", grant."can_edit", grant."can_publish", grant."is_live" FROM  (SELECT g.report_id, g.subject_id, g.subject_type, g.grant_source,
+SELECT grant_rows.* FROM  (SELECT g.report_id, g.subject_id, g.subject_type, g.grant_source,
        g.can_view, g.can_edit, g.can_publish, g.is_live
 FROM (
     SELECT r.id AS report_id, r.owner_id AS subject_id, 'user' AS subject_type,
@@ -13,4 +13,4 @@ FROM (
     FROM component_acl a JOIN components r ON r.id = a.report_id
 ) g
 ${predicate.Builder().CombineAnd($predicate.FilterGroup(1, "AND")).Build("WHERE")}
-)  grant WHERE 1 = 1
+)  grant_rows WHERE 1 = 1

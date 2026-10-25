@@ -15,15 +15,15 @@
 #define($_ = $IsLive<bool>(query/isLive).Required().WithPredicate(1, 'equal', 'g', 'is_live'))
 #define($_ = $Grants<[]*Grant>(output/view))
 
-SELECT grant.*, type(grant, 'Grant'),
-       CAST(grant.report_id AS string),
-       CAST(grant.subject_id AS string),
-       CAST(grant.subject_type AS string),
-       CAST(grant.grant_source AS string),
-       CAST(grant.can_view AS bool),
-       CAST(grant.can_edit AS bool),
-       CAST(grant.can_publish AS bool),
-       CAST(grant.is_live AS bool),
-       set_limit(grant, 2)
-FROM (${embed:sql/read.sql}) grant
+SELECT grant_rows.*, type(grant_rows, 'Grant'),
+       CAST(grant_rows.report_id AS string),
+       CAST(grant_rows.subject_id AS string),
+       CAST(grant_rows.subject_type AS string),
+       CAST(grant_rows.grant_source AS string),
+       CAST(grant_rows.can_view AS bool),
+       CAST(grant_rows.can_edit AS bool),
+       CAST(grant_rows.can_publish AS bool),
+       CAST(grant_rows.is_live AS bool),
+       set_limit(grant_rows, 2)
+FROM (${embed:sql/read.sql}) grant_rows
 WHERE 1=1
