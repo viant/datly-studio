@@ -127,6 +127,11 @@ func (s *Service) ExecuteComponentJSON(ctx context.Context, ref ComponentReferen
 			return nil, err
 		}
 	}
+	if !observed.ValidUntil.IsZero() {
+		bounded, cancel := context.WithDeadline(ctx, observed.ValidUntil)
+		defer cancel()
+		ctx = bounded
+	}
 	output, err := executeRuntimeJSON(ctx, s.authenticated(manager), ref.Method, ref.Route, inputs)
 	if err != nil {
 		return nil, err

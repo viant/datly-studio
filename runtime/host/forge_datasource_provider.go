@@ -35,27 +35,21 @@ func (s stockDatasourceSource) bytes(ctx context.Context, uri identity.ResourceU
 	if uri != s.entry.uri {
 		return nil, identity.ErrResourceDenied
 	}
-	raw, err := s.canonical.bytes(ctx, s.entry.owner.uri)
-	if err != nil {
+	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	variant, err := types.SelectWindowResourceWithReferences(raw, nil)
-	if err != nil {
-		return nil, err
+	if s.canonical.invalidated.Load() {
+		return nil, identity.ErrResourceStale
 	}
-	var source windowprotocol.DataSource
-	if json.Unmarshal(variant.DataSources[s.entry.id], &source) != nil || source.ID != s.entry.id {
+	generation := s.canonical.preparedDatasources.Load()
+	if generation == nil {
+		return nil, identity.ErrResourceStale
+	}
+	entry, exists := generation.entries[uri.String()]
+	if !exists {
 		return nil, identity.ErrResourceDenied
 	}
-	definition := stockDatasourceDefinition{SchemaVersion: 1, DataSource: &source}
-	result, err := json.Marshal(definition)
-	if err != nil {
-		return nil, err
-	}
-	if err = validateStockDatasourceDefinition(1, result); err != nil {
-		return nil, err
-	}
-	return result, nil
+	return append(json.RawMessage(nil), entry.definition...), nil
 }
 func (s stockDatasourceSource) Candidates(ctx context.Context, uri identity.ResourceURI) ([]identity.ResourceCandidate, error) {
 	raw, err := s.bytes(ctx, uri)
@@ -150,9 +144,19 @@ func (s *Service) publishedDatasourceFetch(ctx context.Context, in stockPublishe
 	if s.windowPrimitiveSource == nil || in.Resource.ProviderIdentity != s.config.Forge.ProviderIdentity || in.ExecutionProof == nil {
 		return nil, identity.ErrResourceDenied
 	}
-	entry, ok := s.windowPrimitiveSource.datasources[in.Resource.URI]
+	if s.windowPrimitiveSource.invalidated.Load() {
+		return nil, identity.ErrResourceStale
+	}
+	generation := s.windowPrimitiveSource.preparedDatasources.Load()
+	if generation == nil {
+		return nil, identity.ErrResourceStale
+	}
+	entry, ok := generation.entries[in.Resource.URI]
 	if !ok || in.DataSourceID != "" && in.DataSourceID != entry.id {
 		return nil, identity.ErrResourceDenied
+	}
+	if in.Resource.ContentFingerprint != entry.fingerprint {
+		return nil, identity.ErrResourceStale
 	}
 	pin := in.Resource
 	verify := func() error {
@@ -167,49 +171,10 @@ func (s *Service) publishedDatasourceFetch(ctx context.Context, in stockPublishe
 	}
 	ctx, cancel := context.WithDeadline(ctx, pin.ValidUntil)
 	defer cancel()
-	resolver := s.datasourceResolver(entry, "execute")
-	approved, current, err := resolver.ReadResolved(ctx, pin)
-	if err != nil {
-		return nil, err
-	}
-	if current.ValidUntil.Before(pin.ValidUntil) {
-		pin.ValidUntil = current.ValidUntil
-		var narrowCancel context.CancelFunc
-		ctx, narrowCancel = context.WithDeadline(ctx, pin.ValidUntil)
-		defer narrowCancel()
-	}
-	var definition stockDatasourceDefinition
-	if json.Unmarshal(approved, &definition) != nil || definition.DataSource == nil || definition.DataSource.Backend == nil || definition.DataSource.Backend.Component == nil {
-		return nil, identity.ErrResourceDenied
-	}
-	ref, ok := entry.owner.config.Components[entry.id]
-	if !ok {
-		return nil, identity.ErrResourceDenied
-	}
-	if err := verify(); err != nil {
-		return nil, err
-	}
-	result, err := s.ExecuteComponentJSON(ctx, ref, *definition.DataSource.Backend.Component, in.Inputs)
-	if err != nil {
-		return nil, err
-	}
-	final, finalPin, err := resolver.ReadResolved(ctx, pin)
-	if err != nil || string(final) != string(approved) {
-		return nil, identity.ErrResourceStale
-	}
-	if finalPin.ValidUntil.Before(pin.ValidUntil) {
-		pin.ValidUntil = finalPin.ValidUntil
-	}
-	if err = verify(); err != nil {
-		return nil, err
-	}
-	if _, err := s.windowPrimitivePolicy.principal(ctx); err != nil {
-		return nil, err
-	}
-	if err = verify(); err != nil {
-		return nil, err
-	}
-	return result, nil
+	// Publication captured the exact descriptor/component contract once. Runtime
+	// performs one provenance check above and delegates only this selected native
+	// component's actual data authorization/execution to the producer runtime.
+	return s.ExecuteComponentJSON(ctx, entry.reference, entry.component, in.Inputs)
 }
 func (s *Service) datasourceEntry(uri string) (stockDatasourceEntry, error) {
 	if s.windowPrimitiveSource == nil {

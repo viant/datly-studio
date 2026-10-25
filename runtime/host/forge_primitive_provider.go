@@ -24,14 +24,15 @@ import (
 // The canonical source binds presentation and exact native component contracts
 // in one working candidate. It neither invents stamps nor changes logical URIs.
 type stockPrimitiveSource struct {
-	datasources      map[string]stockDatasourceEntry
-	original         *stockWindowSource
-	snapshot         *coreresource.NativeAssetSnapshot
-	components       map[ComponentReference]string
-	closures         map[string]compiledStockWindowClosure
-	metadataCompiles atomic.Int64
-	closureCompiles  atomic.Int64
-	invalidated      atomic.Bool
+	datasources         map[string]stockDatasourceEntry
+	preparedDatasources atomic.Pointer[stockDatasourceGeneration]
+	original            *stockWindowSource
+	snapshot            *coreresource.NativeAssetSnapshot
+	components          map[ComponentReference]string
+	closures            map[string]compiledStockWindowClosure
+	metadataCompiles    atomic.Int64
+	closureCompiles     atomic.Int64
+	invalidated         atomic.Bool
 }
 
 func (s *stockPrimitiveSource) bytes(ctx context.Context, uri identity.ResourceURI) (json.RawMessage, error) {

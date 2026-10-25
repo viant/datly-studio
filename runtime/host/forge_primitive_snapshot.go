@@ -98,10 +98,15 @@ func (s *stockPrimitiveSource) preload() error {
 		closures[entry.uri.String()] = closure
 		s.closureCompiles.Add(1)
 	}
+	prepared, err := compileStockDatasourceGeneration(ctx, snapshot, s.original.entries)
+	if err != nil {
+		return err
+	}
 	// Failed candidate loading never replaces a previous valid source generation.
 	// This preload is currently startup-only; a future hot reload must publish
 	// these fields together behind one generation pointer for concurrent readers.
 	s.components, s.snapshot, s.closures = componentSources, snapshot, closures
+	s.preparedDatasources.Store(prepared)
 	s.invalidated.Store(false)
 	return nil
 }
