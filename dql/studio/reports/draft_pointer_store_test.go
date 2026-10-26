@@ -15,7 +15,7 @@ import (
 func TestDraftPointerStoreWriterContract(t *testing.T) {
 	ctx := context.Background()
 	db := datatest.OpenSQLite(t, "draft_pointer_store", "studio")
-	compiled := compileReport(t, ctx, "store_draft_pointer", column.New(column.Connections{"studio": db}))
+	compiled := compileReport(ctx, t, "store_draft_pointer", column.New(column.Connections{"studio": db}))
 	if err := column.ApplyWriterMetadata(compiled.Component); err != nil {
 		t.Fatal(err)
 	}

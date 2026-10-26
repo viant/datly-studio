@@ -15,7 +15,7 @@ import (
 )
 
 func TestReportReaderCompilesEmbeddedSQLAndNativeSDKRoute(t *testing.T) {
-	compiled := compileReport(t, context.Background(), "reader", nil)
+	compiled := compileReport(context.Background(), t, "reader", nil)
 	if compiled.Component == nil || compiled.Component.RootView == nil {
 		t.Fatal("report reader component/root view was not compiled")
 	}
@@ -46,7 +46,7 @@ func TestReportReaderCompilesEmbeddedSQLAndNativeSDKRoute(t *testing.T) {
 func TestReportWriterDiscoversKeysReferencesAndPatchPolicy(t *testing.T) {
 	ctx := context.Background()
 	db := datatest.OpenSQLite(t, "writer_compile", "studio")
-	compiled := compileReport(t, ctx, "writer", column.New(column.Connections{"studio": db}))
+	compiled := compileReport(ctx, t, "writer", column.New(column.Connections{"studio": db}))
 	if err := column.ApplyWriterMetadata(compiled.Component); err != nil {
 		t.Fatal(err)
 	}
@@ -79,7 +79,7 @@ func TestReportTranscribesGoShapesToDeclaredPackages(t *testing.T) {
 		{name: "reader", operation: "get"},
 		{name: "writer", operation: "patch"},
 	} {
-		compiled := compileReport(t, ctx, component.name, column.New(column.Connections{"studio": db}))
+		compiled := compileReport(ctx, t, component.name, column.New(column.Connections{"studio": db}))
 		generated, err := (transcribe.Generator{Operation: component.operation}).Generate(ctx, transcribe.GenerationRequest{Compiled: compiled, Destination: module.Root})
 		if err != nil {
 			t.Fatalf("generate report %s: %v", component.name, err)
@@ -96,7 +96,7 @@ func TestReportTranscribesGoShapesToDeclaredPackages(t *testing.T) {
 	module.Test(t)
 }
 
-func compileReport(t *testing.T, ctx context.Context, component string, refiner *column.Refiner) *transcribe.Result {
+func compileReport(ctx context.Context, t *testing.T, component string, refiner *column.Refiner) *transcribe.Result {
 	t.Helper()
 	dir := component
 	path := filepath.Join(dir, "report.dql")

@@ -12,7 +12,7 @@ import (
 // AssertRows compares ordered query results with a data-driven expectation.
 // Scalar values are canonicalized so driver int64/[]byte representations do
 // not leak into component tests.
-func AssertRows(t testing.TB, ctx context.Context, db *sql.DB, query string, args []any, expected ...Row) {
+func AssertRows(ctx context.Context, t testing.TB, db *sql.DB, query string, args []any, expected ...Row) {
 	t.Helper()
 	actual, err := QueryRows(ctx, db, query, args...)
 	if err != nil {
@@ -24,13 +24,13 @@ func AssertRows(t testing.TB, ctx context.Context, db *sql.DB, query string, arg
 }
 
 // AssertRowsJSON compares query results with an ordered JSON array of objects.
-func AssertRowsJSON(t testing.TB, ctx context.Context, db *sql.DB, query string, args []any, expected []byte) {
+func AssertRowsJSON(ctx context.Context, t testing.TB, db *sql.DB, query string, args []any, expected []byte) {
 	t.Helper()
 	rows, err := RowsFromJSON(expected)
 	if err != nil {
 		t.Fatal(err)
 	}
-	AssertRows(t, ctx, db, query, args, rows...)
+	AssertRows(ctx, t, db, query, args, rows...)
 }
 
 // QueryRows returns ordered rows keyed by the database result labels.

@@ -99,7 +99,7 @@ func TestReportVersionWriterMinimumContract(t *testing.T) {
 		if output.Status.Status != "ok" || len(output.Data) != 1 || output.Data[0].Notes == nil || *output.Data[0].Notes != "changed" {
 			t.Fatalf("output=%+v", output)
 		}
-		datatest.AssertRows(t, ctx, db, "SELECT report_id,version_no,state,authoring_mode,authored_dql,notes,source_revision FROM component_versions WHERE report_id='r-alpha' AND version_no=1", nil,
+		datatest.AssertRows(ctx, t, db, "SELECT report_id,version_no,state,authoring_mode,authored_dql,notes,source_revision FROM component_versions WHERE report_id='r-alpha' AND version_no=1", nil,
 			datatest.Row{"report_id": "r-alpha", "version_no": 1, "state": "draft", "authoring_mode": "dql", "authored_dql": "SELECT 1", "notes": "changed", "source_revision": 2})
 	})
 
@@ -108,14 +108,14 @@ func TestReportVersionWriterMinimumContract(t *testing.T) {
 		if err == nil || response.ErrorStatusCode(err, 500) != 409 && response.ErrorStatusCode(err, 500) != 422 {
 			t.Fatalf("stale source revision error=%v", err)
 		}
-		datatest.AssertRows(t, ctx, db, "SELECT notes FROM component_versions WHERE report_id='r-alpha' AND version_no=1", nil, datatest.Row{"notes": "changed"})
+		datatest.AssertRows(ctx, t, db, "SELECT notes FROM component_versions WHERE report_id='r-alpha' AND version_no=1", nil, datatest.Row{"notes": "changed"})
 	})
 
 	t.Run("explicit null", func(t *testing.T) {
 		if _, err := invoke(`{"data":[{"reportId":"r-alpha","versionNo":1,"sourceRevision":2,"notes":null}]}`); err != nil {
 			t.Fatal(err)
 		}
-		datatest.AssertRows(t, ctx, db, "SELECT notes,state FROM component_versions WHERE report_id='r-alpha' AND version_no=1", nil, datatest.Row{"notes": nil, "state": "draft"})
+		datatest.AssertRows(ctx, t, db, "SELECT notes,state FROM component_versions WHERE report_id='r-alpha' AND version_no=1", nil, datatest.Row{"notes": nil, "state": "draft"})
 	})
 
 	t.Run("insert", func(t *testing.T) {
@@ -126,7 +126,7 @@ func TestReportVersionWriterMinimumContract(t *testing.T) {
 		if len(output.Data) != 1 || output.Data[0].VersionNo == nil || *output.Data[0].VersionNo != 2 {
 			t.Fatalf("insert output=%+v", output)
 		}
-		datatest.AssertRows(t, ctx, db, "SELECT report_id,version_no,state,authoring_mode,compile_status,source_revision,created_by FROM component_versions WHERE report_id='r-alpha' AND version_no=2", nil,
+		datatest.AssertRows(ctx, t, db, "SELECT report_id,version_no,state,authoring_mode,compile_status,source_revision,created_by FROM component_versions WHERE report_id='r-alpha' AND version_no=2", nil,
 			datatest.Row{"report_id": "r-alpha", "version_no": 2, "state": "draft", "authoring_mode": "structured", "compile_status": "pending", "source_revision": 1, "created_by": "bob"})
 	})
 
@@ -135,7 +135,7 @@ func TestReportVersionWriterMinimumContract(t *testing.T) {
 		if err == nil || response.ErrorStatusCode(err, 500) != 403 {
 			t.Fatalf("unauthorized insert error=%v, want 403", err)
 		}
-		datatest.AssertRows(t, ctx, db, "SELECT version_no FROM component_versions WHERE report_id='r-alpha' AND version_no=99", nil)
+		datatest.AssertRows(ctx, t, db, "SELECT version_no FROM component_versions WHERE report_id='r-alpha' AND version_no=99", nil)
 	})
 
 	t.Run("full insert validation", func(t *testing.T) {

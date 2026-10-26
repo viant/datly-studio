@@ -60,10 +60,10 @@ func TestDropSQLitePreservesSharedAuthzPolicyTables(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, table := range []string{"resource_policies", "resource_policy_revisions"} {
-		assertTablePresence(t, ctx, db, table, true)
+		assertTablePresence(ctx, t, db, table, true)
 	}
 	for _, table := range []string{"connectors", "resource_policy_namespace_bindings", "sqlx_sequence_reservations", "schema_version"} {
-		assertTablePresence(t, ctx, db, table, false)
+		assertTablePresence(ctx, t, db, table, false)
 	}
 	assertCount(t, db, `SELECT COUNT(*) FROM resource_policies WHERE tenant_id='tenant' AND resource_id='r1' AND revision=1`, 1)
 	assertCount(t, db, `SELECT COUNT(*) FROM resource_policy_revisions WHERE tenant_id='tenant' AND resource_id='r1' AND revision=1`, 1)
@@ -95,7 +95,7 @@ func TestSQLiteAuthorizationPredicateKeyUsesFullBinaryValues(t *testing.T) {
 	}
 }
 
-func assertTablePresence(t *testing.T, ctx context.Context, db *sql.DB, table string, want bool) {
+func assertTablePresence(ctx context.Context, t *testing.T, db *sql.DB, table string, want bool) {
 	t.Helper()
 	var count int
 	if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?`, table).Scan(&count); err != nil {
@@ -138,7 +138,7 @@ func TestSQLiteGenerationsUseNativeAutoIncrementWithoutReservationTable(t *testi
 	if err := Initialize(ctx, db, "sqlite"); err != nil {
 		t.Fatal(err)
 	}
-	assertTablePresence(t, ctx, db, "sqlx_sequence_reservations", false)
+	assertTablePresence(ctx, t, db, "sqlx_sequence_reservations", false)
 	for i := int64(1); i <= 2; i++ {
 		result, err := db.ExecContext(ctx, `INSERT INTO runtime_generations(source_revision,status,report_count,build_manifest_json,requested_by,requested_at) VALUES(?,'building',0,'{}','owner',CURRENT_TIMESTAMP)`, fmt.Sprint("native-", i))
 		if err != nil {
@@ -150,5 +150,5 @@ func TestSQLiteGenerationsUseNativeAutoIncrementWithoutReservationTable(t *testi
 		}
 	}
 	assertCount(t, db, "SELECT seq FROM sqlite_sequence WHERE name='runtime_generations'", 2)
-	assertTablePresence(t, ctx, db, "sqlx_sequence_reservations", false)
+	assertTablePresence(ctx, t, db, "sqlx_sequence_reservations", false)
 }

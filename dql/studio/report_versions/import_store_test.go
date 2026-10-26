@@ -20,7 +20,7 @@ import (
 func TestVersionImportStoreWriterContract(t *testing.T) {
 	ctx := context.Background()
 	db := datatest.OpenSQLite(t, "import_store", "studio")
-	compiled := compileVersionStore(t, ctx, "store_import", "version", column.New(column.Connections{"studio": db}))
+	compiled := compileVersionStore(ctx, t, "store_import", "version", column.New(column.Connections{"studio": db}))
 	if err := column.ApplyWriterMetadata(compiled.Component); err != nil {
 		t.Fatal(err)
 	}
@@ -78,7 +78,7 @@ func TestVersionImportStoreWriterContract(t *testing.T) {
 func TestVersionHeadStoreReaderContract(t *testing.T) {
 	ctx := context.Background()
 	db := datatest.OpenSQLite(t, "head_store", "studio")
-	compiled := compileVersionStore(t, ctx, "store_head", "head", column.New(column.Connections{"studio": db}))
+	compiled := compileVersionStore(ctx, t, "store_head", "head", column.New(column.Connections{"studio": db}))
 	if err := (bootstraproutes.Compiler{Component: compiled.Component}).Compile(); err != nil {
 		t.Fatal(err)
 	}
@@ -119,7 +119,7 @@ func TestVersionStoreComponentsTranscribeDeclaredPackages(t *testing.T) {
 	db := datatest.OpenSQLite(t, "store_compile", "studio")
 	module := datatest.NewGeneratedModule(t)
 	for _, component := range []struct{ directory, name, operation string }{{"store_head", "head", "get"}, {"store_import", "version", "post"}} {
-		compiled := compileVersionStore(t, ctx, component.directory, component.name, column.New(column.Connections{"studio": db}))
+		compiled := compileVersionStore(ctx, t, component.directory, component.name, column.New(column.Connections{"studio": db}))
 		generated, err := (transcribe.Generator{Operation: component.operation}).Generate(ctx, transcribe.GenerationRequest{Compiled: compiled, Destination: module.Root})
 		if err != nil {
 			t.Fatalf("generate %s: %v", component.directory, err)
@@ -138,7 +138,7 @@ func TestVersionStoreComponentsTranscribeDeclaredPackages(t *testing.T) {
 	module.Test(t)
 }
 
-func compileVersionStore(t *testing.T, ctx context.Context, directory, name string, refiner *column.Refiner) *transcribe.Result {
+func compileVersionStore(ctx context.Context, t *testing.T, directory, name string, refiner *column.Refiner) *transcribe.Result {
 	t.Helper()
 	path := filepath.Join(directory, name+".dql")
 	payload, err := os.ReadFile(path)

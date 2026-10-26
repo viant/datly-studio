@@ -49,7 +49,7 @@ func Criteria(ctx context.Context, connectors connector.Provider, subject, alias
 			}
 			return &xpredicate.Criteria{Expression: strings.ReplaceAll(expression+")", "namespaces.", alias+"."), Placeholders: values}, nil
 		}
-		roleScope, err := roleCriteria(connectors, ctx, "namespaces", roles, false)
+		roleScope, err := roleCriteria(ctx, connectors, "namespaces", roles, false)
 		if err != nil {
 			return nil, err
 		}

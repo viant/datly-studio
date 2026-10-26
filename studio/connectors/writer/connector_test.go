@@ -104,7 +104,7 @@ func TestConnectorWriterMinimumContract(t *testing.T) {
 		if output.Status.Status != "ok" {
 			t.Fatalf("output=%+v", output)
 		}
-		datatest.AssertRows(t, ctx, db, "SELECT name,driver,description,owner_id,status,etag FROM connectors WHERE name='alpha'", nil,
+		datatest.AssertRows(ctx, t, db, "SELECT name,driver,description,owner_id,status,etag FROM connectors WHERE name='alpha'", nil,
 			datatest.Row{"name": "alpha", "driver": "sqlite", "description": "changed", "owner_id": "owner-a", "status": "active", "etag": 2})
 	})
 
@@ -113,7 +113,7 @@ func TestConnectorWriterMinimumContract(t *testing.T) {
 		if err == nil || response.ErrorStatusCode(err, 500) != 409 && response.ErrorStatusCode(err, 500) != 422 {
 			t.Fatalf("stale etag error=%v", err)
 		}
-		datatest.AssertRows(t, ctx, db, "SELECT description,etag FROM connectors WHERE name='alpha'", nil,
+		datatest.AssertRows(ctx, t, db, "SELECT description,etag FROM connectors WHERE name='alpha'", nil,
 			datatest.Row{"description": "changed", "etag": 2})
 	})
 
@@ -121,7 +121,7 @@ func TestConnectorWriterMinimumContract(t *testing.T) {
 		if _, err := invoke(`{"Data":[{"name":"alpha","etag":2,"description":null}]}`); err != nil {
 			t.Fatal(err)
 		}
-		datatest.AssertRows(t, ctx, db, "SELECT description,driver,status FROM connectors WHERE name='alpha'", nil,
+		datatest.AssertRows(ctx, t, db, "SELECT description,driver,status FROM connectors WHERE name='alpha'", nil,
 			datatest.Row{"description": nil, "driver": "sqlite", "status": "active"})
 	})
 
@@ -133,7 +133,7 @@ func TestConnectorWriterMinimumContract(t *testing.T) {
 		if output.Status.Status != "ok" {
 			t.Fatalf("insert output=%+v", output)
 		}
-		datatest.AssertRows(t, ctx, db, "SELECT name,driver,owner_id,status,etag FROM connectors WHERE name='beta'", nil,
+		datatest.AssertRows(ctx, t, db, "SELECT name,driver,owner_id,status,etag FROM connectors WHERE name='beta'", nil,
 			datatest.Row{"name": "beta", "driver": "mysql", "owner_id": "owner-a", "status": "draft", "etag": 1})
 	})
 
@@ -142,7 +142,7 @@ func TestConnectorWriterMinimumContract(t *testing.T) {
 		if err == nil || response.ErrorStatusCode(err, 500) != 403 {
 			t.Fatalf("cross owner insert error=%v, want 403", err)
 		}
-		datatest.AssertRows(t, ctx, db, "SELECT name FROM connectors WHERE name='forbidden'", nil)
+		datatest.AssertRows(ctx, t, db, "SELECT name FROM connectors WHERE name='forbidden'", nil)
 	})
 
 	t.Run("generated connector validation", func(t *testing.T) {
@@ -160,21 +160,21 @@ func TestConnectorWriterMinimumContract(t *testing.T) {
 				}
 			})
 		}
-		datatest.AssertRows(t, ctx, db, "SELECT name FROM connectors WHERE name IN ('oracle','mismatch') ORDER BY name", nil)
+		datatest.AssertRows(ctx, t, db, "SELECT name FROM connectors WHERE name IN ('oracle','mismatch') ORDER BY name", nil)
 	})
 
 	t.Run("false delete marker preserves row", func(t *testing.T) {
 		if _, err := invoke(`{"Data":[{"name":"beta","etag":1,"shouldDelete":false}]}`); err != nil {
 			t.Fatal(err)
 		}
-		datatest.AssertRows(t, ctx, db, "SELECT name FROM connectors WHERE name='beta'", nil, datatest.Row{"name": "beta"})
+		datatest.AssertRows(ctx, t, db, "SELECT name FROM connectors WHERE name='beta'", nil, datatest.Row{"name": "beta"})
 	})
 
 	t.Run("explicit delete", func(t *testing.T) {
 		if _, err := invoke(`{"Data":[{"name":"beta","etag":1,"shouldDelete":true}]}`); err != nil {
 			t.Fatal(err)
 		}
-		datatest.AssertRows(t, ctx, db, "SELECT name FROM connectors WHERE name='beta'", nil)
+		datatest.AssertRows(ctx, t, db, "SELECT name FROM connectors WHERE name='beta'", nil)
 	})
 }
 

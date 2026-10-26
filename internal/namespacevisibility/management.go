@@ -95,7 +95,7 @@ func AddComponentManagers(ctx context.Context, connectors connector.Provider, su
 	if err != nil || len(roles) == 0 {
 		return criteria, nil
 	}
-	granted, err := roleCriteria(connectors, ctx, "n", roles, true)
+	granted, err := roleCriteria(ctx, connectors, "n", roles, true)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +121,7 @@ func ManagementCriteria(ctx context.Context, connectors connector.Provider, subj
 	if err != nil {
 		return result, nil
 	} // owner access remains independent of role service availability
-	roleCriteria, err := roleCriteria(connectors, ctx, alias, roles, true)
+	roleCriteria, err := roleCriteria(ctx, connectors, alias, roles, true)
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +130,7 @@ func ManagementCriteria(ctx context.Context, connectors connector.Provider, subj
 	return result, nil
 }
 
-func roleCriteria(connectors connector.Provider, ctx context.Context, alias string, roles []string, managersOnly bool) (*xpredicate.Criteria, error) {
+func roleCriteria(ctx context.Context, connectors connector.Provider, alias string, roles []string, managersOnly bool) (*xpredicate.Criteria, error) {
 	result := &xpredicate.Criteria{Expression: "1=0"}
 	if len(roles) == 0 {
 		return result, nil

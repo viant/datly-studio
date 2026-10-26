@@ -14,7 +14,7 @@ func TestHydrateAndAssertRows(t *testing.T) {
 	}}); err != nil {
 		t.Fatal(err)
 	}
-	AssertRows(t, ctx, db, "SELECT name, etag FROM connectors ORDER BY name", nil,
+	AssertRows(ctx, t, db, "SELECT name, etag FROM connectors ORDER BY name", nil,
 		Row{"name": "alpha", "etag": 1}, Row{"name": "beta", "etag": 2})
 }
 
@@ -31,7 +31,7 @@ func TestJSONHydrationPhaseValidatesAndNormalizes(t *testing.T) {
 	if err := phase.Apply(ctx, db); err != nil {
 		t.Fatal(err)
 	}
-	AssertRowsJSON(t, ctx, db, "SELECT name,options_json,etag FROM connectors", nil, []byte(`[{"name":"json","options_json":"{\"max_open\":2}","etag":1}]`))
+	AssertRowsJSON(ctx, t, db, "SELECT name,options_json,etag FROM connectors", nil, []byte(`[{"name":"json","options_json":"{\"max_open\":2}","etag":1}]`))
 
 	for _, invalid := range [][]byte{
 		[]byte(`{"tables":[{"name":"missing","rows":[{"id":1}]}]}`),

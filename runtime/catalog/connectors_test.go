@@ -19,7 +19,7 @@ func TestConnectorCatalogLoadActiveConnectors(t *testing.T) {
 
 	ctx := context.Background()
 	db := openCatalogTestDB(t)
-	migrateCatalog(t, ctx, db)
+	migrateCatalog(ctx, t, db)
 
 	now := time.Date(2026, 3, 13, 12, 0, 0, 0, time.UTC)
 	if _, err := db.ExecContext(ctx, `INSERT INTO connectors(name, driver, dsn_template, secret_ref, owner_id, status, options_json, etag, created_at, updated_at) VALUES ('analytics', 'sqlite', 'file:analytics?mode=memory&cache=shared', 'secret://analytics', 'alice', 'active', '{"pool_size":"small"}', 1, ?, ?)`, now, now); err != nil {
@@ -46,7 +46,7 @@ func TestConnectorCatalogActiveRowsOrderAndProjection(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 	db := openCatalogTestDB(t)
-	migrateCatalog(t, ctx, db)
+	migrateCatalog(ctx, t, db)
 
 	base := time.Date(2026, 3, 13, 12, 0, 0, 0, time.UTC)
 	insert := func(name, status string, updated time.Time, deleted bool) {
@@ -98,7 +98,7 @@ func TestConnectorCatalogNullableProjectionAndCredentialSerialization(t *testing
 	t.Parallel()
 	ctx := context.Background()
 	db := openCatalogTestDB(t)
-	migrateCatalog(t, ctx, db)
+	migrateCatalog(ctx, t, db)
 
 	created := time.Date(2026, 3, 13, 12, 0, 0, 0, time.UTC)
 	updated := created.Add(time.Hour)
@@ -170,7 +170,7 @@ func openCatalogTestDB(t *testing.T) *sql.DB {
 	return db
 }
 
-func migrateCatalog(t *testing.T, ctx context.Context, db *sql.DB) {
+func migrateCatalog(ctx context.Context, t *testing.T, db *sql.DB) {
 	t.Helper()
 	service, err := migrate.New()
 	if err != nil {

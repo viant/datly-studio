@@ -23,7 +23,7 @@ func openTestDB(t *testing.T) *sql.DB {
 	return db
 }
 
-func assertTableExists(t *testing.T, ctx context.Context, db *sql.DB, table string) {
+func assertTableExists(ctx context.Context, t *testing.T, db *sql.DB, table string) {
 	t.Helper()
 	var name string
 	err := db.QueryRowContext(ctx, "SELECT name FROM sqlite_master WHERE type='table' AND name=?", table).Scan(&name)
@@ -32,7 +32,7 @@ func assertTableExists(t *testing.T, ctx context.Context, db *sql.DB, table stri
 	}
 }
 
-func assertTableMissing(t *testing.T, ctx context.Context, db *sql.DB, table string) {
+func assertTableMissing(ctx context.Context, t *testing.T, db *sql.DB, table string) {
 	t.Helper()
 	var name string
 	err := db.QueryRowContext(ctx, "SELECT name FROM sqlite_master WHERE type='table' AND name=?", table).Scan(&name)
@@ -44,7 +44,7 @@ func assertTableMissing(t *testing.T, ctx context.Context, db *sql.DB, table str
 	}
 }
 
-func assertComponentsConnectorFK(t *testing.T, ctx context.Context, db *sql.DB) {
+func assertComponentsConnectorFK(ctx context.Context, t *testing.T, db *sql.DB) {
 	t.Helper()
 	rows, err := db.QueryContext(ctx, "PRAGMA foreign_key_list(components)")
 	if err != nil {

@@ -15,7 +15,7 @@ import (
 )
 
 func TestReportVersionReaderContract(t *testing.T) {
-	compiled := compileVersion(t, context.Background(), "reader", nil)
+	compiled := compileVersion(context.Background(), t, "reader", nil)
 	if err := (bootstraproutes.Compiler{Component: compiled.Component}).Compile(); err != nil {
 		t.Fatal(err)
 	}
@@ -42,7 +42,7 @@ func TestReportVersionReaderContract(t *testing.T) {
 func TestReportVersionWriterCompositeIdentityAndConcurrency(t *testing.T) {
 	ctx := context.Background()
 	db := datatest.OpenSQLite(t, "writer_compile", "studio")
-	compiled := compileVersion(t, ctx, "writer", column.New(column.Connections{"studio": db}))
+	compiled := compileVersion(ctx, t, "writer", column.New(column.Connections{"studio": db}))
 	if err := column.ApplyWriterMetadata(compiled.Component); err != nil {
 		t.Fatal(err)
 	}
@@ -67,7 +67,7 @@ func TestReportVersionTranscribesDeclaredPackages(t *testing.T) {
 	db := datatest.OpenSQLite(t, "runtime_compile", "studio")
 	module := datatest.NewGeneratedModule(t)
 	for _, component := range []struct{ name, operation string }{{"reader", "get"}, {"writer", "patch"}} {
-		compiled := compileVersion(t, ctx, component.name, column.New(column.Connections{"studio": db}))
+		compiled := compileVersion(ctx, t, component.name, column.New(column.Connections{"studio": db}))
 		generated, err := (transcribe.Generator{Operation: component.operation}).Generate(ctx, transcribe.GenerationRequest{Compiled: compiled, Destination: module.Root})
 		if err != nil {
 			t.Fatalf("generate report-version %s: %v", component.name, err)
@@ -84,7 +84,7 @@ func TestReportVersionTranscribesDeclaredPackages(t *testing.T) {
 	module.Test(t)
 }
 
-func compileVersion(t *testing.T, ctx context.Context, component string, refiner *column.Refiner) *transcribe.Result {
+func compileVersion(ctx context.Context, t *testing.T, component string, refiner *column.Refiner) *transcribe.Result {
 	t.Helper()
 	dir := component
 	path := filepath.Join(dir, "version.dql")

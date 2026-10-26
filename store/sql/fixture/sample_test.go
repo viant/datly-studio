@@ -36,18 +36,18 @@ func TestSeedSampleCatalog(t *testing.T) {
 		t.Fatalf("SeedSampleCatalog() error = %v", err)
 	}
 
-	assertCount(t, ctx, db, "SELECT COUNT(1) FROM connectors", 2)
-	assertCount(t, ctx, db, "SELECT COUNT(1) FROM components", 2)
-	assertCount(t, ctx, db, "SELECT COUNT(1) FROM component_versions", 2)
-	assertCount(t, ctx, db, "SELECT COUNT(1) FROM component_fields", 4)
-	assertCount(t, ctx, db, "SELECT COUNT(1) FROM component_parameters", 2)
-	assertCount(t, ctx, db, "SELECT COUNT(1) FROM component_predicates", 2)
-	assertCount(t, ctx, db, "SELECT COUNT(1) FROM component_acl", 4)
-	assertCount(t, ctx, db, "SELECT COUNT(1) FROM component_publications", 1)
-	assertCount(t, ctx, db, "SELECT COUNT(1) FROM component_views", 2)
-	assertCount(t, ctx, db, "SELECT COUNT(1) FROM component_cube_configs", 1)
-	assertCount(t, ctx, db, "SELECT COUNT(1) FROM component_mcp_exposures", 1)
-	assertCount(t, ctx, db, "SELECT COUNT(1) FROM runtime_generations", 1)
+	assertCount(ctx, t, db, "SELECT COUNT(1) FROM connectors", 2)
+	assertCount(ctx, t, db, "SELECT COUNT(1) FROM components", 2)
+	assertCount(ctx, t, db, "SELECT COUNT(1) FROM component_versions", 2)
+	assertCount(ctx, t, db, "SELECT COUNT(1) FROM component_fields", 4)
+	assertCount(ctx, t, db, "SELECT COUNT(1) FROM component_parameters", 2)
+	assertCount(ctx, t, db, "SELECT COUNT(1) FROM component_predicates", 2)
+	assertCount(ctx, t, db, "SELECT COUNT(1) FROM component_acl", 4)
+	assertCount(ctx, t, db, "SELECT COUNT(1) FROM component_publications", 1)
+	assertCount(ctx, t, db, "SELECT COUNT(1) FROM component_views", 2)
+	assertCount(ctx, t, db, "SELECT COUNT(1) FROM component_cube_configs", 1)
+	assertCount(ctx, t, db, "SELECT COUNT(1) FROM component_mcp_exposures", 1)
+	assertCount(ctx, t, db, "SELECT COUNT(1) FROM runtime_generations", 1)
 
 	var primaryConnectorCount int
 	if err := db.QueryRowContext(ctx, "SELECT COUNT(1) FROM connectors WHERE name=?", seed.PrimaryConnectorName).Scan(&primaryConnectorCount); err != nil {
@@ -101,7 +101,7 @@ WHERE report_id=? AND subject_type='role' AND subject_id='report_admin'`, seed.P
 	}
 }
 
-func assertCount(t *testing.T, ctx context.Context, db *sql.DB, query string, expected int) {
+func assertCount(ctx context.Context, t *testing.T, db *sql.DB, query string, expected int) {
 	t.Helper()
 	var actual int
 	if err := db.QueryRowContext(ctx, query).Scan(&actual); err != nil {

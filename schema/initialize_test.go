@@ -24,7 +24,7 @@ func TestInitializeCreatesCanonicalStorageAndReopensReadOnly(t *testing.T) {
 	}
 	assertCount(t, db, "SELECT COUNT(*) FROM connectors WHERE name='synthetic'", 1)
 	assertCount(t, db, "SELECT COUNT(*) FROM schema_version", 1)
-	assertTablePresence(t, ctx, db, "sqlx_sequence_reservations", false)
+	assertTablePresence(ctx, t, db, "sqlx_sequence_reservations", false)
 }
 
 func TestInitializeRejectsIncompleteStorageWithoutRepair(t *testing.T) {
@@ -40,7 +40,7 @@ func TestInitializeRejectsIncompleteStorageWithoutRepair(t *testing.T) {
 	if err := Initialize(ctx, db, "sqlite"); err == nil {
 		t.Fatal("incomplete storage accepted")
 	}
-	assertTablePresence(t, ctx, db, "bff_sessions", false)
+	assertTablePresence(ctx, t, db, "bff_sessions", false)
 }
 
 func TestInitializeRejectsOldShapeWithoutAlteringIt(t *testing.T) {
@@ -54,8 +54,8 @@ func TestInitializeRejectsOldShapeWithoutAlteringIt(t *testing.T) {
 		t.Fatal("old shape was accepted")
 	}
 	assertCount(t, db, "SELECT COUNT(*) FROM connectors WHERE name='preserved'", 1)
-	assertTablePresence(t, ctx, db, "schema_version", false)
-	assertTablePresence(t, ctx, db, "namespaces", false)
+	assertTablePresence(ctx, t, db, "schema_version", false)
+	assertTablePresence(ctx, t, db, "namespaces", false)
 }
 
 func TestInitializeRejectsGenerationCounterDowngradeWithoutRepair(t *testing.T) {
@@ -73,7 +73,7 @@ func TestInitializeRejectsGenerationCounterDowngradeWithoutRepair(t *testing.T) 
 	if err = Initialize(ctx, db, "sqlite"); err == nil || !strings.Contains(err.Error(), "AUTOINCREMENT") {
 		t.Fatalf("non-native identity accepted: %v", err)
 	}
-	assertTablePresence(t, ctx, db, "sqlx_sequence_reservations", false)
+	assertTablePresence(ctx, t, db, "sqlx_sequence_reservations", false)
 }
 
 func TestExistingStorageDoesNotDependOnVersionMarkerHistory(t *testing.T) {
