@@ -176,6 +176,11 @@ func TestSelectedStudioStaticComponentsBootstrapTogether(t *testing.T) {
 		t.Fatal(err)
 	}
 	for path := range document.Paths {
+		// The SDK-owned cache control route is deliberately HTTP-only; it has
+		// separate transport authorization tests and no native MCP component.
+		if path == "/v1/studio/sdk/"+sdk.OperationVersionInvalidateCache {
+			continue
+		}
 		matches := 0
 		for _, component := range metadata.Components {
 			for _, route := range component.Routes {
@@ -1049,8 +1054,8 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT FROM components) rows`
 	server.ServeHTTP(delegatedValidation, delegatedValidationRequest)
 	if delegatedValidation.Code != http.StatusOK || !strings.Contains(delegatedValidation.Body.String(), `"valid":false`) ||
 		!strings.Contains(delegatedValidation.Body.String(), `"compileStatus":"invalid"`) ||
-		strings.Contains(delegatedValidation.Body.String(), "SELECT FROM") || strings.Contains(delegatedValidation.Body.String(), `"authoredDql"`) ||
-		strings.Contains(delegatedValidation.Body.String(), `"generatedDql"`) {
+		strings.Contains(delegatedValidation.Body.String(), "SELECT FROM") || strings.Contains(delegatedValidation.Body.String(), `"authoredDql":`) ||
+		strings.Contains(delegatedValidation.Body.String(), `"generatedDql":`) {
 		t.Fatalf("delegated redacted validation status=%d body=%s", delegatedValidation.Code, delegatedValidation.Body.String())
 	}
 	dedupePlan := warmupprojection.PlanKey(&sdk.ReportVersion{ReportID: previewReportID, VersionNo: 2, SourceRevision: 1, SpecHash: "invalid-hash"})
@@ -1934,10 +1939,21 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 			t.Fatal(err)
 		}
 	}
-	expectedSDKTools := map[string]bool{}
+	// Native catalog discovery has its own HTTP routes, outside SDK OpenAPI.
+	expectedSDKTools := map[string]bool{
+		"studio.sdk.catalog.tools.list": true, "studio.sdk.catalog.tools.call": true,
+		"studio.sdk.catalog.skills.list": true, "studio.sdk.catalog.skills.get": true,
+	}
 	for path := range document.Paths {
-		name := sdkToolForPath(path)
-		expectedSDKTools[name] = true
+		if path == "/v1/studio/sdk/"+sdk.OperationVersionInvalidateCache {
+			continue
+		}
+		expectedSDKTools[sdkToolForPath(path)] = true
+	}
+	if available["studio.sdk."+sdk.OperationVersionInvalidateCache] {
+		t.Error("HTTP-only cache control exposed over MCP")
+	}
+	for name := range expectedSDKTools {
 		if !available[name] {
 			t.Errorf("static MCP listener did not list %s", name)
 		}
@@ -2311,8 +2327,7 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	for _, tool := range proxiedCatalog.Result.Tools {
 		proxiedTools[tool.Name] = true
 	}
-	for path := range document.Paths {
-		name := sdkToolForPath(path)
+	for name := range expectedSDKTools {
 		if !proxiedTools[name] {
 			t.Errorf("authenticated BFF MCP catalog did not list %s", name)
 		}

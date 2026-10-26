@@ -6,13 +6,13 @@
 #setting($_ = $route('/_studio/namespace-store/usage', 'GET'))
 #setting($_ = $internal(true))
 #setting($_ = $connector('studio'))
-#setting($_ = $sql_dest('usage', 'sql/read.sql'))
+#setting($_ = $sql_dest('usage_count', 'sql/read.sql'))
 
 #define($_ = $OwnerId<string>(query/ownerId).Required())
 #define($_ = $Name<string>(query/name).Required())
 #define($_ = $Usages<[]*NamespaceUsage>(output/view))
 
-SELECT usage.*, type(usage, 'NamespaceUsage'),
-       CAST(usage.used AS int64), set_limit(usage, 1)
-FROM (${embed:sql/read.sql}) usage
+SELECT usage_count.*, type(usage_count, 'NamespaceUsage'),
+       CAST(usage_count.used AS int64), set_limit(usage_count, 1)
+FROM (${embed:sql/read.sql}) usage_count
 WHERE 1=1
