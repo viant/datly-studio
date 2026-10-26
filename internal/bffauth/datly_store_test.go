@@ -4,7 +4,10 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"sync"
 	"testing"
 	"time"
@@ -13,6 +16,65 @@ import (
 	"github.com/viant/datly-studio/store/sql/migrate"
 	_ "modernc.org/sqlite"
 )
+
+func TestSessionKeyRotationRequiresSignInWithoutDeletingOtherInstancesSession(t *testing.T) {
+	ctx := context.Background()
+	db, err := sql.Open("sqlite", "file:"+t.Name()+"?mode=memory&cache=shared")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	db.SetMaxOpenConns(1)
+	migration, err := migrate.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := migration.Up(ctx, db); err != nil {
+		t.Fatal(err)
+	}
+	previous, err := NewSQLStore(db, []byte("0123456789abcdef0123456789abcdef"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer previous.Close(ctx)
+	current, err := NewSQLStore(db, []byte("abcdef0123456789abcdef0123456789"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer current.Close(ctx)
+	value := session{principal: sdk.Principal{Subject: "owner"}, token: "private-token", expiresAt: time.Now().Add(time.Hour)}
+	if err := previous.Put(ctx, "previous-session", value); err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := current.Get(ctx, "previous-session"); !errors.Is(err, errInvalidSession) {
+		t.Fatalf("different key must reject encrypted session: %v", err)
+	}
+	service, err := New(Config{Store: current}, verifierStub{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	request := httptest.NewRequest(http.MethodGet, "/v1/studio/auth/me", nil)
+	request.AddCookie(&http.Cookie{Name: DefaultCookieName, Value: "previous-session"})
+	response := httptest.NewRecorder()
+	service.handleMe(response, request)
+	if response.Code != http.StatusUnauthorized {
+		t.Fatalf("unreadable session must offer sign-in, status=%d body=%s", response.Code, response.Body.String())
+	}
+	// Do not delete a record another instance can still decrypt.
+	if _, found, err := previous.Get(ctx, "previous-session"); err != nil || !found {
+		t.Fatalf("original session changed: found=%v err=%v", found, err)
+	}
+	if err := current.Put(ctx, "new-session", value); err != nil {
+		t.Fatal(err)
+	}
+	request = httptest.NewRequest(http.MethodGet, "/v1/studio/auth/me", nil)
+	request.AddCookie(&http.Cookie{Name: DefaultCookieName, Value: "new-session"})
+	response = httptest.NewRecorder()
+	service.handleMe(response, request)
+	if response.Code != http.StatusOK {
+		t.Fatalf("new session failed: status=%d", response.Code)
+	}
+}
 
 func TestDatlySessionStoreEncryptsIdentityAndRefreshTokens(t *testing.T) {
 	ctx := context.Background()

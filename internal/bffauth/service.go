@@ -344,6 +344,9 @@ func (s *Service) sessionForID(ctx context.Context, id string) (session, error) 
 		return session{}, errors.New("Studio session is required")
 	}
 	current, ok, err := s.store.Get(ctx, id)
+	if errors.Is(err, errInvalidSession) {
+		return session{}, err
+	}
 	if err != nil {
 		return session{}, &sdk.Error{Code: sdk.ErrorUnavailable, Message: "Studio session verification is temporarily unavailable", Cause: err}
 	}

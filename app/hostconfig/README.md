@@ -116,7 +116,10 @@ lookups. `StaticRoot` optionally points to built public UI assets; embedding app
 can instead supply `Browser.StaticFS` without a directory setting. `SessionKey`
 optionally supplies a stable base64-encoded 32-byte key as a plain SCY secret.
 Without it, a random process-local key makes existing browser sessions expire on
-restart. These are advanced settings, not additional required service wiring.
+restart. Configure a persistent, application-specific key for deployments that
+must retain sessions across restarts or share them between replicas. An older
+session encrypted with a different key requires sign-in again; it is not a
+session-store outage. Do not generate a new key during every deployment.
 
 The browser's `/studio-config.json` is derived from the same public origin and
 uses authenticated BFF mode; there is no separate deployment-side browser config.

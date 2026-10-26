@@ -10,7 +10,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"sync"
 	"time"
@@ -38,6 +37,11 @@ type storedPayload struct {
 	Claims           *jwt.Claims   `json:"claims"`
 	ExpiresAt        time.Time     `json:"expiresAt"`
 }
+
+// An unreadable encrypted record cannot authenticate a browser. In particular,
+// records written before a session-key rotation need a new sign-in, rather than
+// repeated retries of the same cookie. Database failures remain unavailable.
+var errInvalidSession = errors.New("invalid encrypted Studio session")
 
 func NewSQLStore(db *sql.DB, key []byte) (*SQLStore, error) {
 	if db == nil {
@@ -122,16 +126,16 @@ func (s *SQLStore) Get(ctx context.Context, id string) (session, bool, error) {
 		return session{}, found, err
 	}
 	if len(ciphertext) < s.aead.NonceSize() {
-		return session{}, false, errors.New("invalid encrypted BFF session")
+		return session{}, false, errInvalidSession
 	}
 	nonce, encrypted := ciphertext[:s.aead.NonceSize()], ciphertext[s.aead.NonceSize():]
 	plain, err := s.aead.Open(nil, nonce, encrypted, []byte(hash))
 	if err != nil {
-		return session{}, false, fmt.Errorf("decrypt BFF session: %w", err)
+		return session{}, false, errInvalidSession
 	}
 	var payload storedPayload
 	if err = json.Unmarshal(plain, &payload); err != nil {
-		return session{}, false, err
+		return session{}, false, errInvalidSession
 	}
 	expires := time.Unix(expiresUnix, 0)
 	return session{principal: payload.Principal, token: payload.Token, refreshToken: payload.RefreshToken, idTokenExpiresAt: payload.IDTokenExpiresAt, claims: payload.Claims, expiresAt: expires}, true, nil
