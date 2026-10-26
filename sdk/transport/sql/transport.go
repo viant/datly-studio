@@ -2069,7 +2069,7 @@ func (t *Transport) publish(ctx context.Context, input, output any, operation st
 		if restoreErr := t.restoreFailedPublication(context.WithoutCancel(ctx), in.ReportID, generation, previous, hasPrevious, err); restoreErr != nil {
 			err = errors.Join(err, fmt.Errorf("restore failed publication: %w", restoreErr))
 		}
-		return &sdk.Error{Code: sdk.ErrorUnavailable, Message: "dynamic runtime reload failed: " + err.Error(), Cause: err}
+		return publicationRuntimeError("runtime_reload", err)
 	}
 	event.Status = "succeeded"
 	event.OccurredAt = now
@@ -2311,7 +2311,7 @@ func (t *Transport) compensateActivationFailure(ctx context.Context, reportID st
 	if restoreErr := t.restoreFailedPublication(context.WithoutCancel(ctx), reportID, generation, previous, hasPrevious, combined); restoreErr != nil {
 		combined = errors.Join(combined, fmt.Errorf("restore failed publication: %w", restoreErr))
 	}
-	return &sdk.Error{Code: sdk.ErrorUnavailable, Message: "runtime activation persistence failed: " + combined.Error(), Cause: combined}
+	return publicationRuntimeError("runtime_activation", combined)
 }
 
 type unpublishRequest struct {
@@ -2404,7 +2404,7 @@ func (t *Transport) unpublish(ctx context.Context, input, output any) (returnErr
 		if restoreErr := t.restoreFailedPublication(context.WithoutCancel(ctx), in.ReportID, generation, previous, true, err); restoreErr != nil {
 			err = errors.Join(err, fmt.Errorf("restore failed publication: %w", restoreErr))
 		}
-		return &sdk.Error{Code: sdk.ErrorUnavailable, Message: "dynamic runtime reload failed: " + err.Error(), Cause: err}
+		return publicationRuntimeError("runtime_reload", err)
 	}
 	event.Status = "succeeded"
 	event.OccurredAt = now

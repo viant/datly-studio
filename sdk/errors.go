@@ -15,15 +15,17 @@ const (
 )
 
 type Error struct {
-	Code                   ErrorCode   `json:"code"`
-	Message                string      `json:"message"`
-	Field                  string      `json:"field,omitempty"`
-	Violations             []Violation `json:"violations,omitempty"`
-	ExpectedSourceRevision int64       `json:"expectedSourceRevision,omitempty"`
-	CurrentSourceRevision  int64       `json:"currentSourceRevision,omitempty"`
-	ExpectedETag           int64       `json:"expectedEtag,omitempty"`
-	CurrentETag            int64       `json:"currentEtag,omitempty"`
-	Cause                  error       `json:"-"`
+	Code       ErrorCode   `json:"code"`
+	Message    string      `json:"message"`
+	Field      string      `json:"field,omitempty"`
+	Violations []Violation `json:"violations,omitempty"`
+	// Diagnostics contains public, already-projected feedback, never raw causes.
+	Diagnostics            []Diagnostic `json:"diagnostics,omitempty"`
+	ExpectedSourceRevision int64        `json:"expectedSourceRevision,omitempty"`
+	CurrentSourceRevision  int64        `json:"currentSourceRevision,omitempty"`
+	ExpectedETag           int64        `json:"expectedEtag,omitempty"`
+	CurrentETag            int64        `json:"currentEtag,omitempty"`
+	Cause                  error        `json:"-"`
 }
 
 func (e *Error) Error() string {

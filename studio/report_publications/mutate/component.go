@@ -204,7 +204,24 @@ func invoke(ctx context.Context, session xhandler.Session, claims *jwt.Claims, n
 func mapError(err error) error {
 	var sdkErr *sdk.Error
 	if !errors.As(err, &sdkErr) {
-		return publicError(500, "publication failed")
+		sdkErr = &sdk.Error{Code: sdk.ErrorInternal, Message: "publication failed", Cause: err}
+	}
+	diagnostics := sqltransport.PublicationReceiptDiagnostics(sdkErr.Diagnostics)
+	if sdkErr.Code == sdk.ErrorInternal {
+		// Storage and unexpected failures may carry SQL or private configuration.
+		// Keep the original typed cause internally without using its text publicly.
+		safe := *sdkErr
+		safe.Message = "Publication state could not be read or saved."
+		if len(diagnostics) == 0 {
+			diagnostics = []sdk.Diagnostic{{Severity: "error", Code: "publication_store", Stage: "persistence", Field: "publication", Message: safe.Message, Hint: "Check the Studio store and current publication state before retrying the same component version."}}
+		} else if diagnostics[0].Message != "" {
+			// A typed public diagnostic is more useful than a generic store error.
+			// The SDK error message itself may still contain the private cause.
+			safe.Message = diagnostics[0].Message
+		}
+		safe.Diagnostics = diagnostics
+		safe.Cause = sdkErr
+		sdkErr = &safe
 	}
 	code := 500
 	switch sdkErr.Code {
@@ -231,7 +248,10 @@ func mapError(err error) error {
 	if sdkErr.CurrentSourceRevision != 0 {
 		payload["currentSourceRevision"] = sdkErr.CurrentSourceRevision
 	}
-	return &xresponse.Error{Code: code, Cause: errors.New(sdkErr.Message), Payload: payload}
+	if len(diagnostics) > 0 {
+		payload["diagnostics"] = diagnostics
+	}
+	return &xresponse.Error{Code: code, Cause: sdkErr, Payload: payload}
 }
 
 func publicError(code int, message string) error {
