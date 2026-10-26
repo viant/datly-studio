@@ -9,6 +9,7 @@ import (
 	"github.com/viant/datly-studio/internal/connectoraccess"
 	"github.com/viant/datly-studio/internal/globalaccess"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
+	"github.com/viant/datly-studio/internal/namespacevisibility"
 	"github.com/viant/datly-studio/internal/reportcapability"
 	"github.com/viant/datly-studio/sdk"
 	sqltransport "github.com/viant/datly-studio/sdk/transport/sql"
@@ -68,6 +69,11 @@ func (a SDKAuthorizer) Authorize(ctx context.Context, request sqltransport.Autho
 	}
 	if request.OwnerID != "" && request.OwnerID != principal.Subject {
 		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "cannot create another principal's resource"}
+	}
+	// This authorizes management SDK operations only. Published reader execution
+	// and its own access predicates retain their separate runtime authorization.
+	if namespacevisibility.IsAdministrator(ctx, principal.Subject) {
+		return nil
 	}
 	if request.ReportID != "" {
 		err := a.report(ctx, principal.Subject, request.ReportID, request.Permission)
