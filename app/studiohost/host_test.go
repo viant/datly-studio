@@ -17,6 +17,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
 	"testing"
@@ -27,7 +28,11 @@ import (
 	"github.com/viant/datly-studio/app/hostconfig"
 	"github.com/viant/datly-studio/app/studioapi"
 	"github.com/viant/datly-studio/app/studiohost"
+	runtimehost "github.com/viant/datly-studio/runtime/host"
+	nativeauth "github.com/viant/datly/runtime/auth"
 	mcpschema "github.com/viant/mcp-protocol/schema"
+	"github.com/viant/scy/auth/jwt"
+	xcodec "github.com/viant/xdatly/codec"
 )
 
 // Child isolation is for immutable native provider registration, not deployment:
@@ -151,7 +156,39 @@ func TestOneProcessHost(t *testing.T) {
 		}()
 	} else {
 		go func() {
-			done <- studiohost.Serve(ctx, config, studiohost.Options{Diagnostics: os.Stderr, Browser: studioapi.Options{StaticFS: fstest.MapFS{"index.html": &fstest.MapFile{Data: []byte("<html>synthetic unified Studio</html>")}}}, Ready: func(e studiohost.Endpoints) { ready <- e }})
+			done <- studiohost.Serve(ctx, config, studiohost.Options{Diagnostics: os.Stderr, Browser: studioapi.Options{StaticFS: fstest.MapFS{"index.html": &fstest.MapFile{Data: []byte("<html>synthetic unified Studio</html>")}}}, ConfigureRuntime: func(runtime *runtimehost.Config) error {
+				if runtime.CodecFactory == nil {
+					return fmt.Errorf("namespace readers have no deployment JWT codec factory")
+				}
+				codec, err := runtime.CodecFactory.New(&xcodec.Config{Body: nativeauth.JwtClaim, SourceType: reflect.TypeFor[string](), DestinationType: reflect.TypeFor[*jwt.Claims]()})
+				if err != nil {
+					return err
+				}
+				if _, err := codec.Value(ctx, bearer); err != nil {
+					return fmt.Errorf("reader rejected valid configured credential: %w", err)
+				}
+				for _, invalid := range []struct {
+					issuer, audience, subject string
+					expiry                    time.Time
+				}{
+					{"https://wrong.example", "studio", "synthetic-owner", time.Now().Add(time.Minute)},
+					{"https://synthetic.example", "wrong", "synthetic-owner", time.Now().Add(time.Minute)},
+					{"https://synthetic.example", "studio", "", time.Now().Add(time.Minute)},
+					{"https://synthetic.example", "studio", "synthetic-owner", time.Now().Add(-time.Minute)},
+				} {
+					token, err := jwtlib.NewWithClaims(jwtlib.SigningMethodRS256, jwtlib.MapClaims{"iss": invalid.issuer, "aud": invalid.audience, "sub": invalid.subject, "exp": invalid.expiry.Unix()}).SignedString(private)
+					if err != nil {
+						return err
+					}
+					if _, err := codec.Value(ctx, token); err == nil {
+						return fmt.Errorf("reader accepted credential outside the deployment claim policy")
+					}
+				}
+				if _, err := codec.Value(ctx, bearer+"x"); err == nil {
+					return fmt.Errorf("reader accepted invalid JWT signature")
+				}
+				return nil
+			}, Ready: func(e studiohost.Endpoints) { ready <- e }})
 		}()
 	}
 

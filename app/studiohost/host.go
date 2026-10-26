@@ -26,12 +26,14 @@ import (
 	"github.com/viant/datly-studio/audit"
 	"github.com/viant/datly-studio/internal/runtimeadmin"
 	"github.com/viant/datly-studio/runtime/accessprovider"
+	studiocodecs "github.com/viant/datly-studio/runtime/codecs"
 	runtimehost "github.com/viant/datly-studio/runtime/host"
 	"github.com/viant/datly-studio/runtime/namespacemcp"
 	"github.com/viant/datly-studio/schema"
 	studiocatalog "github.com/viant/datly-studio/studio/catalog"
 	authoring "github.com/viant/datly-studio/studio/host"
 	"github.com/viant/datly/bootstrap/connector"
+	nativeauth "github.com/viant/datly/runtime/auth"
 	datlyconfig "github.com/viant/datly/standalone/config"
 	"github.com/viant/mcp-protocol/authorization"
 	oauthmeta "github.com/viant/mcp-protocol/oauth2/meta"
@@ -260,7 +262,15 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	if tenant == "" {
 		tenant = "studio"
 	}
+	// Declared reader JwtClaim inputs must use the same deployment-owned
+	// verifier and claim policy as the management host. The access provider
+	// authenticates transport access; it does not configure reader codecs.
+	readerJWT, err := nativeauth.New(ctx, &nativeauth.Config{JWTValidator: config.JWTValidator, ClaimPolicy: config.JWTClaims})
+	if err != nil {
+		return fmt.Errorf("configure namespace reader JWT verification: %w", err)
+	}
 	runtimeConfig := runtimehost.Config{MCPToolNames: config.MCPToolNames, ToolCallAudit: auditService.Logger, Const: config.Const, InProcess: true, RootDir: config.BaseDir, ModulePath: authoringConfig.ModulePath,
+		CodecFactory:     studiocodecs.New(readerJWT),
 		NamespaceMCPMode: "shared", HTTP: runtimehost.Listener{Address: "127.0.0.1:0"}, MCP: runtimehost.Listener{Address: namespaceAddress},
 		Studio:         runtimehost.Studio{Driver: catalog.Driver, DSN: catalog.DSN},
 		Authentication: runtimehost.Authentication{DefaultMode: "required", Issuer: issuer, Audience: audience, ConnectionExport: config.NamespaceConnectionExport, Providers: config.NamespaceOAuthProviders},
