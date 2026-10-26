@@ -41,6 +41,11 @@ Enable cube MCP exposure when an agent must invoke the cube, and component MCP
 exposure when the source reader should also be callable. Composition is optional;
 enable it only for multiple typed query frames, with explicit limits and timeout.
 The derived cube contract preserves required source authorization and filters.
+Cube exposure normally adds a POST `*.readCube` sibling to the reader's `*.read`
+tool. Filter names use the derived lower-camel contract (for example `Dates`
+becomes `filters.dates`). Still discover the exact published name and input
+schema through `catalog.tools.list`; deployment prefixes and authored layouts
+can differ. Use the inspected source contract to explain the meaning of filters.
 
 Do not sum non-additive values such as distinct users, percentages or daily rates
 across incompatible groups. Aggregate additive numerators/denominators and derive

@@ -44,6 +44,18 @@ presence where omitted, NULL and zero differ. Declare imports for non-builtin
 Go types. Use QuerySelector on the exact view for supported limit/offset/fields
 bindings; enabling a UI control does not grant selector authority automatically.
 
+For a discovered BigQuery `DATE` column and ISO-date string-array input, this
+Datly v1 pattern has been verified through native discovery and cube execution:
+
+```sql
+#define($_ = $Dates<[]string>(query/dates).Required().WithPredicate(0, 'literal_in', 'CAST(fp.event_date AS STRING)'))
+```
+
+Here `fp` is the actual inner BigQuery fact alias, and values are dates such as
+`2026-10-01`. Keep the required declaration and use the normal predicate builder
+to emit it. This is not a general timestamp/timezone conversion rule or syntax
+for other database drivers; discover the actual column type first.
+
 For a linked variadic custom predicate, builder operations use `name: handler`,
 the handler type identity in `args`, and literal configuration in `handlerArgs`.
 The latter preserves string, boolean, integer and NULL values; it does not accept
