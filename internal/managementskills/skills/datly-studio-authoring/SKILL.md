@@ -23,6 +23,9 @@ paths relative to this skill URI:
   registered types/codecs, and semantic validity still require the connected compiler.
 - [Cubes and dictionaries](references/cubes-and-dictionaries.md): fact grain,
   dimension/measure roles, BigQuery aggregation, and MySQL lookup relations.
+- [Report-consumer handoff](references/report-consumers.md): verified reader
+  contracts for dashboard agents, including source branches, date semantics,
+  required context, nullable calculations and execution evidence.
 
 ## Keep the contracts distinct
 

@@ -581,6 +581,17 @@
         "groupOperator": {
           "type": "string"
         },
+        "handlerArgs": {
+          "items": {
+            "type": [
+              "string",
+              "boolean",
+              "integer",
+              "null"
+            ]
+          },
+          "type": "array"
+        },
         "name": {
           "type": "string"
         },

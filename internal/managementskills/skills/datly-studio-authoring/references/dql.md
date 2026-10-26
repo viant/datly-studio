@@ -44,6 +44,15 @@ presence where omitted, NULL and zero differ. Declare imports for non-builtin
 Go types. Use QuerySelector on the exact view for supported limit/offset/fields
 bindings; enabling a UI control does not grant selector authority automatically.
 
+For a linked variadic custom predicate, builder operations use `name: handler`,
+the handler type identity in `args`, and literal configuration in `handlerArgs`.
+The latter preserves string, boolean, integer and NULL values; it does not accept
+expressions, nested lists or objects. Use only configuration pairs supported by
+that installed handler (for example an advertised SQL alias attribute), with
+the actual source alias. On update, omitting `handlerArgs` preserves the existing
+configuration; `[]` clears it. Built-in predicate `args` remain strings, and
+legacy non-variadic handlers do not gain argument support automatically.
+
 Use outer `CAST(view.column AS GoType)` for an actual type override. SQL CAST
 inside the subquery remains database SQL. Use `tag`/format policy for deliberate
 JSON naming and visibility; do not replace all fields with redundant tags.

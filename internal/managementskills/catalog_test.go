@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/viant/datly/authoring/readerbuilder"
+	"github.com/xeipuuv/gojsonschema"
 )
 
 // Keep the published operation schema tied to the linked builder's JSON types.
@@ -38,6 +39,11 @@ func TestPublishedBuilderOperationSchemaMatchesLinkedTypes(t *testing.T) {
 						key = f.Name
 					}
 					props[key] = project(f.Type)
+					if typ == reflect.TypeFor[readerbuilder.PredicateMutation]() && key == "handlerArgs" {
+						// Custom-handler extras have a narrower native contract than
+						// arbitrary JSON values; built-in Args remains []string.
+						props[key] = map[string]any{"type": "array", "items": map[string]any{"type": []string{"string", "boolean", "integer", "null"}}}
+					}
 					if len(parts) < 2 || parts[1] != "omitempty" {
 						required = append(required, key)
 					}
@@ -53,6 +59,10 @@ func TestPublishedBuilderOperationSchemaMatchesLinkedTypes(t *testing.T) {
 			return map[string]any{"type": "boolean"}
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			return map[string]any{"type": "integer"}
+		case reflect.Float32, reflect.Float64:
+			return map[string]any{"type": "number"}
+		case reflect.Interface:
+			return map[string]any{}
 		default:
 			return map[string]any{"type": "string"}
 		}
@@ -108,5 +118,48 @@ func TestPublishedBuilderOperationSchemaMatchesLinkedTypes(t *testing.T) {
 	}
 	if string(saved) != string(data) {
 		t.Fatal("published builder schema is stale; regenerate against the linked Datly version")
+	}
+}
+
+func TestPublishedHandlerArgumentsAgreeWithNativeDecoder(t *testing.T) {
+	data, err := os.ReadFile("skills/datly-studio-authoring/references/builder-operations.schema.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The generated contract uses only structural keywords shared with draft 7;
+	// force that validator dialect rather than interpreting its 2020-12 label.
+	loader := gojsonschema.NewSchemaLoader()
+	loader.AutoDetect = false
+	loader.Draft = gojsonschema.Draft7
+	contract, err := loader.Compile(gojsonschema.NewBytesLoader(data))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct {
+		name, extras string
+		valid        bool
+	}{
+		{"string pairs", `["alias","r"]`, true},
+		{"typed pairs", `["limit",10,"enabled",false,"nullable",null]`, true},
+		{"explicit clear", `[]`, true},
+		{"fractional", `[1.25]`, false},
+		{"compound object", `[{}]`, false},
+		{"nested list", `[["alias","r"]]`, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			raw := []byte(`{"type":"addFieldPredicate","predicate":{"field":"IDs","view":"records","group":0,"name":"handler","args":["example.com/security.Scope"],"handlerArgs":` + tc.extras + `}}`)
+			result, err := contract.Validate(gojsonschema.NewBytesLoader(raw))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if result.Valid() != tc.valid {
+				t.Fatalf("published contract valid=%v want=%v: %v", result.Valid(), tc.valid, result.Errors())
+			}
+			var operation readerbuilder.Operation
+			err = json.Unmarshal(raw, &operation)
+			if (err == nil) != tc.valid {
+				t.Fatalf("native decoder accepted=%v want=%v: %v", err == nil, tc.valid, err)
+			}
+		})
 	}
 }
