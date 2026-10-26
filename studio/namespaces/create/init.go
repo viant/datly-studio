@@ -17,32 +17,32 @@ import (
 func (input *NamespaceCreateInput) Init(context.Context) error {
 	if input == nil || input.Jwt == nil || input.Auth == nil || input.Auth.Auth == nil ||
 		input.Jwt.Subject == "" || input.Auth.Auth.Subject != input.Jwt.Subject {
-		return &xresponse.Error{Code: 403, Cause: errors.New("verified Studio owner is required")}
+		return createError(403, "verified Studio owner is required")
 	}
 	if input.Namespace == nil {
-		return &xresponse.Error{Code: 400, Cause: errors.New("namespace body is required")}
+		return createError(400, "namespace body is required")
 	}
 	row := input.Namespace
 	row.Name = strings.TrimSpace(row.Name)
 	row.Title = strings.TrimSpace(row.Title)
 	if !namespacevalidation.ValidName(row.Name) || row.Title == "" {
-		return &xresponse.Error{Code: 400, Cause: errors.New("namespace name and title are required; name must use lowercase dot-separated segments")}
+		return createError(400, "namespace name and title are required; name must use lowercase dot-separated segments")
 	}
 	if row.OwnerId != "" && row.OwnerId != input.Jwt.Subject {
-		return &xresponse.Error{Code: 403, Cause: errors.New("cannot create another principal's namespace")}
+		return createError(403, "cannot create another principal's namespace")
 	}
 	if row.Description != nil && *row.Description == "" {
 		row.Description = nil
 	}
 	if err := namespaceaccess.Validate(row.Visibility, row.AllowedRoles, row.McpPort); err != nil {
-		return &xresponse.Error{Code: 400, Cause: err}
+		return createError(400, err.Error())
 	}
 	if row.Visibility == "" {
 		row.Visibility = namespaceaccess.Private
 	}
 	serialized, err := (namespaceroles.Grants{View: row.AllowedRoles, Manage: row.ManagerRoles}).Encode()
 	if err != nil {
-		return &xresponse.Error{Code: 400, Cause: err}
+		return createError(400, err.Error())
 	}
 	row.NamespaceId = namespaceaccess.ID(input.Jwt.Subject, row.Name)
 	row.AllowedRolesJson = &serialized
@@ -53,4 +53,8 @@ func (input *NamespaceCreateInput) Init(context.Context) error {
 		Description: true, Status: true, Etag: true, CreatedAt: true, UpdatedAt: true}
 	input.SetNamespace(row)
 	return nil
+}
+
+func createError(code int, message string) error {
+	return &xresponse.Error{Code: code, Cause: errors.New(message), Payload: map[string]string{"message": message}}
 }

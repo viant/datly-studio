@@ -166,6 +166,20 @@ func TestNamespaceCreateSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	if !ok {
 		t.Fatal("MCP create tool is missing")
 	}
+	inputSchema := tool.Metadata.InputSchema
+	if !reflect.DeepEqual(inputSchema.Required, []string{"name", "title"}) {
+		t.Fatalf("create input required=%v", inputSchema.Required)
+	}
+	for _, field := range []string{"namespaceId", "ownerId"} {
+		if inputSchema.Properties[field] != nil {
+			t.Fatalf("computed input %s advertised", field)
+		}
+	}
+	for _, field := range []string{"allowedRoles", "managerRoles", "mcpEnabled"} {
+		if inputSchema.Properties[field] == nil {
+			t.Fatalf("optional input %s missing", field)
+		}
+	}
 	callContext := context.WithValue(ctx, authorization.TokenKey, &authorization.Token{Token: jwt.Bearer(t, "bob")})
 	result, rpcErr := tool.Handler(callContext, &schema.CallToolRequest{Method: schema.MethodToolsCall, Params: schema.CallToolRequestParams{Name: "studio.sdk.namespaces.create", Arguments: map[string]any{"name": "research", "title": "Research"}}})
 	if rpcErr != nil || result == nil || result.IsError != nil && *result.IsError {
@@ -174,6 +188,17 @@ func TestNamespaceCreateSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	structured, err := json.Marshal(result.StructuredContent)
 	if err != nil || !bytes.Contains(structured, []byte(`"name":"research"`)) || bytes.Contains(structured, []byte(`"data":`)) {
 		t.Fatalf("MCP create DTO=%s err=%v", structured, err)
+	}
+	if !bytes.Contains(structured, []byte(`"namespaceId":`)) || !bytes.Contains(structured, []byte(`"ownerId":"bob"`)) {
+		t.Fatalf("computed response identity lost: %s", structured)
+	}
+	invalid, rpcErr := tool.Handler(callContext, &schema.CallToolRequest{Method: schema.MethodToolsCall, Params: schema.CallToolRequestParams{Name: "studio.sdk.namespaces.create", Arguments: map[string]any{"name": "Bad-Name", "title": "Invalid"}}})
+	if rpcErr != nil || invalid == nil || invalid.IsError == nil || !*invalid.IsError {
+		t.Fatalf("invalid create response=%+v err=%v", invalid, rpcErr)
+	}
+	diagnostic, _ := json.Marshal(invalid.StructuredContent)
+	if !bytes.Contains(diagnostic, []byte("lowercase dot-separated segments")) {
+		t.Fatalf("missing actionable create diagnostic: %s", diagnostic)
 	}
 	var bobOwner string
 	if err = db.QueryRowContext(ctx, "SELECT owner_id FROM namespaces WHERE name=?", "research").Scan(&bobOwner); err != nil || bobOwner != "bob" {

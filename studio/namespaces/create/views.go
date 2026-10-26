@@ -8,14 +8,14 @@ import (
 
 // NamespaceRecord is generated canonical view metadata for namespace.
 type NamespaceRecord struct {
-	AllowedRoles     []string            `sqlx:"-" json:"allowedRoles"`
-	ManagerRoles     []string            `sqlx:"-" json:"managerRoles"`
-	NamespaceId      string              `json:"namespaceId" sqlx:"namespace_id,required=true"`
+	AllowedRoles     []string            `sqlx:"-" json:"allowedRoles,omitempty"`
+	ManagerRoles     []string            `sqlx:"-" json:"managerRoles,omitempty"`
+	NamespaceId      string              `json:"namespaceId" mcp:"-" sqlx:"namespace_id,required=true"`
 	Visibility       string              `sqlx:"visibility,required=true" json:"visibility,omitempty"`
 	AllowedRolesJson *string             `sqlx:"allowed_roles_json" json:"-"`
-	McpEnabled       bool                `json:"mcpEnabled" sqlx:"mcp_enabled,required=true"`
+	McpEnabled       bool                `json:"mcpEnabled,omitempty" sqlx:"mcp_enabled,required=true"`
 	McpPort          *int                `json:"mcpPort,omitempty" sqlx:"mcp_port"`
-	OwnerId          string              `sqlx:"owner_id,primaryKey,required=true" json:"ownerId,omitempty"`
+	OwnerId          string              `sqlx:"owner_id,primaryKey,required=true" json:"ownerId,omitempty" mcp:"-"`
 	Name             string              `sqlx:"name,primaryKey,required=true" json:"name"`
 	Title            string              `json:"title" sqlx:"title,required=true"`
 	Description      *string             `json:"description,omitempty" sqlx:"description"`
