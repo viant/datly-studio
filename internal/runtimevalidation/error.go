@@ -62,6 +62,10 @@ func Diagnostics(err error) []sdk.Diagnostic {
 			d.Field = "componentScope"
 			d.Message = "Reader package does not belong to the host authoring module."
 			d.Hint = "Use the reader package operation to restore the host-owned package, then validate again."
+		} else if phase.Stage == "contract" {
+			if native, ok := contractDiagnostic(phase.Cause); ok {
+				d = native
+			}
 		}
 	}
 	if errors.Is(err, context.Canceled) {
