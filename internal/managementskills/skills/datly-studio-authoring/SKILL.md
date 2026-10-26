@@ -1,6 +1,7 @@
 ---
 name: datly-studio-authoring
 description: Inspect and explain existing Datly components, discover database schemas, create Datly v1 readers and cubes with BigQuery facts and MySQL dictionaries, and validate, release, and verify them through Studio management MCP.
+group: data-authoring
 ---
 
 # Datly Studio authoring
