@@ -17,6 +17,7 @@ import (
 	"github.com/viant/datly-studio/runtime/accessprovider"
 	"github.com/viant/datly/runtime/registry"
 	"github.com/viant/datly/spec"
+	"github.com/viant/mcp-protocol/authorization"
 	xresponse "github.com/viant/xdatly/response"
 )
 
@@ -183,6 +184,10 @@ func (s *Service) resourceCredential(next http.Handler) http.Handler {
 				return
 			}
 			ctx = oauth.WithBearer(ctx, parts[1])
+			// Datly's MCP invoker binds declared header inputs from the
+			// protocol credential. Keep the original credential available;
+			// each declared JwtClaim still verifies it with the host codec.
+			ctx = context.WithValue(ctx, authorization.TokenKey, &authorization.Token{Token: parts[1]})
 		}
 		if s.resourceAccess != nil && s.resourceAccess.Provider != nil {
 			ctx = accessprovider.WithProvider(ctx, s.resourceAccess.Provider)
