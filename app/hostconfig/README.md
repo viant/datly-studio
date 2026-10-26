@@ -115,11 +115,14 @@ derived from the HTTP listener. `Tenant` defaults to `studio` for resource polic
 lookups. `StaticRoot` optionally points to built public UI assets; embedding apps
 can instead supply `Browser.StaticFS` without a directory setting. `SessionKey`
 optionally supplies a stable base64-encoded 32-byte key as a plain SCY secret.
-Without it, a random process-local key makes existing browser sessions expire on
-restart. Configure a persistent, application-specific key for deployments that
-must retain sessions across restarts or share them between replicas. An older
-session encrypted with a different key requires sign-in again; it is not a
-session-store outage. Do not generate a new key during every deployment.
+By default, a configured confidential OAuth client supplies the existing secret
+used to derive a separate HKDF-SHA256 key scoped to the public origin, client ID
+and token endpoint. No additional session-key secret is needed for those hosts.
+The encrypted session store and OAuth refresh flow remain server-side. A stable
+OAuth configuration preserves sessions across restarts and replicas; rotating
+the client secret requires sign-in again. Hosts without a confidential OAuth
+client or explicit SessionKey use a process-local random key. An unreadable old
+session requires sign-in again; a database outage remains HTTP 503.
 
 The browser's `/studio-config.json` is derived from the same public origin and
 uses authenticated BFF mode; there is no separate deployment-side browser config.

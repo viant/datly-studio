@@ -51,7 +51,8 @@ type Config struct {
 	// Tenant is the existing resource-policy tenant; empty defaults to studio.
 	Tenant string
 	// SessionKey is optional SCY material for stable browser sessions across restarts.
-	// Omission generates a process-local key and invalidates sessions on restart.
+	// Otherwise a confidential OAuth client's secret derives an application-scoped
+	// key. Hosts without either use a process-local key.
 	SessionKey       *scy.Resource
 	StaticRoot       string
 	Auth             *Auth

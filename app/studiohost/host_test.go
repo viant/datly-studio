@@ -381,8 +381,18 @@ func TestOneProcessHost(t *testing.T) {
 		Error  any
 	}
 	gotSkill := callNative("skills/get", map[string]any{"uri": skillURI})
-	if err := json.Unmarshal(gotSkill, &skillResult); err != nil || skillResult.Error != nil || len(skillResult.Result.Skill.Resources.Files) != 7 {
+	if err := json.Unmarshal(gotSkill, &skillResult); err != nil || skillResult.Error != nil {
 		t.Fatalf("native skill get: %s %v", gotSkill, err)
+	}
+	base := strings.TrimSuffix(skillURI, "SKILL.md")
+	for _, path := range []string{"SKILL.md", "references/workflow.md", "references/worked-example.md", "references/cubes-and-dictionaries.md", "references/dql.md", "references/dql.ebnf.txt", "references/builder-operations.schema.json", "references/report-consumers.md"} {
+		found := false
+		for _, file := range skillResult.Result.Skill.Resources.Files {
+			found = found || file.Uri == base+path
+		}
+		if !found {
+			t.Fatalf("native skill resource missing: %s", path)
+		}
 	}
 	for _, file := range skillResult.Result.Skill.Resources.Files {
 		var readResult struct {

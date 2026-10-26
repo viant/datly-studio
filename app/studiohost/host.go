@@ -286,17 +286,6 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	}()
 	processGroup.Store(group)
 
-	sessionKey, err := randomKey()
-	if err != nil {
-		return err
-	}
-	if config.SessionKey != nil {
-		secret, err := scy.New().Load(ctx, config.SessionKey)
-		if err != nil {
-			return errors.New("Studio session secret could not be loaded")
-		}
-		sessionKey = strings.TrimSpace(secret.String())
-	}
 	endpoints := Endpoints{HTTP: publicListener.Addr().String(), AdminMCP: addresses[1], NamespaceMCP: group.Listeners.SharedAddress(), NativeHTTP: addresses[0]}
 	browser := options.Browser
 	browser.Const = config.Const
@@ -320,6 +309,10 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		if err := options.ConfigureBrowser(&browser, endpoints, group); err != nil {
 			return err
 		}
+	}
+	sessionKey, err := browserSessionKey(ctx, config.SessionKey, browser.Login, origin)
+	if err != nil {
+		return err
 	}
 
 	if browser.SchemaVerifier == nil {
