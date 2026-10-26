@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/viant/datly-studio/internal/readerinspection"
+	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly/transcribe"
 	"github.com/viant/datly/transcribe/column"
 	_ "modernc.org/sqlite"
@@ -101,8 +102,53 @@ SELECT records.*, type(records, 'Row') FROM (SELECT ID FROM UNAVAILABLE_RECORDS)
 	if d.Code != "runtime_discovery_query" || d.Stage != "contract.discovery" {
 		t.Fatalf("native failure projected as %+v (type %T)", d, err)
 	}
+	if !strings.Contains(d.Message, `"records"`) {
+		t.Fatalf("safe native view identity missing: %+v", d)
+	}
 	wire, _ := json.Marshal(d)
 	if strings.Contains(string(wire), "UNAVAILABLE_RECORDS") || strings.Contains(string(wire), "SELECT") {
 		t.Fatalf("source leaked: %s", wire)
+	}
+	if got := Diagnostics(Wrap("contract", errors.Join(err, context.Canceled)))[0]; got.Code != "validation_canceled" {
+		t.Fatalf("typed native detail overrode cancellation: %+v", got)
+	}
+	if got := Diagnostics(&Error{Stage: "contract", Code: "runtime_package_authority", Cause: err})[0]; got.Code != "runtime_package_authority" {
+		t.Fatalf("typed native detail overrode module authority: %+v", got)
+	}
+}
+
+func TestTypedDiscoveryProjectionRejectsNonAllowlistedDetails(t *testing.T) {
+	for _, tc := range []struct {
+		name   string
+		native column.DiscoveryDiagnostic
+		code   string
+		view   bool
+	}{
+		{"known reason", column.DiscoveryDiagnostic{Operation: "query", View: "Records", DriverCode: "googleapi:400", Reason: "query_invalid"}, "runtime_discovery_query_invalid", true},
+		{"unknown reason", column.DiscoveryDiagnostic{Operation: "query", View: "Records", DriverCode: "CANARY_TOKEN", Reason: "CANARY_DATA"}, "runtime_discovery_query", true},
+		{"unsafe view", column.DiscoveryDiagnostic{Operation: "query", View: "https://user:CANARY_PASSWORD@source.invalid/?token=CANARY_TOKEN", DriverCode: "CANARY_TOKEN", Reason: "CANARY_DATA"}, "runtime_discovery_query", false},
+		{"oversized view", column.DiscoveryDiagnostic{Operation: "query", View: strings.Repeat("x", 129)}, "runtime_discovery_query", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			d, ok := typedDiscoveryDiagnostic(tc.native)
+			if !ok || d.Code != tc.code || strings.Contains(d.Message, `"Records"`) != tc.view {
+				t.Fatalf("diagnostic=%+v", d)
+			}
+			for _, allowed := range []bool{true, false} {
+				projected := readerinspection.RedactDiagnostics([]sdk.Diagnostic{d}, allowed)
+				wire, _ := json.Marshal(projected)
+				for _, token := range []string{"CANARY_", "https://", "source.invalid"} {
+					if strings.Contains(string(wire), token) {
+						t.Fatalf("unsafe typed detail: %s", wire)
+					}
+				}
+				if !allowed && (projected[0].Message != "" || projected[0].Hint != "") {
+					t.Fatal("delegated typed details leaked")
+				}
+			}
+		})
+	}
+	if _, ok := typedDiscoveryDiagnostic(column.DiscoveryDiagnostic{Operation: "CANARY_TOKEN"}); ok {
+		t.Fatal("unknown native operation accepted")
 	}
 }

@@ -2,9 +2,11 @@ package runtimevalidation
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/viant/datly-studio/sdk"
+	"github.com/viant/datly/transcribe/column"
 )
 
 // contractDiagnostic recognizes native operation boundaries, not arbitrary
@@ -12,6 +14,12 @@ import (
 // credentials. Nothing from the matched error is copied into the diagnostic.
 // Unknown errors deliberately retain the safe contract-level fallback.
 func contractDiagnostic(err error) (sdk.Diagnostic, bool) {
+	var native *column.DiscoveryError
+	if errors.As(err, &native) {
+		if d, ok := typedDiscoveryDiagnostic(native.Diagnostic()); ok {
+			return d, true
+		}
+	}
 	for cause := err; cause != nil; cause = errors.Unwrap(cause) {
 		message := cause.Error()
 		var code, stage, field, summary, hint string
@@ -54,4 +62,50 @@ func contractDiagnostic(err error) (sdk.Diagnostic, bool) {
 		return sdk.Diagnostic{Severity: "error", Code: code, Stage: stage, Field: field, Message: summary, Hint: hint}, true
 	}
 	return sdk.Diagnostic{}, false
+}
+
+func typedDiscoveryDiagnostic(native column.DiscoveryDiagnostic) (sdk.Diagnostic, bool) {
+	if native.Operation != "query" {
+		return sdk.Diagnostic{}, false
+	}
+	d := sdk.Diagnostic{Severity: "error", Code: "runtime_discovery_query", Stage: "contract.discovery", Field: "authoredDql",
+		Message: "Column discovery could not query the configured source.",
+		Hint:    "Verify connector access, source existence, SQL dialect, and expression types with a bounded source-schema probe. Runtime discovery queries may differ from the authored SQL."}
+	if validDiagnosticView(native.View) {
+		d.Message = fmt.Sprintf("Column discovery could not query view %q.", native.View)
+	}
+	switch native.Reason {
+	case "query_invalid":
+		d.Code, d.Hint = "runtime_discovery_query_invalid", "The source reports an invalid query. Check the SQL dialect and expression types in this view using a bounded source-schema probe."
+	case "source_not_found":
+		d.Code, d.Hint = "runtime_discovery_source_not_found", "The source reports a missing relation. Verify the view's source and connector catalog/schema selection."
+	case "column_not_found":
+		d.Code, d.Hint = "runtime_discovery_column_not_found", "The source reports a missing column. Compare the view's projection and references with the native source schema."
+	case "access_denied":
+		d.Code, d.Hint = "runtime_discovery_access_denied", "The source denied access. Verify the configured connector's existing credentials and source permissions."
+	case "source_unavailable":
+		d.Code, d.Hint = "runtime_discovery_source_unavailable", "The source reports a backend failure. Check source readiness before validating again."
+	case "rate_limited":
+		d.Code, d.Hint = "runtime_discovery_rate_limited", "The source reports rate limiting. Validate again after the source permits another request."
+	case "quota_exceeded":
+		d.Code, d.Hint = "runtime_discovery_quota_exceeded", "The source reports an exhausted quota. Check the configured source quota before validating again."
+	}
+	switch native.DriverCode {
+	case "mysql:1045", "mysql:1054", "mysql:1064", "mysql:1146", "googleapi:400", "googleapi:401", "googleapi:403", "googleapi:404", "googleapi:408", "googleapi:409", "googleapi:429", "googleapi:500", "googleapi:502", "googleapi:503", "googleapi:504":
+		d.Hint += " Native source code: " + native.DriverCode + "."
+	}
+	return d, true
+}
+
+func validDiagnosticView(value string) bool {
+	if len(value) == 0 || len(value) > 128 {
+		return false
+	}
+	for i, c := range []byte(value) {
+		if c == '_' || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || i > 0 && c >= '0' && c <= '9' {
+			continue
+		}
+		return false
+	}
+	return true
 }
