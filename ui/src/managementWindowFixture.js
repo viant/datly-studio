@@ -13,5 +13,5 @@ export function managementWindowFixture(screenName) {
 }
 export function managementResourceFixture(name) {
  const definition=managementWindowFixture(name), dataSources=definition.dataSource;
- return {schemaVersion:3,targets:[{variant:'default'}],variants:{default:{window:{...definition,dataSource:Object.fromEntries(Object.entries(dataSources).map(([id,value])=>[id,{cardinality:value.cardinality}]))},dataSources}}};
+ return {schemaVersion:2,format:'window.bundle',targets:[{variant:'default'}],variants:{default:{window:{...definition,dataSource:Object.fromEntries(Object.entries(dataSources).map(([id,value])=>[id,{cardinality:value.cardinality}]))},dataSources}}};
 }
