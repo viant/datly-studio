@@ -106,6 +106,9 @@ func (d Dynamic) Validate(ctx context.Context, reportID string, versionNo int) e
 	if _, err = artifact.ReaderCompilation().NewExecution(bootstrap.ReaderRuntimeConfig{SQL: sources.SQL, CacheSettings: d.ReaderCaches, Aerospike: caches}); err != nil {
 		return runtimevalidation.Wrap("reader", err)
 	}
+	if _, err = artifact.ReaderCompilation().NewProviders(bootstrap.ReaderRuntimeConfig{SQL: sources.SQL, CacheSettings: d.ReaderCaches, Aerospike: caches}); err != nil {
+		return runtimevalidation.Wrap("reader", err)
+	}
 	if _, err = (mcpresource.Publisher{Resources: definition.ResourceStore}).Compile(ctx, definition.ResourceFolders); err != nil {
 		return runtimevalidation.Wrap("resources", err)
 	}
@@ -342,8 +345,13 @@ func (d Dynamic) executeCube(ctx context.Context, reportID string, versionNo int
 		if compiled == nil {
 			return report.RuntimeCapabilities{}, errors.New("cube source reader compilation is unavailable")
 		}
-		reader, buildErr := compiled.NewExecution(bootstrap.ReaderRuntimeConfig{SQL: sourceSQL, CacheSettings: d.ReaderCaches, Aerospike: caches})
-		return report.RuntimeCapabilities{Reader: reader}, buildErr
+		readerConfig := bootstrap.ReaderRuntimeConfig{SQL: sourceSQL, CacheSettings: d.ReaderCaches, Aerospike: caches}
+		reader, buildErr := compiled.NewExecution(readerConfig)
+		if buildErr != nil {
+			return report.RuntimeCapabilities{}, buildErr
+		}
+		providers, providerErr := compiled.NewProviders(readerConfig)
+		return report.RuntimeCapabilities{Reader: reader, Providers: providers}, providerErr
 	}))
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "configure cube composition runtime", Cause: err}
@@ -482,11 +490,16 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "build dynamic reader artifact", Cause: err}
 	}
-	reader, err := artifact.ReaderCompilation().NewExecution(bootstrap.ReaderRuntimeConfig{SQL: sources.SQL, CacheSettings: d.ReaderCaches, Aerospike: caches})
+	readerConfig := bootstrap.ReaderRuntimeConfig{SQL: sources.SQL, CacheSettings: d.ReaderCaches, Aerospike: caches}
+	reader, err := artifact.ReaderCompilation().NewExecution(readerConfig)
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "initialize dynamic reader", Cause: err}
 	}
-	registered, err := artifact.Registration(druntime.RegisteredComponent{Reader: reader})
+	providers, err := artifact.ReaderCompilation().NewProviders(readerConfig)
+	if err != nil {
+		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "initialize dynamic reader dependencies", Cause: err}
+	}
+	registered, err := artifact.Registration(druntime.RegisteredComponent{Reader: reader, Providers: providers})
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "register dynamic warmup reader", Cause: err}
 	}
@@ -585,9 +598,14 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "build dynamic reader artifact", Cause: err}
 	}
-	reader, err := artifact.ReaderCompilation().NewExecution(bootstrap.ReaderRuntimeConfig{SQL: sources.SQL, CacheSettings: d.ReaderCaches, Aerospike: caches})
+	readerConfig := bootstrap.ReaderRuntimeConfig{SQL: sources.SQL, CacheSettings: d.ReaderCaches, Aerospike: caches}
+	reader, err := artifact.ReaderCompilation().NewExecution(readerConfig)
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "initialize dynamic reader", Cause: err}
+	}
+	providers, err := artifact.ReaderCompilation().NewProviders(readerConfig)
+	if err != nil {
+		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "initialize dynamic reader dependencies", Cause: err}
 	}
 	plan, err := (nativeoutput.Compiler{}).Compile(nativeoutput.CompileInput{Component: contract.Component, Type: contract.OutputType})
 	if err != nil {
@@ -600,7 +618,7 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 	started := time.Now()
 	var data any
 	{
-		registered, registerErr := artifact.Registration(druntime.RegisteredComponent{Reader: reader})
+		registered, registerErr := artifact.Registration(druntime.RegisteredComponent{Reader: reader, Providers: providers})
 		if registerErr != nil {
 			return nil, registerErr
 		}

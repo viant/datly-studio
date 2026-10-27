@@ -456,11 +456,17 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 			if artifact.IsReport() {
 				return report.RuntimeCapabilities{}, nil
 			}
-			reader, readerErr := artifact.ReaderCompilation().NewExecution(bootstrap.ReaderRuntimeConfig{SQL: sources.sql, CacheSettings: s.config.ReaderCaches, Aerospike: caches})
+			compiled := artifact.ReaderCompilation()
+			readerConfig := bootstrap.ReaderRuntimeConfig{SQL: sources.sql, CacheSettings: s.config.ReaderCaches, Aerospike: caches}
+			reader, readerErr := compiled.NewExecution(readerConfig)
 			if readerErr != nil {
 				return report.RuntimeCapabilities{}, readerErr
 			}
-			return report.RuntimeCapabilities{Reader: reader}, nil
+			providers, providerErr := compiled.NewProviders(readerConfig)
+			if providerErr != nil {
+				return report.RuntimeCapabilities{}, providerErr
+			}
+			return report.RuntimeCapabilities{Reader: reader, Providers: providers}, nil
 		}))
 		if registerErr != nil {
 			err = registerErr
