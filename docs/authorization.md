@@ -83,6 +83,11 @@ configured `STUDIO_NAMESPACE_ADMIN_ROLE` is used. With neither setting, native
 public authoring remains available to authenticated users. Wildcards do not grant
 creation. The native HTTP/MCP writer and SDK SQL transport enforce this before
 inserting a row; namespace listing returns `canCreate` for the shared editor.
-This restriction does not revoke existing owner or delegated-manager rights.
+The same configured roles are required to update or delete a namespace, including
+its title, visibility, viewer/manager roles and MCP exposure. Namespace ownership
+or delegated management alone cannot change these settings. The namespace DTO
+returns `canManage: false` for those non-administrator settings users. Existing
+delegated rights to author namespace contents remain independent. With neither
+role setting, the SDK retains its existing owner/manager settings behavior.
 Configured namespace administrators may also manage namespace-default policies;
 reader predicates retain their own authorization boundary.
