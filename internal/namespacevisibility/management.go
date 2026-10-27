@@ -77,6 +77,23 @@ func CanManage(ctx context.Context, subject, owner string, encoded *string) bool
 	return IsManager(ctx, subject, encoded)
 }
 
+// CanView applies the native namespace audience to an authoritative stored
+// record. Viewer grants never confer namespace management rights.
+func CanView(ctx context.Context, subject, owner, visibility string, encoded *string) bool {
+	if ctx == nil || ctx.Err() != nil || subject == "" || owner == "" {
+		return false
+	}
+	if subject == owner || visibility == "public" || IsAdministrator(ctx, subject) {
+		return true
+	}
+	grants, err := namespaceroles.Decode(encoded)
+	if err != nil {
+		return false
+	}
+	roles, err := verifiedRoles(ctx, subject)
+	return err == nil && (namespaceroles.Matches(grants.View, roles) || namespaceroles.Matches(grants.Manage, roles))
+}
+
 // IsManager applies only explicit grants in this namespace, excluding global
 // administration and implicit ownership of unrelated components.
 func IsManager(ctx context.Context, subject string, encoded *string) bool {
