@@ -73,3 +73,16 @@ requests; stale namespace updates are rejected by the existing ETag check.
 
 Manager grants use the existing namespace roles JSON column; the schema is
 unchanged. Published execution remains governed by resource policies.
+
+
+### Namespace creation and delegation
+
+Embedding hosts may set `STUDIO_NAMESPACE_CREATE_ROLES` to a comma-separated
+list of exact verified roles permitted to create namespaces. If unset, the
+configured `STUDIO_NAMESPACE_ADMIN_ROLE` is used. With neither setting, native
+public authoring remains available to authenticated users. Wildcards do not grant
+creation. The native HTTP/MCP writer and SDK SQL transport enforce this before
+inserting a row; namespace listing returns `canCreate` for the shared editor.
+This restriction does not revoke existing owner or delegated-manager rights.
+Configured namespace administrators may also manage namespace-default policies;
+reader predicates retain their own authorization boundary.

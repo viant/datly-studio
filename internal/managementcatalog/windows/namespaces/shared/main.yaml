@@ -1,5 +1,8 @@
 window:
   windowKey: namespaces
+  on:
+    - event: onInit
+      handler: management.initialize
   view:
     content:
       id: namespaces
@@ -46,6 +49,10 @@ window:
             items:
               - id: new
                 label: New namespace
+                disabledWhen:
+                  dataSourceRef: namespace_draft
+                  selector: canCreate
+                  notEquals: true
                 icon: add
                 on:
                   - event: onClick
@@ -290,6 +297,19 @@ dataSources:
       parameters:
         page: offset
         size: limit
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.namespaces.list
+    cache:
+      enabled: false
+  namespace_permissions:
+    id: namespace_permissions
+    cardinality: object
+    selectors:
+      data: ""
+    parameters:
+      - name: limit
+        value: 1
     backend:
       kind: mcp_tool
       method: studio.sdk.namespaces.list

@@ -14,7 +14,8 @@
  };
  const edit=current=>open({...current,editing:true,viewerRoleRows:roleRows(current.allowedRoles),managerRoleRows:roleRows(current.managerRoles),mcpPort:current.mcpPort??0,outcome:''});
  return {
-  newNamespace:()=>open({name:'',title:'',description:'',visibility:'private',viewerRoleRows:[],managerRoleRows:[],mcpEnabled:false,mcpPort:0,editing:false,status:'active',outcome:''}),
+  initialize:()=>run(async()=>{const permissions=record(await ds("namespace_permissions").fetchRecords({parameters:{limit:1}}));draft().setFormField({item:{dataField:"canCreate"},value:permissions?.canCreate===true});}),
+  newNamespace:()=>{if(draft().getFormData()?.canCreate!==true)return false;return open({name:'',title:'',description:'',visibility:'private',viewerRoleRows:[],managerRoleRows:[],mcpEnabled:false,mcpPort:0,editing:false,status:'active',outcome:''});},
   editNamespace:()=>run(async()=>{const row=ds('namespaces').peekSelection()?.selected;if(!row)throw new Error('Select a namespace.');edit(record(await call('get',{name:row.name})));}),
   saveNamespace:()=>run(async()=>{
    const form=draft().getFormData();

@@ -38,6 +38,7 @@ func (output *NamespaceQueryOutput) Finalize(ctx context.Context) error {
 	if !ok || input == nil {
 		return fmt.Errorf("namespace list bound input is unavailable")
 	}
+	output.CanCreate = input.Jwt != nil && namespacevisibility.CanCreate(ctx, input.Jwt.Subject)
 	for _, row := range output.Items {
 		if row == nil {
 			return fmt.Errorf("namespace list returned an empty row")

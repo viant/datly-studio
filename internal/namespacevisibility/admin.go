@@ -75,3 +75,9 @@ type adminDecision struct {
 	until      time.Time
 	credential [sha256.Size]byte
 }
+
+// HasAdministratorRole evaluates already verified provider facts without a
+// second lookup. Callers must not supply JWT payloads or browser role values.
+func HasAdministratorRole(facts authz.Facts) bool {
+	return matchesAdministrator(os.Getenv("STUDIO_NAMESPACE_ADMIN_ROLE"), facts.Subject, facts, time.Now())
+}

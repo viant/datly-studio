@@ -9,6 +9,7 @@ import (
 	"github.com/viant/authz"
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/namespaceroles"
+	"github.com/viant/datly-studio/internal/namespacevisibility"
 	"github.com/viant/datly-studio/internal/readercomponent"
 	stored "github.com/viant/datly-studio/studio/resource_policy/store_namespace"
 	"github.com/viant/datly/exec"
@@ -90,6 +91,9 @@ func (r *Reader) CanManage(ctx context.Context, facts authz.Facts, resource auth
 	}
 	if err != nil {
 		return false, err
+	}
+	if namespacevisibility.HasAdministratorRole(facts) {
+		return row.Status == "active", nil
 	}
 	grants, err := namespaceroles.Decode(row.RolesJson)
 	if err != nil {

@@ -14,6 +14,42 @@ import (
 type factsProvider struct{ facts authz.Facts }
 
 func (p *factsProvider) Resolve(context.Context) (authz.Facts, error) { return p.facts, nil }
+
+func TestConfiguredAdministratorCanManageForeignNamespaceDefault(t *testing.T) {
+	t.Setenv("STUDIO_NAMESPACE_ADMIN_ROLE", "NAMESPACE_ADMIN")
+	ctx := context.Background()
+	db := datatest.OpenSQLite(t, "administrator_default", "studio")
+	_, err := db.ExecContext(ctx, `INSERT INTO namespaces(namespace_id,owner_id,name,title,status,allowed_roles_json,etag,created_at,updated_at) VALUES('foreign','owner','foreign','Foreign','active','[]',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	reader, err := NewReader(db)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer reader.Close(ctx)
+	facts := authz.Facts{Subject: "operator", Issuer: "idp", Tenant: "tenant", Roles: []string{"NAMESPACE_ADMIN"}, ValidUntil: time.Now().Add(time.Minute)}
+	resource := Resource("foreign", "tenant")
+	if allowed, err := reader.CanManage(ctx, facts, resource); err != nil || !allowed {
+		t.Fatalf("configured administrator denied: %v", err)
+	}
+	facts.Roles = []string{"viewer"}
+	if allowed, _ := reader.CanManage(ctx, facts, resource); allowed {
+		t.Fatal("viewer can manage foreign namespace")
+	}
+	facts.Roles = []string{"NAMESPACE_ADMIN"}
+	resource.Tenant = "other"
+	if allowed, _ := reader.CanManage(ctx, facts, resource); allowed {
+		t.Fatal("administrator crossed tenant")
+	}
+	resource.Tenant = "tenant"
+	if _, err := db.ExecContext(ctx, `UPDATE namespaces SET status='archived' WHERE namespace_id='foreign'`); err != nil {
+		t.Fatal(err)
+	}
+	if allowed, _ := reader.CanManage(ctx, facts, resource); allowed {
+		t.Fatal("administrator managed archived namespace")
+	}
+}
 func TestNamespaceDefaultPolicyPersistenceAndInheritance(t *testing.T) {
 	ctx := context.Background()
 	db := datatest.OpenSQLite(t, "defaults", "studio")

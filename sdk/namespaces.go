@@ -63,9 +63,10 @@ type ListNamespacesInput struct {
 }
 
 type NamespacePage struct {
-	Items  []*Namespace `json:"items"`
-	Limit  int          `json:"limit"`
-	Offset int          `json:"offset"`
+	CanCreate bool         `json:"canCreate"`
+	Items     []*Namespace `json:"items"`
+	Limit     int          `json:"limit"`
+	Offset    int          `json:"offset"`
 }
 
 type NamespaceService interface {

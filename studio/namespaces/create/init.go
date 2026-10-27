@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/namespaceroles"
+	"github.com/viant/datly-studio/internal/namespacevisibility"
 	"strings"
 	"time"
 
@@ -14,10 +15,13 @@ import (
 
 // Init turns the flat SDK body into a server-owned insert row. Caller-supplied
 // owner, status, etag, and timestamps cannot override verified identity/state.
-func (input *NamespaceCreateInput) Init(context.Context) error {
+func (input *NamespaceCreateInput) Init(ctx context.Context) error {
 	if input == nil || input.Jwt == nil || input.Auth == nil || input.Auth.Auth == nil ||
 		input.Jwt.Subject == "" || input.Auth.Auth.Subject != input.Jwt.Subject {
 		return createError(403, "verified Studio owner is required")
+	}
+	if !namespacevisibility.CanCreate(ctx, input.Jwt.Subject) {
+		return createError(403, "namespace creation requires a configured administrator role")
 	}
 	if input.Namespace == nil {
 		return createError(400, "namespace body is required")

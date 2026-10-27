@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/namespaceroles"
+	"github.com/viant/datly-studio/internal/namespacevisibility"
 	"strings"
 	"time"
 
@@ -31,6 +32,9 @@ func (t *Transport) createNamespace(ctx context.Context, input, output any) erro
 		return invalid(errors.New("namespace name and title are required; name must use lowercase dot-separated segments"))
 	}
 	principal, ok := sdk.PrincipalFromContext(ctx)
+	if !ok || !namespacevisibility.CanCreate(ctx, principal.Subject) {
+		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "namespace creation requires a configured administrator role"}
+	}
 	if strings.TrimSpace(in.OwnerID) == "" {
 		if !ok {
 			return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Studio principal is required"}
@@ -112,7 +116,8 @@ func (t *Transport) listNamespaces(ctx context.Context, input, output any) error
 	if err != nil {
 		return internal(err)
 	}
-	page := &sdk.NamespacePage{Items: items, Limit: limit, Offset: in.Offset}
+	principal, _ := sdk.PrincipalFromContext(ctx)
+	page := &sdk.NamespacePage{CanCreate: namespacevisibility.CanCreate(ctx, principal.Subject), Items: items, Limit: limit, Offset: in.Offset}
 	return assign(output, page)
 }
 
