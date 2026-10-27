@@ -54,3 +54,18 @@ func TestNamespaceCreationUsesExistingConfiguredAdministratorRole(t *testing.T) 
 		t.Fatal("configured administrator denied creation")
 	}
 }
+
+func TestNamespaceSettingsExcludeOwnersAndManagersWithoutAdministratorRole(t *testing.T) {
+	t.Setenv("STUDIO_NAMESPACE_CREATE_ROLES", "AUTHORING_ADMIN,DATA_ADMIN")
+	grants := `{"manage":["manager"]}`
+	for _, role := range []string{"AUTHORING_ADMIN", "DATA_ADMIN", "manager", "viewer", ""} {
+		provider := &adminTestProvider{facts: authz.Facts{Subject: "alice", Issuer: "idp", Tenant: "one", Roles: []string{role}, ValidUntil: time.Now().Add(time.Minute)}}
+		ctx := accessprovider.WithProvider(oauth.WithBearer(context.Background(), "credential"), provider)
+		want := role == "AUTHORING_ADMIN" || role == "DATA_ADMIN"
+		for _, owner := range []string{"alice", "someone-else"} {
+			if got := CanConfigure(ctx, "alice", owner, &grants); got != want {
+				t.Fatalf("role=%q owner=%q got=%v want=%v", role, owner, got, want)
+			}
+		}
+	}
+}

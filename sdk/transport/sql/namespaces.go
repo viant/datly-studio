@@ -122,6 +122,10 @@ func (t *Transport) listNamespaces(ctx context.Context, input, output any) error
 }
 
 func (t *Transport) updateNamespace(ctx context.Context, input, output any) error {
+	principal, ok := sdk.PrincipalFromContext(ctx)
+	if !ok || !namespacevisibility.CanCreate(ctx, principal.Subject) {
+		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "namespace settings require a configured administrator role"}
+	}
 	var in struct {
 		Name  string                   `json:"name"`
 		Input sdk.UpdateNamespaceInput `json:"input"`
@@ -193,6 +197,10 @@ func (t *Transport) updateNamespace(ctx context.Context, input, output any) erro
 }
 
 func (t *Transport) deleteNamespace(ctx context.Context, input any) error {
+	principal, ok := sdk.PrincipalFromContext(ctx)
+	if !ok || !namespacevisibility.CanCreate(ctx, principal.Subject) {
+		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "namespace settings require a configured administrator role"}
+	}
 	var in struct {
 		Name string `json:"name"`
 		ETag int64  `json:"etag"`

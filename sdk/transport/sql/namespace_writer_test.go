@@ -87,3 +87,47 @@ func namespaceCode(err error, code sdk.ErrorCode) bool {
 	var actual *sdk.Error
 	return errors.As(err, &actual) && actual.Code == code
 }
+
+func TestConfiguredNamespaceSettingsDenyOwnerBeforeWriting(t *testing.T) {
+	ctx := context.Background()
+	db, err := sql.Open("sqlite", fmt.Sprintf("file:%s?mode=memory&cache=shared", t.Name()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	if err = schema.ApplySQLite(ctx, db, "studio"); err != nil {
+		t.Fatal(err)
+	}
+	transport := &Transport{DB: db, Authorizer: allowAuthorizer{}}
+	client, err := sdk.NewClient(transport)
+	if err != nil {
+		t.Fatal(err)
+	}
+	owner := sdk.WithPrincipal(ctx, sdk.Principal{Subject: "owner"})
+	created, err := client.Namespaces().Create(owner, sdk.CreateNamespaceInput{Name: "finance", Title: "Finance"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("STUDIO_NAMESPACE_CREATE_ROLES", "APP_ADMIN,DATA_ADMIN")
+	title := "Unauthorized"
+	if _, err = client.Namespaces().Update(owner, "finance", sdk.UpdateNamespaceInput{Title: &title, ETag: created.ETag}); !namespaceCode(err, sdk.ErrorForbidden) {
+		t.Fatalf("owner update: %v", err)
+	}
+	if err = client.Namespaces().Delete(owner, "finance", created.ETag); !namespaceCode(err, sdk.ErrorForbidden) {
+		t.Fatalf("owner delete: %v", err)
+	}
+	if _, err = client.Namespaces().Create(owner, sdk.CreateNamespaceInput{Name: "another", Title: "Another"}); !namespaceCode(err, sdk.ErrorForbidden) {
+		t.Fatalf("owner create: %v", err)
+	}
+	var storedTitle string
+	var etag, count int
+	if err = db.QueryRowContext(ctx, "SELECT title,etag FROM namespaces WHERE name='finance'").Scan(&storedTitle, &etag); err != nil {
+		t.Fatal(err)
+	}
+	if err = db.QueryRowContext(ctx, "SELECT COUNT(*) FROM namespaces").Scan(&count); err != nil {
+		t.Fatal(err)
+	}
+	if storedTitle != "Finance" || etag != 1 || count != 1 {
+		t.Fatalf("denied operation changed storage: %s/%d/%d", storedTitle, etag, count)
+	}
+}

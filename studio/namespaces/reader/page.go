@@ -43,7 +43,7 @@ func (output *NamespaceQueryOutput) Finalize(ctx context.Context) error {
 		if row == nil {
 			return fmt.Errorf("namespace list returned an empty row")
 		}
-		row.CanManage = input.Jwt != nil && namespacevisibility.CanManage(ctx, input.Jwt.Subject, row.OwnerId, row.AllowedRolesJson)
+		row.CanManage = input.Jwt != nil && namespacevisibility.CanConfigure(ctx, input.Jwt.Subject, row.OwnerId, row.AllowedRolesJson)
 		if row.NamespaceId == "" {
 			row.NamespaceId = namespaceaccess.ID(row.OwnerId, row.Name)
 		}

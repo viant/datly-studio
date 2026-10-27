@@ -37,3 +37,12 @@ func CanCreate(ctx context.Context, subject string) bool {
 	}
 	return false
 }
+
+// CanConfigure separates workspace settings from delegated content management.
+// When creation is restricted, the same verified roles govern settings.
+func CanConfigure(ctx context.Context, subject, owner string, encoded *string) bool {
+	if os.Getenv("STUDIO_NAMESPACE_CREATE_ROLES") != "" || os.Getenv("STUDIO_NAMESPACE_ADMIN_ROLE") != "" {
+		return CanCreate(ctx, subject)
+	}
+	return CanManage(ctx, subject, owner, encoded)
+}

@@ -125,7 +125,7 @@ func (*updateHandler) Exec(ctx context.Context, session xhandler.Session, input 
 		return &xresponse.Error{Code: 403, Cause: errors.New("Studio authorization denied")}
 	}
 	if len(result.Namespaces) != 1 || result.Namespaces[0] == nil ||
-		!namespacevisibility.CanManage(ctx, input.Jwt.Subject, result.Namespaces[0].OwnerId, result.Namespaces[0].AllowedRolesJson) || result.Namespaces[0].Name != input.Name {
+		!namespacevisibility.CanConfigure(ctx, input.Jwt.Subject, result.Namespaces[0].OwnerId, result.Namespaces[0].AllowedRolesJson) || result.Namespaces[0].Name != input.Name {
 		return &xresponse.Error{Code: 403, Cause: errors.New("namespace management denied")}
 	}
 	current := result.Namespaces[0]

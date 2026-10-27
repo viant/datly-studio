@@ -111,7 +111,7 @@ func (t *Transport) readNamespaces(ctx context.Context, name, query, status, nam
 		if visibility == "" {
 			visibility = namespaceaccess.Private
 		}
-		result = append(result, &sdk.Namespace{CanManage: scoped && namespacevisibility.CanManage(ctx, principal.Subject, row.OwnerId, row.AllowedRolesJson), NamespaceID: id, Visibility: visibility, AllowedRoles: grants.View, ManagerRoles: grants.Manage, MCPEnabled: row.McpEnabled, MCPPort: row.McpPort, OwnerID: row.OwnerId, Name: row.Name, Title: row.Title,
+		result = append(result, &sdk.Namespace{CanManage: scoped && namespacevisibility.CanConfigure(ctx, principal.Subject, row.OwnerId, row.AllowedRolesJson), NamespaceID: id, Visibility: visibility, AllowedRoles: grants.View, ManagerRoles: grants.Manage, MCPEnabled: row.McpEnabled, MCPPort: row.McpPort, OwnerID: row.OwnerId, Name: row.Name, Title: row.Title,
 			Description: description, Status: row.Status, ETag: row.Etag,
 			CreatedAt: row.CreatedAt, UpdatedAt: row.UpdatedAt})
 	}

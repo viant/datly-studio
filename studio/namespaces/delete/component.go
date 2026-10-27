@@ -99,7 +99,7 @@ func (*deleteHandler) Exec(ctx context.Context, session xhandler.Session, input 
 		return publicError(403, "Studio authorization denied")
 	}
 	if len(rows.Namespaces) != 1 || rows.Namespaces[0] == nil ||
-		!namespacevisibility.CanManage(ctx, input.Jwt.Subject, rows.Namespaces[0].OwnerId, rows.Namespaces[0].AllowedRolesJson) || rows.Namespaces[0].Name != input.Name {
+		!namespacevisibility.CanConfigure(ctx, input.Jwt.Subject, rows.Namespaces[0].OwnerId, rows.Namespaces[0].AllowedRolesJson) || rows.Namespaces[0].Name != input.Name {
 		return &xresponse.Error{Code: 403, Cause: errors.New("namespace management denied")}
 	}
 	current := rows.Namespaces[0]

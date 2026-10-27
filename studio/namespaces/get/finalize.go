@@ -39,7 +39,7 @@ func (output *NamespaceGetOutput) Finalize(ctx context.Context) error {
 	output.AllowedRoles, output.ManagerRoles = grants.View, grants.Manage
 	output.MCPEnabled = namespace.McpEnabled
 	output.MCPPort = namespace.McpPort
-	output.CanManage = input.Jwt != nil && namespacevisibility.CanManage(ctx, input.Jwt.Subject, namespace.OwnerId, namespace.AllowedRolesJson)
+	output.CanManage = input.Jwt != nil && namespacevisibility.CanConfigure(ctx, input.Jwt.Subject, namespace.OwnerId, namespace.AllowedRolesJson)
 	output.OwnerId = namespace.OwnerId
 	output.ResponseName = namespace.Name
 	output.Title = namespace.Title
