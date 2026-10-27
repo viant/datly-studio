@@ -13,7 +13,7 @@ import (
 	xexec "github.com/viant/xdatly/exec"
 )
 
-// IsAdministrator accepts only the configured exact role in verified provider
+// IsAdministrator accepts only configured exact roles in verified provider
 // facts. It grants namespace administration, never component execution.
 func IsAdministrator(ctx context.Context, subject string) bool {
 	role := os.Getenv("STUDIO_NAMESPACE_ADMIN_ROLE")
@@ -59,9 +59,14 @@ func matchesAdministrator(role, subject string, facts authz.Facts, now time.Time
 	if role == "" || role == "*" || strings.TrimSpace(role) != role || subject == "" || facts.Subject != subject || facts.Issuer == "" || facts.Tenant == "" || !facts.ValidUntil.After(now) {
 		return false
 	}
-	for _, actual := range facts.Roles {
-		if actual == role {
-			return true
+	for _, allowed := range strings.Split(role, ",") {
+		if allowed == "" || allowed == "*" || strings.TrimSpace(allowed) != allowed {
+			continue
+		}
+		for _, actual := range facts.Roles {
+			if actual == allowed {
+				return true
+			}
 		}
 	}
 	return false

@@ -132,3 +132,17 @@ func (p *countedRoleProvider) Resolve(context.Context) (authz.Facts, error) {
 	}
 	return p.facts, nil
 }
+
+func TestNamespaceAdministratorAcceptsEitherConfiguredRole(t *testing.T) {
+	t.Setenv("STUDIO_NAMESPACE_ADMIN_ROLE", "AUTHORING_ADMIN,DATA_ADMIN")
+	for _, role := range []string{"AUTHORING_ADMIN", "DATA_ADMIN", "manager", "*", "data_admin"} {
+		t.Run(role, func(t *testing.T) {
+			provider := &adminTestProvider{facts: authz.Facts{Subject: "operator", Issuer: "idp", Tenant: "one", Roles: []string{role}, ValidUntil: time.Now().Add(time.Minute)}}
+			ctx := accessprovider.WithProvider(oauth.WithBearer(xexec.WithContext(context.Background(), xexec.New()), "credential"), provider)
+			want := role == "AUTHORING_ADMIN" || role == "DATA_ADMIN"
+			if IsAdministrator(ctx, "operator") != want || HasAdministratorRole(provider.facts) != want {
+				t.Fatal("configured administrator alternatives differ")
+			}
+		})
+	}
+}

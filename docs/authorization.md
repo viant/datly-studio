@@ -91,3 +91,8 @@ delegated rights to author namespace contents remain independent. With neither
 role setting, the SDK retains its existing owner/manager settings behavior.
 Configured namespace administrators may also manage namespace-default policies;
 reader predicates retain their own authorization boundary.
+
+`STUDIO_NAMESPACE_ADMIN_ROLE` accepts an exact role or a comma-separated list of
+exact alternatives. Either verified role grants namespace administration; this
+does not bypass a data reader's own authorization predicates. The existing
+invocation-bound identity snapshot is reused for these comparisons.
