@@ -4,11 +4,14 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"github.com/viant/authz"
+	"github.com/viant/datly-studio/runtime/accessprovider"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/viant/bindly/locator"
 	"github.com/viant/bindly/resource"
@@ -204,4 +207,37 @@ func TestNamespaceCreateSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	if err = db.QueryRowContext(ctx, "SELECT owner_id FROM namespaces WHERE name=?", "research").Scan(&bobOwner); err != nil || bobOwner != "bob" {
 		t.Fatalf("MCP-created owner=%q err=%v", bobOwner, err)
 	}
+	t.Run("configured creation gate rejects native HTTP and MCP before writing", func(t *testing.T) {
+		t.Setenv("STUDIO_NAMESPACE_CREATE_ROLES", "NAMESPACE_ADMIN")
+		deniedHTTP := httptest.NewRecorder()
+		handler.ServeHTTP(deniedHTTP, request("alice", `{"name":"blocked.http","title":"Blocked"}`))
+		if deniedHTTP.Code != http.StatusForbidden {
+			t.Fatalf("restricted HTTP status=%d", deniedHTTP.Code)
+		}
+		deniedMCP, rpcErr := tool.Handler(callContext, &schema.CallToolRequest{Method: schema.MethodToolsCall, Params: schema.CallToolRequestParams{Name: "studio.sdk.namespaces.create", Arguments: map[string]any{"name": "blocked.mcp", "title": "Blocked"}}})
+		if rpcErr == nil && (deniedMCP == nil || deniedMCP.IsError == nil || !*deniedMCP.IsError) {
+			t.Fatal("restricted native MCP creation accepted")
+		}
+		var count int
+		if err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM namespaces WHERE name IN ('blocked.http','blocked.mcp')").Scan(&count); err != nil || count != 0 {
+			t.Fatalf("denied namespace write count=%d error=%v", count, err)
+		}
+
+		provider := createRoleProvider{facts: authz.Facts{Subject: "alice", Issuer: "verified-test", Tenant: "tenant", Roles: []string{"NAMESPACE_ADMIN"}, ValidUntil: time.Now().Add(time.Minute)}}
+		administrator := accessprovider.WithProvider(ctx, provider)
+		allowedHTTP := httptest.NewRecorder()
+		handler.ServeHTTP(allowedHTTP, request("alice", `{"name":"admin.http","title":"Administrator"}`).WithContext(administrator))
+		if allowedHTTP.Code != http.StatusOK {
+			t.Fatalf("administrator HTTP status=%d body=%s", allowedHTTP.Code, allowedHTTP.Body.String())
+		}
+		administrator = context.WithValue(administrator, authorization.TokenKey, &authorization.Token{Token: jwt.Bearer(t, "alice")})
+		allowedMCP, rpcErr := tool.Handler(administrator, &schema.CallToolRequest{Method: schema.MethodToolsCall, Params: schema.CallToolRequestParams{Name: "studio.sdk.namespaces.create", Arguments: map[string]any{"name": "admin.mcp", "title": "Administrator"}}})
+		if rpcErr != nil || allowedMCP == nil || allowedMCP.IsError != nil && *allowedMCP.IsError {
+			t.Fatalf("administrator native MCP denied: %+v %v", allowedMCP, rpcErr)
+		}
+	})
 }
+
+type createRoleProvider struct{ facts authz.Facts }
+
+func (p createRoleProvider) Resolve(context.Context) (authz.Facts, error) { return p.facts, nil }
