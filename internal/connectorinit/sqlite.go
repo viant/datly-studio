@@ -13,23 +13,17 @@ import (
 
 type options struct {
 	SQLiteAttachments map[string]string `json:"sqliteAttachments"`
-	Pool              *poolOptions      `json:"pool"`
 }
 
-// Configure applies explicit pool limits and driver-specific connection setup.
+// Configure applies validated SQLite database attachments to the connector's
+// single physical connection. Other drivers ignore this SQLite-only option.
 func Configure(ctx context.Context, db *sql.DB, driver string, raw json.RawMessage) error {
-	if db == nil || len(raw) == 0 || string(raw) == "{}" {
+	if db == nil || !strings.Contains(strings.ToLower(strings.TrimSpace(driver)), "sqlite") || len(raw) == 0 || string(raw) == "{}" {
 		return nil
 	}
 	var config options
 	if err := json.Unmarshal(raw, &config); err != nil {
 		return fmt.Errorf("decode connector options: %w", err)
-	}
-	if err := configurePool(db, config.Pool); err != nil {
-		return err
-	}
-	if !strings.Contains(strings.ToLower(strings.TrimSpace(driver)), "sqlite") {
-		return nil
 	}
 	if len(config.SQLiteAttachments) == 0 {
 		return nil
