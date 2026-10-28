@@ -29,7 +29,6 @@ import (
 	studiocodecs "github.com/viant/datly-studio/runtime/codecs"
 	runtimehost "github.com/viant/datly-studio/runtime/host"
 	"github.com/viant/datly-studio/runtime/namespacemcp"
-	"github.com/viant/datly-studio/schema"
 	studiocatalog "github.com/viant/datly-studio/studio/catalog"
 	authoring "github.com/viant/datly-studio/studio/host"
 	"github.com/viant/datly/bootstrap/connector"
@@ -130,8 +129,6 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		if err := options.Browser.SchemaVerifier(ctx, db); err != nil {
 			return err
 		}
-	} else if err := schema.Initialize(ctx, db, catalog.Driver); err != nil {
-		return err
 	}
 
 	authorityConfig := accessprovider.Config{Issuer: issuer, Audience: audience, JWTValidator: config.JWTValidator, Tenant: policyTenant}
@@ -326,7 +323,8 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	}
 
 	if browser.SchemaVerifier == nil {
-		browser.SchemaVerifier = func(ctx context.Context, db *sql.DB) error { return schema.Verify(ctx, db, catalog.Driver) }
+		// Database migrations are operator-owned; startup performs no schema inspection.
+		browser.SchemaVerifier = func(context.Context, *sql.DB) error { return nil }
 	}
 	browser.Database = db
 	browser.DatabaseDriver = catalog.Driver
