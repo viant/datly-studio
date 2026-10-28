@@ -410,6 +410,10 @@ func (s *Service) registerWindowPrimitives(base *protoserver.DefaultHandler) err
 			case "namespaces/get":
 				var in primitive.NamespaceGetRequest
 				err = decodePrimitiveArgs(request.Params.Arguments, &in)
+				if err == nil && in.Sync != nil {
+					value, err = s.synchronizeNamespaceArtifacts(ctx, in)
+					break
+				}
 				if err == nil {
 					var capabilities *primitive.NamespaceCapabilities
 					capabilities, err = s.windowPrimitives.NamespaceGet(ctx, in)
