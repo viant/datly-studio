@@ -82,12 +82,14 @@ func TestCatalogLinksExplicitPredicatePackages(t *testing.T) {
 
 func TestCatalogDiscoversOnlyLinkedHandlerTypesInAllowedPackage(t *testing.T) {
 	_ = extension.LinkedType
+	_ = extension.LinkedVariadicType
+	_ = extension.LinkedWrongVariadicType
 	const packagePath = "github.com/viant/datly-studio/studio/predicatecatalog/testdata/extension"
 	catalog, err := New(Package{Alias: "extension", Path: packagePath})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !catalog.Contains(packagePath, "ReaderScope") || catalog.Contains(packagePath, "NotAPredicate") {
+	if !catalog.Contains(packagePath, "ReaderScope") || !catalog.Contains(packagePath, "ParameterizedScope") || catalog.Contains(packagePath, "NotAPredicate") || catalog.Contains(packagePath, "WrongVariadicScope") {
 		t.Fatalf("linked descriptors=%+v", catalog.Descriptors())
 	}
 	if _, err = New(Package{Path: "example.com/unlinked"}); err == nil {

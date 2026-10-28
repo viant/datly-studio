@@ -106,13 +106,17 @@ func New(packages ...Package) (*Catalog, error) {
 // this never registers a type or makes source-only declarations executable.
 func linkedPredicateTypes(packagePath string) []reflect.Type {
 	handler := reflect.TypeFor[xpredicate.Handler]()
+	variadicHandler := reflect.TypeFor[xpredicate.VariadicHandler]()
 	seen := map[reflect.Type]bool{}
 	var result []reflect.Type
 	for _, typ := range xunsafe.PackageTypes(packagePath) {
 		for typ != nil && typ.Kind() == reflect.Pointer {
 			typ = typ.Elem()
 		}
-		if typ == nil || typ.PkgPath() != packagePath || typ.Name() == "" || seen[typ] || !reflect.PointerTo(typ).Implements(handler) {
+		if typ == nil || typ.PkgPath() != packagePath || typ.Name() == "" || seen[typ] {
+			continue
+		}
+		if pointer := reflect.PointerTo(typ); !pointer.Implements(handler) && !pointer.Implements(variadicHandler) {
 			continue
 		}
 		seen[typ] = true
