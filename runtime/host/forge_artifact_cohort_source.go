@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"sort"
+	"strings"
 	"sync"
 
 	"github.com/viant/authz"
@@ -54,6 +56,39 @@ func (s *PublishedArtifactCatalog) gate() *releasegate.Gate {
 	defer s.mu.Unlock()
 	return s.releaseGate
 }
+
+// ArtifactNamespaces exposes only current local publication partitions for
+// capability advertisement. It never invokes Discover or returns policy bytes.
+func (s *PublishedArtifactCatalog) ArtifactNamespaces() []string {
+	if s == nil || s.Publisher == nil {
+		return nil
+	}
+	var manifest artifactcohort.Manifest
+	read := func() error { var err error; manifest, err = s.Publisher.Snapshot(); return err }
+	var err error
+	if gate := s.gate(); gate != nil {
+		err = gate.Read(read)
+	} else {
+		err = read()
+	}
+	if err != nil {
+		return nil
+	}
+	seen := map[string]bool{}
+	for partition := range manifest.PartitionHashes {
+		namespace, kind, ok := strings.Cut(partition, "|")
+		if ok && namespace != "" && kind != "policy" {
+			seen[namespace] = true
+		}
+	}
+	namespaces := make([]string, 0, len(seen))
+	for namespace := range seen {
+		namespaces = append(namespaces, namespace)
+	}
+	sort.Strings(namespaces)
+	return namespaces
+}
+
 func (s *PublishedArtifactCatalog) Discover(ctx context.Context) (artifactcohort.Manifest, error) {
 	if gate := s.gate(); gate != nil {
 		var manifest artifactcohort.Manifest

@@ -7,6 +7,7 @@ import (
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
 	rhandler "github.com/viant/datly/runtime/handler"
 	"github.com/viant/datly/runtime/handler/custom"
+	primitive "github.com/viant/forge/backend/provider/contract"
 	"github.com/viant/forge/backend/types"
 	namespaceext "github.com/viant/mcp-protocol/extension/namespaces"
 	"github.com/viant/scy/auth/jwt"
@@ -22,22 +23,27 @@ type ListOutput struct {
 	Response *namespaceext.ListResult `parameter:"Response,kind=output,in=body,dataType=*namespaceext.ListResult" json:"-"`
 }
 
-func (*ListOutput) JSONWireType() reflect.Type { return reflect.TypeFor[namespaceext.ListResult]() }
+func (*ListOutput) JSONWireType() reflect.Type { return reflect.TypeFor[namespaceListWire]() }
 func (o *ListOutput) MarshalJSON() ([]byte, error) {
 	if o == nil {
 		return []byte("null"), nil
 	}
-	return json.Marshal(o.Response)
+	return marshalNamespaceList(o.Response)
 }
 
 type GetOutput struct {
-	Response *namespaceext.GetResult `parameter:"Response,kind=output,in=body,dataType=*namespaceext.GetResult" json:"-"`
+	ProviderIdentity string                         `json:"-"`
+	Sync             *primitive.NamespaceSyncResult `json:"-"`
+	Response         *namespaceext.GetResult        `parameter:"Response,kind=output,in=body,dataType=*namespaceext.GetResult" json:"-"`
 }
 
-func (*GetOutput) JSONWireType() reflect.Type { return reflect.TypeFor[namespaceext.GetResult]() }
+func (*GetOutput) JSONWireType() reflect.Type { return reflect.TypeFor[namespaceGetWire]() }
 func (o *GetOutput) MarshalJSON() ([]byte, error) {
 	if o == nil {
 		return []byte("null"), nil
+	}
+	if o.Sync != nil {
+		return json.Marshal(namespaceGetWire{GetResult: o.Response, Sync: o.Sync, ProviderIdentity: o.ProviderIdentity})
 	}
 	return json.Marshal(o.Response)
 }
@@ -84,10 +90,21 @@ func NewList() xhandler.Contract[ListInput, ListOutput] {
 	return &handler[ListInput, ListOutput]{run: runList}
 }
 
+// NamespaceGetRequest keeps ordinary inventory selectors while allowing the
+// explicit synchronization operation to select its logical namespace alias.
+// An ordinary get still requires URI; runGet enforces that distinction.
+type NamespaceGetRequest struct {
+	URI    string  `json:"uri,omitempty"`
+	Kind   string  `json:"kind,omitempty"`
+	Cursor *string `json:"cursor,omitempty"`
+}
+
 type GetInput struct {
-	Jwt     *jwt.Claims             `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
-	Auth    *studioauth.Output      `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
-	Request namespaceext.GetRequest `parameter:"Request,kind=body,in=,dataType=namespaceext.GetRequest,required=true" anonymous:"true"`
+	Namespace string                          `parameter:"Namespace,kind=body,in=namespace" json:"namespace,omitempty"`
+	Sync      *primitive.NamespaceSyncRequest `parameter:"Sync,kind=body,in=sync" json:"sync,omitempty"`
+	Jwt       *jwt.Claims                     `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
+	Auth      *studioauth.Output              `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
+	Request   NamespaceGetRequest             `parameter:"Request,kind=body,in=,dataType=NamespaceGetRequest,required=false" anonymous:"true"`
 }
 type GetComponent struct {
 	Contract xdatly.Component[GetInput, GetOutput] `component:"catalog_get,path=/v1/studio/catalog/namespaces/get,method=POST,connector=studio,handler=NewGet" mcp:"[{\"kind\":\"tool\",\"name\":\"namespaces/get\",\"description\":\"List accessible resources in a namespace with pagination\"}]" caseFormat:"lc"`

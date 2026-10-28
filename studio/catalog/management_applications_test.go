@@ -60,7 +60,7 @@ func TestMultipleManagementApplicationsKeepNamespacesAndResourcesIsolated(t *tes
 			}
 		}
 		out := &GetOutput{}
-		if err := runGet(context.Background(), nil, &GetInput{Jwt: claims, Auth: auth, Request: namespaceext.GetRequest{URI: catalog.namespace.URI, Kind: "window"}}, out); err != nil {
+		if err := runGet(context.Background(), nil, &GetInput{Jwt: claims, Auth: auth, Request: NamespaceGetRequest{URI: catalog.namespace.URI, Kind: "window"}}, out); err != nil {
 			t.Fatal(err)
 		}
 		if len(out.Response.Resources) == 0 {

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/viant/authz"
+	"github.com/viant/datly-studio/internal/artifactnamespace"
 	"github.com/viant/datly-studio/runtime/namespacemcp"
 	"github.com/viant/forge/backend/artifactcohort"
 	identity "github.com/viant/forge/backend/resource"
@@ -165,46 +165,9 @@ func artifactRootInNamespace(root artifactcohort.RootRef, namespace string) bool
 // policy documents; reject it instead. The configured source must publish one
 // complete manifest for the persisted namespace name bound to NamespaceID.
 func validateArtifactManifestScope(ctx context.Context, manifest artifactcohort.Manifest, namespace string) error {
-	if namespace == "" {
-		return nil
-	}
-	store, err := authz.NewStaticStore(manifest.Policies)
-	if err != nil {
-		return artifactcohort.ErrInvalid
-	}
-	used := map[authz.Resource]bool{}
-	for _, cohort := range manifest.Cohorts {
-		for _, root := range append(append([]artifactcohort.RootRef(nil), cohort.Roots...), cohort.RevisionOverrides...) {
-			if !artifactRootInNamespace(root, namespace) {
-				return artifactcohort.ErrDenied
-			}
-		}
-		for _, rawURI := range append(append([]string(nil), cohort.FollowPublished...), cohort.DeniedURIs...) {
-			uri, err := identity.ParseResourceURI(rawURI)
-			if err != nil || namespace != "" && uri.Namespace != namespace {
-				return artifactcohort.ErrDenied
-			}
-		}
-		doc, err := store.Get(ctx, cohort.PolicyResource)
-		if err != nil {
-			return artifactcohort.ErrDenied
-		}
-		used[doc.Resource] = true
-		_, named, err := authz.ResolveNamedDocument(ctx, store, doc)
-		if err != nil {
-			return artifactcohort.ErrDenied
-		}
-		for _, dependency := range named {
-			used[dependency.Resource] = true
-		}
-	}
-	for _, doc := range manifest.Policies {
-		if !used[doc.Resource] {
-			return artifactcohort.ErrDenied
-		}
-	}
-	return nil
+	return artifactnamespace.ValidateManifestScope(ctx, manifest, namespace)
 }
+
 func artifactCohortFailure() *schema.CallToolResult {
 	failed := true
 	value := map[string]string{"code": "artifact_unavailable", "message": "published artifact unavailable"}

@@ -214,6 +214,12 @@ func runGet(ctx context.Context, session xhandler.Session, input *GetInput, outp
 	if input == nil || output == nil {
 		return fail(400, "namespace catalog input/output required")
 	}
+	if input.Sync != nil {
+		return publicNamespaceSyncError(runNamespaceSync(ctx, session, input, output))
+	}
+	if input.Namespace != "" {
+		return fail(400, "namespace alias is reserved for explicit synchronization")
+	}
 	id, err := ParseNamespaceURI(input.Request.URI)
 	if err != nil {
 		return err

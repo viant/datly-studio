@@ -47,7 +47,7 @@ func TestLogicalMCPAliasUsesVisibleActiveNamespaceAndKeepsOpaqueURI(t *testing.T
 	row := &stored.StoredNamespace{NamespaceId: id, Name: "ar", McpEnabled: true, Status: "active"}
 	session := releaseTestSession{binder: releaseTestBinder{invoker: logicalAliasDirectory{rows: []*stored.StoredNamespace{row}}}}
 	listed := &GetOutput{}
-	if err = runGet(ctx, session, &GetInput{Jwt: claims, Auth: auth, Request: namespaceext.GetRequest{URI: "ns://" + id, Kind: "mcp"}}, listed); err != nil {
+	if err = runGet(ctx, session, &GetInput{Jwt: claims, Auth: auth, Request: NamespaceGetRequest{URI: "ns://" + id, Kind: "mcp"}}, listed); err != nil {
 		t.Fatal(err)
 	}
 	want := map[string]bool{VirtualURI(id, "ar"): false, LogicalURI("ar"): false}
@@ -84,7 +84,7 @@ func TestLogicalMCPAliasUsesVisibleActiveNamespaceAndKeepsOpaqueURI(t *testing.T
 	}
 	row.McpEnabled = false
 	session.binder = releaseTestBinder{invoker: logicalAliasDirectory{rows: []*stored.StoredNamespace{row}}}
-	if err = runGet(ctx, session, &GetInput{Jwt: claims, Auth: auth, Request: namespaceext.GetRequest{URI: "ns://" + id, Kind: "mcp"}}, listed); err != nil {
+	if err = runGet(ctx, session, &GetInput{Jwt: claims, Auth: auth, Request: NamespaceGetRequest{URI: "ns://" + id, Kind: "mcp"}}, listed); err != nil {
 		t.Fatal(err)
 	}
 	if len(listed.Response.Resources) != 0 {

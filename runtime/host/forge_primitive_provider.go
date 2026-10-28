@@ -405,7 +405,12 @@ func (s *Service) registerWindowPrimitives(base *protoserver.DefaultHandler) err
 				var in primitive.NamespaceListRequest
 				err = decodePrimitiveArgs(request.Params.Arguments, &in)
 				if err == nil {
-					value, err = s.windowPrimitives.NamespaceList(ctx, in)
+					var listed *primitive.NamespaceListResult
+					listed, err = s.windowPrimitives.NamespaceList(ctx, in)
+					if err == nil {
+						s.advertiseNamespaceSynchronization(listed)
+					}
+					value = listed
 				}
 			case "namespaces/get":
 				var in primitive.NamespaceGetRequest
@@ -476,6 +481,9 @@ func (s *Service) registerWindowPrimitives(base *protoserver.DefaultHandler) err
 			failed := err != nil
 			if failed {
 				value = map[string]string{"code": "resource_unavailable", "message": "Studio window operation denied or unavailable"}
+				if name == "namespaces/get" && request.Params.Arguments["sync"] != nil {
+					value = namespaceSyncFailure(err)
+				}
 			}
 			raw, marshalErr := json.Marshal(value)
 			if marshalErr != nil {
