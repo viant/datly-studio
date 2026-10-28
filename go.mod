@@ -119,7 +119,7 @@ require (
 	github.com/viant/igo v0.2.0 // indirect
 	github.com/viant/parsly v0.3.3 // indirect
 	github.com/viant/sqlparser v0.13.1-0.20261021204353-1c20a82bbb29 // indirect
-	github.com/viant/structology v0.10.1-0.20261021171329-9f693e1e9f21 // indirect
+	github.com/viant/structology v0.10.2-0.20261028223423-51b95943c499 // indirect
 	github.com/viant/structql v0.5.5-0.20261012183420-6a47e96ff5b5 // indirect
 	github.com/viant/tagly v0.4.1-0.20261007173811-969600917520
 	github.com/viant/toolbox v0.39.0 // indirect
