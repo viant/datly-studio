@@ -79,6 +79,16 @@ func corsModules(origin string, required bool, modules []Module, next http.Handl
 	}
 	paths = append(paths, bearerPaths...)
 	return corsWithOriginException(origin, required, func(r *http.Request) bool {
+		// A mounted metadata-only branch may explicitly accept anonymous MCP.
+		// Its handler still owns dispatch; ordinary SDK routes are unaffected.
+		for _, module := range modules {
+			if r.URL.Path != module.Path && !(strings.HasSuffix(module.Path, "/") && strings.HasPrefix(r.URL.Path, module.Path)) {
+				continue
+			}
+			if public, ok := module.Handler.(interface{ AllowAnonymousRequest(*http.Request) bool }); ok && public.AllowAnonymousRequest(r) {
+				return true
+			}
+		}
 		fields := strings.Fields(r.Header.Get("Authorization"))
 		if len(fields) != 2 || !strings.EqualFold(fields[0], "Bearer") || fields[1] == "" {
 			return false
