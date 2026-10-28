@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"log/slog"
 	"reflect"
 	"strings"
 	"sync"
@@ -17,6 +19,7 @@ import (
 	"github.com/viant/scy/auth/jwt"
 	"github.com/viant/xdatly"
 	xhandler "github.com/viant/xdatly/handler"
+	xresponse "github.com/viant/xdatly/response"
 )
 
 var releaseSource struct {
@@ -87,11 +90,11 @@ func releaseManager(ctx context.Context, session xhandler.Session, claims *jwt.C
 		ctx = oauth.WithBearer(ctx, strings.TrimPrefix(headers.Authorization, "Bearer "))
 		selected, err := selectedToolNamespace(ctx, session, claims, auth, namespaceID, name)
 		if err != nil {
-			return ctx, nil, err
+			return ctx, nil, fmt.Errorf("resolve release namespace: %w", err)
 		}
 		manager, err = resolve(ctx, selected)
 		if err != nil {
-			return ctx, nil, err
+			return ctx, nil, fmt.Errorf("resolve release manager: %w", err)
 		}
 	}
 	if manager == nil {
@@ -221,7 +224,8 @@ func NewReleaseHistory() xhandler.Contract[ReleaseHistoryInput, ReleaseHistoryOu
 	return &handler[ReleaseHistoryInput, ReleaseHistoryOutput]{run: runReleaseHistory}
 }
 
-func runReleaseList(ctx context.Context, session xhandler.Session, in *ReleaseListInput, out *ReleaseListOutput) error {
+func runReleaseList(ctx context.Context, session xhandler.Session, in *ReleaseListInput, out *ReleaseListOutput) (resultErr error) {
+	defer func() { resultErr = releaseOperationError(ctx, "list", resultErr) }()
 	if in == nil || out == nil || in.Request.Validate() != nil {
 		return fail(400, "invalid release request")
 	}
@@ -232,7 +236,8 @@ func runReleaseList(ctx context.Context, session xhandler.Session, in *ReleaseLi
 	out.Response, err = manager.List(ctx, in.Request)
 	return releaseContractError(err)
 }
-func runReleaseCandidates(ctx context.Context, session xhandler.Session, in *ReleaseCandidatesInput, out *ReleaseCandidatesOutput) error {
+func runReleaseCandidates(ctx context.Context, session xhandler.Session, in *ReleaseCandidatesInput, out *ReleaseCandidatesOutput) (resultErr error) {
+	defer func() { resultErr = releaseOperationError(ctx, "candidates", resultErr) }()
 	if in == nil || out == nil || in.Request.Validate() != nil {
 		return fail(400, "invalid release request")
 	}
@@ -243,7 +248,8 @@ func runReleaseCandidates(ctx context.Context, session xhandler.Session, in *Rel
 	out.Response, err = manager.Candidates(ctx, in.Request)
 	return releaseContractError(err)
 }
-func runReleasePublish(ctx context.Context, session xhandler.Session, in *ReleasePublishInput, out *ReleaseResultOutput) error {
+func runReleasePublish(ctx context.Context, session xhandler.Session, in *ReleasePublishInput, out *ReleaseResultOutput) (resultErr error) {
+	defer func() { resultErr = releaseOperationError(ctx, "publish", resultErr) }()
 	if in == nil || out == nil || in.Request.Validate() != nil {
 		return fail(400, "invalid release request")
 	}
@@ -254,7 +260,8 @@ func runReleasePublish(ctx context.Context, session xhandler.Session, in *Releas
 	out.Response, err = manager.Publish(ctx, in.Request)
 	return releaseContractError(err)
 }
-func runReleasePromote(ctx context.Context, session xhandler.Session, in *ReleasePromoteInput, out *ReleaseResultOutput) error {
+func runReleasePromote(ctx context.Context, session xhandler.Session, in *ReleasePromoteInput, out *ReleaseResultOutput) (resultErr error) {
+	defer func() { resultErr = releaseOperationError(ctx, "promote", resultErr) }()
 	if in == nil || out == nil || in.Request.Validate() != nil {
 		return fail(400, "invalid release request")
 	}
@@ -265,7 +272,8 @@ func runReleasePromote(ctx context.Context, session xhandler.Session, in *Releas
 	out.Response, err = manager.Promote(ctx, in.Request)
 	return releaseContractError(err)
 }
-func runReleaseHistory(ctx context.Context, session xhandler.Session, in *ReleaseHistoryInput, out *ReleaseHistoryOutput) error {
+func runReleaseHistory(ctx context.Context, session xhandler.Session, in *ReleaseHistoryInput, out *ReleaseHistoryOutput) (resultErr error) {
+	defer func() { resultErr = releaseOperationError(ctx, "history", resultErr) }()
 	if in == nil || out == nil || in.Request.Validate() != nil {
 		return fail(400, "invalid release request")
 	}
@@ -287,4 +295,20 @@ func releaseContractError(err error) error {
 	default:
 		return err
 	}
+}
+
+// Preserve actionable client errors while retaining unexpected causes in server logs.
+func releaseOperationError(ctx context.Context, operation string, err error) error {
+	if err == nil {
+		return nil
+	}
+	var wire *xresponse.Error
+	if errors.As(err, &wire) && wire.Code < 500 {
+		return wire
+	}
+	slog.ErrorContext(ctx, "release operation failed", "operation", operation, "error", err)
+	if errors.As(err, &wire) {
+		return wire
+	}
+	return fail(500, "Release "+operation+" failed. See the server log for the underlying error.")
 }
