@@ -19,6 +19,7 @@ import (
 func TestContractNativeOperationsHaveSafeRepairDiagnostics(t *testing.T) {
 	secret := "https://user:password@source.invalid/table?token=TOKEN SELECT private_value FROM private_record"
 	for _, tc := range []struct{ operation, code, stage, field string }{
+		{"compile predicate: handler predicate type \"private.invalid/extension.Scope\" was not found; ", "runtime_predicate_type_unavailable", "contract.predicate", "authoredDql"},
 		{"materialize input marker: ", "runtime_input_marker", "contract.input", "authoredDql"},
 		{"materialize input contract: ", "runtime_input_type", "contract.input", "authoredDql"},
 		{"materialize output contract: ", "runtime_output_type", "contract.output", "authoredDql"},
@@ -49,6 +50,31 @@ func TestContractNativeOperationsHaveSafeRepairDiagnostics(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestMissingLinkedPredicateNativeCompileDiagnostic(t *testing.T) {
+	_, cause := transcribe.NewCompiler().RuntimeContractsInModule(context.Background(), "example.com/fixture", &transcribe.Source{
+		Name: "Records", Scope: "example.com/fixture/records", Text: `#package('example.com/fixture/records')
+#setting($_ = $internal(true))
+#setting($_ = $route('/records','GET'))
+#define($_ = $Auth<string>(form/auth).WithPredicate(0,'handler','private.invalid/extension.Scope','Alias','r'))
+SELECT records.* FROM (SELECT 1 AS id) records`,
+	})
+	if cause == nil {
+		t.Fatal("missing linked predicate unexpectedly compiled")
+	}
+	err := Wrap("contract", cause)
+	d := Diagnostics(err)[0]
+	if d.Code != "runtime_predicate_type_unavailable" || d.Stage != "contract.predicate" {
+		t.Fatalf("native error %v produced diagnostic %+v", cause, d)
+	}
+	if strings.Contains(d.Message+d.Hint, "private.invalid") {
+		t.Fatal("predicate package leaked")
+	}
+	denied := readerinspection.RedactDiagnostics(Diagnostics(err), false)[0]
+	if denied.Message != "" || denied.Hint != "" || denied.Code != d.Code {
+		t.Fatalf("delegated projection: %+v", denied)
 	}
 }
 

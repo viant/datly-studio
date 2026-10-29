@@ -24,6 +24,10 @@ func contractDiagnostic(err error) (sdk.Diagnostic, bool) {
 		message := cause.Error()
 		var code, stage, field, summary, hint string
 		switch {
+		case strings.HasPrefix(message, "compile predicate: handler predicate type ") && strings.Contains(message, " was not found;"):
+			code, stage, field = "runtime_predicate_type_unavailable", "contract.predicate", "authoredDql"
+			summary = "An authored predicate requires a type unavailable in this host binary."
+			hint = "Verify the host's pinned extension dependencies, linked predicate packages, and runtime type discovery, then rebuild the host."
 		case strings.HasPrefix(message, "materialize input marker: "):
 			code, stage, field = "runtime_input_marker", "contract.input", "authoredDql"
 			summary = "The input presence marker could not be materialized."
