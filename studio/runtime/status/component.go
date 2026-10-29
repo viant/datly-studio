@@ -123,7 +123,7 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 		}
 		return err
 	}
-	if input.NamespaceId != nil && response.Host != nil && response.Host.NamespaceID == *input.NamespaceId && response.Host.Status == "ready" && catalog.ReleaseManagementForNamespace(principal, *input.NamespaceId) {
+	if input.NamespaceId != nil && catalog.ReleaseManagementForNamespace(principal, *input.NamespaceId) {
 		response.ReleasesAvailable = true
 	}
 	output.Response = &response

@@ -74,18 +74,18 @@ func (releaseStatusManager) History(context.Context, contract.HistoryInput) (con
 
 var _ sdkrelease.Manager = releaseStatusManager{}
 
-func TestNativeRuntimeStatusAdvertisesOnlySelectedReadyReleaseManager(t *testing.T) {
+func TestNativeRuntimeStatusAdvertisesSelectedReleaseManagerWithoutRunningMCP(t *testing.T) {
 	ctx := context.Background()
 	db := datatest.OpenSQLite(t, "native_release_status", "studio")
-	first, second := namespaceaccess.ID("owner", "ar"), namespaceaccess.ID("owner", "other")
-	for _, item := range []struct{ id, name string }{{first, "ar"}, {second, "other"}} {
-		if _, err := db.Exec(`INSERT INTO namespaces(namespace_id,owner_id,name,title,status,visibility,mcp_enabled,etag,created_at,updated_at) VALUES(?,'owner',?,?,'active','private',TRUE,1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, item.id, item.name, item.name); err != nil {
+	first, second := namespaceaccess.ID("owner", "example"), namespaceaccess.ID("owner", "other")
+	for _, item := range []struct{ id, name string }{{first, "example"}, {second, "other"}} {
+		if _, err := db.Exec(`INSERT INTO namespaces(namespace_id,owner_id,name,title,status,visibility,mcp_enabled,etag,created_at,updated_at) VALUES(?,'owner',?,?,'active','private',FALSE,1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, item.id, item.name, item.name); err != nil {
 			t.Fatal(err)
 		}
 	}
 	ctx = runtimeadmin.WithClient(ctx, runtimeadmin.NewInProcess(nil, func(ctx context.Context) (*sdk.RuntimeHost, error) {
 		selected, _ := sdk.NamespaceSelectionFromContext(ctx)
-		return &sdk.RuntimeHost{NamespaceID: selected, Status: "ready", MCPURL: "http://127.0.0.1:12345/mcp"}, nil
+		return &sdk.RuntimeHost{NamespaceID: selected, Status: "stopped"}, nil
 	}, nil))
 	defer catalog.ConfigureReleaseManagementResolver(nil)
 	resolved := 0
