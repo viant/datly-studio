@@ -139,15 +139,19 @@ INSERT INTO component_publications(report_id,active_version_no,desired_version_n
  INSERT INTO component_publications(report_id,active_version_no,active_generation,desired_generation,publication_status,runtime_revision,spec_hash,published_by,published_at,activated_at) VALUES('other-reader',1,1,1,'active','other','other','owner',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);`); err != nil {
 		t.Fatal(err)
 	}
+	if _, err := db.Exec(`UPDATE runtime_generations SET namespace_id=?`, aID); err != nil {
+		t.Fatal(err)
+	}
 	service.config.NamespaceID = aID
 	assertVersion(nil, 1)
 	assertVersion(&candidate, 2)
 	service.config.NamespaceID = bID
-	for _, generation := range []*int64{nil, &candidate} {
-		scoped, err := service.definitions(ctx, generation)
-		if err != nil || len(scoped) != 1 || scoped[0].reportID != "other-reader" || scoped[0].dql != "SELECT 99" {
-			t.Fatalf("namespace B definitions=%+v err=%v", scoped, err)
-		}
+	scoped, err := service.definitions(ctx, nil)
+	if err != nil || len(scoped) != 1 || scoped[0].reportID != "other-reader" || scoped[0].dql != "SELECT 99" {
+		t.Fatalf("namespace B definitions=%+v err=%v", scoped, err)
+	}
+	if _, err := service.definitions(ctx, &candidate); err == nil {
+		t.Fatal("namespace B accepted namespace A generation")
 	}
 	service.config.NamespaceID = aID
 	if _, err = db.Exec(`UPDATE component_publications SET desired_version_no=NULL,publication_status='unpublishing' WHERE report_id='reader'`); err != nil {

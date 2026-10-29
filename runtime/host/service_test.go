@@ -286,7 +286,7 @@ JOIN (SELECT id,label FROM labels) labels ON labels.id=records.id`
 	if statusResponse.StatusCode != http.StatusOK || !strings.Contains(string(statusPayload), `"status":"ready"`) || !strings.Contains(string(statusPayload), `"revision":1`) {
 		t.Fatalf("runtime status=%d body=%s", statusResponse.StatusCode, statusPayload)
 	}
-	admin, err := http.NewRequest(http.MethodPost, "http://"+httpAddress+"/_studio/reload", bytes.NewBufferString(`{"generation":2}`))
+	admin, err := http.NewRequest(http.MethodPost, "http://"+httpAddress+"/_studio/reload", bytes.NewBufferString(`{"generation":1}`))
 	if err != nil {
 		t.Fatal(err)
 	}

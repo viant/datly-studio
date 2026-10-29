@@ -13,6 +13,7 @@ import (
 	presence "github.com/viant/datly-studio/studio/resource_policy/presence"
 	active "github.com/viant/datly-studio/studio/runtime_generations/store_active"
 	candidate "github.com/viant/datly-studio/studio/runtime_generations/store_candidate"
+	generationcatalog "github.com/viant/datly-studio/studio/runtime_generations/store_catalog"
 	"github.com/viant/datly/exec"
 	druntime "github.com/viant/datly/runtime"
 	"github.com/viant/datly/runtime/registry"
@@ -22,10 +23,11 @@ import (
 // publishedDefinitionStore reads the exact active or candidate publication
 // snapshot through server-only Datly v1 components. It is not a public route.
 type publishedDefinitionStore struct {
-	runtime        *druntime.Runtime
-	active         exec.ComponentTarget
-	candidate      exec.ComponentTarget
-	policyPresence exec.ComponentTarget
+	runtime           *druntime.Runtime
+	active            exec.ComponentTarget
+	candidate         exec.ComponentTarget
+	policyPresence    exec.ComponentTarget
+	generationCatalog exec.ComponentTarget
 }
 
 func newPublishedDefinitionStore(db *sql.DB) (*publishedDefinitionStore, error) {
@@ -37,6 +39,9 @@ func newPublishedDefinitionStore(db *sql.DB) (*publishedDefinitionStore, error) 
 		return nil, err
 	}
 	if err := resources.Register(presence.HeadDatlyResourceNamespace, presence.HeadDatlyResources); err != nil {
+		return nil, err
+	}
+	if err := resources.Register(generationcatalog.GenerationDatlyResourceNamespace, generationcatalog.GenerationDatlyResources); err != nil {
 		return nil, err
 	}
 	connector := &dsql.SQLComponent{DB: db}
@@ -59,11 +64,15 @@ func newPublishedDefinitionStore(db *sql.DB) (*publishedDefinitionStore, error) 
 	if err != nil {
 		return nil, err
 	}
-	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{activeRegistration, candidateRegistration, presenceRegistration}, druntime.WithResources(resources))
+	generationRegistration, generationTarget, err := readercomponent.Compile(reflect.TypeFor[generationcatalog.GenerationComponent](), "store_catalog", reflect.TypeFor[generationcatalog.Input](), reflect.TypeFor[generationcatalog.Output](), resources, connector)
 	if err != nil {
 		return nil, err
 	}
-	return &publishedDefinitionStore{runtime: runtime, active: activeTarget, candidate: candidateTarget, policyPresence: presenceTarget}, nil
+	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{activeRegistration, candidateRegistration, presenceRegistration, generationRegistration}, druntime.WithResources(resources))
+	if err != nil {
+		return nil, err
+	}
+	return &publishedDefinitionStore{runtime: runtime, active: activeTarget, candidate: candidateTarget, policyPresence: presenceTarget, generationCatalog: generationTarget}, nil
 }
 
 func (s *publishedDefinitionStore) Close(ctx context.Context) error {
@@ -103,6 +112,9 @@ func (s *publishedDefinitionStore) Definitions(ctx context.Context, generation *
 	if *generation <= 0 {
 		return nil, fmt.Errorf("candidate generation must be positive")
 	}
+	if err := s.requireGeneration(ctx, namespaceID, *generation); err != nil {
+		return nil, err
+	}
 	value, err := s.runtime.InvokeComponent(ctx, exec.ComponentRequest{Target: s.candidate,
 		Input: &candidate.Input{NamespaceId: namespaceID, CandidateGeneration: *generation, Has: &candidate.InputHas{NamespaceId: true, CandidateGeneration: true}}})
 	if err != nil {
@@ -124,6 +136,25 @@ func (s *publishedDefinitionStore) Definitions(ctx context.Context, generation *
 		rows = append(rows, mapped)
 	}
 	return rows, nil
+}
+
+// Positive loads are server-selected publication snapshots, including an active
+// generation used by SDK compensation. Never silently substitute active rows
+// for a missing, foreign, failed or retired candidate.
+func (s *publishedDefinitionStore) requireGeneration(ctx context.Context, namespaceID string, generation int64) error {
+	value, err := s.runtime.InvokeComponent(ctx, exec.ComponentRequest{Target: s.generationCatalog, Input: &generationcatalog.Input{
+		NamespaceId: namespaceID, GenerationNo: generation,
+		Has: &generationcatalog.InputHas{NamespaceId: true, GenerationNo: true},
+	}})
+	if err != nil {
+		return err
+	}
+	output, ok := value.(*generationcatalog.Output)
+	if !ok || len(output.Generations) != 1 || output.Generations[0] == nil || output.Generations[0].GenerationNo != generation ||
+		(output.Generations[0].Status != "building" && output.Generations[0].Status != "active") {
+		return fmt.Errorf("requested runtime generation is unavailable for this namespace")
+	}
+	return nil
 }
 
 func mapPublishedDefinition(reportID string, versionNo int, scope, name, connector, driver string,

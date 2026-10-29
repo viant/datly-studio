@@ -106,14 +106,14 @@ func (m *Manager) operation(id string) *sync.Mutex {
 // Port zero asks the OS for a free port. Existing identical starts are idempotent;
 // Start rejects port changes; Rebind prepares a replacement before draining the old listener.
 func (m *Manager) Start(ctx context.Context, id string, port int) (Endpoint, error) {
-	return m.start(ctx, id, port, false, nil)
+	return m.start(ctx, id, port, false, nil, nil)
 }
 
 // Rebind constructs and reserves the new endpoint before replacing the old one.
 // Failures before commitment preserve the current listener. A returned endpoint
 // remains active even if an error reports failure to drain the previous server.
 func (m *Manager) Rebind(ctx context.Context, id string, port int) (Endpoint, error) {
-	return m.start(ctx, id, port, true, nil)
+	return m.start(ctx, id, port, true, nil, nil)
 }
 
 // RebindWithCommit reserves and constructs the replacement before committing
@@ -124,10 +124,31 @@ func (m *Manager) RebindWithCommit(ctx context.Context, id string, port int, com
 	if commit == nil {
 		return Endpoint{}, fmt.Errorf("namespace MCP commit callback is required")
 	}
-	return m.start(ctx, id, port, true, commit)
+	return m.start(ctx, id, port, true, commit, nil)
 }
 
-func (m *Manager) start(ctx context.Context, id string, port int, replace bool, commit func(Endpoint) error) (Endpoint, error) {
+// RebindAndReload builds the requested generation before registering a new or
+// replacement listener. An unchanged listener reloads under the same namespace
+// operation lock. Factory sources must provide Reload; failed builds retain the
+// previous endpoint and release candidate resources.
+func (m *Manager) RebindAndReload(ctx context.Context, id string, port int, generation int64) (Endpoint, error) {
+	if generation < 0 {
+		return Endpoint{}, fmt.Errorf("generation must be zero or positive")
+	}
+	return m.start(ctx, id, port, true, nil, &generation)
+}
+
+type deferredInitialLoadKey struct{}
+
+// DeferredInitialLoad reports whether the manager will load this exact namespace
+// before registration. Only the manager can create this construction context;
+// factories should skip their usual initial load when it returns true.
+func DeferredInitialLoad(ctx context.Context, id string) bool {
+	selected, _ := ctx.Value(deferredInitialLoadKey{}).(string)
+	return selected != "" && selected == id
+}
+
+func (m *Manager) start(ctx context.Context, id string, port int, replace bool, commit func(Endpoint) error, generation *int64) (Endpoint, error) {
 	decoded, err := hex.DecodeString(id)
 	if err != nil || len(decoded) != 32 || strings.ToLower(id) != id || port < 0 || port > 65535 {
 		return Endpoint{}, fmt.Errorf("valid namespace ID and port 0–65535 are required")
@@ -157,6 +178,14 @@ func (m *Manager) start(ctx context.Context, id string, port int, replace bool, 
 				return previous.endpoint, nil
 			}
 			m.mu.Unlock()
+			if generation != nil {
+				if previous.reload == nil {
+					return Endpoint{}, fmt.Errorf("namespace runtime reload is unavailable")
+				}
+				if err := previous.reload(ctx, *generation); err != nil {
+					return Endpoint{}, err
+				}
+			}
 			return previous.endpoint, nil
 		}
 		if !replace {
@@ -195,14 +224,19 @@ func (m *Manager) start(ctx context.Context, id string, port int, replace bool, 
 	var config mcpserver.Config
 	var handler http.Handler
 	var owner any
+	// Override any inherited construction token, including for ordinary starts.
+	factoryCtx := context.WithValue(ctx, deferredInitialLoadKey{}, "")
+	if generation != nil {
+		factoryCtx = context.WithValue(ctx, deferredInitialLoadKey{}, id)
+	}
 	if m.httpFactory != nil {
-		handler, err = m.httpFactory(ctx, endpoint)
+		handler, err = m.httpFactory(factoryCtx, endpoint)
 		if err == nil && handler == nil {
 			err = fmt.Errorf("namespace MCP HTTP factory returned no handler")
 		}
 		owner = handler
 	} else {
-		config, err = m.factory(ctx, endpoint)
+		config, err = m.factory(factoryCtx, endpoint)
 		owner = config.Source
 	}
 	if err != nil {
@@ -225,6 +259,14 @@ func (m *Manager) start(ctx context.Context, id string, port int, replace bool, 
 			_ = cleanup(closeCtx)
 		}
 	}()
+	if generation != nil {
+		if reload == nil {
+			return Endpoint{}, fmt.Errorf("namespace runtime reload is unavailable")
+		}
+		if err := reload(ctx, *generation); err != nil {
+			return Endpoint{}, err
+		}
+	}
 	var server *http.Server
 	if m.httpFactory != nil {
 		server = &http.Server{Addr: endpoint.Address, Handler: handler, ReadHeaderTimeout: 10 * time.Second, IdleTimeout: 60 * time.Second}

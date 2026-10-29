@@ -27,9 +27,11 @@ func NamespaceFactory(base Config) namespacemcp.Factory {
 		if err != nil {
 			return mcpserver.Config{}, err
 		}
-		if err = runtime.Reload(ctx, 0); err != nil {
-			_ = runtime.Close(context.Background())
-			return mcpserver.Config{}, err
+		if !namespacemcp.DeferredInitialLoad(ctx, endpoint.NamespaceID) {
+			if err = runtime.Reload(ctx, 0); err != nil {
+				_ = runtime.Close(context.Background())
+				return mcpserver.Config{}, err
+			}
 		}
 		return mcpserver.Config{Source: &namespaceRuntimeSource{runtime: runtime, endpoint: endpoint}, Implementation: schema.Implementation{Name: "datly-studio-namespace", Version: "1"}, Transport: mcpserver.TransportConfig{Kind: mcpserver.TransportStreamable, Address: endpoint.Address, CORS: config.MCP.CORS}}, nil
 	}
