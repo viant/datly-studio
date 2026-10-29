@@ -2,7 +2,9 @@ package test_sql
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"github.com/viant/datly/transcribe"
 	xresponse "github.com/viant/xdatly/response"
 	"strings"
 	"testing"
@@ -44,5 +46,43 @@ func TestSQLTimeoutPreservesDeadlineAndDoesNotExposeDriverSecrets(t *testing.T) 
 	err = executionError(context.Background(), errors.New("private-driver-secret"), 60*time.Second)
 	if xresponse.ErrorStatusCode(err, 0) != 400 || strings.Contains(err.Error(), "private-driver-secret") {
 		t.Fatal(err)
+	}
+}
+
+type completedJobFailure struct{ reason string }
+
+func (e completedJobFailure) Error() string          { return "CANARY_PASSWORD SQL: SELECT CANARY_DATA" }
+func (e completedJobFailure) BigQueryReason() string { return e.reason }
+
+func TestSQLFailureProjectsOnlyStructuredSafeReason(t *testing.T) {
+	for _, tc := range []struct{ reason, want string }{{"accessDenied", "runtime_discovery_access_denied"}, {"notFound", "runtime_discovery_source_not_found"}, {"invalidQuery", "runtime_discovery_query_invalid"}, {"CANARY_TOKEN", ""}} {
+		err := executionError(context.Background(), completedJobFailure{tc.reason}, 60*time.Second)
+		var wire *xresponse.Error
+		if !errors.As(err, &wire) || xresponse.ErrorStatusCode(err, 0) != 400 {
+			t.Fatal(err)
+		}
+		raw, marshalErr := json.Marshal(wire.Payload)
+		if marshalErr != nil || strings.Contains(string(raw), "CANARY") {
+			t.Fatalf("native secrets leaked: %s %v", raw, marshalErr)
+		}
+		if tc.want != "" && !strings.Contains(string(raw), tc.want) {
+			t.Fatalf("reason absent: %s", raw)
+		}
+		if tc.want == "" && strings.Contains(string(raw), "diagnostics") {
+			t.Fatalf("unknown driver reason classified: %s", raw)
+		}
+	}
+}
+
+func TestSQLFailureDoesNotExposeArbitraryCompilerDiagnostics(t *testing.T) {
+	cause := &transcribe.CompileError{Diagnostics: []*transcribe.Diagnostic{{Code: "runtime_discovery_query", Message: "CANARY_COMPILER_SECRET"}}}
+	err := executionError(context.Background(), cause, 60*time.Second)
+	var wire *xresponse.Error
+	if !errors.As(err, &wire) {
+		t.Fatal(err)
+	}
+	raw, marshalErr := json.Marshal(wire.Payload)
+	if marshalErr != nil || strings.Contains(string(raw), "CANARY") || strings.Contains(string(raw), "diagnostics") {
+		t.Fatalf("untrusted compiler diagnostic escaped: %s %v", raw, marshalErr)
 	}
 }

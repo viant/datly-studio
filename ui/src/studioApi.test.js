@@ -964,3 +964,12 @@ test('database discovery and catalog overrides use the typed native routes', asy
  assert.equal(calls[1].body.input.catalog,'other-project');
  assert.deepEqual(calls[3].body.input,{catalog:'other-project',schema:'dataset',table:'records'});
 });
+
+test('connector SQL errors retain native provider details over HTTP and MCP',async()=>{
+ const detail={provider:'MySQL',code:'1146',sqlState:'42S02',message:"Table 'adlogs.missing_table' doesn't exist"};
+ const payload={message:`MySQL error 1146 (42S02): ${detail.message}`,providerError:detail};
+ const http=new StudioAPI({mode:'development',apiBaseURL:'http://studio.test',development:{subject:'fixture'}},{fetcher:async()=>Response.json(payload,{status:400})});
+ await assert.rejects(http.testSQL('metadata',{sql:'SELECT * FROM missing_table'}),error=>{assert.equal(error.message,payload.message);assert.deepEqual(error.providerError,detail);return true;});
+ const mcp=new StudioAPI({mode:'development',apiBaseURL:'http://studio.test',development:{subject:'fixture'}},{fetcher:async()=>Response.json({jsonrpc:'2.0',id:1,result:{isError:true,structuredContent:payload}})});
+ await assert.rejects(mcp.fetchMCPDataSource({backend:{kind:'mcp_tool',method:'studio.sdk.connectors.test_sql'}},{name:'metadata',input:{sql:'SELECT * FROM missing_table'}}),error=>{assert.equal(error.message,payload.message);assert.deepEqual(error.providerError,detail);return true;});
+});

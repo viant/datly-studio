@@ -194,7 +194,7 @@ export class StudioAPI {
         if(response.status===401)this.onUnauthorized?.();
         const text=(tool?.content??[]).filter((item)=>item.type==='text').map((item)=>item.text).join(' ');
         const error=new Error(payload?.error?.message||tool?.structuredContent?.message||text||'Reader lookup datasource failed.');
-        error.code=tool?.structuredContent?.code||nativeErrorCode[response.status];error.status=response.status;throw error;
+        error.code=tool?.structuredContent?.code||nativeErrorCode[response.status];error.status=response.status;error.providerError=tool?.structuredContent?.providerError;error.diagnostics=tool?.structuredContent?.diagnostics;throw error;
       }
       result=tool?.structuredContent;
       if(result===undefined){const text=tool?.content?.find((item)=>item.type==='text')?.text;if(text)result=JSON.parse(text);}
@@ -226,6 +226,8 @@ export class StudioAPI {
       error.status = response.status;
       error.field = payload?.field || '';
       error.violations = payload?.violations ?? [];
+      error.providerError = payload?.providerError;
+      error.diagnostics = payload?.diagnostics;
       error.requestId = requestId;
       throw error;
     }
@@ -412,6 +414,8 @@ export class StudioAPI {
       failure.status = response?.status;
       failure.field = error?.field || '';
       failure.violations = error?.violations ?? [];
+      failure.providerError = error?.providerError;
+      failure.diagnostics = error?.diagnostics;
       failure.expectedEtag = error?.expectedEtag;
       failure.currentEtag = error?.currentEtag;
       failure.requestId = requestId;

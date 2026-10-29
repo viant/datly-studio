@@ -70,7 +70,7 @@ export default function ExplorerWorkbench({getState,executeQuery,createComponent
     pages[index]={...result,offset};
     return {...tab,pages,pageIndex:index,pageSize,data:result?.data,loadingPage:false};
    }));
-  }catch(error){if(alive.current)update(source.windowId,{loadingPage:false,pageError:error.message||'Could not load results.'});}
+  }catch(error){if(alive.current)update(source.windowId,{loadingPage:false,pageError:error.message||'Could not load results.',pageProviderError:error.providerError||null});}
  };
  const page=async(source,index)=>{
   if(source.pages?.[index]){update(source.windowId,{pageIndex:index,data:source.pages[index].data,pageError:''});return;}
@@ -82,12 +82,12 @@ export default function ExplorerWorkbench({getState,executeQuery,createComponent
   if(!source.sql.trim()){setNotice('Enter SQL to run.');return;}
   if(!Number.isSafeInteger(timeoutSeconds)||timeoutSeconds<0){setNotice('Timeout must be a nonnegative whole number of seconds. Use 0 for no Studio timeout.');return;}
   const number=++sequence.current,windowId=`run-${number}`,started=performance.now();
-  const snapshot={...source,windowId,number,label:`Run ${++counts.current.run}`,kind:'execution',status:'running',timeoutSeconds,data:undefined,error:'',pageError:'',loadingPage:false,elapsed:0,pageSize:source.pageSize||50,pages:[],pageIndex:0};
+  const snapshot={...source,windowId,number,label:`Run ${++counts.current.run}`,kind:'execution',status:'running',timeoutSeconds,data:undefined,error:'',providerError:null,pageError:'',pageProviderError:null,loadingPage:false,elapsed:0,pageSize:source.pageSize||50,pages:[],pageIndex:0};
   append(snapshot);setNotice('');
   try{
    const result=await executeQuery({connectorName:snapshot.connectorName,sql:snapshot.sql,timeoutSeconds,limit:snapshot.pageSize,offset:0});
    if(alive.current)update(windowId,{status:'complete',data:result?.data,pages:[{...result,offset:0}],elapsed:performance.now()-started});
-  }catch(error){if(alive.current)update(windowId,{status:'failed',error:error.message||'Query execution failed.',elapsed:performance.now()-started});}
+  }catch(error){if(alive.current)update(windowId,{status:'failed',error:error.message||'Query execution failed.',providerError:error.providerError||null,elapsed:performance.now()-started});}
  };
  return <section className="studio-explorer-workbench" aria-label="SQL workspace">
   <div className="studio-explorer-query-header">
@@ -146,12 +146,21 @@ function QueryPanel({tab,update,run,create,addSubview,page,resizePage}) {
    {tab.loadingPage&&<Spinner size={16}/>}
    <small>Pages are fetched on demand. Use ORDER BY for consistent ordering.</small>
   </nav>}
-  {tab.pageError&&<Callout intent="danger" role="alert">{tab.pageError}</Callout>}
+  {tab.pageError&&<QueryFailure message={tab.pageError} detail={tab.pageProviderError}/>}
   <div className="studio-explorer-query-results" aria-live="polite" aria-busy={tab.loadingPage===true}>
    {tab.status==='running'?<div className="studio-explorer-query-progress" role="status"><Spinner size={20}/> Running on {tab.connectorName} · {tab.timeoutSeconds===0?'No Studio timeout':`${tab.timeoutSeconds}s timeout`}</div>:
-    tab.error?<Callout intent="danger" role="alert" title="Query failed">{tab.error}</Callout>:
+    tab.error?<QueryFailure message={tab.error} detail={tab.providerError}/>:
     execution?<ResultPreview data={tab.data}/>:details?<ResultPreview data={{columns:tab.detail?.columns||[]}}/>:
     <div className="studio-explorer-query-empty">Run SQL to open a new execution tab. Results open in a new tab with pagination; page size does not limit the database scan.</div>}
   </div>
  </>;
+}
+
+function QueryFailure({message,detail}) {
+ const fields=detail?[['Provider',detail.provider],['Code',detail.code],['Reason',detail.reason],['Location',detail.location],['SQL state',detail.sqlState]].filter(([,value])=>value):[];
+ return <Callout intent="danger" role="alert" title="Query failed">
+  <pre aria-label="Database error message" style={{whiteSpace:'pre-wrap',overflowWrap:'anywhere',fontFamily:'inherit',margin:0}}>{message}</pre>
+  {fields.length>0&&<dl aria-label="Database error details">{fields.map(([label,value])=><React.Fragment key={label}><dt>{label}</dt><dd>{value}</dd></React.Fragment>)}</dl>}
+  {detail?.truncated&&<p>The provider message exceeded the display size limit.</p>}
+ </Callout>;
 }

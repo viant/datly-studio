@@ -12,6 +12,7 @@ import (
 
 	"github.com/viant/datly-studio/internal/connectorcatalog"
 	"github.com/viant/datly-studio/internal/publisherguard"
+	"github.com/viant/datly-studio/internal/runtimevalidation"
 	"github.com/viant/datly-studio/runtime/preview"
 	"github.com/viant/datly-studio/sdk"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
@@ -21,6 +22,7 @@ import (
 	"github.com/viant/scy/auth/jwt"
 	"github.com/viant/xdatly"
 	xhandler "github.com/viant/xdatly/handler"
+	xresponse "github.com/viant/xdatly/response"
 )
 
 const defaultExecution = 60 * time.Second
@@ -122,6 +124,17 @@ func executionError(ctx context.Context, err error, timeout time.Duration) error
 			return publisherguard.PublicError(504, "The request deadline expired. The Studio SQL timeout was disabled.")
 		}
 		return publisherguard.PublicError(504, fmt.Sprintf("SQL query timed out (configured timeout: %d seconds). Increase Timeout (seconds) or narrow the query.", int(timeout/time.Second)))
+	}
+	if provider := providerExecutionError(err); provider != nil {
+		message := provider.summary()
+		return &xresponse.Error{Code: 400, Cause: errors.New(message), Payload: map[string]any{"message": message, "providerError": provider}}
+	}
+	diagnostics := runtimevalidation.Diagnostics(runtimevalidation.Wrap("contract", err))
+	if len(diagnostics) == 1 && diagnostics[0].Stage == "contract.discovery" && strings.HasPrefix(diagnostics[0].Code, "runtime_discovery_") {
+		// Only the static allowlisted runtime projection crosses the operator
+		// boundary. Never return the original error or SQL as a payload/cause.
+		message := "SQL test could not be compiled or executed"
+		return &xresponse.Error{Code: 400, Cause: errors.New(message), Payload: map[string]any{"message": message, "diagnostics": diagnostics}}
 	}
 	return publisherguard.PublicError(400, "SQL test could not be compiled or executed")
 }

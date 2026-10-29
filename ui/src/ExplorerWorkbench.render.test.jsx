@@ -99,3 +99,23 @@ test('result tabs page on the server, cache previous pages and retain execution 
  expect(calls.every(input=>input.name==='Bq'&&input.input.sql==='SELECT id FROM records ORDER BY id')).toBe(true);
  expect(screen.getAllByRole('tab').filter(tab=>tab.textContent.includes('Run '))).toHaveLength(1);
 });
+
+test.each([
+ ['BigQuery','403','accessDenied','query','',"Access Denied: Table project.dataset.records: missing bigquery.tables.getData.\nJob reason: accessDenied"],
+ ['MySQL','1146','','','42S02',"Table 'adlogs.missing_table' doesn't exist\nCheck schema ar_metadata."],
+])('Explorer renders full %s native error and structured provider details',async(provider,code,reason,location,sqlState,message)=>{
+ const user=userEvent.setup();
+ mount({execute:()=>{throw Object.assign(new Error(message),{providerError:{provider,code,reason,location,sqlState,message}});}});
+ await editSQL('SELECT advertiser_id FROM records');await user.click(screen.getByRole('button',{name:'Run SQL',exact:true}));
+ const alert=await screen.findByRole('alert');
+ expect(within(alert).getByLabelText('Database error message').textContent).toBe(message);
+ const details=within(alert).getByLabelText('Database error details');expect(details.textContent).toContain(provider);expect(details.textContent).toContain(code);
+ if(location)expect(details.textContent).toContain(location);if(sqlState)expect(details.textContent).toContain(sqlState);
+ expect(alert.textContent).not.toContain('SQL test could not be compiled or executed');
+});
+
+test('Explorer renders provider text without interpreting markup and retains safe fallback',async()=>{
+ const user=userEvent.setup();mount({execute:()=>{throw new Error('SQL test could not be compiled or executed. <img src=x onerror=alert(1)>');}});
+ await editSQL('SELECT 1');await user.click(screen.getByRole('button',{name:'Run SQL',exact:true}));
+ const alert=await screen.findByRole('alert');expect(alert.textContent).toContain('<img src=x onerror=alert(1)>');expect(alert.querySelector('img')).toBeNull();expect(within(alert).queryByLabelText('Database error details')).toBeNull();
+});

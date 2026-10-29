@@ -20,6 +20,9 @@ func contractDiagnostic(err error) (sdk.Diagnostic, bool) {
 			return d, true
 		}
 	}
+	if native, ok := column.QueryFailureDiagnostic(err); ok {
+		return typedDiscoveryDiagnostic(native)
+	}
 	for cause := err; cause != nil; cause = errors.Unwrap(cause) {
 		message := cause.Error()
 		var code, stage, field, summary, hint string
