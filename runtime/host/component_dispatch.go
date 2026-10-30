@@ -264,6 +264,13 @@ func (s *Service) componentRuntimeWithAuthority(ctx context.Context, ref Compone
 				}
 				return nil, fmt.Errorf("selected component does not declare the mapped route")
 			}
+			dependencyFingerprint, dependencyErr := s.addExactBuildDependencies(ctx, ref, build)
+			if dependencyErr != nil {
+				return nil, dependencyErr
+			}
+			if dependencyFingerprint != "" {
+				binding.ContentFingerprint = identity.ContentFingerprint([]byte(binding.ContentFingerprint + ":" + dependencyFingerprint))
+			}
 			return build, nil
 		}})
 		if err != nil {

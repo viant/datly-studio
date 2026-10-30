@@ -112,6 +112,11 @@ type Config struct {
 	// An explicit exact-ID extension takes precedence over the resolver.
 	NamespaceBuildResolver NamespaceBuildResolver `yaml:"-"`
 
+	// ExactBuildDependencyResolver supplies trusted, internal dependencies only
+	// for isolated dynamic exact-version dispatch. YAML and requests cannot set it.
+	// Namespace extensions and normal publication never use this hook.
+	ExactBuildDependencyResolver ExactBuildDependencyResolver `yaml:"-"`
+
 	// ToolCallAudit is an optional host-owned asynchronous audit logger.
 	// Nil disables capture; the host owns the sink and shutdown drain.
 	ToolCallAudit *audit.Logger `yaml:"-"`
