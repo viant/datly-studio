@@ -101,6 +101,25 @@ JOIN (SELECT ID, VENDOR_ID, STATUS FROM PRODUCT) products ON products.VENDOR_ID=
 	if !strings.Contains(string(result.Data), "Northwind") || strings.Contains(string(result.Data), "Contoso") || result.Duration <= 0 || result.Evidence.ReportID != "vendors" || result.Evidence.VersionNo != 1 || result.Evidence.SourceRevision != 1 || result.Evidence.Limit != 1 || result.Evidence.ReturnedRows != 1 || !result.Evidence.Truncated || result.Evidence.EncodedBytes != len(result.Data) {
 		t.Fatalf("preview=%+v", result)
 	}
+	t.Run("draft execution does not publish or activate the reader", func(t *testing.T) {
+		var state string
+		var publishedAt sql.NullString
+		if err := studio.QueryRowContext(ctx, `SELECT state, published_at FROM component_versions WHERE report_id='vendors' AND version_no=1`).Scan(&state, &publishedAt); err != nil {
+			t.Fatal(err)
+		}
+		if state != "draft" || publishedAt.Valid {
+			t.Fatal("preview changed the reader publication state")
+		}
+		for _, query := range []string{`SELECT COUNT(*) FROM component_publications`, `SELECT COUNT(*) FROM runtime_generations`} {
+			var count int
+			if err := studio.QueryRowContext(ctx, query).Scan(&count); err != nil {
+				t.Fatal(err)
+			}
+			if count != 0 {
+				t.Fatal("preview activated a published runtime generation")
+			}
+		}
+	})
 	t.Run("internal preview preserves native output names and visibility", func(t *testing.T) {
 		wireDQL := strings.Replace(dql, "SELECT vendors.*", `#setting($_ = $case_format('lc'))
 #setting($_ = $internal(true))
