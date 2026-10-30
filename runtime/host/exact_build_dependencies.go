@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/viant/datly/application"
+	"github.com/viant/datly/runtime"
 	"github.com/viant/datly/runtime/registry"
 	"github.com/viant/datly/spec"
 	identity "github.com/viant/forge/backend/resource"
@@ -27,6 +28,7 @@ type ExactBuildDependencyResolver func(context.Context, string, ComponentReferen
 // compiled-contract cache; the resolver runs even on a compiled-contract hit.
 type ExactBuildDependencies struct {
 	Components         []*registry.RegisteredComponent
+	RuntimeOptions     []runtime.Option
 	ContentFingerprint string
 	Shutdown           func(context.Context) error
 }
@@ -91,6 +93,7 @@ func (s *Service) addExactBuildDependencies(ctx context.Context, ref ComponentRe
 		}
 	}
 	build.Components = append(build.Components, dependencies.Components...)
+	build.RuntimeOptions = append(build.RuntimeOptions, dependencies.RuntimeOptions...)
 	shutdown := build.Shutdown
 	build.Shutdown = func(ctx context.Context) error {
 		var result error

@@ -76,10 +76,24 @@ func (s *Service) ResolveComponentBinding(ctx context.Context, ref ComponentRefe
 // and schema identity, executes native Datly authorization, then refuses source
 // drift before releasing data. It never uses the current publication manager.
 func (s *Service) ExecuteComponentJSON(ctx context.Context, ref ComponentReference, pinned windowprotocol.ComponentBinding, inputs map[string]any) (json.RawMessage, error) {
-	manager, current, err := s.componentRuntime(ctx, ref)
+	output, err := s.executeExactComponent(ctx, ref, pinned, func(ctx context.Context, manager *application.Manager, _ *exactComponentMetadata) (any, error) {
+		return executeRuntimeJSON(ctx, s.authenticated(manager), ref.Method, ref.Route, inputs)
+	}, nil)
+	if err != nil {
+		return nil, err
+	}
+	return output.(json.RawMessage), nil
+}
+
+// executeExactComponent is the common source, policy and identity fence for all
+// exact execution transports. The execution result remains private until every
+// completion check has succeeded.
+func (s *Service) executeExactComponent(ctx context.Context, ref ComponentReference, pinned windowprotocol.ComponentBinding, execute func(context.Context, *application.Manager, *exactComponentMetadata) (any, error), verify func(windowprotocol.ComponentBinding, *exactComponentMetadata) error) (any, error) {
+	metadata := &exactComponentMetadata{}
+	manager, current, err := s.componentRuntimeInspected(ctx, ref, true, metadata)
 	metadataDenied := false
 	if err != nil && errors.Is(err, authz.ErrDenied) && s.releaseController() != nil {
-		manager, current, err = s.componentRuntimeWithAuthority(ctx, ref, false)
+		manager, current, err = s.componentRuntimeInspected(ctx, ref, false, metadata)
 		metadataDenied = true
 	}
 	if err != nil {
@@ -92,6 +106,12 @@ func (s *Service) ExecuteComponentJSON(ctx context.Context, ref ComponentReferen
 	if pinned.Kind == "" || pinned.ContentFingerprint == "" {
 		return nil, fmt.Errorf("complete component pin is required")
 	}
+	if verify != nil {
+		if err := verify(current, metadata); err != nil {
+			return nil, err
+		}
+	}
+
 	var observedPolicyRevision int64
 	var releaseLease *releaseComponentLease
 	if s.config.Access != nil && s.resourceAccess != nil {
@@ -107,7 +127,7 @@ func (s *Service) ExecuteComponentJSON(ctx context.Context, ref ComponentReferen
 			}
 			lease, admissionErr := s.admitReleasedComponent(ctx, ref, pinned)
 			if admissionErr != nil {
-				return nil, err
+				return nil, admissionErr
 			}
 			releaseLease = &lease
 			ctx = context.WithValue(ctx, releaseComponentContextKey{}, lease)
@@ -132,14 +152,26 @@ func (s *Service) ExecuteComponentJSON(ctx context.Context, ref ComponentReferen
 		defer cancel()
 		ctx = bounded
 	}
-	output, err := executeRuntimeJSON(ctx, s.authenticated(manager), ref.Method, ref.Route, inputs)
+	output, err := execute(ctx, manager, metadata)
 	if err != nil {
 		return nil, err
 	}
 	// Re-resolve exactly the same revision after execution. This also detects
 	// changed SQL/resources/linked source contracts during a long reader call.
 	var fresh windowprotocol.ComponentBinding
-	if releaseLease != nil {
+	if verify != nil {
+		// Native family proof is checked on the existing completion rebuild. JSON
+		// dispatch keeps its primary-only observation path and legacy pin identity.
+		metadata := &exactComponentMetadata{}
+		verification, observed, readErr := s.componentRuntimeInspected(ctx, ref, releaseLease == nil, metadata)
+		fresh, err = observed, readErr
+		if err == nil {
+			err = verify(fresh, metadata)
+		}
+		if verification != nil {
+			err = errors.Join(err, shutdownNativeMetadata(ctx, verification.Shutdown))
+		}
+	} else if releaseLease != nil {
 		verification, observed, readErr := s.componentRuntimeWithAuthority(ctx, ref, false)
 		if verification != nil {
 			_ = verification.Shutdown(context.Background())
@@ -190,6 +222,10 @@ func (s *Service) componentRuntime(ctx context.Context, ref ComponentReference) 
 // Metadata-only construction is private to trusted startup. No request handler
 // can select it, and the resulting manager is closed before caching any bytes.
 func (s *Service) componentRuntimeWithAuthority(ctx context.Context, ref ComponentReference, authorize bool) (_ *application.Manager, _ windowprotocol.ComponentBinding, err error) {
+	return s.componentRuntimeInspected(ctx, ref, authorize, nil)
+}
+
+func (s *Service) componentRuntimeInspected(ctx context.Context, ref ComponentReference, authorize bool, metadata *exactComponentMetadata) (_ *application.Manager, _ windowprotocol.ComponentBinding, err error) {
 	if s == nil || ctx == nil || ctx.Err() != nil || s.studio == nil {
 		return nil, windowprotocol.ComponentBinding{}, fmt.Errorf("component runtime is unavailable")
 	}
@@ -232,7 +268,15 @@ func (s *Service) componentRuntimeWithAuthority(ctx context.Context, ref Compone
 		}
 		err = manager.Reload(ctx, application.Request{Revision: 1, Compile: func(ctx context.Context, seed *typecatalog.Catalog) (*application.Build, error) {
 			captured := false
+			// This callback observes only the native compiler's complete output
+			// for the single selected definition. Access contexts and hook
+			// dependencies are appended later and never become family members.
+			var family []*registry.RegisteredComponent
 			build, err := s.compileDefinitions(ctx, seed, []definition{sourceDefinition}, func(source definition, registered *registry.RegisteredComponent, resources *studiors.Loaded) error {
+				if source.reportID != ref.ID || source.versionNo != version {
+					return fmt.Errorf("exact family source identity changed")
+				}
+				family = append(family, registered)
 				if !hasComponentRoute(registered, ref) {
 					return nil
 				}
@@ -240,6 +284,9 @@ func (s *Service) componentRuntimeWithAuthority(ctx context.Context, ref Compone
 					return fmt.Errorf("component route is ambiguous")
 				}
 				captured = true
+				if metadata != nil {
+					metadata.registered = registered
+				}
 				fingerprint, hashErr := componentSchemaFingerprint(registered, ref)
 				if hashErr != nil {
 					return hashErr
@@ -264,12 +311,18 @@ func (s *Service) componentRuntimeWithAuthority(ctx context.Context, ref Compone
 				}
 				return nil, fmt.Errorf("selected component does not declare the mapped route")
 			}
+			if metadata != nil {
+				metadata.family = family
+			}
 			dependencyFingerprint, dependencyErr := s.addExactBuildDependencies(ctx, ref, build)
 			if dependencyErr != nil {
 				return nil, dependencyErr
 			}
 			if dependencyFingerprint != "" {
 				binding.ContentFingerprint = identity.ContentFingerprint([]byte(binding.ContentFingerprint + ":" + dependencyFingerprint))
+			}
+			if metadata != nil {
+				metadata.authorize = build.HTTP.Authorize
 			}
 			return build, nil
 		}})
@@ -330,6 +383,9 @@ func (s *Service) componentRuntimeWithAuthority(ctx context.Context, ref Compone
 					return nil, fmt.Errorf("linked component route is ambiguous")
 				}
 				found = true
+				if metadata != nil {
+					metadata.registered = registered
+				}
 				binding.SchemaFingerprint, err = componentSchemaFingerprint(registered, ref)
 				if err != nil {
 					return nil, err
@@ -376,6 +432,10 @@ func (s *Service) componentRuntimeWithAuthority(ctx context.Context, ref Compone
 					return previous(ctx, r, target)
 				}
 				return nil
+			}
+			if metadata != nil {
+				metadata.family = []*registry.RegisteredComponent{metadata.registered}
+				metadata.authorize = build.HTTP.Authorize
 			}
 			transferred = true
 			return build, nil

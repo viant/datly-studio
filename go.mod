@@ -13,10 +13,10 @@ require (
 	github.com/stretchr/testify v1.12.1
 	github.com/viant/bigquery v0.5.5-0.20261029162853-7bc1b92e9c95
 	github.com/viant/bindly v0.4.1-0.20261021172156-afd22f40fbb8
-	github.com/viant/datly v1.1.1-0.20261029163433-942b38b8f04f
+	github.com/viant/datly v1.1.1-0.20261029235411-e2870b979add
 	github.com/viant/jsonrpc v0.25.1-0.20261021031150-a24a3b9ae218
 	github.com/viant/mcp v0.24.1-0.20261018180156-2794488fbdb7
-	github.com/viant/mcp-protocol v0.19.2-0.20261029142405-c3e06c97f8a1
+	github.com/viant/mcp-protocol v0.19.2-0.20261029232114-446f89dc454b
 	github.com/viant/scy v0.35.1-0.20260914041206-699e6c909726
 	github.com/viant/sqlx v0.26.2-0.20261027002628-ae54e725fe65
 	github.com/viant/x v0.5.1-0.20261023202900-f9ec3e0a7de4

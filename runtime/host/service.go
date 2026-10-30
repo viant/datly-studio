@@ -208,9 +208,13 @@ func (s *Service) extendNamespaceBuild(ctx context.Context, build *application.B
 		return build, nil
 	}
 	extend := s.config.NamespaceBuildExtensions[s.config.NamespaceID]
-	if extend == nil && s.config.NamespaceBuildResolver != nil {
+	if extend == nil && (s.config.NamespaceBuildResolver != nil || s.config.NamespaceNativeBuildResolver != nil) {
 		var err error
-		extend, err = s.config.NamespaceBuildResolver(ctx, s.config.NamespaceID)
+		if s.config.NamespaceNativeBuildResolver != nil {
+			extend, err = s.config.NamespaceNativeBuildResolver(ctx, s.config.NamespaceID, s)
+		} else {
+			extend, err = s.config.NamespaceBuildResolver(ctx, s.config.NamespaceID)
+		}
 		if err != nil {
 			if build != nil && build.Shutdown != nil {
 				err = errors.Join(err, build.Shutdown(context.Background()))

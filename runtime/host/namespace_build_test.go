@@ -224,3 +224,24 @@ func TestNamespaceBuildResolverUsesCurrentIdentityAndClosesFailedBuild(t *testin
 		t.Fatal("explicit extension did not retain precedence")
 	}
 }
+
+func TestNamespaceNativeBuildResolverReceivesScopedCapability(t *testing.T) {
+	ctx := context.Background()
+	service := &Service{config: Config{NamespaceID: "owned-namespace"}}
+	build := &application.Build{}
+	called := false
+	service.config.NamespaceBuildResolver = func(context.Context, string) (NamespaceBuildExtension, error) {
+		t.Fatal("ordinary resolver displaced native assembly")
+		return nil, nil
+	}
+	service.config.NamespaceNativeBuildResolver = func(callCtx context.Context, id string, native NativeComponentRuntime) (NamespaceBuildExtension, error) {
+		if callCtx != ctx || id != "owned-namespace" || native != service {
+			t.Fatal("native assembly received another namespace capability")
+		}
+		return func(context.Context, *application.Build) error { called = true; return nil }, nil
+	}
+	actual, err := service.extendNamespaceBuild(ctx, build)
+	if err != nil || actual != build || !called {
+		t.Fatalf("native namespace assembly: %v", err)
+	}
+}

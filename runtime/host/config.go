@@ -88,6 +88,11 @@ type NamespaceBuildExtension func(context.Context, *application.Build) error
 // Returning nil leaves the namespace generic. It is never populated by YAML.
 type NamespaceBuildResolver func(context.Context, string) (NamespaceBuildExtension, error)
 
+// NamespaceNativeBuildResolver optionally supplies the namespace's exact native
+// component capability to trusted host assembly. It takes precedence over the
+// ordinary resolver; explicit NamespaceBuildExtensions remain authoritative.
+type NamespaceNativeBuildResolver func(context.Context, string, NativeComponentRuntime) (NamespaceBuildExtension, error)
+
 type Config struct {
 	MCPToolNames MCPToolNames `yaml:"MCPToolNames"`
 	// CodecFactory is a trusted embedding-host binding; it cannot be set by YAML or requests.
@@ -110,7 +115,8 @@ type Config struct {
 	// never for authoring preview or isolated exact-version dispatch.
 	NamespaceBuildExtensions map[string]NamespaceBuildExtension `yaml:"-"`
 	// An explicit exact-ID extension takes precedence over the resolver.
-	NamespaceBuildResolver NamespaceBuildResolver `yaml:"-"`
+	NamespaceBuildResolver       NamespaceBuildResolver       `yaml:"-"`
+	NamespaceNativeBuildResolver NamespaceNativeBuildResolver `yaml:"-"`
 
 	// ExactBuildDependencyResolver supplies trusted, internal dependencies only
 	// for isolated dynamic exact-version dispatch. YAML and requests cannot set it.

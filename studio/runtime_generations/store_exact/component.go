@@ -1,5 +1,7 @@
 // Package store_exact is a server-only native Datly reader for one validated
-// component version. It never follows the current publication alias.
+// component version. Successful SDK validation preserves the draft lifecycle;
+// the reader accepts that explicit version only with its persisted validation
+// timestamp and valid compile status. It never follows the publication alias.
 package store_exact
 
 import (

@@ -8,7 +8,8 @@ JOIN component_versions v ON v.report_id = r.id AND v.version_no = $VersionNo
 JOIN connectors c ON c.name = r.default_connector_name
 WHERE r.id = $ReportID
   AND v.compile_status = 'valid'
-  AND v.state IN ('published', 'validated')
+  AND (v.state IN ('published', 'validated')
+       OR (v.state = 'draft' AND v.validated_at IS NOT NULL))
   AND r.deleted_at IS NULL AND c.deleted_at IS NULL
   AND ($NamespaceID = '' OR EXISTS (SELECT 1 FROM namespaces n
     WHERE n.namespace_id=$NamespaceID AND n.owner_id=r.owner_id AND n.name=r.namespace
