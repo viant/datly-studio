@@ -1521,6 +1521,8 @@ github.com/viant/sqlparser v0.13.1-0.20261020184305-eeeefdc54c15 h1:OK9dW75TsBBP
 github.com/viant/sqlparser v0.13.1-0.20261020184305-eeeefdc54c15/go.mod h1:2QRGiGZYk2/pjhORGG1zLVQ9JO+bXFhqIVi31mkCRPg=
 github.com/viant/sqlparser v0.13.1-0.20261021204353-1c20a82bbb29 h1:D2jXx7vkI5hNMZEMP9ZXFhmeE2e1fovWEwzqM2+qO9k=
 github.com/viant/sqlparser v0.13.1-0.20261021204353-1c20a82bbb29/go.mod h1:2QRGiGZYk2/pjhORGG1zLVQ9JO+bXFhqIVi31mkCRPg=
+github.com/viant/sqlparser v0.13.2-0.20261030130653-1d6f5c59d3f8 h1:w+KXQKz+O5kcX6HHRCFDJUflYDj/amGUOleylb9uosM=
+github.com/viant/sqlparser v0.13.2-0.20261030130653-1d6f5c59d3f8/go.mod h1:2QRGiGZYk2/pjhORGG1zLVQ9JO+bXFhqIVi31mkCRPg=
 github.com/viant/sqlx v0.26.1-0.20261013061633-ba8bc02ca651 h1:1ivKroIIZuDr3jC030Smx94VFktdhyXl2QjLpXnaOO4=
 github.com/viant/sqlx v0.26.1-0.20261013061633-ba8bc02ca651/go.mod h1:/qyxibjy9VpDiYZwHVwSNHnPXI4476LqYtDty8V0Rg4=
 github.com/viant/sqlx v0.26.1-0.20261017073006-8e503eb1429a h1:+H9tzdtI7qRDqdDXM4mOoNQZlhd2zZwScyJQWKS7m8o=

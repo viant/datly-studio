@@ -118,7 +118,7 @@ require (
 	github.com/viant/govalidator v0.3.4-0.20260913213120-027a9dd54d73 // indirect
 	github.com/viant/igo v0.2.0 // indirect
 	github.com/viant/parsly v0.3.3 // indirect
-	github.com/viant/sqlparser v0.13.1-0.20261021204353-1c20a82bbb29 // indirect
+	github.com/viant/sqlparser v0.13.2-0.20261030130653-1d6f5c59d3f8 // indirect
 	github.com/viant/structology v0.10.2-0.20261028223423-51b95943c499 // indirect
 	github.com/viant/structql v0.5.5-0.20261012183420-6a47e96ff5b5 // indirect
 	github.com/viant/tagly v0.4.2-0.20261028223500-81e046a19ef9
