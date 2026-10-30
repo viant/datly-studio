@@ -43,3 +43,40 @@ func TestTypedSourceUsesOneReleasePathForDifferentKinds(t *testing.T) {
 		})
 	}
 }
+
+func TestSourceAvailabilityUsesOptionalHookWithoutLoadingPayload(t *testing.T) {
+	ref := artifactcohort.RootRef{URI: "skill://example/guide", Kind: "skill", Version: 1}
+	checks, reads := 0, 0
+	source := Source[map[string]any]{
+		Select: func(root artifactcohort.RootRef) bool { return root.URI == ref.URI },
+		Check:  func(context.Context, artifactcohort.RootRef) error { checks++; return artifactcohort.ErrDenied },
+		Read: func(context.Context, artifactcohort.RootRef) (map[string]any, error) {
+			reads++
+			return map[string]any{"text": "Example"}, nil
+		},
+	}
+	if !source.Owns(ref) || source.Owns(artifactcohort.RootRef{URI: "skill://other/guide"}) {
+		t.Fatal("source ownership mismatch")
+	}
+	if err := source.Available(context.Background(), ref); !errors.Is(err, artifactcohort.ErrDenied) {
+		t.Fatalf("availability denial lost: %v", err)
+	}
+	if checks != 1 || reads != 0 {
+		t.Fatal("availability loaded the payload")
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if err := source.Available(ctx, ref); !errors.Is(err, context.Canceled) {
+		t.Fatalf("cancellation lost: %v", err)
+	}
+	if checks != 1 {
+		t.Fatal("canceled availability invoked hook")
+	}
+	source.Check = nil
+	if err := source.Available(context.Background(), ref); err != nil {
+		t.Fatal(err)
+	}
+	if reads != 1 {
+		t.Fatal("default availability did not use existing artifact loader")
+	}
+}
