@@ -4,12 +4,14 @@ package snapshot
 
 // Input is the generated input scaffold for snapshot.
 type Input struct {
-	ScopeId string    `parameter:"ScopeId,kind=query,in=scopeId,dataType=string,required=true" predicate:"equal,r,scope_id"`
-	Name    string    `parameter:"Name,kind=query,in=name,dataType=string,required=true" predicate:"equal,r,name"`
-	Has     *InputHas `json:"-" setMarker:"true" sqlx:"-" typeName:"InputHas"`
+	ScopeId    string    `parameter:"ScopeId,kind=query,in=scopeId,dataType=string,required=true" predicate:"equal,r,scope_id"`
+	Name       string    `parameter:"Name,kind=query,in=name,dataType=string,required=false" predicate:"equal,r,name"`
+	ActiveOnly bool      `parameter:"ActiveOnly,kind=query,in=activeOnly,dataType=bool,required=false" predicate:"is_not_null,r,active_bundle_hash"`
+	Has        *InputHas `json:"-" setMarker:"true" sqlx:"-" typeName:"InputHas"`
 }
 
 type InputHas struct {
-	ScopeId bool
-	Name    bool
+	ScopeId    bool
+	Name       bool
+	ActiveOnly bool
 }

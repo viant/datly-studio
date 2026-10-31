@@ -33,6 +33,30 @@ pending or failed attempts never become active selections. Scope, policy,
 authorization, and artifact projection remain the controller and trusted host's
 responsibility. Internal component fields are not browser authority.
 
+`ActiveSelections` uses the existing snapshot graph for all active channels in
+the verified scope. It omits the optional channel name and supplies the native
+`is_not_null` predicate for the active bundle pointer. Datly batches bundle,
+binding and pending-operation relations across parents using their complete
+scope/hash or scope/operation keys. The controller consumes this graph directly;
+manifest selection, source availability and policy-head fences still apply.
+The adapter validates and decodes related values; it performs no additional
+queries, joins, row filtering or long-lived caching.
+
+To qualify the generated graph and adapter on MySQL, point the following test at
+an **empty database in an exclusively owned disposable instance**:
+
+```sh
+STUDIO_RELEASE_SNAPSHOT_MYSQL_DSN='root@tcp(127.0.0.1:PORT)/EMPTY_DATABASE?parseTime=true' \
+  GOWORK=off go test ./studio/artifact_release/snapshot \
+  -run '^TestNativeSnapshotGraphMySQL$' -count=1 -v
+```
+
+The test refuses a populated schema, checks cross-scope child isolation and SQL
+exclusion of inactive channels, and compares the instance's SELECT counters for
+one and two parents. Exclusive instance ownership is necessary for those counters.
+It also invokes the production native-store adapter with valid release metadata.
+This component test is not DSPUI browser or publisher qualification.
+
 The synthetic tests in `studio/artifact_release/stage` invoke the generated
 components through `standalone.Server`, including zero-revision CAS, foreign
 scope, pending reservations, immutable binding reuse, applied replay, failed

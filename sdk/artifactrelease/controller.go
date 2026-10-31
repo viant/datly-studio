@@ -65,12 +65,7 @@ type Controller struct {
 // ActiveSelection is an immutable committed release pointer. It is still not
 // an actor decision: callers must evaluate the channel's named policies using
 // the verified facts and preserve the selected source's row/entity guards.
-type ActiveSelection struct {
-	Channel      contract.Channel
-	Bundle       contract.Bundle
-	Bindings     []releasevalue.ComponentBinding
-	Dependencies []authz.NamedDependency
-}
+type ActiveSelection = releasevalue.ActiveSelection
 
 type ActiveSnapshot struct {
 	ManifestHash string
@@ -89,6 +84,32 @@ func (c *Controller) ActiveSnapshot(ctx context.Context) (ActiveSnapshot, error)
 		manifest, err := c.config.Publisher.Snapshot()
 		if err != nil {
 			return err
+		}
+		if graph, ok := c.config.Store.(interface {
+			ActiveSelections(context.Context) ([]releasevalue.ActiveSelection, error)
+		}); ok {
+			selections, err := graph.ActiveSelections(ctx)
+			if err != nil {
+				return err
+			}
+			out.ManifestHash = manifest.Hash
+			for _, selected := range selections {
+				if !manifestSelectsChannel(manifest, selected.Channel, selected.Bundle, c.projectionTenant()) {
+					continue
+				}
+				available := true
+				for _, root := range selected.Bundle.Roots {
+					if c.config.AvailableRoot(ctx, root) != nil {
+						available = false
+						break
+					}
+				}
+				if !available || len(selected.Dependencies) == 0 || c.config.Fence(ctx, selected.Dependencies) != nil {
+					continue
+				}
+				out.Selections = append(out.Selections, selected)
+			}
+			return nil
 		}
 		channels, err := c.config.Store.ListChannels(ctx)
 		if err != nil {

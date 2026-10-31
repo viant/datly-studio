@@ -23,3 +23,14 @@ func (input *Input) SetName(value string) {
 	}
 	input.Has.Name = true
 }
+
+func (input *Input) SetActiveOnly(value bool) {
+	if input == nil {
+		return
+	}
+	input.ActiveOnly = value
+	if input.Has == nil {
+		input.Has = &InputHas{}
+	}
+	input.Has.ActiveOnly = true
+}
