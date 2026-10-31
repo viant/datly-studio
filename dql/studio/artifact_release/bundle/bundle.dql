@@ -9,7 +9,8 @@
 #define($_ = $ScopeId<string>(query/scopeId).Required().WithPredicate(0,'equal','r','scope_id'))
 #define($_ = $BundleHash<string>(query/bundleHash).Required().WithPredicate(0,'equal','r','bundle_hash'))
 #define($_ = $Data<[]*StoredBundle>(output/view))
-SELECT bundle.*, set_limit(bundle,1), binding.*,type(bundle,'StoredBundle'),type(binding,'BundleBinding')
+SELECT bundle.*, set_limit(bundle,1), binding.*,type(bundle,'StoredBundle'),type(binding,'BundleBinding'),
+       optional(bundle.scope_id), optional(bundle.tenant_id), optional(bundle.account_id), optional(bundle.workspace_id), optional(bundle.namespace), optional(bundle.bundle_hash), optional(bundle.bundle_json), optional(bundle.created_at), optional(bundle.created_by), optional(bundle.updated_at), optional(bundle.updated_by), optional(binding.scope_id), optional(binding.bundle_hash), optional(binding.bindings_json), optional(binding.bindings_hash), optional(binding.created_at), optional(binding.created_by), optional(binding.updated_at), optional(binding.updated_by)
 FROM (${embed:sql/root.sql}) bundle
 LEFT JOIN (SELECT * FROM artifact_release_bundle_bindings) binding ON binding.scope_id=bundle.scope_id AND binding.bundle_hash=bundle.bundle_hash AND 1=1
 WHERE 1=1

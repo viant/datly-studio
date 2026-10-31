@@ -9,6 +9,7 @@
 #define($_ = $ScopeId<string>(query/scopeId).Required().WithPredicate(0,'equal','i','scope_id'))
 #define($_ = $OperationId<string>(query/operationId).Required().WithPredicate(0,'equal','i','operation_id'))
 #define($_ = $Data<[]*ReleaseOperation>(output/view))
-SELECT intent.*,type(intent,'ReleaseOperation'),CAST(intent.expected_revision AS int64),CAST(intent.target_revision AS int64),set_limit(intent,1)
+SELECT intent.*,type(intent,'ReleaseOperation'),CAST(intent.expected_revision AS int64),CAST(intent.target_revision AS int64),set_limit(intent,1),
+       optional(intent.operation_id), optional(intent.scope_id), optional(intent.channel_name), optional(intent.target_bundle_hash), optional(intent.next_channel_json), optional(intent.status), optional(intent.created_at), optional(intent.created_by), optional(intent.updated_at), optional(intent.updated_by)
 FROM (${embed:sql/read.sql}) intent
 WHERE 1=1

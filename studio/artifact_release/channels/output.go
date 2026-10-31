@@ -4,5 +4,5 @@ package channels
 
 // Output is the generated output scaffold for channels.
 type Output struct {
-	Data []*ReleaseChannel `json:"data" parameter:"Data,kind=output,in=view,dataType=[]*github.com/viant/datly-studio/studio/artifact_release/channels.ReleaseChannel" sql:"uri=studio_artifact_release_channels_channels:sql/read.sql" view:"channels,type=ReleaseChannel,table=artifact_release_channels,auxiliary=true,selectorNoLimit=true"`
+	Data []*ReleaseChannel `json:"data" parameter:"Data,kind=output,in=view,dataType=[]*github.com/viant/datly-studio/studio/artifact_release/channels.ReleaseChannel" sql:"uri=studio_artifact_release_channels_channels:sql/read.sql" view:"channels,type=ReleaseChannel,table=artifact_release_channels,selectorNoLimit=true"`
 }

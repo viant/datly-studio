@@ -4,5 +4,5 @@ package snapshot
 
 // Output is the generated output scaffold for snapshot.
 type Output struct {
-	Data []*ReleaseChannel `json:"data" parameter:"Data,kind=output,in=view,dataType=[]*github.com/viant/datly-studio/studio/artifact_release/snapshot.ReleaseChannel" sql:"uri=studio_artifact_release_snapshot_snapshot:sql/root.sql" view:"snapshot,type=ReleaseChannel,table=artifact_release_channels,limit=1,auxiliary=true"`
+	Data []*ReleaseChannel `json:"data" parameter:"Data,kind=output,in=view,dataType=[]*github.com/viant/datly-studio/studio/artifact_release/snapshot.ReleaseChannel" sql:"uri=studio_artifact_release_snapshot_snapshot:sql/root.sql" view:"snapshot,type=ReleaseChannel,table=artifact_release_channels,limit=1"`
 }

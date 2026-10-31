@@ -4,5 +4,5 @@ package intent
 
 // Output is the generated output scaffold for intent.
 type Output struct {
-	Data []*ReleaseOperation `json:"data" parameter:"Data,kind=output,in=view,dataType=[]*github.com/viant/datly-studio/studio/artifact_release/intent.ReleaseOperation" sql:"uri=studio_artifact_release_intent_intent:sql/read.sql" view:"intent,type=ReleaseOperation,table=artifact_release_operations,limit=1,auxiliary=true"`
+	Data []*ReleaseOperation `json:"data" parameter:"Data,kind=output,in=view,dataType=[]*github.com/viant/datly-studio/studio/artifact_release/intent.ReleaseOperation" sql:"uri=studio_artifact_release_intent_intent:sql/read.sql" view:"intent,type=ReleaseOperation,table=artifact_release_operations,limit=1"`
 }

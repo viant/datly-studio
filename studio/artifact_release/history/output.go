@@ -4,5 +4,5 @@ package history
 
 // Output is the generated output scaffold for history.
 type Output struct {
-	Data []*ReleaseOperation `json:"data" parameter:"Data,kind=output,in=view,dataType=[]*github.com/viant/datly-studio/studio/artifact_release/history.ReleaseOperation" sql:"uri=studio_artifact_release_history_history:sql/read.sql" view:"history,type=ReleaseOperation,table=artifact_release_operations,auxiliary=true,selectorNoLimit=true"`
+	Data []*ReleaseOperation `json:"data" parameter:"Data,kind=output,in=view,dataType=[]*github.com/viant/datly-studio/studio/artifact_release/history.ReleaseOperation" sql:"uri=studio_artifact_release_history_history:sql/read.sql" view:"history,type=ReleaseOperation,table=artifact_release_operations,selectorNoLimit=true"`
 }

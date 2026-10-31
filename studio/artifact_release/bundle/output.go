@@ -4,5 +4,5 @@ package bundle
 
 // Output is the generated output scaffold for bundle.
 type Output struct {
-	Data []*StoredBundle `json:"data" parameter:"Data,kind=output,in=view,dataType=[]*github.com/viant/datly-studio/studio/artifact_release/bundle.StoredBundle" sql:"uri=studio_artifact_release_bundle_bundle:sql/root.sql" view:"bundle,type=StoredBundle,table=artifact_release_bundles,limit=1,auxiliary=true"`
+	Data []*StoredBundle `json:"data" parameter:"Data,kind=output,in=view,dataType=[]*github.com/viant/datly-studio/studio/artifact_release/bundle.StoredBundle" sql:"uri=studio_artifact_release_bundle_bundle:sql/root.sql" view:"bundle,type=StoredBundle,table=artifact_release_bundles,limit=1"`
 }

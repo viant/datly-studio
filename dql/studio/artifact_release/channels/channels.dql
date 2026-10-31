@@ -8,6 +8,7 @@
 #setting($_ = $sql_dest('records','sql/read.sql'))
 #define($_ = $ScopeId<string>(query/scopeId).Required().WithPredicate(0,'equal','r','scope_id'))
 #define($_ = $Data<[]*ReleaseChannel>(output/view))
-SELECT records.*,type(records,'ReleaseChannel'),CAST(records.revision AS int64),set_limit(records,0)
+SELECT records.*,type(records,'ReleaseChannel'),CAST(records.revision AS int64),set_limit(records,0),
+       optional(records.scope_id), optional(records.tenant_id), optional(records.account_id), optional(records.workspace_id), optional(records.namespace), optional(records.name), optional(records.description), optional(records.policy_refs_json), optional(records.created_at), optional(records.created_by), optional(records.updated_at), optional(records.updated_by)
 FROM (${embed:sql/read.sql}) records
 WHERE 1=1

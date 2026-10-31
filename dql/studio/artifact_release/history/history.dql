@@ -9,6 +9,7 @@
 #define($_ = $ScopeId<string>(query/scopeId).Required().WithPredicate(0,'equal','r','scope_id'))
 #define($_ = $Name<string>(query/name).Required().WithPredicate(0,'equal','r','channel_name'))
 #define($_ = $Data<[]*ReleaseOperation>(output/view))
-SELECT records.*,type(records,'ReleaseOperation'),CAST(records.expected_revision AS int64),CAST(records.target_revision AS int64),set_limit(records,0)
+SELECT records.*,type(records,'ReleaseOperation'),CAST(records.expected_revision AS int64),CAST(records.target_revision AS int64),set_limit(records,0),
+       optional(records.operation_id), optional(records.scope_id), optional(records.channel_name), optional(records.target_bundle_hash), optional(records.next_channel_json), optional(records.status), optional(records.created_at), optional(records.created_by), optional(records.updated_at), optional(records.updated_by)
 FROM (${embed:sql/read.sql}) records
 WHERE 1=1
