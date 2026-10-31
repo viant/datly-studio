@@ -375,7 +375,7 @@ pipeline:
     action: mcp/runner:call
     url: $alphastatus.StructuredContent.host.mcpUrl
     bearerTokenSecret: $ownerToken
-    arguments: {}
+    arguments: $AsMap('{}')
     allowToolError: false
     '@name': $alphastatus.StructuredContent.readers[0].mcpExposures[0].name
   alphaInvokeSucceeded:
@@ -387,7 +387,7 @@ pipeline:
     action: mcp/runner:call
     url: $betastatus.StructuredContent.host.mcpUrl
     bearerTokenSecret: $ownerToken
-    arguments: {}
+    arguments: $AsMap('{}')
     allowToolError: false
     '@name': $betastatus.StructuredContent.readers[0].mcpExposures[0].name
   betaInvokeSucceeded:

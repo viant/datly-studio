@@ -34,7 +34,7 @@ pipeline:
     actual: $alphaDefaults.StructuredContent
     expect:
       canEdit: false
-      settings: {}
+      settings: $AsMap('{}')
   beta:
     action: mcp/runner:call
     url: $nativeMCP
@@ -70,7 +70,7 @@ pipeline:
     actual: $betaDefaults.StructuredContent
     expect:
       canEdit: false
-      settings: {}
+      settings: $AsMap('{}')
   adminConfiguresPackageListAndLimits:
     action: webdriver:run
     sessionID: localhost:4449
@@ -174,7 +174,7 @@ pipeline:
       name: options.alpha
       input:
         etag: $settingsAfterUI.StructuredContent.etag
-        settings: {}
+        settings: $AsMap('{}')
         removeKeys:
           - security
     allowToolError: true
@@ -232,7 +232,7 @@ pipeline:
       name: options.alpha
       input:
         etag: $settingsAfterUI.StructuredContent.etag
-        settings: {}
+        settings: $AsMap('{}')
         removeKeys:
           - security
     allowToolError: true
@@ -440,7 +440,7 @@ pipeline:
       reportId: $component.StructuredContent.id
       versionNo: $import.StructuredContent.version.versionNo
       input:
-        input: {}
+        input: $AsMap('{}')
         limit: 10
     allowToolError: true
   budgetDenialVerified:
@@ -498,7 +498,7 @@ pipeline:
       reportId: $component.StructuredContent.id
       versionNo: $import.StructuredContent.version.versionNo
       input:
-        input: {}
+        input: $AsMap('{}')
         limit: 10
     allowToolError: true
   ordinaryPreviewVerified:

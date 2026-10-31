@@ -26,6 +26,9 @@ pipeline:
     '@name': studio.sdk.namespaces.get
     arguments:
       name: $caseName
+  selectPredicatePackages:
+    action: run
+    request: '@../common/select-predicate-packages-ui'
   createComponentInUI:
     action: webdriver:run
     sessionID: localhost:4445
@@ -37,25 +40,19 @@ pipeline:
     - expect(page.getByLabel("Current namespace")).toBeEnabled(15000)
     - page.getByLabel("Current namespace").selectOption("${namespace.StructuredContent.namespaceId}")
     - expect(page.getByLabel("Current namespace")).toHaveValue("${namespace.StructuredContent.namespaceId}",15000)
-    - page.locator(".studio-nav-security").click()
-    - page.getByRole("tab", "Authorization predicates").click()
-    - page.getByRole("button", "Discovered predicates").click()
-    - page.locator("[data-forge-container-id='security-type-query'] input").fill("OrderPresence")
-    - expect(page.locator("xpath://div[@data-forge-container-id='security-discovered-types']//tr[td[normalize-space(.)='OrderPresence']]/td[2]")).toHaveText("github.com/viant/datly-studio/examples/predicates",15000)
-    - page.locator("xpath://div[contains(@class,'bp6-dialog-footer-actions')]//button[normalize-space(.)='Close']").click()
     - page.locator(".studio-nav-connectors").click()
     - page.getByRole("button", "New connector").click()
     - page.getByLabel("Name").fill("${caseName}")
     - page.getByLabel("Driver").click()
     - page.getByRole("menuitem", "SQLite").click()
-    - page.getByLabel("DSN (blank keeps existing)").fill("${runDir}/consumer.db")
+    - page.getByLabel("DSN").fill("${runDir}/consumer.db")
     - page.getByRole("button", "Save").click()
     - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
     - page.getByLabel("Find connector, driver, or owner").fill("${caseName}")
     - page.getByRole("button", "Search").click()
     - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr")).toHaveCount(1,15000)
     - page.getByRole("button", "Test").click()
-    - expect(page.getByRole("alert")).toHaveText("passed",15000)
+    - expect(page.getByRole("alert")).toContainText("Connection passed.",15000)
     - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr[1]/td[5]")).toHaveText("passed",15000)
     - page.getByRole("button", "Activate or disable").click()
     - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr[1]/td[3]")).toHaveText("active",15000)
@@ -69,7 +66,7 @@ pipeline:
     - page.getByLabel("Component title").fill("${caseTitle}")
     - page.getByLabel("Slug").fill("${caseSlug}")
     - page.getByLabel("Root view identifier").fill("record")
-    - page.getByRole("button", "Create component").click()
+    - page.locator("xpath://div[@role='dialog']//button[normalize-space(.)='Create component']").click()
     - expect(page.getByRole("button", "Edit component")).toBeVisible(15000)
   components:
     action: mcp/runner:call
@@ -139,6 +136,20 @@ pipeline:
       - page.getByRole("button", "Validate revision").click()
       - expect(page.getByText("Runtime contract is ready")).toBeVisible(15000)
       - page.locator("xpath://div[contains(@class,'bp6-dialog-footer-actions')]//button[normalize-space(.)='Close']").click()
+  discoverTypesInUI:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/${caseName}
+    commands:
+    - page.locator(".studio-nav-security").click()
+    - page.getByRole("tab", "Authorization predicates").click()
+    - page.getByRole("button", "Discovered predicates").click()
+    - page.locator("[data-forge-container-id='security-type-query'] input").fill("OrderPresence")
+    - expect(page.locator("xpath://div[@data-forge-container-id='security-discovered-types']//tr[td[normalize-space(.)='OrderPresence']]/td[2]")).toHaveText("github.com/viant/datly-studio/examples/predicates",15000)
+    - page.locator("xpath://div[contains(@class,'bp6-dialog-footer-actions')]//button[normalize-space(.)='Close']").click()
   policyInUI:
     action: webdriver:run
     sessionID: localhost:4445
@@ -149,6 +160,8 @@ pipeline:
     commands: $policyCommands
   closeEditor:
     action: webdriver:run
+    failureArtifacts:
+      directory: ${runDir}/artifacts
     sessionID: localhost:4445
     autoStart: false
     browser: chrome
@@ -241,7 +254,7 @@ pipeline:
     url: $endpoint.StructuredContent.host.mcpUrl
     bearerTokenSecret: ${runDir}/${allowedUser}.token
     '@name': ${caseTool}
-    arguments: {}
+    arguments: $AsMap('{}')
   returnedData:
     action: validator:assert
     normalizeKVPairs: true
@@ -274,7 +287,7 @@ pipeline:
     url: $endpoint.StructuredContent.host.mcpUrl
     bearerTokenSecret: ${runDir}/${deniedUser}.token
     '@name': ${caseTool}
-    arguments: {}
+    arguments: $AsMap('{}')
     allowProtocolError: true
     allowToolError: true
   directDenied:

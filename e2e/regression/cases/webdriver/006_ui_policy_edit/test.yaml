@@ -91,7 +91,7 @@ pipeline:
     url: $endpointAfterEdit.StructuredContent.host.mcpUrl
     bearerTokenSecret: ${runDir}/ops-reader.token
     '@name': $caseTool
-    arguments: {}
+    arguments: $AsMap('{}')
   newlyAllowedData:
     action: validator:assert
     normalizeKVPairs: true
@@ -120,7 +120,7 @@ pipeline:
     url: $endpointAfterEdit.StructuredContent.host.mcpUrl
     bearerTokenSecret: ${runDir}/sales-reader.token
     '@name': $caseTool
-    arguments: {}
+    arguments: $AsMap('{}')
     allowProtocolError: true
     allowToolError: true
   revokedExecution:

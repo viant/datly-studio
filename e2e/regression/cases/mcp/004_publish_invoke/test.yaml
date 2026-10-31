@@ -207,7 +207,7 @@ pipeline:
   invoke:
     action: mcp/runner:call
     url: $status.StructuredContent.host.mcpUrl
-    arguments: {}
+    arguments: $AsMap('{}')
     bearerTokenSecret: $ownerToken
     '@name': $status.StructuredContent.readers[0].mcpExposures[0].name
     allowToolError: true
@@ -229,7 +229,7 @@ pipeline:
     arguments:
       namespaceId: $namespace.StructuredContent.namespaceId
       reportId: $component.StructuredContent.id
-      input: {}
+      input: $AsMap('{}')
     allowToolError: true
     '@name': studio.sdk.publications.events.list
   eventsSucceeded:

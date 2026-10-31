@@ -1,0 +1,30 @@
+# Select linked custom predicate packages through the namespace administrator UI.
+pipeline:
+  selectPackages:
+    action: webdriver:run
+    sessionID: localhost:4445
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/${caseName}
+    commands:
+      - page.goto("${browserURL}/e2e/login")
+      - page.getByLabel("Test identity").selectOption("namespace-admin")
+      - page.getByRole("button", "Sign in").click()
+      - page.locator(".studio-nav-namespaces").click()
+      - page.getByLabel("Find namespace").fill("${caseName}")
+      - page.getByRole("button", "Search").click()
+      - expect(page.locator("xpath://div[@data-forge-container-id='namespace-list']//tbody/tr")).toHaveCount(1,15000)
+      - page.getByRole("button", "Security and resource limits").click()
+      - page.getByRole("button", "Add package").click()
+      - page.getByLabel("Package path 1").fill("github.com/viant/datly-studio/e2e/predicates")
+      - page.getByRole("button", "Add package").click()
+      - page.getByLabel("Package path 2").fill("github.com/viant/datly-studio/examples/predicates")
+      - page.getByRole("button", "Save limits and security").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+      - page.getByRole("button", "Security and resource limits").click()
+      - expect(page.getByLabel("Package path 1")).toHaveValue("github.com/viant/datly-studio/e2e/predicates",15000)
+      - expect(page.getByLabel("Package path 2")).toHaveValue("github.com/viant/datly-studio/examples/predicates",15000)
+      - page.goto("${browserURL}/e2e/login")
+      - page.getByLabel("Test identity").selectOption("owner")
+      - page.getByRole("button", "Sign in").click()

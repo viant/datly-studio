@@ -19,3 +19,12 @@
 - Do not replace each SQL statement with a separate reader and assemble the result in Go. Extend an existing graph when the facts share a lifecycle, scope, and authorization boundary; use separate components only for genuinely independent contracts.
 - Standalone readers already perform reads only. Auxiliary `(TABLE)` markers express nonmutating dependencies within writer graphs; preserve those roles when transcribing writers. Executable database SQL must not contain that authoring marker.
 - Test fixtures may set up and inspect their isolated database, but assertions must exercise the real generated components, transaction behavior, and authorization boundaries. No new production bypass or allowlist is permitted for a migration.
+
+## Release qualification
+
+- During troubleshooting, use Endly MCP exact case selectors to run the failed case and every subsequent case. Preserve the session and reuse built artifacts when source is unchanged. Do not restart the complete suite after each fix; run it only after the entire remaining suffix passes.
+
+- Before releasing, run the default `endly` command from `e2e/` with no task or case selectors. The native MySQL qualification and every discovered MCP, permission, and browser case must execute and pass.
+- A subset, skipped case, zero-assertion operation, or partial "Passed" count is not release acceptance. Record the exact source revision, Endly revision, terminal status, executed case IDs, and failures/skips.
+- Fix the application when it violates its contract; update fixtures or expectations only when the intended contract proves them obsolete. Never weaken authorization or skip failing cases to obtain a release.
+- E2E services must use owned fixtures. Never stop unrelated containers/processes or reuse a production datastore; fail on port conflicts rather than taking over another instance.

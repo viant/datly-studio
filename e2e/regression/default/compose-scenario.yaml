@@ -42,14 +42,14 @@ pipeline:
     - page.getByLabel("Name").fill("${caseName}")
     - page.getByLabel("Driver").click()
     - page.getByRole("menuitem", "SQLite").click()
-    - page.getByLabel("DSN (blank keeps existing)").fill("${runDir}/consumer.db")
+    - page.getByLabel("DSN").fill("${runDir}/consumer.db")
     - page.getByRole("button", "Save").click()
     - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
     - page.getByLabel("Find connector, driver, or owner").fill("${caseName}")
     - page.getByRole("button", "Search").click()
     - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr")).toHaveCount(1,15000)
     - page.getByRole("button", "Test").click()
-    - expect(page.getByRole("alert")).toHaveText("passed",15000)
+    - expect(page.getByRole("alert")).toContainText("Connection passed.",15000)
     - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr[1]/td[5]")).toHaveText("passed",15000)
     - page.getByRole("button", "Activate or disable").click()
     - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr[1]/td[3]")).toHaveText("active",15000)
@@ -63,7 +63,7 @@ pipeline:
     - page.getByLabel("Component title").fill("${caseTitle}")
     - page.getByLabel("Slug").fill("${caseSlug}")
     - page.getByLabel("Root view identifier").fill("record")
-    - page.getByRole("button", "Create component").click()
+    - page.locator("xpath://div[@role='dialog']//button[normalize-space(.)='Create component']").click()
     - expect(page.getByRole("button", "Edit component")).toBeVisible(15000)
   components:
     action: mcp/runner:call
@@ -176,16 +176,17 @@ pipeline:
       - page.getByLabel("Name").fill("ui_compose_dictionary")
       - page.getByLabel("Driver").click()
       - page.getByRole("menuitem", "SQLite").click()
-      - page.getByLabel("DSN (blank keeps existing)").fill("${runDir}/dictionary.db")
+      - page.getByLabel("DSN").fill("${runDir}/dictionary.db")
       - page.getByRole("button", "Save").click()
       - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
       - page.getByLabel("Find connector, driver, or owner").fill("ui_compose_dictionary")
       - page.getByRole("button", "Search").click()
       - page.locator("xpath://tr[.//*[normalize-space(.)='ui_compose_dictionary']]//button[@aria-label='Test']").click()
-      - expect(page.getByRole("alert")).toHaveText("passed",15000)
+      - expect(page.getByRole("alert")).toContainText("Connection passed.",15000)
       - page.locator("xpath://tr[.//*[normalize-space(.)='ui_compose_dictionary']]//button[@aria-label='Activate or disable']").click()
       - expect(page.locator("xpath://tr[.//*[normalize-space(.)='ui_compose_dictionary']]/td[3]")).toHaveText("active",15000)
       - page.locator(".studio-nav-schema").click()
+      - page.getByRole("button", "Refresh").click()
       - page.getByLabel("Connector").click()
       - page.getByRole("menuitem", "ui_compose_dictionary").click()
       - page.getByLabel("Find tables or views").fill("ui_compose_regions")
@@ -256,6 +257,8 @@ pipeline:
       - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
   closeEditor:
     action: webdriver:run
+    failureArtifacts:
+      directory: ${runDir}/artifacts
     sessionID: localhost:4445
     autoStart: false
     browser: chrome
@@ -375,7 +378,7 @@ pipeline:
     url: $endpoint.StructuredContent.host.mcpUrl
     bearerTokenSecret: ${runDir}/${allowedUser}.token
     '@name': ${caseTool}
-    arguments: {}
+    arguments: $AsMap('{}')
   returnedData:
     action: validator:assert
     normalizeKVPairs: true
@@ -411,7 +414,7 @@ pipeline:
     url: $endpoint.StructuredContent.host.mcpUrl
     bearerTokenSecret: ${runDir}/${deniedUser}.token
     '@name': ${caseTool}
-    arguments: {}
+    arguments: $AsMap('{}')
     allowProtocolError: true
     allowToolError: true
   directDenied:
@@ -431,7 +434,7 @@ pipeline:
         region: true
       measures:
         total: true
-      filters: {}
+      filters: $AsMap('{}')
   byRegionRows:
     action: validator:assert
     normalizeKVPairs: true
@@ -463,7 +466,7 @@ pipeline:
         channel: true
       measures:
         total: true
-      filters: {}
+      filters: $AsMap('{}')
   byChannelRows:
     action: validator:assert
     normalizeKVPairs: true
@@ -514,7 +517,7 @@ pipeline:
         region: true
       measures:
         total: true
-      filters: {}
+      filters: $AsMap('{}')
   byRegionAgainRows:
     action: validator:assert
     normalizeKVPairs: true
@@ -636,9 +639,9 @@ pipeline:
     '@name': ${caseTool}CubeCompose
     arguments:
       cubes:
-        - filters: {}
-        - filters: {}
-        - filters: {}
+        - filters: $AsMap('{}')
+        - filters: $AsMap('{}')
+        - filters: $AsMap('{}')
       sql: SELECT t1.region, t1.total FROM $CubeSQL1 AS t1
     allowToolError: true
     allowProtocolError: true
@@ -655,7 +658,7 @@ pipeline:
     '@name': ${caseTool}CubeCompose
     arguments:
       cubes:
-        - filters: {}
+        - filters: $AsMap('{}')
       sql: SELECT region, amount FROM ui_compose_records
     allowToolError: true
     allowProtocolError: true
@@ -672,7 +675,7 @@ pipeline:
     '@name': ${caseTool}CubeCompose
     arguments:
       cubes:
-        - filters: {}
+        - filters: $AsMap('{}')
       sql: SELECT t1.region, t1.total FROM $CubeSQL1 AS t1
     allowToolError: true
     allowProtocolError: true

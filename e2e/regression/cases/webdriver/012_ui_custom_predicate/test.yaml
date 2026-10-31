@@ -7,6 +7,7 @@ init:
   deniedUser: no-role
   policyCommands:
     - page.locator(".studio-nav-security").click()
+    - page.getByRole("tab", "Permissions").click()
     - page.getByLabel("Find a resource").fill("${caseTitle}")
     - page.getByRole("button", "Search resources").click()
     - page.locator("xpath://tr[.//*[normalize-space(.)='${caseTitle}']]//button[@aria-label='Open permissions']").click()

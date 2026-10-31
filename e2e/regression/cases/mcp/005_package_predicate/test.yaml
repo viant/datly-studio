@@ -75,6 +75,9 @@ pipeline:
     actual: $namespace
     expect:
       IsError: false
+  selectPredicatePackage:
+    action: run
+    request: '@../../../common/select-predicate-package'
   component:
     action: mcp/runner:call
     url: $nativeMCP
@@ -133,7 +136,7 @@ pipeline:
     action: mcp/runner:call
     url: $nativeMCP
     bearerTokenSecret: $ownerToken
-    arguments: {}
+    arguments: $AsMap('{}')
     allowToolError: true
     '@name': studio.sdk.authorization_predicates.types
   typesSucceeded:

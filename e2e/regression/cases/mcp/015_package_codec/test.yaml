@@ -75,6 +75,9 @@ pipeline:
     actual: $namespace
     expect:
       IsError: false
+  selectPredicatePackage:
+    action: run
+    request: '@../../../common/select-predicate-package'
   component:
     action: mcp/runner:call
     url: $nativeMCP
@@ -211,7 +214,7 @@ pipeline:
     url: $nativeMCP
     bearerTokenSecret: $ownerToken
     '@name': studio.sdk.authorization_predicates.types
-    arguments: {}
+    arguments: $AsMap('{}')
   predicateTypesSucceeded:
     action: validator:assert
     normalizeKVPairs: true
@@ -351,7 +354,7 @@ pipeline:
     arguments:
       namespaceId: $namespace.StructuredContent.namespaceId
       reportId: $component.StructuredContent.id
-      input: {}
+      input: $AsMap('{}')
     allowToolError: true
     '@name': studio.sdk.publications.events.list
   eventsSucceeded:

@@ -1,0 +1,39 @@
+# Test prerequisite: a linked external predicate is opt-in per namespace.
+pipeline:
+  settings:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: ${runDir}/namespace-admin.token
+    '@name': studio.sdk.namespaces.settings_get
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      name: $namespace.StructuredContent.name
+  settingsValid:
+    action: validator:assert
+    actual: $settings.IsError
+    expect: false
+  selectPackage:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: ${runDir}/namespace-admin.token
+    '@name': studio.sdk.namespaces.settings_update
+    arguments:
+      namespaceId: $namespace.StructuredContent.namespaceId
+      name: $namespace.StructuredContent.name
+      input:
+        etag: $settings.StructuredContent.etag
+        settings:
+          security:
+            predicatePackages:
+              - github.com/viant/datly-studio/e2e/predicates
+  selectionValid:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $selectPackage
+    expect:
+      IsError: false
+      StructuredContent:
+        settings:
+          security:
+            predicatePackages:
+              - github.com/viant/datly-studio/e2e/predicates

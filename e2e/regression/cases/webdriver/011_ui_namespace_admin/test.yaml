@@ -117,7 +117,7 @@ pipeline:
     url: $endpointAfterEdit.StructuredContent.host.mcpUrl
     bearerTokenSecret: ${runDir}/namespace-admin.token
     '@name': $caseTool
-    arguments: {}
+    arguments: $AsMap('{}')
     allowProtocolError: true
     allowToolError: true
   adminExecutionDenied:
@@ -132,7 +132,7 @@ pipeline:
     url: $endpointAfterEdit.StructuredContent.host.mcpUrl
     bearerTokenSecret: ${runDir}/no-exposure.token
     '@name': $caseTool
-    arguments: {}
+    arguments: $AsMap('{}')
   readerStillAllowed:
     action: validator:assert
     normalizeKVPairs: true

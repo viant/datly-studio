@@ -44,14 +44,14 @@ pipeline:
       - page.getByLabel("Name").fill("${caseName}")
       - page.getByLabel("Driver").click()
       - page.getByRole("menuitem", "SQLite").click()
-      - page.getByLabel("DSN (blank keeps existing)").fill("${runDir}/consumer.db")
+      - page.getByLabel("DSN").fill("${runDir}/consumer.db")
       - page.getByRole("button", "Save").click()
       - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
       - page.getByLabel("Find connector, driver, or owner").fill("${caseName}")
       - page.getByRole("button", "Search").click()
       - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr")).toHaveCount(1,15000)
       - page.getByRole("button", "Test").click()
-      - expect(page.getByRole("alert")).toHaveText("passed",15000)
+      - expect(page.getByRole("alert")).toContainText("Connection passed.",15000)
       - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr[1]/td[5]")).toHaveText("passed",15000)
       - page.getByRole("button", "Activate or disable").click()
       - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr[1]/td[3]")).toHaveText("active",15000)
@@ -76,7 +76,7 @@ pipeline:
     call:
       method: ExecuteScript
       parameters:
-        - const byId=id=>document.querySelector('[data-forge-container-id="'+id+'"]');const box=id=>byId(id).getBoundingClientRect();const frame=box('schema-layout'),left=box('schema-explorer'),right=box('schema-detail'),list=box('schema-object-list'),controls=box('schema-selectors');const query=byId('schema-selectors').querySelector('input'),find=byId('schema-selectors').querySelector('button[aria-label="Search tables"]'),header=byId('schema-object-list').querySelector('thead th'),first=byId('schema-object-list').querySelector('tbody tr');const bg=getComputedStyle(header).backgroundColor.replace(/\s/g,'');return{explorerWidthBounded:left.width>=260&&left.width<=340,detailBesideExplorer:right.left>=left.right-1,viewportBounded:frame.bottom<=innerHeight+1,listHasUsableHeight:list.height>=120,bindingsReserveNoSpace:box('schema-bindings').height===0,searchBelowQuery:find.getBoundingClientRect().top>=query.getBoundingClientRect().bottom-1,queryFillsExplorer:query.getBoundingClientRect().width>=controls.width*.9,headerOpaque:bg!=='transparent'&&bg!=='rgba(0,0,0,0)',firstRowBelowHeader:first.getBoundingClientRect().top>=header.getBoundingClientRect().bottom-1,noPageHorizontalOverflow:document.documentElement.scrollWidth<=innerWidth+1};
+        - const byId=id=>document.querySelector('[data-forge-container-id="'+id+'"]');const box=id=>byId(id).getBoundingClientRect();const frame=box('schema-layout'),left=box('schema-explorer'),right=box('schema-sql-workbench'),list=box('schema-object-list'),controls=box('schema-selectors');const query=byId('schema-selectors').querySelector('input'),find=byId('schema-selectors').querySelector('button[aria-label="Search tables"]'),header=byId('schema-object-list').querySelector('thead th'),first=byId('schema-object-list').querySelector('tbody tr');const bg=getComputedStyle(header).backgroundColor.replace(/\s/g,'');return{explorerWidthBounded:left.width>=260&&left.width<=340,detailBesideExplorer:right.left>=left.right-1,viewportBounded:frame.bottom<=innerHeight+1,listHasUsableHeight:list.height>=120,bindingsReserveNoSpace:box('schema-bindings').height===0,searchBelowQuery:find.getBoundingClientRect().top>=query.getBoundingClientRect().bottom-1,queryFillsExplorer:query.getBoundingClientRect().width>=controls.width*.9,headerOpaque:bg!=='transparent'&&bg!=='rgba(0,0,0,0)',firstRowBelowHeader:first.getBoundingClientRect().top>=header.getBoundingClientRect().bottom-1,noPageHorizontalOverflow:document.documentElement.scrollWidth<=innerWidth+1};
         - - 0
   layoutPreserved:
     action: validator:assert
@@ -100,7 +100,7 @@ pipeline:
     failureArtifacts: *a1
     commands:
       - page.locator("xpath://tr[.//*[normalize-space(.)='customers']]//button[@aria-label='Inspect table']").click()
-      - expect(page.getByRole("heading", "customers")).toBeVisible(15000)
-      - page.getByRole("button", "Test SQL").click()
-      - expect(page.getByRole("heading", "SQL test result")).toBeVisible(15000)
+      - expect(page.getByRole("tab", "customers ui_schema_layout")).toBeVisible(15000)
+      - page.getByRole("button", "Run SQL").click()
+      - expect(page.getByRole("tab", "Run 1 ui_schema_layout Done")).toBeVisible(15000)
       - expect(page.locator("xpath://section[contains(@class,'forge-nested-collection')]//td[normalize-space(.)='Ada']")).toBeVisible(15000)

@@ -118,7 +118,7 @@ pipeline:
     bearerTokenSecret: $ownerToken
     arguments:
       name: connectorcase
-      input: {}
+      input: $AsMap('{}')
     allowToolError: true
     '@name': studio.sdk.connectors.schemas
   schemasSucceeded:
@@ -133,7 +133,7 @@ pipeline:
     bearerTokenSecret: $ownerToken
     arguments:
       name: connectorcase
-      input: {}
+      input: $AsMap('{}')
     allowToolError: true
     '@name': studio.sdk.connectors.tables
   tablesSucceeded:

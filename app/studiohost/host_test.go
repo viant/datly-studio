@@ -29,6 +29,7 @@ import (
 	"github.com/viant/datly-studio/app/studioapi"
 	"github.com/viant/datly-studio/app/studiohost"
 	runtimehost "github.com/viant/datly-studio/runtime/host"
+	"github.com/viant/datly-studio/schema"
 	nativeauth "github.com/viant/datly/runtime/auth"
 	mcpschema "github.com/viant/mcp-protocol/schema"
 	"github.com/viant/scy/auth/jwt"
@@ -50,11 +51,18 @@ func TestOneProcessHost(t *testing.T) {
 	}
 	dir := t.TempDir()
 	dsn := filepath.Join(dir, "fresh-store", "storage.db")
+	if err := os.MkdirAll(filepath.Dir(dsn), 0700); err != nil {
+		t.Fatal(err)
+	}
 	db, err := sql.Open("sqlite", "file:"+dsn+"?_pragma=busy_timeout(5000)")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer db.Close()
+	// Provision only the disposable test catalog; production startup does not migrate schemas.
+	if err := schema.ApplySQLite(context.Background(), db, "studio"); err != nil {
+		t.Fatal(err)
+	}
 	private, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		t.Fatal(err)

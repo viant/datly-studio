@@ -76,7 +76,7 @@ pipeline:
     url: $runtimeAfterOverride.StructuredContent.host.mcpUrl
     bearerTokenSecret: ${runDir}/${allowedUser}.token
     '@name': $caseTool
-    arguments: {}
+    arguments: $AsMap('{}')
     allowProtocolError: true
     allowToolError: true
   overrideWins:

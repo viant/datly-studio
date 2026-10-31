@@ -22,6 +22,19 @@ else:
 if not browser:
     raise SystemExit('Chrome is required for Endly WebDriver acceptance tests')
 version = re.search(r'\d+\.\d+\.\d+\.\d+', subprocess.check_output([browser, '--version'], text=True)).group()
+# A verified driver from this Chrome build is reusable without network discovery.
+root.mkdir(parents=True, exist_ok=True)
+destination = root / 'chromedriver'
+stamp = root / 'version.txt'
+if destination.is_file() and stamp.is_file():
+    try:
+        cached = re.search(r'\d+\.\d+\.\d+\.\d+', subprocess.check_output(
+            [str(destination), '--version'], text=True, timeout=10)).group()
+        if cached == stamp.read_text().strip() and cached.split('.')[:3] == version.split('.')[:3]:
+            print('Chrome ' + version + '; ChromeDriver ' + cached + ' (verified cache)')
+            raise SystemExit(0)
+    except (OSError, subprocess.SubprocessError, AttributeError):
+        pass
 endpoint = 'https://googlechromelabs.github.io/chrome-for-testing/latest-patch-versions-per-build-with-downloads.json'
 with urllib.request.urlopen(endpoint, timeout=30) as response:
     builds = json.load(response)['builds']
@@ -31,16 +44,13 @@ if not release:
 artifact = next((a for a in release['downloads']['chromedriver'] if a['platform'] == target), None)
 if not artifact:
     raise SystemExit('No official ChromeDriver artifact for ' + target)
-root.mkdir(parents=True, exist_ok=True)
-destination = root / 'chromedriver'
-stamp = root / 'version.txt'
-if not destination.exists() or not stamp.exists() or stamp.read_text() != release['version']:
-    with urllib.request.urlopen(artifact['url'], timeout=60) as response:
-        archive = zipfile.ZipFile(io.BytesIO(response.read()))
-    member = next(n for n in archive.namelist() if n.endswith('/chromedriver'))
-    temporary = root / 'chromedriver.download'
-    temporary.write_bytes(archive.read(member))
-    temporary.chmod(0o755)
-    os.replace(temporary, destination)
-    stamp.write_text(release['version'])
+# A cache hit already returned above; replace missing, mismatched or broken drivers.
+with urllib.request.urlopen(artifact['url'], timeout=60) as response:
+    archive = zipfile.ZipFile(io.BytesIO(response.read()))
+member = next(n for n in archive.namelist() if n.endswith('/chromedriver'))
+temporary = root / 'chromedriver.download'
+temporary.write_bytes(archive.read(member))
+temporary.chmod(0o755)
+os.replace(temporary, destination)
+stamp.write_text(release['version'])
 print('Chrome ' + version + '; ChromeDriver ' + release['version'])

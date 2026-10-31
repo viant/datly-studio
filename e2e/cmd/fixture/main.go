@@ -157,8 +157,8 @@ func serve(root, dir string) {
 	check(studiocatalog.ConfigureManagementNavigation(nil, fixtureURL(18780), "studio-e2e"))
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
+	check(os.Setenv("STUDIO_NAMESPACE_CREATE_ROLES", "ROLE_ADMIN,NAMESPACE_ADMIN"))
 	if resourceCheckFixture {
-		check(os.Setenv("STUDIO_NAMESPACE_CREATE_ROLES", "ROLE_ADMIN,NAMESPACE_ADMIN"))
 		check(startResourceCheckBigQuery(ctx))
 	}
 	check(os.Setenv("STUDIO_ACCESS_POLICY_EDITOR_ROLES", "ROLE_ADMIN"))

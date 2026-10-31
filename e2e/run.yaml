@@ -12,6 +12,14 @@ init:
   viewerToken: ${runDir}/viewer.token
   outsiderToken: ${runDir}/outsider.token
 pipeline:
+  nativeReleaseMySQL:
+    action: exec:run
+    target: $target
+    strictCompletion: true
+    checkError: true
+    timeoutMs: 600000
+    commands:
+      - python3 ${appPath}/e2e/scripts/verify_release_mysql.py
   unifiedHost:
     action: run
     request: '@local/unified'

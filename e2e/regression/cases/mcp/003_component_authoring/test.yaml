@@ -213,7 +213,7 @@ pipeline:
     arguments:
       namespaceId: $namespace.StructuredContent.namespaceId
       reportId: $component.StructuredContent.id
-      input: {}
+      input: $AsMap('{}')
     allowToolError: true
     '@name': studio.sdk.versions.list
   versionListSucceeded:
