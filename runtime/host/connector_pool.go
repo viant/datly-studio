@@ -11,6 +11,7 @@ import (
 	"github.com/viant/datly/authoring/readerbuilder"
 	"github.com/viant/datly/bootstrap/connector"
 	"github.com/viant/datly/constant"
+	"github.com/viant/datly/spec"
 	dsql "github.com/viant/datly/sql"
 	"github.com/viant/datly/transcribe/column"
 )
@@ -105,6 +106,30 @@ func referencedRuntimeConnectors(ctx context.Context, definition definition, ava
 	required := map[string]bool{definition.connector: true}
 	inspection := readerbuilder.New(readerbuilder.Config{Const: constants, Scope: definition.scope, Name: definition.name, AvailableConnectors: available}).Apply(ctx, readerbuilder.Request{DQL: definition.dql, Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
 	if inspection.Structure != nil {
+		// Independent input views retain their connector in the native component
+		// graph rather than an outer use_connector function.
+		if component := inspection.Structure.Component; component != nil {
+			views := append([]*spec.View{component.RootView}, component.Views...)
+			seen := map[*spec.View]bool{}
+			for len(views) > 0 {
+				view := views[0]
+				views = views[1:]
+				if view == nil || seen[view] {
+					continue
+				}
+				seen[view] = true
+				if source := view.RuntimeSource(); source != nil && source.Bindings != nil {
+					if name := strings.TrimSpace(source.Bindings.Connector); name != "" {
+						required[name] = true
+					}
+				}
+				for _, relation := range view.Relations {
+					if relation != nil {
+						views = append(views, relation.View)
+					}
+				}
+			}
+		}
 		for _, function := range inspection.Structure.Functions {
 			if strings.EqualFold(function.Name, "use_connector") && len(function.Args) > 1 {
 				required[strings.Trim(strings.TrimSpace(function.Args[1]), "'\"")] = true

@@ -71,3 +71,35 @@ func TestFailedCandidateDoesNotCloseActiveGenerationPool(t *testing.T) {
 		t.Fatalf("candidate failure closed active pool: %v", err)
 	}
 }
+
+func TestIndependentInputViewConnectorIsOpened(t *testing.T) {
+	for _, kind := range []string{"view", "data_view"} {
+		t.Run(kind, func(t *testing.T) {
+			ctx := t.Context()
+			reader := definition{reportID: "reader", scope: "example.com/reports", name: "reader", connector: "main", dql: fmt.Sprintf(`#setting($_ = $route('/records', 'GET'))
+#package('example.com/reports')
+#define($_ = $Context<?>(%s/context).Cardinality('One').WithConnector('lookup') /* SELECT name FROM settings */)
+SELECT records.*, use_connector(records, 'main') FROM (SELECT id FROM records) records`, kind)}
+			active := map[string]connectorDefinition{
+				"main":   {name: "main", driver: "sqlite", dsn: "file:" + filepath.Join(t.TempDir(), "main.db")},
+				"lookup": {name: "lookup", driver: "sqlite", dsn: "file:" + filepath.Join(t.TempDir(), "lookup.db")},
+				"unused": {name: "unused", driver: "missing-driver", dsn: "must-not-open"},
+			}
+			pool, err := openRuntimeConnectorSet(ctx, []definition{reader}, active, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer pool.Close()
+			if len(pool.connections) != 2 || pool.connections["main"] == nil || pool.connections["lookup"] == nil {
+				t.Fatalf("independent view connector omitted: %v", pool.connections)
+			}
+			if err := pool.connections["lookup"].PingContext(ctx); err != nil {
+				t.Fatal(err)
+			}
+			delete(active, "lookup")
+			if candidate, err := openRuntimeConnectorSet(ctx, []definition{reader}, active, nil); err == nil || candidate != nil {
+				t.Fatal("missing explicitly declared input-view connector was accepted")
+			}
+		})
+	}
+}
