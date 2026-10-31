@@ -8,6 +8,7 @@ import (
 	"github.com/viant/bindly/locator"
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/readercomponent"
+	control "github.com/viant/datly-studio/studio/tool_call_audit/control_read"
 	read "github.com/viant/datly-studio/studio/tool_call_audit/store_read"
 	write "github.com/viant/datly-studio/studio/tool_call_audit/store_write"
 	"github.com/viant/datly/bootstrap"
@@ -26,8 +27,8 @@ import (
 )
 
 type Store struct {
-	runtime     *druntime.Runtime
-	read, write dexec.ComponentTarget
+	runtime              *druntime.Runtime
+	read, write, control dexec.ComponentTarget
 }
 
 func New(db *sql.DB) (*Store, error) {
@@ -38,11 +39,18 @@ func New(db *sql.DB) (*Store, error) {
 	if err := resources.Register(write.AuditDatlyResourceNamespace, write.AuditDatlyResources); err != nil {
 		return nil, err
 	}
+	if err := resources.Register(control.ControlDatlyResourceNamespace, control.ControlDatlyResources); err != nil {
+		return nil, err
+	}
 	connector := &dsql.SQLComponent{DB: db}
 	if err := connector.RegisterConnector("studio", db); err != nil {
 		return nil, err
 	}
 	reader, readTarget, err := readercomponent.Compile(reflect.TypeFor[read.AuditComponent](), "store_read", reflect.TypeFor[read.Input](), reflect.TypeFor[read.Output](), resources, connector)
+	if err != nil {
+		return nil, err
+	}
+	controlReader, controlTarget, err := readercomponent.Compile(reflect.TypeFor[control.ControlComponent](), "control_read", reflect.TypeFor[control.Input](), reflect.TypeFor[control.Output](), resources, connector)
 	if err != nil {
 		return nil, err
 	}
@@ -74,11 +82,11 @@ func New(db *sql.DB) (*Store, error) {
 	}
 	writer := &registry.RegisteredComponent{Component: artifact.Component, Input: artifact.Input, Output: artifact.Output, OutputType: reflect.TypeFor[write.Output](), Handler: handler, Providers: providers, DataSource: dml.Source{DB: db}}
 	writer.Capabilities.Connector = connector
-	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{reader, writer}, druntime.WithResources(resources))
+	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{reader, writer, controlReader}, druntime.WithResources(resources))
 	if err != nil {
 		return nil, err
 	}
-	return &Store{runtime: runtime, read: readTarget, write: dexec.ComponentTarget{Component: component.Key, Route: spec.RouteRef{Method: "POST", Path: "/_studio/tool-call-audit/write"}}}, nil
+	return &Store{runtime: runtime, read: readTarget, control: controlTarget, write: dexec.ComponentTarget{Component: component.Key, Route: spec.RouteRef{Method: "POST", Path: "/_studio/tool-call-audit/write"}}}, nil
 }
 func (s *Store) Read(ctx context.Context, input *read.Input) ([]*read.Event, error) {
 	value, err := s.runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: s.read, Input: input})
@@ -111,4 +119,26 @@ func (s *Store) Close(ctx context.Context) error {
 		return nil
 	}
 	return s.runtime.Shutdown(ctx)
+}
+
+func (s *Store) Control(ctx context.Context, namespaceID, componentID, toolName string) (*control.AuditScope, error) {
+	input := &control.Input{}
+	input.SetNamespaceId(namespaceID)
+	input.SetComponentId(componentID)
+	input.SetToolName(toolName)
+	value, err := s.runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: s.control, Input: input})
+	if err != nil {
+		return nil, err
+	}
+	output, ok := value.(*control.Output)
+	if !ok {
+		return nil, fmt.Errorf("audit control reader returned %T", value)
+	}
+	if len(output.Data) == 0 {
+		return nil, sql.ErrNoRows
+	}
+	if len(output.Data) != 1 || output.Data[0] == nil {
+		return nil, fmt.Errorf("ambiguous audit scope")
+	}
+	return output.Data[0], nil
 }

@@ -17,6 +17,7 @@ import (
 	"github.com/viant/authz/oauth"
 	"github.com/viant/datly-studio/internal/auditstore"
 	"github.com/viant/datly-studio/internal/namespaceroles"
+	controlread "github.com/viant/datly-studio/studio/tool_call_audit/control_read"
 	storedread "github.com/viant/datly-studio/studio/tool_call_audit/store_read"
 )
 
@@ -123,41 +124,30 @@ func (s *Service) Policy(r *http.Request, tool string, identity *Identity) bool 
 	}
 	ctx, cancel := context.WithTimeout(r.Context(), time.Second)
 	defer cancel()
-	var enabled bool
-	if err := s.DB.QueryRowContext(ctx, "SELECT audit_enabled FROM namespaces WHERE namespace_id=? AND deleted_at IS NULL", namespace).Scan(&enabled); err != nil {
+	scope, err := s.control(ctx, Scope{NamespaceID: namespace, ToolName: tool})
+	if err != nil {
 		return true
 	}
-	if !enabled {
+	if !scope.AuditEnabled {
 		return false
 	}
-	component, componentEnabled, err := s.toolComponent(ctx, namespace, tool)
-	if err == nil {
-		identity.ComponentID = component
-		if !componentEnabled {
-			return false
+	for _, component := range scope.Components {
+		if component.MatchesTool {
+			identity.ComponentID = stringValue(component.Id)
+			if !component.AuditEnabled {
+				return false
+			}
 		}
 	}
-	var toolEnabled bool
-	if err := s.DB.QueryRowContext(ctx, "SELECT enabled FROM tool_audit_settings WHERE namespace_id=? AND tool_name=?", namespace, tool).Scan(&toolEnabled); err == nil {
-		return toolEnabled
-	}
-	return true
+	return scope.ToolSetting == nil || scope.ToolSetting.Enabled
 }
 
-// The tool inventory is taken from the active publication, including Datly's
-// derived cube names only when those exposures are enabled.
-func (s *Service) toolComponent(ctx context.Context, namespace, tool string) (string, bool, error) {
-	var id string
-	var enabled bool
-	err := s.DB.QueryRowContext(ctx, `SELECT c.id,c.audit_enabled FROM components c
- JOIN namespaces n ON n.owner_id=c.owner_id AND n.name=c.namespace
- JOIN component_publications p ON p.report_id=c.id AND p.active_generation IS NOT NULL
- JOIN component_mcp_exposures e ON e.report_id=c.id AND e.version_no=p.active_version_no
- LEFT JOIN component_cube_configs cube ON cube.report_id=e.report_id AND cube.version_no=e.version_no
- WHERE n.namespace_id=? AND c.deleted_at IS NULL AND e.enabled=TRUE AND e.kind='tool'
- AND (e.name=? OR (cube.cube_enabled=TRUE AND ?=CONCAT(e.name,'Cube')) OR (cube.compose_enabled=TRUE AND ?=CONCAT(e.name,'CubeCompose')))
- LIMIT 1`, namespace, tool, tool, tool).Scan(&id, &enabled)
-	return id, enabled, err
+func (s *Service) control(ctx context.Context, scope Scope) (*controlread.AuditScope, error) {
+	s.queryOnce.Do(func() { s.queryStore, s.queryErr = auditstore.New(s.DB) })
+	if s.queryErr != nil {
+		return nil, s.queryErr
+	}
+	return s.queryStore.Control(ctx, scope.NamespaceID, scope.ComponentID, scope.ToolName)
 }
 
 func (s *Service) setting(ctx context.Context, scope Scope, facts authz.Facts) (Setting, error) {
@@ -165,82 +155,78 @@ func (s *Service) setting(ctx context.Context, scope Scope, facts authz.Facts) (
 	if scope.NamespaceID == "" || len(scope.ToolName) > 255 || len(scope.ComponentID) > 64 {
 		return result, ErrInvalid
 	}
-	var owner, roles, visibility string
-	var namespaceEnabled bool
-	err := s.DB.QueryRowContext(ctx, `SELECT owner_id,allowed_roles_json,visibility,audit_enabled FROM namespaces WHERE namespace_id=? AND deleted_at IS NULL AND status='active'`, scope.NamespaceID).Scan(&owner, &roles, &visibility, &namespaceEnabled)
+	data, err := s.control(ctx, scope)
 	if errors.Is(err, sql.ErrNoRows) {
 		return result, ErrForbidden
 	}
 	if err != nil {
 		return result, err
 	}
+	if stringValue(data.Status) != "active" {
+		return result, ErrForbidden
+	}
+	roles := ""
+	if data.AllowedRolesJson != nil {
+		roles = string(*data.AllowedRolesJson)
+	}
 	grants, err := namespaceroles.Decode(&roles)
 	if err != nil {
 		return result, ErrForbidden
 	}
-	result.CanManage = facts.Subject == owner || namespaceroles.Matches(grants.Manage, facts.Roles)
-	visible := result.CanManage || visibility == "public" || namespaceroles.Matches(grants.View, facts.Roles)
-	result.Enabled = namespaceEnabled
-	result.Effective = namespaceEnabled
-	component := scope.ComponentID
+	result.CanManage = facts.Subject == stringValue(data.OwnerId) || namespaceroles.Matches(grants.Manage, facts.Roles)
+	visible := result.CanManage || stringValue(data.Visibility) == "public" || namespaceroles.Matches(grants.View, facts.Roles)
+	result.Enabled = data.AuditEnabled
+	result.Effective = data.AuditEnabled
+	componentID := scope.ComponentID
 	if scope.ToolName != "" {
-		discovered, _, err := s.toolComponent(ctx, scope.NamespaceID, scope.ToolName)
-		if err != nil {
-			// Administrative tools have namespace-wide settings controlled by its manager.
+		var matched *controlread.AuditComponent
+		for _, component := range data.Components {
+			if component.MatchesTool {
+				if matched != nil {
+					return result, ErrForbidden
+				}
+				matched = component
+			}
+		}
+		if matched == nil {
 			if !strings.HasPrefix(scope.ToolName, "studio.sdk.") || !result.CanManage {
 				return result, ErrForbidden
 			}
 		} else {
-			if component != "" && component != discovered {
+			if componentID != "" && componentID != stringValue(matched.Id) {
 				return result, ErrInvalid
 			}
-			component = discovered
+			componentID = stringValue(matched.Id)
 		}
 	}
-	if component != "" {
-		var componentOwner string
-		var enabled bool
-		err = s.DB.QueryRowContext(ctx, `SELECT c.owner_id,c.audit_enabled FROM components c JOIN namespaces n ON n.owner_id=c.owner_id AND n.name=c.namespace WHERE c.id=? AND n.namespace_id=? AND c.deleted_at IS NULL`, component, scope.NamespaceID).Scan(&componentOwner, &enabled)
-		if err != nil {
+	if componentID != "" {
+		var selected *controlread.AuditComponent
+		for _, component := range data.Components {
+			if stringValue(component.Id) == componentID {
+				selected = component
+				break
+			}
+		}
+		if selected == nil {
 			return result, ErrForbidden
 		}
-		result.ComponentID = component
-		result.CanManage = result.CanManage || componentOwner == facts.Subject
-		if !result.CanManage {
-			rows, err := s.DB.QueryContext(ctx, `SELECT subject_type,subject_id FROM component_acl WHERE report_id=? AND (can_edit=TRUE OR can_publish=TRUE)`, component)
-			if err != nil {
-				return result, err
-			}
-			for rows.Next() {
-				var kind, id string
-				if err = rows.Scan(&kind, &id); err != nil {
-					rows.Close()
-					return result, err
-				}
-				if kind == "user" && id == facts.Subject || kind == "role" && namespaceroles.Matches([]string{id}, facts.Roles) {
-					result.CanManage = true
-				}
-			}
-			err = rows.Err()
-			rows.Close()
-			if err != nil {
-				return result, err
+		result.ComponentID = componentID
+		result.CanManage = result.CanManage || stringValue(selected.OwnerId) == facts.Subject
+		for _, grant := range selected.Grants {
+			kind, id := stringValue(grant.SubjectType), stringValue(grant.SubjectId)
+			if kind == "user" && id == facts.Subject || kind == "role" && namespaceroles.Matches([]string{id}, facts.Roles) {
+				result.CanManage = true
 			}
 		}
-		result.Enabled = enabled
-		result.Effective = namespaceEnabled && enabled
+		result.Enabled = selected.AuditEnabled
+		result.Effective = result.Effective && selected.AuditEnabled
 	}
 	if !visible && !result.CanManage {
 		return result, ErrForbidden
 	}
 	if scope.ToolName != "" {
-		toolEnabled := true
-		err = s.DB.QueryRowContext(ctx, `SELECT enabled FROM tool_audit_settings WHERE namespace_id=? AND tool_name=?`, scope.NamespaceID, scope.ToolName).Scan(&toolEnabled)
-		if err != nil && !errors.Is(err, sql.ErrNoRows) {
-			return result, err
-		}
-		result.Enabled = toolEnabled
-		result.Effective = result.Effective && toolEnabled
+		result.Enabled = data.ToolSetting == nil || data.ToolSetting.Enabled
+		result.Effective = result.Effective && result.Enabled
 	}
 	return result, nil
 }

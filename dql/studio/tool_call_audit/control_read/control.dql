@@ -1,0 +1,23 @@
+#package('studio/tool_call_audit/control_read')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/tool-call-audit/control', 'GET'))
+#setting($_ = $internal(true))
+#setting($_ = $connector('studio'))
+
+#define($_ = $NamespaceId<string>(query/namespaceId).Required())
+#define($_ = $ComponentId<string>(query/componentId).Required())
+#define($_ = $ToolName<string>(query/toolName).Required())
+#define($_ = $Data<[]*AuditScope>(output/view))
+
+SELECT scope.*, CAST(scope.audit_enabled AS bool), type(scope,'AuditScope'), set_limit(scope,1),
+       component.*, CAST(component.matches_tool AS bool), CAST(component.audit_enabled AS bool), type(component,'AuditComponent','Components'), set_limit(component,0),
+       grant.*, type(grant,'AuditGrant','Grants'), set_limit(grant,0),
+       setting.*, CAST(setting.enabled AS bool), type(setting,'ToolSetting','ToolSetting'), set_limit(setting,1)
+FROM (${embed:sql/scope.sql}) scope
+LEFT JOIN (${embed:sql/components.sql}) component ON component.namespace_id=scope.namespace_id
+LEFT JOIN (SELECT report_id, subject_type, subject_id FROM component_acl WHERE can_edit=TRUE OR can_publish=TRUE) grant ON grant.report_id=component.id
+LEFT JOIN (SELECT namespace_id,tool_name,enabled FROM tool_audit_settings WHERE tool_name=$ToolName) setting ON setting.namespace_id=scope.namespace_id AND 1=1
+WHERE 1=1

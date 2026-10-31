@@ -1,0 +1,1 @@
+SELECT * FROM (SELECT namespace_id,tool_name,enabled FROM tool_audit_settings WHERE tool_name=$ToolName) setting
