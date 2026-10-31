@@ -7,9 +7,10 @@ import (
 	"testing"
 
 	"github.com/viant/authz"
+	"github.com/viant/datly-studio/internal/datatest"
 	"github.com/viant/datly-studio/schema"
 	sdkrelease "github.com/viant/datly-studio/sdk/artifactrelease"
-	"github.com/viant/datly-studio/sdk/artifactrelease/sqlstore"
+	releasevalue "github.com/viant/datly-studio/sdk/artifactrelease/value"
 	"github.com/viant/forge/backend/artifactcohort"
 	contract "github.com/viant/forge/backend/artifactrelease"
 	_ "modernc.org/sqlite"
@@ -26,8 +27,8 @@ func TestPolicyRefreshWithdrawsOnlyAffectedChannel(t *testing.T) {
 	if err = schema.ApplySQLite(ctx, db, "studio"); err != nil {
 		t.Fatal(err)
 	}
-	scope := sqlstore.Scope{Tenant: "tenant", Account: "account", Workspace: "workspace", Namespace: "demo"}
-	store, err := sqlstore.New(db, scope, "trusted-producer")
+	scope := releasevalue.Scope{Tenant: "tenant", Account: "account", Workspace: "workspace", Namespace: "demo"}
+	store, err := datatest.NativeReleaseStore(t, db, scope, "trusted-producer")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -50,7 +51,7 @@ func TestPolicyRefreshWithdrawsOnlyAffectedChannel(t *testing.T) {
 	docs := map[string]authz.Document{"a": docFor("a"), "b": docFor("b")}
 	newController := func(p *artifactcohort.Publisher) *sdkrelease.Controller {
 		controller, e := sdkrelease.NewController(sdkrelease.ControllerConfig{Scope: scope, Store: store, Publisher: p,
-			VerifyScope: func(context.Context) (sqlstore.Scope, error) { return scope, nil }, Authorize: func(context.Context, string) error { return nil },
+			VerifyScope: func(context.Context) (releasevalue.Scope, error) { return scope, nil }, Authorize: func(context.Context, string) error { return nil },
 			Candidates: func(context.Context) ([]contract.Candidate, error) { return nil, nil },
 			Prepare: func(_ context.Context, refs []artifactcohort.RootRef) ([]*artifactcohort.Artifact, error) {
 				out := make([]*artifactcohort.Artifact, 0, len(refs))
@@ -67,7 +68,7 @@ func TestPolicyRefreshWithdrawsOnlyAffectedChannel(t *testing.T) {
 				return out, nil
 			},
 			AvailableRoot: func(context.Context, artifactcohort.RootRef) error { return nil }, ValidateArtifact: func(context.Context, *artifactcohort.Artifact) error { return nil },
-			CompileBindings: func(context.Context, contract.Bundle, []*artifactcohort.Artifact) ([]sqlstore.ComponentBinding, error) {
+			CompileBindings: func(context.Context, contract.Bundle, []*artifactcohort.Artifact) ([]releasevalue.ComponentBinding, error) {
 				return nil, nil
 			},
 			NamedDocuments: func(_ context.Context, refs []authz.NamedReference) ([]authz.Document, error) {

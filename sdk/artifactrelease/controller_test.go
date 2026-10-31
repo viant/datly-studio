@@ -9,9 +9,10 @@ import (
 	"time"
 
 	"github.com/viant/authz"
+	"github.com/viant/datly-studio/internal/datatest"
 	"github.com/viant/datly-studio/schema"
 	sdkrelease "github.com/viant/datly-studio/sdk/artifactrelease"
-	"github.com/viant/datly-studio/sdk/artifactrelease/sqlstore"
+	releasevalue "github.com/viant/datly-studio/sdk/artifactrelease/value"
 	"github.com/viant/forge/backend/artifactcohort"
 	contract "github.com/viant/forge/backend/artifactrelease"
 	_ "modernc.org/sqlite"
@@ -30,8 +31,8 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 	if err = schema.ApplySQLite(ctx, db, "studio"); err != nil {
 		t.Fatal(err)
 	}
-	scope := sqlstore.Scope{Tenant: "storage", Account: "account", Workspace: "workspace", Namespace: "demo"}
-	store, err := sqlstore.New(db, scope, "verified-editor")
+	scope := releasevalue.Scope{Tenant: "storage", Account: "account", Workspace: "workspace", Namespace: "demo"}
+	store, err := datatest.NativeReleaseStore(t, db, scope, "verified-editor")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -68,7 +69,7 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 	}
 	controller, err := sdkrelease.NewController(sdkrelease.ControllerConfig{
 		Scope: scope, ProjectionTenant: "issuer", Store: store, Publisher: publisher,
-		VerifyScope: func(context.Context) (sqlstore.Scope, error) { return verifiedScope, nil },
+		VerifyScope: func(context.Context) (releasevalue.Scope, error) { return verifiedScope, nil },
 		Authorize: func(_ context.Context, action string) error {
 			if action == "publish" && !allowPublish {
 				return errors.New("editor revoked")
@@ -93,7 +94,7 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 			}
 			return makeArtifacts(refs), nil
 		},
-		CompileBindings: func(context.Context, contract.Bundle, []*artifactcohort.Artifact) ([]sqlstore.ComponentBinding, error) {
+		CompileBindings: func(context.Context, contract.Bundle, []*artifactcohort.Artifact) ([]releasevalue.ComponentBinding, error) {
 			return nil, nil
 		},
 		RestoreArtifacts: func(_ context.Context, refs []artifactcohort.RootRef) ([]*artifactcohort.Artifact, error) {
@@ -338,14 +339,14 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 	}
 	restarted, err := sdkrelease.NewController(sdkrelease.ControllerConfig{
 		Scope: scope, ProjectionTenant: "issuer", Store: store, Publisher: freshPublisher,
-		VerifyScope: func(context.Context) (sqlstore.Scope, error) { return scope, nil },
+		VerifyScope: func(context.Context) (releasevalue.Scope, error) { return scope, nil },
 		Authorize:   func(context.Context, string) error { return nil },
 		Candidates:  func(context.Context) ([]contract.Candidate, error) { return nil, nil },
 		Prepare: func(context.Context, []artifactcohort.RootRef) ([]*artifactcohort.Artifact, error) {
 			t.Fatal("recovery recompiled user source")
 			return nil, nil
 		},
-		CompileBindings: func(context.Context, contract.Bundle, []*artifactcohort.Artifact) ([]sqlstore.ComponentBinding, error) {
+		CompileBindings: func(context.Context, contract.Bundle, []*artifactcohort.Artifact) ([]releasevalue.ComponentBinding, error) {
 			return nil, nil
 		},
 		RestoreArtifacts: func(_ context.Context, refs []artifactcohort.RootRef) ([]*artifactcohort.Artifact, error) {

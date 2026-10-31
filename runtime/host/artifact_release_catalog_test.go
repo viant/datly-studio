@@ -9,10 +9,11 @@ import (
 	"testing"
 
 	"github.com/viant/authz"
+	"github.com/viant/datly-studio/internal/datatest"
 	"github.com/viant/datly-studio/schema"
 	sdkrelease "github.com/viant/datly-studio/sdk/artifactrelease"
 	"github.com/viant/datly-studio/sdk/artifactrelease/releasegate"
-	"github.com/viant/datly-studio/sdk/artifactrelease/sqlstore"
+	releasevalue "github.com/viant/datly-studio/sdk/artifactrelease/value"
 	"github.com/viant/forge/backend/artifactcohort"
 	contract "github.com/viant/forge/backend/artifactrelease"
 	_ "modernc.org/sqlite"
@@ -29,8 +30,8 @@ func TestArtifactReleaseCatalogServingUsesActivationGate(t *testing.T) {
 	if err = schema.ApplySQLite(ctx, db, "studio"); err != nil {
 		t.Fatal(err)
 	}
-	scope := sqlstore.Scope{Tenant: "tenant", Account: "account", Workspace: "workspace", Namespace: "demo"}
-	store, err := sqlstore.New(db, scope, "verified-editor")
+	scope := releasevalue.Scope{Tenant: "tenant", Account: "account", Workspace: "workspace", Namespace: "demo"}
+	store, err := datatest.NativeReleaseStore(t, db, scope, "verified-editor")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,13 +50,13 @@ func TestArtifactReleaseCatalogServingUsesActivationGate(t *testing.T) {
 	root := artifactcohort.RootRef{URI: "window://demo/home", Kind: "window", Version: 1, Hash: artifactcohort.Hash(body)}
 	controller, err := sdkrelease.NewController(sdkrelease.ControllerConfig{
 		Scope: scope, Store: store, Publisher: publisher,
-		VerifyScope: func(context.Context) (sqlstore.Scope, error) { return scope, nil },
+		VerifyScope: func(context.Context) (releasevalue.Scope, error) { return scope, nil },
 		Authorize:   func(context.Context, string) error { return nil },
 		Candidates:  func(context.Context) ([]contract.Candidate, error) { return []contract.Candidate{{Root: root}}, nil },
 		Prepare: func(context.Context, []artifactcohort.RootRef) ([]*artifactcohort.Artifact, error) {
 			return []*artifactcohort.Artifact{{Root: root, Payload: body}}, nil
 		},
-		CompileBindings: func(context.Context, contract.Bundle, []*artifactcohort.Artifact) ([]sqlstore.ComponentBinding, error) {
+		CompileBindings: func(context.Context, contract.Bundle, []*artifactcohort.Artifact) ([]releasevalue.ComponentBinding, error) {
 			return nil, nil
 		},
 		RestoreArtifacts: func(context.Context, []artifactcohort.RootRef) ([]*artifactcohort.Artifact, error) {

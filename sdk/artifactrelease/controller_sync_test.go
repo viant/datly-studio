@@ -10,10 +10,11 @@ import (
 	"time"
 
 	"github.com/viant/authz"
+	"github.com/viant/datly-studio/internal/datatest"
 	"github.com/viant/datly-studio/schema"
 	sdkrelease "github.com/viant/datly-studio/sdk/artifactrelease"
 	"github.com/viant/datly-studio/sdk/artifactrelease/releasegate"
-	"github.com/viant/datly-studio/sdk/artifactrelease/sqlstore"
+	releasevalue "github.com/viant/datly-studio/sdk/artifactrelease/value"
 	"github.com/viant/forge/backend/artifactcohort"
 	contract "github.com/viant/forge/backend/artifactrelease"
 	_ "modernc.org/sqlite"
@@ -30,7 +31,7 @@ func TestTwoControllersSynchronizeCommittedReleaseAndWithdrawals(t *testing.T) {
 	if err = schema.ApplySQLite(ctx, db, "studio"); err != nil {
 		t.Fatal(err)
 	}
-	scope := sqlstore.Scope{Tenant: "tenant", Account: "account", Workspace: "workspace", Namespace: "demo"}
+	scope := releasevalue.Scope{Tenant: "tenant", Account: "account", Workspace: "workspace", Namespace: "demo"}
 	policy := authz.Resource{Tenant: "tenant", Kind: "policy", ID: "operators", Version: "logical"}
 	ref := authz.NamedReference{Resource: policy, Revision: 1}
 	var head atomic.Int64
@@ -57,7 +58,7 @@ func TestTwoControllersSynchronizeCommittedReleaseAndWithdrawals(t *testing.T) {
 	raceReached := make(chan struct{})
 	raceResume := make(chan struct{})
 	makeController := func(second bool) (*sdkrelease.Controller, *artifactcohort.Publisher) {
-		store, e := sqlstore.New(db, scope, "verified-editor")
+		store, e := datatest.NativeReleaseStore(t, db, scope, "verified-editor")
 		if e != nil {
 			t.Fatal(e)
 		}
@@ -67,7 +68,7 @@ func TestTwoControllersSynchronizeCommittedReleaseAndWithdrawals(t *testing.T) {
 		}
 		controller, e := sdkrelease.NewController(sdkrelease.ControllerConfig{
 			Scope: scope, Store: store, Publisher: publisher,
-			VerifyScope: func(context.Context) (sqlstore.Scope, error) { return scope, nil },
+			VerifyScope: func(context.Context) (releasevalue.Scope, error) { return scope, nil },
 			Authorize:   func(context.Context, string) error { return nil },
 			Candidates: func(context.Context) ([]contract.Candidate, error) {
 				return []contract.Candidate{{Root: root(1)}, {Root: root(2)}}, nil
@@ -79,7 +80,7 @@ func TestTwoControllersSynchronizeCommittedReleaseAndWithdrawals(t *testing.T) {
 				}
 				return out, nil
 			},
-			CompileBindings: func(context.Context, contract.Bundle, []*artifactcohort.Artifact) ([]sqlstore.ComponentBinding, error) {
+			CompileBindings: func(context.Context, contract.Bundle, []*artifactcohort.Artifact) ([]releasevalue.ComponentBinding, error) {
 				return nil, nil
 			},
 			RestoreArtifacts: func(_ context.Context, refs []artifactcohort.RootRef) ([]*artifactcohort.Artifact, error) {
@@ -259,7 +260,7 @@ func TestTwoControllersSynchronizeCommittedReleaseAndWithdrawals(t *testing.T) {
 	}
 	// An in-flight Stage changes only pending fields; B must not project it or
 	// repeatedly rebuild the last committed channel.
-	stageStore, e := sqlstore.New(db, scope, "verified-editor")
+	stageStore, e := datatest.NativeReleaseStore(t, db, scope, "verified-editor")
 	if e != nil {
 		t.Fatal(e)
 	}

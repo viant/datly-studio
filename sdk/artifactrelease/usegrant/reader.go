@@ -10,15 +10,20 @@ import (
 	"reflect"
 
 	"github.com/viant/authz"
-	"github.com/viant/datly-studio/sdk/artifactrelease/sqlstore"
+	releasevalue "github.com/viant/datly-studio/sdk/artifactrelease/value"
 	"github.com/viant/forge/backend/artifactcohort"
 	contract "github.com/viant/forge/backend/artifactrelease"
 )
 
+type SelectionStore interface {
+	ActiveSelections(context.Context) ([]releasevalue.ActiveSelection, error)
+	Channel(context.Context, contract.Key) (contract.Channel, error)
+}
+
 type Reader struct {
-	Store             *sqlstore.Store
-	Scope             sqlstore.Scope
-	VerifyScope       func(context.Context) (sqlstore.Scope, error)
+	Store             SelectionStore
+	Scope             releasevalue.Scope
+	VerifyScope       func(context.Context) (releasevalue.Scope, error)
 	Provider          authz.Provider
 	Decisions         authz.DecisionProvider
 	NamedDocuments    func(context.Context, []authz.NamedReference) ([]authz.Document, error)
@@ -29,7 +34,7 @@ type Reader struct {
 	RootAvailable func(context.Context, artifactcohort.RootRef) error
 	// NativeConstraints retains explicit component deny, account/entity scope,
 	// and row predicates. A producer may return deny for unsupported bounds.
-	NativeConstraints func(context.Context, sqlstore.ComponentBinding, string) error
+	NativeConstraints func(context.Context, releasevalue.ComponentBinding, string) error
 }
 
 func (r *Reader) Allowed(ctx context.Context, componentID, revision, permission string) (bool, error) {
@@ -43,22 +48,12 @@ func (r *Reader) Allowed(ctx context.Context, componentID, revision, permission 
 	if actual != r.Scope {
 		return false, contract.ErrInvalid
 	}
-	channels, err := r.Store.ListChannels(ctx)
+	selections, err := r.Store.ActiveSelections(ctx)
 	if err != nil {
 		return false, err
 	}
-	for _, channel := range channels {
-		if channel.ActiveBundleHash == "" {
-			continue
-		}
-		bundle, readErr := r.Store.Bundle(ctx, channel.ActiveBundleHash)
-		if readErr != nil {
-			return false, readErr
-		}
-		bindings, readErr := r.Store.BundleBindings(ctx, bundle)
-		if readErr != nil {
-			return false, readErr
-		}
+	for _, selected := range selections {
+		channel, bundle, bindings := selected.Channel, selected.Bundle, selected.Bindings
 		matched := false
 		for _, binding := range bindings {
 			if binding.ComponentID != componentID || revision != "" && binding.ComponentRevision != revision {
@@ -70,7 +65,7 @@ func (r *Reader) Allowed(ctx context.Context, componentID, revision, permission 
 				}
 				return false, availableErr
 			}
-			if readErr = r.NativeConstraints(ctx, binding, permission); readErr != nil {
+			if readErr := r.NativeConstraints(ctx, binding, permission); readErr != nil {
 				if errors.Is(readErr, authz.ErrDenied) {
 					continue
 				}
@@ -82,19 +77,17 @@ func (r *Reader) Allowed(ctx context.Context, componentID, revision, permission 
 		if !matched {
 			continue
 		}
-		persisted, readErr := r.Store.ActiveDependencies(ctx, channel.Key)
-		if readErr != nil {
-			return false, readErr
-		}
+		persisted := selected.Dependencies
 		if len(persisted) == 0 {
 			continue
 		}
-		if readErr = r.FenceDependencies(ctx, persisted); readErr != nil {
+		if readErr := r.FenceDependencies(ctx, persisted); readErr != nil {
 			if errors.Is(readErr, contract.ErrConflict) || errors.Is(readErr, authz.ErrDenied) {
 				continue
 			}
 			return false, readErr
 		}
+
 		docs, readErr := r.NamedDocuments(ctx, channel.Policies)
 		if readErr != nil {
 			return false, readErr

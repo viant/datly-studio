@@ -14,10 +14,11 @@ import (
 
 	"github.com/viant/authz"
 	"github.com/viant/authz/oauth"
+	"github.com/viant/datly-studio/internal/datatest"
 	"github.com/viant/datly-studio/sdk"
 	sdkrelease "github.com/viant/datly-studio/sdk/artifactrelease"
-	"github.com/viant/datly-studio/sdk/artifactrelease/sqlstore"
 	"github.com/viant/datly-studio/sdk/artifactrelease/usegrant"
+	releasevalue "github.com/viant/datly-studio/sdk/artifactrelease/value"
 	sqltransport "github.com/viant/datly-studio/sdk/transport/sql"
 	studioauthorization "github.com/viant/datly-studio/studio/authorization"
 	"github.com/viant/forge/backend/artifactcohort"
@@ -96,8 +97,8 @@ func TestNamedReleaseMCPWindowFreshRowsAndRollback(t *testing.T) {
 			t.Fatal(err)
 		}
 		host.resourceAccess.Store = store
-		scope := sqlstore.Scope{Tenant: "team", Account: "21", Workspace: "workspace", Namespace: "demo"}
-		sqlStore, err := sqlstore.New(host.studio, scope, "verified-publisher")
+		scope := releasevalue.Scope{Tenant: "team", Account: "21", Workspace: "workspace", Namespace: "demo"}
+		sqlStore, err := datatest.NativeReleaseStore(t, host.studio, scope, "verified-publisher")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -118,13 +119,13 @@ func TestNamedReleaseMCPWindowFreshRowsAndRollback(t *testing.T) {
 		}
 		controllerConfig = sdkrelease.ControllerConfig{
 			Scope: scope, Store: sqlStore, Publisher: catalog.Publisher,
-			VerifyScope: func(ctx context.Context) (sqlstore.Scope, error) {
+			VerifyScope: func(ctx context.Context) (releasevalue.Scope, error) {
 				p, err := f.provider.ResolvePrincipal(ctx)
 				if err != nil {
-					return sqlstore.Scope{}, err
+					return releasevalue.Scope{}, err
 				}
 				if p.AccountID != "21" || p.Facts.Tenant != "team" {
-					return sqlstore.Scope{}, authz.ErrDenied
+					return releasevalue.Scope{}, authz.ErrDenied
 				}
 				return scope, nil
 			},
@@ -177,8 +178,8 @@ func TestNamedReleaseMCPWindowFreshRowsAndRollback(t *testing.T) {
 				})
 				return err
 			},
-			CompileBindings: func(ctx context.Context, _ contract.Bundle, values []*artifactcohort.Artifact) ([]sqlstore.ComponentBinding, error) {
-				var result []sqlstore.ComponentBinding
+			CompileBindings: func(ctx context.Context, _ contract.Bundle, values []*artifactcohort.Artifact) ([]releasevalue.ComponentBinding, error) {
+				var result []releasevalue.ComponentBinding
 				for _, artifact := range values {
 					bindings, err := CompileReleaseWindowBindings(ctx, artifact, map[string]ComponentReference{"records": component}, func(ctx context.Context, ref ComponentReference) (windowprotocol.ComponentBinding, error) {
 						m, observed, err := host.componentRuntimeWithAuthority(ctx, ref, false)
@@ -191,7 +192,7 @@ func TestNamedReleaseMCPWindowFreshRowsAndRollback(t *testing.T) {
 						return nil, err
 					}
 					for _, b := range bindings {
-						result = append(result, sqlstore.ComponentBinding{Root: b.Root, DataSourceID: b.DataSourceID, ComponentKind: b.Binding.Kind, ComponentID: b.Binding.ID, ComponentRevision: b.Binding.Revision, Method: b.Reference.Method, Route: b.Reference.Route, SchemaFingerprint: b.Binding.SchemaFingerprint, ContentFingerprint: b.Binding.ContentFingerprint})
+						result = append(result, releasevalue.ComponentBinding{Root: b.Root, DataSourceID: b.DataSourceID, ComponentKind: b.Binding.Kind, ComponentID: b.Binding.ID, ComponentRevision: b.Binding.Revision, Method: b.Reference.Method, Route: b.Reference.Route, SchemaFingerprint: b.Binding.SchemaFingerprint, ContentFingerprint: b.Binding.ContentFingerprint})
 					}
 				}
 				return result, nil
@@ -338,22 +339,22 @@ func TestNamedReleaseMCPWindowFreshRowsAndRollback(t *testing.T) {
 		if _, err = host.ExecuteComponentJSON(visitorCtx, component, pin, nil); err == nil {
 			t.Fatal("unassigned visitor executed released reader")
 		}
-		apiStore, err := sqlstore.New(host.studio, sqlstore.Scope{Tenant: "team", Account: "21", Workspace: "workspace", Namespace: "demo"}, "api-reader")
+		apiStore, err := datatest.NativeReleaseStore(t, host.studio, releasevalue.Scope{Tenant: "team", Account: "21", Workspace: "workspace", Namespace: "demo"}, "api-reader")
 		if err != nil {
 			t.Fatal(err)
 		}
-		grant := &usegrant.Reader{Store: apiStore, Scope: sqlstore.Scope{Tenant: "team", Account: "21", Workspace: "workspace", Namespace: "demo"}, VerifyScope: func(ctx context.Context) (sqlstore.Scope, error) {
+		grant := &usegrant.Reader{Store: apiStore, Scope: releasevalue.Scope{Tenant: "team", Account: "21", Workspace: "workspace", Namespace: "demo"}, VerifyScope: func(ctx context.Context) (releasevalue.Scope, error) {
 			p, err := f.provider.ResolvePrincipal(ctx)
 			if err != nil {
-				return sqlstore.Scope{}, err
+				return releasevalue.Scope{}, err
 			}
 			if p.AccountID != "21" {
-				return sqlstore.Scope{}, authz.ErrDenied
+				return releasevalue.Scope{}, authz.ErrDenied
 			}
-			return sqlstore.Scope{Tenant: "team", Account: "21", Workspace: "workspace", Namespace: "demo"}, nil
+			return releasevalue.Scope{Tenant: "team", Account: "21", Workspace: "workspace", Namespace: "demo"}, nil
 		}, Provider: f.provider, NamedDocuments: func(context.Context, []authz.NamedReference) ([]authz.Document, error) {
 			return []authz.Document{policyDoc}, nil
-		}, FenceDependencies: func(context.Context, []authz.NamedDependency) error { return nil }, RootAvailable: rootAvailable, NativeConstraints: func(ctx context.Context, b sqlstore.ComponentBinding, _ string) error {
+		}, FenceDependencies: func(context.Context, []authz.NamedDependency) error { return nil }, RootAvailable: rootAvailable, NativeConstraints: func(ctx context.Context, b releasevalue.ComponentBinding, _ string) error {
 			return host.defaultCreatorUsePolicy(ctx, authz.Resource{Tenant: "team", Kind: "component", ID: b.ComponentID, Version: b.ComponentRevision})
 		}}
 		authorizer, err := studioauthorization.NewSDKAuthorizer(host.studio)

@@ -85,73 +85,26 @@ func (c *Controller) ActiveSnapshot(ctx context.Context) (ActiveSnapshot, error)
 		if err != nil {
 			return err
 		}
-		if graph, ok := c.config.Store.(interface {
-			ActiveSelections(context.Context) ([]releasevalue.ActiveSelection, error)
-		}); ok {
-			selections, err := graph.ActiveSelections(ctx)
-			if err != nil {
-				return err
-			}
-			out.ManifestHash = manifest.Hash
-			for _, selected := range selections {
-				if !manifestSelectsChannel(manifest, selected.Channel, selected.Bundle, c.projectionTenant()) {
-					continue
-				}
-				available := true
-				for _, root := range selected.Bundle.Roots {
-					if c.config.AvailableRoot(ctx, root) != nil {
-						available = false
-						break
-					}
-				}
-				if !available || len(selected.Dependencies) == 0 || c.config.Fence(ctx, selected.Dependencies) != nil {
-					continue
-				}
-				out.Selections = append(out.Selections, selected)
-			}
-			return nil
-		}
-		channels, err := c.config.Store.ListChannels(ctx)
+		selections, err := c.config.Store.ActiveSelections(ctx)
 		if err != nil {
 			return err
 		}
 		out.ManifestHash = manifest.Hash
-		for _, channel := range channels {
-			if channel.ActiveBundleHash == "" {
-				continue
-			}
-			bundle, readErr := c.config.Store.Bundle(ctx, channel.ActiveBundleHash)
-			if readErr != nil {
-				return readErr
-			}
-			if !manifestSelectsChannel(manifest, channel, bundle, c.projectionTenant()) {
+		for _, selected := range selections {
+			if !manifestSelectsChannel(manifest, selected.Channel, selected.Bundle, c.projectionTenant()) {
 				continue
 			}
 			available := true
-			for _, root := range bundle.Roots {
+			for _, root := range selected.Bundle.Roots {
 				if c.config.AvailableRoot(ctx, root) != nil {
 					available = false
 					break
 				}
 			}
-			if !available {
+			if !available || len(selected.Dependencies) == 0 || c.config.Fence(ctx, selected.Dependencies) != nil {
 				continue
 			}
-			bindings, readErr := c.config.Store.BundleBindings(ctx, bundle)
-			if readErr != nil {
-				return readErr
-			}
-			dependencies, readErr := c.config.Store.ActiveDependencies(ctx, channel.Key)
-			if readErr != nil {
-				return readErr
-			}
-			if len(dependencies) == 0 {
-				continue
-			}
-			if readErr = c.config.Fence(ctx, dependencies); readErr != nil {
-				continue
-			}
-			out.Selections = append(out.Selections, ActiveSelection{Channel: channel, Bundle: bundle, Bindings: bindings, Dependencies: dependencies})
+			out.Selections = append(out.Selections, selected)
 		}
 		return nil
 	})
@@ -338,30 +291,24 @@ func (c *Controller) RunSync(ctx context.Context, interval time.Duration, observ
 }
 
 func (c *Controller) committedFingerprint(ctx context.Context) (string, error) {
-	channels, err := c.config.Store.ListChannels(ctx)
+	selections, err := c.config.Store.ActiveSelections(ctx)
 	if err != nil {
 		return "", err
 	}
-	sort.Slice(channels, func(i, j int) bool { return channels[i].Key.Name < channels[j].Key.Name })
+	sort.Slice(selections, func(i, j int) bool { return selections[i].Channel.Key.Name < selections[j].Channel.Key.Name })
 	type activeState struct {
 		Channel     contract.Channel
 		Roots       []bool
 		PolicyFresh bool
 	}
-	states := make([]activeState, 0, len(channels))
+	states := make([]activeState, 0, len(selections))
 	// Several channels may select the same immutable root or named policy head.
 	// Share checks only within this background pass; never retain an allow/deny
 	// across passes or use this memo on the serving path.
 	rootAvailable := make(map[artifactcohort.RootRef]bool)
 	policyFresh := make(map[string]bool)
-	for _, channel := range channels {
-		if channel.ActiveBundleHash == "" {
-			continue
-		}
-		bundle, err := c.config.Store.Bundle(ctx, channel.ActiveBundleHash)
-		if err != nil {
-			return "", err
-		}
+	for _, selected := range selections {
+		channel, bundle := selected.Channel, selected.Bundle
 		state := activeState{Channel: channel, Roots: make([]bool, len(bundle.Roots))}
 		for i, root := range bundle.Roots {
 			if available, found := rootAvailable[root]; found {
@@ -375,10 +322,7 @@ func (c *Controller) committedFingerprint(ctx context.Context) (string, error) {
 			state.Roots[i] = availabilityErr == nil
 			rootAvailable[root] = state.Roots[i]
 		}
-		deps, err := c.config.Store.ActiveDependencies(ctx, channel.Key)
-		if err != nil {
-			return "", err
-		}
+		deps := selected.Dependencies
 		if len(deps) > 0 {
 			canonical, marshalErr := json.Marshal(deps)
 			if marshalErr != nil {
@@ -419,19 +363,13 @@ func (c *Controller) RefreshPolicies(ctx context.Context, changed authz.Resource
 	if c == nil || ctx == nil || ctx.Err() != nil || changed.Kind != "policy" || changed.Tenant != c.config.Scope.Tenant || changed.ID == "" {
 		return contract.ErrInvalid
 	}
-	channels, err := c.config.Store.ListChannels(ctx)
+	selections, err := c.config.Store.ActiveSelections(ctx)
 	if err != nil {
 		return err
 	}
 	var failures []error
-	for _, current := range channels {
-		if current.ActiveBundleHash == "" {
-			continue
-		}
-		deps, readErr := c.config.Store.ActiveDependencies(ctx, current.Key)
-		if readErr != nil {
-			return readErr
-		}
+	for _, selected := range selections {
+		current, deps := selected.Channel, selected.Dependencies
 		affected := false
 		for _, dep := range deps {
 			if dep.Resource == changed {
@@ -442,14 +380,7 @@ func (c *Controller) RefreshPolicies(ctx context.Context, changed authz.Resource
 		if !affected {
 			continue
 		}
-		bundle, readErr := c.config.Store.Bundle(ctx, current.ActiveBundleHash)
-		if readErr != nil {
-			return readErr
-		}
-		bindings, readErr := c.config.Store.BundleBindings(ctx, bundle)
-		if readErr != nil {
-			return readErr
-		}
+		bundle, bindings := selected.Bundle, selected.Bindings
 		next, readErr := contract.PreparePromotion(current, current.Revision, bundle)
 		if readErr != nil {
 			return readErr
@@ -517,18 +448,16 @@ func (c *Controller) List(ctx context.Context, in contract.ListInput) (contract.
 		if manifestErr != nil {
 			return manifestErr
 		}
-		channels, err := c.config.Store.ListChannels(ctx)
+		selections, err := c.config.Store.ChannelSelections(ctx)
 		if err != nil {
 			return err
 		}
-		for _, channel := range channels {
+		for _, selected := range selections {
+			channel := selected.Channel
 			status, active := contract.StatusPending, false
 			result := contract.Result{Channel: channel, Status: status, Activated: active}
 			if channel.Revision > 0 && channel.ActiveBundleHash != "" {
-				bundle, readErr := c.config.Store.Bundle(ctx, channel.ActiveBundleHash)
-				if readErr != nil {
-					return readErr
-				}
+				bundle := selected.Bundle
 				result.Bundle = &bundle
 				status, active = contract.StatusActive, true
 				if !manifestSelectsChannel(manifest, channel, bundle, c.projectionTenant()) {
@@ -540,10 +469,7 @@ func (c *Controller) List(ctx context.Context, in contract.ListInput) (contract.
 						break
 					}
 				}
-				deps, depErr := c.config.Store.ActiveDependencies(ctx, channel.Key)
-				if depErr != nil {
-					return depErr
-				}
+				deps := selected.Dependencies
 				if len(deps) == 0 || c.config.Fence(ctx, deps) != nil {
 					status, active = contract.StatusFailed, false
 				}
@@ -864,7 +790,7 @@ func (c *Controller) project(ctx context.Context, item contract.PendingRevision)
 	return c.config.Fence(ctx, compiled.Dependencies)
 }
 func (c *Controller) reconcile(ctx context.Context) error {
-	channels, err := c.config.Store.ListChannels(ctx)
+	selections, err := c.config.Store.ChannelSelections(ctx)
 	if err != nil {
 		return err
 	}
@@ -872,16 +798,12 @@ func (c *Controller) reconcile(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	for _, channel := range channels {
+	for _, selected := range selections {
+		channel := selected.Channel
 		compiled := contract.Compilation{}
 		if channel.ActiveBundleHash != "" {
-			bundle, readErr := c.config.Store.Bundle(ctx, channel.ActiveBundleHash)
-			if readErr != nil {
-				return readErr
-			}
-			if _, readErr = c.config.Store.BundleBindings(ctx, bundle); readErr != nil {
-				return readErr
-			}
+			bundle := selected.Bundle
+			var readErr error
 			available := true
 			for _, root := range bundle.Roots {
 				if availabilityErr := c.config.AvailableRoot(ctx, root); availabilityErr != nil {
@@ -903,10 +825,7 @@ func (c *Controller) reconcile(ctx context.Context) error {
 					}
 					compiled = contract.Compilation{}
 				} else {
-					activeDeps, depErr := c.config.Store.ActiveDependencies(ctx, channel.Key)
-					if depErr != nil {
-						return depErr
-					}
+					activeDeps := selected.Dependencies
 					if !reflect.DeepEqual(activeDeps, compiled.Dependencies) {
 						compiled = contract.Compilation{}
 					}
@@ -919,7 +838,7 @@ func (c *Controller) reconcile(ctx context.Context) error {
 		}
 		manifest.Hash = ""
 	}
-	if len(channels) == 0 {
+	if len(selections) == 0 {
 		return nil
 	}
 	current, err := c.config.Publisher.Snapshot()

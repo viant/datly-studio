@@ -9,15 +9,17 @@ import (
 	"time"
 
 	"github.com/viant/authz"
+	"github.com/viant/datly-studio/internal/datatest"
 	"github.com/viant/datly-studio/schema"
+	"github.com/viant/datly-studio/sdk/artifactrelease/nativestore"
 	"github.com/viant/datly-studio/sdk/artifactrelease/releasegate"
-	"github.com/viant/datly-studio/sdk/artifactrelease/sqlstore"
+	releasevalue "github.com/viant/datly-studio/sdk/artifactrelease/value"
 	"github.com/viant/forge/backend/artifactcohort"
 	"github.com/viant/forge/backend/artifactrelease"
 	_ "modernc.org/sqlite"
 )
 
-func fixture(t *testing.T, projection releasegate.Projection) (*sqlstore.Store, *releasegate.Gate, artifactrelease.Channel, artifactrelease.Bundle) {
+func fixture(t *testing.T, projection releasegate.Projection) (*nativestore.Store, *releasegate.Gate, artifactrelease.Channel, artifactrelease.Bundle) {
 	t.Helper()
 	ctx := context.Background()
 	db, err := sql.Open("sqlite", "file:"+t.Name()+"?mode=memory&cache=shared")
@@ -29,8 +31,8 @@ func fixture(t *testing.T, projection releasegate.Projection) (*sqlstore.Store, 
 	if err = schema.ApplySQLite(ctx, db, "studio"); err != nil {
 		t.Fatal(err)
 	}
-	scope := sqlstore.Scope{Tenant: "tenant", Account: "account", Workspace: "workspace", Namespace: "demo"}
-	store, err := sqlstore.New(db, scope, "verified-actor")
+	scope := releasevalue.Scope{Tenant: "tenant", Account: "account", Workspace: "workspace", Namespace: "demo"}
+	store, err := datatest.NativeReleaseStore(t, db, scope, "verified-actor")
 	if err != nil {
 		t.Fatal(err)
 	}

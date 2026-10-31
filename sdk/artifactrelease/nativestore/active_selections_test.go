@@ -74,4 +74,28 @@ func TestActiveSelectionsUsesOneGraphAndRejectsBrokenRelations(t *testing.T) {
 			require.Equal(t, bundle, result[0].Bundle)
 		})
 	}
+	t.Run("unpublished channel stays in complete graph", func(t *testing.T) {
+		unpublished := row("unpublished")
+		unpublished.Revision = 0
+		unpublished.ActiveBundleHash = nil
+		unpublished.Bundle, unpublished.Binding = nil, nil
+		calls := 0
+		store, err := New(selectionInvoker(func(_ context.Context, request exec.ComponentRequest) (any, error) {
+			calls++
+			input := request.Input.(*snapshotview.Input)
+			require.Equal(t, scope.ID(), input.ScopeId)
+			require.True(t, input.Has.ActiveOnly)
+			require.False(t, input.ActiveOnly)
+			return &snapshotview.Output{Data: []*snapshotview.ReleaseChannel{row("published"), unpublished}}, nil
+		}), scope, func(context.Context) (string, error) { return "actor", nil })
+		require.NoError(t, err)
+		selections, err := store.ChannelSelections(t.Context())
+		require.NoError(t, err)
+		require.Equal(t, 1, calls)
+		require.Len(t, selections, 2)
+		require.Equal(t, bundle, selections[0].Bundle)
+		require.Equal(t, "unpublished", selections[1].Channel.Key.Name)
+		require.Empty(t, selections[1].Bundle.Hash)
+	})
+
 }

@@ -12,9 +12,10 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/viant/authz"
+	"github.com/viant/datly-studio/internal/datatest"
 	"github.com/viant/datly-studio/schema"
 	release "github.com/viant/datly-studio/sdk/artifactrelease"
-	"github.com/viant/datly-studio/sdk/artifactrelease/sqlstore"
+	releasevalue "github.com/viant/datly-studio/sdk/artifactrelease/value"
 	"github.com/viant/forge/backend/artifactcohort"
 	contract "github.com/viant/forge/backend/artifactrelease"
 )
@@ -51,8 +52,8 @@ func TestDraftSnapshotHooksPublishRecoverAndRefreshWithoutComponentPublication(t
 	defer db.Close()
 	db.SetMaxOpenConns(1)
 	require.NoError(t, schema.ApplySQLite(ctx, db, "studio"))
-	scope := sqlstore.Scope{Tenant: "tenant", Account: "account", Workspace: "workspace", Namespace: "example"}
-	store, err := sqlstore.New(db, scope, "editor")
+	scope := releasevalue.Scope{Tenant: "tenant", Account: "account", Workspace: "workspace", Namespace: "example"}
+	store, err := datatest.NativeReleaseStore(t, db, scope, "editor")
 	require.NoError(t, err)
 	persist := func(uri string, version uint64, body string) artifactcohort.RootRef {
 		raw := json.RawMessage(body)
@@ -94,7 +95,7 @@ func TestDraftSnapshotHooksPublishRecoverAndRefreshWithoutComponentPublication(t
 		require.NoError(t, err)
 		c, err := release.NewController(release.ControllerConfig{
 			Scope: scope, Store: store, Publisher: p,
-			VerifyScope: func(context.Context) (sqlstore.Scope, error) { return scope, nil },
+			VerifyScope: func(context.Context) (releasevalue.Scope, error) { return scope, nil },
 			Authorize:   func(context.Context, string) error { return nil },
 			Candidates:  func(context.Context) ([]contract.Candidate, error) { return nil, nil },
 			Prepare: func(ctx context.Context, refs []artifactcohort.RootRef) ([]*artifactcohort.Artifact, error) {
@@ -106,7 +107,7 @@ func TestDraftSnapshotHooksPublishRecoverAndRefreshWithoutComponentPublication(t
 				_, err := restore(ctx, []artifactcohort.RootRef{ref})
 				return err
 			},
-			CompileBindings: func(context.Context, contract.Bundle, []*artifactcohort.Artifact) ([]sqlstore.ComponentBinding, error) {
+			CompileBindings: func(context.Context, contract.Bundle, []*artifactcohort.Artifact) ([]releasevalue.ComponentBinding, error) {
 				return nil, nil
 			},
 			ValidateArtifact: func(_ context.Context, a *artifactcohort.Artifact) error { return artifactcohort.ValidateArtifact(a) },

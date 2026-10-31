@@ -11,6 +11,8 @@ import (
 // Hosts inject its native component implementation with verified request scope.
 type ReleaseStore interface {
 	contract.ChannelStore
+	ChannelSelections(context.Context) ([]releasevalue.ActiveSelection, error)
+	ActiveSelections(context.Context) ([]releasevalue.ActiveSelection, error)
 	CreateChannel(context.Context, contract.Channel) error
 	ListChannels(context.Context) ([]contract.Channel, error)
 	History(context.Context, contract.Key) ([]releasevalue.HistoryEntry, error)

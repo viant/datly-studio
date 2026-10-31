@@ -1,9 +1,12 @@
-package sqlstore
+package nativestore_test
 
 import (
 	"context"
 	"database/sql"
 	"errors"
+	"github.com/viant/datly-studio/internal/datatest"
+	"github.com/viant/datly-studio/sdk/artifactrelease/nativestore"
+	releasevalue "github.com/viant/datly-studio/sdk/artifactrelease/value"
 	"reflect"
 	"strings"
 	"sync"
@@ -16,7 +19,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func releaseFixture(t *testing.T) (*sql.DB, *Store, artifactrelease.Channel, artifactrelease.Bundle) {
+func releaseFixture(t *testing.T) (*sql.DB, *nativestore.Store, artifactrelease.Channel, artifactrelease.Bundle) {
 	t.Helper()
 	db, err := sql.Open("sqlite", "file:"+t.Name()+"?mode=memory&cache=shared")
 	if err != nil {
@@ -28,8 +31,8 @@ func releaseFixture(t *testing.T) (*sql.DB, *Store, artifactrelease.Channel, art
 	if err = schema.ApplySQLite(ctx, db, "studio"); err != nil {
 		t.Fatal(err)
 	}
-	scope := Scope{Tenant: "tenant", Account: "account", Workspace: "workspace", Namespace: "demo"}
-	store, err := New(db, scope, "verified-actor")
+	scope := releasevalue.Scope{Tenant: "tenant", Account: "account", Workspace: "workspace", Namespace: "demo"}
+	store, err := datatest.NativeReleaseStore(t, db, scope, "verified-actor")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -66,7 +69,7 @@ func TestReleaseStageRecoveryAndIdempotentComplete(t *testing.T) {
 	if err != nil || !reflect.DeepEqual(got, current) {
 		t.Fatalf("pending exposed active channel: %+v %v", got, err)
 	}
-	restarted, err := New(db, store.scope, "verified-actor")
+	restarted, err := datatest.NativeReleaseStore(t, db, scopeFromChannel(current), "verified-actor")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -120,22 +123,25 @@ func TestReleaseFailedProjectionRetainsActiveAndAllowsRetry(t *testing.T) {
 	}
 }
 
-func TestReleaseCASAndCallerTransaction(t *testing.T) {
+func TestReleaseCASAndNativeRollback(t *testing.T) {
 	ctx := context.Background()
 	db, store, current, bundle := releaseFixture(t)
 	next, err := artifactrelease.PreparePromotion(current, 0, bundle)
 	if err != nil {
 		t.Fatal(err)
 	}
-	tx, err := db.BeginTx(ctx, nil)
-	if err != nil {
+	if _, err = db.ExecContext(ctx, `CREATE TRIGGER reject_native_operation BEFORE INSERT ON artifact_release_operations BEGIN SELECT RAISE(ABORT,'synthetic operation failure'); END`); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = store.StageRevisionTx(ctx, tx, current, next, bundle); err != nil {
+	if _, err = store.StageRevision(ctx, current, next, bundle); err == nil {
+		t.Fatal("native child failure must roll back the channel reservation")
+	}
+	if _, err = db.ExecContext(ctx, `DROP TRIGGER reject_native_operation`); err != nil {
 		t.Fatal(err)
 	}
-	if err = tx.Rollback(); err != nil {
-		t.Fatal(err)
+	unchanged, err := store.Channel(ctx, current.Key)
+	if err != nil || !reflect.DeepEqual(unchanged, current) {
+		t.Fatalf("native rollback changed channel: %+v %v", unchanged, err)
 	}
 	pending, err := store.Pending(ctx)
 	if err != nil || len(pending) != 0 {
@@ -286,7 +292,7 @@ func TestReleaseImmutableBundleAndScope(t *testing.T) {
 	if err := store.PutBundle(ctx, mutated); !errors.Is(err, artifactrelease.ErrInvalid) {
 		t.Fatalf("hash/content mismatch accepted: %v", err)
 	}
-	other, err := New(db, Scope{Tenant: "tenant", Account: "other", Workspace: "workspace", Namespace: "demo"}, "verified-actor")
+	other, err := datatest.NativeReleaseStore(t, db, releasevalue.Scope{Tenant: "tenant", Account: "other", Workspace: "workspace", Namespace: "demo"}, "verified-actor")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -302,8 +308,8 @@ type actorKey struct{}
 
 func TestReleaseScopedListHistoryAndRequestActor(t *testing.T) {
 	ctx := context.Background()
-	db, seed, current, bundle := releaseFixture(t)
-	store, err := NewWithActorResolver(db, seed.scope, func(ctx context.Context) (string, error) {
+	db, _, current, bundle := releaseFixture(t)
+	store, err := datatest.NativeReleaseStoreWithActor(t, db, scopeFromChannel(current), func(ctx context.Context) (string, error) {
 		actor, _ := ctx.Value(actorKey{}).(string)
 		if actor == "" {
 			return "", errors.New("verified actor missing")
@@ -345,7 +351,7 @@ func TestReleaseScopedListHistoryAndRequestActor(t *testing.T) {
 	if err != nil || len(channels) != 1 || !reflect.DeepEqual(channels[0], next) {
 		t.Fatalf("list did not advance after commit: %+v %v", channels, err)
 	}
-	other, err := New(db, Scope{Tenant: "tenant", Account: "other", Workspace: "workspace", Namespace: "demo"}, "verified-actor")
+	other, err := datatest.NativeReleaseStore(t, db, releasevalue.Scope{Tenant: "tenant", Account: "other", Workspace: "workspace", Namespace: "demo"}, "verified-actor")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -353,4 +359,9 @@ func TestReleaseScopedListHistoryAndRequestActor(t *testing.T) {
 	if err != nil || len(otherChannels) != 0 {
 		t.Fatalf("cross-account list leaked: %+v %v", otherChannels, err)
 	}
+}
+
+func scopeFromChannel(channel artifactrelease.Channel) releasevalue.Scope {
+	key := channel.Key
+	return releasevalue.Scope{Tenant: key.Tenant, Account: key.Account, Workspace: key.Workspace, Namespace: key.Namespace}
 }

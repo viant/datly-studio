@@ -11,9 +11,10 @@ import (
 	"time"
 
 	"github.com/viant/authz"
+	"github.com/viant/datly-studio/internal/datatest"
 	"github.com/viant/datly-studio/schema"
-	"github.com/viant/datly-studio/sdk/artifactrelease/sqlstore"
 	"github.com/viant/datly-studio/sdk/artifactrelease/usegrant"
+	releasevalue "github.com/viant/datly-studio/sdk/artifactrelease/value"
 	"github.com/viant/forge/backend/artifactcohort"
 	contract "github.com/viant/forge/backend/artifactrelease"
 	_ "modernc.org/sqlite"
@@ -36,12 +37,12 @@ func TestIndependentSDKReaderGrantsOnlyActiveExactComponent(t *testing.T) {
 	if err = schema.ApplySQLite(ctx, db, "studio"); err != nil {
 		t.Fatal(err)
 	}
-	scope := sqlstore.Scope{Tenant: "tenant", Account: "account", Workspace: "workspace", Namespace: "demo"}
-	producer, err := sqlstore.New(db, scope, "verified-publisher")
+	scope := releasevalue.Scope{Tenant: "tenant", Account: "account", Workspace: "workspace", Namespace: "demo"}
+	producer, err := datatest.NativeReleaseStore(t, db, scope, "verified-publisher")
 	if err != nil {
 		t.Fatal(err)
 	}
-	api, err := sqlstore.New(db, scope, "sdk-service")
+	api, err := datatest.NativeReleaseStore(t, db, scope, "sdk-service")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -73,8 +74,8 @@ func TestIndependentSDKReaderGrantsOnlyActiveExactComponent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	binding := sqlstore.ComponentBinding{Root: root, DataSourceID: "rows", ComponentKind: "dynamic", ComponentID: "reader", ComponentRevision: "7", Method: http.MethodGet, Route: "/rows", SchemaFingerprint: strings.Repeat("b", 64), ContentFingerprint: strings.Repeat("c", 64)}
-	id, err := producer.StageRevisionWithBindingsAndDependencies(ctx, channel, next, bundle, []sqlstore.ComponentBinding{binding}, compiled.Dependencies)
+	binding := releasevalue.ComponentBinding{Root: root, DataSourceID: "rows", ComponentKind: "dynamic", ComponentID: "reader", ComponentRevision: "7", Method: http.MethodGet, Route: "/rows", SchemaFingerprint: strings.Repeat("b", 64), ContentFingerprint: strings.Repeat("c", 64)}
+	id, err := producer.StageRevisionWithBindingsAndDependencies(ctx, channel, next, bundle, []releasevalue.ComponentBinding{binding}, compiled.Dependencies)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -82,7 +83,7 @@ func TestIndependentSDKReaderGrantsOnlyActiveExactComponent(t *testing.T) {
 		t.Fatal(err)
 	}
 	provider := factsProvider{role: "operator"}
-	reader := &usegrant.Reader{Store: api, Scope: scope, VerifyScope: func(context.Context) (sqlstore.Scope, error) { return scope, nil }, Provider: provider,
+	reader := &usegrant.Reader{Store: api, Scope: scope, VerifyScope: func(context.Context) (releasevalue.Scope, error) { return scope, nil }, Provider: provider,
 		NamedDocuments: func(context.Context, []authz.NamedReference) ([]authz.Document, error) {
 			return []authz.Document{doc}, nil
 		},
@@ -93,7 +94,7 @@ func TestIndependentSDKReaderGrantsOnlyActiveExactComponent(t *testing.T) {
 			return nil
 		},
 		RootAvailable: func(context.Context, artifactcohort.RootRef) error { return nil },
-		NativeConstraints: func(_ context.Context, b sqlstore.ComponentBinding, _ string) error {
+		NativeConstraints: func(_ context.Context, b releasevalue.ComponentBinding, _ string) error {
 			if b.ComponentID != "reader" || b.ComponentRevision != "7" {
 				return authz.ErrDenied
 			}
@@ -145,7 +146,7 @@ func TestIndependentSDKReaderGrantsOnlyActiveExactComponent(t *testing.T) {
 		changedBinding := binding
 		changedBinding.Root = changedRoot
 		changedBinding.ComponentRevision = "8"
-		op, e := producer.StageRevisionWithBindingsAndDependencies(ctx, next, changed, changedBundle, []sqlstore.ComponentBinding{changedBinding}, compiled.Dependencies)
+		op, e := producer.StageRevisionWithBindingsAndDependencies(ctx, next, changed, changedBundle, []releasevalue.ComponentBinding{changedBinding}, compiled.Dependencies)
 		if e != nil {
 			t.Fatal(e)
 		}
@@ -172,7 +173,7 @@ func TestIndependentSDKReaderGrantsOnlyActiveExactComponent(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	op, e := producer.StageRevisionWithBindingsAndDependencies(ctx, current, restored, bundle, []sqlstore.ComponentBinding{binding}, compiled.Dependencies)
+	op, e := producer.StageRevisionWithBindingsAndDependencies(ctx, current, restored, bundle, []releasevalue.ComponentBinding{binding}, compiled.Dependencies)
 	if e != nil {
 		t.Fatal(e)
 	}

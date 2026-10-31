@@ -1,4 +1,4 @@
-package sqlstore
+package nativestore_test
 
 import (
 	"bytes"
@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	releasevalue "github.com/viant/datly-studio/sdk/artifactrelease/value"
 	"net/http"
 	"reflect"
 	"strings"
@@ -19,13 +20,13 @@ import (
 func TestImmutableBindingsStageWithChannelCAS(t *testing.T) {
 	ctx := context.Background()
 	db, store, current, bundle := releaseFixture(t)
-	binding := ComponentBinding{Root: bundle.Roots[0], DataSourceID: "rows", ComponentKind: "dynamic", ComponentID: "reader", ComponentRevision: "7", Method: http.MethodGet, Route: "/rows", SchemaFingerprint: strings.Repeat("b", 64), ContentFingerprint: strings.Repeat("c", 64)}
+	binding := releasevalue.ComponentBinding{Root: bundle.Roots[0], DataSourceID: "rows", ComponentKind: "dynamic", ComponentID: "reader", ComponentRevision: "7", Method: http.MethodGet, Route: "/rows", SchemaFingerprint: strings.Repeat("b", 64), ContentFingerprint: strings.Repeat("c", 64)}
 	next, err := contract.PreparePromotion(current, 0, bundle)
 	if err != nil {
 		t.Fatal(err)
 	}
 	deps := []authz.NamedDependency{{Resource: authz.Resource{Tenant: "tenant", Kind: "policy", ID: "operators", Version: "logical"}, Revision: 1}}
-	id, err := store.StageRevisionWithBindingsAndDependencies(ctx, current, next, bundle, []ComponentBinding{binding}, deps)
+	id, err := store.StageRevisionWithBindingsAndDependencies(ctx, current, next, bundle, []releasevalue.ComponentBinding{binding}, deps)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -34,7 +35,7 @@ func TestImmutableBindingsStageWithChannelCAS(t *testing.T) {
 		t.Fatalf("pending dependency revision missing: %+v %v", pendingDeps, err)
 	}
 	stored, err := store.BundleBindings(ctx, bundle)
-	if err != nil || !reflect.DeepEqual(stored, []ComponentBinding{binding}) {
+	if err != nil || !reflect.DeepEqual(stored, []releasevalue.ComponentBinding{binding}) {
 		t.Fatalf("binding lost: %+v %v", stored, err)
 	}
 	if err = store.CompleteRevision(ctx, current.Key, 0, id); err != nil {
@@ -46,11 +47,15 @@ func TestImmutableBindingsStageWithChannelCAS(t *testing.T) {
 	}
 	changed := binding
 	changed.ComponentID = "other"
-	if _, err = store.StageRevisionWithBindings(ctx, next, next, bundle, []ComponentBinding{changed}); !errors.Is(err, contract.ErrConflict) {
+	changedNext, err := contract.PreparePromotion(next, next.Revision, bundle)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = store.StageRevisionWithBindings(ctx, next, changedNext, bundle, []releasevalue.ComponentBinding{changed}); !errors.Is(err, contract.ErrConflict) {
 		t.Fatalf("immutable companion overwritten: %v", err)
 	}
 	stored, err = store.BundleBindings(ctx, bundle)
-	if err != nil || !reflect.DeepEqual(stored, []ComponentBinding{binding}) {
+	if err != nil || !reflect.DeepEqual(stored, []releasevalue.ComponentBinding{binding}) {
 		t.Fatalf("changed companion persisted: %+v %v", stored, err)
 	}
 	other := bundle
@@ -62,7 +67,7 @@ func TestImmutableBindingsStageWithChannelCAS(t *testing.T) {
 	}
 	otherBinding := binding
 	otherBinding.Root = other.Roots[0]
-	if _, err = store.StageRevisionWithBindings(ctx, current, next, other, []ComponentBinding{otherBinding}); !errors.Is(err, contract.ErrInvalid) && !errors.Is(err, contract.ErrConflict) {
+	if _, err = store.StageRevisionWithBindings(ctx, current, next, other, []releasevalue.ComponentBinding{otherBinding}); !errors.Is(err, contract.ErrInvalid) && !errors.Is(err, contract.ErrConflict) {
 		t.Fatalf("stale stage accepted: %v", err)
 	}
 	if _, err = store.BundleBindings(ctx, other); !errors.Is(err, sql.ErrNoRows) {
@@ -77,7 +82,7 @@ func TestImmutableBindingsStageWithChannelCAS(t *testing.T) {
 func TestReleaseJSONColumnsValidateValuesAcrossMySQLFormatting(t *testing.T) {
 	ctx := context.Background()
 	db, store, current, bundle := releaseFixture(t)
-	binding := ComponentBinding{Root: bundle.Roots[0], DataSourceID: "rows", ComponentKind: "dynamic", ComponentID: "reader", ComponentRevision: "7", Method: http.MethodGet, Route: "/rows", SchemaFingerprint: strings.Repeat("b", 64), ContentFingerprint: strings.Repeat("c", 64)}
+	binding := releasevalue.ComponentBinding{Root: bundle.Roots[0], DataSourceID: "rows", ComponentKind: "dynamic", ComponentID: "reader", ComponentRevision: "7", Method: http.MethodGet, Route: "/rows", SchemaFingerprint: strings.Repeat("b", 64), ContentFingerprint: strings.Repeat("c", 64)}
 	deps := []authz.NamedDependency{
 		{Resource: authz.Resource{Tenant: "tenant", Kind: "policy", ID: "operators", Version: "logical"}, Revision: 1},
 		{Resource: authz.Resource{Tenant: "tenant", Kind: "policy", ID: "readers", Version: "logical"}, Revision: 2},
@@ -86,7 +91,7 @@ func TestReleaseJSONColumnsValidateValuesAcrossMySQLFormatting(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	id, err := store.StageRevisionWithBindingsAndDependencies(ctx, current, next, bundle, []ComponentBinding{binding}, deps)
+	id, err := store.StageRevisionWithBindingsAndDependencies(ctx, current, next, bundle, []releasevalue.ComponentBinding{binding}, deps)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -112,24 +117,24 @@ func TestReleaseJSONColumnsValidateValuesAcrossMySQLFormatting(t *testing.T) {
 		t.Fatal(err)
 	}
 	gotBindings, err := store.BundleBindings(ctx, bundle)
-	if err != nil || !reflect.DeepEqual(gotBindings, []ComponentBinding{binding}) {
+	if err != nil || !reflect.DeepEqual(gotBindings, []releasevalue.ComponentBinding{binding}) {
 		t.Fatalf("reformatted immutable bindings changed values: %+v %v", gotBindings, err)
 	}
-	_, canonical, hash, err := validateBindings(bundle, []ComponentBinding{binding})
+	_, canonical, _, err := releasevalue.ValidateBindings(bundle, []releasevalue.ComponentBinding{binding})
 	if err != nil {
 		t.Fatal(err)
 	}
-	tx, err := db.BeginTx(ctx, nil)
-	if err != nil {
+	if err = store.FailRevision(ctx, current.Key, current.Revision, id, "synthetic_retry"); err != nil {
 		t.Fatal(err)
 	}
-	if err = store.putBindingsTx(ctx, tx, bundle, canonical, hash); err != nil {
-		t.Fatalf("same immutable values rejected after SQL formatting: %v", err)
+	if repeated, err := store.StageRevisionWithBindingsAndDependencies(ctx, current, next, bundle, []releasevalue.ComponentBinding{binding}, deps); err != nil || repeated == "" {
+		t.Fatalf("same immutable values rejected after SQL formatting: id=%s err=%v", repeated, err)
+	} else {
+		id = repeated
 	}
-	_ = tx.Rollback()
 	changed := binding
 	changed.ComponentID = "tampered"
-	changedRaw, _ := json.Marshal([]ComponentBinding{changed})
+	changedRaw, _ := json.Marshal([]releasevalue.ComponentBinding{changed})
 	if _, err = db.ExecContext(ctx, `UPDATE artifact_release_bundle_bindings SET bindings_json=? WHERE bundle_hash=?`, changedRaw, bundle.Hash); err != nil {
 		t.Fatal(err)
 	}

@@ -42,6 +42,17 @@ manifest selection, source availability and policy-head fences still apply.
 The adapter validates and decodes related values; it performs no additional
 queries, joins, row filtering or long-lived caching.
 
+`ChannelSelections` uses that same graph without the active-only predicate, so
+listing and recovery retain unpublished channels with no selected bundle.
+Fingerprinting and policy refresh consume `ActiveSelections`; listing and recovery
+consume `ChannelSelections`. These controller paths do not fetch each channel's
+bundle, binding and policy dependencies individually. Historical bundle promotion
+and pending-intent recovery remain separate exact-selection contracts.
+
+The legacy `sqlstore` implementation is retired. Hosts provide the native store;
+`nativeruntime.New` binds the generated release components to an existing
+connector without issuing application-owned SQL or owning the caller's pool.
+
 To qualify the generated graph and adapter on MySQL, point the following test at
 an **empty database in an exclusively owned disposable instance**:
 
