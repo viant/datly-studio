@@ -76,6 +76,14 @@ Declare bindings, required verified scope, optional predicates and output roles.
 Use resources.upsert_file when embedded SQL belongs to the component resource tree;
 keep resource paths relative to the version. Re-inspect computed output columns.
 
+For `WithEnum`, supply complete JSON scalar literals: `.WithEnum(3,1,2)` for
+integer choices or `.WithEnum("low","high")` for strings. SQL-style single-quoted
+strings are not this declaration's grammar. Preserve the source scalar type and
+declaration order; numeric strings are not numeric IDs. Existing `choice` metadata
+describes allowed values, not a value-to-label transformation or an expanded
+`{value,label}` output. For an output-shape change, inspect native codecs/transfer
+mapping or a source projection before introducing another enum/format mechanism.
+
 Use versions.test_view / preview.execute and the cube-specific test facilities
 advertised by this build. connectors.test_sql is an exploratory SQL execution,
 not a column-discovery substitute. Its timeout is explicit: 0 disables Studio's
