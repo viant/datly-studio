@@ -1375,6 +1375,8 @@ github.com/viant/bigquery v0.5.4-0.20261018094240-7627f510d5d8 h1:HZmrG1ncvhaAh6
 github.com/viant/bigquery v0.5.4-0.20261018094240-7627f510d5d8/go.mod h1:L5VHC9DEQ1ZlR1yaSbCqnKf6GXz355EGBIbP+wx+wTk=
 github.com/viant/bigquery v0.5.5-0.20261029162853-7bc1b92e9c95 h1:WXGA6vo5w1L8HGeIcrLYEIg+3y2J8Fg4zL3olrTN9ak=
 github.com/viant/bigquery v0.5.5-0.20261029162853-7bc1b92e9c95/go.mod h1:L5VHC9DEQ1ZlR1yaSbCqnKf6GXz355EGBIbP+wx+wTk=
+github.com/viant/bigquery v0.5.5-0.20261031051553-fe0fd263fd44 h1:TeYaS+H5EzcVM2Ui/cVqkDO8fd4YWmuA98ZkEzoV8IQ=
+github.com/viant/bigquery v0.5.5-0.20261031051553-fe0fd263fd44/go.mod h1:L5VHC9DEQ1ZlR1yaSbCqnKf6GXz355EGBIbP+wx+wTk=
 github.com/viant/bindly v0.4.1-0.20261011212616-2c051ae6bd9e h1:Jsx2KLz+XxxGx/cENZn5iSE1RUpGdvfq6oSOx1n++tw=
 github.com/viant/bindly v0.4.1-0.20261011212616-2c051ae6bd9e/go.mod h1:2S+CsLqdGI1+s7BSuEWx/+ew8p+/Ax7Xi3HKGiE3/O8=
 github.com/viant/bindly v0.4.1-0.20261017023851-b39a34a62792 h1:lZLdEnaBctE2C5B9MMyLet/Yb11zlJqlf5d4tlmPYro=
