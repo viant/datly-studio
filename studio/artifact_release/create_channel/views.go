@@ -9,7 +9,7 @@ import (
 
 // NewChannel is generated canonical view metadata for create_channel.
 type NewChannel struct {
-	ScopeId                *string          `json:",omitempty" sqlx:"scope_id,refTable=artifact_release_bundles,refColumn=scope_id,required=true,primaryKey=true"`
+	ScopeId                *string          `json:",omitempty" refKey:"scope_id,active_bundle_hash" sqlx:"scope_id,refTable=artifact_release_bundles,refColumn=scope_id,required=true,primaryKey=true"`
 	TenantId               *string          `json:",omitempty" sqlx:"tenant_id,required=true"`
 	AccountId              *string          `json:",omitempty" sqlx:"account_id,required=true"`
 	WorkspaceId            *string          `json:",omitempty" sqlx:"workspace_id,required=true"`
@@ -17,7 +17,7 @@ type NewChannel struct {
 	Name                   *string          `json:",omitempty" sqlx:"name,required=true,primaryKey=true"`
 	Description            *string          `json:",omitempty" sqlx:"description,required=true"`
 	PolicyRefsJson         *json.RawMessage `json:",omitempty" sqlx:"policy_refs_json,required=true,enc=JSON"`
-	ActiveBundleHash       *string          `json:",omitempty" sqlx:"active_bundle_hash,refTable=artifact_release_bundles,refColumn=bundle_hash"`
+	ActiveBundleHash       *string          `json:",omitempty" refKey:"scope_id,active_bundle_hash" sqlx:"active_bundle_hash,refTable=artifact_release_bundles,refColumn=bundle_hash"`
 	ActiveDependenciesJson *json.RawMessage `json:",omitempty" sqlx:"active_dependencies_json,enc=JSON"`
 	Revision               int64            `json:",omitempty" sqlx:"revision,required=true"`
 	PendingOperationId     *string          `json:",omitempty" sqlx:"pending_operation_id"`

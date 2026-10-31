@@ -54,6 +54,50 @@ func releaseFixture(t *testing.T) (*sql.DB, *nativestore.Store, artifactrelease.
 	return db, store, channel, bundle
 }
 
+// A new channel has no active bundle. Its nullable composite FK must not
+// require an unrelated bundle row merely to make the scope scalar exist.
+func TestReleaseCreateUnpublishedChannelWithoutBundle(t *testing.T) {
+	ctx := t.Context()
+	db, err := sql.Open("sqlite", "file:"+t.Name()+"?mode=memory&cache=shared&_pragma=foreign_keys(1)")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { db.Close() })
+	if err = schema.ApplySQLite(ctx, db, "studio"); err != nil {
+		t.Fatal(err)
+	}
+	scope := releasevalue.Scope{Tenant: "tenant", Account: "account", Workspace: "workspace", Namespace: "empty"}
+	store, err := datatest.NativeReleaseStore(t, db, scope, "actor")
+	if err != nil {
+		t.Fatal(err)
+	}
+	channel, err := artifactrelease.NewChannel(artifactrelease.Key{Tenant: scope.Tenant, Account: scope.Account, Workspace: scope.Workspace, Namespace: scope.Namespace, Name: "main"}, "Unpublished", []authz.NamedReference{{Resource: authz.Resource{Tenant: scope.Tenant, Kind: "policy", ID: "readers", Version: "logical"}, Revision: 1}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = store.CreateChannel(ctx, channel); err != nil {
+		t.Fatal(err)
+	}
+	selected, err := store.ChannelSelections(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(selected) != 1 || selected[0].Channel.Key != channel.Key || selected[0].Bundle.Hash != "" {
+		t.Fatalf("unpublished selection: %+v", selected)
+	}
+	active, err := store.ActiveSelections(ctx)
+	if err != nil || len(active) != 0 {
+		t.Fatalf("unpublished channel became active: %+v %v", active, err)
+	}
+	var count int
+	if err = db.QueryRowContext(ctx, "SELECT COUNT(*) FROM artifact_release_bundles").Scan(&count); err != nil {
+		t.Fatal(err)
+	}
+	if count != 0 {
+		t.Fatalf("unpublished channel created %d bundle rows", count)
+	}
+}
+
 func TestReleaseStageRecoveryAndIdempotentComplete(t *testing.T) {
 	ctx := context.Background()
 	db, store, current, bundle := releaseFixture(t)
