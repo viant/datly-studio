@@ -106,3 +106,10 @@ Rendered tests and a production build pass against the pinned published Forge
 package. The full Go suite also has independently reproduced baseline failures
 in distributed browser identity refresh and warmup recovery; the catalog,
 namespace skill, Studio API and Datly bootstrap suites pass.
+
+Namespace **Security and resource limits** uses a list of package-path strings
+with Add package/Remove package actions. Missing configuration enables no external
+packages. Only verified namespace administrators can add/change/remove policy
+groups; ordinary owners and delegated content managers see read-only controls.
+The component catalog's **Query resource checks** action configures the draft's
+explicit opt-in flag without enabling it for other components.

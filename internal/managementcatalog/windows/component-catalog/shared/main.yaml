@@ -119,6 +119,15 @@ window:
                 on:
                   - event: onClick
                     handler: management.openComponent
+              - id: resource-check
+                name: ''
+                type: button
+                icon: dashboard
+                tooltip: Query resource checks
+                cellProperties: {aria-label: Query resource checks}
+                on:
+                  - event: onClick
+                    handler: management.openResourceChecks
               - id: audit
                 name: ''
                 type: button
@@ -225,7 +234,51 @@ window:
             - id: catalog-create-namespaces-binding
               dataSourceRef: catalog_create_namespaces
               fetchData: false
+            - id: catalog-resource-inspect-binding
+              dataSourceRef: catalog_resource_inspect
+              fetchData: false
+            - id: catalog-resource-apply-binding
+              dataSourceRef: catalog_resource_apply
+              fetchData: false
   dialogs:
+    - id: component-resource-check
+      title: Component query resource checks
+      dataSourceRef: catalog_resource_check
+      fetchOnOpen: false
+      properties:
+        closeDisabledWhen: {selector: saving, equals: true}
+      content:
+        id: component-resource-check-form
+        items:
+          - id: title
+            label: Component
+            dataField: title
+            type: text
+            readOnly: true
+          - id: resourceCheckEnabled
+            label: Check query resources against namespace limits
+            dataField: resourceCheckEnabled
+            type: checkbox
+            readOnlyWhen: {selector: canEdit, equals: false}
+          - id: outcome
+            label: Outcome
+            dataField: outcome
+            type: text
+            readOnly: true
+      actions:
+        - id: save
+          label: Save resource check
+          visibleWhen: {selector: canEdit, equals: true}
+          disabledWhen: {selector: saving, equals: true}
+          close: true
+          on:
+            - event: onClick
+              handler: management.saveResourceChecks
+        - id: cancel
+          label: Cancel
+          disabledWhen: {selector: saving, equals: true}
+          close: true
+
     - id: component-audit
       title: Component audit settings
       className: studio-connector-dialog
@@ -574,4 +627,20 @@ dataSources:
     id: catalog_audit_configure
     cardinality: object
     backend: {kind: mcp_tool, method: studio.sdk.audit.configure}
+    cache: {enabled: false}
+
+  catalog_resource_check:
+    id: catalog_resource_check
+    cardinality: object
+    backend: {kind: inline, rows: []}
+    cache: {enabled: false}
+  catalog_resource_inspect:
+    id: catalog_resource_inspect
+    cardinality: object
+    backend: {kind: mcp_tool, method: studio.sdk.versions.inspect}
+    cache: {enabled: false}
+  catalog_resource_apply:
+    id: catalog_resource_apply
+    cardinality: object
+    backend: {kind: mcp_tool, method: studio.sdk.versions.apply}
     cache: {enabled: false}

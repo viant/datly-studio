@@ -13,6 +13,8 @@ function mount({paging=false}={}){
   const id=request.dataSourceRef,input=request.options.inputParameters||{};
   if(id==='catalog_list')return {items:paging?Array.from({length:input.offset?1:26},(_,index)=>({id:'r'+(index+(input.offset||0)),title:'Component '+(index+(input.offset||0)),currentDraftVersion:3,status:'draft'})):[{id:'r1',title:'Vendor Catalog',currentDraftVersion:3,status:'draft'}]};
   if(id==='catalog_namespace_list')return {items:[{name:'general',title:'General'}]};
+  if(id==='catalog_resource_inspect')return {version:{versionNo:3,sourceRevision:7,state:'draft',resourceCheckEnabled:false},capabilities:{canEdit:true}};
+  if(id==='catalog_resource_apply')return {version:{versionNo:3,sourceRevision:8,state:'draft',resourceCheckEnabled:input.command.payload.resourceCheckEnabled}};
   if(id==='catalog_download')return {archive:[1,2,3],filename:'vendor.zip',mediaType:'application/zip'};
   if(id==='catalog_load_dql')return {version:{versionNo:4}};
   return {data:[]};
@@ -40,4 +42,15 @@ test('metadata catalog sends server paging and query parameters',async()=>{
  await user.click(await screen.findByRole('button',{name:'Next',exact:true}));expect(await screen.findByText('Component 25')).toBeTruthy();expect(screen.queryByText('Component 0')).toBeNull();
  await user.type(screen.getByRole('textbox',{name:'Search components',exact:true}),'vendor');await user.click(screen.getByRole('button',{name:'Search components',exact:true}));
  await waitFor(()=>expect(transport.mock.calls.some(([request])=>request.dataSourceRef==='catalog_list'&&request.options.inputParameters.query==='vendor'&&request.options.inputParameters.offset===0&&request.options.inputParameters.limit===26)).toBe(true));
+});
+
+
+test('component catalog resource opt-in starts off and saves only the selected draft',async()=>{
+ const user=userEvent.setup(),{transport}=mount();await screen.findByText('Vendor Catalog');
+ await user.click(screen.getByRole('button',{name:'Query resource checks',exact:true}));
+ await screen.findByRole('dialog',{name:'Component query resource checks'});
+ const check=screen.getByLabelText('Check query resources against namespace limits',{exact:true});expect(check.checked).toBe(false);
+ await user.click(check);await user.click(screen.getByRole('button',{name:'Save resource check',exact:true}));
+ await waitFor(()=>expect(transport.mock.calls.some(([request])=>request.dataSourceRef==='catalog_resource_apply')).toBe(true));
+ expect(transport.mock.calls.find(([request])=>request.dataSourceRef==='catalog_resource_apply')[0].options.inputParameters).toEqual({reportId:'r1',versionNo:3,command:{kind:'set_resource_check',expectedSourceRevision:7,payload:{resourceCheckEnabled:true}}});
 });

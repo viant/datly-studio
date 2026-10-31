@@ -48,6 +48,10 @@ func (previewIdentityHandler) Exec(_ context.Context, _ xhandler.Session, input 
 }
 
 func checkPreviewDependencyIdentity(t *testing.T, db *sql.DB, root, original string) {
+	// The fixture explicitly opts this namespace into its linked test handler.
+	if _, err := db.ExecContext(context.Background(), `INSERT OR IGNORE INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at) VALUES('owner','general','General','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP); INSERT OR REPLACE INTO namespace_settings(owner_id,namespace,setting_key,value_json,updated_at,updated_by) VALUES('owner','general','security','{"predicatePackages":["github.com/viant/datly-studio/runtime/preview"]}',CURRENT_TIMESTAMP,'fixture')`); err != nil {
+		t.Fatal(err)
+	}
 	ctx := context.Background()
 	dql := `#package('example.com/app/dynamic/vendors')
 #import('identity','github.com/viant/datly-studio/runtime/preview')

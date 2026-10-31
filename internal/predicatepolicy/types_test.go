@@ -29,8 +29,8 @@ func TestNamespaceSelectionRetainsOtherTypesAndRemovesUnselectedPredicates(t *te
 	require.NoError(t, err)
 	_, found, err = inherited.Resolve(typecatalog.PackageAuthority, predicate.Key())
 	require.NoError(t, err)
-	require.True(t, found)
-	// Selection never mutates the trusted host catalog.
+	require.False(t, found)
+	// Missing configuration never opts a package in; selection never mutates the host catalog.
 	_, found, err = source.Resolve(typecatalog.PackageAuthority, predicate.Key())
 	require.NoError(t, err)
 	require.True(t, found)

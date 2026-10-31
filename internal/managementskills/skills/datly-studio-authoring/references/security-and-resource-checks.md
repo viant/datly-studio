@@ -6,15 +6,15 @@ Use the namespace name, component ID, version and revisions returned by this ser
 
 ## Read and change namespace settings
 
-Read `studio.sdk.namespaces.settings_get` for an authorized namespace owner or
-manager:
+Read `studio.sdk.namespaces.settings_get` for an authorized namespace administrator:
 
 ```json
 {"name":"analytics"}
 ```
 
-The response contains `settings` and the namespace's current `etag`. There is no
-separate setting revision. Namespace settings persist independently of DQL and
+The response contains `settings` and the namespace's current `etag`. Only the verified namespace-admin role can add, change or remove these settings.
+Owners and delegated content managers do not receive that permission implicitly.
+There is no separate setting revision. Namespace settings persist independently of DQL and
 component specs, so ordinary source and namespace metadata edits retain them.
 
 `studio.sdk.namespaces.settings_update` accepts only the groups being changed.
@@ -114,8 +114,8 @@ The `security` setting contains `predicatePackages` and
 
 Use actual host-approved linked package paths discovered from
 `studio.sdk.authorization_predicates.types`; example paths are placeholders.
-A null package list inherits the host's approved selection; an empty list selects
-no external handlers. The setting does not download packages or compile Go code.
+Missing, null and empty package lists select no external handlers; nothing is
+enabled by default. The setting does not download packages or compile Go code.
 Preserve the saved requirement and package selection when changing resource limits.
 
 Before component publication or release bundle creation, the server checks the

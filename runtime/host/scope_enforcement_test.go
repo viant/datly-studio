@@ -123,6 +123,10 @@ func newScopedHost(t *testing.T, reports map[string]string, policies map[string]
 }
 
 func newScopedHostConfigured(t *testing.T, reports map[string]string, policies map[string]authz.Policy, configure func(*ResourceAccessConfig), decisions ...authz.DecisionProvider) (*scopedHost, error) {
+	return newScopedHostConfiguredPackages(t, reports, policies, configure, nil, decisions...)
+}
+
+func newScopedHostConfiguredPackages(t *testing.T, reports map[string]string, policies map[string]authz.Policy, configure func(*ResourceAccessConfig), packages []string, decisions ...authz.DecisionProvider) (*scopedHost, error) {
 	t.Helper()
 	ctx := context.Background()
 	root := t.TempDir()
@@ -146,6 +150,18 @@ INSERT INTO tasks VALUES(1,101,'alpha-101'),(2,102,'beta-102'),(3,103,'gamma-103
 	}
 	if err = schema.ApplySQLite(ctx, studio, "studio"); err != nil {
 		t.Fatal(err)
+	}
+	if len(packages) > 0 {
+		if _, err = studio.Exec(`INSERT INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at) VALUES('owner','general','General','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`); err != nil {
+			t.Fatal(err)
+		}
+		value, marshalErr := json.Marshal(map[string]any{"predicatePackages": packages})
+		if marshalErr != nil {
+			t.Fatal(marshalErr)
+		}
+		if _, err = studio.Exec(`INSERT INTO namespace_settings(owner_id,namespace,setting_key,value_json,updated_at,updated_by) VALUES('owner','general','security',?,CURRENT_TIMESTAMP,'fixture')`, string(value)); err != nil {
+			t.Fatal(err)
+		}
 	}
 	now := time.Now().UTC()
 	if _, err = studio.Exec(`INSERT INTO connectors(name,driver,dsn_template,owner_id,status,options_json,etag,created_at,updated_at) VALUES('source','sqlite',?,'owner','active','{}',1,?,?)`, sourceDSN, now, now); err != nil {
@@ -306,7 +322,7 @@ func TestPublishedReaderRequiresAllowlistedLinkedPredicateBeforeServing(t *testi
 		t.Fatalf("unlinked published predicate was accepted: %v", err)
 	}
 	t.Setenv("STUDIO_PREDICATE_PACKAGES", extensionPath)
-	host, err := newScopedHost(t, map[string]string{"tasks": linkedExtensionDQL}, map[string]authz.Policy{"tasks": policy})
+	host, err := newScopedHostConfiguredPackages(t, map[string]string{"tasks": linkedExtensionDQL}, map[string]authz.Policy{"tasks": policy}, nil, []string{extensionPath})
 	if err != nil {
 		t.Fatal(err)
 	}

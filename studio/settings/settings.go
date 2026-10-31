@@ -13,7 +13,7 @@ const SecurityKey = "security"
 const ResourceLimitsKey = "resourceLimits"
 
 type Security struct {
-	// Nil inherits host-approved packages; an empty slice selects none.
+	// Nil and empty lists select no external packages; each package is opt-in.
 	PredicatePackages        []string `json:"predicatePackages"`
 	RequireSecurityPredicate bool     `json:"requireSecurityPredicate"`
 }
@@ -60,7 +60,7 @@ func Decode(key string, data json.RawMessage) (any, error) {
 			}
 			seen[p] = true
 		}
-		if v.RequireSecurityPredicate && v.PredicatePackages != nil && len(v.PredicatePackages) == 0 {
+		if v.RequireSecurityPredicate && len(v.PredicatePackages) == 0 {
 			return nil, fmt.Errorf("required security predicates need an eligible package")
 		}
 	case *ResourceLimits:

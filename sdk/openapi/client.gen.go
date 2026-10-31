@@ -170,8 +170,9 @@ type Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_Secur
 
 // Input3b4d0b6fd5b601973df85847b4f071da78ceffe933882fb84b7e61a82dda71cc defines model for Input_3b4d0b6fd5b601973df85847b4f071da78ceffe933882fb84b7e61a82dda71cc.
 type Input3b4d0b6fd5b601973df85847b4f071da78ceffe933882fb84b7e61a82dda71cc struct {
-	Etag     *int64                                                                 `json:"etag,omitempty"`
-	Settings *Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f `json:"settings,omitempty"`
+	Etag       *int64                                                                 `json:"etag,omitempty"`
+	RemoveKeys *[]string                                                              `json:"removeKeys,omitempty"`
+	Settings   *Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f `json:"settings,omitempty"`
 }
 
 // Input3b8ad7ea195cbba3ef3be5685f87cf9a98b9cdc47646253bc4c507a08ccf62cf defines model for Input_3b8ad7ea195cbba3ef3be5685f87cf9a98b9cdc47646253bc4c507a08ccf62cf.
@@ -405,8 +406,9 @@ type Input78c96702ed752e425a13d515ae18bac86d71d27030700074199617129869fe30 struc
 
 // Input79c60632c9d0a82ab62168e5cc8be9b94cc7586c14ac73884344edf6fb26fb00 defines model for Input_79c60632c9d0a82ab62168e5cc8be9b94cc7586c14ac73884344edf6fb26fb00.
 type Input79c60632c9d0a82ab62168e5cc8be9b94cc7586c14ac73884344edf6fb26fb00 struct {
-	Etag     *int64                                                                 `json:"etag,omitempty"`
-	Settings *Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d `json:"settings,omitempty"`
+	Etag       *int64                                                                 `json:"etag,omitempty"`
+	RemoveKeys *[]string                                                              `json:"removeKeys,omitempty"`
+	Settings   *Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d `json:"settings,omitempty"`
 }
 
 // Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d defines model for Input_7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d.
@@ -4278,6 +4280,7 @@ type WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_Securi
 
 // WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88 defines model for Wire_cbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88.
 type WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88 struct {
+	CanEdit  bool                                                                          `json:"canEdit"`
 	Etag     int64                                                                         `json:"etag"`
 	Settings WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88_Settings `json:"settings"`
 }
@@ -4475,6 +4478,7 @@ type WireD5cefe1b3a17afd7fef5285814e696de9b1f5aa8569887156dc7690bce5223c2 struct
 
 // WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836 defines model for Wire_d729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836.
 type WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836 struct {
+	CanEdit  bool                                                                          `json:"canEdit"`
 	Etag     int64                                                                         `json:"etag"`
 	Settings WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836_Settings `json:"settings"`
 }

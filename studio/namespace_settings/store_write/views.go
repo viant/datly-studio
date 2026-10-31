@@ -27,22 +27,24 @@ type StoredNamespaceHas struct {
 
 // StoredSetting is generated canonical view metadata for settings.
 type StoredSetting struct {
-	OwnerId    string            `json:",omitempty" sqlx:"owner_id,refTable=namespaces,refColumn=owner_id,required=true,primaryKey=true"`
-	Namespace  string            `json:",omitempty" sqlx:"namespace,refTable=namespaces,refColumn=name,required=true,primaryKey=true"`
-	SettingKey string            `json:",omitempty" sqlx:"setting_key,required=true,primaryKey=true"`
-	ValueJson  json.RawMessage   `json:",omitempty" sqlx:"value_json,enc=JSON,required=true"`
-	UpdatedAt  time.Time         `json:",omitempty" sqlx:"updated_at,required=true"`
-	UpdatedBy  string            `json:",omitempty" sqlx:"updated_by,required=true"`
-	Has        *StoredSettingHas `diff:"-" format:"-" json:"-" setMarker:"true" sqlx:"-" typeName:"StoredSettingHas"`
+	OwnerId      string            `json:",omitempty" sqlx:"owner_id,refTable=namespaces,refColumn=owner_id,required=true,primaryKey=true"`
+	Namespace    string            `json:",omitempty" sqlx:"namespace,refTable=namespaces,refColumn=name,required=true,primaryKey=true"`
+	SettingKey   string            `json:",omitempty" sqlx:"setting_key,required=true,primaryKey=true"`
+	ValueJson    json.RawMessage   `json:",omitempty" sqlx:"value_json,enc=JSON,required=true"`
+	UpdatedAt    time.Time         `json:",omitempty" sqlx:"updated_at,required=true"`
+	UpdatedBy    string            `json:",omitempty" sqlx:"updated_by,required=true"`
+	ShouldDelete bool              `json:",omitempty" sqlx:"-" writer:"delete"`
+	Has          *StoredSettingHas `diff:"-" format:"-" json:"-" setMarker:"true" sqlx:"-" typeName:"StoredSettingHas"`
 }
 
 type StoredSettingHas struct {
-	OwnerId    bool
-	Namespace  bool
-	SettingKey bool
-	ValueJson  bool
-	UpdatedAt  bool
-	UpdatedBy  bool
+	OwnerId      bool
+	Namespace    bool
+	SettingKey   bool
+	ValueJson    bool
+	UpdatedAt    bool
+	UpdatedBy    bool
+	ShouldDelete bool
 }
 
 // CurrentSettingsView is generated canonical view metadata for settings.

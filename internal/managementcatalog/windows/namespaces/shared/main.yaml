@@ -163,33 +163,43 @@ window:
             dataField: name
             type: text
             readOnly: true
-          - id: inheritPredicatePackages
-            label: Use host predicate packages
-            dataField: inheritPredicatePackages
-            type: checkbox
           - id: predicatePackages
-            label: Predicate packages (one full package path per line)
-            dataField: predicatePackages
-            type: textarea
+            label: Predicate packages
+            dataField: predicatePackageRows
+            widget: arrayFields
+            scope: form
             readOnlyWhen:
-              selector: inheritPredicatePackages
-              equals: true
+              selector: canEdit
+              equals: false
+            properties:
+              rowLabel: Predicate package
+              addLabel: Add package
+              removeLabel: Remove package
+              newRow: {packagePath: ''}
+              fields:
+                - field: packagePath
+                  label: Package path
+                  type: text
           - id: requireSecurityPredicate
             label: Require a security predicate on every component
             dataField: requireSecurityPredicate
             type: checkbox
+            readOnlyWhen: {selector: canEdit, equals: false}
           - id: maxBytesProcessed
             label: Maximum bytes processed (blank means unlimited)
             dataField: maxBytesProcessed
             type: number
+            readOnlyWhen: {selector: canEdit, equals: false}
           - id: maxReferencedTables
             label: Maximum referenced tables (blank means unlimited)
             dataField: maxReferencedTables
             type: number
+            readOnlyWhen: {selector: canEdit, equals: false}
           - id: maxReturnedRows
             label: Maximum returned rows during execution (blank means unlimited)
             dataField: maxReturnedRows
             type: number
+            readOnlyWhen: {selector: canEdit, equals: false}
           - id: outcome
             label: Outcome
             dataField: outcome
@@ -198,6 +208,7 @@ window:
       actions:
         - id: save
           label: Save limits and security
+          visibleWhen: {selector: canEdit, equals: true}
           close: true
           disabledWhen:
             selector: pending
@@ -205,6 +216,20 @@ window:
           on:
             - event: onClick
               handler: management.saveNamespacePolicies
+        - id: remove-security
+          label: Remove security settings
+          visibleWhen: {selector: canEdit, equals: true}
+          disabledWhen: {selector: pending, equals: true}
+          on:
+            - event: onClick
+              handler: management.removeNamespaceSecurity
+        - id: remove-resource-limits
+          label: Remove resource limits
+          visibleWhen: {selector: canEdit, equals: true}
+          disabledWhen: {selector: pending, equals: true}
+          on:
+            - event: onClick
+              handler: management.removeNamespaceResourceLimits
         - id: cancel
           label: Cancel
           close: true

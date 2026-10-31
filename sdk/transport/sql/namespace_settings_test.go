@@ -4,30 +4,34 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/stretchr/testify/require"
+	"github.com/viant/authz"
 	"github.com/viant/datly-studio/internal/settingstore"
+	"github.com/viant/datly-studio/runtime/accessprovider"
 	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
 	"github.com/viant/datly-studio/studio/settings"
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestNamespaceSettingsAuthorizationCASAndSourcePreservation(t *testing.T) {
 	f := newImportFixture(t)
+	adminCtx := settingsAdminContext(t, f.ctx)
 	before, err := f.client.Namespaces().GetSettings(f.ctx, f.report.Namespace)
 	require.NoError(t, err)
 	bytes := int64(100)
-	saved, err := f.client.Namespaces().UpdateSettings(f.ctx, f.report.Namespace, sdk.UpdateNamespaceSettingsInput{ETag: before.ETag, Settings: settings.Namespace{ResourceLimits: &settings.ResourceLimits{MaxBytesProcessed: &bytes}}})
+	saved, err := f.client.Namespaces().UpdateSettings(adminCtx, f.report.Namespace, sdk.UpdateNamespaceSettingsInput{ETag: before.ETag, Settings: settings.Namespace{ResourceLimits: &settings.ResourceLimits{MaxBytesProcessed: &bytes}}})
 	require.NoError(t, err)
 	require.Equal(t, before.ETag+1, saved.ETag)
-	_, err = f.client.Namespaces().UpdateSettings(f.ctx, f.report.Namespace, sdk.UpdateNamespaceSettingsInput{ETag: before.ETag, Settings: settings.Namespace{Security: &settings.Security{}}})
+	_, err = f.client.Namespaces().UpdateSettings(adminCtx, f.report.Namespace, sdk.UpdateNamespaceSettingsInput{ETag: before.ETag, Settings: settings.Namespace{Security: &settings.Security{}}})
 	require.Error(t, err)
 	other := sdk.WithPrincipal(context.Background(), sdk.Principal{Subject: "other"})
 	_, err = f.client.Namespaces().GetSettings(other, f.report.Namespace)
 	require.Error(t, err)
 	// Ordinary namespace edits preserve policy rows.
 	title := "Updated namespace"
-	_, err = f.client.Namespaces().Update(f.ctx, f.report.Namespace, sdk.UpdateNamespaceInput{ETag: saved.ETag, Title: &title})
+	_, err = f.client.Namespaces().Update(adminCtx, f.report.Namespace, sdk.UpdateNamespaceInput{ETag: saved.ETag, Title: &title})
 	require.NoError(t, err)
 	got, err := f.client.Namespaces().GetSettings(f.ctx, f.report.Namespace)
 	require.NoError(t, err)
@@ -54,12 +58,13 @@ func TestResourceCheckEditInvalidatesValidationAndPreservesSource(t *testing.T) 
 
 func TestPredicateDiscoveryUsesTheRequestedNamespacePackages(t *testing.T) {
 	f := newImportFixture(t)
+	adminCtx := settingsAdminContext(t, f.ctx)
 	catalog, err := predicatecatalog.New(predicatecatalog.Package{Path: "example.com/security/alpha", Types: []reflect.Type{reflect.TypeFor[dynamicPredicateFixture]()}}, predicatecatalog.Package{Path: "example.com/security/beta", Types: []reflect.Type{reflect.TypeFor[dynamicPredicateFixture]()}})
 	require.NoError(t, err)
 	f.transport.Predicates = catalog
 	current, err := f.client.Namespaces().GetSettings(f.ctx, f.report.Namespace)
 	require.NoError(t, err)
-	_, err = f.client.Namespaces().UpdateSettings(f.ctx, f.report.Namespace, sdk.UpdateNamespaceSettingsInput{ETag: current.ETag, Settings: settings.Namespace{Security: &settings.Security{PredicatePackages: []string{"example.com/security/alpha"}}}})
+	_, err = f.client.Namespaces().UpdateSettings(adminCtx, f.report.Namespace, sdk.UpdateNamespaceSettingsInput{ETag: current.ETag, Settings: settings.Namespace{Security: &settings.Security{PredicatePackages: []string{"example.com/security/alpha"}}}})
 	require.NoError(t, err)
 	namespace, err := f.client.Namespaces().Get(f.ctx, f.report.Namespace)
 	require.NoError(t, err)
@@ -100,4 +105,41 @@ func TestPublishRechecksNamespacePredicateRequirementBeforeStaging(t *testing.T)
 	otherVersion, err := f.client.Versions().Create(f.ctx, otherComponent.ID, sdk.CreateVersionInput{AuthoringMode: "dql", AuthoredDQL: "SELECT 1"})
 	require.NoError(t, err)
 	require.NoError(t, f.transport.requireNamespaceAuthorizationPredicate(f.ctx, otherComponent.ID, otherVersion))
+}
+
+type settingsAdminProvider struct {
+	subject string
+	roles   []string
+}
+
+func (p settingsAdminProvider) Resolve(context.Context) (authz.Facts, error) {
+	return authz.Facts{Subject: p.subject, Issuer: "settings-test", Tenant: "settings-test", Roles: p.roles, ValidUntil: time.Now().Add(time.Minute)}, nil
+}
+func settingsAdminContext(t *testing.T, ctx context.Context) context.Context {
+	t.Helper()
+	t.Setenv("STUDIO_NAMESPACE_ADMIN_ROLE", "NAMESPACE_ADMIN")
+	return accessprovider.WithProvider(ctx, settingsAdminProvider{subject: "owner", roles: []string{"NAMESPACE_ADMIN"}})
+}
+
+func TestOnlyNamespaceAdministratorsCanChangeOrRemoveSettings(t *testing.T) {
+	f := newImportFixture(t)
+	admin := settingsAdminContext(t, f.ctx)
+	current, err := f.client.Namespaces().GetSettings(f.ctx, f.report.Namespace)
+	require.NoError(t, err)
+	require.False(t, current.CanEdit)
+	limit := int64(100)
+	update := sdk.UpdateNamespaceSettingsInput{ETag: current.ETag, Settings: settings.Namespace{ResourceLimits: &settings.ResourceLimits{MaxBytesProcessed: &limit}}}
+	_, err = f.client.Namespaces().UpdateSettings(f.ctx, f.report.Namespace, update)
+	require.ErrorContains(t, err, "administrator")
+	saved, err := f.client.Namespaces().UpdateSettings(admin, f.report.Namespace, update)
+	require.NoError(t, err)
+	require.True(t, saved.CanEdit)
+	_, err = f.client.Namespaces().UpdateSettings(f.ctx, f.report.Namespace, sdk.UpdateNamespaceSettingsInput{ETag: saved.ETag, RemoveKeys: []string{"resourceLimits"}})
+	require.ErrorContains(t, err, "administrator")
+	removed, err := f.client.Namespaces().UpdateSettings(admin, f.report.Namespace, sdk.UpdateNamespaceSettingsInput{ETag: saved.ETag, RemoveKeys: []string{"resourceLimits"}})
+	require.NoError(t, err)
+	require.Nil(t, removed.Settings.ResourceLimits)
+	var count int
+	require.NoError(t, f.db.QueryRowContext(f.ctx, "SELECT COUNT(*) FROM namespace_settings").Scan(&count))
+	require.Zero(t, count)
 }

@@ -103,3 +103,23 @@ func Values(value *settings.Namespace) (map[string]json.RawMessage, error) {
 	}
 	return result, nil
 }
+
+// Patch combines explicit upserts and removals without changing omitted keys.
+func Patch(value *settings.Namespace, removeKeys []string) (map[string]json.RawMessage, error) {
+	values, err := Values(value)
+	if err != nil {
+		return nil, err
+	}
+	seen := map[string]bool{}
+	for _, key := range removeKeys {
+		if key != settings.SecurityKey && key != settings.ResourceLimitsKey {
+			return nil, fmt.Errorf("unsupported namespace setting %q", key)
+		}
+		if seen[key] || values[key] != nil {
+			return nil, fmt.Errorf("setting cannot be repeated or both changed and removed")
+		}
+		seen[key] = true
+		values[key] = nil
+	}
+	return values, nil
+}

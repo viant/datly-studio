@@ -79,6 +79,12 @@ func (hooks *SettingRules) Init(ctx context.Context, entity *StoredSetting, stat
 	if entity.UpdatedBy == "" || !entity.UpdatedAt.Equal(state.Parent.UpdatedAt) {
 		return fmt.Errorf("setting audit fields are required")
 	}
+	if entity.ShouldDelete {
+		if state.Previous == nil {
+			return fmt.Errorf("cannot remove a missing setting")
+		}
+		return nil
+	}
 	_, err := settings.Decode(entity.SettingKey, entity.ValueJson)
 	return err
 }

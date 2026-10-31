@@ -55,11 +55,7 @@ func ValidateDeclarations(component *spec.Component, policy *settings.Namespace)
 					}
 				}
 			}
-			if policy.Security.PredicatePackages == nil {
-				if pkg != "github.com/viant/datly-studio/studio/authorization" && strings.Contains(pkg, "/") {
-					return nil
-				}
-			} else if selected[pkg] {
+			if selected[pkg] {
 				return nil
 			}
 		}

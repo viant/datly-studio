@@ -73,12 +73,14 @@ type NamespacePage struct {
 }
 
 type NamespaceSettingsResult struct {
+	CanEdit  bool                `json:"canEdit"`
 	Settings *settings.Namespace `json:"settings"`
 	ETag     int64               `json:"etag"`
 }
 type UpdateNamespaceSettingsInput struct {
-	ETag     int64              `json:"etag"`
-	Settings settings.Namespace `json:"settings"`
+	RemoveKeys []string           `json:"removeKeys,omitempty"`
+	ETag       int64              `json:"etag"`
+	Settings   settings.Namespace `json:"settings"`
 }
 
 type NamespaceService interface {

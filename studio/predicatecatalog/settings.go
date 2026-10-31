@@ -16,19 +16,14 @@ func (c *Catalog) ValidateSecuritySettings(value *settings.Security) error {
 		}
 	}
 	eligible := 0
-	if value.PredicatePackages == nil {
-		for _, count := range available {
-			eligible += count
+	for _, pkg := range value.PredicatePackages {
+		count := available[pkg]
+		if count == 0 {
+			return fmt.Errorf("predicate package %q has no host-approved security handlers", pkg)
 		}
-	} else {
-		for _, pkg := range value.PredicatePackages {
-			count := available[pkg]
-			if count == 0 {
-				return fmt.Errorf("predicate package %q has no host-approved security handlers", pkg)
-			}
-			eligible += count
-		}
+		eligible += count
 	}
+
 	if value.RequireSecurityPredicate && eligible == 0 {
 		return fmt.Errorf("namespace requires at least one host-approved security predicate")
 	}

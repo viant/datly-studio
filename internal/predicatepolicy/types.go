@@ -11,12 +11,14 @@ import (
 // Types removes unselected external handlers while retaining codecs,
 // dependency shapes and Studio's own authorization types.
 func Types(source *typecatalog.Catalog, policy *settings.Namespace) (*typecatalog.Catalog, error) {
-	if source == nil || policy == nil || policy.Security == nil || policy.Security.PredicatePackages == nil {
-		return source, nil
+	if source == nil {
+		source = typecatalog.NewCatalog()
 	}
 	allowed := map[string]bool{"github.com/viant/datly-studio/studio/authorization": true}
-	for _, pkg := range policy.Security.PredicatePackages {
-		allowed[pkg] = true
+	if policy != nil && policy.Security != nil {
+		for _, pkg := range policy.Security.PredicatePackages {
+			allowed[pkg] = true
+		}
 	}
 	result := typecatalog.NewCatalog()
 	registry, err := source.Registry(typecatalog.PackageAuthority)
@@ -40,8 +42,11 @@ func Types(source *typecatalog.Catalog, policy *settings.Namespace) (*typecatalo
 
 // AllowsPackage applies namespace selection to linked-type discovery.
 func AllowsPackage(policy *settings.Namespace, pkg string) bool {
-	if policy == nil || policy.Security == nil || policy.Security.PredicatePackages == nil || pkg == "github.com/viant/datly-studio/studio/authorization" {
+	if policy == nil || pkg == "github.com/viant/datly-studio/studio/authorization" {
 		return true
+	}
+	if policy.Security == nil {
+		return false
 	}
 	for _, selected := range policy.Security.PredicatePackages {
 		if selected == pkg {

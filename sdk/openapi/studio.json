@@ -368,6 +368,13 @@
             "type": "integer",
             "format": "int64"
           },
+          "removeKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
           "settings": {
             "$ref": "#/components/schemas/Input_3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f"
           }
@@ -907,6 +914,13 @@
           "etag": {
             "type": "integer",
             "format": "int64"
+          },
+          "removeKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
           },
           "settings": {
             "$ref": "#/components/schemas/Input_7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d"
@@ -11543,6 +11557,9 @@
       "Wire_cbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88": {
         "type": "object",
         "properties": {
+          "canEdit": {
+            "type": "boolean"
+          },
           "etag": {
             "type": "integer",
             "format": "int64"
@@ -11563,6 +11580,7 @@
           }
         },
         "required": [
+          "canEdit",
           "settings",
           "etag"
         ]
@@ -12069,6 +12087,9 @@
       "Wire_d729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836": {
         "type": "object",
         "properties": {
+          "canEdit": {
+            "type": "boolean"
+          },
           "etag": {
             "type": "integer",
             "format": "int64"
@@ -12089,6 +12110,7 @@
           }
         },
         "required": [
+          "canEdit",
           "settings",
           "etag"
         ]

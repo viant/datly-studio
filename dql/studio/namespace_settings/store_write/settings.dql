@@ -22,6 +22,7 @@ SELECT namespace.*, entries.*,
        CAST(entries.value_json AS json.RawMessage),
        CAST(entries.updated_at AS time.Time),
        tag(entries.value_json,'sqlx:"value_json,enc=JSON"'),
+       CAST(entries.should_delete AS bool), delete_marker(entries.should_delete),
        lifecycle_type(namespace,'NamespaceSettingsRules'),
        lifecycle_type(entries,'SettingRules'),
        concurrency_token(namespace.etag)

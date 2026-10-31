@@ -1,0 +1,109 @@
+# Dedicated namespace settings and component opt-in acceptance. Run from e2e/.
+init:
+  appPath: $params.appPath
+  goWork: $params.goWork
+  runId: $params.runId
+  runDir: ${appPath}/.data/e2e/options-${runId}
+  target:
+    URL: ssh://localhost/
+  nativeMCP: http://127.0.0.1:21790/mcp
+  browserURL: http://127.0.0.1:21780
+  ownerToken: ${runDir}/owner.token
+  adminToken: ${runDir}/namespace-admin.token
+  managerToken: ${runDir}/no-exposure.token
+  bigqueryURL: http://127.0.0.1:21796
+pipeline:
+  build:
+    action: exec:run
+    target: $target
+    strictCompletion: true
+    checkError: true
+    timeoutMs: 900000
+    commands:
+      - cd '${appPath}'
+      - mkdir -p .data/e2e/bin
+      - CGO_ENABLED=0 GOWORK='${goWork}' go build -o .data/e2e/bin/options-fixture ./e2e/cmd/fixture
+      - cd ui
+      - npm run build
+  setup:
+    prepare:
+      action: exec:run
+      target: $target
+      strictCompletion: true
+      checkError: true
+      commands:
+        - ${appPath}/.data/e2e/bin/options-fixture -mode prepare -root ${appPath} -dir ${runDir} -port-offset 3000
+    tokens:
+      action: run
+      request: '@sign-tokens'
+    identityFixtures:
+      action: exec:run
+      target: $target
+      strictCompletion: true
+      checkError: true
+      commands:
+        - ${appPath}/.data/e2e/bin/options-fixture -mode prepare-idp -root ${appPath} -dir ${runDir} -port-offset 3000
+    idp:
+      action: http/endpoint:listen
+      host: 127.0.0.1
+      port: 21795
+      replace: true
+      rotate: true
+      indexKeys: [Method, URL, Header.Authorization]
+      baseDirectory: ${runDir}/idp
+    studio:
+      action: dsunit:register
+      datastore: studio
+      config:
+        driver: sqlite
+        dsn: ${runDir}/studio.db
+    primary:
+      action: dsunit:init
+      datastore: discovery_primary
+      config: {driver: sqlite, dsn: '${runDir}/discovery-primary.db'}
+      scripts:
+        - URL: ${appPath}/e2e/fixtures/discovery/primary.sql
+    lookup:
+      action: dsunit:init
+      datastore: discovery_lookup
+      config: {driver: sqlite, dsn: '${runDir}/discovery-lookup.db'}
+      scripts:
+        - URL: ${appPath}/e2e/fixtures/discovery/lookup.sql
+    app:
+      action: process:start
+      target: $target
+      directory: $appPath
+      command: ${appPath}/.data/e2e/bin/options-fixture
+      arguments: [-root, $appPath, -dir, $runDir, -port-offset, '3000', '-namespace-admin-role=NAMESPACE_ADMIN', '-resource-check-fixture']
+      immuneToHangups: true
+    wait:
+      action: exec:run
+      target: $target
+      strictCompletion: true
+      checkError: true
+      timeoutMs: 40000
+      commands:
+        - ${appPath}/.data/e2e/bin/options-fixture -mode wait -root ${appPath} -dir ${runDir} -port-offset 3000
+  browser:
+    driver:
+      action: exec:run
+      target: $target
+      strictCompletion: true
+      checkError: true
+      timeoutMs: 120000
+      commands:
+        - python3 ${appPath}/e2e/scripts/prepare_webdriver.py ${appPath}/.data/e2e/webdriver
+    start:
+      action: webdriver:start
+      URL: ${appPath}/.data/e2e/webdriver
+      driver: chromedriver
+      capabilities: ['--headless=new', '--window-size=1440,1000']
+      port: 4449
+  componentOptions:
+    action: run
+    request: '@management/component-options'
+  stop:
+    action: process:stop
+    target: $target
+    input: ${appPath}/.data/e2e/bin/options-fixture
+    signal: '15'

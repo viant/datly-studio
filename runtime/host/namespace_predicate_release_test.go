@@ -49,7 +49,7 @@ func TestReleaseBindingRechecksOwningNamespaceAuthorizationPredicate(t *testing.
 func TestReleaseBindingAcceptsDeclaredLinkedPredicateFromOwningNamespace(t *testing.T) {
 	const pkg = "github.com/viant/datly-studio/studio/predicatecatalog/testdata/extension"
 	t.Setenv("STUDIO_PREDICATE_PACKAGES", pkg)
-	fixture, err := newScopedHost(t, map[string]string{"tasks": linkedExtensionDQL}, map[string]authz.Policy{"tasks": {Mode: "public"}})
+	fixture, err := newScopedHost(t, map[string]string{"tasks": unscopedRecordsDQL}, map[string]authz.Policy{"tasks": {Mode: "public"}})
 	require.NoError(t, err)
 	ctx := context.Background()
 	service := fixture.service
@@ -58,6 +58,8 @@ func TestReleaseBindingAcceptsDeclaredLinkedPredicateFromOwningNamespace(t *test
 	raw, err := json.Marshal(map[string]any{"predicatePackages": []string{pkg}, "requireSecurityPredicate": true})
 	require.NoError(t, err)
 	require.NoError(t, settingstore.Write(ctx, service.studio, "owner", "general", 1, "owner", map[string]json.RawMessage{"security": raw}))
+	_, err = service.studio.ExecContext(ctx, "UPDATE component_versions SET authored_dql=?,generated_dql=? WHERE report_id='tasks'", linkedExtensionDQL, linkedExtensionDQL)
+	require.NoError(t, err)
 	manager, binding, err := service.componentRuntimeWithAuthority(ctx, ComponentReference{Kind: "dynamic", ID: "tasks", Revision: "1", Method: http.MethodGet, Route: "/tasks"}, false)
 	require.NoError(t, err)
 	defer manager.Shutdown(ctx)

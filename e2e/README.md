@@ -159,3 +159,24 @@ This suite uses HTTP/MCP/IdP ports 19780/19781/19782/19790/19795 and ChromeDrive
 Use a fresh run ID for setup. After setup, rerun only `discovery` or
 `namespaceManagers` in the same Endly session; stop with `-t=stop` using that
 session's run parameters if a failure interrupted the pipeline.
+
+## Namespace package settings and component resource opt-in
+
+`component-options.yaml` is the dedicated isolated real-UI/native-MCP suite.
+It uses separate ports 21780/21781/21782/21790/21795/21796 and ChromeDriver 4449.
+It verifies package string-list add/remove and persisted arrays, default-off scope,
+namespace-admin-only add/change/removal, denial to owners and delegated managers,
+component opt-in and opt-out through the catalog, and rejection of publication
+when its namespace starts requiring a declared authorization predicate.
+
+The external BigQuery API is a loopback test fixture; Studio's normal native
+reader and actual BigQuery driver perform the work. Counters prove zero dry-run
+jobs for opt-out, and a dry run with no business query when the limit is exceeded.
+The fixture has no real credentials or customer data.
+
+Run through Endly MCP: load `component-options.yaml`, run `build`, then
+`setup,browser,componentOptions,stop`. Supply `appPath` (checkout root), a fresh
+`runId`, and `goWork` (`off` to use published pins, or an explicit workspace for
+qualifying local dependency commits). Local source qualification does not upgrade
+a remote deployment. The dedicated acceptance run passed 76 assertions using the
+local dependency workspace; release binding checks also have native Go coverage.

@@ -3,10 +3,10 @@ package authoring
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/viant/authz/oauth"
+	"github.com/viant/datly-studio/internal/settingstore"
 	"reflect"
 	"strings"
 	"time"
@@ -29,8 +29,9 @@ import (
 )
 
 type Options struct {
-	ETag     int64              `json:"etag"`
-	Settings settings.Namespace `json:"settings"`
+	RemoveKeys []string           `json:"removeKeys,omitempty"`
+	ETag       int64              `json:"etag"`
+	Settings   settings.Namespace `json:"settings"`
 }
 type Input struct {
 	Jwt   *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
@@ -39,6 +40,7 @@ type Input struct {
 	Input *Options           `parameter:"Input,kind=body,in=input,dataType=*Options" json:"input,omitempty"`
 }
 type Output struct {
+	CanEdit  bool                `parameter:"CanEdit,kind=output,in=body,dataType=bool" json:"canEdit"`
 	Settings *settings.Namespace `parameter:"Settings,kind=output,in=body,dataType=*settings.Namespace" json:"settings"`
 	ETag     int64               `parameter:"ETag,kind=output,in=body,dataType=int64" json:"etag"`
 }
@@ -118,9 +120,11 @@ func (h *handler) Exec(ctx context.Context, session xhandler.Session, input *Inp
 		return public(403, "Studio namespace access denied")
 	}
 	namespace := rows.Namespaces[0]
-	if !namespacevisibility.CanConfigure(ctx, input.Jwt.Subject, namespace.OwnerId, namespace.AllowedRolesJson) {
-		return public(403, "namespace settings require owner or manager permission")
+	output.CanEdit = namespacevisibility.IsAdministrator(ctx, input.Jwt.Subject)
+	if h.write && !output.CanEdit {
+		return public(403, "namespace settings require the namespace administrator role")
 	}
+
 	output.ETag = namespace.Etag
 	querySettings := &read.Input{}
 	querySettings.SetOwnerId(namespace.OwnerId)
@@ -163,19 +167,14 @@ func (h *handler) Exec(ctx context.Context, session xhandler.Session, input *Inp
 		now := time.Now().UTC()
 		etag := input.Input.ETag
 		row := &write.StoredNamespace{OwnerId: namespace.OwnerId, Name: namespace.Name, Etag: &etag, UpdatedAt: now, Has: &write.StoredNamespaceHas{OwnerId: true, Name: true, Etag: true, UpdatedAt: true, Entries: true}}
-		for key, v := range map[string]any{settings.SecurityKey: input.Input.Settings.Security, settings.ResourceLimitsKey: input.Input.Settings.ResourceLimits} {
-			data, err := json.Marshal(v)
-			if err != nil {
-				return err
-			}
-			if string(data) == "null" {
-				continue
-			}
-			if _, err = settings.Decode(key, data); err != nil {
-				return public(400, err.Error())
-			}
-			row.Entries = append(row.Entries, &write.StoredSetting{OwnerId: namespace.OwnerId, Namespace: namespace.Name, SettingKey: key, ValueJson: data, UpdatedAt: now, UpdatedBy: input.Jwt.Subject, Has: &write.StoredSettingHas{OwnerId: true, Namespace: true, SettingKey: true, ValueJson: true, UpdatedAt: true, UpdatedBy: true}})
+		values, err := settingstore.Patch(&input.Input.Settings, input.Input.RemoveKeys)
+		if err != nil {
+			return public(400, err.Error())
 		}
+		for key, data := range values {
+			row.Entries = append(row.Entries, &write.StoredSetting{OwnerId: namespace.OwnerId, Namespace: namespace.Name, SettingKey: key, ValueJson: data, ShouldDelete: data == nil, UpdatedAt: now, UpdatedBy: input.Jwt.Subject, Has: &write.StoredSettingHas{OwnerId: true, Namespace: true, SettingKey: true, ValueJson: data != nil, ShouldDelete: data == nil, UpdatedAt: true, UpdatedBy: true}})
+		}
+
 		if len(row.Entries) == 0 {
 			return public(400, "supply at least one setting")
 		}
@@ -186,6 +185,14 @@ func (h *handler) Exec(ctx context.Context, session xhandler.Session, input *Inp
 			return err
 		}
 		output.ETag++
+		for _, key := range input.Input.RemoveKeys {
+			if key == settings.SecurityKey {
+				output.Settings.Security = nil
+			}
+			if key == settings.ResourceLimitsKey {
+				output.Settings.ResourceLimits = nil
+			}
+		}
 		// Child writes remain buffered until the owning invocation commits. Shape the
 		// response from the authorized snapshot and explicit patch, never a stale reread.
 		if input.Input.Settings.Security != nil {

@@ -117,6 +117,16 @@ func (entity *StoredSetting) SetUpdatedBy(value string) {
 	}
 	entity.Has.UpdatedBy = true
 }
+func (entity *StoredSetting) GetShouldDelete() bool {
+	return entity.ShouldDelete
+}
+func (entity *StoredSetting) SetShouldDelete(value bool) {
+	entity.ShouldDelete = value
+	if entity.Has == nil {
+		entity.Has = &StoredSettingHas{}
+	}
+	entity.Has.ShouldDelete = true
+}
 func (input *Input) ProjectCurrentEntriesParentKeys(previous []*CurrentSettingsView) ([]struct {
 	OwnerId   string `sqlx:"owner_id"`
 	Namespace string `sqlx:"namespace"`

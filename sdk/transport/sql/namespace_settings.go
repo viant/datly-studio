@@ -3,6 +3,7 @@ package sqltransport
 import (
 	"context"
 	"errors"
+	"github.com/viant/datly-studio/internal/namespacevisibility"
 	"github.com/viant/datly-studio/internal/settingstore"
 	"github.com/viant/datly-studio/sdk"
 	"strings"
@@ -26,11 +27,15 @@ func (t *Transport) namespaceSettings(ctx context.Context, operation string, inp
 		return err
 	}
 	principal, ok := sdk.PrincipalFromContext(ctx)
-	if !ok || !namespace.CanManage {
-		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "namespace settings require owner or manager permission"}
+	if !ok {
+		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "verified Studio identity is required"}
 	}
 	// Recheck current persisted role grants, independent of global edit authority.
+	canEdit := namespacevisibility.IsAdministrator(ctx, principal.Subject)
 	if operation == sdk.OperationNamespaceSettingsUpdate {
+		if !canEdit {
+			return &sdk.Error{Code: sdk.ErrorForbidden, Message: "namespace settings require the namespace administrator role"}
+		}
 		if in.Input.ETag <= 0 {
 			return invalid(errors.New("positive namespace etag is required"))
 		}
@@ -41,7 +46,7 @@ func (t *Transport) namespaceSettings(ctx context.Context, operation string, inp
 			return invalid(err)
 		}
 
-		values, err := settingstore.Values(&in.Input.Settings)
+		values, err := settingstore.Patch(&in.Input.Settings, in.Input.RemoveKeys)
 		if err != nil {
 			return invalid(err)
 		}
@@ -61,5 +66,5 @@ func (t *Transport) namespaceSettings(ctx context.Context, operation string, inp
 	if err != nil {
 		return err
 	}
-	return assign(output, &sdk.NamespaceSettingsResult{Settings: value, ETag: namespace.ETag})
+	return assign(output, &sdk.NamespaceSettingsResult{CanEdit: canEdit, Settings: value, ETag: namespace.ETag})
 }

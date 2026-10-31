@@ -755,3 +755,25 @@ before predicate binding in preview and published execution. The focused run
 passed in 4,373 ms and the full 16-case MCP group passed in 21,925 ms; logs:
 `.data/e2e/evidence/codec-predicate-composition.log` and
 `.data/e2e/evidence/codec-predicate-mcp-group.log`.
+
+## 2026-10-30: namespace settings and component resource opt-in
+
+Dedicated `component-options.yaml` acceptance passed **76 assertions, zero
+failures** through Endly MCP, including real browser forms, native MCP tools and
+DSUnit persistence checks. The external BigQuery API alone was mocked. The run
+qualified the local dependency workspace, including the BigQuery dry-run commit;
+it does not establish that unpublished dependencies are available in a deployment.
+
+Covered empty namespace defaults, package list add/remove and persisted strings,
+namespace-scoped predicate discovery, namespace-admin-only settings mutations,
+owner/manager denial and read-only controls, component resource opt-in/out, zero
+dry-run jobs for opt-out, and rejection before business execution above budget.
+A previously validated component without an auth predicate was rejected with the
+expected namespace-policy message before publication or runtime staging. Admin
+removal of both setting groups left zero persisted rows.
+
+All 17 rendered namespace/catalog UI tests passed. Native storage, authorization,
+SQL transport, preview and focused release/predicate tests passed. Broader catalog
+and runtime-host suites still expose pre-existing resource fingerprint/publication
+failures; they are not reported as passing. The general E2E regression suite was
+not rerun.

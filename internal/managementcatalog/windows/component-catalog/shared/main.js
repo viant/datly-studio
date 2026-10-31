@@ -48,6 +48,14 @@
    if(!versionNo)throw new Error('This component has no version to download.');
    context.services.hostWindow.download(await call('catalog_download',{reportId:row.id,versionNo}));
   }),
+  openResourceChecks:props=>run('catalog_state',async()=>{
+   const report=props.row||ds('catalog_rows').peekSelection()?.selected;if(!report)throw new Error('Select a component.');
+   let versionNo=report.currentDraftVersion;if(!versionNo){const versions=list(await ds('catalog_versions').fetchRecords({parameters:{reportId:report.id,input:{limit:1,orderBy:'version_no DESC'}}}));versionNo=versions[0]?.versionNo;}
+   if(!versionNo)throw new Error('Create a draft before configuring query resource checks.');
+   const inspection=await call('catalog_resource_inspect',{reportId:report.id,versionNo,discoverColumns:false});const version=inspection.version;
+   ds('catalog_resource_check').setFormData({values:{reportId:report.id,title:report.title,versionNo:version.versionNo,sourceRevision:version.sourceRevision,resourceCheckEnabled:version.resourceCheckEnabled===true,canEdit:inspection.capabilities?.canEdit!==false&&version.state==='draft',saving:false,outcome:''}});popup('component-resource-check');
+  }),
+  saveResourceChecks:()=>run('catalog_resource_check',async()=>{const form=get('catalog_resource_check');if(!form.canEdit)throw new Error('Create an editable draft before changing resource checks.');const result=await call('catalog_resource_apply',{reportId:form.reportId,versionNo:form.versionNo,command:{kind:'set_resource_check',expectedSourceRevision:form.sourceRevision,payload:{resourceCheckEnabled:Boolean(form.resourceCheckEnabled)}}});set('catalog_resource_check',{sourceRevision:result.version.sourceRevision});await refresh(0);}),
   openImport:()=>run('catalog_state',async()=>{
    const targets=list(await ds('catalog_list').fetchRecords({parameters:{limit:500}}));ds('catalog_targets').setCollection(targets);ds('catalog_import').setFormData({values:{reportId:'',file:null,entryDql:'',saving:false,outcome:''}});context.services.hostWindow.setDirty?.(true);popup('catalog-import');
   }),

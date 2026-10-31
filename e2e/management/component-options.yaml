@@ -1,0 +1,630 @@
+pipeline:
+  alpha:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.namespaces.create
+    arguments:
+      name: options.alpha
+      title: Options alpha
+      managerRoles:
+        - ROLE_ANALYST
+      allowedRoles:
+        - ROLE_ANALYST
+      mcpEnabled: true
+      mcpPort: 0
+    allowToolError: true
+  alphaSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alpha
+    expect:
+      IsError: false
+  alphaDefaults:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.namespaces.settings_get
+    arguments:
+      name: options.alpha
+    allowToolError: true
+  alphaOptInDefaults:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphaDefaults.StructuredContent
+    expect:
+      canEdit: false
+      settings: {}
+  beta:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.namespaces.create
+    arguments:
+      name: options.beta
+      title: Options beta
+      managerRoles:
+        - ROLE_ANALYST
+      allowedRoles:
+        - ROLE_ANALYST
+      mcpEnabled: true
+      mcpPort: 0
+    allowToolError: true
+  betaSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $beta
+    expect:
+      IsError: false
+  betaDefaults:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.namespaces.settings_get
+    arguments:
+      name: options.beta
+    allowToolError: true
+  betaOptInDefaults:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $betaDefaults.StructuredContent
+    expect:
+      canEdit: false
+      settings: {}
+  adminConfiguresPackageListAndLimits:
+    action: webdriver:run
+    sessionID: localhost:4449
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/component-options
+    commands:
+      - page.goto("${browserURL}/e2e/login")
+      - page.getByLabel("Test identity").selectOption("namespace-admin")
+      - page.getByRole("button", "Sign in").click()
+      - page.locator("xpath://aside[contains(@class,'studio-sidebar')]//button[normalize-space(.)='Namespaces']").click()
+      - page.getByLabel("Find namespace").fill("options.alpha")
+      - page.getByRole("button", "Search").click()
+      - expect(page.locator("xpath://div[@data-forge-container-id='namespace-list']//tbody/tr")).toHaveCount(1,15000)
+      - page.getByRole("button", "Security and resource limits").click()
+      - expect(page.locator(".bp6-dialog")).toBeVisible(15000)
+      - expect(page.getByRole("button", "Add package")).toBeVisible(15000)
+      - page.getByRole("button", "Add package").click()
+      - page.getByLabel("Package path 1").fill("github.com/viant/datly-studio/e2e/predicates")
+      - page.getByRole("button", "Add package").click()
+      - page.getByLabel("Package path 2").fill("github.com/viant/datly-studio/examples/predicates")
+      - page.getByRole("button", "Remove package 2").click()
+      - page.getByLabel("Maximum bytes processed (blank means unlimited)").fill("1000")
+      - page.getByLabel("Maximum referenced tables (blank means unlimited)").fill("1")
+      - page.getByLabel("Maximum returned rows during execution (blank means unlimited)").fill("1")
+      - page.getByRole("button", "Save limits and security").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+  namespaceOptionsPersist:
+    action: dsunit:query
+    datastore: studio
+    SQL: SELECT n.name,s.setting_key,json_extract(s.value_json,'$.predicatePackages[0]') AS package_path,json_extract(s.value_json,'$.maxBytesProcessed') AS bytes FROM namespace_settings s JOIN namespaces n ON n.owner_id=s.owner_id AND n.name=s.namespace WHERE n.name='options.alpha' ORDER BY s.setting_key
+    expect:
+      - name: options.alpha
+        setting_key: resourceLimits
+        package_path: null
+        bytes: 1000
+      - name: options.alpha
+        setting_key: security
+        package_path: github.com/viant/datly-studio/e2e/predicates
+        bytes: null
+  settingsAfterUI:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.namespaces.settings_get
+    arguments:
+      name: options.alpha
+    allowToolError: true
+  settingsAfterUISucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $settingsAfterUI
+    expect:
+      IsError: false
+  owneraddDenied:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.namespaces.settings_update
+    arguments:
+      name: options.alpha
+      input:
+        etag: $settingsAfterUI.StructuredContent.etag
+        settings:
+          security:
+            predicatePackages:
+              - github.com/viant/datly-studio/e2e/predicates
+    allowToolError: true
+  owneraddDeniedVerified:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $owneraddDenied
+    expect:
+      IsError: true
+  ownerchangeDenied:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.namespaces.settings_update
+    arguments:
+      name: options.alpha
+      input:
+        etag: $settingsAfterUI.StructuredContent.etag
+        settings:
+          resourceLimits:
+            maxBytesProcessed: 9999
+    allowToolError: true
+  ownerchangeDeniedVerified:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $ownerchangeDenied
+    expect:
+      IsError: true
+  ownerremoveDenied:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.namespaces.settings_update
+    arguments:
+      name: options.alpha
+      input:
+        etag: $settingsAfterUI.StructuredContent.etag
+        settings: {}
+        removeKeys:
+          - security
+    allowToolError: true
+  ownerremoveDeniedVerified:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $ownerremoveDenied
+    expect:
+      IsError: true
+  manageraddDenied:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $managerToken
+    "@name": studio.sdk.namespaces.settings_update
+    arguments:
+      name: options.alpha
+      input:
+        etag: $settingsAfterUI.StructuredContent.etag
+        settings:
+          security:
+            predicatePackages:
+              - github.com/viant/datly-studio/e2e/predicates
+    allowToolError: true
+  manageraddDeniedVerified:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $manageraddDenied
+    expect:
+      IsError: true
+  managerchangeDenied:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $managerToken
+    "@name": studio.sdk.namespaces.settings_update
+    arguments:
+      name: options.alpha
+      input:
+        etag: $settingsAfterUI.StructuredContent.etag
+        settings:
+          resourceLimits:
+            maxBytesProcessed: 9999
+    allowToolError: true
+  managerchangeDeniedVerified:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $managerchangeDenied
+    expect:
+      IsError: true
+  managerremoveDenied:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $managerToken
+    "@name": studio.sdk.namespaces.settings_update
+    arguments:
+      name: options.alpha
+      input:
+        etag: $settingsAfterUI.StructuredContent.etag
+        settings: {}
+        removeKeys:
+          - security
+    allowToolError: true
+  managerremoveDeniedVerified:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $managerremoveDenied
+    expect:
+      IsError: true
+  ownerSeesReadOnlySettings:
+    action: webdriver:run
+    sessionID: localhost:4449
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/component-options
+    commands:
+      - page.goto("${browserURL}/e2e/login")
+      - page.getByLabel("Test identity").selectOption("owner")
+      - page.getByRole("button", "Sign in").click()
+      - page.locator("xpath://aside[contains(@class,'studio-sidebar')]//button[normalize-space(.)='Namespaces']").click()
+      - page.getByLabel("Find namespace").fill("options.alpha")
+      - page.getByRole("button", "Search").click()
+      - expect(page.locator("xpath://div[@data-forge-container-id='namespace-list']//tbody/tr")).toHaveCount(1,15000)
+      - page.getByRole("button", "Security and resource limits").click()
+      - expect(page.locator(".bp6-dialog")).toBeVisible(15000)
+      - expect(page.getByRole("button", "Add package")).toHaveCount(0,15000)
+      - expect(page.getByRole("button", "Save limits and security")).toHaveCount(0,15000)
+      - expect(page.getByRole("button", "Remove security settings")).toHaveCount(0,15000)
+      - page.getByRole("button", "Cancel").click()
+  connector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.connectors.create
+    arguments:
+      name: options_bq
+      driver: bigquery
+      dsnTemplate: bigquery://fixture/dataset?endpoint=${bigqueryURL}/
+    allowToolError: true
+  connectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $connector
+    expect:
+      IsError: false
+  probe:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.connectors.test
+    arguments:
+      name: options_bq
+    allowToolError: true
+  probeSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $probe
+    expect:
+      IsError: false
+  connectorState:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.connectors.get
+    arguments:
+      name: options_bq
+    allowToolError: true
+  activate:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.connectors.activate
+    arguments:
+      name: options_bq
+      etag: $connectorState.StructuredContent.etag
+    allowToolError: true
+  activateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $activate
+    expect:
+      IsError: false
+  component:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.components.create
+    arguments:
+      namespaceId: $alpha.StructuredContent.namespaceId
+      namespace: options.alpha
+      title: Options fixture component
+      slug: options-reader
+      defaultConnectorName: options_bq
+    allowToolError: true
+  componentSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $component
+    expect:
+      IsError: false
+  import:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.versions.load_dql
+    arguments:
+      namespaceId: $alpha.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      input:
+        dql: |-
+          #package('github.com/viant/datly-studio/dynamic/componentoptions')
+          #setting($_ = $connector('options_bq'))
+          #setting($_ = $route('/component-options','GET'))
+          #setting($_ = $case_format('lc'))
+          #define($_ = $Rows<[]*Record>(output/view))
+          SELECT records.*, type(records,'Record') FROM (SELECT 'row-one' AS id,'alpha' AS tenant,'Fixture row' AS name) records
+    allowToolError: true
+  importSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $import
+    expect:
+      IsError: false
+  componentOptInInitiallyFalse:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $import.StructuredContent.version
+    expect:
+      resourceCheckEnabled: false
+  alphaTypes:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.authorization_predicates.types
+    arguments:
+      namespaceId: $alpha.StructuredContent.namespaceId
+    allowToolError: true
+  scopedPackageVisible:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphaTypes.StructuredContent.items
+    expect:
+      "@indexBy@": typeName
+      CustomerScope:
+        packagePath: github.com/viant/datly-studio/e2e/predicates
+  betaTypes:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.authorization_predicates.types
+    arguments:
+      namespaceId: $beta.StructuredContent.namespaceId
+    allowToolError: true
+  unconfiguredPackageDisabled:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $betaTypes.StructuredContent.items
+    expect:
+      "@indexBy@": typeName
+      "@exists@CustomerScope": false
+  componentOptsInThroughUI:
+    action: webdriver:run
+    sessionID: localhost:4449
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/component-options
+    commands:
+      - page.getByLabel("Current namespace").selectOption("${alpha.StructuredContent.namespaceId}")
+      - page.locator("xpath://aside[contains(@class,'studio-sidebar')]//button[normalize-space(.)='Components']").click()
+      - page.locator("xpath://input[@aria-label='Search components']").fill("Options fixture component")
+      - page.getByRole("button", "Search components").click()
+      - expect(page.getByRole("button", "Query resource checks")).toHaveCount(1,15000)
+      - page.getByRole("button", "Query resource checks").click()
+      - expect(page.locator(".bp6-dialog")).toBeVisible(15000)
+      - expect(page.getByLabel("Check query resources against namespace limits")).toBeUnchecked(15000)
+      - page.getByLabel("Check query resources against namespace limits").check()
+      - page.getByRole("button", "Save resource check").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+  componentOptInPersisted:
+    action: dsunit:query
+    datastore: studio
+    SQL: SELECT resource_check_enabled,compile_status FROM component_versions WHERE report_id='${component.StructuredContent.id}' AND version_no=${import.StructuredContent.version.versionNo}
+    expect:
+      - resource_check_enabled: true
+        compile_status: pending
+  resetForOptIn:
+    action: http/runner:send
+    requests:
+      - URL: ${bigqueryURL}/stats?reset=true
+        method: GET
+        expect:
+          Code: 200
+          JSONBody:
+            dryRuns: 0
+            businessQueries: 0
+  budgetDenied:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.preview.execute
+    arguments:
+      namespaceId: $alpha.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      input:
+        input: {}
+        limit: 10
+    allowToolError: true
+  budgetDenialVerified:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $budgetDenied
+    expect:
+      IsError: true
+  optInOnlyDryRun:
+    action: http/runner:send
+    requests:
+      - URL: ${bigqueryURL}/stats
+        method: GET
+        expect:
+          Code: 200
+          JSONBody:
+            dryRuns: 1
+            businessQueries: 0
+  componentOptsOutThroughUI:
+    action: webdriver:run
+    sessionID: localhost:4449
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/component-options
+    commands:
+      - page.getByLabel("Current namespace").selectOption("${alpha.StructuredContent.namespaceId}")
+      - page.locator("xpath://aside[contains(@class,'studio-sidebar')]//button[normalize-space(.)='Components']").click()
+      - page.locator("xpath://input[@aria-label='Search components']").fill("Options fixture component")
+      - page.getByRole("button", "Search components").click()
+      - expect(page.getByRole("button", "Query resource checks")).toHaveCount(1,15000)
+      - page.getByRole("button", "Query resource checks").click()
+      - expect(page.locator(".bp6-dialog")).toBeVisible(15000)
+      - expect(page.getByLabel("Check query resources against namespace limits")).toBeChecked(15000)
+      - page.getByLabel("Check query resources against namespace limits").uncheck()
+      - page.getByRole("button", "Save resource check").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+  resetForOptOut:
+    action: http/runner:send
+    requests:
+      - URL: ${bigqueryURL}/stats?reset=true
+        method: GET
+        expect:
+          Code: 200
+          JSONBody:
+            dryRuns: 0
+            businessQueries: 0
+  ordinaryPreview:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.preview.execute
+    arguments:
+      namespaceId: $alpha.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      input:
+        input: {}
+        limit: 10
+    allowToolError: true
+  ordinaryPreviewVerified:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $ordinaryPreview
+    expect:
+      IsError: false
+      StructuredContent:
+        evidence:
+          returnedRows: 1
+  optOutDoesNotDryRun:
+    action: http/runner:send
+    requests:
+      - URL: ${bigqueryURL}/stats
+        method: GET
+        expect:
+          Code: 200
+          JSONBody:
+            dryRuns: 0
+            businessQueries: 1
+  versionBeforeValidation:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.versions.get
+    arguments:
+      namespaceId: $alpha.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+    allowToolError: true
+  validateBeforePolicy:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.versions.validate
+    arguments:
+      namespaceId: $alpha.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      expectedSourceRevision: $versionBeforeValidation.StructuredContent.sourceRevision
+    allowToolError: true
+  validatedBeforeNewRequirement:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $validateBeforePolicy
+    expect:
+      IsError: false
+      StructuredContent:
+        valid: true
+  adminEnablesRequiredAuthorization:
+    action: webdriver:run
+    sessionID: localhost:4449
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/component-options
+    commands:
+      - page.goto("${browserURL}/e2e/login")
+      - page.getByLabel("Test identity").selectOption("namespace-admin")
+      - page.getByRole("button", "Sign in").click()
+      - page.locator("xpath://aside[contains(@class,'studio-sidebar')]//button[normalize-space(.)='Namespaces']").click()
+      - page.getByLabel("Find namespace").fill("options.alpha")
+      - page.getByRole("button", "Search").click()
+      - expect(page.locator("xpath://div[@data-forge-container-id='namespace-list']//tbody/tr")).toHaveCount(1,15000)
+      - page.getByRole("button", "Security and resource limits").click()
+      - expect(page.locator(".bp6-dialog")).toBeVisible(15000)
+      - expect(page.getByLabel("Package path 1")).toHaveValue("github.com/viant/datly-studio/e2e/predicates",15000)
+      - page.getByLabel("Require a security predicate on every component").check()
+      - page.getByRole("button", "Save limits and security").click()
+      - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
+  missingAuthorizationPublish:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    "@name": studio.sdk.publications.publish
+    arguments:
+      namespaceId: $alpha.StructuredContent.namespaceId
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      input:
+        expectedSourceRevision: $versionBeforeValidation.StructuredContent.sourceRevision
+    allowToolError: true
+  missingAuthorizationBlocked:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $missingAuthorizationPublish
+    expect:
+      IsError: true
+      StructuredContent:
+        code: invalid_argument
+        message: component must define a required authorization predicate from its namespace predicate packages
+  noPublicationStaged:
+    action: dsunit:query
+    datastore: studio
+    SQL: SELECT COUNT(*) AS count FROM component_publications WHERE report_id='${component.StructuredContent.id}'
+    expect:
+      - count: 0
+  noRuntimeGenerationStaged:
+    action: dsunit:query
+    datastore: studio
+    SQL: SELECT COUNT(*) AS count FROM runtime_generations
+    expect:
+      - count: 0
+  adminRemovesSettings:
+    action: webdriver:run
+    sessionID: localhost:4449
+    autoStart: false
+    browser: chrome
+    failureArtifacts:
+      directory: ${runDir}/artifacts/component-options
+    commands:
+      - page.locator("xpath://aside[contains(@class,'studio-sidebar')]//button[normalize-space(.)='Namespaces']").click()
+      - page.getByLabel("Find namespace").fill("options.alpha")
+      - page.getByRole("button", "Search").click()
+      - expect(page.locator("xpath://div[@data-forge-container-id='namespace-list']//tbody/tr")).toHaveCount(1,15000)
+      - page.getByRole("button", "Security and resource limits").click()
+      - expect(page.locator(".bp6-dialog")).toBeVisible(15000)
+      - page.getByRole("button", "Remove resource limits").click()
+      - expect(page.getByLabel("Outcome")).toHaveValue("Resource limits removed.",15000)
+      - page.getByRole("button", "Remove security settings").click()
+      - expect(page.getByLabel("Outcome")).toHaveValue("Security settings removed.",15000)
+      - page.getByRole("button", "Cancel").click()
+  settingsRemoved:
+    action: dsunit:query
+    datastore: studio
+    SQL: SELECT COUNT(*) AS count FROM namespace_settings WHERE namespace='options.alpha'
+    expect:
+      - count: 0

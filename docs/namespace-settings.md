@@ -7,8 +7,8 @@ Existing component versions default to false. Apply the explicit MySQL or SQLite
 `027-namespace-settings` migration after layout 26; startup does not migrate stores.
 
 The `security` value contains `predicatePackages` and
-`requireSecurityPredicate`. A null package list inherits the trusted host catalog;
-an empty list selects no external handlers. Paths must already be approved and
+`requireSecurityPredicate`. Missing, null and empty package lists select no external handlers. Each
+external predicate package must be explicitly enabled by a namespace administrator. Paths must already be approved and
 linked into the executable. Namespace selection removes unselected predicate types
 while retaining codecs, dependency shapes and Studio's own authorization types.
 It never downloads packages or compiles browser-provided Go code.
@@ -25,7 +25,7 @@ Unknown or lower-bound byte estimates cannot satisfy an upper byte threshold.
 ## Native persistence
 
 `namespaces.settings_get` and `namespaces.settings_update` are authenticated native
-Datly components. Both require namespace owner or current manager permission.
+Datly components. Both require namespace visibility for reading and verified namespace-administrator permission for mutations.
 The update accepts the current namespace ETag and only the supplied setting groups.
 A generated PATCH graph updates the namespace token and settings together.
 Omitted groups survive ordinary namespace saves and DQL regeneration. Invalid
@@ -65,10 +65,15 @@ checked too. Other namespaces retain their own independent requirement flag.
 
 The source hook remains optional and can additionally inspect actual application
 in effective SQL. Its input includes the namespace requirement and package
-selection; a null selection means the deployment's approved packages. Studio
+selection; an empty selection enables no external packages. Studio
 uses native compiled metadata for declaration checks, not a second SQL parser.
 Use `sourcevalidation.Rejection` for deliberate public diagnostics. Other errors
 retain their cause for trusted callers and expose a generic policy rejection.
+
+To remove a saved group, use `settings_update` with `removeKeys: ["security"]`
+or `removeKeys: ["resourceLimits"]` and the current namespace ETag. Removals use
+the same native generated PATCH graph and administrator authorization. Removing
+security settings disables external packages; it never restores inherited packages.
 
 ## Query execution
 

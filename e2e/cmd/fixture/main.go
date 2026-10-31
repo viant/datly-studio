@@ -13,6 +13,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/viant/authz"
+	"github.com/viant/authz/oauth"
 	"github.com/viant/datly-studio/app/datlycmd"
 	"github.com/viant/datly-studio/audit"
 	_ "github.com/viant/datly-studio/e2e/codecs"
@@ -51,6 +52,7 @@ func write(name string, v any) {
 	check(os.WriteFile(name, data, 0600))
 }
 
+var resourceCheckFixture bool
 var portOffset int
 var namespaceAdminRole = "NAMESPACE_ADMIN"
 
@@ -61,6 +63,7 @@ func main() {
 	mode := flag.String("mode", "serve", "prepare or serve")
 	root := flag.String("root", "", "Studio repository root")
 	dir := flag.String("dir", "", "dedicated e2e working directory")
+	flag.BoolVar(&resourceCheckFixture, "resource-check-fixture", false, "enable isolated BigQuery resource-check API fixture")
 	flag.IntVar(&portOffset, "port-offset", 0, "offset for all fixture HTTP/MCP/IdP ports")
 	flag.StringVar(&namespaceAdminRole, "namespace-admin-role", "NAMESPACE_ADMIN", "optional global namespace administrator role")
 	flag.Parse()
@@ -154,6 +157,10 @@ func serve(root, dir string) {
 	check(studiocatalog.ConfigureManagementNavigation(nil, fixtureURL(18780), "studio-e2e"))
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
+	if resourceCheckFixture {
+		check(os.Setenv("STUDIO_NAMESPACE_CREATE_ROLES", "ROLE_ADMIN,NAMESPACE_ADMIN"))
+		check(startResourceCheckBigQuery(ctx))
+	}
 	check(os.Setenv("STUDIO_ACCESS_POLICY_EDITOR_ROLES", "ROLE_ADMIN"))
 	check(os.Setenv("STUDIO_NAMESPACE_ADMIN_ROLE", namespaceAdminRole))
 	identity, err := newIDP(dir)
@@ -184,7 +191,8 @@ func serve(root, dir string) {
 		if code := datlycmd.RunWithOptions(ctx, []string{"run", "-conf", filepath.Join(dir, "native.json")}, os.Stdout, os.Stderr, datlycmd.Options{RequestMiddleware: func(next http.Handler) http.Handler {
 			wrapped := auditService.Logger.Wrap(next)
 			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				wrapped.ServeHTTP(w, r.WithContext(audit.WithService(r.Context(), auditService)))
+				ctx := oauth.WithBearer(r.Context(), strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer "))
+				wrapped.ServeHTTP(w, r.WithContext(audit.WithService(ctx, auditService)))
 			})
 		}, Authoring: &studiohost.AuthoringConfig{Dependencies: compositionPreview(compositionDB)}}); code != 0 {
 			cancel()

@@ -30,8 +30,8 @@ func Write(ctx context.Context, db *sql.DB, owner, namespace string, expected in
 	row := &stored.StoredNamespace{OwnerId: owner, Name: namespace, Etag: &expected, UpdatedAt: now,
 		Has: &stored.StoredNamespaceHas{OwnerId: true, Name: true, Etag: true, UpdatedAt: true, Entries: true}}
 	for key, value := range values {
-		row.Entries = append(row.Entries, &stored.StoredSetting{OwnerId: owner, Namespace: namespace, SettingKey: key, ValueJson: value, UpdatedAt: now, UpdatedBy: actor,
-			Has: &stored.StoredSettingHas{OwnerId: true, Namespace: true, SettingKey: true, ValueJson: true, UpdatedAt: true, UpdatedBy: true}})
+		row.Entries = append(row.Entries, &stored.StoredSetting{OwnerId: owner, Namespace: namespace, SettingKey: key, ShouldDelete: value == nil, ValueJson: value, UpdatedAt: now, UpdatedBy: actor,
+			Has: &stored.StoredSettingHas{OwnerId: true, Namespace: true, SettingKey: true, ShouldDelete: value == nil, ValueJson: value != nil, UpdatedAt: true, UpdatedBy: true}})
 	}
 
 	resources := resource.New()

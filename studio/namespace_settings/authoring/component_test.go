@@ -4,10 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"github.com/viant/authz"
+	"github.com/viant/datly-studio/runtime/accessprovider"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 	"github.com/viant/bindly/resource"
@@ -28,7 +31,8 @@ import (
 )
 
 func TestNativeHTTPSettingsAuthorizePersistAndRejectStaleWrite(t *testing.T) {
-	ctx := context.Background()
+	t.Setenv("STUDIO_NAMESPACE_ADMIN_ROLE", "NAMESPACE_ADMIN")
+	ctx := accessprovider.WithProvider(context.Background(), settingsProvider{})
 	db := datatest.OpenSQLite(t, "settings_native_http", "studio")
 	jwt := datatest.NewJWTFixture(t)
 	require.NoError(t, datatest.Hydrate(ctx, db, datatest.Table{Name: "namespaces", Rows: []datatest.Row{{"owner_id": "owner", "name": "alpha", "title": "Alpha", "status": "active", "etag": 1, "created_at": "2026-10-28 00:00:00", "updated_at": "2026-10-28 00:00:00"}}}))
@@ -76,6 +80,7 @@ func TestNativeHTTPSettingsAuthorizePersistAndRejectStaleWrite(t *testing.T) {
 	httpHandler := gateway.NewHandler(runtime, nil, "test")
 	call := func(subject, path, body string) *httptest.ResponseRecorder {
 		request := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/namespaces."+path, bytes.NewBufferString(body))
+		request = request.WithContext(ctx)
 		request.Header.Set("Content-Type", "application/json")
 		request.Header.Set("Authorization", jwt.Bearer(t, subject))
 		response := httptest.NewRecorder()
@@ -97,4 +102,16 @@ func TestNativeHTTPSettingsAuthorizePersistAndRejectStaleWrite(t *testing.T) {
 	var bytesProcessed string
 	require.NoError(t, db.QueryRowContext(ctx, "SELECT value_json FROM namespace_settings WHERE owner_id='owner' AND namespace='alpha' AND setting_key='resourceLimits'").Scan(&bytesProcessed))
 	require.Contains(t, bytesProcessed, "123")
+	response = call("owner", "settings_update", `{"name":"alpha","input":{"etag":2,"removeKeys":["resourceLimits"],"settings":{}}}`)
+	require.Equal(t, 200, response.Code, response.Body.String())
+	var count int
+	require.NoError(t, db.QueryRowContext(ctx, "SELECT COUNT(*) FROM namespace_settings WHERE owner_id='owner' AND namespace='alpha'").Scan(&count))
+	require.Zero(t, count)
+
+}
+
+type settingsProvider struct{}
+
+func (settingsProvider) Resolve(context.Context) (authz.Facts, error) {
+	return authz.Facts{Subject: "owner", Issuer: "settings-test", Tenant: "settings-test", Roles: []string{"NAMESPACE_ADMIN"}, ValidUntil: time.Now().Add(time.Minute)}, nil
 }
