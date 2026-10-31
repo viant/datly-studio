@@ -1,0 +1,15 @@
+#package('studio/artifact_release/bundle')
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/artifact-release-store/bundle', 'GET'))
+#setting($_ = $internal(true))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('bundle', 'sql/root.sql'))
+#define($_ = $ScopeId<string>(query/scopeId).Required().WithPredicate(0,'equal','r','scope_id'))
+#define($_ = $BundleHash<string>(query/bundleHash).Required().WithPredicate(0,'equal','r','bundle_hash'))
+#define($_ = $Data<[]*StoredBundle>(output/view))
+SELECT bundle.*, set_limit(bundle,1), binding.*,type(bundle,'StoredBundle'),type(binding,'BundleBinding')
+FROM (${embed:sql/root.sql}) bundle
+LEFT JOIN (SELECT * FROM artifact_release_bundle_bindings) binding ON binding.scope_id=bundle.scope_id AND binding.bundle_hash=bundle.bundle_hash AND 1=1
+WHERE 1=1

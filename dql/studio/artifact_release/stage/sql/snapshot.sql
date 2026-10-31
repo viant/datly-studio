@@ -1,0 +1,2 @@
+SELECT s.* FROM (artifact_release_channels) s
+${predicate.Builder().CombineAnd($predicate.FilterGroup(4,"AND")).Build("WHERE")}

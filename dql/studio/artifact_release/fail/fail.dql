@@ -1,0 +1,27 @@
+#package('studio/artifact_release/fail')
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/artifact-release-store/fail', 'PATCH'))
+#setting($_ = $internal(true))
+#setting($_ = $connector('studio'))
+#define($_ = $ScopeId<string>(query/scopeId).Required().WithPredicate(0,'equal','c','scope_id').WithPredicate(1,'equal','o','scope_id').WithPredicate(2,'equal','s','scope_id').WithPredicate(3,'equal','i','scope_id'))
+#define($_ = $Name<string>(query/name).Required().WithPredicate(0,'equal','c','name').WithPredicate(1,'equal','o','channel_name').WithPredicate(2,'equal','s','name').WithPredicate(3,'equal','i','channel_name'))
+#define($_ = $OperationId<string>(query/operationId).Required().WithPredicate(1,'equal','o','operation_id').WithPredicate(3,'equal','i','operation_id').WithPredicate(7,'equal','artifact_release_channels','pending_operation_id'))
+#define($_ = $ExpectedRevision<int64>(query/expectedRevision).Required().WithPredicate(7,'equal','artifact_release_channels','revision'))
+#define($_ = $PendingStatus<string>(query/pendingStatus).Required().WithPredicate(8,'equal','artifact_release_operations','status'))
+#define($_ = $Actor<string>(query/actor).Required().WithTag('json:"-" internal:"true"'))
+#define($_ = $ChannelSnapshot<[]*ChannelSnapshot>(view/ChannelSnapshot).WithConnector('studio').WithLimit(1).WithColumnType('revision','int64') /*
+${embed:sql/snapshot.sql}
+*/)
+#define($_ = $Intent<[]*Intent>(view/Intent).WithConnector('studio').WithLimit(1).WithColumnType('expected_revision','int64').WithColumnType('target_revision','int64') /*
+${embed:sql/intent.sql}
+*/)
+#define($_ = $Data<[]*FailChannel>(output/body))
+SELECT channel.*, operation.*, type(channel,'FailChannel'),type(operation,'FailOperation'),
+       lifecycle_type(channel,'Rules'),CAST(channel.revision AS int64),concurrency_token(channel.revision),
+       mutation_predicate(channel,7),mutation_predicate(operation,8)
+FROM (${embed:sql/channel.sql}) channel
+LEFT JOIN (${embed:sql/operation.sql}) operation
+ ON operation.scope_id=channel.scope_id AND operation.channel_name=channel.name
+WHERE 1=1

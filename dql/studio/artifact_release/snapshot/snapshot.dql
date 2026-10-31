@@ -1,0 +1,17 @@
+#package('studio/artifact_release/snapshot')
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/artifact-release-store/snapshot', 'GET'))
+#setting($_ = $internal(true))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('channel', 'sql/root.sql'))
+#define($_ = $ScopeId<string>(query/scopeId).Required().WithPredicate(0,'equal','r','scope_id'))
+#define($_ = $Name<string>(query/name).Required().WithPredicate(0,'equal','r','name'))
+#define($_ = $Data<[]*ReleaseChannel>(output/view))
+SELECT channel.*, set_limit(channel,1), bundle.*, binding.*, operation.*, type(channel,'ReleaseChannel'), type(bundle,'StoredBundle'),type(binding,'BundleBinding'),type(operation,'ReleaseOperation'),CAST(channel.revision AS int64),CAST(operation.expected_revision AS int64),CAST(operation.target_revision AS int64)
+FROM (${embed:sql/root.sql}) channel
+LEFT JOIN (SELECT * FROM artifact_release_bundles) bundle ON bundle.scope_id=channel.scope_id AND bundle.bundle_hash=channel.active_bundle_hash AND 1=1
+LEFT JOIN (SELECT * FROM artifact_release_bundle_bindings) binding ON binding.scope_id=channel.scope_id AND binding.bundle_hash=channel.active_bundle_hash AND 1=1
+LEFT JOIN (SELECT * FROM artifact_release_operations) operation ON operation.scope_id=channel.scope_id AND operation.operation_id=channel.pending_operation_id AND 1=1
+WHERE 1=1

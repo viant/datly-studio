@@ -1,0 +1,1 @@
+SELECT * FROM (SELECT * FROM artifact_release_bundles) bundle

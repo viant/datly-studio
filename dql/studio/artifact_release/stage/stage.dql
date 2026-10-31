@@ -1,0 +1,48 @@
+#package('studio/artifact_release/stage')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/artifact-release-store/stage', 'PATCH'))
+#setting($_ = $internal(true))
+#setting($_ = $connector('studio'))
+
+#define($_ = $ScopeId<string>(query/scopeId).Required().WithPredicate(0,'equal','c','scope_id').WithPredicate(1,'equal','o','scope_id').WithPredicate(2,'equal','b','scope_id').WithPredicate(3,'equal','u','scope_id').WithPredicate(4,'equal','s','scope_id'))
+#define($_ = $ScopeTenant<string>(query/scopeTenant).Required().WithTag('json:"-" internal:"true"'))
+#define($_ = $ScopeAccount<string>(query/scopeAccount).Required().WithTag('json:"-" internal:"true"'))
+#define($_ = $ScopeWorkspace<string>(query/scopeWorkspace).Required().WithTag('json:"-" internal:"true"'))
+#define($_ = $ScopeNamespace<string>(query/scopeNamespace).Required().WithTag('json:"-" internal:"true"'))
+#define($_ = $Actor<string>(query/actor).Required().WithTag('json:"-" internal:"true"'))
+#define($_ = $Name<string>(query/name).Required().WithPredicate(0,'equal','c','name').WithPredicate(4,'equal','s','name'))
+#define($_ = $TargetBundleHash<string>(query/targetBundleHash).Required())
+#define($_ = $BindingsHash<string>(query/bindingsHash).Required())
+#define($_ = $ExpectedRevision<int64>(query/expectedRevision).Required().WithPredicate(7,'equal','artifact_release_channels','revision'))
+#define($_ = $NoPending<bool>(query/noPending).Required().WithPredicate(7,'is_null','artifact_release_channels','pending_operation_id'))
+#define($_ = $ChannelSnapshot<[]*ChannelSnapshot>(view/ChannelSnapshot).WithConnector('studio').WithLimit(1).WithColumnType('revision','int64') /*
+${embed:sql/snapshot.sql}
+*/)
+#define($_ = $Data<[]*StageChannel>(output/body))
+
+SELECT channel.*, operation.*, binding.*, bundle.*,
+       type(channel,'StageChannel'), type(operation,'StageOperation'),
+       type(binding,'BundleBinding'), type(bundle,'StoredBundle'),
+       lifecycle_type(channel,'StageRules'), lifecycle_type(binding,'BindingRules'),
+       CAST(channel.revision AS int64), concurrency_token(channel.revision),
+       CAST(operation.expected_revision AS int64), CAST(operation.target_revision AS int64),
+       CAST(channel.target_bundle_hash AS string), tag(channel.target_bundle_hash,'sqlx:"-"'),
+       tag(channel.expected_tenant_id,'sqlx:"-"'),
+       tag(channel.expected_account_id,'sqlx:"-"'),
+       tag(channel.expected_workspace_id,'sqlx:"-"'),
+       tag(channel.expected_namespace,'sqlx:"-"'),
+       tag(channel.expected_description,'sqlx:"-"'),
+       tag(channel.expected_policy_refs_json,'sqlx:"-"'),
+       tag(channel.expected_active_bundle_hash,'sqlx:"-"'),
+       mutation_predicate(channel,7)
+FROM (${embed:sql/channel.sql}) channel
+LEFT JOIN (${embed:sql/operation.sql}) operation
+  ON operation.scope_id=channel.scope_id AND operation.channel_name=channel.name
+LEFT JOIN (${embed:sql/binding.sql}) binding
+  ON binding.scope_id=channel.scope_id AND binding.bundle_hash=channel.target_bundle_hash AND 1=1
+LEFT JOIN (${embed:sql/bundle.sql}) bundle
+  ON bundle.scope_id=channel.scope_id AND bundle.bundle_hash=channel.target_bundle_hash AND 1=1
+WHERE 1=1

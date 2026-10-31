@@ -7,12 +7,12 @@ package sqlstore
 import (
 	"context"
 	"crypto/rand"
-	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	releasevalue "github.com/viant/datly-studio/sdk/artifactrelease/value"
 	"math"
 	"reflect"
 	"sort"
@@ -24,23 +24,7 @@ import (
 
 // Scope is injected by a verified Studio host. The channel name is supplied
 // separately, but all other Key fields must match this immutable binding.
-type Scope struct {
-	Tenant, Account, Workspace, Namespace string
-}
-
-func (s Scope) valid() bool {
-	return (artifactrelease.Key{Tenant: s.Tenant, Account: s.Account, Workspace: s.Workspace, Namespace: s.Namespace, Name: "scope"}).Valid()
-}
-
-func (s Scope) id() string {
-	raw, _ := json.Marshal([]string{s.Tenant, s.Account, s.Workspace, s.Namespace})
-	sum := sha256.Sum256(raw)
-	return hex.EncodeToString(sum[:])
-}
-
-func (s Scope) owns(key artifactrelease.Key) bool {
-	return key.Valid() && key.Tenant == s.Tenant && key.Account == s.Account && key.Workspace == s.Workspace && key.Namespace == s.Namespace
-}
+type Scope = releasevalue.Scope
 
 // Store borrows DB. It owns no connection lifetime and never projects a
 // Publisher itself; the host completes a pending revision only after the
@@ -65,7 +49,7 @@ func New(db *sql.DB, scope Scope, verifiedActor string) (*Store, error) {
 // Serving hosts must use their existing authenticated identity seam rather
 // than accepting an actor supplied by browser input or a shared mutable field.
 func NewWithActorResolver(db *sql.DB, scope Scope, resolve func(context.Context) (string, error)) (*Store, error) {
-	if db == nil || !scope.valid() || resolve == nil {
+	if db == nil || !scope.Valid() || resolve == nil {
 		return nil, artifactrelease.ErrInvalid
 	}
 	return &Store{DB: db, scope: scope, actor: resolve, clock: func() time.Time { return time.Now().UTC() }}, nil
@@ -103,7 +87,7 @@ func (s *Store) PutBundle(ctx context.Context, bundle artifactrelease.Bundle) er
 	now := s.now()
 	_, err = s.DB.ExecContext(ctx, `INSERT INTO artifact_release_bundles
  (scope_id,tenant_id,account_id,workspace_id,namespace,bundle_hash,bundle_json,created_at,created_by,updated_at,updated_by)
- VALUES (?,?,?,?,?,?,?,?,?,?,?)`, s.scope.id(), s.scope.Tenant, s.scope.Account, s.scope.Workspace,
+ VALUES (?,?,?,?,?,?,?,?,?,?,?)`, s.scope.ID(), s.scope.Tenant, s.scope.Account, s.scope.Workspace,
 		s.scope.Namespace, bundle.Hash, raw, now, actor, now, actor)
 	if err == nil {
 		return nil
@@ -125,7 +109,7 @@ func (s *Store) Bundle(ctx context.Context, hash string) (artifactrelease.Bundle
 	var tenant, account, workspace, namespace string
 	var raw []byte
 	err := s.DB.QueryRowContext(ctx, `SELECT tenant_id,account_id,workspace_id,namespace,bundle_json
- FROM artifact_release_bundles WHERE scope_id=? AND bundle_hash=?`, s.scope.id(), hash).
+ FROM artifact_release_bundles WHERE scope_id=? AND bundle_hash=?`, s.scope.ID(), hash).
 		Scan(&tenant, &account, &workspace, &namespace, &raw)
 	if err != nil {
 		return artifactrelease.Bundle{}, err
@@ -141,7 +125,7 @@ func (s *Store) Bundle(ctx context.Context, hash string) (artifactrelease.Bundle
 }
 
 func (s *Store) CreateChannel(ctx context.Context, channel artifactrelease.Channel) error {
-	if s == nil || s.DB == nil || ctx == nil || ctx.Err() != nil || !s.scope.owns(channel.Key) ||
+	if s == nil || s.DB == nil || ctx == nil || ctx.Err() != nil || !s.scope.Owns(channel.Key) ||
 		artifactrelease.ValidateChannel(channel) != nil || channel.Revision != 0 || channel.ActiveBundleHash != "" {
 		return artifactrelease.ErrInvalid
 	}
@@ -156,12 +140,12 @@ func (s *Store) CreateChannel(ctx context.Context, channel artifactrelease.Chann
 	now := s.now()
 	_, err = s.DB.ExecContext(ctx, `INSERT INTO artifact_release_channels
  (scope_id,tenant_id,account_id,workspace_id,namespace,name,description,policy_refs_json,active_bundle_hash,revision,pending_operation_id,created_at,created_by,updated_at,updated_by)
- VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, s.scope.id(), s.scope.Tenant, s.scope.Account,
+ VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, s.scope.ID(), s.scope.Tenant, s.scope.Account,
 		s.scope.Workspace, s.scope.Namespace, channel.Key.Name, channel.Description, policies,
 		nil, 0, nil, now, actor, now, actor)
 	if err != nil {
 		var existing string
-		if readErr := s.DB.QueryRowContext(ctx, `SELECT name FROM artifact_release_channels WHERE scope_id=? AND name=?`, s.scope.id(), channel.Key.Name).Scan(&existing); readErr == nil {
+		if readErr := s.DB.QueryRowContext(ctx, `SELECT name FROM artifact_release_channels WHERE scope_id=? AND name=?`, s.scope.ID(), channel.Key.Name).Scan(&existing); readErr == nil {
 			return artifactrelease.ErrConflict
 		}
 		return fmt.Errorf("create release channel: %w", err)
@@ -170,7 +154,7 @@ func (s *Store) CreateChannel(ctx context.Context, channel artifactrelease.Chann
 }
 
 func (s *Store) Channel(ctx context.Context, key artifactrelease.Key) (artifactrelease.Channel, error) {
-	if s == nil || s.DB == nil || ctx == nil || ctx.Err() != nil || !s.scope.owns(key) {
+	if s == nil || s.DB == nil || ctx == nil || ctx.Err() != nil || !s.scope.Owns(key) {
 		return artifactrelease.Channel{}, artifactrelease.ErrInvalid
 	}
 	return s.channel(ctx, s.DB, key)
@@ -182,7 +166,7 @@ func (s *Store) ListChannels(ctx context.Context) ([]artifactrelease.Channel, er
 	if s == nil || s.DB == nil || ctx == nil || ctx.Err() != nil {
 		return nil, artifactrelease.ErrInvalid
 	}
-	rows, err := s.DB.QueryContext(ctx, `SELECT name FROM artifact_release_channels WHERE scope_id=? ORDER BY name`, s.scope.id())
+	rows, err := s.DB.QueryContext(ctx, `SELECT name FROM artifact_release_channels WHERE scope_id=? ORDER BY name`, s.scope.ID())
 	if err != nil {
 		return nil, err
 	}
@@ -216,22 +200,14 @@ func (s *Store) ListChannels(ctx context.Context) ([]artifactrelease.Channel, er
 
 // History includes all attempted revisions for audit. Only an applied entry
 // selects a bundle eligible for rollback; pending/failed entries never do.
-type HistoryEntry struct {
-	OperationID string
-	Next        artifactrelease.Channel
-	Status      string
-	CreatedAt   time.Time
-	CreatedBy   string
-	CompletedAt *time.Time
-	FailureCode string
-}
+type HistoryEntry = releasevalue.HistoryEntry
 
 func (s *Store) History(ctx context.Context, key artifactrelease.Key) ([]HistoryEntry, error) {
-	if s == nil || s.DB == nil || ctx == nil || ctx.Err() != nil || !s.scope.owns(key) {
+	if s == nil || s.DB == nil || ctx == nil || ctx.Err() != nil || !s.scope.Owns(key) {
 		return nil, artifactrelease.ErrInvalid
 	}
 	rows, err := s.DB.QueryContext(ctx, `SELECT operation_id,next_channel_json,status,created_at,created_by,completed_at,failure_code
- FROM artifact_release_operations WHERE scope_id=? AND channel_name=? ORDER BY created_at,operation_id`, s.scope.id(), key.Name)
+ FROM artifact_release_operations WHERE scope_id=? AND channel_name=? ORDER BY created_at,operation_id`, s.scope.ID(), key.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -275,7 +251,7 @@ func (s *Store) channel(ctx context.Context, source queryRow, key artifactreleas
 	var active sql.NullString
 	var revision int64
 	err := source.QueryRowContext(ctx, `SELECT tenant_id,account_id,workspace_id,namespace,description,policy_refs_json,active_bundle_hash,revision
- FROM artifact_release_channels WHERE scope_id=? AND name=?`, s.scope.id(), key.Name).
+ FROM artifact_release_channels WHERE scope_id=? AND name=?`, s.scope.ID(), key.Name).
 		Scan(&tenant, &account, &workspace, &namespace, &description, &policies, &active, &revision)
 	if err != nil {
 		return artifactrelease.Channel{}, err
@@ -306,14 +282,14 @@ func (s *Store) StageRevisionTx(ctx context.Context, tx *sql.Tx, current, next a
 }
 
 func (s *Store) stageRevisionTx(ctx context.Context, tx *sql.Tx, current, next artifactrelease.Channel, bundle artifactrelease.Bundle, dependencies []byte) (string, error) {
-	if s == nil || tx == nil || ctx == nil || ctx.Err() != nil || !s.scope.owns(current.Key) ||
+	if s == nil || tx == nil || ctx == nil || ctx.Err() != nil || !s.scope.Owns(current.Key) ||
 		current.Key != next.Key || artifactrelease.ValidateChannel(current) != nil || artifactrelease.ValidateChannel(next) != nil ||
 		artifactrelease.ValidateBundle(bundle) != nil || bundle.Namespace != s.scope.Namespace || next.ActiveBundleHash != bundle.Hash ||
 		next.Revision != current.Revision+1 {
 		return "", artifactrelease.ErrInvalid
 	}
 	var storedRaw []byte
-	if err := tx.QueryRowContext(ctx, `SELECT bundle_json FROM artifact_release_bundles WHERE scope_id=? AND bundle_hash=?`, s.scope.id(), bundle.Hash).Scan(&storedRaw); err != nil {
+	if err := tx.QueryRowContext(ctx, `SELECT bundle_json FROM artifact_release_bundles WHERE scope_id=? AND bundle_hash=?`, s.scope.ID(), bundle.Hash).Scan(&storedRaw); err != nil {
 		return "", artifactrelease.ErrInvalid
 	}
 	var storedBundle artifactrelease.Bundle
@@ -338,7 +314,7 @@ func (s *Store) stageRevisionTx(ctx context.Context, tx *sql.Tx, current, next a
 	now := s.now()
 	result, err := tx.ExecContext(ctx, `UPDATE artifact_release_channels SET pending_operation_id=?,updated_at=?,updated_by=?
  WHERE scope_id=? AND name=? AND revision=? AND pending_operation_id IS NULL`, operationID, now, actor,
-		s.scope.id(), current.Key.Name, int64(current.Revision))
+		s.scope.ID(), current.Key.Name, int64(current.Revision))
 	if err != nil {
 		return "", err
 	}
@@ -355,7 +331,7 @@ func (s *Store) stageRevisionTx(ctx context.Context, tx *sql.Tx, current, next a
 	}
 	_, err = tx.ExecContext(ctx, `INSERT INTO artifact_release_operations
  (operation_id,scope_id,channel_name,expected_revision,target_revision,target_bundle_hash,next_channel_json,dependencies_json,status,created_at,created_by,updated_at,updated_by)
- VALUES (?,?,?,?,?,?,?,?,'pending',?,?,?,?)`, operationID, s.scope.id(), current.Key.Name,
+ VALUES (?,?,?,?,?,?,?,?,'pending',?,?,?,?)`, operationID, s.scope.ID(), current.Key.Name,
 		int64(current.Revision), int64(next.Revision), bundle.Hash, raw, dependencies, now, actor, now, actor)
 	if err != nil {
 		return "", err
@@ -375,7 +351,7 @@ func randomOperationID() (string, error) {
 // intent remains durable if the transaction fails; restart recovery replays
 // the same projection before calling CompleteRevision again.
 func (s *Store) CompleteRevision(ctx context.Context, key artifactrelease.Key, expectedCurrentRevision uint64, operationID string) error {
-	if s == nil || s.DB == nil || ctx == nil || ctx.Err() != nil || !s.scope.owns(key) || !validOperationID(operationID) || expectedCurrentRevision >= math.MaxInt64 {
+	if s == nil || s.DB == nil || ctx == nil || ctx.Err() != nil || !s.scope.Owns(key) || !validOperationID(operationID) || expectedCurrentRevision >= math.MaxInt64 {
 		return artifactrelease.ErrInvalid
 	}
 	actor, err := s.requestActor(ctx)
@@ -394,7 +370,7 @@ func (s *Store) CompleteRevision(ctx context.Context, key artifactrelease.Key, e
 	if current.Revision == expectedCurrentRevision+1 {
 		var applied int
 		err = tx.QueryRowContext(ctx, `SELECT COUNT(*) FROM artifact_release_operations WHERE operation_id=? AND scope_id=? AND channel_name=? AND target_revision=? AND status='applied'`,
-			operationID, s.scope.id(), key.Name, int64(current.Revision)).Scan(&applied)
+			operationID, s.scope.ID(), key.Name, int64(current.Revision)).Scan(&applied)
 		if err == nil && applied == 1 {
 			return nil
 		}
@@ -418,7 +394,7 @@ func (s *Store) CompleteRevision(ctx context.Context, key artifactrelease.Key, e
 	result, err := tx.ExecContext(ctx, `UPDATE artifact_release_channels SET description=?,policy_refs_json=?,active_bundle_hash=?,active_dependencies_json=?,revision=?,pending_operation_id=NULL,updated_at=?,updated_by=?
  WHERE scope_id=? AND name=? AND revision=? AND pending_operation_id=?`, operation.Next.Description, policies,
 		operation.Next.ActiveBundleHash, operation.dependencies, int64(operation.Next.Revision), now, actor,
-		s.scope.id(), key.Name, int64(expectedCurrentRevision), operation.id)
+		s.scope.ID(), key.Name, int64(expectedCurrentRevision), operation.id)
 	if err != nil {
 		return err
 	}
@@ -447,7 +423,7 @@ func (s *Store) CompleteRevision(ctx context.Context, key artifactrelease.Key, e
 // FailRevision retains the previous active bundle when projection failed.
 // Only a bounded categorical code is persisted, never payload or credentials.
 func (s *Store) FailRevision(ctx context.Context, key artifactrelease.Key, expectedCurrentRevision uint64, operationID, code string) error {
-	if s == nil || s.DB == nil || ctx == nil || ctx.Err() != nil || !s.scope.owns(key) || !validOperationID(operationID) || !validFailureCode(code) || expectedCurrentRevision >= math.MaxInt64 {
+	if s == nil || s.DB == nil || ctx == nil || ctx.Err() != nil || !s.scope.Owns(key) || !validOperationID(operationID) || !validFailureCode(code) || expectedCurrentRevision >= math.MaxInt64 {
 		return artifactrelease.ErrInvalid
 	}
 	actor, err := s.requestActor(ctx)
@@ -469,7 +445,7 @@ func (s *Store) FailRevision(ctx context.Context, key artifactrelease.Key, expec
 	now := s.now()
 	result, err := tx.ExecContext(ctx, `UPDATE artifact_release_channels SET pending_operation_id=NULL,updated_at=?,updated_by=?
  WHERE scope_id=? AND name=? AND revision=? AND pending_operation_id=?`, now, actor,
-		s.scope.id(), key.Name, int64(expectedCurrentRevision), operation.id)
+		s.scope.ID(), key.Name, int64(expectedCurrentRevision), operation.id)
 	if err != nil {
 		return err
 	}
@@ -528,7 +504,7 @@ func (s *Store) pendingForChannel(ctx context.Context, tx *sql.Tx, key artifactr
 	var raw, dependencies []byte
 	err := tx.QueryRowContext(ctx, `SELECT o.operation_id,o.expected_revision,o.target_revision,o.target_bundle_hash,o.next_channel_json,o.dependencies_json,o.status
  FROM artifact_release_operations o JOIN artifact_release_channels c ON c.scope_id=o.scope_id AND c.name=o.channel_name
- WHERE o.scope_id=? AND o.channel_name=? AND c.pending_operation_id=o.operation_id`, s.scope.id(), key.Name).
+ WHERE o.scope_id=? AND o.channel_name=? AND c.pending_operation_id=o.operation_id`, s.scope.ID(), key.Name).
 		Scan(&id, &expected, &target, &hash, &raw, &dependencies, &status)
 	if err != nil {
 		return pendingRow{}, err
@@ -555,7 +531,7 @@ func (s *Store) Pending(ctx context.Context) ([]artifactrelease.PendingRevision,
 	if s == nil || s.DB == nil || ctx == nil || ctx.Err() != nil {
 		return nil, artifactrelease.ErrInvalid
 	}
-	rows, err := s.DB.QueryContext(ctx, `SELECT name FROM artifact_release_channels WHERE scope_id=? AND pending_operation_id IS NOT NULL ORDER BY name`, s.scope.id())
+	rows, err := s.DB.QueryContext(ctx, `SELECT name FROM artifact_release_channels WHERE scope_id=? AND pending_operation_id IS NOT NULL ORDER BY name`, s.scope.ID())
 	if err != nil {
 		return nil, err
 	}

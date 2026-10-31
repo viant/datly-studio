@@ -1,0 +1,15 @@
+#package('studio/artifact_release/put_bundle')
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/artifact-release-store/put_bundle', 'POST'))
+#setting($_ = $internal(true))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('records','sql/read.sql'))
+#define($_ = $ScopeId<string>(query/scopeId).Required().WithTag('json:"-" internal:"true"'))
+#define($_ = $Actor<string>(query/actor).Required().WithTag('json:"-" internal:"true"'))
+#define($_ = $Records<[]*NewBundle>(body/data).Cardinality('Many'))
+#define($_ = $Data<[]*NewBundle>(output/body))
+SELECT records.*,type(records,'NewBundle'),lifecycle_type(records,'Rules')
+FROM (${embed:sql/read.sql}) records
+WHERE 1=1

@@ -1,0 +1,3 @@
+SELECT r.scope_id, r.tenant_id, r.account_id, r.workspace_id, r.namespace, r.bundle_hash, r.bundle_json, r.created_at, r.created_by, r.updated_at, r.updated_by FROM (SELECT * FROM (SELECT u.* FROM (artifact_release_bundles) u
+${predicate.Builder().CombineAnd($predicate.FilterGroup(3,"AND")).Build("WHERE")}
+) bundle) r WHERE $criteria.CompositeIn("r", $Unsafe.ProjectCurrentBundleKeys($Stage, $CurrentStage))

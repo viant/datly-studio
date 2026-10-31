@@ -1,0 +1,14 @@
+#package('studio/artifact_release/intent')
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/artifact-release-store/intent', 'GET'))
+#setting($_ = $internal(true))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('intent', 'sql/read.sql'))
+#define($_ = $ScopeId<string>(query/scopeId).Required().WithPredicate(0,'equal','i','scope_id'))
+#define($_ = $OperationId<string>(query/operationId).Required().WithPredicate(0,'equal','i','operation_id'))
+#define($_ = $Data<[]*ReleaseOperation>(output/view))
+SELECT intent.*,type(intent,'ReleaseOperation'),CAST(intent.expected_revision AS int64),CAST(intent.target_revision AS int64),set_limit(intent,1)
+FROM (${embed:sql/read.sql}) intent
+WHERE 1=1

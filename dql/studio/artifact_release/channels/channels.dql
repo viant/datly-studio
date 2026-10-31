@@ -1,0 +1,13 @@
+#package('studio/artifact_release/channels')
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/artifact-release-store/channels', 'GET'))
+#setting($_ = $internal(true))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('records','sql/read.sql'))
+#define($_ = $ScopeId<string>(query/scopeId).Required().WithPredicate(0,'equal','r','scope_id'))
+#define($_ = $Data<[]*ReleaseChannel>(output/view))
+SELECT records.*,type(records,'ReleaseChannel'),CAST(records.revision AS int64),set_limit(records,0)
+FROM (${embed:sql/read.sql}) records
+WHERE 1=1

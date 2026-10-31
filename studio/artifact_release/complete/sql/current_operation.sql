@@ -1,0 +1,3 @@
+SELECT r.operation_id, r.scope_id, r.channel_name, r.status, r.completed_at, r.updated_at, r.updated_by FROM (SELECT * FROM (SELECT o.operation_id,o.scope_id,o.channel_name,o.status,o.completed_at,o.updated_at,o.updated_by FROM artifact_release_operations o
+${predicate.Builder().CombineAnd($predicate.FilterGroup(1,"AND")).Build("WHERE")}
+) operation) r WHERE $criteria.CompositeIn("r", $Unsafe.ProjectCurrentOperationParentKeys($CurrentComplete))

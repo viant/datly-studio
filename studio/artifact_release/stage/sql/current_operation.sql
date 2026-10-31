@@ -1,0 +1,3 @@
+SELECT r.operation_id, r.scope_id, r.channel_name, r.expected_revision, r.target_revision, r.target_bundle_hash, r.next_channel_json, r.dependencies_json, r.status, r.created_at, r.created_by, r.updated_at, r.updated_by, r.completed_at, r.failure_code FROM (SELECT * FROM (SELECT o.* FROM artifact_release_operations o
+${predicate.Builder().CombineAnd($predicate.FilterGroup(1,"AND")).Build("WHERE")}
+) operation) r WHERE $criteria.CompositeIn("r", $Unsafe.ProjectCurrentOperationParentKeys($CurrentStage))

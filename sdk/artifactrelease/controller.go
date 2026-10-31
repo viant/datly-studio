@@ -14,7 +14,7 @@ import (
 
 	"github.com/viant/authz"
 	"github.com/viant/datly-studio/sdk/artifactrelease/releasegate"
-	"github.com/viant/datly-studio/sdk/artifactrelease/sqlstore"
+	releasevalue "github.com/viant/datly-studio/sdk/artifactrelease/value"
 	"github.com/viant/forge/backend/artifactcohort"
 	contract "github.com/viant/forge/backend/artifactrelease"
 	identity "github.com/viant/forge/backend/resource"
@@ -24,20 +24,20 @@ import (
 // derive scope, editor authority, policy heads and closed artifact bytes from
 // server-owned state; no browser field can supply those capabilities.
 type ControllerConfig struct {
-	Scope sqlstore.Scope
+	Scope releasevalue.Scope
 	// ProjectionTenant is the configured recipient identity tenant on the wire.
 	// Empty keeps the storage tenant. Named policy heads and dependency records
 	// always stay in Scope.Tenant.
 	ProjectionTenant string
-	Store            *sqlstore.Store
+	Store            ReleaseStore
 	Publisher        *artifactcohort.Publisher
-	VerifyScope      func(context.Context) (sqlstore.Scope, error)
+	VerifyScope      func(context.Context) (releasevalue.Scope, error)
 	Authorize        func(context.Context, string) error
 	Candidates       func(context.Context) ([]contract.Candidate, error)
 	Prepare          func(context.Context, []artifactcohort.RootRef) ([]*artifactcohort.Artifact, error)
 	// CompileBindings derives exact native component pins from validated closed
 	// bytes; client aliases never enter this companion record.
-	CompileBindings func(context.Context, contract.Bundle, []*artifactcohort.Artifact) ([]sqlstore.ComponentBinding, error)
+	CompileBindings func(context.Context, contract.Bundle, []*artifactcohort.Artifact) ([]releasevalue.ComponentBinding, error)
 	// RestoreArtifacts loads exact previously published bytes from trusted
 	// producer persistence during restart. It must not require a user lease or
 	// discover mutable working resources.
@@ -68,7 +68,7 @@ type Controller struct {
 type ActiveSelection struct {
 	Channel      contract.Channel
 	Bundle       contract.Bundle
-	Bindings     []sqlstore.ComponentBinding
+	Bindings     []releasevalue.ComponentBinding
 	Dependencies []authz.NamedDependency
 }
 
@@ -237,7 +237,7 @@ func (c *Controller) FenceRoot(ctx context.Context, root artifactcohort.RootRef,
 var _ Manager = (*Controller)(nil)
 
 func NewController(config ControllerConfig) (*Controller, error) {
-	if config.Store == nil || config.Publisher == nil || config.VerifyScope == nil || config.Authorize == nil || config.Candidates == nil || config.Prepare == nil || config.CompileBindings == nil || config.RestoreArtifacts == nil || config.AvailableRoot == nil || config.ValidateArtifact == nil || config.NamedDocuments == nil || config.Fence == nil || config.AdmitAudience == nil || !(contract.Key{Tenant: config.Scope.Tenant, Account: config.Scope.Account, Workspace: config.Scope.Workspace, Namespace: config.Scope.Namespace, Name: "scope"}).Valid() {
+	if config.Store == nil || (reflect.ValueOf(config.Store).Kind() == reflect.Pointer && reflect.ValueOf(config.Store).IsNil()) || config.Publisher == nil || config.VerifyScope == nil || config.Authorize == nil || config.Candidates == nil || config.Prepare == nil || config.CompileBindings == nil || config.RestoreArtifacts == nil || config.AvailableRoot == nil || config.ValidateArtifact == nil || config.NamedDocuments == nil || config.Fence == nil || config.AdmitAudience == nil || !(contract.Key{Tenant: config.Scope.Tenant, Account: config.Scope.Account, Workspace: config.Scope.Workspace, Namespace: config.Scope.Namespace, Name: "scope"}).Valid() {
 		return nil, contract.ErrInvalid
 	}
 	if config.ProjectionTenant != "" && !(contract.Key{Tenant: config.ProjectionTenant, Account: config.Scope.Account, Workspace: config.Scope.Workspace, Namespace: config.Scope.Namespace, Name: "scope"}).Valid() {

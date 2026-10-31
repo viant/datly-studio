@@ -1,0 +1,1 @@
+SELECT ScopeId AS ScopeId, Name AS Name FROM `/`

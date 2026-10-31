@@ -1,82 +1,30 @@
 package sqlstore
 
 import (
-	"bytes"
 	"context"
-	"crypto/sha256"
 	"database/sql"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"io"
-	"net/http"
+	releasevalue "github.com/viant/datly-studio/sdk/artifactrelease/value"
 	"reflect"
-	"sort"
-	"strings"
 
 	"github.com/viant/authz"
-	"github.com/viant/forge/backend/artifactcohort"
 	contract "github.com/viant/forge/backend/artifactrelease"
 )
 
 // ComponentBinding is producer-compiled companion metadata for an immutable
 // release bundle. Public release DTOs never accept it. Both Studio API and
 // native runtime read the same exact component revision and fingerprints.
-type ComponentBinding struct {
-	Root               artifactcohort.RootRef `json:"root"`
-	DataSourceID       string                 `json:"dataSourceId"`
-	ComponentKind      string                 `json:"componentKind"`
-	ComponentID        string                 `json:"componentId"`
-	ComponentRevision  string                 `json:"componentRevision"`
-	Method             string                 `json:"method"`
-	Route              string                 `json:"route"`
-	SchemaFingerprint  string                 `json:"schemaFingerprint"`
-	ContentFingerprint string                 `json:"contentFingerprint"`
-}
+type ComponentBinding = releasevalue.ComponentBinding
 
 func validateBindings(bundle contract.Bundle, bindings []ComponentBinding) ([]ComponentBinding, []byte, string, error) {
-	if contract.ValidateBundle(bundle) != nil {
-		return nil, nil, "", contract.ErrInvalid
-	}
-	allowed := map[string]artifactcohort.RootRef{}
-	for _, root := range bundle.Roots {
-		allowed[artifactcohort.RootKey(root)] = root
-	}
-	copy := append([]ComponentBinding(nil), bindings...)
-	sort.Slice(copy, func(i, j int) bool { return bindingKey(copy[i]) < bindingKey(copy[j]) })
-	prior := ""
-	for _, binding := range copy {
-		key := bindingKey(binding)
-		if key <= prior || allowed[artifactcohort.RootKey(binding.Root)] != binding.Root || binding.Root.Kind != "window" || binding.DataSourceID == "" || strings.TrimSpace(binding.DataSourceID) != binding.DataSourceID || binding.ComponentID == "" || strings.TrimSpace(binding.ComponentID) != binding.ComponentID || binding.ComponentRevision == "" || strings.TrimSpace(binding.ComponentRevision) != binding.ComponentRevision || (binding.ComponentKind != "dynamic" && binding.ComponentKind != "linked") || (binding.Method != http.MethodGet && binding.Method != http.MethodPost) || !strings.HasPrefix(binding.Route, "/") || strings.HasPrefix(binding.Route, "//") || strings.ContainsAny(binding.Route, "?#") || !validHash(binding.SchemaFingerprint) || !validHash(binding.ContentFingerprint) {
-			return nil, nil, "", contract.ErrInvalid
-		}
-		prior = key
-	}
-	if copy == nil {
-		copy = []ComponentBinding{}
-	}
-	raw, err := json.Marshal(copy)
-	if err != nil {
-		return nil, nil, "", err
-	}
-	sum := sha256.Sum256(raw)
-	return copy, raw, hex.EncodeToString(sum[:]), nil
+	return releasevalue.ValidateBindings(bundle, bindings)
 }
 
-func bindingKey(value ComponentBinding) string {
-	return artifactcohort.RootKey(value.Root) + "\x00" + value.DataSourceID + "\x00" + value.ComponentKind + "\x00" + value.ComponentID + "\x00" + value.ComponentRevision
-}
-func validHash(value string) bool {
-	if len(value) != 64 || value != strings.ToLower(value) {
-		return false
-	}
-	_, err := hex.DecodeString(value)
-	return err == nil
-}
+func bindingKey(value ComponentBinding) string { return releasevalue.BindingKey(value) }
 
-// StageRevisionWithBindings writes immutable producer closure metadata and the
-// pending operation in one caller-independent DB transaction. Its commitment
-// does not activate the channel; Publisher projection and Complete follow.
+func validHash(value string) bool { return releasevalue.ValidHash(value) }
+
 func (s *Store) StageRevisionWithBindings(ctx context.Context, current, next contract.Channel, bundle contract.Bundle, bindings []ComponentBinding) (string, error) {
 	return s.StageRevisionWithBindingsAndDependencies(ctx, current, next, bundle, bindings, nil)
 }
@@ -112,31 +60,17 @@ func (s *Store) StageRevisionWithBindingsAndDependencies(ctx context.Context, cu
 }
 
 func marshalDependencies(input []authz.NamedDependency) ([]byte, error) {
-	copy := append([]authz.NamedDependency(nil), input...)
-	sort.Slice(copy, func(i, j int) bool { return dependencyKey(copy[i]) < dependencyKey(copy[j]) })
-	prior := ""
-	for _, item := range copy {
-		key := dependencyKey(item)
-		if item.Revision < 1 || item.Resource.Tenant == "" || item.Resource.Kind == "" || item.Resource.ID == "" || item.Resource.Version == "" || key <= prior {
-			return nil, contract.ErrInvalid
-		}
-		prior = key
-	}
-	if copy == nil {
-		copy = []authz.NamedDependency{}
-	}
-	return json.Marshal(copy)
-}
-func dependencyKey(value authz.NamedDependency) string {
-	return value.Resource.Tenant + "\x00" + value.Resource.Kind + "\x00" + value.Resource.ID + "\x00" + value.Resource.Version
+	return releasevalue.MarshalDependencies(input)
 }
 
+func dependencyKey(value authz.NamedDependency) string { return releasevalue.DependencyKey(value) }
+
 func (s *Store) ActiveDependencies(ctx context.Context, key contract.Key) ([]authz.NamedDependency, error) {
-	if s == nil || s.DB == nil || ctx == nil || ctx.Err() != nil || !s.scope.owns(key) {
+	if s == nil || s.DB == nil || ctx == nil || ctx.Err() != nil || !s.scope.Owns(key) {
 		return nil, contract.ErrInvalid
 	}
 	var raw []byte
-	if err := s.DB.QueryRowContext(ctx, `SELECT active_dependencies_json FROM artifact_release_channels WHERE scope_id=? AND name=?`, s.scope.id(), key.Name).Scan(&raw); err != nil {
+	if err := s.DB.QueryRowContext(ctx, `SELECT active_dependencies_json FROM artifact_release_channels WHERE scope_id=? AND name=?`, s.scope.ID(), key.Name).Scan(&raw); err != nil {
 		return nil, err
 	}
 	return decodeDependencies(raw)
@@ -146,53 +80,21 @@ func (s *Store) PendingDependencies(ctx context.Context, operationID string) ([]
 		return nil, contract.ErrInvalid
 	}
 	var raw []byte
-	if err := s.DB.QueryRowContext(ctx, `SELECT dependencies_json FROM artifact_release_operations WHERE scope_id=? AND operation_id=? AND status='pending'`, s.scope.id(), operationID).Scan(&raw); err != nil {
+	if err := s.DB.QueryRowContext(ctx, `SELECT dependencies_json FROM artifact_release_operations WHERE scope_id=? AND operation_id=? AND status='pending'`, s.scope.ID(), operationID).Scan(&raw); err != nil {
 		return nil, err
 	}
 	return decodeDependencies(raw)
 }
 func decodeDependencies(raw []byte) ([]authz.NamedDependency, error) {
-	if len(raw) == 0 {
-		return nil, nil
-	}
-	var value []authz.NamedDependency
-	if strictJSON(raw, &value) != nil || value == nil {
-		return nil, contract.ErrInvalid
-	}
-	canonical, err := marshalDependencies(value)
-	if err != nil {
-		return nil, contract.ErrInvalid
-	}
-	var ordered []authz.NamedDependency
-	if json.Unmarshal(canonical, &ordered) != nil || !reflect.DeepEqual(value, ordered) {
-		return nil, contract.ErrInvalid
-	}
-	return value, nil
+	return releasevalue.DecodeDependencies(raw)
 }
 
-// SQL JSON columns may rewrite whitespace and object-key order. Decode exact
-// typed values while still rejecting unknown fields and trailing JSON values;
-// callers then validate ordering and immutable content separately.
-func strictJSON(raw []byte, target any) error {
-	decoder := json.NewDecoder(bytes.NewReader(raw))
-	decoder.DisallowUnknownFields()
-	if err := decoder.Decode(target); err != nil {
-		return err
-	}
-	var trailing any
-	if err := decoder.Decode(&trailing); err != io.EOF {
-		if err == nil {
-			return contract.ErrInvalid
-		}
-		return err
-	}
-	return nil
-}
+func strictJSON(raw []byte, target any) error { return releasevalue.StrictJSON(raw, target) }
 
 func (s *Store) putBindingsTx(ctx context.Context, tx *sql.Tx, bundle contract.Bundle, raw []byte, hash string) error {
 	var priorRaw []byte
 	var priorHash string
-	err := tx.QueryRowContext(ctx, `SELECT bindings_json,bindings_hash FROM artifact_release_bundle_bindings WHERE scope_id=? AND bundle_hash=?`, s.scope.id(), bundle.Hash).Scan(&priorRaw, &priorHash)
+	err := tx.QueryRowContext(ctx, `SELECT bindings_json,bindings_hash FROM artifact_release_bundle_bindings WHERE scope_id=? AND bundle_hash=?`, s.scope.ID(), bundle.Hash).Scan(&priorRaw, &priorHash)
 	if err == nil {
 		prior, readErr := decodeBindings(bundle, priorRaw, priorHash)
 		var incoming []ComponentBinding
@@ -209,7 +111,7 @@ func (s *Store) putBindingsTx(ctx context.Context, tx *sql.Tx, bundle contract.B
 		return err
 	}
 	now := s.now()
-	_, err = tx.ExecContext(ctx, `INSERT INTO artifact_release_bundle_bindings(scope_id,bundle_hash,bindings_json,bindings_hash,created_at,created_by,updated_at,updated_by) VALUES(?,?,?,?,?,?,?,?)`, s.scope.id(), bundle.Hash, raw, hash, now, actor, now, actor)
+	_, err = tx.ExecContext(ctx, `INSERT INTO artifact_release_bundle_bindings(scope_id,bundle_hash,bindings_json,bindings_hash,created_at,created_by,updated_at,updated_by) VALUES(?,?,?,?,?,?,?,?)`, s.scope.ID(), bundle.Hash, raw, hash, now, actor, now, actor)
 	return err
 }
 
@@ -219,20 +121,12 @@ func (s *Store) BundleBindings(ctx context.Context, bundle contract.Bundle) ([]C
 	}
 	var raw []byte
 	var hash string
-	if err := s.DB.QueryRowContext(ctx, `SELECT bindings_json,bindings_hash FROM artifact_release_bundle_bindings WHERE scope_id=? AND bundle_hash=?`, s.scope.id(), bundle.Hash).Scan(&raw, &hash); err != nil {
+	if err := s.DB.QueryRowContext(ctx, `SELECT bindings_json,bindings_hash FROM artifact_release_bundle_bindings WHERE scope_id=? AND bundle_hash=?`, s.scope.ID(), bundle.Hash).Scan(&raw, &hash); err != nil {
 		return nil, err
 	}
 	return decodeBindings(bundle, raw, hash)
 }
 
 func decodeBindings(bundle contract.Bundle, raw []byte, hash string) ([]ComponentBinding, error) {
-	var bindings []ComponentBinding
-	if strictJSON(raw, &bindings) != nil || bindings == nil {
-		return nil, contract.ErrInvalid
-	}
-	validated, canonical, expected, err := validateBindings(bundle, bindings)
-	if err != nil || hash != expected || !reflect.DeepEqual(bindings, validated) || len(canonical) == 0 {
-		return nil, contract.ErrInvalid
-	}
-	return validated, nil
+	return releasevalue.DecodeBindings(bundle, raw, hash)
 }
