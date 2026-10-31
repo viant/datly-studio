@@ -16,7 +16,7 @@ func TestEmbeddedSkillPublishesThroughNativeResourcePlans(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(plans) != 8 {
+	if len(plans) != 11 {
 		t.Fatalf("resource count=%d", len(plans))
 	}
 	handoffPublished := false

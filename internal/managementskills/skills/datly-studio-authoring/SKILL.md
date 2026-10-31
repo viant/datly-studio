@@ -14,6 +14,13 @@ change namespace configuration, access new data, or execute expensive queries.
 Read the relevant supporting resources with native `resources/read`, resolving
 paths relative to this skill URI:
 
+- [Grammar by task](references/grammar-map.md): small entry points for reader,
+  column, cube, relation and version scenarios.
+- [Column output how-to](references/column-output-howto.md): native date tags,
+  formatting versus truncation, and serialization-boundary gotchas.
+- [Version-session how-to](references/version-session-howto.md): edit/release
+  checkpoints and practical verification scenarios.
+
 - [MCP workflow](references/workflow.md): inspecting saved components, connector and schema discovery, editing,
   revision checks, validation, release, runtime readiness, authentication, and recovery.
 - [Complete worked example](references/worked-example.md): exact create/apply/validate/release payloads and a BigQuery cube with two MySQL lookups.
