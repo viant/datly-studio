@@ -1437,6 +1437,8 @@ github.com/viant/datly v1.1.1-0.20261029235411-e2870b979add h1:do7rAjQy436gZ7k7x
 github.com/viant/datly v1.1.1-0.20261029235411-e2870b979add/go.mod h1:EmRIo4iQBTExk8rBrCvzQUHpkf7/TEbBiQdNeBDtlso=
 github.com/viant/datly v1.1.1-0.20261031040012-4379e94f4589 h1:7IXPLQXpYiOBXFFHmOhVyeTKWfOMifIXWYV9ys1VmNY=
 github.com/viant/datly v1.1.1-0.20261031040012-4379e94f4589/go.mod h1:IcdfnJFkBXW2u0DxM5yxTjxJcUCIR4psWJF4d2JH0Eo=
+github.com/viant/datly v1.1.1-0.20261031073808-7e20c0d2ee77 h1:h5rz13ulMNFx3T5G5XnZrJQCLNAz481sQJ1CLZLexMo=
+github.com/viant/datly v1.1.1-0.20261031073808-7e20c0d2ee77/go.mod h1:IcdfnJFkBXW2u0DxM5yxTjxJcUCIR4psWJF4d2JH0Eo=
 github.com/viant/forge v0.3.45-0.20261015011117-38bb1cf13641 h1:yA6VXuZfTdnbkxDY3MN6NKiKavfsg/fjxQmlKqS5KDw=
 github.com/viant/forge v0.3.45-0.20261015011117-38bb1cf13641/go.mod h1:asQHHCMbgC0d3pc0dm+GFFQ5cDyzjG0qN86vrW85rCY=
 github.com/viant/forge v0.3.45-0.20261017190953-b07e77a0fe24 h1:NOie2I6rMGs4jEFkteWrk8wQKivwr6dN9nciKLCYuAM=
