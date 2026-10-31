@@ -6,7 +6,7 @@ package store_capabilities
 type Input struct {
 	ReportId string    `parameter:"ReportId,kind=query,in=reportId,dataType=string,required=true"`
 	Subject  string    `parameter:"Subject,kind=query,in=subject,dataType=string,required=true"`
-	Has      *InputHas `setMarker:"true" typeName:"InputHas" json:"-" sqlx:"-"`
+	Has      *InputHas `json:"-" setMarker:"true" sqlx:"-" typeName:"InputHas"`
 }
 
 type InputHas struct {

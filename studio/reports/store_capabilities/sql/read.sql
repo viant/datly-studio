@@ -1,4 +1,4 @@
-SELECT capability.* FROM  (SELECT r.id AS report_id, r.owner_id, CAST(n.allowed_roles_json AS CHAR) AS namespace_roles,
+SELECT capability.* FROM  (SELECT r.id AS report_id, r.owner_id, r.status AS component_status, CAST(n.allowed_roles_json AS CHAR) AS namespace_roles,
        COALESCE(acl.can_view, FALSE) AS can_view,
        COALESCE(acl.can_run, FALSE) AS can_run,
        COALESCE(acl.can_edit, FALSE) AS can_edit,

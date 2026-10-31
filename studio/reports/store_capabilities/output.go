@@ -4,5 +4,5 @@ package store_capabilities
 
 // Output is the generated output scaffold for capability.
 type Output struct {
-	Capabilities []*ReportCapability `parameter:"Capabilities,kind=output,in=view,dataType=[]*ReportCapability" view:"capability,type=ReportCapability,table=components,limit=1" json:"capabilities" sql:"uri=studio_reports_store_capabilities_capability:sql/read.sql"`
+	Capabilities []*ReportCapability `json:"capabilities" parameter:"Capabilities,kind=output,in=view,dataType=[]*github.com/viant/datly-studio/studio/reports/store_capabilities.ReportCapability" sql:"uri=studio_reports_store_capabilities_capability:sql/read.sql" view:"capability,type=ReportCapability,table=components,limit=1"`
 }

@@ -11,3 +11,11 @@
 - Application-specific orchestration belongs in the consuming application, not the upstream runtime.
 - Author application readers, writers, source branches and calculations as managed assets using reusable Datly capabilities. Shared mechanisms and their contracts must work without any particular report or namespace.
 - Keep public APIs, examples, fixtures, documentation and commit messages domain-neutral. Do not include customer/business identities, private application terminology, production captures, private hosts or personal workstation paths.
+
+## Native data graphs only
+
+- Production reads and persistence must use Datly v1 components generated with `transcribe get|patch|post|put`. Declare cohesive data/object graphs, complete relation keys, prerequisite reads, predicates, and mutation ownership in DQL with adjacent SQL assets.
+- Do not issue application-owned `database/sql` queries/writes or obtain `TransactionSQLProvider` to execute handwritten SQL. Wrapping those calls in a custom component does not satisfy this rule.
+- Do not replace each SQL statement with a separate reader and assemble the result in Go. Extend an existing graph when the facts share a lifecycle, scope, and authorization boundary; use separate components only for genuinely independent contracts.
+- Standalone readers already perform reads only. Auxiliary `(TABLE)` markers express nonmutating dependencies within writer graphs; preserve those roles when transcribing writers. Executable database SQL must not contain that authoring marker.
+- Test fixtures may set up and inspect their isolated database, but assertions must exercise the real generated components, transaction behavior, and authorization boundaries. No new production bypass or allowlist is permitted for a migration.

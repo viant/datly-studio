@@ -32,7 +32,9 @@ func TestSDKReleaseGrantAddsViewAndExactRunOnly(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer authorizer.Close(context.Background())
+	releaseCalls := 0
 	authorizer.ReleaseUse = func(ctx context.Context, request sqltransport.AuthorizationRequest) (bool, error) {
+		releaseCalls++
 		p, _ := sdk.PrincipalFromContext(ctx)
 		return p.Subject == "recipient" && request.ReportID == "reader" && request.Permission == "view" || p.Subject == "recipient" && request.ReportID == "reader" && request.Permission == "run" && request.VersionNo == "7", nil
 	}
@@ -50,6 +52,19 @@ func TestSDKReleaseGrantAddsViewAndExactRunOnly(t *testing.T) {
 	unassigned := sdk.WithPrincipal(context.Background(), sdk.Principal{Subject: "unassigned"})
 	if err = authorizer.Authorize(unassigned, sqltransport.AuthorizationRequest{ReportID: "reader", VersionNo: "7", Permission: "run"}); err == nil {
 		t.Fatal("unassigned actor ran released component")
+	}
+	if _, err = db.Exec(`UPDATE components SET status='disabled' WHERE id='reader'`); err != nil {
+		t.Fatal(err)
+	}
+	beforeReleaseCalls := releaseCalls
+	if err = authorizer.Authorize(recipient, sqltransport.AuthorizationRequest{ReportID: "reader", VersionNo: "7", Permission: "run"}); err == nil {
+		t.Fatal("inactive component revived by release grant")
+	}
+	if releaseCalls != beforeReleaseCalls {
+		t.Fatal("inactive component reached release grant evaluation")
+	}
+	if _, err = db.Exec(`UPDATE components SET status='active' WHERE id='reader'`); err != nil {
+		t.Fatal(err)
 	}
 	if _, err = db.Exec(`UPDATE components SET deleted_at=CURRENT_TIMESTAMP WHERE id='reader'`); err != nil {
 		t.Fatal(err)

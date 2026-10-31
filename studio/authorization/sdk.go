@@ -13,6 +13,7 @@ import (
 	"github.com/viant/datly-studio/internal/reportcapability"
 	"github.com/viant/datly-studio/sdk"
 	sqltransport "github.com/viant/datly-studio/sdk/transport/sql"
+	stored "github.com/viant/datly-studio/studio/reports/store_capabilities"
 )
 
 // SDKAuthorizer applies Studio ownership and report ACL rules to the public
@@ -76,13 +77,12 @@ func (a SDKAuthorizer) Authorize(ctx context.Context, request sqltransport.Autho
 		return nil
 	}
 	if request.ReportID != "" {
-		err := a.report(ctx, principal.Subject, request.ReportID, request.Permission)
+		row, err := a.report(ctx, principal.Subject, request.ReportID, request.Permission)
 		if err == nil {
 			return nil
 		}
 		if a.ReleaseUse != nil && (request.Permission == "view" || request.Permission == "run") {
-			var active int
-			if checkErr := a.DB.QueryRowContext(ctx, `SELECT COUNT(*) FROM components WHERE id=? AND status='active' AND deleted_at IS NULL`, request.ReportID).Scan(&active); checkErr != nil || active != 1 {
+			if row == nil || row.ComponentStatus != "active" {
 				return err
 			}
 			allowed, releaseErr := a.ReleaseUse(ctx, request)
@@ -130,14 +130,14 @@ func (a SDKAuthorizer) namespace(ctx context.Context, subject, name, permission 
 	return nil
 }
 
-func (a SDKAuthorizer) report(ctx context.Context, subject, id, permission string) error {
+func (a SDKAuthorizer) report(ctx context.Context, subject, id, permission string) (*stored.ReportCapability, error) {
 	reader := a.ReportCapabilities
 	owned := false
 	if reader == nil {
 		var err error
 		reader, err = reportcapability.New(a.DB)
 		if err != nil {
-			return denied()
+			return nil, denied()
 		}
 		owned = true
 	}
@@ -147,34 +147,34 @@ func (a SDKAuthorizer) report(ctx context.Context, subject, id, permission strin
 		closeErr = reader.Close(context.Background())
 	}
 	if readErr != nil || closeErr != nil || row == nil {
-		return denied()
+		return nil, denied()
 	}
 	if row.OwnerId == subject {
-		return nil
+		return row, nil
 	}
 	switch permissionColumn(permission) {
 	case "can_run":
 		if row.CanRun {
-			return nil
+			return row, nil
 		}
 	case permissionEdit:
 		if row.CanEdit {
-			return nil
+			return row, nil
 		}
 	case permissionPublish:
 		if row.CanPublish {
-			return nil
+			return row, nil
 		}
 	case "can_use_dql":
 		if row.CanUseDql {
-			return nil
+			return row, nil
 		}
 	default:
 		if row.CanView {
-			return nil
+			return row, nil
 		}
 	}
-	return denied()
+	return row, denied()
 }
 
 func (a SDKAuthorizer) connector(ctx context.Context, subject, name, permission string) error {

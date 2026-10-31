@@ -14,7 +14,7 @@ var _anchorCapabilityComponent = reflect.TypeFor[CapabilityComponent]()
 
 // Component is the generated component scaffold for capability.
 type CapabilityComponent struct {
-	Contract xdatly.Component[Input, Output] "component:\"capability,path=/_studio/report-capabilities,method=GET,connector=studio,view=capability,internal=true\" routeName:\"capability\" caseFormat:\"lc\""
+	Contract xdatly.Component[Input, Output] `caseFormat:"lc" component:"capability,path=/_studio/report-capabilities,method=GET,connector=studio,view=capability,internal=true" routeName:"capability"`
 }
 
 // CapabilityDatlyType returns the public component type.

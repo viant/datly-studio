@@ -4,12 +4,13 @@ package store_capabilities
 
 // ReportCapability is generated canonical view metadata for capability.
 type ReportCapability struct {
-	ReportId       string  `sqlx:"report_id" json:"reportId"`
-	OwnerId        string  `sqlx:"owner_id" json:"ownerId"`
-	NamespaceRoles *string `json:"-" sqlx:"namespace_roles"`
-	CanView        bool    `sqlx:"can_view" json:"canView"`
-	CanRun         bool    `sqlx:"can_run" json:"canRun"`
-	CanEdit        bool    `sqlx:"can_edit" json:"canEdit"`
-	CanPublish     bool    `sqlx:"can_publish" json:"canPublish"`
-	CanUseDql      bool    `sqlx:"can_use_dql" json:"canUseDql"`
+	ReportId        string  `json:"reportId" sqlx:"report_id"`
+	OwnerId         string  `json:"ownerId" sqlx:"owner_id"`
+	ComponentStatus string  `json:"-" sqlx:"component_status"`
+	NamespaceRoles  *string `json:"-" sqlx:"namespace_roles"`
+	CanView         bool    `json:"canView" sqlx:"can_view"`
+	CanRun          bool    `json:"canRun" sqlx:"can_run"`
+	CanEdit         bool    `json:"canEdit" sqlx:"can_edit"`
+	CanPublish      bool    `json:"canPublish" sqlx:"can_publish"`
+	CanUseDql       bool    `json:"canUseDql" sqlx:"can_use_dql"`
 }
