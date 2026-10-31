@@ -3,6 +3,7 @@ package host
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"sort"
 	"strings"
 
@@ -42,7 +43,7 @@ func (p *runtimeConnectorSet) sources(ctx context.Context, name string) (*runtim
 	}
 	return &runtimeSources{sql: sqlComponent, connections: p.connections}, nil
 }
-func openRuntimeConnectorSet(ctx context.Context, definitions []definition, active map[string]connectorDefinition, resolver connectorsecret.Resolver, constants ...*constant.Values) (*runtimeConnectorSet, error) {
+func openRuntimeConnectorSet(ctx context.Context, definitions []definition, active map[string]connectorDefinition, resolver connectorsecret.Resolver, resources func(definition) fs.FS, constants ...*constant.Values) (*runtimeConnectorSet, error) {
 	var instance *constant.Values
 	if len(constants) > 0 {
 		instance = constants[0]
@@ -54,7 +55,11 @@ func openRuntimeConnectorSet(ctx context.Context, definitions []definition, acti
 	sort.Strings(available)
 	required := map[string]bool{}
 	for _, definition := range definitions {
-		for _, name := range referencedRuntimeConnectors(ctx, definition, available, instance) {
+		var resourceFS fs.FS
+		if resources != nil {
+			resourceFS = resources(definition)
+		}
+		for _, name := range referencedRuntimeConnectors(ctx, definition, available, resourceFS, instance) {
 			required[name] = true
 		}
 	}
@@ -102,9 +107,9 @@ func openRuntimeConnectorSet(ctx context.Context, definitions []definition, acti
 
 // referencedRuntimeConnectors is the same declared DQL connector closure used
 // both to open execution pools and to partition compiled artifact identities.
-func referencedRuntimeConnectors(ctx context.Context, definition definition, available []string, constants *constant.Values) []string {
+func referencedRuntimeConnectors(ctx context.Context, definition definition, available []string, resources fs.FS, constants *constant.Values) []string {
 	required := map[string]bool{definition.connector: true}
-	inspection := readerbuilder.New(readerbuilder.Config{Const: constants, Scope: definition.scope, Name: definition.name, AvailableConnectors: available}).Apply(ctx, readerbuilder.Request{DQL: definition.dql, Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
+	inspection := readerbuilder.New(readerbuilder.Config{Const: constants, Scope: definition.scope, Name: definition.name, Resources: resources, AvailableConnectors: available}).Apply(ctx, readerbuilder.Request{DQL: definition.dql, Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
 	if inspection.Structure != nil {
 		// Independent input views retain their connector in the native component
 		// graph rather than an outer use_connector function.

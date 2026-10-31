@@ -16,6 +16,7 @@ import (
 	"github.com/viant/datly-studio/studio/settings"
 	"github.com/viant/datly-studio/studio/sourcevalidation"
 	xcodec "github.com/viant/xdatly/codec"
+	"io/fs"
 	"log/slog"
 	"net"
 	"net/http"
@@ -294,7 +295,9 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 	}
 	compiledArtifactTiming(ctx, "namespace.connectors.read", time.Since(phaseStarted), 0)
 	phaseStarted = time.Now()
-	pooled, err = openRuntimeConnectorSet(ctx, definitions, active, s.secrets, s.config.Const)
+	pooled, err = openRuntimeConnectorSet(ctx, definitions, active, s.secrets, func(definition definition) fs.FS {
+		return loadedResources.ByVersion[studiors.Version{ReportID: definition.reportID, VersionNo: definition.versionNo}]
+	}, s.config.Const)
 	if err != nil {
 		return nil, err
 	}
@@ -335,7 +338,7 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 			}
 			sort.Strings(available)
 			selected := map[string]connectorDefinition{}
-			for _, name := range referencedRuntimeConnectors(compileCtx, definition, available, s.config.Const) {
+			for _, name := range referencedRuntimeConnectors(compileCtx, definition, available, contractResources, s.config.Const) {
 				item, exists := active[name]
 				if !exists {
 					cacheable = false

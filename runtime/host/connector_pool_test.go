@@ -3,8 +3,12 @@ package host
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"path/filepath"
+	"reflect"
+	"strings"
 	"testing"
+	"testing/fstest"
 )
 
 func TestNamespaceReadersShareNativeConnectorPool(t *testing.T) {
@@ -14,7 +18,7 @@ func TestNamespaceReadersShareNativeConnectorPool(t *testing.T) {
 		definitions[i] = definition{reportID: fmt.Sprintf("reader-%d", i), scope: "example.com/reports", name: "reader", connector: "main", dql: "SELECT * FROM records"}
 	}
 	active := map[string]connectorDefinition{"main": {name: "main", driver: "sqlite", dsn: "file:" + filepath.Join(t.TempDir(), "shared.db")}, "unused": {name: "unused", driver: "missing-driver", dsn: "must-not-open"}}
-	pool, err := openRuntimeConnectorSet(ctx, definitions, active, nil)
+	pool, err := openRuntimeConnectorSet(ctx, definitions, active, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -53,7 +57,7 @@ func TestFailedCandidateDoesNotCloseActiveGenerationPool(t *testing.T) {
 	ctx := context.Background()
 	definitions := []definition{{reportID: "reader", connector: "main", dql: "SELECT * FROM records"}}
 	active := map[string]connectorDefinition{"main": {name: "main", driver: "sqlite", dsn: "file:" + filepath.Join(t.TempDir(), "shared.db")}}
-	pool, err := openRuntimeConnectorSet(ctx, definitions, active, nil)
+	pool, err := openRuntimeConnectorSet(ctx, definitions, active, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -64,7 +68,7 @@ func TestFailedCandidateDoesNotCloseActiveGenerationPool(t *testing.T) {
 	}
 	candidate := active["main"]
 	candidate.options = []byte(`{"sqliteAttachments":{"bad-name":"missing.db"}}`)
-	if rejected, err := openRuntimeConnectorSet(ctx, definitions, map[string]connectorDefinition{"main": candidate}, nil); err == nil || rejected != nil {
+	if rejected, err := openRuntimeConnectorSet(ctx, definitions, map[string]connectorDefinition{"main": candidate}, nil, nil); err == nil || rejected != nil {
 		t.Fatal("invalid candidate configuration was accepted")
 	}
 	if err = reader.sql.DB.PingContext(ctx); err != nil {
@@ -73,19 +77,35 @@ func TestFailedCandidateDoesNotCloseActiveGenerationPool(t *testing.T) {
 }
 
 func TestIndependentInputViewConnectorIsOpened(t *testing.T) {
-	for _, kind := range []string{"view", "data_view"} {
-		t.Run(kind, func(t *testing.T) {
+	for _, fixture := range []struct {
+		kind     string
+		embedded bool
+	}{{"view", false}, {"data_view", false}, {"view", true}, {"data_view", true}} {
+		t.Run(fmt.Sprintf("%s/embedded=%v", fixture.kind, fixture.embedded), func(t *testing.T) {
 			ctx := t.Context()
 			reader := definition{reportID: "reader", scope: "example.com/reports", name: "reader", connector: "main", dql: fmt.Sprintf(`#setting($_ = $route('/records', 'GET'))
 #package('example.com/reports')
 #define($_ = $Context<?>(%s/context).Cardinality('One').WithConnector('lookup') /* SELECT name FROM settings */)
-SELECT records.*, use_connector(records, 'main') FROM (SELECT id FROM records) records`, kind)}
+SELECT records.*, use_connector(records, 'main') FROM (SELECT id FROM records) records`, fixture.kind)}
+			var resources fs.FS
+			if fixture.embedded {
+				reader.dql = strings.ReplaceAll(reader.dql, "SELECT name FROM settings", "SELECT settings.* FROM (${embed:sql/context.sql}) settings")
+				reader.dql = strings.ReplaceAll(reader.dql, "SELECT id FROM records", "${embed:sql/records.sql}")
+				resources = fstest.MapFS{
+					"sql/context.sql": &fstest.MapFile{Data: []byte("SELECT name FROM settings")},
+					"sql/records.sql": &fstest.MapFile{Data: []byte("SELECT id FROM records")},
+				}
+			}
+			resourceFS := func(definition) fs.FS { return resources }
+			if names := referencedRuntimeConnectors(ctx, reader, []string{"main", "lookup", "unused"}, resources, nil); !reflect.DeepEqual(names, []string{"lookup", "main"}) {
+				t.Fatalf("connector identity closure = %v", names)
+			}
 			active := map[string]connectorDefinition{
 				"main":   {name: "main", driver: "sqlite", dsn: "file:" + filepath.Join(t.TempDir(), "main.db")},
 				"lookup": {name: "lookup", driver: "sqlite", dsn: "file:" + filepath.Join(t.TempDir(), "lookup.db")},
 				"unused": {name: "unused", driver: "missing-driver", dsn: "must-not-open"},
 			}
-			pool, err := openRuntimeConnectorSet(ctx, []definition{reader}, active, nil)
+			pool, err := openRuntimeConnectorSet(ctx, []definition{reader}, active, nil, resourceFS)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -97,7 +117,7 @@ SELECT records.*, use_connector(records, 'main') FROM (SELECT id FROM records) r
 				t.Fatal(err)
 			}
 			delete(active, "lookup")
-			if candidate, err := openRuntimeConnectorSet(ctx, []definition{reader}, active, nil); err == nil || candidate != nil {
+			if candidate, err := openRuntimeConnectorSet(ctx, []definition{reader}, active, nil, resourceFS); err == nil || candidate != nil {
 				t.Fatal("missing explicitly declared input-view connector was accepted")
 			}
 		})
