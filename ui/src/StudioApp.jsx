@@ -88,7 +88,7 @@ export function StudioApp({ api, mode, subject, brand = 'Data Studio', extension
           if(!nativeSections.includes(target))return extensions.find(extension=>extension.id===target)?.render({api,mode,subject,navigate,openComponent:openBuilder,currentNamespace:namespaceWorkspace.current,namespaceItems:namespaceWorkspace.items});
           if(target==='releases')return releaseAvailable&&currentNamespaceName?<main className="studio-management-host"><Suspense fallback={<div role="status"><Spinner size={20}/> Opening releases…</div>}><ReleaseWorkspace api={api} namespace={currentNamespaceName}/></Suspense></main>:null;
           return <div className={target==='builder'?'studio-reader-host':'studio-management-host'} role={target==='builder'?undefined:'main'}>
-            <ManagementWindow key={target==='builder'?`${builderReport?.id||''}:${builderReport?.versionNo||''}`:target} api={api} disabled={namespaceWorkspace.enabled&&!namespaceWorkspace.ready}
+            <ManagementWindow key={target==='builder'?`${builderReport?.id||''}:${builderReport?.versionNo||''}:${builderReport?.sourceRevision??''}`:target} api={api} disabled={namespaceWorkspace.enabled&&!namespaceWorkspace.ready}
               uri={`window://datastudio/${managementWindowDestination(target)?.name || target}`}
               parameters={{currentNamespace:namespaceWorkspace.current,report:builderReport,hasNamespaceSkillsRenderer:Boolean(renderNamespaceSkills)}}
               renderSlots={renderNamespaceSkills?{'namespace-skills':props=>renderNamespaceSkills({api,namespace:namespaceWorkspace.current,subject,onDirtyChange:props.onDirtyChange})}:undefined}

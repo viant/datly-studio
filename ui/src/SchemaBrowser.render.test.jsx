@@ -23,7 +23,7 @@ function mount({denied=false,connector='main',inspectVersion,components,connecto
    case 'studio.sdk.versions.inspect':if(inspectVersion)return inspectVersion(input);return {version:{versionNo:2,sourceRevision:7,state:'draft'},capabilities:{canEdit:true},structure:{views:[{name:'fact'}],component:{rootView:{name:'fact',source:{table:'sales'},relations:[]}}}};
    case 'studio.sdk.components.create':return {id:'created',title:'Vendor',defaultConnectorName:connector};
    case 'studio.sdk.versions.create':return {versionNo:1,sourceRevision:0};
-   case 'studio.sdk.versions.builder':return {applied:true};
+   case 'studio.sdk.versions.builder':return {applied:true,inspection:{version:{sourceRevision:8}}};
    default:throw new Error('Unexpected '+source.backend.method);
   }
  })};
@@ -52,7 +52,7 @@ test('Forge schema child creation requires keys and preserves optional cross-con
  const user=userEvent.setup(),{api,navigate}=mount({connector:'dictionary_db'});await inspect(user);await user.click(screen.getByRole('button',{name:'Add as subview',exact:true}));
  const compile=await screen.findByRole('button',{name:'Compile and open',exact:true});await waitFor(()=>expect(compile.disabled).toBe(false));await user.click(compile);
  expect(screen.getByLabelText('Outcome',{exact:true}).value).toContain('complete relation keys');expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.versions.builder')).toBe(false);
- const name=screen.getByLabelText('Child view identifier',{exact:true});await user.clear(name);await user.type(name,'region');await user.click(screen.getByRole('button',{name:'Relationship',exact:true}));await user.click(await screen.findByRole('menuitem',{name:'Optional single lookup',exact:true}));await user.type(screen.getByLabelText('Relation keys',{exact:true}),'region.code=fact.region');await user.click(compile);await waitFor(()=>expect(navigate).toHaveBeenCalled());
+ const name=screen.getByLabelText('Child view identifier',{exact:true});await user.clear(name);await user.type(name,'region');await user.click(screen.getByRole('button',{name:'Relationship',exact:true}));await user.click(await screen.findByRole('menuitem',{name:'Optional single lookup',exact:true}));await user.type(screen.getByLabelText('Relation keys',{exact:true}),'region.code=fact.region');await user.click(compile);await waitFor(()=>expect(navigate).toHaveBeenCalledWith('builder',{report:expect.objectContaining({id:'fact',versionNo:2,sourceRevision:8})}));
  expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.versions.builder')[1]).toEqual({reportId:'fact',versionNo:2,command:{expectedSourceRevision:7,operation:{type:'batch',operations:[{type:'addView',view:{name:'region',kind:'subview',parent:'fact',join:'LEFT JOIN',sql:'SELECT *\nFROM sales.VENDOR',on:'region.code=fact.region AND 1=1'}},{type:'addFunction',function:{name:'use_connector',args:['region','"dictionary_db"']}}]}}});
 });
 test('Forge schema discovery surfaces rejection without inventing metadata',async()=>{

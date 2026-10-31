@@ -153,7 +153,7 @@
    try{if(!report){report=await call('schema_component_create',{title:form.title.trim(),slug:form.slug,description:source.detail?.table?'Reader rooted at '+[source.detail.table.schema,source.detail.table.name].filter(Boolean).join('.')+'.':'Reader created from SQL.',defaultConnectorName:source.connectorName});set('schema_root_draft',{createdReport:report});}
     if(!version){version=await call('schema_version_create',{reportId:report.id,input:{authoringMode:'dql',notes:source.detail?.table?'Root view created from '+source.detail.table.name+'.':'Root view created from SQL.'}});set('schema_root_draft',{createdVersion:version});}
     const result=await call('schema_apply',{reportId:report.id,versionNo:version.versionNo,command:{expectedSourceRevision:version.sourceRevision,operation:{type:'createReader',reader:{route:'/v1/studio/readers/'+form.slug,name:form.viewName,sql:source.sql.trim()}}}});
-    if(!result?.applied)throw new Error(result?.inspection?.diagnostics?.[0]?.message||'Datly rejected the initial reader graph.');host().navigate('builder',{report:{...report,versionNo:version.versionNo}});
+    if(!result?.applied)throw new Error(result?.inspection?.diagnostics?.[0]?.message||'Datly rejected the initial reader graph.');host().navigate('builder',{report:{...report,versionNo:version.versionNo,sourceRevision:result.inspection?.version?.sourceRevision}});
    }catch(error){throw new Error(report?'Reader '+report.title+' was created, but its initial graph failed: '+error.message:error.message);}
   }),
   newChild:()=>run('schema_state',async()=>{const result=await call('schema_component_list',{limit:100});const components=result?.items||[];rows('schema_components',components);ds('schema_child_draft').setFormData({values:{reportId:components[0]?.id||'',name:identifier(state().detail?.table?.name),parent:'',on:'',relationship:'rows',loading:false,saving:false,canCompile:false,outcome:''}});open('schema-child');inspectComponent();}),
@@ -165,7 +165,7 @@
    const addView={type:'addView',view:{name:form.name,kind:'subview',parent:form.parent,join:lookup?'LEFT JOIN':'JOIN',sql:source.sql.trim(),on:lookup?form.on.trim()+' AND 1=1':form.on.trim()}};
    const operation=source.connectorName!==report?.defaultConnectorName?{type:'batch',operations:[addView,{type:'addFunction',function:{name:'use_connector',args:[form.name,JSON.stringify(source.connectorName)]}}]}:addView;
    const result=await call('schema_apply',{reportId:form.reportId,versionNo:inspection.version.versionNo,command:{expectedSourceRevision:inspection.version.sourceRevision,operation}});
-   if(!result?.applied)throw new Error(result?.inspection?.diagnostics?.[0]?.message||'Datly rejected the related view.');host().navigate('builder',{report:{...report,versionNo:inspection.version.versionNo}});
+   if(!result?.applied)throw new Error(result?.inspection?.diagnostics?.[0]?.message||'Datly rejected the related view.');host().navigate('builder',{report:{...report,versionNo:inspection.version.versionNo,sourceRevision:result.inspection?.version?.sourceRevision}});
   }),
   closeDialog:()=>{const epoch=(state().childLoadEpoch||0)+1;set('schema_state',{childLoadEpoch:epoch});set('schema_child_draft',{loadEpoch:epoch});host().setDirty?.(false);return true;},
  };
