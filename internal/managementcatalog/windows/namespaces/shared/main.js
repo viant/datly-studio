@@ -17,6 +17,18 @@
   initialize:()=>run(async()=>{const permissions=record(await ds("namespace_permissions").fetchRecords({parameters:{limit:1}}));draft().setFormField({item:{dataField:"canCreate"},value:permissions?.canCreate===true});}),
   newNamespace:()=>{if(draft().getFormData()?.canCreate!==true)return false;return open({name:'',title:'',description:'',visibility:'private',viewerRoleRows:[],managerRoleRows:[],mcpEnabled:false,mcpPort:0,editing:false,status:'active',outcome:''});},
   editNamespace:()=>run(async()=>{const row=ds('namespaces').peekSelection()?.selected;if(!row)throw new Error('Select a namespace.');edit(record(await call('get',{name:row.name})));}),
+  editNamespacePolicies:()=>run(async()=>{
+   const row=ds('namespaces').peekSelection()?.selected;if(!row)throw new Error('Select a namespace.');if(row.canManage===false)throw new Error('This namespace is read-only.');
+   const result=record(await call('settings_get',{name:row.name})),security=result.settings?.security,limits=result.settings?.resourceLimits||{};
+   draft().setFormData({values:{...row,etag:result.etag,inheritPredicatePackages:security?.predicatePackages==null,predicatePackages:(security?.predicatePackages||[]).join('\n'),requireSecurityPredicate:security?.requireSecurityPredicate===true,maxBytesProcessed:limits.maxBytesProcessed??'',maxReferencedTables:limits.maxReferencedTables??'',maxReturnedRows:limits.maxReturnedRows??'',outcome:''}});
+   context.handlers.window.openDialog({execution:{args:['namespace-policies']}});
+  }),
+  saveNamespacePolicies:()=>run(async()=>{
+   const form=draft().getFormData();if(form.canManage===false)throw new Error('This namespace is read-only.');
+   const threshold=(value,label)=>{if(value==null||value==='')return undefined;const number=Number(value);if(!Number.isSafeInteger(number)||number<0)throw new Error(label+' must be a nonnegative whole number.');return number;};
+   const settings={security:{predicatePackages:form.inheritPredicatePackages?null:[...new Set((form.predicatePackages||'').split(/\s+/).filter(Boolean))],requireSecurityPredicate:Boolean(form.requireSecurityPredicate)},resourceLimits:{maxBytesProcessed:threshold(form.maxBytesProcessed,'Bytes processed'),maxReferencedTables:threshold(form.maxReferencedTables,'Referenced tables'),maxReturnedRows:threshold(form.maxReturnedRows,'Returned rows')}};
+   await call('settings_update',{name:form.name,input:{etag:form.etag,settings}});await refresh();
+  }),
   saveNamespace:()=>run(async()=>{
    const form=draft().getFormData();
    if(form.canManage===false)throw new Error('This namespace is read-only.');

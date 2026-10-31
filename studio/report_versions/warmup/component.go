@@ -6,6 +6,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/viant/bindly/locator"
+	"github.com/viant/datly-studio/internal/readercomponent"
 	"github.com/viant/datly-studio/sdk/executionguard"
 	"reflect"
 	"strings"
@@ -114,9 +116,7 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	read := &catalog.Input{}
 	read.SetReportId(input.ReportID)
 	read.SetVersionNo(input.VersionNo)
-	read.SetLimit(2)
-	read.SetOffset(0)
-	value, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[catalog.VersionComponent](), "version", "GET", "/_studio/report-version-store/catalog"), Input: read})
+	value, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[catalog.VersionComponent](), "version", "GET", "/_studio/report-version-store/catalog"), Input: read, Providers: []locator.Provider{readercomponent.Paging("version", 2, 0)}})
 	if err != nil {
 		return err
 	}
@@ -204,7 +204,7 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 		jobCtx, releaseServerGuard := executionguard.Capture(jobCtx, ctx)
 		defer releaseServerGuard()
 		defer cancel()
-		worker := &sqltransport.Transport{DB: db, Warmup: preview.Dynamic{StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, Const: authoring.Constants(), ReaderCaches: authoring.ReaderCaches(), Dependencies: authoring.Dependencies()}}
+		worker := &sqltransport.Transport{DB: db, Warmup: preview.Dynamic{StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, Const: authoring.Constants(), ReaderCaches: authoring.ReaderCaches(), SourceValidator: authoring.SourceValidator(), Dependencies: authoring.Dependencies()}}
 		visibleUntil := time.Now().Add(5 * time.Second)
 		for time.Now().Before(visibleUntil) && jobCtx.Err() == nil {
 			committed, readErr := worker.ReadAcceptedWarmupRun(jobCtx, reportID, runID)

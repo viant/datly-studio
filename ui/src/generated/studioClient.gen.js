@@ -979,7 +979,11 @@ var postV1StudioSdkAuthorizationPredicatesList = (options) => (options?.client ?
 var postV1StudioSdkAuthorizationPredicatesTypes = (options) => (options?.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/v1/studio/sdk/authorization_predicates.types",
-  ...options
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options?.headers
+  }
 });
 var postV1StudioSdkAuthorizationPredicatesUpdate = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
@@ -1256,6 +1260,24 @@ var postV1StudioSdkNamespacesList = (options) => (options?.client ?? client).pos
     ...options?.headers
   }
 });
+var postV1StudioSdkNamespacesSettingsGet = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/namespaces.settings_get",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkNamespacesSettingsUpdate = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/namespaces.settings_update",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var postV1StudioSdkNamespacesUpdate = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/v1/studio/sdk/namespaces.update",
@@ -1468,6 +1490,14 @@ var postV1StudioSdkVersionsInspect = (options) => (options.client ?? client).pos
     ...options.headers
   }
 });
+var posTv1StudiosdkversionsInvalidateCache = (options) => (options.client ?? client).post({
+  url: "/v1/studio/sdk/versions.invalidate_cache",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var postV1StudioSdkVersionsList = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/v1/studio/sdk/versions.list",
@@ -1559,6 +1589,7 @@ var postV1StudioSdkVersionsWarmupList = (options) => (options.client ?? client).
   }
 });
 export {
+  posTv1StudiosdkversionsInvalidateCache,
   postV1AuthzSdkAuthorizationCheck,
   postV1AuthzSdkNamedPoliciesManage,
   postV1AuthzSdkPoliciesContext,
@@ -1612,6 +1643,8 @@ export {
   postV1StudioSdkNamespacesDelete,
   postV1StudioSdkNamespacesGet,
   postV1StudioSdkNamespacesList,
+  postV1StudioSdkNamespacesSettingsGet,
+  postV1StudioSdkNamespacesSettingsUpdate,
   postV1StudioSdkNamespacesUpdate,
   postV1StudioSdkPreviewExecute,
   postV1StudioSdkPublicationsEventsList,

@@ -41,3 +41,8 @@ The root-owned disposable MySQL check can apply `schema.MySQLDDL()` to an empty
 local test schema and inspect the full policy keys and namespace association
 constraints. This package's unit tests inspect the composed MySQL DDL without
 opening a database.
+
+Version 27 adds namespace settings and the component-version resource-check opt-in.
+Apply `027-namespace-settings` explicitly after version 26; startup remains read-only
+for existing stores. Settings use `(owner_id, namespace, setting_key)` and have no
+cascading namespace delete. Namespace ETags protect atomic settings updates.

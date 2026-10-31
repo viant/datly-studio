@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/viant/bindly/locator"
+	"github.com/viant/datly-studio/internal/readercomponent"
 	"reflect"
 	"strings"
 	"time"
@@ -100,9 +102,7 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	read := &catalog.Input{}
 	read.SetReportId(input.ReportID)
 	read.SetVersionNo(input.VersionNo)
-	read.SetLimit(2)
-	read.SetOffset(0)
-	value, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[catalog.VersionComponent](), "version", "GET", "/_studio/report-version-store/catalog"), Input: read})
+	value, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[catalog.VersionComponent](), "version", "GET", "/_studio/report-version-store/catalog"), Input: read, Providers: []locator.Provider{readercomponent.Paging("version", 2, 0)}})
 	if err != nil {
 		return err
 	}
@@ -164,7 +164,7 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 		if err != nil {
 			return err
 		}
-		if validateErr := (preview.Dynamic{StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, Const: authoring.Constants(), ReaderCaches: authoring.ReaderCaches(), Dependencies: authoring.Dependencies()}).Validate(validationCtx, input.ReportID, input.VersionNo); validateErr != nil {
+		if validateErr := (preview.Dynamic{StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, Const: authoring.Constants(), ReaderCaches: authoring.ReaderCaches(), SourceValidator: authoring.SourceValidator(), Dependencies: authoring.Dependencies()}).Validate(validationCtx, input.ReportID, input.VersionNo); validateErr != nil {
 			valid = false
 			diagnostics = append(diagnostics, runtimevalidation.Diagnostics(validateErr)...)
 		}

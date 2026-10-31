@@ -67,5 +67,8 @@ func (r *exactDefinitionReader) read(ctx context.Context, id string, version int
 	if row == nil || row.ReportID != id || row.VersionNo != version {
 		return definition{}, fmt.Errorf("exact component identity mismatch")
 	}
-	return mapPublishedDefinition(row.ReportID, row.VersionNo, row.ComponentScope, row.ComponentName, row.DefaultConnectorName, row.Driver, row.DSNTemplate, row.SecretRef, row.GeneratedDQL, row.AuthoredDQL)
+	mapped, err := mapPublishedDefinition(row.ReportID, row.VersionNo, row.ComponentScope, row.ComponentName, row.DefaultConnectorName, row.Driver, row.DSNTemplate, row.SecretRef, row.GeneratedDQL, row.AuthoredDQL)
+	mapped.owner, mapped.namespace, mapped.resourceCheck = row.OwnerID, row.Namespace, row.ResourceCheckEnabled
+	mapped.sourceRevision, mapped.authoredDQL = row.SourceRevision, row.AuthoredDQL
+	return mapped, err
 }

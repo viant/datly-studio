@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/viant/bindly/locator"
+	"github.com/viant/datly-studio/internal/readercomponent"
 	"reflect"
 	"sort"
 	"strings"
@@ -107,9 +109,7 @@ func (*inspectHandler) Exec(ctx context.Context, session xhandler.Session, input
 	versionInput := &catalog.Input{}
 	versionInput.SetReportId(input.ReportId)
 	versionInput.SetVersionNo(input.VersionNo)
-	versionInput.SetLimit(2)
-	versionInput.SetOffset(0)
-	value, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[catalog.VersionComponent](), "version", "GET", "/_studio/report-version-store/catalog"), Input: versionInput})
+	value, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[catalog.VersionComponent](), "version", "GET", "/_studio/report-version-store/catalog"), Input: versionInput, Providers: []locator.Provider{readercomponent.Paging("version", 2, 0)}})
 	if err != nil {
 		return err
 	}
@@ -192,7 +192,7 @@ func (*inspectHandler) Exec(ctx context.Context, session xhandler.Session, input
 		Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
 	if (input.DiscoverColumns == nil || *input.DiscoverColumns) && permissions.CanUseDQL && inspected.Structure != nil && inspected.Structure.Component != nil {
 
-		resolved, inspectErr := (preview.Dynamic{StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, Const: authoring.Constants(), ReaderCaches: authoring.ReaderCaches(), Dependencies: authoring.Dependencies()}).InspectContract(ctx, input.ReportId, input.VersionNo)
+		resolved, inspectErr := (preview.Dynamic{StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, Const: authoring.Constants(), ReaderCaches: authoring.ReaderCaches(), SourceValidator: authoring.SourceValidator(), Dependencies: authoring.Dependencies()}).InspectContract(ctx, input.ReportId, input.VersionNo)
 		if inspectErr != nil {
 			inspected.Structure.Status = "partial"
 			inspected.Diagnostics = append(inspected.Diagnostics, &transcribe.Diagnostic{Severity: transcribe.SeverityWarning, Code: "column_inspection_unavailable", Message: "Column metadata is unavailable; check the draft source and connector configuration."})

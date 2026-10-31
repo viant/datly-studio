@@ -1,0 +1,30 @@
+#package('studio/namespace_settings/store_write')
+
+#import('json','encoding/json')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/namespace-settings/write', 'PATCH'))
+#setting($_ = $internal(true))
+#setting($_ = $connector('studio'))
+
+#define($_ = $Namespaces<[]*StoredNamespace>(body/data))
+#define($_ = $Data<[]*StoredNamespace>(output/body))
+
+SELECT namespace.*, entries.*,
+       type(namespace,'StoredNamespace'), type(entries,'StoredSetting'),
+       CAST(namespace.owner_id AS string), CAST(namespace.name AS string),
+       CAST(entries.owner_id AS string), CAST(entries.namespace AS string),
+       CAST(entries.setting_key AS string), CAST(entries.updated_by AS string),
+       CAST(namespace.etag AS *int64),
+       CAST(namespace.updated_at AS time.Time),
+       CAST(entries.value_json AS json.RawMessage),
+       CAST(entries.updated_at AS time.Time),
+       tag(entries.value_json,'sqlx:"value_json,enc=JSON"'),
+       lifecycle_type(namespace,'NamespaceSettingsRules'),
+       lifecycle_type(entries,'SettingRules'),
+       concurrency_token(namespace.etag)
+FROM (${embed:sql/namespaces.sql}) namespace
+JOIN (${embed:sql/settings.sql}) entries
+  ON entries.owner_id=namespace.owner_id AND entries.namespace=namespace.name

@@ -62,6 +62,12 @@ export type Input1962B8F8815D6B22B84F6C89D5Bf29530739F18F1Bed0742Ebc1F67A5063654
     payload?: unknown;
 };
 
+export type Input1B777106B81Fc7372Eef324B27Ad1358A564D313C8028Be821352473A362Fdfd = {
+    maxBytesProcessed?: number | null;
+    maxReferencedTables?: number | null;
+    maxReturnedRows?: number | null;
+};
+
 export type Input25F0A19704063Df5593Ce82B9757Fd47D5E39B2De5B199Effc95C33A74910Afc = {
     componentName?: string | null;
     componentScope?: string | null;
@@ -111,6 +117,21 @@ export type Input35F4Ac8173F8Fa3Cb8E695D8Cb3D27E2B5F8D83887D73C82E65Fa26E9019D2F
     revision?: number;
 };
 
+export type Input36632603Cb8F9D8Ddbe5D431823Ba899C271A23F41Fc19386A348Df6E584261f = {
+    predicatePackages?: Array<string> | null;
+    requireSecurityPredicate?: boolean;
+};
+
+export type Input3964C20635E39005827A78B75Abbae678D1D425D5E3783Ee2Cd62983D7Fac49f = {
+    resourceLimits?: Input4Ca0E9F0D091Dcbb3Ede94D0E1764D347Bd31Ee37Ff82A8F6A07189A2Be8D2A7 | null;
+    security?: InputCf9002B79D1Ab4212391Bf4B80D76E95E7Ec2624Efd732E6Dc68F882B06Fbc48 | null;
+};
+
+export type Input3B4D0B6Fd5B601973Df85847B4F071Da78Ceffe933882Fb84B7E61A82Dda71Cc = {
+    etag?: number;
+    settings?: Input3964C20635E39005827A78B75Abbae678D1D425D5E3783Ee2Cd62983D7Fac49f;
+};
+
 export type Input3B8Ad7Ea195Cbba3Ef3Be5685F87Cf9A98B9Cdc47646253Bc4C507A08Ccf62Cf = {
     resource?: InputB9Ed012C9A5F956116B995A745542C2F26C860Fa50A7Bfd3194B5Ff50F5B8Acc;
     revision?: number;
@@ -146,6 +167,12 @@ export type Input4B2C38475D83Ff82029Ec4520D07B5Ec88C1409199C252Fc696E28282C52561
 export type Input4C3D58D8E922B5Abbd65732F09A81D45874F0F7555537Fd9607035Bfecb9F26c = {
     cubes?: Array<unknown> | null;
     sql?: string;
+};
+
+export type Input4Ca0E9F0D091Dcbb3Ede94D0E1764D347Bd31Ee37Ff82A8F6A07189A2Be8D2A7 = {
+    maxBytesProcessed?: number | null;
+    maxReferencedTables?: number | null;
+    maxReturnedRows?: number | null;
 };
 
 export type Input4Cf2Af18Ea34Dee432A18Bf9C93Cf0B99A245Da68470766Bf479987F50491B02 = {
@@ -277,6 +304,16 @@ export type Input78C96702Ed752E425A13D515Ae18Bac86D71D27030700074199617129869Fe3
     limit?: number;
 };
 
+export type Input79C60632C9D0A82Ab62168E5Cc8Be9B94Cc7586C14Ac73884344Edf6Fb26Fb00 = {
+    etag?: number;
+    settings?: Input7A66C39Dafd8A15705386F4De0F51F2F2B10Bc8419B1Eea6C9A305204F51717d;
+};
+
+export type Input7A66C39Dafd8A15705386F4De0F51F2F2B10Bc8419B1Eea6C9A305204F51717d = {
+    resourceLimits?: Input1B777106B81Fc7372Eef324B27Ad1358A564D313C8028Be821352473A362Fdfd | null;
+    security?: Input36632603Cb8F9D8Ddbe5D431823Ba899C271A23F41Fc19386A348Df6E584261f | null;
+};
+
 export type Input808907Cf45A0Ab5F46A0Dc123Ed3A6A23958483A2Bfe6Af8Cdcfabaf2B54Af30 = {
     dql?: string;
     notes?: string;
@@ -365,6 +402,7 @@ export type InputA0D3076A206576E1Fb379Faacd83A9E5289796C14E710E1Fe21529Cfb0C35C2
     componentSpec?: unknown;
     createdBy?: string;
     notes?: string;
+    resourceCheckEnabled?: boolean;
 };
 
 export type InputAb3203Ec5968978923Da72Be592Ec5E958Eb1B4E1Cc56724Ca5Ea7A8D67F5C38 = {
@@ -500,6 +538,11 @@ export type InputCe5005B864956Cbc2469Fc8D71A73Cc80F19Dd86C8340815B1Edae79273B876
     resourceId?: string;
     skillId?: string;
     versionNo?: number;
+};
+
+export type InputCf9002B79D1Ab4212391Bf4B80D76E95E7Ec2624Efd732E6Dc68F882B06Fbc48 = {
+    predicatePackages?: Array<string> | null;
+    requireSecurityPredicate?: boolean;
 };
 
 export type InputD13Baaa98E1E58D154B95568037Ffe8Fe73E5A0Dfa3D93B7F97D31535E8A8B10 = {
@@ -671,10 +714,12 @@ export type Output0D489Bb6E8D34088F812C6B2A93A0C83B9A5F8Fd2Ac13B17094145376C0906
 export type Output1D9Bf0079B94D75E2B9B7B33Bb81B13886A46428Db871596012139C64Cc1A4D6 = {
     code: string;
     column?: number;
+    field?: string;
     hint?: string;
     line?: number;
     message: string;
     severity: string;
+    stage?: string;
 };
 
 export type Output20D14E6C9E21Afc4A0245Cde30Dbea83A572B7611Ecb2A2D7721E85B2F520260 = {
@@ -804,10 +849,12 @@ export type Output4E575822Fc494Cb865728B6Bd562F029Cb8Faec2Fa4F5C96Efdd7Eb001314E
 export type Output4Fd42D5Ac7E58Fb29E7Ad717B49Ad43D1Aa3D0A32C5E034148C82Bc6Baebd5A8 = {
     code: string;
     column?: number;
+    field?: string;
     hint?: string;
     line?: number;
     message: string;
     severity: string;
+    stage?: string;
 };
 
 export type Output586257Ec0A228D28Fb8C1D7B9B6Ceb924795C406B09D9A86111F39A56368B032 = {
@@ -1006,10 +1053,12 @@ export type Output9D49Df36A755675144Ae6Bef3Dd7487Cbc740221600721423879D97Bb66Fb0
 export type Output9E0F449C95Fcfb4Ee0592Ebadf3E17Adccbdc32Fa89Bf50Ab9Ae8511C2009041 = {
     code: string;
     column?: number;
+    field?: string;
     hint?: string;
     line?: number;
     message: string;
     severity: string;
+    stage?: string;
 };
 
 export type Output9E876C762Bb492C132E790521D9Bfeabfef411C08F89B004511Cfca729Fc5Ff3 = {
@@ -1071,6 +1120,8 @@ export type OutputAd75631E8D2823498E11Cfcb0D44Fbcce2C8Be956B896Ed2Be7B2D56Acb366
     diagnostics?: Array<Output4Fd42D5Ac7E58Fb29E7Ad717B49Ad43D1Aa3D0A32C5E034148C82Bc6Baebd5A8> | null;
     host?: Output0C10F58F77A4F9Aace3043619F64Ad2D1Ae24748776E0959650E6Ae2F89669Aa | null;
     readers?: Array<Output4Cf988A4800A68Fa7Db9D130C60Eed0B35369D4C3Fc9465E70D61B648Bd34B6d> | null;
+    releaseNamespace?: string;
+    releasesAvailable?: boolean;
     reportCount: number;
     status: string;
 };
@@ -1167,6 +1218,7 @@ export type OutputD6Ae8Cf116E1Bb372C284270E8317Deb57Df8687Ba83D5701493Ce02Cfb507
     notes?: string;
     publishedAt?: string | null;
     reportId: string;
+    resourceCheckEnabled: boolean;
     resourceManifest?: unknown;
     sourceRevision: number;
     specFormatVersion: string;
@@ -1290,6 +1342,7 @@ export type Wire0279067683C20563Aa495E8737A819024Ba4Eb59Ced1E2723Cda5Eb5890Cb742
     notes?: string;
     publishedAt?: string | null;
     reportId: string;
+    resourceCheckEnabled: boolean;
     resourceManifest?: unknown;
     sourceRevision: number;
     specFormatVersion: string;
@@ -1324,6 +1377,7 @@ export type Wire08043516A7D3B5028514Fc2Ffc6B6Fa38Ab832Ff1F255Ae1206871C7D200A5A6
     notes?: string;
     publishedAt?: string | null;
     reportId: string;
+    resourceCheckEnabled: boolean;
     resourceManifest?: unknown;
     sourceRevision: number;
     specFormatVersion: string;
@@ -1426,10 +1480,12 @@ export type Wire168Acff25133F72Df514Ff38F09Aae1A60280Ad693Da3C888E9F6Ec48Bae90A6
 export type Wire187F7F4691Bae62916263844A31B0E52F2Ac7573Ba63A1Dda0Cfffa8610B0947 = {
     code: string;
     column?: number;
+    field?: string;
     hint?: string;
     line?: number;
     message: string;
     severity: string;
+    stage?: string;
 };
 
 export type Wire18D26Fa6031Fa0C216A09Dd53Df26Cf2Cfff9F4F59Cf5D1C903Cdd34E49A155d = {
@@ -1507,6 +1563,7 @@ export type Wire1E3Fdf8Fcb04453947F7D75766Cc316E3E09D18591Edbeef886727E071Fe5F28
     notes?: string;
     publishedAt?: string | null;
     reportId: string;
+    resourceCheckEnabled: boolean;
     resourceManifest?: unknown;
     sourceRevision: number;
     specFormatVersion: string;
@@ -1588,6 +1645,7 @@ export type Wire239231A7Ea3Ed59E77B205B0783836Ec39Ca3De2A814Ba109F6Bda877Ba20691
     notes?: string;
     publishedAt?: string | null;
     reportId: string;
+    resourceCheckEnabled: boolean;
     resourceManifest?: unknown;
     sourceRevision: number;
     specFormatVersion: string;
@@ -1700,6 +1758,7 @@ export type Wire2C9280510E6Ff51Ff291Cf46071183A83553Af0793136E09416Edcc75Cf4Bea9
     notes?: string;
     publishedAt?: string | null;
     reportId: string;
+    resourceCheckEnabled: boolean;
     resourceManifest?: unknown;
     sourceRevision: number;
     specFormatVersion: string;
@@ -1801,6 +1860,11 @@ export type Wire363B086D0A3385Aef883A6C101A25E628C10E16F40Db550F64380Ec9188A63F1
     updatedAt: string;
 };
 
+export type Wire3674Eb0Cddb7Df1Ddc9E4861011C1770Ed7115E4E8D98535Db4Bb24Fb3264Bce = {
+    resourceLimits?: Wire7B62573Dc190309F5274F519B590107Fb85252Be4A55Fbd9Fb7Ed011Fc825841 | null;
+    security?: Wire3Ae1Bf05288Bf4Ea8D62663E5D886A6A9B05C1660099C819A9979F1A2Fe362De | null;
+};
+
 export type Wire36888C12B4C85B22B7268C24F5Ea35Ba103Cb9E473A0790Cc8Cc669A45A523Fa = {
     id: string;
     kind: string;
@@ -1811,10 +1875,12 @@ export type Wire36888C12B4C85B22B7268C24F5Ea35Ba103Cb9E473A0790Cc8Cc669A45A523Fa
 export type Wire385Cb42Fa02Eb6E798Cbc1F7De0Bcdf81Fdec7Bcc883Dc0D6D67A2E6F9974852 = {
     code: string;
     column?: number;
+    field?: string;
     hint?: string;
     line?: number;
     message: string;
     severity: string;
+    stage?: string;
 };
 
 export type Wire38Fcb57C86Eb44D564D0165Fe128Aec29A7664C7Bb39427502B08Df9Aa42649a = {
@@ -1836,6 +1902,11 @@ export type Wire3Aa247018499F407D544Ef56F7B69626Ced040Fe25Af781379C5B770F172E6Dd
     } | null;
     resource: Wire9B9625C5Bec32646Decbda4F9D3E2D367C5B2Ccc04C411E68F25C2E19Cfc951e;
     revision: number;
+};
+
+export type Wire3Ae1Bf05288Bf4Ea8D62663E5D886A6A9B05C1660099C819A9979F1A2Fe362De = {
+    predicatePackages: Array<string> | null;
+    requireSecurityPredicate: boolean;
 };
 
 export type Wire3B57D303Fc4270172C8Dc3Dcc384045B957738421Bfa4726D93F6529707Bb684 = {
@@ -1897,10 +1968,12 @@ export type Wire4240B3Df02540530130E0C750596C876294D98D94741Cc17333D3F61B4F176F5
 export type Wire42Ea17Da2B60208Ef30858A88Ede92D622320Dba9D309726A67F3023Fb8Ab9E1 = {
     code: string;
     column?: number;
+    field?: string;
     hint?: string;
     line?: number;
     message: string;
     severity: string;
+    stage?: string;
 };
 
 export type Wire43Ef72Ce47082Cf6430E2C08B1E64B40E4098E454104C2118Db17Ce974498D97 = {
@@ -2085,6 +2158,7 @@ export type Wire54A6E7E8A3352A79D0D8Aa5227Adf7C3D1830Da9722934796424332F6659Bafe
     notes?: string;
     publishedAt?: string | null;
     reportId: string;
+    resourceCheckEnabled: boolean;
     resourceManifest?: unknown;
     sourceRevision: number;
     specFormatVersion: string;
@@ -2112,6 +2186,7 @@ export type Wire59787F7087B974A90942D4D67D870A8382B1189Efe4Cc88Cfba1B0Ada4D89C75
     notes?: string;
     publishedAt?: string | null;
     reportId: string;
+    resourceCheckEnabled: boolean;
     resourceManifest?: unknown;
     sourceRevision: number;
     specFormatVersion: string;
@@ -2130,10 +2205,12 @@ export type Wire5Cf4A8A140Fb1A665A97B8362F3128Fdf9Cdb4B3D66B442D124E25C9Ac724D7a
 export type Wire5Dcb9A5385549159028A02B9F90B5F85B74Ea0076B725Bce7E222E5Cfe3Ae71e = {
     code: string;
     column?: number;
+    field?: string;
     hint?: string;
     line?: number;
     message: string;
     severity: string;
+    stage?: string;
 };
 
 export type Wire5F3729574877D8503A4Dec333774588Fe1C7A2Ed2Ff47C9B7076Fcd0F551Abe7 = {
@@ -2141,6 +2218,11 @@ export type Wire5F3729574877D8503A4Dec333774588Fe1C7A2Ed2Ff47C9B7076Fcd0F551Abe7
     kind: string;
     tenant: string;
     version: string;
+};
+
+export type Wire60650A6F04Edcea743087085A996Dbd0928E83E4Db2D4D201F65Feede3Ef338b = {
+    predicatePackages: Array<string> | null;
+    requireSecurityPredicate: boolean;
 };
 
 export type Wire60Bda844Ac8065E6E072Cef8Ca0C3A6F4Ee6Ad55108Ee3B860D23Ad284Da68Ac = {
@@ -2186,6 +2268,7 @@ export type Wire62B416D7643717Df5349D629A8802521Ee46B9F921D7C05E834E68B645Ecb930
     notes?: string;
     publishedAt?: string | null;
     reportId: string;
+    resourceCheckEnabled: boolean;
     resourceManifest?: unknown;
     sourceRevision: number;
     specFormatVersion: string;
@@ -2393,6 +2476,12 @@ export type Wire7Af96Ca0084D089Bcfb5E8B942B9D90A7900D3C1E884C7D9C370D23294D493F8
     [key: string]: unknown;
 };
 
+export type Wire7B62573Dc190309F5274F519B590107Fb85252Be4A55Fbd9Fb7Ed011Fc825841 = {
+    maxBytesProcessed?: number | null;
+    maxReferencedTables?: number | null;
+    maxReturnedRows?: number | null;
+};
+
 export type Wire7B8Cbc8D8B0De849D09Cdeec45A5Dba6C27Adb0Ab09Ab21D972F36Bf0D392C29 = {
     id: string;
     type: string;
@@ -2432,10 +2521,12 @@ export type Wire7D7Ffebe9B2C3Db9F219A2E5C8Aedd94C3D67594Fc08B9410116D0Bc7E2A9134
 export type Wire7D83E432Dba96D596847D8Df2F770054A4188B355Ed704D691Dff2A9D8F991Ee = {
     code: string;
     column?: number;
+    field?: string;
     hint?: string;
     line?: number;
     message: string;
     severity: string;
+    stage?: string;
 };
 
 export type Wire7Df6F58C45E1Cbb70C52Ebe80C2E84548De121E53Bb802A546285E9Bdee026B6 = {
@@ -2512,10 +2603,12 @@ export type Wire85Fc54185957A0434E3652651310Cd5912274Fdaa90Cf7F42706E7836E67517c
 export type Wire878Bfd02A12294E26D1A40F1B673A231Fa11C24402268D818F39F80Be43C86F9 = {
     code: string;
     column?: number;
+    field?: string;
     hint?: string;
     line?: number;
     message: string;
     severity: string;
+    stage?: string;
 };
 
 export type Wire87969E56D492A2F730B444Adee19Ef93Ac7C1Be948B8Dc6Be8F7220Cc9A8Fdf2 = {
@@ -2583,6 +2676,7 @@ export type Wire8B82F013750Bb50C4A08366119Aaab33D2Ee4C3F59Ab77B868Ec2617Ec5Ef5C8
     notes?: string;
     publishedAt?: string | null;
     reportId: string;
+    resourceCheckEnabled: boolean;
     resourceManifest?: unknown;
     sourceRevision: number;
     specFormatVersion: string;
@@ -2634,6 +2728,7 @@ export type Wire942D4E47E476A9E6Ca17A65Af1901A04D22Fd0D3854182C3Efa5E0F74762105e
     notes?: string;
     publishedAt?: string | null;
     reportId: string;
+    resourceCheckEnabled: boolean;
     resourceManifest?: unknown;
     sourceRevision: number;
     specFormatVersion: string;
@@ -2928,6 +3023,7 @@ export type WireC3165Cf4A873913Ce00D191695Cde0C9734357C8A456041Fe80521B5E82Ab089
     notes?: string;
     publishedAt?: string | null;
     reportId: string;
+    resourceCheckEnabled: boolean;
     resourceManifest?: unknown;
     sourceRevision: number;
     specFormatVersion: string;
@@ -2980,6 +3076,16 @@ export type WireC802F2917B8E2A3792964F9Ec6387Ab7Aed5Bce5F6F459Ac36Ed90610Be10Ade
     policies: {
         [key: string]: Wire8E91903699Babbed9E7Ba5Df80407C5E4Ba8D274D534089Cde3A462C51F42580;
     } | null;
+};
+
+export type WireC9C3Daca338Ca35Bf3129E93E885Ea3B84975D95Cbde9B402Fe7Ef89E0Ac22Ca = {
+    resourceLimits?: WireF503Ec7A72F8C4F53C118Cb28E4Dae7Faa981637Cd10A0Fe3A878B7751Fcae6d | null;
+    security?: Wire60650A6F04Edcea743087085A996Dbd0928E83E4Db2D4D201F65Feede3Ef338b | null;
+};
+
+export type WireCbabe3D249420717Ddf7Cacea255701Eecac111C7027807683A4B2B34F50Cc88 = {
+    etag: number;
+    settings: Wire3674Eb0Cddb7Df1Ddc9E4861011C1770Ed7115E4E8D98535Db4Bb24Fb3264Bce | null;
 };
 
 export type WireCc811B40C825A2509701C74E9A5E2Cc1D9D5Fba79F30Ab17F90611527D0F5332 = {
@@ -3040,6 +3146,7 @@ export type WireD47A3F0A566536Bf283059Fe5C94Fdc79E8185Ca98Cbe6359316854E6Ae380Ee
     notes?: string;
     publishedAt?: string | null;
     reportId: string;
+    resourceCheckEnabled: boolean;
     resourceManifest?: unknown;
     sourceRevision: number;
     specFormatVersion: string;
@@ -3067,6 +3174,7 @@ export type WireD47F31D6831E78D8D30E9260Afc40Ce9Bef1E3193510447B56Ae7C551502C928
     notes?: string;
     publishedAt?: string | null;
     reportId: string;
+    resourceCheckEnabled: boolean;
     resourceManifest?: unknown;
     sourceRevision: number;
     specFormatVersion: string;
@@ -3104,13 +3212,20 @@ export type WireD5Cefe1B3A17Afd7Fef5285814E696De9B1F5Aa8569887156Dc7690Bce5223C2
     versionNo: number;
 };
 
+export type WireD729664B640D3Eac7464086Bf0607Bf84C12Bf3A10Eca79F85D4Acaf3Cfa7836 = {
+    etag: number;
+    settings: WireC9C3Daca338Ca35Bf3129E93E885Ea3B84975D95Cbde9B402Fe7Ef89E0Ac22Ca | null;
+};
+
 export type WireD82Adbb20251Ee59732B96Cc17E12Fda2B7531A5A2Aa9B3011Dd7E9258Ea62A7 = {
     code: string;
     column?: number;
+    field?: string;
     hint?: string;
     line?: number;
     message: string;
     severity: string;
+    stage?: string;
 };
 
 export type WireD96F9F6E74952B34F1E493521A586F731028Cc293D50A0439Ca0Ba97D376Ca3c = {
@@ -3159,10 +3274,12 @@ export type WireDdb0758361D7645100D4271Bb6Abcc08E955D5Bf64Bce42081793C40D1A24231
 export type WireDdc8F3519E98B687E03E321D69E1Dab9D279D6F41Fcef8B1C25D52A95B4F51Bd = {
     code: string;
     column?: number;
+    field?: string;
     hint?: string;
     line?: number;
     message: string;
     severity: string;
+    stage?: string;
 };
 
 export type WireDf12Dfa59799793038C477F45C5Acb6Ce486B84479F8Df9C47F1698Fc478A940 = {
@@ -3356,6 +3473,7 @@ export type WireF3E391310Ebbdfcf54A80947Dc8023074733A52A02De8Af4F489Eff13A0C137d
     notes?: string;
     publishedAt?: string | null;
     reportId: string;
+    resourceCheckEnabled: boolean;
     resourceManifest?: unknown;
     sourceRevision: number;
     specFormatVersion: string;
@@ -3378,6 +3496,12 @@ export type WireF3Ea60D2Fa17320C067919706E92C833737F3992042E85B8Ec5055E0A45De960
     status: string;
     title: string;
     updatedAt: string;
+};
+
+export type WireF503Ec7A72F8C4F53C118Cb28E4Dae7Faa981637Cd10A0Fe3A878B7751Fcae6d = {
+    maxBytesProcessed?: number | null;
+    maxReferencedTables?: number | null;
+    maxReturnedRows?: number | null;
 };
 
 export type WireF791E609Dc9412B052626B655056F1150D4756F8C3A0E758A32B8022F81938D4 = {
@@ -3408,6 +3532,7 @@ export type WireF932A6D94Aac7D5320966Eccf3629Df536A5A1Bc23Efddc9Cefb59Aad8Af0675
     notes?: string;
     publishedAt?: string | null;
     reportId: string;
+    resourceCheckEnabled: boolean;
     resourceManifest?: unknown;
     sourceRevision: number;
     specFormatVersion: string;
@@ -3421,13 +3546,16 @@ export type WireF932A6D94Aac7D5320966Eccf3629Df536A5A1Bc23Efddc9Cefb59Aad8Af0675
 export type WireF9Bfe019Ac3Bc8Cf27B88F9B16D1F9A636D24292970F41843Ad5F4Eba742D99b = {
     code: string;
     column?: number;
+    field?: string;
     hint?: string;
     line?: number;
     message: string;
     severity: string;
+    stage?: string;
 };
 
 export type WireFcb2B68Ea97735A078Bf238Fa93Fc316117Bac1Af3B4B77C1A5F30Eb2753801c = {
+    canCreate: boolean;
     items: Array<WireDdb0758361D7645100D4271Bb6Abcc08E955D5Bf64Bce42081793C40D1A24231 | null> | null;
     limit: number;
     offset: number;
@@ -3903,7 +4031,9 @@ export type PostV1StudioSdkAuthorizationPredicatesListResponses = {
 export type PostV1StudioSdkAuthorizationPredicatesListResponse = PostV1StudioSdkAuthorizationPredicatesListResponses[keyof PostV1StudioSdkAuthorizationPredicatesListResponses];
 
 export type PostV1StudioSdkAuthorizationPredicatesTypesData = {
-    body?: never;
+    body?: {
+        namespaceId?: string | null;
+    };
     path?: never;
     query?: never;
     url: '/v1/studio/sdk/authorization_predicates.types';
@@ -4555,6 +4685,44 @@ export type PostV1StudioSdkNamespacesListResponses = {
 
 export type PostV1StudioSdkNamespacesListResponse = PostV1StudioSdkNamespacesListResponses[keyof PostV1StudioSdkNamespacesListResponses];
 
+export type PostV1StudioSdkNamespacesSettingsGetData = {
+    body: {
+        input?: Input79C60632C9D0A82Ab62168E5Cc8Be9B94Cc7586C14Ac73884344Edf6Fb26Fb00 | null;
+        name: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/namespaces.settings_get';
+};
+
+export type PostV1StudioSdkNamespacesSettingsGetResponses = {
+    /**
+     * Success response
+     */
+    200: WireD729664B640D3Eac7464086Bf0607Bf84C12Bf3A10Eca79F85D4Acaf3Cfa7836;
+};
+
+export type PostV1StudioSdkNamespacesSettingsGetResponse = PostV1StudioSdkNamespacesSettingsGetResponses[keyof PostV1StudioSdkNamespacesSettingsGetResponses];
+
+export type PostV1StudioSdkNamespacesSettingsUpdateData = {
+    body: {
+        input?: Input3B4D0B6Fd5B601973Df85847B4F071Da78Ceffe933882Fb84B7E61A82Dda71Cc | null;
+        name: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/namespaces.settings_update';
+};
+
+export type PostV1StudioSdkNamespacesSettingsUpdateResponses = {
+    /**
+     * Success response
+     */
+    200: WireCbabe3D249420717Ddf7Cacea255701Eecac111C7027807683A4B2B34F50Cc88;
+};
+
+export type PostV1StudioSdkNamespacesSettingsUpdateResponse = PostV1StudioSdkNamespacesSettingsUpdateResponses[keyof PostV1StudioSdkNamespacesSettingsUpdateResponses];
+
 export type PostV1StudioSdkNamespacesUpdateData = {
     body: {
         input: Input6139A906F15F351C7Eae5D9897Ae3973B6172D1373D49394D6C8C69615914840;
@@ -5064,6 +5232,35 @@ export type PostV1StudioSdkVersionsInspectResponses = {
 };
 
 export type PostV1StudioSdkVersionsInspectResponse = PostV1StudioSdkVersionsInspectResponses[keyof PostV1StudioSdkVersionsInspectResponses];
+
+export type PosTv1StudiosdkversionsInvalidateCacheData = {
+    body: {
+        reportId: string;
+        routePath: string;
+        versionNo: number;
+        view: string;
+    };
+    headers: {
+        'X-Studio-Namespace': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/versions.invalidate_cache';
+};
+
+export type PosTv1StudiosdkversionsInvalidateCacheResponses = {
+    /**
+     * Exact cache view generation advanced
+     */
+    200: {
+        generation: string;
+        reportId: string;
+        versionNo: number;
+        view: string;
+    };
+};
+
+export type PosTv1StudiosdkversionsInvalidateCacheResponse = PosTv1StudiosdkversionsInvalidateCacheResponses[keyof PosTv1StudiosdkversionsInvalidateCacheResponses];
 
 export type PostV1StudioSdkVersionsListData = {
     body: {

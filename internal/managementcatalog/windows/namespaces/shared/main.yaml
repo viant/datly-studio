@@ -70,6 +70,14 @@ window:
                   - event: onClick
                     handler: management.editNamespace
                 hideLabel: false
+              - id: policies
+                label: Security and resource limits
+                enableWhenSelection: true
+                icon: shield
+                on:
+                  - event: onClick
+                    handler: management.editNamespacePolicies
+                hideLabel: false
               - id: delete
                 label: Delete namespace
                 enableWhenSelection: true
@@ -133,6 +141,70 @@ window:
           on:
             - event: onClick
               handler: management.deleteNamespace
+        - id: cancel
+          label: Cancel
+          close: true
+          disabledWhen:
+            selector: pending
+            equals: true
+    - id: namespace-policies
+      title: Namespace security and resource limits
+      dataSourceRef: namespace_draft
+      fetchOnOpen: false
+      properties:
+        closeDisabledWhen:
+          selector: pending
+          equals: true
+      content:
+        id: namespace-policy-form
+        items:
+          - id: name
+            label: Namespace
+            dataField: name
+            type: text
+            readOnly: true
+          - id: inheritPredicatePackages
+            label: Use host predicate packages
+            dataField: inheritPredicatePackages
+            type: checkbox
+          - id: predicatePackages
+            label: Predicate packages (one full package path per line)
+            dataField: predicatePackages
+            type: textarea
+            readOnlyWhen:
+              selector: inheritPredicatePackages
+              equals: true
+          - id: requireSecurityPredicate
+            label: Require a security predicate on every component
+            dataField: requireSecurityPredicate
+            type: checkbox
+          - id: maxBytesProcessed
+            label: Maximum bytes processed (blank means unlimited)
+            dataField: maxBytesProcessed
+            type: number
+          - id: maxReferencedTables
+            label: Maximum referenced tables (blank means unlimited)
+            dataField: maxReferencedTables
+            type: number
+          - id: maxReturnedRows
+            label: Maximum returned rows during execution (blank means unlimited)
+            dataField: maxReturnedRows
+            type: number
+          - id: outcome
+            label: Outcome
+            dataField: outcome
+            type: textarea
+            readOnly: true
+      actions:
+        - id: save
+          label: Save limits and security
+          close: true
+          disabledWhen:
+            selector: pending
+            equals: true
+          on:
+            - event: onClick
+              handler: management.saveNamespacePolicies
         - id: cancel
           label: Cancel
           close: true

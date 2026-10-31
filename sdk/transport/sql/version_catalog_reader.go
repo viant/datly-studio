@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/viant/bindly/locator"
 	"reflect"
 
 	"github.com/viant/bindly/resource"
@@ -49,12 +50,11 @@ func (t *Transport) readVersionCatalogTx(ctx context.Context, tx *sql.Tx, reques
 	defer runtime.Shutdown(context.Background())
 	input := &stored.Input{ReportId: request.ReportID, VersionNo: request.VersionNo,
 		State: request.State, AuthoringMode: request.AuthoringMode, CompileStatus: request.CompileStatus,
-		CreatedBy: request.CreatedBy, Limit: request.Limit, Offset: request.Offset,
+		CreatedBy: request.CreatedBy,
 		Has: &stored.InputHas{ReportId: true, VersionNo: request.VersionNo > 0,
 			State: request.State != "", AuthoringMode: request.AuthoringMode != "",
-			CompileStatus: request.CompileStatus != "", CreatedBy: request.CreatedBy != "",
-			Limit: true, Offset: true}}
-	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: target, Input: input})
+			CompileStatus: request.CompileStatus != "", CreatedBy: request.CreatedBy != ""}}
+	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: target, Input: input, Providers: []locator.Provider{readercomponent.Paging("version", request.Limit, request.Offset)}})
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (t *Transport) readVersionCatalogTx(ctx context.Context, tx *sql.Tx, reques
 		if row == nil || row.ReportId != request.ReportID || request.VersionNo > 0 && row.VersionNo != request.VersionNo {
 			return nil, fmt.Errorf("version catalog returned a mismatched row")
 		}
-		result = append(result, &sdk.ReportVersion{ReportID: row.ReportId, VersionNo: row.VersionNo,
+		result = append(result, &sdk.ReportVersion{ResourceCheckEnabled: row.ResourceCheckEnabled, ReportID: row.ReportId, VersionNo: row.VersionNo,
 			State: row.State, AuthoringMode: row.AuthoringMode,
 			AuthoredSQL: versionOptionalString(row.AuthoredSql), AuthoredDQL: versionOptionalString(row.AuthoredDql),
 			ComponentSpec: versionJSON(row.ComponentSpecJson), DQLExportLimits: versionJSON(row.DqlExportLimitsJson),

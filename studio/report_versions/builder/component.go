@@ -114,7 +114,7 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 		return err
 	}
 	predicates := authoring.PredicateCatalog()
-	engine := &sqltransport.Transport{AuthoringModule: authoring.ModulePath(), RuntimeTypes: types, DB: db, ComponentInvoker: invoker, Predicates: predicates, ContractInspector: preview.Dynamic{StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, Const: authoring.Constants(), ReaderCaches: authoring.ReaderCaches(), Dependencies: authoring.Dependencies()}}
+	engine := &sqltransport.Transport{AuthoringModule: authoring.ModulePath(), RuntimeTypes: types, DB: db, ComponentInvoker: invoker, Predicates: predicates, ContractInspector: preview.Dynamic{StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, Const: authoring.Constants(), ReaderCaches: authoring.ReaderCaches(), SourceValidator: authoring.SourceValidator(), Dependencies: authoring.Dependencies()}}
 	request := struct {
 		ReportID  string                   `json:"reportId"`
 		VersionNo int                      `json:"versionNo"`

@@ -28,12 +28,13 @@ import (
 )
 
 type Options struct {
-	AuthoringMode string          `json:"authoringMode,omitempty"`
-	AuthoredSQL   string          `json:"authoredSql,omitempty"`
-	AuthoredDQL   string          `json:"authoredDql,omitempty"`
-	Notes         string          `json:"notes,omitempty"`
-	CreatedBy     string          `json:"createdBy,omitempty"`
-	ComponentSpec json.RawMessage `json:"componentSpec,omitempty"`
+	ResourceCheckEnabled bool            `json:"resourceCheckEnabled,omitempty"`
+	AuthoringMode        string          `json:"authoringMode,omitempty"`
+	AuthoredSQL          string          `json:"authoredSql,omitempty"`
+	AuthoredDQL          string          `json:"authoredDql,omitempty"`
+	Notes                string          `json:"notes,omitempty"`
+	CreatedBy            string          `json:"createdBy,omitempty"`
+	ComponentSpec        json.RawMessage `json:"componentSpec,omitempty"`
 }
 
 type Input struct {
@@ -45,30 +46,31 @@ type Input struct {
 }
 
 type Output struct {
-	ReportId            string          `parameter:"ReportId,kind=output,in=body,dataType=string" json:"reportId"`
-	VersionNo           int             `parameter:"VersionNo,kind=output,in=body,dataType=int" json:"versionNo"`
-	State               string          `parameter:"State,kind=output,in=body,dataType=string" json:"state"`
-	AuthoringMode       string          `parameter:"AuthoringMode,kind=output,in=body,dataType=string" json:"authoringMode"`
-	AuthoredSQL         string          `parameter:"AuthoredSQL,kind=output,in=body,dataType=string" json:"authoredSql,omitempty"`
-	AuthoredDQL         string          `parameter:"AuthoredDQL,kind=output,in=body,dataType=string" json:"authoredDql,omitempty"`
-	ComponentSpec       json.RawMessage `parameter:"ComponentSpec,kind=output,in=body,dataType=json.RawMessage" json:"componentSpec,omitempty"`
-	DQLExportLimits     json.RawMessage `parameter:"DQLExportLimits,kind=output,in=body,dataType=json.RawMessage" json:"dqlExportLimits,omitempty"`
-	TypeManifest        json.RawMessage `parameter:"TypeManifest,kind=output,in=body,dataType=json.RawMessage" json:"typeManifest,omitempty"`
-	ResourceManifest    json.RawMessage `parameter:"ResourceManifest,kind=output,in=body,dataType=json.RawMessage" json:"resourceManifest,omitempty"`
-	ComponentDescriptor json.RawMessage `parameter:"ComponentDescriptor,kind=output,in=body,dataType=json.RawMessage" json:"componentDescriptor,omitempty"`
-	SpecFormatVersion   string          `parameter:"SpecFormatVersion,kind=output,in=body,dataType=string" json:"specFormatVersion"`
-	SpecHash            string          `parameter:"SpecHash,kind=output,in=body,dataType=string" json:"specHash"`
-	GeneratedDQL        string          `parameter:"GeneratedDQL,kind=output,in=body,dataType=string" json:"generatedDql,omitempty"`
-	CompileStatus       string          `parameter:"CompileStatus,kind=output,in=body,dataType=string" json:"compileStatus"`
-	CompileDiagnostics  json.RawMessage `parameter:"CompileDiagnostics,kind=output,in=body,dataType=json.RawMessage" json:"compileDiagnostics,omitempty"`
-	DatlyVersion        string          `parameter:"DatlyVersion,kind=output,in=body,dataType=string" json:"datlyVersion"`
-	CompilerVersion     string          `parameter:"CompilerVersion,kind=output,in=body,dataType=string" json:"compilerVersion"`
-	SourceRevision      int64           `parameter:"SourceRevision,kind=output,in=body,dataType=int64" json:"sourceRevision"`
-	Notes               string          `parameter:"Notes,kind=output,in=body,dataType=string" json:"notes,omitempty"`
-	CreatedBy           string          `parameter:"CreatedBy,kind=output,in=body,dataType=string" json:"createdBy"`
-	CreatedAt           time.Time       `parameter:"CreatedAt,kind=output,in=body,dataType=time.Time" json:"createdAt"`
-	ValidatedAt         *time.Time      `parameter:"ValidatedAt,kind=output,in=body,dataType=*time.Time" json:"validatedAt,omitempty"`
-	PublishedAt         *time.Time      `parameter:"PublishedAt,kind=output,in=body,dataType=*time.Time" json:"publishedAt,omitempty"`
+	ResourceCheckEnabled bool            `parameter:"ResourceCheckEnabled,kind=output,in=body,dataType=bool" json:"resourceCheckEnabled"`
+	ReportId             string          `parameter:"ReportId,kind=output,in=body,dataType=string" json:"reportId"`
+	VersionNo            int             `parameter:"VersionNo,kind=output,in=body,dataType=int" json:"versionNo"`
+	State                string          `parameter:"State,kind=output,in=body,dataType=string" json:"state"`
+	AuthoringMode        string          `parameter:"AuthoringMode,kind=output,in=body,dataType=string" json:"authoringMode"`
+	AuthoredSQL          string          `parameter:"AuthoredSQL,kind=output,in=body,dataType=string" json:"authoredSql,omitempty"`
+	AuthoredDQL          string          `parameter:"AuthoredDQL,kind=output,in=body,dataType=string" json:"authoredDql,omitempty"`
+	ComponentSpec        json.RawMessage `parameter:"ComponentSpec,kind=output,in=body,dataType=json.RawMessage" json:"componentSpec,omitempty"`
+	DQLExportLimits      json.RawMessage `parameter:"DQLExportLimits,kind=output,in=body,dataType=json.RawMessage" json:"dqlExportLimits,omitempty"`
+	TypeManifest         json.RawMessage `parameter:"TypeManifest,kind=output,in=body,dataType=json.RawMessage" json:"typeManifest,omitempty"`
+	ResourceManifest     json.RawMessage `parameter:"ResourceManifest,kind=output,in=body,dataType=json.RawMessage" json:"resourceManifest,omitempty"`
+	ComponentDescriptor  json.RawMessage `parameter:"ComponentDescriptor,kind=output,in=body,dataType=json.RawMessage" json:"componentDescriptor,omitempty"`
+	SpecFormatVersion    string          `parameter:"SpecFormatVersion,kind=output,in=body,dataType=string" json:"specFormatVersion"`
+	SpecHash             string          `parameter:"SpecHash,kind=output,in=body,dataType=string" json:"specHash"`
+	GeneratedDQL         string          `parameter:"GeneratedDQL,kind=output,in=body,dataType=string" json:"generatedDql,omitempty"`
+	CompileStatus        string          `parameter:"CompileStatus,kind=output,in=body,dataType=string" json:"compileStatus"`
+	CompileDiagnostics   json.RawMessage `parameter:"CompileDiagnostics,kind=output,in=body,dataType=json.RawMessage" json:"compileDiagnostics,omitempty"`
+	DatlyVersion         string          `parameter:"DatlyVersion,kind=output,in=body,dataType=string" json:"datlyVersion"`
+	CompilerVersion      string          `parameter:"CompilerVersion,kind=output,in=body,dataType=string" json:"compilerVersion"`
+	SourceRevision       int64           `parameter:"SourceRevision,kind=output,in=body,dataType=int64" json:"sourceRevision"`
+	Notes                string          `parameter:"Notes,kind=output,in=body,dataType=string" json:"notes,omitempty"`
+	CreatedBy            string          `parameter:"CreatedBy,kind=output,in=body,dataType=string" json:"createdBy"`
+	CreatedAt            time.Time       `parameter:"CreatedAt,kind=output,in=body,dataType=time.Time" json:"createdAt"`
+	ValidatedAt          *time.Time      `parameter:"ValidatedAt,kind=output,in=body,dataType=*time.Time" json:"validatedAt,omitempty"`
+	PublishedAt          *time.Time      `parameter:"PublishedAt,kind=output,in=body,dataType=*time.Time" json:"publishedAt,omitempty"`
 }
 
 type Component struct {
@@ -179,13 +181,13 @@ func (*createHandler) Exec(ctx context.Context, session xhandler.Session, input 
 	}
 	specHash := versionidentity.Hash(input.ReportId, next, mode, input.Input.AuthoredSQL, input.Input.AuthoredDQL, spec)
 	now := time.Now().UTC()
-	row := &stored.StoredVersion{ReportId: input.ReportId, VersionNo: next, State: "draft", AuthoringMode: mode,
+	row := &stored.StoredVersion{ResourceCheckEnabled: input.Input.ResourceCheckEnabled, ReportId: input.ReportId, VersionNo: next, State: "draft", AuthoringMode: mode,
 		AuthoredSql: optional(input.Input.AuthoredSQL), AuthoredDql: optional(input.Input.AuthoredDQL),
 		ComponentSpecJson: spec, SpecFormatVersion: "studio.v1", SpecHash: specHash,
 		GeneratedDql: optional(generated), TypeManifestJson: json.RawMessage(`{}`),
 		CompileStatus: "pending", DatlyVersion: "v1", CompilerVersion: "studio.v1",
 		SourceRevision: 1, Notes: optional(input.Input.Notes), CreatedBy: input.Jwt.Subject, CreatedAt: now,
-		Has: &stored.StoredVersionHas{ReportId: true, VersionNo: true, State: true,
+		Has: &stored.StoredVersionHas{ResourceCheckEnabled: true, ReportId: true, VersionNo: true, State: true,
 			AuthoringMode: true, AuthoredSql: true, AuthoredDql: true, ComponentSpecJson: true,
 			SpecFormatVersion: true, SpecHash: true, GeneratedDql: true, TypeManifestJson: true,
 			CompileStatus: true, DatlyVersion: true, CompilerVersion: true, SourceRevision: true,
@@ -202,7 +204,7 @@ func (*createHandler) Exec(ctx context.Context, session xhandler.Session, input 
 		inserted.Data[0].ReportId != input.ReportId || inserted.Data[0].VersionNo != next {
 		return fmt.Errorf("version insert returned %T without one matching row", value)
 	}
-	*output = Output{ReportId: input.ReportId, VersionNo: next, State: "draft", AuthoringMode: mode,
+	*output = Output{ResourceCheckEnabled: input.Input.ResourceCheckEnabled, ReportId: input.ReportId, VersionNo: next, State: "draft", AuthoringMode: mode,
 		AuthoredSQL: input.Input.AuthoredSQL, ComponentSpec: spec, TypeManifest: json.RawMessage(`{}`),
 		SpecFormatVersion: "studio.v1", SpecHash: specHash, CompileStatus: "pending",
 		DatlyVersion: "v1", CompilerVersion: "studio.v1", SourceRevision: 1,

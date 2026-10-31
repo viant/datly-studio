@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	studiohost "github.com/viant/datly-studio/studio/host"
 	"reflect"
 	"strings"
 	"sync"
@@ -153,7 +154,15 @@ func invoke(ctx context.Context, session xhandler.Session, claims *jwt.Claims, n
 	if err != nil {
 		return publicError(503, "dynamic runtime admin origin is invalid")
 	}
-	transport := &sqltransport.Transport{DB: db, Authorizer: &authorization.SDKAuthorizer{DB: db}, Activator: admin}
+	authoring, err := studiohost.AuthoringFromContext(ctx)
+	if err != nil {
+		return err
+	}
+	runtimeTypes, err := authoring.RuntimeTypes()
+	if err != nil {
+		return err
+	}
+	transport := &sqltransport.Transport{Predicates: authoring.PredicateCatalog(), RuntimeTypes: runtimeTypes, AuthoringModule: authoring.ModulePath(), DB: db, Authorizer: &authorization.SDKAuthorizer{DB: db}, Activator: admin}
 	defer transport.Close(context.WithoutCancel(ctx))
 	// Publication is a staged lifecycle: its first database transaction must
 	// commit before the external runtime reload, followed by activation or

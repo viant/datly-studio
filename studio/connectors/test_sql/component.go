@@ -96,7 +96,7 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 		executionCtx, cancel = context.WithTimeout(ctx, timeout)
 	}
 	defer cancel()
-	result, err := (preview.Dynamic{ModulePath: authoring.ModulePath(), Types: types, Const: authoring.Constants(), ReaderCaches: authoring.ReaderCaches(), Dependencies: authoring.Dependencies()}).TestSQL(executionCtx, connector, input.Input)
+	result, err := (preview.Dynamic{ModulePath: authoring.ModulePath(), Types: types, Const: authoring.Constants(), ReaderCaches: authoring.ReaderCaches(), SourceValidator: authoring.SourceValidator(), Dependencies: authoring.Dependencies()}).TestSQL(executionCtx, connector, input.Input)
 	if err != nil {
 		return executionError(executionCtx, err, timeout)
 	}

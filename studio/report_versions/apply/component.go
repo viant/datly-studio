@@ -5,6 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/viant/bindly/locator"
+	"github.com/viant/datly-studio/internal/readercomponent"
+	resourcecheckstore "github.com/viant/datly-studio/studio/report_versions/store_resource_check"
+	"github.com/viant/datly-studio/studio/settings"
 	"reflect"
 	"strings"
 
@@ -49,7 +53,7 @@ type Output struct {
 }
 
 type Component struct {
-	Contract xdatly.Component[Input, Output] `component:"version,path=/v1/studio/sdk/versions.apply,method=POST,connector=studio,handler=NewVersionApply" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.versions.apply\",\"description\":\"Apply an authorized optimistic edit to one Datly Studio version\"}]" caseFormat:"lc"`
+	Contract xdatly.Component[Input, Output] `component:"version,path=/v1/studio/sdk/versions.apply,method=POST,connector=studio,handler=NewVersionApply" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.versions.apply\",\"description\":\"Apply a version edit: set_dql, set_sql, set_spec, or set_resource_check\"}]" caseFormat:"lc"`
 }
 
 var VersionDatly = new(Component)
@@ -103,9 +107,7 @@ func (*applyHandler) Exec(ctx context.Context, session xhandler.Session, input *
 	read := &catalog.Input{}
 	read.SetReportId(input.ReportId)
 	read.SetVersionNo(input.VersionNo)
-	read.SetLimit(2)
-	read.SetOffset(0)
-	value, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[catalog.VersionComponent](), "version", "GET", "/_studio/report-version-store/catalog"), Input: read})
+	value, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[catalog.VersionComponent](), "version", "GET", "/_studio/report-version-store/catalog"), Input: read, Providers: []locator.Provider{readercomponent.Paging("version", 2, 0)}})
 	if err != nil {
 		return err
 	}
@@ -155,6 +157,28 @@ func (*applyHandler) Exec(ctx context.Context, session xhandler.Session, input *
 		return fmt.Errorf("report capability reader returned %T without one matching row", value)
 	}
 	canUseDQL := report.Item.OwnerId == input.Jwt.Subject || caps.Capabilities[0].CanUseDql
+	if strings.ToLower(strings.TrimSpace(input.Command.Kind)) == "set_resource_check" {
+		enabled, err := settings.ResourceCheckEnabled(input.Command.Payload)
+		if err != nil {
+			return publicError(400, err.Error())
+		}
+		expected := current.SourceRevision
+		row := &resourcecheckstore.StoredVersion{ReportId: input.ReportId, VersionNo: input.VersionNo, ResourceCheckEnabled: enabled, SourceRevision: &expected, Has: &resourcecheckstore.StoredVersionHas{ReportId: true, VersionNo: true, ResourceCheckEnabled: true, SourceRevision: true}}
+		update := &resourcecheckstore.Input{}
+		update.SetVersions([]*resourcecheckstore.StoredVersion{row})
+		_, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[resourcecheckstore.VersionComponent](), "version", "PATCH", "/_studio/report-version-store/resource-check"), Input: update})
+		if err != nil {
+			return err
+		}
+		current.ResourceCheckEnabled = enabled
+		current.SourceRevision++
+		current.State = "draft"
+		current.CompileStatus = "pending"
+		current.CompileDiagnostics = json.RawMessage(`[]`)
+		current.ValidatedAt = nil
+		output.Version = readerinspection.RedactVersion(current, canUseDQL)
+		return nil
+	}
 	spec := append(json.RawMessage(nil), current.ComponentSpec...)
 	if len(spec) == 0 {
 		spec = json.RawMessage(`{}`)

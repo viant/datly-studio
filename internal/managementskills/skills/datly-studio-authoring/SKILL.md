@@ -1,6 +1,6 @@
 ---
 name: datly-studio-authoring
-description: Inspect and explain existing Datly components, discover database schemas, create Datly v1 readers and cubes with BigQuery facts and MySQL dictionaries, and validate, release, and verify them through Studio management MCP.
+description: Inspect, author, validate and release Datly v1 components through Studio management MCP, including namespace predicate packages and opt-in BigQuery resource checks.
 group: data-authoring
 ---
 
@@ -18,6 +18,9 @@ paths relative to this skill URI:
   column, cube, relation and version scenarios.
 - [Column output how-to](references/column-output-howto.md): native date tags,
   formatting versus truncation, and serialization-boundary gotchas.
+- [Security and resource checks](references/security-and-resource-checks.md):
+  namespace predicate packages and thresholds, explicit component opt-in, and
+  source-validation versus dry-run and returned-row evidence.
 - [Version-session how-to](references/version-session-howto.md): edit/release
   checkpoints and practical verification scenarios.
 

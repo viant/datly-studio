@@ -36,3 +36,12 @@ For complete payloads and DQL, follow the [worked cube session](worked-example.m
   the optional predicate; required authorization remains active.
 - **New revision:** an existing consumer stays pinned until explicitly updated;
   the new consumer reads the new generation without borrowing old receipts.
+
+## Component resource-check option
+
+Preserve `resourceCheckEnabled` during unrelated edits. Configure thresholds on
+the namespace; enable the check only for the requested component draft using
+`versions.apply`, command `set_resource_check`. This changes its source revision
+and clears validation. Read [security and resource checks](security-and-resource-checks.md)
+for complete payloads, sparse group updates, security package selection and the
+boundary between dry-run estimates and actual returned rows.

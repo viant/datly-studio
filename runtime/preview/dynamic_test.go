@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/viant/datly-studio/studio/sourcevalidation"
 	"os"
 	"path/filepath"
 	"strings"
@@ -84,6 +85,26 @@ JOIN (SELECT ID, VENDOR_ID, STATUS FROM PRODUCT) products ON products.VENDOR_ID=
 	if _, err = studio.ExecContext(ctx, `INSERT INTO component_resource_files(report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at) VALUES ('vendors',1,'vendors-doc','docs','docs/vendors.md',?,?, 'hash',FALSE,?)`, "Vendor API documentation", len("Vendor API documentation"), now); err != nil {
 		t.Fatal(err)
 	}
+	t.Run("optional main source policy rejects validation and execution", func(t *testing.T) {
+		rejection := errors.New("policy rejection fixture")
+		calls := 0
+		dynamic := Dynamic{StudioDB: studio, ModulePath: "example.com/app", SourceValidator: func(callCtx context.Context, input sourcevalidation.Input) error {
+			calls++
+			if callCtx != ctx || input.ComponentID != "vendors" || input.VersionNo != 1 || input.SourceRevision != 1 || input.DQL != dql || input.AuthoredDQL != dql {
+				t.Fatalf("unexpected source validation input: %+v", input)
+			}
+			return rejection
+		}}
+		if err := dynamic.Validate(ctx, "vendors", 1); !errors.Is(err, rejection) {
+			t.Fatalf("validation bypassed hook: %v", err)
+		}
+		if _, err := dynamic.Execute(ctx, "vendors", 1, sdk.PreviewInput{}); !errors.Is(err, rejection) {
+			t.Fatalf("execution bypassed hook: %v", err)
+		}
+		if calls != 2 {
+			t.Fatalf("hook calls=%d", calls)
+		}
+	})
 	t.Run("validation classifies host package authority", func(t *testing.T) {
 		err := (Dynamic{StudioDB: studio, ModulePath: "example.com/other"}).Validate(ctx, "vendors", 1)
 		var phase *runtimevalidation.Error

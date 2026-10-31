@@ -236,6 +236,8 @@ func outputFor(operation string) (any, bool) {
 		return new(sdk.SQLTestResult), true
 	case sdk.OperationConnectorDelete:
 		return nil, true
+	case sdk.OperationNamespaceSettingsGet, sdk.OperationNamespaceSettingsUpdate:
+		return new(sdk.NamespaceSettingsResult), true
 	case sdk.OperationNamespaceCreate, sdk.OperationNamespaceGet, sdk.OperationNamespaceUpdate:
 		return new(sdk.Namespace), true
 	case sdk.OperationNamespaceList:

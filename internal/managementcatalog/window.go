@@ -107,7 +107,7 @@ func managementWindow(config Config, name string) ([]Definition, error) {
 	source.Window.ActionAliases = []string{"management"}
 	operations := []string{"get", "create", "update"}
 	if name == "namespaces" {
-		operations = append(operations, "delete")
+		operations = append(operations, "delete", "settings_get", "settings_update")
 	}
 	prefix := "namespace"
 	if name == "connectors" {

@@ -8,6 +8,11 @@ import (
 	"errors"
 	"fmt"
 	requestprovider "github.com/viant/bindly/provider/request"
+	"github.com/viant/datly-studio/internal/predicatepolicy"
+	"github.com/viant/datly-studio/internal/resourcecheck"
+	"github.com/viant/datly-studio/internal/settingstore"
+	"github.com/viant/datly-studio/studio/settings"
+	"github.com/viant/datly-studio/studio/sourcevalidation"
 	"github.com/viant/datly/constant"
 	"github.com/viant/datly/typecatalog"
 	"net/http"
@@ -47,8 +52,9 @@ import (
 // Dynamic executes dynamic reader versions using Datly's runtime-contract
 // materialization. It is an SDK preview executor, not a SQL escape hatch.
 type Dynamic struct {
-	Const        *constant.Values
-	Dependencies DependencyResolver
+	SourceValidator sourcevalidation.Validator
+	Const           *constant.Values
+	Dependencies    DependencyResolver
 	// ReaderCaches is trusted deployment configuration shared with publication.
 	// Each preview/validation owns its cache pool and closes it after execution.
 	ReaderCaches map[string]*spec.CacheSettings
@@ -81,7 +87,7 @@ func (d Dynamic) Validate(ctx context.Context, reportID string, versionNo int) e
 	defer sources.Close()
 	caches := &aerospike.Pool{}
 	defer caches.Close()
-	contract, err := d.runtimeContracts(ctx, &transcribe.Source{Types: d.Types,
+	contract, err := d.runtimeContracts(ctx, &transcribe.Source{Types: definition.Types,
 		Scope: definition.Scope, Name: definition.Name, Text: definition.DQL, Connector: definition.Connector,
 		Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections),
 	})
@@ -93,6 +99,14 @@ func (d Dynamic) Validate(ctx context.Context, reportID string, versionNo int) e
 		}
 		return runtimevalidation.Wrap("contract", err)
 	}
+	if definition.ResourceCheckEnabled {
+		if definition.Policy.ResourceLimits == nil {
+			return runtimevalidation.Wrap("resources", errors.New("namespace resource limits are required"))
+		}
+	}
+	if policyErr := predicatepolicy.ValidateDeclarations(contract.Component, definition.Policy); policyErr != nil {
+		return policyErr
+	}
 	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Const: d.Const,
 		Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType,
 		Types: contract.Types, Resources: contract.Resources, CodecFactory: studiocodecs.FromContext(ctx),
@@ -103,8 +117,14 @@ func (d Dynamic) Validate(ctx context.Context, reportID string, versionNo int) e
 	if artifact.ReaderCompilation() == nil {
 		return runtimevalidation.Wrap("reader", errors.New("reader compilation is unavailable"))
 	}
-	if _, err = artifact.ReaderCompilation().NewExecution(bootstrap.ReaderRuntimeConfig{SQL: sources.SQL, CacheSettings: d.ReaderCaches, Aerospike: caches}); err != nil {
+	execution, err := artifact.ReaderCompilation().NewExecution(bootstrap.ReaderRuntimeConfig{SQL: sources.SQL, CacheSettings: d.ReaderCaches, Aerospike: caches})
+	if err != nil {
 		return runtimevalidation.Wrap("reader", err)
+	}
+	if definition.ResourceCheckEnabled {
+		if _, err = resourcecheck.Wrap(execution, sources.SQL.DB, contract.Component, definition.Policy.ResourceLimits); err != nil {
+			return runtimevalidation.Wrap("resources", err)
+		}
 	}
 	if _, err = artifact.ReaderCompilation().NewProviders(bootstrap.ReaderRuntimeConfig{SQL: sources.SQL, CacheSettings: d.ReaderCaches, Aerospike: caches}); err != nil {
 		return runtimevalidation.Wrap("reader", err)
@@ -302,12 +322,15 @@ func (d Dynamic) executeCube(ctx context.Context, reportID string, versionNo int
 	defer sources.Close()
 	caches := &aerospike.Pool{}
 	defer caches.Close()
-	contract, err := d.runtimeContracts(ctx, &transcribe.Source{Types: d.Types,
+	contract, err := d.runtimeContracts(ctx, &transcribe.Source{Types: definition.Types,
 		Scope: definition.Scope, Name: definition.Name, Text: definition.DQL, Connector: definition.Connector,
 		Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections),
 	})
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "compile cube source: " + err.Error(), Cause: err}
+	}
+	if policyErr := predicatepolicy.ValidateDeclarations(contract.Component, definition.Policy); policyErr != nil {
+		return nil, policyErr
 	}
 	dependencies, err := d.prepareContexts(ctx, definition, contract.Component)
 	if err != nil {
@@ -351,7 +374,17 @@ func (d Dynamic) executeCube(ctx context.Context, reportID string, versionNo int
 			return report.RuntimeCapabilities{}, buildErr
 		}
 		providers, providerErr := compiled.NewProviders(readerConfig)
-		return report.RuntimeCapabilities{Reader: reader, Providers: providers}, providerErr
+		if providerErr != nil {
+			return report.RuntimeCapabilities{}, providerErr
+		}
+		var guarded dexec.Reader = reader
+		if definition.ResourceCheckEnabled {
+			guarded, err = resourcecheck.Wrap(reader, sources.SQL.DB, contract.Component, definition.Policy.ResourceLimits)
+			if err != nil {
+				return report.RuntimeCapabilities{}, err
+			}
+		}
+		return report.RuntimeCapabilities{Reader: guarded, Providers: providers}, nil
 	}))
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "configure cube composition runtime", Cause: err}
@@ -479,12 +512,15 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 	defer sources.Close()
 	caches := &aerospike.Pool{}
 	defer caches.Close()
-	contract, err := d.runtimeContracts(ctx, &transcribe.Source{Types: d.Types, Scope: definition.Scope, Name: definition.Name, Text: definition.DQL, Connector: definition.Connector, Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections)})
+	contract, err := d.runtimeContracts(ctx, &transcribe.Source{Types: definition.Types, Scope: definition.Scope, Name: definition.Name, Text: definition.DQL, Connector: definition.Connector, Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections)})
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "compile dynamic reader: " + err.Error(), Cause: err}
 	}
 	if contract.Component == nil || contract.Component.RootView == nil || contract.Component.CacheWarmup() == nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "reader version has no authored cache warmup policy"}
+	}
+	if policyErr := predicatepolicy.ValidateDeclarations(contract.Component, definition.Policy); policyErr != nil {
+		return nil, policyErr
 	}
 	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Const: d.Const, Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources, CodecFactory: studiocodecs.FromContext(ctx)})
 	if err != nil {
@@ -499,7 +535,14 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "initialize dynamic reader dependencies", Cause: err}
 	}
-	registered, err := artifact.Registration(druntime.RegisteredComponent{Reader: reader, Providers: providers})
+	var guarded dexec.Reader = reader
+	if definition.ResourceCheckEnabled {
+		guarded, err = resourcecheck.Wrap(reader, sources.SQL.DB, contract.Component, definition.Policy.ResourceLimits)
+		if err != nil {
+			return nil, err
+		}
+	}
+	registered, err := artifact.Registration(druntime.RegisteredComponent{Reader: guarded, Providers: providers})
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "register dynamic warmup reader", Cause: err}
 	}
@@ -567,7 +610,7 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 	defer sources.Close()
 	caches := &aerospike.Pool{}
 	defer caches.Close()
-	contract, err := d.runtimeContracts(ctx, &transcribe.Source{Types: d.Types,
+	contract, err := d.runtimeContracts(ctx, &transcribe.Source{Types: definition.Types,
 		Scope: definition.Scope, Name: definition.Name, Text: dql, Connector: definition.Connector,
 		Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections),
 	})
@@ -585,6 +628,9 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 		offset := *definition.SQLTestOffset
 		controls.Offset = &offset
 	}
+	if policyErr := predicatepolicy.ValidateDeclarations(contract.Component, definition.Policy); policyErr != nil {
+		return nil, policyErr
+	}
 	dependencies, err := d.prepareContexts(ctx, definition, contract.Component)
 	if err != nil {
 		return nil, err
@@ -593,6 +639,9 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 	contexts := dependencies.Components
 	if err = rejectClientContextValues(contract.Component, request.Input); err != nil {
 		return nil, err
+	}
+	if policyErr := predicatepolicy.ValidateDeclarations(contract.Component, definition.Policy); policyErr != nil {
+		return nil, policyErr
 	}
 	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Const: d.Const, Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources, CodecFactory: studiocodecs.FromContext(ctx)})
 	if err != nil {
@@ -618,7 +667,14 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 	started := time.Now()
 	var data any
 	{
-		registered, registerErr := artifact.Registration(druntime.RegisteredComponent{Reader: reader, Providers: providers})
+		var guardedReader dexec.Reader = reader
+		if definition.ResourceCheckEnabled {
+			guardedReader, err = resourcecheck.Wrap(reader, sources.SQL.DB, contract.Component, definition.Policy.ResourceLimits)
+			if err != nil {
+				return nil, err
+			}
+		}
+		registered, registerErr := artifact.Registration(druntime.RegisteredComponent{Reader: guardedReader, Providers: providers})
 		if registerErr != nil {
 			return nil, registerErr
 		}
@@ -991,6 +1047,9 @@ func safeViewToken(value string) string {
 }
 
 type definition struct {
+	ResourceCheckEnabled                                bool
+	Policy                                              *settings.Namespace
+	NamespaceID                                         string
 	SQLTestOffset                                       *int
 	Types                                               *typecatalog.Catalog
 	Scope, Name, Connector, Driver, DSN, SecretRef, DQL string
@@ -1031,7 +1090,16 @@ func (d Dynamic) definition(ctx context.Context, reportID string, versionNo int)
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "load reader preview definition", Cause: err}
 	}
-	result.Types = d.Types
+	result.ResourceCheckEnabled = row.ResourceCheckEnabled
+	result.NamespaceID = row.NamespaceId
+	result.Policy, err = settingstore.Read(ctx, d.StudioDB, row.OwnerId, row.Namespace)
+	if err != nil {
+		return nil, err
+	}
+	result.Types, err = predicatepolicy.Types(d.Types, result.Policy)
+	if err != nil {
+		return nil, err
+	}
 	result.Scope, result.Name, result.Connector = row.ComponentScope, row.ComponentName, row.DefaultConnectorName
 	result.Driver, result.SecretRef = row.Driver, row.SecretRef
 	if row.DsnTemplate != nil {
@@ -1042,6 +1110,16 @@ func (d Dynamic) definition(ctx context.Context, reportID string, versionNo int)
 	result.DQL = row.GeneratedDql
 	if strings.TrimSpace(result.DQL) == "" {
 		result.DQL = row.AuthoredDql
+	}
+	requireSecurity := result.Policy.Security != nil && result.Policy.Security.RequireSecurityPredicate
+	var predicatePackages []string
+	if result.Policy.Security != nil {
+		predicatePackages = append([]string(nil), result.Policy.Security.PredicatePackages...)
+	}
+	if d.SourceValidator != nil {
+		if hookErr := d.SourceValidator(ctx, sourcevalidation.Input{RequireSecurityPredicate: requireSecurity, PredicatePackages: predicatePackages, NamespaceID: row.NamespaceId, ComponentID: reportID, VersionNo: versionNo, SourceRevision: result.SourceRevision, Package: result.Scope, AuthoredDQL: row.AuthoredDql, DQL: result.DQL}); hookErr != nil {
+			return nil, runtimevalidation.Wrap("source_policy", hookErr)
+		}
 	}
 	result.DSN, err = connectorsecret.Resolve(ctx, d.Secrets, result.DSN, result.SecretRef, d.Const)
 	if err != nil {

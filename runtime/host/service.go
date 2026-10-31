@@ -10,6 +10,11 @@ import (
 	"errors"
 	"fmt"
 	"github.com/viant/datly-studio/internal/namespacepolicy"
+	"github.com/viant/datly-studio/internal/predicatepolicy"
+	"github.com/viant/datly-studio/internal/resourcecheck"
+	"github.com/viant/datly-studio/internal/settingstore"
+	"github.com/viant/datly-studio/studio/settings"
+	"github.com/viant/datly-studio/studio/sourcevalidation"
 	xcodec "github.com/viant/xdatly/codec"
 	"log/slog"
 	"net"
@@ -240,6 +245,15 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 		slog.InfoContext(ctx, "Studio namespace compilation", "namespaceId", s.config.NamespaceID, "components", len(definitions), "elapsedMs", float64(time.Since(started))/float64(time.Millisecond), "failed", err != nil)
 	}()
 
+	for i := range definitions {
+		definition := &definitions[i]
+		if definition.owner != "" && definition.namespace != "" {
+			definition.policy, err = settingstore.Read(ctx, s.studio, definition.owner, definition.namespace)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
 	phaseStarted := time.Now()
 	types, err := seed.Clone()
 	if err != nil {
@@ -291,6 +305,21 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 		elapsed  time.Duration
 	}
 	compileOne := func(compileCtx context.Context, definition definition, catalog *typecatalog.Catalog) (contractResult, error) {
+		requireSecurity := definition.policy != nil && definition.policy.Security != nil && definition.policy.Security.RequireSecurityPredicate
+		var predicatePackages []string
+		if definition.policy != nil && definition.policy.Security != nil {
+			predicatePackages = append([]string(nil), definition.policy.Security.PredicatePackages...)
+		}
+		if s.config.SourceValidator != nil {
+			if err := s.config.SourceValidator(compileCtx, sourcevalidation.Input{RequireSecurityPredicate: requireSecurity, PredicatePackages: predicatePackages, NamespaceID: s.config.NamespaceID, ComponentID: definition.reportID, VersionNo: definition.versionNo, SourceRevision: definition.sourceRevision, AuthoredDQL: definition.authoredDQL, Package: definition.scope, DQL: definition.dql}); err != nil {
+				return contractResult{}, fmt.Errorf("component source policy rejected: %w", err)
+			}
+		}
+		var policyErr error
+		catalog, policyErr = predicatepolicy.Types(catalog, definition.policy)
+		if policyErr != nil {
+			return contractResult{}, policyErr
+		}
 		started := time.Now()
 		version := studiors.Version{ReportID: definition.reportID, VersionNo: definition.versionNo}
 		contractResources := loadedResources.ByVersion[version]
@@ -339,6 +368,9 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 					contract, hydrateErr := frozen.Materialize(catalog, contractResources)
 					compiledArtifactTiming(compileCtx, "artifact.hydrate", time.Since(hydrateStarted), len(stored))
 					if hydrateErr == nil && requireReaderOnlyContract(contract.Component) == nil {
+						if policyErr := predicatepolicy.ValidateDeclarations(contract.Component, definition.policy); policyErr != nil {
+							return contractResult{}, policyErr
+						}
 						sources, openErr := pooled.sources(compileCtx, definition.connector)
 						if openErr != nil {
 							return contractResult{}, openErr
@@ -388,6 +420,9 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 			return contractResult{}, fmt.Errorf("compile dynamic report %s: %w", definition.reportID, compileErr)
 		}
 		compiledArtifactTiming(compileCtx, "artifact.discovery", time.Since(discoveryStarted), 0)
+		if policyErr := predicatepolicy.ValidateDeclarations(contract.Component, definition.policy); policyErr != nil {
+			return contractResult{}, policyErr
+		}
 		if contractErr := requireReaderOnlyContract(contract.Component); contractErr != nil {
 			return contractResult{}, fmt.Errorf("compile dynamic report %s: %w", definition.reportID, contractErr)
 		}
@@ -470,7 +505,17 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 			if providerErr != nil {
 				return report.RuntimeCapabilities{}, providerErr
 			}
-			return report.RuntimeCapabilities{Reader: reader, Providers: providers}, nil
+			var guardedReader dexec.Reader = reader
+			if definition.resourceCheck {
+				if definition.policy == nil {
+					return report.RuntimeCapabilities{}, fmt.Errorf("namespace resource settings are unavailable")
+				}
+				guardedReader, readerErr = resourcecheck.Wrap(reader, sources.sql.DB, contract.Component, definition.policy.ResourceLimits)
+				if readerErr != nil {
+					return report.RuntimeCapabilities{}, readerErr
+				}
+			}
+			return report.RuntimeCapabilities{Reader: guardedReader, Providers: providers}, nil
 		}))
 		if registerErr != nil {
 			err = registerErr
@@ -716,6 +761,11 @@ func reportForResourceURI(prefixes map[string]string, uri string) string {
 }
 
 type definition struct {
+	sourceRevision                                                int64
+	authoredDQL                                                   string
+	owner, namespace                                              string
+	resourceCheck                                                 bool
+	policy                                                        *settings.Namespace
 	reportID, scope, name, connector, driver, dsn, secretRef, dql string
 	versionNo                                                     int
 }

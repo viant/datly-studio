@@ -1,4 +1,4 @@
-SELECT r.id AS report_id, v.version_no, r.component_scope, r.component_name,
+SELECT r.id AS report_id,r.owner_id,r.namespace,v.resource_check_enabled,v.source_revision, v.version_no, r.component_scope, r.component_name,
        r.default_connector_name, c.driver, c.dsn_template,
        COALESCE(c.secret_ref, '') AS secret_ref,
        COALESCE(v.generated_dql, '') AS generated_dql,

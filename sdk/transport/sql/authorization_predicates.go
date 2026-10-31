@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"github.com/viant/datly-studio/internal/predicatepolicy"
+	"github.com/viant/datly-studio/internal/settingstore"
 	"math"
 	"strings"
 
@@ -241,6 +243,46 @@ func (t *Transport) authorizationPredicateTypes(output any) error {
 	page := &sdk.AuthorizationPredicateTypePage{}
 	for _, descriptor := range t.Predicates.Descriptors() {
 		page.Items = append(page.Items, &sdk.AuthorizationPredicateType{Alias: descriptor.Alias, PackagePath: descriptor.Package, TypeName: descriptor.TypeName, Description: descriptor.Description})
+	}
+	return assign(output, page)
+}
+
+func (t *Transport) scopedAuthorizationPredicateTypes(ctx context.Context, input, output any) error {
+	var in struct {
+		NamespaceId *string `json:"namespaceId"`
+	}
+	if input != nil {
+		if err := decode(input, &in); err != nil {
+			return invalid(err)
+		}
+	}
+	if in.NamespaceId == nil {
+		if id, ok := sdk.NamespaceSelectionFromContext(ctx); ok {
+			in.NamespaceId = &id
+		}
+	}
+	if in.NamespaceId == nil {
+		return t.authorizationPredicateTypes(output)
+	}
+	if strings.TrimSpace(*in.NamespaceId) == "" {
+		return invalid(errors.New("namespaceId must be nonempty"))
+	}
+	rows, err := t.readNamespaces(ctx, "", "", "", *in.NamespaceId, 2, 0)
+	if err != nil {
+		return err
+	}
+	if len(rows) != 1 || rows[0].NamespaceID != *in.NamespaceId {
+		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "namespace access denied"}
+	}
+	policy, err := settingstore.Read(ctx, t.DB, rows[0].OwnerID, rows[0].Name)
+	if err != nil {
+		return err
+	}
+	page := &sdk.AuthorizationPredicateTypePage{Items: []*sdk.AuthorizationPredicateType{}}
+	for _, d := range t.Predicates.Descriptors() {
+		if predicatepolicy.AllowsPackage(policy, d.Package) {
+			page.Items = append(page.Items, &sdk.AuthorizationPredicateType{Alias: d.Alias, PackagePath: d.Package, TypeName: d.TypeName, Description: d.Description})
+		}
 	}
 	return assign(output, page)
 }

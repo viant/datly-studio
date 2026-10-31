@@ -4,6 +4,8 @@ package runtimevalidation
 import (
 	"context"
 	"errors"
+	"github.com/viant/datly-studio/internal/predicatepolicy"
+	"github.com/viant/datly-studio/studio/sourcevalidation"
 
 	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly/transcribe"
@@ -23,6 +25,20 @@ func Wrap(stage string, cause error) error { return &Error{Stage: stage, Cause: 
 // Diagnostics only exports allowlisted static text. The cause remains available
 // to trusted callers through errors.Is/As, never through serialized diagnostics.
 func Diagnostics(err error) []sdk.Diagnostic {
+	var required *predicatepolicy.RequiredError
+	if errors.As(err, &required) {
+		return []sdk.Diagnostic{{Severity: "error", Code: "namespace_security_predicate_required", Stage: "source_policy", Field: "authoredDql", Message: required.Error(), Hint: "Define a required authorization handler from the owning namespace's predicate packages and validate again."}}
+	}
+	var rejection *sourcevalidation.Rejection
+	if errors.As(err, &rejection) {
+		d := rejection.Diagnostic
+		d.Severity = "error"
+		d.Stage = "source_policy"
+		if d.Code == "" {
+			d.Code = "source_policy_rejected"
+		}
+		return []sdk.Diagnostic{d}
+	}
 	var compiled *transcribe.CompileError
 	if errors.As(err, &compiled) && len(compiled.Diagnostics) > 0 {
 		var result []sdk.Diagnostic
@@ -39,6 +55,8 @@ func Diagnostics(err error) []sdk.Diagnostic {
 	var phase *Error
 	if errors.As(err, &phase) {
 		switch phase.Stage {
+		case "source_policy":
+			d.Stage, d.Field, d.Code, d.Message, d.Hint = "source_policy", "authoredDql", "source_policy_rejected", "The component source was rejected by the configured validator.", "Review the component source policy and validate again."
 		case "definition":
 			d.Stage, d.Field, d.Hint = "definition", "reportId", "Check that this reader version and its dependencies are available."
 		case "connector":

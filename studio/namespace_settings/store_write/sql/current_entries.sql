@@ -1,0 +1,2 @@
+SELECT r.owner_id, r.namespace, r.setting_key, r.value_json, r.updated_at, r.updated_by FROM (SELECT * FROM (SELECT s.* FROM namespace_settings s
+) entries) r WHERE $criteria.CompositeIn("r", $Unsafe.ProjectCurrentEntriesParentKeys($CurrentSettings))

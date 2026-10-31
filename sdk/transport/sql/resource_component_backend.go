@@ -4,7 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/viant/bindly/locator"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
+	"github.com/viant/datly-studio/internal/readercomponent"
 	"reflect"
 
 	"github.com/viant/datly-studio/sdk"
@@ -28,7 +30,7 @@ import (
 // The direct SDK path builds a standalone Datly runtime around an SDK-owned
 // transaction. A native endpoint supplies ComponentInvoker instead; every
 // reader and generic writer then joins the endpoint's invocation-owned unit.
-func (t *Transport) invokeResource(ctx context.Context, holder reflect.Type, name, method, path string, input any) (any, error) {
+func (t *Transport) invokeResource(ctx context.Context, holder reflect.Type, name, method, path string, input any, providers ...locator.Provider) (any, error) {
 	if t.ComponentInvoker == nil {
 		return nil, fmt.Errorf("native resource component invoker is unavailable")
 	}
@@ -60,9 +62,9 @@ func (t *Transport) resourceVersionCatalog(ctx context.Context, tx *sql.Tx, requ
 	if t.ComponentInvoker == nil {
 		return t.readVersionCatalogTx(ctx, tx, request)
 	}
-	in := &versioncatalog.Input{ReportId: request.ReportID, VersionNo: request.VersionNo, Limit: request.Limit, Offset: request.Offset,
-		Has: &versioncatalog.InputHas{ReportId: true, VersionNo: request.VersionNo > 0, Limit: true, Offset: true}}
-	value, err := t.invokeResource(ctx, reflect.TypeFor[versioncatalog.VersionComponent](), "version", "GET", "/_studio/report-version-store/catalog", in)
+	in := &versioncatalog.Input{ReportId: request.ReportID, VersionNo: request.VersionNo,
+		Has: &versioncatalog.InputHas{ReportId: true, VersionNo: request.VersionNo > 0}}
+	value, err := t.invokeResource(ctx, reflect.TypeFor[versioncatalog.VersionComponent](), "version", "GET", "/_studio/report-version-store/catalog", in, readercomponent.Paging("version", request.Limit, request.Offset))
 	if err != nil {
 		return nil, err
 	}
@@ -84,8 +86,8 @@ func (t *Transport) resourceReportCatalog(ctx context.Context, tx *sql.Tx, reque
 	if t.ComponentInvoker == nil {
 		return t.readReportCatalogTx(ctx, tx, request)
 	}
-	in := &reportcatalog.Input{Id: request.ID, Scoped: false, Limit: request.Limit, Offset: request.Offset,
-		Has: &reportcatalog.InputHas{Id: request.ID != "", Subject: true, Scoped: true, Limit: true, Offset: true}}
+	in := &reportcatalog.Input{Id: request.ID, Scoped: false,
+		Has: &reportcatalog.InputHas{Id: request.ID != "", Subject: true, Scoped: true}}
 	value, err := t.invokeResource(ctx, reflect.TypeFor[reportcatalog.ReportComponent](), "report", "GET", "/_studio/report-store/catalog", in)
 	if err != nil {
 		return nil, err

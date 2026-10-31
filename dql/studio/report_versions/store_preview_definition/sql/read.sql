@@ -1,4 +1,4 @@
-SELECT r.id AS report_id, v.version_no, r.component_scope, r.component_name,
+SELECT r.id AS report_id, r.owner_id, r.namespace, r.namespace_id, v.resource_check_enabled, v.version_no, r.component_scope, r.component_name,
        r.default_connector_name, c.driver, c.dsn_template,
        COALESCE(c.secret_ref, '') AS secret_ref,
        COALESCE(c.options_json, '{}') AS options_json,

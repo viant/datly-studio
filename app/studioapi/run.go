@@ -15,6 +15,7 @@ import (
 	"github.com/viant/authz"
 	"github.com/viant/datly-studio/internal/namespacepolicy"
 	"github.com/viant/datly-studio/store/sql/accesscatalog"
+	"github.com/viant/datly-studio/studio/sourcevalidation"
 	"github.com/viant/datly/constant"
 	"io/fs"
 	"log"
@@ -35,7 +36,6 @@ import (
 	_ "github.com/viant/bigquery"
 	"github.com/viant/datly-studio/internal/bffauth"
 	"github.com/viant/datly-studio/internal/runtimeadmin"
-	"github.com/viant/datly-studio/runtime/accesscontext"
 	"github.com/viant/datly-studio/runtime/accessprovider"
 	"github.com/viant/datly-studio/runtime/preview"
 	"github.com/viant/datly-studio/schema"
@@ -107,6 +107,8 @@ var nativeSDKPaths = []string{
 	"/v1/studio/sdk/namespaces.create",
 	"/v1/studio/sdk/namespaces.delete",
 	"/v1/studio/sdk/namespaces.update",
+	"/v1/studio/sdk/namespaces.settings_get",
+	"/v1/studio/sdk/namespaces.settings_update",
 	"/v1/studio/sdk/namespaces.list",
 	"/v1/studio/sdk/namespace_skills.list",
 	"/v1/studio/sdk/namespace_skills.get",
@@ -164,6 +166,8 @@ type RuntimeControl interface {
 type Options struct {
 	// AuthoringModule is selected by the embedding host, never a request.
 	AuthoringModule string
+	SourceValidator sourcevalidation.Validator
+	HostConfig      host.Config
 	Const           *constant.Values
 	// RuntimeControl avoids an internal administration listener in embedded hosts.
 	RuntimeControl RuntimeControl
@@ -375,20 +379,13 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) (result
 			log.Printf("Studio preview connector reader close: %v", err)
 		}
 	}()
-	dynamicPreview := preview.Dynamic{Const: options.Const, ModulePath: options.AuthoringModule, StudioDB: db, RootDir: ".", Definitions: definitionReader, Connectors: connectorReader}
-	predicates, err := (host.Config{}).PredicateCatalog()
+	dynamicPreview := preview.Dynamic{SourceValidator: options.SourceValidator, Const: options.Const, ModulePath: options.AuthoringModule, StudioDB: db, RootDir: ".", Definitions: definitionReader, Connectors: connectorReader}
+	predicates, types, err := options.HostConfig.RuntimeCatalogs()
 	if err != nil {
 		return err
 	}
-	dynamicPreview.Types, err = predicates.RuntimeTypes()
-	if err != nil {
-		return err
-	}
-	// Validate the same server-owned authorization input types that the dynamic
-	// runtime links before staging a published reader.
-	if err = accesscontext.RegisterTypes(dynamicPreview.Types); err != nil {
-		return err
-	}
+	dynamicPreview.Types = types
+
 	runtimeAdmin := options.RuntimeControl
 	if runtimeAdmin == nil {
 		runtimeAdmin, err = runtimeadmin.New(*dynamicHTTPURL, adminToken, nil)

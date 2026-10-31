@@ -81,6 +81,13 @@ type Input1962b8f8815d6b22b84f6c89d5bf29530739f18f1bed0742ebc1f67a50636542 struc
 	Payload                interface{} `json:"payload,omitempty"`
 }
 
+// Input1b777106b81fc7372eef324b27ad1358a564d313c8028be821352473a362fdfd defines model for Input_1b777106b81fc7372eef324b27ad1358a564d313c8028be821352473a362fdfd.
+type Input1b777106b81fc7372eef324b27ad1358a564d313c8028be821352473a362fdfd struct {
+	MaxBytesProcessed   *int64 `json:"maxBytesProcessed,omitempty"`
+	MaxReferencedTables *int64 `json:"maxReferencedTables,omitempty"`
+	MaxReturnedRows     *int64 `json:"maxReturnedRows,omitempty"`
+}
+
 // Input25f0a19704063df5593ce82b9757fd47d5e39b2de5b199effc95c33a74910afc defines model for Input_25f0a19704063df5593ce82b9757fd47d5e39b2de5b199effc95c33a74910afc.
 type Input25f0a19704063df5593ce82b9757fd47d5e39b2de5b199effc95c33a74910afc struct {
 	ComponentName        *string `json:"componentName,omitempty"`
@@ -133,6 +140,40 @@ type Input35f4ac8173f8fa3cb8e695d8cb3d27e2b5f8d83887d73c82e65fa26e9019d2f5 struc
 	Revision *int64                                                                            `json:"revision,omitempty"`
 }
 
+// Input36632603cb8f9d8ddbe5d431823ba899c271a23f41fc19386a348df6e584261f defines model for Input_36632603cb8f9d8ddbe5d431823ba899c271a23f41fc19386a348df6e584261f.
+type Input36632603cb8f9d8ddbe5d431823ba899c271a23f41fc19386a348df6e584261f struct {
+	PredicatePackages        *[]string `json:"predicatePackages,omitempty"`
+	RequireSecurityPredicate *bool     `json:"requireSecurityPredicate,omitempty"`
+}
+
+// Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f defines model for Input_3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f.
+type Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f struct {
+	ResourceLimits *Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_ResourceLimits `json:"resourceLimits,omitempty"`
+	Security       *Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_Security       `json:"security,omitempty"`
+}
+
+// Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fResourceLimits1 defines model for Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f.ResourceLimits.1.
+type Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fResourceLimits1 = map[string]interface{}
+
+// Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_ResourceLimits defines model for Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f.ResourceLimits.
+type Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_ResourceLimits struct {
+	union json.RawMessage
+}
+
+// Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fSecurity1 defines model for Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f.Security.1.
+type Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fSecurity1 = map[string]interface{}
+
+// Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_Security defines model for Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f.Security.
+type Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_Security struct {
+	union json.RawMessage
+}
+
+// Input3b4d0b6fd5b601973df85847b4f071da78ceffe933882fb84b7e61a82dda71cc defines model for Input_3b4d0b6fd5b601973df85847b4f071da78ceffe933882fb84b7e61a82dda71cc.
+type Input3b4d0b6fd5b601973df85847b4f071da78ceffe933882fb84b7e61a82dda71cc struct {
+	Etag     *int64                                                                 `json:"etag,omitempty"`
+	Settings *Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f `json:"settings,omitempty"`
+}
+
 // Input3b8ad7ea195cbba3ef3be5685f87cf9a98b9cdc47646253bc4c507a08ccf62cf defines model for Input_3b8ad7ea195cbba3ef3be5685f87cf9a98b9cdc47646253bc4c507a08ccf62cf.
 type Input3b8ad7ea195cbba3ef3be5685f87cf9a98b9cdc47646253bc4c507a08ccf62cf struct {
 	Resource *InputB9ed012c9a5f956116b995a745542c2f26c860fa50a7bfd3194b5ff50f5b8acc `json:"resource,omitempty"`
@@ -180,6 +221,13 @@ type Input4b2c38475d83ff82029ec4520d07b5ec88c1409199c252fc696e28282c52561f struc
 type Input4c3d58d8e922b5abbd65732f09a81d45874f0f7555537fd9607035bfecb9f26c struct {
 	Cubes *[]interface{} `json:"cubes,omitempty"`
 	Sql   *string        `json:"sql,omitempty"`
+}
+
+// Input4ca0e9f0d091dcbb3ede94d0e1764d347bd31ee37ff82a8f6a07189a2be8d2a7 defines model for Input_4ca0e9f0d091dcbb3ede94d0e1764d347bd31ee37ff82a8f6a07189a2be8d2a7.
+type Input4ca0e9f0d091dcbb3ede94d0e1764d347bd31ee37ff82a8f6a07189a2be8d2a7 struct {
+	MaxBytesProcessed   *int64 `json:"maxBytesProcessed,omitempty"`
+	MaxReferencedTables *int64 `json:"maxReferencedTables,omitempty"`
+	MaxReturnedRows     *int64 `json:"maxReturnedRows,omitempty"`
 }
 
 // Input4cf2af18ea34dee432a18bf9c93cf0b99a245da68470766bf479987f50491b02 defines model for Input_4cf2af18ea34dee432a18bf9c93cf0b99a245da68470766bf479987f50491b02.
@@ -355,6 +403,34 @@ type Input78c96702ed752e425a13d515ae18bac86d71d27030700074199617129869fe30 struc
 	Limit *int64      `json:"limit,omitempty"`
 }
 
+// Input79c60632c9d0a82ab62168e5cc8be9b94cc7586c14ac73884344edf6fb26fb00 defines model for Input_79c60632c9d0a82ab62168e5cc8be9b94cc7586c14ac73884344edf6fb26fb00.
+type Input79c60632c9d0a82ab62168e5cc8be9b94cc7586c14ac73884344edf6fb26fb00 struct {
+	Etag     *int64                                                                 `json:"etag,omitempty"`
+	Settings *Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d `json:"settings,omitempty"`
+}
+
+// Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d defines model for Input_7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d.
+type Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d struct {
+	ResourceLimits *Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_ResourceLimits `json:"resourceLimits,omitempty"`
+	Security       *Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_Security       `json:"security,omitempty"`
+}
+
+// Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dResourceLimits1 defines model for Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d.ResourceLimits.1.
+type Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dResourceLimits1 = map[string]interface{}
+
+// Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_ResourceLimits defines model for Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d.ResourceLimits.
+type Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_ResourceLimits struct {
+	union json.RawMessage
+}
+
+// Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dSecurity1 defines model for Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d.Security.1.
+type Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dSecurity1 = map[string]interface{}
+
+// Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_Security defines model for Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d.Security.
+type Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_Security struct {
+	union json.RawMessage
+}
+
 // Input808907cf45a0ab5f46a0dc123ed3a6a23958483a2bfe6af8cdcfabaf2b54af30 defines model for Input_808907cf45a0ab5f46a0dc123ed3a6a23958483a2bfe6af8cdcfabaf2b54af30.
 type Input808907cf45a0ab5f46a0dc123ed3a6a23958483a2bfe6af8cdcfabaf2b54af30 struct {
 	Dql   *string `json:"dql,omitempty"`
@@ -471,12 +547,13 @@ type Input9d7023e73cbba6b4604b174d02b09025c5e7f000ff37da44f8f1d02e48c0e4ca struc
 
 // InputA0d3076a206576e1fb379faacd83a9e5289796c14e710e1fe21529cfb0c35c21 defines model for Input_a0d3076a206576e1fb379faacd83a9e5289796c14e710e1fe21529cfb0c35c21.
 type InputA0d3076a206576e1fb379faacd83a9e5289796c14e710e1fe21529cfb0c35c21 struct {
-	AuthoredDql   *string     `json:"authoredDql,omitempty"`
-	AuthoredSql   *string     `json:"authoredSql,omitempty"`
-	AuthoringMode *string     `json:"authoringMode,omitempty"`
-	ComponentSpec interface{} `json:"componentSpec,omitempty"`
-	CreatedBy     *string     `json:"createdBy,omitempty"`
-	Notes         *string     `json:"notes,omitempty"`
+	AuthoredDql          *string     `json:"authoredDql,omitempty"`
+	AuthoredSql          *string     `json:"authoredSql,omitempty"`
+	AuthoringMode        *string     `json:"authoringMode,omitempty"`
+	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
+	CreatedBy            *string     `json:"createdBy,omitempty"`
+	Notes                *string     `json:"notes,omitempty"`
+	ResourceCheckEnabled *bool       `json:"resourceCheckEnabled,omitempty"`
 }
 
 // InputAb3203ec5968978923da72be592ec5e958eb1b4e1cc56724ca5ea7a8d67f5c38 defines model for Input_ab3203ec5968978923da72be592ec5e958eb1b4e1cc56724ca5ea7a8d67f5c38.
@@ -653,6 +730,12 @@ type InputCe5005b864956cbc2469fc8d71a73cc80f19dd86c8340815b1edae79273b8769 struc
 	ResourceId             *string `json:"resourceId,omitempty"`
 	SkillId                *string `json:"skillId,omitempty"`
 	VersionNo              *int64  `json:"versionNo,omitempty"`
+}
+
+// InputCf9002b79d1ab4212391bf4b80d76e95e7ec2624efd732e6dc68f882b06fbc48 defines model for Input_cf9002b79d1ab4212391bf4b80d76e95e7ec2624efd732e6dc68f882b06fbc48.
+type InputCf9002b79d1ab4212391bf4b80d76e95e7ec2624efd732e6dc68f882b06fbc48 struct {
+	PredicatePackages        *[]string `json:"predicatePackages,omitempty"`
+	RequireSecurityPredicate *bool     `json:"requireSecurityPredicate,omitempty"`
 }
 
 // InputD13baaa98e1e58d154b95568037ffe8fe73e5a0dfa3d93b7f97d31535e8a8b10 defines model for Input_d13baaa98e1e58d154b95568037ffe8fe73e5a0dfa3d93b7f97d31535e8a8b10.
@@ -882,10 +965,12 @@ type Output0d489bb6e8d34088f812c6b2a93a0c83b9a5f8fd2ac13b17094145376c09065b stru
 type Output1d9bf0079b94d75e2b9b7b33bb81b13886a46428db871596012139c64cc1a4d6 struct {
 	Code     string  `json:"code"`
 	Column   *int64  `json:"column,omitempty"`
+	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
 	Message  string  `json:"message"`
 	Severity string  `json:"severity"`
+	Stage    *string `json:"stage,omitempty"`
 }
 
 // Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260 defines model for Output_20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260.
@@ -1051,10 +1136,12 @@ type Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68_Defa
 type Output4fd42d5ac7e58fb29e7ad717b49ad43d1aa3d0a32c5e034148c82bc6baebd5a8 struct {
 	Code     string  `json:"code"`
 	Column   *int64  `json:"column,omitempty"`
+	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
 	Message  string  `json:"message"`
 	Severity string  `json:"severity"`
+	Stage    *string `json:"stage,omitempty"`
 }
 
 // Output586257ec0a228d28fb8c1d7b9b6ceb924795c406b09d9a86111f39a56368b032 defines model for Output_586257ec0a228d28fb8c1d7b9b6ceb924795c406b09d9a86111f39a56368b032.
@@ -1284,10 +1371,12 @@ type Output9d49df36a755675144ae6bef3dd7487cbc740221600721423879d97bb66fb067 stru
 type Output9e0f449c95fcfb4ee0592ebadf3e17adccbdc32fa89bf50ab9ae8511c2009041 struct {
 	Code     string  `json:"code"`
 	Column   *int64  `json:"column,omitempty"`
+	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
 	Message  string  `json:"message"`
 	Severity string  `json:"severity"`
+	Stage    *string `json:"stage,omitempty"`
 }
 
 // Output9e876c762bb492c132e790521d9bfeabfef411c08f89b004511cfca729fc5ff3 defines model for Output_9e876c762bb492c132e790521d9bfeabfef411c08f89b004511cfca729fc5ff3.
@@ -1503,30 +1592,31 @@ type OutputD558223f5d3d6bca0e300c59f8e624af838223bc61f0cb8c88f09c757834ddaa stru
 
 // OutputD6ae8cf116e1bb372c284270e8317deb57df8687ba83d5701493ce02cfb50799 defines model for Output_d6ae8cf116e1bb372c284270e8317deb57df8687ba83d5701493ce02cfb50799.
 type OutputD6ae8cf116e1bb372c284270e8317deb57df8687ba83d5701493ce02cfb50799 struct {
-	AuthoredDql         *string     `json:"authoredDql,omitempty"`
-	AuthoredSql         *string     `json:"authoredSql,omitempty"`
-	AuthoringMode       string      `json:"authoringMode"`
-	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus       string      `json:"compileStatus"`
-	CompilerVersion     string      `json:"compilerVersion"`
-	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
-	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
-	CreatedAt           time.Time   `json:"createdAt"`
-	CreatedBy           string      `json:"createdBy"`
-	DatlyVersion        string      `json:"datlyVersion"`
-	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
-	GeneratedDql        *string     `json:"generatedDql,omitempty"`
-	Notes               *string     `json:"notes,omitempty"`
-	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
-	ReportId            string      `json:"reportId"`
-	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision      int64       `json:"sourceRevision"`
-	SpecFormatVersion   string      `json:"specFormatVersion"`
-	SpecHash            string      `json:"specHash"`
-	State               string      `json:"state"`
-	TypeManifest        interface{} `json:"typeManifest,omitempty"`
-	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo           int64       `json:"versionNo"`
+	AuthoredDql          *string     `json:"authoredDql,omitempty"`
+	AuthoredSql          *string     `json:"authoredSql,omitempty"`
+	AuthoringMode        string      `json:"authoringMode"`
+	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus        string      `json:"compileStatus"`
+	CompilerVersion      string      `json:"compilerVersion"`
+	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
+	CreatedAt            time.Time   `json:"createdAt"`
+	CreatedBy            string      `json:"createdBy"`
+	DatlyVersion         string      `json:"datlyVersion"`
+	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql         *string     `json:"generatedDql,omitempty"`
+	Notes                *string     `json:"notes,omitempty"`
+	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
+	ReportId             string      `json:"reportId"`
+	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision       int64       `json:"sourceRevision"`
+	SpecFormatVersion    string      `json:"specFormatVersion"`
+	SpecHash             string      `json:"specHash"`
+	State                string      `json:"state"`
+	TypeManifest         interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo            int64       `json:"versionNo"`
 }
 
 // OutputDb16d19662078b5e2bf34bb56caf4e031ec60811b8ff0833d9304fe74bb3deb7 defines model for Output_db16d19662078b5e2bf34bb56caf4e031ec60811b8ff0833d9304fe74bb3deb7.
@@ -1669,30 +1759,31 @@ type Wire01a7a742a5dcd667da4d143e43944f269ae6e23b2952948e51d0b2791d2ed360 struct
 
 // Wire0279067683c20563aa495e8737a819024ba4eb59ced1e2723cda5eb5890cb742 defines model for Wire_0279067683c20563aa495e8737a819024ba4eb59ced1e2723cda5eb5890cb742.
 type Wire0279067683c20563aa495e8737a819024ba4eb59ced1e2723cda5eb5890cb742 struct {
-	AuthoredDql         *string     `json:"authoredDql,omitempty"`
-	AuthoredSql         *string     `json:"authoredSql,omitempty"`
-	AuthoringMode       string      `json:"authoringMode"`
-	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus       string      `json:"compileStatus"`
-	CompilerVersion     string      `json:"compilerVersion"`
-	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
-	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
-	CreatedAt           time.Time   `json:"createdAt"`
-	CreatedBy           string      `json:"createdBy"`
-	DatlyVersion        string      `json:"datlyVersion"`
-	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
-	GeneratedDql        *string     `json:"generatedDql,omitempty"`
-	Notes               *string     `json:"notes,omitempty"`
-	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
-	ReportId            string      `json:"reportId"`
-	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision      int64       `json:"sourceRevision"`
-	SpecFormatVersion   string      `json:"specFormatVersion"`
-	SpecHash            string      `json:"specHash"`
-	State               string      `json:"state"`
-	TypeManifest        interface{} `json:"typeManifest,omitempty"`
-	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo           int64       `json:"versionNo"`
+	AuthoredDql          *string     `json:"authoredDql,omitempty"`
+	AuthoredSql          *string     `json:"authoredSql,omitempty"`
+	AuthoringMode        string      `json:"authoringMode"`
+	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus        string      `json:"compileStatus"`
+	CompilerVersion      string      `json:"compilerVersion"`
+	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
+	CreatedAt            time.Time   `json:"createdAt"`
+	CreatedBy            string      `json:"createdBy"`
+	DatlyVersion         string      `json:"datlyVersion"`
+	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql         *string     `json:"generatedDql,omitempty"`
+	Notes                *string     `json:"notes,omitempty"`
+	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
+	ReportId             string      `json:"reportId"`
+	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision       int64       `json:"sourceRevision"`
+	SpecFormatVersion    string      `json:"specFormatVersion"`
+	SpecHash             string      `json:"specHash"`
+	State                string      `json:"state"`
+	TypeManifest         interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo            int64       `json:"versionNo"`
 }
 
 // Wire03ebbc8325840f6f4bebaca4c18406daaad9dd6178c9cb8aad7f2d20427ce1c4 defines model for Wire_03ebbc8325840f6f4bebaca4c18406daaad9dd6178c9cb8aad7f2d20427ce1c4.
@@ -1705,30 +1796,31 @@ type Wire03ebbc8325840f6f4bebaca4c18406daaad9dd6178c9cb8aad7f2d20427ce1c4 struct
 
 // Wire08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6 defines model for Wire_08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6.
 type Wire08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6 struct {
-	AuthoredDql         *string     `json:"authoredDql,omitempty"`
-	AuthoredSql         *string     `json:"authoredSql,omitempty"`
-	AuthoringMode       string      `json:"authoringMode"`
-	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus       string      `json:"compileStatus"`
-	CompilerVersion     string      `json:"compilerVersion"`
-	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
-	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
-	CreatedAt           time.Time   `json:"createdAt"`
-	CreatedBy           string      `json:"createdBy"`
-	DatlyVersion        string      `json:"datlyVersion"`
-	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
-	GeneratedDql        *string     `json:"generatedDql,omitempty"`
-	Notes               *string     `json:"notes,omitempty"`
-	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
-	ReportId            string      `json:"reportId"`
-	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision      int64       `json:"sourceRevision"`
-	SpecFormatVersion   string      `json:"specFormatVersion"`
-	SpecHash            string      `json:"specHash"`
-	State               string      `json:"state"`
-	TypeManifest        interface{} `json:"typeManifest,omitempty"`
-	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo           int64       `json:"versionNo"`
+	AuthoredDql          *string     `json:"authoredDql,omitempty"`
+	AuthoredSql          *string     `json:"authoredSql,omitempty"`
+	AuthoringMode        string      `json:"authoringMode"`
+	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus        string      `json:"compileStatus"`
+	CompilerVersion      string      `json:"compilerVersion"`
+	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
+	CreatedAt            time.Time   `json:"createdAt"`
+	CreatedBy            string      `json:"createdBy"`
+	DatlyVersion         string      `json:"datlyVersion"`
+	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql         *string     `json:"generatedDql,omitempty"`
+	Notes                *string     `json:"notes,omitempty"`
+	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
+	ReportId             string      `json:"reportId"`
+	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision       int64       `json:"sourceRevision"`
+	SpecFormatVersion    string      `json:"specFormatVersion"`
+	SpecHash             string      `json:"specHash"`
+	State                string      `json:"state"`
+	TypeManifest         interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo            int64       `json:"versionNo"`
 }
 
 // Wire08938620e84156f14c3eb03478de7df19afa5374952a4abae29cf28f9d58f8f5 defines model for Wire_08938620e84156f14c3eb03478de7df19afa5374952a4abae29cf28f9d58f8f5.
@@ -1899,10 +1991,12 @@ type Wire168acff25133f72df514ff38f09aae1a60280ad693da3c888e9f6ec48bae90a6 struct
 type Wire187f7f4691bae62916263844a31b0e52f2ac7573ba63a1dda0cfffa8610b0947 struct {
 	Code     string  `json:"code"`
 	Column   *int64  `json:"column,omitempty"`
+	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
 	Message  string  `json:"message"`
 	Severity string  `json:"severity"`
+	Stage    *string `json:"stage,omitempty"`
 }
 
 // Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d defines model for Wire_18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d.
@@ -1994,30 +2088,31 @@ type Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921_Skill 
 
 // Wire1e3fdf8fcb04453947f7d75766cc316e3e09d18591edbeef886727e071fe5f28 defines model for Wire_1e3fdf8fcb04453947f7d75766cc316e3e09d18591edbeef886727e071fe5f28.
 type Wire1e3fdf8fcb04453947f7d75766cc316e3e09d18591edbeef886727e071fe5f28 struct {
-	AuthoredDql         *string     `json:"authoredDql,omitempty"`
-	AuthoredSql         *string     `json:"authoredSql,omitempty"`
-	AuthoringMode       string      `json:"authoringMode"`
-	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus       string      `json:"compileStatus"`
-	CompilerVersion     string      `json:"compilerVersion"`
-	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
-	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
-	CreatedAt           time.Time   `json:"createdAt"`
-	CreatedBy           string      `json:"createdBy"`
-	DatlyVersion        string      `json:"datlyVersion"`
-	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
-	GeneratedDql        *string     `json:"generatedDql,omitempty"`
-	Notes               *string     `json:"notes,omitempty"`
-	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
-	ReportId            string      `json:"reportId"`
-	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision      int64       `json:"sourceRevision"`
-	SpecFormatVersion   string      `json:"specFormatVersion"`
-	SpecHash            string      `json:"specHash"`
-	State               string      `json:"state"`
-	TypeManifest        interface{} `json:"typeManifest,omitempty"`
-	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo           int64       `json:"versionNo"`
+	AuthoredDql          *string     `json:"authoredDql,omitempty"`
+	AuthoredSql          *string     `json:"authoredSql,omitempty"`
+	AuthoringMode        string      `json:"authoringMode"`
+	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus        string      `json:"compileStatus"`
+	CompilerVersion      string      `json:"compilerVersion"`
+	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
+	CreatedAt            time.Time   `json:"createdAt"`
+	CreatedBy            string      `json:"createdBy"`
+	DatlyVersion         string      `json:"datlyVersion"`
+	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql         *string     `json:"generatedDql,omitempty"`
+	Notes                *string     `json:"notes,omitempty"`
+	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
+	ReportId             string      `json:"reportId"`
+	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision       int64       `json:"sourceRevision"`
+	SpecFormatVersion    string      `json:"specFormatVersion"`
+	SpecHash             string      `json:"specHash"`
+	State                string      `json:"state"`
+	TypeManifest         interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo            int64       `json:"versionNo"`
 }
 
 // Wire1f5f473dc54ed2f6c617275d578b2307a69146cb2ce69ae058bffe57f5c226b4 defines model for Wire_1f5f473dc54ed2f6c617275d578b2307a69146cb2ce69ae058bffe57f5c226b4.
@@ -2088,30 +2183,31 @@ type Wire233692382231683192dd7140456422339bf3eeb54d8ac7887d29225da9ca7081 struct
 
 // Wire239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691 defines model for Wire_239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691.
 type Wire239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691 struct {
-	AuthoredDql         *string     `json:"authoredDql,omitempty"`
-	AuthoredSql         *string     `json:"authoredSql,omitempty"`
-	AuthoringMode       string      `json:"authoringMode"`
-	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus       string      `json:"compileStatus"`
-	CompilerVersion     string      `json:"compilerVersion"`
-	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
-	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
-	CreatedAt           time.Time   `json:"createdAt"`
-	CreatedBy           string      `json:"createdBy"`
-	DatlyVersion        string      `json:"datlyVersion"`
-	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
-	GeneratedDql        *string     `json:"generatedDql,omitempty"`
-	Notes               *string     `json:"notes,omitempty"`
-	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
-	ReportId            string      `json:"reportId"`
-	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision      int64       `json:"sourceRevision"`
-	SpecFormatVersion   string      `json:"specFormatVersion"`
-	SpecHash            string      `json:"specHash"`
-	State               string      `json:"state"`
-	TypeManifest        interface{} `json:"typeManifest,omitempty"`
-	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo           int64       `json:"versionNo"`
+	AuthoredDql          *string     `json:"authoredDql,omitempty"`
+	AuthoredSql          *string     `json:"authoredSql,omitempty"`
+	AuthoringMode        string      `json:"authoringMode"`
+	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus        string      `json:"compileStatus"`
+	CompilerVersion      string      `json:"compilerVersion"`
+	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
+	CreatedAt            time.Time   `json:"createdAt"`
+	CreatedBy            string      `json:"createdBy"`
+	DatlyVersion         string      `json:"datlyVersion"`
+	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql         *string     `json:"generatedDql,omitempty"`
+	Notes                *string     `json:"notes,omitempty"`
+	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
+	ReportId             string      `json:"reportId"`
+	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision       int64       `json:"sourceRevision"`
+	SpecFormatVersion    string      `json:"specFormatVersion"`
+	SpecHash             string      `json:"specHash"`
+	State                string      `json:"state"`
+	TypeManifest         interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo            int64       `json:"versionNo"`
 }
 
 // Wire24c5509faa036e9e6670c5516a5cee39a37d0f0b6acf8de88a079bf1f2661939 defines model for Wire_24c5509faa036e9e6670c5516a5cee39a37d0f0b6acf8de88a079bf1f2661939.
@@ -2234,30 +2330,31 @@ type Wire2bece1447e379f703b2f9dfec5a0d5fc346a7d1709dd4a6882c60920a9ef056f struct
 
 // Wire2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9 defines model for Wire_2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9.
 type Wire2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9 struct {
-	AuthoredDql         *string     `json:"authoredDql,omitempty"`
-	AuthoredSql         *string     `json:"authoredSql,omitempty"`
-	AuthoringMode       string      `json:"authoringMode"`
-	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus       string      `json:"compileStatus"`
-	CompilerVersion     string      `json:"compilerVersion"`
-	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
-	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
-	CreatedAt           time.Time   `json:"createdAt"`
-	CreatedBy           string      `json:"createdBy"`
-	DatlyVersion        string      `json:"datlyVersion"`
-	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
-	GeneratedDql        *string     `json:"generatedDql,omitempty"`
-	Notes               *string     `json:"notes,omitempty"`
-	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
-	ReportId            string      `json:"reportId"`
-	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision      int64       `json:"sourceRevision"`
-	SpecFormatVersion   string      `json:"specFormatVersion"`
-	SpecHash            string      `json:"specHash"`
-	State               string      `json:"state"`
-	TypeManifest        interface{} `json:"typeManifest,omitempty"`
-	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo           int64       `json:"versionNo"`
+	AuthoredDql          *string     `json:"authoredDql,omitempty"`
+	AuthoredSql          *string     `json:"authoredSql,omitempty"`
+	AuthoringMode        string      `json:"authoringMode"`
+	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus        string      `json:"compileStatus"`
+	CompilerVersion      string      `json:"compilerVersion"`
+	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
+	CreatedAt            time.Time   `json:"createdAt"`
+	CreatedBy            string      `json:"createdBy"`
+	DatlyVersion         string      `json:"datlyVersion"`
+	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql         *string     `json:"generatedDql,omitempty"`
+	Notes                *string     `json:"notes,omitempty"`
+	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
+	ReportId             string      `json:"reportId"`
+	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision       int64       `json:"sourceRevision"`
+	SpecFormatVersion    string      `json:"specFormatVersion"`
+	SpecHash             string      `json:"specHash"`
+	State                string      `json:"state"`
+	TypeManifest         interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo            int64       `json:"versionNo"`
 }
 
 // Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d defines model for Wire_2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d.
@@ -2400,6 +2497,28 @@ type Wire363b086d0a3385aef883a6c101a25e628c10e16f40db550f64380ec9188a63f1 struct
 	UpdatedAt         time.Time `json:"updatedAt"`
 }
 
+// Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce defines model for Wire_3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce.
+type Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce struct {
+	ResourceLimits *Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_ResourceLimits `json:"resourceLimits,omitempty"`
+	Security       *Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_Security       `json:"security,omitempty"`
+}
+
+// Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceResourceLimits1 defines model for Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce.ResourceLimits.1.
+type Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceResourceLimits1 = map[string]interface{}
+
+// Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_ResourceLimits defines model for Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce.ResourceLimits.
+type Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_ResourceLimits struct {
+	union json.RawMessage
+}
+
+// Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceSecurity1 defines model for Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce.Security.1.
+type Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceSecurity1 = map[string]interface{}
+
+// Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_Security defines model for Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce.Security.
+type Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_Security struct {
+	union json.RawMessage
+}
+
 // Wire36888c12b4c85b22b7268c24f5ea35ba103cb9e473a0790cc8cc669a45a523fa defines model for Wire_36888c12b4c85b22b7268c24f5ea35ba103cb9e473a0790cc8cc669a45a523fa.
 type Wire36888c12b4c85b22b7268c24f5ea35ba103cb9e473a0790cc8cc669a45a523fa struct {
 	Id      string `json:"id"`
@@ -2412,10 +2531,12 @@ type Wire36888c12b4c85b22b7268c24f5ea35ba103cb9e473a0790cc8cc669a45a523fa struct
 type Wire385cb42fa02eb6e798cbc1f7de0bcdf81fdec7bcc883dc0d6d67a2e6f9974852 struct {
 	Code     string  `json:"code"`
 	Column   *int64  `json:"column,omitempty"`
+	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
 	Message  string  `json:"message"`
 	Severity string  `json:"severity"`
+	Stage    *string `json:"stage,omitempty"`
 }
 
 // Wire38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a defines model for Wire_38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a.
@@ -2446,6 +2567,12 @@ type Wire3aa247018499f407d544ef56f7b69626ced040fe25af781379c5b770f172e6dd struct
 	Policies    *map[string]WireF32e0e52a42838184862b0bfabd74676e965524151930580722e42d1d5218aad `json:"policies"`
 	Resource    Wire9b9625c5bec32646decbda4f9d3e2d367c5b2ccc04c411e68f25c2e19cfc951e             `json:"resource"`
 	Revision    int64                                                                            `json:"revision"`
+}
+
+// Wire3ae1bf05288bf4ea8d62663e5d886a6a9b05c1660099c819a9979f1a2fe362de defines model for Wire_3ae1bf05288bf4ea8d62663e5d886a6a9b05c1660099c819a9979f1a2fe362de.
+type Wire3ae1bf05288bf4ea8d62663e5d886a6a9b05c1660099c819a9979f1a2fe362de struct {
+	PredicatePackages        *[]string `json:"predicatePackages"`
+	RequireSecurityPredicate bool      `json:"requireSecurityPredicate"`
 }
 
 // Wire3b57d303fc4270172c8dc3dcc384045b957738421bfa4726d93f6529707bb684 defines model for Wire_3b57d303fc4270172c8dc3dcc384045b957738421bfa4726d93f6529707bb684.
@@ -2560,10 +2687,12 @@ type Wire4240b3df02540530130e0c750596c876294d98d94741cc17333d3f61b4f176f5 struct
 type Wire42ea17da2b60208ef30858a88ede92d622320dba9d309726a67f3023fb8ab9e1 struct {
 	Code     string  `json:"code"`
 	Column   *int64  `json:"column,omitempty"`
+	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
 	Message  string  `json:"message"`
 	Severity string  `json:"severity"`
+	Stage    *string `json:"stage,omitempty"`
 }
 
 // Wire443bbe5c4c72f351c9a66a106cdb43706c944ab1d042017ad7a9092b72d13f21 defines model for Wire_443bbe5c4c72f351c9a66a106cdb43706c944ab1d042017ad7a9092b72d13f21.
@@ -2820,58 +2949,60 @@ type Wire51bb1f0871dac81cba14ebfac4fc554d215315e30cd3b214596b5da0912a4710 struct
 
 // Wire54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe defines model for Wire_54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe.
 type Wire54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe struct {
-	AuthoredDql         *string     `json:"authoredDql,omitempty"`
-	AuthoredSql         *string     `json:"authoredSql,omitempty"`
-	AuthoringMode       string      `json:"authoringMode"`
-	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus       string      `json:"compileStatus"`
-	CompilerVersion     string      `json:"compilerVersion"`
-	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
-	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
-	CreatedAt           time.Time   `json:"createdAt"`
-	CreatedBy           string      `json:"createdBy"`
-	DatlyVersion        string      `json:"datlyVersion"`
-	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
-	GeneratedDql        *string     `json:"generatedDql,omitempty"`
-	Notes               *string     `json:"notes,omitempty"`
-	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
-	ReportId            string      `json:"reportId"`
-	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision      int64       `json:"sourceRevision"`
-	SpecFormatVersion   string      `json:"specFormatVersion"`
-	SpecHash            string      `json:"specHash"`
-	State               string      `json:"state"`
-	TypeManifest        interface{} `json:"typeManifest,omitempty"`
-	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo           int64       `json:"versionNo"`
+	AuthoredDql          *string     `json:"authoredDql,omitempty"`
+	AuthoredSql          *string     `json:"authoredSql,omitempty"`
+	AuthoringMode        string      `json:"authoringMode"`
+	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus        string      `json:"compileStatus"`
+	CompilerVersion      string      `json:"compilerVersion"`
+	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
+	CreatedAt            time.Time   `json:"createdAt"`
+	CreatedBy            string      `json:"createdBy"`
+	DatlyVersion         string      `json:"datlyVersion"`
+	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql         *string     `json:"generatedDql,omitempty"`
+	Notes                *string     `json:"notes,omitempty"`
+	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
+	ReportId             string      `json:"reportId"`
+	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision       int64       `json:"sourceRevision"`
+	SpecFormatVersion    string      `json:"specFormatVersion"`
+	SpecHash             string      `json:"specHash"`
+	State                string      `json:"state"`
+	TypeManifest         interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo            int64       `json:"versionNo"`
 }
 
 // Wire59787f7087b974a90942d4d67d870a8382b1189efe4cc88cfba1b0ada4d89c75 defines model for Wire_59787f7087b974a90942d4d67d870a8382b1189efe4cc88cfba1b0ada4d89c75.
 type Wire59787f7087b974a90942d4d67d870a8382b1189efe4cc88cfba1b0ada4d89c75 struct {
-	AuthoredDql         *string     `json:"authoredDql,omitempty"`
-	AuthoredSql         *string     `json:"authoredSql,omitempty"`
-	AuthoringMode       string      `json:"authoringMode"`
-	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus       string      `json:"compileStatus"`
-	CompilerVersion     string      `json:"compilerVersion"`
-	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
-	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
-	CreatedAt           time.Time   `json:"createdAt"`
-	CreatedBy           string      `json:"createdBy"`
-	DatlyVersion        string      `json:"datlyVersion"`
-	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
-	GeneratedDql        *string     `json:"generatedDql,omitempty"`
-	Notes               *string     `json:"notes,omitempty"`
-	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
-	ReportId            string      `json:"reportId"`
-	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision      int64       `json:"sourceRevision"`
-	SpecFormatVersion   string      `json:"specFormatVersion"`
-	SpecHash            string      `json:"specHash"`
-	State               string      `json:"state"`
-	TypeManifest        interface{} `json:"typeManifest,omitempty"`
-	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo           int64       `json:"versionNo"`
+	AuthoredDql          *string     `json:"authoredDql,omitempty"`
+	AuthoredSql          *string     `json:"authoredSql,omitempty"`
+	AuthoringMode        string      `json:"authoringMode"`
+	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus        string      `json:"compileStatus"`
+	CompilerVersion      string      `json:"compilerVersion"`
+	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
+	CreatedAt            time.Time   `json:"createdAt"`
+	CreatedBy            string      `json:"createdBy"`
+	DatlyVersion         string      `json:"datlyVersion"`
+	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql         *string     `json:"generatedDql,omitempty"`
+	Notes                *string     `json:"notes,omitempty"`
+	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
+	ReportId             string      `json:"reportId"`
+	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision       int64       `json:"sourceRevision"`
+	SpecFormatVersion    string      `json:"specFormatVersion"`
+	SpecHash             string      `json:"specHash"`
+	State                string      `json:"state"`
+	TypeManifest         interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo            int64       `json:"versionNo"`
 }
 
 // Wire5cf4a8a140fb1a665a97b8362f3128fdf9cdb4b3d66b442d124e25c9ac724d7a defines model for Wire_5cf4a8a140fb1a665a97b8362f3128fdf9cdb4b3d66b442d124e25c9ac724d7a.
@@ -2884,10 +3015,12 @@ type Wire5cf4a8a140fb1a665a97b8362f3128fdf9cdb4b3d66b442d124e25c9ac724d7a struct
 type Wire5dcb9a5385549159028a02b9f90b5f85b74ea0076b725bce7e222e5cfe3ae71e struct {
 	Code     string  `json:"code"`
 	Column   *int64  `json:"column,omitempty"`
+	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
 	Message  string  `json:"message"`
 	Severity string  `json:"severity"`
+	Stage    *string `json:"stage,omitempty"`
 }
 
 // Wire5f3729574877d8503a4dec333774588fe1c7a2ed2ff47c9b7076fcd0f551abe7 defines model for Wire_5f3729574877d8503a4dec333774588fe1c7a2ed2ff47c9b7076fcd0f551abe7.
@@ -2896,6 +3029,12 @@ type Wire5f3729574877d8503a4dec333774588fe1c7a2ed2ff47c9b7076fcd0f551abe7 struct
 	Kind    string `json:"kind"`
 	Tenant  string `json:"tenant"`
 	Version string `json:"version"`
+}
+
+// Wire60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b defines model for Wire_60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b.
+type Wire60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b struct {
+	PredicatePackages        *[]string `json:"predicatePackages"`
+	RequireSecurityPredicate bool      `json:"requireSecurityPredicate"`
 }
 
 // Wire60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac defines model for Wire_60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac.
@@ -2925,30 +3064,31 @@ type Wire6238fe88bfb9fb7369cf10de373a6904ecf859ade35a5496fe0a150dae56be72 struct
 
 // Wire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930 defines model for Wire_62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930.
 type Wire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930 struct {
-	AuthoredDql         *string     `json:"authoredDql,omitempty"`
-	AuthoredSql         *string     `json:"authoredSql,omitempty"`
-	AuthoringMode       string      `json:"authoringMode"`
-	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus       string      `json:"compileStatus"`
-	CompilerVersion     string      `json:"compilerVersion"`
-	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
-	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
-	CreatedAt           time.Time   `json:"createdAt"`
-	CreatedBy           string      `json:"createdBy"`
-	DatlyVersion        string      `json:"datlyVersion"`
-	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
-	GeneratedDql        *string     `json:"generatedDql,omitempty"`
-	Notes               *string     `json:"notes,omitempty"`
-	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
-	ReportId            string      `json:"reportId"`
-	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision      int64       `json:"sourceRevision"`
-	SpecFormatVersion   string      `json:"specFormatVersion"`
-	SpecHash            string      `json:"specHash"`
-	State               string      `json:"state"`
-	TypeManifest        interface{} `json:"typeManifest,omitempty"`
-	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo           int64       `json:"versionNo"`
+	AuthoredDql          *string     `json:"authoredDql,omitempty"`
+	AuthoredSql          *string     `json:"authoredSql,omitempty"`
+	AuthoringMode        string      `json:"authoringMode"`
+	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus        string      `json:"compileStatus"`
+	CompilerVersion      string      `json:"compilerVersion"`
+	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
+	CreatedAt            time.Time   `json:"createdAt"`
+	CreatedBy            string      `json:"createdBy"`
+	DatlyVersion         string      `json:"datlyVersion"`
+	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql         *string     `json:"generatedDql,omitempty"`
+	Notes                *string     `json:"notes,omitempty"`
+	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
+	ReportId             string      `json:"reportId"`
+	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision       int64       `json:"sourceRevision"`
+	SpecFormatVersion    string      `json:"specFormatVersion"`
+	SpecHash             string      `json:"specHash"`
+	State                string      `json:"state"`
+	TypeManifest         interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo            int64       `json:"versionNo"`
 }
 
 // Wire62d79acead49ba0d84d3fe813a8d59b4a26f710c0953ffa167816798ed0333f5 defines model for Wire_62d79acead49ba0d84d3fe813a8d59b4a26f710c0953ffa167816798ed0333f5.
@@ -3230,6 +3370,13 @@ type Wire7a9034382c023a3e5b4b4f9403d720cc1bf990d1c827a366a019d586b9f5c801 struct
 	Revision int64                                                                            `json:"revision"`
 }
 
+// Wire7b62573dc190309f5274f519b590107fb85252be4a55fbd9fb7ed011fc825841 defines model for Wire_7b62573dc190309f5274f519b590107fb85252be4a55fbd9fb7ed011fc825841.
+type Wire7b62573dc190309f5274f519b590107fb85252be4a55fbd9fb7ed011fc825841 struct {
+	MaxBytesProcessed   *int64 `json:"maxBytesProcessed,omitempty"`
+	MaxReferencedTables *int64 `json:"maxReferencedTables,omitempty"`
+	MaxReturnedRows     *int64 `json:"maxReturnedRows,omitempty"`
+}
+
 // Wire7b8cbc8d8b0de849d09cdeec45a5dba6c27adb0ab09ab21d972f36bf0d392c29 defines model for Wire_7b8cbc8d8b0de849d09cdeec45a5dba6c27adb0ab09ab21d972f36bf0d392c29.
 type Wire7b8cbc8d8b0de849d09cdeec45a5dba6c27adb0ab09ab21d972f36bf0d392c29 struct {
 	Id   string `json:"id"`
@@ -3282,10 +3429,12 @@ type Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134_Entity
 type Wire7d83e432dba96d596847d8df2f770054a4188b355ed704d691dff2a9d8f991ee struct {
 	Code     string  `json:"code"`
 	Column   *int64  `json:"column,omitempty"`
+	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
 	Message  string  `json:"message"`
 	Severity string  `json:"severity"`
+	Stage    *string `json:"stage,omitempty"`
 }
 
 // Wire7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6 defines model for Wire_7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6.
@@ -3370,10 +3519,12 @@ type Wire85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c struct
 type Wire878bfd02a12294e26d1a40f1b673a231fa11c24402268d818f39f80be43c86f9 struct {
 	Code     string  `json:"code"`
 	Column   *int64  `json:"column,omitempty"`
+	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
 	Message  string  `json:"message"`
 	Severity string  `json:"severity"`
+	Stage    *string `json:"stage,omitempty"`
 }
 
 // Wire87969e56d492a2f730b444adee19ef93ac7c1be948b8dc6be8f7220cc9a8fdf2 defines model for Wire_87969e56d492a2f730b444adee19ef93ac7c1be948b8dc6be8f7220cc9a8fdf2.
@@ -3488,30 +3639,31 @@ type Wire8a9cf29086a80cb7cabcdebcdf40aa1d03da579d5b4d6608dcb4a7446bcf710d struct
 
 // Wire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8 defines model for Wire_8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8.
 type Wire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8 struct {
-	AuthoredDql         *string     `json:"authoredDql,omitempty"`
-	AuthoredSql         *string     `json:"authoredSql,omitempty"`
-	AuthoringMode       string      `json:"authoringMode"`
-	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus       string      `json:"compileStatus"`
-	CompilerVersion     string      `json:"compilerVersion"`
-	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
-	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
-	CreatedAt           time.Time   `json:"createdAt"`
-	CreatedBy           string      `json:"createdBy"`
-	DatlyVersion        string      `json:"datlyVersion"`
-	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
-	GeneratedDql        *string     `json:"generatedDql,omitempty"`
-	Notes               *string     `json:"notes,omitempty"`
-	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
-	ReportId            string      `json:"reportId"`
-	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision      int64       `json:"sourceRevision"`
-	SpecFormatVersion   string      `json:"specFormatVersion"`
-	SpecHash            string      `json:"specHash"`
-	State               string      `json:"state"`
-	TypeManifest        interface{} `json:"typeManifest,omitempty"`
-	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo           int64       `json:"versionNo"`
+	AuthoredDql          *string     `json:"authoredDql,omitempty"`
+	AuthoredSql          *string     `json:"authoredSql,omitempty"`
+	AuthoringMode        string      `json:"authoringMode"`
+	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus        string      `json:"compileStatus"`
+	CompilerVersion      string      `json:"compilerVersion"`
+	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
+	CreatedAt            time.Time   `json:"createdAt"`
+	CreatedBy            string      `json:"createdBy"`
+	DatlyVersion         string      `json:"datlyVersion"`
+	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql         *string     `json:"generatedDql,omitempty"`
+	Notes                *string     `json:"notes,omitempty"`
+	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
+	ReportId             string      `json:"reportId"`
+	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision       int64       `json:"sourceRevision"`
+	SpecFormatVersion    string      `json:"specFormatVersion"`
+	SpecHash             string      `json:"specHash"`
+	State                string      `json:"state"`
+	TypeManifest         interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo            int64       `json:"versionNo"`
 }
 
 // Wire8e91903699babbed9e7ba5df80407c5e4ba8d274d534089cde3a462c51f42580 defines model for Wire_8e91903699babbed9e7ba5df80407c5e4ba8d274d534089cde3a462c51f42580.
@@ -3584,30 +3736,31 @@ type Wire9375a58120b02e204afaa76104d340f0d003f1a889466d014b6e77474c4633a6 struct
 
 // Wire942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e defines model for Wire_942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e.
 type Wire942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e struct {
-	AuthoredDql         *string     `json:"authoredDql,omitempty"`
-	AuthoredSql         *string     `json:"authoredSql,omitempty"`
-	AuthoringMode       string      `json:"authoringMode"`
-	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus       string      `json:"compileStatus"`
-	CompilerVersion     string      `json:"compilerVersion"`
-	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
-	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
-	CreatedAt           time.Time   `json:"createdAt"`
-	CreatedBy           string      `json:"createdBy"`
-	DatlyVersion        string      `json:"datlyVersion"`
-	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
-	GeneratedDql        *string     `json:"generatedDql,omitempty"`
-	Notes               *string     `json:"notes,omitempty"`
-	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
-	ReportId            string      `json:"reportId"`
-	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision      int64       `json:"sourceRevision"`
-	SpecFormatVersion   string      `json:"specFormatVersion"`
-	SpecHash            string      `json:"specHash"`
-	State               string      `json:"state"`
-	TypeManifest        interface{} `json:"typeManifest,omitempty"`
-	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo           int64       `json:"versionNo"`
+	AuthoredDql          *string     `json:"authoredDql,omitempty"`
+	AuthoredSql          *string     `json:"authoredSql,omitempty"`
+	AuthoringMode        string      `json:"authoringMode"`
+	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus        string      `json:"compileStatus"`
+	CompilerVersion      string      `json:"compilerVersion"`
+	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
+	CreatedAt            time.Time   `json:"createdAt"`
+	CreatedBy            string      `json:"createdBy"`
+	DatlyVersion         string      `json:"datlyVersion"`
+	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql         *string     `json:"generatedDql,omitempty"`
+	Notes                *string     `json:"notes,omitempty"`
+	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
+	ReportId             string      `json:"reportId"`
+	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision       int64       `json:"sourceRevision"`
+	SpecFormatVersion    string      `json:"specFormatVersion"`
+	SpecHash             string      `json:"specHash"`
+	State                string      `json:"state"`
+	TypeManifest         interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo            int64       `json:"versionNo"`
 }
 
 // Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c defines model for Wire_95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c.
@@ -4006,30 +4159,31 @@ type WireBf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016 struct
 
 // WireC3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089 defines model for Wire_c3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089.
 type WireC3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089 struct {
-	AuthoredDql         *string     `json:"authoredDql,omitempty"`
-	AuthoredSql         *string     `json:"authoredSql,omitempty"`
-	AuthoringMode       string      `json:"authoringMode"`
-	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus       string      `json:"compileStatus"`
-	CompilerVersion     string      `json:"compilerVersion"`
-	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
-	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
-	CreatedAt           time.Time   `json:"createdAt"`
-	CreatedBy           string      `json:"createdBy"`
-	DatlyVersion        string      `json:"datlyVersion"`
-	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
-	GeneratedDql        *string     `json:"generatedDql,omitempty"`
-	Notes               *string     `json:"notes,omitempty"`
-	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
-	ReportId            string      `json:"reportId"`
-	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision      int64       `json:"sourceRevision"`
-	SpecFormatVersion   string      `json:"specFormatVersion"`
-	SpecHash            string      `json:"specHash"`
-	State               string      `json:"state"`
-	TypeManifest        interface{} `json:"typeManifest,omitempty"`
-	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo           int64       `json:"versionNo"`
+	AuthoredDql          *string     `json:"authoredDql,omitempty"`
+	AuthoredSql          *string     `json:"authoredSql,omitempty"`
+	AuthoringMode        string      `json:"authoringMode"`
+	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus        string      `json:"compileStatus"`
+	CompilerVersion      string      `json:"compilerVersion"`
+	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
+	CreatedAt            time.Time   `json:"createdAt"`
+	CreatedBy            string      `json:"createdBy"`
+	DatlyVersion         string      `json:"datlyVersion"`
+	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql         *string     `json:"generatedDql,omitempty"`
+	Notes                *string     `json:"notes,omitempty"`
+	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
+	ReportId             string      `json:"reportId"`
+	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision       int64       `json:"sourceRevision"`
+	SpecFormatVersion    string      `json:"specFormatVersion"`
+	SpecHash             string      `json:"specHash"`
+	State                string      `json:"state"`
+	TypeManifest         interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo            int64       `json:"versionNo"`
 }
 
 // WireC34a89824b0951b1ac05f75e5bc3de78c6291e85c6dc07c5360c160963f1e221 defines model for Wire_c34a89824b0951b1ac05f75e5bc3de78c6291e85c6dc07c5360c160963f1e221.
@@ -4098,6 +4252,42 @@ type WireC802f2917b8e2a3792964f9ec6387ab7aed5bce5f6f459ac36ed90610be10ade struct
 	Archived    *bool                                                                            `json:"archived,omitempty"`
 	DisplayName string                                                                           `json:"displayName"`
 	Policies    *map[string]Wire8e91903699babbed9e7ba5df80407c5e4ba8d274d534089cde3a462c51f42580 `json:"policies"`
+}
+
+// WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca defines model for Wire_c9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca.
+type WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca struct {
+	ResourceLimits *WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_ResourceLimits `json:"resourceLimits,omitempty"`
+	Security       *WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_Security       `json:"security,omitempty"`
+}
+
+// WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caResourceLimits1 defines model for WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca.ResourceLimits.1.
+type WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caResourceLimits1 = map[string]interface{}
+
+// WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_ResourceLimits defines model for WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca.ResourceLimits.
+type WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_ResourceLimits struct {
+	union json.RawMessage
+}
+
+// WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caSecurity1 defines model for WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca.Security.1.
+type WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caSecurity1 = map[string]interface{}
+
+// WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_Security defines model for WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca.Security.
+type WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_Security struct {
+	union json.RawMessage
+}
+
+// WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88 defines model for Wire_cbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88.
+type WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88 struct {
+	Etag     int64                                                                         `json:"etag"`
+	Settings WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88_Settings `json:"settings"`
+}
+
+// WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88Settings1 defines model for WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88.Settings.1.
+type WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88Settings1 = map[string]interface{}
+
+// WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88_Settings defines model for WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88.Settings.
+type WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88_Settings struct {
+	union json.RawMessage
 }
 
 // WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332 defines model for Wire_cc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332.
@@ -4189,58 +4379,60 @@ type WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Versio
 
 // WireD47a3f0a566536bf283059fe5c94fdc79e8185ca98cbe6359316854e6ae380ee defines model for Wire_d47a3f0a566536bf283059fe5c94fdc79e8185ca98cbe6359316854e6ae380ee.
 type WireD47a3f0a566536bf283059fe5c94fdc79e8185ca98cbe6359316854e6ae380ee struct {
-	AuthoredDql         *string     `json:"authoredDql,omitempty"`
-	AuthoredSql         *string     `json:"authoredSql,omitempty"`
-	AuthoringMode       string      `json:"authoringMode"`
-	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus       string      `json:"compileStatus"`
-	CompilerVersion     string      `json:"compilerVersion"`
-	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
-	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
-	CreatedAt           time.Time   `json:"createdAt"`
-	CreatedBy           string      `json:"createdBy"`
-	DatlyVersion        string      `json:"datlyVersion"`
-	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
-	GeneratedDql        *string     `json:"generatedDql,omitempty"`
-	Notes               *string     `json:"notes,omitempty"`
-	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
-	ReportId            string      `json:"reportId"`
-	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision      int64       `json:"sourceRevision"`
-	SpecFormatVersion   string      `json:"specFormatVersion"`
-	SpecHash            string      `json:"specHash"`
-	State               string      `json:"state"`
-	TypeManifest        interface{} `json:"typeManifest,omitempty"`
-	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo           int64       `json:"versionNo"`
+	AuthoredDql          *string     `json:"authoredDql,omitempty"`
+	AuthoredSql          *string     `json:"authoredSql,omitempty"`
+	AuthoringMode        string      `json:"authoringMode"`
+	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus        string      `json:"compileStatus"`
+	CompilerVersion      string      `json:"compilerVersion"`
+	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
+	CreatedAt            time.Time   `json:"createdAt"`
+	CreatedBy            string      `json:"createdBy"`
+	DatlyVersion         string      `json:"datlyVersion"`
+	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql         *string     `json:"generatedDql,omitempty"`
+	Notes                *string     `json:"notes,omitempty"`
+	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
+	ReportId             string      `json:"reportId"`
+	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision       int64       `json:"sourceRevision"`
+	SpecFormatVersion    string      `json:"specFormatVersion"`
+	SpecHash             string      `json:"specHash"`
+	State                string      `json:"state"`
+	TypeManifest         interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo            int64       `json:"versionNo"`
 }
 
 // WireD47f31d6831e78d8d30e9260afc40ce9bef1e3193510447b56ae7c551502c928 defines model for Wire_d47f31d6831e78d8d30e9260afc40ce9bef1e3193510447b56ae7c551502c928.
 type WireD47f31d6831e78d8d30e9260afc40ce9bef1e3193510447b56ae7c551502c928 struct {
-	AuthoredDql         *string     `json:"authoredDql,omitempty"`
-	AuthoredSql         *string     `json:"authoredSql,omitempty"`
-	AuthoringMode       string      `json:"authoringMode"`
-	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus       string      `json:"compileStatus"`
-	CompilerVersion     string      `json:"compilerVersion"`
-	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
-	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
-	CreatedAt           time.Time   `json:"createdAt"`
-	CreatedBy           string      `json:"createdBy"`
-	DatlyVersion        string      `json:"datlyVersion"`
-	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
-	GeneratedDql        *string     `json:"generatedDql,omitempty"`
-	Notes               *string     `json:"notes,omitempty"`
-	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
-	ReportId            string      `json:"reportId"`
-	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision      int64       `json:"sourceRevision"`
-	SpecFormatVersion   string      `json:"specFormatVersion"`
-	SpecHash            string      `json:"specHash"`
-	State               string      `json:"state"`
-	TypeManifest        interface{} `json:"typeManifest,omitempty"`
-	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo           int64       `json:"versionNo"`
+	AuthoredDql          *string     `json:"authoredDql,omitempty"`
+	AuthoredSql          *string     `json:"authoredSql,omitempty"`
+	AuthoringMode        string      `json:"authoringMode"`
+	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus        string      `json:"compileStatus"`
+	CompilerVersion      string      `json:"compilerVersion"`
+	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
+	CreatedAt            time.Time   `json:"createdAt"`
+	CreatedBy            string      `json:"createdBy"`
+	DatlyVersion         string      `json:"datlyVersion"`
+	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql         *string     `json:"generatedDql,omitempty"`
+	Notes                *string     `json:"notes,omitempty"`
+	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
+	ReportId             string      `json:"reportId"`
+	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision       int64       `json:"sourceRevision"`
+	SpecFormatVersion    string      `json:"specFormatVersion"`
+	SpecHash             string      `json:"specHash"`
+	State                string      `json:"state"`
+	TypeManifest         interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo            int64       `json:"versionNo"`
 }
 
 // WireD58affaab847657f56e4dc0eed2b3bbad9e31ea2a73778f577cd287673f772b3 defines model for Wire_d58affaab847657f56e4dc0eed2b3bbad9e31ea2a73778f577cd287673f772b3.
@@ -4281,14 +4473,30 @@ type WireD5cefe1b3a17afd7fef5285814e696de9b1f5aa8569887156dc7690bce5223c2 struct
 	VersionNo              int64  `json:"versionNo"`
 }
 
+// WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836 defines model for Wire_d729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836.
+type WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836 struct {
+	Etag     int64                                                                         `json:"etag"`
+	Settings WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836_Settings `json:"settings"`
+}
+
+// WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836Settings1 defines model for WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836.Settings.1.
+type WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836Settings1 = map[string]interface{}
+
+// WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836_Settings defines model for WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836.Settings.
+type WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836_Settings struct {
+	union json.RawMessage
+}
+
 // WireD82adbb20251ee59732b96cc17e12fda2b7531a5a2aa9b3011dd7e9258ea62a7 defines model for Wire_d82adbb20251ee59732b96cc17e12fda2b7531a5a2aa9b3011dd7e9258ea62a7.
 type WireD82adbb20251ee59732b96cc17e12fda2b7531a5a2aa9b3011dd7e9258ea62a7 struct {
 	Code     string  `json:"code"`
 	Column   *int64  `json:"column,omitempty"`
+	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
 	Message  string  `json:"message"`
 	Severity string  `json:"severity"`
+	Stage    *string `json:"stage,omitempty"`
 }
 
 // WireD96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c defines model for Wire_d96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c.
@@ -4349,10 +4557,12 @@ type WireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231 struct
 type WireDdc8f3519e98b687e03e321d69e1dab9d279d6f41fcef8b1c25d52a95b4f51bd struct {
 	Code     string  `json:"code"`
 	Column   *int64  `json:"column,omitempty"`
+	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
 	Message  string  `json:"message"`
 	Severity string  `json:"severity"`
+	Stage    *string `json:"stage,omitempty"`
 }
 
 // WireDf12dfa59799793038c477f45c5acb6ce486b84479f8df9c47f1698fc478a940 defines model for Wire_df12dfa59799793038c477f45c5acb6ce486b84479f8df9c47f1698fc478a940.
@@ -4589,30 +4799,31 @@ type WireF32e0e52a42838184862b0bfabd74676e965524151930580722e42d1d5218aad_Rule s
 
 // WireF3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d defines model for Wire_f3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d.
 type WireF3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d struct {
-	AuthoredDql         *string     `json:"authoredDql,omitempty"`
-	AuthoredSql         *string     `json:"authoredSql,omitempty"`
-	AuthoringMode       string      `json:"authoringMode"`
-	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus       string      `json:"compileStatus"`
-	CompilerVersion     string      `json:"compilerVersion"`
-	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
-	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
-	CreatedAt           time.Time   `json:"createdAt"`
-	CreatedBy           string      `json:"createdBy"`
-	DatlyVersion        string      `json:"datlyVersion"`
-	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
-	GeneratedDql        *string     `json:"generatedDql,omitempty"`
-	Notes               *string     `json:"notes,omitempty"`
-	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
-	ReportId            string      `json:"reportId"`
-	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision      int64       `json:"sourceRevision"`
-	SpecFormatVersion   string      `json:"specFormatVersion"`
-	SpecHash            string      `json:"specHash"`
-	State               string      `json:"state"`
-	TypeManifest        interface{} `json:"typeManifest,omitempty"`
-	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo           int64       `json:"versionNo"`
+	AuthoredDql          *string     `json:"authoredDql,omitempty"`
+	AuthoredSql          *string     `json:"authoredSql,omitempty"`
+	AuthoringMode        string      `json:"authoringMode"`
+	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus        string      `json:"compileStatus"`
+	CompilerVersion      string      `json:"compilerVersion"`
+	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
+	CreatedAt            time.Time   `json:"createdAt"`
+	CreatedBy            string      `json:"createdBy"`
+	DatlyVersion         string      `json:"datlyVersion"`
+	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql         *string     `json:"generatedDql,omitempty"`
+	Notes                *string     `json:"notes,omitempty"`
+	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
+	ReportId             string      `json:"reportId"`
+	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision       int64       `json:"sourceRevision"`
+	SpecFormatVersion    string      `json:"specFormatVersion"`
+	SpecHash             string      `json:"specHash"`
+	State                string      `json:"state"`
+	TypeManifest         interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo            int64       `json:"versionNo"`
 }
 
 // WireF3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960 defines model for Wire_f3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960.
@@ -4630,6 +4841,13 @@ type WireF3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960 struct
 	UpdatedAt         time.Time `json:"updatedAt"`
 }
 
+// WireF503ec7a72f8c4f53c118cb28e4dae7faa981637cd10a0fe3a878b7751fcae6d defines model for Wire_f503ec7a72f8c4f53c118cb28e4dae7faa981637cd10a0fe3a878b7751fcae6d.
+type WireF503ec7a72f8c4f53c118cb28e4dae7faa981637cd10a0fe3a878b7751fcae6d struct {
+	MaxBytesProcessed   *int64 `json:"maxBytesProcessed,omitempty"`
+	MaxReferencedTables *int64 `json:"maxReferencedTables,omitempty"`
+	MaxReturnedRows     *int64 `json:"maxReturnedRows,omitempty"`
+}
+
 // WireF791e609dc9412b052626b655056f1150d4756f8c3a0e758a32b8022f81938d4 defines model for Wire_f791e609dc9412b052626b655056f1150d4756f8c3a0e758a32b8022f81938d4.
 type WireF791e609dc9412b052626b655056f1150d4756f8c3a0e758a32b8022f81938d4 struct {
 	Id   string `json:"id"`
@@ -4645,47 +4863,51 @@ type WireF7e0e71af22003b02f42054a48a7fc20f287eb50183d06b8e811c01fad620893 struct
 
 // WireF932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675 defines model for Wire_f932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675.
 type WireF932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675 struct {
-	AuthoredDql         *string     `json:"authoredDql,omitempty"`
-	AuthoredSql         *string     `json:"authoredSql,omitempty"`
-	AuthoringMode       string      `json:"authoringMode"`
-	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus       string      `json:"compileStatus"`
-	CompilerVersion     string      `json:"compilerVersion"`
-	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
-	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
-	CreatedAt           time.Time   `json:"createdAt"`
-	CreatedBy           string      `json:"createdBy"`
-	DatlyVersion        string      `json:"datlyVersion"`
-	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
-	GeneratedDql        *string     `json:"generatedDql,omitempty"`
-	Notes               *string     `json:"notes,omitempty"`
-	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
-	ReportId            string      `json:"reportId"`
-	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision      int64       `json:"sourceRevision"`
-	SpecFormatVersion   string      `json:"specFormatVersion"`
-	SpecHash            string      `json:"specHash"`
-	State               string      `json:"state"`
-	TypeManifest        interface{} `json:"typeManifest,omitempty"`
-	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo           int64       `json:"versionNo"`
+	AuthoredDql          *string     `json:"authoredDql,omitempty"`
+	AuthoredSql          *string     `json:"authoredSql,omitempty"`
+	AuthoringMode        string      `json:"authoringMode"`
+	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
+	CompileStatus        string      `json:"compileStatus"`
+	CompilerVersion      string      `json:"compilerVersion"`
+	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
+	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
+	CreatedAt            time.Time   `json:"createdAt"`
+	CreatedBy            string      `json:"createdBy"`
+	DatlyVersion         string      `json:"datlyVersion"`
+	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
+	GeneratedDql         *string     `json:"generatedDql,omitempty"`
+	Notes                *string     `json:"notes,omitempty"`
+	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
+	ReportId             string      `json:"reportId"`
+	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
+	SourceRevision       int64       `json:"sourceRevision"`
+	SpecFormatVersion    string      `json:"specFormatVersion"`
+	SpecHash             string      `json:"specHash"`
+	State                string      `json:"state"`
+	TypeManifest         interface{} `json:"typeManifest,omitempty"`
+	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
+	VersionNo            int64       `json:"versionNo"`
 }
 
 // WireF9bfe019ac3bc8cf27b88f9b16d1f9a636d24292970f41843ad5f4eba742d99b defines model for Wire_f9bfe019ac3bc8cf27b88f9b16d1f9a636d24292970f41843ad5f4eba742d99b.
 type WireF9bfe019ac3bc8cf27b88f9b16d1f9a636d24292970f41843ad5f4eba742d99b struct {
 	Code     string  `json:"code"`
 	Column   *int64  `json:"column,omitempty"`
+	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
 	Message  string  `json:"message"`
 	Severity string  `json:"severity"`
+	Stage    *string `json:"stage,omitempty"`
 }
 
 // WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c defines model for Wire_fcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c.
 type WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c struct {
-	Items  *[]WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_Item `json:"items"`
-	Limit  int64                                                                              `json:"limit"`
-	Offset int64                                                                              `json:"offset"`
+	CanCreate bool                                                                               `json:"canCreate"`
+	Items     *[]WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_Item `json:"items"`
+	Limit     int64                                                                              `json:"limit"`
+	Offset    int64                                                                              `json:"offset"`
 }
 
 // WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801cItems1 defines model for WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c.Items.1.
@@ -4911,6 +5133,11 @@ type POSTv1studiosdkauthorizationPredicatesListJSONBody struct {
 	Offset *int64  `json:"offset,omitempty"`
 	Query  *string `json:"query,omitempty"`
 	Status *string `json:"status,omitempty"`
+}
+
+// POSTv1studiosdkauthorizationPredicatesTypesJSONBody defines parameters for POSTv1studiosdkauthorizationPredicatesTypes.
+type POSTv1studiosdkauthorizationPredicatesTypesJSONBody struct {
+	NamespaceId *string `json:"namespaceId,omitempty"`
 }
 
 // POSTv1studiosdkauthorizationPredicatesUpdateJSONBody defines parameters for POSTv1studiosdkauthorizationPredicatesUpdate.
@@ -5160,6 +5387,34 @@ type POSTv1studiosdknamespacesListJSONBody struct {
 	Offset *int64  `json:"offset,omitempty"`
 	Query  *string `json:"query,omitempty"`
 	Status *string `json:"status,omitempty"`
+}
+
+// POSTv1studiosdknamespacesSettingsGetJSONBody defines parameters for POSTv1studiosdknamespacesSettingsGet.
+type POSTv1studiosdknamespacesSettingsGetJSONBody struct {
+	Input *POSTv1studiosdknamespacesSettingsGetJSONBody_Input `json:"input,omitempty"`
+	Name  string                                              `json:"name"`
+}
+
+// POSTv1studiosdknamespacesSettingsGetJSONBodyInput1 defines parameters for POSTv1studiosdknamespacesSettingsGet.
+type POSTv1studiosdknamespacesSettingsGetJSONBodyInput1 = map[string]interface{}
+
+// POSTv1studiosdknamespacesSettingsGetJSONBody_Input defines parameters for POSTv1studiosdknamespacesSettingsGet.
+type POSTv1studiosdknamespacesSettingsGetJSONBody_Input struct {
+	union json.RawMessage
+}
+
+// POSTv1studiosdknamespacesSettingsUpdateJSONBody defines parameters for POSTv1studiosdknamespacesSettingsUpdate.
+type POSTv1studiosdknamespacesSettingsUpdateJSONBody struct {
+	Input *POSTv1studiosdknamespacesSettingsUpdateJSONBody_Input `json:"input,omitempty"`
+	Name  string                                                 `json:"name"`
+}
+
+// POSTv1studiosdknamespacesSettingsUpdateJSONBodyInput1 defines parameters for POSTv1studiosdknamespacesSettingsUpdate.
+type POSTv1studiosdknamespacesSettingsUpdateJSONBodyInput1 = map[string]interface{}
+
+// POSTv1studiosdknamespacesSettingsUpdateJSONBody_Input defines parameters for POSTv1studiosdknamespacesSettingsUpdate.
+type POSTv1studiosdknamespacesSettingsUpdateJSONBody_Input struct {
+	union json.RawMessage
 }
 
 // POSTv1studiosdknamespacesUpdateJSONBody defines parameters for POSTv1studiosdknamespacesUpdate.
@@ -5580,6 +5835,9 @@ type POSTv1studiosdkauthorizationPredicatesGetJSONRequestBody POSTv1studiosdkaut
 // POSTv1studiosdkauthorizationPredicatesListJSONRequestBody defines body for POSTv1studiosdkauthorizationPredicatesList for application/json ContentType.
 type POSTv1studiosdkauthorizationPredicatesListJSONRequestBody POSTv1studiosdkauthorizationPredicatesListJSONBody
 
+// POSTv1studiosdkauthorizationPredicatesTypesJSONRequestBody defines body for POSTv1studiosdkauthorizationPredicatesTypes for application/json ContentType.
+type POSTv1studiosdkauthorizationPredicatesTypesJSONRequestBody POSTv1studiosdkauthorizationPredicatesTypesJSONBody
+
 // POSTv1studiosdkauthorizationPredicatesUpdateJSONRequestBody defines body for POSTv1studiosdkauthorizationPredicatesUpdate for application/json ContentType.
 type POSTv1studiosdkauthorizationPredicatesUpdateJSONRequestBody POSTv1studiosdkauthorizationPredicatesUpdateJSONBody
 
@@ -5669,6 +5927,12 @@ type POSTv1studiosdknamespacesGetJSONRequestBody POSTv1studiosdknamespacesGetJSO
 
 // POSTv1studiosdknamespacesListJSONRequestBody defines body for POSTv1studiosdknamespacesList for application/json ContentType.
 type POSTv1studiosdknamespacesListJSONRequestBody POSTv1studiosdknamespacesListJSONBody
+
+// POSTv1studiosdknamespacesSettingsGetJSONRequestBody defines body for POSTv1studiosdknamespacesSettingsGet for application/json ContentType.
+type POSTv1studiosdknamespacesSettingsGetJSONRequestBody POSTv1studiosdknamespacesSettingsGetJSONBody
+
+// POSTv1studiosdknamespacesSettingsUpdateJSONRequestBody defines body for POSTv1studiosdknamespacesSettingsUpdate for application/json ContentType.
+type POSTv1studiosdknamespacesSettingsUpdateJSONRequestBody POSTv1studiosdknamespacesSettingsUpdateJSONBody
 
 // POSTv1studiosdknamespacesUpdateJSONRequestBody defines body for POSTv1studiosdknamespacesUpdate for application/json ContentType.
 type POSTv1studiosdknamespacesUpdateJSONRequestBody POSTv1studiosdknamespacesUpdateJSONBody
@@ -5771,6 +6035,130 @@ type POSTv1studiosdkversionsWarmupGetJSONRequestBody POSTv1studiosdkversionsWarm
 
 // POSTv1studiosdkversionsWarmupListJSONRequestBody defines body for POSTv1studiosdkversionsWarmupList for application/json ContentType.
 type POSTv1studiosdkversionsWarmupListJSONRequestBody POSTv1studiosdkversionsWarmupListJSONBody
+
+// AsInput4ca0e9f0d091dcbb3ede94d0e1764d347bd31ee37ff82a8f6a07189a2be8d2a7 returns the union data inside the Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_ResourceLimits as a Input4ca0e9f0d091dcbb3ede94d0e1764d347bd31ee37ff82a8f6a07189a2be8d2a7
+func (t Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_ResourceLimits) AsInput4ca0e9f0d091dcbb3ede94d0e1764d347bd31ee37ff82a8f6a07189a2be8d2a7() (Input4ca0e9f0d091dcbb3ede94d0e1764d347bd31ee37ff82a8f6a07189a2be8d2a7, error) {
+	var body Input4ca0e9f0d091dcbb3ede94d0e1764d347bd31ee37ff82a8f6a07189a2be8d2a7
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInput4ca0e9f0d091dcbb3ede94d0e1764d347bd31ee37ff82a8f6a07189a2be8d2a7 overwrites any union data inside the Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_ResourceLimits as the provided Input4ca0e9f0d091dcbb3ede94d0e1764d347bd31ee37ff82a8f6a07189a2be8d2a7
+func (t *Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_ResourceLimits) FromInput4ca0e9f0d091dcbb3ede94d0e1764d347bd31ee37ff82a8f6a07189a2be8d2a7(v Input4ca0e9f0d091dcbb3ede94d0e1764d347bd31ee37ff82a8f6a07189a2be8d2a7) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInput4ca0e9f0d091dcbb3ede94d0e1764d347bd31ee37ff82a8f6a07189a2be8d2a7 performs a merge with any union data inside the Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_ResourceLimits, using the provided Input4ca0e9f0d091dcbb3ede94d0e1764d347bd31ee37ff82a8f6a07189a2be8d2a7
+func (t *Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_ResourceLimits) MergeInput4ca0e9f0d091dcbb3ede94d0e1764d347bd31ee37ff82a8f6a07189a2be8d2a7(v Input4ca0e9f0d091dcbb3ede94d0e1764d347bd31ee37ff82a8f6a07189a2be8d2a7) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsInput3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fResourceLimits1 returns the union data inside the Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_ResourceLimits as a Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fResourceLimits1
+func (t Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_ResourceLimits) AsInput3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fResourceLimits1() (Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fResourceLimits1, error) {
+	var body Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fResourceLimits1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInput3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fResourceLimits1 overwrites any union data inside the Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_ResourceLimits as the provided Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fResourceLimits1
+func (t *Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_ResourceLimits) FromInput3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fResourceLimits1(v Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fResourceLimits1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInput3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fResourceLimits1 performs a merge with any union data inside the Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_ResourceLimits, using the provided Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fResourceLimits1
+func (t *Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_ResourceLimits) MergeInput3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fResourceLimits1(v Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fResourceLimits1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_ResourceLimits) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_ResourceLimits) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsInputCf9002b79d1ab4212391bf4b80d76e95e7ec2624efd732e6dc68f882b06fbc48 returns the union data inside the Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_Security as a InputCf9002b79d1ab4212391bf4b80d76e95e7ec2624efd732e6dc68f882b06fbc48
+func (t Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_Security) AsInputCf9002b79d1ab4212391bf4b80d76e95e7ec2624efd732e6dc68f882b06fbc48() (InputCf9002b79d1ab4212391bf4b80d76e95e7ec2624efd732e6dc68f882b06fbc48, error) {
+	var body InputCf9002b79d1ab4212391bf4b80d76e95e7ec2624efd732e6dc68f882b06fbc48
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInputCf9002b79d1ab4212391bf4b80d76e95e7ec2624efd732e6dc68f882b06fbc48 overwrites any union data inside the Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_Security as the provided InputCf9002b79d1ab4212391bf4b80d76e95e7ec2624efd732e6dc68f882b06fbc48
+func (t *Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_Security) FromInputCf9002b79d1ab4212391bf4b80d76e95e7ec2624efd732e6dc68f882b06fbc48(v InputCf9002b79d1ab4212391bf4b80d76e95e7ec2624efd732e6dc68f882b06fbc48) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInputCf9002b79d1ab4212391bf4b80d76e95e7ec2624efd732e6dc68f882b06fbc48 performs a merge with any union data inside the Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_Security, using the provided InputCf9002b79d1ab4212391bf4b80d76e95e7ec2624efd732e6dc68f882b06fbc48
+func (t *Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_Security) MergeInputCf9002b79d1ab4212391bf4b80d76e95e7ec2624efd732e6dc68f882b06fbc48(v InputCf9002b79d1ab4212391bf4b80d76e95e7ec2624efd732e6dc68f882b06fbc48) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsInput3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fSecurity1 returns the union data inside the Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_Security as a Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fSecurity1
+func (t Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_Security) AsInput3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fSecurity1() (Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fSecurity1, error) {
+	var body Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fSecurity1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInput3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fSecurity1 overwrites any union data inside the Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_Security as the provided Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fSecurity1
+func (t *Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_Security) FromInput3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fSecurity1(v Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fSecurity1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInput3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fSecurity1 performs a merge with any union data inside the Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_Security, using the provided Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fSecurity1
+func (t *Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_Security) MergeInput3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fSecurity1(v Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49fSecurity1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_Security) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_Security) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
 
 // AsInput194eebb56df8f1ed3424269e7db1f54e85c282cf1b1dc6eb1106baba7c5e7bfb returns the union data inside the Input4155bc328a41cd280ef14fe7e54532d7ec4a83be3c2b80962e7c87eb82012ee9_Entity as a Input194eebb56df8f1ed3424269e7db1f54e85c282cf1b1dc6eb1106baba7c5e7bfb
 func (t Input4155bc328a41cd280ef14fe7e54532d7ec4a83be3c2b80962e7c87eb82012ee9_Entity) AsInput194eebb56df8f1ed3424269e7db1f54e85c282cf1b1dc6eb1106baba7c5e7bfb() (Input194eebb56df8f1ed3424269e7db1f54e85c282cf1b1dc6eb1106baba7c5e7bfb, error) {
@@ -6078,6 +6466,130 @@ func (t Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Ru
 }
 
 func (t *Input5f347683ef0d72c421f5a4c01ad3ad788d864b286ee54473499ecc7aaacee182_Rule) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsInput1b777106b81fc7372eef324b27ad1358a564d313c8028be821352473a362fdfd returns the union data inside the Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_ResourceLimits as a Input1b777106b81fc7372eef324b27ad1358a564d313c8028be821352473a362fdfd
+func (t Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_ResourceLimits) AsInput1b777106b81fc7372eef324b27ad1358a564d313c8028be821352473a362fdfd() (Input1b777106b81fc7372eef324b27ad1358a564d313c8028be821352473a362fdfd, error) {
+	var body Input1b777106b81fc7372eef324b27ad1358a564d313c8028be821352473a362fdfd
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInput1b777106b81fc7372eef324b27ad1358a564d313c8028be821352473a362fdfd overwrites any union data inside the Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_ResourceLimits as the provided Input1b777106b81fc7372eef324b27ad1358a564d313c8028be821352473a362fdfd
+func (t *Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_ResourceLimits) FromInput1b777106b81fc7372eef324b27ad1358a564d313c8028be821352473a362fdfd(v Input1b777106b81fc7372eef324b27ad1358a564d313c8028be821352473a362fdfd) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInput1b777106b81fc7372eef324b27ad1358a564d313c8028be821352473a362fdfd performs a merge with any union data inside the Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_ResourceLimits, using the provided Input1b777106b81fc7372eef324b27ad1358a564d313c8028be821352473a362fdfd
+func (t *Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_ResourceLimits) MergeInput1b777106b81fc7372eef324b27ad1358a564d313c8028be821352473a362fdfd(v Input1b777106b81fc7372eef324b27ad1358a564d313c8028be821352473a362fdfd) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsInput7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dResourceLimits1 returns the union data inside the Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_ResourceLimits as a Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dResourceLimits1
+func (t Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_ResourceLimits) AsInput7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dResourceLimits1() (Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dResourceLimits1, error) {
+	var body Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dResourceLimits1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInput7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dResourceLimits1 overwrites any union data inside the Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_ResourceLimits as the provided Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dResourceLimits1
+func (t *Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_ResourceLimits) FromInput7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dResourceLimits1(v Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dResourceLimits1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInput7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dResourceLimits1 performs a merge with any union data inside the Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_ResourceLimits, using the provided Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dResourceLimits1
+func (t *Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_ResourceLimits) MergeInput7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dResourceLimits1(v Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dResourceLimits1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_ResourceLimits) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_ResourceLimits) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsInput36632603cb8f9d8ddbe5d431823ba899c271a23f41fc19386a348df6e584261f returns the union data inside the Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_Security as a Input36632603cb8f9d8ddbe5d431823ba899c271a23f41fc19386a348df6e584261f
+func (t Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_Security) AsInput36632603cb8f9d8ddbe5d431823ba899c271a23f41fc19386a348df6e584261f() (Input36632603cb8f9d8ddbe5d431823ba899c271a23f41fc19386a348df6e584261f, error) {
+	var body Input36632603cb8f9d8ddbe5d431823ba899c271a23f41fc19386a348df6e584261f
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInput36632603cb8f9d8ddbe5d431823ba899c271a23f41fc19386a348df6e584261f overwrites any union data inside the Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_Security as the provided Input36632603cb8f9d8ddbe5d431823ba899c271a23f41fc19386a348df6e584261f
+func (t *Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_Security) FromInput36632603cb8f9d8ddbe5d431823ba899c271a23f41fc19386a348df6e584261f(v Input36632603cb8f9d8ddbe5d431823ba899c271a23f41fc19386a348df6e584261f) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInput36632603cb8f9d8ddbe5d431823ba899c271a23f41fc19386a348df6e584261f performs a merge with any union data inside the Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_Security, using the provided Input36632603cb8f9d8ddbe5d431823ba899c271a23f41fc19386a348df6e584261f
+func (t *Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_Security) MergeInput36632603cb8f9d8ddbe5d431823ba899c271a23f41fc19386a348df6e584261f(v Input36632603cb8f9d8ddbe5d431823ba899c271a23f41fc19386a348df6e584261f) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsInput7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dSecurity1 returns the union data inside the Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_Security as a Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dSecurity1
+func (t Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_Security) AsInput7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dSecurity1() (Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dSecurity1, error) {
+	var body Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dSecurity1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInput7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dSecurity1 overwrites any union data inside the Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_Security as the provided Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dSecurity1
+func (t *Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_Security) FromInput7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dSecurity1(v Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dSecurity1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInput7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dSecurity1 performs a merge with any union data inside the Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_Security, using the provided Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dSecurity1
+func (t *Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_Security) MergeInput7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dSecurity1(v Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717dSecurity1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_Security) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Input7a66c39dafd8a15705386f4de0f51f2f2b10bc8419b1eea6c9a305204f51717d_Security) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -8992,6 +9504,130 @@ func (t Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052_Ite
 }
 
 func (t *Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052_Items_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire7b62573dc190309f5274f519b590107fb85252be4a55fbd9fb7ed011fc825841 returns the union data inside the Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_ResourceLimits as a Wire7b62573dc190309f5274f519b590107fb85252be4a55fbd9fb7ed011fc825841
+func (t Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_ResourceLimits) AsWire7b62573dc190309f5274f519b590107fb85252be4a55fbd9fb7ed011fc825841() (Wire7b62573dc190309f5274f519b590107fb85252be4a55fbd9fb7ed011fc825841, error) {
+	var body Wire7b62573dc190309f5274f519b590107fb85252be4a55fbd9fb7ed011fc825841
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire7b62573dc190309f5274f519b590107fb85252be4a55fbd9fb7ed011fc825841 overwrites any union data inside the Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_ResourceLimits as the provided Wire7b62573dc190309f5274f519b590107fb85252be4a55fbd9fb7ed011fc825841
+func (t *Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_ResourceLimits) FromWire7b62573dc190309f5274f519b590107fb85252be4a55fbd9fb7ed011fc825841(v Wire7b62573dc190309f5274f519b590107fb85252be4a55fbd9fb7ed011fc825841) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire7b62573dc190309f5274f519b590107fb85252be4a55fbd9fb7ed011fc825841 performs a merge with any union data inside the Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_ResourceLimits, using the provided Wire7b62573dc190309f5274f519b590107fb85252be4a55fbd9fb7ed011fc825841
+func (t *Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_ResourceLimits) MergeWire7b62573dc190309f5274f519b590107fb85252be4a55fbd9fb7ed011fc825841(v Wire7b62573dc190309f5274f519b590107fb85252be4a55fbd9fb7ed011fc825841) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceResourceLimits1 returns the union data inside the Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_ResourceLimits as a Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceResourceLimits1
+func (t Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_ResourceLimits) AsWire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceResourceLimits1() (Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceResourceLimits1, error) {
+	var body Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceResourceLimits1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceResourceLimits1 overwrites any union data inside the Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_ResourceLimits as the provided Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceResourceLimits1
+func (t *Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_ResourceLimits) FromWire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceResourceLimits1(v Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceResourceLimits1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceResourceLimits1 performs a merge with any union data inside the Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_ResourceLimits, using the provided Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceResourceLimits1
+func (t *Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_ResourceLimits) MergeWire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceResourceLimits1(v Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceResourceLimits1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_ResourceLimits) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_ResourceLimits) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire3ae1bf05288bf4ea8d62663e5d886a6a9b05c1660099c819a9979f1a2fe362de returns the union data inside the Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_Security as a Wire3ae1bf05288bf4ea8d62663e5d886a6a9b05c1660099c819a9979f1a2fe362de
+func (t Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_Security) AsWire3ae1bf05288bf4ea8d62663e5d886a6a9b05c1660099c819a9979f1a2fe362de() (Wire3ae1bf05288bf4ea8d62663e5d886a6a9b05c1660099c819a9979f1a2fe362de, error) {
+	var body Wire3ae1bf05288bf4ea8d62663e5d886a6a9b05c1660099c819a9979f1a2fe362de
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire3ae1bf05288bf4ea8d62663e5d886a6a9b05c1660099c819a9979f1a2fe362de overwrites any union data inside the Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_Security as the provided Wire3ae1bf05288bf4ea8d62663e5d886a6a9b05c1660099c819a9979f1a2fe362de
+func (t *Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_Security) FromWire3ae1bf05288bf4ea8d62663e5d886a6a9b05c1660099c819a9979f1a2fe362de(v Wire3ae1bf05288bf4ea8d62663e5d886a6a9b05c1660099c819a9979f1a2fe362de) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire3ae1bf05288bf4ea8d62663e5d886a6a9b05c1660099c819a9979f1a2fe362de performs a merge with any union data inside the Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_Security, using the provided Wire3ae1bf05288bf4ea8d62663e5d886a6a9b05c1660099c819a9979f1a2fe362de
+func (t *Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_Security) MergeWire3ae1bf05288bf4ea8d62663e5d886a6a9b05c1660099c819a9979f1a2fe362de(v Wire3ae1bf05288bf4ea8d62663e5d886a6a9b05c1660099c819a9979f1a2fe362de) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceSecurity1 returns the union data inside the Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_Security as a Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceSecurity1
+func (t Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_Security) AsWire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceSecurity1() (Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceSecurity1, error) {
+	var body Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceSecurity1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceSecurity1 overwrites any union data inside the Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_Security as the provided Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceSecurity1
+func (t *Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_Security) FromWire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceSecurity1(v Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceSecurity1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceSecurity1 performs a merge with any union data inside the Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_Security, using the provided Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceSecurity1
+func (t *Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_Security) MergeWire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceSecurity1(v Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bceSecurity1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_Security) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_Security) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -12282,6 +12918,192 @@ func (t *WireC4facae1d7de805700fd614d7869128040212f41ac67951ed63113923ea516c1_En
 	return err
 }
 
+// AsWireF503ec7a72f8c4f53c118cb28e4dae7faa981637cd10a0fe3a878b7751fcae6d returns the union data inside the WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_ResourceLimits as a WireF503ec7a72f8c4f53c118cb28e4dae7faa981637cd10a0fe3a878b7751fcae6d
+func (t WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_ResourceLimits) AsWireF503ec7a72f8c4f53c118cb28e4dae7faa981637cd10a0fe3a878b7751fcae6d() (WireF503ec7a72f8c4f53c118cb28e4dae7faa981637cd10a0fe3a878b7751fcae6d, error) {
+	var body WireF503ec7a72f8c4f53c118cb28e4dae7faa981637cd10a0fe3a878b7751fcae6d
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireF503ec7a72f8c4f53c118cb28e4dae7faa981637cd10a0fe3a878b7751fcae6d overwrites any union data inside the WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_ResourceLimits as the provided WireF503ec7a72f8c4f53c118cb28e4dae7faa981637cd10a0fe3a878b7751fcae6d
+func (t *WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_ResourceLimits) FromWireF503ec7a72f8c4f53c118cb28e4dae7faa981637cd10a0fe3a878b7751fcae6d(v WireF503ec7a72f8c4f53c118cb28e4dae7faa981637cd10a0fe3a878b7751fcae6d) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireF503ec7a72f8c4f53c118cb28e4dae7faa981637cd10a0fe3a878b7751fcae6d performs a merge with any union data inside the WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_ResourceLimits, using the provided WireF503ec7a72f8c4f53c118cb28e4dae7faa981637cd10a0fe3a878b7751fcae6d
+func (t *WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_ResourceLimits) MergeWireF503ec7a72f8c4f53c118cb28e4dae7faa981637cd10a0fe3a878b7751fcae6d(v WireF503ec7a72f8c4f53c118cb28e4dae7faa981637cd10a0fe3a878b7751fcae6d) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caResourceLimits1 returns the union data inside the WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_ResourceLimits as a WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caResourceLimits1
+func (t WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_ResourceLimits) AsWireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caResourceLimits1() (WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caResourceLimits1, error) {
+	var body WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caResourceLimits1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caResourceLimits1 overwrites any union data inside the WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_ResourceLimits as the provided WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caResourceLimits1
+func (t *WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_ResourceLimits) FromWireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caResourceLimits1(v WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caResourceLimits1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caResourceLimits1 performs a merge with any union data inside the WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_ResourceLimits, using the provided WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caResourceLimits1
+func (t *WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_ResourceLimits) MergeWireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caResourceLimits1(v WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caResourceLimits1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_ResourceLimits) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_ResourceLimits) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b returns the union data inside the WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_Security as a Wire60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b
+func (t WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_Security) AsWire60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b() (Wire60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b, error) {
+	var body Wire60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b overwrites any union data inside the WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_Security as the provided Wire60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b
+func (t *WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_Security) FromWire60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b(v Wire60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b performs a merge with any union data inside the WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_Security, using the provided Wire60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b
+func (t *WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_Security) MergeWire60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b(v Wire60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caSecurity1 returns the union data inside the WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_Security as a WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caSecurity1
+func (t WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_Security) AsWireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caSecurity1() (WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caSecurity1, error) {
+	var body WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caSecurity1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caSecurity1 overwrites any union data inside the WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_Security as the provided WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caSecurity1
+func (t *WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_Security) FromWireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caSecurity1(v WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caSecurity1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caSecurity1 performs a merge with any union data inside the WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_Security, using the provided WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caSecurity1
+func (t *WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_Security) MergeWireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caSecurity1(v WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22caSecurity1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_Security) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_Security) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce returns the union data inside the WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88_Settings as a Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce
+func (t WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88_Settings) AsWire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce() (Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce, error) {
+	var body Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce overwrites any union data inside the WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88_Settings as the provided Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce
+func (t *WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88_Settings) FromWire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce(v Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce performs a merge with any union data inside the WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88_Settings, using the provided Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce
+func (t *WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88_Settings) MergeWire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce(v Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88Settings1 returns the union data inside the WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88_Settings as a WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88Settings1
+func (t WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88_Settings) AsWireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88Settings1() (WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88Settings1, error) {
+	var body WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88Settings1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88Settings1 overwrites any union data inside the WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88_Settings as the provided WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88Settings1
+func (t *WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88_Settings) FromWireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88Settings1(v WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88Settings1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88Settings1 performs a merge with any union data inside the WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88_Settings, using the provided WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88Settings1
+func (t *WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88_Settings) MergeWireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88Settings1(v WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88Settings1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88_Settings) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88_Settings) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsWire4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31 returns the union data inside the WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332_Items_Item as a Wire4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31
 func (t WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332_Items_Item) AsWire4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31() (Wire4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31, error) {
 	var body Wire4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31
@@ -12650,6 +13472,68 @@ func (t WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78_Ver
 }
 
 func (t *WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78_Version) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca returns the union data inside the WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836_Settings as a WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca
+func (t WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836_Settings) AsWireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca() (WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca, error) {
+	var body WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca overwrites any union data inside the WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836_Settings as the provided WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca
+func (t *WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836_Settings) FromWireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca(v WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca performs a merge with any union data inside the WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836_Settings, using the provided WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca
+func (t *WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836_Settings) MergeWireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca(v WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836Settings1 returns the union data inside the WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836_Settings as a WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836Settings1
+func (t WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836_Settings) AsWireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836Settings1() (WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836Settings1, error) {
+	var body WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836Settings1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836Settings1 overwrites any union data inside the WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836_Settings as the provided WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836Settings1
+func (t *WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836_Settings) FromWireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836Settings1(v WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836Settings1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836Settings1 performs a merge with any union data inside the WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836_Settings, using the provided WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836Settings1
+func (t *WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836_Settings) MergeWireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836Settings1(v WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836Settings1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836_Settings) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836_Settings) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -13150,6 +14034,130 @@ func (t *WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_It
 	return err
 }
 
+// AsInput79c60632c9d0a82ab62168e5cc8be9b94cc7586c14ac73884344edf6fb26fb00 returns the union data inside the POSTv1studiosdknamespacesSettingsGetJSONBody_Input as a Input79c60632c9d0a82ab62168e5cc8be9b94cc7586c14ac73884344edf6fb26fb00
+func (t POSTv1studiosdknamespacesSettingsGetJSONBody_Input) AsInput79c60632c9d0a82ab62168e5cc8be9b94cc7586c14ac73884344edf6fb26fb00() (Input79c60632c9d0a82ab62168e5cc8be9b94cc7586c14ac73884344edf6fb26fb00, error) {
+	var body Input79c60632c9d0a82ab62168e5cc8be9b94cc7586c14ac73884344edf6fb26fb00
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInput79c60632c9d0a82ab62168e5cc8be9b94cc7586c14ac73884344edf6fb26fb00 overwrites any union data inside the POSTv1studiosdknamespacesSettingsGetJSONBody_Input as the provided Input79c60632c9d0a82ab62168e5cc8be9b94cc7586c14ac73884344edf6fb26fb00
+func (t *POSTv1studiosdknamespacesSettingsGetJSONBody_Input) FromInput79c60632c9d0a82ab62168e5cc8be9b94cc7586c14ac73884344edf6fb26fb00(v Input79c60632c9d0a82ab62168e5cc8be9b94cc7586c14ac73884344edf6fb26fb00) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInput79c60632c9d0a82ab62168e5cc8be9b94cc7586c14ac73884344edf6fb26fb00 performs a merge with any union data inside the POSTv1studiosdknamespacesSettingsGetJSONBody_Input, using the provided Input79c60632c9d0a82ab62168e5cc8be9b94cc7586c14ac73884344edf6fb26fb00
+func (t *POSTv1studiosdknamespacesSettingsGetJSONBody_Input) MergeInput79c60632c9d0a82ab62168e5cc8be9b94cc7586c14ac73884344edf6fb26fb00(v Input79c60632c9d0a82ab62168e5cc8be9b94cc7586c14ac73884344edf6fb26fb00) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsPOSTv1studiosdknamespacesSettingsGetJSONBodyInput1 returns the union data inside the POSTv1studiosdknamespacesSettingsGetJSONBody_Input as a POSTv1studiosdknamespacesSettingsGetJSONBodyInput1
+func (t POSTv1studiosdknamespacesSettingsGetJSONBody_Input) AsPOSTv1studiosdknamespacesSettingsGetJSONBodyInput1() (POSTv1studiosdknamespacesSettingsGetJSONBodyInput1, error) {
+	var body POSTv1studiosdknamespacesSettingsGetJSONBodyInput1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPOSTv1studiosdknamespacesSettingsGetJSONBodyInput1 overwrites any union data inside the POSTv1studiosdknamespacesSettingsGetJSONBody_Input as the provided POSTv1studiosdknamespacesSettingsGetJSONBodyInput1
+func (t *POSTv1studiosdknamespacesSettingsGetJSONBody_Input) FromPOSTv1studiosdknamespacesSettingsGetJSONBodyInput1(v POSTv1studiosdknamespacesSettingsGetJSONBodyInput1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergePOSTv1studiosdknamespacesSettingsGetJSONBodyInput1 performs a merge with any union data inside the POSTv1studiosdknamespacesSettingsGetJSONBody_Input, using the provided POSTv1studiosdknamespacesSettingsGetJSONBodyInput1
+func (t *POSTv1studiosdknamespacesSettingsGetJSONBody_Input) MergePOSTv1studiosdknamespacesSettingsGetJSONBodyInput1(v POSTv1studiosdknamespacesSettingsGetJSONBodyInput1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t POSTv1studiosdknamespacesSettingsGetJSONBody_Input) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *POSTv1studiosdknamespacesSettingsGetJSONBody_Input) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsInput3b4d0b6fd5b601973df85847b4f071da78ceffe933882fb84b7e61a82dda71cc returns the union data inside the POSTv1studiosdknamespacesSettingsUpdateJSONBody_Input as a Input3b4d0b6fd5b601973df85847b4f071da78ceffe933882fb84b7e61a82dda71cc
+func (t POSTv1studiosdknamespacesSettingsUpdateJSONBody_Input) AsInput3b4d0b6fd5b601973df85847b4f071da78ceffe933882fb84b7e61a82dda71cc() (Input3b4d0b6fd5b601973df85847b4f071da78ceffe933882fb84b7e61a82dda71cc, error) {
+	var body Input3b4d0b6fd5b601973df85847b4f071da78ceffe933882fb84b7e61a82dda71cc
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromInput3b4d0b6fd5b601973df85847b4f071da78ceffe933882fb84b7e61a82dda71cc overwrites any union data inside the POSTv1studiosdknamespacesSettingsUpdateJSONBody_Input as the provided Input3b4d0b6fd5b601973df85847b4f071da78ceffe933882fb84b7e61a82dda71cc
+func (t *POSTv1studiosdknamespacesSettingsUpdateJSONBody_Input) FromInput3b4d0b6fd5b601973df85847b4f071da78ceffe933882fb84b7e61a82dda71cc(v Input3b4d0b6fd5b601973df85847b4f071da78ceffe933882fb84b7e61a82dda71cc) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeInput3b4d0b6fd5b601973df85847b4f071da78ceffe933882fb84b7e61a82dda71cc performs a merge with any union data inside the POSTv1studiosdknamespacesSettingsUpdateJSONBody_Input, using the provided Input3b4d0b6fd5b601973df85847b4f071da78ceffe933882fb84b7e61a82dda71cc
+func (t *POSTv1studiosdknamespacesSettingsUpdateJSONBody_Input) MergeInput3b4d0b6fd5b601973df85847b4f071da78ceffe933882fb84b7e61a82dda71cc(v Input3b4d0b6fd5b601973df85847b4f071da78ceffe933882fb84b7e61a82dda71cc) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsPOSTv1studiosdknamespacesSettingsUpdateJSONBodyInput1 returns the union data inside the POSTv1studiosdknamespacesSettingsUpdateJSONBody_Input as a POSTv1studiosdknamespacesSettingsUpdateJSONBodyInput1
+func (t POSTv1studiosdknamespacesSettingsUpdateJSONBody_Input) AsPOSTv1studiosdknamespacesSettingsUpdateJSONBodyInput1() (POSTv1studiosdknamespacesSettingsUpdateJSONBodyInput1, error) {
+	var body POSTv1studiosdknamespacesSettingsUpdateJSONBodyInput1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPOSTv1studiosdknamespacesSettingsUpdateJSONBodyInput1 overwrites any union data inside the POSTv1studiosdknamespacesSettingsUpdateJSONBody_Input as the provided POSTv1studiosdknamespacesSettingsUpdateJSONBodyInput1
+func (t *POSTv1studiosdknamespacesSettingsUpdateJSONBody_Input) FromPOSTv1studiosdknamespacesSettingsUpdateJSONBodyInput1(v POSTv1studiosdknamespacesSettingsUpdateJSONBodyInput1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergePOSTv1studiosdknamespacesSettingsUpdateJSONBodyInput1 performs a merge with any union data inside the POSTv1studiosdknamespacesSettingsUpdateJSONBody_Input, using the provided POSTv1studiosdknamespacesSettingsUpdateJSONBodyInput1
+func (t *POSTv1studiosdknamespacesSettingsUpdateJSONBody_Input) MergePOSTv1studiosdknamespacesSettingsUpdateJSONBodyInput1(v POSTv1studiosdknamespacesSettingsUpdateJSONBodyInput1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t POSTv1studiosdknamespacesSettingsUpdateJSONBody_Input) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *POSTv1studiosdknamespacesSettingsUpdateJSONBody_Input) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // RequestEditorFn is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
 
@@ -13398,8 +14406,13 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	POSTv1studiosdkauthorizationPredicatesList(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// POSTv1studiosdkauthorizationPredicatesTypesWithBody performs a POST /v1/studio/sdk/authorization_predicates.types (the `POSTv1studiosdkauthorizationPredicatesTypes` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkauthorizationPredicatesTypesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// POSTv1studiosdkauthorizationPredicatesTypes performs a POST /v1/studio/sdk/authorization_predicates.types (the `POSTv1studiosdkauthorizationPredicatesTypes` operationId) request.
-	POSTv1studiosdkauthorizationPredicatesTypes(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkauthorizationPredicatesTypes(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesTypesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkauthorizationPredicatesUpdateWithBody performs a POST /v1/studio/sdk/authorization_predicates.update (the `POSTv1studiosdkauthorizationPredicatesUpdate` operationId) request,
 	// with any type of body and a specified content type.
@@ -13691,6 +14704,22 @@ type ClientInterface interface {
 	//
 	// Corresponds with POST /v1/studio/sdk/namespaces.list (the `POSTv1studiosdknamespacesList` operationId).
 	POSTv1studiosdknamespacesList(ctx context.Context, body POSTv1studiosdknamespacesListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespacesSettingsGetWithBody performs a POST /v1/studio/sdk/namespaces.settings_get (the `POSTv1studiosdknamespacesSettingsGet` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdknamespacesSettingsGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespacesSettingsGet performs a POST /v1/studio/sdk/namespaces.settings_get (the `POSTv1studiosdknamespacesSettingsGet` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdknamespacesSettingsGet(ctx context.Context, body POSTv1studiosdknamespacesSettingsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespacesSettingsUpdateWithBody performs a POST /v1/studio/sdk/namespaces.settings_update (the `POSTv1studiosdknamespacesSettingsUpdate` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdknamespacesSettingsUpdateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdknamespacesSettingsUpdate performs a POST /v1/studio/sdk/namespaces.settings_update (the `POSTv1studiosdknamespacesSettingsUpdate` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdknamespacesSettingsUpdate(ctx context.Context, body POSTv1studiosdknamespacesSettingsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdknamespacesUpdateWithBody performs a POST /v1/studio/sdk/namespaces.update (the `POSTv1studiosdknamespacesUpdate` operationId) request,
 	// with any type of body and a specified content type.
@@ -14610,9 +15639,24 @@ func (c *Client) POSTv1studiosdkauthorizationPredicatesList(ctx context.Context,
 	return c.Client.Do(req)
 }
 
+// POSTv1studiosdkauthorizationPredicatesTypesWithBody performs a POST /v1/studio/sdk/authorization_predicates.types (the `POSTv1studiosdkauthorizationPredicatesTypes` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkauthorizationPredicatesTypesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkauthorizationPredicatesTypesRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 // POSTv1studiosdkauthorizationPredicatesTypes performs a POST /v1/studio/sdk/authorization_predicates.types (the `POSTv1studiosdkauthorizationPredicatesTypes` operationId) request.
-func (c *Client) POSTv1studiosdkauthorizationPredicatesTypes(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPOSTv1studiosdkauthorizationPredicatesTypesRequest(c.Server)
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkauthorizationPredicatesTypes(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesTypesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkauthorizationPredicatesTypesRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -15514,6 +16558,62 @@ func (c *Client) POSTv1studiosdknamespacesListWithBody(ctx context.Context, cont
 // Corresponds with POST /v1/studio/sdk/namespaces.list (the `POSTv1studiosdknamespacesList` operationId).
 func (c *Client) POSTv1studiosdknamespacesList(ctx context.Context, body POSTv1studiosdknamespacesListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPOSTv1studiosdknamespacesListRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespacesSettingsGetWithBody performs a POST /v1/studio/sdk/namespaces.settings_get (the `POSTv1studiosdknamespacesSettingsGet` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdknamespacesSettingsGetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespacesSettingsGetRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespacesSettingsGet performs a POST /v1/studio/sdk/namespaces.settings_get (the `POSTv1studiosdknamespacesSettingsGet` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdknamespacesSettingsGet(ctx context.Context, body POSTv1studiosdknamespacesSettingsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespacesSettingsGetRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespacesSettingsUpdateWithBody performs a POST /v1/studio/sdk/namespaces.settings_update (the `POSTv1studiosdknamespacesSettingsUpdate` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdknamespacesSettingsUpdateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespacesSettingsUpdateRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdknamespacesSettingsUpdate performs a POST /v1/studio/sdk/namespaces.settings_update (the `POSTv1studiosdknamespacesSettingsUpdate` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdknamespacesSettingsUpdate(ctx context.Context, body POSTv1studiosdknamespacesSettingsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdknamespacesSettingsUpdateRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -17671,8 +18771,19 @@ func NewPOSTv1studiosdkauthorizationPredicatesListRequestWithBody(server string,
 	return req, nil
 }
 
-// NewPOSTv1studiosdkauthorizationPredicatesTypesRequest constructs an http.Request for the POSTv1studiosdkauthorizationPredicatesTypes method
-func NewPOSTv1studiosdkauthorizationPredicatesTypesRequest(server string) (*http.Request, error) {
+// NewPOSTv1studiosdkauthorizationPredicatesTypesRequest calls the generic POSTv1studiosdkauthorizationPredicatesTypes builder with application/json body
+func NewPOSTv1studiosdkauthorizationPredicatesTypesRequest(server string, body POSTv1studiosdkauthorizationPredicatesTypesJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkauthorizationPredicatesTypesRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkauthorizationPredicatesTypesRequestWithBody constructs an http.Request for the POSTv1studiosdkauthorizationPredicatesTypes method, with any body, and a specified content type
+func NewPOSTv1studiosdkauthorizationPredicatesTypesRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -17690,10 +18801,12 @@ func NewPOSTv1studiosdkauthorizationPredicatesTypesRequest(server string) (*http
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -19070,6 +20183,86 @@ func NewPOSTv1studiosdknamespacesListRequestWithBody(server string, contentType 
 	}
 
 	operationPath := fmt.Sprintf("/v1/studio/sdk/namespaces.list")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdknamespacesSettingsGetRequest calls the generic POSTv1studiosdknamespacesSettingsGet builder with application/json body
+func NewPOSTv1studiosdknamespacesSettingsGetRequest(server string, body POSTv1studiosdknamespacesSettingsGetJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdknamespacesSettingsGetRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdknamespacesSettingsGetRequestWithBody constructs an http.Request for the POSTv1studiosdknamespacesSettingsGet method, with any body, and a specified content type
+func NewPOSTv1studiosdknamespacesSettingsGetRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/namespaces.settings_get")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdknamespacesSettingsUpdateRequest calls the generic POSTv1studiosdknamespacesSettingsUpdate builder with application/json body
+func NewPOSTv1studiosdknamespacesSettingsUpdateRequest(server string, body POSTv1studiosdknamespacesSettingsUpdateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdknamespacesSettingsUpdateRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdknamespacesSettingsUpdateRequestWithBody constructs an http.Request for the POSTv1studiosdknamespacesSettingsUpdate method, with any body, and a specified content type
+func NewPOSTv1studiosdknamespacesSettingsUpdateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/namespaces.settings_update")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -21240,10 +22433,15 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	POSTv1studiosdkauthorizationPredicatesListWithResponse(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesListResponse, error)
 
-	// POSTv1studiosdkauthorizationPredicatesTypesWithResponse performs a POST /v1/studio/sdk/authorization_predicates.types (the `POSTv1studiosdkauthorizationPredicatesTypes` operationId) request.
+	// POSTv1studiosdkauthorizationPredicatesTypesWithBodyWithResponse performs a POST /v1/studio/sdk/authorization_predicates.types (the `POSTv1studiosdkauthorizationPredicatesTypes` operationId) request,
+	// with any type of body and a specified content type.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	POSTv1studiosdkauthorizationPredicatesTypesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesTypesResponse, error)
+	POSTv1studiosdkauthorizationPredicatesTypesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesTypesResponse, error)
+
+	// POSTv1studiosdkauthorizationPredicatesTypesWithResponse performs a POST /v1/studio/sdk/authorization_predicates.types (the `POSTv1studiosdkauthorizationPredicatesTypes` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkauthorizationPredicatesTypesWithResponse(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesTypesJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesTypesResponse, error)
 
 	// POSTv1studiosdkauthorizationPredicatesUpdateWithBodyWithResponse performs a POST /v1/studio/sdk/authorization_predicates.update (the `POSTv1studiosdkauthorizationPredicatesUpdate` operationId) request,
 	// with any type of body and a specified content type.
@@ -21581,6 +22779,26 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with POST /v1/studio/sdk/namespaces.list (the `POSTv1studiosdknamespacesList` operationId).
 	POSTv1studiosdknamespacesListWithResponse(ctx context.Context, body POSTv1studiosdknamespacesListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesListResponse, error)
+
+	// POSTv1studiosdknamespacesSettingsGetWithBodyWithResponse performs a POST /v1/studio/sdk/namespaces.settings_get (the `POSTv1studiosdknamespacesSettingsGet` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespacesSettingsGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesSettingsGetResponse, error)
+
+	// POSTv1studiosdknamespacesSettingsGetWithResponse performs a POST /v1/studio/sdk/namespaces.settings_get (the `POSTv1studiosdknamespacesSettingsGet` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespacesSettingsGetWithResponse(ctx context.Context, body POSTv1studiosdknamespacesSettingsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesSettingsGetResponse, error)
+
+	// POSTv1studiosdknamespacesSettingsUpdateWithBodyWithResponse performs a POST /v1/studio/sdk/namespaces.settings_update (the `POSTv1studiosdknamespacesSettingsUpdate` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespacesSettingsUpdateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesSettingsUpdateResponse, error)
+
+	// POSTv1studiosdknamespacesSettingsUpdateWithResponse performs a POST /v1/studio/sdk/namespaces.settings_update (the `POSTv1studiosdknamespacesSettingsUpdate` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdknamespacesSettingsUpdateWithResponse(ctx context.Context, body POSTv1studiosdknamespacesSettingsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesSettingsUpdateResponse, error)
 
 	// POSTv1studiosdknamespacesUpdateWithBodyWithResponse performs a POST /v1/studio/sdk/namespaces.update (the `POSTv1studiosdknamespacesUpdate` operationId) request,
 	// with any type of body and a specified content type.
@@ -24105,6 +25323,88 @@ func (r POSTv1studiosdknamespacesListResponse) ContentType() string {
 	return ""
 }
 
+type POSTv1studiosdknamespacesSettingsGetResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdknamespacesSettingsGetResponse) GetJSON200() *WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdknamespacesSettingsGetResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdknamespacesSettingsGetResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdknamespacesSettingsGetResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdknamespacesSettingsGetResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdknamespacesSettingsUpdateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdknamespacesSettingsUpdateResponse) GetJSON200() *WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdknamespacesSettingsUpdateResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdknamespacesSettingsUpdateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdknamespacesSettingsUpdateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdknamespacesSettingsUpdateResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type POSTv1studiosdknamespacesUpdateResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -26016,11 +27316,22 @@ func (c *ClientWithResponses) POSTv1studiosdkauthorizationPredicatesListWithResp
 	return ParsePOSTv1studiosdkauthorizationPredicatesListResponse(rsp)
 }
 
-// POSTv1studiosdkauthorizationPredicatesTypesWithResponse performs a POST /v1/studio/sdk/authorization_predicates.types (the `POSTv1studiosdkauthorizationPredicatesTypes` operationId) request.
+// POSTv1studiosdkauthorizationPredicatesTypesWithBodyWithResponse performs a POST /v1/studio/sdk/authorization_predicates.types (the `POSTv1studiosdkauthorizationPredicatesTypes` operationId) request,
+// with any type of body and a specified content type.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) POSTv1studiosdkauthorizationPredicatesTypesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesTypesResponse, error) {
-	rsp, err := c.POSTv1studiosdkauthorizationPredicatesTypes(ctx, reqEditors...)
+func (c *ClientWithResponses) POSTv1studiosdkauthorizationPredicatesTypesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesTypesResponse, error) {
+	rsp, err := c.POSTv1studiosdkauthorizationPredicatesTypesWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkauthorizationPredicatesTypesResponse(rsp)
+}
+
+// POSTv1studiosdkauthorizationPredicatesTypesWithResponse performs a POST /v1/studio/sdk/authorization_predicates.types (the `POSTv1studiosdkauthorizationPredicatesTypes` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkauthorizationPredicatesTypesWithResponse(ctx context.Context, body POSTv1studiosdkauthorizationPredicatesTypesJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkauthorizationPredicatesTypesResponse, error) {
+	rsp, err := c.POSTv1studiosdkauthorizationPredicatesTypes(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -26728,6 +28039,50 @@ func (c *ClientWithResponses) POSTv1studiosdknamespacesListWithResponse(ctx cont
 		return nil, err
 	}
 	return ParsePOSTv1studiosdknamespacesListResponse(rsp)
+}
+
+// POSTv1studiosdknamespacesSettingsGetWithBodyWithResponse performs a POST /v1/studio/sdk/namespaces.settings_get (the `POSTv1studiosdknamespacesSettingsGet` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespacesSettingsGetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesSettingsGetResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespacesSettingsGetWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespacesSettingsGetResponse(rsp)
+}
+
+// POSTv1studiosdknamespacesSettingsGetWithResponse performs a POST /v1/studio/sdk/namespaces.settings_get (the `POSTv1studiosdknamespacesSettingsGet` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespacesSettingsGetWithResponse(ctx context.Context, body POSTv1studiosdknamespacesSettingsGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesSettingsGetResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespacesSettingsGet(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespacesSettingsGetResponse(rsp)
+}
+
+// POSTv1studiosdknamespacesSettingsUpdateWithBodyWithResponse performs a POST /v1/studio/sdk/namespaces.settings_update (the `POSTv1studiosdknamespacesSettingsUpdate` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespacesSettingsUpdateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesSettingsUpdateResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespacesSettingsUpdateWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespacesSettingsUpdateResponse(rsp)
+}
+
+// POSTv1studiosdknamespacesSettingsUpdateWithResponse performs a POST /v1/studio/sdk/namespaces.settings_update (the `POSTv1studiosdknamespacesSettingsUpdate` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdknamespacesSettingsUpdateWithResponse(ctx context.Context, body POSTv1studiosdknamespacesSettingsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdknamespacesSettingsUpdateResponse, error) {
+	rsp, err := c.POSTv1studiosdknamespacesSettingsUpdate(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdknamespacesSettingsUpdateResponse(rsp)
 }
 
 // POSTv1studiosdknamespacesUpdateWithBodyWithResponse performs a POST /v1/studio/sdk/namespaces.update (the `POSTv1studiosdknamespacesUpdate` operationId) request,
@@ -28849,6 +30204,58 @@ func ParsePOSTv1studiosdknamespacesListResponse(rsp *http.Response) (*POSTv1stud
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdknamespacesSettingsGetResponse parses an HTTP response from a POSTv1studiosdknamespacesSettingsGetWithResponse call
+func ParsePOSTv1studiosdknamespacesSettingsGetResponse(rsp *http.Response) (*POSTv1studiosdknamespacesSettingsGetResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdknamespacesSettingsGetResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdknamespacesSettingsUpdateResponse parses an HTTP response from a POSTv1studiosdknamespacesSettingsUpdateWithResponse call
+func ParsePOSTv1studiosdknamespacesSettingsUpdateResponse(rsp *http.Response) (*POSTv1studiosdknamespacesSettingsUpdateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdknamespacesSettingsUpdateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

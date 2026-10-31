@@ -144,7 +144,7 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, in *Input, o
 	if err != nil {
 		return publicError(409, "Source access policies are unavailable or invalid")
 	}
-	createInput := &create.Input{NamespaceId: in.NamespaceId, Jwt: in.Jwt, Auth: in.Auth, ReportId: in.ReportID, Input: create.Options{AuthoringMode: source.Version.AuthoringMode, AuthoredDQL: dql, AuthoredSQL: source.Version.AuthoredSQL, ComponentSpec: source.Version.ComponentSpec, Notes: fmt.Sprintf("Draft from v%d revision %d; access policies preserved", in.VersionNo, in.ExpectedSourceRevision)}}
+	createInput := &create.Input{NamespaceId: in.NamespaceId, Jwt: in.Jwt, Auth: in.Auth, ReportId: in.ReportID, Input: create.Options{ResourceCheckEnabled: source.Version.ResourceCheckEnabled, AuthoringMode: source.Version.AuthoringMode, AuthoredDQL: dql, AuthoredSQL: source.Version.AuthoredSQL, ComponentSpec: source.Version.ComponentSpec, Notes: fmt.Sprintf("Draft from v%d revision %d; access policies preserved", in.VersionNo, in.ExpectedSourceRevision)}}
 	value, err = invoke(ctx, invoker, reflect.TypeFor[create.Component](), "version", "POST", "/v1/studio/sdk/versions.create", createInput)
 	if err != nil {
 		return err

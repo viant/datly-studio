@@ -27,39 +27,41 @@ const (
 )
 
 type ReportVersion struct {
-	ReportID            string          `json:"reportId"`
-	VersionNo           int             `json:"versionNo"`
-	State               string          `json:"state"`
-	AuthoringMode       string          `json:"authoringMode"`
-	AuthoredSQL         string          `json:"authoredSql,omitempty"`
-	AuthoredDQL         string          `json:"authoredDql,omitempty"`
-	ComponentSpec       json.RawMessage `json:"componentSpec,omitempty"`
-	DQLExportLimits     json.RawMessage `json:"dqlExportLimits,omitempty"`
-	TypeManifest        json.RawMessage `json:"typeManifest,omitempty"`
-	ResourceManifest    json.RawMessage `json:"resourceManifest,omitempty"`
-	ComponentDescriptor json.RawMessage `json:"componentDescriptor,omitempty"`
-	SpecFormatVersion   string          `json:"specFormatVersion"`
-	SpecHash            string          `json:"specHash"`
-	GeneratedDQL        string          `json:"generatedDql,omitempty"`
-	CompileStatus       string          `json:"compileStatus"`
-	CompileDiagnostics  json.RawMessage `json:"compileDiagnostics,omitempty"`
-	DatlyVersion        string          `json:"datlyVersion"`
-	CompilerVersion     string          `json:"compilerVersion"`
-	SourceRevision      int64           `json:"sourceRevision"`
-	Notes               string          `json:"notes,omitempty"`
-	CreatedBy           string          `json:"createdBy"`
-	CreatedAt           time.Time       `json:"createdAt"`
-	ValidatedAt         *time.Time      `json:"validatedAt,omitempty"`
-	PublishedAt         *time.Time      `json:"publishedAt,omitempty"`
+	ResourceCheckEnabled bool            `json:"resourceCheckEnabled"`
+	ReportID             string          `json:"reportId"`
+	VersionNo            int             `json:"versionNo"`
+	State                string          `json:"state"`
+	AuthoringMode        string          `json:"authoringMode"`
+	AuthoredSQL          string          `json:"authoredSql,omitempty"`
+	AuthoredDQL          string          `json:"authoredDql,omitempty"`
+	ComponentSpec        json.RawMessage `json:"componentSpec,omitempty"`
+	DQLExportLimits      json.RawMessage `json:"dqlExportLimits,omitempty"`
+	TypeManifest         json.RawMessage `json:"typeManifest,omitempty"`
+	ResourceManifest     json.RawMessage `json:"resourceManifest,omitempty"`
+	ComponentDescriptor  json.RawMessage `json:"componentDescriptor,omitempty"`
+	SpecFormatVersion    string          `json:"specFormatVersion"`
+	SpecHash             string          `json:"specHash"`
+	GeneratedDQL         string          `json:"generatedDql,omitempty"`
+	CompileStatus        string          `json:"compileStatus"`
+	CompileDiagnostics   json.RawMessage `json:"compileDiagnostics,omitempty"`
+	DatlyVersion         string          `json:"datlyVersion"`
+	CompilerVersion      string          `json:"compilerVersion"`
+	SourceRevision       int64           `json:"sourceRevision"`
+	Notes                string          `json:"notes,omitempty"`
+	CreatedBy            string          `json:"createdBy"`
+	CreatedAt            time.Time       `json:"createdAt"`
+	ValidatedAt          *time.Time      `json:"validatedAt,omitempty"`
+	PublishedAt          *time.Time      `json:"publishedAt,omitempty"`
 }
 
 type CreateVersionInput struct {
-	AuthoringMode string          `json:"authoringMode"`
-	AuthoredSQL   string          `json:"authoredSql,omitempty"`
-	AuthoredDQL   string          `json:"authoredDql,omitempty"`
-	Notes         string          `json:"notes,omitempty"`
-	CreatedBy     string          `json:"createdBy,omitempty"`
-	ComponentSpec json.RawMessage `json:"componentSpec,omitempty"`
+	ResourceCheckEnabled bool            `json:"resourceCheckEnabled,omitempty"`
+	AuthoringMode        string          `json:"authoringMode"`
+	AuthoredSQL          string          `json:"authoredSql,omitempty"`
+	AuthoredDQL          string          `json:"authoredDql,omitempty"`
+	Notes                string          `json:"notes,omitempty"`
+	CreatedBy            string          `json:"createdBy,omitempty"`
+	ComponentSpec        json.RawMessage `json:"componentSpec,omitempty"`
 }
 
 type CloneVersionInput struct {

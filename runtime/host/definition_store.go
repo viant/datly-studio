@@ -105,6 +105,8 @@ func (s *publishedDefinitionStore) Definitions(ctx context.Context, generation *
 			if err != nil {
 				return nil, err
 			}
+			mapped.owner, mapped.namespace, mapped.resourceCheck = item.OwnerId, item.Namespace, item.ResourceCheckEnabled
+			mapped.sourceRevision, mapped.authoredDQL = item.SourceRevision, item.AuthoredDql
 			rows = append(rows, mapped)
 		}
 		return rows, nil
@@ -133,6 +135,8 @@ func (s *publishedDefinitionStore) Definitions(ctx context.Context, generation *
 		if err != nil {
 			return nil, err
 		}
+		mapped.owner, mapped.namespace, mapped.resourceCheck = item.OwnerId, item.Namespace, item.ResourceCheckEnabled
+		mapped.sourceRevision, mapped.authoredDQL = item.SourceRevision, item.AuthoredDql
 		rows = append(rows, mapped)
 	}
 	return rows, nil

@@ -51,6 +51,19 @@ CREATE TABLE namespaces (
 CREATE INDEX idx_namespaces_owner_status_updated
     ON namespaces(owner_id, status, updated_at DESC);
 
+CREATE TABLE namespace_settings (
+    owner_id        VARCHAR(128) NOT NULL,
+    namespace       VARCHAR(200) NOT NULL,
+    setting_key     VARCHAR(128) NOT NULL,
+    value_json      JSON NOT NULL,
+    updated_at      DATETIME(6) NOT NULL,
+    updated_by      VARCHAR(128) NOT NULL,
+    PRIMARY KEY (owner_id, namespace, setting_key),
+    CONSTRAINT fk_namespace_settings_namespace
+        FOREIGN KEY (owner_id, namespace)
+        REFERENCES namespaces(owner_id, name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE resource_policy_namespace_bindings (
     tenant_id VARBINARY(512) NOT NULL,
     resource_kind VARBINARY(256) NOT NULL,
@@ -142,6 +155,7 @@ CREATE TABLE component_versions (
     type_manifest_json          JSON NOT NULL,
     resource_manifest_json      JSON NULL,
     component_descriptor_json   JSON NULL,
+    resource_check_enabled      BOOLEAN NOT NULL DEFAULT FALSE,
     compile_status              VARCHAR(32) NOT NULL,
     compile_diagnostics_json    JSON NULL,
     datly_version               VARCHAR(128) NOT NULL,
@@ -688,7 +702,7 @@ CREATE TABLE schema_version (
     version                 INTEGER NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO schema_version(version) VALUES (26);
+INSERT INTO schema_version(version) VALUES (27);
 
 CREATE TABLE tool_call_audit (
     id BIGINT NOT NULL AUTO_INCREMENT,

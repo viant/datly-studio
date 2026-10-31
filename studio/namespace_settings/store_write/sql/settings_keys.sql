@@ -1,0 +1,1 @@
+SELECT OwnerId AS OwnerId, Name AS Name FROM `/`

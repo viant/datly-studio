@@ -27,11 +27,12 @@ func TestCanonicalStudioSchemaInventory(t *testing.T) {
 	}
 
 	want := map[string][]string{
+		"namespace_settings":                 {"owner_id", "namespace", "setting_key", "value_json", "updated_at", "updated_by"},
 		"connectors":                         {"name", "dsn_template", "last_test_status"},
 		"namespaces":                         {"owner_id", "name", "title", "status", "etag"},
 		"authorization_predicates":           {"name", "package_path", "type_name", "owner_id", "status", "etag"},
 		"components":                         {"id", "namespace", "default_connector_name", "component_scope", "component_name", "current_draft_version"},
-		"component_versions":                 {"report_id", "authoring_mode", "authored_sql", "authored_dql", "generated_dql", "spec_hash"},
+		"component_versions":                 {"report_id", "authoring_mode", "authored_sql", "authored_dql", "generated_dql", "spec_hash", "resource_check_enabled"},
 		"component_views":                    {"report_id", "view_id", "source_kind"},
 		"component_fields":                   {"view_id", "field_name", "go_type"},
 		"component_parameters":               {"parameter_id", "name", "activation_json"},
@@ -50,6 +51,7 @@ func TestCanonicalStudioSchemaInventory(t *testing.T) {
 		"component_acl":                      {"subject_type", "subject_id", "can_use_dql", "etag"},
 	}
 	wantPrimaryKeys := map[string][]string{
+		"namespace_settings":                 {"owner_id", "namespace", "setting_key"},
 		"resource_policy_namespace_bindings": {"tenant_id", "resource_kind", "resource_id", "resource_version", "policy_revision"},
 	}
 	for table, columns := range want {

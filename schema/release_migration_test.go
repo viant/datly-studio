@@ -46,7 +46,7 @@ func TestReleaseMigration25IsExplicitAndRestoresCanonicalSchema(t *testing.T) {
 		t.Fatal(err)
 	}
 	version, err := SQLiteVersion(ctx, db)
-	if err != nil || version != CanonicalVersion {
+	if err != nil || version != 26 {
 		t.Fatalf("schema version=%d err=%v", version, err)
 	}
 }

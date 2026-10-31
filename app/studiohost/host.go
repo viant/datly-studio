@@ -177,6 +177,8 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	}
 	options.Native.Authoring = &authoringConfig
 	options.Browser.AuthoringModule = authoringConfig.ModulePath
+	options.Browser.SourceValidator = authoringConfig.SourceValidator
+	options.Browser.HostConfig = authoringConfig.Config
 	publicAddress, err := config.Endpoint.ListenAddress()
 	if err != nil {
 		return err
@@ -266,7 +268,7 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	if err != nil {
 		return fmt.Errorf("configure namespace reader JWT verification: %w", err)
 	}
-	runtimeConfig := runtimehost.Config{MCPToolNames: config.MCPToolNames, ToolCallAudit: auditService.Logger, Const: config.Const, InProcess: true, RootDir: config.BaseDir, ModulePath: authoringConfig.ModulePath,
+	runtimeConfig := runtimehost.Config{SourceValidator: authoringConfig.SourceValidator, PredicatePackages: authoringConfig.Config.PredicatePackages, CodecPackages: authoringConfig.Config.CodecPackages, MCPToolNames: config.MCPToolNames, ToolCallAudit: auditService.Logger, Const: config.Const, InProcess: true, RootDir: config.BaseDir, ModulePath: authoringConfig.ModulePath,
 		CodecFactory:     studiocodecs.New(readerJWT),
 		NamespaceMCPMode: "shared", HTTP: runtimehost.Listener{Address: "127.0.0.1:0"}, MCP: runtimehost.Listener{Address: namespaceAddress},
 		Studio:         runtimehost.Studio{Driver: catalog.Driver, DSN: catalog.DSN},

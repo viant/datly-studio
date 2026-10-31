@@ -1,6 +1,11 @@
 package dependencylink
 
 import (
+	_ "github.com/viant/datly-studio/studio/namespace_settings/authoring"
+	_ "github.com/viant/datly-studio/studio/namespace_settings/store_read"
+	_ "github.com/viant/datly-studio/studio/namespace_settings/store_write"
+	_ "github.com/viant/datly-studio/studio/report_versions/store_resource_check"
+
 	_ "github.com/viant/authz/component/policy/graph"
 	_ "github.com/viant/authz/component/policy/reader"
 	_ "github.com/viant/authz/component/policy/writer"

@@ -16,14 +16,21 @@ func TestEmbeddedSkillPublishesThroughNativeResourcePlans(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(plans) != 11 {
+	if len(plans) != 12 {
 		t.Fatalf("resource count=%d", len(plans))
 	}
 	handoffPublished := false
+	resourceChecksPublished := false
 	for _, plan := range plans {
+		if plan.URI() == "mcp://datastudio/skills/datly-studio-authoring/references/security-and-resource-checks.md" {
+			resourceChecksPublished = true
+		}
 		if plan.URI() == "mcp://datastudio/skills/datly-studio-authoring/references/report-consumers.md" {
 			handoffPublished = true
 		}
+	}
+	if !resourceChecksPublished {
+		t.Fatal("resource-check guide must be addressable through management MCP")
 	}
 	if !handoffPublished {
 		t.Fatal("report-consumer contract must be addressable through management MCP")

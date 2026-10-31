@@ -1,0 +1,22 @@
+#package('studio/namespace_settings/store_read')
+
+#import('json','encoding/json')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/namespace-settings/read', 'GET'))
+#setting($_ = $internal(true))
+#setting($_ = $connector('studio'))
+
+#define($_ = $OwnerId<string>(query/ownerId).Required().WithPredicate(0,'equal','s','owner_id'))
+#define($_ = $Namespace<string>(query/namespace).Required().WithPredicate(0,'equal','s','namespace'))
+#define($_ = $Settings<[]*StoredSetting>(output/view))
+
+SELECT settings.*, type(settings,'StoredSetting'),
+       CAST(settings.owner_id AS string), CAST(settings.namespace AS string),
+       CAST(settings.setting_key AS string), CAST(settings.updated_by AS string),
+       CAST(settings.value_json AS json.RawMessage),
+       tag(settings.value_json, 'sqlx:"value_json,enc=JSON"'),
+       set_limit(settings, 0)
+FROM (${embed:sql/settings.sql}) settings

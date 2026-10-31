@@ -55,6 +55,14 @@ queried or reconciled from metadata alone. Explanation does not require a save,
 validation, query or release. If source is capability-restricted, state that limit
 instead of inferring hidden SQL or broadening access.
 
+## Namespace policies and optional resource checks
+
+Read [security and resource checks](security-and-resource-checks.md) when changing
+predicate-package policy, resource thresholds or a component's resource-check
+option. Namespace thresholds alone do not opt components in. Preserve the stored
+flag for ordinary DQL edits; use `versions.apply` / `set_resource_check` when the
+user requests a change. Revalidate its returned source revision before release.
+
 ## Build and test
 
 Create the component and its draft through components.create and versions.create.

@@ -11,6 +11,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/viant/datly-studio/internal/predicatepolicy"
+	"github.com/viant/datly-studio/internal/settingstore"
+	resourcecheckstore "github.com/viant/datly-studio/studio/report_versions/store_resource_check"
+	"github.com/viant/datly-studio/studio/settings"
 	"sort"
 	"strconv"
 	"strings"
@@ -234,6 +238,8 @@ func (t *Transport) Invoke(ctx context.Context, operation string, input, output 
 		return t.testConnector(ctx, input, output)
 	case sdk.OperationConnectorDiscover, sdk.OperationConnectorSchemas, sdk.OperationConnectorTables, sdk.OperationConnectorTable, sdk.OperationConnectorTestSQL:
 		return t.connectorCatalog(ctx, operation, input, output)
+	case sdk.OperationNamespaceSettingsGet, sdk.OperationNamespaceSettingsUpdate:
+		return t.namespaceSettings(ctx, operation, input, output)
 	case sdk.OperationNamespaceCreate:
 		return t.createNamespace(ctx, input, output)
 	case sdk.OperationNamespaceGet:
@@ -255,7 +261,7 @@ func (t *Transport) Invoke(ctx context.Context, operation string, input, output 
 	case sdk.OperationAuthorizationPredicateDelete:
 		return t.deleteAuthorizationPredicate(ctx, input)
 	case sdk.OperationAuthorizationPredicateTypes:
-		return t.authorizationPredicateTypes(output)
+		return t.scopedAuthorizationPredicateTypes(ctx, input, output)
 	case sdk.OperationComponentCreate:
 		return t.createReport(ctx, input, output)
 	case sdk.OperationComponentGet:
@@ -435,7 +441,7 @@ func (t *Transport) authorize(ctx context.Context, operation string, input any) 
 	case sdk.OperationVersionLoadDQL, sdk.OperationVersionLoadArchive:
 		permission = "dql"
 	case sdk.OperationConnectorCreate, sdk.OperationConnectorUpdate, sdk.OperationConnectorActivate, sdk.OperationConnectorDisable, sdk.OperationConnectorDelete,
-		sdk.OperationNamespaceCreate, sdk.OperationNamespaceUpdate, sdk.OperationNamespaceDelete,
+		sdk.OperationNamespaceSettingsUpdate, sdk.OperationNamespaceCreate, sdk.OperationNamespaceUpdate, sdk.OperationNamespaceDelete,
 		sdk.OperationComponentCreate, sdk.OperationComponentUpdate, sdk.OperationVersionCreate, sdk.OperationVersionApply, sdk.OperationVersionValidate, sdk.OperationVersionBuilder,
 		sdk.OperationResourcesUpsertFile, sdk.OperationResourcesDeleteFile, sdk.OperationResourcesUpsertFolder, sdk.OperationResourcesDeleteFolder, sdk.OperationResourcesUpsertSkill, sdk.OperationResourcesDeleteSkill:
 		permission = "edit"
@@ -1153,7 +1159,7 @@ func (t *Transport) createVersion(ctx context.Context, input, output any) error 
 	specHash := hashVersion(in.ReportID, next, mode, in.Input.AuthoredSQL, in.Input.AuthoredDQL, spec)
 	now := t.now()
 	err = t.writeVersionInsert(ctx, &versioninsert.StoredVersion{
-		ReportId: in.ReportID, VersionNo: next, State: "draft", AuthoringMode: mode,
+		ResourceCheckEnabled: in.Input.ResourceCheckEnabled, ReportId: in.ReportID, VersionNo: next, State: "draft", AuthoringMode: mode,
 		AuthoredSql:       namespaceOptionalDescription(in.Input.AuthoredSQL),
 		AuthoredDql:       namespaceOptionalDescription(in.Input.AuthoredDQL),
 		ComponentSpecJson: spec, SpecFormatVersion: "studio.v1", SpecHash: specHash,
@@ -1161,7 +1167,7 @@ func (t *Transport) createVersion(ctx context.Context, input, output any) error 
 		CompileStatus: "pending", DatlyVersion: "v1", CompilerVersion: "studio.v1",
 		SourceRevision: 1, Notes: namespaceOptionalDescription(in.Input.Notes),
 		CreatedBy: in.Input.CreatedBy, CreatedAt: now,
-		Has: &versioninsert.StoredVersionHas{ReportId: true, VersionNo: true, State: true,
+		Has: &versioninsert.StoredVersionHas{ResourceCheckEnabled: true, ReportId: true, VersionNo: true, State: true,
 			AuthoringMode: true, AuthoredSql: true, AuthoredDql: true, ComponentSpecJson: true,
 			SpecFormatVersion: true, SpecHash: true, GeneratedDql: true, TypeManifestJson: true,
 			CompileStatus: true, DatlyVersion: true, CompilerVersion: true, SourceRevision: true,
@@ -1274,6 +1280,22 @@ func (t *Transport) applyVersionEdit(ctx context.Context, input, output any) err
 	capabilities, err := t.reportCapabilities(ctx, in.ReportID)
 	if err != nil {
 		return err
+	}
+	if strings.ToLower(strings.TrimSpace(in.Command.Kind)) == "set_resource_check" {
+		enabled, err := settings.ResourceCheckEnabled(in.Command.Payload)
+		if err != nil {
+			return invalid(err)
+		}
+		expected := current.SourceRevision
+		row := &resourcecheckstore.StoredVersion{ReportId: in.ReportID, VersionNo: in.VersionNo, ResourceCheckEnabled: enabled, SourceRevision: &expected, Has: &resourcecheckstore.StoredVersionHas{ReportId: true, VersionNo: true, ResourceCheckEnabled: true, SourceRevision: true}}
+		if err = t.writeVersionResourceCheck(ctx, nil, row); err != nil {
+			return err
+		}
+		updated, err := t.getVersionValue(ctx, in.ReportID, in.VersionNo)
+		if err != nil {
+			return err
+		}
+		return assign(output, &sdk.EditResult{Version: redactVersionDQL(updated, capabilities.CanUseDQL), Diagnostics: []sdk.Diagnostic{}})
 	}
 	spec := current.ComponentSpec
 	if len(spec) == 0 {
@@ -1919,6 +1941,14 @@ func (t *Transport) runReaderBuilder(ctx context.Context, reportID string, versi
 	if err != nil {
 		return nil, err
 	}
+	policy, err := settingstore.Read(ctx, t.DB, report.OwnerID, report.Namespace)
+	if err != nil {
+		return nil, err
+	}
+	types, err = predicatepolicy.Types(types, policy)
+	if err != nil {
+		return nil, err
+	}
 	if err = codeccatalog.RegisterBuiltinTypes(types); err != nil {
 		return nil, err
 	}
@@ -2056,6 +2086,9 @@ func (t *Transport) publish(ctx context.Context, input, output any, operation st
 	}
 	if version.CompileStatus != "valid" {
 		return &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "version must validate before publication"}
+	}
+	if err = t.requireNamespaceAuthorizationPredicate(ctx, in.ReportID, version); err != nil {
+		return err
 	}
 	if t.Activator == nil {
 		return &sdk.Error{Code: sdk.ErrorUnavailable, Message: "dynamic runtime activator is not configured"}

@@ -973,3 +973,16 @@ test('connector SQL errors retain native provider details over HTTP and MCP',asy
  const mcp=new StudioAPI({mode:'development',apiBaseURL:'http://studio.test',development:{subject:'fixture'}},{fetcher:async()=>Response.json({jsonrpc:'2.0',id:1,result:{isError:true,structuredContent:payload}})});
  await assert.rejects(mcp.fetchMCPDataSource({backend:{kind:'mcp_tool',method:'studio.sdk.connectors.test_sql'}},{name:'metadata',input:{sql:'SELECT * FROM missing_table'}}),error=>{assert.equal(error.message,payload.message);assert.deepEqual(error.providerError,detail);return true;});
 });
+
+test('predicate handler lookup carries the selected namespace and supports unscoped recovery',async()=>{
+ const calls=[];
+ const api=new StudioAPI({mode:'authenticated',apiBaseURL:'https://studio.example',authentication:{mode:'bff'}},{nativeCallTool:async()=>({}),fetcher:async()=>new Response('{}')});
+ api.nativeRequest=async(_method,operation,input)=>{calls.push({operation,input});return {items:[]};};
+ const source={backend:{kind:'mcp_tool',method:'studio.sdk.authorization_predicates.types'}};
+ api.setNamespace('a'.repeat(64));
+ await api.fetchMCPDataSource(source,{});
+ assert.deepEqual(calls.at(-1),{operation:'authorization_predicates.types',input:{namespaceId:'a'.repeat(64)}});
+ api.setNamespace(null);
+ await api.fetchMCPDataSource(source,{});
+ assert.deepEqual(calls.at(-1),{operation:'authorization_predicates.types',input:{}});
+});

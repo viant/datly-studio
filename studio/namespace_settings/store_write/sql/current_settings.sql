@@ -1,0 +1,2 @@
+SELECT r.owner_id, r.name, r.etag, r.updated_at FROM (SELECT * FROM  (SELECT n.owner_id,n.name,n.etag,n.updated_at FROM namespaces n WHERE n.deleted_at IS NULL
+)  namespace) r WHERE $criteria.CompositeIn("r", $SettingsKeys)

@@ -32,6 +32,10 @@ type Output struct {
 	Definitions []*Definition `parameter:"Definitions,kind=output,in=view,dataType=[]*Definition" view:"definition,type=Definition,table=components,limit=1" sql:"uri=studio_runtime_generations_store_exact:sql/read.sql"`
 }
 type Definition struct {
+	SourceRevision       int64   `sqlx:"source_revision"`
+	OwnerID              string  `sqlx:"owner_id"`
+	Namespace            string  `sqlx:"namespace"`
+	ResourceCheckEnabled bool    `sqlx:"resource_check_enabled"`
 	ReportID             string  `sqlx:"report_id"`
 	VersionNo            int     `sqlx:"version_no"`
 	ComponentScope       string  `sqlx:"component_scope"`

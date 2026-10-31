@@ -2,15 +2,18 @@ package sdk
 
 import (
 	"context"
+	"github.com/viant/datly-studio/studio/settings"
 	"time"
 )
 
 const (
-	OperationNamespaceCreate = "namespaces.create"
-	OperationNamespaceGet    = "namespaces.get"
-	OperationNamespaceList   = "namespaces.list"
-	OperationNamespaceUpdate = "namespaces.update"
-	OperationNamespaceDelete = "namespaces.delete"
+	OperationNamespaceSettingsGet    = "namespaces.settings_get"
+	OperationNamespaceSettingsUpdate = "namespaces.settings_update"
+	OperationNamespaceCreate         = "namespaces.create"
+	OperationNamespaceGet            = "namespaces.get"
+	OperationNamespaceList           = "namespaces.list"
+	OperationNamespaceUpdate         = "namespaces.update"
+	OperationNamespaceDelete         = "namespaces.delete"
 )
 
 type Namespace struct {
@@ -69,7 +72,18 @@ type NamespacePage struct {
 	Offset    int          `json:"offset"`
 }
 
+type NamespaceSettingsResult struct {
+	Settings *settings.Namespace `json:"settings"`
+	ETag     int64               `json:"etag"`
+}
+type UpdateNamespaceSettingsInput struct {
+	ETag     int64              `json:"etag"`
+	Settings settings.Namespace `json:"settings"`
+}
+
 type NamespaceService interface {
+	GetSettings(context.Context, string) (*NamespaceSettingsResult, error)
+	UpdateSettings(context.Context, string, UpdateNamespaceSettingsInput) (*NamespaceSettingsResult, error)
 	Create(context.Context, CreateNamespaceInput) (*Namespace, error)
 	Get(context.Context, string) (*Namespace, error)
 	List(context.Context, ListNamespacesInput) (*NamespacePage, error)
@@ -101,4 +115,16 @@ func (c namespaceClient) Delete(ctx context.Context, name string, etag int64) er
 		Name string `json:"name"`
 		ETag int64  `json:"etag"`
 	}{name, etag})
+}
+
+func (c namespaceClient) GetSettings(ctx context.Context, name string) (*NamespaceSettingsResult, error) {
+	return invoke[NamespaceSettingsResult](ctx, c.transport, OperationNamespaceSettingsGet, struct {
+		Name string `json:"name"`
+	}{name})
+}
+func (c namespaceClient) UpdateSettings(ctx context.Context, name string, input UpdateNamespaceSettingsInput) (*NamespaceSettingsResult, error) {
+	return invoke[NamespaceSettingsResult](ctx, c.transport, OperationNamespaceSettingsUpdate, struct {
+		Name  string                       `json:"name"`
+		Input UpdateNamespaceSettingsInput `json:"input"`
+	}{name, input})
 }

@@ -30,6 +30,7 @@ func (output *VersionGetOutput) ProjectItem(reportID string, versionNo int) erro
 	}
 	output.ResponseReportId = item.ReportId
 	output.ResponseVersionNo = item.VersionNo
+	output.ResourceCheckEnabled = item.ResourceCheckEnabled
 	output.State = item.State
 	output.AuthoringMode = item.AuthoringMode
 	if item.AuthoredSql != nil {

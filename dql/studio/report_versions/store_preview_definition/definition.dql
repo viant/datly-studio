@@ -15,6 +15,8 @@
 
 SELECT definition.*, type(definition, 'PreviewDefinition'),
        CAST(definition.report_id AS string),
+       CAST(definition.owner_id AS string), CAST(definition.namespace AS string),
+       CAST(definition.namespace_id AS string), CAST(definition.resource_check_enabled AS bool),
        CAST(definition.version_no AS int),
        CAST(definition.component_scope AS string),
        CAST(definition.component_name AS string),

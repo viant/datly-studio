@@ -175,6 +175,7 @@ export class StudioAPI {
 
   async fetchMCPDataSource(source, input = {}) {
     const method = source?.backend?.method;
+    if(method==='studio.sdk.authorization_predicates.types'&&this.namespaceId&&!input.namespaceId)input={...input,namespaceId:this.namespaceId};
     if (source?.backend?.kind !== 'mcp_tool' || !isManagedMCPTool(method)) throw new Error('A Studio MCP datasource is required.');
     const operation = method.startsWith('studio.sdk.') ? method.slice('studio.sdk.'.length) : method;
     const snapshot = this.namespaceSnapshot(operation);
@@ -470,7 +471,7 @@ export class StudioAPI {
   async deleteNamespace(name, etag) { await this.nativeRequest(postV1StudioSdkNamespacesDelete, 'namespaces.delete', { name, etag }); }
   listAuthorizationPredicates(input = {}) { return this.nativeRequest(postV1StudioSdkAuthorizationPredicatesList, 'authorization_predicates.list', input); }
   getAuthorizationPredicate(name) { return this.nativeRequest(postV1StudioSdkAuthorizationPredicatesGet, 'authorization_predicates.get', { name }); }
-  async listAuthorizationPredicateTypes() { return (await this.nativeRequest(postV1StudioSdkAuthorizationPredicatesTypes, 'authorization_predicates.types', {}))?.items ?? []; }
+  async listAuthorizationPredicateTypes() { return (await this.nativeRequest(postV1StudioSdkAuthorizationPredicatesTypes, 'authorization_predicates.types', this.namespaceId?{namespaceId:this.namespaceId}:{}))?.items ?? []; }
   createAuthorizationPredicate(input) { return this.nativeRequest(postV1StudioSdkAuthorizationPredicatesCreate, 'authorization_predicates.create', input); }
   updateAuthorizationPredicate(name, input) { return this.nativeRequest(postV1StudioSdkAuthorizationPredicatesUpdate, 'authorization_predicates.update', { name, input }); }
   async deleteAuthorizationPredicate(name, etag) { await this.nativeRequest(postV1StudioSdkAuthorizationPredicatesDelete, 'authorization_predicates.delete', { name, etag }); }

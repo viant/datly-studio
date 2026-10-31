@@ -43,6 +43,17 @@ var linkedComponentHolders = []struct {
 	packagePath string
 	holder      string
 }{
+	{"github.com/viant/datly-studio/studio/audit/configure", "Component"},
+	{"github.com/viant/datly-studio/studio/audit/export", "Component"},
+	{"github.com/viant/datly-studio/studio/audit/list", "Component"},
+	{"github.com/viant/datly-studio/studio/audit/status", "Component"},
+
+	{"github.com/viant/datly-studio/studio/namespace_settings/authoring", "GetComponent"},
+	{"github.com/viant/datly-studio/studio/namespace_settings/authoring", "UpdateComponent"},
+	{"github.com/viant/datly-studio/studio/namespace_settings/store_read", "SettingsComponent"},
+	{"github.com/viant/datly-studio/studio/namespace_settings/store_write", "SettingsComponent"},
+	{"github.com/viant/datly-studio/studio/report_versions/store_resource_check", "VersionComponent"},
+
 	{"github.com/viant/datly-studio/studio/auth/reader", "ContextComponent"},
 	{"github.com/viant/datly-studio/studio/catalog", "ListComponent"},
 	{"github.com/viant/datly-studio/studio/catalog", "GetComponent"},

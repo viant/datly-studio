@@ -36,6 +36,8 @@ func TestCanonicalAuditColumnInventory(t *testing.T) {
 	// this list still needs explicit created/updated actor semantics; a newly
 	// added table must already be audited or deliberately join the backlog.
 	legacyBacklog := map[string]struct{}{
+		// Settings currently retain only the last update actor/time, as designed.
+		"namespace_settings": {},
 		"connectors": {}, "namespaces": {}, "authorization_predicates": {},
 		"components": {}, "component_versions": {}, "component_views": {},
 		"component_fields": {}, "component_parameters": {}, "component_predicates": {},

@@ -44,6 +44,7 @@ import (
 	connectortestsql "github.com/viant/datly-studio/studio/connectors/test_sql"
 	connectorupdate "github.com/viant/datly-studio/studio/connectors/update"
 	"github.com/viant/datly-studio/studio/host"
+	namespacesettings "github.com/viant/datly-studio/studio/namespace_settings/authoring"
 	namespaceskills "github.com/viant/datly-studio/studio/namespace_skills/authoring"
 	namespacecreate "github.com/viant/datly-studio/studio/namespaces/create"
 	namespacedelete "github.com/viant/datly-studio/studio/namespaces/delete"
@@ -397,6 +398,23 @@ func run(ctx context.Context, output string) error {
 	if err != nil {
 		return err
 	}
+	namespaceSettingsGetHandler, err := (namespacesettings.GetComponent{}).DatlyHandler("NewGet")()
+	if err != nil {
+		return err
+	}
+	namespaceSettingsGet, err := compile(reflect.TypeFor[namespacesettings.GetComponent](), reflect.TypeFor[namespacesettings.Input](), reflect.TypeFor[namespacesettings.Output](), resources, types, codec, namespaceSettingsGetHandler)
+	if err != nil {
+		return err
+	}
+	namespaceSettingsUpdateHandler, err := (namespacesettings.UpdateComponent{}).DatlyHandler("NewUpdate")()
+	if err != nil {
+		return err
+	}
+	namespaceSettingsUpdate, err := compile(reflect.TypeFor[namespacesettings.UpdateComponent](), reflect.TypeFor[namespacesettings.Input](), reflect.TypeFor[namespacesettings.Output](), resources, types, codec, namespaceSettingsUpdateHandler)
+	if err != nil {
+		return err
+	}
+
 	namespaceUpdateHandler, err := (namespaceupdate.Component{}).DatlyHandler("NewNamespaceUpdate")()
 	if err != nil {
 		return err
@@ -870,7 +888,7 @@ func run(ctx context.Context, output string) error {
 	}
 	document, err := (openapi.Generator{}).Generate(ctx, openapi.Request{
 		Info:       openapi3.Info{Title: "Datly Studio SDK", Version: "1.0.0"},
-		Components: []*registry.RegisteredComponent{auditexportComponent, auditstatusComponent, auditconfigureComponent, auditlistComponent, auth, namedPolicy, policyGet, policyContext, policyCreate, policyReplace, authorizationCheck, accessList, accessGet, accessContext, accessReplace, aclList, aclDelete, aclUpsert, codecTypes, predicateTypes, predicateGet, predicateCreate, predicateUpdate, predicateDelete, predicateList, connectorList, connectorOne, connectorCreate, connectorDiscover, connectorSchemas, connectorTables, connectorTable, connectorTest, connectorTestSQL, previewExecution, connectorActivate, connectorDelete, connectorDisable, connectorUpdate, namespaceList, namespaceOne, namespaceCreate, namespaceDelete, namespaceUpdate, namespaceSkillList, namespaceSkillGet, namespaceSkillCreate, namespaceSkillUpdate, namespaceSkillDelete, namespaceSkillRevisions, namespaceSkillPublish, namespaceSkillUnpublish, reportList, reportOne, reportCreate, reportUpdate, publicationOne, publicationHistory, publicationPublish, publicationRollback, publicationUnpublish, versionOne, versionCreate, versionClone, versionLoad, versionArchive, versionInspect, versionApply, versionBuilder, versionValidate, versionTestView, versionTestRelation, versionTestCompose, versionWarmup, versionPage, versionExport, versionDescriptor, versionDownload, resourceSnapshot, resourceUpsertFile, resourceDeleteFile, resourceUpsertFolder, resourceDeleteFolder, resourceUpsertSkill, resourceDeleteSkill, warmupOne, warmupPage, runtimeStatus},
+		Components: []*registry.RegisteredComponent{auditexportComponent, auditstatusComponent, auditconfigureComponent, auditlistComponent, auth, namedPolicy, policyGet, policyContext, policyCreate, policyReplace, authorizationCheck, accessList, accessGet, accessContext, accessReplace, aclList, aclDelete, aclUpsert, codecTypes, predicateTypes, predicateGet, predicateCreate, predicateUpdate, predicateDelete, predicateList, connectorList, connectorOne, connectorCreate, connectorDiscover, connectorSchemas, connectorTables, connectorTable, connectorTest, connectorTestSQL, previewExecution, connectorActivate, connectorDelete, connectorDisable, connectorUpdate, namespaceList, namespaceOne, namespaceCreate, namespaceDelete, namespaceUpdate, namespaceSettingsGet, namespaceSettingsUpdate, namespaceSkillList, namespaceSkillGet, namespaceSkillCreate, namespaceSkillUpdate, namespaceSkillDelete, namespaceSkillRevisions, namespaceSkillPublish, namespaceSkillUnpublish, reportList, reportOne, reportCreate, reportUpdate, publicationOne, publicationHistory, publicationPublish, publicationRollback, publicationUnpublish, versionOne, versionCreate, versionClone, versionLoad, versionArchive, versionInspect, versionApply, versionBuilder, versionValidate, versionTestView, versionTestRelation, versionTestCompose, versionWarmup, versionPage, versionExport, versionDescriptor, versionDownload, resourceSnapshot, resourceUpsertFile, resourceDeleteFile, resourceUpsertFolder, resourceDeleteFolder, resourceUpsertSkill, resourceDeleteSkill, warmupOne, warmupPage, runtimeStatus},
 		Routes: []spec.RouteRef{
 			{Method: "POST", Path: "/v1/studio/sdk/codecs.types"},
 			{Method: "POST", Path: "/v1/studio/sdk/namespace_skills.publish"},
@@ -924,6 +942,8 @@ func run(ctx context.Context, output string) error {
 			{Method: "POST", Path: "/v1/studio/sdk/namespaces.create"},
 			{Method: "POST", Path: "/v1/studio/sdk/namespaces.delete"},
 			{Method: "POST", Path: "/v1/studio/sdk/namespaces.update"},
+			{Method: "POST", Path: "/v1/studio/sdk/namespaces.settings_get"},
+			{Method: "POST", Path: "/v1/studio/sdk/namespaces.settings_update"},
 			{Method: "POST", Path: "/v1/studio/sdk/components.get"},
 			{Method: "POST", Path: "/v1/studio/sdk/components.create"},
 			{Method: "POST", Path: "/v1/studio/sdk/components.update"},

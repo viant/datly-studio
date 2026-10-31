@@ -1,4 +1,4 @@
-SELECT version.* FROM  (SELECT v.report_id, v.version_no, v.state, v.authoring_mode,
+SELECT version.* FROM  (SELECT v.report_id, v.resource_check_enabled, v.version_no, v.state, v.authoring_mode,
        v.authored_sql, v.authored_dql, v.component_spec_json,
        v.spec_format_version, v.spec_hash, v.generated_dql,
        v.dql_export_limits_json, v.type_manifest_json,

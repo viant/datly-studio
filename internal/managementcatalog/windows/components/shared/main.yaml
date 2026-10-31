@@ -89,6 +89,13 @@ window:
               dataField: sourceRevision
               type: number
               readOnly: true
+            - id: resourceCheckEnabled
+              label: Check query resources against namespace limits
+              dataField: resourceCheckEnabled
+              type: checkbox
+              readOnlyWhen:
+                selector: state
+                notEquals: draft
             - id: state
               label: Version state
               dataField: state
@@ -96,6 +103,17 @@ window:
               readOnly: true
           toolbar:
             items:
+              - id: save-resource-check
+                label: Save resource check
+                icon: tick
+                disabledWhen:
+                  dataSourceRef: component_draft
+                  selector: state
+                  notEquals: draft
+                on:
+                  - event: onClick
+                    handler: management.saveResourceCheck
+                hideLabel: false
               - id: load-version
                 label: Load version
                 icon: refresh

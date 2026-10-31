@@ -112,5 +112,11 @@ func (c authorizationPredicateClient) Delete(ctx context.Context, name string, e
 	}{name, etag})
 }
 func (c authorizationPredicateClient) Types(ctx context.Context) (*AuthorizationPredicateTypePage, error) {
-	return invoke[AuthorizationPredicateTypePage](ctx, c.transport, OperationAuthorizationPredicateTypes, nil)
+	var input any
+	if id, ok := NamespaceSelectionFromContext(ctx); ok {
+		input = struct {
+			NamespaceId string `json:"namespaceId"`
+		}{id}
+	}
+	return invoke[AuthorizationPredicateTypePage](ctx, c.transport, OperationAuthorizationPredicateTypes, input)
 }

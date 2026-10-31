@@ -1,4 +1,4 @@
-SELECT version.* FROM  (SELECT v.report_id, v.version_no, v.state, v.authoring_mode,
+SELECT version.* FROM  (SELECT v.report_id,v.resource_check_enabled, v.version_no, v.state, v.authoring_mode,
        v.authored_sql,
        CASE WHEN r.owner_id = $Jwt.Subject OR COALESCE(acl.can_use_dql, FALSE) = TRUE
             THEN v.authored_dql ELSE NULL END AS authored_dql,

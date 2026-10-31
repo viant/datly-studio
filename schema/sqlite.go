@@ -23,7 +23,7 @@ var (
 )
 
 // CanonicalVersion identifies the current schema layout, not an upgrade sequence.
-const CanonicalVersion = 26
+const CanonicalVersion = 27
 
 // ApplySQLite applies one embedded SQLite schema or fixture script.
 func ApplySQLite(ctx context.Context, db *sql.DB, name string) error {
