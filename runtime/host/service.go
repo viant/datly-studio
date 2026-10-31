@@ -297,7 +297,7 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 	phaseStarted = time.Now()
 	pooled, err = openRuntimeConnectorSet(ctx, definitions, active, s.secrets, func(definition definition) fs.FS {
 		return loadedResources.ByVersion[studiors.Version{ReportID: definition.reportID, VersionNo: definition.versionNo}]
-	}, s.config.Const)
+	}, types, s.config.Const)
 	if err != nil {
 		return nil, err
 	}
@@ -338,7 +338,11 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 			}
 			sort.Strings(available)
 			selected := map[string]connectorDefinition{}
-			for _, name := range referencedRuntimeConnectors(compileCtx, definition, available, contractResources, s.config.Const) {
+			names, inspectErr := referencedRuntimeConnectors(compileCtx, definition, available, contractResources, catalog, s.config.Const)
+			if inspectErr != nil {
+				return contractResult{}, inspectErr
+			}
+			for _, name := range names {
 				item, exists := active[name]
 				if !exists {
 					cacheable = false

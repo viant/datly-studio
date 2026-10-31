@@ -9,12 +9,15 @@ import (
 
 	"github.com/viant/datly-studio/internal/connectorinit"
 	"github.com/viant/datly-studio/internal/connectorsecret"
+	"github.com/viant/datly-studio/internal/predicatepolicy"
 	"github.com/viant/datly/authoring/readerbuilder"
 	"github.com/viant/datly/bootstrap/connector"
 	"github.com/viant/datly/constant"
 	"github.com/viant/datly/spec"
 	dsql "github.com/viant/datly/sql"
+	"github.com/viant/datly/transcribe"
 	"github.com/viant/datly/transcribe/column"
+	"github.com/viant/datly/typecatalog"
 )
 
 // A generation owns Datly's connector set. Readers borrow its named pools;
@@ -43,7 +46,7 @@ func (p *runtimeConnectorSet) sources(ctx context.Context, name string) (*runtim
 	}
 	return &runtimeSources{sql: sqlComponent, connections: p.connections}, nil
 }
-func openRuntimeConnectorSet(ctx context.Context, definitions []definition, active map[string]connectorDefinition, resolver connectorsecret.Resolver, resources func(definition) fs.FS, constants ...*constant.Values) (*runtimeConnectorSet, error) {
+func openRuntimeConnectorSet(ctx context.Context, definitions []definition, active map[string]connectorDefinition, resolver connectorsecret.Resolver, resources func(definition) fs.FS, types *typecatalog.Catalog, constants ...*constant.Values) (*runtimeConnectorSet, error) {
 	var instance *constant.Values
 	if len(constants) > 0 {
 		instance = constants[0]
@@ -59,7 +62,15 @@ func openRuntimeConnectorSet(ctx context.Context, definitions []definition, acti
 		if resources != nil {
 			resourceFS = resources(definition)
 		}
-		for _, name := range referencedRuntimeConnectors(ctx, definition, available, resourceFS, instance) {
+		catalog, err := predicatepolicy.Types(types, definition.policy)
+		if err != nil {
+			return nil, err
+		}
+		names, err := referencedRuntimeConnectors(ctx, definition, available, resourceFS, catalog, instance)
+		if err != nil {
+			return nil, err
+		}
+		for _, name := range names {
 			required[name] = true
 		}
 	}
@@ -107,9 +118,19 @@ func openRuntimeConnectorSet(ctx context.Context, definitions []definition, acti
 
 // referencedRuntimeConnectors is the same declared DQL connector closure used
 // both to open execution pools and to partition compiled artifact identities.
-func referencedRuntimeConnectors(ctx context.Context, definition definition, available []string, resources fs.FS, constants *constant.Values) []string {
+// Its exact resources and type authority must match native compilation; a partial
+// inspection cannot safely define either closure.
+func referencedRuntimeConnectors(ctx context.Context, definition definition, available []string, resources fs.FS, types *typecatalog.Catalog, constants *constant.Values) ([]string, error) {
 	required := map[string]bool{definition.connector: true}
-	inspection := readerbuilder.New(readerbuilder.Config{Const: constants, Scope: definition.scope, Name: definition.name, Resources: resources, AvailableConnectors: available}).Apply(ctx, readerbuilder.Request{DQL: definition.dql, Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
+	inspection := readerbuilder.New(readerbuilder.Config{Const: constants, Scope: definition.scope, Name: definition.name, Resources: resources, Types: types, AvailableConnectors: available}).Apply(ctx, readerbuilder.Request{DQL: definition.dql, Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
+	for _, diagnostic := range inspection.Diagnostics {
+		if diagnostic.IsError() {
+			return nil, fmt.Errorf("inspect connectors for %s version %d: %w", definition.reportID, definition.versionNo, &transcribe.CompileError{Diagnostics: inspection.Diagnostics})
+		}
+	}
+	if inspection.Structure == nil || inspection.Structure.Component == nil {
+		return nil, fmt.Errorf("inspect connectors for %s version %d: native component unavailable", definition.reportID, definition.versionNo)
+	}
 	if inspection.Structure != nil {
 		// Independent input views retain their connector in the native component
 		// graph rather than an outer use_connector function.
@@ -146,5 +167,5 @@ func referencedRuntimeConnectors(ctx context.Context, definition definition, ava
 		names = append(names, name)
 	}
 	sort.Strings(names)
-	return names
+	return names, nil
 }
