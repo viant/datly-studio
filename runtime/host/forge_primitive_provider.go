@@ -95,11 +95,7 @@ func (s *stockPrimitiveSource) materialize(bundle stockWindowBundle, entry stock
 			if v.DataSourceResources == nil {
 				v.DataSourceResources = map[string]primitive.DataSourceReference{}
 			}
-			datasourceBytes, err := json.Marshal(stockDatasourceDefinition{SchemaVersion: 1, DataSource: &copy})
-			if err != nil {
-				return nil, err
-			}
-			v.DataSourceResources[id] = primitive.DataSourceReference{ProviderIdentity: s.original.service.config.Forge.ProviderIdentity, Resource: identity.ResourceRef{URI: stockDatasourceURI(entry.uri, id).String(), Revision: identity.WorkingCandidate}, ContentFingerprint: identity.ContentFingerprint(datasourceBytes)}
+			v.DataSourceResources[id] = primitive.DataSourceReference{ProviderIdentity: s.original.service.config.Forge.ProviderIdentity, Resource: identity.ResourceRef{URI: stockDatasourceURI(entry.uri, id).String(), Revision: identity.WorkingCandidate}}
 		}
 	}
 	fingerprint, err := types.WindowVariantFingerprint(v)

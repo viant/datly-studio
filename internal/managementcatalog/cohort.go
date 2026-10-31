@@ -47,8 +47,8 @@ func CompileDefinitions(definitions []Definition) ([]Definition, error) {
 }
 
 // CompileWindowBundle checks every declared child against the same producer
-// snapshot, then removes those transport references. Missing or drifted child
-// bytes reject the candidate before it can replace an active published root.
+// snapshot, then removes those transport references. Missing children or drifted
+// datasource descriptors reject the candidate before it replaces a published root.
 func CompileWindowBundle(root Definition, catalog map[string]Definition) (json.RawMessage, error) {
 	uri, err := identity.ParseResourceURI(root.URI)
 	if err != nil || uri.Kind != "window" {
@@ -66,7 +66,7 @@ func CompileWindowBundle(root Definition, catalog map[string]Definition) (json.R
 		}
 		for id, reference := range variant.DataSourceResources {
 			child, ok := catalog[reference.Resource.URI]
-			if !ok || identity.ContentFingerprint(child.JSON) != reference.ContentFingerprint {
+			if !ok {
 				return nil, fmt.Errorf("management window datasource is missing or changed")
 			}
 			childURI, parseErr := identity.ParseResourceURI(child.URI)

@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	ds "github.com/viant/forge/backend/datasource/contract"
-	identity "github.com/viant/forge/backend/resource"
 	"github.com/viant/forge/backend/types"
 )
 
@@ -61,7 +60,7 @@ func TestNamespaceWindowPortableContract(t *testing.T) {
 			}
 			for _, variant := range envelope.Variants {
 				ref := variant.DataSourceResources["namespaces"]
-				if ref.Resource.URI != "datasource://"+namespace+"/namespaces" || ref.ProviderIdentity != config.ProviderIdentity || ref.ContentFingerprint != identity.ContentFingerprint(byURI["datasource://"+namespace+"/namespaces"].JSON) {
+				if ref.Resource.URI != "datasource://"+namespace+"/namespaces" || ref.ProviderIdentity != config.ProviderIdentity || ref.Resource.Revision != "working" {
 					t.Fatal("window does not bind the exact reusable datasource")
 				}
 				if variant.Window.Namespace != namespace || len(variant.Window.View.Content.Containers) != 3 {

@@ -181,8 +181,8 @@ func testConfiguredStudioGateway(t *testing.T, count int) {
 				return
 			}
 			raw, _ := json.Marshal(command.Params)
-			if !strings.Contains(string(raw), "original-root") || !strings.Contains(string(raw), "executionProof") || strings.Contains(string(raw), "forged-metadata") {
-				worker <- fmt.Errorf("UI delivery lost exact approved metadata/proofs")
+			if !strings.Contains(string(raw), "original-root") || strings.Contains(string(raw), "executionProof") || strings.Contains(string(raw), "dependencyPins") || strings.Contains(string(raw), "forged-metadata") {
+				worker <- fmt.Errorf("UI delivery changed approved metadata or exposed private proofs")
 				return
 			}
 			worker <- uiClient.WriteJSON(map[string]any{"id": command.ID, "ok": true, "result": map[string]any{"windowId": "studio-instance"}})

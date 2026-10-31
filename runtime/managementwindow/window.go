@@ -21,7 +21,7 @@ type Definition struct {
 }
 
 // Build binds every datasource to one existing producer connection and returns
-// a format-3 window plus reusable, fingerprinted datasource resources.
+// a format-3 window plus reusable logical datasource resources.
 func Build(config Config, name string, window *types.Window, sources map[string]*ds.DataSource) ([]Definition, error) {
 	if window == nil || config.ProviderIdentity == "" || strings.TrimSpace(config.ProviderIdentity) != config.ProviderIdentity || config.MCPService == "" || strings.TrimSpace(config.MCPService) != config.MCPService {
 		return nil, fmt.Errorf("management window, provider and MCP service required")
@@ -80,7 +80,7 @@ func Build(config Config, name string, window *types.Window, sources map[string]
 		window.DataSource[id] = source.DataSource
 		window.ResourceDependencies[id] = fingerprint
 		variant.DataSources[id] = descriptor
-		variant.DataSourceResources[id] = primitive.DataSourceReference{Resource: identity.ResourceRef{URI: uri, Revision: identity.WorkingCandidate}, ContentFingerprint: identity.ContentFingerprint(resource), ProviderIdentity: config.ProviderIdentity}
+		variant.DataSourceResources[id] = primitive.DataSourceReference{Resource: identity.ResourceRef{URI: uri, Revision: identity.WorkingCandidate}, ProviderIdentity: config.ProviderIdentity}
 		definitions = append(definitions, Definition{URI: uri, JSON: resource})
 	}
 	fingerprint, err := types.WindowVariantFingerprint(variant)

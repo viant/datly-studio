@@ -27,7 +27,7 @@ import (
 func TestStockClosureReferencesRejectsUnknownAndMissingMembers(t *testing.T) {
 	owner := identity.ResourceURI{Kind: "window", Namespace: "team", Name: "overview"}
 	entry := stockWindowEntry{uri: owner, config: ForgeWindow{Components: map[string]ComponentReference{"records": {Kind: "dynamic", ID: "records", Revision: "1"}}}}
-	ref := primitive.DataSourceReference{ProviderIdentity: "fixture", Resource: identity.ResourceRef{URI: stockDatasourceURI(owner, "records").String(), Revision: identity.WorkingCandidate}, ContentFingerprint: identity.ContentFingerprint([]byte("definition"))}
+	ref := primitive.DataSourceReference{ProviderIdentity: "fixture", Resource: identity.ResourceRef{URI: stockDatasourceURI(owner, "records").String(), Revision: identity.WorkingCandidate}}
 	manifest := &types.WindowResourceEnvelope{Variants: map[string]types.WindowResourceVariant{"default": {DataSourceResources: map[string]primitive.DataSourceReference{"records": ref}}}}
 	if got, err := stockClosureReferences(manifest, entry, "fixture"); err != nil || len(got) != 1 {
 		t.Fatalf("valid closure references rejected: len=%d err=%v", len(got), err)
@@ -42,6 +42,11 @@ func TestStockClosureReferencesRejectsUnknownAndMissingMembers(t *testing.T) {
 		"wrong provider": func() {
 			bad := ref
 			bad.ProviderIdentity = "other"
+			manifest.Variants["default"].DataSourceResources["records"] = bad
+		},
+		"wrong revision": func() {
+			bad := ref
+			bad.Resource.Revision = "2"
 			manifest.Variants["default"].DataSourceResources["records"] = bad
 		},
 		"missing ref": func() { delete(manifest.Variants["default"].DataSourceResources, "records") },

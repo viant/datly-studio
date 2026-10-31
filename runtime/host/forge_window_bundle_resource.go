@@ -130,7 +130,7 @@ func compileStockWindowClosure(windowBytes []byte, entry stockWindowEntry, provi
 				return compiledStockWindowClosure{}, identity.ErrResourceStale
 			}
 			candidate, err := json.Marshal(stockDatasourceDefinition{SchemaVersion: 1, DataSource: &source})
-			if err != nil || validateStockDatasourceDefinition(1, candidate) != nil || identity.ContentFingerprint(candidate) != ref.ContentFingerprint || raw != nil && !bytes.Equal(raw, candidate) {
+			if err != nil || validateStockDatasourceDefinition(1, candidate) != nil || raw != nil && !bytes.Equal(raw, candidate) {
 				return compiledStockWindowClosure{}, identity.ErrResourceStale
 			}
 			raw = candidate
@@ -138,7 +138,7 @@ func compileStockWindowClosure(windowBytes []byte, entry stockWindowEntry, provi
 		if len(raw) == 0 {
 			return compiledStockWindowClosure{}, identity.ErrResourceStale
 		}
-		entries = append(entries, stockWindowClosureEntry{ID: id, URI: ref.Resource.URI, Revision: identity.WorkingCandidate, ContentFingerprint: ref.ContentFingerprint, DefinitionText: string(raw)})
+		entries = append(entries, stockWindowClosureEntry{ID: id, URI: ref.Resource.URI, Revision: identity.WorkingCandidate, ContentFingerprint: identity.ContentFingerprint(raw), DefinitionText: string(raw)})
 	}
 	content, err := json.Marshal(entries)
 	if err != nil {
@@ -158,7 +158,7 @@ func stockClosureReferences(manifest *types.WindowResourceEnvelope, entry stockW
 	refs := map[string]primitive.DataSourceReference{}
 	for _, variant := range manifest.Variants {
 		for id, ref := range variant.DataSourceResources {
-			if _, configured := entry.config.Components[id]; !configured || ref.ProviderIdentity != providerIdentity || ref.Resource.URI != stockDatasourceURI(entry.uri, id).String() || ref.Resource.Revision != identity.WorkingCandidate || ref.ContentFingerprint == "" {
+			if _, configured := entry.config.Components[id]; !configured || ref.ProviderIdentity != providerIdentity || ref.Resource.URI != stockDatasourceURI(entry.uri, id).String() || ref.Resource.Revision != identity.WorkingCandidate {
 				return nil, identity.ErrResourceDenied
 			}
 			if previous, exists := refs[id]; exists && previous != ref {

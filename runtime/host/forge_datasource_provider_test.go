@@ -138,7 +138,7 @@ func TestConfiguredDatasourcePublicationMCPProofAndNativeSQL(t *testing.T) {
 		var got primitive.GetResult
 		require.NoError(t, json.Unmarshal(datasourceBytes, &got))
 		require.NotNil(t, got.ExecutionProof)
-		require.Equal(t, got.ResolvedResource.ContentFingerprint, variant.DataSourceResources["records"].ContentFingerprint)
+		require.True(t, variant.DataSourceResources["records"].MatchesResolved(*got.ResolvedResource))
 		var definition stockDatasourceDefinition
 		require.NoError(t, json.Unmarshal(got.Resource.DefinitionBytes, &definition))
 		require.Equal(t, "", definition.DataSource.Backend.Service)
