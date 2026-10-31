@@ -28,7 +28,9 @@ func (s *Store) channelSelections(ctx context.Context, activeOnly bool) ([]relea
 	}
 	input := new(snapshotview.Input)
 	input.SetScopeId(s.scope.ID())
-	input.SetActiveOnly(activeOnly)
+	if activeOnly {
+		input.SetActiveOnly(true)
+	}
 	value, err := s.invoke(ctx, reflect.TypeFor[snapshotview.SnapshotComponent](), "snapshot", "GET", input)
 	if err != nil {
 		return nil, err

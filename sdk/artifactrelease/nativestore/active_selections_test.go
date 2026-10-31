@@ -84,7 +84,7 @@ func TestActiveSelectionsUsesOneGraphAndRejectsBrokenRelations(t *testing.T) {
 			calls++
 			input := request.Input.(*snapshotview.Input)
 			require.Equal(t, scope.ID(), input.ScopeId)
-			require.True(t, input.Has.ActiveOnly)
+			require.False(t, input.Has.ActiveOnly)
 			require.False(t, input.ActiveOnly)
 			return &snapshotview.Output{Data: []*snapshotview.ReleaseChannel{row("published"), unpublished}}, nil
 		}), scope, func(context.Context) (string, error) { return "actor", nil })
