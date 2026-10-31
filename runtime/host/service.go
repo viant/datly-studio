@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"github.com/viant/datly-studio/internal/namespacepolicy"
 	"github.com/viant/datly-studio/internal/predicatepolicy"
+	"github.com/viant/datly-studio/internal/reportcapability"
 	"github.com/viant/datly-studio/internal/resourcecheck"
 	"github.com/viant/datly-studio/internal/settingstore"
 	"github.com/viant/datly-studio/studio/settings"
@@ -70,6 +71,7 @@ type Service struct {
 	windowPrimitivePolicy  *stockWindowPolicy
 	resourceAccess         *access.Service
 	namespacePolicyReader  *namespacepolicy.Reader
+	reportCapabilities     *reportcapability.Reader
 	config                 Config
 	studio                 *sql.DB
 	connectorStore         *activeConnectorStore
@@ -176,6 +178,11 @@ func New(ctx context.Context, config Config) (*Service, error) {
 			_ = studio.Close()
 			return nil, err
 		}
+	}
+	result.reportCapabilities, err = reportcapability.New(studio)
+	if err != nil {
+		_ = result.Close(ctx)
+		return nil, fmt.Errorf("runtime report capabilities: %w", err)
 	}
 	return result, nil
 }
@@ -1074,6 +1081,9 @@ func (s *Service) Close(ctx context.Context) error {
 	}
 	if s.compiledArtifacts != nil {
 		result = errors.Join(result, s.compiledArtifacts.Close(ctx))
+	}
+	if s.reportCapabilities != nil {
+		result = errors.Join(result, s.reportCapabilities.Close(ctx))
 	}
 	if s.namespacePolicyReader != nil {
 		result = errors.Join(result, s.namespacePolicyReader.Close(ctx))

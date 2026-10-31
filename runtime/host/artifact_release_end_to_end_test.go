@@ -331,6 +331,25 @@ func TestNamedReleaseMCPWindowFreshRowsAndRollback(t *testing.T) {
 		if _, admissionErr := host.admitReleasedComponent(recipientCtx, component, pin); admissionErr != nil {
 			t.Fatalf("release component admission: %v", admissionErr)
 		}
+		// The shared native capability reader must preserve admission's status fence.
+		func() {
+			defer func() {
+				if _, err := host.studio.ExecContext(ctx, "UPDATE components SET status='active', deleted_at=NULL WHERE id=?", component.ID); err != nil {
+					t.Error(err)
+				}
+			}()
+			for _, update := range []string{
+				"UPDATE components SET status='disabled' WHERE id=?",
+				"UPDATE components SET status='active', deleted_at=CURRENT_TIMESTAMP WHERE id=?",
+			} {
+				if _, err := host.studio.ExecContext(ctx, update, component.ID); err != nil {
+					t.Fatal(err)
+				}
+				if _, err := host.admitReleasedComponent(recipientCtx, component, pin); err == nil {
+					t.Fatal("inactive or deleted component admitted through release")
+				}
+			}
+		}()
 		rows, err := host.ExecuteComponentJSON(recipientCtx, component, pin, nil)
 		if err != nil || !strings.Contains(string(rows), "ready") || !strings.Contains(string(rows), "primary") {
 			t.Fatalf("released recipient fresh SQL: %s %v", rows, err)

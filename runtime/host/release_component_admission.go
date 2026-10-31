@@ -30,22 +30,25 @@ func (s *Service) releaseController() *sdkrelease.Controller {
 // restriction that a named release may replace. Explicit deny, composite
 // audience rules, required scopes and entity bounds remain mandatory.
 func (s *Service) defaultCreatorUsePolicy(ctx context.Context, resource authz.Resource) error {
-	if s == nil || s.studio == nil || s.resourceAccess == nil || s.resourceAccess.Store == nil {
+	if s == nil || s.reportCapabilities == nil || s.resourceAccess == nil || s.resourceAccess.Store == nil {
 		return authz.ErrDenied
 	}
-	var owner string
-	if err := s.studio.QueryRowContext(ctx, `SELECT owner_id FROM components WHERE id=? AND status='active' AND deleted_at IS NULL`, resource.ID).Scan(&owner); err != nil {
+	capability, err := s.reportCapabilities.Read(ctx, resource.ID, "")
+	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return authz.ErrDenied
 		}
 		return err
+	}
+	if capability.ComponentStatus != "active" {
+		return authz.ErrDenied
 	}
 	doc, err := s.resourceAccess.Store.Get(ctx, resource)
 	if err != nil {
 		return err
 	}
 	policy, found := authz.PolicyForAction(doc.Policies, "execute")
-	if !found || policy.Mode != "protected" || policy.Rule == nil || policy.Rule.Kind != "subject" || policy.Rule.Value != owner || len(policy.Rule.Rules) > 0 || policy.Rule.Entity != nil || len(policy.RequiredScopes) > 0 || policy.EntityType != "" {
+	if !found || policy.Mode != "protected" || policy.Rule == nil || policy.Rule.Kind != "subject" || policy.Rule.Value != capability.OwnerId || len(policy.Rule.Rules) > 0 || policy.Rule.Entity != nil || len(policy.RequiredScopes) > 0 || policy.EntityType != "" {
 		return authz.ErrDenied
 	}
 	return nil
