@@ -109,6 +109,9 @@ func TestDatlySessionStoreEncryptsIdentityAndRefreshTokens(t *testing.T) {
 		t.Fatal("refresh lease component became publicly routable")
 	}
 	var hash string
+	if _, found := components.runtime.RouteByMethodPath("PATCH", "/_studio/bff-session-lease/write"); found {
+		t.Fatal("native lease writer became publicly routable")
+	}
 	var ciphertext []byte
 	if err := db.QueryRowContext(ctx, `SELECT session_id_hash,payload_ciphertext FROM bff_sessions`).Scan(&hash, &ciphertext); err != nil {
 		t.Fatal(err)
@@ -309,5 +312,74 @@ func TestDatlySessionStoreRetainsPutReplacementAndIdempotentDelete(t *testing.T)
 	}
 	if _, found, err := store.Get(ctx, "stable-cookie"); err != nil || found {
 		t.Fatalf("deleted session found=%v err=%v", found, err)
+	}
+}
+
+func TestDatlyRefreshLeaseHasOneWinnerAcrossStores(t *testing.T) {
+	ctx := t.Context()
+	db, err := sql.Open("sqlite", "file:"+t.TempDir()+"/leases.db?_pragma=busy_timeout(5000)")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	db.SetMaxOpenConns(4)
+	migration, err := migrate.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = migration.Up(ctx, db); err != nil {
+		t.Fatal(err)
+	}
+	const workers = 4
+	stores := make([]*SQLStore, workers)
+	for i := range stores {
+		stores[i], err = NewSQLStore(db, []byte("0123456789abcdef0123456789abcdef"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer stores[i].Close(ctx)
+		if _, err = stores[i].loadComponents(); err != nil {
+			t.Fatal(err)
+		}
+	}
+	now := time.Now().UTC()
+	if err = stores[0].Put(ctx, "shared-session", session{principal: sdk.Principal{Subject: "owner"}, token: "token", expiresAt: now.Add(time.Hour)}); err != nil {
+		t.Fatal(err)
+	}
+	type result struct {
+		index int
+		won   bool
+		err   error
+	}
+	start := make(chan struct{})
+	results := make(chan result, workers)
+	for i := range stores {
+		go func(i int) {
+			<-start
+			won, err := stores[i].AcquireRefreshLease(ctx, "shared-session", fmt.Sprintf("refresh-worker-%016d", i), now, time.Minute)
+			results <- result{i, won, err}
+		}(i)
+	}
+	close(start)
+	winners, winner := 0, -1
+	for range stores {
+		r := <-results
+		if r.err != nil {
+			t.Fatal(r.err)
+		}
+		if r.won {
+			winners++
+			winner = r.index
+		}
+	}
+	if winners != 1 {
+		t.Fatalf("lease winners=%d", winners)
+	}
+	if err = stores[(winner+1)%workers].ReleaseRefreshLease(ctx, "shared-session", "not-the-lease-owner", now); err != nil {
+		t.Fatal(err)
+	}
+	won, err := stores[0].AcquireRefreshLease(ctx, "shared-session", "another-refresh-worker", now, time.Minute)
+	if err != nil || won {
+		t.Fatalf("non-owner released lease: won=%v err=%v", won, err)
 	}
 }

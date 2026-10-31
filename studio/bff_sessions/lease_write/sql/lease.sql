@@ -1,0 +1,1 @@
+SELECT session.* FROM  (SELECT session_id_hash,refresh_lease_owner,refresh_lease_until_unix,payload_ciphertext FROM bff_sessions)  session

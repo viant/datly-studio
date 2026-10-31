@@ -9,11 +9,13 @@ import (
 	"reflect"
 	"strings"
 
+	leasewrite "github.com/viant/datly-studio/studio/bff_sessions/lease_write"
+	"github.com/viant/datly/exec"
 	"github.com/viant/datly/runtime/handler"
 	"github.com/viant/datly/runtime/handler/custom"
+	"github.com/viant/datly/spec"
 	"github.com/viant/xdatly"
 	xhandler "github.com/viant/xdatly/handler"
-	"github.com/viant/xdatly/response"
 )
 
 type Input struct {
@@ -58,57 +60,46 @@ func (*leaseHandler) Exec(ctx context.Context, session xhandler.Session, input *
 	if _, err := hex.DecodeString(input.SessionIDHash); err != nil {
 		return errors.New("invalid refresh lease session hash")
 	}
-	value, found, err := session.Binder().Lookup(ctx, handler.TransactionSQLCapabilityKey)
-	if err != nil {
-		return err
-	}
-	provider, ok := value.(handler.TransactionSQLProvider)
-	if !found || !ok {
-		return errors.New("managed refresh lease SQL is unavailable")
-	}
-	sql, err := provider.Connector(ctx, "studio")
-	if err != nil {
-		return err
-	}
-	var query string
-	var args []any
+	row := &leasewrite.LeaseSession{}
+	row.SetSessionIdHash(input.SessionIDHash)
 	switch input.Operation {
 	case "acquire":
 		if input.LeaseUntilUnix <= input.NowUnix {
 			return errors.New("refresh lease expiry must follow acquisition")
 		}
-		query = `UPDATE bff_sessions SET refresh_lease_owner=?,refresh_lease_until_unix=?
-			WHERE session_id_hash=? AND expires_at_unix>? AND
-			(refresh_lease_owner='' OR refresh_lease_until_unix<?)`
-		args = []any{input.LeaseOwner, input.LeaseUntilUnix, input.SessionIDHash, input.NowUnix, input.NowUnix}
+		row.SetRefreshLeaseOwner(input.LeaseOwner)
+		row.SetRefreshLeaseUntilUnix(input.LeaseUntilUnix)
 	case "complete":
 		if len(input.PayloadCiphertext) == 0 {
 			return errors.New("refresh completion requires encrypted session payload")
 		}
-		query = `UPDATE bff_sessions SET payload_ciphertext=?,refresh_lease_owner='',refresh_lease_until_unix=0
-			WHERE session_id_hash=? AND refresh_lease_owner=? AND refresh_lease_until_unix>=? AND expires_at_unix>?`
-		args = []any{input.PayloadCiphertext, input.SessionIDHash, input.LeaseOwner, input.NowUnix, input.NowUnix}
+		row.SetPayloadCiphertext(input.PayloadCiphertext)
+		row.SetRefreshLeaseOwner("")
+		row.SetRefreshLeaseUntilUnix(0)
 	case "release":
-		query = `UPDATE bff_sessions SET refresh_lease_owner='',refresh_lease_until_unix=0
-			WHERE session_id_hash=? AND refresh_lease_owner=?`
-		args = []any{input.SessionIDHash, input.LeaseOwner}
+		row.SetRefreshLeaseOwner("")
+		row.SetRefreshLeaseUntilUnix(0)
 	default:
 		return fmt.Errorf("unsupported refresh lease operation %q", input.Operation)
 	}
-	result, err := sql.ExecContext(ctx, query, args...)
+	value, found, err := session.Binder().Lookup(ctx, exec.ComponentInvokerKey)
 	if err != nil {
 		return err
 	}
-	count, err := result.RowsAffected()
+	invoker, ok := value.(exec.ComponentInvoker)
+	if !found || !ok {
+		return errors.New("native refresh lease writer is unavailable")
+	}
+	request := &leasewrite.Input{}
+	request.SetOperation(input.Operation)
+	request.SetLeaseOwner(input.LeaseOwner)
+	request.SetNowUnix(input.NowUnix)
+	request.SetGuard(true)
+	request.SetSessions([]*leasewrite.LeaseSession{row})
+	_, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: exec.ComponentTarget{Component: spec.Key{Kind: spec.KindComponent, Scope: reflect.TypeFor[leasewrite.LeaseComponent]().PkgPath(), Name: "lease"}, Route: spec.RouteRef{Method: "PATCH", Path: "/_studio/bff-session-lease/write"}}, Input: request})
 	if err != nil {
 		return err
 	}
-	if count > 1 {
-		return errors.New("refresh lease changed multiple sessions")
-	}
-	output.Applied = count == 1
-	if input.Operation == "complete" && !output.Applied {
-		return &response.Error{Code: 409, Cause: errors.New("refresh lease ownership changed")}
-	}
+	output.Applied = true
 	return nil
 }

@@ -9,6 +9,9 @@ import (
 
 	"github.com/viant/bindly/locator"
 	"github.com/viant/bindly/resource"
+	"github.com/viant/datly-studio/internal/writercomponent"
+	leasewrite "github.com/viant/datly-studio/studio/bff_sessions/lease_write"
+	"github.com/viant/datly-studio/studio/bff_sessions/leasepredicate"
 	expiredreader "github.com/viant/datly-studio/studio/bff_sessions/store_expired"
 	leasewriter "github.com/viant/datly-studio/studio/bff_sessions/store_lease"
 	storedreader "github.com/viant/datly-studio/studio/bff_sessions/store_read"
@@ -24,6 +27,9 @@ import (
 	"github.com/viant/datly/sql/dml"
 	viewprovider "github.com/viant/datly/sql/reader/provider"
 	dtag "github.com/viant/datly/tag"
+	"github.com/viant/datly/typecatalog"
+	"github.com/viant/x"
+	xhandler "github.com/viant/xdatly/handler"
 	sqlite "modernc.org/sqlite"
 	sqlite3 "modernc.org/sqlite/lib"
 )
@@ -159,7 +165,19 @@ func (s *SQLStore) loadComponents() (*sessionComponents, error) {
 		return nil, err
 	}
 	leaseRegistration.Capabilities.Connector = connector
-	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{readerRegistration, expiredRegistration, writerRegistration, leaseRegistration}, druntime.WithResources(resources))
+	if err = resources.Register(leasewrite.LeaseDatlyResourceNamespace, leasewrite.LeaseDatlyResources); err != nil {
+		return nil, err
+	}
+	types := typecatalog.NewCatalog()
+	if err = types.LinkRuntimeAll(typecatalog.TypeOriginPackage, x.NewType(reflect.TypeFor[leasewrite.LeaseRules]()), x.NewType(reflect.TypeFor[leasepredicate.Condition]())); err != nil {
+		return nil, err
+	}
+	nativeLease, _, err := writercomponent.Compile(reflect.TypeFor[leasewrite.LeaseComponent](), reflect.TypeFor[leasewrite.Input](), reflect.TypeFor[leasewrite.Output](), resources, connector, s.db, types)
+	if err != nil {
+		return nil, err
+	}
+
+	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{readerRegistration, expiredRegistration, writerRegistration, leaseRegistration, nativeLease}, druntime.WithResources(resources))
 	if err != nil {
 		return nil, err
 	}
@@ -250,8 +268,13 @@ func (s *SQLStore) leaseOperationOnce(ctx context.Context, input *leasewriter.In
 	}
 	value, err := components.runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: components.lease, Input: input})
 	if err != nil {
+		var conflict *xhandler.Conflict
+		if input.Operation != "complete" && errors.As(err, &conflict) {
+			return false, nil
+		}
 		return false, err
 	}
+
 	output, ok := value.(*leasewriter.Output)
 	if !ok || output == nil {
 		return false, fmt.Errorf("refresh lease writer returned %T", value)
