@@ -28,7 +28,7 @@ type AuditComponent struct {
 	Etag         int64         `json:"etag" sqlx:"etag"`
 	AuditEnabled bool          `json:"auditEnabled" sqlx:"audit_enabled"`
 	MatchesTool  bool          `json:"matchesTool" sqlx:"matches_tool"`
-	Grants       []*AuditGrant `json:"grants" on:"Id:component.id=ReportId:grant.report_id" sql:"uri=studio_tool_call_audit_control_read_control:sql/grants.sql" view:"grant,type=AuditGrant,table=component_acl,selectorNoLimit=true"`
+	Grants       []*AuditGrant `json:"grants" on:"Id:component.id=ReportId:acl.report_id" sql:"uri=studio_tool_call_audit_control_read_control:sql/grants.sql" view:"acl,type=AuditGrant,table=component_acl,selectorNoLimit=true"`
 }
 
 // AuditGrant is generated canonical view metadata for control.

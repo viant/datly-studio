@@ -258,7 +258,7 @@ func (s *Service) Configure(ctx context.Context, scope Scope, enabled bool) (Set
 	row := &controlwrite.AuditScope{}
 	row.SetOwnerId(current.snapshot.OwnerId)
 	row.SetName(current.snapshot.Name)
-	row.SetNamespaceId(current.snapshot.NamespaceId)
+	row.NamespaceId = current.snapshot.NamespaceId
 	row.SetEtag(current.snapshot.Etag)
 	switch {
 	case scope.ToolName != "":

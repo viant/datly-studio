@@ -21,6 +21,13 @@ func TestNativeAuditControlsRevisionAndRollback(t *testing.T) {
 	if err = schema.ApplySQLite(ctx, db, "studio"); err != nil {
 		t.Fatal(err)
 	}
+	checkNativeAuditControls(t, db)
+}
+
+func checkNativeAuditControls(t *testing.T, db *sql.DB) {
+	t.Helper()
+	ctx := t.Context()
+	var err error
 	if _, err = db.ExecContext(ctx, `INSERT INTO namespaces(namespace_id,owner_id,name,title,status,created_at,updated_at) VALUES('ns','owner','alpha','Alpha','active',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`); err != nil {
 		t.Fatal(err)
 	}
@@ -37,7 +44,7 @@ func TestNativeAuditControlsRevisionAndRollback(t *testing.T) {
 		r := &write.AuditScope{}
 		r.SetOwnerId(original.OwnerId)
 		r.SetName(original.Name)
-		r.SetNamespaceId(original.NamespaceId)
+		r.NamespaceId = original.NamespaceId
 		r.SetEtag(etag)
 		return r
 	}
@@ -45,7 +52,7 @@ func TestNativeAuditControlsRevisionAndRollback(t *testing.T) {
 	first.SetAuditEnabled(false)
 	first.SetUpdatedAt(time.Now().UTC())
 	if err = store.Configure(ctx, first); err != nil {
-		t.Fatal(err)
+		t.Fatalf("disable namespace: %v", err)
 	}
 	saved, err := store.Control(ctx, "ns", "", "")
 	if err != nil {
@@ -86,10 +93,10 @@ func TestNativeAuditControlsRevisionAndRollback(t *testing.T) {
 	insert := row(saved.Etag)
 	insert.SetToolSettings([]*write.ToolSetting{setting})
 	if err = store.Configure(ctx, insert); err != nil {
-		t.Fatal(err)
+		t.Fatalf("insert tool setting: %v", err)
 	}
 	var createdAt, createdBy string
-	if err = db.QueryRowContext(ctx, "SELECT CAST(created_at AS TEXT),created_by FROM tool_audit_settings WHERE namespace_id='ns' AND tool_name=?", name).Scan(&createdAt, &createdBy); err != nil {
+	if err = db.QueryRowContext(ctx, "SELECT CAST(created_at AS CHAR),created_by FROM tool_audit_settings WHERE namespace_id='ns' AND tool_name=?", name).Scan(&createdAt, &createdBy); err != nil {
 		t.Fatal(err)
 	}
 	update := row(saved.Etag)
@@ -102,12 +109,15 @@ func TestNativeAuditControlsRevisionAndRollback(t *testing.T) {
 	changed.SetUpdatedBy(&actor)
 	update.SetToolSettings([]*write.ToolSetting{changed})
 	if err = store.Configure(ctx, update); err != nil {
-		t.Fatal(err)
+		t.Fatalf("update tool setting: %v", err)
 	}
 	var count int
 	var enabled bool
 	var afterAt, afterBy, updatedBy string
-	if err = db.QueryRowContext(ctx, "SELECT COUNT(*),enabled,CAST(created_at AS TEXT),created_by,updated_by FROM tool_audit_settings WHERE namespace_id='ns' AND tool_name=?", name).Scan(&count, &enabled, &afterAt, &afterBy, &updatedBy); err != nil {
+	if err = db.QueryRowContext(ctx, "SELECT enabled,CAST(created_at AS CHAR),created_by,updated_by FROM tool_audit_settings WHERE namespace_id='ns' AND tool_name=?", name).Scan(&enabled, &afterAt, &afterBy, &updatedBy); err != nil {
+		t.Fatal(err)
+	}
+	if err = db.QueryRowContext(ctx, "SELECT COUNT(*) FROM tool_audit_settings WHERE namespace_id='ns' AND tool_name=?", name).Scan(&count); err != nil {
 		t.Fatal(err)
 	}
 	if count != 1 || !enabled || afterAt != createdAt || afterBy != createdBy || updatedBy != actor {

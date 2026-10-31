@@ -41,7 +41,7 @@ func Compile(holder reflect.Type, packageName string, inputType, outputType refl
 		types = catalogs[0]
 	}
 	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Component: component,
-		InputType: inputType, OutputType: outputType, Resources: resources, Types: types})
+		InputType: inputType, OutputType: outputType, Resources: resources, Types: types, IdentifierProducts: connector.IdentifierProduct})
 	if err != nil {
 		return nil, dexec.ComponentTarget{}, err
 	}

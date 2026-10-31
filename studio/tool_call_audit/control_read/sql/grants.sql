@@ -1,1 +1,1 @@
-SELECT * FROM (SELECT report_id, subject_type, subject_id FROM component_acl WHERE can_edit=TRUE OR can_publish=TRUE) grant
+SELECT * FROM (SELECT report_id, subject_type, subject_id FROM component_acl WHERE can_edit=TRUE OR can_publish=TRUE) acl

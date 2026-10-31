@@ -7,8 +7,8 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/viant/bindly/locator"
 	"github.com/viant/bindly/resource"
+	"github.com/viant/datly-studio/internal/readercomponent"
 	"github.com/viant/datly-studio/internal/writercomponent"
 	leasewrite "github.com/viant/datly-studio/studio/bff_sessions/lease_write"
 	"github.com/viant/datly-studio/studio/bff_sessions/leasepredicate"
@@ -20,12 +20,11 @@ import (
 	dexec "github.com/viant/datly/exec"
 	druntime "github.com/viant/datly/runtime"
 	"github.com/viant/datly/runtime/handler/custom"
-	writerhandler "github.com/viant/datly/runtime/handler/writer"
+
 	"github.com/viant/datly/runtime/registry"
 	"github.com/viant/datly/spec"
 	dsql "github.com/viant/datly/sql"
-	"github.com/viant/datly/sql/dml"
-	viewprovider "github.com/viant/datly/sql/reader/provider"
+
 	dtag "github.com/viant/datly/tag"
 	"github.com/viant/datly/typecatalog"
 	"github.com/viant/x"
@@ -95,61 +94,18 @@ func (s *SQLStore) loadComponents() (*sessionComponents, error) {
 	if err := connector.RegisterConnector("studio", s.db); err != nil {
 		return nil, err
 	}
-	readerComponent, err := sessionComponent(reflect.TypeOf(storedreader.SessionComponent{}), "store_read", reflect.TypeOf(storedreader.Input{}), reflect.TypeOf(storedreader.Output{}))
+	readerRegistration, readTarget, err := readercomponent.Compile(reflect.TypeFor[storedreader.SessionComponent](), "store_read", reflect.TypeFor[storedreader.Input](), reflect.TypeFor[storedreader.Output](), resources, connector)
 	if err != nil {
 		return nil, err
 	}
-	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Component: readerComponent,
-		InputType: reflect.TypeOf(storedreader.Input{}), OutputType: reflect.TypeOf(storedreader.Output{}), Resources: resources})
+	expiredRegistration, expiredTarget, err := readercomponent.Compile(reflect.TypeFor[expiredreader.SessionComponent](), "store_expired", reflect.TypeFor[expiredreader.Input](), reflect.TypeFor[expiredreader.Output](), resources, connector)
 	if err != nil {
 		return nil, err
 	}
-	execution, err := artifact.ReaderCompilation().NewExecution(bootstrap.ReaderRuntimeConfig{SQL: connector})
+	writerRegistration, writeTarget, err := writercomponent.Compile(reflect.TypeFor[storedwriter.SessionComponent](), reflect.TypeFor[storedwriter.Input](), reflect.TypeFor[storedwriter.Output](), resources, connector, s.db, nil)
 	if err != nil {
 		return nil, err
 	}
-	readerRegistration, err := artifact.Registration(registry.RegisteredComponent{Reader: execution})
-	if err != nil {
-		return nil, err
-	}
-	expiredComponent, err := sessionComponent(reflect.TypeOf(expiredreader.SessionComponent{}), "store_expired", reflect.TypeOf(expiredreader.Input{}), reflect.TypeOf(expiredreader.Output{}))
-	if err != nil {
-		return nil, err
-	}
-	expiredArtifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Component: expiredComponent,
-		InputType: reflect.TypeOf(expiredreader.Input{}), OutputType: reflect.TypeOf(expiredreader.Output{}), Resources: resources})
-	if err != nil {
-		return nil, err
-	}
-	expiredExecution, err := expiredArtifact.ReaderCompilation().NewExecution(bootstrap.ReaderRuntimeConfig{SQL: connector})
-	if err != nil {
-		return nil, err
-	}
-	expiredRegistration, err := expiredArtifact.Registration(registry.RegisteredComponent{Reader: expiredExecution})
-	if err != nil {
-		return nil, err
-	}
-	writerComponent, err := sessionComponent(reflect.TypeOf(storedwriter.SessionComponent{}), "store_write", reflect.TypeOf(storedwriter.Input{}), reflect.TypeOf(storedwriter.Output{}))
-	if err != nil {
-		return nil, err
-	}
-	writerArtifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Component: writerComponent,
-		InputType: reflect.TypeOf(storedwriter.Input{}), OutputType: reflect.TypeOf(storedwriter.Output{}), Resources: resources})
-	if err != nil {
-		return nil, err
-	}
-	views, err := viewprovider.New(viewprovider.Config{Dependencies: writerArtifact.ViewDependencies, Input: writerArtifact.Input, SQL: connector})
-	if err != nil {
-		return nil, err
-	}
-	handler, err := writerhandler.New(writerComponent, reflect.TypeOf(storedwriter.Input{}), reflect.TypeOf(storedwriter.Output{}), "patch")
-	if err != nil {
-		return nil, err
-	}
-	writerRegistration := &registry.RegisteredComponent{Component: writerArtifact.Component, Input: writerArtifact.Input,
-		Output: writerArtifact.Output, OutputType: reflect.TypeOf(storedwriter.Output{}), Handler: handler,
-		Providers: []locator.Provider{views}, DataSource: dml.Source{DB: s.db}}
-	writerRegistration.Capabilities.Connector = connector
 	leaseComponent, err := sessionComponent(reflect.TypeOf(leasewriter.SessionComponent{}), "store_lease", reflect.TypeOf(leasewriter.Input{}), reflect.TypeOf(leasewriter.Output{}))
 	if err != nil {
 		return nil, err
@@ -181,7 +137,7 @@ func (s *SQLStore) loadComponents() (*sessionComponents, error) {
 	if err != nil {
 		return nil, err
 	}
-	s.components = &sessionComponents{runtime: runtime, read: sessionTarget(readerComponent), expired: sessionTarget(expiredComponent), write: sessionTarget(writerComponent), lease: sessionTarget(leaseComponent)}
+	s.components = &sessionComponents{runtime: runtime, read: readTarget, expired: expiredTarget, write: writeTarget, lease: sessionTarget(leaseComponent)}
 	return s.components, nil
 }
 

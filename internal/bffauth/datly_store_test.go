@@ -91,6 +91,12 @@ func TestDatlySessionStoreEncryptsIdentityAndRefreshTokens(t *testing.T) {
 	if err := migration.Up(ctx, db); err != nil {
 		t.Fatal(err)
 	}
+	checkDatlyRefreshLease(t, db)
+}
+
+func checkDatlyRefreshLease(t *testing.T, db *sql.DB) {
+	t.Helper()
+	ctx := t.Context()
 	store, err := NewSQLStore(db, []byte("0123456789abcdef0123456789abcdef"))
 	if err != nil {
 		t.Fatal(err)
@@ -330,6 +336,13 @@ func TestDatlyRefreshLeaseHasOneWinnerAcrossStores(t *testing.T) {
 	if err = migration.Up(ctx, db); err != nil {
 		t.Fatal(err)
 	}
+	checkDatlyLeaseContenders(t, db)
+}
+
+func checkDatlyLeaseContenders(t *testing.T, db *sql.DB) {
+	t.Helper()
+	ctx := t.Context()
+	var err error
 	const workers = 4
 	stores := make([]*SQLStore, workers)
 	for i := range stores {

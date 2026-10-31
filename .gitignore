@@ -19,6 +19,8 @@ coverage/
 # Frontend dependencies and tooling
 node_modules/
 .vite/
+ui/.cache/
+ui/.impeccable/review/
 
 # IDE and operating-system files
 .idea/

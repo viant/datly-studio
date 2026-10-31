@@ -14,10 +14,10 @@
 
 SELECT scope.*, CAST(scope.etag AS int64), CAST(scope.audit_enabled AS bool), type(scope,'AuditScope'), set_limit(scope,1),
        component.*, CAST(component.etag AS int64), CAST(component.matches_tool AS bool), CAST(component.audit_enabled AS bool), type(component,'AuditComponent','Components'), set_limit(component,0),
-       grant.*, type(grant,'AuditGrant','Grants'), set_limit(grant,0),
+       acl.*, type(acl,'AuditGrant','Grants'), set_limit(acl,0),
        setting.*, CAST(setting.enabled AS bool), type(setting,'ToolSetting','ToolSetting'), set_limit(setting,1)
 FROM (${embed:sql/scope.sql}) scope
 LEFT JOIN (${embed:sql/components.sql}) component ON component.namespace_id=scope.namespace_id
-LEFT JOIN (SELECT report_id, subject_type, subject_id FROM component_acl WHERE can_edit=TRUE OR can_publish=TRUE) grant ON grant.report_id=component.id
+LEFT JOIN (SELECT report_id, subject_type, subject_id FROM component_acl WHERE can_edit=TRUE OR can_publish=TRUE) acl ON acl.report_id=component.id
 LEFT JOIN (SELECT namespace_id,tool_name,enabled FROM tool_audit_settings WHERE tool_name=$ToolName) setting ON setting.namespace_id=scope.namespace_id AND 1=1
 WHERE 1=1
