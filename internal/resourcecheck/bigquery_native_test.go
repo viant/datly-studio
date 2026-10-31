@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	xreader "github.com/viant/xdatly/reader"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -43,7 +44,7 @@ SELECT r.*, type(r,'Record') FROM (SELECT 'one' AS id) r`, ColumnRefiner: column
 	probe, err := artifact.ReaderCompilation().NewExecution(bootstrap.ReaderRuntimeConfig{SQL: &dsql.SQLComponent{DB: schemaDB}})
 	require.NoError(t, err)
 	if _, ok := any(probe).(interface {
-		WithQueryGuard(func(context.Context, *sql.DB, string, []any) error) exec.Reader
+		WithQueryGuard(xreader.QueryGuard) exec.Reader
 	}); !ok {
 		t.Skip("published Datly pin predates native per-query admission")
 	}

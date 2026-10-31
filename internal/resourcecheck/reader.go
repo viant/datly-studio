@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/viant/datly/observability"
+	xreader "github.com/viant/xdatly/reader"
 	"reflect"
 
 	"github.com/viant/datly-studio/studio/settings"
@@ -45,11 +46,11 @@ func Wrap(reader exec.Reader, db *sql.DB, component *spec.Component, limits *set
 	}
 	var planner exec.ReadPlanner
 	native, hasGuard := reader.(interface {
-		WithQueryGuard(func(context.Context, *sql.DB, string, []any) error) exec.Reader
+		WithQueryGuard(xreader.QueryGuard) exec.Reader
 	})
 	if hasGuard {
-		reader = native.WithQueryGuard(func(ctx context.Context, source *sql.DB, query string, args []any) error {
-			return Check(ctx, source, &exec.ReadPlan{SQL: query, Args: args}, limits)
+		reader = native.WithQueryGuard(func(ctx context.Context, source *sql.DB, query *xreader.ParameterizedQuery) error {
+			return Check(ctx, source, query, limits)
 		})
 	} else {
 		if err := CheckShape(component); err != nil {
@@ -103,7 +104,7 @@ func (r *checkedReader) Read(ctx context.Context, input any, binder xhandler.Bin
 }
 
 // Check exposes no SQL, argument or credential details in its returned errors.
-func Check(ctx context.Context, db *sql.DB, plan *exec.ReadPlan, limits *settings.ResourceLimits) error {
+func Check(ctx context.Context, db *sql.DB, plan *xreader.ParameterizedQuery, limits *settings.ResourceLimits) error {
 	if db == nil || plan == nil || limits == nil {
 		return errors.New("query resource check configuration is unavailable")
 	}
@@ -123,7 +124,7 @@ func Check(ctx context.Context, db *sql.DB, plan *exec.ReadPlan, limits *setting
 			args[i] = driver.NamedValue{Ordinal: i + 1, Value: value}
 		}
 		var dryErr error
-		job, dryErr = capability.DryRun(ctx, plan.SQL, args)
+		job, dryErr = capability.DryRun(ctx, plan.Query, args)
 		return dryErr
 	})
 	if err != nil {

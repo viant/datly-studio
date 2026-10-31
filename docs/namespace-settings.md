@@ -72,7 +72,9 @@ retain their cause for trusted callers and expose a generic policy rejection.
 
 ## Query execution
 
-The native Datly reader's detached `WithQueryGuard` admits fully bound SQL at its
+The shared `xdatly/reader.ParameterizedQuery` carries `Query` and `Args` through
+reader planning and the optional `reader.QueryGuard` hook. The native Datly reader's
+detached `WithQueryGuard` admits fully bound SQL at its
 shared row-read boundary. Root queries, relation batches, partitions, derived
 outputs and warmup retain native planning, selector, cache and transaction behavior.
 Only component versions with `resource_check_enabled=true` attach this guard.
