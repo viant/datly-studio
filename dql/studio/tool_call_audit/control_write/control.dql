@@ -1,0 +1,24 @@
+#package('studio/tool_call_audit/control_write')
+
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/tool-call-audit/control', 'PATCH'))
+#setting($_ = $internal(true))
+#setting($_ = $connector('studio'))
+
+#define($_ = $Scopes<[]*AuditScope>(body/data))
+#define($_ = $Data<[]*AuditScope>(output/body))
+
+SELECT scope.*, type(scope,'AuditScope'),
+       CAST(scope.etag AS int64), CAST(scope.audit_enabled AS bool), CAST(scope.updated_at AS time.Time),
+       lifecycle_type(scope,'ScopeRules'), concurrency_token(scope.etag),
+       component.*, type(component,'AuditComponent','Components'),
+       CAST(component.etag AS int64), CAST(component.audit_enabled AS bool), CAST(component.updated_at AS time.Time),
+       lifecycle_type(component,'ComponentRules'), concurrency_token(component.etag),
+       setting.*, type(setting,'ToolSetting','ToolSettings'),
+       CAST(setting.enabled AS bool), CAST(setting.created_at AS time.Time), CAST(setting.updated_at AS time.Time),
+       lifecycle_type(setting,'ToolRules')
+FROM (${embed:sql/scopes.sql}) scope
+LEFT JOIN (${embed:sql/components.sql}) component ON component.owner_id=scope.owner_id AND component.namespace=scope.name
+LEFT JOIN (SELECT namespace_id,tool_name,enabled,created_at,created_by,updated_at,updated_by FROM tool_audit_settings) setting ON setting.namespace_id=scope.namespace_id

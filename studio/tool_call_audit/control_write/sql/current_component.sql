@@ -1,0 +1,2 @@
+SELECT r.id, r.owner_id, r.namespace, r.etag, r.audit_enabled, r.updated_at FROM (SELECT * FROM (SELECT id,owner_id,namespace,etag,audit_enabled,updated_at FROM components WHERE deleted_at IS NULL
+) component) r WHERE $criteria.CompositeIn("r", $Unsafe.ProjectCurrentComponentParentKeys($CurrentControl))

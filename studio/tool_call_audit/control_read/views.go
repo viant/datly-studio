@@ -10,6 +10,8 @@ import (
 type AuditScope struct {
 	NamespaceId      *string           `json:"namespaceId" sqlx:"namespace_id,required=true"`
 	OwnerId          *string           `json:"ownerId" sqlx:"owner_id,required=true,primaryKey=true"`
+	Name             *string           `json:"name" sqlx:"name,required=true,primaryKey=true"`
+	Etag             int64             `json:"etag" sqlx:"etag,required=true"`
 	AllowedRolesJson *json.RawMessage  `json:"allowedRolesJson" sqlx:"allowed_roles_json,required=true,enc=JSON"`
 	Visibility       *string           `json:"visibility" sqlx:"visibility,required=true"`
 	Status           *string           `json:"status" sqlx:"status,required=true"`
@@ -23,6 +25,7 @@ type AuditComponent struct {
 	Id           *string       `json:"id" sqlx:"id"`
 	NamespaceId  *string       `json:"namespaceId" sqlx:"namespace_id"`
 	OwnerId      *string       `json:"ownerId" sqlx:"owner_id"`
+	Etag         int64         `json:"etag" sqlx:"etag"`
 	AuditEnabled bool          `json:"auditEnabled" sqlx:"audit_enabled"`
 	MatchesTool  bool          `json:"matchesTool" sqlx:"matches_tool"`
 	Grants       []*AuditGrant `json:"grants" on:"Id:component.id=ReportId:grant.report_id" sql:"uri=studio_tool_call_audit_control_read_control:sql/grants.sql" view:"grant,type=AuditGrant,table=component_acl,selectorNoLimit=true"`

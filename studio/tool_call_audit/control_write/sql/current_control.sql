@@ -1,0 +1,2 @@
+SELECT r.owner_id, r.name, r.namespace_id, r.etag, r.audit_enabled, r.updated_at FROM (SELECT * FROM  (SELECT owner_id,name,namespace_id,etag,audit_enabled,updated_at FROM namespaces WHERE deleted_at IS NULL AND status='active'
+)  scope) r WHERE $criteria.CompositeIn("r", $ControlKeys)

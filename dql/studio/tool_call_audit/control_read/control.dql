@@ -12,8 +12,8 @@
 #define($_ = $ToolName<string>(query/toolName).Required())
 #define($_ = $Data<[]*AuditScope>(output/view))
 
-SELECT scope.*, CAST(scope.audit_enabled AS bool), type(scope,'AuditScope'), set_limit(scope,1),
-       component.*, CAST(component.matches_tool AS bool), CAST(component.audit_enabled AS bool), type(component,'AuditComponent','Components'), set_limit(component,0),
+SELECT scope.*, CAST(scope.etag AS int64), CAST(scope.audit_enabled AS bool), type(scope,'AuditScope'), set_limit(scope,1),
+       component.*, CAST(component.etag AS int64), CAST(component.matches_tool AS bool), CAST(component.audit_enabled AS bool), type(component,'AuditComponent','Components'), set_limit(component,0),
        grant.*, type(grant,'AuditGrant','Grants'), set_limit(grant,0),
        setting.*, CAST(setting.enabled AS bool), type(setting,'ToolSetting','ToolSetting'), set_limit(setting,1)
 FROM (${embed:sql/scope.sql}) scope

@@ -5,30 +5,32 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/viant/bindly/locator"
+
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/readercomponent"
 	control "github.com/viant/datly-studio/studio/tool_call_audit/control_read"
 	read "github.com/viant/datly-studio/studio/tool_call_audit/store_read"
 	write "github.com/viant/datly-studio/studio/tool_call_audit/store_write"
-	"github.com/viant/datly/bootstrap"
+
 	dexec "github.com/viant/datly/exec"
 	druntime "github.com/viant/datly/runtime"
-	writerhandler "github.com/viant/datly/runtime/handler/writer"
+
 	"github.com/viant/datly/runtime/registry"
-	"github.com/viant/datly/spec"
+
 	dsql "github.com/viant/datly/sql"
-	"github.com/viant/datly/sql/dml"
-	viewprovider "github.com/viant/datly/sql/reader/provider"
-	dtag "github.com/viant/datly/tag"
+
+	"github.com/viant/datly-studio/internal/writercomponent"
+	controlwrite "github.com/viant/datly-studio/studio/tool_call_audit/control_write"
+	"github.com/viant/datly/typecatalog"
 	_ "github.com/viant/sqlx/metadata/product/mysql"
 	_ "github.com/viant/sqlx/metadata/product/sqlite"
+	"github.com/viant/x"
 	"reflect"
 )
 
 type Store struct {
-	runtime              *druntime.Runtime
-	read, write, control dexec.ComponentTarget
+	runtime                            *druntime.Runtime
+	read, write, control, controlWrite dexec.ComponentTarget
 }
 
 func New(db *sql.DB) (*Store, error) {
@@ -40,6 +42,9 @@ func New(db *sql.DB) (*Store, error) {
 		return nil, err
 	}
 	if err := resources.Register(control.ControlDatlyResourceNamespace, control.ControlDatlyResources); err != nil {
+		return nil, err
+	}
+	if err := resources.Register(controlwrite.ControlDatlyResourceNamespace, controlwrite.ControlDatlyResources); err != nil {
 		return nil, err
 	}
 	connector := &dsql.SQLComponent{DB: db}
@@ -54,39 +59,23 @@ func New(db *sql.DB) (*Store, error) {
 	if err != nil {
 		return nil, err
 	}
-	holder := reflect.TypeFor[write.AuditComponent]()
-	contract, _ := holder.FieldByName("Contract")
-	metadata, _, err := dtag.ParseComponent(contract.Tag)
+	writer, writeTarget, err := writercomponent.Compile(reflect.TypeFor[write.AuditComponent](), reflect.TypeFor[write.Input](), reflect.TypeFor[write.Output](), resources, connector, db, nil)
 	if err != nil {
 		return nil, err
 	}
-	component, err := (&bootstrap.RouteSource{HolderType: holder.Name(), FieldName: contract.Name, PackageName: "store_write", PackagePath: holder.PkgPath(), Tag: metadata, InputType: "Input", OutputType: "Output"}).Resolve(reflect.TypeFor[write.Input](), reflect.TypeFor[write.Output]())
+	types := typecatalog.NewCatalog()
+	if err = types.LinkRuntimeAll(typecatalog.TypeOriginPackage, x.NewType(reflect.TypeFor[controlwrite.ScopeRules]()), x.NewType(reflect.TypeFor[controlwrite.ComponentRules]()), x.NewType(reflect.TypeFor[controlwrite.ToolRules]())); err != nil {
+		return nil, err
+	}
+	controls, controlWriteTarget, err := writercomponent.Compile(reflect.TypeFor[controlwrite.ControlComponent](), reflect.TypeFor[controlwrite.Input](), reflect.TypeFor[controlwrite.Output](), resources, connector, db, types)
 	if err != nil {
 		return nil, err
 	}
-	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Component: component, InputType: reflect.TypeFor[write.Input](), OutputType: reflect.TypeFor[write.Output](), Resources: resources})
+	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{reader, writer, controlReader, controls}, druntime.WithResources(resources))
 	if err != nil {
 		return nil, err
 	}
-	var providers []locator.Provider
-	if len(artifact.ViewDependencies) > 0 {
-		views, err := viewprovider.New(viewprovider.Config{Dependencies: artifact.ViewDependencies, Input: artifact.Input, SQL: connector})
-		if err != nil {
-			return nil, err
-		}
-		providers = append(providers, views)
-	}
-	handler, err := writerhandler.New(component, reflect.TypeFor[write.Input](), reflect.TypeFor[write.Output](), "post")
-	if err != nil {
-		return nil, err
-	}
-	writer := &registry.RegisteredComponent{Component: artifact.Component, Input: artifact.Input, Output: artifact.Output, OutputType: reflect.TypeFor[write.Output](), Handler: handler, Providers: providers, DataSource: dml.Source{DB: db}}
-	writer.Capabilities.Connector = connector
-	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{reader, writer, controlReader}, druntime.WithResources(resources))
-	if err != nil {
-		return nil, err
-	}
-	return &Store{runtime: runtime, read: readTarget, control: controlTarget, write: dexec.ComponentTarget{Component: component.Key, Route: spec.RouteRef{Method: "POST", Path: "/_studio/tool-call-audit/write"}}}, nil
+	return &Store{runtime: runtime, read: readTarget, write: writeTarget, control: controlTarget, controlWrite: controlWriteTarget}, nil
 }
 func (s *Store) Read(ctx context.Context, input *read.Input) ([]*read.Event, error) {
 	value, err := s.runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: s.read, Input: input})
@@ -141,4 +130,17 @@ func (s *Store) Control(ctx context.Context, namespaceID, componentID, toolName 
 		return nil, fmt.Errorf("ambiguous audit scope")
 	}
 	return output.Data[0], nil
+}
+
+func (s *Store) Configure(ctx context.Context, row *controlwrite.AuditScope) error {
+	input := &controlwrite.Input{}
+	input.SetScopes([]*controlwrite.AuditScope{row})
+	value, err := s.runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: s.controlWrite, Input: input})
+	if err != nil {
+		return err
+	}
+	if _, ok := value.(*controlwrite.Output); !ok {
+		return fmt.Errorf("audit control writer returned %T", value)
+	}
+	return nil
 }

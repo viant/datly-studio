@@ -1,5 +1,5 @@
 SELECT * FROM (WITH candidates AS (
-SELECT c.id,n.namespace_id,c.owner_id,c.audit_enabled,
+SELECT c.id,n.namespace_id,c.owner_id,c.etag,c.audit_enabled,
  EXISTS(SELECT 1 FROM component_publications p
  JOIN component_mcp_exposures e ON e.report_id=p.report_id AND e.version_no=p.active_version_no
  LEFT JOIN component_cube_configs cube ON cube.report_id=e.report_id AND cube.version_no=e.version_no

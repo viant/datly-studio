@@ -18,6 +18,7 @@ import (
 	"github.com/viant/datly-studio/internal/auditstore"
 	"github.com/viant/datly-studio/internal/namespaceroles"
 	controlread "github.com/viant/datly-studio/studio/tool_call_audit/control_read"
+	controlwrite "github.com/viant/datly-studio/studio/tool_call_audit/control_write"
 	storedread "github.com/viant/datly-studio/studio/tool_call_audit/store_read"
 )
 
@@ -46,6 +47,7 @@ type Scope struct {
 	ToolName    string `json:"toolName,omitempty"`
 }
 type Setting struct {
+	snapshot *controlread.AuditScope
 	Scope
 	Enabled    bool   `json:"enabled"`
 	Effective  bool   `json:"effective"`
@@ -165,6 +167,7 @@ func (s *Service) setting(ctx context.Context, scope Scope, facts authz.Facts) (
 	if stringValue(data.Status) != "active" {
 		return result, ErrForbidden
 	}
+	result.snapshot = data
 	roles := ""
 	if data.AllowedRolesJson != nil {
 		roles = string(*data.AllowedRolesJson)
@@ -252,35 +255,44 @@ func (s *Service) Configure(ctx context.Context, scope Scope, enabled bool) (Set
 		return current, ErrForbidden
 	}
 	now := time.Now().UTC()
+	row := &controlwrite.AuditScope{}
+	row.SetOwnerId(current.snapshot.OwnerId)
+	row.SetName(current.snapshot.Name)
+	row.SetNamespaceId(current.snapshot.NamespaceId)
+	row.SetEtag(current.snapshot.Etag)
 	switch {
 	case scope.ToolName != "":
-		// Use an explicit transaction for a portable SQLite/MySQL upsert.
-		tx, err := s.DB.BeginTx(ctx, nil)
-		if err != nil {
-			return current, err
-		}
-		defer tx.Rollback()
-		var exists int
-		if err = tx.QueryRowContext(ctx, "SELECT COUNT(*) FROM tool_audit_settings WHERE namespace_id=? AND tool_name=?", scope.NamespaceID, scope.ToolName).Scan(&exists); err != nil {
-			return current, err
-		}
-		if exists == 0 {
-			_, err = tx.ExecContext(ctx, `INSERT INTO tool_audit_settings(namespace_id,tool_name,enabled,created_at,created_by,updated_at,updated_by) VALUES(?,?,?,?,?,?,?)`, scope.NamespaceID, scope.ToolName, enabled, now, facts.Subject, now, facts.Subject)
-		} else {
-			_, err = tx.ExecContext(ctx, `UPDATE tool_audit_settings SET enabled=?,updated_at=?,updated_by=? WHERE namespace_id=? AND tool_name=?`, enabled, now, facts.Subject, scope.NamespaceID, scope.ToolName)
-		}
-		if err != nil {
-			return current, err
-		}
-		if err = tx.Commit(); err != nil {
-			return current, err
-		}
+		setting := &controlwrite.ToolSetting{}
+		setting.SetNamespaceId(current.snapshot.NamespaceId)
+		setting.SetToolName(&scope.ToolName)
+		setting.SetEnabled(enabled)
+		setting.SetUpdatedAt(now)
+		setting.SetUpdatedBy(&facts.Subject)
+		row.SetToolSettings([]*controlwrite.ToolSetting{setting})
 	case scope.ComponentID != "":
-		_, err = s.DB.ExecContext(ctx, `UPDATE components SET audit_enabled=?,etag=etag+1,updated_at=? WHERE id=? AND deleted_at IS NULL`, enabled, now, scope.ComponentID)
+		var selected *controlread.AuditComponent
+		for _, component := range current.snapshot.Components {
+			if stringValue(component.Id) == scope.ComponentID {
+				selected = component
+				break
+			}
+		}
+		if selected == nil {
+			return current, ErrForbidden
+		}
+		component := &controlwrite.AuditComponent{}
+		component.SetId(selected.Id)
+		component.SetOwnerId(current.snapshot.OwnerId)
+		component.SetNamespace(current.snapshot.Name)
+		component.SetEtag(selected.Etag)
+		component.SetAuditEnabled(enabled)
+		component.SetUpdatedAt(now)
+		row.SetComponents([]*controlwrite.AuditComponent{component})
 	default:
-		_, err = s.DB.ExecContext(ctx, `UPDATE namespaces SET audit_enabled=?,etag=etag+1,updated_at=? WHERE namespace_id=? AND deleted_at IS NULL`, enabled, now, scope.NamespaceID)
+		row.SetAuditEnabled(enabled)
+		row.SetUpdatedAt(now)
 	}
-	if err != nil {
+	if err = s.queryStore.Configure(ctx, row); err != nil {
 		return current, err
 	}
 	// Control changes remain auditable even when they disable their own scope.

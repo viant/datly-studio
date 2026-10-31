@@ -1,0 +1,1 @@
+SELECT * FROM (SELECT namespace_id,tool_name,enabled,created_at,created_by,updated_at,updated_by FROM tool_audit_settings) setting
