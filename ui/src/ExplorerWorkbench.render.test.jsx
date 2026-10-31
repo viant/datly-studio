@@ -57,7 +57,7 @@ test('SQL tabs retain their connector and table discovery opens separate tabs',a
 test('a result tab creates a component from that execution SQL and connector',async()=>{
  const user=userEvent.setup(),{api,navigate}=mount();await editSQL('SELECT 7 AS value');
  await user.click(screen.getByRole('button',{name:'Run SQL',exact:true}));await screen.findByText('SELECT 7 AS value',{selector:'td'});
- await user.click(screen.getByRole('button',{name:'Create component',exact:true}));
+ await user.click(screen.getByRole('button',{name:'Add as root view',exact:true}));
  const dialog=await screen.findByRole('dialog',{name:'Create component',exact:true});await user.click(within(dialog).getByRole('button',{name:'Create component',exact:true}));
  await waitFor(()=>expect(navigate).toHaveBeenCalled());
  expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.components.create')[1].defaultConnectorName).toBe('Bq');

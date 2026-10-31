@@ -130,7 +130,7 @@ function QueryPanel({tab,update,run,create,addSubview,page,resizePage}) {
     <InputGroup id={timeoutID} type="number" min={0} step={1} value={String(tab.timeoutSeconds)} readOnly={execution} onChange={event=>update({timeoutSeconds:event.target.value})}/>
    </FormGroup>
    <span className="studio-explorer-timeout-help">0 = no Studio timeout</span>
-   <Button icon="new-object" onClick={create} disabled={!tab.sql.trim()||tab.status==='running'}>Create component</Button>
+   <Button icon="new-object" onClick={create} disabled={!tab.sql.trim()||tab.status==='running'}>Add as root view</Button>
    {!execution&&tab.detail&&<Button icon="properties" active={details} onClick={()=>setDetails(value=>!value)}>Columns</Button>}
    {addSubview&&<Button icon="git-branch" onClick={addSubview}>Add as subview</Button>}
   </div>
