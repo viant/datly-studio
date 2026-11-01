@@ -7,8 +7,8 @@ import {SettingProvider} from 'forge/settings';
 import 'forge/packs/blueprint';
 import {managementWindowFixture} from './managementWindowFixture.js';
 let serial=0;
-function mount(group=1,predicate={group,name:'in',args:['c','id']}){
- const inspection={version:{versionNo:1,sourceRevision:9,state:'draft'},capabilities:{canEdit:true},structure:{availablePredicates:['in','not_in','expr','handler'],component:{rootView:{name:'reader',namespace:'records',columns:[{name:'ID',source:'c.id'}],relations:[]}},declarations:[{parameter:{name:'IDs',typeExpr:'[]int',source:{kind:'query',name:'ids'}},predicates:[{ordinal:0,predicate}]}],predicateExpansions:[{group,view:'records',operator:'AND'}]}};
+function mount(group=1,predicate={group,name:'in',args:['c','id']},columns=[{name:'ID',source:'c.id'}]){
+ const inspection={version:{versionNo:1,sourceRevision:9,state:'draft'},capabilities:{canEdit:true},structure:{availablePredicates:['in','not_in','expr','handler'],component:{rootView:{name:'reader',namespace:'records',columns,relations:[]}},declarations:[{parameter:{name:'IDs',typeExpr:'[]int',source:{kind:'query',name:'ids'}},predicates:[{ordinal:0,predicate}]}],predicateExpansions:[{group,view:'records',operator:'AND'}]}};
  const calls=[],complete=vi.fn(),close=vi.fn();
  const transport=vi.fn(async request=>{calls.push(request);if(request.dataSourceRef==='predicate_inspect')return {data:[inspection]};if(request.dataSourceRef==='predicate_types')return {data:[{items:[]}]};if(request.dataSourceRef==='predicate_apply')return {data:[{applied:true,inspection:{...inspection,version:{...inspection.version,sourceRevision:10}}}]};return {data:[]};});
  render(<SettingProvider connectorConfig={{window:{service:{uri:'/window'}}}} services={{dataConnectorTransport:transport,hostWindow:{complete,close}}}><WindowContent window={{windowId:`forge-predicate-${++serial}`,windowKey:'reader-predicate',parameters:{reportId:'reader',versionNo:1,predicateID:'IDs:0'}}} selectedMetadata={managementWindowFixture('reader-predicate')}/></SettingProvider>);
@@ -68,4 +68,17 @@ test('leaving the predicate editor cancels edited arguments without a mutation',
  await user.click(screen.getByRole('button',{name:'Back to predicates',exact:true}));
  expect(close).toHaveBeenCalled();expect(calls.some(item=>item.dataSourceRef==='predicate_apply')).toBe(false);
  expect(handlerArgs).toEqual(['alias','p','enabled',false,'limit',0,null,'null']);
+});
+
+
+test('typing a complete SQL alias retains every character in the saved predicate',async()=>{
+ const user=userEvent.setup(),{calls,complete}=mount(1,{group:1,name:'in',args:['','region']},[{name:'region',source:'region'}]);
+ const alias=await screen.findByLabelText('SQL alias',{exact:true});
+ await user.type(alias,'example_records');
+ expect(alias.value).toBe('example_records');
+ await user.click(screen.getByLabelText('Filter dimension',{exact:true}));
+ await user.click(await screen.findByRole('menuitem',{name:'region',exact:true}));
+ await user.click(screen.getByRole('button',{name:'Save predicate',exact:true}));
+ await waitFor(()=>expect(complete).toHaveBeenCalled());
+ expect(calls.find(item=>item.dataSourceRef==='predicate_apply').options.inputParameters.command.operation.predicate.args).toEqual(['example_records','region']);
 });
