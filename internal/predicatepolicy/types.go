@@ -31,7 +31,7 @@ func Types(source *typecatalog.Catalog, policy *settings.Namespace) (*typecatalo
 		for rt != nil && rt.Kind() == reflect.Pointer {
 			rt = rt.Elem()
 		}
-		if rt != nil && rt.Kind() != reflect.Interface && reflect.PointerTo(rt).Implements(reflect.TypeFor[xpredicate.Handler]()) && !allowed[typ.PkgPath] {
+		if rt != nil && rt.Kind() != reflect.Interface && (reflect.PointerTo(rt).Implements(reflect.TypeFor[xpredicate.Handler]()) || reflect.PointerTo(rt).Implements(reflect.TypeFor[xpredicate.VariadicHandler]())) && !allowed[typ.PkgPath] {
 			return true
 		}
 		failure = result.Register(typecatalog.TypeOriginPackage, typ)
@@ -42,7 +42,7 @@ func Types(source *typecatalog.Catalog, policy *settings.Namespace) (*typecatalo
 
 // AllowsPackage applies namespace selection to linked-type discovery.
 func AllowsPackage(policy *settings.Namespace, pkg string) bool {
-	if policy == nil || pkg == "github.com/viant/datly-studio/studio/authorization" {
+	if policy == nil {
 		return true
 	}
 	if policy.Security == nil {

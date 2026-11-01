@@ -1,6 +1,6 @@
 import React from 'react';
 import {test,expect,vi} from 'vitest';
-import {render,screen,waitFor,within} from '@testing-library/react';
+import {render,screen,waitFor,within,fireEvent} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {ContractWorkspace} from './ContractWorkspace.jsx';
 import ManagementWindowRuntime from './ManagementWindowRuntime.jsx';
@@ -28,8 +28,8 @@ test('Forge Boolean composition edits remain separate from individual predicates
 });
 test('Forge required authorization assignment uses an active MCP catalog identity',async()=>{
  const user=userEvent.setup(),{api}=fixture();render(<ManagementWindowRuntime api={api} uri="window://datastudio/reader-predicate" instanceKey={'security-predicate-'+(++serial)} parameters={{reportId:'reader',versionNo:1,field:'Input1'}} onComplete={vi.fn()}/>);
- await screen.findByLabelText('Predicate',{exact:true});await user.click(screen.getByText('Authorization options',{selector:'summary'}));await choose(user,'Security predicate','Vendor access — example.com/iam.VendorRead');await user.click(screen.getByRole('button',{name:'Save predicate',exact:true}));
- await waitFor(()=>expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.versions.builder')).toBe(true));expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.versions.builder')[1].command.operation).toEqual({type:'addFieldPredicate',predicate:{field:'Input1',occurrence:0,view:'records',name:'handler',args:['example.com/iam.VendorRead'],group:99,groupOperator:'AND',applyWhenAbsent:true}});
+ await screen.findByLabelText('Predicate',{exact:true});await user.click(screen.getByText('Authorization options',{selector:'summary'}));await choose(user,'Security predicate','Vendor access — example.com/iam.VendorRead');const args=['Alias','record','PermissionColumn','owner_id','Enabled',false,'Limit',0];fireEvent.change(await screen.findByLabelText('Handler arguments (JSON array)',{exact:true}),{target:{value:JSON.stringify(args)}});await user.click(screen.getByRole('button',{name:'Save predicate',exact:true}));
+ await waitFor(()=>expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.versions.builder')).toBe(true));expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.versions.builder')[1].command.operation).toEqual({type:'addFieldPredicate',predicate:{field:'Input1',occurrence:0,view:'records',name:'handler',args:['example.com/iam.VendorRead'],handlerArgs:args,group:99,groupOperator:'AND',applyWhenAbsent:true}});
 });
 test('Forge request input kinds support whole-body values and trusted zero constants',async()=>{
  const user=userEvent.setup(),{api}=fixture();const view=render(<ManagementWindowRuntime api={api} uri="window://datastudio/reader-input" instanceKey={'body-'+(++serial)} parameters={{reportId:'reader',versionNo:1}} onComplete={vi.fn()}/>);await user.type(await screen.findByLabelText('Input name',{exact:true}),'Payload');await choose(user,'Kind','body');await user.click(screen.getByRole('button',{name:'Save input',exact:true}));await waitFor(()=>expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.versions.builder')).toBe(true));expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.versions.builder')[1].command.operation.field).toMatchObject({name:'Payload',sourceKind:'body',sourceName:''});view.unmount();

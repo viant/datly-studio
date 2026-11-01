@@ -11,6 +11,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
+	"github.com/viant/datly-studio/studio/predicatecatalog"
+	"github.com/viant/datly-studio/studio/settings"
 	"github.com/viant/datly/transcribe/dql"
 	"github.com/viant/datly/typecatalog"
 	"github.com/viant/x"
@@ -34,8 +36,10 @@ func TestReaderBuilderHandlerArgumentsPersistThroughSQLiteReload(t *testing.T) {
 	require.NoError(t, schema.ApplySQLite(ctx, db, "studio"))
 	types := typecatalog.NewCatalog()
 	require.NoError(t, types.Register(typecatalog.TypeOriginPackage, x.NewType(reflect.TypeFor[persistedArgumentHandler](), x.WithPkgPath("example.com/filters"), x.WithName("Scope"))))
+	predicates, err := predicatecatalog.New(predicatecatalog.Package{Path: "example.com/filters", Types: []reflect.Type{reflect.TypeFor[persistedArgumentHandler]()}})
+	require.NoError(t, err)
 	newClient := func() sdk.Client {
-		client, e := sdk.NewClient(&Transport{DB: db, Authorizer: allowAuthorizer{}, RuntimeTypes: types})
+		client, e := sdk.NewClient(&Transport{DB: db, Authorizer: allowAuthorizer{}, RuntimeTypes: types, Predicates: predicates})
 		require.NoError(t, e)
 		return client
 	}
@@ -53,6 +57,13 @@ SELECT records.* FROM (SELECT r.id,r.name FROM records r) records`
 	require.NoError(t, err)
 	operation := json.RawMessage(`{"type":"addFieldPredicate","predicate":{"field":"IDs","view":"records","group":0,"name":"handler","args":["example.com/filters.Scope"],"handlerArgs":["alias","r","enabled",false,"limit",10,"nullable",null]}}`)
 	result, err := client.Versions().ApplyReaderCommand(ctx, component.ID, version.VersionNo, sdk.ReaderBuilderCommand{ExpectedSourceRevision: version.SourceRevision, Operation: operation})
+	require.NoError(t, err)
+	require.False(t, result.Applied, "linked external handlers must not bypass namespace package selection")
+	currentSettings, err := client.Namespaces().GetSettings(ctx, component.Namespace)
+	require.NoError(t, err)
+	_, err = client.Namespaces().UpdateSettings(settingsAdminContext(t, ctx), component.Namespace, sdk.UpdateNamespaceSettingsInput{ETag: currentSettings.ETag, Settings: settings.Namespace{Security: &settings.Security{PredicatePackages: []string{"example.com/filters"}}}})
+	require.NoError(t, err)
+	result, err = client.Versions().ApplyReaderCommand(ctx, component.ID, version.VersionNo, sdk.ReaderBuilderCommand{ExpectedSourceRevision: version.SourceRevision, Operation: operation})
 	require.NoError(t, err)
 	require.True(t, result.Applied, "%+v", result.Inspection.Diagnostics)
 	expected := []any{"alias", "r", "enabled", false, "limit", 10, "nullable", nil}
