@@ -20,7 +20,7 @@ window:
                 - selector: saving
                   equals: true
                 - selector: canEdit
-                  equals: false
+                  notEquals: true
                 - selector: loading
                   equals: true
             fields:
@@ -429,7 +429,7 @@ window:
                     - selector: saving
                       equals: true
                     - selector: canEdit
-                      equals: false
+                      notEquals: true
                 hideLabel: false
   dialogs:
     - id: remove-input

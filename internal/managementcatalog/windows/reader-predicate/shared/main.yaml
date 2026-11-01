@@ -21,7 +21,7 @@ window:
                 - selector: saving
                   equals: true
                 - selector: canEdit
-                  equals: false
+                  notEquals: true
                 - selector: locked
                   equals: true
             fields:
@@ -293,7 +293,7 @@ window:
                     - selector: saving
                       equals: true
                     - selector: canEdit
-                      equals: false
+                      notEquals: true
                     - selector: locked
                       equals: true
                 hideLabel: false
