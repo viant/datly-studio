@@ -42,7 +42,7 @@ def main():
         subprocess.run(
             ["docker", "exec", "-i", name, "sh", "-c",
              'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -uroot'],
-            input=b"CREATE DATABASE studio_snapshot_e2e; CREATE DATABASE studio_audit_e2e; CREATE DATABASE studio_session_e2e;", check=True,
+            input=b"CREATE DATABASE studio_snapshot_e2e; CREATE DATABASE studio_audit_e2e; CREATE DATABASE studio_session_e2e; CREATE DATABASE studio_resource_e2e;", check=True,
             stdout=subprocess.DEVNULL, timeout=10)
         test_env["STUDIO_RELEASE_SNAPSHOT_MYSQL_DSN"] = (
             f"root:{password}@tcp(127.0.0.1:{port})/studio_snapshot_e2e?parseTime=true&multiStatements=true")
@@ -50,14 +50,16 @@ def main():
             f"root:{password}@tcp(127.0.0.1:{port})/studio_audit_e2e?parseTime=true&multiStatements=true")
         test_env["STUDIO_SESSION_MYSQL_DSN"] = (
             f"root:{password}@tcp(127.0.0.1:{port})/studio_session_e2e?parseTime=true&multiStatements=true")
+        test_env["STUDIO_RESOURCE_MYSQL_DSN"] = (
+            f"root:{password}@tcp(127.0.0.1:{port})/studio_resource_e2e?parseTime=true&multiStatements=true")
         result = subprocess.run(
             ["go", "test", "-p=1", "./studio/artifact_release/channels",
-             "./studio/artifact_release/snapshot", "./internal/auditstore", "./internal/bffauth", "-run", "MySQL", "-count=1", "-v"],
+             "./studio/artifact_release/snapshot", "./internal/auditstore", "./internal/bffauth", "./runtime/resources", "-run", "MySQL", "-count=1", "-v"],
             cwd=root, env=test_env, text=True, stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT, timeout=300)
         # Fixture credentials are never part of diagnostic output.
         print(result.stdout.replace(password, "[redacted]"), end="")
-        required = ("TestNativeChannelsMySQL", "TestNativeSnapshotGraphMySQL", "TestNativeAuditControlsMySQL", "TestNativeRefreshLeaseMySQL")
+        required = ("TestNativeChannelsMySQL", "TestNativeSnapshotGraphMySQL", "TestNativeAuditControlsMySQL", "TestNativeRefreshLeaseMySQL", "TestResourceSnapshotMySQL")
         if result.returncode or "--- SKIP:" in result.stdout or any(
                 "--- PASS: " + name + " " not in result.stdout for name in required):
             raise RuntimeError("native MySQL release qualification did not pass without skips")
