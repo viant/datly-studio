@@ -2534,6 +2534,9 @@ func (t *Transport) runtimeStatus(ctx context.Context, output any) error {
 		value.Host = &sdk.RuntimeHost{Status: "unknown", CheckedAt: checkedAt}
 	} else if host, probeErr := t.RuntimeProbe.ProbeRuntime(ctx); probeErr != nil || host == nil {
 		value.Host = &sdk.RuntimeHost{Status: "unavailable", CheckedAt: checkedAt}
+		if probeErr != nil {
+			value.Diagnostics = append(value.Diagnostics, runtimevalidation.Diagnostics(probeErr)...)
+		}
 	} else {
 		if host.CheckedAt.IsZero() {
 			host.CheckedAt = checkedAt

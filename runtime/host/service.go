@@ -13,6 +13,7 @@ import (
 	"github.com/viant/datly-studio/internal/predicatepolicy"
 	"github.com/viant/datly-studio/internal/reportcapability"
 	"github.com/viant/datly-studio/internal/resourcecheck"
+	"github.com/viant/datly-studio/internal/runtimevalidation"
 	"github.com/viant/datly-studio/internal/settingstore"
 	"github.com/viant/datly-studio/studio/settings"
 	"github.com/viant/datly-studio/studio/sourcevalidation"
@@ -250,7 +251,13 @@ func (s *Service) extendNamespaceBuild(ctx context.Context, build *application.B
 func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Catalog, definitions []definition, inspect ...func(definition, *registry.RegisteredComponent, *studiors.Loaded) error) (_ *application.Build, err error) {
 	started := time.Now()
 	defer func() {
-		slog.InfoContext(ctx, "Studio namespace compilation", "namespaceId", s.config.NamespaceID, "components", len(definitions), "elapsedMs", float64(time.Since(started))/float64(time.Millisecond), "failed", err != nil)
+		fields := []any{"namespaceId", s.config.NamespaceID, "components", len(definitions), "elapsedMs", float64(time.Since(started)) / float64(time.Millisecond), "failed", err != nil}
+		if err != nil {
+			fields = append(fields, "diagnostics", runtimevalidation.Diagnostics(err))
+			slog.ErrorContext(ctx, "Studio namespace compilation failed", fields...)
+		} else {
+			slog.InfoContext(ctx, "Studio namespace compilation", fields...)
+		}
 	}()
 
 	for i := range definitions {

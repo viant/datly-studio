@@ -52,6 +52,9 @@ func inProcessControl(group *atomic.Pointer[runtimehost.NamespaceGroup]) *runtim
 		}
 		endpoint, mode, revision, ready := current.Listeners.RuntimeStatus(id)
 		if !ready {
+			if cause := current.RuntimeFailure(id); cause != nil {
+				return nil, cause
+			}
 			return nil, runtimeadmin.ErrNamespaceUnavailable
 		}
 		return &sdk.RuntimeHost{NamespaceID: id, MCPURL: endpoint.URL(), AuthenticationMode: mode, Status: "ready", Revision: revision, CheckedAt: time.Now().UTC()}, nil

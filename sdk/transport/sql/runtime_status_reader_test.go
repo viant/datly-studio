@@ -3,8 +3,11 @@ package sqltransport
 import (
 	"context"
 	"database/sql"
+	"errors"
+	"github.com/viant/datly-studio/internal/runtimevalidation"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -67,6 +70,17 @@ func TestRuntimeStatusUsesLatestActiveGeneratedReader(t *testing.T) {
 		status.Host == nil || status.Host.Status != "unknown" {
 		t.Fatalf("runtime status=%+v err=%v", status, err)
 	}
+	transport.RuntimeProbe = RuntimeHostProbeFunc(func(context.Context) (*sdk.RuntimeHost, error) {
+		return nil, runtimevalidation.Wrap("connector", errors.New("private connection credential must not appear"))
+	})
+	status, err = client.Runtime().Status(owner)
+	if err != nil || status.Host == nil || status.Host.Status != "unavailable" || len(status.Diagnostics) != 2 {
+		t.Fatalf("failed live probe lost diagnostics: status=%+v err=%v", status, err)
+	}
+	if status.Diagnostics[1].Stage != "connector" || status.Diagnostics[1].Field != "defaultConnectorName" || strings.Contains(status.Diagnostics[1].Message, "private connection") {
+		t.Fatalf("live probe diagnostic must preserve safe stage and field: %+v", status.Diagnostics[1])
+	}
+
 }
 
 func TestRuntimeStatusSelectsOwnNamespaceGenerationAndCount(t *testing.T) {

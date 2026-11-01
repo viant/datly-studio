@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/viant/datly-studio/runtime/namespacemcp"
@@ -19,6 +20,8 @@ type NamespaceGroup struct {
 	Listeners   *namespacemcp.Manager
 	reconciler  *namespacemcp.Reconciler
 	adminServer *http.Server
+	failureMu   sync.RWMutex
+	failures    map[string]error
 }
 
 func NewNamespaceGroup(ctx context.Context, config Config) (*NamespaceGroup, error) {
@@ -62,7 +65,28 @@ func (g *NamespaceGroup) StartAdmin(address, token string) error {
 	return nil
 }
 func (g *NamespaceGroup) Reconcile(ctx context.Context) ([]namespacemcp.Change, error) {
-	return g.reconciler.Apply(ctx)
+	changes, err := g.reconciler.Apply(ctx)
+	// Preserve the last known failures if reading the desired state itself failed.
+	if changes != nil || err == nil {
+		failures := make(map[string]error)
+		for _, change := range changes {
+			if change.Cause != nil {
+				failures[change.NamespaceID] = change.Cause
+			}
+		}
+		g.failureMu.Lock()
+		g.failures = failures
+		g.failureMu.Unlock()
+	}
+	return changes, err
+}
+
+// RuntimeFailure exposes the last reconciliation cause to trusted host control.
+// Public callers must project it through the existing diagnostic policy.
+func (g *NamespaceGroup) RuntimeFailure(namespaceID string) error {
+	g.failureMu.RLock()
+	defer g.failureMu.RUnlock()
+	return g.failures[namespaceID]
 }
 
 // Run polls configuration after startup. Each read completes before listener

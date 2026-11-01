@@ -4,6 +4,8 @@ package runtimevalidation
 import (
 	"context"
 	"errors"
+	"fmt"
+	"github.com/go-sql-driver/mysql"
 	"github.com/viant/datly-studio/internal/predicatepolicy"
 	"github.com/viant/datly-studio/studio/sourcevalidation"
 
@@ -25,6 +27,12 @@ func Wrap(stage string, cause error) error { return &Error{Stage: stage, Cause: 
 // Diagnostics only exports allowlisted static text. The cause remains available
 // to trusted callers through errors.Is/As, never through serialized diagnostics.
 func Diagnostics(err error) []sdk.Diagnostic {
+	var databaseError *mysql.MySQLError
+	if errors.As(err, &databaseError) {
+		return []sdk.Diagnostic{{Severity: "error", Stage: "database", Field: "runtime", Code: fmt.Sprintf("runtime_mysql_%d", databaseError.Number),
+			Message: fmt.Sprintf("Runtime initialization failed with MySQL error %d (SQLSTATE %s).", databaseError.Number, databaseError.SQLState),
+			Hint:    "Inspect the generated reader SQL, schema, and configured connector. The underlying query and credentials are not included in this response."}}
+	}
 	var required *predicatepolicy.RequiredError
 	if errors.As(err, &required) {
 		return []sdk.Diagnostic{{Severity: "error", Code: "namespace_security_predicate_required", Stage: "source_policy", Field: "authoredDql", Message: required.Error(), Hint: "Define a required authorization handler from the owning namespace's predicate packages and validate again."}}

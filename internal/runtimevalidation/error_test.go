@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/go-sql-driver/mysql"
 	"github.com/viant/datly-studio/internal/readerinspection"
 	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly/transcribe"
@@ -59,5 +60,17 @@ func TestCompileSpansAndACLProjectionRemainIntact(t *testing.T) {
 	d = readerinspection.RedactDiagnostics(ds, false)[0]
 	if d.Message != "" || d.Hint != "" || d.Code != "DQL-TYPE" || d.Line != 12 {
 		t.Fatalf("ACL projection %+v", d)
+	}
+}
+
+func TestDatabaseRuntimeDiagnosticReportsCodeWithoutQuery(t *testing.T) {
+	cause := &mysql.MySQLError{Number: 1064, SQLState: [5]byte{'4', '2', '0', '0', '0'}, Message: "private query with token=secret"}
+	diagnostics := Diagnostics(fmt.Errorf("resource load failed: %w", cause))
+	if len(diagnostics) != 1 || diagnostics[0].Code != "runtime_mysql_1064" || !strings.Contains(diagnostics[0].Message, "42000") {
+		t.Fatalf("missing database cause: %+v", diagnostics)
+	}
+	raw, _ := json.Marshal(diagnostics)
+	if strings.Contains(string(raw), "private query") || strings.Contains(string(raw), "token=secret") {
+		t.Fatalf("query leaked: %s", raw)
 	}
 }
