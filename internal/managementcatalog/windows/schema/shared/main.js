@@ -14,6 +14,24 @@
   let timer;try{return record(await Promise.race([request,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Database discovery timed out. Select a project/schema and retry.')),35000);})]));}finally{clearTimeout(timer);}
  };
  const host=()=>context.services?.hostWindow||{};
+ let unsubscribeOperations;
+ let connectorRefresh = 0;
+ let disposed = false;
+ const refreshConnectors = async () => {
+  const request = ++connectorRefresh;
+  try {
+   const result = await call('schema_connector_list', {status:'active',limit:100});
+   if (disposed || request !== connectorRefresh) return;
+   rows('schema_connectors', (result?.items||[]).map(item=>({...item,label:item.name})));
+  } catch(error) { if (!disposed && request === connectorRefresh) set('schema_state',{outcome:error.message}); }
+ };
+ const subscribeConnectors = () => {
+  disposed = false;
+  unsubscribeOperations?.();
+  unsubscribeOperations = host().subscribeOperations?.(operation=>{
+   if (/^connectors\.(create|update|delete|activate|disable)$/.test(operation)) void refreshConnectors();
+  });
+ };
  const run=async(id,action)=>{if(get(id).saving)return false;set(id,{saving:true,outcome:''});try{await action();return true;}catch(error){set(id,{outcome:error.message});return false;}finally{set(id,{saving:false});}};
  const open=id=>{host().setDirty?.(true);context.handlers.window.openDialog({execution:{args:[id]}});};
  const selectTab=tabId=>context.handlers.window.selectTab({containerId:'schema-detail-tabs',tabId});
@@ -115,7 +133,8 @@
    ds('schema_root_draft').setFormData({values:{title:'SQL query',slug:'sql-query',viewName:'query',source:{...form},saving:false,outcome:''}});open('schema-root');return true;
   },
   invalidateSQL:()=>ds('schema_test_result').setFormData({values:{data:null}}),
-  initialize:()=>run('schema_state',async()=>{const before=state(),result=await call('schema_connector_list',{status:'active',limit:100});const connectors=result?.items||[];rows('schema_connectors',connectors.map(item=>({...item,label:item.name})));set('schema_state',{useWorkbench:context.windowState?.parameters?.hasSQLWorkbench===true,connectorName:connectors.some(item=>item.name===before.connectorName)?before.connectorName:(connectors[0]?.name||''),catalogName:before.catalogName||'',schemaName:before.schemaName||'',query:'',selected:false,sql:'',timeoutSeconds:before.timeoutSeconds??60,extension:'sql',tableOffset:0,hasMore:false});cancelDiscovery();localChoices();clearObjects();}),
+  dispose:()=>{disposed=true;connectorRefresh++;unsubscribeOperations?.();unsubscribeOperations=null;},
+  initialize:()=>run('schema_state',async()=>{subscribeConnectors();const before=state(),result=await call('schema_connector_list',{status:'active',limit:100});const connectors=result?.items||[];rows('schema_connectors',connectors.map(item=>({...item,label:item.name})));set('schema_state',{useWorkbench:context.windowState?.parameters?.hasSQLWorkbench===true,connectorName:connectors.some(item=>item.name===before.connectorName)?before.connectorName:(connectors[0]?.name||''),catalogName:before.catalogName||'',schemaName:before.schemaName||'',query:'',selected:false,sql:'',timeoutSeconds:before.timeoutSeconds??60,extension:'sql',tableOffset:0,hasMore:false});cancelDiscovery();localChoices();clearObjects();}),
   changeConnector:()=>{cancelDiscovery();set('schema_state',{catalogName:'',schemaName:'',productVersion:''});localChoices();clearObjects();},
   changeCatalog:()=>{cancelDiscovery();set('schema_state',{schemaName:''});schemaChoices([]);clearObjects();},
   loadSchemas:discovery,

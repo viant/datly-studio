@@ -11,7 +11,7 @@ import '../node_modules/forge/src/packs/blueprint/index.jsx';
 for(const [screenName,openButton,nameLabel,titleLabel] of [['connectors','New connector','Name','Description'],['namespaces','New namespace','Namespace','Display title']]) {
  test(`${screenName} window opens an editable Forge dialog and invokes the SDK create operation`,async()=>{
   const metadata=source(screenName),calls=[];
-  const transport=vi.fn(async request=>{calls.push(request);return {data:request.dataSourceRef===screenName?[]:[{name:'example',etag:1}]};});
+  const transport=vi.fn(async request=>{calls.push(request);if(request.dataSourceRef==='namespace_permissions')return {data:[{canCreate:true}]};return {data:request.dataSourceRef===screenName?[]:[{name:'example',etag:1}]};});
   render(<SettingProvider endpoints={{}} connectorConfig={{window:{service:{uri:'/window'}}}} services={{dataConnectorTransport:transport}}><WindowContent window={{windowId:`management-${screenName}`,windowKey:screenName}} selectedMetadata={metadata}/></SettingProvider>);
   const user=userEvent.setup();await user.click(await screen.findByRole('button',{name:openButton,exact:true}));
   const name=await screen.findByLabelText(nameLabel,{exact:true});await user.type(name,'example');
@@ -96,7 +96,7 @@ test('native management host loads and executes the canonical connector window',
  const definition=source('connectors');
  const dataSources=definition.dataSource;
  const canonical={...definition,dataSource:Object.fromEntries(Object.entries(dataSources).map(([id,value])=>[id,{cardinality:value.cardinality}]))};
- const resource={schemaVersion:3,targets:[{target:{platform:'web',formFactor:'desktop'},variant:'same'}],variants:{same:{window:canonical,dataSources}}};
+ const resource={schemaVersion:3,format:'window.references',targets:[{target:{platform:'web',formFactor:'desktop'},variant:'same'}],variants:{same:{window:canonical,dataSources}}};
  const api={readManagementResource:vi.fn().mockResolvedValue(resource),invoke:vi.fn(async(operation)=>operation==='connectors.list'?{items:[]}:{name:'shared'})};
  render(<ManagementWindow api={api} uri="window://datastudio/connectors" instanceKey="native-shared-connector"/>);
  const user=userEvent.setup();
@@ -111,7 +111,7 @@ test('native management host loads and executes the canonical connector window',
 test('canonical connector window searches on the server and confirms revision-bound deletion',async()=>{
  const {ManagementWindow}=await import('./ManagementWindow.jsx');
  const definition=source('connectors'),dataSources=definition.dataSource;
- const resource={schemaVersion:3,targets:[{variant:'default'}],variants:{default:{window:{...definition,dataSource:Object.fromEntries(Object.entries(dataSources).map(([id,value])=>[id,{cardinality:value.cardinality}]))},dataSources}}};
+ const resource={schemaVersion:3,format:'window.references',targets:[{variant:'default'}],variants:{default:{window:{...definition,dataSource:Object.fromEntries(Object.entries(dataSources).map(([id,value])=>[id,{cardinality:value.cardinality}]))},dataSources}}};
  const saved={name:'warehouse',driver:'mysql',status:'disabled',etag:9};
  const calls=[];
  const api={readManagementResource:async()=>resource,invoke:async(operation,input)=>{calls.push([operation,input]);return operation==='connectors.list'?{items:[saved]}:saved;}};

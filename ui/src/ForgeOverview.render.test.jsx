@@ -21,7 +21,7 @@ function mount(partial=false){
 }
 test('Forge overview loads MCP-backed summaries and opens the selected component',async()=>{
  const user=userEvent.setup(),{transport,navigate}=mount();
- await screen.findByText('Revenue');await screen.findByText('Ready · revision 12');
+ await within(screen.getByRole('region',{name:'Continue authoring'})).findByRole('button',{name:/Revenue/});await screen.findByText('Ready · revision 12');
  expect(screen.getByText('1/1 active connectors tested')).toBeTruthy();
  await user.click(within(screen.getByRole('region',{name:'Continue authoring'})).getByRole('button',{name:/Revenue/}));
  expect(screen.queryByRole('table')).toBeNull();
@@ -31,7 +31,7 @@ test('Forge overview loads MCP-backed summaries and opens the selected component
  expect(transport.mock.calls.filter(([request])=>request.dataSourceRef==='overview_reports')[0][0].options.inputParameters).toMatchObject({limit:6,offset:0});
 });
 test('Forge overview preserves healthy sections when one MCP datasource fails',async()=>{
- mount(true);await screen.findByText('Revenue');
+ mount(true);await within(screen.getByRole('region',{name:'Continue authoring'})).findByRole('button',{name:/Revenue/});
  await waitFor(()=>expect(screen.getByText('Connector readiness is unavailable')).toBeTruthy());
  expect(screen.getByText('Ready · revision 12')).toBeTruthy();
 });

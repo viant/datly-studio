@@ -4,6 +4,8 @@ window:
   on:
     - event: onInit
       handler: management.initialize
+    - event: onDestroy
+      handler: management.dispose
   view:
     content:
       id: schema-browser

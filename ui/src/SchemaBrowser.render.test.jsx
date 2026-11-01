@@ -154,3 +154,19 @@ test('closing an SQL window preserves its draft and releases the navigation guar
  await user.click(screen.getByRole('button',{name:'New SQL',exact:true}));
  await waitFor(()=>expect(screen.getByRole('textbox',{name:'SQL query',exact:true}).textContent).toContain('SELECT 99 AS retained'));
 });
+
+test('refreshes connector choices after another window saves without resetting Explorer inputs',async()=>{
+ const user=userEvent.setup();const {api}=mount();
+ await screen.findByRole('button',{name:'Connector',exact:true});
+ await user.type(screen.getByLabelText('Find tables or views'),'retained-query');
+ const original=api.fetchMCPDataSource.getMockImplementation();
+ api.fetchMCPDataSource.mockImplementation((source,input)=>source.backend.method==='studio.sdk.connectors.list'
+  ?Promise.resolve({items:[{name:'main',driver:'sqlite'},{name:'new-source',driver:'sqlite'}]})
+  :source.backend.method==='studio.sdk.connectors.update'?Promise.resolve({name:'new-source'}):original(source,input));
+ const {managementWindowTransport}=await import('./managementWindow.js');
+ const transport=managementWindowTransport(api,{dataSource:{save:{backend:{kind:'mcp_tool',method:'studio.sdk.connectors.update'}}}});
+ await act(()=>transport({dataSourceRef:'save'}));
+ await user.click(screen.getByRole('button',{name:'Connector',exact:true}));
+ expect(await screen.findByRole('menuitem',{name:'new-source',exact:true})).toBeTruthy();
+ expect(screen.getByLabelText('Find tables or views').value).toBe('retained-query');
+});

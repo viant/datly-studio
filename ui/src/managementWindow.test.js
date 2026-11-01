@@ -1,10 +1,10 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {managementWindowMetadata, managementWindowTransport} from './managementWindow.js';
+import {managementWindowMetadata, managementWindowTransport, subscribeManagementOperations} from './managementWindow.js';
 const actions = {code: '({save:()=>context.Context("draft").handlers.dataSource.getFormData()})'};
 const source = {id: 'rows', backend: {kind: 'mcp_tool', method: 'studio.sdk.connectors.list', service: 'mcp://datastudio/admin'}, selectors: {data:'items'}};
 const window = {windowKey:'connectors', actions, dataSource:{rows:{cardinality:'collection'}}, view:{content:{id:'canonical-table'}}};
-const envelope = {schemaVersion:3,targets:[{target:{platform:'web',formFactor:'desktop'},variant:'desktop'}],variants:{desktop:{window,dataSources:{rows:source}}}};
+const envelope = {schemaVersion:3,format:'window.references',targets:[{target:{platform:'web',formFactor:'desktop'},variant:'desktop'}],variants:{desktop:{window,dataSources:{rows:source}}}};
 test('uses the published layout and action objects without a screen-specific transformation',()=>{
  const metadata=managementWindowMetadata(envelope);
  assert.equal(metadata.view,window.view);
@@ -46,4 +46,26 @@ test('runtime catalog metadata uses the namespace-scoped MCP protocol adapter',a
  await assert.rejects(()=>transport({dataSourceRef:'tools'}),/Unsupported management MCP catalog/);
  metadata.dataSource.tools.backend.method='tools/list';metadata.dataSource.tools.backend.service='untrusted';
  await assert.rejects(()=>transport({dataSourceRef:'tools'}),/Unsupported management MCP catalog/);
+});
+
+
+test('successful mutations notify other windows for the same API and unsubscribe cleanly',async()=>{
+ const api={invoke:async()=>({})},other={invoke:async()=>({})};
+ const origin={},calls=[];
+ const stop=subscribeManagementOperations(api,operation=>calls.push(operation));
+ const stopSelf=subscribeManagementOperations(api,()=>assert.fail('originating window notified'),origin);
+ const stopOther=subscribeManagementOperations(other,()=>assert.fail('another API notified'));
+ const metadata={dataSource:{save:{backend:{kind:'mcp_tool',method:'studio.sdk.connectors.update'}}}};
+ const transport=managementWindowTransport(api,metadata,undefined,origin);
+ await transport({dataSourceRef:'save'});
+ assert.deepEqual(calls,['connectors.update']);
+ stop();stopSelf();stopOther();
+ await transport({dataSourceRef:'save'});
+ assert.deepEqual(calls,['connectors.update']);
+});
+test('failed writes do not invalidate other windows',async()=>{
+ const api={invoke:async()=>{throw new Error('write failed');}};
+ const stop=subscribeManagementOperations(api,()=>assert.fail('failed write notified'));
+ const transport=managementWindowTransport(api,{dataSource:{save:{backend:{kind:'mcp_tool',method:'studio.sdk.connectors.update'}}}});
+ await assert.rejects(()=>transport({dataSourceRef:'save'}),/write failed/);stop();
 });

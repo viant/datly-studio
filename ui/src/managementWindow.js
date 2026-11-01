@@ -1,9 +1,24 @@
+const operationListeners = new WeakMap();
+export function subscribeManagementOperations(api, listener, origin) {
+  let listeners = operationListeners.get(api);
+  if (!listeners) operationListeners.set(api, listeners = new Set());
+  const entry = {listener, origin};
+  listeners.add(entry);
+  return () => { listeners.delete(entry); if (!listeners.size) operationListeners.delete(api); };
+}
+function notifyManagementOperation(api, operation, origin) {
+  for (const entry of operationListeners.get(api) || []) {
+    if (origin && entry.origin === origin) continue;
+    entry.listener(operation);
+  }
+}
+
 const authorizationTools = new Set(['authz.sdk.namedPolicies.manage','authz.sdk.policies.get','authz.sdk.policies.context','authz.sdk.policies.create','authz.sdk.policies.replace','authz.sdk.authorization.check']);
 export const isManagedMCPTool = method => typeof method === 'string' && (method.startsWith('studio.sdk.') || authorizationTools.has(method));
 
 export {resourceWindowMetadata as managementWindowMetadata} from 'forge/resource-window/metadata';
 
-export function managementWindowTransport(api, metadata, onOperationCompleted) {
+export function managementWindowTransport(api, metadata, onOperationCompleted, origin) {
   return async ({dataSourceRef, options = {}}) => {
     const source = metadata.dataSource[dataSourceRef];
     if (!source) throw new Error('Unknown management datasource.');
@@ -20,6 +35,7 @@ export function managementWindowTransport(api, metadata, onOperationCompleted) {
     if (source.backend?.kind !== 'mcp_tool' || typeof method !== 'string' || !method) throw new Error('Unsupported management datasource operation.');
     if (typeof api.invokeManagementTool === 'function') {
       const result = await api.invokeManagementTool(method, options.inputParameters || {}, {signal: options.signal});
+      notifyManagementOperation(api, method.replace(/^studio\.sdk\./, ''), origin);
       await onOperationCompleted?.(method);
       return result;
     }
@@ -30,6 +46,7 @@ export function managementWindowTransport(api, metadata, onOperationCompleted) {
     const result = typeof api.fetchMCPDataSource === 'function'
       ? await api.fetchMCPDataSource({...source, selectors:undefined}, options.inputParameters || {})
       : await (api.nativeCallTool ? api.nativeRequest(null, operation, options.inputParameters || {}) : api.invoke(operation, options.inputParameters || {}));
+    notifyManagementOperation(api, operation, origin);
     await onOperationCompleted?.(operation,result);
     return result;
   };
