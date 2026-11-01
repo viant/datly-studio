@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/namespacepolicy"
 	"github.com/viant/datly-studio/internal/predicatepolicy"
 	"github.com/viant/datly-studio/internal/reportcapability"
@@ -87,12 +88,16 @@ type Service struct {
 	providerVerifiers      map[string]*verifier.Service
 	secrets                connectorsecret.Resolver
 	mu                     sync.Mutex
+	runtimePolicyMu        sync.Mutex
 	releaseSyncController  *sdkrelease.Controller
 	releaseSyncCancel      context.CancelFunc
 	releaseSyncDone        chan struct{}
 }
 
 func New(ctx context.Context, config Config) (*Service, error) {
+	if config.runtimePolicies == nil {
+		config.runtimePolicies = &predicatepolicy.RuntimePolicies{}
+	}
 	if err := config.Validate(); err != nil {
 		return nil, err
 	}
@@ -249,6 +254,7 @@ func (s *Service) extendNamespaceBuild(ctx context.Context, build *application.B
 }
 
 func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Catalog, definitions []definition, inspect ...func(definition, *registry.RegisteredComponent, *studiors.Loaded) error) (_ *application.Build, err error) {
+	policyRegistry := s.runtimePolicyRegistry()
 	started := time.Now()
 	defer func() {
 		fields := []any{"namespaceId", s.config.NamespaceID, "components", len(definitions), "elapsedMs", float64(time.Since(started)) / float64(time.Millisecond), "failed", err != nil}
@@ -288,6 +294,8 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 	resources := loadedResources.Store
 	registrations := make([]*registry.RegisteredComponent, 0, len(definitions))
 	reportByComponent := map[spec.Key]string{}
+	publicPolicies := map[string]*predicatepolicy.RuntimePolicy{}
+	requiredPackages := map[string]map[string]bool{}
 	versionByReport := map[string]int{}
 	for _, definition := range definitions {
 		versionByReport[definition.reportID] = definition.versionNo
@@ -500,6 +508,8 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 			current = prepared[i]
 		}
 		sources, contract := current.sources, current.contract
+		publicPolicies[definition.reportID] = policyRegistry.Entry(namespaceaccess.ID(definition.owner, definition.namespace), definition.policy)
+		requiredPackages[definition.reportID] = predicatepolicy.RequiredPackages(contract.Component)
 		if mergeErr := mergeTypes(types, contract.Types); mergeErr != nil {
 			err = mergeErr
 			return nil, err
@@ -580,6 +590,13 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 		if reportID == "" {
 			return &xresponse.Error{Code: http.StatusForbidden, Cause: errors.New("published component authorization is unavailable")}
 		}
+		allowed := publicPolicies[reportID].AllowsPublic(requiredPackages[reportID])
+		if native, _ := ctx.Value(trustedNativeInvocationKey{}).(bool); native {
+			allowed = publicPolicies[reportID].AllowsInternal(requiredPackages[reportID])
+		}
+		if !allowed {
+			return &xresponse.Error{Code: http.StatusForbidden, Cause: access.ErrDenied}
+		}
 		if s.config.Access != nil {
 			resource := access.Resource{Kind: "component", ID: reportID, Version: strconv.Itoa(versionByReport[reportID]), Tenant: s.config.Access.Tenant}
 			err := authorizer.authorizeComponentExecution(ctx, resource, bindsAccessContext[reportID])
@@ -591,6 +608,23 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 		return authorizer.authorizeRun(ctx, reportID)
 	}
 	authorizeCatalogTool, authorizeCatalogResource, authorizeResource := authorizer.catalogAuthorizers(reportByComponent, versionByReport, loadedResources.ResourceReports)
+	baseCatalogTool := authorizeCatalogTool
+	authorizeCatalogTool = func(ctx context.Context, target dexec.ComponentTarget, action string) error {
+		id := reportByComponent[target.Component]
+		if policy := publicPolicies[id]; policy == nil || !policy.AllowsPublic(requiredPackages[id]) {
+			return access.ErrDenied
+		}
+		return baseCatalogTool(ctx, target, action)
+	}
+	baseCatalogResource := authorizeCatalogResource
+	authorizeCatalogResource = func(ctx context.Context, uri, action string) error {
+		if id := reportForResourceURI(loadedResources.ResourceReports, uri); id != "" {
+			if policy := publicPolicies[id]; policy == nil || !policy.AllowsPublic(requiredPackages[id]) {
+				return access.ErrDenied
+			}
+		}
+		return baseCatalogResource(ctx, uri, action)
+	}
 	namespaceFolders, namespaceURIs, err := s.namespaceSkillFolders(ctx)
 	if err != nil {
 		return nil, err

@@ -169,7 +169,10 @@ func (i *exactNativeInvoker) InvokeComponent(ctx context.Context, request exec.C
 	if bearer := oauth.Bearer(ctx); bearer != "" {
 		requestMetadata.Header.Set("Authorization", "Bearer "+bearer)
 	}
-	if err := i.metadata.authorize(ctx, requestMetadata, request.Target); err != nil {
+	// This marker is supplied only by the scoped native capability. It changes
+	// transport exposure handling, never the component's authorization checks.
+	policyContext := context.WithValue(ctx, trustedNativeInvocationKey{}, true)
+	if err := i.metadata.authorize(policyContext, requestMetadata, request.Target); err != nil {
 		return nil, err
 	}
 	return i.manager.InvokeComponent(ctx, request)

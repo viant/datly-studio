@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
+	"github.com/viant/datly-studio/internal/predicatepolicy"
 	"github.com/viant/datly-studio/studio/sourcevalidation"
 	"github.com/viant/datly/constant"
 	xcodec "github.com/viant/xdatly/codec"
@@ -95,6 +96,7 @@ type NamespaceBuildResolver func(context.Context, string) (NamespaceBuildExtensi
 type NamespaceNativeBuildResolver func(context.Context, string, NativeComponentRuntime) (NamespaceBuildExtension, error)
 
 type Config struct {
+	runtimePolicies *predicatepolicy.RuntimePolicies
 	SourceValidator sourcevalidation.Validator `yaml:"-" json:"-"`
 	MCPToolNames    MCPToolNames               `yaml:"MCPToolNames"`
 	// CodecFactory is a trusted embedding-host binding; it cannot be set by YAML or requests.

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/viant/authz"
 	"github.com/viant/datly-studio/runtime/accessprovider"
 	"github.com/viant/datly-studio/studio/namespaces/change"
@@ -36,15 +37,28 @@ func TestNativeHTTPSettingsAuthorizePersistAndRejectStaleWrite(t *testing.T) {
 	ctx := accessprovider.WithProvider(context.Background(), settingsProvider{})
 	db := datatest.OpenSQLite(t, "settings_native_http", "studio")
 	notifications := 0
+	refreshFailure := false
 	ctx = change.WithObserver(ctx, change.ObserverFunc(func(ctx context.Context, identities []change.Identity) error {
 		notifications++
 		require.Len(t, identities, 1)
 		require.Equal(t, "owner", identities[0].OwnerID)
 		require.Equal(t, "alpha", identities[0].Name)
 		require.NotEmpty(t, identities[0].NamespaceID)
+		require.EqualValues(t, notifications+1, identities[0].Revision)
+		require.True(t, identities[0].SettingsChanged)
+		require.True(t, identities[0].SecurityChanged)
+		if notifications == 1 || notifications == 3 {
+			require.NotNil(t, identities[0].Security)
+			require.True(t, identities[0].Security.RequireInternalComponents)
+		} else {
+			require.Nil(t, identities[0].Security)
+		}
 		var etag int
 		require.NoError(t, db.QueryRowContext(ctx, "SELECT etag FROM namespaces WHERE owner_id='owner' AND name='alpha'").Scan(&etag))
 		require.Equal(t, notifications+1, etag, "notification must observe the committed token")
+		if refreshFailure {
+			return errors.New("namespace settings committed but runtime refresh failed")
+		}
 		return nil
 	}))
 	jwt := datatest.NewJWTFixture(t)
@@ -131,6 +145,16 @@ func TestNativeHTTPSettingsAuthorizePersistAndRejectStaleWrite(t *testing.T) {
 	require.NoError(t, db.QueryRowContext(ctx, "SELECT COUNT(*) FROM namespace_settings WHERE owner_id='owner' AND namespace='alpha'").Scan(&count))
 	require.Zero(t, count)
 	require.Equal(t, 2, notifications)
+	refreshFailure = true
+	response = call("owner", "settings_update", `{"name":"alpha","input":{"etag":3,"settings":{"security":{"requireInternalComponents":true}}}}`)
+	require.GreaterOrEqual(t, response.Code, 400, response.Body.String())
+	response = call("owner", "settings_get", `{"name":"alpha"}`)
+	require.Equal(t, 200, response.Code, response.Body.String())
+	var afterFailure Output
+	require.NoError(t, json.Unmarshal(response.Body.Bytes(), &afterFailure))
+	require.EqualValues(t, 4, afterFailure.ETag)
+	require.True(t, afterFailure.Settings.Security.RequireInternalComponents)
+	require.Equal(t, 3, notifications, "committed write must not be reported as rolled back")
 
 }
 

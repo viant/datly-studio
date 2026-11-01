@@ -22,12 +22,20 @@ func ValidateDeclarations(component *spec.Component, policy *settings.Namespace)
 	if policy == nil || policy.Security == nil || !policy.Security.RequireSecurityPredicate {
 		return nil
 	}
-	if component == nil {
-		return &RequiredError{}
-	}
-	selected := map[string]bool{}
+	declared := RequiredPackages(component)
 	for _, pkg := range policy.Security.PredicatePackages {
-		selected[pkg] = true
+		if declared[pkg] {
+			return nil
+		}
+	}
+	return &RequiredError{}
+}
+
+// RequiredPackages resolves security declarations once from compiled metadata.
+func RequiredPackages(component *spec.Component) map[string]bool {
+	result := map[string]bool{}
+	if component == nil {
+		return result
 	}
 	for _, parameter := range spec.EffectiveParameters(component.Parameters) {
 		if parameter == nil {
@@ -58,10 +66,8 @@ func ValidateDeclarations(component *spec.Component, policy *settings.Namespace)
 					}
 				}
 			}
-			if selected[pkg] {
-				return nil
-			}
+			result[pkg] = true
 		}
 	}
-	return &RequiredError{}
+	return result
 }

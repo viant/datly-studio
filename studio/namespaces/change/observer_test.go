@@ -56,3 +56,15 @@ func TestNamespaceObserverIsOptionalAndPreservesPostCommitFailure(t *testing.T) 
 	require.ErrorIs(t, change.Notify(ctx, identities), cause)
 	require.NoError(t, change.Notify(ctx, nil))
 }
+
+func TestAdditionalObserverRetainsHostAndDoesNotDuplicateRuntimeCallback(t *testing.T) {
+	var calls []string
+	cause := errors.New("runtime refresh failed after commit")
+	host := change.ObserverFunc(func(context.Context, []change.Identity) error { calls = append(calls, "host"); return nil })
+	runtime := change.ObserverFunc(func(context.Context, []change.Identity) error { calls = append(calls, "runtime"); return cause })
+	ctx := change.WithObserver(context.Background(), &host)
+	ctx = change.WithAdditionalObserver(ctx, &runtime)
+	ctx = change.WithAdditionalObserver(ctx, &runtime)
+	require.ErrorIs(t, change.Notify(ctx, []change.Identity{{NamespaceID: "owned"}}), cause)
+	require.Equal(t, []string{"runtime", "host"}, calls)
+}

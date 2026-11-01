@@ -17,10 +17,13 @@ import (
 
 	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/namespaceskill"
+	"github.com/viant/datly-studio/internal/predicatepolicy"
 	"github.com/viant/datly-studio/internal/runtimeadmin"
 	"github.com/viant/datly-studio/runtime/namespacemcp"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
+	"github.com/viant/datly-studio/studio/namespaces/change"
+	"github.com/viant/datly-studio/studio/settings"
 	mcpschema "github.com/viant/mcp-protocol/schema"
 	_ "modernc.org/sqlite"
 )
@@ -92,6 +95,7 @@ SELECT rows.*,type(rows,'Row') FROM (SELECT 1 AS id) rows`
 		t.Fatal(err)
 	}
 	config := Config{HTTP: Listener{Address: "127.0.0.1:0"}, MCP: Listener{Address: "127.0.0.1:0"}, Authentication: Authentication{DefaultMode: "public"}, Studio: Studio{Driver: "sqlite", DSN: dsn}, Admin: Admin{Token: "fixture-admin"}, RootDir: moduleRoot}
+	config.runtimePolicies = &predicatepolicy.RuntimePolicies{}
 	var manager *namespacemcp.Manager
 	if strings.HasPrefix(mode, "shared") {
 		address := "127.0.0.1:0"
@@ -137,6 +141,9 @@ SELECT rows.*,type(rows,'Row') FROM (SELECT 1 AS id) rows`
 		request.Header.Set("Mcp-Method", method)
 		if uri, ok := params["uri"].(string); ok {
 			request.Header.Set("Mcp-Name", uri)
+		}
+		if name, ok := params["name"].(string); ok {
+			request.Header.Set("Mcp-Name", name)
 		}
 		request.Header.Set("Mcp-Protocol-Version", mcpschema.LatestProtocolVersion)
 		response, err := (&http.Client{Timeout: 3 * time.Second}).Do(request)
@@ -239,7 +246,8 @@ SELECT rows.*,type(rows,'Row') FROM (SELECT 1 AS id) rows`
 		t.Fatal("runtime namespace catalogs crossed")
 	}
 
-	admin := (&NamespaceGroup{Listeners: manager}).AdminHandler("fixture-token")
+	group := &NamespaceGroup{DB: db, Listeners: manager, runtimePolicies: config.runtimePolicies}
+	admin := group.AdminHandler("fixture-token")
 	adminServer := httptest.NewServer(admin)
 	defer adminServer.Close()
 	adminClient, err := runtimeadmin.New(adminServer.URL, "fixture-token", nil)
@@ -357,6 +365,32 @@ SELECT rows.*,type(rows,'Row') FROM (SELECT 1 AS id) rows`
 	currentB, _ := manager.Get(ids["beta"])
 	if currentA != a || currentB != b {
 		t.Fatal("reload moved listener ports")
+	}
+	if _, err := db.Exec(`INSERT INTO namespace_settings(owner_id,namespace,setting_key,value_json,updated_at,updated_by) VALUES('owner','alpha','security','{"requireInternalComponents":true}',CURRENT_TIMESTAMP,'fixture'); UPDATE namespaces SET etag=2 WHERE owner_id='owner' AND name='alpha'`); err != nil {
+		t.Fatal(err)
+	}
+	identity := change.Identity{NamespaceID: ids["alpha"], OwnerID: "owner", Name: "alpha", SettingsChanged: true, SecurityChanged: true, Revision: 2, Security: &settings.Security{RequireInternalComponents: true}}
+	if err := group.NamespaceSettingsCommitted(ctx, []change.Identity{identity}); err == nil {
+		t.Fatal("incompatible authored public component unexpectedly reloaded")
+	}
+	if body := call(a); strings.Contains(body, "alpha.read") || decodeRPC(body)["result"] == nil {
+		t.Fatalf("old public catalog survived tightening: %s", body)
+	}
+	if body := callRPC(a, "tools/call", map[string]any{"name": "alpha.read", "arguments": map[string]any{}}); !strings.Contains(body, "authorization denied") {
+		t.Fatalf("old public invocation survived tightening: %s", body)
+	}
+	if !strings.Contains(call(b), "beta.read") {
+		t.Fatal("tightening alpha changed beta")
+	}
+	if _, err := db.Exec(`UPDATE namespace_settings SET value_json='{"requireInternalComponents":false}' WHERE owner_id='owner' AND namespace='alpha'; UPDATE namespaces SET etag=3 WHERE owner_id='owner' AND name='alpha'`); err != nil {
+		t.Fatal(err)
+	}
+	identity.Revision, identity.Security.RequireInternalComponents = 3, false
+	if err := group.NamespaceSettingsCommitted(ctx, []change.Identity{identity}); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(call(a), "alpha.read") {
+		t.Fatal("explicit relaxation did not restore alpha")
 	}
 	if _, err := db.Exec(`UPDATE namespaces SET visibility='private' WHERE namespace_id=?`, ids["beta"]); err != nil {
 		t.Fatal(err)

@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/viant/authz"
+	"github.com/viant/authz/oauth"
 	studio "github.com/viant/datly-studio"
 	"github.com/viant/datly-studio/app/datlycmd"
 	"github.com/viant/datly-studio/app/hostconfig"
@@ -31,6 +32,7 @@ import (
 	"github.com/viant/datly-studio/runtime/namespacemcp"
 	studiocatalog "github.com/viant/datly-studio/studio/catalog"
 	authoring "github.com/viant/datly-studio/studio/host"
+	namespacechange "github.com/viant/datly-studio/studio/namespaces/change"
 	"github.com/viant/datly/bootstrap/connector"
 	nativeauth "github.com/viant/datly/runtime/auth"
 	datlyconfig "github.com/viant/datly/standalone/config"
@@ -219,14 +221,36 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	}
 	var processGroup atomic.Pointer[runtimehost.NamespaceGroup]
 	control := inProcessControl(&processGroup)
+	settingsObserver := namespacechange.ObserverFunc(func(ctx context.Context, identities []namespacechange.Identity) error {
+		group := processGroup.Load()
+		if group == nil {
+			return errors.New("namespace runtime is unavailable")
+		}
+		controlContext, ok := ctx.Value(namespaceControlContextKey{}).(context.Context)
+		if !ok {
+			return errors.New("namespace control context is unavailable")
+		}
+		return group.NamespaceSettingsCommitted(controlContext, identities)
+	})
+	observeSettings := func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := context.WithValue(r.Context(), namespaceControlContextKey{}, r.Context())
+			next.ServeHTTP(w, r.WithContext(namespacechange.WithAdditionalObserver(ctx, &settingsObserver)))
+		})
+	}
 	nativeMiddleware := options.Native.RequestMiddleware
 	options.Native.RequestMiddleware = func(next http.Handler) http.Handler {
+		next = observeSettings(next)
 		if nativeMiddleware != nil {
 			next = nativeMiddleware(next)
 		}
 		next = auditService.Logger.Wrap(next)
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			next.ServeHTTP(w, r.WithContext(audit.WithService(runtimeadmin.WithClient(r.Context(), control), auditService)))
+			ctx := r.Context()
+			if authorization := strings.Fields(r.Header.Get("Authorization")); len(authorization) == 2 && strings.EqualFold(authorization[0], "Bearer") {
+				ctx = oauth.WithBearer(ctx, authorization[1])
+			}
+			next.ServeHTTP(w, r.WithContext(audit.WithService(runtimeadmin.WithClient(ctx, control), auditService)))
 		})
 	}
 	native, err := datlycmd.New(ctx, &nativeConfig, options.Native, options.Diagnostics)
@@ -341,7 +365,7 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 				settings["redirectSameTab"] = true
 			}
 		}
-		handler := browserConfigHandler(origin, options.Brand, next, settings)
+		handler := browserConfigHandler(origin, options.Brand, observeSettings(next), settings)
 		if priorHTTPMiddleware != nil {
 			return priorHTTPMiddleware(handler)
 		}

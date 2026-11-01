@@ -1,0 +1,68 @@
+{
+  "scope": "Focused namespace policy transitions, plus diagnostic and predicate checks; not a default suite qualification",
+  "sourceBaseRevision": "33b19e095600ed2c86c0ceb3d0fdde4259a56a00",
+  "uncommittedTransitionChanges": true,
+  "verified": [
+    "Committed internal-only policy hides and denies existing public MCP access after an incompatible reload",
+    "Other namespace output remains unchanged",
+    "Explicit relaxation restores the public catalog",
+    "Required-predicate policy hides an existing reader without the required declaration",
+    "Post-commit errors identify committed settings and the specific source-policy rejection",
+    "Unified host settings update advances the running generation"
+  ],
+  "runs": [
+    {
+      "droppedEvents": 0,
+      "eventCount": 505,
+      "failedAssertions": 0,
+      "id": "d1c59e02-1436-4876-8aff-9e2222025f5c",
+      "kind": "workflow",
+      "passedAssertions": 55,
+      "resultKeys": [
+        "data",
+        "sessionId"
+      ],
+      "sessionId": "6cc85855-2cca-491d-a713-ef57d046d210",
+      "status": "succeeded",
+      "tagIds": "",
+      "tasks": "*",
+      "workflow": "namespace-policy-transition-case"
+    },
+    {
+      "droppedEvents": 0,
+      "eventCount": 14,
+      "failedAssertions": 0,
+      "id": "58e06408-41b5-4f42-aa63-6be77a908514",
+      "kind": "workflow",
+      "passedAssertions": 4,
+      "resultKeys": [
+        "data",
+        "sessionId"
+      ],
+      "sessionId": "6cc85855-2cca-491d-a713-ef57d046d210",
+      "status": "succeeded",
+      "tagIds": "",
+      "tasks": "incompatibleReloadReported",
+      "workflow": "policy-transition-final"
+    },
+    {
+      "droppedEvents": 0,
+      "eventCount": 77,
+      "failedAssertions": 0,
+      "id": "ed8ff266-7621-4169-9cc2-935d713c1a65",
+      "kind": "workflow",
+      "passedAssertions": 7,
+      "resultKeys": [
+        "data",
+        "sessionId"
+      ],
+      "sessionId": "6cc85855-2cca-491d-a713-ef57d046d210",
+      "status": "succeeded",
+      "tagIds": "",
+      "tasks": "predicateSettings,requireAlphaPredicate,missingRequiredPredicateReported,predicateRestrictedCatalog,predicateRestrictedReaderHidden,predicateRestrictionReadback,requiredPredicatePersisted,relaxPredicateRequirement,finalAlphaCatalog,predicateRelaxationVerified",
+      "workflow": "policy-both-settings"
+    }
+  ],
+  "defaultSuiteRequired": true,
+  "liveNamespaceSettingsChanged": false
+}

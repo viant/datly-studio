@@ -10,21 +10,26 @@ import (
 	"sync"
 	"time"
 
+	"github.com/viant/datly-studio/internal/predicatepolicy"
 	"github.com/viant/datly-studio/runtime/namespacemcp"
 )
 
 // NamespaceGroup owns the persisted-namespace MCP mode. It starts no global
 // catalog. Shared listeners route only through explicit namespace paths.
 type NamespaceGroup struct {
-	DB          *sql.DB
-	Listeners   *namespacemcp.Manager
-	reconciler  *namespacemcp.Reconciler
-	adminServer *http.Server
-	failureMu   sync.RWMutex
-	failures    map[string]error
+	DB              *sql.DB
+	Listeners       *namespacemcp.Manager
+	reconciler      *namespacemcp.Reconciler
+	adminServer     *http.Server
+	failureMu       sync.RWMutex
+	failures        map[string]error
+	runtimePolicies *predicatepolicy.RuntimePolicies
 }
 
 func NewNamespaceGroup(ctx context.Context, config Config) (*NamespaceGroup, error) {
+	if config.runtimePolicies == nil {
+		config.runtimePolicies = &predicatepolicy.RuntimePolicies{}
+	}
 	if config.NamespaceID != "" {
 		return nil, fmt.Errorf("namespace group configuration cannot pin one namespace")
 	}
@@ -49,7 +54,7 @@ func NewNamespaceGroup(ctx context.Context, config Config) (*NamespaceGroup, err
 		db.Close()
 		return nil, err
 	}
-	return &NamespaceGroup{DB: db, Listeners: manager, reconciler: &namespacemcp.Reconciler{Manager: manager, Definitions: namespacemcp.SQLDefinitions{DB: db}}}, nil
+	return &NamespaceGroup{DB: db, Listeners: manager, runtimePolicies: config.runtimePolicies, reconciler: &namespacemcp.Reconciler{Manager: manager, Definitions: namespacemcp.SQLDefinitions{DB: db}}}, nil
 }
 func (g *NamespaceGroup) StartAdmin(address, token string) error {
 	if token == "" {

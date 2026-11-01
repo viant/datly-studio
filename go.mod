@@ -14,8 +14,8 @@ require (
 	github.com/viant/bigquery v0.5.5-0.20261031051553-fe0fd263fd44
 	github.com/viant/bindly v0.4.1-0.20261021172156-afd22f40fbb8
 	github.com/viant/datly v1.1.1-0.20261031220733-6fc6800ea06e
-	github.com/viant/jsonrpc v0.25.1-0.20261021031150-a24a3b9ae218
-	github.com/viant/mcp v0.24.1-0.20261018180156-2794488fbdb7
+	github.com/viant/jsonrpc v0.25.1
+	github.com/viant/mcp v0.24.2-0.20261101233846-f2e1c7b93dae
 	github.com/viant/mcp-protocol v0.19.2-0.20261029232114-446f89dc454b
 	github.com/viant/scy v0.35.1-0.20260914041206-699e6c909726
 	github.com/viant/sqlx v0.26.2-0.20261031214940-7cb396a51254

@@ -16,6 +16,8 @@ import (
 	dexec "github.com/viant/datly/exec"
 )
 
+type namespaceControlContextKey struct{}
+
 // Process-owned callbacks share the namespace manager with authoring. Nothing
 // listens for administration commands and no administration credential exists.
 func inProcessControl(group *atomic.Pointer[runtimehost.NamespaceGroup]) *runtimeadmin.Client {

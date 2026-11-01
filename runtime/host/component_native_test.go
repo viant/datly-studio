@@ -33,6 +33,7 @@ func TestNativeExactComponentInternalValidatedVersion(t *testing.T) {
 	if _, err := service.studio.ExecContext(ctx, `INSERT OR IGNORE INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at) VALUES('owner','general','General','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP); INSERT INTO namespace_settings(owner_id,namespace,setting_key,value_json,updated_at,updated_by) VALUES('owner','general','security','{"requireInternalComponents":true}',CURRENT_TIMESTAMP,'fixture')`); err != nil {
 		t.Fatal(err)
 	}
+	applyTestNamespaceSecurity(ctx, t, service, 2, true)
 	documents := []authz.Document{}
 	for _, version := range []string{"1", "2"} {
 		documents = append(documents, authz.Document{Resource: authz.Resource{Kind: "component", ID: "tasks", Version: version, Tenant: scopeTestTenant}, Revision: 1, Policies: map[string]authz.Policy{"describe": {Mode: "protected", Rule: &authz.Rule{Kind: "role", Value: "reader"}}, "execute": policy}})

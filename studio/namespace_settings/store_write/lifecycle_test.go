@@ -17,10 +17,11 @@ func TestSettingsNotifyHostOnlyAfterConfirmedCommit(t *testing.T) {
 			calls := 0
 			ctx := change.WithObserver(context.Background(), change.ObserverFunc(func(_ context.Context, identities []change.Identity) error {
 				calls++
-				require.Equal(t, []change.Identity{{NamespaceID: namespaceaccess.ID("owner", "example"), OwnerID: "owner", Name: "example"}}, identities)
+				require.Equal(t, []change.Identity{{NamespaceID: namespaceaccess.ID("owner", "example"), OwnerID: "owner", Name: "example", SettingsChanged: true, Revision: 2}}, identities)
 				return nil
 			}))
-			output := &Output{Data: []*StoredNamespace{{OwnerId: "owner", Name: "example"}}}
+			revision := int64(2)
+			output := &Output{Data: []*StoredNamespace{{OwnerId: "owner", Name: "example", Etag: &revision}}}
 			outcome := xhandler.Outcome{Transactions: []xhandler.TransactionOutcome{{State: state}}}
 			require.NoError(t, new(NamespaceSettingsRules).Finalize(ctx, nil, output, outcome))
 			want := 0

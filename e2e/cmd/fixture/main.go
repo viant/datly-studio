@@ -24,6 +24,7 @@ import (
 	"github.com/viant/datly-studio/store/sql/migrate"
 	studiocatalog "github.com/viant/datly-studio/studio/catalog"
 	studiohost "github.com/viant/datly-studio/studio/host"
+	namespacechange "github.com/viant/datly-studio/studio/namespaces/change"
 	"go.yaml.in/yaml/v3"
 	"log"
 	_ "modernc.org/sqlite"
@@ -186,12 +187,24 @@ func serve(root, dir string) {
 	check(err)
 	check(group.StartAdmin(fixtureAddress(18782), "studio-e2e-admin"))
 	defer group.Close(context.Background())
+	settingsObserver := namespacechange.ObserverFunc(func(ctx context.Context, identities []namespacechange.Identity) error {
+		err := group.NamespaceSettingsCommitted(ctx, identities)
+		if err != nil {
+			log.Printf("synthetic fixture namespace settings refresh: %v", err)
+		}
+		return err
+	})
 	go func() { check(group.Run(ctx, 100*time.Millisecond, nil)) }()
 	go func() {
 		if code := datlycmd.RunWithOptions(ctx, []string{"run", "-conf", filepath.Join(dir, "native.json")}, os.Stdout, os.Stderr, datlycmd.Options{RequestMiddleware: func(next http.Handler) http.Handler {
 			wrapped := auditService.Logger.Wrap(next)
 			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				ctx := oauth.WithBearer(r.Context(), strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer "))
+				controlContext := ctx
+				observer := namespacechange.ObserverFunc(func(_ context.Context, identities []namespacechange.Identity) error {
+					return settingsObserver.Committed(controlContext, identities)
+				})
+				ctx = namespacechange.WithAdditionalObserver(ctx, &observer)
 				wrapped.ServeHTTP(w, r.WithContext(audit.WithService(ctx, auditService)))
 			})
 		}, Authoring: &studiohost.AuthoringConfig{Dependencies: compositionPreview(compositionDB)}}); code != 0 {

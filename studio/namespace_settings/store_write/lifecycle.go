@@ -62,7 +62,24 @@ func (hooks *NamespaceSettingsRules) Finalize(ctx context.Context, input *Input,
 	identities := make([]change.Identity, 0, len(output.Data))
 	for _, row := range output.Data {
 		if row != nil {
-			identities = append(identities, change.Identity{NamespaceID: namespaceaccess.ID(row.OwnerId, row.Name), OwnerID: row.OwnerId, Name: row.Name})
+			if row.Etag == nil || *row.Etag <= 0 {
+				return fmt.Errorf("committed settings token is unavailable")
+			}
+			identity := change.Identity{NamespaceID: namespaceaccess.ID(row.OwnerId, row.Name), OwnerID: row.OwnerId, Name: row.Name, SettingsChanged: true, Revision: *row.Etag}
+			for _, entry := range row.Entries {
+				if entry == nil || entry.SettingKey != settings.SecurityKey {
+					continue
+				}
+				identity.SecurityChanged = true
+				if !entry.ShouldDelete {
+					decoded, err := settings.Decode(settings.SecurityKey, entry.ValueJson)
+					if err != nil {
+						return err
+					}
+					identity.Security = decoded.(*settings.Security)
+				}
+			}
+			identities = append(identities, identity)
 		}
 	}
 	return change.Notify(ctx, identities)

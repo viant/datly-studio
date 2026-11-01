@@ -34,6 +34,10 @@ func Diagnostics(err error) []sdk.Diagnostic {
 			Hint:    "Inspect the generated reader SQL, schema, and configured connector. The underlying query and credentials are not included in this response."}}
 	}
 	var required *predicatepolicy.RequiredError
+	var internalRequired *predicatepolicy.InternalComponentRequiredError
+	if errors.As(err, &internalRequired) {
+		return []sdk.Diagnostic{{Severity: "error", Code: "namespace_internal_components_required", Stage: "source_policy", Field: "authoredDql", Message: internalRequired.Error(), Hint: "Make the namespace-authored component routes internal and remove their direct MCP exposure before reloading."}}
+	}
 	if errors.As(err, &required) {
 		return []sdk.Diagnostic{{Severity: "error", Code: "namespace_security_predicate_required", Stage: "source_policy", Field: "authoredDql", Message: required.Error(), Hint: "Define a required authorization handler from the owning namespace's predicate packages and validate again."}}
 	}

@@ -39,6 +39,8 @@ import (
 // Child isolation is for immutable native provider registration, not deployment:
 // the child itself serves all application listeners in one process.
 func TestOneProcessHost(t *testing.T) {
+	t.Setenv("STUDIO_NAMESPACE_ADMIN_ROLE", "NAMESPACE_ADMIN")
+	t.Setenv("STUDIO_NAMESPACE_CREATE_ROLES", "NAMESPACE_ADMIN")
 	if os.Getenv("STUDIO_UNIFIED_HOST_TEST") == "" && os.Getenv("STUDIO_UNIFIED_BINARY") == "" {
 		cmd := exec.Command(os.Args[0], "-test.run=^TestOneProcessHost$", "-test.v")
 		cmd.Env = append(os.Environ(), "STUDIO_UNIFIED_HOST_TEST=1")
@@ -90,7 +92,7 @@ func TestOneProcessHost(t *testing.T) {
 		t.Fatal(err)
 	}
 	bearer, err := jwtlib.NewWithClaims(jwtlib.SigningMethodRS256, jwtlib.MapClaims{
-		"iss": "https://synthetic.example", "aud": "studio", "sub": "synthetic-owner", "exp": time.Now().Add(time.Minute).Unix(), "tenant": "studio", "user_id": 1, "scope": "studio:read",
+		"iss": "https://synthetic.example", "aud": "studio", "sub": "synthetic-owner", "exp": time.Now().Add(time.Minute).Unix(), "tenant": "studio", "user_id": 1, "scope": "studio:read", "roles": []string{"NAMESPACE_ADMIN"},
 	}).SignedString(private)
 	if err != nil {
 		t.Fatal(err)
@@ -576,6 +578,7 @@ func TestOneProcessHost(t *testing.T) {
 	if !bytes.Equal(toolBytes, readBytes) {
 		t.Fatal("standard and tool MCP connection definitions differ")
 	}
+	verifyNamespaceSettingsRefresh(t, callNative)
 	if _, err := db.Exec("UPDATE namespaces SET mcp_enabled=0 WHERE namespace_id=?", strings.Repeat("a", 64)); err != nil {
 		t.Fatal(err)
 	}
