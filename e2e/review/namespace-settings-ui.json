@@ -1,0 +1,29 @@
+{
+  "scope": "Complete selected namespace-admin case; not default release suite",
+  "operationId": "77ea62e4-d3dc-4b68-b0a4-bea90305ad5c",
+  "sessionId": "d0ff682f-bb6d-459e-8292-9d8f7efa45eb",
+  "status": "succeeded",
+  "startedAt": "2026-11-01T21:08:52.126697Z",
+  "finishedAt": "2026-11-01T21:09:10.365998Z",
+  "executedCases": 1,
+  "passedCases": 1,
+  "failedCases": 0,
+  "declaredSkips": 0,
+  "passedAssertions": 64,
+  "failedAssertions": 0,
+  "casePath": "regression/cases/webdriver/011_ui_namespace_admin/test.yaml",
+  "workflow": "namespace-admin-current",
+  "tasks": "*",
+  "fixtureRun": "namespace-settings-20261101-r5",
+  "previousFailedOperations": [
+    "66186839-e4e2-41f6-b21f-4f13fc703c28",
+    "e249eda7-b314-404b-8961-0130cc597f34",
+    "20624232-58ee-4f91-b53d-b0de63756556",
+    "9b89f061-b2fd-4b1e-8498-60c353a67c7b"
+  ],
+  "remaining": [
+    "Active namespace exposure transition",
+    "Default Endly release suite"
+  ],
+  "liveSettingsChanged": false
+}

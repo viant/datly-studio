@@ -13,6 +13,8 @@ const SecurityKey = "security"
 const ResourceLimitsKey = "resourceLimits"
 
 type Security struct {
+	// Restricts namespace-authored components; host-owned components are outside this policy.
+	RequireInternalComponents bool `json:"requireInternalComponents"`
 	// Nil and empty lists select no external packages; each package is opt-in.
 	PredicatePackages        []string `json:"predicatePackages"`
 	RequireSecurityPredicate bool     `json:"requireSecurityPredicate"`

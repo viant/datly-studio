@@ -7,7 +7,9 @@ pipeline:
     failureArtifacts:
       directory: ${runDir}/artifacts/${caseName}
     commands:
-    - page.goto("${browserURL}")
+    - page.goto("${browserURL}/e2e/login")
+    - page.getByLabel("Test identity").selectOption("owner")
+    - page.getByRole("button", "Sign in").click()
     - page.locator(".studio-nav-namespaces").click()
     - page.getByRole("button", "New namespace").click()
     - page.getByLabel("Namespace").fill("${caseName}")
@@ -59,7 +61,7 @@ pipeline:
     - page.getByLabel("Find tables or views").fill("${caseName}_records")
     - page.getByRole("button", "Search tables").click()
     - page.locator("xpath://tr[.//*[normalize-space(.)='${caseName}_records']]//button[@aria-label='Inspect table']").click()
-    - page.getByRole("button", "Add as root view").click()
+    - page.locator("xpath://div[@role='tabpanel' and @aria-label='${caseName}_records' and @aria-hidden='false']//button[normalize-space(.)='Add as root view']").click()
     - page.getByLabel("Component title").fill("${caseTitle}")
     - page.getByLabel("Slug").fill("${caseSlug}")
     - page.getByLabel("Root view identifier").fill("record")

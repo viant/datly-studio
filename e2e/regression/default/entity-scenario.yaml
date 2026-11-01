@@ -59,7 +59,7 @@ pipeline:
     - page.getByLabel("Find tables or views").fill("${caseName}_records")
     - page.getByRole("button", "Search tables").click()
     - page.locator("xpath://tr[.//*[normalize-space(.)='${caseName}_records']]//button[@aria-label='Inspect table']").click()
-    - page.getByRole("button", "Add as root view").click()
+    - page.locator("xpath://div[@role='tabpanel' and @aria-hidden='false' and contains(@class,'studio-explorer-query-panel')]//button[normalize-space(.)='Add as root view']").click()
     - page.getByLabel("Component title").fill("${caseTitle}")
     - page.getByLabel("Slug").fill("${caseSlug}")
     - page.getByLabel("Root view identifier").fill("record")

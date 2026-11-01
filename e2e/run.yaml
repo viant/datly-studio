@@ -1,5 +1,5 @@
 init:
-  appPath: $WorkingDirectory(..)
+  appPath: '$params.appPath?$params.appPath:$WorkingDirectory(..)'
   generatedRunId: $FormatTime('now In UTC', 'yyyyMMddHHmmssSSS')
   runId: '$params.runId?$params.runId:$generatedRunId'
   runDir: ${appPath}/.data/e2e/${runId}

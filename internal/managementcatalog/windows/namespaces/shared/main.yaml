@@ -185,6 +185,11 @@ window:
             dataField: requireSecurityPredicate
             type: checkbox
             readOnlyWhen: {selector: canEdit, equals: false}
+          - id: requireInternalComponents
+            label: Require internal DQL components
+            dataField: requireInternalComponents
+            type: checkbox
+            readOnlyWhen: {selector: canEdit, equals: false}
           - id: maxBytesProcessed
             label: Maximum bytes processed (blank means unlimited)
             dataField: maxBytesProcessed

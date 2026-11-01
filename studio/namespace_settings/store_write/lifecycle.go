@@ -3,6 +3,8 @@ package store_write
 import (
 	context "context"
 	"fmt"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
+	"github.com/viant/datly-studio/studio/namespaces/change"
 	"github.com/viant/datly-studio/studio/settings"
 	xhandler "github.com/viant/xdatly/handler"
 	reflect "reflect"
@@ -54,7 +56,16 @@ func (hooks *NamespaceSettingsRules) AfterQueue(ctx context.Context, entity *Sto
 	return nil
 }
 func (hooks *NamespaceSettingsRules) Finalize(ctx context.Context, input *Input, output *Output, outcome xhandler.Outcome) error {
-	return nil
+	if !outcome.CommitConfirmed() || output == nil {
+		return nil
+	}
+	identities := make([]change.Identity, 0, len(output.Data))
+	for _, row := range output.Data {
+		if row != nil {
+			identities = append(identities, change.Identity{NamespaceID: namespaceaccess.ID(row.OwnerId, row.Name), OwnerID: row.OwnerId, Name: row.Name})
+		}
+	}
+	return change.Notify(ctx, identities)
 }
 
 // SettingRules customizes role Input.Namespaces.Entries.

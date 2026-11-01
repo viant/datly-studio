@@ -1,5 +1,5 @@
 init:
-  appPath: $WorkingDirectory(..)
+  appPath: '$params.appPath?$params.appPath:$WorkingDirectory(..)'
   target:
     URL: ssh://localhost/
 

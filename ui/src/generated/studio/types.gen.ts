@@ -119,6 +119,7 @@ export type Input35F4Ac8173F8Fa3Cb8E695D8Cb3D27E2B5F8D83887D73C82E65Fa26E9019D2F
 
 export type Input36632603Cb8F9D8Ddbe5D431823Ba899C271A23F41Fc19386A348Df6E584261f = {
     predicatePackages?: Array<string> | null;
+    requireInternalComponents?: boolean;
     requireSecurityPredicate?: boolean;
 };
 
@@ -544,6 +545,7 @@ export type InputCe5005B864956Cbc2469Fc8D71A73Cc80F19Dd86C8340815B1Edae79273B876
 
 export type InputCf9002B79D1Ab4212391Bf4B80D76E95E7Ec2624Efd732E6Dc68F882B06Fbc48 = {
     predicatePackages?: Array<string> | null;
+    requireInternalComponents?: boolean;
     requireSecurityPredicate?: boolean;
 };
 
@@ -1908,6 +1910,7 @@ export type Wire3Aa247018499F407D544Ef56F7B69626Ced040Fe25Af781379C5B770F172E6Dd
 
 export type Wire3Ae1Bf05288Bf4Ea8D62663E5D886A6A9B05C1660099C819A9979F1A2Fe362De = {
     predicatePackages: Array<string> | null;
+    requireInternalComponents: boolean;
     requireSecurityPredicate: boolean;
 };
 
@@ -2224,6 +2227,7 @@ export type Wire5F3729574877D8503A4Dec333774588Fe1C7A2Ed2Ff47C9B7076Fcd0F551Abe7
 
 export type Wire60650A6F04Edcea743087085A996Dbd0928E83E4Db2D4D201F65Feede3Ef338b = {
     predicatePackages: Array<string> | null;
+    requireInternalComponents: boolean;
     requireSecurityPredicate: boolean;
 };
 

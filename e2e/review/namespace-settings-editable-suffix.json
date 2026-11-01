@@ -1,0 +1,27 @@
+{
+  "scope": "Native Endly browser cases 007–018 after editability fix; not default full suite",
+  "runnerSourceRevision": "3970b0756121994caca6f424d820fb6f85801ea0",
+  "runnerSHA256": "7507a1dba7e174ba78d6a8e1697461a5e5156e8f84439a25f90d2eadd22ed4ed",
+  "executedCases": 12,
+  "passedCases": 12,
+  "failedCases": 0,
+  "declaredSkipped": 0,
+  "unexecutedSelectedCases": 0,
+  "operation": {
+    "droppedEvents": 2467,
+    "eventCount": 1000,
+    "failedAssertions": 0,
+    "id": "d8bea9f1-fb1b-4db6-b370-3cf89c2418e1",
+    "kind": "workflow",
+    "passedAssertions": 825,
+    "resultKeys": [
+      "sessionId",
+      "data"
+    ],
+    "sessionId": "59e9785c-016e-4aa5-8d9a-f8efebbfe593",
+    "status": "succeeded",
+    "tagIds": "testWebDriver_regression_ui_complex_revision,testWebDriver_regression_ui_wildcard_exposure,testWebDriver_regression_ui_wildcard_role,testWebDriver_regression_ui_entity_scope,testWebDriver_regression_ui_namespace_admin,testWebDriver_regression_ui_custom_predicate,testWebDriver_regression_ui_cube,testWebDriver_regression_ui_cube_compose,testWebDriver_regression_ui_skills,testWebDriver_regression_ui_input_predicates,testWebDriver_regression_ui_output_contracts,testWebDriver_regression_ui_schema_layout",
+    "tasks": "testWebDriver",
+    "workflow": "settings-regression"
+  }
+}

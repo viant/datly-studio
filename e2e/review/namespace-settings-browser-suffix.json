@@ -1,0 +1,37 @@
+{
+  "scope": "Focused browser suffix, separate native Endly operations; not default suite",
+  "passed": 2,
+  "failed": 1,
+  "declaredSkips": 0,
+  "unexecuted": [
+    "015_ui_skills",
+    "016_ui_input_predicates",
+    "017_ui_output_contracts",
+    "018_ui_schema_layout"
+  ],
+  "runs": [
+    {
+      "caseId": "012_ui_custom_predicate",
+      "operationId": "9ffc49de-780b-4d01-bfef-aad0febb324c",
+      "status": "succeeded",
+      "startedAt": "2026-11-01T21:11:26.008875Z",
+      "finishedAt": "2026-11-01T21:11:44.906933Z"
+    },
+    {
+      "caseId": "013_ui_cube",
+      "operationId": "f6b960c2-2808-4308-a6a9-4e4be736d002",
+      "status": "succeeded",
+      "startedAt": "2026-11-01T21:11:52.149021Z",
+      "finishedAt": "2026-11-01T21:12:13.341987Z"
+    },
+    {
+      "caseId": "014_ui_cube_compose",
+      "operationId": "1d6fbb74-ab0e-4220-9d53-30981b390610",
+      "status": "failed",
+      "error": "namespace-policy-browser-014: dictionaryInUI: strict locator matched 2 elements: xpath:(//*[@role='button'] | //button)[normalize-space(.)='Add as subview' or @aria-label='Add as subview'] at webdriver.run  at workflow.run  at workflow.run ",
+      "startedAt": "2026-11-01T21:12:19.585914Z",
+      "finishedAt": "2026-11-01T21:12:38.240331Z"
+    }
+  ],
+  "correctionPendingRerun": "Scope Add as subview to active visible SQL panel"
+}

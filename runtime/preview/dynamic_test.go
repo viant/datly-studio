@@ -15,6 +15,7 @@ import (
 
 	access "github.com/viant/authz"
 	"github.com/viant/datly-studio/internal/connectorsecret"
+	"github.com/viant/datly-studio/internal/predicatepolicy"
 	"github.com/viant/datly-studio/internal/runtimevalidation"
 	"github.com/viant/datly-studio/runtime/accesscontext"
 	"github.com/viant/datly-studio/schema"
@@ -115,6 +116,24 @@ JOIN (SELECT ID, VENDOR_ID, STATUS FROM PRODUCT) products ON products.VENDOR_ID=
 			t.Fatalf("diagnostic %+v", d)
 		}
 	})
+	t.Run("namespace internal policy rejects public preview", func(t *testing.T) {
+		if _, err := studio.ExecContext(ctx, `INSERT OR IGNORE INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at) VALUES('owner','general','General','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP); INSERT INTO namespace_settings(owner_id,namespace,setting_key,value_json,updated_at,updated_by) VALUES('owner','general','security','{"requireInternalComponents":true}',CURRENT_TIMESTAMP,'fixture')`); err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() {
+			if _, err := studio.ExecContext(ctx, `DELETE FROM namespace_settings WHERE owner_id='owner' AND namespace='general' AND setting_key='security'`); err != nil {
+				t.Error(err)
+			}
+		})
+		dynamic := Dynamic{StudioDB: studio, RootDir: root}
+		var denied *predicatepolicy.InternalComponentRequiredError
+		if err := dynamic.Validate(ctx, "vendors", 1); !errors.As(err, &denied) {
+			t.Fatalf("public validation bypassed namespace restriction: %v", err)
+		}
+		if _, err := dynamic.Execute(ctx, "vendors", 1, sdk.PreviewInput{}); !errors.As(err, &denied) {
+			t.Fatalf("public execution bypassed namespace restriction: %v", err)
+		}
+	})
 	result, err := (Dynamic{StudioDB: studio, RootDir: root}).Execute(ctx, "vendors", 1, sdk.PreviewInput{Limit: 1})
 	if err != nil {
 		t.Fatal(err)
@@ -142,6 +161,14 @@ JOIN (SELECT ID, VENDOR_ID, STATUS FROM PRODUCT) products ON products.VENDOR_ID=
 		}
 	})
 	t.Run("internal preview preserves native output names and visibility", func(t *testing.T) {
+		if _, err := studio.ExecContext(ctx, `INSERT OR IGNORE INTO namespaces(owner_id,name,title,status,etag,created_at,updated_at) VALUES('owner','general','General','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP); INSERT INTO namespace_settings(owner_id,namespace,setting_key,value_json,updated_at,updated_by) VALUES('owner','general','security','{"requireInternalComponents":true}',CURRENT_TIMESTAMP,'fixture')`); err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() {
+			if _, err := studio.ExecContext(ctx, `DELETE FROM namespace_settings WHERE owner_id='owner' AND namespace='general' AND setting_key='security'`); err != nil {
+				t.Error(err)
+			}
+		})
 		wireDQL := strings.Replace(dql, "SELECT vendors.*", `#setting($_ = $case_format('lc'))
 #setting($_ = $internal(true))
 #setting($_ = $output_exclude('vendors.products'))

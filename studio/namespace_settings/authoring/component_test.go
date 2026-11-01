@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"github.com/viant/authz"
 	"github.com/viant/datly-studio/runtime/accessprovider"
+	"github.com/viant/datly-studio/studio/namespaces/change"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -34,6 +35,18 @@ func TestNativeHTTPSettingsAuthorizePersistAndRejectStaleWrite(t *testing.T) {
 	t.Setenv("STUDIO_NAMESPACE_ADMIN_ROLE", "NAMESPACE_ADMIN")
 	ctx := accessprovider.WithProvider(context.Background(), settingsProvider{})
 	db := datatest.OpenSQLite(t, "settings_native_http", "studio")
+	notifications := 0
+	ctx = change.WithObserver(ctx, change.ObserverFunc(func(ctx context.Context, identities []change.Identity) error {
+		notifications++
+		require.Len(t, identities, 1)
+		require.Equal(t, "owner", identities[0].OwnerID)
+		require.Equal(t, "alpha", identities[0].Name)
+		require.NotEmpty(t, identities[0].NamespaceID)
+		var etag int
+		require.NoError(t, db.QueryRowContext(ctx, "SELECT etag FROM namespaces WHERE owner_id='owner' AND name='alpha'").Scan(&etag))
+		require.Equal(t, notifications+1, etag, "notification must observe the committed token")
+		return nil
+	}))
 	jwt := datatest.NewJWTFixture(t)
 	require.NoError(t, datatest.Hydrate(ctx, db, datatest.Table{Name: "namespaces", Rows: []datatest.Row{{"owner_id": "owner", "name": "alpha", "title": "Alpha", "status": "active", "etag": 1, "created_at": "2026-10-28 00:00:00", "updated_at": "2026-10-28 00:00:00"}}}))
 	resources := resource.New()
@@ -87,26 +100,37 @@ func TestNativeHTTPSettingsAuthorizePersistAndRejectStaleWrite(t *testing.T) {
 		httpHandler.ServeHTTP(response, request)
 		return response
 	}
-	response := call("owner", "settings_update", `{"name":"alpha","input":{"etag":1,"settings":{"resourceLimits":{"maxBytesProcessed":123}}}}`)
+	response := call("owner", "settings_update", `{"name":"alpha","input":{"etag":1,"settings":{"security":{"requireInternalComponents":true},"resourceLimits":{"maxBytesProcessed":123}}}}`)
 	require.Equal(t, 200, response.Code, response.Body.String())
+	require.Equal(t, 1, notifications)
 	var output Output
 	require.NoError(t, json.Unmarshal(response.Body.Bytes(), &output))
 	require.EqualValues(t, 2, output.ETag)
 	require.NotNil(t, output.Settings, response.Body.String())
 	require.NotNil(t, output.Settings.ResourceLimits, response.Body.String())
 	require.EqualValues(t, 123, *output.Settings.ResourceLimits.MaxBytesProcessed)
+	require.NotNil(t, output.Settings.Security)
+	require.True(t, output.Settings.Security.RequireInternalComponents)
+	response = call("owner", "settings_get", `{"name":"alpha"}`)
+	require.Equal(t, 200, response.Code, response.Body.String())
+	var persisted Output
+	require.NoError(t, json.Unmarshal(response.Body.Bytes(), &persisted))
+	require.NotNil(t, persisted.Settings.Security)
+	require.True(t, persisted.Settings.Security.RequireInternalComponents)
 	response = call("owner", "settings_update", `{"name":"alpha","input":{"etag":1,"settings":{"resourceLimits":{"maxBytesProcessed":456}}}}`)
 	require.Equal(t, 409, response.Code, response.Body.String())
+	require.Equal(t, 1, notifications, "stale write must not notify")
 	response = call("other", "settings_get", `{"name":"alpha"}`)
 	require.Equal(t, 403, response.Code, response.Body.String())
 	var bytesProcessed string
 	require.NoError(t, db.QueryRowContext(ctx, "SELECT value_json FROM namespace_settings WHERE owner_id='owner' AND namespace='alpha' AND setting_key='resourceLimits'").Scan(&bytesProcessed))
 	require.Contains(t, bytesProcessed, "123")
-	response = call("owner", "settings_update", `{"name":"alpha","input":{"etag":2,"removeKeys":["resourceLimits"],"settings":{}}}`)
+	response = call("owner", "settings_update", `{"name":"alpha","input":{"etag":2,"removeKeys":["resourceLimits","security"],"settings":{}}}`)
 	require.Equal(t, 200, response.Code, response.Body.String())
 	var count int
 	require.NoError(t, db.QueryRowContext(ctx, "SELECT COUNT(*) FROM namespace_settings WHERE owner_id='owner' AND namespace='alpha'").Scan(&count))
 	require.Zero(t, count)
+	require.Equal(t, 2, notifications)
 
 }
 

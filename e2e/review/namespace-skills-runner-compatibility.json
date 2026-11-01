@@ -1,0 +1,17 @@
+{
+  "scope": "Focused continuation of skills case after runner failure; not full-case or release qualification",
+  "case": "regression/cases/webdriver/015_ui_skills/test.yaml",
+  "failedOperation": "4b25abb8-8d63-4f64-b962-91b808dd25e7",
+  "failure": "Older connected Endly runner failed MCP listTools after successful publication",
+  "oldRunner": {"revision": "1ef39df64d24911571dfc668241fdf9919c3466f", "mcp": "v0.24.0", "mcpProtocol": "v0.19.0"},
+  "qualifiedRunner": {"sourceRevision": "933b9da8a2c6aa1205615719ad8e0d54894aa761", "mcp": "v0.24.2-0.20261029235301-7885d52f196b", "mcpProtocol": "v0.19.2-0.20261029232114-446f89dc454b"},
+  "listToolsDiagnosticOperation": "2bf1f39f-ef45-4f84-8dd0-eaa4b4319142",
+  "continuationOperation": "5cc97303-2183-4561-a1dc-b6b79db6948e",
+  "continuationStatus": "succeeded",
+  "continuationPassedAssertions": 33,
+  "continuationFailedAssertions": 0,
+  "tasks": "allowedCatalog through hiddenSkillCannotBeFetched",
+  "applicationRebuiltForRetry": false,
+  "authorizationRelaxed": false,
+  "completeCaseRerunRequired": true
+}

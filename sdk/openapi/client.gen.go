@@ -142,8 +142,9 @@ type Input35f4ac8173f8fa3cb8e695d8cb3d27e2b5f8d83887d73c82e65fa26e9019d2f5 struc
 
 // Input36632603cb8f9d8ddbe5d431823ba899c271a23f41fc19386a348df6e584261f defines model for Input_36632603cb8f9d8ddbe5d431823ba899c271a23f41fc19386a348df6e584261f.
 type Input36632603cb8f9d8ddbe5d431823ba899c271a23f41fc19386a348df6e584261f struct {
-	PredicatePackages        *[]string `json:"predicatePackages,omitempty"`
-	RequireSecurityPredicate *bool     `json:"requireSecurityPredicate,omitempty"`
+	PredicatePackages         *[]string `json:"predicatePackages,omitempty"`
+	RequireInternalComponents *bool     `json:"requireInternalComponents,omitempty"`
+	RequireSecurityPredicate  *bool     `json:"requireSecurityPredicate,omitempty"`
 }
 
 // Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f defines model for Input_3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f.
@@ -736,8 +737,9 @@ type InputCe5005b864956cbc2469fc8d71a73cc80f19dd86c8340815b1edae79273b8769 struc
 
 // InputCf9002b79d1ab4212391bf4b80d76e95e7ec2624efd732e6dc68f882b06fbc48 defines model for Input_cf9002b79d1ab4212391bf4b80d76e95e7ec2624efd732e6dc68f882b06fbc48.
 type InputCf9002b79d1ab4212391bf4b80d76e95e7ec2624efd732e6dc68f882b06fbc48 struct {
-	PredicatePackages        *[]string `json:"predicatePackages,omitempty"`
-	RequireSecurityPredicate *bool     `json:"requireSecurityPredicate,omitempty"`
+	PredicatePackages         *[]string `json:"predicatePackages,omitempty"`
+	RequireInternalComponents *bool     `json:"requireInternalComponents,omitempty"`
+	RequireSecurityPredicate  *bool     `json:"requireSecurityPredicate,omitempty"`
 }
 
 // InputD13baaa98e1e58d154b95568037ffe8fe73e5a0dfa3d93b7f97d31535e8a8b10 defines model for Input_d13baaa98e1e58d154b95568037ffe8fe73e5a0dfa3d93b7f97d31535e8a8b10.
@@ -2573,8 +2575,9 @@ type Wire3aa247018499f407d544ef56f7b69626ced040fe25af781379c5b770f172e6dd struct
 
 // Wire3ae1bf05288bf4ea8d62663e5d886a6a9b05c1660099c819a9979f1a2fe362de defines model for Wire_3ae1bf05288bf4ea8d62663e5d886a6a9b05c1660099c819a9979f1a2fe362de.
 type Wire3ae1bf05288bf4ea8d62663e5d886a6a9b05c1660099c819a9979f1a2fe362de struct {
-	PredicatePackages        *[]string `json:"predicatePackages"`
-	RequireSecurityPredicate bool      `json:"requireSecurityPredicate"`
+	PredicatePackages         *[]string `json:"predicatePackages"`
+	RequireInternalComponents bool      `json:"requireInternalComponents"`
+	RequireSecurityPredicate  bool      `json:"requireSecurityPredicate"`
 }
 
 // Wire3b57d303fc4270172c8dc3dcc384045b957738421bfa4726d93f6529707bb684 defines model for Wire_3b57d303fc4270172c8dc3dcc384045b957738421bfa4726d93f6529707bb684.
@@ -3035,8 +3038,9 @@ type Wire5f3729574877d8503a4dec333774588fe1c7a2ed2ff47c9b7076fcd0f551abe7 struct
 
 // Wire60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b defines model for Wire_60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b.
 type Wire60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b struct {
-	PredicatePackages        *[]string `json:"predicatePackages"`
-	RequireSecurityPredicate bool      `json:"requireSecurityPredicate"`
+	PredicatePackages         *[]string `json:"predicatePackages"`
+	RequireInternalComponents bool      `json:"requireInternalComponents"`
+	RequireSecurityPredicate  bool      `json:"requireSecurityPredicate"`
 }
 
 // Wire60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac defines model for Wire_60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac.

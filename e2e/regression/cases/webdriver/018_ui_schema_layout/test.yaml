@@ -100,7 +100,7 @@ pipeline:
     failureArtifacts: *a1
     commands:
       - page.locator("xpath://tr[.//*[normalize-space(.)='customers']]//button[@aria-label='Inspect table']").click()
-      - expect(page.getByRole("tab", "customers ui_schema_layout")).toBeVisible(15000)
-      - page.getByRole("button", "Run SQL").click()
+      - expect(page.locator("xpath://*[@role='tab' and @aria-selected='true' and normalize-space(.)='customers ui_schema_layout']")).toBeVisible(15000)
+      - page.locator("xpath://div[@role='tabpanel' and @aria-hidden='false' and contains(@class,'studio-explorer-query-panel')]//button[normalize-space(.)='Run SQL']").click()
       - expect(page.getByRole("tab", "Run 1 ui_schema_layout Done")).toBeVisible(15000)
       - expect(page.locator("xpath://section[contains(@class,'forge-nested-collection')]//td[normalize-space(.)='Ada']")).toBeVisible(15000)

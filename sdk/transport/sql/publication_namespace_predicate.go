@@ -18,7 +18,7 @@ func (t *Transport) requireNamespaceAuthorizationPredicate(ctx context.Context, 
 	if err != nil {
 		return err
 	}
-	if policy.Security == nil || !policy.Security.RequireSecurityPredicate {
+	if policy.Security == nil || (!policy.Security.RequireSecurityPredicate && !policy.Security.RequireInternalComponents) {
 		return nil
 	}
 	inspected, err := t.runReaderBuilder(ctx, id, version, readerbuilder.Operation{Type: readerbuilder.OperationInspect})
@@ -26,7 +26,7 @@ func (t *Transport) requireNamespaceAuthorizationPredicate(ctx context.Context, 
 		return err
 	}
 	if inspected == nil || inspected.Structure == nil {
-		return invalid(&predicatepolicy.RequiredError{})
+		return invalid(predicatepolicy.ValidateDeclarations(nil, policy))
 	}
 	if err = predicatepolicy.ValidateDeclarations(inspected.Structure.Component, policy); err != nil {
 		return invalid(err)

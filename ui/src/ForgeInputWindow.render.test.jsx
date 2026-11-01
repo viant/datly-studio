@@ -7,12 +7,12 @@ import {SettingProvider} from 'forge/settings';
 import 'forge/packs/blueprint';
 import {managementWindowFixture} from './managementWindowFixture.js';
 let serial=0;
-function mount(inputName='',predicate=null){
+function mount(inputName='',predicate=null,inspectionReady=Promise.resolve()){
  const inspection={version:{versionNo:1,sourceRevision:7,state:'draft'},capabilities:{canEdit:true},structure:{availablePredicates:['equal','in','expr','handler'],component:{rootView:{name:'reader',namespace:'records',columns:[{name:'ID',source:'c.id'}],relations:[]}},declarations:inputName?[{parameter:{name:inputName,typeExpr:'int',source:{kind:'query',name:'limit'},required:false,errorStatusCode:422,errorMessage:'Invalid limit'},...(predicate?{predicates:[{ordinal:0,predicate}]}:{})}]:[],predicateExpansions:predicate?[{group:predicate.group,view:'records',operator:'AND'}]:[]}};
  const calls=[],complete=vi.fn(),close=vi.fn();
  const transport=vi.fn(async request=>{
   calls.push(request);const id=request.dataSourceRef;
-  if(id==='input_inspect')return {data:[inspection]};
+  if(id==='input_inspect'){await inspectionReady;return {data:[inspection]};}
   if(id==='input_codec_types')return {data:[{items:[{name:'JwtClaim',acceptsArguments:false}]}]};
   if(id==='input_handler_types')return {data:[{items:[{packagePath:'example.com/filters',typeName:'Scope'}]}]};
   if(id==='input_apply')return {data:[{applied:true,inspection:{...inspection,version:{...inspection.version,sourceRevision:8}}}]};
@@ -22,6 +22,25 @@ function mount(inputName='',predicate=null){
  return {calls,complete,close};
 }
 async function choose(user,label,option){await user.click(screen.getByLabelText(label,{exact:true}));await user.click(await screen.findByRole('menuitem',{name:option,exact:true}));}
+test('input editor prevents edits until inspection resolves and retains the first entered name',async()=>{
+ let ready;
+ const inspectionReady=new Promise(resolve=>{ready=resolve;});
+ const user=userEvent.setup(),{calls,complete}=mount('',null,inspectionReady);
+ const name=await screen.findByLabelText('Input name',{exact:true});
+ expect(name.matches(':disabled')).toBe(true);
+ await user.type(name,'BeforeReady');
+ expect(name.value).toBe('');
+ ready();
+ await waitFor(()=>expect(screen.getByLabelText('Input name',{exact:true}).matches(':disabled')).toBe(false));
+ await user.type(screen.getByLabelText('Input name',{exact:true}),'CustomerID');
+ const type=screen.getByLabelText('Type expression',{exact:true});
+ await user.clear(type);await user.type(type,'int');
+ await user.type(screen.getByLabelText('Kind source',{exact:true}),'customerId');
+ expect(screen.getByLabelText('Input name',{exact:true}).value).toBe('CustomerID');
+ await user.click(screen.getByRole('button',{name:'Save input',exact:true}));
+ await waitFor(()=>expect(complete).toHaveBeenCalled());
+ expect(calls.find(item=>item.dataSourceRef==='input_apply').options.inputParameters.command.operation.field.name).toBe('CustomerID');
+});
 test('Forge parameter editor creates an input and predicate through the metadata MCP command',async()=>{
  const user=userEvent.setup(),{calls,complete}=mount();
  await user.type(await screen.findByLabelText('Input name',{exact:true}),'IDs');
