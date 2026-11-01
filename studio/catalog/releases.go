@@ -162,10 +162,10 @@ type ReleaseCandidatesComponent struct {
 	Contract xdatly.Component[ReleaseCandidatesInput, ReleaseCandidatesOutput] `component:"release_candidates,path=/v1/studio/catalog/releases/candidates,method=POST,connector=studio,handler=NewReleaseCandidates" mcp:"[{\"kind\":\"tool\",\"name\":\"releases/candidates\"}]" caseFormat:"lc"`
 }
 type ReleasePublishComponent struct {
-	Contract xdatly.Component[ReleasePublishInput, ReleaseResultOutput] `component:"release_publish,path=/v1/studio/catalog/releases/publish,method=POST,connector=studio,handler=NewReleasePublish" mcp:"[{\"kind\":\"tool\",\"name\":\"releases/publish\"}]" caseFormat:"lc"`
+	Contract xdatly.Component[ReleasePublishInput, ReleaseResultOutput] `component:"release_publish,path=/v1/studio/catalog/releases/publish,method=POST,handler=NewReleasePublish" independentChildTransactions:"true" mcp:"[{\"kind\":\"tool\",\"name\":\"releases/publish\"}]" caseFormat:"lc"`
 }
 type ReleasePromoteComponent struct {
-	Contract xdatly.Component[ReleasePromoteInput, ReleaseResultOutput] `component:"release_promote,path=/v1/studio/catalog/releases/promote,method=POST,connector=studio,handler=NewReleasePromote" mcp:"[{\"kind\":\"tool\",\"name\":\"releases/promote\"}]" caseFormat:"lc"`
+	Contract xdatly.Component[ReleasePromoteInput, ReleaseResultOutput] `component:"release_promote,path=/v1/studio/catalog/releases/promote,method=POST,handler=NewReleasePromote" independentChildTransactions:"true" mcp:"[{\"kind\":\"tool\",\"name\":\"releases/promote\"}]" caseFormat:"lc"`
 }
 type ReleaseHistoryComponent struct {
 	Contract xdatly.Component[ReleaseHistoryInput, ReleaseHistoryOutput] `component:"release_history,path=/v1/studio/catalog/releases/history,method=POST,connector=studio,handler=NewReleaseHistory" mcp:"[{\"kind\":\"tool\",\"name\":\"releases/history\"}]" caseFormat:"lc"`
