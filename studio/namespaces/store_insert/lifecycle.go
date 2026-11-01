@@ -3,6 +3,7 @@ package store_insert
 import (
 	context "context"
 	"fmt"
+	"github.com/viant/datly-studio/studio/namespaces/change"
 	xhandler "github.com/viant/xdatly/handler"
 	reflect "reflect"
 )
@@ -37,5 +38,14 @@ func (hooks *NamespaceInsertRules) AfterQueue(ctx context.Context, entity *Store
 	return nil
 }
 func (hooks *NamespaceInsertRules) Finalize(ctx context.Context, input *Input, output *Output, outcome xhandler.Outcome) error {
-	return nil
+	if !outcome.CommitConfirmed() || output == nil {
+		return nil
+	}
+	identities := make([]change.Identity, 0, len(output.Data))
+	for _, row := range output.Data {
+		if row != nil {
+			identities = append(identities, change.Identity{NamespaceID: row.NamespaceId, OwnerID: row.OwnerId, Name: row.Name})
+		}
+	}
+	return change.Notify(ctx, identities)
 }
