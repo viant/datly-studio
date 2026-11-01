@@ -56,7 +56,7 @@ type NamedPolicyInput struct {
 	Actions          []string              `parameter:"Actions,kind=body,in=actions" json:"actions,omitempty"`
 }
 type NamedPolicyComponent struct {
-	Contract xdatly.Component[NamedPolicyInput, sharedapi.NamedOutput] `component:"named_policies,path=/v1/authz/sdk/namedPolicies.manage,method=POST,connector=studio,handler=NewNamedPolicies" mcp:"[{\"kind\":\"tool\",\"name\":\"authz.sdk.namedPolicies.manage\"}]" caseFormat:"lc"`
+	Contract xdatly.Component[NamedPolicyInput, sharedapi.NamedOutput] `component:"named_policies,path=/v1/authz/sdk/namedPolicies.manage,method=POST,handler=NewNamedPolicies" independentChildTransactions:"true" mcp:"[{\"kind\":\"tool\",\"name\":\"authz.sdk.namedPolicies.manage\"}]" caseFormat:"lc"`
 }
 
 var NamedPolicyDatly = new(NamedPolicyComponent)

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	policygraph "github.com/viant/authz/component/policy/graph"
 	policywriter "github.com/viant/authz/component/policy/writer"
 	"github.com/viant/bindly/locator"
@@ -221,7 +222,18 @@ func TestNativePermissionCatalogNamespaceHTTPAndMCP(t *testing.T) {
 		return output
 	}
 	var projectedPolicies []authz.Resource
-	ConfigureNamedPolicyChanged(func(_ context.Context, resource authz.Resource) error {
+	ConfigureNamedPolicyChanged(func(ctx context.Context, resource authz.Resource) error {
+		readCtx, cancel := context.WithTimeout(ctx, time.Second)
+		defer cancel()
+		reader := &policystore.Store{DB: db}
+		defer reader.Close(readCtx)
+		committed, err := reader.Get(readCtx, resource)
+		if err != nil {
+			return err
+		}
+		if committed.Revision != 2 {
+			return fmt.Errorf("policy notification observed uncommitted revision %d", committed.Revision)
+		}
 		projectedPolicies = append(projectedPolicies, resource)
 		return nil
 	})
