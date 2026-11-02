@@ -32,6 +32,14 @@ func (r *Reconciler) Apply(ctx context.Context) ([]Change, error) {
 	if r.Manager == nil || r.Definitions == nil {
 		return nil, fmt.Errorf("namespace manager and definitions are required")
 	}
+	// Do not hold a manager lock during database I/O. Lifecycle operations can
+	// commit while this snapshot loads; their per-namespace revisions fence it.
+	r.Manager.mu.Lock()
+	revisions := make(map[string]uint64, len(r.Manager.configurationRevisions))
+	for id, revision := range r.Manager.configurationRevisions {
+		revisions[id] = revision
+	}
+	r.Manager.mu.Unlock()
 	definitions, err := r.Definitions.Load(ctx)
 	if err != nil {
 		return nil, err
@@ -71,24 +79,28 @@ func (r *Reconciler) Apply(ctx context.Context) ([]Change, error) {
 		definition, present := desired[id]
 		oldPort, running := current[id]
 		change := Change{NamespaceID: id}
+		revision := revisions[id]
 		if !present || !definition.Enabled {
 			if !running {
 				continue
 			}
-			err = r.Manager.Stop(ctx, id)
+			err = r.Manager.stopManaged(ctx, id, nil, &revision)
 			change.Status = "stopped"
 		} else {
 			var endpoint Endpoint
 			if running && oldPort != definition.Port {
-				endpoint, err = r.Manager.Rebind(ctx, id, definition.Port)
+				endpoint, err = r.Manager.start(ctx, id, definition.Port, true, nil, nil, &revision)
 				change.Status = "rebound"
 			} else {
-				endpoint, err = r.Manager.Start(ctx, id, definition.Port)
+				endpoint, err = r.Manager.start(ctx, id, definition.Port, false, nil, nil, &revision)
 				change.Status = "ready"
 			}
 			if endpoint.NamespaceID != "" {
 				change.Endpoint = &endpoint
 			}
+		}
+		if errors.Is(err, errSnapshotSuperseded) {
+			continue // A newer operation owns this namespace; other namespaces still converge.
 		}
 		if err != nil {
 			change.Status = "failed"

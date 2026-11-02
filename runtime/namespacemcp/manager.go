@@ -64,24 +64,28 @@ type instance struct {
 	drained       chan struct{}
 }
 
+var errSnapshotSuperseded = errors.New("namespace configuration changed after snapshot began")
+
 type Manager struct {
-	mu            sync.Mutex
-	entries       map[string]*instance
-	operations    map[string]*sync.Mutex
-	closed        bool
-	factory       Factory
-	httpFactory   HTTPFactory
-	sharedServer  *http.Server
-	sharedAddress string
-	sharedPort    int
-	sharedActive  bool
+	mu         sync.Mutex
+	entries    map[string]*instance
+	operations map[string]*sync.Mutex
+	// Revisions survive removal so an older snapshot cannot recreate a withdrawn route.
+	configurationRevisions map[string]uint64
+	closed                 bool
+	factory                Factory
+	httpFactory            HTTPFactory
+	sharedServer           *http.Server
+	sharedAddress          string
+	sharedPort             int
+	sharedActive           bool
 }
 
 func New(factory Factory) (*Manager, error) {
 	if factory == nil {
 		return nil, fmt.Errorf("namespace MCP factory is required")
 	}
-	return &Manager{factory: factory, entries: map[string]*instance{}, operations: map[string]*sync.Mutex{}}, nil
+	return &Manager{factory: factory, entries: map[string]*instance{}, operations: map[string]*sync.Mutex{}, configurationRevisions: map[string]uint64{}}, nil
 }
 
 // NewHTTP reuses namespace listener lifecycle with host-owned MCP handlers.
@@ -89,7 +93,7 @@ func NewHTTP(factory HTTPFactory) (*Manager, error) {
 	if factory == nil {
 		return nil, fmt.Errorf("namespace MCP HTTP factory is required")
 	}
-	return &Manager{httpFactory: factory, entries: map[string]*instance{}, operations: map[string]*sync.Mutex{}}, nil
+	return &Manager{httpFactory: factory, entries: map[string]*instance{}, operations: map[string]*sync.Mutex{}, configurationRevisions: map[string]uint64{}}, nil
 }
 func (m *Manager) operation(id string) *sync.Mutex {
 	m.mu.Lock()
@@ -106,14 +110,14 @@ func (m *Manager) operation(id string) *sync.Mutex {
 // Port zero asks the OS for a free port. Existing identical starts are idempotent;
 // Start rejects port changes; Rebind prepares a replacement before draining the old listener.
 func (m *Manager) Start(ctx context.Context, id string, port int) (Endpoint, error) {
-	return m.start(ctx, id, port, false, nil, nil)
+	return m.start(ctx, id, port, false, nil, nil, nil)
 }
 
 // Rebind constructs and reserves the new endpoint before replacing the old one.
 // Failures before commitment preserve the current listener. A returned endpoint
 // remains active even if an error reports failure to drain the previous server.
 func (m *Manager) Rebind(ctx context.Context, id string, port int) (Endpoint, error) {
-	return m.start(ctx, id, port, true, nil, nil)
+	return m.start(ctx, id, port, true, nil, nil, nil)
 }
 
 // RebindWithCommit reserves and constructs the replacement before committing
@@ -124,7 +128,7 @@ func (m *Manager) RebindWithCommit(ctx context.Context, id string, port int, com
 	if commit == nil {
 		return Endpoint{}, fmt.Errorf("namespace MCP commit callback is required")
 	}
-	return m.start(ctx, id, port, true, commit, nil)
+	return m.start(ctx, id, port, true, commit, nil, nil)
 }
 
 // RebindAndReload builds the requested generation before registering a new or
@@ -135,7 +139,7 @@ func (m *Manager) RebindAndReload(ctx context.Context, id string, port int, gene
 	if generation < 0 {
 		return Endpoint{}, fmt.Errorf("generation must be zero or positive")
 	}
-	return m.start(ctx, id, port, true, nil, &generation)
+	return m.start(ctx, id, port, true, nil, &generation, nil)
 }
 
 type deferredInitialLoadKey struct{}
@@ -148,7 +152,7 @@ func DeferredInitialLoad(ctx context.Context, id string) bool {
 	return selected != "" && selected == id
 }
 
-func (m *Manager) start(ctx context.Context, id string, port int, replace bool, commit func(Endpoint) error, generation *int64) (Endpoint, error) {
+func (m *Manager) start(ctx context.Context, id string, port int, replace bool, commit func(Endpoint) error, generation *int64, expectedRevision *uint64) (Endpoint, error) {
 	decoded, err := hex.DecodeString(id)
 	if err != nil || len(decoded) != 32 || strings.ToLower(id) != id || port < 0 || port > 65535 {
 		return Endpoint{}, fmt.Errorf("valid namespace ID and port 0–65535 are required")
@@ -164,13 +168,21 @@ func (m *Manager) start(ctx context.Context, id string, port int, replace bool, 
 		m.mu.Unlock()
 		return Endpoint{}, fmt.Errorf("namespace MCP manager is closed")
 	}
+	if expectedRevision != nil && m.configurationRevisions[id] != *expectedRevision {
+		m.mu.Unlock()
+		return Endpoint{}, errSnapshotSuperseded
+	}
 	previous := m.entries[id]
 	if previous != nil {
 		if !replace && previous.requestedPort == port || replace && previous.requestedPort == port && previous.shared || replace && port != 0 && previous.endpoint.Port == port && !previous.shared {
 			if commit != nil {
 				err := func() error {
 					defer m.mu.Unlock()
-					return commitEndpoint(ctx, previous.endpoint, commit)
+					if err := commitEndpoint(ctx, previous.endpoint, commit); err != nil {
+						return err
+					}
+					m.configurationRevisions[id]++
+					return nil
 				}()
 				if err != nil {
 					return Endpoint{}, err
@@ -186,6 +198,9 @@ func (m *Manager) start(ctx context.Context, id string, port int, replace bool, 
 					return Endpoint{}, err
 				}
 			}
+			m.mu.Lock()
+			m.configurationRevisions[id]++
+			m.mu.Unlock()
 			return previous.endpoint, nil
 		}
 		if !replace {
@@ -320,10 +335,14 @@ func (m *Manager) start(ctx context.Context, id string, port int, replace bool, 
 		if m.closed {
 			return fmt.Errorf("namespace MCP manager is closed")
 		}
+		if expectedRevision != nil && m.configurationRevisions[id] != *expectedRevision {
+			return errSnapshotSuperseded
+		}
 		if err := commitEndpoint(ctx, endpoint, commit); err != nil {
 			return err
 		}
 		m.entries[id] = entry
+		m.configurationRevisions[id]++
 		registered = true
 		if !useShared {
 			go func() {
@@ -332,6 +351,7 @@ func (m *Manager) start(ctx context.Context, id string, port int, replace bool, 
 				m.mu.Lock()
 				if m.entries[id] == entry {
 					delete(m.entries, id)
+					m.configurationRevisions[id]++
 				}
 				m.mu.Unlock()
 			}()
@@ -392,10 +412,16 @@ func (m *Manager) Reload(ctx context.Context, id string, generation int64) error
 	if entry == nil || entry.reload == nil {
 		return fmt.Errorf("namespace runtime reload is unavailable")
 	}
-	return entry.reload(ctx, generation)
+	if err := entry.reload(ctx, generation); err != nil {
+		return err
+	}
+	m.mu.Lock()
+	m.configurationRevisions[id]++
+	m.mu.Unlock()
+	return nil
 }
 func (m *Manager) Stop(ctx context.Context, id string) error {
-	return m.stopManaged(ctx, id, nil)
+	return m.stopManaged(ctx, id, nil, nil)
 }
 
 // StopWithCommit commits caller-owned withdrawal state before removing the
@@ -405,10 +431,10 @@ func (m *Manager) StopWithCommit(ctx context.Context, id string, commit func(End
 	if commit == nil {
 		return fmt.Errorf("namespace MCP commit callback is required")
 	}
-	return m.stopManaged(ctx, id, commit)
+	return m.stopManaged(ctx, id, commit, nil)
 }
 
-func (m *Manager) stopManaged(ctx context.Context, id string, commit func(Endpoint) error) error {
+func (m *Manager) stopManaged(ctx context.Context, id string, commit func(Endpoint) error, expectedRevision *uint64) error {
 	lock := m.operation(id)
 	lock.Lock()
 	defer lock.Unlock()
@@ -419,6 +445,9 @@ func (m *Manager) stopManaged(ctx context.Context, id string, commit func(Endpoi
 		if m.closed && commit != nil {
 			return fmt.Errorf("namespace MCP manager is closed")
 		}
+		if expectedRevision != nil && m.configurationRevisions[id] != *expectedRevision {
+			return errSnapshotSuperseded
+		}
 		entry = m.entries[id]
 		endpoint := Endpoint{NamespaceID: id}
 		if entry != nil {
@@ -428,6 +457,7 @@ func (m *Manager) stopManaged(ctx context.Context, id string, commit func(Endpoi
 			return err
 		}
 		delete(m.entries, id)
+		m.configurationRevisions[id]++
 		return nil
 	}()
 	if err != nil {
