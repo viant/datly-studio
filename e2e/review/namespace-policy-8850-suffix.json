@@ -1,0 +1,28 @@
+{
+  "scope": "Data Studio affected case and remaining cases; not a full default-suite qualification",
+  "sourceRevision": "8850f8b5e232e3f5a23a2ce879056c7fc20c79cc",
+  "mcpRevision": "f2e1c7b93dae58a36d77e16e409d30886f05dd54",
+  "endlyRevision": "3970b0756121994caca6f424d820fb6f85801ea0",
+  "selectedCases": 26,
+  "passedCases": 26,
+  "failedCases": 0,
+  "declaredSkippedCases": 0,
+  "unexecutedSelectedCases": 0,
+  "operation": {
+    "droppedEvents": 7141,
+    "eventCount": 1000,
+    "failedAssertions": 0,
+    "id": "447e8ea8-aea6-49dd-a2db-81f48c8a0e6a",
+    "kind": "workflow",
+    "passedAssertions": 1395,
+    "resultKeys": [
+      "data",
+      "sessionId"
+    ],
+    "sessionId": "6cc85855-2cca-491d-a713-ef57d046d210",
+    "status": "succeeded",
+    "tagIds": "testMCP_policyregression8850_namespace_runtime_isolation,testMCP_policyregression8850_namespace_skills,testMCP_policyregression8850_publication_lifecycle,testMCP_policyregression8850_warmup_lifecycle,testMCP_policyregression8850_package_codec,testMCP_policyregression8850_namespace_composition,testPermissions_policyregression8850_outsider,testPermissions_policyregression8850_acl_roles_revocation,testWebDriver_policyregression8850_namespace,testWebDriver_policyregression8850_component_create,testWebDriver_policyregression8850_ui_feature,testWebDriver_policyregression8850_ui_role,testWebDriver_policyregression8850_ui_both,testWebDriver_policyregression8850_ui_policy_edit,testWebDriver_policyregression8850_ui_complex_revision,testWebDriver_policyregression8850_ui_wildcard_exposure,testWebDriver_policyregression8850_ui_wildcard_role,testWebDriver_policyregression8850_ui_entity_scope,testWebDriver_policyregression8850_ui_namespace_admin,testWebDriver_policyregression8850_ui_custom_predicate,testWebDriver_policyregression8850_ui_cube,testWebDriver_policyregression8850_ui_cube_compose,testWebDriver_policyregression8850_ui_skills,testWebDriver_policyregression8850_ui_input_predicates,testWebDriver_policyregression8850_ui_output_contracts,testWebDriver_policyregression8850_ui_schema_layout",
+    "tasks": "testMCP,testPermissions,testWebDriver",
+    "workflow": "policy-regression-8850"
+  }
+}
