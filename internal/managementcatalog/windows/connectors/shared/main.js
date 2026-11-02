@@ -9,9 +9,10 @@
  const run = async fn => {
   if (busy) return false;
   busy = true;
+  ds('connector_state').setFormField({item:{dataField:'pending'},value:true});
   try { await fn(); return true; }
   catch (error) { draft().setFormField({item:{dataField:'outcome'},value:error.message}); return false; }
-  finally { busy = false; }
+  finally { busy = false; ds('connector_state').setFormField({item:{dataField:'pending'},value:false}); }
  };
  const refresh = () => ds('connectors').fetchCollection();
  const open = values => {
@@ -58,6 +59,7 @@
   }),
   testConnector: props => run(async () => {
    const row=props?.row||selected();if(!row)throw new Error('Select a connector.');
+   draft().setFormField({item:{dataField:'outcome'},value:'Testing connection…'});
    const result=record(await call('test',{name:row.name}));
    draft().setFormField({item:{dataField:'outcome'},value:probeOutcome(result)});await refresh();
   }),

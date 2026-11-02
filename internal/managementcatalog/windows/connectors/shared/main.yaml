@@ -26,8 +26,6 @@ window:
             description: Validate and manage data sources used by Studio readers.
             stateDataSourceRef: connector_draft
             errorField: outcome
-            actions:
-              - {id: refresh-catalog, label: Refresh, icon: refresh, handler: management.refreshConnectors}
         - id: connector-search
           className: forge-catalog-search
           dataSourceRef: connector_filter
@@ -39,8 +37,9 @@ window:
               dataField: status
               type: select
               options: [{value: '', label: All states}, {value: active, label: Active}, {value: draft, label: Draft}, {value: disabled, label: Disabled}]
-            - {id: search, label: Search, isStandalone: true, icon: search, type: button, on: [{event: onClick, handler: management.searchConnectors}]}
-            - {id: new, label: New connector, isStandalone: true, type: button, icon: add, intent: primary, on: [{event: onClick, handler: management.newConnector}]}
+            - {id: search, label: Search, isStandalone: true, icon: search, type: button, disabledWhen: {dataSourceRef: connector_state, selector: pending, equals: true}, on: [{event: onClick, handler: management.searchConnectors}]}
+            - {id: new, label: New connector, isStandalone: true, type: button, icon: add, intent: primary, disabledWhen: {dataSourceRef: connector_state, selector: pending, equals: true}, on: [{event: onClick, handler: management.newConnector}]}
+            - {id: refresh-catalog, label: Refresh, isStandalone: true, icon: refresh, type: button, disabledWhen: {dataSourceRef: connector_state, selector: pending, equals: true}, on: [{event: onClick, handler: management.refreshConnectors}]}
         - id: connector-list
           kind: table
           title: Connectors
@@ -59,10 +58,10 @@ window:
               - id: lastTestStatus
                 name: Connectivity
                 badge: {field: lastTestStatus, replaceValue: true, valueMap: {passed: passed, failed: failed}, toneMap: {passed: positive, failed: danger}}
-              - {id: test, name: '', type: button, icon: refresh, tooltip: Test, width: 36, cellProperties: {aria-label: Test}, on: [{event: onClick, handler: management.testConnector}]}
-              - {id: edit, name: '', type: button, icon: edit, tooltip: Edit, width: 36, cellProperties: {aria-label: Edit}, on: [{event: onClick, handler: management.editConnector}]}
-              - {id: toggle, name: Connection, type: button, icon: power, pressedWhenValue: active, tooltip: Activate or disable, width: 100, cellProperties: {aria-label: Activate or disable}, on: [{event: onValue, handler: management.connectorStatus}, {event: onProperties, handler: management.connectorState}, {event: onClick, handler: management.toggleConnector}]}
-              - {id: delete, name: '', type: button, icon: trash, tooltip: Delete, width: 36, cellProperties: {aria-label: Delete, intent: danger}, on: [{event: onClick, handler: management.confirmDeleteConnector}]}
+              - {id: test, name: '', type: button, icon: refresh, tooltip: Test, width: 36, cellProperties: {aria-label: Test}, disabledWhen: {dataSourceRef: connector_state, selector: pending, equals: true}, on: [{event: onClick, handler: management.testConnector}]}
+              - {id: edit, name: '', type: button, icon: edit, tooltip: Edit, width: 36, cellProperties: {aria-label: Edit}, disabledWhen: {dataSourceRef: connector_state, selector: pending, equals: true}, on: [{event: onClick, handler: management.editConnector}]}
+              - {id: toggle, name: Connection, type: button, icon: power, pressedWhenValue: active, tooltip: Activate or disable, width: 100, cellProperties: {aria-label: Activate or disable}, disabledWhen: {dataSourceRef: connector_state, selector: pending, equals: true}, on: [{event: onValue, handler: management.connectorStatus}, {event: onProperties, handler: management.connectorState}, {event: onClick, handler: management.toggleConnector}]}
+              - {id: delete, name: '', type: button, icon: trash, tooltip: Delete, width: 36, cellProperties: {aria-label: Delete, intent: danger}, disabledWhen: {dataSourceRef: connector_state, selector: pending, equals: true}, on: [{event: onClick, handler: management.confirmDeleteConnector}]}
   dialogs:
     - id: connector-delete
       title: Delete connector
@@ -74,7 +73,7 @@ window:
           - {id: name, label: Connector to delete, dataField: name, type: text, readOnly: true}
           - {id: outcome, label: Outcome, dataField: outcome, type: textarea, readOnly: true}
       actions:
-        - {id: delete, label: Delete connector, close: true, on: [{event: onClick, handler: management.deleteConnector}]}
+        - {id: delete, label: Delete connector, close: true, disabledWhen: {dataSourceRef: connector_state, selector: pending, equals: true}, on: [{event: onClick, handler: management.deleteConnector}]}
         - {id: cancel, label: Cancel, close: true}
     - id: connector-editor
       title: Connector configuration
@@ -123,10 +122,10 @@ window:
           - {id: options, label: Options (JSON), dataField: options, type: textarea}
           - {id: yamlText, label: YAML configuration (Driver / DSN / Secret.URL / Secret.Key), dataField: yamlText, type: textarea}
       actions:
-        - {id: yaml, label: Apply YAML, on: [{event: onClick, handler: management.applyYAML}]}
-        - {id: reload, label: Reload saved revision, on: [{event: onClick, handler: management.reloadConnector}]}
-        - {id: test, label: Save & test, icon: refresh, on: [{event: onClick, handler: management.saveAndTestConnector}]}
-        - {id: save, label: Save, close: true, on: [{event: onClick, handler: management.saveConnector}]}
+        - {id: yaml, label: Apply YAML, disabledWhen: {dataSourceRef: connector_state, selector: pending, equals: true}, on: [{event: onClick, handler: management.applyYAML}]}
+        - {id: reload, label: Reload saved revision, disabledWhen: {dataSourceRef: connector_state, selector: pending, equals: true}, on: [{event: onClick, handler: management.reloadConnector}]}
+        - {id: test, label: Save & test, icon: refresh, disabledWhen: {dataSourceRef: connector_state, selector: pending, equals: true}, on: [{event: onClick, handler: management.saveAndTestConnector}]}
+        - {id: save, label: Save, close: true, disabledWhen: {dataSourceRef: connector_state, selector: pending, equals: true}, on: [{event: onClick, handler: management.saveConnector}]}
         - {id: cancel, label: Cancel, close: true}
 dataSources:
   connector_filter:
@@ -145,6 +144,11 @@ dataSources:
     cache: {enabled: false}
   connector_draft:
     id: connector_draft
+    cardinality: object
+    backend: {kind: inline, rows: []}
+    cache: {enabled: false}
+  connector_state:
+    id: connector_state
     cardinality: object
     backend: {kind: inline, rows: []}
     cache: {enabled: false}

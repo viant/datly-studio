@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{act} from 'react';
 import {test,expect,vi} from 'vitest';
 import {render,screen,waitFor} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -90,4 +90,35 @@ test('clearing the editable secret reference removes it explicitly',async()=>{
  await user.click(screen.getByRole('button',{name:'Save',exact:true}));
  await waitFor(()=>expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.connectors.update')).toBe(true));
  expect(api.fetchMCPDataSource.mock.calls.find(([source])=>source.backend.method==='studio.sdk.connectors.update')[1].input.secretRef).toBe('');
+});
+
+
+test.each(['success','rejection'])('connector pending test disables competing actions and recovers after %s',async(result)=>{
+ const user=userEvent.setup();let finishTest,etag=4,status='draft';
+ const pendingTest=new Promise((resolve,reject)=>{finishTest=result==='success'?()=>resolve({status:'passed'}):()=>reject(new Error('Connection unavailable.'));});
+ const api={readManagementResource:async()=>managementResourceFixture('connectors'),fetchMCPDataSource:vi.fn(async(source)=>{
+  switch(source.backend.method){
+   case 'studio.sdk.connectors.list':return {items:[{...saved,etag,status}]};
+   case 'studio.sdk.connectors.test':return pendingTest;
+   case 'studio.sdk.connectors.activate':etag++;status='active';return {...saved,etag,status};
+   default:throw new Error('Unexpected '+source.backend.method);
+  }
+ })};
+ render(<ManagementWindowRuntime api={api} uri="window://datastudio/connectors" instanceKey={'connector-pending-'+(++serial)}/>);
+ await user.click(await screen.findByRole('button',{name:'Test',exact:true}));
+ await waitFor(()=>expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.connectors.test')).toBe(true));
+ const toggle=screen.getByRole('button',{name:'Activate or disable',exact:true});
+ expect(screen.getByRole('alert').textContent).toContain('Testing connection…');
+ expect(toggle.disabled).toBe(true);
+ for(const name of ['Test','Edit','Delete','Search','New connector','Refresh'])expect(screen.getByRole('button',{name,exact:true}).disabled).toBe(true);
+ await user.click(toggle);
+ expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.connectors.activate')).toBe(false);
+ await act(async()=>finishTest());
+ await waitFor(()=>expect(screen.getByRole('button',{name:'Activate or disable',exact:true}).disabled).toBe(false));
+ for(const name of ['Test','Edit','Delete','Search','New connector','Refresh'])expect(screen.getByRole('button',{name,exact:true}).disabled).toBe(false);
+ if(result==='success')expect(screen.getByRole('alert').textContent).toContain('Connection passed.');
+ else expect(screen.getByRole('alert').textContent).toContain('Connection unavailable.');
+ await user.click(screen.getByRole('button',{name:'Activate or disable',exact:true}));
+ await waitFor(()=>expect(screen.getByRole('button',{name:'Activate or disable',exact:true}).textContent).toContain('On'));
+ expect(api.fetchMCPDataSource.mock.calls.filter(([source])=>source.backend.method==='studio.sdk.connectors.activate')).toHaveLength(1);
 });
