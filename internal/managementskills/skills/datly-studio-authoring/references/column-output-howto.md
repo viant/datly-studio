@@ -25,6 +25,27 @@ Native verification exists in Datly v1's
 tests: tagged date, raw datetime and null output are checked independently.
 Verify the deployed revision and the actual endpoint as well as source syntax.
 
+## Declare date-only inputs separately
+
+An output column tag does not configure an input parameter. Keep the native time
+type and declare its admitted wire format on that input:
+
+```sql
+#define($_ = $From<time.Time>(form/from).Tag('format:"dateFormat=YYYY-MM-DD"').Required())
+#define($_ = $To<*time.Time>(form/to).Tag('format:"dateFormat=YYYY-MM-DD"').Optional())
+```
+
+This accepts date-only values while retaining typed time binding. Native MCP
+discovery advertises a string with `format: date`. Without that input declaration,
+the ordinary datetime decoder can require RFC3339; changing a consumer's date
+picker or adding a SQL cast does not repair the binding contract.
+
+Use the exact MCP argument name from discovery: the parameter's form/query alias
+is not necessarily its tool property name. Verify a real date-only invocation,
+required/omitted input behavior and any independent output tag. Datly v1's
+`mcp/tool/TestCompilerDiscoversFormattedDateWireSchemaWithoutChangingBindingSource`
+covers the typed binding and advertised wire schema.
+
 ## Gotchas
 
 - Typed component invocation is not itself JSON encoding. A wrapper that extracts
