@@ -476,9 +476,13 @@ window:
               title: Component-owned
               icon: application
               disabledWhen:
-                dataSourceRef: skill_state
-                selector: editing
-                equals: true
+                any:
+                  - dataSourceRef: skill_state
+                    selector: editing
+                    equals: true
+                  - dataSourceRef: skill_state
+                    selector: saving
+                    equals: true
               containers:
                 - id: component-skill-tools
                   dataSourceRef: skill_component_filter

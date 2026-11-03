@@ -9,11 +9,11 @@ let serial=0;
 const namespace={namespaceId:'a'.repeat(64),name:'sales',title:'Sales',canManage:true,mcpEnabled:false};
 const content='---\nname: sales-guide\ndescription: Query sales records.\n---\nUse sales tools.';
 const skill={skillId:'guide',name:'sales-guide',title:'Sales guide',description:'Query sales records.',latestRevision:1,publishedRevision:0,etag:1};
-function mount({items=[],scope=namespace,conflict=false,slots,failResources=false}={}) {
+function mount({items=[],scope=namespace,conflict=false,slots,failResources=false,namespaceListWait}={}) {
  const navigate=vi.fn(),dirty=vi.fn();
  const api={readManagementResource:async()=>managementResourceFixture('skills'),fetchMCPDataSource:vi.fn(async(source,input)=>{
   switch(source.backend.method){
-   case 'studio.sdk.namespace_skills.list':return {items};
+   case 'studio.sdk.namespace_skills.list':if(namespaceListWait)await namespaceListWait;return {items};
    case 'studio.sdk.namespace_skills.get':return {skill,revision:{revision:1,bundle:{title:'Sales guide',content,files:[{path:'binary.dat',content:'AAEC',isBinary:true}]}}};
    case 'studio.sdk.namespace_skills.create':return {skill,revision:{revision:1,bundle:{content}}};
    case 'studio.sdk.namespace_skills.update':if(conflict)throw Object.assign(new Error('expected revision changed'),{code:'conflict'});return {skill:{...skill,etag:2,latestRevision:2}};
@@ -72,4 +72,18 @@ test('metadata namespace skill history is a read-only saved revision',async()=>{
  const user=userEvent.setup(),{api}=mount({items:[skill]});await user.click(await screen.findByRole('button',{name:'Skill revision history',exact:true}));
  await user.click(await screen.findByRole('button',{name:'View skill revision',exact:true}));expect((await screen.findByRole('textbox',{name:'Revision content',exact:true})).textContent).toContain('Use sales tools.');
  expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.namespace_skills.update'||source.backend.method==='studio.sdk.namespace_skills.publish')).toBe(false);
+});
+
+test('component ownership waits for initial namespace loading before accepting tab changes',async()=>{
+ let finish;const namespaceListWait=new Promise(resolve=>{finish=resolve;});
+ const user=userEvent.setup(),{api}=mount({namespaceListWait});
+ const tab=await screen.findByRole('tab',{name:'Component-owned',exact:true});
+ expect(tab.getAttribute('aria-disabled')).toBe('true');
+ await user.click(tab);
+ expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.components.list')).toBe(false);
+ await act(async()=>finish());
+ await waitFor(()=>expect(tab.getAttribute('aria-disabled')).not.toBe('true'));
+ await user.click(tab);
+ await user.click(await screen.findByRole('button',{name:'Component',exact:true}));
+ expect(await screen.findByRole('menuitem',{name:'Example',exact:true})).toBeTruthy();
 });
