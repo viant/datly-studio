@@ -277,9 +277,9 @@ func discoveryDSN(driver, dsn string, scope discoveryScope) (string, error) {
 	if err != nil || parsed.Scheme != "bigquery" {
 		return "", fmt.Errorf("invalid BigQuery discovery connection")
 	}
-	if scope.Catalog != "" {
-		parsed.Host = scope.Catalog
-	}
+	// Catalog scopes the metadata query through scope.apply(session). The DSN
+	// host remains the configured job project, which may differ from the source
+	// catalog and have its own jobs.create permission and billing boundary.
 	if scope.Schema != "" {
 		parts := strings.Split(strings.Trim(parsed.Path, "/"), "/")
 		if len(parts) > 1 {

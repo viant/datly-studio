@@ -11,6 +11,7 @@ import (
 	"github.com/viant/datly-studio/internal/connectorsecret"
 	"github.com/viant/datly-studio/sdk"
 	_ "github.com/viant/sqlx/metadata/product/sqlite"
+	"github.com/viant/sqlx/metadata/sink"
 	_ "modernc.org/sqlite"
 )
 
@@ -89,9 +90,10 @@ func TestDiscoveryScopeSelectsAttachedSchemaForTablesAndColumns(t *testing.T) {
 	}
 }
 
-func TestBigQueryDiscoveryOverridesScopeWithoutChangingCredentials(t *testing.T) {
+func TestBigQueryDiscoveryPreservesJobProjectAndCredentials(t *testing.T) {
 	original := "bigquery://original-project/us/original_dataset?credURL=file%3A%2F%2F%2Fprivate.enc&quotaProject=billing-project"
-	got, err := discoveryDSN("bigquery", original, discoveryScope{Catalog: "other-project", Schema: "analytics"})
+	scope := discoveryScope{Catalog: "other-project", Schema: "analytics"}
+	got, err := discoveryDSN("bigquery", original, scope)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -99,8 +101,13 @@ func TestBigQueryDiscoveryOverridesScopeWithoutChangingCredentials(t *testing.T)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if parsed.Host != "other-project" || parsed.Path != "/us/analytics" || parsed.Query().Get("credURL") != "file:///private.enc" || parsed.Query().Get("quotaProject") != "billing-project" {
-		t.Fatal("scope override lost connection settings")
+	if parsed.Host != "original-project" || parsed.Path != "/us/analytics" || parsed.Query().Get("credURL") != "file:///private.enc" || parsed.Query().Get("quotaProject") != "billing-project" {
+		t.Fatal("metadata scope changed the job project or lost connection settings")
+	}
+	session := &sink.Session{Catalog: "original-project", Schema: "original_dataset"}
+	scope.apply(session)
+	if session.Catalog != "other-project" || session.Schema != "analytics" {
+		t.Fatal("metadata query must retain its selected source catalog and schema")
 	}
 	for _, name := range []string{"project` UNION SELECT", "project.schema", "schema;DROP TABLE x"} {
 		if _, err := resolveDiscoveryScope(&sdk.Connector{}, name, ""); err == nil {
