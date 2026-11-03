@@ -119,3 +119,34 @@ test('Explorer renders provider text without interpreting markup and retains saf
  await editSQL('SELECT 1');await user.click(screen.getByRole('button',{name:'Run SQL',exact:true}));
  const alert=await screen.findByRole('alert');expect(alert.textContent).toContain('<img src=x onerror=alert(1)>');expect(alert.querySelector('img')).toBeNull();expect(within(alert).queryByLabelText('Database error details')).toBeNull();
 });
+
+
+test('table inspection disables prior SQL tab subview action until current metadata is ready',async()=>{
+ const user=userEvent.setup(),{api}=mount();await screen.findByRole('textbox',{name:'SQL query',exact:true});
+ await user.click(screen.getByRole('button',{name:'Load schemas',exact:true}));await waitFor(()=>expect(screen.getByRole('button',{name:'Load schemas',exact:true}).disabled).toBe(false));
+ await user.click(screen.getByRole('button',{name:'Search tables',exact:true}));
+ await user.click((await screen.findAllByRole('button',{name:'Inspect table',exact:true}))[0]);await screen.findByRole('tab',{name:/orders/});
+ const prior=screen.getByRole('button',{name:'Add as subview',exact:true});expect(prior.disabled).toBe(false);
+ const original=api.fetchMCPDataSource.getMockImplementation();let finish;
+ api.fetchMCPDataSource.mockImplementation((source,input)=>{
+  if(source.backend.method==='studio.sdk.connectors.table'&&input.input.table==='customers')return new Promise(resolve=>{finish=resolve;});
+  if(source.backend.method==='studio.sdk.components.list')return Promise.resolve({items:[{id:'reader',title:'Reader',defaultConnectorName:'Bq'}]});
+  if(source.backend.method==='studio.sdk.versions.list')return Promise.resolve({items:[{versionNo:1}]});
+  if(source.backend.method==='studio.sdk.versions.inspect')return Promise.resolve({version:{versionNo:1,state:'draft',sourceRevision:1},capabilities:{canEdit:true},structure:{views:[{name:'orders'}]}});
+  return original(source,input);
+ });
+ await user.click(screen.getAllByRole('button',{name:'Inspect table',exact:true})[1]);await waitFor(()=>expect(finish).toBeTypeOf('function'));
+ expect(screen.getByRole('tab',{name:/orders/}).getAttribute('aria-selected')).toBe('true');
+ expect(prior.disabled).toBe(true);
+ // Root creation captures the existing tab and does not use the shared schema busy guard.
+ const root=screen.getByRole('button',{name:'Add as root view',exact:true});expect(root.disabled).toBe(false);
+ await user.click(root);const rootDialog=await screen.findByRole('dialog',{name:'Create component',exact:true});
+ expect(within(rootDialog).getByLabelText('Component title',{exact:true}).value).toBe('Orders');
+ await user.click(within(rootDialog).getByRole('button',{name:'Cancel',exact:true}));await waitFor(()=>expect(screen.queryByRole('dialog')).toBeNull());
+ await user.click(prior);expect(api.fetchMCPDataSource.mock.calls.some(([source])=>source.backend.method==='studio.sdk.components.list')).toBe(false);
+ await act(async()=>finish({table:{name:'customers',schema:'dataset'},columns:[{name:'id',type:'INTEGER'}]}));
+ await screen.findByRole('tab',{name:/customers/});await waitFor(()=>expect(screen.getByRole('button',{name:'Add as subview',exact:true}).disabled).toBe(false));
+ await user.click(screen.getByRole('button',{name:'Add as subview',exact:true}));
+ await screen.findByRole('dialog');await waitFor(()=>expect(screen.getByLabelText('Child view identifier',{exact:true}).value).toBe('customers'));
+ expect(api.fetchMCPDataSource.mock.calls.filter(([source])=>source.backend.method==='studio.sdk.components.list')).toHaveLength(1);
+});

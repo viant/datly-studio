@@ -105,14 +105,14 @@ export default function ExplorerWorkbench({getState,executeQuery,createComponent
     tabProps={{id,entries:tabs,selectedId:selected,onSelect:setSelected,onClose:close,canClose:tab=>tab.status!=='running',visibility:'always',ariaLabel:'SQL and table tabs',
      className:'studio-explorer-query-tabs',itemClassName:'studio-explorer-query-tab',tabClassName:'studio-explorer-query-tab-button',
      renderLabel:tab=><><span>{tab.label}</span>{' '}<span className="studio-explorer-tab-connector">{tab.connectorName}</span>{' '}{tab.kind==='execution'&&<span className={`studio-explorer-run-state is-${tab.status}`}>{tab.status==='complete'?'Done':tab.status==='failed'?'Failed':'Running'}</span>}</>}}
-    panelProps={{id,entries:tabs,selectedId:selected,className:'studio-explorer-query-panel',renderContent:tab=><QueryPanel tab={tab} update={changes=>update(tab.windowId,changes)}
+    panelProps={{id,entries:tabs,selectedId:selected,className:'studio-explorer-query-panel',renderContent:tab=><QueryPanel tab={tab} busy={scope.saving===true} update={changes=>update(tab.windowId,changes)}
      page={index=>page(tab,index)} resizePage={size=>loadPage(tab,0,0,size)} run={()=>run(tab)} create={()=>createComponent({...tab})} addSubview={tab.kind==='table'?()=>addSubview({...tab}):null}/>}}/>
    </div>
   }
  </section>;
 }
 
-function QueryPanel({tab,update,run,create,addSubview,page,resizePage}) {
+function QueryPanel({tab,busy,update,run,create,addSubview,page,resizePage}) {
  const timeoutID=useId(),pageSizeID=useId(),[details,setDetails]=useState(false),[showSQL,setShowSQL]=useState(false);
  const execution=tab.kind==='execution';
  return <>
@@ -132,7 +132,7 @@ function QueryPanel({tab,update,run,create,addSubview,page,resizePage}) {
    <span className="studio-explorer-timeout-help">0 = no Studio timeout</span>
    <Button icon="new-object" onClick={create} disabled={!tab.sql.trim()||tab.status==='running'}>Add as root view</Button>
    {!execution&&tab.detail&&<Button icon="properties" active={details} onClick={()=>setDetails(value=>!value)}>Columns</Button>}
-   {addSubview&&<Button icon="git-branch" onClick={addSubview}>Add as subview</Button>}
+   {addSubview&&<Button icon="git-branch" onClick={addSubview} disabled={busy}>Add as subview</Button>}
   </div>
   {execution&&tab.status==='complete'&&<nav className="studio-explorer-result-paging" aria-label="Result pagination">
    <Button icon="chevron-left" disabled={tab.loadingPage||tab.pageIndex===0} onClick={()=>page(tab.pageIndex-1)}>Previous</Button>
