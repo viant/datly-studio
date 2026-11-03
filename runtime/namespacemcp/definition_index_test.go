@@ -58,3 +58,19 @@ func TestReconciliationDoesNotReplaceNewerNamespaceMetadata(t *testing.T) {
 		t.Fatal("older read restored stale namespace permissions")
 	}
 }
+
+func TestDefinitionIndexNameLookupPreservesOwnerCandidates(t *testing.T) {
+	index := &DefinitionIndex{}
+	index.Replace([]Definition{{NamespaceID: "one", Name: "team", OwnerID: "first"}, {NamespaceID: "two", Name: "team", OwnerID: "second"}, {NamespaceID: "three", Name: "other", OwnerID: "first"}})
+	candidates := index.LookupName("team")
+	if len(candidates) != 2 || candidates[0].OwnerID != "first" || candidates[1].OwnerID != "second" {
+		t.Fatal("name lookup lost ambiguity candidates")
+	}
+	if len(index.LookupName("missing")) != 0 {
+		t.Fatal("unknown name returned a candidate")
+	}
+	index.Replace([]Definition{{NamespaceID: "one", Name: "renamed", OwnerID: "first"}})
+	if len(index.LookupName("team")) != 0 || len(index.LookupName("renamed")) != 1 {
+		t.Fatal("name index retained an old generation")
+	}
+}

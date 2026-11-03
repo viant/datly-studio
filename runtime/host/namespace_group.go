@@ -18,6 +18,7 @@ import (
 // catalog. Shared listeners route only through explicit namespace paths.
 type NamespaceGroup struct {
 	DB              *sql.DB
+	Definitions     *namespacemcp.DefinitionIndex
 	Listeners       *namespacemcp.Manager
 	reconciler      *namespacemcp.Reconciler
 	adminServer     *http.Server
@@ -62,7 +63,7 @@ func NewNamespaceGroup(ctx context.Context, config Config) (*NamespaceGroup, err
 		db.Close()
 		return nil, err
 	}
-	return &NamespaceGroup{DB: db, Listeners: manager, runtimePolicies: config.runtimePolicies, reconciler: &namespacemcp.Reconciler{Manager: manager, Definitions: definitions, Index: config.namespaceDefinitions}}, nil
+	return &NamespaceGroup{DB: db, Definitions: config.namespaceDefinitions, Listeners: manager, runtimePolicies: config.runtimePolicies, reconciler: &namespacemcp.Reconciler{Manager: manager, Definitions: definitions, Index: config.namespaceDefinitions}}, nil
 }
 func (g *NamespaceGroup) StartAdmin(address, token string) error {
 	if token == "" {
