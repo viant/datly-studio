@@ -19,11 +19,25 @@ func (s *Service) authorizeNamespace(ctx context.Context) error {
 	if s.config.NamespaceID == "" {
 		return nil
 	}
-	rows, err := (namespacemcp.SQLDefinitions{DB: s.studio}).LoadNamespace(ctx, s.config.NamespaceID)
-	if err != nil || len(rows) != 1 || rows[0].NamespaceID != s.config.NamespaceID || !rows[0].Active {
+	var row namespacemcp.Definition
+	var err error
+	if s.config.namespaceDefinitions != nil {
+		var found bool
+		row, found = s.config.namespaceDefinitions.Lookup(s.config.NamespaceID)
+		if !found {
+			return namespaceDenied()
+		}
+	} else {
+		// Standalone runtimes retain their existing storage-backed lifecycle.
+		rows, readErr := (namespacemcp.SQLDefinitions{DB: s.studio}).LoadNamespace(ctx, s.config.NamespaceID)
+		if readErr != nil || len(rows) != 1 {
+			return namespaceDenied()
+		}
+		row = rows[0]
+	}
+	if row.NamespaceID != s.config.NamespaceID || !row.Active {
 		return namespaceDenied()
 	}
-	row := rows[0]
 	policy := namespaceaccess.Policy{ID: row.NamespaceID, OwnerID: row.OwnerID, Visibility: row.Visibility, Roles: row.AllowedRoles}
 	if policy.CanView(authz.Facts{}, time.Now()) {
 		return nil

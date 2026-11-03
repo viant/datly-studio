@@ -21,6 +21,7 @@ type Change struct {
 type Reconciler struct {
 	Manager     *Manager
 	Definitions Definitions
+	Index       *DefinitionIndex
 	mu          sync.Mutex
 }
 
@@ -56,6 +57,18 @@ func (r *Reconciler) Apply(ctx context.Context) ([]Change, error) {
 		desired[definition.NamespaceID] = definition
 	}
 	r.Manager.mu.Lock()
+	// An operation committed after the database snapshot began owns the newer
+	// namespace state. Do not replace its metadata with that older snapshot.
+	currentSnapshot := true
+	for id, revision := range r.Manager.configurationRevisions {
+		if revisions[id] != revision {
+			currentSnapshot = false
+			break
+		}
+	}
+	if currentSnapshot && r.Index != nil {
+		r.Index.Replace(definitions)
+	}
 	current := map[string]int{}
 	for id, entry := range r.Manager.entries {
 		current[id] = entry.requestedPort

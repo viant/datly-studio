@@ -96,9 +96,10 @@ type NamespaceBuildResolver func(context.Context, string) (NamespaceBuildExtensi
 type NamespaceNativeBuildResolver func(context.Context, string, NativeComponentRuntime) (NamespaceBuildExtension, error)
 
 type Config struct {
-	runtimePolicies *predicatepolicy.RuntimePolicies
-	SourceValidator sourcevalidation.Validator `yaml:"-" json:"-"`
-	MCPToolNames    MCPToolNames               `yaml:"MCPToolNames"`
+	namespaceDefinitions *namespacemcp.DefinitionIndex
+	runtimePolicies      *predicatepolicy.RuntimePolicies
+	SourceValidator      sourcevalidation.Validator `yaml:"-" json:"-"`
+	MCPToolNames         MCPToolNames               `yaml:"MCPToolNames"`
 	// CodecFactory is a trusted embedding-host binding; it cannot be set by YAML or requests.
 	CodecFactory xcodec.Factory   `yaml:"-"`
 	Const        *constant.Values `yaml:"-"`
