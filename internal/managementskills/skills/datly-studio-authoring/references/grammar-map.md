@@ -8,6 +8,7 @@ These references explain the native contract; they do not define another parser.
 | Package, connector, route, input/output holders | [DQL reader shape](dql.md) |
 | Typed columns, nulls, aliases and output dates | [Column output how-to](column-output-howto.md) |
 | Dimensions, measures and reusable cube grain | [Cubes and dictionaries](cubes-and-dictionaries.md) |
+| Parameter-dependent grouping and aggregation order | [Parameterized grouping how-to](parameterized-grouping-howto.md) |
 | Cross-connector relations and lazy labels | [Complete cube example](worked-example.md) |
 | Create/edit/validate/release versions | [Workflow](workflow.md), [version-session how-to](version-session-howto.md) |
 | Producer schemas and dashboard handoff | [Report consumers](report-consumers.md) |

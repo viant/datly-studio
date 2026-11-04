@@ -69,6 +69,9 @@ Use outer `CAST(view.column AS GoType)` for an actual type override. SQL CAST
 inside the subquery remains database SQL. Use `tag`/format policy for deliberate
 JSON naming and visibility; do not replace all fields with redundant tags.
 Keep computed aliases explicit and discover their names/types from SQL results.
+For parameter-selected grouping expressions and distinguishing native query
+validation from literal-only checks, read the
+[parameterized grouping how-to](parameterized-grouping-howto.md).
 
 Use `use_connector(alias, 'configured_name')` on related views, `type` for their
 row/holder identity, and complete ON keys for relationships. A Datly outer join

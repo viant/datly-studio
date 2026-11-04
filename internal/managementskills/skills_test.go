@@ -16,12 +16,16 @@ func TestEmbeddedSkillPublishesThroughNativeResourcePlans(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(plans) != 12 {
+	if len(plans) != 13 {
 		t.Fatalf("resource count=%d", len(plans))
 	}
 	handoffPublished := false
 	resourceChecksPublished := false
+	groupingPublished := false
 	for _, plan := range plans {
+		if plan.URI() == "mcp://datastudio/skills/datly-studio-authoring/references/parameterized-grouping-howto.md" {
+			groupingPublished = true
+		}
 		if plan.URI() == "mcp://datastudio/skills/datly-studio-authoring/references/security-and-resource-checks.md" {
 			resourceChecksPublished = true
 		}
@@ -34,6 +38,9 @@ func TestEmbeddedSkillPublishesThroughNativeResourcePlans(t *testing.T) {
 	}
 	if !handoffPublished {
 		t.Fatal("report-consumer contract must be addressable through management MCP")
+	}
+	if !groupingPublished {
+		t.Fatal("parameterized grouping guide must be addressable through management MCP")
 	}
 	data, err := fs.ReadFile(source, "skills/datly-studio-authoring/SKILL.md")
 	if err != nil {
