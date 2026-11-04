@@ -2,8 +2,10 @@ package host
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -45,6 +47,28 @@ func (s *Service) initResourceAccess() error {
 	s.namespacePolicyReader = reader
 	s.resourceAccess = &access.Service{Store: &namespacepolicy.Store{Store: &accessstore.Store{DB: s.studio}, Namespace: reader.Namespace}, Provider: provider, Decisions: s.config.DecisionProvider}
 	return nil
+}
+
+// prepareResourcePolicyReader prepares the host-owned native policy runtime at
+// publication, using an exact published identity. Get compiles its shared
+// reader/writer/graph runtime once; the returned document is not retained.
+// Missing, malformed, or unavailable policy data remains the responsibility of
+// the ordinary request authorization path, so preparation adds no admission gate.
+func (s *Service) prepareResourcePolicyReader(ctx context.Context, resource access.Resource) {
+	if s.resourceAccess == nil {
+		return
+	}
+	inherited, ok := s.resourceAccess.Store.(*namespacepolicy.Store)
+	if !ok {
+		return
+	}
+	store, ok := inherited.Store.(*accessstore.Store)
+	if !ok {
+		return
+	}
+	if _, err := store.Get(ctx, resource); err != nil && !errors.Is(err, sql.ErrNoRows) {
+		slog.WarnContext(ctx, "Studio policy reader preparation failed", "error", err)
+	}
 }
 
 func (s *Service) authorizeResourcePolicy(ctx context.Context, r access.Resource, action string) error {

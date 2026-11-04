@@ -300,6 +300,12 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 	for _, definition := range definitions {
 		versionByReport[definition.reportID] = definition.versionNo
 	}
+	if s.config.Access != nil && len(definitions) > 0 {
+		phaseStarted = time.Now()
+		first := definitions[0]
+		s.prepareResourcePolicyReader(ctx, access.Resource{Kind: "component", ID: first.reportID, Version: strconv.Itoa(first.versionNo), Tenant: s.config.Access.Tenant})
+		compiledArtifactTiming(ctx, "namespace.policy.prepare", time.Since(phaseStarted), 0)
+	}
 	var pooled *runtimeConnectorSet
 	caches := &aerospike.Pool{}
 	defer func() {
