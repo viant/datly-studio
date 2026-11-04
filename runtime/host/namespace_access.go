@@ -20,10 +20,11 @@ func (s *Service) authorizeNamespace(ctx context.Context) error {
 		return nil
 	}
 	var row namespacemcp.Definition
+	var policy namespaceaccess.Policy
 	var err error
 	if s.config.namespaceDefinitions != nil {
 		var found bool
-		row, found = s.config.namespaceDefinitions.Lookup(s.config.NamespaceID)
+		row, policy, found = s.config.namespaceDefinitions.LookupAccess(s.config.NamespaceID)
 		if !found {
 			return namespaceDenied()
 		}
@@ -34,11 +35,11 @@ func (s *Service) authorizeNamespace(ctx context.Context) error {
 			return namespaceDenied()
 		}
 		row = rows[0]
+		policy = namespaceaccess.Policy{ID: row.NamespaceID, OwnerID: row.OwnerID, Visibility: row.Visibility, Roles: row.AllowedRoles}
 	}
 	if row.NamespaceID != s.config.NamespaceID || !row.Active {
 		return namespaceDenied()
 	}
-	policy := namespaceaccess.Policy{ID: row.NamespaceID, OwnerID: row.OwnerID, Visibility: row.Visibility, Roles: row.AllowedRoles}
 	if policy.CanView(authz.Facts{}, time.Now()) {
 		return nil
 	}

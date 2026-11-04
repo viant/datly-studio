@@ -25,6 +25,18 @@ type Policy struct {
 	OwnerID    string
 	Visibility string
 	Roles      []string
+	roleSet    map[string]struct{}
+}
+
+// Prepare indexes trusted namespace roles once when its metadata is published.
+func (p Policy) Prepare() Policy {
+	p.roleSet = make(map[string]struct{}, len(p.Roles))
+	for _, role := range p.Roles {
+		if role != "" && strings.TrimSpace(role) == role {
+			p.roleSet[role] = struct{}{}
+		}
+	}
+	return p
 }
 
 func (p Policy) CanView(facts authz.Facts, now time.Time) bool {
@@ -42,6 +54,14 @@ func (p Policy) CanView(facts authz.Facts, now time.Time) bool {
 	}
 	if facts.Subject == p.OwnerID {
 		return true
+	}
+	if p.roleSet != nil {
+		for _, role := range facts.Roles {
+			if _, ok := p.roleSet[role]; ok {
+				return true
+			}
+		}
+		return false
 	}
 	for _, required := range p.Roles {
 		if required == "" || strings.TrimSpace(required) != required {
