@@ -46,13 +46,7 @@ func NewNamespaceGroup(ctx context.Context, config Config) (*NamespaceGroup, err
 		return nil, err
 	}
 	definitions := namespacemcp.SQLDefinitions{DB: db}
-	rows, err := definitions.Load(ctx)
-	if err != nil {
-		db.Close()
-		return nil, err
-	}
 	config.namespaceDefinitions = &namespacemcp.DefinitionIndex{}
-	config.namespaceDefinitions.Replace(rows)
 	var manager *namespacemcp.Manager
 	if config.NamespaceMCPMode == "shared" {
 		manager, err = namespacemcp.NewShared(NamespaceFactory(config), config.MCP.Address)

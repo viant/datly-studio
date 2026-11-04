@@ -9,6 +9,7 @@ import (
 
 	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/runtimevalidation"
+	"github.com/viant/datly-studio/runtime/namespacemcp"
 	"github.com/viant/datly-studio/studio/namespaces/change"
 	"github.com/viant/datly-studio/studio/settings"
 	xresponse "github.com/viant/xdatly/response"
@@ -20,6 +21,13 @@ import (
 func (g *NamespaceGroup) NamespaceSettingsCommitted(ctx context.Context, identities []change.Identity) error {
 	if g == nil || g.runtimePolicies == nil || g.Listeners == nil {
 		return fmt.Errorf("namespace runtime is unavailable")
+	}
+	if g.Definitions != nil && len(identities) > 0 {
+		rows, err := (namespacemcp.SQLDefinitions{DB: g.DB}).Load(ctx)
+		if err != nil {
+			return fmt.Errorf("refresh committed namespace metadata: %w", err)
+		}
+		g.Definitions.Replace(rows)
 	}
 	var result error
 	seen := map[string]bool{}
