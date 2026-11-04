@@ -2,7 +2,7 @@ package host
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -16,6 +16,13 @@ import (
 // authorizeNamespace is independent of resource ACL and is re-evaluated for
 // discovery and execution. Namespace selection is deployment-owned here.
 func (s *Service) authorizeNamespace(ctx context.Context) error {
+	return s.authorizeNamespaceResource(ctx, authz.Resource{})
+}
+
+// authorizeNamespaceResource preserves namespace availability and isolation. Only
+// an exact producer-admitted component receipt can replace Studio viewer roles;
+// ordinary discovery and namespace access supply no resource receipt.
+func (s *Service) authorizeNamespaceResource(ctx context.Context, resource authz.Resource) error {
 	if s.config.NamespaceID == "" {
 		return nil
 	}
@@ -37,8 +44,12 @@ func (s *Service) authorizeNamespace(ctx context.Context) error {
 		row = rows[0]
 		policy = namespaceaccess.Policy{ID: row.NamespaceID, OwnerID: row.OwnerID, Visibility: row.Visibility, Roles: row.AllowedRoles}
 	}
-	if row.NamespaceID != s.config.NamespaceID || !row.Active {
+	if row.NamespaceID != s.config.NamespaceID || !row.Active || policy.ID != row.NamespaceID || policy.OwnerID == "" ||
+		(policy.Visibility != "" && policy.Visibility != namespaceaccess.Private && policy.Visibility != namespaceaccess.Public) {
 		return namespaceDenied()
+	}
+	if s.config.Access != nil && resource.Kind == "component" && resource.Tenant == s.config.Access.Tenant && admittedReleaseFor(ctx, resource) {
+		return nil
 	}
 	if policy.CanView(authz.Facts{}, time.Now()) {
 		return nil
@@ -66,5 +77,5 @@ func (s *Service) authorizeNamespace(ctx context.Context) error {
 	return nil
 }
 func namespaceDenied() error {
-	return &xresponse.Error{Code: http.StatusForbidden, Cause: errors.New("namespace access is required")}
+	return &xresponse.Error{Code: http.StatusForbidden, Cause: fmt.Errorf("namespace access is required: %w", authz.ErrDenied)}
 }

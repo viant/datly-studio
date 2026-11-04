@@ -63,6 +63,7 @@ type Controller struct {
 	active           ActiveSnapshot
 	activeGeneration uint64
 	activeByRoot     map[artifactcohort.RootRef][]ActiveSelection
+	activeComponents map[componentSourceKey][]artifactcohort.RootRef
 	activeResources  map[string][]ActiveRootSelection
 	activeRoots      []artifactcohort.RootRef
 }
@@ -896,6 +897,7 @@ func (c *Controller) setActive(manifest artifactcohort.Manifest, selections []Ac
 	}
 	c.active = ActiveSnapshot{ManifestHash: manifest.Hash, Selections: selections}
 	c.activeByRoot = byRoot
+	c.activeComponents = indexComponentRoots(selections)
 	c.activeResources = byResource
 	roots := make([]artifactcohort.RootRef, 0, len(byRoot))
 	for root := range byRoot {

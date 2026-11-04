@@ -65,10 +65,18 @@ func validateComponentReference(ref ComponentReference) error {
 // must authorize the returned pin before dispatch; no revision is inferred.
 func (s *Service) ResolveComponentBinding(ctx context.Context, ref ComponentReference) (windowprotocol.ComponentBinding, error) {
 	manager, binding, err := s.componentRuntime(ctx, ref)
+	if err != nil && errors.Is(err, authz.ErrDenied) && s.releaseController() != nil {
+		manager, binding, err = s.componentRuntimeWithAuthority(ctx, ref, false)
+		if err == nil {
+			err = s.authorizeReleasedComponentDescription(ctx, ref, binding)
+		}
+	}
+	if manager != nil {
+		defer manager.Shutdown(context.Background())
+	}
 	if err != nil {
 		return windowprotocol.ComponentBinding{}, err
 	}
-	defer manager.Shutdown(context.Background())
 	return binding, nil
 }
 
@@ -416,13 +424,13 @@ func (s *Service) componentRuntimeInspected(ctx context.Context, ref ComponentRe
 			build.Components = append(build.Components, contexts...)
 			previous := build.HTTP.Authorize
 			build.HTTP.Authorize = func(ctx context.Context, r *http.Request, target dexec.ComponentTarget) error {
-				if err := s.authorizeNamespace(ctx); err != nil {
-					return err
-				}
 				if s.config.Access == nil || s.resourceAccess == nil {
 					return authz.ErrDenied
 				}
 				resource := authz.Resource{Kind: "component", ID: ref.ID, Version: ref.Revision, Tenant: s.config.Access.Tenant}
+				if err := s.authorizeNamespaceResource(ctx, resource); err != nil {
+					return err
+				}
 				if err := s.authorizeComponentExecution(ctx, resource, binds[ref.ID]); err != nil {
 					if !admittedReleaseFor(ctx, resource) || !errors.Is(err, authz.ErrDenied) {
 						return err

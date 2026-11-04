@@ -589,10 +589,14 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 	}
 	registrations = append(registrations, accessContexts...)
 	authorizeTarget := func(ctx context.Context, target dexec.ComponentTarget) error {
-		if err := authorizer.authorizeNamespace(ctx); err != nil {
+		reportID := reportByComponent[target.Component]
+		var resource access.Resource
+		if s.config.Access != nil {
+			resource = access.Resource{Kind: "component", ID: reportID, Version: strconv.Itoa(versionByReport[reportID]), Tenant: s.config.Access.Tenant}
+		}
+		if err := authorizer.authorizeNamespaceResource(ctx, resource); err != nil {
 			return err
 		}
-		reportID := reportByComponent[target.Component]
 		if reportID == "" {
 			return &xresponse.Error{Code: http.StatusForbidden, Cause: errors.New("published component authorization is unavailable")}
 		}
@@ -604,7 +608,6 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 			return &xresponse.Error{Code: http.StatusForbidden, Cause: access.ErrDenied}
 		}
 		if s.config.Access != nil {
-			resource := access.Resource{Kind: "component", ID: reportID, Version: strconv.Itoa(versionByReport[reportID]), Tenant: s.config.Access.Tenant}
 			err := authorizer.authorizeComponentExecution(ctx, resource, bindsAccessContext[reportID])
 			if err != nil && admittedReleaseFor(ctx, resource) && errors.Is(err, access.ErrDenied) {
 				return nil
@@ -929,7 +932,7 @@ func (s *Service) Start(ctx context.Context) error {
 			defer close(s.releaseSyncDone)
 			_ = s.releaseSyncController.RunSync(workerCtx, interval, func(_ bool, err error) {
 				if err != nil && workerCtx.Err() == nil {
-					slog.Warn("release background reconciliation failed")
+					slog.Warn("release background reconciliation failed", "error", err)
 				}
 			})
 		}()

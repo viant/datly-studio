@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"maps"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -34,6 +35,10 @@ import (
 type releaseE2ESessionKey struct{}
 
 func TestNamedReleaseMCPWindowFreshRowsAndRollback(t *testing.T) {
+	testNamedReleaseMCPWindowFreshRowsAndRollback(t, false)
+}
+
+func testNamedReleaseMCPWindowFreshRowsAndRollback(t *testing.T, privateNamespace bool) {
 	f := newStockOAuthFixture(t)
 	ownerToken := f.token(t, f.private, "owner", []string{"publisher"}, time.Now().Add(time.Minute))
 	recipientToken := f.token(t, f.private, "recipient", []string{"release_reader"}, time.Now().Add(time.Minute))
@@ -45,6 +50,7 @@ func TestNamedReleaseMCPWindowFreshRowsAndRollback(t *testing.T) {
 	var first, second *artifactcohort.Artifact
 	var pin windowprotocol.ComponentBinding
 	var notifications atomic.Int32
+	var privateDependencies *privateReleaseDependencies
 	component := ComponentReference{Kind: "dynamic", ID: "records", Revision: "1", Method: http.MethodGet, Route: "/records"}
 	policyResource := authz.Resource{Tenant: "team", Kind: "policy", ID: "released-readers", Version: "logical"}
 	policyRef := authz.NamedReference{Resource: policyResource, Revision: 1}
@@ -52,8 +58,8 @@ func TestNamedReleaseMCPWindowFreshRowsAndRollback(t *testing.T) {
 		"describe": {Mode: "protected", Rule: &authz.Rule{Kind: "role", Value: "release_reader"}},
 		"execute":  {Mode: "protected", Rule: &authz.Rule{Kind: "role", Value: "release_reader"}},
 	}}}}}
-	var currentPolicyRevision atomic.Int64
-	currentPolicyRevision.Store(1)
+	var currentPolicy atomic.Pointer[authz.Document]
+	currentPolicy.Store(&policyDoc)
 	testDynamicHost(t, false, false, dynamicHostExtension{skipDefaultChecks: true, configure: func(config *Config) {
 		config.Access = &ResourceAccessConfig{Tenant: "team", Provider: f.provider}
 		config.Forge = &ForgeConfig{ProviderIdentity: "release-fixture", Windows: []ForgeWindow{{URI: "window://demo/home", DefinitionPath: "release-window.yaml", Components: map[string]ComponentReference{"records": component}}}, Policies: []authz.Document{{Resource: authz.Resource{Tenant: "team", Kind: "window", ID: "demo/home", Version: identity.WorkingCandidate}, Revision: 1, Policies: map[string]authz.Policy{"discover": {Mode: "protected", Rule: &authz.Rule{Kind: "role", Value: "publisher"}}, "describe": {Mode: "protected", Rule: &authz.Rule{Kind: "role", Value: "publisher"}}, "execute": {Mode: "protected", Rule: &authz.Rule{Kind: "role", Value: "publisher"}}}}}, Selections: []authz.SelectionDocument{{Resource: authz.ResourceFamily{Kind: "window", ID: "demo/home", Tenant: "team"}, Revision: 1, DefaultVersion: identity.WorkingCandidate}}}
@@ -74,6 +80,9 @@ func TestNamedReleaseMCPWindowFreshRowsAndRollback(t *testing.T) {
 		}
 	}, prepare: func(host *Service) {
 		ctx := context.Background()
+		if privateNamespace {
+			privateDependencies = configurePrivateReleaseNamespace(ctx, t, host)
+		}
 		manager, observed, err := host.componentRuntimeWithAuthority(ctx, component, false)
 		if err != nil {
 			t.Fatal(err)
@@ -96,7 +105,11 @@ func TestNamedReleaseMCPWindowFreshRowsAndRollback(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		host.resourceAccess.Store = store
+		if privateNamespace {
+			installPrivateReleaseSourcePolicy(ctx, t, host, ownerOnly)
+		} else {
+			host.resourceAccess.Store = store
+		}
 		scope := releasevalue.Scope{Tenant: "team", Account: "21", Workspace: "workspace", Namespace: "demo"}
 		sqlStore, err := datatest.NativeReleaseStore(t, host.studio, scope, "verified-publisher")
 		if err != nil {
@@ -198,10 +211,10 @@ func TestNamedReleaseMCPWindowFreshRowsAndRollback(t *testing.T) {
 				return result, nil
 			},
 			NamedDocuments: func(context.Context, []authz.NamedReference) ([]authz.Document, error) {
-				return []authz.Document{policyDoc}, nil
+				return []authz.Document{*currentPolicy.Load()}, nil
 			},
 			Fence: func(_ context.Context, deps []authz.NamedDependency) error {
-				if len(deps) != 1 || deps[0].Resource != policyResource || deps[0].Revision != currentPolicyRevision.Load() {
+				if len(deps) != 1 || deps[0].Resource != policyResource || deps[0].Revision != currentPolicy.Load().Revision {
 					return contract.ErrConflict
 				}
 				return nil
@@ -355,6 +368,9 @@ func TestNamedReleaseMCPWindowFreshRowsAndRollback(t *testing.T) {
 			t.Fatalf("released recipient fresh SQL: %s %v", rows, err)
 		}
 		visitorCtx := oauth.WithBearer(ctx, visitorToken)
+		if privateNamespace {
+			checkPrivateReleaseBoundaries(ctx, t, host, recipientCtx, visitorCtx, component, pin, privateDependencies)
+		}
 		if _, err = host.ExecuteComponentJSON(visitorCtx, component, pin, nil); err == nil {
 			t.Fatal("unassigned visitor executed released reader")
 		}
@@ -372,7 +388,7 @@ func TestNamedReleaseMCPWindowFreshRowsAndRollback(t *testing.T) {
 			}
 			return releasevalue.Scope{Tenant: "team", Account: "21", Workspace: "workspace", Namespace: "demo"}, nil
 		}, Provider: f.provider, NamedDocuments: func(context.Context, []authz.NamedReference) ([]authz.Document, error) {
-			return []authz.Document{policyDoc}, nil
+			return []authz.Document{*currentPolicy.Load()}, nil
 		}, FenceDependencies: func(context.Context, []authz.NamedDependency) error { return nil }, RootAvailable: rootAvailable, NativeConstraints: func(ctx context.Context, b releasevalue.ComponentBinding, _ string) error {
 			return host.defaultCreatorUsePolicy(ctx, authz.Resource{Tenant: "team", Kind: "component", ID: b.ComponentID, Version: b.ComponentRevision})
 		}}
@@ -432,11 +448,19 @@ func TestNamedReleaseMCPWindowFreshRowsAndRollback(t *testing.T) {
 		}
 		// The named definition changed through its owning policy store. The
 		// post-commit hook refreshes the SAME bundle with no manual Promote.
-		definition := policyDoc.Policies[authz.NamedDefinitionAction].Definition
+		// Native stores publish immutable documents. Model the same atomic
+		// revision/policy change while background reconciliation is active.
+		nextPolicy := policyDoc
+		nextPolicy.Policies = maps.Clone(policyDoc.Policies)
+		entry := nextPolicy.Policies[authz.NamedDefinitionAction]
+		definition := *entry.Definition
+		definition.Policies = maps.Clone(definition.Policies)
 		definition.Policies["describe"] = authz.Policy{Mode: "protected", Rule: &authz.Rule{Kind: "role", Value: "visitor"}}
 		definition.Policies["execute"] = authz.Policy{Mode: "protected", Rule: &authz.Rule{Kind: "role", Value: "visitor"}}
-		policyDoc.Revision = 2
-		currentPolicyRevision.Store(2)
+		entry.Definition = &definition
+		nextPolicy.Policies[authz.NamedDefinitionAction] = entry
+		nextPolicy.Revision = 2
+		currentPolicy.Store(&nextPolicy)
 		if err = controller.RefreshPolicies(ctx, policyResource); err != nil {
 			t.Fatalf("automatic named-policy projection: %v", err)
 		}

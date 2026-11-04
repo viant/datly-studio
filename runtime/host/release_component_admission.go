@@ -7,6 +7,7 @@ import (
 
 	"github.com/viant/authz"
 	sdkrelease "github.com/viant/datly-studio/sdk/artifactrelease"
+	releasevalue "github.com/viant/datly-studio/sdk/artifactrelease/value"
 	"github.com/viant/forge/backend/artifactcohort"
 	windowprotocol "github.com/viant/forge/backend/window/contract"
 )
@@ -48,7 +49,33 @@ func (s *Service) defaultCreatorUsePolicy(ctx context.Context, resource authz.Re
 		return err
 	}
 	policy, found := authz.PolicyForAction(doc.Policies, "execute")
-	if !found || policy.Mode != "protected" || policy.Rule == nil || policy.Rule.Kind != "subject" || policy.Rule.Value != capability.OwnerId || len(policy.Rule.Rules) > 0 || policy.Rule.Entity != nil || len(policy.RequiredScopes) > 0 || policy.EntityType != "" {
+	if !found || !plainCreatorPolicy(policy, capability.OwnerId) {
+		return authz.ErrDenied
+	}
+	return nil
+}
+
+func plainCreatorPolicy(policy authz.Policy, owner string) bool {
+	return policy.Mode == "protected" && policy.Rule != nil && policy.Rule.Kind == "subject" && policy.Rule.Value == owner && len(policy.Rule.Rules) == 0 && policy.Rule.Entity == nil && len(policy.RequiredScopes) == 0 && policy.EntityType == ""
+}
+
+// A producer-admitted release already joins describe and execute membership.
+// Missing source metadata actions add no Studio authoring requirement; present
+// restrictions may be delegated only when they are the same plain creator rule.
+func (s *Service) defaultCreatorDescriptionPolicy(ctx context.Context, resource authz.Resource) error {
+	capability, err := s.reportCapabilities.Read(ctx, resource.ID, "")
+	if err != nil {
+		return err
+	}
+	if capability.ComponentStatus != "active" {
+		return authz.ErrDenied
+	}
+	doc, err := s.resourceAccess.Store.Get(ctx, resource)
+	if err != nil {
+		return err
+	}
+	policy, found := authz.PolicyForAction(doc.Policies, "describe")
+	if found && !plainCreatorPolicy(policy, capability.OwnerId) {
 		return authz.ErrDenied
 	}
 	return nil
@@ -63,26 +90,42 @@ func (s *Service) admitReleasedComponent(ctx context.Context, ref ComponentRefer
 	if err := s.defaultCreatorUsePolicy(ctx, resource); err != nil {
 		return releaseComponentLease{}, err
 	}
-	snapshot, err := controller.ActiveSnapshot(ctx)
+	roots, manifest, err := controller.ComponentRoots(ctx, releasevalue.ComponentBinding{ComponentKind: ref.Kind, ComponentID: ref.ID, ComponentRevision: ref.Revision, Method: ref.Method, Route: ref.Route, SchemaFingerprint: pin.SchemaFingerprint, ContentFingerprint: pin.ContentFingerprint})
 	if err != nil {
 		return releaseComponentLease{}, err
 	}
-	for _, selection := range snapshot.Selections {
-		for _, binding := range selection.Bindings {
-			if binding.ComponentKind != ref.Kind || binding.ComponentID != ref.ID || binding.ComponentRevision != ref.Revision || binding.Method != ref.Method || binding.Route != ref.Route || binding.SchemaFingerprint != pin.SchemaFingerprint || binding.ContentFingerprint != pin.ContentFingerprint {
-				continue
-			}
-			hash, grantErr := controller.AdmitRoot(ctx, binding.Root)
-			if grantErr != nil {
-				continue
-			}
-			if hash != snapshot.ManifestHash {
-				return releaseComponentLease{}, authz.ErrDenied
-			}
-			return releaseComponentLease{Root: binding.Root, ManifestHash: hash, ComponentID: ref.ID, Revision: ref.Revision}, nil
+	for _, root := range roots {
+		hash, grantErr := controller.AdmitRoot(ctx, root)
+		if grantErr != nil {
+			continue
 		}
+		if hash != manifest {
+			return releaseComponentLease{}, authz.ErrDenied
+		}
+		return releaseComponentLease{Root: root, ManifestHash: hash, ComponentID: ref.ID, Revision: ref.Revision}, nil
 	}
 	return releaseComponentLease{}, authz.ErrDenied
+}
+
+func (s *Service) authorizeReleasedComponentDescription(ctx context.Context, ref ComponentReference, pin windowprotocol.ComponentBinding) error {
+	lease, err := s.admitReleasedComponent(ctx, ref, pin)
+	if err != nil {
+		return err
+	}
+	resource := authz.Resource{Kind: "component", ID: ref.ID, Version: ref.Revision, Tenant: s.config.Access.Tenant}
+	admitted := context.WithValue(ctx, releaseComponentContextKey{}, lease)
+	if err = s.authorizeNamespaceResource(admitted, resource); err != nil {
+		return err
+	}
+	if err = s.authorizeResourcePolicy(ctx, resource, "describe"); err != nil {
+		if !errors.Is(err, authz.ErrDenied) {
+			return err
+		}
+		if err = s.defaultCreatorDescriptionPolicy(ctx, resource); err != nil {
+			return err
+		}
+	}
+	return s.fenceReleasedComponent(admitted, lease)
 }
 
 func (s *Service) fenceReleasedComponent(ctx context.Context, lease releaseComponentLease) error {
@@ -91,6 +134,9 @@ func (s *Service) fenceReleasedComponent(ctx context.Context, lease releaseCompo
 		return authz.ErrDenied
 	}
 	resource := authz.Resource{Tenant: s.config.Access.Tenant, Kind: "component", ID: lease.ComponentID, Version: lease.Revision}
+	if err := s.authorizeNamespaceResource(ctx, resource); err != nil {
+		return err
+	}
 	if err := s.defaultCreatorUsePolicy(ctx, resource); err != nil {
 		return err
 	}
