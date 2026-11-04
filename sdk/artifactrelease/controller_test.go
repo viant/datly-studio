@@ -56,6 +56,7 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 	var candidateItems []contract.Candidate
 	verifiedScope := scope
 	rootAvailable := true
+	metadataChecks := 0
 	makeArtifacts := func(refs []artifactcohort.RootRef) []*artifactcohort.Artifact {
 		result := make([]*artifactcohort.Artifact, 0, len(refs))
 		for _, root := range refs {
@@ -102,6 +103,7 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 			return makeArtifacts(refs), nil
 		},
 		AvailableRoot: func(context.Context, artifactcohort.RootRef) error {
+			metadataChecks++
 			if !rootAvailable {
 				return artifactcohort.ErrDenied
 			}
@@ -112,6 +114,7 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 			return []authz.Document{doc}, nil
 		},
 		Fence: func(_ context.Context, deps []authz.NamedDependency) error {
+			metadataChecks++
 			for _, dep := range deps {
 				if dep.Revision != policyHeadRevision {
 					return contract.ErrConflict
@@ -215,6 +218,40 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 	if err != nil || len(firstSnapshot.Selections) != 1 || firstSnapshot.Selections[0].Bundle.Hash != first.Bundle.Hash {
 		t.Fatalf("active selection: %+v %v", firstSnapshot, err)
 	}
+	t.Run("serving snapshot never rechecks published metadata", func(t *testing.T) {
+		before := metadataChecks
+		selected, err := controller.ResourceSelections(ctx, root(1).URI)
+		if err != nil || len(selected) != 1 || selected[0].Root != root(1) {
+			t.Fatalf("exact resource lookup: %v %v", selected, err)
+		}
+		selected[0].Channel.Policies[0].Revision = 999
+		again, err := controller.ResourceSelections(ctx, root(1).URI)
+		if err != nil || again[0].Channel.Policies[0].Revision != 1 {
+			t.Fatalf("caller changed indexed audience: %v %v", again, err)
+		}
+		missing, err := controller.ResourceSelections(ctx, "window://demo/missing")
+		if err != nil || len(missing) != 0 {
+			t.Fatalf("missing resource lookup: %v %v", missing, err)
+		}
+		for i := 0; i < 10; i++ {
+			snapshot, err := controller.ActiveSnapshot(ctx)
+			if err != nil || len(snapshot.Selections) != 1 {
+				t.Fatalf("prepared snapshot: %v %v", snapshot, err)
+			}
+		}
+		detached, err := controller.ActiveSnapshot(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		detached.Selections[0].Bundle.Roots[0].URI = "window://demo/tampered"
+		unchanged, err := controller.ActiveSnapshot(ctx)
+		if err != nil || unchanged.Selections[0].Bundle.Roots[0] != root(1) {
+			t.Fatalf("caller mutated prepared state: %v %v", unchanged, err)
+		}
+		if metadataChecks != before {
+			t.Fatalf("serving performed %d root/policy storage checks; expected zero after publication", metadataChecks-before)
+		}
+	})
 	projected, err := publisher.Snapshot()
 	if err != nil || projected.Cohorts[0].Tenant != "issuer" || projected.Policies[0].Resource.Tenant != "issuer" || firstSnapshot.Selections[0].Channel.Key.Tenant != "storage" || firstSnapshot.Selections[0].Dependencies[0].Resource.Tenant != "storage" {
 		t.Fatalf("projection mutated storage authority: %+v %v", projected, err)
@@ -307,6 +344,9 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 		t.Fatalf("active list omitted selected bundle: %+v", listed.Channels[0])
 	}
 	policyHeadRevision = 2
+	if _, err = controller.SyncOnce(ctx); err != nil {
+		t.Fatal(err)
+	}
 	stale, err := controller.ActiveSnapshot(ctx)
 	if err != nil || len(stale.Selections) != 0 {
 		t.Fatalf("stale named policy head admitted: %+v %v", stale, err)
@@ -383,6 +423,9 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 		t.Fatalf("restart selection: %+v %v", got, err)
 	}
 	rootAvailable = false
+	if _, err = controller.SyncOnce(ctx); err != nil {
+		t.Fatal(err)
+	}
 	if denied, readErr := controller.ActiveSnapshot(ctx); readErr != nil || len(denied.Selections) != 0 {
 		t.Fatalf("archived root served locally: %+v %v", denied, readErr)
 	}
@@ -401,12 +444,12 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 	definition.Policies["describe"] = authz.Policy{Mode: "protected", Rule: &authz.Rule{Kind: "role", Value: "viewer"}}
 	definition.Policies["execute"] = authz.Policy{Mode: "protected", Rule: &authz.Rule{Kind: "role", Value: "viewer"}}
 	policyHeadRevision = 2
-	priorPrepared, priorRestored := prepared, restored
+	priorPrepared, priorRestored, priorNotifications := prepared, restored, notifications
 	if err = controller.RefreshPolicies(ctx, resource); err != nil {
 		t.Fatal(err)
 	}
 	updated, err := store.Channel(ctx, first.Channel.Key)
-	if err != nil || updated.Revision != 4 || updated.ActiveBundleHash != first.Bundle.Hash || prepared != priorPrepared || restored != priorRestored || notifications != 4 {
+	if err != nil || updated.Revision != 4 || updated.ActiveBundleHash != first.Bundle.Hash || prepared != priorPrepared || restored != priorRestored || notifications != priorNotifications+1 {
 		t.Fatalf("policy refresh rebuilt bytes or missed activation channel=%+v err=%v prepared=%d restored=%d notified=%d", updated, err, prepared, restored, notifications)
 	}
 	if _, err = controller.AdmitRoot(operator, root(1)); err == nil {
@@ -425,7 +468,7 @@ func TestControllerPublishesExactBundleAndRollsBackWithoutRecompiling(t *testing
 		t.Fatal("archived head was accepted")
 	}
 	withdrawn, err := controller.ActiveSnapshot(ctx)
-	if err != nil || len(withdrawn.Selections) != 0 || notifications != 5 {
+	if err != nil || len(withdrawn.Selections) != 0 || notifications != priorNotifications+2 {
 		t.Fatalf("invalid policy remained visible: %+v %v notified=%d", withdrawn, err, notifications)
 	}
 	if err = restarted.Recover(ctx); err != nil {

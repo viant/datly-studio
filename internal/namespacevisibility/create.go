@@ -38,11 +38,14 @@ func CanCreate(ctx context.Context, subject string) bool {
 	return false
 }
 
-// CanConfigure separates workspace settings from delegated content management.
-// When creation is restricted, the same verified roles govern settings.
+// CanConfigure honors the existing namespace owner/manager delegation.
+// Global creation restrictions govern creation, not a saved namespace grant.
 func CanConfigure(ctx context.Context, subject, owner string, encoded *string) bool {
+	if CanManage(ctx, subject, owner, encoded) {
+		return true
+	}
 	if os.Getenv("STUDIO_NAMESPACE_CREATE_ROLES") != "" || os.Getenv("STUDIO_NAMESPACE_ADMIN_ROLE") != "" {
 		return CanCreate(ctx, subject)
 	}
-	return CanManage(ctx, subject, owner, encoded)
+	return false
 }

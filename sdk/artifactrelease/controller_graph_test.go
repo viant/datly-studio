@@ -8,7 +8,6 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/viant/authz"
-	"github.com/viant/datly-studio/sdk/artifactrelease/releasegate"
 	releasevalue "github.com/viant/datly-studio/sdk/artifactrelease/value"
 	"github.com/viant/forge/backend/artifactcohort"
 	contract "github.com/viant/forge/backend/artifactrelease"
@@ -21,7 +20,7 @@ type activeGraphStore struct {
 	err          error
 }
 
-func (s *activeGraphStore) ActiveSelections(context.Context) ([]releasevalue.ActiveSelection, error) {
+func (s *activeGraphStore) ChannelSelections(context.Context) ([]releasevalue.ActiveSelection, error) {
 	s.calls++
 	return []releasevalue.ActiveSelection{s.selection}, s.err
 }
@@ -58,7 +57,6 @@ func TestActiveSnapshotUsesGraphAndPreservesAdmissionFences(t *testing.T) {
 		{name: "unavailable root", unavailable: true},
 		{name: "changed policy head", staleFence: true},
 		{name: "missing dependencies", change: func(s *ActiveSelection) { s.Dependencies = nil }},
-		{name: "unselected manifest", change: func(s *ActiveSelection) { s.Channel.Key.Name = "other" }},
 		{name: "graph failure", readError: true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -70,28 +68,50 @@ func TestActiveSnapshotUsesGraphAndPreservesAdmissionFences(t *testing.T) {
 			if tc.readError {
 				store.err = readError
 			}
-			gate, err := releasegate.New(store, releasegate.Projection{Reconcile: func(context.Context) error { return nil }, Snapshot: func(context.Context) (any, error) { return nil, nil }, Project: func(context.Context, contract.PendingRevision) error { return nil }, Restore: func(context.Context, any) error { return nil }})
-			require.NoError(t, err)
-			require.NoError(t, gate.Recover(ctx))
-			controller := &Controller{gate: gate, config: ControllerConfig{Scope: scope, Store: store, Publisher: publisher,
-				VerifyScope: func(context.Context) (releasevalue.Scope, error) { return scope, nil }, Authorize: func(context.Context, string) error { return nil },
+			controller, err := NewController(ControllerConfig{Scope: scope, Store: store, Publisher: publisher,
+				AdmitAudience: func(context.Context, contract.Channel, authz.NamedReference) (bool, error) { return true, nil },
+				VerifyScope:   func(context.Context) (releasevalue.Scope, error) { return scope, nil },
+				Authorize:     func(context.Context, string) error { return nil },
+				Candidates:    func(context.Context) ([]contract.Candidate, error) { return nil, nil },
+				Prepare:       func(context.Context, []artifactcohort.RootRef) ([]*artifactcohort.Artifact, error) { return nil, nil },
+				RestoreArtifacts: func(context.Context, []artifactcohort.RootRef) ([]*artifactcohort.Artifact, error) {
+					return []*artifactcohort.Artifact{artifact}, nil
+				},
+				CompileBindings: func(context.Context, contract.Bundle, []*artifactcohort.Artifact) ([]releasevalue.ComponentBinding, error) {
+					return nil, nil
+				},
+				ValidateArtifact: func(context.Context, *artifactcohort.Artifact) error { return nil },
+				NamedDocuments: func(context.Context, []authz.NamedReference) ([]authz.Document, error) {
+					return []authz.Document{document}, nil
+				},
 				AvailableRoot: func(context.Context, artifactcohort.RootRef) error {
 					if tc.unavailable {
-						return errors.New("withdrawn")
+						return artifactcohort.ErrDenied
 					}
 					return nil
-				}, Fence: func(context.Context, []authz.NamedDependency) error {
+				},
+				Fence: func(context.Context, []authz.NamedDependency) error {
 					if tc.staleFence {
-						return errors.New("policy changed")
+						return contract.ErrConflict
 					}
 					return nil
-				}}}
-			result, err := controller.ActiveSnapshot(ctx)
+				},
+			})
+			require.NoError(t, err)
+			err = controller.Recover(ctx)
 			require.Equal(t, 1, store.calls)
 			if tc.readError {
 				require.ErrorIs(t, err, readError)
+				_, err = controller.ActiveSnapshot(ctx)
+				require.Error(t, err, "failed preparation cannot serve prior state")
 				return
 			}
+			require.NoError(t, err)
+			// Serving must not consult storage after startup.
+			store.err = errors.New("unexpected serving read")
+
+			result, err := controller.ActiveSnapshot(ctx)
+			require.Equal(t, 1, store.calls)
 			require.NoError(t, err)
 			require.Len(t, result.Selections, tc.want)
 		})

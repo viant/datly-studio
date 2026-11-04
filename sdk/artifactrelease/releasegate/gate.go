@@ -25,6 +25,8 @@ type Projection struct {
 	Snapshot  func(context.Context) (any, error)
 	Project   func(context.Context, artifactrelease.PendingRevision) error
 	Restore   func(context.Context, any) error
+	// Updated refreshes derived serving metadata after a host-owned Publisher mutation.
+	Updated func() error
 }
 
 type Store interface {
@@ -71,7 +73,16 @@ func (g *Gate) Update(update func() error) error {
 	if !g.ready {
 		return ErrNotReady
 	}
-	return update()
+	if err := update(); err != nil {
+		return err
+	}
+	if g.projection.Updated != nil {
+		if err := g.projection.Updated(); err != nil {
+			g.ready = false
+			return err
+		}
+	}
+	return nil
 }
 
 // UpdateOrBlock serializes a fail-closed withdrawal. If the producer cannot
@@ -89,6 +100,12 @@ func (g *Gate) UpdateOrBlock(update func() error) error {
 	if err := update(); err != nil {
 		g.ready = false
 		return err
+	}
+	if g.projection.Updated != nil {
+		if err := g.projection.Updated(); err != nil {
+			g.ready = false
+			return err
+		}
 	}
 	return nil
 }

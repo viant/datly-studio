@@ -56,10 +56,15 @@ type ControllerConfig struct {
 }
 
 type Controller struct {
-	config          ControllerConfig
-	gate            *releasegate.Gate
-	syncMu          sync.Mutex
-	syncFingerprint string
+	config           ControllerConfig
+	gate             *releasegate.Gate
+	syncMu           sync.Mutex
+	syncFingerprint  string
+	active           ActiveSnapshot
+	activeGeneration uint64
+	activeByRoot     map[artifactcohort.RootRef][]ActiveSelection
+	activeResources  map[string][]ActiveRootSelection
+	activeRoots      []artifactcohort.RootRef
 }
 
 // ActiveSelection is an immutable committed release pointer. It is still not
@@ -81,32 +86,62 @@ func (c *Controller) ActiveSnapshot(ctx context.Context) (ActiveSnapshot, error)
 	}
 	var out ActiveSnapshot
 	err := c.gate.Read(func() error {
-		manifest, err := c.config.Publisher.Snapshot()
+		if c.activeGeneration != c.config.Publisher.Generation() {
+			return contract.ErrConflict
+		}
+		// Detach the public snapshot so callers cannot mutate publication state.
+		raw, err := json.Marshal(c.active)
 		if err != nil {
 			return err
 		}
-		selections, err := c.config.Store.ActiveSelections(ctx)
-		if err != nil {
-			return err
+		return json.Unmarshal(raw, &out)
+	})
+	return out, err
+}
+
+// ActiveRoots copies the prepared root inventory without rebuilding a map or
+// loading channel, policy, or artifact storage on the request path.
+func (c *Controller) ActiveRoots(ctx context.Context) ([]artifactcohort.RootRef, error) {
+	if err := c.check(ctx, c.config.Scope.Namespace, "use"); err != nil {
+		return nil, err
+	}
+	var roots []artifactcohort.RootRef
+	err := c.gate.Read(func() error {
+		if c.activeGeneration != c.config.Publisher.Generation() {
+			return contract.ErrConflict
 		}
-		out.ManifestHash = manifest.Hash
-		for _, selected := range selections {
-			if !manifestSelectsChannel(manifest, selected.Channel, selected.Bundle, c.projectionTenant()) {
-				continue
-			}
-			available := true
-			for _, root := range selected.Bundle.Roots {
-				if c.config.AvailableRoot(ctx, root) != nil {
-					available = false
-					break
-				}
-			}
-			if !available || len(selected.Dependencies) == 0 || c.config.Fence(ctx, selected.Dependencies) != nil {
-				continue
-			}
-			out.Selections = append(out.Selections, selected)
-		}
+		roots = append([]artifactcohort.RootRef(nil), c.activeRoots...)
 		return nil
+	})
+	return roots, err
+}
+
+// ActiveRootSelection is a publication-owned root and its channel audience.
+// It contains metadata only, never an authorization decision.
+type ActiveRootSelection struct {
+	Root    artifactcohort.RootRef
+	Channel contract.Channel
+}
+
+// ResourceSelections performs a keyed read of the prepared publication. It
+// does not scan bundles, read storage, or evaluate unrelated named policies.
+func (c *Controller) ResourceSelections(ctx context.Context, uri string) ([]ActiveRootSelection, error) {
+	if _, err := identity.ParseResourceURI(uri); err != nil {
+		return nil, contract.ErrInvalid
+	}
+	if err := c.check(ctx, c.config.Scope.Namespace, "use"); err != nil {
+		return nil, err
+	}
+	var out []ActiveRootSelection
+	err := c.gate.Read(func() error {
+		if c.activeGeneration != c.config.Publisher.Generation() {
+			return contract.ErrConflict
+		}
+		raw, err := json.Marshal(c.activeResources[uri])
+		if err != nil {
+			return err
+		}
+		return json.Unmarshal(raw, &out)
 	})
 	return out, err
 }
@@ -166,28 +201,30 @@ func (c *Controller) AdmitRoot(ctx context.Context, root artifactcohort.RootRef)
 	if c.config.AdmitAudience == nil {
 		return "", contract.ErrInvalid
 	}
-	snapshot, err := c.ActiveSnapshot(ctx)
+	if err := c.check(ctx, c.config.Scope.Namespace, "use"); err != nil {
+		return "", err
+	}
+	var selections []ActiveSelection
+	var hash string
+	err := c.gate.Read(func() error {
+		if c.activeGeneration != c.config.Publisher.Generation() {
+			return contract.ErrConflict
+		}
+		selections = c.activeByRoot[root]
+		hash = c.active.ManifestHash
+		return nil
+	})
 	if err != nil {
 		return "", err
 	}
-	for _, selection := range snapshot.Selections {
-		selected := false
-		for _, candidate := range selection.Bundle.Roots {
-			if candidate == root {
-				selected = true
-				break
-			}
-		}
-		if !selected {
-			continue
-		}
+	for _, selection := range selections {
 		for _, ref := range selection.Channel.Policies {
-			allowed, decisionErr := c.config.AdmitAudience(ctx, selection.Channel, ref)
-			if decisionErr != nil {
-				return "", decisionErr
+			allowed, err := c.config.AdmitAudience(ctx, selection.Channel, ref)
+			if err != nil {
+				return "", err
 			}
 			if allowed {
-				return snapshot.ManifestHash, nil
+				return hash, nil
 			}
 		}
 	}
@@ -218,7 +255,7 @@ func NewController(config ControllerConfig) (*Controller, error) {
 		return nil, contract.ErrInvalid
 	}
 	c := &Controller{config: config}
-	gate, err := releasegate.New(config.Store, releasegate.Projection{Reconcile: c.reconcile, Snapshot: c.snapshot, Project: c.project, Restore: c.restore})
+	gate, err := releasegate.New(config.Store, releasegate.Projection{Reconcile: c.reconcile, Snapshot: c.snapshot, Project: c.project, Restore: c.restore, Updated: c.refreshProjectedSelections})
 	if err != nil {
 		return nil, err
 	}
@@ -417,7 +454,16 @@ func (c *Controller) withdrawDerived(ctx context.Context, key contract.Key) erro
 			return err
 		}
 		_, err = c.config.Publisher.ReplaceCatalog(ctx, policies, cohorts, manifest.Generation)
-		return err
+		if err != nil {
+			return err
+		}
+		remaining := make([]ActiveSelection, 0, len(c.active.Selections))
+		for _, selection := range c.active.Selections {
+			if selection.Channel.Key != key {
+				remaining = append(remaining, selection)
+			}
+		}
+		return c.installActive(remaining)
 	})
 }
 
@@ -685,9 +731,18 @@ func (c *Controller) key(name string) contract.Key {
 	return contract.Key{Tenant: s.Tenant, Account: s.Account, Workspace: s.Workspace, Namespace: s.Namespace, Name: name}
 }
 
-func (c *Controller) snapshot(context.Context) (any, error) { return c.config.Publisher.Snapshot() }
+type controllerProjection struct {
+	Manifest artifactcohort.Manifest
+	Active   ActiveSnapshot
+}
+
+func (c *Controller) snapshot(context.Context) (any, error) {
+	manifest, err := c.config.Publisher.Snapshot()
+	return controllerProjection{Manifest: manifest, Active: c.active}, err
+}
 func (c *Controller) restore(ctx context.Context, prior any) error {
-	manifest, ok := prior.(artifactcohort.Manifest)
+	priorState, ok := prior.(controllerProjection)
+	manifest := priorState.Manifest
 	if !ok {
 		return contract.ErrInvalid
 	}
@@ -695,7 +750,10 @@ func (c *Controller) restore(ctx context.Context, prior any) error {
 	if err != nil {
 		return err
 	}
-	_, err = c.config.Publisher.ReplaceCatalog(ctx, manifest.Policies, manifest.Cohorts, current.Generation)
+	restored, err := c.config.Publisher.ReplaceCatalog(ctx, manifest.Policies, manifest.Cohorts, current.Generation)
+	if err == nil {
+		c.setActive(restored, priorState.Active.Selections)
+	}
 	return err
 }
 func (c *Controller) compile(ctx context.Context, channel contract.Channel, bundle contract.Bundle) (contract.Compilation, error) {
@@ -762,7 +820,8 @@ func (c *Controller) project(ctx context.Context, item contract.PendingRevision)
 	if err != nil {
 		return err
 	}
-	if _, err = c.config.Store.BundleBindings(ctx, bundle); err != nil {
+	bindings, err := c.config.Store.BundleBindings(ctx, bundle)
+	if err != nil {
 		return err
 	}
 	if err = c.retainRoots(ctx, bundle.Roots); err != nil {
@@ -787,7 +846,66 @@ func (c *Controller) project(ctx context.Context, item contract.PendingRevision)
 	if _, err = c.config.Publisher.ReplaceCatalog(ctx, policies, cohorts, manifest.Generation); err != nil {
 		return err
 	}
-	return c.config.Fence(ctx, compiled.Dependencies)
+	if err = c.config.Fence(ctx, compiled.Dependencies); err != nil {
+		return err
+	}
+	next := make([]ActiveSelection, 0, len(c.active.Selections)+1)
+	for _, selected := range c.active.Selections {
+		if selected.Channel.Key != item.Next.Key {
+			next = append(next, selected)
+		}
+	}
+	next = append(next, ActiveSelection{Channel: item.Next, Bundle: bundle, Bindings: bindings, Dependencies: compiled.Dependencies})
+	return c.installActive(next)
+}
+
+// Called under the existing publication gate, never from a serving lookup.
+func (c *Controller) refreshProjectedSelections() error {
+	manifest, err := c.config.Publisher.Snapshot()
+	if err != nil {
+		return err
+	}
+	next := make([]ActiveSelection, 0, len(c.active.Selections))
+	for _, selection := range c.active.Selections {
+		if manifestSelectsChannel(manifest, selection.Channel, selection.Bundle, c.projectionTenant()) {
+			next = append(next, selection)
+		}
+	}
+	c.setActive(manifest, next)
+	return nil
+}
+
+func (c *Controller) installActive(selections []ActiveSelection) error {
+	manifest, err := c.config.Publisher.Snapshot()
+	if err != nil {
+		return err
+	}
+	c.setActive(manifest, selections)
+	return nil
+}
+
+// Construct the exact-root index only under the publication gate.
+func (c *Controller) setActive(manifest artifactcohort.Manifest, selections []ActiveSelection) {
+	byRoot := make(map[artifactcohort.RootRef][]ActiveSelection)
+	byResource := make(map[string][]ActiveRootSelection)
+	for _, selected := range selections {
+		for _, root := range selected.Bundle.Roots {
+			byRoot[root] = append(byRoot[root], selected)
+			byResource[root.URI] = append(byResource[root.URI], ActiveRootSelection{Root: root, Channel: selected.Channel})
+		}
+	}
+	c.active = ActiveSnapshot{ManifestHash: manifest.Hash, Selections: selections}
+	c.activeByRoot = byRoot
+	c.activeResources = byResource
+	roots := make([]artifactcohort.RootRef, 0, len(byRoot))
+	for root := range byRoot {
+		roots = append(roots, root)
+	}
+	sort.Slice(roots, func(i, j int) bool {
+		return roots[i].URI < roots[j].URI || roots[i].URI == roots[j].URI && roots[i].Version < roots[j].Version
+	})
+	c.activeRoots = roots
+	c.activeGeneration = manifest.Generation
 }
 func (c *Controller) reconcile(ctx context.Context) error {
 	selections, err := c.config.Store.ChannelSelections(ctx)
@@ -798,6 +916,7 @@ func (c *Controller) reconcile(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	var active []ActiveSelection
 	for _, selected := range selections {
 		channel := selected.Channel
 		compiled := contract.Compilation{}
@@ -836,10 +955,13 @@ func (c *Controller) reconcile(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
+		if len(compiled.Cohorts) > 0 {
+			active = append(active, selected)
+		}
 		manifest.Hash = ""
 	}
 	if len(selections) == 0 {
-		return nil
+		return c.installActive(nil)
 	}
 	current, err := c.config.Publisher.Snapshot()
 	if err != nil {
@@ -865,10 +987,13 @@ func (c *Controller) reconcile(ctx context.Context) error {
 	samePolicies := len(current.Policies) == 0 && len(manifest.Policies) == 0 || reflect.DeepEqual(current.Policies, manifest.Policies)
 	sameCohorts := len(currentCohorts) == 0 && len(manifest.Cohorts) == 0 || reflect.DeepEqual(currentCohorts, manifest.Cohorts)
 	if samePolicies && sameCohorts {
-		return nil
+		return c.installActive(active)
 	}
 	_, err = c.config.Publisher.ReplaceCatalog(ctx, manifest.Policies, manifest.Cohorts, current.Generation)
-	return err
+	if err != nil {
+		return err
+	}
+	return c.installActive(active)
 }
 
 func validateRootPartition(ref artifactcohort.RootRef, namespace string) error {
