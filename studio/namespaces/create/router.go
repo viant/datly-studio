@@ -12,9 +12,11 @@ func init() {}
 
 var _anchorNamespaceComponent = reflect.TypeFor[NamespaceComponent]()
 
+var _anchorNamespaceCreateRules_NamespaceComponent = reflect.TypeFor[NamespaceCreateRules]()
+
 // Component is the generated component scaffold for namespace.
 type NamespaceComponent struct {
-	Contract xdatly.Component[NamespaceCreateInput, NamespaceCreateOutput] "component:\"namespace,path=/v1/studio/sdk/namespaces.create,method=POST,connector=studio,view=namespace\" routeName:\"namespace\" mcp:\"[{\\\"kind\\\":\\\"tool\\\",\\\"name\\\":\\\"studio.sdk.namespaces.create\\\",\\\"description\\\":\\\"Create a Datly Studio namespace for the verified owner\\\"}]\" mutation:\"post\" caseFormat:\"lc\""
+	Contract xdatly.Component[NamespaceCreateInput, NamespaceCreateOutput] `caseFormat:"lc" component:"namespace,path=/v1/studio/sdk/namespaces.create,method=POST,connector=studio,view=namespace" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.namespaces.create\",\"description\":\"Create a Datly Studio namespace for the verified owner\"}]" mutation:"post" routeName:"namespace"`
 }
 
 // NamespaceDatlyType returns the public component type.

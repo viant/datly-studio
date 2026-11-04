@@ -17,7 +17,8 @@
 #define($_ = $Data<*NamespaceRecord>(body/).Output().Embed())
 
 SELECT namespace.*, type(namespace, 'NamespaceRecord'),
-       CAST(namespace.namespace_id AS string), CAST(namespace.visibility AS string),
+       lifecycle_type(namespace, 'NamespaceCreateRules'),
+       CAST(namespace.namespace_id AS string), CAST(namespace.visibility AS string), tag(namespace.visibility, 'json:"visibility,omitempty"'),
        CAST(namespace.allowed_roles_json AS *string), CAST(namespace.mcp_enabled AS bool), CAST(namespace.mcp_port AS *int),
        tag(namespace.allowed_roles_json, 'sqlx:"allowed_roles_json" json:"-"'),
        tag(namespace.namespace_id, 'json:"namespaceId" mcp:"-"'), tag(namespace.mcp_enabled, 'json:"mcpEnabled,omitempty"'), tag(namespace.mcp_port, 'json:"mcpPort,omitempty"'),

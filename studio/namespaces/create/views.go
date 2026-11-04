@@ -8,15 +8,15 @@ import (
 
 // NamespaceRecord is generated canonical view metadata for namespace.
 type NamespaceRecord struct {
-	AllowedRoles     []string            `sqlx:"-" json:"allowedRoles,omitempty"`
-	ManagerRoles     []string            `sqlx:"-" json:"managerRoles,omitempty"`
+	AllowedRoles     []string            `json:"allowedRoles,omitempty" sqlx:"-"`
+	ManagerRoles     []string            `json:"managerRoles,omitempty" sqlx:"-"`
 	NamespaceId      string              `json:"namespaceId" mcp:"-" sqlx:"namespace_id,required=true"`
-	Visibility       string              `sqlx:"visibility,required=true" json:"visibility,omitempty"`
-	AllowedRolesJson *string             `sqlx:"allowed_roles_json" json:"-"`
+	Visibility       string              `json:"visibility,omitempty" sqlx:"visibility,required=true"`
+	AllowedRolesJson *string             `json:"-" sqlx:"allowed_roles_json"`
 	McpEnabled       bool                `json:"mcpEnabled,omitempty" sqlx:"mcp_enabled,required=true"`
 	McpPort          *int                `json:"mcpPort,omitempty" sqlx:"mcp_port"`
-	OwnerId          string              `sqlx:"owner_id,primaryKey,required=true" json:"ownerId,omitempty" mcp:"-"`
-	Name             string              `sqlx:"name,primaryKey,required=true" json:"name"`
+	OwnerId          string              `json:"ownerId,omitempty" mcp:"-" sqlx:"owner_id,primaryKey,required=true"`
+	Name             string              `json:"name" sqlx:"name,primaryKey,required=true"`
 	Title            string              `json:"title" sqlx:"title,required=true"`
 	Description      *string             `json:"description,omitempty" sqlx:"description"`
 	Status           string              `json:"-" sqlx:"status,required=true"`
@@ -24,7 +24,7 @@ type NamespaceRecord struct {
 	CreatedAt        *time.Time          `json:"-" sqlx:"created_at,required=true"`
 	UpdatedAt        *time.Time          `json:"-" sqlx:"updated_at,required=true"`
 	DeletedAt        *time.Time          `json:"-" sqlx:"deleted_at"`
-	Has              *NamespaceRecordHas `setMarker:"true" format:"-" sqlx:"-" diff:"-" json:"-" typeName:"NamespaceRecordHas"`
+	Has              *NamespaceRecordHas `diff:"-" format:"-" json:"-" setMarker:"true" sqlx:"-" typeName:"NamespaceRecordHas"`
 }
 
 type NamespaceRecordHas struct {
