@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
+	"database/sql"
 	"encoding/json"
 	"encoding/pem"
 	"io"
@@ -26,6 +27,7 @@ import (
 	"github.com/viant/datly-studio/app/studioapi"
 	"github.com/viant/datly-studio/app/studiohost"
 	runtimehost "github.com/viant/datly-studio/runtime/host"
+	"github.com/viant/datly-studio/schema"
 )
 
 func TestInitialNamespaceRestoreIsolation(t *testing.T) {
@@ -46,6 +48,11 @@ func TestInitialNamespaceRestoreIsolation(t *testing.T) {
 	public, err := x509.MarshalPKIXPublicKey(&key.PublicKey)
 	require.NoError(t, err)
 	root := t.TempDir()
+	fixtureDB, err := sql.Open("sqlite", filepath.Join(root, "studio.db"))
+	require.NoError(t, err)
+	// Schema provisioning belongs to this disposable fixture, not host startup.
+	require.NoError(t, schema.ApplySQLite(context.Background(), fixtureDB, "studio"))
+	require.NoError(t, fixtureDB.Close())
 	publicPath := filepath.Join(root, "public.pem")
 	require.NoError(t, os.WriteFile(publicPath, pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: public}), 0600))
 	doc := map[string]any{"BaseDir": root, "Endpoint": map[string]any{"Address": "127.0.0.1:0"}, "MCP": map[string]any{"Address": "127.0.0.1:0"}, "NamespaceMCP": map[string]any{"Address": "127.0.0.1:0"}, "Store": map[string]any{"Driver": "sqlite", "DSN": filepath.Join(root, "studio.db")}, "Tenant": "studio", "JWTValidator": map[string]any{"RSA": []any{map[string]any{"URL": publicPath}}}}
