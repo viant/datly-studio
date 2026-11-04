@@ -18,28 +18,24 @@ func AudienceEvaluator(publisher *artifactcohort.Publisher, provider authz.Provi
 		if ctx == nil || ctx.Err() != nil || publisher == nil || provider == nil {
 			return false, contract.ErrInvalid
 		}
-		manifest, err := publisher.Snapshot()
+		name := contract.ReleaseCohortName(channel.Key, reference)
+		policies, store, err := publisher.CohortPolicies(name)
 		if err != nil {
 			return false, err
 		}
-		name := contract.ReleaseCohortName(channel.Key, reference)
 		var resource authz.Resource
 		found := false
-		for _, cohort := range manifest.Cohorts {
-			if cohort.Name == name && cohort.PolicyResource.Kind == "cohort" && cohort.PolicyResource.ID == name && cohort.PolicyResource.Version == "logical" && cohort.Tenant == cohort.PolicyResource.Tenant {
+		for _, policy := range policies {
+			if policy.Kind == "cohort" && policy.ID == name && policy.Version == "logical" {
 				if found {
 					return false, contract.ErrInvalid
 				}
-				resource = cohort.PolicyResource
+				resource = policy
 				found = true
 			}
 		}
 		if !found {
 			return false, nil
-		}
-		store, err := authz.NewStaticStore(manifest.Policies)
-		if err != nil {
-			return false, err
 		}
 		service := &authz.Service{Store: store, Provider: provider, Decisions: decisions}
 		decision, _, revision, err := service.AuthorizeWithStatus(ctx, authz.Request{Resource: resource, Action: artifactcohort.PolicyAction})
