@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -17,6 +18,7 @@ import (
 	runtimehost "github.com/viant/datly-studio/runtime/host"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
+	"github.com/viant/datly-studio/studio/predicatecatalog"
 	"github.com/viant/datly-studio/studio/predicatecatalog/testdata/extension"
 	mcpschema "github.com/viant/mcp-protocol/schema"
 )
@@ -43,6 +45,8 @@ INSERT INTO connectors(name,driver,dsn_template,owner_id,status,etag,created_at,
 			_, err = db.ExecContext(ctx, `INSERT INTO namespaces(namespace_id,name,title,owner_id,status,visibility,mcp_enabled,etag,created_at,updated_at) VALUES(?,'test','Test','owner','active','public',1,1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
 INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES('records','test','records','Records','owner','active','source','github.com/viant/datly-studio/dynamic/records','reader',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);`, id)
 			require.NoError(t, err)
+			_, err = db.ExecContext(ctx, `INSERT INTO namespace_settings(owner_id,namespace,setting_key,value_json,updated_at,updated_by) VALUES('owner','test','security','{"predicatePackages":["github.com/viant/datly-studio/studio/predicatecatalog/testdata/extension"]}',CURRENT_TIMESTAMP,'fixture')`)
+			require.NoError(t, err)
 			current := `#package('github.com/viant/datly-studio/dynamic/records')
 #import('extension','github.com/viant/datly-studio/studio/predicatecatalog/testdata/extension')
 #setting($_ = $connector('source'))
@@ -68,6 +72,7 @@ SELECT records.*,type(records,'Record') FROM (SELECT t.id,t.project_id,t.name FR
 			root, err := filepath.Abs("../..")
 			require.NoError(t, err)
 			config := runtimehost.Config{InProcess: true, RootDir: root, NamespaceMCPMode: mode, HTTP: runtimehost.Listener{Address: "127.0.0.1:0"}, MCP: runtimehost.Listener{Address: "127.0.0.1:0"}, Authentication: runtimehost.Authentication{DefaultMode: "public"}, Studio: runtimehost.Studio{Driver: "sqlite", DSN: dsn}}
+			config.PredicatePackages = []predicatecatalog.Package{{Path: "github.com/viant/datly-studio/studio/predicatecatalog/testdata/extension", Types: []reflect.Type{reflect.TypeFor[extension.ReaderScope]()}}}
 			group, err := runtimehost.NewNamespaceGroup(ctx, config)
 			require.NoError(t, err)
 			defer group.Close(ctx)

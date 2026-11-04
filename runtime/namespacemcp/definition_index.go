@@ -73,3 +73,40 @@ func (i *DefinitionIndex) LookupAccess(id string) (Definition, namespaceaccess.P
 	i.mu.RUnlock()
 	return row, policy, ok
 }
+
+// Update refreshes one namespace after its control-plane storage read. Other
+// namespaces remain untouched; request paths never call this method.
+func (i *DefinitionIndex) Update(row Definition) {
+	row.AllowedRoles = append([]string(nil), row.AllowedRoles...)
+	policy := (namespaceaccess.Policy{ID: row.NamespaceID, OwnerID: row.OwnerID, Visibility: row.Visibility, Roles: row.AllowedRoles}).Prepare()
+	i.mu.Lock()
+	defer i.mu.Unlock()
+	if i.byID == nil {
+		i.byID = map[string]Definition{}
+		i.byName = map[string][]Definition{}
+		i.policies = map[string]namespaceaccess.Policy{}
+	}
+	previous, existed := i.byID[row.NamespaceID]
+	if existed {
+		values := i.byName[previous.Name]
+		kept := make([]Definition, 0, len(values))
+		for _, value := range values {
+			if value.NamespaceID != row.NamespaceID {
+				kept = append(kept, value)
+			}
+		}
+		if len(kept) == 0 {
+			delete(i.byName, previous.Name)
+		} else {
+			i.byName[previous.Name] = kept
+		}
+	}
+	i.byID[row.NamespaceID] = row
+	i.policies[row.NamespaceID] = policy
+	i.byName[row.Name] = append(append([]Definition(nil), i.byName[row.Name]...), row)
+	rows := make([]Definition, 0, len(i.byID))
+	for _, value := range i.byID {
+		rows = append(rows, value)
+	}
+	i.rows = rows
+}

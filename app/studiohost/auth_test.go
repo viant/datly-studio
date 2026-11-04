@@ -26,6 +26,7 @@ import (
 	"github.com/viant/datly-studio/app/hostconfig"
 	"github.com/viant/datly-studio/app/studioapi"
 	"github.com/viant/datly-studio/app/studiohost"
+	"github.com/viant/datly-studio/schema"
 	mcpschema "github.com/viant/mcp-protocol/schema"
 	mcpcfg "github.com/viant/mcp/client/config"
 )
@@ -41,6 +42,10 @@ func TestUppercaseAuthHostWithoutJWTClaims(t *testing.T) {
 	key, err := rsa.GenerateKey(rand.Reader, 2048)
 	require.NoError(t, err)
 	root := t.TempDir()
+	fixtureDB, err := sql.Open("sqlite", filepath.Join(root, "studio.db"))
+	require.NoError(t, err)
+	require.NoError(t, schema.ApplySQLite(context.Background(), fixtureDB, "studio"))
+	require.NoError(t, fixtureDB.Close())
 	public, err := x509.MarshalPKIXPublicKey(&key.PublicKey)
 	require.NoError(t, err)
 	publicPath := filepath.Join(root, "public.pem")

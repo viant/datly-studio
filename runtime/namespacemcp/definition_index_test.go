@@ -74,3 +74,15 @@ func TestDefinitionIndexNameLookupPreservesOwnerCandidates(t *testing.T) {
 		t.Fatal("name index retained an old generation")
 	}
 }
+
+func TestDefinitionIndexUpdatePreservesOtherNamespacesAndReplacesName(t *testing.T) {
+	index := &DefinitionIndex{}
+	index.Replace([]Definition{{NamespaceID: "one", Name: "old"}, {NamespaceID: "two", Name: "other"}})
+	index.Update(Definition{NamespaceID: "one", Name: "new", Active: true})
+	if len(index.LookupName("old")) != 0 || len(index.LookupName("new")) != 1 || len(index.LookupName("other")) != 1 {
+		t.Fatal("single namespace update changed unrelated metadata or retained old name")
+	}
+	if row, _, ok := index.LookupAccess("one"); !ok || !row.Active {
+		t.Fatal("updated access metadata missing")
+	}
+}

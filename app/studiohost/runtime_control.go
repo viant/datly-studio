@@ -45,6 +45,9 @@ func inProcessControl(group *atomic.Pointer[runtimehost.NamespaceGroup]) *runtim
 		if len(definitions) != 1 || !definitions[0].Active || !definitions[0].Enabled {
 			return runtimeadmin.ErrNamespaceUnavailable
 		}
+		if current.Definitions != nil {
+			current.Definitions.Update(definitions[0])
+		}
 		_, err = current.Listeners.RebindAndReload(ctx, id, definitions[0].Port, generation)
 		return err
 	}, func(ctx context.Context) (*sdk.RuntimeHost, error) {
