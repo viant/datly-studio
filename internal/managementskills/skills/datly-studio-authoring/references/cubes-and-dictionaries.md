@@ -92,6 +92,36 @@ Keep dictionary entity labels separate from source-native analytical dimensions.
 Do not claim a metadata table is authoritative for ownership, contributor lineage
 or a missing business metric. Preserve genuine dictionary absence as unknown.
 
+## Scope fact warmup separately from scalar prerequisites
+
+Component-level cache warmup is inherited by independent input-view reads.
+A scalar prerequisite returning `range_start` and `range_end` must not inherit a
+fact warmup projecting `tenant_id` and `amount`: native binding can fail because
+those fact columns do not exist in the scalar view. Changing only the scalar's
+cache name does not clear inherited warmup.
+
+Use existing view-local bindings when the producer has a named warmup profile:
+
+```sql
+SELECT fact.*, use_cache(fact, 'result-cache'),
+       cache_warmup(fact, 'fact-projection')
+FROM (${embed:sql/fact.sql}) fact
+```
+
+The producer's existing `Caches` configuration must define `result-cache` and
+the profile, for example `"fact-projection": {"Warmup": {"FieldNames":
+["tenant_id", "amount"]}}`. Remove the component-level warmup only after its
+complete projection, parameters, cases and limits have moved to that declared
+profile. Keep the fact backend and authorization unchanged. With no global cache
+default, unrelated scalar inputs remain uncached while the fact uses its explicit
+backend and warmup. This is a fragment, not a complete component/configuration.
+
+A source bundle does not install producer cache profiles. Declare that dependency
+in deployment configuration and verify it in both validation and execution.
+Test scalar binding, fact warmup and cached fact replay on invented local data;
+a successful scalar query alone does not prove caching was preserved. Do not add
+fake columns to scalar views or disable fact caching to conceal the mismatch.
+
 ## Verify
 
 Compare fact totals before/after enrichment for representative grouped frames.
