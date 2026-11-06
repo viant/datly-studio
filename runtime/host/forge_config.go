@@ -20,9 +20,19 @@ type ForgeConfig struct {
 	// ProviderIdentity opts the configured windows into ordinary primitive MCP
 	// discovery. It is trusted provenance, separate from their existing URIs.
 	ProviderIdentity string                    `json:"providerIdentity,omitempty" yaml:"ProviderIdentity,omitempty"`
+	DataSources      []ForgeDataSource         `json:"dataSources,omitempty" yaml:"DataSources,omitempty"`
 	Windows          []ForgeWindow             `json:"windows" yaml:"Windows"`
 	Policies         []authz.Document          `json:"policies" yaml:"Policies"`
 	Selections       []authz.SelectionDocument `json:"selections" yaml:"Selections"`
+}
+
+// ForgeDataSource publishes one datasource independently of any window. Its
+// authored descriptor contains presentation/parameter metadata only; the exact
+// native component binding is enriched by the owning producer at startup.
+type ForgeDataSource struct {
+	URI            string             `json:"uri" yaml:"URI"`
+	DefinitionPath string             `json:"definitionPath" yaml:"DefinitionPath"`
+	Component      ComponentReference `json:"component" yaml:"Component"`
 }
 
 // ForgeWindow maps one logical window to its unversioned YAML or JSON source
@@ -43,14 +53,17 @@ func validateForgeConfig(config *Config) error {
 	if config.ForgeProvider != nil {
 		return fmt.Errorf("Forge config and an injected Forge provider cannot both be configured")
 	}
+	if len(config.Forge.DataSources) > 0 && config.Forge.ProviderIdentity == "" {
+		return fmt.Errorf("stock Forge standalone datasources require ProviderIdentity")
+	}
 	if strings.TrimSpace(config.Forge.ProviderIdentity) != config.Forge.ProviderIdentity {
 		return fmt.Errorf("stock window provider identity must be canonical")
 	}
 	if config.Access == nil || config.Access.Tenant == "" {
 		return fmt.Errorf("stock Forge windows require resource access with a tenant")
 	}
-	if len(config.Forge.Windows) == 0 || len(config.Forge.Windows) > 100 {
-		return fmt.Errorf("stock Forge config requires between one and 100 windows")
+	if len(config.Forge.Windows)+len(config.Forge.DataSources) == 0 || len(config.Forge.Windows)+len(config.Forge.DataSources) > 100 {
+		return fmt.Errorf("stock Forge config requires between one and 100 resources")
 	}
 	if len(config.Forge.Policies) == 0 || len(config.Forge.Selections) == 0 {
 		return fmt.Errorf("stock Forge windows require explicit policies and selections")
@@ -83,6 +96,20 @@ func validateForgeConfig(config *Config) error {
 		families[family] = true
 		windows[window.URI] = window
 	}
+	for _, source := range config.Forge.DataSources {
+		uri, err := identity.ParseResourceURI(source.URI)
+		if err != nil || uri.Kind != "datasource" || !validForgeDefinitionPath(source.DefinitionPath) {
+			return fmt.Errorf("stock Forge datasource requires a logical URI and relative DefinitionPath")
+		}
+		family := authz.ResourceFamily{Kind: "datasource", ID: uri.Namespace + "/" + uri.Name, Tenant: config.Access.Tenant}
+		if families[family] {
+			return fmt.Errorf("duplicate configured datasource URI %q", source.URI)
+		}
+		if err := validateComponentReference(source.Component); err != nil {
+			return err
+		}
+		families[family] = true
+	}
 	if _, err := authz.NewStaticStore(config.Forge.Policies); err != nil {
 		return fmt.Errorf("stock Forge policies: %w", err)
 	}
@@ -91,7 +118,7 @@ func validateForgeConfig(config *Config) error {
 		resource := document.Resource
 		family := authz.ResourceFamily{Kind: resource.Kind, ID: resource.ID, Tenant: resource.Tenant}
 		if !families[family] || resource.Version != identity.WorkingCandidate || seenPolicies[resource] {
-			return fmt.Errorf("stock Forge policy is not bound to a configured working window")
+			return fmt.Errorf("stock Forge policy is not bound to a configured working resource")
 		}
 		seenPolicies[resource] = true
 		for _, action := range []string{"discover", "describe", "execute"} {
@@ -100,8 +127,8 @@ func validateForgeConfig(config *Config) error {
 			}
 		}
 	}
-	if len(seenPolicies) != len(windows) {
-		return fmt.Errorf("each stock Forge window requires one exact working policy")
+	if len(seenPolicies) != len(families) {
+		return fmt.Errorf("each stock Forge resource requires one exact working policy")
 	}
 	if _, err := authz.NewStaticSelectionStore(config.Forge.Selections); err != nil {
 		return fmt.Errorf("stock Forge selections: %w", err)
@@ -109,12 +136,12 @@ func validateForgeConfig(config *Config) error {
 	seenFamilies := map[authz.ResourceFamily]bool{}
 	for _, selection := range config.Forge.Selections {
 		if !families[selection.Resource] || selection.DefaultVersion != identity.WorkingCandidate || len(selection.Overrides) != 0 || seenFamilies[selection.Resource] {
-			return fmt.Errorf("stock Forge selections must explicitly select each working window")
+			return fmt.Errorf("stock Forge selections must explicitly select each working resource")
 		}
 		seenFamilies[selection.Resource] = true
 	}
-	if len(seenFamilies) != len(windows) {
-		return fmt.Errorf("each stock Forge window requires one explicit working selection")
+	if len(seenFamilies) != len(families) {
+		return fmt.Errorf("each stock Forge resource requires one explicit working selection")
 	}
 	return nil
 }

@@ -33,7 +33,15 @@ func NamespaceFactory(base Config) namespacemcp.Factory {
 				return mcpserver.Config{}, err
 			}
 		}
-		return mcpserver.Config{Source: &namespaceRuntimeSource{runtime: runtime, endpoint: endpoint}, Implementation: schema.Implementation{Name: "datly-studio-namespace", Version: "1"}, Transport: mcpserver.TransportConfig{Kind: mcpserver.TransportStreamable, Address: endpoint.Address, CORS: config.MCP.CORS}}, nil
+		var forgeHandler http.Handler
+		if runtime.config.ForgeProvider != nil {
+			forgeHandler, err = runtime.forgeProviderHTTP(ctx)
+			if err != nil {
+				_ = runtime.Close(context.WithoutCancel(ctx))
+				return mcpserver.Config{}, err
+			}
+		}
+		return mcpserver.Config{Source: &namespaceRuntimeSource{runtime: runtime, endpoint: endpoint, forge: forgeHandler}, Implementation: schema.Implementation{Name: "datly-studio-namespace", Version: "1"}, Transport: mcpserver.TransportConfig{Kind: mcpserver.TransportStreamable, Address: endpoint.Address, CORS: config.MCP.CORS}}, nil
 	}
 }
 
@@ -57,6 +65,7 @@ func namespaceRuntimeConfig(base Config, endpoint namespacemcp.Endpoint) Config 
 
 type namespaceRuntimeSource struct {
 	runtime  *Service
+	forge    http.Handler
 	endpoint namespacemcp.Endpoint
 }
 
@@ -67,6 +76,12 @@ func (s *namespaceRuntimeSource) PinSnapshot(ctx context.Context) (context.Conte
 	return s.runtime.manager.PinSnapshot(ctx)
 }
 func (s *namespaceRuntimeSource) WrapHTTP(next http.Handler) http.Handler {
+	if s.forge != nil {
+		mux := http.NewServeMux()
+		mux.Handle("/forge/", http.StripPrefix("/forge", s.forge))
+		mux.Handle("/", next)
+		next = mux
+	}
 	if wrap := s.runtime.config.NamespaceHTTPMiddleware; wrap != nil {
 		next = wrap(s.endpoint, next)
 	}

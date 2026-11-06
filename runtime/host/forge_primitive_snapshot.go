@@ -39,37 +39,17 @@ func (s *stockPrimitiveSource) preload() error {
 			}
 			pins := map[string]stockComponentPin{}
 			for id, ref := range entry.config.Components {
-				before, err := s.original.service.primitiveComponentSource(ctx, ref)
+				pin, err := s.componentPin(ctx, ref, compiled, componentSources)
 				if err != nil {
 					return nil, err
 				}
-				pin, found := compiled[ref]
-				if !found {
-					manager, binding, err := s.original.service.componentRuntimeWithAuthority(ctx, ref, false)
-					if err != nil {
-						return nil, err
-					}
-					if err := manager.Shutdown(ctx); err != nil {
-						return nil, err
-					}
-					s.metadataCompiles.Add(1)
-					if ref.Kind == "dynamic" && binding.ContentFingerprint != before {
-						return nil, identity.ErrResourceStale
-					}
-					pin = stockComponentPin{Reference: ref, Binding: binding}
-					compiled[ref] = pin
-				}
-				after, err := s.original.service.primitiveComponentSource(ctx, ref)
-				if err != nil || before != after {
-					return nil, identity.ErrResourceStale
-				}
-				if original, exists := componentSources[ref]; exists && original != after {
-					return nil, identity.ErrResourceStale
-				}
-				componentSources[ref], pins[id] = after, pin
+				pins[id] = pin
 			}
 			return s.materialize(stockWindowBundle{URI: entry.config.URI, Source: raw, Components: pins}, entry)
 		}})
+	}
+	for _, configured := range s.original.dataSources {
+		definitions = append(definitions, s.standaloneDefinition(configured, compiled, componentSources))
 	}
 	snapshot, err := coreresource.NewNativeAssetSnapshot(ctx, s.original.root, definitions, coreresource.NativeSnapshotOptions{})
 	if err != nil {
@@ -98,7 +78,7 @@ func (s *stockPrimitiveSource) preload() error {
 		closures[entry.uri.String()] = closure
 		s.closureCompiles.Add(1)
 	}
-	prepared, err := compileStockDatasourceGeneration(ctx, snapshot, s.original.entries)
+	prepared, err := compileStockDatasourceGeneration(ctx, snapshot, s.original.entries, s.original.dataSources)
 	if err != nil {
 		return err
 	}

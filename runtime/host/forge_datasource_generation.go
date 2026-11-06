@@ -22,7 +22,7 @@ type preparedStockDatasource struct {
 	component   windowprotocol.ComponentBinding
 }
 
-func compileStockDatasourceGeneration(ctx context.Context, snapshot *resources.NativeAssetSnapshot, windows map[string]stockWindowEntry) (*stockDatasourceGeneration, error) {
+func compileStockDatasourceGeneration(ctx context.Context, snapshot *resources.NativeAssetSnapshot, windows map[string]stockWindowEntry, standalone map[string]ForgeDataSource) (*stockDatasourceGeneration, error) {
 	generation := &stockDatasourceGeneration{entries: map[string]preparedStockDatasource{}}
 	for _, window := range windows {
 		if !window.config.PublishDataSources {
@@ -61,6 +61,31 @@ func compileStockDatasourceGeneration(ctx context.Context, snapshot *resources.N
 			}
 			generation.entries[uri] = preparedStockDatasource{id: id, definition: definition, fingerprint: identity.ContentFingerprint(definition), reference: reference, component: *descriptor.Backend.Component}
 		}
+	}
+	for _, configured := range standalone {
+		uri, err := identity.ParseResourceURI(configured.URI)
+		if err != nil {
+			return nil, err
+		}
+		candidates, err := snapshot.Candidates(ctx, uri)
+		if err != nil || len(candidates) != 1 {
+			return nil, identity.ErrResourceStale
+		}
+		raw, err := snapshot.ReadCandidate(ctx, uri, candidates[0])
+		if err != nil {
+			return nil, err
+		}
+		var definition stockDatasourceDefinition
+		if err = json.Unmarshal(raw, &definition); err != nil {
+			return nil, err
+		}
+		if err = validateStockDatasourceDefinition(1, raw); err != nil {
+			return nil, err
+		}
+		if _, exists := generation.entries[configured.URI]; exists {
+			return nil, identity.ErrResourceDenied
+		}
+		generation.entries[configured.URI] = preparedStockDatasource{id: definition.DataSource.ID, definition: raw, fingerprint: identity.ContentFingerprint(raw), reference: configured.Component, component: *definition.DataSource.Backend.Component}
 	}
 	return generation, nil
 }

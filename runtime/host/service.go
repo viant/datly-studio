@@ -153,6 +153,10 @@ func New(ctx context.Context, config Config) (*Service, error) {
 		_ = studio.Close()
 		return nil, err
 	}
+	if err = result.scopeConfiguredForge(ctx); err != nil {
+		_ = result.Close(context.WithoutCancel(ctx))
+		return nil, err
+	}
 	if err = result.initStockForgeProvider(ctx); err != nil {
 		_ = compiledArtifacts.Close(context.Background())
 		_ = runAccessStore.Close(context.Background())

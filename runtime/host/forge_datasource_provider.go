@@ -13,10 +13,19 @@ import (
 )
 
 type stockDatasourceEntry struct {
-	owner stockWindowEntry
-	id    string
-	uri   identity.ResourceURI
+	standalone *ForgeDataSource
+	owner      stockWindowEntry
+	id         string
+	uri        identity.ResourceURI
 }
+
+func (e stockDatasourceEntry) policyURI() identity.ResourceURI {
+	if e.standalone != nil {
+		return e.uri
+	}
+	return e.owner.uri
+}
+
 type stockDatasourceDefinition struct {
 	SchemaVersion int64                      `json:"schemaVersion"`
 	DataSource    *windowprotocol.DataSource `json:"dataSource"`
@@ -85,7 +94,7 @@ func (p stockDatasourcePolicy) SelectRevision(ctx context.Context, ref identity.
 	if ref.URI != p.entry.uri.String() || ref.Revision != "" && ref.Revision != identity.WorkingCandidate {
 		return identity.ResourceDecision{}, identity.ErrResourceDenied
 	}
-	selected, err := p.base.selectWindow(ctx, p.entry.owner, p.action)
+	selected, err := p.base.selectResource(ctx, p.entry.policyURI(), p.action)
 	if err != nil || selected.Resource.Version != identity.WorkingCandidate {
 		return identity.ResourceDecision{}, identity.ErrResourceDenied
 	}
@@ -95,7 +104,7 @@ func (p stockDatasourcePolicy) SelectRevision(ctx context.Context, ref identity.
 	}
 	for _, candidate := range candidates {
 		if candidate.Kind == identity.WorkingCandidate && candidate.Revision == "" {
-			return identity.ResourceDecision{Candidate: candidate, AuthorityBinding: identity.ContentFingerprint([]byte(stockAuthorityBinding(principal) + "\x00" + p.entry.uri.String() + "\x00" + p.entry.owner.config.URI)), ValidUntil: principal.Facts.ValidUntil}, nil
+			return identity.ResourceDecision{Candidate: candidate, AuthorityBinding: identity.ContentFingerprint([]byte(stockAuthorityBinding(principal) + "\x00" + p.entry.uri.String() + "\x00" + p.entry.policyURI().String())), ValidUntil: principal.Facts.ValidUntil}, nil
 		}
 	}
 	return identity.ResourceDecision{}, identity.ErrResourceDenied
@@ -168,6 +177,17 @@ func (s *Service) publishedDatasourceFetch(ctx context.Context, in stockPublishe
 	}
 	if err := verify(); err != nil {
 		return nil, err
+	}
+	datasource, err := s.datasourceEntry(pin.URI)
+	if err != nil {
+		return nil, err
+	}
+	_, current, err := s.datasourceResolver(datasource, "execute").ReadResolved(ctx, pin)
+	if err != nil {
+		return nil, err
+	}
+	if current.ValidUntil.Before(pin.ValidUntil) {
+		pin.ValidUntil = current.ValidUntil
 	}
 	ctx, cancel := context.WithDeadline(ctx, pin.ValidUntil)
 	defer cancel()

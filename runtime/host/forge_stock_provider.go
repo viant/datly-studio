@@ -52,10 +52,11 @@ type stockWindowEntry struct {
 }
 
 type stockWindowSource struct {
-	service *Service
-	root    string
-	entries map[string]stockWindowEntry
-	keys    map[string]string
+	service     *Service
+	root        string
+	dataSources map[string]ForgeDataSource
+	entries     map[string]stockWindowEntry
+	keys        map[string]string
 }
 
 type stockWindowPolicy struct {
@@ -93,7 +94,7 @@ func (s *Service) initStockForgeProvider(ctx context.Context) error {
 	if root == "" {
 		root = "."
 	}
-	source := &stockWindowSource{service: s, root: root, entries: map[string]stockWindowEntry{}, keys: map[string]string{}}
+	source := &stockWindowSource{service: s, root: root, entries: map[string]stockWindowEntry{}, dataSources: map[string]ForgeDataSource{}, keys: map[string]string{}}
 	for _, configured := range s.config.Forge.Windows {
 		uri, _ := identity.ParseResourceURI(configured.URI)
 		key := uri.Namespace + "_" + uri.Name
@@ -104,6 +105,9 @@ func (s *Service) initStockForgeProvider(ctx context.Context) error {
 		entry := stockWindowEntry{config: configured, uri: uri, key: key}
 		source.entries[configured.URI] = entry
 		source.keys[key] = configured.URI
+	}
+	for _, configured := range s.config.Forge.DataSources {
+		source.dataSources[configured.URI] = configured
 	}
 	policy := &stockWindowPolicy{service: s, selector: selector, principals: principals, entries: source.entries, tenant: s.config.Access.Tenant}
 	funcs := forgeservice.PrimitiveHostFuncs{
@@ -249,10 +253,14 @@ func (p *stockWindowPolicy) selectWindow(ctx context.Context, entry stockWindowE
 	if p == nil || p.selector == nil || entry.config.URI == "" {
 		return authz.SelectedResource{}, authz.ErrUnavailable
 	}
-	if p.service == nil || p.service.authorizeNamespace(ctx) != nil {
+	return p.selectResource(ctx, entry.uri, action)
+}
+
+func (p *stockWindowPolicy) selectResource(ctx context.Context, uri identity.ResourceURI, action string) (authz.SelectedResource, error) {
+	if p == nil || p.selector == nil || p.service == nil || p.service.authorizeNamespace(ctx) != nil {
 		return authz.SelectedResource{}, authz.ErrIdentityDenied
 	}
-	resource := authz.ResourceFamily{Kind: "window", ID: entry.uri.Namespace + "/" + entry.uri.Name, Tenant: p.tenant}
+	resource := authz.ResourceFamily{Kind: uri.Kind, ID: uri.Namespace + "/" + uri.Name, Tenant: p.tenant}
 	selected, err := p.selector.Authorize(ctx, authz.SelectionRequest{Resource: resource, Action: action})
 	if err != nil || selected.Decision.Bounded {
 		return authz.SelectedResource{}, authz.ErrDenied

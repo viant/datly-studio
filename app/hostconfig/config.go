@@ -36,6 +36,7 @@ type Audit struct {
 }
 
 type Config struct {
+	Forge        *runtimehost.ForgeConfig
 	MCPToolNames runtimehost.MCPToolNames
 	Audit        *Audit
 	datly.Config

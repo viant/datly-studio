@@ -183,6 +183,15 @@ func (s *Service) initWindowPrimitives(source *stockWindowSource, policy *stockW
 		return err
 	}
 	canonical.datasources = map[string]stockDatasourceEntry{}
+	for _, configured := range source.dataSources {
+		uri, err := identity.ParseResourceURI(configured.URI)
+		if err != nil {
+			return err
+		}
+		prepared := canonical.preparedDatasources.Load().entries[configured.URI]
+		copy := configured
+		canonical.datasources[configured.URI] = stockDatasourceEntry{standalone: &copy, id: prepared.id, uri: uri}
+	}
 	bindings := make([]coreresource.LocalResourceBinding, 0, len(source.entries))
 	for _, entry := range source.entries {
 		entry := entry
@@ -214,6 +223,11 @@ func (s *Service) initWindowPrimitives(source *stockWindowSource, policy *stockW
 			}
 		}
 	}
+	for _, entry := range canonical.datasources {
+		if entry.standalone != nil {
+			bindings = append(bindings, standaloneDatasourceBinding(entry, canonical, policy, s.config.Forge.ProviderIdentity))
+		}
+	}
 	provider, err := coreresource.NewLocalProvider(coreresource.LocalConfig{ProviderIdentity: s.config.Forge.ProviderIdentity, Actor: actor, Verify: verify, Bindings: bindings, WindowIndex: canonical.index, WindowListVisibility: func(ctx context.Context, _ identity.VerifiedActor, binding coreresource.LocalResourceBinding) (bool, error) {
 		entry := source.entries[binding.URI]
 		_, err := policy.selectWindow(ctx, entry, "discover")
@@ -227,25 +241,34 @@ func (s *Service) initWindowPrimitives(source *stockWindowSource, policy *stockW
 					}
 				}
 			}
+			for _, entry := range canonical.datasources {
+				if entry.standalone != nil && entry.uri.Namespace == uri.Namespace {
+					if _, err := policy.selectResource(ctx, entry.uri, "discover"); err == nil {
+						return nil
+					}
+				}
+			}
 			return identity.ErrResourceDenied
 		}
 		if action == "resource.list" {
 			_, err := policy.principal(ctx)
 			return err
 		}
-		entry, ok := source.entries[uri.String()]
+		resourceURI := uri
 		if uri.Kind == "datasource" {
 			datasource, exists := canonical.datasources[uri.String()]
-			entry, ok = datasource.owner, exists
-		}
-		if !ok {
+			if !exists {
+				return identity.ErrResourceDenied
+			}
+			resourceURI = datasource.policyURI()
+		} else if _, ok := source.entries[uri.String()]; !ok {
 			return identity.ErrResourceDenied
 		}
 		selectedAction := "discover"
 		if action == "resource.get" {
 			selectedAction = "describe"
 		}
-		if _, err := policy.selectWindow(ctx, entry, selectedAction); err != nil {
+		if _, err := policy.selectResource(ctx, resourceURI, selectedAction); err != nil {
 			return identity.ErrResourceDenied
 		}
 		return nil
@@ -368,7 +391,10 @@ func (s *Service) registerWindowPrimitives(base *protoserver.DefaultHandler) err
 	if s.windowPrimitives == nil {
 		return nil
 	}
-	names := []string{"namespaces/list", "namespaces/get", "windows/list", "windows/get", "windows/datasource"}
+	names := []string{"namespaces/list", "namespaces/get"}
+	if len(s.windowPrimitiveSource.original.entries) > 0 {
+		names = append(names, "windows/list", "windows/get", "windows/datasource")
+	}
 	if len(s.windowPrimitiveSource.datasources) > 0 {
 		names = append(names, "datasources/list", "datasources/get", "datasources/fetch")
 	}
