@@ -22,7 +22,10 @@ type SQLProbe struct {
 	Const   *constant.Values
 }
 
-func (p SQLProbe) Probe(ctx context.Context, connector *sdk.Connector) (*sdk.ConnectorTestResult, error) {
+func (p SQLProbe) Probe(ctx context.Context, connector *sdk.Connector) (result *sdk.ConnectorTestResult, probeErr error) {
+	started := time.Now()
+	stage, destination := "configuration", ""
+	defer func() { logProbe(ctx, connector, stage, destination, started, probeErr) }()
 	if connector == nil {
 		return nil, fmt.Errorf("connector is required")
 	}
@@ -40,6 +43,7 @@ func (p SQLProbe) Probe(ctx context.Context, connector *sdk.Connector) (*sdk.Con
 	if !linked {
 		return nil, &ProbeError{Code: "driver_not_linked", Message: "The selected SQL driver is not linked in this server executable."}
 	}
+	stage = "secret"
 	dsn, err := connectorsecret.Resolve(ctx, p.Secrets, connector.DSNTemplate, connector.SecretRef, p.Const)
 	if err != nil {
 		return nil, probeFailure("secret", err)
@@ -47,14 +51,18 @@ func (p SQLProbe) Probe(ctx context.Context, connector *sdk.Connector) (*sdk.Con
 	if strings.TrimSpace(dsn) == "" {
 		return nil, &ProbeError{Code: "dsn_missing", Message: "The connector has no DSN. Enter a DSN or a complete DSN secret."}
 	}
+	destination = probeDestination(driver, dsn)
+	stage = "open"
 	db, err := sql.Open(driver, dsn)
 	if err != nil {
 		return nil, probeFailure("open", err)
 	}
 	defer db.Close()
+	stage = "initialize"
 	if err = connectorinit.Configure(ctx, db, driver, connector.Options); err != nil {
 		return nil, probeFailure("initialize", err)
 	}
+	stage = "ping"
 	if err = db.PingContext(ctx); err != nil {
 		return nil, probeFailure("ping", err)
 	}
