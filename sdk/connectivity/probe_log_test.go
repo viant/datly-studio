@@ -44,3 +44,15 @@ func TestProbeDestinationIgnoresCredentialsButSeparatesTargets(t *testing.T) {
 		t.Fatal("invalid DSN fingerprinted")
 	}
 }
+
+func TestExpandedProbeFingerprintTracksEveryConnectionInput(t *testing.T) {
+	first := expandedProbeFingerprint("user:first@tcp(db.example:3306)/sample")
+	if len(first) != 64 || first != expandedProbeFingerprint("user:first@tcp(db.example:3306)/sample") {
+		t.Fatal("same input must retain process-local fingerprint")
+	}
+	for _, value := range []string{"user:second@tcp(db.example:3306)/sample", "other:first@tcp(db.example:3306)/sample", "user:first@tcp(db.example:3306)/sample?parseTime=true"} {
+		if first == expandedProbeFingerprint(value) {
+			t.Fatal("changed connection input must change fingerprint")
+		}
+	}
+}

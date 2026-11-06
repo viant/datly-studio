@@ -24,8 +24,8 @@ type SQLProbe struct {
 
 func (p SQLProbe) Probe(ctx context.Context, connector *sdk.Connector) (result *sdk.ConnectorTestResult, probeErr error) {
 	started := time.Now()
-	stage, destination := "configuration", ""
-	defer func() { logProbe(ctx, connector, stage, destination, started, probeErr) }()
+	stage, destination, expandedFingerprint := "configuration", "", ""
+	defer func() { logProbe(ctx, connector, stage, destination, started, probeErr, expandedFingerprint) }()
 	if connector == nil {
 		return nil, fmt.Errorf("connector is required")
 	}
@@ -52,6 +52,7 @@ func (p SQLProbe) Probe(ctx context.Context, connector *sdk.Connector) (result *
 		return nil, &ProbeError{Code: "dsn_missing", Message: "The connector has no DSN. Enter a DSN or a complete DSN secret."}
 	}
 	destination = probeDestination(driver, dsn)
+	expandedFingerprint = expandedProbeFingerprint(dsn)
 	stage = "open"
 	db, err := sql.Open(driver, dsn)
 	if err != nil {

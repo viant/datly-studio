@@ -2,6 +2,8 @@ package connectivity
 
 import (
 	"context"
+	"crypto/hmac"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
@@ -15,6 +17,25 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/viant/datly-studio/sdk"
 )
+
+// Random process-local key makes expanded connection fingerprints comparable
+// within this process without publishing a reusable credential digest.
+var probeFingerprintKey = func() []byte {
+	key := make([]byte, 32)
+	if _, err := rand.Read(key); err != nil {
+		return nil
+	}
+	return key
+}()
+
+func expandedProbeFingerprint(dsn string) string {
+	if len(probeFingerprintKey) == 0 || dsn == "" {
+		return ""
+	}
+	mac := hmac.New(sha256.New, probeFingerprintKey)
+	_, _ = mac.Write([]byte(dsn))
+	return hex.EncodeToString(mac.Sum(nil))
+}
 
 // A destination digest excludes credentials, DSN parameters and secret references.
 func probeDestination(driver, dsn string) string {
@@ -43,7 +64,7 @@ func probeHost() (string, []string) {
 	return hostname, ips
 }
 
-func logProbe(ctx context.Context, connector *sdk.Connector, stage, destination string, started time.Time, err error) {
+func logProbe(ctx context.Context, connector *sdk.Connector, stage, destination string, started time.Time, err error, expandedFingerprint ...string) {
 	if connector == nil {
 		return
 	}
@@ -58,6 +79,9 @@ func logProbe(ctx context.Context, connector *sdk.Connector, stage, destination 
 		"host", host, "hostIPs", ips, "processID", os.Getpid(), "elapsedMs", time.Since(started).Milliseconds()}
 	if destination != "" {
 		fields = append(fields, "destinationFingerprint", destination)
+	}
+	if len(expandedFingerprint) > 0 && expandedFingerprint[0] != "" {
+		fields = append(fields, "expandedDSNFingerprint", expandedFingerprint[0])
 	}
 	var dbErr *mysql.MySQLError
 	if errors.As(err, &dbErr) {
