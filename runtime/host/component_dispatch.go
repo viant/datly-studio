@@ -84,7 +84,14 @@ func (s *Service) ResolveComponentBinding(ctx context.Context, ref ComponentRefe
 // and schema identity, executes native Datly authorization, then refuses source
 // drift before releasing data. It never uses the current publication manager.
 func (s *Service) ExecuteComponentJSON(ctx context.Context, ref ComponentReference, pinned windowprotocol.ComponentBinding, inputs map[string]any) (json.RawMessage, error) {
-	output, err := s.executeExactComponent(ctx, ref, pinned, func(ctx context.Context, manager *application.Manager, _ *exactComponentMetadata) (any, error) {
+	output, err := s.executeExactComponent(ctx, ref, pinned, func(ctx context.Context, manager *application.Manager, metadata *exactComponentMetadata) (any, error) {
+		if metadata.registered != nil {
+			for _, route := range metadata.registered.Component.Routes {
+				if route.Method == ref.Method && route.Path == ref.Route && route.Internal {
+					return s.executeInternalComponentJSON(ctx, manager, metadata, ref, inputs)
+				}
+			}
+		}
 		return executeRuntimeJSON(ctx, s.authenticated(manager), ref.Method, ref.Route, inputs)
 	}, nil)
 	if err != nil {

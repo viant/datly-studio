@@ -98,8 +98,10 @@ func TestNativeExactComponentInternalValidatedVersion(t *testing.T) {
 	if strings.Contains(toolBody, "alpha-101") || (!strings.Contains(toolBody, "error") && !strings.Contains(toolBody, "isError")) {
 		t.Fatalf("internal tool exposed: %s", toolBody)
 	}
-	if out, err := service.ExecuteComponentJSON(ctx, ref, pin.ComponentBinding, nil); err == nil || len(out) != 0 {
-		t.Fatalf("internal reader exposed over HTTP: %s %v", out, err)
+	// The server-side exact JSON API invokes internal components natively;
+	// public HTTP and MCP exposure remain absent, as checked above.
+	if out, err := service.ExecuteComponentJSON(ctx, ref, pin.ComponentBinding, nil); err != nil || !strings.Contains(string(out), "draft-v2") || strings.Contains(string(out), "102") || strings.Contains(string(out), "103") || strings.Contains(string(out), "104") {
+		t.Fatalf("internal exact JSON lost native source/entity scope: %s %v", out, err)
 	}
 	var retained exec.ComponentInvoker
 	var request exec.ComponentRequest

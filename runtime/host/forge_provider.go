@@ -5,13 +5,20 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"reflect"
+	"strconv"
 
 	"github.com/viant/authz/oauth"
+	requestprovider "github.com/viant/bindly/provider/request"
 	sdkrelease "github.com/viant/datly-studio/sdk/artifactrelease"
+	"github.com/viant/datly/application"
+	dexec "github.com/viant/datly/exec"
+	"github.com/viant/datly/output"
+	"github.com/viant/datly/spec"
 	forgeservice "github.com/viant/forge/backend/provider"
 	forgehandler "github.com/viant/forge/backend/provider/mcp"
 	"github.com/viant/jsonrpc/transport"
@@ -19,6 +26,8 @@ import (
 	"github.com/viant/mcp-protocol/logger"
 	protoserver "github.com/viant/mcp-protocol/server"
 	mcpserver "github.com/viant/mcp/server"
+	xexec "github.com/viant/xdatly/exec"
+	xresponse "github.com/viant/xdatly/response"
 )
 
 func (s *Service) forgeProviderHTTP(ctx context.Context) (http.Handler, error) {
@@ -93,6 +102,95 @@ func (s *Service) forgeProviderHTTP(ctx context.Context) (http.Handler, error) {
 // Use ResolveComponentBinding and ExecuteComponentJSON with the authorized pin.
 func (s *Service) ExecutePublishedJSON(context.Context, string, string, map[string]any) (json.RawMessage, error) {
 	return nil, fmt.Errorf("an explicit component revision binding is required")
+}
+
+// Internal exact datasource calls retain transport authentication and native
+// binding/encoding without adding the route to an external HTTP or MCP catalog.
+func (s *Service) executeInternalComponentJSON(ctx context.Context, manager *application.Manager, metadata *exactComponentMetadata, ref ComponentReference, inputs map[string]any) (json.RawMessage, error) {
+	return executeRuntimeJSON(ctx, s.internalComponentJSONHandler(manager, metadata, ref), ref.Method, ref.Route, inputs)
+}
+
+func (s *Service) internalComponentJSONHandler(manager *application.Manager, metadata *exactComponentMetadata, ref ComponentReference) http.Handler {
+	target := dexec.ComponentTarget{Component: metadata.registered.Component.Key, Route: spec.RouteRef{Method: ref.Method, Path: ref.Route}}
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := dexec.CaptureOutputSelection(xexec.WithContext(r.Context(), xexec.NewContext(r.Method, r.RequestURI, r.Header, ref.Revision)))
+		r = r.WithContext(ctx)
+		options := []requestprovider.Option{}
+		if r.Method == http.MethodGet {
+			options = append(options, requestprovider.WithForm(r.URL.Query()))
+		}
+		scope, err := requestprovider.New(r, options...)
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+		defer scope.Close()
+		invoker := &exactNativeInvoker{manager: manager, metadata: metadata, authority: ctx, targets: map[dexec.ComponentTarget]bool{target: true}, active: true}
+		defer invoker.close()
+		value, err := invoker.InvokeComponent(ctx, dexec.ComponentRequest{Target: target, Providers: scope.Providers()})
+		if err != nil {
+			code := xresponse.ErrorStatusCode(err, http.StatusInternalServerError)
+			http.Error(w, http.StatusText(nativeComponentStatus(code)), nativeComponentStatus(code))
+			return
+		}
+		status := xexec.GetContext(ctx).StatusCode
+		if response, ok := value.(xresponse.Response); ok {
+			writeNativeComponentResponse(w, response, status)
+			return
+		}
+		plan := metadata.registered.Output
+		if plan == nil {
+			plan, err = (output.Compiler{}).Compile(output.CompileInput{Component: metadata.registered.Component, Type: metadata.registered.OutputType})
+		}
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+		encoded, err := plan.Encode(ctx, "json", value)
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", encoded.ContentType)
+		w.WriteHeader(nativeComponentStatus(status))
+		_, _ = w.Write(encoded.Data)
+	})
+	return s.authenticated(handler)
+}
+
+// Transport-ready outputs retain the existing Xdatly response contract rather
+// than being serialized as their Go wrapper. Status reaches the ordinary JSON
+// dispatch checker, which withholds every non-success body.
+func writeNativeComponentResponse(writer http.ResponseWriter, response xresponse.Response, status int) {
+	if size := response.Size(); size > 0 && writer.Header().Get("Content-Length") == "" {
+		writer.Header().Set("Content-Length", strconv.Itoa(size))
+	}
+	for key, values := range response.Headers() {
+		writer.Header().Del(key)
+		for _, value := range values {
+			writer.Header().Add(key, value)
+		}
+	}
+	if compressed, ok := response.(xresponse.Compressed); ok && compressed.CompressionType() != "" {
+		writer.Header().Set("Content-Encoding", compressed.CompressionType())
+	}
+	if status == 0 || status == http.StatusOK {
+		status = response.StatusCode()
+	}
+	writer.WriteHeader(nativeComponentStatus(status))
+	if body := response.Body(); body != nil {
+		_, _ = io.Copy(writer, body)
+	}
+}
+
+func nativeComponentStatus(code int) int {
+	if code == 0 {
+		return http.StatusOK
+	}
+	if code < 100 || code > 999 {
+		return http.StatusInternalServerError
+	}
+	return code
 }
 
 func executeRuntimeJSON(ctx context.Context, handler http.Handler, method, route string, inputs map[string]any) (json.RawMessage, error) {
