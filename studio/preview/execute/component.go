@@ -64,7 +64,7 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	defer cancel()
 	result, err := engine.Execute(executionCtx, input.ReportID, input.VersionNo, input.Input)
 	if err != nil {
-		return versionrun.PublicError(err, "reader preview")
+		return versionrun.ExecutionError(executionCtx, err, "reader preview", input.ReportID, input.VersionNo)
 	}
 	if result == nil || result.Evidence.ReportID != input.ReportID || result.Evidence.VersionNo != input.VersionNo {
 		return fmt.Errorf("preview engine returned mismatched execution evidence")

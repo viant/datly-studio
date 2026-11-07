@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/viant/datly-studio/internal/connectorcatalog"
+	"github.com/viant/datly-studio/internal/providererror"
 	"github.com/viant/datly-studio/internal/publisherguard"
 	"github.com/viant/datly-studio/internal/runtimevalidation"
 	"github.com/viant/datly-studio/runtime/preview"
@@ -125,8 +126,8 @@ func executionError(ctx context.Context, err error, timeout time.Duration) error
 		}
 		return publisherguard.PublicError(504, fmt.Sprintf("SQL query timed out (configured timeout: %d seconds). Increase Timeout (seconds) or narrow the query.", int(timeout/time.Second)))
 	}
-	if provider := providerExecutionError(err); provider != nil {
-		message := provider.summary()
+	if provider := providererror.FromError(err); provider != nil {
+		message := provider.Summary()
 		return &xresponse.Error{Code: 400, Cause: errors.New(message), Payload: map[string]any{"message": message, "providerError": provider}}
 	}
 	diagnostics := runtimevalidation.Diagnostics(runtimevalidation.Wrap("contract", err))

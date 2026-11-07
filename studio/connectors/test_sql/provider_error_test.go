@@ -11,6 +11,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/viant/datly-studio/internal/providererror"
 	"github.com/viant/datly-studio/sdk"
 	xresponse "github.com/viant/xdatly/response"
 	"google.golang.org/api/googleapi"
@@ -70,7 +71,7 @@ func TestNativeProviderCredentialRedactionAndBounds(t *testing.T) {
 mysql://user:URL_PASSWORD@host/db?%74oken=QUERY_TOKEN user:MYSQL_PASSWORD@tcp(host:3306)/db
 {"private_key":"PRIVATE_CANARY"} -----BEGIN PRIVATE KEY-----KEY_CANARY-----END PRIVATE KEY-----
 Use project.dataset.records and column advertiser_id.`
-	d := providerExecutionError(terminalJobDetail{native, "invalidQuery", "password=LOCATION_CANARY"})
+	d := providererror.FromError(terminalJobDetail{native, "invalidQuery", "password=LOCATION_CANARY"})
 	raw, _ := json.Marshal(d)
 	for _, secret := range []string{"PASSWORD_CANARY", "CLIENT_CANARY", "TOKEN_CANARY", "BEARER_CANARY", "URL_PASSWORD", "QUERY_TOKEN", "MYSQL_PASSWORD", "PRIVATE_CANARY", "KEY_CANARY", "LOCATION_CANARY"} {
 		if strings.Contains(string(raw), secret) {
@@ -80,8 +81,8 @@ Use project.dataset.records and column advertiser_id.`
 	if !strings.Contains(d.Message, "project.dataset.records") || !strings.Contains(d.Message, "[5:2]") {
 		t.Fatalf("useful provider text lost: %s", raw)
 	}
-	huge := providerExecutionError(&mysql.MySQLError{Number: 1064, Message: strings.Repeat("界", 30000)})
-	if !huge.Truncated || len(huge.Message) > maxProviderMessage+len("\n[provider message truncated]") || !utf8.ValidString(huge.Message) {
+	huge := providererror.FromError(&mysql.MySQLError{Number: 1064, Message: strings.Repeat("界", 30000)})
+	if !huge.Truncated || len(huge.Message) > providererror.MaxMessage+len("\n[provider message truncated]") || !utf8.ValidString(huge.Message) {
 		t.Fatalf("message not safely bounded: bytes=%d truncated=%v", len(huge.Message), huge.Truncated)
 	}
 }
