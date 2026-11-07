@@ -7,6 +7,7 @@ import (
 	"reflect"
 
 	"github.com/viant/datly-studio/internal/connectorcatalog"
+	"github.com/viant/datly-studio/internal/providererror"
 	"github.com/viant/datly-studio/internal/publisherguard"
 	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly-studio/sdk/connectivity"
@@ -67,7 +68,7 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 		if errors.Is(err, context.DeadlineExceeded) {
 			return publisherguard.PublicError(504, "Database discovery timed out. Select a project/catalog and retry.")
 		}
-		return publisherguard.PublicError(502, "connector discovery is unavailable")
+		return publisherguard.PublicError(502, providererror.AppendCatalogStatus("connector discovery is unavailable", err))
 	}
 	if result == nil {
 		return fmt.Errorf("connector discovery returned no result")

@@ -2041,6 +2041,16 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"name":"slug"`)) || bytes.Contains(body, []byte(dsn)) {
 		t.Fatalf("static MCP connector table detail status=%d body=%s", status, body)
 	}
+	t.Run("connector catalog provider errors", func(t *testing.T) {
+		viewerRequest := func(path, body string) *http.Request {
+			req := request(path, body)
+			req.Header.Set("Authorization", "Bearer "+bobToken)
+			return req
+		}
+		checkConnectorCatalogProviderErrors(ctx, t, store, server, viewerRequest, func(name string, args map[string]any) (int, []byte) {
+			return mcpCall(staticMCP, "Bearer "+bobToken, nil, "tools/call", name, args)
+		})
+	})
 	if dockerScaleDSN != "" {
 		status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.test_view", map[string]any{"reportId": "preview-wide", "versionNo": 1, "view": "wide", "input": map[string]any{"limit": 10}})
 		if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte("omega")) || bytes.Contains(body, []byte(dockerScaleDSN)) {
@@ -3177,4 +3187,81 @@ type namespaceAdminProvider struct{ facts resourceaccess.Facts }
 
 func (p namespaceAdminProvider) Resolve(context.Context) (resourceaccess.Facts, error) {
 	return p.facts, nil
+}
+
+func checkConnectorCatalogProviderErrors(ctx context.Context, t *testing.T, store *sql.DB, server http.Handler, request func(string, string) *http.Request, callTool func(string, map[string]any) (int, []byte)) {
+	t.Helper()
+	const sessionResult = `{"jobComplete":true,"jobReference":{"projectId":"job-project","jobId":"session"},"schema":{"fields":[{"name":"CATALOG","type":"STRING","mode":"NULLABLE"},{"name":"SCHEMA_NAME","type":"STRING","mode":"NULLABLE"}]},"totalRows":"1","rows":[{"f":[{"v":"job-project"},{"v":"dataset"}]}]}`
+	provider := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var query struct{ Query string }
+		if r.URL.Path != "/projects/job-project/queries" || json.NewDecoder(r.Body).Decode(&query) != nil {
+			t.Errorf("unexpected BigQuery request: %s %s", r.Method, r.URL.Path)
+			http.Error(w, "unexpected query", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		switch {
+		case strings.Contains(query.Query, "SESSION_USER()"):
+			fmt.Fprint(w, sessionResult)
+		case strings.Contains(query.Query, "source-project.INFORMATION_SCHEMA.SCHEMATA"):
+			w.WriteHeader(http.StatusForbidden)
+			fmt.Fprint(w, `{"error":{"code":403,"message":"Schema access denied. Bearer TOKEN_CANARY","errors":[{"reason":"accessDenied"}],"details":[{"secret":"BODY_CANARY"}]}}`)
+		case strings.Contains(query.Query, "source-project.dataset.INFORMATION_SCHEMA.TABLES"),
+			strings.Contains(query.Query, "source-project.dataset.INFORMATION_SCHEMA.COLUMNS"):
+			w.WriteHeader(http.StatusNotFound)
+			fmt.Fprint(w, `{"error":{"code":404,"message":"Dataset was not found in location US. reader:DSN_CANARY@/db. Access denied for user 'USER_CANARY'@'HOST_CANARY' (using password: YES). Failed SQL: SELECT 'SQL_CANARY'. https://storage.example/object?X-Goog-Signature=SIGNATURE_CANARY","errors":[{"reason":"notFound","location":"LOCATION_CANARY"}]}}`)
+		default:
+			t.Errorf("unexpected BigQuery SQL: %s", query.Query)
+			http.Error(w, "unexpected query", http.StatusInternalServerError)
+		}
+	}))
+	defer provider.Close()
+	dsn := "bigquery://job-project/us/dataset?emulator=true&queryMode=sync&endpoint=" + url.QueryEscape(provider.URL+"/")
+	if _, err := store.ExecContext(ctx, `INSERT INTO connectors(name,driver,dsn_template,owner_id,status,etag,created_at,updated_at)
+		VALUES('provider_catalog','bigquery',?,'alice','active',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, dsn); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.ExecContext(ctx, `INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at)
+		VALUES('provider-catalog-fixture','production.audit','provider-catalog-fixture','Provider Catalog Fixture','alice','draft','provider_catalog','example.com/catalog','reader',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.ExecContext(ctx, `INSERT INTO component_acl(report_id,subject_type,subject_id,can_view)
+		VALUES('provider-catalog-fixture','user','bob',TRUE)`); err != nil {
+		t.Fatal(err)
+	}
+	for _, test := range []struct {
+		operation string
+		input     string
+		status    int
+		message   string
+	}{
+		{"schemas", `{"catalog":"source-project"}`, http.StatusBadGateway, "Google API error 403 (accessDenied)"},
+		{"tables", `{"catalog":"source-project","schema":"dataset"}`, http.StatusBadGateway, "Google API error 404 (notFound)"},
+		{"table", `{"catalog":"source-project","schema":"dataset","table":"records"}`, http.StatusBadGateway, "Google API error 404 (notFound)"},
+		{"discover", `{"catalog":"source-project"}`, http.StatusOK, "Google API error 403 (accessDenied)"},
+		{"schemas", `{"catalog":"invalid catalog"}`, http.StatusBadGateway, `"message":"connector schema catalog is unavailable"`},
+	} {
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, request("/v1/studio/sdk/connectors."+test.operation, `{"name":"provider_catalog","input":`+test.input+`}`))
+		body := response.Body.String()
+		if response.Code != test.status || !strings.Contains(body, test.message) {
+			t.Errorf("connector %s status=%d body=%s", test.operation, response.Code, body)
+		}
+		if test.status == http.StatusBadGateway && strings.HasPrefix(test.message, "Google API") {
+			var input map[string]any
+			if err := json.Unmarshal([]byte(test.input), &input); err != nil {
+				t.Fatal(err)
+			}
+			status, result := callTool("studio.sdk.connectors."+test.operation, map[string]any{"name": "provider_catalog", "input": input})
+			if status != http.StatusOK || !bytes.Contains(result, []byte(`"isError":true`)) || !bytes.Contains(result, []byte(test.message)) {
+				t.Errorf("MCP connector %s status=%d body=%s", test.operation, status, result)
+			}
+			body += string(result)
+		}
+		for _, secret := range []string{"_CANARY", "SELECT", "storage.example", provider.URL, "invalid catalog", "Schema access denied.", "Dataset was not found in location US."} {
+			if strings.Contains(body, secret) {
+				t.Errorf("connector %s exposed private error detail", test.operation)
+			}
+		}
+	}
 }

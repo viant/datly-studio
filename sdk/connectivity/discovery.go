@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/viant/datly-studio/internal/providererror"
 	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/sqlx/io/config"
 	"github.com/viant/sqlx/metadata"
@@ -62,7 +63,7 @@ func (c SQLCatalog) Discover(ctx context.Context, connector *sdk.Connector, inpu
 		if ctx.Err() != nil {
 			return nil, ctx.Err()
 		}
-		result.Warnings = append(result.Warnings, "Schema discovery is unavailable for this catalog; select or add a schema/dataset manually.")
+		result.Warnings = append(result.Warnings, providererror.AppendCatalogStatus("Schema discovery is unavailable for this catalog; select or add a schema/dataset manually.", err))
 	} else {
 		result.Schemas = schemas.Items
 		for _, item := range schemas.Items {

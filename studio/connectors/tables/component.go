@@ -6,6 +6,7 @@ import (
 	"reflect"
 
 	"github.com/viant/datly-studio/internal/connectorcatalog"
+	"github.com/viant/datly-studio/internal/providererror"
 	"github.com/viant/datly-studio/internal/publisherguard"
 	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly-studio/sdk/connectivity"
@@ -58,7 +59,7 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	}
 	result, err := (connectivity.SQLCatalog{}).Tables(ctx, connector, input.Input)
 	if err != nil {
-		return publisherguard.PublicError(502, "connector table catalog is unavailable")
+		return publisherguard.PublicError(502, providererror.AppendCatalogStatus("connector table catalog is unavailable", err))
 	}
 	if result == nil {
 		return fmt.Errorf("connector table catalog returned no result")

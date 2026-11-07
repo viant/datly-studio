@@ -109,6 +109,25 @@ func uniqueProviderMessages(values []string) string {
 	return strings.Join(result, "\n")
 }
 
+// AppendCatalogStatus reports a provider status to a connector viewer.
+func AppendCatalogStatus(message string, err error) string {
+	provider := FromError(err)
+	if provider == nil {
+		return message
+	}
+	status := provider.Provider + " error"
+	switch provider.Provider {
+	case "Google API", "MySQL":
+		status += " " + provider.Code
+	}
+	// Provider reasons can contain arbitrary strings, including SQL and credentials.
+	switch provider.Reason {
+	case "accessDenied", "notFound", "invalidQuery", "rateLimitExceeded", "quotaExceeded":
+		status += " (" + provider.Reason + ")"
+	}
+	return message + "\n" + status
+}
+
 // Summary formats projected provider fields for an authorized operator.
 func (e *ProviderError) Summary() string {
 	label := e.Provider + " error"

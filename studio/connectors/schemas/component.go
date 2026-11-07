@@ -6,6 +6,7 @@ import (
 	"reflect"
 
 	"github.com/viant/datly-studio/internal/connectorcatalog"
+	"github.com/viant/datly-studio/internal/providererror"
 	"github.com/viant/datly-studio/internal/publisherguard"
 	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly-studio/sdk/connectivity"
@@ -56,7 +57,7 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	}
 	result, err := (connectivity.SQLCatalog{}).Schemas(ctx, connector, input.Input)
 	if err != nil {
-		return publisherguard.PublicError(502, "connector schema catalog is unavailable")
+		return publisherguard.PublicError(502, providererror.AppendCatalogStatus("connector schema catalog is unavailable", err))
 	}
 	if result == nil {
 		return fmt.Errorf("connector schema catalog returned no result")
