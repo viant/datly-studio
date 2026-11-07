@@ -5,13 +5,13 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/viant/datly/constant"
 	"strings"
 	"time"
 
 	"github.com/viant/datly-studio/internal/connectorinit"
 	"github.com/viant/datly-studio/internal/connectorsecret"
 	"github.com/viant/datly-studio/sdk"
+	"github.com/viant/datly/constant"
 )
 
 // SQLProbe checks relational connectors with database/sql. The host must link
@@ -24,8 +24,11 @@ type SQLProbe struct {
 
 func (p SQLProbe) Probe(ctx context.Context, connector *sdk.Connector) (result *sdk.ConnectorTestResult, probeErr error) {
 	started := time.Now()
-	stage, destination, expandedFingerprint := "configuration", "", ""
-	defer func() { logProbe(ctx, connector, stage, destination, started, probeErr, expandedFingerprint) }()
+	stage, destination := "configuration", ""
+	var details probeDetails
+	defer func() {
+		logProbe(ctx, connector, stage, destination, started, probeErr, details)
+	}()
 	if connector == nil {
 		return nil, fmt.Errorf("connector is required")
 	}
@@ -52,7 +55,7 @@ func (p SQLProbe) Probe(ctx context.Context, connector *sdk.Connector) (result *
 		return nil, &ProbeError{Code: "dsn_missing", Message: "The connector has no DSN. Enter a DSN or a complete DSN secret."}
 	}
 	destination = probeDestination(driver, dsn)
-	expandedFingerprint = expandedProbeFingerprint(dsn)
+	details.ExpandedDSNFingerprint = expandedProbeFingerprint(dsn)
 	stage = "open"
 	db, err := sql.Open(driver, dsn)
 	if err != nil {
@@ -64,10 +67,45 @@ func (p SQLProbe) Probe(ctx context.Context, connector *sdk.Connector) (result *
 		return nil, probeFailure("initialize", err)
 	}
 	stage = "ping"
-	if err = db.PingContext(ctx); err != nil {
+	if driver == "mysql" {
+		details.Backend, err = probeMySQL(ctx, db)
+	} else {
+		err = db.PingContext(ctx)
+	}
+	if err != nil {
 		return nil, probeFailure("ping", err)
 	}
 	return &sdk.ConnectorTestResult{Status: "passed"}, nil
+}
+
+type mysqlProbeBackend struct {
+	Host, Version string
+	ServerID      uint64
+	Database      sql.NullString
+	ErrorType     string
+}
+
+func probeMySQL(ctx context.Context, db *sql.DB) (*mysqlProbeBackend, error) {
+	connection, err := db.Conn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer connection.Close()
+	if err = connection.PingContext(ctx); err != nil {
+		return nil, err
+	}
+
+	// Read the server identity reported through the same authenticated session.
+	// A proxy may answer the ping itself and route the diagnostic query onward.
+	// Failure to read the identity does not change the connectivity result.
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
+	var backend mysqlProbeBackend
+	err = connection.QueryRowContext(ctx, "SELECT @@hostname, @@server_id, VERSION(), DATABASE()").Scan(&backend.Host, &backend.ServerID, &backend.Version, &backend.Database)
+	if err != nil {
+		return &mysqlProbeBackend{ErrorType: fmt.Sprintf("%T", err)}, nil
+	}
+	return &backend, nil
 }
 
 func resolveDriver(driver string) string {

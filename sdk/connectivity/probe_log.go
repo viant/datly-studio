@@ -64,7 +64,7 @@ func probeHost() (string, []string) {
 	return hostname, ips
 }
 
-func logProbe(ctx context.Context, connector *sdk.Connector, stage, destination string, started time.Time, err error, expandedFingerprint ...string) {
+func logProbe(ctx context.Context, connector *sdk.Connector, stage, destination string, started time.Time, err error, details ...probeDetails) {
 	if connector == nil {
 		return
 	}
@@ -80,8 +80,19 @@ func logProbe(ctx context.Context, connector *sdk.Connector, stage, destination 
 	if destination != "" {
 		fields = append(fields, "destinationFingerprint", destination)
 	}
-	if len(expandedFingerprint) > 0 && expandedFingerprint[0] != "" {
-		fields = append(fields, "expandedDSNFingerprint", expandedFingerprint[0])
+	if len(details) > 0 {
+		detail := details[0]
+		if detail.ExpandedDSNFingerprint != "" {
+			fields = append(fields, "expandedDSNFingerprint", detail.ExpandedDSNFingerprint)
+		}
+		if detail.Backend != nil && err == nil {
+			backend := detail.Backend
+			if backend.ErrorType != "" {
+				fields = append(fields, "backendIdentityErrorType", backend.ErrorType)
+			} else {
+				fields = append(fields, "databaseHost", backend.Host, "databaseServerID", backend.ServerID, "databaseVersion", backend.Version, "databaseName", backend.Database.String)
+			}
+		}
 	}
 	var dbErr *mysql.MySQLError
 	if errors.As(err, &dbErr) {
@@ -92,4 +103,9 @@ func logProbe(ctx context.Context, connector *sdk.Connector, stage, destination 
 	} else {
 		slog.InfoContext(ctx, "Connector connectivity probe", fields...)
 	}
+}
+
+type probeDetails struct {
+	ExpandedDSNFingerprint string
+	Backend                *mysqlProbeBackend
 }
