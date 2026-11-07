@@ -43,7 +43,7 @@ stay under `.data/e2e/<runId>`.
 
 Requirements: Go 1.25.8 or newer (automatic Go toolchain downloads enabled),
 Node.js 22.12 or newer with npm, Python 3, a working local Google Chrome installation,
-and Endly at `9ed0e3e271c3d` or newer. Oracle and SQLite use pure-Go drivers; a C compiler is not required for the
+and Endly at `f59f672e1f85` or newer. Oracle and SQLite use pure-Go drivers; a C compiler is not required for the
 standard binaries. Run browsers as a regular user, not root. macOS and Linux are the
 supported fixture hosts; Windows is not yet supported by its POSIX shell steps.
 Network access is required for public Go modules, npm packages, the pinned public

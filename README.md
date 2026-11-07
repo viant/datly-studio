@@ -317,13 +317,13 @@ npm run build
 
 ### Build and run e2e
 
-Install [Endly](https://github.com/viant/endly) revision `9ed0e3e271c3d` or newer.
+Install [Endly](https://github.com/viant/endly) revision `f59f672e1f85` or newer.
 A sibling checkout is optional; this builds the pinned public source:
 
 ```sh
 endly_src=$(mktemp -d)
 git clone https://github.com/viant/endly.git "$endly_src"
-git -C "$endly_src" checkout 9ed0e3e271c3db226abe4f050c550e54913c52f7
+git -C "$endly_src" checkout f59f672e1f856b9d926085417ef58fcf18c526f1
 (cd "$endly_src" && CGO_ENABLED=0 GOWORK=off go build -o endly-bin ./endly)
 install -m 0755 "$endly_src/endly-bin" /usr/local/bin/endly
 endly -v
