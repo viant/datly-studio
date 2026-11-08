@@ -10,6 +10,7 @@ import (
 	"github.com/viant/authz"
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/readercomponent"
+	discovery "github.com/viant/datly-studio/studio/resource_policy/discovery"
 	presence "github.com/viant/datly-studio/studio/resource_policy/presence"
 	active "github.com/viant/datly-studio/studio/runtime_generations/store_active"
 	candidate "github.com/viant/datly-studio/studio/runtime_generations/store_candidate"
@@ -23,9 +24,11 @@ import (
 // publishedDefinitionStore reads the exact active or candidate publication
 // snapshot through server-only Datly v1 components. It is not a public route.
 type publishedDefinitionStore struct {
+	discoveryIndex    catalogPolicyIndex
 	runtime           *druntime.Runtime
 	active            exec.ComponentTarget
 	candidate         exec.ComponentTarget
+	policyCatalog     exec.ComponentTarget
 	policyPresence    exec.ComponentTarget
 	generationCatalog exec.ComponentTarget
 }
@@ -36,6 +39,9 @@ func newPublishedDefinitionStore(db *sql.DB) (*publishedDefinitionStore, error) 
 		return nil, err
 	}
 	if err := resources.Register(candidate.DefinitionDatlyResourceNamespace, candidate.DefinitionDatlyResources); err != nil {
+		return nil, err
+	}
+	if err := resources.Register(discovery.HeadDatlyResourceNamespace, discovery.HeadDatlyResources); err != nil {
 		return nil, err
 	}
 	if err := resources.Register(presence.HeadDatlyResourceNamespace, presence.HeadDatlyResources); err != nil {
@@ -60,6 +66,10 @@ func newPublishedDefinitionStore(db *sql.DB) (*publishedDefinitionStore, error) 
 	if err != nil {
 		return nil, err
 	}
+	catalogRegistration, catalogTarget, err := readercomponent.Compile(reflect.TypeFor[discovery.HeadComponent](), "discovery", reflect.TypeFor[discovery.Input](), reflect.TypeFor[discovery.Output](), resources, connector)
+	if err != nil {
+		return nil, err
+	}
 	presenceRegistration, presenceTarget, err := readercomponent.Compile(reflect.TypeFor[presence.HeadComponent](), "presence", reflect.TypeFor[presence.Input](), reflect.TypeFor[presence.Output](), resources, connector)
 	if err != nil {
 		return nil, err
@@ -68,11 +78,11 @@ func newPublishedDefinitionStore(db *sql.DB) (*publishedDefinitionStore, error) 
 	if err != nil {
 		return nil, err
 	}
-	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{activeRegistration, candidateRegistration, presenceRegistration, generationRegistration}, druntime.WithResources(resources))
+	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{activeRegistration, candidateRegistration, catalogRegistration, presenceRegistration, generationRegistration}, druntime.WithResources(resources))
 	if err != nil {
 		return nil, err
 	}
-	return &publishedDefinitionStore{runtime: runtime, active: activeTarget, candidate: candidateTarget, policyPresence: presenceTarget, generationCatalog: generationTarget}, nil
+	return &publishedDefinitionStore{runtime: runtime, active: activeTarget, candidate: candidateTarget, policyCatalog: catalogTarget, policyPresence: presenceTarget, generationCatalog: generationTarget}, nil
 }
 
 func (s *publishedDefinitionStore) Close(ctx context.Context) error {

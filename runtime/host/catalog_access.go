@@ -24,6 +24,17 @@ func (s *Service) catalogAuthorizers(components map[spec.Key]string, versions ma
 		return access.Resource{Kind: "component", ID: id, Version: strconv.Itoa(versions[id]), Tenant: s.config.Access.Tenant}, nil
 	}
 	tool := func(ctx context.Context, target dexec.ComponentTarget, action string) error {
+		if request, ok := ctx.Value(discoveryRequestKey{}).(*discoveryRequest); ok && s.config.NamespaceID != "" && s.resourceAccess != nil && s.definitionStore != nil && (action == "discover" || action == "describe") {
+			resource, err := componentResource(components[target.Component])
+			if err != nil {
+				return err
+			}
+			access, err := s.discoveryAccess(ctx, request)
+			if err != nil {
+				return err
+			}
+			return authorizeResourcePolicy(ctx, access, resource, action)
+		}
 		if err := s.authorizeNamespace(ctx); err != nil {
 			return err
 		}

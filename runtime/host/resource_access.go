@@ -72,10 +72,14 @@ func (s *Service) prepareResourcePolicyReader(ctx context.Context, resource acce
 }
 
 func (s *Service) authorizeResourcePolicy(ctx context.Context, r access.Resource, action string) error {
-	if s.resourceAccess == nil {
+	return authorizeResourcePolicy(ctx, s.resourceAccess, r, action)
+}
+
+func authorizeResourcePolicy(ctx context.Context, service *access.Service, r access.Resource, action string) error {
+	if service == nil {
 		return &xresponse.Error{Code: http.StatusForbidden, Cause: access.ErrDenied}
 	}
-	d, _, _, err := s.resourceAccess.AuthorizeWithStatus(ctx, access.Request{Resource: r, Action: action})
+	d, _, _, err := service.AuthorizeWithStatus(ctx, access.Request{Resource: r, Action: action})
 	if err != nil {
 		return resourceAuthorizationError(err)
 	}

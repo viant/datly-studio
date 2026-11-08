@@ -586,6 +586,11 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 	// component dependency; the context component is server-owned and
 	// registered in the same generation at that component's concrete route.
 	authorizer := s.publishedAuthorizer(versionByReport)
+	if len(versionByReport) > 0 && s.config.NamespaceID != "" && s.config.Access != nil {
+		if _, prepareErr := s.definitionStore.readCatalogPolicyGraph(ctx, s.config.Access.Tenant, s.config.NamespaceID); prepareErr != nil {
+			slog.WarnContext(ctx, "Studio discovery policy index preparation failed", "namespaceId", s.config.NamespaceID, "error", prepareErr)
+		}
+	}
 	accessContexts, bindsAccessContext, contextErr := authorizer.accessContexts(registrations, reportByComponent, versionByReport)
 	if contextErr != nil {
 		err = contextErr

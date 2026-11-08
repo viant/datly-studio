@@ -14,6 +14,7 @@ import (
 // Provider endpoints give clients an unambiguous authorization server choice.
 // Their canonical resource URLs are configured, never derived from Host headers.
 func (s *Service) oauthDiscovery(next http.Handler) http.Handler {
+	next = withDiscoveryRequest(next)
 	base := strings.TrimRight(s.config.Authentication.PublicMCPURL, "/")
 	if base != "" {
 		base += s.config.NamespaceMCPPath
