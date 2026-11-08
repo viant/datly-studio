@@ -1,0 +1,79 @@
+pipeline:
+  initialize:
+    action: http/runner:send
+    requests:
+      - URL: $status.StructuredContent.host.mcpUrl
+        method: POST
+        bearerTokenSecret: $ownerToken
+        header:
+          Content-Type: [application/json]
+          Accept: [application/json]
+          MCP-Protocol-Version: ['2025-11-25']
+        body: |-
+          {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2025-11-25", "capabilities": {}, "clientInfo": {"name": "saturation-check", "version": "1"}, "_meta": {"io.modelcontextprotocol/protocolVersion": "2025-11-25", "io.modelcontextprotocol/clientCapabilities": {}}}}
+        expect:
+          Code: 200
+          JSONBody:
+            result:
+              protocolVersion: '2025-11-25'
+  initializeBudget:
+    action: validator:assert
+    actual: $initialize.Responses[0].TimeTakenMs
+    expect: '/[0..50]/'
+  initializeTiming:
+    action: print
+    message: 'initialize milliseconds: $initialize.Responses[0].TimeTakenMs'
+  list:
+    action: http/runner:send
+    requests:
+      - URL: $status.StructuredContent.host.mcpUrl
+        method: POST
+        bearerTokenSecret: $ownerToken
+        header:
+          Content-Type: [application/json]
+          Accept: [application/json]
+          MCP-Protocol-Version: ['2025-11-25']
+        body: |-
+          {"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {"_meta": {"io.modelcontextprotocol/protocolVersion": "2025-11-25", "io.modelcontextprotocol/clientCapabilities": {}}}}
+        expect:
+          Code: 200
+          JSONBody:
+            result:
+              '@length@tools': 100
+  listBudget:
+    action: validator:assert
+    actual: $list.Responses[0].TimeTakenMs
+    expect: '/[0..50]/'
+  listTiming:
+    action: print
+    message: 'list milliseconds: $list.Responses[0].TimeTakenMs'
+  read:
+    action: http/runner:send
+    requests:
+      - URL: $status.StructuredContent.host.mcpUrl
+        method: POST
+        bearerTokenSecret: $ownerToken
+        header:
+          Content-Type: [application/json]
+          Accept: [application/json]
+          MCP-Protocol-Version: ['2025-11-25']
+        body: |-
+          {"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "saturation.read_001", "arguments": {}, "_meta": {"io.modelcontextprotocol/protocolVersion": "2025-11-25", "io.modelcontextprotocol/clientCapabilities": {}}}}
+        expect:
+          Code: 200
+          JSONBody:
+            result:
+              structuredContent:
+                '@length@rows': 4
+                rows:
+                  - id: 1
+                  - id: 2
+                  - id: 3
+                  - id: 4
+  readBudget:
+    action: validator:assert
+    actual: $read.Responses[0].TimeTakenMs
+    expect: '/[0..50]/'
+  readTiming:
+    action: print
+    message: 'read milliseconds: $read.Responses[0].TimeTakenMs'

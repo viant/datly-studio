@@ -1,0 +1,199 @@
+pipeline:
+  alphacreateConnector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: saturation
+      driver: sqlite
+      dsnTemplate: ${runDir}/consumer.db
+    allowToolError: false
+    '@name': studio.sdk.connectors.create
+  alphacreateConnectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphacreateConnector.IsError
+    expect: false
+  alphaprobe:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: saturation
+    allowToolError: false
+    '@name': studio.sdk.connectors.test
+  alphaprobeSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphaprobe.IsError
+    expect: false
+  alphaconnector:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: saturation
+    allowToolError: false
+    '@name': studio.sdk.connectors.get
+  alphaconnectorSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphaconnector.IsError
+    expect: false
+  alphaactivate:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: saturation
+      etag: $alphaconnector.StructuredContent.etag
+    allowToolError: false
+    '@name': studio.sdk.connectors.activate
+  alphaactivateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphaactivate.IsError
+    expect: false
+  alphanamespace:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      name: saturation
+      title: saturation
+      mcpEnabled: true
+      mcpPort: 0
+    allowToolError: false
+    '@name': studio.sdk.namespaces.create
+  alphanamespaceSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphanamespace.IsError
+    expect: false
+  publishReaders:
+    reader001: {action: run, request: '@reader', params: {readerIndex: '001'}}
+    reader002: {action: run, request: '@reader', params: {readerIndex: '002'}}
+    reader003: {action: run, request: '@reader', params: {readerIndex: '003'}}
+    reader004: {action: run, request: '@reader', params: {readerIndex: '004'}}
+    reader005: {action: run, request: '@reader', params: {readerIndex: '005'}}
+    reader006: {action: run, request: '@reader', params: {readerIndex: '006'}}
+    reader007: {action: run, request: '@reader', params: {readerIndex: '007'}}
+    reader008: {action: run, request: '@reader', params: {readerIndex: '008'}}
+    reader009: {action: run, request: '@reader', params: {readerIndex: '009'}}
+    reader010: {action: run, request: '@reader', params: {readerIndex: '010'}}
+    reader011: {action: run, request: '@reader', params: {readerIndex: '011'}}
+    reader012: {action: run, request: '@reader', params: {readerIndex: '012'}}
+    reader013: {action: run, request: '@reader', params: {readerIndex: '013'}}
+    reader014: {action: run, request: '@reader', params: {readerIndex: '014'}}
+    reader015: {action: run, request: '@reader', params: {readerIndex: '015'}}
+    reader016: {action: run, request: '@reader', params: {readerIndex: '016'}}
+    reader017: {action: run, request: '@reader', params: {readerIndex: '017'}}
+    reader018: {action: run, request: '@reader', params: {readerIndex: '018'}}
+    reader019: {action: run, request: '@reader', params: {readerIndex: '019'}}
+    reader020: {action: run, request: '@reader', params: {readerIndex: '020'}}
+    reader021: {action: run, request: '@reader', params: {readerIndex: '021'}}
+    reader022: {action: run, request: '@reader', params: {readerIndex: '022'}}
+    reader023: {action: run, request: '@reader', params: {readerIndex: '023'}}
+    reader024: {action: run, request: '@reader', params: {readerIndex: '024'}}
+    reader025: {action: run, request: '@reader', params: {readerIndex: '025'}}
+    reader026: {action: run, request: '@reader', params: {readerIndex: '026'}}
+    reader027: {action: run, request: '@reader', params: {readerIndex: '027'}}
+    reader028: {action: run, request: '@reader', params: {readerIndex: '028'}}
+    reader029: {action: run, request: '@reader', params: {readerIndex: '029'}}
+    reader030: {action: run, request: '@reader', params: {readerIndex: '030'}}
+    reader031: {action: run, request: '@reader', params: {readerIndex: '031'}}
+    reader032: {action: run, request: '@reader', params: {readerIndex: '032'}}
+    reader033: {action: run, request: '@reader', params: {readerIndex: '033'}}
+    reader034: {action: run, request: '@reader', params: {readerIndex: '034'}}
+    reader035: {action: run, request: '@reader', params: {readerIndex: '035'}}
+    reader036: {action: run, request: '@reader', params: {readerIndex: '036'}}
+    reader037: {action: run, request: '@reader', params: {readerIndex: '037'}}
+    reader038: {action: run, request: '@reader', params: {readerIndex: '038'}}
+    reader039: {action: run, request: '@reader', params: {readerIndex: '039'}}
+    reader040: {action: run, request: '@reader', params: {readerIndex: '040'}}
+    reader041: {action: run, request: '@reader', params: {readerIndex: '041'}}
+    reader042: {action: run, request: '@reader', params: {readerIndex: '042'}}
+    reader043: {action: run, request: '@reader', params: {readerIndex: '043'}}
+    reader044: {action: run, request: '@reader', params: {readerIndex: '044'}}
+    reader045: {action: run, request: '@reader', params: {readerIndex: '045'}}
+    reader046: {action: run, request: '@reader', params: {readerIndex: '046'}}
+    reader047: {action: run, request: '@reader', params: {readerIndex: '047'}}
+    reader048: {action: run, request: '@reader', params: {readerIndex: '048'}}
+    reader049: {action: run, request: '@reader', params: {readerIndex: '049'}}
+    reader050: {action: run, request: '@reader', params: {readerIndex: '050'}}
+    reader051: {action: run, request: '@reader', params: {readerIndex: '051'}}
+    reader052: {action: run, request: '@reader', params: {readerIndex: '052'}}
+    reader053: {action: run, request: '@reader', params: {readerIndex: '053'}}
+    reader054: {action: run, request: '@reader', params: {readerIndex: '054'}}
+    reader055: {action: run, request: '@reader', params: {readerIndex: '055'}}
+    reader056: {action: run, request: '@reader', params: {readerIndex: '056'}}
+    reader057: {action: run, request: '@reader', params: {readerIndex: '057'}}
+    reader058: {action: run, request: '@reader', params: {readerIndex: '058'}}
+    reader059: {action: run, request: '@reader', params: {readerIndex: '059'}}
+    reader060: {action: run, request: '@reader', params: {readerIndex: '060'}}
+    reader061: {action: run, request: '@reader', params: {readerIndex: '061'}}
+    reader062: {action: run, request: '@reader', params: {readerIndex: '062'}}
+    reader063: {action: run, request: '@reader', params: {readerIndex: '063'}}
+    reader064: {action: run, request: '@reader', params: {readerIndex: '064'}}
+    reader065: {action: run, request: '@reader', params: {readerIndex: '065'}}
+    reader066: {action: run, request: '@reader', params: {readerIndex: '066'}}
+    reader067: {action: run, request: '@reader', params: {readerIndex: '067'}}
+    reader068: {action: run, request: '@reader', params: {readerIndex: '068'}}
+    reader069: {action: run, request: '@reader', params: {readerIndex: '069'}}
+    reader070: {action: run, request: '@reader', params: {readerIndex: '070'}}
+    reader071: {action: run, request: '@reader', params: {readerIndex: '071'}}
+    reader072: {action: run, request: '@reader', params: {readerIndex: '072'}}
+    reader073: {action: run, request: '@reader', params: {readerIndex: '073'}}
+    reader074: {action: run, request: '@reader', params: {readerIndex: '074'}}
+    reader075: {action: run, request: '@reader', params: {readerIndex: '075'}}
+    reader076: {action: run, request: '@reader', params: {readerIndex: '076'}}
+    reader077: {action: run, request: '@reader', params: {readerIndex: '077'}}
+    reader078: {action: run, request: '@reader', params: {readerIndex: '078'}}
+    reader079: {action: run, request: '@reader', params: {readerIndex: '079'}}
+    reader080: {action: run, request: '@reader', params: {readerIndex: '080'}}
+    reader081: {action: run, request: '@reader', params: {readerIndex: '081'}}
+    reader082: {action: run, request: '@reader', params: {readerIndex: '082'}}
+    reader083: {action: run, request: '@reader', params: {readerIndex: '083'}}
+    reader084: {action: run, request: '@reader', params: {readerIndex: '084'}}
+    reader085: {action: run, request: '@reader', params: {readerIndex: '085'}}
+    reader086: {action: run, request: '@reader', params: {readerIndex: '086'}}
+    reader087: {action: run, request: '@reader', params: {readerIndex: '087'}}
+    reader088: {action: run, request: '@reader', params: {readerIndex: '088'}}
+    reader089: {action: run, request: '@reader', params: {readerIndex: '089'}}
+    reader090: {action: run, request: '@reader', params: {readerIndex: '090'}}
+    reader091: {action: run, request: '@reader', params: {readerIndex: '091'}}
+    reader092: {action: run, request: '@reader', params: {readerIndex: '092'}}
+    reader093: {action: run, request: '@reader', params: {readerIndex: '093'}}
+    reader094: {action: run, request: '@reader', params: {readerIndex: '094'}}
+    reader095: {action: run, request: '@reader', params: {readerIndex: '095'}}
+    reader096: {action: run, request: '@reader', params: {readerIndex: '096'}}
+    reader097: {action: run, request: '@reader', params: {readerIndex: '097'}}
+    reader098: {action: run, request: '@reader', params: {readerIndex: '098'}}
+    reader099: {action: run, request: '@reader', params: {readerIndex: '099'}}
+    reader100: {action: run, request: '@reader', params: {readerIndex: '100'}}
+  status:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.runtime.status
+    arguments:
+      namespaceId: $alphanamespace.StructuredContent.namespaceId
+  allReadersReady:
+    action: validator:assert
+    actual: $status.StructuredContent
+    expect:
+      host:
+        status: ready
+      '@length@readers': 100
+  tools:
+    action: mcp/runner:listTools
+    url: $status.StructuredContent.host.mcpUrl
+    bearerTokenSecret: $ownerToken
+  allToolsPresent:
+    action: validator:assert
+    actual: $tools
+    expect:
+      '@length@Tools': 100
+  latency:
+    action: run
+    request: '@timing'

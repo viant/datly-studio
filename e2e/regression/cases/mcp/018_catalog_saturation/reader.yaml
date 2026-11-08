@@ -1,0 +1,133 @@
+init:
+  readerIndex: $params.readerIndex
+  readerDQL: |-
+    #package('github.com/viant/datly-studio/dynamic/saturation__INDEX__')
+    #setting($_ = $input_type('CustomerInput'))
+    #setting($_ = $output_type('CustomerOutput'))
+    #setting($_ = $case_format('lc'))
+    #setting($_ = $connector('saturation'))
+    #setting($_ = $route('/saturation/__INDEX__', 'GET'))
+    #setting($_ = $mcp('saturation.read___INDEX__','Read consumer customers'))
+    #define($_ = $Rows<[]*Customer>(output/view))
+    SELECT customers.*, type(customers,'Customer') FROM (SELECT c.id,c.tenant,c.name,c.active FROM customers c) customers
+pipeline:
+  alphacomponent:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $alphanamespace.StructuredContent.namespaceId
+      title: saturation_${readerIndex}
+      slug: saturation-${readerIndex}
+      namespace: saturation
+      defaultConnectorName: saturation
+    allowToolError: true
+    '@name': studio.sdk.components.create
+  alphacomponentSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphacomponent
+    expect:
+      IsError: false
+  alphaimport:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $alphanamespace.StructuredContent.namespaceId
+      reportId: $alphacomponent.StructuredContent.id
+      input:
+        dql: $Replace($readerDQL, '__INDEX__', $readerIndex)
+    allowToolError: false
+    '@name': studio.sdk.versions.load_dql
+  alphaimportSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphaimport.IsError
+    expect: false
+  alphaverifyImport:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphaimport.StructuredContent.version
+    expect:
+      state: draft
+      compileStatus: pending
+  alphavalidate:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $alphanamespace.StructuredContent.namespaceId
+      reportId: $alphacomponent.StructuredContent.id
+      versionNo: $alphaimport.StructuredContent.version.versionNo
+      expectedSourceRevision: $alphaimport.StructuredContent.version.sourceRevision
+    allowToolError: false
+    '@name': studio.sdk.versions.validate
+  alphavalidateSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphavalidate.IsError
+    expect: false
+  alphapublishHostReady:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.runtime.status
+    arguments:
+      namespaceId: $alphanamespace.StructuredContent.namespaceId
+    allowToolError: true
+    repeat: 50
+    thinkTimeMs: 100
+    exit: $output:/"status":"ready"/
+  alphapublishHostReadyAssert:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphapublishHostReady.StructuredContent.host.status
+    expect: ready
+  alphapublish:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    arguments:
+      namespaceId: $alphanamespace.StructuredContent.namespaceId
+      reportId: $alphacomponent.StructuredContent.id
+      versionNo: $alphaimport.StructuredContent.version.versionNo
+      input:
+        expectedSourceRevision: $alphaimport.StructuredContent.version.sourceRevision
+    allowToolError: false
+    '@name': studio.sdk.publications.publish
+  alphapublishSucceeded:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $alphapublish.IsError
+    expect: false
+  executeLocalData:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.preview.execute
+    arguments:
+      namespaceId: $alphanamespace.StructuredContent.namespaceId
+      reportId: $alphacomponent.StructuredContent.id
+      versionNo: $alphaimport.StructuredContent.version.versionNo
+      input:
+        limit: 20
+    allowToolError: false
+  localRows:
+    action: validator:assert
+    actual: $executeLocalData.StructuredContent.evidence
+    expect:
+      returnedRows: 4
+  deniedReader:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $outsiderToken
+    '@name': studio.sdk.components.get
+    arguments:
+      namespaceId: $alphanamespace.StructuredContent.namespaceId
+      id: $alphacomponent.StructuredContent.id
+    allowToolError: true
+  outsiderDenied:
+    action: validator:assert
+    actual: $deniedReader.IsError
+    expect: true

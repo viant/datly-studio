@@ -1,0 +1,1 @@
+Publish 100 native database readers in one namespace and verify prepared MCP inventory and access.
