@@ -131,6 +131,8 @@ Use `studio.sdk.authorization_predicates.types` with the actual canonical
 for startup/recovery. Namespace visibility and publisher permission are verified
 server-side.
 
+**Example: a reader validates in one namespace and reports `runtime_predicate_type_unavailable` in a fresh namespace.** Call `studio.sdk.authorization_predicates.types` first with `{}`, then with the target `namespaceId`, on the same host. If the handler appears only in the first result, read the target’s `settings_get`. A namespace administrator can add its package to the existing `security.predicatePackages` with the returned ETag and preserve the other packages and required-predicate policy. Repeat scoped discovery and validate the original draft. A fully qualified DQL type name still requires namespace selection. If unscoped discovery also lacks the handler, verify the host build and linked type registration first.
+
 A trusted optional main-DQL validator can impose additional application rules and
 return diagnostics. Agents cannot install executable callbacks through DQL or tool
 arguments. Use the existing namespace setting and version operations rather than
