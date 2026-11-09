@@ -96,3 +96,27 @@ For Go-backed readers, generate using Datly v1 operation-based transcribe get.
 Use separate writer DQL and transcribe post/patch/put for persistence mutations;
 keep business checks in lifecycle hooks. Custom components own genuine external
 orchestration. Do not create raw database persistence wrappers as a substitute.
+
+## Return filtered totals with paged rows
+
+Declare an output summary on the reader when the consumer needs a page of rows
+and the count across that filtered result. For example, add these output holders
+to a reader whose root query returns authorized inventory records:
+
+```sql
+#define($_ = $Meta<?>(output/summary) /*
+SELECT COUNT(*) AS row_count
+FROM ($View.NonWindowSQL) AS filtered
+*/)
+#define($_ = $Data<?>(output/view))
+```
+
+With two matching records and a page limit of one, expect one record in Data
+and a count of two in Meta. Check a filter matching no records as well. The
+parent SQL supplies its predicates, including authorization. An explicit LIMIT
+inside the authored root SQL still bounds what the summary can count.
+
+A calculation that determines which facts may enter the root query has a
+different execution order. Declare that calculation as a private input view
+and bind its value in the fact predicate. For example, an eligibility rule
+over all authorized entities must run before the selected-entity filter.

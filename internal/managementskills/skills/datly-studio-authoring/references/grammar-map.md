@@ -5,7 +5,7 @@ These references explain the native contract; they do not define another parser.
 
 | Task | Read |
 | --- | --- |
-| Package, connector, route, input/output holders | [DQL reader shape](dql.md) |
+| Package, connector, route, input/output holders and filtered totals | [DQL reader shape](dql.md) |
 | Typed columns, nulls, aliases and output dates | [Column output how-to](column-output-howto.md) |
 | Dimensions, measures and reusable cube grain | [Cubes and dictionaries](cubes-and-dictionaries.md) |
 | Parameter-dependent grouping and aggregation order | [Parameterized grouping how-to](parameterized-grouping-howto.md) |
