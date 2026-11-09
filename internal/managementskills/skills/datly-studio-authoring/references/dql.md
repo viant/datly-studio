@@ -16,6 +16,9 @@ not an executable validator or an exhaustive SQL dialect grammar.
 
 #define($_ = $AccountID<int>(query/accountId).Required().WithPredicate(0, 'equal', 'o', 'account_id'))
 #define($_ = $Rows<[]*OrderRow>(output/view))
+#define($_ = $Meta<?>(output/summary) /*
+SELECT COUNT(*) AS row_count FROM ($View.NonWindowSQL) AS filtered
+*/)
 
 SELECT orders.*, type(orders, 'OrderRow'), set_limit(orders, 50)
 FROM (
@@ -99,19 +102,10 @@ orchestration. Do not create raw database persistence wrappers as a substitute.
 
 ## Return filtered totals with paged rows
 
-Declare an output summary on the reader when the consumer needs a page of rows
-and the count across that filtered result. For example, add these output holders
-to a reader whose root query returns authorized inventory records:
+In the complete reader above, Rows holds the current page and Meta holds the
+summary over the filtered order rows.
 
-```sql
-#define($_ = $Meta<?>(output/summary) /*
-SELECT COUNT(*) AS row_count
-FROM ($View.NonWindowSQL) AS filtered
-*/)
-#define($_ = $Data<?>(output/view))
-```
-
-With two matching records and a page limit of one, expect one record in Data
+With two matching records and a page limit of one, expect one record in Rows
 and a count of two in Meta. Check a filter matching no records as well. The
 parent SQL supplies its predicates, including authorization. An explicit LIMIT
 inside the authored root SQL still bounds what the summary can count.
