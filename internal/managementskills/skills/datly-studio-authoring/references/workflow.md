@@ -84,6 +84,29 @@ source change. Inspect the saved structure and SQL resources after applying it.
 Do not invent builder operation payloads: inspect the operation schema or export
 a small working component and adapt its declared contract.
 
+For a source-only edit, inspect with `discoverColumns:false` first. This reads the
+saved source without attempting database column discovery on possibly broken DQL.
+Use the existing authored-source command shape:
+
+```json
+{
+  "reportId": "example-reader",
+  "versionNo": 1,
+  "command": {
+    "kind": "set_dql",
+    "expectedSourceRevision": 3,
+    "payload": {"authoredDql": "<complete corrected DQL source>"}
+  }
+}
+```
+
+Replace the example identifiers and revision with readback values. The field is
+`authoredDql`, not `dql` or `source`. After saving, verify the returned source and
+revision, then pass that revision to `versions.validate`. A successful save is not
+a validation result or publication. If column discovery was requested and fails,
+preserve its error and use source-only inspection to repair the source; do not
+label the failed discovery as passed.
+
 Maintain one checkpoint: namespaceId, reportId, versionNo, sourceRevision and
 state. An edit to draft v1 revision 3 produces draft v1 revision 4, not published
 v4. Update that checkpoint from every successful mutation response. A metadata

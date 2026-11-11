@@ -21,6 +21,16 @@ Read `references/dql.md` before writing source and the relevant portion of
 `references/workflow.md` before saving or publishing. Load only the references
 needed for the requested change; do not enumerate unrelated tools or tables.
 
+For an existing DQL draft, discover `versions.inspect`, `versions.apply` and
+`versions.validate` together using the management provider and name filters.
+Read source with `versions.inspect(discoverColumns:false)` before editing; column
+discovery is a separate operation and can fail on the source you are repairing.
+For `versions.apply`, use `command.kind: "set_dql"`, put the complete source in
+`command.payload.authoredDql`, and put the readback revision in
+`command.expectedSourceRevision`. A `dql` field is not this payload contract.
+Read back after saving, then validate the returned revision. Do not publish a
+requested draft edit unless publication is also requested.
+
 **Construct authored filtering WHERE clauses with `predicate.Builder`.** Declare
 each input's type, transport binding, presence and predicate in `#define` first:
 
