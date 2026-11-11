@@ -3,8 +3,10 @@ package host
 import (
 	"context"
 	"encoding/json"
+	jwtlib "github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/require"
 	"github.com/viant/authz"
+	"github.com/viant/authz/gating"
 	"github.com/viant/authz/oauth"
 	primitive "github.com/viant/forge/backend/provider/contract"
 	identity "github.com/viant/forge/backend/resource"
@@ -47,12 +49,13 @@ func (p *preparedDatasourceProofCounter) Verify(ctx context.Context, pin identit
 }
 
 type preparedDatasourceFixture struct {
-	service *Service
-	ctx     context.Context
-	input   stockPublishedDatasourceInput
-	entry   preparedStockDatasource
-	trace   *preparedDatasourcePolicyTrace
-	proofs  *preparedDatasourceProofCounter
+	service       *Service
+	ctx           context.Context
+	input         stockPublishedDatasourceInput
+	entry         preparedStockDatasource
+	trace         *preparedDatasourcePolicyTrace
+	proofs        *preparedDatasourceProofCounter
+	metadataTrace *preparedDatasourcePolicyTrace
 }
 
 func newPreparedDatasourceFixture(t *testing.T) preparedDatasourceFixture {
@@ -61,7 +64,14 @@ func newPreparedDatasourceFixture(t *testing.T) preparedDatasourceFixture {
 	fixture, err := newScopedHost(t, map[string]string{"records": unscopedRecordsDQL}, map[string]authz.Policy{"records": reader})
 	require.NoError(t, err)
 	service := fixture.service
-	ctx := oauth.WithBearer(context.Background(), fixture.token(t, "alice", []authz.Entity{}))
+	identityProvider := service.resourceAccess.Provider
+	principals, ok := identityProvider.(gating.PrincipalResolver)
+	require.True(t, ok)
+	now := time.Now()
+	claims := jwtlib.MapClaims{"iss": scopeTestIssuer, "aud": scopeTestAudience, "sub": "alice", "exp": now.Add(time.Minute).Unix(), "iat": now.Add(-time.Second).Unix(), "tenant": scopeTestTenant, "accountId": "21", "roles": []string{"reader"}}
+	token, err := jwtlib.NewWithClaims(jwtlib.SigningMethodRS256, claims).SignedString(fixture.key)
+	require.NoError(t, err)
+	ctx := oauth.WithBearer(context.Background(), token)
 	docs := []authz.Document{{Resource: authz.Resource{Kind: "component", ID: "records", Version: "1", Tenant: scopeTestTenant}, Revision: 1, Policies: map[string]authz.Policy{"describe": reader, "execute": reader}}}
 	store, err := authz.NewStaticStore(docs)
 	require.NoError(t, err)
@@ -77,23 +87,39 @@ func newPreparedDatasourceFixture(t *testing.T) preparedDatasourceFixture {
 	require.NoError(t, validateStockDatasourceDefinition(1, definition))
 	entry := preparedStockDatasource{id: "records", definition: definition, fingerprint: identity.ContentFingerprint(definition), reference: ref, component: binding}
 	service.config.Forge = &ForgeConfig{ProviderIdentity: "prepared-fixture"}
-	service.windowPrimitiveSource = &stockPrimitiveSource{} // no parent catalog/source/policy is available to rewalk
+	uri, err := identity.ParseResourceURI("datasource://team/overview/records")
+	require.NoError(t, err)
+	configured := stockDatasourceEntry{id: "records", uri: uri, standalone: &ForgeDataSource{URI: uri.String()}}
+	service.windowPrimitiveSource = &stockPrimitiveSource{datasources: map[string]stockDatasourceEntry{uri.String(): configured}}
+	resource := authz.Resource{Kind: "datasource", ID: "team/overview/records", Version: identity.WorkingCandidate, Tenant: "*"}
+	metadataStore, err := authz.NewStaticStore([]authz.Document{{Resource: resource, Revision: 1, Policies: map[string]authz.Policy{"execute": reader}}})
+	require.NoError(t, err)
+	selections, err := authz.NewStaticSelectionStore([]authz.SelectionDocument{{Resource: authz.ResourceFamily{Kind: resource.Kind, ID: resource.ID, Tenant: resource.Tenant}, Revision: 1, DefaultVersion: identity.WorkingCandidate}})
+	require.NoError(t, err)
+	metadataTrace := &preparedDatasourcePolicyTrace{Store: metadataStore}
+	service.windowPrimitivePolicy = &stockWindowPolicy{service: service, tenant: "*", principals: principals, selector: &authz.Selector{Mappings: selections, Service: &authz.Service{Store: metadataTrace, Provider: identityProvider}}}
 	service.windowPrimitiveSource.preparedDatasources.Store(&stockDatasourceGeneration{entries: map[string]preparedStockDatasource{"datasource://team/overview/records": entry}})
 	signer, err := types.NewWindowTargetHMAC([]byte(strings.Repeat("p", 32)))
 	require.NoError(t, err)
 	proofs := &preparedDatasourceProofCounter{WindowTargetProof: signer}
 	service.windowExecutionProof = proofs
 	pin := identity.ResolvedResource{ProviderIdentity: "prepared-fixture", URI: "datasource://team/overview/records", ResourceCandidate: identity.ResourceCandidate{Kind: identity.WorkingCandidate, ContentFingerprint: entry.fingerprint}, AuthorityBinding: "original-producer-binding", ValidUntil: time.Now().Add(time.Minute)}
+	decision, err := service.datasourceResolver(configured, "execute").Policy.SelectRevision(ctx, identity.ResourceRef{URI: pin.URI, Revision: "working"}, []identity.ResourceCandidate{pin.ResourceCandidate})
+	require.NoError(t, err)
+	pin.AuthorityBinding = decision.AuthorityBinding
+	pin.ValidUntil = decision.ValidUntil
 	get := primitive.GetResult{Resource: &primitive.ResourceState{}, ResolvedResource: &pin}
 	require.NoError(t, service.signDatasourceExecutionProof(ctx, &get))
 	trace.reset()
-	return preparedDatasourceFixture{service, ctx, stockPublishedDatasourceInput{Resource: pin, ExecutionProof: get.ExecutionProof, DataSourceID: "records"}, entry, trace, proofs}
+	metadataTrace.reset()
+	return preparedDatasourceFixture{service, ctx, stockPublishedDatasourceInput{Resource: pin, ExecutionProof: get.ExecutionProof, DataSourceID: "records"}, entry, trace, proofs, metadataTrace}
 }
 func TestPreparedPublishedDatasourceExecutesOnlySelectedComponent(t *testing.T) {
 	f := newPreparedDatasourceFixture(t)
 	result, err := f.service.publishedDatasourceFetch(f.ctx, f.input)
 	require.NoError(t, err)
 	require.Contains(t, string(result), "alpha-101")
+	require.Len(t, f.metadataTrace.snapshot(), 1, "select the exact datasource policy once without rereading its prepared definition")
 	require.EqualValues(t, 1, f.proofs.verifies.Load(), "one proof verification per invocation")
 	observed := f.trace.snapshot()
 	require.NotEmpty(t, observed, "selected component data authorization must remain")

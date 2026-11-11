@@ -182,12 +182,29 @@ func (s *Service) publishedDatasourceFetch(ctx context.Context, in stockPublishe
 	if err != nil {
 		return nil, err
 	}
-	_, current, err := s.datasourceResolver(datasource, "execute").ReadResolved(ctx, pin)
+	// The definition and its fingerprint were prepared with this generation.
+	// Reuse the owning policy selector for the caller without reading, copying,
+	// hashing, and selecting the same immutable definition twice.
+	decision, err := s.datasourceResolver(datasource, "execute").Policy.SelectRevision(ctx,
+		identity.ResourceRef{URI: pin.URI, Revision: pin.Selector()}, []identity.ResourceCandidate{pin.ResourceCandidate})
 	if err != nil {
 		return nil, err
 	}
-	if current.ValidUntil.Before(pin.ValidUntil) {
-		pin.ValidUntil = current.ValidUntil
+	if decision.Candidate != pin.ResourceCandidate || decision.AuthorityBinding != pin.AuthorityBinding || !decision.ValidUntil.After(time.Now()) {
+		return nil, identity.ErrResourceDenied
+	}
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	current := s.windowPrimitiveSource.preparedDatasources.Load()
+	if s.windowPrimitiveSource.invalidated.Load() || current == nil {
+		return nil, identity.ErrResourceStale
+	}
+	if currentEntry, ok := current.entries[pin.URI]; !ok || currentEntry.fingerprint != entry.fingerprint {
+		return nil, identity.ErrResourceStale
+	}
+	if decision.ValidUntil.Before(pin.ValidUntil) {
+		pin.ValidUntil = decision.ValidUntil
 	}
 	ctx, cancel := context.WithDeadline(ctx, pin.ValidUntil)
 	defer cancel()
