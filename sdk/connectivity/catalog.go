@@ -16,6 +16,7 @@ import (
 
 	"github.com/viant/datly-studio/internal/connectorinit"
 	"github.com/viant/datly-studio/internal/connectorsecret"
+	"github.com/viant/datly-studio/internal/providererror"
 	"github.com/viant/datly-studio/sdk"
 	sqlxio "github.com/viant/sqlx/io"
 	"github.com/viant/sqlx/io/config"
@@ -156,12 +157,15 @@ func (c SQLCatalog) Table(ctx context.Context, connector *sdk.Connector, input s
 	schema := session.Schema
 	columns, err := config.Columns(ctx, session, db, input.Table)
 	metadataSource := "catalog"
+	var diagnostics []sdk.Diagnostic
 	if err != nil {
-		columns, err = probeTableColumns(ctx, db, session, input.Table, err)
+		primary := err
+		columns, err = probeTableColumns(ctx, db, session, input.Table, primary)
 		if err != nil {
 			return nil, err
 		}
 		metadataSource = "zero_row_probe"
+		diagnostics = []sdk.Diagnostic{{Severity: "warning", Stage: "catalog.columns", Code: "column_metadata_fallback", Message: providererror.AppendCatalogStatus("Primary column metadata discovery failed; a zero-row probe supplied the column metadata.", primary), Hint: "Verify the exact source catalog and schema and the configured connector metadata access. Constraint information may be unknown; inspect constraintsKnown and nullableKnown before using it."}}
 	}
 	var primary, foreign []sink.Key
 	primaryErr := metadata.New().Info(ctx, db, info.KindPrimaryKeys, &primary, option.NewArgs(session.Catalog, schema, input.Table))
@@ -177,10 +181,10 @@ func (c SQLCatalog) Table(ctx context.Context, connector *sdk.Connector, input s
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	result := &sdk.TableDetail{MetadataSource: metadataSource, ConstraintsKnown: metadataSource == "catalog" && primaryErr == nil && foreignErr == nil, Table: sdk.DatabaseTable{Catalog: session.Catalog, Schema: schema, Name: input.Table, Type: "TABLE"}}
+	result := &sdk.TableDetail{Diagnostics: diagnostics, MetadataSource: metadataSource, ConstraintsKnown: metadataSource == "catalog" && primaryErr == nil && foreignErr == nil, Table: sdk.DatabaseTable{Catalog: session.Catalog, Schema: schema, Name: input.Table, Type: "TABLE"}}
 	for _, column := range columns {
 		reference := fk[strings.ToLower(column.Name)]
-		nullableKnown := column.Nullable != "unknown"
+		nullableKnown := column.IsNullable() || column.IsNotNull()
 		result.Columns = append(result.Columns, sdk.DatabaseColumn{NullableKnown: &nullableKnown, Name: column.Name, Type: column.Type, Nullable: column.IsNullable(), PrimaryKey: pk[strings.ToLower(column.Name)] || strings.EqualFold(column.Key, "PRI"), Unique: column.IsUnique(), AutoIncrement: column.Autoincrement(), Default: column.Default, ReferenceSchema: reference.ReferenceSchema, ReferenceTable: reference.ReferenceTable, ReferenceColumn: reference.ReferenceColumn})
 	}
 	sort.Slice(result.Columns, func(i, j int) bool { return result.Columns[i].Name < result.Columns[j].Name })
@@ -308,14 +312,14 @@ func discoveryDSN(driver, dsn string, scope discoveryScope) (string, error) {
 // authorized connection. No rows are consumed and no connection scope changes.
 func probeTableColumns(ctx context.Context, db *sql.DB, session *sink.Session, table string, primary error) ([]sink.Column, error) {
 	if err := ctx.Err(); err != nil {
-		return nil, errors.Join(primary, err)
+		return nil, &ColumnDiscoveryError{Primary: primary, Probe: err, Phase: "cancellation"}
 	}
 	if errors.Is(primary, context.Canceled) || errors.Is(primary, context.DeadlineExceeded) {
 		return nil, primary
 	}
 	dialect, err := config.Dialect(ctx, db)
 	if err != nil {
-		return nil, fmt.Errorf("table column discovery dialect: %w", errors.Join(primary, err))
+		return nil, &ColumnDiscoveryError{Primary: primary, Probe: err, Phase: "dialect"}
 	}
 	name, err := dialect.QuoteIdentifier(table)
 	if err == nil {
@@ -337,7 +341,7 @@ func probeTableColumns(ctx context.Context, db *sql.DB, session *sink.Session, t
 		}
 	}
 	if err != nil {
-		return nil, fmt.Errorf("table column discovery identifier: %w", errors.Join(primary, err))
+		return nil, &ColumnDiscoveryError{Primary: primary, Probe: err, Phase: "identifier"}
 	}
 	nullableKnown := map[string]bool{}
 	detector := sqlxio.ColumnDetector{ResolveTypes: func(columns []sqlxio.Column) map[int]reflect.Type {
@@ -349,14 +353,29 @@ func probeTableColumns(ctx context.Context, db *sql.DB, session *sink.Session, t
 	}}
 	detected, err := detector.Detect(ctx, db, "SELECT * FROM "+name+" WHERE 1=0")
 	if err != nil {
-		return nil, fmt.Errorf("table column discovery failed in catalog and zero-row probe: %w", errors.Join(primary, err))
+		return nil, &ColumnDiscoveryError{Primary: primary, Probe: err, Phase: "zero-row probe"}
 	}
 	result := make([]sink.Column, 0, len(detected))
 	for _, column := range detected {
 		if !nullableKnown[column.Name] {
-			column.Nullable = "unknown"
+			column.Nullable = ""
+		} else if column.Nullable == "" {
+			column.Nullable = "0"
 		}
 		result = append(result, *column)
 	}
 	return result, nil
 }
+
+// ColumnDiscoveryError preserves the primary metadata failure separately from
+// recovery failure. Consumers classify Primary; Unwrap retains both identities.
+type ColumnDiscoveryError struct {
+	Primary error  `json:"-"`
+	Probe   error  `json:"-"`
+	Phase   string `json:"phase"`
+}
+
+func (e *ColumnDiscoveryError) Error() string {
+	return fmt.Sprintf("table column discovery: %v; %s failed: %v", e.Primary, e.Phase, e.Probe)
+}
+func (e *ColumnDiscoveryError) Unwrap() []error { return []error{e.Primary, e.Probe} }

@@ -75,6 +75,9 @@ func TestCatalogNativeZeroRowFallback(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if len(result.Diagnostics) != 1 || result.Diagnostics[0].Severity != "warning" || result.Diagnostics[0].Code != "column_metadata_fallback" {
+		t.Fatalf("missing primary failure warning: %+v", result.Diagnostics)
+	}
 	if len(result.Columns) != 2 || result.MetadataSource != "zero_row_probe" || result.ConstraintsKnown {
 		t.Fatalf("result=%+v", result)
 	}
@@ -107,6 +110,11 @@ func TestColumnFallbackCancellationAndFailureRetainPrimary(t *testing.T) {
 		t.Fatal(err)
 	}
 	_, err = probeTableColumns(context.Background(), db, &sink.Session{Schema: "main"}, "missing", catalogDenied)
+	var recovery *ColumnDiscoveryError
+	var native *sqlite.Error
+	if !errors.As(err, &recovery) || recovery.Primary != catalogDenied || !errors.As(err, &native) {
+		t.Fatalf("lost metadata or native probe cause: %v", err)
+	}
 	if !errors.Is(err, catalogDenied) || !strings.Contains(err.Error(), "zero-row probe") {
 		t.Fatal(err)
 	}

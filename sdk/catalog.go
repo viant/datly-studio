@@ -79,6 +79,7 @@ type TableCatalog struct {
 	Offset int             `json:"offset"`
 }
 type TableDetail struct {
+	Diagnostics []Diagnostic `json:"diagnostics,omitempty"`
 	// Zero-row probes describe columns only. False means constraints are unknown.
 	MetadataSource   string           `json:"metadataSource,omitempty"`
 	ConstraintsKnown bool             `json:"constraintsKnown"`

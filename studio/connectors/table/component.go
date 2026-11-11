@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/viant/datly-studio/internal/connectorcatalog"
@@ -18,6 +19,7 @@ import (
 	"github.com/viant/scy/auth/jwt"
 	"github.com/viant/xdatly"
 	xhandler "github.com/viant/xdatly/handler"
+	xresponse "github.com/viant/xdatly/response"
 )
 
 type Input struct {
@@ -28,6 +30,7 @@ type Input struct {
 }
 
 type Output struct {
+	Diagnostics      []sdk.Diagnostic     `parameter:"Diagnostics,kind=output,in=body,dataType=[]sdk.Diagnostic" json:"diagnostics,omitempty"`
 	MetadataSource   string               `parameter:"MetadataSource,kind=output,in=body,dataType=string" json:"metadataSource,omitempty"`
 	ConstraintsKnown bool                 `parameter:"ConstraintsKnown,kind=output,in=body,dataType=bool" json:"constraintsKnown"`
 	Table            sdk.DatabaseTable    `parameter:"Table,kind=output,in=body,dataType=sdk.DatabaseTable" json:"table"`
@@ -65,18 +68,59 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	}
 	result, err := (connectivity.SQLCatalog{}).Table(ctx, connector, input.Input)
 	if err != nil {
-		if errors.Is(err, context.Canceled) {
-			return publisherguard.PublicError(499, "Table discovery was canceled.", err)
-		}
-		if errors.Is(err, context.DeadlineExceeded) {
-			return publisherguard.PublicError(504, "Table discovery exceeded its deadline.", err)
-		}
-		return publisherguard.PublicError(502, providererror.AppendCatalogStatus("Table discovery failed. Verify the exact catalog, schema and table with the configured connector; inspect server diagnostics for catalog and zero-row probe failures.", err), err)
+		return discoveryError(err)
 	}
 	if result == nil {
 		return fmt.Errorf("connector table detail returned no result")
 	}
 	output.Table, output.Columns = result.Table, result.Columns
 	output.MetadataSource, output.ConstraintsKnown = result.MetadataSource, result.ConstraintsKnown
+	output.Diagnostics = result.Diagnostics
 	return nil
+}
+
+func discoveryError(err error) error {
+	if errors.Is(err, context.Canceled) {
+		return publisherguard.PublicError(499, "Table discovery was canceled.", err)
+	}
+	if errors.Is(err, context.DeadlineExceeded) {
+		return publisherguard.PublicError(504, "Table discovery exceeded its deadline.", err)
+	}
+	primary := err
+	var recovery *connectivity.ColumnDiscoveryError
+	if errors.As(err, &recovery) {
+		primary = recovery.Primary
+	}
+	status := xresponse.ErrorStatusCode(primary, 502)
+	if provider := providererror.FromError(primary); provider != nil {
+		if provider.Provider == "Google API" {
+			if code, e := strconv.Atoi(provider.Code); e == nil && code >= 400 && code <= 599 {
+				status = code
+			}
+		}
+		switch provider.Reason {
+		case "accessDenied":
+			status = 403
+		case "notFound":
+			status = 404
+		case "invalidQuery":
+			status = 400
+		case "rateLimitExceeded", "jobRateLimitExceeded", "quotaExceeded":
+			status = 429
+		case "backendError", "internalError":
+			status = 503
+		}
+	}
+	message := providererror.AppendCatalogStatus("Primary table metadata discovery failed. Verify the exact source catalog and schema with the configured connector.", primary)
+	if recovery != nil {
+		message += " The zero-row recovery probe also failed; the original metadata failure is reported above."
+	}
+	result := publisherguard.PublicError(status, message, err).(*xresponse.Error)
+	if recovery != nil {
+		result.Payload = map[string]any{"message": message, "diagnostics": []sdk.Diagnostic{
+			{Severity: "error", Stage: "catalog.columns", Code: "column_metadata_failed", Message: providererror.AppendCatalogStatus("Primary column metadata discovery failed.", primary), Hint: "Verify source metadata availability for the selected catalog and schema using the configured connector."},
+			{Severity: "error", Stage: "catalog.probe", Code: "column_probe_failed", Message: providererror.AppendCatalogStatus("The zero-row recovery probe also failed.", recovery.Probe), Hint: "The original metadata failure determines this response status; inspect the probe's native failure separately."},
+		}}
+	}
+	return result
 }

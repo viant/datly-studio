@@ -3215,6 +3215,7 @@ func (p namespaceAdminProvider) Resolve(context.Context) (resourceaccess.Facts, 
 func checkConnectorCatalogProviderErrors(ctx context.Context, t *testing.T, store *sql.DB, server http.Handler, request func(string, string) *http.Request, callTool func(string, map[string]any) (int, []byte)) {
 	t.Helper()
 	const sessionResult = `{"jobComplete":true,"jobReference":{"projectId":"job-project","jobId":"session"},"schema":{"fields":[{"name":"CATALOG","type":"STRING","mode":"NULLABLE"},{"name":"SCHEMA_NAME","type":"STRING","mode":"NULLABLE"}]},"totalRows":"1","rows":[{"f":[{"v":"job-project"},{"v":"dataset"}]}]}`
+	var allowProbe atomic.Bool
 	provider := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet && r.URL.Path == "/projects/source-project/datasets/dataset/tables/records" {
 			w.Header().Set("Content-Type", "application/json")
@@ -3230,6 +3231,10 @@ func checkConnectorCatalogProviderErrors(ctx context.Context, t *testing.T, stor
 		}
 		w.Header().Set("Content-Type", "application/json")
 		switch {
+		case allowProbe.Load() && query.Query == "SELECT * FROM `source-project.dataset.records` WHERE 1=0":
+			fmt.Fprint(w, `{"jobComplete":true,"jobReference":{"projectId":"job-project","jobId":"probe"},"schema":{"fields":[{"name":"id","type":"INTEGER","mode":"NULLABLE"}]},"rows":[],"totalRows":"0"}`)
+		case allowProbe.Load() && strings.Contains(query.Query, "AS CONSTRAINT_NAME"):
+			fmt.Fprint(w, `{"jobComplete":true,"jobReference":{"projectId":"job-project","jobId":"keys"},"schema":{"fields":[{"name":"CONSTRAINT_NAME","type":"STRING"}]},"rows":[],"totalRows":"0"}`)
 		case strings.Contains(query.Query, "SESSION_USER()"):
 			fmt.Fprint(w, sessionResult)
 		case strings.Contains(query.Query, "source-project.INFORMATION_SCHEMA.SCHEMATA"):
@@ -3267,7 +3272,7 @@ func checkConnectorCatalogProviderErrors(ctx context.Context, t *testing.T, stor
 	}{
 		{"schemas", `{"catalog":"source-project"}`, http.StatusBadGateway, "Google API error 403 (accessDenied)"},
 		{"tables", `{"catalog":"source-project","schema":"dataset"}`, http.StatusBadGateway, "Google API error 404 (notFound)"},
-		{"table", `{"catalog":"source-project","schema":"dataset","table":"records"}`, http.StatusBadGateway, "Google API error 404 (notFound)"},
+		{"table", `{"catalog":"source-project","schema":"dataset","table":"records"}`, http.StatusNotFound, "Google API error 404 (notFound)"},
 		{"discover", `{"catalog":"source-project"}`, http.StatusOK, "Google API error 403 (accessDenied)"},
 		{"schemas", `{"catalog":"invalid catalog"}`, http.StatusBadGateway, `"message":"connector schema catalog is unavailable"`},
 	} {
@@ -3277,7 +3282,7 @@ func checkConnectorCatalogProviderErrors(ctx context.Context, t *testing.T, stor
 		if response.Code != test.status || !strings.Contains(body, test.message) {
 			t.Errorf("connector %s status=%d body=%s", test.operation, response.Code, body)
 		}
-		if test.status == http.StatusBadGateway && strings.HasPrefix(test.message, "Google API") {
+		if test.status >= 400 && strings.HasPrefix(test.message, "Google API") {
 			var input map[string]any
 			if err := json.Unmarshal([]byte(test.input), &input); err != nil {
 				t.Fatal(err)
@@ -3294,4 +3299,27 @@ func checkConnectorCatalogProviderErrors(ctx context.Context, t *testing.T, stor
 			}
 		}
 	}
+	allowProbe.Store(true)
+	response := httptest.NewRecorder()
+	server.ServeHTTP(response, request("/v1/studio/sdk/connectors.table", `{"name":"provider_catalog","input":{"catalog":"source-project","schema":"dataset","table":"records"}}`))
+	if response.Code != 200 {
+		t.Fatalf("successful fallback HTTP: %d %s", response.Code, response.Body.String())
+	}
+	status, body := callTool("studio.sdk.connectors.table", map[string]any{"name": "provider_catalog", "input": map[string]any{"catalog": "source-project", "schema": "dataset", "table": "records"}})
+	if status != 200 || bytes.Contains(body, []byte(`"isError":true`)) {
+		t.Fatalf("successful fallback MCP: %d %s", status, body)
+	}
+	for _, body := range []string{response.Body.String(), string(body)} {
+		for _, want := range []string{"zero_row_probe", "column_metadata_fallback", "warning", "Google API error 404 (notFound)", `"constraintsKnown":false`, `"nullableKnown":true`} {
+			if !strings.Contains(body, want) {
+				t.Fatalf("missing fallback diagnostic %s: %s", want, body)
+			}
+		}
+		for _, secret := range []string{"_CANARY", "SELECT", "storage.example", provider.URL} {
+			if strings.Contains(body, secret) {
+				t.Fatalf("successful fallback leaked cause: %s", body)
+			}
+		}
+	}
+
 }
