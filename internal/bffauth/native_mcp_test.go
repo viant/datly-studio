@@ -43,6 +43,10 @@ func TestNativeMCPProxyPreservesBearerForNativeVerifierAndCookieSession(t *testi
 			t.Error("native verified another subject")
 		}
 		verified++
+		// The upstream cannot consume browser cookies. Its freshly minted
+		// transport cookie must not rotate the caller's metadata identity.
+		http.SetCookie(w, &http.Cookie{Name: "BFF-Auth-Session", Value: "upstream-session", Path: "/"})
+		http.SetCookie(w, &http.Cookie{Name: DefaultCookieName, Value: "upstream-must-not-replace-browser-session", Path: "/"})
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer native.Close()
@@ -73,6 +77,9 @@ func TestNativeMCPProxyPreservesBearerForNativeVerifierAndCookieSession(t *testi
 		proxy.ServeHTTP(response, request)
 		if response.Code != check.status {
 			t.Fatalf("auth=%t cookie=%t status=%d", check.auth != "", check.cookie, response.Code)
+		}
+		if len(response.Result().Cookies()) != 0 {
+			t.Fatal("upstream cookies escaped the bearer proxy boundary")
 		}
 	}
 	if verified != 2 {

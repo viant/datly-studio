@@ -100,7 +100,7 @@ func (s *Service) ProxyWithResolver(target *url.URL, mount string, resolve Proxy
 	}
 	mount = "/" + strings.Trim(strings.TrimSpace(mount), "/")
 	proxy := httputil.NewSingleHostReverseProxy(target)
-	proxy.ModifyResponse = stripUpstreamCORS
+	proxy.ModifyResponse = stripUpstreamBrowserHeaders
 	original := proxy.Director
 	proxy.Director = func(request *http.Request) {
 		original(request)
@@ -143,7 +143,7 @@ func (s *Service) ProxyWithResolver(target *url.URL, mount string, resolve Proxy
 				return
 			}
 			selectedProxy = httputil.NewSingleHostReverseProxy(resolved)
-			selectedProxy.ModifyResponse = stripUpstreamCORS
+			selectedProxy.ModifyResponse = stripUpstreamBrowserHeaders
 			original := selectedProxy.Director
 			selectedProxy.Director = func(forward *http.Request) {
 				original(forward)
@@ -175,10 +175,14 @@ func validNamespaceID(id string) bool {
 	return true
 }
 
-// stripUpstreamCORS leaves one browser-facing policy owner: Studio's BFF.
+// stripUpstreamBrowserHeaders leaves one browser-facing policy owner: Studio's BFF.
 // Passing Datly's transport headers through would create duplicate
 // Access-Control-Allow-Origin/Credentials values, which browsers reject.
-func stripUpstreamCORS(response *http.Response) error {
+// The BFF owns browser authentication and CORS. Upstreams receive bearer
+// credentials, never the caller's cookies, so their session cookies cannot be
+// reused through this proxy and must not replace or rotate client-side state.
+func stripUpstreamBrowserHeaders(response *http.Response) error {
+	response.Header.Del("Set-Cookie")
 	for _, header := range []string{
 		"Access-Control-Allow-Origin", "Access-Control-Allow-Credentials",
 		"Access-Control-Allow-Headers", "Access-Control-Allow-Methods",

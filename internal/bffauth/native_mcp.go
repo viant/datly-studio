@@ -21,7 +21,7 @@ func (s *Service) ProxyNativeMCP(target *url.URL, mount string) (http.Handler, e
 	}
 	mount = "/" + strings.Trim(strings.TrimSpace(mount), "/")
 	proxy := httputil.NewSingleHostReverseProxy(target)
-	proxy.ModifyResponse = stripUpstreamCORS
+	proxy.ModifyResponse = stripUpstreamBrowserHeaders
 	original := proxy.Director
 	proxy.Director = func(request *http.Request) {
 		original(request)
