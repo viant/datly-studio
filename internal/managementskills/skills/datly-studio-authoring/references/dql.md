@@ -39,6 +39,38 @@ belongs to its connector's SQL dialect. `orders` is a view identity; `o` is only
 SQL alias. The typed output/view holder binds the root rows; naming an output
 type alone is not sufficient. Preserve the package/module and named row identity.
 
+## Required predicate-builder filtering
+
+For authored readers, construct filtering WHERE clauses with `predicate.Builder`.
+Inputs declare the predicate; SQL expands it. Never use `WHERE $criteria.In(0)`
+as a group expansion or interpolate caller values into SQL text.
+
+For example, add an optional name filter to the complete reader above:
+
+```sql
+#define($_ = $Name<*string>(query/name).Optional().WithPredicate(0, 'contains', 'o', 'name'))
+```
+
+`AccountID` is required, `Name` is optional, and both belong to group 0. The
+existing `FilterGroup(0, "AND")` combines present predicates with AND. Omission
+of Name removes only that filter. The predicate implementation owns binding and
+wildcard construction; do not add `%` in a second layer.
+
+When a search needs alternatives, put them in a separate group and combine
+groups with AND so optional search cannot bypass required scope:
+
+```sql
+#define($_ = $Search<*string>(query/search).Optional().WithPredicate(1, 'contains', 'o', 'name').WithPredicate(1, 'contains', 'o', 'description'))
+```
+
+```sql
+${predicate.Builder().CombineAnd($predicate.FilterGroup(0, "AND"), $predicate.FilterGroup(1, "OR")).Build("WHERE")}
+```
+
+Only use predicate names/arguments advertised by the connected native catalog.
+For a correction, change the saved draft using its current source revision,
+validate the new revision, and surface diagnostics before attempting publication.
+
 ## Bindings and contracts
 
 Use #define/#set typed declarations with a source such as query, body, header,

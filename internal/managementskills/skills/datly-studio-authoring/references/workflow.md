@@ -8,6 +8,18 @@ Use the authenticated connection supplied by the host, with the caller's verifie
 identity. Do not assume protocol dates or port numbers: negotiate a supported MCP
 version and retrieve the namespace connection/runtime metadata.
 
+Search within this management connection and the needed SDK operation family.
+Do not repeatedly search the entire tool catalog for generic terms such as
+"predicate" or "read". `authorization_predicates.*` manages authorization links;
+it is not the SQL filter builder. Input predicates and `predicate.Builder`
+syntax are documented in this skill's DQL reference.
+
+If host skill discovery reports a cursor/snapshot mismatch when no cursor was
+sent, report that distinction. Do not invent a cursor or cycle through unrelated
+searches. Use this same server's advertised native skill/resource operations to
+read its authoring guide when available. Do not guess a skill URI, provider alias
+or syntax when the guide could not be loaded.
+
 List namespaces and choose the intended canonical `namespaceId`; include it in
 requests where advertised. Names and canonical IDs are not interchangeable: `namespaces.get` takes `name`
 (the slug such as `analytics`), while component/version/reader/runtime operations
@@ -72,6 +84,13 @@ source change. Inspect the saved structure and SQL resources after applying it.
 Do not invent builder operation payloads: inspect the operation schema or export
 a small working component and adapt its declared contract.
 
+Maintain one checkpoint: namespaceId, reportId, versionNo, sourceRevision and
+state. An edit to draft v1 revision 3 produces draft v1 revision 4, not published
+v4. Update that checkpoint from every successful mutation response. A metadata
+ETag does not replace expectedSourceRevision. Clone or create a draft when the
+selected version is published; do not mutate published source. On a timeout,
+read the saved version before retrying because the mutation outcome is unknown.
+
 Declare bindings, required verified scope, optional predicates and output roles.
 Use resources.upsert_file when embedded SQL belongs to the component resource tree;
 keep resource paths relative to the version. Re-inspect computed output columns.
@@ -129,3 +148,12 @@ Keep authenticated call failures distinct: 401 is credential verification, 403
 is authorization, an unavailable namespace is runtime readiness, and an empty
 filtered inventory can reflect visibility. Never use management API listing as
 proof that a namespace business tool is live.
+
+If validation/inspection returns a generic 500, preserve the failed operation,
+component/version/source revision and any request ID. It is not evidence of an
+invalid SQL clause, lack of authorization, or successful validation. Inspect the
+saved version's diagnostics through the existing version-read operation; if no
+cause was stored, report the missing diagnostic and stop publication. Do not
+silently create another version or claim the correction was applied unless an
+apply response and source readback confirm it. Give one concise progress update
+per meaningful phase rather than repeating the plan after every discovery call.

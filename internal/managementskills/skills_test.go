@@ -101,3 +101,35 @@ func TestWorkedCubeExampleCompilesWithNativeBuilder(t *testing.T) {
 		t.Fatal("example does not expose its cube")
 	}
 }
+
+func TestEntryPointPredicateExampleCompilesWithNativeBuilder(t *testing.T) {
+	data, err := fs.ReadFile(source, "skills/datly-studio-authoring/SKILL.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	blocks := strings.Split(string(data), "```sql\n")
+	if len(blocks) < 3 {
+		t.Fatal("entry point must explain input declarations and builder expansion")
+	}
+	declarations := strings.SplitN(blocks[1], "```", 2)[0]
+	expansion := strings.SplitN(blocks[2], "```", 2)[0]
+	dql := "#package('example.com/records/read')\n#setting($_ = $connector('main'))\n#setting($_ = $route('/records','GET'))\n" + declarations + "\n#define($_ = $Rows<[]*Record>(output/view))\nSELECT records.*, type(records,'Record') FROM (SELECT r.id,r.name FROM records r\n" + expansion + ") records"
+	result := readerbuilder.New(readerbuilder.Config{}).Apply(context.Background(), readerbuilder.Request{DQL: dql, Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
+	if result.Structure == nil || result.Structure.Component == nil {
+		t.Fatalf("entry example failed: %+v", result.Diagnostics)
+	}
+	for _, d := range result.Diagnostics {
+		if d.Severity == "error" {
+			t.Fatalf("entry example: %+v", d)
+		}
+	}
+	required := map[string]bool{}
+	for _, p := range result.Structure.Component.Parameters {
+		if p != nil {
+			required[p.Name] = p.Required != nil && *p.Required
+		}
+	}
+	if !required["RecordID"] || required["Name"] {
+		t.Fatalf("required/optional input contract changed: %+v", required)
+	}
+}

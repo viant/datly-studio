@@ -1,6 +1,6 @@
 ---
 name: datly-studio-authoring
-description: Inspect, author, validate and release Datly v1 components through Studio management MCP, including namespace predicate packages and opt-in BigQuery resource checks.
+description: "Create and edit Data Studio readers, MCP tools and cubes: discover source schemas, declare typed input predicates, build WHERE clauses with predicate.Builder, validate a specific draft revision and verify publication."
 group: data-authoring
 ---
 
@@ -10,6 +10,45 @@ Use the connected management MCP to take an authorized source query through a
 validated component and, when requested, a live namespace tool. Discover actual
 tool schemas before calling them; this skill does not grant permission to publish,
 change namespace configuration, access new data, or execute expensive queries.
+
+## Required authoring sequence
+
+Use this Data Studio connection's `studio.sdk.*` tools for components, readers
+and cubes. AI Studio's `namespaces/*` resource tools are a different authoring
+surface. Resolve the requested namespace once; retain the returned namespace ID,
+component ID, draft version number and source revision throughout the task.
+Read `references/dql.md` before writing source and the relevant portion of
+`references/workflow.md` before saving or publishing. Load only the references
+needed for the requested change; do not enumerate unrelated tools or tables.
+
+**Construct authored filtering WHERE clauses with `predicate.Builder`.** Declare
+each input's type, transport binding, presence and predicate in `#define` first:
+
+```sql
+#define($_ = $RecordID<int>(query/recordId).Required().WithPredicate(0, 'equal', 'r', 'id'))
+#define($_ = $Name<*string>(query/name).Optional().WithPredicate(0, 'contains', 'r', 'name'))
+```
+
+Inside the named view's SQL, after `FROM records r`, use:
+
+```sql
+${predicate.Builder().CombineOr($predicate.FilterGroup(0, "AND")).Build("WHERE")}
+```
+
+The group number links the input declarations to `FilterGroup`; alias `r` must
+match the inner SQL. `Build("WHERE")` supplies the keyword. Do not write
+`WHERE $criteria.In(0)`, concatenate input values into SQL, or prepend another
+WHERE. Keep required trusted authorization outside optional OR alternatives.
+Required caller filters alone are not authorization. The complete typed reader
+and multiple-group composition are in `references/dql.md`.
+
+**Edit a specific draft, not an unspecified latest resource.** Metadata updates
+use the component ETag; source edits use `versionNo` plus
+`expectedSourceRevision`. Each source edit increments the draft's source revision
+and invalidates prior validation. Read the new revision, validate it, then publish
+that exact version/revision only when requested. Published source requires a new
+editable draft or clone. Report saved, validated, published and runtime-active
+outcomes separately.
 
 Read the relevant supporting resources with native `resources/read`, resolving
 paths relative to this skill URI:
