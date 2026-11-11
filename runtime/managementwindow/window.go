@@ -12,6 +12,7 @@ import (
 	"github.com/viant/forge/backend/provider/contract"
 	identity "github.com/viant/forge/backend/resource"
 	"github.com/viant/forge/backend/types"
+	"github.com/viant/forge/backend/window/view"
 )
 
 type Config struct{ Namespace, ProviderIdentity, MCPService string }
@@ -88,6 +89,12 @@ func Build(config Config, name string, window *types.Window, sources map[string]
 		return nil, err
 	}
 	envelope := types.WindowResourceEnvelope{SchemaVersion: 3, Format: types.WindowReferencesFormat, Targets: []types.WindowTargetBinding{{Variant: fingerprint}, {Target: types.WindowTarget{Platform: "web", FormFactor: "desktop"}, Variant: fingerprint}}, Variants: map[string]types.WindowResourceVariant{fingerprint: variant}}
+	// Publish the existing view descriptor alongside its owning window so hosts
+	// can discover and open it without a local workspace descriptor copy.
+	envelope.ViewMetadata, err = json.Marshal(view.Spec{ID: name, Title: name, WindowKey: windowURI, Presentation: "hosted"})
+	if err != nil {
+		return nil, err
+	}
 	if err := envelope.Validate(); err != nil {
 		return nil, err
 	}

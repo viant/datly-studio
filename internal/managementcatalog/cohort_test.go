@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/viant/forge/backend/types"
+	"github.com/viant/forge/backend/window/view"
 )
 
 func TestCompiledWindowBundlesCloseAllManagementDatasources(t *testing.T) {
@@ -24,6 +25,11 @@ func TestCompiledWindowBundlesCloseAllManagementDatasources(t *testing.T) {
 		var envelope types.WindowResourceEnvelope
 		if json.Unmarshal(bundle.JSON, &envelope) != nil || envelope.Validate() != nil || envelope.SchemaVersion != 2 || envelope.Format != types.WindowBundleFormat {
 			t.Fatalf("invalid compiled management window %s", bundle.URI)
+		}
+
+		var metadata view.Spec
+		if json.Unmarshal(envelope.ViewMetadata, &metadata) != nil || metadata.ID == "" || metadata.WindowKey != bundle.URI {
+			t.Fatalf("published window %s is absent from the view-open catalog", bundle.URI)
 		}
 		for _, variant := range envelope.Variants {
 			if len(variant.DataSourceResources) != 0 || len(variant.DataSources) == 0 {
