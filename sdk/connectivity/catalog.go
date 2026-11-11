@@ -4,9 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/viant/datly/constant"
 	"net/url"
+	"reflect"
 	"sort"
 	"strings"
 	"time"
@@ -15,6 +17,7 @@ import (
 	"github.com/viant/datly-studio/internal/connectorinit"
 	"github.com/viant/datly-studio/internal/connectorsecret"
 	"github.com/viant/datly-studio/sdk"
+	sqlxio "github.com/viant/sqlx/io"
 	"github.com/viant/sqlx/io/config"
 	"github.com/viant/sqlx/metadata"
 	"github.com/viant/sqlx/metadata/info"
@@ -152,12 +155,17 @@ func (c SQLCatalog) Table(ctx context.Context, connector *sdk.Connector, input s
 	scope.apply(session)
 	schema := session.Schema
 	columns, err := config.Columns(ctx, session, db, input.Table)
+	metadataSource := "catalog"
 	if err != nil {
-		return nil, err
+		columns, err = probeTableColumns(ctx, db, session, input.Table, err)
+		if err != nil {
+			return nil, err
+		}
+		metadataSource = "zero_row_probe"
 	}
 	var primary, foreign []sink.Key
-	_ = metadata.New().Info(ctx, db, info.KindPrimaryKeys, &primary, option.NewArgs(session.Catalog, schema, input.Table))
-	_ = metadata.New().Info(ctx, db, info.KindForeignKeys, &foreign, option.NewArgs(session.Catalog, schema, input.Table))
+	primaryErr := metadata.New().Info(ctx, db, info.KindPrimaryKeys, &primary, option.NewArgs(session.Catalog, schema, input.Table))
+	foreignErr := metadata.New().Info(ctx, db, info.KindForeignKeys, &foreign, option.NewArgs(session.Catalog, schema, input.Table))
 	pk := map[string]bool{}
 	for _, key := range primary {
 		pk[strings.ToLower(key.Column)] = true
@@ -166,10 +174,14 @@ func (c SQLCatalog) Table(ctx context.Context, connector *sdk.Connector, input s
 	for _, key := range foreign {
 		fk[strings.ToLower(key.Column)] = key
 	}
-	result := &sdk.TableDetail{Table: sdk.DatabaseTable{Catalog: session.Catalog, Schema: schema, Name: input.Table, Type: "TABLE"}}
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	result := &sdk.TableDetail{MetadataSource: metadataSource, ConstraintsKnown: metadataSource == "catalog" && primaryErr == nil && foreignErr == nil, Table: sdk.DatabaseTable{Catalog: session.Catalog, Schema: schema, Name: input.Table, Type: "TABLE"}}
 	for _, column := range columns {
 		reference := fk[strings.ToLower(column.Name)]
-		result.Columns = append(result.Columns, sdk.DatabaseColumn{Name: column.Name, Type: column.Type, Nullable: column.IsNullable(), PrimaryKey: pk[strings.ToLower(column.Name)] || strings.EqualFold(column.Key, "PRI"), Unique: column.IsUnique(), AutoIncrement: column.Autoincrement(), Default: column.Default, ReferenceSchema: reference.ReferenceSchema, ReferenceTable: reference.ReferenceTable, ReferenceColumn: reference.ReferenceColumn})
+		nullableKnown := column.Nullable != "unknown"
+		result.Columns = append(result.Columns, sdk.DatabaseColumn{NullableKnown: &nullableKnown, Name: column.Name, Type: column.Type, Nullable: column.IsNullable(), PrimaryKey: pk[strings.ToLower(column.Name)] || strings.EqualFold(column.Key, "PRI"), Unique: column.IsUnique(), AutoIncrement: column.Autoincrement(), Default: column.Default, ReferenceSchema: reference.ReferenceSchema, ReferenceTable: reference.ReferenceTable, ReferenceColumn: reference.ReferenceColumn})
 	}
 	sort.Slice(result.Columns, func(i, j int) bool { return result.Columns[i].Name < result.Columns[j].Name })
 	return result, nil
@@ -290,4 +302,61 @@ func discoveryDSN(driver, dsn string, scope discoveryScope) (string, error) {
 		parsed.RawPath = ""
 	}
 	return parsed.String(), nil
+}
+
+// probeTableColumns reuses SQLX's metadata-only detector on the already opened
+// authorized connection. No rows are consumed and no connection scope changes.
+func probeTableColumns(ctx context.Context, db *sql.DB, session *sink.Session, table string, primary error) ([]sink.Column, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, errors.Join(primary, err)
+	}
+	if errors.Is(primary, context.Canceled) || errors.Is(primary, context.DeadlineExceeded) {
+		return nil, primary
+	}
+	dialect, err := config.Dialect(ctx, db)
+	if err != nil {
+		return nil, fmt.Errorf("table column discovery dialect: %w", errors.Join(primary, err))
+	}
+	name, err := dialect.QuoteIdentifier(table)
+	if err == nil {
+		schema := session.Schema
+		// Attachment discovery opens the attachment itself as main.
+		if strings.EqualFold(dialect.Name, "sqlite") {
+			schema = "main"
+		}
+		if strings.EqualFold(dialect.Name, "bigquery") {
+			if session.Catalog == "" || schema == "" {
+				err = fmt.Errorf("exact catalog and schema are required for BigQuery column discovery")
+			} else {
+				name, err = dialect.QuoteIdentifier(session.Catalog + "." + schema + "." + table)
+			}
+		} else if schema != "" {
+			var quoted string
+			quoted, err = dialect.QuoteIdentifier(schema)
+			name = quoted + "." + name
+		}
+	}
+	if err != nil {
+		return nil, fmt.Errorf("table column discovery identifier: %w", errors.Join(primary, err))
+	}
+	nullableKnown := map[string]bool{}
+	detector := sqlxio.ColumnDetector{ResolveTypes: func(columns []sqlxio.Column) map[int]reflect.Type {
+		for _, column := range columns {
+			_, known := column.Nullable()
+			nullableKnown[column.Name()] = known
+		}
+		return nil
+	}}
+	detected, err := detector.Detect(ctx, db, "SELECT * FROM "+name+" WHERE 1=0")
+	if err != nil {
+		return nil, fmt.Errorf("table column discovery failed in catalog and zero-row probe: %w", errors.Join(primary, err))
+	}
+	result := make([]sink.Column, 0, len(detected))
+	for _, column := range detected {
+		if !nullableKnown[column.Name] {
+			column.Nullable = "unknown"
+		}
+		result = append(result, *column)
+	}
+	return result, nil
 }

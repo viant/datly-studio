@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly/transcribe"
 	xresponse "github.com/viant/xdatly/response"
+	"google.golang.org/api/googleapi"
 	"strings"
 	"testing"
 	"time"
@@ -84,5 +86,55 @@ func TestSQLFailureDoesNotExposeArbitraryCompilerDiagnostics(t *testing.T) {
 	raw, marshalErr := json.Marshal(wire.Payload)
 	if marshalErr != nil || strings.Contains(string(raw), "CANARY") || strings.Contains(string(raw), "diagnostics") {
 		t.Fatalf("untrusted compiler diagnostic escaped: %s %v", raw, marshalErr)
+	}
+}
+
+func TestSQLExecutionErrorsRetainPrivateCauses(t *testing.T) {
+	for _, tc := range []struct {
+		cause  error
+		status int
+	}{{context.Canceled, 499}, {context.DeadlineExceeded, 504}, {errors.New("CANARY_PRIVATE"), 400}} {
+		err := executionError(context.Background(), tc.cause, time.Minute)
+		if !errors.Is(err, tc.cause) || xresponse.ErrorStatusCode(err, 0) != tc.status {
+			t.Fatalf("cause/status lost: %v", err)
+		}
+		body, _ := xresponse.ErrorBody(err)
+		raw, _ := json.Marshal(body)
+		if strings.Contains(string(raw), "CANARY_PRIVATE") || strings.Contains(err.Error(), "CANARY_PRIVATE") {
+			t.Fatal("private cause exposed")
+		}
+	}
+}
+
+func TestSQLDependencyFailureStatuses(t *testing.T) {
+	for _, tc := range []struct {
+		cause  error
+		status int
+	}{
+		{&sdk.Error{Code: sdk.ErrorUnavailable, Message: "CANARY_PRIVATE"}, 503},
+		{&googleapi.Error{Code: 503, Message: "Backend unavailable"}, 503},
+		{&googleapi.Error{Code: 429, Message: "Rate limit"}, 429},
+	} {
+		err := executionError(context.Background(), tc.cause, time.Minute)
+		if !errors.Is(err, tc.cause) || xresponse.ErrorStatusCode(err, 0) != tc.status {
+			t.Fatalf("cause/status lost: %v", err)
+		}
+	}
+}
+
+func TestNativeTypedLiteralParseDiagnostics(t *testing.T) {
+	for _, literal := range []string{"DATE '2026-11-10'", "TIMESTAMP '2026-11-10 00:00:00+00'"} {
+		_, cause := transcribe.NewCompiler().RuntimeContractsInModule(context.Background(), "example.com/fixture", &transcribe.Source{
+			Name: "reader", Scope: "example.com/fixture/literal", Text: "#package('example.com/fixture/literal')\n#setting($_ = $route('/literal','GET'))\n#define($_ = $Rows<[]*Row>(output/view))\nSELECT result.*, type(result,'Row') FROM (SELECT " + literal + " AS event_date) result",
+		})
+		if cause == nil {
+			t.Fatalf("native typed literal support changed; reassess regression: %s", literal)
+		}
+		err := executionError(context.Background(), cause, time.Minute)
+		body, _ := xresponse.ErrorBody(err)
+		raw, _ := json.Marshal(body)
+		if !errors.Is(err, cause) || !strings.Contains(string(raw), "runtime_sql_parse") || strings.Contains(string(raw), "2026-11-10") {
+			t.Fatalf("literal diagnostic: %s (native %T: %v)", raw, cause, cause)
+		}
 	}
 }

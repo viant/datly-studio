@@ -58,6 +58,7 @@ type DatabaseTable struct {
 	Comment string `json:"comment,omitempty"`
 }
 type DatabaseColumn struct {
+	NullableKnown   *bool   `json:"nullableKnown,omitempty"`
 	Name            string  `json:"name"`
 	Type            string  `json:"type"`
 	Nullable        bool    `json:"nullable"`
@@ -78,8 +79,11 @@ type TableCatalog struct {
 	Offset int             `json:"offset"`
 }
 type TableDetail struct {
-	Table   DatabaseTable    `json:"table"`
-	Columns []DatabaseColumn `json:"columns"`
+	// Zero-row probes describe columns only. False means constraints are unknown.
+	MetadataSource   string           `json:"metadataSource,omitempty"`
+	ConstraintsKnown bool             `json:"constraintsKnown"`
+	Table            DatabaseTable    `json:"table"`
+	Columns          []DatabaseColumn `json:"columns"`
 }
 
 type CatalogExplorer interface {

@@ -2,6 +2,7 @@ package table
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -27,8 +28,10 @@ type Input struct {
 }
 
 type Output struct {
-	Table   sdk.DatabaseTable    `parameter:"Table,kind=output,in=body,dataType=sdk.DatabaseTable" json:"table"`
-	Columns []sdk.DatabaseColumn `parameter:"Columns,kind=output,in=body,dataType=[]sdk.DatabaseColumn" json:"columns"`
+	MetadataSource   string               `parameter:"MetadataSource,kind=output,in=body,dataType=string" json:"metadataSource,omitempty"`
+	ConstraintsKnown bool                 `parameter:"ConstraintsKnown,kind=output,in=body,dataType=bool" json:"constraintsKnown"`
+	Table            sdk.DatabaseTable    `parameter:"Table,kind=output,in=body,dataType=sdk.DatabaseTable" json:"table"`
+	Columns          []sdk.DatabaseColumn `parameter:"Columns,kind=output,in=body,dataType=[]sdk.DatabaseColumn" json:"columns"`
 }
 
 type Component struct {
@@ -62,11 +65,18 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	}
 	result, err := (connectivity.SQLCatalog{}).Table(ctx, connector, input.Input)
 	if err != nil {
-		return publisherguard.PublicError(502, providererror.AppendCatalogStatus("connector table detail is unavailable", err))
+		if errors.Is(err, context.Canceled) {
+			return publisherguard.PublicError(499, "Table discovery was canceled.", err)
+		}
+		if errors.Is(err, context.DeadlineExceeded) {
+			return publisherguard.PublicError(504, "Table discovery exceeded its deadline.", err)
+		}
+		return publisherguard.PublicError(502, providererror.AppendCatalogStatus("Table discovery failed. Verify the exact catalog, schema and table with the configured connector; inspect server diagnostics for catalog and zero-row probe failures.", err), err)
 	}
 	if result == nil {
 		return fmt.Errorf("connector table detail returned no result")
 	}
 	output.Table, output.Columns = result.Table, result.Columns
+	output.MetadataSource, output.ConstraintsKnown = result.MetadataSource, result.ConstraintsKnown
 	return nil
 }

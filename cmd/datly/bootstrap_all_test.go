@@ -656,6 +656,19 @@ SELECT wide.*, type(wide,'Row') FROM (SELECT * FROM STUDIO_WIDE_60) wide`
 	if testedSQL.Code != http.StatusOK || !strings.Contains(testedSQL.Body.String(), `"native-first"`) || strings.Contains(testedSQL.Body.String(), dsn) {
 		t.Fatalf("native transient SQL test status=%d body=%s", testedSQL.Code, testedSQL.Body.String())
 	}
+	failedSQL := httptest.NewRecorder()
+	server.ServeHTTP(failedSQL, request("/v1/studio/sdk/connectors.test_sql", `{"name":"main","input":{"sql":"SELECT missing_column FROM absent_table","limit":1}}`))
+	if failedSQL.Code != http.StatusBadRequest || !strings.Contains(failedSQL.Body.String(), "runtime_discovery_") || strings.Contains(failedSQL.Body.String(), dsn) || strings.Contains(failedSQL.Body.String(), "SELECT missing_column") {
+		t.Fatalf("native SQL discovery HTTP error: %d %s", failedSQL.Code, failedSQL.Body.String())
+	}
+	for _, literal := range []string{"DATE '2026-11-10'", "TIMESTAMP '2026-11-10 00:00:00+00'"} {
+		payload, _ := json.Marshal(map[string]any{"name": "main", "input": map[string]any{"sql": "SELECT " + literal + " AS event_date", "limit": 1}})
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, request("/v1/studio/sdk/connectors.test_sql", string(payload)))
+		if response.Code != http.StatusBadRequest || !strings.Contains(response.Body.String(), "runtime_sql_parse") || strings.Contains(response.Body.String(), "2026-11-10") {
+			t.Fatalf("typed literal HTTP diagnostic: %d %s", response.Code, response.Body.String())
+		}
+	}
 	invalidSQL := httptest.NewRecorder()
 	server.ServeHTTP(invalidSQL, request("/v1/studio/sdk/connectors.test_sql", `{"name":"main","input":{"sql":""}}`))
 	if invalidSQL.Code != http.StatusBadRequest {
@@ -2025,6 +2038,16 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"status":"passed"`)) || bytes.Contains(body, []byte(dsn)) {
 		t.Fatalf("static MCP connector probe status=%d body=%s", status, body)
 	}
+	for _, literal := range []string{"DATE '2026-11-10'", "TIMESTAMP '2026-11-10 00:00:00+00'"} {
+		status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.connectors.test_sql", map[string]any{"name": "main", "input": map[string]any{"sql": "SELECT " + literal + " AS event_date", "limit": 1}})
+		if status != 200 || !bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte("runtime_sql_parse")) || bytes.Contains(body, []byte("2026-11-10")) {
+			t.Fatalf("typed literal MCP diagnostic: %d %s", status, body)
+		}
+	}
+	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.connectors.test_sql", map[string]any{"name": "main", "input": map[string]any{"sql": "SELECT missing_column FROM absent_table", "limit": 1}})
+	if status != 200 || !bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte("runtime_discovery_")) || bytes.Contains(body, []byte(dsn)) || bytes.Contains(body, []byte("SELECT missing_column")) {
+		t.Fatalf("native SQL discovery MCP error: %d %s", status, body)
+	}
 	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.connectors.test_sql", map[string]any{"name": "main", "input": map[string]any{"sql": "SELECT slug FROM components WHERE slug='native-first'", "limit": 1}})
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte("native-first")) || bytes.Contains(body, []byte(dsn)) {
 		t.Fatalf("static MCP transient SQL test status=%d body=%s", status, body)
@@ -3193,6 +3216,12 @@ func checkConnectorCatalogProviderErrors(ctx context.Context, t *testing.T, stor
 	t.Helper()
 	const sessionResult = `{"jobComplete":true,"jobReference":{"projectId":"job-project","jobId":"session"},"schema":{"fields":[{"name":"CATALOG","type":"STRING","mode":"NULLABLE"},{"name":"SCHEMA_NAME","type":"STRING","mode":"NULLABLE"}]},"totalRows":"1","rows":[{"f":[{"v":"job-project"},{"v":"dataset"}]}]}`
 	provider := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet && r.URL.Path == "/projects/source-project/datasets/dataset/tables/records" {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusNotFound)
+			fmt.Fprint(w, `{"error":{"code":404,"message":"Table missing","errors":[{"reason":"notFound"}]}}`)
+			return
+		}
 		var query struct{ Query string }
 		if r.URL.Path != "/projects/job-project/queries" || json.NewDecoder(r.Body).Decode(&query) != nil {
 			t.Errorf("unexpected BigQuery request: %s %s", r.Method, r.URL.Path)
@@ -3207,7 +3236,8 @@ func checkConnectorCatalogProviderErrors(ctx context.Context, t *testing.T, stor
 			w.WriteHeader(http.StatusForbidden)
 			fmt.Fprint(w, `{"error":{"code":403,"message":"Schema access denied. Bearer TOKEN_CANARY","errors":[{"reason":"accessDenied"}],"details":[{"secret":"BODY_CANARY"}]}}`)
 		case strings.Contains(query.Query, "source-project.dataset.INFORMATION_SCHEMA.TABLES"),
-			strings.Contains(query.Query, "source-project.dataset.INFORMATION_SCHEMA.COLUMNS"):
+			strings.Contains(query.Query, "source-project.dataset.INFORMATION_SCHEMA.COLUMNS"),
+			query.Query == "SELECT * FROM `source-project.dataset.records` WHERE 1=0":
 			w.WriteHeader(http.StatusNotFound)
 			fmt.Fprint(w, `{"error":{"code":404,"message":"Dataset was not found in location US. reader:DSN_CANARY@/db. Access denied for user 'USER_CANARY'@'HOST_CANARY' (using password: YES). Failed SQL: SELECT 'SQL_CANARY'. https://storage.example/object?X-Goog-Signature=SIGNATURE_CANARY","errors":[{"reason":"notFound","location":"LOCATION_CANARY"}]}}`)
 		default:

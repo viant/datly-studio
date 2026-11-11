@@ -51,6 +51,19 @@ func AuthorizedInvoker(ctx context.Context, session xhandler.Session, claims *jw
 	return invoker, nil
 }
 
-func PublicError(code int, message string) error {
-	return &xresponse.Error{Code: code, Cause: errors.New(message), Payload: map[string]string{"message": message}}
+func PublicError(code int, message string, causes ...error) error {
+	cause := error(errors.New(message))
+	if len(causes) > 0 {
+		cause = &publicCause{message: message, cause: errors.Join(causes...)}
+	}
+	return &xresponse.Error{Code: code, Cause: cause, Payload: map[string]string{"message": message}}
 }
+
+// publicCause keeps Error safe for transports while preserving trusted Is/As.
+type publicCause struct {
+	message string
+	cause   error
+}
+
+func (e *publicCause) Error() string { return e.message }
+func (e *publicCause) Unwrap() error { return e.cause }

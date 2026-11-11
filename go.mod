@@ -15,13 +15,13 @@ require (
 	github.com/viant/bindly v0.4.1-0.20261021172156-afd22f40fbb8
 	github.com/viant/datly v1.1.1-0.20261103040406-edfef7230e18
 	github.com/viant/jsonrpc v0.25.1
-	github.com/viant/mcp v0.24.2-0.20261102163024-7166d81ea725
+	github.com/viant/mcp v0.24.2-0.20261107201957-8748c0cb8ca8
 	github.com/viant/mcp-protocol v0.19.2-0.20261101165444-1c2b609f8dbf
 	github.com/viant/scy v0.35.1-0.20260914041206-699e6c909726
 	github.com/viant/sqlx v0.26.2-0.20261108043747-b91936294ab3
 	github.com/viant/x v0.5.1-0.20261023202900-f9ec3e0a7de4
 	github.com/viant/xdatly v1.0.1-0.20261102165405-bb0ef2dd2d5e
-	github.com/viant/xunsafe v0.11.0
+	github.com/viant/xunsafe v0.11.1
 	go.yaml.in/yaml/v3 v3.0.5
 	golang.org/x/mod v0.38.0
 	golang.org/x/oauth2 v0.36.0
@@ -112,7 +112,7 @@ require (
 	github.com/viant/afsc v1.18.0 // indirect
 	github.com/viant/authz v0.1.2-0.20261027201251-5ba403d7e022
 	github.com/viant/authz/component v0.0.0-20261022171511-cc9325165338
-	github.com/viant/forge v0.3.47-0.20261104034221-6ad2beec8c77
+	github.com/viant/forge v0.3.47-0.20261111065935-d11f7d4e7c21
 	github.com/viant/gmetric v0.3.2 // indirect
 	github.com/viant/gosh v0.3.1-0.20261007222529-b829eaaf687b // indirect
 	github.com/viant/govalidator v0.3.4-0.20260913213120-027a9dd54d73 // indirect

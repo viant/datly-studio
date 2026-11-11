@@ -43,6 +43,9 @@ func TestSQLCatalogDiscoversSQLiteTablesColumnsAndKeys(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if detail.MetadataSource != "catalog" || !detail.ConstraintsKnown {
+		t.Fatalf("unexpected metadata provenance: %+v", detail)
+	}
 	if len(detail.Columns) != 3 {
 		t.Fatalf("columns=%+v", detail.Columns)
 	}

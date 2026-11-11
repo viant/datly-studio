@@ -11,6 +11,7 @@ import (
 
 	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly/transcribe"
+	"github.com/viant/datly/transcribe/column"
 )
 
 type Error struct {
@@ -50,6 +51,17 @@ func Diagnostics(err error) []sdk.Diagnostic {
 			d.Code = "source_policy_rejected"
 		}
 		return []sdk.Diagnostic{d}
+	}
+	// Native discovery retains a safe phase and reason even when the compiler
+	// also attached diagnostics containing source text.
+	var nativePhase *Error
+	if errors.As(err, &nativePhase) && nativePhase.Stage == "contract" && nativePhase.Code == "" && !errors.Is(err, context.Canceled) && !errors.Is(err, context.DeadlineExceeded) {
+		var native *column.DiscoveryError
+		if errors.As(err, &native) {
+			if d, ok := typedDiscoveryDiagnostic(native.Diagnostic()); ok {
+				return []sdk.Diagnostic{d}
+			}
+		}
 	}
 	var compiled *transcribe.CompileError
 	if errors.As(err, &compiled) && len(compiled.Diagnostics) > 0 {

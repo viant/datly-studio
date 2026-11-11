@@ -1493,6 +1493,8 @@ github.com/viant/forge v0.3.47-0.20261030160538-6e754dd76052 h1:kZsxwGpx2/X2t+rC
 github.com/viant/forge v0.3.47-0.20261030160538-6e754dd76052/go.mod h1:LFwCJLTUSLZaA6c3txU8FuKhlhD8Tv/omGBFL9AKtrk=
 github.com/viant/forge v0.3.47-0.20261104034221-6ad2beec8c77 h1:2MK4uswdeUPko9Eq5OJJ/XLBgfUO0LjDJ3O+RvqFegg=
 github.com/viant/forge v0.3.47-0.20261104034221-6ad2beec8c77/go.mod h1:0iz6PD3Ne/RIkbnXjOKA2Dxfx20eMqS8Vg3Sy4TImns=
+github.com/viant/forge v0.3.47-0.20261111065935-d11f7d4e7c21 h1:4Hd1ZPH8gkeWXFuaZPcDg3EoXJ2T4/Bw3ShXXsOoofA=
+github.com/viant/forge v0.3.47-0.20261111065935-d11f7d4e7c21/go.mod h1:ARzdA6Erk79xUD9ILEM1m32KT+0g83+KLaFOxyYXTv8=
 github.com/viant/gmetric v0.3.2 h1:zTdW9QrPk2P0i/do9fokxtHesFQCvYqIc5Yktzmyxtg=
 github.com/viant/gmetric v0.3.2/go.mod h1:3WGxSMCL+owUb0HewYXMLxkoen8e8MlX1Vd2C6tJ5qw=
 github.com/viant/godiff v0.4.3-0.20260914060527-9f2005ca82e8 h1:PCgpoW8IwGsYDs805dCXp25vLTWkakpfvIYll0Twir4=
@@ -1521,6 +1523,8 @@ github.com/viant/mcp v0.24.2-0.20261101233846-f2e1c7b93dae h1:aLT6OiW9qnsGisiMUU
 github.com/viant/mcp v0.24.2-0.20261101233846-f2e1c7b93dae/go.mod h1:vWKkZyPlQdMFbIqU4/p8soq0jIzTKgXRw35+hmu9Qd4=
 github.com/viant/mcp v0.24.2-0.20261102163024-7166d81ea725 h1:NYuBHs45nqBB5hmz+88HcnI7g+dCw93ctO+mPCOjklc=
 github.com/viant/mcp v0.24.2-0.20261102163024-7166d81ea725/go.mod h1:vWKkZyPlQdMFbIqU4/p8soq0jIzTKgXRw35+hmu9Qd4=
+github.com/viant/mcp v0.24.2-0.20261107201957-8748c0cb8ca8 h1:C/6rmFUDAPIbQtHScMx/B9dZ9CGDPxP+w5112w4YmaA=
+github.com/viant/mcp v0.24.2-0.20261107201957-8748c0cb8ca8/go.mod h1:f5ZT0adIbghdjCrsxHifnDUGhHB9fVzK6bqfzG+OGMk=
 github.com/viant/mcp-protocol v0.19.1-0.20261014173008-af92f34f304b h1:0VPbrlB8gbHLc1zrwbFW+f3IowORM5MmqpldnWm0+eY=
 github.com/viant/mcp-protocol v0.19.1-0.20261014173008-af92f34f304b/go.mod h1:8h2yGk/LjWpyLqQEZYOGuNZQPohCr1vtM8IvtcNcEIQ=
 github.com/viant/mcp-protocol v0.19.1-0.20261018081747-0021ac0fe5d2 h1:OxFvgD6RDJRvfckSxg8xosFPc0up3iWuuv3yOuItuk4=
@@ -1621,6 +1625,8 @@ github.com/viant/xreflect v0.7.5-0.20260314170600-13f09f37d46e h1:z4uCWPkSCnGwqb
 github.com/viant/xreflect v0.7.5-0.20260314170600-13f09f37d46e/go.mod h1:BwI+lqFjhKv2Vn4E0Jt6nvbwcFOWrM6H+sOMOX3JiU4=
 github.com/viant/xunsafe v0.11.0 h1:Yp5n4JR/6dTZ5asx+hmLGT7UXh5NPz7O9NKmYsk2k0o=
 github.com/viant/xunsafe v0.11.0/go.mod h1:RLSFNYewiF4p7+Lc18N4Zv4DHPWMTEky2VCLWvBdC5o=
+github.com/viant/xunsafe v0.11.1 h1:cKzAyBzlc4xh771ihsrHqQeBP0wFWCkLCfzT8u+SULU=
+github.com/viant/xunsafe v0.11.1/go.mod h1:tREfeTKhjN/P6Ul0qmGgt3eiTMkCSlFzfEv4SneNEEs=
 github.com/vmihailenco/msgpack/v5 v5.4.1/go.mod h1:GaZTsDaehaPpQVyxrf5mtQlH+pc21PIudVV/E3rRQok=
 github.com/vmihailenco/tagparser/v2 v2.0.0/go.mod h1:Wri+At7QHww0WTrCBeu4J6bNtoV6mEfg5OIWRZA9qds=
 github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f h1:J9EGpcZtP0E/raorCMxlFGSTBrsSlaDGf3jU/qvAE2c=

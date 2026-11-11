@@ -20,6 +20,7 @@ import (
 	"github.com/viant/datly-studio/studio/host"
 	rhandler "github.com/viant/datly/runtime/handler"
 	"github.com/viant/datly/runtime/handler/custom"
+	"github.com/viant/datly/transcribe/compile"
 	"github.com/viant/scy/auth/jwt"
 	"github.com/viant/xdatly"
 	xhandler "github.com/viant/xdatly/handler"
@@ -122,20 +123,50 @@ func executionTimeout(seconds *int) (time.Duration, error) {
 func executionError(ctx context.Context, err error, timeout time.Duration) error {
 	if errors.Is(ctx.Err(), context.DeadlineExceeded) || errors.Is(err, context.DeadlineExceeded) {
 		if timeout == 0 {
-			return publisherguard.PublicError(504, "The request deadline expired. The Studio SQL timeout was disabled.")
+			return publisherguard.PublicError(504, "The request deadline expired. The Studio SQL timeout was disabled.", errors.Join(err, ctx.Err()))
 		}
-		return publisherguard.PublicError(504, fmt.Sprintf("SQL query timed out (configured timeout: %d seconds). Increase Timeout (seconds) or narrow the query.", int(timeout/time.Second)))
+		return publisherguard.PublicError(504, fmt.Sprintf("SQL query timed out (configured timeout: %d seconds). Increase Timeout (seconds) or narrow the query.", int(timeout/time.Second)), errors.Join(err, ctx.Err()))
+	}
+	if errors.Is(ctx.Err(), context.Canceled) || errors.Is(err, context.Canceled) {
+		return publisherguard.PublicError(499, "SQL query was canceled.", errors.Join(err, ctx.Err()))
 	}
 	if provider := providererror.FromError(err); provider != nil {
 		message := provider.Summary()
-		return &xresponse.Error{Code: 400, Cause: errors.New(message), Payload: map[string]any{"message": message, "providerError": provider}}
+		code := 400
+		switch provider.Code {
+		case "429":
+			code = 429
+		case "500", "502", "503", "504":
+			code = 503
+		}
+		switch provider.Reason {
+		case "backendError", "internalError":
+			code = 503
+		case "rateLimitExceeded", "jobRateLimitExceeded", "quotaExceeded":
+			code = 429
+		}
+		result := publisherguard.PublicError(code, message, err).(*xresponse.Error)
+		result.Payload = map[string]any{"message": message, "providerError": provider}
+		return result
+	}
+	var unavailable *sdk.Error
+	if errors.As(err, &unavailable) && unavailable.Code == sdk.ErrorUnavailable {
+		return publisherguard.PublicError(503, "SQL execution dependency is unavailable. Check connector initialization and server logs.", err)
+	}
+	var parse *compile.Error
+	if errors.As(err, &parse) && parse.Code == compile.CodeSQLParse {
+		result := publisherguard.PublicError(400, "SQL could not be parsed by the Datly compiler. Check whether the SQL dialect syntax is supported by this host version.", err).(*xresponse.Error)
+		result.Payload = map[string]any{"message": result.Error(), "diagnostics": []sdk.Diagnostic{{Severity: "error", Stage: "contract.parse", Code: "runtime_sql_parse", Message: "The native SQL parser rejected the query.", Hint: "Check dialect-specific literals and source qualification against the host's Datly version."}}}
+		return result
 	}
 	diagnostics := runtimevalidation.Diagnostics(runtimevalidation.Wrap("contract", err))
 	if len(diagnostics) == 1 && diagnostics[0].Stage == "contract.discovery" && strings.HasPrefix(diagnostics[0].Code, "runtime_discovery_") {
 		// Only the static allowlisted runtime projection crosses the operator
-		// boundary. Never return the original error or SQL as a payload/cause.
+		// boundary. Preserve the private cause without copying SQL into the payload.
 		message := "SQL test could not be compiled or executed"
-		return &xresponse.Error{Code: 400, Cause: errors.New(message), Payload: map[string]any{"message": message, "diagnostics": diagnostics}}
+		result := publisherguard.PublicError(400, message, err).(*xresponse.Error)
+		result.Payload = map[string]any{"message": message, "diagnostics": diagnostics}
+		return result
 	}
-	return publisherguard.PublicError(400, "SQL test could not be compiled or executed")
+	return publisherguard.PublicError(400, "SQL test could not be compiled or executed. Check the SQL dialect, column names, and selected connector schema; inspect correlated server logs for the failing operation.", err)
 }

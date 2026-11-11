@@ -125,6 +125,10 @@ SELECT records.*, type(records, 'Row') FROM (SELECT ID FROM UNAVAILABLE_RECORDS)
 		t.Fatal("missing source unexpectedly compiled")
 	}
 	d := Diagnostics(Wrap("contract", err))[0]
+	compiled := &transcribe.CompileError{Cause: err, Diagnostics: []*transcribe.Diagnostic{{Code: "compiler_detail", Message: "CANARY_SOURCE"}}}
+	if got := Diagnostics(Wrap("contract", compiled))[0]; got.Code != "runtime_discovery_query" || strings.Contains(got.Message, "CANARY") {
+		t.Fatalf("native discovery hidden by compiler: %+v", got)
+	}
 	if d.Code != "runtime_discovery_query" || d.Stage != "contract.discovery" {
 		t.Fatalf("native failure projected as %+v (type %T)", d, err)
 	}
