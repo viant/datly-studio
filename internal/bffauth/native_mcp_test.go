@@ -2,8 +2,11 @@ package bffauth
 
 import (
 	"context"
+	"fmt"
 	jwtlib "github.com/golang-jwt/jwt/v5"
+	"io"
 	"net/http"
+	"net/http/cookiejar"
 	"net/http/httptest"
 	"net/url"
 	"os"
@@ -15,6 +18,7 @@ import (
 	"github.com/viant/authz/oauth"
 	"github.com/viant/datly-studio/internal/accessconfig"
 	"github.com/viant/datly-studio/internal/datatest"
+	authtransport "github.com/viant/mcp/client/auth/transport"
 )
 
 func TestNativeMCPProxyPreservesBearerForNativeVerifierAndCookieSession(t *testing.T) {
@@ -89,5 +93,69 @@ func TestNativeMCPProxyPreservesBearerForNativeVerifierAndCookieSession(t *testi
 	proxy.ServeHTTP(blocked, httptest.NewRequest(http.MethodPost, "/v1/studio/sdk-mcp/_studio/reload", nil))
 	if blocked.Code != 404 {
 		t.Fatal("native administrative path exposed")
+	}
+}
+
+func TestNativeMCPProxyKeepsCredentialScopeStableAcrossReads(t *testing.T) {
+	calls := 0
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		if r.Header.Get("Authorization") != "Bearer jwt-token" || r.Header.Get("Cookie") != "" {
+			t.Error("upstream did not receive the isolated bearer identity")
+		}
+		http.SetCookie(w, &http.Cookie{Name: "BFF-Auth-Session", Value: fmt.Sprintf("upstream-%d", calls), Path: "/"})
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = io.WriteString(w, `{"jsonrpc":"2.0","id":1,"result":{"skills":[]}}`)
+	}))
+	defer upstream.Close()
+	service, err := New(Config{}, verifierStub{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	id, _, _, err := service.Exchange(context.Background(), "jwt-token")
+	if err != nil {
+		t.Fatal(err)
+	}
+	target, _ := url.Parse(upstream.URL)
+	proxy, err := service.ProxyNativeMCP(target, "/v1/studio/sdk-mcp")
+	if err != nil {
+		t.Fatal(err)
+	}
+	front := httptest.NewServer(proxy)
+	defer front.Close()
+	endpoint, _ := url.Parse(front.URL + "/v1/studio/sdk-mcp/mcp")
+	jar, _ := cookiejar.New(nil)
+	jar.SetCookies(endpoint, []*http.Cookie{{Name: DefaultCookieName, Value: id, Path: "/"}})
+	witness, err := authtransport.New(authtransport.WithCookieJar(jar))
+	if err != nil {
+		t.Fatal(err)
+	}
+	before, ok := witness.CredentialScope(endpoint)
+	if !ok {
+		t.Fatal("credential scope unavailable")
+	}
+	client := &http.Client{Jar: jar}
+	for i := 0; i < 4; i++ {
+		request, _ := http.NewRequest(http.MethodPost, endpoint.String(), strings.NewReader(`{"jsonrpc":"2.0","id":1,"method":"skills/list","params":{}}`))
+		request.Header.Set("Content-Type", "application/json")
+		if i%2 == 0 {
+			request.Header.Set("Authorization", "Bearer jwt-token")
+		}
+		response, err := client.Do(request)
+		if err != nil {
+			t.Fatal(err)
+		}
+		body, err := io.ReadAll(response.Body)
+		response.Body.Close()
+		if err != nil || response.StatusCode != http.StatusOK || string(body) != `{"jsonrpc":"2.0","id":1,"result":{"skills":[]}}` {
+			t.Fatalf("read %d: response changed, status=%d error=%v", i, response.StatusCode, err)
+		}
+		after, valid := witness.CredentialScope(endpoint)
+		if !valid || after != before {
+			t.Fatalf("read %d invalidated the unchanged caller credential scope", i)
+		}
+	}
+	if calls != 4 {
+		t.Fatalf("upstream calls=%d, want 4", calls)
 	}
 }
