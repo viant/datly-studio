@@ -34,6 +34,7 @@
  };
  const metadata=async editing=>{
   if(!namespace())throw new Error('Choose a namespace.');
+  await ds('component_connectors').fetchCollection();
   const current=editing?await call('components.get',{id:chosen().id}):{slug:'',title:'',description:'',defaultConnectorName:''};
   set({metadata:current,editingMetadata:editing,slug:current.slug,title:current.title,description:current.description||'',defaultConnectorName:current.defaultConnectorName,outcome:''});
   context.handlers.window.openDialog({execution:{args:['component-metadata']}});

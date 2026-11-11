@@ -142,3 +142,18 @@ test('catalog row actions address the clicked connector without prior selection'
  await user.click(within(row).getByRole('button',{name:'Edit',exact:true}));
  expect((await screen.findByLabelText('Name',{exact:true})).value).toBe('second-long-connector-name');
 });
+
+test('component metadata refreshes connector choices when reopened after activation',async()=>{
+ const metadata=source('components'),namespaceId='b'.repeat(64);let active=false,reads=0;
+ const transport=vi.fn(async request=>{
+  if(request.dataSourceRef==='component_namespaces')return {data:[{namespaceId,name:'inventory',title:'Inventory'}]};
+  if(request.dataSourceRef==='component_connectors'){reads++;return {data:active?[{name:'activated',status:'active'}]:[]};}
+  return {data:[]};
+ });
+ render(<SettingProvider endpoints={{}} connectorConfig={{window:{service:{uri:'/window'}}}} services={{dataConnectorTransport:transport}}><WindowContent window={{windowId:'management-options-refresh',windowKey:'components'}} selectedMetadata={metadata}/></SettingProvider>);
+ const user=userEvent.setup();await user.click(await screen.findByRole('button',{name:'Namespace',exact:true}));await user.click(await screen.findByText('Inventory'));
+ await user.click(screen.getByRole('button',{name:'New component',exact:true}));await screen.findByRole('dialog',{name:'Component metadata'});
+ await user.click(screen.getByRole('button',{name:'Cancel',exact:true}));const before=reads;active=true;
+ await user.click(screen.getByRole('button',{name:'New component',exact:true}));await user.click(await screen.findByRole('button',{name:'Connector',exact:true}));
+ await screen.findByRole('menuitem',{name:'activated',exact:true});expect(reads).toBeGreaterThan(before);
+});
