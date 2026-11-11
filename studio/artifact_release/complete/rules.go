@@ -58,7 +58,7 @@ func (rules *Rules) Init(ctx context.Context, row *CompleteChannel, state xhandl
 	if str(op.Status) != "applied" {
 		return contract.ErrInvalid
 	}
-	policies, err := json.Marshal(next.Policies)
+	policies, err := releasevalue.EncodeAudience(next)
 	if err != nil {
 		return err
 	}

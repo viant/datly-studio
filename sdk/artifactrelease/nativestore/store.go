@@ -115,7 +115,7 @@ func channel(r *snapshotview.ReleaseChannel) (contract.Channel, error) {
 		return c, contract.ErrInvalid
 	}
 	c.Revision = uint64(r.Revision)
-	if releasevalue.StrictJSON(*r.PolicyRefsJson, &c.Policies) != nil || contract.ValidateChannel(c) != nil {
+	if releasevalue.DecodeAudience(*r.PolicyRefsJson, &c) != nil {
 		return c, contract.ErrInvalid
 	}
 	return c, nil
@@ -251,7 +251,7 @@ func (s *Store) StageRevisionWithBindingsAndDependencies(ctx context.Context, cu
 	row.SetExpectedWorkspaceId(&s.scope.Workspace)
 	row.SetExpectedNamespace(&s.scope.Namespace)
 	row.SetExpectedDescription(&current.Description)
-	pol, _ := json.Marshal(current.Policies)
+	pol, _ := releasevalue.EncodeAudience(current)
 	polJSON := json.RawMessage(pol)
 	row.SetExpectedPolicyRefsJson(&polJSON)
 	if current.ActiveBundleHash != "" {
@@ -503,7 +503,7 @@ func (s *Store) CreateChannel(ctx context.Context, c contract.Channel) error {
 	if e != nil {
 		return e
 	}
-	pol, e := json.Marshal(c.Policies)
+	pol, e := releasevalue.EncodeAudience(c)
 	if e != nil {
 		return e
 	}

@@ -148,11 +148,17 @@ func (c *Controller) ResourceSelections(ctx context.Context, uri string) ([]Acti
 }
 
 func manifestSelectsChannel(manifest artifactcohort.Manifest, channel contract.Channel, bundle contract.Bundle, projectionTenant string) bool {
+	names := make([]string, 0, len(channel.Policies)+1)
+	if channel.Public {
+		names = append(names, contract.ReleasePublicCohortName(channel.Key))
+	}
 	for _, ref := range channel.Policies {
-		name := contract.ReleaseCohortName(channel.Key, ref)
+		names = append(names, contract.ReleaseCohortName(channel.Key, ref))
+	}
+	for _, name := range names {
 		matched := false
 		for _, cohort := range manifest.Cohorts {
-			if cohort.Tenant != projectionTenant || cohort.Name != name {
+			if cohort.Tenant != projectionTenant || cohort.Name != name || cohort.Public != channel.Public {
 				continue
 			}
 			if len(cohort.Roots) != len(bundle.Roots) {
@@ -219,6 +225,9 @@ func (c *Controller) AdmitRoot(ctx context.Context, root artifactcohort.RootRef)
 		return "", err
 	}
 	for _, selection := range selections {
+		if selection.Channel.Public {
+			return hash, nil
+		}
 		for _, ref := range selection.Channel.Policies {
 			allowed, err := c.config.AdmitAudience(ctx, selection.Channel, ref)
 			if err != nil {
@@ -347,7 +356,7 @@ func (c *Controller) committedFingerprint(ctx context.Context) (string, error) {
 	policyFresh := make(map[string]bool)
 	for _, selected := range selections {
 		channel, bundle := selected.Channel, selected.Bundle
-		state := activeState{Channel: channel, Roots: make([]bool, len(bundle.Roots))}
+		state := activeState{Channel: channel, PolicyFresh: channel.Public, Roots: make([]bool, len(bundle.Roots))}
 		for i, root := range bundle.Roots {
 			if available, found := rootAvailable[root]; found {
 				state.Roots[i] = available
@@ -517,7 +526,7 @@ func (c *Controller) List(ctx context.Context, in contract.ListInput) (contract.
 					}
 				}
 				deps := selected.Dependencies
-				if len(deps) == 0 || c.config.Fence(ctx, deps) != nil {
+				if !channel.Public && (len(deps) == 0 || c.config.Fence(ctx, deps) != nil) {
 					status, active = contract.StatusFailed, false
 				}
 			}
@@ -630,7 +639,11 @@ func (c *Controller) Publish(ctx context.Context, in contract.PublishInput) (con
 		if in.ExpectedRevision != 0 {
 			return contract.Result{}, contract.ErrConflict
 		}
-		current, err = contract.NewChannel(key, in.Description, in.Policies)
+		if in.Public {
+			current, err = contract.NewPublicChannel(key, in.Description)
+		} else {
+			current, err = contract.NewChannel(key, in.Description, in.Policies)
+		}
 		if err != nil {
 			return contract.Result{}, err
 		}
@@ -640,7 +653,7 @@ func (c *Controller) Publish(ctx context.Context, in contract.PublishInput) (con
 	} else if err != nil {
 		return contract.Result{}, err
 	}
-	next, err := contract.PrepareChannelUpdate(current, in.ExpectedRevision, in.Description, in.Policies, bundle)
+	next, err := contract.PrepareChannelUpdateAudience(current, in.ExpectedRevision, in.Description, in.Policies, in.Public, bundle)
 	if err != nil {
 		return contract.Result{}, err
 	}
@@ -758,16 +771,22 @@ func (c *Controller) restore(ctx context.Context, prior any) error {
 	return err
 }
 func (c *Controller) compile(ctx context.Context, channel contract.Channel, bundle contract.Bundle) (contract.Compilation, error) {
-	docs, err := c.config.NamedDocuments(ctx, channel.Policies)
-	if err != nil {
-		return contract.Compilation{}, err
+	var docs []authz.Document
+	var err error
+	if !channel.Public {
+		docs, err = c.config.NamedDocuments(ctx, channel.Policies)
+		if err != nil {
+			return contract.Compilation{}, err
+		}
 	}
 	result, err := contract.CompileCohorts(ctx, channel, bundle, docs)
 	if err != nil {
 		return contract.Compilation{}, err
 	}
-	if err = c.config.Fence(ctx, result.Dependencies); err != nil {
-		return contract.Compilation{}, err
+	if !channel.Public {
+		if err = c.config.Fence(ctx, result.Dependencies); err != nil {
+			return contract.Compilation{}, err
+		}
 	}
 	if target := c.projectionTenant(); target != channel.Key.Tenant {
 		for i := range result.Policies {
@@ -775,7 +794,9 @@ func (c *Controller) compile(ctx context.Context, channel contract.Channel, bund
 		}
 		for i := range result.Cohorts {
 			result.Cohorts[i].Tenant = target
-			result.Cohorts[i].PolicyResource.Tenant = target
+			if !result.Cohorts[i].Public {
+				result.Cohorts[i].PolicyResource.Tenant = target
+			}
 		}
 	}
 	return result, nil
@@ -833,7 +854,7 @@ func (c *Controller) project(ctx context.Context, item contract.PendingRevision)
 		return err
 	}
 	stagedDeps, err := c.config.Store.PendingDependencies(ctx, item.OperationID)
-	if err != nil || !reflect.DeepEqual(stagedDeps, compiled.Dependencies) {
+	if err != nil || !(len(stagedDeps) == 0 && len(compiled.Dependencies) == 0 || reflect.DeepEqual(stagedDeps, compiled.Dependencies)) {
 		return contract.ErrConflict
 	}
 	manifest, err := c.config.Publisher.Snapshot()
@@ -847,8 +868,10 @@ func (c *Controller) project(ctx context.Context, item contract.PendingRevision)
 	if _, err = c.config.Publisher.ReplaceCatalog(ctx, policies, cohorts, manifest.Generation); err != nil {
 		return err
 	}
-	if err = c.config.Fence(ctx, compiled.Dependencies); err != nil {
-		return err
+	if !item.Next.Public {
+		if err = c.config.Fence(ctx, compiled.Dependencies); err != nil {
+			return err
+		}
 	}
 	next := make([]ActiveSelection, 0, len(c.active.Selections)+1)
 	for _, selected := range c.active.Selections {
@@ -947,7 +970,7 @@ func (c *Controller) reconcile(ctx context.Context) error {
 					compiled = contract.Compilation{}
 				} else {
 					activeDeps := selected.Dependencies
-					if !reflect.DeepEqual(activeDeps, compiled.Dependencies) {
+					if !(len(activeDeps) == 0 && len(compiled.Dependencies) == 0 || reflect.DeepEqual(activeDeps, compiled.Dependencies)) {
 						compiled = contract.Compilation{}
 					}
 				}

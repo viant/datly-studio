@@ -28,7 +28,7 @@ func (rules *Rules) Init(ctx context.Context, row *NewChannel, state xhandler.Li
 		return contract.ErrInvalid
 	}
 	c := contract.Channel{Key: contract.Key{Tenant: scope.Tenant, Account: scope.Account, Workspace: scope.Workspace, Namespace: scope.Namespace, Name: str(row.Name)}, Description: str(row.Description)}
-	if row.Revision != 0 || row.PendingOperationId != nil || row.ActiveBundleHash != nil || row.ActiveDependenciesJson != nil || row.PolicyRefsJson == nil || releasevalue.StrictJSON(*row.PolicyRefsJson, &c.Policies) != nil || contract.ValidateChannel(c) != nil {
+	if row.Revision != 0 || row.PendingOperationId != nil || row.ActiveBundleHash != nil || row.ActiveDependenciesJson != nil || row.PolicyRefsJson == nil || releasevalue.DecodeAudience(*row.PolicyRefsJson, &c) != nil {
 		return contract.ErrInvalid
 	}
 	return nil

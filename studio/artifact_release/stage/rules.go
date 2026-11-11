@@ -45,7 +45,7 @@ func channelValue(scope releasevalue.Scope, name string, description *string, po
 		return contract.Channel{}, contract.ErrInvalid
 	}
 	result := contract.Channel{Key: contract.Key{Tenant: scope.Tenant, Account: scope.Account, Workspace: scope.Workspace, Namespace: scope.Namespace, Name: name}, Description: *description, ActiveBundleHash: text(active), Revision: uint64(revision)}
-	if releasevalue.StrictJSON(*policies, &result.Policies) != nil || contract.ValidateChannel(result) != nil {
+	if releasevalue.DecodeAudience(*policies, &result) != nil {
 		return result, contract.ErrInvalid
 	}
 	return result, nil

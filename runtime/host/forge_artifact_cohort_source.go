@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -20,11 +21,13 @@ import (
 // once at the MCP handler using Config.AuthorizeArtifactHost. The publisher
 // stores producer-closed top-level versions and their complete policy catalog.
 type PublishedArtifactCatalog struct {
-	Publisher   *artifactcohort.Publisher
-	mu          sync.Mutex
-	next        uint64
-	sinks       map[uint64]transport.Notifier
-	releaseGate *releasegate.Gate
+	Publisher       *artifactcohort.Publisher
+	mu              sync.Mutex
+	next            uint64
+	sinks           map[uint64]transport.Notifier
+	releaseGate     *releasegate.Gate
+	publicReadScope func(context.Context) error
+	publicTenant    string
 }
 
 func NewPublishedArtifactCatalog(p *artifactcohort.Publisher) *PublishedArtifactCatalog {
@@ -48,6 +51,173 @@ func (s *PublishedArtifactCatalog) BindReleaseGate(g *releasegate.Gate) error {
 	s.releaseGate = g
 	return nil
 }
+
+// BindPublicReadScope binds the same prepared publication-availability fence
+// used by release reads. It grants no authoring or private catalog access.
+func (s *PublishedArtifactCatalog) BindPublicReadScope(tenant string, check func(context.Context) error) error {
+	if s == nil || check == nil || tenant == "" {
+		return artifactcohort.ErrInvalid
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.publicReadScope != nil {
+		return artifactcohort.ErrConflict
+	}
+	s.publicReadScope = check
+	s.publicTenant = tenant
+	return nil
+}
+func (s *PublishedArtifactCatalog) PublicConfigured() bool {
+	if s == nil {
+		return false
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.publicReadScope != nil
+}
+func (s *PublishedArtifactCatalog) publicScope(ctx context.Context) error {
+	if ctx == nil || s == nil || s.Publisher == nil {
+		return artifactcohort.ErrInvalid
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	s.mu.Lock()
+	check := s.publicReadScope
+	s.mu.Unlock()
+	if check == nil {
+		return artifactcohort.ErrDenied
+	}
+	if !s.Publisher.PublicReadable() {
+		if _, err := s.Publisher.PublicSnapshot(); err != nil {
+			return err
+		}
+	}
+	return check(ctx)
+}
+func (s *PublishedArtifactCatalog) DiscoverPublic(ctx context.Context, onAdmitted func()) (artifactcohort.Manifest, error) {
+	var manifest artifactcohort.Manifest
+	read := func() error {
+		if err := s.publicScope(ctx); err != nil {
+			return err
+		}
+		if onAdmitted != nil {
+			onAdmitted()
+		}
+		var err error
+		manifest, err = s.Publisher.PublicSnapshot()
+		return err
+	}
+	var err error
+	if gate := s.gate(); gate != nil {
+		err = gate.Read(read)
+	} else {
+		err = read()
+	}
+	return manifest, err
+}
+func (s *PublishedArtifactCatalog) FetchPublic(ctx context.Context, input artifactcohort.FetchInput, onAdmitted func()) (*artifactcohort.Artifact, error) {
+	var artifact *artifactcohort.Artifact
+	read := func() error {
+		if err := s.publicScope(ctx); err != nil {
+			return err
+		}
+		if onAdmitted != nil {
+			onAdmitted()
+		}
+		var err error
+		artifact, err = s.Publisher.FetchPublic(input)
+		return err
+	}
+	var err error
+	if gate := s.gate(); gate != nil {
+		err = gate.Read(read)
+	} else {
+		err = read()
+	}
+	return artifact, err
+}
+
+// ReadPublicResource reuses the publisher's prepared exact-URI selection.
+// handled is true for an authoritative public catalog, including withdrawal.
+func (s *PublishedArtifactCatalog) ReadPublicResource(ctx context.Context, uri, revision string, onAdmitted func()) (artifact *artifactcohort.Artifact, handled bool, err error) {
+	read := func() error {
+		if err := s.publicScope(ctx); err != nil {
+			if errors.Is(err, artifactcohort.ErrDenied) {
+				return nil
+			}
+			handled = true
+			return err
+		}
+		handled = true
+		if onAdmitted != nil {
+			onAdmitted()
+		}
+		s.mu.Lock()
+		tenant := s.publicTenant
+		s.mu.Unlock()
+		root, present, err := s.Publisher.LookupPublicRoot(tenant, uri)
+		if err != nil || !present {
+			return err
+		}
+		if revision != "" && revision != "main" && revision != strconv.FormatUint(root.Version, 10) {
+			return artifactcohort.ErrDenied
+		}
+		artifact, err = s.Publisher.FetchPublic(artifactcohort.FetchInput{Tenant: tenant, Root: root})
+		return err
+	}
+	if gate := s.gate(); gate != nil {
+		err = gate.Read(read)
+	} else {
+		err = read()
+	}
+	return artifact, handled, err
+}
+
+type publicResourceNotifier struct {
+	transport.Notifier
+	publisher *artifactcohort.Publisher
+	tenant    string
+}
+
+func (n *publicResourceNotifier) Notify(ctx context.Context, event *jsonrpc.Notification) error {
+	if event == nil {
+		return artifactcohort.ErrInvalid
+	}
+	readable := n.publisher.PublicReadable()
+	safe := event
+	if !readable {
+		safe = &jsonrpc.Notification{Jsonrpc: jsonrpc.Version, Method: artifactcohort.NotificationListChanged}
+	} else if event != nil && event.Method == artifactcohort.NotificationUpdated {
+		var params struct {
+			URI string `json:"uri"`
+		}
+		if err := json.Unmarshal(event.Params, &params); err != nil {
+			return err
+		}
+		_, present, err := n.publisher.LookupPublicRoot(n.tenant, params.URI)
+		if err != nil {
+			return err
+		}
+		if !present {
+			safe = &jsonrpc.Notification{Jsonrpc: jsonrpc.Version, Method: artifactcohort.NotificationListChanged}
+		}
+	}
+	if err := n.Notifier.Notify(ctx, safe); err != nil {
+		return err
+	}
+	return nil
+}
+func (s *PublishedArtifactCatalog) SubscribePublicResources(notifier transport.Notifier) func() {
+	if s == nil || notifier == nil {
+		return func() {}
+	}
+	s.mu.Lock()
+	tenant := s.publicTenant
+	s.mu.Unlock()
+	return s.SubscribeResources(&publicResourceNotifier{Notifier: notifier, publisher: s.Publisher, tenant: tenant})
+}
+
 func (s *PublishedArtifactCatalog) gate() *releasegate.Gate {
 	if s == nil {
 		return nil
@@ -320,7 +490,11 @@ func (s *PublishedArtifactCatalog) UnsubscribeResources(sink transport.Notifier)
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	for id, current := range s.sinks {
-		if current == sink {
+		matches := current == sink
+		if public, ok := current.(*publicResourceNotifier); ok {
+			matches = matches || public.Notifier == sink
+		}
+		if matches {
 			delete(s.sinks, id)
 		}
 	}
@@ -344,6 +518,8 @@ func (s *PublishedArtifactCatalog) notify(ctx context.Context, method, uri strin
 // NotifyListChanged signals a completed release activation after its SQL
 // channel pointer and Publisher manifest are both committed. It never mutates
 // the manifest and runs outside the release write gate.
-func(s *PublishedArtifactCatalog) NotifyListChanged(ctx context.Context){
-	if s!=nil{s.notify(ctx,artifactcohort.NotificationListChanged,"")}
+func (s *PublishedArtifactCatalog) NotifyListChanged(ctx context.Context) {
+	if s != nil {
+		s.notify(ctx, artifactcohort.NotificationListChanged, "")
+	}
 }
