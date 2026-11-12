@@ -1,32 +1,36 @@
-# BigQuery fact cubes and MySQL dictionary expansion
+# Fact-table cubes and outer metadata views
 
-The design below reflects patterns reviewed in Steward forecasting DQL, with no
-copied queries, table names, custom handlers, credentials, or business rules.
-All identifiers in the examples are synthetic. Discover the actual schema,
-connectors and authorization boundary before adapting the pattern.
+All identifiers below are synthetic. Discover the actual schema, connectors and
+authorization boundary before adapting the pattern. No database engine or
+business domain is assumed.
 
 ## Start with the fact grain
 
-Identify the real event/fact table, additive measures, date/partition boundary,
-and authorized entity scope. Keep database-native IDs in the fact output.
-Aggregate the fact once at the intended selected dimension grain. Do not add a
-MySQL metadata join inside BigQuery SQL or pre-expand a many-row dictionary into
-the fact; either can multiply contributions or change totals.
+Identify the fact table, dimensions, additive measures, date/partition boundary
+and entity scope. Aggregate facts once at the intended selected dimension grain.
+Keep stable IDs in that result so outer metadata views can enrich them through
+complete native relation keys. Do not join another connector's tables into the
+fact SQL or multiply facts by expanding a many-row dictionary before aggregation.
 
-Example inner fact SQL, not a complete DQL component:
+Example input declarations and inner SQL fragment, not a complete component:
 
 ```sql
-SELECT event_date, product_id, country_code,
-       SUM(units) AS units, SUM(net_amount) AS net_amount
-FROM `example_project.analytics.daily_sales`
-WHERE event_date >= @from_date AND event_date < @to_date
-GROUP BY event_date, product_id, country_code
+#define($_ = $Dates<[]string>(query/dates).Required().WithPredicate(0, 'in', 'f', 'event_date'))
+#define($_ = $ProductIDs<[]int>(query/productIds).Optional().WithPredicate(0, 'in', 'f', 'product_id'))
+
+SELECT f.event_date, f.product_id, f.country_code,
+       SUM(f.units) AS units, SUM(f.net_amount) AS net_amount
+FROM fact_measurements f
+${predicate.Builder().CombineAnd($predicate.FilterGroup(0, "AND")).Build("WHERE")}
+GROUP BY f.event_date, f.product_id, f.country_code
 ```
 
-Replace @from_date/@to_date with the target driver's declared Datly parameter
-bindings; they are explanatory placeholders, not portable DQL syntax. Add the
-real verified scope predicate. Do not run an unbounded aggregation to discover
-its output columns: request native SQL metadata first.
+Use discovered source types; the example date representation is not a universal
+database conversion rule. Caller filters are not authorization. Add any required
+namespace authorization input and AND-connect its predicate group to the entire
+filter expression. Main-query filtering belongs in typed input predicates and
+`predicate.Builder`, rather than ad-hoc WHERE string construction. Request native
+SQL metadata before running bounded data checks.
 
 ## Enable the cube contract
 
@@ -54,10 +58,10 @@ Selecting fewer dimensions must not change required contributor authorization.
 
 ## Expand IDs after aggregation
 
-A declared Datly outer relation can read a MySQL dictionary through its own
-connector, using keys from the grouped BigQuery parent. For example, the parent
+A declared Datly outer metadata view can use its own connector and keys
+from the grouped fact parent. For example, the parent
 retains product_id and an optional related Product object resolves its label.
-Use the connected builder's Add child / relation operation, select the MySQL
+Use the connected builder's Add child / relation operation, select the metadata
 connector, and declare the complete key. Native batching owns the lookup reads.
 
 Illustrative outer-graph fragment (not a complete component):

@@ -1,7 +1,7 @@
 # Namespace security and opt-in query resource checks
 
 Discover the connected tool schemas first. These examples use the supported
-Studio SDK options; they are not DQL directives or global BigQuery driver settings.
+Studio SDK options; they are not DQL directives or global database driver settings.
 Use the namespace name, component ID, version and revisions returned by this server.
 
 ## Read and change namespace settings
@@ -49,7 +49,7 @@ Configuring namespace thresholds does **not** enable checks on components.
 Read `studio.sdk.versions.get` or `versions.inspect` and preserve the existing
 `resourceCheckEnabled` choice when making unrelated edits. New versions default
 to false unless explicitly configured; native draft cloning retains the source
-choice. Do not turn this on for every component just because a BigQuery connector
+choice. Do not turn this on for every component just because a data connector
 or namespace limits exist.
 
 When the user wants resource checks on a particular editable draft, use
@@ -78,19 +78,19 @@ Published versions require a new editable draft.
 Only opted-in component versions attach resource admission. Their native reader
 queries, relation batches, partitions and composed projections are checked on
 those queries' actual source connectors. Disabled components use ordinary native
-execution with no extra resource dry runs. BigQuery handles its own physical
-partition pruning and nested SQL inside each submitted statement.
+execution with no extra resource dry runs. The source engine handles physical partition pruning and nested SQL inside
+each submitted statement.
 
-A dry run reports estimated bytes processed, estimate accuracy, referenced tables
-and schema. It does not return SELECT result-row cardinality. `maxReturnedRows`
+Where supported, a dry run can report estimated bytes processed, estimate
+accuracy, referenced tables and schema. Check the connected driver’s capabilities. It does not return SELECT result-row cardinality. `maxReturnedRows`
 is enforced on actual results before return; do not claim it was predicted by dry
 run. Keep checks enabled on a budget or capability failure and report the cause;
 do not silently disable the user's option to obtain a successful execution.
 
 Use only capabilities advertised by the connected build. Full native admission
-and the driver's statistics API require their supporting Datly/BigQuery builds.
+and the driver's statistics API require their supporting Datly and driver builds.
 Local implementation or a passing mock is not evidence that a remote server was
-upgraded or that a real BigQuery query was qualified.
+upgraded or that an actual source query was qualified.
 
 ## Namespace predicate packages and required security
 

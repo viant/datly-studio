@@ -16,13 +16,17 @@ func TestEmbeddedSkillPublishesThroughNativeResourcePlans(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(plans) != 13 {
+	if len(plans) != 14 {
 		t.Fatalf("resource count=%d", len(plans))
 	}
 	handoffPublished := false
 	resourceChecksPublished := false
 	groupingPublished := false
+	migrationPublished := false
 	for _, plan := range plans {
+		if plan.URI() == "mcp://datastudio/skills/datly-studio-authoring/references/behavioral-migration.md" {
+			migrationPublished = true
+		}
 		if plan.URI() == "mcp://datastudio/skills/datly-studio-authoring/references/parameterized-grouping-howto.md" {
 			groupingPublished = true
 		}
@@ -41,6 +45,9 @@ func TestEmbeddedSkillPublishesThroughNativeResourcePlans(t *testing.T) {
 	}
 	if !groupingPublished {
 		t.Fatal("parameterized grouping guide must be addressable through management MCP")
+	}
+	if !migrationPublished {
+		t.Fatal("behavioral migration guide must be addressable through management MCP")
 	}
 	data, err := fs.ReadFile(source, "skills/datly-studio-authoring/SKILL.md")
 	if err != nil {

@@ -13,10 +13,28 @@ change namespace configuration, access new data, or execute expensive queries.
 
 ## Required authoring sequence
 
+For an outcome-oriented migration request without supplied DQL, read
+[Behavioral migration](references/behavioral-migration.md). Derive the implementation
+from discovered contracts and verified schema relationships; do not require the
+caller to write source or infer authorization from names.
+
 Use this Data Studio connection's `studio.sdk.*` tools for components, readers
-and cubes. AI Studio's `namespaces/*` resource tools are a different authoring
-surface. Resolve the requested namespace once; retain the returned namespace ID,
+and cubes. Resource-catalog tools are a different authoring surface; do not
+substitute them for component version operations.
+Resolve the requested namespace once; retain the returned namespace ID,
 component ID, draft version number and source revision throughout the task.
+Before authoring, read `studio.sdk.namespaces.settings_get` for the resolved
+namespace. If `security.requireSecurityPredicate` is true, check the configured
+`security.predicatePackages`, then discover allowed types with
+`studio.sdk.authorization_predicates.types(namespaceId=...)`. Bind a real
+installed authorization predicate from a selected package to its required
+trusted input; keep it effective when optional filters are absent. An import,
+a client-provided ID filter, or a type listed only by unscoped discovery does
+not satisfy the requirement. If no selected package/type is usable, report the
+exact prerequisite and preserve the setting. Do not disable it to publish.
+Validate the exact draft and let the server enforce the compiled policy again
+at publication. Follow [Security and resource checks](references/security-and-resource-checks.md).
+
 Read `references/dql.md` before writing source and the relevant portion of
 `references/workflow.md` before saving or publishing. Load only the references
 needed for the requested change; do not enumerate unrelated tools or tables.
@@ -52,6 +70,11 @@ WHERE. Keep required trusted authorization outside optional OR alternatives.
 Required caller filters alone are not authorization. The complete typed reader
 and multiple-group composition are in `references/dql.md`.
 
+Prefer registered typed predicates over custom SQL filter expressions. Use an
+expression predicate only when the native catalog cannot express the required
+source semantics, keep values bound, and validate the emitted query through
+the actual connector. Do not assemble WHERE text from caller input.
+
 **Edit a specific draft, not an unspecified latest resource.** Metadata updates
 use the component ETag; source edits use `versionNo` plus
 `expectedSourceRevision`. Each source edit increments the draft's source revision
@@ -75,14 +98,14 @@ paths relative to this skill URI:
 
 - [MCP workflow](references/workflow.md): inspecting saved components, connector and schema discovery, editing,
   revision checks, validation, release, runtime readiness, authentication, and recovery.
-- [Complete worked example](references/worked-example.md): exact create/apply/validate/release payloads and a BigQuery cube with two MySQL lookups.
+- [Complete worked example](references/worked-example.md): exact create/apply/validate/release payloads and a fact-table cube with two metadata views.
 - [Builder operation schema](references/builder-operations.schema.json): JSON payload fields and supported operation types, checked against the linked builder.
 - [DQL](references/dql.md): complete reader shape, bindings, SQL column discovery,
   predicates, resources, and generation boundaries.
 - [Formal grammar](references/dql.ebnf.txt): structural Datly v1 grammar; SQL dialects,
   registered types/codecs, and semantic validity still require the connected compiler.
 - [Cubes and dictionaries](references/cubes-and-dictionaries.md): fact grain,
-  dimension/measure roles, BigQuery aggregation, and MySQL lookup relations.
+  dimension/measure roles, fact aggregation, and metadata relations.
 - [Report-consumer handoff](references/report-consumers.md): verified reader
   contracts for dashboard agents, including source branches, date semantics,
   required context, nullable calculations and execution evidence.

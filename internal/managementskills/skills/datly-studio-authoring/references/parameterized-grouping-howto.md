@@ -7,7 +7,7 @@ reconciliation as separate evidence.
 
 ## Group the selected expression once
 
-For an already declared typed input `Dimension`, an inner BigQuery query can
+For an already declared typed input `Dimension`, an inner fact query can
 select a grouping expression once:
 
 ```sql
@@ -32,9 +32,10 @@ string interpolation or client-side grouping. If the SELECT list changes,
 recheck every ordinal's meaning.
 
 Verify the actual emitted SQL and typed bindings through the selected native
-component. For BigQuery, a dry run validates the query without reading result
-rows; it does not prove values or permissions. A SQLite fixture is useful for
-independent expectations but does not prove BigQuery grouping rules. Keep real
+component. Where the connector supports a dry run, it can validate the query without
+reading result rows; it does not prove values or permissions. An isolated
+fixture establishes independent expectations but does not prove another
+database engine’s grouping rules. Keep real
 fact extracts out of reproducible examples; use distinguishing invented rows.
 
 ## Preserve aggregation order

@@ -35,8 +35,8 @@ lists can make that response large. Probe with
 connectors.test when connectivity is uncertain. connectors.discover supplies
 product/version, projects/catalogs and schemas/datasets; connectors.schemas,
 connectors.tables and connectors.table browse physical metadata when advertised.
-Use their actual schemas, including catalog and schema inputs. BigQuery usually
-maps project to catalog and dataset to schema. Configured lookup lists are editable
+Use their actual schemas, including catalog and schema inputs. Discover how
+the connected product maps its namespaces instead of assuming a fixed layout. Configured lookup lists are editable
 choices, not hard restrictions or proof that no other qualified SQL can work.
 
 For result metadata, create/inspect the component with versions.inspect and
@@ -130,7 +130,7 @@ Use versions.test_view / preview.execute and the cube-specific test facilities
 advertised by this build. connectors.test_sql is an exploratory SQL execution,
 not a column-discovery substitute. Its timeout is explicit: 0 disables Studio's
 deadline, omitted defaults to 60 seconds. Results support limit/offset paging;
-LIMIT or a page-size control does not bound BigQuery scan cost. Bound fact dates
+LIMIT or a page-size control does not necessarily bound source scan cost. Bound fact dates
 and authorized entity scope before testing. Start with metadata discovery, then
 run only the queries the user authorized.
 

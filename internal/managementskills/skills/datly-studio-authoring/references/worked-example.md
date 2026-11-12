@@ -12,12 +12,12 @@ Read live schemas; use values returned by the server for every placeholder.
 not its canonical ID. Save the returned `namespaceId`. Prefer
 `connectors.list` with `fields:["name","driver","status","ownerId"]` to avoid
 large discovered lookup lists; `connectors.get` returns the full configuration.
-Use the active BigQuery and MySQL connectors the user authorized.
+Use the active fact and metadata connectors the user authorized.
 
 `studio.sdk.components.create`:
 
 ```json
-{"namespaceId":"<namespaceId>","namespace":"analytics","slug":"sales-by-product","title":"Sales by product","defaultConnectorName":"warehouse","description":"BigQuery facts with MySQL product and account labels"}
+{"namespaceId":"<namespaceId>","namespace":"analytics","slug":"sales-by-product","title":"Sales by product","defaultConnectorName":"warehouse","description":"Aggregated facts with related product and account metadata"}
 ```
 
 The slug is required, max 200 characters, lowercase letters/digits/dashes only,
@@ -82,7 +82,7 @@ SELECT fact.*, type(fact, 'SalesRow'),
 FROM (
     SELECT s.event_date, s.account_id, s.product_id,
            SUM(s.units) AS units, SUM(s.net_amount) AS net_amount
-    FROM `example_project.analytics.daily_sales` s
+    FROM daily_sales s
     ${predicate.Builder().CombineOr($predicate.FilterGroup(0, "AND")).Build("WHERE")}
     GROUP BY s.event_date, s.account_id, s.product_id
 ) fact

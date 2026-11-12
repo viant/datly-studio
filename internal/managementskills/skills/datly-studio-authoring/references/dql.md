@@ -79,17 +79,11 @@ presence where omitted, NULL and zero differ. Declare imports for non-builtin
 Go types. Use QuerySelector on the exact view for supported limit/offset/fields
 bindings; enabling a UI control does not grant selector authority automatically.
 
-For a discovered BigQuery `DATE` column and ISO-date string-array input, this
-Datly v1 pattern has been verified through native discovery and cube execution:
-
-```sql
-#define($_ = $Dates<[]string>(query/dates).Required().WithPredicate(0, 'literal_in', 'CAST(fp.event_date AS STRING)'))
-```
-
-Here `fp` is the actual inner BigQuery fact alias, and values are dates such as
-`2026-10-01`. Keep the required declaration and use the normal predicate builder
-to emit it. This is not a general timestamp/timezone conversion rule or syntax
-for other database drivers; discover the actual column type first.
+Declare date input types from the discovered source contract and the connector's
+advertised binding behavior. Use native typed input predicates for the date
+bounds and the normal predicate builder to emit them. Output date formatting
+is a separate concern; see [Column output how-to](column-output-howto.md).
+Do not assume a database-specific CAST or placeholder convention is portable.
 
 For a linked variadic custom predicate, builder operations use `name: handler`,
 the handler type identity in `args`, and literal configuration in `handlerArgs`.
@@ -111,7 +105,7 @@ validation from literal-only checks, read the
 Use `use_connector(alias, 'configured_name')` on related views, `type` for their
 row/holder identity, and complete ON keys for relationships. A Datly outer join
 can describe a batched related read on another connector; it is not permission
-to place MySQL identifiers inside BigQuery SQL. Preserve to-one/to-many semantics.
+to place one connector’s identifiers inside another connector’s SQL. Preserve to-one/to-many semantics.
 
 For external SQL use `${embed:sql/file.sql}` and save that file in the component's
 versioned resources. Keep the resource tree, imports, declared types and connector
