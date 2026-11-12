@@ -2392,6 +2392,7 @@ export type Wire71135F21Ef144Ede226F59F1B64910Efa1147D20E135146157De32743475D7Ad
     capabilities: WireC47Cf46B58E263Ed665Fbdce50F43Ecc62642C4837741Ba43Aaa439C1623D39c;
     diagnostics?: Array<Wire878Bfd02A12294E26D1A40F1B673A231Fa11C24402268D818F39F80Be43C86F9> | null;
     dql?: string;
+    previewInput?: WireD898068D79F9Ab4599Fd8F30Bffb8A6C8Bc06D0E63E90430D7E800Ec223Ea4Ca | null;
     structure?: unknown;
     version: Wire62B416D7643717Df5349D629A8802521Ee46B9F921D7C05E834E68B645Ecb930 | null;
 };
@@ -2884,6 +2885,7 @@ export type WireAffe7195B4B994E2Bc73C2Eafa9399E8Aa7E19Dc564D21B68F89Ebdea0B9Ea19
     capabilities: Wire3100C253C572F716Ab2Eb88F6D83D813Eedfe0B04003220Edb6E98677Fced244;
     diagnostics?: Array<Wire5Dcb9A5385549159028A02B9F90B5F85B74Ea0076B725Bce7E222E5Cfe3Ae71e> | null;
     dql?: string;
+    previewInput?: WireEe01445E9Fe49535F8F7Dc37D983F46B5472B8Cd95114371444Ef4105E4E314c | null;
     structure?: unknown;
     version: WireC3165Cf4A873913Ce00D191695Cde0C9734357C8A456041Fe80521B5E82Ab089 | null;
 };
@@ -3256,6 +3258,15 @@ export type WireD82Adbb20251Ee59732B96Cc17E12Fda2B7531A5A2Aa9B3011Dd7E9258Ea62A7
     stage?: string;
 };
 
+export type WireD898068D79F9Ab4599Fd8F30Bffb8A6C8Bc06D0E63E90430D7E800Ec223Ea4Ca = {
+    method: string;
+    path: string;
+    reportId: string;
+    schema: unknown;
+    sourceRevision: number;
+    versionNo: number;
+};
+
 export type WireD96F9F6E74952B34F1E493521A586F731028Cc293D50A0439Ca0Ba97D376Ca3c = {
     alias?: string;
     description?: string;
@@ -3406,6 +3417,15 @@ export type WireEcc4D9A82E8B4Cd1E3Ac77D7Fd7943319B31B3E82973C8Afbcf0002138Ddc950
     sourceRevision?: number;
     truncated: boolean;
     versionNo?: number;
+};
+
+export type WireEe01445E9Fe49535F8F7Dc37D983F46B5472B8Cd95114371444Ef4105E4E314c = {
+    method: string;
+    path: string;
+    reportId: string;
+    schema: unknown;
+    sourceRevision: number;
+    versionNo: number;
 };
 
 export type WireEe0E388919265Cb6A34B160D48Af21F28F7D7C7A89Bfa0E33A9Bc2A1E516D497 = {

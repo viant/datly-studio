@@ -293,12 +293,14 @@ func TestSelectedStudioStaticComponentsBootstrapTogether(t *testing.T) {
 		check("/v1/studio/sdk/namespaces.delete", `{"name":"manager.beta","etag":1}`, "owner", 204)
 	})
 	t.Run("namespace administrator uses verified roles", func(t *testing.T) {
-		t.Setenv("STUDIO_NAMESPACE_ADMIN_ROLE", "NAMESPACE_ADMIN")
 		created := httptest.NewRecorder()
 		server.ServeHTTP(created, request("/v1/studio/sdk/namespaces.create", `{"name":"admin.audit","title":"Admin Audit"}`))
 		if created.Code != http.StatusOK {
 			t.Fatalf("create status=%d body=%s", created.Code, created.Body.String())
 		}
+		// Establish the owner's fixture before restricting creation. The cases
+		// below exercise administrator access to an existing namespace.
+		t.Setenv("STUDIO_NAMESPACE_ADMIN_ROLE", "NAMESPACE_ADMIN")
 		call := func(path, body, role string) *httptest.ResponseRecorder {
 			req := request(path, body)
 			req.Header.Set("Authorization", "Bearer "+bobToken)
@@ -852,6 +854,73 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT id,slug FROM components WHERE id='p
 	if previewErr != nil || previewCheck == nil {
 		t.Fatalf("exact-version preview engine failed: %v", previewErr)
 	}
+	t.Run("native preview input inspection", func(t *testing.T) {
+		defer func() {
+			if _, restoreErr := store.ExecContext(ctx, "UPDATE component_versions SET authored_dql=?,generated_dql=? WHERE report_id=? AND version_no=1", previewDQL, previewDQL, previewReportID); restoreErr != nil {
+				t.Error(restoreErr)
+			}
+			if _, restoreErr := store.ExecContext(ctx, "DELETE FROM component_acl WHERE report_id=? AND subject_id='bob'", previewReportID); restoreErr != nil {
+				t.Error(restoreErr)
+			}
+		}()
+		inspectInput := func(subjectToken string) *httptest.ResponseRecorder {
+			req := request("/v1/studio/sdk/versions.inspect", `{"reportId":"preview-fixture","versionNo":1,"discoverColumns":false}`)
+			req.Header.Set("Authorization", "Bearer "+subjectToken)
+			res := httptest.NewRecorder()
+			server.ServeHTTP(res, req)
+			return res
+		}
+		empty := inspectInput(token)
+		var inspected sdk.ReaderInspection
+		if empty.Code != 200 || json.Unmarshal(empty.Body.Bytes(), &inspected) != nil || inspected.PreviewInput == nil {
+			t.Fatalf("empty native metadata status=%d body=%s", empty.Code, empty.Body.String())
+		}
+		var warmupCount int
+		if err := store.QueryRowContext(ctx, "SELECT COUNT(*) FROM component_warmup_runs WHERE report_id=?", previewReportID).Scan(&warmupCount); err != nil || warmupCount != 0 {
+			t.Fatalf("inspection initiated warmup: count=%d err=%v", warmupCount, err)
+		}
+		if inspected.PreviewInput.Path != "/v1/studio/readers/preview-fixture" || inspected.PreviewInput.SourceRevision != 1 {
+			t.Fatalf("metadata target %+v", inspected.PreviewInput)
+		}
+		parameterized := strings.Replace(previewDQL, "#define($_ = $Rows", `#define($_ = $PageSize<int>(query/page_size).Optional().Value('25'))
+#define($_ = $Token<string>(header/Authorization).Optional())
+#define($_ = $Tenant<int>(const/Tenant).Value('7'))
+#define($_ = $Rows`, 1)
+		if _, err := store.ExecContext(ctx, "UPDATE component_versions SET authored_dql=?,generated_dql=? WHERE report_id=? AND version_no=1", parameterized, parameterized, previewReportID); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := store.ExecContext(ctx, "INSERT INTO component_acl(report_id,subject_type,subject_id,can_view,can_run,can_use_dql) VALUES(?,'user','bob',1,0,0)", previewReportID); err != nil {
+			t.Fatal(err)
+		}
+		viewed := inspectInput(bobToken)
+		if viewed.Code != 200 || strings.Contains(viewed.Body.String(), `"previewInput"`) {
+			t.Fatalf("view-only metadata status=%d body=%s", viewed.Code, viewed.Body.String())
+		}
+		if _, err := store.ExecContext(ctx, "UPDATE component_acl SET can_run=1 WHERE report_id=? AND subject_id='bob'", previewReportID); err != nil {
+			t.Fatal(err)
+		}
+		run := inspectInput(bobToken)
+		inspected = sdk.ReaderInspection{}
+		if run.Code != 200 || json.Unmarshal(run.Body.Bytes(), &inspected) != nil || inspected.PreviewInput == nil {
+			t.Fatalf("run-only metadata status=%d body=%s", run.Code, run.Body.String())
+		}
+		var shape struct {
+			Properties map[string]json.RawMessage `json:"properties"`
+		}
+		if err := json.Unmarshal(inspected.PreviewInput.Schema, &shape); err != nil {
+			t.Fatal(err)
+		}
+		if len(shape.Properties) != 1 || shape.Properties["PageSize"] == nil || inspected.Capabilities.CanUseDQL || inspected.DQL != "" || strings.Contains(run.Body.String(), "SELECT id,slug") {
+			t.Fatalf("native wire contract or source redaction changed: %s", run.Body.String())
+		}
+		if _, err := store.ExecContext(ctx, "UPDATE component_versions SET authored_dql='SELECT PRIVATE_METADATA_CANARY FROM ABSENT_CANARY',generated_dql='SELECT PRIVATE_METADATA_CANARY FROM ABSENT_CANARY' WHERE report_id=? AND version_no=1", previewReportID); err != nil {
+			t.Fatal(err)
+		}
+		failed := inspectInput(bobToken)
+		if failed.Code != 200 || strings.Contains(failed.Body.String(), `"previewInput"`) || !strings.Contains(failed.Body.String(), "preview_input_unavailable") || strings.Contains(failed.Body.String(), "CANARY") {
+			t.Fatalf("unavailable metadata redaction status=%d body=%s", failed.Code, failed.Body.String())
+		}
+	})
 	validatedVersion := httptest.NewRecorder()
 	selectedValidationRequest := request("/v1/studio/sdk/versions.validate", `{"reportId":"preview-fixture","versionNo":1,"expectedSourceRevision":1}`)
 	selectedValidationRequest.Header.Set("X-Studio-Namespace", namespaceaccess.ID("alice", "production.audit"))
@@ -2226,6 +2295,24 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"canUseDql":false`)) ||
 		bytes.Contains(body, []byte("private_value")) {
 		t.Fatalf("static MCP delegated inspect status=%d body=%s", status, body)
+	}
+	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.inspect", map[string]any{
+		"reportId": previewReportID, "versionNo": 1, "discoverColumns": false,
+	})
+	var inputWire struct {
+		Result struct {
+			StructuredContent sdk.ReaderInspection `json:"structuredContent"`
+		} `json:"result"`
+	}
+	if status != http.StatusOK || bytes.Contains(body, []byte(`"isError":true`)) || json.Unmarshal(body, &inputWire) != nil || inputWire.Result.StructuredContent.PreviewInput == nil {
+		t.Fatalf("static MCP empty preview input contract status=%d body=%s", status, body)
+	}
+	var emptyInputShape struct {
+		Type       string                 `json:"type"`
+		Properties map[string]interface{} `json:"properties"`
+	}
+	if err = json.Unmarshal(inputWire.Result.StructuredContent.PreviewInput.Schema, &emptyInputShape); err != nil || emptyInputShape.Type != "object" || len(emptyInputShape.Properties) != 0 {
+		t.Fatalf("static MCP empty schema: %+v err=%v", emptyInputShape, err)
 	}
 
 	status, body = mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.load_dql", map[string]any{"namespaceId": wrongNamespaceID, "reportId": loadReport.ID, "input": map[string]any{"dql": "SELECT wrong_namespace"}})

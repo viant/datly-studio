@@ -8731,6 +8731,20 @@
           "dql": {
             "type": "string"
           },
+          "previewInput": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_d898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
           "structure": {},
           "version": {
             "anyOf": [
@@ -10754,6 +10768,20 @@
           "dql": {
             "type": "string"
           },
+          "previewInput": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_ee01445e9fe49535f8f7dc37d983f46b5472b8cd95114371444ef4105e4e314c"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          },
           "structure": {},
           "version": {
             "anyOf": [
@@ -12235,6 +12263,37 @@
           "message"
         ]
       },
+      "Wire_d898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "reportId": {
+            "type": "string"
+          },
+          "schema": {},
+          "sourceRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "versionNo": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "reportId",
+          "versionNo",
+          "sourceRevision",
+          "method",
+          "path",
+          "schema"
+        ]
+      },
       "Wire_d96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c": {
         "type": "object",
         "properties": {
@@ -12793,6 +12852,37 @@
           "returnedRows",
           "encodedBytes",
           "truncated"
+        ]
+      },
+      "Wire_ee01445e9fe49535f8f7dc37d983f46b5472b8cd95114371444ef4105e4e314c": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "reportId": {
+            "type": "string"
+          },
+          "schema": {},
+          "sourceRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "versionNo": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "reportId",
+          "versionNo",
+          "sourceRevision",
+          "method",
+          "path",
+          "schema"
         ]
       },
       "Wire_ee0e388919265cb6a34b160d48af21f28f7d7c7a89bfa0e33a9bc2a1e516d497": {

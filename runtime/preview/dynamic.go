@@ -36,7 +36,6 @@ import (
 	"github.com/viant/datly/bootstrap"
 	dexec "github.com/viant/datly/exec"
 	mcpresource "github.com/viant/datly/mcp/resource"
-	mcptool "github.com/viant/datly/mcp/tool"
 	"github.com/viant/datly/report"
 	druntime "github.com/viant/datly/runtime"
 	nativeoutput "github.com/viant/datly/runtime/output"
@@ -684,11 +683,7 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 		}
 		defer runtime.Shutdown(ctx)
 		route := contract.Component.Routes[0]
-		inputContract, found := artifact.Input.ForRoute(spec.RouteRef{Method: route.Method, Path: route.Path})
-		if !found {
-			return nil, errors.New("preview route binding is unavailable")
-		}
-		bindingPlan, bindingErr := mcptool.NewCompiler().Compile(mcptool.Input{Component: contract.Component.Key, Exposure: &spec.MCPExposure{Kind: spec.MCPExposureTool, Name: "preview"}, Contract: inputContract, Fields: inputContract.Fields(), TransportReady: true})
+		bindingPlan, bindingErr := previewInputPlan(contract, artifact)
 		if bindingErr != nil {
 			return nil, bindingErr
 		}

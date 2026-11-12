@@ -3236,11 +3236,20 @@ type Wire6eb7fc5381443fd97876b99edd185761fb616aa93f65106e8bce0b948e4541ea struct
 
 // Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad defines model for Wire_71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad.
 type Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad struct {
-	Capabilities WireC47cf46b58e263ed665fbdce50f43ecc62642c4837741ba43aaa439c1623d39c         `json:"capabilities"`
-	Diagnostics  *[]Wire878bfd02a12294e26d1a40f1b673a231fa11c24402268d818f39f80be43c86f9      `json:"diagnostics,omitempty"`
-	Dql          *string                                                                      `json:"dql,omitempty"`
-	Structure    interface{}                                                                  `json:"structure,omitempty"`
-	Version      Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version `json:"version"`
+	Capabilities WireC47cf46b58e263ed665fbdce50f43ecc62642c4837741ba43aaa439c1623d39c               `json:"capabilities"`
+	Diagnostics  *[]Wire878bfd02a12294e26d1a40f1b673a231fa11c24402268d818f39f80be43c86f9            `json:"diagnostics,omitempty"`
+	Dql          *string                                                                            `json:"dql,omitempty"`
+	PreviewInput *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput `json:"previewInput,omitempty"`
+	Structure    interface{}                                                                        `json:"structure,omitempty"`
+	Version      Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version       `json:"version"`
+}
+
+// Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adPreviewInput1 defines model for Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad.PreviewInput.1.
+type Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adPreviewInput1 = map[string]interface{}
+
+// Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput defines model for Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad.PreviewInput.
+type Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput struct {
+	union json.RawMessage
 }
 
 // Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adVersion1 defines model for Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad.Version.1.
@@ -3978,11 +3987,20 @@ type WireAfbd3ba313288192c9a8ae3627ea548117f98143f4f73d04a19579f4207fa6b3 struct
 
 // WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19 defines model for Wire_affe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19.
 type WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19 struct {
-	Capabilities Wire3100c253c572f716ab2eb88f6d83d813eedfe0b04003220edb6e98677fced244         `json:"capabilities"`
-	Diagnostics  *[]Wire5dcb9a5385549159028a02b9f90b5f85b74ea0076b725bce7e222e5cfe3ae71e      `json:"diagnostics,omitempty"`
-	Dql          *string                                                                      `json:"dql,omitempty"`
-	Structure    interface{}                                                                  `json:"structure,omitempty"`
-	Version      WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version `json:"version"`
+	Capabilities Wire3100c253c572f716ab2eb88f6d83d813eedfe0b04003220edb6e98677fced244               `json:"capabilities"`
+	Diagnostics  *[]Wire5dcb9a5385549159028a02b9f90b5f85b74ea0076b725bce7e222e5cfe3ae71e            `json:"diagnostics,omitempty"`
+	Dql          *string                                                                            `json:"dql,omitempty"`
+	PreviewInput *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_PreviewInput `json:"previewInput,omitempty"`
+	Structure    interface{}                                                                        `json:"structure,omitempty"`
+	Version      WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version       `json:"version"`
+}
+
+// WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19PreviewInput1 defines model for WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19.PreviewInput.1.
+type WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19PreviewInput1 = map[string]interface{}
+
+// WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_PreviewInput defines model for WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19.PreviewInput.
+type WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_PreviewInput struct {
+	union json.RawMessage
 }
 
 // WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19Version1 defines model for WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19.Version.1.
@@ -4529,6 +4547,16 @@ type WireD82adbb20251ee59732b96cc17e12fda2b7531a5a2aa9b3011dd7e9258ea62a7 struct
 	Stage    *string `json:"stage,omitempty"`
 }
 
+// WireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca defines model for Wire_d898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca.
+type WireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca struct {
+	Method         string      `json:"method"`
+	Path           string      `json:"path"`
+	ReportId       string      `json:"reportId"`
+	Schema         interface{} `json:"schema"`
+	SourceRevision int64       `json:"sourceRevision"`
+	VersionNo      int64       `json:"versionNo"`
+}
+
 // WireD96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c defines model for Wire_d96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c.
 type WireD96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c struct {
 	Alias       *string `json:"alias,omitempty"`
@@ -4719,6 +4747,16 @@ type WireEcc4d9a82e8b4cd1e3ac77d7fd7943319b31b3e82973c8afbcf0002138ddc950 struct
 	SourceRevision *int64  `json:"sourceRevision,omitempty"`
 	Truncated      bool    `json:"truncated"`
 	VersionNo      *int64  `json:"versionNo,omitempty"`
+}
+
+// WireEe01445e9fe49535f8f7dc37d983f46b5472b8cd95114371444ef4105e4e314c defines model for Wire_ee01445e9fe49535f8f7dc37d983f46b5472b8cd95114371444ef4105e4e314c.
+type WireEe01445e9fe49535f8f7dc37d983f46b5472b8cd95114371444ef4105e4e314c struct {
+	Method         string      `json:"method"`
+	Path           string      `json:"path"`
+	ReportId       string      `json:"reportId"`
+	Schema         interface{} `json:"schema"`
+	SourceRevision int64       `json:"sourceRevision"`
+	VersionNo      int64       `json:"versionNo"`
 }
 
 // WireEe0e388919265cb6a34b160d48af21f28f7d7c7a89bfa0e33a9bc2a1e516d497 defines model for Wire_ee0e388919265cb6a34b160d48af21f28f7d7c7a89bfa0e33a9bc2a1e516d497.
@@ -10852,6 +10890,68 @@ func (t *Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Ru
 	return err
 }
 
+// AsWireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca returns the union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput as a WireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca
+func (t Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput) AsWireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca() (WireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca, error) {
+	var body WireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca overwrites any union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput as the provided WireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca
+func (t *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput) FromWireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca(v WireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca performs a merge with any union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput, using the provided WireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca
+func (t *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput) MergeWireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca(v WireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adPreviewInput1 returns the union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput as a Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adPreviewInput1
+func (t Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput) AsWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adPreviewInput1() (Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adPreviewInput1, error) {
+	var body Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adPreviewInput1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adPreviewInput1 overwrites any union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput as the provided Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adPreviewInput1
+func (t *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput) FromWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adPreviewInput1(v Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adPreviewInput1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adPreviewInput1 performs a merge with any union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput, using the provided Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adPreviewInput1
+func (t *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput) MergeWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adPreviewInput1(v Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adPreviewInput1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsWire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930 returns the union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version as a Wire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930
 func (t Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version) AsWire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930() (Wire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930, error) {
 	var body Wire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930
@@ -12460,6 +12560,68 @@ func (t WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Ver
 }
 
 func (t *WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Version) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWireEe01445e9fe49535f8f7dc37d983f46b5472b8cd95114371444ef4105e4e314c returns the union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_PreviewInput as a WireEe01445e9fe49535f8f7dc37d983f46b5472b8cd95114371444ef4105e4e314c
+func (t WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_PreviewInput) AsWireEe01445e9fe49535f8f7dc37d983f46b5472b8cd95114371444ef4105e4e314c() (WireEe01445e9fe49535f8f7dc37d983f46b5472b8cd95114371444ef4105e4e314c, error) {
+	var body WireEe01445e9fe49535f8f7dc37d983f46b5472b8cd95114371444ef4105e4e314c
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireEe01445e9fe49535f8f7dc37d983f46b5472b8cd95114371444ef4105e4e314c overwrites any union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_PreviewInput as the provided WireEe01445e9fe49535f8f7dc37d983f46b5472b8cd95114371444ef4105e4e314c
+func (t *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_PreviewInput) FromWireEe01445e9fe49535f8f7dc37d983f46b5472b8cd95114371444ef4105e4e314c(v WireEe01445e9fe49535f8f7dc37d983f46b5472b8cd95114371444ef4105e4e314c) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireEe01445e9fe49535f8f7dc37d983f46b5472b8cd95114371444ef4105e4e314c performs a merge with any union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_PreviewInput, using the provided WireEe01445e9fe49535f8f7dc37d983f46b5472b8cd95114371444ef4105e4e314c
+func (t *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_PreviewInput) MergeWireEe01445e9fe49535f8f7dc37d983f46b5472b8cd95114371444ef4105e4e314c(v WireEe01445e9fe49535f8f7dc37d983f46b5472b8cd95114371444ef4105e4e314c) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19PreviewInput1 returns the union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_PreviewInput as a WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19PreviewInput1
+func (t WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_PreviewInput) AsWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19PreviewInput1() (WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19PreviewInput1, error) {
+	var body WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19PreviewInput1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19PreviewInput1 overwrites any union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_PreviewInput as the provided WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19PreviewInput1
+func (t *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_PreviewInput) FromWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19PreviewInput1(v WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19PreviewInput1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19PreviewInput1 performs a merge with any union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_PreviewInput, using the provided WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19PreviewInput1
+func (t *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_PreviewInput) MergeWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19PreviewInput1(v WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19PreviewInput1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_PreviewInput) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_PreviewInput) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
