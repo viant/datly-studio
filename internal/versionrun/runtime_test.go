@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"encoding/pem"
 	"fmt"
+	"github.com/viant/bindly"
 	"github.com/viant/datly-studio/studio/host"
 	"github.com/viant/datly/constant"
 	"net/http"
@@ -39,7 +40,7 @@ type testBinder struct {
 	allowed bool
 }
 
-func (b *testBinder) Bind(_ context.Context, target any) error {
+func (b *testBinder) Bind(_ context.Context, target any, _ ...bindly.BindOption) error {
 	if field := reflect.ValueOf(target).Elem().FieldByName("Authorization"); field.IsValid() {
 		field.SetString(b.bearer)
 	}

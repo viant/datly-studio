@@ -75,17 +75,17 @@ SELECT records.*,type(records,'Row') FROM (SELECT 1 AS ID) records`, scope, filt
 	if err = json.Unmarshal(input.Schema, &schema); err != nil {
 		t.Fatal(err)
 	}
-	for _, name := range []string{"PageSize", "Enabled", "IDs", "Filter"} {
+	for _, name := range []string{"pageSize", "enabled", "idS", "filter"} {
 		if schema.Properties[name] == nil {
 			t.Errorf("missing public field %s: %s", name, input.Schema)
 		}
 	}
-	for _, name := range []string{"page_size", "Token", "Authorization", "Tenant", "Rows"} {
+	for _, name := range []string{"page_size", "Token", "Authorization", "Tenant", "Rows", "token", "authorization", "tenant", "rows"} {
 		if schema.Properties[name] != nil {
 			t.Errorf("private or noncanonical field %s", name)
 		}
 	}
-	if !strings.Contains(string(schema.Properties["Filter"]), "searchTerm") || !strings.Contains(string(schema.Properties["Filter"]), "recordIds") {
+	if !strings.Contains(string(schema.Properties["filter"]), "searchTerm") || !strings.Contains(string(schema.Properties["filter"]), "recordIds") {
 		t.Fatalf("nested wire names missing: %s", input.Schema)
 	}
 	if len(schema.Required) != 0 {

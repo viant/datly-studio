@@ -924,73 +924,73 @@ type InputFc83f5dc2e1741a3c0713acae5c5589d76e1865e7287675353ca9558c3e7e7dc_Entit
 
 // Output0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3 defines model for Output_0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3.
 type Output0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3 struct {
-	Id      string `json:"id"`
-	Kind    string `json:"kind"`
-	Tenant  string `json:"tenant"`
-	Version string `json:"version"`
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
 }
 
 // Output056a233e996244d253928b99e6335fa0dfcab4b0aa7e8ffd7a088546a10a6442 defines model for Output_056a233e996244d253928b99e6335fa0dfcab4b0aa7e8ffd7a088546a10a6442.
 type Output056a233e996244d253928b99e6335fa0dfcab4b0aa7e8ffd7a088546a10a6442 struct {
-	Policies *map[string]OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8 `json:"policies"`
-	Resource Output61da40565eeef7dc1d2d89123fe0033e9b0f0809a66731851fd56301624b0dc5             `json:"resource"`
-	Revision int64                                                                              `json:"revision"`
+	Policies *map[string]OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8 `json:"policies,omitempty"`
+	Resource *Output61da40565eeef7dc1d2d89123fe0033e9b0f0809a66731851fd56301624b0dc5            `json:"resource,omitempty"`
+	Revision *int64                                                                             `json:"revision,omitempty"`
 }
 
 // Output06244387c0c9169e9e2dd8c303d1b08d7c46bddec31314baa7fdae523ab96371 defines model for Output_06244387c0c9169e9e2dd8c303d1b08d7c46bddec31314baa7fdae523ab96371.
 type Output06244387c0c9169e9e2dd8c303d1b08d7c46bddec31314baa7fdae523ab96371 struct {
 	CompletedAt    *time.Time                                                                `json:"completedAt,omitempty"`
-	CompletedCases int64                                                                     `json:"completedCases"`
+	CompletedCases *int64                                                                    `json:"completedCases,omitempty"`
 	CreatedAt      *time.Time                                                                `json:"createdAt,omitempty"`
 	CreatedBy      *string                                                                   `json:"createdBy,omitempty"`
 	Diagnostics    *[]Output1d9bf0079b94d75e2b9b7b33bb81b13886a46428db871596012139c64cc1a4d6 `json:"diagnostics,omitempty"`
 	Duration       *int64                                                                    `json:"duration,omitempty"`
-	Entries        int64                                                                     `json:"entries"`
+	Entries        *int64                                                                    `json:"entries,omitempty"`
 	MaxCases       *int64                                                                    `json:"maxCases,omitempty"`
-	PlanKey        string                                                                    `json:"planKey"`
-	PlannedCases   int64                                                                     `json:"plannedCases"`
-	ReportId       string                                                                    `json:"reportId"`
-	RequestedAt    time.Time                                                                 `json:"requestedAt"`
-	RequestedBy    string                                                                    `json:"requestedBy"`
+	PlanKey        *string                                                                   `json:"planKey,omitempty"`
+	PlannedCases   *int64                                                                    `json:"plannedCases,omitempty"`
+	ReportId       *string                                                                   `json:"reportId,omitempty"`
+	RequestedAt    *time.Time                                                                `json:"requestedAt,omitempty"`
+	RequestedBy    *string                                                                   `json:"requestedBy,omitempty"`
 	RowLimit       *int64                                                                    `json:"rowLimit,omitempty"`
-	RunId          string                                                                    `json:"runId"`
-	SourceRevision int64                                                                     `json:"sourceRevision"`
-	SpecHash       string                                                                    `json:"specHash"`
+	RunId          *string                                                                   `json:"runId,omitempty"`
+	SourceRevision *int64                                                                    `json:"sourceRevision,omitempty"`
+	SpecHash       *string                                                                   `json:"specHash,omitempty"`
 	StartedAt      *time.Time                                                                `json:"startedAt,omitempty"`
-	Status         string                                                                    `json:"status"`
-	Target         OutputEf553e0e338a00cf70d43289eb53e588abb65348804f4defbd8fd2ea4e5691ee    `json:"target"`
+	Status         *string                                                                   `json:"status,omitempty"`
+	Target         *OutputEf553e0e338a00cf70d43289eb53e588abb65348804f4defbd8fd2ea4e5691ee   `json:"target,omitempty"`
 	UpdatedAt      *time.Time                                                                `json:"updatedAt,omitempty"`
 	UpdatedBy      *string                                                                   `json:"updatedBy,omitempty"`
-	VersionNo      int64                                                                     `json:"versionNo"`
+	VersionNo      *int64                                                                    `json:"versionNo,omitempty"`
 }
 
 // Output0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa defines model for Output_0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa.
 type Output0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa struct {
-	AuthenticationMode *string   `json:"authenticationMode,omitempty"`
-	CheckedAt          time.Time `json:"checkedAt"`
-	McpUrl             *string   `json:"mcpUrl,omitempty"`
-	NamespaceId        *string   `json:"namespaceId,omitempty"`
-	Revision           *int64    `json:"revision,omitempty"`
-	Status             string    `json:"status"`
+	AuthenticationMode *string    `json:"authenticationMode,omitempty"`
+	CheckedAt          *time.Time `json:"checkedAt,omitempty"`
+	McpUrl             *string    `json:"mcpUrl,omitempty"`
+	NamespaceId        *string    `json:"namespaceId,omitempty"`
+	Revision           *int64     `json:"revision,omitempty"`
+	Status             *string    `json:"status,omitempty"`
 }
 
 // Output0d489bb6e8d34088f812c6b2a93a0c83b9a5f8fd2ac13b17094145376c09065b defines model for Output_0d489bb6e8d34088f812c6b2a93a0c83b9a5f8fd2ac13b17094145376c09065b.
 type Output0d489bb6e8d34088f812c6b2a93a0c83b9a5f8fd2ac13b17094145376c09065b struct {
-	Id      string `json:"id"`
-	Kind    string `json:"kind"`
-	Tenant  string `json:"tenant"`
-	Version string `json:"version"`
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
 }
 
 // Output1d9bf0079b94d75e2b9b7b33bb81b13886a46428db871596012139c64cc1a4d6 defines model for Output_1d9bf0079b94d75e2b9b7b33bb81b13886a46428db871596012139c64cc1a4d6.
 type Output1d9bf0079b94d75e2b9b7b33bb81b13886a46428db871596012139c64cc1a4d6 struct {
-	Code     string  `json:"code"`
+	Code     *string `json:"code,omitempty"`
 	Column   *int64  `json:"column,omitempty"`
 	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
-	Message  string  `json:"message"`
-	Severity string  `json:"severity"`
+	Message  *string `json:"message,omitempty"`
+	Severity *string `json:"severity,omitempty"`
 	Stage    *string `json:"stage,omitempty"`
 }
 
@@ -998,7 +998,7 @@ type Output1d9bf0079b94d75e2b9b7b33bb81b13886a46428db871596012139c64cc1a4d6 stru
 type Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260 struct {
 	Entity *Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260_Entity `json:"entity,omitempty"`
 	Id     *string                                                                        `json:"id,omitempty"`
-	Label  string                                                                         `json:"label"`
+	Label  *string                                                                        `json:"label,omitempty"`
 }
 
 // Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260Entity1 defines model for Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260.Entity.1.
@@ -1011,86 +1011,86 @@ type Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260_Enti
 
 // Output2180387bae10ad30702ff5f50e131002ae984342d3ae82e85f10f7d03794f74c defines model for Output_2180387bae10ad30702ff5f50e131002ae984342d3ae82e85f10f7d03794f74c.
 type Output2180387bae10ad30702ff5f50e131002ae984342d3ae82e85f10f7d03794f74c struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
 }
 
 // Output2554cffa5d52275ed88bc66799a2f7c47bac9cf0e050075987cbda8ba8d24268 defines model for Output_2554cffa5d52275ed88bc66799a2f7c47bac9cf0e050075987cbda8ba8d24268.
 type Output2554cffa5d52275ed88bc66799a2f7c47bac9cf0e050075987cbda8ba8d24268 struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
 }
 
 // Output2631f895e856b9edb7a880ef06b76a2fcfcf0dc9d13eff46223625680e9a9c89 defines model for Output_2631f895e856b9edb7a880ef06b76a2fcfcf0dc9d13eff46223625680e9a9c89.
 type Output2631f895e856b9edb7a880ef06b76a2fcfcf0dc9d13eff46223625680e9a9c89 struct {
-	Policies *map[string]OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349 `json:"policies"`
-	Resource Output89ec52f68878253d5610456db46a846ae520370ae7d0c82a86f6fa15feeccf84             `json:"resource"`
-	Revision int64                                                                              `json:"revision"`
+	Policies *map[string]OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349 `json:"policies,omitempty"`
+	Resource *Output89ec52f68878253d5610456db46a846ae520370ae7d0c82a86f6fa15feeccf84            `json:"resource,omitempty"`
+	Revision *int64                                                                             `json:"revision,omitempty"`
 }
 
 // Output2914a64d6f54333c61713839f0d41e0bc4a70208751189288a2870c3ee2496f9 defines model for Output_2914a64d6f54333c61713839f0d41e0bc4a70208751189288a2870c3ee2496f9.
 type Output2914a64d6f54333c61713839f0d41e0bc4a70208751189288a2870c3ee2496f9 struct {
-	ClientIp          string    `json:"clientIp"`
-	ComponentId       *string   `json:"componentId,omitempty"`
-	DurationMs        int64     `json:"durationMs"`
-	Id                int64     `json:"id"`
-	NamespaceId       string    `json:"namespaceId"`
-	Request           *string   `json:"request,omitempty"`
-	Response          *string   `json:"response,omitempty"`
-	ResponseTruncated bool      `json:"responseTruncated"`
-	StartedAt         time.Time `json:"startedAt"`
-	Status            string    `json:"status"`
-	Subject           string    `json:"subject"`
-	ToolName          string    `json:"toolName"`
+	ClientIp          *string    `json:"clientIp,omitempty"`
+	ComponentId       *string    `json:"componentId,omitempty"`
+	DurationMs        *int64     `json:"durationMs,omitempty"`
+	Id                *int64     `json:"id,omitempty"`
+	NamespaceId       *string    `json:"namespaceId,omitempty"`
+	Request           *string    `json:"request,omitempty"`
+	Response          *string    `json:"response,omitempty"`
+	ResponseTruncated *bool      `json:"responseTruncated,omitempty"`
+	StartedAt         *time.Time `json:"startedAt,omitempty"`
+	Status            *string    `json:"status,omitempty"`
+	Subject           *string    `json:"subject,omitempty"`
+	ToolName          *string    `json:"toolName,omitempty"`
 }
 
 // Output2c9aea90415dac647efe579c8889a77a58c3e88f24a1c30f945e7743e5dd5ae2 defines model for Output_2c9aea90415dac647efe579c8889a77a58c3e88f24a1c30f945e7743e5dd5ae2.
 type Output2c9aea90415dac647efe579c8889a77a58c3e88f24a1c30f945e7743e5dd5ae2 struct {
-	Resource OutputA81d693fd6e1ff78672b05458a01513d11113731358ae9bfeaca4fd73d9c722c `json:"resource"`
-	Revision int64                                                                  `json:"revision"`
+	Resource *OutputA81d693fd6e1ff78672b05458a01513d11113731358ae9bfeaca4fd73d9c722c `json:"resource,omitempty"`
+	Revision *int64                                                                  `json:"revision,omitempty"`
 }
 
 // Output32c4d843c350375fa1807b89e7db16553000af864bad1017ad3662f2db1c9b64 defines model for Output_32c4d843c350375fa1807b89e7db16553000af864bad1017ad3662f2db1c9b64.
 type Output32c4d843c350375fa1807b89e7db16553000af864bad1017ad3662f2db1c9b64 struct {
-	ClientIp          string    `json:"clientIp"`
-	ComponentId       *string   `json:"componentId,omitempty"`
-	DurationMs        int64     `json:"durationMs"`
-	Id                int64     `json:"id"`
-	NamespaceId       string    `json:"namespaceId"`
-	Request           *string   `json:"request,omitempty"`
-	Response          *string   `json:"response,omitempty"`
-	ResponseTruncated bool      `json:"responseTruncated"`
-	StartedAt         time.Time `json:"startedAt"`
-	Status            string    `json:"status"`
-	Subject           string    `json:"subject"`
-	ToolName          string    `json:"toolName"`
+	ClientIp          *string    `json:"clientIp,omitempty"`
+	ComponentId       *string    `json:"componentId,omitempty"`
+	DurationMs        *int64     `json:"durationMs,omitempty"`
+	Id                *int64     `json:"id,omitempty"`
+	NamespaceId       *string    `json:"namespaceId,omitempty"`
+	Request           *string    `json:"request,omitempty"`
+	Response          *string    `json:"response,omitempty"`
+	ResponseTruncated *bool      `json:"responseTruncated,omitempty"`
+	StartedAt         *time.Time `json:"startedAt,omitempty"`
+	Status            *string    `json:"status,omitempty"`
+	Subject           *string    `json:"subject,omitempty"`
+	ToolName          *string    `json:"toolName,omitempty"`
 }
 
 // Output3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243 defines model for Output_3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243.
 type Output3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243 struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
 }
 
 // Output41c3b19ac03c771407eb0e4c05284c0e7c1997324fd4198bdf3fd31fa8d96c5d defines model for Output_41c3b19ac03c771407eb0e4c05284c0e7c1997324fd4198bdf3fd31fa8d96c5d.
 type Output41c3b19ac03c771407eb0e4c05284c0e7c1997324fd4198bdf3fd31fa8d96c5d struct {
 	Archive     *[]byte                                                                   `json:"archive,omitempty"`
-	CanManage   bool                                                                      `json:"canManage"`
-	CanView     bool                                                                      `json:"canView"`
+	CanManage   *bool                                                                     `json:"canManage,omitempty"`
+	CanView     *bool                                                                     `json:"canView,omitempty"`
 	ComponentId *string                                                                   `json:"componentId,omitempty"`
 	Count       *int64                                                                    `json:"count,omitempty"`
-	Dropped     int                                                                       `json:"dropped"`
-	Effective   bool                                                                      `json:"effective"`
-	Enabled     bool                                                                      `json:"enabled"`
-	Failed      int                                                                       `json:"failed"`
+	Dropped     *int                                                                      `json:"dropped,omitempty"`
+	Effective   *bool                                                                     `json:"effective,omitempty"`
+	Enabled     *bool                                                                     `json:"enabled,omitempty"`
+	Failed      *int                                                                      `json:"failed,omitempty"`
 	Filename    *string                                                                   `json:"filename,omitempty"`
 	Items       *[]OutputEc5ca322e57ac033e6183e7ca87a4dc5a2dba0223eb08b4a914e37bb9e628b8e `json:"items,omitempty"`
 	MediaType   *string                                                                   `json:"mediaType,omitempty"`
-	NamespaceId string                                                                    `json:"namespaceId"`
+	NamespaceId *string                                                                   `json:"namespaceId,omitempty"`
 	NextId      *int64                                                                    `json:"nextId,omitempty"`
 	ToolName    *string                                                                   `json:"toolName,omitempty"`
 	Truncated   *bool                                                                     `json:"truncated,omitempty"`
-	ViewerRole  string                                                                    `json:"viewerRole"`
+	ViewerRole  *string                                                                   `json:"viewerRole,omitempty"`
 }
 
 // Output449a47a8e9ea6ae974f687ac5b55486e7e726cc8043ed75e896c8b78c8b99391 defines model for Output_449a47a8e9ea6ae974f687ac5b55486e7e726cc8043ed75e896c8b78c8b99391.
@@ -1100,14 +1100,14 @@ type Output449a47a8e9ea6ae974f687ac5b55486e7e726cc8043ed75e896c8b78c8b99391 stru
 	ConnectorName  *string `json:"connectorName,omitempty"`
 	IndexColumn    *string `json:"indexColumn,omitempty"`
 	IndexParameter *string `json:"indexParameter,omitempty"`
-	View           string  `json:"view"`
+	View           *string `json:"view,omitempty"`
 }
 
 // Output4767292ff45ca739fbde17dcfac16967b1b00630ad105de675c19514080628f9 defines model for Output_4767292ff45ca739fbde17dcfac16967b1b00630ad105de675c19514080628f9.
 type Output4767292ff45ca739fbde17dcfac16967b1b00630ad105de675c19514080628f9 struct {
 	Entity *Output4767292ff45ca739fbde17dcfac16967b1b00630ad105de675c19514080628f9_Entity `json:"entity,omitempty"`
 	Id     *string                                                                        `json:"id,omitempty"`
-	Label  string                                                                         `json:"label"`
+	Label  *string                                                                        `json:"label,omitempty"`
 }
 
 // Output4767292ff45ca739fbde17dcfac16967b1b00630ad105de675c19514080628f9Entity1 defines model for Output4767292ff45ca739fbde17dcfac16967b1b00630ad105de675c19514080628f9.Entity.1.
@@ -1122,27 +1122,27 @@ type Output4767292ff45ca739fbde17dcfac16967b1b00630ad105de675c19514080628f9_Enti
 type Output4cf988a4800a68fa7db9d130c60eed0b35369d4c3fc9465e70d61b648bd34b6d struct {
 	ActivatedAt     *time.Time                                                                `json:"activatedAt,omitempty"`
 	ComponentName   *string                                                                   `json:"componentName,omitempty"`
-	ConnectorName   string                                                                    `json:"connectorName"`
+	ConnectorName   *string                                                                   `json:"connectorName,omitempty"`
 	McpExposures    *[]OutputA6ddd7942c83fb7282623cfc58da6bae57f79a4f0284ea5b91cf55fb794dc186 `json:"mcpExposures,omitempty"`
 	McpResources    *[]Output8035fb9f56e2dfdb283039cb87b71ab1d5f6fa189d850d698929cee1b6b6464d `json:"mcpResources,omitempty"`
-	Namespace       string                                                                    `json:"namespace"`
-	OwnerPackage    string                                                                    `json:"ownerPackage"`
-	ReportId        string                                                                    `json:"reportId"`
+	Namespace       *string                                                                   `json:"namespace,omitempty"`
+	OwnerPackage    *string                                                                   `json:"ownerPackage,omitempty"`
+	ReportId        *string                                                                   `json:"reportId,omitempty"`
 	RuntimeRevision *string                                                                   `json:"runtimeRevision,omitempty"`
 	Skills          *[]OutputF2954ccbc2dd12cce598727f4c49ad7d3d88f3404672f047b6fb03d041c024bf `json:"skills,omitempty"`
-	Status          string                                                                    `json:"status"`
-	Title           string                                                                    `json:"title"`
-	VersionNo       int64                                                                     `json:"versionNo"`
+	Status          *string                                                                   `json:"status,omitempty"`
+	Title           *string                                                                   `json:"title,omitempty"`
+	VersionNo       *int64                                                                    `json:"versionNo,omitempty"`
 }
 
 // Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68 defines model for Output_4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68.
 type Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68 struct {
 	DefaultResource *Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68_DefaultResource `json:"defaultResource,omitempty"`
-	ExplicitAcl     bool                                                                                    `json:"explicitAcl"`
-	Inherited       bool                                                                                    `json:"inherited"`
-	Public          bool                                                                                    `json:"public"`
-	Published       bool                                                                                    `json:"published"`
-	Resource        Output8d5c08b62d8e11c6b7d0078039d84942d60e13602d2b6b0b25ee4e92d1e8a0bb                  `json:"resource"`
+	ExplicitAcl     *bool                                                                                   `json:"explicitAcl,omitempty"`
+	Inherited       *bool                                                                                   `json:"inherited,omitempty"`
+	Public          *bool                                                                                   `json:"public,omitempty"`
+	Published       *bool                                                                                   `json:"published,omitempty"`
+	Resource        *Output8d5c08b62d8e11c6b7d0078039d84942d60e13602d2b6b0b25ee4e92d1e8a0bb                 `json:"resource,omitempty"`
 }
 
 // Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68DefaultResource1 defines model for Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68.DefaultResource.1.
@@ -1155,54 +1155,54 @@ type Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68_Defa
 
 // Output4fd42d5ac7e58fb29e7ad717b49ad43d1aa3d0a32c5e034148c82bc6baebd5a8 defines model for Output_4fd42d5ac7e58fb29e7ad717b49ad43d1aa3d0a32c5e034148c82bc6baebd5a8.
 type Output4fd42d5ac7e58fb29e7ad717b49ad43d1aa3d0a32c5e034148c82bc6baebd5a8 struct {
-	Code     string  `json:"code"`
+	Code     *string `json:"code,omitempty"`
 	Column   *int64  `json:"column,omitempty"`
 	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
-	Message  string  `json:"message"`
-	Severity string  `json:"severity"`
+	Message  *string `json:"message,omitempty"`
+	Severity *string `json:"severity,omitempty"`
 	Stage    *string `json:"stage,omitempty"`
 }
 
 // Output586257ec0a228d28fb8c1d7b9b6ceb924795c406b09d9a86111f39a56368b032 defines model for Output_586257ec0a228d28fb8c1d7b9b6ceb924795c406b09d9a86111f39a56368b032.
 type Output586257ec0a228d28fb8c1d7b9b6ceb924795c406b09d9a86111f39a56368b032 struct {
 	CompletedAt    *time.Time                                                                `json:"completedAt,omitempty"`
-	CompletedCases int64                                                                     `json:"completedCases"`
+	CompletedCases *int64                                                                    `json:"completedCases,omitempty"`
 	CreatedAt      *time.Time                                                                `json:"createdAt,omitempty"`
 	CreatedBy      *string                                                                   `json:"createdBy,omitempty"`
 	Diagnostics    *[]Output9e0f449c95fcfb4ee0592ebadf3e17adccbdc32fa89bf50ab9ae8511c2009041 `json:"diagnostics,omitempty"`
 	Duration       *int64                                                                    `json:"duration,omitempty"`
-	Entries        int64                                                                     `json:"entries"`
+	Entries        *int64                                                                    `json:"entries,omitempty"`
 	MaxCases       *int64                                                                    `json:"maxCases,omitempty"`
-	PlanKey        string                                                                    `json:"planKey"`
-	PlannedCases   int64                                                                     `json:"plannedCases"`
-	ReportId       string                                                                    `json:"reportId"`
-	RequestedAt    time.Time                                                                 `json:"requestedAt"`
-	RequestedBy    string                                                                    `json:"requestedBy"`
+	PlanKey        *string                                                                   `json:"planKey,omitempty"`
+	PlannedCases   *int64                                                                    `json:"plannedCases,omitempty"`
+	ReportId       *string                                                                   `json:"reportId,omitempty"`
+	RequestedAt    *time.Time                                                                `json:"requestedAt,omitempty"`
+	RequestedBy    *string                                                                   `json:"requestedBy,omitempty"`
 	RowLimit       *int64                                                                    `json:"rowLimit,omitempty"`
-	RunId          string                                                                    `json:"runId"`
-	SourceRevision int64                                                                     `json:"sourceRevision"`
-	SpecHash       string                                                                    `json:"specHash"`
+	RunId          *string                                                                   `json:"runId,omitempty"`
+	SourceRevision *int64                                                                    `json:"sourceRevision,omitempty"`
+	SpecHash       *string                                                                   `json:"specHash,omitempty"`
 	StartedAt      *time.Time                                                                `json:"startedAt,omitempty"`
-	Status         string                                                                    `json:"status"`
-	Target         Output449a47a8e9ea6ae974f687ac5b55486e7e726cc8043ed75e896c8b78c8b99391    `json:"target"`
+	Status         *string                                                                   `json:"status,omitempty"`
+	Target         *Output449a47a8e9ea6ae974f687ac5b55486e7e726cc8043ed75e896c8b78c8b99391   `json:"target,omitempty"`
 	UpdatedAt      *time.Time                                                                `json:"updatedAt,omitempty"`
 	UpdatedBy      *string                                                                   `json:"updatedBy,omitempty"`
-	VersionNo      int64                                                                     `json:"versionNo"`
+	VersionNo      *int64                                                                    `json:"versionNo,omitempty"`
 }
 
 // Output5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2 defines model for Output_5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2.
 type Output5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2 struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
 }
 
 // Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89 defines model for Output_5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89.
 type Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89 struct {
 	Entity *Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89_Entity `json:"entity,omitempty"`
 	Id     *string                                                                        `json:"id,omitempty"`
-	Label  string                                                                         `json:"label"`
+	Label  *string                                                                        `json:"label,omitempty"`
 }
 
 // Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89Entity1 defines model for Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89.Entity.1.
@@ -1216,108 +1216,108 @@ type Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89_Enti
 // Output6056449cb6ff77eb0e24f9d110ff3a533c12d36a31eead7bf54ff52e31d48474 defines model for Output_6056449cb6ff77eb0e24f9d110ff3a533c12d36a31eead7bf54ff52e31d48474.
 type Output6056449cb6ff77eb0e24f9d110ff3a533c12d36a31eead7bf54ff52e31d48474 struct {
 	Archived    *bool                                                                              `json:"archived,omitempty"`
-	DisplayName string                                                                             `json:"displayName"`
-	Policies    *map[string]OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349 `json:"policies"`
+	DisplayName *string                                                                            `json:"displayName,omitempty"`
+	Policies    *map[string]OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349 `json:"policies,omitempty"`
 }
 
 // Output61da40565eeef7dc1d2d89123fe0033e9b0f0809a66731851fd56301624b0dc5 defines model for Output_61da40565eeef7dc1d2d89123fe0033e9b0f0809a66731851fd56301624b0dc5.
 type Output61da40565eeef7dc1d2d89123fe0033e9b0f0809a66731851fd56301624b0dc5 struct {
-	Id      string `json:"id"`
-	Kind    string `json:"kind"`
-	Tenant  string `json:"tenant"`
-	Version string `json:"version"`
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
 }
 
 // Output644e4d09ac406b19e7277668f0cfaf1136c2f29c1d92a8e6af44cadd8ca60cd1 defines model for Output_644e4d09ac406b19e7277668f0cfaf1136c2f29c1d92a8e6af44cadd8ca60cd1.
 type Output644e4d09ac406b19e7277668f0cfaf1136c2f29c1d92a8e6af44cadd8ca60cd1 struct {
 	Archive     *[]byte                                                                   `json:"archive,omitempty"`
-	CanManage   bool                                                                      `json:"canManage"`
-	CanView     bool                                                                      `json:"canView"`
+	CanManage   *bool                                                                     `json:"canManage,omitempty"`
+	CanView     *bool                                                                     `json:"canView,omitempty"`
 	ComponentId *string                                                                   `json:"componentId,omitempty"`
 	Count       *int64                                                                    `json:"count,omitempty"`
-	Dropped     int                                                                       `json:"dropped"`
-	Effective   bool                                                                      `json:"effective"`
-	Enabled     bool                                                                      `json:"enabled"`
-	Failed      int                                                                       `json:"failed"`
+	Dropped     *int                                                                      `json:"dropped,omitempty"`
+	Effective   *bool                                                                     `json:"effective,omitempty"`
+	Enabled     *bool                                                                     `json:"enabled,omitempty"`
+	Failed      *int                                                                      `json:"failed,omitempty"`
 	Filename    *string                                                                   `json:"filename,omitempty"`
 	Items       *[]Output32c4d843c350375fa1807b89e7db16553000af864bad1017ad3662f2db1c9b64 `json:"items,omitempty"`
 	MediaType   *string                                                                   `json:"mediaType,omitempty"`
-	NamespaceId string                                                                    `json:"namespaceId"`
+	NamespaceId *string                                                                   `json:"namespaceId,omitempty"`
 	NextId      *int64                                                                    `json:"nextId,omitempty"`
 	ToolName    *string                                                                   `json:"toolName,omitempty"`
 	Truncated   *bool                                                                     `json:"truncated,omitempty"`
-	ViewerRole  string                                                                    `json:"viewerRole"`
+	ViewerRole  *string                                                                   `json:"viewerRole,omitempty"`
 }
 
 // Output6e81e11a33076e68bb3d8b58da936317e65e2cb7c08f61adc82433c8705924b4 defines model for Output_6e81e11a33076e68bb3d8b58da936317e65e2cb7c08f61adc82433c8705924b4.
 type Output6e81e11a33076e68bb3d8b58da936317e65e2cb7c08f61adc82433c8705924b4 struct {
 	Archive     *[]byte                                                                   `json:"archive,omitempty"`
-	CanManage   bool                                                                      `json:"canManage"`
-	CanView     bool                                                                      `json:"canView"`
+	CanManage   *bool                                                                     `json:"canManage,omitempty"`
+	CanView     *bool                                                                     `json:"canView,omitempty"`
 	ComponentId *string                                                                   `json:"componentId,omitempty"`
 	Count       *int64                                                                    `json:"count,omitempty"`
-	Dropped     int                                                                       `json:"dropped"`
-	Effective   bool                                                                      `json:"effective"`
-	Enabled     bool                                                                      `json:"enabled"`
-	Failed      int                                                                       `json:"failed"`
+	Dropped     *int                                                                      `json:"dropped,omitempty"`
+	Effective   *bool                                                                     `json:"effective,omitempty"`
+	Enabled     *bool                                                                     `json:"enabled,omitempty"`
+	Failed      *int                                                                      `json:"failed,omitempty"`
 	Filename    *string                                                                   `json:"filename,omitempty"`
 	Items       *[]Output2914a64d6f54333c61713839f0d41e0bc4a70208751189288a2870c3ee2496f9 `json:"items,omitempty"`
 	MediaType   *string                                                                   `json:"mediaType,omitempty"`
-	NamespaceId string                                                                    `json:"namespaceId"`
+	NamespaceId *string                                                                   `json:"namespaceId,omitempty"`
 	NextId      *int64                                                                    `json:"nextId,omitempty"`
 	ToolName    *string                                                                   `json:"toolName,omitempty"`
 	Truncated   *bool                                                                     `json:"truncated,omitempty"`
-	ViewerRole  string                                                                    `json:"viewerRole"`
+	ViewerRole  *string                                                                   `json:"viewerRole,omitempty"`
 }
 
 // Output73a8618e3debe1667f7aafcc74ab58dec2fbd11494bb2e579aae6d2b58f205f3 defines model for Output_73a8618e3debe1667f7aafcc74ab58dec2fbd11494bb2e579aae6d2b58f205f3.
 type Output73a8618e3debe1667f7aafcc74ab58dec2fbd11494bb2e579aae6d2b58f205f3 struct {
-	CreatedAt         time.Time   `json:"createdAt"`
+	CreatedAt         *time.Time  `json:"createdAt,omitempty"`
 	Description       *string     `json:"description,omitempty"`
-	Driver            string      `json:"driver"`
-	DsnConfigured     bool        `json:"dsnConfigured"`
-	Etag              int64       `json:"etag"`
+	Driver            *string     `json:"driver,omitempty"`
+	DsnConfigured     *bool       `json:"dsnConfigured,omitempty"`
+	Etag              *int64      `json:"etag,omitempty"`
 	LastTestErrorCode *string     `json:"lastTestErrorCode,omitempty"`
 	LastTestStatus    *string     `json:"lastTestStatus,omitempty"`
 	LastTestedAt      *time.Time  `json:"lastTestedAt,omitempty"`
-	Name              string      `json:"name"`
+	Name              *string     `json:"name,omitempty"`
 	Options           interface{} `json:"options,omitempty"`
-	OwnerId           string      `json:"ownerId"`
-	SecretConfigured  bool        `json:"secretConfigured"`
-	Status            string      `json:"status"`
-	UpdatedAt         time.Time   `json:"updatedAt"`
+	OwnerId           *string     `json:"ownerId,omitempty"`
+	SecretConfigured  *bool       `json:"secretConfigured,omitempty"`
+	Status            *string     `json:"status,omitempty"`
+	UpdatedAt         *time.Time  `json:"updatedAt,omitempty"`
 }
 
 // Output7f617ddc14b6df274d226551b825c90a4f977a14591bdfd1ddc94b5f6066bce5 defines model for Output_7f617ddc14b6df274d226551b825c90a4f977a14591bdfd1ddc94b5f6066bce5.
 type Output7f617ddc14b6df274d226551b825c90a4f977a14591bdfd1ddc94b5f6066bce5 struct {
 	ActiveGeneration  *int64     `json:"activeGeneration,omitempty"`
-	ActiveVersionNo   int64      `json:"activeVersionNo"`
-	DesiredGeneration int64      `json:"desiredGeneration"`
+	ActiveVersionNo   *int64     `json:"activeVersionNo,omitempty"`
+	DesiredGeneration *int64     `json:"desiredGeneration,omitempty"`
 	DesiredVersionNo  *int64     `json:"desiredVersionNo,omitempty"`
 	PublishedAt       *time.Time `json:"publishedAt,omitempty"`
-	ReportId          string     `json:"reportId"`
+	ReportId          *string    `json:"reportId,omitempty"`
 	RuntimeRevision   *string    `json:"runtimeRevision,omitempty"`
 	SpecHash          *string    `json:"specHash,omitempty"`
-	Status            string     `json:"status"`
+	Status            *string    `json:"status,omitempty"`
 }
 
 // Output8035fb9f56e2dfdb283039cb87b71ab1d5f6fa189d850d698929cee1b6b6464d defines model for Output_8035fb9f56e2dfdb283039cb87b71ab1d5f6fa189d850d698929cee1b6b6464d.
 type Output8035fb9f56e2dfdb283039cb87b71ab1d5f6fa189d850d698929cee1b6b6464d struct {
-	Namespace string `json:"namespace"`
-	RootPath  string `json:"rootPath"`
-	UriPrefix string `json:"uriPrefix"`
+	Namespace *string `json:"namespace,omitempty"`
+	RootPath  *string `json:"rootPath,omitempty"`
+	UriPrefix *string `json:"uriPrefix,omitempty"`
 }
 
 // Output819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f defines model for Output_819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f.
 type Output819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
 }
 
 // Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7 defines model for Output_86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7.
 type Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7 struct {
 	Entity *Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7_Entity `json:"entity,omitempty"`
-	Kind   string                                                                         `json:"kind"`
+	Kind   *string                                                                        `json:"kind,omitempty"`
 	Rules  *[]Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7      `json:"rules,omitempty"`
 	Value  *string                                                                        `json:"value,omitempty"`
 }
@@ -1332,98 +1332,98 @@ type Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7_Enti
 
 // Output89ec52f68878253d5610456db46a846ae520370ae7d0c82a86f6fa15feeccf84 defines model for Output_89ec52f68878253d5610456db46a846ae520370ae7d0c82a86f6fa15feeccf84.
 type Output89ec52f68878253d5610456db46a846ae520370ae7d0c82a86f6fa15feeccf84 struct {
-	Id      string `json:"id"`
-	Kind    string `json:"kind"`
-	Tenant  string `json:"tenant"`
-	Version string `json:"version"`
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
 }
 
 // Output8d5c08b62d8e11c6b7d0078039d84942d60e13602d2b6b0b25ee4e92d1e8a0bb defines model for Output_8d5c08b62d8e11c6b7d0078039d84942d60e13602d2b6b0b25ee4e92d1e8a0bb.
 type Output8d5c08b62d8e11c6b7d0078039d84942d60e13602d2b6b0b25ee4e92d1e8a0bb struct {
-	Id      string `json:"id"`
-	Kind    string `json:"kind"`
-	Tenant  string `json:"tenant"`
-	Version string `json:"version"`
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
 }
 
 // Output8f9918cf758d7828437221562274ce1aadfefc572741f4475e8f668456c57771 defines model for Output_8f9918cf758d7828437221562274ce1aadfefc572741f4475e8f668456c57771.
 type Output8f9918cf758d7828437221562274ce1aadfefc572741f4475e8f668456c57771 struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
 }
 
 // Output9425f0d8184856b1b2b82b988287de19f673178a98f7561041bfddbdcaad307a defines model for Output_9425f0d8184856b1b2b82b988287de19f673178a98f7561041bfddbdcaad307a.
 type Output9425f0d8184856b1b2b82b988287de19f673178a98f7561041bfddbdcaad307a struct {
 	Archive     *[]byte                                                                   `json:"archive,omitempty"`
-	CanManage   bool                                                                      `json:"canManage"`
-	CanView     bool                                                                      `json:"canView"`
+	CanManage   *bool                                                                     `json:"canManage,omitempty"`
+	CanView     *bool                                                                     `json:"canView,omitempty"`
 	ComponentId *string                                                                   `json:"componentId,omitempty"`
 	Count       *int64                                                                    `json:"count,omitempty"`
-	Dropped     int                                                                       `json:"dropped"`
-	Effective   bool                                                                      `json:"effective"`
-	Enabled     bool                                                                      `json:"enabled"`
-	Failed      int                                                                       `json:"failed"`
+	Dropped     *int                                                                      `json:"dropped,omitempty"`
+	Effective   *bool                                                                     `json:"effective,omitempty"`
+	Enabled     *bool                                                                     `json:"enabled,omitempty"`
+	Failed      *int                                                                      `json:"failed,omitempty"`
 	Filename    *string                                                                   `json:"filename,omitempty"`
 	Items       *[]OutputEc019e5831c65213d65f292f7835722945f552d76106b1cf7c1608395564458e `json:"items,omitempty"`
 	MediaType   *string                                                                   `json:"mediaType,omitempty"`
-	NamespaceId string                                                                    `json:"namespaceId"`
+	NamespaceId *string                                                                   `json:"namespaceId,omitempty"`
 	NextId      *int64                                                                    `json:"nextId,omitempty"`
 	ToolName    *string                                                                   `json:"toolName,omitempty"`
 	Truncated   *bool                                                                     `json:"truncated,omitempty"`
-	ViewerRole  string                                                                    `json:"viewerRole"`
+	ViewerRole  *string                                                                   `json:"viewerRole,omitempty"`
 }
 
 // Output98eb7261961a0f07a9564be0e254f8e95836e8bb1689bf42e5fa490dcea8bf1b defines model for Output_98eb7261961a0f07a9564be0e254f8e95836e8bb1689bf42e5fa490dcea8bf1b.
 type Output98eb7261961a0f07a9564be0e254f8e95836e8bb1689bf42e5fa490dcea8bf1b struct {
 	Archived    *bool                                                                              `json:"archived,omitempty"`
-	DisplayName string                                                                             `json:"displayName"`
-	Policies    *map[string]OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8 `json:"policies"`
+	DisplayName *string                                                                            `json:"displayName,omitempty"`
+	Policies    *map[string]OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8 `json:"policies,omitempty"`
 }
 
 // Output9d49df36a755675144ae6bef3dd7487cbc740221600721423879d97bb66fb067 defines model for Output_9d49df36a755675144ae6bef3dd7487cbc740221600721423879d97bb66fb067.
 type Output9d49df36a755675144ae6bef3dd7487cbc740221600721423879d97bb66fb067 struct {
-	Id      string `json:"id"`
-	Kind    string `json:"kind"`
-	Tenant  string `json:"tenant"`
-	Version string `json:"version"`
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
 }
 
 // Output9e0f449c95fcfb4ee0592ebadf3e17adccbdc32fa89bf50ab9ae8511c2009041 defines model for Output_9e0f449c95fcfb4ee0592ebadf3e17adccbdc32fa89bf50ab9ae8511c2009041.
 type Output9e0f449c95fcfb4ee0592ebadf3e17adccbdc32fa89bf50ab9ae8511c2009041 struct {
-	Code     string  `json:"code"`
+	Code     *string `json:"code,omitempty"`
 	Column   *int64  `json:"column,omitempty"`
 	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
-	Message  string  `json:"message"`
-	Severity string  `json:"severity"`
+	Message  *string `json:"message,omitempty"`
+	Severity *string `json:"severity,omitempty"`
 	Stage    *string `json:"stage,omitempty"`
 }
 
 // Output9e876c762bb492c132e790521d9bfeabfef411c08f89b004511cfca729fc5ff3 defines model for Output_9e876c762bb492c132e790521d9bfeabfef411c08f89b004511cfca729fc5ff3.
 type Output9e876c762bb492c132e790521d9bfeabfef411c08f89b004511cfca729fc5ff3 struct {
-	Resource Output9d49df36a755675144ae6bef3dd7487cbc740221600721423879d97bb66fb067 `json:"resource"`
-	Revision int64                                                                  `json:"revision"`
+	Resource *Output9d49df36a755675144ae6bef3dd7487cbc740221600721423879d97bb66fb067 `json:"resource,omitempty"`
+	Revision *int64                                                                  `json:"revision,omitempty"`
 }
 
 // OutputA2a90743713296048071979d14b3abdfc10b4ee77e446ab9dbd7f2c07bbe7266 defines model for Output_a2a90743713296048071979d14b3abdfc10b4ee77e446ab9dbd7f2c07bbe7266.
 type OutputA2a90743713296048071979d14b3abdfc10b4ee77e446ab9dbd7f2c07bbe7266 struct {
 	ActiveGeneration  *int64     `json:"activeGeneration,omitempty"`
-	ActiveVersionNo   int64      `json:"activeVersionNo"`
-	DesiredGeneration int64      `json:"desiredGeneration"`
+	ActiveVersionNo   *int64     `json:"activeVersionNo,omitempty"`
+	DesiredGeneration *int64     `json:"desiredGeneration,omitempty"`
 	DesiredVersionNo  *int64     `json:"desiredVersionNo,omitempty"`
 	PublishedAt       *time.Time `json:"publishedAt,omitempty"`
-	ReportId          string     `json:"reportId"`
+	ReportId          *string    `json:"reportId,omitempty"`
 	RuntimeRevision   *string    `json:"runtimeRevision,omitempty"`
 	SpecHash          *string    `json:"specHash,omitempty"`
-	Status            string     `json:"status"`
+	Status            *string    `json:"status,omitempty"`
 }
 
 // OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6 defines model for Output_a6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6.
 type OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6 struct {
 	Entity *OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6_Entity `json:"entity,omitempty"`
 	Id     *string                                                                        `json:"id,omitempty"`
-	Label  string                                                                         `json:"label"`
+	Label  *string                                                                        `json:"label,omitempty"`
 }
 
 // OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6Entity1 defines model for OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6.Entity.1.
@@ -1438,46 +1438,46 @@ type OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6_Enti
 type OutputA6ddd7942c83fb7282623cfc58da6bae57f79a4f0284ea5b91cf55fb794dc186 struct {
 	Component   *string `json:"component,omitempty"`
 	Description *string `json:"description,omitempty"`
-	Enabled     bool    `json:"enabled"`
-	Kind        string  `json:"kind"`
-	Method      string  `json:"method"`
+	Enabled     *bool   `json:"enabled,omitempty"`
+	Kind        *string `json:"kind,omitempty"`
+	Method      *string `json:"method,omitempty"`
 	MimeType    *string `json:"mimeType,omitempty"`
-	Name        string  `json:"name"`
-	Path        string  `json:"path"`
+	Name        *string `json:"name,omitempty"`
+	Path        *string `json:"path,omitempty"`
 }
 
 // OutputA717afc38cbc4d350bb71fb00cf76bef68daf27b4650120e47c4d8379356f11f defines model for Output_a717afc38cbc4d350bb71fb00cf76bef68daf27b4650120e47c4d8379356f11f.
 type OutputA717afc38cbc4d350bb71fb00cf76bef68daf27b4650120e47c4d8379356f11f struct {
 	ActiveGeneration  *int64     `json:"activeGeneration,omitempty"`
-	ActiveVersionNo   int64      `json:"activeVersionNo"`
-	DesiredGeneration int64      `json:"desiredGeneration"`
+	ActiveVersionNo   *int64     `json:"activeVersionNo,omitempty"`
+	DesiredGeneration *int64     `json:"desiredGeneration,omitempty"`
 	DesiredVersionNo  *int64     `json:"desiredVersionNo,omitempty"`
 	PublishedAt       *time.Time `json:"publishedAt,omitempty"`
-	ReportId          string     `json:"reportId"`
+	ReportId          *string    `json:"reportId,omitempty"`
 	RuntimeRevision   *string    `json:"runtimeRevision,omitempty"`
 	SpecHash          *string    `json:"specHash,omitempty"`
-	Status            string     `json:"status"`
+	Status            *string    `json:"status,omitempty"`
 }
 
 // OutputA81d693fd6e1ff78672b05458a01513d11113731358ae9bfeaca4fd73d9c722c defines model for Output_a81d693fd6e1ff78672b05458a01513d11113731358ae9bfeaca4fd73d9c722c.
 type OutputA81d693fd6e1ff78672b05458a01513d11113731358ae9bfeaca4fd73d9c722c struct {
-	Id      string `json:"id"`
-	Kind    string `json:"kind"`
-	Tenant  string `json:"tenant"`
-	Version string `json:"version"`
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
 }
 
 // OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688 defines model for Output_ad75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688.
 type OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688 struct {
 	ActivatedAt       *time.Time                                                                   `json:"activatedAt,omitempty"`
-	ActiveGeneration  int64                                                                        `json:"activeGeneration"`
+	ActiveGeneration  *int64                                                                       `json:"activeGeneration,omitempty"`
 	Diagnostics       *[]Output4fd42d5ac7e58fb29e7ad717b49ad43d1aa3d0a32c5e034148c82bc6baebd5a8    `json:"diagnostics,omitempty"`
 	Host              *OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688_Host `json:"host,omitempty"`
 	Readers           *[]Output4cf988a4800a68fa7db9d130c60eed0b35369d4c3fc9465e70d61b648bd34b6d    `json:"readers,omitempty"`
 	ReleaseNamespace  *string                                                                      `json:"releaseNamespace,omitempty"`
 	ReleasesAvailable *bool                                                                        `json:"releasesAvailable,omitempty"`
-	ReportCount       int64                                                                        `json:"reportCount"`
-	Status            string                                                                       `json:"status"`
+	ReportCount       *int64                                                                       `json:"reportCount,omitempty"`
+	Status            *string                                                                      `json:"status,omitempty"`
 }
 
 // OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688Host1 defines model for OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688.Host.1.
@@ -1492,7 +1492,7 @@ type OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688_Host
 type OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59 struct {
 	Entity *OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59_Entity `json:"entity,omitempty"`
 	Id     *string                                                                        `json:"id,omitempty"`
-	Label  string                                                                         `json:"label"`
+	Label  *string                                                                        `json:"label,omitempty"`
 }
 
 // OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59Entity1 defines model for OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59.Entity.1.
@@ -1505,16 +1505,16 @@ type OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59_Enti
 
 // OutputBd7a1b00fadef6f5e471ef21cd4fe9df0f1e3f4b9cabd09814c00b321086588a defines model for Output_bd7a1b00fadef6f5e471ef21cd4fe9df0f1e3f4b9cabd09814c00b321086588a.
 type OutputBd7a1b00fadef6f5e471ef21cd4fe9df0f1e3f4b9cabd09814c00b321086588a struct {
-	CanManage bool                                                                   `json:"canManage"`
-	Choices   OutputC97b7b59c0c99ea53e6472f7e79baee9949576f0200174c238c8b514fcc51b69 `json:"choices"`
-	Source    string                                                                 `json:"source"`
+	CanManage *bool                                                                   `json:"canManage,omitempty"`
+	Choices   *OutputC97b7b59c0c99ea53e6472f7e79baee9949576f0200174c238c8b514fcc51b69 `json:"choices,omitempty"`
+	Source    *string                                                                 `json:"source,omitempty"`
 }
 
 // OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349 defines model for Output_c50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349.
 type OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349 struct {
 	Definition     *OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Definition `json:"definition,omitempty"`
 	EntityType     *string                                                                            `json:"entityType,omitempty"`
-	Mode           string                                                                             `json:"mode"`
+	Mode           *string                                                                            `json:"mode,omitempty"`
 	Named          *OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Named      `json:"named,omitempty"`
 	Priority       *int64                                                                             `json:"priority,omitempty"`
 	RequiredScopes *[]string                                                                          `json:"requiredScopes,omitempty"`
@@ -1548,15 +1548,15 @@ type OutputC50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349_Rule
 // OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac defines model for Output_c59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac.
 type OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac struct {
 	DefaultResource *OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac_DefaultResource `json:"defaultResource,omitempty"`
-	ExplicitAcl     bool                                                                                    `json:"explicitAcl"`
-	Id              string                                                                                  `json:"id"`
-	Inherited       bool                                                                                    `json:"inherited"`
-	Kind            string                                                                                  `json:"kind"`
-	Name            string                                                                                  `json:"name"`
+	ExplicitAcl     *bool                                                                                   `json:"explicitAcl,omitempty"`
+	Id              *string                                                                                 `json:"id,omitempty"`
+	Inherited       *bool                                                                                   `json:"inherited,omitempty"`
+	Kind            *string                                                                                 `json:"kind,omitempty"`
+	Name            *string                                                                                 `json:"name,omitempty"`
 	OwnerName       *string                                                                                 `json:"ownerName,omitempty"`
-	Public          bool                                                                                    `json:"public"`
-	Published       bool                                                                                    `json:"published"`
-	Resource        OutputD14887150549e1252499c617aacbd48b5aab3c262cdf2f62fa7fbaf8f1edbaa2                  `json:"resource"`
+	Public          *bool                                                                                   `json:"public,omitempty"`
+	Published       *bool                                                                                   `json:"published,omitempty"`
+	Resource        *OutputD14887150549e1252499c617aacbd48b5aab3c262cdf2f62fa7fbaf8f1edbaa2                 `json:"resource,omitempty"`
 	Versions        *[]Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68               `json:"versions,omitempty"`
 }
 
@@ -1570,87 +1570,87 @@ type OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac_Defa
 
 // OutputC97b7b59c0c99ea53e6472f7e79baee9949576f0200174c238c8b514fcc51b69 defines model for Output_c97b7b59c0c99ea53e6472f7e79baee9949576f0200174c238c8b514fcc51b69.
 type OutputC97b7b59c0c99ea53e6472f7e79baee9949576f0200174c238c8b514fcc51b69 struct {
-	Entity      *[]OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59 `json:"entity"`
-	EntityTypes *[]string                                                                 `json:"entityTypes"`
-	Exposure    *[]Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89 `json:"exposure"`
-	Group       *[]Output4767292ff45ca739fbde17dcfac16967b1b00630ad105de675c19514080628f9 `json:"group"`
-	Role        *[]OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6 `json:"role"`
-	Subject     *[]Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260 `json:"subject"`
+	Entity      *[]OutputB54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59 `json:"entity,omitempty"`
+	EntityTypes *[]string                                                                 `json:"entityTypes,omitempty"`
+	Exposure    *[]Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89 `json:"exposure,omitempty"`
+	Group       *[]Output4767292ff45ca739fbde17dcfac16967b1b00630ad105de675c19514080628f9 `json:"group,omitempty"`
+	Role        *[]OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6 `json:"role,omitempty"`
+	Subject     *[]Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260 `json:"subject,omitempty"`
 }
 
 // OutputCa207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b defines model for Output_ca207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b.
 type OutputCa207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
 }
 
 // OutputD14887150549e1252499c617aacbd48b5aab3c262cdf2f62fa7fbaf8f1edbaa2 defines model for Output_d14887150549e1252499c617aacbd48b5aab3c262cdf2f62fa7fbaf8f1edbaa2.
 type OutputD14887150549e1252499c617aacbd48b5aab3c262cdf2f62fa7fbaf8f1edbaa2 struct {
-	Id      string `json:"id"`
-	Kind    string `json:"kind"`
-	Tenant  string `json:"tenant"`
-	Version string `json:"version"`
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
 }
 
 // OutputD558223f5d3d6bca0e300c59f8e624af838223bc61f0cb8c88f09c757834ddaa defines model for Output_d558223f5d3d6bca0e300c59f8e624af838223bc61f0cb8c88f09c757834ddaa.
 type OutputD558223f5d3d6bca0e300c59f8e624af838223bc61f0cb8c88f09c757834ddaa struct {
-	AllowedRoles *[]string `json:"allowedRoles"`
-	CanManage    bool      `json:"canManage"`
-	CreatedAt    time.Time `json:"createdAt"`
-	Description  *string   `json:"description,omitempty"`
-	Etag         int64     `json:"etag"`
-	ManagerRoles *[]string `json:"managerRoles"`
-	McpEnabled   bool      `json:"mcpEnabled"`
-	McpPort      *int64    `json:"mcpPort,omitempty"`
-	Name         string    `json:"name"`
-	NamespaceId  string    `json:"namespaceId"`
-	OwnerId      string    `json:"ownerId"`
-	Status       string    `json:"status"`
-	Title        string    `json:"title"`
-	UpdatedAt    time.Time `json:"updatedAt"`
-	Visibility   string    `json:"visibility"`
+	AllowedRoles *[]string  `json:"allowedRoles,omitempty"`
+	CanManage    *bool      `json:"canManage,omitempty"`
+	CreatedAt    *time.Time `json:"createdAt,omitempty"`
+	Description  *string    `json:"description,omitempty"`
+	Etag         *int64     `json:"etag,omitempty"`
+	ManagerRoles *[]string  `json:"managerRoles,omitempty"`
+	McpEnabled   *bool      `json:"mcpEnabled,omitempty"`
+	McpPort      *int64     `json:"mcpPort,omitempty"`
+	Name         *string    `json:"name,omitempty"`
+	NamespaceId  *string    `json:"namespaceId,omitempty"`
+	OwnerId      *string    `json:"ownerId,omitempty"`
+	Status       *string    `json:"status,omitempty"`
+	Title        *string    `json:"title,omitempty"`
+	UpdatedAt    *time.Time `json:"updatedAt,omitempty"`
+	Visibility   *string    `json:"visibility,omitempty"`
 }
 
 // OutputD6ae8cf116e1bb372c284270e8317deb57df8687ba83d5701493ce02cfb50799 defines model for Output_d6ae8cf116e1bb372c284270e8317deb57df8687ba83d5701493ce02cfb50799.
 type OutputD6ae8cf116e1bb372c284270e8317deb57df8687ba83d5701493ce02cfb50799 struct {
 	AuthoredDql          *string     `json:"authoredDql,omitempty"`
 	AuthoredSql          *string     `json:"authoredSql,omitempty"`
-	AuthoringMode        string      `json:"authoringMode"`
+	AuthoringMode        *string     `json:"authoringMode,omitempty"`
 	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus        string      `json:"compileStatus"`
-	CompilerVersion      string      `json:"compilerVersion"`
+	CompileStatus        *string     `json:"compileStatus,omitempty"`
+	CompilerVersion      *string     `json:"compilerVersion,omitempty"`
 	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
 	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
-	CreatedAt            time.Time   `json:"createdAt"`
-	CreatedBy            string      `json:"createdBy"`
-	DatlyVersion         string      `json:"datlyVersion"`
+	CreatedAt            *time.Time  `json:"createdAt,omitempty"`
+	CreatedBy            *string     `json:"createdBy,omitempty"`
+	DatlyVersion         *string     `json:"datlyVersion,omitempty"`
 	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
 	GeneratedDql         *string     `json:"generatedDql,omitempty"`
 	Notes                *string     `json:"notes,omitempty"`
 	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
-	ReportId             string      `json:"reportId"`
-	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ReportId             *string     `json:"reportId,omitempty"`
+	ResourceCheckEnabled *bool       `json:"resourceCheckEnabled,omitempty"`
 	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision       int64       `json:"sourceRevision"`
-	SpecFormatVersion    string      `json:"specFormatVersion"`
-	SpecHash             string      `json:"specHash"`
-	State                string      `json:"state"`
+	SourceRevision       *int64      `json:"sourceRevision,omitempty"`
+	SpecFormatVersion    *string     `json:"specFormatVersion,omitempty"`
+	SpecHash             *string     `json:"specHash,omitempty"`
+	State                *string     `json:"state,omitempty"`
 	TypeManifest         interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo            int64       `json:"versionNo"`
+	VersionNo            *int64      `json:"versionNo,omitempty"`
 }
 
 // OutputDb16d19662078b5e2bf34bb56caf4e031ec60811b8ff0833d9304fe74bb3deb7 defines model for Output_db16d19662078b5e2bf34bb56caf4e031ec60811b8ff0833d9304fe74bb3deb7.
 type OutputDb16d19662078b5e2bf34bb56caf4e031ec60811b8ff0833d9304fe74bb3deb7 struct {
-	HasMore bool                                                                      `json:"hasMore"`
-	Items   *[]OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac `json:"items"`
+	HasMore *bool                                                                     `json:"hasMore,omitempty"`
+	Items   *[]OutputC59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac `json:"items,omitempty"`
 }
 
 // OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8 defines model for Output_e8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8.
 type OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8 struct {
 	Definition     *OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Definition `json:"definition,omitempty"`
 	EntityType     *string                                                                            `json:"entityType,omitempty"`
-	Mode           string                                                                             `json:"mode"`
+	Mode           *string                                                                            `json:"mode,omitempty"`
 	Named          *OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Named      `json:"named,omitempty"`
 	Priority       *int64                                                                             `json:"priority,omitempty"`
 	RequiredScopes *[]string                                                                          `json:"requiredScopes,omitempty"`
@@ -1683,34 +1683,34 @@ type OutputE8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8_Rule
 
 // OutputEc019e5831c65213d65f292f7835722945f552d76106b1cf7c1608395564458e defines model for Output_ec019e5831c65213d65f292f7835722945f552d76106b1cf7c1608395564458e.
 type OutputEc019e5831c65213d65f292f7835722945f552d76106b1cf7c1608395564458e struct {
-	ClientIp          string    `json:"clientIp"`
-	ComponentId       *string   `json:"componentId,omitempty"`
-	DurationMs        int64     `json:"durationMs"`
-	Id                int64     `json:"id"`
-	NamespaceId       string    `json:"namespaceId"`
-	Request           *string   `json:"request,omitempty"`
-	Response          *string   `json:"response,omitempty"`
-	ResponseTruncated bool      `json:"responseTruncated"`
-	StartedAt         time.Time `json:"startedAt"`
-	Status            string    `json:"status"`
-	Subject           string    `json:"subject"`
-	ToolName          string    `json:"toolName"`
+	ClientIp          *string    `json:"clientIp,omitempty"`
+	ComponentId       *string    `json:"componentId,omitempty"`
+	DurationMs        *int64     `json:"durationMs,omitempty"`
+	Id                *int64     `json:"id,omitempty"`
+	NamespaceId       *string    `json:"namespaceId,omitempty"`
+	Request           *string    `json:"request,omitempty"`
+	Response          *string    `json:"response,omitempty"`
+	ResponseTruncated *bool      `json:"responseTruncated,omitempty"`
+	StartedAt         *time.Time `json:"startedAt,omitempty"`
+	Status            *string    `json:"status,omitempty"`
+	Subject           *string    `json:"subject,omitempty"`
+	ToolName          *string    `json:"toolName,omitempty"`
 }
 
 // OutputEc5ca322e57ac033e6183e7ca87a4dc5a2dba0223eb08b4a914e37bb9e628b8e defines model for Output_ec5ca322e57ac033e6183e7ca87a4dc5a2dba0223eb08b4a914e37bb9e628b8e.
 type OutputEc5ca322e57ac033e6183e7ca87a4dc5a2dba0223eb08b4a914e37bb9e628b8e struct {
-	ClientIp          string    `json:"clientIp"`
-	ComponentId       *string   `json:"componentId,omitempty"`
-	DurationMs        int64     `json:"durationMs"`
-	Id                int64     `json:"id"`
-	NamespaceId       string    `json:"namespaceId"`
-	Request           *string   `json:"request,omitempty"`
-	Response          *string   `json:"response,omitempty"`
-	ResponseTruncated bool      `json:"responseTruncated"`
-	StartedAt         time.Time `json:"startedAt"`
-	Status            string    `json:"status"`
-	Subject           string    `json:"subject"`
-	ToolName          string    `json:"toolName"`
+	ClientIp          *string    `json:"clientIp,omitempty"`
+	ComponentId       *string    `json:"componentId,omitempty"`
+	DurationMs        *int64     `json:"durationMs,omitempty"`
+	Id                *int64     `json:"id,omitempty"`
+	NamespaceId       *string    `json:"namespaceId,omitempty"`
+	Request           *string    `json:"request,omitempty"`
+	Response          *string    `json:"response,omitempty"`
+	ResponseTruncated *bool      `json:"responseTruncated,omitempty"`
+	StartedAt         *time.Time `json:"startedAt,omitempty"`
+	Status            *string    `json:"status,omitempty"`
+	Subject           *string    `json:"subject,omitempty"`
+	ToolName          *string    `json:"toolName,omitempty"`
 }
 
 // OutputEf553e0e338a00cf70d43289eb53e588abb65348804f4defbd8fd2ea4e5691ee defines model for Output_ef553e0e338a00cf70d43289eb53e588abb65348804f4defbd8fd2ea4e5691ee.
@@ -1720,20 +1720,20 @@ type OutputEf553e0e338a00cf70d43289eb53e588abb65348804f4defbd8fd2ea4e5691ee stru
 	ConnectorName  *string `json:"connectorName,omitempty"`
 	IndexColumn    *string `json:"indexColumn,omitempty"`
 	IndexParameter *string `json:"indexParameter,omitempty"`
-	View           string  `json:"view"`
+	View           *string `json:"view,omitempty"`
 }
 
 // OutputF2954ccbc2dd12cce598727f4c49ad7d3d88f3404672f047b6fb03d041c024bf defines model for Output_f2954ccbc2dd12cce598727f4c49ad7d3d88f3404672f047b6fb03d041c024bf.
 type OutputF2954ccbc2dd12cce598727f4c49ad7d3d88f3404672f047b6fb03d041c024bf struct {
-	SkillId   string `json:"skillId"`
-	SkillRoot string `json:"skillRoot"`
-	UriPrefix string `json:"uriPrefix"`
+	SkillId   *string `json:"skillId,omitempty"`
+	SkillRoot *string `json:"skillRoot,omitempty"`
+	UriPrefix *string `json:"uriPrefix,omitempty"`
 }
 
 // OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69 defines model for Output_f632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69.
 type OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69 struct {
 	Entity *OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69_Entity `json:"entity,omitempty"`
-	Kind   string                                                                         `json:"kind"`
+	Kind   *string                                                                        `json:"kind,omitempty"`
 	Rules  *[]OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69      `json:"rules,omitempty"`
 	Value  *string                                                                        `json:"value,omitempty"`
 }
@@ -1748,139 +1748,139 @@ type OutputF632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69_Enti
 
 // Wire0000ae7c5d7884f4ead8c10e8038a8cc022ef4386007285882c2dd1a2fdc867e defines model for Wire_0000ae7c5d7884f4ead8c10e8038a8cc022ef4386007285882c2dd1a2fdc867e.
 type Wire0000ae7c5d7884f4ead8c10e8038a8cc022ef4386007285882c2dd1a2fdc867e struct {
-	Content  string `json:"content"`
-	IsBinary *bool  `json:"isBinary,omitempty"`
-	Path     string `json:"path"`
+	Content  *string `json:"content,omitempty"`
+	IsBinary *bool   `json:"isBinary,omitempty"`
+	Path     *string `json:"path,omitempty"`
 }
 
 // Wire013ce40651897a22f1d0c9d5a29a86362333458b72c57acb30fa03a2473f08c6 defines model for Wire_013ce40651897a22f1d0c9d5a29a86362333458b72c57acb30fa03a2473f08c6.
 type Wire013ce40651897a22f1d0c9d5a29a86362333458b72c57acb30fa03a2473f08c6 struct {
-	CanEdit     bool   `json:"canEdit"`
-	CanPublish  bool   `json:"canPublish"`
-	CanRun      bool   `json:"canRun"`
-	CanUseDql   bool   `json:"canUseDql"`
-	CanView     bool   `json:"canView"`
-	Etag        int64  `json:"etag"`
-	ReportId    string `json:"reportId"`
-	SubjectId   string `json:"subjectId"`
-	SubjectType string `json:"subjectType"`
+	CanEdit     *bool   `json:"canEdit,omitempty"`
+	CanPublish  *bool   `json:"canPublish,omitempty"`
+	CanRun      *bool   `json:"canRun,omitempty"`
+	CanUseDql   *bool   `json:"canUseDql,omitempty"`
+	CanView     *bool   `json:"canView,omitempty"`
+	Etag        *int64  `json:"etag,omitempty"`
+	ReportId    *string `json:"reportId,omitempty"`
+	SubjectId   *string `json:"subjectId,omitempty"`
+	SubjectType *string `json:"subjectType,omitempty"`
 }
 
 // Wire01a7a742a5dcd667da4d143e43944f269ae6e23b2952948e51d0b2791d2ed360 defines model for Wire_01a7a742a5dcd667da4d143e43944f269ae6e23b2952948e51d0b2791d2ed360.
 type Wire01a7a742a5dcd667da4d143e43944f269ae6e23b2952948e51d0b2791d2ed360 struct {
-	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
-	FolderId               string `json:"folderId"`
-	Namespace              string `json:"namespace"`
-	Ordinal                int64  `json:"ordinal"`
-	ReportId               string `json:"reportId"`
-	RootPath               string `json:"rootPath"`
-	UriPrefix              string `json:"uriPrefix"`
-	VersionNo              int64  `json:"versionNo"`
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	FolderId               *string `json:"folderId,omitempty"`
+	Namespace              *string `json:"namespace,omitempty"`
+	Ordinal                *int64  `json:"ordinal,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	RootPath               *string `json:"rootPath,omitempty"`
+	UriPrefix              *string `json:"uriPrefix,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
 // Wire0279067683c20563aa495e8737a819024ba4eb59ced1e2723cda5eb5890cb742 defines model for Wire_0279067683c20563aa495e8737a819024ba4eb59ced1e2723cda5eb5890cb742.
 type Wire0279067683c20563aa495e8737a819024ba4eb59ced1e2723cda5eb5890cb742 struct {
 	AuthoredDql          *string     `json:"authoredDql,omitempty"`
 	AuthoredSql          *string     `json:"authoredSql,omitempty"`
-	AuthoringMode        string      `json:"authoringMode"`
+	AuthoringMode        *string     `json:"authoringMode,omitempty"`
 	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus        string      `json:"compileStatus"`
-	CompilerVersion      string      `json:"compilerVersion"`
+	CompileStatus        *string     `json:"compileStatus,omitempty"`
+	CompilerVersion      *string     `json:"compilerVersion,omitempty"`
 	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
 	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
-	CreatedAt            time.Time   `json:"createdAt"`
-	CreatedBy            string      `json:"createdBy"`
-	DatlyVersion         string      `json:"datlyVersion"`
+	CreatedAt            *time.Time  `json:"createdAt,omitempty"`
+	CreatedBy            *string     `json:"createdBy,omitempty"`
+	DatlyVersion         *string     `json:"datlyVersion,omitempty"`
 	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
 	GeneratedDql         *string     `json:"generatedDql,omitempty"`
 	Notes                *string     `json:"notes,omitempty"`
 	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
-	ReportId             string      `json:"reportId"`
-	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ReportId             *string     `json:"reportId,omitempty"`
+	ResourceCheckEnabled *bool       `json:"resourceCheckEnabled,omitempty"`
 	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision       int64       `json:"sourceRevision"`
-	SpecFormatVersion    string      `json:"specFormatVersion"`
-	SpecHash             string      `json:"specHash"`
-	State                string      `json:"state"`
+	SourceRevision       *int64      `json:"sourceRevision,omitempty"`
+	SpecFormatVersion    *string     `json:"specFormatVersion,omitempty"`
+	SpecHash             *string     `json:"specHash,omitempty"`
+	State                *string     `json:"state,omitempty"`
 	TypeManifest         interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo            int64       `json:"versionNo"`
+	VersionNo            *int64      `json:"versionNo,omitempty"`
 }
 
 // Wire03ebbc8325840f6f4bebaca4c18406daaad9dd6178c9cb8aad7f2d20427ce1c4 defines model for Wire_03ebbc8325840f6f4bebaca4c18406daaad9dd6178c9cb8aad7f2d20427ce1c4.
 type Wire03ebbc8325840f6f4bebaca4c18406daaad9dd6178c9cb8aad7f2d20427ce1c4 struct {
-	Id      string `json:"id"`
-	Kind    string `json:"kind"`
-	Tenant  string `json:"tenant"`
-	Version string `json:"version"`
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
 }
 
 // Wire08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6 defines model for Wire_08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6.
 type Wire08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6 struct {
 	AuthoredDql          *string     `json:"authoredDql,omitempty"`
 	AuthoredSql          *string     `json:"authoredSql,omitempty"`
-	AuthoringMode        string      `json:"authoringMode"`
+	AuthoringMode        *string     `json:"authoringMode,omitempty"`
 	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus        string      `json:"compileStatus"`
-	CompilerVersion      string      `json:"compilerVersion"`
+	CompileStatus        *string     `json:"compileStatus,omitempty"`
+	CompilerVersion      *string     `json:"compilerVersion,omitempty"`
 	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
 	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
-	CreatedAt            time.Time   `json:"createdAt"`
-	CreatedBy            string      `json:"createdBy"`
-	DatlyVersion         string      `json:"datlyVersion"`
+	CreatedAt            *time.Time  `json:"createdAt,omitempty"`
+	CreatedBy            *string     `json:"createdBy,omitempty"`
+	DatlyVersion         *string     `json:"datlyVersion,omitempty"`
 	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
 	GeneratedDql         *string     `json:"generatedDql,omitempty"`
 	Notes                *string     `json:"notes,omitempty"`
 	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
-	ReportId             string      `json:"reportId"`
-	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ReportId             *string     `json:"reportId,omitempty"`
+	ResourceCheckEnabled *bool       `json:"resourceCheckEnabled,omitempty"`
 	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision       int64       `json:"sourceRevision"`
-	SpecFormatVersion    string      `json:"specFormatVersion"`
-	SpecHash             string      `json:"specHash"`
-	State                string      `json:"state"`
+	SourceRevision       *int64      `json:"sourceRevision,omitempty"`
+	SpecFormatVersion    *string     `json:"specFormatVersion,omitempty"`
+	SpecHash             *string     `json:"specHash,omitempty"`
+	State                *string     `json:"state,omitempty"`
 	TypeManifest         interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo            int64       `json:"versionNo"`
+	VersionNo            *int64      `json:"versionNo,omitempty"`
 }
 
 // Wire08938620e84156f14c3eb03478de7df19afa5374952a4abae29cf28f9d58f8f5 defines model for Wire_08938620e84156f14c3eb03478de7df19afa5374952a4abae29cf28f9d58f8f5.
 type Wire08938620e84156f14c3eb03478de7df19afa5374952a4abae29cf28f9d58f8f5 struct {
-	Id      string `json:"id"`
-	Kind    string `json:"kind"`
-	Tenant  string `json:"tenant"`
-	Version string `json:"version"`
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
 }
 
 // Wire0b4fc596d18790b4851cf320f7b9abf6d446bab3fd3f2ae6a2d3cb1481542e8f defines model for Wire_0b4fc596d18790b4851cf320f7b9abf6d446bab3fd3f2ae6a2d3cb1481542e8f.
 type Wire0b4fc596d18790b4851cf320f7b9abf6d446bab3fd3f2ae6a2d3cb1481542e8f struct {
-	Entity      *[]Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d `json:"entity"`
-	EntityTypes *[]string                                                               `json:"entityTypes"`
-	Exposure    *[]Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2 `json:"exposure"`
-	Group       *[]WireE7011437759d2568973820dd3cff070baab4d58b71061ca4e17f36cb9345841c `json:"group"`
-	Role        *[]Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9 `json:"role"`
-	Subject     *[]Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4 `json:"subject"`
+	Entity      *[]Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d `json:"entity,omitempty"`
+	EntityTypes *[]string                                                               `json:"entityTypes,omitempty"`
+	Exposure    *[]Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2 `json:"exposure,omitempty"`
+	Group       *[]WireE7011437759d2568973820dd3cff070baab4d58b71061ca4e17f36cb9345841c `json:"group,omitempty"`
+	Role        *[]Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9 `json:"role,omitempty"`
+	Subject     *[]Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4 `json:"subject,omitempty"`
 }
 
 // Wire0bbf066863381f769b39ad78b59b8059fb6550628396f1f8c25257ce82e6874f defines model for Wire_0bbf066863381f769b39ad78b59b8059fb6550628396f1f8c25257ce82e6874f.
 type Wire0bbf066863381f769b39ad78b59b8059fb6550628396f1f8c25257ce82e6874f struct {
-	CreatedAt         time.Time `json:"createdAt"`
-	Description       string    `json:"description"`
-	Etag              int64     `json:"etag"`
-	LatestRevision    int64     `json:"latestRevision"`
-	Name              string    `json:"name"`
-	NamespaceId       string    `json:"namespaceId"`
-	PublishedRevision int64     `json:"publishedRevision"`
-	SkillId           string    `json:"skillId"`
-	Status            string    `json:"status"`
-	Title             string    `json:"title"`
-	UpdatedAt         time.Time `json:"updatedAt"`
+	CreatedAt         *time.Time `json:"createdAt,omitempty"`
+	Description       *string    `json:"description,omitempty"`
+	Etag              *int64     `json:"etag,omitempty"`
+	LatestRevision    *int64     `json:"latestRevision,omitempty"`
+	Name              *string    `json:"name,omitempty"`
+	NamespaceId       *string    `json:"namespaceId,omitempty"`
+	PublishedRevision *int64     `json:"publishedRevision,omitempty"`
+	SkillId           *string    `json:"skillId,omitempty"`
+	Status            *string    `json:"status,omitempty"`
+	Title             *string    `json:"title,omitempty"`
+	UpdatedAt         *time.Time `json:"updatedAt,omitempty"`
 }
 
 // Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb defines model for Wire_0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb.
 type Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb struct {
-	Revision Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Revision `json:"revision"`
-	Skill    Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Skill    `json:"skill"`
+	Revision *Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Revision `json:"revision,omitempty"`
+	Skill    *Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Skill    `json:"skill,omitempty"`
 }
 
 // Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efbRevision1 defines model for Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb.Revision.1.
@@ -1901,10 +1901,10 @@ type Wire0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb_Skill 
 
 // Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14 defines model for Wire_0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14.
 type Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14 struct {
-	Entries  *[]string                                                                    `json:"entries"`
-	EntryDql string                                                                       `json:"entryDql"`
-	Files    *[]string                                                                    `json:"files"`
-	Version  Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14_Version `json:"version"`
+	Entries  *[]string                                                                     `json:"entries,omitempty"`
+	EntryDql *string                                                                       `json:"entryDql,omitempty"`
+	Files    *[]string                                                                     `json:"files,omitempty"`
+	Version  *Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14_Version `json:"version,omitempty"`
 }
 
 // Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14Version1 defines model for Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14.Version.1.
@@ -1919,16 +1919,16 @@ type Wire0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14_Versio
 type Wire0f446f07ec6516f9b6a7f9e3de1d58abb30bb3608144fb80728627765378e04e struct {
 	Data        interface{}                                                             `json:"data,omitempty"`
 	Diagnostics *[]Wire385cb42fa02eb6e798cbc1f7de0bcdf81fdec7bcc883dc0d6d67a2e6f9974852 `json:"diagnostics,omitempty"`
-	Duration    int64                                                                   `json:"duration"`
-	Evidence    WireEcc4d9a82e8b4cd1e3ac77d7fd7943319b31b3e82973c8afbcf0002138ddc950    `json:"evidence"`
-	View        string                                                                  `json:"view"`
+	Duration    *int64                                                                  `json:"duration,omitempty"`
+	Evidence    *WireEcc4d9a82e8b4cd1e3ac77d7fd7943319b31b3e82973c8afbcf0002138ddc950   `json:"evidence,omitempty"`
+	View        *string                                                                 `json:"view,omitempty"`
 }
 
 // Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2 defines model for Wire_0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2.
 type Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2 struct {
 	Entity *Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2_Entity `json:"entity,omitempty"`
 	Id     *string                                                                      `json:"id,omitempty"`
-	Label  string                                                                       `json:"label"`
+	Label  *string                                                                      `json:"label,omitempty"`
 }
 
 // Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2Entity1 defines model for Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2.Entity.1.
@@ -1941,16 +1941,16 @@ type Wire0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2_Entity
 
 // Wire136fdd6e98366655d5a5095e8c68f1bcac5a96b892272257e0a31875c4ad186c defines model for Wire_136fdd6e98366655d5a5095e8c68f1bcac5a96b892272257e0a31875c4ad186c.
 type Wire136fdd6e98366655d5a5095e8c68f1bcac5a96b892272257e0a31875c4ad186c struct {
-	Content string                                                                  `json:"content"`
+	Content *string                                                                 `json:"content,omitempty"`
 	Files   *[]Wire39683fa2630319834046222efde0940aba2f6fb3c734927cdb6e6c4bf93acc07 `json:"files,omitempty"`
 	Title   *string                                                                 `json:"title,omitempty"`
 }
 
 // Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec defines model for Wire_13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec.
 type Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec struct {
-	Files   *[]Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Files_Item   `json:"files"`
-	Folders *[]Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Folders_Item `json:"folders"`
-	Skills  *[]Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Skills_Item  `json:"skills"`
+	Files   *[]Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Files_Item   `json:"files,omitempty"`
+	Folders *[]Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Folders_Item `json:"folders,omitempty"`
+	Skills  *[]Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Skills_Item  `json:"skills,omitempty"`
 	Version *Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Version        `json:"version,omitempty"`
 }
 
@@ -1989,34 +1989,34 @@ type Wire13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec_Versio
 // Wire15d90b839a0fff7f61055596a65a67fe8590915342e1278e39ef8abd4433ce14 defines model for Wire_15d90b839a0fff7f61055596a65a67fe8590915342e1278e39ef8abd4433ce14.
 type Wire15d90b839a0fff7f61055596a65a67fe8590915342e1278e39ef8abd4433ce14 struct {
 	Data         interface{} `json:"data,omitempty"`
-	Duration     int64       `json:"duration"`
-	HasMore      bool        `json:"hasMore"`
-	Limit        int64       `json:"limit"`
-	Offset       int64       `json:"offset"`
-	ReturnedRows int64       `json:"returnedRows"`
+	Duration     *int64      `json:"duration,omitempty"`
+	HasMore      *bool       `json:"hasMore,omitempty"`
+	Limit        *int64      `json:"limit,omitempty"`
+	Offset       *int64      `json:"offset,omitempty"`
+	ReturnedRows *int64      `json:"returnedRows,omitempty"`
 }
 
 // Wire168acff25133f72df514ff38f09aae1a60280ad693da3c888e9f6ec48bae90a6 defines model for Wire_168acff25133f72df514ff38f09aae1a60280ad693da3c888e9f6ec48bae90a6.
 type Wire168acff25133f72df514ff38f09aae1a60280ad693da3c888e9f6ec48bae90a6 struct {
 	Catalog  *string                                                                 `json:"catalog,omitempty"`
-	Catalogs *[]WireA2017528848c398dbe63d56f9c45139f7f4ebf51f3b52cadf11a77fb2b585406 `json:"catalogs"`
-	Driver   string                                                                  `json:"driver"`
-	Product  string                                                                  `json:"product"`
+	Catalogs *[]WireA2017528848c398dbe63d56f9c45139f7f4ebf51f3b52cadf11a77fb2b585406 `json:"catalogs,omitempty"`
+	Driver   *string                                                                 `json:"driver,omitempty"`
+	Product  *string                                                                 `json:"product,omitempty"`
 	Schema   *string                                                                 `json:"schema,omitempty"`
-	Schemas  *[]WireB981e81a865e06c9a0806c0be6f35790a2a830c9d214f66357056f42835e3045 `json:"schemas"`
+	Schemas  *[]WireB981e81a865e06c9a0806c0be6f35790a2a830c9d214f66357056f42835e3045 `json:"schemas,omitempty"`
 	Version  *string                                                                 `json:"version,omitempty"`
 	Warnings *[]string                                                               `json:"warnings,omitempty"`
 }
 
 // Wire187f7f4691bae62916263844a31b0e52f2ac7573ba63a1dda0cfffa8610b0947 defines model for Wire_187f7f4691bae62916263844a31b0e52f2ac7573ba63a1dda0cfffa8610b0947.
 type Wire187f7f4691bae62916263844a31b0e52f2ac7573ba63a1dda0cfffa8610b0947 struct {
-	Code     string  `json:"code"`
+	Code     *string `json:"code,omitempty"`
 	Column   *int64  `json:"column,omitempty"`
 	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
-	Message  string  `json:"message"`
-	Severity string  `json:"severity"`
+	Message  *string `json:"message,omitempty"`
+	Severity *string `json:"severity,omitempty"`
 	Stage    *string `json:"stage,omitempty"`
 }
 
@@ -2024,7 +2024,7 @@ type Wire187f7f4691bae62916263844a31b0e52f2ac7573ba63a1dda0cfffa8610b0947 struct
 type Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d struct {
 	Entity *Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d_Entity `json:"entity,omitempty"`
 	Id     *string                                                                      `json:"id,omitempty"`
-	Label  string                                                                       `json:"label"`
+	Label  *string                                                                      `json:"label,omitempty"`
 }
 
 // Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155dEntity1 defines model for Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d.Entity.1.
@@ -2038,7 +2038,7 @@ type Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d_Entity
 // Wire19c8c23fc3af1e96aac7711875cf1799e140a146786e49d01c34189b09f54fb0 defines model for Wire_19c8c23fc3af1e96aac7711875cf1799e140a146786e49d01c34189b09f54fb0.
 type Wire19c8c23fc3af1e96aac7711875cf1799e140a146786e49d01c34189b09f54fb0 struct {
 	Entity *Wire19c8c23fc3af1e96aac7711875cf1799e140a146786e49d01c34189b09f54fb0_Entity `json:"entity,omitempty"`
-	Kind   string                                                                       `json:"kind"`
+	Kind   *string                                                                      `json:"kind,omitempty"`
 	Rules  *[]Wire19c8c23fc3af1e96aac7711875cf1799e140a146786e49d01c34189b09f54fb0      `json:"rules,omitempty"`
 	Value  *string                                                                      `json:"value,omitempty"`
 }
@@ -2055,48 +2055,48 @@ type Wire19c8c23fc3af1e96aac7711875cf1799e140a146786e49d01c34189b09f54fb0_Entity
 type Wire1a54346913f36c827b3cbb210b4e4062c2b4b68e415f006659f4a97f386665ac struct {
 	AuthoredDql         *string     `json:"authoredDql,omitempty"`
 	AuthoredSql         *string     `json:"authoredSql,omitempty"`
-	AuthoringMode       string      `json:"authoringMode"`
+	AuthoringMode       *string     `json:"authoringMode,omitempty"`
 	CompileDiagnostics  interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus       string      `json:"compileStatus"`
-	CompilerVersion     string      `json:"compilerVersion"`
+	CompileStatus       *string     `json:"compileStatus,omitempty"`
+	CompilerVersion     *string     `json:"compilerVersion,omitempty"`
 	ComponentDescriptor interface{} `json:"componentDescriptor,omitempty"`
 	ComponentSpec       interface{} `json:"componentSpec,omitempty"`
-	CreatedAt           time.Time   `json:"createdAt"`
-	CreatedBy           string      `json:"createdBy"`
-	DatlyVersion        string      `json:"datlyVersion"`
+	CreatedAt           *time.Time  `json:"createdAt,omitempty"`
+	CreatedBy           *string     `json:"createdBy,omitempty"`
+	DatlyVersion        *string     `json:"datlyVersion,omitempty"`
 	DqlExportLimits     interface{} `json:"dqlExportLimits,omitempty"`
 	GeneratedDql        *string     `json:"generatedDql,omitempty"`
 	Notes               *string     `json:"notes,omitempty"`
 	PublishedAt         *time.Time  `json:"publishedAt,omitempty"`
-	ReportId            string      `json:"reportId"`
+	ReportId            *string     `json:"reportId,omitempty"`
 	ResourceManifest    interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision      int64       `json:"sourceRevision"`
-	SpecFormatVersion   string      `json:"specFormatVersion"`
-	SpecHash            string      `json:"specHash"`
-	State               string      `json:"state"`
+	SourceRevision      *int64      `json:"sourceRevision,omitempty"`
+	SpecFormatVersion   *string     `json:"specFormatVersion,omitempty"`
+	SpecHash            *string     `json:"specHash,omitempty"`
+	State               *string     `json:"state,omitempty"`
 	TypeManifest        interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt         *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo           int64       `json:"versionNo"`
+	VersionNo           *int64      `json:"versionNo,omitempty"`
 }
 
 // Wire1ad149a06cfe9417562b1c9648e0b52832e72cfbf4e1ca313b15480e1aee3e75 defines model for Wire_1ad149a06cfe9417562b1c9648e0b52832e72cfbf4e1ca313b15480e1aee3e75.
 type Wire1ad149a06cfe9417562b1c9648e0b52832e72cfbf4e1ca313b15480e1aee3e75 struct {
-	Content                string  `json:"content"`
-	ContentSha256          string  `json:"contentSha256"`
-	ContentSize            int64   `json:"contentSize"`
+	Content                *string `json:"content,omitempty"`
+	ContentSha256          *string `json:"contentSha256,omitempty"`
+	ContentSize            *int64  `json:"contentSize,omitempty"`
 	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
-	IsBinary               bool    `json:"isBinary"`
+	IsBinary               *bool   `json:"isBinary,omitempty"`
 	MediaType              *string `json:"mediaType,omitempty"`
-	Namespace              string  `json:"namespace"`
-	ReportId               string  `json:"reportId"`
-	ResourceId             string  `json:"resourceId"`
-	ResourcePath           string  `json:"resourcePath"`
-	VersionNo              int64   `json:"versionNo"`
+	Namespace              *string `json:"namespace,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	ResourceId             *string `json:"resourceId,omitempty"`
+	ResourcePath           *string `json:"resourcePath,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
 // Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921 defines model for Wire_1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921.
 type Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921 struct {
-	Skill Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921_Skill `json:"skill"`
+	Skill *Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921_Skill `json:"skill,omitempty"`
 }
 
 // Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921Skill1 defines model for Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921.Skill.1.
@@ -2111,70 +2111,70 @@ type Wire1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921_Skill 
 type Wire1e3fdf8fcb04453947f7d75766cc316e3e09d18591edbeef886727e071fe5f28 struct {
 	AuthoredDql          *string     `json:"authoredDql,omitempty"`
 	AuthoredSql          *string     `json:"authoredSql,omitempty"`
-	AuthoringMode        string      `json:"authoringMode"`
+	AuthoringMode        *string     `json:"authoringMode,omitempty"`
 	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus        string      `json:"compileStatus"`
-	CompilerVersion      string      `json:"compilerVersion"`
+	CompileStatus        *string     `json:"compileStatus,omitempty"`
+	CompilerVersion      *string     `json:"compilerVersion,omitempty"`
 	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
 	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
-	CreatedAt            time.Time   `json:"createdAt"`
-	CreatedBy            string      `json:"createdBy"`
-	DatlyVersion         string      `json:"datlyVersion"`
+	CreatedAt            *time.Time  `json:"createdAt,omitempty"`
+	CreatedBy            *string     `json:"createdBy,omitempty"`
+	DatlyVersion         *string     `json:"datlyVersion,omitempty"`
 	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
 	GeneratedDql         *string     `json:"generatedDql,omitempty"`
 	Notes                *string     `json:"notes,omitempty"`
 	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
-	ReportId             string      `json:"reportId"`
-	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ReportId             *string     `json:"reportId,omitempty"`
+	ResourceCheckEnabled *bool       `json:"resourceCheckEnabled,omitempty"`
 	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision       int64       `json:"sourceRevision"`
-	SpecFormatVersion    string      `json:"specFormatVersion"`
-	SpecHash             string      `json:"specHash"`
-	State                string      `json:"state"`
+	SourceRevision       *int64      `json:"sourceRevision,omitempty"`
+	SpecFormatVersion    *string     `json:"specFormatVersion,omitempty"`
+	SpecHash             *string     `json:"specHash,omitempty"`
+	State                *string     `json:"state,omitempty"`
 	TypeManifest         interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo            int64       `json:"versionNo"`
+	VersionNo            *int64      `json:"versionNo,omitempty"`
 }
 
 // Wire1f5f473dc54ed2f6c617275d578b2307a69146cb2ce69ae058bffe57f5c226b4 defines model for Wire_1f5f473dc54ed2f6c617275d578b2307a69146cb2ce69ae058bffe57f5c226b4.
 type Wire1f5f473dc54ed2f6c617275d578b2307a69146cb2ce69ae058bffe57f5c226b4 struct {
-	AllowedRoles *[]string `json:"allowedRoles"`
-	CanManage    bool      `json:"canManage"`
-	CreatedAt    time.Time `json:"createdAt"`
-	Description  *string   `json:"description,omitempty"`
-	Etag         int64     `json:"etag"`
-	ManagerRoles *[]string `json:"managerRoles"`
-	McpEnabled   bool      `json:"mcpEnabled"`
-	McpPort      *int64    `json:"mcpPort,omitempty"`
-	Name         string    `json:"name"`
-	NamespaceId  string    `json:"namespaceId"`
-	OwnerId      string    `json:"ownerId"`
-	Status       string    `json:"status"`
-	Title        string    `json:"title"`
-	UpdatedAt    time.Time `json:"updatedAt"`
-	Visibility   string    `json:"visibility"`
+	AllowedRoles *[]string  `json:"allowedRoles,omitempty"`
+	CanManage    *bool      `json:"canManage,omitempty"`
+	CreatedAt    *time.Time `json:"createdAt,omitempty"`
+	Description  *string    `json:"description,omitempty"`
+	Etag         *int64     `json:"etag,omitempty"`
+	ManagerRoles *[]string  `json:"managerRoles,omitempty"`
+	McpEnabled   *bool      `json:"mcpEnabled,omitempty"`
+	McpPort      *int64     `json:"mcpPort,omitempty"`
+	Name         *string    `json:"name,omitempty"`
+	NamespaceId  *string    `json:"namespaceId,omitempty"`
+	OwnerId      *string    `json:"ownerId,omitempty"`
+	Status       *string    `json:"status,omitempty"`
+	Title        *string    `json:"title,omitempty"`
+	UpdatedAt    *time.Time `json:"updatedAt,omitempty"`
+	Visibility   *string    `json:"visibility,omitempty"`
 }
 
 // Wire221846f313892219b53265500a015547384983c9f728252d253349f904fb06a9 defines model for Wire_221846f313892219b53265500a015547384983c9f728252d253349f904fb06a9.
 type Wire221846f313892219b53265500a015547384983c9f728252d253349f904fb06a9 struct {
-	EventId        string    `json:"eventId"`
-	FailureCode    *string   `json:"failureCode,omitempty"`
-	FailureMessage *string   `json:"failureMessage,omitempty"`
-	GenerationNo   *int64    `json:"generationNo,omitempty"`
-	OccurredAt     time.Time `json:"occurredAt"`
-	Operation      string    `json:"operation"`
-	OwnerId        string    `json:"ownerId"`
-	Reason         *string   `json:"reason,omitempty"`
-	ReportId       string    `json:"reportId"`
-	RequestedBy    string    `json:"requestedBy"`
-	Status         string    `json:"status"`
-	VersionNo      *int64    `json:"versionNo,omitempty"`
+	EventId        *string    `json:"eventId,omitempty"`
+	FailureCode    *string    `json:"failureCode,omitempty"`
+	FailureMessage *string    `json:"failureMessage,omitempty"`
+	GenerationNo   *int64     `json:"generationNo,omitempty"`
+	OccurredAt     *time.Time `json:"occurredAt,omitempty"`
+	Operation      *string    `json:"operation,omitempty"`
+	OwnerId        *string    `json:"ownerId,omitempty"`
+	Reason         *string    `json:"reason,omitempty"`
+	ReportId       *string    `json:"reportId,omitempty"`
+	RequestedBy    *string    `json:"requestedBy,omitempty"`
+	Status         *string    `json:"status,omitempty"`
+	VersionNo      *int64     `json:"versionNo,omitempty"`
 }
 
 // Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46 defines model for Wire_22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46.
 type Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46 struct {
 	Entity *Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46_Entity `json:"entity,omitempty"`
-	Kind   string                                                                       `json:"kind"`
+	Kind   *string                                                                      `json:"kind,omitempty"`
 	Rules  *[]Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46      `json:"rules,omitempty"`
 	Value  *string                                                                      `json:"value,omitempty"`
 }
@@ -2189,67 +2189,67 @@ type Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46_Entity
 
 // Wire233692382231683192dd7140456422339bf3eeb54d8ac7887d29225da9ca7081 defines model for Wire_233692382231683192dd7140456422339bf3eeb54d8ac7887d29225da9ca7081.
 type Wire233692382231683192dd7140456422339bf3eeb54d8ac7887d29225da9ca7081 struct {
-	CreatedAt         time.Time `json:"createdAt"`
-	Description       string    `json:"description"`
-	Etag              int64     `json:"etag"`
-	LatestRevision    int64     `json:"latestRevision"`
-	Name              string    `json:"name"`
-	NamespaceId       string    `json:"namespaceId"`
-	PublishedRevision int64     `json:"publishedRevision"`
-	SkillId           string    `json:"skillId"`
-	Status            string    `json:"status"`
-	Title             string    `json:"title"`
-	UpdatedAt         time.Time `json:"updatedAt"`
+	CreatedAt         *time.Time `json:"createdAt,omitempty"`
+	Description       *string    `json:"description,omitempty"`
+	Etag              *int64     `json:"etag,omitempty"`
+	LatestRevision    *int64     `json:"latestRevision,omitempty"`
+	Name              *string    `json:"name,omitempty"`
+	NamespaceId       *string    `json:"namespaceId,omitempty"`
+	PublishedRevision *int64     `json:"publishedRevision,omitempty"`
+	SkillId           *string    `json:"skillId,omitempty"`
+	Status            *string    `json:"status,omitempty"`
+	Title             *string    `json:"title,omitempty"`
+	UpdatedAt         *time.Time `json:"updatedAt,omitempty"`
 }
 
 // Wire239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691 defines model for Wire_239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691.
 type Wire239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691 struct {
 	AuthoredDql          *string     `json:"authoredDql,omitempty"`
 	AuthoredSql          *string     `json:"authoredSql,omitempty"`
-	AuthoringMode        string      `json:"authoringMode"`
+	AuthoringMode        *string     `json:"authoringMode,omitempty"`
 	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus        string      `json:"compileStatus"`
-	CompilerVersion      string      `json:"compilerVersion"`
+	CompileStatus        *string     `json:"compileStatus,omitempty"`
+	CompilerVersion      *string     `json:"compilerVersion,omitempty"`
 	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
 	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
-	CreatedAt            time.Time   `json:"createdAt"`
-	CreatedBy            string      `json:"createdBy"`
-	DatlyVersion         string      `json:"datlyVersion"`
+	CreatedAt            *time.Time  `json:"createdAt,omitempty"`
+	CreatedBy            *string     `json:"createdBy,omitempty"`
+	DatlyVersion         *string     `json:"datlyVersion,omitempty"`
 	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
 	GeneratedDql         *string     `json:"generatedDql,omitempty"`
 	Notes                *string     `json:"notes,omitempty"`
 	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
-	ReportId             string      `json:"reportId"`
-	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ReportId             *string     `json:"reportId,omitempty"`
+	ResourceCheckEnabled *bool       `json:"resourceCheckEnabled,omitempty"`
 	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision       int64       `json:"sourceRevision"`
-	SpecFormatVersion    string      `json:"specFormatVersion"`
-	SpecHash             string      `json:"specHash"`
-	State                string      `json:"state"`
+	SourceRevision       *int64      `json:"sourceRevision,omitempty"`
+	SpecFormatVersion    *string     `json:"specFormatVersion,omitempty"`
+	SpecHash             *string     `json:"specHash,omitempty"`
+	State                *string     `json:"state,omitempty"`
 	TypeManifest         interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo            int64       `json:"versionNo"`
+	VersionNo            *int64      `json:"versionNo,omitempty"`
 }
 
 // Wire24c5509faa036e9e6670c5516a5cee39a37d0f0b6acf8de88a079bf1f2661939 defines model for Wire_24c5509faa036e9e6670c5516a5cee39a37d0f0b6acf8de88a079bf1f2661939.
 type Wire24c5509faa036e9e6670c5516a5cee39a37d0f0b6acf8de88a079bf1f2661939 struct {
-	Id      string `json:"id"`
-	Kind    string `json:"kind"`
-	Tenant  string `json:"tenant"`
-	Version string `json:"version"`
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
 }
 
 // Wire26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f defines model for Wire_26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f.
 type Wire26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
 }
 
 // Wire2814de9651d34fb853f6a86b2936b81947b070cd306c8f39e5a036a9a3e140d6 defines model for Wire_2814de9651d34fb853f6a86b2936b81947b070cd306c8f39e5a036a9a3e140d6.
 type Wire2814de9651d34fb853f6a86b2936b81947b070cd306c8f39e5a036a9a3e140d6 struct {
 	Definition     *Wire2814de9651d34fb853f6a86b2936b81947b070cd306c8f39e5a036a9a3e140d6_Definition `json:"definition,omitempty"`
 	EntityType     *string                                                                          `json:"entityType,omitempty"`
-	Mode           string                                                                           `json:"mode"`
+	Mode           *string                                                                          `json:"mode,omitempty"`
 	Named          *Wire2814de9651d34fb853f6a86b2936b81947b070cd306c8f39e5a036a9a3e140d6_Named      `json:"named,omitempty"`
 	Priority       *int64                                                                           `json:"priority,omitempty"`
 	RequiredScopes *[]string                                                                        `json:"requiredScopes,omitempty"`
@@ -2282,108 +2282,108 @@ type Wire2814de9651d34fb853f6a86b2936b81947b070cd306c8f39e5a036a9a3e140d6_Rule s
 
 // Wire284d529f33778b8025eaf493c0c081fa071dfc15595367cd050c6aea84390073 defines model for Wire_284d529f33778b8025eaf493c0c081fa071dfc15595367cd050c6aea84390073.
 type Wire284d529f33778b8025eaf493c0c081fa071dfc15595367cd050c6aea84390073 struct {
-	AutoIncrement   bool    `json:"autoIncrement"`
+	AutoIncrement   *bool   `json:"autoIncrement,omitempty"`
 	Default         *string `json:"default,omitempty"`
-	Name            string  `json:"name"`
-	Nullable        bool    `json:"nullable"`
+	Name            *string `json:"name,omitempty"`
+	Nullable        *bool   `json:"nullable,omitempty"`
 	NullableKnown   *bool   `json:"nullableKnown,omitempty"`
-	PrimaryKey      bool    `json:"primaryKey"`
+	PrimaryKey      *bool   `json:"primaryKey,omitempty"`
 	ReferenceColumn *string `json:"referenceColumn,omitempty"`
 	ReferenceSchema *string `json:"referenceSchema,omitempty"`
 	ReferenceTable  *string `json:"referenceTable,omitempty"`
-	Type            string  `json:"type"`
-	Unique          bool    `json:"unique"`
+	Type            *string `json:"type,omitempty"`
+	Unique          *bool   `json:"unique,omitempty"`
 }
 
 // Wire294568d49a877156b6b68a28c348e5fea7b701056b2913f0e7fa40c588df81c7 defines model for Wire_294568d49a877156b6b68a28c348e5fea7b701056b2913f0e7fa40c588df81c7.
 type Wire294568d49a877156b6b68a28c348e5fea7b701056b2913f0e7fa40c588df81c7 struct {
 	Connector      *string `json:"connector,omitempty"`
-	EncodedBytes   int64   `json:"encodedBytes"`
-	Limit          int64   `json:"limit"`
+	EncodedBytes   *int64  `json:"encodedBytes,omitempty"`
+	Limit          *int64  `json:"limit,omitempty"`
 	ReportId       *string `json:"reportId,omitempty"`
-	ReturnedRows   int64   `json:"returnedRows"`
+	ReturnedRows   *int64  `json:"returnedRows,omitempty"`
 	SourceRevision *int64  `json:"sourceRevision,omitempty"`
-	Truncated      bool    `json:"truncated"`
+	Truncated      *bool   `json:"truncated,omitempty"`
 	VersionNo      *int64  `json:"versionNo,omitempty"`
 }
 
 // Wire29994796c346a67d8d87067e8f62a29284fc2af12311fbab69bdf45b428e37f7 defines model for Wire_29994796c346a67d8d87067e8f62a29284fc2af12311fbab69bdf45b428e37f7.
 type Wire29994796c346a67d8d87067e8f62a29284fc2af12311fbab69bdf45b428e37f7 struct {
 	Connector      *string `json:"connector,omitempty"`
-	EncodedBytes   int64   `json:"encodedBytes"`
-	Limit          int64   `json:"limit"`
+	EncodedBytes   *int64  `json:"encodedBytes,omitempty"`
+	Limit          *int64  `json:"limit,omitempty"`
 	ReportId       *string `json:"reportId,omitempty"`
-	ReturnedRows   int64   `json:"returnedRows"`
+	ReturnedRows   *int64  `json:"returnedRows,omitempty"`
 	SourceRevision *int64  `json:"sourceRevision,omitempty"`
-	Truncated      bool    `json:"truncated"`
+	Truncated      *bool   `json:"truncated,omitempty"`
 	VersionNo      *int64  `json:"versionNo,omitempty"`
 }
 
 // Wire2acc97d2ee9aa7bc9e3441531515d0f2360496ee2ee879ab35b383c390b7221e defines model for Wire_2acc97d2ee9aa7bc9e3441531515d0f2360496ee2ee879ab35b383c390b7221e.
 type Wire2acc97d2ee9aa7bc9e3441531515d0f2360496ee2ee879ab35b383c390b7221e struct {
 	Catalog *string `json:"catalog,omitempty"`
-	Name    string  `json:"name"`
+	Name    *string `json:"name,omitempty"`
 }
 
 // Wire2be0684fe50e4d50e1c7ed7799c8493f7a6fbfe50bcd3ecfc3b2241e765f60da defines model for Wire_2be0684fe50e4d50e1c7ed7799c8493f7a6fbfe50bcd3ecfc3b2241e765f60da.
 type Wire2be0684fe50e4d50e1c7ed7799c8493f7a6fbfe50bcd3ecfc3b2241e765f60da struct {
-	AttachedChildren int64                                                                   `json:"attachedChildren"`
-	Cardinality      string                                                                  `json:"cardinality"`
-	ChildView        string                                                                  `json:"childView"`
+	AttachedChildren *int64                                                                  `json:"attachedChildren,omitempty"`
+	Cardinality      *string                                                                 `json:"cardinality,omitempty"`
+	ChildView        *string                                                                 `json:"childView,omitempty"`
 	Data             interface{}                                                             `json:"data,omitempty"`
 	Diagnostics      *[]Wire42ea17da2b60208ef30858a88ede92d622320dba9d309726a67f3023fb8ab9e1 `json:"diagnostics,omitempty"`
-	Duration         int64                                                                   `json:"duration"`
-	Evidence         Wire294568d49a877156b6b68a28c348e5fea7b701056b2913f0e7fa40c588df81c7    `json:"evidence"`
+	Duration         *int64                                                                  `json:"duration,omitempty"`
+	Evidence         *Wire294568d49a877156b6b68a28c348e5fea7b701056b2913f0e7fa40c588df81c7   `json:"evidence,omitempty"`
 	Keys             *[]Wire6bdc906e5944153cacf17027ff97fe2e0524311a1c332c218e05c2fb3a05012d `json:"keys,omitempty"`
-	Kind             string                                                                  `json:"kind"`
-	MatchedParents   int64                                                                   `json:"matchedParents"`
-	ParentRows       int64                                                                   `json:"parentRows"`
-	ParentView       string                                                                  `json:"parentView"`
-	Relation         string                                                                  `json:"relation"`
-	UnmatchedParents int64                                                                   `json:"unmatchedParents"`
+	Kind             *string                                                                 `json:"kind,omitempty"`
+	MatchedParents   *int64                                                                  `json:"matchedParents,omitempty"`
+	ParentRows       *int64                                                                  `json:"parentRows,omitempty"`
+	ParentView       *string                                                                 `json:"parentView,omitempty"`
+	Relation         *string                                                                 `json:"relation,omitempty"`
+	UnmatchedParents *int64                                                                  `json:"unmatchedParents,omitempty"`
 }
 
 // Wire2bece1447e379f703b2f9dfec5a0d5fc346a7d1709dd4a6882c60920a9ef056f defines model for Wire_2bece1447e379f703b2f9dfec5a0d5fc346a7d1709dd4a6882c60920a9ef056f.
 type Wire2bece1447e379f703b2f9dfec5a0d5fc346a7d1709dd4a6882c60920a9ef056f struct {
-	CanManage bool                                                                 `json:"canManage"`
-	Choices   Wire0b4fc596d18790b4851cf320f7b9abf6d446bab3fd3f2ae6a2d3cb1481542e8f `json:"choices"`
-	Source    string                                                               `json:"source"`
+	CanManage *bool                                                                 `json:"canManage,omitempty"`
+	Choices   *Wire0b4fc596d18790b4851cf320f7b9abf6d446bab3fd3f2ae6a2d3cb1481542e8f `json:"choices,omitempty"`
+	Source    *string                                                               `json:"source,omitempty"`
 }
 
 // Wire2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9 defines model for Wire_2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9.
 type Wire2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9 struct {
 	AuthoredDql          *string     `json:"authoredDql,omitempty"`
 	AuthoredSql          *string     `json:"authoredSql,omitempty"`
-	AuthoringMode        string      `json:"authoringMode"`
+	AuthoringMode        *string     `json:"authoringMode,omitempty"`
 	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus        string      `json:"compileStatus"`
-	CompilerVersion      string      `json:"compilerVersion"`
+	CompileStatus        *string     `json:"compileStatus,omitempty"`
+	CompilerVersion      *string     `json:"compilerVersion,omitempty"`
 	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
 	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
-	CreatedAt            time.Time   `json:"createdAt"`
-	CreatedBy            string      `json:"createdBy"`
-	DatlyVersion         string      `json:"datlyVersion"`
+	CreatedAt            *time.Time  `json:"createdAt,omitempty"`
+	CreatedBy            *string     `json:"createdBy,omitempty"`
+	DatlyVersion         *string     `json:"datlyVersion,omitempty"`
 	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
 	GeneratedDql         *string     `json:"generatedDql,omitempty"`
 	Notes                *string     `json:"notes,omitempty"`
 	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
-	ReportId             string      `json:"reportId"`
-	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ReportId             *string     `json:"reportId,omitempty"`
+	ResourceCheckEnabled *bool       `json:"resourceCheckEnabled,omitempty"`
 	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision       int64       `json:"sourceRevision"`
-	SpecFormatVersion    string      `json:"specFormatVersion"`
-	SpecHash             string      `json:"specHash"`
-	State                string      `json:"state"`
+	SourceRevision       *int64      `json:"sourceRevision,omitempty"`
+	SpecFormatVersion    *string     `json:"specFormatVersion,omitempty"`
+	SpecHash             *string     `json:"specHash,omitempty"`
+	State                *string     `json:"state,omitempty"`
 	TypeManifest         interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo            int64       `json:"versionNo"`
+	VersionNo            *int64      `json:"versionNo,omitempty"`
 }
 
 // Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d defines model for Wire_2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d.
 type Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d struct {
 	Definition     *Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d_Definition `json:"definition,omitempty"`
 	EntityType     *string                                                                          `json:"entityType,omitempty"`
-	Mode           string                                                                           `json:"mode"`
+	Mode           *string                                                                          `json:"mode,omitempty"`
 	Named          *Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d_Named      `json:"named,omitempty"`
 	Priority       *int64                                                                           `json:"priority,omitempty"`
 	RequiredScopes *[]string                                                                        `json:"requiredScopes,omitempty"`
@@ -2416,58 +2416,58 @@ type Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d_Rule s
 
 // Wire3100c253c572f716ab2eb88f6d83d813eedfe0b04003220edb6e98677fced244 defines model for Wire_3100c253c572f716ab2eb88f6d83d813eedfe0b04003220edb6e98677fced244.
 type Wire3100c253c572f716ab2eb88f6d83d813eedfe0b04003220edb6e98677fced244 struct {
-	CanEdit      bool `json:"canEdit"`
-	CanManageAcl bool `json:"canManageAcl"`
-	CanPublish   bool `json:"canPublish"`
-	CanRun       bool `json:"canRun"`
-	CanUseDql    bool `json:"canUseDql"`
-	CanView      bool `json:"canView"`
+	CanEdit      *bool `json:"canEdit,omitempty"`
+	CanManageAcl *bool `json:"canManageAcl,omitempty"`
+	CanPublish   *bool `json:"canPublish,omitempty"`
+	CanRun       *bool `json:"canRun,omitempty"`
+	CanUseDql    *bool `json:"canUseDql,omitempty"`
+	CanView      *bool `json:"canView,omitempty"`
 }
 
 // Wire3206393a34ac737dcd3540640044680ce7d2ad47a4b55b4a06e350301e8df7f7 defines model for Wire_3206393a34ac737dcd3540640044680ce7d2ad47a4b55b4a06e350301e8df7f7.
 type Wire3206393a34ac737dcd3540640044680ce7d2ad47a4b55b4a06e350301e8df7f7 struct {
-	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
-	FolderId               string `json:"folderId"`
-	Ordinal                int64  `json:"ordinal"`
-	ReportId               string `json:"reportId"`
-	SkillId                string `json:"skillId"`
-	SkillRoot              string `json:"skillRoot"`
-	VersionNo              int64  `json:"versionNo"`
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	FolderId               *string `json:"folderId,omitempty"`
+	Ordinal                *int64  `json:"ordinal,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	SkillId                *string `json:"skillId,omitempty"`
+	SkillRoot              *string `json:"skillRoot,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
 // Wire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1 defines model for Wire_320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1.
 type Wire320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1 struct {
-	Content                string  `json:"content"`
-	ContentSha256          string  `json:"contentSha256"`
-	ContentSize            int64   `json:"contentSize"`
+	Content                *string `json:"content,omitempty"`
+	ContentSha256          *string `json:"contentSha256,omitempty"`
+	ContentSize            *int64  `json:"contentSize,omitempty"`
 	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
-	IsBinary               bool    `json:"isBinary"`
+	IsBinary               *bool   `json:"isBinary,omitempty"`
 	MediaType              *string `json:"mediaType,omitempty"`
-	Namespace              string  `json:"namespace"`
-	ReportId               string  `json:"reportId"`
-	ResourceId             string  `json:"resourceId"`
-	ResourcePath           string  `json:"resourcePath"`
-	VersionNo              int64   `json:"versionNo"`
+	Namespace              *string `json:"namespace,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	ResourceId             *string `json:"resourceId,omitempty"`
+	ResourcePath           *string `json:"resourcePath,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
 // Wire3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c defines model for Wire_3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c.
 type Wire3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c struct {
-	CanEdit     bool    `json:"canEdit"`
-	CanPublish  bool    `json:"canPublish"`
-	CanRun      bool    `json:"canRun"`
-	CanUseDql   bool    `json:"canUseDql"`
-	CanView     bool    `json:"canView"`
-	Etag        *int64  `json:"etag"`
-	ReportId    *string `json:"reportId"`
-	SubjectId   *string `json:"subjectId"`
-	SubjectType *string `json:"subjectType"`
+	CanEdit     *bool   `json:"canEdit,omitempty"`
+	CanPublish  *bool   `json:"canPublish,omitempty"`
+	CanRun      *bool   `json:"canRun,omitempty"`
+	CanUseDql   *bool   `json:"canUseDql,omitempty"`
+	CanView     *bool   `json:"canView,omitempty"`
+	Etag        *int64  `json:"etag,omitempty"`
+	ReportId    *string `json:"reportId,omitempty"`
+	SubjectId   *string `json:"subjectId,omitempty"`
+	SubjectType *string `json:"subjectType,omitempty"`
 }
 
 // Wire33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58 defines model for Wire_33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58.
 type Wire33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58 struct {
-	Items  *[]Wire33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58_Items_Item `json:"items"`
-	Limit  int64                                                                              `json:"limit"`
-	Offset int64                                                                              `json:"offset"`
+	Items  *[]Wire33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58_Items_Item `json:"items,omitempty"`
+	Limit  *int64                                                                             `json:"limit,omitempty"`
+	Offset *int64                                                                             `json:"offset,omitempty"`
 }
 
 // Wire33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58Items1 defines model for Wire33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58.Items.1.
@@ -2480,9 +2480,9 @@ type Wire33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58_Items_
 
 // Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052 defines model for Wire_34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052.
 type Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052 struct {
-	Items  *[]Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052_Items_Item `json:"items"`
-	Limit  int64                                                                              `json:"limit"`
-	Offset int64                                                                              `json:"offset"`
+	Items  *[]Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052_Items_Item `json:"items,omitempty"`
+	Limit  *int64                                                                             `json:"limit,omitempty"`
+	Offset *int64                                                                             `json:"offset,omitempty"`
 }
 
 // Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052Items1 defines model for Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052.Items.1.
@@ -2495,28 +2495,28 @@ type Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052_Items_
 
 // Wire35454323a091acd320d8403a139f69d740fe9ed35bba3514f08ff8ed60a9c1c1 defines model for Wire_35454323a091acd320d8403a139f69d740fe9ed35bba3514f08ff8ed60a9c1c1.
 type Wire35454323a091acd320d8403a139f69d740fe9ed35bba3514f08ff8ed60a9c1c1 struct {
-	Bundle        Wire136fdd6e98366655d5a5095e8c68f1bcac5a96b892272257e0a31875c4ad186c `json:"bundle"`
-	ContentSha256 string                                                               `json:"contentSha256"`
-	CreatedAt     time.Time                                                            `json:"createdAt"`
-	CreatedBy     string                                                               `json:"createdBy"`
-	NamespaceId   string                                                               `json:"namespaceId"`
-	Revision      int64                                                                `json:"revision"`
-	SkillId       string                                                               `json:"skillId"`
+	Bundle        *Wire136fdd6e98366655d5a5095e8c68f1bcac5a96b892272257e0a31875c4ad186c `json:"bundle,omitempty"`
+	ContentSha256 *string                                                               `json:"contentSha256,omitempty"`
+	CreatedAt     *time.Time                                                            `json:"createdAt,omitempty"`
+	CreatedBy     *string                                                               `json:"createdBy,omitempty"`
+	NamespaceId   *string                                                               `json:"namespaceId,omitempty"`
+	Revision      *int64                                                                `json:"revision,omitempty"`
+	SkillId       *string                                                               `json:"skillId,omitempty"`
 }
 
 // Wire363b086d0a3385aef883a6c101a25e628c10e16f40db550f64380ec9188a63f1 defines model for Wire_363b086d0a3385aef883a6c101a25e628c10e16f40db550f64380ec9188a63f1.
 type Wire363b086d0a3385aef883a6c101a25e628c10e16f40db550f64380ec9188a63f1 struct {
-	CreatedAt         time.Time `json:"createdAt"`
-	Description       string    `json:"description"`
-	Etag              int64     `json:"etag"`
-	LatestRevision    int64     `json:"latestRevision"`
-	Name              string    `json:"name"`
-	NamespaceId       string    `json:"namespaceId"`
-	PublishedRevision int64     `json:"publishedRevision"`
-	SkillId           string    `json:"skillId"`
-	Status            string    `json:"status"`
-	Title             string    `json:"title"`
-	UpdatedAt         time.Time `json:"updatedAt"`
+	CreatedAt         *time.Time `json:"createdAt,omitempty"`
+	Description       *string    `json:"description,omitempty"`
+	Etag              *int64     `json:"etag,omitempty"`
+	LatestRevision    *int64     `json:"latestRevision,omitempty"`
+	Name              *string    `json:"name,omitempty"`
+	NamespaceId       *string    `json:"namespaceId,omitempty"`
+	PublishedRevision *int64     `json:"publishedRevision,omitempty"`
+	SkillId           *string    `json:"skillId,omitempty"`
+	Status            *string    `json:"status,omitempty"`
+	Title             *string    `json:"title,omitempty"`
+	UpdatedAt         *time.Time `json:"updatedAt,omitempty"`
 }
 
 // Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce defines model for Wire_3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce.
@@ -2543,29 +2543,29 @@ type Wire3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce_Securi
 
 // Wire36888c12b4c85b22b7268c24f5ea35ba103cb9e473a0790cc8cc669a45a523fa defines model for Wire_36888c12b4c85b22b7268c24f5ea35ba103cb9e473a0790cc8cc669a45a523fa.
 type Wire36888c12b4c85b22b7268c24f5ea35ba103cb9e473a0790cc8cc669a45a523fa struct {
-	Id      string `json:"id"`
-	Kind    string `json:"kind"`
-	Tenant  string `json:"tenant"`
-	Version string `json:"version"`
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
 }
 
 // Wire385cb42fa02eb6e798cbc1f7de0bcdf81fdec7bcc883dc0d6d67a2e6f9974852 defines model for Wire_385cb42fa02eb6e798cbc1f7de0bcdf81fdec7bcc883dc0d6d67a2e6f9974852.
 type Wire385cb42fa02eb6e798cbc1f7de0bcdf81fdec7bcc883dc0d6d67a2e6f9974852 struct {
-	Code     string  `json:"code"`
+	Code     *string `json:"code,omitempty"`
 	Column   *int64  `json:"column,omitempty"`
 	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
-	Message  string  `json:"message"`
-	Severity string  `json:"severity"`
+	Message  *string `json:"message,omitempty"`
+	Severity *string `json:"severity,omitempty"`
 	Stage    *string `json:"stage,omitempty"`
 }
 
 // Wire38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a defines model for Wire_38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a.
 type Wire38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a struct {
-	Items  *[]Wire38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a_Items_Item `json:"items"`
-	Limit  int64                                                                              `json:"limit"`
-	Offset int64                                                                              `json:"offset"`
+	Items  *[]Wire38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a_Items_Item `json:"items,omitempty"`
+	Limit  *int64                                                                             `json:"limit,omitempty"`
+	Offset *int64                                                                             `json:"offset,omitempty"`
 }
 
 // Wire38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649aItems1 defines model for Wire38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a.Items.1.
@@ -2578,39 +2578,39 @@ type Wire38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a_Items_
 
 // Wire39683fa2630319834046222efde0940aba2f6fb3c734927cdb6e6c4bf93acc07 defines model for Wire_39683fa2630319834046222efde0940aba2f6fb3c734927cdb6e6c4bf93acc07.
 type Wire39683fa2630319834046222efde0940aba2f6fb3c734927cdb6e6c4bf93acc07 struct {
-	Content  string `json:"content"`
-	IsBinary *bool  `json:"isBinary,omitempty"`
-	Path     string `json:"path"`
+	Content  *string `json:"content,omitempty"`
+	IsBinary *bool   `json:"isBinary,omitempty"`
+	Path     *string `json:"path,omitempty"`
 }
 
 // Wire3aa247018499f407d544ef56f7b69626ced040fe25af781379c5b770f172e6dd defines model for Wire_3aa247018499f407d544ef56f7b69626ced040fe25af781379c5b770f172e6dd.
 type Wire3aa247018499f407d544ef56f7b69626ced040fe25af781379c5b770f172e6dd struct {
-	DisplayName string                                                                           `json:"displayName"`
-	Policies    *map[string]WireF32e0e52a42838184862b0bfabd74676e965524151930580722e42d1d5218aad `json:"policies"`
-	Resource    Wire9b9625c5bec32646decbda4f9d3e2d367c5b2ccc04c411e68f25c2e19cfc951e             `json:"resource"`
-	Revision    int64                                                                            `json:"revision"`
+	DisplayName *string                                                                          `json:"displayName,omitempty"`
+	Policies    *map[string]WireF32e0e52a42838184862b0bfabd74676e965524151930580722e42d1d5218aad `json:"policies,omitempty"`
+	Resource    *Wire9b9625c5bec32646decbda4f9d3e2d367c5b2ccc04c411e68f25c2e19cfc951e            `json:"resource,omitempty"`
+	Revision    *int64                                                                           `json:"revision,omitempty"`
 }
 
 // Wire3ae1bf05288bf4ea8d62663e5d886a6a9b05c1660099c819a9979f1a2fe362de defines model for Wire_3ae1bf05288bf4ea8d62663e5d886a6a9b05c1660099c819a9979f1a2fe362de.
 type Wire3ae1bf05288bf4ea8d62663e5d886a6a9b05c1660099c819a9979f1a2fe362de struct {
-	PredicatePackages         *[]string `json:"predicatePackages"`
-	RequireInternalComponents bool      `json:"requireInternalComponents"`
-	RequireSecurityPredicate  bool      `json:"requireSecurityPredicate"`
+	PredicatePackages         *[]string `json:"predicatePackages,omitempty"`
+	RequireInternalComponents *bool     `json:"requireInternalComponents,omitempty"`
+	RequireSecurityPredicate  *bool     `json:"requireSecurityPredicate,omitempty"`
 }
 
 // Wire3b57d303fc4270172c8dc3dcc384045b957738421bfa4726d93f6529707bb684 defines model for Wire_3b57d303fc4270172c8dc3dcc384045b957738421bfa4726d93f6529707bb684.
 type Wire3b57d303fc4270172c8dc3dcc384045b957738421bfa4726d93f6529707bb684 struct {
 	Catalog *string `json:"catalog,omitempty"`
 	Comment *string `json:"comment,omitempty"`
-	Name    string  `json:"name"`
+	Name    *string `json:"name,omitempty"`
 	Schema  *string `json:"schema,omitempty"`
 	Type    *string `json:"type,omitempty"`
 }
 
 // Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864 defines model for Wire_3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864.
 type Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864 struct {
-	Revision Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Revision `json:"revision"`
-	Skill    Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Skill    `json:"skill"`
+	Revision *Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Revision `json:"revision,omitempty"`
+	Skill    *Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Skill    `json:"skill,omitempty"`
 }
 
 // Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864Revision1 defines model for Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864.Revision.1.
@@ -2631,15 +2631,15 @@ type Wire3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864_Skill 
 
 // Wire3c40dfab646d0be2f44f4740be696d523c8a5de2edbb5c4b839253b21385dd92 defines model for Wire_3c40dfab646d0be2f44f4740be696d523c8a5de2edbb5c4b839253b21385dd92.
 type Wire3c40dfab646d0be2f44f4740be696d523c8a5de2edbb5c4b839253b21385dd92 struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
 }
 
 // Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5 defines model for Wire_3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5.
 type Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5 struct {
-	Files   *[]Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Files_Item   `json:"files"`
-	Folders *[]Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Folders_Item `json:"folders"`
-	Skills  *[]Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Skills_Item  `json:"skills"`
+	Files   *[]Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Files_Item   `json:"files,omitempty"`
+	Folders *[]Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Folders_Item `json:"folders,omitempty"`
+	Skills  *[]Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Skills_Item  `json:"skills,omitempty"`
 	Version *Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Version        `json:"version,omitempty"`
 }
 
@@ -2678,84 +2678,84 @@ type Wire3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5_Versio
 // Wire3cd464989c150f4ca0b00b3d8d3628d2b1fe67ab85b72705ab0e70f949f86c37 defines model for Wire_3cd464989c150f4ca0b00b3d8d3628d2b1fe67ab85b72705ab0e70f949f86c37.
 type Wire3cd464989c150f4ca0b00b3d8d3628d2b1fe67ab85b72705ab0e70f949f86c37 struct {
 	Archived    *bool                                                                            `json:"archived,omitempty"`
-	DisplayName string                                                                           `json:"displayName"`
-	Policies    *map[string]Wire2814de9651d34fb853f6a86b2936b81947b070cd306c8f39e5a036a9a3e140d6 `json:"policies"`
+	DisplayName *string                                                                          `json:"displayName,omitempty"`
+	Policies    *map[string]Wire2814de9651d34fb853f6a86b2936b81947b070cd306c8f39e5a036a9a3e140d6 `json:"policies,omitempty"`
 }
 
 // Wire4005354453da2a3b21d88c48a90831cfd66f9382e7b23092aff074c99385dad7 defines model for Wire_4005354453da2a3b21d88c48a90831cfd66f9382e7b23092aff074c99385dad7.
 type Wire4005354453da2a3b21d88c48a90831cfd66f9382e7b23092aff074c99385dad7 struct {
-	Resource Wire5f3729574877d8503a4dec333774588fe1c7a2ed2ff47c9b7076fcd0f551abe7 `json:"resource"`
-	Revision int64                                                                `json:"revision"`
+	Resource *Wire5f3729574877d8503a4dec333774588fe1c7a2ed2ff47c9b7076fcd0f551abe7 `json:"resource,omitempty"`
+	Revision *int64                                                                `json:"revision,omitempty"`
 }
 
 // Wire40408f0a0b8acd6d878be4326076378aa96079592be6ec18a7919fc73b6ee6cb defines model for Wire_40408f0a0b8acd6d878be4326076378aa96079592be6ec18a7919fc73b6ee6cb.
 type Wire40408f0a0b8acd6d878be4326076378aa96079592be6ec18a7919fc73b6ee6cb struct {
-	Bundle        WireF7e0e71af22003b02f42054a48a7fc20f287eb50183d06b8e811c01fad620893 `json:"bundle"`
-	ContentSha256 string                                                               `json:"contentSha256"`
-	CreatedAt     time.Time                                                            `json:"createdAt"`
-	CreatedBy     string                                                               `json:"createdBy"`
-	NamespaceId   string                                                               `json:"namespaceId"`
-	Revision      int64                                                                `json:"revision"`
-	SkillId       string                                                               `json:"skillId"`
+	Bundle        *WireF7e0e71af22003b02f42054a48a7fc20f287eb50183d06b8e811c01fad620893 `json:"bundle,omitempty"`
+	ContentSha256 *string                                                               `json:"contentSha256,omitempty"`
+	CreatedAt     *time.Time                                                            `json:"createdAt,omitempty"`
+	CreatedBy     *string                                                               `json:"createdBy,omitempty"`
+	NamespaceId   *string                                                               `json:"namespaceId,omitempty"`
+	Revision      *int64                                                                `json:"revision,omitempty"`
+	SkillId       *string                                                               `json:"skillId,omitempty"`
 }
 
 // Wire4240b3df02540530130e0c750596c876294d98d94741cc17333d3f61b4f176f5 defines model for Wire_4240b3df02540530130e0c750596c876294d98d94741cc17333d3f61b4f176f5.
 type Wire4240b3df02540530130e0c750596c876294d98d94741cc17333d3f61b4f176f5 struct {
 	Archived    *bool                                                                            `json:"archived,omitempty"`
-	DisplayName string                                                                           `json:"displayName"`
-	Policies    *map[string]Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4 `json:"policies"`
+	DisplayName *string                                                                          `json:"displayName,omitempty"`
+	Policies    *map[string]Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4 `json:"policies,omitempty"`
 }
 
 // Wire42ea17da2b60208ef30858a88ede92d622320dba9d309726a67f3023fb8ab9e1 defines model for Wire_42ea17da2b60208ef30858a88ede92d622320dba9d309726a67f3023fb8ab9e1.
 type Wire42ea17da2b60208ef30858a88ede92d622320dba9d309726a67f3023fb8ab9e1 struct {
-	Code     string  `json:"code"`
+	Code     *string `json:"code,omitempty"`
 	Column   *int64  `json:"column,omitempty"`
 	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
-	Message  string  `json:"message"`
-	Severity string  `json:"severity"`
+	Message  *string `json:"message,omitempty"`
+	Severity *string `json:"severity,omitempty"`
 	Stage    *string `json:"stage,omitempty"`
 }
 
 // Wire443bbe5c4c72f351c9a66a106cdb43706c944ab1d042017ad7a9092b72d13f21 defines model for Wire_443bbe5c4c72f351c9a66a106cdb43706c944ab1d042017ad7a9092b72d13f21.
 type Wire443bbe5c4c72f351c9a66a106cdb43706c944ab1d042017ad7a9092b72d13f21 struct {
-	ComponentName        string    `json:"componentName"`
-	ComponentScope       string    `json:"componentScope"`
-	CreatedAt            time.Time `json:"createdAt"`
-	CurrentDraftVersion  *int64    `json:"currentDraftVersion,omitempty"`
-	DefaultConnectorName string    `json:"defaultConnectorName"`
-	Description          *string   `json:"description,omitempty"`
-	Etag                 int64     `json:"etag"`
-	Id                   string    `json:"id"`
-	Namespace            string    `json:"namespace"`
-	OwnerId              string    `json:"ownerId"`
-	OwnerPackage         string    `json:"ownerPackage"`
-	Slug                 string    `json:"slug"`
-	Status               string    `json:"status"`
-	Title                string    `json:"title"`
-	UpdatedAt            time.Time `json:"updatedAt"`
+	ComponentName        *string    `json:"componentName,omitempty"`
+	ComponentScope       *string    `json:"componentScope,omitempty"`
+	CreatedAt            *time.Time `json:"createdAt,omitempty"`
+	CurrentDraftVersion  *int64     `json:"currentDraftVersion,omitempty"`
+	DefaultConnectorName *string    `json:"defaultConnectorName,omitempty"`
+	Description          *string    `json:"description,omitempty"`
+	Etag                 *int64     `json:"etag,omitempty"`
+	Id                   *string    `json:"id,omitempty"`
+	Namespace            *string    `json:"namespace,omitempty"`
+	OwnerId              *string    `json:"ownerId,omitempty"`
+	OwnerPackage         *string    `json:"ownerPackage,omitempty"`
+	Slug                 *string    `json:"slug,omitempty"`
+	Status               *string    `json:"status,omitempty"`
+	Title                *string    `json:"title,omitempty"`
+	UpdatedAt            *time.Time `json:"updatedAt,omitempty"`
 }
 
 // Wire443e7fd9953bff903ca8e9d8e708c7c2edf58ac7f381395736a02d9cea3d50f1 defines model for Wire_443e7fd9953bff903ca8e9d8e708c7c2edf58ac7f381395736a02d9cea3d50f1.
 type Wire443e7fd9953bff903ca8e9d8e708c7c2edf58ac7f381395736a02d9cea3d50f1 struct {
-	Resource WireEb7b2634d1508669f7e5b30d66379dfa7e55bdd38ca9eaafb526530bee3fe4a1 `json:"resource"`
-	Revision int64                                                                `json:"revision"`
+	Resource *WireEb7b2634d1508669f7e5b30d66379dfa7e55bdd38ca9eaafb526530bee3fe4a1 `json:"resource,omitempty"`
+	Revision *int64                                                                `json:"revision,omitempty"`
 }
 
 // Wire460cf67195fceed0e09647cd2eec9022848f4fecb76be30099431c098e162bea defines model for Wire_460cf67195fceed0e09647cd2eec9022848f4fecb76be30099431c098e162bea.
 type Wire460cf67195fceed0e09647cd2eec9022848f4fecb76be30099431c098e162bea struct {
-	Archive   *[]int    `json:"archive"`
-	EntryDql  string    `json:"entryDql"`
-	Filename  string    `json:"filename"`
-	Files     *[]string `json:"files"`
-	MediaType string    `json:"mediaType"`
+	Archive   *[]int    `json:"archive,omitempty"`
+	EntryDql  *string   `json:"entryDql,omitempty"`
+	Filename  *string   `json:"filename,omitempty"`
+	Files     *[]string `json:"files,omitempty"`
+	MediaType *string   `json:"mediaType,omitempty"`
 }
 
 // Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387 defines model for Wire_461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387.
 type Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387 struct {
 	Entity *Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387_Entity `json:"entity,omitempty"`
-	Kind   string                                                                       `json:"kind"`
+	Kind   *string                                                                      `json:"kind,omitempty"`
 	Rules  *[]Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387      `json:"rules,omitempty"`
 	Value  *string                                                                      `json:"value,omitempty"`
 }
@@ -2770,46 +2770,46 @@ type Wire461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387_Entity
 
 // Wire46f5783921089422ba86ef3f21455336f0870921db6e2dac69f80e6517b1e68a defines model for Wire_46f5783921089422ba86ef3f21455336f0870921db6e2dac69f80e6517b1e68a.
 type Wire46f5783921089422ba86ef3f21455336f0870921db6e2dac69f80e6517b1e68a struct {
-	Alias       *string   `json:"alias,omitempty"`
-	Columns     *[]string `json:"columns,omitempty"`
-	CreatedAt   time.Time `json:"createdAt"`
-	Description *string   `json:"description,omitempty"`
-	Etag        int64     `json:"etag"`
-	Linked      bool      `json:"linked"`
-	Name        string    `json:"name"`
-	OwnerId     string    `json:"ownerId"`
-	PackagePath string    `json:"packagePath"`
-	Status      string    `json:"status"`
-	Title       string    `json:"title"`
-	TypeName    string    `json:"typeName"`
-	UpdatedAt   time.Time `json:"updatedAt"`
+	Alias       *string    `json:"alias,omitempty"`
+	Columns     *[]string  `json:"columns,omitempty"`
+	CreatedAt   *time.Time `json:"createdAt,omitempty"`
+	Description *string    `json:"description,omitempty"`
+	Etag        *int64     `json:"etag,omitempty"`
+	Linked      *bool      `json:"linked,omitempty"`
+	Name        *string    `json:"name,omitempty"`
+	OwnerId     *string    `json:"ownerId,omitempty"`
+	PackagePath *string    `json:"packagePath,omitempty"`
+	Status      *string    `json:"status,omitempty"`
+	Title       *string    `json:"title,omitempty"`
+	TypeName    *string    `json:"typeName,omitempty"`
+	UpdatedAt   *time.Time `json:"updatedAt,omitempty"`
 }
 
 // Wire474ce95df76d3333c947a6bd85c78ed4cfb5130d19fec59f6b436e1accd11e9a defines model for Wire_474ce95df76d3333c947a6bd85c78ed4cfb5130d19fec59f6b436e1accd11e9a.
 type Wire474ce95df76d3333c947a6bd85c78ed4cfb5130d19fec59f6b436e1accd11e9a struct {
-	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
-	FolderId               string `json:"folderId"`
-	Namespace              string `json:"namespace"`
-	Ordinal                int64  `json:"ordinal"`
-	ReportId               string `json:"reportId"`
-	RootPath               string `json:"rootPath"`
-	UriPrefix              string `json:"uriPrefix"`
-	VersionNo              int64  `json:"versionNo"`
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	FolderId               *string `json:"folderId,omitempty"`
+	Namespace              *string `json:"namespace,omitempty"`
+	Ordinal                *int64  `json:"ordinal,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	RootPath               *string `json:"rootPath,omitempty"`
+	UriPrefix              *string `json:"uriPrefix,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
 // Wire47ab2362281845fa3c625b315f45ddecace8a6483837902bc83afa48ecc01f02 defines model for Wire_47ab2362281845fa3c625b315f45ddecace8a6483837902bc83afa48ecc01f02.
 type Wire47ab2362281845fa3c625b315f45ddecace8a6483837902bc83afa48ecc01f02 struct {
-	Id      string `json:"id"`
-	Kind    string `json:"kind"`
-	Tenant  string `json:"tenant"`
-	Version string `json:"version"`
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
 }
 
 // Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a defines model for Wire_48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a.
 type Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a struct {
-	Diagnostics *[]Wire187f7f4691bae62916263844a31b0e52f2ac7573ba63a1dda0cfffa8610b0947      `json:"diagnostics,omitempty"`
-	Valid       bool                                                                         `json:"valid"`
-	Version     Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a_Version `json:"version"`
+	Diagnostics *[]Wire187f7f4691bae62916263844a31b0e52f2ac7573ba63a1dda0cfffa8610b0947       `json:"diagnostics,omitempty"`
+	Valid       *bool                                                                         `json:"valid,omitempty"`
+	Version     *Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a_Version `json:"version,omitempty"`
 }
 
 // Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443aVersion1 defines model for Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a.Version.1.
@@ -2823,7 +2823,7 @@ type Wire48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a_Versio
 // Wire484871696bd68d511515dbe742bbf05c512e426119ec9d15b0d61ddb9525a58a defines model for Wire_484871696bd68d511515dbe742bbf05c512e426119ec9d15b0d61ddb9525a58a.
 type Wire484871696bd68d511515dbe742bbf05c512e426119ec9d15b0d61ddb9525a58a struct {
 	Entity *Wire484871696bd68d511515dbe742bbf05c512e426119ec9d15b0d61ddb9525a58a_Entity `json:"entity,omitempty"`
-	Kind   string                                                                       `json:"kind"`
+	Kind   *string                                                                      `json:"kind,omitempty"`
 	Rules  *[]Wire484871696bd68d511515dbe742bbf05c512e426119ec9d15b0d61ddb9525a58a      `json:"rules,omitempty"`
 	Value  *string                                                                      `json:"value,omitempty"`
 }
@@ -2838,7 +2838,7 @@ type Wire484871696bd68d511515dbe742bbf05c512e426119ec9d15b0d61ddb9525a58a_Entity
 
 // Wire4865103e82a353748c5cf4c44eb18159e252732c3c48350fe8b3411c3af62117 defines model for Wire_4865103e82a353748c5cf4c44eb18159e252732c3c48350fe8b3411c3af62117.
 type Wire4865103e82a353748c5cf4c44eb18159e252732c3c48350fe8b3411c3af62117 struct {
-	Component interface{} `json:"component"`
+	Component interface{} `json:"component,omitempty"`
 	Resources interface{} `json:"resources,omitempty"`
 	Types     interface{} `json:"types,omitempty"`
 }
@@ -2847,7 +2847,7 @@ type Wire4865103e82a353748c5cf4c44eb18159e252732c3c48350fe8b3411c3af62117 struct
 type Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4 struct {
 	Entity *Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4_Entity `json:"entity,omitempty"`
 	Id     *string                                                                      `json:"id,omitempty"`
-	Label  string                                                                       `json:"label"`
+	Label  *string                                                                      `json:"label,omitempty"`
 }
 
 // Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4Entity1 defines model for Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4.Entity.1.
@@ -2861,37 +2861,37 @@ type Wire49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4_Entity
 // Wire49feff8d08df046f25f5c6fbb141c3c4b50c39af0dea56aec129e11334a944e0 defines model for Wire_49feff8d08df046f25f5c6fbb141c3c4b50c39af0dea56aec129e11334a944e0.
 type Wire49feff8d08df046f25f5c6fbb141c3c4b50c39af0dea56aec129e11334a944e0 struct {
 	ActiveGeneration  *int64     `json:"activeGeneration,omitempty"`
-	ActiveVersionNo   int64      `json:"activeVersionNo"`
-	DesiredGeneration int64      `json:"desiredGeneration"`
+	ActiveVersionNo   *int64     `json:"activeVersionNo,omitempty"`
+	DesiredGeneration *int64     `json:"desiredGeneration,omitempty"`
 	DesiredVersionNo  *int64     `json:"desiredVersionNo,omitempty"`
 	PublishedAt       *time.Time `json:"publishedAt,omitempty"`
-	ReportId          string     `json:"reportId"`
+	ReportId          *string    `json:"reportId,omitempty"`
 	RuntimeRevision   *string    `json:"runtimeRevision,omitempty"`
 	SpecHash          *string    `json:"specHash,omitempty"`
-	Status            string     `json:"status"`
+	Status            *string    `json:"status,omitempty"`
 }
 
 // Wire4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31 defines model for Wire_4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31.
 type Wire4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31 struct {
-	AcceptsArguments bool    `json:"acceptsArguments"`
-	Builtin          bool    `json:"builtin"`
-	Description      string  `json:"description"`
+	AcceptsArguments *bool   `json:"acceptsArguments,omitempty"`
+	Builtin          *bool   `json:"builtin,omitempty"`
+	Description      *string `json:"description,omitempty"`
 	InputType        *string `json:"inputType,omitempty"`
-	Name             string  `json:"name"`
+	Name             *string `json:"name,omitempty"`
 	OutputType       *string `json:"outputType,omitempty"`
 }
 
 // Wire4ca9fea7aa1d6b8d21f5cfc656a25fc9ccb0ef6b80e665b0bbcc73084c82a04e defines model for Wire_4ca9fea7aa1d6b8d21f5cfc656a25fc9ccb0ef6b80e665b0bbcc73084c82a04e.
 type Wire4ca9fea7aa1d6b8d21f5cfc656a25fc9ccb0ef6b80e665b0bbcc73084c82a04e struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
 }
 
 // Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf defines model for Wire_4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf.
 type Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf struct {
-	Files   *[]Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Files_Item   `json:"files"`
-	Folders *[]Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Folders_Item `json:"folders"`
-	Skills  *[]Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Skills_Item  `json:"skills"`
+	Files   *[]Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Files_Item   `json:"files,omitempty"`
+	Folders *[]Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Folders_Item `json:"folders,omitempty"`
+	Skills  *[]Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Skills_Item  `json:"skills,omitempty"`
 	Version *Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Version        `json:"version,omitempty"`
 }
 
@@ -2929,8 +2929,8 @@ type Wire4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf_Versio
 
 // Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7 defines model for Wire_4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7.
 type Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7 struct {
-	PublicationStatus string                                                                     `json:"publicationStatus"`
-	Skill             Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7_Skill `json:"skill"`
+	PublicationStatus *string                                                                     `json:"publicationStatus,omitempty"`
+	Skill             *Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7_Skill `json:"skill,omitempty"`
 }
 
 // Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7Skill1 defines model for Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7.Skill.1.
@@ -2943,238 +2943,238 @@ type Wire4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7_Skill 
 
 // Wire503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478 defines model for Wire_503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478.
 type Wire503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478 struct {
-	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
-	FolderId               string `json:"folderId"`
-	Namespace              string `json:"namespace"`
-	Ordinal                int64  `json:"ordinal"`
-	ReportId               string `json:"reportId"`
-	RootPath               string `json:"rootPath"`
-	UriPrefix              string `json:"uriPrefix"`
-	VersionNo              int64  `json:"versionNo"`
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	FolderId               *string `json:"folderId,omitempty"`
+	Namespace              *string `json:"namespace,omitempty"`
+	Ordinal                *int64  `json:"ordinal,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	RootPath               *string `json:"rootPath,omitempty"`
+	UriPrefix              *string `json:"uriPrefix,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
 // Wire517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de defines model for Wire_517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de.
 type Wire517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
 }
 
 // Wire51bb1f0871dac81cba14ebfac4fc554d215315e30cd3b214596b5da0912a4710 defines model for Wire_51bb1f0871dac81cba14ebfac4fc554d215315e30cd3b214596b5da0912a4710.
 type Wire51bb1f0871dac81cba14ebfac4fc554d215315e30cd3b214596b5da0912a4710 struct {
-	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
-	FolderId               string `json:"folderId"`
-	Ordinal                int64  `json:"ordinal"`
-	ReportId               string `json:"reportId"`
-	SkillId                string `json:"skillId"`
-	SkillRoot              string `json:"skillRoot"`
-	VersionNo              int64  `json:"versionNo"`
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	FolderId               *string `json:"folderId,omitempty"`
+	Ordinal                *int64  `json:"ordinal,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	SkillId                *string `json:"skillId,omitempty"`
+	SkillRoot              *string `json:"skillRoot,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
 // Wire54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe defines model for Wire_54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe.
 type Wire54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe struct {
 	AuthoredDql          *string     `json:"authoredDql,omitempty"`
 	AuthoredSql          *string     `json:"authoredSql,omitempty"`
-	AuthoringMode        string      `json:"authoringMode"`
+	AuthoringMode        *string     `json:"authoringMode,omitempty"`
 	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus        string      `json:"compileStatus"`
-	CompilerVersion      string      `json:"compilerVersion"`
+	CompileStatus        *string     `json:"compileStatus,omitempty"`
+	CompilerVersion      *string     `json:"compilerVersion,omitempty"`
 	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
 	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
-	CreatedAt            time.Time   `json:"createdAt"`
-	CreatedBy            string      `json:"createdBy"`
-	DatlyVersion         string      `json:"datlyVersion"`
+	CreatedAt            *time.Time  `json:"createdAt,omitempty"`
+	CreatedBy            *string     `json:"createdBy,omitempty"`
+	DatlyVersion         *string     `json:"datlyVersion,omitempty"`
 	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
 	GeneratedDql         *string     `json:"generatedDql,omitempty"`
 	Notes                *string     `json:"notes,omitempty"`
 	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
-	ReportId             string      `json:"reportId"`
-	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ReportId             *string     `json:"reportId,omitempty"`
+	ResourceCheckEnabled *bool       `json:"resourceCheckEnabled,omitempty"`
 	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision       int64       `json:"sourceRevision"`
-	SpecFormatVersion    string      `json:"specFormatVersion"`
-	SpecHash             string      `json:"specHash"`
-	State                string      `json:"state"`
+	SourceRevision       *int64      `json:"sourceRevision,omitempty"`
+	SpecFormatVersion    *string     `json:"specFormatVersion,omitempty"`
+	SpecHash             *string     `json:"specHash,omitempty"`
+	State                *string     `json:"state,omitempty"`
 	TypeManifest         interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo            int64       `json:"versionNo"`
+	VersionNo            *int64      `json:"versionNo,omitempty"`
 }
 
 // Wire59787f7087b974a90942d4d67d870a8382b1189efe4cc88cfba1b0ada4d89c75 defines model for Wire_59787f7087b974a90942d4d67d870a8382b1189efe4cc88cfba1b0ada4d89c75.
 type Wire59787f7087b974a90942d4d67d870a8382b1189efe4cc88cfba1b0ada4d89c75 struct {
 	AuthoredDql          *string     `json:"authoredDql,omitempty"`
 	AuthoredSql          *string     `json:"authoredSql,omitempty"`
-	AuthoringMode        string      `json:"authoringMode"`
+	AuthoringMode        *string     `json:"authoringMode,omitempty"`
 	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus        string      `json:"compileStatus"`
-	CompilerVersion      string      `json:"compilerVersion"`
+	CompileStatus        *string     `json:"compileStatus,omitempty"`
+	CompilerVersion      *string     `json:"compilerVersion,omitempty"`
 	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
 	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
-	CreatedAt            time.Time   `json:"createdAt"`
-	CreatedBy            string      `json:"createdBy"`
-	DatlyVersion         string      `json:"datlyVersion"`
+	CreatedAt            *time.Time  `json:"createdAt,omitempty"`
+	CreatedBy            *string     `json:"createdBy,omitempty"`
+	DatlyVersion         *string     `json:"datlyVersion,omitempty"`
 	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
 	GeneratedDql         *string     `json:"generatedDql,omitempty"`
 	Notes                *string     `json:"notes,omitempty"`
 	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
-	ReportId             string      `json:"reportId"`
-	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ReportId             *string     `json:"reportId,omitempty"`
+	ResourceCheckEnabled *bool       `json:"resourceCheckEnabled,omitempty"`
 	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision       int64       `json:"sourceRevision"`
-	SpecFormatVersion    string      `json:"specFormatVersion"`
-	SpecHash             string      `json:"specHash"`
-	State                string      `json:"state"`
+	SourceRevision       *int64      `json:"sourceRevision,omitempty"`
+	SpecFormatVersion    *string     `json:"specFormatVersion,omitempty"`
+	SpecHash             *string     `json:"specHash,omitempty"`
+	State                *string     `json:"state,omitempty"`
 	TypeManifest         interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo            int64       `json:"versionNo"`
+	VersionNo            *int64      `json:"versionNo,omitempty"`
 }
 
 // Wire5cf4a8a140fb1a665a97b8362f3128fdf9cdb4b3d66b442d124e25c9ac724d7a defines model for Wire_5cf4a8a140fb1a665a97b8362f3128fdf9cdb4b3d66b442d124e25c9ac724d7a.
 type Wire5cf4a8a140fb1a665a97b8362f3128fdf9cdb4b3d66b442d124e25c9ac724d7a struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
 }
 
 // Wire5dcb9a5385549159028a02b9f90b5f85b74ea0076b725bce7e222e5cfe3ae71e defines model for Wire_5dcb9a5385549159028a02b9f90b5f85b74ea0076b725bce7e222e5cfe3ae71e.
 type Wire5dcb9a5385549159028a02b9f90b5f85b74ea0076b725bce7e222e5cfe3ae71e struct {
-	Code     string  `json:"code"`
+	Code     *string `json:"code,omitempty"`
 	Column   *int64  `json:"column,omitempty"`
 	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
-	Message  string  `json:"message"`
-	Severity string  `json:"severity"`
+	Message  *string `json:"message,omitempty"`
+	Severity *string `json:"severity,omitempty"`
 	Stage    *string `json:"stage,omitempty"`
 }
 
 // Wire5f3729574877d8503a4dec333774588fe1c7a2ed2ff47c9b7076fcd0f551abe7 defines model for Wire_5f3729574877d8503a4dec333774588fe1c7a2ed2ff47c9b7076fcd0f551abe7.
 type Wire5f3729574877d8503a4dec333774588fe1c7a2ed2ff47c9b7076fcd0f551abe7 struct {
-	Id      string `json:"id"`
-	Kind    string `json:"kind"`
-	Tenant  string `json:"tenant"`
-	Version string `json:"version"`
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
 }
 
 // Wire60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b defines model for Wire_60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b.
 type Wire60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b struct {
-	PredicatePackages         *[]string `json:"predicatePackages"`
-	RequireInternalComponents bool      `json:"requireInternalComponents"`
-	RequireSecurityPredicate  bool      `json:"requireSecurityPredicate"`
+	PredicatePackages         *[]string `json:"predicatePackages,omitempty"`
+	RequireInternalComponents *bool     `json:"requireInternalComponents,omitempty"`
+	RequireSecurityPredicate  *bool     `json:"requireSecurityPredicate,omitempty"`
 }
 
 // Wire60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac defines model for Wire_60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac.
 type Wire60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac struct {
-	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
-	FolderId               string `json:"folderId"`
-	Ordinal                int64  `json:"ordinal"`
-	ReportId               string `json:"reportId"`
-	SkillId                string `json:"skillId"`
-	SkillRoot              string `json:"skillRoot"`
-	VersionNo              int64  `json:"versionNo"`
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	FolderId               *string `json:"folderId,omitempty"`
+	Ordinal                *int64  `json:"ordinal,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	SkillId                *string `json:"skillId,omitempty"`
+	SkillRoot              *string `json:"skillRoot,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
 // Wire615a0539a089e0c573df4f18b04483a7302c37cf735dea31813c024c8e2d0922 defines model for Wire_615a0539a089e0c573df4f18b04483a7302c37cf735dea31813c024c8e2d0922.
 type Wire615a0539a089e0c573df4f18b04483a7302c37cf735dea31813c024c8e2d0922 struct {
-	Policies *map[string]Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d `json:"policies"`
-	Resource WireCc8e6d7697c9501b39869778c8e5561398ec267f3f24741ddd643fb0c8d25f2f             `json:"resource"`
-	Revision int64                                                                            `json:"revision"`
+	Policies *map[string]Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d `json:"policies,omitempty"`
+	Resource *WireCc8e6d7697c9501b39869778c8e5561398ec267f3f24741ddd643fb0c8d25f2f            `json:"resource,omitempty"`
+	Revision *int64                                                                           `json:"revision,omitempty"`
 }
 
 // Wire6238fe88bfb9fb7369cf10de373a6904ecf859ade35a5496fe0a150dae56be72 defines model for Wire_6238fe88bfb9fb7369cf10de373a6904ecf859ade35a5496fe0a150dae56be72.
 type Wire6238fe88bfb9fb7369cf10de373a6904ecf859ade35a5496fe0a150dae56be72 struct {
-	Policies *map[string]Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4 `json:"policies"`
-	Resource Wire47ab2362281845fa3c625b315f45ddecace8a6483837902bc83afa48ecc01f02             `json:"resource"`
-	Revision int64                                                                            `json:"revision"`
+	Policies *map[string]Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4 `json:"policies,omitempty"`
+	Resource *Wire47ab2362281845fa3c625b315f45ddecace8a6483837902bc83afa48ecc01f02            `json:"resource,omitempty"`
+	Revision *int64                                                                           `json:"revision,omitempty"`
 }
 
 // Wire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930 defines model for Wire_62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930.
 type Wire62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930 struct {
 	AuthoredDql          *string     `json:"authoredDql,omitempty"`
 	AuthoredSql          *string     `json:"authoredSql,omitempty"`
-	AuthoringMode        string      `json:"authoringMode"`
+	AuthoringMode        *string     `json:"authoringMode,omitempty"`
 	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus        string      `json:"compileStatus"`
-	CompilerVersion      string      `json:"compilerVersion"`
+	CompileStatus        *string     `json:"compileStatus,omitempty"`
+	CompilerVersion      *string     `json:"compilerVersion,omitempty"`
 	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
 	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
-	CreatedAt            time.Time   `json:"createdAt"`
-	CreatedBy            string      `json:"createdBy"`
-	DatlyVersion         string      `json:"datlyVersion"`
+	CreatedAt            *time.Time  `json:"createdAt,omitempty"`
+	CreatedBy            *string     `json:"createdBy,omitempty"`
+	DatlyVersion         *string     `json:"datlyVersion,omitempty"`
 	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
 	GeneratedDql         *string     `json:"generatedDql,omitempty"`
 	Notes                *string     `json:"notes,omitempty"`
 	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
-	ReportId             string      `json:"reportId"`
-	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ReportId             *string     `json:"reportId,omitempty"`
+	ResourceCheckEnabled *bool       `json:"resourceCheckEnabled,omitempty"`
 	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision       int64       `json:"sourceRevision"`
-	SpecFormatVersion    string      `json:"specFormatVersion"`
-	SpecHash             string      `json:"specHash"`
-	State                string      `json:"state"`
+	SourceRevision       *int64      `json:"sourceRevision,omitempty"`
+	SpecFormatVersion    *string     `json:"specFormatVersion,omitempty"`
+	SpecHash             *string     `json:"specHash,omitempty"`
+	State                *string     `json:"state,omitempty"`
 	TypeManifest         interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo            int64       `json:"versionNo"`
+	VersionNo            *int64      `json:"versionNo,omitempty"`
 }
 
 // Wire62d79acead49ba0d84d3fe813a8d59b4a26f710c0953ffa167816798ed0333f5 defines model for Wire_62d79acead49ba0d84d3fe813a8d59b4a26f710c0953ffa167816798ed0333f5.
 type Wire62d79acead49ba0d84d3fe813a8d59b4a26f710c0953ffa167816798ed0333f5 struct {
-	ErrorCode *string   `json:"errorCode,omitempty"`
-	Message   *string   `json:"message,omitempty"`
-	Name      string    `json:"name"`
-	Status    string    `json:"status"`
-	TestedAt  time.Time `json:"testedAt"`
+	ErrorCode *string    `json:"errorCode,omitempty"`
+	Message   *string    `json:"message,omitempty"`
+	Name      *string    `json:"name,omitempty"`
+	Status    *string    `json:"status,omitempty"`
+	TestedAt  *time.Time `json:"testedAt,omitempty"`
 }
 
 // Wire6479a7da664c407f8f41f4fdf1e70772bbad9691ef67e8050ded752fc88e802e defines model for Wire_6479a7da664c407f8f41f4fdf1e70772bbad9691ef67e8050ded752fc88e802e.
 type Wire6479a7da664c407f8f41f4fdf1e70772bbad9691ef67e8050ded752fc88e802e struct {
-	Content  string `json:"content"`
-	IsBinary *bool  `json:"isBinary,omitempty"`
-	Path     string `json:"path"`
+	Content  *string `json:"content,omitempty"`
+	IsBinary *bool   `json:"isBinary,omitempty"`
+	Path     *string `json:"path,omitempty"`
 }
 
 // Wire65b20b1db94b9a2b772bc75cedde285454a5204dc72354f579cf1fe7fcc34b2b defines model for Wire_65b20b1db94b9a2b772bc75cedde285454a5204dc72354f579cf1fe7fcc34b2b.
 type Wire65b20b1db94b9a2b772bc75cedde285454a5204dc72354f579cf1fe7fcc34b2b struct {
-	Items         *[]Wire3b57d303fc4270172c8dc3dcc384045b957738421bfa4726d93f6529707bb684 `json:"items"`
-	Limit         int64                                                                   `json:"limit"`
+	Items         *[]Wire3b57d303fc4270172c8dc3dcc384045b957738421bfa4726d93f6529707bb684 `json:"items,omitempty"`
+	Limit         *int64                                                                  `json:"limit,omitempty"`
 	NextPageToken *string                                                                 `json:"nextPageToken,omitempty"`
-	Offset        int64                                                                   `json:"offset"`
+	Offset        *int64                                                                  `json:"offset,omitempty"`
 }
 
 // Wire685e9f1303192c34245f5ced6b00c18bebddb5a91116b2d04935d49d39a4538f defines model for Wire_685e9f1303192c34245f5ced6b00c18bebddb5a91116b2d04935d49d39a4538f.
 type Wire685e9f1303192c34245f5ced6b00c18bebddb5a91116b2d04935d49d39a4538f struct {
 	Archived    *bool                                                                            `json:"archived,omitempty"`
-	DisplayName string                                                                           `json:"displayName"`
-	Policies    *map[string]WireF32e0e52a42838184862b0bfabd74676e965524151930580722e42d1d5218aad `json:"policies"`
+	DisplayName *string                                                                          `json:"displayName,omitempty"`
+	Policies    *map[string]WireF32e0e52a42838184862b0bfabd74676e965524151930580722e42d1d5218aad `json:"policies,omitempty"`
 }
 
 // Wire686013a325c9be56a2c1decb9988b4f5c30a411074c3d70e9552eecf4ae1fd87 defines model for Wire_686013a325c9be56a2c1decb9988b4f5c30a411074c3d70e9552eecf4ae1fd87.
 type Wire686013a325c9be56a2c1decb9988b4f5c30a411074c3d70e9552eecf4ae1fd87 struct {
-	Alias       *string   `json:"alias,omitempty"`
-	Columns     *[]string `json:"columns,omitempty"`
-	CreatedAt   time.Time `json:"createdAt"`
-	Description *string   `json:"description,omitempty"`
-	Etag        int64     `json:"etag"`
-	Linked      bool      `json:"linked"`
-	Name        string    `json:"name"`
-	OwnerId     string    `json:"ownerId"`
-	PackagePath string    `json:"packagePath"`
-	Status      string    `json:"status"`
-	Title       string    `json:"title"`
-	TypeName    string    `json:"typeName"`
-	UpdatedAt   time.Time `json:"updatedAt"`
+	Alias       *string    `json:"alias,omitempty"`
+	Columns     *[]string  `json:"columns,omitempty"`
+	CreatedAt   *time.Time `json:"createdAt,omitempty"`
+	Description *string    `json:"description,omitempty"`
+	Etag        *int64     `json:"etag,omitempty"`
+	Linked      *bool      `json:"linked,omitempty"`
+	Name        *string    `json:"name,omitempty"`
+	OwnerId     *string    `json:"ownerId,omitempty"`
+	PackagePath *string    `json:"packagePath,omitempty"`
+	Status      *string    `json:"status,omitempty"`
+	Title       *string    `json:"title,omitempty"`
+	TypeName    *string    `json:"typeName,omitempty"`
+	UpdatedAt   *time.Time `json:"updatedAt,omitempty"`
 }
 
 // Wire6916e19155f8286deab316189062a4bd3d0a8389de6824abfe4de66459ffeca7 defines model for Wire_6916e19155f8286deab316189062a4bd3d0a8389de6824abfe4de66459ffeca7.
 type Wire6916e19155f8286deab316189062a4bd3d0a8389de6824abfe4de66459ffeca7 struct {
-	Actions  *[]string                                                            `json:"actions"`
-	Resource Wire87969e56d492a2f730b444adee19ef93ac7c1be948b8dc6be8f7220cc9a8fdf2 `json:"resource"`
-	Revision int64                                                                `json:"revision"`
+	Actions  *[]string                                                             `json:"actions,omitempty"`
+	Resource *Wire87969e56d492a2f730b444adee19ef93ac7c1be948b8dc6be8f7220cc9a8fdf2 `json:"resource,omitempty"`
+	Revision *int64                                                                `json:"revision,omitempty"`
 }
 
 // Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d defines model for Wire_69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d.
 type Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d struct {
 	Definition     *Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Definition `json:"definition,omitempty"`
 	EntityType     *string                                                                          `json:"entityType,omitempty"`
-	Mode           string                                                                           `json:"mode"`
+	Mode           *string                                                                          `json:"mode,omitempty"`
 	Named          *Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Named      `json:"named,omitempty"`
 	Priority       *int64                                                                           `json:"priority,omitempty"`
 	RequiredScopes *[]string                                                                        `json:"requiredScopes,omitempty"`
@@ -3207,41 +3207,41 @@ type Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Rule s
 
 // Wire6bdc906e5944153cacf17027ff97fe2e0524311a1c332c218e05c2fb3a05012d defines model for Wire_6bdc906e5944153cacf17027ff97fe2e0524311a1c332c218e05c2fb3a05012d.
 type Wire6bdc906e5944153cacf17027ff97fe2e0524311a1c332c218e05c2fb3a05012d struct {
-	ChildColumn  string `json:"childColumn"`
-	ParentColumn string `json:"parentColumn"`
+	ChildColumn  *string `json:"childColumn,omitempty"`
+	ParentColumn *string `json:"parentColumn,omitempty"`
 }
 
 // Wire6e57275ee6e6e1b65e583eed6459bd78d0642e1645c5d8207588a42c34b4171d defines model for Wire_6e57275ee6e6e1b65e583eed6459bd78d0642e1645c5d8207588a42c34b4171d.
 type Wire6e57275ee6e6e1b65e583eed6459bd78d0642e1645c5d8207588a42c34b4171d struct {
-	Content                string  `json:"content"`
-	ContentSha256          string  `json:"contentSha256"`
-	ContentSize            int64   `json:"contentSize"`
+	Content                *string `json:"content,omitempty"`
+	ContentSha256          *string `json:"contentSha256,omitempty"`
+	ContentSize            *int64  `json:"contentSize,omitempty"`
 	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
-	IsBinary               bool    `json:"isBinary"`
+	IsBinary               *bool   `json:"isBinary,omitempty"`
 	MediaType              *string `json:"mediaType,omitempty"`
-	Namespace              string  `json:"namespace"`
-	ReportId               string  `json:"reportId"`
-	ResourceId             string  `json:"resourceId"`
-	ResourcePath           string  `json:"resourcePath"`
-	VersionNo              int64   `json:"versionNo"`
+	Namespace              *string `json:"namespace,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	ResourceId             *string `json:"resourceId,omitempty"`
+	ResourcePath           *string `json:"resourcePath,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
 // Wire6eb7fc5381443fd97876b99edd185761fb616aa93f65106e8bce0b948e4541ea defines model for Wire_6eb7fc5381443fd97876b99edd185761fb616aa93f65106e8bce0b948e4541ea.
 type Wire6eb7fc5381443fd97876b99edd185761fb616aa93f65106e8bce0b948e4541ea struct {
-	Id      string `json:"id"`
-	Kind    string `json:"kind"`
-	Tenant  string `json:"tenant"`
-	Version string `json:"version"`
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
 }
 
 // Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad defines model for Wire_71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad.
 type Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad struct {
-	Capabilities WireC47cf46b58e263ed665fbdce50f43ecc62642c4837741ba43aaa439c1623d39c               `json:"capabilities"`
+	Capabilities *WireC47cf46b58e263ed665fbdce50f43ecc62642c4837741ba43aaa439c1623d39c              `json:"capabilities,omitempty"`
 	Diagnostics  *[]Wire878bfd02a12294e26d1a40f1b673a231fa11c24402268d818f39f80be43c86f9            `json:"diagnostics,omitempty"`
 	Dql          *string                                                                            `json:"dql,omitempty"`
 	PreviewInput *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput `json:"previewInput,omitempty"`
 	Structure    interface{}                                                                        `json:"structure,omitempty"`
-	Version      Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version       `json:"version"`
+	Version      *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version      `json:"version,omitempty"`
 }
 
 // Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adPreviewInput1 defines model for Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad.PreviewInput.1.
@@ -3262,21 +3262,21 @@ type Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Versio
 
 // Wire71b9c50025fc3648b345ae243800bd532fec6cda9e9aadc6e7a02d452d1d70ea defines model for Wire_71b9c50025fc3648b345ae243800bd532fec6cda9e9aadc6e7a02d452d1d70ea.
 type Wire71b9c50025fc3648b345ae243800bd532fec6cda9e9aadc6e7a02d452d1d70ea struct {
-	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
-	FolderId               string `json:"folderId"`
-	Namespace              string `json:"namespace"`
-	Ordinal                int64  `json:"ordinal"`
-	ReportId               string `json:"reportId"`
-	RootPath               string `json:"rootPath"`
-	UriPrefix              string `json:"uriPrefix"`
-	VersionNo              int64  `json:"versionNo"`
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	FolderId               *string `json:"folderId,omitempty"`
+	Namespace              *string `json:"namespace,omitempty"`
+	Ordinal                *int64  `json:"ordinal,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	RootPath               *string `json:"rootPath,omitempty"`
+	UriPrefix              *string `json:"uriPrefix,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
 // Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73 defines model for Wire_721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73.
 type Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73 struct {
-	Files   *[]Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Files_Item   `json:"files"`
-	Folders *[]Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Folders_Item `json:"folders"`
-	Skills  *[]Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Skills_Item  `json:"skills"`
+	Files   *[]Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Files_Item   `json:"files,omitempty"`
+	Folders *[]Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Folders_Item `json:"folders,omitempty"`
+	Skills  *[]Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Skills_Item  `json:"skills,omitempty"`
 	Version *Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Version        `json:"version,omitempty"`
 }
 
@@ -3314,8 +3314,8 @@ type Wire721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73_Versio
 
 // Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58 defines model for Wire_73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58.
 type Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58 struct {
-	Applied    bool                                                                            `json:"applied"`
-	Inspection Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58_Inspection `json:"inspection"`
+	Applied    *bool                                                                            `json:"applied,omitempty"`
+	Inspection *Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58_Inspection `json:"inspection,omitempty"`
 }
 
 // Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58Inspection1 defines model for Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58.Inspection.1.
@@ -3328,80 +3328,80 @@ type Wire73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58_Inspec
 
 // Wire7500b9317030713f187b24a1e5fdc5a3b126e5bb2b5fb59f60d5b9d5be652a23 defines model for Wire_7500b9317030713f187b24a1e5fdc5a3b126e5bb2b5fb59f60d5b9d5be652a23.
 type Wire7500b9317030713f187b24a1e5fdc5a3b126e5bb2b5fb59f60d5b9d5be652a23 struct {
-	CreatedAt         time.Time   `json:"createdAt"`
+	CreatedAt         *time.Time  `json:"createdAt,omitempty"`
 	Description       *string     `json:"description,omitempty"`
-	Driver            string      `json:"driver"`
-	DsnConfigured     bool        `json:"dsnConfigured"`
-	Etag              int64       `json:"etag"`
+	Driver            *string     `json:"driver,omitempty"`
+	DsnConfigured     *bool       `json:"dsnConfigured,omitempty"`
+	Etag              *int64      `json:"etag,omitempty"`
 	LastTestErrorCode *string     `json:"lastTestErrorCode,omitempty"`
 	LastTestStatus    *string     `json:"lastTestStatus,omitempty"`
 	LastTestedAt      *time.Time  `json:"lastTestedAt,omitempty"`
-	Name              string      `json:"name"`
+	Name              *string     `json:"name,omitempty"`
 	Options           interface{} `json:"options,omitempty"`
-	OwnerId           string      `json:"ownerId"`
-	SecretConfigured  bool        `json:"secretConfigured"`
-	Status            string      `json:"status"`
-	UpdatedAt         time.Time   `json:"updatedAt"`
+	OwnerId           *string     `json:"ownerId,omitempty"`
+	SecretConfigured  *bool       `json:"secretConfigured,omitempty"`
+	Status            *string     `json:"status,omitempty"`
+	UpdatedAt         *time.Time  `json:"updatedAt,omitempty"`
 }
 
 // Wire77752153da43bb0addc9d671944e117883dbc02c23b23f9dead496b805929938 defines model for Wire_77752153da43bb0addc9d671944e117883dbc02c23b23f9dead496b805929938.
 type Wire77752153da43bb0addc9d671944e117883dbc02c23b23f9dead496b805929938 struct {
-	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
-	FolderId               string `json:"folderId"`
-	Namespace              string `json:"namespace"`
-	Ordinal                int64  `json:"ordinal"`
-	ReportId               string `json:"reportId"`
-	RootPath               string `json:"rootPath"`
-	UriPrefix              string `json:"uriPrefix"`
-	VersionNo              int64  `json:"versionNo"`
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	FolderId               *string `json:"folderId,omitempty"`
+	Namespace              *string `json:"namespace,omitempty"`
+	Ordinal                *int64  `json:"ordinal,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	RootPath               *string `json:"rootPath,omitempty"`
+	UriPrefix              *string `json:"uriPrefix,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
 // Wire777f17beb973ceea33d037ba165a4751392efacdd3a1e9425eb0da2b7461ba6e defines model for Wire_777f17beb973ceea33d037ba165a4751392efacdd3a1e9425eb0da2b7461ba6e.
 type Wire777f17beb973ceea33d037ba165a4751392efacdd3a1e9425eb0da2b7461ba6e struct {
-	CreatedAt         time.Time   `json:"createdAt"`
+	CreatedAt         *time.Time  `json:"createdAt,omitempty"`
 	Description       *string     `json:"description,omitempty"`
-	Driver            string      `json:"driver"`
-	DsnConfigured     bool        `json:"dsnConfigured"`
-	Etag              int64       `json:"etag"`
+	Driver            *string     `json:"driver,omitempty"`
+	DsnConfigured     *bool       `json:"dsnConfigured,omitempty"`
+	Etag              *int64      `json:"etag,omitempty"`
 	LastTestErrorCode *string     `json:"lastTestErrorCode,omitempty"`
 	LastTestStatus    *string     `json:"lastTestStatus,omitempty"`
 	LastTestedAt      *time.Time  `json:"lastTestedAt,omitempty"`
-	Name              string      `json:"name"`
+	Name              *string     `json:"name,omitempty"`
 	Options           interface{} `json:"options,omitempty"`
-	OwnerId           string      `json:"ownerId"`
-	SecretConfigured  bool        `json:"secretConfigured"`
-	Status            string      `json:"status"`
-	UpdatedAt         time.Time   `json:"updatedAt"`
+	OwnerId           *string     `json:"ownerId,omitempty"`
+	SecretConfigured  *bool       `json:"secretConfigured,omitempty"`
+	Status            *string     `json:"status,omitempty"`
+	UpdatedAt         *time.Time  `json:"updatedAt,omitempty"`
 }
 
 // Wire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e defines model for Wire_7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e.
 type Wire7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e struct {
-	Content                string  `json:"content"`
-	ContentSha256          string  `json:"contentSha256"`
-	ContentSize            int64   `json:"contentSize"`
+	Content                *string `json:"content,omitempty"`
+	ContentSha256          *string `json:"contentSha256,omitempty"`
+	ContentSize            *int64  `json:"contentSize,omitempty"`
 	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
-	IsBinary               bool    `json:"isBinary"`
+	IsBinary               *bool   `json:"isBinary,omitempty"`
 	MediaType              *string `json:"mediaType,omitempty"`
-	Namespace              string  `json:"namespace"`
-	ReportId               string  `json:"reportId"`
-	ResourceId             string  `json:"resourceId"`
-	ResourcePath           string  `json:"resourcePath"`
-	VersionNo              int64   `json:"versionNo"`
+	Namespace              *string `json:"namespace,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	ResourceId             *string `json:"resourceId,omitempty"`
+	ResourcePath           *string `json:"resourcePath,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
 // Wire78c1ec1bb60829ef8b35985f93d524d34ace814d043b978112938d75ae4c831a defines model for Wire_78c1ec1bb60829ef8b35985f93d524d34ace814d043b978112938d75ae4c831a.
 type Wire78c1ec1bb60829ef8b35985f93d524d34ace814d043b978112938d75ae4c831a struct {
-	DisplayName string                                                                           `json:"displayName"`
-	Policies    *map[string]Wire8e91903699babbed9e7ba5df80407c5e4ba8d274d534089cde3a462c51f42580 `json:"policies"`
-	Resource    Wire24c5509faa036e9e6670c5516a5cee39a37d0f0b6acf8de88a079bf1f2661939             `json:"resource"`
-	Revision    int64                                                                            `json:"revision"`
+	DisplayName *string                                                                          `json:"displayName,omitempty"`
+	Policies    *map[string]Wire8e91903699babbed9e7ba5df80407c5e4ba8d274d534089cde3a462c51f42580 `json:"policies,omitempty"`
+	Resource    *Wire24c5509faa036e9e6670c5516a5cee39a37d0f0b6acf8de88a079bf1f2661939            `json:"resource,omitempty"`
+	Revision    *int64                                                                           `json:"revision,omitempty"`
 }
 
 // Wire7a9034382c023a3e5b4b4f9403d720cc1bf990d1c827a366a019d586b9f5c801 defines model for Wire_7a9034382c023a3e5b4b4f9403d720cc1bf990d1c827a366a019d586b9f5c801.
 type Wire7a9034382c023a3e5b4b4f9403d720cc1bf990d1c827a366a019d586b9f5c801 struct {
-	Policies *map[string]Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d `json:"policies"`
-	Resource WireAfbd3ba313288192c9a8ae3627ea548117f98143f4f73d04a19579f4207fa6b3             `json:"resource"`
-	Revision int64                                                                            `json:"revision"`
+	Policies *map[string]Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d `json:"policies,omitempty"`
+	Resource *WireAfbd3ba313288192c9a8ae3627ea548117f98143f4f73d04a19579f4207fa6b3            `json:"resource,omitempty"`
+	Revision *int64                                                                           `json:"revision,omitempty"`
 }
 
 // Wire7b62573dc190309f5274f519b590107fb85252be4a55fbd9fb7ed011fc825841 defines model for Wire_7b62573dc190309f5274f519b590107fb85252be4a55fbd9fb7ed011fc825841.
@@ -3413,40 +3413,40 @@ type Wire7b62573dc190309f5274f519b590107fb85252be4a55fbd9fb7ed011fc825841 struct
 
 // Wire7b8cbc8d8b0de849d09cdeec45a5dba6c27adb0ab09ab21d972f36bf0d392c29 defines model for Wire_7b8cbc8d8b0de849d09cdeec45a5dba6c27adb0ab09ab21d972f36bf0d392c29.
 type Wire7b8cbc8d8b0de849d09cdeec45a5dba6c27adb0ab09ab21d972f36bf0d392c29 struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
 }
 
 // Wire7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621 defines model for Wire_7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621.
 type Wire7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621 struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
 }
 
 // Wire7be315ac587bc72247d0b72942b7067d644f15c0e04a4011f74ffec56d000203 defines model for Wire_7be315ac587bc72247d0b72942b7067d644f15c0e04a4011f74ffec56d000203.
 type Wire7be315ac587bc72247d0b72942b7067d644f15c0e04a4011f74ffec56d000203 struct {
-	CreatedAt         time.Time   `json:"createdAt"`
+	CreatedAt         *time.Time  `json:"createdAt,omitempty"`
 	Description       *string     `json:"description,omitempty"`
-	Driver            string      `json:"driver"`
-	DsnConfigured     bool        `json:"dsnConfigured"`
+	Driver            *string     `json:"driver,omitempty"`
+	DsnConfigured     *bool       `json:"dsnConfigured,omitempty"`
 	DsnDisplay        *string     `json:"dsnDisplay,omitempty"`
-	Etag              int64       `json:"etag"`
+	Etag              *int64      `json:"etag,omitempty"`
 	LastTestErrorCode *string     `json:"lastTestErrorCode,omitempty"`
 	LastTestStatus    *string     `json:"lastTestStatus,omitempty"`
 	LastTestedAt      *time.Time  `json:"lastTestedAt,omitempty"`
-	Name              string      `json:"name"`
+	Name              *string     `json:"name,omitempty"`
 	Options           interface{} `json:"options,omitempty"`
-	OwnerId           string      `json:"ownerId"`
-	SecretConfigured  bool        `json:"secretConfigured"`
+	OwnerId           *string     `json:"ownerId,omitempty"`
+	SecretConfigured  *bool       `json:"secretConfigured,omitempty"`
 	SecretRefDisplay  *string     `json:"secretRefDisplay,omitempty"`
-	Status            string      `json:"status"`
-	UpdatedAt         time.Time   `json:"updatedAt"`
+	Status            *string     `json:"status,omitempty"`
+	UpdatedAt         *time.Time  `json:"updatedAt,omitempty"`
 }
 
 // Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134 defines model for Wire_7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134.
 type Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134 struct {
 	Entity *Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134_Entity `json:"entity,omitempty"`
-	Kind   string                                                                       `json:"kind"`
+	Kind   *string                                                                      `json:"kind,omitempty"`
 	Rules  *[]Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134      `json:"rules,omitempty"`
 	Value  *string                                                                      `json:"value,omitempty"`
 }
@@ -3461,141 +3461,141 @@ type Wire7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134_Entity
 
 // Wire7d83e432dba96d596847d8df2f770054a4188b355ed704d691dff2a9d8f991ee defines model for Wire_7d83e432dba96d596847d8df2f770054a4188b355ed704d691dff2a9d8f991ee.
 type Wire7d83e432dba96d596847d8df2f770054a4188b355ed704d691dff2a9d8f991ee struct {
-	Code     string  `json:"code"`
+	Code     *string `json:"code,omitempty"`
 	Column   *int64  `json:"column,omitempty"`
 	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
-	Message  string  `json:"message"`
-	Severity string  `json:"severity"`
+	Message  *string `json:"message,omitempty"`
+	Severity *string `json:"severity,omitempty"`
 	Stage    *string `json:"stage,omitempty"`
 }
 
 // Wire7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6 defines model for Wire_7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6.
 type Wire7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6 struct {
-	Content                string  `json:"content"`
-	ContentSha256          string  `json:"contentSha256"`
-	ContentSize            int64   `json:"contentSize"`
+	Content                *string `json:"content,omitempty"`
+	ContentSha256          *string `json:"contentSha256,omitempty"`
+	ContentSize            *int64  `json:"contentSize,omitempty"`
 	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
-	IsBinary               bool    `json:"isBinary"`
+	IsBinary               *bool   `json:"isBinary,omitempty"`
 	MediaType              *string `json:"mediaType,omitempty"`
-	Namespace              string  `json:"namespace"`
-	ReportId               string  `json:"reportId"`
-	ResourceId             string  `json:"resourceId"`
-	ResourcePath           string  `json:"resourcePath"`
-	VersionNo              int64   `json:"versionNo"`
+	Namespace              *string `json:"namespace,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	ResourceId             *string `json:"resourceId,omitempty"`
+	ResourcePath           *string `json:"resourcePath,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
 // Wire7f614c3079e0f6cdc356ae6e7e44a326c9b77ae75d9bed109251680a65f23b71 defines model for Wire_7f614c3079e0f6cdc356ae6e7e44a326c9b77ae75d9bed109251680a65f23b71.
 type Wire7f614c3079e0f6cdc356ae6e7e44a326c9b77ae75d9bed109251680a65f23b71 struct {
-	CreatedAt         time.Time   `json:"createdAt"`
+	CreatedAt         *time.Time  `json:"createdAt,omitempty"`
 	Description       *string     `json:"description,omitempty"`
-	Driver            string      `json:"driver"`
-	DsnConfigured     bool        `json:"dsnConfigured"`
-	Etag              int64       `json:"etag"`
+	Driver            *string     `json:"driver,omitempty"`
+	DsnConfigured     *bool       `json:"dsnConfigured,omitempty"`
+	Etag              *int64      `json:"etag,omitempty"`
 	LastTestErrorCode *string     `json:"lastTestErrorCode,omitempty"`
 	LastTestStatus    *string     `json:"lastTestStatus,omitempty"`
 	LastTestedAt      *time.Time  `json:"lastTestedAt,omitempty"`
-	Name              string      `json:"name"`
+	Name              *string     `json:"name,omitempty"`
 	Options           interface{} `json:"options,omitempty"`
-	OwnerId           string      `json:"ownerId"`
-	SecretConfigured  bool        `json:"secretConfigured"`
-	Status            string      `json:"status"`
-	UpdatedAt         time.Time   `json:"updatedAt"`
+	OwnerId           *string     `json:"ownerId,omitempty"`
+	SecretConfigured  *bool       `json:"secretConfigured,omitempty"`
+	Status            *string     `json:"status,omitempty"`
+	UpdatedAt         *time.Time  `json:"updatedAt,omitempty"`
 }
 
 // Wire8147805369c129ab8a8ae87482dbb8be4c51d1125dda4427e8adca5f845d6a7b defines model for Wire_8147805369c129ab8a8ae87482dbb8be4c51d1125dda4427e8adca5f845d6a7b.
 type Wire8147805369c129ab8a8ae87482dbb8be4c51d1125dda4427e8adca5f845d6a7b struct {
 	Data        interface{}                                                             `json:"data,omitempty"`
 	Diagnostics *[]WireF9bfe019ac3bc8cf27b88f9b16d1f9a636d24292970f41843ad5f4eba742d99b `json:"diagnostics,omitempty"`
-	Duration    int64                                                                   `json:"duration"`
+	Duration    *int64                                                                  `json:"duration,omitempty"`
 }
 
 // Wire840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86 defines model for Wire_840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86.
 type Wire840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86 struct {
-	Bundle        Wire8901495307607551b54fae77b329fc1b74845fbfdb8111486323e8d7ecd142ce `json:"bundle"`
-	ContentSha256 string                                                               `json:"contentSha256"`
-	CreatedAt     time.Time                                                            `json:"createdAt"`
-	CreatedBy     string                                                               `json:"createdBy"`
-	NamespaceId   string                                                               `json:"namespaceId"`
-	Revision      int64                                                                `json:"revision"`
-	SkillId       string                                                               `json:"skillId"`
+	Bundle        *Wire8901495307607551b54fae77b329fc1b74845fbfdb8111486323e8d7ecd142ce `json:"bundle,omitempty"`
+	ContentSha256 *string                                                               `json:"contentSha256,omitempty"`
+	CreatedAt     *time.Time                                                            `json:"createdAt,omitempty"`
+	CreatedBy     *string                                                               `json:"createdBy,omitempty"`
+	NamespaceId   *string                                                               `json:"namespaceId,omitempty"`
+	Revision      *int64                                                                `json:"revision,omitempty"`
+	SkillId       *string                                                               `json:"skillId,omitempty"`
 }
 
 // Wire84dd294b4f11f08ca3a9d1430611613b710bcc9fa0f1d0ede017f74044e2f61f defines model for Wire_84dd294b4f11f08ca3a9d1430611613b710bcc9fa0f1d0ede017f74044e2f61f.
 type Wire84dd294b4f11f08ca3a9d1430611613b710bcc9fa0f1d0ede017f74044e2f61f struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
 }
 
 // Wire85751a68c4d78aaa4c871824bf59452b5102e0d1c20e4ca6f87da0c38821ffa9 defines model for Wire_85751a68c4d78aaa4c871824bf59452b5102e0d1c20e4ca6f87da0c38821ffa9.
 type Wire85751a68c4d78aaa4c871824bf59452b5102e0d1c20e4ca6f87da0c38821ffa9 struct {
-	CreatedAt         time.Time `json:"createdAt"`
-	Description       string    `json:"description"`
-	Etag              int64     `json:"etag"`
-	LatestRevision    int64     `json:"latestRevision"`
-	Name              string    `json:"name"`
-	NamespaceId       string    `json:"namespaceId"`
-	PublishedRevision int64     `json:"publishedRevision"`
-	SkillId           string    `json:"skillId"`
-	Status            string    `json:"status"`
-	Title             string    `json:"title"`
-	UpdatedAt         time.Time `json:"updatedAt"`
+	CreatedAt         *time.Time `json:"createdAt,omitempty"`
+	Description       *string    `json:"description,omitempty"`
+	Etag              *int64     `json:"etag,omitempty"`
+	LatestRevision    *int64     `json:"latestRevision,omitempty"`
+	Name              *string    `json:"name,omitempty"`
+	NamespaceId       *string    `json:"namespaceId,omitempty"`
+	PublishedRevision *int64     `json:"publishedRevision,omitempty"`
+	SkillId           *string    `json:"skillId,omitempty"`
+	Status            *string    `json:"status,omitempty"`
+	Title             *string    `json:"title,omitempty"`
+	UpdatedAt         *time.Time `json:"updatedAt,omitempty"`
 }
 
 // Wire85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c defines model for Wire_85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c.
 type Wire85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
 }
 
 // Wire878bfd02a12294e26d1a40f1b673a231fa11c24402268d818f39f80be43c86f9 defines model for Wire_878bfd02a12294e26d1a40f1b673a231fa11c24402268d818f39f80be43c86f9.
 type Wire878bfd02a12294e26d1a40f1b673a231fa11c24402268d818f39f80be43c86f9 struct {
-	Code     string  `json:"code"`
+	Code     *string `json:"code,omitempty"`
 	Column   *int64  `json:"column,omitempty"`
 	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
-	Message  string  `json:"message"`
-	Severity string  `json:"severity"`
+	Message  *string `json:"message,omitempty"`
+	Severity *string `json:"severity,omitempty"`
 	Stage    *string `json:"stage,omitempty"`
 }
 
 // Wire87969e56d492a2f730b444adee19ef93ac7c1be948b8dc6be8f7220cc9a8fdf2 defines model for Wire_87969e56d492a2f730b444adee19ef93ac7c1be948b8dc6be8f7220cc9a8fdf2.
 type Wire87969e56d492a2f730b444adee19ef93ac7c1be948b8dc6be8f7220cc9a8fdf2 struct {
-	Id      string `json:"id"`
-	Kind    string `json:"kind"`
-	Tenant  string `json:"tenant"`
-	Version string `json:"version"`
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
 }
 
 // Wire88709ac613253ed886933b7e523ce6042f690d19bbc5acdf9769548415baf599 defines model for Wire_88709ac613253ed886933b7e523ce6042f690d19bbc5acdf9769548415baf599.
 type Wire88709ac613253ed886933b7e523ce6042f690d19bbc5acdf9769548415baf599 struct {
-	CreatedAt         time.Time `json:"createdAt"`
-	Description       string    `json:"description"`
-	Etag              int64     `json:"etag"`
-	LatestRevision    int64     `json:"latestRevision"`
-	Name              string    `json:"name"`
-	NamespaceId       string    `json:"namespaceId"`
-	PublishedRevision int64     `json:"publishedRevision"`
-	SkillId           string    `json:"skillId"`
-	Status            string    `json:"status"`
-	Title             string    `json:"title"`
-	UpdatedAt         time.Time `json:"updatedAt"`
+	CreatedAt         *time.Time `json:"createdAt,omitempty"`
+	Description       *string    `json:"description,omitempty"`
+	Etag              *int64     `json:"etag,omitempty"`
+	LatestRevision    *int64     `json:"latestRevision,omitempty"`
+	Name              *string    `json:"name,omitempty"`
+	NamespaceId       *string    `json:"namespaceId,omitempty"`
+	PublishedRevision *int64     `json:"publishedRevision,omitempty"`
+	SkillId           *string    `json:"skillId,omitempty"`
+	Status            *string    `json:"status,omitempty"`
+	Title             *string    `json:"title,omitempty"`
+	UpdatedAt         *time.Time `json:"updatedAt,omitempty"`
 }
 
 // Wire8901495307607551b54fae77b329fc1b74845fbfdb8111486323e8d7ecd142ce defines model for Wire_8901495307607551b54fae77b329fc1b74845fbfdb8111486323e8d7ecd142ce.
 type Wire8901495307607551b54fae77b329fc1b74845fbfdb8111486323e8d7ecd142ce struct {
-	Content string                                                                  `json:"content"`
+	Content *string                                                                 `json:"content,omitempty"`
 	Files   *[]WireF1dc57456af4495c942542a2c666692b7ca8f42a01f826985262b938bf11fd84 `json:"files,omitempty"`
 	Title   *string                                                                 `json:"title,omitempty"`
 }
 
 // Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c defines model for Wire_898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c.
 type Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c struct {
-	Files   *[]Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Files_Item   `json:"files"`
-	Folders *[]Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Folders_Item `json:"folders"`
-	Skills  *[]Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Skills_Item  `json:"skills"`
+	Files   *[]Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Files_Item   `json:"files,omitempty"`
+	Folders *[]Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Folders_Item `json:"folders,omitempty"`
+	Skills  *[]Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Skills_Item  `json:"skills,omitempty"`
 	Version *Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Version        `json:"version,omitempty"`
 }
 
@@ -3635,7 +3635,7 @@ type Wire898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c_Versio
 type Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4 struct {
 	Definition     *Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4_Definition `json:"definition,omitempty"`
 	EntityType     *string                                                                          `json:"entityType,omitempty"`
-	Mode           string                                                                           `json:"mode"`
+	Mode           *string                                                                          `json:"mode,omitempty"`
 	Named          *Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4_Named      `json:"named,omitempty"`
 	Priority       *int64                                                                           `json:"priority,omitempty"`
 	RequiredScopes *[]string                                                                        `json:"requiredScopes,omitempty"`
@@ -3668,43 +3668,43 @@ type Wire8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4_Rule s
 
 // Wire8a9cf29086a80cb7cabcdebcdf40aa1d03da579d5b4d6608dcb4a7446bcf710d defines model for Wire_8a9cf29086a80cb7cabcdebcdf40aa1d03da579d5b4d6608dcb4a7446bcf710d.
 type Wire8a9cf29086a80cb7cabcdebcdf40aa1d03da579d5b4d6608dcb4a7446bcf710d struct {
-	Items *[]Wire2acc97d2ee9aa7bc9e3441531515d0f2360496ee2ee879ab35b383c390b7221e `json:"items"`
+	Items *[]Wire2acc97d2ee9aa7bc9e3441531515d0f2360496ee2ee879ab35b383c390b7221e `json:"items,omitempty"`
 }
 
 // Wire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8 defines model for Wire_8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8.
 type Wire8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8 struct {
 	AuthoredDql          *string     `json:"authoredDql,omitempty"`
 	AuthoredSql          *string     `json:"authoredSql,omitempty"`
-	AuthoringMode        string      `json:"authoringMode"`
+	AuthoringMode        *string     `json:"authoringMode,omitempty"`
 	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus        string      `json:"compileStatus"`
-	CompilerVersion      string      `json:"compilerVersion"`
+	CompileStatus        *string     `json:"compileStatus,omitempty"`
+	CompilerVersion      *string     `json:"compilerVersion,omitempty"`
 	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
 	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
-	CreatedAt            time.Time   `json:"createdAt"`
-	CreatedBy            string      `json:"createdBy"`
-	DatlyVersion         string      `json:"datlyVersion"`
+	CreatedAt            *time.Time  `json:"createdAt,omitempty"`
+	CreatedBy            *string     `json:"createdBy,omitempty"`
+	DatlyVersion         *string     `json:"datlyVersion,omitempty"`
 	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
 	GeneratedDql         *string     `json:"generatedDql,omitempty"`
 	Notes                *string     `json:"notes,omitempty"`
 	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
-	ReportId             string      `json:"reportId"`
-	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ReportId             *string     `json:"reportId,omitempty"`
+	ResourceCheckEnabled *bool       `json:"resourceCheckEnabled,omitempty"`
 	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision       int64       `json:"sourceRevision"`
-	SpecFormatVersion    string      `json:"specFormatVersion"`
-	SpecHash             string      `json:"specHash"`
-	State                string      `json:"state"`
+	SourceRevision       *int64      `json:"sourceRevision,omitempty"`
+	SpecFormatVersion    *string     `json:"specFormatVersion,omitempty"`
+	SpecHash             *string     `json:"specHash,omitempty"`
+	State                *string     `json:"state,omitempty"`
 	TypeManifest         interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo            int64       `json:"versionNo"`
+	VersionNo            *int64      `json:"versionNo,omitempty"`
 }
 
 // Wire8e91903699babbed9e7ba5df80407c5e4ba8d274d534089cde3a462c51f42580 defines model for Wire_8e91903699babbed9e7ba5df80407c5e4ba8d274d534089cde3a462c51f42580.
 type Wire8e91903699babbed9e7ba5df80407c5e4ba8d274d534089cde3a462c51f42580 struct {
 	Definition     *Wire8e91903699babbed9e7ba5df80407c5e4ba8d274d534089cde3a462c51f42580_Definition `json:"definition,omitempty"`
 	EntityType     *string                                                                          `json:"entityType,omitempty"`
-	Mode           string                                                                           `json:"mode"`
+	Mode           *string                                                                          `json:"mode,omitempty"`
 	Named          *Wire8e91903699babbed9e7ba5df80407c5e4ba8d274d534089cde3a462c51f42580_Named      `json:"named,omitempty"`
 	Priority       *int64                                                                           `json:"priority,omitempty"`
 	RequiredScopes *[]string                                                                        `json:"requiredScopes,omitempty"`
@@ -3737,8 +3737,8 @@ type Wire8e91903699babbed9e7ba5df80407c5e4ba8d274d534089cde3a462c51f42580_Rule s
 
 // Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b defines model for Wire_923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b.
 type Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b struct {
-	Revision Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Revision `json:"revision"`
-	Skill    Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Skill    `json:"skill"`
+	Revision *Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Revision `json:"revision,omitempty"`
+	Skill    *Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Skill    `json:"skill,omitempty"`
 }
 
 // Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3bRevision1 defines model for Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b.Revision.1.
@@ -3759,47 +3759,47 @@ type Wire923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b_Skill 
 
 // Wire9354a215074630106ae925b0323dfe169d763d5b75fe24202ca25bd2fb36ab21 defines model for Wire_9354a215074630106ae925b0323dfe169d763d5b75fe24202ca25bd2fb36ab21.
 type Wire9354a215074630106ae925b0323dfe169d763d5b75fe24202ca25bd2fb36ab21 struct {
-	Context Wire2bece1447e379f703b2f9dfec5a0d5fc346a7d1709dd4a6882c60920a9ef056f `json:"context"`
+	Context *Wire2bece1447e379f703b2f9dfec5a0d5fc346a7d1709dd4a6882c60920a9ef056f `json:"context,omitempty"`
 }
 
 // Wire9375a58120b02e204afaa76104d340f0d003f1a889466d014b6e77474c4633a6 defines model for Wire_9375a58120b02e204afaa76104d340f0d003f1a889466d014b6e77474c4633a6.
 type Wire9375a58120b02e204afaa76104d340f0d003f1a889466d014b6e77474c4633a6 struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
 }
 
 // Wire942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e defines model for Wire_942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e.
 type Wire942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e struct {
 	AuthoredDql          *string     `json:"authoredDql,omitempty"`
 	AuthoredSql          *string     `json:"authoredSql,omitempty"`
-	AuthoringMode        string      `json:"authoringMode"`
+	AuthoringMode        *string     `json:"authoringMode,omitempty"`
 	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus        string      `json:"compileStatus"`
-	CompilerVersion      string      `json:"compilerVersion"`
+	CompileStatus        *string     `json:"compileStatus,omitempty"`
+	CompilerVersion      *string     `json:"compilerVersion,omitempty"`
 	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
 	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
-	CreatedAt            time.Time   `json:"createdAt"`
-	CreatedBy            string      `json:"createdBy"`
-	DatlyVersion         string      `json:"datlyVersion"`
+	CreatedAt            *time.Time  `json:"createdAt,omitempty"`
+	CreatedBy            *string     `json:"createdBy,omitempty"`
+	DatlyVersion         *string     `json:"datlyVersion,omitempty"`
 	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
 	GeneratedDql         *string     `json:"generatedDql,omitempty"`
 	Notes                *string     `json:"notes,omitempty"`
 	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
-	ReportId             string      `json:"reportId"`
-	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ReportId             *string     `json:"reportId,omitempty"`
+	ResourceCheckEnabled *bool       `json:"resourceCheckEnabled,omitempty"`
 	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision       int64       `json:"sourceRevision"`
-	SpecFormatVersion    string      `json:"specFormatVersion"`
-	SpecHash             string      `json:"specHash"`
-	State                string      `json:"state"`
+	SourceRevision       *int64      `json:"sourceRevision,omitempty"`
+	SpecFormatVersion    *string     `json:"specFormatVersion,omitempty"`
+	SpecHash             *string     `json:"specHash,omitempty"`
+	State                *string     `json:"state,omitempty"`
 	TypeManifest         interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo            int64       `json:"versionNo"`
+	VersionNo            *int64      `json:"versionNo,omitempty"`
 }
 
 // Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c defines model for Wire_95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c.
 type Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c struct {
-	Items *[]Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c_Items_Item `json:"items"`
+	Items *[]Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c_Items_Item `json:"items,omitempty"`
 }
 
 // Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35cItems1 defines model for Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c.Items.1.
@@ -3814,15 +3814,15 @@ type Wire95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c_Items_
 type Wire9763fc0927f951631f9c089e0800033b9772e81b29bddc85ae64e2899f0943e3 struct {
 	Data        interface{}                                                             `json:"data,omitempty"`
 	Diagnostics *[]WireDdc8f3519e98b687e03e321d69e1dab9d279d6f41fcef8b1c25d52a95b4f51bd `json:"diagnostics,omitempty"`
-	Duration    int64                                                                   `json:"duration"`
-	Evidence    Wire29994796c346a67d8d87067e8f62a29284fc2af12311fbab69bdf45b428e37f7    `json:"evidence"`
+	Duration    *int64                                                                  `json:"duration,omitempty"`
+	Evidence    *Wire29994796c346a67d8d87067e8f62a29284fc2af12311fbab69bdf45b428e37f7   `json:"evidence,omitempty"`
 }
 
 // Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9 defines model for Wire_979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9.
 type Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9 struct {
 	Entity *Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9_Entity `json:"entity,omitempty"`
 	Id     *string                                                                      `json:"id,omitempty"`
-	Label  string                                                                       `json:"label"`
+	Label  *string                                                                      `json:"label,omitempty"`
 }
 
 // Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9Entity1 defines model for Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9.Entity.1.
@@ -3835,60 +3835,60 @@ type Wire979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9_Entity
 
 // Wire98b9826a3a782748dba5c6e5a250e1e52d78e3e1dbd2ab11f2dc2f9352c62e7a defines model for Wire_98b9826a3a782748dba5c6e5a250e1e52d78e3e1dbd2ab11f2dc2f9352c62e7a.
 type Wire98b9826a3a782748dba5c6e5a250e1e52d78e3e1dbd2ab11f2dc2f9352c62e7a struct {
-	ComponentName        string    `json:"componentName"`
-	ComponentScope       string    `json:"componentScope"`
-	CreatedAt            time.Time `json:"createdAt"`
-	CurrentDraftVersion  *int64    `json:"currentDraftVersion,omitempty"`
-	DefaultConnectorName string    `json:"defaultConnectorName"`
-	Description          *string   `json:"description,omitempty"`
-	Etag                 int64     `json:"etag"`
-	Id                   string    `json:"id"`
-	Namespace            string    `json:"namespace"`
-	OwnerId              string    `json:"ownerId"`
-	OwnerPackage         string    `json:"ownerPackage"`
-	Slug                 string    `json:"slug"`
-	Status               string    `json:"status"`
-	Title                string    `json:"title"`
-	UpdatedAt            time.Time `json:"updatedAt"`
+	ComponentName        *string    `json:"componentName,omitempty"`
+	ComponentScope       *string    `json:"componentScope,omitempty"`
+	CreatedAt            *time.Time `json:"createdAt,omitempty"`
+	CurrentDraftVersion  *int64     `json:"currentDraftVersion,omitempty"`
+	DefaultConnectorName *string    `json:"defaultConnectorName,omitempty"`
+	Description          *string    `json:"description,omitempty"`
+	Etag                 *int64     `json:"etag,omitempty"`
+	Id                   *string    `json:"id,omitempty"`
+	Namespace            *string    `json:"namespace,omitempty"`
+	OwnerId              *string    `json:"ownerId,omitempty"`
+	OwnerPackage         *string    `json:"ownerPackage,omitempty"`
+	Slug                 *string    `json:"slug,omitempty"`
+	Status               *string    `json:"status,omitempty"`
+	Title                *string    `json:"title,omitempty"`
+	UpdatedAt            *time.Time `json:"updatedAt,omitempty"`
 }
 
 // Wire9b9625c5bec32646decbda4f9d3e2d367c5b2ccc04c411e68f25c2e19cfc951e defines model for Wire_9b9625c5bec32646decbda4f9d3e2d367c5b2ccc04c411e68f25c2e19cfc951e.
 type Wire9b9625c5bec32646decbda4f9d3e2d367c5b2ccc04c411e68f25c2e19cfc951e struct {
-	Id      string `json:"id"`
-	Kind    string `json:"kind"`
-	Tenant  string `json:"tenant"`
-	Version string `json:"version"`
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
 }
 
 // Wire9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d defines model for Wire_9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d.
 type Wire9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d struct {
-	Alias       *string   `json:"alias,omitempty"`
-	Columns     *[]string `json:"columns,omitempty"`
-	CreatedAt   time.Time `json:"createdAt"`
-	Description *string   `json:"description,omitempty"`
-	Etag        int64     `json:"etag"`
-	Linked      bool      `json:"linked"`
-	Name        string    `json:"name"`
-	OwnerId     string    `json:"ownerId"`
-	PackagePath string    `json:"packagePath"`
-	Status      string    `json:"status"`
-	Title       string    `json:"title"`
-	TypeName    string    `json:"typeName"`
-	UpdatedAt   time.Time `json:"updatedAt"`
+	Alias       *string    `json:"alias,omitempty"`
+	Columns     *[]string  `json:"columns,omitempty"`
+	CreatedAt   *time.Time `json:"createdAt,omitempty"`
+	Description *string    `json:"description,omitempty"`
+	Etag        *int64     `json:"etag,omitempty"`
+	Linked      *bool      `json:"linked,omitempty"`
+	Name        *string    `json:"name,omitempty"`
+	OwnerId     *string    `json:"ownerId,omitempty"`
+	PackagePath *string    `json:"packagePath,omitempty"`
+	Status      *string    `json:"status,omitempty"`
+	Title       *string    `json:"title,omitempty"`
+	TypeName    *string    `json:"typeName,omitempty"`
+	UpdatedAt   *time.Time `json:"updatedAt,omitempty"`
 }
 
 // Wire9d8264983bf04cffa36aaebff7ed30c4e0090d3061c007830e518f3633d58fb8 defines model for Wire_9d8264983bf04cffa36aaebff7ed30c4e0090d3061c007830e518f3633d58fb8.
 type Wire9d8264983bf04cffa36aaebff7ed30c4e0090d3061c007830e518f3633d58fb8 struct {
-	Content string                                                                  `json:"content"`
+	Content *string                                                                 `json:"content,omitempty"`
 	Files   *[]Wire0000ae7c5d7884f4ead8c10e8038a8cc022ef4386007285882c2dd1a2fdc867e `json:"files,omitempty"`
 	Title   *string                                                                 `json:"title,omitempty"`
 }
 
 // Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145 defines model for Wire_9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145.
 type Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145 struct {
-	Files   *[]Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Files_Item   `json:"files"`
-	Folders *[]Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Folders_Item `json:"folders"`
-	Skills  *[]Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Skills_Item  `json:"skills"`
+	Files   *[]Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Files_Item   `json:"files,omitempty"`
+	Folders *[]Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Folders_Item `json:"folders,omitempty"`
+	Skills  *[]Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Skills_Item  `json:"skills,omitempty"`
 	Version *Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Version        `json:"version,omitempty"`
 }
 
@@ -3926,13 +3926,13 @@ type Wire9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145_Versio
 
 // Wire9ff34394076f48ed9d131d938211e94244c83bf8f3fbbfacc63525bd424ec102 defines model for Wire_9ff34394076f48ed9d131d938211e94244c83bf8f3fbbfacc63525bd424ec102.
 type Wire9ff34394076f48ed9d131d938211e94244c83bf8f3fbbfacc63525bd424ec102 struct {
-	Document Wire615a0539a089e0c573df4f18b04483a7302c37cf735dea31813c024c8e2d0922 `json:"document"`
+	Document *Wire615a0539a089e0c573df4f18b04483a7302c37cf735dea31813c024c8e2d0922 `json:"document,omitempty"`
 }
 
 // WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece defines model for Wire_a1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece.
 type WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece struct {
-	Diagnostics *[]WireD82adbb20251ee59732b96cc17e12fda2b7531a5a2aa9b3011dd7e9258ea62a7      `json:"diagnostics,omitempty"`
-	Version     WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Version `json:"version"`
+	Diagnostics *[]WireD82adbb20251ee59732b96cc17e12fda2b7531a5a2aa9b3011dd7e9258ea62a7       `json:"diagnostics,omitempty"`
+	Version     *WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Version `json:"version,omitempty"`
 }
 
 // WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1eceVersion1 defines model for WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece.Version.1.
@@ -3945,54 +3945,54 @@ type WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Versio
 
 // WireA2017528848c398dbe63d56f9c45139f7f4ebf51f3b52cadf11a77fb2b585406 defines model for Wire_a2017528848c398dbe63d56f9c45139f7f4ebf51f3b52cadf11a77fb2b585406.
 type WireA2017528848c398dbe63d56f9c45139f7f4ebf51f3b52cadf11a77fb2b585406 struct {
-	Name string `json:"name"`
+	Name *string `json:"name,omitempty"`
 }
 
 // WireA6d5a259bb2993e6552649336f2c093ccd6ae12f130f8526f5c136a619d0cb51 defines model for Wire_a6d5a259bb2993e6552649336f2c093ccd6ae12f130f8526f5c136a619d0cb51.
 type WireA6d5a259bb2993e6552649336f2c093ccd6ae12f130f8526f5c136a619d0cb51 struct {
-	AllowedRoles *[]string `json:"allowedRoles"`
-	CreatedAt    time.Time `json:"createdAt"`
-	Description  *string   `json:"description,omitempty"`
-	Etag         int64     `json:"etag"`
-	ManagerRoles *[]string `json:"managerRoles"`
-	McpEnabled   bool      `json:"mcpEnabled"`
-	McpPort      *int64    `json:"mcpPort,omitempty"`
-	Name         string    `json:"name"`
-	NamespaceId  string    `json:"namespaceId"`
-	OwnerId      string    `json:"ownerId"`
-	Status       string    `json:"status"`
-	Title        string    `json:"title"`
-	UpdatedAt    time.Time `json:"updatedAt"`
-	Visibility   string    `json:"visibility"`
+	AllowedRoles *[]string  `json:"allowedRoles,omitempty"`
+	CreatedAt    *time.Time `json:"createdAt,omitempty"`
+	Description  *string    `json:"description,omitempty"`
+	Etag         *int64     `json:"etag,omitempty"`
+	ManagerRoles *[]string  `json:"managerRoles,omitempty"`
+	McpEnabled   *bool      `json:"mcpEnabled,omitempty"`
+	McpPort      *int64     `json:"mcpPort,omitempty"`
+	Name         *string    `json:"name,omitempty"`
+	NamespaceId  *string    `json:"namespaceId,omitempty"`
+	OwnerId      *string    `json:"ownerId,omitempty"`
+	Status       *string    `json:"status,omitempty"`
+	Title        *string    `json:"title,omitempty"`
+	UpdatedAt    *time.Time `json:"updatedAt,omitempty"`
+	Visibility   *string    `json:"visibility,omitempty"`
 }
 
 // WireAacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a defines model for Wire_aacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a.
 type WireAacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a struct {
-	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
-	FolderId               string `json:"folderId"`
-	Ordinal                int64  `json:"ordinal"`
-	ReportId               string `json:"reportId"`
-	SkillId                string `json:"skillId"`
-	SkillRoot              string `json:"skillRoot"`
-	VersionNo              int64  `json:"versionNo"`
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	FolderId               *string `json:"folderId,omitempty"`
+	Ordinal                *int64  `json:"ordinal,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	SkillId                *string `json:"skillId,omitempty"`
+	SkillRoot              *string `json:"skillRoot,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
 // WireAfbd3ba313288192c9a8ae3627ea548117f98143f4f73d04a19579f4207fa6b3 defines model for Wire_afbd3ba313288192c9a8ae3627ea548117f98143f4f73d04a19579f4207fa6b3.
 type WireAfbd3ba313288192c9a8ae3627ea548117f98143f4f73d04a19579f4207fa6b3 struct {
-	Id      string `json:"id"`
-	Kind    string `json:"kind"`
-	Tenant  string `json:"tenant"`
-	Version string `json:"version"`
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
 }
 
 // WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19 defines model for Wire_affe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19.
 type WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19 struct {
-	Capabilities Wire3100c253c572f716ab2eb88f6d83d813eedfe0b04003220edb6e98677fced244               `json:"capabilities"`
+	Capabilities *Wire3100c253c572f716ab2eb88f6d83d813eedfe0b04003220edb6e98677fced244              `json:"capabilities,omitempty"`
 	Diagnostics  *[]Wire5dcb9a5385549159028a02b9f90b5f85b74ea0076b725bce7e222e5cfe3ae71e            `json:"diagnostics,omitempty"`
 	Dql          *string                                                                            `json:"dql,omitempty"`
 	PreviewInput *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_PreviewInput `json:"previewInput,omitempty"`
 	Structure    interface{}                                                                        `json:"structure,omitempty"`
-	Version      WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version       `json:"version"`
+	Version      *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version      `json:"version,omitempty"`
 }
 
 // WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19PreviewInput1 defines model for WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19.PreviewInput.1.
@@ -4013,20 +4013,20 @@ type WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Versio
 
 // WireB202a27129afca41f80f68ed94bc40b9a93d92d84de82126bac7e1e2ec9433fe defines model for Wire_b202a27129afca41f80f68ed94bc40b9a93d92d84de82126bac7e1e2ec9433fe.
 type WireB202a27129afca41f80f68ed94bc40b9a93d92d84de82126bac7e1e2ec9433fe struct {
-	Bundle        Wire9d8264983bf04cffa36aaebff7ed30c4e0090d3061c007830e518f3633d58fb8 `json:"bundle"`
-	ContentSha256 string                                                               `json:"contentSha256"`
-	CreatedAt     time.Time                                                            `json:"createdAt"`
-	CreatedBy     string                                                               `json:"createdBy"`
-	NamespaceId   string                                                               `json:"namespaceId"`
-	Revision      int64                                                                `json:"revision"`
-	SkillId       string                                                               `json:"skillId"`
+	Bundle        *Wire9d8264983bf04cffa36aaebff7ed30c4e0090d3061c007830e518f3633d58fb8 `json:"bundle,omitempty"`
+	ContentSha256 *string                                                               `json:"contentSha256,omitempty"`
+	CreatedAt     *time.Time                                                            `json:"createdAt,omitempty"`
+	CreatedBy     *string                                                               `json:"createdBy,omitempty"`
+	NamespaceId   *string                                                               `json:"namespaceId,omitempty"`
+	Revision      *int64                                                                `json:"revision,omitempty"`
+	SkillId       *string                                                               `json:"skillId,omitempty"`
 }
 
 // WireB3c67af74df5a4d366c8f3a628801f07d89d1eefd88ebad70d3689f8970629db defines model for Wire_b3c67af74df5a4d366c8f3a628801f07d89d1eefd88ebad70d3689f8970629db.
 type WireB3c67af74df5a4d366c8f3a628801f07d89d1eefd88ebad70d3689f8970629db struct {
-	Items  *[]WireB3c67af74df5a4d366c8f3a628801f07d89d1eefd88ebad70d3689f8970629db_Items_Item `json:"items"`
-	Limit  int64                                                                              `json:"limit"`
-	Offset int64                                                                              `json:"offset"`
+	Items  *[]WireB3c67af74df5a4d366c8f3a628801f07d89d1eefd88ebad70d3689f8970629db_Items_Item `json:"items,omitempty"`
+	Limit  *int64                                                                             `json:"limit,omitempty"`
+	Offset *int64                                                                             `json:"offset,omitempty"`
 }
 
 // WireB3c67af74df5a4d366c8f3a628801f07d89d1eefd88ebad70d3689f8970629dbItems1 defines model for WireB3c67af74df5a4d366c8f3a628801f07d89d1eefd88ebad70d3689f8970629db.Items.1.
@@ -4039,27 +4039,27 @@ type WireB3c67af74df5a4d366c8f3a628801f07d89d1eefd88ebad70d3689f8970629db_Items_
 
 // WireB42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044 defines model for Wire_b42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044.
 type WireB42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044 struct {
-	AuditEnabled         bool      `json:"auditEnabled"`
-	ComponentName        string    `json:"componentName"`
-	ComponentScope       string    `json:"componentScope"`
-	CreatedAt            time.Time `json:"createdAt"`
-	CurrentDraftVersion  *int64    `json:"currentDraftVersion,omitempty"`
-	DefaultConnectorName string    `json:"defaultConnectorName"`
-	Description          *string   `json:"description,omitempty"`
-	Etag                 int64     `json:"etag"`
-	Id                   string    `json:"id"`
-	Namespace            string    `json:"namespace"`
-	OwnerId              string    `json:"ownerId"`
-	OwnerPackage         string    `json:"ownerPackage"`
-	Slug                 string    `json:"slug"`
-	Status               string    `json:"status"`
-	Title                string    `json:"title"`
-	UpdatedAt            time.Time `json:"updatedAt"`
+	AuditEnabled         *bool      `json:"auditEnabled,omitempty"`
+	ComponentName        *string    `json:"componentName,omitempty"`
+	ComponentScope       *string    `json:"componentScope,omitempty"`
+	CreatedAt            *time.Time `json:"createdAt,omitempty"`
+	CurrentDraftVersion  *int64     `json:"currentDraftVersion,omitempty"`
+	DefaultConnectorName *string    `json:"defaultConnectorName,omitempty"`
+	Description          *string    `json:"description,omitempty"`
+	Etag                 *int64     `json:"etag,omitempty"`
+	Id                   *string    `json:"id,omitempty"`
+	Namespace            *string    `json:"namespace,omitempty"`
+	OwnerId              *string    `json:"ownerId,omitempty"`
+	OwnerPackage         *string    `json:"ownerPackage,omitempty"`
+	Slug                 *string    `json:"slug,omitempty"`
+	Status               *string    `json:"status,omitempty"`
+	Title                *string    `json:"title,omitempty"`
+	UpdatedAt            *time.Time `json:"updatedAt,omitempty"`
 }
 
 // WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240 defines model for Wire_b617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240.
 type WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240 struct {
-	Items *[]WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240_Items_Item `json:"items"`
+	Items *[]WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240_Items_Item `json:"items,omitempty"`
 }
 
 // WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240Items1 defines model for WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240.Items.1.
@@ -4072,26 +4072,26 @@ type WireB617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240_Items_
 
 // WireB6838e6fc47c275d5128904db750df032d83f139b6513ac839109381f0b0e05d defines model for Wire_b6838e6fc47c275d5128904db750df032d83f139b6513ac839109381f0b0e05d.
 type WireB6838e6fc47c275d5128904db750df032d83f139b6513ac839109381f0b0e05d struct {
-	Resource Wire08938620e84156f14c3eb03478de7df19afa5374952a4abae29cf28f9d58f8f5 `json:"resource"`
-	Revision int64                                                                `json:"revision"`
+	Resource *Wire08938620e84156f14c3eb03478de7df19afa5374952a4abae29cf28f9d58f8f5 `json:"resource,omitempty"`
+	Revision *int64                                                                `json:"revision,omitempty"`
 }
 
 // WireB6bb3a3bc73e240bf20da6f0ceb8512d37faeca8e28cca304a69c5e7ff81fa51 defines model for Wire_b6bb3a3bc73e240bf20da6f0ceb8512d37faeca8e28cca304a69c5e7ff81fa51.
 type WireB6bb3a3bc73e240bf20da6f0ceb8512d37faeca8e28cca304a69c5e7ff81fa51 struct {
-	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
-	FolderId               string `json:"folderId"`
-	Namespace              string `json:"namespace"`
-	Ordinal                int64  `json:"ordinal"`
-	ReportId               string `json:"reportId"`
-	RootPath               string `json:"rootPath"`
-	UriPrefix              string `json:"uriPrefix"`
-	VersionNo              int64  `json:"versionNo"`
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	FolderId               *string `json:"folderId,omitempty"`
+	Namespace              *string `json:"namespace,omitempty"`
+	Ordinal                *int64  `json:"ordinal,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	RootPath               *string `json:"rootPath,omitempty"`
+	UriPrefix              *string `json:"uriPrefix,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
 // WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19 defines model for Wire_b976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19.
 type WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19 struct {
-	PublicationStatus string                                                                     `json:"publicationStatus"`
-	Skill             WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19_Skill `json:"skill"`
+	PublicationStatus *string                                                                     `json:"publicationStatus,omitempty"`
+	Skill             *WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19_Skill `json:"skill,omitempty"`
 }
 
 // WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19Skill1 defines model for WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19.Skill.1.
@@ -4105,52 +4105,52 @@ type WireB976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19_Skill 
 // WireB981e81a865e06c9a0806c0be6f35790a2a830c9d214f66357056f42835e3045 defines model for Wire_b981e81a865e06c9a0806c0be6f35790a2a830c9d214f66357056f42835e3045.
 type WireB981e81a865e06c9a0806c0be6f35790a2a830c9d214f66357056f42835e3045 struct {
 	Catalog *string `json:"catalog,omitempty"`
-	Name    string  `json:"name"`
+	Name    *string `json:"name,omitempty"`
 }
 
 // WireBb9c83695ae936c7031ab2428c59ccda35a4e34af9e6662a945012782ac921e1 defines model for Wire_bb9c83695ae936c7031ab2428c59ccda35a4e34af9e6662a945012782ac921e1.
 type WireBb9c83695ae936c7031ab2428c59ccda35a4e34af9e6662a945012782ac921e1 struct {
-	Complete bool   `json:"complete"`
-	Dql      string `json:"dql"`
+	Complete *bool   `json:"complete,omitempty"`
+	Dql      *string `json:"dql,omitempty"`
 }
 
 // WireBba07f0bad61cd85885417e1c20c5cff98c1ebf3abb205fd71b51c6069ea161c defines model for Wire_bba07f0bad61cd85885417e1c20c5cff98c1ebf3abb205fd71b51c6069ea161c.
 type WireBba07f0bad61cd85885417e1c20c5cff98c1ebf3abb205fd71b51c6069ea161c struct {
-	AuditEnabled         bool      `json:"auditEnabled"`
-	ComponentName        string    `json:"componentName"`
-	ComponentScope       string    `json:"componentScope"`
-	CreatedAt            time.Time `json:"createdAt"`
-	CurrentDraftVersion  *int64    `json:"currentDraftVersion,omitempty"`
-	DefaultConnectorName string    `json:"defaultConnectorName"`
-	Description          *string   `json:"description,omitempty"`
-	Etag                 int64     `json:"etag"`
-	Id                   string    `json:"id"`
-	Namespace            string    `json:"namespace"`
-	OwnerId              string    `json:"ownerId"`
-	OwnerPackage         string    `json:"ownerPackage"`
-	Slug                 string    `json:"slug"`
-	Status               string    `json:"status"`
-	Title                string    `json:"title"`
-	UpdatedAt            time.Time `json:"updatedAt"`
+	AuditEnabled         *bool      `json:"auditEnabled,omitempty"`
+	ComponentName        *string    `json:"componentName,omitempty"`
+	ComponentScope       *string    `json:"componentScope,omitempty"`
+	CreatedAt            *time.Time `json:"createdAt,omitempty"`
+	CurrentDraftVersion  *int64     `json:"currentDraftVersion,omitempty"`
+	DefaultConnectorName *string    `json:"defaultConnectorName,omitempty"`
+	Description          *string    `json:"description,omitempty"`
+	Etag                 *int64     `json:"etag,omitempty"`
+	Id                   *string    `json:"id,omitempty"`
+	Namespace            *string    `json:"namespace,omitempty"`
+	OwnerId              *string    `json:"ownerId,omitempty"`
+	OwnerPackage         *string    `json:"ownerPackage,omitempty"`
+	Slug                 *string    `json:"slug,omitempty"`
+	Status               *string    `json:"status,omitempty"`
+	Title                *string    `json:"title,omitempty"`
+	UpdatedAt            *time.Time `json:"updatedAt,omitempty"`
 }
 
 // WireBc277e5b6cc7b5f6e3363c1e3628c4127103aecef86cccc990395878331130b5 defines model for Wire_bc277e5b6cc7b5f6e3363c1e3628c4127103aecef86cccc990395878331130b5.
 type WireBc277e5b6cc7b5f6e3363c1e3628c4127103aecef86cccc990395878331130b5 struct {
-	Decision WireE664fa33d9d2d2c968c6dabd40e4ac01c5333f4591763b88b02fd2feb8b031ca `json:"decision"`
+	Decision *WireE664fa33d9d2d2c968c6dabd40e4ac01c5333f4591763b88b02fd2feb8b031ca `json:"decision,omitempty"`
 }
 
 // WireBd458392be482912a616e980fab94755810f3ed4347c5351a04930f05dd4ce31 defines model for Wire_bd458392be482912a616e980fab94755810f3ed4347c5351a04930f05dd4ce31.
 type WireBd458392be482912a616e980fab94755810f3ed4347c5351a04930f05dd4ce31 struct {
-	Columns          *[]Wire284d529f33778b8025eaf493c0c081fa071dfc15595367cd050c6aea84390073 `json:"columns"`
-	ConstraintsKnown bool                                                                    `json:"constraintsKnown"`
+	Columns          *[]Wire284d529f33778b8025eaf493c0c081fa071dfc15595367cd050c6aea84390073 `json:"columns,omitempty"`
+	ConstraintsKnown *bool                                                                   `json:"constraintsKnown,omitempty"`
 	Diagnostics      *[]WireE18028c8d8678f7b196b454563aabcdf784e9c96e81c3a01b6b229ef99506ee1 `json:"diagnostics,omitempty"`
 	MetadataSource   *string                                                                 `json:"metadataSource,omitempty"`
-	Table            WireCcdd85ede51b17373dddff12304f04c5afd91f3fe365382c999b601899f69747    `json:"table"`
+	Table            *WireCcdd85ede51b17373dddff12304f04c5afd91f3fe365382c999b601899f69747   `json:"table,omitempty"`
 }
 
 // WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033 defines model for Wire_bd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033.
 type WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033 struct {
-	Items *[]WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_Item `json:"items"`
+	Items *[]WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_Item `json:"items,omitempty"`
 }
 
 // WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033Items1 defines model for WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033.Items.1.
@@ -4163,78 +4163,78 @@ type WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_
 
 // WireBe64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0 defines model for Wire_be64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0.
 type WireBe64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0 struct {
-	Content                string  `json:"content"`
-	ContentSha256          string  `json:"contentSha256"`
-	ContentSize            int64   `json:"contentSize"`
+	Content                *string `json:"content,omitempty"`
+	ContentSha256          *string `json:"contentSha256,omitempty"`
+	ContentSize            *int64  `json:"contentSize,omitempty"`
 	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
-	IsBinary               bool    `json:"isBinary"`
+	IsBinary               *bool   `json:"isBinary,omitempty"`
 	MediaType              *string `json:"mediaType,omitempty"`
-	Namespace              string  `json:"namespace"`
-	ReportId               string  `json:"reportId"`
-	ResourceId             string  `json:"resourceId"`
-	ResourcePath           string  `json:"resourcePath"`
-	VersionNo              int64   `json:"versionNo"`
+	Namespace              *string `json:"namespace,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	ResourceId             *string `json:"resourceId,omitempty"`
+	ResourcePath           *string `json:"resourcePath,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
 // WireBedeea2eea3f372feb231562eecdb3aa32c8017835f81ac7e8d5978e48330812 defines model for Wire_bedeea2eea3f372feb231562eecdb3aa32c8017835f81ac7e8d5978e48330812.
 type WireBedeea2eea3f372feb231562eecdb3aa32c8017835f81ac7e8d5978e48330812 struct {
-	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
-	FolderId               string `json:"folderId"`
-	Namespace              string `json:"namespace"`
-	Ordinal                int64  `json:"ordinal"`
-	ReportId               string `json:"reportId"`
-	RootPath               string `json:"rootPath"`
-	UriPrefix              string `json:"uriPrefix"`
-	VersionNo              int64  `json:"versionNo"`
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	FolderId               *string `json:"folderId,omitempty"`
+	Namespace              *string `json:"namespace,omitempty"`
+	Ordinal                *int64  `json:"ordinal,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	RootPath               *string `json:"rootPath,omitempty"`
+	UriPrefix              *string `json:"uriPrefix,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
 // WireBf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016 defines model for Wire_bf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016.
 type WireBf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016 struct {
-	Content                string  `json:"content"`
-	ContentSha256          string  `json:"contentSha256"`
-	ContentSize            int64   `json:"contentSize"`
+	Content                *string `json:"content,omitempty"`
+	ContentSha256          *string `json:"contentSha256,omitempty"`
+	ContentSize            *int64  `json:"contentSize,omitempty"`
 	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
-	IsBinary               bool    `json:"isBinary"`
+	IsBinary               *bool   `json:"isBinary,omitempty"`
 	MediaType              *string `json:"mediaType,omitempty"`
-	Namespace              string  `json:"namespace"`
-	ReportId               string  `json:"reportId"`
-	ResourceId             string  `json:"resourceId"`
-	ResourcePath           string  `json:"resourcePath"`
-	VersionNo              int64   `json:"versionNo"`
+	Namespace              *string `json:"namespace,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	ResourceId             *string `json:"resourceId,omitempty"`
+	ResourcePath           *string `json:"resourcePath,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
 // WireC3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089 defines model for Wire_c3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089.
 type WireC3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089 struct {
 	AuthoredDql          *string     `json:"authoredDql,omitempty"`
 	AuthoredSql          *string     `json:"authoredSql,omitempty"`
-	AuthoringMode        string      `json:"authoringMode"`
+	AuthoringMode        *string     `json:"authoringMode,omitempty"`
 	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus        string      `json:"compileStatus"`
-	CompilerVersion      string      `json:"compilerVersion"`
+	CompileStatus        *string     `json:"compileStatus,omitempty"`
+	CompilerVersion      *string     `json:"compilerVersion,omitempty"`
 	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
 	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
-	CreatedAt            time.Time   `json:"createdAt"`
-	CreatedBy            string      `json:"createdBy"`
-	DatlyVersion         string      `json:"datlyVersion"`
+	CreatedAt            *time.Time  `json:"createdAt,omitempty"`
+	CreatedBy            *string     `json:"createdBy,omitempty"`
+	DatlyVersion         *string     `json:"datlyVersion,omitempty"`
 	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
 	GeneratedDql         *string     `json:"generatedDql,omitempty"`
 	Notes                *string     `json:"notes,omitempty"`
 	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
-	ReportId             string      `json:"reportId"`
-	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ReportId             *string     `json:"reportId,omitempty"`
+	ResourceCheckEnabled *bool       `json:"resourceCheckEnabled,omitempty"`
 	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision       int64       `json:"sourceRevision"`
-	SpecFormatVersion    string      `json:"specFormatVersion"`
-	SpecHash             string      `json:"specHash"`
-	State                string      `json:"state"`
+	SourceRevision       *int64      `json:"sourceRevision,omitempty"`
+	SpecFormatVersion    *string     `json:"specFormatVersion,omitempty"`
+	SpecHash             *string     `json:"specHash,omitempty"`
+	State                *string     `json:"state,omitempty"`
 	TypeManifest         interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo            int64       `json:"versionNo"`
+	VersionNo            *int64      `json:"versionNo,omitempty"`
 }
 
 // WireC34a89824b0951b1ac05f75e5bc3de78c6291e85c6dc07c5360c160963f1e221 defines model for Wire_c34a89824b0951b1ac05f75e5bc3de78c6291e85c6dc07c5360c160963f1e221.
 type WireC34a89824b0951b1ac05f75e5bc3de78c6291e85c6dc07c5360c160963f1e221 struct {
-	Document Wire7a9034382c023a3e5b4b4f9403d720cc1bf990d1c827a366a019d586b9f5c801 `json:"document"`
+	Document *Wire7a9034382c023a3e5b4b4f9403d720cc1bf990d1c827a366a019d586b9f5c801 `json:"document,omitempty"`
 }
 
 // WireC38c2d9780ed3554863ff8a5dc7c7bd625b9c3263af13cdca862e977c297d435 defines model for Wire_c38c2d9780ed3554863ff8a5dc7c7bd625b9c3263af13cdca862e977c297d435.
@@ -4263,24 +4263,24 @@ type WireC38c2d9780ed3554863ff8a5dc7c7bd625b9c3263af13cdca862e977c297d435_Policy
 
 // WireC396441efc9d7ad7833a50003f492395e59e7a127979ee1bb2a1ef138b369ac9 defines model for Wire_c396441efc9d7ad7833a50003f492395e59e7a127979ee1bb2a1ef138b369ac9.
 type WireC396441efc9d7ad7833a50003f492395e59e7a127979ee1bb2a1ef138b369ac9 struct {
-	Resource Wire6eb7fc5381443fd97876b99edd185761fb616aa93f65106e8bce0b948e4541ea `json:"resource"`
-	Revision int64                                                                `json:"revision"`
+	Resource *Wire6eb7fc5381443fd97876b99edd185761fb616aa93f65106e8bce0b948e4541ea `json:"resource,omitempty"`
+	Revision *int64                                                                `json:"revision,omitempty"`
 }
 
 // WireC47cf46b58e263ed665fbdce50f43ecc62642c4837741ba43aaa439c1623d39c defines model for Wire_c47cf46b58e263ed665fbdce50f43ecc62642c4837741ba43aaa439c1623d39c.
 type WireC47cf46b58e263ed665fbdce50f43ecc62642c4837741ba43aaa439c1623d39c struct {
-	CanEdit      bool `json:"canEdit"`
-	CanManageAcl bool `json:"canManageAcl"`
-	CanPublish   bool `json:"canPublish"`
-	CanRun       bool `json:"canRun"`
-	CanUseDql    bool `json:"canUseDql"`
-	CanView      bool `json:"canView"`
+	CanEdit      *bool `json:"canEdit,omitempty"`
+	CanManageAcl *bool `json:"canManageAcl,omitempty"`
+	CanPublish   *bool `json:"canPublish,omitempty"`
+	CanRun       *bool `json:"canRun,omitempty"`
+	CanUseDql    *bool `json:"canUseDql,omitempty"`
+	CanView      *bool `json:"canView,omitempty"`
 }
 
 // WireC4facae1d7de805700fd614d7869128040212f41ac67951ed63113923ea516c1 defines model for Wire_c4facae1d7de805700fd614d7869128040212f41ac67951ed63113923ea516c1.
 type WireC4facae1d7de805700fd614d7869128040212f41ac67951ed63113923ea516c1 struct {
 	Entity *WireC4facae1d7de805700fd614d7869128040212f41ac67951ed63113923ea516c1_Entity `json:"entity,omitempty"`
-	Kind   string                                                                       `json:"kind"`
+	Kind   *string                                                                      `json:"kind,omitempty"`
 	Rules  *[]WireC4facae1d7de805700fd614d7869128040212f41ac67951ed63113923ea516c1      `json:"rules,omitempty"`
 	Value  *string                                                                      `json:"value,omitempty"`
 }
@@ -4296,8 +4296,8 @@ type WireC4facae1d7de805700fd614d7869128040212f41ac67951ed63113923ea516c1_Entity
 // WireC802f2917b8e2a3792964f9ec6387ab7aed5bce5f6f459ac36ed90610be10ade defines model for Wire_c802f2917b8e2a3792964f9ec6387ab7aed5bce5f6f459ac36ed90610be10ade.
 type WireC802f2917b8e2a3792964f9ec6387ab7aed5bce5f6f459ac36ed90610be10ade struct {
 	Archived    *bool                                                                            `json:"archived,omitempty"`
-	DisplayName string                                                                           `json:"displayName"`
-	Policies    *map[string]Wire8e91903699babbed9e7ba5df80407c5e4ba8d274d534089cde3a462c51f42580 `json:"policies"`
+	DisplayName *string                                                                          `json:"displayName,omitempty"`
+	Policies    *map[string]Wire8e91903699babbed9e7ba5df80407c5e4ba8d274d534089cde3a462c51f42580 `json:"policies,omitempty"`
 }
 
 // WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca defines model for Wire_c9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca.
@@ -4324,9 +4324,9 @@ type WireC9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca_Securi
 
 // WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88 defines model for Wire_cbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88.
 type WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88 struct {
-	CanEdit  bool                                                                          `json:"canEdit"`
-	Etag     int64                                                                         `json:"etag"`
-	Settings WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88_Settings `json:"settings"`
+	CanEdit  *bool                                                                          `json:"canEdit,omitempty"`
+	Etag     *int64                                                                         `json:"etag,omitempty"`
+	Settings *WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88_Settings `json:"settings,omitempty"`
 }
 
 // WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88Settings1 defines model for WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88.Settings.1.
@@ -4339,7 +4339,7 @@ type WireCbabe3d249420717ddf7cacea255701eecac111c7027807683a4b2b34f50cc88_Settin
 
 // WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332 defines model for Wire_cc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332.
 type WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332 struct {
-	Items *[]WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332_Items_Item `json:"items"`
+	Items *[]WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332_Items_Item `json:"items,omitempty"`
 }
 
 // WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332Items1 defines model for WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332.Items.1.
@@ -4352,43 +4352,43 @@ type WireCc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332_Items_
 
 // WireCc8e6d7697c9501b39869778c8e5561398ec267f3f24741ddd643fb0c8d25f2f defines model for Wire_cc8e6d7697c9501b39869778c8e5561398ec267f3f24741ddd643fb0c8d25f2f.
 type WireCc8e6d7697c9501b39869778c8e5561398ec267f3f24741ddd643fb0c8d25f2f struct {
-	Id      string `json:"id"`
-	Kind    string `json:"kind"`
-	Tenant  string `json:"tenant"`
-	Version string `json:"version"`
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
 }
 
 // WireCcb72e9ff740a41f9ee459d67d34d6d003de93aa4e74ce39b240bc27d65454ca defines model for Wire_ccb72e9ff740a41f9ee459d67d34d6d003de93aa4e74ce39b240bc27d65454ca.
 type WireCcb72e9ff740a41f9ee459d67d34d6d003de93aa4e74ce39b240bc27d65454ca struct {
-	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
-	FolderId               string `json:"folderId"`
-	Ordinal                int64  `json:"ordinal"`
-	ReportId               string `json:"reportId"`
-	SkillId                string `json:"skillId"`
-	SkillRoot              string `json:"skillRoot"`
-	VersionNo              int64  `json:"versionNo"`
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	FolderId               *string `json:"folderId,omitempty"`
+	Ordinal                *int64  `json:"ordinal,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	SkillId                *string `json:"skillId,omitempty"`
+	SkillRoot              *string `json:"skillRoot,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
 // WireCcdd85ede51b17373dddff12304f04c5afd91f3fe365382c999b601899f69747 defines model for Wire_ccdd85ede51b17373dddff12304f04c5afd91f3fe365382c999b601899f69747.
 type WireCcdd85ede51b17373dddff12304f04c5afd91f3fe365382c999b601899f69747 struct {
 	Catalog *string `json:"catalog,omitempty"`
 	Comment *string `json:"comment,omitempty"`
-	Name    string  `json:"name"`
+	Name    *string `json:"name,omitempty"`
 	Schema  *string `json:"schema,omitempty"`
 	Type    *string `json:"type,omitempty"`
 }
 
 // WireCfcaf2b72b62ce0a723c37fe6863f96b754785b31db4030a9f684317c5490937 defines model for Wire_cfcaf2b72b62ce0a723c37fe6863f96b754785b31db4030a9f684317c5490937.
 type WireCfcaf2b72b62ce0a723c37fe6863f96b754785b31db4030a9f684317c5490937 struct {
-	Resource WireF00a6067197bf8503ad2ca929fcac6dd56da64854bf53cfa63f2e90af408ef5d `json:"resource"`
-	Revision int64                                                                `json:"revision"`
+	Resource *WireF00a6067197bf8503ad2ca929fcac6dd56da64854bf53cfa63f2e90af408ef5d `json:"resource,omitempty"`
+	Revision *int64                                                                `json:"revision,omitempty"`
 }
 
 // WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d defines model for Wire_d1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d.
 type WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d struct {
-	Files   *[]WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Files_Item   `json:"files"`
-	Folders *[]WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Folders_Item `json:"folders"`
-	Skills  *[]WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Skills_Item  `json:"skills"`
+	Files   *[]WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Files_Item   `json:"files,omitempty"`
+	Folders *[]WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Folders_Item `json:"folders,omitempty"`
+	Skills  *[]WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Skills_Item  `json:"skills,omitempty"`
 	Version *WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Version        `json:"version,omitempty"`
 }
 
@@ -4428,77 +4428,77 @@ type WireD1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d_Versio
 type WireD47a3f0a566536bf283059fe5c94fdc79e8185ca98cbe6359316854e6ae380ee struct {
 	AuthoredDql          *string     `json:"authoredDql,omitempty"`
 	AuthoredSql          *string     `json:"authoredSql,omitempty"`
-	AuthoringMode        string      `json:"authoringMode"`
+	AuthoringMode        *string     `json:"authoringMode,omitempty"`
 	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus        string      `json:"compileStatus"`
-	CompilerVersion      string      `json:"compilerVersion"`
+	CompileStatus        *string     `json:"compileStatus,omitempty"`
+	CompilerVersion      *string     `json:"compilerVersion,omitempty"`
 	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
 	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
-	CreatedAt            time.Time   `json:"createdAt"`
-	CreatedBy            string      `json:"createdBy"`
-	DatlyVersion         string      `json:"datlyVersion"`
+	CreatedAt            *time.Time  `json:"createdAt,omitempty"`
+	CreatedBy            *string     `json:"createdBy,omitempty"`
+	DatlyVersion         *string     `json:"datlyVersion,omitempty"`
 	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
 	GeneratedDql         *string     `json:"generatedDql,omitempty"`
 	Notes                *string     `json:"notes,omitempty"`
 	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
-	ReportId             string      `json:"reportId"`
-	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ReportId             *string     `json:"reportId,omitempty"`
+	ResourceCheckEnabled *bool       `json:"resourceCheckEnabled,omitempty"`
 	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision       int64       `json:"sourceRevision"`
-	SpecFormatVersion    string      `json:"specFormatVersion"`
-	SpecHash             string      `json:"specHash"`
-	State                string      `json:"state"`
+	SourceRevision       *int64      `json:"sourceRevision,omitempty"`
+	SpecFormatVersion    *string     `json:"specFormatVersion,omitempty"`
+	SpecHash             *string     `json:"specHash,omitempty"`
+	State                *string     `json:"state,omitempty"`
 	TypeManifest         interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo            int64       `json:"versionNo"`
+	VersionNo            *int64      `json:"versionNo,omitempty"`
 }
 
 // WireD47f31d6831e78d8d30e9260afc40ce9bef1e3193510447b56ae7c551502c928 defines model for Wire_d47f31d6831e78d8d30e9260afc40ce9bef1e3193510447b56ae7c551502c928.
 type WireD47f31d6831e78d8d30e9260afc40ce9bef1e3193510447b56ae7c551502c928 struct {
 	AuthoredDql          *string     `json:"authoredDql,omitempty"`
 	AuthoredSql          *string     `json:"authoredSql,omitempty"`
-	AuthoringMode        string      `json:"authoringMode"`
+	AuthoringMode        *string     `json:"authoringMode,omitempty"`
 	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus        string      `json:"compileStatus"`
-	CompilerVersion      string      `json:"compilerVersion"`
+	CompileStatus        *string     `json:"compileStatus,omitempty"`
+	CompilerVersion      *string     `json:"compilerVersion,omitempty"`
 	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
 	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
-	CreatedAt            time.Time   `json:"createdAt"`
-	CreatedBy            string      `json:"createdBy"`
-	DatlyVersion         string      `json:"datlyVersion"`
+	CreatedAt            *time.Time  `json:"createdAt,omitempty"`
+	CreatedBy            *string     `json:"createdBy,omitempty"`
+	DatlyVersion         *string     `json:"datlyVersion,omitempty"`
 	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
 	GeneratedDql         *string     `json:"generatedDql,omitempty"`
 	Notes                *string     `json:"notes,omitempty"`
 	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
-	ReportId             string      `json:"reportId"`
-	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ReportId             *string     `json:"reportId,omitempty"`
+	ResourceCheckEnabled *bool       `json:"resourceCheckEnabled,omitempty"`
 	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision       int64       `json:"sourceRevision"`
-	SpecFormatVersion    string      `json:"specFormatVersion"`
-	SpecHash             string      `json:"specHash"`
-	State                string      `json:"state"`
+	SourceRevision       *int64      `json:"sourceRevision,omitempty"`
+	SpecFormatVersion    *string     `json:"specFormatVersion,omitempty"`
+	SpecHash             *string     `json:"specHash,omitempty"`
+	State                *string     `json:"state,omitempty"`
 	TypeManifest         interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo            int64       `json:"versionNo"`
+	VersionNo            *int64      `json:"versionNo,omitempty"`
 }
 
 // WireD58affaab847657f56e4dc0eed2b3bbad9e31ea2a73778f577cd287673f772b3 defines model for Wire_d58affaab847657f56e4dc0eed2b3bbad9e31ea2a73778f577cd287673f772b3.
 type WireD58affaab847657f56e4dc0eed2b3bbad9e31ea2a73778f577cd287673f772b3 struct {
-	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
-	FolderId               string `json:"folderId"`
-	Ordinal                int64  `json:"ordinal"`
-	ReportId               string `json:"reportId"`
-	SkillId                string `json:"skillId"`
-	SkillRoot              string `json:"skillRoot"`
-	VersionNo              int64  `json:"versionNo"`
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	FolderId               *string `json:"folderId,omitempty"`
+	Ordinal                *int64  `json:"ordinal,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	SkillId                *string `json:"skillId,omitempty"`
+	SkillRoot              *string `json:"skillRoot,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
 // WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78 defines model for Wire_d5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78.
 type WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78 struct {
-	Entries  *[]string                                                                    `json:"entries"`
-	EntryDql string                                                                       `json:"entryDql"`
-	Files    *[]string                                                                    `json:"files"`
-	Version  WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78_Version `json:"version"`
+	Entries  *[]string                                                                     `json:"entries,omitempty"`
+	EntryDql *string                                                                       `json:"entryDql,omitempty"`
+	Files    *[]string                                                                     `json:"files,omitempty"`
+	Version  *WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78_Version `json:"version,omitempty"`
 }
 
 // WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78Version1 defines model for WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78.Version.1.
@@ -4511,20 +4511,20 @@ type WireD5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78_Versio
 
 // WireD5cefe1b3a17afd7fef5285814e696de9b1f5aa8569887156dc7690bce5223c2 defines model for Wire_d5cefe1b3a17afd7fef5285814e696de9b1f5aa8569887156dc7690bce5223c2.
 type WireD5cefe1b3a17afd7fef5285814e696de9b1f5aa8569887156dc7690bce5223c2 struct {
-	ExpectedSourceRevision *int64 `json:"expectedSourceRevision,omitempty"`
-	FolderId               string `json:"folderId"`
-	Ordinal                int64  `json:"ordinal"`
-	ReportId               string `json:"reportId"`
-	SkillId                string `json:"skillId"`
-	SkillRoot              string `json:"skillRoot"`
-	VersionNo              int64  `json:"versionNo"`
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	FolderId               *string `json:"folderId,omitempty"`
+	Ordinal                *int64  `json:"ordinal,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	SkillId                *string `json:"skillId,omitempty"`
+	SkillRoot              *string `json:"skillRoot,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
 // WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836 defines model for Wire_d729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836.
 type WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836 struct {
-	CanEdit  bool                                                                          `json:"canEdit"`
-	Etag     int64                                                                         `json:"etag"`
-	Settings WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836_Settings `json:"settings"`
+	CanEdit  *bool                                                                          `json:"canEdit,omitempty"`
+	Etag     *int64                                                                         `json:"etag,omitempty"`
+	Settings *WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836_Settings `json:"settings,omitempty"`
 }
 
 // WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836Settings1 defines model for WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836.Settings.1.
@@ -4537,51 +4537,51 @@ type WireD729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836_Settin
 
 // WireD82adbb20251ee59732b96cc17e12fda2b7531a5a2aa9b3011dd7e9258ea62a7 defines model for Wire_d82adbb20251ee59732b96cc17e12fda2b7531a5a2aa9b3011dd7e9258ea62a7.
 type WireD82adbb20251ee59732b96cc17e12fda2b7531a5a2aa9b3011dd7e9258ea62a7 struct {
-	Code     string  `json:"code"`
+	Code     *string `json:"code,omitempty"`
 	Column   *int64  `json:"column,omitempty"`
 	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
-	Message  string  `json:"message"`
-	Severity string  `json:"severity"`
+	Message  *string `json:"message,omitempty"`
+	Severity *string `json:"severity,omitempty"`
 	Stage    *string `json:"stage,omitempty"`
 }
 
 // WireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca defines model for Wire_d898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca.
 type WireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca struct {
-	Method         string      `json:"method"`
-	Path           string      `json:"path"`
-	ReportId       string      `json:"reportId"`
-	Schema         interface{} `json:"schema"`
-	SourceRevision int64       `json:"sourceRevision"`
-	VersionNo      int64       `json:"versionNo"`
+	Method         *string     `json:"method,omitempty"`
+	Path           *string     `json:"path,omitempty"`
+	ReportId       *string     `json:"reportId,omitempty"`
+	Schema         interface{} `json:"schema,omitempty"`
+	SourceRevision *int64      `json:"sourceRevision,omitempty"`
+	VersionNo      *int64      `json:"versionNo,omitempty"`
 }
 
 // WireD96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c defines model for Wire_d96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c.
 type WireD96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c struct {
 	Alias       *string `json:"alias,omitempty"`
 	Description *string `json:"description,omitempty"`
-	PackagePath string  `json:"packagePath"`
-	TypeName    string  `json:"typeName"`
+	PackagePath *string `json:"packagePath,omitempty"`
+	TypeName    *string `json:"typeName,omitempty"`
 }
 
 // WireDc7d19b963043f09d2349eb8f581a65f7e20e3be2a6bce59a4837debdae7a8b2 defines model for Wire_dc7d19b963043f09d2349eb8f581a65f7e20e3be2a6bce59a4837debdae7a8b2.
 type WireDc7d19b963043f09d2349eb8f581a65f7e20e3be2a6bce59a4837debdae7a8b2 struct {
-	Policies *map[string]Wire2814de9651d34fb853f6a86b2936b81947b070cd306c8f39e5a036a9a3e140d6 `json:"policies"`
-	Resource Wire36888c12b4c85b22b7268c24f5ea35ba103cb9e473a0790cc8cc669a45a523fa             `json:"resource"`
-	Revision int64                                                                            `json:"revision"`
+	Policies *map[string]Wire2814de9651d34fb853f6a86b2936b81947b070cd306c8f39e5a036a9a3e140d6 `json:"policies,omitempty"`
+	Resource *Wire36888c12b4c85b22b7268c24f5ea35ba103cb9e473a0790cc8cc669a45a523fa            `json:"resource,omitempty"`
+	Revision *int64                                                                           `json:"revision,omitempty"`
 }
 
 // WireDd57f8078c863d6327fc4c31894dd7a9b19a5e8ce736c4f2f789a161a9bccf09 defines model for Wire_dd57f8078c863d6327fc4c31894dd7a9b19a5e8ce736c4f2f789a161a9bccf09.
 type WireDd57f8078c863d6327fc4c31894dd7a9b19a5e8ce736c4f2f789a161a9bccf09 struct {
-	Document Wire6238fe88bfb9fb7369cf10de373a6904ecf859ade35a5496fe0a150dae56be72 `json:"document"`
+	Document *Wire6238fe88bfb9fb7369cf10de373a6904ecf859ade35a5496fe0a150dae56be72 `json:"document,omitempty"`
 }
 
 // WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179 defines model for Wire_dda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179.
 type WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179 struct {
-	Items  *[]WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179_Items_Item `json:"items"`
-	Limit  int64                                                                              `json:"limit"`
-	Offset int64                                                                              `json:"offset"`
+	Items  *[]WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179_Items_Item `json:"items,omitempty"`
+	Limit  *int64                                                                             `json:"limit,omitempty"`
+	Offset *int64                                                                             `json:"offset,omitempty"`
 }
 
 // WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179Items1 defines model for WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179.Items.1.
@@ -4594,40 +4594,40 @@ type WireDda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179_Items_
 
 // WireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231 defines model for Wire_ddb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231.
 type WireDdb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231 struct {
-	AllowedRoles *[]string `json:"allowedRoles"`
-	CanManage    bool      `json:"canManage"`
-	CreatedAt    time.Time `json:"createdAt"`
-	Description  *string   `json:"description,omitempty"`
-	Etag         int64     `json:"etag"`
-	ManagerRoles *[]string `json:"managerRoles"`
-	McpEnabled   bool      `json:"mcpEnabled"`
-	McpPort      *int64    `json:"mcpPort,omitempty"`
-	Name         string    `json:"name"`
-	NamespaceId  string    `json:"namespaceId"`
-	OwnerId      string    `json:"ownerId"`
-	Status       string    `json:"status"`
-	Title        string    `json:"title"`
-	UpdatedAt    time.Time `json:"updatedAt"`
-	Visibility   string    `json:"visibility"`
+	AllowedRoles *[]string  `json:"allowedRoles,omitempty"`
+	CanManage    *bool      `json:"canManage,omitempty"`
+	CreatedAt    *time.Time `json:"createdAt,omitempty"`
+	Description  *string    `json:"description,omitempty"`
+	Etag         *int64     `json:"etag,omitempty"`
+	ManagerRoles *[]string  `json:"managerRoles,omitempty"`
+	McpEnabled   *bool      `json:"mcpEnabled,omitempty"`
+	McpPort      *int64     `json:"mcpPort,omitempty"`
+	Name         *string    `json:"name,omitempty"`
+	NamespaceId  *string    `json:"namespaceId,omitempty"`
+	OwnerId      *string    `json:"ownerId,omitempty"`
+	Status       *string    `json:"status,omitempty"`
+	Title        *string    `json:"title,omitempty"`
+	UpdatedAt    *time.Time `json:"updatedAt,omitempty"`
+	Visibility   *string    `json:"visibility,omitempty"`
 }
 
 // WireDdc8f3519e98b687e03e321d69e1dab9d279d6f41fcef8b1c25d52a95b4f51bd defines model for Wire_ddc8f3519e98b687e03e321d69e1dab9d279d6f41fcef8b1c25d52a95b4f51bd.
 type WireDdc8f3519e98b687e03e321d69e1dab9d279d6f41fcef8b1c25d52a95b4f51bd struct {
-	Code     string  `json:"code"`
+	Code     *string `json:"code,omitempty"`
 	Column   *int64  `json:"column,omitempty"`
 	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
-	Message  string  `json:"message"`
-	Severity string  `json:"severity"`
+	Message  *string `json:"message,omitempty"`
+	Severity *string `json:"severity,omitempty"`
 	Stage    *string `json:"stage,omitempty"`
 }
 
 // WireDf12dfa59799793038c477f45c5acb6ce486b84479f8df9c47f1698fc478a940 defines model for Wire_df12dfa59799793038c477f45c5acb6ce486b84479f8df9c47f1698fc478a940.
 type WireDf12dfa59799793038c477f45c5acb6ce486b84479f8df9c47f1698fc478a940 struct {
 	Archived    *bool                                                                            `json:"archived,omitempty"`
-	DisplayName string                                                                           `json:"displayName"`
-	Policies    *map[string]Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d `json:"policies"`
+	DisplayName *string                                                                          `json:"displayName,omitempty"`
+	Policies    *map[string]Wire2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d `json:"policies,omitempty"`
 }
 
 // WireE0b9d64ac7d2034342d226cd5a657956619fb94bfab0f429f31d295bbee568fb defines model for Wire_e0b9d64ac7d2034342d226cd5a657956619fb94bfab0f429f31d295bbee568fb.
@@ -4637,39 +4637,39 @@ type WireE0b9d64ac7d2034342d226cd5a657956619fb94bfab0f429f31d295bbee568fb struct
 	ConnectorName  *string `json:"connectorName,omitempty"`
 	IndexColumn    *string `json:"indexColumn,omitempty"`
 	IndexParameter *string `json:"indexParameter,omitempty"`
-	View           string  `json:"view"`
+	View           *string `json:"view,omitempty"`
 }
 
 // WireE18028c8d8678f7b196b454563aabcdf784e9c96e81c3a01b6b229ef99506ee1 defines model for Wire_e18028c8d8678f7b196b454563aabcdf784e9c96e81c3a01b6b229ef99506ee1.
 type WireE18028c8d8678f7b196b454563aabcdf784e9c96e81c3a01b6b229ef99506ee1 struct {
-	Code     string  `json:"code"`
+	Code     *string `json:"code,omitempty"`
 	Column   *int64  `json:"column,omitempty"`
 	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
-	Message  string  `json:"message"`
-	Severity string  `json:"severity"`
+	Message  *string `json:"message,omitempty"`
+	Severity *string `json:"severity,omitempty"`
 	Stage    *string `json:"stage,omitempty"`
 }
 
 // WireE3281ba035f286ae15da4d6b5fc837e6c74b9abed0818e83c7a340abb154e805 defines model for Wire_e3281ba035f286ae15da4d6b5fc837e6c74b9abed0818e83c7a340abb154e805.
 type WireE3281ba035f286ae15da4d6b5fc837e6c74b9abed0818e83c7a340abb154e805 struct {
 	Archived    *bool                                                                            `json:"archived,omitempty"`
-	DisplayName string                                                                           `json:"displayName"`
-	Policies    *map[string]Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d `json:"policies"`
+	DisplayName *string                                                                          `json:"displayName,omitempty"`
+	Policies    *map[string]Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d `json:"policies,omitempty"`
 }
 
 // WireE664fa33d9d2d2c968c6dabd40e4ac01c5333f4591763b88b02fd2feb8b031ca defines model for Wire_e664fa33d9d2d2c968c6dabd40e4ac01c5333f4591763b88b02fd2feb8b031ca.
 type WireE664fa33d9d2d2c968c6dabd40e4ac01c5333f4591763b88b02fd2feb8b031ca struct {
-	Bounded  bool                                                                    `json:"bounded"`
-	Entities *[]WireF791e609dc9412b052626b655056f1150d4756f8c3a0e758a32b8022f81938d4 `json:"entities"`
+	Bounded  *bool                                                                   `json:"bounded,omitempty"`
+	Entities *[]WireF791e609dc9412b052626b655056f1150d4756f8c3a0e758a32b8022f81938d4 `json:"entities,omitempty"`
 }
 
 // WireE7011437759d2568973820dd3cff070baab4d58b71061ca4e17f36cb9345841c defines model for Wire_e7011437759d2568973820dd3cff070baab4d58b71061ca4e17f36cb9345841c.
 type WireE7011437759d2568973820dd3cff070baab4d58b71061ca4e17f36cb9345841c struct {
 	Entity *WireE7011437759d2568973820dd3cff070baab4d58b71061ca4e17f36cb9345841c_Entity `json:"entity,omitempty"`
 	Id     *string                                                                      `json:"id,omitempty"`
-	Label  string                                                                       `json:"label"`
+	Label  *string                                                                      `json:"label,omitempty"`
 }
 
 // WireE7011437759d2568973820dd3cff070baab4d58b71061ca4e17f36cb9345841cEntity1 defines model for WireE7011437759d2568973820dd3cff070baab4d58b71061ca4e17f36cb9345841c.Entity.1.
@@ -4682,36 +4682,36 @@ type WireE7011437759d2568973820dd3cff070baab4d58b71061ca4e17f36cb9345841c_Entity
 
 // WireE832454f19415c813fd78ba2b907f9390f2ec4a8b6f370286ef5e8bebbbabf34 defines model for Wire_e832454f19415c813fd78ba2b907f9390f2ec4a8b6f370286ef5e8bebbbabf34.
 type WireE832454f19415c813fd78ba2b907f9390f2ec4a8b6f370286ef5e8bebbbabf34 struct {
-	Resource Wire03ebbc8325840f6f4bebaca4c18406daaad9dd6178c9cb8aad7f2d20427ce1c4 `json:"resource"`
-	Revision int64                                                                `json:"revision"`
+	Resource *Wire03ebbc8325840f6f4bebaca4c18406daaad9dd6178c9cb8aad7f2d20427ce1c4 `json:"resource,omitempty"`
+	Revision *int64                                                                `json:"revision,omitempty"`
 }
 
 // WireE8eef4e2ee505a6f0706d63914d0a1a7e51cfcb516b0852a6bee4efa3ce9e0b0 defines model for Wire_e8eef4e2ee505a6f0706d63914d0a1a7e51cfcb516b0852a6bee4efa3ce9e0b0.
 type WireE8eef4e2ee505a6f0706d63914d0a1a7e51cfcb516b0852a6bee4efa3ce9e0b0 struct {
-	CreatedAt         time.Time `json:"createdAt"`
-	Description       string    `json:"description"`
-	Etag              int64     `json:"etag"`
-	LatestRevision    int64     `json:"latestRevision"`
-	Name              string    `json:"name"`
-	NamespaceId       string    `json:"namespaceId"`
-	PublishedRevision int64     `json:"publishedRevision"`
-	SkillId           string    `json:"skillId"`
-	Status            string    `json:"status"`
-	Title             string    `json:"title"`
-	UpdatedAt         time.Time `json:"updatedAt"`
+	CreatedAt         *time.Time `json:"createdAt,omitempty"`
+	Description       *string    `json:"description,omitempty"`
+	Etag              *int64     `json:"etag,omitempty"`
+	LatestRevision    *int64     `json:"latestRevision,omitempty"`
+	Name              *string    `json:"name,omitempty"`
+	NamespaceId       *string    `json:"namespaceId,omitempty"`
+	PublishedRevision *int64     `json:"publishedRevision,omitempty"`
+	SkillId           *string    `json:"skillId,omitempty"`
+	Status            *string    `json:"status,omitempty"`
+	Title             *string    `json:"title,omitempty"`
+	UpdatedAt         *time.Time `json:"updatedAt,omitempty"`
 }
 
 // WireEb7b2634d1508669f7e5b30d66379dfa7e55bdd38ca9eaafb526530bee3fe4a1 defines model for Wire_eb7b2634d1508669f7e5b30d66379dfa7e55bdd38ca9eaafb526530bee3fe4a1.
 type WireEb7b2634d1508669f7e5b30d66379dfa7e55bdd38ca9eaafb526530bee3fe4a1 struct {
-	Id      string `json:"id"`
-	Kind    string `json:"kind"`
-	Tenant  string `json:"tenant"`
-	Version string `json:"version"`
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
 }
 
 // WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90 defines model for Wire_eb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90.
 type WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90 struct {
-	Items *[]WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90_Items_Item `json:"items"`
+	Items *[]WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90_Items_Item `json:"items,omitempty"`
 }
 
 // WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90Items1 defines model for WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90.Items.1.
@@ -4724,9 +4724,9 @@ type WireEb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90_Items_
 
 // WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0 defines model for Wire_ec41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0.
 type WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0 struct {
-	Items  *[]WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0_Items_Item `json:"items"`
-	Limit  int64                                                                              `json:"limit"`
-	Offset int64                                                                              `json:"offset"`
+	Items  *[]WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0_Items_Item `json:"items,omitempty"`
+	Limit  *int64                                                                             `json:"limit,omitempty"`
+	Offset *int64                                                                             `json:"offset,omitempty"`
 }
 
 // WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0Items1 defines model for WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0.Items.1.
@@ -4740,113 +4740,113 @@ type WireEc41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0_Items_
 // WireEcc4d9a82e8b4cd1e3ac77d7fd7943319b31b3e82973c8afbcf0002138ddc950 defines model for Wire_ecc4d9a82e8b4cd1e3ac77d7fd7943319b31b3e82973c8afbcf0002138ddc950.
 type WireEcc4d9a82e8b4cd1e3ac77d7fd7943319b31b3e82973c8afbcf0002138ddc950 struct {
 	Connector      *string `json:"connector,omitempty"`
-	EncodedBytes   int64   `json:"encodedBytes"`
-	Limit          int64   `json:"limit"`
+	EncodedBytes   *int64  `json:"encodedBytes,omitempty"`
+	Limit          *int64  `json:"limit,omitempty"`
 	ReportId       *string `json:"reportId,omitempty"`
-	ReturnedRows   int64   `json:"returnedRows"`
+	ReturnedRows   *int64  `json:"returnedRows,omitempty"`
 	SourceRevision *int64  `json:"sourceRevision,omitempty"`
-	Truncated      bool    `json:"truncated"`
+	Truncated      *bool   `json:"truncated,omitempty"`
 	VersionNo      *int64  `json:"versionNo,omitempty"`
 }
 
 // WireEe01445e9fe49535f8f7dc37d983f46b5472b8cd95114371444ef4105e4e314c defines model for Wire_ee01445e9fe49535f8f7dc37d983f46b5472b8cd95114371444ef4105e4e314c.
 type WireEe01445e9fe49535f8f7dc37d983f46b5472b8cd95114371444ef4105e4e314c struct {
-	Method         string      `json:"method"`
-	Path           string      `json:"path"`
-	ReportId       string      `json:"reportId"`
-	Schema         interface{} `json:"schema"`
-	SourceRevision int64       `json:"sourceRevision"`
-	VersionNo      int64       `json:"versionNo"`
+	Method         *string     `json:"method,omitempty"`
+	Path           *string     `json:"path,omitempty"`
+	ReportId       *string     `json:"reportId,omitempty"`
+	Schema         interface{} `json:"schema,omitempty"`
+	SourceRevision *int64      `json:"sourceRevision,omitempty"`
+	VersionNo      *int64      `json:"versionNo,omitempty"`
 }
 
 // WireEe0e388919265cb6a34b160d48af21f28f7d7c7a89bfa0e33a9bc2a1e516d497 defines model for Wire_ee0e388919265cb6a34b160d48af21f28f7d7c7a89bfa0e33a9bc2a1e516d497.
 type WireEe0e388919265cb6a34b160d48af21f28f7d7c7a89bfa0e33a9bc2a1e516d497 struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
 }
 
 // WireEeef16b9cbcbd1e6e3c91399a7a3ea1ea6f63b90114ecd6f2b6b393de239190a defines model for Wire_eeef16b9cbcbd1e6e3c91399a7a3ea1ea6f63b90114ecd6f2b6b393de239190a.
 type WireEeef16b9cbcbd1e6e3c91399a7a3ea1ea6f63b90114ecd6f2b6b393de239190a struct {
 	CompletedAt    *time.Time                                                              `json:"completedAt,omitempty"`
-	CompletedCases int64                                                                   `json:"completedCases"`
+	CompletedCases *int64                                                                  `json:"completedCases,omitempty"`
 	CreatedAt      *time.Time                                                              `json:"createdAt,omitempty"`
 	CreatedBy      *string                                                                 `json:"createdBy,omitempty"`
 	Diagnostics    *[]Wire7d83e432dba96d596847d8df2f770054a4188b355ed704d691dff2a9d8f991ee `json:"diagnostics,omitempty"`
 	Duration       *int64                                                                  `json:"duration,omitempty"`
-	Entries        int64                                                                   `json:"entries"`
+	Entries        *int64                                                                  `json:"entries,omitempty"`
 	MaxCases       *int64                                                                  `json:"maxCases,omitempty"`
-	PlanKey        string                                                                  `json:"planKey"`
-	PlannedCases   int64                                                                   `json:"plannedCases"`
-	ReportId       string                                                                  `json:"reportId"`
-	RequestedAt    time.Time                                                               `json:"requestedAt"`
-	RequestedBy    string                                                                  `json:"requestedBy"`
+	PlanKey        *string                                                                 `json:"planKey,omitempty"`
+	PlannedCases   *int64                                                                  `json:"plannedCases,omitempty"`
+	ReportId       *string                                                                 `json:"reportId,omitempty"`
+	RequestedAt    *time.Time                                                              `json:"requestedAt,omitempty"`
+	RequestedBy    *string                                                                 `json:"requestedBy,omitempty"`
 	RowLimit       *int64                                                                  `json:"rowLimit,omitempty"`
-	RunId          string                                                                  `json:"runId"`
-	SourceRevision int64                                                                   `json:"sourceRevision"`
-	SpecHash       string                                                                  `json:"specHash"`
+	RunId          *string                                                                 `json:"runId,omitempty"`
+	SourceRevision *int64                                                                  `json:"sourceRevision,omitempty"`
+	SpecHash       *string                                                                 `json:"specHash,omitempty"`
 	StartedAt      *time.Time                                                              `json:"startedAt,omitempty"`
-	Status         string                                                                  `json:"status"`
-	Target         WireE0b9d64ac7d2034342d226cd5a657956619fb94bfab0f429f31d295bbee568fb    `json:"target"`
+	Status         *string                                                                 `json:"status,omitempty"`
+	Target         *WireE0b9d64ac7d2034342d226cd5a657956619fb94bfab0f429f31d295bbee568fb   `json:"target,omitempty"`
 	UpdatedAt      *time.Time                                                              `json:"updatedAt,omitempty"`
 	UpdatedBy      *string                                                                 `json:"updatedBy,omitempty"`
-	VersionNo      int64                                                                   `json:"versionNo"`
+	VersionNo      *int64                                                                  `json:"versionNo,omitempty"`
 }
 
 // WireF00a6067197bf8503ad2ca929fcac6dd56da64854bf53cfa63f2e90af408ef5d defines model for Wire_f00a6067197bf8503ad2ca929fcac6dd56da64854bf53cfa63f2e90af408ef5d.
 type WireF00a6067197bf8503ad2ca929fcac6dd56da64854bf53cfa63f2e90af408ef5d struct {
-	Id      string `json:"id"`
-	Kind    string `json:"kind"`
-	Tenant  string `json:"tenant"`
-	Version string `json:"version"`
+	Id      *string `json:"id,omitempty"`
+	Kind    *string `json:"kind,omitempty"`
+	Tenant  *string `json:"tenant,omitempty"`
+	Version *string `json:"version,omitempty"`
 }
 
 // WireF13c6896f56ef6cd633314e17c86ef09c723b489a575449924c438606e230bf5 defines model for Wire_f13c6896f56ef6cd633314e17c86ef09c723b489a575449924c438606e230bf5.
 type WireF13c6896f56ef6cd633314e17c86ef09c723b489a575449924c438606e230bf5 struct {
-	CreatedAt         time.Time   `json:"createdAt"`
+	CreatedAt         *time.Time  `json:"createdAt,omitempty"`
 	Description       *string     `json:"description,omitempty"`
-	Driver            string      `json:"driver"`
-	DsnConfigured     bool        `json:"dsnConfigured"`
-	Etag              int64       `json:"etag"`
+	Driver            *string     `json:"driver,omitempty"`
+	DsnConfigured     *bool       `json:"dsnConfigured,omitempty"`
+	Etag              *int64      `json:"etag,omitempty"`
 	LastTestErrorCode *string     `json:"lastTestErrorCode,omitempty"`
 	LastTestStatus    *string     `json:"lastTestStatus,omitempty"`
 	LastTestedAt      *time.Time  `json:"lastTestedAt,omitempty"`
-	Name              string      `json:"name"`
+	Name              *string     `json:"name,omitempty"`
 	Options           interface{} `json:"options,omitempty"`
-	OwnerId           string      `json:"ownerId"`
-	SecretConfigured  bool        `json:"secretConfigured"`
-	Status            string      `json:"status"`
-	UpdatedAt         time.Time   `json:"updatedAt"`
+	OwnerId           *string     `json:"ownerId,omitempty"`
+	SecretConfigured  *bool       `json:"secretConfigured,omitempty"`
+	Status            *string     `json:"status,omitempty"`
+	UpdatedAt         *time.Time  `json:"updatedAt,omitempty"`
 }
 
 // WireF1625788b66eacf74ca98501afd9a4c5d06df56f548c1b3c679070e519cabcba defines model for Wire_f1625788b66eacf74ca98501afd9a4c5d06df56f548c1b3c679070e519cabcba.
 type WireF1625788b66eacf74ca98501afd9a4c5d06df56f548c1b3c679070e519cabcba struct {
-	Alias       *string   `json:"alias,omitempty"`
-	Columns     *[]string `json:"columns,omitempty"`
-	CreatedAt   time.Time `json:"createdAt"`
-	Description *string   `json:"description,omitempty"`
-	Etag        int64     `json:"etag"`
-	Linked      bool      `json:"linked"`
-	Name        string    `json:"name"`
-	OwnerId     string    `json:"ownerId"`
-	PackagePath string    `json:"packagePath"`
-	Status      string    `json:"status"`
-	Title       string    `json:"title"`
-	TypeName    string    `json:"typeName"`
-	UpdatedAt   time.Time `json:"updatedAt"`
+	Alias       *string    `json:"alias,omitempty"`
+	Columns     *[]string  `json:"columns,omitempty"`
+	CreatedAt   *time.Time `json:"createdAt,omitempty"`
+	Description *string    `json:"description,omitempty"`
+	Etag        *int64     `json:"etag,omitempty"`
+	Linked      *bool      `json:"linked,omitempty"`
+	Name        *string    `json:"name,omitempty"`
+	OwnerId     *string    `json:"ownerId,omitempty"`
+	PackagePath *string    `json:"packagePath,omitempty"`
+	Status      *string    `json:"status,omitempty"`
+	Title       *string    `json:"title,omitempty"`
+	TypeName    *string    `json:"typeName,omitempty"`
+	UpdatedAt   *time.Time `json:"updatedAt,omitempty"`
 }
 
 // WireF1dc57456af4495c942542a2c666692b7ca8f42a01f826985262b938bf11fd84 defines model for Wire_f1dc57456af4495c942542a2c666692b7ca8f42a01f826985262b938bf11fd84.
 type WireF1dc57456af4495c942542a2c666692b7ca8f42a01f826985262b938bf11fd84 struct {
-	Content  string `json:"content"`
-	IsBinary *bool  `json:"isBinary,omitempty"`
-	Path     string `json:"path"`
+	Content  *string `json:"content,omitempty"`
+	IsBinary *bool   `json:"isBinary,omitempty"`
+	Path     *string `json:"path,omitempty"`
 }
 
 // WireF32e0e52a42838184862b0bfabd74676e965524151930580722e42d1d5218aad defines model for Wire_f32e0e52a42838184862b0bfabd74676e965524151930580722e42d1d5218aad.
 type WireF32e0e52a42838184862b0bfabd74676e965524151930580722e42d1d5218aad struct {
 	Definition     *WireF32e0e52a42838184862b0bfabd74676e965524151930580722e42d1d5218aad_Definition `json:"definition,omitempty"`
 	EntityType     *string                                                                          `json:"entityType,omitempty"`
-	Mode           string                                                                           `json:"mode"`
+	Mode           *string                                                                          `json:"mode,omitempty"`
 	Named          *WireF32e0e52a42838184862b0bfabd74676e965524151930580722e42d1d5218aad_Named      `json:"named,omitempty"`
 	Priority       *int64                                                                           `json:"priority,omitempty"`
 	RequiredScopes *[]string                                                                        `json:"requiredScopes,omitempty"`
@@ -4881,44 +4881,44 @@ type WireF32e0e52a42838184862b0bfabd74676e965524151930580722e42d1d5218aad_Rule s
 type WireF3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d struct {
 	AuthoredDql          *string     `json:"authoredDql,omitempty"`
 	AuthoredSql          *string     `json:"authoredSql,omitempty"`
-	AuthoringMode        string      `json:"authoringMode"`
+	AuthoringMode        *string     `json:"authoringMode,omitempty"`
 	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus        string      `json:"compileStatus"`
-	CompilerVersion      string      `json:"compilerVersion"`
+	CompileStatus        *string     `json:"compileStatus,omitempty"`
+	CompilerVersion      *string     `json:"compilerVersion,omitempty"`
 	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
 	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
-	CreatedAt            time.Time   `json:"createdAt"`
-	CreatedBy            string      `json:"createdBy"`
-	DatlyVersion         string      `json:"datlyVersion"`
+	CreatedAt            *time.Time  `json:"createdAt,omitempty"`
+	CreatedBy            *string     `json:"createdBy,omitempty"`
+	DatlyVersion         *string     `json:"datlyVersion,omitempty"`
 	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
 	GeneratedDql         *string     `json:"generatedDql,omitempty"`
 	Notes                *string     `json:"notes,omitempty"`
 	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
-	ReportId             string      `json:"reportId"`
-	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ReportId             *string     `json:"reportId,omitempty"`
+	ResourceCheckEnabled *bool       `json:"resourceCheckEnabled,omitempty"`
 	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision       int64       `json:"sourceRevision"`
-	SpecFormatVersion    string      `json:"specFormatVersion"`
-	SpecHash             string      `json:"specHash"`
-	State                string      `json:"state"`
+	SourceRevision       *int64      `json:"sourceRevision,omitempty"`
+	SpecFormatVersion    *string     `json:"specFormatVersion,omitempty"`
+	SpecHash             *string     `json:"specHash,omitempty"`
+	State                *string     `json:"state,omitempty"`
 	TypeManifest         interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo            int64       `json:"versionNo"`
+	VersionNo            *int64      `json:"versionNo,omitempty"`
 }
 
 // WireF3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960 defines model for Wire_f3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960.
 type WireF3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960 struct {
-	CreatedAt         time.Time `json:"createdAt"`
-	Description       string    `json:"description"`
-	Etag              int64     `json:"etag"`
-	LatestRevision    int64     `json:"latestRevision"`
-	Name              string    `json:"name"`
-	NamespaceId       string    `json:"namespaceId"`
-	PublishedRevision int64     `json:"publishedRevision"`
-	SkillId           string    `json:"skillId"`
-	Status            string    `json:"status"`
-	Title             string    `json:"title"`
-	UpdatedAt         time.Time `json:"updatedAt"`
+	CreatedAt         *time.Time `json:"createdAt,omitempty"`
+	Description       *string    `json:"description,omitempty"`
+	Etag              *int64     `json:"etag,omitempty"`
+	LatestRevision    *int64     `json:"latestRevision,omitempty"`
+	Name              *string    `json:"name,omitempty"`
+	NamespaceId       *string    `json:"namespaceId,omitempty"`
+	PublishedRevision *int64     `json:"publishedRevision,omitempty"`
+	SkillId           *string    `json:"skillId,omitempty"`
+	Status            *string    `json:"status,omitempty"`
+	Title             *string    `json:"title,omitempty"`
+	UpdatedAt         *time.Time `json:"updatedAt,omitempty"`
 }
 
 // WireF503ec7a72f8c4f53c118cb28e4dae7faa981637cd10a0fe3a878b7751fcae6d defines model for Wire_f503ec7a72f8c4f53c118cb28e4dae7faa981637cd10a0fe3a878b7751fcae6d.
@@ -4930,13 +4930,13 @@ type WireF503ec7a72f8c4f53c118cb28e4dae7faa981637cd10a0fe3a878b7751fcae6d struct
 
 // WireF791e609dc9412b052626b655056f1150d4756f8c3a0e758a32b8022f81938d4 defines model for Wire_f791e609dc9412b052626b655056f1150d4756f8c3a0e758a32b8022f81938d4.
 type WireF791e609dc9412b052626b655056f1150d4756f8c3a0e758a32b8022f81938d4 struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
+	Id   *string `json:"id,omitempty"`
+	Type *string `json:"type,omitempty"`
 }
 
 // WireF7e0e71af22003b02f42054a48a7fc20f287eb50183d06b8e811c01fad620893 defines model for Wire_f7e0e71af22003b02f42054a48a7fc20f287eb50183d06b8e811c01fad620893.
 type WireF7e0e71af22003b02f42054a48a7fc20f287eb50183d06b8e811c01fad620893 struct {
-	Content string                                                                  `json:"content"`
+	Content *string                                                                 `json:"content,omitempty"`
 	Files   *[]Wire6479a7da664c407f8f41f4fdf1e70772bbad9691ef67e8050ded752fc88e802e `json:"files,omitempty"`
 	Title   *string                                                                 `json:"title,omitempty"`
 }
@@ -4945,49 +4945,49 @@ type WireF7e0e71af22003b02f42054a48a7fc20f287eb50183d06b8e811c01fad620893 struct
 type WireF932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675 struct {
 	AuthoredDql          *string     `json:"authoredDql,omitempty"`
 	AuthoredSql          *string     `json:"authoredSql,omitempty"`
-	AuthoringMode        string      `json:"authoringMode"`
+	AuthoringMode        *string     `json:"authoringMode,omitempty"`
 	CompileDiagnostics   interface{} `json:"compileDiagnostics,omitempty"`
-	CompileStatus        string      `json:"compileStatus"`
-	CompilerVersion      string      `json:"compilerVersion"`
+	CompileStatus        *string     `json:"compileStatus,omitempty"`
+	CompilerVersion      *string     `json:"compilerVersion,omitempty"`
 	ComponentDescriptor  interface{} `json:"componentDescriptor,omitempty"`
 	ComponentSpec        interface{} `json:"componentSpec,omitempty"`
-	CreatedAt            time.Time   `json:"createdAt"`
-	CreatedBy            string      `json:"createdBy"`
-	DatlyVersion         string      `json:"datlyVersion"`
+	CreatedAt            *time.Time  `json:"createdAt,omitempty"`
+	CreatedBy            *string     `json:"createdBy,omitempty"`
+	DatlyVersion         *string     `json:"datlyVersion,omitempty"`
 	DqlExportLimits      interface{} `json:"dqlExportLimits,omitempty"`
 	GeneratedDql         *string     `json:"generatedDql,omitempty"`
 	Notes                *string     `json:"notes,omitempty"`
 	PublishedAt          *time.Time  `json:"publishedAt,omitempty"`
-	ReportId             string      `json:"reportId"`
-	ResourceCheckEnabled bool        `json:"resourceCheckEnabled"`
+	ReportId             *string     `json:"reportId,omitempty"`
+	ResourceCheckEnabled *bool       `json:"resourceCheckEnabled,omitempty"`
 	ResourceManifest     interface{} `json:"resourceManifest,omitempty"`
-	SourceRevision       int64       `json:"sourceRevision"`
-	SpecFormatVersion    string      `json:"specFormatVersion"`
-	SpecHash             string      `json:"specHash"`
-	State                string      `json:"state"`
+	SourceRevision       *int64      `json:"sourceRevision,omitempty"`
+	SpecFormatVersion    *string     `json:"specFormatVersion,omitempty"`
+	SpecHash             *string     `json:"specHash,omitempty"`
+	State                *string     `json:"state,omitempty"`
 	TypeManifest         interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
-	VersionNo            int64       `json:"versionNo"`
+	VersionNo            *int64      `json:"versionNo,omitempty"`
 }
 
 // WireF9bfe019ac3bc8cf27b88f9b16d1f9a636d24292970f41843ad5f4eba742d99b defines model for Wire_f9bfe019ac3bc8cf27b88f9b16d1f9a636d24292970f41843ad5f4eba742d99b.
 type WireF9bfe019ac3bc8cf27b88f9b16d1f9a636d24292970f41843ad5f4eba742d99b struct {
-	Code     string  `json:"code"`
+	Code     *string `json:"code,omitempty"`
 	Column   *int64  `json:"column,omitempty"`
 	Field    *string `json:"field,omitempty"`
 	Hint     *string `json:"hint,omitempty"`
 	Line     *int64  `json:"line,omitempty"`
-	Message  string  `json:"message"`
-	Severity string  `json:"severity"`
+	Message  *string `json:"message,omitempty"`
+	Severity *string `json:"severity,omitempty"`
 	Stage    *string `json:"stage,omitempty"`
 }
 
 // WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c defines model for Wire_fcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c.
 type WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c struct {
-	CanCreate bool                                                                               `json:"canCreate"`
-	Items     *[]WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_Item `json:"items"`
-	Limit     int64                                                                              `json:"limit"`
-	Offset    int64                                                                              `json:"offset"`
+	CanCreate *bool                                                                              `json:"canCreate,omitempty"`
+	Items     *[]WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c_Items_Item `json:"items,omitempty"`
+	Limit     *int64                                                                             `json:"limit,omitempty"`
+	Offset    *int64                                                                             `json:"offset,omitempty"`
 }
 
 // WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801cItems1 defines model for WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c.Items.1.

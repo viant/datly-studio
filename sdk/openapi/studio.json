@@ -2062,13 +2062,7 @@
           "version": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind",
-          "id",
-          "version",
-          "tenant"
-        ]
+        }
       },
       "Output_056a233e996244d253928b99e6335fa0dfcab4b0aa7e8ffd7a088546a10a6442": {
         "type": "object",
@@ -2087,12 +2081,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resource",
-          "revision",
-          "policies"
-        ]
+        }
       },
       "Output_06244387c0c9169e9e2dd8c303d1b08d7c46bddec31314baa7fdae523ab96371": {
         "type": "object",
@@ -2191,22 +2180,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "runId",
-          "reportId",
-          "versionNo",
-          "sourceRevision",
-          "specHash",
-          "planKey",
-          "status",
-          "requestedBy",
-          "requestedAt",
-          "plannedCases",
-          "completedCases",
-          "entries",
-          "target"
-        ]
+        }
       },
       "Output_0c10f58f77a4f9aace3043619f64ad2d1ae24748776e0959650e6ae2f89669aa": {
         "type": "object",
@@ -2231,11 +2205,7 @@
           "status": {
             "type": "string"
           }
-        },
-        "required": [
-          "status",
-          "checkedAt"
-        ]
+        }
       },
       "Output_0d489bb6e8d34088f812c6b2a93a0c83b9a5f8fd2ac13b17094145376c09065b": {
         "type": "object",
@@ -2252,13 +2222,7 @@
           "version": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind",
-          "id",
-          "version",
-          "tenant"
-        ]
+        }
       },
       "Output_1d9bf0079b94d75e2b9b7b33bb81b13886a46428db871596012139c64cc1a4d6": {
         "type": "object",
@@ -2289,12 +2253,7 @@
           "stage": {
             "type": "string"
           }
-        },
-        "required": [
-          "severity",
-          "code",
-          "message"
-        ]
+        }
       },
       "Output_20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260": {
         "type": "object",
@@ -2319,10 +2278,7 @@
           "label": {
             "type": "string"
           }
-        },
-        "required": [
-          "label"
-        ]
+        }
       },
       "Output_2180387bae10ad30702ff5f50e131002ae984342d3ae82e85f10f7d03794f74c": {
         "type": "object",
@@ -2333,11 +2289,7 @@
           "type": {
             "type": "string"
           }
-        },
-        "required": [
-          "type",
-          "id"
-        ]
+        }
       },
       "Output_2554cffa5d52275ed88bc66799a2f7c47bac9cf0e050075987cbda8ba8d24268": {
         "type": "object",
@@ -2348,11 +2300,7 @@
           "type": {
             "type": "string"
           }
-        },
-        "required": [
-          "type",
-          "id"
-        ]
+        }
       },
       "Output_2631f895e856b9edb7a880ef06b76a2fcfcf0dc9d13eff46223625680e9a9c89": {
         "type": "object",
@@ -2371,12 +2319,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resource",
-          "revision",
-          "policies"
-        ]
+        }
       },
       "Output_2914a64d6f54333c61713839f0d41e0bc4a70208751189288a2870c3ee2496f9": {
         "type": "object",
@@ -2420,18 +2363,7 @@
           "toolName": {
             "type": "string"
           }
-        },
-        "required": [
-          "id",
-          "namespaceId",
-          "toolName",
-          "startedAt",
-          "durationMs",
-          "status",
-          "subject",
-          "clientIp",
-          "responseTruncated"
-        ]
+        }
       },
       "Output_2c9aea90415dac647efe579c8889a77a58c3e88f24a1c30f945e7743e5dd5ae2": {
         "type": "object",
@@ -2443,11 +2375,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resource",
-          "revision"
-        ]
+        }
       },
       "Output_32c4d843c350375fa1807b89e7db16553000af864bad1017ad3662f2db1c9b64": {
         "type": "object",
@@ -2491,18 +2419,7 @@
           "toolName": {
             "type": "string"
           }
-        },
-        "required": [
-          "id",
-          "namespaceId",
-          "toolName",
-          "startedAt",
-          "durationMs",
-          "status",
-          "subject",
-          "clientIp",
-          "responseTruncated"
-        ]
+        }
       },
       "Output_3c2625259fdd4db44d2677d12aa2f8cd153ff19765e0207f189c5b0699b54243": {
         "type": "object",
@@ -2513,11 +2430,7 @@
           "type": {
             "type": "string"
           }
-        },
-        "required": [
-          "type",
-          "id"
-        ]
+        }
       },
       "Output_41c3b19ac03c771407eb0e4c05284c0e7c1997324fd4198bdf3fd31fa8d96c5d": {
         "type": "object",
@@ -2583,17 +2496,7 @@
           "viewerRole": {
             "type": "string"
           }
-        },
-        "required": [
-          "namespaceId",
-          "enabled",
-          "effective",
-          "canManage",
-          "canView",
-          "viewerRole",
-          "dropped",
-          "failed"
-        ]
+        }
       },
       "Output_449a47a8e9ea6ae974f687ac5b55486e7e726cc8043ed75e896c8b78c8b99391": {
         "type": "object",
@@ -2616,10 +2519,7 @@
           "view": {
             "type": "string"
           }
-        },
-        "required": [
-          "view"
-        ]
+        }
       },
       "Output_4767292ff45ca739fbde17dcfac16967b1b00630ad105de675c19514080628f9": {
         "type": "object",
@@ -2644,10 +2544,7 @@
           "label": {
             "type": "string"
           }
-        },
-        "required": [
-          "label"
-        ]
+        }
       },
       "Output_4cf988a4800a68fa7db9d130c60eed0b35369d4c3fc9465e70d61b648bd34b6d": {
         "type": "object",
@@ -2706,16 +2603,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "title",
-          "namespace",
-          "ownerPackage",
-          "connectorName",
-          "versionNo",
-          "status"
-        ]
+        }
       },
       "Output_4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68": {
         "type": "object",
@@ -2749,14 +2637,7 @@
           "resource": {
             "$ref": "#/components/schemas/Output_8d5c08b62d8e11c6b7d0078039d84942d60e13602d2b6b0b25ee4e92d1e8a0bb"
           }
-        },
-        "required": [
-          "published",
-          "resource",
-          "public",
-          "explicitAcl",
-          "inherited"
-        ]
+        }
       },
       "Output_4fd42d5ac7e58fb29e7ad717b49ad43d1aa3d0a32c5e034148c82bc6baebd5a8": {
         "type": "object",
@@ -2787,12 +2668,7 @@
           "stage": {
             "type": "string"
           }
-        },
-        "required": [
-          "severity",
-          "code",
-          "message"
-        ]
+        }
       },
       "Output_586257ec0a228d28fb8c1d7b9b6ceb924795c406b09d9a86111f39a56368b032": {
         "type": "object",
@@ -2891,22 +2767,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "runId",
-          "reportId",
-          "versionNo",
-          "sourceRevision",
-          "specHash",
-          "planKey",
-          "status",
-          "requestedBy",
-          "requestedAt",
-          "plannedCases",
-          "completedCases",
-          "entries",
-          "target"
-        ]
+        }
       },
       "Output_5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2": {
         "type": "object",
@@ -2917,11 +2778,7 @@
           "type": {
             "type": "string"
           }
-        },
-        "required": [
-          "type",
-          "id"
-        ]
+        }
       },
       "Output_5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89": {
         "type": "object",
@@ -2946,10 +2803,7 @@
           "label": {
             "type": "string"
           }
-        },
-        "required": [
-          "label"
-        ]
+        }
       },
       "Output_6056449cb6ff77eb0e24f9d110ff3a533c12d36a31eead7bf54ff52e31d48474": {
         "type": "object",
@@ -2967,11 +2821,7 @@
             },
             "nullable": true
           }
-        },
-        "required": [
-          "displayName",
-          "policies"
-        ]
+        }
       },
       "Output_61da40565eeef7dc1d2d89123fe0033e9b0f0809a66731851fd56301624b0dc5": {
         "type": "object",
@@ -2988,13 +2838,7 @@
           "version": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind",
-          "id",
-          "version",
-          "tenant"
-        ]
+        }
       },
       "Output_644e4d09ac406b19e7277668f0cfaf1136c2f29c1d92a8e6af44cadd8ca60cd1": {
         "type": "object",
@@ -3060,17 +2904,7 @@
           "viewerRole": {
             "type": "string"
           }
-        },
-        "required": [
-          "namespaceId",
-          "enabled",
-          "effective",
-          "canManage",
-          "canView",
-          "viewerRole",
-          "dropped",
-          "failed"
-        ]
+        }
       },
       "Output_6e81e11a33076e68bb3d8b58da936317e65e2cb7c08f61adc82433c8705924b4": {
         "type": "object",
@@ -3136,17 +2970,7 @@
           "viewerRole": {
             "type": "string"
           }
-        },
-        "required": [
-          "namespaceId",
-          "enabled",
-          "effective",
-          "canManage",
-          "canView",
-          "viewerRole",
-          "dropped",
-          "failed"
-        ]
+        }
       },
       "Output_73a8618e3debe1667f7aafcc74ab58dec2fbd11494bb2e579aae6d2b58f205f3": {
         "type": "object",
@@ -3196,18 +3020,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "name",
-          "driver",
-          "dsnConfigured",
-          "secretConfigured",
-          "ownerId",
-          "status",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Output_7f617ddc14b6df274d226551b825c90a4f977a14591bdfd1ddc94b5f6066bce5": {
         "type": "object",
@@ -3247,13 +3060,7 @@
           "status": {
             "type": "string"
           }
-        },
-        "required": [
-          "reportId",
-          "activeVersionNo",
-          "desiredGeneration",
-          "status"
-        ]
+        }
       },
       "Output_8035fb9f56e2dfdb283039cb87b71ab1d5f6fa189d850d698929cee1b6b6464d": {
         "type": "object",
@@ -3267,12 +3074,7 @@
           "uriPrefix": {
             "type": "string"
           }
-        },
-        "required": [
-          "namespace",
-          "rootPath",
-          "uriPrefix"
-        ]
+        }
       },
       "Output_819a96401e1c94505523cbabb8e79d80a54fa448e4025d35e66df55d830f8d2f": {
         "type": "object",
@@ -3283,11 +3085,7 @@
           "type": {
             "type": "string"
           }
-        },
-        "required": [
-          "type",
-          "id"
-        ]
+        }
       },
       "Output_86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7": {
         "type": "object",
@@ -3319,10 +3117,7 @@
           "value": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind"
-        ]
+        }
       },
       "Output_89ec52f68878253d5610456db46a846ae520370ae7d0c82a86f6fa15feeccf84": {
         "type": "object",
@@ -3339,13 +3134,7 @@
           "version": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind",
-          "id",
-          "version",
-          "tenant"
-        ]
+        }
       },
       "Output_8d5c08b62d8e11c6b7d0078039d84942d60e13602d2b6b0b25ee4e92d1e8a0bb": {
         "type": "object",
@@ -3362,13 +3151,7 @@
           "version": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind",
-          "id",
-          "version",
-          "tenant"
-        ]
+        }
       },
       "Output_8f9918cf758d7828437221562274ce1aadfefc572741f4475e8f668456c57771": {
         "type": "object",
@@ -3379,11 +3162,7 @@
           "type": {
             "type": "string"
           }
-        },
-        "required": [
-          "type",
-          "id"
-        ]
+        }
       },
       "Output_9425f0d8184856b1b2b82b988287de19f673178a98f7561041bfddbdcaad307a": {
         "type": "object",
@@ -3449,17 +3228,7 @@
           "viewerRole": {
             "type": "string"
           }
-        },
-        "required": [
-          "namespaceId",
-          "enabled",
-          "effective",
-          "canManage",
-          "canView",
-          "viewerRole",
-          "dropped",
-          "failed"
-        ]
+        }
       },
       "Output_98eb7261961a0f07a9564be0e254f8e95836e8bb1689bf42e5fa490dcea8bf1b": {
         "type": "object",
@@ -3477,11 +3246,7 @@
             },
             "nullable": true
           }
-        },
-        "required": [
-          "displayName",
-          "policies"
-        ]
+        }
       },
       "Output_9d49df36a755675144ae6bef3dd7487cbc740221600721423879d97bb66fb067": {
         "type": "object",
@@ -3498,13 +3263,7 @@
           "version": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind",
-          "id",
-          "version",
-          "tenant"
-        ]
+        }
       },
       "Output_9e0f449c95fcfb4ee0592ebadf3e17adccbdc32fa89bf50ab9ae8511c2009041": {
         "type": "object",
@@ -3535,12 +3294,7 @@
           "stage": {
             "type": "string"
           }
-        },
-        "required": [
-          "severity",
-          "code",
-          "message"
-        ]
+        }
       },
       "Output_9e876c762bb492c132e790521d9bfeabfef411c08f89b004511cfca729fc5ff3": {
         "type": "object",
@@ -3552,11 +3306,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resource",
-          "revision"
-        ]
+        }
       },
       "Output_a2a90743713296048071979d14b3abdfc10b4ee77e446ab9dbd7f2c07bbe7266": {
         "type": "object",
@@ -3596,13 +3346,7 @@
           "status": {
             "type": "string"
           }
-        },
-        "required": [
-          "reportId",
-          "activeVersionNo",
-          "desiredGeneration",
-          "status"
-        ]
+        }
       },
       "Output_a6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6": {
         "type": "object",
@@ -3627,10 +3371,7 @@
           "label": {
             "type": "string"
           }
-        },
-        "required": [
-          "label"
-        ]
+        }
       },
       "Output_a6ddd7942c83fb7282623cfc58da6bae57f79a4f0284ea5b91cf55fb794dc186": {
         "type": "object",
@@ -3659,14 +3400,7 @@
           "path": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind",
-          "name",
-          "method",
-          "path",
-          "enabled"
-        ]
+        }
       },
       "Output_a717afc38cbc4d350bb71fb00cf76bef68daf27b4650120e47c4d8379356f11f": {
         "type": "object",
@@ -3706,13 +3440,7 @@
           "status": {
             "type": "string"
           }
-        },
-        "required": [
-          "reportId",
-          "activeVersionNo",
-          "desiredGeneration",
-          "status"
-        ]
+        }
       },
       "Output_a81d693fd6e1ff78672b05458a01513d11113731358ae9bfeaca4fd73d9c722c": {
         "type": "object",
@@ -3729,13 +3457,7 @@
           "version": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind",
-          "id",
-          "version",
-          "tenant"
-        ]
+        }
       },
       "Output_ad75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688": {
         "type": "object",
@@ -3790,12 +3512,7 @@
           "status": {
             "type": "string"
           }
-        },
-        "required": [
-          "activeGeneration",
-          "status",
-          "reportCount"
-        ]
+        }
       },
       "Output_b54579a1cbe27afaa9912714bdb85378479c70d6bd7a9c3058c8582378ddcd59": {
         "type": "object",
@@ -3820,10 +3537,7 @@
           "label": {
             "type": "string"
           }
-        },
-        "required": [
-          "label"
-        ]
+        }
       },
       "Output_bd7a1b00fadef6f5e471ef21cd4fe9df0f1e3f4b9cabd09814c00b321086588a": {
         "type": "object",
@@ -3837,12 +3551,7 @@
           "source": {
             "type": "string"
           }
-        },
-        "required": [
-          "choices",
-          "canManage",
-          "source"
-        ]
+        }
       },
       "Output_c50c4a793548bb0f3b16af35d193034d2656958e13e8b0a0ee655bd092a1a349": {
         "type": "object",
@@ -3906,10 +3615,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "mode"
-        ]
+        }
       },
       "Output_c59b784ae161ba492d1c2d5bf87d71026270b421ba502aedbc820d473bed79ac": {
         "type": "object",
@@ -3962,17 +3668,7 @@
             },
             "nullable": true
           }
-        },
-        "required": [
-          "published",
-          "public",
-          "explicitAcl",
-          "kind",
-          "id",
-          "name",
-          "resource",
-          "inherited"
-        ]
+        }
       },
       "Output_c97b7b59c0c99ea53e6472f7e79baee9949576f0200174c238c8b514fcc51b69": {
         "type": "object",
@@ -4019,15 +3715,7 @@
             },
             "nullable": true
           }
-        },
-        "required": [
-          "subject",
-          "role",
-          "group",
-          "exposure",
-          "entity",
-          "entityTypes"
-        ]
+        }
       },
       "Output_ca207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b": {
         "type": "object",
@@ -4038,11 +3726,7 @@
           "type": {
             "type": "string"
           }
-        },
-        "required": [
-          "type",
-          "id"
-        ]
+        }
       },
       "Output_d14887150549e1252499c617aacbd48b5aab3c262cdf2f62fa7fbaf8f1edbaa2": {
         "type": "object",
@@ -4059,13 +3743,7 @@
           "version": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind",
-          "id",
-          "version",
-          "tenant"
-        ]
+        }
       },
       "Output_d558223f5d3d6bca0e300c59f8e624af838223bc61f0cb8c88f09c757834ddaa": {
         "type": "object",
@@ -4128,22 +3806,7 @@
           "visibility": {
             "type": "string"
           }
-        },
-        "required": [
-          "canManage",
-          "namespaceId",
-          "visibility",
-          "allowedRoles",
-          "managerRoles",
-          "mcpEnabled",
-          "ownerId",
-          "name",
-          "title",
-          "status",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Output_d6ae8cf116e1bb372c284270e8317deb57df8687ba83d5701493ce02cfb50799": {
         "type": "object",
@@ -4218,22 +3881,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resourceCheckEnabled",
-          "reportId",
-          "versionNo",
-          "state",
-          "authoringMode",
-          "specFormatVersion",
-          "specHash",
-          "compileStatus",
-          "datlyVersion",
-          "compilerVersion",
-          "sourceRevision",
-          "createdBy",
-          "createdAt"
-        ]
+        }
       },
       "Output_db16d19662078b5e2bf34bb56caf4e031ec60811b8ff0833d9304fe74bb3deb7": {
         "type": "object",
@@ -4248,11 +3896,7 @@
             },
             "nullable": true
           }
-        },
-        "required": [
-          "items",
-          "hasMore"
-        ]
+        }
       },
       "Output_e8ea1801b1be98b9f440e71042f9d1f205288fc993de313deb5492650404e1b8": {
         "type": "object",
@@ -4316,10 +3960,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "mode"
-        ]
+        }
       },
       "Output_ec019e5831c65213d65f292f7835722945f552d76106b1cf7c1608395564458e": {
         "type": "object",
@@ -4363,18 +4004,7 @@
           "toolName": {
             "type": "string"
           }
-        },
-        "required": [
-          "id",
-          "namespaceId",
-          "toolName",
-          "startedAt",
-          "durationMs",
-          "status",
-          "subject",
-          "clientIp",
-          "responseTruncated"
-        ]
+        }
       },
       "Output_ec5ca322e57ac033e6183e7ca87a4dc5a2dba0223eb08b4a914e37bb9e628b8e": {
         "type": "object",
@@ -4418,18 +4048,7 @@
           "toolName": {
             "type": "string"
           }
-        },
-        "required": [
-          "id",
-          "namespaceId",
-          "toolName",
-          "startedAt",
-          "durationMs",
-          "status",
-          "subject",
-          "clientIp",
-          "responseTruncated"
-        ]
+        }
       },
       "Output_ef553e0e338a00cf70d43289eb53e588abb65348804f4defbd8fd2ea4e5691ee": {
         "type": "object",
@@ -4452,10 +4071,7 @@
           "view": {
             "type": "string"
           }
-        },
-        "required": [
-          "view"
-        ]
+        }
       },
       "Output_f2954ccbc2dd12cce598727f4c49ad7d3d88f3404672f047b6fb03d041c024bf": {
         "type": "object",
@@ -4469,12 +4085,7 @@
           "uriPrefix": {
             "type": "string"
           }
-        },
-        "required": [
-          "skillId",
-          "skillRoot",
-          "uriPrefix"
-        ]
+        }
       },
       "Output_f632037538f344fc898ce8aad11eec32cea261974a86789a20dfb9954682ae69": {
         "type": "object",
@@ -4506,10 +4117,7 @@
           "value": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind"
-        ]
+        }
       },
       "Wire_0000ae7c5d7884f4ead8c10e8038a8cc022ef4386007285882c2dd1a2fdc867e": {
         "type": "object",
@@ -4523,11 +4131,7 @@
           "path": {
             "type": "string"
           }
-        },
-        "required": [
-          "path",
-          "content"
-        ]
+        }
       },
       "Wire_013ce40651897a22f1d0c9d5a29a86362333458b72c57acb30fa03a2473f08c6": {
         "type": "object",
@@ -4560,18 +4164,7 @@
           "subjectType": {
             "type": "string"
           }
-        },
-        "required": [
-          "reportId",
-          "subjectType",
-          "subjectId",
-          "canView",
-          "canRun",
-          "canEdit",
-          "canPublish",
-          "canUseDql",
-          "etag"
-        ]
+        }
       },
       "Wire_01a7a742a5dcd667da4d143e43944f269ae6e23b2952948e51d0b2791d2ed360": {
         "type": "object",
@@ -4603,16 +4196,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "folderId",
-          "namespace",
-          "rootPath",
-          "uriPrefix",
-          "ordinal"
-        ]
+        }
       },
       "Wire_0279067683c20563aa495e8737a819024ba4eb59ced1e2723cda5eb5890cb742": {
         "type": "object",
@@ -4687,22 +4271,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resourceCheckEnabled",
-          "reportId",
-          "versionNo",
-          "state",
-          "authoringMode",
-          "specFormatVersion",
-          "specHash",
-          "compileStatus",
-          "datlyVersion",
-          "compilerVersion",
-          "sourceRevision",
-          "createdBy",
-          "createdAt"
-        ]
+        }
       },
       "Wire_03ebbc8325840f6f4bebaca4c18406daaad9dd6178c9cb8aad7f2d20427ce1c4": {
         "type": "object",
@@ -4719,13 +4288,7 @@
           "version": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind",
-          "id",
-          "version",
-          "tenant"
-        ]
+        }
       },
       "Wire_08043516a7d3b5028514fc2ffc6b6fa38ab832ff1f255ae1206871c7d200a5a6": {
         "type": "object",
@@ -4800,22 +4363,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resourceCheckEnabled",
-          "reportId",
-          "versionNo",
-          "state",
-          "authoringMode",
-          "specFormatVersion",
-          "specHash",
-          "compileStatus",
-          "datlyVersion",
-          "compilerVersion",
-          "sourceRevision",
-          "createdBy",
-          "createdAt"
-        ]
+        }
       },
       "Wire_08938620e84156f14c3eb03478de7df19afa5374952a4abae29cf28f9d58f8f5": {
         "type": "object",
@@ -4832,13 +4380,7 @@
           "version": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind",
-          "id",
-          "version",
-          "tenant"
-        ]
+        }
       },
       "Wire_0b4fc596d18790b4851cf320f7b9abf6d446bab3fd3f2ae6a2d3cb1481542e8f": {
         "type": "object",
@@ -4885,15 +4427,7 @@
             },
             "nullable": true
           }
-        },
-        "required": [
-          "subject",
-          "role",
-          "group",
-          "exposure",
-          "entity",
-          "entityTypes"
-        ]
+        }
       },
       "Wire_0bbf066863381f769b39ad78b59b8059fb6550628396f1f8c25257ce82e6874f": {
         "type": "object",
@@ -4936,20 +4470,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "namespaceId",
-          "skillId",
-          "name",
-          "title",
-          "description",
-          "latestRevision",
-          "publishedRevision",
-          "status",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Wire_0e95f4345d42892d86b80de3dc21631fcf8953353774e3f80cfbd7417a6a1efb": {
         "type": "object",
@@ -4982,11 +4503,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "skill",
-          "revision"
-        ]
+        }
       },
       "Wire_0efe2807dd8489fd6b68a80fcb3a13eacf82bee604ffd94663ddcf539a88cd14": {
         "type": "object",
@@ -5022,13 +4539,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "version",
-          "entryDql",
-          "entries",
-          "files"
-        ]
+        }
       },
       "Wire_0f446f07ec6516f9b6a7f9e3de1d58abb30bb3608144fb80728627765378e04e": {
         "type": "object",
@@ -5051,12 +4562,7 @@
           "view": {
             "type": "string"
           }
-        },
-        "required": [
-          "view",
-          "duration",
-          "evidence"
-        ]
+        }
       },
       "Wire_0f93686c6382f8ae45e9a8242477ce457b683d146b3dd9716ec8115d7beef8d2": {
         "type": "object",
@@ -5081,10 +4587,7 @@
           "label": {
             "type": "string"
           }
-        },
-        "required": [
-          "label"
-        ]
+        }
       },
       "Wire_136fdd6e98366655d5a5095e8c68f1bcac5a96b892272257e0a31875c4ad186c": {
         "type": "object",
@@ -5102,10 +4605,7 @@
           "title": {
             "type": "string"
           }
-        },
-        "required": [
-          "content"
-        ]
+        }
       },
       "Wire_13cb2b9fac8e64e2df86cc6097eb0eb4e31b922506e64ca2fb8d0bc76ccdaeec": {
         "type": "object",
@@ -5178,12 +4678,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "files",
-          "folders",
-          "skills"
-        ]
+        }
       },
       "Wire_15d90b839a0fff7f61055596a65a67fe8590915342e1278e39ef8abd4433ce14": {
         "type": "object",
@@ -5208,14 +4703,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "offset",
-          "limit",
-          "returnedRows",
-          "hasMore",
-          "duration"
-        ]
+        }
       },
       "Wire_168acff25133f72df514ff38f09aae1a60280ad693da3c888e9f6ec48bae90a6": {
         "type": "object",
@@ -5256,13 +4744,7 @@
             },
             "nullable": true
           }
-        },
-        "required": [
-          "driver",
-          "product",
-          "catalogs",
-          "schemas"
-        ]
+        }
       },
       "Wire_187f7f4691bae62916263844a31b0e52f2ac7573ba63a1dda0cfffa8610b0947": {
         "type": "object",
@@ -5293,12 +4775,7 @@
           "stage": {
             "type": "string"
           }
-        },
-        "required": [
-          "severity",
-          "code",
-          "message"
-        ]
+        }
       },
       "Wire_18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d": {
         "type": "object",
@@ -5323,10 +4800,7 @@
           "label": {
             "type": "string"
           }
-        },
-        "required": [
-          "label"
-        ]
+        }
       },
       "Wire_19c8c23fc3af1e96aac7711875cf1799e140a146786e49d01c34189b09f54fb0": {
         "type": "object",
@@ -5358,10 +4832,7 @@
           "value": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind"
-        ]
+        }
       },
       "Wire_1a54346913f36c827b3cbb210b4e4062c2b4b68e415f006659f4a97f386665ac": {
         "type": "object",
@@ -5437,21 +4908,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "state",
-          "authoringMode",
-          "specFormatVersion",
-          "specHash",
-          "compileStatus",
-          "datlyVersion",
-          "compilerVersion",
-          "sourceRevision",
-          "createdBy",
-          "createdAt"
-        ]
+        }
       },
       "Wire_1ad149a06cfe9417562b1c9648e0b52832e72cfbf4e1ca313b15480e1aee3e75": {
         "type": "object",
@@ -5492,18 +4949,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "resourceId",
-          "namespace",
-          "resourcePath",
-          "content",
-          "contentSize",
-          "contentSha256",
-          "isBinary"
-        ]
+        }
       },
       "Wire_1c2899fcc56a9a0b9d00c82ab53bc2f1a89e3b944fcfcef8b14d5b0ad682a921": {
         "type": "object",
@@ -5522,10 +4968,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "skill"
-        ]
+        }
       },
       "Wire_1e3fdf8fcb04453947f7d75766cc316e3e09d18591edbeef886727e071fe5f28": {
         "type": "object",
@@ -5600,22 +5043,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "resourceCheckEnabled",
-          "state",
-          "authoringMode",
-          "specFormatVersion",
-          "specHash",
-          "compileStatus",
-          "datlyVersion",
-          "compilerVersion",
-          "sourceRevision",
-          "createdBy",
-          "createdAt"
-        ]
+        }
       },
       "Wire_1f5f473dc54ed2f6c617275d578b2307a69146cb2ce69ae058bffe57f5c226b4": {
         "type": "object",
@@ -5678,22 +5106,7 @@
           "visibility": {
             "type": "string"
           }
-        },
-        "required": [
-          "canManage",
-          "namespaceId",
-          "visibility",
-          "allowedRoles",
-          "mcpEnabled",
-          "managerRoles",
-          "ownerId",
-          "name",
-          "title",
-          "status",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Wire_221846f313892219b53265500a015547384983c9f728252d253349f904fb06a9": {
         "type": "object",
@@ -5742,16 +5155,7 @@
             "format": "int64",
             "nullable": true
           }
-        },
-        "required": [
-          "eventId",
-          "reportId",
-          "ownerId",
-          "operation",
-          "status",
-          "requestedBy",
-          "occurredAt"
-        ]
+        }
       },
       "Wire_22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46": {
         "type": "object",
@@ -5783,10 +5187,7 @@
           "value": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind"
-        ]
+        }
       },
       "Wire_233692382231683192dd7140456422339bf3eeb54d8ac7887d29225da9ca7081": {
         "type": "object",
@@ -5829,20 +5230,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "namespaceId",
-          "skillId",
-          "name",
-          "title",
-          "description",
-          "latestRevision",
-          "publishedRevision",
-          "status",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Wire_239231a7ea3ed59e77b205b0783836ec39ca3de2a814ba109f6bda877ba20691": {
         "type": "object",
@@ -5917,22 +5305,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resourceCheckEnabled",
-          "reportId",
-          "versionNo",
-          "state",
-          "authoringMode",
-          "specFormatVersion",
-          "specHash",
-          "compileStatus",
-          "datlyVersion",
-          "compilerVersion",
-          "sourceRevision",
-          "createdBy",
-          "createdAt"
-        ]
+        }
       },
       "Wire_24c5509faa036e9e6670c5516a5cee39a37d0f0b6acf8de88a079bf1f2661939": {
         "type": "object",
@@ -5949,13 +5322,7 @@
           "version": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind",
-          "id",
-          "version",
-          "tenant"
-        ]
+        }
       },
       "Wire_26bfdc0c14c35bde2ded779f8de8de566a8a5e74f4830c6245715540cfccdb0f": {
         "type": "object",
@@ -5966,11 +5333,7 @@
           "type": {
             "type": "string"
           }
-        },
-        "required": [
-          "type",
-          "id"
-        ]
+        }
       },
       "Wire_2814de9651d34fb853f6a86b2936b81947b070cd306c8f39e5a036a9a3e140d6": {
         "type": "object",
@@ -6034,10 +5397,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "mode"
-        ]
+        }
       },
       "Wire_284d529f33778b8025eaf493c0c081fa071dfc15595367cd050c6aea84390073": {
         "type": "object",
@@ -6077,15 +5437,7 @@
           "unique": {
             "type": "boolean"
           }
-        },
-        "required": [
-          "name",
-          "type",
-          "nullable",
-          "primaryKey",
-          "unique",
-          "autoIncrement"
-        ]
+        }
       },
       "Wire_294568d49a877156b6b68a28c348e5fea7b701056b2913f0e7fa40c588df81c7": {
         "type": "object",
@@ -6119,13 +5471,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "limit",
-          "returnedRows",
-          "encodedBytes",
-          "truncated"
-        ]
+        }
       },
       "Wire_29994796c346a67d8d87067e8f62a29284fc2af12311fbab69bdf45b428e37f7": {
         "type": "object",
@@ -6159,13 +5505,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "limit",
-          "returnedRows",
-          "encodedBytes",
-          "truncated"
-        ]
+        }
       },
       "Wire_2acc97d2ee9aa7bc9e3441531515d0f2360496ee2ee879ab35b383c390b7221e": {
         "type": "object",
@@ -6176,10 +5516,7 @@
           "name": {
             "type": "string"
           }
-        },
-        "required": [
-          "name"
-        ]
+        }
       },
       "Wire_2be0684fe50e4d50e1c7ed7799c8493f7a6fbfe50bcd3ecfc3b2241e765f60da": {
         "type": "object",
@@ -6237,20 +5574,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "relation",
-          "parentView",
-          "childView",
-          "kind",
-          "cardinality",
-          "parentRows",
-          "matchedParents",
-          "unmatchedParents",
-          "attachedChildren",
-          "duration",
-          "evidence"
-        ]
+        }
       },
       "Wire_2bece1447e379f703b2f9dfec5a0d5fc346a7d1709dd4a6882c60920a9ef056f": {
         "type": "object",
@@ -6264,12 +5588,7 @@
           "source": {
             "type": "string"
           }
-        },
-        "required": [
-          "choices",
-          "canManage",
-          "source"
-        ]
+        }
       },
       "Wire_2c9280510e6ff51ff291cf46071183a83553af0793136e09416edcc75cf4bea9": {
         "type": "object",
@@ -6344,22 +5663,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resourceCheckEnabled",
-          "reportId",
-          "versionNo",
-          "state",
-          "authoringMode",
-          "specFormatVersion",
-          "specHash",
-          "compileStatus",
-          "datlyVersion",
-          "compilerVersion",
-          "sourceRevision",
-          "createdBy",
-          "createdAt"
-        ]
+        }
       },
       "Wire_2fd98ed1ef9f13d6b92f605771e0d84cba3385793616364756034b01cda28a3d": {
         "type": "object",
@@ -6423,10 +5727,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "mode"
-        ]
+        }
       },
       "Wire_3100c253c572f716ab2eb88f6d83d813eedfe0b04003220edb6e98677fced244": {
         "type": "object",
@@ -6449,15 +5750,7 @@
           "canView": {
             "type": "boolean"
           }
-        },
-        "required": [
-          "canManageAcl",
-          "canView",
-          "canRun",
-          "canEdit",
-          "canPublish",
-          "canUseDql"
-        ]
+        }
       },
       "Wire_3206393a34ac737dcd3540640044680ce7d2ad47a4b55b4a06e350301e8df7f7": {
         "type": "object",
@@ -6486,15 +5779,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "skillId",
-          "folderId",
-          "skillRoot",
-          "ordinal"
-        ]
+        }
       },
       "Wire_320cbcde9ba1cbead9492f244cbb274a289b1dc4e0382f1a0342ad1c73a0c9a1": {
         "type": "object",
@@ -6535,18 +5820,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "resourceId",
-          "namespace",
-          "resourcePath",
-          "content",
-          "contentSize",
-          "contentSha256",
-          "isBinary"
-        ]
+        }
       },
       "Wire_3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c": {
         "type": "object",
@@ -6583,18 +5857,7 @@
             "type": "string",
             "nullable": true
           }
-        },
-        "required": [
-          "reportId",
-          "subjectType",
-          "subjectId",
-          "etag",
-          "canView",
-          "canRun",
-          "canEdit",
-          "canPublish",
-          "canUseDql"
-        ]
+        }
       },
       "Wire_33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58": {
         "type": "object",
@@ -6625,12 +5888,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "items",
-          "limit",
-          "offset"
-        ]
+        }
       },
       "Wire_34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052": {
         "type": "object",
@@ -6661,12 +5919,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "items",
-          "limit",
-          "offset"
-        ]
+        }
       },
       "Wire_35454323a091acd320d8403a139f69d740fe9ed35bba3514f08ff8ed60a9c1c1": {
         "type": "object",
@@ -6694,16 +5947,7 @@
           "skillId": {
             "type": "string"
           }
-        },
-        "required": [
-          "namespaceId",
-          "skillId",
-          "revision",
-          "contentSha256",
-          "bundle",
-          "createdAt",
-          "createdBy"
-        ]
+        }
       },
       "Wire_363b086d0a3385aef883a6c101a25e628c10e16f40db550f64380ec9188a63f1": {
         "type": "object",
@@ -6746,20 +5990,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "namespaceId",
-          "skillId",
-          "name",
-          "title",
-          "description",
-          "latestRevision",
-          "publishedRevision",
-          "status",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Wire_3674eb0cddb7df1ddc9e4861011c1770ed7115e4e8d98535db4bb24fb3264bce": {
         "type": "object",
@@ -6809,13 +6040,7 @@
           "version": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind",
-          "id",
-          "version",
-          "tenant"
-        ]
+        }
       },
       "Wire_385cb42fa02eb6e798cbc1f7de0bcdf81fdec7bcc883dc0d6d67a2e6f9974852": {
         "type": "object",
@@ -6846,12 +6071,7 @@
           "stage": {
             "type": "string"
           }
-        },
-        "required": [
-          "severity",
-          "code",
-          "message"
-        ]
+        }
       },
       "Wire_38fcb57c86eb44d564d0165fe128aec29a7664c7bb39427502b08df9aa42649a": {
         "type": "object",
@@ -6882,12 +6102,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "items",
-          "limit",
-          "offset"
-        ]
+        }
       },
       "Wire_39683fa2630319834046222efde0940aba2f6fb3c734927cdb6e6c4bf93acc07": {
         "type": "object",
@@ -6901,11 +6116,7 @@
           "path": {
             "type": "string"
           }
-        },
-        "required": [
-          "path",
-          "content"
-        ]
+        }
       },
       "Wire_3aa247018499f407d544ef56f7b69626ced040fe25af781379c5b770f172e6dd": {
         "type": "object",
@@ -6927,13 +6138,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resource",
-          "revision",
-          "displayName",
-          "policies"
-        ]
+        }
       },
       "Wire_3ae1bf05288bf4ea8d62663e5d886a6a9b05c1660099c819a9979f1a2fe362de": {
         "type": "object",
@@ -6951,12 +6156,7 @@
           "requireSecurityPredicate": {
             "type": "boolean"
           }
-        },
-        "required": [
-          "requireInternalComponents",
-          "predicatePackages",
-          "requireSecurityPredicate"
-        ]
+        }
       },
       "Wire_3b57d303fc4270172c8dc3dcc384045b957738421bfa4726d93f6529707bb684": {
         "type": "object",
@@ -6976,10 +6176,7 @@
           "type": {
             "type": "string"
           }
-        },
-        "required": [
-          "name"
-        ]
+        }
       },
       "Wire_3c022c3f6824eed0192925c922257b45accccdd131156c75ae957535ffa9d864": {
         "type": "object",
@@ -7012,11 +6209,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "skill",
-          "revision"
-        ]
+        }
       },
       "Wire_3c40dfab646d0be2f44f4740be696d523c8a5de2edbb5c4b839253b21385dd92": {
         "type": "object",
@@ -7027,11 +6220,7 @@
           "type": {
             "type": "string"
           }
-        },
-        "required": [
-          "type",
-          "id"
-        ]
+        }
       },
       "Wire_3c414184025d515e410a57e243b5070ba45b75f1bb950da08536c0ce5e8fbde5": {
         "type": "object",
@@ -7104,12 +6293,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "files",
-          "folders",
-          "skills"
-        ]
+        }
       },
       "Wire_3cd464989c150f4ca0b00b3d8d3628d2b1fe67ab85b72705ab0e70f949f86c37": {
         "type": "object",
@@ -7127,11 +6311,7 @@
             },
             "nullable": true
           }
-        },
-        "required": [
-          "displayName",
-          "policies"
-        ]
+        }
       },
       "Wire_4005354453da2a3b21d88c48a90831cfd66f9382e7b23092aff074c99385dad7": {
         "type": "object",
@@ -7143,11 +6323,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resource",
-          "revision"
-        ]
+        }
       },
       "Wire_40408f0a0b8acd6d878be4326076378aa96079592be6ec18a7919fc73b6ee6cb": {
         "type": "object",
@@ -7175,16 +6351,7 @@
           "skillId": {
             "type": "string"
           }
-        },
-        "required": [
-          "namespaceId",
-          "skillId",
-          "revision",
-          "contentSha256",
-          "bundle",
-          "createdAt",
-          "createdBy"
-        ]
+        }
       },
       "Wire_4240b3df02540530130e0c750596c876294d98d94741cc17333d3f61b4f176f5": {
         "type": "object",
@@ -7202,11 +6369,7 @@
             },
             "nullable": true
           }
-        },
-        "required": [
-          "displayName",
-          "policies"
-        ]
+        }
       },
       "Wire_42ea17da2b60208ef30858a88ede92d622320dba9d309726a67f3023fb8ab9e1": {
         "type": "object",
@@ -7237,12 +6400,7 @@
           "stage": {
             "type": "string"
           }
-        },
-        "required": [
-          "severity",
-          "code",
-          "message"
-        ]
+        }
       },
       "Wire_43ef72ce47082cf6430e2c08b1e64b40e4098e454104c2118db17ce974498d97": {
         "type": "object"
@@ -7300,22 +6458,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "id",
-          "namespace",
-          "slug",
-          "title",
-          "ownerId",
-          "ownerPackage",
-          "status",
-          "defaultConnectorName",
-          "componentScope",
-          "componentName",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Wire_443e7fd9953bff903ca8e9d8e708c7c2edf58ac7f381395736a02d9cea3d50f1": {
         "type": "object",
@@ -7327,11 +6470,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resource",
-          "revision"
-        ]
+        }
       },
       "Wire_460cf67195fceed0e09647cd2eec9022848f4fecb76be30099431c098e162bea": {
         "type": "object",
@@ -7360,14 +6499,7 @@
           "mediaType": {
             "type": "string"
           }
-        },
-        "required": [
-          "filename",
-          "mediaType",
-          "archive",
-          "entryDql",
-          "files"
-        ]
+        }
       },
       "Wire_461497616731306dcde48f09e2924bf4e01f9ae3cde506e2e763cf51e8d8d387": {
         "type": "object",
@@ -7399,10 +6531,7 @@
           "value": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind"
-        ]
+        }
       },
       "Wire_46f5783921089422ba86ef3f21455336f0870921db6e2dac69f80e6517b1e68a": {
         "type": "object",
@@ -7453,19 +6582,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "name",
-          "title",
-          "packagePath",
-          "typeName",
-          "ownerId",
-          "status",
-          "linked",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Wire_474ce95df76d3333c947a6bd85c78ed4cfb5130d19fec59f6b436e1accd11e9a": {
         "type": "object",
@@ -7497,16 +6614,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "folderId",
-          "namespace",
-          "rootPath",
-          "uriPrefix",
-          "ordinal"
-        ]
+        }
       },
       "Wire_47ab2362281845fa3c625b315f45ddecace8a6483837902bc83afa48ecc01f02": {
         "type": "object",
@@ -7523,13 +6631,7 @@
           "version": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind",
-          "id",
-          "version",
-          "tenant"
-        ]
+        }
       },
       "Wire_48193e904540171957f9ef3a3a6aa0d8618569b96cf8c2bd174eb39c4cf6443a": {
         "type": "object",
@@ -7558,11 +6660,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "valid",
-          "version"
-        ]
+        }
       },
       "Wire_484871696bd68d511515dbe742bbf05c512e426119ec9d15b0d61ddb9525a58a": {
         "type": "object",
@@ -7594,10 +6692,7 @@
           "value": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind"
-        ]
+        }
       },
       "Wire_4865103e82a353748c5cf4c44eb18159e252732c3c48350fe8b3411c3af62117": {
         "type": "object",
@@ -7605,10 +6700,7 @@
           "component": {},
           "resources": {},
           "types": {}
-        },
-        "required": [
-          "component"
-        ]
+        }
       },
       "Wire_49686e94bea33d02ba3b047b649a216c420f7aeaeb9434a4ad87db8b0e82aca4": {
         "type": "object",
@@ -7633,10 +6725,7 @@
           "label": {
             "type": "string"
           }
-        },
-        "required": [
-          "label"
-        ]
+        }
       },
       "Wire_49feff8d08df046f25f5c6fbb141c3c4b50c39af0dea56aec129e11334a944e0": {
         "type": "object",
@@ -7676,13 +6765,7 @@
           "status": {
             "type": "string"
           }
-        },
-        "required": [
-          "reportId",
-          "activeVersionNo",
-          "desiredGeneration",
-          "status"
-        ]
+        }
       },
       "Wire_4a60c88b37d05078003e5fbb2823acfe26909222cd13c85c5d99d48381609a31": {
         "type": "object",
@@ -7705,13 +6788,7 @@
           "outputType": {
             "type": "string"
           }
-        },
-        "required": [
-          "name",
-          "description",
-          "builtin",
-          "acceptsArguments"
-        ]
+        }
       },
       "Wire_4ca9fea7aa1d6b8d21f5cfc656a25fc9ccb0ef6b80e665b0bbcc73084c82a04e": {
         "type": "object",
@@ -7722,11 +6799,7 @@
           "type": {
             "type": "string"
           }
-        },
-        "required": [
-          "type",
-          "id"
-        ]
+        }
       },
       "Wire_4dce8cb2df5cbfb88d4ed91e9d3efb3bfd51de7faa0095856cda22845a38c9cf": {
         "type": "object",
@@ -7799,12 +6872,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "files",
-          "folders",
-          "skills"
-        ]
+        }
       },
       "Wire_4fe8166d7fd3ba559461828b204345507c57f19819425fa777e6da1a325464e7": {
         "type": "object",
@@ -7826,11 +6894,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "skill",
-          "publicationStatus"
-        ]
+        }
       },
       "Wire_503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478": {
         "type": "object",
@@ -7862,16 +6926,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "folderId",
-          "namespace",
-          "rootPath",
-          "uriPrefix",
-          "ordinal"
-        ]
+        }
       },
       "Wire_517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de": {
         "type": "object",
@@ -7882,11 +6937,7 @@
           "type": {
             "type": "string"
           }
-        },
-        "required": [
-          "type",
-          "id"
-        ]
+        }
       },
       "Wire_51bb1f0871dac81cba14ebfac4fc554d215315e30cd3b214596b5da0912a4710": {
         "type": "object",
@@ -7915,15 +6966,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "skillId",
-          "folderId",
-          "skillRoot",
-          "ordinal"
-        ]
+        }
       },
       "Wire_54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe": {
         "type": "object",
@@ -7998,22 +7041,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resourceCheckEnabled",
-          "reportId",
-          "versionNo",
-          "state",
-          "authoringMode",
-          "specFormatVersion",
-          "specHash",
-          "compileStatus",
-          "datlyVersion",
-          "compilerVersion",
-          "sourceRevision",
-          "createdBy",
-          "createdAt"
-        ]
+        }
       },
       "Wire_59787f7087b974a90942d4d67d870a8382b1189efe4cc88cfba1b0ada4d89c75": {
         "type": "object",
@@ -8088,22 +7116,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resourceCheckEnabled",
-          "reportId",
-          "versionNo",
-          "state",
-          "authoringMode",
-          "specFormatVersion",
-          "specHash",
-          "compileStatus",
-          "datlyVersion",
-          "compilerVersion",
-          "sourceRevision",
-          "createdBy",
-          "createdAt"
-        ]
+        }
       },
       "Wire_5cf4a8a140fb1a665a97b8362f3128fdf9cdb4b3d66b442d124e25c9ac724d7a": {
         "type": "object",
@@ -8114,11 +7127,7 @@
           "type": {
             "type": "string"
           }
-        },
-        "required": [
-          "type",
-          "id"
-        ]
+        }
       },
       "Wire_5dcb9a5385549159028a02b9f90b5f85b74ea0076b725bce7e222e5cfe3ae71e": {
         "type": "object",
@@ -8149,12 +7158,7 @@
           "stage": {
             "type": "string"
           }
-        },
-        "required": [
-          "severity",
-          "code",
-          "message"
-        ]
+        }
       },
       "Wire_5f3729574877d8503a4dec333774588fe1c7a2ed2ff47c9b7076fcd0f551abe7": {
         "type": "object",
@@ -8171,13 +7175,7 @@
           "version": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind",
-          "id",
-          "version",
-          "tenant"
-        ]
+        }
       },
       "Wire_60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b": {
         "type": "object",
@@ -8195,12 +7193,7 @@
           "requireSecurityPredicate": {
             "type": "boolean"
           }
-        },
-        "required": [
-          "requireInternalComponents",
-          "predicatePackages",
-          "requireSecurityPredicate"
-        ]
+        }
       },
       "Wire_60bda844ac8065e6e072cef8ca0c3a6f4ee6ad55108ee3b860d23ad284da68ac": {
         "type": "object",
@@ -8229,15 +7222,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "skillId",
-          "folderId",
-          "skillRoot",
-          "ordinal"
-        ]
+        }
       },
       "Wire_615a0539a089e0c573df4f18b04483a7302c37cf735dea31813c024c8e2d0922": {
         "type": "object",
@@ -8256,12 +7241,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resource",
-          "revision",
-          "policies"
-        ]
+        }
       },
       "Wire_6238fe88bfb9fb7369cf10de373a6904ecf859ade35a5496fe0a150dae56be72": {
         "type": "object",
@@ -8280,12 +7260,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resource",
-          "revision",
-          "policies"
-        ]
+        }
       },
       "Wire_62b416d7643717df5349d629a8802521ee46b9f921d7c05e834e68b645ecb930": {
         "type": "object",
@@ -8360,22 +7335,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resourceCheckEnabled",
-          "reportId",
-          "versionNo",
-          "state",
-          "authoringMode",
-          "specFormatVersion",
-          "specHash",
-          "compileStatus",
-          "datlyVersion",
-          "compilerVersion",
-          "sourceRevision",
-          "createdBy",
-          "createdAt"
-        ]
+        }
       },
       "Wire_62d79acead49ba0d84d3fe813a8d59b4a26f710c0953ffa167816798ed0333f5": {
         "type": "object",
@@ -8396,12 +7356,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "name",
-          "status",
-          "testedAt"
-        ]
+        }
       },
       "Wire_6479a7da664c407f8f41f4fdf1e70772bbad9691ef67e8050ded752fc88e802e": {
         "type": "object",
@@ -8415,11 +7370,7 @@
           "path": {
             "type": "string"
           }
-        },
-        "required": [
-          "path",
-          "content"
-        ]
+        }
       },
       "Wire_65b20b1db94b9a2b772bc75cedde285454a5204dc72354f579cf1fe7fcc34b2b": {
         "type": "object",
@@ -8442,12 +7393,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "items",
-          "limit",
-          "offset"
-        ]
+        }
       },
       "Wire_685e9f1303192c34245f5ced6b00c18bebddb5a91116b2d04935d49d39a4538f": {
         "type": "object",
@@ -8465,11 +7411,7 @@
             },
             "nullable": true
           }
-        },
-        "required": [
-          "displayName",
-          "policies"
-        ]
+        }
       },
       "Wire_686013a325c9be56a2c1decb9988b4f5c30a411074c3d70e9552eecf4ae1fd87": {
         "type": "object",
@@ -8520,19 +7462,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "name",
-          "title",
-          "packagePath",
-          "typeName",
-          "ownerId",
-          "status",
-          "linked",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Wire_6916e19155f8286deab316189062a4bd3d0a8389de6824abfe4de66459ffeca7": {
         "type": "object",
@@ -8551,12 +7481,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resource",
-          "revision",
-          "actions"
-        ]
+        }
       },
       "Wire_69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d": {
         "type": "object",
@@ -8620,10 +7545,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "mode"
-        ]
+        }
       },
       "Wire_6bdc906e5944153cacf17027ff97fe2e0524311a1c332c218e05c2fb3a05012d": {
         "type": "object",
@@ -8634,11 +7556,7 @@
           "parentColumn": {
             "type": "string"
           }
-        },
-        "required": [
-          "parentColumn",
-          "childColumn"
-        ]
+        }
       },
       "Wire_6e57275ee6e6e1b65e583eed6459bd78d0642e1645c5d8207588a42c34b4171d": {
         "type": "object",
@@ -8679,18 +7597,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "resourceId",
-          "namespace",
-          "resourcePath",
-          "content",
-          "contentSize",
-          "contentSha256",
-          "isBinary"
-        ]
+        }
       },
       "Wire_6eb7fc5381443fd97876b99edd185761fb616aa93f65106e8bce0b948e4541ea": {
         "type": "object",
@@ -8707,13 +7614,7 @@
           "version": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind",
-          "id",
-          "version",
-          "tenant"
-        ]
+        }
       },
       "Wire_71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad": {
         "type": "object",
@@ -8760,11 +7661,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "version",
-          "capabilities"
-        ]
+        }
       },
       "Wire_71b9c50025fc3648b345ae243800bd532fec6cda9e9aadc6e7a02d452d1d70ea": {
         "type": "object",
@@ -8796,16 +7693,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "folderId",
-          "namespace",
-          "rootPath",
-          "uriPrefix",
-          "ordinal"
-        ]
+        }
       },
       "Wire_721df0d143ac47cf20d8d87a4361e4e8915e942ebced01f43c2b54160dbdff73": {
         "type": "object",
@@ -8878,12 +7766,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "files",
-          "folders",
-          "skills"
-        ]
+        }
       },
       "Wire_73cee385316804c80a6a21637351d4b09563a94c50436780d603be1be4525e58": {
         "type": "object",
@@ -8905,11 +7788,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "applied",
-          "inspection"
-        ]
+        }
       },
       "Wire_7500b9317030713f187b24a1e5fdc5a3b126e5bb2b5fb59f60d5b9d5be652a23": {
         "type": "object",
@@ -8959,18 +7838,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "name",
-          "driver",
-          "dsnConfigured",
-          "secretConfigured",
-          "ownerId",
-          "status",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Wire_77752153da43bb0addc9d671944e117883dbc02c23b23f9dead496b805929938": {
         "type": "object",
@@ -9002,16 +7870,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "folderId",
-          "namespace",
-          "rootPath",
-          "uriPrefix",
-          "ordinal"
-        ]
+        }
       },
       "Wire_777f17beb973ceea33d037ba165a4751392efacdd3a1e9425eb0da2b7461ba6e": {
         "type": "object",
@@ -9061,18 +7920,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "name",
-          "driver",
-          "dsnConfigured",
-          "secretConfigured",
-          "ownerId",
-          "status",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Wire_7880c8e6d5d0da581c3d5daf2417d9531fbe99e425a7546fc53a4981cab03a9e": {
         "type": "object",
@@ -9113,18 +7961,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "resourceId",
-          "namespace",
-          "resourcePath",
-          "content",
-          "contentSize",
-          "contentSha256",
-          "isBinary"
-        ]
+        }
       },
       "Wire_78c1ec1bb60829ef8b35985f93d524d34ace814d043b978112938d75ae4c831a": {
         "type": "object",
@@ -9146,13 +7983,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resource",
-          "revision",
-          "displayName",
-          "policies"
-        ]
+        }
       },
       "Wire_7a9034382c023a3e5b4b4f9403d720cc1bf990d1c827a366a019d586b9f5c801": {
         "type": "object",
@@ -9171,12 +8002,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resource",
-          "revision",
-          "policies"
-        ]
+        }
       },
       "Wire_7af96ca0084d089bcfb5e8b942b9d90a7900d3c1e884c7d9c370d23294d493f8": {
         "type": "object"
@@ -9210,11 +8036,7 @@
           "type": {
             "type": "string"
           }
-        },
-        "required": [
-          "type",
-          "id"
-        ]
+        }
       },
       "Wire_7bb477d127e2e69acd8739c2e83cfa4cd4b6cbcb0091ec6d4ce7cec38e659621": {
         "type": "object",
@@ -9225,11 +8047,7 @@
           "type": {
             "type": "string"
           }
-        },
-        "required": [
-          "type",
-          "id"
-        ]
+        }
       },
       "Wire_7be315ac587bc72247d0b72942b7067d644f15c0e04a4011f74ffec56d000203": {
         "type": "object",
@@ -9285,18 +8103,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "name",
-          "driver",
-          "dsnConfigured",
-          "secretConfigured",
-          "ownerId",
-          "status",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Wire_7d7ffebe9b2c3db9f219a2e5c8aedd94c3d67594fc08b9410116d0bc7e2a9134": {
         "type": "object",
@@ -9328,10 +8135,7 @@
           "value": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind"
-        ]
+        }
       },
       "Wire_7d83e432dba96d596847d8df2f770054a4188b355ed704d691dff2a9d8f991ee": {
         "type": "object",
@@ -9362,12 +8166,7 @@
           "stage": {
             "type": "string"
           }
-        },
-        "required": [
-          "severity",
-          "code",
-          "message"
-        ]
+        }
       },
       "Wire_7df6f58c45e1cbb70c52ebe80c2e84548de121e53bb802a546285e9bdee026b6": {
         "type": "object",
@@ -9408,18 +8207,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "resourceId",
-          "namespace",
-          "resourcePath",
-          "content",
-          "contentSize",
-          "contentSha256",
-          "isBinary"
-        ]
+        }
       },
       "Wire_7f614c3079e0f6cdc356ae6e7e44a326c9b77ae75d9bed109251680a65f23b71": {
         "type": "object",
@@ -9472,18 +8260,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "name",
-          "driver",
-          "dsnConfigured",
-          "secretConfigured",
-          "ownerId",
-          "status",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Wire_8147805369c129ab8a8ae87482dbb8be4c51d1125dda4427e8adca5f845d6a7b": {
         "type": "object",
@@ -9500,10 +8277,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "duration"
-        ]
+        }
       },
       "Wire_840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86": {
         "type": "object",
@@ -9531,16 +8305,7 @@
           "skillId": {
             "type": "string"
           }
-        },
-        "required": [
-          "namespaceId",
-          "skillId",
-          "revision",
-          "contentSha256",
-          "bundle",
-          "createdAt",
-          "createdBy"
-        ]
+        }
       },
       "Wire_84dd294b4f11f08ca3a9d1430611613b710bcc9fa0f1d0ede017f74044e2f61f": {
         "type": "object",
@@ -9551,11 +8316,7 @@
           "type": {
             "type": "string"
           }
-        },
-        "required": [
-          "type",
-          "id"
-        ]
+        }
       },
       "Wire_85751a68c4d78aaa4c871824bf59452b5102e0d1c20e4ca6f87da0c38821ffa9": {
         "type": "object",
@@ -9598,20 +8359,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "namespaceId",
-          "skillId",
-          "name",
-          "title",
-          "description",
-          "latestRevision",
-          "publishedRevision",
-          "status",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Wire_85fc54185957a0434e3652651310cd5912274fdaa90cf7f42706e7836e67517c": {
         "type": "object",
@@ -9622,11 +8370,7 @@
           "type": {
             "type": "string"
           }
-        },
-        "required": [
-          "type",
-          "id"
-        ]
+        }
       },
       "Wire_878bfd02a12294e26d1a40f1b673a231fa11c24402268d818f39f80be43c86f9": {
         "type": "object",
@@ -9657,12 +8401,7 @@
           "stage": {
             "type": "string"
           }
-        },
-        "required": [
-          "severity",
-          "code",
-          "message"
-        ]
+        }
       },
       "Wire_87969e56d492a2f730b444adee19ef93ac7c1be948b8dc6be8f7220cc9a8fdf2": {
         "type": "object",
@@ -9679,13 +8418,7 @@
           "version": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind",
-          "id",
-          "version",
-          "tenant"
-        ]
+        }
       },
       "Wire_88709ac613253ed886933b7e523ce6042f690d19bbc5acdf9769548415baf599": {
         "type": "object",
@@ -9728,20 +8461,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "namespaceId",
-          "skillId",
-          "name",
-          "title",
-          "description",
-          "latestRevision",
-          "publishedRevision",
-          "status",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Wire_8901495307607551b54fae77b329fc1b74845fbfdb8111486323e8d7ecd142ce": {
         "type": "object",
@@ -9759,10 +8479,7 @@
           "title": {
             "type": "string"
           }
-        },
-        "required": [
-          "content"
-        ]
+        }
       },
       "Wire_898c903bc4eef9b996d8948010fb2ca3d9389d10ce499b1be1015bbbba75993c": {
         "type": "object",
@@ -9835,12 +8552,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "files",
-          "folders",
-          "skills"
-        ]
+        }
       },
       "Wire_8a4c5788a2cf03a1e9aa38c97c22d5a352f6091ad7274cee621e3739a342c0f4": {
         "type": "object",
@@ -9904,10 +8616,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "mode"
-        ]
+        }
       },
       "Wire_8a9cf29086a80cb7cabcdebcdf40aa1d03da579d5b4d6608dcb4a7446bcf710d": {
         "type": "object",
@@ -9919,10 +8628,7 @@
             },
             "nullable": true
           }
-        },
-        "required": [
-          "items"
-        ]
+        }
       },
       "Wire_8b82f013750bb50c4a08366119aaab33d2ee4c3f59ab77b868ec2617ec5ef5c8": {
         "type": "object",
@@ -9997,22 +8703,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resourceCheckEnabled",
-          "reportId",
-          "versionNo",
-          "state",
-          "authoringMode",
-          "specFormatVersion",
-          "specHash",
-          "compileStatus",
-          "datlyVersion",
-          "compilerVersion",
-          "sourceRevision",
-          "createdBy",
-          "createdAt"
-        ]
+        }
       },
       "Wire_8e91903699babbed9e7ba5df80407c5e4ba8d274d534089cde3a462c51f42580": {
         "type": "object",
@@ -10076,10 +8767,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "mode"
-        ]
+        }
       },
       "Wire_923fe393829758a49477a04947afbca35d7c7c9dd0516e29fffeac7678b90e3b": {
         "type": "object",
@@ -10112,11 +8800,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "skill",
-          "revision"
-        ]
+        }
       },
       "Wire_9354a215074630106ae925b0323dfe169d763d5b75fe24202ca25bd2fb36ab21": {
         "type": "object",
@@ -10124,10 +8808,7 @@
           "context": {
             "$ref": "#/components/schemas/Wire_2bece1447e379f703b2f9dfec5a0d5fc346a7d1709dd4a6882c60920a9ef056f"
           }
-        },
-        "required": [
-          "context"
-        ]
+        }
       },
       "Wire_9375a58120b02e204afaa76104d340f0d003f1a889466d014b6e77474c4633a6": {
         "type": "object",
@@ -10138,11 +8819,7 @@
           "type": {
             "type": "string"
           }
-        },
-        "required": [
-          "type",
-          "id"
-        ]
+        }
       },
       "Wire_942d4e47e476a9e6ca17a65af1901a04d22fd0d3854182c3efa5e0f74762105e": {
         "type": "object",
@@ -10217,22 +8894,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resourceCheckEnabled",
-          "reportId",
-          "versionNo",
-          "state",
-          "authoringMode",
-          "specFormatVersion",
-          "specHash",
-          "compileStatus",
-          "datlyVersion",
-          "compilerVersion",
-          "sourceRevision",
-          "createdBy",
-          "createdAt"
-        ]
+        }
       },
       "Wire_95a77e17aef6a0c48e1829638788a4dec1654a5c42fd6549e0c42f7eea24f35c": {
         "type": "object",
@@ -10255,10 +8917,7 @@
             },
             "nullable": true
           }
-        },
-        "required": [
-          "items"
-        ]
+        }
       },
       "Wire_9763fc0927f951631f9c089e0800033b9772e81b29bddc85ae64e2899f0943e3": {
         "type": "object",
@@ -10278,11 +8937,7 @@
           "evidence": {
             "$ref": "#/components/schemas/Wire_29994796c346a67d8d87067e8f62a29284fc2af12311fbab69bdf45b428e37f7"
           }
-        },
-        "required": [
-          "duration",
-          "evidence"
-        ]
+        }
       },
       "Wire_979f8401ed7c6a7a498050de7350e78a8cbe42fc8860b3d78ff2dff09894ddc9": {
         "type": "object",
@@ -10307,10 +8962,7 @@
           "label": {
             "type": "string"
           }
-        },
-        "required": [
-          "label"
-        ]
+        }
       },
       "Wire_98b9826a3a782748dba5c6e5a250e1e52d78e3e1dbd2ab11f2dc2f9352c62e7a": {
         "type": "object",
@@ -10365,22 +9017,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "id",
-          "namespace",
-          "slug",
-          "title",
-          "ownerId",
-          "ownerPackage",
-          "status",
-          "defaultConnectorName",
-          "componentScope",
-          "componentName",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Wire_9b9625c5bec32646decbda4f9d3e2d367c5b2ccc04c411e68f25c2e19cfc951e": {
         "type": "object",
@@ -10397,13 +9034,7 @@
           "version": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind",
-          "id",
-          "version",
-          "tenant"
-        ]
+        }
       },
       "Wire_9c01bf707962841cbc5605469843177e10a3ba674269dbc69bb1103b39fe0c3d": {
         "type": "object",
@@ -10454,19 +9085,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "name",
-          "title",
-          "packagePath",
-          "typeName",
-          "ownerId",
-          "status",
-          "linked",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Wire_9d8264983bf04cffa36aaebff7ed30c4e0090d3061c007830e518f3633d58fb8": {
         "type": "object",
@@ -10484,10 +9103,7 @@
           "title": {
             "type": "string"
           }
-        },
-        "required": [
-          "content"
-        ]
+        }
       },
       "Wire_9e9f2a32ff76fe5fcb226a8378824a3898f344e1e2394372932dcdf203d1d145": {
         "type": "object",
@@ -10560,12 +9176,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "files",
-          "folders",
-          "skills"
-        ]
+        }
       },
       "Wire_9ff34394076f48ed9d131d938211e94244c83bf8f3fbbfacc63525bd424ec102": {
         "type": "object",
@@ -10573,10 +9184,7 @@
           "document": {
             "$ref": "#/components/schemas/Wire_615a0539a089e0c573df4f18b04483a7302c37cf735dea31813c024c8e2d0922"
           }
-        },
-        "required": [
-          "document"
-        ]
+        }
       },
       "Wire_a1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece": {
         "type": "object",
@@ -10602,10 +9210,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "version"
-        ]
+        }
       },
       "Wire_a2017528848c398dbe63d56f9c45139f7f4ebf51f3b52cadf11a77fb2b585406": {
         "type": "object",
@@ -10613,10 +9218,7 @@
           "name": {
             "type": "string"
           }
-        },
-        "required": [
-          "name"
-        ]
+        }
       },
       "Wire_a6d5a259bb2993e6552649336f2c093ccd6ae12f130f8526f5c136a619d0cb51": {
         "type": "object",
@@ -10676,21 +9278,7 @@
           "visibility": {
             "type": "string"
           }
-        },
-        "required": [
-          "namespaceId",
-          "visibility",
-          "allowedRoles",
-          "managerRoles",
-          "mcpEnabled",
-          "ownerId",
-          "name",
-          "title",
-          "status",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Wire_aacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a": {
         "type": "object",
@@ -10719,15 +9307,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "skillId",
-          "folderId",
-          "skillRoot",
-          "ordinal"
-        ]
+        }
       },
       "Wire_afbd3ba313288192c9a8ae3627ea548117f98143f4f73d04a19579f4207fa6b3": {
         "type": "object",
@@ -10744,13 +9324,7 @@
           "version": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind",
-          "id",
-          "version",
-          "tenant"
-        ]
+        }
       },
       "Wire_affe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19": {
         "type": "object",
@@ -10797,11 +9371,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "version",
-          "capabilities"
-        ]
+        }
       },
       "Wire_b202a27129afca41f80f68ed94bc40b9a93d92d84de82126bac7e1e2ec9433fe": {
         "type": "object",
@@ -10829,16 +9399,7 @@
           "skillId": {
             "type": "string"
           }
-        },
-        "required": [
-          "namespaceId",
-          "skillId",
-          "revision",
-          "contentSha256",
-          "bundle",
-          "createdAt",
-          "createdBy"
-        ]
+        }
       },
       "Wire_b3c67af74df5a4d366c8f3a628801f07d89d1eefd88ebad70d3689f8970629db": {
         "type": "object",
@@ -10869,12 +9430,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "items",
-          "limit",
-          "offset"
-        ]
+        }
       },
       "Wire_b42a7344fc0606034fc05c388a62f83c484228cb1e9be8bf4055ff09f8f4a044": {
         "type": "object",
@@ -10932,23 +9488,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "id",
-          "namespace",
-          "slug",
-          "title",
-          "ownerId",
-          "ownerPackage",
-          "auditEnabled",
-          "status",
-          "defaultConnectorName",
-          "componentScope",
-          "componentName",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Wire_b617a59f7d447a6394e2dadab2c5117024021bcb450d40176d0fc95b477a9240": {
         "type": "object",
@@ -10971,10 +9511,7 @@
             },
             "nullable": true
           }
-        },
-        "required": [
-          "items"
-        ]
+        }
       },
       "Wire_b6838e6fc47c275d5128904db750df032d83f139b6513ac839109381f0b0e05d": {
         "type": "object",
@@ -10986,11 +9523,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resource",
-          "revision"
-        ]
+        }
       },
       "Wire_b6bb3a3bc73e240bf20da6f0ceb8512d37faeca8e28cca304a69c5e7ff81fa51": {
         "type": "object",
@@ -11022,16 +9555,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "folderId",
-          "namespace",
-          "rootPath",
-          "uriPrefix",
-          "ordinal"
-        ]
+        }
       },
       "Wire_b976b7c7e16991b8b115817f945d0386ae37d5420e53f9720556d49620ea1e19": {
         "type": "object",
@@ -11053,11 +9577,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "skill",
-          "publicationStatus"
-        ]
+        }
       },
       "Wire_b981e81a865e06c9a0806c0be6f35790a2a830c9d214f66357056f42835e3045": {
         "type": "object",
@@ -11068,10 +9588,7 @@
           "name": {
             "type": "string"
           }
-        },
-        "required": [
-          "name"
-        ]
+        }
       },
       "Wire_bb9c83695ae936c7031ab2428c59ccda35a4e34af9e6662a945012782ac921e1": {
         "type": "object",
@@ -11082,11 +9599,7 @@
           "dql": {
             "type": "string"
           }
-        },
-        "required": [
-          "dql",
-          "complete"
-        ]
+        }
       },
       "Wire_bba07f0bad61cd85885417e1c20c5cff98c1ebf3abb205fd71b51c6069ea161c": {
         "type": "object",
@@ -11145,23 +9658,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "auditEnabled",
-          "id",
-          "namespace",
-          "slug",
-          "title",
-          "ownerId",
-          "ownerPackage",
-          "status",
-          "defaultConnectorName",
-          "componentScope",
-          "componentName",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Wire_bc277e5b6cc7b5f6e3363c1e3628c4127103aecef86cccc990395878331130b5": {
         "type": "object",
@@ -11169,10 +9666,7 @@
           "decision": {
             "$ref": "#/components/schemas/Wire_e664fa33d9d2d2c968c6dabd40e4ac01c5333f4591763b88b02fd2feb8b031ca"
           }
-        },
-        "required": [
-          "decision"
-        ]
+        }
       },
       "Wire_bd458392be482912a616e980fab94755810f3ed4347c5351a04930f05dd4ce31": {
         "type": "object",
@@ -11200,12 +9694,7 @@
           "table": {
             "$ref": "#/components/schemas/Wire_ccdd85ede51b17373dddff12304f04c5afd91f3fe365382c999b601899f69747"
           }
-        },
-        "required": [
-          "constraintsKnown",
-          "table",
-          "columns"
-        ]
+        }
       },
       "Wire_bd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033": {
         "type": "object",
@@ -11228,10 +9717,7 @@
             },
             "nullable": true
           }
-        },
-        "required": [
-          "items"
-        ]
+        }
       },
       "Wire_be64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0": {
         "type": "object",
@@ -11272,18 +9758,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "resourceId",
-          "namespace",
-          "resourcePath",
-          "content",
-          "contentSize",
-          "contentSha256",
-          "isBinary"
-        ]
+        }
       },
       "Wire_bedeea2eea3f372feb231562eecdb3aa32c8017835f81ac7e8d5978e48330812": {
         "type": "object",
@@ -11315,16 +9790,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "folderId",
-          "namespace",
-          "rootPath",
-          "uriPrefix",
-          "ordinal"
-        ]
+        }
       },
       "Wire_bf3995c764f467c660824a6600a7149dc689d4778f0ef6b160e197a2ae0b7016": {
         "type": "object",
@@ -11365,18 +9831,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "resourceId",
-          "namespace",
-          "resourcePath",
-          "content",
-          "contentSize",
-          "contentSha256",
-          "isBinary"
-        ]
+        }
       },
       "Wire_c3165cf4a873913ce00d191695cde0c9734357c8a456041fe80521b5e82ab089": {
         "type": "object",
@@ -11451,22 +9906,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resourceCheckEnabled",
-          "reportId",
-          "versionNo",
-          "state",
-          "authoringMode",
-          "specFormatVersion",
-          "specHash",
-          "compileStatus",
-          "datlyVersion",
-          "compilerVersion",
-          "sourceRevision",
-          "createdBy",
-          "createdAt"
-        ]
+        }
       },
       "Wire_c34a89824b0951b1ac05f75e5bc3de78c6291e85c6dc07c5360c160963f1e221": {
         "type": "object",
@@ -11474,10 +9914,7 @@
           "document": {
             "$ref": "#/components/schemas/Wire_7a9034382c023a3e5b4b4f9403d720cc1bf990d1c827a366a019d586b9f5c801"
           }
-        },
-        "required": [
-          "document"
-        ]
+        }
       },
       "Wire_c38c2d9780ed3554863ff8a5dc7c7bd625b9c3263af13cdca862e977c297d435": {
         "type": "object",
@@ -11536,11 +9973,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resource",
-          "revision"
-        ]
+        }
       },
       "Wire_c47cf46b58e263ed665fbdce50f43ecc62642c4837741ba43aaa439c1623d39c": {
         "type": "object",
@@ -11563,15 +9996,7 @@
           "canView": {
             "type": "boolean"
           }
-        },
-        "required": [
-          "canManageAcl",
-          "canView",
-          "canRun",
-          "canEdit",
-          "canPublish",
-          "canUseDql"
-        ]
+        }
       },
       "Wire_c4facae1d7de805700fd614d7869128040212f41ac67951ed63113923ea516c1": {
         "type": "object",
@@ -11603,10 +10028,7 @@
           "value": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind"
-        ]
+        }
       },
       "Wire_c556c6c91d85b6fe76e559a7132bc91d46b0c40c216a538c686d074ec366c766": {
         "type": "object"
@@ -11627,11 +10049,7 @@
             },
             "nullable": true
           }
-        },
-        "required": [
-          "displayName",
-          "policies"
-        ]
+        }
       },
       "Wire_c9c3daca338ca35bf3129e93e885ea3b84975d95cbde9b402fe7ef89e0ac22ca": {
         "type": "object",
@@ -11690,12 +10108,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "canEdit",
-          "settings",
-          "etag"
-        ]
+        }
       },
       "Wire_cc811b40c825a2509701c74e9a5e2cc1d9d5fba79f30ab17f90611527d0f5332": {
         "type": "object",
@@ -11718,10 +10131,7 @@
             },
             "nullable": true
           }
-        },
-        "required": [
-          "items"
-        ]
+        }
       },
       "Wire_cc8e6d7697c9501b39869778c8e5561398ec267f3f24741ddd643fb0c8d25f2f": {
         "type": "object",
@@ -11738,13 +10148,7 @@
           "version": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind",
-          "id",
-          "version",
-          "tenant"
-        ]
+        }
       },
       "Wire_ccb72e9ff740a41f9ee459d67d34d6d003de93aa4e74ce39b240bc27d65454ca": {
         "type": "object",
@@ -11773,15 +10177,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "skillId",
-          "folderId",
-          "skillRoot",
-          "ordinal"
-        ]
+        }
       },
       "Wire_ccdd85ede51b17373dddff12304f04c5afd91f3fe365382c999b601899f69747": {
         "type": "object",
@@ -11801,10 +10197,7 @@
           "type": {
             "type": "string"
           }
-        },
-        "required": [
-          "name"
-        ]
+        }
       },
       "Wire_cfcaf2b72b62ce0a723c37fe6863f96b754785b31db4030a9f684317c5490937": {
         "type": "object",
@@ -11816,11 +10209,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resource",
-          "revision"
-        ]
+        }
       },
       "Wire_d1d5b1593453c747c2a4ede5bbb420ceefcd6f25e711131ddfa36910f076474d": {
         "type": "object",
@@ -11893,12 +10282,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "files",
-          "folders",
-          "skills"
-        ]
+        }
       },
       "Wire_d47a3f0a566536bf283059fe5c94fdc79e8185ca98cbe6359316854e6ae380ee": {
         "type": "object",
@@ -11973,22 +10357,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resourceCheckEnabled",
-          "reportId",
-          "versionNo",
-          "state",
-          "authoringMode",
-          "specFormatVersion",
-          "specHash",
-          "compileStatus",
-          "datlyVersion",
-          "compilerVersion",
-          "sourceRevision",
-          "createdBy",
-          "createdAt"
-        ]
+        }
       },
       "Wire_d47f31d6831e78d8d30e9260afc40ce9bef1e3193510447b56ae7c551502c928": {
         "type": "object",
@@ -12063,22 +10432,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resourceCheckEnabled",
-          "reportId",
-          "versionNo",
-          "state",
-          "authoringMode",
-          "specFormatVersion",
-          "specHash",
-          "compileStatus",
-          "datlyVersion",
-          "compilerVersion",
-          "sourceRevision",
-          "createdBy",
-          "createdAt"
-        ]
+        }
       },
       "Wire_d58affaab847657f56e4dc0eed2b3bbad9e31ea2a73778f577cd287673f772b3": {
         "type": "object",
@@ -12107,15 +10461,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "skillId",
-          "folderId",
-          "skillRoot",
-          "ordinal"
-        ]
+        }
       },
       "Wire_d5a1455bb20fa801e9c1447278e93f142e3212e863c81795f9d54e05d4b43c78": {
         "type": "object",
@@ -12151,13 +10497,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "version",
-          "entryDql",
-          "entries",
-          "files"
-        ]
+        }
       },
       "Wire_d5cefe1b3a17afd7fef5285814e696de9b1f5aa8569887156dc7690bce5223c2": {
         "type": "object",
@@ -12186,15 +10526,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "skillId",
-          "folderId",
-          "skillRoot",
-          "ordinal"
-        ]
+        }
       },
       "Wire_d729664b640d3eac7464086bf0607bf84c12bf3a10eca79f85d4acaf3cfa7836": {
         "type": "object",
@@ -12220,12 +10552,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "canEdit",
-          "settings",
-          "etag"
-        ]
+        }
       },
       "Wire_d82adbb20251ee59732b96cc17e12fda2b7531a5a2aa9b3011dd7e9258ea62a7": {
         "type": "object",
@@ -12256,12 +10583,7 @@
           "stage": {
             "type": "string"
           }
-        },
-        "required": [
-          "severity",
-          "code",
-          "message"
-        ]
+        }
       },
       "Wire_d898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca": {
         "type": "object",
@@ -12284,15 +10606,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "sourceRevision",
-          "method",
-          "path",
-          "schema"
-        ]
+        }
       },
       "Wire_d96f9f6e74952b34f1e493521a586f731028cc293d50a0439ca0ba97d376ca3c": {
         "type": "object",
@@ -12309,11 +10623,7 @@
           "typeName": {
             "type": "string"
           }
-        },
-        "required": [
-          "packagePath",
-          "typeName"
-        ]
+        }
       },
       "Wire_dc7d19b963043f09d2349eb8f581a65f7e20e3be2a6bce59a4837debdae7a8b2": {
         "type": "object",
@@ -12332,12 +10642,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resource",
-          "revision",
-          "policies"
-        ]
+        }
       },
       "Wire_dd57f8078c863d6327fc4c31894dd7a9b19a5e8ce736c4f2f789a161a9bccf09": {
         "type": "object",
@@ -12345,10 +10650,7 @@
           "document": {
             "$ref": "#/components/schemas/Wire_6238fe88bfb9fb7369cf10de373a6904ecf859ade35a5496fe0a150dae56be72"
           }
-        },
-        "required": [
-          "document"
-        ]
+        }
       },
       "Wire_dda9a7e06f8980ccc3d0d82eca41c2ab29259e1288943f9b5f95b433a84a7179": {
         "type": "object",
@@ -12379,12 +10681,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "items",
-          "limit",
-          "offset"
-        ]
+        }
       },
       "Wire_ddb0758361d7645100d4271bb6abcc08e955d5bf64bce42081793c40d1a24231": {
         "type": "object",
@@ -12448,22 +10745,7 @@
           "visibility": {
             "type": "string"
           }
-        },
-        "required": [
-          "allowedRoles",
-          "canManage",
-          "managerRoles",
-          "namespaceId",
-          "visibility",
-          "mcpEnabled",
-          "ownerId",
-          "name",
-          "title",
-          "status",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Wire_ddc8f3519e98b687e03e321d69e1dab9d279d6f41fcef8b1c25d52a95b4f51bd": {
         "type": "object",
@@ -12494,12 +10776,7 @@
           "stage": {
             "type": "string"
           }
-        },
-        "required": [
-          "severity",
-          "code",
-          "message"
-        ]
+        }
       },
       "Wire_df12dfa59799793038c477f45c5acb6ce486b84479f8df9c47f1698fc478a940": {
         "type": "object",
@@ -12517,11 +10794,7 @@
             },
             "nullable": true
           }
-        },
-        "required": [
-          "displayName",
-          "policies"
-        ]
+        }
       },
       "Wire_e0b9d64ac7d2034342d226cd5a657956619fb94bfab0f429f31d295bbee568fb": {
         "type": "object",
@@ -12544,10 +10817,7 @@
           "view": {
             "type": "string"
           }
-        },
-        "required": [
-          "view"
-        ]
+        }
       },
       "Wire_e18028c8d8678f7b196b454563aabcdf784e9c96e81c3a01b6b229ef99506ee1": {
         "type": "object",
@@ -12578,12 +10848,7 @@
           "stage": {
             "type": "string"
           }
-        },
-        "required": [
-          "severity",
-          "code",
-          "message"
-        ]
+        }
       },
       "Wire_e3281ba035f286ae15da4d6b5fc837e6c74b9abed0818e83c7a340abb154e805": {
         "type": "object",
@@ -12601,11 +10866,7 @@
             },
             "nullable": true
           }
-        },
-        "required": [
-          "displayName",
-          "policies"
-        ]
+        }
       },
       "Wire_e664fa33d9d2d2c968c6dabd40e4ac01c5333f4591763b88b02fd2feb8b031ca": {
         "type": "object",
@@ -12620,11 +10881,7 @@
             },
             "nullable": true
           }
-        },
-        "required": [
-          "entities",
-          "bounded"
-        ]
+        }
       },
       "Wire_e7011437759d2568973820dd3cff070baab4d58b71061ca4e17f36cb9345841c": {
         "type": "object",
@@ -12649,10 +10906,7 @@
           "label": {
             "type": "string"
           }
-        },
-        "required": [
-          "label"
-        ]
+        }
       },
       "Wire_e832454f19415c813fd78ba2b907f9390f2ec4a8b6f370286ef5e8bebbbabf34": {
         "type": "object",
@@ -12664,11 +10918,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resource",
-          "revision"
-        ]
+        }
       },
       "Wire_e8eef4e2ee505a6f0706d63914d0a1a7e51cfcb516b0852a6bee4efa3ce9e0b0": {
         "type": "object",
@@ -12711,20 +10961,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "namespaceId",
-          "skillId",
-          "name",
-          "title",
-          "description",
-          "latestRevision",
-          "publishedRevision",
-          "status",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Wire_ea1dce693f0fba7795db01c064fb101c3191020f13e052ff246a0378ec74f044": {
         "type": "object"
@@ -12744,13 +10981,7 @@
           "version": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind",
-          "id",
-          "version",
-          "tenant"
-        ]
+        }
       },
       "Wire_eb92a7ed6388e975e65b145f5aff65431391b74ba4ce361a23586ed9aeb94c90": {
         "type": "object",
@@ -12773,10 +11004,7 @@
             },
             "nullable": true
           }
-        },
-        "required": [
-          "items"
-        ]
+        }
       },
       "Wire_ec41adb937e5f16ce60477ecb1b99c973b9578fe8f638d99357ce6779c5289f0": {
         "type": "object",
@@ -12807,12 +11035,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "items",
-          "limit",
-          "offset"
-        ]
+        }
       },
       "Wire_ecc4d9a82e8b4cd1e3ac77d7fd7943319b31b3e82973c8afbcf0002138ddc950": {
         "type": "object",
@@ -12846,13 +11069,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "limit",
-          "returnedRows",
-          "encodedBytes",
-          "truncated"
-        ]
+        }
       },
       "Wire_ee01445e9fe49535f8f7dc37d983f46b5472b8cd95114371444ef4105e4e314c": {
         "type": "object",
@@ -12875,15 +11092,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "reportId",
-          "versionNo",
-          "sourceRevision",
-          "method",
-          "path",
-          "schema"
-        ]
+        }
       },
       "Wire_ee0e388919265cb6a34b160d48af21f28f7d7c7a89bfa0e33a9bc2a1e516d497": {
         "type": "object",
@@ -12894,11 +11103,7 @@
           "type": {
             "type": "string"
           }
-        },
-        "required": [
-          "type",
-          "id"
-        ]
+        }
       },
       "Wire_eeef16b9cbcbd1e6e3c91399a7a3ea1ea6f63b90114ecd6f2b6b393de239190a": {
         "type": "object",
@@ -12997,22 +11202,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "runId",
-          "reportId",
-          "versionNo",
-          "sourceRevision",
-          "specHash",
-          "planKey",
-          "status",
-          "requestedBy",
-          "requestedAt",
-          "plannedCases",
-          "completedCases",
-          "entries",
-          "target"
-        ]
+        }
       },
       "Wire_f00a6067197bf8503ad2ca929fcac6dd56da64854bf53cfa63f2e90af408ef5d": {
         "type": "object",
@@ -13029,13 +11219,7 @@
           "version": {
             "type": "string"
           }
-        },
-        "required": [
-          "kind",
-          "id",
-          "version",
-          "tenant"
-        ]
+        }
       },
       "Wire_f13c6896f56ef6cd633314e17c86ef09c723b489a575449924c438606e230bf5": {
         "type": "object",
@@ -13085,18 +11269,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "name",
-          "driver",
-          "dsnConfigured",
-          "secretConfigured",
-          "ownerId",
-          "status",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Wire_f1625788b66eacf74ca98501afd9a4c5d06df56f548c1b3c679070e519cabcba": {
         "type": "object",
@@ -13147,19 +11320,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "name",
-          "title",
-          "packagePath",
-          "typeName",
-          "ownerId",
-          "status",
-          "linked",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Wire_f1dc57456af4495c942542a2c666692b7ca8f42a01f826985262b938bf11fd84": {
         "type": "object",
@@ -13173,11 +11334,7 @@
           "path": {
             "type": "string"
           }
-        },
-        "required": [
-          "path",
-          "content"
-        ]
+        }
       },
       "Wire_f32e0e52a42838184862b0bfabd74676e965524151930580722e42d1d5218aad": {
         "type": "object",
@@ -13241,10 +11398,7 @@
               }
             ]
           }
-        },
-        "required": [
-          "mode"
-        ]
+        }
       },
       "Wire_f3e391310ebbdfcf54a80947dc8023074733a52a02de8af4f489eff13a0c137d": {
         "type": "object",
@@ -13319,22 +11473,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resourceCheckEnabled",
-          "reportId",
-          "versionNo",
-          "state",
-          "authoringMode",
-          "specFormatVersion",
-          "specHash",
-          "compileStatus",
-          "datlyVersion",
-          "compilerVersion",
-          "sourceRevision",
-          "createdBy",
-          "createdAt"
-        ]
+        }
       },
       "Wire_f3ea60d2fa17320c067919706e92c833737f3992042e85b8ec5055e0a45de960": {
         "type": "object",
@@ -13377,20 +11516,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "namespaceId",
-          "skillId",
-          "name",
-          "title",
-          "description",
-          "latestRevision",
-          "publishedRevision",
-          "status",
-          "etag",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "Wire_f503ec7a72f8c4f53c118cb28e4dae7faa981637cd10a0fe3a878b7751fcae6d": {
         "type": "object",
@@ -13421,11 +11547,7 @@
           "type": {
             "type": "string"
           }
-        },
-        "required": [
-          "type",
-          "id"
-        ]
+        }
       },
       "Wire_f7e0e71af22003b02f42054a48a7fc20f287eb50183d06b8e811c01fad620893": {
         "type": "object",
@@ -13443,10 +11565,7 @@
           "title": {
             "type": "string"
           }
-        },
-        "required": [
-          "content"
-        ]
+        }
       },
       "Wire_f932a6d94aac7d5320966eccf3629df536a5a1bc23efddc9cefb59aad8af0675": {
         "type": "object",
@@ -13521,22 +11640,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "resourceCheckEnabled",
-          "reportId",
-          "versionNo",
-          "state",
-          "authoringMode",
-          "specFormatVersion",
-          "specHash",
-          "compileStatus",
-          "datlyVersion",
-          "compilerVersion",
-          "sourceRevision",
-          "createdBy",
-          "createdAt"
-        ]
+        }
       },
       "Wire_f9bfe019ac3bc8cf27b88f9b16d1f9a636d24292970f41843ad5f4eba742d99b": {
         "type": "object",
@@ -13567,12 +11671,7 @@
           "stage": {
             "type": "string"
           }
-        },
-        "required": [
-          "severity",
-          "code",
-          "message"
-        ]
+        }
       },
       "Wire_fcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c": {
         "type": "object",
@@ -13606,13 +11705,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "canCreate",
-          "items",
-          "limit",
-          "offset"
-        ]
+        }
       }
     },
     "securitySchemes": {

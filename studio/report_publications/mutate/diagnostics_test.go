@@ -12,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/viant/bindly"
 	"github.com/viant/datly-studio/internal/runtimeadmin"
 	"github.com/viant/datly-studio/runtime/accessprovider"
 	"github.com/viant/datly-studio/schema"
@@ -42,7 +43,7 @@ func (b publicationFixtureBinder) Lookup(_ context.Context, key xhandler.ValueKe
 	}
 	return nil, false, nil
 }
-func (b publicationFixtureBinder) Bind(_ context.Context, target any) error {
+func (b publicationFixtureBinder) Bind(_ context.Context, target any, _ ...bindly.BindOption) error {
 	field := reflect.ValueOf(target).Elem().FieldByName("Authorization")
 	if !field.IsValid() || !field.CanSet() || field.Kind() != reflect.String {
 		return errors.New("unexpected publication binding")

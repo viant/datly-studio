@@ -910,7 +910,7 @@ SELECT rows.*, type(rows,'Row') FROM (SELECT id,slug FROM components WHERE id='p
 		if err := json.Unmarshal(inspected.PreviewInput.Schema, &shape); err != nil {
 			t.Fatal(err)
 		}
-		if len(shape.Properties) != 1 || shape.Properties["PageSize"] == nil || inspected.Capabilities.CanUseDQL || inspected.DQL != "" || strings.Contains(run.Body.String(), "SELECT id,slug") {
+		if len(shape.Properties) != 1 || shape.Properties["pageSize"] == nil || inspected.Capabilities.CanUseDQL || inspected.DQL != "" || strings.Contains(run.Body.String(), "SELECT id,slug") {
 			t.Fatalf("native wire contract or source redaction changed: %s", run.Body.String())
 		}
 		if _, err := store.ExecContext(ctx, "UPDATE component_versions SET authored_dql='SELECT PRIVATE_METADATA_CANARY FROM ABSENT_CANARY',generated_dql='SELECT PRIVATE_METADATA_CANARY FROM ABSENT_CANARY' WHERE report_id=? AND version_no=1", previewReportID); err != nil {
