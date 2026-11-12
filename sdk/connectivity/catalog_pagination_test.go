@@ -64,3 +64,26 @@ func TestCatalogTablePages(t *testing.T) {
 	require.ErrorContains(t, err, "explicit catalog and schema")
 	require.Equal(t, before, calls)
 }
+
+func TestCatalogKnownTableNeedsNoQueryJob(t *testing.T) {
+	calls := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		require.Equal(t, "GET", r.Method)
+		require.Equal(t, "/projects/source/datasets/data/tables/records", r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"schema":{"fields":[{"name":"id","type":"INTEGER","mode":"REQUIRED"},{"name":"label","type":"STRING"}]}}`))
+	}))
+	defer server.Close()
+	bq.SetOptions(apioption.WithEndpoint(server.URL+"/"), apioption.WithoutAuthentication())
+	defer bq.SetOptions()
+	connector := &sdk.Connector{Name: "source", Driver: "bigquery", DSNTemplate: "bigquery://billing/default"}
+	result, err := (SQLCatalog{}).Table(context.Background(), connector, sdk.TableDetailInput{Catalog: "source", Schema: "data", Table: "records"})
+	require.NoError(t, err)
+	require.Equal(t, 1, calls)
+	require.Len(t, result.Columns, 2)
+	require.Equal(t, "INT64", result.Columns[0].Type)
+	require.Equal(t, "catalog", result.MetadataSource)
+	require.False(t, result.ConstraintsKnown)
+	require.False(t, result.Columns[0].Nullable)
+}

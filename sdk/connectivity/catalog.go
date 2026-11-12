@@ -179,13 +179,20 @@ func (c SQLCatalog) Table(ctx context.Context, connector *sdk.Connector, input s
 		return nil, err
 	}
 	defer db.Close()
-	session, err := config.Session(ctx, db)
-	if err != nil {
-		return nil, err
+	session := &sink.Session{}
+	apiMetadata := resolveDriver(strings.ToLower(strings.TrimSpace(connector.Driver))) == "bigquery" && scope.Catalog != "" && scope.Schema != ""
+	var metadataOptions []option.Option
+	if apiMetadata {
+		metadataOptions = append(metadataOptions, bqmeta.BigQuery())
+	} else {
+		session, err = config.Session(ctx, db)
+		if err != nil {
+			return nil, err
+		}
 	}
 	scope.apply(session)
 	schema := session.Schema
-	columns, err := config.Columns(ctx, session, db, input.Table)
+	columns, err := config.Columns(ctx, session, db, input.Table, metadataOptions...)
 	metadataSource := "catalog"
 	var diagnostics []sdk.Diagnostic
 	if err != nil {
@@ -198,8 +205,14 @@ func (c SQLCatalog) Table(ctx context.Context, connector *sdk.Connector, input s
 		diagnostics = []sdk.Diagnostic{{Severity: "warning", Stage: "catalog.columns", Code: "column_metadata_fallback", Message: providererror.AppendCatalogStatus("Primary column metadata discovery failed; a zero-row probe supplied the column metadata.", primary), Hint: "Verify the exact source catalog and schema and the configured connector metadata access. Constraint information may be unknown; inspect constraintsKnown and nullableKnown before using it."}}
 	}
 	var primary, foreign []sink.Key
-	primaryErr := metadata.New().Info(ctx, db, info.KindPrimaryKeys, &primary, option.NewArgs(session.Catalog, schema, input.Table))
-	foreignErr := metadata.New().Info(ctx, db, info.KindForeignKeys, &foreign, option.NewArgs(session.Catalog, schema, input.Table))
+	constraintsKnown := false
+	if !apiMetadata {
+		primaryErr := metadata.New().Info(ctx, db, info.KindPrimaryKeys, &primary, option.NewArgs(session.Catalog, schema, input.Table))
+		foreignErr := metadata.New().Info(ctx, db, info.KindForeignKeys, &foreign, option.NewArgs(session.Catalog, schema, input.Table))
+		constraintsKnown = primaryErr == nil && foreignErr == nil
+	}
+	// The single-table schema adapter does not expose key constraints. Do not
+	// issue synthetic empty SQL queries or report unknown constraints as known.
 	pk := map[string]bool{}
 	for _, key := range primary {
 		pk[strings.ToLower(key.Column)] = true
@@ -211,7 +224,7 @@ func (c SQLCatalog) Table(ctx context.Context, connector *sdk.Connector, input s
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	result := &sdk.TableDetail{Diagnostics: diagnostics, MetadataSource: metadataSource, ConstraintsKnown: metadataSource == "catalog" && primaryErr == nil && foreignErr == nil, Table: sdk.DatabaseTable{Catalog: session.Catalog, Schema: schema, Name: input.Table, Type: "TABLE"}}
+	result := &sdk.TableDetail{Diagnostics: diagnostics, MetadataSource: metadataSource, ConstraintsKnown: metadataSource == "catalog" && constraintsKnown, Table: sdk.DatabaseTable{Catalog: session.Catalog, Schema: schema, Name: input.Table, Type: "TABLE"}}
 	for _, column := range columns {
 		reference := fk[strings.ToLower(column.Name)]
 		nullableKnown := column.IsNullable() || column.IsNotNull()
