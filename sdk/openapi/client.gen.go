@@ -589,9 +589,10 @@ type InputAdff4675f499a769cb093e90fbca27e902af83cc23c5e13071057671fe8d89f0 struc
 
 // InputB11523bf8a7cc12531330e851f7fb2dd5c4f01768e8eaf6d9a50d7d84ad1250b defines model for Input_b11523bf8a7cc12531330e851f7fb2dd5c4f01768e8eaf6d9a50d7d84ad1250b.
 type InputB11523bf8a7cc12531330e851f7fb2dd5c4f01768e8eaf6d9a50d7d84ad1250b struct {
-	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
-	Reason                 *string `json:"reason,omitempty"`
-	RequestedBy            *string `json:"requestedBy,omitempty"`
+	AdditionalVersions     *[]InputDa2b3e655a12ef21c05da22075dced832460528bf97a14e0c9f4a4a1140b97b0 `json:"additionalVersions,omitempty"`
+	ExpectedSourceRevision *int64                                                                   `json:"expectedSourceRevision,omitempty"`
+	Reason                 *string                                                                  `json:"reason,omitempty"`
+	RequestedBy            *string                                                                  `json:"requestedBy,omitempty"`
 }
 
 // InputB1c1e89e6619cb826e546ecf8347ad7b1464c14d32806b70e5e920cf5d1d5578 defines model for Input_b1c1e89e6619cb826e546ecf8347ad7b1464c14d32806b70e5e920cf5d1d5578.
@@ -718,11 +719,12 @@ type InputC8f891bb6cfd81599dce6f4f5d400a21caa864a78f2dabaa10e3173f02ca8db3 struc
 
 // InputCe48d096271799f6074437499f254f457869d225dfbc7ea54c0552fa34341dd8 defines model for Input_ce48d096271799f6074437499f254f457869d225dfbc7ea54c0552fa34341dd8.
 type InputCe48d096271799f6074437499f254f457869d225dfbc7ea54c0552fa34341dd8 struct {
-	Catalog *string `json:"catalog,omitempty"`
-	Limit   *int64  `json:"limit,omitempty"`
-	Offset  *int64  `json:"offset,omitempty"`
-	Query   *string `json:"query,omitempty"`
-	Schema  *string `json:"schema,omitempty"`
+	Catalog   *string `json:"catalog,omitempty"`
+	Limit     *int64  `json:"limit,omitempty"`
+	Offset    *int64  `json:"offset,omitempty"`
+	PageToken *string `json:"pageToken,omitempty"`
+	Query     *string `json:"query,omitempty"`
+	Schema    *string `json:"schema,omitempty"`
 }
 
 // InputCe5005b864956cbc2469fc8d71a73cc80f19dd86c8340815b1edae79273b8769 defines model for Input_ce5005b864956cbc2469fc8d71a73cc80f19dd86c8340815b1edae79273b8769.
@@ -799,6 +801,13 @@ type InputD96c77fce94d09d181eab2c9524935c78921e434e5774e5bd48fb3885a378b9f struc
 	Revision *int64                                                                 `json:"revision,omitempty"`
 }
 
+// InputDa2b3e655a12ef21c05da22075dced832460528bf97a14e0c9f4a4a1140b97b0 defines model for Input_da2b3e655a12ef21c05da22075dced832460528bf97a14e0c9f4a4a1140b97b0.
+type InputDa2b3e655a12ef21c05da22075dced832460528bf97a14e0c9f4a4a1140b97b0 struct {
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
+}
+
 // InputDa8168f080bfa68b819580da3d7c62f0f555672ea65e1590b0f311889f16f426 defines model for Input_da8168f080bfa68b819580da3d7c62f0f555672ea65e1590b0f311889f16f426.
 type InputDa8168f080bfa68b819580da3d7c62f0f555672ea65e1590b0f311889f16f426 struct {
 	Id   *string `json:"id,omitempty"`
@@ -822,9 +831,10 @@ type InputEa8cf0b60e82e17c8f2e6bc2ad35fe0985cc717838bb65d7f9b56c81bd0718aa struc
 
 // InputF063ff05b2157fb8f6176bbd7a336f91805d5c30366f9c24c986423e7cda8aa9 defines model for Input_f063ff05b2157fb8f6176bbd7a336f91805d5c30366f9c24c986423e7cda8aa9.
 type InputF063ff05b2157fb8f6176bbd7a336f91805d5c30366f9c24c986423e7cda8aa9 struct {
-	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
-	Reason                 *string `json:"reason,omitempty"`
-	RequestedBy            *string `json:"requestedBy,omitempty"`
+	AdditionalVersions     *[]InputF6abd760eaa656c6d1e877b74b78fff88645ce1566dbb6449894bd0462ac22cc `json:"additionalVersions,omitempty"`
+	ExpectedSourceRevision *int64                                                                   `json:"expectedSourceRevision,omitempty"`
+	Reason                 *string                                                                  `json:"reason,omitempty"`
+	RequestedBy            *string                                                                  `json:"requestedBy,omitempty"`
 }
 
 // InputF3044df0c7cd0b878c0b87a29dd6e79969b672d3c9442314ba8ecc0d65ac197b defines model for Input_f3044df0c7cd0b878c0b87a29dd6e79969b672d3c9442314ba8ecc0d65ac197b.
@@ -874,6 +884,13 @@ type InputF634d5143d6e3364c1db207e4711ff7d15d1b7a7e480685eba2b81375d329894_Rule 
 type InputF67c0a976b1eec135c3429edd18e7c91d527c0309b4e4c0e2920d3629cffd80e struct {
 	Id   *string `json:"id,omitempty"`
 	Type *string `json:"type,omitempty"`
+}
+
+// InputF6abd760eaa656c6d1e877b74b78fff88645ce1566dbb6449894bd0462ac22cc defines model for Input_f6abd760eaa656c6d1e877b74b78fff88645ce1566dbb6449894bd0462ac22cc.
+type InputF6abd760eaa656c6d1e877b74b78fff88645ce1566dbb6449894bd0462ac22cc struct {
+	ExpectedSourceRevision *int64  `json:"expectedSourceRevision,omitempty"`
+	ReportId               *string `json:"reportId,omitempty"`
+	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
 // InputFbe063b0dffe21f52c69687522edb79a427791ea48e91e51705a9b76a1b8b60b defines model for Input_fbe063b0dffe21f52c69687522edb79a427791ea48e91e51705a9b76a1b8b60b.
@@ -2269,6 +2286,7 @@ type Wire284d529f33778b8025eaf493c0c081fa071dfc15595367cd050c6aea84390073 struct
 	Default         *string `json:"default,omitempty"`
 	Name            string  `json:"name"`
 	Nullable        bool    `json:"nullable"`
+	NullableKnown   *bool   `json:"nullableKnown,omitempty"`
 	PrimaryKey      bool    `json:"primaryKey"`
 	ReferenceColumn *string `json:"referenceColumn,omitempty"`
 	ReferenceSchema *string `json:"referenceSchema,omitempty"`
@@ -3115,9 +3133,10 @@ type Wire6479a7da664c407f8f41f4fdf1e70772bbad9691ef67e8050ded752fc88e802e struct
 
 // Wire65b20b1db94b9a2b772bc75cedde285454a5204dc72354f579cf1fe7fcc34b2b defines model for Wire_65b20b1db94b9a2b772bc75cedde285454a5204dc72354f579cf1fe7fcc34b2b.
 type Wire65b20b1db94b9a2b772bc75cedde285454a5204dc72354f579cf1fe7fcc34b2b struct {
-	Items  *[]Wire3b57d303fc4270172c8dc3dcc384045b957738421bfa4726d93f6529707bb684 `json:"items"`
-	Limit  int64                                                                   `json:"limit"`
-	Offset int64                                                                   `json:"offset"`
+	Items         *[]Wire3b57d303fc4270172c8dc3dcc384045b957738421bfa4726d93f6529707bb684 `json:"items"`
+	Limit         int64                                                                   `json:"limit"`
+	NextPageToken *string                                                                 `json:"nextPageToken,omitempty"`
+	Offset        int64                                                                   `json:"offset"`
 }
 
 // Wire685e9f1303192c34245f5ced6b00c18bebddb5a91116b2d04935d49d39a4538f defines model for Wire_685e9f1303192c34245f5ced6b00c18bebddb5a91116b2d04935d49d39a4538f.
@@ -4104,8 +4123,11 @@ type WireBc277e5b6cc7b5f6e3363c1e3628c4127103aecef86cccc990395878331130b5 struct
 
 // WireBd458392be482912a616e980fab94755810f3ed4347c5351a04930f05dd4ce31 defines model for Wire_bd458392be482912a616e980fab94755810f3ed4347c5351a04930f05dd4ce31.
 type WireBd458392be482912a616e980fab94755810f3ed4347c5351a04930f05dd4ce31 struct {
-	Columns *[]Wire284d529f33778b8025eaf493c0c081fa071dfc15595367cd050c6aea84390073 `json:"columns"`
-	Table   WireCcdd85ede51b17373dddff12304f04c5afd91f3fe365382c999b601899f69747    `json:"table"`
+	Columns          *[]Wire284d529f33778b8025eaf493c0c081fa071dfc15595367cd050c6aea84390073 `json:"columns"`
+	ConstraintsKnown bool                                                                    `json:"constraintsKnown"`
+	Diagnostics      *[]WireE18028c8d8678f7b196b454563aabcdf784e9c96e81c3a01b6b229ef99506ee1 `json:"diagnostics,omitempty"`
+	MetadataSource   *string                                                                 `json:"metadataSource,omitempty"`
+	Table            WireCcdd85ede51b17373dddff12304f04c5afd91f3fe365382c999b601899f69747    `json:"table"`
 }
 
 // WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033 defines model for Wire_bd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033.
@@ -4588,6 +4610,18 @@ type WireE0b9d64ac7d2034342d226cd5a657956619fb94bfab0f429f31d295bbee568fb struct
 	IndexColumn    *string `json:"indexColumn,omitempty"`
 	IndexParameter *string `json:"indexParameter,omitempty"`
 	View           string  `json:"view"`
+}
+
+// WireE18028c8d8678f7b196b454563aabcdf784e9c96e81c3a01b6b229ef99506ee1 defines model for Wire_e18028c8d8678f7b196b454563aabcdf784e9c96e81c3a01b6b229ef99506ee1.
+type WireE18028c8d8678f7b196b454563aabcdf784e9c96e81c3a01b6b229ef99506ee1 struct {
+	Code     string  `json:"code"`
+	Column   *int64  `json:"column,omitempty"`
+	Field    *string `json:"field,omitempty"`
+	Hint     *string `json:"hint,omitempty"`
+	Line     *int64  `json:"line,omitempty"`
+	Message  string  `json:"message"`
+	Severity string  `json:"severity"`
+	Stage    *string `json:"stage,omitempty"`
 }
 
 // WireE3281ba035f286ae15da4d6b5fc837e6c74b9abed0818e83c7a340abb154e805 defines model for Wire_e3281ba035f286ae15da4d6b5fc837e6c74b9abed0818e83c7a340abb154e805.

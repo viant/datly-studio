@@ -54,7 +54,7 @@ func (output *Output) MarshalJSON() ([]byte, error) {
 }
 
 type PublishComponent struct {
-	Contract xdatly.Component[VersionInput, Output] `component:"publication_publish,path=/v1/studio/sdk/publications.publish,method=POST,connector=studio,handler=NewPublish" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.publications.publish\",\"description\":\"Publish one validated Datly Studio component version\"}]" caseFormat:"lc"`
+	Contract xdatly.Component[VersionInput, Output] `component:"publication_publish,path=/v1/studio/sdk/publications.publish,method=POST,connector=studio,handler=NewPublish" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.publications.publish\",\"description\":\"Publish validated component versions atomically; input.additionalVersions joins other versions to the primary version in one generation\"}]" caseFormat:"lc"`
 }
 
 type RollbackComponent struct {

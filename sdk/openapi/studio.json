@@ -1299,6 +1299,13 @@
       "Input_b11523bf8a7cc12531330e851f7fb2dd5c4f01768e8eaf6d9a50d7d84ad1250b": {
         "type": "object",
         "properties": {
+          "additionalVersions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Input_da2b3e655a12ef21c05da22075dced832460528bf97a14e0c9f4a4a1140b97b0"
+            },
+            "nullable": true
+          },
           "expectedSourceRevision": {
             "type": "integer",
             "format": "int64"
@@ -1606,6 +1613,9 @@
             "type": "integer",
             "format": "int64"
           },
+          "pageToken": {
+            "type": "string"
+          },
           "query": {
             "type": "string"
           },
@@ -1779,6 +1789,22 @@
           }
         }
       },
+      "Input_da2b3e655a12ef21c05da22075dced832460528bf97a14e0c9f4a4a1140b97b0": {
+        "type": "object",
+        "properties": {
+          "expectedSourceRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reportId": {
+            "type": "string"
+          },
+          "versionNo": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "Input_da8168f080bfa68b819580da3d7c62f0f555672ea65e1590b0f311889f16f426": {
         "type": "object",
         "properties": {
@@ -1827,6 +1853,13 @@
       "Input_f063ff05b2157fb8f6176bbd7a336f91805d5c30366f9c24c986423e7cda8aa9": {
         "type": "object",
         "properties": {
+          "additionalVersions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Input_f6abd760eaa656c6d1e877b74b78fff88645ce1566dbb6449894bd0462ac22cc"
+            },
+            "nullable": true
+          },
           "expectedSourceRevision": {
             "type": "integer",
             "format": "int64"
@@ -1928,6 +1961,22 @@
           },
           "type": {
             "type": "string"
+          }
+        }
+      },
+      "Input_f6abd760eaa656c6d1e877b74b78fff88645ce1566dbb6449894bd0462ac22cc": {
+        "type": "object",
+        "properties": {
+          "expectedSourceRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reportId": {
+            "type": "string"
+          },
+          "versionNo": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -6006,6 +6055,10 @@
           "nullable": {
             "type": "boolean"
           },
+          "nullableKnown": {
+            "type": "boolean",
+            "nullable": true
+          },
           "primaryKey": {
             "type": "boolean"
           },
@@ -8381,6 +8434,9 @@
           "limit": {
             "type": "integer",
             "format": "int64"
+          },
+          "nextPageToken": {
+            "type": "string"
           },
           "offset": {
             "type": "integer",
@@ -11100,11 +11156,25 @@
             },
             "nullable": true
           },
+          "constraintsKnown": {
+            "type": "boolean"
+          },
+          "diagnostics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_e18028c8d8678f7b196b454563aabcdf784e9c96e81c3a01b6b229ef99506ee1"
+            },
+            "nullable": true
+          },
+          "metadataSource": {
+            "type": "string"
+          },
           "table": {
             "$ref": "#/components/schemas/Wire_ccdd85ede51b17373dddff12304f04c5afd91f3fe365382c999b601899f69747"
           }
         },
         "required": [
+          "constraintsKnown",
           "table",
           "columns"
         ]
@@ -12418,6 +12488,42 @@
         },
         "required": [
           "view"
+        ]
+      },
+      "Wire_e18028c8d8678f7b196b454563aabcdf784e9c96e81c3a01b6b229ef99506ee1": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "column": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "field": {
+            "type": "string"
+          },
+          "hint": {
+            "type": "string"
+          },
+          "line": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "message": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string"
+          },
+          "stage": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "severity",
+          "code",
+          "message"
         ]
       },
       "Wire_e3281ba035f286ae15da4d6b5fc837e6c74b9abed0818e83c7a340abb154e805": {

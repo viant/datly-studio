@@ -24,9 +24,15 @@ func (t *Transport) repointActivePublications(ctx context.Context, tx *sql.Tx, e
 	}
 	rows := make([]*publicationrepoint.StoredPublication, 0, len(others))
 	for _, other := range others {
+		if other.ActiveGeneration != nil && *other.ActiveGeneration == generation {
+			continue
+		}
 		rows = append(rows, &publicationrepoint.StoredPublication{ReportId: other.ReportId,
 			ActiveGeneration: other.ActiveGeneration,
 			Has:              &publicationrepoint.StoredPublicationHas{ReportId: true, ActiveGeneration: true}})
+	}
+	if len(rows) == 0 {
+		return len(others), nil
 	}
 	if err = publicationstore.WriteRepoint(ctx, t.DB, tx, excludeReportID, generation, rows); err != nil {
 		var conflict *xhandler.Conflict

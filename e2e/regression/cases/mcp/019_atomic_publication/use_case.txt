@@ -1,0 +1,1 @@
+Publish two validated components in one generation and invoke both through native namespace MCP.

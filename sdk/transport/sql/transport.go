@@ -48,7 +48,6 @@ import (
 	versionvalidation "github.com/viant/datly-studio/studio/report_versions/store_validation"
 	reportconfig "github.com/viant/datly-studio/studio/reports/store_config"
 	reportinsert "github.com/viant/datly-studio/studio/reports/store_insert"
-	generationstate "github.com/viant/datly-studio/studio/runtime_generations/store_state"
 	"github.com/viant/datly/authoring/readerbuilder"
 	dexec "github.com/viant/datly/exec"
 	datlyreport "github.com/viant/datly/report"
@@ -2041,101 +2040,13 @@ type publishRequest struct {
 	Input     sdk.PublishInput `json:"input"`
 }
 
-func (t *Transport) publish(ctx context.Context, input, output any, operation string) (returnErr error) {
-	t.publicationMu.Lock()
-	defer t.publicationMu.Unlock()
-	var in publishRequest
-	if err := decode(input, &in); err != nil {
-		return invalid(err)
-	}
-	if !validPublicationOperation(operation) || operation == "unpublish" {
-		return invalid(errors.New("invalid publication operation"))
-	}
-	if strings.TrimSpace(in.ReportID) == "" || in.VersionNo <= 0 {
-		return invalid(errors.New("reportId and versionNo are required"))
-	}
-	if in.Input.ExpectedSourceRevision <= 0 {
-		return invalid(errors.New("expectedSourceRevision must be positive for publication"))
-	}
-	if principal, ok := sdk.PrincipalFromContext(ctx); ok {
-		if in.Input.RequestedBy != "" && in.Input.RequestedBy != principal.Subject {
-			return &sdk.Error{Code: sdk.ErrorForbidden, Message: "publisher must match the Studio principal"}
-		}
-		in.Input.RequestedBy = principal.Subject
-	}
-	if strings.TrimSpace(in.Input.RequestedBy) == "" {
-		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Studio principal is required"}
-	}
-	version, err := t.getVersionValue(ctx, in.ReportID, in.VersionNo)
-	if err != nil {
-		return err
-	}
-	ownerID, err := t.publicationEventOwner(ctx, in.ReportID)
-	if err != nil {
-		return err
-	}
-	versionNo := in.VersionNo
-	event := publicationEventRecord{ReportID: in.ReportID, OwnerID: ownerID, Operation: operation, VersionNo: &versionNo, RequestedBy: in.Input.RequestedBy, Reason: boundedPublicationText(in.Input.Reason)}
-	defer func() {
-		if returnErr != nil {
-			t.recordPublicationFailure(ctx, event, returnErr)
-		}
-	}()
-	if in.Input.ExpectedSourceRevision != version.SourceRevision {
-		return &sdk.Error{Code: sdk.ErrorConflict, Message: "version source revision does not match", ExpectedSourceRevision: in.Input.ExpectedSourceRevision, CurrentSourceRevision: version.SourceRevision}
-	}
-	if version.CompileStatus != "valid" {
-		return &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "version must validate before publication"}
-	}
-	if err = t.requireNamespaceAuthorizationPredicate(ctx, in.ReportID, version); err != nil {
-		return err
-	}
-	if t.Activator == nil {
-		return &sdk.Error{Code: sdk.ErrorUnavailable, Message: "dynamic runtime activator is not configured"}
-	}
-	generation, previous, hasPrevious, now, err := t.stagePublication(ctx, in, version)
-	if err != nil {
-		return err
-	}
-	event.GenerationNo = &generation
-	if err = t.Activator.Reload(ctx, generation); err != nil {
-		if restoreErr := t.restoreFailedPublication(context.WithoutCancel(ctx), in.ReportID, generation, previous, hasPrevious, err); restoreErr != nil {
-			err = errors.Join(err, fmt.Errorf("restore failed publication: %w", restoreErr))
-		}
-		return publicationRuntimeError("runtime_reload", err)
-	}
-	event.Status = "succeeded"
-	event.OccurredAt = now
-	if err = t.activatePublication(ctx, in.ReportID, in.VersionNo, in.Input.ExpectedSourceRevision, generation, now, event); err != nil {
-		return t.compensateActivationFailure(ctx, in.ReportID, generation, previous, hasPrevious, err)
-	}
-	return t.getPublication(ctx, in.ReportID, output)
-}
-
-func (t *Transport) stagePublication(ctx context.Context, in publishRequest, version *sdk.ReportVersion) (int64, publicationState, bool, time.Time, error) {
-	tx, err := t.DB.BeginTx(ctx, nil)
-	if err != nil {
-		return 0, publicationState{}, false, time.Time{}, internal(err)
-	}
-	defer func() { _ = tx.Rollback() }()
-	now := t.now()
-	if err = t.requirePublicationVersion(ctx, tx, in.ReportID, in.VersionNo, in.Input.ExpectedSourceRevision); err != nil {
-		return 0, publicationState{}, false, time.Time{}, err
-	}
-	if err = t.ensureNoStagedGeneration(ctx, tx, now); err != nil {
-		return 0, publicationState{}, false, time.Time{}, err
-	}
-	runtimeRevision := fmt.Sprintf("%s:%d:%s", in.ReportID, in.VersionNo, rand.Text())
-	generation, err := t.createBuildingGeneration(ctx, tx, runtimeRevision, in.Input.RequestedBy, now)
-	if err != nil {
-		return 0, publicationState{}, false, time.Time{}, classify(err, "runtime generation", fmt.Sprint(generation))
-	}
+func (t *Transport) stagePublicationRow(ctx context.Context, tx *sql.Tx, in publishRequest, version *sdk.ReportVersion, generation int64, runtimeRevision string, now time.Time) (publicationState, bool, error) {
 	previous, hasPrevious, err := t.publicationSnapshot(ctx, tx, in.ReportID)
 	if err != nil {
-		return 0, publicationState{}, false, time.Time{}, internal(err)
+		return publicationState{}, false, internal(err)
 	}
 	if hasPrevious && (previous.status == "pending" || previous.status == "unpublishing") {
-		return 0, publicationState{}, false, time.Time{}, &sdk.Error{Code: sdk.ErrorConflict, Message: "another publication transition is already staged"}
+		return publicationState{}, false, &sdk.Error{Code: sdk.ErrorConflict, Message: "another publication transition is already staged"}
 	}
 	if !hasPrevious {
 		versionNo := in.VersionNo
@@ -2149,7 +2060,7 @@ func (t *Transport) stagePublication(ctx context.Context, in publishRequest, ver
 				PublishedBy: true, PublishedAt: true, ActivatedAt: true, FailureJson: true},
 		})
 		if err != nil {
-			return 0, publicationState{}, false, time.Time{}, classify(err, "publication", in.ReportID)
+			return publicationState{}, false, classify(err, "publication", in.ReportID)
 		}
 	} else {
 		expected := previous.desiredGeneration
@@ -2165,28 +2076,18 @@ func (t *Transport) stagePublication(ctx context.Context, in publishRequest, ver
 		if err != nil {
 			var conflict *xhandler.Conflict
 			if errors.As(err, &conflict) {
-				return 0, publicationState{}, false, time.Time{}, &sdk.Error{Code: sdk.ErrorConflict, Message: "publication generation changed before restaging"}
+				return publicationState{}, false, &sdk.Error{Code: sdk.ErrorConflict, Message: "publication generation changed before restaging"}
 			}
-			return 0, publicationState{}, false, time.Time{}, internal(err)
+			return publicationState{}, false, internal(err)
 		}
 	}
-	if err := commitWithServerGuard(ctx, tx); err != nil {
-		return 0, publicationState{}, false, time.Time{}, internal(err)
-	}
-	return generation, previous, hasPrevious, now, nil
+	return previous, hasPrevious, nil
 }
 
 const stagedGenerationLease = 5 * time.Minute
 
-func (t *Transport) activatePublication(ctx context.Context, reportID string, versionNo int, expectedRevision, generation int64, now time.Time, event publicationEventRecord) error {
-	activated, err := t.DB.BeginTx(ctx, nil)
-	if err != nil {
-		return internal(err)
-	}
-	defer func() { _ = activated.Rollback() }()
-	if err = t.requirePublicationVersion(ctx, activated, reportID, versionNo, expectedRevision); err != nil {
-		return err
-	}
+func (t *Transport) activatePublicationRow(ctx context.Context, activated *sql.Tx, reportID string, versionNo int, generation int64, now time.Time, event publicationEventRecord) error {
+	var err error
 	expected := generation
 	err = publicationstore.WriteActivation(ctx, t.DB, activated, versionNo, generation, &publicationactivate.StoredPublication{
 		ReportId: reportID, DesiredGeneration: &expected, ActivatedAt: &now,
@@ -2200,13 +2101,6 @@ func (t *Transport) activatePublication(ctx context.Context, reportID string, ve
 		}
 		return internal(err)
 	}
-	reportCount, err := t.repointActivePublications(ctx, activated, reportID, generation)
-	if err != nil {
-		return err
-	}
-	if err = t.activateGenerationState(ctx, activated, generation, reportCount+1, now); err != nil {
-		return err
-	}
 	if err = t.activateVersionState(ctx, activated, reportID, versionNo, now); err != nil {
 		return err
 	}
@@ -2214,9 +2108,6 @@ func (t *Transport) activatePublication(ctx context.Context, reportID string, ve
 		return err
 	}
 	if err = t.appendPublicationEventTx(ctx, activated, event); err != nil {
-		return internal(err)
-	}
-	if err = commitWithServerGuard(ctx, activated); err != nil {
 		return internal(err)
 	}
 	return nil
@@ -2273,19 +2164,10 @@ func (t *Transport) publicationSnapshot(ctx context.Context, tx *sql.Tx, reportI
 }
 
 func (t *Transport) restoreFailedPublication(ctx context.Context, reportID string, generation int64, previous publicationState, hasPrevious bool, cause error) error {
-	tx, err := t.DB.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	defer func() { _ = tx.Rollback() }()
-	failure, _ := json.Marshal([]sdk.Diagnostic{{Severity: "error", Code: "runtime_reload", Message: cause.Error()}})
-	diagnostics := string(failure)
-	if err := t.writeGenerationState(ctx, tx, "fail", generation, []*generationstate.StoredGeneration{{
-		GenerationNo: generation, Status: "building", DiagnosticsJson: &diagnostics,
-		Has: &generationstate.StoredGenerationHas{GenerationNo: true, Status: true, DiagnosticsJson: true},
-	}}); err != nil {
-		return fmt.Errorf("fail staged generation: %w", err)
-	}
+	return t.restoreFailedPublications(ctx, []*publicationMember{{request: publishRequest{ReportID: reportID}, previous: previous, hadPrevious: hasPrevious}}, generation, cause)
+}
+
+func (t *Transport) restorePublicationRow(ctx context.Context, tx *sql.Tx, reportID string, generation int64, previous publicationState, hasPrevious bool, diagnostics string) error {
 	current, err := publicationstore.ReadRow(ctx, t.DB, tx, reportID)
 	if err != nil {
 		return fmt.Errorf("read staged publication: %w", err)
@@ -2328,7 +2210,7 @@ func (t *Transport) restoreFailedPublication(ctx context.Context, reportID strin
 	if err := publicationstore.WriteCompensation(ctx, t.DB, tx, operation, generation, restoreStatus, row); err != nil {
 		return fmt.Errorf("restore publication %q: %w", reportID, err)
 	}
-	return commitWithServerGuard(ctx, tx)
+	return nil
 }
 
 func (t *Transport) compensateActivationFailure(ctx context.Context, reportID string, generation int64, previous publicationState, hasPrevious bool, cause error) error {

@@ -40,8 +40,18 @@ type ExecutionEvidence struct {
 	Truncated      bool   `json:"truncated"`
 }
 type PublishInput struct {
-	RequestedBy            string `json:"requestedBy"`
-	Reason                 string `json:"reason,omitempty"`
+	// AdditionalVersions joins these validated versions to the primary version
+	// in one runtime generation. Every member retains its own authorization and
+	// source-revision check. Omit for the existing single-version behavior.
+	AdditionalVersions     []PublishVersion `json:"additionalVersions,omitempty"`
+	RequestedBy            string           `json:"requestedBy"`
+	Reason                 string           `json:"reason,omitempty"`
+	ExpectedSourceRevision int64            `json:"expectedSourceRevision"`
+}
+
+type PublishVersion struct {
+	ReportID               string `json:"reportId"`
+	VersionNo              int    `json:"versionNo"`
 	ExpectedSourceRevision int64  `json:"expectedSourceRevision"`
 }
 
