@@ -39,6 +39,16 @@ Use their actual schemas, including catalog and schema inputs. Discover how
 the connected product maps its namespaces instead of assuming a fixed layout. Configured lookup lists are editable
 choices, not hard restrictions or proof that no other qualified SQL can work.
 
+Obtain the source catalog/project and schema/dataset from the user or an explicit
+configured scope before listing tables. Ask for missing scope instead of scanning
+every catalog. Use bounded table pages. When `nextPageToken` is returned, pass it
+as `pageToken` with the same connector, catalog, schema and query; omit `offset`.
+Filtering may produce an empty page with a continuation token, so empty items
+alone do not mean discovery is complete. Do not enumerate every page when enough
+relevant sources have been identified. For a known table, request its columns
+directly; metadata recovery may use a zero-row query. Inspect metadata provenance
+and unknown constraint/nullability flags before proposing relationships.
+
 For result metadata, create/inspect the component with versions.inspect and
 `discoverColumns: true`. Discovery uses the saved SQL and per-view connectors,
 including expressions and aliases; table catalog availability is not its contract.

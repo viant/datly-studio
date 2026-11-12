@@ -19,11 +19,14 @@ type SchemaCatalogInput struct {
 	Query   string `json:"query,omitempty"`
 }
 type TableCatalogInput struct {
-	Catalog string `json:"catalog,omitempty"`
-	Schema  string `json:"schema,omitempty"`
-	Query   string `json:"query,omitempty"`
-	Limit   int    `json:"limit,omitempty"`
-	Offset  int    `json:"offset,omitempty"`
+	// PageToken continues a provider metadata page within the same connector,
+	// catalog, schema and query. Use instead of Offset when nextPageToken is returned.
+	PageToken string `json:"pageToken,omitempty"`
+	Catalog   string `json:"catalog,omitempty"`
+	Schema    string `json:"schema,omitempty"`
+	Query     string `json:"query,omitempty"`
+	Limit     int    `json:"limit,omitempty"`
+	Offset    int    `json:"offset,omitempty"`
 }
 type TableDetailInput struct {
 	Catalog string `json:"catalog,omitempty"`
@@ -74,9 +77,11 @@ type SchemaCatalog struct {
 	Items []DatabaseSchema `json:"items"`
 }
 type TableCatalog struct {
-	Items  []DatabaseTable `json:"items"`
-	Limit  int             `json:"limit"`
-	Offset int             `json:"offset"`
+	// NextPageToken may be nonempty even when the filtered Items page is empty.
+	NextPageToken string          `json:"nextPageToken,omitempty"`
+	Items         []DatabaseTable `json:"items"`
+	Limit         int             `json:"limit"`
+	Offset        int             `json:"offset"`
 }
 type TableDetail struct {
 	Diagnostics []Diagnostic `json:"diagnostics,omitempty"`

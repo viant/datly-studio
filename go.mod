@@ -11,14 +11,14 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.52
 	github.com/oapi-codegen/runtime v1.7.0
 	github.com/stretchr/testify v1.12.1
-	github.com/viant/bigquery v0.5.5-0.20261103234045-64060eda7f97
+	github.com/viant/bigquery v0.5.5-0.20261112202235-311cfdbb627f
 	github.com/viant/bindly v0.4.1-0.20261021172156-afd22f40fbb8
 	github.com/viant/datly v1.1.1-0.20261103040406-edfef7230e18
 	github.com/viant/jsonrpc v0.25.1
 	github.com/viant/mcp v0.24.2-0.20261107201957-8748c0cb8ca8
 	github.com/viant/mcp-protocol v0.19.2-0.20261101165444-1c2b609f8dbf
 	github.com/viant/scy v0.35.1-0.20260914041206-699e6c909726
-	github.com/viant/sqlx v0.26.2-0.20261108043747-b91936294ab3
+	github.com/viant/sqlx v0.26.2-0.20261112203041-256c3c13bc14
 	github.com/viant/x v0.5.1-0.20261023202900-f9ec3e0a7de4
 	github.com/viant/xdatly v1.0.1-0.20261102165405-bb0ef2dd2d5e
 	github.com/viant/xunsafe v0.11.1
@@ -129,7 +129,7 @@ require (
 	github.com/viant/xreflect v0.7.5-0.20260314170600-13f09f37d46e // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
-	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
+	github.com/xeipuuv/gojsonschema v1.2.0
 	github.com/xuri/efp v0.0.1 // indirect
 	github.com/xuri/excelize/v2 v2.11.0 // indirect
 	github.com/xuri/nfp v0.0.2-0.20250530014748-2ddeb826f9a9 // indirect
@@ -152,7 +152,7 @@ require (
 	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/text v0.41.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
-	google.golang.org/api v0.283.0 // indirect
+	google.golang.org/api v0.283.0
 	google.golang.org/appengine/v2 v2.0.2 // indirect
 	google.golang.org/genproto v0.0.0-20260526163538-3dc84a4a5aaa // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260526163538-3dc84a4a5aaa // indirect

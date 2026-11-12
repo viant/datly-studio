@@ -131,6 +131,25 @@ Use `studio.sdk.authorization_predicates.types` with the actual canonical
 for startup/recovery. Namespace visibility and publisher permission are verified
 server-side.
 
+Before choosing a handler, read its advertised description and any linked usage
+resource. Record the exact package/type, accepted bound input, authored arguments,
+defaults and dependency requirements. Query the governed predicate links when
+the host exposes them. Do not infer a handler contract from its type name or
+assume that one namespace's configured package is permitted in another.
+
+Apply both the namespace setting and the user's stated requirement. A user may
+require authorization even when the namespace minimum does not; a false or
+missing setting does not cancel that request. An explicit exemption belongs to
+the application's namespace configuration, never to a business-name rule in
+this public skill. If authorization is required and no usable scoped handler is
+available, report the missing prerequisite without weakening the requirement.
+
+After applying the draft, inspect its compiled parameter metadata and verify
+that the authorization handler is selected from the allowed package, binds the
+declared trusted source, and remains active for absent optional filters. Validate
+and publish the same source revision. Runtime invocation must still demonstrate
+the intended permitted and denied cases; discovery alone does not prove scope.
+
 **Example: a reader validates in one namespace and reports `runtime_predicate_type_unavailable` in a fresh namespace.** Call `studio.sdk.authorization_predicates.types` first with `{}`, then with the target `namespaceId`, on the same host. If the handler appears only in the first result, read the target’s `settings_get`. A namespace administrator can add its package to the existing `security.predicatePackages` with the returned ETag and preserve the other packages and required-predicate policy. Repeat scoped discovery and validate the original draft. A fully qualified DQL type name still requires namespace selection. If unscoped discovery also lacks the handler, verify the host build and linked type registration first.
 
 A trusted optional main-DQL validator can impose additional application rules and

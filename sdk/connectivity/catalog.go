@@ -22,6 +22,7 @@ import (
 	"github.com/viant/sqlx/io/config"
 	"github.com/viant/sqlx/metadata"
 	"github.com/viant/sqlx/metadata/info"
+	bqmeta "github.com/viant/sqlx/metadata/product/bigquery"
 	"github.com/viant/sqlx/metadata/sink"
 	"github.com/viant/sqlx/option"
 )
@@ -74,23 +75,50 @@ func (c SQLCatalog) Schemas(ctx context.Context, connector *sdk.Connector, input
 func (c SQLCatalog) Tables(ctx context.Context, connector *sdk.Connector, input sdk.TableCatalogInput) (*sdk.TableCatalog, error) {
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
+	limit := input.Limit
+	if limit <= 0 || limit > 500 {
+		limit = 100
+	}
+	if connector == nil {
+		return nil, fmt.Errorf("connector is required")
+	}
+	// The metadata provider owns cursor paging. Do not emulate offsets by
+	// fetching and discarding potentially unbounded pages.
+	paged := resolveDriver(strings.ToLower(strings.TrimSpace(connector.Driver))) == "bigquery"
+	if paged && input.Offset != 0 {
+		return nil, fmt.Errorf("table metadata uses pageToken; omit offset and continue with nextPageToken")
+	}
+	if !paged && input.PageToken != "" {
+		return nil, fmt.Errorf("this connector does not support table metadata pageToken; use offset")
+	}
 	scope, err := resolveDiscoveryScope(connector, input.Catalog, input.Schema)
 	if err != nil {
 		return nil, err
+	}
+	if paged && (scope.Catalog == "" || scope.Schema == "") {
+		return nil, fmt.Errorf("table listing requires explicit catalog and schema in the request or connector discovery settings")
 	}
 	db, err := openDiscoveryDB(ctx, connector, c.Secrets, c.Const, scope)
 	if err != nil {
 		return nil, err
 	}
 	defer db.Close()
-	session, err := config.Session(ctx, db)
-	if err != nil {
-		return nil, err
+	session := &sink.Session{}
+	if !paged {
+		session, err = config.Session(ctx, db)
+		if err != nil {
+			return nil, err
+		}
 	}
 	scope.apply(session)
 	schema := session.Schema
 	var tables []sink.Table
-	if err = metadata.New().Info(ctx, db, info.KindTables, &tables, option.NewArgs(session.Catalog, schema)); err != nil {
+	options := []option.Option{option.NewArgs(session.Catalog, schema)}
+	page := &option.MetadataPage{Limit: int64(limit), Token: input.PageToken}
+	if paged {
+		options = append(options, page, bqmeta.BigQuery())
+	}
+	if err = metadata.New().Info(ctx, db, info.KindTables, &tables, options...); err != nil {
 		return nil, err
 	}
 	query := strings.ToLower(strings.TrimSpace(input.Query))
@@ -115,11 +143,13 @@ func (c SQLCatalog) Tables(ctx context.Context, connector *sdk.Connector, input 
 		}
 		items = append(items, sdk.DatabaseTable{Catalog: item.Catalog, Schema: item.Schema, Name: item.Name, Type: kind, Comment: comment})
 	}
-	sort.Slice(items, func(i, j int) bool { return items[i].Name < items[j].Name })
-	limit := input.Limit
-	if limit <= 0 || limit > 500 {
-		limit = 100
+	if paged {
+		if !page.Handled {
+			return nil, fmt.Errorf("connector metadata provider did not handle pagination")
+		}
+		return &sdk.TableCatalog{Items: items, Limit: limit, NextPageToken: page.NextToken}, nil
 	}
+	sort.Slice(items, func(i, j int) bool { return items[i].Name < items[j].Name })
 	offset := input.Offset
 	if offset < 0 {
 		offset = 0

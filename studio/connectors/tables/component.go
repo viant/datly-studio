@@ -26,9 +26,10 @@ type Input struct {
 }
 
 type Output struct {
-	Items  []sdk.DatabaseTable `parameter:"Items,kind=output,in=body,dataType=[]sdk.DatabaseTable" json:"items"`
-	Limit  int                 `parameter:"Limit,kind=output,in=body,dataType=int" json:"limit"`
-	Offset int                 `parameter:"Offset,kind=output,in=body,dataType=int" json:"offset"`
+	NextPageToken string              `parameter:"NextPageToken,kind=output,in=body,dataType=string" json:"nextPageToken,omitempty"`
+	Items         []sdk.DatabaseTable `parameter:"Items,kind=output,in=body,dataType=[]sdk.DatabaseTable" json:"items"`
+	Limit         int                 `parameter:"Limit,kind=output,in=body,dataType=int" json:"limit"`
+	Offset        int                 `parameter:"Offset,kind=output,in=body,dataType=int" json:"offset"`
 }
 
 type Component struct {
@@ -65,5 +66,6 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 		return fmt.Errorf("connector table catalog returned no result")
 	}
 	output.Items, output.Limit, output.Offset = result.Items, result.Limit, result.Offset
+	output.NextPageToken = result.NextPageToken
 	return nil
 }

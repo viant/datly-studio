@@ -1383,6 +1383,8 @@ github.com/viant/bigquery v0.5.5-0.20261031051553-fe0fd263fd44 h1:TeYaS+H5EzcVM2
 github.com/viant/bigquery v0.5.5-0.20261031051553-fe0fd263fd44/go.mod h1:L5VHC9DEQ1ZlR1yaSbCqnKf6GXz355EGBIbP+wx+wTk=
 github.com/viant/bigquery v0.5.5-0.20261103234045-64060eda7f97 h1:B+sJaEYte87FOd+dVZNGnXp3uGQl7hwogx/4LR8D6NE=
 github.com/viant/bigquery v0.5.5-0.20261103234045-64060eda7f97/go.mod h1:L5VHC9DEQ1ZlR1yaSbCqnKf6GXz355EGBIbP+wx+wTk=
+github.com/viant/bigquery v0.5.5-0.20261112202235-311cfdbb627f h1:fa2TZHea3yHl1bBwFv7tYkV1hyMJ86nEp8jNsG+a+HQ=
+github.com/viant/bigquery v0.5.5-0.20261112202235-311cfdbb627f/go.mod h1:L5VHC9DEQ1ZlR1yaSbCqnKf6GXz355EGBIbP+wx+wTk=
 github.com/viant/bindly v0.4.1-0.20261011212616-2c051ae6bd9e h1:Jsx2KLz+XxxGx/cENZn5iSE1RUpGdvfq6oSOx1n++tw=
 github.com/viant/bindly v0.4.1-0.20261011212616-2c051ae6bd9e/go.mod h1:2S+CsLqdGI1+s7BSuEWx/+ew8p+/Ax7Xi3HKGiE3/O8=
 github.com/viant/bindly v0.4.1-0.20261017023851-b39a34a62792 h1:lZLdEnaBctE2C5B9MMyLet/Yb11zlJqlf5d4tlmPYro=
@@ -1577,6 +1579,8 @@ github.com/viant/sqlx v0.26.2-0.20261031214940-7cb396a51254 h1:gtDVEq4q7tjF+z6k6
 github.com/viant/sqlx v0.26.2-0.20261031214940-7cb396a51254/go.mod h1:/qyxibjy9VpDiYZwHVwSNHnPXI4476LqYtDty8V0Rg4=
 github.com/viant/sqlx v0.26.2-0.20261108043747-b91936294ab3 h1:nNO2bQF6EYFWBJYMLgPVYEPscS49yLNb1YDMm61/8gU=
 github.com/viant/sqlx v0.26.2-0.20261108043747-b91936294ab3/go.mod h1:iunAIk9+GawV8KPR+UWh25Ba7/yO/I+/n0Z8o1IMBZc=
+github.com/viant/sqlx v0.26.2-0.20261112203041-256c3c13bc14 h1:7lfkSqQhhiRMd85cHzRXU46pQqYLkI83tWheoBCyJk0=
+github.com/viant/sqlx v0.26.2-0.20261112203041-256c3c13bc14/go.mod h1:WMpHEeUsJW26BVr/3pVshoWIdgJb4XNkGH7GN4u0OsM=
 github.com/viant/structology v0.10.1-0.20261014122805-e37281ec0f50 h1:BlcLBwxvvGnlyWIJhQ9guw7owpEoJXKGzPXG9xe2HlA=
 github.com/viant/structology v0.10.1-0.20261014122805-e37281ec0f50/go.mod h1:sNNuCH9Zt+QUNeV1slf/QKBdOdUIj0AVdhDFR09+8Ig=
 github.com/viant/structology v0.10.1-0.20261015025741-5750986d416b h1:zhC5trcDODkp2n7qr8OnP1/VFvH1XGnNEel6J0QXluM=
