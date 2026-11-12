@@ -1,4 +1,4 @@
-# Migrate a behavioral contract through management MCP
+# Create a reader from requirements
 
 The caller may describe a result rather than provide SQL or DQL. Use the connected
 authoring tools and skills to implement that behavior. The caller's description
@@ -32,9 +32,9 @@ location label. Support optional label search, location selection, selectable
 fields, sorting and pages of 20. Only return equipment the caller may read.”
 
 Discover the equipment and location sources and their actual key relationship.
-Confirm whether equipment with no location remains in the result. Discover the
-existing reader's behavior when this is a migration: a nullable foreign key does
-not establish whether unmatched rows must be retained or excluded. Preserve the
+Confirm whether equipment with no location remains in the result. A nullable
+foreign key does not establish whether unmatched rows must be retained or
+excluded. Preserve the
 authoritative membership contract; if it is unspecified, identify that gap before
 choosing a relationship that changes the result population. Likewise, a newly
 available authorization handler may impose additional eligibility conditions;

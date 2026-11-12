@@ -13,8 +13,8 @@ change namespace configuration, access new data, or execute expensive queries.
 
 ## Required authoring sequence
 
-For an outcome-oriented migration request without supplied DQL, read
-[Behavioral migration](references/behavioral-migration.md). Derive the implementation
+For a reader request described in natural language rather than supplied DQL, read
+[Create a reader from requirements](references/reader-from-requirements.md). Derive the implementation
 from discovered contracts and verified schema relationships; do not require the
 caller to write source or infer authorization from names.
 

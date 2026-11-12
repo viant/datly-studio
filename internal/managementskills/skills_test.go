@@ -22,10 +22,10 @@ func TestEmbeddedSkillPublishesThroughNativeResourcePlans(t *testing.T) {
 	handoffPublished := false
 	resourceChecksPublished := false
 	groupingPublished := false
-	migrationPublished := false
+	requirementsPublished := false
 	for _, plan := range plans {
-		if plan.URI() == "mcp://datastudio/skills/datly-studio-authoring/references/behavioral-migration.md" {
-			migrationPublished = true
+		if plan.URI() == "mcp://datastudio/skills/datly-studio-authoring/references/reader-from-requirements.md" {
+			requirementsPublished = true
 		}
 		if plan.URI() == "mcp://datastudio/skills/datly-studio-authoring/references/parameterized-grouping-howto.md" {
 			groupingPublished = true
@@ -46,8 +46,8 @@ func TestEmbeddedSkillPublishesThroughNativeResourcePlans(t *testing.T) {
 	if !groupingPublished {
 		t.Fatal("parameterized grouping guide must be addressable through management MCP")
 	}
-	if !migrationPublished {
-		t.Fatal("behavioral migration guide must be addressable through management MCP")
+	if !requirementsPublished {
+		t.Fatal("reader requirements guide must be addressable through management MCP")
 	}
 	data, err := fs.ReadFile(source, "skills/datly-studio-authoring/SKILL.md")
 	if err != nil {
