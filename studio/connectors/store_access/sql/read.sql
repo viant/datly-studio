@@ -1,4 +1,4 @@
-SELECT connector."name" FROM  (SELECT c.name
+SELECT connector.* FROM  (SELECT c.name
 FROM connectors c
 WHERE c.deleted_at IS NULL
 ${predicate.Builder().CombineAnd(

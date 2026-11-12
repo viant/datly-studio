@@ -1,4 +1,4 @@
-SELECT connector."name", connector."driver", connector."dsn_template", connector."secret_ref", connector."options_json" FROM  (SELECT c.name, c.driver, c.dsn_template,
+SELECT connector.* FROM  (SELECT c.name, c.driver, c.dsn_template,
        COALESCE(c.secret_ref, '') AS secret_ref,
        COALESCE(c.options_json, '{}') AS options_json
 FROM connectors c
