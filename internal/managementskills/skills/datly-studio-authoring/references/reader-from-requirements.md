@@ -69,6 +69,16 @@ resolve the installed trusted authorization contract before inspecting facts.
 If that scope cannot be established, report the data-access gap and keep the
 proposal provisional. Do not bypass it with an unrestricted SQL test.
 
+Bound source work, not only returned rows. `LIMIT` on an aggregate does not bound
+the rows scanned to compute COUNT, DISTINCT, grouping or sorting. Prefer native
+metadata statistics and declared constraints first. For data inspection, use
+verified entity/time/partition bounds and any advertised execution budget.
+Do not run table-wide COUNT(DISTINCT key) or large-table profiling merely to
+claim uniqueness during discovery. If metadata cannot establish a key, label
+sample evidence as bounded evidence and seek an authoritative contract or an
+explicitly agreed wider verification scope; do not infer global uniqueness from
+a sample or silently pay for an unrestricted scan.
+
 Return a solution proposal with the source evidence, relationships, fields or
 dimensions/measures, definitions, filters, limits, useful metadata names and MCP
 tool name/description. Separate schema evidence, observed values and assumptions.
