@@ -15,6 +15,15 @@ types. Read the advertised predicate descriptions and trusted input requirements
 Do not infer an authorization predicate, relationship, connector or cache policy
 from a namespace, table or column name.
 
+Establish the source catalog/project and schema/dataset before browsing tables.
+A connector's default dataset is a connection setting, not evidence that it holds
+the requested facts. Use the user's stated scope or verified namespace knowledge.
+If neither supplies it, ask one concise scope question before scanning schemas.
+Do not choose a dataset merely because its name sounds related, or expand an
+empty search into catalog-wide enumeration. For example, a request to inspect
+received sensor readings can supply catalog `telemetry` and schema `collector`;
+the agent still discovers tables, keys and field meanings within that scope.
+
 Inspect only the relevant source schemas. Use declared keys and relationship
 metadata or an authoritative source contract to establish joins. A similarly
 named column is not a proven relationship. If necessary metadata is unavailable,
@@ -24,6 +33,46 @@ Propose the actual source tables, connector boundaries, grain, relationship keys
 field meanings and security binding using the discovered evidence. Use a native
 typed graph for related data, retaining complete keys and cardinalities. Keep
 independent grains separate when joining would multiply measurements.
+
+## Explore a problem from a known data scope
+
+A caller can provide a problem plus catalog/project and schema/dataset without
+SQL. For example: “In `telemetry.collector`, help identify equipment that needs
+attention and propose a monitoring query.” Clarify the decision and time horizon,
+then use scoped metadata search to identify relevant candidate sources. Inspect
+only the columns and complete relationship keys needed for that decision.
+
+Use small, bounded, authorized observations to check row grain, time coverage,
+freshness, missing values and available measurements. Prefer an existing
+published authorized reader when it provides the evidence. Management access to
+a connector does not establish permission to read every underlying business row;
+resolve the installed trusted authorization contract before inspecting facts.
+If that scope cannot be established, report the data-access gap and keep the
+proposal provisional. Do not bypass it with an unrestricted SQL test.
+
+Return a solution proposal with the source evidence, relationships, fields or
+dimensions/measures, definitions, filters, limits, useful metadata names and MCP
+tool name/description. Separate schema evidence, observed values and assumptions.
+An observed association or status is not a demonstrated cause. A proposal-only
+request does not authorize component creation/publication. When creation is
+requested, continue through exact-revision validation, bounded execution,
+activation readback and the actual published tool invocation.
+
+## Facts without an ownership column
+
+Some fact sources contain only an entity key, while ownership is stored in a
+separate catalog. For example, readings may contain `sensor_id` and the sensor
+catalog may map it to an account. Discover the installed predicate's supported
+mapping and trusted dependencies; verify the complete relationship and key
+cardinality. Use that established authorization mechanism to restrict facts at
+the read boundary. A caller-supplied account ID is only a filter, and a later
+name-enrichment relation does not grant authority or secure already-read facts.
+
+Do not invent an ownership column, copy a predicate mapping from an unrelated
+entity, retrieve all rows and filter them in application code, or weaken the
+namespace policy. If the installed predicate cannot express the verified
+relationship, report the precise unsupported mapping before publication. Keep
+that authorization gap separate from successful column discovery.
 
 ## Example: an equipment lookup
 
