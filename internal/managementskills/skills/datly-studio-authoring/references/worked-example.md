@@ -171,6 +171,11 @@ quoted string; JSON `"true"` represents a boolean expression. Do not guess field
 
 Bound preview using the discovered input names. `preview.execute` supports
 `input:{cube:true,input:{dimensions:{...},measures:{...},filters:{...},limit:10},limit:10}`.
+For the default generated holder, selections have boolean values:
+`dimensions:{"productId":true}` and `measures:{"units":true,"netAmount":true}`.
+These are illustrative field names from this example, not a portable schema.
+Do not send `["productId"]`, `["units"]` or `[{"field":"units","aggregate":"sum"}]`
+as replacements. Inspect the actual generated contract before calling it.
 Use live cube filter names and required source inputs. A successful plain reader
 preview alone does not certify the derived cube. Compare full-key versus reduced
 key grouping and facts before/after dictionary attachment.

@@ -16,6 +16,14 @@ and the cube's dimensions, measures, filters and limit in `input.input`.
 `versions.test_compose` is for separately enabled multi-cube composition, not a
 single-cube test. Do not enable composition just to test a cube.
 
+Default generated cube selections are objects of boolean flags, for example
+`dimensions:{"category":true}` and `measures:{"units":true}`. They are not arrays
+of names or objects such as `{field,aggregate}`. Discover the actual field names
+and any explicitly imported custom holder schema. Aggregate expressions belong
+to the authored source contract; do not invent a client-side aggregate selector.
+A validation failure from the wrong input shape does not prove a grouping
+capability is unsupported.
+
 After publication, discover and invoke through `studio.sdk.catalog.tools.list`
 and `studio.sdk.catalog.tools.call` with the namespace ID. Host-wide tool search
 may not include a newly published namespace. Saved cube-configuration listings

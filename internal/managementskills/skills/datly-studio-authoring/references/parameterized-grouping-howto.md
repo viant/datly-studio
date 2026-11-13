@@ -52,3 +52,25 @@ Test duplicates, mixed signs, all-NULL and mixed-NULL groups, zero denominators,
 and every parameter-selected grouping branch. Preserve source ranks and
 already-computed averages/ratios at their admitted grain; do not expose them as
 freely summable measures to obtain a scalar result.
+
+## Projection is not a rollup
+
+Marking a field as a dimension or omitting it from a response does not prove that
+the executed SQL regrouped the source. Inspect the saved query's aggregation
+boundary and test the actual native cube. A query that projects fewer columns
+from already grouped rows can return duplicate visible keys without aggregating
+them. Keep required aggregation at the native selected-grain boundary; do not
+repair the result with application-side grouping or a second unrelated reader.
+
+Use distinguishing synthetic expectations: three detail tuples in one category,
+each with occurrence count 1, should produce one category row with count 3 when
+that is the requested rollup. A minimum count of 2 applied after that rollup
+retains the category; applying it to the detail tuples first removes all three.
+These contracts are different. Do not silently choose the easier one.
+
+Verify full grain, reduced grain, threshold placement, duplicates and null keys
+before publication. Identical projected keys remaining as multiple rows are
+failed grouping evidence, even if compilation and the tool call both succeed.
+Preserve the ordinary reader's observable contract while correcting the native
+source/aggregate declarations; report an actual unsupported capability only
+after testing the relevant native contract.
