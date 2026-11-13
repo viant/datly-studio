@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-sql-driver/mysql"
+	"github.com/viant/datly-studio/internal/predicatepolicy"
 	"github.com/viant/datly-studio/internal/readerinspection"
 	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly/transcribe"
@@ -72,5 +73,22 @@ func TestDatabaseRuntimeDiagnosticReportsCodeWithoutQuery(t *testing.T) {
 	raw, _ := json.Marshal(diagnostics)
 	if strings.Contains(string(raw), "private query") || strings.Contains(string(raw), "token=secret") {
 		t.Fatalf("query leaked: %s", raw)
+	}
+}
+
+func TestAuthorizationDiagnosticProvidesAuthoringActions(t *testing.T) {
+	cause := &predicatepolicy.RequiredError{}
+	wrapped := Wrap("contract", cause)
+	if !errors.Is(wrapped, cause) {
+		t.Fatal("authorization error identity lost")
+	}
+	ds := Diagnostics(wrapped)
+	if len(ds) != 1 || ds[0].Code != "namespace_security_predicate_required" || ds[0].Field != "authoredDql" {
+		t.Fatalf("unexpected diagnostics: %+v", ds)
+	}
+	for _, action := range []string{"namespaces.settings_get", "authorization_predicates.types", "Required().WithAuthPredicate", "saved source revision"} {
+		if !strings.Contains(ds[0].Hint, action) {
+			t.Fatalf("missing actionable guidance %q: %+v", action, ds[0])
+		}
 	}
 }

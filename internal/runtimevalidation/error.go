@@ -40,7 +40,7 @@ func Diagnostics(err error) []sdk.Diagnostic {
 		return []sdk.Diagnostic{{Severity: "error", Code: "namespace_internal_components_required", Stage: "source_policy", Field: "authoredDql", Message: internalRequired.Error(), Hint: "Make the namespace-authored component routes internal and remove their direct MCP exposure before reloading."}}
 	}
 	if errors.As(err, &required) {
-		return []sdk.Diagnostic{{Severity: "error", Code: "namespace_security_predicate_required", Stage: "source_policy", Field: "authoredDql", Message: required.Error(), Hint: "Define a required authorization handler from the owning namespace's predicate packages and validate again."}}
+		return []sdk.Diagnostic{{Severity: "error", Code: "namespace_security_predicate_required", Stage: "source_policy", Field: "authoredDql", Message: required.Error(), Hint: "Read namespaces.settings_get and authorization_predicates.types for this namespace. Bind the selected handler to its trusted input with Required().WithAuthPredicate(...), or ApplyWhenAbsentAuthPredicate(...) when appropriate. Ordinary WithPredicate filters do not satisfy authorization. Validate the saved source revision again."}}
 	}
 	var rejection *sourcevalidation.Rejection
 	if errors.As(err, &rejection) {
