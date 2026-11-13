@@ -18,7 +18,7 @@ require (
 	github.com/viant/mcp v0.24.2-0.20261109162451-9f02fda34b44
 	github.com/viant/mcp-protocol v0.19.2-0.20261112230027-972f0e60ae62
 	github.com/viant/scy v0.35.1-0.20260914041206-699e6c909726
-	github.com/viant/sqlx v0.26.2-0.20261112203041-256c3c13bc14
+	github.com/viant/sqlx v0.26.2-0.20261113032921-3a1b8706fee7
 	github.com/viant/x v0.6.1-0.20261106041415-0487ec66884b
 	github.com/viant/xdatly v1.0.1-0.20261106191133-04634a407286
 	github.com/viant/xunsafe v0.11.1
@@ -91,7 +91,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.5.1 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
-	github.com/google/uuid v1.6.0 // indirect
+	github.com/google/uuid v1.6.0
 	github.com/googleapis/enterprise-certificate-proxy v0.3.16 // indirect
 	github.com/googleapis/gax-go/v2 v2.22.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0 // indirect

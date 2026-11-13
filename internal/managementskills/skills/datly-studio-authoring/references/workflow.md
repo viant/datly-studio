@@ -49,6 +49,22 @@ relevant sources have been identified. For a known table, request its columns
 directly; metadata recovery may use a zero-row query. Inspect metadata provenance
 and unknown constraint/nullability flags before proposing relationships.
 
+When `connectors.search` is advertised, use it for compact relevance discovery
+inside the chosen catalog/schema. Supply `search` for ranked text, `columnTerms`
+for column names, or `descriptionTerms` for descriptions; `table` is an exact
+physical table name. The default result limit is seven. Inspect only selected
+candidates with `connectors.table` to retrieve their complete schemas.
+
+Search results describe a cached metadata snapshot, not business rows. Reuse its
+`nextCursor` with the same search inputs for result paging. `nextMetadataCursor`
+is different: pass it as `metadataCursor` to discover the next provider metadata
+page. A partial snapshot is not evidence that unmatched tables do not exist, and
+a terminal provider page alone is not a complete dataset index. Check
+`metadataComplete`; stop discovery once enough relevant sources are verified.
+Use `refresh: true` when source metadata changed, not on every search. Do not mix
+result cursors across refreshed snapshots or changed queries. Source failures
+must be reported as failures rather than empty search results.
+
 For result metadata, create/inspect the component with versions.inspect and
 `discoverColumns: true`. Discovery uses the saved SQL and per-view connectors,
 including expressions and aliases; table catalog availability is not its contract.

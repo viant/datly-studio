@@ -18,6 +18,7 @@ type Scope struct {
 	CallerIdentity, ConnectorIdentity, CredentialIdentity string
 	ConnectorRevision                                     int64
 	Catalog, Schema                                       string
+	Table, MetadataCursor                                 string
 }
 type Metadata struct {
 	Tables       []sdk.TableDetail

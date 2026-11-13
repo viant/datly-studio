@@ -182,6 +182,7 @@ type Transport struct {
 	Authorizer               Authorizer
 	SystemCredentialProvider sdk.SystemCredentialProvider
 	Probe                    sdk.ConnectorProbe
+	SchemaSearch             sdk.SchemaSearcher
 	Catalog                  sdk.CatalogExplorer
 	SQLTester                sdk.ConnectorSQLTester
 	Predicates               *predicatecatalog.Catalog
@@ -239,7 +240,7 @@ func (t *Transport) Invoke(ctx context.Context, operation string, input, output 
 		return t.deleteConnector(ctx, input)
 	case sdk.OperationConnectorTest:
 		return t.testConnector(ctx, input, output)
-	case sdk.OperationConnectorDiscover, sdk.OperationConnectorSchemas, sdk.OperationConnectorTables, sdk.OperationConnectorTable, sdk.OperationConnectorTestSQL:
+	case sdk.OperationConnectorSearch, sdk.OperationConnectorDiscover, sdk.OperationConnectorSchemas, sdk.OperationConnectorTables, sdk.OperationConnectorTable, sdk.OperationConnectorTestSQL:
 		return t.connectorCatalog(ctx, operation, input, output)
 	case sdk.OperationNamespaceSettingsGet, sdk.OperationNamespaceSettingsUpdate:
 		return t.namespaceSettings(ctx, operation, input, output)
@@ -344,7 +345,7 @@ func (t *Transport) Invoke(ctx context.Context, operation string, input, output 
 }
 
 func (t *Transport) connectorCatalog(ctx context.Context, operation string, input, output any) error {
-	if operation != sdk.OperationConnectorTestSQL && t.Catalog == nil {
+	if operation != sdk.OperationConnectorTestSQL && operation != sdk.OperationConnectorSearch && t.Catalog == nil {
 		return &sdk.Error{Code: sdk.ErrorUnavailable, Message: "connector catalog explorer is not configured"}
 	}
 	if operation == sdk.OperationConnectorTestSQL && t.SQLTester == nil {
@@ -365,6 +366,23 @@ func (t *Transport) connectorCatalog(ctx context.Context, operation string, inpu
 		return &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "connector must be active before browsing schema"}
 	}
 	switch operation {
+	case sdk.OperationConnectorSearch:
+		if t.SchemaSearch == nil {
+			return &sdk.Error{Code: sdk.ErrorUnavailable, Message: "connector schema search is not configured"}
+		}
+		principal, ok := sdk.PrincipalFromContext(ctx)
+		if !ok {
+			return &sdk.Error{Code: sdk.ErrorUnauthorized, Message: "verified principal is required for schema search"}
+		}
+		var request sdk.SchemaSearchInput
+		if err = decode(envelope.Input, &request); err != nil {
+			return invalid(err)
+		}
+		result, searchErr := t.SchemaSearch.Search(ctx, &connector.Connector, principal, request)
+		if searchErr != nil {
+			return searchErr
+		}
+		return assign(output, result)
 	case sdk.OperationConnectorTestSQL:
 		var request sdk.SQLTestInput
 		if err = decode(envelope.Input, &request); err != nil {

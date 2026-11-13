@@ -106,6 +106,7 @@ type ConnectorSQLTester interface {
 }
 
 type CatalogService interface {
+	Search(context.Context, string, SchemaSearchInput) (*SchemaSearchResult, error)
 	Discover(context.Context, string, DatabaseDiscoveryInput) (*DatabaseDiscovery, error)
 	Schemas(context.Context, string, SchemaCatalogInput) (*SchemaCatalog, error)
 	Tables(context.Context, string, TableCatalogInput) (*TableCatalog, error)
@@ -166,5 +167,12 @@ func (c catalogClient) Discover(ctx context.Context, name string, input Database
 	return invoke[DatabaseDiscovery](ctx, c.transport, OperationConnectorDiscover, struct {
 		Name  string                 `json:"name"`
 		Input DatabaseDiscoveryInput `json:"input"`
+	}{name, input})
+}
+
+func (c catalogClient) Search(ctx context.Context, name string, input SchemaSearchInput) (*SchemaSearchResult, error) {
+	return invoke[SchemaSearchResult](ctx, c.transport, OperationConnectorSearch, struct {
+		Name  string            `json:"name"`
+		Input SchemaSearchInput `json:"input"`
 	}{name, input})
 }

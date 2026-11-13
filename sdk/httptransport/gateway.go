@@ -228,6 +228,8 @@ func outputFor(operation string) (any, bool) {
 		return new(sdk.DQLLoadResult), true
 	case sdk.OperationVersionDownload:
 		return new(sdk.ComponentDownload), true
+	case sdk.OperationConnectorSearch:
+		return new(sdk.SchemaSearchResult), true
 	case sdk.OperationConnectorTables:
 		return new(sdk.TableCatalog), true
 	case sdk.OperationConnectorTable:

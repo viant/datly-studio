@@ -55,7 +55,7 @@ func Run(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 // command. Duplicate or late registrations fail before command execution.
 // Factory registration is process-wide and immutable, including after Run exits.
 func RunWithOptions(ctx context.Context, args []string, stdout, stderr io.Writer, options Options) int {
-	middleware, err := prepareMiddleware(options)
+	middleware, err := prepareMiddleware(ctx, options)
 	if err != nil {
 		fmt.Fprintln(stderr, err)
 		return 1
@@ -80,20 +80,21 @@ func New(ctx context.Context, cfg *config.Config, options Options, diagnostics i
 	if cfg == nil {
 		return nil, fmt.Errorf("native Studio configuration is required")
 	}
-	middleware, err := prepareMiddleware(options)
+	middleware, err := prepareMiddleware(ctx, options)
 	if err != nil {
 		return nil, err
 	}
 	return newServer(ctx, cfg, options, middleware, diagnostics)
 }
 
-func prepareMiddleware(options Options) (func(http.Handler) http.Handler, error) {
+func prepareMiddleware(ctx context.Context, options Options) (func(http.Handler) http.Handler, error) {
 	middleware := options.RequestMiddleware
 	if options.Authoring != nil {
 		snapshot, err := host.NewAuthoring(*options.Authoring)
 		if err != nil {
 			return nil, err
 		}
+		context.AfterFunc(ctx, snapshot.Close)
 		prior := middleware
 		middleware = func(next http.Handler) http.Handler {
 			if prior != nil {

@@ -2,7 +2,10 @@ package host
 
 import (
 	"context"
+	"fmt"
 	"github.com/viant/datly-studio/internal/connectorsecret"
+	"github.com/viant/datly-studio/sdk"
+	"github.com/viant/datly-studio/sdk/connectivity"
 	"github.com/viant/datly-studio/studio/sourcevalidation"
 	"github.com/viant/datly/constant"
 	"net/http"
@@ -20,6 +23,7 @@ const DefaultAuthoringModule = "github.com/viant/datly-studio"
 
 // AuthoringConfig is trusted startup configuration, never a request parameter.
 type AuthoringConfig struct {
+	SchemaSearch    sdk.SchemaSearchOptions
 	SourceValidator sourcevalidation.Validator
 	Const           *constant.Values
 	Dependencies    preview.DependencyResolver
@@ -30,6 +34,7 @@ type AuthoringConfig struct {
 
 // Authoring is a detached immutable per-host compilation snapshot.
 type Authoring struct {
+	schemaSearch    *connectivity.SchemaSearch
 	sourceValidator sourcevalidation.Validator
 	codecs          []*codeccatalog.Descriptor
 	constants       *constant.Values
@@ -57,7 +62,7 @@ func NewAuthoring(config AuthoringConfig) (*Authoring, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Authoring{sourceValidator: config.SourceValidator, codecs: codecs, constants: config.Const, module: name, predicates: predicates, types: types, readerCaches: cloneReaderCaches(config.ReaderCaches), dependencies: config.Dependencies}, nil
+	return &Authoring{schemaSearch: connectivity.NewSchemaSearch(connectivity.SQLCatalog{Const: config.Const}, config.SchemaSearch), sourceValidator: config.SourceValidator, codecs: codecs, constants: config.Const, module: name, predicates: predicates, types: types, readerCaches: cloneReaderCaches(config.ReaderCaches), dependencies: config.Dependencies}, nil
 }
 
 func (a *Authoring) ModulePath() string                          { return a.module }
@@ -111,3 +116,20 @@ func (a *Authoring) CodecDescriptors() []*codeccatalog.Descriptor {
 }
 
 func (a *Authoring) SourceValidator() sourcevalidation.Validator { return a.sourceValidator }
+
+// SchemaSearchFromContext requires a host-owned snapshot: never allocate a
+// request-local cache when standalone authoring defaults are used.
+func SchemaSearchFromContext(ctx context.Context) (sdk.SchemaSearcher, error) {
+	a, ok := ctx.Value(authoringKey{}).(*Authoring)
+	if !ok || a.schemaSearch == nil {
+		return nil, fmt.Errorf("host schema search is unavailable")
+	}
+	return a.schemaSearch, nil
+}
+
+// Close cancels pending metadata work and releases retained schema indexes.
+func (a *Authoring) Close() {
+	if a != nil && a.schemaSearch != nil {
+		a.schemaSearch.Close()
+	}
+}

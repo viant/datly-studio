@@ -18,11 +18,8 @@ type Query struct {
 	Cursor           string
 	Limit            int
 }
-type Match struct {
-	Table       sdk.DatabaseTable `json:"table"`
-	Column      string            `json:"column,omitempty"`
-	Description string            `json:"description,omitempty"`
-}
+type Match = sdk.SchemaSearchMatch
+
 type Index struct{ catalog *catalog.Catalog[Match] }
 
 // New copies compact metadata once. No business rows or detailed schema objects

@@ -46,6 +46,7 @@ import (
 	_ "github.com/viant/datly-studio/studio/connectors/get"
 	_ "github.com/viant/datly-studio/studio/connectors/reader"
 	_ "github.com/viant/datly-studio/studio/connectors/schemas"
+	_ "github.com/viant/datly-studio/studio/connectors/search"
 	_ "github.com/viant/datly-studio/studio/connectors/store_access"
 	_ "github.com/viant/datly-studio/studio/connectors/store_active"
 	_ "github.com/viant/datly-studio/studio/connectors/store_catalog"
