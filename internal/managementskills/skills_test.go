@@ -206,3 +206,27 @@ func TestSelectorBindingSkillExampleCompiles(t *testing.T) {
 		t.Fatalf("missing selectors: %v", expected)
 	}
 }
+
+func TestAggregateThresholdSkillFragmentsCompile(t *testing.T) {
+	data, err := fs.ReadFile(source, "skills/datly-studio-authoring/references/parameterized-grouping-howto.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	section := strings.SplitN(string(data), "### Aggregate threshold authoring pattern", 2)[1]
+	blocks := strings.Split(section, "```sql\n")
+	if len(blocks) != 3 {
+		t.Fatal("expected declaration and HAVING fragments")
+	}
+	declaration := strings.SplitN(blocks[1], "```", 2)[0]
+	having := strings.SplitN(blocks[2], "```", 2)[0]
+	dql := "#package('example.com/counts/read')\n#setting($_ = $connector('main'))\n#setting($_ = $route('/counts','GET'))\n" + declaration + "\n#define($_ = $Rows<[]*Row>(output/view))\nSELECT counts.*,type(counts,'Row'),grouping_enabled(counts),tag(counts.occurrences,'groupable:\"false\"') FROM (SELECT category,COUNT(*) AS occurrences FROM observations GROUP BY category\n" + having + ") counts"
+	result := readerbuilder.New(readerbuilder.Config{}).Apply(context.Background(), readerbuilder.Request{DQL: dql, Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
+	if result.Structure == nil || result.Structure.Component == nil {
+		t.Fatalf("missing aggregate contract: %+v", result.Diagnostics)
+	}
+	for _, d := range result.Diagnostics {
+		if d.Severity == "error" {
+			t.Fatalf("aggregate threshold: %+v", d)
+		}
+	}
+}

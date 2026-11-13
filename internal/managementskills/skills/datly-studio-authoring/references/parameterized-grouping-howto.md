@@ -74,3 +74,25 @@ failed grouping evidence, even if compilation and the tool call both succeed.
 Preserve the ordinary reader's observable contract while correcting the native
 source/aggregate declarations; report an actual unsupported capability only
 after testing the relevant native contract.
+
+### Aggregate threshold authoring pattern
+
+For an occurrence-count reader, a typed optional threshold can belong to its own
+predicate group:
+
+```sql
+#define($_ = $MinimumCount<*int>(query/minimumCount).Optional().WithPredicate(1, 'expr', '(COUNT(*) >= ?)'))
+```
+
+The corresponding aggregate query uses that group after its GROUP BY:
+
+```sql
+${predicate.Builder().CombineAnd($predicate.FilterGroup(1, "AND")).Build("HAVING")}
+```
+
+These are fragments, not a complete reader. Keep the aggregation in the native
+cube-facing source, preserve its verified authorization and pre-aggregation
+filters, and use the source's actual aggregate expression. A column-comparison
+predicate on a precomputed detail-count field is not an equivalent replacement.
+Validate the installed predicate contract and execute both full-grain and
+reduced-grain threshold cases; do not infer correctness from syntax alone.
