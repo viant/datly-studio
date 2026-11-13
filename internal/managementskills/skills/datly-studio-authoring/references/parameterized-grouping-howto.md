@@ -46,6 +46,12 @@ contributions inside a group containing both signs. Testing the sign of
 clamping an aggregate difference after grouping must not become a sum of
 per-row clamps.
 
+Preserve the placement of nullable arithmetic inside aggregates. For observations
+`(a=1, b=NULL)` and `(a=2, b=3)`, `SUM(a + b)` is 5, while
+`SUM(a) + SUM(b)` is 6. Moving the addition or inserting `COALESCE` changes the
+contract. Use a distinguishing native fixture and retain zero-denominator/all-null
+cases when validating derived rates and weighted measures.
+
 Keep duplicate rows when the source deliberately sums them. Lack of a physical
 unique key alone is not a reason to deduplicate or block a faithful aggregate.
 Test duplicates, mixed signs, all-NULL and mixed-NULL groups, zero denominators,
