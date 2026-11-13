@@ -84,10 +84,14 @@ predicate group:
 #define($_ = $MinimumCount<*int>(query/minimumCount).Optional().WithPredicate(1, 'expr', '(COUNT(*) >= ?)'))
 ```
 
-The corresponding aggregate query uses that group after its GROUP BY:
+The corresponding aggregate query uses that group after its GROUP BY. Keep the
+explicit HAVING clause anchor when the same query already contains a templated
+WHERE clause; the installed parser may reject a second bare clause-producing
+template. The neutral anchor also keeps absent optional thresholds valid:
 
 ```sql
-${predicate.Builder().CombineAnd($predicate.FilterGroup(1, "AND")).Build("HAVING")}
+HAVING 1=1
+${predicate.Builder().CombineAnd($predicate.FilterGroup(1, "AND")).Build("AND")}
 ```
 
 These are fragments, not a complete reader. Keep the aggregation in the native

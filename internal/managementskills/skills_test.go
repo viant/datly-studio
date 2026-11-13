@@ -219,7 +219,7 @@ func TestAggregateThresholdSkillFragmentsCompile(t *testing.T) {
 	}
 	declaration := strings.SplitN(blocks[1], "```", 2)[0]
 	having := strings.SplitN(blocks[2], "```", 2)[0]
-	dql := "#package('example.com/counts/read')\n#setting($_ = $connector('main'))\n#setting($_ = $route('/counts','GET'))\n" + declaration + "\n#define($_ = $Rows<[]*Row>(output/view))\nSELECT counts.*,type(counts,'Row'),grouping_enabled(counts),tag(counts.occurrences,'groupable:\"false\"') FROM (SELECT category,COUNT(*) AS occurrences FROM observations GROUP BY category\n" + having + ") counts"
+	dql := "#package('example.com/counts/read')\n#setting($_ = $connector('main'))\n#setting($_ = $route('/counts','GET'))\n" + declaration + "\n#define($_ = $Rows<[]*Row>(output/view))\nSELECT counts.*,type(counts,'Row'),grouping_enabled(counts),tag(counts.occurrences,'groupable:\"false\"') FROM (SELECT category,COUNT(*) AS occurrences FROM observations\n${predicate.Builder().CombineAnd($predicate.FilterGroup(0,\"AND\")).Build(\"WHERE\")}\nGROUP BY category\n" + having + ") counts"
 	result := readerbuilder.New(readerbuilder.Config{}).Apply(context.Background(), readerbuilder.Request{DQL: dql, Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
 	if result.Structure == nil || result.Structure.Component == nil {
 		t.Fatalf("missing aggregate contract: %+v", result.Diagnostics)
