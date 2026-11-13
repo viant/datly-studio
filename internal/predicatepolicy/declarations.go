@@ -10,7 +10,7 @@ import (
 type RequiredError struct{}
 
 func (*RequiredError) Error() string {
-	return "component must define a required authorization predicate from its namespace predicate packages"
+	return "component must define an explicitly marked required authorization predicate from its namespace predicate packages"
 }
 
 // ValidateDeclarations uses Datly's compiled parameter and import metadata.
@@ -42,7 +42,7 @@ func RequiredPackages(component *spec.Component) map[string]bool {
 			continue
 		}
 		for _, predicate := range parameter.Predicates {
-			if predicate == nil || !strings.EqualFold(predicate.Name, "handler") || len(predicate.Args) == 0 {
+			if predicate == nil || !predicate.Auth || !strings.EqualFold(predicate.Name, "handler") || len(predicate.Args) == 0 {
 				continue
 			}
 			if (parameter.Required == nil || !*parameter.Required) && !predicate.ApplyWhenAbsent {

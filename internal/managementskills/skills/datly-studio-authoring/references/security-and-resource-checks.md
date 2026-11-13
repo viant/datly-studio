@@ -120,7 +120,7 @@ Preserve the saved requirement and package selection when changing resource limi
 
 Before component publication or release bundle creation, the server checks the
 component's compiled Datly metadata against its owning namespace's setting. A
-required input must declare an authorization handler from a selected package;
+required input must declare an explicitly marked authorization handler from a selected package;
 explicit application when absent also qualifies. An import or a handler from a
 different namespace's package does not satisfy the requirement. The server
 rechecks even when the component was validated before the namespace flag changed.
@@ -161,3 +161,23 @@ Native validation failures are diagnostics. Reinspect the exact revision, resolv
 the reported policy or linked-package issue, then validate again. Report source
 validation, dry-run resource evidence, actual query execution and publication as
 separate outcomes.
+
+## Explicit authorization occurrences
+
+On hosts supporting `WithAuthPredicate`, use the same arguments as
+`WithPredicate`, for example:
+
+```sql
+.WithAuthPredicate(0, 'handler', 'security.Scope', 'Column', 'tenant_id', 'Alias', 'f')
+```
+
+The handler and options above are illustrative: discover the actual host contract.
+The fluent method sets Datly's per-occurrence `Auth` metadata; no extra auth tag
+is needed. Other predicates on the same input remain ordinary filters.
+An ordinary handler from an allowed package does not satisfy an enabled
+authorization requirement merely because it is required or named like security.
+The marker alone is insufficient: package admission, requiredness or explicit
+absent-input activation, trusted binding and runtime authorization remain distinct.
+When requirement enforcement is disabled, do not enable it as a side effect of
+authoring. Existing enabled namespaces must have their saved definitions audited
+and migrated to explicit markers before deploying stricter validation.
