@@ -79,6 +79,34 @@ presence where omitted, NULL and zero differ. Declare imports for non-builtin
 Go types. Use QuerySelector on the exact view for supported limit/offset/fields
 bindings; enabling a UI control does not grant selector authority automatically.
 
+### Public MCP paging and field selection
+
+Query selectors are explicit opt-in: no caller-controlled fields, limit, offset,
+page, ordering or criteria should be assumed enabled by default. Author only the
+selector capabilities requested for the specific prepared view. Do not add all
+selectors to every reader. An absent selector is not a framework defect.
+
+Reader execution defaults and public selector bindings are separate. A saved
+`set_limit` or `selector_fields` annotation alone does not prove that the MCP
+schema exposes a caller argument. Declare typed selector inputs and inspect the
+actual published tool schema. A server-side row limit does not opt the caller
+into changing that limit. The following fragment opts in to four capabilities
+for a registered prepared view named `Records`; omit any not requested:
+
+```sql
+#define($_ = $Fields<[]string>(query/fields).Optional().QuerySelector('Records', 'fields'))
+#define($_ = $Limit<int>(query/limit).Optional().QuerySelector('Records', 'limit'))
+#define($_ = $Offset<int>(query/offset).Optional().QuerySelector('Records', 'offset'))
+#define($_ = $OrderBy<string>(query/orderBy).Optional().QuerySelector('Records', 'orderBy'))
+```
+
+This is a declaration fragment: replace `Records` with the prepared view identity
+returned by inspection. An outer SQL alias is not automatically a selector name.
+Retain the view's allowed fields/order mappings and default limit. Discover the
+wire property names from the generated MCP schema; do not assume a silently
+ignored argument was applied. Verify a smaller page, the next offset, a narrow
+field selection and the unchanged authorized total through real tool calls.
+
 Declare date input types from the discovered source contract and the connector's
 advertised binding behavior. Use native typed input predicates for the date
 bounds and the normal predicate builder to emit them. Output date formatting

@@ -175,3 +175,34 @@ func TestCompositeDictionarySkillFragmentCompiles(t *testing.T) {
 		t.Fatalf("composite to-one keys lost: %+v", relation)
 	}
 }
+
+func TestSelectorBindingSkillExampleCompiles(t *testing.T) {
+	data, err := fs.ReadFile(source, "skills/datly-studio-authoring/references/dql.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	section := strings.SplitN(string(data), "### Public MCP paging and field selection", 2)[1]
+	fragment := strings.SplitN(strings.SplitN(section, "```sql\n", 2)[1], "```", 2)[0]
+	dql := "#package('example.com/records/read')\n#setting($_ = $connector('main'))\n#setting($_ = $route('/records','GET'))\n" + fragment + "\n#define($_ = $Rows<[]*Row>(output/view))\nSELECT records.*,type(records,'Row'),set_limit(records,20) FROM (SELECT id,name FROM records) records"
+	result := readerbuilder.New(readerbuilder.Config{Name: "Records"}).Apply(context.Background(), readerbuilder.Request{DQL: dql, Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
+	for _, d := range result.Diagnostics {
+		if d.Severity == "error" {
+			t.Fatalf("selector example: %+v", d)
+		}
+	}
+	if result.Structure == nil || result.Structure.Component == nil {
+		t.Fatal("missing component")
+	}
+	expected := map[string]spec.SelectorProperty{"Fields": spec.SelectorPropertyFields, "Limit": spec.SelectorPropertyLimit, "Offset": spec.SelectorPropertyOffset, "OrderBy": spec.SelectorPropertyOrderBy}
+	for _, p := range result.Structure.Component.Parameters {
+		if want, ok := expected[p.Name]; ok {
+			if p.QuerySelector == nil || p.QuerySelector.View != "Records" || p.QuerySelector.Property != want {
+				t.Fatalf("selector binding lost: %+v", p)
+			}
+			delete(expected, p.Name)
+		}
+	}
+	if len(expected) != 0 {
+		t.Fatalf("missing selectors: %v", expected)
+	}
+}
