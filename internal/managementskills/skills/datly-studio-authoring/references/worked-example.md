@@ -74,7 +74,6 @@ SELECT fact.*, type(fact, 'SalesRow'),
        use_connector(fact, 'warehouse'),
        use_connector(product, 'dictionary'),
        use_connector(account, 'dictionary'),
-       cardinality(product, 'One'), cardinality(account, 'One'),
        allow_nulls(product), allow_nulls(account),
        grouping_enabled(fact), set_limit(fact, 50),
        selector_fields(fact, true), selector_limit(fact, true),
@@ -88,11 +87,33 @@ FROM (
 ) fact
 LEFT JOIN (
     SELECT product_id, product_name FROM product_dictionary
-) product ON product.product_id = fact.product_id
+) product ON product.product_id = fact.product_id AND 1=1
 LEFT JOIN (
     SELECT account_id, account_name FROM account_dictionary
-) account ON account.account_id = fact.account_id
+) account ON account.account_id = fact.account_id AND 1=1
 ```
+
+The outer joins declare native graph relations. `AND 1=1` marks each lookup as
+to-one; it does not replace any real equality key. `allow_nulls` retains a nullable
+related object when a dictionary row is absent. Keep the root ID so consumers
+can use the name when present and the ID otherwise. This pattern requires no
+StructQL or computed display field.
+
+For a composite dictionary identity, retain every key before the marker. This
+fragment illustrates a region dictionary on the metadata connector:
+
+```sql
+JOIN (
+    SELECT country_code, region_code, region_name FROM region_dictionary
+) region ON region.country_code = fact.country_code
+        AND region.region_code = fact.region_code AND 1=1
+```
+
+Discover both keys and their uniqueness; declare `use_connector(region,
+'dictionary')` and nullable relation metadata in the outer projection as above.
+Do not replace the full key with a single coincidentally matching column.
+These graph joins are not cross-engine SQL joins. Each view executes through its
+own declared connector, and native relation loading attaches the results.
 
 The package, route, tool identity and connectors MUST be replaced with the new
 component's server-owned identity and available connector names before applying.

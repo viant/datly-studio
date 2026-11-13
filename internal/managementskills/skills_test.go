@@ -8,6 +8,7 @@ import (
 
 	"github.com/viant/datly/authoring/readerbuilder"
 	"github.com/viant/datly/mcp/resource"
+	"github.com/viant/datly/spec"
 	"github.com/viant/mcp-protocol/extension/skills"
 )
 
@@ -104,6 +105,14 @@ func TestWorkedCubeExampleCompilesWithNativeBuilder(t *testing.T) {
 		}
 	}
 	component := result.Structure.Component
+	if len(component.RootView.Relations) != 2 {
+		t.Fatalf("expected two dictionary relations: %+v", component.RootView.Relations)
+	}
+	for _, relation := range component.RootView.Relations {
+		if relation.Cardinality != spec.CardinalityOne || relation.View.AllowNulls == nil || !*relation.View.AllowNulls || len(relation.On) != 1 {
+			t.Fatalf("dictionary must retain one complete nullable to-one key: %+v", relation)
+		}
+	}
 	if component.Settings == nil || component.Settings.Report == nil || component.Settings.Report.MCPTool == nil || !*component.Settings.Report.MCPTool {
 		t.Fatal("example does not expose its cube")
 	}
@@ -138,5 +147,31 @@ func TestEntryPointPredicateExampleCompilesWithNativeBuilder(t *testing.T) {
 	}
 	if !required["RecordID"] || required["Name"] {
 		t.Fatalf("required/optional input contract changed: %+v", required)
+	}
+}
+
+func TestCompositeDictionarySkillFragmentCompiles(t *testing.T) {
+	data, err := fs.ReadFile(source, "skills/datly-studio-authoring/references/worked-example.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	blocks := strings.Split(string(data), "```sql\n")
+	if len(blocks) < 3 {
+		t.Fatal("missing composite dictionary fragment")
+	}
+	fragment := strings.SplitN(blocks[2], "```", 2)[0]
+	dql := "#package('example.com/regions/read')\n#setting($_ = $connector('warehouse'))\n#setting($_ = $route('/regions','GET'))\n#define($_ = $Rows<[]*Row>(output/view))\nSELECT fact.*,type(fact,'Row'),region.*,use_connector(region,'dictionary'),allow_nulls(region) FROM (SELECT country_code,region_code FROM regional_sales) fact " + fragment
+	result := readerbuilder.New(readerbuilder.Config{}).Apply(context.Background(), readerbuilder.Request{DQL: dql, Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
+	for _, d := range result.Diagnostics {
+		if d.Severity == "error" {
+			t.Fatalf("composite fragment: %+v", d)
+		}
+	}
+	if result.Structure == nil || result.Structure.Component == nil || len(result.Structure.Component.RootView.Relations) != 1 {
+		t.Fatal("missing composite relation")
+	}
+	relation := result.Structure.Component.RootView.Relations[0]
+	if relation.Cardinality != spec.CardinalityOne || len(relation.On) != 2 {
+		t.Fatalf("composite to-one keys lost: %+v", relation)
 	}
 }

@@ -83,20 +83,32 @@ tables, load every dimension table, or add an unverified lookup. If a required
 key or dictionary is unavailable, identify the specific gap.
 
 Keep the fact as the root. Declare the dictionary connector with `use_connector`
-and use native relation keys, to-one cardinality where proven, and nullable outer
+and use complete native relation keys, the `AND 1=1` to-one marker where
+uniqueness is proven, and nullable outer
 relation semantics so absent metadata does not drop or multiply fact rows. Use
 the framework's batched key lookups; do not issue a lookup per result row or join
 and filter dictionary rows in application code. Fetch only metadata for the
 selected authorized fact keys, preserving the dictionary's own access rules.
 
-Return the name as the preferred display value and keep its stable ID available
-for filtering, joins and traceability. Fall back to that ID when the name is
+This ordinary reader/cube enrichment requires no StructQL. Return the name as
+preferred display metadata and keep its stable ID available
+for filtering, joins and traceability. Consumers use that ID when the name is
 missing; do not invent labels or present an unknown name as an empty successful
 lookup. Include relevant verified descriptive attributes when requested.
 
 Enrichment must follow cube grain. When a rollup omits a dimension's full key,
 do not force that key into grouping to obtain a name, and do not attach an
 arbitrary label to the aggregate. Omit that dimension's enrichment at that grain.
+Distinguish nullable name metadata plus a stable ID from an explicitly computed
+display field. If the caller requires the latter, verify a supported output
+contract that runs after relation attachment and respects selected dimension
+keys. A dictionary-side fallback cannot handle an absent dictionary row. Do not
+assume the StructQL codec implements arbitrary database SQL functions or CASE:
+discover its supported projection contract and validate it before authoring.
+Use an isolated synthetic fixture for missing/null/empty metadata; never alter
+shared source data to manufacture that case. Report an unavailable native
+capability precisely rather than claiming the fallback is complete.
+
 Test matched and missing dictionary rows, full-key and reduced-grain queries,
 unchanged fact counts/totals, and bounded batched query counts before publication.
 See the native fact/dictionary graph in [the worked example](worked-example.md).
