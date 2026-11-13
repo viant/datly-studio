@@ -4,25 +4,42 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
 
+	"github.com/viant/bindly/provider/values"
 	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly/bootstrap"
+	druntime "github.com/viant/datly/runtime"
 	"github.com/viant/datly/runtime/handler/custom"
 	"github.com/viant/datly/runtime/registry"
 	"github.com/viant/datly/spec"
 	"github.com/viant/datly/typecatalog"
 	"github.com/viant/x"
 	xhandler "github.com/viant/xdatly/handler"
+	handlerexec "github.com/viant/xdatly/handler/exec"
 	xpredicate "github.com/viant/xdatly/predicate"
 )
 
 type PreviewIdentity struct{ ID int }
 type PreviewOwnerPredicate struct{}
 
-func (*PreviewOwnerPredicate) Compute(_ context.Context, value any) (*xpredicate.Criteria, error) {
+type warmupPredicateCallsKey struct{}
+type warmupInvocationPhasesKey struct{}
+
+func (*PreviewOwnerPredicate) Compute(ctx context.Context, value any) (*xpredicate.Criteria, error) {
+	if calls, ok := ctx.Value(warmupPredicateCallsKey{}).(*int); ok {
+		*calls++
+	}
+	if phases, ok := ctx.Value(warmupInvocationPhasesKey{}).(*[]handlerexec.WarmupPhase); ok {
+		invocation := handlerexec.InvocationFromContext(ctx)
+		if invocation == nil || !invocation.MayBypassRowAuthorization() {
+			return nil, fmt.Errorf("native warmup invocation unavailable")
+		}
+		*phases = append(*phases, invocation.WarmupPhase())
+	}
 	identity, ok := value.(*PreviewIdentity)
 	if !ok || identity == nil {
 		return &xpredicate.Criteria{Expression: "1=0"}, nil
@@ -34,8 +51,12 @@ type previewIdentityInput struct {
 	Token string `parameter:"Token,kind=header,in=Authorization,required=true"`
 }
 type previewIdentityHandler struct{}
+type warmupIdentityCallsKey struct{}
 
-func (previewIdentityHandler) Exec(_ context.Context, _ xhandler.Session, input *previewIdentityInput, output *PreviewIdentity) error {
+func (previewIdentityHandler) Exec(ctx context.Context, _ xhandler.Session, input *previewIdentityInput, output *PreviewIdentity) error {
+	if calls, ok := ctx.Value(warmupIdentityCallsKey{}).(*int); ok {
+		*calls++
+	}
 	switch input.Token {
 	case "Bearer alice":
 		output.ID = 1
@@ -106,5 +127,105 @@ SELECT vendors.*,type(vendors,'Vendor') FROM (SELECT ID,NAME FROM VENDOR ${predi
 	}
 	if closed != 5 {
 		t.Fatalf("dependency cleanup count=%d", closed)
+	}
+	checkWarmupDependencies(ctx, t, db, root, dql, types)
+	checkWarmupJWTCredentials(ctx, t, db, root, dql, types)
+}
+
+// This fixture consumes the server-verified context directly. The separate
+// header-bound fixtures below distinguish plain headers from native JWT inputs.
+type warmupContextIdentityInput struct{}
+type warmupContextIdentityHandler struct{}
+
+func (warmupContextIdentityHandler) Exec(ctx context.Context, _ xhandler.Session, _ *warmupContextIdentityInput, output *PreviewIdentity) error {
+	credential, ok := sdk.VerifiedCredentialFromContext(ctx)
+	if !ok || credential.Bearer != "alice" {
+		return fmt.Errorf("identity rejected")
+	}
+	output.ID = 1
+	return nil
+}
+
+func checkWarmupDependencies(ctx context.Context, t *testing.T, db *sql.DB, root, source string, types *typecatalog.Catalog) {
+	t.Helper()
+	dql := strings.Replace(source, "SELECT vendors.*", fmt.Sprintf("#setting($_ = $cache('vendors', '1m').WithLocation('%s'))\n#setting($_ = $cache_warmup('ID', 'Limit=0'))\nSELECT vendors.*", filepath.Join(t.TempDir(), "cache")), 1)
+	if _, err := db.ExecContext(ctx, "UPDATE component_versions SET authored_dql=?,generated_dql=? WHERE report_id='vendors' AND version_no=1", dql, dql); err != nil {
+		t.Fatal(err)
+	}
+	defer func() {
+		if _, err := db.ExecContext(ctx, "UPDATE component_versions SET authored_dql=?,generated_dql=? WHERE report_id='vendors' AND version_no=1", source, source); err != nil {
+			t.Error(err)
+		}
+	}()
+	for _, tc := range []struct {
+		name, token                                string
+		header, missing, duplicate, headerProvider bool
+		want                                       string
+	}{
+		{name: "resolved dependency and authorization", token: "alice"},
+		{name: "missing credential", want: "identity rejected"},
+		{name: "invalid credential", token: "invalid", want: "identity rejected"},
+		{name: "non-JWT headers are not inferred", token: "alice", header: true, want: "Bad Request"},
+		{name: "native header provider and runtime options", token: "alice", header: true, headerProvider: true},
+		{name: "unresolved dependency", token: "alice", missing: true, want: "component dependency route contract not found"},
+		{name: "runtime initialization cleanup", token: "alice", duplicate: true, want: "initialize dynamic warmup runtime"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			closed, resolved, predicates, identityCalls := 0, 0, 0, 0
+			callCtx := context.WithValue(ctx, warmupPredicateCallsKey{}, &predicates)
+			callCtx = context.WithValue(callCtx, warmupIdentityCallsKey{}, &identityCalls)
+			if tc.token != "" {
+				callCtx = sdk.WithVerifiedCredential(callCtx, sdk.VerifiedCredential{Bearer: tc.token, Claims: struct{}{}})
+			}
+			dynamic := Dynamic{StudioDB: db, RootDir: root, Types: types}
+			if !tc.missing {
+				dynamic.Dependencies = func(ctx context.Context, _ *spec.Component) (*DependencyRuntime, error) {
+					resolved++
+					inputType := reflect.TypeFor[warmupContextIdentityInput]()
+					handler := custom.New[warmupContextIdentityInput, PreviewIdentity](warmupContextIdentityHandler{})
+					if tc.header {
+						inputType = reflect.TypeFor[previewIdentityInput]()
+						handler = custom.New[previewIdentityInput, PreviewIdentity](previewIdentityHandler{})
+					}
+					artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Component: &spec.Component{Key: spec.Key{Kind: spec.KindComponent, Scope: "test/identity", Name: "Identity"}, Routes: []*spec.Route{{Method: "GET", Path: "/identity", Internal: true}}}, InputType: inputType, OutputType: reflect.TypeFor[PreviewIdentity]()})
+					if err != nil {
+						return nil, err
+					}
+					entry, err := artifact.Registration(registry.RegisteredComponent{Handler: handler})
+					if err != nil {
+						return nil, err
+					}
+					entries := []*registry.RegisteredComponent{entry}
+					if tc.duplicate {
+						entries = append(entries, entry)
+					}
+					var options []druntime.Option
+					if tc.headerProvider {
+						credential, _ := sdk.VerifiedCredentialFromContext(ctx)
+						options = append(options, druntime.WithApplicationProviders(values.New("header", map[string]any{"Authorization": "Bearer " + credential.Bearer})))
+					}
+					return &DependencyRuntime{Components: entries, Options: options, Shutdown: func(context.Context) error { closed++; return nil }}, nil
+				}
+			}
+			result, err := dynamic.Warmup(callCtx, "vendors", 1)
+			if tc.want != "" {
+				if err == nil || !strings.Contains(err.Error(), tc.want) {
+					t.Fatalf("warmup error=%v, want %q", err, tc.want)
+				}
+			} else {
+				if err != nil {
+					t.Fatal(err)
+				}
+				if result.Entries < 1 || result.CompletedCases < 1 || predicates < 1 {
+					t.Fatalf("warmup=%+v predicate calls=%d", result, predicates)
+				}
+			}
+			if tc.header && !tc.headerProvider && identityCalls != 0 {
+				t.Fatalf("required header did not stop dependency execution: calls=%d", identityCalls)
+			}
+			if !tc.missing && (resolved != 1 || closed != 1) {
+				t.Fatalf("resolved=%d cleanup=%d", resolved, closed)
+			}
+		})
 	}
 }
