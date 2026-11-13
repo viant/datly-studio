@@ -2558,3 +2558,9 @@ sourcegraph.com/sourcegraph/go-diff v0.5.0/go.mod h1:kuch7UrkMzY0X+p9CRK03kfuPQ2
 sourcegraph.com/sqs/pbtypes v0.0.0-20180604144634-d3ebe8f20ae4/go.mod h1:ketZ/q3QxT9HOBeFhu6RdvsftgpsbFHBF5Cas6cDKZ0=
 xorm.io/builder v0.3.11-0.20220531020008-1bd24a7dc978/go.mod h1:aUW0S9eb9VCaPohFCH3j7czOx1PMW3i1HrSzbLYGBSE=
 xorm.io/xorm v1.3.9/go.mod h1:LsCCffeeYp63ssk0pKumP6l96WZcHix7ChpurcLNuMw=
+github.com/viant/datly v1.1.1-0.20261113030415-a0829ff8bb19 h1:V7axsPfJWVunuiEvYsEV8bCsh0+UyoY58L9BjSf2laU=
+github.com/viant/datly v1.1.1-0.20261113030415-a0829ff8bb19/go.mod h1:jyeFXTQv2enUWJ60KNnmUc19Mu31B3BexLfrQZj5fBs=
+github.com/viant/mcp-protocol v0.19.2-0.20261112230027-972f0e60ae62 h1:cDkJmYTRnMmO7VR5Zib+yv9+xTaWoU/JPtlRd+FGfOw=
+github.com/viant/mcp-protocol v0.19.2-0.20261112230027-972f0e60ae62/go.mod h1:Vwrn9VXnVpYd+Ixk7mi1CJB+Vkf3cPmM8lg+WBqhZJY=
+github.com/viant/tagly v0.4.2-0.20261112224436-bd351557715d h1:J/hHSpRW73w7EA/1q1Q8S9xdJV8Uhgle7FGgqRFZZB0=
+github.com/viant/tagly v0.4.2-0.20261112224436-bd351557715d/go.mod h1:PauQQkHmAvL5lFGr4gIgi+PE0aUPggBIBYN34sX2Oes=
