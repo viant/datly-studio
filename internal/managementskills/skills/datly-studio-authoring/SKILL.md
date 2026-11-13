@@ -148,3 +148,28 @@ Finish by reporting the component/version/source revision, checks actually run,
 namespace/runtime state, and whether a release and authenticated tool verification
 succeeded. Do not equate initialization, static validation, or a preview with a
 successful release.
+
+## Find the operation before declaring it unavailable
+
+Use the provider's advertised catalog and preserve the returned callable tool
+name. Search one operation at a time when a broad query returns unrelated tools;
+follow that query's cursor when needed. A search miss is not a capability check.
+Do not invent pluralizations, suffixes, or punctuation variants of tool names.
+
+The SDK operation identities are:
+
+- `studio.sdk.connectors.tables`: bounded table inventory.
+- `studio.sdk.connectors.table`: columns and keys for one exact table (singular
+  `table`, not `columns`).
+- `studio.sdk.versions.inspect`: saved source and compiled metadata.
+- `studio.sdk.versions.create`, `studio.sdk.versions.apply`,
+  `studio.sdk.versions.validate`, `studio.sdk.versions.preview`: draft lifecycle.
+
+These are catalog search identities, not permission to assume a host exposes
+all of them. Resolve their exact callable names and input schemas. For release
+and invocation, inspect the advertised namespace/version publication operations
+and runtime endpoint; do not conclude they are absent from a page of draft tools.
+For a host-specific trusted binding, discover that host's authorization or secure
+reader skill and its usage reference. Generic predicate type discovery alone
+may not contain the complete binding recipe. Retrieve referenced business
+knowledge through the resource-management catalog when the task names it.
