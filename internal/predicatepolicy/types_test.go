@@ -5,7 +5,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/viant/datly-studio/examples/predicates"
 	"github.com/viant/datly-studio/internal/predicatepolicy"
+	"github.com/viant/datly-studio/studio/predicatecatalog"
 	"github.com/viant/datly-studio/studio/settings"
+	rangefilter "github.com/viant/datly/runtime/predicate"
+	"github.com/viant/datly/spec"
 	"github.com/viant/datly/typecatalog"
 	x "github.com/viant/x"
 	xpredicate "github.com/viant/xdatly/predicate"
@@ -68,4 +71,27 @@ func TestNamespaceSelectionAlsoFiltersConfiguredHandlers(t *testing.T) {
 	_, found, err = selected.Resolve(typecatalog.PackageAuthority, predicate.Key())
 	require.NoError(t, err)
 	require.True(t, found)
+}
+
+func TestRuntimeOnlyDateRangeSurvivesWithoutAuthorizingRows(t *testing.T) {
+	catalog, err := predicatecatalog.New(
+		predicatecatalog.Package{Path: "github.com/viant/datly/runtime/predicate", Types: []reflect.Type{reflect.TypeFor[rangefilter.DateRange](), reflect.TypeFor[rangefilter.DateRangeInput]()}, AuthorizationTypes: []string{}},
+		predicatecatalog.Package{Path: "example.com/unselected", Types: []reflect.Type{reflect.TypeFor[configuredPredicate]()}},
+	)
+	require.NoError(t, err)
+	source, err := catalog.RuntimeTypes()
+	require.NoError(t, err)
+	policy := &settings.Namespace{Security: &settings.Security{RequireSecurityPredicate: true, PredicatePackages: []string{"example.com/authorized"}}}
+	selected, err := predicatepolicy.Types(source, policy, catalog)
+	require.NoError(t, err)
+	_, found, err := selected.Resolve(typecatalog.PackageAuthority, "github.com/viant/datly/runtime/predicate.DateRange")
+	require.NoError(t, err)
+	require.True(t, found, "explicit runtime-only filter must remain compilable")
+	_, found, err = selected.Resolve(typecatalog.PackageAuthority, "example.com/unselected.configuredPredicate")
+	require.NoError(t, err)
+	require.False(t, found, "unselected authorization handlers must remain excluded")
+	require.False(t, catalog.Contains("github.com/viant/datly/runtime/predicate", "DateRange"))
+	required := true
+	spoofed := &spec.Component{Parameters: []*spec.Parameter{{Required: &required, Predicates: []*spec.Predicate{{Auth: true, Name: "handler", Args: []string{"github.com/viant/datly/runtime/predicate.DateRange"}}}}}}
+	require.Error(t, predicatepolicy.ValidateDeclarations(spoofed, policy), "date filter cannot satisfy the selected authorization package requirement")
 }

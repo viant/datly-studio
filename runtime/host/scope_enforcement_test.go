@@ -76,7 +76,7 @@ const linkedExtensionDQL = `#package('example.com/runtime/tasks')
 #setting($_ = $connector('source'))
 #setting($_ = $route('/tasks','GET'))
 #setting($_ = $mcp('tasks.list','List tasks'))
-#define($_ = $Selected<bool>(query/selected).WithTag('json:"selected"').Required().WithPredicate(0,'handler','extension.ReaderScope'))
+#define($_ = $Selected<bool>(query/selected).WithTag('json:"selected"').Required().WithAuthPredicate(0,'handler','extension.ReaderScope'))
 #define($_ = $Tasks<[]*Task>(output/view))
 SELECT tasks.*, type(tasks,'Task')
 FROM (SELECT t.id, t.project_id, t.name FROM tasks t ${predicate.Builder().CombineAnd($predicate.FilterGroup(0, "AND")).Build("WHERE")} ORDER BY t.id) tasks`

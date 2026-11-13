@@ -102,7 +102,7 @@ func Authorized(ctx context.Context, session xhandler.Session, claims *jwt.Claim
 		executionCtx = sdk.WithNamespaceSelection(executionCtx, *selection.NamespaceID)
 	}
 
-	engine := preview.Dynamic{Const: authoring.Constants(), StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, ReaderCaches: authoring.ReaderCaches(), Dependencies: authoring.Dependencies()}
+	engine := preview.Dynamic{Predicates: authoring.PredicateCatalog(), Const: authoring.Constants(), StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, ReaderCaches: authoring.ReaderCaches(), Dependencies: authoring.Dependencies()}
 	aclProvider, err := accessprovider.FromEnvironment(executionCtx)
 	if err != nil {
 		cancel()

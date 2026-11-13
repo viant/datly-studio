@@ -22,3 +22,17 @@ func TestVersionExecutionDenialDoesNotMisidentifyComponentRunGuard(t *testing.T)
 		t.Fatal("internal cause exposed")
 	}
 }
+
+func TestPublicErrorPreservesSafeAuthoringDiagnostics(t *testing.T) {
+	original := &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "private source", Diagnostics: []sdk.Diagnostic{{Code: "cube_source_not_eligible", Field: "authoredDql", Message: "Use a grouped read-only source reader."}}}
+	public := PublicError(original, "reader preview")
+	var response *xresponse.Error
+	if !errors.As(public, &response) || response.Code != 400 || !errors.Is(public, original) {
+		t.Fatalf("lost error category or identity: %v", public)
+	}
+	payload := response.Payload.(map[string]any)
+	diagnostics := payload["diagnostics"].([]sdk.Diagnostic)
+	if len(diagnostics) != 1 || diagnostics[0].Code != "cube_source_not_eligible" || strings.Contains(public.Error(), "private source") {
+		t.Fatalf("unsafe or missing diagnostic: %v", public)
+	}
+}

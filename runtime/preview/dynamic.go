@@ -32,6 +32,7 @@ import (
 	studiocodecs "github.com/viant/datly-studio/runtime/codecs"
 	studiors "github.com/viant/datly-studio/runtime/resources"
 	"github.com/viant/datly-studio/sdk"
+	"github.com/viant/datly-studio/studio/predicatecatalog"
 	"github.com/viant/datly/authoring/readerbuilder"
 	"github.com/viant/datly/bootstrap"
 	dexec "github.com/viant/datly/exec"
@@ -51,6 +52,7 @@ import (
 // Dynamic executes dynamic reader versions using Datly's runtime-contract
 // materialization. It is an SDK preview executor, not a SQL escape hatch.
 type Dynamic struct {
+	Predicates      *predicatecatalog.Catalog
 	SourceValidator sourcevalidation.Validator
 	Const           *constant.Values
 	Dependencies    DependencyResolver
@@ -337,9 +339,23 @@ func (d Dynamic) executeCube(ctx context.Context, reportID string, versionNo int
 	}
 	defer dependencies.close()
 	contexts := dependencies.Components
-	if contract.Component == nil || contract.Component.Settings == nil || contract.Component.Settings.Report == nil || !contract.Component.Settings.Report.Enabled || (!cube && (contract.Component.Settings.Report.Compose == nil || !contract.Component.Settings.Report.Compose.Enabled)) {
-		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "reader version has no enabled requested cube capability"}
+	if contract.Component == nil || contract.Component.Settings == nil || contract.Component.Settings.Report == nil || !contract.Component.Settings.Report.Enabled {
+		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "reader has no enabled cube capability", Diagnostics: []sdk.Diagnostic{{Severity: "error", Stage: "contract.cube", Field: "authoredDql", Code: "cube_not_enabled", Message: "The reader's cube setting is not enabled.", Hint: "Enable a cube on the intended grouped read-only source and validate its saved revision."}}}
 	}
+	if !cube && (contract.Component.Settings.Report.Compose == nil || !contract.Component.Settings.Report.Compose.Enabled) {
+		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "cube composition is not enabled", Diagnostics: []sdk.Diagnostic{{Severity: "error", Stage: "contract.cube", Field: "input", Code: "cube_composition_not_enabled", Message: "This reader does not enable multi-cube composition.", Hint: "To test a single cube, call studio.sdk.preview.execute with input.cube=true and the cube dimensions, measures, filters and limit in input.input. Do not enable composition merely to preview a single cube."}}}
+	}
+
+	if cube && len(report.ProjectedComponents(contract.Component)) == 0 {
+		message := "Cannot generate cube: the source has no eligible reader route."
+		if contract.Component.RootView == nil || contract.Component.RootView.Groupable == nil || !*contract.Component.RootView.Groupable {
+			message = "Cannot generate cube: the source root is not groupable."
+		} else if strings.TrimSpace(contract.Component.Settings.Mutation) != "" {
+			message = "Cannot generate cube: the source declares a mutation."
+		}
+		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Field: "authoredDql", Message: message, Diagnostics: []sdk.Diagnostic{{Stage: "contract.cube", Field: "authoredDql", Severity: "error", Code: "cube_source_not_eligible", Message: message, Hint: "Use a grouped read-only source with cube enabled. Inspect the compiled root and mutation settings; HTTP method alone does not determine reader capability. Validate the corrected draft and inspect the published tool schema."}}}
+	}
+
 	if cube {
 		for _, column := range contract.Component.RootView.Columns {
 			if column == nil || column.Groupable == nil {
@@ -1091,7 +1107,7 @@ func (d Dynamic) definition(ctx context.Context, reportID string, versionNo int)
 	if err != nil {
 		return nil, err
 	}
-	result.Types, err = predicatepolicy.Types(d.Types, result.Policy)
+	result.Types, err = predicatepolicy.Types(d.Types, result.Policy, d.Predicates)
 	if err != nil {
 		return nil, err
 	}

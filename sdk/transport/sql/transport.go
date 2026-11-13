@@ -1981,7 +1981,7 @@ func (t *Transport) runReaderBuilder(ctx context.Context, reportID string, versi
 	if err != nil {
 		return nil, err
 	}
-	types, err = predicatepolicy.Types(types, policy)
+	types, err = predicatepolicy.Types(types, policy, t.Predicates)
 	if err != nil {
 		return nil, err
 	}

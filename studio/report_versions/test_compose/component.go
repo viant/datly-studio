@@ -33,7 +33,7 @@ type Output struct {
 }
 
 type Component struct {
-	Contract xdatly.Component[Input, Output] `component:"version,path=/v1/studio/sdk/versions.test_compose,method=POST,connector=studio,handler=NewTestCompose" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.versions.test_compose\",\"description\":\"Test cube composition on an authorized exact Datly reader version\"}]" caseFormat:"lc"`
+	Contract xdatly.Component[Input, Output] `component:"version,path=/v1/studio/sdk/versions.test_compose,method=POST,connector=studio,handler=NewTestCompose" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.versions.test_compose\",\"description\":\"Test enabled multi-cube composition on an authorized exact version; for a single cube use studio.sdk.preview.execute with input.cube=true\"}]" caseFormat:"lc"`
 }
 
 var Datly = new(Component)

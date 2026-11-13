@@ -16,6 +16,7 @@ import (
 	"github.com/viant/datly-studio/internal/resourcecheck"
 	"github.com/viant/datly-studio/internal/runtimevalidation"
 	"github.com/viant/datly-studio/internal/settingstore"
+	"github.com/viant/datly-studio/studio/predicatecatalog"
 	"github.com/viant/datly-studio/studio/settings"
 	"github.com/viant/datly-studio/studio/sourcevalidation"
 	xcodec "github.com/viant/xdatly/codec"
@@ -64,6 +65,7 @@ import (
 type verifiedClaimsKey struct{}
 
 type Service struct {
+	predicates             *predicatecatalog.Catalog
 	codecs                 xcodec.Factory
 	windowExecutionProof   types.WindowTargetProof
 	metadataDefinitions    *exactDefinitionReader
@@ -113,7 +115,7 @@ func New(ctx context.Context, config Config) (*Service, error) {
 		studio.Close()
 		return nil, err
 	}
-	types, err := (studiohost.Config{PredicatePackages: config.PredicatePackages, CodecPackages: config.CodecPackages}).RuntimeTypes()
+	predicates, types, err := (studiohost.Config{PredicatePackages: config.PredicatePackages, CodecPackages: config.CodecPackages}).RuntimeCatalogs()
 	if err != nil {
 		studio.Close()
 		return nil, err
@@ -144,7 +146,7 @@ func New(ctx context.Context, config Config) (*Service, error) {
 		_ = studio.Close()
 		return nil, fmt.Errorf("runtime compiled artifact store: %w", err)
 	}
-	result := &Service{codecs: codecs, config: config, studio: studio, manager: manager, connectorStore: &activeConnectorStore{db: studio}, definitionStore: definitionStore, runAccessStore: runAccessStore, compiledArtifacts: compiledArtifacts}
+	result := &Service{predicates: predicates, codecs: codecs, config: config, studio: studio, manager: manager, connectorStore: &activeConnectorStore{db: studio}, definitionStore: definitionStore, runAccessStore: runAccessStore, compiledArtifacts: compiledArtifacts}
 	if err = result.initResourceAccess(); err != nil {
 		_ = compiledArtifacts.Close(context.Background())
 		_ = runAccessStore.Close(context.Background())
@@ -329,7 +331,7 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 	phaseStarted = time.Now()
 	pooled, err = openRuntimeConnectorSet(ctx, definitions, active, s.secrets, func(definition definition) fs.FS {
 		return loadedResources.ByVersion[studiors.Version{ReportID: definition.reportID, VersionNo: definition.versionNo}]
-	}, types, s.config.Const)
+	}, types, s.predicates, s.config.Const)
 	if err != nil {
 		return nil, err
 	}
@@ -351,7 +353,7 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 			}
 		}
 		var policyErr error
-		catalog, policyErr = predicatepolicy.Types(catalog, definition.policy)
+		catalog, policyErr = predicatepolicy.Types(catalog, definition.policy, s.predicates)
 		if policyErr != nil {
 			return contractResult{}, policyErr
 		}

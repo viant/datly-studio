@@ -114,6 +114,11 @@ empty strings select generated holders; the eighth `true` enables the cube tool.
 `$cube()` enables the cube with defaults; it does not explicitly opt into its MCP
 exposure. `$mcp(name, description, descriptionPath)` exposes the source reader.
 Use `groupable:"false"` for additive outputs and root `grouping_enabled`.
+Cube derivation uses the grouped, read-only source contract, not the source
+HTTP method. Datly generates its cube route internally; MCP consumers do not
+need a REST endpoint. A POST read-only source is supported in the corresponding
+Datly release. Declared mutations are not cube sources. Inspect the installed
+capability and actual published cube schema before claiming availability.
 Cube composition is separate and unnecessary for this single query.
 
 A to-one dictionary must have a unique full key. Preserve the fact ID and use a

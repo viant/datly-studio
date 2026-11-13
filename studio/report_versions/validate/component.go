@@ -164,7 +164,7 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 		if err != nil {
 			return err
 		}
-		if validateErr := (preview.Dynamic{StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, Const: authoring.Constants(), ReaderCaches: authoring.ReaderCaches(), SourceValidator: authoring.SourceValidator(), Dependencies: authoring.Dependencies()}).Validate(validationCtx, input.ReportID, input.VersionNo); validateErr != nil {
+		if validateErr := (preview.Dynamic{Predicates: authoring.PredicateCatalog(), StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, Const: authoring.Constants(), ReaderCaches: authoring.ReaderCaches(), SourceValidator: authoring.SourceValidator(), Dependencies: authoring.Dependencies()}).Validate(validationCtx, input.ReportID, input.VersionNo); validateErr != nil {
 			valid = false
 			diagnostics = append(diagnostics, runtimevalidation.Diagnostics(validateErr)...)
 		}

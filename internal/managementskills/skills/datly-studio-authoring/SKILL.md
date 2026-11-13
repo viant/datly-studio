@@ -11,6 +11,17 @@ validated component and, when requested, a live namespace tool. Discover actual
 tool schemas before calling them; this skill does not grant permission to publish,
 change namespace configuration, access new data, or execute expensive queries.
 
+For a **single cube**, use `studio.sdk.preview.execute` with `input.cube:true`
+and the cube's dimensions, measures, filters and limit in `input.input`.
+`versions.test_compose` is for separately enabled multi-cube composition, not a
+single-cube test. Do not enable composition just to test a cube.
+
+After publication, discover and invoke through `studio.sdk.catalog.tools.list`
+and `studio.sdk.catalog.tools.call` with the namespace ID. Host-wide tool search
+may not include a newly published namespace. Saved cube-configuration listings
+are not the live tool catalog and an empty configuration list does not establish
+that a derived cube is absent.
+
 ## Required authoring sequence
 
 For a reader request described in natural language rather than supplied DQL, read

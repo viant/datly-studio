@@ -1,6 +1,7 @@
 package predicatepolicy
 
 import (
+	"github.com/viant/datly-studio/studio/predicatecatalog"
 	"github.com/viant/datly-studio/studio/settings"
 	"github.com/viant/datly/typecatalog"
 	x "github.com/viant/x"
@@ -8,9 +9,11 @@ import (
 	"reflect"
 )
 
-// Types removes unselected external handlers while retaining codecs,
-// dependency shapes and Studio's own authorization types.
-func Types(source *typecatalog.Catalog, policy *settings.Namespace) (*typecatalog.Catalog, error) {
+// Types removes unselected external authorization handlers while retaining
+// explicitly runtime-only host types, codecs, dependency shapes and Studio's
+// own authorization types. Without host classification, unknown handlers retain
+// the conservative namespace-selection requirement.
+func Types(source *typecatalog.Catalog, policy *settings.Namespace, catalogs ...*predicatecatalog.Catalog) (*typecatalog.Catalog, error) {
 	if source == nil {
 		source = typecatalog.NewCatalog()
 	}
@@ -27,11 +30,12 @@ func Types(source *typecatalog.Catalog, policy *settings.Namespace) (*typecatalo
 	}
 	var failure error
 	registry.ForEach(func(_ string, typ *x.Type) bool {
+		runtimeOnly := len(catalogs) > 0 && catalogs[0].RuntimeOnly(typ.PkgPath, typ.Name)
 		rt := typ.Type
 		for rt != nil && rt.Kind() == reflect.Pointer {
 			rt = rt.Elem()
 		}
-		if rt != nil && rt.Kind() != reflect.Interface && (reflect.PointerTo(rt).Implements(reflect.TypeFor[xpredicate.Handler]()) || reflect.PointerTo(rt).Implements(reflect.TypeFor[xpredicate.VariadicHandler]())) && !allowed[typ.PkgPath] {
+		if rt != nil && rt.Kind() != reflect.Interface && (reflect.PointerTo(rt).Implements(reflect.TypeFor[xpredicate.Handler]()) || reflect.PointerTo(rt).Implements(reflect.TypeFor[xpredicate.VariadicHandler]())) && !allowed[typ.PkgPath] && !runtimeOnly {
 			return true
 		}
 		failure = result.Register(typecatalog.TypeOriginPackage, typ)

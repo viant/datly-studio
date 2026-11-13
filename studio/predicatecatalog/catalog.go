@@ -37,8 +37,9 @@ type Descriptor struct {
 }
 
 type Catalog struct {
-	entries map[string]Descriptor
-	types   *typecatalog.Catalog
+	entries     map[string]Descriptor
+	runtimeOnly map[string]bool
+	types       *typecatalog.Catalog
 }
 
 // RuntimeTypes returns detached package authority retaining executable Go types.
@@ -50,7 +51,7 @@ func (c *Catalog) RuntimeTypes() (*typecatalog.Catalog, error) {
 }
 
 func New(packages ...Package) (*Catalog, error) {
-	result := &Catalog{entries: map[string]Descriptor{}, types: typecatalog.NewCatalog()}
+	result := &Catalog{entries: map[string]Descriptor{}, runtimeOnly: map[string]bool{}, types: typecatalog.NewCatalog()}
 	for _, pkg := range packages {
 		path := strings.TrimSpace(pkg.Path)
 		if path == "" {
@@ -89,6 +90,8 @@ func New(packages ...Package) (*Catalog, error) {
 			if authorizationTypes == nil || authorizationTypes[typ.Name()] {
 				result.entries[key] = Descriptor{Alias: alias, Package: path, TypeName: typ.Name(), Description: description(typ)}
 				delete(authorizationTypes, typ.Name())
+			} else {
+				result.runtimeOnly[key] = true
 			}
 			if err := result.types.Register(typecatalog.TypeOriginPackage, x.NewType(typ, x.WithPkgPath(path))); err != nil {
 				return nil, err
@@ -156,4 +159,10 @@ func description(typ reflect.Type) string {
 		return ""
 	}
 	return strings.TrimSpace(reflect.New(typ).Interface().(Describer).Description())
+}
+
+// RuntimeOnly identifies types explicitly retained outside the governed
+// authorization catalog by the host's AuthorizationTypes declaration.
+func (c *Catalog) RuntimeOnly(packagePath, typeName string) bool {
+	return c != nil && c.runtimeOnly[packagePath+"#"+typeName]
 }

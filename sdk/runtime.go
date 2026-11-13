@@ -18,7 +18,7 @@ const (
 
 type PreviewInput struct {
 	// Cube invokes the derived typed cube instead of the ordinary reader.
-	Cube  bool            `json:"cube,omitempty"`
+	Cube  bool            `json:"cube,omitempty" description:"Preview the derived single cube. Put dimensions, measures, filters and limit inside input; this does not invoke multi-cube composition."`
 	Input json.RawMessage `json:"input,omitempty"`
 	Limit int             `json:"limit,omitempty"`
 }

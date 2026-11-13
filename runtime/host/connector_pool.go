@@ -10,6 +10,7 @@ import (
 	"github.com/viant/datly-studio/internal/connectorinit"
 	"github.com/viant/datly-studio/internal/connectorsecret"
 	"github.com/viant/datly-studio/internal/predicatepolicy"
+	"github.com/viant/datly-studio/studio/predicatecatalog"
 	"github.com/viant/datly/authoring/readerbuilder"
 	"github.com/viant/datly/bootstrap/connector"
 	"github.com/viant/datly/constant"
@@ -46,7 +47,7 @@ func (p *runtimeConnectorSet) sources(ctx context.Context, name string) (*runtim
 	}
 	return &runtimeSources{sql: sqlComponent, connections: p.connections}, nil
 }
-func openRuntimeConnectorSet(ctx context.Context, definitions []definition, active map[string]connectorDefinition, resolver connectorsecret.Resolver, resources func(definition) fs.FS, types *typecatalog.Catalog, constants ...*constant.Values) (*runtimeConnectorSet, error) {
+func openRuntimeConnectorSet(ctx context.Context, definitions []definition, active map[string]connectorDefinition, resolver connectorsecret.Resolver, resources func(definition) fs.FS, types *typecatalog.Catalog, predicates *predicatecatalog.Catalog, constants ...*constant.Values) (*runtimeConnectorSet, error) {
 	var instance *constant.Values
 	if len(constants) > 0 {
 		instance = constants[0]
@@ -62,7 +63,7 @@ func openRuntimeConnectorSet(ctx context.Context, definitions []definition, acti
 		if resources != nil {
 			resourceFS = resources(definition)
 		}
-		catalog, err := predicatepolicy.Types(types, definition.policy)
+		catalog, err := predicatepolicy.Types(types, definition.policy, predicates)
 		if err != nil {
 			return nil, err
 		}

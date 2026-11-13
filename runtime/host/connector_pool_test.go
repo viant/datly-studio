@@ -23,7 +23,7 @@ func TestNamespaceReadersShareNativeConnectorPool(t *testing.T) {
 		definitions[i] = definition{reportID: fmt.Sprintf("reader-%d", i), scope: "example.com/reports", name: "reader", connector: "main", dql: "#setting($_ = $route('/records', 'GET'))\nSELECT * FROM records"}
 	}
 	active := map[string]connectorDefinition{"main": {name: "main", driver: "sqlite", dsn: "file:" + filepath.Join(t.TempDir(), "shared.db")}, "unused": {name: "unused", driver: "missing-driver", dsn: "must-not-open"}}
-	pool, err := openRuntimeConnectorSet(ctx, definitions, active, nil, nil, nil)
+	pool, err := openRuntimeConnectorSet(ctx, definitions, active, nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -62,7 +62,7 @@ func TestFailedCandidateDoesNotCloseActiveGenerationPool(t *testing.T) {
 	ctx := context.Background()
 	definitions := []definition{{reportID: "reader", connector: "main", dql: "#setting($_ = $route('/records', 'GET'))\nSELECT * FROM records"}}
 	active := map[string]connectorDefinition{"main": {name: "main", driver: "sqlite", dsn: "file:" + filepath.Join(t.TempDir(), "shared.db")}}
-	pool, err := openRuntimeConnectorSet(ctx, definitions, active, nil, nil, nil)
+	pool, err := openRuntimeConnectorSet(ctx, definitions, active, nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -73,7 +73,7 @@ func TestFailedCandidateDoesNotCloseActiveGenerationPool(t *testing.T) {
 	}
 	candidate := active["main"]
 	candidate.options = []byte(`{"sqliteAttachments":{"bad-name":"missing.db"}}`)
-	if rejected, err := openRuntimeConnectorSet(ctx, definitions, map[string]connectorDefinition{"main": candidate}, nil, nil, nil); err == nil || rejected != nil {
+	if rejected, err := openRuntimeConnectorSet(ctx, definitions, map[string]connectorDefinition{"main": candidate}, nil, nil, nil, nil); err == nil || rejected != nil {
 		t.Fatal("invalid candidate configuration was accepted")
 	}
 	if err = reader.sql.DB.PingContext(ctx); err != nil {
@@ -110,7 +110,7 @@ SELECT records.*, use_connector(records, 'main') FROM (SELECT id FROM records) r
 				"lookup": {name: "lookup", driver: "sqlite", dsn: "file:" + filepath.Join(t.TempDir(), "lookup.db")},
 				"unused": {name: "unused", driver: "missing-driver", dsn: "must-not-open"},
 			}
-			pool, err := openRuntimeConnectorSet(ctx, []definition{reader}, active, nil, resourceFS, nil)
+			pool, err := openRuntimeConnectorSet(ctx, []definition{reader}, active, nil, resourceFS, nil, nil)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -122,7 +122,7 @@ SELECT records.*, use_connector(records, 'main') FROM (SELECT id FROM records) r
 				t.Fatal(err)
 			}
 			delete(active, "lookup")
-			if candidate, err := openRuntimeConnectorSet(ctx, []definition{reader}, active, nil, resourceFS, nil); err == nil || candidate != nil {
+			if candidate, err := openRuntimeConnectorSet(ctx, []definition{reader}, active, nil, resourceFS, nil, nil); err == nil || candidate != nil {
 				t.Fatal("missing explicitly declared input-view connector was accepted")
 			}
 		})
@@ -155,7 +155,7 @@ SELECT records.*, use_connector(records,'main') FROM (${embed:sql/records.sql}) 
 		t.Fatalf("linked connector identity closure=%v err=%v", names, err)
 	}
 	active := map[string]connectorDefinition{"main": {name: "main", driver: "sqlite", dsn: "file:" + filepath.Join(t.TempDir(), "main.db")}, "lookup": {name: "lookup", driver: "sqlite", dsn: "file:" + filepath.Join(t.TempDir(), "lookup.db")}}
-	pool, err := openRuntimeConnectorSet(ctx, []definition{reader}, active, nil, resourceFS, catalog)
+	pool, err := openRuntimeConnectorSet(ctx, []definition{reader}, active, nil, resourceFS, catalog, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -163,7 +163,7 @@ SELECT records.*, use_connector(records,'main') FROM (${embed:sql/records.sql}) 
 	if len(pool.connections) != 2 || pool.connections["lookup"] == nil {
 		t.Fatalf("typed embedded independent connector omitted: %v", pool.connections)
 	}
-	if rejected, err := openRuntimeConnectorSet(ctx, []definition{reader}, active, nil, resourceFS, nil); err == nil || rejected != nil {
+	if rejected, err := openRuntimeConnectorSet(ctx, []definition{reader}, active, nil, resourceFS, nil, nil); err == nil || rejected != nil {
 		t.Fatal("missing type authority accepted incomplete connector closure")
 	}
 	if _, err := referencedRuntimeConnectors(ctx, reader, available, nil, catalog, nil); err == nil {

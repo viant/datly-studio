@@ -385,6 +385,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) (result
 		return err
 	}
 	dynamicPreview.Types = types
+	dynamicPreview.Predicates = predicates
 
 	runtimeAdmin := options.RuntimeControl
 	if runtimeAdmin == nil {
