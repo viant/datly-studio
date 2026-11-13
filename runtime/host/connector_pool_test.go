@@ -14,6 +14,8 @@ import (
 	"github.com/viant/datly-studio/studio/predicatecatalog"
 	"github.com/viant/datly-studio/studio/predicatecatalog/testdata/extension"
 	"github.com/viant/datly-studio/studio/settings"
+	"github.com/viant/datly/transcribe"
+	"github.com/viant/datly/transcribe/column"
 )
 
 func TestNamespaceReadersShareNativeConnectorPool(t *testing.T) {
@@ -171,5 +173,44 @@ SELECT records.*, use_connector(records,'main') FROM (${embed:sql/records.sql}) 
 	}
 	if err := pool.connections["lookup"].PingContext(ctx); err != nil {
 		t.Fatalf("failed inspection closed active generation pool: %v", err)
+	}
+}
+
+func TestAuthoredDefaultConnectorIsIncludedInRuntimeClosure(t *testing.T) {
+	ctx := t.Context()
+	reader := definition{reportID: "reader", scope: "example.com/reports", name: "reader", connector: "main", dql: `#package('example.com/reports')
+#setting($_ = $connector('warehouse'))
+#setting($_ = $route('/records','GET'))
+#define($_ = $Rows<[]*Row>(output/view))
+SELECT records.*,type(records,'Row') FROM (SELECT id FROM records) records`}
+	names, err := referencedRuntimeConnectors(ctx, reader, []string{"main", "warehouse", "unused"}, nil, nil, nil)
+	if err != nil || !reflect.DeepEqual(names, []string{"main", "warehouse"}) {
+		t.Fatalf("authored default connector closure=%v error=%v", names, err)
+	}
+	active := map[string]connectorDefinition{
+		"main":      {name: "main", driver: "sqlite", dsn: "file:" + filepath.Join(t.TempDir(), "main.db")},
+		"warehouse": {name: "warehouse", driver: "sqlite", dsn: "file:" + filepath.Join(t.TempDir(), "warehouse.db")},
+		"unused":    {name: "unused", driver: "missing-driver", dsn: "must-not-open"},
+	}
+	pool, err := openRuntimeConnectorSet(ctx, []definition{reader}, active, nil, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer pool.Close()
+	if len(pool.connections) != 2 || pool.connections["warehouse"] == nil {
+		t.Fatalf("missing authored default pool: %v", pool.connections)
+	}
+	if _, err := pool.connections["warehouse"].ExecContext(ctx, "CREATE TABLE records(id INTEGER PRIMARY KEY)"); err != nil {
+		t.Fatal(err)
+	}
+	// Only the authored connector has this table. Exercise the same native
+	// column-discovery boundary that failed during publication.
+	_, err = transcribe.NewCompiler().RuntimeContractsInModule(ctx, "example.com", &transcribe.Source{Scope: reader.scope, Name: reader.name, Text: reader.dql, Connector: reader.connector, ColumnRefiner: column.New(pool.connections)})
+	if err != nil {
+		t.Fatalf("native publication contract failed: %v", err)
+	}
+	delete(active, "warehouse")
+	if missing, err := openRuntimeConnectorSet(ctx, []definition{reader}, active, nil, nil, nil, nil); err == nil || missing != nil {
+		t.Fatal("missing authored default accepted")
 	}
 }

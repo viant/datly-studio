@@ -136,6 +136,13 @@ func referencedRuntimeConnectors(ctx context.Context, definition definition, ava
 		// Independent input views retain their connector in the native component
 		// graph rather than an outer use_connector function.
 		if component := inspection.Structure.Component; component != nil {
+			// The authored default can override the component record's fallback.
+			// Native transcription uses this setting even without use_connector.
+			if component.Settings != nil {
+				if name := strings.TrimSpace(component.Settings.DefaultConnector); name != "" {
+					required[name] = true
+				}
+			}
 			views := append([]*spec.View{component.RootView}, component.Views...)
 			seen := map[*spec.View]bool{}
 			for len(views) > 0 {

@@ -39,6 +39,36 @@ Use their actual schemas, including catalog and schema inputs. Discover how
 the connected product maps its namespaces instead of assuming a fixed layout. Configured lookup lists are editable
 choices, not hard restrictions or proof that no other qualified SQL can work.
 
+### Connector identity through validation and publication
+
+Keep the component's stored default connector, the authored DQL default and any
+per-view overrides consistent with the intended graph. An authored default is
+an execution dependency even when no outer `use_connector` annotation appears:
+
+```sql
+#setting($_ = $connector('warehouse'))
+```
+
+A dictionary on a separate connection declares its override in the outer graph:
+
+```sql
+use_connector(product, 'dictionary')
+```
+
+These are annotation fragments; see [the complete graph example](worked-example.md).
+Both referenced connectors must be active and resolvable at validation, preview
+and publication. The native runtime must include the parsed authored default and
+per-view connectors in its dependency set; authors need not repeat the default
+on every view to compensate for a runtime omission.
+
+A successful preview does not prove publication activation. If preview succeeds
+but Release reports a missing connector, inspect the exact saved revision,
+component default, authored settings and runtime diagnostic. Preserve the actual
+missing-connector cause and report the phase. Do not change permissions, remove
+a required predicate, substitute an unrelated connector or repeatedly publish
+unchanged source to hide the failure. Read back desired/active versions and
+generations; invoke the published tool only after activation is established.
+
 Obtain the source catalog/project and schema/dataset from the user or an explicit
 configured scope before listing tables. Ask for missing scope instead of scanning
 every catalog. Use bounded table pages. When `nextPageToken` is returned, pass it
