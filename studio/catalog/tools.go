@@ -21,6 +21,7 @@ import (
 	"github.com/viant/scy/auth/jwt"
 	"github.com/viant/xdatly"
 	xhandler "github.com/viant/xdatly/handler"
+	xresponse "github.com/viant/xdatly/response"
 )
 
 type ToolListInput struct {
@@ -83,7 +84,10 @@ func NewToolCall() xhandler.Contract[ToolCallInput, ToolCallOutput] {
 
 func toolRuntime(ctx context.Context, session xhandler.Session, claims *jwt.Claims, auth *studioauth.Output, id string) (*runtimeadmin.Client, string, error) {
 	if namespaceaccess.ValidateResourceOwnership(id, "") != nil {
-		return nil, "", fail(400, "canonical namespaceId is required")
+		return nil, "", &xresponse.Error{Code: 400, Payload: map[string]any{
+			"code": "invalid_namespace_id", "message": "canonical namespaceId is required", "field": "namespaceId",
+			"hint": "Use the canonical namespaceId returned by namespace discovery; the namespace name is not an ID.",
+		}, Cause: errors.New("canonical namespaceId is required")}
 	}
 	row, err := visible(ctx, session, claims, auth, id)
 	if err != nil {
