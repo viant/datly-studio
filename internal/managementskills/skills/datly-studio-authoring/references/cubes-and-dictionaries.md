@@ -41,6 +41,20 @@ unknown roles must not silently become dimensions. Keep grouping_enabled on the
 root view. Inspect the resulting canonical DQL/settings rather than guessing the
 argument order of a cube directive or injecting an unregistered report facade.
 
+A settings operation may admit fewer source shapes than the native reader/cube
+runtime. If it reports that the main view must be one simple grouped SELECT
+without HAVING or joins, preserve the saved revision and record that exact
+operation's diagnostic. Do not delete aggregate thresholds, ownership joins or
+other required semantics merely to satisfy the settings editor. Inspect the
+installed canonical source-authoring contract and its supported cube settings;
+use the existing management source operation only when that native contract is
+established. Validate the exact saved revision and execute distinguishing
+full-grain, reduced-grain and threshold tests before concluding that it works.
+Do not guess directive arguments, disable validation, or label the entire cube
+capability unsupported based solely on a settings-operation rejection. If the
+native contract also rejects the required shape, report that precise gap and
+leave the draft unpublished.
+
 Enable cube MCP exposure when an agent must invoke the cube, and component MCP
 exposure when the source reader should also be callable. Composition is optional;
 enable it only for multiple typed query frames, with explicit limits and timeout.
