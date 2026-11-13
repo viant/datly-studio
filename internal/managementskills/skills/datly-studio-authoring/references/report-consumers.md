@@ -49,6 +49,15 @@ Verify them through their intended public producer or an authorized management
 validation path. For public tools, confirm authenticated runtime discovery and
 execution; a successful management save is not runtime evidence.
 
+Resolve the requested namespace name through namespace discovery; do not require
+the user to know its opaque identifier. Discover the published component's exact
+tool name and input contract in that namespace. If it is absent from the host's
+direct tool catalog, an existing authorized management catalog/call gateway can
+verify the published tool. Do not substitute a similarly named tool from another
+namespace, confuse a draft preview with publication, or add a new connection or
+schema API solely to perform that verification. Direct consumer registration and
+its permissions are a separate deployment concern.
+
 Supply the consumer with actual argument names/types, approved defaults and
 choice domains, response path/shape, row grain, pagination/completeness limits
 and verified calculation semantics. Include a bounded executed example and its
